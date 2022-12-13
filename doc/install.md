@@ -4,7 +4,7 @@ This is a very basic guide with limited detail, contributions welcomed
 
 Install
 -------
-Install PostgreSQL, Redis and Python if not yet
+Install PostgreSQL(version up to 14 suggested), Redis Stack Server and Python if not yet
 
 Setup database
 ```
@@ -47,7 +47,7 @@ python3 manage.py collectstatic
 
 Start services
 --------------
-Make sure PostgreSQL and Redis are running
+Make sure PostgreSQL and Redis Stack Server are running
 
 Start job queue server
 ```
