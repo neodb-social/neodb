@@ -110,9 +110,9 @@ if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DB_NAME', 'test'),
-            'USER': os.environ.get('DB_USER', 'postgres'),
-            'PASSWORD': os.environ.get('DB_PASSWORD', 'admin123'),
+            'NAME': os.environ.get('DB_NAME', 'neodb'),
+            'USER': os.environ.get('DB_USER', 'neodb'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'abadface'),
             'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
             'OPTIONS': {
                 'client_encoding': 'UTF8',
