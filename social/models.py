@@ -134,8 +134,12 @@ class DefaultActivityProcessor:
         ).first()
         if not activity:
             self.created()
-        elif activity.visibility != self.action_object.visibility:
+        elif (
+            activity.visibility != self.action_object.visibility
+            or activity.created_time != activity.action_object.created_time
+        ):
             activity.visibility = self.action_object.visibility
+            activity.created_time = activity.action_object.created_time
             activity.save()
 
 

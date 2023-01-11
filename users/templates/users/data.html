@@ -96,7 +96,7 @@
                                         <form action="{% url 'users:import_goodreads' %}" method="POST" >
                                             {% csrf_token %}
                                             <div class="import-panel__checkbox">输入Goodreads链接
-                                            <input type="url" name="url" value="" placeholder="例如 https://www.goodreads.com/user/show/12345-janedoe">
+                                            <input type="url" name="url" value="" placeholder="例如 https://www.goodreads.com/user/show/12345-janedoe" required>
                                             <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn" />
                                             </div>
                                             <div>

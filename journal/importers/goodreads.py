@@ -30,7 +30,7 @@ class GoodreadsImporter:
         match_shelf = re.match(re_shelf, raw_url)
         match_profile = re.match(re_profile, raw_url)
         if match_profile or match_shelf or match_list:
-            django_rq.get_queue("doufen").enqueue(
+            django_rq.get_queue("import").enqueue(
                 cls.import_from_url_task, raw_url, user
             )
             return True
@@ -142,6 +142,20 @@ class GoodreadsImporter:
                 )
                 review = ""
                 last_updated = None
+                date_elem = cell.xpath(".//td[@class='field date_added']//span/text()")
+                for d in date_elem:
+                    date_matched = re.search(r"(\w+)\s+(\d+),\s+(\d+)", d)
+                    if date_matched:
+                        last_updated = make_aware(
+                            datetime.strptime(
+                                date_matched[1]
+                                + " "
+                                + date_matched[2]
+                                + " "
+                                + date_matched[3],
+                                "%b %d %Y",
+                            )
+                        )
                 try:
                     c2 = BasicDownloader(url_shelf).download().html()
                     review_elem = c2.xpath("//div[@itemprop='reviewBody']/text()")

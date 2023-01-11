@@ -15,6 +15,7 @@
                 <a href="{% url 'journal:user_profile' user.mastodon_username %}">
                     <h5 class="user-profile__username mast-displayname">{{ user.mastodon_account.display_name }}</h5>
                 </a>
+                <!-- {{ user.id }} -->
             </div>
             <p><a class="user-profile__link mast-acct" target="_blank" href="{{ user.mastodon_account.url }}">@{{ user.username }}@{{ user.mastodon_site }}</a>
                 {% current_user_relationship user as relationship %}
