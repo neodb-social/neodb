@@ -10,7 +10,12 @@ django-user-messages
 django-slack
 django-ninja
 django-polymorphic
+<<<<<<< HEAD
 django-maintenance-mode
+=======
+django-debug-toolbar
+django-tz-detect
+>>>>>>> 1a1c053 (user may change mark date)
 meilisearch
 easy-thumbnails
 lxml

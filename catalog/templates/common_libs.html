@@ -1,4 +1,6 @@
 {% load static %}
+{% load tz_detect %}
+{% tz_detect %}
 {% if sentry_dsn %}
 <script src="https://browser.sentry-cdn.com/7.7.0/bundle.min.js"></script>
 <script>

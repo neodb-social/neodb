@@ -92,7 +92,7 @@
           </svg></span>
           {% endif %}
           <span class="entity-marks__mark-time" style="float:right;">
-            {% trans '标记于' %} {{ member.created_time }}
+            {% trans '标记于' %} {{ member.created_time|date }}
           </span>
           <p class="entity-marks__mark-content">&nbsp;
           {% if mark.text %}
@@ -103,7 +103,7 @@
         {% if mark.review %}
         <li class="entity-marks__mark">
           <span class="entity-marks__mark-time" style="float:right;">
-            {% trans '评论于' %} {{ mark.review.created_time }}
+            {% trans '评论于' %} {{ mark.review.created_time|date }}
           </span>
           <p class="entity-marks__mark-content">
             <a href="{{ mark.review.url }}">{{ mark.review.title }}</a>

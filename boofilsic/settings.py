@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "django_sass",
     "django_rq",
+    "tz_detect",
     "simple_history",
     "markdownx",
     "polymorphic",
@@ -78,6 +79,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
+    "tz_detect.middleware.TimezoneMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
     "maintenance_mode.middleware.MaintenanceModeMiddleware",  # this should be last
 ]

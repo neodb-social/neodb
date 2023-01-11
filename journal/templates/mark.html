@@ -51,7 +51,7 @@
       </div>
 
       <div class="mark-modal__share-checkbox float-right">
-        <input type="checkbox" name="share_to_mastodon" id="id_share_to_mastodon" value="1" checked>分享到联邦网络
+        <label for="id_share_to_mastodon"><input type="checkbox" name="share_to_mastodon" id="id_share_to_mastodon" value="1" checked>分享到联邦网络</label>
       </div>
 
       <div class="mark-modal__option">
@@ -64,11 +64,20 @@
             </ul>
           </span>
         </div>
-
       </div>
+
       <div class="mark-modal__confirm-button">
         <input type="submit" class="button float-right" value="保存">
       </div>
+      <div class="mark-modal__option">
+        <div class="mark-modal__visibility-radio">
+          <span>更改标记日期:
+            <label for="mark_anotherday"><input type="checkbox" name="mark_anotherday" value="1" id="mark_anotherday"> </label>
+            <input type="date" name="mark_date" id="mark_date" min="1900-01-01" max="{{date_today}}" value="{{date_today}}" style="display: none;">
+          </span>
+        </div>
+      </div>
+
     </form>
   </div>
   <script>
@@ -80,7 +89,7 @@
         duplicateTime: 300,
         onTagRemove : function (tag) {},
       });
-    // editable rating star in modal
+      // editable rating star in modal
       ratingLabels = $("#modal .rating-star-edit");
       $(ratingLabels).each( function(index, value) {
         let ratingScore = $("input[type='hidden'][name='rating']").val() / 2;
@@ -97,7 +106,16 @@
         });
       });
 
-    // hide rating star when select wish
+      //show date picker if mark yesterday
+      $("#modal #mark_anotherday").on('click', function(e) {
+        if ($("#modal #mark_anotherday:checked").val() == '1') {
+          $("#modal #mark_date").show()
+        } else {
+          $("#modal #mark_date").hide()
+        }
+      });
+
+      // hide rating star when select wish
       const WISH_CODE = "wishlist";
       if ($("#statusSelection input[type='radio']:checked").val() == WISH_CODE) {
         $("#modal .rating-star-edit").hide();

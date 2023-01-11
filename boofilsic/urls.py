@@ -30,6 +30,7 @@ urlpatterns = [
     path("hijack/", include("hijack.urls")),
     path("", include("common.urls")),
     path("", include("legacy.urls")),
+    path("tz_detect/", include("tz_detect.urls")),
 ]
 
 urlpatterns += [path(settings.ADMIN_URL + "-rq/", include("django_rq.urls"))]

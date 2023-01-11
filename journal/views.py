@@ -11,6 +11,7 @@ from django.http import (
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models import Count
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.core.paginator import Paginator
 from .models import *
 from django.conf import settings
@@ -126,6 +127,7 @@ def mark(request, item_uuid):
                 "shelf_type": shelf_type,
                 "tags": ",".join(tags),
                 "shelf_types": shelf_types,
+                "date_today": timezone.localdate().isoformat(),
             },
         )
     elif request.method == "POST":
@@ -143,6 +145,13 @@ def mark(request, item_uuid):
             share_to_mastodon = bool(
                 request.POST.get("share_to_mastodon", default=False)
             )
+            mark_date = None
+            if request.POST.get("mark_anotherday"):
+                mark_date = timezone.get_current_timezone().localize(
+                    parse_datetime(request.POST.get("mark_date") + " 20:00:00")
+                )
+                if mark_date and mark_date >= timezone.now():
+                    mark_date = None
             TagManager.tag_item_by_user(item, request.user, tags, visibility)
             try:
                 mark.update(
@@ -151,6 +160,7 @@ def mark(request, item_uuid):
                     rating,
                     visibility,
                     share_to_mastodon=share_to_mastodon,
+                    created_time=mark_date,
                 )
             except Exception as e:
                 _logger.warn(f"post to mastodon error {e}")

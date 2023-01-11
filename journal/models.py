@@ -514,15 +514,22 @@ class ShelfLogEntry(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
     shelf_type = models.CharField(choices=ShelfType.choices, max_length=100, null=True)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
-    timestamp = models.DateTimeField(
-        default=timezone.now
-    )  # this may later be changed by user
+    timestamp = models.DateTimeField()  # this may later be changed by user
     metadata = models.JSONField(default=dict)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.owner}:{self.shelf}:{self.item}:{self.metadata}"
+
+    @property
+    def action_label(self):
+        if self.shelf:
+            return ShelfManager.get_action_label(
+                self.shelf.shelf_type, self.item.category
+            )
+        else:
+            return _("移除标记")
 
 
 class ShelfManager:
@@ -584,11 +591,15 @@ class ShelfManager:
         if changed:
             if metadata is None:
                 metadata = last_metadata or {}
+            log_time = (
+                new_shelfmember.created_time if new_shelfmember else timezone.now()
+            )
             ShelfLogEntry.objects.create(
                 owner=self.owner,
                 shelf_type=shelf_type,
                 item=item,
                 metadata=metadata,
+                timestamp=log_time,
             )
         return new_shelfmember
 
@@ -614,7 +625,8 @@ class ShelfManager:
     #     )
     #     return shelf.members.all().order_by
 
-    def get_action_label(self, shelf_type, item_category):
+    @classmethod
+    def get_action_label(cls, shelf_type, item_category):
         sts = [
             n[2] for n in ShelfTypeNames if n[0] == item_category and n[1] == shelf_type
         ]
@@ -908,13 +920,30 @@ class Mark:
                 or rating_grade != self.rating
             )
         )
+        share_as_new_post = shelf_type != self.shelf_type
         if shelf_type != self.shelf_type or visibility != self.visibility:
             self.shelfmember = self.owner.shelf_manager.move_item(
                 self.item, shelf_type, visibility=visibility, metadata=metadata
             )
-            if self.shelfmember and created_time:
-                self.shelfmember.created_time = created_time
-                self.shelfmember.save()
+        if self.shelfmember and created_time:
+            log = ShelfLogEntry.objects.filter(
+                owner=self.owner,
+                item=self.item,
+                created_time=self.shelfmember.created_time,
+            )
+            self.shelfmember.created_time = created_time
+            self.shelfmember.save(update_fields=["created_time"])
+            if log:
+                log.timestamp = created_time
+                log.save(update_fields=["timestamp"])
+            else:
+                ShelfLogEntry.objects.create(
+                    owner=self.owner,
+                    shelf=self.shelf,
+                    item=self.item,
+                    metadata=self.metadata,
+                    timestamp=created_time,
+                )
         if comment_text != self.text or visibility != self.visibility:
             self.comment = Comment.comment_item_by_user(
                 self.item, self.owner, comment_text, visibility
@@ -929,7 +958,7 @@ class Mark:
 
             self.shared_link = (
                 self.shelfmember.metadata.get("shared_link")
-                if self.shelfmember.metadata
+                if self.shelfmember.metadata and not share_as_new_post
                 else None
             )
             self.translated_status = self.action_label
@@ -941,9 +970,20 @@ class Mark:
             if self.shelfmember.metadata.get("shared_link") != self.shared_link:
                 self.shelfmember.metadata["shared_link"] = self.shared_link
                 self.shelfmember.save()
+        elif share_as_new_post and self.shelfmember:
+            if not self.shelfmember.metadata:
+                self.shelfmember.metadata = {}
+            self.shelfmember.metadata["shared_link"] = None
+            self.shelfmember.save()
 
     def delete(self):
         self.update(None, None, None, 0)
+
+    @property
+    def logs(self):
+        return ShelfLogEntry.objects.filter(owner=self.owner, item=self.item).order_by(
+            "timestamp"
+        )
 
 
 def reset_visibility_for_user(user: User, visibility: int):

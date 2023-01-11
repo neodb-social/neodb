@@ -139,9 +139,9 @@
                     {% endif %}
 
                     {% if others_mark.shelfmember.metadata.shared_link %}
-                    <a href="{{ others_mark.shelfmember.metadata.shared_link }}" target="_blank"><span class="entity-marks__mark-time">{{ others_mark.created_time }}</span></a>
+                    <a href="{{ others_mark.shelfmember.metadata.shared_link }}" target="_blank"><span class="entity-marks__mark-time">{{ others_mark.created_time | date }}</span></a>
                     {% else %}
-                    <span class="entity-marks__mark-time">{{ others_mark.created_time }}</span>
+                    <span class="entity-marks__mark-time">{{ others_mark.created_time | date }}</span>
                     {% endif %}
 
                     {% if others_mark.text %}
@@ -205,10 +205,15 @@
                 <div class="mark-panel__clear"></div>
 
                 <div class="mark-panel__time">
+                 <!--  <div>
+                    {% for log in mark.logs %}
+                    {{ log.timestamp|date }} {{ log.action_label }}<br>
+                    {% endfor %}
+                  </div> -->
                 {% if mark.metadata.shared_link %}
-                <a href="{{ mark.metadata.shared_link }}">{{ mark.created_time }}</a>
+                <a href="{{ mark.metadata.shared_link }}">{{ mark.created_time|date }}</a>
                 {% else %}
-                {{ mark.created_time }}
+                {{ mark.created_time|date }}
                 {% endif %}
                 </div>
 
