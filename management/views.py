@@ -16,41 +16,39 @@ decorators = [login_required, user_passes_test(lambda u: u.is_superuser)]
 
 class AnnouncementDetailView(DetailView, ModelFormMixin):
     model = Announcement
-    fields = ['content']
+    fields = ["content"]
     template_name = "management/detail.html"
 
-    
+
 class AnnouncementListView(ListView):
     model = Announcement
     # paginate_by = 1
     template_name = "management/list.html"
 
     def get_queryset(self):
-        return Announcement.objects.all().order_by('-pk')
+        return Announcement.objects.all().order_by("-pk")
 
 
-@method_decorator(decorators, name='dispatch')
+@method_decorator(decorators, name="dispatch")
 class AnnouncementDeleteView(DeleteView):
     model = Announcement
     success_url = reverse_lazy("management:list")
     template_name = "management/delete.html"
 
 
-@method_decorator(decorators, name='dispatch')
+@method_decorator(decorators, name="dispatch")
 class AnnouncementCreateView(CreateView):
     model = Announcement
-    fields = '__all__'
+    fields = "__all__"
     template_name = "management/create_update.html"
 
 
-@method_decorator(decorators, name='dispatch')
+@method_decorator(decorators, name="dispatch")
 class AnnouncementUpdateView(UpdateView):
     model = Announcement
-    fields = '__all__'
+    fields = "__all__"
     template_name = "management/create_update.html"
 
     def form_valid(self, form):
         form.instance.edited_time = timezone.now()
         return super().form_valid(form)
-
-

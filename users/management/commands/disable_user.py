@@ -5,15 +5,15 @@ from django.utils import timezone
 
 
 class Command(BaseCommand):
-    help = 'disable user'
+    help = "disable user"
 
     def add_arguments(self, parser):
-        parser.add_argument('id', type=int, help='user id')
+        parser.add_argument("id", type=int, help="user id")
 
     def handle(self, *args, **options):
-        h = int(options['id'])
+        h = int(options["id"])
         u = User.objects.get(id=h)
-        u.username = '(duplicated)'+u.username
+        u.username = "(duplicated)" + u.username
         u.is_active = False
         u.save()
-        print(f'{u} updated')
+        print(f"{u} updated")

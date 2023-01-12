@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 
 class Command(BaseCommand):
-    help = 'Refresh following data for all users'
+    help = "Refresh following data for all users"
 
     def handle(self, *args, **options):
         count = 0
@@ -14,6 +14,6 @@ class Command(BaseCommand):
             user.following = user.get_following_ids()
             if user.following:
                 count += 1
-                user.save(update_fields=['following'])
+                user.save(update_fields=["following"])
 
-        print(f'{count} users updated')
+        print(f"{count} users updated")

@@ -6,14 +6,14 @@ from rq import Queue
 
 
 class Command(BaseCommand):
-    help = 'Delete a job'
+    help = "Delete a job"
 
     def add_arguments(self, parser):
-        parser.add_argument('job_id', type=str, help='Job ID')
+        parser.add_argument("job_id", type=str, help="Job ID")
 
     def handle(self, *args, **options):
         redis = Redis()
-        job_id = str(options['job_id'])
+        job_id = str(options["job_id"])
         job = Job.fetch(job_id, connection=redis)
         job.delete()
-        self.stdout.write(self.style.SUCCESS(f'Deleted {job}'))
+        self.stdout.write(self.style.SUCCESS(f"Deleted {job}"))

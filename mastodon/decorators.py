@@ -6,19 +6,17 @@ from requests.exceptions import Timeout
 
 
 def mastodon_request_included(func):
-    """ Handles timeout exception of requests to mastodon, returns http 500 """
+    """Handles timeout exception of requests to mastodon, returns http 500"""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except (Timeout, ConnectionError):
             return render(
-                args[0],
-                'common/error.html',
-                {
-                    'msg': _("联邦网络请求超时叻_(´ཀ`」 ∠)__ ")
-                }
+                args[0], "common/error.html", {"msg": _("联邦网络请求超时叻_(´ཀ`」 ∠)__ ")}
             )
+
     return wrapper
 
 

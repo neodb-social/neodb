@@ -1,12 +1,14 @@
 import uuid
 from django.utils import timezone
 
+
 class PageLinksGenerator:
     # TODO inherit django paginator
     """
     Calculate the pages for multiple links pagination.
     length -- the number of page links in pagination
     """
+
     def __init__(self, length, current_page, total_pages):
         current_page = int(current_page)
         self.current_page = current_page
@@ -23,13 +25,12 @@ class PageLinksGenerator:
 
         # decision is based on the start page and the end page
         # both sides overflow
-        if (start_page < 1 and end_page > total_pages)\
-            or length >= total_pages:
+        if (start_page < 1 and end_page > total_pages) or length >= total_pages:
             self.start_page = 1
             self.end_page = total_pages
             self.has_prev = False
             self.has_next = False
-        
+
         elif start_page < 1 and not end_page > total_pages:
             self.start_page = 1
             # this won't overflow because the total pages are more than the length
@@ -39,7 +40,7 @@ class PageLinksGenerator:
                 self.has_next = False
             else:
                 self.has_next = True
-            
+
         elif not start_page < 1 and end_page > total_pages:
             self.end_page = total_pages
             self.start_page = start_page - (end_page - total_pages)
@@ -62,16 +63,12 @@ class PageLinksGenerator:
         # assert self.has_prev is not None and self.has_next is not None
 
 
-def ChoicesDictGenerator(choices_enum):
-    choices_dict = dict(choices_enum.choices)
-    return choices_dict
-
 def GenerateDateUUIDMediaFilePath(instance, filename, path_root):
-    ext = filename.split('.')[-1]
+    ext = filename.split(".")[-1]
     filename = "%s.%s" % (uuid.uuid4(), ext)
-    root = ''
-    if path_root.endswith('/'):
+    root = ""
+    if path_root.endswith("/"):
         root = path_root
     else:
-        root = path_root + '/'
-    return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'
+        root = path_root + "/"
+    return root + timezone.now().strftime("%Y/%m/%d") + f"{filename}"

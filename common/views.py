@@ -1,10 +1,6 @@
-import logging
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import gettext_lazy as _
-
-_logger = logging.getLogger(__name__)
 
 
 @login_required

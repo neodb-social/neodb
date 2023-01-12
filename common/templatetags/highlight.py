@@ -4,14 +4,14 @@ from django.template.defaultfilters import stringfilter
 from opencc import OpenCC
 
 
-cc = OpenCC('t2s')
+cc = OpenCC("t2s")
 register = template.Library()
 
 
 @register.filter
 @stringfilter
 def highlight(text, search):
-    for s in cc.convert(search.strip().lower()).split(' '):
+    for s in cc.convert(search.strip().lower()).split(" "):
         if s:
             p = cc.convert(text.lower()).find(s)
             if p != -1:
