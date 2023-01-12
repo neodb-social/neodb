@@ -2,6 +2,7 @@ from django.test import TestCase
 from .models import *
 from catalog.models import *
 from users.models import User
+import time
 
 
 class CollectionTest(TestCase):
@@ -47,33 +48,48 @@ class ShelfTest(TestCase):
         self.assertEqual(q1.members.all().count(), 0)
         self.assertEqual(q2.members.all().count(), 0)
         shelf_manager.move_item(book1, ShelfType.WISHLIST)
+        time.sleep(0.001)
         shelf_manager.move_item(book2, ShelfType.WISHLIST)
+        time.sleep(0.001)
         self.assertEqual(q1.members.all().count(), 2)
         shelf_manager.move_item(book1, ShelfType.PROGRESS)
+        time.sleep(0.001)
         self.assertEqual(q1.members.all().count(), 1)
         self.assertEqual(q2.members.all().count(), 1)
+        log = shelf_manager.get_log_for_item(book1)
+        self.assertEqual(log.count(), 2)
+        self.assertEqual(log.last().metadata, {})
         shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={"progress": 1})
+        time.sleep(0.01)
         self.assertEqual(q1.members.all().count(), 1)
         self.assertEqual(q2.members.all().count(), 1)
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 3)
+        self.assertEqual(log.last().metadata, {"progress": 1})
         shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={"progress": 1})
+        time.sleep(0.001)
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 3)
+        self.assertEqual(log.last().metadata, {"progress": 1})
         shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={"progress": 10})
+        time.sleep(0.001)
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 4)
+        self.assertEqual(log.last().metadata, {"progress": 10})
         shelf_manager.move_item(book1, ShelfType.PROGRESS)
+        time.sleep(0.001)
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 4)
         self.assertEqual(log.last().metadata, {"progress": 10})
         shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={"progress": 90})
+        time.sleep(0.001)
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 5)
         self.assertEqual(Mark(user, book1).visibility, 0)
         shelf_manager.move_item(
             book1, ShelfType.PROGRESS, metadata={"progress": 90}, visibility=1
         )
+        time.sleep(0.001)
         self.assertEqual(Mark(user, book1).visibility, 1)
         self.assertEqual(shelf_manager.get_log_for_item(book1).count(), 5)
 

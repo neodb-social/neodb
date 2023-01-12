@@ -520,14 +520,12 @@ class ShelfLogEntry(models.Model):
     edited_time = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.owner}:{self.shelf}:{self.item}:{self.metadata}"
+        return f"{self.owner}:{self.shelf_type}:{self.item.uuid}:{self.timestamp}:{self.metadata}"
 
     @property
     def action_label(self):
-        if self.shelf:
-            return ShelfManager.get_action_label(
-                self.shelf.shelf_type, self.item.category
-            )
+        if self.shelf_type:
+            return ShelfManager.get_action_label(self.shelf_type, self.item.category)
         else:
             return _("移除标记")
 
