@@ -245,9 +245,8 @@ class Review(Content):
 
 
 class Rating(Content):
-    # class Meta:
-    #     unique_together = [["owner", "item"]]
-    # FIXME enable after migration
+    class Meta:
+        unique_together = [["owner", "item"]]
 
     grade = models.PositiveSmallIntegerField(
         default=0, validators=[MaxValueValidator(10), MinValueValidator(1)], null=True
@@ -487,9 +486,8 @@ class ShelfMember(ListMember):
         "Shelf", related_name="members", on_delete=models.CASCADE
     )
 
-    # class Meta:
-    #     unique_together = [["parent", "item"]]
-    # FIXME enable after migration
+    class Meta:
+        unique_together = [["parent", "item"]]
 
     @cached_property
     def mark(self):
@@ -702,9 +700,8 @@ Tag
 class TagMember(ListMember):
     parent = models.ForeignKey("Tag", related_name="members", on_delete=models.CASCADE)
 
-    # class Meta:
-    #     unique_together = [["parent", "item"]]
-    # FIXME enable after migration
+    class Meta:
+        unique_together = [["parent", "item"]]
 
 
 TagValidators = [RegexValidator(regex=r"\s+", inverse_match=True)]
