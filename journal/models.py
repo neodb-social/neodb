@@ -590,7 +590,9 @@ class ShelfManager:
             if metadata is None:
                 metadata = last_metadata or {}
             log_time = (
-                new_shelfmember.created_time if new_shelfmember else timezone.now()
+                new_shelfmember.created_time
+                if new_shelfmember and new_shelfmember != last_shelfmember
+                else timezone.now()
             )
             ShelfLogEntry.objects.create(
                 owner=self.owner,
@@ -927,8 +929,8 @@ class Mark:
             log = ShelfLogEntry.objects.filter(
                 owner=self.owner,
                 item=self.item,
-                created_time=self.shelfmember.created_time,
-            )
+                timestamp=self.shelfmember.created_time,
+            ).first()
             self.shelfmember.created_time = created_time
             self.shelfmember.save(update_fields=["created_time"])
             if log:
@@ -937,7 +939,7 @@ class Mark:
             else:
                 ShelfLogEntry.objects.create(
                     owner=self.owner,
-                    shelf=self.shelf,
+                    shelf_type=shelf_type,
                     item=self.item,
                     metadata=self.metadata,
                     timestamp=created_time,
@@ -963,14 +965,10 @@ class Mark:
             self.save = lambda **args: None
             if not share_mark(self):
                 raise ValueError("sharing failed")
-            if not self.shelfmember.metadata:
-                self.shelfmember.metadata = {}
             if self.shelfmember.metadata.get("shared_link") != self.shared_link:
                 self.shelfmember.metadata["shared_link"] = self.shared_link
                 self.shelfmember.save()
         elif share_as_new_post and self.shelfmember:
-            if not self.shelfmember.metadata:
-                self.shelfmember.metadata = {}
             self.shelfmember.metadata["shared_link"] = None
             self.shelfmember.save()
 

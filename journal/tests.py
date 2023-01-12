@@ -60,7 +60,7 @@ class ShelfTest(TestCase):
         self.assertEqual(log.count(), 2)
         self.assertEqual(log.last().metadata, {})
         shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={"progress": 1})
-        time.sleep(0.01)
+        time.sleep(0.001)
         self.assertEqual(q1.members.all().count(), 1)
         self.assertEqual(q2.members.all().count(), 1)
         log = shelf_manager.get_log_for_item(book1)
