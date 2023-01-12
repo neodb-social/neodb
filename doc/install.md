@@ -19,11 +19,18 @@ Create and edit your own configuration file (optional but very much recommended)
 mkdir mysite && cp boofilsic/settings.py mysite/
 export DJANGO_SETTINGS_MODULE=mysite.settings
 ```
+Alternatively you can have a configuration file import `boofilsic/settings.py` then override it:
+```
+from boofilsic.settings import *
+
+SECRET_KEY = "my_key"
+```
 More details on `settings.py` in [configuration.md](configuration.md)
 
-Create and use `venv` as you normally would, then install packages 
+Create and use `venv` as you normally would, then install packages
 ```
 python3 -m pip install -r requirements.txt
+
 ```
 
 Quick check
@@ -33,13 +40,13 @@ python3 manage.py check
 
 Initialize database
 ```
-python3 manage.py makemigrations users books movies games music sync mastodon management collection timeline
-python3 manage.py migrate users
 python3 manage.py migrate
 ```
 
 Build static assets
 ```
+python3 manage.py sass common/static/sass/boofilsic.sass common/static/css/boofilsic.min.css -t compressed
+python3 manage.py sass common/static/sass/boofilsic.sass common/static/css/boofilsic.css
 python3 manage.py collectstatic
 ```
 
@@ -51,12 +58,12 @@ Make sure PostgreSQL and Redis are running
 Start job queue server
 ```
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES  # required and only for macOS, otherwise it may crash
-python3 manage.py rqworker --with-scheduler doufen export mastodon
+python3 manage.py rqworker --with-scheduler import export mastodon fetch crawl
 ```
 
 Run web server in dev mode
 ```
-python3 manage.py runserver 0.0.0.0:80
+python3 manage.py runserver
 ```
 
 It should be ready to serve from here, to run web server for production, consider `gunicorn -w 8 boofilsic.wsgi` in systemd or sth similar
@@ -66,7 +73,6 @@ Migrate from an earlier version
 -------------------------------
 Update database
 ```
-python3 manage.py makemigrations
 python3 manage.py migrate
 ```
 
@@ -87,15 +93,15 @@ Install TypeSense or Meilisearch, change `SEARCH_BACKEND` and coniguration for s
 
 Build initial index, it may take a few minutes or hours
 ```
-python3 manage.py init_index
-python3 manage.py reindex
+python3 manage.py index --init
+python3 manage.py index --reindex
 ```
 
 Other maintenance tasks
 -----------------------
-Requeue failed jobs
+Requeue failed import jobs
 ```
-rq requeue --all --queue doufen
+rq requeue --all --queue import
 ```
 
 Run in Docker
@@ -109,4 +115,3 @@ Run Tests
 coverage run --source='.' manage.py test
 coverage report
 ```
-

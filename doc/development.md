@@ -1,27 +1,28 @@
 Development
 ===========
 
-*this doc is based on new data models work which is a work in progress*
+Obviously a working version of local NeoDB instance has to be established first, see [install guide](install.md).
 
-First, a working version of local NeoDB instance has to be established, see [install guide](install.md).
-
-Since new data model is still under development, most pieces are off by default, add `new_data_model=1` to your shell env and run migrations before start working on these new models
-
+Install development related packages
 ```
-export new_data_model=1
-python3 manage.py makemigrations 
-python3 manage.py migrate
+python3 -m pip install -r requirements-dev.txt
 ```
 
-It's recommended to create the test database from freshly created database:
+Install pre-commit hooks
 ```
-CREATE DATABASE test_neodb WITH TEMPLATE neodb;
+$ pre-commit install
+pre-commit installed at .git/hooks/pre-commit
 ```
-Alternatively `python3 manage.py test` can create test databases every time test runs, but it's slow and buggy bc test run initial migration scripts slightly differently.
 
 Run Test
 --------
-Now to verify everything works, run tests with `python3 manage.py test --keepdb`
+`python3 manage.py test` will run the tests
+
+Alternative you may create the test database from freshly created database:
+```
+CREATE DATABASE test_neodb WITH TEMPLATE neodb;
+```
+and run the test without re-create it every time
 ```
 $ python3 manage.py test --keepdb
 
@@ -44,5 +45,4 @@ Main django apps for NeoDB:
  - `catalog` manages different types of items user may review, and scrapers to fetch from external resources, see [catalog.md](catalog.md) for more details
  - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag), see [journal.md](journal.md) for more details
  - `social` manages timeline for local users and ActivityStreams for remote servers, see [social.md](social.md) for more details
-
-These apps are legacy: books, music, movies, games, collections, they will be removed soon.
+ - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old urls to new ones. If your journey starts with 0.5 and later, feel free to ignore it.

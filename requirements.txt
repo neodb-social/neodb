@@ -1,4 +1,3 @@
-coverage
 dateparser
 django~=3.2.16
 django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e69480c64ad9c5d0499f4a8625da78cf2bb7691b
@@ -11,7 +10,7 @@ django-user-messages
 django-slack
 django-ninja
 django-polymorphic
-django-debug-toolbar
+django-maintenance-mode
 meilisearch
 easy-thumbnails
 lxml
@@ -26,4 +25,3 @@ dnspython
 typesense
 markdownify
 igdb-api-v4
-django-maintenance-mode
