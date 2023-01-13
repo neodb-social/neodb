@@ -2,6 +2,7 @@ from django.contrib.syndication.views import Feed
 from markdown import markdown
 import mimetypes
 from .models import *
+from django.conf import settings
 
 MAX_ITEM_PER_TYPE = 10
 
@@ -11,17 +12,17 @@ class ReviewFeed(Feed):
         return User.get(id)
 
     def title(self, user):
-        return "%s的评论" % user.display_name
+        return "%s的评论" % user.display_name if user else "无效链接"
 
     def link(self, user):
-        return user.url
+        return user.url if user else settings.APP_WEBSITE
 
     def description(self, user):
-        return "%s的评论合集 - NeoDB" % user.display_name
+        return "%s的评论合集 - NeoDB" % user.display_name if user else "无效链接"
 
     def items(self, user):
         if user is None or user.preference.no_anonymous_view:
-            return None
+            return []
         reviews = Review.objects.filter(owner=user, visibility=0)[:MAX_ITEM_PER_TYPE]
         return reviews
 
