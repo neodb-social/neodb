@@ -355,7 +355,7 @@ def get_mastodon_login_url(app, login_domain, version, request):
         return f"https://twitter.com/i/oauth2/authorize?response_type=code&client_id={app.client_id}&redirect_uri={quote(url)}&scope={quote(settings.TWITTER_CLIENT_SCOPE)}&state=state&code_challenge=challenge&code_challenge_method=plain"
     scope = (
         settings.MASTODON_LEGACY_CLIENT_SCOPE
-        if "Pixelfed" in version or version[0:2] == "0."
+        if "Pixelfed" in version
         else settings.MASTODON_CLIENT_SCOPE
     )
     return (
