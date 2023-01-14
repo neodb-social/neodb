@@ -1,0 +1,43 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+{% load prettydate %}
+{% load user_actions %}
+
+{% like_piece_action activity.action_object as action %}
+<div class="entity-list__entity-img-wrapper">
+  <a href="{{ activity.action_object.url }}">
+    <img src="{{ activity.action_object.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img" style="min-width:80px;max-width:80px">
+  </a>
+  {% if not action.take %}
+  <a class="entity-list__entity-action-icon" hx-post="{{ action.url }}">➕</a>
+  {% endif %}
+</div>
+<div class="entity-list__entity-text">
+  <div class="collection-item-position-edit">
+    <span class="entity-marks__mark-time">
+      {% if activity.action_object.metadata.shared_link %}
+      <a href="{{ activity.action_object.metadata.shared_link }}" action_object="_blank">
+        <img src="{% static 'img/fediverse.svg' %}" style="filter: invert(93%) sepia(1%) saturate(53%) hue-rotate(314deg) brightness(95%) contrast(80%); vertical-align:text-top; max-width:14px; margin-right:6px;" />
+        <span class="entity-marks__mark-time">{{ activity.action_object.created_time|prettydate }}</span></a>
+        {% else %}
+        <a><span class="entity-marks__mark-time">{{ activity.action_object.created_time|prettydate }}</span></a>
+        {% endif %}
+      </span>
+    </div>
+    <span class="entity-list__entity-info" style="top:0px;">
+      <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {% trans '设置了目标' %}
+    </span>
+    <div class="entity-list__entity-title">
+      <a href="{{ activity.action_object.target.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.action_object.target.title }}
+      </a>
+    </div>
+    <p>
+      <progress value="{{ activity.action_object.progress }}" max="100"></progress>
+    </p>
+  </div>
