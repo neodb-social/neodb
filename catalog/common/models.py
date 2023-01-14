@@ -221,7 +221,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         self.primary_lookup_id_type = None
 
     def __str__(self):
-        return f"{self.id}|{self.uuid} {self.primary_lookup_id_type}:{self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
+        return f"{self.__class__.__name__}|{self.id}|{self.uuid} {self.primary_lookup_id_type}:{self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
 
     @classmethod
     def lookup_id_type_choices(cls):

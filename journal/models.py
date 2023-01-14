@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.fields import related
 from polymorphic.models import PolymorphicModel
 from users.models import User
 from catalog.common.models import Item, ItemCategory
@@ -667,7 +668,9 @@ _RE_HTML_TAG = re.compile(r"<[^>]*>")
 class Collection(List):
     url_path = "collection"
     MEMBER_CLASS = CollectionMember
-    catalog_item = models.OneToOneField(CatalogCollection, on_delete=models.PROTECT)
+    catalog_item = models.OneToOneField(
+        CatalogCollection, on_delete=models.PROTECT, related_name="journal_item"
+    )
     title = models.CharField(_("标题"), max_length=1000, default="")
     brief = models.TextField(_("简介"), blank=True, default="")
     cover = models.ImageField(
