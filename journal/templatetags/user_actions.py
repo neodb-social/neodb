@@ -19,9 +19,11 @@ def wish_item_action(context, item):
 @register.simple_tag(takes_context=True)
 def like_piece_action(context, piece):
     user = context["request"].user
+    action = {}
     if user and user.is_authenticated:
         action = {
-            "taken": Like.objects.filter(target=piece, owner=user).first() is not None,
+            "taken": piece.owner == user
+            or Like.objects.filter(target=piece, owner=user).first() is not None,
             "url": reverse("journal:like", args=[piece.uuid]),
         }
-        return action
+    return action

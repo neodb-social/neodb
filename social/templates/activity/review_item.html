@@ -25,30 +25,31 @@
       {% if activity.action_object.metadata.shared_link %}
       <a href="{{ activity.action_object.metadata.shared_link }}" action_object="_blank">
         <img src="{% static 'img/fediverse.svg' %}" style="filter: invert(93%) sepia(1%) saturate(53%) hue-rotate(314deg) brightness(95%) contrast(80%); vertical-align:text-top; max-width:14px; margin-right:6px;" />
-        <span class="entity-marks__mark-time">{{ activity.action_object.created_time|prettydate }}</span></a>
-        {% else %}
-        <a><span class="entity-marks__mark-time">{{ activity.action_object.created_time|prettydate }}</span></a>
-        {% endif %}
-      </span>
-    </div>
-    <span class="entity-list__entity-info" style="top:0px;">
-      <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {% trans '评论了' %}
-      <a href="{{ activity.action_object.item.url }}">{{ activity.action_object.item.title }}
-        {% if activity.action_object.item.year %}<small style="font-weight: lighter">({{ activity.action_object.item.year }})</small>{% endif %}
+        <span class="entity-marks__mark-time">{{ activity.action_object.created_time|prettydate }}</span>
       </a>
+      {% else %}
+      <a><span class="entity-marks__mark-time">{{ activity.action_object.created_time|prettydate }}</span></a>
+      {% endif %}
     </span>
-    <div class="entity-list__entity-title">
-      <a href="{{ activity.action_object.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.action_object.title }}</a>
-    </div>
-    <p class="entity-list__entity-brief">
-      {% if activity.action_object.review %}
-      <a href="{{ activity.review.url }}">{{ activity.review.title }}</a>
-      {% endif %}
-      {% if activity.action_object.rating_grade %}
-      <span class="entity-marks__rating-star rating-star" data-rating-score="{{ activity.action_object.rating_grade }}" style=""></span>
-      {% endif %}
-      <p class="entity-marks__mark-content">
-        <!-- body -->
-      </p>
-    </p>
   </div>
+  <span class="entity-list__entity-info" style="top:0px;">
+    <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {% trans '评论了' %}
+    <a href="{{ activity.action_object.item.url }}">{{ activity.action_object.item.title }}
+      {% if activity.action_object.item.year %}<small style="font-weight: lighter">({{ activity.action_object.item.year }})</small>{% endif %}
+    </a>
+  </span>
+  <div class="entity-list__entity-title">
+    <a href="{{ activity.action_object.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.action_object.title }}</a>
+  </div>
+  <p class="entity-list__entity-brief">
+    {% if activity.action_object.review %}
+    <a href="{{ activity.review.url }}">{{ activity.review.title }}</a>
+    {% endif %}
+    {% if activity.action_object.rating_grade %}
+    <span class="entity-marks__rating-star rating-star" data-rating-score="{{ activity.action_object.rating_grade }}" style=""></span>
+    {% endif %}
+    <p class="entity-marks__mark-content">
+      <!-- body -->
+    </p>
+  </p>
+</div>
