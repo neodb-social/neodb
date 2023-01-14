@@ -62,7 +62,7 @@
                     {% endif %}
                   </div>
                 </div>
-                <!-- <div class="dividing-line"></div> --> <!-- <div class="entity-card__img-wrapper" style="text-align: center;"> <img src="{{ collection.cover|thumb:'normal' }}" alt="" class="entity-card__img"> </div> --> 
+                <!-- <div class="dividing-line"></div> --> <!-- <div class="entity-card__img-wrapper" style="text-align: center;"> <img src="{{ collection.cover|thumb:'normal' }}" alt="" class="entity-card__img"> </div> -->
                 {{ collection.html | safe }}
 
               </div>
@@ -91,7 +91,46 @@
               </div>
             </div>
 
-            {% if request.user.is_authenticated and request.user != collection.owner %}
+            {% if is_featured %}
+            <div class="aside-section-wrapper">
+              <div class="action-panel">
+                <div class="donut" style="background: conic-gradient(#7CBDFE 0deg {{ stats.complete_deg }}deg, #B4D2A5 {{ stats.complete_deg }}deg {{ stats.complete_deg|add:stats.progress_deg }}deg, #ccc {{ stats.complete_deg|add:stats.progress_deg }}deg 1deg );"><div class="hole"><div class="text">
+                  {% if stats.progress %}
+                  {{ stats.progress }} 进行中<br>
+                  {% endif %}
+                  {% if stats.complete %}
+                  {{ stats.complete }} 已完成
+                  {% elif not stats.progress %}
+                  尚未开始
+                  {% endif %}
+                </div></div></div>
+              </div>
+
+              <div class="action-panel" style="margin-bottom: 0;">
+                <div class="action-panel__button-group action-panel__button-group--center">
+                  <form action="{% url 'journal:collection_remove_featured' collection.uuid %}" method="post">
+                    {% csrf_token %}
+                    <button class="action-panel__button" title="点击取消目标设置">{% trans '当前进度' %} {{ stats.percentage }}%</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if available_as_featured %}
+            <div class="aside-section-wrapper">
+              <div class="action-panel">
+                <div class="action-panel__button-group action-panel__button-group--center">
+                  <form action="{% url 'journal:collection_add_featured' collection.uuid %}" method="post">
+                    {% csrf_token %}
+                    <button class="action-panel__button">{% trans '设为目标' %}</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if not is_featured and request.user.is_authenticated and request.user != collection.owner %}
             <div class="aside-section-wrapper">
               <div class="action-panel">
                 <div class="action-panel__button-group action-panel__button-group--center">
@@ -105,7 +144,7 @@
                     {% csrf_token %}
                     <button class="action-panel__button">{% trans '关注' %}</button>
                   </form>
-                  {% endif %}                                         
+                  {% endif %}
                 </div>
               </div>
             </div>

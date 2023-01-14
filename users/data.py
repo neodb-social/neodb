@@ -28,7 +28,7 @@ from django.contrib import messages
 
 from journal.importers.douban import DoubanImporter
 from journal.importers.goodreads import GoodreadsImporter
-from journal.models import reset_visibility_for_user
+from journal.models import reset_visibility_for_user, Collection
 
 
 @mastodon_request_included
@@ -54,7 +54,11 @@ def preferences(request):
                 "show_last_edit",
             ]
         )
-    return render(request, "users/preferences.html")
+    return render(
+        request,
+        "users/preferences.html",
+        {"collections": Collection.objects.filter(owner=request.user)},
+    )
 
 
 @mastodon_request_included

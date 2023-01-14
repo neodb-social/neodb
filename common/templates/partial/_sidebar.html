@@ -5,6 +5,7 @@
 {% load oauth_token %}
 {% load truncate %}
 {% load thumb %}
+{% load collection %}
 
 <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
     <div class="aside-section-wrapper aside-section-wrapper--no-margin">
@@ -43,11 +44,47 @@
                 </svg>
             </span>
         </div>
+        {% if user.featured_collections %}
+        <div class="relation-dropdown__body">
+            <div class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
+                <style type="text/css">
+                    progress {
+                      border-radius: 7px;
+                      width: 80%;
+                      height: 10px;
+                      box-shadow: 1px 1px 4px rgba( 0, 0, 0, 0.2 );
+                    }
+                    ::-webkit-progress-bar {
+                      background-color: #ccc;
+                    }
+                    ::-webkit-progress-value {
+                      background-color: #00a1cc;
+                    }
+                </style>
+                <div class="user-relation">
+                    <h5 class="user-relation__label">
+                        {% trans '当前目标' %}
+                    </h5>
+                    {% for featured_collection in user.featured_collections.all %}
+                    {% user_visibility_of featured_collection as visible %}
+                    {% if visible %}
+                    {% user_progress_of collection=featured_collection user=user as progress %}
+                    <div class="tag-collection" style="margin-left: 10%;">
+                        <a href="{{ featured_collection.collection.url }}">{{ featured_collection.collection.title }}</a><br>
+                        已完成{{ progress }}% <br>
+                        <progress value="{{ progress }}" max="100">
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <br>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         {% if user == request.user %}
         <div class="relation-dropdown__body">
-            <div
-                class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
-
+            <div class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
                 <div class="user-relation" id="followings">
                     <h5 class="user-relation__label">
                         {% trans '关注的人' %}
@@ -100,7 +137,7 @@
                 {% endif %}
 
             </div>
-           
+
             <div
                 class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
                 {% if request.user.is_staff and request.user == user%}

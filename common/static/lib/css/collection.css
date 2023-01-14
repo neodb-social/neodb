@@ -114,17 +114,17 @@ div.jsoneditor-menu {
 @keyframes fadeIn {
     0% {opacity: 0;}
     100% {opacity: 1;}
-} 
+}
 
 @keyframes fadeOut {
     0% {opacity: 1;}
     100% {opacity: 0;}
-} 
+}
 
 @keyframes zoomIn {
     0% {transform: scale(0.9);}
     100% {transform: scale(1);}
-} 
+}
 
 @keyframes zoomOut {
     0% {transform: scale(1);}
@@ -158,4 +158,26 @@ div.jsoneditor-menu {
 
 #modal li, #modal ul, #modal label {
   display: inline;
+}
+
+.donut {
+  margin-left: 20%;
+  width: 60%;
+  aspect-ratio : 1 / 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.donut .hole {
+  width: 80%;
+  aspect-ratio : 1 / 1;
+  border-radius: 50%;
+  background: #f7f7f7;
+  display: table;
+}
+.donut .text {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
 }

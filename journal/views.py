@@ -1,4 +1,5 @@
 import logging
+from os import stat
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, permission_required
@@ -179,6 +180,27 @@ def collection_retrieve(request, collection_uuid):
         if request.user.is_authenticated
         else False
     )
+    is_featured = request.user.is_authenticated and collection.is_featured_by_user(
+        request.user
+    )
+    available_as_featured = (
+        request.user.is_authenticated
+        and (following or request.user == collection.owner)
+        and not is_featured
+        and collection.members.all().exists()
+    )
+    stats = {}
+    if is_featured:
+        stats = collection.get_stats_for_user(request.user)
+        stats["wishlist_deg"] = (
+            stats["wishlist"] / stats["total"] * 360 if stats["total"] else 0
+        )
+        stats["progress_deg"] = (
+            stats["progress"] / stats["total"] * 360 if stats["total"] else 0
+        )
+        stats["complete_deg"] = (
+            stats["complete"] / stats["total"] * 360 if stats["total"] else 0
+        )
     return render(
         request,
         "collection.html",
@@ -186,8 +208,31 @@ def collection_retrieve(request, collection_uuid):
             "collection": collection,
             "follower_count": follower_count,
             "following": following,
+            "stats": stats,
+            "available_as_featured": available_as_featured,
+            "is_featured": is_featured,
         },
     )
+
+
+def collection_add_featured(request, collection_uuid):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    if not collection.is_visible_to(request.user):
+        raise PermissionDenied()
+    request.user.featured_collections.add(collection)
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+
+
+def collection_remove_featured(request, collection_uuid):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    if not collection.is_visible_to(request.user):
+        raise PermissionDenied()
+    request.user.featured_collections.remove(collection)
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
 def collection_share(request, collection_uuid):

@@ -679,6 +679,9 @@ class Collection(List):
     collaborative = models.PositiveSmallIntegerField(
         default=0
     )  # 0: Editable by owner only / 1: Editable by bi-direction followers
+    featured_by_users = models.ManyToManyField(
+        to=User, related_name="featured_collections", through="FeaturedCollection"
+    )
 
     @property
     def html(self):
@@ -689,6 +692,26 @@ class Collection(List):
     def plain_description(self):
         html = markdown(self.brief)
         return _RE_HTML_TAG.sub(" ", html)
+
+    def is_featured_by_user(self, user):
+        return self.featured_by_users.all().filter(id=user.id).exists()
+
+    def get_stats_for_user(self, user):
+        items = list(self.members.all().values_list("item_id", flat=True))
+        stats = {"total": len(items)}
+        for st, shelf in user.shelf_manager.shelf_list.items():
+            stats[st] = shelf.members.all().filter(item_id__in=items).count()
+        stats["percentage"] = (
+            round(stats["complete"] * 100 / stats["total"]) if stats["total"] else 0
+        )
+        return stats
+
+    def get_progress_for_user(self, user):
+        items = list(self.members.all().values_list("item_id", flat=True))
+        if len(items) == 0:
+            return 0
+        shelf = user.shelf_manager.shelf_list["complete"]
+        return shelf.members.all().filter(item_id__in=items).count() * 100 / len(items)
 
     def save(self, *args, **kwargs):
         if getattr(self, "catalog_item", None) is None:
@@ -702,6 +725,16 @@ class Collection(List):
             self.catalog_item.cover = self.cover
             self.catalog_item.save()
         super().save(*args, **kwargs)
+
+
+class FeaturedCollection(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
+    created_time = models.DateTimeField(auto_now_add=True)
+    edited_time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [["owner", "collection"]]
 
 
 """

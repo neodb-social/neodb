@@ -27,11 +27,11 @@
                     <div class="grid__main grid__main--reverse-order">
                         <div class="main-section-wrapper">
                             <form action="{% url 'users:preferences' %}" method="POST">
+                                {% csrf_token %}
                                 <div class="tools-section-wrapper">
                                     <div class="import-panel">
                                         <h5 class="import-panel__label">{% trans '使用偏好设置' %}</h5>
                                         <div class="import-panel__body">
-                                            {% csrf_token %}
                                             <span>{% trans '新标记默认可见性：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
                                                 <label for="id_visibility_0"><input type="radio" name="default_visibility" value="0" required="" id="id_visibility_0" {%if request.user.preference.default_visibility == 0 %}checked{% endif %}>
@@ -67,7 +67,6 @@
                                     <div class="import-panel">
                                         <h5 class="import-panel__label">{% trans '社交网络分享相关设置' %}</h5>
                                         <div class="import-panel__body">
-                                            {% csrf_token %}
                                             <span>{% trans '在联邦网络上以公开方式分享的帖文是否发布到公共时间轴上：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
                                                 <input type="checkbox" name="mastodon_publish_public" id="visibility" {%if request.user.preference.mastodon_publish_public %}checked{% endif %}>

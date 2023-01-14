@@ -70,6 +70,16 @@ urlpatterns = [
         collection_update_item_note,
         name="collection_update_item_note",
     ),
+    path(
+        "collection/<str:collection_uuid>/add_featured",
+        collection_add_featured,
+        name="collection_add_featured",
+    ),
+    path(
+        "collection/<str:collection_uuid>/remove_featured",
+        collection_remove_featured,
+        name="collection_remove_featured",
+    ),
     re_path(
         r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/(?P<shelf_type>"
         + _get_all_shelf_types()
