@@ -221,7 +221,7 @@ def collection_add_featured(request, collection_uuid):
     collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
-    request.user.featured_collections.add(collection)
+    FeaturedCollection.objects.update_or_create(owner=request.user, target=collection)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
@@ -231,7 +231,11 @@ def collection_remove_featured(request, collection_uuid):
     collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
-    request.user.featured_collections.remove(collection)
+    fc = FeaturedCollection.objects.filter(
+        owner=request.user, target=collection
+    ).first()
+    if fc:
+        fc.delete()
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 

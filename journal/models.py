@@ -711,7 +711,9 @@ class Collection(List):
         if len(items) == 0:
             return 0
         shelf = user.shelf_manager.shelf_list["complete"]
-        return shelf.members.all().filter(item_id__in=items).count() * 100 / len(items)
+        return round(
+            shelf.members.all().filter(item_id__in=items).count() * 100 / len(items)
+        )
 
     def save(self, *args, **kwargs):
         if getattr(self, "catalog_item", None) is None:
@@ -727,14 +729,22 @@ class Collection(List):
         super().save(*args, **kwargs)
 
 
-class FeaturedCollection(models.Model):
+class FeaturedCollection(Piece):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
+    target = models.ForeignKey(Collection, on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = [["owner", "collection"]]
+        unique_together = [["owner", "target"]]
+
+    @property
+    def visibility(self):
+        return self.target.visibility
+
+    @cached_property
+    def progress(self):
+        return self.target.get_progress_for_user(self.owner)
 
 
 """

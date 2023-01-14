@@ -181,3 +181,16 @@ div.jsoneditor-menu {
   vertical-align: middle;
   text-align: center;
 }
+
+progress {
+  border-radius: 7px;
+  width: 80%;
+  height: 10px;
+  box-shadow: 1px 1px 4px rgba( 0, 0, 0, 0.2 );
+}
+::-webkit-progress-bar {
+  background-color: #ccc;
+}
+::-webkit-progress-value {
+  background-color: #00a1cc;
+}

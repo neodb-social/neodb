@@ -27,6 +27,7 @@ class ActivityTemplate(models.TextChoices):
     ReviewItem = "review_item"
     CreateCollection = "create_collection"
     LikeCollection = "like_collection"
+    FeatureCollection = "feature_collection"
 
 
 class LocalActivity(models.Model, UserOwnedObjectMixin):
@@ -78,6 +79,7 @@ class DataSignalManager:
     @staticmethod
     def save_handler(sender, instance, created, **kwargs):
         processor_class = DataSignalManager.processors.get(instance.__class__)
+
         if processor_class:
             processor = processor_class(instance)
             if created:
@@ -173,3 +175,9 @@ class LikeCollectionProcessor(DefaultActivityProcessor):
     def updated(self):
         if isinstance(self.action_object.target, Collection):
             super().update()
+
+
+@DataSignalManager.register
+class FeaturedCollectionProcessor(DefaultActivityProcessor):
+    model = FeaturedCollection
+    template = ActivityTemplate.FeatureCollection
