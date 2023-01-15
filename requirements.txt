@@ -12,6 +12,7 @@ django-ninja
 django-polymorphic
 django-maintenance-mode
 django-tz-detect
+django-debug-toolbar
 meilisearch
 easy-thumbnails
 lxml
