@@ -55,6 +55,11 @@ class DoubanBook(AbstractSite):
             "//div[@id='info']//span[text()='出版社:']/following::text()"
         )
         pub_house = pub_house_elem[0].strip() if pub_house_elem else None
+        if not pub_house:
+            pub_house_elem = content.xpath(
+                "//div[@id='info']//span[text()='出版社:']/following-sibling::a/text()"
+            )
+            pub_house = pub_house_elem[0].strip() if pub_house_elem else None
 
         pub_date_elem = content.xpath(
             "//div[@id='info']//span[text()='出版年:']/following::text()"

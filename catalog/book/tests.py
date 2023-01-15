@@ -203,6 +203,17 @@ class DoubanBookTestCase(TestCase):
         self.assertEqual(site.resource.item.title, "1984 Nineteen Eighty-Four")
 
     @use_local_response
+    def test_publisher(self):
+        t_url = "https://book.douban.com/subject/35902899/"
+        site = SiteManager.get_site_by_url(t_url)
+        res = site.get_resource_ready()
+        self.assertEqual(res.metadata.get("pub_house"), "Alma Classics")
+        t_url = "https://book.douban.com/subject/1089243/"
+        site = SiteManager.get_site_by_url(t_url)
+        res = site.get_resource_ready()
+        self.assertEqual(res.metadata.get("pub_house"), "花城出版社")
+
+    @use_local_response
     def test_work(self):
         # url = 'https://www.goodreads.com/work/editions/153313'
         url1 = "https://book.douban.com/subject/1089243/"
