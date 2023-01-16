@@ -555,18 +555,14 @@ def share_collection(collection, comment, user, visibility_no):
         if user.get_preference().mastodon_append_tag
         else ""
     )
-    content = f"分享收藏单《{collection.title}》\n{collection.absolute_url}\n{comment}{tags}"
+    user_str = (
+        "我"
+        if user == collection.owner
+        else " @" + collection.owner.mastodon_username + " "
+    )
+    content = f"分享{user_str}的收藏单《{collection.title}》\n{collection.absolute_url}\n{comment}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
     if response and response.status_code in [200, 201]:
-        j = response.json()
-        if "url" in j:
-            shared_link = j["url"]
-        elif "data" in j:
-            shared_link = (
-                f"https://twitter.com/{user.username}/status/{j['data']['id']}"
-            )
-        if shared_link:
-            pass
         return True
     else:
         return False

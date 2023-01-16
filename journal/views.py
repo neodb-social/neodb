@@ -21,7 +21,7 @@ from django.db.models import Q
 from management.models import Announcement
 from django.utils.baseconv import base62
 from .forms import *
-from mastodon.api import share_review
+from mastodon.api import share_review, share_collection
 from users.views import render_user_blocked, render_user_not_found
 from users.models import User, Report, Preference
 from common.utils import PageLinksGenerator
@@ -91,7 +91,7 @@ def add_to_collection(request, item_uuid):
                 owner=request.user, title=f"{request.user.username}的收藏单"
             ).id
         collection = Collection.objects.get(owner=request.user, id=cid)
-        collection.append_item(item, metadata={"comment": request.POST.get("comment")})
+        collection.append_item(item, note=request.POST.get("note"))
         return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
@@ -240,7 +240,24 @@ def collection_remove_featured(request, collection_uuid):
 
 
 def collection_share(request, collection_uuid):
-    pass
+    collection = (
+        get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+        if collection_uuid
+        else None
+    )
+    if collection and not collection.is_visible_to(request.user):
+        raise PermissionDenied()
+    if request.method == "GET":
+        return render(request, "collection_share.html", {"collection": collection})
+    elif request.method == "POST":
+        visibility = int(request.POST.get("visibility", default=0))
+        comment = request.POST.get("comment")
+        if share_collection(collection, comment, request.user, visibility):
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        else:
+            return render_relogin(request)
+    else:
+        return HttpResponseBadRequest()
 
 
 def collection_retrieve_items(request, collection_uuid, edit=False, msg=None):

@@ -1,0 +1,56 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load highlight %}
+{% load thumb %}
+
+<div id="modal" _="on closeModal add .closing then wait for animationend then remove me">
+    <div class="modal-underlay" _="on click trigger closeModal"></div>
+    <div class="modal-content">
+        <div class="add-to-list-modal__head">
+            <span class="add-to-list-modal__title">{% trans '分享收藏单' %} - {{ collection.title }}</span>
+            <span class="add-to-list-modal__close-button modal-close" _="on click trigger closeModal">
+                <span class="icon-cross">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <polygon
+                        points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
+                        </polygon>
+                    </svg>
+                </span>
+            </span>
+        </div>
+        <div class="add-to-list-modal__body">
+            <form action="{% url 'journal:collection_share' collection.uuid %}" method="post">
+                {% csrf_token %}
+                <div>
+                <label for="id_visibility_0">分享可见性（不同于收藏单本身的权限）:</label>
+                <ul id="id_visibility">
+                    <li><label for="id_visibility_0"><input type="radio" name="visibility" value="0" required="" id="id_visibility_0" {% if collection.visibility == 0 %}checked{% endif %}>
+                 公开</label>
+
+                </li>
+                    <li><label for="id_visibility_1"><input type="radio" name="visibility" value="1" required="" id="id_visibility_1" {% if collection.visibility == 1 %}checked{% endif %}>
+                 仅关注者</label>
+
+                </li>
+                    <li><label for="id_visibility_2"><input type="radio" name="visibility" value="2" required="" id="id_visibility_2" {% if collection.visibility == 2 %}checked{% endif %}>
+                 仅自己</label>
+
+                </li>
+                </ul>
+                </div>
+                <div>
+                    <textarea type="text" name="comment" placeholder="分享附言"></textarea>
+                </div>
+                <div class="add-to-list-modal__confirm-button">
+                    <input type="submit" class="button float-right" value="{% trans '提交' %}">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

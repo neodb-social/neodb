@@ -358,27 +358,33 @@ class List(Piece):
     def get_member_for_item(self, item):
         return self.members.filter(item=item).first()
 
+    def get_summary(self):
+        summary = {k: 0 for k in ItemCategory.values}
+        for c in self.recent_items:
+            summary[c.category] += 1
+        return summary
+
     def append_item(self, item, **params):
         """
         named metadata fields should be specified directly, not in metadata dict!
         e.g. collection.append_item(item, note="abc") works, but collection.append_item(item, metadata={"note":"abc"}) doesn't
         """
-        if item is None or self.get_member_for_item(item):
+        if item is None:
             return None
-        else:
-            ml = self.ordered_members
-            p = {"parent": self}
-            p.update(params)
-            member = self.MEMBER_CLASS.objects.create(
-                owner=self.owner,
-                position=ml.last().position + 1 if ml.count() else 1,
-                item=item,
-                **p,
-            )
-            list_add.send(
-                sender=self.__class__, instance=self, item=item, member=member
-            )
+        member = self.get_member_for_item(item)
+        if member:
             return member
+        ml = self.ordered_members
+        p = {"parent": self}
+        p.update(params)
+        member = self.MEMBER_CLASS.objects.create(
+            owner=self.owner,
+            position=ml.last().position + 1 if ml.count() else 1,
+            item=item,
+            **p,
+        )
+        list_add.send(sender=self.__class__, instance=self, item=item, member=member)
+        return member
 
     def remove_item(self, item):
         member = self.get_member_for_item(item)

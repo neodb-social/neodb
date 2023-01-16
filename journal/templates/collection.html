@@ -7,6 +7,7 @@
 {% load oauth_token %}
 {% load truncate %}
 {% load thumb %}
+{% load collection %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -87,6 +88,13 @@
                   {% if follower_count %}
                   被 {{ follower_count }} 人关注
                   {% endif %}
+                  <p>
+                    {% for cat, count in collection.get_summary.items %}
+                    {% if count %}
+                    {{count}}{{cat|prural_items}}
+                    {% endif %}
+                    {% endfor %}
+                  </p>
                 </div>
               </div>
             </div>
@@ -151,7 +159,7 @@
             {% endif %}
 
             {% if request.user.is_authenticated %}
-            <!-- <div class="aside-section-wrapper">
+            <div class="aside-section-wrapper">
               <div class="action-panel">
                 <div class="action-panel__button-group action-panel__button-group--center">
                   <form>
@@ -159,7 +167,7 @@
                   </form>
                 </div>
               </div>
-            </div> -->
+            </div>
             {% endif %}
 
           </div>
