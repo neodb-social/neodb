@@ -174,12 +174,9 @@ div.jsoneditor-menu {
   aspect-ratio : 1 / 1;
   border-radius: 50%;
   background: #f7f7f7;
-  display: table;
-}
-.donut .text {
-  display: table-cell;
-  vertical-align: middle;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 progress {
