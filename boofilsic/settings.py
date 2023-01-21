@@ -215,6 +215,8 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__name__))
 SITE_INFO = {
     "site_name": "NiceDB",
     "support_link": "https://github.com/doubaniux/boofilsic/issues",
+    "social_link": "https://donotban.com/@testie",
+    "donation_link": "https://patreon.com/tertius",
     "version_hash": None,
     "settings_module": os.getenv("DJANGO_SETTINGS_MODULE"),
     "sentry_dsn": None,
