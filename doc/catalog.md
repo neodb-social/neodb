@@ -3,7 +3,7 @@ Catalog
 
 Data Models
 -----------
-all types of catalog items inherits from `Item` which stores as multi-table django model. 
+all types of catalog items inherits from `Item` which stores as multi-table django model.
 one `Item` may have multiple `ExternalResource`s, each represents one page on an external site
 
 ```mermaid
@@ -34,10 +34,10 @@ classDiagram
     }
     Item <|-- Edition
     Item <|-- Series
-    
+
     Series *-- Work
     Work *-- Edition
-    
+
     class Series {
         +String Goodreads_Series_ID
     }
@@ -58,7 +58,7 @@ classDiagram
     Item <|-- TVEpisode
     TVShow *-- TVSeason
     TVSeason *-- TVEpisode
-    
+
     class TVShow{
         +String IMDB_ID
         +String TMDB_ID
@@ -90,6 +90,7 @@ Add a new site
 --------------
  - add a new item to `IdType` enum in `catalog/common/models.py`
  - add a new file in `catalog/sites/`, a new class inherits `AbstractSite`, with:
+    * `SITE_NAME`
     * `ID_TYPE`
     * `URL_PATTERNS`
     * `WIKI_PROPERTY_ID` (not used now)
@@ -105,3 +106,4 @@ Add a new site
      + move captured response file to `test_data/`, except large/images files. Or if have to, use a smallest version (e.g. 1x1 pixel / 1s audio)
      + add `@use_local_response` decorator to test methods that should pick up these responses
  - run all the tests and make sure they pass
+ - add `&.source-label__sitename` to `common/static/sass/_Label.sass`
