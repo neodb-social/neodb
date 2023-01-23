@@ -17,6 +17,7 @@ from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from polymorphic.base import django
+from catalog.common.models import ExternalResource
 from catalog.common.sites import AbstractSite, SiteManager
 from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
@@ -58,6 +59,11 @@ def retrieve(request, item_path, item_uuid):
         item_url = f"/{item_path}/{item_uuid}"
         if item.url != item_url:
             return redirect(item.url)
+        skipcheck = request.GET.get("skipcheck", False) and request.user.is_staff
+        if not skipcheck and item.merged_to_item:
+            return redirect(item.merged_to_item.url)
+        if not skipcheck and item.is_deleted:
+            return HttpResponseNotFound("item not found")
         mark = None
         review = None
         mark_list = None
@@ -148,7 +154,7 @@ def edit(request, item_path, item_uuid):
             "catalog_edit.html",
             {
                 "form": form,
-                "is_update": True,
+                "item": item,
             },
         )
     elif request.method == "POST":
@@ -176,7 +182,29 @@ def delete(request, item_path, item_uuid):
         return HttpResponseBadRequest()
     if not request.user.is_staff:
         raise PermissionDenied()
-    return HttpResponseBadRequest()
+    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    for res in item.external_resources.all():
+        res.item = None
+        res.save()
+    item.delete()
+    return (
+        redirect(item.url + "?skipcheck=1") if request.user.is_staff else redirect("/")
+    )
+
+
+@login_required
+def unlink(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+    if not request.user.is_staff:
+        raise PermissionDenied()
+    res_id = request.POST.get("id")
+    if not res_id:
+        return HttpResponseBadRequest()
+    resource = get_object_or_404(ExternalResource, id=res_id)
+    resource.item = None
+    resource.save()
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
 @login_required
@@ -189,6 +217,7 @@ def merge(request, item_path, item_uuid):
     new_item = Item.get_by_url(request.POST.get("new_item_url"))
     if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
         return HttpResponseBadRequest(b"invalid new item")
+    _logger.warn(f"{request.user} merges {item} to {new_item}")
     item.merge_to(new_item)
     update_journal_for_merged_item(item_uuid)
     return redirect(new_item.url)

@@ -175,7 +175,10 @@ def external_search(request):
     )
 
 
+@login_required
 def refetch(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
     url = request.POST.get("url")
     if not url:
         return HttpResponseBadRequest()

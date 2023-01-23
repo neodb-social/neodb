@@ -105,9 +105,6 @@
 		{% if user.is_authenticated %}
 		<a href="{% url 'catalog:edit' item.url_path item.uuid %}">{% trans '编辑' %}{{ item.demonstrative }}</a>
 		{% endif %}
-		{% if user.is_staff %}
-		/<a href="{% url 'catalog:delete' item.url_path item.uuid %}"> {% trans '删除' %}</a>
-		{% endif %}
 	</div>
 </div>
 {% endblock %}

@@ -23,6 +23,7 @@
       <section id="content" class="container">
         <div class="grid">
           <div style="float:right;padding-left:16px">
+          {% if item %}
             <div class="aside-section-wrapper">
               {% for res in form.instance.external_resources.all %}
               <div class="action-panel">
@@ -32,23 +33,63 @@
                     {% csrf_token %}
                     <input type="hidden" name="id" value="{{ res.id }}" >
                     <input type="hidden" name="url" value="{{ res.url }}" >
-                    <input class="button" type="submit" value="{% trans '从源网站重新抓取' %}">
+                    <input class="button" type="submit" value="{% trans '重新抓取' %}">
                   </form>
                 </div>
+                {% if request.user.is_staff %}
+                <div class="action-panel__button-group">
+                  <form method="post" action="{% url 'catalog:unlink' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{ res.id }}" >
+                    <input class="button" type="submit" value="{% trans '取消关联' %}">
+                  </form>
+                </div>
+                {% endif %}
               </div>
               {% endfor %}
             </div>
+
+            {% if request.user.is_staff %}
+            <div class="aside-section-wrapper">
+              <div class="action-panel">
+                <div class="action-panel__label">{% trans '合并到另一条目' %} </div>
+                <div class="action-panel__button-group">
+                  <form method="post" action="{% url 'catalog:merge' item.url_path item.uuid %}" onsubmit="return confirm('Confirm merging?');">
+                    {% csrf_token %}
+                    <input type="url" name="new_item_url" placeholder="目标条目URL" value="{{ item.merged_to_item.url }}" required><br>
+                    <input class="button" type="submit" value="{% trans '提交' %}">
+                  </form>
+                </div>
+              </div>
+
+              <div class="action-panel">
+                <div class="action-panel__label">{% trans '删除' %} </div>
+                <div class="action-panel__button-group">
+                  <form method="post" action="{% url 'catalog:delete' item.url_path item.uuid %}" onsubmit="return confirm('Confirm deletion?');">
+                    {% csrf_token %}
+                    <input class="button" type="submit" value="{% trans '提交' %}">
+                  </form>
+                </div>
+              </div>
+
+              {% if item.is_deteled %}
+              <!-- TODO undelete -->
+              {% endif %}
+            </div>
+            {% endif %}
+
+          {% endif %}
           </div>
           <div class="single-section-wrapper" id="main">
-              <form class="entity-form" action="{{ submit_url }}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.media }}
-                {{ form }}
-                <hr/>
-                <input class="button" type="submit" value="{% trans '提交' %}">
-                <a href="javascript:history.go(-1)" style="float:right;">返回</a>
-              </form>
-            </div>
+            <form class="entity-form" action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ form.media }}
+              {{ form }}
+              <hr/>
+              <input class="button" type="submit" value="{% trans '提交' %}">
+              <a href="{{ item.url | default:'javascript:history.go(-1)' }}" style="float:right;">返回</a>
+            </form>
+          </div>
 
           </section>
         </div>

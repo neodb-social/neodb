@@ -41,8 +41,8 @@
 	<div>{% if item.translator %}{% trans '译者：' %}
 		{% for translator in item.translator %}
 		<span>{{ translator }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %} 
-	{% endif %}</div>                                
+		{% endfor %}
+	{% endif %}</div>
 	<div>{% if item.orig_title %}{% trans '原作名：' %}{{ item.orig_title }}{% endif %}</div>
 	<div>{% if item.language %}{% trans '语言：' %}{{ item.language }}{% endif %}</div>
 	<div>{%if item.pub_year %}{% trans '出版时间：' %}{{ item.pub_year }}{% trans '年' %}{% if item.pub_month %}{{ item.pub_month }}{% trans '月' %}{% endif %}{% endif %}</div>
@@ -53,7 +53,7 @@
 	<div>{% if item.price %}{% trans '定价：' %}{{ item.price }}{% endif %}</div>
 	<div>{% if item.pages %}{% trans '页数：' %}{{ item.pages }}{% endif %}</div>
 	<div>{% if item.imprint %}{% trans '出品方：' %}{{ item.imprint }}{% endif %}</div>
-	{% if item.other_info %}                                  
+	{% if item.other_info %}
 	{% for k, v in item.other_info.items %}
 	<div>
 		{{ k }}：{{ v  | urlize }}
@@ -69,9 +69,6 @@
 	<div>
 		{% if user.is_authenticated %}
 		<a href="{% url 'catalog:edit' item.url_path item.uuid %}">{% trans '编辑' %}{{ item.demonstrative }}</a>
-		{% endif %}
-		{% if user.is_staff %}
-		/<a href="{% url 'catalog:delete' item.url_path item.uuid %}"> {% trans '删除' %}</a>
 		{% endif %}
 	</div>
 </div>

@@ -96,7 +96,7 @@ def query_item_category(item_category):
 
 
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
-    url_path = "piece"  # subclass must specify this
+    url_path = "p"  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
 
     @property
@@ -494,7 +494,7 @@ class ShelfMember(ListMember):
     )
 
     class Meta:
-        unique_together = [["parent", "item"]]
+        unique_together = [["owner", "item"]]
 
     @cached_property
     def mark(self):
@@ -1054,12 +1054,13 @@ def update_journal_for_merged_item(legacy_item_uuid):
         _logger.error("update_journal_for_merged_item: unable to find item")
         return
     new_item = legacy_item.merged_to_item
-    for cls in Content.__subclasses__ + ListMember.__subclasses__:
-        _logger.info(f"update {cls.__name__}: {legacy_item} -> {new_item}")
+    for cls in list(Content.__subclasses__()) + list(ListMember.__subclasses__()):
         for p in cls.objects.filter(item=legacy_item):
             try:
                 p.item = new_item
                 p.save(update_fields=["item_id"])
             except:
-                _logger.info(f"delete duplicated piece {p}")
+                _logger.warn(
+                    f"deleted piece {p} when merging {cls.__name__}: {legacy_item} -> {new_item}"
+                )
                 p.delete()

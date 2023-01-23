@@ -45,6 +45,12 @@
                 </a>
 
                 <div class="entity-detail__info">
+                  {% if item.is_deleted %}
+                  [DELETED]
+                  {% endif %}
+                  {% if item.merged_to_item %}
+                  [MERGED] <a href="{{ item.merged_to_item.url }}">{{ item.merged_to_item.title }}</a>
+                  {% endif %}
                   {% block title %}
                   <h5 class="entity-detail__title">
                     {{ item.title }}
@@ -122,7 +128,7 @@
                 <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
                 <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}" class="entity-marks__more-link">关注的人的标记</a>
                 {% endif %}
-                
+
                 <ul class="entity-marks__mark-list">
                 {% for others_mark in mark_list %}
                 <li class="entity-marks__mark">
