@@ -32,7 +32,7 @@
                         <a class="navbar__link {% if current == 'data' %}current{% endif %}" href="{% url 'users:data' %}">{% trans '数据' %}</a>
                         <a class="navbar__link {% if current == 'preferences' %}current{% endif %}" href="{% url 'users:preferences' %}">{% trans '设置' %}</a>
                         <a class="navbar__link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        {% if request.user.is_staff %}
+                        {% if request.user.is_superuser %}
                         <a class="navbar__link" href="{% admin_url %}">{% trans '后台' %}</a>
                         {% endif %}
 

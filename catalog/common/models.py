@@ -14,6 +14,7 @@ from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
 from .mixins import SoftDeleteMixin
 from django.conf import settings
 from users.models import User
+from django.db import connection
 
 _logger = logging.getLogger(__name__)
 
@@ -264,10 +265,20 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             res.item = to_item
             res.save()
 
-    def switch_class_to(self, cls):
-        _logger.warn(f"switch item across class from {self} to {cls}")
-        # TODO
-        pass
+    def recast_to(self, model):
+        _logger.warn(f"recast item {self} to {model}")
+        if self.__class__ == model:
+            return self
+        if model not in Item.__subclasses__():
+            raise ValueError("invalid model to recast to")
+        ct = ContentType.objects.get_for_model(model)
+        tbl = self.__class__._meta.db_table
+        obj = model(item_ptr_id=self.pk, polymorphic_ctype=ct)
+        obj.save_base(raw=True)
+        obj.save(update_fields=["polymorphic_ctype"])
+        with connection.cursor() as cursor:
+            cursor.execute(f"DELETE FROM {tbl} WHERE item_ptr_id = %s", [self.pk])
+        return model.objects.get(pk=obj.pk)
 
     @property
     def uuid(self):

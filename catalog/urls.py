@@ -54,6 +54,13 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/recast$",
+        recast,
+        name="recast",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
         + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/reviews",
         review_list,
         name="review_list",

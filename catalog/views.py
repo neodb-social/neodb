@@ -17,7 +17,7 @@ from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from polymorphic.base import django
-from catalog.common.models import ExternalResource
+from catalog.common.models import ExternalResource, ItemCategory
 from catalog.common.sites import AbstractSite, SiteManager
 from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
@@ -149,14 +149,7 @@ def edit(request, item_path, item_uuid):
         if item.external_resources.all().count() > 0:
             form.fields["primary_lookup_id_type"].disabled = True
             form.fields["primary_lookup_id_value"].disabled = True
-        return render(
-            request,
-            "catalog_edit.html",
-            {
-                "form": form,
-                "item": item,
-            },
-        )
+        return render(request, "catalog_edit.html", {"form": form, "item": item})
     elif request.method == "POST":
         item = get_object_or_404(Item, uid=base62.decode(item_uuid))
         form_cls = CatalogForms[item.__class__.__name__]
@@ -190,6 +183,21 @@ def delete(request, item_path, item_uuid):
     return (
         redirect(item.url + "?skipcheck=1") if request.user.is_staff else redirect("/")
     )
+
+
+@login_required
+def recast(request, item_path, item_uuid):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+    if not request.user.is_staff:
+        raise PermissionDenied()
+    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    cls = request.POST.get("class")
+    model = TVShow if cls == "tvshow" else (Movie if cls == "movie" else None)
+    if not model:
+        return HttpResponseBadRequest("invalid class")
+    new_item = item.recast_to(model)
+    return redirect(new_item.url)
 
 
 @login_required

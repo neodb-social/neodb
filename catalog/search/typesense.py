@@ -170,7 +170,9 @@ class Indexer:
         for field in obj.__class__.indexable_fields:
             item[field] = getattr(obj, field)
         for field in obj.__class__.indexable_fields_time:
-            item[field] = getattr(obj, field).timestamp()
+            item[field] = (
+                getattr(obj, field).timestamp() if getattr(obj, field) else None
+            )
         for field in obj.__class__.indexable_fields_float:
             item[field] = float(getattr(obj, field)) if getattr(obj, field) else None
         for field in obj.__class__.indexable_fields_dict:

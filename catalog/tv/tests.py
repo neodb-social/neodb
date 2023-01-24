@@ -134,3 +134,18 @@ class MultiTVSitesTestCase(TestCase):
         self.assertEqual(p2.item.imdb, p3.item.imdb)
         self.assertEqual(p1.item.id, p2.item.id)
         self.assertEqual(p2.item.id, p3.item.id)
+
+
+class MovieTVModelRecastTestCase(TestCase):
+    @use_local_response
+    def test_recast(self):
+        from catalog.models import Movie, TVShow
+
+        url2 = "https://www.imdb.com/title/tt0436992/"
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        tv = p2.item
+        self.assertEqual(tv.class_name, "tvshow")
+        self.assertEqual(tv.title, "神秘博士")
+        movie = tv.recast_to(Movie)
+        self.assertEqual(movie.class_name, "movie")
+        self.assertEqual(movie.title, "神秘博士")

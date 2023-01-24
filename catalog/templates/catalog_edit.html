@@ -52,17 +52,33 @@
             {% if request.user.is_staff %}
             <div class="aside-section-wrapper">
               <div class="action-panel">
+
+                {% if item.class_name == "movie" or item.class_name == "tvshow" %}
+                <div class="action-panel__label">{% trans '切换分类' %} </div>
+                <div class="action-panel__button-group">
+                  <form method="post" action="{% url 'catalog:recast' item.url_path item.uuid %}" onsubmit="return confirm('Confirm updating?');">
+                    {% csrf_token %}
+                    {% if item.class_name == "movie" %}
+                    <input type="hidden" value="tvshow" name="class">
+                    <input class="button" type="submit" value="{% trans '更改为剧集' %}">
+                    {% endif %}
+                    {% if item.class_name == "tvshow" %}
+                    <input type="hidden" value="movie" name="class">
+                    <input class="button" type="submit" value="{% trans '更改为电影' %}">
+                    {% endif %}
+                  </form>
+                </div>
+                {% endif %}
+
                 <div class="action-panel__label">{% trans '合并到另一条目' %} </div>
                 <div class="action-panel__button-group">
                   <form method="post" action="{% url 'catalog:merge' item.url_path item.uuid %}" onsubmit="return confirm('Confirm merging?');">
                     {% csrf_token %}
-                    <input type="url" name="new_item_url" placeholder="目标条目URL" value="{{ item.merged_to_item.url }}" required><br>
+                    <input type="url" name="new_item_url" placeholder="目标条目URL" value="{{ item.merged_to_item.absolute_url }}" required><br>
                     <input class="button" type="submit" value="{% trans '提交' %}">
                   </form>
                 </div>
-              </div>
 
-              <div class="action-panel">
                 <div class="action-panel__label">{% trans '删除' %} </div>
                 <div class="action-panel__button-group">
                   <form method="post" action="{% url 'catalog:delete' item.url_path item.uuid %}" onsubmit="return confirm('Confirm deletion?');">
