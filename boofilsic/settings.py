@@ -225,7 +225,7 @@ SITE_INFO = {
 # Mastodon configs
 CLIENT_NAME = os.environ.get("APP_NAME", "NiceDB")
 SITE_INFO["site_name"] = os.environ.get("APP_NAME", "NiceDB")
-APP_WEBSITE = os.environ.get("APP_URL", "https://nicedb.org")
+APP_WEBSITE = os.environ.get("APP_URL", "https://localhost")
 REDIRECT_URIS = APP_WEBSITE + "/users/OAuth2_login/"
 
 
@@ -323,7 +323,7 @@ if DEBUG:
 # https://django-debug-toolbar.readthedocs.io/en/latest/
 # maybe benchmarking before deployment
 
-REDIS_HOST = os.environ.get("REDIS_HOST", "127.0.0.1")
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 
 RQ_QUEUES = {
     "mastodon": {
@@ -339,19 +339,19 @@ RQ_QUEUES = {
         "DEFAULT_TIMEOUT": -1,
     },
     "import": {
-        "HOST": "localhost",
+        "HOST": REDIS_HOST,
         "PORT": 6379,
         "DB": 0,
         "DEFAULT_TIMEOUT": -1,
     },
     "fetch": {
-        "HOST": "localhost",
+        "HOST": REDIS_HOST,
         "PORT": 6379,
         "DB": 0,
         "DEFAULT_TIMEOUT": -1,
     },
     "crawl": {
-        "HOST": "localhost",
+        "HOST": REDIS_HOST,
         "PORT": 6379,
         "DB": 0,
         "DEFAULT_TIMEOUT": -1,
