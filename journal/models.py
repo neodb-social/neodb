@@ -557,9 +557,7 @@ class ShelfManager:
             self.shelf_list[qt] = Shelf.objects.create(owner=self.owner, shelf_type=qt)
 
     def locate_item(self, item) -> ShelfMember:
-        return ShelfMember.objects.filter(
-            item=item, parent__in=list(self.shelf_list.values())
-        ).first()
+        return ShelfMember.objects.filter(item=item, owner=self.owner).first()
 
     def move_item(self, item, shelf_type, visibility=0, metadata=None):
         # shelf_type=None means remove from current shelf

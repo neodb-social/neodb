@@ -10,13 +10,12 @@
 {% load user_actions %}
 
 {% wish_item_action activity.action_object.item as action %}
-
 <div class="entity-list__entity-img-wrapper">
   <a href="{{ activity.action_object.item.url }}">
     <img src="{{ activity.action_object.item.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img" style="min-width:80px;max-width:80px">
   </a>
-  {% if not action.take %}
-  <a class="entity-list__entity-action-icon" hx-post="{{ action.url }}">➕</a>
+  {% if not action.taken %}
+  <a title="加入想读" class="entity-list__entity-action-icon" hx-get="{% url 'journal:mark' activity.action_object.item.uuid %}?shelf_type=wishlist" class="edit" hx-target="body" hx-swap="beforeend">➕</a>
   {% endif %}
 </div>
 <div class="entity-list__entity-text">

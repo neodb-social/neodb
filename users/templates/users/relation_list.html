@@ -16,7 +16,7 @@
     <title>{{ site_name }} - {% trans '关注的人' %}</title>
     {% endif %}
 
-    {% include "partial/_common_libs.html" with jquery=1 %}
+    {% include "common_libs.html" with jquery=1 %}
 
     <script src="{% static 'js/mastodon.js' %}"></script>
 
@@ -57,7 +57,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
                         <div class="aside-section-wrapper aside-section-wrapper--no-margin">
                             <div class="user-profile" id="userInfoCard">
@@ -70,15 +70,15 @@
                                 </div>
                                 <p class="user-profile__bio mast-brief"></p>
                                 <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
-                    
+
                                 {% if request.user != user %}
                                 <a href="{% url 'users:report' %}?user_id={{ user.id }}"
                                     class="user-profile__report-link">{% trans '举报用户' %}</a>
                                 {% endif %}
-                    
+
                             </div>
                         </div>
-                    
+
                         <div class="relation-dropdown">
                             <div class="relation-dropdown__button">
                                 <span class="icon-arrow">
@@ -89,7 +89,7 @@
                             </div>
                             <div class="relation-dropdown__body">
                                 <div class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
-                    
+
                                     <div class="user-relation" id="followings">
                                         <h5 class="user-relation__label">
                                             {% trans '关注的人' %}
@@ -105,7 +105,7 @@
                                             </li>
                                         </ul>
                                     </div>
-                    
+
                                     <div class="user-relation" id="followers">
                                         <h5 class="user-relation__label">
                                             {% trans '被他们关注' %}
@@ -121,11 +121,11 @@
                                             </li>
                                         </ul>
                                     </div>
-                    
+
                                 </div>
                             </div>
                         </div>
-                    
+
                     </div>
                 </div>
             </section>

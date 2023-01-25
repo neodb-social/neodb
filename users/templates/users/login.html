@@ -11,7 +11,7 @@
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
     <title>{{ site_name }} - {% trans '登录' %}</title>
-    {% include "partial/_common_libs.html" %}
+    {% include "common_libs.html" %}
     <link rel="stylesheet" href="https://cdn.staticfile.org/milligram/1.4.1/milligram.min.css">
     <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
@@ -68,7 +68,7 @@
                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             <input type='submit' value="{% trans '授权登录' %}" id="loginButton" disabled />
             <script type="text/javascript">if (Cookies.get('mastodon_domain')) $('#domain').val(Cookies.get('mastodon_domain'));</script>
-            {% else %}            
+            {% else %}
             <select name="domain" placeholder="test">
                 {% for site in sites %}
                 <option value="{{ site.domain_name }}" data-client-id="{{ site.client_id }}">@{{ site.domain_name }}</option>

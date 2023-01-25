@@ -18,7 +18,7 @@
   {% endif %}
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }} - {{ user.mastodon_username }}的评论" href="{{ request.build_absolute_uri }}feed/reviews/">
 
-  {% include "partial/_common_libs.html" with jquery=1 %}
+  {% include "common_libs.html" with jquery=1 %}
 
   <script src="{% static 'js/mastodon.js' %}" defer></script>
   <script src="{% static 'js/home.js' %}" defer></script>
@@ -37,7 +37,7 @@
 
               {% for category, category_shelves in shelf_list.items %}
               {% for shelf_type, shelf in category_shelves.items %}
-              
+
               <div class="entity-sort" id="{{ category }}_{{ shelf_type }}">
                 <h5 class="entity-sort__label">
                   {{ shelf.title }}
@@ -52,7 +52,7 @@
                   {% for member in shelf.members %}
                   <li class="entity-sort__entity">
                     <a href="{% if shelf_type == 'reviewed' %}{{ member.url }}{% else %}{{ member.item.url }}{% endif %}">
-                      <img src="{{ member.item.cover.url }}" alt="{{ member.item.title }}" class="entity-sort__entity-img"> 
+                      <img src="{{ member.item.cover.url }}" alt="{{ member.item.title }}" class="entity-sort__entity-img">
                       <div class="entity-sort__entity-name" title="{{ member.item.title }}"> {{ member.item.title }}</div>
                     </a>
                   </li>
@@ -63,7 +63,7 @@
               </div>
               {% endfor %}
               {% endfor %}
-              
+
 
               <div class="entity-sort" id="collection_created">
                 <h5 class="entity-sort__label">
@@ -172,7 +172,7 @@
             <script src="{% static 'js/sort_layout.js' %}"></script>
             {% endif %}
 
-            {{ layout|json_script:"layout-data" }} 
+            {{ layout|json_script:"layout-data" }}
             <script>
               const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
                             // initialize sort element visibility and order

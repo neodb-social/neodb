@@ -15,20 +15,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans '搜索结果' %}</title>
-    <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.8.4/htmx.min.js"></script>
-    <script src="{% static 'lib/js/rating-star.js' %}"></script>
-    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/collection.css' %}">
+    {% include "common_libs.html" with jquery=1 %}
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
             {% include 'partial/_navbar.html' %}
-        
+
             <section id="content">
                 <div class="grid">
                     <div class="grid__main">
@@ -38,11 +32,11 @@
                                 {% if request.GET.q %}
                                 <h5 class="entity-list__title">“{{ request.GET.q }}” {% trans '的搜索结果' %}</h5>
                                 {% endif %}
-                                
+
                                 {% if request.GET.tag %}
                                 <h5 class="entity-list__title">{% trans '含有标签' %} “{{ request.GET.tag }}” {% trans '的结果' %}</h5>
                                 {% endif %}
-                                    
+
                                 <ul class="entity-list__entities">
                                     {% for item in items %}
                                     {% with "list_item_"|add:item.class_name|add:".html" as template %}
@@ -77,32 +71,32 @@
                                 </ul>
                             </div>
                             <div class="pagination" >
-                                
+
                                 {% if pagination.has_prev %}
                                     <a href="?page=1&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link pagination__nav-link">&laquo;</a>
                                     <a href="?page={{ pagination.previous_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
                                 {% endif %}
-                                    
+
                                 {% for page in pagination.page_range %}
-                                    
+
                                     {% if page == pagination.current_page %}
                                     <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
                                     {% else %}
                                     <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__page-link">{{ page }}</a>
                                     {% endif %}
-                                        
+
                                 {% endfor %}
-                                    
+
                                 {% if pagination.has_next %}
                                     <a href="?page={{ pagination.next_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
                                     <a href="?page={{ pagination.last_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link">&raquo;</a>
-                                {% endif %}           
-                              
-                            </div>            
+                                {% endif %}
+
+                            </div>
                         </div>
-           
+
                     </div>
-        
+
                     {% include "search_sidebar.html" %}
                 </div>
             </section>
@@ -110,8 +104,8 @@
         {% include 'partial/_footer.html' %}
     </div>
 
-    
-        
+
+
     <script>
       document.body.addEventListener('htmx:configRequest', (event) => {
         event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
