@@ -1,0 +1,60 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load highlight %}
+{% load thumb %}
+
+<div id="modal" _="on closeModal add .closing then wait for animationend then remove me">
+  <div class="modal-underlay" _="on click trigger closeModal"></div>
+  <div class="modal-content">
+    <div class="add-to-list-modal__head">
+      <span class="add-to-list-modal__title">{% trans '编辑标签' %} {{ item.title }}</span>
+      <span class="add-to-list-modal__close-button modal-close" _="on click trigger closeModal">
+        <span class="icon-cross">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <polygon
+            points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
+          </polygon>
+        </svg>
+      </span>
+    </span>
+  </div>
+  <div class="add-to-list-modal__body">
+    <form action="{% url 'journal:user_tag_edit' %}?tag={{tag.title}}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="id" value="{{tag.id}}">
+      <div class="mark-modal__tag">
+        <div class="tag-input">
+          <input name="title" type="text" value="{{tag.title}}" required>
+        </div>
+      </div>
+
+      <div class="mark-modal__option">
+        <div class="mark-modal__visibility-radio">
+          <span>可见性：
+            <ul id="id_visibility">
+              <li><label for="id_visibility_0"><input type="radio" name="visibility" value="0" required="" id="id_visibility_0" {% if tag.visibility == 0 %}checked{% endif %}> 公开</label> </li>
+              <li><label for="id_visibility_2"><input type="radio" name="visibility" value="2" required="" id="id_visibility_2" {% if tag.visibility != 0 %}checked{% endif %}> 仅自己</label> </li>
+            </ul>
+          </span>
+        </div>
+      </div>
+
+      <div class="mark-modal__confirm-button">
+        <input type="submit" class="button float-right" value="保存">
+      </div>
+
+      <div class="mark-modal__option">
+        <div class="mark-modal__visibility-radio">
+          <span>
+            <label for="_delete" title="无法撤销"><input type="checkbox" name="delete" value="1" id="_delete"> 删除这个标签</label>
+          </span>
+        </div>
+      </div>
+    </form>
+  </div>

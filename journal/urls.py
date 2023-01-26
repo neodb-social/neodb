@@ -101,6 +101,11 @@ urlpatterns = [
         user_tag_member_list,
         name="user_tag_member_list",
     ),
+    path(
+        "tag/edit",
+        user_tag_edit,
+        name="user_tag_edit",
+    ),
     re_path(
         r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/collections/$",
         user_collection_list,

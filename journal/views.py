@@ -9,7 +9,7 @@ from django.http import (
     HttpResponseBadRequest,
     HttpResponseNotFound,
 )
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.db.models import Count
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -25,6 +25,8 @@ from mastodon.api import share_review, share_collection
 from users.views import render_user_blocked, render_user_not_found
 from users.models import User, Report, Preference
 from common.utils import PageLinksGenerator
+from user_messages import api as msg
+
 
 _logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
@@ -469,6 +471,7 @@ def _render_list(
         request.user.is_blocked_by(user) or request.user.is_blocking(user)
     ):
         return render_user_blocked(request)
+    tag = None
     if type == "mark":
         queryset = user.shelf_manager.get_members(shelf_type, item_category)
     elif type == "tagmember":
@@ -493,7 +496,7 @@ def _render_list(
     return render(
         request,
         f"user_{type}_list.html",
-        {"user": user, "members": members, "tag_title": tag_title},
+        {"user": user, "members": members, "tag": tag},
     )
 
 
@@ -507,6 +510,53 @@ def user_mark_list(request, user_name, shelf_type, item_category):
 @login_required
 def user_tag_member_list(request, user_name, tag_title):
     return _render_list(request, user_name, "tagmember", tag_title=tag_title)
+
+
+@login_required
+def user_tag_edit(request):
+    if request.method == "GET":
+        tag_title = Tag.cleanup_title(request.GET.get("tag", ""))
+        if not tag_title:
+            return HttpResponseNotFound()
+        tag = Tag.objects.filter(owner=request.user, title=tag_title).first()
+        if not tag:
+            return HttpResponseNotFound()
+        return render(request, "tag_edit.html", {"tag": tag})
+    elif request.method == "POST":
+        tag_title = Tag.cleanup_title(request.POST.get("title", ""))
+        tag_id = request.POST.get("id")
+        tag = (
+            Tag.objects.filter(owner=request.user, id=tag_id).first()
+            if tag_id
+            else None
+        )
+        if not tag or not tag_title:
+            msg.error(request.user, _("无效标签"))
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        if request.POST.get("delete"):
+            tag.delete()
+            msg.info(request.user, _("标签已删除"))
+            return redirect(
+                reverse("journal:user_tag_list", args=[request.user.mastodon_username])
+            )
+        elif (
+            tag_title != tag.title
+            and Tag.objects.filter(owner=request.user, title=tag_title).exists()
+        ):
+            msg.error(request.user, _("标签已存在"))
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        tag.title = tag_title
+        tag.visibility = Tag.cleanup_title(request.POST.get("visibility"))
+        tag.visibility = 0 if tag.visibility == 0 else 2
+        tag.save()
+        msg.info(request.user, _("标签已修改"))
+        return redirect(
+            reverse(
+                "journal:user_tag_member_list",
+                args=[request.user.mastodon_username, tag.title],
+            )
+        )
+    return HttpResponseBadRequest()
 
 
 @login_required
