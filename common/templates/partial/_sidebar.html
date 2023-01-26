@@ -6,6 +6,7 @@
 {% load truncate %}
 {% load thumb %}
 {% load collection %}
+{% load bleach_tags %}
 
 <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
     <div class="aside-section-wrapper aside-section-wrapper--no-margin">
@@ -26,7 +27,7 @@
                 </a>
                 {% endif %}
             </p>
-            <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note }}</p>
+            <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
 
             {% if request.user != user %}
             <a href="{% url 'users:report' %}?user_id={{ user.id }}"

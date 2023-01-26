@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "django_sass",
     "django_rq",
+    "django_bleach",
     "tz_detect",
     "simple_history",
     "markdownx",
@@ -304,6 +305,9 @@ GOOGLE_API_KEY = "***REMOVED***"
 # IGDB
 IGDB_CLIENT_ID = "deadbeef"
 IGDB_CLIENT_SECRET = "deadbeef"
+
+BLEACH_STRIP_COMMENTS = True
+BLEACH_STRIP_TAGS = True
 
 # Thumbnail setting
 # It is possible to optimize the image size even more: https://easy-thumbnails.readthedocs.io/en/latest/ref/optimize/
