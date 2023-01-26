@@ -17,7 +17,7 @@
   <meta property="og:url" content="{{ request.build_absolute_uri }}">
   <meta property="og:image" content="{{ review.item.cover|thumb:'normal' }}">
   <title>{{ site_name }}{% trans '评论' %} - {{ review.title }}</title>
-  {% include "common_libs.html" with jquery=1 %}
+  {% include "common_libs.html" with jquery=0 %}
 </head>
 
 <body>
@@ -44,7 +44,7 @@
 
                     <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}" class="review-head__owner-link">{{ review.owner.username }}</a>
 
-                    {% if mark %}    
+                    {% if mark %}
 
                     {% if mark.rating %}
                     <span class="review-head__rating-star rating-star" data-rating-score="{{ mark.rating | floatformat:0 }}"></span>

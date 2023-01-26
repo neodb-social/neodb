@@ -15,7 +15,19 @@
 {% if jquery %}
 <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
 {% else %}
-<script src="https://cdn.staticfile.org/cash/8.1.1/cash.min.js"></script>
+<script src="https://cdn.staticfile.org/cash/8.1.2/cash.min.js"></script>
+<script type="text/javascript">
+  $.fn.is_visible = function visible() {
+      return this.filter((_, elt) => (elt.offsetWidth || elt.offsetHeight || elt.getClientRects().length)).length > 0;
+  };
+  if (!$.fn.submit) $.fn.submit = function () {
+      this.each(function () {
+          $(this).trigger('submit');
+          this.submit();
+      });
+      return this;
+  };
+</script>
 {% endif %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.8.4/htmx.min.js"></script>
 <script src="{% static 'lib/js/hyperscript-0.9.7.min.js' %}"></script>

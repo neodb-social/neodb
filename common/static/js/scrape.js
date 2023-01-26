@@ -1,5 +1,5 @@
 $(document).ready( function() {
-    
+
     $(".submit").on('click', function(e) {
         e.preventDefault();
         let form = $("#scrapeForm form");
@@ -18,7 +18,7 @@ $(document).ready( function() {
     // });
 
     // preview uploaded pic
-    $("input[type='file']").change(function() {
+    $("input[type='file']").on("change", function() {
         if (this.files && this.files[0]) {
             var reader = new FileReader();
 
@@ -89,5 +89,5 @@ $(document).ready( function() {
             }
         });
     });
-    
+
 });

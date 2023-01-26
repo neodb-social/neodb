@@ -493,10 +493,7 @@ def _render_list(
     return render(
         request,
         f"user_{type}_list.html",
-        {
-            "user": user,
-            "members": members,
-        },
+        {"user": user, "members": members, "tag_title": tag_title},
     )
 
 

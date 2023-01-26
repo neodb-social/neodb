@@ -13,7 +13,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ site_name }} - {{ item.title }}{% trans '的评论' %}</title>
-  {% include "common_libs.html" with jquery=1 %}
+  {% include "common_libs.html" with jquery=0 %}
 </head>
 
 <body>
@@ -81,7 +81,7 @@
       {% include "partial/_footer.html" %}
     </div>
 
-    
+
 
     <script>
 

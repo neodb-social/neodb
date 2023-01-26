@@ -1,5 +1,4 @@
 $(() => {
-    
     // initialization
 
     // add toggle display button
@@ -9,7 +8,7 @@ $(() => {
         }
         let btn = $("#toggleDisplayButtonTemplate").clone().removeAttr("id");
         btn.on('click', e => {
-            if ($(e.currentTarget).parent().data('visibility') === true) {                
+            if ($(e.currentTarget).parent().data('visibility') === true) {
                 // flip text
                 $(e.currentTarget).children("span.showText").show();
                 $(e.currentTarget).children("span.hideText").hide();
@@ -74,14 +73,14 @@ $(() => {
     // activate sorting
     $("#sortEditButton").on('click', evt => {
         // test if edit mode is activated
-        isActivated = $("#sortSaveIcon").is(":visible");
+        isActivated = $("#sortSaveIcon").is_visible();
 
         if (isActivated) {
             // save edited layout
 
             // disable buttons
-            $("#sortEditButton").unbind();
-            $("#sortExitButton").unbind();
+            $("#sortEditButton").off();
+            $("#sortExitButton").off();
             $("#sortEditButton").prop('disabled', true);
             $("#sortExitButton").prop('disabled', true);
 
@@ -130,9 +129,9 @@ $(() => {
                 }
             });
         }
-        isActivated = $("#sortSaveIcon").is(":visible");
+        isActivated = $("#sortSaveIcon").is_visible();
     });
-    
+
     // exit edit mode
     $("#sortExitButton").on('click', evt => {
         initialLayoutData.forEach(elem => {
@@ -159,7 +158,7 @@ $(() => {
             }
             $(elem).children(".entity-sort-control__button").hide();
         });
-        isActivated = $("#sortSaveIcon").is(":visible");
+        isActivated = $("#sortSaveIcon").is_visible();
     });
 
 });

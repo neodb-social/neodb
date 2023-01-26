@@ -20,7 +20,7 @@
     <div id="page-wrapper">
         <div id="content-wrapper">
             {% include "partial/_navbar.html" %}
-        
+
             <section id="content">
                 <div class="grid">
                     <div class="single-section-wrapper" id="main">
@@ -30,19 +30,19 @@
                             <input class="button" type="submit" value="{% trans '提交' %}">
                         </form>
                     </div>
-                    
+
                 </div>
             </section>
         </div>
         {% include "partial/_footer.html" %}
     </div>
 
-    
-        
+
+
     <script>
 
         // preview uploaded pic
-        $("input[type='file']").change(function () {
+        $("input[type='file']").on("change", function () {
             if (this.files && this.files[0]) {
                 var reader = new FileReader();
 
@@ -52,7 +52,7 @@
 
                 reader.readAsDataURL(this.files[0]);
             }
-        });        
+        });
     </script>
 </body>
 

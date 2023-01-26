@@ -24,7 +24,7 @@
   {% block opengraph %}
   {% endblock %}
   <title>{{ site_name }} - {% trans item.category.label %} | {{ item.title }}</title>
-  {% include "common_libs.html" with jquery=1 %}
+  {% include "common_libs.html" with jquery=0 %}
 </head>
 
 <body>
@@ -227,7 +227,7 @@
                 <div class="tag-collection">
 
                   {% for tag in mark.tags %}
-                  <span class="tag-collection__tag">{{ tag }}</span>
+                  <span class="tag-collection__tag"><a href="{% url 'journal:user_tag_member_list' user.mastodon_username tag %}">{{ tag }}</a></span>
                   {% endfor %}
 
                 </div>

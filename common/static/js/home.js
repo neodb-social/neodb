@@ -1,7 +1,7 @@
 $(document).ready( function() {
     $("#userInfoCard .mast-brief").text($("<div>"+$("#userInfoCard .mast-brief").text().replace(/\<br/g,'\n<br').replace(/\<p/g,'\n<p')+"</div>").text());
     $("#userInfoCard .mast-brief").html($("#userInfoCard .mast-brief").html().replace(/\n/g,'<br/>'));
-    
+
     let token = $("#oauth2Token").text();
     let mast_domain = $("#mastodonURI").text();
     let mast_uri = 'https://' + mast_domain
@@ -18,9 +18,9 @@ $(document).ready( function() {
         $(".mast-followers-more").hide();
 
         getUserInfo(
-            id, 
-            mast_uri, 
-            token, 
+            id,
+            mast_uri,
+            token,
             function(userData) {
                 let userName;
                 if (userData.display_name) {
@@ -30,7 +30,7 @@ $(document).ready( function() {
                 }
                 $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
                 $("#userInfoCard .mast-displayname").html(userName);
-                $("#userInfoCard .mast-brief").text($('<p>'+userData.note+'</p>').text());
+                $("#userInfoCard .mast-brief").text($('<div>'+userData.note+'</div>').text())
                 // $(userInfoSpinner).remove();
             }
         );
@@ -151,7 +151,7 @@ $(document).ready( function() {
 
         // disable submit button
         btn.prop('disabled', true);
-        
+
         // show progress bar & hide last status
         $(".import-panel__progress").show();
         $(".import-panel__last-task").hide();

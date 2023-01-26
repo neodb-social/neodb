@@ -134,23 +134,24 @@ async function getFollowing(id, mastodonURI, token, callback) {
 //   }
 function getUserInfo(id, mastodonURI, token, callback) {
     let url = mastodonURI + API_GET_ACCOUNT.replace(":id", id);
-    $.ajax({
-        url: url,
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-        },
-        success: function(data){
-            callback(data);
-        },
-    });
+    fetch(url, {headers: {'Authorization': 'Bearer ' + token}}).then((response) => response.json()).then(callback);
+    // $.ajax({
+    //     url: url,
+    //     method: 'GET',
+    //     headers: {
+    //         'Authorization': 'Bearer ' + token,
+    //     },
+    //     success: function(data){
+    //         callback(data);
+    //     },
+    // });
 }
 
 function getEmojiDict(emoji_list) {
     let dict = new Object;
     emoji_list.forEach(pair => {
         dict[":" + pair.shortcode + ":"] = pair.url;
-    }); 
+    });
     return dict;
 }
 
@@ -162,9 +163,9 @@ function translateEmojis(text, emoji_list, large) {
         translation = text.replace(regex, function (match) {
             return "<img src=" + dict[match] + " class=emoji--large alt=" + match + ">";
         });
-    } else {        
+    } else {
         translation = text.replace(regex, function (match) {
-            return "<img src=" + dict[match] + " class=emoji alt=" + match + ">"; 
+            return "<img src=" + dict[match] + " class=emoji alt=" + match + ">";
         });
     }
     return translation;

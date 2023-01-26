@@ -15,7 +15,7 @@
   {% block title %}
   <title>{{ site_name }} - {{ user.mastodon_username }}</title>
   {% endblock %}
-  {% include "common_libs.html" with jquery=1 %}
+  {% include "common_libs.html" with jquery=0 %}
 </head>
 
 <body>
@@ -43,7 +43,7 @@
                   {% endwith %}
                   {% empty %}
                   <div>{% trans '无结果' %}</div>
-                  {% endfor %} 
+                  {% endfor %}
                 </ul>
               </div>
               <div class="pagination">

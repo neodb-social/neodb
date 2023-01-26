@@ -1,7 +1,7 @@
 <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
 <img src="{{ widget.value|default_if_none:''|stringformat:'s' }}" alt="" id="previewImage" style="margin:10px 0; max-width:500px;">
 <script>
-    $("input[type='file'][name='{{ widget.name }}']").change(function () {
+    $("input[type='file'][name='{{ widget.name }}']").on("change", function () {
         if (this.files && this.files[0]) {
             var reader = new FileReader();
 

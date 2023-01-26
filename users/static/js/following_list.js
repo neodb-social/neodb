@@ -1,6 +1,6 @@
 
 $(document).ready( function() {
-    
+
     let token = $("#oauth2Token").text();
     let mast_uri = $("#mastodonURI").text();
     let mast_domain = new URL(mast_uri);
@@ -14,7 +14,7 @@ $(document).ready( function() {
     let followingSpinner = $("#spinner").clone().removeAttr("hidden");
     let mainSpinner = $("#spinner").clone().removeAttr("hidden");
 
-    $(".mast-user:first").hide();
+    $(".mast-user").first().hide();
 
     $(".mast-user-list").append(mainSpinner);
     $("#userInfoCard").append(userInfoSpinner);
@@ -136,7 +136,7 @@ $(document).ready( function() {
                 }
                 temp.find("a").attr('href', url);
                 temp.find(".mast-brief").text(data.note.replace(/(<([^>]+)>)/ig,""));
-                $(".mast-user:last").after(temp);                
+                $(".mast-user").last().after(temp);
             });
 
             mainSpinner.hide();
@@ -146,22 +146,22 @@ $(document).ready( function() {
 
     $(document.body).on('touchmove', () => {
         let scrollPosition = $(window).scrollTop();
-        // test if scoll to bottom 
+        // test if scoll to bottom
         // mobile phone has extra offset
         if (scrollPosition + $(window).height() > $(document).height() - 70) {
             onScroll();
         }
     });
 
-        
-    $(window).scroll(function() {
+
+    $(window).on("scroll", function() {
         let scrollPosition = $(window).scrollTop();
-        // test if scoll to bottom 
+        // test if scoll to bottom
         if (scrollPosition + $(window).height() > $(document).height() - 0.5) {
             onScroll();
         }
     });
-    
+
     function onScroll() {
         if (!requesting && nextUrl) {
             // acquire lock
@@ -181,7 +181,7 @@ $(document).ready( function() {
                         mainSpinner.hide();
                         return;
                     }
-                    let template = $(".mast-user:first").clone().show();
+                    let template = $(".mast-user").first().clone().show();
                     let newUrlFlag = false;
                     request.getResponseHeader('link').split(',').forEach(link => {
                         if (link.includes('next')) {
@@ -211,12 +211,12 @@ $(document).ready( function() {
                         temp.find("a").attr('href', url);
                         temp.find(".mast-brief").text(data.note.replace(/(<([^>]+)>)/ig, ""));
                         // console.log($(temp).html())
-                        $(".mast-user:last").after(temp);
+                        $(".mast-user").last().after(temp);
                     });
                     mainSpinner.hide();
                     // console.log(userList[userList.length-1].username)
-                    // console.log(nextUrl)    
-                    // release lock   
+                    // console.log(nextUrl)
+                    // release lock
                     requesting = false;
                 },
             });

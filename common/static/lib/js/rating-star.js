@@ -302,12 +302,10 @@
 
     return this.each(function() {
       // preventing against multiple instantiations
-      if ( !$.data( this, 'plugin_' + pluginName ) ) {
-        $.data( this, 'plugin_' + pluginName, new Plugin( this, options ) );
+      if ( !$(this).data( 'plugin_' + pluginName ) ) {
+        $(this).data( 'plugin_' + pluginName, new Plugin( this, options ) );
       }
     });
   };
 
-})( jQuery, window, document );
-
-
+})( $, window, document );
