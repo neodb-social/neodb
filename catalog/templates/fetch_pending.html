@@ -15,20 +15,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans '搜索结果' %}</title>
-    <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.8.4/htmx.min.js"></script>
-    <script src="{% static 'lib/js/rating-star.js' %}"></script>
-    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/collection.css' %}">
+    {% include "common_libs.html" with jquery=0 %}
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
             {% include 'partial/_navbar.html' %}
-        
+
             <section id="content">
                 <div class="grid">
                     <div class="grid__main">
@@ -53,12 +47,12 @@
                                     </div>
                                 </div>
                             </div>
-        
+
                         </div>
-           
+
                     </div>
-        
-                    
+
+
                     {% include "search_sidebar.html" %}
 
                 </div>
@@ -67,8 +61,8 @@
         {% include 'partial/_footer.html' %}
     </div>
 
-    
-        
+
+
     <script>
       document.body.addEventListener('htmx:configRequest', (event) => {
         event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';

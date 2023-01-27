@@ -28,7 +28,7 @@ function catalog_init(context) {
             $(this).addClass('entity-desc__content--folded');
             $(this).siblings(".entity-desc__unfold-button").removeClass("entity-desc__unfold-button--hidden");
         }
-        copy.remove();        
+        copy.remove();
     });
 
     // expand hidden long text
@@ -42,4 +42,5 @@ $(function() {
     document.body.addEventListener('htmx:load', function(evt) {
         catalog_init(evt.detail.elt);
     });
+    catalog_init(document.body);
 });
