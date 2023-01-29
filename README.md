@@ -1,6 +1,7 @@
 # Boofilsic/NeoDB
 
 ![Test Status](https://github.com/neodb-social/neodb/actions/workflows/django.yml/badge.svg?branch=main)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fneodb-social%2Fneodb.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fneodb-social%2Fneodb?ref=badge_shield)
 
 Boofilsic/NeoDB is an open source project and free service to help users manage, share and discover collections, reviews and ratings for culture products (e.g. books, movies, music, podcasts, games and performances) in Fediverse.
 
@@ -21,3 +22,7 @@ Please see [doc/install.md](doc/install.md)
 If you like this project, please consider sponsoring
  - NeoDB on [ko-fi](https://ko-fi.com/neodb) or [liberapay](https://liberapay.com/neodb)
  - NiceDB on [Patreon](https://patreon.com/tertius).
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fneodb-social%2Fneodb.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fneodb-social%2Fneodb?ref=badge_large)
