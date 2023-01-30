@@ -6,13 +6,72 @@ from django.utils.translation import gettext_lazy as _
 class Podcast(Item):
     category = ItemCategory.Podcast
     url_path = "podcast"
-    demonstrative = _("这个播客")
-    feed_url = PrimaryLookupIdDescriptor(IdType.Feed)
-    apple_podcast = PrimaryLookupIdDescriptor(IdType.ApplePodcast)
+    demonstrative = _("这档播客")
+    # apple_podcast = PrimaryLookupIdDescriptor(IdType.ApplePodcast)
     # ximalaya = LookupIdDescriptor(IdType.Ximalaya)
     # xiaoyuzhou = LookupIdDescriptor(IdType.Xiaoyuzhou)
-    hosts = jsondata.ArrayField(models.CharField(), default=list)
+    genre = jsondata.ArrayField(
+        verbose_name=_("类型"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
+        null=True,
+        blank=True,
+        default=list,
+    )
+
+    hosts = jsondata.ArrayField(
+        verbose_name=_("主播"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
+        default=list,
+    )
+
+    official_site = jsondata.CharField(
+        verbose_name=_("官方网站"), max_length=1000, null=True, blank=True
+    )
+
+    METADATA_COPY_LIST = [
+        "title",
+        "brief",
+        "hosts",
+        "genre",
+        "official_site",
+    ]
+
+    @property
+    def recent_episodes(self):
+        return self.episodes.all().order_by("-pub_date")[:10]
+
+    @property
+    def feed_url(self):
+        if (
+            self.primary_lookup_id_type != IdType.RSS
+            and self.primary_lookup_id_value is None
+        ):
+            return None
+        return f"http://{self.primary_lookup_id_value}"
 
 
 # class PodcastEpisode(Item):
 #     pass
+class PodcastEpisode(Item):
+    category = ItemCategory.Podcast
+    url_path = "podcastepisode"
+    # uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    program = models.ForeignKey(Podcast, models.CASCADE, related_name="episodes")
+    guid = models.CharField(null=True, max_length=1000)
+    pub_date = models.DateTimeField()
+    media_url = models.CharField(null=True, max_length=1000)
+    # title = models.CharField(default="", max_length=1000)
+    # description = models.TextField(null=True)
+    description_html = models.TextField(null=True)
+    link = models.CharField(null=True, max_length=1000)
+    cover_url = models.CharField(null=True, max_length=1000)
+    duration = models.PositiveIntegerField(null=True)
+
+    class Meta:
+        index_together = [
+            [
+                "program",
+                "pub_date",
+            ]
+        ]
+        unique_together = [["program", "guid"]]

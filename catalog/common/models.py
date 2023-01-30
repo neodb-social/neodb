@@ -10,6 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.baseconv import base62
 from simple_history.models import HistoricalRecords
 import uuid
+from typing import cast
 from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
 from .mixins import SoftDeleteMixin
 from django.conf import settings
@@ -30,7 +31,8 @@ class SiteName(models.TextChoices):
     IGDB = "igdb", _("IGDB")
     Steam = "steam", _("Steam")
     Bangumi = "bangumi", _("Bangumi")
-    ApplePodcast = "apple_podcast", _("苹果播客")
+    # ApplePodcast = "apple_podcast", _("苹果播客")
+    RSS = "rss", _("RSS")
 
 
 class IdType(models.TextChoices):
@@ -42,7 +44,7 @@ class IdType(models.TextChoices):
     CUBN = "cubn", _("统一书号")
     ISRC = "isrc", _("ISRC")  # only for songs
     GTIN = "gtin", _("GTIN UPC EAN码")  # ISBN is separate
-    Feed = "feed", _("Feed URL")
+    RSS = "rss", _("RSS Feed URL")
     IMDB = "imdb", _("IMDb")
     TMDB_TV = "tmdb_tv", _("TMDB剧集")
     TMDB_TVSeason = "tmdb_tvseason", _("TMDB剧集")
@@ -104,10 +106,10 @@ class ItemCategory(models.TextChoices):
     Collection = "collection", _("收藏单")
 
 
-class SubItemType(models.TextChoices):
-    Season = "season", _("剧集分季")
-    Episode = "episode", _("剧集分集")
-    Version = "version", _("版本")
+# class SubItemType(models.TextChoices):
+#     Season = "season", _("剧集分季")
+#     Episode = "episode", _("剧集分集")
+#     Version = "version", _("版本")
 
 
 # class CreditType(models.TextChoices):
@@ -244,7 +246,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             IdType.GTIN,
             IdType.ISRC,
             IdType.MusicBrainz,
-            IdType.Feed,
+            IdType.RSS,
             IdType.IMDB,
         ]
         for t in best_id_types:
@@ -419,7 +421,7 @@ class ExternalResource(models.Model):
 
     @property
     def site_name(self):
-        return self.get_site().SITE_NAME
+        return getattr(self.get_site(), "SITE_NAME")
 
     def update_content(self, resource_content):
         self.other_lookup_ids = resource_content.lookup_ids
@@ -451,7 +453,7 @@ class ExternalResource(models.Model):
                 app_label="catalog", model=model.lower()
             ).first()
             if m:
-                return m.model_class()
+                return cast(Item, m).model_class()
             else:
                 raise ValueError(f"preferred model {model} does not exist")
         return None

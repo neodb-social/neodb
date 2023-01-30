@@ -30,3 +30,5 @@ dnspython
 typesense
 markdownify
 igdb-api-v4
+podcastparser
+listparser

@@ -26,6 +26,7 @@ from django.utils import timezone
 import json
 from django.contrib import messages
 
+from journal.importers.opml import OPMLImporter
 from journal.importers.douban import DoubanImporter
 from journal.importers.goodreads import GoodreadsImporter
 from journal.models import reset_visibility_for_user
@@ -151,6 +152,21 @@ def import_douban(request):
             request.user,
             int(request.POST.get("visibility")),
             int(request.POST.get("import_mode")),
+        )
+        if importer.import_from_file(request.FILES["file"]):
+            messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))
+        else:
+            messages.add_message(request, messages.ERROR, _("无法识别文件。"))
+    return redirect(reverse("users:data"))
+
+
+@login_required
+def import_opml(request):
+    if request.method == "POST":
+        importer = OPMLImporter(
+            request.user,
+            int(request.POST.get("visibility", 0)),
+            int(request.POST.get("import_mode", 0)),
         )
         if importer.import_from_file(request.FILES["file"]):
             messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))

@@ -712,6 +712,7 @@ def profile(request, user_name):
         ItemCategory.Movie,
         ItemCategory.TV,
         ItemCategory.Music,
+        # ItemCategory.Podcast,
         ItemCategory.Game,
     ]
     for category in visbile_categories:

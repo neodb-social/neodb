@@ -70,7 +70,7 @@ class DownloadError(Exception):
 
 class BasicDownloader:
     headers = {
-        # 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0) Gecko/20100101 Firefox/107.0',
+        # "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0) Gecko/20100101 Firefox/107.0",
         "User-Agent": "Mozilla/5.0 (iPad; CPU OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
@@ -129,7 +129,7 @@ class BasicDownloader:
 
     def download(self):
         resp, self.response_type = self._download(self.url)
-        if self.response_type == RESPONSE_OK:
+        if self.response_type == RESPONSE_OK and resp:
             return resp
         else:
             raise DownloadError(self)

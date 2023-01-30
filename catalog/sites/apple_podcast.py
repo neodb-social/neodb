@@ -1,21 +1,21 @@
 from catalog.common import *
 from catalog.models import *
 import logging
-
+from .rss import RSS
 
 _logger = logging.getLogger(__name__)
 
 
 @SiteManager.register
 class ApplePodcast(AbstractSite):
-    SITE_NAME = SiteName.ApplePodcast
+    # SITE_NAME = SiteName.ApplePodcast
     ID_TYPE = IdType.ApplePodcast
     URL_PATTERNS = [r"https://[^.]+.apple.com/\w+/podcast/*[^/?]*/id(\d+)"]
     WIKI_PROPERTY_ID = "P5842"
     DEFAULT_MODEL = Podcast
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://podcasts.apple.com/us/podcast/id" + id_value
 
     def scrape(self):
@@ -32,7 +32,7 @@ class ApplePodcast(AbstractSite):
                 "cover_image_url": r["artworkUrl600"],
             }
         )
-        pd.lookup_ids[IdType.Feed] = pd.metadata.get("feed_url")
+        pd.lookup_ids[IdType.RSS] = RSS.url_to_id(pd.metadata.get("feed_url"))
         if pd.metadata["cover_image_url"]:
             imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
             try:

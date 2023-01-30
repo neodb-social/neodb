@@ -25,6 +25,7 @@ __all__ = (
     "BasicDownloader",
     "ProxiedDownloader",
     "BasicImageDownloader",
+    "ProxiedImageDownloader",
     "RESPONSE_OK",
     "RESPONSE_NETWORK_ERROR",
     "RESPONSE_INVALID_CONTENT",

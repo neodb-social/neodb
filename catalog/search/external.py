@@ -240,6 +240,30 @@ class Bandcamp:
         return results
 
 
+class ApplePodcast:
+    @classmethod
+    def search(cls, q, page=1):
+        results = []
+        try:
+            search_url = f"https://itunes.apple.com/search?entity=podcast&limit={page*SEARCH_PAGE_SIZE}&term={quote_plus(q)}"
+            r = requests.get(search_url).json()
+            for p in r["results"][(page - 1) * SEARCH_PAGE_SIZE :]:
+                results.append(
+                    SearchResultItem(
+                        ItemCategory.Podcast,
+                        SiteName.RSS,
+                        p["feedUrl"],
+                        p["trackName"],
+                        p["artistName"],
+                        "",
+                        p["artworkUrl600"],
+                    )
+                )
+        except Exception as e:
+            logger.error(f"ApplePodcast search '{q}' error: {e}")
+        return results
+
+
 class ExternalSources:
     @classmethod
     def search(cls, c, q, page=1):
@@ -248,7 +272,7 @@ class ExternalSources:
         results = []
         if c == "" or c is None:
             c = "all"
-        if c == "all" or c == "movie":
+        if c == "all" or c == "movie" or c == "tv":
             results.extend(TheMovieDatabase.search(q, page))
         if c == "all" or c == "book":
             results.extend(GoogleBooks.search(q, page))
@@ -256,4 +280,6 @@ class ExternalSources:
         if c == "all" or c == "music":
             results.extend(Spotify.search(q, page))
             results.extend(Bandcamp.search(q, page))
+        if c == "podcast":
+            results.extend(ApplePodcast.search(q, page))
         return results

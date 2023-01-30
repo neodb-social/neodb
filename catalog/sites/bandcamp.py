@@ -20,12 +20,12 @@ class Bandcamp(AbstractSite):
     DEFAULT_MODEL = Album
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return f"https://{id_value}"
 
     @classmethod
-    def validate_url_fallback(self, url):
-        if re.match(self.URL_PATTERN_FALLBACK, url) is None:
+    def validate_url_fallback(cls, url):
+        if re.match(cls.URL_PATTERN_FALLBACK, url) is None:
             return False
         parsed_url = urllib.parse.urlparse(url)
         hostname = parsed_url.netloc

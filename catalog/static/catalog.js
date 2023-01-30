@@ -41,6 +41,12 @@ function catalog_init(context) {
     $(".spoiler", context).on('click', function(){
         $(this).toggleClass('revealed');
     })
+
+    // podcast
+    $('.source-label__rss', context).parent().on('click', (e)=>{
+        e.preventDefault();
+    })
+    $('.source-label__rss', context).parent().attr('title', 'Copy link here and subscribe in your podcast app');
 }
 
 $(function() {

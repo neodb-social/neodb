@@ -491,6 +491,9 @@ ShelfTypeNames = [
     [ItemCategory.Game, ShelfType.WISHLIST, _("想玩")],
     [ItemCategory.Game, ShelfType.PROGRESS, _("在玩")],
     [ItemCategory.Game, ShelfType.COMPLETE, _("玩过")],
+    [ItemCategory.Podcast, ShelfType.WISHLIST, _("想听")],
+    [ItemCategory.Podcast, ShelfType.PROGRESS, _("在听")],
+    [ItemCategory.Podcast, ShelfType.COMPLETE, _("听过")],
 ]
 
 

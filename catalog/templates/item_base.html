@@ -47,7 +47,7 @@
                   [DELETED]
                   {% endif %}
                   {% if item.merged_to_item %}
-                  [MERGED] <a href="{{ item.merged_to_item.url }}">{{ item.merged_to_item.title }}</a>
+                  [MERGED <a href="{{ item.merged_to_item.url }}">{{ item.merged_to_item.title }}</a>]
                   {% endif %}
                   {% block title %}
                   <h5 class="entity-detail__title">
@@ -72,7 +72,7 @@
                       <span> {% trans '评分：评分人数不足' %}</span>
                       {% endif %}
                     </div>
-		    <div>此类数据尚未支持</div>
+		                <div>此类数据尚未支持</div>
                     <div>uuid: {{item.uuid}}</div>
                     <div>class: {{item.class_name}}</div>
                     <div>category: {{item.category}}</div>
@@ -112,12 +112,12 @@
 
               {% if item.track_list %}
               <div class="entity-desc" id="description">
-                  <h5 class="entity-desc__title">{% trans '曲目' %}</h5>
-                      <p class="entity-desc__content">{{ item.track_list | linebreaksbr }}</p>
-                      <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
-                          <a href="javascript:void(0);">展开全部</a>
-                      </div>
-                  </div>
+                <h5 class="entity-desc__title">{% trans '曲目' %}</h5>
+                <p class="entity-desc__content">{{ item.track_list | linebreaksbr }}</p>
+                <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
+                  <a href="javascript:void(0);">展开全部</a>
+                </div>
+              </div>
               {% endif %}
 
               <div class="entity-marks">
@@ -308,6 +308,8 @@
       </section>
     </div>
     {% include "partial/_footer.html" %}
+  </div>
+  <div class="player">
   </div>
 </body>
 </html>

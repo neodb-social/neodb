@@ -14,6 +14,11 @@ class Command(BaseCommand):
             action="store_true",
             help="save to database",
         )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="force redownload",
+        )
 
     def handle(self, *args, **options):
         url = str(options["url"])
@@ -23,7 +28,7 @@ class Command(BaseCommand):
             return
         self.stdout.write(f"Fetching from {site}")
         if options["save"]:
-            resource = site.get_resource_ready()
+            resource = site.get_resource_ready(ignore_existing_content=options["force"])
             pprint.pp(resource.metadata)
             pprint.pp(site.get_item())
             pprint.pp(site.get_item().metadata)

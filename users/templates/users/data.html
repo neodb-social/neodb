@@ -25,15 +25,6 @@
             <section id="content">
                 <div class="grid grid--reverse-order">
                     <div class="grid__main grid__main--reverse-order">
-                        {% if messages %}
-                        <div class="main-section-wrapper">
-                            <ul class="messages">
-                                {% for message in messages %}
-                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% endif %}
 
                         <div class="main-section-wrapper">
                             <div class="tools-section-wrapper">
@@ -105,6 +96,37 @@
                                                 Goodreads书单链接形如 https://www.goodreads.com/review/list/12345-janedoe?shelf=name 或 https://www.goodreads.com/list/show/155086.Popular_Highlights 将自动导入成为收藏单，每本书的评论导入为收藏单条目备注。
 						<br />
 						欲导入的Goodreads用户需将Who Can View My Profile设置为anyone，导入后可改回原设置。
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '导入播客订阅列表' %}</h5>
+                                    <div class="import-panel__body">
+
+                                        <form action="{% url 'users:import_opml' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+
+                                            <div class="import-panel__checkbox">
+                                                导入方式：
+                                                <label for="opml_import_mode_0">
+                                                    <input id="opml_import_mode_0" type="radio" name="import_mode" value="0" checked> 标记为在听的播客
+                                                </label>
+                                                <label for="opml_import_mode_1">
+                                                    <input id="opml_import_mode_1" type="radio" name="import_mode" value="1"> 导入为新收藏单
+                                                </label>
+                                            <br>
+                                            选择OPML文件
+                                            <input type="file" name="file" id="excel" required accept=".opml,.xml">
+
+                                            <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn" />
+                                            </div>
+                                            <div>
                                             </div>
                                         </form>
                                     </div>

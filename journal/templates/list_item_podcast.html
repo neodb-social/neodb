@@ -1,0 +1,16 @@
+{% extends "list_item_base.html" %}
+
+{% load i18n %}
+{% load highlight %}
+
+{% block info %}
+
+{% if item.genre %}{% trans '类型' %}:
+{{ item.genre|join:" / "}}
+{% endif %}
+
+{% if item.genre %}{% trans '主播' %}:
+{{ item.hosts|join:" / "}}
+{% endif %}
+
+{% endblock %}

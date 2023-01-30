@@ -89,6 +89,9 @@ class AbstractSite:
         data = ResourceContent()
         return data
 
+    def scrape_additional_data(self):
+        pass
+
     @classmethod
     def get_model_for_resource(cls, resource):
         model = resource.get_preferred_model()
@@ -183,7 +186,8 @@ class AbstractSite:
                 resource_content = ResourceContent(**preloaded_content)
             else:
                 resource_content = self.scrape()
-            p.update_content(resource_content)
+            if resource_content:
+                p.update_content(resource_content)
         if not p.ready:
             _logger.error(f"unable to get resource {self.url} ready")
             return None
@@ -194,6 +198,7 @@ class AbstractSite:
             if p.item:
                 p.item.merge_data_from_external_resources(ignore_existing_content)
                 p.item.save()
+                self.scrape_additional_data()
         if auto_link:
             for linked_resource in p.required_resources:
                 linked_site = SiteManager.get_site_by_url(linked_resource["url"])
