@@ -1,29 +1,18 @@
-import uuid
 import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
 from django.http import (
     HttpResponseBadRequest,
-    HttpResponseServerError,
-    HttpResponse,
     HttpResponseRedirect,
     HttpResponseNotFound,
 )
-from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.db import IntegrityError, transaction
 from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
-from polymorphic.base import django
-from catalog.common.models import ExternalResource, ItemCategory
-from catalog.common.sites import AbstractSite, SiteManager
-from mastodon import mastodon_request_included
-from mastodon.models import MastodonApplication
-from mastodon.api import share_mark, share_review
+from catalog.common.models import ExternalResource
 from .models import *
-from django.conf import settings
 from django.utils.baseconv import base62
 from journal.models import Mark, ShelfMember, Review
 from journal.models import (
@@ -34,9 +23,6 @@ from journal.models import (
 from common.utils import PageLinksGenerator
 from common.config import PAGE_LINK_NUMBER
 from journal.models import ShelfTypeNames
-import django_rq
-from rq.job import Job
-from .search.external import ExternalSources
 from .forms import *
 from .search.views import *
 from pprint import pprint

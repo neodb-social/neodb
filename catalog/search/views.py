@@ -5,34 +5,19 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
 from django.http import (
     HttpResponseBadRequest,
-    HttpResponseServerError,
-    HttpResponse,
     HttpResponseRedirect,
-    HttpResponseNotFound,
 )
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.db import IntegrityError, transaction
-from django.db.models import Count
-from django.utils import timezone
-from django.core.paginator import Paginator
-from polymorphic.base import django
 from catalog.common.models import SiteName
 from catalog.common.sites import AbstractSite, SiteManager
-from mastodon import mastodon_request_included
-from mastodon.models import MastodonApplication
-from mastodon.api import share_mark, share_review
 from ..models import *
 from django.conf import settings
-from django.utils.baseconv import base62
-from journal.models import Mark, ShelfMember, Review
-from journal.models import query_visible, query_following
 from common.utils import PageLinksGenerator
 from common.config import PAGE_LINK_NUMBER
-from journal.models import ShelfTypeNames
 import django_rq
 from rq.job import Job
 from .external import ExternalSources
+from django.core.cache import cache
 
 _logger = logging.getLogger(__name__)
 
@@ -110,10 +95,9 @@ def search(request):
             return fetch(request, keywords, False, site)
     if settings.SEARCH_BACKEND is None:
         # return limited results if no SEARCH_BACKEND
-        result = {
-            "items": Items.objects.filter(title__like=f"%{keywords}%")[:10],
-            "num_pages": 1,
-        }
+        result = lambda: None
+        result.items = Item.objects.filter(title__contains=keywords)[:10]
+        result.num_pages = 1
     else:
         result = Indexer.search(keywords, page=page_number, category=category, tag=tag)
     keys = []
@@ -139,7 +123,10 @@ def search(request):
     #             "items": list(map(lambda i: i.get_json(), items)),
     #         }
     #     )
-    request.session["search_dedupe_urls"] = urls
+
+    cache_key = f"search_{category}_{keywords}"
+    urls = list(set(cache.get(cache_key, []) + urls))
+    cache.set(cache_key, urls, timeout=300)
     return render(
         request,
         "search_results.html",
@@ -163,7 +150,8 @@ def external_search(request):
     keywords = request.GET.get("q", default="").strip()
     page_number = int(request.GET.get("page", default=1))
     items = ExternalSources.search(category, keywords, page_number) if keywords else []
-    dedupe_urls = request.session.get("search_dedupe_urls", [])
+    cache_key = f"search_{category}_{keywords}"
+    dedupe_urls = cache.get(cache_key, [])
     items = [i for i in items if i.source_url not in dedupe_urls]
 
     return render(

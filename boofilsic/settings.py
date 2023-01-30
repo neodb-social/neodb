@@ -107,6 +107,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "boofilsic.wsgi.application"
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
