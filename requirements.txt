@@ -3,6 +3,7 @@ django~=3.2.16
 django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e69480c64ad9c5d0499f4a8625da78cf2bb7691b
 django-jsoneditor @ git+https://github.com/alphatownsman/django-jsoneditor.git@fa2ae41aeeb34447bd8a808a520e843c853fd16e
 django-sass
+rq>=1.12.0
 django-rq
 django-simple-history
 django-hijack

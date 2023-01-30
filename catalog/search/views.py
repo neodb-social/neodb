@@ -33,8 +33,11 @@ class HTTPResponseHXRedirect(HttpResponseRedirect):
 @login_required
 def fetch_refresh(request, job_id):
     retry = request.GET
-    job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
-    item_url = job.result if job else "-"  # FIXME job.return_value() in rq 1.12
+    try:
+        job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
+        item_url = job.return_value()
+    except:
+        item_url = "-"
     if item_url:
         if item_url == "-":
             return render(request, "fetch_failed.html")
