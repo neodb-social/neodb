@@ -54,9 +54,22 @@
                     {{ form.share_to_mastodon }}{{ form.share_to_mastodon.label }}
                   </div>
                 </div>
-                <div class="clearfix">
-                  <input class="button float-right" type="submit" value="{% trans '提交' %}">
+                <div class="clearfix"></div>
+                <input class="button float-right" type="submit" value="{% trans '提交' %}">
+                <div>
+                  <label for="mark_anotherday">更改标记日期:
+                    <input type="checkbox" name="mark_anotherday" value="1" id="mark_anotherday">
+                    <input type="date" name="mark_date" id="mark_date" min="1900-01-01" max="{{date_today}}" value="{{date_today}}" style="display: none;"></label>
                 </div>
+                <script type="text/javascript">
+                  $("#mark_anotherday").on('click', ()=>{
+                    if ($("#mark_anotherday:checked").val() == '1') {
+                      $("#mark_date").show()
+                    } else {
+                      $("#mark_date").hide()
+                    }
+                  });
+                </script>
                 {{ form.media }}
               </form>
             </div>

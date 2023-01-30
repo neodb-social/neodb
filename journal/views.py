@@ -405,9 +405,17 @@ def review_edit(request, item_uuid, review_uuid=None):
         form = (
             ReviewForm(instance=review)
             if review
-            else ReviewForm(initial={"item": item.id})
+            else ReviewForm(initial={"item": item.id, "share_to_mastodon": True})
         )
-        return render(request, "review_edit.html", {"form": form, "item": item})
+        return render(
+            request,
+            "review_edit.html",
+            {
+                "form": form,
+                "item": item,
+                "date_today": timezone.localdate().isoformat(),
+            },
+        )
     elif request.method == "POST":
         form = (
             ReviewForm(request.POST, instance=review)
@@ -418,6 +426,15 @@ def review_edit(request, item_uuid, review_uuid=None):
             if not review:
                 form.instance.owner = request.user
             form.instance.edited_time = timezone.now()
+            mark_date = None
+            if request.POST.get("mark_anotherday"):
+                mark_date = timezone.get_current_timezone().localize(
+                    parse_datetime(request.POST.get("mark_date") + " 20:00:00")
+                )
+                if mark_date and mark_date >= timezone.now():
+                    mark_date = None
+            if mark_date:
+                form.instance.created_time = mark_date
             form.save()
             if form.cleaned_data["share_to_mastodon"]:
                 form.instance.save = lambda **args: None

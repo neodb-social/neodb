@@ -20,7 +20,7 @@ class ReviewForm(forms.ModelForm):
     title = forms.CharField(label=_("评论标题"))
     body = MarkdownxFormField(label=_("评论正文 (Markdown)"))
     share_to_mastodon = forms.BooleanField(
-        label=_("分享到联邦网络"), initial=True, required=False
+        label=_("分享到联邦网络"), initial=False, required=False
     )
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     visibility = forms.TypedChoiceField(
