@@ -5,7 +5,7 @@ import functools
 import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
-from django.shortcuts import reverse
+from django.urls import reverse
 from urllib.parse import quote
 from .models import CrossSiteUserInfo, MastodonApplication
 from mastodon.utils import rating_to_emoji
@@ -76,7 +76,15 @@ def get_relationships(site, id_list, token):  # no longer in use
     return response.json()
 
 
-def post_toot(site, content, visibility, token, local_only=False, update_id=None):
+def post_toot(
+    site,
+    content,
+    visibility,
+    token,
+    local_only=False,
+    update_id=None,
+    spoiler_text=None,
+):
     headers = {
         "User-Agent": USER_AGENT,
         "Authorization": f"Bearer {token}",
@@ -96,6 +104,8 @@ def post_toot(site, content, visibility, token, local_only=False, update_id=None
             "status": content,
             "visibility": visibility,
         }
+        if spoiler_text:
+            payload["spoiler_text"] = spoiler_text
         if local_only:
             payload["local_only"] = True
         try:
@@ -475,8 +485,18 @@ def share_mark(mark):
             r".+/(\w+)$", mark.shared_link
         )  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
         update_id = r[1] if r else None
+    spoiler_text = None
+    if content.find(">!") != -1:
+        spoiler_text = f"关于《{mark.item.title}》 可能有关键情节等敏感内容"
+        content = content.replace(">!", "").replace("!<", "")
     response = post_toot(
-        user.mastodon_site, content, visibility, user.mastodon_token, False, update_id
+        user.mastodon_site,
+        content,
+        visibility,
+        user.mastodon_token,
+        False,
+        update_id,
+        spoiler_text,
     )
     if response and response.status_code in [200, 201]:
         j = response.json()
