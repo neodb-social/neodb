@@ -64,10 +64,12 @@
         background: unset;
         text-decoration: underline;
 
-    & .spoiler
-        filter: blur(8px);
-        cursor: pointer;
+.spoiler
+    background: grey;
+    filter: blur(2px);
+    cursor: pointer;
 
-    & .spoiler .revealed
-        filter: unset;
-        color: inherit;
+.spoiler.revealed
+    background: unset;
+    filter: unset;
+    color: inherit;

@@ -36,6 +36,11 @@ function catalog_init(context) {
         $(this).parent().siblings(".entity-desc__content").removeClass('entity-desc__content--folded');
         $(this).parent(".entity-desc__unfold-button").remove();
     });
+
+    // spoiler
+    $(".spoiler", context).on('click', function(){
+        $(this).toggleClass('revealed');
+    })
 }
 
 $(function() {

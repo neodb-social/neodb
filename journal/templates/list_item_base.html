@@ -96,7 +96,7 @@
           </span>
           <p class="entity-marks__mark-content">&nbsp;
           {% if mark.text %}
-          {{ mark.text }}
+          {{ mark.comment_html|safe }}
           {% endif %}
           </p>
         </li>

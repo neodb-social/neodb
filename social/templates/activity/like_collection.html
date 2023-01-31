@@ -42,17 +42,5 @@
     </a>
   </div>
   <p class="entity-list__entity-brief">
-    {% if activity.review %}
-    <a href="{{ activity.review.url }}">{{ activity.review.title }}</a>
-    {% endif %}
-    {% if activity.mark %}
-    {% if activity.mark.rating %}
-    <span class="entity-marks__rating-star rating-star" data-rating-score="{{ activity.mark.rating | floatformat:"0" }}" style=""></span>
-    {% endif %}
-
-    {% if activity.mark.text %}
-    <p class="entity-marks__mark-content">{{ activity.mark.text }}</p>
-    {% endif %}
-    {% endif %}
   </p>
 </div>

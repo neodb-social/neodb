@@ -51,7 +51,7 @@
                     {% endif %}
 
                     {% if others_mark.mark.text %}
-                    <p class="entity-marks__mark-content">{{ others_mark.mark.text }}</p>
+                    <p class="entity-marks__mark-content">{{ others_mark.mark.comment_html|safe }}</p>
                     {% endif %}
                   </li>
                   {% empty %}

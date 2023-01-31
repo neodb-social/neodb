@@ -22,7 +22,7 @@ from django.utils.baseconv import base62
 from django.db.models import Q
 from catalog.models import *
 from django.contrib.contenttypes.models import ContentType
-from .renderers import render_md
+from .renderers import render_md, render_text
 from catalog.common import jsondata
 
 from journal import renderers
@@ -187,6 +187,10 @@ class Memo(Content):
 
 class Comment(Content):
     text = models.TextField(blank=False, null=False)
+
+    @property
+    def html(self):
+        return render_text(self.text)
 
     @staticmethod
     def comment_item_by_user(item, user, text, visibility=0):
@@ -948,6 +952,10 @@ class Mark:
     @property
     def text(self):
         return self.comment.text if self.comment else None
+
+    @property
+    def comment_html(self):
+        return self.comment.html if self.comment else None
 
     @cached_property
     def review(self):

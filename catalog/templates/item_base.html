@@ -149,7 +149,7 @@
                     {% endif %}
 
                     {% if others_mark.text %}
-                    <p class="entity-marks__mark-content">{{ others_mark.text }}</p>
+                    <p class="entity-marks__mark-content">{{ others_mark.comment_html|safe }}</p>
                     {% endif %}
                 </li>
                 {% empty %}
@@ -222,7 +222,7 @@
                 </div>
 
                 {% if mark.text %}
-                <p class="mark-panel__text">{{ mark.text }}</p>
+                <p class="mark-panel__text">{{ mark.comment_html|safe }}</p>
                 {% endif %}
                 <div class="tag-collection">
 

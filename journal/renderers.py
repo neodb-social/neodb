@@ -1,7 +1,7 @@
 from typing import cast
 import mistune
 import re
-
+from django.utils.html import escape
 
 MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.renderers.render_md"
 
@@ -30,5 +30,19 @@ def render_md(s) -> str:
     return cast(str, _markdown(s))
 
 
+def _spolier(s):
+    l = s.split(">!", 1)
+    if len(l) == 1:
+        return escape(s)
+    r = l[1].split("!<", 1)
+    return (
+        escape(l[0])
+        + '<span class="spoiler">'
+        + escape(r[0])
+        + "</span>"
+        + (_spolier(r[1]) if len(r) == 2 else "")
+    )
+
+
 def render_text(s):
-    return mistune.html(s)
+    return _spolier(s)
