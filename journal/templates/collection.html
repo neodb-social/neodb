@@ -64,8 +64,9 @@
                   </div>
                 </div>
                 <!-- <div class="dividing-line"></div> --> <!-- <div class="entity-card__img-wrapper" style="text-align: center;"> <img src="{{ collection.cover|thumb:'normal' }}" alt="" class="entity-card__img"> </div> -->
-                {{ collection.html | safe }}
-
+                <div class="markdown-content">
+                  {{ collection.html | safe }}
+                </div>
               </div>
               <div class="entity-list" hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}" hx-trigger="load">
               </div>

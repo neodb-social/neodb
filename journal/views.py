@@ -438,8 +438,8 @@ def review_edit(request, item_uuid, review_uuid=None):
                 form.instance.created_time = mark_date
             if request.POST.get("leading_space"):
                 form.instance.body = re.sub(
-                    r"^(\u2003*)( +)",
-                    lambda s: "\u2003" * ((len(s[2]) + 1) // 2 + len(s[1])),
+                    r"^(\u2003*)(  +)",
+                    lambda s: "\u2003" * (len(s[2]) // 2 + len(s[1])),
                     form.instance.body,
                     flags=re.MULTILINE,
                 )

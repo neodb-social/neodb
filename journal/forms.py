@@ -41,7 +41,7 @@ COLLABORATIVE_CHOICES = [
 class CollectionForm(forms.ModelForm):
     # id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     title = forms.CharField(label=_("标题"))
-    brief = MarkdownxFormField(label=_("介绍 (Markdown)"))
+    brief = MarkdownxFormField(label=_("介绍 (Markdown)"), strip=False)
     # share_to_mastodon = forms.BooleanField(label=_("分享到联邦网络"), initial=True, required=False)
     visibility = forms.TypedChoiceField(
         label=_("可见性"),

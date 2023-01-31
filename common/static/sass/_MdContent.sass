@@ -1,0 +1,65 @@
+.markdown-content
+    & blockquote
+        background: #f9f9f9;
+        border-left: 10px solid #ccc;
+        margin: 1.5em 10px;
+        padding: 0.5em 10px;
+        quotes: "\201C""\201D""\2018""\2019";
+
+    & blockquote:before
+        color: #ccc;
+        content: open-quote;
+        font-size: 4em;
+        line-height: 0.1em;
+        margin-right: 0.25em;
+        vertical-align: -0.4em;
+
+    & table
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        table-layout: fixed;
+
+    & table caption
+        font-size: 1.5em;
+        margin: .5em 0 .75em;
+
+    & table tr
+        background-color: #eee;
+        border: 1px solid #ccc;
+        padding: .35em;
+
+    & table th, table td
+        padding: .625em;
+        border: 1px solid #ccc;
+
+    & table th
+        font-size: .85em;
+        letter-spacing: .1em;
+
+    & code
+        background: #333;
+        color: #ddd;
+        font-family: monospace;
+
+    & pre
+        background: #333;
+        color: #ddd;
+        font-family: monospace;
+        width: 100%;
+        overflow: auto;
+        overflow-y: hidden;
+        font-size: 12px;
+        line-height: 20px;
+
+    & ol, ul
+        padding-left: 3rem;
+
+    & li
+        list-style: unset;
+
+    & mark
+        background: unset;
+        text-decoration: underline;

@@ -37,24 +37,18 @@
                   <span class="float-left">
                     {{ form.body.label }}
                   </span>
-                  <span class="float-right">
-                    <span class="review-form__preview-button">{% trans '预览' %}</span>
-                  </span>
                 </div>
-                <div id="rawContent">
+                <div class="markdown-content">
                   {{ form.body }}
                 </div>
+                <hr>
                 <div>
                 <label for="leading_space" style="display: inline;">
-                  <input type="checkbox" name="leading_space" value="1" id="leading_space" checked> 保留行首空格（替换为全角）
+                  <input type="checkbox" name="leading_space" value="1" id="leading_space" checked> 转换行首空格为全角
                 </label>
-                <span class="review-form__fyi">
-                  {% trans '不知道什么是Markdown？可以参考' %}<a target="_blank" href="https://www.markdownguide.org/">{% trans '这里' %}</a>
-                </span>
                 </div>
                 <div class="review-form__option">
                   <div class="review-form__visibility-radio">
-
                     {{ form.visibility.label }}{{ form.visibility }}
                   </div>
                   <div class="review-form__share-checkbox">

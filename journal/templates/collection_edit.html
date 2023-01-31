@@ -24,7 +24,7 @@
       <section id="content" class="container">
         <div class="grid">
           <div class="single-section-wrapper" id="main">
-            <form class="entity-form" method="post" enctype="multipart/form-data">
+            <form class="entity-form markdown-content" method="post" enctype="multipart/form-data">
               {% csrf_token %}
               {{ form }}
               <input class="button" type="submit" value="{% trans '提交' %}">
