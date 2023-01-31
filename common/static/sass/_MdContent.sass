@@ -63,3 +63,11 @@
     & mark
         background: unset;
         text-decoration: underline;
+
+    & .spoiler
+        filter: blur(8px);
+        cursor: pointer;
+
+    & .spoiler .revealed
+        filter: unset;
+        color: inherit;
