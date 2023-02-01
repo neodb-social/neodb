@@ -21,7 +21,7 @@
   <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ item.cover.url }}">
   <meta property="og:site_name" content="{{ site_name }}">
   <meta property="og:description" content="{{ item.brief }}">
-  {% block opengraph %}
+  {% block head %}
   {% endblock %}
   <title>{{ site_name }} - {% trans item.category.label %} | {{ item.title }}</title>
   {% include "common_libs.html" with jquery=0 %}

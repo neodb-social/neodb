@@ -117,6 +117,8 @@ def post_toot(
                 response.status_code = 200
             if response.status_code != 200:
                 logger.error(f"Error {url} {response.status_code}")
+                print(payload)
+                print(response)
         except Exception:
             response = None
     return response
@@ -454,6 +456,34 @@ def revoke_token(site, token):
     post(url, data=payload, headers={"User-Agent": USER_AGENT})
 
 
+def get_status_id_by_url(url):
+    if not url:
+        return None
+    r = re.match(
+        r".+/(\w+)$", url
+    )  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
+    return r[1] if r else None
+
+
+def get_spoiler_text(text, item):
+    if text.find(">!") != -1:
+        spoiler_text = f"关于《{item.title}》 可能有关键情节等敏感内容"
+        return spoiler_text, text.replace(">!", "").replace("!<", "")
+    else:
+        return None, text
+
+
+def get_visibility(visibility, user):
+    if visibility == 2:
+        return TootVisibilityEnum.DIRECT
+    elif visibility == 1:
+        return TootVisibilityEnum.PRIVATE
+    elif user.get_preference().mastodon_publish_public:
+        return TootVisibilityEnum.PUBLIC
+    else:
+        return TootVisibilityEnum.UNLISTED
+
+
 def share_mark(mark):
     from catalog.common import ItemCategory
 
@@ -479,16 +509,8 @@ def share_mark(mark):
         MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode,
     )
     content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.absolute_url}\n{mark.text or ''}{tags}"
-    update_id = None
-    if mark.shared_link:  # "https://mastodon.social/@username/1234567890"
-        r = re.match(
-            r".+/(\w+)$", mark.shared_link
-        )  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
-        update_id = r[1] if r else None
-    spoiler_text = None
-    if content.find(">!") != -1:
-        spoiler_text = f"关于《{mark.item.title}》 可能有关键情节等敏感内容"
-        content = content.replace(">!", "").replace("!<", "")
+    update_id = get_status_id_by_url(mark.shared_link)
+    spoiler_text, content = get_spoiler_text(content, mark.item)
     response = post_toot(
         user.mastodon_site,
         content,

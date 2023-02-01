@@ -54,7 +54,8 @@ class Podcast(Item):
 #     pass
 class PodcastEpisode(Item):
     category = ItemCategory.Podcast
-    url_path = "podcastepisode"
+    url_path = "podcast/episode"
+    demonstrative = _("这集节目")
     # uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     program = models.ForeignKey(Podcast, models.CASCADE, related_name="episodes")
     guid = models.CharField(null=True, max_length=1000)
@@ -66,6 +67,17 @@ class PodcastEpisode(Item):
     link = models.CharField(null=True, max_length=1000)
     cover_url = models.CharField(null=True, max_length=1000)
     duration = models.PositiveIntegerField(null=True)
+
+    @property
+    def parent_item(self):
+        return self.program
+
+    def get_absolute_url_with_position(self, position=None):
+        return (
+            self.absolute_url
+            if position is None or position == ""
+            else f"{self.absolute_url}?position={position}"
+        )
 
     class Meta:
         index_together = [

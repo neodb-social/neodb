@@ -1,0 +1,15 @@
+{% extends "item_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load strip_scheme %}
+{% load thumb %}
+
+{% block head %}
+<meta http-equiv="refresh" content="0;url={{ item.program.absolute_url }}?focus={{ item.uuid }}{% if request.GET.position %}&position={{ request.GET.position }}{% endif %}" />
+{% endblock %}

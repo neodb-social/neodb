@@ -10,7 +10,7 @@
 {% load strip_scheme %}
 {% load thumb %}
 
-{% block opengraph %}
+{% block head %}
 <script src=" https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/shikwasa.min.js "></script>
 <link href=" https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/style.min.css " rel="stylesheet"></link>
 {% endblock %}
@@ -88,11 +88,12 @@
 {% block sidebar %}
 <div class="aside-section-wrapper">
   <div class="action-panel" id="episodes">
-    <div class="action-panel__label">{% trans '最近更新' %}</div>
+    <div class="action-panel__label">{% trans '近期单集' %}</div>
     <div >
       {% for ep in item.recent_episodes %}
       <p>
-        <a data-media="{{ ep.media_url }}" data-cover="{{ ep.cover_url|default:item.cover }}" class="episode" href="{{ep.link}}">{{ ep.title }}</a>
+        <a data-media="{{ ep.media_url }}" data-cover="{{ ep.cover_url|default:item.cover }}" class="episode" href="{{ep.url}}" data-uuid="{{ep.uuid}}">{{ ep.title }}</a>
+        <a href="#" hx-get="{% url 'journal:comment' item.uuid ep.uuid %}" hx-target="body" hx-swap="beforeend"><span class="comment icon"></span></a>
       </p>
       {% endfor %}
     </div>
@@ -122,37 +123,42 @@
 </script>
 
 <script type="text/javascript">
+	album = "{{ item.title|escapejs }}"
+	artists = "{{ item.hosts|join:' / '|escapejs }}"
+	function create_player(audio) {
+		window.player = new Shikwasa.Player({
+		  container: () => document.querySelector('.player'),
+		  preload: 'metadata',
+		  autoplay: true,
+		  themeColor: '#1190C0',
+		  fixed: {
+		  	type: 'fixed',
+		  	position: 'bottom'
+		  },
+		  audio: audio
+		});
+		$('.shk-title').on('click', e=>{
+			window.location = "#episodes";
+		});
+		$('.footer').attr('style', 'margin-bottom: 120px !important');
+	}
 	$(()=>{
 		$('.episode').on('click', e=>{
 			e.preventDefault();
 			ele = e.target;
-			album = "{{ item.title|escapejs }}"
-			artists = "{{ item.hosts|join:' / '|escapejs }}"
 			title = $(ele).text();
 			cover_url = $(ele).data('cover');
 			media_url = $(ele).data('media');
 			if (!media_url) return;
+			window.current_item_uuid = $(ele).data('uuid');
 			if (!window.player) {
-				window.player = new Shikwasa.Player({
-				  container: () => document.querySelector('.player'),
-				  preload: 'metadata',
-				  autoplay: true,
-				  themeColor: '#1190C0',
-				  fixed: {
-				  	type: 'fixed',
-				  	position: 'bottom'
-				  },
-				  audio: {
-				    title: title,
-				    cover: cover_url,
-				    src: media_url,
-				    album: album,
-				    artist: artists
-				  }
-				});
-				$('.shk-title').on('click', e=>{
-					window.location = "#episodes";
-				});
+				create_player({
+			    title: title,
+			    cover: cover_url,
+			    src: media_url,
+			    album: album,
+			    artist: artists
+			  })
 			} else {
 				window.player.update({
 			    title: title,
@@ -164,7 +170,18 @@
 			}
 			window.player.play()
 		});
-		$('.footer').attr('style', 'margin-bottom: 120px !important');
+		{% if focus_item %}
+		loc = 1 * "{{request.GET.position|escapejs}}";
+		window.current_item_uuid = "{{focus_item.uuid}}";
+		create_player({
+			title: "{{ focus_item.title | escapejs }}",
+			cover: "{{ focus_item.cover_url | default:'' | escapejs }}",
+			src: "{{ focus_item.media_url | escapejs }}",
+			album: album,
+			artist: artists
+		})
+		if (loc) window.player._initSeek = loc;
+		{% endif %}
 	});
 </script>
 {% endblock %}

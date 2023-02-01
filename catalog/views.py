@@ -50,6 +50,11 @@ def retrieve(request, item_path, item_uuid):
             return redirect(item.merged_to_item.url)
         if not skipcheck and item.is_deleted:
             return HttpResponseNotFound("item not found")
+        focus_item = None
+        if request.GET.get("focus"):
+            focus_item = get_object_or_404(
+                Item, uid=base62.decode(request.GET.get("focus"))
+            )
         mark = None
         review = None
         mark_list = None
@@ -87,6 +92,7 @@ def retrieve(request, item_path, item_uuid):
             item.class_name + ".html",
             {
                 "item": item,
+                "focus_item": focus_item,
                 "mark": mark,
                 "review": review,
                 "mark_list": mark_list,

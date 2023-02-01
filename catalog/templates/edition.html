@@ -10,7 +10,7 @@
 {% load strip_scheme %}
 {% load thumb %}
 
-{% block opengraph %}
+{% block head %}
 {% if item.author %}
 <meta property="og:book:author" content="{% for author in item.author %}{{ author }}{% if not forloop.last %},{% endif %}{% endfor %}">
 {% endif %}

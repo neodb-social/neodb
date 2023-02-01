@@ -187,6 +187,9 @@ class Memo(Content):
 
 class Comment(Content):
     text = models.TextField(blank=False, null=False)
+    focus_item = models.ForeignKey(
+        Item, on_delete=models.PROTECT, null=True, related_name="focused_comments"
+    )
 
     @property
     def html(self):
@@ -950,7 +953,9 @@ class Mark:
 
     @cached_property
     def comment(self):
-        return Comment.objects.filter(owner=self.owner, item=self.item).first()
+        return Comment.objects.filter(
+            owner=self.owner, item=self.item, focus_item__isnull=True
+        ).first()
 
     @property
     def text(self):

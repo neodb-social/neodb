@@ -195,3 +195,33 @@ progress {
 .markdownx-editor {
   font-family: monospace;
 }
+
+.icon {
+  color: lightgray;
+}
+.icon:hover {
+  color: #00a1cc;
+}
+.comment.icon {
+  box-sizing: unset;
+  position: absolute;
+  margin-left: 2px;
+  margin-top: 4px;
+  width: 15px;
+  height: 10px;
+  border: solid 1px currentColor;
+  border-radius: 2px;
+}
+.comment.icon:before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 8px;
+  width: 4px;
+  height: 4px;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+  background-color: white;
+  border-bottom: solid 1px currentColor;
+  border-right: solid 1px currentColor;
+}

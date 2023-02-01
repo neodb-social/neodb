@@ -21,12 +21,19 @@ from django.db.models import Q
 from management.models import Announcement
 from django.utils.baseconv import base62
 from .forms import *
-from mastodon.api import share_review, share_collection
+from mastodon.api import (
+    get_spoiler_text,
+    share_review,
+    share_collection,
+    get_status_id_by_url,
+    post_toot,
+    get_visibility,
+)
 from users.views import render_user_blocked, render_user_not_found
 from users.models import User, Report, Preference
 from common.utils import PageLinksGenerator
 from user_messages import api as msg
-
+from datetime import datetime
 
 _logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
@@ -169,6 +176,91 @@ def mark(request, item_uuid):
                 _logger.warn(f"post to mastodon error {e}")
                 return render_relogin(request)
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    return HttpResponseBadRequest()
+
+
+@login_required
+def comment(request, item_uuid, focus_item_uuid):
+    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    focus_item = get_object_or_404(Item, uid=base62.decode(focus_item_uuid))
+    if focus_item.parent_item != item:
+        return HttpResponseNotFound()
+    comment = Comment.objects.filter(
+        owner=request.user, item=item, focus_item=focus_item
+    ).first()
+    if request.method == "GET":
+        return render(
+            request,
+            "comment.html",
+            {
+                "item": item,
+                "focus_item": focus_item,
+                "comment": comment,
+            },
+        )
+    elif request.method == "POST":
+        if request.POST.get("delete", default=False):
+            if not comment:
+                return HttpResponseNotFound()
+            comment.delete()
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        visibility = int(request.POST.get("visibility", default=0))
+        text = request.POST.get("text")
+        position = (
+            request.POST.get("position")
+            if request.POST.get("share_position")
+            else "0:0:0"
+        )
+        try:
+            pos = datetime.strptime(position, "%H:%M:%S")
+            position = pos.hour * 3600 + pos.minute * 60 + pos.second
+        except:
+            raise
+            position = 0
+        share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
+        shared_link = None
+        post_error = False
+        if share_to_mastodon:
+            shared_link = comment.metadata.get("shared_link") if comment else None
+            status_id = get_status_id_by_url(shared_link)
+            link = focus_item.get_absolute_url_with_position(position or None)
+            status = f"分享{ItemCategory(item.category).label}《{item.title}》的《{focus_item.title}》\n{link}\n{text}"
+            spoiler, status = get_spoiler_text(status, item)
+            try:
+                response = post_toot(
+                    request.user.mastodon_site,
+                    status,
+                    get_visibility(visibility, request.user),
+                    request.user.mastodon_token,
+                    False,
+                    status_id,
+                    spoiler,
+                )
+                if response and response.status_code in [200, 201]:
+                    j = response.json()
+                    if "url" in j:
+                        shared_link = j["url"]
+            except Exception as e:
+                raise
+                post_error = True
+        if comment:
+            comment.visibility = visibility
+            comment.text = text
+            if shared_link:
+                comment.metadata["shared_link"] = shared_link
+            comment.save()
+        else:
+            comment = Comment.objects.create(
+                owner=request.user,
+                item=item,
+                focus_item=focus_item,
+                text=text,
+                visibility=visibility,
+                metadata={"shared_link": shared_link},
+            )
+        if post_error:
+            return render_relogin(request)
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
     return HttpResponseBadRequest()
 
 
@@ -712,7 +804,7 @@ def profile(request, user_name):
         ItemCategory.Movie,
         ItemCategory.TV,
         ItemCategory.Music,
-        # ItemCategory.Podcast,
+        ItemCategory.Podcast,
         ItemCategory.Game,
     ]
     for category in visbile_categories:
