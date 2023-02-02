@@ -126,7 +126,6 @@ def create(request, item_model):
             form.instance.save()
             return redirect(form.instance.url)
         else:
-            pprint(form.errors)
             return HttpResponseBadRequest(form.errors)
     else:
         return HttpResponseBadRequest()
@@ -155,7 +154,6 @@ def edit(request, item_path, item_uuid):
             form.instance.save()
             return redirect(form.instance.url)
         else:
-            pprint(form.errors)
             return HttpResponseBadRequest(form.errors)
     else:
         return HttpResponseBadRequest()
@@ -219,6 +217,16 @@ def merge(request, item_path, item_uuid):
     item.merge_to(new_item)
     update_journal_for_merged_item(item_uuid)
     return redirect(new_item.url)
+
+
+def episode_data(request, item_uuid):
+    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    qs = item.episodes.all().order_by("-pub_date")
+    if request.GET.get("last"):
+        qs = qs.filter(pub_date__lt=request.GET.get("last"))
+    return render(
+        request, "podcast_episode_data.html", {"item": item, "episodes": qs[:10]}
+    )
 
 
 @login_required

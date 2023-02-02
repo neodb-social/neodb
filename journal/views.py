@@ -215,8 +215,9 @@ def comment(request, item_uuid, focus_item_uuid):
             pos = datetime.strptime(position, "%H:%M:%S")
             position = pos.hour * 3600 + pos.minute * 60 + pos.second
         except:
-            raise
-            position = 0
+            if settings.DEBUG:
+                raise
+            position = None
         share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
         shared_link = None
         post_error = False
@@ -224,7 +225,7 @@ def comment(request, item_uuid, focus_item_uuid):
             shared_link = comment.metadata.get("shared_link") if comment else None
             status_id = get_status_id_by_url(shared_link)
             link = focus_item.get_absolute_url_with_position(position or None)
-            status = f"分享{ItemCategory(item.category).label}《{item.title}》的《{focus_item.title}》\n{link}\n{text}"
+            status = f"分享{ItemCategory(item.category).label}《{item.title}》的《{focus_item.title}》\n{link}\n\n{text}"
             spoiler, status = get_spoiler_text(status, item)
             try:
                 response = post_toot(
@@ -241,11 +242,13 @@ def comment(request, item_uuid, focus_item_uuid):
                     if "url" in j:
                         shared_link = j["url"]
             except Exception as e:
-                raise
+                if settings.DEBUG:
+                    raise
                 post_error = True
         if comment:
             comment.visibility = visibility
             comment.text = text
+            comment.metadata["position"] = position
             if shared_link:
                 comment.metadata["shared_link"] = shared_link
             comment.save()
@@ -256,7 +259,7 @@ def comment(request, item_uuid, focus_item_uuid):
                 focus_item=focus_item,
                 text=text,
                 visibility=visibility,
-                metadata={"shared_link": shared_link},
+                metadata={"shared_link": shared_link, "position": position},
             )
         if post_error:
             return render_relogin(request)
@@ -514,7 +517,6 @@ def review_edit(request, item_uuid, review_uuid=None):
             if review
             else ReviewForm(request.POST)
         )
-        print(form.instance.body)
         if form.is_valid():
             if not review:
                 form.instance.owner = request.user

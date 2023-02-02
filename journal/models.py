@@ -195,6 +195,15 @@ class Comment(Content):
     def html(self):
         return render_text(self.text)
 
+    @property
+    def item_url(self):
+        if self.focus_item:
+            return self.focus_item.get_absolute_url_with_position(
+                self.metadata["position"]
+            )
+        else:
+            return self.item.url
+
     @staticmethod
     def comment_item_by_user(item, user, text, visibility=0):
         comment = Comment.objects.filter(owner=user, item=item).first()

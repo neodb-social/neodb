@@ -29,6 +29,7 @@ urlpatterns = [
         retrieve,
         name="retrieve",
     ),
+    path("podcast/<str:item_uuid>/episodes", episode_data, name="episode_data"),
     path("catalog/create/<str:item_model>", create, name="create"),
     re_path(
         r"^(?P<item_path>"

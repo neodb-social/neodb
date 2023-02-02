@@ -11,7 +11,7 @@
       <img src="{{ item.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
     </a>
     {% if not action.taken %}
-    <a title="加入想读" class="entity-list__entity-action-icon" hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist" class="edit" hx-target="body" hx-swap="beforeend">➕</a>
+    <a title="标记" class="entity-list__entity-action-icon" hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist" class="edit" hx-target="body" hx-swap="beforeend">➕</a>
     {% endif %}
   </div>
 

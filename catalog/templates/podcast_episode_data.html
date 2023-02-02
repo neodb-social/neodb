@@ -1,0 +1,39 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% for ep in episodes %}
+<details>
+  <summary>
+  	<h6 class="entity-desc__title">
+  		<a
+  			data-media="{{ ep.media_url }}"
+  			data-cover="{{ ep.cover_url|default:item.cover.url }}"
+  			class="episode gg-play-button-o"
+  			href="{{ep.url}}"
+  			data-uuid="{{ep.uuid}}"
+  			data-title="{{ ep.title }}"
+  			data-album = "{{ item.title }}"
+  			data-hosts = "{{ item.hosts|join:' / ' }}"
+  			style="top:4px;margin-right: 8px;">
+  	</a>
+    {{ ep.title }}
+    <small style="color:lightgrey;">{{ ep.pub_date|date }}</small>
+  </h6>
+  </summary>
+  <p> {{ ep.brief | linebreaksbr }} </p>
+</details>
+<div style="margin-bottom: 8px;margin-left: 32px;">
+	{% if request.user.is_authenticated %}
+	<a class="icon gg-comment" style="--ggs:0.5;margin-right: 10px;" title="评论单集" href="#" hx-get="{% url 'journal:comment' item.uuid ep.uuid %}" hx-target="body" hx-swap="beforeend"></a>
+	{% endif %}
+  <a class="icon gg-external" style="--ggs:0.6;" title="打开源网站" target="_blank" href="{{ep.link}}"></a>
+</div>
+
+{% if forloop.last %}
+<button hx-get="{% url 'catalog:episode_data' item.uuid %}?last={{ ep.pub_date|date:'Y-m-d H:i:s.uO'|urlencode }}" hx-trigger="click" hx-swap="outerHTML">显示更多</button>
+{% endif %}
+
+{% empty %}
+<div>{% trans '目前没有更多内容了' %}</div>
+{% endfor %}

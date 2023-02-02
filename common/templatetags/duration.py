@@ -7,8 +7,10 @@ register = template.Library()
 
 @register.filter(is_safe=True)
 @stringfilter
-def duration_format(value):
-    duration = int(value)
-    h = duration // 3600000
-    m = duration % 3600000 // 60000
-    return (f"{h}小时 " if h else "") + (f"{m}分钟" if m else "")
+def duration_format(value, unit):
+    duration = int(value or 0) // int(unit or 1)
+    h = duration // 3600
+    m = duration % 3600 // 60
+    s = duration % 60
+    return f"{h}:{m:02}:{s:02}" if h else f"{m}:{s:02}"
+    # return (f"{h}小时 " if h else "") + (f"{m}分钟" if m else "")

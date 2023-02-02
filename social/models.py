@@ -28,6 +28,7 @@ class ActivityTemplate(models.TextChoices):
     CreateCollection = "create_collection"
     LikeCollection = "like_collection"
     FeatureCollection = "feature_collection"
+    CommentFocusItem = "comment_focus_item"
 
 
 class LocalActivity(models.Model, UserOwnedObjectMixin):
@@ -174,10 +175,24 @@ class LikeCollectionProcessor(DefaultActivityProcessor):
 
     def updated(self):
         if isinstance(self.action_object.target, Collection):
-            super().update()
+            super().updated()
 
 
 @DataSignalManager.register
 class FeaturedCollectionProcessor(DefaultActivityProcessor):
     model = FeaturedCollection
     template = ActivityTemplate.FeatureCollection
+
+
+@DataSignalManager.register
+class CommentFocusItemProcessor(DefaultActivityProcessor):
+    model = Comment
+    template = ActivityTemplate.CommentFocusItem
+
+    def created(self):
+        if self.action_object.focus_item:
+            super().created()
+
+    def updated(self):
+        if self.action_object.focus_item:
+            super().updated()

@@ -120,6 +120,28 @@
               </div>
               {% endif %}
 
+              {% block content %}
+              {% if item.contents %}
+              <div class="entity-desc" id="contents">
+                <h5 class="entity-desc__title">{% trans '目录' %}</h5>
+                <p class="entity-desc__content">{{ item.contents | linebreaksbr }}</p>
+                <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
+                  <a href="javascript:void(0);">展开全部</a>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if item.track_list %}
+              <div class="entity-desc" id="description">
+                <h5 class="entity-desc__title">{% trans '曲目' %}</h5>
+                <p class="entity-desc__content">{{ item.track_list | linebreaksbr }}</p>
+                <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
+                  <a href="javascript:void(0);">展开全部</a>
+                </div>
+              </div>
+              {% endif %}
+              {% endblock %}
+
               <div class="entity-marks">
                 <h5 class="entity-marks__title">{% trans '标记' %}</h5>
                 {% if mark_list %}
@@ -308,8 +330,6 @@
       </section>
     </div>
     {% include "partial/_footer.html" %}
-  </div>
-  <div class="player">
   </div>
 </body>
 </html>
