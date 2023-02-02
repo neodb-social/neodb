@@ -33,10 +33,18 @@ class Command(BaseCommand):
             "--reindex",
             action="store_true",
         )
+        parser.add_argument(
+            "--delete",
+            action="store_true",
+        )
 
     def init_index(self):
         Indexer.init()
         self.stdout.write(self.style.SUCCESS("Index created."))
+
+    def delete(self):
+        Indexer.delete_index()
+        self.stdout.write(self.style.SUCCESS("Index deleted."))
 
     def update_index(self):
         Indexer.update_settings()
@@ -52,7 +60,7 @@ class Command(BaseCommand):
         # Indexer.update_settings()
         # self.stdout.write(self.style.SUCCESS('Index settings updated.'))
         qs = Item.objects.filter(
-            is_deleted=False
+            is_deleted=False, merged_to_item_id__isnull=True
         )  # if h == 0 else c.objects.filter(edited_time__gt=timezone.now() - timedelta(hours=h))
         pg = Paginator(qs.order_by("id"), BATCH_SIZE)
         for p in tqdm(pg.page_range):
@@ -62,7 +70,7 @@ class Command(BaseCommand):
                     [
                         x
                         for x in pg.get_page(p).object_list
-                        if x.__class__ != CatalogCollection
+                        if hasattr(x, "indexable_fields")
                     ],
                 )
             )
@@ -80,6 +88,8 @@ class Command(BaseCommand):
             self.stat()
         elif options["reindex"]:
             self.reindex()
+        elif options["delete"]:
+            self.delete()
         # else:
 
         # try:

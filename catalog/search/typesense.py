@@ -133,6 +133,10 @@ class Indexer:
         cls.instance().collections.create(cls.config())
 
     @classmethod
+    def delete_index(cls):
+        cls.instance().collections[INDEX_NAME].delete()
+
+    @classmethod
     def update_settings(cls):
         cls.instance().collections[INDEX_NAME].update(cls.config())
 
