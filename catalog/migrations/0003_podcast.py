@@ -5,12 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-    replaces = [
-        ("catalog", "0003_auto_20230129_1140_squashed_0006_auto_20230129_1401"),
-        ("catalog", "0004_alter_podcastepisode_media_url"),
-        ("catalog", "0005_auto_20230130_0657"),
-    ]
-
     dependencies = [
         ("catalog", "0002_initial"),
     ]
