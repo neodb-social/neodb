@@ -7,6 +7,7 @@ from django.core.cache import cache
 from catalog.podcast.models import PodcastEpisode
 from datetime import datetime
 from django.utils.timezone import make_aware
+import bleach
 
 _logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ class RSS(AbstractSite):
         pd = ResourceContent(
             metadata={
                 "title": feed["title"],
-                "brief": feed["description"],
+                "brief": bleach.clean(feed["description"], strip=True),
                 "hosts": [feed.get("itunes_author")]
                 if feed.get("itunes_author")
                 else [],
@@ -87,7 +88,7 @@ class RSS(AbstractSite):
                 guid=episode.get("guid"),
                 defaults={
                     "title": episode["title"],
-                    "brief": episode.get("description"),
+                    "brief": bleach.clean(episode.get("description"), strip=True),
                     "description_html": episode.get("description_html"),
                     "cover_url": episode.get("episode_art_url"),
                     "media_url": episode.get("enclosures")[0].get("url")
