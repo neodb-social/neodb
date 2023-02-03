@@ -480,7 +480,10 @@ def collection_edit(request, collection_uuid=None):
 
 
 def review_retrieve(request, review_uuid):
-    piece = get_object_or_404(Review, uid=base62.decode(review_uuid))
+    # piece = get_object_or_404(Review, uid=base62.decode(review_uuid))
+    piece = Review.get_by_url(review_uuid)
+    if piece is None:
+        return HttpResponseNotFound()
     if not piece.is_visible_to(request.user):
         raise PermissionDenied()
     return render(request, "review.html", {"review": piece})

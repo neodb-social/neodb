@@ -117,6 +117,19 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def api_url(self):
         return f"/api/{self.url}" if self.url_path else None
 
+    @classmethod
+    def get_by_url(cls, url_or_b62):
+        b62 = url_or_b62.strip().split("/")[-1]
+        if len(b62) not in [21, 22]:
+            r = re.search(r"[A-Za-z0-9]{21,22}", url_or_b62)
+            if r:
+                b62 = r[0]
+        try:
+            obj = cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
+        except:
+            obj = None
+        return obj
+
 
 class Content(Piece):
     owner = models.ForeignKey(User, on_delete=models.PROTECT)

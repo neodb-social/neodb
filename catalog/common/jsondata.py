@@ -162,7 +162,7 @@ class DateField(JSONFieldMixin, fields.DateField):
         if value:
             if not isinstance(value, (datetime, date)):
                 value = dateparse.parse_date(value)
-            return value.strftime("%Y-%m-%d")
+            return value.strftime("%Y-%m-%d") if value else None
 
     def from_json(self, value):
         if value is not None:

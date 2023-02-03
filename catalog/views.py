@@ -41,7 +41,10 @@ def retrieve_by_uuid(request, item_uid):
 
 def retrieve(request, item_path, item_uuid):
     if request.method == "GET":
-        item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+        # item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+        item = Item.get_by_url(item_uuid)
+        if item is None:
+            return HttpResponseNotFound()
         item_url = f"/{item_path}/{item_uuid}"
         if item.url != item_url:
             return redirect(item.url)
