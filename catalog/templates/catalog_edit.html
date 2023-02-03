@@ -74,7 +74,6 @@
             <div class="aside-section-wrapper">
               <div class="action-panel">
 
-\
                 <div class="action-panel__label">{% trans '合并到另一条目' %} </div>
                 <div class="action-panel__button-group">
                   <form method="post" action="{% url 'catalog:merge' item.url_path item.uuid %}" onsubmit="return confirm('Confirm merging?');">

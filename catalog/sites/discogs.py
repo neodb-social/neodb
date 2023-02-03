@@ -58,7 +58,7 @@ class DiscogsRelease(AbstractSite):
                 "title": title,
                 "artist": artist,
                 "genre": genre,
-                "track_list": track_list,
+                "track_list": "\n".join(track_list),
                 "release_date": None,  # only year provided by API
                 "company": company,
                 "media": media,
@@ -107,7 +107,7 @@ class DiscogsMaster(AbstractSite):
                 "title": title,
                 "artist": artist,
                 "genre": genre,
-                "track_list": track_list,
+                "track_list": "\n".join(track_list),
                 "cover_image_url": image_url,
             }
         )

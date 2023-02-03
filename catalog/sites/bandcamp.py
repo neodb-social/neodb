@@ -55,7 +55,7 @@ class Bandcamp(AbstractSite):
             raise ValueError("given url contains no valid info")
 
         genre = []  # TODO: parse tags
-        track_list = []
+        track_list = ""
         release_nodes = content.xpath(
             "//div[@class='tralbumData tralbum-credits']/text()"
         )
