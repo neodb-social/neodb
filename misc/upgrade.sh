@@ -1,5 +1,8 @@
 #!/bin/sh
 [ -f manage.py ] || exit
+echo Dry Run MakeMigrations:
+python3 manage.py makemigrations --dry-run
+echo Planned Migrations:
 python3 manage.py migrate --plan
 
 while true; do
