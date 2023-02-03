@@ -127,8 +127,6 @@ def get_discogs_data(data_type: str, discogs_id):
         "User-Agent": user_agent_string,
         "Authorization": f"Discogs token={user_token}",
     }
-    response = requests.get(
-        f"https://api.discogs.com/{data_type}/{discogs_id}", headers=headers
-    )
-    data = json.loads(response.text)
+    api_url = f"https://api.discogs.com/{data_type}/{discogs_id}"
+    data = BasicDownloader(api_url, headers=headers).download().json()
     return data

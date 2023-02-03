@@ -89,11 +89,9 @@ class BandcampTestCase(TestCase):
 class DiscogsReleaseTestCase(TestCase):
     def test_parse(self):
         t_id_type = IdType.Discogs_Release
-        t_id_value = "25746742"
-        t_url = (
-            "https://www.discogs.com/release/25746742-Phish-LP-on-LP-04-Ghost-5222000"
-        )
-        t_url_2 = "https://www.discogs.com/release/25746742"
+        t_id_value = "25829341"
+        t_url = "https://www.discogs.com/release/25829341-JID-The-Never-Story"
+        t_url_2 = "https://www.discogs.com/release/25829341"
         site = SiteManager.get_site_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
@@ -103,27 +101,23 @@ class DiscogsReleaseTestCase(TestCase):
 
     @use_local_response
     def test_scrape(self):
-        t_url = (
-            "https://www.discogs.com/release/25746742-Phish-LP-on-LP-04-Ghost-5222000"
-        )
+        t_url = "https://www.discogs.com/release/25829341-JID-The-Never-Story"
         site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(
-            site.resource.metadata["title"], 'LP on LP 04: "Ghost" 5/22/2000'
-        )
-        self.assertEqual(site.resource.metadata["artist"], ["Phish"])
+        self.assertEqual(site.resource.metadata["title"], "The Never Story")
+        self.assertEqual(site.resource.metadata["artist"], ["J.I.D"])
         self.assertIsInstance(site.resource.item, Album)
-        self.assertEqual(site.resource.item.barcode, "850014859275")
+        self.assertEqual(site.resource.item.barcode, "602445804689")
 
 
 class DiscogsMasterTestCase(TestCase):
     def test_parse(self):
         t_id_type = IdType.Discogs_Master
-        t_id_value = "14772"
-        t_url = "https://www.discogs.com/master/14772-Linda-Ronstadt-Silk-Purse"
-        t_url_2 = "https://www.discogs.com/master/14772"
+        t_id_value = "469004"
+        t_url = "https://www.discogs.com/master/469004-The-XX-Coexist"
+        t_url_2 = "https://www.discogs.com/master/469004"
         site = SiteManager.get_site_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
@@ -133,11 +127,11 @@ class DiscogsMasterTestCase(TestCase):
 
     @use_local_response
     def test_scrape(self):
-        t_url = "https://www.discogs.com/master/14772-Linda-Ronstadt-Silk-Purse"
+        t_url = "https://www.discogs.com/master/469004-The-XX-Coexist"
         site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "Silk Purse")
-        self.assertEqual(site.resource.metadata["artist"], ["Linda Ronstadt"])
+        self.assertEqual(site.resource.metadata["title"], "Coexist")
+        self.assertEqual(site.resource.metadata["artist"], ["The XX"])
         self.assertIsInstance(site.resource.item, Album)
