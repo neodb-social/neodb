@@ -1,0 +1,164 @@
+{
+  "album_type" : "album",
+  "artists" : [ {
+    "external_urls" : {
+      "spotify" : "https://open.spotify.com/artist/0F3Aew9DSd6fb6192K1K0Y"
+    },
+    "href" : "https://api.spotify.com/v1/artists/0F3Aew9DSd6fb6192K1K0Y",
+    "id" : "0F3Aew9DSd6fb6192K1K0Y",
+    "name" : "Keith Jarrett",
+    "type" : "artist",
+    "uri" : "spotify:artist:0F3Aew9DSd6fb6192K1K0Y"
+  } ],
+  "available_markets" : [ "AD", "AE", "AG", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BN", "BO", "BR", "BS", "BT", "BW", "BY", "BZ", "CA", "CD", "CG", "CH", "CI", "CL", "CM", "CO", "CR", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "ES", "FI", "FJ", "FM", "FR", "GA", "GB", "GD", "GE", "GH", "GM", "GN", "GQ", "GR", "GT", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KR", "KW", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MN", "MO", "MR", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NE", "NG", "NI", "NL", "NO", "NP", "NR", "NZ", "OM", "PA", "PE", "PG", "PH", "PK", "PL", "PS", "PT", "PW", "PY", "QA", "RO", "RS", "RW", "SA", "SB", "SC", "SE", "SG", "SI", "SK", "SL", "SM", "SN", "SR", "ST", "SV", "SZ", "TD", "TG", "TH", "TJ", "TL", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VN", "VU", "WS", "XK", "ZA", "ZM", "ZW" ],
+  "copyrights" : [ {
+    "text" : "© 1975 ECM Records GmbH, under exclusive license to Deutsche Grammophon GmbH, Berlin",
+    "type" : "C"
+  }, {
+    "text" : "℗ 1975 ECM Records GmbH, under exclusive license to Deutsche Grammophon GmbH, Berlin",
+    "type" : "P"
+  } ],
+  "external_ids" : {
+    "upc" : "00042281006722"
+  },
+  "external_urls" : {
+    "spotify" : "https://open.spotify.com/album/0I8vpSE1bSmysN2PhmHoQg"
+  },
+  "genres" : [ ],
+  "href" : "https://api.spotify.com/v1/albums/0I8vpSE1bSmysN2PhmHoQg",
+  "id" : "0I8vpSE1bSmysN2PhmHoQg",
+  "images" : [ {
+    "height" : 640,
+    "url" : "https://i.scdn.co/image/ab67616d0000b27364d8292b7825888183e4da28",
+    "width" : 640
+  }, {
+    "height" : 300,
+    "url" : "https://i.scdn.co/image/ab67616d00001e0264d8292b7825888183e4da28",
+    "width" : 300
+  }, {
+    "height" : 64,
+    "url" : "https://i.scdn.co/image/ab67616d0000485164d8292b7825888183e4da28",
+    "width" : 64
+  } ],
+  "label" : "ECM Records",
+  "name" : "The Köln Concert",
+  "popularity" : 48,
+  "release_date" : "1975-11-30",
+  "release_date_precision" : "day",
+  "total_tracks" : 4,
+  "tracks" : {
+    "href" : "https://api.spotify.com/v1/albums/0I8vpSE1bSmysN2PhmHoQg/tracks?offset=0&limit=50",
+    "items" : [ {
+      "artists" : [ {
+        "external_urls" : {
+          "spotify" : "https://open.spotify.com/artist/0F3Aew9DSd6fb6192K1K0Y"
+        },
+        "href" : "https://api.spotify.com/v1/artists/0F3Aew9DSd6fb6192K1K0Y",
+        "id" : "0F3Aew9DSd6fb6192K1K0Y",
+        "name" : "Keith Jarrett",
+        "type" : "artist",
+        "uri" : "spotify:artist:0F3Aew9DSd6fb6192K1K0Y"
+      } ],
+      "available_markets" : [ "AD", "AE", "AG", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BN", "BO", "BR", "BS", "BT", "BW", "BY", "BZ", "CA", "CD", "CG", "CH", "CI", "CL", "CM", "CO", "CR", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "ES", "ET", "FI", "FJ", "FM", "FR", "GA", "GB", "GD", "GE", "GH", "GM", "GN", "GQ", "GR", "GT", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KR", "KW", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MN", "MO", "MR", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NE", "NG", "NI", "NL", "NO", "NP", "NR", "NZ", "OM", "PA", "PE", "PG", "PH", "PK", "PL", "PS", "PT", "PW", "PY", "QA", "RO", "RS", "RW", "SA", "SB", "SC", "SE", "SG", "SI", "SK", "SL", "SM", "SN", "SR", "ST", "SV", "SZ", "TD", "TG", "TH", "TJ", "TL", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VN", "VU", "WS", "XK", "ZA", "ZM", "ZW" ],
+      "disc_number" : 1,
+      "duration_ms" : 1561600,
+      "explicit" : false,
+      "external_urls" : {
+        "spotify" : "https://open.spotify.com/track/0T4KV1pj8as2xvdHZAP5ae"
+      },
+      "href" : "https://api.spotify.com/v1/tracks/0T4KV1pj8as2xvdHZAP5ae",
+      "id" : "0T4KV1pj8as2xvdHZAP5ae",
+      "is_local" : false,
+      "name" : "Köln, January 24, 1975, Pt. I - Live",
+      "preview_url" : null,
+      "track_number" : 1,
+      "type" : "track",
+      "uri" : "spotify:track:0T4KV1pj8as2xvdHZAP5ae"
+    }, {
+      "artists" : [ {
+        "external_urls" : {
+          "spotify" : "https://open.spotify.com/artist/0F3Aew9DSd6fb6192K1K0Y"
+        },
+        "href" : "https://api.spotify.com/v1/artists/0F3Aew9DSd6fb6192K1K0Y",
+        "id" : "0F3Aew9DSd6fb6192K1K0Y",
+        "name" : "Keith Jarrett",
+        "type" : "artist",
+        "uri" : "spotify:artist:0F3Aew9DSd6fb6192K1K0Y"
+      } ],
+      "available_markets" : [ "AD", "AE", "AG", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BN", "BO", "BR", "BS", "BT", "BW", "BY", "BZ", "CA", "CD", "CG", "CH", "CI", "CL", "CM", "CO", "CR", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "ES", "ET", "FI", "FJ", "FM", "FR", "GA", "GB", "GD", "GE", "GH", "GM", "GN", "GQ", "GR", "GT", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KR", "KW", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MN", "MO", "MR", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NE", "NG", "NI", "NL", "NO", "NP", "NR", "NZ", "OM", "PA", "PE", "PG", "PH", "PK", "PL", "PS", "PT", "PW", "PY", "QA", "RO", "RS", "RW", "SA", "SB", "SC", "SE", "SG", "SI", "SK", "SL", "SM", "SN", "SR", "ST", "SV", "SZ", "TD", "TG", "TH", "TJ", "TL", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VN", "VU", "WS", "XK", "ZA", "ZM", "ZW" ],
+      "disc_number" : 1,
+      "duration_ms" : 894733,
+      "explicit" : false,
+      "external_urls" : {
+        "spotify" : "https://open.spotify.com/track/3hrt1fLgEZIZPONUbcDY0c"
+      },
+      "href" : "https://api.spotify.com/v1/tracks/3hrt1fLgEZIZPONUbcDY0c",
+      "id" : "3hrt1fLgEZIZPONUbcDY0c",
+      "is_local" : false,
+      "name" : "Köln, January 24, 1975, Pt. II A - Live",
+      "preview_url" : null,
+      "track_number" : 2,
+      "type" : "track",
+      "uri" : "spotify:track:3hrt1fLgEZIZPONUbcDY0c"
+    }, {
+      "artists" : [ {
+        "external_urls" : {
+          "spotify" : "https://open.spotify.com/artist/0F3Aew9DSd6fb6192K1K0Y"
+        },
+        "href" : "https://api.spotify.com/v1/artists/0F3Aew9DSd6fb6192K1K0Y",
+        "id" : "0F3Aew9DSd6fb6192K1K0Y",
+        "name" : "Keith Jarrett",
+        "type" : "artist",
+        "uri" : "spotify:artist:0F3Aew9DSd6fb6192K1K0Y"
+      } ],
+      "available_markets" : [ "AD", "AE", "AG", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BN", "BO", "BR", "BS", "BT", "BW", "BY", "BZ", "CA", "CD", "CG", "CH", "CI", "CL", "CM", "CO", "CR", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "ES", "ET", "FI", "FJ", "FM", "FR", "GA", "GB", "GD", "GE", "GH", "GM", "GN", "GQ", "GR", "GT", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KR", "KW", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MN", "MO", "MR", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NE", "NG", "NI", "NL", "NO", "NP", "NR", "NZ", "OM", "PA", "PE", "PG", "PH", "PK", "PL", "PS", "PT", "PW", "PY", "QA", "RO", "RS", "RW", "SA", "SB", "SC", "SE", "SG", "SI", "SK", "SL", "SM", "SN", "SR", "ST", "SV", "SZ", "TD", "TG", "TH", "TJ", "TL", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VN", "VU", "WS", "XK", "ZA", "ZM", "ZW" ],
+      "disc_number" : 1,
+      "duration_ms" : 1094493,
+      "explicit" : false,
+      "external_urls" : {
+        "spotify" : "https://open.spotify.com/track/5E2TkoLzEpqvxwWzkgh0kT"
+      },
+      "href" : "https://api.spotify.com/v1/tracks/5E2TkoLzEpqvxwWzkgh0kT",
+      "id" : "5E2TkoLzEpqvxwWzkgh0kT",
+      "is_local" : false,
+      "name" : "Köln, January 24, 1975, Pt. II B - Live",
+      "preview_url" : null,
+      "track_number" : 3,
+      "type" : "track",
+      "uri" : "spotify:track:5E2TkoLzEpqvxwWzkgh0kT"
+    }, {
+      "artists" : [ {
+        "external_urls" : {
+          "spotify" : "https://open.spotify.com/artist/0F3Aew9DSd6fb6192K1K0Y"
+        },
+        "href" : "https://api.spotify.com/v1/artists/0F3Aew9DSd6fb6192K1K0Y",
+        "id" : "0F3Aew9DSd6fb6192K1K0Y",
+        "name" : "Keith Jarrett",
+        "type" : "artist",
+        "uri" : "spotify:artist:0F3Aew9DSd6fb6192K1K0Y"
+      } ],
+      "available_markets" : [ "AD", "AE", "AG", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BN", "BO", "BR", "BS", "BT", "BW", "BY", "BZ", "CA", "CD", "CG", "CH", "CI", "CL", "CM", "CO", "CR", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "ES", "ET", "FI", "FJ", "FM", "FR", "GA", "GB", "GD", "GE", "GH", "GM", "GN", "GQ", "GR", "GT", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KR", "KW", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MN", "MO", "MR", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NE", "NG", "NI", "NL", "NO", "NP", "NR", "NZ", "OM", "PA", "PE", "PG", "PH", "PK", "PL", "PS", "PT", "PW", "PY", "QA", "RO", "RS", "RW", "SA", "SB", "SC", "SE", "SG", "SI", "SK", "SL", "SM", "SN", "SR", "ST", "SV", "SZ", "TD", "TG", "TH", "TJ", "TL", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VN", "VU", "WS", "XK", "ZA", "ZM", "ZW" ],
+      "disc_number" : 1,
+      "duration_ms" : 416840,
+      "explicit" : false,
+      "external_urls" : {
+        "spotify" : "https://open.spotify.com/track/4FMI4Ln1LhyxGldkNXan5e"
+      },
+      "href" : "https://api.spotify.com/v1/tracks/4FMI4Ln1LhyxGldkNXan5e",
+      "id" : "4FMI4Ln1LhyxGldkNXan5e",
+      "is_local" : false,
+      "name" : "Köln, January 24, 1975, Pt. II C - Live",
+      "preview_url" : null,
+      "track_number" : 4,
+      "type" : "track",
+      "uri" : "spotify:track:4FMI4Ln1LhyxGldkNXan5e"
+    } ],
+    "limit" : 50,
+    "next" : null,
+    "offset" : 0,
+    "previous" : null,
+    "total" : 4
+  },
+  "type" : "album",
+  "uri" : "spotify:album:0I8vpSE1bSmysN2PhmHoQg"
+}

@@ -4,6 +4,7 @@ Spotify
 from django.conf import settings
 from catalog.common import *
 from catalog.models import *
+from catalog.music.utils import upc_to_gtin_13
 from .douban import *
 import time
 import datetime
@@ -28,11 +29,11 @@ class Spotify(AbstractSite):
     DEFAULT_MODEL = Album
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return f"https://open.spotify.com/album/{id_value}"
 
     def scrape(self):
-        api_url = "https://api.spotify.com/v1/albums/" + self.id_value
+        api_url = f"https://api.spotify.com/v1/albums/{self.id_value}"
         headers = {"Authorization": f"Bearer {get_spotify_token()}"}
         res_data = BasicDownloader(api_url, headers=headers).download().json()
         artist = []
@@ -70,9 +71,9 @@ class Spotify(AbstractSite):
 
         gtin = None
         if res_data["external_ids"].get("upc"):
-            gtin = res_data["external_ids"].get("upc")
+            gtin = upc_to_gtin_13(res_data["external_ids"].get("upc"))
         if res_data["external_ids"].get("ean"):
-            gtin = res_data["external_ids"].get("ean")
+            gtin = upc_to_gtin_13(res_data["external_ids"].get("ean"))
         isrc = None
         if res_data["external_ids"].get("isrc"):
             isrc = res_data["external_ids"].get("isrc")

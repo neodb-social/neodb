@@ -1,6 +1,16 @@
 from django.test import TestCase
 from catalog.common import *
 from catalog.models import *
+from catalog.music.utils import *
+
+
+class BasicMusicTest(TestCase):
+    def test_gtin(self):
+        self.assertIsNone(upc_to_gtin_13("018771208112X"))
+        self.assertIsNone(upc_to_gtin_13("999018771208112"))
+        self.assertEqual(upc_to_gtin_13("018771208112"), "0018771208112")
+        self.assertEqual(upc_to_gtin_13("00042281006722"), "0042281006722")
+        self.assertEqual(upc_to_gtin_13("0042281006722"), "0042281006722")
 
 
 class SpotifyTestCase(TestCase):
@@ -60,6 +70,14 @@ class MultiMusicSitesTestCase(TestCase):
         p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
         self.assertEqual(p1.item.id, p2.item.id)
 
+    @use_local_response
+    def test_albums_discogs(self):
+        url1 = "https://www.discogs.com/release/13574140"
+        url2 = "https://open.spotify.com/album/0I8vpSE1bSmysN2PhmHoQg"
+        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        self.assertEqual(p1.item.id, p2.item.id)
+
 
 class BandcampTestCase(TestCase):
     def test_parse(self):
@@ -98,6 +116,8 @@ class DiscogsReleaseTestCase(TestCase):
         site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.url, t_url_2)
         self.assertEqual(site.id_value, t_id_value)
+        site = SiteManager.get_site_by_url(t_url_2)
+        self.assertIsNotNone(site)
 
     @use_local_response
     def test_scrape(self):
@@ -109,7 +129,7 @@ class DiscogsReleaseTestCase(TestCase):
         self.assertEqual(site.resource.metadata["title"], "The Never Story")
         self.assertEqual(site.resource.metadata["artist"], ["J.I.D"])
         self.assertIsInstance(site.resource.item, Album)
-        self.assertEqual(site.resource.item.barcode, "602445804689")
+        self.assertEqual(site.resource.item.barcode, "0602445804689")
 
 
 class DiscogsMasterTestCase(TestCase):

@@ -1,5 +1,6 @@
 from catalog.common import *
 from catalog.models import *
+from catalog.music.utils import upc_to_gtin_13
 from .douban import DoubanDownloader
 import dateparser
 import logging
@@ -20,7 +21,7 @@ class DoubanMusic(AbstractSite):
     DEFAULT_MODEL = Album
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://music.douban.com/subject/" + id_value + "/"
 
     def scrape(self):
@@ -114,7 +115,7 @@ class DoubanMusic(AbstractSite):
             "//div[@id='info']//span[text()='条形码:']/following-sibling::text()[1]"
         )
         if other_elem:
-            gtin = other_elem[0].strip()
+            gtin = upc_to_gtin_13(other_elem[0].strip())
         other_elem = content.xpath(
             "//div[@id='info']//span[text()='碟片数:']/following-sibling::text()[1]"
         )

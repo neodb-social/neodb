@@ -44,7 +44,7 @@ class IdType(models.TextChoices):
     ISSN = "issn", _("ISSN")
     CUBN = "cubn", _("统一书号")
     ISRC = "isrc", _("ISRC")  # only for songs
-    GTIN = "gtin", _("GTIN UPC EAN码")  # ISBN is separate
+    GTIN = "gtin", _("GTIN UPC EAN码")  # GTIN-13, ISBN is separate
     RSS = "rss", _("RSS Feed URL")
     IMDB = "imdb", _("IMDb")
     TMDB_TV = "tmdb_tv", _("TMDB剧集")

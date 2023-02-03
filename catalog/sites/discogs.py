@@ -4,6 +4,7 @@ Discogs.
 from django.conf import settings
 from catalog.common import *
 from catalog.models import *
+from catalog.music.utils import upc_to_gtin_13
 from .douban import *
 import json
 import logging
@@ -17,12 +18,12 @@ _logger = logging.getLogger(__name__)
 class DiscogsRelease(AbstractSite):
     SITE_NAME = SiteName.Discogs
     ID_TYPE = IdType.Discogs_Release
-    URL_PATTERNS = [r"https://www\.discogs\.com/release/(\d+)-.+"]
+    URL_PATTERNS = [r"https://www\.discogs\.com/release/(\d+)[^\d]*"]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return f"https://www.discogs.com/release/{id_value}"
 
     def scrape(self):
@@ -31,7 +32,9 @@ class DiscogsRelease(AbstractSite):
         artist = [artist.get("name") for artist in release.get("artists")]
         genre = release.get("genres")
         track_list = [track.get("title") for track in release.get("tracklist")]
-        company = [company.get("name") for company in release.get("companies")]
+        company = list(
+            set([company.get("name") for company in release.get("companies")])
+        )
 
         media, disc_count = None, None
         formats = release.get("formats")
@@ -44,7 +47,9 @@ class DiscogsRelease(AbstractSite):
         if identifiers:
             for i in identifiers:
                 if i["type"] == "Barcode":
-                    barcode = i["value"].replace(" ", "").replace("-", "")
+                    barcode = upc_to_gtin_13(
+                        i["value"].replace(" ", "").replace("-", "")
+                    )
         image_url = None
         if len(release.get("images")) > 0:
             image_url = release["images"][0].get("uri")
@@ -79,12 +84,12 @@ class DiscogsRelease(AbstractSite):
 class DiscogsMaster(AbstractSite):
     SITE_NAME = SiteName.Discogs
     ID_TYPE = IdType.Discogs_Master
-    URL_PATTERNS = [r"https://www\.discogs\.com/master/(\d+)-.+"]
+    URL_PATTERNS = [r"https://www\.discogs\.com/master/(\d+)[^\d]*"]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return f"https://www.discogs.com/master/{id_value}"
 
     def scrape(self):
