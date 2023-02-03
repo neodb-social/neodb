@@ -310,6 +310,10 @@ TMDB_API3_KEY = "***REMOVED***"
 # Google Books API Key
 GOOGLE_API_KEY = "***REMOVED***"
 
+# Discogs API Key
+# How to get: a personal access token from https://www.discogs.com/settings/developers
+DISCOGS_API_KEY = "***REMOVED***"
+
 # IGDB
 IGDB_CLIENT_ID = "deadbeef"
 IGDB_CLIENT_SECRET = "deadbeef"

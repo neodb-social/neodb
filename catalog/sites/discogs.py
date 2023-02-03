@@ -122,7 +122,7 @@ def get_discogs_data(data_type: str, discogs_id):
     if data_type not in ("releases", "masters"):
         raise ValueError("data_type can only be in ('releases' or masters')")
     user_agent_string = "Neodb/0.1"
-    user_token = settings.DISCOGS_TOKEN
+    user_token = settings.DISCOGS_API_KEY
     headers = {
         "User-Agent": user_agent_string,
         "Authorization": f"Discogs token={user_token}",
