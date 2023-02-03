@@ -15,12 +15,12 @@
                         placeholder="搜索书影音游戏播客，或输入站外条目链接如 https://movie.douban.com/subject/1297880/ 支持站点列表见页底公告栏">
                     <select class="navbar__search-dropdown" id="searchCategory" name="c">
                         <option value="all" {% if request.GET.c and request.GET.c == 'all' or not request.GET.c %}selected{% endif %}>{% trans '任意' %}</option>
-                        <option value="book" {% if request.GET.c and request.GET.c == 'book' or '/books/' in request.path %}selected{% endif %}>{% trans '书籍' %}</option>
-                        <option value="movie" {% if request.GET.c and request.GET.c == 'movie' or '/movies/' in request.path  %}selected{% endif %}>{% trans '电影' %}</option>
+                        <option value="book" {% if request.GET.c and request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %}>{% trans '书籍' %}</option>
+                        <option value="movie" {% if request.GET.c and request.GET.c == 'movie' or '/movie/' in request.path  %}selected{% endif %}>{% trans '电影' %}</option>
                         <option value="tv" {% if request.GET.c and request.GET.c == 'tv' or '/tv/' in request.path  %}selected{% endif %}>{% trans '剧集' %}</option>
-                        <option value="music" {% if request.GET.c and request.GET.c == 'music' or '/music/' in request.path  %}selected{% endif %}>{% trans '音乐' %}</option>
-                        <option value="game" {% if request.GET.c and request.GET.c == 'game' or '/games/' in request.path  %}selected{% endif %}>{% trans '游戏' %}</option>
                         <option value="podcast" {% if request.GET.c and request.GET.c == 'podcast' or '/podcast/' in request.path  %}selected{% endif %}>{% trans '播客' %}</option>
+                        <option value="music" {% if request.GET.c and request.GET.c == 'music' or '/album/' in request.path  %}selected{% endif %}>{% trans '音乐' %}</option>
+                        <option value="game" {% if request.GET.c and request.GET.c == 'game' or '/game/' in request.path  %}selected{% endif %}>{% trans '游戏' %}</option>
 
                     </select>
                 </div>
