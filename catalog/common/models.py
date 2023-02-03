@@ -33,6 +33,7 @@ class SiteName(models.TextChoices):
     Bangumi = "bangumi", _("Bangumi")
     # ApplePodcast = "apple_podcast", _("苹果播客")
     RSS = "rss", _("RSS")
+    Discogs = "discogs", _("Discogs")
 
 
 class IdType(models.TextChoices):

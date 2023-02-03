@@ -16,3 +16,5 @@ from .igdb import IGDB
 from .steam import Steam
 from .bandcamp import Bandcamp
 from .bangumi import Bangumi
+from .discogs import DiscogsRelease
+from .discogs import DiscogsMaster

@@ -84,3 +84,60 @@ class BandcampTestCase(TestCase):
         self.assertEqual(site.resource.metadata["title"], "In These Times")
         self.assertEqual(site.resource.metadata["artist"], ["Makaya McCraven"])
         self.assertIsInstance(site.resource.item, Album)
+
+
+class DiscogsReleaseTestCase(TestCase):
+    def test_parse(self):
+        t_id_type = IdType.Discogs_Release
+        t_id_value = "25746742"
+        t_url = (
+            "https://www.discogs.com/release/25746742-Phish-LP-on-LP-04-Ghost-5222000"
+        )
+        t_url_2 = "https://www.discogs.com/release/25746742"
+        site = SiteManager.get_site_by_id_type(t_id_type)
+        self.assertIsNotNone(site)
+        self.assertEqual(site.validate_url(t_url), True)
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.url, t_url_2)
+        self.assertEqual(site.id_value, t_id_value)
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = (
+            "https://www.discogs.com/release/25746742-Phish-LP-on-LP-04-Ghost-5222000"
+        )
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(
+            site.resource.metadata["title"], 'LP on LP 04: "Ghost" 5/22/2000'
+        )
+        self.assertEqual(site.resource.metadata["artist"], ["Phish"])
+        self.assertIsInstance(site.resource.item, Album)
+        self.assertEqual(site.resource.item.barcode, "850014859275")
+
+
+class DiscogsMasterTestCase(TestCase):
+    def test_parse(self):
+        t_id_type = IdType.Discogs_Master
+        t_id_value = "14772"
+        t_url = "https://www.discogs.com/master/14772-Linda-Ronstadt-Silk-Purse"
+        t_url_2 = "https://www.discogs.com/master/14772"
+        site = SiteManager.get_site_by_id_type(t_id_type)
+        self.assertIsNotNone(site)
+        self.assertEqual(site.validate_url(t_url), True)
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.url, t_url_2)
+        self.assertEqual(site.id_value, t_id_value)
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://www.discogs.com/master/14772-Linda-Ronstadt-Silk-Purse"
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(site.resource.metadata["title"], "Silk Purse")
+        self.assertEqual(site.resource.metadata["artist"], ["Linda Ronstadt"])
+        self.assertIsInstance(site.resource.item, Album)
