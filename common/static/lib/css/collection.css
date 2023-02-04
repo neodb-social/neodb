@@ -28,6 +28,11 @@
     border-radius: 0 0 0 8px;
     padding: 0 4px;
     cursor: pointer;
+    opacity: 0.2;
+}
+
+.entity-list__entity-action-icon:hover {
+    opacity: 1;
 }
 
 .helptext{
@@ -338,4 +343,32 @@ summary::-webkit-details-marker {
     right: 4px;
     bottom: -6px;
     height: 6px
+}
+
+.gg-bookmark,
+.gg-bookmark::after {
+    display: inline-block;
+    box-sizing: border-box;
+    border-top-right-radius: 3px
+}
+.gg-bookmark {
+    border: 2px solid;
+    border-bottom: 0;
+    border-top-left-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    transform: scale(var(--ggs,1));
+    width: 14px;
+    height: 16px
+}
+.gg-bookmark::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-top: 2px solid;
+    border-right: 2px solid;
+    transform: rotate(-45deg);
+    top: 9px;
+    left: -1px
 }

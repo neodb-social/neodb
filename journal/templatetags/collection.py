@@ -29,7 +29,7 @@ def prural_items(category):
         return "部电影"
     elif category == "tv":
         return "部剧集"
-    elif category == "album":
+    elif category == "album" or category == "music":
         return "张专辑"
     elif category == "game":
         return "个游戏"

@@ -144,7 +144,7 @@
                 <li class="entity-marks__mark">
                     <a href="{% url 'journal:user_profile' others_mark.owner.mastodon_username %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
 
-                    <span>{{ others_mark.shelf_label }}</span>
+                    <span>{{ others_mark.action_label }}</span>
 
                     {% if others_mark.rating %}
                     <span class="entity-marks__rating-star rating-star" data-rating-score="{{ others_mark.rating }}"></span>

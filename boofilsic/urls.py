@@ -19,7 +19,6 @@ from django.conf import settings
 from users.views import login
 
 urlpatterns = [
-    path(settings.ADMIN_URL + "/", admin.site.urls),
     path("login/", login),
     path("markdownx/", include("markdownx.urls")),
     path("users/", include("users.urls")),
@@ -31,9 +30,9 @@ urlpatterns = [
     path("", include("common.urls")),
     path("", include("legacy.urls")),
     path("tz_detect/", include("tz_detect.urls")),
+    path(settings.ADMIN_URL + "/", admin.site.urls),
+    path(settings.ADMIN_URL + "-rq/", include("django_rq.urls")),
 ]
-
-urlpatterns += [path(settings.ADMIN_URL + "-rq/", include("django_rq.urls"))]
 
 if settings.DEBUG:
     from django.conf.urls.static import static
