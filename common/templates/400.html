@@ -1,0 +1,39 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ site_name }} - {% trans '无效请求' %}</title>
+  {% include "common_libs.html" with jquery=0 %}
+  <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
+</head>
+
+<body>
+  <div id="page-wrapper">
+    <div id="content-wrapper">
+      {% include "partial/_navbar.html" %}
+      <div class="box">
+        <a href="{% url 'common:home' %}">
+          <img src="{% static 'img/logo.svg' %}" alt="logo" class="logo">
+        </a>
+        <div class="main-msg">
+          无效的请求
+        </div>
+        <div class="sec-msg">
+          您可能提交了无效的数据，或者相关内容已被作者删除。如果您确信这是我们的错误，欢迎通过页面底部的链接联系。
+        </div>
+      </div>
+    </div>
+    {% include "partial/_footer.html" %}
+  </div>
+</body>
+</html>

@@ -2,12 +2,8 @@ import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
-from django.http import (
-    HttpResponseBadRequest,
-    HttpResponseRedirect,
-    HttpResponseNotFound,
-)
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.http import HttpResponseRedirect
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -25,7 +21,7 @@ from common.config import PAGE_LINK_NUMBER
 from journal.models import ShelfTypeNames
 from .forms import *
 from .search.views import *
-from pprint import pprint
+from django.http import Http404
 
 _logger = logging.getLogger(__name__)
 
@@ -44,7 +40,7 @@ def retrieve(request, item_path, item_uuid):
         # item = get_object_or_404(Item, uid=base62.decode(item_uuid))
         item = Item.get_by_url(item_uuid)
         if item is None:
-            return HttpResponseNotFound()
+            raise Http404()
         item_url = f"/{item_path}/{item_uuid}"
         if item.url != item_url:
             return redirect(item.url)
@@ -52,7 +48,7 @@ def retrieve(request, item_path, item_uuid):
         if not skipcheck and item.merged_to_item:
             return redirect(item.merged_to_item.url)
         if not skipcheck and item.is_deleted:
-            return HttpResponseNotFound("item not found")
+            raise Http404()
         focus_item = None
         if request.GET.get("focus"):
             focus_item = get_object_or_404(
@@ -105,7 +101,7 @@ def retrieve(request, item_path, item_uuid):
             },
         )
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @login_required
@@ -129,9 +125,9 @@ def create(request, item_model):
             form.instance.save()
             return redirect(form.instance.url)
         else:
-            return HttpResponseBadRequest(form.errors)
+            raise BadRequest()
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @login_required
@@ -157,15 +153,15 @@ def edit(request, item_path, item_uuid):
             form.instance.save()
             return redirect(form.instance.url)
         else:
-            return HttpResponseBadRequest(form.errors)
+            raise BadRequest()
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @login_required
 def delete(request, item_path, item_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     if not request.user.is_staff:
         raise PermissionDenied()
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
@@ -181,12 +177,12 @@ def delete(request, item_path, item_uuid):
 @login_required
 def recast(request, item_path, item_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     cls = request.POST.get("class")
     model = TVShow if cls == "tvshow" else (Movie if cls == "movie" else None)
     if not model:
-        return HttpResponseBadRequest("invalid class")
+        raise BadRequest()
     new_item = item.recast_to(model)
     return redirect(new_item.url)
 
@@ -194,12 +190,12 @@ def recast(request, item_path, item_uuid):
 @login_required
 def unlink(request):
     if request.method != "POST":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     if not request.user.is_staff:
         raise PermissionDenied()
     res_id = request.POST.get("id")
     if not res_id:
-        return HttpResponseBadRequest()
+        raise BadRequest()
     resource = get_object_or_404(ExternalResource, id=res_id)
     resource.item = None
     resource.save()
@@ -209,13 +205,13 @@ def unlink(request):
 @login_required
 def merge(request, item_path, item_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     if not request.user.is_staff:
         raise PermissionDenied()
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     new_item = Item.get_by_url(request.POST.get("new_item_url"))
     if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
-        return HttpResponseBadRequest(b"invalid new item")
+        raise BadRequest()
     _logger.warn(f"{request.user} merges {item} to {new_item}")
     item.merge_to(new_item)
     update_journal_for_merged_item(item_uuid)
@@ -236,7 +232,7 @@ def episode_data(request, item_uuid):
 def mark_list(request, item_path, item_uuid, following_only=False):
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     if not item:
-        return HttpResponseNotFound(b"item not found")
+        raise Http404()
     queryset = ShelfMember.objects.filter(item=item).order_by("-created_time")
     if following_only:
         queryset = queryset.filter(query_following(request.user))
@@ -261,7 +257,7 @@ def mark_list(request, item_path, item_uuid, following_only=False):
 def review_list(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     if not item:
-        return HttpResponseNotFound(b"item not found")
+        raise Http404()
     queryset = Review.objects.filter(item=item).order_by("-created_time")
     queryset = queryset.filter(query_visible(request.user))
     paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)

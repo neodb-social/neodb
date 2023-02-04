@@ -1,14 +1,9 @@
 import logging
-from os import stat
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseNotFound,
-)
+from django.http import Http404, HttpResponse
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.db.models import Count
 from django.utils import timezone
@@ -17,7 +12,6 @@ from django.core.paginator import Paginator
 from .models import *
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.db.models import Q
 from management.models import Announcement
 from django.utils.baseconv import base62
 from .forms import *
@@ -44,10 +38,10 @@ _checkmark = "✔️".encode("utf-8")
 @login_required
 def wish(request, item_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest(b"invalid request")
+        raise BadRequest()
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     if not item:
-        return HttpResponseNotFound(b"item not found")
+        raise Http404()
     request.user.shelf_manager.move_item(item, ShelfType.WISHLIST)
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
@@ -57,10 +51,10 @@ def wish(request, item_uuid):
 @login_required
 def like(request, piece_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest(b"invalid request")
+        raise BadRequest()
     piece = get_object_or_404(Collection, uid=base62.decode(piece_uuid))
     if not piece:
-        return HttpResponseNotFound(b"piece not found")
+        raise Http404()
     Like.user_like_piece(request.user, piece)
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
@@ -70,10 +64,10 @@ def like(request, piece_uuid):
 @login_required
 def unlike(request, piece_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest(b"invalid request")
+        raise BadRequest()
     piece = get_object_or_404(Collection, uid=base62.decode(piece_uuid))
     if not piece:
-        return HttpResponseNotFound(b"piece not found")
+        raise Http404()
     Like.user_unlike_piece(request.user, piece)
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
@@ -176,7 +170,7 @@ def mark(request, item_uuid):
                 _logger.warn(f"post to mastodon error {e}")
                 return render_relogin(request)
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-    return HttpResponseBadRequest()
+    raise BadRequest()
 
 
 @login_required
@@ -184,7 +178,7 @@ def comment(request, item_uuid, focus_item_uuid):
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     focus_item = get_object_or_404(Item, uid=base62.decode(focus_item_uuid))
     if focus_item.parent_item != item:
-        return HttpResponseNotFound()
+        raise Http404()
     comment = Comment.objects.filter(
         owner=request.user, item=item, focus_item=focus_item
     ).first()
@@ -201,7 +195,7 @@ def comment(request, item_uuid, focus_item_uuid):
     elif request.method == "POST":
         if request.POST.get("delete", default=False):
             if not comment:
-                return HttpResponseNotFound()
+                raise Http404()
             comment.delete()
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
         visibility = int(request.POST.get("visibility", default=0))
@@ -264,7 +258,7 @@ def comment(request, item_uuid, focus_item_uuid):
         if post_error:
             return render_relogin(request)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-    return HttpResponseBadRequest()
+    raise BadRequest()
 
 
 def collection_retrieve(request, collection_uuid):
@@ -314,7 +308,7 @@ def collection_retrieve(request, collection_uuid):
 
 def collection_add_featured(request, collection_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
@@ -324,7 +318,7 @@ def collection_add_featured(request, collection_uuid):
 
 def collection_remove_featured(request, collection_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
@@ -354,7 +348,7 @@ def collection_share(request, collection_uuid):
         else:
             return render_relogin(request)
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 def collection_retrieve_items(request, collection_uuid, edit=False, msg=None):
@@ -377,7 +371,7 @@ def collection_retrieve_items(request, collection_uuid, edit=False, msg=None):
 @login_required
 def collection_append_item(request, collection_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied()
@@ -397,7 +391,7 @@ def collection_append_item(request, collection_uuid):
 @login_required
 def collection_remove_item(request, collection_uuid, item_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     if not collection.is_editable_by(request.user):
@@ -409,7 +403,7 @@ def collection_remove_item(request, collection_uuid, item_uuid):
 @login_required
 def collection_move_item(request, direction, collection_uuid, item_uuid):
     if request.method != "POST":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied()
@@ -442,7 +436,7 @@ def collection_update_item_note(request, collection_uuid, item_uuid):
             {"collection": collection, "item": item, "note": member.note},
         )
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @login_required
@@ -474,16 +468,16 @@ def collection_edit(request, collection_uuid=None):
                 reverse("journal:collection_retrieve", args=[form.instance.uuid])
             )
         else:
-            return HttpResponseBadRequest(form.errors)
+            raise BadRequest()
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 def review_retrieve(request, review_uuid):
     # piece = get_object_or_404(Review, uid=base62.decode(review_uuid))
     piece = Review.get_by_url(review_uuid)
     if piece is None:
-        return HttpResponseNotFound()
+        raise Http404()
     if not piece.is_visible_to(request.user):
         raise PermissionDenied()
     return render(request, "review.html", {"review": piece})
@@ -550,9 +544,9 @@ def review_edit(request, item_uuid, review_uuid=None):
                 reverse("journal:review_retrieve", args=[form.instance.uuid])
             )
         else:
-            return HttpResponseBadRequest(form.errors)
+            raise BadRequest()
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @login_required
@@ -569,7 +563,7 @@ def piece_delete(request, piece_uuid):
         piece.delete()
         return redirect(return_url)
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 def render_list_not_fount(request):
@@ -607,7 +601,7 @@ def _render_list(
         queryset = Review.objects.filter(owner=user)
         queryset = queryset.filter(query_item_category(item_category))
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
     queryset = queryset.filter(q_visible_to(request.user, user)).order_by(
         "-created_time"
     )
@@ -639,10 +633,10 @@ def user_tag_edit(request):
     if request.method == "GET":
         tag_title = Tag.cleanup_title(request.GET.get("tag", ""))
         if not tag_title:
-            return HttpResponseNotFound()
+            raise Http404()
         tag = Tag.objects.filter(owner=request.user, title=tag_title).first()
         if not tag:
-            return HttpResponseNotFound()
+            raise Http404()
         return render(request, "tag_edit.html", {"tag": tag})
     elif request.method == "POST":
         tag_title = Tag.cleanup_title(request.POST.get("title", ""))
@@ -678,7 +672,7 @@ def user_tag_edit(request):
                 args=[request.user.mastodon_username, tag.title],
             )
         )
-    return HttpResponseBadRequest()
+    raise BadRequest()
 
 
 @login_required
@@ -776,7 +770,7 @@ def profile_anonymous(request, id):
 
 def profile(request, user_name):
     if request.method != "GET":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     user = User.get(user_name)
     if user is None:
         return render_user_not_found(request)

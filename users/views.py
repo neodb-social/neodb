@@ -1,16 +1,15 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from .models import User, Report, Preference
 from .forms import ReportForm
 from mastodon.api import *
-from mastodon import mastodon_request_included
 from common.config import *
 from .account import *
 from .data import *
 import json
+from django.core.exceptions import BadRequest
 
 
 def render_user_not_found(request):
@@ -52,7 +51,7 @@ def followers(request, id):
             },
         )
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @login_required
@@ -70,7 +69,7 @@ def following(request, id):
             },
         )
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @login_required
@@ -83,7 +82,7 @@ def set_layout(request):
             reverse("journal:user_profile", args=[request.user.mastodon_username])
         )
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @login_required
@@ -123,7 +122,7 @@ def report(request):
                 },
             )
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @login_required
@@ -141,4 +140,4 @@ def manage_report(request):
             },
         )
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()

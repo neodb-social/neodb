@@ -1,19 +1,16 @@
 from django.shortcuts import reverse, redirect, render, get_object_or_404
-from django.http import HttpResponseBadRequest, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.contrib.auth import authenticate
 from django.core.paginator import Paginator
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, BadRequest
 from django.db.models import Count
 from .models import User, Report, Preference
 from .forms import ReportForm
 from mastodon.api import *
 from mastodon import mastodon_request_included
 from common.config import *
-from common.utils import PageLinksGenerator
-from management.models import Announcement
 from mastodon.models import MastodonApplication
 from mastodon.api import verify_account
 from django.conf import settings
@@ -23,7 +20,6 @@ from .account import *
 from .tasks import *
 from datetime import timedelta
 from django.utils import timezone
-import json
 from django.contrib import messages
 from journal.models import remove_data_by_user
 
@@ -50,7 +46,7 @@ def login(request):
             },
         )
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 # connect will redirect to mastodon server
@@ -94,7 +90,7 @@ def connect(request):
 @mastodon_request_included
 def OAuth2_login(request):
     if request.method != "GET":
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
     code = request.GET.get("code")
     if not code:
@@ -113,7 +109,7 @@ def OAuth2_login(request):
     try:
         token, refresh_token = obtain_token(site, request, code)
     except ObjectDoesNotExist:
-        return HttpResponseBadRequest("Mastodon site not registered")
+        raise BadRequest()
     if not token:
         return render(
             request,
@@ -165,7 +161,7 @@ def logout(request):
         auth_logout(request)
         return redirect(reverse("users:login"))
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @mastodon_request_included
@@ -176,7 +172,7 @@ def reconnect(request):
         request.session["swap_domain"] = request.POST["domain"]
         return connect(request)
     else:
-        return HttpResponseBadRequest()
+        raise BadRequest()
 
 
 @mastodon_request_included

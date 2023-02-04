@@ -39,3 +39,8 @@ if settings.DEBUG:
     from django.conf.urls.static import static
 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler400 = "common.views.error_400"
+handler403 = "common.views.error_403"
+handler404 = "common.views.error_404"
+handler500 = "common.views.error_500"

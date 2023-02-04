@@ -1,13 +1,10 @@
 import uuid
 import logging
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import BadRequest
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
-from django.http import (
-    HttpResponseBadRequest,
-    HttpResponseRedirect,
-)
-from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponseRedirect
 from catalog.common.models import SiteName
 from catalog.common.sites import AbstractSite, SiteManager
 from ..models import *
@@ -59,7 +56,7 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite = None):
     if not site:
         site = SiteManager.get_site_by_url(url)
         if not site:
-            return HttpResponseBadRequest()
+            raise BadRequest()
     item = site.get_item()
     if item and not is_refetch:
         return redirect(item.url)
@@ -169,10 +166,10 @@ def external_search(request):
 @login_required
 def refetch(request):
     if request.method != "POST":
-        return HttpResponseBadRequest()
+        raise BadRequest()
     url = request.POST.get("url")
     if not url:
-        return HttpResponseBadRequest()
+        raise BadRequest()
     return fetch(request, url, True)
 
 
