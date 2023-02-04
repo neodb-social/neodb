@@ -27,13 +27,15 @@
                 </a>
                 {% endif %}
             </p>
-            <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
-
-            {% if request.user != user %}
-            <a href="{% url 'users:report' %}?user_id={{ user.id }}"
-                class="user-profile__report-link">{% trans '投诉用户' %}</a>
-            {% endif %}
-
+            <div class="relation-dropdown">
+            <div class="relation-dropdown__body">
+                <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
+                {% if request.user != user %}
+                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
+                    class="user-profile__report-link">{% trans '投诉用户' %}</a>
+                {% endif %}
+            </div>
+            </div>
         </div>
     </div>
 

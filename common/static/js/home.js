@@ -118,7 +118,7 @@ $(document).ready( function() {
         const button = $(".relation-dropdown__button");
         button.data("collapse", !button.data("collapse"));
         button.children('.icon-arrow').toggleClass("icon-arrow--expand");
-        button.siblings('.relation-dropdown__body').toggleClass("relation-dropdown__body--expand");
+        $('.relation-dropdown__body').toggleClass("relation-dropdown__body--expand");
     }
     $(".relation-dropdown__button").on('click', onClickDropdownButton);
 

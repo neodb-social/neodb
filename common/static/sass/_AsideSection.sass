@@ -25,12 +25,12 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
     & &__label
         font-size: 1.2em
         margin-bottom: 8px
-        
+
     & &__button
         line-height: unset;
         height: unset;
         padding: 4px 15px;
-        margin: 5px;        
+        margin: 5px;
 
 .action-panel
     margin-bottom: 20px
@@ -54,7 +54,7 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
         // width: 100%
 
 .mark-panel
-    margin-bottom: 20px 
+    margin-bottom: 20px
 
     & &__status
         font-weight: bold
@@ -67,9 +67,9 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
         float: right
         & form
             display: inline
-    
+
     & &__time
-        color: $color-light 
+        color: $color-light
         margin-bottom: 10px
 
     & &__content
@@ -137,7 +137,7 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
         & > a
             &:hover
                 color: $color-secondary
-    
+
     & &__related-user-avatar
         background-image: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
         width: 48px
@@ -146,7 +146,7 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
             height: unset
             width: 60%
             max-width: 96px
-            
+
 
     & &__related-user-name
         color: inherit
@@ -154,7 +154,7 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
         text-overflow: ellipsis
         // display: -webkit-box;
         -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;        
+        -webkit-line-clamp: 2;
 
 $panel-padding : 0
 
@@ -167,10 +167,10 @@ $panel-padding : 0
         padding-left: $panel-padding
 
     & &__report-list
-    
+
     & &__report
         margin: 2px 0
-    
+
     & &__user-link
         margin: 0 2px
 
@@ -189,7 +189,7 @@ $panel-padding : 0
         border: 2px dashed #00a1cc
         padding: 6px 9px
         form
-            margin: 0  
+            margin: 0
 
         @media (max-width: $large-devices)
             border: unset
@@ -204,7 +204,7 @@ $panel-padding : 0
         text-align: center
         font-size: 12px
         cursor: help
-    
+
     & &__checkbox
         display: inline-block
         margin-right: 10px
@@ -253,7 +253,7 @@ $panel-padding : 0
             border-top: $color-tertiary 1px dashed
         .index:not(:last-of-type)
             margin-right: 8px
-    
+
     & &__fail-urls
         margin-top: 10px
         li
@@ -262,7 +262,7 @@ $panel-padding : 0
             // padding: 4px
             max-height: 100px
             overflow-y: auto
-    
+
 
 .relation-dropdown
     & &__button
@@ -291,14 +291,14 @@ $panel-padding : 0
     & &__title
         margin-bottom: 10px
         margin-top: 5px
-    
+
     & &__info-wrapper
         &--horizontal
             margin-left: 20px
-    
+
     & &__img-wrapper
         flex-basis: 100px
-        
+
 
 // Small devices (landscape phones, 576px and up)
 @media (max-width: $small-devices)
@@ -339,11 +339,11 @@ $panel-padding : 0
 
     .aside-section-wrapper
         padding: $aside-section-padding-mobile
-            
+
         margin-top: 20px
         // &:not(:first-child)
         &:not(:last-child)
-            margin-right: 20px         
+            margin-right: 20px
         &--collapse
             padding: $aside-section-padding-mobile !important
             margin-top: 0
@@ -351,8 +351,8 @@ $panel-padding : 0
             &:first-child
                 margin-right: 0
         &--no-margin
-            margin: 0          
-        
+            margin: 0
+
     .action-panel
         flex-direction: row
         & &__button-group
@@ -380,16 +380,16 @@ $panel-padding : 0
 
         & &__button > .icon-arrow--expand
             transform: rotate(-180deg)
-                
-        & &__button + &__body--expand
-            max-height: 2000px
-            transition: max-height 1s ease-in
 
         & &__body
             background-color: $color-bright
             max-height: 0
             transition: max-height 1s ease-out
-            overflow: hidden               
+            overflow: hidden
+
+        & &__body--expand
+            max-height: 2000px
+            transition: max-height 1s ease-in
 
     .entity-card
         flex-direction: row
