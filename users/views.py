@@ -9,7 +9,7 @@ from common.config import *
 from .account import *
 from .data import *
 import json
-from django.core.exceptions import BadRequest
+from django.core.exceptions import BadRequest, PermissionDenied
 
 
 def render_user_not_found(request):
@@ -102,7 +102,7 @@ def report(request):
             },
         )
     elif request.method == "POST":
-        form = ReportForm(request.POST)
+        form = ReportForm(request.POST, request.FILES)
         if form.is_valid():
             form.instance.is_read = False
             form.instance.submit_user = request.user
@@ -127,6 +127,8 @@ def report(request):
 
 @login_required
 def manage_report(request):
+    if not request.user.is_staff:
+        raise PermissionDenied()
     if request.method == "GET":
         reports = Report.objects.all()
         for r in reports.filter(is_read=False):
