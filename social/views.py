@@ -1,22 +1,14 @@
 import logging
-from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponseBadRequest, HttpResponseServerError
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.db import IntegrityError, transaction
-from django.db.models import Count
-from django.utils import timezone
-from django.core.paginator import Paginator
+from django.core.exceptions import BadRequest
 from .models import *
 from django.conf import settings
-import re
-from users.models import User
-from django.http import HttpResponseRedirect
-from django.db.models import Q
-import time
 from management.models import Announcement
 
+
+_logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 10
 
@@ -24,7 +16,7 @@ PAGE_SIZE = 10
 @login_required
 def feed(request):
     if request.method != "GET":
-        return
+        raise BadRequest()
     user = request.user
     unread = Announcement.objects.filter(pk__gt=user.read_announcement_index).order_by(
         "-pk"
@@ -45,7 +37,7 @@ def feed(request):
 @login_required
 def data(request):
     if request.method != "GET":
-        return
+        raise BadRequest()
     return render(
         request,
         "feed_data.html",
