@@ -90,6 +90,7 @@ def post_toot(
         "Authorization": f"Bearer {token}",
         "Idempotency-Key": random_string_generator(16),
     }
+    response = None
     if site == TWITTER_DOMAIN:
         url = TWITTER_API_POST
         payload = {"text": content if len(content) <= 150 else content[0:150] + "..."}
@@ -112,13 +113,12 @@ def post_toot(
             if update_id:
                 response = put(url + "/" + update_id, headers=headers, data=payload)
             if update_id is None or response.status_code != 200:
+                headers["Idempotency-Key"] = random_string_generator(16)
                 response = post(url, headers=headers, data=payload)
             if response.status_code == 201:
                 response.status_code = 200
             if response.status_code != 200:
                 logger.error(f"Error {url} {response.status_code}")
-                print(payload)
-                print(response)
         except Exception:
             response = None
     return response
