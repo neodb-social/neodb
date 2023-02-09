@@ -630,7 +630,7 @@ def user_tag_member_list(request, user_name, tag_title):
 @login_required
 def user_tag_edit(request):
     if request.method == "GET":
-        tag_title = Tag.cleanup_title(request.GET.get("tag", ""))
+        tag_title = Tag.cleanup_title(request.GET.get("tag", ""), replace=False)
         if not tag_title:
             raise Http404()
         tag = Tag.objects.filter(owner=request.user, title=tag_title).first()
@@ -638,7 +638,7 @@ def user_tag_edit(request):
             raise Http404()
         return render(request, "tag_edit.html", {"tag": tag})
     elif request.method == "POST":
-        tag_title = Tag.cleanup_title(request.POST.get("title", ""))
+        tag_title = Tag.cleanup_title(request.POST.get("title", ""), replace=False)
         tag_id = request.POST.get("id")
         tag = (
             Tag.objects.filter(owner=request.user, id=tag_id).first()
@@ -661,7 +661,7 @@ def user_tag_edit(request):
             msg.error(request.user, _("标签已存在"))
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
         tag.title = tag_title
-        tag.visibility = Tag.cleanup_title(request.POST.get("visibility"))
+        tag.visibility = request.POST.get("visibility", 0)
         tag.visibility = 0 if tag.visibility == 0 else 2
         tag.save()
         msg.info(request.user, _("标签已修改"))

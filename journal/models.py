@@ -816,8 +816,9 @@ class Tag(List):
         unique_together = [["owner", "title"]]
 
     @staticmethod
-    def cleanup_title(title):
-        return title.strip().lower()
+    def cleanup_title(title, replace=True):
+        t = title.strip().lower()
+        return "_" if not title and replace else t
 
 
 class TagManager:
