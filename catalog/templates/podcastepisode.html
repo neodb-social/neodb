@@ -12,4 +12,12 @@
 
 {% block head %}
 <meta http-equiv="refresh" content="0;url={{ item.program.absolute_url }}?focus={{ item.uuid }}{% if request.GET.position %}&position={{ request.GET.position }}{% endif %}" />
+<meta property="og:image" content="{{ item.cover_url | default:item.program.cover.url }">
+<meta property="twitter:image" content="{{ item.cover_url | default:item.program.cover.url }}">
+{% if item.media_url %}
+<meta property="twitter:card" content="player">
+<meta property="twitter:player" content="{{ item.program.absolute_url }}/embed?focus={{ item.uuid }}{% if request.GET.position %}&position={{ request.GET.position }}{% endif %}" />
+<meta property="twitter:player:width" content="300">
+<meta property="twitter:player:height" content="120">
+{% endif %}
 {% endblock %}

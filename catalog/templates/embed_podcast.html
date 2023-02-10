@@ -1,0 +1,49 @@
+{% extends "embed_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load strip_scheme %}
+{% load thumb %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/shikwasa.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/style.min.css" rel="stylesheet"></link>
+<style>
+.shk-player {
+font-family: sans-serif;
+background: unset;
+box-shadow: unset;
+}
+body {
+background: #333;
+}
+</style>
+<script>
+$(()=>{
+{% if focus_item %}
+var position = 1 * "{{request.GET.position|escapejs}}";
+window.current_item_uuid = "{{focus_item.uuid}}";
+window.player = new Shikwasa.Player({
+  container: () => document.querySelector('body'),
+  preload: 'metadata',
+  autoplay: true,
+  theme: 'dark',
+  themeColor: '#837FFF',
+  audio: {
+		title: "{{ focus_item.title | escapejs }}",
+		cover: "{{ focus_item.cover_url | default:item.cover.url | escapejs }}",
+		src: "{{ focus_item.media_url | escapejs }}",
+		album: "{{ item.title|escapejs }}",
+		artist: "{{ item.hosts|join:' / '|escapejs }}"
+	}
+});
+if (position) window.player._initSeek = position;
+{% endif %}
+});
+</script>
+{% endblock %}

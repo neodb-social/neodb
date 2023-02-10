@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from catalog.common.models import ExternalResource
 from .models import *
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.utils.baseconv import base62
 from journal.models import Mark, ShelfMember, Review
 from journal.models import (
@@ -35,73 +36,91 @@ def retrieve_by_uuid(request, item_uid):
     return redirect(item.url)
 
 
-def retrieve(request, item_path, item_uuid):
-    if request.method == "GET":
-        # item = get_object_or_404(Item, uid=base62.decode(item_uuid))
-        item = Item.get_by_url(item_uuid)
-        if item is None:
-            raise Http404()
-        item_url = f"/{item_path}/{item_uuid}"
-        if item.url != item_url:
-            return redirect(item.url)
-        skipcheck = request.GET.get("skipcheck", False) and request.user.is_staff
-        if not skipcheck and item.merged_to_item:
-            return redirect(item.merged_to_item.url)
-        if not skipcheck and item.is_deleted:
-            raise Http404()
-        focus_item = None
-        if request.GET.get("focus"):
-            focus_item = get_object_or_404(
-                Item, uid=base62.decode(request.GET.get("focus"))
-            )
-        mark = None
-        review = None
-        mark_list = None
-        review_list = None
-        collection_list = []
-        shelf_types = [
-            (n[1], n[2]) for n in iter(ShelfTypeNames) if n[0] == item.category
-        ]
-        if request.user.is_authenticated:
-            visible = query_visible(request.user)
-            mark = Mark(request.user, item)
-            review = mark.review
-            collection_list = (
-                item.collections.all()
-                .filter(visible)
-                .annotate(like_counts=Count("likes"))
-                .order_by("-like_counts")
-            )
-            mark_query = (
-                ShelfMember.objects.filter(item=item)
-                .filter(visible)
-                .order_by("-created_time")
-            )
-            mark_list = [
-                member.mark for member in mark_query[:NUM_REVIEWS_ON_ITEM_PAGE]
-            ]
-            review_list = (
-                Review.objects.filter(item=item)
-                .filter(visible)
-                .order_by("-created_time")[:NUM_REVIEWS_ON_ITEM_PAGE]
-            )
-
-        return render(
-            request,
-            item.class_name + ".html",
-            {
-                "item": item,
-                "focus_item": focus_item,
-                "mark": mark,
-                "review": review,
-                "mark_list": mark_list,
-                "review_list": review_list,
-                "collection_list": collection_list,
-                "shelf_types": shelf_types,
-            },
-        )
-    else:
+@xframe_options_exempt
+def embed(request, item_path, item_uuid):
+    if request.method != "GET":
         raise BadRequest()
+    item = Item.get_by_url(item_uuid)
+    if item is None:
+        raise Http404()
+    if item.merged_to_item:
+        return redirect(item.merged_to_item.url)
+    if item.is_deleted:
+        raise Http404()
+    focus_item = None
+    if request.GET.get("focus"):
+        focus_item = get_object_or_404(
+            Item, uid=base62.decode(request.GET.get("focus"))
+        )
+    return render(
+        request,
+        "embed_" + item.class_name + ".html",
+        {"item": item, "focus_item": focus_item},
+    )
+
+
+def retrieve(request, item_path, item_uuid):
+    if request.method != "GET":
+        raise BadRequest()
+    # item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = Item.get_by_url(item_uuid)
+    if item is None:
+        raise Http404()
+    item_url = f"/{item_path}/{item_uuid}"
+    if item.url != item_url:
+        return redirect(item.url)
+    skipcheck = request.GET.get("skipcheck", False) and request.user.is_staff
+    if not skipcheck and item.merged_to_item:
+        return redirect(item.merged_to_item.url)
+    if not skipcheck and item.is_deleted:
+        raise Http404()
+    focus_item = None
+    if request.GET.get("focus"):
+        focus_item = get_object_or_404(
+            Item, uid=base62.decode(request.GET.get("focus"))
+        )
+    mark = None
+    review = None
+    mark_list = None
+    review_list = None
+    collection_list = []
+    shelf_types = [(n[1], n[2]) for n in iter(ShelfTypeNames) if n[0] == item.category]
+    if request.user.is_authenticated:
+        visible = query_visible(request.user)
+        mark = Mark(request.user, item)
+        review = mark.review
+        collection_list = (
+            item.collections.all()
+            .filter(visible)
+            .annotate(like_counts=Count("likes"))
+            .order_by("-like_counts")
+        )
+        mark_query = (
+            ShelfMember.objects.filter(item=item)
+            .filter(visible)
+            .order_by("-created_time")
+        )
+        mark_list = [member.mark for member in mark_query[:NUM_REVIEWS_ON_ITEM_PAGE]]
+        review_list = (
+            Review.objects.filter(item=item)
+            .filter(visible)
+            .order_by("-created_time")[:NUM_REVIEWS_ON_ITEM_PAGE]
+        )
+
+    return render(
+        request,
+        item.class_name + ".html",
+        {
+            "item": item,
+            "focus_item": focus_item,
+            "mark": mark,
+            "review": review,
+            "mark_list": mark_list,
+            "review_list": review_list,
+            "collection_list": collection_list,
+            "shelf_types": shelf_types,
+        },
+    )
 
 
 @login_required

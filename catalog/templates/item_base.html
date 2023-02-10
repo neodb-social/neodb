@@ -18,7 +18,9 @@
   <meta property="og:title" content="{{ site_name }}{% trans item.category.label %} - {{ item.title }}">
   <meta property="og:type" content="{{ item.category }}">
   <meta property="og:url" content="{{ request.build_absolute_uri }}">
-  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ item.cover.url }}">
+  {% if item.has_cover %}
+  <meta property="og:image" content="{{ item.cover.url }}">
+  {% endif %}
   <meta property="og:site_name" content="{{ site_name }}">
   <meta property="og:description" content="{{ item.brief }}">
   {% block head %}
