@@ -342,6 +342,14 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     def has_cover(self):
         return self.cover and self.cover != DEFAULT_ITEM_COVER
 
+    @property
+    def cover_absolute_url(self):
+        return (
+            f"{settings.APP_WEBSITE}{self.cover.url}"
+            if self.cover and self.cover != DEFAULT_ITEM_COVER
+            else None
+        )
+
     def merge_data_from_external_resources(self, ignore_existing_content=False):
         """Subclass may override this"""
         lookup_ids = []
