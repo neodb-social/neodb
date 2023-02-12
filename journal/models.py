@@ -223,7 +223,9 @@ class Comment(Content):
 
     @staticmethod
     def comment_item_by_user(item, user, text, visibility=0):
-        comment = Comment.objects.filter(owner=user, item=item).first()
+        comment = Comment.objects.filter(
+            owner=user, item=item, focus_item__isnull=True
+        ).first()
         if not text:
             if comment is not None:
                 comment.delete()
