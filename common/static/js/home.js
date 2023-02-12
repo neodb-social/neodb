@@ -28,10 +28,7 @@ $(document).ready( function() {
                 } else {
                     userName = userData.username;
                 }
-                $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
                 $("#userInfoCard .mast-displayname").html(userName);
-                $("#userInfoCard .mast-brief").text($('<div>'+userData.note+'</div>').text())
-                // $(userInfoSpinner).remove();
             }
         );
 
