@@ -69,14 +69,20 @@
                                         <div class="import-panel__body">
                                             <span>{% trans '在联邦网络上以公开方式分享的帖文是否发布到公共时间轴上：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                <input type="checkbox" name="mastodon_publish_public" id="visibility" {%if request.user.preference.mastodon_publish_public %}checked{% endif %}>
-                                                <label for="visibility">{% trans '选中时为public，未选中时为unlisted' %}</label>
+                                                <input type="checkbox" name="mastodon_publish_public" id="mastodon_publish_public" {%if request.user.preference.mastodon_publish_public %}checked{% endif %}>
+                                                <label for="mastodon_publish_public">{% trans '选中时为public，未选中时为unlisted' %}</label>
                                             </div>
                                             <br><br>
                                             <span>{% trans '在联邦网络上分享帖文时附加标签：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
                                                 <input name="mastodon_append_tag" id="tag" placeholder="#我的书影音" value="{{ request.user.preference.mastodon_append_tag }}" >
                                                 <label for="tag">{% trans '输入标签文字会被添加到帖文结尾' %}</label>
+                                            </div>
+                                            <br>
+                                            <span>{% trans '默认不分享到联邦网络：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                <input type="checkbox" name="default_no_share" id="default_no_share" {%if request.user.preference.default_no_share %}checked{% endif %}>
+                                                <label for="default_no_share">标记默认分享到联邦网络，除非选中此项</label>
                                             </div>
                                         </div>
                                     </div>

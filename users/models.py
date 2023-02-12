@@ -214,6 +214,7 @@ class Preference(models.Model):
     import_status = models.JSONField(
         blank=True, null=True, encoder=DjangoJSONEncoder, default=dict
     )
+    default_no_share = models.BooleanField(default=False)
     default_visibility = models.PositiveSmallIntegerField(default=0)
     classic_homepage = models.BooleanField(null=False, default=False)
     mastodon_publish_public = models.BooleanField(null=False, default=False)
