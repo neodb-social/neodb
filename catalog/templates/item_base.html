@@ -8,6 +8,7 @@
 {% load truncate %}
 {% load strip_scheme %}
 {% load thumb %}
+{% load user_actions %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -143,7 +144,7 @@
                     {% endif %}
 
                     {% if others_mark.visibility > 0 %}
-                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                    <i class="fa-solid fa-lock"></i>
                     {% endif %}
 
                     {% if others_mark.shelfmember.metadata.shared_link %}
@@ -153,7 +154,14 @@
                     {% endif %}
 
                     {% if others_mark.text %}
-                    <p class="entity-marks__mark-content">{{ others_mark.comment_html|safe }}</p>
+                    <p class="entity-marks__mark-content">{{ others_mark.comment_html|safe }}
+                      <span class="action-bar inline">
+                        <span>
+                          {% liked_piece others_mark.shelfmember as liked %}
+                          {% include 'like_stats.html' with liked=liked piece=others_mark.shelfmember %}
+                        </span>
+                      </span>
+                    </p>
                     {% endif %}
                 </li>
                 {% empty %}
@@ -174,10 +182,16 @@
                   <li class="entity-reviews__review">
                     <a href="{% url 'journal:user_profile' others_review.owner.mastodon_username %}" class="entity-reviews__owner-link">{{ others_review.owner.username }}</a>
                     {% if others_review.visibility > 0 %}
-                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                    <i class="fa-solid fa-lock"></i>
                     {% endif %}
-                    <span class="entity-reviews__review-time">{{ others_review.edited_time }}</span>
+                    <span class="entity-reviews__review-time">{{ others_review.created_time | date }}</span>
                     <span class="entity-reviews__review-title"> <a href="{% url 'journal:review_retrieve' others_review.uuid %}">{{ others_review.title }}</a></span>
+                    <span class="action-bar inline">
+                      <span>
+                        {% liked_piece others_review as liked %}
+                        {% include 'like_stats.html' with liked=liked piece=others_review %}
+                      </span>
+                    </span>
                     <span>{{ others_review.get_plain_content | truncate:100 }}</span>
                   </li>
                   {% endfor %}
@@ -200,7 +214,7 @@
                 <span class="mark-panel__rating-star rating-star" data-rating-score="{{ mark.rating | floatformat:'0' }}"></span>
                 {% endif %}
                 {% if mark.visibility > 0 %}
-                <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                <i class="fa-solid fa-lock"></i>
                 {% endif %}
                 <span class="mark-panel__actions">
                   <a href="#" hx-get="{% url 'journal:mark' item.uuid %}" class="edit" hx-target="body" hx-swap="beforeend">{% trans '修改' %}</a>
@@ -253,7 +267,7 @@
                 {% if review %}
                 <span class="review-panel__label">{% trans '我的评论' %}</span>
                 {% if review.visibility > 0 %}
-                <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                <i class="fa-solid fa-lock"></i>
                 {% endif %}
                 <span class="review-panel__actions">
                   <a href="{% url 'journal:review_edit' item.uuid review.uuid %}">{% trans '编辑' %}</a>

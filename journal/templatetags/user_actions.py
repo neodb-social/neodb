@@ -28,3 +28,9 @@ def like_piece_action(context, piece):
             "url": reverse("journal:like", args=[piece.uuid]),
         }
     return action
+
+
+@register.simple_tag(takes_context=True)
+def liked_piece(context, piece):
+    user = context["request"].user
+    return user and user.is_authenticated and Like.user_liked_piece(user, piece)

@@ -8,6 +8,8 @@
 {% load truncate %}
 {% load thumb %}
 {% load collection %}
+{% load user_actions %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -40,10 +42,7 @@
                   {{ collection.title }}
                 </h5>
                 {% if collection.visibility > 0 %}
-                <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <path
-                  d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
-                </svg></span>
+                <i class="fa-solid fa-lock"></i>
                 {% endif %}
                 <div class="review-head__body">
                   <div class="review-head__info">
@@ -54,10 +53,16 @@
                     <span class="review-head__time">{{ collection.edited_time }}</span>
 
                   </div>
-                  <div class="review-head__actions">
+                  <div class="action-bar">
+                    <span>
+                      {% liked_piece collection as liked %}
+                      {% include 'like_stats.html' with liked=liked piece=collection %}
+                    </span>
                     {% if request.user == collection.owner %}
+                    <span>
                     <a class="review-head__action-link" href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '编辑' %}</a>
                     <a class="review-head__action-link" href="{% url 'journal:collection_delete' collection.uuid %}">{% trans '删除' %}</a>
+                    </span>
                     {% elif editable %}
                     <span class="review-head__time">可协作整理</span>
                     {% endif %}
@@ -93,9 +98,6 @@
                     {% endif %}
                     {% endfor %}
                   </p>
-                  {% if follower_count %}
-                  <p> {{ follower_count }}人关注 </p>
-                  {% endif %}
                 </div>
               </div>
             </div>

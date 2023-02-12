@@ -25,9 +25,16 @@
 </details>
 <div style="margin-bottom: 8px;margin-left: 32px;">
 	{% if request.user.is_authenticated %}
-	<a class="icon gg-comment" style="--ggs:0.5;margin-right: 10px;" title="评论单集" href="#" hx-get="{% url 'journal:comment' item.uuid ep.uuid %}" hx-target="body" hx-swap="beforeend"></a>
+	<a class="icon" style="margin-right: 10px;" title="评论单集" href="#" hx-get="{% url 'journal:comment' item.uuid ep.uuid %}" hx-target="body" hx-swap="beforeend">
+    <i class="fa-regular fa-comment-dots"></i>
+  </a>
 	{% endif %}
-  <a class="icon gg-external" style="--ggs:0.6;" title="打开源网站" target="_blank" href="{{ep.link}}"></a>
+  <!-- <a class="icon" title="详细介绍" href="{{ep.link}}">
+    <i class="fa-solid fa-circle-info"></i>
+  </a> -->
+  <a class="icon" title="打开源网站" target="_blank" href="{{ep.link}}">
+    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+  </a>
 </div>
 
 {% if forloop.last %}

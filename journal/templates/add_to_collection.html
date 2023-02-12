@@ -15,31 +15,25 @@
     <div class="add-to-list-modal__head">
       <span class="add-to-list-modal__title">{% trans '添加到收藏单' %}</span>
       <span class="add-to-list-modal__close-button modal-close" _="on click trigger closeModal">
-        <span class="icon-cross">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-            <polygon
-            points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
-          </polygon>
-        </svg>
+        <i class="fa-solid fa-xmark"></i>
       </span>
-    </span>
+    </div>
+    <div class="add-to-list-modal__body">
+      <form action="{% url 'journal:add_to_collection' item.uuid  %}" method="post">
+        {% csrf_token %}
+        <select name="collection_id">
+          {% for collection in collections %}
+          <option value="{{ collection.id }}">{{ collection.title }}{% if collection.visibility > 0 %}🔒{% endif %}</option>
+          {% endfor %}
+          <option value="0">新建收藏单</option>
+        </select>
+        <div>
+          <textarea type="text" name="note" placeholder="条目备注"></textarea>
+        </div>
+        <div class="add-to-list-modal__confirm-button">
+          <input type="submit" class="button float-right" value="{% trans '提交' %}">
+        </div>
+      </form>
+    </div>
   </div>
-  <div class="add-to-list-modal__body">
-    <form action="{% url 'journal:add_to_collection' item.uuid  %}" method="post">
-      {% csrf_token %}
-      <select name="collection_id">
-        {% for collection in collections %}
-        <option value="{{ collection.id }}">{{ collection.title }}{% if collection.visibility > 0 %}🔒{% endif %}</option>
-        {% endfor %}
-        <option value="0">新建收藏单</option>
-      </select>
-      <div>
-        <textarea type="text" name="note" placeholder="条目备注"></textarea>
-      </div>
-      <div class="add-to-list-modal__confirm-button">
-        <input type="submit" class="button float-right" value="{% trans '提交' %}">
-      </div>
-    </form>
-  </div>
-</div>
 </div>

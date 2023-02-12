@@ -19,15 +19,35 @@
   {% endif %}
 </div>
 <div class="entity-list__entity-text">
-  <div class="collection-item-position-edit">
-    <span class="entity-marks__mark-time">
+  <div class="action-bar">
+    {% if activity.action_object.mark.text %}
+    <!--
+    <span style="margin-right:8px;">
+      <i class="fa-regular fa-bookmark"></i>
+    </span>
+
+    <span style="margin-right:8px;">
+      <i class="fa-regular fa-comment icon"></i>
+    </span>
+
+    <span style="margin-right:8px;">
+      <i class="fa-solid fa-repeat icon"></i>
+    </span>
+    -->
+    <span>
+      {% liked_piece activity.action_object as liked %}
+      {% include 'like_stats.html' with liked=liked piece=activity.action_object %}
+    </span>
+    {% endif %}
+
+    <span>
       {% if activity.action_object.metadata.shared_link %}
-      <a href="{{ activity.action_object.metadata.shared_link }}" action_object="_blank">
-        <img src="{% static 'img/fediverse.svg' %}" style="filter: invert(93%) sepia(1%) saturate(53%) hue-rotate(314deg) brightness(95%) contrast(80%); vertical-align:text-top; max-width:14px; margin-right:6px;" />
-        <span class="entity-marks__mark-time">{{ activity.action_object.created_time|prettydate }}</span>
+      <a href="{{ activity.action_object.metadata.shared_link }}" target="_blank" title="打开联邦网络分享链接">
+        <i class="fa-solid fa-circle-nodes icon-spin"></i>
+        <span>{{ activity.action_object.created_time|prettydate }}</span>
       </a>
       {% else %}
-      <a><span class="entity-marks__mark-time">{{ activity.action_object.created_time|prettydate }}</span></a>
+      <span>{{ activity.action_object.created_time|prettydate }}</span>
       {% endif %}
     </span>
   </div>

@@ -1,10 +1,24 @@
-.collection-item-position-edit {
+.action-bar {
     float: right;
+    color: #ccc;
 }
 
-.collection-item-position-edit a {
+.action-bar.inline {
+    float: unset;
+    display: inline;
+}
+
+.action-bar a {
     cursor: pointer;
     color: #ccc;
+}
+
+.action-bar>span {
+    margin-left: 8px;
+}
+
+.action-bar a:hover {
+    color: #00a1cc;
 }
 
 .action-icon svg {
@@ -203,6 +217,7 @@ progress {
 
 .icon {
   color: grey;
+  cursor: pointer;
 }
 .icon:hover {
   color: #00a1cc;
@@ -243,132 +258,14 @@ summary::-webkit-details-marker {
     left: 7px
 }
 
-.gg-link {
-    box-sizing: border-box;
-    position: relative;
-    display: inline-block;
-    transform: rotate(-45deg) scale(var(--ggs,1));
-    width: 8px;
-    height: 2px;
-    background: currentColor;
-    border-radius: 4px
+
+.icon-spin {
+    transition: transform .8s ease-in-out;
 }
-.gg-link::after,
-.gg-link::before {
-    content: "";
-    display: inline-block;
-    box-sizing: border-box;
-    position: absolute;
-    border-radius: 3px;
-    width: 8px;
-    height: 10px;
-    border: 2px solid;
-    top: -4px
-}
-.gg-link::before {
-    border-right: 0;
-    border-top-left-radius: 40px;
-    border-bottom-left-radius: 40px;
-    left: -6px
-}
-.gg-link::after {
-    border-left: 0;
-    border-top-right-radius: 40px;
-    border-bottom-right-radius: 40px;
-    right: -6px
+.icon-spin:hover {
+    transform: rotate(360deg);
 }
 
-.gg-external {
-    box-sizing: border-box;
-    position: relative;
-    display: inline-block;
-    transform: scale(var(--ggs,1));
-    width: 12px;
-    height: 12px;
-    box-shadow:
-        -2px 2px 0 0,
-        -4px -4px 0 -2px,
-        4px 4px 0 -2px;
-    margin-left: -2px;
-    margin-top: 1px
-}
-.gg-external::after,
-.gg-external::before {
-    content: "";
-    display: inline-block;
-    box-sizing: border-box;
-    position: absolute;
-    right: -4px
-}
-.gg-external::before {
-    background: currentColor;
-    transform: rotate(-45deg);
-    width: 12px;
-    height: 2px;
-    top: 1px
-}
-.gg-external::after {
-    width: 8px;
-    height: 8px;
-    border-right: 2px solid;
-    border-top: 2px solid;
-    top: -4px
-}
-
-.gg-comment {
-    box-sizing: border-box;
-    position: relative;
-    display: inline-block;
-    transform: scale(var(--ggs,1));
-    width: 20px;
-    height: 16px;
-    border: 2px solid;
-    border-bottom: 0;
-    box-shadow:
-        -6px 8px 0 -6px,
-        6px 8px 0 -6px
-}
-.gg-comment::after,
-.gg-comment::before {
-    content: "";
-    display: inline-block;
-    box-sizing: border-box;
-    position: absolute;
-    width: 8px
-}
-.gg-comment::before {
-    border: 2px solid;
-    border-top-color: transparent;
-    border-bottom-left-radius: 20px;
-    right: 4px;
-    bottom: -6px;
-    height: 6px
-}
-
-.gg-bookmark,
-.gg-bookmark::after {
-    display: inline-block;
-    box-sizing: border-box;
-    border-top-right-radius: 3px
-}
-.gg-bookmark {
-    border: 2px solid;
-    border-bottom: 0;
-    border-top-left-radius: 3px;
-    overflow: hidden;
-    position: relative;
-    transform: scale(var(--ggs,1));
-    width: 14px;
-    height: 16px
-}
-.gg-bookmark::after {
-    content: "";
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    border-top: 2px solid;
-    border-right: 2px solid;
-    transform: rotate(-45deg);
-    top: 9px;
-    left: -1px
+.fa-lock, .fa-spin {
+    color: lightgray;
 }

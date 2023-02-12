@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "easy_thumbnails",
     "user_messages",
     "jsoneditor",
+    "fontawesomefree",
 ]
 
 INSTALLED_APPS += [

@@ -50,22 +50,7 @@
                                     {% if request.GET.q and user.is_authenticated %}
                                     <li class="entity-list__entity" hx-get="{% url 'catalog:external_search' %}?q={{ request.GET.q }}&c={{ request.GET.c }}&page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}" hx-trigger="load" hx-swap="outerHTML">
                                     {% trans '正在实时搜索站外条目' %}
-                                    <div id="spinner">
-                                        <div class="spinner">
-                                            <div></div>
-                                            <div></div>
-                                            <div></div>
-                                            <div></div>
-                                            <div></div>
-                                            <div></div>
-                                            <div></div>
-                                            <div></div>
-                                            <div></div>
-                                            <div></div>
-                                            <div></div>
-                                            <div></div>
-                                        </div>
-                                    </div>
+                                    <span><i class="fas fa-fan fa-spin"></i></span>
                                     </li>
                                     {% endif %}
                                 </ul>

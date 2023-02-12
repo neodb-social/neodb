@@ -52,12 +52,18 @@ def wish(request, item_uuid):
 def like(request, piece_uuid):
     if request.method != "POST":
         raise BadRequest()
-    piece = get_object_or_404(Collection, uid=base62.decode(piece_uuid))
+    piece = get_object_or_404(Piece, uid=base62.decode(piece_uuid))
     if not piece:
         raise Http404()
     Like.user_like_piece(request.user, piece)
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    elif request.GET.get("stats"):
+        return render(
+            request,
+            "like_stats.html",
+            {"piece": piece, "liked": True},
+        )
     return HttpResponse(_checkmark)
 
 
@@ -65,12 +71,18 @@ def like(request, piece_uuid):
 def unlike(request, piece_uuid):
     if request.method != "POST":
         raise BadRequest()
-    piece = get_object_or_404(Collection, uid=base62.decode(piece_uuid))
+    piece = get_object_or_404(Piece, uid=base62.decode(piece_uuid))
     if not piece:
         raise Http404()
     Like.user_unlike_piece(request.user, piece)
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    elif request.GET.get("stats"):
+        return render(
+            request,
+            "like_stats.html",
+            {"piece": piece, "liked": False},
+        )
     return HttpResponse(_checkmark)
 
 
@@ -266,7 +278,7 @@ def collection_retrieve(request, collection_uuid):
         raise PermissionDenied()
     follower_count = collection.likes.all().count()
     following = (
-        Like.user_liked_piece(request.user, collection) is not None
+        Like.user_liked_piece(request.user, collection)
         if request.user.is_authenticated
         else False
     )

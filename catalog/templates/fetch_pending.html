@@ -30,22 +30,7 @@
                             <div>
                                 {% trans '正在连线' %}{{ site.SITE_NAME.label }}
                                 <div hx-get="{% url 'catalog:fetch_refresh' job_id %}" hx-trigger="load delay:2s" hx-swap="outerHTML"></div>
-                                <div id="spinner">
-                                    <div class="spinner">
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                    </div>
-                                </div>
+                                <i class="fas fa-fan fa-spin"></i>
                             </div>
 
                         </div>

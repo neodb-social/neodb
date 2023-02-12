@@ -117,6 +117,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def api_url(self):
         return f"/api/{self.url}" if self.url_path else None
 
+    @property
+    def like_count(self):
+        return self.likes.all().count()
+
     @classmethod
     def get_by_url(cls, url_or_b62):
         b62 = url_or_b62.strip().split("/")[-1]
@@ -171,11 +175,11 @@ class Like(Piece):
 
     @staticmethod
     def user_liked_piece(user, piece):
-        return Like.objects.filter(owner=user, target=piece).first()
+        return Like.objects.filter(owner=user, target=piece).exists()
 
     @staticmethod
     def user_like_piece(user, piece):
-        if not piece or piece.__class__ not in [Collection]:
+        if not piece:
             return
         like = Like.objects.filter(owner=user, target=piece).first()
         if not like:

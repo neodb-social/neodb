@@ -5,6 +5,8 @@
 {% load oauth_token %}
 {% load truncate %}
 {% load thumb %}
+{% load user_actions %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -34,10 +36,7 @@
                   {{ review.title }}
                 </h5>
                 {% if review.visibility > 0 %}
-                <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <path
-                  d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
-                </svg></span>
+                <i class="fa-solid fa-lock"></i>
                 {% endif %}
                 <div class="review-head__body">
                   <div class="review-head__info">
@@ -55,10 +54,16 @@
                     <span class="review-head__time">{{ review.created_time|date }}</span>
 
                   </div>
-                  <div class="review-head__actions">
+                  <div class="action-bar">
+                    <span>
+                      {% liked_piece review as liked %}
+                      {% include 'like_stats.html' with liked=liked piece=review %}
+                    </span>
                     {% if request.user == review.owner %}
+                    <span>
                     <a class="review-head__action-link" href="{% url 'journal:review_edit' review.item.uuid review.uuid %}">{% trans '编辑' %}</a>
                     <a class="review-head__action-link" href="{% url 'journal:review_delete' review.uuid %}">{% trans '删除' %}</a>
+                    </span>
                     {% endif %}
                   </div>
                 </div>

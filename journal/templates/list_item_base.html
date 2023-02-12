@@ -17,7 +17,7 @@
 
   <div class="entity-list__entity-text">
     {% if collection_edit %}
-    <div class="collection-item-position-edit">
+    <div class="action-bar">
       {% if not forloop.first %}
       <a hx-target=".entity-list" hx-post="{% url 'journal:collection_move_item' form.instance.uuid 'up' item.uuid %}">▲</a>
       {% endif %}
@@ -86,12 +86,9 @@
           data-rating-score="{{ mark.rating | floatformat:0 }}" style="left: -4px;"></span>
           {% endif %}
           {% if mark.visibility > 0 %}
-          <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-            <path
-            d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
-          </svg></span>
+          <i class="fa-solid fa-lock"></i>
           {% endif %}
-          <span class="entity-marks__mark-time" style="float:right;">
+          <span style="float:right;">
             {% trans '标记于' %} {{ member.created_time|date }}
           </span>
           <p class="entity-marks__mark-content">&nbsp;
@@ -102,16 +99,13 @@
         </li>
         {% if mark.review %}
         <li class="entity-marks__mark">
-          <span class="entity-marks__mark-time" style="float:right;">
+          <span style="float:right;">
             {% trans '评论于' %} {{ mark.review.created_time|date }}
           </span>
           <p class="entity-marks__mark-content">
             <a href="{{ mark.review.url }}">{{ mark.review.title }}</a>
             {% if mark.review.visibility > 0 %}
-            <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-              <path
-              d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
-            </svg></span>
+            <i class="fa-solid fa-lock"></i>
             {% endif %}
           </p>
         </li>
@@ -130,7 +124,7 @@
 
             {% if collection_member.note %} {{ collection_member.note }} {% endif %}
             {% if collection_edit %}
-            <a class="action-icon" hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M19,20H5a1,1,0,0,0,0,2H19a1,1,0,0,0,0-2Z"/><path d="M5,18h.09l4.17-.38a2,2,0,0,0,1.21-.57l9-9a1.92,1.92,0,0,0-.07-2.71h0L16.66,2.6A2,2,0,0,0,14,2.53l-9,9a2,2,0,0,0-.57,1.21L4,16.91a1,1,0,0,0,.29.8A1,1,0,0,0,5,18ZM15.27,4,18,6.73,16,8.68,13.32,6Zm-8.9,8.91L12,7.32l2.7,2.7-5.6,5.6-3,.28Z"/></g></svg></a>
+            <a class="icon" hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"><i class="fa-regular fa-pen-to-square"></i></a>
             {% endif %}
 
           </p>
