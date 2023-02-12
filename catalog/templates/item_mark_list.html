@@ -47,7 +47,7 @@
                     {% endif %}
 
                     {% if others_mark.metadata.shared_link %}
-                    <a href="{{ others_mark.metadata.shared_link }}" target="_blank"><span class="entity-marks__mark-time">{{ others_mark.mark.created_time|date }}</span></a>
+                    <a href="{{ others_mark.metadata.shared_link }}" target="_blank" rel="noopener"><span class="entity-marks__mark-time">{{ others_mark.mark.created_time|date }}</span></a>
                     {% else %}
                     <span class="entity-marks__mark-time">{{ others_mark.mark.created_time|date }}</span>
                     {% endif %}

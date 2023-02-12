@@ -100,38 +100,6 @@ async function getFollowing(id, mastodonURI, token, callback) {
     callback(json, nextUrl);
 }
 
-// {
-//     "id": "1",
-//     "username": "Gargron",
-//     "acct": "Gargron",
-//     "display_name": "Eugen",
-//     "locked": false,
-//     "bot": false,
-//     "created_at": "2016-03-16T14:34:26.392Z",
-//     "note": "<p>Developer of Mastodon and administrator of mastodon.social. I post service announcements, development updates, and personal stuff.</p>",
-//     "url": "https://mastodon.social/@Gargron",
-//     "avatar": "https://files.mastodon.social/accounts/avatars/000/000/001/original/d96d39a0abb45b92.jpg",
-//     "avatar_static": "https://files.mastodon.social/accounts/avatars/000/000/001/original/d96d39a0abb45b92.jpg",
-//     "header": "https://files.mastodon.social/accounts/headers/000/000/001/original/c91b871f294ea63e.png",
-//     "header_static": "https://files.mastodon.social/accounts/headers/000/000/001/original/c91b871f294ea63e.png",
-//     "followers_count": 318699,
-//     "following_count": 453,
-//     "statuses_count": 61013,
-//     "last_status_at": "2019-11-30T20:02:08.277Z",
-//     "emojis": [],
-//     "fields": [
-//       {
-//         "name": "Patreon",
-//         "value": "<a href=\"https://www.patreon.com/mastodon\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://www.</span><span class=\"\">patreon.com/mastodon</span><span class=\"invisible\"></span></a>",
-//         "verified_at": null
-//       },
-//       {
-//         "name": "Homepage",
-//         "value": "<a href=\"https://zeonfederated.com\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"\">zeonfederated.com</span><span class=\"invisible\"></span></a>",
-//         "verified_at": "2019-07-15T18:29:57.191+00:00"
-//       }
-//     ]
-//   }
 function getUserInfo(id, mastodonURI, token, callback) {
     let url = mastodonURI + API_GET_ACCOUNT.replace(":id", id);
     fetch(url, {headers: {'Authorization': 'Bearer ' + token}}).then((response) => response.json()).then(callback);

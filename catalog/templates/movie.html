@@ -45,7 +45,7 @@
 		{% endif %}
 	</div>
 	<div>{% if item.imdb %}
-		{% trans 'IMDb：' %}<a href="https://www.imdb.com/title/{{ item.imdb }}/" target="_blank">{{ item.imdb }}</a>
+		{% trans 'IMDb：' %}<a href="https://www.imdb.com/title/{{ item.imdb }}/" target="_blank" rel="noopener">{{ item.imdb }}</a>
 		{% endif %}
 	</div>
 	<div>{% if item.director %}{% trans '导演：' %}
@@ -144,7 +144,7 @@
 		{% endfor %}
 	{% endif %}</div>
 	<div>{% if item.site %}{% trans '网站：' %}
-		<a href="{{ item.site }}" target="_blank">{{ item.site|strip_scheme }}</a>
+		<a href="{{ item.site }}" target="_blank" rel="noopener">{{ item.site|strip_scheme }}</a>
 	{% endif %}</div>
 	{% if item.other_info %}
 	{% for k, v in item.other_info.items %}

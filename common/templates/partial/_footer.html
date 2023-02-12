@@ -2,14 +2,14 @@
     <div class="grid">
         <div class="footer__border">
             {% if social_link %}
-            <a class="footer__link" target="_blank" href="{{ social_link }}">关注我们</a>
+            <a class="footer__link" target="_blank" rel="noopener" href="{{ social_link }}">关注我们</a>
             {% endif %}
             {% if support_link %}
-            <a class="footer__link" target="_blank" href="{{ support_link }}">问题反馈</a>
+            <a class="footer__link" target="_blank" rel="noopener" href="{{ support_link }}">问题反馈</a>
             {% endif %}
-            <a class="footer__link" target="_blank" href="https://github.com/neodb-social">源代码</a>
+            <a class="footer__link" target="_blank" rel="noopener" href="https://github.com/neodb-social">源代码</a>
             {% if donation_link %}
-            <a class="footer__link" target="_blank" href="{{ donation_link }}">捐助本站</a>
+            <a class="footer__link" target="_blank" rel="noopener" href="{{ donation_link }}">捐助本站</a>
             {% endif %}
             <a class="footer__link" href="/announcement/">公告栏</a>
         </div>

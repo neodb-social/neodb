@@ -19,7 +19,7 @@
                 </a>
                 <!-- {{ user.id }} -->
             </div>
-            <p><a class="user-profile__link mast-acct" target="_blank" rel="me" href="{{ user.mastodon_account.url }}">@{{ user.username }}@{{ user.mastodon_site }}</a>
+            <p><a class="user-profile__link mast-acct" target="_blank" rel="me noopener" href="{{ user.mastodon_account.url }}">@{{ user.username }}@{{ user.mastodon_site }}</a>
                 {% current_user_relationship user as relationship %}
                 {% if relationship %}
                 <a class="user-profile__report-link">

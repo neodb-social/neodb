@@ -98,8 +98,8 @@
 	<div class="action-panel">
 		<div class="action-panel__label">{% trans '借阅或购买' %}</div>
 		<div class="action-panel__button-group">
-			<a class="action-panel__button" target="_blank" href="https://www.worldcat.org/isbn/{{ item.isbn }}">{% trans 'WorldCat' %}</a>
-			<a class="action-panel__button" target="_blank" href="https://openlibrary.org/search?isbn={{ item.isbn }}">{% trans 'Open Library' %}</a>
+			<a class="action-panel__button" target="_blank" rel="noopener" href="https://www.worldcat.org/isbn/{{ item.isbn }}">{% trans 'WorldCat' %}</a>
+			<a class="action-panel__button" target="_blank" rel="noopener" href="https://openlibrary.org/search?isbn={{ item.isbn }}">{% trans 'Open Library' %}</a>
 		</div>
 	</div>
 </div>
