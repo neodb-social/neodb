@@ -34,9 +34,9 @@ class Steam(AbstractSite):
         publisher = content.xpath(
             "//div[@class='glance_ctn']//div[@class='dev_row'][2]//a/text()"
         )
-        release_date = dateparser.parse(
-            content.xpath("//div[@class='release_date']/div[@class='date']/text()")[0]
-        ).strftime("%Y-%m-%d")
+        dt = content.xpath("//div[@class='release_date']/div[@class='date']/text()")
+        release_date = dateparser.parse(dt[0]).strftime("%Y-%m-%d") if dt else None
+
         genre = content.xpath(
             "//div[@class='details_block']/b[2]/following-sibling::a/text()"
         )
