@@ -20,7 +20,7 @@ class DoubanBook(AbstractSite):
     DEFAULT_MODEL = Edition
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://book.douban.com/subject/" + id_value + "/"
 
     def scrape(self):
@@ -242,7 +242,7 @@ class DoubanBook_Work(AbstractSite):
     DEFAULT_MODEL = Work
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://book.douban.com/works/" + id_value + "/"
 
     def scrape(self):
@@ -251,9 +251,6 @@ class DoubanBook_Work(AbstractSite):
         title = title_elem[0].split("全部版本(")[0].strip() if title_elem else None
         if not title:
             raise ParseError(self, "title")
-        pd = ResourceContent(
-            metadata={
-                "title": title,
-            }
-        )
+        book_urls = content.xpath('//a[@class="pl2"]/@href')
+        pd = ResourceContent(metadata={"title": title, "edition_urls": book_urls})
         return pd
