@@ -1,3 +1,5 @@
+from django.utils.timezone import make_aware
+from datetime import datetime
 from catalog.book.models import Edition, Work
 from catalog.common import *
 from catalog.book.utils import detect_isbn_asin
@@ -36,7 +38,7 @@ class Goodreads(AbstractSite):
     ]
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://www.goodreads.com/book/show/" + id_value
 
     def scrape(self, response=None):
@@ -68,12 +70,26 @@ class Goodreads(AbstractSite):
         t, n = detect_isbn_asin(b["details"].get("asin"))
         if t:
             ids[t] = n
+        # amazon has a known problem to use another book's isbn as asin
+        # so we alway overwrite asin-converted isbn with real isbn
         t, n = detect_isbn_asin(b["details"].get("isbn13"))
         if t:
             ids[t] = n
-        # amazon has a known problem to use another book's isbn as asin
-        # so we alway overwrite asin-converted isbn with real isbn
+        else:
+            t, n = detect_isbn_asin(b["details"].get("isbn"))
+            if t:
+                ids[t] = n
         data["pages"] = b["details"].get("numPages")
+        data["binding"] = b["details"].get("format")
+        data["pub_house"] = b["details"].get("publisher")
+        if b["details"].get("publicationTime"):
+            dt = make_aware(
+                datetime.fromtimestamp(b["details"].get("publicationTime") / 1000)
+            )
+            data["pub_year"] = dt.year
+            data["pub_month"] = dt.month
+        if b["details"].get("language"):
+            data["language"] = b["details"].get("language").get("name")
         data["cover_image_url"] = b["imageUrl"]
         w = next(filter(lambda x: x.get("details"), o["Work"]), None)
         if w:
@@ -110,7 +126,7 @@ class Goodreads_Work(AbstractSite):
     URL_PATTERNS = [r".+goodreads.com/work/editions/(\d+)"]
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://www.goodreads.com/work/editions/" + id_value
 
     def scrape(self, response=None):
