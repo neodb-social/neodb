@@ -11,7 +11,7 @@ import re
 import time
 import logging
 from lxml import html
-
+from urllib.parse import quote
 
 _logger = logging.getLogger(__name__)
 
@@ -138,24 +138,24 @@ class BasicDownloader:
 class ProxiedDownloader(BasicDownloader):
     def get_proxied_urls(self):
         urls = []
-        if settings.PROXYCRAWL_KEY is not None:
-            urls.append(
-                f"https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={self.url}"
-            )
         if settings.SCRAPESTACK_KEY is not None:
             # urls.append(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={self.url}')
             urls.append(
-                f"http://api.scrapestack.com/scrape?keep_headers=1&access_key={settings.SCRAPESTACK_KEY}&url={self.url}"
+                f"http://api.scrapestack.com/scrape?keep_headers=1&access_key={settings.SCRAPESTACK_KEY}&url={quote(self.url)}"
+            )
+        if settings.PROXYCRAWL_KEY is not None:
+            urls.append(
+                f"https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={quote(self.url)}"
             )
         if settings.SCRAPERAPI_KEY is not None:
             urls.append(
-                f"http://api.scraperapi.com/?api_key={settings.SCRAPERAPI_KEY}&url={self.url}"
+                f"http://api.scraperapi.com/?api_key={settings.SCRAPERAPI_KEY}&url={quote(self.url)}"
             )
         return urls
 
     def get_special_proxied_url(self):
         return (
-            f"{settings.LOCAL_PROXY}?url={self.url}"
+            f"{settings.LOCAL_PROXY}?url={quote(self.url)}"
             if settings.LOCAL_PROXY is not None
             else None
         )

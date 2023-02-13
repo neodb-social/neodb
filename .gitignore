@@ -31,9 +31,10 @@ log
 # conf folders
 /conf
 /neodb
+/playground
 
 # typesense folder
 /typesense-data
 
 # test coverage
-.coverage
+/.coverage
