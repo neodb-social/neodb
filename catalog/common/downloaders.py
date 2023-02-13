@@ -231,8 +231,10 @@ class ImageDownloaderMixin:
             return RESPONSE_NETWORK_ERROR
 
     @classmethod
-    def download_image(cls, image_url, page_url):
+    def download_image(cls, image_url, page_url, headers=None):
         imgdl = cls(image_url, page_url)
+        if headers is not None:
+            imgdl.headers = headers
         try:
             image = imgdl.download().content
             image_extention = imgdl.extention
