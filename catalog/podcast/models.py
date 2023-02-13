@@ -36,6 +36,13 @@ class Podcast(Item):
         "official_site",
     ]
 
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.RSS,
+        ]
+        return [(i.value, i.label) for i in id_types]
+
     @property
     def recent_episodes(self):
         return self.episodes.all().order_by("-pub_date")[:10]

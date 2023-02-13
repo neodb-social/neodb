@@ -4,7 +4,7 @@
 
 <div class="grid__aside">
     <div class="aside-section-wrapper">
-        
+
         <div class="add-entity-entries">
             <div class="add-entity-entries__entry">
                 <div class="add-entity-entries__label">
@@ -29,6 +29,9 @@
                 </a>
                 <a href="{% url 'catalog:create' 'TVShow' %}">
                     <button class="add-entity-entries__button">{% trans '添加剧集' %}</button>
+                </a>
+                <a href="{% url 'catalog:create' 'Podcast' %}">
+                    <button class="add-entity-entries__button">{% trans '添加播客' %}</button>
                 </a>
                 <a href="{% url 'catalog:create' 'Album' %}">
                     <button class="add-entity-entries__button">{% trans '添加专辑' %}</button>
