@@ -76,22 +76,28 @@
 
 
 {% block sidebar %}
-{% if item.get_related_books.count > 0 %}
+{% with related_books=item.get_related_books %}
+{% if related_books.count > 0 %}
 <div class="aside-section-wrapper">
 	<div class="action-panel">
-		<div class="action-panel__label">{% trans '相关书目' %}</div>
+		<div class="action-panel__label">{% trans '其他版本' %}</div>
 		<div >
-			{% for b in item.get_related_books %}
+			{% for b in related_books %}
 			<p>
 				<a href="{{ b.url }}">{{ b.title }}</a>
-				<small>({{ b.pub_house }} {{ b.pub_year }})</small>
-				<span class="source-label source-label__{{ b.source_site }}">{{ b.get_source_site_display }}</span>
+				<small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
+				{% for res in b.external_resources.all %}
+				<a href="{{ res.url }}">
+				  <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
+				</a>
+				{% endfor %}
 			</p>
 			{% endfor %}
 		</div>
 	</div>
 </div>
 {% endif %}
+{% endwith %}
 
 {% if item.isbn %}
 <div class="aside-section-wrapper">

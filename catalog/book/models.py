@@ -143,8 +143,13 @@ class Edition(Item):
                 #     _logger.info(f'Unable to find link for {w["url"]}')
 
     def get_related_books(self):
-        # TODO
-        return []
+        works = list(self.works.all())
+        return (
+            Edition.objects.filter(works__in=works)
+            .exclude(pk=self.pk)
+            .exclude(is_deleted=True)
+            .exclude(merged_to_item__isnull=False)
+        )
 
 
 class Work(Item):
