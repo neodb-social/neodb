@@ -285,7 +285,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @property
     def uuid(self):
-        return base62.encode(self.uid.int)
+        return base62.encode(self.uid.int).zfill(22)
 
     @property
     def url(self):
