@@ -47,6 +47,8 @@ def get_mock_file(url):
     fn = url.replace("***REMOVED***", "1234")  # Thank you, Github Action -_-!
     fn = re.sub(r"[^\w]", "_", fn)
     fn = re.sub(r"_key_[*A-Za-z0-9]+", "_key_8964", fn)
+    if len(fn) > 255:
+        fn = fn[:255]
     return fn
 
 
@@ -107,12 +109,15 @@ class BasicDownloader:
                     url, headers=self.headers, timeout=self.get_timeout()
                 )
                 if settings.DOWNLOADER_SAVEDIR:
-                    with open(
-                        settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(url),
-                        "w",
-                        encoding="utf-8",
-                    ) as fp:
-                        fp.write(resp.text)
+                    try:
+                        with open(
+                            settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(url),
+                            "w",
+                            encoding="utf-8",
+                        ) as fp:
+                            fp.write(resp.text)
+                    except:
+                        _logger.warn("Save downloaded data failed.")
             else:
                 resp = MockResponse(self.url)
             response_type = self.validate_response(resp)
@@ -225,8 +230,6 @@ class ImageDownloaderMixin:
         else:
             return RESPONSE_NETWORK_ERROR
 
-
-class BasicImageDownloader(ImageDownloaderMixin, BasicDownloader):
     @classmethod
     def download_image(cls, image_url, page_url):
         imgdl = cls(image_url, page_url)
@@ -236,6 +239,10 @@ class BasicImageDownloader(ImageDownloaderMixin, BasicDownloader):
             return image, image_extention
         except Exception:
             return None, None
+
+
+class BasicImageDownloader(ImageDownloaderMixin, BasicDownloader):
+    pass
 
 
 class ProxiedImageDownloader(ImageDownloaderMixin, ProxiedDownloader):

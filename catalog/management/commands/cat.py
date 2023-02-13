@@ -31,6 +31,7 @@ class Command(BaseCommand):
             resource = site.get_resource_ready(ignore_existing_content=options["force"])
             pprint.pp(resource.metadata)
             pprint.pp(site.get_item())
+            pprint.pp(site.get_item().cover)
             pprint.pp(site.get_item().metadata)
         else:
             resource = site.scrape()

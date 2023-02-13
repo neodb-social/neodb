@@ -54,11 +54,10 @@ class GoogleBooks(AbstractSite):
         else:
             brief = ""
         brief = re.sub(r"<.*?>", "", brief.replace("<br", "\n<br"))
-        img_url = (
-            b["volumeInfo"]["imageLinks"]["thumbnail"]
-            if "imageLinks" in b["volumeInfo"]
-            else None
-        )
+        img_url = None
+        if "imageLinks" in b["volumeInfo"]:
+            img_url = b["volumeInfo"]["imageLinks"]["thumbnail"]
+            img_url = img_url.replace("zoom=1", "")
         isbn10 = None
         isbn13 = None
         for iid in (
