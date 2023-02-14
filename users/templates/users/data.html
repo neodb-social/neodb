@@ -139,23 +139,17 @@
                                 <div class="import-panel">
                                     <h5 class="import-panel__label">{% trans '导出个人数据' %}</h5>
                                     <div class="import-panel__body">
-                                        本功能正在完善中
-                                        <!-- <form action="{% url 'users:export_marks' %}" method="POST" enctype="multipart/form-data" >
+                                        <form action="{% url 'users:export_marks' %}" method="POST" enctype="multipart/form-data" >
                                             {% csrf_token %}
                                             {% if export_status.marks_pending %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '正在导出兼容豆伴(doufen)和NiceDB的标记、短评和评论' %}" id="uploadBtn" disabled />
+                                            <input type="submit" class="import-panel__button" value="{% trans '正在导出标记、短评和评论' %}" id="uploadBtn" disabled />
                                             {% else %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '导出兼容豆伴(doufen)和NiceDB的标记、短评和评论' %}" id="uploadBtn" />
+                                            <input type="submit" class="import-panel__button" value="{% trans '导出标记、短评和评论' %}" id="uploadBtn" />
                                             {% endif %}
                                             {% if export_status.marks_file %}
                                             <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a>
                                             {% endif %}
-                                        </form> -->
-                                        <!-- <form action="{% url 'users:export_reviews' %}" method="POST" enctype="multipart/form-data" >
-                                            {% csrf_token %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '导出评论' %}" id="uploadBtn"
-                                            >
-                                        </form> -->
+                                        </form>
                                     </div>
                                 </div>
                             </div>

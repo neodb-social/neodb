@@ -1,13 +1,33 @@
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from openpyxl import Workbook
+from catalog.common.models import IdType
 from common.utils import GenerateDateUUIDMediaFilePath
 from datetime import datetime
 import os
 from journal.models import *
 
 
-def export_marks_task(user):  # FIXME
+def _get_source_url(item):
+    res = (
+        item.external_resources.all()
+        .filter(
+            id_type__in=[
+                IdType.DoubanBook,
+                IdType.DoubanMovie,
+                IdType.DoubanMusic,
+                IdType.DoubanGame,
+                IdType.DoubanDrama,
+            ]
+        )
+        .first()
+    )
+    if not res:
+        res = item.external_resources.all().first()
+    return res.url if res else ""
+
+
+def export_marks_task(user):
     user.preference.export_status["marks_pending"] = True
     user.preference.save(update_fields=["export_status"])
     filename = GenerateDateUUIDMediaFilePath(
@@ -24,9 +44,11 @@ def export_marks_task(user):  # FIXME
         (ShelfType.WISHLIST, "想看"),
     ]:
         ws = wb.create_sheet(title=label)
-        marks = user.shelf_manager.get_members(ItemCategory.Movie, status).order_by(
-            "-edited_time"
+        shelf = user.shelf_manager.get_shelf(status)
+        q = query_item_category(ItemCategory.Movie) | query_item_category(
+            ItemCategory.TV
         )
+        marks = shelf.members.all().filter(q).order_by("created_time")
         ws.append(heading)
         for mm in marks:
             mark = mm.mark
@@ -37,19 +59,19 @@ def export_marks_task(user):  # FIXME
                 + " / "
                 + ",".join(movie.area)
                 + " / "
-                + ",".join(map(lambda x: str(MovieGenreTranslator[x]), movie.genre))
+                + ",".join(movie.genre)
                 + " / "
                 + ",".join(movie.director)
                 + " / "
                 + ",".join(movie.actor)
             )
-            tags = ",".join(list(map(lambda m: m.content, mark.tags)))
+            tags = ",".join(mark.tags)
             world_rating = (movie.rating / 2) if movie.rating else None
-            timestamp = mark.edited_time.strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
             my_rating = (mark.rating / 2) if mark.rating else None
             text = mark.text
-            source_url = movie.source_url
-            url = settings.APP_WEBSITE + movie.url
+            source_url = _get_source_url(movie)
+            url = movie.absolute_url
             line = [
                 title,
                 summary,
@@ -60,7 +82,7 @@ def export_marks_task(user):  # FIXME
                 tags,
                 text,
                 url,
-                movie.imdb_code,
+                movie.imdb,
             ]
             ws.append(line)
 
@@ -70,25 +92,26 @@ def export_marks_task(user):  # FIXME
         (ShelfType.WISHLIST, "想听"),
     ]:
         ws = wb.create_sheet(title=label)
-        marks = AlbumMark.objects.filter(owner=user, status=status).order_by(
-            "-edited_time"
-        )
+        shelf = user.shelf_manager.get_shelf(status)
+        q = query_item_category(ItemCategory.Music)
+        marks = shelf.members.all().filter(q).order_by("created_time")
         ws.append(heading)
-        for mark in marks:
-            album = mark.album
+        for mm in marks:
+            mark = mm.mark
+            album = mark.item
             title = album.title
             summary = (
                 ",".join(album.artist)
                 + " / "
                 + (album.release_date.strftime("%Y") if album.release_date else "")
             )
-            tags = ",".join(list(map(lambda m: m.content, mark.tags)))
+            tags = ",".join(mark.tags)
             world_rating = (album.rating / 2) if album.rating else None
-            timestamp = mark.edited_time.strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
             my_rating = (mark.rating / 2) if mark.rating else None
             text = mark.text
-            source_url = album.source_url
-            url = settings.APP_WEBSITE + album.get_absolute_url()
+            source_url = _get_source_url(album)
+            url = album.absolute_url
             line = [
                 title,
                 summary,
@@ -99,7 +122,7 @@ def export_marks_task(user):  # FIXME
                 tags,
                 text,
                 url,
-                "",
+                album.barcode,
             ]
             ws.append(line)
 
@@ -109,12 +132,13 @@ def export_marks_task(user):  # FIXME
         (ShelfType.WISHLIST, "想读"),
     ]:
         ws = wb.create_sheet(title=label)
-        marks = BookMark.objects.filter(owner=user, status=status).order_by(
-            "-edited_time"
-        )
+        shelf = user.shelf_manager.get_shelf(status)
+        q = query_item_category(ItemCategory.Book)
+        marks = shelf.members.all().filter(q).order_by("created_time")
         ws.append(heading)
-        for mark in marks:
-            book = mark.book
+        for mm in marks:
+            mark = mm.mark
+            book = mark.item
             title = book.title
             summary = (
                 ",".join(book.author)
@@ -123,13 +147,13 @@ def export_marks_task(user):  # FIXME
                 + " / "
                 + book.pub_house
             )
-            tags = ",".join(list(map(lambda m: m.content, mark.tags)))
+            tags = ",".join(mark.tags)
             world_rating = (book.rating / 2) if book.rating else None
-            timestamp = mark.edited_time.strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
             my_rating = (mark.rating / 2) if mark.rating else None
             text = mark.text
-            source_url = book.source_url
-            url = settings.APP_WEBSITE + book.get_absolute_url()
+            source_url = _get_source_url(book)
+            url = book.absolute_url
             line = [
                 title,
                 summary,
@@ -150,12 +174,13 @@ def export_marks_task(user):  # FIXME
         (ShelfType.WISHLIST, "想玩"),
     ]:
         ws = wb.create_sheet(title=label)
-        marks = GameMark.objects.filter(owner=user, status=status).order_by(
-            "-edited_time"
-        )
+        shelf = user.shelf_manager.get_shelf(status)
+        q = query_item_category(ItemCategory.Game)
+        marks = shelf.members.all().filter(q).order_by("created_time")
         ws.append(heading)
-        for mark in marks:
-            game = mark.game
+        for mm in marks:
+            mark = mm.mark
+            game = mark.item
             title = game.title
             summary = (
                 ",".join(game.genre)
@@ -164,13 +189,49 @@ def export_marks_task(user):  # FIXME
                 + " / "
                 + (game.release_date.strftime("%Y-%m-%d") if game.release_date else "")
             )
-            tags = ",".join(list(map(lambda m: m.content, mark.tags)))
+            tags = ",".join(mark.tags)
             world_rating = (game.rating / 2) if game.rating else None
-            timestamp = mark.edited_time.strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
             my_rating = (mark.rating / 2) if mark.rating else None
             text = mark.text
-            source_url = game.source_url
-            url = settings.APP_WEBSITE + game.get_absolute_url()
+            source_url = _get_source_url(game)
+            url = game.absolute_url
+            line = [
+                title,
+                summary,
+                world_rating,
+                source_url,
+                timestamp,
+                my_rating,
+                tags,
+                text,
+                url,
+                "",
+            ]
+            ws.append(line)
+
+    for status, label in [
+        (ShelfType.COMPLETE, "听过的播客"),
+        (ShelfType.PROGRESS, "在听的播客"),
+        (ShelfType.WISHLIST, "想听的播客"),
+    ]:
+        ws = wb.create_sheet(title=label)
+        shelf = user.shelf_manager.get_shelf(status)
+        q = query_item_category(ItemCategory.Podcast)
+        marks = shelf.members.all().filter(q).order_by("created_time")
+        ws.append(heading)
+        for mm in marks:
+            mark = mm.mark
+            podcast = mark.item
+            title = podcast.title
+            summary = ",".join(podcast.hosts)
+            tags = ",".join(mark.tags)
+            world_rating = (podcast.rating / 2) if podcast.rating else None
+            timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
+            my_rating = (mark.rating / 2) if mark.rating else None
+            text = mark.text
+            source_url = _get_source_url(podcast)
+            url = podcast.absolute_url
             line = [
                 title,
                 summary,
@@ -201,18 +262,20 @@ def export_marks_task(user):  # FIXME
         (ItemCategory.Book, "书评"),
         (ItemCategory.Music, "乐评"),
         (ItemCategory.Game, "游戏评论"),
+        (ItemCategory.Podcast, "播客评论"),
     ]:
         ws = wb.create_sheet(title=label)
-        reviews = Review.objects.filter(owner=user).order_by("-edited_time")
+        q = query_item_category(category)
+        reviews = Review.objects.filter(owner=user).filter(q).order_by("created_time")
         ws.append(review_heading)
         for review in reviews:
             title = review.title
             target = "《" + review.item.title + "》"
-            url = review.url
-            timestamp = review.edited_time.strftime("%Y-%m-%d %H:%M:%S")
+            url = review.absolute_url
+            timestamp = review.created_time.strftime("%Y-%m-%d %H:%M:%S")
             my_rating = None  # (mark.rating / 2) if mark.rating else None
-            content = review.content
-            target_source_url = review.item.source_url
+            content = review.body
+            target_source_url = _get_source_url(review.item)
             target_url = review.item.absolute_url
             line = [
                 title,

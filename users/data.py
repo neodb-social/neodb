@@ -29,6 +29,7 @@ from django.contrib import messages
 from journal.importers.opml import OPMLImporter
 from journal.importers.douban import DoubanImporter
 from journal.importers.goodreads import GoodreadsImporter
+from journal.exporters.doufen import export_marks_task
 from journal.models import reset_visibility_for_user
 
 
