@@ -68,21 +68,23 @@ def connect(request):
     login_domain = (
         login_domain.strip().lower().split("//")[-1].split("/")[0].split("@")[-1]
     )
-    app, error_msg = get_mastodon_application(login_domain)
-    if app is None:
-        return render(
-            request,
-            "common/error.html",
-            {
-                "msg": error_msg,
-                "secondary_msg": "",
-            },
-        )
-    else:
+    try:
+        app = get_mastodon_application(login_domain)
+        if app.api_domain and app.api_domain != app.domain_name:
+            login_domain = app.api_domain
         login_url = get_mastodon_login_url(app, login_domain, request)
         resp = redirect(login_url)
         resp.set_cookie("mastodon_domain", app.domain_name)
         return resp
+    except Exception as e:
+        return render(
+            request,
+            "common/error.html",
+            {
+                "msg": "无法连接指定实例，请检查域名拼写",
+                "secondary_msg": str(e),
+            },
+        )
 
 
 # mastodon server redirect back to here

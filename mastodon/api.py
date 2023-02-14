@@ -3,11 +3,10 @@ import string
 import random
 import functools
 import logging
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.urls import reverse
 from urllib.parse import quote
-from .models import CrossSiteUserInfo, MastodonApplication
+from .models import MastodonApplication
 from mastodon.utils import rating_to_emoji
 import re
 
@@ -230,76 +229,70 @@ class TootVisibilityEnum:
     UNLISTED = "unlisted"
 
 
+def detect_server_info(login_domain):
+    url = f"https://{login_domain}/api/v1/instance"
+    try:
+        response = get(url, headers={"User-Agent": USER_AGENT})
+    except:
+        logger.error(f"Error connecting {login_domain}")
+        raise Exception("无法连接实例")
+    if response.status_code != 200:
+        logger.error(f"Error connecting {login_domain}: {response.status_code}")
+        raise Exception("实例返回错误，代码: " + str(response.status_code))
+    try:
+        j = response.json()
+        domain = j["uri"].lower().split("//")[-1].split("/")[0]
+        api_domain = domain
+        if "urls" in j and "streaming_api" in j["urls"]:
+            api_domain = j["urls"]["streaming_api"].split("://")[1]
+        server_version = j["version"]
+        logger.info(
+            f"detect_server_info: {login_domain} {domain} {api_domain} {server_version}"
+        )
+        return domain, api_domain, server_version
+    except Exception as e:
+        logger.error(f"Error connecting {login_domain}: {e}")
+        raise Exception("实例返回信息无法识别")
+
+
 def get_mastodon_application(login_domain):
     domain = login_domain
-    api_domain = ""
-    server_version = ""
     app = MastodonApplication.objects.filter(domain_name=domain).first()
     if not app:
-        # detect the correct domains
-        url = f"https://{login_domain}/api/v1/instance"
-        try:
-            response = get(url, headers={"User-Agent": USER_AGENT})
-            if response.status_code != 200:
-                logger.error(f"Error connecting {domain}: {response.status_code}")
-                return None, "实例连接错误，代码: " + str(response.status_code)
-            j = response.json()
-            domain = j["uri"].lower().split("//")[-1].split("/")[0]
-            api_domain = domain
-            if "urls" in j and "streaming_api" in j["urls"]:
-                api_domain = j["urls"]["streaming_api"].split("://")[1]
-            server_version = j["version"]
-        except (requests.exceptions.Timeout, ConnectionError):
-            logger.error(f"Error connecting {login_domain}: Timeout")
-            return None, "连接实例请求超时"
-        except Exception as e:
-            logger.error(f"Error connecting {login_domain}: {e}")
-            return None, "无法识别实例信息"
-
-    app = MastodonApplication.objects.filter(domain_name=domain).first()
-    if app is not None:
-        return app, ""
+        app = MastodonApplication.objects.filter(api_domain=domain).first()
+    if app:
+        return app
     if domain == TWITTER_DOMAIN:
-        return None, "Twitter未配置"
-    error_msg = None
+        raise Exception("Twitter未配置")
+    if not settings.MASTODON_ALLOW_ANY_SITE:
+        logger.error(f"Disallowed to create app for {domain}")
+        raise Exception("不支持其它实例登录")
+    domain, api_domain, server_version = detect_server_info(login_domain)
+    if login_domain != domain:
+        app = MastodonApplication.objects.filter(domain_name=domain).first()
+        if app:
+            return app
+    response = create_app(api_domain)
+    if response.status_code != 200:
+        logger.error(
+            f"Error creating app for {domain} on {api_domain}: {response.status_code}"
+        )
+        raise Exception("实例注册应用失败，代码: " + str(response.status_code))
     try:
-        response = create_app(api_domain)
-    except (requests.exceptions.Timeout, ConnectionError):
-        error_msg = "联邦网络请求超时。"
-        logger.error(f"Error creating app for {domain} on {api_domain}: Timeout")
-    except Exception as e:
-        error_msg = "联邦网络请求失败 " + str(e)
-        logger.error(f"Error creating app for {domain} on {api_domain}: {e}")
-    else:
-        # fill the form with returned data
-        if response.status_code != 200:
-            error_msg = "实例连接错误，代码: " + str(response.status_code)
-            logger.error(
-                f"Error creating app for {domain} on {api_domain}: {response.status_code}"
-            )
-        else:
-            try:
-                data = response.json()
-            except Exception:
-                error_msg = "实例返回内容无法识别"
-                logger.error(
-                    f"Error creating app for {domain}: unable to parse response"
-                )
-            else:
-                if settings.MASTODON_ALLOW_ANY_SITE:
-                    app = MastodonApplication.objects.create(
-                        domain_name=domain,
-                        api_domain=api_domain,
-                        server_version=server_version,
-                        app_id=data["id"],
-                        client_id=data["client_id"],
-                        client_secret=data["client_secret"],
-                        vapid_key=data["vapid_key"] if "vapid_key" in data else "",
-                    )
-                else:
-                    error_msg = "不支持其它实例登录"
-                    logger.error(f"Disallowed to create app for {domain}")
-    return app, error_msg
+        data = response.json()
+    except Exception:
+        logger.error(f"Error creating app for {domain}: unable to parse response")
+        raise Exception("实例注册应用失败，返回内容无法识别")
+    app = MastodonApplication.objects.create(
+        domain_name=domain,
+        api_domain=api_domain,
+        server_version=server_version,
+        app_id=data["id"],
+        client_id=data["client_id"],
+        client_secret=data["client_secret"],
+        vapid_key=data["vapid_key"] if "vapid_key" in data else "",
+    )
+    return app
 
 
 def get_mastodon_login_url(app, login_domain, request):
