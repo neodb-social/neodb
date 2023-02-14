@@ -5,6 +5,8 @@ from django.utils.translation import gettext_lazy as _
 
 class MastodonApplication(models.Model):
     domain_name = models.CharField(_("site domain name"), max_length=100, unique=True)
+    api_domain = models.CharField(_("domain for api call"), max_length=100, blank=True)
+    server_version = models.CharField(_("type and verion"), max_length=100, blank=True)
     app_id = models.CharField(_("in-site app id"), max_length=100)
     client_id = models.CharField(_("client id"), max_length=100)
     client_secret = models.CharField(_("client secret"), max_length=100)

@@ -68,8 +68,7 @@ def connect(request):
     login_domain = (
         login_domain.strip().lower().split("//")[-1].split("/")[0].split("@")[-1]
     )
-    domain, version = get_instance_info(login_domain)
-    app, error_msg = get_mastodon_application(domain)
+    app, error_msg = get_mastodon_application(login_domain)
     if app is None:
         return render(
             request,
@@ -80,9 +79,9 @@ def connect(request):
             },
         )
     else:
-        login_url = get_mastodon_login_url(app, login_domain, version, request)
+        login_url = get_mastodon_login_url(app, login_domain, request)
         resp = redirect(login_url)
-        resp.set_cookie("mastodon_domain", domain)
+        resp.set_cookie("mastodon_domain", app.domain_name)
         return resp
 
 
