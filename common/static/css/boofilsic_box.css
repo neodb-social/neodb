@@ -3,8 +3,7 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    padding: 60px 20px;
-    padding-bottom: 60px;
+    padding: 60px 40px;
     background-color: var(--bright);
     text-align: center;
     min-width: 400px;

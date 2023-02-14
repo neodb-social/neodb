@@ -37,7 +37,7 @@
                                     </h5>
                                 </div> -->
                                 <ul class="entity-list__entities">
-                                    <div hx-get="{% url 'social:data' %}" hx-trigger="revealed" hx-swap="outerHTML">
+                                    <div hx-get="{% url 'social:data' %}" hx-trigger="revealed delay:0.01s" hx-swap="outerHTML">
                                         <i class="fas fa-fan fa-spin"></i>
                                     </div>
                                 </ul>
