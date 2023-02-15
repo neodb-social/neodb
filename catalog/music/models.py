@@ -15,6 +15,7 @@ class AlbumInSchema(ItemInSchema):
 
 
 class AlbumSchema(AlbumInSchema, BaseSchema):
+    barcode: str | None = None
     pass
 
 

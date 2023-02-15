@@ -15,6 +15,7 @@ import django_rq
 from rq.job import Job
 from .external import ExternalSources
 from django.core.cache import cache
+import hashlib
 
 _logger = logging.getLogger(__name__)
 
@@ -52,6 +53,19 @@ def fetch_refresh(request, job_id):
             )
 
 
+def enqueue_fetch(url, is_refetch):
+    job_id = "fetch_" + hashlib.md5(url.encode()).hexdigest()
+    in_progress = False
+    try:
+        job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
+        in_progress = job.get_status() in ["queued", "started"]
+    except:
+        in_progress = False
+    if not in_progress:
+        django_rq.get_queue("fetch").enqueue(fetch_task, url, is_refetch, job_id=job_id)
+    return job_id
+
+
 def fetch(request, url, is_refetch: bool = False, site: AbstractSite = None):
     if not site:
         site = SiteManager.get_site_by_url(url)
@@ -60,8 +74,7 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite = None):
     item = site.get_item()
     if item and not is_refetch:
         return redirect(item.url)
-    job_id = uuid.uuid4().hex
-    django_rq.get_queue("fetch").enqueue(fetch_task, url, is_refetch, job_id=job_id)
+    job_id = enqueue_fetch(url, is_refetch)
     return render(
         request,
         "fetch_pending.html",

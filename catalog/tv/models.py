@@ -47,6 +47,7 @@ class TVShowInSchema(ItemInSchema):
 
 
 class TVShowSchema(TVShowInSchema, BaseSchema):
+    imdb: str | None = None
     # seasons: list['TVSeason']
     pass
 

@@ -3,32 +3,33 @@ from .common import *
 from .sites import *
 from ninja import Schema
 from django.http import Http404
-from common.api import api
+from common.api import api, Result
+from .search.views import enqueue_fetch
 
 
 class SearchResult(Schema):
-    code: int
     items: list[ItemSchema]
 
 
-@api.post("/catalog/search", response=SearchResult)
+@api.post("/catalog/search", response={200: SearchResult, 400: Result})
 def search_item(request, query: str, category: ItemCategory | None = None):
     query = query.strip()
     if not query:
-        return {"code": -1, "items": []}
+        return 200, {"message": "Invalid query"}
     result = Indexer.search(query, page=1, category=category)
-    return {"code": 0, "items": result.items}
+    return 200, {"items": result.items}
 
 
-@api.post("/catalog/fetch", response=ItemSchema)
+@api.post("/catalog/fetch", response={200: ItemSchema, 202: Result})
 def fetch_item(request, url: str):
     site = SiteManager.get_site_by_url(url)
     if not site:
-        return Http404()
-    resource = site.get_resource_ready()
-    if not resource:
-        return Http404()
-    return site.get_item()
+        raise Http404(url)
+    item = site.get_item()
+    if item:
+        return 200, item
+    enqueue_fetch(url, False)
+    return 202, {"message": "Fetch in progress"}
 
 
 @api.get("/book/{uuid}/", response=EditionSchema)

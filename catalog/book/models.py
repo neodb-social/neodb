@@ -41,6 +41,7 @@ class EditionInSchema(ItemInSchema):
 
 
 class EditionSchema(EditionInSchema, BaseSchema):
+    isbn: str | None = None
     pass
 
 

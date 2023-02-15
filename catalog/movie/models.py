@@ -18,6 +18,7 @@ class MovieInSchema(ItemInSchema):
 
 
 class MovieSchema(MovieInSchema, BaseSchema):
+    imdb: str | None = None
     pass
 
 
