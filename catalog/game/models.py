@@ -1,6 +1,20 @@
-from catalog.common import *
+from datetime import date
+from catalog.common.models import *
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+
+
+class GameInSchema(ItemInSchema):
+    genre: list[str]
+    developer: list[str]
+    publisher: list[str]
+    platform: list[str]
+    release_date: date | None = None
+    official_site: str | None = None
+
+
+class GameSchema(GameInSchema, BaseSchema):
+    pass
 
 
 class Game(Item):

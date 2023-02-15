@@ -1,5 +1,4 @@
 from django.urls import path, re_path
-from .api import api
 from .views import *
 from .models import *
 
@@ -85,5 +84,4 @@ urlpatterns = [
     path("fetch_refresh/<str:job_id>", fetch_refresh, name="fetch_refresh"),
     path("refetch", refetch, name="refetch"),
     path("unlink", unlink, name="unlink"),
-    path("api/", api.urls),
 ]

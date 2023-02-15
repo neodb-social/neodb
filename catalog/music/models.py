@@ -1,6 +1,21 @@
-from catalog.common import *
+from datetime import date
+from catalog.common.models import *
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+
+
+class AlbumInSchema(ItemInSchema):
+    other_title: str | None = None
+    genre: list[str]
+    artist: list[str]
+    company: list[str]
+    duration: int | None = None
+    release_date: date | None = None
+    track_list: str | None = None
+
+
+class AlbumSchema(AlbumInSchema, BaseSchema):
+    pass
 
 
 class Album(Item):

@@ -1,10 +1,18 @@
-from .common.models import Item
-from .book.models import Edition, Work, Series
-from .movie.models import Movie
-from .tv.models import TVShow, TVSeason, TVEpisode
-from .music.models import Album
-from .game.models import Game
-from .podcast.models import Podcast
+from .common.models import Item, ItemSchema
+from .book.models import Edition, Work, Series, EditionSchema, EditionInSchema
+from .movie.models import Movie, MovieSchema, MovieInSchema
+from .tv.models import (
+    TVShow,
+    TVSeason,
+    TVEpisode,
+    TVShowSchema,
+    TVShowInSchema,
+    TVSeasonSchema,
+    TVSeasonInSchema,
+)
+from .music.models import Album, AlbumSchema, AlbumInSchema
+from .game.models import Game, GameSchema, GameInSchema
+from .podcast.models import Podcast, PodcastSchema, PodcastInSchema
 from .performance.models import Performance
 from .collection.models import Collection as CatalogCollection
 from django.contrib.contenttypes.models import ContentType
@@ -20,6 +28,13 @@ elif settings.SEARCH_BACKEND == "TYPESENSE":
 else:
 
     class Indexer:
+        @classmethod
+        def search(cls, q, page=1, category=None, tag=None, sort=None):
+            result = lambda: None
+            result.items = Item.objects.filter(title__contains=q)[:10]
+            result.num_pages = 1
+            return result
+
         @classmethod
         def update_model_indexable(cls, model):
             pass

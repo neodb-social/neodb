@@ -17,7 +17,7 @@ class Steam(AbstractSite):
     DEFAULT_MODEL = Game
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://store.steampowered.com/app/" + str(id_value)
 
     def scrape(self):

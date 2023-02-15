@@ -20,8 +20,28 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from catalog.common import *
+from catalog.common.models import *
 from .utils import *
+
+
+class EditionInSchema(ItemInSchema):
+    subtitle: str | None = None
+    orig_title: str | None = None
+    author: list[str]
+    translator: list[str]
+    language: str | None = None
+    pub_house: str | None = None
+    pub_year: int | None = None
+    pub_month: int | None = None
+    binding: str | None = None
+    price: str | None = None
+    pages: str | None = None
+    series: str | None = None
+    imprint: str | None = None
+
+
+class EditionSchema(EditionInSchema, BaseSchema):
+    pass
 
 
 class Edition(Item):

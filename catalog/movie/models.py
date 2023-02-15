@@ -1,6 +1,24 @@
-from catalog.common import *
+from catalog.common.models import *
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+
+
+class MovieInSchema(ItemInSchema):
+    orig_title: str | None = None
+    other_title: list[str]
+    director: list[str]
+    playwright: list[str]
+    actor: list[str]
+    genre: list[str]
+    language: list[str]
+    area: list[str]
+    year: int | None = None
+    site: str | None = None
+    duration: int | None = None
+
+
+class MovieSchema(MovieInSchema, BaseSchema):
+    pass
 
 
 class Movie(Item):

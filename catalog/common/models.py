@@ -16,6 +16,7 @@ from .mixins import SoftDeleteMixin
 from django.conf import settings
 from users.models import User
 from django.db import connection
+from ninja import Schema
 
 _logger = logging.getLogger(__name__)
 
@@ -180,6 +181,29 @@ class LookupIdDescriptor(object):  # TODO make it mixin of Field
 #     return sid[0] in IdType.values()
 
 
+class ExternalResourceSchema(Schema):
+    url: str
+
+
+class BaseSchema(Schema):
+    uuid: str
+    url: str
+    api_url: str
+    category: ItemCategory
+    primary_lookup_id_type: str
+    primary_lookup_id_value: str
+    external_resources: list[ExternalResourceSchema] | None
+
+
+class ItemInSchema(Schema):
+    title: str
+    brief: str
+
+
+class ItemSchema(ItemInSchema, BaseSchema):
+    pass
+
+
 class Item(SoftDeleteMixin, PolymorphicModel):
     url_path = None  # subclass must specify this
     category = None  # subclass must specify this
@@ -297,7 +321,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @property
     def api_url(self):
-        return f"/api/{self.url}" if self.url_path else None
+        return f"/api{self.url}" if self.url_path else None
 
     @property
     def class_name(self):

@@ -8,7 +8,7 @@ TVEpisode is not fully implemented at the moment
 Three way linking between Douban / IMDB / TMDB are quite messy
 
 IMDB:
-most widely used. 
+most widely used.
 no ID for Season, only for Show and Episode
 
 TMDB:
@@ -24,11 +24,51 @@ tv specials are are shown as movies
 For now, we follow Douban convention, but keep an eye on it in case it breaks its own rules...
 
 """
-from simple_history.models import cached_property
-from catalog.common import *
+from functools import cached_property
+from catalog.common.models import *
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-import re
+
+
+class TVShowInSchema(ItemInSchema):
+    season_count: int | None = None
+    orig_title: str | None = None
+    other_title: str | None = None
+    director: list[str]
+    playwright: list[str]
+    actor: list[str]
+    genre: list[str]
+    language: list[str]
+    area: list[str]
+    year: int | None = None
+    site: str | None = None
+    episode_count: int | None = None
+    single_episode_length: int | None = None
+
+
+class TVShowSchema(TVShowInSchema, BaseSchema):
+    # seasons: list['TVSeason']
+    pass
+
+
+class TVSeasonInSchema(ItemInSchema):
+    season_number: int | None = None
+    orig_title: str | None = None
+    other_title: str | None = None
+    director: list[str]
+    playwright: list[str]
+    actor: list[str]
+    genre: list[str]
+    language: list[str]
+    area: list[str]
+    year: int | None = None
+    site: str | None = None
+    episode_count: int | None = None
+
+
+class TVSeasonSchema(TVSeasonInSchema, BaseSchema):
+    show_uuid: str | None = None
+    pass
 
 
 class TVShow(Item):
@@ -288,6 +328,10 @@ class TVSeason(Item):
 
     def all_seasons(self):
         return self.show.all_seasons if self.show else []
+
+    @property
+    def show_uuid(self):
+        return self.show.uuid if self.show else None
 
 
 class TVEpisode(Item):

@@ -11,5 +11,6 @@ class CatalogConfig(AppConfig):
         from catalog import sites
         from journal import models as journal_models
         from catalog.models import init_catalog_search_models
+        from catalog import api
 
         init_catalog_search_models()

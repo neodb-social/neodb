@@ -17,8 +17,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from users.views import login
+from common.api import api
 
 urlpatterns = [
+    path("api/", api.urls),
     path("login/", login),
     path("markdownx/", include("markdownx.urls")),
     path("users/", include("users.urls")),
