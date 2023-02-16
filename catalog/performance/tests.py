@@ -41,7 +41,9 @@ class DoubanDramaTestCase(TestCase):
         site = SiteManager.get_site_by_url(t_url)
         resource = site.get_resource_ready()
         item = site.get_item()
-        self.assertEqual(item.other_title, ["死而复生的伊菲格尼", "Iphigenie auf Tauris"])
+        self.assertEqual(
+            sorted(item.other_title), ["Iphigenie auf Tauris", "死而复生的伊菲格尼"]
+        )
         self.assertEqual(item.opening_date, "1974-04-21")
         self.assertEqual(item.choreographer, ["Pina Bausch"])
 
@@ -53,7 +55,9 @@ class DoubanDramaTestCase(TestCase):
         self.assertEqual(resource.metadata["title"], "红花侠")
         item = site.get_item()
         self.assertEqual(item.title, "红花侠")
-        self.assertEqual(item.other_title, ["THE SCARLET PIMPERNEL", "スカーレットピンパーネル"])
+        self.assertEqual(
+            sorted(item.other_title), ["THE SCARLET PIMPERNEL", "スカーレットピンパーネル"]
+        )
         self.assertEqual(len(item.brief), 545)
         self.assertEqual(item.genre, ["音乐剧"])
         self.assertEqual(
