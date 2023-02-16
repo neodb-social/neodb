@@ -16,7 +16,7 @@ class DoubanDrama(AbstractSite):
     DEFAULT_MODEL = Performance
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://www.douban.com/location/drama/" + id_value + "/"
 
     def scrape(self):
@@ -29,46 +29,74 @@ class DoubanDrama(AbstractSite):
         else:
             raise ParseError(self, "title")
 
-        data["other_titles"] = [s.strip() for s in title_elem[1:]]
+        data["other_title"] = [s.strip() for s in title_elem[1:]]
         other_title_elem = h.xpath(
             "//dl//dt[text()='又名：']/following::dd[@itemprop='name']/text()"
         )
-        if len(other_title_elem) > 0:
-            data["other_titles"].append(other_title_elem[0].strip())
+        data["other_title"] += other_title_elem
+        data["other_title"] = list(set(data["other_title"]))
 
         plot_elem = h.xpath("//div[@id='link-report']/text()")
         if len(plot_elem) == 0:
             plot_elem = h.xpath("//div[@class='abstract']/text()")
         data["brief"] = "\n".join(plot_elem) if len(plot_elem) > 0 else ""
 
-        data["genres"] = [
+        data["genre"] = [
             s.strip()
             for s in h.xpath(
                 "//dl//dt[text()='类型：']/following-sibling::dd[@itemprop='genre']/text()"
             )
         ]
-        data["versions"] = [
+        data["version"] = [
             s.strip()
             for s in h.xpath(
                 "//dl//dt[text()='版本：']/following-sibling::dd[@class='titles']/a//text()"
             )
         ]
-        data["directors"] = [
+        data["director"] = [
             s.strip()
             for s in h.xpath(
                 "//div[@class='meta']/dl//dt[text()='导演：']/following-sibling::dd/a[@itemprop='director']//text()"
             )
         ]
-        data["playwrights"] = [
+        data["composer"] = [
+            s.strip()
+            for s in h.xpath(
+                "//div[@class='meta']/dl//dt[text()='作曲：']/following-sibling::dd/a[@itemprop='musicBy']//text()"
+            )
+        ]
+        data["choreographer"] = [
+            s.strip()
+            for s in h.xpath(
+                "//div[@class='meta']/dl//dt[text()='编舞：']/following-sibling::dd/a[@itemprop='choreographer']//text()"
+            )
+        ]
+        data["troupe"] = [
+            s.strip()
+            for s in h.xpath(
+                "//div[@class='meta']/dl//dt[text()='演出团体：']/following-sibling::dd/a[@itemprop='performer']//text()"
+            )
+        ]
+        data["playwright"] = [
             s.strip()
             for s in h.xpath(
                 "//div[@class='meta']/dl//dt[text()='编剧：']/following-sibling::dd/a[@itemprop='author']//text()"
             )
         ]
-        data["actors"] = [
+        data["actor"] = [
             s.strip()
             for s in h.xpath(
                 "//div[@class='meta']/dl//dt[text()='主演：']/following-sibling::dd/a[@itemprop='actor']//text()"
+            )
+        ]
+
+        date_elem = h.xpath("//dl//dt[text()='演出日期：']/following::dd/text()")
+        data["opening_date"] = date_elem[0] if date_elem else None
+
+        data["theatre"] = [
+            s.strip()
+            for s in h.xpath(
+                "//div[@class='meta']/dl//dt[text()='演出剧院：']/following-sibling::dd/a[@itemprop='location']//text()"
             )
         ]
 

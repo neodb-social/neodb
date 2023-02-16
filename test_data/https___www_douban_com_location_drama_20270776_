@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="ua-mac ua-webkit">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="renderer" content="webkit">
+    <meta name="referrer" content="always">
+    <meta name="google-site-verification" content="ok0wCgT20tBBgo9_zat2iAcimtN4Ftf5ccsh092Xeyw" />
+    <title>
+  相声说垮鬼子们 - 相声剧 (豆瓣)
+
+
+
+</title>
+
+
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="Sun, 6 Mar 2005 01:00:00 GMT">
+  <meta chartset="utf-8">
+
+
+<meta id="meta-viewport" name="viewport" content="width=1024">
+
+
+  <script >var _head_start = new Date();</script>
+
+
+  <link href="https://img1.doubanio.com/f/shire/204847ecc7d679de915c283531d14f16cfbee65e/css/douban.css" rel="stylesheet" type="text/css">
+
+  <style type="text/css">
+
+      a:link { color: #259; }
+      a:visited { color: #769; }
+      a:hover { color: #fff; }
+      a:active { color: #fff; }
+
+  </style>
+
+
+  <script src="https://img1.doubanio.com/f/loc/7cdd59e1378f9ccea648a083fecf12d71ed66c2b/js/loc/component/jquery.js"></script>
+  <script src="https://img1.doubanio.com/f/shire/4888ee2fda6812f70a064a51c93b84fde8e4a3c2/js/douban.js"></script>
+  <script type="text/javascript" src="https://img1.doubanio.com/f/shire/2c0c1c6b83f9a457b0f38c38a32fc43a42ec9bad/js/do.js" data-cfg-autoload="false"></script>
+  <script type="text/javascript">
+    Do.add('dialog', {path: 'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js', type: 'js', requires: ['https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css']});
+    Do(function() {
+      $.viewport_size=function(){var t=[0,0];return t="undefined"!=typeof window.innerWidth?[window.innerWidth,window.innerHeight]:"undefined"!=typeof document.documentElement&&"undefined"!=typeof document.documentElement.clientWidth&&0!=document.documentElement.clientWidth?[document.documentElement.clientWidth,document.documentElement.clientHeight]:[document.body.clientWidth,document.body.clientHeight]},Douban.init_collect_btn=function(t){$(t).click(function(t){if(t.preventDefault(),$("#hiddendialog").length)return show_dialog($("#hiddendialog").html()),void load_event_monitor($("#dialog"));show_dialog(null);var e=$(this).attr("name").split("-"),n=e[0],i=e[1],a=e[2],o=e[3],l="/j/location/drama/"+i+"/interest?"+(a?"interest="+a:"")+(o?"&rating="+o:"")+("cbtn"==n?"&cmt=1":"");return $.getJSON(l,function(t){if($("#dialog").length){var e=$("<div></div>");e.get(0).innerHTML=t.html;var i=t.tags,a=i.join(" ");$("input[name=tags]",e).val(a.length>1?a+" ":a);var o={};$.each(i,function(t,e){o[e.toLowerCase()]=!0}),populate_tag_btns("我的标签:",$("#mytags",e),t.my_tags,o),populate_tag_btns("常用标签:",$("#populartags",e),t.popular_tags,o),"pbtn"!=n&&"cbtn"!=n||$("form",e).data("reload",1),$("#dialog").html(e),$("#showtags").click(function(){$("#advtags").is(":hidden")?($(this).html("缩起 ▲"),$("#advtags").show(),$("#foldcollect").val("U")):($(this).html($(this).attr("rel")),$("#advtags").hide(),$("#foldcollect").val("F")),$(this).blur(),refine_dialog()});var l=$("input[name=interest]",e),d=$(".rate_stars"),c=function(){l[0].checked?d.hide():d.show(),refine_dialog()};if(l.click(c),c(),$("#left_n").length){var r=$("#left_n").text();llen=r.match(/\d+/i)==r?r:350}if("cbtn"==n){var h=$("h2","#dialog");h.text(h.text().replace("修改","写短评")),!l[0].checked&&l[1]&&(l[1].checked=!0),$("form","#dialog").data("comment",1)}load_event_monitor(e),$.fn.movieDisplayLimit=function(t,e,n){function i(t,e,n){e.text(n-Math.ceil(t.val().replace(/[^\x00-\xff]/g,"**").length/2))}function a(e){var n=e.val().match(/[^\x00-\xff]/gi),i=n?n.length:0,a=e.val().length-i;t.attr("maxlength",350+Math.ceil(a/2))}i(t,e,n),$(this).keyup(function(){return i($(this),e,n),a($(this)),!1})},$("div#dialog form.drama-sns").length&&$("textarea#comment").unbind().movieDisplayLimit($("textarea#comment"),$("span#left_n"),350)}}),!1})};
+    });
+  </script>
+
+
+
+<link rel="stylesheet" href="https://img1.doubanio.com/f/loc/6516dfea7e8ece9e37c50fe8e12113ef4e500820/css/loc/base.css">
+
+
+  <meta name="keywords" content="相声说垮鬼子们,相声说垮鬼子们剧评,剧情介绍,剧照,海报,导演,主演,演出版本,演出日期">
+  <meta name="description" content="相声剧《相声说垮鬼子们》的剧情简介、剧照、剧评 | 导演: 相聲瓦舍; 编剧: 相聲瓦舍; 主演: 宋少卿 / 馮翊綱">
+  <link media="all" rel="stylesheet" href="https://img1.doubanio.com/f/loc/67f8f0e9708246faaf6459219dc90091b1fbadd8/css/loc/drama/subject.css" type="text/css" />
+
+  <link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/2b5e8aab2f555bc6.css">
+  <script></script>
+
+    <link rel="shortcut icon" href="https://img1.doubanio.com/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+
+  <script type="text/javascript">var _body_start = new Date();</script>
+
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/20e516e/shire/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+<div id="db-global-nav" class="global-nav">
+  <div class="bd">
+
+<div class="top-nav-info">
+  <a href="https://accounts.douban.com/passport/login?source=main" class="nav-login" rel="nofollow">登录/注册</a>
+</div>
+
+
+    <div class="top-nav-doubanapp">
+  <a href="https://www.douban.com/doubanapp/app?channel=top-nav" class="lnk-doubanapp">下载豆瓣客户端</a>
+  <div id="doubanapp-tip">
+    <a href="https://www.douban.com/doubanapp/app?channel=qipao" class="tip-link">豆瓣 <span class="version">6.0</span> 全新发布</a>
+    <a href="javascript: void 0;" class="tip-close">×</a>
+  </div>
+  <div id="top-nav-appintro" class="more-items">
+    <p class="appintro-title">豆瓣</p>
+    <p class="qrcode">扫码直接下载</p>
+    <div class="download">
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&direct_dl=1&download=iOS">iPhone</a>
+      <span>·</span>
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&direct_dl=1&download=Android" class="download-android">Android</a>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="global-nav-items">
+  <ul>
+    <li class="on">
+      <a href="https://www.douban.com"  data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-main&quot;,&quot;uid&quot;:&quot;0&quot;}">豆瓣</a>
+    </li>
+    <li class="">
+      <a href="https://book.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-book&quot;,&quot;uid&quot;:&quot;0&quot;}">读书</a>
+    </li>
+    <li class="">
+      <a href="https://movie.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-movie&quot;,&quot;uid&quot;:&quot;0&quot;}">电影</a>
+    </li>
+    <li class="">
+      <a href="https://music.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-music&quot;,&quot;uid&quot;:&quot;0&quot;}">音乐</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/location" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-location&quot;,&quot;uid&quot;:&quot;0&quot;}">同城</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/group" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-group&quot;,&quot;uid&quot;:&quot;0&quot;}">小组</a>
+    </li>
+    <li class="">
+      <a href="https://read.douban.com&#47;?dcs=top-nav&amp;dcm=douban" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-read&quot;,&quot;uid&quot;:&quot;0&quot;}">阅读</a>
+    </li>
+    <li class="">
+      <a href="https://douban.fm&#47;?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-fm&quot;,&quot;uid&quot;:&quot;0&quot;}">FM</a>
+    </li>
+    <li class="">
+      <a href="https://time.douban.com&#47;?dt_time_source=douban-web_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-time&quot;,&quot;uid&quot;:&quot;0&quot;}">时间</a>
+    </li>
+    <li class="">
+      <a href="https://market.douban.com&#47;?utm_campaign=douban_top_nav&amp;utm_source=douban&amp;utm_medium=pc_web" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-market&quot;,&quot;uid&quot;:&quot;0&quot;}">豆品</a>
+    </li>
+  </ul>
+</div>
+
+  </div>
+</div>
+<script>
+  ;window._GLOBAL_NAV = {
+    DOUBAN_URL: "https://www.douban.com",
+    N_NEW_NOTIS: 0,
+    N_NEW_DOUMAIL: 0
+  };
+</script>
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/20e516e/shire/bundle.js" defer="defer"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="db-nav-location" class="nav">
+  <div class="nav-wrap">
+  <div class="nav-primary" style="overflow: initial;">
+    <div class="nav-search">
+      <form id="nav-search-form" action="https://www.douban.com/event/search" method="get">
+
+          <div class="inp" style="width: 218px">
+            <label for="inp-query">活动 / 舞台剧 / 地点</label>
+            <input class="inp-text" id="inp-query" name="search_text" size="22" value="">
+            <input class="inp-btn" type="submit" value="搜索">
+          </div>
+            <input type="hidden" name="loc" value="uk">
+      </form>
+    </div>
+    <div class="nav-logo">
+      <a title="豆瓣同城-United Kingdom" href="https://www.douban.com/location/uk/">豆瓣同城-United Kingdom</a>
+    </div>
+    <div class="local-label">
+      <a href="https://www.douban.com/location/uk/" class="label">United Kingdom<i></i></a>
+    </div>
+
+
+  <div class="nav-items nav-anon">
+      <ul>
+
+
+
+    <li>
+        <a
+        href="https://www.douban.com/location/uk/events">近期活动</a>
+    </li>
+
+    <li>
+        <a
+        href="https://www.douban.com/location/uk/hosts">主办方</a>
+    </li>
+
+    <li>
+        <a
+        href="https://www.douban.com/location/drama/">舞台剧</a>
+    </li>
+
+
+      </ul>
+  </div>
+
+    <style>
+        .nav-search {
+            margin-right: -53.3333333333px;
+        }
+    </style>
+  </div>
+  </div>
+</div>
+<div id="db-nav-location-list" class="nav-local-list">
+<ul>
+    <li><a href="https://www.douban.com/location/beijing/">北京</a></li>
+    <li><a href="https://www.douban.com/location/shanghai/">上海</a></li>
+    <li><a href="https://www.douban.com/location/guangzhou/">广州</a></li>
+    <li><a href="https://www.douban.com/location/wuhan/">武汉</a></li>
+    <li><a href="https://www.douban.com/location/chengdu/">成都</a></li>
+    <li><a href="https://www.douban.com/location/shenzhen/">深圳</a></li>
+    <li><a href="https://www.douban.com/location/hangzhou/">杭州</a></li>
+    <li><a href="https://www.douban.com/location/xian/">西安</a></li>
+    <li><a href="https://www.douban.com/location/nanjing/">南京</a></li>
+    <li><a href="https://www.douban.com/location/zhengzhou/">郑州</a></li>
+    <li><a href="https://www.douban.com/location/changsha/">长沙</a></li>
+    <li><a href="https://www.douban.com/location/wenzhou/">温州</a></li>
+    <li><a href="https://www.douban.com/location/fuzhou/">福州</a></li>
+    <li><a href="https://www.douban.com/location/shenyang/">沈阳</a></li>
+    <li><a href="https://www.douban.com/location/world/">更多城市</a></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+  <div id="wrapper" class="fwrap">
+
+<div id="content">
+
+    <div class="grid-free clearfix">
+
+
+        <div class="article">
+
+
+
+
+
+
+
+
+
+<div itemid="drama-subject" itemscope itemtype="http://schema.org/CreativeWork" class="drama-info mod">
+    <div class="pic">
+      <a href="./posters/">
+        <img itemprop="image" width="175" src="https://img2.doubanio.com/pview/drama_subject_poster/median/public/c47cafc5c5af6c2.jpg" alt="相声说垮鬼子们 的封面图片" />
+      </a>
+      <p class="gact"><a href="./edit">更新描述和海报</a> / <a href="./edit#add-versions">添加版本</a></p>
+    </div>
+    <div class="meta">
+      <h1>
+          <span itemprop="name">相声说垮鬼子们</span>
+            <span itemprop="name">相聲說垮鬼子們</span>
+        </h1>
+      <div itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating" class="rating">
+        <span class="bigstar45"></span>
+          <strong class="rating_num" itemprop="ratingValue">8.6</strong>
+          <em>(<a href="./collections"><span itemprop="ratingCount">209</span>人评价</a>)</em>
+        <meta itemprop="bestRating" content="10"/>
+        <meta itemprop="worstRating" content="0"/>
+      </div>
+      <dl>
+        <dt>类型：</dt>
+        <dd itemprop="genre">相声剧</dd>
+
+
+
+
+
+    <dt>导演：</dt>
+    <dd>
+<a itemprop="director" itemscope itemtype=http://schema.org/Person
+target="drama-celebrity" href="/location/drama/search?q=相聲瓦舍"><span itemprop="name">相聲瓦舍</span></a></dd>
+
+
+
+    <dt>编剧：</dt>
+    <dd>
+<a itemprop="author" itemscope itemtype=http://schema.org/Person
+target="drama-celebrity" href="/location/drama/search?q=相聲瓦舍"><span itemprop="name">相聲瓦舍</span></a></dd>
+
+
+
+
+
+
+
+    <dt>主演：</dt>
+    <dd>
+<a itemprop="actor" itemscope itemtype=http://schema.org/Person
+target="drama-celebrity" href="/location/drama/search?q=宋少卿"><span itemprop="name">宋少卿</span></a> /
+<a itemprop="actor" itemscope itemtype=http://schema.org/Person
+target="drama-celebrity" href="/location/drama/search?q=馮翊綱"><span itemprop="name">馮翊綱</span></a></dd>
+
+
+
+
+    <dt>语言：</dt>
+    <dd>普通话</dd>
+
+
+
+    <dt>演出日期：</dt>
+    <dd>1997-05</dd>
+
+
+
+    <dt>演出团体：</dt>
+    <dd>
+<a itemprop="performer" itemscope itemtype=http://schema.org/Organization
+target="drama-celebrity" href="/location/drama/search?q=相聲瓦舍"><span itemprop="name">相聲瓦舍</span></a></dd>
+
+
+
+    <dt>演出剧院：</dt>
+    <dd>
+<a itemprop="location" itemscope itemtype=http://schema.org/Place
+target="drama-celebrity" href="/location/drama/search?q=臺北新舞臺"><span itemprop="name">臺北新舞臺</span></a></dd>
+
+      </dl>
+    </div>
+
+
+
+
+
+
+
+  <div id="interest_sect_level" class="clearfix">
+    <a href="https://www.douban.com/register?reason=collect{n}" rel="nofollow" class="colbutt j a_show_login ll"><span>想看</span></a>
+    <a href="https://www.douban.com/register?reason=collect{n}" rel="nofollow" class="colbutt j a_show_login ll"><span>看过</span></a>
+
+
+    <div class="j a_stars"><span class="rate_stars">评价:
+    <span id="rating"> <span id="stars" data-solid="https://img1.doubanio.com/f/shire/5a2327c04c0c231bced131ddf3f4467eb80c1c86/pics/rating_icons/star_onmouseover.png" data-hollow="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" data-solid-2x="https://img1.doubanio.com/f/shire/7258904022439076d57303c3b06ad195bf1dc41a/pics/rating_icons/star_onmouseover@2x.png" data-hollow-2x="https://img1.doubanio.com/f/shire/95cc2fa733221bb8edd28ad56a7145a5ad33383e/pics/rating_icons/star_hollow_hover@2x.png">
+            <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-20270776-1">"""
+        <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star1" width="16" height="16"/></a>
+            <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-20270776-2">"""
+        <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star2" width="16" height="16"/></a>
+            <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-20270776-3">"""
+        <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star3" width="16" height="16"/></a>
+            <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-20270776-4">"""
+        <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star4" width="16" height="16"/></a>
+            <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-20270776-5">"""
+        <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star5" width="16" height="16"/></a>
+    </span><span id="rateword" class="pl"/></span>
+    <input id="n_rating" type="hidden" value=""  />
+    </span></span></div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+    <div class="gtleft">
+      <ul class="ul_subject_menu bicelink color_gray pt6 clearfix">
+          <li><img src="https://img1.doubanio.com/f/shire/5bbf02b7b5ec12b23e214a580b6f9e481108488c/pics/add-review.gif">&nbsp;<a href="./new_review" rel="nofollow">写剧评</a></li>
+          <li><img src="https://img1.doubanio.com/f/shire/61cc48ba7c40e0272d46bb93fe0dc514f3b71ec5/pics/add-doulist.gif">&nbsp;<a href="https://www.douban.com/register?reason=collect-doulist" class="j a_show_login" rel="nofollow">加入豆列</a></li>
+
+
+    <li class="rec" id="None-None">
+        <a href= "#" data-type="None" data-url="https://www.douban.com/location/drama/20270776/" data-desc="" data-title="分享相声剧 相声说垮鬼子们：https://www.douban.com/location/drama/20270776/" data-pic="https://img2.doubanio.com/pview/drama_subject_poster/large/public/c47cafc5c5af6c2.jpg" class="bn-sharing ">分享到</a> &nbsp;&nbsp;
+    </li>
+    <script>
+    if (!window.DoubanShareMenuList) {
+        window.DoubanShareMenuList = [];
+    }
+    var __cache_url = __cache_url || {};
+    (function(u){
+        if(__cache_url[u]) return;
+        __cache_url[u] = true;
+        window.DoubanShareIcons = 'https://img1.doubanio.com/f/shire/3c8da10d6081bd1b2d13d3733b2ac201535c5d0f/pics/ic_shares2.png';
+        var initShareButton = function() {
+          $.ajax({url:u,dataType:'script',cache:true});
+        };
+        if (typeof Do == 'function' && 'ready' in Do) {
+          Do('https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
+            'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js',
+            initShareButton);
+        } else if(typeof Douban == 'object' && 'loader' in Douban) {
+          Douban.loader.batch(
+            'https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
+            'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js'
+          ).done(initShareButton);
+        }
+    })('https://img1.doubanio.com/f/shire/64044c0cde0c2bbf9c3eb94e57da6070d0340c4b/js/lib/sharebutton.js');
+    </script>
+
+    </ul>
+  </div>
+
+
+
+
+
+
+
+
+
+
+    <div class="rec-sec">
+
+    <span class="rec">
+
+<a data-user_id="0" href="https://www.douban.com/accounts/register?reason=collect" share-id="20270776" data-mode="plain" data-name="相声说垮鬼子们" data-type="movie" data-desc="相聲瓦舍 / 相聲瓦舍 / 宋少卿 / 馮翊綱 / 1997-05" data-href="https://www.douban.com/location/drama/20270776/" data-image="https://img2.doubanio.com/pview/drama_subject_poster/small/public/c47cafc5c5af6c2.jpg" data-properties="{&#34;rating&#34;:&#34;8.6&#34;}" data-redir="https://www.douban.com/static/dshare_proxy.html" data-text="" data-apikey="" data-curl="" data-count="10" data-object_kind="3069" data-object_id="20270776" data-target_type="rec" data-target_action="0" data-action_props="{&#34;subject_url&#34;:&#34;https:\/\/www.douban.com\/location\/drama\/20270776\/&#34;,&#34;subject_title&#34;:&#34;相声说垮鬼子们&#34;}" data-btn_text="推荐" data-heading="推荐到豆瓣" data-sanity_key="_9d954" class="j a_show_login lnk-sharing lnk-douban-sharing">推荐</a>
+</span>
+</div>
+
+</div>
+
+
+
+
+<div class="mod">
+    <h2>相声说垮鬼子们的剧情简介 &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;</h2>
+  <div class="pure-text">
+
+
+
+  <div class="abstract">【劇情簡介】<br/>　　宋少卿、馮翊綱等人根據梁實秋先生所寫的《相聲記》做創意的發想，塑造出本劇中的梁小秋與舒大春兩個人物。透過兩個角色就對抗戰晚會的表演節目排演及演出過程的回憶，以談笑風生、幽默諷刺的方式，娓娓道出時下中國人的毛病與其面對的深刻命題。<br/>　　《相聲說垮鬼子們》的核心議題在於「中國人的毛病」。其時空背景建立在40年代的重慶，兩位影射當代文豪舒慶春（老舍）、梁實秋的虛構人物‥「舒大春」、「梁小秋」，突然被委員長親點要上台表演節目，臨時受命的兩人在家中為了第二天的抗日募款晚會，排演了一段又一段的精彩相聲。不料，上了台之後委員長卻要兩人唱段小放牛來聽聽，面面相覷的舒大春與梁小秋到底要怎麼辦才能渡...</div>
+    <div class="full" style="display: none;" id="link-report">【劇情簡介】<br/>　　宋少卿、馮翊綱等人根據梁實秋先生所寫的《相聲記》做創意的發想，塑造出本劇中的梁小秋與舒大春兩個人物。透過兩個角色就對抗戰晚會的表演節目排演及演出過程的回憶，以談笑風生、幽默諷刺的方式，娓娓道出時下中國人的毛病與其面對的深刻命題。<br/>　　《相聲說垮鬼子們》的核心議題在於「中國人的毛病」。其時空背景建立在40年代的重慶，兩位影射當代文豪舒慶春（老舍）、梁實秋的虛構人物‥「舒大春」、「梁小秋」，突然被委員長親點要上台表演節目，臨時受命的兩人在家中為了第二天的抗日募款晚會，排演了一段又一段的精彩相聲。不料，上了台之後委員長卻要兩人唱段小放牛來聽聽，面面相覷的舒大春與梁小秋到底要怎麼辦才能渡過難關呢？<br/>　　段 子 簡 介<br/>　　《吐痰論》-- 吐痰是化解胸中的一口悶氣，還是到處傳染病菌？在生活中這個平凡的小動作裡，踩進隱藏在生命中深刻的軌跡。<br/>　　《如果我是委員長》-- 天大？地大？人大？鬼大？仔細想想，果然是委員長最大。<br/>　　《煎餅果子》-- 十五歲的那年，一位少年離鄉背景到北京念書，起程當天，母親親手為他做了兩套煎餅果子……坐上火車，他哪兒知道這輩子再也吃不到了。<br/>　　《押寶》-- 黑幽幽的防空洞裡，躲了好幾萬人，沒有人在哭，沒有人在鬧。面對日本鬼子飛機的轟炸，大夥兒都顯得莊敬自強，處變不驚。黑暗中只聽見莊家中氣十足的大喊：通殺！<br/>　　《演講比賽》-- 當每提到一次委員長名字的時候，評審委員就開心地幫參賽者加分，等大家終於發現這個玄機，委員長已經淹沒在大家的口水裏。<br/>　　《小放牛》-- 從說相聲改成唱小放牛，只要舞台下頭的人高興，叫他們在舞臺上打滾都可以。</div>
+    <a class="text-toggler" href="javascript:;">显示全部</a>
+
+
+  </div>
+</div>
+
+
+
+
+
+<div class="mod">
+  <h2>
+      相声说垮鬼子们的剧目图片 &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+      <span class="pl">(
+          <a href="./photos/">共3张</a> |
+        <a href="./photos/upload">我来添加</a>
+      )</span>
+  </h2>
+  <ul class="clearfix drama-detail-photo">
+
+    <li>
+        <a href="https://www.douban.com/location/drama/photo/1751050972/" title=""><img height="110" width="110" src="https://img2.doubanio.com/view/photo/sqxs/public/p1751050972.jpg" alt=""></a>
+    </li>
+
+    <li>
+        <a href="https://www.douban.com/location/drama/photo/1751050884/" title=""><img height="110" width="110" src="https://img9.doubanio.com/view/photo/sqxs/public/p1751050884.jpg" alt=""></a>
+    </li>
+
+    <li>
+        <a href="https://www.douban.com/location/drama/photo/1751050809/" title=""><img height="110" width="110" src="https://img1.doubanio.com/view/photo/sqxs/public/p1751050809.jpg" alt=""></a>
+    </li>
+  </ul>
+</div>
+
+
+
+
+
+
+
+
+
+    <div id="comments-section">
+        <link rel="stylesheet" href="https://img1.doubanio.com/f/loc/85a4bb31f85995754b47ab37d876fc53d718cc64/css/loc/lib/subject-comments/comments-section.css"/>
+        <div class="mod-hd">
+
+
+            <a class="redbutt j a_show_login rr" href="https://www.douban.com/register?reason=review" rel="nofollow">
+                <span> 我来说两句 </span>
+            </a>
+
+
+
+  <h2>
+    <span>短评</span>
+      &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+      <span class="pl">&nbsp;(
+          <a href="https://www.douban.com/location/drama/20270776/comments/">全部 68 条</a>
+        ) </span>
+  </h2>
+
+        </div>
+        <div class="nav-tab">
+
+    <div class="tabs-wrapper  line">
+        <a class="short-comment-tabs on-tab"
+            href="https://www.douban.com/location/drama/20270776/comments?sort=time"
+            data-tab="time">最新</a>
+        <span>/</span>
+        <a class="j a_show_login "
+            href="https://www.douban.com/location/drama/20270776/comments?sort=follows"
+            data-tab="follows">友邻</a>
+    </div>
+
+        </div>
+        <div id="comment-list-wrapper" class="indent">
+
+
+  <div class="comment-list time show" id="time">
+      <ul>
+
+  <li class="comment-item" data-cid="3638445388">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-3638445388" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-3638445388" class="j a_show_login" data-cid="3638445388">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/87542949/">plum</a>
+            <span class="user-stars allstar50 rating" title="力荐"></span>
+          <span class="comment-time">2023-01-08</span>
+          <span class="comment-location">四川</span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">要到哪年哪月，中国人才能把酒言欢，一块喝个痛快啊。</span>
+      </p>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="3462455353">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-3462455353" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-3462455353" class="j a_show_login" data-cid="3462455353">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/173304723/">瓶中魔鬼v3</a>
+            <span class="user-stars allstar40 rating" title="推荐"></span>
+          <span class="comment-time">2022-08-18</span>
+          <span class="comment-location"></span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">gamble那里还是挺好笑的</span>
+      </p>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="3435659488">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-3435659488" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-3435659488" class="j a_show_login" data-cid="3435659488">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/imagine1911/">🌊川川长流🌊</a>
+            <span class="user-stars allstar50 rating" title="力荐"></span>
+          <span class="comment-time">2022-07-26</span>
+          <span class="comment-location"></span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">令人动容的“临行前妈妈烙的大饼”…原本以为是虚构的故事，没想到居然是冯先生熟识的长辈当年的亲身经历……抗战八年，多少类似的故事永远湮没于不为人知的角落……</span>
+      </p>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="3377645339">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-3377645339" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-3377645339" class="j a_show_login" data-cid="3377645339">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/shaunyoung/">Shaun</a>
+            <span class="user-stars allstar50 rating" title="力荐"></span>
+          <span class="comment-time">2022-06-04</span>
+          <span class="comment-location"></span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">好啊，真的好。半夜看得泪目，曾经的家国情怀，怎么如今竟变成了这样一个五光十色，娱乐至死，信仰丧失，一切人反对一切人的时代</span>
+      </p>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="3367715614">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-3367715614" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-3367715614" class="j a_show_login" data-cid="3367715614">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/1162410/">寅次郎</a>
+            <span class="user-stars allstar40 rating" title="推荐"></span>
+          <span class="comment-time">2022-05-25</span>
+          <span class="comment-location"></span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">瓦舍相声剧，押宝一段妙</span>
+      </p>
+    </div>
+  </li>
+
+      </ul>
+  </div>
+
+        </div>
+            <p>&gt; <a href="./comments">更多短评 68 条</a></p>
+
+        <script src="https://img1.doubanio.com/f/loc/bcd1ffce8b8ea16ff90d6d1d33f9673fee4e8316/js/loc/lib/subject-comments/comments-section.js"></script>
+        <script>
+            (function () {
+                if (window.SUBJECT_COMMENTS_SECTION) {
+                    // tab handler
+                    SUBJECT_COMMENTS_SECTION.createTabHandler();
+                    // expand handler
+                    SUBJECT_COMMENTS_SECTION.createExpandHandler({
+                        root: document.getElementById('comment-list-wrapper'),
+                    });
+                    SUBJECT_COMMENTS_SECTION.createVoteHandler({
+                        api: '/j/location/drama/comment/:id/vote',
+                        root: document.getElementById('comment-list-wrapper'),
+                        voteSelector: '.vote-comment',
+                        textSelector: '.vote-count',
+                        afterVote: function (elem) {
+                            var parentNode = elem.parentNode;
+                            var successElem = document.createElement('span');
+                            successElem.innerHTML = '已投票';
+                            parentNode.removeChild(elem);
+                            parentNode.appendChild(successElem);
+                        }
+                    });
+                }
+            })()
+        </script>
+    </div>
+
+
+
+
+
+
+
+<!-- COLLECTED CSS -->
+
+    <section id="reviews-wrapper" class="reviews mod drama-content">
+        <header>
+
+                <a href="new_review" rel="nofollow" class="create-review redbutt rr "
+                    data-isverify="False"
+                    data-verify-url="https://www.douban.com/accounts/phone/verify?redir=https://www.douban.com/location/drama/20270776/new_review">
+                    <span>我要写剧评</span>
+                </a>
+            <h2>
+                    相声说垮鬼子们的剧评 · · · · · ·
+
+                    <span class="pl">( <a href="reviews">全部 0 条</a> )</span>
+            </h2>
+        </header>
+
+
+
+    </section>
+<!-- COLLECTED JS -->
+
+
+
+
+
+        </div>
+        <div class="aside">
+
+
+
+
+
+  <div id="dale_location_home_top_right"></div>
+
+<div class="mod">
+  <h2>
+    以下豆列推荐· · · · · ·
+      <span class="pl">(<a href="./doulists">全部</a>)</span>
+  </h2>
+  <ul class="bs">
+
+      <li>
+      <a href="https://www.douban.com/doulist/1619995/">戏比天大</a>
+        <span class="pl">(Mumu)</span>
+      </li>
+
+      <li>
+      <a href="https://www.douban.com/doulist/2504684/">豆瓣8分以上的舞台剧</a>
+        <span class="pl">(张鱼妹)</span>
+      </li>
+
+      <li>
+      <a href="https://www.douban.com/doulist/36977725/">音乐之旅——给耳朵的礼物</a>
+        <span class="pl">(诗菡)</span>
+      </li>
+
+      <li>
+      <a href="https://www.douban.com/doulist/1623641/">相声瓦舍作品集</a>
+        <span class="pl">(张鱼妹)</span>
+      </li>
+
+      <li>
+      <a href="https://www.douban.com/doulist/2521494/">豆瓣舞台剧top100</a>
+        <span class="pl">(张鱼妹)</span>
+      </li>
+  </ul>
+</div>
+
+
+
+<div class="mod">
+  <h2>谁看这部剧? </h2>
+
+
+  <ul class="simple-list-1col collectors">
+
+      <li class="list-entry">
+      <a class="ll" tabindex="-1" href="https://www.douban.com/location/people/58437192/drama/">
+        <img width="48" height="48" src="https://img9.doubanio.com/icon/up58437192-4.jpg" alt="李奥">
+      </a>
+      <div class="info">
+        <p class="title">
+          <a href="https://www.douban.com/location/people/58437192/drama/">李奥</a>
+        </p>
+        <p class="tip">
+        2月14日想看
+        </p>
+      </div>
+      </li>
+
+      <li class="list-entry">
+      <a class="ll" tabindex="-1" href="https://www.douban.com/location/people/87542949/drama/">
+        <img width="48" height="48" src="https://img2.doubanio.com/icon/up87542949-3.jpg" alt="plum">
+      </a>
+      <div class="info">
+        <p class="title">
+          <a href="https://www.douban.com/location/people/87542949/drama/">plum</a>
+        </p>
+        <p class="tip">
+        1月8日看过
+          <span class="stars stars5"></span>
+        </p>
+      </div>
+      </li>
+
+      <li class="list-entry">
+      <a class="ll" tabindex="-1" href="https://www.douban.com/location/people/247026557/drama/">
+        <img width="48" height="48" src="https://img1.doubanio.com/icon/user_normal.jpg" alt="NEXT">
+      </a>
+      <div class="info">
+        <p class="title">
+          <a href="https://www.douban.com/location/people/247026557/drama/">NEXT</a>
+        </p>
+        <p class="tip">
+        1月21日看过
+          <span class="stars stars4"></span>
+        </p>
+      </div>
+      </li>
+
+      <li class="list-entry">
+      <a class="ll" tabindex="-1" href="https://www.douban.com/location/people/161133534/drama/">
+        <img width="48" height="48" src="https://img9.doubanio.com/icon/up161133534-5.jpg" alt="cod">
+      </a>
+      <div class="info">
+        <p class="title">
+          <a href="https://www.douban.com/location/people/161133534/drama/">cod</a>
+        </p>
+        <p class="tip">
+        2月2日看过
+        </p>
+          <p class="pl">tags:相声剧</p>
+      </div>
+      </li>
+  </ul>
+
+    <p class="pl">
+    &gt; <a href="https://www.douban.com/location/drama/20270776/collections">265人看过</a>
+    </p>
+    <p class="pl">
+    &gt; <a href="https://www.douban.com/location/drama/20270776/wishes">104人想看</a>
+    </p>
+</div>
+
+
+
+
+
+<div class="mod">
+  <h2>喜欢这部剧的人也可能喜欢 &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;</h2>
+  <ul class="gallery gallery-pic115">
+      <li>
+        <div class="pic">
+          <a href="https://www.douban.com/location/drama/20270783/" tabindex="-1">
+            <img width="115" src="https://img1.doubanio.com/pview/drama_subject_poster/large/public/b5718f5b08a6a1b.jpg" alt="">
+          </a>
+        </div>
+        <div class="title">
+          <a href="https://www.douban.com/location/drama/20270783/">张飞要出来了，别害怕！</a>
+        </div>
+      </li>
+      <li>
+        <div class="pic">
+          <a href="https://www.douban.com/location/drama/20270788/" tabindex="-1">
+            <img width="115" src="https://img1.doubanio.com/pview/drama_subject_poster/large/public/29a9f9824bbb9ac.jpg" alt="">
+          </a>
+        </div>
+        <div class="title">
+          <a href="https://www.douban.com/location/drama/20270788/">谁唬咙我？</a>
+        </div>
+      </li>
+      <li>
+        <div class="pic">
+          <a href="https://www.douban.com/location/drama/20270801/" tabindex="-1">
+            <img width="115" src="https://img2.doubanio.com/pview/drama_subject_poster/large/public/bcd6b431ae9681e.jpg" alt="">
+          </a>
+        </div>
+        <div class="title">
+          <a href="https://www.douban.com/location/drama/20270801/">并不太熟</a>
+        </div>
+      </li>
+      <li>
+        <div class="pic">
+          <a href="https://www.douban.com/location/drama/20270796/" tabindex="-1">
+            <img width="115" src="https://img2.doubanio.com/pview/drama_subject_poster/large/public/2f8caccc0246ece.jpg" alt="">
+          </a>
+        </div>
+        <div class="title">
+          <a href="https://www.douban.com/location/drama/20270796/">大唐马屁精</a>
+        </div>
+      </li>
+      <li>
+        <div class="pic">
+          <a href="https://www.douban.com/location/drama/20270791/" tabindex="-1">
+            <img width="115" src="https://img9.doubanio.com/pview/drama_subject_poster/large/public/967455c014306f5.jpg" alt="">
+          </a>
+        </div>
+        <div class="title">
+          <a href="https://www.douban.com/location/drama/20270791/">哈戏族</a>
+        </div>
+      </li>
+  </ul>
+</div>
+
+
+
+        </div>
+        <div class="extra">
+
+        </div>
+    </div>
+</div>
+
+
+  <div id="footer">
+    <div class="hidden-sm">
+
+<span id="icp" class="fleft gray-link">
+    &copy; 2005－2023 douban.com, all rights reserved 北京豆网科技有限公司
+</span>
+
+<a href="https://www.douban.com/hnypt/variformcyst.py" style="display: none;"></a>
+
+<span class="fright">
+    <a href="https://www.douban.com/about">关于豆瓣</a>
+    · <a href="https://www.douban.com/jobs">在豆瓣工作</a>
+    · <a href="https://www.douban.com/about?topic=contactus">联系我们</a>
+    · <a href="https://www.douban.com/about/legal">法律声明</a>
+
+    · <a href="https://help.douban.com/?app=location" target="_blank">帮助中心</a>
+    · <a href="https://www.douban.com/doubanapp/">移动应用</a>
+    · <a href="https://www.douban.com/partner/">豆瓣广告</a>
+</span>
+
+    </div>
+  </div>
+
+  </div>
+  <script type="text/javascript" src="https://img1.doubanio.com/misc/mixed_static/4fb941103eccd52.js"></script><script type="text/javascript">
+window._subject_ = {
+  id: "20270776",
+  st: ""
+}
+</script><script type="text/javascript" src="https://img1.doubanio.com/misc/mixed_static/1783bd4b7833ce2e.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-5WP579" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WP579');</script>
+<!-- End Google Tag Manager -->
+
+
+<script type="text/javascript">
+var _paq = _paq || [];
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
+(function() {
+    var p=(('https:' == document.location.protocol) ? 'https' : 'http'), u=p+'://fundin.douban.com/';
+    _paq.push(['setTrackerUrl', u+'piwik']);
+    _paq.push(['setSiteId', '100001']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript';
+    g.defer=true;
+    g.async=true;
+    g.src=p+'://img3.doubanio.com/dae/fundin/piwik.js';
+    s.parentNode.insertBefore(g,s);
+})();
+</script>
+
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-7019765-1']);
+_gaq.push(['_setCampNameKey', 'dcn']);
+_gaq.push(['_setCampSourceKey', 'dcs']);
+_gaq.push(['_setCampMediumKey', 'dcm']);
+_gaq.push(['_setCampTermKey', 'dct']);
+_gaq.push(['_setCampContentKey', 'dcc']);
+_gaq.push(['_addOrganic', 'baidu', 'word']);
+_gaq.push(['_addOrganic', 'soso', 'w']);
+_gaq.push(['_addOrganic', '3721', 'name']);
+_gaq.push(['_addOrganic', 'youdao', 'q']);
+_gaq.push(['_addOrganic', 'so.360.cn', 'q']);
+_gaq.push(['_addOrganic', 'vnet', 'kw']);
+_gaq.push(['_addOrganic', 'sogou', 'query']);
+_gaq.push(['_addIgnoredOrganic', '豆瓣']);
+_gaq.push(['_addIgnoredOrganic', 'douban']);
+_gaq.push(['_addIgnoredOrganic', '豆瓣网']);
+_gaq.push(['_addIgnoredOrganic', 'www.douban.com']);
+_gaq.push(['_setDomainName', '.douban.com']);
+
+
+    _gaq.push(['_setCustomVar', 1, 'responsive_view_mode', 'desktop', 3]);
+
+_gaq.push(['_trackPageview']);
+_gaq.push(['_trackPageLoadTime']);
+
+window._ga_init = function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+};
+if (window.addEventListener) {
+    window.addEventListener('load', _ga_init, false);
+} else {
+    window.attachEvent('onload', _ga_init);
+}
+</script>
+
+
+
+
+
+  <!-- dae-web-loc--default-7466c9c85-dw9bk-->
+
+
+<!-- douban ad begin -->
+<section class="promotion-wechat-overlay">
+    <div class="promotion-wechat-dialog">
+        <h1>链接打不开?</h1>
+        <div>请点击右上角</div>
+        <div>选择<span class="promotion-wechat-highlight">"在浏览器中打开"</span></div>
+        <div class="promotion-wechat-arrow"></div>
+    </div>
+</section>
+
+<div class="promotion-app-banner" id="dale_event_mobile_app_banner"></div>
+
+
+
+
+
+<!-- douban ad end -->
+
+
+  <script>_SPLITTEST=''</script>
+</body>
+
+</html>

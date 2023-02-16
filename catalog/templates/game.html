@@ -15,7 +15,7 @@
 <div class="entity-detail__fields">
 	<div class="entity-detail__rating">
 		{% if item.rating and item.rating_count >= 5 %}
-		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:"0" }}"></span>
+		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:0 }}"></span>
 		<span class="entity-detail__rating-score"> {{ item.rating | floatformat:1 }} </span>
 		<small>({{ item.rating_count }}人评分)</small>
 		{% else %}

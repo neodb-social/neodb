@@ -255,7 +255,9 @@
                 <div class="action-panel__label">{% trans '标记' %}{% trans item.demonstrative %}</div>
                 <div class="action-panel__button-group">
                   {% for k, v in shelf_types %}
+                  {% if v %}
                   <button class="action-panel__button" data-status="{{ k }}" hx-get="{% url 'journal:mark' item.uuid %}?shelf_type={{ k }}" class="edit" hx-target="body" hx-swap="beforeend">{% trans v %}</button>
+                  {% endif %}
                   {% endfor %}
                 </div>
               </div>

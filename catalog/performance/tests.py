@@ -19,6 +19,32 @@ class DoubanDramaTestCase(TestCase):
 
     @use_local_response
     def test_scrape(self):
+        t_url = "https://www.douban.com/location/drama/25883969/"
+        site = SiteManager.get_site_by_url(t_url)
+        resource = site.get_resource_ready()
+        item = site.get_item()
+        self.assertEqual(item.title, "不眠之人·拿破仑")
+        self.assertEqual(item.other_title, ["眠らない男・ナポレオン　―愛と栄光の涯（はて）に―"])
+        self.assertEqual(item.genre, ["音乐剧"])
+        self.assertEqual(item.troupe, ["宝塚歌剧团"])
+        self.assertEqual(item.composer, ["ジェラール・プレスギュルヴィック"])
+
+        t_url = "https://www.douban.com/location/drama/20270776/"
+        site = SiteManager.get_site_by_url(t_url)
+        resource = site.get_resource_ready()
+        item = site.get_item()
+        self.assertEqual(item.title, "相声说垮鬼子们")
+        self.assertEqual(item.opening_date, "1997-05")
+        self.assertEqual(item.theatre, ["臺北新舞臺"])
+
+        t_url = "https://www.douban.com/location/drama/24311571/"
+        site = SiteManager.get_site_by_url(t_url)
+        resource = site.get_resource_ready()
+        item = site.get_item()
+        self.assertEqual(item.other_title, ["死而复生的伊菲格尼", "Iphigenie auf Tauris"])
+        self.assertEqual(item.opening_date, "1974-04-21")
+        self.assertEqual(item.choreographer, ["Pina Bausch"])
+
         t_url = "https://www.douban.com/location/drama/24849279/"
         site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
@@ -27,11 +53,12 @@ class DoubanDramaTestCase(TestCase):
         self.assertEqual(resource.metadata["title"], "红花侠")
         item = site.get_item()
         self.assertEqual(item.title, "红花侠")
-
-        # self.assertEqual(i.other_titles, ['スカーレットピンパーネル', 'THE SCARLET PIMPERNEL'])
-        # self.assertEqual(len(i.brief), 545)
-        # self.assertEqual(i.genres, ['音乐剧'])
-        # self.assertEqual(i.versions, ['08星组公演版', '10年月組公演版', '17年星組公演版', 'ュージカル（2017年）版'])
-        # self.assertEqual(i.directors, ['小池修一郎', '小池 修一郎', '石丸さち子'])
-        # self.assertEqual(i.playwrights, ['小池修一郎', 'Baroness Orczy（原作）', '小池 修一郎'])
-        # self.assertEqual(i.actors, ['安蘭けい', '柚希礼音', '遠野あすか', '霧矢大夢', '龍真咲'])
+        self.assertEqual(item.other_title, ["THE SCARLET PIMPERNEL", "スカーレットピンパーネル"])
+        self.assertEqual(len(item.brief), 545)
+        self.assertEqual(item.genre, ["音乐剧"])
+        self.assertEqual(
+            item.version, ["08星组公演版", "10年月組公演版", "17年星組公演版", "ュージカル（2017年）版"]
+        )
+        self.assertEqual(item.director, ["小池修一郎", "小池 修一郎", "石丸さち子"])
+        self.assertEqual(item.playwright, ["小池修一郎", "Baroness Orczy（原作）", "小池 修一郎"])
+        self.assertEqual(item.actor, ["安蘭けい", "柚希礼音", "遠野あすか", "霧矢大夢", "龍真咲"])

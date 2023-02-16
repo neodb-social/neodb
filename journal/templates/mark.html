@@ -25,7 +25,9 @@
       <div id="statusSelection" class="mark-modal__status-radio float-right">
         <ul id="id_status">
           {% for k, v in shelf_types %}
+          {% if v %}
           <li><label for="id_status_{{ k }}"><input type="radio" name="status" value="{{ k }}" required="" id="id_status_{{ k }}" {% if shelf_type == k %}checked=""{% endif %}> {{ v }}</label></li>
+          {% endif %}
           {% endfor %}
         </ul>
       </div>

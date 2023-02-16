@@ -1,1 +1,146 @@
-Unsupported Data Type
+{% extends "item_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load strip_scheme %}
+{% load thumb %}
+
+<!-- class specific details -->
+{% block details %}
+<div class="entity-detail__fields">
+	<div class="entity-detail__rating">
+		{% if item.rating and item.rating_count >= 5 %}
+		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:0 }}"></span>
+		<span class="entity-detail__rating-score"> {{ item.rating | floatformat:1 }} </span>
+		<small>({{ item.rating_count }}人评分)</small>
+		{% else %}
+		<span> {% trans '评分：评分人数不足' %}</span>
+		{% endif %}
+	</div>
+
+	<div>{% if item.other_title %}{% trans '别名：' %}
+		{% for other_title in item.other_title %}
+		<span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+			<span class="other_title">{{ other_title }}</span>
+			{% if not forloop.last %} / {% endif %}
+		</span>
+		{% endfor %}
+		{% if item.other_title|length > 5 %}
+		<a href="javascript:void(0);" id="otherTitleMore">{% trans '更多' %}</a>
+		<script>
+			$("#otherTitleMore").on('click', function (e) {
+				$("span.other_title:not(:visible)").each(function (e) {
+					$(this).parent().removeAttr('style');
+				});
+				$(this).remove();
+			})
+		</script>
+		{% endif %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.genre %}{% trans '类型：' %}
+		{% for genre in item.genre %}
+		<span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.director %}{% trans '导演：' %}
+		{% for director in item.director %}
+		<span>{{ director }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.playwright %}{% trans '编剧：' %}
+		{% for playwright in item.playwright %}
+		<span>{{ playwright }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.actor %}{% trans '主演：' %}
+		{% for actor in item.actor %}
+		<span>{{ actor }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.choreographer %}{% trans '编舞：' %}
+		{% for choreographer in item.choreographer %}
+		<span>{{ choreographer }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.composer %}{% trans '作曲：' %}
+		{% for composer in item.composer %}
+		<span>{{ composer }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+</div>
+<div class="entity-detail__fields">
+
+	<div>
+		{% if item.troupe %}{% trans '剧团：' %}
+		{% for troupe in item.troupe %}
+		<span>{{ troupe }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.theatre %}{% trans '剧场：' %}
+		{% for theatre in item.theatre %}
+		<span>{{ theatre }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.opening_date %}{% trans '演出日期：' %}
+		<span>{{ item.opening_date }}</span>
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.version %}{% trans '版本：' %}
+		{% for version in item.version %}
+		<span>{{ version }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>{% if item.official_site %}
+		{% trans '官方网站：' %}{{ item.official_site|urlizetrunc:42 }}
+		{% endif %}
+	</div>
+
+	{% if item.last_editor and item.last_editor.preference.show_last_edit  %}
+	<div>{% trans '最近编辑者：' %}<a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
+	{% endif %}
+
+	<div>
+		{% if user.is_authenticated %}
+		<a href="{% url 'catalog:edit' item.url_path item.uuid %}">{% trans '编辑' %}{{ item.demonstrative }}</a>
+		{% endif %}
+	</div>
+</div>
+{% endblock %}
+
+<!-- class specific sidebar -->
+{% block sidebar %}
+{% endblock %}
