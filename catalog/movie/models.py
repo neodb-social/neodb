@@ -14,7 +14,7 @@ class MovieInSchema(ItemInSchema):
     area: list[str]
     year: int | None = None
     site: str | None = None
-    duration: int | None = None
+    duration: str | None = None
 
 
 class MovieSchema(MovieInSchema, BaseSchema):

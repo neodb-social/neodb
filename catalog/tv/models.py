@@ -33,7 +33,7 @@ from django.utils.translation import gettext_lazy as _
 class TVShowInSchema(ItemInSchema):
     season_count: int | None = None
     orig_title: str | None = None
-    other_title: str | None = None
+    other_title: list[str] | None = None
     director: list[str]
     playwright: list[str]
     actor: list[str]
@@ -55,7 +55,7 @@ class TVShowSchema(TVShowInSchema, BaseSchema):
 class TVSeasonInSchema(ItemInSchema):
     season_number: int | None = None
     orig_title: str | None = None
-    other_title: str | None = None
+    other_title: list[str] | None = None
     director: list[str]
     playwright: list[str]
     actor: list[str]
