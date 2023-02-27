@@ -196,6 +196,20 @@ def mark(request, item_uuid):
 
 
 @login_required
+def mark_log(request, item_uuid, log_id):
+    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    if request.method == "POST":
+        if request.POST.get("delete", default=False):
+            # TODO: delete the right log instead of the first availble one.
+            mark_log = get_object_or_404(
+                ShelfLogEntry, owner=request.user, item=item, pk=log_id
+            )
+            mark_log.delete()
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    raise BadRequest()
+
+
+@login_required
 def comment(request, item_uuid, focus_item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     focus_item = get_object_or_404(Item, uid=get_uuid_or_404(focus_item_uuid))
