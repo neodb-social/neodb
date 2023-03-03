@@ -200,10 +200,10 @@ def mark_log(request, item_uuid, log_id):
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     if request.method == "POST":
         if request.POST.get("delete", default=False):
-            # TODO: delete the right log instead of the first availble one.
             mark_log = get_object_or_404(
-                ShelfLogEntry, owner=request.user, item=item, pk=log_id
+                ShelfLogEntry, owner=request.user, item=item, id=log_id
             )
+            print(mark_log)
             mark_log.delete()
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
     raise BadRequest()
