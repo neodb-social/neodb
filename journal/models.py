@@ -702,9 +702,10 @@ class ShelfManager:
     def locate_item(self, item) -> ShelfMember:
         return ShelfMember.objects.filter(item=item, owner=self.owner).first()
 
-    def move_item(self, item, shelf_type, visibility=0, metadata=None):
+    def move_item(self, item, shelf_type, visibility=0, metadata=None, silence=False):
         # shelf_type=None means remove from current shelf
         # metadata=None means no change
+        # silence=False means move_item is logged.
         if not item:
             raise ValueError("empty item")
         new_shelfmember = None
@@ -734,7 +735,7 @@ class ShelfManager:
             elif visibility != last_visibility:  # change visibility
                 last_shelfmember.visibility = visibility
                 last_shelfmember.save()
-        if changed:
+        if changed and not silence:
             if metadata is None:
                 metadata = last_metadata or {}
             log_time = (
@@ -843,7 +844,6 @@ class CollectionMember(ListMember):
 
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
-_RE_SPOILER_TAG = re.compile(r'<(div|span)\sclass="spoiler">.*</(div|span)>')
 
 
 class Collection(List):
@@ -877,9 +877,8 @@ class Collection(List):
         html = render_md(self.brief)
         return _RE_HTML_TAG.sub(" ", html)
 
-    def featured_by_user_since(self, user):
-        f = FeaturedCollection.objects.filter(target=self, owner=user).first()
-        return f.created_time if f else None
+    def is_featured_by_user(self, user):
+        return self.featured_by_users.all().filter(id=user.id).exists()
 
     def get_stats_for_user(self, user):
         items = list(self.members.all().values_list("item_id", flat=True))
@@ -997,8 +996,6 @@ class TagManager:
             .annotate(frequency=Count("members__id"))
             .order_by("-frequency")
         )
-        if public_only:
-            tags = tags.filter(visibility=0)
         return list(map(lambda t: t["title"], tags))
 
     @staticmethod
@@ -1090,7 +1087,7 @@ class Mark:
     def id(self):
         return self.shelfmember.id if self.shelfmember else None
 
-    @cached_property
+    @property
     def shelf(self):
         return self.shelfmember.parent if self.shelfmember else None
 
@@ -1100,18 +1097,18 @@ class Mark:
 
     @property
     def action_label(self):
-        if self.shelfmember:
-            return ShelfManager.get_action_label(self.shelf_type, self.item.category)
-        if self.comment:
-            return ShelfManager.get_action_label(
-                ShelfType.PROGRESS, self.comment.item.category
+        return (
+            self.owner.shelf_manager.get_action_label(
+                self.shelf_type, self.item.category
             )
-        return ""
+            if self.shelfmember
+            else None
+        )
 
     @property
     def shelf_label(self):
         return (
-            ShelfManager.get_label(self.shelf_type, self.item.category)
+            self.owner.shelf_manager.get_label(self.shelf_type, self.item.category)
             if self.shelfmember
             else None
         )
@@ -1137,7 +1134,7 @@ class Mark:
         return self.owner.tag_manager.get_item_tags(self.item)
 
     @cached_property
-    def rating_grade(self):
+    def rating(self):
         return Rating.get_item_rating_by_user(self.item, self.owner)
 
     @cached_property
@@ -1147,8 +1144,8 @@ class Mark:
         ).first()
 
     @property
-    def comment_text(self):
-        return (self.comment.text or None) if self.comment else None
+    def text(self):
+        return self.comment.text if self.comment else None
 
     @property
     def comment_html(self):
@@ -1167,7 +1164,9 @@ class Mark:
         metadata=None,
         created_time=None,
         share_to_mastodon=False,
+        silence=False,
     ):
+        # silence=False means update is logged.
         share = (
             share_to_mastodon
             and shelf_type is not None
@@ -1183,9 +1182,13 @@ class Mark:
         original_visibility = self.visibility
         if shelf_type != self.shelf_type or visibility != original_visibility:
             self.shelfmember = self.owner.shelf_manager.move_item(
-                self.item, shelf_type, visibility=visibility, metadata=metadata
+                self.item,
+                shelf_type,
+                visibility=visibility,
+                metadata=metadata,
+                silence=silence,
             )
-        if self.shelfmember and created_time:
+        if not silence and self.shelfmember and created_time:
             # if it's an update(not delete) and created_time is specified,
             # update the timestamp of the shelfmember and log
             log = ShelfLogEntry.objects.filter(
@@ -1238,7 +1241,23 @@ class Mark:
             self.shelfmember.save()
 
     def delete(self):
+        self.logs.delete()  # When deleting a mark, all logs of the mark are deleted first.
         self.update(None, None, None, 0)
+
+    def delete_log(self, log_id):
+        ShelfLogEntry.objects.filter(
+            owner=self.owner, item=self.item, id=log_id
+        ).delete()
+        last_log = (
+            ShelfLogEntry.objects.exclude(shelf_type=None)
+            .filter(owner=self.owner, item=self.item)
+            .order_by("id")
+            .last()
+        )
+        if not last_log:
+            self.update(None, None, None, 0, silence=True)
+        else:
+            self.update(last_log.shelf_type, None, None, 0, silence=True)
 
     @property
     def logs(self):

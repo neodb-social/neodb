@@ -197,14 +197,14 @@ def mark(request, item_uuid):
 
 @login_required
 def mark_log(request, item_uuid, log_id):
+    """
+    Delete log of one item by log id.
+    """
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    mark = Mark(request.user, item)
     if request.method == "POST":
         if request.POST.get("delete", default=False):
-            mark_log = get_object_or_404(
-                ShelfLogEntry, owner=request.user, item=item, id=log_id
-            )
-            print(mark_log)
-            mark_log.delete()
+            mark.delete_log(log_id)
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
     raise BadRequest()
 
