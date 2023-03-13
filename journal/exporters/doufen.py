@@ -55,15 +55,15 @@ def export_marks_task(user):
             movie = mark.item
             title = movie.title
             summary = (
-                str(movie.year)
+                str(movie.year or "")
                 + " / "
-                + ",".join(movie.area)
+                + ",".join(movie.area or [])
                 + " / "
-                + ",".join(movie.genre)
+                + ",".join(movie.genre or [])
                 + " / "
-                + ",".join(movie.director)
+                + ",".join(movie.director or [])
                 + " / "
-                + ",".join(movie.actor)
+                + ",".join(movie.actor or [])
             )
             tags = ",".join(mark.tags)
             world_rating = (movie.rating / 2) if movie.rating else None
@@ -141,11 +141,11 @@ def export_marks_task(user):
             book = mark.item
             title = book.title
             summary = (
-                ",".join(book.author)
+                ",".join(book.author or [])
                 + " / "
-                + str(book.pub_year)
+                + str(book.pub_year or "")
                 + " / "
-                + book.pub_house
+                + (book.pub_house or "")
             )
             tags = ",".join(mark.tags)
             world_rating = (book.rating / 2) if book.rating else None
@@ -183,9 +183,9 @@ def export_marks_task(user):
             game = mark.item
             title = game.title
             summary = (
-                ",".join(game.genre)
+                ",".join(game.genre or [])
                 + " / "
-                + ",".join(game.platform)
+                + ",".join(game.platform or [])
                 + " / "
                 + (game.release_date.strftime("%Y-%m-%d") if game.release_date else "")
             )
@@ -224,7 +224,7 @@ def export_marks_task(user):
             mark = mm.mark
             podcast = mark.item
             title = podcast.title
-            summary = ",".join(podcast.hosts)
+            summary = ",".join(podcast.hosts or [])
             tags = ",".join(mark.tags)
             world_rating = (podcast.rating / 2) if podcast.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
