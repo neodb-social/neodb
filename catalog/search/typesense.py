@@ -88,7 +88,8 @@ class Indexer:
             {"name": "class_name", "type": "string", "facet": True},
             {"name": "rating_count", "optional": True, "type": "int32", "facet": True},
             {"name": "isbn", "optional": True, "type": "string"},
-            {"name": "imdb_code", "optional": True, "type": "string"},
+            {"name": "imdb", "optional": True, "type": "string"},
+            {"name": "barcode", "optional": True, "type": "string"},
             {"name": "author", "optional": True, "locale": "zh", "type": "string[]"},
             {"name": "orig_title", "optional": True, "locale": "zh", "type": "string"},
             {"name": "pub_house", "optional": True, "locale": "zh", "type": "string"},
@@ -165,6 +166,10 @@ class Indexer:
                 model.indexable_fields_dict.append(field.name)
             elif type in INDEXABLE_FLOAT_TYPES:
                 model.indexable_fields_float.append(field.name)
+        i = model()
+        for f in ["imdb", "isbn", "barcode"]:  # FIXME
+            if hasattr(i, f):
+                model.indexable_fields.append(f)
         post_save.connect(item_post_save_handler, sender=model)
         post_delete.connect(item_post_delete_handler, sender=model)
 
