@@ -106,12 +106,8 @@ class TVShow(Item):
     orig_title = jsondata.CharField(
         verbose_name=_("原始标题"), blank=True, default="", max_length=500
     )
-    other_title = jsondata.ArrayField(
-        base_field=models.CharField(blank=True, default="", max_length=500),
-        verbose_name=_("其他标题"),
-        null=True,
-        blank=True,
-        default=list,
+    other_title = jsondata.CharField(
+        verbose_name=_("其他标题"), blank=True, default="", max_length=500
     )
     director = jsondata.ArrayField(
         verbose_name=_("导演"),

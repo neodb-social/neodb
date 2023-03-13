@@ -48,7 +48,7 @@ def get_movie(request, uuid: str):
     return item
 
 
-@api.get("/tvshow/{uuid}/", response=TVShowSchema)
+@api.get("/tv/{uuid}/", response=TVShowSchema)
 def get_tvshow(request, uuid: str):
     item = TVShow.get_by_url(uuid)
     if not item:
