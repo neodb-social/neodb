@@ -43,7 +43,6 @@ class TVShowInSchema(ItemInSchema):
     year: int | None = None
     site: str | None = None
     episode_count: int | None = None
-    single_episode_length: int | None = None
 
 
 class TVShowSchema(TVShowInSchema, BaseSchema):
