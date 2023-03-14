@@ -153,9 +153,7 @@
 		{% endfor %}
 	{% endif %}</div>
 	<div>{% if item.other_title %}{% trans '又名：' %}
-		{% for other_title in item.other_title %}
-		<span>{{ other_title }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
+		{{ item.other_title }}
 	{% endif %}</div>
 	<div>{% if item.site %}{% trans '网站：' %}
 		<a href="{{ item.site }}" target="_blank" rel="noopener">{{ item.site|strip_scheme }}</a>

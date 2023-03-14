@@ -23,7 +23,8 @@ SEARCHABLE_ATTRIBUTES = [
     "company",
     "publisher",
     "isbn",
-    "imdb_code",
+    "imdb",
+    "barcode",
 ]
 FILTERABLE_ATTRIBUTES = ["category", "tags", "class_name"]
 INDEXABLE_DIRECT_TYPES = [
@@ -190,7 +191,7 @@ class Indexer:
                 item.update(d)
 
         item["id"] = obj.uuid
-        item["category"] = obj.category
+        item["category"] = obj.category.value
         item["class_name"] = obj.class_name
         item = {
             k: v
