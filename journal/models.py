@@ -295,7 +295,7 @@ class Rating(Content):
         stat = Rating.objects.filter(item=item, grade__isnull=False).aggregate(
             average=Avg("grade"), count=Count("item")
         )
-        return stat["average"] if stat["count"] >= 5 else None
+        return rount(stat["average"], 1) if stat["count"] >= 5 else None
 
     @staticmethod
     def get_rating_count_for_item(item):

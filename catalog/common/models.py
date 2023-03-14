@@ -198,6 +198,9 @@ class BaseSchema(Schema):
 class ItemInSchema(Schema):
     title: str
     brief: str
+    cover_image_url: str | None
+    rating: float | None
+    rating_count: int | None
 
 
 class ItemSchema(ItemInSchema, BaseSchema):
@@ -367,7 +370,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return self.cover and self.cover != DEFAULT_ITEM_COVER
 
     @property
-    def cover_absolute_url(self):
+    def cover_image_url(self):
         return (
             f"{settings.APP_WEBSITE}{self.cover.url}"
             if self.cover and self.cover != DEFAULT_ITEM_COVER
