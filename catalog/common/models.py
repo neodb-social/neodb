@@ -190,8 +190,8 @@ class BaseSchema(Schema):
     url: str
     api_url: str
     category: ItemCategory
-    primary_lookup_id_type: str
-    primary_lookup_id_value: str
+    primary_lookup_id_type: str | None
+    primary_lookup_id_value: str | None
     external_resources: list[ExternalResourceSchema] | None
 
 
