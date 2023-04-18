@@ -237,8 +237,9 @@ class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
         super().__init__(*args, **kwargs)
 
     def from_json(self, value):  # backward compatible with dirty legacy data
-        if value or value == []:
+        if value:
             return value if isinstance(value, list) else [value]
+        return []
 
 
 class JSONField(JSONFieldMixin, DJANGO_JSONField):

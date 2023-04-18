@@ -12,7 +12,7 @@ class JSONFieldTestCase(TestCase):
         o.other_title = ["a", "b"]
         self.assertEqual(o.other_title, ["a", "b"])
         o.other_title = None
-        self.assertEqual(o.other_title, None)
+        self.assertEqual(o.other_title, [])
 
 
 class TMDBTVTestCase(TestCase):
