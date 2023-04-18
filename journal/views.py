@@ -13,7 +13,6 @@ from .models import *
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from management.models import Announcement
-from django.utils.baseconv import base62
 from .forms import *
 from mastodon.api import (
     get_spoiler_text,
@@ -25,7 +24,7 @@ from mastodon.api import (
 )
 from users.views import render_user_blocked, render_user_not_found
 from users.models import User, Report, Preference
-from common.utils import PageLinksGenerator
+from common.utils import PageLinksGenerator, get_uuid_or_404
 from user_messages import api as msg
 from datetime import datetime
 
@@ -39,7 +38,7 @@ _checkmark = "✔️".encode("utf-8")
 def wish(request, item_uuid):
     if request.method != "POST":
         raise BadRequest()
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
         raise Http404()
     request.user.shelf_manager.move_item(item, ShelfType.WISHLIST)
@@ -52,7 +51,7 @@ def wish(request, item_uuid):
 def like(request, piece_uuid):
     if request.method != "POST":
         raise BadRequest()
-    piece = get_object_or_404(Piece, uid=base62.decode(piece_uuid))
+    piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
     if not piece:
         raise Http404()
     Like.user_like_piece(request.user, piece)
@@ -71,7 +70,7 @@ def like(request, piece_uuid):
 def unlike(request, piece_uuid):
     if request.method != "POST":
         raise BadRequest()
-    piece = get_object_or_404(Piece, uid=base62.decode(piece_uuid))
+    piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
     if not piece:
         raise Http404()
     Like.user_unlike_piece(request.user, piece)
@@ -88,7 +87,7 @@ def unlike(request, piece_uuid):
 
 @login_required
 def add_to_collection(request, item_uuid):
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if request.method == "GET":
         collections = Collection.objects.filter(owner=request.user)
         return render(
@@ -126,7 +125,7 @@ def render_relogin(request):
 
 @login_required
 def mark(request, item_uuid):
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     mark = Mark(request.user, item)
     if request.method == "GET":
         tags = TagManager.get_item_tags_by_user(item, request.user)
@@ -186,8 +185,8 @@ def mark(request, item_uuid):
 
 @login_required
 def comment(request, item_uuid, focus_item_uuid):
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
-    focus_item = get_object_or_404(Item, uid=base62.decode(focus_item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    focus_item = get_object_or_404(Item, uid=get_uuid_or_404(focus_item_uuid))
     if focus_item.parent_item != item:
         raise Http404()
     comment = Comment.objects.filter(
@@ -273,7 +272,7 @@ def comment(request, item_uuid, focus_item_uuid):
 
 
 def collection_retrieve(request, collection_uuid):
-    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
     follower_count = collection.likes.all().count()
@@ -320,7 +319,7 @@ def collection_retrieve(request, collection_uuid):
 def collection_add_featured(request, collection_uuid):
     if request.method != "POST":
         raise BadRequest()
-    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
     FeaturedCollection.objects.update_or_create(owner=request.user, target=collection)
@@ -330,7 +329,7 @@ def collection_add_featured(request, collection_uuid):
 def collection_remove_featured(request, collection_uuid):
     if request.method != "POST":
         raise BadRequest()
-    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
     fc = FeaturedCollection.objects.filter(
@@ -343,7 +342,7 @@ def collection_remove_featured(request, collection_uuid):
 
 def collection_share(request, collection_uuid):
     collection = (
-        get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+        get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
         if collection_uuid
         else None
     )
@@ -363,7 +362,7 @@ def collection_share(request, collection_uuid):
 
 
 def collection_retrieve_items(request, collection_uuid, edit=False, msg=None):
-    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
     form = CollectionForm(instance=collection)
@@ -383,7 +382,7 @@ def collection_retrieve_items(request, collection_uuid, edit=False, msg=None):
 def collection_append_item(request, collection_uuid):
     if request.method != "POST":
         raise BadRequest()
-    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied()
 
@@ -403,8 +402,8 @@ def collection_append_item(request, collection_uuid):
 def collection_remove_item(request, collection_uuid, item_uuid):
     if request.method != "POST":
         raise BadRequest()
-    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied()
     collection.remove_item(item)
@@ -415,10 +414,10 @@ def collection_remove_item(request, collection_uuid, item_uuid):
 def collection_move_item(request, direction, collection_uuid, item_uuid):
     if request.method != "POST":
         raise BadRequest()
-    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied()
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if direction == "up":
         collection.move_up_item(item)
     else:
@@ -428,10 +427,10 @@ def collection_move_item(request, direction, collection_uuid, item_uuid):
 
 @login_required
 def collection_update_item_note(request, collection_uuid, item_uuid):
-    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied()
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied()
     if request.method == "POST":
@@ -453,7 +452,7 @@ def collection_update_item_note(request, collection_uuid, item_uuid):
 @login_required
 def collection_edit(request, collection_uuid=None):
     collection = (
-        get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+        get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
         if collection_uuid
         else None
     )
@@ -485,7 +484,7 @@ def collection_edit(request, collection_uuid=None):
 
 
 def review_retrieve(request, review_uuid):
-    # piece = get_object_or_404(Review, uid=base62.decode(review_uuid))
+    # piece = get_object_or_404(Review, uid=get_uuid_or_404(review_uuid))
     piece = Review.get_by_url(review_uuid)
     if piece is None:
         raise Http404()
@@ -496,9 +495,9 @@ def review_retrieve(request, review_uuid):
 
 @login_required
 def review_edit(request, item_uuid, review_uuid=None):
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     review = (
-        get_object_or_404(Review, uid=base62.decode(review_uuid))
+        get_object_or_404(Review, uid=get_uuid_or_404(review_uuid))
         if review_uuid
         else None
     )
@@ -562,7 +561,7 @@ def review_edit(request, item_uuid, review_uuid=None):
 
 @login_required
 def piece_delete(request, piece_uuid):
-    piece = get_object_or_404(Piece, uid=base62.decode(piece_uuid))
+    piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
     return_url = request.GET.get("return_url", None) or "/"
     if not piece.is_editable_by(request.user):
         raise PermissionDenied()

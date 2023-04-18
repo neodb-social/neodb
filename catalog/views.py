@@ -10,14 +10,13 @@ from django.core.paginator import Paginator
 from catalog.common.models import ExternalResource
 from .models import *
 from django.views.decorators.clickjacking import xframe_options_exempt
-from django.utils.baseconv import base62
 from journal.models import Mark, ShelfMember, Review
 from journal.models import (
     query_visible,
     query_following,
     update_journal_for_merged_item,
 )
-from common.utils import PageLinksGenerator
+from common.utils import PageLinksGenerator, get_uuid_or_404
 from common.config import PAGE_LINK_NUMBER
 from journal.models import ShelfTypeNames
 from .forms import *
@@ -50,7 +49,7 @@ def embed(request, item_path, item_uuid):
     focus_item = None
     if request.GET.get("focus"):
         focus_item = get_object_or_404(
-            Item, uid=base62.decode(request.GET.get("focus"))
+            Item, uid=get_uuid_or_404(request.GET.get("focus"))
         )
     return render(
         request,
@@ -62,7 +61,7 @@ def embed(request, item_path, item_uuid):
 def retrieve(request, item_path, item_uuid):
     if request.method != "GET":
         raise BadRequest()
-    # item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    # item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     item = Item.get_by_url(item_uuid)
     if item is None:
         raise Http404()
@@ -77,7 +76,7 @@ def retrieve(request, item_path, item_uuid):
     focus_item = None
     if request.GET.get("focus"):
         focus_item = get_object_or_404(
-            Item, uid=base62.decode(request.GET.get("focus"))
+            Item, uid=get_uuid_or_404(request.GET.get("focus"))
         )
     mark = None
     review = None
@@ -152,7 +151,7 @@ def create(request, item_model):
 @login_required
 def edit(request, item_path, item_uuid):
     if request.method == "GET":
-        item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+        item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(instance=item)
         if item.external_resources.all().count() > 0:
@@ -160,7 +159,7 @@ def edit(request, item_path, item_uuid):
             form.fields["primary_lookup_id_value"].disabled = True
         return render(request, "catalog_edit.html", {"form": form, "item": item})
     elif request.method == "POST":
-        item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+        item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(request.POST, request.FILES, instance=item)
         if item.external_resources.all().count() > 0:
@@ -183,7 +182,7 @@ def delete(request, item_path, item_uuid):
         raise BadRequest()
     if not request.user.is_staff:
         raise PermissionDenied()
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     for res in item.external_resources.all():
         res.item = None
         res.save()
@@ -197,7 +196,7 @@ def delete(request, item_path, item_uuid):
 def recast(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     cls = request.POST.get("class")
     model = TVShow if cls == "tvshow" else (Movie if cls == "movie" else None)
     if not model:
@@ -227,7 +226,7 @@ def merge(request, item_path, item_uuid):
         raise BadRequest()
     if not request.user.is_staff:
         raise PermissionDenied()
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     new_item = Item.get_by_url(request.POST.get("new_item_url"))
     if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
         raise BadRequest()
@@ -238,7 +237,7 @@ def merge(request, item_path, item_uuid):
 
 
 def episode_data(request, item_uuid):
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     qs = item.episodes.all().order_by("-pub_date")
     if request.GET.get("last"):
         qs = qs.filter(pub_date__lt=request.GET.get("last"))
@@ -249,7 +248,7 @@ def episode_data(request, item_uuid):
 
 @login_required
 def mark_list(request, item_path, item_uuid, following_only=False):
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
         raise Http404()
     queryset = ShelfMember.objects.filter(item=item).order_by("-created_time")
@@ -274,7 +273,7 @@ def mark_list(request, item_path, item_uuid, following_only=False):
 
 
 def review_list(request, item_path, item_uuid):
-    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
         raise Http404()
     queryset = Review.objects.filter(item=item).order_by("-created_time")

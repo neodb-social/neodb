@@ -1,5 +1,7 @@
 import uuid
+from django.http import Http404
 from django.utils import timezone
+from django.utils.baseconv import base62
 
 
 class PageLinksGenerator:
@@ -72,3 +74,11 @@ def GenerateDateUUIDMediaFilePath(instance, filename, path_root):
     else:
         root = path_root + "/"
     return root + timezone.now().strftime("%Y/%m/%d") + f"{filename}"
+
+
+def get_uuid_or_404(uuid_b62):
+    try:
+        i = base62.decode(uuid_b62)
+        return uuid.UUID(int=i)
+    except ValueError:
+        raise Http404("Malformed Base62 UUID")
