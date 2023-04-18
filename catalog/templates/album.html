@@ -70,7 +70,10 @@
 		{% endif %}
 	</div>
 	<div>{% if item.genre %}
-		{% trans '流派：' %}{{ item.genre }}
+		{% trans '流派：' %}
+		{% for genre in item.genre %}
+		<span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
 		{% endif %}
 	</div>
 	<div>{% if item.barcode %}
@@ -81,7 +84,10 @@
 </div>
 <div class="entity-detail__fields">
 	<div>{% if item.other_title %}
-		{% trans '又名：' %}{{ item.other_title }}
+		{% trans '又名：' %}
+		{% for t in item.other_title %}
+		<span>{{ t }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
 		{% endif %}
 	</div>
 	<div>{% if item.album_type %}
