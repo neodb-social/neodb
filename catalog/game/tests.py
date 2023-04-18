@@ -25,6 +25,9 @@ class IGDBTestCase(TestCase):
         self.assertEqual(site.resource.metadata["title"], "Portal 2")
         self.assertIsInstance(site.resource.item, Game)
         self.assertEqual(site.resource.item.steam, "620")
+        self.assertEqual(
+            site.resource.item.genre, ["Shooter", "Platform", "Puzzle", "Adventure"]
+        )
 
     @use_local_response
     def test_scrape_non_steam(self):
@@ -38,6 +41,7 @@ class IGDBTestCase(TestCase):
         )
         self.assertIsInstance(site.resource.item, Game)
         self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IGDB)
+        self.assertEqual(site.resource.item.genre, ["Role-playing (RPG)", "Adventure"])
         self.assertEqual(
             site.resource.item.primary_lookup_id_value,
             "the-legend-of-zelda-breath-of-the-wild",
@@ -70,6 +74,9 @@ class SteamTestCase(TestCase):
         )
         self.assertIsInstance(site.resource.item, Game)
         self.assertEqual(site.resource.item.steam, "620")
+        self.assertEqual(
+            site.resource.item.genre, ["Shooter", "Platform", "Puzzle", "Adventure"]
+        )
 
 
 class DoubanGameTestCase(TestCase):
@@ -94,6 +101,8 @@ class DoubanGameTestCase(TestCase):
         self.assertEqual(site.resource.metadata["title"], "传送门2 Portal 2")
         self.assertIsInstance(site.resource.item, Game)
         self.assertEqual(site.resource.item.douban_game, "10734307")
+        self.assertEqual(site.resource.item.genre, ["第一人称射击", "益智", "射击", "动作"])
+        self.assertEqual(site.resource.item.other_title, [])
 
 
 class BangumiGameTestCase(TestCase):

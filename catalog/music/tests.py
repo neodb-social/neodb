@@ -35,6 +35,8 @@ class SpotifyTestCase(TestCase):
         self.assertEqual(site.resource.metadata["title"], "The Race For Space")
         self.assertIsInstance(site.resource.item, Album)
         self.assertEqual(site.resource.item.barcode, "3610159662676")
+        self.assertEqual(site.resource.item.genre, [])
+        self.assertEqual(site.resource.item.other_title, [])
 
 
 class DoubanMusicTestCase(TestCase):
@@ -51,14 +53,16 @@ class DoubanMusicTestCase(TestCase):
 
     @use_local_response
     def test_scrape(self):
-        t_url = "https://music.douban.com/subject/33551231/"
+        t_url = "https://music.douban.com/subject/1401362/"
         site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "The Race For Space")
+        self.assertEqual(site.resource.metadata["title"], "Rubber Soul")
         self.assertIsInstance(site.resource.item, Album)
-        self.assertEqual(site.resource.item.barcode, "3610159662676")
+        self.assertEqual(site.resource.item.barcode, "0077774644020")
+        self.assertEqual(site.resource.item.genre, ["摇滚"])
+        self.assertEqual(site.resource.item.other_title, ["橡胶灵魂"])
 
 
 class MultiMusicSitesTestCase(TestCase):
@@ -102,6 +106,8 @@ class BandcampTestCase(TestCase):
         self.assertEqual(site.resource.metadata["title"], "In These Times")
         self.assertEqual(site.resource.metadata["artist"], ["Makaya McCraven"])
         self.assertIsInstance(site.resource.item, Album)
+        self.assertEqual(site.resource.item.genre, [])
+        self.assertEqual(site.resource.item.other_title, [])
 
 
 class DiscogsReleaseTestCase(TestCase):
@@ -130,6 +136,8 @@ class DiscogsReleaseTestCase(TestCase):
         self.assertEqual(site.resource.metadata["artist"], ["J.I.D"])
         self.assertIsInstance(site.resource.item, Album)
         self.assertEqual(site.resource.item.barcode, "0602445804689")
+        self.assertEqual(site.resource.item.genre, ["Hip Hop"])
+        self.assertEqual(site.resource.item.other_title, [])
 
 
 class DiscogsMasterTestCase(TestCase):
@@ -155,3 +163,5 @@ class DiscogsMasterTestCase(TestCase):
         self.assertEqual(site.resource.metadata["title"], "Coexist")
         self.assertEqual(site.resource.metadata["artist"], ["The XX"])
         self.assertIsInstance(site.resource.item, Album)
+        self.assertEqual(site.resource.item.genre, ["Electronic", "Rock", "Pop"])
+        self.assertEqual(site.resource.item.other_title, [])

@@ -42,7 +42,7 @@ class DoubanMusic(AbstractSite):
         genre_elem = content.xpath(
             "//div[@id='info']//span[text()='流派:']/following::text()[1]"
         )
-        genre = genre_elem[0].strip() if genre_elem else None
+        genre = genre_elem[0].strip().split(" / ") if genre_elem else []
 
         date_elem = content.xpath(
             "//div[@id='info']//span[text()='发行时间:']/following::text()[1]"
@@ -95,7 +95,7 @@ class DoubanMusic(AbstractSite):
             "//div[@id='info']//span[text()='又名:']/following-sibling::text()[1]"
         )
         if other_elem:
-            data["other_title"] = other_elem[0].strip()
+            data["other_title"] = other_elem[0].strip().split(" / ")
         other_elem = content.xpath(
             "//div[@id='info']//span[text()='专辑类型:']/following-sibling::text()[1]"
         )

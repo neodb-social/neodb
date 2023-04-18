@@ -39,7 +39,7 @@ class Game(Item):
 
     other_title = jsondata.ArrayField(
         base_field=models.CharField(blank=True, default="", max_length=500),
-        verbose_name=_("其他标题"),
+        verbose_name=_("其它标题"),
         null=True,
         blank=True,
         default=list,

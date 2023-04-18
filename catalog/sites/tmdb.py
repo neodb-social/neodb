@@ -131,7 +131,7 @@ class TMDB_Movie(AbstractSite):
             metadata={
                 "title": title,
                 "orig_title": orig_title,
-                "other_title": None,
+                "other_title": [],
                 "imdb_code": imdb_code,
                 "director": director,
                 "playwright": playwright,
@@ -278,7 +278,7 @@ class TMDB_TV(AbstractSite):
             metadata={
                 "title": title,
                 "orig_title": orig_title,
-                "other_title": None,
+                "other_title": [],
                 "imdb_code": imdb_code,
                 "director": director,
                 "playwright": playwright,

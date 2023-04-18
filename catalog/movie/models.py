@@ -5,7 +5,7 @@ from django.db import models
 
 class MovieInSchema(ItemInSchema):
     orig_title: str | None = None
-    other_title: str | None = None
+    other_title: list[str]
     director: list[str]
     playwright: list[str]
     actor: list[str]
@@ -52,8 +52,12 @@ class Movie(Item):
     orig_title = jsondata.CharField(
         verbose_name=_("原始标题"), blank=True, default="", max_length=500
     )
-    other_title = jsondata.CharField(
-        verbose_name=_("其他标题"), blank=True, default="", max_length=500
+    other_title = jsondata.ArrayField(
+        verbose_name=_("其它标题"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
+        null=True,
+        blank=True,
+        default=list,
     )
     director = jsondata.ArrayField(
         verbose_name=_("导演"),

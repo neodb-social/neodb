@@ -30,7 +30,7 @@ class DiscogsRelease(AbstractSite):
         release = get_discogs_data("releases", self.id_value)
         title = release.get("title")
         artist = [artist.get("name") for artist in release.get("artists")]
-        genre = release.get("genres")
+        genre = release.get("genres", [])
         track_list = [track.get("title") for track in release.get("tracklist")]
         company = list(
             set([company.get("name") for company in release.get("companies")])
@@ -96,7 +96,7 @@ class DiscogsMaster(AbstractSite):
         master_release = get_discogs_data("masters", self.id_value)
         title = master_release.get("title")
         artist = [artist.get("name") for artist in master_release.get("artists")]
-        genre = master_release.get("genres")
+        genre = master_release.get("genres", [])
         track_list = [track.get("title") for track in master_release.get("tracklist")]
 
         image_url = None

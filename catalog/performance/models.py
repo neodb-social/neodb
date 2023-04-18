@@ -10,7 +10,7 @@ class Performance(Item):
     douban_drama = LookupIdDescriptor(IdType.DoubanDrama)
     other_title = jsondata.ArrayField(
         verbose_name=_("其它标题"),
-        base_field=models.CharField(),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=False,
         blank=False,
         default=list,

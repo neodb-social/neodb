@@ -236,7 +236,9 @@ class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
         kwargs["help_text"] = _("多项之间以英文逗号分隔")
         super().__init__(*args, **kwargs)
 
-    pass
+    def from_json(self, value):  # backward compatible with dirty legacy data
+        if value or value == []:
+            return value if isinstance(value, list) else [value]
 
 
 class JSONField(JSONFieldMixin, DJANGO_JSONField):

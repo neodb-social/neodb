@@ -3,6 +3,18 @@ from catalog.common import *
 from catalog.tv.models import *
 
 
+class JSONFieldTestCase(TestCase):
+    def test_legacy_data(self):
+        o = TVShow()
+        self.assertEqual(o.other_title, [])
+        o.other_title = "test"
+        self.assertEqual(o.other_title, ["test"])
+        o.other_title = ["a", "b"]
+        self.assertEqual(o.other_title, ["a", "b"])
+        o.other_title = None
+        self.assertEqual(o.other_title, None)
+
+
 class TMDBTVTestCase(TestCase):
     def test_parse(self):
         t_id = "57243"

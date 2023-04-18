@@ -33,7 +33,7 @@ from django.utils.translation import gettext_lazy as _
 class TVShowInSchema(ItemInSchema):
     season_count: int | None = None
     orig_title: str | None = None
-    other_title: str | None = None
+    other_title: list[str]
     director: list[str]
     playwright: list[str]
     actor: list[str]
@@ -54,7 +54,7 @@ class TVShowSchema(TVShowInSchema, BaseSchema):
 class TVSeasonInSchema(ItemInSchema):
     season_number: int | None = None
     orig_title: str | None = None
-    other_title: str | None = None
+    other_title: list[str]
     director: list[str]
     playwright: list[str]
     actor: list[str]
@@ -105,8 +105,12 @@ class TVShow(Item):
     orig_title = jsondata.CharField(
         verbose_name=_("原始标题"), blank=True, default="", max_length=500
     )
-    other_title = jsondata.CharField(
-        verbose_name=_("其他标题"), blank=True, default="", max_length=500
+    other_title = jsondata.ArrayField(
+        base_field=models.CharField(blank=True, default="", max_length=500),
+        verbose_name=_("其它标题"),
+        null=True,
+        blank=True,
+        default=list,
     )
     director = jsondata.ArrayField(
         verbose_name=_("导演"),
@@ -229,7 +233,7 @@ class TVSeason(Item):
         verbose_name=_("原始标题"), blank=True, default="", max_length=500
     )
     other_title = jsondata.ArrayField(
-        verbose_name=_("其他标题"),
+        verbose_name=_("其它标题"),
         base_field=models.CharField(blank=True, default="", max_length=500),
         null=True,
         blank=True,

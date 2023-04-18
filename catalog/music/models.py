@@ -5,7 +5,7 @@ from django.db import models
 
 
 class AlbumInSchema(ItemInSchema):
-    other_title: str | None = None
+    other_title: list[str]
     genre: list[str]
     artist: list[str]
     company: list[str]
@@ -48,7 +48,13 @@ class Album(Item):
         verbose_name=_("艺术家"),
         default=list,
     )
-    genre = jsondata.CharField(_("流派"), blank=True, default="", max_length=100)
+    genre = jsondata.ArrayField(
+        verbose_name=_("流派"),
+        base_field=models.CharField(blank=True, default="", max_length=50),
+        null=True,
+        blank=True,
+        default=list,
+    )
     company = jsondata.ArrayField(
         models.CharField(blank=True, default="", max_length=500),
         verbose_name=_("发行方"),
@@ -57,7 +63,13 @@ class Album(Item):
         default=list,
     )
     track_list = jsondata.TextField(_("曲目"), blank=True, default="")
-    other_title = jsondata.CharField(_("其它标题"), blank=True, default="", max_length=500)
+    other_title = jsondata.ArrayField(
+        verbose_name=_("其它标题"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
+        null=True,
+        blank=True,
+        default=list,
+    )
     album_type = jsondata.CharField(_("专辑类型"), blank=True, default="", max_length=500)
     media = jsondata.CharField(_("介质"), blank=True, default="", max_length=500)
     bandcamp_album_id = jsondata.CharField(blank=True, default="", max_length=500)

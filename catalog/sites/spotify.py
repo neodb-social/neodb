@@ -42,7 +42,7 @@ class Spotify(AbstractSite):
 
         title = res_data["name"]
 
-        genre = ", ".join(res_data["genres"])
+        genre = res_data.get("genres", [])
 
         company = []
         for com in res_data["copyrights"]:

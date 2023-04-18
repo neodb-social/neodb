@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="ua-mac ua-webkit">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="renderer" content="webkit">
+    <meta name="referrer" content="always">
+    <meta name="google-site-verification" content="ok0wCgT20tBBgo9_zat2iAcimtN4Ftf5ccsh092Xeyw" />
+    <title>
+    Rubber Soul (豆瓣)
+</title>
+
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="Sun, 6 Mar 2005 01:00:00 GMT">
+
+    <meta http-equiv="mobile-agent" content="format=html5; url=https://m.douban.com/music/subject/1401362">
+
+
+    <meta property="og:title" content="Rubber Soul" />
+    <meta property="og:description" content="Rank &#39;em how you like, Rubber Soul is an undeniable pivot point in the Fab Four&#39;s varied discography..." />
+    <meta property="og:site_name" content="豆瓣" />
+    <meta property="og:url" content="https://music.douban.com/subject/1401362/" />
+    <meta property="og:image" content="https://img1.doubanio.com/view/subject/m/public/s28825668.jpg" />
+    <meta property="og:type" content="music.album" />
+        <meta property="music:musician" content="The Beatles" />
+
+
+
+    <script >var _head_start = new Date();</script>
+    <script src="https://img1.doubanio.com/f/music/b66ed708717bf0b4a005a4d0113af8843ef3b8ff/js/music/lib/jquery-1.11.0.min.js"></script>
+    <script src="https://img1.doubanio.com/f/music/dcd7ea79bfc24a0b5d9a280a8ca59acceddd56be/js/music/lib/jquery-migrate-1.2.1.js"></script>
+    <script src="https://img1.doubanio.com/f/shire/4888ee2fda6812f70a064a51c93b84fde8e4a3c2/js/douban.js"></script>
+    <script src="https://img1.doubanio.com/f/shire/2c0c1c6b83f9a457b0f38c38a32fc43a42ec9bad/js/do.js" data-cfg-autoload="false"></script>
+    <link href="https://img1.doubanio.com/f/shire/204847ecc7d679de915c283531d14f16cfbee65e/css/douban.css" rel="stylesheet" type="text/css">
+    <link href="https://img1.doubanio.com/f/music/ea0c776c52fba60e24e92ea802336c1fe9697ff4/css/music/init.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+
+        a:link { color: #259; }
+        a:visited { color: #769; }
+        a:hover { color: #fff; }
+        a:active { color: #fff; }
+
+    </style>
+
+    <script src="https://img1.doubanio.com/f/shire/2c0c1c6b83f9a457b0f38c38a32fc43a42ec9bad/js/do.js" data-cfg-corelib="false"></script>
+    <script type="text/javascript">
+        Do.add('dialog-css', {
+            path: 'https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
+            type: 'css'
+        })
+        Do.add('dialog', {
+            path: 'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js',
+            type: 'js',
+            requires: ['dialog-css']
+        })
+    </script>
+
+  <script type='text/javascript'>
+  var _vwo_code = (function() {
+    var account_id = 249272,
+      settings_tolerance = 0,
+      library_tolerance = 2500,
+      use_existing_jquery = false,
+      // DO NOT EDIT BELOW THIS LINE
+      f=false,d=document;return{use_existing_jquery:function(){return use_existing_jquery;},library_tolerance:function(){return library_tolerance;},finish:function(){if(!f){f=true;var a=d.getElementById('_vis_opt_path_hides');if(a)a.parentNode.removeChild(a);}},finished:function(){return f;},load:function(a){var b=d.createElement('script');b.src=a;b.type='text/javascript';b.innerText;b.onerror=function(){_vwo_code.finish();};d.getElementsByTagName('head')[0].appendChild(b);},init:function(){settings_timer=setTimeout('_vwo_code.finish()',settings_tolerance);var a=d.createElement('style'),b='body{opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;}',h=d.getElementsByTagName('head')[0];a.setAttribute('id','_vis_opt_path_hides');a.setAttribute('type','text/css');if(a.styleSheet)a.styleSheet.cssText=b;else a.appendChild(d.createTextNode(b));h.appendChild(a);this.load('//dev.visualwebsiteoptimizer.com/j.php?a='+account_id+'&u='+encodeURIComponent(d.URL)+'&r='+Math.random());return settings_timer;}};}());
+
+  +function () {
+    var bindEvent = function (el, type, handler) {
+        var $ = window.jQuery || window.Zepto || window.$
+       if ($ && $.fn && $.fn.on) {
+           $(el).on(type, handler)
+       } else if($ && $.fn && $.fn.bind) {
+           $(el).bind(type, handler)
+       } else if (el.addEventListener){
+         el.addEventListener(type, handler, false);
+       } else if (el.attachEvent){
+         el.attachEvent("on" + type, handler);
+       } else {
+         el["on" + type] = handler;
+       }
+     }
+
+    var _origin_load = _vwo_code.load
+    _vwo_code.load = function () {
+      var args = [].slice.call(arguments)
+      bindEvent(window, 'load', function () {
+        _origin_load.apply(_vwo_code, args)
+      })
+    }
+  }()
+
+  _vwo_settings_timer = _vwo_code.init();
+  </script>
+
+
+
+    <link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/4575fc7c79433e5e.css">
+    <script></script>
+
+    <link rel="shortcut icon" href="https://img1.doubanio.com/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+
+    <script type="text/javascript">var _body_start = new Date();</script>
+
+
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/20e516e/shire/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+<div id="db-global-nav" class="global-nav">
+  <div class="bd">
+
+<div class="top-nav-info">
+  <a href="https://accounts.douban.com/passport/login?source=music" class="nav-login" rel="nofollow">登录/注册</a>
+</div>
+
+
+    <div class="top-nav-doubanapp">
+  <a href="https://www.douban.com/doubanapp/app?channel=top-nav" class="lnk-doubanapp">下载豆瓣客户端</a>
+  <div id="doubanapp-tip">
+    <a href="https://www.douban.com/doubanapp/app?channel=qipao" class="tip-link">豆瓣 <span class="version">6.0</span> 全新发布</a>
+    <a href="javascript: void 0;" class="tip-close">×</a>
+  </div>
+  <div id="top-nav-appintro" class="more-items">
+    <p class="appintro-title">豆瓣</p>
+    <p class="qrcode">扫码直接下载</p>
+    <div class="download">
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&direct_dl=1&download=iOS">iPhone</a>
+      <span>·</span>
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&direct_dl=1&download=Android" class="download-android">Android</a>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="global-nav-items">
+  <ul>
+    <li class="">
+      <a href="https://www.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-main&quot;,&quot;uid&quot;:&quot;0&quot;}">豆瓣</a>
+    </li>
+    <li class="">
+      <a href="https://book.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-book&quot;,&quot;uid&quot;:&quot;0&quot;}">读书</a>
+    </li>
+    <li class="">
+      <a href="https://movie.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-movie&quot;,&quot;uid&quot;:&quot;0&quot;}">电影</a>
+    </li>
+    <li class="on">
+      <a href="https://music.douban.com"  data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-music&quot;,&quot;uid&quot;:&quot;0&quot;}">音乐</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/location" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-location&quot;,&quot;uid&quot;:&quot;0&quot;}">同城</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/group" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-group&quot;,&quot;uid&quot;:&quot;0&quot;}">小组</a>
+    </li>
+    <li class="">
+      <a href="https://read.douban.com&#47;?dcs=top-nav&amp;dcm=douban" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-read&quot;,&quot;uid&quot;:&quot;0&quot;}">阅读</a>
+    </li>
+    <li class="">
+      <a href="https://douban.fm&#47;?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-fm&quot;,&quot;uid&quot;:&quot;0&quot;}">FM</a>
+    </li>
+    <li class="">
+      <a href="https://time.douban.com&#47;?dt_time_source=douban-web_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-time&quot;,&quot;uid&quot;:&quot;0&quot;}">时间</a>
+    </li>
+    <li class="">
+      <a href="https://market.douban.com&#47;?utm_campaign=douban_top_nav&amp;utm_source=douban&amp;utm_medium=pc_web" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-market&quot;,&quot;uid&quot;:&quot;0&quot;}">豆品</a>
+    </li>
+  </ul>
+</div>
+
+  </div>
+</div>
+<script>
+  ;window._GLOBAL_NAV = {
+    DOUBAN_URL: "https://www.douban.com",
+    N_NEW_NOTIS: 0,
+    N_NEW_DOUMAIL: 0
+  };
+</script>
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/20e516e/shire/bundle.js" defer="defer"></script>
+
+
+
+
+
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/20e516e/music/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+
+<div id="db-nav-music" class="nav">
+  <div class="nav-wrap">
+  <div class="nav-primary">
+    <div class="nav-logo">
+      <a href="https:&#47;&#47;music.douban.com">豆瓣音乐</a>
+    </div>
+    <div class="nav-search">
+      <form action="https:&#47;&#47;search.douban.com&#47;music/subject_search" method="get">
+        <fieldset>
+          <legend>搜索：</legend>
+          <label for="inp-query">
+          </label>
+          <div class="inp"><input id="inp-query" name="search_text" size="22" maxlength="60" placeholder="唱片名、表演者、条码、ISRC" value=""></div>
+          <div class="inp-btn"><input type="submit" value="搜索"></div>
+          <input type="hidden" name="cat" value="1003" />
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  </div>
+  <div class="nav-secondary">
+
+
+<div class="nav-items">
+  <ul>
+    <li    ><a href="https://music.douban.com/artists/"
+     >音乐人</a>
+    </li>
+    <li    ><a href="https://music.douban.com/topics/"
+     >专题</a>
+    </li>
+    <li    ><a href="https://music.douban.com/chart"
+     >排行榜</a>
+    </li>
+    <li    ><a href="https://music.douban.com/tag/"
+     >分类浏览</a>
+    </li>
+    <li    ><a href="https://music.douban.com/review/latest/"
+     >乐评</a>
+    </li>
+    <li    ><a href="https://douban.fm/?from_=music_nav"
+     >豆瓣FM</a>
+    </li>
+    <li    ><a href="https://douban.fm/explore/songlists/"
+     >歌单</a>
+    </li>
+    <li    ><a href="https://music.douban.com/annual/2022?fullscreen=1&source=navigation"
+            target="_blank"
+     >2022年度榜单</a>
+    </li>
+  </ul>
+</div>
+
+    <a href="https://music.douban.com/annual/2022?source=music_navigation" class="musicannual"></a>
+  </div>
+</div>
+
+<script id="suggResult" type="text/x-jquery-tmpl">
+  <li data-link="{{= url}}">
+            <a href="{{= url}}" onclick="moreurl(this, {from:'music_search_sugg', query:'{{= keyword }}', subject_id:'{{= id}}', i: '{{= index}}', type: '{{= type}}'})">
+            <img src="{{= pic}}" width="40" />
+            <div>
+                <em>{{= title}}</em>
+                {{if type == "m"}}
+                    <span>(艺术家)</span>
+                {{else type == "a"}}
+                    <span>(音乐人)</span>
+                {{else type == "d"}}
+                    <span>(DJ)</span>
+                {{else type == "l"}}
+                    <span>(厂牌)</span>
+                {{/if}}
+                {{if other_title}}
+                    <span>其他名称：{{= other_title}}</span>
+                {{/if}}
+                {{if performer}}
+                    <p>表演者：{{= performer}}</p>
+                {{/if}}
+                {{if cn_name}}
+                    <p>{{= cn_name}}</p>
+                {{/if}}
+                {{if en_name}}
+                    <p>{{= en_name}}</p>
+                {{/if}}
+            </div>
+        </a>
+        </li>
+  </script>
+
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/20e516e/music/bundle.js" defer="defer"></script>
+
+
+
+
+
+
+    <div id="wrapper">
+
+
+        <h1>
+            <span>Rubber Soul</span>
+            <div class="clear"></div>
+        </h1>
+
+<div id="content">
+
+    <div class="grid-16-8 clearfix">
+
+
+        <div class="article">
+
+
+
+    <div class="indent">
+        <div class="subjectwrap clearfix">
+
+
+
+<div class="subject clearfix">
+    <div id="mainpic">
+        <span class="ckd-collect">
+            <a class="nbg" href="https://img1.doubanio.com/view/subject/m/public/s28825668.jpg"
+            title="点击看大图">
+                <img src="https://img1.doubanio.com/view/subject/m/public/s28825668.jpg"
+                    alt="Rubber Soul" rel="v:photo"/>
+            </a>
+        </span>
+        <br/>
+
+
+
+
+<div class="infobox" style="">
+    <div class="bd">
+        <div class="start_radio">
+                <a target="_fm" href="https://douban.fm/?cid=13669&amp;from_=music_subject">
+                <img height="14" src="https://img1.doubanio.com/f/music/2306dcd67c23f9b28b6657dadef088a7e9ab1357/pics/music/subject/start-fm-logo.png" alt="FM">
+                听相似歌曲
+            </a>
+        </div>
+    </div>
+</div>
+
+
+
+    </div>
+
+    <div id="info" class="ckd-collect">
+
+
+
+
+
+    <span class="pl">又名:</span>&nbsp;橡胶灵魂
+    <br />
+
+
+                    <span>
+                        <span class="pl">
+                            表演者:
+
+                                    <a href="/search?q=The+Beatles&amp;sid=1401362">The Beatles</a>
+                        </span>
+                    </span>
+
+                    <br/>
+
+
+
+    <span class="pl">流派:</span>&nbsp;摇滚
+    <br />
+
+
+
+
+    <span class="pl">专辑类型:</span>&nbsp;专辑
+    <br />
+
+
+
+
+    <span class="pl">介质:</span>&nbsp;Audio CD
+    <br />
+
+
+
+
+    <span class="pl">发行时间:</span>&nbsp;1965
+    <br />
+
+
+
+
+    <span class="pl">出版者:</span>&nbsp;Capitol
+    <br />
+
+
+
+
+    <span class="pl">唱片数:</span>&nbsp;1
+    <br />
+
+
+
+
+    <span class="pl">条形码:</span>&nbsp;0077774644020
+    <br />
+
+
+
+            <span class="pl">其他版本:</span>&nbsp;
+            <a href="https://music.douban.com/subject/6958653/">Rubber Soul</a>
+            （<a href="/albums/103752">全部</a>）
+            <br>
+    </div>
+</div>
+
+
+
+
+
+
+
+    <div id="interest_sectl">
+        <div class="rating_wrap clearbox" rel="v:rating">
+            <div class="rating_logo">
+                豆瓣评分
+            </div>
+            <div class="rating_self clearfix" typeof="v:Rating">
+                <strong class="ll rating_num" property="v:average">9.6</strong>
+                <span property="v:best" content="10.0"></span>
+                <div class="rating_right ">
+                    <div class="ll bigstar50"></div>
+                    <div class="rating_sum">
+                            <a href="comments" class="rating_people"><span property="v:votes">11657</span>人评价</a>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+    <span class="stars5 starstop" title="力荐">
+        5星
+    </span>
+
+
+    <div class="power" style="width:64px"></div>
+
+                    <span class="rating_per">82.0%</span>
+                    <br>
+
+
+    <span class="stars4 starstop" title="推荐">
+        4星
+    </span>
+
+
+    <div class="power" style="width:12px"></div>
+
+                    <span class="rating_per">15.4%</span>
+                    <br>
+
+
+    <span class="stars3 starstop" title="还行">
+        3星
+    </span>
+
+
+    <div class="power" style="width:1px"></div>
+
+                    <span class="rating_per">2.3%</span>
+                    <br>
+
+
+    <span class="stars2 starstop" title="较差">
+        2星
+    </span>
+
+
+    <div class="power" style="width:0px"></div>
+
+                    <span class="rating_per">0.2%</span>
+                    <br>
+
+
+    <span class="stars1 starstop" title="很差">
+        1星
+    </span>
+
+
+    <div class="power" style="width:0px"></div>
+
+                    <span class="rating_per">0.2%</span>
+                    <br>
+        </div>
+    </div>
+
+
+
+
+
+        </div>
+
+
+
+
+
+<div id="interest_sect_level" class="clearfix">
+
+        <a href="https://www.douban.com/register?reason=collectwish&amp;ck="
+           rel="nofollow" class="j a_show_login colbutt ll"
+           name="pbtn-1401362-wish">
+            <span>想听</span>
+        </a>
+        <a href="https://www.douban.com/register?reason=collectdo&amp;ck="
+           rel="nofollow" class="j a_show_login colbutt ll"
+           name="pbtn-1401362-do">
+            <span>在听</span>
+        </a>
+        <a href="https://www.douban.com/register?reason=collectcollect&amp;ck="
+           rel="nofollow" class="j a_show_login colbutt ll"
+           name="pbtn-1401362-collect">
+            <span>听过</span>
+        </a>
+
+        <div class="ll j a_stars">
+
+
+    评价:
+    <span id="rating">
+        <span id="stars" data-solid="https://img1.doubanio.com/f/shire/5a2327c04c0c231bced131ddf3f4467eb80c1c86/pics/rating_icons/star_onmouseover.png" data-hollow="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" data-solid-2x="https://img1.doubanio.com/f/shire/7258904022439076d57303c3b06ad195bf1dc41a/pics/rating_icons/star_onmouseover@2x.png" data-hollow-2x="https://img1.doubanio.com/f/shire/95cc2fa733221bb8edd28ad56a7145a5ad33383e/pics/rating_icons/star_hollow_hover@2x.png">
+                <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-1401362-1">
+
+            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star1" width="16" height="16" /></a>                <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-1401362-2">
+
+            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star2" width="16" height="16" /></a>                <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-1401362-3">
+
+            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star3" width="16" height="16" /></a>                <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-1401362-4">
+
+            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star4" width="16" height="16" /></a>                <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-1401362-5">
+
+            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star5" width="16" height="16" /></a>        </span>
+        <span id="rateword" class="pl"></span>
+        <input id="n_rating" type="hidden" value="" />
+    </span>
+
+        </div>
+
+
+
+
+<style type="text/css">
+    a.colbutt { color: #000000; }
+</style>
+</div>
+
+
+
+
+
+
+
+
+<div class="gtleft">
+    <ul class="ul_subject_menu bicelink color_gray pt6 clearfix">
+            <li>
+                    <img src="https://img1.doubanio.com/f/shire/cc03d0fcf32b7ce3af7b160a0b85e5e66b47cc42/pics/short-comment.gif" />&nbsp;
+                    <a class="j a_show_login" href="https://www.douban.com/register?reason=short_comment" rel="nofollow">写短评</a>
+            </li>
+            <li>
+                    <img src="https://img1.doubanio.com/f/shire/5bbf02b7b5ec12b23e214a580b6f9e481108488c/pics/add-review.gif" />&nbsp;
+                    <a class="j a_show_login" href="https://www.douban.com/register?reason=review" rel="nofollow">写乐评</a>
+            </li>
+            <li>
+                    <img src="https://img1.doubanio.com/f/shire/61cc48ba7c40e0272d46bb93fe0dc514f3b71ec5/pics/add-doulist.gif" />&nbsp;
+                    <a class="j a_show_login" href="https://www.douban.com/register?reason=collect-doulist" rel="nofollow">加入豆列</a>
+            </li>
+
+
+
+    <li class="rec" id="W-None">
+        <a href= "#" data-type="W" data-url="https://music.douban.com/subject/1401362/" data-desc="" data-title="专辑《Rubber Soul》 (来自豆瓣) " data-pic="https://img1.doubanio.com/view/subject/m/public/s28825668.jpg" class="bn-sharing ">分享到</a> &nbsp;&nbsp;
+    </li>
+    <script>
+    if (!window.DoubanShareMenuList) {
+        window.DoubanShareMenuList = [];
+    }
+    var __cache_url = __cache_url || {};
+    (function(u){
+        if(__cache_url[u]) return;
+        __cache_url[u] = true;
+        window.DoubanShareIcons = 'https://img1.doubanio.com/f/shire/3c8da10d6081bd1b2d13d3733b2ac201535c5d0f/pics/ic_shares2.png';
+        var initShareButton = function() {
+          $.ajax({url:u,dataType:'script',cache:true});
+        };
+        if (typeof Do == 'function' && 'ready' in Do) {
+          Do('https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
+            'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js',
+            initShareButton);
+        } else if(typeof Douban == 'object' && 'loader' in Douban) {
+          Douban.loader.batch(
+            'https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
+            'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js'
+          ).done(initShareButton);
+        }
+    })('https://img1.doubanio.com/f/shire/64044c0cde0c2bbf9c3eb94e57da6070d0340c4b/js/lib/sharebutton.js');
+    </script>
+
+    </ul>
+</div>
+
+
+
+
+
+
+
+
+
+    <div class="rec-sec">
+
+    <span class="rec">
+
+<a data-user_id="0" href="https://www.douban.com/accounts/register?reason=collect" share-id="1401362" data-mode="plain" data-name="Rubber Soul" data-type="music" data-desc="The Beatles / 专辑 / 1965 / Capitol / Audio CD" data-href="https://music.douban.com/subject/1401362/" data-image="https://img1.doubanio.com/view/subject/s/public/s28825668.jpg" data-properties="{&#34;rating&#34;:&#34;9.6&#34;}" data-redir="https://music.douban.com/static/dshare_proxy.html" data-text="" data-apikey="" data-curl="" data-count="10" data-object_kind="1003" data-object_id="1401362" data-target_type="rec" data-target_action="0" data-action_props="{&#34;subject_url&#34;:&#34;https:\/\/music.douban.com\/subject\/1401362\/&#34;,&#34;subject_title&#34;:&#34;Rubber Soul&#34;}" data-btn_text="推荐" data-heading="推荐到豆瓣" data-sanity_key="_196fc" class="j a_show_login lnk-sharing lnk-douban-sharing">推荐</a>
+</span>
+</div>
+
+
+    </div>
+    <br clear="all"/>
+
+    <div id="collect_form_1401362"></div>
+
+    <div class="related_info">
+
+
+
+
+
+
+
+    <h2>
+        简介
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+    </h2>
+
+    <div class="indent" id="link-report">
+
+                <span class="short">
+                    <span property="v:summary">　　Rank 'em how you like, Rubber Soul is an undeniable pivot point in the Fab Four's varied discography no matter where, or how, you first heard it. The album was softened up in its original 12-song American edition to jibe with the Dylan/Byrds folk-rock sound, as well as squeeze money from the Parlophone catalog. The 14-song U.K. edition--the version now available on compact di...</span>
+                    <a href="javascript:void(0)" class="j a_show_full">(展开全部)</a>
+                </span>
+                <span class="all hidden">　　Rank 'em how you like, Rubber Soul is an undeniable pivot point in the Fab Four's varied discography no matter where, or how, you first heard it. The album was softened up in its original 12-song American edition to jibe with the Dylan/Byrds folk-rock sound, as well as squeeze money from the Parlophone catalog. The 14-song U.K. edition--the version now available on compact disc--is a different, more dynamic, and ultimately more accomplished achievement. So many classics: &quot;Drive My Car&quot; and &quot;Nowhere Man&quot; (both omitted from the U.S. edition) merge the early combustible Beatifics to a burgeoning studio consciousness; &quot;The Word&quot; can be read as a pre-psych warning shot; the sitar-laden &quot;Norwegian Wood&quot; and the evocative &quot;Girl&quot; (the latter written on the last night of the sessions) stand as turning points in John Lennon's oeuvre. George finally emerges too, with the McGuinn-ish &quot;If I Needed Someone.&quot; EMI. 2005.</span>
+            <br/>
+    </div>
+
+
+
+
+
+
+
+<link rel="stylesheet" href="https://img1.doubanio.com/f/verify/b94df3c30a99176a78709b95ecf1cf80b105beb0/entry_creator/dist/author_subject/style.css">
+<div id="author_subject" class="author-wrapper">
+    <div class="loading"></div>
+</div>
+<script>
+    var answerObj = {
+        TYPE: 'music',
+        SUBJECT_ID: '1401362',
+        ISALL: 'False' || false,
+        USER_ID: 'None'
+    }
+</script>
+<script src="https://img1.doubanio.com/f/music/61252f2f9b35f08b37f69d17dfe48310dd295347/js/music/lib/react/bundle.js"></script>
+<script type="text/javascript" src="https://img1.doubanio.com/f/verify/6e7e593ba318f1355c70e66e010cf89411c3d937/entry_creator/dist/author_subject/index.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="">
+
+    <h2>
+        曲目
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+    </h2>
+
+                    <div class="track-list">
+                        <div class="indent">
+                            <div class="">
+                                1. Drive My Car<br/>2. Norwegian Wood (This Bird Has Flown)<br/>3. You Won't See Me<br/>4. Nowhere Man<br/>5. Think For Yourself<br/>6. The Word<br/>7. Michelle<br/>8. What Goes On<br/>9. Girl<br/>10. I'm Looking Through You<br/>11. In My Life<br/>12. Wait<br/>13. If I Needed Someone<br/>14. Run For Your Life
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+<br clear="all">
+
+
+
+
+
+
+
+
+            <div id="db-rec-section" class="block5 subject_show knnlike">
+
+    <h2>
+        喜欢听&#34;Rubber Soul&#34;的人也喜欢的唱片
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+    </h2>
+
+                <div class="content clearfix" style="margin-top: 9px;">
+
+
+                        <dl class="subject-rec-list" style="margin-top:0px; width: 108px;">
+                            <dt style="height: auto; margin-bottom: 5px;">
+                                    <a href="https://music.douban.com/subject/1401364/"><img class="m_sub_img" src="https://img9.doubanio.com/view/subject/m/public/s1410145.jpg" width="115" /></a>
+                            </dt>
+                            <dd>
+                                <a href="https://music.douban.com/subject/1401364/" class="">Revolver</a>
+                            </dd>
+                        </dl>
+
+
+                        <dl class="subject-rec-list" style="margin-top:0px; width: 108px;">
+                            <dt style="height: auto; margin-bottom: 5px;">
+                                    <a href="https://music.douban.com/subject/2359520/"><img class="m_sub_img" src="https://img9.doubanio.com/view/subject/m/public/s3690624.jpg" width="115" /></a>
+                            </dt>
+                            <dd>
+                                <a href="https://music.douban.com/subject/2359520/" class="">The Beatles (The White Album)</a>
+                            </dd>
+                        </dl>
+
+
+                        <dl class="subject-rec-list" style="margin-top:0px; width: 108px;">
+                            <dt style="height: auto; margin-bottom: 5px;">
+                                    <a href="https://music.douban.com/subject/1394665/"><img class="m_sub_img" src="https://img1.doubanio.com/view/subject/m/public/s1445617.jpg" width="115" /></a>
+                            </dt>
+                            <dd>
+                                <a href="https://music.douban.com/subject/1394665/" class="">Sgt. Pepper&#39;s Lonely Hearts Club B...</a>
+                            </dd>
+                        </dl>
+
+
+                        <dl class="subject-rec-list" style="margin-top:0px; width: 108px;">
+                            <dt style="height: auto; margin-bottom: 5px;">
+                                    <a href="https://music.douban.com/subject/1457725/"><img class="m_sub_img" src="https://img1.doubanio.com/view/subject/m/public/s2389040.jpg" width="115" /></a>
+                            </dt>
+                            <dd>
+                                <a href="https://music.douban.com/subject/1457725/" class="">Help!</a>
+                            </dd>
+                        </dl>
+
+
+                        <dl class="subject-rec-list" style="margin-top:0px; width: 108px; margin-right:0px">
+                            <dt style="height: auto; margin-bottom: 5px;">
+                                    <a href="https://music.douban.com/subject/1401363/"><img class="m_sub_img" src="https://img9.doubanio.com/view/subject/m/public/s1410144.jpg" width="115" /></a>
+                            </dt>
+                            <dd>
+                                <a href="https://music.douban.com/subject/1401363/" class="">A Hard Day&#39;s Night</a>
+                            </dd>
+                        </dl>
+                            <dl class="clear"></dl>
+
+
+                        <dl class="subject-rec-list" style="margin-top:0px; width: 108px;">
+                            <dt style="height: auto; margin-bottom: 5px;">
+                                    <a href="https://music.douban.com/subject/1437026/"><img class="m_sub_img" src="https://img1.doubanio.com/view/subject/m/public/s4484960.jpg" width="115" /></a>
+                            </dt>
+                            <dd>
+                                <a href="https://music.douban.com/subject/1437026/" class="">Please Please Me</a>
+                            </dd>
+                        </dl>
+
+
+                        <dl class="subject-rec-list" style="margin-top:0px; width: 108px;">
+                            <dt style="height: auto; margin-bottom: 5px;">
+                                    <a href="https://music.douban.com/subject/1401366/"><img class="m_sub_img" src="https://img1.doubanio.com/view/subject/m/public/s2399848.jpg" width="115" /></a>
+                            </dt>
+                            <dd>
+                                <a href="https://music.douban.com/subject/1401366/" class="">Magical Mystery Tour</a>
+                            </dd>
+                        </dl>
+
+
+                        <dl class="subject-rec-list" style="margin-top:0px; width: 108px;">
+                            <dt style="height: auto; margin-bottom: 5px;">
+                                    <a href="https://music.douban.com/subject/1401361/"><img class="m_sub_img" src="https://img1.doubanio.com/view/subject/m/public/s24519989.jpg" width="115" /></a>
+                            </dt>
+                            <dd>
+                                <a href="https://music.douban.com/subject/1401361/" class="">Abbey Road</a>
+                            </dd>
+                        </dl>
+
+
+                        <dl class="subject-rec-list" style="margin-top:0px; width: 108px;">
+                            <dt style="height: auto; margin-bottom: 5px;">
+                                    <a href="https://music.douban.com/subject/1433639/"><img class="m_sub_img" src="https://img1.doubanio.com/view/subject/m/public/s1447787.jpg" width="115" /></a>
+                            </dt>
+                            <dd>
+                                <a href="https://music.douban.com/subject/1433639/" class="">With the Beatles</a>
+                            </dd>
+                        </dl>
+
+
+                        <dl class="subject-rec-list" style="margin-top:0px; width: 108px; margin-right:0px">
+                            <dt style="height: auto; margin-bottom: 5px;">
+                                    <a href="https://music.douban.com/subject/1457726/"><img class="m_sub_img" src="https://img2.doubanio.com/view/subject/m/public/s1474792.jpg" width="115" /></a>
+                            </dt>
+                            <dd>
+                                <a href="https://music.douban.com/subject/1457726/" class="">Beatles for Sale</a>
+                            </dd>
+                        </dl>
+                            <dl class="clear"></dl>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id='comments-section'>
+    <link rel="stylesheet" href="https://img1.doubanio.com/f/music/d63a579a99fd372b4398731a279a1382e6eac71e/css/music/lib/subject-comments/comments-section.css"/>
+    <link rel="stylesheet" href="https://img1.doubanio.com/f/music/9aae5c6f1a6c1ef339d7c9a37d69641086bd6917/css/music/lib/subject-comments/comments.css"/>
+    <div class="mod-hd">
+
+        <a class="redbutt rr j a_show_login" href="https://www.douban.com/login?reason=collect&amp;ck=" name="pbtn-1401362-collect"><span>我来说两句</span></a>
+
+    <h2>
+        短评
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+            <span class="pl">&nbsp;(
+
+                    <a href="https://music.douban.com/subject/1401362/comments/" target="_self">全部 2076 条</a>
+                ) </span>
+    </h2>
+
+    </div>
+    <div class="nav-tab">
+
+    <div class="tabs-wrapper  line">
+                <a class="short-comment-tabs on-tab"
+                    href="https://music.douban.com/subject/1401362/comments?sort=new_score"
+                    data-tab="new_score">热门</a>
+                <span>/</span>
+                <a class="short-comment-tabs "
+                    href="https://music.douban.com/subject/1401362/comments?sort=time"
+                    data-tab="time">最新</a>
+                <span>/</span>
+                <a class="j a_show_login "
+                    href="https://music.douban.com/subject/1401362/comments?sort=follows"
+                    data-tab="follows">好友</a>
+    </div>
+
+    </div>
+    <div id="comment-list-wrapper" class="indent">
+
+
+  <div class="comment-list new_score show" id="new_score">
+      <ul>
+
+  <li class="comment-item" data-cid="164668444">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-164668444" class="vote-count">3</span>
+            <a href="javascript:;" id="btn-164668444" class="j a_show_login" data-cid="164668444">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/ZeitgeistAmour/">Kreuzberg</a>
+            <span class="user-stars allstar50 rating" title="力荐"></span>
+          <span class="comment-time">2012-05-17 14:44:39</span>
+          <span class="comment-location"></span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">偶像组合转型～</span>
+      </p>
+
+      <div class="link-report" data-url="https://music.douban.com/subject/1401362/?comment_id=164668444"></div>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="711827195">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-711827195" class="vote-count">16</span>
+            <a href="javascript:;" id="btn-711827195" class="j a_show_login" data-cid="711827195">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/yuyao/">雨摇</a>
+            <span class="user-stars allstar50 rating" title="力荐"></span>
+          <span class="comment-time">2013-08-04 23:09:39</span>
+          <span class="comment-location"></span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">这时期的Beatles我喜欢，介乎早期的清纯和后期的迷幻之间。后期Beatles在麦卡特尼的策划下，做作、玩概念，跟知识界、政客和歌迷，开特别逼真的玩笑。第二首的西塔琴是哈里森弹的，Beatles成员中最迷恋东方文化的那个。后来乐队去了印度修行，摇滚界曾逛起一股东方文化旋风。</span>
+      </p>
+
+      <div class="link-report" data-url="https://music.douban.com/subject/1401362/?comment_id=711827195"></div>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="1072117924">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-1072117924" class="vote-count">27</span>
+            <a href="javascript:;" id="btn-1072117924" class="j a_show_login" data-cid="1072117924">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/125112879/">密谋小和弦</a>
+            <span class="user-stars allstar40 rating" title="推荐"></span>
+          <span class="comment-time">2016-08-10 22:02:32</span>
+          <span class="comment-location"></span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">一首希腊挽歌，一首法国情歌，一首政府歌曲，一首生活小摘，一首嬉皮士独白和一首滥用关系的歌曲都包含在这张专辑里。</span>
+      </p>
+
+      <div class="link-report" data-url="https://music.douban.com/subject/1401362/?comment_id=1072117924"></div>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="394510904">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-394510904" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-394510904" class="j a_show_login" data-cid="394510904">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/enjoyrachel/">Enjoy🌈Rachel</a>
+            <span class="user-stars allstar50 rating" title="力荐"></span>
+          <span class="comment-time">2011-05-24 16:40:19</span>
+          <span class="comment-location"></span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">爱情秘籍，早期最美好的一张~~</span>
+      </p>
+
+      <div class="link-report" data-url="https://music.douban.com/subject/1401362/?comment_id=394510904"></div>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="792590276">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-792590276" class="vote-count">1</span>
+            <a href="javascript:;" id="btn-792590276" class="j a_show_login" data-cid="792590276">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/hzsxd1986/">拾贝壳的猫</a>
+            <span class="user-stars allstar30 rating" title="还行"></span>
+          <span class="comment-time">2014-03-31 20:18:18</span>
+          <span class="comment-location"></span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">吉他敲得不错</span>
+      </p>
+
+      <div class="link-report" data-url="https://music.douban.com/subject/1401362/?comment_id=792590276"></div>
+    </div>
+  </li>
+
+      </ul>
+  </div>
+
+
+
+  <div class="comment-list time hide" id="time">
+      <ul>
+
+  <li class="comment-item" data-cid="3742050183">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-3742050183" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-3742050183" class="j a_show_login" data-cid="3742050183">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/zyakabreezy/">还是No.3</a>
+            <span class="user-stars allstar50 rating" title="力荐"></span>
+          <span class="comment-time">2023-04-03 14:59:50</span>
+          <span class="comment-location">山东</span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">@2021-07-07 14:31:26 @2022-10-15 22:40:28</span>
+      </p>
+
+      <div class="link-report" data-url="https://music.douban.com/subject/1401362/?comment_id=3742050183"></div>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="3742280701">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-3742280701" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-3742280701" class="j a_show_login" data-cid="3742280701">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/168409738/">acid</a>
+            <span class="user-stars allstar50 rating" title="力荐"></span>
+          <span class="comment-time">2023-04-03 19:22:08</span>
+          <span class="comment-location">上海</span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">我心中Beatles的第一专辑。前后期风格的交汇结合以及高度主题化的音乐表达；</span>
+      </p>
+
+      <div class="link-report" data-url="https://music.douban.com/subject/1401362/?comment_id=3742280701"></div>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="3755514441">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-3755514441" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-3755514441" class="j a_show_login" data-cid="3755514441">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/avocadoz/">思議自在神通</a>
+            <span class="user-stars allstar50 rating" title="力荐"></span>
+          <span class="comment-time">2023-04-15 11:51:47</span>
+          <span class="comment-location">中国台湾</span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">因為是完整聽過的第一張（有一張打口CD），所有曲目都很喜歡，最愛Michelle</span>
+      </p>
+
+      <div class="link-report" data-url="https://music.douban.com/subject/1401362/?comment_id=3755514441"></div>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="3755760348">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-3755760348" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-3755760348" class="j a_show_login" data-cid="3755760348">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/84711037/">卢 垚</a>
+            <span class="user-stars allstar40 rating" title="推荐"></span>
+          <span class="comment-time">2023-04-15 15:33:33</span>
+          <span class="comment-location">广东</span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">转型的一张专辑</span>
+      </p>
+
+      <div class="link-report" data-url="https://music.douban.com/subject/1401362/?comment_id=3755760348"></div>
+    </div>
+  </li>
+
+
+  <li class="comment-item" data-cid="3750762749">
+    <div class="comment">
+      <h3>
+        <span class="comment-vote">
+          <span id="c-3750762749" class="vote-count">0</span>
+            <a href="javascript:;" id="btn-3750762749" class="j a_show_login" data-cid="3750762749">有用</a>
+        </span>
+        <span class="comment-info">
+          <a href="https://www.douban.com/people/255874554/">Kissability</a>
+            <span class="user-stars allstar50 rating" title="力荐"></span>
+          <span class="comment-time">2023-04-10 21:47:06</span>
+          <span class="comment-location">四川</span>
+        </span>
+      </h3>
+      <p class="comment-content">
+
+        <span class="short">这张应该算是现代摇滚的起源了吧，很多有启发性的旋律，但感觉没放太开，还没华丽起来</span>
+      </p>
+
+      <div class="link-report" data-url="https://music.douban.com/subject/1401362/?comment_id=3750762749"></div>
+    </div>
+  </li>
+
+      </ul>
+  </div>
+
+
+
+    </div>
+        <p>&gt; <a href="https://music.douban.com/subject/1401362/comments/">更多短评 2076 条</a></p>
+    <script src="https://img1.doubanio.com/f/music/6eba6f43fb7592ab783e390f654c0d6a96b1598e/js/music/lib/subject-comments/comments-section.js"></script>
+    <script>
+        (function () {
+            if (window.SUBJECT_COMMENTS_SECTION) {
+                // tab handler
+                SUBJECT_COMMENTS_SECTION.createTabHandler();
+                // expand handler
+                SUBJECT_COMMENTS_SECTION.createExpandHandler({
+                    root: document.getElementById('comment-list-wrapper'),
+                });
+                // vote handler
+                SUBJECT_COMMENTS_SECTION.createVoteHandler({
+                    api: '/j/comment/:id/vote',
+                    root: document.getElementById('comment-list-wrapper'),
+                    voteSelector: '.vote-comment',
+                    textSelector: '.vote-count',
+                    afterVote: function (elem) {
+                        var parentNode = elem.parentNode;
+                        var successElem = document.createElement('span');
+                        successElem.innerHTML = '已投票';
+                        parentNode.removeChild(elem);
+                        parentNode.appendChild(successElem);
+                    }
+                });
+            }
+        })()
+    </script>
+</div>
+
+
+
+
+
+<link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/29a12b2380e44526.css">
+
+    <section id="reviews-wrapper" class="reviews mod music-content">
+        <header>
+
+                <a href="new_review" rel="nofollow" class="create-review redbutt rr "
+                    data-isverify="False"
+                    data-verify-url="https://www.douban.com/accounts/phone/verify?redir=https://music.douban.com/subject/1401362/new_review">
+                    <span>我要写乐评</span>
+                </a>
+            <h2>
+                    Rubber Soul的乐评 · · · · · ·
+
+                    <span class="pl">( <a href="reviews">全部 21 条</a> )</span>
+            </h2>
+        </header>
+
+            <div class="review_filter">
+                            <a href="javascript:;;" class="cur" data-sort="">热门</a> &#047;
+                            <a href="javascript:;;" data-sort="time">最新</a> &#047;
+                            <a href="javascript:;;" data-sort="follow">好友</a>
+            </div>
+            <script>
+                var cur_sort = '';
+                $('#reviews-wrapper .review_filter a').on('click', function () {
+                    var sort = $(this).data('sort');
+                    if(sort === cur_sort) return;
+
+                    if(sort === 'follow' && true){
+                        window.location.href = '//www.douban.com/accounts/login?source=movie';
+                        return;
+                    }
+
+                    if($('#reviews-wrapper .review_filter').data('doing')) return;
+                    $('#reviews-wrapper .review_filter').data('doing', true);
+
+                    cur_sort = sort;
+
+                    $('#reviews-wrapper .review_filter a').removeClass('cur');
+                    $(this).addClass('cur');
+
+                    $.getJSON('reviews', { sort: sort }, function(res) {
+                        $('#reviews-wrapper .review-list').remove();
+                        $('#reviews-wrapper [href="reviews?sort=follow"]').parent().remove();
+                        $('#reviews-wrapper .review_filter').after(res.html);
+                        $('#reviews-wrapper .review_filter').data('doing', false);
+                        $('#reviews-wrapper .review_filter').removeData('doing');
+
+                        if (res.count === 0) {
+                            $('#reviews-wrapper .review-list').html('<span class="no-review">你关注的人还没写过长评</span>');
+                        }
+                    });
+                });
+            </script>
+
+
+
+
+
+
+<div class="review-list  ">
+
+
+
+
+
+    <div data-cid="1527408">
+        <div class="main review-item" id="1527408">
+
+
+
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/xiangeliushui/" class="avator">
+            <img width="24" height="24" src="https://img1.doubanio.com/icon/u2871287-9.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/xiangeliushui/" class="name">流水弦歌</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2008-10-17" class="main-meta">2008-10-17 15:25:14</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://music.douban.com/review/1527408/">追忆 The Beatles 3（下）Rubber Soul</a></h2>
+
+                <div id="review_1527408_short" class="review-short" data-rid="1527408">
+                    <div class="short-content">
+
+                        VeryCD 上面对这张专辑的介绍很完整，所以有些已经提到的内容我就不再赘述。  注：这张专辑封面就是传言 Paul is Dead 的一个 clue 之一，支持者认为这是四个乐队成员在给已经死去的 Paul 盖棺下葬的场景。（见 Revolver 大碟评论中提到的内容）  《Rubber Soul》整张专辑涉及...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-1527408-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_1527408_full" class="hidden">
+                    <div id="review_1527408_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="1527408" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-1527408">
+                                101
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="1527408" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-1527408">
+                                3
+                        </span>
+                    </a>
+                    <a href="https://music.douban.com/review/1527408/#comments" class="reply ">9回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div data-cid="12591301">
+        <div class="main review-item" id="12591301">
+
+
+
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/159330609/" class="avator">
+            <img width="24" height="24" src="https://img2.doubanio.com/icon/u159330609-3.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/159330609/" class="name">ScarlettLemon</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2020-05-13" class="main-meta">2020-05-13 21:52:53</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://music.douban.com/review/12591301/">Rubber Soul：成长进行时</a></h2>
+
+                <div id="review_12591301_short" class="review-short" data-rid="12591301">
+                    <div class="short-content">
+
+                        有人说，公众印象里的1960年代，那个充斥着摇滚乐革新、迷幻药狂欢和嬉皮文化的1960年代，其实是从1965年开始的。固然这个年代的前一半同样产生了众多杰出的音乐作品，然而直到这一年，流行乐发展的众多趋向才终于汇流成改变时代文化的一股力量：前一年的英伦入侵终于引发了美...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-12591301-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_12591301_full" class="hidden">
+                    <div id="review_12591301_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="12591301" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-12591301">
+                                10
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="12591301" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-12591301">
+                                1
+                        </span>
+                    </a>
+                    <a href="https://music.douban.com/review/12591301/#comments" class="reply ">1回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div data-cid="1226250">
+        <div class="main review-item" id="1226250">
+
+
+
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/GaRY.Wing/" class="avator">
+            <img width="24" height="24" src="https://img9.doubanio.com/icon/u1546232-15.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/GaRY.Wing/" class="name">GaRY</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2007-10-21" class="main-meta">2007-10-21 01:36:12</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://music.douban.com/review/1226250/">The Beatles</a></h2>
+
+                <div id="review_1226250_short" class="review-short" data-rid="1226250">
+                    <div class="short-content">
+
+                        Michelle，我的最爱。一首出名却是从未达到榜首的歌曲。在吉尼斯统计的世界最多艺人翻唱曲目中排名第二。 本张专辑虽然没有其后的专辑那么有名，但是Paul等人的才华已经开始逐渐展现，John也处于创作的成熟期，使得专辑总体十分出色。 从《Michelle》青涩，含蓄，温和的风格中...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-1226250-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_1226250_full" class="hidden">
+                    <div id="review_1226250_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="1226250" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-1226250">
+                                10
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="1226250" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-1226250">
+                                4
+                        </span>
+                    </a>
+                    <a href="https://music.douban.com/review/1226250/#comments" class="reply ">8回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div data-cid="1477899">
+        <div class="main review-item" id="1477899">
+
+
+
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/kingwangone/" class="avator">
+            <img width="24" height="24" src="https://img1.doubanio.com/icon/u2773067-10.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/kingwangone/" class="name">懵逼小作手</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2008-08-23" class="main-meta">2008-08-23 18:04:50</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://music.douban.com/review/1477899/">Norwegian Wood 挪威的森林 Beatles</a></h2>
+
+                <div id="review_1477899_short" class="review-short" data-rid="1477899">
+                    <div class="short-content">
+
+                        I once had a girl, or should I say, she once had me.  我曾经拥有一个女孩 或者我应该说她曾经拥有我...   She showed me her room, isn&#39;t it good, norwegian wood?  她向我展示她的住所！ 很棒吧这&#34;挪威的木屋&#34; （挪威木料做的家具）  She asked me to stay and she told ...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-1477899-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_1477899_full" class="hidden">
+                    <div id="review_1477899_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="1477899" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-1477899">
+                                11
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="1477899" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-1477899">
+                                3
+                        </span>
+                    </a>
+                    <a href="https://music.douban.com/review/1477899/#comments" class="reply ">2回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div data-cid="14092390">
+        <div class="main review-item" id="14092390">
+
+
+
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/MsMojoRisin/" class="avator">
+            <img width="24" height="24" src="https://img1.doubanio.com/icon/u174158120-28.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/MsMojoRisin/" class="name">WalrusTuTu☮</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2021-12-26" class="main-meta">2021-12-26 18:51:09</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://music.douban.com/review/14092390/">《Rubber Soul》中的女性形象</a></h2>
+
+                <div id="review_14092390_short" class="review-short" data-rid="14092390">
+                    <div class="short-content">
+
+                        来源：《Dreaming The Beatles》 原作者：Rob Sheffield 如果Rubber Soul有一个主题，那就是好奇心，最“Beatlesque”的情感，特别是它对女性的好奇心。Rubber Soul拥有披头士的所有专辑中最酷的女孩。 “Girl”，“If I Needed Someone”—— 这些里面是复杂而令人困惑看不清...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-14092390-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_14092390_full" class="hidden">
+                    <div id="review_14092390_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="14092390" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-14092390">
+                                6
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="14092390" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-14092390">
+                        </span>
+                    </a>
+                    <a href="https://music.douban.com/review/14092390/#comments" class="reply ">0回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div data-cid="5104298">
+        <div class="main review-item" id="5104298">
+
+
+
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/hukou/" class="avator">
+            <img width="24" height="24" src="https://img9.doubanio.com/icon/u1545412-34.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/hukou/" class="name">解惑蠹虫</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2011-09-22" class="main-meta">2011-09-22 00:06:26</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://music.douban.com/review/5104298/">午夜,寻找一首让我安静的音乐,Norwegian Wood  —The beatles</a></h2>
+
+                <div id="review_5104298_short" class="review-short" data-rid="5104298">
+                    <div class="short-content">
+
+                        2011.09.21 23:49  Norwegian Wood  —The beatles  出自专辑Rubber Soul    Rubber Soul  1965-  i once had a girl or should i say she once had me she showed me her room isn&#39;t it good norwegian wood? she asked me to stay and she told me to sit anywhere so i look...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-5104298-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_5104298_full" class="hidden">
+                    <div id="review_5104298_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="5104298" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-5104298">
+                                2
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="5104298" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-5104298">
+                        </span>
+                    </a>
+                    <a href="https://music.douban.com/review/5104298/#comments" class="reply ">0回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div data-cid="8160461">
+        <div class="main review-item" id="8160461">
+
+
+
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/141745650/" class="avator">
+            <img width="24" height="24" src="https://img9.doubanio.com/icon/u141745650-6.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/141745650/" class="name">灰色幽默</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2016-11-06" class="main-meta">2016-11-06 20:29:40</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://music.douban.com/review/8160461/">青年视角的爱情感言——rubber soul</a></h2>
+
+                <div id="review_8160461_short" class="review-short" data-rid="8160461">
+                    <div class="short-content">
+
+                        rubber soul是beatles转型的开始，一般被大家视为revlover和sgt的铺垫实验作品。制作这张专辑时，beatles还没有使用后续的各种创新录音技术，印度迷幻元素也没有sgt里那么重，但这些都只是表像，这张专辑的重点在于高度统一的视角。 如果对歌词稍加留意就会发现这张专辑都是青...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-8160461-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_8160461_full" class="hidden">
+                    <div id="review_8160461_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="8160461" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-8160461">
+                                2
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="8160461" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-8160461">
+                        </span>
+                    </a>
+                    <a href="https://music.douban.com/review/8160461/#comments" class="reply ">0回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div data-cid="1042370">
+        <div class="main review-item" id="1042370">
+
+
+
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/palwoo/" class="avator">
+            <img width="24" height="24" src="https://img2.doubanio.com/icon/u1091456-3.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/palwoo/" class="name">i</a>
+
+            <span class="allstar40 main-title-rating" title="推荐"></span>
+
+        <span content="2006-05-04" class="main-meta">2006-05-04 10:20:49</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://music.douban.com/review/1042370/">不是Rubber的Rubber Soul</a></h2>
+
+                <div id="review_1042370_short" class="review-short" data-rid="1042370">
+                    <div class="short-content">
+
+                        虽然还是以情歌为主，但披头士在这张专辑里已开始转型，不再是单纯的大孩子阳光组合了。  喜欢Norwegian Wood淡淡的惆怅和忧郁，喜欢Nowhere Man的情歌不再，喜欢Michelle与Girl和声背景下的“I Love You, I Want You”与“girl,girl”的喃喃倾诉，喜欢In My Life的怀旧情结和...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-1042370-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_1042370_full" class="hidden">
+                    <div id="review_1042370_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="1042370" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-1042370">
+                                3
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="1042370" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-1042370">
+                                1
+                        </span>
+                    </a>
+                    <a href="https://music.douban.com/review/1042370/#comments" class="reply ">0回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div data-cid="13881241">
+        <div class="main review-item" id="13881241">
+
+
+
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/182351657/" class="avator">
+            <img width="24" height="24" src="https://img1.doubanio.com/icon/u182351657-9.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/182351657/" class="name">Strickland</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2021-09-23" class="main-meta">2021-09-23 15:32:34</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://music.douban.com/review/13881241/">Norwegian Wood</a></h2>
+
+                <div id="review_13881241_short" class="review-short" data-rid="13881241">
+                    <div class="short-content">
+
+                        I once had a girl, Or should I say She once had me？ She showed me her room, Isn‘t it good Norwegian wood？ She asked me to stay and she told me to sit anywhere, So I looked around and I noticed there wasn‘t a chair. I sat on a rug Biding my time, Drinkin...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-13881241-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_13881241_full" class="hidden">
+                    <div id="review_13881241_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="13881241" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-13881241">
+                                1
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="13881241" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-13881241">
+                        </span>
+                    </a>
+                    <a href="https://music.douban.com/review/13881241/#comments" class="reply ">0回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    <!-- COLLECTED JS -->
+    <!-- COLLECTED CSS -->
+</div>
+
+    <script type="text/javascript">
+        (function() {
+            if (window.__init_review_list) return;
+            __init_review_list = true;
+        })();
+        window.useful_icon = "https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png";
+        window.usefuled_icon = "https://img1.doubanio.com/f/zerkalo/635290bb14771c97270037be21ad50514d57acc3/pics/up-full.png";
+        window.useless_icon = "https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png";
+        window.uselessed_icon = "https://img1.doubanio.com/f/zerkalo/23cee7343568ca814238f5ef18bf8aadbe959df2/pics/down-full.png";
+    </script>
+
+    <link rel="stylesheet" href="https://img1.doubanio.com/f/zerkalo/3aeb281ab0e4f2c7050458684acfeb6838441de9/css/review/editor/ng/setting_standalone.css">
+    <script src="https://img1.doubanio.com/f/zerkalo/938cdbe2e223a3117cbbcb4929cae2001b402c20/js/review/editor/ng/manifest.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/296cd5fec472a78add5fee958c58d72f47d91586/js/review/editor/ng/vendor.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/b140a9a8a3a6e73877ab7b1e41078199599a6ae9/js/review/editor/ng/setting_standalone.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/8941af7854ddad9561648b706cdb49f3d1534ff3/js/review/editor/ng/render_gif.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/ad32b4b739a59a90e9e3437fd2fba797dd7c26f2/js/review/actions.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/7196bdec780f03785f55b06fda34999595057f65/js/review/unfold.js"></script>
+    <script src="https://img1.doubanio.com/f/vendors/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js"></script>
+
+
+
+
+
+
+
+
+
+
+                <p class="pl">
+                    &gt;
+                        <a href="reviews">
+                            更多乐评
+                                21篇
+                        </a>
+                </p>
+    </section>
+<!-- COLLECTED JS -->
+
+
+
+
+        <br/>
+
+
+
+
+
+
+    <h2>
+        &#34;Rubber Soul&#34;的论坛
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+    </h2>
+
+    <div id="db-discussion-section" class="indent">
+
+    <table class="olt">
+        <tr><td><td><td><td></tr>
+
+                <tr>
+                    <td class="pl">
+                        <a href="https://music.douban.com/subject/1401362/discussion/637186963/" title="1965年10月~11月，录制专辑《Rubber Soul》相册一览">1965年10月~11月，录制专辑《Rubber Soul》相册一览</a></td><td class="pl">来自<a href="https://www.douban.com/people/150652714/">dizzymatter</a>
+                    </td>
+                    <td class="pl"></td>
+                    <td class="pl">2022-03-15 19:01:11</td>
+                </tr>
+
+                <tr>
+                    <td class="pl">
+                        <a href="https://music.douban.com/subject/1401362/discussion/43606682/" title="我觉得逼头四就是低级趣味">我觉得逼头四就是低级趣味</a></td><td class="pl">来自<a href="https://www.douban.com/people/jason1087/">[已注销]</a>
+                    </td>
+                    <td class="pl">15 回应</td>
+                    <td class="pl">2020-08-21 22:48:41</td>
+                </tr>
+
+                <tr>
+                    <td class="pl">
+                        <a href="https://music.douban.com/subject/1401362/discussion/22089806/" title="此情可待成追忆">此情可待成追忆</a></td><td class="pl">来自<a href="https://www.douban.com/people/cillayang/">cillayang</a>
+                    </td>
+                    <td class="pl"></td>
+                    <td class="pl">2010-02-19 23:20:49</td>
+                </tr>
+
+                <tr>
+                    <td class="pl">
+                        <a href="https://music.douban.com/subject/1401362/discussion/16445701/" title="载">载</a></td><td class="pl">来自<a href="https://www.douban.com/people/Icedive/">ice</a>
+                    </td>
+                    <td class="pl"></td>
+                    <td class="pl">2009-05-24 23:09:27</td>
+                </tr>
+
+                <tr>
+                    <td class="pl">
+                        <a href="https://music.douban.com/subject/1401362/discussion/11703309/" title="美国版少了三首歌">美国版少了三首歌</a></td><td class="pl">来自<a href="https://www.douban.com/people/2385774/">逆风居士</a>
+                    </td>
+                    <td class="pl"></td>
+                    <td class="pl">2009-05-13 14:06:03</td>
+                </tr>
+    </table>
+
+            <p class="pl" align="right">&gt; <a href="https://music.douban.com/subject/1401362/discussion/">浏览更多话题</a></p>
+    </div>
+
+
+
+
+
+    </div>
+
+        </div>
+        <div class="aside">
+
+
+
+
+
+
+    <div id="dale_music_subject_top_right"></div>
+<div id="dale_music_channel_right_mini"></div>
+<div id="dale_music_subject_top_middle"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h2>
+        以下豆列推荐
+        · · · · · ·
+         <span class="pl">(<a href="https://music.douban.com/subject/1401362/doulists">全部</a>)</span>
+    </h2>
+    <div id="db-doulist-section" class="indent">
+
+    <ul class="bs">
+        <li>
+            <a href="https://www.douban.com/doulist/241262/" target="_blank">豆瓣9分音乐专辑</a>
+                <span class="pl">(清晨的荣誉)</span>
+        </li>
+        <li>
+            <a href="https://www.douban.com/doulist/105583/" target="_blank">村上春树周边</a>
+                <span class="pl">(御堂柴)</span>
+        </li>
+        <li>
+            <a href="https://www.douban.com/doulist/170032/" target="_blank">滚石：500张历代最强专辑（持续更新）</a>
+                <span class="pl">(晃晃悠悠)</span>
+        </li>
+        <li>
+            <a href="https://www.douban.com/doulist/173400/" target="_blank">部分用户的心水唱片统计</a>
+                <span class="pl">(ⒹⓎ)</span>
+        </li>
+        <li>
+            <a href="https://www.douban.com/doulist/807739/" target="_blank">每首歌背后都有一个动人的故事</a>
+                <span class="pl">(nous)</span>
+        </li>
+    </ul>
+
+    </div>
+
+
+
+
+
+
+
+
+
+<h2>
+    谁听这张唱片?
+</h2>
+<div class="indent" id="collector">
+
+
+
+
+
+
+                <div class="ll">
+                    <a href="https://www.douban.com/people/242850400/"><img src="https://img2.doubanio.com/icon/up242850400-2.jpg" class="pil" alt="阿诚会发疯"/></a>
+                </div>
+                <div style="padding-left:60px;">
+                    <a href="https://www.douban.com/people/242850400/">阿诚会发疯</a>
+                    <br/>
+                    <div class="pl ll">今天凌晨听过</div>
+                    <br/>
+                </div>
+                <div class="clear"></div>
+                <br/>
+                <div class="ul" style="margin-bottom:12px;"></div>
+
+
+                <div class="ll">
+                    <a href="https://www.douban.com/people/62952105/"><img src="https://img1.doubanio.com/icon/up62952105-8.jpg" class="pil" alt="wjjjjjjjjj"/></a>
+                </div>
+                <div style="padding-left:60px;">
+                    <a href="https://www.douban.com/people/62952105/">wjjjjjjjjj</a>
+                    <br/>
+                    <div class="pl ll">昨天听过</div>
+                    <br/>
+
+                        <span class="pl">tags:Rock</span>
+                </div>
+                <div class="clear"></div>
+                <br/>
+                <div class="ul" style="margin-bottom:12px;"></div>
+
+
+                <div class="ll">
+                    <a href="https://www.douban.com/people/156890423/"><img src="https://img9.doubanio.com/icon/up156890423-15.jpg" class="pil" alt="24½"/></a>
+                </div>
+                <div style="padding-left:60px;">
+                    <a href="https://www.douban.com/people/156890423/">24½</a>
+                    <br/>
+                    <div class="pl ll">昨天听过</div>
+                    <span class="allstar40" title="推荐"></span><br/>
+                </div>
+                <div class="clear"></div>
+                <br/>
+                <div class="ul" style="margin-bottom:12px;"></div>
+
+
+                <div class="ll">
+                    <a href="https://www.douban.com/people/223983792/"><img src="https://img2.doubanio.com/icon/up223983792-2.jpg" class="pil" alt="🐙"/></a>
+                </div>
+                <div style="padding-left:60px;">
+                    <a href="https://www.douban.com/people/223983792/">🐙</a>
+                    <br/>
+                    <div class="pl ll">昨天想听</div>
+                    <br/>
+                </div>
+                <div class="clear"></div>
+                <br/>
+                <div class="ul" style="margin-bottom:12px;"></div>
+
+
+
+
+
+            <p class="pl">&gt;
+                <a href="https://music.douban.com/subject/1401362/comments?status=N">595人在听</a>
+            </p>
+
+            <p class="pl">&gt;
+                <a href="https://music.douban.com/subject/1401362/comments?status=P">15021人听过</a>
+            </p>
+
+            <p class="pl">&gt;
+                <a href="https://music.douban.com/subject/1401362/comments?status=F">1886人想听</a>
+            </p>
+</div>
+
+
+
+
+
+
+
+
+
+
+<!-- douban ad begin -->
+<div id="dale_music_subject_middle_right"></div>
+<script type="text/javascript">
+    (function (global) {
+        if(!document.getElementsByClassName) {
+            document.getElementsByClassName = function(className) {
+                return this.querySelectorAll("." + className);
+            };
+            Element.prototype.getElementsByClassName = document.getElementsByClassName;
+
+        }
+        var articles = global.document.getElementsByClassName('article'),
+            asides = global.document.getElementsByClassName('aside');
+
+        if (articles.length > 0 && asides.length > 0 && articles[0].offsetHeight >= asides[0].offsetHeight) {
+            (global.DoubanAdSlots = global.DoubanAdSlots || []).push('dale_music_subject_middle_right');
+        }
+    })(this);
+</script>
+<!-- douban ad end -->
+
+
+
+
+
+
+
+
+
+
+
+
+<p class="pl">订阅关于Rubber Soul的评论: <br/><span class="feed">
+    <a href="https://music.douban.com/feed/subject/1401362/reviews"> feed: rss 2.0</a></span></p>
+
+
+
+        </div>
+        <div class="extra">
+
+
+
+<!-- douban ad begin -->
+<div id="dale_music_subject_bottom_super_banner"></div>
+<script type="text/javascript">
+    (function (global) {
+        var body = global.document.body,
+            html = global.document.documentElement;
+
+        var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+        if (height >= 2000) {
+            (global.DoubanAdSlots = global.DoubanAdSlots || []).push('dale_music_subject_bottom_super_banner');
+        }
+    })(this);
+</script>
+<!-- douban ad end -->
+
+
+
+        </div>
+    </div>
+</div>
+
+
+<div id="footer">
+
+<span id="icp" class="fleft gray-link">
+    &copy; 2005－2023 douban.com, all rights reserved 北京豆网科技有限公司
+</span>
+
+<a href="https://www.douban.com/hnypt/variformcyst.py" style="display: none;"></a>
+
+<span class="fright">
+    <a href="https://www.douban.com/about">关于豆瓣</a>
+    · <a href="https://www.douban.com/jobs">在豆瓣工作</a>
+    · <a href="https://www.douban.com/about?topic=contactus">联系我们</a>
+    · <a href="https://www.douban.com/about/legal">法律声明</a>
+
+    · <a href="https://help.douban.com/?app=music" target="_blank">帮助中心</a>
+    · <a href="https://douban.fm/app">手机音乐</a>
+    · <a href="https://www.douban.com/partner/">豆瓣广告</a>
+</span>
+
+</div>
+
+    </div>
+    <script type="text/javascript" src="https://img1.doubanio.com/misc/mixed_static/23f807d8ff269601.js"></script>
+
+
+    <script type="text/javascript">
+        Do('dialog', function() {
+            $('.collect_btn').each(function(){
+                Douban.init_collect_btn(this);
+            });
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+    (function (global) {
+        var newNode = global.document.createElement('script'),
+            existingNode = global.document.getElementsByTagName('script')[0],
+            adSource = '//erebor.douban.com/',
+            userId = '',
+            browserId = 'ZX59oiRl9yw',
+            criteria = '7:TheBeatles|7:beatles|7:Rock|7:英国|7:摇滚|7:经典|7:1965|7:UK|7:欧美|7:Soul|3:/subject/1401362/',
+            preview = '',
+            debug = false,
+            adSlots = ['dale_music_subject_top_right', 'dale_music_channel_right_mini', 'dale_music_subject_top_middle'];
+
+        global.DoubanAdRequest = {src: adSource, uid: userId, bid: browserId, crtr: criteria, prv: preview, debug: debug};
+        global.DoubanAdSlots = (global.DoubanAdSlots || []).concat(adSlots);
+
+        newNode.setAttribute('type', 'text/javascript');
+        newNode.setAttribute('src', '//img1.doubanio.com/MnJwNGlleS9mL2FkanMvY2M1OGQyNTQ2N2I2YmQzOTlmNTliMGJiMjI4MWRhZTlkNTNjYTFkZC9hZC5yZWxlYXNlLmpz');
+        newNode.setAttribute('async', true);
+        existingNode.parentNode.insertBefore(newNode, existingNode);
+    })(this);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-5WP579" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WP579');</script>
+<!-- End Google Tag Manager -->
+
+
+<script type="text/javascript">
+var _paq = _paq || [];
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
+(function() {
+    var p=(('https:' == document.location.protocol) ? 'https' : 'http'), u=p+'://fundin.douban.com/';
+    _paq.push(['setTrackerUrl', u+'piwik']);
+    _paq.push(['setSiteId', '100001']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript';
+    g.defer=true;
+    g.async=true;
+    g.src=p+'://img3.doubanio.com/dae/fundin/piwik.js';
+    s.parentNode.insertBefore(g,s);
+})();
+</script>
+
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-7019765-1']);
+_gaq.push(['_setCampNameKey', 'dcn']);
+_gaq.push(['_setCampSourceKey', 'dcs']);
+_gaq.push(['_setCampMediumKey', 'dcm']);
+_gaq.push(['_setCampTermKey', 'dct']);
+_gaq.push(['_setCampContentKey', 'dcc']);
+_gaq.push(['_addOrganic', 'baidu', 'word']);
+_gaq.push(['_addOrganic', 'soso', 'w']);
+_gaq.push(['_addOrganic', '3721', 'name']);
+_gaq.push(['_addOrganic', 'youdao', 'q']);
+_gaq.push(['_addOrganic', 'so.360.cn', 'q']);
+_gaq.push(['_addOrganic', 'vnet', 'kw']);
+_gaq.push(['_addOrganic', 'sogou', 'query']);
+_gaq.push(['_addIgnoredOrganic', '豆瓣']);
+_gaq.push(['_addIgnoredOrganic', 'douban']);
+_gaq.push(['_addIgnoredOrganic', '豆瓣网']);
+_gaq.push(['_addIgnoredOrganic', 'www.douban.com']);
+_gaq.push(['_setDomainName', '.douban.com']);
+
+
+    _gaq.push(['_setCustomVar', 1, 'responsive_view_mode', 'desktop', 3]);
+
+_gaq.push(['_trackPageview']);
+_gaq.push(['_trackPageLoadTime']);
+
+window._ga_init = function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+};
+if (window.addEventListener) {
+    window.addEventListener('load', _ga_init, false);
+} else {
+    window.attachEvent('onload', _ga_init);
+}
+</script>
+
+
+
+
+
+    <!-- dae-web-music--default-68657c8d67-h5wp7-->
+
+  <script>_SPLITTEST=''</script>
+</body>
+
+</html>
