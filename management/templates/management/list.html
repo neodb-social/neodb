@@ -7,8 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+    {% include "common_libs.html" with jquery=0 %}
 
     <title>{{ site_name }} - {% trans '公告栏' %}</title>
 </head>
@@ -58,10 +57,10 @@
                                 <a href="{% url 'management:delete' announcement.pk %}">{% trans '删除' %}</a>
                             </span>
                             {% endif %}
-                                
+
                             <p>{{ announcement.get_plain_content }}</p>
                         </li>
-                        
+
                         {% if not forloop.last %}
                             <div class="dividing-line"></div>
                         {% endif %}
@@ -71,16 +70,16 @@
                         {% endfor %}
                     </ul>
                     <!-- <div class="pagination">
-                    
+
                         {% if object_list.pagination.has_prev %}
                         <a href="?page=1&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                             class="pagination__nav-link pagination__nav-link">&laquo;</a>
                         <a href="?page={{ object_list.previous_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                             class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
                         {% endif %}
-                    
+
                         {% for page in object_list.pagination.page_range %}
-                    
+
                         {% if page == object_list.pagination.current_page %}
                         <a href="?page={{ page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                             class="pagination__page-link pagination__page-link--current">{{ page }}</a>
@@ -88,16 +87,16 @@
                         <a href="?page={{ page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                             class="pagination__page-link">{{ page }}</a>
                         {% endif %}
-                    
+
                         {% endfor %}
-                    
+
                         {% if object_list.pagination.has_next %}
                         <a href="?page={{ object_list.next_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                             class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
                         <a href="?page={{ object_list.pagination.last_page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                             class="pagination__nav-link">&raquo;</a>
                         {% endif %}
-                    
+
                     </div> -->
                 </div>
             </div>

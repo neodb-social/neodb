@@ -36,7 +36,7 @@ $sub-section-title-margin: 8px
 		$width: 130px
 		min-width: $width
 		max-width: $width
-		
+
 	& &__entity-text
 		margin-left: 20px
 		overflow: hidden
@@ -47,7 +47,7 @@ $sub-section-title-margin: 8px
 
 	& &__entity-link
 		font-size: 1.2em
-	
+
 	& &__entity-title
 		display: block
 
@@ -55,7 +55,7 @@ $sub-section-title-margin: 8px
 		color: $color-tertiary
 		margin-left: 5px
 		position: relative;
-		top: -1px;		
+		top: -1px;
 
 	& &__entity-info
 		max-width: 73%
@@ -107,7 +107,7 @@ $sub-section-title-margin: 8px
 		object-fit: contain
 		max-width: 150px
 		object-position: top
-	
+
 	& &__img-origin
 		cursor: zoom-in
 
@@ -123,7 +123,7 @@ $sub-section-title-margin: 8px
 
 	& &__title--secondary
 		color: $color-tertiary
-		
+
 	& &__fields
 		display: inline-block
 		vertical-align: top
@@ -192,7 +192,7 @@ $mark-review-padding-wider: 6px 0
 	& &__more-link
 		margin-left: 5px
 	& &__mark-list
-	
+
 	& &__mark
 		margin: 0
 		padding: $mark-review-padding
@@ -218,7 +218,7 @@ $mark-review-padding-wider: 6px 0
 	& &__empty
 
 // includes reviews of an entity
-// sub section	
+// sub section
 .entity-reviews
 	// when used alone
 	&:first-child
@@ -229,7 +229,7 @@ $mark-review-padding-wider: 6px 0
 		& > a
 			margin-right: 5px
 		&--stand-alone
-			margin-bottom: $section-title-margin		
+			margin-bottom: $section-title-margin
 	& &__more-link
 		margin-left: 5px
 	& &__review-list
@@ -241,7 +241,7 @@ $mark-review-padding-wider: 6px 0
 		&:last-child
 			border: none
 		&--wider
-			padding: $mark-review-padding-wider			
+			padding: $mark-review-padding-wider
 
 	& &__review-time
 		color: $color-light
@@ -250,7 +250,7 @@ $mark-review-padding-wider: 6px 0
 
 	& &__owner-link
 
-	& &__empty		
+	& &__empty
 
 .dividing-line
 	height: 0
@@ -312,7 +312,7 @@ $mark-review-padding-wider: 6px 0
 		-webkit-line-clamp: 2
 
 	& &__empty
-	
+
 	// for drag and sort purpose
 	&--placeholder
 		border: dashed $color-tertiary 4px
@@ -327,7 +327,6 @@ $mark-review-padding-wider: 6px 0
 		cursor: all-scroll
 	&--hidden
 		opacity: 0.4
-
 
 .entity-sort-control
 	display: flex
@@ -367,7 +366,7 @@ $mark-review-padding-wider: 6px 0
 		overflow: auto
 
 	& &__user-name
-	
+
 	& &__user-bio
 
 	& &__user-avatar
@@ -384,7 +383,7 @@ $mark-review-padding-wider: 6px 0
 		margin-bottom: 10px
 		&::after
 			@include clear
-	
+
 	& &__info
 		float: left
 
@@ -400,7 +399,7 @@ $mark-review-padding-wider: 6px 0
 		position: relative
 		top: 3px
 		left: -1px
-	
+
 	& &__actions
 		float: right
 
@@ -526,7 +525,7 @@ $mark-review-padding-wider: 6px 0
 
 	.entity-marks
 		& &__mark-list
-		
+
 		& &__mark
 
 		& &__rating-star
@@ -550,7 +549,7 @@ $mark-review-padding-wider: 6px 0
 			float: unset
 		& &__actions
 			float: unset
-	
+
 	.track-carousel
 		&__content
 			padding-bottom: 10px
@@ -560,14 +559,19 @@ $mark-review-padding-wider: 6px 0
 			margin-right: 4.5%
 
 
+.calendar_view
+	left: -20px
+	position: relative
+
 // Medium devices (tablets, 768px and up)
 @media (max-width: $medium-devices)
-	pass
+  .calendar_view
+    overflow-x: scroll
 // Large devices (desktops, 992px and up)
 @media (max-width: $large-devices)
 	.main-section-wrapper
 		padding: $main-section-padding-mobile
-	
+
 	.entity-detail
 		display: flex
 		& &__info

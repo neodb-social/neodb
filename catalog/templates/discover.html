@@ -116,7 +116,7 @@
     {% include "partial/_footer.html" %}
   </div>
 
-  {% if unread_announcements %}
+  {% if request.user.unread_announcements %}
   {% include "partial/_announcement.html" %}
   {% endif %}
 </body>

@@ -123,5 +123,10 @@ urlpatterns = [
         name="user_tag_list",
     ),
     re_path(r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/$", profile, name="user_profile"),
+    re_path(
+        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/calendar_data$",
+        user_calendar_data,
+        name="user_calendar_data",
+    ),
     path("users/<str:id>/feed/reviews/", ReviewFeed(), name="review_feed"),
 ]

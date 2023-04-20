@@ -23,7 +23,7 @@
         </div>
         <div class="announcement-modal__body">
             <ul>
-                {% for ann in unread_announcements %}
+                {% for ann in request.user.unread_announcements %}
                     <li class="announcement">
                         <a href="{% url 'management:retrieve' ann.pk %}">
                             <h5 class="announcement__title">{{ ann.title }}</h5>

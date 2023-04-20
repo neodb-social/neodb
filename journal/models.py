@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models.fields import related
 from polymorphic.models import PolymorphicModel
 from users.models import User
 from catalog.common.models import Item, ItemCategory
@@ -24,8 +23,7 @@ from catalog.models import *
 from django.contrib.contenttypes.models import ContentType
 from .renderers import render_md, render_text
 from catalog.common import jsondata
-
-from journal import renderers
+from django.db import connection
 
 _logger = logging.getLogger(__name__)
 
@@ -45,6 +43,17 @@ def q_visible_to(viewer, owner):
         return Q(visibility__in=[0, 1])
     else:
         return Q(visibility=0)
+
+
+def max_visiblity_to(viewer, owner):
+    if viewer == owner:
+        return 2
+    # elif viewer.is_blocked_by(owner):
+    #     return Q(pk__in=[])
+    elif viewer.is_authenticated and viewer.is_following(owner):
+        return 1
+    else:
+        return 0
 
 
 def query_visible(user):
@@ -690,6 +699,31 @@ class ShelfManager:
     @staticmethod
     def get_manager_for_user(user):
         return ShelfManager(user)
+
+    def get_calendar_data(self, max_visiblity):
+        shelf_id = self.get_shelf(ShelfType.COMPLETE).pk
+        timezone_offset = timezone.now().strftime("%z")
+        calendar_data = {}
+        sql = "SELECT DATE_TRUNC('day', journal_shelfmember.created_time AT TIME ZONE %s) date, django_content_type.model type, COUNT(1) count FROM journal_shelfmember, catalog_item, django_content_type WHERE journal_shelfmember.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND parent_id = %s AND journal_shelfmember.created_time >= NOW() - INTERVAL '366 days' AND journal_shelfmember.visibility <= %s GROUP BY item_id, date, type;"
+        with connection.cursor() as cursor:
+            cursor.execute(sql, [timezone_offset, shelf_id, max_visiblity])
+            data = cursor.fetchall()
+            for line in data:
+                date = line[0].strftime("%Y-%m-%d")
+                typ = line[1]
+                if date not in calendar_data:
+                    calendar_data[date] = {"items": []}
+                if typ[:2] == "tv":
+                    typ = "movie"
+                elif typ == "album":
+                    typ = "music"
+                elif typ == "edition":
+                    typ = "book"
+                elif typ not in ["book", "movie", "music", "game"]:
+                    typ = "other"
+                if typ not in calendar_data[date]["items"]:
+                    calendar_data[date]["items"].append(typ)
+        return calendar_data
 
 
 User.shelf_manager = cached_property(ShelfManager.get_manager_for_user)

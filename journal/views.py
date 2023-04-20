@@ -787,24 +787,10 @@ def profile(request, user_name):
     if not request.user.is_authenticated and user.get_preference().no_anonymous_view:
         return profile_anonymous(request, user_name)
     # access one's own home page
-    if user == request.user:
-        reports = Report.objects.order_by("-submitted_time").filter(is_read=False)
-        unread_announcements = Announcement.objects.filter(
-            pk__gt=request.user.read_announcement_index
-        ).order_by("-pk")
-        try:
-            request.user.read_announcement_index = Announcement.objects.latest("pk").pk
-            request.user.save(update_fields=["read_announcement_index"])
-        except ObjectDoesNotExist:
-            # when there is no annoucenment
-            pass
-    # visit other's home page
-    else:
-        if user.is_blocked_by(request.user) or user.is_blocking(request.user):
-            return render_user_blocked(request)
-        # no these value on other's home page
-        reports = None
-        unread_announcements = None
+    if user != request.user and (
+        user.is_blocked_by(request.user) or user.is_blocking(request.user)
+    ):
+        return render_user_blocked(request)
 
     qv = q_visible_to(request.user, user)
     shelf_list = {}
@@ -866,7 +852,22 @@ def profile(request, user_name):
             ],
             "liked_collections_count": liked_collections.count(),
             "layout": user.get_preference().profile_layout,
-            "reports": reports,
-            "unread_announcements": unread_announcements,
+        },
+    )
+
+
+def user_calendar_data(request, user_name):
+    if request.method != "GET":
+        raise BadRequest()
+    user = User.get(user_name)
+    if user is None or not request.user.is_authenticated:
+        return HttpResponse("")
+    max_visiblity = max_visiblity_to(request.user, user)
+    calendar_data = user.shelf_manager.get_calendar_data(max_visiblity)
+    return render(
+        request,
+        "calendar_data.html",
+        {
+            "calendar_data": calendar_data,
         },
     )

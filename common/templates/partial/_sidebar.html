@@ -124,32 +124,6 @@
                 {% endif %}
 
             </div>
-
-            <div
-                class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
-                {% if request.user.is_staff and request.user == user%}
-                <div class="report-panel">
-                    <h5 class="report-panel__label">{% trans '投诉信息' %}</h5>
-                    <a class="report-panel__all-link"
-                        href="{% url 'users:manage_report' %}">全部投诉</a>
-                    <div class="report-panel__body">
-                        <ul class="report-panel__report-list">
-                            {% for report in reports %}
-                            <li class="report-panel__report">
-                                <a href="{% url 'journal:user_profile' report.submit_user.mastodon_username %}"
-                                    class="report-panel__user-link">{{ report.submit_user }}</a>{% trans '已投诉' %}<a
-                                    href="{% url 'journal:user_profile' report.reported_user.mastodon_username %}"
-                                    class="report-panel__user-link">{{ report.reported_user }}</a>
-                            </li>
-                            {% empty %}
-                            <div>{% trans '暂无新投诉' %}</div>
-                            {% endfor %}
-
-                        </ul>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
         </div>
         {% endif %}
     </div>

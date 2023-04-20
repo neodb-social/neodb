@@ -18,9 +18,11 @@
   {% endif %}
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }} - {{ user.mastodon_username }}的评论" href="{{ request.build_absolute_uri }}feed/reviews/">
 
-  {% include "common_libs.html" with jquery=0 %}
+  {% include "common_libs.html" with jquery=1 %}
   <script src="{% static 'js/mastodon.js' %}" defer></script>
   <script src="{% static 'js/home.js' %}" defer></script>
+  <script src="{% static 'lib/js/calendar_yearview_blocks.js' %}" defer></script>
+  <link href="{% static 'lib/css/calendar_yearview_blocks.css' %}" media="all" rel="stylesheet"/>
 </head>
 
 <body>
@@ -33,6 +35,38 @@
           <div class="grid__main grid__main--reverse-order">
 
             <div class="main-section-wrapper sortable">
+
+              {% if request.user.is_staff %}
+              <div class="entity-sort" id="calendar_grid">
+                <h5 class="entity-sort__label">书影音日历</h5>
+                <div class="calendar_view" hx-get="{% url 'journal:user_calendar_data' user.mastodon_username %}" hx-trigger="load" hx-swap="innerHTML">
+                  <p style="text-align: center;">
+                  <i class="fas fa-fan fa-spin"></i>
+                  </p>
+                </div>
+                <script type="text/javascript">
+                  document.body.addEventListener('htmx:afterSettle', function(evt) {
+                    if ($(evt.detail.elt).hasClass('calendar_view')) {
+                      $(evt.detail.elt).calendar_yearview_blocks({
+                        data: $(evt.detail.elt).text(),
+                        start_monday: false,
+                        always_show_tooltip: false,
+                        month_names: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+                        day_names: ['', '', ''],
+                        colors: {
+                          'default': '#eeeeee', // Default color
+                          'book': '#B4D2A5',
+                          'movie': '#7CBDFE',
+                          'music': '#FEA36D',
+                          'game': '#C5A290',
+                          'other': '#9D6AB0'
+                        }
+                      });
+                    }
+                  });
+                </script>
+              </div>
+              {% endif %}
 
               {% for category, category_shelves in shelf_list.items %}
               {% for shelf_type, shelf in category_shelves.items %}
@@ -189,7 +223,7 @@
     {% include "partial/_footer.html" %}
   </div>
 
-  {% if unread_announcements %}
+  {% if request.user.unread_announcements %}
   {% include "partial/_announcement.html" %}
   {% endif %}
 </body>

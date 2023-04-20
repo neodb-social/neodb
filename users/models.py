@@ -1,5 +1,6 @@
 import uuid
 import django.contrib.postgres.fields as postgres
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
@@ -7,6 +8,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.translation import gettext_lazy as _
 from common.utils import GenerateDateUUIDMediaFilePath
 from django.conf import settings
+from management.models import Announcement
 from mastodon.api import *
 from django.urls import reverse
 
@@ -185,6 +187,19 @@ class User(AbstractUser):
             return 1
         else:
             return 0
+
+    @property
+    def unread_announcements(self):
+        unread_announcements = Announcement.objects.filter(
+            pk__gt=self.read_announcement_index
+        ).order_by("-pk")
+        try:
+            self.read_announcement_index = Announcement.objects.latest("pk").pk
+            self.save(update_fields=["read_announcement_index"])
+        except ObjectDoesNotExist:
+            # when there is no annoucenment
+            pass
+        return unread_announcements
 
     @classmethod
     def get(cls, id):

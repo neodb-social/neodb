@@ -306,19 +306,9 @@ def discover(request):
     if user.is_authenticated:
         layout = user.get_preference().discover_layout
         top_tags = user.tag_manager.all_tags[:10]
-        unread_announcements = Announcement.objects.filter(
-            pk__gt=request.user.read_announcement_index
-        ).order_by("-pk")
-        try:
-            user.read_announcement_index = Announcement.objects.latest("pk").pk
-            user.save(update_fields=["read_announcement_index"])
-        except ObjectDoesNotExist:
-            # when there is no annoucenment
-            pass
     else:
         layout = []
         top_tags = []
-        unread_announcements = []
 
     cache_key = "public_gallery_list"
     gallery_list = cache.get(cache_key, [])
@@ -374,6 +364,5 @@ def discover(request):
             "top_tags": top_tags,
             "gallery_list": gallery_list,
             "layout": layout,
-            "unread_announcements": unread_announcements,
         },
     )

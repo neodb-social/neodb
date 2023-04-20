@@ -17,19 +17,11 @@ PAGE_SIZE = 10
 def feed(request):
     if request.method != "GET":
         raise BadRequest()
-    user = request.user
-    unread = Announcement.objects.filter(pk__gt=user.read_announcement_index).order_by(
-        "-pk"
-    )
-    if unread:
-        user.read_announcement_index = Announcement.objects.latest("pk").pk
-        user.save(update_fields=["read_announcement_index"])
     return render(
         request,
         "feed.html",
         {
-            "top_tags": user.tag_manager.all_tags[:10],
-            "unread_announcements": unread,
+            "top_tags": request.user.tag_manager.all_tags[:10],
         },
     )
 
