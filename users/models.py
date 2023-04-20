@@ -220,7 +220,7 @@ class Preference(models.Model):
     )
     default_no_share = models.BooleanField(default=False)
     default_visibility = models.PositiveSmallIntegerField(default=0)
-    classic_homepage = models.BooleanField(null=False, default=False)
+    classic_homepage = models.PositiveSmallIntegerField(null=False, default=0)
     mastodon_publish_public = models.BooleanField(null=False, default=False)
     mastodon_append_tag = models.CharField(max_length=2048, default="")
     show_last_edit = models.PositiveSmallIntegerField(default=0)

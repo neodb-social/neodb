@@ -42,10 +42,11 @@
                                                  仅自己</label>
                                             </div>
                                             <br>
-                                            <span>{% trans '登录后显示个人主页：' %}</span>
+                                            <span>{% trans '登录后显示：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                <input type="checkbox" name="classic_homepage" id="classic_homepage" {%if request.user.preference.classic_homepage %}checked{% endif %}>
-                                                <label for="classic_homepage">{% trans '默认登录后显示内容发现，如果希望登录后显示本人主页可选中此处' %}</label>
+                                                <input type="radio" name="classic_homepage" value="0" id="classic_homepage0" {%if request.user.preference.classic_homepage == 0 %}checked{% endif %}> 内容发现
+                                                <input type="radio" name="classic_homepage" value="1" id="classic_homepage1" {%if request.user.preference.classic_homepage == 1 %}checked{% endif %}> 个人主页
+                                                <input type="radio" name="classic_homepage" value="2" id="classic_homepage2" {%if request.user.preference.classic_homepage == 2 %}checked{% endif %}> 好友动态
                                             </div>
                                             <br style="margin-bottom:1.5em">
                                             <span>{% trans '不允许未登录用户访问个人主页：' %}</span>

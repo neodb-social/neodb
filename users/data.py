@@ -40,7 +40,7 @@ def preferences(request):
     if request.method == "POST":
         preference.default_visibility = int(request.POST.get("default_visibility"))
         preference.default_no_share = bool(request.POST.get("default_no_share"))
-        preference.classic_homepage = bool(request.POST.get("classic_homepage"))
+        preference.classic_homepage = int(request.POST.get("classic_homepage"))
         preference.mastodon_publish_public = bool(
             request.POST.get("mastodon_publish_public")
         )
