@@ -8,7 +8,7 @@
 	padding: 0 2.0rem;
 	width: 100%
 
-.grid 
+.grid
 	@include container
 
 	$main-width: 70%
@@ -18,7 +18,7 @@
 		width: $main-width
 		float: left
 		position: relative
-	
+
 	& &__aside
 		width: $aside-width
 		// background-color: $color-bright
@@ -30,11 +30,12 @@
 		justify-content: space-around
 
 	&::after
-		@include clear		
+		@include clear
 
 // Small devices (landscape phones, 576px and up)
 @media (max-width: $small-devices)
 	.grid
+		padding: 0 0.2rem;
 		& &__aside
 			flex-direction: column !important
 // Medium devices (tablets, 768px and up)
@@ -58,9 +59,7 @@
 		& &__main--reverse-order
 				transform: scaleY(-1)
 		& &__aside--reverse-order
-				transform: scaleY(-1)				
+				transform: scaleY(-1)
 // Extra large devices (large desktops, 1200px and up)
 @media (max-width: $x-large-devices)
 	pass
-
-

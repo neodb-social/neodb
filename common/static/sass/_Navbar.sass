@@ -85,41 +85,22 @@
         & &__wrapper
             display: block
         & &__logo-img
-            width: 72px
+            max-width: 72px
+            max-height: 26px
             margin-right: 10px
             position: relative
             top: 7px
-
-        // dropdown
-        & &__link-list
-            // display: block
-            margin-top: 7px
-            max-height: 0
-            transition: max-height 0.6s ease-out
-            overflow: hidden;
-        & &__dropdown-btn
-            display: block
-            position: absolute
-            right: 5px
-            top: 3px
-
-            transform: scale(0.7)
-            &:hover + .navbar__link-list
-                max-height: 500px
-                transition: max-height 0.6s ease-in
-
         & &__search-box
             margin: 0
-            width: 46vw
+            width: 80%
             $widget-height: 26px
             & > input[type="search"]
                 height: $widget-height
                 padding: 4px 6px
-                width: 32vw
             & .navbar__search-dropdown
                 cursor: pointer
                 height: $widget-height
-                width: 80px
+                width: 60px
                 padding-left: 5px
         .dropdown
             display: inline
