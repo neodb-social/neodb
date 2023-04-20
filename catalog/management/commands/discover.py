@@ -13,13 +13,13 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--generate",
+            "--update",
             action="store_true",
             help="generate discover data",
         )
 
     def handle(self, *args, **options):
-        if options["generate"]:
+        if options["update"]:
             cache_key = "public_gallery_list"
             gallery_categories = [
                 ItemCategory.Book,
@@ -34,14 +34,15 @@ class Command(BaseCommand):
                 item_ids = [
                     m.item_id
                     for m in ShelfMember.objects.filter(query_item_category(category))
-                    .filter(created_time__gt=timezone.now() - timedelta(days=180))
+                    .filter(created_time__gt=timezone.now() - timedelta(days=42))
                     .annotate(num=Count("item_id"))
                     .order_by("-num")[:100]
                 ]
                 gallery_list.append(
                     {
                         "name": "popular_" + category.value,
-                        "title": "热门" + category.label,
+                        "title": "热门"
+                        + (category.label if category != ItemCategory.Book else "图书"),
                         "item_ids": item_ids,
                     }
                 )
