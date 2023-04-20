@@ -19,3 +19,4 @@ from .bangumi import Bangumi
 from .discogs import DiscogsRelease
 from .discogs import DiscogsMaster
 from .bookstw import BooksTW
+from .apple_music import AppleMusic

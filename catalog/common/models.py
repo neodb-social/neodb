@@ -36,6 +36,7 @@ class SiteName(models.TextChoices):
     # ApplePodcast = "apple_podcast", _("苹果播客")
     RSS = "rss", _("RSS")
     Discogs = "discogs", _("Discogs")
+    AppleMusic = "apple_music", _("苹果音乐")
 
 
 class IdType(models.TextChoices):
@@ -78,6 +79,7 @@ class IdType(models.TextChoices):
     Steam = "steam", _("Steam游戏")
     Bangumi = "bangumi", _("Bangumi")
     ApplePodcast = "apple_podcast", _("苹果播客")
+    AppleMusic = "apple_music", _("苹果音乐")
 
 
 IdealIdTypes = [
