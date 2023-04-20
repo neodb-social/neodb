@@ -76,11 +76,16 @@ def following(request, id):
 def set_layout(request):
     if request.method == "POST":
         layout = json.loads(request.POST.get("layout"))
-        request.user.preference.profile_layout = layout
-        request.user.preference.save()
-        return redirect(
-            reverse("journal:user_profile", args=[request.user.mastodon_username])
-        )
+        if request.POST.get("name") == "profile":
+            request.user.preference.profile_layout = layout
+            request.user.preference.save(update_fields=["profile_layout"])
+            return redirect(
+                reverse("journal:user_profile", args=[request.user.mastodon_username])
+            )
+        elif request.POST.get("name") == "discover":
+            request.user.preference.discover_layout = layout
+            request.user.preference.save(update_fields=["discover_layout"])
+            return redirect(reverse("catalog:discover"))
     else:
         raise BadRequest()
 

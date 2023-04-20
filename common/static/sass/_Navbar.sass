@@ -22,17 +22,17 @@
         margin: 0
         display: flex
         justify-content: space-around
-        
+
     & &__link
         margin: 9px
         color: $color-secondary
-        
+
         &:active,
         &:hover,
         &:hover:visited
             color: $color-primary
 
-        &:visited            
+        &:visited
             color: $color-secondary
 
     .current
@@ -56,12 +56,12 @@
             margin: 0
             margin-left: -1px
             padding: 0
-            padding-left: 10px 
+            padding-left: 10px
             color: $color-secondary
             appearance: auto
             background-color: white
-            height: $widget-height 
-            width: 80px 
+            height: $widget-height
+            width: 80px
             border-top-left-radius: 0
             border-bottom-left-radius: 0
 
@@ -70,13 +70,13 @@
         padding: 0
         margin: 0
         border: none
-        
+
         background-color: transparent
         color: $color-primary
         &:focus,
         &:hover
             background-color: transparent
-            color: $color-secondary        
+            color: $color-secondary
 
 // Small devices (landscape phones, 576px and up)
 @media (max-width: $small-devices)
@@ -102,7 +102,7 @@
             position: absolute
             right: 5px
             top: 3px
-            
+
             transform: scale(0.7)
             &:hover + .navbar__link-list
                 max-height: 500px
@@ -119,8 +119,14 @@
             & .navbar__search-dropdown
                 cursor: pointer
                 height: $widget-height
-                width: 80px                
+                width: 80px
                 padding-left: 5px
+        .dropdown
+            display: inline
+            margin-left: 0px
+            margin-right: 0px
+        .dropbtn
+            display: none
 // Medium devices (tablets, 768px and up)
 @media (max-width: $medium-devices)
 	pass
@@ -131,3 +137,30 @@
 // Extra large devices (large desktops, 1200px and up)
 @media (max-width: $x-large-devices)
 	pass
+
+@media (min-width: $small-devices)
+    .navbar
+        .dropbtn
+            color: #606c76
+            cursor: pointer
+        .dropdown
+            position: relative
+            display: inline-block
+            float: right
+        .dropdown-content
+            display: none
+            position: absolute
+            right: 0
+            background-color: #f9f9f9
+            min-width: 80px
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)
+            z-index: 1
+        .dropdown-content a
+            color: black
+            padding: 4px 8px
+            text-decoration: none
+            display: block
+        .dropdown-content a:hover
+            background-color: #eeeeee
+        .dropdown:hover .dropdown-content
+            display: block

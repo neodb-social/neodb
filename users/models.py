@@ -208,6 +208,10 @@ class Preference(models.Model):
         blank=True,
         default=list,
     )
+    discover_layout = models.JSONField(
+        blank=True,
+        default=list,
+    )
     export_status = models.JSONField(
         blank=True, null=True, encoder=DjangoJSONEncoder, default=dict
     )

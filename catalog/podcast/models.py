@@ -89,6 +89,10 @@ class PodcastEpisode(Item):
     def parent_item(self):
         return self.program
 
+    @property
+    def cover_image_url(self):
+        return self.cover_url or self.program.cover_image_url
+
     def get_absolute_url_with_position(self, position=None):
         return (
             self.absolute_url

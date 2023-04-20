@@ -29,14 +29,20 @@
 
                     {% if request.user.is_authenticated %}
 
-                        <a class="navbar__link {% if current == 'home' %}current{% endif %}" href="{% url 'journal:user_profile' request.user.mastodon_username %}">{% trans '主页' %}</a>
+                        <a class="navbar__link {% if current == 'discover' %}current{% endif %}" href="{% url 'catalog:discover' %}">{% trans '发现' %}</a>
                         <a class="navbar__link {% if current == 'timeline' %}current{% endif %}" href="{% url 'social:feed' %}">{% trans '动态' %}</a>
-                        <a class="navbar__link {% if current == 'data' %}current{% endif %}" href="{% url 'users:data' %}">{% trans '数据' %}</a>
-                        <a class="navbar__link {% if current == 'preferences' %}current{% endif %}" href="{% url 'users:preferences' %}">{% trans '设置' %}</a>
-                        <a class="navbar__link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        {% if request.user.is_superuser %}
-                        <a class="navbar__link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
+                        <a class="navbar__link {% if current == 'home' %}current{% endif %}" href="{% url 'journal:user_profile' request.user.mastodon_username %}">{% trans '个人主页' %}</a>
+                        <div class="navbar__link dropdown">
+                          <a class="dropbtn"><i class="fa-solid fa-gear" title="{% trans '更多' %}"></i></a>
+                          <div class="dropdown-content">
+                            <a class="navbar__link {% if current == 'data' %}current{% endif %}" href="{% url 'users:data' %}">{% trans '数据' %}</a>
+                            <a class="navbar__link {% if current == 'preferences' %}current{% endif %}" href="{% url 'users:preferences' %}">{% trans '设置' %}</a>
+                            <a class="navbar__link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
+                            {% if request.user.is_superuser %}
+                            <a class="navbar__link" href="{% admin_url %}">{% trans '后台' %}</a>
+                            {% endif %}
+                          </div>
+                        </div>
 
                     {% else %}
                         <a class="navbar__link" href="{% url 'users:login' %}?next={{ request.path }}">{% trans '登录' %}</a>

@@ -37,7 +37,7 @@
               {% for category, category_shelves in shelf_list.items %}
               {% for shelf_type, shelf in category_shelves.items %}
 
-              <div class="entity-sort" id="{{ category }}_{{ shelf_type }}">
+              <div class="entity-sort" id="{{ category }}_{{ shelf_type }}" {% if not shelf.count %}style="display:none;"{% endif %}>
                 <h5 class="entity-sort__label">
                   {{ shelf.title }}
                 </h5>
@@ -64,7 +64,7 @@
               {% endfor %}
 
 
-              <div class="entity-sort" id="collection_created">
+              <div class="entity-sort" id="collection_created" {% if not collections_count %}style="display:none;"{% endif %}>
                 <h5 class="entity-sort__label">
                   {% trans '创建的收藏单' %}
                 </h5>
@@ -95,7 +95,7 @@
                 </ul>
               </div>
 
-              <div class="entity-sort" id="collection_marked">
+              <div class="entity-sort" id="collection_marked" {% if not liked_collections_count %}style="display:none;"{% endif %}>
                 <h5 class="entity-sort__label">
                   {% trans '关注的收藏单' %}
                 </h5>
@@ -158,6 +158,7 @@
             </div>
             <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
               {% csrf_token %}
+              <input type="hidden" name="name" value="profile">
               <input type="hidden" name="layout">
             </form>
             <script src="https://cdn.staticfile.org/html5sortable/0.13.3/html5sortable.min.js" crossorigin="anonymous"></script>

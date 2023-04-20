@@ -3,14 +3,14 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponseRedirect
-from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
 from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from catalog.common.models import ExternalResource
 from .models import *
 from django.views.decorators.clickjacking import xframe_options_exempt
-from journal.models import Mark, ShelfMember, Review
+from journal.models import Mark, ShelfMember, Review, query_item_category
 from journal.models import (
     query_visible,
     query_following,
@@ -18,10 +18,14 @@ from journal.models import (
 )
 from common.utils import PageLinksGenerator, get_uuid_or_404
 from common.config import PAGE_LINK_NUMBER
-from journal.models import ShelfTypeNames
+from journal.models import ShelfTypeNames, ShelfType, ItemCategory
 from .forms import *
 from .search.views import *
 from django.http import Http404
+from management.models import Announcement
+from django.core.cache import cache
+import random
+
 
 _logger = logging.getLogger(__name__)
 
@@ -290,5 +294,86 @@ def review_list(request, item_path, item_uuid):
         {
             "reviews": reviews,
             "item": item,
+        },
+    )
+
+
+@login_required
+def discover(request):
+    if request.method != "GET":
+        raise BadRequest()
+    user = request.user
+    if user.is_authenticated:
+        layout = user.get_preference().discover_layout
+        top_tags = user.tag_manager.all_tags[:10]
+        unread_announcements = Announcement.objects.filter(
+            pk__gt=request.user.read_announcement_index
+        ).order_by("-pk")
+        try:
+            user.read_announcement_index = Announcement.objects.latest("pk").pk
+            user.save(update_fields=["read_announcement_index"])
+        except ObjectDoesNotExist:
+            # when there is no annoucenment
+            pass
+    else:
+        layout = []
+        top_tags = []
+        unread_announcements = []
+
+    cache_key = "public_gallery_list"
+    gallery_list = cache.get(cache_key, [])
+
+    for gallery in gallery_list:
+        ids = (
+            random.sample(gallery["item_ids"], 10)
+            if len(gallery["item_ids"]) > 10
+            else gallery["item_ids"]
+        )
+        gallery["items"] = Item.objects.filter(id__in=ids)
+
+    if user.is_authenticated:
+        podcast_ids = [
+            p.item_id
+            for p in user.shelf_manager.get_members(
+                ShelfType.PROGRESS, ItemCategory.Podcast
+            )
+        ]
+        episodes = PodcastEpisode.objects.filter(program_id__in=podcast_ids).order_by(
+            "-pub_date"
+        )[:10]
+        gallery_list.insert(
+            0,
+            {
+                "name": "my_recent_podcasts",
+                "title": "在听播客的近期更新",
+                "items": episodes,
+            },
+        )
+        # books = Edition.objects.filter(
+        #     id__in=[
+        #         p.item_id
+        #         for p in user.shelf_manager.get_members(
+        #             ShelfType.PROGRESS, ItemCategory.Book
+        #         ).order_by("-created_time")[:10]
+        #     ]
+        # )
+        # gallery_list.insert(
+        #     0,
+        #     {
+        #         "name": "my_books_inprogress",
+        #         "title": "正在读的书",
+        #         "items": books,
+        #     },
+        # )
+
+    return render(
+        request,
+        "discover.html",
+        {
+            "user": user,
+            "top_tags": top_tags,
+            "gallery_list": gallery_list,
+            "layout": layout,
+            "unread_announcements": unread_announcements,
         },
     )

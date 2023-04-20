@@ -11,7 +11,7 @@ def home(request):
             reverse("journal:user_profile", args=[request.user.mastodon_username])
         )
     else:
-        return redirect(reverse("social:feed"))
+        return redirect(reverse("catalog:discover"))
 
 
 def error_400(request, exception=None):

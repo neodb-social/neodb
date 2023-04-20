@@ -84,4 +84,5 @@ urlpatterns = [
     path("fetch_refresh/<str:job_id>", fetch_refresh, name="fetch_refresh"),
     path("refetch", refetch, name="refetch"),
     path("unlink", unlink, name="unlink"),
+    path("discover/", discover, name="discover"),
 ]
