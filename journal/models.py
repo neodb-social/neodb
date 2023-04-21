@@ -547,6 +547,9 @@ class ShelfMember(ListMember):
 
     class Meta:
         unique_together = [["owner", "item"]]
+        indexes = [
+            models.Index(fields=["parent_id", "visibility", "created_time"]),
+        ]
 
     @cached_property
     def mark(self):

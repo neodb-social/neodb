@@ -330,7 +330,7 @@ def discover(request):
         ]
         episodes = PodcastEpisode.objects.filter(program_id__in=podcast_ids).order_by(
             "-pub_date"
-        )[:10]
+        )[:5]
         gallery_list.insert(
             0,
             {

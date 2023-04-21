@@ -36,6 +36,7 @@
             var current_date = new Date();
             var start_date = new Date();
             start_date.setMonth(end_date.getMonth() - 12);
+            end_year = end_date.getFullYear()
 
             var start_weekday = settings.start_monday === true?1:0;
             for (var i = 0; i < 7; i++) {
@@ -148,7 +149,7 @@
             // Add labels for Months
             for (var i = 0; i < month_position.length; i++) {
                 var item = month_position[i];
-                var month_name = settings.month_names[item.month_index];
+                var month_name = item.month_index ? settings.month_names[item.month_index] : end_year;
                 loop_html += '<text x="' + item.x + '" y="-5" class="month">' + month_name + '</text>';
             }
 
@@ -167,7 +168,7 @@
             // Fixed size with width= 721 and height = 110
             var wire_html =
                 '<svg width="721" height="110">' +
-                '<g transform="translate(25, 20)">' +
+                '<g transform="translate(0, 20)">' +
                 loop_html +
                 '</g>' + '"Your browser does not support inline SVG."' +
                 '</svg>';
@@ -231,7 +232,7 @@
             day_names: ['M', 'W', 'F', 'S'],
             start_monday: true,
             always_show_tooltip: false,
-            stylize_today: true,
+            stylize_today: false,
             final_date: new Date().toISOString().slice(0, 10),
             tooltip_style: 'default', // or 'custom'
             data: []
