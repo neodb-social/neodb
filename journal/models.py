@@ -702,14 +702,15 @@ class ShelfManager:
 
     def get_calendar_data(self, max_visiblity):
         shelf_id = self.get_shelf(ShelfType.COMPLETE).pk
-        timezone_offset = timezone.now().strftime("%z")
+        timezone_offset = timezone.localtime(timezone.now()).strftime("%z")
+        timezone_offset = timezone_offset[: len(timezone_offset) - 2]
         calendar_data = {}
-        sql = "SELECT DATE_TRUNC('day', journal_shelfmember.created_time AT TIME ZONE %s) date, django_content_type.model type, COUNT(1) count FROM journal_shelfmember, catalog_item, django_content_type WHERE journal_shelfmember.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND parent_id = %s AND journal_shelfmember.created_time >= NOW() - INTERVAL '366 days' AND journal_shelfmember.visibility <= %s GROUP BY item_id, date, type;"
+        sql = "SELECT to_char(DATE(journal_shelfmember.created_time::timestamp AT TIME ZONE %s), 'YYYY-MM-DD') AS dat, django_content_type.model typ, COUNT(1) count FROM journal_shelfmember, catalog_item, django_content_type WHERE journal_shelfmember.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND parent_id = %s AND journal_shelfmember.created_time >= NOW() - INTERVAL '366 days' AND journal_shelfmember.visibility <= %s GROUP BY item_id, dat, typ;"
         with connection.cursor() as cursor:
-            cursor.execute(sql, [timezone_offset, shelf_id, max_visiblity])
+            cursor.execute(sql, [timezone_offset, shelf_id, int(max_visiblity)])
             data = cursor.fetchall()
             for line in data:
-                date = line[0].strftime("%Y-%m-%d")
+                date = line[0]
                 typ = line[1]
                 if date not in calendar_data:
                     calendar_data[date] = {"items": []}
