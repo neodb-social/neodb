@@ -39,19 +39,20 @@
               {% if request.user.is_authenticated %}
               <div class="entity-sort" id="calendar_grid">
                 <h5 class="entity-sort__label">书影音日历</h5>
-                <div class="calendar_view" hx-get="{% url 'journal:user_calendar_data' user.mastodon_username %}" hx-trigger="load" hx-swap="innerHTML">
+                <div class="calendar_view">
                   <p style="text-align: center;">
                   <i class="fas fa-fan fa-spin"></i>
                   </p>
                 </div>
+                <span class="calendar_data" hx-get="{% url 'journal:user_calendar_data' user.mastodon_username %}" hx-trigger="load" hx-swap="innerHTML" style="display:none;"></span>
                 <script type="text/javascript">
                   document.body.addEventListener('htmx:afterSettle', function(evt) {
-                    if ($(evt.detail.elt).hasClass('calendar_view')) {
-                      $(evt.detail.elt).calendar_yearview_blocks({
+                    if ($(evt.detail.elt).hasClass('calendar_data')) {
+                      $(".calendar_view").calendar_yearview_blocks({
                         data: $(evt.detail.elt).text(),
                         start_monday: false,
                         always_show_tooltip: false,
-                        month_names: ['2023', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+                        month_names: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
                         day_names: ['', '', ''],
                         colors: {
                           'default': '#eeeeee', // Default color
