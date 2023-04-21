@@ -18,7 +18,7 @@
   {% endif %}
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }} - {{ user.mastodon_username }}的评论" href="{{ request.build_absolute_uri }}feed/reviews/">
 
-  {% include "common_libs.html" with jquery=1 %}
+  {% include "common_libs.html" with jquery=0 %}
   <script src="{% static 'js/mastodon.js' %}" defer></script>
   <script src="{% static 'js/home.js' %}" defer></script>
   <script src="{% static 'lib/js/calendar_yearview_blocks.js' %}" defer></script>
