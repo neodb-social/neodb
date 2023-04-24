@@ -16,12 +16,14 @@ class GoodreadsDownloader(RetryDownloader):
         if response is None:
             return RESPONSE_NETWORK_ERROR
         elif response.status_code == 200:
-            if response.text.find("__NEXT_DATA__") != -1:
+            if (
+                response.text.find("__NEXT_DATA__") != -1
+                and response.text.find('"title"') != -1
+            ):
                 return RESPONSE_OK
-            else:
-                # Goodreads may return legacy version for a/b testing
-                # retry if so
-                return RESPONSE_NETWORK_ERROR
+            # Goodreads may return legacy version for a/b testing
+            # retry if so
+            return RESPONSE_NETWORK_ERROR
         else:
             return RESPONSE_INVALID_CONTENT
 

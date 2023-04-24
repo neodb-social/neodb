@@ -1,7 +1,5 @@
 import re
-from lxml import html
 from datetime import datetime
-from django.conf import settings
 from user_messages import api as msg
 import django_rq
 from django.utils.timezone import make_aware
@@ -77,8 +75,11 @@ class GoodreadsImporter:
                 for book in shelf["books"]:
                     mark = Mark(user, book["book"])
                     if (
-                        mark.shelf_type == shelf_type
-                        or mark.shelf_type == ShelfType.COMPLETE
+                        (mark.shelf_type == shelf_type and mark.text == book["review"])
+                        or (
+                            mark.shelf_type == ShelfType.COMPLETE
+                            and shelf_type != ShelfType.COMPLETE
+                        )
                         or (
                             mark.shelf_type == ShelfType.PROGRESS
                             and shelf_type == ShelfType.WISHLIST
@@ -140,7 +141,7 @@ class GoodreadsImporter:
                     "https://www.goodreads.com"
                     + cell.xpath(".//td[@class='field actions']//a/@href")[0].strip()
                 )
-                review = ""
+                review = None
                 last_updated = None
                 date_elem = cell.xpath(".//td[@class='field date_added']//span/text()")
                 for d in date_elem:
@@ -157,7 +158,7 @@ class GoodreadsImporter:
                             )
                         )
                 try:
-                    c2 = BasicDownloader(url_shelf).download().html()
+                    c2 = BasicDownloader(url_review).download().html()
                     review_elem = c2.xpath("//div[@itemprop='reviewBody']/text()")
                     review = (
                         "\n".join(p.strip() for p in review_elem) if review_elem else ""
@@ -189,8 +190,8 @@ class GoodreadsImporter:
                             "last_updated": last_updated,
                         }
                     )
-                except Exception:
-                    print("Error adding " + url_book)
+                except Exception as e:
+                    print(f"Error adding {url_book} {e}")
                     pass  # likely just download error
             next_elem = content.xpath("//a[@class='next_page']/@href")
             url_shelf = (
