@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -18,7 +19,12 @@ def home(request):
 
 
 def error_400(request, exception=None):
-    return render(request, "400.html", status=400)
+    return render(
+        request,
+        "400.html",
+        {"exception": exception},
+        status=400,
+    )
 
 
 def error_403(request, exception=None):

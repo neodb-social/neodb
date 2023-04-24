@@ -1,4 +1,5 @@
 import logging
+from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
@@ -147,7 +148,7 @@ def create(request, item_model):
             form.instance.save()
             return redirect(form.instance.url)
         else:
-            raise BadRequest()
+            raise BadRequest(form.errors)
     else:
         raise BadRequest()
 
@@ -175,7 +176,7 @@ def edit(request, item_path, item_uuid):
             form.instance.save()
             return redirect(form.instance.url)
         else:
-            raise BadRequest()
+            raise BadRequest(form.errors)
     else:
         raise BadRequest()
 
@@ -233,7 +234,7 @@ def merge(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     new_item = Item.get_by_url(request.POST.get("new_item_url"))
     if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
-        raise BadRequest()
+        raise BadRequest("Can't merge to a deleted or redirected item")
     _logger.warn(f"{request.user} merges {item} to {new_item}")
     item.merge_to(new_item)
     update_journal_for_merged_item(item_uuid)
