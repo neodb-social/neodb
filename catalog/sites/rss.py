@@ -8,6 +8,8 @@ from catalog.podcast.models import PodcastEpisode
 from datetime import datetime
 from django.utils.timezone import make_aware
 import bleach
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -45,7 +47,12 @@ class RSS(AbstractSite):
 
     @classmethod
     def validate_url_fallback(cls, url):
-        return cls.parse_feed_from_url(url) is not None
+        val = URLValidator(verify_exists=False)
+        try:
+            val(url)
+            return cls.parse_feed_from_url(url) is not None
+        except Exception:
+            return False
 
     def scrape(self):
         feed = self.parse_feed_from_url(self.url)
