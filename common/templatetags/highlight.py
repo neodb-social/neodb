@@ -11,9 +11,20 @@ register = template.Library()
 @register.filter
 @stringfilter
 def highlight(text, search):
-    for s in cc.convert(search.strip().lower()).split(" "):
-        if s:
-            p = cc.convert(text.lower()).find(s)
-            if p != -1:
-                text = f'{text[0:p]}<span class="highlight">{text[p:p+len(s)]}</span>{text[p+len(s):]}'
-    return mark_safe(text)
+    otext = cc.convert(text.lower())
+    rtext = ""
+    words = list(set([w for w in cc.convert(search.strip().lower()).split(" ") if w]))
+    words.sort(key=len, reverse=True)
+    i = 0
+    while i < len(otext):
+        m = None
+        for w in words:
+            if otext[i : i + len(w)] == w:
+                m = f'<span class="highlight">{text[i:i+len(w)]}</span>'
+                i += len(w)
+                break
+        if not m:
+            m = text[i]
+            i += 1
+        rtext += m
+    return mark_safe(rtext)
