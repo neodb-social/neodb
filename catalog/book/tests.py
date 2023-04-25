@@ -169,6 +169,54 @@ class GoogleBooksTestCase(TestCase):
         self.assertEqual(site.resource.item.title, "1984 Nineteen Eighty-Four")
 
 
+class BooksTWTestCase(TestCase):
+    def test_parse(self):
+        t_type = IdType.BooksTW
+        t_id = "0010947886"
+        t_url = "https://www.books.com.tw/products/0010947886?loc=P_br_60nq68yhb_D_2aabdc_B_1"
+        t_url2 = "https://www.books.com.tw/products/0010947886"
+        p1 = SiteManager.get_site_by_url(t_url)
+        p2 = SiteManager.get_site_by_url(t_url2)
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.url, t_url2)
+        self.assertEqual(p1.ID_TYPE, t_type)
+        self.assertEqual(p1.id_value, t_id)
+        self.assertEqual(p2.url, t_url2)
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://www.books.com.tw/products/0010947886"
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertIsNotNone(site)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(
+            site.resource.metadata.get("title"),
+            "阿拉伯人三千年：從民族、部落、語言、文化、宗教到帝國，綜覽阿拉伯世界的崛起、衰落與再興",
+        )
+        self.assertEqual(
+            site.resource.metadata.get("orig_title"),
+            "Arabs: A 3000-Year History of Peoples, Tribes and Empires",
+        )
+        self.assertEqual(site.resource.metadata.get("isbn"), "9786263152236")
+        self.assertEqual(site.resource.metadata.get("author"), ["Tim Mackintosh-Smith"])
+        self.assertEqual(site.resource.metadata.get("translator"), ["吳莉君"])
+        self.assertEqual(site.resource.metadata.get("language"), "繁體中文")
+        self.assertEqual(site.resource.metadata.get("pub_house"), "臉譜")
+        self.assertEqual(site.resource.metadata.get("pub_year"), 2023)
+        self.assertEqual(site.resource.metadata.get("pub_month"), 2)
+        self.assertEqual(site.resource.metadata.get("binding"), "平裝")
+        self.assertEqual(site.resource.metadata.get("pages"), 792)
+        self.assertEqual(site.resource.metadata.get("price"), "1050 NTD")
+        self.assertEqual(site.resource.id_type, IdType.BooksTW)
+        self.assertEqual(site.resource.id_value, "0010947886")
+        self.assertEqual(site.resource.item.isbn, "9786263152236")
+        self.assertEqual(
+            site.resource.item.title, "阿拉伯人三千年：從民族、部落、語言、文化、宗教到帝國，綜覽阿拉伯世界的崛起、衰落與再興"
+        )
+
+
 class DoubanBookTestCase(TestCase):
     def setUp(self):
         pass

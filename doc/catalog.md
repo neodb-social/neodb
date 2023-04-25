@@ -88,14 +88,14 @@ classDiagram
 
 Add a new site
 --------------
- - add a new item to `IdType` enum in `catalog/common/models.py`
+ - add a new value to `IdType` and `SiteName` in `catalog/common/models.py`
  - add a new file in `catalog/sites/`, a new class inherits `AbstractSite`, with:
     * `SITE_NAME`
     * `ID_TYPE`
     * `URL_PATTERNS`
     * `WIKI_PROPERTY_ID` (not used now)
     * `DEFAULT_MODEL` (unless specified in `scrape()` return val)
-    * a `classmethod` `id_to_url()`
+    * a classmethod `id_to_url()`
     * a method `scrape()` returns a `ResourceContent` object
     * ...
 

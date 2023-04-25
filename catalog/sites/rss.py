@@ -47,7 +47,7 @@ class RSS(AbstractSite):
 
     @classmethod
     def validate_url_fallback(cls, url):
-        val = URLValidator(verify_exists=False)
+        val = URLValidator()
         try:
             val(url)
             return cls.parse_feed_from_url(url) is not None
