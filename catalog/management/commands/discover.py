@@ -32,9 +32,10 @@ class Command(BaseCommand):
             gallery_list = []
             for category in gallery_categories:
                 item_ids = [
-                    m.item_id
+                    m["item_id"]
                     for m in ShelfMember.objects.filter(query_item_category(category))
                     .filter(created_time__gt=timezone.now() - timedelta(days=42))
+                    .values("item_id")
                     .annotate(num=Count("item_id"))
                     .order_by("-num")[:100]
                 ]
