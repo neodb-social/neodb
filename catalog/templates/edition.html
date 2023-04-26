@@ -30,6 +30,7 @@
 		<span> {% trans '评分：评分人数不足' %}</span>
 		{% endif %}
 	</div>
+	<div>{% if item.subtitle %}{% trans '副标题：' %}{{ item.subtitle }}{% endif %}</div>
 	<div>{% if item.isbn %}{% trans 'ISBN：' %}{{ item.isbn }}{% endif %}</div>
 	<div>{% if item.author %}{% trans '作者：' %}
 		{% for author in item.author %}
@@ -37,18 +38,17 @@
 		{% endfor %}
 	{% endif %}</div>
 	<div>{% if item.pub_house %}{% trans '出版社：' %}{{ item.pub_house }}{% endif %}</div>
-	<div>{% if item.subtitle %}{% trans '副标题：' %}{{ item.subtitle }}{% endif %}</div>
+	<div>{% if item.orig_title %}{% trans '原作名：' %}{{ item.orig_title }}{% endif %}</div>
 	<div>{% if item.translator %}{% trans '译者：' %}
 		{% for translator in item.translator %}
 		<span>{{ translator }}</span>{% if not forloop.last %} / {% endif %}
 		{% endfor %}
 	{% endif %}</div>
-	<div>{% if item.orig_title %}{% trans '原作名：' %}{{ item.orig_title }}{% endif %}</div>
-	<div>{% if item.language %}{% trans '语言：' %}{{ item.language }}{% endif %}</div>
 	<div>{%if item.pub_year %}{% trans '出版时间：' %}{{ item.pub_year }}{% trans '年' %}{% if item.pub_month %}{{ item.pub_month }}{% trans '月' %}{% endif %}{% endif %}</div>
+	<div>{% if item.series %}{% trans '丛书系列：' %}{{ item.series }}{% endif %}</div>
 </div>
 <div class="entity-detail__fields">
-
+	<div>{% if item.language %}{% trans '语言：' %}{{ item.language }}{% endif %}</div>
 	<div>{% if item.binding %}{% trans '装帧：' %}{{ item.binding }}{% endif %}</div>
 	<div>{% if item.price %}{% trans '定价：' %}{{ item.price }}{% endif %}</div>
 	<div>{% if item.pages %}{% trans '页数：' %}{{ item.pages }}{% endif %}</div>

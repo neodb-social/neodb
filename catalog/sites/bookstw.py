@@ -41,6 +41,8 @@ class BooksTW(AbstractSite):
 
         authors = content.xpath("string(//div/ul/li[contains(text(),'作者：')])")
         authors = authors.strip().split("：", 1)[1].split(",") if authors else []
+        if not authors:
+            authors = [content.xpath("string(//div/ul/li[contains(.,'作者：')]/a)")]
         authors = [s.strip() for s in authors]
         # author_orig = content.xpath("string(//div/ul/li[contains(text(),'原文作者：')])")
 
@@ -95,11 +97,13 @@ class BooksTW(AbstractSite):
             else None
         )
 
-        brief = content.xpath("string(//h3[text()='內容簡介']/following-sibling::div)")
-        contents = content.xpath("string(//h3[text()='目錄']/following-sibling::div)")
+        series = content.xpath("string(//div/ul/li[contains(text(),'叢書系列：')]/a)")
 
-        series = None
         imprint = None
+
+        brief = content.xpath("string(//h3[text()='內容簡介']/following-sibling::div)")
+
+        contents = content.xpath("string(//h3[text()='目錄']/following-sibling::div)")
 
         img_url = content.xpath(
             "string(//div[contains(@class,'cover_img')]//img[contains(@class,'cover')]/@src)"
