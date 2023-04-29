@@ -12,11 +12,14 @@ register = template.Library()
 @stringfilter
 def highlight(text, search):
     otext = cc.convert(text.lower())
+    l = len(text)
+    if l != len(otext):
+        return text  # in rare cases, the lowered&converted text has a different length
     rtext = ""
     words = list(set([w for w in cc.convert(search.strip().lower()).split(" ") if w]))
     words.sort(key=len, reverse=True)
     i = 0
-    while i < len(otext):
+    while i < l:
         m = None
         for w in words:
             if otext[i : i + len(w)] == w:
