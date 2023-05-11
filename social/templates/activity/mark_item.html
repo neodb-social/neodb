@@ -8,6 +8,7 @@
 {% load thumb %}
 {% load prettydate %}
 {% load user_actions %}
+{% load duration %}
 
 {% wish_item_action activity.action_object.item as action %}
 {% like_piece_action activity.action_object as like_action %}
@@ -70,8 +71,9 @@
     {% if activity.action_object.review %}
     <a href="{{ activity.review.url }}">{{ activity.review.title }}</a>
     {% endif %}
+
     {% if activity.action_object.mark.rating %}
-    <span class="entity-marks__rating-star rating-star" data-rating-score="{{ activity.action_object.mark.rating }}" style=""></span>
+    <div>{{ activity.action_object.mark.rating | rating_star }}</div>
     {% endif %}
     {% if activity.action_object.mark.text %}
     <p class="entity-marks__mark-content">{{ activity.action_object.mark.comment_html|safe }}</p>

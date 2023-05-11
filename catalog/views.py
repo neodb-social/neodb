@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 from catalog.common.models import ExternalResource, IdealIdTypes
 from .models import *
 from django.views.decorators.clickjacking import xframe_options_exempt
-from journal.models import Mark, ShelfMember, Review, query_item_category
+from journal.models import Mark, ShelfMember, Review, Comment, query_item_category
 from journal.models import (
     query_visible,
     query_following,
@@ -85,32 +85,28 @@ def retrieve(request, item_path, item_uuid):
         )
     mark = None
     review = None
-    mark_list = None
-    review_list = None
+    my_collections = []
     collection_list = []
     shelf_types = [(n[1], n[2]) for n in iter(ShelfTypeNames) if n[0] == item.category]
     if request.user.is_authenticated:
         visible = query_visible(request.user)
         mark = Mark(request.user, item)
         review = mark.review
+        my_collections = item.collections.all().filter(owner=request.user)
         collection_list = (
             item.collections.all()
+            .exclude(owner=request.user)
             .filter(visible)
             .annotate(like_counts=Count("likes"))
             .order_by("-like_counts")
         )
-        mark_query = (
-            ShelfMember.objects.filter(item=item)
-            .filter(visible)
-            .order_by("-created_time")
+    else:
+        collection_list = (
+            item.collections.all()
+            .filter(visibility=0)
+            .annotate(like_counts=Count("likes"))
+            .order_by("-like_counts")
         )
-        mark_list = [member.mark for member in mark_query[:NUM_REVIEWS_ON_ITEM_PAGE]]
-        review_list = (
-            Review.objects.filter(item=item)
-            .filter(visible)
-            .order_by("-created_time")[:NUM_REVIEWS_ON_ITEM_PAGE]
-        )
-
     return render(
         request,
         item.class_name + ".html",
@@ -119,8 +115,7 @@ def retrieve(request, item_path, item_uuid):
             "focus_item": focus_item,
             "mark": mark,
             "review": review,
-            "mark_list": mark_list,
-            "review_list": review_list,
+            "my_collections": my_collections,
             "collection_list": collection_list,
             "shelf_types": shelf_types,
         },
@@ -321,6 +316,44 @@ def review_list(request, item_path, item_uuid):
         {
             "reviews": reviews,
             "item": item,
+        },
+    )
+
+
+@login_required
+def comments(request, item_path, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not item:
+        raise Http404()
+    queryset = Comment.objects.filter(item=item).order_by("-created_time")
+    queryset = queryset.filter(query_visible(request.user))
+    before_time = request.GET.get("last")
+    if before_time:
+        queryset = queryset.filter(created_time__lte=before_time)
+    return render(
+        request,
+        "item_comments.html",
+        {
+            "comments": queryset[:11],
+        },
+    )
+
+
+@login_required
+def reviews(request, item_path, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not item:
+        raise Http404()
+    queryset = Review.objects.filter(item=item).order_by("-created_time")
+    queryset = queryset.filter(query_visible(request.user))
+    before_time = request.GET.get("last")
+    if before_time:
+        queryset = queryset.filter(created_time__lte=before_time)
+    return render(
+        request,
+        "item_reviews.html",
+        {
+            "reviews": queryset[:11],
         },
     )
 

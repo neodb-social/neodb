@@ -1,0 +1,220 @@
+body>header {
+  padding: 0px !important;
+}
+
+.nav-logo {
+  margin-left: 8px !important;
+}
+
+.nav-dropdown {
+  margin-right: 8px !important;
+}
+
+.nav-dropdown ul li a {
+  padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal) !important
+}
+
+nav form {
+  margin-bottom: 0px !important;
+}
+
+nav summary {
+  border: 0px !important;
+}
+
+nav ul {
+  min-width: -webkit-max-content;
+  min-width: -moz-max-content;
+}
+
+nav ul li a.current {
+  font-weight: bold;
+  color: var(--pico-primary);
+}
+
+.nav-search,
+.nav-search li {
+  width: 100%;
+}
+
+.nav-search select {
+  max-width: max-content;
+}
+
+.nav-search input[type="submit"] {
+  background-color: var(--pico-secondary-background);
+  border-color: var(--pico-secondary-background);
+  padding-left: calc(var(--pico-nav-link-spacing-horizontal)*2);
+  padding-right: calc(var(--pico-nav-link-spacing-horizontal)*2);
+}
+
+.nav-logo img {
+  max-height: 56px;
+}
+
+.unhide {
+  display: unset !important;
+}
+
+.nav-dropdown summary {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
+
+.nav-dropdown summary::after {
+  height: calc(1rem * var(--pico-line-height, 1.5) + 8px) !important;
+}
+
+.avatar {
+  line-height: 0;
+  /* remove line-height */
+  display: inline-block;
+  /* circle wraps image */
+  border: 4px solid lightgray;
+  border-radius: 50%;
+  /* relative value */
+  transition: linear 0.25s;
+}
+
+.avatar img {
+  border-radius: 50%;
+  height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 2 - 8px);
+  width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 2 - 8px);
+}
+
+.avatar:hover {
+  transition: ease-out 0.2s;
+  border: 4px solid var(--pico-primary);
+  -webkit-transition: ease-out 0.2s;
+}
+
+@media (max-width: 1200px) {
+  :root {
+    --pico-font-size: 80%;
+  }
+}
+
+@media (min-width: 769px) {
+  .small-only {
+    display: none;
+  }
+
+}
+
+@media (max-width: 768px) {
+  :root {
+    --pico-font-size: 100%;
+  }
+
+  .large-only {
+    display: none;
+  }
+
+  body>header {
+    position: sticky;
+    top: 0px;
+    background: var(--pico-background-color);
+    z-index: 999;
+    box-shadow: var(--pico-box-shadow);
+  }
+
+  nav {
+    display: flex;
+    flex-flow: row wrap;
+  }
+
+  .nav-logo img {
+    max-height: 28px;
+  }
+
+  .nav-search {
+    order: 999;
+    display: none;
+  }
+
+  .nav-search li {
+    padding: 0px;
+    padding-bottom: 4px;
+  }
+
+  .nav-search input[type="submit"] {
+    padding-left: calc(var(--pico-nav-link-spacing-horizontal)*1);
+    padding-right: calc(var(--pico-nav-link-spacing-horizontal)*1);
+  }
+
+  .nav-dropdown::after {
+    flex-basis: 100%;
+    width: 0;
+  }
+
+  .nav-dropdown {
+    margin-right: 0 !important;
+  }
+}
+
+/* Dark color scheme (Auto) */
+/* Automatically enabled if user has Dark mode enabled */
+@media only screen and (prefers-color-scheme: dark) {
+  .nav-logo img {
+    filter: brightness(100%) grayscale(100%) invert(40%);
+  }
+}
+
+/* Dark color scheme (Forced) */
+/* Enabled if forced with data-theme="dark" */
+.nav-logo img [data-theme="dark"] {
+  filter: brightness(100%) grayscale(100%) invert(40%);
+}
+
+.tldr {
+  overflow: hidden;
+  text-overflow: " ... [点击展开]";
+  display: -webkit-box;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
+}
+
+.tldr-5 {
+  overflow: hidden;
+  text-overflow: " ... [点击展开]";
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+}
+
+.hidden {
+  display: none;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+a:not(:hover) {
+  text-decoration: none;
+}
+
+body>footer {
+  padding-top: 0.4em !important;
+  text-align: center;
+  margin-bottom: 4px !important;
+  width: 100%;
+
+  .footer__border {
+    width: 100%;
+    padding-top: 4px;
+  }
+
+  .footer__link {
+    margin: 0 12px;
+    white-space: nowrap;
+    min-width: 15vw;
+  }
+
+  @media (min-width: 769px) {
+    clear: both;
+    position: absolute !important;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}

@@ -1,0 +1,176 @@
+#item-page {
+  a:not(:hover) {
+    text-decoration: none;
+  }
+
+  .muted {
+    color: var(--pico-muted-color);
+  }
+
+  .muted a:not(:hover) {
+    color: var(--pico-muted-color);
+  }
+
+  .muted .fa-lock {
+    filter: brightness(50%) !important;
+  }
+
+  a>button {
+    padding: 2px 8px;
+    font-size: 75%;
+  }
+
+  main>div {
+    margin: 2vw;
+  }
+
+  main>div>section {
+    margin-bottom: 2vw;
+  }
+
+  #item-title {
+    margin-bottom: 0;
+  }
+
+  #item-title-more {
+    margin-top: 0;
+  }
+
+  #item-title h1 {
+    margin: 0;
+  }
+
+  h1 small {
+    font-size: 80%;
+    margin-left: 0.5vw;
+    font-weight: 400;
+  }
+
+  .site-list .douban {
+    border: none;
+    color: white;
+    background-color: #319840;
+  }
+
+
+  #item-cover {
+    align-items: stretch;
+  }
+
+  #item-cover img {
+    transition: transform 0.2s ease-in-out;
+    filter: drop-shadow(0 0.2rem 0.8rem rgba(0, 0, 0, 0.2));
+    max-width: 80%;
+    max-height: 50vh;
+  }
+
+  .item-edit,
+  .item-edit a {
+    color: var(--pico-muted-color);
+  }
+
+
+
+  .item-action {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5%;
+  }
+
+  .item-action button {
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+
+  .mark {
+    text-align: center;
+  }
+
+  .empty {
+    font-style: italic;
+    font-size: 80%;
+    color: var(--pico-muted-color);
+  }
+
+  #item-cover {
+    text-align: center;
+  }
+
+  main {
+    padding-top: 1vh !important;
+  }
+
+  @media (min-width: 769px) {
+    #item-title h1 {
+      display: inline;
+    }
+
+    .middle {
+      margin: auto;
+      width: 50%;
+    }
+
+    .left {
+      float: left;
+      clear: left;
+      width: 22%;
+      margin-left: 0;
+      margin-right: 3%;
+    }
+
+    .right {
+      float: right;
+      clear: right;
+      width: 22%;
+      margin-left: 3%;
+      margin-right: 0%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    main {
+      display: flex;
+      flex-flow: column nowrap;
+    }
+
+    #item-title {
+      order: -5;
+      display: flex;
+      flex-flow: column nowrap;
+    }
+
+    #item-title .site-list {
+      order: -1;
+    }
+
+    #item-title-more {
+      order: -4;
+    }
+
+    #item-cover {
+      order: -3;
+    }
+
+    #item-primary-action {
+      order: -2;
+    }
+
+    #item-primary-mark {
+      order: -2;
+    }
+
+    #item-metadata {
+      order: -1;
+    }
+
+    #item-sidebar {
+      order: 99;
+    }
+
+    #item-cover img {
+      max-width: 60vw;
+    }
+  }
+}

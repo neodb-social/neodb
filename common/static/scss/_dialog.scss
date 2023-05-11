@@ -1,0 +1,103 @@
+dialog {
+  header {
+    margin-bottom: 16px;
+    padding: 8px !important;
+  }
+
+  &>article {
+    /* Animate when opening */
+    animation-name: zoomIn;
+    animation-duration: 150ms;
+    animation-timing-function: ease;
+  }
+
+  &.closing {
+    /* Animate when closing */
+    animation-name: fadeOut;
+    animation-duration: 150ms;
+    animation-timing-function: ease;
+  }
+
+  &.closing>article {
+    /* Aniate when closing */
+    animation-name: zoomOut;
+    animation-duration: 150ms;
+    animation-timing-function: ease;
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes zoomIn {
+    0% {
+      transform: scale(0.9);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes zoomOut {
+    0% {
+      transform: scale(1);
+    }
+
+    100% {
+      transform: scale(0.9);
+    }
+  }
+
+  .grid>div {
+    min-width: max-content;
+  }
+
+  .grid>div:nth-child(2) fieldset {
+    float: right;
+  }
+
+
+  @media (max-width: 768px) {
+    .grid>div:nth-child(2) fieldset {
+      float: unset;
+    }
+  }
+
+  fieldset {
+    margin: 0;
+  }
+
+  article {
+    padding-bottom: 1em;
+  }
+
+  input[type="date"] {
+    margin: 0px;
+  }
+
+  .tag-input {
+    margin-bottom: var(--pico-spacing);
+  }
+
+  .rating-editor {
+    font-size: 120%;
+    padding-bottom: 1em;
+  }
+}

@@ -1,4 +1,5 @@
 {% load static %}
+{% load sass_tags %}
 {% load tz_detect %}
 {% tz_detect %}
 {% if sentry_dsn %}
@@ -15,7 +16,7 @@
 {% if jquery %}
 <script src="https://cdn.staticfile.org/jquery/3.6.3/jquery.min.js"></script>
 {% else %}
-<script src="https://cdn.staticfile.org/cash/8.1.3/cash.min.js"></script>
+<script src="https://cdn.staticfile.org/cash/8.1.5/cash.min.js"></script>
 {% endif %}
 <script type="text/javascript">
   if (!$.fn.is_visible) $.fn.is_visible = function () {
@@ -29,14 +30,19 @@
       return this;
   };
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.8.5/htmx.min.js"></script>
+<script src="https://cdn.staticfile.org/htmx/1.9.2/htmx.min.js"></script>
 <script src="{% static 'lib/js/hyperscript-0.9.7.min.js' %}"></script>
-<script src="{% static 'lib/js/rating-star.js' %}"></script>
+{% if v2 %}
+<link rel='stylesheet' href='https://unpkg.com/@picocss/pico@next/css/pico.min.css' />
+<link href="{% sass_src 'scss/neodb.scss' %}" rel="stylesheet" type="text/css" />
+{% else %}
 <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+<script src="{% static 'lib/js/rating-star.js' %}"></script>
 <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-<link rel="stylesheet" href="{% static 'lib/css/collection.css' %}">
-<link rel="search" type="application/opensearchdescription+xml" title="{{ site_name }}" href="{% static 'opensearch.xml' %}">
 <script src="{% static 'catalog.js' %}"></script>
-<script src="{% static 'lib/js/tag-input.js' %}"></script>
 <link href="{% static 'lib/css/tag-input.css' %}" type="text/css" media="all" rel="stylesheet">
+{% endif %}
+<link rel="stylesheet" href="{% static 'lib/css/collection.css' %}">
+<script src="{% static 'lib/js/tag-input.js' %}"></script>
+<link rel="search" type="application/opensearchdescription+xml" title="{{ site_name }}" href="{% static 'opensearch.xml' %}">
 <link href="{% static 'fontawesomefree/css/all.min.css' %}" rel="stylesheet" type="text/css">

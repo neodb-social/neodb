@@ -6,7 +6,7 @@
 {% load truncate %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="classic-page">
 
 <head>
   <meta charset="UTF-8">
@@ -14,107 +14,99 @@
   <title>{{ site_name }} - {% trans '发现' %}</title>
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }} - {{ user.mastodon_username }}的评论" href="{{ request.build_absolute_uri }}feed/reviews/">
 
-  {% include "common_libs.html" with jquery=0 %}
+  {% include "common_libs.html" with jquery=0 v2=1 %}
   <script src="{% static 'js/mastodon.js' %}" defer></script>
   <script src="{% static 'js/home.js' %}" defer></script>
 </head>
 
 <body>
-  <div id="page-wrapper">
-    <div id="content-wrapper">
-      {% include "partial/_navbar.html" with current="discover" %}
+  {% include "_header.html" %}
+  <main>
+    <div class="grid__main grid__main--reverse-order">
 
-      <section id="content">
-        <div class="grid grid--reverse-order">
-          <div class="grid__main grid__main--reverse-order">
+      <div class="main-section-wrapper sortable">
 
-            <div class="main-section-wrapper sortable">
-
-              {% for gallery in gallery_list %}
-              <div class="entity-sort" id="{{ gallery.name }}" {% if not gallery.items %}style="display:none;"{% endif %}>
-                <h5 class="entity-sort__label">
-                  {{ gallery.title }}
-                </h5>
-                <ul class="entity-sort__entity-list">
-                  {% for item in gallery.items %}
-                  <li class="entity-sort__entity">
-                    <a href="{{ item.url }}">
-                      <img src="{{ item.cover_image_url | default:item.cover.url }}" alt="{{ item.title }}" class="entity-sort__entity-img">
-                      <div class="entity-sort__entity-name" title="{{ item.title }}"> {{ item.title }}</div>
-                    </a>
-                  </li>
-                  {% empty %}
-                  <div>暂无记录</div>
-                  {% endfor %}
-                </ul>
-              </div>
-              {% endfor %}
-
-            </div>
-
-            {% if user == request.user %}
-
-            <div class="entity-sort-control">
-              <div class="entity-sort-control__button" id="sortEditButton">
-                <span class="entity-sort-control__text" id="sortEditText">
-                  {% trans '编辑布局' %}
-                </span>
-                <span class="entity-sort-control__text" id="sortSaveText" style="display: none;">
-                  {% trans '保存' %}
-                </span>
-                <span class="icon-edit" id="sortEditIcon">
-                  <i class="fa-solid fa-pencil"></i>
-                </span>
-                <span class="icon-save" id="sortSaveIcon" style="display: none;">
-                  <i class="fa-regular fa-floppy-disk"></i>
-                </span>
-              </div>
-              <div class="entity-sort-control__button" id="sortExitButton" style="display: none;">
-                <span class="entity-sort-control__text">
-                  {% trans '取消' %}
-                </span>
-              </div>
-            </div>
-            <div class="entity-sort-control__button entity-sort-control__button--float-right" id="toggleDisplayButtonTemplate" style="display: none;">
-              <span class="showText" style="display: none;">
-                {% trans '显示' %}
-              </span>
-              <span class="hideText" style="display: none;">
-                {% trans '隐藏' %}
-              </span>
-            </div>
-            <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
-              {% csrf_token %}
-              <input type="hidden" name="name" value="discover">
-              <input type="hidden" name="layout">
-            </form>
-            <script src="https://cdn.staticfile.org/html5sortable/0.13.3/html5sortable.min.js" crossorigin="anonymous"></script>
-            <script src="{% static 'js/sort_layout.js' %}"></script>
-            {% endif %}
-
-            {{ layout|json_script:"layout-data" }}
-            <script>
-              const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
-                            // initialize sort element visibility and order
-              initialLayoutData.forEach(elem => {
-                // set visiblity
-                $('#' + elem.id).data('visibility', elem.visibility);
-                if (!elem.visibility) {
-                  $('#' + elem.id).hide();
-                }
-                // order
-                $('#' + elem.id).appendTo('.main-section-wrapper');
-              });
-            </script>
-
-          </div>
-
-          {% include "partial/_sidebar.html" %}
+        {% for gallery in gallery_list %}
+        <div class="entity-sort" id="{{ gallery.name }}" {% if not gallery.items %}style="display:none;"{% endif %}>
+          <h5 class="entity-sort__label">
+            {{ gallery.title }}
+          </h5>
+          <ul class="entity-sort__entity-list">
+            {% for item in gallery.items %}
+            <li class="entity-sort__entity">
+              <a href="{{ item.url }}">
+                <img src="{{ item.cover_image_url | default:item.cover.url }}" alt="{{ item.title }}" class="entity-sort__entity-img">
+                <div class="entity-sort__entity-name" title="{{ item.title }}"> {{ item.title }}</div>
+              </a>
+            </li>
+            {% empty %}
+            <div>暂无记录</div>
+            {% endfor %}
+          </ul>
         </div>
-      </section>
+        {% endfor %}
+
+      </div>
+
+      {% if user == request.user %}
+
+      <div class="entity-sort-control">
+        <div class="entity-sort-control__button" id="sortEditButton">
+          <span class="entity-sort-control__text" id="sortEditText">
+            {% trans '编辑布局' %}
+          </span>
+          <span class="entity-sort-control__text" id="sortSaveText" style="display: none;">
+            {% trans '保存' %}
+          </span>
+          <span class="icon-edit" id="sortEditIcon">
+            <i class="fa-solid fa-pencil"></i>
+          </span>
+          <span class="icon-save" id="sortSaveIcon" style="display: none;">
+            <i class="fa-regular fa-floppy-disk"></i>
+          </span>
+        </div>
+        <div class="entity-sort-control__button" id="sortExitButton" style="display: none;">
+          <span class="entity-sort-control__text">
+            {% trans '取消' %}
+          </span>
+        </div>
+      </div>
+      <div class="entity-sort-control__button entity-sort-control__button--float-right" id="toggleDisplayButtonTemplate" style="display: none;">
+        <span class="showText" style="display: none;">
+          {% trans '显示' %}
+        </span>
+        <span class="hideText" style="display: none;">
+          {% trans '隐藏' %}
+        </span>
+      </div>
+      <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
+        {% csrf_token %}
+        <input type="hidden" name="name" value="discover">
+        <input type="hidden" name="layout">
+      </form>
+      <script src="https://cdn.staticfile.org/html5sortable/0.13.3/html5sortable.min.js" crossorigin="anonymous"></script>
+      <script src="{% static 'js/sort_layout.js' %}"></script>
+      {% endif %}
+
+      {{ layout|json_script:"layout-data" }}
+      <script>
+        const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
+                      // initialize sort element visibility and order
+        initialLayoutData.forEach(elem => {
+          // set visiblity
+          $('#' + elem.id).data('visibility', elem.visibility);
+          if (!elem.visibility) {
+            $('#' + elem.id).hide();
+          }
+          // order
+          $('#' + elem.id).appendTo('.main-section-wrapper');
+        });
+      </script>
+
     </div>
-    {% include "partial/_footer.html" %}
-  </div>
+    {% include "partial/_sidebar.html" %}
+  </main>
+  {% include "partial/_footer.html" %}
 
   {% if request.user.unread_announcements %}
   {% include "partial/_announcement.html" %}

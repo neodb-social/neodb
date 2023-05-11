@@ -1,0 +1,963 @@
+$color-initial: #fff !default
+$color-primary: #00a1cc !default
+$color-secondary: #606c76 !default
+$color-tertiary: #bbb !default
+$color-quaternary: #d5d5d5 !default
+$color-quinary: #e5e5e5 !default
+
+$color-light: #ccc
+$color-bright: rgb(247, 247, 247)
+
+
+@mixin clear
+	content: ' '
+	clear: both
+	display: table
+
+// Breakpoints
+// Small devices (landscape phones, 576px and up)
+$small-devices: 575.98px
+// Medium devices (tablets, 768px and up)
+$medium-devices: 767.98px
+// Large devices (desktops, 992px and up)
+$large-devices: 991.98px
+// Extra large devices (large desktops, 1200px and up)
+$x-large-devices: 1199.98px
+
+
+$main-section-padding: 32px 48px 32px 36px
+$main-section-padding-mobile: 32px 28px 28px 28px
+
+$section-title-margin: 20px
+$sub-sections-between-margin: 28px
+$sub-section-title-margin: 8px
+
+.main-section-wrapper
+	padding: $main-section-padding
+	// background-color: $color-bright
+	overflow: auto
+
+	& input, & select
+		width: 100%
+
+// for search result etc
+.entity-list
+	li
+    	list-style: none
+
+	& &__title
+		// font-size: large
+		margin-bottom: $section-title-margin
+
+	& &__entities
+
+	& &__entity
+		display: flex
+		margin-bottom: 36px
+		&::after
+			@include clear
+
+	& &__entity-img
+		// float: left
+		object-fit: contain
+		// height: 150px
+		$width: 130px
+		min-width: $width
+		max-width: $width
+
+	& &__entity-text
+		margin-left: 20px
+		overflow: hidden
+		width: 100%
+    	// float: left
+		& .tag-collection
+			margin-left: -3px
+
+	& &__entity-link
+		font-size: 1.2em
+
+	& &__entity-title
+		display: block
+
+	& &__entity-category
+		color: $color-tertiary
+		margin-left: 5px
+		position: relative;
+		top: -1px;
+
+	& &__entity-info
+		// max-width: 73%
+		white-space: nowrap
+		overflow: hidden
+		display: inline-block
+		text-overflow: ellipsis
+		position: relative
+		top: 0.52em
+		&--full-length
+			// display: block
+			max-width: 100%
+			// margin-bottom: 12px
+
+	& &__entity-brief
+		margin-top: 8px
+		display: -webkit-box
+		-webkit-box-orient: vertical
+		-webkit-line-clamp: 4
+		overflow: hidden
+		margin-bottom: 0
+
+	$rating-info-gap-width: 5px
+	& &__rating
+		display: inline-block
+		margin: 0
+
+	& &__rating--empty
+		// width: $empty-rating-width
+		margin-right: $rating-info-gap-width
+
+	& &__rating-score
+		margin-right: $rating-info-gap-width
+		position: relative
+		top: 1px
+
+	& &__rating-star
+		display: inline
+		position: relative
+		top: 0.3em
+		left: -0.3em
+
+// detail page
+.entity-detail
+
+	& &__img
+		height: 210px
+		float: left
+		object-fit: contain
+		max-width: 150px
+		object-position: top
+
+	& &__img-origin
+		cursor: zoom-in
+
+	& &__info
+		float: left
+		margin-left: 20px
+		overflow: hidden
+		text-overflow: ellipsis
+		width: 70%
+
+	& &__title
+		font-weight: bold
+
+	& &__title--secondary
+		color: $color-tertiary
+
+	& &__fields
+		display: inline-block
+		vertical-align: top
+		width: 46%
+		margin-left: 2%
+		// margin-bottom: 5px
+		& div, & span
+			margin: 1px 0
+		& + .tag-collection
+			margin-top: 5px
+			margin-left: 6px
+
+	& &__rating
+		position: relative
+		top: -5px
+
+	& &__rating-star
+		position: relative
+		left: -4px
+		top: 3px
+
+	& &__rating-score
+		font-weight: bold
+
+	&::after
+		@include clear
+
+$mark-review-padding: 3px 0
+$mark-review-padding-wider: 6px 0
+
+// includes title and description of an entity
+// sub section
+.entity-desc
+	margin-bottom: $sub-sections-between-margin
+	& &__title
+		display: inline-block
+		margin-bottom: $sub-section-title-margin
+	& &__content
+		overflow: hidden
+		&--folded
+			max-height: 202px
+
+	& &__unfold-button
+		display: flex
+		color: $color-primary
+		background-color: transparent
+		justify-content: center
+		text-align: center
+		&--hidden
+			display: none
+
+	& &__empty
+
+// includes marks of an entity
+// sub section
+.entity-marks
+	margin-bottom: $sub-sections-between-margin
+	& &__title
+		margin-bottom: $sub-section-title-margin
+		display: inline-block
+		& > a
+			margin-right: 5px
+		&--stand-alone
+			margin-bottom: $section-title-margin
+
+	& &__more-link
+		margin-left: 5px
+	& &__mark-list
+
+	& &__mark
+		margin: 0
+		padding: $mark-review-padding
+		border-bottom: 1px dashed $color-quinary
+		&:last-child
+			border: none
+		&--wider
+			padding: $mark-review-padding-wider
+
+	& &__mark-content
+		margin-bottom: 0
+
+	& &__mark-time
+		color: $color-light
+		margin-left: 2px
+
+	& &__owner-link
+
+	& &__rating-star
+		position: relative
+		top: 4px
+
+	& &__empty
+
+// includes reviews of an entity
+// sub section
+.entity-reviews
+	// when used alone
+	&:first-child
+		margin-bottom: $sub-sections-between-margin
+	& &__title
+		display: inline-block
+		margin-bottom: $sub-section-title-margin
+		& > a
+			margin-right: 5px
+		&--stand-alone
+			margin-bottom: $section-title-margin
+	& &__more-link
+		margin-left: 5px
+	& &__review-list
+
+	& &__review
+		margin: 0
+		padding: $mark-review-padding
+		border-bottom: 1px dashed $color-quinary
+		&:last-child
+			border: none
+		&--wider
+			padding: $mark-review-padding-wider
+
+	& &__review-time
+		color: $color-light
+		margin-left: 2px
+	& &__review-title
+
+	& &__owner-link
+
+	& &__empty
+
+.dividing-line
+	height: 0
+	width: 100%
+	margin: 40px 0 24px 0
+	border-top: solid 1px $color-light
+	&.dividing-line--dashed
+		margin: 0
+		margin-top: 10px
+		margin-bottom: 2px
+		border-top: 1px dashed $color-quinary;
+
+// on home page
+.entity-sort
+	position: relative
+	margin-bottom: 30px
+	& &__label
+		font-size: large
+		display: inline-block
+		margin-bottom: $section-title-margin
+
+	& &__more-link
+		margin-left: 8px
+
+	& &__count
+		// font-size: large
+		// letter-spacing: -1px
+		color: $color-tertiary
+		&::before
+			content: '('
+		&::after
+			content: ')'
+
+	& &__entity-list
+		display: flex
+		justify-content: flex-start
+		// padding-left: 24px
+		flex-wrap: wrap
+
+	& &__entity
+		padding: 0 10px
+		flex-basis: 20%
+		text-align: center
+		display: inline-block
+		color: $color-secondary
+		&:hover
+			color: $color-primary
+		& > a
+			color: inherit
+
+	& &__entity-img
+		height: 110px
+
+	& &__entity-name
+		text-overflow: ellipsis
+		overflow: hidden
+		display: -webkit-box
+		-webkit-box-orient: vertical
+		-webkit-line-clamp: 2
+
+	& &__empty
+
+	// for drag and sort purpose
+	&--placeholder
+		border: dashed $color-tertiary 4px
+	&--hover
+		padding: 10px
+		border: dashed $color-primary 2px !important
+		border-radius: 3px
+	&--sortable
+		padding: 10px
+		margin: 10px 0
+		border: dashed $color-tertiary 2px
+		cursor: all-scroll
+	&--hidden
+		opacity: 0.4
+
+.entity-sort-control
+	display: flex
+	justify-content: flex-end
+
+	&__button
+		margin-top: 5px
+		margin-left: 12px
+		padding: 0 2px
+		cursor: pointer
+		color: $color-tertiary
+		&:hover
+			color: $color-primary
+			& > .icon-save svg, & > .icon-edit svg
+				fill: $color-primary
+
+		&--float-right
+			position: absolute
+			top: 4px
+			right: 10px
+
+	&__text
+
+
+// follower/following list page
+.related-user-list
+	& &__title
+		margin-bottom: $section-title-margin
+
+	& &__user
+		display: flex
+		justify-content: flex-start
+		margin-bottom: 20px
+
+	& &__user-info
+		margin-left: 15px
+		overflow: auto
+
+	& &__user-name
+
+	& &__user-bio
+
+	& &__user-avatar
+		max-height: 72px
+		min-width: 72px
+
+// review detail page
+.review-head
+	& &__title
+		display: inline-block
+		font-weight: bold
+
+	& &__body
+		margin-bottom: 10px
+		&::after
+			@include clear
+
+	& &__info
+		float: left
+
+	& &__owner-link
+		color: $color-light
+		&:hover
+			color: $color-primary
+
+	& &__time
+		color: $color-light
+
+	& &__rating-star
+		position: relative
+		top: 3px
+		left: -1px
+
+	& &__actions
+		float: right
+
+	& &__action-link
+		&:not(:first-child)
+			margin-left: 5px
+
+// tag list
+.tag-collection
+	margin-left: -9px
+	& &__tag
+		position: relative;
+		display: block;
+		float: left;
+		color: white;
+		background: $color-light;
+		padding: 5px;
+		// margin: 4px;
+		border-radius: .3rem;
+		line-height: 1.2em;
+		font-size: 80%
+		margin: 3px
+		& a
+			color: white
+			&:hover
+				color: $color-primary
+
+// Small devices (landscape phones, 576px and up)
+@media (max-width: $small-devices)
+	.entity-list
+		& &__entity
+			// flex-direction: column
+			// margin-bottom: 30px
+		& &__entity-text
+			// margin-left: 0
+		& &__entity-img-wrapper
+			// margin-bottom: 8px
+		& &__entity-img
+			max-width: 25vw
+			min-width: 25vw
+		& &__entity-info
+			// max-width: unset
+			white-space: unset
+		& &__rating--empty + &__entity-info
+			// max-width: 70%
+		& &__entity-brief
+			-webkit-line-clamp: 5
+
+	.action-bar
+		display: flex
+		flex-direction: column
+
+	.entity-detail
+		flex-direction: column
+		& &__title
+			margin-bottom: 5px
+		& &__info
+			margin-left: 0
+			float: none
+			display: flex
+			flex-direction: column
+			width: 100%
+		& &__img
+			margin-bottom: 24px
+			float: none
+			height: unset
+			max-width: 170px;
+		& &__fields
+			width: unset
+			margin-left: unset
+			& + .tag-collection
+				margin-left: -3px
+
+	.entity-marks
+		& &__mark-list
+
+		& &__mark
+
+		& &__rating-star
+
+		& &__rating-star + &__mark-time
+			// display: block
+
+	.dividing-line
+		margin-top: 24px
+
+	.entity-sort
+		& &__entity
+			flex-basis: 50%
+			// margin-left: 10px
+			// margin-right: 10px
+		& &__entity-img
+			height: 130px
+
+	.review-head
+		& &__info
+			float: unset
+		& &__actions
+			float: unset
+
+	.track-carousel
+		&__content
+			padding-bottom: 10px
+		&__track
+			min-width: 31%
+			max-width: 31%
+			margin-right: 4.5%
+
+
+.calendar_view
+	position: relative
+	margin-left: -8px;
+	margin-right: -24px;
+
+// Medium devices (tablets, 768px and up)
+@media (max-width: $medium-devices)
+  .calendar_view
+    overflow-x: scroll
+
+// Large devices (desktops, 992px and up)
+@media (max-width: $large-devices)
+	.main-section-wrapper
+		padding: $main-section-padding-mobile
+
+	.entity-detail
+		display: flex
+		& &__info
+			// display: flex
+// Extra large devices (large desktops, 1200px and up)
+@media (max-width: $x-large-devices)
+	pass
+
+$aside-section-padding: 28px 25px 12px 25px
+$aside-section-padding-mobile: 24px 25px 10px 25px
+
+.aside-section-wrapper
+    display: flex
+    flex: 1
+    flex-direction: column
+    // align-items: center
+    width: 100%
+    padding: $aside-section-padding
+    background-color: $color-bright
+    margin-bottom: 30px
+    overflow: auto
+
+    &--transparent
+        background-color: unset
+    &--collapse
+        padding: unset
+
+.add-entity-entries
+
+    & &__entry
+        margin-bottom: 10px
+
+    & &__label
+        font-size: 1.2em
+        margin-bottom: 8px
+
+    & &__button
+        line-height: unset;
+        height: unset;
+        padding: 4px 15px;
+        margin: 5px;
+
+.action-panel
+    margin-bottom: 20px
+
+    & &__label
+        // font-size: 1.2em
+        font-weight: bold
+        margin-bottom: 12px
+
+    & &__button-group
+        display: flex
+        justify-content: space-between
+        &--center
+            justify-content: center
+
+    & &__button
+        line-height: unset
+        height: unset
+        padding: 4px 15px
+        margin: 0 5px
+        // width: 100%
+
+.mark-panel
+    margin-bottom: 20px
+
+    & &__status
+        font-weight: bold
+
+    & &__rating-star
+        position: relative
+        top: 2px
+
+    & &__actions
+        float: right
+        & form
+            display: inline
+
+    & &__time
+        color: $color-light
+        margin-bottom: 10px
+
+    & &__content
+
+    & &__clear
+        @include clear
+
+.review-panel
+    & &__label
+        font-weight: bold
+    & &__actions
+        float: right
+    & &__time
+        color: $color-light
+        margin-bottom: 10px
+
+    & &__review-title
+        display: block
+        margin-bottom: 15px
+        font-weight: bold
+
+    & &__clear
+        @include clear
+
+.user-profile
+    & &__header
+        display: flex
+        align-items: flex-start
+        margin-bottom: 15px
+
+    & &__avatar
+        width: 72px
+
+    & &__username
+        font-size: large
+        margin-left: 10px
+        margin-bottom: 0
+
+    & &__bio
+
+    & &__report-link
+        color: $color-light
+
+.user-relation
+    & &__label
+        display: inline-block
+        font-size: large
+        margin-bottom: 10px
+
+    & &__more-link
+        margin-left: 5px
+
+    & &__related-user-list
+        display: flex
+        justify-content: flex-start
+        &:last-of-type
+            margin-bottom: 0
+
+    & &__related-user
+        flex-basis: 25%
+        padding: 0px 3px
+        text-align: center
+        display: inline-block
+        overflow: hidden
+        & > a
+            &:hover
+                color: $color-secondary
+
+    & &__related-user-avatar
+        background-image: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
+        width: 48px
+        height: 48px
+        @media (min-width: $small-devices) and (max-width: $large-devices)
+            height: unset
+            width: 60%
+            max-width: 96px
+
+
+    & &__related-user-name
+        color: inherit
+        overflow: hidden
+        text-overflow: ellipsis
+        // display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+
+$panel-padding : 0
+
+.report-panel
+    & &__label
+        display: inline-block
+        margin-bottom: 10px
+
+    & &__body
+        padding-left: $panel-padding
+
+    & &__report-list
+
+    & &__report
+        margin: 2px 0
+
+    & &__user-link
+        margin: 0 2px
+
+    & &__all-link
+        margin-left: 5px
+
+.import-panel
+    overflow-x: hidden
+
+    & &__label
+        display: inline-block
+        margin-bottom: 10px
+
+    & &__body
+        padding-left: $panel-padding
+        border: 2px dashed #00a1cc
+        padding: 6px 9px
+        form
+            margin: 0
+
+        @media (max-width: $large-devices)
+            border: unset
+            padding-left: 0
+
+    & &__help
+        background-color: $color-quinary
+        border-radius: 100000px
+        display: inline-block
+        width: 16px
+        height: 16px
+        text-align: center
+        font-size: 12px
+        cursor: help
+
+    & &__checkbox
+        display: inline-block
+        margin-right: 10px
+        label
+            display: inline
+        input[type="checkbox"]
+            margin: 0
+            position: relative
+            top: 2px
+        &--last
+            margin-right: 0
+
+    & &__file-input
+        margin-top: 10px
+
+    & &__button
+        line-height: unset
+        height: unset
+        padding: 4px 15px
+
+    & &__progress
+        padding-top: 10px
+        // padding-top: 4px
+        &:not(:first-child)
+            border-top: $color-tertiary 1px dashed
+        label
+            display: inline
+        progress
+            background-color: $color-quaternary
+            border-radius: 0
+            height: 10px
+            width: 54%
+
+        progress::-webkit-progress-bar
+            background-color: $color-quaternary
+
+        progress::-webkit-progress-value
+            background-color: $color-primary
+
+        progress::-moz-progress-bar
+            background-color: $color-quaternary
+
+    & &__last-task
+        &:not(:first-child)
+            padding-top: 4px
+            border-top: $color-tertiary 1px dashed
+        .index:not(:last-of-type)
+            margin-right: 8px
+
+    & &__fail-urls
+        margin-top: 10px
+        li
+            word-break: break-all
+        ul
+            // padding: 4px
+            max-height: 100px
+            overflow-y: auto
+
+
+.relation-dropdown
+    & &__button
+        display: none
+
+.entity-card
+    display: flex
+    margin-bottom: 10px
+    flex-direction: column
+    &--horizontal
+        flex-direction: row
+
+    & &__img
+        height: 150px
+
+    & &__rating-star
+        position: relative
+        top: 4px
+        left: -3px
+
+    & &__rating-score
+        position: relative
+        top: 1px
+        margin-left: 2px
+
+    & &__title
+        margin-bottom: 10px
+        margin-top: 5px
+
+    & &__info-wrapper
+        &--horizontal
+            margin-left: 20px
+
+    & &__img-wrapper
+        flex-basis: 100px
+
+
+// Small devices (landscape phones, 576px and up)
+@media (max-width: $small-devices)
+    .add-entity-entries
+        display: block !important
+        & &__button
+            width: 100%
+            margin: 5px 0 5px 0;
+
+    .aside-section-wrapper
+        &:first-child
+            margin-right: 0 !important
+            margin-bottom: 0 !important
+        &--singular:first-child
+            margin-bottom: 20px !important
+        // &--no-padding
+        //     padding: $aside-section-padding-mobile !important
+        //     margin-top: 0 !important
+    .action-panel
+        flex-direction: column !important
+
+    .entity-card
+        &--horizontal
+            flex-direction: column !important
+        // flex-direction: column !important
+        & &__info-wrapper
+            margin-left: 10px !important
+            &--horizontal
+                margin-left: 0 !important
+// Medium devices (tablets, 768px and up)
+@media (max-width: $medium-devices)
+	pass
+// Large devices (desktops, 992px and up)
+@media (max-width: $large-devices)
+    .add-entity-entries
+        display: flex
+        justify-content: space-around
+
+    .aside-section-wrapper
+        padding: $aside-section-padding-mobile
+
+        margin-top: 20px
+        // &:not(:first-child)
+        &:not(:last-child)
+            margin-right: 20px
+        &--collapse
+            padding: $aside-section-padding-mobile !important
+            margin-top: 0
+            margin-bottom: 0
+            &:first-child
+                margin-right: 0
+        &--no-margin
+            margin: 0
+
+    .action-panel
+        flex-direction: row
+        & &__button-group
+            justify-content: space-evenly
+
+    .relation-dropdown
+        margin-bottom: 20px
+        & &__button
+            padding-bottom: 10px
+            background-color: $color-bright
+            width: 100%
+            display: flex
+            justify-content: center
+            align-items: center
+            cursor: pointer
+            transition: transform 0.3s
+            &:focus
+                background-color: red
+
+        & &__button > .icon-arrow
+            transition: transform 0.3s
+
+        & &__button:hover > .icon-arrow > svg
+            fill: $color-primary
+
+        & &__button > .icon-arrow--expand
+            transform: rotate(-180deg)
+
+        & &__body
+            background-color: $color-bright
+            max-height: 0
+            transition: max-height 1s ease-out
+            overflow: hidden
+
+        & &__body--expand
+            max-height: 2000px
+            transition: max-height 1s ease-in
+
+    .entity-card
+        flex-direction: row
+        & &__info-wrapper
+            margin-left: 30px
+
+.entity-list ul
+	padding: 0
+	list-style: none

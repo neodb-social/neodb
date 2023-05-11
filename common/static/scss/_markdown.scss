@@ -1,0 +1,11 @@
+.spoiler {
+  background: grey;
+  filter: blur(2px);
+  cursor: pointer;
+
+  &.reveal {
+    background: unset;
+    filter: unset;
+    color: inherit;
+  }
+}

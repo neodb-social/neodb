@@ -1,0 +1,39 @@
+#classic-page {
+  main {
+    display: grid;
+    grid-template-columns: 65% 25%;
+    grid-template-areas: "main aside";
+    grid-gap: 6%;
+    margin-left: 4%;
+
+    .grid__main {
+      grid-area: main;
+    }
+
+    .grid__aside {
+      grid-area: aside;
+    }
+  }
+
+  @media (max-width: 768px) {
+    main {
+      display: flex;
+      flex-flow: column nowrap;
+    }
+
+    .grid__main {
+      order: -1;
+      margin: 2%;
+    }
+
+    .grid__aside {
+      order: -2;
+    }
+
+    ul {
+      padding: 0;
+    }
+
+  }
+
+}

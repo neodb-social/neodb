@@ -8,6 +8,7 @@
 {% load thumb %}
 {% load prettydate %}
 {% load user_actions %}
+{% load duration %}
 {% for activity in activities %}
 
 <li class="entity-list__entity">
@@ -31,15 +32,3 @@ hx-swap="outerHTML">
 <div>{% trans '在NeoDB导入或标记一些书影音，去联邦宇宙（长毛象）关注一些正在使用NeoDB的用户，这里就会显示你和她们的近期动态。' %}</div>
 {% endif %}
 {% endfor %}
-<script>
-  // readonly star rating at aside section
-  ratingLabels = $(".rating-star");
-  $(ratingLabels).each( function(index, value) {
-      let ratingScore = $(this).data("rating-score") / 2;
-      $(this).starRating({
-          initialRating: ratingScore,
-          readOnly: true,
-          starSize: 15,
-      });
-  });
-</script>

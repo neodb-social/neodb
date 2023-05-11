@@ -135,7 +135,7 @@ def mark(request, item_uuid):
         shelf_type = request.GET.get("shelf_type", mark.shelf_type)
         return render(
             request,
-            "mark.html",
+            "mark2.html" if request.GET.get("new", 0) else "mark.html",
             {
                 "item": item,
                 "mark": mark,
@@ -281,17 +281,19 @@ def collection_retrieve(request, collection_uuid):
         if request.user.is_authenticated
         else False
     )
-    is_featured = request.user.is_authenticated and collection.is_featured_by_user(
-        request.user
+    featured_since = (
+        collection.featured_by_user_since(request.user)
+        if request.user.is_authenticated
+        else None
     )
     available_as_featured = (
         request.user.is_authenticated
         and (following or request.user == collection.owner)
-        and not is_featured
+        and not featured_since
         and collection.members.all().exists()
     )
     stats = {}
-    if is_featured:
+    if featured_since:
         stats = collection.get_stats_for_user(request.user)
         stats["wishlist_deg"] = (
             stats["wishlist"] / stats["total"] * 360 if stats["total"] else 0
@@ -311,7 +313,7 @@ def collection_retrieve(request, collection_uuid):
             "following": following,
             "stats": stats,
             "available_as_featured": available_as_featured,
-            "is_featured": is_featured,
+            "featured_since": featured_since,
         },
     )
 

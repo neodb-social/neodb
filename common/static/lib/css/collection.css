@@ -180,8 +180,8 @@ div.jsoneditor-menu {
 }
 
 .donut {
-  margin-left: 20%;
-  width: 60%;
+  margin-left: 10%;
+  width: 80%;
   aspect-ratio : 1 / 1;
   border-radius: 50%;
   display: flex;

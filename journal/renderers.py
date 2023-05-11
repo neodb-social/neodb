@@ -37,7 +37,7 @@ def _spolier(s):
     r = l[1].split("!<", 1)
     return (
         escape(l[0])
-        + '<span class="spoiler">'
+        + '<span class="spoiler" _="on click toggle .reveal on me">'
         + escape(r[0])
         + "</span>"
         + (_spolier(r[1]) if len(r) == 2 else "")

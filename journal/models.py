@@ -221,6 +221,10 @@ class Comment(Content):
     def html(self):
         return render_text(self.text)
 
+    @cached_property
+    def rating_grade(self):
+        return Rating.get_item_rating_by_user(self.item, self.owner)
+
     @property
     def item_url(self):
         if self.focus_item:
@@ -259,6 +263,11 @@ class Review(Content):
     def html_content(self):
         return render_md(self.body)
 
+    @property
+    def plain_content(self):
+        html = render_md(self.body)
+        return _RE_HTML_TAG.sub(" ", html)
+
     @cached_property
     def rating_grade(self):
         return Rating.get_item_rating_by_user(self.item, self.owner)
@@ -291,6 +300,9 @@ class Review(Content):
         return review
 
 
+MIN_RATING_COUNT = 5
+
+
 class Rating(Content):
     class Meta:
         unique_together = [["owner", "item"]]
@@ -304,7 +316,7 @@ class Rating(Content):
         stat = Rating.objects.filter(item=item, grade__isnull=False).aggregate(
             average=Avg("grade"), count=Count("item")
         )
-        return round(stat["average"], 1) if stat["count"] >= 5 else None
+        return round(stat["average"], 1) if stat["count"] >= MIN_RATING_COUNT else None
 
     @staticmethod
     def get_rating_count_for_item(item):
@@ -337,9 +349,34 @@ class Rating(Content):
         rating = Rating.objects.filter(owner=user, item=item).first()
         return rating.grade if rating else None
 
+    @staticmethod
+    def get_rating_distribution_for_item(item):
+        stat = (
+            Rating.objects.filter(item=item, grade__isnull=False)
+            .values("grade")
+            .annotate(count=Count("grade"))
+            .order_by("grade")
+        )
+        g = [0] * 11
+        t = 0
+        for s in stat:
+            g[s["grade"]] = s["count"]
+            t += s["count"]
+        if t < MIN_RATING_COUNT:
+            return [0] * 5
+        r = [
+            100 * (g[1] + g[2]) // t,
+            100 * (g[3] + g[4]) // t,
+            100 * (g[5] + g[6]) // t,
+            100 * (g[7] + g[8]) // t,
+            100 * (g[9] + g[10]) // t,
+        ]
+        return r
+
 
 Item.rating = property(Rating.get_rating_for_item)
 Item.rating_count = property(Rating.get_rating_count_for_item)
+Item.rating_dist = property(Rating.get_rating_distribution_for_item)
 
 
 class Reply(Piece):
@@ -781,8 +818,9 @@ class Collection(List):
         html = render_md(self.brief)
         return _RE_HTML_TAG.sub(" ", html)
 
-    def is_featured_by_user(self, user):
-        return self.featured_by_users.all().filter(id=user.id).exists()
+    def featured_by_user_since(self, user):
+        f = FeaturedCollection.objects.filter(target=self, owner=user).first()
+        return f.created_time if f else None
 
     def get_stats_for_user(self, user):
         items = list(self.members.all().values_list("item_id", flat=True))

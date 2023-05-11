@@ -6,4 +6,5 @@ urlpatterns = [
     path("", home),
     path("api-doc/", api_doc),
     path("home/", home, name="home"),
+    path("me/", me, name="me"),
 ]

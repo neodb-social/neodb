@@ -1,0 +1,131 @@
+.rating {
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+  position: relative;
+}
+
+.rating * {
+  margin: 0;
+  padding: 0;
+}
+
+.rating h3 small {
+  font-weight: 200;
+}
+
+.rating .display {
+  display: flex;
+  flex: row;
+  vertical-align: bottom;
+}
+
+.rating .display div {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.rating .display div:nth-child(1) {
+  width: max-content;
+  padding-right: 12px;
+}
+
+.rating .display div:nth-child(2) {
+  flex-grow: 100;
+}
+
+.rating .chart {
+  flex-grow: 100;
+  display: table;
+  table-layout: fixed;
+  height: max-content;
+}
+
+.rating .chart li {
+  position: relative;
+  display: table-cell;
+  vertical-align: bottom;
+  height: 6vh;
+}
+
+.rating .chart span {
+  margin: 2%;
+  display: block;
+  background: var(--pico-muted-color);
+  border-radius: 0.5vh 0.5vh 0 0;
+}
+
+.rating .undisplay {
+  position: absolute;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  inset: 0;
+}
+
+.rating.unavailable .undisplay {
+  display: flex;
+}
+
+.rating.unavailable .display {
+  filter: blur(0.5vh);
+}
+
+.rating.unavailable .chart li:nth-child(1) span {
+  height: 10% !important;
+}
+
+.rating.unavailable .chart li:nth-child(2) span {
+  height: 20% !important;
+}
+
+.rating.unavailable .chart li:nth-child(3) span {
+  height: 30% !important;
+}
+
+.rating.unavailable .chart li:nth-child(4) span {
+  height: 40% !important;
+}
+
+.rating.unavailable .chart li:nth-child(5) span {
+  height: 50% !important;
+}
+
+// Rating Star with Font Awesome
+.rating-star {
+  position: relative;
+  vertical-align: middle;
+  font-family: FontAwesome;
+  display: inline-block;
+}
+
+.rating-star:before {
+  content: "\f006 \f006 \f006 \f006 \f006";
+  text-underline-offset: 0.125em;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.rating-star>div {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.rating-star>div:before {
+  content: "\f005 \f005 \f005 \f005 \f005";
+  text-underline-offset: 0.125em;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.rating-star .yellow {
+  color: #F68127;
+}
+
+.rating-editor {
+  cursor: pointer !important;
+  border: none !important;
+}

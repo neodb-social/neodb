@@ -1,0 +1,58 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load duration %}
+{% load user_actions %}
+
+{% for review in reviews %}
+{% if forloop.counter <= 10 %}
+<div>
+<div>
+<a href="{% url 'journal:user_profile' review.owner.mastodon_username %}">{{ review.owner.username }}</a>
+<span class="muted" style="font-size: 75%;">
+
+{% if review.visibility > 0 %}
+<i class="fa-solid fa-lock"></i>
+{% endif %}
+
+{% if review.metadata.shared_link %}
+<a href="{{ review.metadata.shared_link }}" target="_blank" rel="noopener">{{ review.created_time|date }}</a>
+{% else %}
+{{ review.created_time|date }}
+{% endif %}
+
+
+</span>
+</div>
+{% if review.rating_grade %}
+{{ review.rating_grade|rating_star }}
+{% endif %}
+
+{% if review.focus_item %}
+<a href="{{ review.focus_item.url }}">{{ review.focus_item }}</a>
+{% endif %}
+
+<span><a href="{% url 'journal:review_retrieve' review.uuid %}">{{ review.title }}</a></span>
+
+<span class="muted" style="font-size: 75%;">{{ review.plain_content | truncate:200 }}</span>
+
+<span class="action-bar inline">
+  <span>
+    {% liked_piece review as liked %}
+    {% include 'like_stats.html' with liked=liked piece=review %}
+  </span>
+</span>
+
+</div>
+{% else %}
+<a hx-get="{% url 'catalog:reviews' review.item.url_path review.item.uuid %}?last={{ review.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}" hx-trigger="click" hx-swap="outerHTML"><button class="outline">显示更多</button></a>
+{% endif %}
+{% empty %}
+<div class="empty">
+{% trans '暂无' %}
+</div>
+{% endfor %}
