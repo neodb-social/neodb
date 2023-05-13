@@ -71,35 +71,33 @@
             {% endif %}
 
             <div class="aside-section-wrapper">
+              {% if item.is_deleted and not request.user.is_superuser %}
+              <i>条目已被删除</i>
+              {% elif item.merged_to_item and not request.user.is_superuser %}
+              <i>条目已被合并</i>
+              {% elif not item.deletable and not request.user.is_superuser %}
+              <i>条目已被用户标记过</i>
+              {% else %}
               <div class="action-panel">
-                {% if item.is_deleted %}
-                <i>条目已被删除</i>
-                {% else %}
-                {% if request.user.is_staff %}
                 <div class="action-panel__label">{% trans '合并到另一条目' %} </div>
                 <div class="action-panel__button-group">
-                  <form method="post" action="{% url 'catalog:merge' item.url_path item.uuid %}" onsubmit="return confirm('Confirm merging?');">
+                  <form method="post" action="{% url 'catalog:merge' item.url_path item.uuid %}" onsubmit="return confirm('本操作不可撤销。确认合并吗？');">
                     {% csrf_token %}
                     <input type="url" name="new_item_url" placeholder="目标条目URL" value="{{ item.merged_to_item.absolute_url }}" required><br>
                     <input class="button" type="submit" value="{% trans '提交' %}">
                   </form>
                 </div>
-                {% endif %}
                 <div class="action-panel__label">{% trans '删除' %} </div>
-                {% if item.deletable or request.user.is_superuser %}
                 <div class="action-panel__button-group">
-                  <form method="post" action="{% url 'catalog:delete' item.url_path item.uuid %}" onsubmit="return confirm('确认删除吗？');">
+                  <form method="post" action="{% url 'catalog:delete' item.url_path item.uuid %}" onsubmit="return confirm('本操作不可撤销。确认删除吗？');">
                     {% csrf_token %}
-                    <input class="button" type="submit" value="{% trans '提交' %}">
+                    <input class="button" type="submit"
+                    {% if item.is_deleted or item.merged_to_item %} disabled {% endif %} value="{% trans '提交' %}">
                   </form>
                 </div>
-                {% else %}
-                <i>条目已被用户标记过</i>
-                {% endif %}
-                {% endif %}
               </div>
+              {% endif %}
             </div>
-
           {% endif %}
           </div>
           <div class="single-section-wrapper" id="main">
