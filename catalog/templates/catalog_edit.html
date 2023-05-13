@@ -76,7 +76,7 @@
                 {% if not item.show or request.user.is_superuser %}
                 <div class="action-panel__label">{% trans '将本季关联到电视剧' %} </div>
                 <div class="action-panel__button-group">
-                  <form method="post" action="{% url 'catalog:assign_parent' item.url_path item.uuid %}" onsubmit="return confirm('本操作不可撤销。确认合并吗？');">
+                  <form method="post" action="{% url 'catalog:assign_parent' item.url_path item.uuid %}" onsubmit="return confirm('本操作不可撤销。确认关联吗？');">
                     {% csrf_token %}
                     <input type="url" name="parent_item_url" placeholder="目标条目URL" value="{{ item.show.absolute_url }}" required><br>
                     <input class="button" type="submit" value="{% trans '提交' %}">
