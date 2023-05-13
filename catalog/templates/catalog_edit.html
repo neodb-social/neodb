@@ -70,10 +70,12 @@
             </div>
             {% endif %}
 
-            {% if request.user.is_staff %}
             <div class="aside-section-wrapper">
               <div class="action-panel">
-
+                {% if item.is_deleted %}
+                <i>条目已被删除</i>
+                {% else %}
+                {% if request.user.is_staff %}
                 <div class="action-panel__label">{% trans '合并到另一条目' %} </div>
                 <div class="action-panel__button-group">
                   <form method="post" action="{% url 'catalog:merge' item.url_path item.uuid %}" onsubmit="return confirm('Confirm merging?');">
@@ -82,21 +84,21 @@
                     <input class="button" type="submit" value="{% trans '提交' %}">
                   </form>
                 </div>
-
+                {% endif %}
                 <div class="action-panel__label">{% trans '删除' %} </div>
+                {% if item.deletable or request.user.is_superuser %}
                 <div class="action-panel__button-group">
-                  <form method="post" action="{% url 'catalog:delete' item.url_path item.uuid %}" onsubmit="return confirm('Confirm deletion?');">
+                  <form method="post" action="{% url 'catalog:delete' item.url_path item.uuid %}" onsubmit="return confirm('确认删除吗？');">
                     {% csrf_token %}
                     <input class="button" type="submit" value="{% trans '提交' %}">
                   </form>
                 </div>
+                {% else %}
+                <i>条目已被用户标记过</i>
+                {% endif %}
+                {% endif %}
               </div>
-
-              {% if item.is_deteled %}
-              <!-- TODO undelete -->
-              {% endif %}
             </div>
-            {% endif %}
 
           {% endif %}
           </div>

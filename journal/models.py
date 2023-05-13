@@ -1150,3 +1150,13 @@ def update_journal_for_merged_item(legacy_item_uuid):
                     f"deleted piece {p} when merging {cls.__name__}: {legacy_item} -> {new_item}"
                 )
                 p.delete()
+
+
+def journal_exists_for_item(item):
+    for cls in list(Content.__subclasses__()) + list(ListMember.__subclasses__()):
+        if cls.objects.filter(item=item).exists():
+            return False
+    return True
+
+
+Item.deletable = property(journal_exists_for_item)

@@ -185,9 +185,9 @@ def edit(request, item_path, item_uuid):
 def delete(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
-    if not request.user.is_staff:
-        raise PermissionDenied()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not request.user.is_superuser and not item.deletable:
+        raise PermissionDenied()
     for res in item.external_resources.all():
         res.item = None
         res.save()
