@@ -226,12 +226,30 @@ def unlink(request):
 
 
 @login_required
+def assign_parent(request, item_path, item_uuid):
+    if request.method != "POST":
+        raise BadRequest()
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not request.user.is_superuser and not item.deletable:
+        raise PermissionDenied()
+    new_item = Item.get_by_url(request.POST.get("parent_item_url"))
+    if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
+        raise BadRequest("Can't assign parent to a deleted or redirected item")
+    if item.__class__ != TVSeason or new_item.__class__ != TVShow:
+        raise BadRequest("Can't assign parent for this item")
+    _logger.warn(f"{request.user} assign {item} to {new_item}")
+    item.show = new_item
+    item.save(update_fields=["show"])
+    return redirect(item.url)
+
+
+@login_required
 def merge(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
-    if not request.user.is_staff:
-        raise PermissionDenied()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not request.user.is_superuser and not item.deletable:
+        raise PermissionDenied()
     new_item = Item.get_by_url(request.POST.get("new_item_url"))
     if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
         raise BadRequest("Can't merge to a deleted or redirected item")

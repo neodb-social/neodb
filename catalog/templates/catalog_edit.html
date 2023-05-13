@@ -71,14 +71,27 @@
             {% endif %}
 
             <div class="aside-section-wrapper">
-              {% if item.is_deleted and not request.user.is_superuser %}
-              <i>条目已被删除</i>
-              {% elif item.merged_to_item and not request.user.is_superuser %}
-              <i>条目已被合并</i>
-              {% elif not item.deletable and not request.user.is_superuser %}
-              <i>条目已被用户标记过</i>
-              {% else %}
               <div class="action-panel">
+                {% if item.class_name == "tvseason" %}
+                {% if not item.show or request.user.is_superuser %}
+                <div class="action-panel__label">{% trans '将本季关联到电视剧' %} </div>
+                <div class="action-panel__button-group">
+                  <form method="post" action="{% url 'catalog:assign_parent' item.url_path item.uuid %}" onsubmit="return confirm('本操作不可撤销。确认合并吗？');">
+                    {% csrf_token %}
+                    <input type="url" name="parent_item_url" placeholder="目标条目URL" value="{{ item.show.absolute_url }}" required><br>
+                    <input class="button" type="submit" value="{% trans '提交' %}">
+                  </form>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                {% if item.is_deleted and not request.user.is_superuser %}
+                <i>条目已被删除</i>
+                {% elif item.merged_to_item and not request.user.is_superuser %}
+                <i>条目已被合并</i>
+                {% elif not item.deletable and not request.user.is_superuser %}
+                <i>条目已被用户标记过</i>
+                {% else %}
                 <div class="action-panel__label">{% trans '合并到另一条目' %} </div>
                 <div class="action-panel__button-group">
                   <form method="post" action="{% url 'catalog:merge' item.url_path item.uuid %}" onsubmit="return confirm('本操作不可撤销。确认合并吗？');">
@@ -87,6 +100,7 @@
                     <input class="button" type="submit" value="{% trans '提交' %}">
                   </form>
                 </div>
+
                 <div class="action-panel__label">{% trans '删除' %} </div>
                 <div class="action-panel__button-group">
                   <form method="post" action="{% url 'catalog:delete' item.url_path item.uuid %}" onsubmit="return confirm('本操作不可撤销。确认删除吗？');">
@@ -95,9 +109,10 @@
                     {% if item.is_deleted or item.merged_to_item %} disabled {% endif %} value="{% trans '提交' %}">
                   </form>
                 </div>
+                {% endif %}
               </div>
-              {% endif %}
             </div>
+
           {% endif %}
           </div>
           <div class="single-section-wrapper" id="main">
