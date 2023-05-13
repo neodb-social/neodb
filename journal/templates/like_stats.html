@@ -1,11 +1,17 @@
 {% if liked %}
-<a hx-post="{% url 'journal:unlike' piece.uuid %}?stats=1" hx-swap="outerHTML" hx-target="this" title="取消点赞">
-  <i class="fa-solid fa-thumbs-up"></i>
+<a hx-post="{% url 'journal:unlike' piece.uuid %}?stats=1&amp;icon={{icon}}&amp;label={{label}}" hx-swap="outerHTML" hx-target="this" title="{{ label|default:'赞' }}">
+  <i class="fa-solid {{ icon|default:'fa-thumbs-up' }}"></i>
   <span>{{ piece.like_count }}</span>
 </a>
 {% else %}
-<a hx-post="{% url 'journal:like' piece.uuid %}?stats=1" hx-swap="outerHTML" hx-target="this" title="点赞">
-  <i class="fa-regular fa-thumbs-up"></i>
+<a
+{% if piece.owner == request.user %}
+  class="disabled"
+{% else %}
+  hx-post="{% url 'journal:like' piece.uuid %}?stats=1&amp;icon={{icon}}&amp;label={{label}}"
+{% endif %}
+  hx-swap="outerHTML" hx-target="this" title="{{ label|default:'赞' }}">
+  <i class="fa-regular {{ icon|default:'fa-thumbs-up' }}"></i>
   {% if piece.like_count %}<span>{{ piece.like_count }}</span>{% endif %}
 </a>
 {% endif %}

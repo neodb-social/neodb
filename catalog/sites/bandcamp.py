@@ -14,8 +14,8 @@ _logger = logging.getLogger(__name__)
 class Bandcamp(AbstractSite):
     SITE_NAME = SiteName.Bandcamp
     ID_TYPE = IdType.Bandcamp
-    URL_PATTERNS = [r"https://([a-z0-9\-]+.bandcamp.com/album/[^?#/]+)"]
-    URL_PATTERN_FALLBACK = r"https://([a-z0-9\-\.]+/album/[^?#/]+)"
+    URL_PATTERNS = [r"https://([a-z0-9\-]+.bandcamp.com/album/[^?#/]+).*"]
+    URL_PATTERN_FALLBACK = r"https://([a-z0-9\-\.]+/album/[^?#/]+).*"
     WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Album
 

@@ -1,0 +1,125 @@
+.feed-page {
+  main {
+    display: grid;
+    grid-template-columns: 65% 25%;
+    grid-template-areas: "main aside";
+    grid-gap: 6%;
+    padding-top: 2vh;
+
+    .grid__main {
+      grid-area: main;
+      margin-left: 6%;
+    }
+
+    .grid__aside {
+      grid-area: aside;
+    }
+  }
+
+  @media (max-width: 768px) {
+    main {
+      display: flex;
+      flex-flow: column nowrap;
+    }
+
+    .grid__main {
+      order: -1;
+      margin-left: 0 !important;
+      padding: 0;
+    }
+
+    .grid__aside {
+      order: -2;
+    }
+
+    ul {
+      padding: 0;
+    }
+  }
+
+
+  .feed {
+    margin: 1rem;
+
+    .avatar {
+      height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4 - 8px);
+      width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4 - 8px);
+
+      img {
+        height: 100%;
+        width: 100%;
+      }
+    }
+
+    section {
+      margin-bottom: 2vh;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto;
+      grid-column-gap: 1em;
+      grid-row-gap: 0px;
+      // align-items: center;
+      // justify-content: left;
+
+      .nickname a {
+        word-break: break-all;
+      }
+
+      .handler {
+        color: var(--pico-muted-color);
+        word-break: break-all;
+        opacity: 0.5;
+      }
+
+      .time {
+        width: max-content;
+        float: right;
+        color: var(--pico-muted-color);
+        opacity: 0.5;
+        margin-left: 1em;
+      }
+
+      .rating-star,
+      .rating-star>* {
+        color: var(--pico-primary);
+        padding: 0 0.5em;
+      }
+
+      .action {
+        width: max-content;
+        float: right;
+
+        >span {
+          margin-left: 1em;
+        }
+
+        a {
+          cursor: pointer;
+          text-decoration: none;
+        }
+
+        a.disabled {
+          cursor: unset;
+          color: var(--pico-muted-color);
+          opacity: 0.5;
+        }
+
+
+        a:not(:hover) {
+          color: var(--pico-muted-color);
+          opacity: 0.5;
+        }
+      }
+
+      article {
+        padding: calc(var(--pico-block-spacing-horizontal) / 2);
+        margin-right: 4px;
+      }
+
+      .spacing {
+        margin-bottom: var(--pico-block-spacing-horizontal);
+      }
+    }
+  }
+
+}

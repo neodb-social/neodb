@@ -1,16 +1,13 @@
 {% if people %}
-<i>
-{% if role %}
-{{ role }}:
-{% endif %}
+  {% if role %}
+    {{ role }}:
+  {% endif %}
 
-{% for p in people %}
-{% if forloop.counter <= max %}
-{% if not forloop.first %} 、 {% endif %}
-<span>{{ p }}</span>
-{% elif forloop.last %}
-等
-{% endif %}
-{% endfor %}
-</i>
+  {% for p in people %}
+    {% if forloop.counter <= max %}
+      {% if not forloop.first %} 、 {% endif %}
+      <span>{{ p }}</span>
+      {% elif forloop.last %}等
+    {% endif %}
+  {% endfor %}
 {% endif %}

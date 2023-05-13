@@ -61,7 +61,12 @@ def like(request, piece_uuid):
         return render(
             request,
             "like_stats.html",
-            {"piece": piece, "liked": True},
+            {
+                "piece": piece,
+                "liked": True,
+                "label": request.GET.get("label"),
+                "icon": request.GET.get("icon"),
+            },
         )
     return HttpResponse(_checkmark)
 
@@ -80,7 +85,12 @@ def unlike(request, piece_uuid):
         return render(
             request,
             "like_stats.html",
-            {"piece": piece, "liked": False},
+            {
+                "piece": piece,
+                "liked": False,
+                "label": request.GET.get("label"),
+                "icon": request.GET.get("icon"),
+            },
         )
     return HttpResponse(_checkmark)
 

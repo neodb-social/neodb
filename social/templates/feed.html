@@ -7,35 +7,28 @@
 {% load truncate %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="en" id="classic-page">
+<html lang="en" class="feed-page"">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '动态' %}</title>
-    {% include "common_libs.html" with jquery=0 v2=1 %}
-    <script src="{% static 'js/mastodon.js' %}"></script>
-    <script src="{% static 'js/home.js' %}"></script>
-    <script src=" https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/shikwasa.min.js "></script>
-    <link href=" https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/style.min.css " rel="stylesheet"></link>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ site_name }} - {% trans '动态' %}</title>
+  {% include "common_libs.html" with jquery=0 v2=1 %}
+  <script src="{% static 'js/mastodon.js' %}"></script>
+  <script src="{% static 'js/home.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/shikwasa.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/style.min.css" rel="stylesheet"></link>
+  <script src="{% static 'podcast.js' %}"></script>
 </head>
 
 <body>
 {% include "_header.html" %}
 <main>
-  <div class="grid__main grid__main--reverse-order">
-    <div class="entity-list">
-
-        <!-- <div class="set">
-            <h5 class="entity-list__title">
-                我的时间轴
-            </h5>
-        </div> -->
-        <ul class="entity-list__entities">
-            <div hx-get="{% url 'social:data' %}" hx-trigger="revealed delay:0.01s" hx-swap="outerHTML">
-                <i class="fas fa-fan fa-spin"></i>
-            </div>
-        </ul>
+  <div class="grid__main">
+    <div class="feed">
+      <div hx-get="{% url 'social:data' %}" hx-trigger="revealed delay:0.01s" hx-swap="outerHTML">
+        <i class="fas fa-fan fa-spin"></i>
+      </div>
     </div>
   </div>
   {% include "partial/_sidebar.html" %}

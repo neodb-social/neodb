@@ -174,11 +174,11 @@ nav ul li a.current {
   -webkit-box-orient: vertical;
 }
 
-.tldr-5 {
+.tldr-2 {
   overflow: hidden;
   text-overflow: " ... [点击展开]";
   display: -webkit-box;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 

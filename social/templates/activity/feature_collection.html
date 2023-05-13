@@ -10,37 +10,17 @@
 {% load user_actions %}
 
 {% with activity.action_object.target as collection %}
-{% like_piece_action collection as action %}
-<div class="entity-list__entity-img-wrapper">
-  <a href="{{ collection.url }}">
-    <img src="{{ collection.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img" style="min-width:80px;max-width:80px">
-  </a>
-  {% if not action.taken %}
-  <a class="entity-list__entity-action-icon" hx-post="{{ action.url }}">➕</a>
-  {% endif %}
-</div>
-<div class="entity-list__entity-text">
-  <div class="action-bar">
-    <span>
-      {% if activity.action_object.metadata.shared_link %}
-      <a href="{{ activity.action_object.metadata.shared_link }}" target="_blank" rel="noopener" title="打开联邦网络分享链接">
-        <i class="fa-solid fa-circle-nodes icon-spin"></i>
-        <span>{{ activity.action_object.created_time|prettydate }}</span>
-      </a>
-      {% else %}
-      <span>{{ activity.action_object.created_time|prettydate }}</span>
-      {% endif %}
-    </span>
-  </div>
-  <span class="entity-list__entity-info" style="top:0px;">
-    <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {% trans '设置了目标' %}
+<span class="action">
+  <span>
+    {% liked_piece collection as liked %}
+    {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-square-plus' %}
   </span>
-  <div class="entity-list__entity-title">
-    <a href="{{ collection.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ collection.title }}
-    </a>
-  </div>
-  <p>
-    <progress value="{{ activity.action_object.progress }}" max="100"></progress>
-  </p>
+</span>
+<div class="spacing">
+  设置了目标
+  <a href="{{ collection.url }}">{{ collection.title }}</a>
 </div>
+<p>
+  <progress value="{{ activity.action_object.progress }}" max="100"></progress>
+</p>
 {% endwith %}

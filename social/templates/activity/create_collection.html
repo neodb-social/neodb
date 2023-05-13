@@ -9,41 +9,15 @@
 {% load prettydate %}
 {% load user_actions %}
 
-{% like_piece_action activity.action_object as action %}
-<div class="entity-list__entity-img-wrapper">
-  <a href="{{ activity.action_object.url }}">
-    <img src="{{ activity.action_object.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img" style="min-width:80px;max-width:80px">
-  </a>
-  {% if not action.take %}
-  <a class="entity-list__entity-action-icon" hx-post="{{ action.url }}">➕</a>
-  {% endif %}
-</div>
-<div class="entity-list__entity-text">
-  <div class="action-bar">
-    <span>
-      {% if activity.action_object.metadata.shared_link %}
-      <a href="{{ activity.action_object.metadata.shared_link }}" target="_blank" rel="noopener" title="打开联邦网络分享链接">
-        <i class="fa-solid fa-circle-nodes icon-spin"></i>
-        <span>{{ activity.action_object.created_time|prettydate }}</span>
-      </a>
-      {% else %}
-      <span>{{ activity.action_object.created_time|prettydate }}</span>
-      {% endif %}
-    </span>
-  </div>
-  <span class="entity-list__entity-info" style="top:0px;">
-    <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {% trans '创建了收藏单' %}
+<span class="action">
+  <span>
+    {% liked_piece activity.action_object as liked %}
+    {% include 'like_stats.html' with liked=liked piece=activity.action_object label='关注' icon='fa-square-plus' %}
   </span>
-  <div class="entity-list__entity-title">
-    <a href="{{ activity.action_object.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.action_object.title }}
-      {% if activity.action_object.year %}<small style="font-weight: lighter">({{ activity.action_object.year }})</small>{% endif %}
-    </a>
-    {% for res in activity.action_object.external_resources.all %}
-    <a href="{{ res.url }}">
-      <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
-    </a>
-    {% endfor %}
-  </div>
-  <p class="entity-list__entity-brief">
-  </p>
+</span>
+<div class="spacing">
+  创建了收藏单
+  <a href="{{ activity.action_object.url }}">
+  {{ activity.action_object.title }}
+  </a>
 </div>

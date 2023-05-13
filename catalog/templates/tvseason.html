@@ -163,7 +163,7 @@
 	{% if item.other_info %}
 	{% for k, v in item.other_info.items %}
 	<div>
-		{{ k }}：{{ v  | urlize }}
+		{{ k }}：{{ v  | urlizetrunc:24 }}
 	</div>
 	{% endfor %}
 	{% endif %}

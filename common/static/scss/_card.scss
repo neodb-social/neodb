@@ -1,0 +1,36 @@
+.item {
+  display: grid;
+  grid-template-columns:
+    calc(4rem * var(--pico-line-height)) auto;
+  column-gap: var(--pico-block-spacing-horizontal);
+  align-items: top;
+  justify-content: left;
+  word-break: break-all;
+
+  hgroup {
+    margin: 0;
+  }
+
+  h5 small,
+  hgroup span {
+    font-weight: 400;
+    font-size: 80%;
+    color: var(--pico-secondary-color);
+  }
+
+  .metadata {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .brief {
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow: hidden;
+    -webkit-line-clamp: 3;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+  }
+}

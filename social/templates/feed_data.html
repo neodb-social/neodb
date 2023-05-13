@@ -11,11 +11,30 @@
 {% load duration %}
 {% for activity in activities %}
 
-<li class="entity-list__entity">
-  {% with "activity/"|add:activity.template|add:".html" as template %}
-  {% include template %}
-  {% endwith %}
-</li>
+<section class="activity">
+  <div class="avatar">
+    <img class="avatar__image" src="{{ activity.owner.mastodon_account.avatar }}" alt="cover">
+  </div>
+  <div>
+    <div>
+      <span class="time">
+        <span>{{ activity.action_object.created_time|prettydate }}</span>
+      </span>
+      <div class="spacing">
+        <span>
+          <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}" class="nickname">{{ activity.owner.display_name }}</a>
+        </span>
+        <span>
+          <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}" class="handler">@{{ activity.owner.mastodon_username }}</a>
+        </span>
+      </div>
+
+      {% with "activity/"|add:activity.template|add:".html" as template %}
+      {% include template %}
+      {% endwith %}
+    </div>
+  </div>
+</section>
 
 {% if forloop.last %}
 <div class="htmx-indicator" style="margin-left: 60px;"
@@ -27,8 +46,8 @@ hx-swap="outerHTML">
 {% endif %}
 {% empty %}
 {% if request.GET.last %}
-<div>{% trans '目前没有更多内容了' %}</div>
+<div class="empty">{% trans '目前没有更多内容了' %}</div>
 {% else %}
-<div>{% trans '在NeoDB导入或标记一些书影音，去联邦宇宙（长毛象）关注一些正在使用NeoDB的用户，这里就会显示你和她们的近期动态。' %}</div>
+<div class="empty">{% trans '在NeoDB导入或标记一些书影音，去联邦宇宙（长毛象）关注一些正在使用NeoDB的用户，这里就会显示你和她们的近期动态。' %}</div>
 {% endif %}
 {% endfor %}

@@ -266,6 +266,6 @@ summary::-webkit-details-marker {
     transform: rotate(360deg);
 }
 
-.fa-lock, .fa-spin {
+.action-bar .fa-lock, .fa-spin {
     color: lightgray;
 }

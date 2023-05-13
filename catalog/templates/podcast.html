@@ -11,28 +11,12 @@
 {% load thumb %}
 
 {% block head %}
-<script src=" https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/shikwasa.min.js "></script>
-<link href=" https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/style.min.css " rel="stylesheet"></link>
+<script src="https://cdn.jsdelivr.net/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/shikwasa@2.2.1/dist/style.min.css" rel="stylesheet"></link>
+<script src="{% static 'podcast.js' %}"></script>
 {% endblock %}
 
-<!-- class specific details -->
 {% block details %}
-<style type="text/css">
-	.entity-detail .entity-detail__img {
-		height: unset !important;
-	}
-</style>
-<div class="entity-detail__fields">
-	<div class="entity-detail__rating">
-		{% if item.rating and item.rating_count >= 5 %}
-		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:0 }}"></span>
-		<span class="entity-detail__rating-score"> {{ item.rating | floatformat:1 }} </span>
-		<small>({{ item.rating_count }}人评分)</small>
-		{% else %}
-		<span> {% trans '评分：评分人数不足' %}</span>
-		{% endif %}
-	</div>
-
 	<div>
 		{% if item.genre %}{% trans '类型：' %}
 		{% for genre in item.genre %}
@@ -42,12 +26,9 @@
 	</div>
 
 	<div>{% if item.official_site %}
-		{% trans '网站：' %}{{ item.official_site|urlizetrunc:42 }}
+		{% trans '网站：' %}{{ item.official_site|urlizetrunc:24 }}
 		{% endif %}
 	</div>
-
-</div>
-<div class="entity-detail__fields">
 
 	<div>{% if item.hosts %}{% trans '主播：' %}
 		{% for host in item.hosts %}
@@ -69,26 +50,14 @@
 		{% endif %}
 		{% endif %}
 	</div>
-
-	{% if item.last_editor and item.last_editor.preference.show_last_edit  %}
-	<div>{% trans '最近编辑者：' %}<a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
-	{% endif %}
-
-	<div>
-		{% if user.is_authenticated %}
-		<a href="{% url 'catalog:edit' item.url_path item.uuid %}">{% trans '编辑' %}{{ item.demonstrative }}</a>
-		{% endif %}
-	</div>
-</div>
 {% endblock %}
 
 
 {% block content %}
-<div class="entity-desc" id="episodes">
+<section class="entity-desc" id="episodes">
   <h5 class="entity-desc__title">{% trans '近期节目' %}</h5>
-  <br>
   <div hx-get="{% url 'catalog:episode_data' item.uuid %}" hx-trigger="load" hx-swap="outerHTML"></div>
-</div>
+</section>
 {% endblock %}
 
 <!-- class specific sidebar -->

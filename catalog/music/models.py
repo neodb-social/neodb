@@ -75,6 +75,16 @@ class Album(Item):
     bandcamp_album_id = jsondata.CharField(blank=True, default="", max_length=500)
     disc_count = jsondata.IntegerField(_("碟片数"), blank=True, default="", max_length=500)
 
+    def get_embed_link(self):
+        for res in self.external_resources.all():
+            if res.id_type == IdType.Bandcamp.value and res.metadata.get(
+                "bandcamp_album_id"
+            ):
+                return f"https://bandcamp.com/EmbeddedPlayer/album={res.metadata.get('bandcamp_album_id')}/size=large/bgcol=ffffff/linkcol=19A2CA/artwork=small/transparent=true/"
+            if res.id_type == IdType.Spotify_Album.value:
+                return res.url.replace("open.spotify.com/", "open.spotify.com/embed/")
+        return None
+
     @classmethod
     def lookup_id_type_choices(cls):
         id_types = [

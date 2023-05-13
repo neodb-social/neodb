@@ -268,7 +268,7 @@ def episode_data(request, item_uuid):
     if request.GET.get("last"):
         qs = qs.filter(pub_date__lt=request.GET.get("last"))
     return render(
-        request, "podcast_episode_data.html", {"item": item, "episodes": qs[:10]}
+        request, "podcast_episode_data.html", {"item": item, "episodes": qs[:5]}
     )
 
 

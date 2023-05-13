@@ -4,10 +4,11 @@
     grid-template-columns: 65% 25%;
     grid-template-areas: "main aside";
     grid-gap: 6%;
-    margin-left: 4%;
+    padding-top: 2vh;
 
     .grid__main {
       grid-area: main;
+      margin-left: 6%;
     }
 
     .grid__aside {

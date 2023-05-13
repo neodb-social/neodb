@@ -10,40 +10,8 @@
 {% load strip_scheme %}
 {% load thumb %}
 
-{% block title %}
-<h5 class="entity-detail__title">
-	{% if item.season_number %}
-	{{ item.title }} {% trans '第' %}{{ item.season_number|apnumber }}{% trans '季' %} {{ item.orig_title }} Season {{ item.season_number }}
-	<span class="entity-detail__title entity-detail__title--secondary">
-		{% if item.year %}({{ item.year }}){% endif %}
-	</span>
-	{% else %}
-	{{ item.title }} {{ item.orig_title }}
-	<span class="entity-detail__title entity-detail__title--secondary">
-		{% if item.year %}({{ item.year }}){% endif %}
-	</span>
-	{% endif %}
-
-	{% for res in item.external_resources.all %}
-	<a href="{{ res.url }}">
-	  <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
-	</a>
-	{% endfor %}
-</h5>
-{% endblock %}
-
 <!-- class specific details -->
 {% block details %}
-<div class="entity-detail__fields">
-	<div class="entity-detail__rating">
-		{% if item.rating %}
-		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:'0' }}"></span>
-		<span class="entity-detail__rating-score"> {{ item.rating|floatformat:1 }} </span>
-		<small>({{ item.rating_count }}人评分)</small>
-		{% else %}
-		<span> {% trans '评分：评分人数不足' %}</span>
-		{% endif %}
-	</div>
 	<div>{% if item.imdb %}
 		{% trans 'IMDb：' %}<a href="https://www.imdb.com/title/{{ item.imdb }}/" target="_blank" rel="noopener">{{ item.imdb }}</a>
 		{% endif %}
@@ -123,8 +91,6 @@
 		{% endfor %}
 	{% endif %}</div>
 
-</div>
-<div class="entity-detail__fields">
 	<div>{% if item.duration %}{% trans '片长：' %}{{ item.duration }}{% endif %}</div>
 	<div>{% if item.season_count %}{% trans '季数：' %}{{ item.season_count }}{% endif %}</div>
 	<div>{% if item.episode_count %}{% trans '集数：' %}{{ item.episode_count }}{% endif %}</div>
@@ -149,24 +115,8 @@
 	{% if item.other_info %}
 	{% for k, v in item.other_info.items %}
 	<div>
-		{{ k }}：{{ v  | urlize }}
+		{{ k }}：{{ v  | urlizetrunc:24 }}
 	</div>
 	{% endfor %}
 	{% endif %}
-
-
-	{% if item.last_editor and item.last_editor.preference.show_last_edit  %}
-	<div>{% trans '最近编辑者：' %}<a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
-	{% endif %}
-
-	<div>
-		{% if user.is_authenticated %}
-		<a href="{% url 'catalog:edit' item.url_path item.uuid %}">{% trans '编辑' %}{{ item.demonstrative }}</a>
-		{% endif %}
-	</div>
-</div>
-{% endblock %}
-
-<!-- class specific sidebar -->
-{% block sidebar %}
 {% endblock %}

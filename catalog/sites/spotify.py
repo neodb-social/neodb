@@ -24,7 +24,7 @@ spotify_token_expire_time = time.time()
 class Spotify(AbstractSite):
     SITE_NAME = SiteName.Spotify
     ID_TYPE = IdType.Spotify_Album
-    URL_PATTERNS = [r"\w+://open\.spotify\.com/album/([a-zA-Z0-9]+)"]
+    URL_PATTERNS = [r"\w+://open\.spotify\.com/album/([a-zA-Z0-9]+).*"]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
 

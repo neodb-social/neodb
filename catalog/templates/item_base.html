@@ -25,10 +25,10 @@
   {% endif %}
   <meta property="og:site_name" content="{{ site_name }}">
   <meta property="og:description" content="{{ item.brief }}">
-  {% block head %}
-  {% endblock %}
   <title>{{ site_name }} - {% trans item.category.label %} | {{ item.title }}</title>
   {% include "common_libs.html" with jquery=0 v2=1 %}
+  {% block head %}
+  {% endblock %}
 </head>
 
 <body>
@@ -182,6 +182,7 @@
           <a href="#" hx-get="{% url 'journal:add_to_collection' item.uuid %}?new=1" class="edit" hx-target="body" hx-swap="beforeend">
             <i class="fa-regular fa-square-plus"></i>
           </a>
+        </small>
       </h5>
       <div>
         {% for c in my_collections %}
@@ -293,9 +294,9 @@
       </p>{% endif %}
       {% if item.author or item.translator %}
       <p>
-        {% include '_people.html' with people=item.author _role='作者' max=2 %}
+        <i>{% include '_people.html' with people=item.author _role='作者' max=2 %}</i>
         &nbsp;&nbsp;
-        {% include '_people.html' with people=item.translator role='译者' max=2 %}
+        <i>{% include '_people.html' with people=item.translator role='译者' max=2 %}</i>
       </p>
       {% endif %}
     </hgroup>
@@ -307,24 +308,6 @@
       <h5>简介</h5>
       <p class="tldr" _="on click toggle .tldr on me">
         {{ item.brief | linebreaksbr }}
-      </p>
-    </section>
-    {% endif %}
-
-    {% if item.contents %}
-    <section>
-      <h5>目录</h5>
-      <p class="tldr" _="on click toggle .tldr on me">
-        {{ item.contents | linebreaksbr }}
-      </p>
-    </section>
-    {% endif %}
-
-    {% if item.track_list %}
-    <section>
-      <h5>曲目</h5>
-      <p class="tldr" _="on click toggle .tldr on me">
-        {{ item.track_list | linebreaksbr }}
       </p>
     </section>
     {% endif %}
@@ -345,7 +328,7 @@
       </h5>
       {% if request.user.is_authenticated %}
       <div>
-        <div hx-get="{% url 'catalog:comments' item.url_path item.uuid %}" hx-trigger="revealed delay:0.1s" hx-swap="outerHTML">
+        <div hx-get="{% url 'catalog:comments' item.url_path item.uuid %}" hx-trigger="intersect once" hx-swap="outerHTML">
           <i class="fas fa-fan fa-spin"></i>
         </div>
       </div>
@@ -360,7 +343,7 @@
       <h5>{% trans '评论' %}</h5>
       {% if request.user.is_authenticated %}
       <div>
-        <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}" hx-trigger="revealed delay:0.1s" hx-swap="outerHTML">
+        <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}" hx-trigger="intersect once" hx-swap="outerHTML">
           <i class="fas fa-fan fa-spin"></i>
         </div>
       </div>
@@ -375,7 +358,7 @@
   <div id="item-more" class="middle">
     <!-- test more content -->
   </div>
-  <div style="clear: both;"></div>
+  <div style="clear: both;display: table;"> </div>
 </main>
 
 {% include "partial/_footer.html" %}
