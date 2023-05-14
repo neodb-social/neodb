@@ -27,7 +27,7 @@ def _EditForm(item_model: Item):
             label=_("主要标识类型"),
         )
         primary_lookup_id_value = forms.CharField(
-            required=False, label=_("主要标识数据通常由系统自动检测，请勿随意更改，不确定留空即可")
+            required=False, label=_("主要标识数据通常由系统自动检测，请勿随意更改现有值，新增条目不确定留空即可")
         )
 
         class Meta:

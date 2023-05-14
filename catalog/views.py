@@ -8,7 +8,7 @@ from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotEx
 from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
-from catalog.common.models import ExternalResource
+from catalog.common.models import ExternalResource, IdealIdTypes
 from .models import *
 from django.views.decorators.clickjacking import xframe_options_exempt
 from journal.models import Mark, ShelfMember, Review, query_item_category
@@ -159,7 +159,11 @@ def edit(request, item_path, item_uuid):
         item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(instance=item)
-        if item.external_resources.all().count() > 0:
+        if (
+            item.external_resources.all().count() > 0
+            and item.primary_lookup_id_value
+            and item.primary_lookup_id_type in IdealIdTypes
+        ):
             form.fields["primary_lookup_id_type"].disabled = True
             form.fields["primary_lookup_id_value"].disabled = True
         return render(request, "catalog_edit.html", {"form": form, "item": item})
@@ -167,7 +171,11 @@ def edit(request, item_path, item_uuid):
         item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(request.POST, request.FILES, instance=item)
-        if item.external_resources.all().count() > 0:
+        if (
+            item.external_resources.all().count() > 0
+            and item.primary_lookup_id_value
+            and item.primary_lookup_id_type in IdealIdTypes
+        ):
             form.fields["primary_lookup_id_type"].disabled = True
             form.fields["primary_lookup_id_value"].disabled = True
         if form.is_valid():

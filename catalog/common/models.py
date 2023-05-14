@@ -80,6 +80,18 @@ class IdType(models.TextChoices):
     ApplePodcast = "apple_podcast", _("苹果播客")
 
 
+IdealIdTypes = [
+    IdType.ISBN,
+    IdType.CUBN,
+    IdType.ASIN,
+    IdType.GTIN,
+    IdType.ISRC,
+    IdType.MusicBrainz,
+    IdType.RSS,
+    IdType.IMDB,
+]
+
+
 class ItemType(models.TextChoices):
     Book = "book", _("书")
     TV = "tv", _("剧集")
@@ -269,17 +281,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     @classmethod
     def get_best_lookup_id(cls, lookup_ids):
         """get best available lookup id, ideally commonly used"""
-        best_id_types = [
-            IdType.ISBN,
-            IdType.CUBN,
-            IdType.ASIN,
-            IdType.GTIN,
-            IdType.ISRC,
-            IdType.MusicBrainz,
-            IdType.RSS,
-            IdType.IMDB,
-        ]
-        for t in best_id_types:
+        for t in IdealIdTypes:
             if lookup_ids.get(t):
                 return t, lookup_ids[t]
         return list(lookup_ids.items())[0]
