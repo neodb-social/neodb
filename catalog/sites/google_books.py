@@ -14,7 +14,7 @@ class GoogleBooks(AbstractSite):
     URL_PATTERNS = [
         r"https://books\.google\.co[^/]+/books\?id=([^&#]+)",
         r"https://www\.google\.co[^/]+/books/edition/[^/]+/([^&#?]+)",
-        r"https://books\.google\.co[^/]+/books/about/[^?]+?id=([^&#?]+)",
+        r"https://books\.google\.co[^/]+/books/about/[^?]+\?id=([^&#?]+)",
     ]
     WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Edition
