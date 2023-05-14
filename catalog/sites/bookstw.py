@@ -35,7 +35,9 @@ class BooksTW(AbstractSite):
         # )
         # eisbn = isbn_elem[0].strip().split("：", 1)[1].strip() if isbn_elem else None
 
-        title = content.xpath("string(//h1)") or f"Unknown Title {self.id_value}"
+        title = content.xpath("string(//h1)")
+        if not title:
+            raise ParseError(self, "title")
         subtitle = None
         orig_title = content.xpath("string(//h1/following-sibling::h2)")
 
