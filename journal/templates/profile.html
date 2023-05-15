@@ -28,137 +28,97 @@
 <body>
   {% include "_header.html" %}
   <main>
-
     <div class="grid__main grid__main--reverse-order">
-
-      <div class="main-section-wrapper sortable">
-
+      <div class="sortable main-section-wrapper">
         {% if request.user.is_authenticated %}
-        <div class="entity-sort" id="calendar_grid">
-          <h5 class="entity-sort__label">书影音日历</h5>
-          <div class="calendar_view">
+        <section class="entity-sort shelf" id="calendar_grid">
+          <h5>书影音日历</h5>
+          <div class="calendar_view cards">
             <p style="text-align: center;">
             <i class="fas fa-fan fa-spin"></i>
             </p>
           </div>
           <span class="calendar_data" hx-get="{% url 'journal:user_calendar_data' user.mastodon_username %}" hx-trigger="load" hx-swap="innerHTML" style="display:none;"></span>
-          <script type="text/javascript">
-            document.body.addEventListener('htmx:afterSettle', function(evt) {
-              if ($(evt.detail.elt).hasClass('calendar_data')) {
-                $(".calendar_view").calendar_yearview_blocks({
-                  data: $(evt.detail.elt).text(),
-                  start_monday: false,
-                  always_show_tooltip: false,
-                  month_names: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
-                  day_names: ['', '', ''],
-                  colors: {
-                    'default': '#eeeeee', // Default color
-                    'book': '#B4D2A5',
-                    'movie': '#7CBDFE',
-                    'music': '#FEA36D',
-                    'game': '#C5A290',
-                    'other': '#9D6AB0'
-                  }
-                });
-              }
-            });
-          </script>
-        </div>
+        </section>
         {% endif %}
 
         {% for category, category_shelves in shelf_list.items %}
         {% for shelf_type, shelf in category_shelves.items %}
-
-        <div class="entity-sort" id="{{ category }}_{{ shelf_type }}" {% if not shelf.count %}style="display:none;"{% endif %}>
-          <h5 class="entity-sort__label">
-            {{ shelf.title }}
+        <section class="entity-sort shelf" id="{{ category }}_{{ shelf_type }}" {% if not shelf.count %}style="display:none;"{% endif %}>
+          <h5> {{ shelf.title }}
+            <small>
+              <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' user.mastodon_username  category %}{% else %}{% url 'journal:user_mark_list' user.mastodon_username shelf_type category %}{% endif %}">{{ shelf.count }}</a>
+            </small>
           </h5>
-          <span class="entity-sort__count">
-            {{ shelf.count }}
-          </span>
-          {% if shelf.count > 5 %}
-          <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' user.mastodon_username  category %}{% else %}{% url 'journal:user_mark_list' user.mastodon_username shelf_type category %}{% endif %}" class="entity-sort__more-link">{% trans '更多' %}</a>
-          {% endif %}
-          <ul class="entity-sort__entity-list">
+          <ul class="cards">
             {% for member in shelf.members %}
-            <li class="entity-sort__entity">
-              <a href="{% if shelf_type == 'reviewed' %}{{ member.url }}{% else %}{{ member.item.url }}{% endif %}">
-                <img src="{{ member.item.cover.url }}" alt="{{ member.item.title }}" class="entity-sort__entity-img">
-                <div class="entity-sort__entity-name" title="{{ member.item.title }}"> {{ member.item.title }}</div>
+            <li class="card">
+              <a href="{% if shelf_type == 'reviewed' %}{{ member.url }}{% else %}{{ member.item.url }}{% endif %}" title="{{ member.item.title }}">
+                <img src="{{ member.item.cover.url }}" alt="{{ member.item.title }}">
+                <div>{{ member.item.title }}</div>
               </a>
             </li>
             {% empty %}
             <div>暂无记录</div>
             {% endfor %}
           </ul>
-        </div>
+        </section>
         {% endfor %}
         {% endfor %}
 
 
-        <div class="entity-sort" id="collection_created" {% if not collections_count %}style="display:none;"{% endif %}>
-          <h5 class="entity-sort__label">
+        <section class="entity-sort shelf" id="collection_created" {% if not collections_count %}style="display:none;"{% endif %}>
+          <h5>
             {% trans '创建的收藏单' %}
+            <small>
+            <a href="{% url 'journal:user_collection_list' user.mastodon_username %}"
+            >{{ collections_count }}</a>
+            {% if user == request.user %}
+            <a href="{% url 'journal:collection_create' %}">
+              <i class="fa-regular fa-square-plus"></i>
+            </a>
+            {% endif %}</small>
           </h5>
-          <span class="entity-sort__count">
-            {{ collections_count }}
-          </span>
-          {% if collections_count > 5 %}
-          <a href="{% url 'journal:user_collection_list' user.mastodon_username %}"
-          class="entity-sort__more-link">{% trans '更多' %}</a>
-          {% endif %}
-          {% if user == request.user %}
-          <a href="{% url 'journal:collection_create' %}"class="entity-sort__more-link">{% trans '新建' %}</a>
-          {% endif %}
-
-          <ul class="entity-sort__entity-list">
+          <ul class="cards">
             {% for collection in collections %}
-            <li class="entity-sort__entity">
-              <a href="{{ collection.url }}">
+            <li class="card">
+              <a href="{{ collection.url }}" title="{{collection.title}}">
                 <img src="{{ collection.cover|thumb:'normal' }}"
-                alt="{{collection.title}}" class="entity-sort__entity-img">
-                <span class="entity-sort__entity-name"
-                title="{{collection.title}}">{{ collection.title }}</span>
+                alt="{{collection.title}}">
+                <div>{{ collection.title }}</div>
               </a>
             </li>
             {% empty %}
             <div>暂无记录</div>
             {% endfor %}
           </ul>
-        </div>
+        </section>
 
-        <div class="entity-sort" id="collection_marked" {% if not liked_collections_count %}style="display:none;"{% endif %}>
-          <h5 class="entity-sort__label">
+        <section class="entity-sort shelf" id="collection_marked" {% if not liked_collections_count %}style="display:none;"{% endif %}>
+          <h5>
             {% trans '关注的收藏单' %}
+            <small>
+            <a href="{% url 'journal:user_liked_collection_list' user.mastodon_username %}"
+            >{{ liked_collections_count }}</a>
+          </small>
           </h5>
-          <span class="entity-sort__count">
-            {{ liked_collections_count }}
-          </span>
-          {% if liked_collections_count > 5 %}
-          <a href="{% url 'journal:user_liked_collection_list' user.mastodon_username %}"
-          class="entity-sort__more-link">{% trans '更多' %}</a>
-          {% endif %}
-
-          <ul class="entity-sort__entity-list">
+          <ul class="cards">
             {% for collection in liked_collections %}
-            <li class="entity-sort__entity">
-              <a href="{{ collection.url }}">
+            <li class="card">
+              <a href="{{ collection.url }}" title="{{collection.title}}">
                 <img src="{{ collection.cover|thumb:'normal' }}"
-                alt="{{collection.title}}" class="entity-sort__entity-img">
-                <span class="entity-sort__entity-name"
-                title="{{collection.title}}">{{ collection.title }}</span>
+                alt="{{collection.title}}">
+                <div>{{ collection.title }}</div>
               </a>
             </li>
             {% empty %}
             <div>暂无记录</div>
             {% endfor %}
           </ul>
-        </div>
-
+        </section>
       </div>
 
       {% if user == request.user %}
-
       <div class="entity-sort-control">
         <div class="entity-sort-control__button" id="sortEditButton">
           <span class="entity-sort-control__text" id="sortEditText">
@@ -200,20 +160,15 @@
       {{ layout|json_script:"layout-data" }}
       <script>
         const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
-                      // initialize sort element visibility and order
         initialLayoutData.forEach(elem => {
-          // set visiblity
           $('#' + elem.id).data('visibility', elem.visibility);
           if (!elem.visibility) {
             $('#' + elem.id).hide();
           }
-          // order
           $('#' + elem.id).appendTo('.main-section-wrapper');
         });
       </script>
-
     </div>
-
     {% include "partial/_sidebar.html" %}
   </main>
   {% include "partial/_footer.html" %}

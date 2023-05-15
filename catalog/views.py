@@ -358,7 +358,6 @@ def reviews(request, item_path, item_uuid):
     )
 
 
-@login_required
 def discover(request):
     if request.method != "GET":
         raise BadRequest()

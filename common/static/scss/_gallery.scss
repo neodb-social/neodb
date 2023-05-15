@@ -1,0 +1,105 @@
+.shelf {
+  max-width: 1400px;
+  padding: 0;
+
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  .cards {
+    display: grid;
+    grid-auto-columns: 100%;
+    grid-column-gap: var(--pico-block-spacing-horizontal);
+    grid-auto-flow: column;
+    padding: var(--pico-nav-link-spacing-vertical) 0px;
+    list-style: none;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+
+    &::-webkit-scrollbar {
+      height: var(--pico-nav-link-spacing-vertical);
+    }
+
+    &::-webkit-scrollbar-thumb,
+    &::-webkit-scrollbar-track {
+      border-radius: 92px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--pico-range-active-border-color);
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--pico-range-border-color);
+    }
+
+
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    padding: 0px;
+    // border-radius: 5px;
+    scroll-snap-align: start;
+    transition: all 0.2s;
+    text-align: center;
+    vertical-align: middle;
+
+    a {
+      margin-top: auto;
+    }
+
+    img {
+      background: var(--pico-background-color);
+      // border-radius: 5px;
+      width: 100%;
+      min-height: 3rem;
+      vertical-align: middle;
+      margin: auto;
+      font-size: 80%;
+      border: 2px solid transparent;
+    }
+
+    a:hover img {
+      border: 2px solid var(--pico-primary-hover);
+    }
+
+    div {
+      font-size: 80%;
+      text-overflow: ellipsis;
+      word-wrap: break-word;
+      overflow: hidden;
+      -webkit-line-clamp: 2;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      min-height: 2rem;
+    }
+  }
+
+  @media (min-width: 200px) {
+    .cards {
+      grid-auto-columns: calc(50% - var(--pico-block-spacing-horizontal));
+    }
+  }
+
+  @media (min-width: 500px) {
+    .cards {
+      grid-auto-columns: calc(25% - var(--pico-block-spacing-horizontal));
+    }
+  }
+
+  @media (min-width: 769px) {
+    .cards {
+      grid-auto-columns: calc(calc(100% / 5) - var(--pico-block-spacing-horizontal));
+    }
+  }
+
+  @media (min-width: 1281px) {
+    .cards {
+      grid-auto-columns: calc(calc(100% / 6) - var(--pico-block-spacing-horizontal));
+    }
+  }
+}

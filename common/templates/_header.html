@@ -10,7 +10,7 @@
     <ul class="nav-search">
       <li>
         <form role="search" method="get" action="{% url 'catalog:search' %}">
-          <input type="search" name="search" placeholder="搜索标题、创作者、ISBN、链接(如 https://movie.douban.com/subject/1297880/ )" class="search" />
+          <input type="search" name="q" placeholder="搜索标题、创作者、ISBN、链接(如 https://movie.douban.com/subject/1297880/ )" class="search" value="{{ request.GET.q|default:'' }}"/>
           <select>
             <option value="all">全部</option>
             <option {% if request.GET.c and request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %} value="book">书籍</option>

@@ -825,7 +825,7 @@ def profile(request, user_name):
             shelf_list[category][shelf_type] = {
                 "title": user.shelf_manager.get_label(shelf_type, category),
                 "count": members.count(),
-                "members": members[:5].prefetch_related("item"),
+                "members": members[:10].prefetch_related("item"),
             }
         reviews = (
             Review.objects.filter(owner=user)
@@ -836,7 +836,7 @@ def profile(request, user_name):
         shelf_list[category]["reviewed"] = {
             "title": "评论过的" + category.label,
             "count": reviews.count(),
-            "members": reviews[:5].prefetch_related("item"),
+            "members": reviews[:10].prefetch_related("item"),
         }
     collections = (
         Collection.objects.filter(owner=user).filter(qv).order_by("-created_time")
@@ -856,11 +856,11 @@ def profile(request, user_name):
             "user": user,
             "top_tags": user.tag_manager.all_tags[:10],
             "shelf_list": shelf_list,
-            "collections": collections[:5],
+            "collections": collections[:10],
             "collections_count": collections.count(),
             "liked_collections": [
                 Collection.objects.get(id=i)
-                for i in liked_collections.order_by("-edited_time")[:5]
+                for i in liked_collections.order_by("-edited_time")[:10]
             ],
             "liked_collections_count": liked_collections.count(),
             "layout": user.get_preference().profile_layout,

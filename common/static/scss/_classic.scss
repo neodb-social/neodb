@@ -20,11 +20,12 @@
     main {
       display: flex;
       flex-flow: column nowrap;
+      padding: 0 !important;
     }
 
     .grid__main {
       order: -1;
-      margin: 2%;
+      margin: 0 !important;
     }
 
     .grid__aside {
