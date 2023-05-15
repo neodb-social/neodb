@@ -198,7 +198,7 @@ div.jsoneditor-menu {
   justify-content: center;
 }
 
-progress {
+/* progress {
   border-radius: 7px;
   width: 80%;
   height: 10px;
@@ -209,7 +209,7 @@ progress {
 }
 ::-webkit-progress-value {
   background-color: #00a1cc;
-}
+} */
 
 .markdownx-editor {
   font-family: monospace;

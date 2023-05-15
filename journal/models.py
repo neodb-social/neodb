@@ -711,8 +711,11 @@ class ShelfManager:
     def get_shelf(self, shelf_type):
         return self.shelf_list[shelf_type]
 
-    def get_members(self, shelf_type, item_category):
-        return self.shelf_list[shelf_type].get_members_in_category(item_category)
+    def get_members(self, shelf_type, item_category=None):
+        if item_category:
+            return self.shelf_list[shelf_type].get_members_in_category(item_category)
+        else:
+            return self.shelf_list[shelf_type].members.all()
 
     # def get_items_on_shelf(self, item_category, shelf_type):
     #     shelf = (
@@ -919,13 +922,15 @@ class TagManager:
         return sorted(list(map(lambda t: t["title"], tags)))
 
     @staticmethod
-    def all_tags_for_user(user):
+    def all_tags_for_user(user, public_only=False):
         tags = (
             user.tag_set.all()
             .values("title")
             .annotate(frequency=Count("members__id"))
             .order_by("-frequency")
         )
+        if public_only:
+            tags = tags.filter(visibility=0)
         return list(map(lambda t: t["title"], tags))
 
     @staticmethod
@@ -972,6 +977,10 @@ class TagManager:
     @property
     def all_tags(self):
         return TagManager.all_tags_for_user(self.owner)
+
+    @property
+    def public_tags(self):
+        return TagManager.all_tags_for_user(self.owner, public_only=True)
 
     def add_item_tags(self, item, tags, visibility=0):
         for tag in tags:

@@ -6,7 +6,7 @@
 {% load truncate %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="en" id="classic-page">
+<html lang="en" class="classic-page">
 
 <head>
   <meta charset="UTF-8">
@@ -19,8 +19,6 @@
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }} - {{ user.mastodon_username }}的评论" href="{{ request.build_absolute_uri }}feed/reviews/">
 
   {% include "common_libs.html" with jquery=0 v2=1 %}
-  <script src="{% static 'js/mastodon.js' %}" defer></script>
-  <script src="{% static 'js/home.js' %}" defer></script>
   <script src="{% static 'lib/js/calendar_yearview_blocks.js' %}" defer></script>
   <link href="{% static 'lib/css/calendar_yearview_blocks.css' %}" media="all" rel="stylesheet"/>
 </head>
@@ -28,8 +26,8 @@
 <body>
   {% include "_header.html" %}
   <main>
-    <div class="grid__main grid__main--reverse-order">
-      <div class="sortable main-section-wrapper">
+    <div class="grid__main">
+      <div class="sortable">
         {% if request.user.is_authenticated %}
         <section class="entity-sort shelf" id="calendar_grid">
           <h5>书影音日历</h5>
@@ -65,7 +63,6 @@
         </section>
         {% endfor %}
         {% endfor %}
-
 
         <section class="entity-sort shelf" id="collection_created" {% if not collections_count %}style="display:none;"{% endif %}>
           <h5>
@@ -165,11 +162,11 @@
           if (!elem.visibility) {
             $('#' + elem.id).hide();
           }
-          $('#' + elem.id).appendTo('.main-section-wrapper');
+          $('#' + elem.id).appendTo('.sortable');
         });
       </script>
     </div>
-    {% include "partial/_sidebar.html" %}
+    {% include "_sidebar.html" with show_profile=1 %}
   </main>
   {% include "partial/_footer.html" %}
   {% if request.user.unread_announcements %}

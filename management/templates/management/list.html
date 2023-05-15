@@ -7,12 +7,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% include "common_libs.html" with jquery=0 %}
+    {% include "common_libs.html" with jquery=0 v2=1 %}
 
     <title>{{ site_name }} - {% trans '公告栏' %}</title>
 </head>
 
 <body>
+    {% include "_header.html" %}
     <style>
         .markdownx-preview {
             min-height: 40px;
@@ -37,18 +38,16 @@
             border-top-style: dashed;
         }
     </style>
-    <div id="page-wrapper">
-        <div id="content-wrapper">
-            {% include "partial/_navbar.html" %}
-            <div class="grid">
-                <div class="single-section-wrapper">
-                    <h3 class="header">{% trans '公告栏' %}</h3>
-                    <a href="{% url 'management:create' %}" class="add">{% trans '发布新公告' %}</a>
-                    <div style="margin-bottom: 40px;"></div>
-                    <ul>
+    <main class="container">
+        <h3 class="header">{% trans '公告栏' %}</h3>
+        {% if request.user.is_superuser %}
+        <a href="{% url 'management:create' %}" class="add">{% trans '发布新公告' %}</a>
+        {% endif %}
+
                         {% for announcement in object_list %}
 
-                        <li>
+                        <article>
+                            <header>
                             <a href="{{ announcement.get_absolute_url }}"><h4>{{ announcement.title }}</h4></a>
                             <span class="datetime">{{ announcement.created_time }}</span>
                             {% if request.user.is_superuser %}
@@ -57,62 +56,16 @@
                                 <a href="{% url 'management:delete' announcement.pk %}">{% trans '删除' %}</a>
                             </span>
                             {% endif %}
-
-                            <p>{{ announcement.get_plain_content }}</p>
-                        </li>
-
-                        {% if not forloop.last %}
-                            <div class="dividing-line"></div>
-                        {% endif %}
+                            </header>
+                            <p>{{ announcement.get_html_content | safe }}</p>
+                        </article>
 
                         {% empty %}
                             <p>{% trans '暂无公告' %}</p>
                         {% endfor %}
-                    </ul>
-                    <!-- <div class="pagination">
 
-                        {% if object_list.pagination.has_prev %}
-                        <a href="?page=1&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                            class="pagination__nav-link pagination__nav-link">&laquo;</a>
-                        <a href="?page={{ object_list.previous_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                            class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
-                        {% endif %}
-
-                        {% for page in object_list.pagination.page_range %}
-
-                        {% if page == object_list.pagination.current_page %}
-                        <a href="?page={{ page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                            class="pagination__page-link pagination__page-link--current">{{ page }}</a>
-                        {% else %}
-                        <a href="?page={{ page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                            class="pagination__page-link">{{ page }}</a>
-                        {% endif %}
-
-                        {% endfor %}
-
-                        {% if object_list.pagination.has_next %}
-                        <a href="?page={{ object_list.next_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                            class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
-                        <a href="?page={{ object_list.pagination.last_page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                            class="pagination__nav-link">&raquo;</a>
-                        {% endif %}
-
-                    </div> -->
-                </div>
-            </div>
-        </div>
-        {% include "partial/_footer.html" %}
-    </div>
-    <script>
-        // hide editing box
-        document.querySelectorAll(".markdownx textarea").forEach(e => {
-            e.style.display = 'none';
-        });
-        // strip html tags
-        document.querySelectorAll(".markdownx-preview").forEach(e => {
-            $(e).html($(e).text());
-        });
-    </script>
+    </main>
+    {% include "partial/_footer.html" %}
 </body>
 
 </html>

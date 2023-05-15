@@ -10,6 +10,7 @@ from .account import *
 from .data import *
 import json
 from django.core.exceptions import BadRequest, PermissionDenied
+from django.http import HttpResponseRedirect
 
 
 def render_user_not_found(request):
@@ -148,3 +149,15 @@ def manage_report(request):
         )
     else:
         raise BadRequest()
+
+
+@login_required
+def mark_announcements_read(request):
+    if request.method == "POST":
+        try:
+            request.user.read_announcement_index = Announcement.objects.latest("pk").pk
+            request.user.save(update_fields=["read_announcement_index"])
+        except ObjectDoesNotExist:
+            # when there is no annoucenment
+            pass
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))

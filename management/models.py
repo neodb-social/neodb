@@ -29,12 +29,15 @@ class Announcement(models.Model):
     def get_absolute_url(self):
         return reverse("management:retrieve", kwargs={"pk": self.pk})
 
+    def get_html_content(self):
+        html = markdown(self.content)
+        return html
+
     def get_plain_content(self):
         """
         Get plain text format content
         """
-        html = markdown(self.content)
-        return RE_HTML_TAG.sub(" ", html)
+        return RE_HTML_TAG.sub(" ", self.get_html_content())
 
     def __str__(self):
         """Unicode representation of Announcement."""

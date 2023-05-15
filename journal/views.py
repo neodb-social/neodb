@@ -848,13 +848,15 @@ def profile(request, user_name):
     )
     if user != request.user:
         liked_collections = liked_collections.filter(query_visible(request.user))
-
+        top_tags = user.tag_manager.public_tags[:10]
+    else:
+        top_tags = user.tag_manager.all_tags[:10]
     return render(
         request,
         "profile.html",
         {
             "user": user,
-            "top_tags": user.tag_manager.all_tags[:10],
+            "top_tags": top_tags,
             "shelf_list": shelf_list,
             "collections": collections[:10],
             "collections_count": collections.count(),

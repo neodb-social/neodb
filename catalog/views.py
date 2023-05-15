@@ -364,10 +364,8 @@ def discover(request):
     user = request.user
     if user.is_authenticated:
         layout = user.get_preference().discover_layout
-        top_tags = user.tag_manager.all_tags[:10]
     else:
         layout = []
-        top_tags = []
 
     cache_key = "public_gallery_list"
     gallery_list = cache.get(cache_key, [])
@@ -387,41 +385,39 @@ def discover(request):
                 ShelfType.PROGRESS, ItemCategory.Podcast
             )
         ]
-        episodes = PodcastEpisode.objects.filter(program_id__in=podcast_ids).order_by(
-            "-pub_date"
-        )[:5]
-        gallery_list.insert(
-            0,
-            {
-                "name": "my_recent_podcasts",
-                "title": "在听播客的近期更新",
-                "items": episodes,
-            },
+        recent_podcast_episodes = PodcastEpisode.objects.filter(
+            program_id__in=podcast_ids
+        ).order_by("-pub_date")[:10]
+        books_in_progress = Edition.objects.filter(
+            id__in=[
+                p.item_id
+                for p in user.shelf_manager.get_members(
+                    ShelfType.PROGRESS, ItemCategory.Book
+                ).order_by("-created_time")[:10]
+            ]
         )
-        # books = Edition.objects.filter(
-        #     id__in=[
-        #         p.item_id
-        #         for p in user.shelf_manager.get_members(
-        #             ShelfType.PROGRESS, ItemCategory.Book
-        #         ).order_by("-created_time")[:10]
-        #     ]
-        # )
-        # gallery_list.insert(
-        #     0,
-        #     {
-        #         "name": "my_books_inprogress",
-        #         "title": "正在读的书",
-        #         "items": books,
-        #     },
-        # )
+        tvshows_in_progress = Item.objects.filter(
+            id__in=[
+                p.item_id
+                for p in user.shelf_manager.get_members(
+                    ShelfType.PROGRESS, ItemCategory.TV
+                ).order_by("-created_time")[:10]
+            ]
+        )
+    else:
+        recent_podcast_episodes = []
+        books_in_progress = []
+        tvshows_in_progress = []
 
     return render(
         request,
         "discover.html",
         {
             "user": user,
-            "top_tags": top_tags,
             "gallery_list": gallery_list,
+            "recent_podcast_episodes": recent_podcast_episodes,
+            "books_in_progress": books_in_progress,
+            "tvshows_in_progress": tvshows_in_progress,
             "layout": layout,
         },
     )

@@ -17,11 +17,39 @@ PAGE_SIZE = 10
 def feed(request):
     if request.method != "GET":
         raise BadRequest()
+    user = request.user
+    podcast_ids = [
+        p.item_id
+        for p in user.shelf_manager.get_members(
+            ShelfType.PROGRESS, ItemCategory.Podcast
+        )
+    ]
+    recent_podcast_episodes = PodcastEpisode.objects.filter(
+        program_id__in=podcast_ids
+    ).order_by("-pub_date")[:10]
+    books_in_progress = Edition.objects.filter(
+        id__in=[
+            p.item_id
+            for p in user.shelf_manager.get_members(
+                ShelfType.PROGRESS, ItemCategory.Book
+            ).order_by("-created_time")[:10]
+        ]
+    )
+    tvshows_in_progress = Item.objects.filter(
+        id__in=[
+            p.item_id
+            for p in user.shelf_manager.get_members(
+                ShelfType.PROGRESS, ItemCategory.TV
+            ).order_by("-created_time")[:10]
+        ]
+    )
     return render(
         request,
         "feed.html",
         {
-            "top_tags": request.user.tag_manager.all_tags[:10],
+            "recent_podcast_episodes": recent_podcast_episodes,
+            "books_in_progress": books_in_progress,
+            "tvshows_in_progress": tvshows_in_progress,
         },
     )
 

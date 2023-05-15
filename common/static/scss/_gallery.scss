@@ -103,3 +103,9 @@
     }
   }
 }
+
+@media (min-width: 769px) {
+  .sidebar .shelf .cards {
+    grid-auto-columns: calc(50% - var(--pico-block-spacing-horizontal)) !important;
+  }
+}

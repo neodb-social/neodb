@@ -18,6 +18,11 @@ def user_progress_of(collection, user):
     )
 
 
+@register.simple_tag()
+def user_stats_of(collection, user):
+    return collection.get_stats_for_user(user) if user and user.is_authenticated else {}
+
+
 @register.filter(is_safe=True)
 @stringfilter
 def prural_items(category):

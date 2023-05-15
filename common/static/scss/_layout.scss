@@ -1,0 +1,41 @@
+.classic-page,
+.feed-page {
+  main {
+    display: grid;
+    grid-template-columns: auto 30%;
+    grid-template-areas: "main aside";
+    gap: calc(3*var(--pico-spacing));
+    padding: calc(3*var(--pico-spacing));
+
+    .grid__main {
+      grid-area: main;
+    }
+
+    .grid__aside {
+      grid-area: aside;
+    }
+  }
+
+  @media (max-width: 768px) {
+    main {
+      display: flex;
+      flex-flow: column nowrap;
+      padding: 0;
+      gap: 0;
+
+      .grid__main {
+        order: -1;
+        margin: var(--pico-spacing);
+      }
+
+      .grid__aside {
+        order: -2;
+      }
+
+      ul {
+        padding: 0;
+      }
+    }
+  }
+
+}

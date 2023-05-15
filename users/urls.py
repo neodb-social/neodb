@@ -25,4 +25,9 @@ urlpatterns = [
     path("<str:id>/following/", following, name="following"),
     path("report/", report, name="report"),
     path("manage_report/", manage_report, name="manage_report"),
+    path(
+        "mark_announcements_read/",
+        mark_announcements_read,
+        name="mark_announcements_read",
+    ),
 ]

@@ -1,0 +1,11 @@
+.empty {
+  font-style: italic;
+  font-size: 80%;
+  color: var(--pico-muted-color);
+}
+
+.oneline {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}

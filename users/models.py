@@ -193,12 +193,6 @@ class User(AbstractUser):
         unread_announcements = Announcement.objects.filter(
             pk__gt=self.read_announcement_index
         ).order_by("-pk")
-        try:
-            self.read_announcement_index = Announcement.objects.latest("pk").pk
-            self.save(update_fields=["read_announcement_index"])
-        except ObjectDoesNotExist:
-            # when there is no annoucenment
-            pass
         return unread_announcements
 
     @classmethod

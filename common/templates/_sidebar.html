@@ -1,0 +1,211 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+{% load collection %}
+{% load bleach_tags %}
+
+<div class="grid__aside sidebar">
+  {% if request.user.unread_announcements %}
+  <section class="announcement">
+    <article>
+      <h5>
+        未读公告
+        <small> | <a href="{% url 'management:list' %}">全部</a> </small>
+      </h5>
+      {% for ann in request.user.unread_announcements %}
+      <details open>
+        <summary>
+          {{ ann.title }}
+          <small>(<a href="{% url 'management:retrieve' ann.pk %}">{{ ann.created_time|date }}</a>)</small>
+        </summary>
+        <div class="tldr" _="on click toggle .tldr on me">
+          {{ ann.get_html_content | safe }}
+        </div>
+      </details>
+      {% endfor %}
+      <form action="{% url 'users:mark_announcements_read' %}" method="post">
+        {% csrf_token %}
+        <input type="submit" class="secondary outline" value="{% trans '全部标为已读' %}">
+      </form>
+    </article>
+  </section>
+  {% endif %}
+
+  {% if show_profile %}
+  <section class="profile">
+    <article>
+      <details class="auto-collapse" open>
+        <summary>
+          <div>
+            <div class="avatar">
+              <a href="{% url 'journal:user_profile' user.mastodon_username %}">
+                <img src="{{ user.mastodon_account.avatar }}">
+              </a>
+            </div>
+            <div>
+              <hgroup>
+                <h6 class="nickname">{{ user.mastodon_account.display_name }}</h6>
+                <div>
+                  <a href="{{ user.mastodon_account.url }}" target="_blank" rel="noopener">
+                    <span class="handler">@{{ user.mastodon_username }}</span>
+                  </a>
+                  {% current_user_relationship user as relationship %}
+                  {% if relationship %}
+                  <span>
+                      {{ relationship }}
+                  </span>
+                  {% endif %}
+                  </div>
+              </hgroup>
+            </div>
+          </div>
+        </summary>
+        <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
+        {% if request.user != user %}
+        <a href="{% url 'users:report' %}?user_id={{ user.id }}"
+            class="user-profile__report-link">{% trans '投诉用户' %}</a>
+        {% endif %}
+      </details>
+    </article>
+  </section>
+  {% endif %}
+
+  <section>
+    <article>
+      <details {% if user.featured_collections.all %}open{% endif %}>
+        <summary>
+            {% trans '当前目标' %}
+        </summary>
+        {% for featured_collection in user.featured_collections.all %}
+        {% user_visibility_of featured_collection as visible %}
+        {% if visible %}
+        {% user_stats_of collection=featured_collection user=user as stats %}
+        <div>
+            <a href="{{ featured_collection.collection.url }}">{{ featured_collection.collection.title }}</a> <small>
+            {{ stats.complete }} / {{ stats.total }} </small><br>
+            <progress value="{{ stats.percentage }}" max="100">
+        </div>
+        {% endif %}
+        {% empty %}
+        <div class="empty">暂未设置目标</div>
+        {% endfor %}
+      </details>
+    </article>
+  </section>
+
+  {% if recent_podcast_episodes %}
+  <section>
+    <article>
+      <details class="auto-collapse" open>
+        <summary>
+            {% trans '在听播客的近期单集' %}
+        </summary>
+        <div class="shelf">
+          <ul class="cards">
+            {% for item in recent_podcast_episodes %}
+            <li class="card">
+              <a href="{{ item.url }}" title="{{ item.title }}">
+                <img src="{{ item.cover_image_url | default:item.cover.url }}" alt="{{ item.title }}">
+                <div class="card-title">{{ item.title }}</div>
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </details>
+    </article>
+  </section>
+  {% endif %}
+
+  {% if books_in_progress %}
+  <section>
+    <article>
+      <details class="auto-collapse" open>
+        <summary>
+            {% trans '在读的书' %}
+        </summary>
+        <div class="shelf">
+          <ul class="cards">
+            {% for item in books_in_progress %}
+            <li class="card">
+              <a href="{{ item.url }}" title="{{ item.title }}">
+                <img src="{{ item.cover_image_url | default:item.cover.url }}" alt="{{ item.title }}">
+                <div class="card-title">{{ item.title }}</div>
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </details>
+    </article>
+  </section>
+  {% endif %}
+
+  {% if tvshows_in_progress %}
+  <section>
+    <article>
+      <details class="auto-collapse" open>
+        <summary>
+            {% trans '在看的剧集' %}
+        </summary>
+        <div class="shelf">
+          <ul class="cards">
+            {% for item in tvshows_in_progress %}
+            <li class="card">
+              <a href="{{ item.url }}" title="{{ item.title }}">
+                <img src="{{ item.cover_image_url | default:item.cover.url }}" alt="{{ item.title }}">
+                <div class="card-title">{{ item.title }}</div>
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </details>
+    </article>
+  </section>
+  {% endif %}
+
+  {% if top_tags %}
+  <section>
+    <article>
+      <details {% if top_tags %}class="auto-collapse" open{% endif %}>
+        <summary>
+          {% trans '常用标签' %}
+          <small>
+            {% if top_tags %}
+            <a href="{% url 'journal:user_tag_list' user.mastodon_username %}">{% trans '更多' %}</a>
+            {% endif %}
+          </small>
+        </summary>
+        <div class="tag-list">
+          {% for t in top_tags %}
+          <span>
+            <a href="{% url 'journal:user_tag_member_list' request.user.mastodon_username t %}">{{ t }}</a>
+          </span>
+          {% empty %}
+          <div class="empty">暂无可见标签</div>
+          {% endfor %}
+        </div>
+      </details>
+    </article>
+  </section>
+  {% endif %}
+</div>
+<script>
+  $(function () {
+    function _sidebar_auto_collapse(mm){
+      if (mm.matches) {
+        $('.auto-collapse').removeAttr('open')
+      } else {
+        $('.auto-collapse').attr('open', '')
+      }
+    }
+    var mm = window.matchMedia("(max-width: 768px)")
+    mm.addListener(_sidebar_auto_collapse);
+    _sidebar_auto_collapse(mm);
+  });
+</script>
