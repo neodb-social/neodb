@@ -20,7 +20,7 @@
 </head>
 
 <body>
-{% include "_header.html" %}
+{% include "_header.html" with current="timeline" %}
 <main>
   <div class="grid__main">
     <div class="feed">
@@ -29,7 +29,7 @@
       </div>
     </div>
   </div>
-  {% include "_sidebar.html" %}
+  {% include "_sidebar.html" with show_progress=1 %}
 </main>
 {% include "partial/_footer.html" %}
 </body>

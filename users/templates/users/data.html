@@ -6,248 +6,203 @@
 {% load truncate %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="classic-page">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - 数据管理</title>
-    {% include "common_libs.html" with jquery=0 %}
-    <script src="{% static 'js/mastodon.js' %}"></script>
-    <script src="{% static 'js/home.js' %}"></script>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
 </head>
 
 <body>
-    <div id="page-wrapper">
-        <div id="content-wrapper">
-            {% include "partial/_navbar.html" with current="data" %}
+  {% include "_header.html" with current="data" %}
+  <main>
+    <div class="grid__main">
+      <article>
+        <details>
+          <summary>
+            {% trans '导入豆瓣标记和评论' %}
+          </summary>
+              <form action="{% url 'users:import_douban' %}" method="POST" enctype="multipart/form-data" >
+                  {% csrf_token %}
 
-            <section id="content">
-                <div class="grid grid--reverse-order">
-                    <div class="grid__main grid__main--reverse-order">
+                          在<a href="https://doufen.org" target="_blank" rel="noopener">豆伴(豆坟)</a>导出时勾选<mark>书影音游剧</mark>和<mark>评论</mark>。<br>
+                          选择从豆伴(豆坟)导出的<code>.xlsx</code>文件:
+                          <input type="file" name="file" id="excel" required accept=".xlsx">
+                        <fieldset>
+                          <legend>导入方式</legend>
+                          <label for="import_mode_0">
+                              <input id="import_mode_0" type="radio" name="import_mode" value="0" checked>自动合并：仅更新正向变化(未标->想读->在读->已读)标记，不更新其它标记和现有评论（推荐）
+                          </label>
+                          <label for="import_mode_1">
+                              <input id="import_mode_1" type="radio" name="import_mode" value="1">强制覆盖：覆盖已存在的标记和评论，导入文件中未涉及的条目标记和评论不会被改动。
+                          </label>
+                        </fieldset>
+                      <p>可见性:
+                          <br>
+                          <label for="id_visibility_0"><input type="radio" name="visibility" value="0" required="" id="id_visibility_0" checked>
+                              公开</label>
+                          <label for="id_visibility_1"><input type="radio" name="visibility" value="1" required="" id="id_visibility_1">
+                              仅关注者</label>
+                          <label for="id_visibility_2"><input type="radio" name="visibility" value="2" required="" id="id_visibility_2">
+                              仅自己</label>
+                      </p>
+                      {% if import_status.douban_pending %}
+                      <input type="submit" class="import-panel__button" value="{% trans '备份文件已上传，请等待导入完成或刷新页面查看最新进度' %}" disabled />
+                      {% else %}
+                      <input type="submit" class="import-panel__button" value="{% trans '导入' %}"/>
+                      {% endif %}
+                    </form>
 
-                        <div class="main-section-wrapper">
-                            <div class="tools-section-wrapper">
-                                <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '导入豆瓣标记和评论' %}</h5>
-                                    <div class="import-panel__body">
-                                        <form action="{% url 'users:import_douban' %}" method="POST" enctype="multipart/form-data" >
-                                            {% csrf_token %}
-                                            <div class="import-panel__checkbox">
-                                                <p>
-                                                    <div>
-                                                        请在豆伴(豆坟)导出时勾选「书影音游剧」和「评论」。
-                                                    </div>
-                                                    从<a href="https://doufen.org" target="_blank" rel="noopener">豆伴(豆坟)</a>备份导出的.xlsx文件:
-                                                    <input type="file" name="file" id="excel" required accept=".xlsx">
-                                                </p>
-                                                <p>
-                                                    导入方式：
-                                                    <br>
-                                                    <label for="import_mode_0">
-                                                        <input id="import_mode_0" type="radio" name="import_mode" value="0" checked>自动合并：仅更新正向变化(未标->想读->在读->已读)标记，不更新其它标记和现有评论（推荐）
-                                                    </label>
-                                                    <br>
-                                                    <label for="import_mode_1">
-                                                        <input id="import_mode_1" type="radio" name="import_mode" value="1">强制覆盖：覆盖已存在的标记和评论，导入文件中未涉及的条目标记和评论不会被改动。
-                                                    </label>
-                                                </p>
-                                                <p>可见性:
-                                                    <br>
-                                                    <label for="id_visibility_0"><input type="radio" name="visibility" value="0" required="" id="id_visibility_0" checked>
-                                                     公开</label>
-                                                    <label for="id_visibility_1"><input type="radio" name="visibility" value="1" required="" id="id_visibility_1">
-                                                     仅关注者</label>
-                                                    <label for="id_visibility_2"><input type="radio" name="visibility" value="2" required="" id="id_visibility_2">
-                                                     仅自己</label>
-                                                </p>
-                                                {% if import_status.douban_pending %}
-                                                <input type="submit" class="import-panel__button" value="{% trans '备份文件已上传，请等待导入完成或刷新页面查看最新进度' %}" disabled />
-                                                {% else %}
-                                                <input type="submit" class="import-panel__button" value="{% trans '导入' %}"/>
-                                                {% endif %}
+                      <div hx-get="{% url 'users:import_status' %}"
+                          hx-trigger="load delay:1s"
+                          hx-swap="outerHTML"
+                      >
+                      </div>
+            </details>
+      </article>
 
-                                                <div hx-get="{% url 'users:import_status' %}"
-                                                    hx-trigger="load delay:1s"
-                                                    hx-swap="outerHTML"
-                                                >
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+      <article>
+        <details>
+          <summary>{% trans '导入Goodreads帐号或书单' %}</summary>
+              <form action="{% url 'users:import_goodreads' %}" method="POST" >
+                  {% csrf_token %}
+                  <div class="import-panel__checkbox">输入Goodreads链接
+                  <input type="url" name="url" value="" placeholder="例如 https://www.goodreads.com/user/show/12345-janedoe" required>
+                  <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn" />
+                  </div>
+                  <ul>
+                    <li>
+                      Goodreads用户主页链接形如 <code>https://www.goodreads.com/user/show/12345-janedoe</code> 将自动导入到当前用户的想读、在读、已读列表，每本书的评论导入为本站短评；</li>
+                      <li>
+                        Goodreads书单链接形如 <code>https://www.goodreads.com/review/list/12345-janedoe?shelf=name</code> 或 <code>https://www.goodreads.com/list/show/155086.Popular_Highlights</code> 将自动导入成为收藏单，每本书的评论导入为收藏单条目备注。
+                      </li>
+                       <li>
+                          欲导入的Goodreads用户需将<mark>Who Can View My Profile</mark>设置为<mark>anyone</mark>，导入后可改回原设置。
+                        </li>
+                  </ul>
+              </form>
+        </details>
+      </article>
 
-                        <div class="main-section-wrapper">
-                            <div class="tools-section-wrapper">
-                                <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '导入Goodreads帐号或书单' %}</h5>
-                                    <div class="import-panel__body">
-                                        <form action="{% url 'users:import_goodreads' %}" method="POST" >
-                                            {% csrf_token %}
-                                            <div class="import-panel__checkbox">输入Goodreads链接
-                                            <input type="url" name="url" value="" placeholder="例如 https://www.goodreads.com/user/show/12345-janedoe" required>
-                                            <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn" />
-                                            </div>
-                                            <div>
-                                                Goodreads用户主页链接形如 https://www.goodreads.com/user/show/12345-janedoe 将自动导入到当前用户的想读、在读、已读列表，每本书的评论导入为本站短评；
-                                                <br />
-                                                Goodreads书单链接形如 https://www.goodreads.com/review/list/12345-janedoe?shelf=name 或 https://www.goodreads.com/list/show/155086.Popular_Highlights 将自动导入成为收藏单，每本书的评论导入为收藏单条目备注。
-						<br />
-						欲导入的Goodreads用户需将Who Can View My Profile设置为anyone，导入后可改回原设置。
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+      <article>
+        <details>
+          <summary>{% trans '导入播客订阅列表' %}</summary>
 
-                        <div class="main-section-wrapper">
-                            <div class="tools-section-wrapper">
-                                <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '导入播客订阅列表' %}</h5>
-                                    <div class="import-panel__body">
+              <form action="{% url 'users:import_opml' %}" method="POST" enctype="multipart/form-data" >
+                  {% csrf_token %}
 
-                                        <form action="{% url 'users:import_opml' %}" method="POST" enctype="multipart/form-data" >
-                                            {% csrf_token %}
+                  <div class="import-panel__checkbox">
+                      导入方式：
+                      <label for="opml_import_mode_0">
+                          <input id="opml_import_mode_0" type="radio" name="import_mode" value="0" checked> 标记为在听的播客
+                      </label>
+                      <label for="opml_import_mode_1">
+                          <input id="opml_import_mode_1" type="radio" name="import_mode" value="1"> 导入为新收藏单
+                      </label>
+                  <br>
+                  选择OPML文件
+                  <input type="file" name="file" id="excel" required accept=".opml,.xml">
 
-                                            <div class="import-panel__checkbox">
-                                                导入方式：
-                                                <label for="opml_import_mode_0">
-                                                    <input id="opml_import_mode_0" type="radio" name="import_mode" value="0" checked> 标记为在听的播客
-                                                </label>
-                                                <label for="opml_import_mode_1">
-                                                    <input id="opml_import_mode_1" type="radio" name="import_mode" value="1"> 导入为新收藏单
-                                                </label>
-                                            <br>
-                                            选择OPML文件
-                                            <input type="file" name="file" id="excel" required accept=".opml,.xml">
+                  <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn" />
+                  </div>
 
-                                            <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn" />
-                                            </div>
-                                            <div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+              </form>
+        </details>
+      </article>
 
-                        <div class="main-section-wrapper">
-                            <div class="tools-section-wrapper">
-                                <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '导出个人数据' %}</h5>
-                                    <div class="import-panel__body">
-                                        <form action="{% url 'users:export_marks' %}" method="POST" enctype="multipart/form-data" >
-                                            {% csrf_token %}
-                                            {% if export_status.marks_pending %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '正在导出标记、短评和评论' %}" id="uploadBtn" disabled />
-                                            {% else %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '导出标记、短评和评论' %}" id="uploadBtn" />
-                                            {% endif %}
-                                            {% if export_status.marks_file %}
-                                            <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a>
-                                            {% endif %}
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+      <article>
+        <details>
 
-                        <div class="main-section-wrapper">
-                            <div class="tools-section-wrapper">
-                                <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '重置所有标记和短评可见性' %}</h5>
-                                    <div class="import-panel__body">
-                                        <form action="{% url 'users:reset_visibility' %}" method="POST" >
-                                            {% csrf_token %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '重置' %}" id="uploadBtn" />
-                                            <div class="import-panel__checkbox">
-                                            <input type="radio" name="visibility" id="visPublic" value="0" checked>
-                                            <label for="visPublic">{% trans '公开' %}</label>
-                                            <input type="radio" name="visibility" id="visFollower" value="1">
-                                            <label for="visFollower">{% trans '仅关注者' %}</label>
-                                            <input type="radio" name="visibility" id="visSelf" value="2">
-                                            <label for="visSelf">{% trans '仅自己' %}</label>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+          <summary>{% trans '导出个人数据' %}</summary>
+              <form action="{% url 'users:export_marks' %}" method="POST" enctype="multipart/form-data" >
+                  {% csrf_token %}
+                  {% if export_status.marks_pending %}
+                  <input type="submit" class="import-panel__button" value="{% trans '正在导出标记、短评和评论' %}" id="uploadBtn" disabled />
+                  {% else %}
+                  <input type="submit" class="import-panel__button" value="{% trans '导出标记、短评和评论' %}" id="uploadBtn" />
+                  {% endif %}
+                  {% if export_status.marks_file %}
+                  <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a>
+                  {% endif %}
+              </form>
+          </details>
+      </article>
 
-                        <div class="main-section-wrapper">
-                            <div class="tools-section-wrapper">
-                                <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '更新社交关系数据' %}</h5>
-                                    <div class="import-panel__body">
-                                        <form action="{% url 'users:sync_mastodon' %}" method="POST" enctype="multipart/form-data" >
-                                            {% csrf_token %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '同步' %}" id="uploadBtn" /> 上次更新时间 {{ user.mastodon_last_refresh }}
-                                            <div>
-                                            为了正确高效的展示短评和评论，{{ site_name }}会缓存你在联邦网络的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+      <article>
+        <details>
 
-                        {% if allow_any_site %}
-                        <div class="main-section-wrapper">
-                            <div class="tools-section-wrapper">
-                                <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '替换社交账号' %}</h5>
-                                    <div class="import-panel__body">
-                                        <form action="{% url 'users:reconnect' %}" method="POST" >
-                                            {% csrf_token %}
-                                            <div class="import-panel__checkbox">输入新社交账号所在的实例域名
-                                            <input type="input" name="domain" value="" placeholder="例如mastodon.online">
-                                            <input type="submit" class="import-panel__button" value="{% trans '登录新账号' %}" id="uploadBtn" />
-                                            </div>
-                                            <div>
-                                            替换后可使用新的联邦网络身份来登录{{ site_name }}和控制数据可见性，已有的标记评论收藏单等数据不受影响。
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
+          <summary>{% trans '重置所有标记和短评可见性' %}</summary>
+          <div class="import-panel__body">
+              <form action="{% url 'users:reset_visibility' %}" method="POST" >
+                  {% csrf_token %}
+                  <input type="submit" class="import-panel__button" value="{% trans '重置' %}" id="uploadBtn" />
+                  <div class="import-panel__checkbox">
+                  <input type="radio" name="visibility" id="visPublic" value="0" checked>
+                  <label for="visPublic">{% trans '公开' %}</label>
+                  <input type="radio" name="visibility" id="visFollower" value="1">
+                  <label for="visFollower">{% trans '仅关注者' %}</label>
+                  <input type="radio" name="visibility" id="visSelf" value="2">
+                  <label for="visSelf">{% trans '仅自己' %}</label>
+                  </div>
+              </form>
+          </details>
+      </article>
 
-                        <div class="main-section-wrapper">
-                            <div class="tools-section-wrapper">
-                                <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '删除数据和帐号信息' %}</h5>
-                                    <div class="import-panel__body">
-                                        <form action="{% url 'users:clear_data' %}" method="POST" >
-                                            {% csrf_token %}
-                                            <div class="import-panel__checkbox">输入完整的 用户名@实例名 以确认删除
-                                            <input type="input" name="verification" value="" placeholder="user@mastodon.social">
-                                            <input type="submit" class="import-panel__button" value="{% trans '永久删除' %}" id="uploadBtn" />
-                                            </div>
-                                            <div>
-                                            删除将无法撤销
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+      <article>
+        <details>
 
-                    </div>
+          <summary>{% trans '更新社交关系数据' %}</summary>
+              <form action="{% url 'users:sync_mastodon' %}" method="POST" enctype="multipart/form-data" >
+                  {% csrf_token %}
+                  <input type="submit" class="import-panel__button" value="{% trans '同步' %}" id="uploadBtn" /> 上次更新时间 {{ user.mastodon_last_refresh }}
+                  <div>
+                  为了正确高效的展示短评和评论，{{ site_name }}会缓存你在联邦网络的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
+                  </div>
+              </form>
+          </details>
+      </article>
 
-                    {% include "partial/_sidebar.html" %}
-                </div>
-            </section>
+{% if allow_any_site %}
+      <article>
+        <details>
 
-        </div>
+          <summary>{% trans '替换社交账号' %}</summary>
+              <form action="{% url 'users:reconnect' %}" method="POST" >
+                  {% csrf_token %}
+                  <div class="import-panel__checkbox">输入新社交账号所在的实例域名
+                  <input type="input" name="domain" value="" placeholder="例如mastodon.online">
+                  <input type="submit" class="import-panel__button" value="{% trans '登录新账号' %}" id="uploadBtn" />
+                  </div>
+                  <div>
+                  替换后可使用新的联邦网络身份来登录{{ site_name }}和控制数据可见性，已有的标记评论收藏单等数据不受影响。
+                  </div>
+              </form>
+          </details>
+      </article>
+{% endif %}
 
-        {% include "partial/_footer.html" %}
+      <article>
+        <details>
+
+          <summary>{% trans '删除数据和帐号信息' %}</summary>
+              <form action="{% url 'users:clear_data' %}" method="POST" >
+                  {% csrf_token %}
+                  <div class="import-panel__checkbox">输入完整的 用户名@实例名 以确认删除
+                  <input type="input" name="verification" value="" placeholder="user@mastodon.social">
+                  <input type="submit" class="import-panel__button" value="{% trans '永久删除' %}" id="uploadBtn" />
+                  </div>
+                  <div>
+                  删除将无法撤销
+                  </div>
+              </form>
+          </details>
+      </article>
     </div>
 
+    {% include "_sidebar.html" with show_profile=1 %}
+  </main>
+
+  {% include "partial/_footer.html" %}
 </body>
-
-
 </html>

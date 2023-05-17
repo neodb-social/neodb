@@ -32,10 +32,13 @@
         margin-left: 1em;
       }
 
+      .rating-star {
+        margin: 0 0.5em;
+      }
+
       .rating-star,
       .rating-star>* {
         color: var(--pico-primary);
-        padding: 0 0.5em;
       }
 
 

@@ -17,7 +17,7 @@
 </head>
 
 <body>
-  {% include "_header.html" %}
+  {% include "_header.html" with current="discover" %}
   <main>
     <div class="grid__main">
       <div class="sortable">
@@ -95,7 +95,7 @@
 
     </div>
     {% if request.user.is_authenticated %}
-    {% include "_sidebar.html" %}
+    {% include "_sidebar.html" with show_progress=1 %}
     {% else %}
     {% include "partial/_sidebar_anonymous.html" %}
     {% endif %}

@@ -24,7 +24,11 @@
 </head>
 
 <body>
+  {% if request.user == user %}
+  {% include "_header.html" with current="home" %}
+  {% else %}
   {% include "_header.html" %}
+  {% endif %}
   <main>
     <div class="grid__main">
       <div class="sortable">
@@ -166,7 +170,7 @@
         });
       </script>
     </div>
-    {% include "_sidebar.html" with show_profile=1 %}
+    {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
   </main>
   {% include "partial/_footer.html" %}
   {% if request.user.unread_announcements %}

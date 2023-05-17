@@ -66,14 +66,17 @@
         </summary>
         <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
         {% if request.user != user %}
+        <span class="action"><small>
         <a href="{% url 'users:report' %}?user_id={{ user.id }}"
-            class="user-profile__report-link">{% trans '投诉用户' %}</a>
+            class="user-profile__report-link">{% trans '投诉用户' %}</a></small>
+        </span>
         {% endif %}
       </details>
     </article>
   </section>
   {% endif %}
 
+  {% if show_progress %}
   <section>
     <article>
       <details {% if user.featured_collections.all %}open{% endif %}>
@@ -96,6 +99,7 @@
       </details>
     </article>
   </section>
+  {% endif %}
 
   {% if recent_podcast_episodes %}
   <section>
