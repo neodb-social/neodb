@@ -1,3 +1,20 @@
+body {
+  --pico-block-spacing-vertical: var(--pico-block-spacing-horizontal);
+}
+
+article {
+  padding: var(--pico-block-spacing-horizontal);
+
+  header,
+  footer {
+    padding: var(--pico-block-spacing-horizontal);
+  }
+}
+
+details {
+  margin: 0;
+}
+
 .empty {
   font-style: italic;
   font-size: 80%;

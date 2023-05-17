@@ -29,8 +29,12 @@ def login(request):
     if request.method == "GET":
         selected_site = request.GET.get("site", default="")
 
-        sites = MastodonApplication.objects.all().order_by("domain_name")
-
+        sites = list(
+            MastodonApplication.objects.all()
+            .order_by("domain_name")
+            .values_list("domain_name")
+        )
+        print(sites)
         # store redirect url in the cookie
         if request.GET.get("next"):
             request.session["next_url"] = request.GET.get("next")

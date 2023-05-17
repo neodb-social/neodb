@@ -2,87 +2,111 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="{{ site_name }} - 联邦宇宙书影音游戏标注平台">
-    <meta name="description" property="og:description" content="{{ site_name }}致力于为联邦宇宙居民提供一个自由、开放、互联的书籍、电影、音乐和游戏收藏评论空间">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
-    <title>{{ site_name }} - {% trans '登录' %}</title>
-    {% include "common_libs.html" %}
-    <link rel="stylesheet" href="https://cdn.staticfile.org/milligram/1.4.1/milligram.min.css">
-    <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
-    <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
-    <script src="https://cdn.staticfile.org/js-cookie/3.0.1/js.cookie.min.js"></script>
-    <script> $(document).ready( function() { $('.delayed').remove(); $('#loginButton').prop("disabled", false); } ); </script>
-    <style type="text/css">
-        .delayed {
-          animation: 10s fadeIn;
-          animation-fill-mode: forwards;
-          visibility: hidden;
-        }
-        @keyframes fadeIn {
-          99% {
-            visibility: hidden;
-          }
-          100% {
-            visibility: visible;
-            opacity: 1;
-          }
-        }
-        input, input[type='text']:focus, input[type='search']:focus{
-            border: #84C2FB solid 1px;
-        }
-        input[type='submit'] {
-            background: #84C2FB;
-            border: #84C2FB solid 1px;
-        }
-        input:invalid#domain {
-            border: #F9A879 dashed 1px;
-        }
-        a {
-            color: #84C2FB;
-        }
-        select {
-            padding-left: 16px;
-            padding-right: 16px;
-            margin-bottom: 20px;;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="{{ site_name }} - 联邦宇宙书影音游戏标注平台">
+  <meta name="description" property="og:description" content="{{ site_name }}致力于为联邦宇宙居民提供一个自由、开放、互联的书籍、电影、音乐和游戏收藏评论空间">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
+  <title>{{ site_name }} - {% trans '登录' %}</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
+  {% include "common_libs.html" with jquery=0 v2=1 %}
+  <script src="https://cdn.staticfile.org/js-cookie/3.0.1/js.cookie.min.js"></script>
+  <script> $(document).ready(function () { $('.delayed').remove(); $('#loginButton').prop("disabled", false); }); </script>
+
+  <style type="text/css">
+    .delayed {
+      animation: 10s fadeIn;
+      animation-fill-mode: forwards;
+      visibility: hidden;
+    }
+    @keyframes fadeIn {
+      99% {
+        visibility: hidden;
+      }
+      100% {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+    input:invalid {
+      border: var(--pico-primary) dashed 2px;
+    }
+    mark {
+      padding: 0;
+    }
+    ul li {
+      list-style: none;
+    }
+    .autoComplete_wrapper > ul > li:hover {
+      cursor: pointer;
+      background-color: var(--pico-text-selection-color);
+    }
+    .autoComplete_wrapper > ul > li[aria-selected="true"] {
+      background-color: var(--pico-text-selection-color);
+    }
+  </style>
 </head>
+
 <body>
-    <div id="loginBox" class="box">
+  <main class="container">
+    <article>
+      <header style="text-align: center;">
         <img src="{% static 'img/logo.svg' %}" class="logo" alt="boofilsic logo">
-        <div>
-            {% if user.is_authenticated %}
-            <a href="{% url 'common:home' %}" class="button">{% trans '前往首页' %}</a>
-            {% else %}
-            <form action="/users/connect">
-            {% if allow_any_site %}
-            <input type="search" name="domain" id="domain"
-                pattern="(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,})"
-                title="实例域名(不含@和@之前的部分)，如mastodon.social"
-                placeholder="实例域名(不含@和@之前的部分)，如mastodon.social"
-                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-            <input type='submit' value="{% trans '授权登录' %}" id="loginButton" disabled />
-            <script type="text/javascript">if (Cookies.get('mastodon_domain')) $('#domain').val(Cookies.get('mastodon_domain'));</script>
-            {% else %}
-            <select name="domain" placeholder="test">
-                {% for site in sites %}
-                <option value="{{ site.domain_name }}" data-client-id="{{ site.client_id }}">@{{ site.domain_name }}</option>
-                {% endfor %}
-            </select>
-            <input type='submit' value="{% trans '授权登录' %}" id="loginButton" />
-            {% endif %}
-            </form>
-            {% endif %}
-            <div class="delayed">网页加载超时，请检查网络（翻墙）设置。</div>
-        </div>
-    </div>
-    <div style="color:lightgrey; text-align:center;bottom:10px;position:fixed;width:100%;">
-        <small>本站使用cookie提供必要的功能，继续访问视为同意。</small>
-    </div>
+      </header>
+      <div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'common:home' %}" class="button">{% trans '前往首页' %}</a>
+        {% else %}
+        <form action="/users/connect">
+          {% if allow_any_site %}
+          <input required name="domain" id="domain" pattern="(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,})"
+            title="实例域名(不含@和@之前的部分)，如mastodon.social" placeholder="实例域名(不含@和@之前的部分)，如mastodon.social" autocomplete="off"
+            autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <input type='submit' value="{% trans '授权登录' %}" id="loginButton" disabled />
+          <script type="text/javascript">if (Cookies.get('mastodon_domain')) $('#domain').val(Cookies.get('mastodon_domain'));</script>
+          {{ sites|json_script:"sites-data" }}
+          <script>
+            const sites = JSON.parse(document.getElementById('sites-data').textContent);
+            const autoCompleteJS = new autoComplete({ placeHolder: "输入或选择实例域名(不含@和@之前的部分)",
+              selector: "#domain",
+              data: {
+                  src: sites
+              },
+              resultsList: {
+                tabSelect: true,
+                maxResults: 10
+              },
+              events: {
+                input: {
+                  selection: (event) => {
+                    const selection = event.detail.selection.value;
+                    autoCompleteJS.input.value = selection;
+                  }
+                }
+              }
+            });
+          </script>
+          {% else %}
+          <select name="domain" placeholder="test">
+            {% for site in sites %}
+            <option value="{{ site.domain_name }}" data-client-id="{{ site.client_id }}">@{{ site.domain_name }}
+            </option>
+            {% endfor %}
+          </select>
+          <input type='submit' value="{% trans '授权登录' %}" id="loginButton" />
+          {% endif %}
+        </form>
+        {% endif %}
+        <div class="delayed">网页加载超时，请检查网络（翻墙）设置。</div>
+      </div>
+  </main>
+  <div style="color:lightgrey; text-align:center;bottom:10px;position:fixed;width:100%;">
+    <small>本站使用cookie提供必要的功能，继续访问视为同意。</small>
+  </div>
 </body>
+
 </html>

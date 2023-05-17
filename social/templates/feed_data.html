@@ -48,6 +48,6 @@ hx-swap="outerHTML">
 {% if request.GET.last %}
 <div class="empty">{% trans '目前没有更多内容了' %}</div>
 {% else %}
-<div class="empty">{% trans '在NeoDB导入或标记一些书影音，去联邦宇宙（长毛象）关注一些正在使用NeoDB的用户，这里就会显示你和她们的近期动态。' %}</div>
+<div>搜索并标记一些书影音/播客/游戏，<a href="{% url 'users:data' %}">导入你的豆瓣或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用{{site_name}}的用户，这里就会显示你和她们的近期动态。</div>
 {% endif %}
 {% endfor %}
