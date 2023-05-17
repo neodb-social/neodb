@@ -43,7 +43,10 @@ def search_igdb_by_3p_url(steam_url):
 class IGDB(AbstractSite):
     SITE_NAME = SiteName.IGDB
     ID_TYPE = IdType.IGDB
-    URL_PATTERNS = [r"\w+://www\.igdb\.com/games/([a-zA-Z0-9\-_]+)"]
+    URL_PATTERNS = [
+        r"\w+://www\.igdb\.com/games/([a-zA-Z0-9\-_]+)",
+        r"\w+://m\.igdb\.com/games/([a-zA-Z0-9\-_]+)",
+    ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Game
 
