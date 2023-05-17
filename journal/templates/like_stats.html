@@ -1,5 +1,5 @@
 {% if liked %}
-<a hx-post="{% url 'journal:unlike' piece.uuid %}?stats=1&amp;icon={{icon}}&amp;label={{label}}" hx-swap="outerHTML" hx-target="this" title="{{ label|default:'赞' }}">
+<a class="activated" hx-post="{% url 'journal:unlike' piece.uuid %}?stats=1&amp;icon={{icon}}&amp;label={{label}}" hx-swap="outerHTML" hx-target="this" title="已{{ label|default:'赞' }}">
   <i class="fa-solid {{ icon|default:'fa-thumbs-up' }}"></i>
   <span>{{ piece.like_count }}</span>
 </a>

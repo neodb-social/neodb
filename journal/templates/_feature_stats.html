@@ -1,0 +1,10 @@
+<form style="display:none;" action="{% if featured %}{% url 'journal:collection_remove_featured' collection.uuid %}{% else %}{% url 'journal:collection_add_featured' collection.uuid %}{% endif %}" method="post" id="feature-form">{% csrf_token %}</form>
+{% if featured %}
+<a class="activated" title="停止追踪目标" onclick="if (confirm('停止这个目标吗？')) $('#feature-form').submit();">
+  <i class="fa-solid fa-circle-dot"></i>
+</a>
+{% else %}
+<a title="设为目标" onclick="$('#feature-form').submit()">
+  <i class="fa-regular fa-circle-dot"></i>
+</a>
+{% endif %}

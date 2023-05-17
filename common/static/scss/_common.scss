@@ -9,3 +9,39 @@
   overflow: hidden;
   white-space: nowrap;
 }
+
+.handler {
+  color: var(--pico-muted-color);
+  word-break: break-all;
+  opacity: 0.5;
+}
+
+.action {
+  width: max-content;
+  float: right;
+
+  >span {
+    margin-left: 1em;
+  }
+
+  a {
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  a.disabled {
+    cursor: unset;
+    color: var(--pico-muted-color);
+    opacity: 0.5;
+  }
+
+  a:not(:hover) {
+    color: var(--pico-muted-color);
+    opacity: 0.5;
+  }
+
+  a.activated:not(:hover) {
+    color: var(--pico-primary);
+    opacity: 1;
+  }
+}

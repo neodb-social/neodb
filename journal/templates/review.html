@@ -6,9 +6,10 @@
 {% load truncate %}
 {% load thumb %}
 {% load user_actions %}
+{% load duration %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="content-page">
 
 <head>
   <meta charset="UTF-8">
@@ -19,78 +20,79 @@
   <meta property="og:url" content="{{ request.build_absolute_uri }}">
   <meta property="og:image" content="{{ review.item.cover|thumb:'normal' }}">
   <title>{{ site_name }}{% trans '评论' %} - {{ review.title }}</title>
-  {% include "common_libs.html" with jquery=0 %}
+  {% include "common_libs.html" with jquery=0 v2=1 %}
 </head>
 
 <body>
-  <div id="page-wrapper">
-    <div id="content-wrapper">
-      {% include "partial/_navbar.html" %}
-
-      <section id="content">
-        <div class="grid">
-          <div class="grid__main" id="main">
-            <div class="main-section-wrapper">
-              <div class="review-head">
-                <h5 class="review-head__title">
-                  {{ review.title }}
-                </h5>
-                {% if review.visibility > 0 %}
-                <i class="fa-solid fa-lock"></i>
+  {% include "_header.html" %}
+  <main class=>
+    <div>
+      <article>
+        <header>
+          <hgroup>
+            <h3>
+              <div class="action">
+                <span>
+                  {% liked_piece review as liked %}
+                  {% include 'like_stats.html' with liked=liked piece=review %}
+                </span>
+                {% if request.user == review.owner %}
                 {% endif %}
-                <div class="review-head__body">
-                  <div class="review-head__info">
-
-                    <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}" class="review-head__owner-link">{{ review.owner.username }}</a>
-
-                    {% if mark %}
-
-                    {% if mark.rating %}
-                    <span class="review-head__rating-star rating-star" data-rating-score="{{ mark.rating | floatformat:0 }}"></span>
-                    {% endif %}
-
-                    {% endif %}
-
-                    <span class="review-head__time">{{ review.created_time|date }}</span>
-
-                  </div>
-                  <div class="action-bar">
-                    <span>
-                      {% liked_piece review as liked %}
-                      {% include 'like_stats.html' with liked=liked piece=review %}
-                    </span>
-                    {% if request.user == review.owner %}
-                    <span>
-                    <a class="review-head__action-link" href="{% url 'journal:review_edit' review.item.uuid review.uuid %}">{% trans '编辑' %}</a>
-                    <a class="review-head__action-link" href="{% url 'journal:review_delete' review.uuid %}">{% trans '删除' %}</a>
-                    </span>
-                    {% endif %}
-                  </div>
-                </div>
-                <!-- <div class="dividing-line"></div> -->
-                <div class="markdown-content">
-                  {{ review.html_content | safe }}
-                </div>
               </div>
+                  {{ review.title }}
+              {% if review.visibility > 0 %}
+              <small><i class="fa-solid fa-lock"></i></small>
+              {% endif %}
+            </h3>
+          </hgroup>
+          <div class="owner-info">
+            <div class="owner">
+            <span class="avatar">
+
+              <img  src="{{ review.owner.mastodon_account.avatar }}" alt="{{ review.owner.username }}">
+            </span>
+            </div>
+            <div class="info">
+              <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}" >{{ review.owner.mastodon_account.display_name }}</a>
+              <span class="handler">@{{ review.owner.mastodon_username }}</span>
+              <br>
+              评论
+              <a href="{{ review.item.url }}">{{ review.item.title }}</a>
+              {% if review.rating_grade %}
+              {{ review.rating_grade | rating_star }}
+              {% endif %}
             </div>
 
           </div>
-          <div class="grid__aside" id="aside">
-            {% include "sidebar_item.html" with item=review.item %}
 
-          </div>
+        </header>
+        <div class="markdown-content">
+          {{ review.html_content | safe }}
         </div>
-      </section>
+        <footer>
+          {% if request.user == review.owner %}
+          <span class="action">
+            <span>
+            <a class="review-head__action-link" href="{% url 'journal:review_edit' review.item.uuid review.uuid %}">{% trans '编辑' %}</a>
+            </span>
+            <span>
+            <a class="review-head__action-link" href="{% url 'journal:review_delete' review.uuid %}">{% trans '删除' %}</a>
+            </span>
+          </span>
+          {% endif %}
+          <span class="review-head__time">{{ review.created_time|date }}</span>
+        </footer>
+      </article>
     </div>
-    {% include "partial/_footer.html" %}
-  </div>
-
-
-
+    <aside>
+      {% include "sidebar_item.html" with item=review.item %}
+    </aside>
+  </main>
   <script>
-    $(".markdownx textarea").hide();
+    $(".spoiler").on('click', function(){
+      $(this).toggleClass('revealed');
+    })
   </script>
+  {% include "partial/_footer.html" %}
 </body>
-
-
 </html>

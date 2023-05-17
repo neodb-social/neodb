@@ -11,7 +11,7 @@
 {% load user_actions %}
 
 <!DOCTYPE html>
-<html lang="en" id="collection-page">
+<html lang="en" class="content-page">
 
 <head>
   <meta charset="UTF-8">
@@ -28,104 +28,90 @@
 
 <body>
   {% include "_header.html" %}
-
-  <main class="container">
+  <main>
+    <div>
     <article>
       <header>
-
-        <div style="float:left; height: 120px;margin-right:20px;" id="collection-cover">
-          <div style="text-align: center;">
-            <img src="{{ collection.cover|thumb:'normal' }}" style="max-width: 120px;max-height: 120px;">
-          </div>
-        </div>
-        <div style="float:right" id="collection-feature">
-          {% if featured_since %}
-          <section style="min-width:10vw;">
-            <div class="donut" style="background: conic-gradient(#7CBDFE 0deg {{ stats.complete_deg }}deg, #B4D2A5 {{ stats.complete_deg }}deg {{ stats.complete_deg|add:stats.progress_deg }}deg, #ccc {{ stats.complete_deg|add:stats.progress_deg }}deg 1deg );"><div class="hole"><div class="text">
-              {% if stats.progress %}
-              {{ stats.progress }} 进行中<br>
+        <hgroup>
+          <h3>
+            <div class="action">
+              {% if request.user.is_authenticated %}
+              <span>
+                {% liked_piece collection as liked %}
+                {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-bookmark' %}
+              </span>
+              <span>
+                {% include '_feature_stats.html' with featured=featured_since %}
+              </span>
+              <span>
+                <a href="#" hx-get="{% url 'journal:collection_share' collection.uuid %}" hx-target="body" hx-swap="beforeend" title="分享到联邦网络" ><i class="fa-solid fa-share-nodes"></i></a>
+              </span>
               {% endif %}
-              {% if stats.complete %}
-              {{ stats.complete }} 已完成
-              {% elif not stats.progress %}
-              尚未开始
-              {% endif %}
-            </div></div></div>
-            <div style="margin:8px; color:lightgray" class="muted">
-              开始于{{ featured_since|date }}
-              <a class="muted" href="#" title="停止" onclick="if (confirm('停止这个目标吗？')) $('#stop-featured').submit();"><i class="fa-solid fa-ban"></i></a>
-              <form action="{% url 'journal:collection_remove_featured' collection.uuid %}" method="post" id="stop-featured">
-                {% csrf_token %}
-              </form>
             </div>
-          </section>
-          {% endif %}
-
-          {% if available_as_featured %}
-          <section>
-            <form action="{% url 'journal:collection_add_featured' collection.uuid %}" method="post">
-              {% csrf_token %}
-              <button class="outline secondary">{% trans '设为目标' %}</button>
-            </form>
-          </section>
-          {% endif %}
-
-          {% if not featured_since and request.user.is_authenticated and request.user != collection.owner %}
-          <section>
-            {% if following %}
-            <form action="{% url 'journal:unlike' collection.uuid %}?back=1" method="post">
-              {% csrf_token %}
-              <button class="outline secondary">{% trans '取消关注' %}</button>
-            </form>
-            {% else %}
-            <form action="{% url 'journal:like' collection.uuid %}?back=1" method="post">
-              {% csrf_token %}
-              <input type="submit" class="outline" value="{% trans '关注' %}">
-            </form>
-            <div>关注后可设置追踪目标</div>
-            {% endif %}
-          </section>
-          {% endif %}
-        </div>
-
-        <hgroup id="collection-title">
-          <h1>
             {{ collection.title }}
-          </h1>
-          <p>
-            {% for cat, count in collection.get_summary.items %}
-            {% if count %}
-            <span>{{count}} {{cat|prural_items}}<span> ·
-            {% endif %}
-            {% endfor %}
-            {% if request.user.is_authenticated %}
-            <span>
-              {% liked_piece collection as liked %}
-              {% include 'like_stats.html' with liked=liked piece=collection %}
-            </span>
-            ·
-            <span>
-              <a href="#" hx-get="{% url 'journal:collection_share' collection.uuid %}" hx-target="body" hx-swap="beforeend" title="分享到联邦网络" ><i class="fa-solid fa-share-nodes"></i></a>
-            </span>
-            {% endif %}
-          </p>
-          <div class="review-head">
             {% if collection.visibility > 0 %}
-            <i class="fa-solid fa-lock"></i>
+            <small><i class="fa-solid fa-lock"></i></small>
             {% endif %}
-            <a href="{% url 'journal:user_profile' collection.owner.mastodon_username %}" class="review-head__owner-link">{{ collection.owner.mastodon_username }}</a>
-            <div class="action-bar">
+          </h3>
+        </hgroup>
+        <div class="owner-info">
+          <div class="owner">
+            <span class="avatar">
+              <img  src="{{ collection.owner.mastodon_account.avatar }}" alt="{{ collection.owner.username }}">
+            </span>
+          </div>
+          <div class="info">
+            <p>
+              <a href="{% url 'journal:user_profile' collection.owner.mastodon_username %}">{{ collection.owner.mastodon_account.display_name }}</a>
+              <span class="handler">@{{ collection.owner.mastodon_username }}</span>
+            </p>
+            <p>
+              {% for cat, count in collection.get_summary.items %}
+              {% if count %}
+              <span>{{count}} {{cat|prural_items}}<span>
+              {% endif %}
+              {% endfor %}
+            </p>
+            {% if featured_since %}
+            <p>
+              <progress value="{{ stats.percentage }}" max="100" title="{{ stats.percentage }}%" />
+            </p>
+            {% endif %}
+            <div class="markdown-content">
+              {{ collection.html | safe }}
             </div>
           </div>
-        </hgroup>
+          <div class="more">
+            <div style="text-align: center;">
+              <img src="{{ collection.cover|thumb:'normal' }}" style="max-width: 120px;max-height: 120px;">
+            </div>
+          </div>
+        </div>
 
-        <section>
-          <!-- <div class="dividing-line"></div> --> <!-- <div class="entity-card__img-wrapper" style="text-align: center;"> <img src="{{ collection.cover|thumb:'normal' }}" alt="" class="entity-card__img"> </div> -->
-          <div class="markdown-content">
-            {{ collection.html | safe }}
+      </header>
+      {% comment %}
+        {% if featured_since %}
+        <section style="min-width:10vw;">
+          <div class="donut" style="background: conic-gradient(#7CBDFE 0deg {{ stats.complete_deg }}deg, #B4D2A5 {{ stats.complete_deg }}deg {{ stats.complete_deg|add:stats.progress_deg }}deg, #ccc {{ stats.complete_deg|add:stats.progress_deg }}deg 1deg );"><div class="hole"><div class="text">
+            {% if stats.progress %}
+            {{ stats.progress }} 进行中<br>
+            {% endif %}
+            {% if stats.complete %}
+            {{ stats.complete }} 已完成
+            {% elif not stats.progress %}
+            尚未开始
+            {% endif %}
+          </div></div></div>
+          <div style="margin:8px; color:lightgray" class="muted">
+            开始于{{ featured_since|date }}
+            <a class="muted" href="#" title="停止" onclick="if (confirm('停止这个目标吗？')) $('#stop-featured').submit();"><i class="fa-solid fa-ban"></i></a>
+            <form action="{% url 'journal:collection_remove_featured' collection.uuid %}" method="post" id="stop-featured">
+              {% csrf_token %}
+            </form>
           </div>
         </section>
-      </header>
+        {% endif %}
+      {% endcomment %}
 
       <section>
         <div class="entity-list" hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}" hx-trigger="load">
@@ -133,11 +119,14 @@
       </section>
 
       <footer>
-        <div class="action-bar">
+        <div class="action">
           {% if request.user == collection.owner %}
+          <span>
           <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '编辑' %}</a>
-          |
+          </span>
+          <span>
           <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans '删除' %}</a>
+          </span>
           {% elif editable %}
           <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '协助整理' %}</a>
           {% endif %}
@@ -145,19 +134,10 @@
         <span>创建于 {{ collection.created_time | date }}</span>
       </footer>
     </article>
+    </div>
+    {% comment %} {% include "_sidebar.html" %} {% endcomment %}
   </main>
 
   {% include "partial/_footer.html" %}
-
-  <script>
-    $(".markdownx textarea").hide();
-  </script>
-  <script>
-    document.body.addEventListener('htmx:configRequest', (event) => {
-      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-    })
-  </script>
 </body>
-
-
 </html>

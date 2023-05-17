@@ -11,6 +11,7 @@ from .data import *
 import json
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import HttpResponseRedirect
+from discord import SyncWebhook
 
 
 def render_user_not_found(request):
@@ -113,12 +114,13 @@ def report(request):
             form.instance.is_read = False
             form.instance.submit_user = request.user
             form.save()
-            return redirect(
-                reverse(
-                    "journal:user_profile",
-                    args=[form.instance.reported_user.mastodon_username],
+            dw = settings.DISCORD_WEBHOOKS.get("user-report")
+            if dw:
+                webhook = SyncWebhook.from_url(dw)
+                webhook.send(
+                    f"New report from {request.user} about {form.instance.reported_user} : {form.instance.message}"
                 )
-            )
+            return redirect(reverse("common:home"))
         else:
             return render(
                 request,

@@ -67,7 +67,7 @@
       border: 2px solid var(--pico-primary-hover);
     }
 
-    div {
+    >div {
       font-size: 80%;
       text-overflow: ellipsis;
       word-wrap: break-word;
@@ -75,7 +75,7 @@
       -webkit-line-clamp: 2;
       display: -webkit-box;
       -webkit-box-orient: vertical;
-      min-height: 2rem;
+      min-height: 3rem;
     }
   }
 

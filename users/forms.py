@@ -14,7 +14,7 @@ class ReportForm(forms.ModelForm):
         ]
         widgets = {
             "message": forms.Textarea(attrs={"placeholder": _("详情")}),
-            "image": PreviewImageInput()
-            # 'reported_user': forms.TextInput(),
+            "image": PreviewImageInput(),
+            "reported_user": forms.HiddenInput(),
         }
         labels = {"reported_user": _("投诉对象"), "image": _("相关证据"), "message": _("详情")}

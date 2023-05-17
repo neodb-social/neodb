@@ -78,7 +78,7 @@
     <article>
       <details {% if user.featured_collections.all %}open{% endif %}>
         <summary>
-            {% trans '当前目标' %}
+          {% trans '当前目标' %}
         </summary>
         {% for featured_collection in user.featured_collections.all %}
         {% user_visibility_of featured_collection as visible %}

@@ -24,12 +24,6 @@
         word-break: break-all;
       }
 
-      .handler {
-        color: var(--pico-muted-color);
-        word-break: break-all;
-        opacity: 0.5;
-      }
-
       .time {
         width: max-content;
         float: right;
@@ -44,30 +38,6 @@
         padding: 0 0.5em;
       }
 
-      .action {
-        width: max-content;
-        float: right;
-
-        >span {
-          margin-left: 1em;
-        }
-
-        a {
-          cursor: pointer;
-          text-decoration: none;
-        }
-
-        a.disabled {
-          cursor: unset;
-          color: var(--pico-muted-color);
-          opacity: 0.5;
-        }
-
-        a:not(:hover) {
-          color: var(--pico-muted-color);
-          opacity: 0.5;
-        }
-      }
 
       article {
         padding: calc(var(--pico-block-spacing-horizontal) / 2);

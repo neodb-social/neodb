@@ -2,30 +2,23 @@
 {% load i18n %}
 {% load truncate %}
 {% load thumb %}
-<div class="aside-section-wrapper">
-  <div class="entity-card">
-    <div class="entity-card__img-wrapper">
-      <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}"><img src="{{ item.cover|thumb:'normal' }}" alt="" class="entity-card__img"></a>
-    </div>
-    <div class="entity-card__info-wrapper">                                    
-      <h5 class="entity-card__title"><a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">{{ item.title }}</a>
-        {% for res in item.external_resources.all %}
-        <a href="{{ res.url }}">
-          <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
-        </a>
-        {% endfor %}
-      </h5>
-      
-      {% if item.isbn %}
-      <div>ISBN: {{ item.isbn }}</div>
-      {% endif %}
-      
-      <div>{% if item.pub_house %}{% trans '出版社：' %}{{ item.pub_house }}{% endif %}</div>
-      {% if item.rating %}
-      {% trans '评分: ' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:0 }}"></span>
-      <span class="entity-card__rating-score rating-score">{{ item.rating | floatformat:1 }}</span>
-      {% endif %}
-    </div>
-
+<article>
+  <div>
+    <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}"><img src="{{ item.cover|thumb:'normal' }}" alt="" class="entity-card__img"></a>
   </div>
-</div>
+  <footer>
+    <h4><a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">{{ item.title }}</a>
+      {% for res in item.external_resources.all %}
+      <a href="{{ res.url }}">
+        <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
+      </a>
+      {% endfor %}
+    </h4>
+
+    {% if item.isbn %}
+    <div>ISBN: {{ item.isbn }}</div>
+    {% endif %}
+
+    <div>{% if item.pub_house %}{% trans '出版社：' %}{{ item.pub_house }}{% endif %}</div>
+  </footer>
+</article>
