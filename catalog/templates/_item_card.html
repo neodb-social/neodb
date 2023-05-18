@@ -1,99 +1,121 @@
 {% load humanize %}
 {% load i18n %}
 {% load highlight %}
-
-<div class="item">
-  <div class="cover">
-    <a href="{{ item.url }}"><img src="{{ item.cover_image_url }}" alt="cover" /></a>
-  </div>
-  <div>
-    <hgroup>
-      <h5>
-        <a href="{{ item.url }}">
-          {% if request.GET.q %}
-          {{ item.title | strip_season | highlight:request.GET.q }}
-          {% else %}
-          {{ item.title | strip_season  }}
-          {% endif %}
-        </a>
-        <small>
-          {% if item.season_number %}
-            第{{ item.season_number|apnumber }}季
-          {% endif %}
-          {% if item.year %}
-            ({{ item.year }})
-          {% endif %}
-          {% if not hide_category %}
-          [{{item.category.label}}]
-          {% endif %}
-          <span class="site-list">
-            {% for res in item.external_resources.all %}
+{% if item.get_embed_link %}
+  <div class="item player">
+    <h5>
+      <a href="{{ item.url }}">{{ item.title }}</a>
+      <small>
+        {% if not hide_category %}<span class="category">[{{ item.category.label }}]</span>{% endif %}
+        <span class="site-list">
+          {% for res in item.external_resources.all %}
             <a href="{{ res.url }}" class="{{ res.site_name }}">{{ res.site_name.label }}</a>
-            {% endfor %}
-          </span>
-        </small>
-      </h5>
-      {% comment %}
+          {% endfor %}
+        </span>
+      </small>
+    </h5>
+    <iframe src="{{ item.get_embed_link }}"
+            frameborder="0"
+            allowtransparency="true"
+            allow="encrypted-media"
+            style="width: 100%;
+                   height: 120px"></iframe>
+  </div>
+{% else %}
+  <div class="item">
+    <div class="cover">
+      <a href="{{ item.url }}">
+        <img src="{{ item.cover_image_url }}" alt="cover" />
+      </a>
+    </div>
+    <div>
+      <hgroup>
+        <h5>
+          <a href="{{ item.url }}">
+            {% if request.GET.q %}
+              {{ item.title | strip_season | highlight:request.GET.q }}
+            {% else %}
+              {{ item.title | strip_season }}
+            {% endif %}
+          </a>
+          <small>
+            {% if item.season_number %}第{{ item.season_number|apnumber }}季{% endif %}
+            {% if item.year %}({{ item.year }}){% endif %}
+            {% if not hide_category %}<span class="category">[{{ item.category.label }}]</span>{% endif %}
+            <span class="site-list">
+              {% for res in item.external_resources.all %}
+                <a href="{{ res.url }}" class="{{ res.site_name }}">{{ res.site_name.label }}</a>
+              {% endfor %}
+            </span>
+          </small>
+        </h5>
+        {% comment %}
       <span class="site-list">
         {% for res in item.external_resources.all %}
           <a href="{{ res.url }}" class="{{ res.site_name }}">{{ res.site_name.label }}</a>
         {% endfor %}
       </span>
-      {% endcomment %}
+        {% endcomment %}
+        <div>
+          <small>
+            {% if item.subtitle %}{{ item.subtitle }}{% endif %}
+            {% if item.orig_title %}
+              {{ item.orig_title }}
+              {% if item.season_number %}Season {{ item.season_number }}{% endif %}
+            {% endif %}
+          </small>
+        </div>
+      </hgroup>
       <div>
-        <small>
-        {% if item.subtitle %}{{ item.subtitle }}{% endif %}
-        {% if item.orig_title %}
-          {{ item.orig_title }}
-          {% if item.season_number %}
-            Season {{ item.season_number }}
+        <div class="metadata">
+          {% if item.rating %}
+            {{ item.rating | floatformat:1 }}分
+          {% else %}
           {% endif %}
+          {% include '_people.html' with people=item.author role='' max=2 %}
+          {% include '_people.html' with people=item.translator role='' max=2 %}
+          {% include '_people.html' with people=item.director role='' max=2 %}
+          {% include '_people.html' with people=item.hosts role='' max=2 %}
+          {% include '_people.html' with people=item.artist role='' max=2 %}
+          {% include '_people.html' with people=item.developer role='' max=2 %}
+          {% if item.pub_house %}/ {{ item.pub_house }}{% endif %}
+          {% if item.pub_year %}
+            / {{ item.pub_year }}{% trans '年' %}
+            {% if item.pub_month %}
+              {{ item.pub_month }}{% trans '月' %}
+            {% endif %}
+          {% endif %}
+          {% if item.release_date %}/ {{ item.release_date }}{% endif %}
+          {% include '_people.html' with people=item.genre role='' max=10 %}
+          {% include '_people.html' with people=item.platform role='' max=10 %}
+        </div>
+        <div class="brief">
+          {% if item.actor %}
+            {% include '_people.html' with people=item.actor role='主演' max=2 %}
+            <br>
+          {% endif %}
+          {% if item.other_title %}
+            {% include '_people.html' with people=item.other_title role='又名' max=2 %}
+            <br>
+          {% endif %}
+          {% if request.GET.q %}
+            {{ item.brief | linebreaksbr | highlight:request.GET.q }}
+          {% else %}
+            {{ item.brief | linebreaksbr }}
+          {% endif %}
+        </div>
+        {% if show_tags %}
+          <div class="tag-list">
+            {% for tag in item.tags %}
+              {% if forloop.counter <= 5 %}
+                <span>
+                  <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
+                </span>
+              {% endif %}
+            {% endfor %}
+          </div>
         {% endif %}
-        </small>
-      </div>
-    </hgroup>
-    <div>
-      <div class="metadata">
-        {%if item.rating %}{{ item.rating | floatformat:1 }}分{% else %}{% endif %}
-        {% include '_people.html' with people=item.author role='' max=2 %}
-        {% include '_people.html' with people=item.translator role='' max=2 %}
-        {% include '_people.html' with people=item.director role='' max=2 %}
-        {% include '_people.html' with people=item.hosts role='' max=2 %}
-        {% include '_people.html' with people=item.artist role='' max=2 %}
-        {% include '_people.html' with people=item.developer role='' max=2 %}
-
-        {% if item.pub_house %} / {{ item.pub_house }}{% endif %}
-        {% if item.pub_year %} / {{ item.pub_year }}{% trans '年' %}{% if item.pub_month %}{{ item.pub_month }}{% trans '月' %}{% endif %}{% endif %}
-
-        {% if item.release_date %} / {{ item.release_date }}{% endif %}
-
-        {% include '_people.html' with people=item.genre role='' max=10 %}
-        {% include '_people.html' with people=item.platform role='' max=10 %}
-      </div>
-      <div class="brief">
-        {% if item.actor %}
-        {% include '_people.html' with people=item.actor role='主演' max=2 %}
-        <br>
-        {% endif %}
-        {% if item.other_title %}
-        {% include '_people.html' with people=item.other_title role='又名' max=2 %}
-        <br>
-        {% endif %}
-        {% if request.GET.q %}
-        {{ item.brief | linebreaksbr | highlight:request.GET.q }}
-        {% else %}
-        {{ item.brief | linebreaksbr }}
-        {% endif %}
-      </div>
-      <div class="tag-list">
-        {% for tag in item.tags %}
-        {% if forloop.counter <= 5 %}
-        <span>
-          <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
-        </span>
-        {% endif %}
-        {% endfor %}
       </div>
     </div>
   </div>
-</div>
+{% endif %}

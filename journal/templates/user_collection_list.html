@@ -6,85 +6,54 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
-{% load highlight %}
+{% load user_actions %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ site_name }} - {{ user.mastodon_username }} - 收藏单</title>
-  {% include "common_libs.html" with jquery=0 %}
-</head>
-
-<body>
-  <div id="page-wrapper">
-    <div id="content-wrapper">
-      {% include "partial/_navbar.html" %}
-
-      <section id="content">
-        <div class="grid">
-          <div class="grid__main" id="main">
-            <div class="main-section-wrapper">
-              <div class="entity-reviews">
-                <h5 class="entity-reviews__title entity-reviews__title--stand-alone">
-                  {{ title }}
-                </h5>
-                <ul class="entity-reviews__review-list">
-
-                  {% for collection in collections %}
-
-                  <li class="entity-reviews__review entity-reviews__review--wider">
-                    <img src="{{ collection.cover.url }}" style="width:40px; float:right"class="entity-card__img">
-                    <span class="entity-reviews__review-title"><a href="{{ collection.url }}">{{ collection.title }}</a></span>
-                    <span class="entity-reviews__review-time">{{ collection.edited_time }}</span>
-                    {% if collection.visibility > 0 %}
-                    <i class="fa-solid fa-lock"></i>
-                    {% endif %}
-                  </li>
-                  {% empty %}
-                  <div>{% trans '无结果' %}</div>
-                  {% endfor %}
-
-                </ul>
-              </div>
-              <div class="pagination">
-
-                {% if collections.pagination.has_prev %}
-                <a href="?page=1" class="pagination__nav-link pagination__nav-link">&laquo;</a>
-                <a href="?page={{ collections.previous_page_number }}"
-                class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
-                {% endif %}
-
-                {% for page in collections.pagination.page_range %}
-
-                {% if page == collections.pagination.current_page %}
-                <a href="?page={{ page }}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
-                {% else %}
-                <a href="?page={{ page }}" class="pagination__page-link">{{ page }}</a>
-                {% endif %}
-
-                {% endfor %}
-
-                {% if collections.pagination.has_next %}
-                <a href="?page={{ collections.next_page_number }}"
-                class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
-                <a href="?page={{ collections.pagination.last_page }}" class="pagination__nav-link">&raquo;</a>
-                {% endif %}
-
-              </div>
+<html lang="en" class="classic-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ user.mastodon_username }} -
+      {% if liked %}关注的{% endif %}
+    收藏单</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        <h5>
+          {{ user.display_name }} -
+          {% if liked %}关注的{% endif %}
+          收藏单
+        </h5>
+        {% for collection in collections %}
+          <p>
+            <div class="action">
+              <span>
+                <a target="_blank"
+                   rel="noopener"
+                   {% if collection.metadata.shared_link %} href="{{ collection.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+              </span>
+              <span>
+                {% liked_piece collection as liked %}
+                {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-bookmark' %}
+              </span>
+              <span class="timestamp">{{ collection.created_time|date }}</span>
             </div>
-          </div>
-
-
-        </div>
-      </section>
-    </div>
+            <span><a href="{{ collection.url }}">{{ collection.title }}</a></span>
+            {% if liked %}
+              -
+              <a href="{% url 'journal:user_profile' collection.owner.mastodon_username %}"
+                 title="@{{ collection.owner.mastodon_username }}">{{ collection.owner.display_name }}</a>
+            {% endif %}
+          </p>
+        {% empty %}
+          <div class="empty">暂无</div>
+        {% endfor %}
+      </div>
+      {% include "_sidebar.html" with show_profile=1 %}
+    </main>
     {% include "partial/_footer.html" %}
-  </div>
-
-</body>
-
-
+  </body>
 </html>

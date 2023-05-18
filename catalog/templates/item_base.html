@@ -10,365 +10,381 @@
 {% load thumb %}
 {% load user_actions %}
 {% load duration %}
-
 <!DOCTYPE html>
 <html lang="en" id="item-page">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta property="og:title" content="{{ site_name }}{% trans item.category.label %} - {{ item.title }}">
-  <meta property="og:type" content="{{ item.category }}">
-  <meta property="og:url" content="{{ request.build_absolute_uri }}">
-  {% if item.has_cover %}
-  <meta property="og:image" content="{{ item.cover_image_url }}">
-  {% endif %}
-  <meta property="og:site_name" content="{{ site_name }}">
-  <meta property="og:description" content="{{ item.brief }}">
-  <title>{{ site_name }} - {% trans item.category.label %} | {{ item.title }}</title>
-  {% include "common_libs.html" with jquery=0 v2=1 %}
-  {% block head %}
-  {% endblock %}
-</head>
-
-<body>
-{% include "_header.html" %}
-<main class="container-fluid">
-  <div id="item-title" class="middle">
-    {% if item.is_deleted %}
-    [DELETED]
-    {% endif %}
-    {% if item.merged_to_item %}
-    [MERGED TO <a href="{{ item.merged_to_item.url }}">{{ item.merged_to_item.title }}</a>]
-    {% endif %}
-    <h1>
-      {{ item.title }}
-      <small>
-        {% if item.season_number %}
-        {% trans '第' %}{{ item.season_number|apnumber }}{% trans '季' %}
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title"
+          content="{{ site_name }}{% trans item.category.label %} - {{ item.title }}">
+    <meta property="og:type" content="{{ item.category }}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    {% if item.has_cover %}<meta property="og:image" content="{{ item.cover_image_url }}">{% endif %}
+    <meta property="og:site_name" content="{{ site_name }}">
+    <meta property="og:description" content="{{ item.brief }}">
+    <title>{{ site_name }} - {% trans item.category.label %} | {{ item.title }}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container-fluid">
+      <div id="item-title" class="middle">
+        {% if item.is_deleted %}[DELETED]{% endif %}
+        {% if item.merged_to_item %}
+          [MERGED TO <a href="{{ item.merged_to_item.url }}">{{ item.merged_to_item.title }}</a>]
         {% endif %}
-        {% if item.year %}({{ item.year }}){% endif %}
-      </small>
-    </h1>
-    <span class="site-list">
-      {% for res in item.external_resources.all %}
-      <a href="{{ res.url }}" class="{{ res.site_name }}">{{ res.site_name.label }}</a>
-      {% endfor %}
-    </span>
-  </div>
-
-  <div id="item-cover" class="left">
-    <img src="{{ item.cover|thumb:'normal' }}" alt="{{ item.title }}">
-  </div>
-
-  {% if request.user.is_authenticated and not mark.shelf_type %}
-  <div id="item-primary-action" class="right mark">
-    <div class="item-action">
-      {% for k, v in shelf_types %}
-      {% if v %}
-      <button class="primary" data-status="{{ k }}" hx-get="{% url 'journal:mark' item.uuid %}?shelf_type={{ k }}&new=1" hx-target="body" hx-swap="beforeend">{% trans v %}</button>
-      {% endif %}
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
-
-  {% if request.user.is_authenticated and mark.shelf_type %}
-  <div id="item-primary-mark" class="right mark">
-    <div class="item-action">
-      <button class="outline" hx-get="{% url 'journal:mark' item.uuid %}?new=1" class="edit" hx-target="body" hx-swap="beforeend">{{ mark.created_time | date }} {% trans mark.action_label %}
-        {% if mark.rating %}
-        <br>
-        {{ mark.rating | rating_star }}
-        <!-- <span style="white-space: nowrap;">
-          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-            class="fa-solid fa-star-half-stroke"></i><i class="fa-regular fa-star"></i>
-        </span> -->
-        {% endif %}
-      </button>
-    </div>
-    <div class="small-only" style="margin-top:2vh;"><a href="#item-sidebar">标签 · 短评 · 评论 · 收藏</a></div>
-  </div>
-  {% endif %}
-
-  <div id="item-sidebar" class="right">
-    {% if request.user.is_authenticated %}
-    <section>
-      <h5>我的标签
-        <small>
-          <a href="#" hx-get="{% url 'journal:mark' item.uuid %}?new=1" class="edit" hx-target="body" hx-swap="beforeend">
-            {% if mark.tags %}
-            <i class="fa-solid fa-pen-to-square"></i>
-            {% else %}
-            <i class="fa-regular fa-square-plus"></i>
-            {% endif %}          </a>
-        </small>
-      </h5>
-      <div class="tag-list">
-        {% for tag in mark.tags %}
-        <span>
-          <a href="{% url 'journal:user_tag_member_list' request.user.mastodon_username tag %}">{{ tag }}</a>
-        </span>
-        {% endfor %}
-      </div>
-    </section>
-
-    <section>
-      <h5>我的短评
-        <small>
-          <a href="#" hx-get="{% url 'journal:mark' item.uuid %}?new=1" class="edit" hx-target="body" hx-swap="beforeend">
-            {% if mark.text %}
-            <i class="fa-solid fa-pen-to-square"></i>
-            {% else %}
-            <i class="fa-regular fa-square-plus"></i>
+        <h1>
+          {{ item.title }}
+          <small>
+            {% if item.season_number %}
+              {% trans '第' %}{{ item.season_number|apnumber }}{% trans '季' %}
             {% endif %}
-          </a>
-        </small>
-      </h5>
-      <p>
-        {% if mark.text %}
-        {{ mark.comment_html|safe }}
-        <small class="muted">
-        {% if mark.visibility > 0 %}
-        <i class="fa-solid fa-lock"></i>
-        {% endif %}
-        {% if mark.metadata.shared_link %}
-        <a href="{{ mark.metadata.shared_link }}"><i class="fa-solid fa-circle-nodes"></i></a>
-        {% endif %}
-        </small>
-        {% else %}
-        <!-- <span class="empty">暂无</span> -->
-        {% endif %}
-      </p>
-    </section>
-
-    <section>
-      <h5>我的评论
-        <small>
-        {% if review %}
-        <a href="{% url 'journal:review_edit' item.uuid review.uuid %}">
-          <i class="fa-solid fa-pen-to-square"></i>
-        </a>
-        {% else %}
-          <a href="{% url 'journal:review_create' item.uuid %}">
-            <i class="fa-regular fa-square-plus"></i>
-          </a>
-        {% endif %}
-        </small>
-      </h5>
-      <p>
-        {% if review %}
-        <a href="{% url 'journal:review_retrieve' review.uuid %}" class="review-panel__review-title">
-          {{ review.title }}
-        </a>
-        <small class="muted">
-        {% if review.visibility > 0 %}
-        <i class="fa-solid fa-lock"></i>
-        {% endif %}
-        {{ review.edited_time | date }}
-        <!-- <span class="review-panel__actions">
+            {% if item.year %}({{ item.year }}){% endif %}
+          </small>
+        </h1>
+        <span class="site-list">
+          {% for res in item.external_resources.all %}
+            <a href="{{ res.url }}" class="{{ res.site_name }}">{{ res.site_name.label }}</a>
+          {% endfor %}
+        </span>
+      </div>
+      <div id="item-cover" class="left">
+        <img src="{{ item.cover|thumb:'normal' }}" alt="{{ item.title }}">
+      </div>
+      {% if request.user.is_authenticated and not mark.shelf_type %}
+        <div id="item-primary-action" class="right mark">
+          <div class="item-action">
+            {% for k, v in shelf_types %}
+              {% if v %}
+                <button class="primary"
+                        data-status="{{ k }}"
+                        hx-get="{% url 'journal:mark' item.uuid %}?shelf_type={{ k }}&new=1"
+                        hx-target="body"
+                        hx-swap="beforeend">{% trans v %}</button>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+      {% if request.user.is_authenticated and mark.shelf_type %}
+        <div id="item-primary-mark" class="right mark">
+          <div class="item-action">
+            <button class="outline"
+                    hx-get="{% url 'journal:mark' item.uuid %}?new=1"
+                    class="edit"
+                    hx-target="body"
+                    hx-swap="beforeend">
+              {{ mark.created_time | date }} {% trans mark.action_label %}
+              {% if mark.rating %}
+                <br>
+                {{ mark.rating | rating_star }}
+                <!-- <span style="white-space: nowrap;">
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i><i class="fa-regular fa-star"></i>
+        </span> -->
+              {% endif %}
+            </button>
+          </div>
+          <div class="small-only" style="margin-top:2vh;">
+            <a href="#item-sidebar">标签 · 短评 · 评论 · 收藏</a>
+          </div>
+        </div>
+      {% endif %}
+      <div id="item-sidebar" class="right">
+        {% if request.user.is_authenticated %}
+          <section>
+            <h5>
+              我的标签
+              <small>
+                <a href="#"
+                   hx-get="{% url 'journal:mark' item.uuid %}?new=1"
+                   class="edit"
+                   hx-target="body"
+                   hx-swap="beforeend">
+                  {% if mark.tags %}
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  {% else %}
+                    <i class="fa-regular fa-square-plus"></i>
+                  {% endif %}
+                </a>
+              </small>
+            </h5>
+            <div class="tag-list">
+              {% for tag in mark.tags %}
+                <span>
+                  <a href="{% url 'journal:user_tag_member_list' request.user.mastodon_username tag %}">{{ tag }}</a>
+                </span>
+              {% endfor %}
+            </div>
+          </section>
+          <section>
+            <h5>
+              我的短评
+              <small>
+                <a href="#"
+                   hx-get="{% url 'journal:mark' item.uuid %}?new=1"
+                   class="edit"
+                   hx-target="body"
+                   hx-swap="beforeend">
+                  {% if mark.text %}
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  {% else %}
+                    <i class="fa-regular fa-square-plus"></i>
+                  {% endif %}
+                </a>
+              </small>
+            </h5>
+            <p>
+              {% if mark.text %}
+                {{ mark.comment_html|safe }}
+                <small class="muted">
+                  {% if mark.visibility > 0 %}<i class="fa-solid fa-lock"></i>{% endif %}
+                  {% if mark.metadata.shared_link %}
+                    <a href="{{ mark.metadata.shared_link }}"><i class="fa-solid fa-circle-nodes"></i></a>
+                  {% endif %}
+                </small>
+              {% else %}
+                <!-- <span class="empty">暂无</span> -->
+              {% endif %}
+            </p>
+          </section>
+          <section>
+            <h5>
+              我的评论
+              <small>
+                {% if review %}
+                  <a href="{% url 'journal:review_edit' item.uuid review.uuid %}">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </a>
+                {% else %}
+                  <a href="{% url 'journal:review_create' item.uuid %}">
+                    <i class="fa-regular fa-square-plus"></i>
+                  </a>
+                {% endif %}
+              </small>
+            </h5>
+            <p>
+              {% if review %}
+                <a href="{% url 'journal:review_retrieve' review.uuid %}"
+                   class="review-panel__review-title">{{ review.title }}</a>
+                <small class="muted">
+                  {% if review.visibility > 0 %}<i class="fa-solid fa-lock"></i>{% endif %}
+                  {{ review.edited_time | date }}
+                  <!-- <span class="review-panel__actions">
           <a href="{% url 'journal:review_edit' item.uuid review.uuid %}">{% trans '编辑' %}</a>
           <a href="{% url 'journal:review_delete' review.uuid %}?return_url={{ item.url }}">{% trans '删除' %}</a>
         </span> -->
-        </small>
-        {% else %}
-        <!-- <span class="empty">暂无</span> -->
-        {% endif %}
-      </p>
-    </section>
-    <section>
-      <h5>我的收藏单
-        <small>
-          <a href="#" hx-get="{% url 'journal:add_to_collection' item.uuid %}?new=1" class="edit" hx-target="body" hx-swap="beforeend">
-            <i class="fa-regular fa-square-plus"></i>
-          </a>
-        </small>
-      </h5>
-      <div>
-        {% for c in my_collections %}
-        <p>
-          <a href="{{ c.url }}">{{ c.title }}</a>
-          {% if c.visibility > 0 %} <i class="fa-solid fa-lock"></i> {% endif %}
-        </p>
-        {% empty %}
-        <!-- <span class="empty">暂无</span> -->
-        {% endfor %}
-      </div>
-    </section>
-    <!--
+                </small>
+              {% else %}
+                <!-- <span class="empty">暂无</span> -->
+              {% endif %}
+            </p>
+          </section>
+          <section>
+            <h5>
+              我的收藏单
+              <small>
+                <a href="#"
+                   hx-get="{% url 'journal:add_to_collection' item.uuid %}?new=1"
+                   class="edit"
+                   hx-target="body"
+                   hx-swap="beforeend">
+                  <i class="fa-regular fa-square-plus"></i>
+                </a>
+              </small>
+            </h5>
+            <div>
+              {% for c in my_collections %}
+                <p>
+                  <a href="{{ c.url }}">{{ c.title }}</a>
+                  {% if c.visibility > 0 %}<i class="fa-solid fa-lock"></i>{% endif %}
+                </p>
+              {% empty %}
+                <!-- <span class="empty">暂无</span> -->
+              {% endfor %}
+            </div>
+          </section>
+          <!--
     <section>
       <h5>标记历史</h5>
       <div>
-        {% for log in mark.logs %}
-        {{ log.timestamp|date }} {{ log.action_label }}<br>
-        {% endfor %}
+        {% for log in mark.logs %}{{ log.timestamp|date }} {{ log.action_label }}<br>{% endfor %}
       </div>
     </section>
     -->
-    {% else %}
-    <section>
-      <p class="empty">
-        <span>{% trans '登录后可管理标记收藏' %}</span>
-      </p>
-    </section>
-    {% endif %}
-
-    {% block sidebar %}
-    {% endblock %}
-
-    {% if collection_list %}
-    <section>
-      <h5>相关收藏单 </h5>
-      <div>
-        {% for c in collection_list %}
-        <p>
-          <a href="{{ c.url }}">{{ c.title }}</a>
-          {% if c.visibility > 0 %} <i class="fa-solid fa-lock"></i> {% endif %}
-        </p>
-        {% endfor %}
+        {% else %}
+          <section>
+            <p class="empty">
+              <span>{% trans '登录后可管理标记收藏' %}</span>
+            </p>
+          </section>
+        {% endif %}
+        {% block sidebar %}{% endblock %}
+        {% if collection_list %}
+          <section>
+            <h5>相关收藏单</h5>
+            <div>
+              {% for c in collection_list %}
+                <p>
+                  <a href="{{ c.url }}">{{ c.title }}</a>
+                  {% if c.visibility > 0 %}<i class="fa-solid fa-lock"></i>{% endif %}
+                </p>
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
       </div>
-    </section>
-    {% endif %}
-  </div>
-
-  <div id="item-metadata" class="left">
-    {% block details %}
-    <div>此类数据尚未支持</div>
-    <div>uuid: {{item.uuid}}</div>
-    <div>class: {{item.class_name}}</div>
-    <div>category: {{item.category}}</div>
-    {% endblock %}
-
-    <div class="item-edit">
-      {% if item.last_editor and item.last_editor.preference.show_last_edit %}
-      <div>{% trans '最近编辑：' %}<a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
-      {% endif %}
-      <div>
+      <div id="item-metadata" class="left">
+        {% block details %}
+          <div>此类数据尚未支持</div>
+          <div>uuid: {{ item.uuid }}</div>
+          <div>class: {{ item.class_name }}</div>
+          <div>category: {{ item.category }}</div>
+        {% endblock %}
         {% if request.user.is_authenticated %}
-        <a href="{% url 'catalog:edit' item.url_path item.uuid %}" title="{% trans '编辑' %}{{ item.demonstrative }}"><i class="fa-solid fa-pen-to-square"></i></a>
+          <div class="item-edit">
+            <span class="action inline">
+              <a href="{% url 'catalog:edit' item.url_path item.uuid %}"
+                 title="{% trans '编辑' %}{{ item.demonstrative }}"><i class="fa-solid fa-pen-to-square"></i></a>
+            </span>
+            {% if item.last_editor and item.last_editor.preference.show_last_edit %}
+              <span>
+                {% trans '最近编辑：' %}
+                <a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a>
+              </span>
+            {% endif %}
+          </div>
         {% endif %}
-      </div>
-    </div>
-
-    <div class="rating{%if not item.rating %} unavailable{% endif %}">
-      <div class="display">
-        <div>
-          <hgroup>
-            <h3>{{ item.rating | floatformat:1 }} <small>/ 10</small></h3>
-            <p>{{ item.rating_count }}人评分</p>
-          </hgroup>
+        <div class="rating{% if not item.rating %} unavailable{% endif %}">
+          <div class="display">
+            <div>
+              <hgroup>
+                <h3>
+                  {{ item.rating | floatformat:1 }} <small>/ 10</small>
+                </h3>
+                <p>{{ item.rating_count }}人评分</p>
+              </hgroup>
+            </div>
+            <div data-placement="top">
+              <ul class="chart">
+                <li data-tooltip="{{ item.rating_dist.0 }}%" data-placement="left">
+                  <span style="height:{{ item.rating_dist.0 }}%"></span>
+                </li>
+                <li data-tooltip="{{ item.rating_dist.1 }}%" data-placement="left">
+                  <span style="height:{{ item.rating_dist.1 }}%"></span>
+                </li>
+                <li data-tooltip="{{ item.rating_dist.2 }}%" data-placement="left">
+                  <span style="height:{{ item.rating_dist.2 }}%"></span>
+                </li>
+                <li data-tooltip="{{ item.rating_dist.3 }}%" data-placement="left">
+                  <span style="height:{{ item.rating_dist.3 }}%"></span>
+                </li>
+                <li data-tooltip="{{ item.rating_dist.4 }}%" data-placement="left">
+                  <span style="height:{{ item.rating_dist.4 }}%"></span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="undisplay">
+            <span>评分人数不足</span>
+          </div>
         </div>
-        <div data-placement="top">
-          <ul class="chart">
-            <li data-tooltip="{{ item.rating_dist.0 }}%" data-placement="left"><span style="height:{{ item.rating_dist.0 }}%"></span></li>
-            <li data-tooltip="{{ item.rating_dist.1 }}%" data-placement="left"><span style="height:{{ item.rating_dist.1 }}%"></span></li>
-            <li data-tooltip="{{ item.rating_dist.2 }}%" data-placement="left"><span style="height:{{ item.rating_dist.2 }}%"></span></li>
-            <li data-tooltip="{{ item.rating_dist.3 }}%" data-placement="left"><span style="height:{{ item.rating_dist.3 }}%"></span></li>
-            <li data-tooltip="{{ item.rating_dist.4 }}%" data-placement="left"><span style="height:{{ item.rating_dist.4 }}%"></span></li>
-          </ul>
+        <div class="tag-list">
+          {% for tag in item.tags %}
+            <span>
+              <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
+            </span>
+          {% endfor %}
         </div>
+        {% block left_sidebar %}{% endblock %}
       </div>
-      <div class="undisplay">
-        <span>评分人数不足</span>
+      <div id="item-title-more" class="middle">
+        <hgroup>
+          {% if item.subtitle %}<p>{{ item.subtitle }}</p>{% endif %}
+          {% if item.orig_title %}
+            <p>
+              {{ item.orig_title }}
+              <small>
+                {% if item.season_number %}Season {{ item.season_number }}{% endif %}
+              </small>
+            </p>
+          {% endif %}
+          {% if item.author or item.translator %}
+            <p>
+              <i>
+                {% include '_people.html' with people=item.author _role='作者' max=2 %}
+              </i>
+              &nbsp;&nbsp;
+              <i>
+                {% include '_people.html' with people=item.translator role='译者' max=2 %}
+              </i>
+            </p>
+          {% endif %}
+        </hgroup>
       </div>
-    </div>
-
-    <div class="tag-list">
-      {% for tag in item.tags %}
-      <span>
-        <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
-      </span>
-      {% endfor %}
-    </div>
-  </div>
-
-  <div id="item-title-more" class="middle">
-    <hgroup>
-      {% if item.subtitle %}<p>{{ item.subtitle }}</p>{% endif %}
-      {% if item.orig_title %}<p>{{ item.orig_title }}
-        <small>
-        {% if item.season_number %}
-        Season {{ item.season_number }}
-        {% endif %}
-      </small>
-      </p>{% endif %}
-      {% if item.author or item.translator %}
-      <p>
-        <i>{% include '_people.html' with people=item.author _role='作者' max=2 %}</i>
-        &nbsp;&nbsp;
-        <i>{% include '_people.html' with people=item.translator role='译者' max=2 %}</i>
-      </p>
-      {% endif %}
-    </hgroup>
-  </div>
-
-  <div id="item-detail" class="middle">
-    <section>
-      <h5>简介</h5>
-      {% if item.brief %}
-      <p class="tldr" _="on click toggle .tldr on me">
-        {{ item.brief | linebreaksbr }}
-      </p>
-      {% else %}
-      <p class="empty">暂缺</p>
-      {% endif %}
-    </section>
-
-    {% block content %}
-    {% endblock %}
-
-    <section>
-      <h5>短评
-        {% if request.user.is_authenticated %}
-        <small>
-          | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
-          | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}" class="entity-marks__more-link">关注的人的标记</a>
-        </small>
-        {% endif %}
-      </h5>
-      {% if request.user.is_authenticated %}
-      <div>
-        <div hx-get="{% url 'catalog:comments' item.url_path item.uuid %}" hx-trigger="intersect once" hx-swap="outerHTML">
-          <i class="fas fa-fan fa-spin"></i>
-        </div>
-      </div>
-      {% else %}
-      <p class="empty">
-        登录后可见
-      </p>
-      {% endif %}
-    </section>
-
-    <section class="entity-reviews">
-      <h5>{% trans '评论' %}
-        {% comment %}
+      <div id="item-detail" class="middle">
+        <section>
+          <h5>简介</h5>
+          {% if item.brief %}
+            <p class="tldr" _="on click toggle .tldr on me">{{ item.brief | linebreaksbr }}</p>
+          {% else %}
+            <p class="empty">暂缺</p>
+          {% endif %}
+        </section>
+        {% block content %}{% endblock %}
+        <section>
+          <h5>
+            短评
+            {% if request.user.is_authenticated %}
+              <small>
+                | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}"
+    class="entity-marks__more-link">{% trans '全部标记' %}</a>
+                | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}"
+    class="entity-marks__more-link">关注的人的标记</a>
+              </small>
+            {% endif %}
+          </h5>
+          {% if request.user.is_authenticated %}
+            <div>
+              <div hx-get="{% url 'catalog:comments' item.url_path item.uuid %}"
+                   hx-trigger="intersect once"
+                   hx-swap="outerHTML">
+                <i class="fa-solid fa-compact-disc fa-spin"></i>
+              </div>
+            </div>
+          {% else %}
+            <p class="empty">登录后可见</p>
+          {% endif %}
+        </section>
+        <section class="entity-reviews">
+          <h5>
+            {% trans '评论' %}
+            {% comment %}
         {% if request.user.is_authenticated %}
         <small>
           | <a href="{% url 'catalog:review_list' item.url_path item.uuid %}" class="entity-marks__more-link">{% trans '全部评论' %}</a>
         </small>
         {% endif %}
-        {% endcomment %}
-      </h5>
-      {% if request.user.is_authenticated %}
-      <div>
-        <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}" hx-trigger="intersect once" hx-swap="outerHTML">
-          <i class="fas fa-fan fa-spin"></i>
-        </div>
+            {% endcomment %}
+          </h5>
+          {% if request.user.is_authenticated %}
+            <div>
+              <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}"
+                   hx-trigger="intersect once"
+                   hx-swap="outerHTML">
+                <i class="fa-solid fa-compact-disc fa-spin"></i>
+              </div>
+            </div>
+          {% else %}
+            <p class="empty">登录后可见</p>
+          {% endif %}
+        </section>
       </div>
-      {% else %}
-      <p class="empty">
-        登录后可见
-      </p>
-      {% endif %}
-    </section>
-  </div>
-
-  <div id="item-more" class="middle">
-    <!-- test more content -->
-  </div>
-  <div style="clear: both;display: table;"> </div>
-</main>
-
-{% include "partial/_footer.html" %}
-</body>
+      <div id="item-more" class="middle">
+        <!-- test more content -->
+      </div>
+      <div style="clear: both;display: table;"></div>
+    </main>
+    {% include "partial/_footer.html" %}
+  </body>
 </html>

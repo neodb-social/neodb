@@ -8,30 +8,31 @@
 {% load thumb %}
 <!DOCTYPE html>
 <html lang="en" class="feed-page">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ site_name }} - {% trans '动态' %}</title>
-  {% include "common_libs.html" with jquery=0 v2=1 %}
-  <script src="https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/shikwasa.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/shikwasa@2.2.0/dist/style.min.css" rel="stylesheet"></link>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans '动态' %}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+    <script src="https://cdn.jsdelivr.net/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/shikwasa@2.2.1/dist/style.min.css"
+          rel="stylesheet"></link>
   <script src="{% static 'podcast.js' %}"></script>
 </head>
-
 <body>
-{% include "_header.html" with current="timeline" %}
-<main>
-  <div class="grid__main">
-    <h5>好友动态</h5>
-    <div class="feed">
-      <div hx-get="{% url 'social:data' %}" hx-trigger="intersect once" hx-swap="outerHTML">
-        <i class="fas fa-fan fa-spin"></i>
+  {% include "_header.html" with current="timeline" %}
+  <main>
+    <div class="grid__main">
+      <h5>好友动态</h5>
+      <div class="feed">
+        <div hx-get="{% url 'social:data' %}"
+             hx-trigger="intersect once delay:0.1s"
+             hx-swap="outerHTML">
+          <i class="fa-solid fa-compact-disc fa-spin"></i>
+        </div>
       </div>
     </div>
-  </div>
-  {% include "_sidebar.html" with show_progress=1 %}
-</main>
-{% include "partial/_footer.html" %}
+    {% include "_sidebar.html" with show_progress=1 %}
+  </main>
+  {% include "partial/_footer.html" %}
 </body>
 </html>

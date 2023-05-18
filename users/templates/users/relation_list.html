@@ -5,163 +5,75 @@
 {% load oauth_token %}
 {% load highlight %}
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% if is_followers_page %}
-    <title>{{ site_name }} - {% trans '被他们关注' %}</title>
-    {% else %}
-    <title>{{ site_name }} - {% trans '关注的人' %}</title>
-    {% endif %}
-
-    {% include "common_libs.html" with jquery=1 %}
-
-    <script src="{% static 'js/mastodon.js' %}"></script>
-
-    {% if is_followers_page %}
-    <script src="{% static 'js/followers_list.js' %}"></script>
-    {% else %}
-    <script src="{% static 'js/following_list.js' %}"></script>
-    {% endif %}
-</head>
-
-<body>
-    <div id="page-wrapper">
-        <div id="content-wrapper">
-            {% include 'partial/_navbar.html' %}
-
-            <section id="content">
-                <div class="grid grid--reverse-order">
-                    <div class="grid__main grid__main--reverse-order">
-                        <div class="main-section-wrapper">
-                            <div class="related-user-list mast-user-list">
-                                <h5 class="related-user-list__title">
-                                    {% if is_followers_page %}
-                                    {% trans ' 被他们关注' %}
-                                    {% else %}
-                                    {% trans '关注的人' %}
-                                    {% endif %}
-                                </h5>
-                                <div class="related-user-list__user mast-user">
-                                    <img src="" alt="" class="related-user-list__user-avatar">
-                                    <div class="related-user-list__user-info">
-
-                                        <a href="">
-                                            <div class="related-user-list__user-name mast-displayname"></div>
-                                        </a>
-                                        <p class="related-user-list__user-bio mast-brief"></p>
-                                    </div>
-                                </div>
+<html lang="en" class="classic-page">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {% if is_followers_page %}
+            <title>{{ site_name }} - {% trans '被他们关注' %}</title>
+        {% else %}
+            <title>{{ site_name }} - {% trans '关注的人' %}</title>
+        {% endif %}
+        {% include "common_libs.html" with jquery=1 v2=1 %}
+        <script src="{% static 'js/mastodon.js' %}"></script>
+        {% if is_followers_page %}
+            <script src="{% static 'js/followers_list.js' %}"></script>
+        {% else %}
+            <script src="{% static 'js/following_list.js' %}"></script>
+        {% endif %}
+    </head>
+    <body>
+        {% include "_header.html" %}
+        <main>
+            <div class="grid__main">
+                <h5 class="related-user-list__title">
+                    {% if is_followers_page %}
+                        {% trans ' 被他们关注' %}
+                    {% else %}
+                        {% trans '关注的人' %}
+                    {% endif %}
+                </h5>
+                <div class="main-section-wrapper">
+                    <div class="related-user-list mast-user-list">
+                        <div class="related-user-list__user mast-user">
+                            <img src="" alt="" class="related-user-list__user-avatar">
+                            <div class="related-user-list__user-info">
+                                <a href="">
+                                    <div class="related-user-list__user-name mast-displayname"></div>
+                                </a>
+                                <p class="related-user-list__user-bio mast-brief"></p>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
-                        <div class="aside-section-wrapper aside-section-wrapper--no-margin">
-                            <div class="user-profile" id="userInfoCard">
-                                <div class="user-profile__header">
-                                    <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
-                                    <img src="" class="user-profile__avatar mast-avatar">
-                                    <a href="{% url 'journal:user_profile' user.mastodon_username %}">
-                                        <h5 class="user-profile__username mast-displayname"></h5>
-                                    </a>
-                                </div>
-                                <p class="user-profile__bio mast-brief"></p>
-                                <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
-
-                                {% if request.user != user %}
-                                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
-                                    class="user-profile__report-link">{% trans '投诉用户' %}</a>
-                                {% endif %}
-
-                            </div>
-                        </div>
-
-                        <div class="relation-dropdown">
-                            <div class="relation-dropdown__button">
-                                <span class="icon-arrow">
-                                    <i class="fas fa-angle-down"></i>
-                                </span>
-                            </div>
-                            <div class="relation-dropdown__body">
-                                <div class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
-
-                                    <div class="user-relation" id="followings">
-                                        <h5 class="user-relation__label">
-                                            {% trans '关注的人' %}
-                                        </h5>
-                                        <a href="{% url 'users:following' user.mastodon_username %}"
-                                            class="user-relation__more-link mast-following-more">{% trans '更多' %}</a>
-                                        <ul class="user-relation__related-user-list mast-following">
-                                            <li class="user-relation__related-user">
-                                                <a>
-                                                    <img src="" alt="" class="user-relation__related-user-avatar">
-                                                    <div class="user-relation__related-user-name mast-displayname"></div>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="user-relation" id="followers">
-                                        <h5 class="user-relation__label">
-                                            {% trans '被他们关注' %}
-                                        </h5>
-                                        <a href="{% url 'users:followers' user.mastodon_username %}"
-                                            class="user-relation__more-link mast-followers-more">{% trans '更多' %}</a>
-                                        <ul class="user-relation__related-user-list mast-followers">
-                                            <li class="user-relation__related-user">
-                                                <a>
-                                                    <img src="" alt="" class="user-relation__related-user-avatar">
-                                                    <div class="user-relation__related-user-name mast-displayname"></div>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
-            </section>
-        </div>
+            </div>
+            {% include "_sidebar.html" with show_profile=1 %}
+        </main>
         {% include 'partial/_footer.html' %}
-    </div>
-
-
-    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
-    <!--current user mastodon id-->
-    {% if user == request.user %}
-    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    {% else %}
-    <div id="userMastodonID" hidden="true"></div>
-    {% endif %}
-    <div id="userPageURL" hidden="true">{% url 'journal:user_profile' 0 %}</div>
-    <div id="spinner" hidden>
-        <div class="spinner">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+        <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
+        <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
+        <!--current user mastodon id-->
+        {% if user == request.user %}
+            <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+        {% else %}
+            <div id="userMastodonID" hidden="true"></div>
+        {% endif %}
+        <div id="userPageURL" hidden="true">{% url 'journal:user_profile' 0 %}</div>
+        <div id="spinner" hidden>
+            <div class="spinner">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
         </div>
-    </div>
-
-    <script>
-
-    </script>
-</body>
-
-
+    </body>
 </html>

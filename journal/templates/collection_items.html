@@ -1,27 +1,43 @@
 {% load thumb %}
 {% load i18n %}
 {% load l10n %}
-<ul class="item-list">
-    {% for member in collection.ordered_members %}
-        {% with "list_item_"|add:member.item.class_name|add:".html" as template %}
-        {% include template with item=member.item mark=None collection_member=member %}
-        {% endwith %}
-    {% empty %}
-        暂无条目
-    {% endfor %}
-    {% if collection_edit %}
-    <li>
-        <form class="entity-form" hx-target=".entity-list" hx-post="{% url 'journal:collection_append_item' collection.uuid %}" method="POST">
-            {% csrf_token %}
-            <input type="url" name="url" placeholder="{{ request.scheme }}://{{ request.get_host }}/item/abcd123" style="min-width:24rem" required>
-            <input type="text" name="comment" placeholder="{% trans '备注' %}" style="min-width:24rem">
-            <input class="button" type="submit" value="{% trans '添加' %}" >
-        </form>
-    </li>
-    {% endif %}
-</ul>
-{% if msg %}
-<script type="text/javascript">
-    alert("{{ msg|escapejs }}");
-</script>
+<div class="item-list sortable">
+  {% for member in collection.ordered_members %}
+    {% with "list_item_"|add:member.item.class_name|add:".html" as template %}
+      {% include template with item=member.item mark=None collection_member=member %}
+    {% endwith %}
+  {% empty %}
+    暂无条目
+  {% endfor %}
+</div>
+{% if collection_edit %}
+  <form class="entity-form"
+        hx-target="#collection_items"
+        hx-post="{% url 'journal:collection_append_item' collection.uuid %}"
+        method="POST">
+    {% csrf_token %}
+    <input type="url"
+           name="url"
+           placeholder="{{ request.scheme }}://{{ request.get_host }}/item/abcd123"
+           style="min-width:24rem"
+           required>
+    <input type="text"
+           name="comment"
+           placeholder="{% trans '备注' %}"
+           style="min-width:24rem">
+    <input class="button" type="submit" value="{% trans '添加站内条目到收藏夹' %}">
+  </form>
+  <script>
+    $(function () {
+      sortable('.sortable', {
+        forcePlaceholderSize: true,
+        placeholderClass: 'entity-sort--placeholder',
+        hoverClass: 'entity-sort--hover'
+      });
+    });
+  </script>
+  <form>
+    <input type="button" class="secondary" value="拖拽修改条目顺序后点击这里保存">
+  </form>
 {% endif %}
+{% if msg %}<script type="text/javascript">alert("{{ msg|escapejs }}");</script>{% endif %}

@@ -1,17 +1,21 @@
 {% if liked %}
-<a class="activated" hx-post="{% url 'journal:unlike' piece.uuid %}?stats=1&amp;icon={{icon}}&amp;label={{label}}" hx-swap="outerHTML" hx-target="this" title="已{{ label|default:'赞' }}">
-  <i class="fa-solid {{ icon|default:'fa-thumbs-up' }}"></i>
-  <span>{{ piece.like_count }}</span>
-</a>
+  <a class="activated"
+     hx-post="{% url 'journal:unlike' piece.uuid %}?stats=1&amp;icon={{ icon }}&amp;label={{ label }}"
+     hx-swap="outerHTML"
+     hx-target="this"
+     title="已{{ label|default:'赞' }}">
+    <i class="fa-solid {{ icon|default:'fa-thumbs-up' }}"></i>
+    <span>{{ piece.like_count }}</span>
+  </a>
 {% else %}
-<a
-{% if piece.owner == request.user %}
-  class="disabled"
-{% else %}
-  hx-post="{% url 'journal:like' piece.uuid %}?stats=1&amp;icon={{icon}}&amp;label={{label}}"
-{% endif %}
-  hx-swap="outerHTML" hx-target="this" title="{{ label|default:'赞' }}">
-  <i class="fa-regular {{ icon|default:'fa-thumbs-up' }}"></i>
-  {% if piece.like_count %}<span>{{ piece.like_count }}</span>{% endif %}
-</a>
+  <a hx-swap="outerHTML"
+     hx-target="this"
+     title="{{ label|default:'赞' }}"
+     {% if piece.owner == request.user %} {% if not piece.like_count %} class="hidden" {% else %} class="disabled" {% endif %}
+     {% else %}
+     hx-post="{% url 'journal:like' piece.uuid %}?stats=1&amp;icon={{ icon }}&amp;label={{ label }}"
+     {% endif %}>
+    <i class="fa-regular {{ icon|default:'fa-thumbs-up' }}"></i>
+    {% if piece.like_count %}<span>{{ piece.like_count }}</span>{% endif %}
+  </a>
 {% endif %}

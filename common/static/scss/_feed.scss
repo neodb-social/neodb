@@ -44,6 +44,14 @@
 
       article {
         padding: calc(var(--pico-block-spacing-horizontal) / 2);
+
+        footer {
+          padding: calc(var(--pico-block-spacing-horizontal) / 2);
+          margin-left: calc(var(--pico-block-spacing-horizontal) * -0.5);
+          margin-right: calc(var(--pico-block-spacing-horizontal) * -0.5);
+          margin-top: 0;
+        }
+
         margin-right: 4px;
       }
 

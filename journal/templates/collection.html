@@ -9,135 +9,132 @@
 {% load thumb %}
 {% load collection %}
 {% load user_actions %}
-
 <!DOCTYPE html>
 <html lang="en" class="content-page">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta property="og:title" content="{{ site_name }}{% trans '收藏单' %} - {{ collection.title }}">
-  <meta property="og:description" content="{{ collection.description }}">
-  <meta property="og:type" content="article">
-  <meta property="og:article:author" content="{{ collection.owner.username }}">
-  <meta property="og:url" content="{{ request.build_absolute_uri }}">
-  <meta property="og:image" content="{{ collection.cover|thumb:'normal' }}">
-  <title>{{ site_name }} {% trans '收藏单' %} - {{ collection.title }}</title>
-  {% include "common_libs.html" with jquery=0 v2=1 %}
-</head>
-
-<body>
-  {% include "_header.html" %}
-  <main>
-    <div>
-    <article>
-      <header>
-        <hgroup>
-          <h3>
-            <div class="action">
-              {% if request.user.is_authenticated %}
-              <span>
-                {% liked_piece collection as liked %}
-                {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-bookmark' %}
-              </span>
-              <span>
-                {% include '_feature_stats.html' with featured=featured_since %}
-              </span>
-              <span>
-                <a href="#" hx-get="{% url 'journal:collection_share' collection.uuid %}" hx-target="body" hx-swap="beforeend" title="分享到联邦网络" ><i class="fa-solid fa-share-nodes"></i></a>
-              </span>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title"
+          content="{{ site_name }}{% trans '收藏单' %} - {{ collection.title }}">
+    <meta property="og:description" content="{{ collection.description }}">
+    <meta property="og:type" content="article">
+    <meta property="og:article:author"
+          content="{{ collection.owner.username }}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{{ collection.cover|thumb:'normal' }}">
+    <title>{{ site_name }} {% trans '收藏单' %} - {{ collection.title }}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        <article>
+          <header>
+            <hgroup>
+              <h3>
+                <div class="action">
+                  {% if request.user.is_authenticated %}
+                    <span>
+                      {% liked_piece collection as liked %}
+                      {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-bookmark' %}
+                    </span>
+                    <span>{% include '_feature_stats.html' with featured=featured_since %}</span>
+                    <span>
+                      <a href="#"
+                         hx-get="{% url 'journal:collection_share' collection.uuid %}"
+                         hx-target="body"
+                         hx-swap="beforeend"
+                         title="分享到联邦网络"><i class="fa-solid fa-share-nodes"></i></a>
+                    </span>
+                  {% endif %}
+                </div>
+                {{ collection.title }}
+                {% if collection.visibility > 0 %}<small><i class="fa-solid fa-lock"></i></small>{% endif %}
+              </h3>
+            </hgroup>
+            <div class="owner-info">
+              <div class="owner">
+                <span class="avatar">
+                  <img src="{{ collection.owner.mastodon_account.avatar }}"
+                       alt="{{ collection.owner.username }}">
+                </span>
+              </div>
+              <div class="info">
+                <p>
+                  <a href="{% url 'journal:user_profile' collection.owner.mastodon_username %}">{{ collection.owner.mastodon_account.display_name }}</a>
+                  <span class="handler">@{{ collection.owner.mastodon_username }}</span>
+                </p>
+                <p>
+                  {% for cat, count in collection.get_summary.items %}
+                    {% if count %}<span>{{ count }} {{ cat|prural_items }}<span>{% endif %}
+                    {% endfor %}
+                  </p>
+                  {% if featured_since %}
+                    <p>
+                      <progress value="{{ stats.percentage }}"
+                                max="100"
+                                title="{{ stats.percentage }}%" />
+                    </p>
+                  {% endif %}
+                  <div class="markdown-content">{{ collection.html | safe }}</div>
+                </div>
+                <div class="more">
+                  <div style="text-align: center;">
+                    <img src="{{ collection.cover|thumb:'normal' }}"
+                         style="max-width: 120px;
+                                max-height: 120px">
+                  </div>
+                </div>
+              </div>
+            </header>
+            {% comment %}
+          {% if featured_since %}
+          <section style="min-width:10vw;">
+            <div class="donut" style="background: conic-gradient(#7CBDFE 0deg {{ stats.complete_deg }}deg, #B4D2A5 {{ stats.complete_deg }}deg {{ stats.complete_deg|add:stats.progress_deg }}deg, #ccc {{ stats.complete_deg|add:stats.progress_deg }}deg 1deg );"><div class="hole"><div class="text">
+              {% if stats.progress %}
+              {{ stats.progress }} 进行中<br>
               {% endif %}
-            </div>
-            {{ collection.title }}
-            {% if collection.visibility > 0 %}
-            <small><i class="fa-solid fa-lock"></i></small>
-            {% endif %}
-          </h3>
-        </hgroup>
-        <div class="owner-info">
-          <div class="owner">
-            <span class="avatar">
-              <img  src="{{ collection.owner.mastodon_account.avatar }}" alt="{{ collection.owner.username }}">
-            </span>
-          </div>
-          <div class="info">
-            <p>
-              <a href="{% url 'journal:user_profile' collection.owner.mastodon_username %}">{{ collection.owner.mastodon_account.display_name }}</a>
-              <span class="handler">@{{ collection.owner.mastodon_username }}</span>
-            </p>
-            <p>
-              {% for cat, count in collection.get_summary.items %}
-              {% if count %}
-              <span>{{count}} {{cat|prural_items}}<span>
+              {% if stats.complete %}
+              {{ stats.complete }} 已完成
+              {% elif not stats.progress %}
+              尚未开始
               {% endif %}
-              {% endfor %}
-            </p>
-            {% if featured_since %}
-            <p>
-              <progress value="{{ stats.percentage }}" max="100" title="{{ stats.percentage }}%" />
-            </p>
-            {% endif %}
-            <div class="markdown-content">
-              {{ collection.html | safe }}
+            </div></div></div>
+            <div style="margin:8px; color:lightgray" class="muted">
+              开始于{{ featured_since|date }}
+              <a class="muted" href="#" title="停止" onclick="if (confirm('停止这个目标吗？')) $('#stop-featured').submit();"><i class="fa-solid fa-ban"></i></a>
+              <form action="{% url 'journal:collection_remove_featured' collection.uuid %}" method="post" id="stop-featured">
+                {% csrf_token %}
+              </form>
             </div>
-          </div>
-          <div class="more">
-            <div style="text-align: center;">
-              <img src="{{ collection.cover|thumb:'normal' }}" style="max-width: 120px;max-height: 120px;">
-            </div>
-          </div>
-        </div>
-
-      </header>
-      {% comment %}
-        {% if featured_since %}
-        <section style="min-width:10vw;">
-          <div class="donut" style="background: conic-gradient(#7CBDFE 0deg {{ stats.complete_deg }}deg, #B4D2A5 {{ stats.complete_deg }}deg {{ stats.complete_deg|add:stats.progress_deg }}deg, #ccc {{ stats.complete_deg|add:stats.progress_deg }}deg 1deg );"><div class="hole"><div class="text">
-            {% if stats.progress %}
-            {{ stats.progress }} 进行中<br>
-            {% endif %}
-            {% if stats.complete %}
-            {{ stats.complete }} 已完成
-            {% elif not stats.progress %}
-            尚未开始
-            {% endif %}
-          </div></div></div>
-          <div style="margin:8px; color:lightgray" class="muted">
-            开始于{{ featured_since|date }}
-            <a class="muted" href="#" title="停止" onclick="if (confirm('停止这个目标吗？')) $('#stop-featured').submit();"><i class="fa-solid fa-ban"></i></a>
-            <form action="{% url 'journal:collection_remove_featured' collection.uuid %}" method="post" id="stop-featured">
-              {% csrf_token %}
-            </form>
-          </div>
-        </section>
-        {% endif %}
-      {% endcomment %}
-
-      <section>
-        <div class="entity-list" hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}" hx-trigger="load">
-        </div>
-      </section>
-
-      <footer>
-        <div class="action">
-          {% if request.user == collection.owner %}
-          <span>
-          <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '编辑' %}</a>
-          </span>
-          <span>
-          <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans '删除' %}</a>
-          </span>
-          {% elif editable %}
-          <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '协助整理' %}</a>
+          </section>
           {% endif %}
+            {% endcomment %}
+            <section>
+              <div class="entity-list"
+                   hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}"
+                   hx-trigger="load"></div>
+            </section>
+            <footer>
+              <div class="action">
+                {% if request.user == collection.owner %}
+                  <span>
+                    <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '编辑' %}</a>
+                  </span>
+                  <span>
+                    <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans '删除' %}</a>
+                  </span>
+                {% elif editable %}
+                  <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '协助整理' %}</a>
+                {% endif %}
+              </div>
+              <span>创建于 {{ collection.created_time | date }}</span>
+            </footer>
+          </article>
         </div>
-        <span>创建于 {{ collection.created_time | date }}</span>
-      </footer>
-    </article>
-    </div>
-    {% comment %} {% include "_sidebar.html" %} {% endcomment %}
-  </main>
-
-  {% include "partial/_footer.html" %}
-</body>
-</html>
+        {% include "_sidebar.html" with user=collection.owner show_profile=1 %}
+      </main>
+      {% include "partial/_footer.html" %}
+    </body>
+  </html>

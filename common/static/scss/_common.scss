@@ -10,6 +10,10 @@ article.item-card {
   footer {
     padding: calc(var(--pico-block-spacing-horizontal) / 2);
   }
+
+  section {
+    margin-bottom: calc(var(--pico-spacing) / 1);
+  }
 }
 
 article.item-card.external h5 {
@@ -59,6 +63,10 @@ section section {
     text-decoration: none;
   }
 
+  a.hidden {
+    display: none;
+  }
+
   a.disabled,
   .timestamp {
     cursor: unset;
@@ -75,4 +83,8 @@ section section {
     color: var(--pico-primary);
     opacity: 1;
   }
+}
+
+form img {
+  max-height: 20vh;
 }

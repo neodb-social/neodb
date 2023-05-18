@@ -5,64 +5,55 @@
 {% load oauth_token %}
 {% load truncate %}
 {% load thumb %}
-
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ site_name }} - {{ item.title }} - {% trans '评论' %}</title>
-  {% include "common_libs.html" with jquery=0 %}
-</head>
-
-<body>
-  <div id="page-wrapper">
-    <div id="content-wrapper">
-      {% include "partial/_navbar.html" %}
-
-      <section id="content">
-        <div class="grid">
-          <div class="grid__main" id="main">
-            <div class="single-section-wrapper">
-
-              <form method="post" class="review-form">
-                {% csrf_token %}
-                {{ form.item }}
-                <div>
-                  {{ form.title.label }}
-                </div>
-                {{ form.title }}
-                <div class="clearfix">
-                  <span class="float-left">
-                    {{ form.body.label }}
-                  </span>
-                </div>
-                <div class="markdown-content">
-                  {{ form.body }}
-                </div>
-                <hr>
-                <div>
+<html lang="en" class="content-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ item.title }} - {% trans '评论' %}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+    <style type="text/css">#id_visibility, #id_visibility li {padding-left:0; margin-bottom:0; display: inline-block !important;}</style>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div>
+        <article>
+          <form method="post" class="review-form">
+            {% csrf_token %}
+            {{ form.item }}
+            <div>{{ form.title.label }}</div>
+            {{ form.title }}
+            <div class="clearfix">
+              <span class="float-left">{{ form.body.label }}</span>
+            </div>
+            <div class="markdown-content">{{ form.body }}</div>
+            <hr>
+            <div class="grid">
+              <div>
                 <label for="leading_space" style="display: inline;">
-                  <input type="checkbox" name="leading_space" value="1" id="leading_space"> 转换行首空格为全角
+                  <input type="checkbox" name="leading_space" value="1" id="leading_space">
+                  转换行首空格为全角
                 </label>
-                </div>
-                <div class="review-form__option">
-                  <div class="review-form__visibility-radio">
-                    {{ form.visibility.label }}{{ form.visibility }}
-                  </div>
-                  <div class="review-form__share-checkbox">
-                    {{ form.share_to_mastodon }}{{ form.share_to_mastodon.label }}
-                  </div>
-                </div>
-                <div class="clearfix"></div>
-                <input class="button float-right" type="submit" value="{% trans '提交' %}">
-                <div>
-                  <label for="mark_anotherday">更改标记日期:
-                    <input type="checkbox" name="mark_anotherday" value="1" id="mark_anotherday">
-                    <input type="date" name="mark_date" id="mark_date" min="1900-01-01" max="{{date_today}}" value="{{date_today}}" style="display: none;"></label>
-                </div>
-                <script type="text/javascript">
+              </div>
+              <div>{{ form.visibility }}</div>
+              <div>{{ form.share_to_mastodon }}{{ form.share_to_mastodon.label }}</div>
+            </div>
+            <input class="button float-right" type="submit" value="{% trans '提交' %}">
+            <div>
+              <label for="mark_anotherday">
+                更改标记日期:
+                <input type="checkbox" name="mark_anotherday" value="1" id="mark_anotherday">
+                <input type="date"
+                       name="mark_date"
+                       id="mark_date"
+                       min="1900-01-01"
+                       max="{{ date_today }}"
+                       value="{{ date_today }}"
+                       style="display: none">
+              </label>
+            </div>
+            <script type="text/javascript">
                   $("#mark_anotherday").on('click', ()=>{
                     if ($("#mark_anotherday:checked").val() == '1') {
                       $("#mark_date").show()
@@ -70,18 +61,20 @@
                       $("#mark_date").hide()
                     }
                   });
-                </script>
-                {{ form.media }}
-              </form>
-            </div>
-          </div>
-          <div class="grid__aside" id="aside">
-            {% include "sidebar_item.html" %}
-          </div>
-        </div>
-      </section>
-    </div>
-      {% include "partial/_footer.html" %}
-  </div>
-</body>
+            </script>
+            {{ form.media }}
+          </form>
+        </article>
+      </div>
+      <aside>
+        {% include "sidebar_item.html" with item=item %}
+      </aside>
+    </main>
+    <script>
+          $(".spoiler").on('click', function(){
+            $(this).toggleClass('revealed');
+          })
+    </script>
+    {% include "partial/_footer.html" %}
+  </body>
 </html>

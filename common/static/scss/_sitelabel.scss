@@ -1,19 +1,115 @@
-.site-list a {
-  display: inline;
-  background: transparent;
-  border-radius: .3rem;
-  border-style: solid;
-  border-width: .1rem;
-  line-height: 1.2rem;
-  font-size: 80%;
-  margin: 3px;
-  padding: 1px 3px;
-  padding-top: 2px;
-  font-weight: lighter;
-  letter-spacing: 0.1rem;
-  word-break: keep-all;
-  opacity: 1;
-  font-weight: 400;
-  text-decoration: none;
-  white-space: nowrap;
+.site-list {
+  a {
+    display: inline;
+    background: transparent;
+    padding: calc(var(--pico-spacing)/8);
+    border-radius: calc(var(--pico-spacing)/4);
+    border-style: solid;
+    border-width: 1px;
+    font-size: 80%;
+    margin: 3px;
+    // padding: 1px 3px;
+    // padding-top: 2px;
+    font-weight: lighter;
+    word-break: keep-all;
+    opacity: 1;
+    font-weight: 400;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .douban {
+    border: none;
+    color: white;
+    background-color: #319840;
+  }
+
+  .spotify {
+    background-color: #1ed760;
+    color: black;
+    border: none;
+    font-weight: bold;
+  }
+
+  .imdb {
+    background-color: #F5C518;
+    color: #121212;
+    border: none;
+    font-weight: bold;
+  }
+
+  .igdb {
+    background-color: #323A44;
+    color: #DFE1E2;
+    border: none;
+    font-weight: bold;
+  }
+
+  .steam {
+    background: linear-gradient(30deg, #1387b8, #111d2e);
+    color: white;
+    border: none;
+    // font-weight: 600
+    // padding-top: 2px
+  }
+
+  .bangumi {
+    background: #F09199;
+    color: #FCFCFC;
+    font-weight: 600;
+  }
+
+  .goodreads {
+    background: #F4F1EA;
+    color: #372213;
+    font-weight: lighter;
+  }
+
+  .bookstw {
+    background: #7FBA19;
+    color: white;
+    font-weight: lighter;
+  }
+
+  .tmdb {
+    background: linear-gradient(90deg, #91CCA3, #1FB4E2);
+    color: white;
+    border: none;
+    font-weight: lighter;
+    padding-top: 2px;
+  }
+
+  .googlebooks {
+    color: white;
+    background-color: #4285F4;
+    border-color: #4285F4;
+  }
+
+  .rss {
+    color: white;
+    background-color: #E1A02F;
+    border-color: #E1A02F;
+  }
+
+  .bandcamp {
+    color: white;
+    background-color: #28A0C1;
+  }
+
+  // .bandcamp {
+  //     color: white
+  //     background-color: #28A0C1
+  //     // transform: skewX(-30deg)
+  //     display: inline-block
+  // }
+  // .bandcamp span
+  //     // transform: skewX(30deg)
+  //     display: inline-block
+  //     margin: 0 4px
+
+  .discogs {
+    color: white;
+    background-color: #262626;
+    border-color: #262626;
+  }
 }

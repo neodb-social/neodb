@@ -8,26 +8,22 @@
 {% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ site_name }} - {% trans '系统错误' %}</title>
-  {% include "common_libs.html" with jquery=0 v2=1 %}
-</head>
-
-<body>
-  {% include "_header.html" %}
-  <main class="container">
-    <article class="error">
-    <header>
-      <h3>
-        🤦🏻 系统内部错误
-      </h3>
-    </header>
-    发生了一个内部错误，如果这个错误多次出现，后台会记录并会由人工处理。如果您有紧急情况或任何疑问，请通过页面底部的链接联系我们。
-    </article>
-  </main>
-  {% include "partial/_footer.html" %}
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans '系统错误' %}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container">
+      <article class="error">
+        <header>
+          <h3>🤦🏻 系统内部错误</h3>
+        </header>
+        发生了一个内部错误，如果这个错误多次出现，后台会记录并会由人工处理。如果您有紧急情况或任何疑问，请通过页面底部的链接联系我们。
+      </article>
+    </main>
+    {% include "partial/_footer.html" %}
+  </body>
 </html>

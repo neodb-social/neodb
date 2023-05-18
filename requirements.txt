@@ -35,3 +35,4 @@ igdb-api-v4
 podcastparser
 listparser
 fontawesomefree~=6.4.0
+discord.py

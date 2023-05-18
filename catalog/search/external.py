@@ -16,6 +16,9 @@ class SearchResultItem:
         self, category, source_site, source_url, title, subtitle, brief, cover_url
     ):
         self.category = category
+        self.external_resources = {
+            "all": [{"url": source_url, "site_name": {"label": source_site}}]
+        }
         self.source_site = source_site
         self.source_url = source_url
         self.title = title
@@ -28,7 +31,7 @@ class SearchResultItem:
         return self.category.label
 
     @property
-    def link(self):
+    def url(self):
         return f"/search?q={quote_plus(self.source_url)}"
 
     @property

@@ -3,33 +3,39 @@
 {% load l10n %}
 {% load humanize %}
 {% for ep in episodes %}
-<p>
-  	<h6 class="entity-desc__title">
-  		<a
-  			data-media="{{ ep.media_url }}"
-  			data-cover="{{ ep.cover_url|default:item.cover.url }}"
-  			class="episode gg-play-button-o"
-  			href="{{ep.url}}"
-  			data-uuid="{{ep.uuid}}"
-  			data-title="{{ ep.title }}"
-  			data-album = "{{ item.title }}"
-  			data-hosts = "{{ item.hosts|join:' / ' }}"
-  			style="top:4px;margin-right: 8px;">
-  	</a>
-		&nbsp;
-		{% if request.user.is_authenticated %}
-		<a style="margin-right: 10px;" title="评论单集" href="#" hx-get="{% url 'journal:comment' item.uuid ep.uuid %}" hx-target="body" hx-swap="beforeend"><i class="fa-regular fa-comment-dots"></i></a>
-		{% endif %}
-		<a title="打开源网站" target="_blank" rel="noopener" href="{{ep.link}}"><i class="fa-solid fa-link"></i></a>
-    {{ ep.title }}
-    <small style="color:lightgrey;">{{ ep.pub_date|date }}</small>
-  </h6>
-  <small class="tldr-2 muted" _="on click toggle .tldr-2"> {{ ep.brief | linebreaksbr }} </small>
-</p>
-{% if forloop.last %}
-<button class="outline" hx-get="{% url 'catalog:episode_data' item.uuid %}?last={{ ep.pub_date|date:'Y-m-d H:i:s.uO'|urlencode }}" hx-trigger="click" hx-swap="outerHTML">显示更多</button>
-{% endif %}
-
+  <p>
+    <h6 class="entity-desc__title">
+      <a data-media="{{ ep.media_url }}"
+         data-cover="{{ ep.cover_url|default:item.cover.url }}"
+         class="episode gg-play-button-o"
+         href="{{ ep.url }}"
+         data-uuid="{{ ep.uuid }}"
+         data-title="{{ ep.title }}"
+         data-album="{{ item.title }}"
+         data-hosts="{{ item.hosts|join:' / ' }}"
+         style="top:4px;
+                margin-right: 8px"></a>
+      &nbsp;
+      {% if request.user.is_authenticated %}
+        <a style="margin-right: 10px"
+           title="评论单集"
+           href="#"
+           hx-get="{% url 'journal:comment' item.uuid ep.uuid %}"
+           hx-target="body"
+           hx-swap="beforeend"><i class="fa-regular fa-comment-dots"></i></a>
+      {% endif %}
+      <a title="打开源网站" target="_blank" rel="noopener" href="{{ ep.link }}"><i class="fa-solid fa-link"></i></a>
+      {{ ep.title }}
+      <small style="color:lightgrey;">{{ ep.pub_date|date }}</small>
+    </h6>
+    <small class="tldr-2 muted" _="on click toggle .tldr-2">{{ ep.brief | linebreaksbr }}</small>
+  </p>
+  {% if forloop.last %}
+    <button class="outline"
+            hx-get="{% url 'catalog:episode_data' item.uuid %}?last={{ ep.pub_date|date:'Y-m-d H:i:s.uO'|urlencode }}"
+            hx-trigger="click"
+            hx-swap="outerHTML">显示更多</button>
+  {% endif %}
 {% empty %}
-<div>{% trans '目前没有更多内容了' %}</div>
+  <div>{% trans '目前没有更多内容了' %}</div>
 {% endfor %}

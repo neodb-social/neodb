@@ -2,9 +2,9 @@
 {% load i18n %}
 
 {% block title%}
-<title>{{ site_name }} - {{ user.mastodon_username }} - {% trans '评论' %}</title>
+<title>{{ site_name }} - {{ user.display_name }} - {% trans '评论' %}</title>
 {% endblock %}
 
 {% block head %}
-{{ user.mastodon_username }} - {% trans '评论' %}
+{{ user.display_name }} - {% trans '评论' %}
 {% endblock %}

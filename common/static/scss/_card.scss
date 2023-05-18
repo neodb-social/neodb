@@ -7,6 +7,10 @@
   justify-content: left;
   word-break: break-all;
 
+  &.player {
+    display: block;
+  }
+
   hgroup {
     margin: 0;
   }
@@ -15,7 +19,12 @@
   hgroup span {
     font-weight: 400;
     font-size: 80%;
-    color: var(--pico-secondary-color);
+    color: var(--pico-muted-color);
+
+    &.category {
+      opacity: 0.5;
+    }
+
   }
 
   .metadata {

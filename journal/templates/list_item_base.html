@@ -4,85 +4,108 @@
 {% load i18n %}
 {% load l10n %}
 {% load user_actions %}
-{% wish_item_action item as action %}
-
-
-
-<article class="item-card">
+{% load duration %}
+{% load truncate %}
+<article class="entity-sort item-card">
   <span class="action">
-    <span>
-    {% if not action.taken %}
-    <a title="添加标记" hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist&new=1" hx-target="body" hx-swap="beforeend">
-      <i class="fa-regular fa-bookmark"></i>
-    </a>
-    {% else %}
-    <a class="activated" title="修改标记" hx-get="{% url 'journal:mark' item.uuid %}?new=1" hx-target="body" hx-swap="beforeend">
-      <i class="fa-solid fa-bookmark"></i>
-    </a>
+    {% if request.user.is_authenticated %}
+      {% wish_item_action item as action %}
+      <span>
+        {% if not action.taken %}
+          <a title="添加标记"
+             hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist&new=1"
+             hx-target="body"
+             hx-swap="beforeend">
+            <i class="fa-regular fa-bookmark"></i>
+          </a>
+        {% else %}
+          <a class="activated"
+             title="修改标记"
+             hx-get="{% url 'journal:mark' item.uuid %}?new=1"
+             hx-target="body"
+             hx-swap="beforeend">
+            <i class="fa-solid fa-bookmark"></i>
+          </a>
+        {% endif %}
+      </span>
     {% endif %}
-    </span>
   </span>
   {% include "_item_card.html" with item=item %}
-{% comment %}
-
-  <footer>
-    {% if mark %}
-    <div class="clearfix"></div>
-    <div class="dividing-line dividing-line--dashed"></div>
-    <div class="entity-marks" style="margin-bottom: 0;">
-      <ul class="entity-marks__mark-list">
-        <li class="entity-marks__mark">
-          {% if mark.rating %}
-          <span class="entity-marks__rating-star rating-star"
-          data-rating-score="{{ mark.rating | floatformat:0 }}" style="left: -4px;"></span>
+  {% if mark or collection_member %}
+    <footer>
+      {% if mark %}
+        <section>
+          <div class="action">
+            {% if mark.comment %}
+              <span>
+                {% liked_piece mark.comment as liked %}
+                {% include 'like_stats.html' with liked=liked piece=mark.comment %}
+              </span>
+            {% endif %}
+            <span>
+              <a target="_blank"
+                 rel="noopener"
+                 {% if mark.metadata.shared_link %} href="{{ mark.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+            </span>
+            <span class="timestamp">{{ mark.created_time|date }}</span>
+          </div>
+          <div>
+            {% comment %} <a href="{% url 'journal:user_profile' mark.owner.mastodon_username %}" title="@{{ mark.owner.mastodon_username }}">{{ mark.owner.display_name }}</a> {% endcomment %}
+            <span>{{ mark.action_label }}</span>
+            {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
+            {% if mark.comment.focus_item %}
+              <a href="{{ mark.comment.focus_item.url }}">{{ mark.comment.focus_item.title }}</a>
+            {% endif %}
+          </div>
+          {% if mark.tags %}
+            <div class="tag-list">
+              {% for tag in mark.tags %}
+                {% if forloop.counter <= 5 %}
+                  <span>
+                    <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
+                  </span>
+                {% endif %}
+              {% endfor %}
+            </div>
           {% endif %}
-          {% if mark.visibility > 0 %}
-          <i class="fa-solid fa-lock"></i>
-          {% endif %}
-          <span style="float:right;">
-            {% trans '标记于' %} {{ member.created_time|date }}
-          </span>
-          <p class="entity-marks__mark-content">&nbsp;
-          {% if mark.text %}
-          {{ mark.comment_html|safe }}
-          {% endif %}
-          </p>
-        </li>
+          <div>{{ mark.comment.html|safe }}</div>
+        </section>
         {% if mark.review %}
-        <li class="entity-marks__mark">
-          <span style="float:right;">
-            {% trans '评论于' %} {{ mark.review.created_time|date }}
-          </span>
-          <p class="entity-marks__mark-content">
-            <a href="{{ mark.review.url }}">{{ mark.review.title }}</a>
-            {% if mark.review.visibility > 0 %}
-            <i class="fa-solid fa-lock"></i>
-            {% endif %}
-          </p>
-        </li>
+          <section>
+            <span class="action">
+              <span>
+                {% liked_piece mark.review as liked %}
+                {% include 'like_stats.html' with liked=liked piece=mark.review %}
+              </span>
+              <span>
+                <a target="_blank"
+                   rel="noopener"
+                   {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+              </span>
+              <span class="timestamp">{{ mark.review.created_time|date }}</span>
+            </span>
+            <div>
+              评论: <span>
+              <a href="{% url 'journal:review_retrieve' mark.review.uuid %}">{{ mark.review.title }}</a>
+            </span>
+            -
+            {{ mark.review.plain_content | truncate:200 }}
+          </section>
         {% endif %}
-      </ul>
-    </div>
-    {% endif %}
-
-    {% if collection_member %}
-    <div class="clearfix"></div>
-    <div class="dividing-line dividing-line--dashed"></div>
-    <div class="entity-marks" style="margin-bottom: 0;">
-      <ul class="entity-marks__mark-list">
-        <li class="entity-marks__mark">
-          <p class="entity-marks__mark-content" hx-target="this" hx-swap="innerHTML">
-
-            {% if collection_member.note %} {{ collection_member.note }} {% endif %}
-            {% if collection_edit %}
-            <a class="icon" hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"><i class="fa-regular fa-pen-to-square"></i></a>
-            {% endif %}
-
-          </p>
-        </li>
-      </ul>
-    </div>
-    {% endif %}
-
-  </footer> {% endcomment %}
+      {% endif %}
+      {% if collection_member %}
+        <p class="entity-marks__mark-content"
+           hx-target="this"
+           hx-swap="innerHTML">
+          {% if collection_edit %}
+            <span class="action">
+              <a class="icon"
+                 hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"><i class="fa-regular fa-pen-to-square"></i></a>
+            </span>
+          {% endif %}
+          {% if collection_member.note %}{{ collection_member.note }}{% endif %}
+        </p>
+      {% endif %}
+    </footer>
+  {% endif %}
 </article>

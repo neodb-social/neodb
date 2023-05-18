@@ -9,57 +9,39 @@
 {% load highlight %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="classic-page">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ site_name }} - 我的标签</title>
-  {% include "common_libs.html" with jquery=0 %}
+  {% include "common_libs.html" with jquery=0 v2=1 %}
 </head>
 
 <body>
-  <div id="page-wrapper">
-    <div id="content-wrapper">
-      {% include "partial/_navbar.html" %}
 
-      <section id="content">
-        <div class="grid">
-          <div class="grid__main" id="main">
-            <div class="main-section-wrapper">
-              <div class="entity-reviews">
-                <div class="tag-collection entity-reviews__review-list">
-                  <h5>{% trans '全部标签' %}</h5>
-                  {% for v in tags %}
-                  <span style="display: inline-block;margin: 4px;">
-                    <span class="tag-collection__tag" style="display:inline;float:none;">
-                      <a href="{% url 'journal:user_tag_member_list' user.mastodon_username v.title %}">{{ v.title }}</a>
-                    </span>
-                    <span class="entity-reviews__review-time">({{ v.total }})</span>
-                  </span>
-                  {% empty %}
-                  {% trans '暂无标签' %}
-                  {% endfor %}
-                  <div class="clearfix" style="margin-bottom: 16px;"></div>
-                </div>
-              </div>
-            </div>
+      {% include "_header.html" %}
+
+      <main>
+        <div class="grid__main">
+          <h5>{% trans '全部标签' %}</h5>
+          <div class="tag-list">
+            {% for v in tags %}
+            <span style="margin-right:2em; white-space: nowrap;">
+              <span>
+                <a href="{% url 'journal:user_tag_member_list' user.mastodon_username v.title %}">{{ v.title }}</a>
+              </span>
+              <span>({{ v.total }})</span>
+            </span>
+            {% empty %}
+            {% trans '暂无标签' %}
+            {% endfor %}
           </div>
-
-          {% include "partial/_sidebar.html" %}
-
         </div>
-      </section>
-    </div>
+
+          {% include "_sidebar.html" with show_profile=1 %}
+
+        </main>
     {% include "partial/_footer.html" %}
-  </div>
-
-
-
-  <script>
-
-  </script>
 </body>
-
-
 </html>

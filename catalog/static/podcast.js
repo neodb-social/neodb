@@ -3,7 +3,7 @@ function create_player(audio) {
     container: () => document.querySelector('.player'),
     preload: 'metadata',
     autoplay: true,
-    themeColor: '#1190C0',
+    themeColor: getComputedStyle(document.documentElement).getPropertyValue('--pico-primary'),
     fixed: {
       type: 'fixed',
       position: 'bottom'

@@ -1,20 +1,20 @@
 .tag-list {
-  margin-bottom: 1vw;
-}
+  // margin-bottom: var(--pico-spacing);
 
-.tag-list span {
-  // margin: 3px;
+  span {
+    // margin: 3px;
 
-  a {
-    color: white;
-    background: var(--pico-muted-color);
-    padding: 5px;
-    border-radius: .3rem;
-    line-height: 1.2em;
-    font-size: 80%;
-    margin: 3px !important;
-    text-decoration: none;
-    white-space: nowrap;
-    display: inline-block;
+    a {
+      color: white;
+      background: var(--pico-muted-color);
+      padding: calc(var(--pico-spacing)/4);
+      border-radius: calc(var(--pico-spacing)/4);
+      line-height: 1.2em;
+      font-size: 80%;
+      margin: 3px !important;
+      text-decoration: none;
+      white-space: nowrap;
+      display: inline-block;
+    }
   }
 }

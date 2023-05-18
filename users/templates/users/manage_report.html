@@ -6,52 +6,28 @@
 {% load truncate %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans '管理投诉' %}</title>
-    {% include "common_libs.html" with jquery=0 %}
-</head>
-
-<body>
-    <div id="page-wrapper">
-        <div id="content-wrapper">
-            {% include "partial/_navbar.html" %}
-
-            <section id="content">
-                <div class="grid">
-                    <div class="single-section-wrapper" id="main">
-
-                        {% for report in reports %}
-                            <div class="report">
-                                <a href="{% url 'journal:user_profile' report.submit_user.mastodon_username %}">{{ report.submit_user.username }}</a>
-                                {% trans '投诉了' %}
-                                <a href="{% url 'journal:user_profile' report.reported_user.mastodon_username %}">{{ report.reported_user.username }}</a>
-                                @{{ report.submitted_time }}
-
-                                {% if report.image %}
-                                <img src="{{ report.image.url }}" alt="">
-
-                                {% endif %}
-
-                            </div>
-                        {% endfor %}
-
-                    </div>
-
-                </div>
-            </section>
-        </div>
-        {% include "partial/_footer.html" %}
-    </div>
-
-
-
-    <script>
-
-    </script>
-</body>
-
-
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container">
+      {% for report in reports %}
+        <article>
+          <header>
+            <a href="{% url 'journal:user_profile' report.submit_user.mastodon_username %}">{{ report.submit_user.username }}</a>
+            {% trans '投诉了' %}
+            <a href="{% url 'journal:user_profile' report.reported_user.mastodon_username %}">{{ report.reported_user.username }}</a>
+            @{{ report.submitted_time }}
+          </header>
+          <p>{{ report.message }}</p>
+          {% if report.image %}<img src="{{ report.image.url }}" alt="" style="max-height: 80vh;">{% endif %}
+        </article>
+      {% endfor %}
+    </main>
+    {% include "partial/_footer.html" %}
+  </body>
 </html>

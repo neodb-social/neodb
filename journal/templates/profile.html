@@ -7,159 +7,164 @@
 {% load thumb %}
 <!DOCTYPE html>
 <html lang="en" class="classic-page">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  {% if user == request.user %}
-  <title>{{ site_name }} - {% trans '我的个人主页' %}</title>
-  {% else %}
-  <title>{{ site_name }} - {{user.display_name}}</title>
-  {% endif %}
-  <link rel="alternate" type="application/rss+xml" title="{{ site_name }} - {{ user.mastodon_username }}的评论" href="{{ request.build_absolute_uri }}feed/reviews/">
-
-  {% include "common_libs.html" with jquery=0 v2=1 %}
-  <script src="{% static 'lib/js/calendar_yearview_blocks.js' %}" defer></script>
-  <link href="{% static 'lib/css/calendar_yearview_blocks.css' %}" media="all" rel="stylesheet"/>
-</head>
-
-<body>
-  {% if request.user == user %}
-  {% include "_header.html" with current="home" %}
-  {% else %}
-  {% include "_header.html" %}
-  {% endif %}
-  <main>
-    <div class="grid__main">
-      <div class="sortable">
-        {% if request.user.is_authenticated %}
-        <section class="entity-sort shelf" id="calendar_grid">
-          <h5>书影音日历</h5>
-          <div class="calendar_view cards">
-            <p style="text-align: center;">
-            <i class="fas fa-fan fa-spin"></i>
-            </p>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if user == request.user %}
+      <title>{{ site_name }} - {% trans '我的个人主页' %}</title>
+    {% else %}
+      <title>{{ site_name }} - {{ user.display_name }}</title>
+    {% endif %}
+    <link rel="alternate"
+          type="application/rss+xml"
+          title="{{ site_name }} - {{ user.mastodon_username }}的评论"
+          href="{{ request.build_absolute_uri }}feed/reviews/">
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+    <script src="{% static 'lib/js/calendar_yearview_blocks.js' %}" defer></script>
+    <link href="{% static 'lib/css/calendar_yearview_blocks.css' %}"
+          media="all"
+          rel="stylesheet" />
+  </head>
+  <body>
+    {% if request.user == user %}
+      {% include "_header.html" with current="home" %}
+    {% else %}
+      {% include "_header.html" %}
+    {% endif %}
+    <main>
+      <div class="grid__main">
+        <div class="sortable">
+          {% if request.user.is_authenticated %}
+            <section class="entity-sort shelf" id="calendar_grid">
+              <h5>书影音日历</h5>
+              <div class="calendar_view cards">
+                <p style="text-align: center;">
+                  <i class="fa-solid fa-compact-disc fa-spin"></i>
+                </p>
+              </div>
+              <span class="calendar_data"
+                    hx-get="{% url 'journal:user_calendar_data' user.mastodon_username %}"
+                    hx-trigger="load"
+                    hx-swap="innerHTML"
+                    style="display:none"></span>
+            </section>
+          {% endif %}
+          {% for category, category_shelves in shelf_list.items %}
+            {% for shelf_type, shelf in category_shelves.items %}
+              <section class="entity-sort shelf"
+                       id="{{ category }}_{{ shelf_type }}"
+                       {% if not shelf.count %}style="display:none;"{% endif %}>
+                <h5>
+                  {{ shelf.title }}
+                  <small>
+                    <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' user.mastodon_username  category %}{% else %}{% url 'journal:user_mark_list' user.mastodon_username shelf_type category %}{% endif %}">{{ shelf.count }}</a>
+                  </small>
+                </h5>
+                <ul class="cards">
+                  {% for member in shelf.members %}
+                    <li class="card">
+                      <a href="{% if shelf_type == 'reviewed' %}{{ member.url }}{% else %}{{ member.item.url }}{% endif %}"
+                         title="{{ member.item.title }}">
+                        <img src="{{ member.item.cover.url }}" alt="{{ member.item.title }}">
+                        <div>{{ member.item.title }}</div>
+                      </a>
+                    </li>
+                  {% empty %}
+                    <div>暂无记录</div>
+                  {% endfor %}
+                </ul>
+              </section>
+            {% endfor %}
+          {% endfor %}
+          <section class="entity-sort shelf"
+                   id="collection_created"
+                   {% if not collections_count %}style="display:none;"{% endif %}>
+            <h5>
+              {% trans '创建的收藏单' %}
+              <small>
+                <a href="{% url 'journal:user_collection_list' user.mastodon_username %}">{{ collections_count }}</a>
+                {% if user == request.user %}
+                  <a href="{% url 'journal:collection_create' %}">
+                    <i class="fa-regular fa-square-plus"></i>
+                  </a>
+                {% endif %}
+              </small>
+            </h5>
+            <ul class="cards">
+              {% for collection in collections %}
+                <li class="card">
+                  <a href="{{ collection.url }}" title="{{ collection.title }}">
+                    <img src="{{ collection.cover|thumb:'normal' }}"
+                         alt="{{ collection.title }}">
+                    <div>{{ collection.title }}</div>
+                  </a>
+                </li>
+              {% empty %}
+                <div>暂无记录</div>
+              {% endfor %}
+            </ul>
+          </section>
+          <section class="entity-sort shelf"
+                   id="collection_marked"
+                   {% if not liked_collections_count %}style="display:none;"{% endif %}>
+            <h5>
+              {% trans '关注的收藏单' %}
+              <small>
+                <a href="{% url 'journal:user_liked_collection_list' user.mastodon_username %}">{{ liked_collections_count }}</a>
+              </small>
+            </h5>
+            <ul class="cards">
+              {% for collection in liked_collections %}
+                <li class="card">
+                  <a href="{{ collection.url }}" title="{{ collection.title }}">
+                    <img src="{{ collection.cover|thumb:'normal' }}"
+                         alt="{{ collection.title }}">
+                    <div>{{ collection.title }}</div>
+                  </a>
+                </li>
+              {% empty %}
+                <div>暂无记录</div>
+              {% endfor %}
+            </ul>
+          </section>
+        </div>
+        {% if user == request.user %}
+          <div class="entity-sort-control">
+            <div class="entity-sort-control__button" id="sortEditButton">
+              <span class="entity-sort-control__text" id="sortEditText">{% trans '编辑布局' %}</span>
+              <span class="entity-sort-control__text"
+                    id="sortSaveText"
+                    style="display: none">{% trans '保存' %}</span>
+              <span class="icon-edit" id="sortEditIcon">
+                <i class="fa-solid fa-pencil"></i>
+              </span>
+              <span class="icon-save" id="sortSaveIcon" style="display: none;">
+                <i class="fa-regular fa-floppy-disk"></i>
+              </span>
+            </div>
+            <div class="entity-sort-control__button"
+                 id="sortExitButton"
+                 style="display: none">
+              <span class="entity-sort-control__text">{% trans '取消' %}</span>
+            </div>
           </div>
-          <span class="calendar_data" hx-get="{% url 'journal:user_calendar_data' user.mastodon_username %}" hx-trigger="load" hx-swap="innerHTML" style="display:none;"></span>
-        </section>
+          <div class="entity-sort-control__button entity-sort-control__button--float-right"
+               id="toggleDisplayButtonTemplate"
+               style="display: none">
+            <span class="showText" style="display: none;">{% trans '显示' %}</span>
+            <span class="hideText" style="display: none;">{% trans '隐藏' %}</span>
+          </div>
+          <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
+            {% csrf_token %}
+            <input type="hidden" name="name" value="profile">
+            <input type="hidden" name="layout">
+          </form>
+          <script src="https://cdn.staticfile.org/html5sortable/0.13.3/html5sortable.min.js"
+                  crossorigin="anonymous"></script>
+          <script src="{% static 'js/sort_layout.js' %}"></script>
         {% endif %}
-
-        {% for category, category_shelves in shelf_list.items %}
-        {% for shelf_type, shelf in category_shelves.items %}
-        <section class="entity-sort shelf" id="{{ category }}_{{ shelf_type }}" {% if not shelf.count %}style="display:none;"{% endif %}>
-          <h5> {{ shelf.title }}
-            <small>
-              <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' user.mastodon_username  category %}{% else %}{% url 'journal:user_mark_list' user.mastodon_username shelf_type category %}{% endif %}">{{ shelf.count }}</a>
-            </small>
-          </h5>
-          <ul class="cards">
-            {% for member in shelf.members %}
-            <li class="card">
-              <a href="{% if shelf_type == 'reviewed' %}{{ member.url }}{% else %}{{ member.item.url }}{% endif %}" title="{{ member.item.title }}">
-                <img src="{{ member.item.cover.url }}" alt="{{ member.item.title }}">
-                <div>{{ member.item.title }}</div>
-              </a>
-            </li>
-            {% empty %}
-            <div>暂无记录</div>
-            {% endfor %}
-          </ul>
-        </section>
-        {% endfor %}
-        {% endfor %}
-
-        <section class="entity-sort shelf" id="collection_created" {% if not collections_count %}style="display:none;"{% endif %}>
-          <h5>
-            {% trans '创建的收藏单' %}
-            <small>
-            <a href="{% url 'journal:user_collection_list' user.mastodon_username %}"
-            >{{ collections_count }}</a>
-            {% if user == request.user %}
-            <a href="{% url 'journal:collection_create' %}">
-              <i class="fa-regular fa-square-plus"></i>
-            </a>
-            {% endif %}</small>
-          </h5>
-          <ul class="cards">
-            {% for collection in collections %}
-            <li class="card">
-              <a href="{{ collection.url }}" title="{{collection.title}}">
-                <img src="{{ collection.cover|thumb:'normal' }}"
-                alt="{{collection.title}}">
-                <div>{{ collection.title }}</div>
-              </a>
-            </li>
-            {% empty %}
-            <div>暂无记录</div>
-            {% endfor %}
-          </ul>
-        </section>
-
-        <section class="entity-sort shelf" id="collection_marked" {% if not liked_collections_count %}style="display:none;"{% endif %}>
-          <h5>
-            {% trans '关注的收藏单' %}
-            <small>
-            <a href="{% url 'journal:user_liked_collection_list' user.mastodon_username %}"
-            >{{ liked_collections_count }}</a>
-          </small>
-          </h5>
-          <ul class="cards">
-            {% for collection in liked_collections %}
-            <li class="card">
-              <a href="{{ collection.url }}" title="{{collection.title}}">
-                <img src="{{ collection.cover|thumb:'normal' }}"
-                alt="{{collection.title}}">
-                <div>{{ collection.title }}</div>
-              </a>
-            </li>
-            {% empty %}
-            <div>暂无记录</div>
-            {% endfor %}
-          </ul>
-        </section>
-      </div>
-
-      {% if user == request.user %}
-      <div class="entity-sort-control">
-        <div class="entity-sort-control__button" id="sortEditButton">
-          <span class="entity-sort-control__text" id="sortEditText">
-            {% trans '编辑布局' %}
-          </span>
-          <span class="entity-sort-control__text" id="sortSaveText" style="display: none;">
-            {% trans '保存' %}
-          </span>
-          <span class="icon-edit" id="sortEditIcon">
-            <i class="fa-solid fa-pencil"></i>
-          </span>
-          <span class="icon-save" id="sortSaveIcon" style="display: none;">
-            <i class="fa-regular fa-floppy-disk"></i>
-          </span>
-        </div>
-        <div class="entity-sort-control__button" id="sortExitButton" style="display: none;">
-          <span class="entity-sort-control__text">
-            {% trans '取消' %}
-          </span>
-        </div>
-      </div>
-      <div class="entity-sort-control__button entity-sort-control__button--float-right" id="toggleDisplayButtonTemplate" style="display: none;">
-        <span class="showText" style="display: none;">
-          {% trans '显示' %}
-        </span>
-        <span class="hideText" style="display: none;">
-          {% trans '隐藏' %}
-        </span>
-      </div>
-      <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
-        {% csrf_token %}
-        <input type="hidden" name="name" value="profile">
-        <input type="hidden" name="layout">
-      </form>
-      <script src="https://cdn.staticfile.org/html5sortable/0.13.3/html5sortable.min.js" crossorigin="anonymous"></script>
-      <script src="{% static 'js/sort_layout.js' %}"></script>
-      {% endif %}
-
-      {{ layout|json_script:"layout-data" }}
-      <script>
+        {{ layout|json_script:"layout-data" }}
+        <script>
         const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
         initialLayoutData.forEach(elem => {
           $('#' + elem.id).data('visibility', elem.visibility);
@@ -168,13 +173,13 @@
           }
           $('#' + elem.id).appendTo('.sortable');
         });
-      </script>
-    </div>
-    {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
-  </main>
-  {% include "partial/_footer.html" %}
-  {% if request.user.unread_announcements %}
-  {% include "partial/_announcement.html" %}
-  {% endif %}
-</body>
+        </script>
+      </div>
+      {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
+    </main>
+    {% include "partial/_footer.html" %}
+    {% if request.user.unread_announcements %}
+      {% include "partial/_announcement.html" %}
+    {% endif %}
+  </body>
 </html>

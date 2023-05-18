@@ -1,32 +1,28 @@
-{% load i18n %}
 {% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="5;url={% if url %}{{url}}{% else %}{% url 'common:home' %}{% endif %}">
-    <link rel="stylesheet" href="https://cdn.staticfile.org/milligram/1.4.1/milligram.min.css">
-    <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
-    <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
-    <title>{% trans '错误' %}</title>
-</head>
-<body>
-    <div class="box">
-
-            <a href="{% url 'common:home' %}">
-                <img src="{% static 'img/logo.svg' %}" alt="logo" class="logo">
-            </a>
-            <div class="main-msg">
-                {{ msg }}
-            </div>
-            <div class="sec-msg">
-                {% if secondary_msg %}
-                {{ secondary_msg }}
-                {% endif %}
-            </div>
-
-    </div>
-        
-</body>
-</html>
+    <title>{{ site_name }} - {% trans '错误' %}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container">
+      <article class="error">
+        <header>
+          <h3>🙅🏻 {{ msg }}</h3>
+        </header>
+        {{ secondary_msg|default:"" }}
+      </main>
+      {% include "partial/_footer.html" %}
+    </body>
+  </html>

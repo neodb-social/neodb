@@ -7,48 +7,43 @@
 {% load truncate %}
 {% load duration %}
 {% load user_actions %}
-
 {% for review in reviews %}
-{% if forloop.counter <= 10 %}
-<section>
-  <span>
-    {% if review.rating_grade %}
-    {{ review.rating_grade|rating_star }}
-    {% endif %}
-    <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}" class="nickname" title="@{{ review.owner.mastodon_username }}">{{ review.owner.display_name }}</a>
-    {{ review.mark.action_label | default:"" }}
-  </span>
-  <span class="action inline">
-    <span>
-      <a target="_blank" rel="noopener"
-      {% if review.metadata.shared_link %}
-      href="{{ review.metadata.shared_link }}" title="打开联邦网络分享链接"
-      {% else %}
-      class="disabled"
-      {% endif %}
-      ><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
-    </span>
-    <span>
-      {% liked_piece review as liked %}
-      {% include 'like_stats.html' with liked=liked piece=review %}
-    </span>
-    <span class="timestamp">
-      {{ review.created_time|date }}
-    </span>
-  </span>
-  <div>
-    <span>
-      <a href="{% url 'journal:review_retrieve' review.uuid %}">{{ review.title }}</a>
-    </span>
-    -
-    {{ review.plain_content | truncate:200 }}
-  </div>
-</section>
-{% else %}
-<a hx-get="{% url 'catalog:reviews' review.item.url_path review.item.uuid %}?last={{ review.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}" hx-trigger="click" hx-swap="outerHTML"><button class="outline">显示更多</button></a>
-{% endif %}
+  {% if forloop.counter <= 10 %}
+    <section>
+      <span class="action">
+        <span>
+          <a target="_blank"
+             rel="noopener"
+             {% if review.metadata.shared_link %} href="{{ review.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+        </span>
+        <span>
+          {% liked_piece review as liked %}
+          {% include 'like_stats.html' with liked=liked piece=review %}
+        </span>
+        <span class="timestamp">{{ review.created_time|date }}</span>
+      </span>
+      <span>
+        {% if review.rating_grade %}{{ review.rating_grade|rating_star }}{% endif %}
+        <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}"
+           class="nickname"
+           title="@{{ review.owner.mastodon_username }}">{{ review.owner.display_name }}</a>
+        {{ review.mark.action_label | default:"" }}
+      </span>
+      <div>
+        <span>
+          <a href="{% url 'journal:review_retrieve' review.uuid %}">{{ review.title }}</a>
+        </span>
+        -
+        {{ review.plain_content | truncate:200 }}
+      </div>
+    </section>
+  {% else %}
+    <a hx-get="{% url 'catalog:reviews' review.item.url_path review.item.uuid %}?last={{ review.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"
+       hx-trigger="click"
+       hx-swap="outerHTML">
+      <button class="outline">显示更多</button>
+    </a>
+  {% endif %}
 {% empty %}
-<div class="empty">
-{% trans '暂无' %}
-</div>
+  <div class="empty">{% trans '暂无' %}</div>
 {% endfor %}

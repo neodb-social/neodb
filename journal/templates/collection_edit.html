@@ -5,47 +5,56 @@
 {% load oauth_token %}
 {% load truncate %}
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ site_name }} - 编辑收藏单 - {{ title }}</title>
-  {% include "common_libs.html" with jquery=0 %}
-  <style type="text/css">
-    #id_collaborative li, #id_visibility li {display: inline-block !important;}
-  </style>
-</head>
-
-<body>
-  <div id="page-wrapper">
-    {% include "partial/_navbar.html" %}
-    <div id="content-wrapper">
-      <section id="content" class="container">
-        <div class="grid">
-          <div class="single-section-wrapper" id="main">
-            <form class="entity-form markdown-content" method="post" enctype="multipart/form-data">
-              {% csrf_token %}
-              {{ form }}
-              <input class="button" type="submit" value="{% trans '提交' %}">
-            </form>
-            {{ form.media }}
-          </div>
+<html lang="en" class="content-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - 编辑收藏单 - {{ title }}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+    <script src="https://cdn.staticfile.org/html5sortable/0.13.3/html5sortable.min.js"
+            crossorigin="anonymous"></script>
+    <style type="text/css">
+      #id_collaborative li, #id_visibility li {display: inline-block !important;}
+      .grid__main details {
+        margin: 2rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        <h4>
           {% if collection %}
-          <div class="dividing-line"></div>
-          <div class="single-section-wrapper">
-            <div id="collection_items" class="entity-list" hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1" hx-trigger="load"></div>
-          </div>
+            编辑 <a href="{{ collection.url }}">{{ collection.title }}</a>
+          {% else %}
+            创建收藏单
           {% endif %}
-        </div>
-      </section>
-    </div>
+        </h4>
+        <hr>
+        <details {% if not collection %}open{% endif %}>
+          <summary>标题和描述</summary>
+          <form class="entity-form markdown-content"
+                method="post"
+                enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form }}
+            <input class="button" type="submit" value="{% trans '保存' %}">
+          </form>
+          {{ form.media }}
+        </details>
+        {% if collection %}
+          <hr>
+          <details open>
+            <summary>条目</summary>
+            <div id="collection_items"
+                 hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1"
+                 hx-trigger="load"></div>
+          </details>
+        {% endif %}
+      </div>
+      {% include "_sidebar.html" with user=collection.owner show_profile=1 fold_profile=1 %}
+    </main>
     {% include "partial/_footer.html" %}
-  </div>
-  <script>
-    document.body.addEventListener('htmx:configRequest', (event) => {
-      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-    })
-  </script>
-</body>
+  </body>
 </html>

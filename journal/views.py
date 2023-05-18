@@ -682,7 +682,7 @@ def user_tag_edit(request):
             msg.error(request.user, _("标签已存在"))
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
         tag.title = tag_title
-        tag.visibility = request.POST.get("visibility", 0)
+        tag.visibility = int(request.POST.get("visibility", 0))
         tag.visibility = 0 if tag.visibility == 0 else 2
         tag.save()
         msg.info(request.user, _("标签已修改"))
@@ -766,6 +766,7 @@ def user_liked_collection_list(request, user_name):
         {
             "user": user,
             "collections": collections,
+            "liked": True,
         },
     )
 

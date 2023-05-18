@@ -1,3 +1,5 @@
-<div hx-get="{% url 'catalog:fetch_refresh' job_id %}?retry={{ retry }}" hx-trigger="load delay:{{ delay }}s" hx-swap="outerHTML">
-  <i class="fas fa-fan fa-spin"></i>
+<div hx-get="{% url 'catalog:fetch_refresh' job_id %}?retry={{ retry }}"
+     hx-trigger="load delay:{{ delay }}s"
+     hx-swap="outerHTML">
+  <i class="fa-solid fa-compact-disc fa-spin"></i>
 </div>
