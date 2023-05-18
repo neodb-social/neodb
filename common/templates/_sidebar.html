@@ -170,23 +170,21 @@
     <section>
       <article>
         <details {% if top_tags %}class="auto-collapse" open{% endif %}>
-          <summary>
-            {% trans '常用标签' %}
-            <small>
-              {% if top_tags %}
-                <a href="{% url 'journal:user_tag_list' user.mastodon_username %}">{% trans '更多' %}</a>
-              {% endif %}
-            </small>
-          </summary>
+          <summary>{% trans '常用标签' %}</summary>
           <div class="tag-list">
             {% for t in top_tags %}
               <span>
-                <a href="{% url 'journal:user_tag_member_list' request.user.mastodon_username t %}">{{ t }}</a>
+                <a href="{% url 'journal:user_tag_member_list' user.mastodon_username t %}">{{ t }}</a>
               </span>
             {% empty %}
               <div class="empty">暂无可见标签</div>
             {% endfor %}
           </div>
+          <small>
+            {% if top_tags %}
+              <a href="{% url 'journal:user_tag_list' user.mastodon_username %}">...{% trans '全部' %}</a>
+            {% endif %}
+          </small>
         </details>
       </article>
     </section>
