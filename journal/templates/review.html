@@ -36,13 +36,19 @@
                   {% liked_piece review as liked %}
                   {% include 'like_stats.html' with liked=liked piece=review %}
                 </span>
+                <span>
+                  <a target="_blank" rel="noopener"
+                  {% if review.metadata.shared_link %}
+                  href="{{ review.metadata.shared_link }}" title="打开联邦网络分享链接"
+                  {% else %}
+                  class="disabled"
+                  {% endif %}
+                  ><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                </span>
                 {% if request.user == review.owner %}
                 {% endif %}
               </div>
-                  {{ review.title }}
-              {% if review.visibility > 0 %}
-              <small><i class="fa-solid fa-lock"></i></small>
-              {% endif %}
+              {{ review.title }}
             </h3>
           </hgroup>
           <div class="owner-info">
@@ -53,7 +59,7 @@
             </span>
             </div>
             <div class="info">
-              <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}" >{{ review.owner.mastodon_account.display_name }}</a>
+              <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}" >{{ review.owner.display_name }}</a>
               <span class="handler">@{{ review.owner.mastodon_username }}</span>
               <br>
               评论

@@ -2,17 +2,26 @@ body {
   --pico-block-spacing-vertical: var(--pico-block-spacing-horizontal);
 }
 
-article {
-  padding: var(--pico-block-spacing-horizontal);
+article.item-card {
+  padding: calc(var(--pico-block-spacing-horizontal));
+  margin-bottom: calc(var(--pico-block-spacing-vertical) / 2);
 
   header,
   footer {
-    padding: var(--pico-block-spacing-horizontal);
+    padding: calc(var(--pico-block-spacing-horizontal) / 2);
   }
+}
+
+article.item-card.external h5 {
+  font-style: italic;
 }
 
 details {
   margin: 0;
+}
+
+section section {
+  margin-bottom: var(--pico-spacing) !important;
 }
 
 .empty {
@@ -37,6 +46,10 @@ details {
   width: max-content;
   float: right;
 
+  &.inline {
+    float: none;
+  }
+
   >span {
     margin-left: 1em;
   }
@@ -46,7 +59,8 @@ details {
     text-decoration: none;
   }
 
-  a.disabled {
+  a.disabled,
+  .timestamp {
     cursor: unset;
     color: var(--pico-muted-color);
     opacity: 0.5;

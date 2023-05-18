@@ -7,108 +7,107 @@
 {% load highlight %}
 {% load thumb %}
 {% load user_actions %}
+{% load duration %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="classic-page">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ site_name }} - {{ item.title }}{% trans '的标记' %}</title>
-  {% include "common_libs.html" with jquery=0 %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ item.title }}{% trans '的标记' %}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
 </head>
 
 <body>
-  <div id="page-wrapper">
-    <div id="content-wrapper">
-      {% include "partial/_navbar.html" %}
+  {% include '_header.html' %}
+  <main>
+    <div class="grid__main">
+      <h5>
+        <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">{{ item.title }}</a>{% trans ' 的标记' %}
+      </h5>
+      {% for member in marks %}
+      {% with member.mark as mark %}
+      <section>
+        <div class="action">
+          <span>
+            <a target="_blank" rel="noopener"
+            {% if mark.metadata.shared_link %}
+            href="{{ mark.metadata.shared_link }}" title="打开联邦网络分享链接"
+            {% else %}
+            class="disabled"
+            {% endif %}
+            ><i class="fa-solid {% if mark.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+          </span>
+          {% if mark.comment %}
+          <span>
+            {% liked_piece mark.comment as liked %}
+            {% include 'like_stats.html' with liked=liked piece=mark.comment %}
+          </span>
+          {% endif %}
+          <span>
+            {{ mark.created_time|date }}
+          </span>
+        </div>
 
-      <section id="content">
-        <div class="grid">
-          <div class="grid__main" id="main">
-            <div class="main-section-wrapper">
-              <div class="entity-marks">
-                <h5 class="entity-marks__title entity-marks__title--stand-alone">
-                  <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">{{ item.title }}</a>{% trans ' 的标记' %}
-                </h5>
-                <ul class="entity-marks__mark-list">
-                  {% for others_mark in marks %}
-                  <li class="entity-marks__mark">
-                    <a href="{% url 'journal:user_profile' others_mark.owner.mastodon_username %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
+        <div>
+          <a href="{% url 'journal:user_profile' mark.owner.mastodon_username %}">{{ mark.owner.username }}</a>
+          <span>
+          {{ mark.action_label }}
+          </span>
 
-                    <span>{{ others_mark.mark.action_label }}</span>
+          {% if mark.rating_grade %}
+          {{ mark.rating_grade|rating_star }}
+          {% endif %}
 
-                    {% if others_mark.mark.rating %}
-                    <span class="entity-marks__rating-star rating-star" data-rating-score="{{ others_mark.mark.rating  }}"></span>
-                    {% endif %}
+          {% if mark.comment.focus_item %}
+          <a href="{{ mark.comment.focus_item.url }}">{{ mark.comment.focus_item.title }}</a>
+          {% endif %}
+        </div>
 
-                    {% if others_mark.mark.visibility > 0 %}
-                    <i class="fa-solid fa-lock"></i>
-                    {% endif %}
-
-                    {% if others_mark.metadata.shared_link %}
-                    <a href="{{ others_mark.metadata.shared_link }}" target="_blank" rel="noopener"><span class="entity-marks__mark-time">{{ others_mark.mark.created_time|date }}</span></a>
-                    {% else %}
-                    <span class="entity-marks__mark-time">{{ others_mark.mark.created_time|date }}</span>
-                    {% endif %}
-
-                    {% if others_mark.mark.text %}
-                    <p class="entity-marks__mark-content">{{ others_mark.mark.comment_html|safe }}
-                      <span class="action-bar inline">
-                        <span>
-                          {% liked_piece others_mark as liked %}
-                          {% include 'like_stats.html' with liked=liked piece=others_mark %}
-                        </span>
-                      </span>
-                    </p>
-                    {% endif %}
-                  </li>
-                  {% empty %}
-
-                  <div> {% trans '暂无标记' %} </div>
-
-                  {% endfor %}
-                </ul>
-              </div>
-              <div class="pagination">
-
-                {% if marks.pagination.has_prev %}
-                <a href="?page=1"
-                class="pagination__nav-link pagination__nav-link">&laquo;</a>
-                <a href="?page={{ marks.previous_page_number }}"
-                class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
-                {% endif %}
-
-                {% for page in marks.pagination.page_range %}
-
-                {% if page == marks.pagination.current_page %}
-                <a href="?page={{ page }}"
-                class="pagination__page-link pagination__page-link--current">{{ page }}</a>
-                {% else %}
-                <a href="?page={{ page }}"
-                class="pagination__page-link">{{ page }}</a>
-                {% endif %}
-
-                {% endfor %}
-
-                {% if marks.pagination.has_next %}
-                <a href="?page={{ marks.next_page_number }}"
-                class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
-                <a href="?page={{ marks.pagination.last_page }}"
-                class="pagination__nav-link">&raquo;</a>
-                {% endif %}
-
-              </div>
-            </div>
-          </div>
-
-          <div class="grid__aside" id="aside">
-            {% include "sidebar_item.html" %}
-          </div>
+        <div>
+          {{ mark.comment.html|safe }}
         </div>
       </section>
+      {% endwith %}
+      {% empty %}
+      <div> {% trans '暂无标记' %} </div>
+      {% endfor %}
+
+      <div class="pagination">
+
+        {% if marks.pagination.has_prev %}
+        <a href="?page=1"
+        class="pagination__nav-link pagination__nav-link">&laquo;</a>
+        <a href="?page={{ marks.previous_page_number }}"
+        class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
+        {% endif %}
+
+        {% for page in marks.pagination.page_range %}
+
+        {% if page == marks.pagination.current_page %}
+        <a href="?page={{ page }}"
+        class="pagination__page-link pagination__page-link--current">{{ page }}</a>
+        {% else %}
+        <a href="?page={{ page }}"
+        class="pagination__page-link">{{ page }}</a>
+        {% endif %}
+
+        {% endfor %}
+
+        {% if marks.pagination.has_next %}
+        <a href="?page={{ marks.next_page_number }}"
+        class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+        <a href="?page={{ marks.pagination.last_page }}"
+        class="pagination__nav-link">&raquo;</a>
+        {% endif %}
+
+      </div>
     </div>
-    {% include "partial/_footer.html" %}
-  </div>
+    <div class="grid__aside" id="aside">
+      {% include "sidebar_item.html" %}
+    </div>
+  </main>
+  {% include "partial/_footer.html" %}
 </body>
 </html>

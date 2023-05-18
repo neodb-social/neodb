@@ -1,7 +1,7 @@
 {% load thumb %}
 {% load i18n %}
 {% load l10n %}
-<ul class="entity-list__entities">
+<ul class="item-list">
     {% for member in collection.ordered_members %}
         {% with "list_item_"|add:member.item.class_name|add:".html" as template %}
         {% include template with item=member.item mark=None collection_member=member %}

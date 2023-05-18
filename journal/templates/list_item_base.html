@@ -5,76 +5,27 @@
 {% load l10n %}
 {% load user_actions %}
 {% wish_item_action item as action %}
-<li class="entity-list__entity">
-  <div class="entity-list__entity-img-wrapper">
-    <a href="{{ item.url }}">
-      <img src="{{ item.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
-    </a>
+
+
+
+<article class="item-card">
+  <span class="action">
+    <span>
     {% if not action.taken %}
-    <a title="标记" class="entity-list__entity-action-icon" hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist" class="edit" hx-target="body" hx-swap="beforeend">➕</a>
-    {% endif %}
-  </div>
-
-  <div class="entity-list__entity-text">
-    {% if collection_edit %}
-    <div class="action-bar">
-      {% if not forloop.first %}
-      <a hx-target=".entity-list" hx-post="{% url 'journal:collection_move_item' form.instance.uuid 'up' item.uuid %}">▲</a>
-      {% endif %}
-      {% if not forloop.last %}
-      <a hx-target=".entity-list" hx-post="{% url 'journal:collection_move_item' form.instance.uuid 'down' item.uuid %}">▼</a>
-      {% endif %}
-      <a hx-target=".entity-list" hx-post="{% url 'journal:collection_remove_item' form.instance.uuid item.uuid %}">✖</a>
-    </div>
-    {% endif %}
-
-    <div class="entity-list__entity-title">
-
-      <a href="{{ item.url }}" class="entity-list__entity-link">
-        {% if request.GET.q %}
-        {{ item.title | highlight:request.GET.q }}
-        {% else %}
-        {{ item.title }}
-        {% endif %}
-        {% if item.year %}<small style="font-weight: lighter">({{ item.year }})</small>{% endif %}
-      </a>
-      {% for res in item.external_resources.all %}
-      <a href="{{ res.url }}">
-        <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
-      </a>
-      {% endfor %}
-      {% if not hide_category %}
-      <span class="entity-list__entity-category">[{{item.category.label}}]</span>
-      {% endif %}
-    </div>
-
-    {% if item.rating %}
-    <div class="rating-star entity-list__rating-star" data-rating-score="{{ item.rating | floatformat:0 }}"></div>
-    <span class="entity-list__rating-score rating-score">{{ item.rating | floatformat:1 }}</span>
+    <a title="添加标记" hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist&new=1" hx-target="body" hx-swap="beforeend">
+      <i class="fa-regular fa-bookmark"></i>
+    </a>
     {% else %}
-    <div class="entity-list__rating entity-list__rating--empty"> {% trans '暂无评分' %}</div>
+    <a class="activated" title="修改标记" hx-get="{% url 'journal:mark' item.uuid %}?new=1" hx-target="body" hx-swap="beforeend">
+      <i class="fa-solid fa-bookmark"></i>
+    </a>
     {% endif %}
-
-    <span class="entity-list__entity-info">
-    {% block info %}
-    {% endblock %}
     </span>
-    <span class="entity-list__entity-info entity-list__entity-info--full-length">
-      {% block info_full %}
-      {% endblock %}
-    </span>
-    <p class="entity-list__entity-brief">
-      {{ item.brief }}
-    </p>
+  </span>
+  {% include "_item_card.html" with item=item %}
+{% comment %}
 
-    <div class="tag-collection">
-      {% for tag_dict in item.tags %}
-      <span class="tag-collection__tag">
-        <a href="{% url 'catalog:search' %}?tag={{ tag_dict }}">{{ tag_dict }}</a>
-      </span>
-      {% endfor %}
-    </div>
-
+  <footer>
     {% if mark %}
     <div class="clearfix"></div>
     <div class="dividing-line dividing-line--dashed"></div>
@@ -132,5 +83,6 @@
       </ul>
     </div>
     {% endif %}
-  </div>
-</li>
+
+  </footer> {% endcomment %}
+</article>

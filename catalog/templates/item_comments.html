@@ -9,46 +9,46 @@
 {% load user_actions %}
 
 {% for comment in comments %}
+
 {% if forloop.counter <= 10 %}
-<div>
-<div>
-<a href="{% url 'journal:user_profile' comment.owner.mastodon_username %}">{{ comment.owner.username }}</a>
-<span class="muted" style="font-size: 75%;">
-
-{% if comment.visibility > 0 %}
-<i class="fa-solid fa-lock"></i>
-{% endif %}
-
-{% if comment.metadata.shared_link %}
-<a href="{{ comment.metadata.shared_link }}" target="_blank" rel="noopener">{{ comment.created_time|date }}</a>
-{% else %}
-{{ comment.created_time|date }}
-{% endif %}
-
+<section>
+<span>
+  {% if comment.rating_grade %}
+  {{ comment.rating_grade|rating_star }}
+  {% endif %}
+  <a href="{% url 'journal:user_profile' comment.owner.mastodon_username %}" class="nickname" title="@{{ comment.owner.mastodon_username }}">{{ comment.owner.display_name }}</a>
+  {{ comment.mark.action_label }}
+  {% if comment.focus_item %}
+  <a href="{{ comment.focus_item.url }}">{{ comment.focus_item.title }}</a>
+  {% endif %}
 </span>
-</div>
-{% if comment.rating_grade %}
-{{ comment.rating_grade|rating_star }}
-{% endif %}
-
-{% if comment.focus_item %}
-<a href="{{ comment.focus_item.url }}">{{ comment.focus_item.title }}</a>
-{% endif %}
-
-{{ comment.html|safe }}
-
-<span class="action-bar inline">
+<span class="action inline">
+  <span>
+    <a target="_blank" rel="noopener"
+    {% if comment.metadata.shared_link %}
+    href="{{ comment.metadata.shared_link }}" title="打开联邦网络分享链接"
+    {% else %}
+    class="disabled"
+    {% endif %}
+    ><i class="fa-solid {% if comment.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+  </span>
   <span>
     {% liked_piece comment as liked %}
     {% include 'like_stats.html' with liked=liked piece=comment %}
   </span>
+  <span class="timestamp">
+    {{ comment.created_time|date }}
+  </span>
 </span>
-</div>
+<div>  {{ comment.html|safe }}</div>
+</section>
+
 {% else %}
+
 <a hx-get="{% url 'catalog:comments' comment.item.url_path comment.item.uuid %}?last={{ comment.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}" hx-trigger="click" hx-swap="outerHTML"><button class="outline">显示更多</button></a>
+
 {% endif %}
+
 {% empty %}
-<div class="empty">
-{% trans '暂无' %}
-</div>
+  <div class="empty">{% trans '暂无' %}</div>
 {% endfor %}

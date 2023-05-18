@@ -558,8 +558,6 @@ def review_edit(request, item_uuid, review_uuid=None):
                 )
             form.save()
             if form.cleaned_data["share_to_mastodon"]:
-                form.instance.save = lambda **args: None
-                form.instance.shared_link = None
                 if not share_review(form.instance):
                     return render_relogin(request)
             return redirect(

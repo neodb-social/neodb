@@ -2,7 +2,7 @@ from django import template
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import stringfilter
 from opencc import OpenCC
-
+import re
 
 cc = OpenCC("t2s")
 register = template.Library()
@@ -23,7 +23,7 @@ def highlight(text, search):
         m = None
         for w in words:
             if otext[i : i + len(w)] == w:
-                m = f'<span class="highlight">{text[i:i+len(w)]}</span>'
+                m = f"<mark>{text[i:i+len(w)]}</mark>"
                 i += len(w)
                 break
         if not m:
@@ -31,3 +31,9 @@ def highlight(text, search):
             i += 1
         rtext += m
     return mark_safe(rtext)
+
+
+@register.filter
+@stringfilter
+def strip_season(text):
+    return re.sub(r"\s*第\s*\d+\s*季$", "", text)

@@ -2,11 +2,14 @@
 {% load i18n %}
 {% load l10n %}
 
-<div class="grid__aside">
-    <div class="aside-section-wrapper">
+<style>
+    .add-entity-entries__button {
+        margin: 4px;
+    }
+</style>
 
-        <div class="add-entity-entries">
-            <div class="add-entity-entries__entry">
+<aside class="grid__aside bottom">
+    <article>
                 <div class="add-entity-entries__label">
                     {% trans '没有想要的结果？' %}
                 </div>
@@ -19,28 +22,39 @@
                     找到了条目，可以在搜索栏中输入完整链接提交。
                 </p>
                 <p>
-                    当然也可以手工创建条目。
+                    当然也可以手工创建条目：
                 </p>
-                <a href="{% url 'catalog:create' 'Edition' %}">
-                    <button class="add-entity-entries__button">{% trans '添加书' %}</button>
-                </a>
+                <ul>
+                    <li>
+                        <a href="{% url 'catalog:create' 'Edition' %}">
+                        {% trans '添加书' %}
+                        </a>
+                    </li>
+                    <li>
                 <a href="{% url 'catalog:create' 'Movie' %}">
-                    <button class="add-entity-entries__button">{% trans '添加电影' %}</button>
+                     {% trans '添加电影' %}
                 </a>
-                <a href="{% url 'catalog:create' 'TVShow' %}">
-                    <button class="add-entity-entries__button">{% trans '添加剧集' %}</button>
+            </li>
+            <li>
+        <a href="{% url 'catalog:create' 'TVShow' %}">
+                     {% trans '添加剧集' %}
                 </a>
-                <a href="{% url 'catalog:create' 'Podcast' %}">
-                    <button class="add-entity-entries__button">{% trans '添加播客' %}</button>
+            </li>
+            <li>
+        <a href="{% url 'catalog:create' 'Podcast' %}">
+                     {% trans '添加播客' %}
                 </a>
-                <a href="{% url 'catalog:create' 'Album' %}">
-                    <button class="add-entity-entries__button">{% trans '添加专辑' %}</button>
+            </li>
+            <li>
+        <a href="{% url 'catalog:create' 'Album' %}">
+                     {% trans '添加专辑' %}
                 </a>
-                <a href="{% url 'catalog:create' 'Game' %}">
-                    <button class="add-entity-entries__button">{% trans '添加游戏' %}</button>
+            </li>
+            <li>
+        <a href="{% url 'catalog:create' 'Game' %}">
+                     {% trans '添加游戏' %}
                 </a>
-            </div>
-        </div>
-
-    </div>
-</div>
+            </li>
+        </ul>
+            </article>
+</aside>

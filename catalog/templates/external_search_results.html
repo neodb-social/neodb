@@ -10,41 +10,7 @@
 {% load thumb %}
 
 {% for item in external_items %}
-<li class="entity-list__entity">
-    <div class="entity-list__entity-img-wrapper">
-        <a href="{{ item.link }}">
-            {% if item.cover_url %}
-            <img src="{{ item.cover_url }}" alt="" class="entity-list__entity-img">
-            {% endif %}
-        </a>
-    </div>
-    <div class="entity-list__entity-text">
-        <div class="entity-list__entity-title" style="font-style:italic;">
-            <a href="{{ item.link }}" class="entity-list__entity-link">
-                {% if request.GET.q %}
-                    {{ item.title | highlight:request.GET.q }}
-                {% else %}
-                    {{ item.title }}
-                {% endif %}
-            </a>
-            
-            {% if not request.GET.c or not request.GET.c in categories %}
-            <span class="entity-list__entity-category">[{{item.verbose_category_name}}]</span>
-            {% endif %}
-            <a href="{{ item.source_url }}">
-                <span class="source-label source-label__{{ item.source_site }}">{{ item.source_site.label }}</span>
-            </a>
-        </div>
-
-        <span class="entity-list__entity-info entity-list__entity-info--full-length">
-            {{item.subtitle}}
-        </span>
-        <p class="entity-list__entity-brief">
-            {{ item.brief }}
-        </p>
-        <div class="tag-collection">
-        </div>
-    </div>
-
-</li>
+<article class="item-card external">
+    {% include "_item_card.html" with item=item %}
+</article>
 {% endfor %}

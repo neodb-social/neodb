@@ -496,12 +496,14 @@ def share_review(review):
         else ""
     )
     content = (
-        f"发布了关于《{review.item.title}》的评论\n{review.absolute_url}\n{review.title}{tags}"
+        f"发布了关于《{review.item.title}》的评论\n{review.title}\n{review.absolute_url}{tags}"
     )
     update_id = None
-    if review.shared_link:  # "https://mastodon.social/@username/1234567890"
+    if review.metadata.get(
+        "shared_link"
+    ):  # "https://mastodon.social/@username/1234567890"
         r = re.match(
-            r".+/(\w+)$", review.shared_link
+            r".+/(\w+)$", review.metadata.get("shared_link")
         )  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
         update_id = r[1] if r else None
     response = post_toot(
@@ -510,13 +512,10 @@ def share_review(review):
     if response and response.status_code in [200, 201]:
         j = response.json()
         if "url" in j:
-            review.shared_link = j["url"]
-        elif "data" in j:
-            review.shared_link = (
-                f"https://twitter.com/{user.username}/status/{j['data']['id']}"
-            )
-        if review.shared_link:
-            review.save(update_fields=["shared_link"])
+            review.metadata["shared_link"] = j["url"]
+            print(review.metadata)
+            print(review.id)
+            review.save()
         return True
     else:
         return False

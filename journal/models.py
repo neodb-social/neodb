@@ -156,12 +156,6 @@ class Content(Piece):
     metadata = models.JSONField(default=dict)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
 
-    @cached_property
-    def mark(self):
-        m = Mark(self.owner, self.item)
-        m.review = self
-        return m
-
     def __str__(self):
         return f"{self.uuid}@{self.item}"
 
@@ -225,6 +219,12 @@ class Comment(Content):
     def rating_grade(self):
         return Rating.get_item_rating_by_user(self.item, self.owner)
 
+    @cached_property
+    def mark(self):
+        m = Mark(self.owner, self.item)
+        m.comment = self
+        return m
+
     @property
     def item_url(self):
         if self.focus_item:
@@ -266,7 +266,15 @@ class Review(Content):
     @property
     def plain_content(self):
         html = render_md(self.body)
-        return _RE_HTML_TAG.sub(" ", html)
+        return _RE_HTML_TAG.sub(
+            " ", _RE_SPOILER_TAG.sub("***", html.replace("\n", " "))
+        )
+
+    @cached_property
+    def mark(self):
+        m = Mark(self.owner, self.item)
+        m.review = self
+        return m
 
     @cached_property
     def rating_grade(self):
@@ -788,6 +796,7 @@ class CollectionMember(ListMember):
 
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
+_RE_SPOILER_TAG = re.compile(r'<(div|span)\sclass="spoiler">.*</(div|span)>')
 
 
 class Collection(List):
@@ -1066,6 +1075,10 @@ class Mark:
 
     @cached_property
     def rating(self):
+        return Rating.get_item_rating_by_user(self.item, self.owner)
+
+    @cached_property
+    def rating_grade(self):
         return Rating.get_item_rating_by_user(self.item, self.owner)
 
     @cached_property

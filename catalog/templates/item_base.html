@@ -303,14 +303,16 @@
   </div>
 
   <div id="item-detail" class="middle">
-    {% if item.brief %}
     <section>
       <h5>简介</h5>
+      {% if item.brief %}
       <p class="tldr" _="on click toggle .tldr on me">
         {{ item.brief | linebreaksbr }}
       </p>
+      {% else %}
+      <p class="empty">暂缺</p>
+      {% endif %}
     </section>
-    {% endif %}
 
     {% block content %}
     {% endblock %}
@@ -319,10 +321,8 @@
       <h5>短评
         {% if request.user.is_authenticated %}
         <small>
-          {% if mark_list %}
           | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
           | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}" class="entity-marks__more-link">关注的人的标记</a>
-          {% endif %}
         </small>
         {% endif %}
       </h5>
@@ -340,7 +340,15 @@
     </section>
 
     <section class="entity-reviews">
-      <h5>{% trans '评论' %}</h5>
+      <h5>{% trans '评论' %}
+        {% comment %}
+        {% if request.user.is_authenticated %}
+        <small>
+          | <a href="{% url 'catalog:review_list' item.url_path item.uuid %}" class="entity-marks__more-link">{% trans '全部评论' %}</a>
+        </small>
+        {% endif %}
+        {% endcomment %}
+      </h5>
       {% if request.user.is_authenticated %}
       <div>
         <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}" hx-trigger="intersect once" hx-swap="outerHTML">

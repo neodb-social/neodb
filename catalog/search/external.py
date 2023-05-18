@@ -21,7 +21,7 @@ class SearchResultItem:
         self.title = title
         self.subtitle = subtitle
         self.brief = brief
-        self.cover_url = cover_url
+        self.cover_image_url = cover_url
 
     @property
     def verbose_category_name(self):

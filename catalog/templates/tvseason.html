@@ -34,16 +34,6 @@
 
 <!-- class specific details -->
 {% block details %}
-<div class="entity-detail__fields">
-	<div class="entity-detail__rating">
-		{% if item.rating and item.rating_count >= 5 %}
-		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:"0" }}"></span>
-		<span class="entity-detail__rating-score"> {{ item.rating | floatformat:1 }} </span>
-		<small>({{ item.rating_count }}人评分)</small>
-		{% else %}
-		<span> {% trans '评分：评分人数不足' %}</span>
-		{% endif %}
-	</div>
 	<div>{% if item.imdb %}
 		{% trans 'IMDb：' %}<a href="https://www.imdb.com/title/{{ item.imdb }}/" target="_blank" rel="noopener">{{ item.imdb }}</a>
 		{% endif %}
@@ -123,8 +113,6 @@
 		{% endfor %}
 	{% endif %}</div>
 
-</div>
-<div class="entity-detail__fields">
 	<div>{% if item.season_number %}{% trans '本季序号：' %}{{ item.season_number }}{% endif %}</div>
 	<div>{% if item.episode_count %}{% trans '本季集数：' %}{{ item.episode_count }}{% endif %}</div>
 	<div> </div>
@@ -167,18 +155,6 @@
 	</div>
 	{% endfor %}
 	{% endif %}
-
-
-	{% if item.last_editor and item.last_editor.preference.show_last_edit  %}
-	<div>{% trans '最近编辑者：' %}<a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
-	{% endif %}
-
-	<div>
-		{% if user.is_authenticated %}
-		<a href="{% url 'catalog:edit' item.url_path item.uuid %}">{% trans '编辑' %}{{ item.demonstrative }}</a>
-		{% endif %}
-	</div>
-</div>
 {% endblock %}
 
 <!-- class specific sidebar -->

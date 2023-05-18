@@ -23,14 +23,17 @@
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    font-size: 80%;
   }
 
   .brief {
     text-overflow: ellipsis;
     word-wrap: break-word;
     overflow: hidden;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 4;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    font-size: 80%;
   }
+
 }

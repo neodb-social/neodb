@@ -7,94 +7,96 @@
 {% load highlight %}
 {% load thumb %}
 {% load user_actions %}
+{% load duration %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="classic-page">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ site_name }} - {{ item.title }}{% trans '的评论' %}</title>
-  {% include "common_libs.html" with jquery=0 %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ item.title }}{% trans '的评论' %}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
 </head>
 
 <body>
-  <div id="page-wrapper">
-    <div id="content-wrapper">
-      {% include "partial/_navbar.html" %}
-      <section id="content">
-        <div class="grid">
-          <div class="grid__main" id="main">
-            <div class="main-section-wrapper">
-              <div class="entity-reviews">
-                <h5 class="entity-reviews__title entity-reviews__title--stand-alone">
-                  <a href="{{ item.url }}">{{ item.title }}</a>{% trans ' 的评论' %}
-                </h5>
-                <ul class="entity-reviews__review-list">
+  {% include '_header.html' %}
+  <main>
+    <div class="grid__main">
+      <h5>
+        <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">{{ item.title }}</a>{% trans ' 的评论' %}
+      </h5>
 
-                  {% for review in reviews %}
-                  <li class="entity-reviews__review entity-reviews__review--wider">
-                    <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}" class="entity-reviews__owner-link">{{ review.owner.username }}</a>
-                    {% if review.visibility > 0 %}
-                    <i class="fa-solid fa-lock"></i>
-                    {% endif %}
-                    <span class="entity-reviews__review-time">{{ review.created_time | date }}</span>
-                    <span class="entity-reviews__review-title"><a href="{% url 'journal:review_retrieve' review.uuid %}">{{ review.title }}</a></span>
-                    <span class="action-bar inline">
-                      <span>
-                        {% liked_piece review as liked %}
-                        {% include 'like_stats.html' with liked=liked piece=review %}
-                      </span>
-                    </span>
-                  </li>
-                  {% empty %}
-                  <div>{% trans '暂无评论' %}</div>
-                  {% endfor %}
+      {% for review in reviews %}
+      <section>
+        <div class="action">
+          <span>
+            <a target="_blank" rel="noopener"
+            {% if review.metadata.shared_link %}
+            href="{{ review.metadata.shared_link }}" title="打开联邦网络分享链接"
+            {% else %}
+            class="disabled"
+            {% endif %}
+            ><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+          </span>
+          <span>
+            {% liked_piece review as liked %}
+            {% include 'like_stats.html' with liked=liked piece=review %}
+          </span>
+          <span class="timestamp">
+            {{ review.created_time|date }}
+          </span>
+        </div>
+        <div>
+          {% if review.rating_grade %}
+          {{ review.rating_grade|rating_star }}
+          {% endif %}
+          <span>
+            <a href="{% url 'journal:review_retrieve' review.uuid %}">{{ review.title }}</a>
+          </span>
+          -
+          <span>
+            <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}" class="nickname" title="@{{ review.owner.mastodon_username }}">{{ review.owner.display_name }}</a>
+          </span>
+        </div>
+        <div>
+          {{ review.plain_content | truncate:200 }}
+        </div>
+      <section>
+      {% empty %}
+      <div>{% trans '暂无评论' %}</div>
+      {% endfor %}
 
-                </ul>
-              </div>
-              <div class="pagination">
+      <div class="pagination">
 
-                {% if reviews.pagination.has_prev %}
-                <a href="?page=1" class="pagination__nav-link pagination__nav-link">&laquo;</a>
-                <a href="?page={{ reviews.previous_page_number }}"
-                class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
-                {% endif %}
+        {% if reviews.pagination.has_prev %}
+        <a href="?page=1" class="pagination__nav-link pagination__nav-link">&laquo;</a>
+        <a href="?page={{ reviews.previous_page_number }}"
+        class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
+        {% endif %}
 
-                {% for page in reviews.pagination.page_range %}
+        {% for page in reviews.pagination.page_range %}
 
-                {% if page == reviews.pagination.current_page %}
-                <a href="?page={{ page }}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
-                {% else %}
-                <a href="?page={{ page }}" class="pagination__page-link">{{ page }}</a>
-                {% endif %}
+        {% if page == reviews.pagination.current_page %}
+        <a href="?page={{ page }}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
+        {% else %}
+        <a href="?page={{ page }}" class="pagination__page-link">{{ page }}</a>
+        {% endif %}
 
-                {% endfor %}
+        {% endfor %}
 
-                {% if reviews.pagination.has_next %}
-                <a href="?page={{ reviews.next_page_number }}"
-                class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
-                <a href="?page={{ reviews.pagination.last_page }}" class="pagination__nav-link">&raquo;</a>
-                {% endif %}
+        {% if reviews.pagination.has_next %}
+        <a href="?page={{ reviews.next_page_number }}"
+        class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+        <a href="?page={{ reviews.pagination.last_page }}" class="pagination__nav-link">&raquo;</a>
+        {% endif %}
 
-              </div>
-            </div>
-          </div>
-
-          <div class="grid__aside" id="aside">
-            {% include "sidebar_item.html" %}
-          </div>
-        </section>
       </div>
-      {% include "partial/_footer.html" %}
     </div>
-
-
-
-    <script>
-
-    </script>
-  </body>
-
-
-  </html>
+    <div class="grid__aside" id="aside">
+      {% include "sidebar_item.html" %}
+    </div>
+  </main>
+  {% include "partial/_footer.html" %}
+</body>
+</html>

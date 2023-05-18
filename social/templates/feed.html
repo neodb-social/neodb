@@ -23,6 +23,7 @@
 {% include "_header.html" with current="timeline" %}
 <main>
   <div class="grid__main">
+    <h5>好友动态</h5>
     <div class="feed">
       <div hx-get="{% url 'social:data' %}" hx-trigger="intersect once" hx-swap="outerHTML">
         <i class="fas fa-fan fa-spin"></i>
