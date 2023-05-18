@@ -23,6 +23,7 @@ tox.ini
 # generated css
 /common/static/css/boofilsic.min.css
 /common/static/css/boofilsic.css
+/common/static/scss/neodb.css
 
 # debug log file
 /log

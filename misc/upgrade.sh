@@ -16,6 +16,7 @@ done
 echo "Generating static files..."
 python3 manage.py sass common/static/sass/boofilsic.sass common/static/css/boofilsic.min.css -t compressed || exit $?
 python3 manage.py sass common/static/sass/boofilsic.sass common/static/css/boofilsic.css || exit $?
+python3 manage.py compilescss
 python3 manage.py collectstatic --noinput || exit $?
 
 echo "Migrating database..."
