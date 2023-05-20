@@ -18,6 +18,8 @@
     <meta property="og:article:author" content="{{ review.owner.username }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ review.item.cover|thumb:'normal' }}">
+    <meta property="og:site_name" content="{{ site_name }}">
+    {% if user.preference.no_anonymous_view %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }}{% trans '评论' %} - {{ review.title }}</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
   </head>

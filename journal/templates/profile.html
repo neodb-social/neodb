@@ -15,6 +15,12 @@
     {% else %}
       <title>{{ site_name }} - {{ user.display_name }}</title>
     {% endif %}
+    <meta property="og:title"
+          content="{{ site_name }}用户 - @{{ user.mastodon_username }}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{{ user.mastodon_account.avatar }}">
+    <meta property="og:site_name" content="{{ site_name }}">
+    {% if user.preference.no_anonymous_view %}<meta name="robots" content="noindex">{% endif %}
     <link rel="alternate"
           type="application/rss+xml"
           title="{{ site_name }} - {{ user.mastodon_username }}的评论"

@@ -1,4 +1,4 @@
-.item {
+div.item {
   display: grid;
   grid-template-columns:
     calc(4rem * var(--pico-line-height)) auto;
