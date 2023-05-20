@@ -472,6 +472,8 @@ def collection_edit(request, collection_uuid=None):
         raise PermissionDenied()
     if request.method == "GET":
         form = CollectionForm(instance=collection) if collection else CollectionForm()
+        if request.GET.get("title"):
+            form.instance.title = request.GET.get("title")
         return render(
             request, "collection_edit.html", {"form": form, "collection": collection}
         )

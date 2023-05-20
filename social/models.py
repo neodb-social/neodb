@@ -196,3 +196,7 @@ class CommentFocusItemProcessor(DefaultActivityProcessor):
     def updated(self):
         if self.action_object.focus_item:
             super().updated()
+
+
+def reset_social_visibility_for_user(user: User, visibility: int):
+    LocalActivity.objects.filter(owner=user).update(visibility=visibility)

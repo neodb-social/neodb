@@ -2,3 +2,4 @@ pre-commit
 black
 django-debug-toolbar
 coverage
+djlint

@@ -1,12 +1,13 @@
 dateparser
 mistune @ git+https://github.com/alphatownsman/mistune.git@660b1c0100ecdd6cd6aca26a554be2606a67d67b
+rq>=1.12.0
 django~=3.2.18
 django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e69480c64ad9c5d0499f4a8625da78cf2bb7691b
 django-jsoneditor @ git+https://github.com/alphatownsman/django-jsoneditor.git@fa2ae41aeeb34447bd8a808a520e843c853fd16e
 django-sass
 libsass
+django-compressor
 django-sass-processor
-rq>=1.12.0
 django-rq
 django-simple-history
 django-hijack
@@ -22,7 +23,7 @@ meilisearch
 easy-thumbnails
 lxml
 openpyxl
-psycopg2
+psycopg2-binary
 requests
 filetype
 setproctitle

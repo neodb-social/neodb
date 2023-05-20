@@ -83,7 +83,11 @@
               </div>
             {% endif %}
           {% empty %}
-            <div class="empty">暂未设置目标</div>
+            {% if request.user == user %}
+              <div class="empty">将自己或他人的收藏单设为目标，这里就会显示进度</div>
+            {% else %}
+              <div class="empty">暂未设置目标</div>
+            {% endif %}
           {% endfor %}
         </details>
       </article>
