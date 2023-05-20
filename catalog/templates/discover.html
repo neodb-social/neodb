@@ -44,7 +44,9 @@
               {% for item in gallery.items %}
                 <li class="card">
                   <a href="{{ item.url }}" title="{{ item.title }}">
-                    <img src="{{ item.cover|thumb:'normal' }}" alt="{{ item.title }}">
+                    <img src="{{ item.cover|thumb:'normal' }}"
+                         alt="{{ item.title }}"
+                         loading="lazy">
                     <div class="card-title">{{ item.title }}</div>
                   </a>
                 </li>

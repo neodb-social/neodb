@@ -39,7 +39,7 @@
               <h5>书影音日历</h5>
               <div class="calendar_view cards">
                 <p style="text-align: center;">
-                  <i class="fa-solid fa-compact-disc fa-spin"></i>
+                  <i class="fa-solid fa-compact-disc fa-spin loading"></i>
                 </p>
               </div>
               <span class="calendar_data"
@@ -65,7 +65,9 @@
                     <li class="card">
                       <a href="{% if shelf_type == 'reviewed' %}{{ member.url }}{% else %}{{ member.item.url }}{% endif %}"
                          title="{{ member.item.title }}">
-                        <img src="{{ member.item.cover.url }}" alt="{{ member.item.title }}">
+                        <img src="{{ member.item.cover|thumb:'normal' }}"
+                             alt="{{ member.item.title }}"
+                             loading="lazy">
                         <div>{{ member.item.title }}</div>
                       </a>
                     </li>
@@ -118,7 +120,8 @@
                 <li class="card">
                   <a href="{{ collection.url }}" title="{{ collection.title }}">
                     <img src="{{ collection.cover|thumb:'normal' }}"
-                         alt="{{ collection.title }}">
+                         alt="{{ collection.title }}"
+                         loading="lazy">
                     <div>{{ collection.title }}</div>
                   </a>
                 </li>

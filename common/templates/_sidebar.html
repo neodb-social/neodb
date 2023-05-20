@@ -115,7 +115,8 @@
                      href="{{ item.url }}"
                      title="{{ item.title }}">
                     <img src="{{ item.cover_image_url | default:item.cover.url }}"
-                         alt="{{ item.title }}">
+                         alt="{{ item.title }}"
+                         loading="lazy">
                     <div class="card-title">
                       <i class="fa-solid fa-circle-play"></i> {{ item.title }}
                     </div>
@@ -138,8 +139,9 @@
               {% for item in books_in_progress %}
                 <li class="card">
                   <a href="{{ item.url }}" title="{{ item.title }}">
-                    <img src="{{ item.cover_image_url | default:item.cover.url }}"
-                         alt="{{ item.title }}">
+                    <img src="{{ item.cover|thumb:'normal' }}"
+                         alt="{{ item.title }}"
+                         loading="lazy">
                     <div class="card-title">{{ item.title }}</div>
                   </a>
                 </li>
@@ -160,8 +162,9 @@
               {% for item in tvshows_in_progress %}
                 <li class="card">
                   <a href="{{ item.url }}" title="{{ item.title }}">
-                    <img src="{{ item.cover_image_url | default:item.cover.url }}"
-                         alt="{{ item.title }}">
+                    <img src="{{ item.cover|thumb:'normal' }}"
+                         alt="{{ item.title }}"
+                         loading="lazy">
                     <div class="card-title">{{ item.title }}</div>
                   </a>
                 </li>

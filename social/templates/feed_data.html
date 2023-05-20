@@ -41,7 +41,7 @@
          hx-get="{% url 'social:data' %}?last={{ activity.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"
          hx-trigger="revealed"
          hx-swap="outerHTML">
-      <i class="fa-solid fa-compact-disc fa-spin"></i>
+      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
     </div>
   {% endif %}
 {% empty %}

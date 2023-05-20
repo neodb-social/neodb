@@ -46,6 +46,11 @@ section section {
   opacity: 0.5;
 }
 
+.loading {
+  color: var(--pico-muted-color);
+  opacity: 0.5;
+}
+
 .action {
   width: max-content;
   float: right;
