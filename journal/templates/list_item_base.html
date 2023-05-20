@@ -101,7 +101,7 @@
            hx-swap="innerHTML">
           {% if collection_edit %}
             <span class="action">
-              <a class="icon"
+              <a title="修改备注"
                  hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"><i class="fa-regular fa-pen-to-square"></i></a>
             </span>
           {% endif %}

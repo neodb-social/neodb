@@ -1,0 +1,191 @@
+/*** django-jsoneditor ***/
+div.jsoneditor {
+  border-color: #ccc !important;
+}
+
+div.jsoneditor-menu {
+  background-color: #606c76 !important;
+  border-color: #606c76 !important;
+}
+
+/***** MODAL DIALOG ****/
+#modal {
+  /* Underlay covers entire screen. */
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+
+  /* Flexbox centers the .modal-content vertically and horizontally */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  /* Animate when opening */
+  animation-name: fadeIn;
+  animation-duration: 150ms;
+  animation-timing-function: ease;
+}
+
+#modal>.modal-underlay {
+  /* underlay takes up the entire viewport. This is only
+  required if you want to click to dismiss the popup */
+  position: absolute;
+  z-index: -1;
+}
+
+#modal>.modal-content {
+  /* Position visible dialog near the top of the window */
+  margin-top: 10vh;
+
+  /* Sizing for visible dialog */
+  width: 80%;
+  max-width: 600px;
+
+  /* Display properties for visible dialog*/
+  background-color: #f7f7f7;
+  padding: 20px 20px 10px 20px;
+  color: #606c76;
+
+  /* Animate when opening */
+  animation-name: zoomIn;
+  animation-duration: 150ms;
+  animation-timing-function: ease;
+}
+
+#modal.closing {
+  /* Animate when closing */
+  animation-name: fadeOut;
+  animation-duration: 150ms;
+  animation-timing-function: ease;
+}
+
+#modal.closing>.modal-content {
+  /* Aniate when closing */
+  animation-name: zoomOut;
+  animation-duration: 150ms;
+  animation-timing-function: ease;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes zoomIn {
+  0% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes zoomOut {
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(0.9);
+  }
+}
+
+#modal .add-to-list-modal__head {
+  margin-bottom: 20px;
+}
+
+#modal .add-to-list-modal__head::after {
+  content: ' ';
+  clear: both;
+  display: table;
+}
+
+#modal .add-to-list-modal__title {
+  font-weight: bold;
+  font-size: 1.2em;
+  float: left;
+}
+
+#modal .add-to-list-modal__close-button {
+  float: right;
+  cursor: pointer;
+}
+
+#modal .add-to-list-modal__confirm-button {
+  float: right;
+}
+
+#modal li,
+#modal ul,
+#modal label {
+  display: inline;
+}
+
+.donut {
+  margin-left: 10%;
+  width: 80%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut .hole {
+  width: 80%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: #f7f7f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+input:invalid#position {
+  border: red dashed 1px;
+}
+
+.gg-play-button-o {
+  box-sizing: border-box;
+  position: relative;
+  display: inline-block;
+  transform: scale(var(--ggs, 1));
+  width: 22px;
+  height: 22px;
+  border: 2px solid;
+  border-radius: 20px
+}
+
+.gg-play-button-o::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  position: absolute;
+  width: 0;
+  height: 10px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid;
+  top: 4px;
+  left: 7px
+}

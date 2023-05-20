@@ -23,10 +23,10 @@
         <div class="main-section-wrapper">
           <div class="entity-list">
             {% if request.GET.q %}
-              <h5 class="entity-list__title">“{{ request.GET.q }}” {% trans '的搜索结果' %}</h5>
+              <h5>“{{ request.GET.q }}” {% trans '的搜索结果' %}</h5>
             {% endif %}
             {% if request.GET.tag %}
-              <h5 class="entity-list__title">{% trans '含有标签' %} “{{ request.GET.tag }}” {% trans '的结果' %}</h5>
+              <h5>{% trans '含有标签' %} “{{ request.GET.tag }}” {% trans '的结果' %}</h5>
             {% endif %}
             <ul class="item-card-list">
               {% for item in items %}
@@ -34,11 +34,10 @@
                   {% include template with show_tags=1 %}
                 {% endwith %}
               {% empty %}
-                <li class="entity-list__entity">{% trans '无站内条目匹配' %}</li>
+                <li class="empty">{% trans '无站内条目匹配' %}</li>
               {% endfor %}
               {% if request.GET.q and user.is_authenticated %}
-                <li class="entity-list__entity"
-                    hx-get="{% url 'catalog:external_search' %}?q={{ request.GET.q }}&c={{ request.GET.c }}&page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
+                <li hx-get="{% url 'catalog:external_search' %}?q={{ request.GET.q }}&c={{ request.GET.c }}&page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
                     hx-trigger="load"
                     hx-swap="outerHTML">
                   {% trans '正在实时搜索站外条目' %}

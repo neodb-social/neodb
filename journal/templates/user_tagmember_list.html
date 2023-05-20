@@ -6,12 +6,13 @@
 {% block head %}
   {{ tag.title }}
   {% if user == request.user %}
-    <small>
-      <a class="icon edit"
-         hx-get="{% url 'journal:user_tag_edit' %}?tag={{ tag.title }}"
-         hx-target="body"
-         hx-swap="beforeend"><i class="fa-regular fa-pen-to-square"></i></a>
-    </small>
+    <span class="action inline">
+      <span>
+        <a hx-get="{% url 'journal:user_tag_edit' %}?tag={{ tag.title }}"
+           hx-target="body"
+           hx-swap="beforeend"><i class="fa-regular fa-pen-to-square"></i></a>
+      </span>
+    </span>
   {% endif %}
   <br>
   <small>
