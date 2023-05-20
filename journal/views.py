@@ -491,7 +491,13 @@ def collection_edit(request, collection_uuid=None):
         if request.GET.get("title"):
             form.instance.title = request.GET.get("title")
         return render(
-            request, "collection_edit.html", {"form": form, "collection": collection}
+            request,
+            "collection_edit.html",
+            {
+                "form": form,
+                "collection": collection,
+                "user": collection.owner if collection else request.user,
+            },
         )
     elif request.method == "POST":
         form = (
