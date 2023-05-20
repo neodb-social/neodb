@@ -275,7 +275,7 @@ class ExternalSources:
         results = []
         if c == "" or c is None:
             c = "all"
-        if c == "all" or c == "movie" or c == "tv":
+        if c == "all" or c == "movietv":
             results.extend(TheMovieDatabase.search(q, page))
         if c == "all" or c == "book":
             results.extend(GoogleBooks.search(q, page))

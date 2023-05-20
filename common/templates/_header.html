@@ -20,7 +20,7 @@
             <option value="all">全部</option>
             <option {% if request.GET.c and request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %}
                     value="book">书籍</option>
-            <option {% if request.GET.c and request.GET.c == 'movie' or '/movie/' in request.path or request.GET.c == 'tv' or '/tv/' in request.path %}selected{% endif %}
+            <option {% if request.GET.c and request.GET.c == 'movietv' or '/movie/' in request.path or '/tv/' in request.path %}selected{% endif %}
                     value="movietv">影视</option>
             <option {% if request.GET.c and request.GET.c == 'podcast' or '/podcast/' in request.path %}selected{% endif %}
                     value="podcast">播客</option>

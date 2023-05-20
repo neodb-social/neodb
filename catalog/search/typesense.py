@@ -236,7 +236,10 @@ class Indexer:
     def search(cls, q, page=1, category=None, tag=None, sort=None):
         f = []
         if category:
-            f.append("category:= " + category)
+            if category == "movietv":
+                f.append("category:= [movie,tv]")
+            else:
+                f.append("category:= " + category)
         if tag:
             f.append(f"tags:= '{tag}'")
         filters = " && ".join(f)
@@ -254,6 +257,7 @@ class Indexer:
 
         try:
             r = cls.instance().collections[INDEX_NAME].documents.search(options)
+            print(r)
             results.items = list(
                 [
                     x

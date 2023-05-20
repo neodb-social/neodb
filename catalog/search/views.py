@@ -152,7 +152,7 @@ def search(request):
             ),
             "categories": ["book", "movie", "music", "game"],
             "sites": SiteName.labels,
-            "hide_category": category is not None,
+            "hide_category": category is not None and category != "movietv",
         },
     )
 
