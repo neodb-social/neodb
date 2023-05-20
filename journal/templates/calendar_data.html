@@ -7,7 +7,7 @@
     month_names: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
     day_names: ['', '', ''],
     colors: {
-      'default': '#eeeeee', // Default color
+      'default': getComputedStyle(document.documentElement).getPropertyValue('--pico-form-element-background-color'),
       'book': '#B4D2A5',
       'movie': '#7CBDFE',
       'music': '#FEA36D',
