@@ -31,13 +31,13 @@
           <p>
             <div class="action">
               <span>
+                {% liked_piece collection as liked %}
+                {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-bookmark' %}
+              </span>
+              <span>
                 <a target="_blank"
                    rel="noopener"
                    {% if collection.metadata.shared_link %} href="{{ collection.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
-              </span>
-              <span>
-                {% liked_piece collection as liked %}
-                {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-bookmark' %}
               </span>
               <span class="timestamp">{{ collection.created_time|date }}</span>
             </div>

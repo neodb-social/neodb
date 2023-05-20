@@ -12,13 +12,13 @@
     <section>
       <span class="action">
         <span>
+          {% liked_piece review as liked %}
+          {% include 'like_stats.html' with liked=liked piece=review %}
+        </span>
+        <span>
           <a target="_blank"
              rel="noopener"
              {% if review.metadata.shared_link %} href="{{ review.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
-        </span>
-        <span>
-          {% liked_piece review as liked %}
-          {% include 'like_stats.html' with liked=liked piece=review %}
         </span>
         <span class="timestamp">{{ review.created_time|date }}</span>
       </span>

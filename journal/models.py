@@ -1119,7 +1119,8 @@ class Mark:
             )
         )
         share_as_new_post = shelf_type != self.shelf_type
-        if shelf_type != self.shelf_type or visibility != self.visibility:
+        original_visibility = self.visibility
+        if shelf_type != self.shelf_type or visibility != original_visibility:
             self.shelfmember = self.owner.shelf_manager.move_item(
                 self.item, shelf_type, visibility=visibility, metadata=metadata
             )
@@ -1142,11 +1143,11 @@ class Mark:
                     metadata=self.metadata,
                     timestamp=created_time,
                 )
-        if comment_text != self.text or visibility != self.visibility:
+        if comment_text != self.text or visibility != original_visibility:
             self.comment = Comment.comment_item_by_user(
                 self.item, self.owner, comment_text, visibility
             )
-        if rating_grade != self.rating or visibility != self.visibility:
+        if rating_grade != self.rating or visibility != original_visibility:
             Rating.rate_item_by_user(self.item, self.owner, rating_grade, visibility)
             self.rating = rating_grade
         if share:
@@ -1180,7 +1181,7 @@ class Mark:
         )
 
 
-def reset_visibility_for_user(user: User, visibility: int):
+def reset_journal_visibility_for_user(user: User, visibility: int):
     ShelfMember.objects.filter(owner=user).update(visibility=visibility)
     Comment.objects.filter(owner=user).update(visibility=visibility)
     Rating.objects.filter(owner=user).update(visibility=visibility)

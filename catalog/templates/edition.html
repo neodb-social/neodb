@@ -124,19 +124,40 @@
     <section>
       <div class="action-panel">
         <h5>{% trans '借阅或购买' %}</h5>
-        <div class="grid">
-          <a class="action-panel__button"
-             target="_blank"
-             rel="noopener"
-             href="https://www.worldcat.org/isbn/{{ item.isbn }}">
-            <button class="outline">{% trans 'WorldCat' %}</button>
-          </a>
-          <a class="action-panel__button"
-             target="_blank"
-             rel="noopener"
-             href="https://openlibrary.org/search?isbn={{ item.isbn }}">
-            <button class="outline">{% trans 'Open Library' %}</button>
-          </a>
+        <div>
+          <ul>
+            <li>
+              <a target="_blank"
+                 rel="noopener"
+                 href="https://www.worldcat.org/isbn/{{ item.isbn }}">WorldCat</a>
+            </li>
+            <li>
+              <a target="_blank"
+                 rel="noopener"
+                 href="https://openlibrary.org/search?isbn={{ item.isbn }}">Open Library</a>
+            </li>
+            <li>
+              <a target="_blank"
+                 rel="noopener"
+                 href="https://library.oapen.org/discover?filtertype_1=isbn&filter_relational_operator_1=equals&filter_1={{ item.isbn }}">
+              OAPEN</a>
+            </li>
+            <li>
+              <a target="_blank"
+                 rel="noopener"
+                 href="https://bookshop.org/search?keywords={{ item.isbn }}">Bookshop.org</a>
+            </li>
+            <li>
+              <a target="_blank"
+                 rel="noopener"
+                 href="https://www.amazon.com/s?k={{ item.isbn }}">Amazon</a>
+            </li>
+            <li>
+              <a target="_blank"
+                 rel="noopener"
+                 href="https://www.duozhuayu.com/search/book/{{ item.isbn }}">多抓鱼</a>
+            </li>
+          </ul>
         </div>
       </div>
     </section>

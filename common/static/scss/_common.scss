@@ -60,7 +60,7 @@ section section {
   }
 
   >span {
-    margin-left: 1em;
+    padding-left: calc(var(--pico-spacing)/2);
   }
 
   a {
