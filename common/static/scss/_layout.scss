@@ -1,10 +1,11 @@
 .classic-page,
 .feed-page {
   main {
+    width: 100vw;
     display: grid;
-    grid-template-columns: auto 30%;
+    grid-template-columns: 64% 32%;
     grid-template-areas: "main aside";
-    gap: calc(3*var(--pico-spacing));
+    gap: 4%;
     padding: calc(3*var(--pico-spacing));
 
     .grid__main {

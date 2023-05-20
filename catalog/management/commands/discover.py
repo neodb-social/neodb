@@ -8,6 +8,9 @@ from django.utils import timezone
 from django.db.models import Count
 
 
+MAX_GALLERY_ITEMS = 42
+
+
 class Command(BaseCommand):
     help = "catalog app utilities"
 
@@ -18,9 +21,21 @@ class Command(BaseCommand):
             help="generate discover data",
         )
 
+    def get_popular_item_ids(self, category, days):
+        self.stdout.write(f"Generating popular {category} items for {days} days...")
+        item_ids = [
+            m["item_id"]
+            for m in ShelfMember.objects.filter(query_item_category(category))
+            .filter(created_time__gt=timezone.now() - timedelta(days=days))
+            .values("item_id")
+            .annotate(num=Count("item_id"))
+            .order_by("-num")[:MAX_GALLERY_ITEMS]
+        ]
+        return item_ids
+
     def handle(self, *args, **options):
         if options["update"]:
-            cache_key = "public_gallery_list"
+            cache_key = "public_gallery"
             gallery_categories = [
                 ItemCategory.Book,
                 ItemCategory.Movie,
@@ -31,22 +46,19 @@ class Command(BaseCommand):
             ]
             gallery_list = []
             for category in gallery_categories:
-                item_ids = [
-                    m["item_id"]
-                    for m in ShelfMember.objects.filter(query_item_category(category))
-                    .filter(created_time__gt=timezone.now() - timedelta(days=42))
-                    .values("item_id")
-                    .annotate(num=Count("item_id"))
-                    .order_by("-num")[:100]
-                ]
+                days = 14
+                item_ids = []
+                while len(item_ids) < MAX_GALLERY_ITEMS / 2 and days < 150:
+                    item_ids = self.get_popular_item_ids(category, days)
+                    days *= 3
+                items = Item.objects.filter(id__in=item_ids)
                 gallery_list.append(
                     {
                         "name": "popular_" + category.value,
                         "title": "热门"
                         + (category.label if category != ItemCategory.Book else "图书"),
-                        "item_ids": item_ids,
+                        "items": items,
                     }
                 )
             cache.set(cache_key, gallery_list, timeout=None)
-
         self.stdout.write(self.style.SUCCESS(f"Done."))

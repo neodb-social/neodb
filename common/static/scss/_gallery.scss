@@ -81,25 +81,25 @@
 
   @media (min-width: 200px) {
     .cards {
-      grid-auto-columns: calc(50% - var(--pico-block-spacing-horizontal));
+      grid-auto-columns: calc(25% - var(--pico-block-spacing-horizontal));
     }
   }
 
   @media (min-width: 500px) {
     .cards {
-      grid-auto-columns: calc(25% - var(--pico-block-spacing-horizontal));
+      grid-auto-columns: calc(20% - var(--pico-block-spacing-horizontal));
     }
   }
 
   @media (min-width: 769px) {
     .cards {
-      grid-auto-columns: calc(calc(100% / 5) - var(--pico-block-spacing-horizontal));
+      grid-auto-columns: calc(calc(100% / 6) - var(--pico-block-spacing-horizontal));
     }
   }
 
   @media (min-width: 1281px) {
     .cards {
-      grid-auto-columns: calc(calc(100% / 6) - var(--pico-block-spacing-horizontal));
+      grid-auto-columns: calc(calc(100% / 8) - var(--pico-block-spacing-horizontal));
     }
   }
 }

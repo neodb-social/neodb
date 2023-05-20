@@ -34,7 +34,6 @@ def login(request):
             .order_by("domain_name")
             .values_list("domain_name")
         )
-        print(sites)
         # store redirect url in the cookie
         if request.GET.get("next"):
             request.session["next_url"] = request.GET.get("next")

@@ -513,8 +513,6 @@ def share_review(review):
         j = response.json()
         if "url" in j:
             review.metadata["shared_link"] = j["url"]
-            print(review.metadata)
-            print(review.id)
             review.save()
         return True
     else:

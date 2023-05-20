@@ -35,8 +35,7 @@
               {% for item in gallery.items %}
                 <li class="card">
                   <a href="{{ item.url }}" title="{{ item.title }}">
-                    <img src="{{ item.cover_image_url | default:item.cover.url }}"
-                         alt="{{ item.title }}">
+                    <img src="{{ item.cover|thumb:'normal' }}" alt="{{ item.title }}">
                     <div class="card-title">{{ item.title }}</div>
                   </a>
                 </li>
@@ -102,8 +101,5 @@
     {% endif %}
   </main>
   {% include "partial/_footer.html" %}
-  {% if request.user.unread_announcements %}
-    {% include "partial/_announcement.html" %}
-  {% endif %}
 </body>
 </html>

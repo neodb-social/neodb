@@ -57,7 +57,7 @@
                 <h5>
                   {{ shelf.title }}
                   <small>
-                    <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' user.mastodon_username  category %}{% else %}{% url 'journal:user_mark_list' user.mastodon_username shelf_type category %}{% endif %}">{{ shelf.count }}</a>
+                    <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' user.mastodon_username category %}{% else %}{% url 'journal:user_mark_list' user.mastodon_username shelf_type category %}{% endif %}">{{ shelf.count }}</a>
                   </small>
                 </h5>
                 <ul class="cards">
@@ -178,8 +178,5 @@
       {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
     </main>
     {% include "partial/_footer.html" %}
-    {% if request.user.unread_announcements %}
-      {% include "partial/_announcement.html" %}
-    {% endif %}
   </body>
 </html>

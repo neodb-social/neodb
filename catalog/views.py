@@ -367,16 +367,16 @@ def discover(request):
     else:
         layout = []
 
-    cache_key = "public_gallery_list"
+    cache_key = "public_gallery"
     gallery_list = cache.get(cache_key, [])
 
-    for gallery in gallery_list:
-        ids = (
-            random.sample(gallery["item_ids"], 10)
-            if len(gallery["item_ids"]) > 10
-            else gallery["item_ids"]
-        )
-        gallery["items"] = Item.objects.filter(id__in=ids)
+    # for gallery in gallery_list:
+    #     ids = (
+    #         random.sample(gallery["item_ids"], 10)
+    #         if len(gallery["item_ids"]) > 10
+    #         else gallery["item_ids"]
+    #     )
+    #     gallery["items"] = Item.objects.filter(id__in=ids)
 
     if user.is_authenticated:
         podcast_ids = [
