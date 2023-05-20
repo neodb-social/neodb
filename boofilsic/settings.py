@@ -230,6 +230,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 SITE_INFO = {
     "site_name": "NiceDB",
+    "site_url": "https://nicedb.org",
     "support_link": "https://github.com/doubaniux/boofilsic/issues",
     "social_link": "https://donotban.com/@testie",
     "donation_link": "https://patreon.com/tertius",
@@ -243,6 +244,7 @@ CLIENT_NAME = os.environ.get("APP_NAME", "NiceDB")
 SITE_INFO["site_name"] = os.environ.get("APP_NAME", "NiceDB")
 APP_WEBSITE = os.environ.get("APP_URL", "https://nicedb.org")
 REDIRECT_URIS = APP_WEBSITE + "/users/OAuth2_login/"
+SITE_INFO["site_url"] = APP_WEBSITE
 
 
 # Path to save report related images, ends with slash

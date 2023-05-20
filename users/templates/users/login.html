@@ -10,9 +10,10 @@
           property="og:description"
           content="{{ site_name }}致力于为联邦宇宙居民提供一个自由、开放、互联的书籍、电影、音乐和游戏收藏评论空间">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:url" content="{{ site_url }}">
     <meta property="og:image"
           content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
+    <meta property="og:site_name" content="{{ site_name }}">
     <title>{{ site_name }} - {% trans '登录' %}</title>
     <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
     {% include "common_libs.html" with jquery=0 v2=1 %}
@@ -20,11 +21,11 @@
     <script> $(document).ready(function () { $('.delayed').remove(); $('#loginButton').prop("disabled", false); }); </script>
     <style type="text/css">
     .delayed {
-      animation: 10s fadeIn;
+      animation: 10s _fadeIn;
       animation-fill-mode: forwards;
       visibility: hidden;
     }
-    @keyframes fadeIn {
+    @keyframes _fadeIn {
       99% {
         visibility: hidden;
       }
@@ -44,7 +45,7 @@
         {% if user.is_authenticated %}
           <a href="{% url 'common:home' %}" class="button">{% trans '前往首页' %}</a>
         {% else %}
-          <form action="/users/connect">
+          <form action="{% url 'users:connect' %}">
             {% if allow_any_site %}
               <input required
                      name="domain"

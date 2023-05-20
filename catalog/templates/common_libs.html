@@ -1,7 +1,9 @@
 {% load static %}
 {% load sass_tags %}
 {% load tz_detect %}
-{% tz_detect %}
+{% if request.user.is_authenticated %}
+  {% tz_detect %}
+{% endif %}
 {% if jquery %}
   <script src="https://cdn.staticfile.org/jquery/3.6.3/jquery.min.js"></script>
 {% else %}
