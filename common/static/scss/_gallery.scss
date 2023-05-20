@@ -1,3 +1,11 @@
+.calendar_view {
+  overflow-x: scroll;
+
+  svg {
+    height: 108px;
+  }
+}
+
 .shelf {
   max-width: 1400px;
   padding: 0;
@@ -106,6 +114,7 @@
 
 @media (min-width: 769px) {
   .sidebar .shelf .cards {
-    grid-auto-columns: calc(50% - var(--pico-block-spacing-horizontal)) !important;
+    grid-auto-columns: calc(34% - var(--pico-spacing)) !important;
+    gap: var(--pico-spacing) !important;
   }
 }

@@ -114,7 +114,7 @@
       >aside {
         order: 2;
 
-        article {
+        article.item {
           display: grid;
           grid-template-columns: 25% auto;
           grid-template-areas: "main aside";

@@ -2,23 +2,26 @@
 {% load i18n %}
 {% load truncate %}
 {% load thumb %}
-<article>
+<article class="item">
   <div>
-    <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}"><img src="{{ item.cover|thumb:'normal' }}" alt="" class="entity-card__img"></a>
+    <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">
+      <img src="{{ item.cover|thumb:'normal' }}" alt="" class="entity-card__img">
+    </a>
   </div>
   <footer>
-    <h4><a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">{{ item.title }}</a>
+    <h4>
+      <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">{{ item.title }}</a>
       {% for res in item.external_resources.all %}
-      <a href="{{ res.url }}">
-        <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
-      </a>
+        <a href="{{ res.url }}">
+          <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
+        </a>
       {% endfor %}
     </h4>
-
-    {% if item.isbn %}
-    <div>ISBN: {{ item.isbn }}</div>
-    {% endif %}
-
-    <div>{% if item.pub_house %}{% trans '出版社：' %}{{ item.pub_house }}{% endif %}</div>
+    {% if item.isbn %}<div>ISBN: {{ item.isbn }}</div>{% endif %}
+    <div>
+      {% if item.pub_house %}
+        {% trans '出版社：' %}{{ item.pub_house }}
+      {% endif %}
+    </div>
   </footer>
 </article>
