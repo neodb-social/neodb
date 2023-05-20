@@ -1,10 +1,8 @@
 {% extends 'user_item_list_base.html' %}
 {% load i18n %}
-
 {% block title %}
-<title>{{ site_name }} - {{ user.display_name }} - {% trans '标记' %}</title>
+  <title>{{ site_name }} - {{ user.display_name }} - {% trans '标记' %}</title>
 {% endblock %}
-
 {% block head %}
-{{ user.display_name }} - {% trans '标记' %}
+  {{ user.display_name }} - {% trans '标记' %}
 {% endblock %}

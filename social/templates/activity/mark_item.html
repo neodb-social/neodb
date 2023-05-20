@@ -9,24 +9,10 @@
 {% load prettydate %}
 {% load user_actions %}
 {% load duration %}
-
 {% wish_item_action activity.action_object.item as action %}
-
 <span class="action">
   <span>
-    <a
-    {% if activity.action_object.metadata.shared_link %}
-    href="{{ activity.action_object.metadata.shared_link }}" target="_blank" rel="noopener" title="打开联邦网络分享链接"
-    {% else %}
-    class="disabled"
-    {% endif %}
-    ><i class="fa-solid
-    {% if activity.action_object.visibility > 0 %}
-    fa-lock
-    {% else %}
-    fa-globe
-    {% endif %}
-    "></i></a>
+    <a {% if activity.action_object.metadata.shared_link %} href="{{ activity.action_object.metadata.shared_link }}" target="_blank" rel="noopener" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if activity.action_object.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %} "></i></a>
   </span>
   {% comment %}
   <span>
@@ -34,10 +20,10 @@
   </span>
   {% endcomment %}
   {% if activity.action_object.mark.text %}
-  <span>
-    {% liked_piece activity.action_object.mark.comment as liked %}
-    {% include 'like_stats.html' with liked=liked piece=activity.action_object.mark.comment %}
-  </span>
+    <span>
+      {% liked_piece activity.action_object.mark.comment as liked %}
+      {% include 'like_stats.html' with liked=liked piece=activity.action_object.mark.comment %}
+    </span>
   {% endif %}
   {% comment %}
   <span>
@@ -45,30 +31,33 @@
   </span>
   {% endcomment %}
   <span>
-  {% if not action.taken %}
-  <a title="添加标记" hx-get="{% url 'journal:mark' activity.action_object.item.uuid %}?shelf_type=wishlist&new=1" hx-target="body" hx-swap="beforeend">
-    <i class="fa-regular fa-bookmark"></i>
-  </a>
-  {% else %}
-  <a title="修改标记" hx-get="{% url 'journal:mark' activity.action_object.item.uuid %}?new=1" hx-target="body" hx-swap="beforeend">
-    <i class="fa-solid fa-bookmark"></i>
-  </a>
-  {% endif %}
+    {% if not action.taken %}
+      <a title="添加标记"
+         hx-get="{% url 'journal:mark' activity.action_object.item.uuid %}?shelf_type=wishlist&new=1"
+         hx-target="body"
+         hx-swap="beforeend">
+        <i class="fa-regular fa-bookmark"></i>
+      </a>
+    {% else %}
+      <a title="修改标记"
+         hx-get="{% url 'journal:mark' activity.action_object.item.uuid %}?new=1"
+         hx-target="body"
+         hx-swap="beforeend">
+        <i class="fa-solid fa-bookmark"></i>
+      </a>
+    {% endif %}
   </span>
 </span>
 <div class="spacing">
   {{ activity.action_object.mark.action_label }}
   {% comment %} {{ activity.action_object.item.title }} {% endcomment %}
-  {% if activity.action_object.mark.rating %}
-  {{ activity.action_object.mark.rating | rating_star }}
-  {% endif %}
+  {% if activity.action_object.mark.rating %}{{ activity.action_object.mark.rating | rating_star }}{% endif %}
 </div>
-
 <article>
   {% include "_item_card.html" with item=activity.action_object.item %}
   {% if activity.action_object.mark.text %}
-  <footer>
-    <p>{{ activity.action_object.mark.comment_html|safe }}</p>
-  </footer>
+    <footer>
+      <p>{{ activity.action_object.mark.comment_html|safe }}</p>
+    </footer>
   {% endif %}
 </article>

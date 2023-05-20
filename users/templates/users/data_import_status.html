@@ -1,15 +1,18 @@
 {% if import_status.douban_pending == 2 %}
-正在等待
+  正在等待
 {% elif import_status.douban_pending == 1 %}
-<div hx-get="{% url 'users:import_status' %} "hx-trigger="every 15s" hx-swap="outerHTML">
-正在导入
+  <div hx-get="{% url 'users:import_status' %} "
+       hx-trigger="every 15s"
+       hx-swap="outerHTML">
+    正在导入
     {% if import_status.douban_total %}
-    <br>
-    <progress value="{{ import_status.douban_processed }}" max="{{ import_status.douban_total }}"></progress> 
-    共{{ import_status.douban_total }}篇，目前已处理{{ import_status.douban_processed }}篇，其中已存在{{ import_status.douban_skipped }}篇，新增{{ import_status.douban_imported }}篇
+      <br>
+      <progress value="{{ import_status.douban_processed }}"
+                max="{{ import_status.douban_total }}"></progress>
+      共{{ import_status.douban_total }}篇，目前已处理{{ import_status.douban_processed }}篇，其中已存在{{ import_status.douban_skipped }}篇，新增{{ import_status.douban_imported }}篇
     {% endif %}
-</div>
+  </div>
 {% elif import_status.douban_file %}
-    上次结果
-    共计{{ import_status.douban_total }}篇，处理{{ import_status.douban_processed }}篇，其中已存在{{ import_status.douban_skipped }}篇，新增{{ import_status.douban_imported }}篇
+  上次结果
+  共计{{ import_status.douban_total }}篇，处理{{ import_status.douban_processed }}篇，其中已存在{{ import_status.douban_skipped }}篇，新增{{ import_status.douban_imported }}篇
 {% endif %}

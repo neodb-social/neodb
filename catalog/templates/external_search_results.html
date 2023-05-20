@@ -8,9 +8,6 @@
 {% load truncate %}
 {% load highlight %}
 {% load thumb %}
-
 {% for item in external_items %}
-<article class="item-card external">
-    {% include "_item_card.html" with item=item %}
-</article>
+  <article class="item-card external">{% include "_item_card.html" with item=item %}</article>
 {% endfor %}

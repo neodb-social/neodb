@@ -8,22 +8,27 @@
 {% load truncate %}
 {% load highlight %}
 {% load thumb %}
-
-<div id="modal" _="on closeModal add .closing then wait for animationend then remove me">
+<div id="modal"
+     _="on closeModal add .closing then wait for animationend then remove me">
   <div class="modal-underlay" _="on click trigger closeModal"></div>
   <div class="modal-content">
     <div class="add-to-list-modal__head">
       <span class="add-to-list-modal__title">{% trans '添加到收藏单' %}</span>
-      <span class="add-to-list-modal__close-button modal-close" _="on click trigger closeModal">
+      <span class="add-to-list-modal__close-button modal-close"
+            _="on click trigger closeModal">
         <i class="fa-solid fa-xmark"></i>
       </span>
     </div>
     <div class="add-to-list-modal__body">
-      <form action="{% url 'journal:add_to_collection' item.uuid  %}" method="post">
+      <form action="{% url 'journal:add_to_collection' item.uuid %}"
+            method="post">
         {% csrf_token %}
         <select name="collection_id">
           {% for collection in collections %}
-          <option value="{{ collection.id }}">{{ collection.title }}{% if collection.visibility > 0 %}🔒{% endif %}</option>
+            <option value="{{ collection.id }}">
+              {{ collection.title }}
+              {% if collection.visibility > 0 %}🔒{% endif %}
+            </option>
           {% endfor %}
           <option value="0">新建收藏单</option>
         </select>

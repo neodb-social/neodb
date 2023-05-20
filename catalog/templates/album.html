@@ -10,103 +10,120 @@
 {% load strip_scheme %}
 {% load thumb %}
 {% load duration %}
-
 <!-- class specific details -->
 {% block details %}
-	<div>{% if item.artist %}{% trans '艺术家：' %}
-		{% for artist in item.artist %}
-		<span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
-			<span class="artist">{{ artist }}</span>
-			{% if not forloop.last %} / {% endif %}
-		</span>
-		{% endfor %}
-		{% if item.artist|length > 5 %}
-		<a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
-		<script>
+  <div>
+    {% if item.artist %}
+      {% trans '艺术家：' %}
+      {% for artist in item.artist %}
+        <span {% if forloop.counter > 5 %}style="display: none;"{% endif %}>
+          <span class="artist">{{ artist }}</span>
+          {% if not forloop.last %}/{% endif %}
+        </span>
+      {% endfor %}
+      {% if item.artist|length > 5 %}
+        <a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
+        <script>
 			$("#artistMore").on('click', function (e) {
 				$("span.artist:not(:visible)").each(function (e) {
 					$(this).parent().removeAttr('style');
 				});
 				$(this).remove();
 			})
-		</script>
-		{% endif %}
-	{% endif %}</div>
-	<div>{% if item.company %}{% trans '发行方：' %}
-		{% for company in item.company %}
-		<span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
-			<span class="company">{{ company }}</span>
-			{% if not forloop.last %} / {% endif %}
-		</span>
-		{% endfor %}
-		{% if item.company|length > 5 %}
-		<a href="javascript:void(0);" id="companyMore">{% trans '更多' %}</a>
-		<script>
+		
+        </script>
+      {% endif %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.company %}
+      {% trans '发行方：' %}
+      {% for company in item.company %}
+        <span {% if forloop.counter > 5 %}style="display: none;"{% endif %}>
+          <span class="company">{{ company }}</span>
+          {% if not forloop.last %}/{% endif %}
+        </span>
+      {% endfor %}
+      {% if item.company|length > 5 %}
+        <a href="javascript:void(0);" id="companyMore">{% trans '更多' %}</a>
+        <script>
 			$("#companyMore").on('click', function (e) {
 				$("span.company:not(:visible)").each(function (e) {
 					$(this).parent().removeAttr('style');
 				});
 				$(this).remove();
 			})
-		</script>
-		{% endif %}
-	{% endif %}</div>
-	<div>{% if item.release_date %}
-		{% trans '发行日期：' %}{{ item.release_date }}
-		{% endif %}
-	</div>
-	<div>{% if item.duration %}
-		{% trans '时长：' %}{{ item.duration|duration_format:1000 }}
-		{% endif %}
-	</div>
-	<div>{% if item.genre %}
-		{% trans '流派：' %}
-		{% for genre in item.genre %}
-		<span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-	<div>{% if item.barcode %}
-		{% trans '条形码：' %}{{ item.barcode }}
-		{% endif %}
-	</div>
-
-	<div>{% if item.other_title %}
-		{% trans '又名：' %}
-		{% for t in item.other_title %}
-		<span>{{ t }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-	<div>{% if item.album_type %}
-		{% trans '专辑类型：' %}{{ item.album_type }}
-		{% endif %}
-	</div>
-	<div>{% if item.media %}
-		{% trans '介质：' %}{{ item.media }}
-		{% endif %}
-	</div>
-	<div>{% if item.disc_count %}
-		{% trans '碟片数：' %}{{ item.disc_count }}
-		{% endif %}
-	</div>
+		
+        </script>
+      {% endif %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.release_date %}
+      {% trans '发行日期：' %}{{ item.release_date }}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.duration %}
+      {% trans '时长：' %}{{ item.duration|duration_format:1000 }}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.genre %}
+      {% trans '流派：' %}
+      {% for genre in item.genre %}
+        <span>{{ genre }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.barcode %}
+      {% trans '条形码：' %}{{ item.barcode }}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.other_title %}
+      {% trans '又名：' %}
+      {% for t in item.other_title %}
+        <span>{{ t }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.album_type %}
+      {% trans '专辑类型：' %}{{ item.album_type }}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.media %}
+      {% trans '介质：' %}{{ item.media }}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.disc_count %}
+      {% trans '碟片数：' %}{{ item.disc_count }}
+    {% endif %}
+  </div>
 {% endblock %}
-
 <!-- class specific sidebar -->
 {% block content %}
-{% if item.track_list %}
-<section>
-	<h5>曲目</h5>
-	<p class="tldr" _="on click toggle .tldr on me">
-		{{ item.track_list | linebreaksbr }}
-	</p>
-</section>
-{% endif %}
-
-{% if item.get_embed_link %}
-<section>
-<h5>播放</h5>
-<iframe src="{{ item.get_embed_link }}"  frameborder="0" allowtransparency="true" allow="encrypted-media" style="width: 100%;height: 50vh; "></iframe>
-</section>
-{% endif %}
+  {% if item.track_list %}
+    <section>
+      <h5>曲目</h5>
+      <p class="tldr" _="on click toggle .tldr on me">{{ item.track_list | linebreaksbr }}</p>
+    </section>
+  {% endif %}
+  {% if item.get_embed_link %}
+    <section>
+      <h5>播放</h5>
+      <iframe src="{{ item.get_embed_link }}"
+              frameborder="0"
+              allowtransparency="true"
+              allow="encrypted-media"
+              style="width: 100%;
+                     height: 50vh"></iframe>
+    </section>
+  {% endif %}
 {% endblock %}

@@ -1,21 +1,20 @@
 {% extends "list_item_base.html" %}
-
 {% load i18n %}
 {% load highlight %}
-
 {% block info %}
-{% if item.artist %}{% trans '艺术家' %}:
-{% for artist in item.artist %}
-<span>{{ artist }}</span>
-{% if not forloop.last %} {% endif %}
-{% endfor %}
-{% endif %}
-
-{% if item.genre %}/ {% trans '流派' %}:
-{{ item.genre }}
-{% endif %}
-
-{% if item.release_date %}/ {% trans '发行日期' %}:
+  {% if item.artist %}
+    {% trans '艺术家' %}:
+    {% for artist in item.artist %}
+      <span>{{ artist }}</span>
+      {% if not forloop.last %}{% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if item.genre %}
+    / {% trans '流派' %}:
+    {{ item.genre }}
+  {% endif %}
+  {% if item.release_date %}
+    / {% trans '发行日期' %}:
     {{ item.release_date }}
-{% endif %}
+  {% endif %}
 {% endblock %}

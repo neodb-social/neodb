@@ -8,19 +8,18 @@
 {% load thumb %}
 {% load prettydate %}
 {% load user_actions %}
-
 {% with activity.action_object.target as collection %}
-<span class="action">
-  <span>
-    {% liked_piece collection as liked %}
-    {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-bookmark' %}
+  <span class="action">
+    <span>
+      {% liked_piece collection as liked %}
+      {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-bookmark' %}
+    </span>
   </span>
-</span>
-<div class="spacing">
-  设置了目标
-  <a href="{{ collection.url }}">{{ collection.title }}</a>
-</div>
-<p>
-  <progress value="{{ activity.action_object.progress }}" max="100"></progress>
-</p>
+  <div class="spacing">
+    设置了目标
+    <a href="{{ collection.url }}">{{ collection.title }}</a>
+  </div>
+  <p>
+    <progress value="{{ activity.action_object.progress }}" max="100"></progress>
+  </p>
 {% endwith %}

@@ -2,17 +2,24 @@
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta http-equiv="refresh" content="0;URL={{ login_url }}" />
     <title>{{ site_name }} - {{ username }}@{{ site }}</title>
-    <link rel="alternate" type="application/rss+xml" title="{{ site_name }} - {{ username }}@{{ site }}的评论" href="{{ request.build_absolute_uri }}feed/reviews/">
-    <meta property="og:title" content="{{ site_name }} - {{ username }}@{{ site }}的书影音">
+    <link rel="alternate"
+          type="application/rss+xml"
+          title="{{ site_name }} - {{ username }}@{{ site }}的评论"
+          href="{{ request.build_absolute_uri }}feed/reviews/">
+    <meta property="og:title"
+          content="{{ site_name }} - {{ username }}@{{ site }}的书影音">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
-</head>
-<body>
-    <a href="https://{{ site }}/@{{ username }}" rel="me" style="display:none;">Mastodon homepage</a>
-</body>
+    <meta property="og:image"
+          content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
+  </head>
+  <body>
+    <a href="https://{{ site }}/@{{ username }}"
+       rel="me"
+       style="display:none">Mastodon homepage</a>
+  </body>
 </html>

@@ -9,112 +9,121 @@
 {% load truncate %}
 {% load strip_scheme %}
 {% load thumb %}
-
 <!-- class specific details -->
 {% block details %}
-
-	<div>{% if item.other_title %}{% trans '别名：' %}
-		{% for other_title in item.other_title %}
-		<span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
-			<span class="other_title">{{ other_title }}</span>
-			{% if not forloop.last %} / {% endif %}
-		</span>
-		{% endfor %}
-		{% if item.other_title|length > 5 %}
-		<a href="javascript:void(0);" id="otherTitleMore">{% trans '更多' %}</a>
-		<script>
+  <div>
+    {% if item.other_title %}
+      {% trans '别名：' %}
+      {% for other_title in item.other_title %}
+        <span {% if forloop.counter > 5 %}style="display: none;"{% endif %}>
+          <span class="other_title">{{ other_title }}</span>
+          {% if not forloop.last %}/{% endif %}
+        </span>
+      {% endfor %}
+      {% if item.other_title|length > 5 %}
+        <a href="javascript:void(0);" id="otherTitleMore">{% trans '更多' %}</a>
+        <script>
 			$("#otherTitleMore").on('click', function (e) {
 				$("span.other_title:not(:visible)").each(function (e) {
 					$(this).parent().removeAttr('style');
 				});
 				$(this).remove();
 			})
-		</script>
-		{% endif %}
-		{% endif %}
-	</div>
-
-	<div>
-		{% if item.genre %}{% trans '类型：' %}
-		{% for genre in item.genre %}
-		<span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-
-	<div>
-		{% if item.director %}{% trans '导演：' %}
-		{% for director in item.director %}
-		<span>{{ director }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-
-	<div>
-		{% if item.playwright %}{% trans '编剧：' %}
-		{% for playwright in item.playwright %}
-		<span>{{ playwright }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-
-	<div>
-		{% if item.actor %}{% trans '主演：' %}
-		{% for actor in item.actor %}
-		<span>{{ actor }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-
-	<div>
-		{% if item.choreographer %}{% trans '编舞：' %}
-		{% for choreographer in item.choreographer %}
-		<span>{{ choreographer }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-
-	<div>
-		{% if item.composer %}{% trans '作曲：' %}
-		{% for composer in item.composer %}
-		<span>{{ composer }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-
-	<div>
-		{% if item.troupe %}{% trans '剧团：' %}
-		{% for troupe in item.troupe %}
-		<span>{{ troupe }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-
-	<div>
-		{% if item.theatre %}{% trans '剧场：' %}
-		{% for theatre in item.theatre %}
-		<span>{{ theatre }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-
-	<div>
-		{% if item.opening_date %}{% trans '演出日期：' %}
-		<span>{{ item.opening_date }}</span>
-		{% endif %}
-	</div>
-
-	<div>
-		{% if item.version %}{% trans '版本：' %}
-		{% for version in item.version %}
-		<span>{{ version }}</span>{% if not forloop.last %} / {% endif %}
-		{% endfor %}
-		{% endif %}
-	</div>
-
-	<div>{% if item.official_site %}
-		{% trans '官方网站：' %}{{ item.official_site|urlizetrunc:24 }}
-		{% endif %}
-	</div>
-
+		
+        </script>
+      {% endif %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.genre %}
+      {% trans '类型：' %}
+      {% for genre in item.genre %}
+        <span>{{ genre }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.director %}
+      {% trans '导演：' %}
+      {% for director in item.director %}
+        <span>{{ director }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.playwright %}
+      {% trans '编剧：' %}
+      {% for playwright in item.playwright %}
+        <span>{{ playwright }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.actor %}
+      {% trans '主演：' %}
+      {% for actor in item.actor %}
+        <span>{{ actor }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.choreographer %}
+      {% trans '编舞：' %}
+      {% for choreographer in item.choreographer %}
+        <span>{{ choreographer }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.composer %}
+      {% trans '作曲：' %}
+      {% for composer in item.composer %}
+        <span>{{ composer }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.troupe %}
+      {% trans '剧团：' %}
+      {% for troupe in item.troupe %}
+        <span>{{ troupe }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.theatre %}
+      {% trans '剧场：' %}
+      {% for theatre in item.theatre %}
+        <span>{{ theatre }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.opening_date %}
+      {% trans '演出日期：' %}
+      <span>{{ item.opening_date }}</span>
+    {% endif %}
+  </div>
+  <div>
+    {% if item.version %}
+      {% trans '版本：' %}
+      {% for version in item.version %}
+        <span>{{ version }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.official_site %}
+      {% trans '官方网站：' %}{{ item.official_site|urlizetrunc:24 }}
+    {% endif %}
+  </div>
 {% endblock %}

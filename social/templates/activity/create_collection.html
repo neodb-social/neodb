@@ -8,7 +8,6 @@
 {% load thumb %}
 {% load prettydate %}
 {% load user_actions %}
-
 <span class="action">
   <span>
     {% liked_piece activity.action_object as liked %}
@@ -17,7 +16,5 @@
 </span>
 <div class="spacing">
   创建了收藏单
-  <a href="{{ activity.action_object.url }}">
-  {{ activity.action_object.title }}
-  </a>
+  <a href="{{ activity.action_object.url }}">{{ activity.action_object.title }}</a>
 </div>

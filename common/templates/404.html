@@ -8,26 +8,22 @@
 {% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ site_name }} - {% trans '未找到' %}</title>
-  {% include "common_libs.html" with jquery=0 v2=1 %}
-</head>
-
-<body>
-  {% include "_header.html" %}
-  <main class="container">
-    <article class="error">
-    <header>
-      <h3>
-        🤦🏻 条目未找到
-      </h3>
-    </header>
-    您可能输入了一个无效的网址，或者相关内容已被作者删除。如果您确信这是我们的错误，请通过页面底部的链接联系我们。
-    </article>
-  </main>
-  {% include "partial/_footer.html" %}
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans '未找到' %}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container">
+      <article class="error">
+        <header>
+          <h3>🤦🏻 条目未找到</h3>
+        </header>
+        您可能输入了一个无效的网址，或者相关内容已被作者删除。如果您确信这是我们的错误，请通过页面底部的链接联系我们。
+      </article>
+    </main>
+    {% include "partial/_footer.html" %}
+  </body>
 </html>

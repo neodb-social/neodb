@@ -1,60 +1,42 @@
 {% load static %}
 {% load i18n %}
 {% load l10n %}
-
 <style>
     .add-entity-entries__button {
         margin: 4px;
     }
 </style>
-
 <aside class="grid__aside bottom">
-    <article>
-                <div class="add-entity-entries__label">
-                    {% trans '没有想要的结果？' %}
-                </div>
-                <p>
-                    如果在
-                    {% for site in sites %}
-                        {{ site }}
-                        {% if not forloop.last %}/{% endif %}
-                    {% endfor %}
-                    找到了条目，可以在搜索栏中输入完整链接提交。
-                </p>
-                <p>
-                    当然也可以手工创建条目：
-                </p>
-                <ul>
-                    <li>
-                        <a href="{% url 'catalog:create' 'Edition' %}">
-                        {% trans '添加书' %}
-                        </a>
-                    </li>
-                    <li>
-                <a href="{% url 'catalog:create' 'Movie' %}">
-                     {% trans '添加电影' %}
-                </a>
-            </li>
-            <li>
-        <a href="{% url 'catalog:create' 'TVShow' %}">
-                     {% trans '添加剧集' %}
-                </a>
-            </li>
-            <li>
-        <a href="{% url 'catalog:create' 'Podcast' %}">
-                     {% trans '添加播客' %}
-                </a>
-            </li>
-            <li>
-        <a href="{% url 'catalog:create' 'Album' %}">
-                     {% trans '添加专辑' %}
-                </a>
-            </li>
-            <li>
-        <a href="{% url 'catalog:create' 'Game' %}">
-                     {% trans '添加游戏' %}
-                </a>
-            </li>
-        </ul>
-            </article>
+  <article>
+    <div class="add-entity-entries__label">{% trans '没有想要的结果？' %}</div>
+    <p>
+      如果在
+      {% for site in sites %}
+        {{ site }}
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+      找到了条目，可以在搜索栏中输入完整链接提交。
+    </p>
+    <p>当然也可以手工创建条目：</p>
+    <ul>
+      <li>
+        <a href="{% url 'catalog:create' 'Edition' %}">{% trans '添加书' %}</a>
+      </li>
+      <li>
+        <a href="{% url 'catalog:create' 'Movie' %}">{% trans '添加电影' %}</a>
+      </li>
+      <li>
+        <a href="{% url 'catalog:create' 'TVShow' %}">{% trans '添加剧集' %}</a>
+      </li>
+      <li>
+        <a href="{% url 'catalog:create' 'Podcast' %}">{% trans '添加播客' %}</a>
+      </li>
+      <li>
+        <a href="{% url 'catalog:create' 'Album' %}">{% trans '添加专辑' %}</a>
+      </li>
+      <li>
+        <a href="{% url 'catalog:create' 'Game' %}">{% trans '添加游戏' %}</a>
+      </li>
+    </ul>
+  </article>
 </aside>

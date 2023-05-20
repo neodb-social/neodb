@@ -8,46 +8,101 @@
 {% load truncate %}
 {% load highlight %}
 {% load thumb %}
-
-<div id="modal" _="on closeModal add .closing then wait for animationend then remove me">
+<div id="modal"
+     _="on closeModal add .closing then wait for animationend then remove me">
   <div class="modal-underlay" _="on click trigger closeModal"></div>
   <div class="modal-content" style="font-size: 80%;">
     <div class="add-to-list-modal__head">
       <span class="add-to-list-modal__title"><small>{% trans '评论单集' %} {{ item.title }}: {{ focus_item.title }}</small></span>
-      <span class="add-to-list-modal__close-button modal-close" _="on click trigger closeModal">
+      <span class="add-to-list-modal__close-button modal-close"
+            _="on click trigger closeModal">
         <i class="fa-solid fa-xmark"></i>
       </span>
     </div>
     <div class="add-to-list-modal__body">
-      <form action="{% url 'journal:comment' item.uuid focus_item.uuid %}" method="post">
+      <form action="{% url 'journal:comment' item.uuid focus_item.uuid %}"
+            method="post">
         {% csrf_token %}
-
-        <textarea name="text" cols="40" rows="10" placeholder="超过360字部分实例可能无法显示" id="id_text">{% if comment.text %}{{ comment.text }}{% endif %}</textarea>
+        <textarea name="text"
+                  cols="40"
+                  rows="10"
+                  placeholder="超过360字部分实例可能无法显示"
+                  id="id_text">{% if comment.text %}{{ comment.text }}{% endif %}</textarea>
         <div role="group">
-        <div class="mark-modal__share-checkbox float-right" style="width:max-content;">
-          <label for="id_share_to_mastodon"><input type="checkbox" name="share_to_mastodon" id="id_share_to_mastodon" value="1" {%if not request.user.preference.default_no_share %}checked{% endif %}>分享到联邦网络</label>
-        </div>
-
-        <div class="mark-modal__option" style="width:max-content;">
-          <div class="mark-modal__visibility-radio">
-            <span>
-              <ul id="id_visibility">
-                <li><label for="id_visibility_0"><input type="radio" name="visibility" value="0" required="" id="id_visibility_0" {% if comment.visibility == 0 or not comment  %}checked{% endif %}> 公开</label> </li>
-                <li><label for="id_visibility_1"><input type="radio" name="visibility" value="1" required="" id="id_visibility_1" {% if comment.visibility == 1 %}checked{% endif %}> 仅关注者</label> </li>
-                <li><label for="id_visibility_2"><input type="radio" name="visibility" value="2" required="" id="id_visibility_2" {% if comment.visibility == 2 %}checked{% endif %}> 仅自己</label> </li>
-              </ul>
-            </span>
+          <div class="mark-modal__share-checkbox float-right"
+               style="width:max-content">
+            <label for="id_share_to_mastodon">
+              <input type="checkbox"
+                     name="share_to_mastodon"
+                     id="id_share_to_mastodon"
+                     value="1"
+                     {% if not request.user.preference.default_no_share %}checked{% endif %}>
+              分享到联邦网络
+            </label>
           </div>
-        </div>
+          <div class="mark-modal__option" style="width:max-content;">
+            <div class="mark-modal__visibility-radio">
+              <span>
+                <ul id="id_visibility">
+                  <li>
+                    <label for="id_visibility_0">
+                      <input type="radio"
+                             name="visibility"
+                             value="0"
+                             required=""
+                             id="id_visibility_0"
+                             {% if comment.visibility == 0 or not comment %}checked{% endif %}>
+                      公开
+                    </label>
+                  </li>
+                  <li>
+                    <label for="id_visibility_1">
+                      <input type="radio"
+                             name="visibility"
+                             value="1"
+                             required=""
+                             id="id_visibility_1"
+                             {% if comment.visibility == 1 %}checked{% endif %}>
+                      仅关注者
+                    </label>
+                  </li>
+                  <li>
+                    <label for="id_visibility_2">
+                      <input type="radio"
+                             name="visibility"
+                             value="2"
+                             required=""
+                             id="id_visibility_2"
+                             {% if comment.visibility == 2 %}checked{% endif %}>
+                      仅自己
+                    </label>
+                  </li>
+                </ul>
+              </span>
+            </div>
+          </div>
         </div>
         <div class="mark-modal__confirm-button">
           <input type="submit" class="button float-right" value="保存">
         </div>
-
         <div class="mark-modal__option">
           <div class="mark-modal__visibility-radio" role="group">
-            <div><input type="checkbox" name="share_position" value="1" id="share_position"><label for="share_position"> 分享播放位置: </label></div>
-            <div><input type="input" name="position" id="position" value="00:00:00" class="html-duration-picker" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" title="hh:mm:ss" style="display: none;padding: 0px 2px;height: unset;"></div>
+            <div>
+              <input type="checkbox" name="share_position" value="1" id="share_position">
+              <label for="share_position">分享播放位置:</label>
+            </div>
+            <div>
+              <input type="input"
+                     name="position"
+                     id="position"
+                     value="00:00:00"
+                     class="html-duration-picker"
+                     pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}"
+                     title="hh:mm:ss"
+                     style="display: none;
+                            padding: 0px 2px;
+                            height: unset">
+            </div>
           </div>
         </div>
       </form>

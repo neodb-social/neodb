@@ -9,20 +9,22 @@
         margin-left: 1%;
     }
 </style>
-<div class="widget-value-key-input" name='{{ widget.name }}'{% include "django/forms/widgets/attrs.html" %}>
-    {% if widget.value != None %}
-
+<div class="widget-value-key-input"
+     name='{{ widget.name }}'
+     {% include "django/forms/widgets/attrs.html" %}>
+  {% if widget.value != None %}
     {% for pair in widget.value %}
-    
-        {% for k, v in pair.items %}
-        <input type="text" value="{{ k }}"><input type="text" value="{{ v }}">
-        {% endfor %}
-        
+      {% for k, v in pair.items %}
+        <input type="text" value="{{ k }}">
+        <input type="text" value="{{ v }}">
+      {% endfor %}
     {% endfor %}
-
-    {% endif %}
+  {% endif %}
 </div>
-<input type="text" class="widget-value-key-input-data" hidden name="{{ widget.name }}">
+<input type="text"
+       class="widget-value-key-input-data"
+       hidden
+       name="{{ widget.name }}">
 <script>
     keyValueInput(
         $(".widget-value-key-input[name='{{ widget.name }}']"),

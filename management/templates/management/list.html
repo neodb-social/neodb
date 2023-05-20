@@ -1,18 +1,14 @@
-
 {% load static %}
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% include "common_libs.html" with jquery=0 v2=1 %}
-
     <title>{{ site_name }} - {% trans '公告栏' %}</title>
-</head>
-
-<body>
+  </head>
+  <body>
     {% include "_header.html" %}
     <style>
         .markdownx-preview {
@@ -39,33 +35,30 @@
         }
     </style>
     <main class="container">
-        <h3 class="header">{% trans '公告栏' %}</h3>
-        {% if request.user.is_superuser %}
+      <h3 class="header">{% trans '公告栏' %}</h3>
+      {% if request.user.is_superuser %}
         <a href="{% url 'management:create' %}" class="add">{% trans '发布新公告' %}</a>
-        {% endif %}
-
-                        {% for announcement in object_list %}
-
-                        <article>
-                            <header>
-                            <a href="{{ announcement.get_absolute_url }}"><h4>{{ announcement.title }}</h4></a>
-                            <span class="datetime">{{ announcement.created_time }}</span>
-                            {% if request.user.is_superuser %}
-                            <span class="operations">
-                                <a href="{% url 'management:update' announcement.pk %}">{% trans '编辑' %}</a>
-                                <a href="{% url 'management:delete' announcement.pk %}">{% trans '删除' %}</a>
-                            </span>
-                            {% endif %}
-                            </header>
-                            <p>{{ announcement.get_html_content | safe }}</p>
-                        </article>
-
-                        {% empty %}
-                            <p>{% trans '暂无公告' %}</p>
-                        {% endfor %}
-
+      {% endif %}
+      {% for announcement in object_list %}
+        <article>
+          <header>
+            <a href="{{ announcement.get_absolute_url }}">
+              <h4>{{ announcement.title }}</h4>
+            </a>
+            <span class="datetime">{{ announcement.created_time }}</span>
+            {% if request.user.is_superuser %}
+              <span class="operations">
+                <a href="{% url 'management:update' announcement.pk %}">{% trans '编辑' %}</a>
+                <a href="{% url 'management:delete' announcement.pk %}">{% trans '删除' %}</a>
+              </span>
+            {% endif %}
+          </header>
+          <p>{{ announcement.get_html_content | safe }}</p>
+        </article>
+      {% empty %}
+        <p>{% trans '暂无公告' %}</p>
+      {% endfor %}
     </main>
     {% include "partial/_footer.html" %}
-</body>
-
+  </body>
 </html>
