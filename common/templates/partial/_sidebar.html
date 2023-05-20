@@ -106,7 +106,7 @@
               <div class="tag-collection" style="margin-left: 0;">
                 {% for t in top_tags %}
                   <span class="tag-collection__tag">
-                    <a href="{% reverse 'user_tag_member_list' user.mastodon_username t %}">{{ t }}</a>
+                    <a href="{% url 'journal:user_tag_member_list' user.mastodon_username t %}">{{ t }}</a>
                   </span>
                 {% endfor %}
                 <div class="clearfix"></div>
