@@ -22,6 +22,8 @@ from datetime import timedelta
 from django.utils import timezone
 from django.contrib import messages
 from journal.models import remove_data_by_user
+from django.db.models import Q
+from django.core.cache import cache
 
 
 # the 'login' page that user can see
@@ -29,11 +31,17 @@ def login(request):
     if request.method == "GET":
         selected_site = request.GET.get("site", default="")
 
-        sites = list(
-            MastodonApplication.objects.all()
-            .order_by("domain_name")
-            .values_list("domain_name")
-        )
+        cache_key = "login_sites"
+        sites = cache.get(cache_key, [])
+        if not sites:
+            sites = list(
+                MastodonApplication.objects.all()
+                .exclude(Q(domain_name__contains="@"))
+                .exclude(Q(domain_name__contains=":"))
+                .order_by("domain_name")
+                .values_list("domain_name")
+            )
+            cache.set(cache_key, sites, timeout=3600)
         # store redirect url in the cookie
         if request.GET.get("next"):
             request.session["next_url"] = request.GET.get("next")
