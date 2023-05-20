@@ -101,22 +101,18 @@
   {% with related_books=item.get_related_books %}
     {% if related_books.count > 0 %}
       <section>
-        <div class="action-panel">
-          <div class="action-panel__label">{% trans '其它版本' %}</div>
-          <div>
-            {% for b in related_books %}
-              <p>
-                <a href="{{ b.url }}">{{ b.title }}</a>
-                <small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
-                {% for res in b.external_resources.all %}
-                  <a href="{{ res.url }}">
-                    <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
-                  </a>
-                {% endfor %}
-              </p>
-            {% endfor %}
-          </div>
-        </div>
+        <h5>{% trans '其它版本' %}</h5>
+        {% for b in related_books %}
+          <p>
+            <a href="{{ b.url }}">{{ b.title }}</a>
+            <small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
+            {% comment %} {% for res in b.external_resources.all %}
+              <a href="{{ res.url }}">
+                <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
+              </a>
+            {% endfor %} {% endcomment %}
+          </p>
+        {% endfor %}
       </section>
     {% endif %}
   {% endwith %}

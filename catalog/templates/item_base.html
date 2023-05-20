@@ -181,8 +181,7 @@
                 <span class="timestamp">{{ mark.review.created_time|date }}</span>
               </span>
               <p>
-                <a href="{% url 'journal:review_retrieve' review.uuid %}"
-                   class="review-panel__review-title">{{ review.title }}</a>
+                <a href="{% url 'journal:review_retrieve' review.uuid %}">{{ review.title }}</a>
               </p>
             {% else %}
               <!-- <span class="empty">暂无</span> -->

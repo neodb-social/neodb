@@ -70,11 +70,10 @@
               </p>
               {% if import_status.douban_pending %}
                 <input type="submit"
-                       class="import-panel__button"
                        value="{% trans '备份文件已上传，请等待导入完成或刷新页面查看最新进度' %}"
                        disabled />
               {% else %}
-                <input type="submit" class="import-panel__button" value="{% trans '导入' %}" />
+                <input type="submit"  value="{% trans '导入' %}" />
               {% endif %}
             </form>
             <div hx-get="{% url 'users:import_status' %}"
@@ -87,17 +86,14 @@
             <summary>{% trans '导入Goodreads帐号或书单' %}</summary>
             <form action="{% url 'users:import_goodreads' %}" method="post">
               {% csrf_token %}
-              <div class="import-panel__checkbox">
+              <div>
                 输入Goodreads链接
                 <input type="url"
                        name="url"
                        value=""
                        placeholder="例如 https://www.goodreads.com/user/show/12345-janedoe"
                        required>
-                <input type="submit"
-                       class="import-panel__button"
-                       value="{% trans '导入' %}"
-                       id="uploadBtn" />
+                <input type="submit"  value="{% trans '导入' %}" id="uploadBtn" />
               </div>
               <ul>
                 <li>
@@ -120,7 +116,7 @@
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              <div class="import-panel__checkbox">
+              <div>
                 导入方式：
                 <label for="opml_import_mode_0">
                   <input id="opml_import_mode_0"
@@ -137,10 +133,7 @@
                 <br>
                 选择OPML文件
                 <input type="file" name="file" id="excel" required accept=".opml,.xml">
-                <input type="submit"
-                       class="import-panel__button"
-                       value="{% trans '导入' %}"
-                       id="uploadBtn" />
+                <input type="submit"  value="{% trans '导入' %}" id="uploadBtn" />
               </div>
             </form>
           </details>
@@ -154,15 +147,11 @@
               {% csrf_token %}
               {% if export_status.marks_pending %}
                 <input type="submit"
-                       class="import-panel__button"
                        value="{% trans '正在导出标记、短评和评论' %}"
                        id="uploadBtn"
                        disabled />
               {% else %}
-                <input type="submit"
-                       class="import-panel__button"
-                       value="{% trans '导出标记、短评和评论' %}"
-                       id="uploadBtn" />
+                <input type="submit"  value="{% trans '导出标记、短评和评论' %}" id="uploadBtn" />
               {% endif %}
               {% if export_status.marks_file %}
                 <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a>
@@ -175,11 +164,8 @@
             <summary>{% trans '重置所有标记和短评可见性' %}</summary>
             <form action="{% url 'users:reset_visibility' %}" method="post">
               {% csrf_token %}
-              <input type="submit"
-                     class="import-panel__button"
-                     value="{% trans '重置' %}"
-                     id="uploadBtn" />
-              <div class="import-panel__checkbox">
+              <input type="submit"  value="{% trans '重置' %}" id="uploadBtn" />
+              <div>
                 <input type="radio" name="visibility" id="visPublic" value="0" checked>
                 <label for="visPublic">{% trans '公开' %}</label>
                 <input type="radio" name="visibility" id="visFollower" value="1">
@@ -197,10 +183,7 @@
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              <input type="submit"
-                     class="import-panel__button"
-                     value="{% trans '同步' %}"
-                     id="uploadBtn" />
+              <input type="submit"  value="{% trans '同步' %}" id="uploadBtn" />
               上次更新时间 {{ user.mastodon_last_refresh }}
               <div>
                 为了正确高效的展示短评和评论，{{ site_name }}会缓存你在联邦网络的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
@@ -214,13 +197,10 @@
               <summary>{% trans '替换社交账号' %}</summary>
               <form action="{% url 'users:reconnect' %}" method="post">
                 {% csrf_token %}
-                <div class="import-panel__checkbox">
+                <div>
                   输入新社交账号所在的实例域名
                   <input type="input" name="domain" value="" placeholder="例如mastodon.online">
-                  <input type="submit"
-                         class="import-panel__button"
-                         value="{% trans '登录新账号' %}"
-                         id="uploadBtn" />
+                  <input type="submit"  value="{% trans '登录新账号' %}" id="uploadBtn" />
                 </div>
                 <div>替换后可使用新的联邦网络身份来登录{{ site_name }}和控制数据可见性，已有的标记评论收藏单等数据不受影响。</div>
               </form>
@@ -232,16 +212,13 @@
             <summary>{% trans '删除数据和帐号信息' %}</summary>
             <form action="{% url 'users:clear_data' %}" method="post">
               {% csrf_token %}
-              <div class="import-panel__checkbox">
+              <div>
                 输入完整的 用户名@实例名 以确认删除
                 <input type="input"
                        name="verification"
                        value=""
                        placeholder="user@mastodon.social">
-                <input type="submit"
-                       class="import-panel__button"
-                       value="{% trans '永久删除' %}"
-                       id="uploadBtn" />
+                <input type="submit"  value="{% trans '永久删除' %}" id="uploadBtn" />
               </div>
               <div>删除将无法撤销</div>
             </form>
