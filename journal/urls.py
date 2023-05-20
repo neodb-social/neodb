@@ -62,9 +62,9 @@ urlpatterns = [
         name="collection_remove_item",
     ),
     path(
-        "collection/<str:collection_uuid>/move_item/<str:direction>/<str:item_uuid>",
-        collection_move_item,
-        name="collection_move_item",
+        "collection/<str:collection_uuid>/collection_update_member_order",
+        collection_update_member_order,
+        name="collection_update_member_order",
     ),
     path(
         "collection/<str:collection_uuid>/update_item_note/<str:item_uuid>",

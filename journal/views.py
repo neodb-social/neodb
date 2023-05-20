@@ -328,6 +328,7 @@ def collection_retrieve(request, collection_uuid):
     )
 
 
+@login_required
 def collection_add_featured(request, collection_uuid):
     if request.method != "POST":
         raise BadRequest()
@@ -338,6 +339,7 @@ def collection_add_featured(request, collection_uuid):
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
+@login_required
 def collection_remove_featured(request, collection_uuid):
     if request.method != "POST":
         raise BadRequest()
@@ -352,6 +354,7 @@ def collection_remove_featured(request, collection_uuid):
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
+@login_required
 def collection_share(request, collection_uuid):
     collection = (
         get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
@@ -373,6 +376,7 @@ def collection_share(request, collection_uuid):
         raise BadRequest()
 
 
+@login_required
 def collection_retrieve_items(request, collection_uuid, edit=False, msg=None):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
@@ -434,6 +438,18 @@ def collection_move_item(request, direction, collection_uuid, item_uuid):
         collection.move_up_item(item)
     else:
         collection.move_down_item(item)
+    return collection_retrieve_items(request, collection_uuid, True)
+
+
+@login_required
+def collection_update_member_order(request, collection_uuid):
+    if request.method != "POST":
+        raise BadRequest()
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
+    if not collection.is_editable_by(request.user):
+        raise PermissionDenied()
+    ordered_member_ids = [int(i) for i in request.POST.get("member_ids").split(",")]
+    collection.update_member_order(ordered_member_ids)
     return collection_retrieve_items(request, collection_uuid, True)
 
 

@@ -485,6 +485,17 @@ class List(Piece):
             )
             member.delete()
 
+    def update_member_order(self, ordered_member_ids):
+        members = self.ordered_members
+        for m in self.members.all():
+            try:
+                i = ordered_member_ids.index(m.id)
+                if m.position != i + 1:
+                    m.position = i + 1
+                    m.save()
+            except ValueError:
+                pass
+
     def move_up_item(self, item):
         members = self.ordered_members
         member = self.get_member_for_item(item)

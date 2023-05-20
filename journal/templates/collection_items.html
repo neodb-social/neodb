@@ -35,9 +35,23 @@
         hoverClass: 'entity-sort--hover'
       });
     });
+    function update_member_order() {
+      var member_ids = [];
+      $('.sortable>.item-card').each(function () {
+        member_ids.push($(this).data('member-id'));
+      });
+      $('#member_ids').val(member_ids.join(','));
+      return true;
+    }
   </script>
-  <form>
-    <input type="button" class="secondary" value="拖拽修改条目顺序后点击这里保存">
+  <form class="entity-form"
+        hx-target="#collection_items"
+        hx-post="{% url 'journal:collection_update_member_order' collection.uuid %}"
+        onsubmit="return update_member_order()"
+        method="post">
+    {% csrf_token %}
+    <input type="hidden" name="member_ids" id="member_ids" required>
+    <input type="submit" class="secondary" value="拖拽修改条目顺序后点击这里保存">
   </form>
 {% endif %}
 {% if msg %}<script type="text/javascript">alert("{{ msg|escapejs }}");</script>{% endif %}

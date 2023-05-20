@@ -25,6 +25,9 @@ class CollectionTest(TestCase):
         self.assertEqual(list(collection.ordered_items), [self.book1, self.book2])
         collection.move_up_item(self.book2)
         self.assertEqual(list(collection.ordered_items), [self.book2, self.book1])
+        members = collection.ordered_members
+        collection.update_member_order([members[1].id, members[0].id])
+        self.assertEqual(list(collection.ordered_items), [self.book1, self.book2])
         member1 = collection.get_member_for_item(self.book1)
         self.assertEqual(member1.note, "my notes")
         member2 = collection.get_member_for_item(self.book2)
