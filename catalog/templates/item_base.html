@@ -344,10 +344,8 @@
             短评
             {% if request.user.is_authenticated %}
               <small>
-                | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}"
-    class="entity-marks__more-link">{% trans '全部标记' %}</a>
-                | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}"
-    class="entity-marks__more-link">关注的人的标记</a>
+                | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans '全部标记' %}</a>
+                | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">关注的人的标记</a>
               </small>
             {% endif %}
           </h5>
@@ -369,7 +367,7 @@
             {% comment %}
         {% if request.user.is_authenticated %}
         <small>
-          | <a href="{% url 'catalog:review_list' item.url_path item.uuid %}" class="entity-marks__more-link">{% trans '全部评论' %}</a>
+          | <a href="{% url 'catalog:review_list' item.url_path item.uuid %}">{% trans '全部评论' %}</a>
         </small>
         {% endif %}
             {% endcomment %}

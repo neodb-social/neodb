@@ -108,7 +108,11 @@
 
       >div {
         order: 1;
-        // margin: var(--pico-spacing);
+        margin: var(--pico-spacing);
+      }
+
+      >div:has(article) {
+        margin: 0;
       }
 
       >aside {
@@ -134,6 +138,10 @@
             display: flex;
           }
         }
+      }
+
+      >aside.top {
+        order: -1;
       }
 
       ul {

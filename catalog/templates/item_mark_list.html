@@ -9,7 +9,7 @@
 {% load user_actions %}
 {% load duration %}
 <!DOCTYPE html>
-<html lang="en" class="classic-page">
+<html lang="en" class="content-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,14 @@
     <main>
       <div class="grid__main">
         <h5>
-          <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">{{ item.title }}</a>{% trans ' 的标记' %}
+          {% if followeing_only %}
+            <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans '全部标记' %}</a>
+            | {% trans '好友标记' %}
+          {% else %}
+            {% trans '全部标记' %}
+            | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans '好友标记' %}</a>
+          {% endif %}
+          | <a href="{% url 'catalog:review_list' item.url_path item.uuid %}">{% trans '全部评论' %}</a>
         </h5>
         {% for member in marks %}
           {% with member.mark as mark %}
@@ -77,7 +84,9 @@
           {% endif %}
         </div>
       </div>
-      <div class="grid__aside" id="aside">{% include "sidebar_item.html" %}</div>
+      <aside class="grid__aside top">
+        {% include "sidebar_item.html" %}
+      </aside>
     </main>
     {% include "partial/_footer.html" %}
   </body>

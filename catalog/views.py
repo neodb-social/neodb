@@ -294,6 +294,7 @@ def mark_list(request, item_path, item_uuid, following_only=False):
         {
             "marks": marks,
             "item": item,
+            "followeing_only": following_only,
         },
     )
 

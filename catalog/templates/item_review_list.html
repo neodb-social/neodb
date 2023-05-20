@@ -9,7 +9,7 @@
 {% load user_actions %}
 {% load duration %}
 <!DOCTYPE html>
-<html lang="en" class="classic-page">
+<html lang="en" class="content-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,9 @@
     <main>
       <div class="grid__main">
         <h5>
-          <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">{{ item.title }}</a>{% trans ' 的评论' %}
+          <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans '全部标记' %}</a>
+          | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans '好友标记' %}</a>
+          | {% trans '全部评论' %}
         </h5>
         {% for review in reviews %}
           <section>
@@ -76,7 +78,9 @@
           {% endif %}
         </div>
       </div>
-      <div class="grid__aside" id="aside">{% include "sidebar_item.html" %}</div>
+      <aside class="grid__aside top">
+        {% include "sidebar_item.html" %}
+      </aside>
     </main>
     {% include "partial/_footer.html" %}
   </body>
