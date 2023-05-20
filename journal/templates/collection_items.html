@@ -14,7 +14,7 @@
   <form class="entity-form"
         hx-target="#collection_items"
         hx-post="{% url 'journal:collection_append_item' collection.uuid %}"
-        method="POST">
+        method="post">
     {% csrf_token %}
     <input type="url"
            name="url"

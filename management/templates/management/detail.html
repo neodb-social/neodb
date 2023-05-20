@@ -2,33 +2,32 @@
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% include "common_libs.html" with jquery=0 v2=1 %}
     <title>{{ site_name }} - {{ object.title }}</title>
-</head>
-
-<body>
+  </head>
+  <body>
     {% include "_header.html" %}
     <main class="container">
-    <article>
+      <article>
         <header>
-            <h3>{{ object.title }}</h3>
-            {{ object.created_time|date }}
-            {% if request.user.is_superuser %}
+          <h3>{{ object.title }}</h3>
+          {{ object.created_time|date }}
+          {% if request.user.is_superuser %}
             <span class="operations">
-                <a href="{% url 'management:delete' object.pk %}">{% trans '删除' %}</a>
-                <a href="{% url 'management:update' object.pk %}">{% trans '编辑' %}</a>
+              <a href="{% url 'management:delete' object.pk %}">{% trans '删除' %}</a>
+              <a href="{% url 'management:update' object.pk %}">{% trans '编辑' %}</a>
             </span>
-            {% endif %}
+          {% endif %}
         </header>
         <p>{{ object.get_html_content | safe }}</p>
         <footer>
-            <a href="{% url 'management:list' %}">{% trans '返回公告栏' %}</a>
+          <a href="{% url 'management:list' %}">{% trans '返回公告栏' %}</a>
         </footer>
-    </article>
-</body>
-
+      </article>
+    </main>
+    {% include "_footer.html" %}
+  </body>
 </html>

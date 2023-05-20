@@ -70,9 +70,8 @@
       {% if request.user.is_authenticated and mark.shelf_type %}
         <div id="item-primary-mark" class="right mark">
           <div class="item-action">
-            <button class="outline"
+            <button class="outline edit"
                     hx-get="{% url 'journal:mark' item.uuid %}?new=1"
-                    class="edit"
                     hx-target="body"
                     hx-swap="beforeend">
               {{ mark.created_time | date }} {% trans mark.action_label %}

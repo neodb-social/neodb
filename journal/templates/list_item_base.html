@@ -85,11 +85,13 @@
               <span class="timestamp">{{ mark.review.created_time|date }}</span>
             </span>
             <div>
-              评论: <span>
-              <a href="{% url 'journal:review_retrieve' mark.review.uuid %}">{{ mark.review.title }}</a>
-            </span>
-            -
-            {{ mark.review.plain_content | truncate:200 }}
+              评论:
+              <span>
+                <a href="{% url 'journal:review_retrieve' mark.review.uuid %}">{{ mark.review.title }}</a>
+              </span>
+              -
+              {{ mark.review.plain_content | truncate:200 }}
+            </div>
           </section>
         {% endif %}
       {% endif %}

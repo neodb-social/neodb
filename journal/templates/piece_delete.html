@@ -13,20 +13,18 @@
     {% include "common_libs.html" with jquery=0 v2=1 %}
   </head>
   <body>
-    <body>
-      {% include "_header.html" %}
-      <main class="container">
-        <article>
-          <header>
-            <h5>{% trans '确认删除' %}</h5>
-          </header>
-          <div>
-            <h6>{{ piece.title }}</h6>
-            {% if piece.visibility > 0 %}<i class="fa-solid fa-lock"></i>{% endif %}
-            <a href="{% url 'journal:user_profile' piece.owner.mastodon_username %}">{{ piece.owner.username }}</a>
-            {{ piece.edited_time }}
-          </div>
-        </article>
+    {% include "_header.html" %}
+    <main class="container">
+      <article>
+        <header>
+          <h5>{% trans '确认删除' %}</h5>
+        </header>
+        <div>
+          <h6>{{ piece.title }}</h6>
+          {% if piece.visibility > 0 %}<i class="fa-solid fa-lock"></i>{% endif %}
+          <a href="{% url 'journal:user_profile' piece.owner.mastodon_username %}">{{ piece.owner.username }}</a>
+          {{ piece.edited_time }}
+        </div>
         <footer>
           <form action="?return_url={{ return_url }}" method="post" role="group">
             {% csrf_token %}

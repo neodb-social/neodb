@@ -6,26 +6,26 @@
 {% load truncate %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans '投诉用户' %}</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
-</head>
-
-<body>
+  </head>
+  <body>
     {% include "_header.html" %}
     <div class="container">
-        <form action="{% url 'users:report' %}" method="post" enctype="multipart/form-data" class="report-form">
-            {% csrf_token %}
-            {{ form }}
-            <input class="button" type="submit" value="{% trans '提交' %}">
-        </form>
+      <form action="{% url 'users:report' %}"
+            method="post"
+            enctype="multipart/form-data"
+            class="report-form">
+        {% csrf_token %}
+        {{ form }}
+        <input class="button" type="submit" value="{% trans '提交' %}">
+      </form>
     </div>
     {% include "partial/_footer.html" %}
     <script>
-
         // preview uploaded pic
         $("input[type='file']").on("change", function () {
             if (this.files && this.files[0]) {
@@ -39,7 +39,5 @@
             }
         });
     </script>
-</body>
-
-
+  </body>
 </html>

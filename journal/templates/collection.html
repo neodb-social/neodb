@@ -67,28 +67,29 @@
                 </p>
                 <p>
                   {% for cat, count in collection.get_summary.items %}
-                    {% if count %}<span>{{ count }} {{ cat|prural_items }}<span>{% endif %}
-                    {% endfor %}
+                    {% if count %}<span>{{ count }} {{ cat|prural_items }}</span>{% endif %}
+                  {% endfor %}
+                </p>
+                {% if featured_since %}
+                  <p>
+                    <progress value="{{ stats.percentage }}"
+                              max="100"
+                              title="{{ stats.percentage }}%" />
                   </p>
-                  {% if featured_since %}
-                    <p>
-                      <progress value="{{ stats.percentage }}"
-                                max="100"
-                                title="{{ stats.percentage }}%" />
-                    </p>
-                  {% endif %}
-                  <div class="markdown-content">{{ collection.html | safe }}</div>
-                </div>
-                <div class="more">
-                  <div style="text-align: center;">
-                    <img src="{{ collection.cover|thumb:'normal' }}"
-                         style="max-width: 120px;
-                                max-height: 120px">
-                  </div>
+                {% endif %}
+                <div class="markdown-content">{{ collection.html | safe }}</div>
+              </div>
+              <div class="more">
+                <div style="text-align: center;">
+                  <img src="{{ collection.cover|thumb:'normal' }}"
+                       alt=""
+                       style="max-width: 120px;
+                              max-height: 120px">
                 </div>
               </div>
-            </header>
-            {% comment %}
+            </div>
+          </header>
+          {% comment %}
           {% if featured_since %}
           <section style="min-width:10vw;">
             <div class="donut" style="background: conic-gradient(#7CBDFE 0deg {{ stats.complete_deg }}deg, #B4D2A5 {{ stats.complete_deg }}deg {{ stats.complete_deg|add:stats.progress_deg }}deg, #ccc {{ stats.complete_deg|add:stats.progress_deg }}deg 1deg );"><div class="hole"><div class="text">
@@ -110,31 +111,31 @@
             </div>
           </section>
           {% endif %}
-            {% endcomment %}
-            <section>
-              <div class="entity-list"
-                   hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}"
-                   hx-trigger="load"></div>
-            </section>
-            <footer>
-              <div class="action">
-                {% if request.user == collection.owner %}
-                  <span>
-                    <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '编辑' %}</a>
-                  </span>
-                  <span>
-                    <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans '删除' %}</a>
-                  </span>
-                {% elif editable %}
-                  <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '协助整理' %}</a>
-                {% endif %}
-              </div>
-              <span>创建于 {{ collection.created_time | date }}</span>
-            </footer>
-          </article>
-        </div>
-        {% include "_sidebar.html" with user=collection.owner show_profile=1 %}
-      </main>
-      {% include "partial/_footer.html" %}
-    </body>
-  </html>
+          {% endcomment %}
+          <section>
+            <div class="entity-list"
+                 hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}"
+                 hx-trigger="load"></div>
+          </section>
+          <footer>
+            <div class="action">
+              {% if request.user == collection.owner %}
+                <span>
+                  <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '编辑' %}</a>
+                </span>
+                <span>
+                  <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans '删除' %}</a>
+                </span>
+              {% elif editable %}
+                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '协助整理' %}</a>
+              {% endif %}
+            </div>
+            <span>创建于 {{ collection.created_time | date }}</span>
+          </footer>
+        </article>
+      </div>
+      {% include "_sidebar.html" with user=collection.owner show_profile=1 %}
+    </main>
+    {% include "partial/_footer.html" %}
+  </body>
+</html>

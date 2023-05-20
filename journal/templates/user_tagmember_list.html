@@ -1,22 +1,21 @@
 {% extends "user_item_list_base.html" %}
 {% load i18n %}
-
-{% block title%}
-<title>{{ site_name }} - {{ user.mastodon_username }} - {{ tag.title }} {% trans '标签' %}</title>
+{% block title %}
+  <title>{{ site_name }} - {{ user.mastodon_username }} - {{ tag.title }} {% trans '标签' %}</title>
 {% endblock %}
-
 {% block head %}
-{{ tag.title }}
-{% if user == request.user %}
-<small>
-<a class="icon" hx-get="{% url 'journal:user_tag_edit' %}?tag={{tag.title}}" class="edit" hx-target="body" hx-swap="beforeend"><i class="fa-regular fa-pen-to-square"></i></a>
-</small>
-{% endif %}
-<br>
-<small>
-{% if tag.visibility > 0 %}
-<i class="fa-solid fa-lock"></i>
-{% endif %}
-{{ user.mastodon_username }}的{% trans '标签' %}
-</small>
+  {{ tag.title }}
+  {% if user == request.user %}
+    <small>
+      <a class="icon edit"
+         hx-get="{% url 'journal:user_tag_edit' %}?tag={{ tag.title }}"
+         hx-target="body"
+         hx-swap="beforeend"><i class="fa-regular fa-pen-to-square"></i></a>
+    </small>
+  {% endif %}
+  <br>
+  <small>
+    {% if tag.visibility > 0 %}<i class="fa-solid fa-lock"></i>{% endif %}
+    {{ user.mastodon_username }}的{% trans '标签' %}
+  </small>
 {% endblock %}

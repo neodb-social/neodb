@@ -4,8 +4,8 @@
 <header class="container-fluid">
   <nav>
     <ul class="nav-logo">
-      <a href="/">
-        <img src="{% static 'img/logo.svg' %}" />
+      <a href="{% reverse 'home' %}">
+        <img src="{% static 'img/logo.svg' %}" alt="" />
       </a>
     </ul>
     <ul class="nav-search">
@@ -55,7 +55,8 @@
         <details class="dropdown">
           <summary aria-haspopup="listbox">
             <span class="avatar">
-              <img src="{% if request.user.is_authenticated %}{{ request.user.mastodon_account.avatar }}{% else %}data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=={% endif %}" />
+              <img alt=""
+                   src="{% if request.user.is_authenticated %}{{ request.user.mastodon_account.avatar }}{% else %}data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=={% endif %}" />
             </span>
           </summary>
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">

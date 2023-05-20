@@ -1,17 +1,14 @@
 <div class="tag-input">
-    <input type="text" name="{{ widget.name }}" {% include "django/forms/widgets/attrs.html" %}>
+  <input type="text"
+         name="{{ widget.name }}"
+         {% include "django/forms/widgets/attrs.html" %}>
 </div>
 <script>
-    new inputTags({
-        container: document.getElementsByClassName("tag-input")[0],
-        tags : [{% for tag in widget.value %}"{{ tag }}",{% endfor %}],
-        allowDuplicateTags : false,
-        duplicateTime: 300,
-        onTagRemove : function (tag) {},
-    });
+  new inputTags({
+    container: document.getElementsByClassName("tag-input")[0],
+    tags : [{% for tag in widget.value %}"{{ tag }}",{% endfor %}],
+    allowDuplicateTags : false,
+    duplicateTime: 300,
+    onTagRemove : function (tag) {},
+  });
 </script>
-    
-
-
-    
-    

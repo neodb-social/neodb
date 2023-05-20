@@ -9,70 +9,64 @@
 {% load highlight %}
 {% load thumb %}
 {% load duration %}
-
-<dialog open _="on close_dialog add .closing then wait for animationend then remove me">
+<dialog open
+        _="on close_dialog add .closing then wait for animationend then remove me">
   <article>
     <header>
-      <Link to="#" aria-label="Close" class="close" _="on click trigger close_dialog" />
+      <link to="#"
+            aria-label="Close"
+            class="close"
+            _="on click trigger close_dialog" />
       <strong>标记 {{ item.title }}</strong>
     </header>
     <div class="add-to-list-modal__body">
-      <form method="post" action="{% url 'journal:mark' item.uuid  %}">
+      <form method="post" action="{% url 'journal:mark' item.uuid %}">
         {% csrf_token %}
         <div class="grid">
           <div>
             <fieldset>
               {% for k, v in shelf_types %}
-              {% if v %}
-              <input type="radio" name="status" value="{{ k }}" required id="id_status_{{ k }}"
-              {% if k == "wishlist" %}
-              _="on click add .hidden to .rating-editor"
-              {% else %}
-              _="on click remove .hidden from .rating-editor"
-              {% endif %}
-              {% if shelf_type == k %}checked="" {% endif %}>
-              <label for="id_status_{{ k }}"> {{ v }}</label>
-              {% endif %}
+                {% if v %}
+                  <input type="radio"
+                         name="status"
+                         value="{{ k }}"
+                         required
+                         id="id_status_{{ k }}"
+                         {% if k == "wishlist" %} _="on click add .hidden to .rating-editor" {% else %} _="on click remove .hidden from .rating-editor" {% endif %}
+                         {% if shelf_type == k %}checked=""{% endif %}>
+                  <label for="id_status_{{ k }}">{{ v }}</label>
+                {% endif %}
               {% endfor %}
             </fieldset>
           </div>
           <div>
             <fieldset>
-            <span _="
-            on mousemove(currentTarget, offsetX)
-              set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth)
-              set star_div to the <div/> in me
-              set star_div.style.width to (current_value * 10) + '%'
-              set @data-tooltip to current_value or '未评分'
-              add .yellow to star_div
-            end
-            on click(currentTarget, offsetX)
-              set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth)
-              set star_div to the <div/> in me
-              set star_input to the <input/> in me
-              set star_div.style.width to (current_value * 10) + '%'
-              set @data-tooltip to current_value or '未评分'
-              set star_input.value to current_value
-            end
-            on mouseleave(currentTarget)
-              set star_div to the <div/> in me
-              set star_input to the <input/> in me
-              set current_value to star_input.value
-              set star_div.style.width to (current_value * 10) + '%'
-              set @data-tooltip to current_value or '未评分'
-              remove .yellow from star_div
-            end
-            " class="rating-editor {% if shelf_type == "wishlist" %}hidden{% endif %}">
-            {{ mark.rating|rating_star }}
-            <input type="hidden" name="rating" id="id_rating" value="{{ mark.rating|floatformat:0 }}">
-            </span>
+              <span _=" on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
+                <div/>
+                in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
+                <div/>
+                in me set star_input to the
+                <input/>
+                in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the
+                <div/>
+                in me set star_input to the
+                <input/>
+                in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' remove .yellow from star_div end " class="rating-editor
+                {% if shelf_type == "wishlist" %}hidden{% endif %}
+                ">
+                {{ mark.rating|rating_star }}
+                <input type="hidden"
+                       name="rating"
+                       id="id_rating"
+                       value="{{ mark.rating|floatformat:0 }}">
+              </span>
             </fieldset>
           </div>
         </div>
-        <textarea name="text" rows="4" placeholder="提示：
-善用 &gt;!文字!&lt; 标记可隐藏剧透；
-超过360字可能无法分享到联邦网络实例时间线。" id="id_text">{{ mark.text|default:"" }}</textarea>
-
+        <textarea name="text"
+                  rows="4"
+                  placeholder="提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦网络实例时间线。"
+                  id="id_text">{{ mark.text|default:"" }}</textarea>
         <div class="mark-modal__tag">
           <div class="tag-input">
             <input name="tags" type="text" placeholder="回车增加标签" id="id_tags" value="">
@@ -82,52 +76,85 @@
         <div class="grid">
           <div>
             <fieldset>
-              <input type="radio" name="visibility" value="0" required id="id_visibility_0" {% if mark.visibility == 0 %}checked{% endif %}>
+              <input type="radio"
+                     name="visibility"
+                     value="0"
+                     required
+                     id="id_visibility_0"
+                     {% if mark.visibility == 0 %}checked{% endif %}>
               <label for="id_visibility_0">公开</label>
-              <input type="radio" name="visibility" value="1" required id="id_visibility_1" {% if mark.visibility == 1 %}checked{% endif %}>
+              <input type="radio"
+                     name="visibility"
+                     value="1"
+                     required
+                     id="id_visibility_1"
+                     {% if mark.visibility == 1 %}checked{% endif %}>
               <label for="id_visibility_1">仅关注者</label>
-              <input type="radio" name="visibility" value="2" required id="id_visibility_2" {% if mark.visibility == 2 %}checked{% endif %}>
+              <input type="radio"
+                     name="visibility"
+                     value="2"
+                     required
+                     id="id_visibility_2"
+                     {% if mark.visibility == 2 %}checked{% endif %}>
               <label for="id_visibility_2">仅自己</label>
             </fieldset>
           </div>
           <div>
             <fieldset>
-              <label for="id_share_to_mastodon"><input role="switch" type="checkbox" name="share_to_mastodon"
-                  id="id_share_to_mastodon" value="1" {%if not request.user.preference.default_no_share %}checked{% endif %}>分享到联邦网络</label>
+              <label for="id_share_to_mastodon">
+                <input role="switch"
+                       type="checkbox"
+                       name="share_to_mastodon"
+                       id="id_share_to_mastodon"
+                       value="1"
+                       {% if not request.user.preference.default_no_share %}checked{% endif %}>
+                分享到联邦网络
+              </label>
             </fieldset>
           </div>
         </div>
-
         <div class="grid">
           <div>
             <div>
-              <input role="switch" _="on click toggle .invisible on #mark_date  " type="checkbox" name="mark_anotherday"
-                value="1" id="mark_anotherday"><label for="mark_anotherday">更改日期: </label>
-              <input class="invisible" type="date" name="mark_date" id="mark_date" min="1900-01-01" max="{{date_today}}"
-                value="{{date_today}}">
+              <input role="switch"
+                     _="on click toggle .invisible on #mark_date  "
+                     type="checkbox"
+                     name="mark_anotherday"
+                     value="1"
+                     id="mark_anotherday">
+              <label for="mark_anotherday">更改日期:</label>
+              <input class="invisible"
+                     type="date"
+                     name="mark_date"
+                     id="mark_date"
+                     min="1900-01-01"
+                     max="{{ date_today }}"
+                     value="{{ date_today }}">
             </div>
           </div>
           <div>
             <fieldset>
-            <input type="submit" value="保存">
+              <input type="submit" value="保存">
             </fieldset>
           </div>
         </div>
       </form>
-
       <div>
         {% if mark.id %}
-        <form id="mark_delete" action="{% url 'journal:mark' mark.item.uuid %}" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="delete" value="1">
-          <a><button class="secondary" onclick="return confirm('确认删除这条标记、短评和标签？')">删除标记</button></a>
-        </form>
+          <form id="mark_delete"
+                action="{% url 'journal:mark' mark.item.uuid %}"
+                method="post">
+            {% csrf_token %}
+            <input type="hidden" name="delete" value="1">
+            <a>
+              <button class="secondary" onclick="return confirm('确认删除这条标记、短评和标签？')">删除标记</button>
+            </a>
+          </form>
         {% endif %}
       </div>
     </div>
   </article>
 </dialog>
-
 <script>
   (function () {
     new inputTags({
@@ -139,4 +166,3 @@
     });
   })();
 </script>
-</div>

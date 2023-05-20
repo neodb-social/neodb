@@ -7,148 +7,136 @@
 {% load thumb %}
 {% load collection %}
 {% load bleach_tags %}
-
 <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
-    <div class="aside-section-wrapper aside-section-wrapper--no-margin">
-        <div class="user-profile" id="userInfoCard">
-            <div class="user-profile__header">
-                <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
-                <img src="{{ user.mastodon_account.avatar }}" class="user-profile__avatar mast-avatar">
-                <a href="{% url 'journal:user_profile' user.mastodon_username %}">
-                    <h5 class="user-profile__username mast-displayname">{{ user.mastodon_account.display_name }}</h5>
-                </a>
-                <!-- {{ user.id }} -->
-            </div>
-            <p><a class="user-profile__link mast-acct" target="_blank" rel="me noopener" href="{{ user.mastodon_account.url }}">@{{ user.username }}@{{ user.mastodon_site }}</a>
-                {% current_user_relationship user as relationship %}
-                {% if relationship %}
-                <a class="user-profile__report-link">
-                    {{ relationship }}
-                </a>
-                {% endif %}
-            </p>
-            <div class="relation-dropdown">
-            <div class="relation-dropdown__body">
-                <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
-                {% if request.user != user %}
-                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
-                    class="user-profile__report-link">{% trans '投诉用户' %}</a>
-                {% endif %}
-            </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="relation-dropdown">
-        <div class="relation-dropdown__button">
-            <span class="icon-arrow">
-                <i class="fas fa-angle-down"></i>
-            </span>
-        </div>
-        {% if user.featured_collections.all %}
+  <div class="aside-section-wrapper aside-section-wrapper--no-margin">
+    <div class="user-profile" id="userInfoCard">
+      <div class="user-profile__header">
+        <!-- <img src=""
+      class="user-profile__avatar mast-avatar"
+      alt="{{ user.username }}"> -->
+        <img src="{{ user.mastodon_account.avatar }}"
+             class="user-profile__avatar mast-avatar"
+             alt="">
+        <a href="{% url 'journal:user_profile' user.mastodon_username %}">
+          <h5 class="user-profile__username mast-displayname">{{ user.mastodon_account.display_name }}</h5>
+        </a>
+        <!-- {{ user.id }} -->
+      </div>
+      <p>
+        <a class="user-profile__link mast-acct"
+           target="_blank"
+           rel="me noopener"
+           href="{{ user.mastodon_account.url }}">@{{ user.username }}@{{ user.mastodon_site }}</a>
+        {% current_user_relationship user as relationship %}
+        {% if relationship %}<a class="user-profile__report-link">{{ relationship }}</a>{% endif %}
+      </p>
+      <div class="relation-dropdown">
         <div class="relation-dropdown__body">
-            <div class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
-                <div class="user-relation">
-                    <h5 class="user-relation__label">
-                        {% trans '当前目标' %}
-                    </h5>
-                    {% for featured_collection in user.featured_collections.all %}
-                    {% user_visibility_of featured_collection as visible %}
-                    {% if visible %}
-                    {% user_progress_of collection=featured_collection user=user as progress %}
-                    <div class="tag-collection" style="margin-left: 10%;">
-                        <a href="{{ featured_collection.collection.url }}">{{ featured_collection.collection.title }}</a><br>
-                        已完成{{ progress }}% <br>
-                        <progress value="{{ progress }}" max="100">
-                    </div>
-                    {% endif %}
-                    {% endfor %}
-                    <br>
-                </div>
-            </div>
+          <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
+          {% if request.user != user %}
+            <a href="{% url 'users:report' %}?user_id={{ user.id }}"
+               class="user-profile__report-link">{% trans '投诉用户' %}</a>
+          {% endif %}
         </div>
-        {% endif %}
-
-        {% if user == request.user %}
-        <div class="relation-dropdown__body">
-            <div class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
-                <div class="user-relation" id="followings">
-                    <h5 class="user-relation__label">
-                        {% trans '关注的人' %}
-                    </h5>
-                    <a href="{% url 'users:following' user.mastodon_username %}"
-                        class="user-relation__more-link mast-following-more">{% trans '更多' %}</a>
-                    <ul class="user-relation__related-user-list mast-following">
-                        <li class="user-relation__related-user">
-                            <a>
-                                <img src="" alt="" class="user-relation__related-user-avatar">
-                                <div class="user-relation__related-user-name mast-displayname">
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="user-relation" id="followers">
-                    <h5 class="user-relation__label">
-                        {% trans '被他们关注' %}
-                    </h5>
-                    <a href="{% url 'users:followers' user.mastodon_username %}"
-                        class="user-relation__more-link mast-followers-more">{% trans '更多' %}</a>
-                    <ul class="user-relation__related-user-list mast-followers">
-                        <li class="user-relation__related-user">
-                            <a>
-                                <img src="" alt="" class="user-relation__related-user-avatar">
-                                <div class="user-relation__related-user-name mast-displayname">
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                {% if top_tags %}
-                <div class="user-relation">
-                    <h5 class="user-relation__label">
-                        {% trans '常用标签' %}
-                    </h5>
-                    <a href="{% url 'journal:user_tag_list' user.mastodon_username %}">{% trans '更多' %}</a>
-                    <div class="tag-collection" style="margin-left: 0;">
-                        {% for t in top_tags %}
-                        <span class="tag-collection__tag">
-                            <a href="/users/{{ user.mastodon_username }}/tags/{{ t }}/">{{ t }}</a>
-                        </span>
-                        {% endfor %}
-                        <div class="clearfix"></div>
-                    </div>
-                </div>
-                {% endif %}
-
-            </div>
-        </div>
-        {% endif %}
+      </div>
     </div>
+  </div>
+  <div class="relation-dropdown">
+    <div class="relation-dropdown__button">
+      <span class="icon-arrow">
+        <i class="fas fa-angle-down"></i>
+      </span>
+    </div>
+    {% if user.featured_collections.all %}
+      <div class="relation-dropdown__body">
+        <div class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
+          <div class="user-relation">
+            <h5 class="user-relation__label">{% trans '当前目标' %}</h5>
+            {% for featured_collection in user.featured_collections.all %}
+              {% user_visibility_of featured_collection as visible %}
+              {% if visible %}
+                {% user_progress_of collection=featured_collection user=user as progress %}
+                <div class="tag-collection" style="margin-left: 10%;">
+                  <a href="{{ featured_collection.collection.url }}">{{ featured_collection.collection.title }}</a>
+                  <br>
+                  已完成{{ progress }}%
+                  <br>
+                  <progress value="{{ progress }}" max="100" />
+                </div>
+              {% endif %}
+            {% endfor %}
+            <br>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    {% if user == request.user %}
+      <div class="relation-dropdown__body">
+        <div class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
+          <div class="user-relation" id="followings">
+            <h5 class="user-relation__label">{% trans '关注的人' %}</h5>
+            <a href="{% url 'users:following' user.mastodon_username %}"
+               class="user-relation__more-link mast-following-more">{% trans '更多' %}</a>
+            <ul class="user-relation__related-user-list mast-following">
+              <li class="user-relation__related-user">
+                <a>
+                  <img src="" alt="" class="user-relation__related-user-avatar">
+                  <div class="user-relation__related-user-name mast-displayname"></div>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="user-relation" id="followers">
+            <h5 class="user-relation__label">{% trans '被他们关注' %}</h5>
+            <a href="{% url 'users:followers' user.mastodon_username %}"
+               class="user-relation__more-link mast-followers-more">{% trans '更多' %}</a>
+            <ul class="user-relation__related-user-list mast-followers">
+              <li class="user-relation__related-user">
+                <a>
+                  <img src="" alt="" class="user-relation__related-user-avatar">
+                  <div class="user-relation__related-user-name mast-displayname"></div>
+                </a>
+              </li>
+            </ul>
+          </div>
+          {% if top_tags %}
+            <div class="user-relation">
+              <h5 class="user-relation__label">{% trans '常用标签' %}</h5>
+              <a href="{% url 'journal:user_tag_list' user.mastodon_username %}">{% trans '更多' %}</a>
+              <div class="tag-collection" style="margin-left: 0;">
+                {% for t in top_tags %}
+                  <span class="tag-collection__tag">
+                    <a href="{% reverse 'user_tag_member_list' user.mastodon_username t %}">{{ t }}</a>
+                  </span>
+                {% endfor %}
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
 </div>
-
 {% if user == request.user %}
-<div id="oauth2Token" hidden="true">{{ request.user.mastodon_token }}</div>
-<div id="mastodonURI" hidden="true">{{ request.user.mastodon_site }}</div>
-<div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-<div id="userPageURL" hidden="true">{% url 'journal:user_profile' 0 %}</div>
-
-<div id="spinner" hidden>
+  <div id="oauth2Token" hidden="true">{{ request.user.mastodon_token }}</div>
+  <div id="mastodonURI" hidden="true">{{ request.user.mastodon_site }}</div>
+  <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+  <div id="userPageURL" hidden="true">{% url 'journal:user_profile' 0 %}</div>
+  <div id="spinner" hidden>
     <div class="spinner">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
     </div>
-</div>
+  </div>
 {% endif %}

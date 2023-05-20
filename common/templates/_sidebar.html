@@ -39,7 +39,7 @@
             <div>
               <div class="avatar">
                 <a href="{% url 'journal:user_profile' user.mastodon_username %}">
-                  <img src="{{ user.mastodon_account.avatar }}">
+                  <img src="{{ user.mastodon_account.avatar }}" alt="">
                 </a>
               </div>
               <div>
@@ -58,28 +58,30 @@
           </summary>
           <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
           {% if request.user != user %}
-            <span class="action"><small>
-              <a href="{% url 'users:report' %}?user_id={{ user.id }}"
-                 class="user-profile__report-link">{% trans '投诉用户' %}</a></small>
-          </span>
-        {% endif %}
-      </details>
-    </article>
-  </section>
-{% endif %}
-{% if show_progress %}
-  <section>
-    <article>
-      <details {% if user.featured_collections.all %}open{% endif %}>
-        <summary>{% trans '当前目标' %}</summary>
-        {% for featured_collection in user.featured_collections.all %}
-          {% user_visibility_of featured_collection as visible %}
-          {% if visible %}
-            {% user_stats_of collection=featured_collection user=user as stats %}
-            <div>
-              <a href="{{ featured_collection.collection.url }}">{{ featured_collection.collection.title }}</a> <small>{{ stats.complete }} / {{ stats.total }}</small>
-              <br>
-              <progress value="{{ stats.percentage }}" max="100">
+            <span class="action">
+              <small>
+                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
+                   class="user-profile__report-link">{% trans '投诉用户' %}</a>
+              </small>
+            </span>
+          {% endif %}
+        </details>
+      </article>
+    </section>
+  {% endif %}
+  {% if show_progress %}
+    <section>
+      <article>
+        <details {% if user.featured_collections.all %}open{% endif %}>
+          <summary>{% trans '当前目标' %}</summary>
+          {% for featured_collection in user.featured_collections.all %}
+            {% user_visibility_of featured_collection as visible %}
+            {% if visible %}
+              {% user_stats_of collection=featured_collection user=user as stats %}
+              <div>
+                <a href="{{ featured_collection.collection.url }}">{{ featured_collection.collection.title }}</a> <small>{{ stats.complete }} / {{ stats.total }}</small>
+                <br>
+                <progress value="{{ stats.percentage }}" max="100" />
               </div>
             {% endif %}
           {% empty %}
