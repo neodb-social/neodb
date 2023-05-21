@@ -101,3 +101,9 @@ dialog {
     padding-bottom: 1em;
   }
 }
+
+@media (min-width: 1280px) {
+  dialog article {
+    max-width: 800px;
+  }
+}

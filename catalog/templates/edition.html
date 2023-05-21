@@ -97,7 +97,7 @@
     </section>
   {% endif %}
 {% endblock %}
-{% block sidebar %}
+{% block left_sidebar %}
   {% with related_books=item.get_related_books %}
     {% if related_books.count > 0 %}
       <section>
@@ -117,45 +117,57 @@
     {% endif %}
   {% endwith %}
   {% if item.isbn %}
+    <script>
+    $(function () {
+      function _sidebar_auto_collapse(mm){
+        if (mm.matches) {
+          $('.auto-collapse').removeAttr('open')
+        } else {
+          $('.auto-collapse').attr('open', '')
+        }
+      }
+      var mm = window.matchMedia("(max-width: 768px)")
+      mm.addListener(_sidebar_auto_collapse);
+      _sidebar_auto_collapse(mm);
+    });
+    </script>
     <section>
-      <div class="action-panel">
-        <h5>{% trans '借阅或购买' %}</h5>
+      <details class="auto-collapse" open>
+        <summary>{% trans '借阅或购买' %}</summary>
         <div>
-          <ul>
-            <li>
-              <a target="_blank"
-                 rel="noopener"
-                 href="https://www.worldcat.org/isbn/{{ item.isbn }}">WorldCat</a>
-            </li>
-            <li>
-              <a target="_blank"
-                 rel="noopener"
-                 href="https://openlibrary.org/search?isbn={{ item.isbn }}">Open Library</a>
-            </li>
-            <li>
-              <a target="_blank"
-                 rel="noopener"
-                 href="https://library.oapen.org/discover?filtertype_1=isbn&filter_relational_operator_1=equals&filter_1={{ item.isbn }}">
-              OAPEN</a>
-            </li>
-            <li>
-              <a target="_blank"
-                 rel="noopener"
-                 href="https://bookshop.org/search?keywords={{ item.isbn }}">Bookshop.org</a>
-            </li>
-            <li>
-              <a target="_blank"
-                 rel="noopener"
-                 href="https://www.amazon.com/s?k={{ item.isbn }}">Amazon</a>
-            </li>
-            <li>
-              <a target="_blank"
-                 rel="noopener"
-                 href="https://www.duozhuayu.com/search/book/{{ item.isbn }}">多抓鱼</a>
-            </li>
-          </ul>
+          <div>
+            <a target="_blank"
+               rel="noopener"
+               href="https://www.worldcat.org/isbn/{{ item.isbn }}">WorldCat</a>
+          </div>
+          <div>
+            <a target="_blank"
+               rel="noopener"
+               href="https://openlibrary.org/search?isbn={{ item.isbn }}">Open Library</a>
+          </div>
+          <div>
+            <a target="_blank"
+               rel="noopener"
+               href="https://library.oapen.org/discover?filtertype_1=isbn&filter_relational_operator_1=equals&filter_1={{ item.isbn }}">
+            OAPEN</a>
+          </div>
+          <div>
+            <a target="_blank"
+               rel="noopener"
+               href="https://bookshop.org/search?keywords={{ item.isbn }}">Bookshop.org</a>
+          </div>
+          <div>
+            <a target="_blank"
+               rel="noopener"
+               href="https://www.amazon.com/s?k={{ item.isbn }}">Amazon</a>
+          </div>
+          <div>
+            <a target="_blank"
+               rel="noopener"
+               href="https://www.duozhuayu.com/search/book/{{ item.isbn }}">多抓鱼</a>
+          </div>
         </div>
-      </div>
+      </details>
     </section>
   {% endif %}
 {% endblock %}

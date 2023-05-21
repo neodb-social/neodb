@@ -1,3 +1,80 @@
+:root {
+  --pico-font-size: 90%;
+}
+
+@media (max-width: 1200px) {
+  :root {
+    --pico-font-size: 80%;
+  }
+}
+
+@media (min-width: 769px) {
+  .small-only {
+    display: none;
+  }
+
+  main {
+    max-width: 1536px;
+    margin: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --pico-font-size: 100%;
+  }
+
+  .large-only {
+    display: none;
+  }
+}
+
+#item-page {
+  main {
+    width: 100vw;
+    padding: calc(1*var(--pico-spacing)) calc(3*var(--pico-spacing));
+
+    .middle {
+      margin: auto;
+      width: 42%;
+    }
+
+    .left {
+      float: left;
+      clear: left;
+      width: 25%;
+      margin-left: 0;
+      margin-right: 4%;
+    }
+
+    .right {
+      float: right;
+      clear: right;
+      width: 25%;
+      margin-left: 4%;
+      margin-right: 0%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    main {
+      display: flex;
+      flex-flow: column nowrap;
+      padding: calc(1*var(--pico-spacing));
+
+      .left,
+      .right,
+      .middle {
+        float: none;
+        clear: none;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
+  }
+}
+
 .classic-page,
 .feed-page {
   main {

@@ -1,7 +1,4 @@
 #item-page {
-  a:not(:hover) {
-    text-decoration: none;
-  }
 
   .muted {
     color: var(--pico-muted-color);
@@ -21,11 +18,11 @@
   }
 
   main>div {
-    margin: 2vw;
+    margin-bottom: 2.5rem;
   }
 
   main>div>section {
-    margin-bottom: 2vw;
+    margin-bottom: 2.5rem;
   }
 
   #item-title {
@@ -46,8 +43,6 @@
     font-weight: 400;
   }
 
-
-
   #item-cover {
     align-items: stretch;
   }
@@ -64,14 +59,11 @@
     color: var(--pico-muted-color);
   }
 
-
-
   .item-action {
     display: flex;
     flex-flow: row wrap;
     justify-content: center;
     align-items: center;
-    margin-top: 5%;
   }
 
   .item-action button {
@@ -87,51 +79,38 @@
     text-align: center;
   }
 
-  main {
-    padding-top: 1vh !important;
+
+  #item-title h1 {
+    display: inline;
   }
 
   @media (min-width: 769px) {
-    #item-title h1 {
-      display: inline;
+    #item-cover {
+      clear: both;
     }
 
-    .middle {
-      margin: auto;
-      width: 50%;
-    }
-
-    .left {
-      float: left;
-      clear: left;
-      width: 22%;
-      margin-left: 0;
-      margin-right: 3%;
-    }
-
-    .right {
-      float: right;
-      clear: right;
-      width: 22%;
-      margin-left: 3%;
-      margin-right: 0%;
+    #item-cover,
+    #item-primary-action,
+    #item-primary-mark {
+      margin-top: 2rem;
     }
   }
 
   @media (max-width: 768px) {
-    main {
-      display: flex;
-      flex-flow: column nowrap;
-    }
-
     #item-title {
       order: -5;
       display: flex;
       flex-flow: column nowrap;
-    }
 
-    #item-title .site-list {
-      order: -1;
+      h1 {
+        display: flex;
+
+      }
+
+      .site-list {
+        order: -1;
+      }
+
     }
 
     #item-title-more {

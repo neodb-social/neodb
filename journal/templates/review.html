@@ -68,12 +68,10 @@
             {% if request.user == review.owner %}
               <span class="action">
                 <span>
-                  <a class="review-head__action-link"
-                     href="{% url 'journal:review_edit' review.item.uuid review.uuid %}">{% trans '编辑' %}</a>
+                  <a href="{% url 'journal:review_edit' review.item.uuid review.uuid %}">{% trans '编辑' %}</a>
                 </span>
                 <span>
-                  <a class="review-head__action-link"
-                     href="{% url 'journal:review_delete' review.uuid %}">{% trans '删除' %}</a>
+                  <a href="{% url 'journal:review_delete' review.uuid %}">{% trans '删除' %}</a>
                 </span>
               </span>
             {% endif %}

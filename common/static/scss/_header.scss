@@ -88,28 +88,8 @@ nav ul li a.current {
   -webkit-transition: ease-out 0.2s;
 }
 
-@media (max-width: 1200px) {
-  :root {
-    --pico-font-size: 80%;
-  }
-}
-
-@media (min-width: 769px) {
-  .small-only {
-    display: none;
-  }
-
-}
 
 @media (max-width: 768px) {
-  :root {
-    --pico-font-size: 100%;
-  }
-
-  .large-only {
-    display: none;
-  }
-
   body>header {
     position: sticky;
     top: 0px;
@@ -164,34 +144,6 @@ nav ul li a.current {
 /* Enabled if forced with data-theme="dark" */
 .nav-logo img [data-theme="dark"] {
   filter: brightness(100%) grayscale(100%) invert(40%);
-}
-
-.tldr {
-  overflow: hidden;
-  text-overflow: " ... [点击展开]";
-  display: -webkit-box;
-  -webkit-line-clamp: 10;
-  -webkit-box-orient: vertical;
-}
-
-.tldr-2 {
-  overflow: hidden;
-  text-overflow: " ... [点击展开]";
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.hidden {
-  display: none;
-}
-
-.invisible {
-  visibility: hidden;
-}
-
-a:not(:hover) {
-  text-decoration: none;
 }
 
 body>footer {

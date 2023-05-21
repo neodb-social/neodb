@@ -29,7 +29,7 @@
   </head>
   <body>
     {% include "_header.html" %}
-    <main class="container-fluid">
+    <main>
       <div id="item-title" class="middle">
         {% if item.is_deleted %}[DELETED]{% endif %}
         {% if item.merged_to_item %}
@@ -242,67 +242,69 @@
         {% endif %}
       </div>
       <div id="item-metadata" class="left">
-        {% block details %}
-          <div>此类数据尚未支持</div>
-          <div>uuid: {{ item.uuid }}</div>
-          <div>class: {{ item.class_name }}</div>
-          <div>category: {{ item.category }}</div>
-        {% endblock %}
-        {% if request.user.is_authenticated %}
-          <div class="item-edit">
-            <span class="action inline">
-              <a href="{% url 'catalog:edit' item.url_path item.uuid %}"
-                 title="{% trans '编辑' %}{{ item.demonstrative }}"><i class="fa-solid fa-pen-to-square"></i></a>
-            </span>
-            {% if item.last_editor and item.last_editor.preference.show_last_edit %}
-              <span>
-                {% trans '最近编辑：' %}
-                <a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a>
+        <section>
+          {% block details %}
+            <div>此类数据尚未支持</div>
+            <div>uuid: {{ item.uuid }}</div>
+            <div>class: {{ item.class_name }}</div>
+            <div>category: {{ item.category }}</div>
+          {% endblock %}
+          {% if request.user.is_authenticated %}
+            <div class="item-edit">
+              <span class="action inline">
+                <a href="{% url 'catalog:edit' item.url_path item.uuid %}"
+                   title="{% trans '编辑' %}{{ item.demonstrative }}"><i class="fa-solid fa-pen-to-square"></i></a>
               </span>
-            {% endif %}
-          </div>
-        {% endif %}
-        <div class="rating{% if not item.rating %} unavailable{% endif %}">
-          <div class="display">
-            <div>
-              <hgroup>
-                <h3>
-                  {{ item.rating | floatformat:1 }} <small>/ 10</small>
-                </h3>
-                <p>{{ item.rating_count }}人评分</p>
-              </hgroup>
+              {% if item.last_editor and item.last_editor.preference.show_last_edit %}
+                <span>
+                  {% trans '最近编辑：' %}
+                  <a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a>
+                </span>
+              {% endif %}
             </div>
-            <div data-placement="top">
-              <ul class="chart">
-                <li data-tooltip="{{ item.rating_dist.0 }}%" data-placement="left">
-                  <span style="height:{{ item.rating_dist.0 }}%"></span>
-                </li>
-                <li data-tooltip="{{ item.rating_dist.1 }}%" data-placement="left">
-                  <span style="height:{{ item.rating_dist.1 }}%"></span>
-                </li>
-                <li data-tooltip="{{ item.rating_dist.2 }}%" data-placement="left">
-                  <span style="height:{{ item.rating_dist.2 }}%"></span>
-                </li>
-                <li data-tooltip="{{ item.rating_dist.3 }}%" data-placement="left">
-                  <span style="height:{{ item.rating_dist.3 }}%"></span>
-                </li>
-                <li data-tooltip="{{ item.rating_dist.4 }}%" data-placement="left">
-                  <span style="height:{{ item.rating_dist.4 }}%"></span>
-                </li>
-              </ul>
+          {% endif %}
+          <div class="rating{% if not item.rating %} unavailable{% endif %}">
+            <div class="display">
+              <div>
+                <hgroup>
+                  <h3>
+                    {{ item.rating | floatformat:1 }} <small>/ 10</small>
+                  </h3>
+                  <p>{{ item.rating_count }}人评分</p>
+                </hgroup>
+              </div>
+              <div data-placement="top">
+                <ul class="chart">
+                  <li data-tooltip="{{ item.rating_dist.0 }}%" data-placement="left">
+                    <span style="height:{{ item.rating_dist.0 }}%"></span>
+                  </li>
+                  <li data-tooltip="{{ item.rating_dist.1 }}%" data-placement="left">
+                    <span style="height:{{ item.rating_dist.1 }}%"></span>
+                  </li>
+                  <li data-tooltip="{{ item.rating_dist.2 }}%" data-placement="left">
+                    <span style="height:{{ item.rating_dist.2 }}%"></span>
+                  </li>
+                  <li data-tooltip="{{ item.rating_dist.3 }}%" data-placement="left">
+                    <span style="height:{{ item.rating_dist.3 }}%"></span>
+                  </li>
+                  <li data-tooltip="{{ item.rating_dist.4 }}%" data-placement="left">
+                    <span style="height:{{ item.rating_dist.4 }}%"></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="undisplay">
+              <span>评分人数不足</span>
             </div>
           </div>
-          <div class="undisplay">
-            <span>评分人数不足</span>
+          <div class="tag-list">
+            {% for tag in item.tags %}
+              <span>
+                <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
+              </span>
+            {% endfor %}
           </div>
-        </div>
-        <div class="tag-list">
-          {% for tag in item.tags %}
-            <span>
-              <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
-            </span>
-          {% endfor %}
-        </div>
+        </section>
         {% block left_sidebar %}{% endblock %}
       </div>
       <div id="item-title-more" class="middle">
