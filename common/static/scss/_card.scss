@@ -33,6 +33,10 @@ div.item {
     -webkit-box-orient: vertical;
     overflow: hidden;
     font-size: 80%;
+
+    >span {
+      margin-right: 1rem;
+    }
   }
 
   .brief {

@@ -217,8 +217,13 @@
                 <input type="input"
                        name="verification"
                        value=""
-                       placeholder="user@mastodon.social">
-                <input type="submit"  value="{% trans '永久删除' %}" id="uploadBtn" />
+                       required
+                       placeholder="Gargron@mastodon.social">
+                {% if import_status.douban_pending %}
+                  <input type="submit" value="暂时无法删除，因为有导入任务正在进行" disabled />
+                {% else %}
+                  <input type="submit"  value="{% trans '永久删除' %}" id="uploadBtn" />
+                {% endif %}
               </div>
               <div>删除将无法撤销</div>
             </form>

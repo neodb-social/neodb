@@ -34,23 +34,25 @@
 <div>
   <div class="metadata">
     {% if item.rating %}
-      {{ item.rating | floatformat:1 }}分
+      <span>{{ item.rating | floatformat:1 }}分({{ item.rating_count }}人)</span>
     {% else %}
     {% endif %}
-    {% include '_people.html' with people=item.author role='' max=2 %}
-    {% include '_people.html' with people=item.translator role='' max=2 %}
-    {% include '_people.html' with people=item.director role='' max=2 %}
+    {% include '_people.html' with people=item.author role='作者' max=2 %}
+    {% include '_people.html' with people=item.translator role='译者' max=2 %}
+    {% include '_people.html' with people=item.director role='导演' max=2 %}
     {% include '_people.html' with people=item.hosts role='' max=2 %}
     {% include '_people.html' with people=item.artist role='' max=2 %}
     {% include '_people.html' with people=item.developer role='' max=2 %}
-    {% if item.pub_house %}/ {{ item.pub_house }}{% endif %}
+    {% if item.pub_house %}<span>{{ item.pub_house }}</span>{% endif %}
     {% if item.pub_year %}
-      / {{ item.pub_year }}{% trans '年' %}
-      {% if item.pub_month %}
-        {{ item.pub_month }}{% trans '月' %}
-      {% endif %}
+      <span>
+        {{ item.pub_year }}{% trans '年' %}
+        {% if item.pub_month %}
+          {{ item.pub_month }}{% trans '月' %}
+        {% endif %}
+      </span>
     {% endif %}
-    {% if item.release_date %}/ {{ item.release_date }}{% endif %}
+    {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
     {% include '_people.html' with people=item.genre role='' max=10 %}
     {% include '_people.html' with people=item.platform role='' max=10 %}
   </div>
