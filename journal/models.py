@@ -1048,13 +1048,15 @@ class Mark:
 
     @property
     def action_label(self):
-        return (
-            self.owner.shelf_manager.get_action_label(
+        if self.shelfmember:
+            return self.owner.shelf_manager.get_action_label(
                 self.shelf_type, self.item.category
             )
-            if self.shelfmember
-            else None
-        )
+        if self.comment:
+            return self.owner.shelf_manager.get_action_label(
+                ShelfType.PROGRESS, self.comment.item.category
+            )
+        return ""
 
     @property
     def shelf_label(self):
