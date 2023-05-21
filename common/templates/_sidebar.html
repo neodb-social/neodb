@@ -38,7 +38,9 @@
           <summary>
             <div>
               <div class="avatar">
-                <a href="{% url 'journal:user_profile' user.mastodon_username %}">
+                <a href="{% url 'journal:user_profile' user.mastodon_username %}"
+                   onclick="window.location = this.href">
+                  {% comment %} onclick to workaround webkit issue with <a />  in <summary /> {% endcomment %}
                   <img src="{{ user.mastodon_account.avatar }}" alt="">
                 </a>
               </div>
@@ -46,7 +48,10 @@
                 <hgroup>
                   <h6 class="nickname">{{ user.display_name }}</h6>
                   <div>
-                    <a href="{{ user.mastodon_account.url }}" target="_blank" rel="noopener">
+                    <a href="{{ user.mastodon_account.url }}"
+                       target="_blank"
+                       rel="noopener"
+                       onclick="window.open(this.href)">
                       <span class="handler">@{{ user.mastodon_username }}</span>
                     </a>
                     {% current_user_relationship user as relationship %}
