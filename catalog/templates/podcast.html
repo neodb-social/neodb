@@ -55,12 +55,10 @@
   </div>
 {% endblock %}
 {% block content %}
-  <section class="entity-desc" id="episodes">
-    <h5 class="entity-desc__title">{% trans '近期节目' %}</h5>
-    <div hx-get="{% url 'catalog:episode_data' item.uuid %}"
-         hx-trigger="load"
-         hx-swap="outerHTML"></div>
-  </section>
+  <h5 class="entity-desc__title">{% trans '近期节目' %}</h5>
+  <div hx-get="{% url 'catalog:episode_data' item.uuid %}"
+       hx-trigger="load"
+       hx-swap="outerHTML"></div>
 {% endblock %}
 <!-- class specific sidebar -->
 {% block left_sidebar %}

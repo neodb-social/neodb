@@ -30,7 +30,7 @@
 				});
 				$(this).remove();
 			})
-		
+
         </script>
       {% endif %}
     {% endif %}
@@ -53,7 +53,7 @@
 				});
 				$(this).remove();
 			})
-		
+
         </script>
       {% endif %}
     {% endif %}
@@ -110,20 +110,16 @@
 <!-- class specific sidebar -->
 {% block content %}
   {% if item.track_list %}
-    <section>
-      <h5>曲目</h5>
-      <p class="tldr" _="on click toggle .tldr on me">{{ item.track_list | linebreaksbr }}</p>
-    </section>
+    <h5>曲目</h5>
+    <p class="tldr" _="on click toggle .tldr on me">{{ item.track_list | linebreaksbr }}</p>
   {% endif %}
   {% if item.get_embed_link %}
-    <section>
-      <h5>播放</h5>
-      <iframe src="{{ item.get_embed_link }}"
-              frameborder="0"
-              allowtransparency="true"
-              allow="encrypted-media"
-              style="width: 100%;
-                     height: 50vh"></iframe>
-    </section>
+    <h5>播放</h5>
+    <iframe src="{{ item.get_embed_link }}"
+            frameborder="0"
+            allowtransparency="true"
+            allow="encrypted-media"
+            style="width: 100%;
+                   height: 50vh"></iframe>
   {% endif %}
 {% endblock %}

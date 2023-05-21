@@ -91,10 +91,8 @@
 {% endblock %}
 {% block content %}
   {% if item.contents %}
-    <section>
-      <h5>目录</h5>
-      <p class="tldr" _="on click toggle .tldr on me">{{ item.contents | linebreaksbr }}</p>
-    </section>
+    <h5>目录</h5>
+    <p class="tldr" _="on click toggle .tldr on me">{{ item.contents | linebreaksbr }}</p>
   {% endif %}
 {% endblock %}
 {% block left_sidebar %}

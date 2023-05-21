@@ -17,7 +17,7 @@
     font-size: 75%;
   }
 
-  main>div>section {
+  main>div section {
     margin-bottom: 2.5rem;
   }
 
@@ -87,10 +87,13 @@
   }
 
   @media (min-width: 769px) {
-    #item-cover {
-      clear: both;
-    }
 
+    // #item-cover {
+    //   clear: both;
+    // }
+    #item-content {
+      min-height: 15rem;
+    }
   }
 
   @media (max-width: 768px) {

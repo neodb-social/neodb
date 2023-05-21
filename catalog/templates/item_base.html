@@ -332,15 +332,15 @@
         </hgroup>
       </div>
       <div id="item-detail" class="middle">
-        <section>
+        <section id="item-content">
           <h5>简介</h5>
           {% if item.brief %}
             <p class="tldr" _="on click toggle .tldr on me">{{ item.brief | linebreaksbr }}</p>
           {% else %}
             <p class="empty">暂缺</p>
           {% endif %}
+          {% block content %}{% endblock %}
         </section>
-        {% block content %}{% endblock %}
         <section>
           <h5>
             短评
