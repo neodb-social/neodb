@@ -68,17 +68,19 @@
           </div>
           <div class="tv-tip" style="display:none;">
             这里是全剧条目，建议选择单季标记
-            {% with item.all_seasons as seasons %}
-              {% if seasons %}
-                <div _="init hide .item-mark-buttons then hide .item-mark-icon then show .tv-tip end">
-                  {% for s in seasons %}
-                    <span class="season-number">
-                      <a href="{{ s.url }}">{{ s.season_number|default:"#" }}</a>
-                    </span>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            {% endwith %}
+            {% if item.class_name == 'tvshow' %}
+              {% with item.all_seasons as seasons %}
+                {% if seasons %}
+                  <div _="init hide .item-mark-buttons then hide .item-mark-icon then show .tv-tip end">
+                    {% for s in seasons %}
+                      <span class="season-number">
+                        <a href="{{ s.url }}">{{ s.season_number|default:"#" }}</a>
+                      </span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endwith %}
+            {% endif %}
           </div>
         </div>
       {% endif %}
@@ -192,7 +194,7 @@
                 <span>
                   <a target="_blank"
                      rel="noopener"
-                     {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                     {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打开联邦网络分享链��" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
                 </span>
                 <span class="timestamp">{{ mark.review.created_time|date }}</span>
               </span>
