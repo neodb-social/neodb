@@ -131,17 +131,16 @@ def search(request):
             items.append(i)
         for res in i.external_resources.all():
             urls.append(res.url)
-    # if request.path.endswith(".json/"):
-    #     return JsonResponse(
-    #         {
-    #             "num_pages": result.num_pages,
-    #             "items": list(map(lambda i: i.get_json(), items)),
-    #         }
-    #     )
-
     cache_key = f"search_{category}_{keywords}"
     urls = list(set(cache.get(cache_key, []) + urls))
     cache.set(cache_key, urls, timeout=300)
+
+    # hide show if its season exists
+    seasons = [i for i in items if i.__class__ == TVSeason]
+    for season in seasons:
+        if season.show in items:
+            items.remove(season.show)
+
     return render(
         request,
         "search_results.html",
