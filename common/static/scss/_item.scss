@@ -17,10 +17,6 @@
     font-size: 75%;
   }
 
-  main>div {
-    margin-bottom: 2.5rem;
-  }
-
   main>div>section {
     margin-bottom: 2.5rem;
   }
@@ -84,19 +80,29 @@
     display: inline;
   }
 
+  #item-cover,
+  #item-primary-action,
+  #item-primary-mark {
+    margin: 2rem 0;
+  }
+
   @media (min-width: 769px) {
     #item-cover {
       clear: both;
     }
 
-    #item-cover,
-    #item-primary-action,
-    #item-primary-mark {
-      margin-top: 2rem;
-    }
   }
 
   @media (max-width: 768px) {
+    #item-cover {
+      margin: 1rem 0;
+    }
+
+    #item-primary-action,
+    #item-primary-mark {
+      margin-bottom: 1rem 0;
+    }
+
     #item-title {
       order: -5;
       display: flex;
