@@ -29,7 +29,7 @@
   }
 }
 
-#item-page {
+.item-page {
   main {
     width: 100vw;
     padding: calc(1*var(--pico-spacing)) calc(3*var(--pico-spacing));
@@ -188,7 +188,7 @@
         margin: var(--pico-spacing);
       }
 
-      >div:has(article) {
+      >div:has(>article) {
         margin: 0;
       }
 

@@ -39,7 +39,7 @@
   {% endif %}
 </span>
 {% include "_item_card.html" with item=item %}
-{% if mark or collection_member %}
+{% if mark or collection_edit or collection_member.note %}
   <footer>
     {% if mark %}
       <section>
@@ -104,9 +104,7 @@
       {% endif %}
     {% endif %}
     {% if collection_member %}
-      <p class="entity-marks__mark-content"
-         hx-target="this"
-         hx-swap="innerHTML">
+      <p hx-target="this" hx-swap="innerHTML">
         {% if collection_edit %}
           <span class="action">
             <a title="修改备注"
