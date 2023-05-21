@@ -194,7 +194,11 @@ class TVShow(Item):
 
     @cached_property
     def all_seasons(self):
-        return self.seasons.all().order_by("season_number")
+        return (
+            self.seasons.all()
+            .order_by("season_number")
+            .filter(is_deleted=False, merged_to_item=None)
+        )
 
 
 class TVSeason(Item):
