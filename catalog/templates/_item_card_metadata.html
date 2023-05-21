@@ -55,6 +55,9 @@
     {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
     {% include '_people.html' with people=item.genre role='' max=10 %}
     {% include '_people.html' with people=item.platform role='' max=10 %}
+    {% if item.show %}
+      <span>{% trans '所属剧集：' %}<a href="{{ item.show.url }}">{{ item.show.title }}</a></span>
+    {% endif %}
   </div>
   <div class="brief">
     {% if item.actor %}

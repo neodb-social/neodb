@@ -55,7 +55,7 @@
       </div>
       {% if request.user.is_authenticated and not mark.shelf_type %}
         <div id="item-primary-action" class="right mark">
-          <div class="item-action">
+          <div class="item-action item-mark-buttons">
             {% for k, v in shelf_types %}
               {% if v %}
                 <button class="primary"
@@ -65,6 +65,20 @@
                         hx-swap="beforeend">{% trans v %}</button>
               {% endif %}
             {% endfor %}
+          </div>
+          <div class="tv-tip" style="display:none;">
+            这里是全剧条目，建议选择单季标记
+            {% with item.all_seasons as seasons %}
+              {% if seasons %}
+                <div _="init hide .item-mark-buttons then hide .item-mark-icon then show .tv-tip end">
+                  {% for s in seasons %}
+                    <span class="season-number">
+                      <a href="{{ s.url }}">{{ s.season_number|default:"#" }}</a>
+                    </span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
           </div>
         </div>
       {% endif %}
@@ -98,7 +112,7 @@
               <small>
                 <a href="#"
                    hx-get="{% url 'journal:mark' item.uuid %}?new=1"
-                   class="edit"
+                   class="item-mark-icon"
                    hx-target="body"
                    hx-swap="beforeend">
                   {% if mark.tags %}
@@ -123,7 +137,7 @@
               <small>
                 <a href="#"
                    hx-get="{% url 'journal:mark' item.uuid %}?new=1"
-                   class="edit"
+                   class="item-mark-icon"
                    hx-target="body"
                    hx-swap="beforeend">
                   {% if mark.text %}
@@ -157,11 +171,13 @@
               我的评论
               <small>
                 {% if review %}
-                  <a href="{% url 'journal:review_edit' item.uuid review.uuid %}">
+                  <a href="{% url 'journal:review_edit' item.uuid review.uuid %}"
+                     class="item-mark-icon">
                     <i class="fa-solid fa-pen-to-square"></i>
                   </a>
                 {% else %}
-                  <a href="{% url 'journal:review_create' item.uuid %}">
+                  <a href="{% url 'journal:review_create' item.uuid %}"
+                     class="item-mark-icon">
                     <i class="fa-regular fa-square-plus"></i>
                   </a>
                 {% endif %}

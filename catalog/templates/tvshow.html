@@ -12,13 +12,6 @@
 <!-- class specific details -->
 {% block details %}
   <div>
-    {% if item.imdb %}
-      {% trans 'IMDb：' %}<a href="https://www.imdb.com/title/{{ item.imdb }}/"
-   target="_blank"
-   rel="noopener">{{ item.imdb }}</a>
-    {% endif %}
-  </div>
-  <div>
     {% if item.director %}
       {% trans '导演：' %}
       {% for director in item.director %}
@@ -30,13 +23,12 @@
       {% if item.director|length > 5 %}
         <a href="javascript:void(0);" id="directorMore">{% trans '更多' %}</a>
         <script>
-			$("#directorMore").on('click', function (e) {
-				$("span.director:not(:visible)").each(function (e) {
-					$(this).parent().removeAttr('style');
-				});
-				$(this).remove();
-			})
-
+          $("#directorMore").on('click', function (e) {
+            $("span.director:not(:visible)").each(function (e) {
+              $(this).parent().removeAttr('style');
+            });
+            $(this).remove();
+          })
         </script>
       {% endif %}
     {% endif %}
@@ -76,13 +68,12 @@
       {% if item.actor|length > 5 %}
         <a href="javascript:void(0);" id="actorMore">{% trans '更多' %}</a>
         <script>
-			$("#actorMore").on('click', function(e) {
-				$("span.actor:not(:visible)").each(function(e){
-					$(this).parent().removeAttr('style');
-				});
-				$(this).remove();
-			})
-
+          $("#actorMore").on('click', function(e) {
+            $("span.actor:not(:visible)").each(function(e){
+              $(this).parent().removeAttr('style');
+            });
+            $(this).remove();
+          })
         </script>
       {% endif %}
     {% endif %}
@@ -114,6 +105,18 @@
       {% endfor %}
     {% endif %}
   </div>
+  {% with item.all_seasons as seasons %}
+    {% if seasons %}
+      <div>
+        {% trans '本剧所有季：' %}
+        {% for s in seasons %}
+          <span class="season-number">
+            <a href="{{ s.url }}">{{ s.season_number|default:"#" }}</a>
+          </span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
   <div>
     {% if item.season_count %}
       {% trans '季数：' %}{{ item.season_count }}
@@ -129,18 +132,6 @@
       {% trans '单集长度：' %}{{ item.single_episode_length }}
     {% endif %}
   </div>
-  {% with item.all_seasons as seasons %}
-    {% if seasons %}
-      <div>
-        {% trans '本剧所有季：' %}
-        {% for s in seasons %}
-          <span>
-            <a href="{{ s.url }}">{{ s.season_number }}</a>
-          </span>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
   <div>
     {% if item.showtime %}
       {% trans '播出时间：' %}
@@ -161,6 +152,13 @@
         <span>{{ t }}</span>
         {% if not forloop.last %}/{% endif %}
       {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.imdb %}
+      {% trans 'IMDb：' %}<a href="https://www.imdb.com/title/{{ item.imdb }}/"
+   target="_blank"
+   rel="noopener">{{ item.imdb }}</a>
     {% endif %}
   </div>
   <div>

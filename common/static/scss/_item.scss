@@ -8,6 +8,22 @@
     color: var(--pico-muted-color);
   }
 
+  span.season-number {
+    a {
+      border-radius: calc(var(--pico-spacing)/4);
+      margin-right: 0.5em;
+      padding: 0 0.25rem;
+      border: var(--pico-primary) solid 1px;
+
+      &.current {
+        color: var(--pico-form-element-background-color);
+        background: var(--pico-primary);
+        line-height: 1.2em;
+        text-decoration: none;
+      }
+    }
+  }
+
   .muted .fa-lock {
     filter: brightness(50%) !important;
   }
