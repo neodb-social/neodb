@@ -112,7 +112,7 @@ class AbstractSite:
             ).first()
             if matched is None and resource.id_type not in [
                 IdType.DoubanMusic,  # DoubanMusic has many dirty data with same UPC
-                IdType.Goodreads,  # previous scraper generated some dirty data
+                # IdType.Goodreads,  # previous scraper generated some dirty data
             ]:
                 matched = model.objects.filter(
                     primary_lookup_id_type=t, primary_lookup_id_value=v
