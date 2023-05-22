@@ -170,6 +170,7 @@ class ProxiedDownloader(BasicDownloader):
         last_try = False
         url = urls.pop(0) if len(urls) else None
         resp = None
+        resp_type = None
         while url:
             resp, resp_type = self._download(url)
             if (
@@ -219,9 +220,12 @@ class ImageDownloaderMixin:
                 img = Image.open(BytesIO(raw_img))
                 img.load()  # corrupted image will trigger exception
                 content_type = response.headers.get("Content-Type")
-                self.extention = filetype.get_type(
+                file_type = filetype.get_type(
                     mime=content_type.partition(";")[0].strip()
-                ).extension
+                )
+                if file_type is None:
+                    return RESPONSE_NETWORK_ERROR
+                self.extention = file_type.extension
                 return RESPONSE_OK
             except Exception:
                 return RESPONSE_NETWORK_ERROR

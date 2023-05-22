@@ -21,9 +21,10 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-if settings.SEARCH_BACKEND == "MEILISEARCH":
-    from .search.meilisearch import Indexer
-elif settings.SEARCH_BACKEND == "TYPESENSE":
+# if settings.SEARCH_BACKEND == "MEILISEARCH":
+#     from .search.meilisearch import Indexer
+# el
+if settings.SEARCH_BACKEND == "TYPESENSE":
     from .search.typesense import Indexer
 else:
 

@@ -66,7 +66,7 @@ def enqueue_fetch(url, is_refetch):
     return job_id
 
 
-def fetch(request, url, is_refetch: bool = False, site: AbstractSite = None):
+def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = None):
     if not site:
         site = SiteManager.get_site_by_url(url)
         if not site:
