@@ -189,7 +189,7 @@ def delete(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not request.user.is_superuser and not item.deletable:
+    if not request.user.is_staff and not item.journal_exist:
         raise PermissionDenied()
     for res in item.external_resources.all():
         res.item = None
@@ -238,7 +238,7 @@ def assign_parent(request, item_path, item_uuid):
         raise BadRequest("Can't assign parent to a deleted or redirected item")
     if item.__class__ != TVSeason or new_item.__class__ != TVShow:
         raise BadRequest("Can't assign parent for this item")
-    if not request.user.is_superuser and item.show:
+    if not request.user.is_staff and item.show:
         raise PermissionDenied()
     _logger.warn(f"{request.user} assign {item} to {new_item}")
     item.show = new_item
@@ -251,11 +251,19 @@ def merge(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not request.user.is_superuser and not item.deletable:
+    if not request.user.is_staff and not item.journal_exist:
         raise PermissionDenied()
     new_item = Item.get_by_url(request.POST.get("new_item_url"))
     if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
-        raise BadRequest("Can't merge to a deleted or redirected item")
+        messages.add_message(request, messages.ERROR, _("不能合并到一个被删除或合并过的条目。"))
+        return redirect(item.url)
+    if new_item.class_name != item.class_name:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            _("不能合并到一个不同类的条目。") + f" ({item.class_name} to {new_item.class_name})",
+        )
+        return redirect(item.url)
     _logger.warn(f"{request.user} merges {item} to {new_item}")
     item.merge_to(new_item)
     update_journal_for_merged_item(item_uuid)

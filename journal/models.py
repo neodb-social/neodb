@@ -1233,4 +1233,4 @@ def journal_exists_for_item(item):
     return True
 
 
-Item.deletable = property(journal_exists_for_item)
+Item.journal_exist = property(journal_exists_for_item)

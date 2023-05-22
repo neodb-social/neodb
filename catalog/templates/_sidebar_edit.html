@@ -1,0 +1,114 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+<h5>进阶编辑选项</h5>
+{% if item %}
+  {% if item.editable or request.user.is_staff %}
+    {% for res in form.instance.external_resources.all %}
+      <details>
+        <summary>
+          {% trans '源网站' %}: <a href="{{ res.url }}">{{ res.site_name.label }}</a>
+        </summary>
+        <div class="grid">
+          <form method="post" action="{% url 'catalog:refetch' %}">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ res.id }}">
+            <input type="hidden" name="url" value="{{ res.url }}">
+            <input class="secondary" type="submit" value="{% trans '重新抓取' %}">
+          </form>
+          {% if request.user.is_staff %}
+            <form method="post" action="{% url 'catalog:unlink' %}">
+              {% csrf_token %}
+              <input type="hidden" name="id" value="{{ res.id }}">
+              <input class="contrast" type="submit" value="{% trans '取消关联' %}">
+            </form>
+          {% endif %}
+        </div>
+      </details>
+    {% endfor %}
+    {% if item.class_name == "movie" or item.class_name == "tvshow" %}
+      <details>
+        <summary>{% trans '切换分类' %}</summary>
+        <form method="post"
+              action="{% url 'catalog:recast' item.url_path item.uuid %}"
+              onsubmit="return confirm('确认切换吗？');">
+          {% csrf_token %}
+          {% if item.class_name == "movie" %}
+            <input type="hidden" value="tvshow" name="class">
+            <input class="contrast" type="submit" value="{% trans '更改为剧集' %}">
+          {% endif %}
+          {% if item.class_name == "tvshow" %}
+            {% if item.all_seasons %}
+              <i>条目下有子项，不可切换</i>
+            {% else %}
+              <input type="hidden" value="movie" name="class">
+              <input class="contrast" type="submit" value="{% trans '更改为电影' %}">
+            {% endif %}
+          {% endif %}
+        </form>
+      </details>
+    {% endif %}
+    {% if item.class_name == "tvseason" %}
+      {% if not item.show or request.user.is_staff %}
+        <details>
+          <summary>{% trans '将本季关联到电视剧' %}</summary>
+          <form method="post"
+                action="{% url 'catalog:assign_parent' item.url_path item.uuid %}"
+                onsubmit="return confirm('本操作不可撤销。确认关联吗？');">
+            {% csrf_token %}
+            <input type="url"
+                   name="parent_item_url"
+                   placeholder="目标条目URL"
+                   value="{{ item.show.absolute_url }}"
+                   required>
+            <br>
+            <input class="contrast" type="submit" value="{% trans '提交' %}">
+          </form>
+        </details>
+      {% endif %}
+    {% endif %}
+    {% if item.is_deleted and not request.user.is_staff %}
+      <i>条目已被删除</i>
+    {% elif item.merged_to_item and not request.user.is_staff %}
+      <i>条目已被合并</i>
+    {% elif not item.journal_exist and not request.user.is_staff %}
+      <i>条目已被用户标记过</i>
+    {% else %}
+      <details>
+        <summary>{% trans '合并到另一条目' %}</summary>
+        {% if item.journal_exist %}<i>⚠️ 条目已被用户标记过</i>{% endif %}
+        <form method="post"
+              action="{% url 'catalog:merge' item.url_path item.uuid %}"
+              onsubmit="return confirm('本操作不可撤销。确认合并吗？');">
+          {% csrf_token %}
+          <input type="url"
+                 name="new_item_url"
+                 placeholder="目标条目URL"
+                 value="{{ item.merged_to_item.absolute_url }}"
+                 required>
+          <br>
+          <input class="contrast" type="submit" value="{% trans '提交' %}">
+        </form>
+      </details>
+      <details>
+        <summary>{% trans '删除' %}</summary>
+        {% if item.class_name == "tvshow" and item.all_seasons %}
+          <i>条目下有子项，不可删除</i>
+        {% else %}
+          <form method="post"
+                action="{% url 'catalog:delete' item.url_path item.uuid %}"
+                onsubmit="return confirm('本操作不可撤销。确认删除吗？');">
+            {% csrf_token %}
+            <input class="contrast"
+                   type="submit"
+                   {% if item.is_deleted or item.merged_to_item %}disabled{% endif %}
+                   value="{% trans '提交' %}">
+          </form>
+        {% endif %}
+      </details>
+    {% endif %}
+  {% endif %}
+{% endif %}

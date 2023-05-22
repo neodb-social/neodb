@@ -35,7 +35,10 @@
         }
     </style>
     <main class="container">
-      <h3 class="header">{% trans '公告栏' %}</h3>
+      <h1 class="header">
+        {% trans '公告栏' %}
+        {% if request.user.is_staff %}🧙🏻{% endif %}
+      </h1>
       {% if request.user.is_superuser %}
         <a href="{% url 'management:create' %}" class="add">{% trans '发布新公告' %}</a>
       {% endif %}

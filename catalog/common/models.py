@@ -403,6 +403,10 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     def skip_index(self):
         return False
 
+    @property
+    def editable(self):
+        return not self.is_deleted and self.merged_to_item is None
+
 
 class ItemLookupId(models.Model):
     item = models.ForeignKey(
