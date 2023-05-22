@@ -253,21 +253,28 @@ def merge(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and not item.journal_exist:
         raise PermissionDenied()
-    new_item = Item.get_by_url(request.POST.get("new_item_url"))
-    if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
-        messages.add_message(request, messages.ERROR, _("不能合并到一个被删除或合并过的条目。"))
+    if request.POST.get("new_item_url"):
+        new_item = Item.get_by_url(request.POST.get("new_item_url"))
+        if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
+            messages.add_message(request, messages.ERROR, _("不能合并到一个被删除或合并过的条目。"))
+            return redirect(item.url)
+        if new_item.class_name != item.class_name:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                _("不能合并到一个不同类的条目。") + f" ({item.class_name} to {new_item.class_name})",
+            )
+            return redirect(item.url)
+        _logger.warn(f"{request.user} merges {item} to {new_item}")
+        item.merge_to(new_item)
+        update_journal_for_merged_item(item_uuid)
+        return redirect(new_item.url)
+    else:
+        if item.merged_to_item:
+            _logger.warn(f"{request.user} cancels merge for {item}")
+            item.merged_to_item = None
+            item.save()
         return redirect(item.url)
-    if new_item.class_name != item.class_name:
-        messages.add_message(
-            request,
-            messages.ERROR,
-            _("不能合并到一个不同类的条目。") + f" ({item.class_name} to {new_item.class_name})",
-        )
-        return redirect(item.url)
-    _logger.warn(f"{request.user} merges {item} to {new_item}")
-    item.merge_to(new_item)
-    update_journal_for_merged_item(item_uuid)
-    return redirect(new_item.url)
 
 
 def episode_data(request, item_uuid):

@@ -42,7 +42,7 @@
           {% endif %}
           {% if item.class_name == "tvshow" %}
             {% if item.all_seasons %}
-              <i>条目下有子项，不可切换</i>
+              <i>⛔️ 条目下有子项</i>
             {% else %}
               <input type="hidden" value="movie" name="class">
               <input class="contrast" type="submit" value="{% trans '更改为电影' %}">
@@ -71,32 +71,43 @@
       {% endif %}
     {% endif %}
     {% if item.is_deleted and not request.user.is_staff %}
-      <i>条目已被删除</i>
+      <i>⛔️ 条目已被删除</i>
     {% elif item.merged_to_item and not request.user.is_staff %}
-      <i>条目已被合并</i>
+      <i>⛔️ 条目已被合并</i>
     {% elif not item.journal_exist and not request.user.is_staff %}
-      <i>条目已被用户标记过</i>
+      <i>⛔️ 条目已被用户标记过</i>
     {% else %}
       <details>
         <summary>{% trans '合并到另一条目' %}</summary>
-        {% if item.journal_exist %}<i>⚠️ 条目已被用户标记过</i>{% endif %}
+        {% if item.journal_exist %}<i>🚸 条目已被用户标记过</i>{% endif %}
         <form method="post"
               action="{% url 'catalog:merge' item.url_path item.uuid %}"
               onsubmit="return confirm('本操作不可撤销。确认合并吗？');">
           {% csrf_token %}
           <input type="url"
                  name="new_item_url"
-                 placeholder="目标条目URL"
-                 value="{{ item.merged_to_item.absolute_url }}"
-                 required>
+                 placeholder="目标条目URL，留空则取消合并"
+                 value="{{ item.merged_to_item.absolute_url }}">
           <br>
           <input class="contrast" type="submit" value="{% trans '提交' %}">
         </form>
+        {% for i in item.merged_from_items.all %}
+          {% if forloop.first %}
+            从以下条目合并而来：
+            <ul>
+            {% endif %}
+            <li>
+              <a href="{{ i.url }}?skipcheck=1">{{ i.title }}</a>
+            </li>
+            {% if forloop.last %}</ul>{% endif %}
+        {% endfor %}
       </details>
       <details>
         <summary>{% trans '删除' %}</summary>
         {% if item.class_name == "tvshow" and item.all_seasons %}
-          <i>条目下有子项，不可删除</i>
+          <i>⛔️ 条目下有子项</i>
+        {% elif item.merged_from_items.all %}
+          <i>⛔️ 有其他条目被并入</i>
         {% else %}
           <form method="post"
                 action="{% url 'catalog:delete' item.url_path item.uuid %}"
