@@ -20,10 +20,6 @@
           content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
     <meta property="og:site_name" content="{{ site_name }}">
     <title>{{ site_name }} - {% trans '发现' %}</title>
-    <link rel="alternate"
-          type="application/rss+xml"
-          title="{{ site_name }} - {{ user.mastodon_username }}的评论"
-          href="{{ request.build_absolute_uri }}feed/reviews/">
     {% include "common_libs.html" with jquery=0 v2=1 %}
     <script src="https://cdn.jsdelivr.net/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/shikwasa@2.2.1/dist/style.min.css"

@@ -296,7 +296,7 @@ class TMDB_TV(AbstractSite):
                 "single_episode_length": None,
                 "brief": brief,
                 "cover_image_url": img_url,
-                # "related_resources": season_links,  # FIXME not crawling them for now given many douban tv season data has errors
+                "related_resources": season_links,  # FIXME crawling them for now, but many douban tv season data may have wrong imdb links
             }
         )
         if imdb_code:
