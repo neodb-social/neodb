@@ -20,15 +20,19 @@
              rel="noopener"
              {% if comment.metadata.shared_link %} href="{{ comment.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if comment.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
         </span>
-        <span class="timestamp">{{ comment.created_time|date }}</span>
       </span>
       <span>
         {% if comment.rating_grade %}{{ comment.rating_grade|rating_star }}{% endif %}
         <a href="{% url 'journal:user_profile' comment.owner.mastodon_username %}"
            class="nickname"
            title="@{{ comment.owner.mastodon_username }}">{{ comment.owner.display_name }}</a>
-        {{ comment.mark.action_label }}
         {% if comment.focus_item %}<a href="{{ comment.focus_item.url }}">{{ comment.focus_item.title }}</a>{% endif %}
+      </span>
+      <span class="action inline">
+        <span class="timestamp">
+          {{ comment.created_time|date }}
+          {{ comment.mark.action_label }}
+        </span>
       </span>
       <div>{{ comment.html|safe }}</div>
     </section>
