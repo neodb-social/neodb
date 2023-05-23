@@ -102,8 +102,23 @@ dialog {
   }
 }
 
+@media (max-width: 768px) {
+  dialog {
+    .rating-editor {
+      font-size: 250%;
+    }
+
+    div.grid:has(.rating-editor) {
+      gap: 0;
+    }
+  }
+}
+
 @media (min-width: 1280px) {
-  dialog article {
-    max-width: 800px;
+  dialog {
+    article {
+      max-width: 800px;
+    }
+
   }
 }
