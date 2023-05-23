@@ -125,7 +125,9 @@ def retrieve(request, item_path, item_uuid):
 @login_required
 def create(request, item_model):
     if request.method == "GET":
-        form_cls = CatalogForms[item_model]
+        form_cls = CatalogForms.get(item_model)
+        if not form_cls:
+            raise BadRequest()
         form = form_cls()
         return render(
             request,
@@ -135,7 +137,9 @@ def create(request, item_model):
             },
         )
     elif request.method == "POST":
-        form_cls = CatalogForms[item_model]
+        form_cls = CatalogForms.get(item_model)
+        if not form_cls:
+            raise BadRequest()
         form = form_cls(request.POST, request.FILES)
         if form.is_valid():
             form.instance.last_editor = request.user

@@ -447,7 +447,10 @@ def collection_update_member_order(request, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied()
-    ordered_member_ids = [int(i) for i in request.POST.get("member_ids").split(",")]
+    ids = request.POST.get("member_ids", "").strip()
+    if not ids:
+        raise BadRequest()
+    ordered_member_ids = [int(i) for i in ids.split(",")]
     collection.update_member_order(ordered_member_ids)
     return collection_retrieve_items(request, collection_uuid, True)
 

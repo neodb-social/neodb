@@ -926,6 +926,7 @@ class Tag(List):
     @staticmethod
     def cleanup_title(title, replace=True):
         t = title.strip().lower()
+        # t = re.sub(r"\W", "_", title.strip().lower())
         return "_" if not title and replace else t
 
 
