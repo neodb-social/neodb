@@ -1,5 +1,5 @@
 {% load i18n %}
-{% if item.get_embed_link %}
+{% if allow_embed and item.get_embed_link %}
   <div class="item player">
     <h5>
       <a href="{{ item.url }}">{{ item.title }}</a>

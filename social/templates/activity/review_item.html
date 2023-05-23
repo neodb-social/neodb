@@ -57,7 +57,7 @@
   {% if activity.action_object.mark.rating %}{{ activity.action_object.mark.rating | rating_star }}{% endif %}
 </div>
 <article>
-  {% include "_item_card.html" with item=activity.action_object.item %}
+  {% include "_item_card.html" with item=activity.action_object.item allow_embed=1 %}
   <footer>
     <p>{{ activity.action_object.plain_content|truncate:200 }}</p>
   </footer>
