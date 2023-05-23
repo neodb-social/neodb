@@ -46,7 +46,7 @@ class Command(BaseCommand):
             ]
             gallery_list = []
             for category in gallery_categories:
-                days = 14
+                days = 30
                 item_ids = []
                 while len(item_ids) < MAX_GALLERY_ITEMS / 2 and days < 150:
                     item_ids = self.get_popular_item_ids(category, days)

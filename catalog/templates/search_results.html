@@ -9,11 +9,11 @@
 {% load highlight %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="en" class="classic-page">
+<html lang="zh" class="classic-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '搜索结果' %}</title>
+    <title>{{ site_name }} - {% trans '搜索' %} {{ request.GET.q }}</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
   </head>
   <body>

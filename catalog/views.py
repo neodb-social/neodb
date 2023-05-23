@@ -258,7 +258,11 @@ def merge(request, item_path, item_uuid):
         if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
             messages.add_message(request, messages.ERROR, _("不能合并到一个被删除或合并过的条目。"))
             return redirect(item.url)
-        if new_item.class_name != item.class_name:
+        if item.class_name == "tvseason" and new_item.class_name == "tvshow":
+            pass
+        elif item.class_name == "tvshow" and new_item.class_name == "tvseason":
+            pass
+        elif new_item.class_name != item.class_name:
             messages.add_message(
                 request,
                 messages.ERROR,

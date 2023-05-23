@@ -1,11 +1,11 @@
 {% load i18n %}
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="login-page">
+<html lang="zh" class="login-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '注册' %}</title>
+    <title>{{ site_name }} - {% trans '注册完成' %}</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
   </head>
   <body>
@@ -18,7 +18,7 @@
         {{ site_name }}还在不断完善中，丰富的内容需要大家共同创造。
         试图添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严肃处理。
         {{ site_name }}继承了联邦宇宙的用户关系，比如您在联邦宇宙屏蔽了某人，那您将不会在书影音的公共区域看到TA的痕迹。
-        本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href="/announcement/data-policy/">站内公告</a>。
+        本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href="{% url 'management:retrieve_slug' 'data-policy' %}">站内公告</a>。
       </p>
       <p>
         此外，{{ site_name }}现处于测试阶段，疏漏在所难免，请妥善备份您的数据。
