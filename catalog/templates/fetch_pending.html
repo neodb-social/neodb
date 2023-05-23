@@ -21,7 +21,7 @@
     <main>
       <div class="grid__main">
         <article>
-          <h5>{% trans '正在连线' %}{{ site.SITE_NAME.label }}</h5>
+          <h5>正在从{{ site.SITE_NAME.label }}获取</h5>
           <div hx-get="{% url 'catalog:fetch_refresh' job_id %}"
                hx-trigger="load delay:2s"
                hx-swap="outerHTML">

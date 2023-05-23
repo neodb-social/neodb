@@ -5,6 +5,7 @@ from typesense.exceptions import ObjectNotFound
 from django.conf import settings
 from django.db.models.signals import post_save, post_delete
 from catalog.models import Item
+from pprint import pprint
 
 INDEX_NAME = "catalog"
 SEARCHABLE_ATTRIBUTES = [
@@ -249,6 +250,7 @@ class Indexer:
             "per_page": SEARCH_PAGE_SIZE,
             "query_by": ",".join(SEARCHABLE_ATTRIBUTES),
             "filter_by": filters,
+            # "facet_by": "category",
             "sort_by": "_text_match:desc,rating_count:desc"
             # 'facetsDistribution': ['_class'],
             # 'sort_by': None,
@@ -257,7 +259,7 @@ class Indexer:
 
         try:
             r = cls.instance().collections[INDEX_NAME].documents.search(options)
-            print(r)
+            # pprint(r)
             results.items = list(
                 [
                     x
