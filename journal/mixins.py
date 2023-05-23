@@ -8,13 +8,13 @@ class UserOwnedObjectMixin:
     """
 
     def is_visible_to(self, viewer):
-        if not viewer.is_authenticated:
-            return self.visibility == 0
         owner = self.owner
         if owner == viewer:
             return True
         if not owner.is_active:
             return False
+        if not viewer.is_authenticated:
+            return self.visibility == 0
         if self.visibility == 2:
             return False
         if (

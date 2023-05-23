@@ -1206,6 +1206,11 @@ def remove_data_by_user(user: User):
     Comment.objects.filter(owner=user).delete()
     Rating.objects.filter(owner=user).delete()
     Review.objects.filter(owner=user).delete()
+    TagMember.objects.filter(owner=user).delete()
+    Tag.objects.filter(owner=user).delete()
+    CollectionMember.objects.filter(owner=user).delete()
+    Collection.objects.filter(owner=user).delete()
+    FeaturedCollection.objects.filter(owner=user).delete()
 
 
 def update_journal_for_merged_item(legacy_item_uuid):

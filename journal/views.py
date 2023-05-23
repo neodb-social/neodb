@@ -816,7 +816,7 @@ def profile(request, user_name):
     if request.method != "GET":
         raise BadRequest()
     user = User.get(user_name)
-    if user is None:
+    if user is None or not user.is_active:
         return render_user_not_found(request)
     if not request.user.is_authenticated and user.get_preference().no_anonymous_view:
         return profile_anonymous(request, user_name)
