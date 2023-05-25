@@ -11,7 +11,7 @@ class SearchResult(Schema):
     items: list[ItemSchema]
 
 
-@api.post("/catalog/search", response={200: SearchResult, 400: Result})
+@api.get("/catalog/search", response={200: SearchResult, 400: Result})
 def search_item(request, query: str, category: ItemCategory | None = None):
     query = query.strip()
     if not query:
@@ -20,7 +20,7 @@ def search_item(request, query: str, category: ItemCategory | None = None):
     return 200, {"items": result.items}
 
 
-@api.post("/catalog/fetch", response={200: ItemSchema, 202: Result})
+@api.get("/catalog/fetch", response={200: ItemSchema, 202: Result})
 def fetch_item(request, url: str):
     site = SiteManager.get_site_by_url(url)
     if not site:
