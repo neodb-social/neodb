@@ -18,7 +18,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
     {% include "common_libs.html" with jquery=0 v2=1 %}
     <script src="https://cdn.staticfile.org/js-cookie/3.0.1/js.cookie.min.js"></script>
-    <script> $(document).ready(function () { $('.delayed').remove(); $('#loginButton').prop("disabled", false); }); </script>
+    <script>
+    $(document).ready(function () {
+      if (!window.htmx || !window._hyperscript) return; // disable login if cash, htmx or hyperscript not loaded
+      $('.delayed').remove(); $('#loginButton').prop("disabled", false);
+    });
+    </script>
     <style type="text/css">
     .delayed {
       animation: 10s _fadeIn;
