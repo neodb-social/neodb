@@ -19,6 +19,14 @@ def search_item(request, query: str, category: ItemCategory | None = None):
     result = Indexer.search(query, page=1, category=category)
     return 200, {"items": result.items}
 
+@api.post("/catalog/search", response={200: SearchResult, 400: Result})
+def search_item(request, query: str, category: ItemCategory | None = None):
+    query = query.strip()
+    if not query:
+        return 200, {"message": "Invalid query"}
+    result = Indexer.search(query, page=1, category=category)
+    return 200, {"items": result.items}
+
 
 @api.get("/catalog/fetch", response={200: ItemSchema, 202: Result})
 def fetch_item(request, url: str):
@@ -31,6 +39,16 @@ def fetch_item(request, url: str):
     enqueue_fetch(url, False)
     return 202, {"message": "Fetch in progress"}
 
+@api.post("/catalog/fetch", response={200: ItemSchema, 202: Result})
+def fetch_item(request, url: str):
+    site = SiteManager.get_site_by_url(url)
+    if not site:
+        raise Http404(url)
+    item = site.get_item()
+    if item:
+        return 200, item
+    enqueue_fetch(url, False)
+    return 202, {"message": "Fetch in progress"}
 
 @api.get("/book/{uuid}/", response=EditionSchema)
 def get_edition(request, uuid: str):
