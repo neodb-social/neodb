@@ -19,14 +19,6 @@ import dateparser
 _logger = logging.getLogger(__name__)
 
 
-# "https://music.apple.com/us/album/antiphon/1451211664"
-# "https://music.apple.com/us/album/the-super-mario-bros-movie-original-motion-picture/1679090104"
-# https://music.apple.com/cn/album/%E5%8F%AA%E6%84%9B%E9%99%8C%E7%94%9F%E4%BA%BA/966481932
-
-# banned album example
-# https://music.apple.com/us/album/%E8%89%B7%E5%85%89%E5%9B%9B%E5%B0%84/892511830
-
-
 @SiteManager.register
 class AppleMusic(AbstractSite):
     SITE_NAME = SiteName.AppleMusic
