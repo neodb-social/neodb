@@ -8,6 +8,7 @@ Scraping the website directly.
 
 """
 from catalog.common import *
+from catalog.common.downloaders import DownloadError
 from catalog.models import *
 from .douban import *
 import json
@@ -17,11 +18,13 @@ import dateparser
 
 _logger = logging.getLogger(__name__)
 
-# how to parse chinese?
-# https://music.apple.com/cn/album/%E4%BB%8A%E6%97%A5%E7%87%9F%E6%A5%AD%E4%B8%AD/1124800418
 
 # "https://music.apple.com/us/album/antiphon/1451211664"
 # "https://music.apple.com/us/album/the-super-mario-bros-movie-original-motion-picture/1679090104"
+# https://music.apple.com/cn/album/%E5%8F%AA%E6%84%9B%E9%99%8C%E7%94%9F%E4%BA%BA/966481932
+
+# banned album example
+# https://music.apple.com/us/album/%E8%89%B7%E5%85%89%E5%9B%9B%E5%B0%84/892511830
 
 
 @SiteManager.register
@@ -29,16 +32,34 @@ class AppleMusic(AbstractSite):
     SITE_NAME = SiteName.AppleMusic
     ID_TYPE = IdType.AppleMusic
     URL_PATTERNS = [r"https://music\.apple\.com/[a-z]{2}/album/[\d\w%-]+/(\d+)[^\d]*"]
+    DOMAIN_PATTERNS = [
+        r"(https://music\.apple\.com/[a-z]{2})/album/[\d\w%-]+/\d+[^\d]*"
+    ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
 
     @classmethod
+    def url_to_id(cls, url: str):
+        """
+        Transform url to id. Find the domain of the provided url.
+        """
+        domain = next(
+            iter([re.match(p, url) for p in cls.DOMAIN_PATTERNS if re.match(p, url)]),
+            None,
+        )
+        cls.domain = domain[1] if domain else None
+        u = next(
+            iter([re.match(p, url) for p in cls.URL_PATTERNS if re.match(p, url)]),
+            None,
+        )
+        return u[1] if u else None
+
+    @classmethod
     def id_to_url(cls, id_value):
-        # all songs go to 'cn' to get Chinese version
-        return f"https://music.apple.com/cn/album/{id_value}"
+        # find albums according to the domain of the provided link
+        return f"{cls.domain}/album/{id_value}"
 
     def scrape(self):
-        # isrc exists for song but not album
         content = BasicDownloader(self.url).download().html()
         elem = content.xpath("//script[@id='serialized-server-data']/text()")
         page_data = json.loads(elem[0])[0]
@@ -59,11 +80,11 @@ class AppleMusic(AbstractSite):
             track["attributes"].get("durationInMillis")
             for track in track_data["ogSongs"]
         ]
-        duration = int(sum(duration_list) / 1000 / 60)  # in minutes
+        duration = int(sum(duration_list))
         genre = track_data["schemaContent"].get("genre")
         if genre:
-            genre = genre[
-                0
+            genre = [
+                genre[0]
             ]  # apple treat "Music" as a genre. Thus, only the first genre is obtained.
 
         image_elem = content.xpath("//source[@type='image/jpeg']/@srcset")[0]

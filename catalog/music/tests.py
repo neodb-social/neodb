@@ -165,3 +165,30 @@ class DiscogsMasterTestCase(TestCase):
         self.assertIsInstance(site.resource.item, Album)
         self.assertEqual(site.resource.item.genre, ["Electronic", "Rock", "Pop"])
         self.assertEqual(site.resource.item.other_title, [])
+
+
+class AppleMusicTestCase(TestCase):
+    def test_parse(self):
+        t_id_type = IdType.AppleMusic
+        t_id_value = "892511830"
+        t_url = "https://music.apple.com/us/album/%E8%89%B7%E5%85%89%E5%9B%9B%E5%B0%84/892511830"
+        t_url_2 = "https://music.apple.com/us/album/892511830"
+        site = SiteManager.get_site_by_id_type(t_id_type)
+        self.assertIsNotNone(site)
+        self.assertEqual(site.validate_url(t_url), True)
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.url, t_url_2)
+        self.assertEqual(site.id_value, t_id_value)
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://music.apple.com/us/album/%E8%89%B7%E5%85%89%E5%9B%9B%E5%B0%84/892511830"
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(site.resource.metadata["title"].decode("utf-8"), "艷光四射")
+        self.assertEqual(site.resource.metadata["artist"], ["HOCC"])
+        self.assertIsInstance(site.resource.item, Album)
+        self.assertEqual(site.resource.item.genre, ["Cantopop/HK-Pop"])
+        self.assertEqual(site.resource.item.duration, 2427103)
