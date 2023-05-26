@@ -187,7 +187,7 @@ class AppleMusicTestCase(TestCase):
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"].decode("utf-8"), "艷光四射")
+        self.assertEqual(site.resource.metadata["title"], "艷光四射")
         self.assertEqual(site.resource.metadata["artist"], ["HOCC"])
         self.assertIsInstance(site.resource.item, Album)
         self.assertEqual(site.resource.item.genre, ["Cantopop/HK-Pop"])

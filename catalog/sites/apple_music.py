@@ -8,7 +8,6 @@ Scraping the website directly.
 
 """
 from catalog.common import *
-from catalog.common.downloaders import DownloadError
 from catalog.models import *
 from .douban import *
 import json
