@@ -170,9 +170,9 @@ class DiscogsMasterTestCase(TestCase):
 class AppleMusicTestCase(TestCase):
     def test_parse(self):
         t_id_type = IdType.AppleMusic
-        t_id_value = "892511830"
-        t_url = "https://music.apple.com/us/album/%E8%89%B7%E5%85%89%E5%9B%9B%E5%B0%84/892511830"
-        t_url_2 = "https://music.apple.com/us/album/892511830"
+        t_id_value = "1284391545"
+        t_url = "https://music.apple.com/us/album/kids-only/1284391545"
+        t_url_2 = "https://music.apple.com/us/album/1284391545"
         site = SiteManager.get_site_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
@@ -182,13 +182,13 @@ class AppleMusicTestCase(TestCase):
 
     @use_local_response
     def test_scrape(self):
-        t_url = "https://music.apple.com/us/album/%E8%89%B7%E5%85%89%E5%9B%9B%E5%B0%84/892511830"
+        t_url = "https://music.apple.com/us/album/kids-only/1284391545"
         site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "艷光四射")
-        self.assertEqual(site.resource.metadata["artist"], ["HOCC"])
+        self.assertEqual(site.resource.metadata["title"], "Kids Only")
+        self.assertEqual(site.resource.metadata["artist"], ["Leah Dou"])
         self.assertIsInstance(site.resource.item, Album)
-        self.assertEqual(site.resource.item.genre, ["Cantopop/HK-Pop"])
-        self.assertEqual(site.resource.item.duration, 2427103)
+        self.assertEqual(site.resource.item.genre, ["Pop"])
+        self.assertEqual(site.resource.item.duration, 2371628)
