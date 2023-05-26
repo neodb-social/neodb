@@ -38,15 +38,15 @@
         <a _="on click toggle .unhide on .nav-search">搜索</a>
       </li>
       <li>
-        <a class="{% if current == 'discover' %}current{% endif %}"
+        <a class="{% if current == 'discover' %}secondary{% endif %}"
            href="{% url 'catalog:discover' %}">发现</a>
       </li>
       <li>
-        <a class="{% if current == 'timeline' %}current{% endif %}"
+        <a class="{% if current == 'timeline' %}secondary{% endif %}"
            href="{% url 'social:feed' %}">动态</a>
       </li>
       <li class="large-only">
-        <a class="{% if current == 'home' %}current{% endif %}"
+        <a class="{% if current == 'home' %}secondary{% endif %}"
            href="{% url 'common:me' %}">个人</a>
       </li>
     </ul>
@@ -62,7 +62,7 @@
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
             {% if request.user.is_authenticated %}
               <li class="small-only">
-                <a class="{% if current == 'home' %}current{% endif %}"
+                <a class="{% if current == 'home' %}secondary{% endif %}"
                    href="{% url 'common:me' %}">个人主页</a>
               </li>
               <li>

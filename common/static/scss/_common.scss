@@ -118,3 +118,22 @@ details {
 form img {
   max-height: 20vh;
 }
+
+.avatar {
+  display: inline-block;
+
+  img {
+    border-radius: 50%;
+    height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 2 - var(--pico-border-width) * 2);
+    width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 2 - var(--pico-border-width) * 2);
+    border: 2px solid var(--pico-form-element-background-color);
+    border-radius: 50%;
+    transition: linear 0.25s;
+  }
+}
+
+.avatar a img:hover {
+  transition: ease-out 0.2s;
+  border: 2px solid var(--pico-primary);
+  -webkit-transition: ease-out 0.2s;
+}
