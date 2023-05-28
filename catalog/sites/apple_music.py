@@ -22,40 +22,44 @@ _logger = logging.getLogger(__name__)
 class AppleMusic(AbstractSite):
     SITE_NAME = SiteName.AppleMusic
     ID_TYPE = IdType.AppleMusic
-    URL_PATTERNS = [r"https://music\.apple\.com/[a-z]{2}/album/[\d\w%-]+/(\d+)[^\d]*"]
-    DOMAIN_PATTERNS = [
-        r"(https://music\.apple\.com/[a-z]{2})/album/[\d\w%-]+/\d+[^\d]*"
+    URL_PATTERNS = [
+        r"https://music\.apple\.com/[a-z]{2}/album/[\w%-]+/(\d+)",
+        r"https://music\.apple\.com/[a-z]{2}/album/(\d+)",
+        r"https://music\.apple\.com/album/(\d+)",
     ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
 
     @classmethod
-    def url_to_id(cls, url: str):
-        """
-        Transform url to id. Find the domain of the provided url.
-        """
-        domain = next(
-            iter([re.match(p, url) for p in cls.DOMAIN_PATTERNS if re.match(p, url)]),
-            None,
-        )
-        cls.domain = domain[1] if domain else None
-        u = next(
-            iter([re.match(p, url) for p in cls.URL_PATTERNS if re.match(p, url)]),
-            None,
-        )
-        return u[1] if u else None
-
-    @classmethod
     def id_to_url(cls, id_value):
-        # find albums according to the domain of the provided link
-        return f"{cls.domain}/album/{id_value}"
+        return f"https://music.apple.com/album/{id_value}"
+
+    def get_localized_urls(self):
+        return [
+            f"https://music.apple.com/{locale}/album/{self.id_value}"
+            for locale in ["hk", "tw", "us", "sg", "cn", "gb", "ca", "fr"]
+        ]
 
     def scrape(self):
-        content = BasicDownloader(self.url).download().html()
+        content = None
+        # it's less than ideal to waterfall thru locales, a better solution
+        # would be change ExternalResource to store preferred locale,
+        # or to find an AppleMusic API to get available locales for an album
+        for url in self.get_localized_urls():
+            try:
+                content = BasicDownloader(url).download().html()
+                _logger.info(f"got localized content from {url}")
+                break
+            except Exception:
+                pass
+        if content is None:
+            raise ParseError(self, f"localized content for {self.url}")
         elem = content.xpath("//script[@id='serialized-server-data']/text()")
         page_data = json.loads(elem[0])[0]
         album_data = page_data["data"]["sections"][0]["items"][0]
         title = album_data["title"]
+        brief = album_data.get("modalPresentationDescriptor")
+        brief = brief.get("paragraphText") if brief else None
         artist_list = album_data["subtitleLinks"]
         artist = [item["title"] for item in artist_list]
 
@@ -84,6 +88,7 @@ class AppleMusic(AbstractSite):
         pd = ResourceContent(
             metadata={
                 "title": title,
+                "brief": brief,
                 "artist": artist,
                 "genre": genre,
                 "release_date": release_date,

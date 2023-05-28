@@ -83,6 +83,8 @@ class Album(Item):
                 return f"https://bandcamp.com/EmbeddedPlayer/album={res.metadata.get('bandcamp_album_id')}/size=large/bgcol=ffffff/linkcol=19A2CA/artwork=small/transparent=true/"
             if res.id_type == IdType.Spotify_Album.value:
                 return res.url.replace("open.spotify.com/", "open.spotify.com/embed/")
+            if res.id_type == IdType.AppleMusic.value:
+                return res.url.replace("music.apple.com/", "embed.music.apple.com/us/")
         return None
 
     @classmethod

@@ -172,7 +172,7 @@ class AppleMusicTestCase(TestCase):
         t_id_type = IdType.AppleMusic
         t_id_value = "1284391545"
         t_url = "https://music.apple.com/us/album/kids-only/1284391545"
-        t_url_2 = "https://music.apple.com/us/album/1284391545"
+        t_url_2 = "https://music.apple.com/album/1284391545"
         site = SiteManager.get_site_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
