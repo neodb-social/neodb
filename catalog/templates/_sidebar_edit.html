@@ -4,8 +4,8 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
-<h5>进阶编辑选项</h5>
 {% if item %}
+  <h5>进阶编辑选项</h5>
   {% if item.editable or request.user.is_staff %}
     {% for res in form.instance.external_resources.all %}
       <details>

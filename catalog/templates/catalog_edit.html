@@ -13,7 +13,7 @@
       {% if form.instance.id %}
         {% trans '编辑' %} {{ form.instance.title }}
       {% else %}
-        {% trans '添加' %}
+        {% trans '添加条目' %}
       {% endif %}
     </title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
@@ -43,7 +43,7 @@
           {{ form.media }}
           {{ form }}
           <div class="grid">
-            {% if item.editable or request.user.is_staff %}
+            {% if not item or item.editable or request.user.is_staff %}
               <input type="submit" value="{% trans '保存' %}">
             {% endif %}
             <input type="reset" value="{% trans '返回' %}" onclick="history.go(-1);">
