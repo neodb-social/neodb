@@ -8,7 +8,8 @@ from django.utils import timezone
 from django.db.models import Count
 
 
-MAX_GALLERY_ITEMS = 42
+MAX_GALLERY_ITEMS = 64
+MIN_MARKS = 3
 
 
 class Command(BaseCommand):
@@ -22,16 +23,24 @@ class Command(BaseCommand):
         )
 
     def get_popular_item_ids(self, category, days):
-        self.stdout.write(f"Generating popular {category} items for {days} days...")
+        # self.stdout.write(f"Generating popular {category} items for {days} days...")
         item_ids = [
             m["item_id"]
             for m in ShelfMember.objects.filter(query_item_category(category))
             .filter(created_time__gt=timezone.now() - timedelta(days=days))
             .values("item_id")
             .annotate(num=Count("item_id"))
+            .filter(num__gte=MIN_MARKS)
             .order_by("-num")[:MAX_GALLERY_ITEMS]
         ]
         return item_ids
+
+    def cleanup_shows(self, items):
+        seasons = [i for i in items if i.__class__ == TVSeason]
+        for season in seasons:
+            if season.show in items:
+                items.remove(season.show)
+        return items
 
     def handle(self, *args, **options):
         if options["update"]:
@@ -46,23 +55,26 @@ class Command(BaseCommand):
             ]
             gallery_list = []
             for category in gallery_categories:
-                days = 30
+                days = 128
                 item_ids = []
-                while len(item_ids) < MAX_GALLERY_ITEMS / 2 and days < 150:
-                    item_ids = self.get_popular_item_ids(category, days)
-                    days *= 3
-                items = list(
-                    Item.objects.filter(id__in=item_ids).order_by("-created_time")
-                )
+                while days > 4:
+                    ids = [
+                        i
+                        for i in self.get_popular_item_ids(category, days)
+                        if i not in item_ids
+                    ]
+                    if len(ids) > MAX_GALLERY_ITEMS // 5:
+                        ids = ids[: MAX_GALLERY_ITEMS // 5]
+                    self.stdout.write(f"{category} for last {days} days: {len(ids)}")
+                    item_ids = ids + item_ids
+                    days //= 2
+                items = list(Item.objects.filter(id__in=item_ids))
                 if category == ItemCategory.TV:
-                    seasons = [i for i in items if i.__class__ == TVSeason]
-                    for season in seasons:
-                        if season.show in items:
-                            items.remove(season.show)
+                    items = self.cleanup_shows(items)
                 gallery_list.append(
                     {
                         "name": "popular_" + category.value,
-                        "title": "热门"
+                        "title": ""
                         + (category.label if category != ItemCategory.Book else "图书"),
                         "items": items,
                     }
