@@ -79,6 +79,10 @@ class AbstractSite:
         if not self.resource:
             self.resource = ExternalResource.objects.filter(url=self.url).first()
             if self.resource is None:
+                self.resource = ExternalResource.objects.filter(
+                    id_type=self.ID_TYPE, id_value=self.id_value
+                ).first()
+            if self.resource is None:
                 self.resource = ExternalResource(
                     id_type=self.ID_TYPE, id_value=self.id_value, url=self.url
                 )
