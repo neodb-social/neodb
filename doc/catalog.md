@@ -109,7 +109,7 @@ Add a new site
      + move captured response file to `test_data/`, except large/images files. Or if have to, use a smallest version (e.g. 1x1 pixel / 1s audio)
      + add `@use_local_response` decorator to test methods that should pick up these responses
  - run all the tests and make sure they pass
-   - Command: `python3 manage.py test --keepdb`
+   - Command: `python3 manage.py test [--keepdb]`. More detailed for `test`, please check [this doc](https://github.com/neodb-social/neodb/blob/main/doc/development.md#run-test)
    - Errors from previous codes can be ignored. Like `lxml.etree.ParserError`
  - add a site UI label to `common/static/scss/_sitelabel.scss`
 
