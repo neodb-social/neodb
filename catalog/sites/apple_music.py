@@ -70,7 +70,7 @@ class AppleMusic(AbstractSite):
             if date_elem
             else None
         )
-        track_list = [track["attributes"]["name"] for track in track_data["ogSongs"]]
+        track_list = [f"{i}. {track['attributes']['name']}" for i, track in enumerate(track_data["ogSongs"], 1)]
         duration_list = [
             track["attributes"].get("durationInMillis")
             for track in track_data["ogSongs"]
