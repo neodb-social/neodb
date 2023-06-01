@@ -36,7 +36,7 @@ class SiteName(models.TextChoices):
     # ApplePodcast = "apple_podcast", _("苹果播客")
     RSS = "rss", _("RSS")
     Discogs = "discogs", _("Discogs")
-    AppleMusic = "applemusic", _("苹果音乐")
+    AppleMusic = "apple_music", _("苹果音乐")
 
 
 class IdType(models.TextChoices):
