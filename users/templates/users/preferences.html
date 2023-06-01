@@ -120,6 +120,24 @@
             </section>
             <input type="submit" value="{% trans '保存' %}">
           </form>
+          <hr>
+          <section>
+            <details>
+              <summary>{% trans '当前设备设置' %}</summary>
+              <h6>自定义样式代码 (实验功能)</h6>
+              <textarea id="user_style"></textarea>
+              <br>
+              <button onclick="localStorage.setItem('user_style', document.getElementById('user_style').value);location.reload();">
+                保存
+              </button>
+            </details>
+            <script>
+              const s = localStorage.getItem("user_style");
+              if (s) {
+                document.getElementById("user_style").value = s;
+              }
+            </script>
+          </section>
         </article>
       </div>
       {% include "_sidebar.html" with show_profile=1 %}

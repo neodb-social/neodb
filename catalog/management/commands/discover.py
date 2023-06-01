@@ -9,9 +9,9 @@ from django.db.models import Count
 
 
 MAX_ITEMS_PER_PERIOD = 12
-MIN_MARKS = 2
-MAX_DAYS_FOR_PERIOD = 64
-MIN_DAYS_FOR_PERIOD = 4
+MIN_MARKS = 3
+MAX_DAYS_FOR_PERIOD = 96
+MIN_DAYS_FOR_PERIOD = 6
 
 
 class Command(BaseCommand):
@@ -78,15 +78,16 @@ class Command(BaseCommand):
                         f"Marked {category} for last {days} days: {len(ids)}"
                     )
                     item_ids = ids + item_ids
+                    if category == ItemCategory.Podcast:
+                        extra_ids = self.get_popular_commented_item_ids(
+                            ItemCategory.Podcast, days, item_ids
+                        )
+                        self.stdout.write(
+                            f"Commented podcast for last {days} days: {len(extra_ids)}"
+                        )
+                        item_ids = extra_ids + item_ids
                     days //= 2
-                if category == ItemCategory.Podcast:
-                    extra_ids = self.get_popular_commented_item_ids(
-                        ItemCategory.Podcast, MAX_DAYS_FOR_PERIOD, item_ids
-                    )
-                    self.stdout.write(
-                        f"Commented podcast for last {MAX_DAYS_FOR_PERIOD} days: {len(extra_ids)}"
-                    )
-                    item_ids = extra_ids + item_ids
+
                 items = [Item.objects.get(pk=i) for i in item_ids]
                 if category == ItemCategory.TV:
                     items = self.cleanup_shows(items)

@@ -35,3 +35,14 @@
       type="application/opensearchdescription+xml"
       title="{{ site_name }}"
       href="{% static 'opensearch.xml' %}">
+<script defer>
+(function(){
+  const s = localStorage.getItem("user_style");
+  console.log(s);
+  if (s) {
+    const style = document.createElement("style");
+    style.innerHTML = s;
+    document.head.appendChild(style);
+  }
+})();
+</script>
