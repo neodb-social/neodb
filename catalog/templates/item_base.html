@@ -161,7 +161,7 @@
                      rel="noopener"
                      {% if mark.comment.metadata.shared_link %} href="{{ mark.comment.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.comment.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
                 </span>
-                <span class="timestamp">{{ mark.comment.created_time|date }}</span>
+                {% comment %} <span class="timestamp">{{ mark.comment.created_time|date }}</span> {% endcomment %}
               </span>
               <p>{{ mark.comment.html|safe }}</p>
             {% else %}
@@ -194,7 +194,7 @@
                 <span>
                   <a target="_blank"
                      rel="noopener"
-                     {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打开联邦网络分享链��" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                     {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
                 </span>
                 <span class="timestamp">{{ mark.review.created_time|date }}</span>
               </span>
