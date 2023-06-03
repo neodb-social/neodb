@@ -31,6 +31,7 @@ urlpatterns = [
     path("hijack/", include("hijack.urls")),
     path("", include("common.urls")),
     path("", include("legacy.urls")),
+    # path("oauth/", include("oauth2_provider.urls", namespace="oauth2_provider")),
     path("tz_detect/", include("tz_detect.urls")),
     path(settings.ADMIN_URL + "/", admin.site.urls),
     path(settings.ADMIN_URL + "-rq/", include("django_rq.urls")),

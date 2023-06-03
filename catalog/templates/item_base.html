@@ -92,9 +92,9 @@
                     hx-target="body"
                     hx-swap="beforeend">
               {{ mark.created_time | date }} {% trans mark.action_label %}
-              {% if mark.rating %}
+              {% if mark.rating_grade %}
                 <br>
-                {{ mark.rating | rating_star }}
+                {{ mark.rating_grade | rating_star }}
                 <!-- <span style="white-space: nowrap;">
           <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i><i class="fa-regular fa-star"></i>
         </span> -->
@@ -142,7 +142,7 @@
                    class="item-mark-icon"
                    hx-target="body"
                    hx-swap="beforeend">
-                  {% if mark.text %}
+                  {% if mark.comment_text %}
                     <i class="fa-solid fa-pen-to-square"></i>
                   {% else %}
                     <i class="fa-regular fa-square-plus"></i>
@@ -194,7 +194,7 @@
                 <span>
                   <a target="_blank"
                      rel="noopener"
-                     {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                     {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打���联邦网���分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
                 </span>
                 <span class="timestamp">{{ mark.review.created_time|date }}</span>
               </span>

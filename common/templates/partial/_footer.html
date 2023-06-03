@@ -13,10 +13,6 @@
            rel="noopener"
            href="{{ support_link }}">问题反馈</a>
       {% endif %}
-      <a class="footer__link"
-         target="_blank"
-         rel="noopener"
-         href="https://github.com/neodb-social">源代码</a>
       {% if donation_link %}
         <a class="footer__link"
            target="_blank"
@@ -24,7 +20,11 @@
            href="{{ donation_link }}">捐助本站</a>
       {% endif %}
       <a class="footer__link" href="{% url 'management:list' %}">公告栏</a>
-      <a class="footer__link" href="{% url 'common:api_doc' %}">API</a>
+      <a class="footer__link" href="{% url 'common:developer' %}">API</a>
+      <a class="footer__link"
+         target="_blank"
+         rel="noopener"
+         href="https://github.com/neodb-social">源代码</a>
     </div>
   </div>
 </footer>

@@ -20,6 +20,7 @@ django-maintenance-mode
 django-tz-detect
 django-bleach
 django-redis
+django-oauth-toolkit
 meilisearch
 easy-thumbnails
 lxml

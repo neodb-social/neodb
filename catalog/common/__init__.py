@@ -9,6 +9,7 @@ __all__ = (
     "IdType",
     "SiteName",
     "ItemCategory",
+    "AvailableItemCategory",
     "Item",
     "ExternalResource",
     "ResourceContent",

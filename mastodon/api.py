@@ -444,10 +444,10 @@ def share_mark(mark):
         else ""
     )
     stars = rating_to_emoji(
-        mark.rating,
+        mark.rating_grade,
         MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode,
     )
-    content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.absolute_url}\n{mark.text or ''}{tags}"
+    content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.absolute_url}\n{mark.comment_text or ''}{tags}"
     update_id = get_status_id_by_url(mark.shared_link)
     spoiler_text, content = get_spoiler_text(content, mark.item)
     response = post_toot(

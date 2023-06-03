@@ -161,8 +161,8 @@ def mark(request, item_uuid):
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
         else:
             visibility = int(request.POST.get("visibility", default=0))
-            rating = request.POST.get("rating", default=0)
-            rating = int(rating) if rating else None
+            rating_grade = request.POST.get("rating_grade", default=0)
+            rating_grade = int(rating_grade) if rating_grade else None
             status = ShelfType(request.POST.get("status"))
             text = request.POST.get("text")
             tags = request.POST.get("tags")
@@ -181,12 +181,12 @@ def mark(request, item_uuid):
                 mark.update(
                     status,
                     text,
-                    rating,
+                    rating_grade,
                     visibility,
                     share_to_mastodon=share_to_mastodon,
                     created_time=mark_date,
                 )
-            except Exception as e:
+            except ValueError as e:
                 _logger.warn(f"post to mastodon error {e}")
                 return render_relogin(request)
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
@@ -635,7 +635,7 @@ def _render_list(
         return render_user_blocked(request)
     tag = None
     if type == "mark":
-        queryset = user.shelf_manager.get_members(shelf_type, item_category)
+        queryset = user.shelf_manager.get_latest_members(shelf_type, item_category)
     elif type == "tagmember":
         tag = Tag.objects.filter(owner=user, title=tag_title).first()
         if not tag:
@@ -842,11 +842,9 @@ def profile(request, user_name):
     for category in visbile_categories:
         shelf_list[category] = {}
         for shelf_type in ShelfType:
-            members = (
-                user.shelf_manager.get_members(shelf_type, category)
-                .filter(qv)
-                .order_by("-created_time")
-            )
+            members = user.shelf_manager.get_latest_members(
+                shelf_type, category
+            ).filter(qv)
             shelf_list[category][shelf_type] = {
                 "title": user.shelf_manager.get_label(shelf_type, category),
                 "count": members.count(),

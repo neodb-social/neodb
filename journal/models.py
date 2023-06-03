@@ -235,7 +235,7 @@ class Comment(Content):
             return self.item.url
 
     @staticmethod
-    def comment_item_by_user(item, user, text, visibility=0):
+    def comment_item_by_user(item, user, text, visibility=0, created_time=None):
         comment = Comment.objects.filter(
             owner=user, item=item, focus_item__isnull=True
         ).first()
@@ -245,11 +245,17 @@ class Comment(Content):
                 comment = None
         elif comment is None:
             comment = Comment.objects.create(
-                owner=user, item=item, text=text, visibility=visibility
+                owner=user,
+                item=item,
+                text=text,
+                visibility=visibility,
+                created_time=created_time or timezone.now(),
             )
         elif comment.text != text or comment.visibility != visibility:
             comment.text = text
             comment.visibility = visibility
+            if created_time:
+                comment.created_time = created_time
             comment.save()
         return comment
 
@@ -355,7 +361,7 @@ class Rating(Content):
     @staticmethod
     def get_item_rating_by_user(item, user):
         rating = Rating.objects.filter(owner=user, item=item).first()
-        return rating.grade if rating else None
+        return (rating.grade or None) if rating else None
 
     @staticmethod
     def get_rating_distribution_for_item(item):
@@ -442,9 +448,6 @@ class List(Piece):
     @property
     def recent_members(self):
         return self.members.all().order_by("-created_time")
-
-    def get_members_in_category(self, item_category):
-        return self.members.all().filter(query_item_category(item_category))
 
     def get_member_for_item(self, item):
         return self.members.filter(item=item).first()
@@ -613,6 +616,30 @@ class ShelfMember(ListMember):
         m.shelfmember = self
         return m
 
+    @property
+    def shelf_label(self):
+        return ShelfManager.get_label(self.parent.shelf_type, self.item.category)
+
+    @property
+    def shelf_type(self):
+        return self.parent.shelf_type
+
+    @property
+    def rating_grade(self):
+        return self.mark.rating_grade
+
+    @property
+    def comment_text(self):
+        return self.mark.comment_text
+
+    @property
+    def tags(self):
+        return self.mark.tags
+
+    @property
+    def public_tags(self):
+        return self.mark.public_tags
+
 
 class Shelf(List):
     class Meta:
@@ -730,11 +757,12 @@ class ShelfManager:
     def get_shelf(self, shelf_type):
         return self.shelf_list[shelf_type]
 
-    def get_members(self, shelf_type, item_category=None):
+    def get_latest_members(self, shelf_type, item_category=None):
+        qs = self.shelf_list[shelf_type].members.all().order_by("-created_time")
         if item_category:
-            return self.shelf_list[shelf_type].get_members_in_category(item_category)
+            return qs.filter(query_item_category(item_category))
         else:
-            return self.shelf_list[shelf_type].members.all()
+            return qs
 
     # def get_items_on_shelf(self, item_category, shelf_type):
     #     shelf = (
@@ -751,9 +779,10 @@ class ShelfManager:
         ]
         return sts[0] if sts else shelf_type
 
-    def get_label(self, shelf_type, item_category):
+    @classmethod
+    def get_label(cls, shelf_type, item_category):
         ic = ItemCategory(item_category).label
-        st = self.get_action_label(shelf_type, item_category)
+        st = cls.get_action_label(shelf_type, item_category)
         return _("{shelf_label}的{item_category}").format(
             shelf_label=st, item_category=ic
         )
@@ -1017,6 +1046,16 @@ class TagManager:
             ]
         )
 
+    def get_item_public_tags(self, item):
+        return sorted(
+            [
+                m["parent__title"]
+                for m in TagMember.objects.filter(
+                    parent__owner=self.owner, item=item, visibility=0
+                ).values("parent__title")
+            ]
+        )
+
 
 Item.tags = property(TagManager.public_tags_for_item)
 User.tags = property(TagManager.all_tags_for_user)
@@ -1025,7 +1064,11 @@ User.tag_manager.__set_name__(User, "tag_manager")
 
 
 class Mark:
-    """this mimics previous mark behaviour"""
+    """
+    Holding Mark for an item on an shelf,
+    which is a combo object of ShelfMember, Comment, Rating and Tags.
+    it mimics previous mark behaviour.
+    """
 
     def __init__(self, user, item):
         self.owner = user
@@ -1039,22 +1082,20 @@ class Mark:
     def id(self):
         return self.shelfmember.id if self.shelfmember else None
 
-    @property
+    @cached_property
     def shelf(self):
         return self.shelfmember.parent if self.shelfmember else None
 
-    @property
+    @cached_property
     def shelf_type(self):
         return self.shelfmember.parent.shelf_type if self.shelfmember else None
 
     @property
     def action_label(self):
         if self.shelfmember:
-            return self.owner.shelf_manager.get_action_label(
-                self.shelf_type, self.item.category
-            )
+            return ShelfManager.get_action_label(self.shelf_type, self.item.category)
         if self.comment:
-            return self.owner.shelf_manager.get_action_label(
+            return ShelfManager.get_action_label(
                 ShelfType.PROGRESS, self.comment.item.category
             )
         return ""
@@ -1062,7 +1103,7 @@ class Mark:
     @property
     def shelf_label(self):
         return (
-            self.owner.shelf_manager.get_label(self.shelf_type, self.item.category)
+            ShelfManager.get_label(self.shelf_type, self.item.category)
             if self.shelfmember
             else None
         )
@@ -1088,8 +1129,8 @@ class Mark:
         return self.owner.tag_manager.get_item_tags(self.item)
 
     @cached_property
-    def rating(self):
-        return Rating.get_item_rating_by_user(self.item, self.owner)
+    def public_tags(self):
+        return self.owner.tag_manager.get_item_public_tags(self.item)
 
     @cached_property
     def rating_grade(self):
@@ -1102,8 +1143,8 @@ class Mark:
         ).first()
 
     @property
-    def text(self):
-        return self.comment.text if self.comment else None
+    def comment_text(self):
+        return (self.comment.text or None) if self.comment else None
 
     @property
     def comment_html(self):
@@ -1128,10 +1169,12 @@ class Mark:
             and shelf_type is not None
             and (
                 shelf_type != self.shelf_type
-                or comment_text != self.text
-                or rating_grade != self.rating
+                or comment_text != self.comment_text
+                or rating_grade != self.rating_grade
             )
         )
+        if created_time and created_time >= timezone.now():
+            created_time = None
         share_as_new_post = shelf_type != self.shelf_type
         original_visibility = self.visibility
         if shelf_type != self.shelf_type or visibility != original_visibility:
@@ -1139,6 +1182,8 @@ class Mark:
                 self.item, shelf_type, visibility=visibility, metadata=metadata
             )
         if self.shelfmember and created_time:
+            # if it's an update(not delete) and created_time is specified,
+            # update the timestamp of the shelfmember and log
             log = ShelfLogEntry.objects.filter(
                 owner=self.owner,
                 item=self.item,
@@ -1157,13 +1202,17 @@ class Mark:
                     metadata=self.metadata,
                     timestamp=created_time,
                 )
-        if comment_text != self.text or visibility != original_visibility:
+        if comment_text != self.comment_text or visibility != original_visibility:
             self.comment = Comment.comment_item_by_user(
-                self.item, self.owner, comment_text, visibility
+                self.item,
+                self.owner,
+                comment_text,
+                visibility,
+                self.shelfmember.created_time if self.shelfmember else None,
             )
-        if rating_grade != self.rating or visibility != original_visibility:
+        if rating_grade != self.rating_grade or visibility != original_visibility:
             Rating.rate_item_by_user(self.item, self.owner, rating_grade, visibility)
-            self.rating = rating_grade
+            self.rating_grade = rating_grade
         if share:
             # this is a bit hacky but let's keep it until move to implement ActivityPub,
             # by then, we'll just change this to boost
@@ -1235,8 +1284,8 @@ def update_journal_for_merged_item(legacy_item_uuid):
 def journal_exists_for_item(item):
     for cls in list(Content.__subclasses__()) + list(ListMember.__subclasses__()):
         if cls.objects.filter(item=item).exists():
-            return False
-    return True
+            return True
+    return False
 
 
 Item.journal_exist = property(journal_exists_for_item)

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "django_sass",
     "django_rq",
     "django_bleach",
+    "oauth2_provider",
     "tz_detect",
     "sass_processor",
     "simple_history",
@@ -80,6 +81,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "oauth2_provider.middleware.OAuth2TokenMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
@@ -153,6 +155,7 @@ else:
 
 AUTHENTICATION_BACKENDS = [
     "mastodon.auth.OAuth2Backend",
+    "oauth2_provider.backends.OAuth2Backend",
 ]
 
 
@@ -418,3 +421,8 @@ MAINTENANCE_MODE_IGNORE_ANONYMOUS_USER = True
 MAINTENANCE_MODE_IGNORE_URLS = (r"^/users/connect/", r"^/users/OAuth2_login/")
 
 DISCORD_WEBHOOKS = {}
+
+NINJA_PAGINATION_PER_PAGE = 20
+OAUTH2_PROVIDER = {"ACCESS_TOKEN_EXPIRE_SECONDS": 3600 * 24 * 365}
+
+DEVELOPER_CONSOLE_APPLICATION_CLIENT_ID = "NEODB_DEVELOPER_CONSOLE"

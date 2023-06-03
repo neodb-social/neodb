@@ -54,7 +54,9 @@
 <div class="spacing">
   写了评论
   <a href="{{ activity.action_object.url }}">{{ activity.action_object.title }}</a>
-  {% if activity.action_object.mark.rating %}{{ activity.action_object.mark.rating | rating_star }}{% endif %}
+  {% if activity.action_object.mark.rating_grade %}
+    {{ activity.action_object.mark.rating_grade | rating_star }}
+  {% endif %}
 </div>
 <article>
   {% include "_item_card.html" with item=activity.action_object.item allow_embed=1 %}

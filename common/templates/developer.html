@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css"
+          integrity="sha512-JArlzA682ixxKlWoGxYQxF+vHv527K1/NMnGbMxZERWr/16D7ZlPZUdq9+n5cA3TM030G57bSXYdN706FU9doQ=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
+    <title>{{ api.title }} Developer Console</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+    <style type="text/css">
+    .information-container, #operations-tag-default {
+        display: none;
+    }
+    .scheme-container {
+      margin: 0 !important;
+      background: none !important;
+      box-shadow: none !important;
+    }
+    button svg {
+      fill: var(--pico-primary);
+    }
+    </style>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container">
+      <h5>Developer Console</h5>
+      <details {% if token %}open{% endif %}>
+        <summary>
+          <b>Access Token</b>
+        </summary>
+        <form method="post" role="group">
+          {% csrf_token %}
+          <input type="text"
+                 readonly
+                 value="{{ token | default:'Token will only be shown once here, previous tokens will be cleared. If you lose it, you can generate a new one.' }}">
+          <input type="submit" value="Generate" />
+        </form>
+        <p>
+          Click <code>Authorize</code> button below, input your token there to invoke APIs with your account, which is required for APIs like <code>/api/me</code>
+          <br>
+          Or use it in command line, like
+          <code>curl -H "Authorization: Bearer YOUR_TOKEN" {{ site_url }}/api/me</code>
+        </p>
+      </details>
+      <div id="swagger-ui"></div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-bundle.min.js"
+              integrity="sha512-PijkKcRp7VDW1K2S8nNgljcNRrEQmazUc8sPiVRMciEuNzJzz2KeKb2Cjz/HdjZrKwmEYEyhOFZlOi0xzqWdqg=="
+              crossorigin="anonymous"
+              referrerpolicy="no-referrer"></script>
+      <script>
+        const ui = SwaggerUIBundle({
+        url: '{{ openapi_json_url }}',
+        dom_id: '#swagger-ui',
+        presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIBundle.SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout",
+{% if api.csrf and csrf_token %}
+        requestInterceptor: (req) => {req.headers['X-CSRFToken'] = "{{csrf_token}}"; return req;},
+{% endif %}
+        deepLinking: true
+    })
+      </script>
+    </main>
+    {% include "partial/_footer.html" %}
+  </body>
+</html>

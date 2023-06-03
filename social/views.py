@@ -20,7 +20,7 @@ def feed(request):
     user = request.user
     podcast_ids = [
         p.item_id
-        for p in user.shelf_manager.get_members(
+        for p in user.shelf_manager.get_latest_members(
             ShelfType.PROGRESS, ItemCategory.Podcast
         )
     ]
@@ -30,17 +30,17 @@ def feed(request):
     books_in_progress = Edition.objects.filter(
         id__in=[
             p.item_id
-            for p in user.shelf_manager.get_members(
+            for p in user.shelf_manager.get_latest_members(
                 ShelfType.PROGRESS, ItemCategory.Book
-            ).order_by("-created_time")[:10]
+            )[:10]
         ]
     )
     tvshows_in_progress = Item.objects.filter(
         id__in=[
             p.item_id
-            for p in user.shelf_manager.get_members(
+            for p in user.shelf_manager.get_latest_members(
                 ShelfType.PROGRESS, ItemCategory.TV
-            ).order_by("-created_time")[:10]
+            )[:10]
         ]
     )
     return render(

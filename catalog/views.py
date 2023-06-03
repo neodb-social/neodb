@@ -193,7 +193,7 @@ def delete(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not request.user.is_staff and not item.journal_exist:
+    if not request.user.is_staff and item.journal_exist:
         raise PermissionDenied()
     for res in item.external_resources.all():
         res.item = None
@@ -255,7 +255,7 @@ def merge(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not request.user.is_staff and not item.journal_exist:
+    if not request.user.is_staff and item.journal_exist:
         raise PermissionDenied()
     if request.POST.get("new_item_url"):
         new_item = Item.get_by_url(request.POST.get("new_item_url"))
@@ -405,7 +405,7 @@ def discover(request):
     if user.is_authenticated:
         podcast_ids = [
             p.item_id
-            for p in user.shelf_manager.get_members(
+            for p in user.shelf_manager.get_latest_members(
                 ShelfType.PROGRESS, ItemCategory.Podcast
             )
         ]
@@ -415,17 +415,17 @@ def discover(request):
         books_in_progress = Edition.objects.filter(
             id__in=[
                 p.item_id
-                for p in user.shelf_manager.get_members(
+                for p in user.shelf_manager.get_latest_members(
                     ShelfType.PROGRESS, ItemCategory.Book
-                ).order_by("-created_time")[:10]
+                )[:10]
             ]
         )
         tvshows_in_progress = Item.objects.filter(
             id__in=[
                 p.item_id
-                for p in user.shelf_manager.get_members(
+                for p in user.shelf_manager.get_latest_members(
                     ShelfType.PROGRESS, ItemCategory.TV
-                ).order_by("-created_time")[:10]
+                )[:10]
             ]
         )
     else:

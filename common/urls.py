@@ -4,7 +4,7 @@ from .views import *
 app_name = "common"
 urlpatterns = [
     path("", home),
-    path("api-doc/", api_doc, name="api_doc"),
+    path("developer/", developer, name="developer"),
     path("home/", home, name="home"),
     path("me/", me, name="me"),
 ]

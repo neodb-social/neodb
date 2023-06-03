@@ -19,7 +19,7 @@
     <a><i class="fa-regular fa-comment"></i></a>
   </span>
   {% endcomment %}
-  {% if activity.action_object.mark.text %}
+  {% if activity.action_object.mark.comment_text %}
     <span>
       {% liked_piece activity.action_object.mark.comment as liked %}
       {% include 'like_stats.html' with liked=liked piece=activity.action_object.mark.comment %}
@@ -51,11 +51,13 @@
 <div class="spacing">
   {{ activity.action_object.mark.action_label }}
   {% comment %} {{ activity.action_object.item.title }} {% endcomment %}
-  {% if activity.action_object.mark.rating %}{{ activity.action_object.mark.rating | rating_star }}{% endif %}
+  {% if activity.action_object.mark.rating_grade %}
+    {{ activity.action_object.mark.rating_grade | rating_star }}
+  {% endif %}
 </div>
 <article>
   {% include "_item_card.html" with item=activity.action_object.item allow_embed=1 %}
-  {% if activity.action_object.mark.text %}
+  {% if activity.action_object.mark.comment_text %}
     <footer>
       <p>{{ activity.action_object.mark.comment_html|safe }}</p>
     </footer>

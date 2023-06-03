@@ -74,7 +74,7 @@
       <i>⛔️ 条目已被删除</i>
     {% elif item.merged_to_item and not request.user.is_staff %}
       <i>⛔️ 条目已被合并</i>
-    {% elif not item.journal_exist and not request.user.is_staff %}
+    {% elif item.journal_exist and not request.user.is_staff %}
       <i>⛔️ 条目已被用户标记过</i>
     {% else %}
       <details>

@@ -45,13 +45,13 @@
         <input type="hidden"
                name="rating"
                id="id_rating"
-               value="{{ mark.rating|floatformat:0 }}">
+               value="{{ mark.rating_grade }}">
         <div class="mark-modal__clear"></div>
         <textarea name="text"
                   cols="40"
                   rows="10"
                   placeholder="超过360字部分实例可能无法显示"
-                  id="id_text">{% if mark.text %}{{ mark.text }}{% endif %}</textarea>
+                  id="id_text">{% if mark.comment_text %}{{ mark.comment_text }}{% endif %}</textarea>
         <div class="mark-modal__tag">
           <label>标签</label>
           <div class="tag-input">

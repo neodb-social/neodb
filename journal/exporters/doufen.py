@@ -68,7 +68,7 @@ def export_marks_task(user):
             tags = ",".join(mark.tags)
             world_rating = (movie.rating / 2) if movie.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
-            my_rating = (mark.rating / 2) if mark.rating else None
+            my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
             text = mark.text
             source_url = _get_source_url(movie)
             url = movie.absolute_url
@@ -108,7 +108,7 @@ def export_marks_task(user):
             tags = ",".join(mark.tags)
             world_rating = (album.rating / 2) if album.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
-            my_rating = (mark.rating / 2) if mark.rating else None
+            my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
             text = mark.text
             source_url = _get_source_url(album)
             url = album.absolute_url
@@ -150,7 +150,7 @@ def export_marks_task(user):
             tags = ",".join(mark.tags)
             world_rating = (book.rating / 2) if book.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
-            my_rating = (mark.rating / 2) if mark.rating else None
+            my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
             text = mark.text
             source_url = _get_source_url(book)
             url = book.absolute_url
@@ -192,7 +192,7 @@ def export_marks_task(user):
             tags = ",".join(mark.tags)
             world_rating = (game.rating / 2) if game.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
-            my_rating = (mark.rating / 2) if mark.rating else None
+            my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
             text = mark.text
             source_url = _get_source_url(game)
             url = game.absolute_url
@@ -228,7 +228,7 @@ def export_marks_task(user):
             tags = ",".join(mark.tags)
             world_rating = (podcast.rating / 2) if podcast.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
-            my_rating = (mark.rating / 2) if mark.rating else None
+            my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
             text = mark.text
             source_url = _get_source_url(podcast)
             url = podcast.absolute_url
@@ -273,7 +273,7 @@ def export_marks_task(user):
             target = "《" + review.item.title + "》"
             url = review.absolute_url
             timestamp = review.created_time.strftime("%Y-%m-%d %H:%M:%S")
-            my_rating = None  # (mark.rating / 2) if mark.rating else None
+            my_rating = None  # (mark.rating_grade / 2) if mark.rating_grade else None
             content = review.body
             target_source_url = _get_source_url(review.item)
             target_url = review.item.absolute_url

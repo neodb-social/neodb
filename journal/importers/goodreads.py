@@ -75,7 +75,10 @@ class GoodreadsImporter:
                 for book in shelf["books"]:
                     mark = Mark(user, book["book"])
                     if (
-                        (mark.shelf_type == shelf_type and mark.text == book["review"])
+                        (
+                            mark.shelf_type == shelf_type
+                            and mark.comment_text == book["review"]
+                        )
                         or (
                             mark.shelf_type == ShelfType.COMPLETE
                             and shelf_type != ShelfType.COMPLETE

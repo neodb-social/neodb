@@ -61,11 +61,13 @@
   {% if activity.action_object.metadata.position %}
     <span class="muted">{{ activity.action_object.metadata.position|duration_format:1 }}</span>
   {% endif %}
-  {% if activity.action_object.mark.rating %}{{ activity.action_object.mark.rating | rating_star }}{% endif %}
+  {% if activity.action_object.mark.rating_grade %}
+    {{ activity.action_object.mark.rating_grade | rating_star }}
+  {% endif %}
 </div>
 <article>
   {% include "_item_card.html" with item=activity.action_object.item allow_embed=1 %}
-  {% if activity.action_object.mark.text %}
+  {% if activity.action_object.mark.comment_text %}
     <footer>
       <p>{{ activity.action_object.mark.comment_html|safe }}</p>
     </footer>

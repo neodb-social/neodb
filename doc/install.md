@@ -114,3 +114,8 @@ Run Tests
 coverage run --source='.' manage.py test
 coverage report
 ```
+
+Enable Developer Console
+```
+python3 manage.py createapplication --client-id NEODB_DEVELOPER_CONSOLE --skip-authorization --name 'NeoDB Developer Console' --redirect-uris 'https://example.org/lol'  confidential authorization-code
+```

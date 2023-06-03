@@ -124,6 +124,20 @@ class ItemCategory(models.TextChoices):
     Collection = "collection", _("收藏单")
 
 
+class AvailableItemCategory(models.TextChoices):
+    Book = "book", _("书")
+    Movie = "movie", _("电影")
+    TV = "tv", _("剧集")
+    Music = "music", _("音乐")
+    Game = "game", _("游戏")
+    # Boardgame = "boardgame", _("桌游")
+    Podcast = "podcast", _("播客")
+    # FanFic = "fanfic", _("网文")
+    # Performance = "performance", _("演出")
+    # Exhibition = "exhibition", _("展览")
+    # Collection = "collection", _("收藏单")
+
+
 # class SubItemType(models.TextChoices):
 #     Season = "season", _("剧集分季")
 #     Episode = "episode", _("剧集分集")
@@ -206,8 +220,8 @@ class BaseSchema(Schema):
     url: str
     api_url: str
     category: ItemCategory
-    primary_lookup_id_type: str | None
-    primary_lookup_id_value: str | None
+    # primary_lookup_id_type: str | None
+    # primary_lookup_id_value: str | None
     external_resources: list[ExternalResourceSchema] | None
 
 
