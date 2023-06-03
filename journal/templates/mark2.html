@@ -58,7 +58,7 @@
                 <input type="hidden"
                        name="rating_grade"
                        id="id_rating"
-                       value="{{ mark.rating_grade }}">
+                       value="{{ mark.rating_grade | default:0 }}">
               </span>
             </fieldset>
           </div>

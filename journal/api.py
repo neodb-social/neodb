@@ -111,7 +111,8 @@ def delete_mark(request, item_uuid: str):
         return 404, {"message": "Item not found"}
     m = Mark(request.user, item)
     m.delete()
-    TagManager.tag_item_by_user(item, request.user, [], 0)
+    # skip tag deletion for now to be consistent with web behavior
+    # TagManager.tag_item_by_user(item, request.user, [], 0)
     return 200, {"message": "OK"}
 
 
