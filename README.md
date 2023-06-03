@@ -36,7 +36,7 @@ Boofilsic/NeoDB is an open source project and free service to help users manage,
  	 + view home feed with friends' activities
  	 	 * every activity can be set as viewable to self/follower-only/public
  	   * eligible items, e.g. podcasts and albums, are playable in feed
- 	 + link Fediverse account and import social graph 
+ 	 + link Fediverse account and import social graph
  	 + share collections and reviews to Fediverse ~~and Twitter~~ feed
  	 + there's a plan to add ActivityPub support in the near future
 
@@ -48,8 +48,9 @@ Please see [doc/install.md](doc/install.md)
  - to file a bug or request new features for NeoDB, please contact NeoDB on [Fediverse](https://mastodon.social/@neodb) or [Twitter](https://twitter.com/NeoDBsocial)
 
 ## Contribution
- - Please see [doc/development.md](doc/development.md) for some basics to start with
- - Join our Discord community, links available on [our Fediverse profile](https://mastodon.social/@neodb)
+ - To build application with NeoDB API, documentation is available in [NeoDB API Developer Console](https://neodb.social/developer/)
+ - To help develop NeoDB, please see [doc/development.md](doc/development.md) for some basics to start with
+ - Join our Discord community to share your ideas/questions/creations, links available on [our Fediverse profile](https://mastodon.social/@neodb)
 
 ## Sponsor
 If you like this project, please consider sponsoring

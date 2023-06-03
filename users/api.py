@@ -5,6 +5,7 @@ from ninja.security import django_auth
 
 
 class UserSchema(Schema):
+    url: str
     external_acct: str
     display_name: str
     avatar: str
@@ -12,10 +13,9 @@ class UserSchema(Schema):
 
 @api.get(
     "/me",
-    response={200: UserSchema, 400: Result, 403: Result},
+    response={200: UserSchema, 401: Result},
     summary="Get current user's basic info",
 )
-@protected_resource()
 def me(request):
     return 200, {
         "external_acct": request.user.mastodon_username,

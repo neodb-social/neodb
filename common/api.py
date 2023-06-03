@@ -45,8 +45,10 @@ class RedirectedResult(Schema):
 
 
 class PageNumberPagination(NinjaPageNumberPagination):
+    items_attribute = "data"
+
     class Output(Schema):
-        items: List[Any]
+        data: List[Any]
         pages: int
         count: int
 
@@ -57,6 +59,7 @@ class PageNumberPagination(NinjaPageNumberPagination):
         **params: Any,
     ) -> Output:
         val = super().paginate_queryset(queryset, pagination, **params)
+        val["data"] = val["items"]
         val["pages"] = (val["count"] + self.page_size - 1) // self.page_size
         return val
 

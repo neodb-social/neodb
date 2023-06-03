@@ -28,13 +28,13 @@
       <h5>Developer Console</h5>
       <details {% if token %}open{% endif %}>
         <summary>
-          <b>Access Token</b>
+          <b>Access Token Management</b>
         </summary>
         <form method="post" role="group">
           {% csrf_token %}
           <input type="text"
                  readonly
-                 value="{{ token | default:'Token will only be shown once here, previous tokens will be cleared. If you lose it, you can generate a new one.' }}">
+                 value="{{ token | default:'Once generated, token will only be shown once here, previous tokens will be revoked.' }}">
           <input type="submit" value="Generate" />
         </form>
         <p>

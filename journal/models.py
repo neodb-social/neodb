@@ -1,5 +1,6 @@
 from django.db import models
 from polymorphic.models import PolymorphicModel
+from mastodon.api import share_review
 from users.models import User
 from catalog.common.models import Item, ItemCategory
 from .mixins import UserOwnedObjectMixin
@@ -286,31 +287,36 @@ class Review(Content):
     def rating_grade(self):
         return Rating.get_item_rating_by_user(self.item, self.owner)
 
-    @staticmethod
-    def review_item_by_user(item, user, title, body, metadata={}, visibility=0):
-        # allow multiple reviews per item per user.
-        review = Review.objects.create(
-            owner=user,
-            item=item,
-            title=title,
-            body=body,
-            metadata=metadata,
-            visibility=visibility,
-        )
-        """
-        review = Review.objects.filter(owner=user, item=item).first()
+    @classmethod
+    def review_item_by_user(
+        cls,
+        item,
+        user,
+        title,
+        body,
+        visibility=0,
+        created_time=None,
+        share_to_mastodon=False,
+    ):
         if title is None:
+            review = Review.objects.filter(owner=user, item=item).first()
             if review is not None:
                 review.delete()
-                review = None
-        elif review is None:
-            review = Review.objects.create(owner=user, item=item, title=title, body=body, visibility=visibility)
-        else:
-            review.title = title
-            review.body = body
-            review.visibility = visibility
-            review.save()
-        """
+            return None
+        defaults = {
+            "title": title,
+            "body": body,
+            "visibility": visibility,
+        }
+        if created_time:
+            defaults["created_time"] = (
+                created_time if created_time < timezone.now() else timezone.now()
+            )
+        review, created = cls.objects.update_or_create(
+            item=item, owner=user, defaults=defaults
+        )
+        if share_to_mastodon:
+            share_review(review)
         return review
 
 

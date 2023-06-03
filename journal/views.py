@@ -563,32 +563,29 @@ def review_edit(request, item_uuid, review_uuid=None):
             else ReviewForm(request.POST)
         )
         if form.is_valid():
-            if not review:
-                form.instance.owner = request.user
-            form.instance.edited_time = timezone.now()
             mark_date = None
             if request.POST.get("mark_anotherday"):
                 mark_date = timezone.get_current_timezone().localize(
                     parse_datetime(request.POST.get("mark_date") + " 20:00:00")
                 )
-                if mark_date and mark_date >= timezone.now():
-                    mark_date = None
-            if mark_date:
-                form.instance.created_time = mark_date
+            body = form.instance.body
             if request.POST.get("leading_space"):
-                form.instance.body = re.sub(
+                body = re.sub(
                     r"^(\u2003*)( +)",
                     lambda s: "\u2003" * ((len(s[2]) + 1) // 2 + len(s[1])),
-                    form.instance.body,
+                    body,
                     flags=re.MULTILINE,
                 )
-            form.save()
-            if form.cleaned_data["share_to_mastodon"]:
-                if not share_review(form.instance):
-                    return render_relogin(request)
-            return redirect(
-                reverse("journal:review_retrieve", args=[form.instance.uuid])
+            review = Review.review_item_by_user(
+                item,
+                request.user,
+                form.cleaned_data["title"],
+                body,
+                form.cleaned_data["visibility"],
+                mark_date,
+                form.cleaned_data["share_to_mastodon"],
             )
+            return redirect(reverse("journal:review_retrieve", args=[review.uuid]))
         else:
             raise BadRequest()
     else:
