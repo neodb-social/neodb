@@ -20,13 +20,18 @@ _mistune_plugins = [
 _markdown = mistune.create_markdown(plugins=_mistune_plugins)
 
 
+def convert_leading_space_in_md(body) -> str:
+    body = re.sub(r"^\s+$", "", body, flags=re.MULTILINE)
+    body = re.sub(
+        r"^(\u2003*)( +)",
+        lambda s: "\u2003" * ((len(s[2]) + 1) // 2 + len(s[1])),
+        body,
+        flags=re.MULTILINE,
+    )
+    return body
+
+
 def render_md(s) -> str:
-    # s = "\n".join(
-    #     [
-    #         re.sub(r"^(\u2003+)", lambda s: "&emsp;" * len(s[0]), line)
-    #         for line in s.split("\n")
-    #     ]
-    # )
     return cast(str, _markdown(s))
 
 

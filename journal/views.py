@@ -9,6 +9,8 @@ from django.db.models import Count
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.core.paginator import Paginator
+
+from journal.renderers import convert_leading_space_in_md
 from .models import *
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -570,12 +572,7 @@ def review_edit(request, item_uuid, review_uuid=None):
                 )
             body = form.instance.body
             if request.POST.get("leading_space"):
-                body = re.sub(
-                    r"^(\u2003*)( +)",
-                    lambda s: "\u2003" * ((len(s[2]) + 1) // 2 + len(s[1])),
-                    body,
-                    flags=re.MULTILINE,
-                )
+                body = convert_leading_space_in_md(body)
             review = Review.review_item_by_user(
                 item,
                 request.user,
