@@ -243,7 +243,7 @@ def swap_login(request, token, site, refresh_token):
 
 def auth_login(request, user):
     """Decorates django ``login()``. Attach token to session."""
-    auth.login(request, user)
+    auth.login(request, user, backend="mastodon.auth.OAuth2Backend")
     if (
         user.mastodon_last_refresh < timezone.now() - timedelta(hours=1)
         or user.mastodon_account == {}

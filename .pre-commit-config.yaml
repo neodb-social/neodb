@@ -12,7 +12,7 @@ repos:
         language_version: python3.11
 repos:
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.28.0
+    rev: v1.30.2
     hooks:
       - id: djlint-reformat-django
       - id: djlint-django
