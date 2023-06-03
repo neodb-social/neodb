@@ -117,6 +117,7 @@ def delete_mark(request, item_uuid: str):
 
 
 class ReviewSchema(Schema):
+    url: str
     visibility: int = Field(ge=0, le=2)
     item: ItemSchema
     created_time: datetime
