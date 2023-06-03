@@ -132,20 +132,28 @@ class Indexer:
 
     @classmethod
     def init(cls):
-        # cls.instance().collections[INDEX_NAME].delete()
-        cls.instance().collections.create(cls.config())
+        idx = cls.instance().collections[INDEX_NAME]
+        if idx:
+            # idx.delete()
+            idx.create(cls.config())
 
     @classmethod
     def delete_index(cls):
-        cls.instance().collections[INDEX_NAME].delete()
+        idx = cls.instance().collections[INDEX_NAME]
+        if idx:
+            idx.delete()
 
     @classmethod
     def update_settings(cls):
-        cls.instance().collections[INDEX_NAME].update(cls.config())
+        idx = cls.instance().collections[INDEX_NAME]
+        if idx:
+            idx.update(cls.config())
 
     @classmethod
     def get_stats(cls):
-        return cls.instance().collections[INDEX_NAME].retrieve()
+        idx = cls.instance().collections[INDEX_NAME]
+        if idx:
+            return idx.retrieve()
 
     @classmethod
     def busy(cls):
@@ -267,9 +275,11 @@ class Indexer:
                     if x is not None
                 ]
             )
+            results.count = r["found"]
             results.num_pages = (r["found"] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
         except ObjectNotFound:
             results.items = []
+            results.count = 0
             results.num_pages = 1
 
         return results

@@ -16,6 +16,7 @@ from rq.job import Job
 from .external import ExternalSources
 from django.core.cache import cache
 import hashlib
+from .models import query_index, enqueue_fetch
 
 _logger = logging.getLogger(__name__)
 
@@ -53,19 +54,6 @@ def fetch_refresh(request, job_id):
             )
 
 
-def enqueue_fetch(url, is_refetch):
-    job_id = "fetch_" + hashlib.md5(url.encode()).hexdigest()
-    in_progress = False
-    try:
-        job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
-        in_progress = job.get_status() in ["queued", "started"]
-    except:
-        in_progress = False
-    if not in_progress:
-        django_rq.get_queue("fetch").enqueue(fetch_task, url, is_refetch, job_id=job_id)
-    return job_id
-
-
 def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = None):
     if not site:
         site = SiteManager.get_site_by_url(url)
@@ -93,7 +81,7 @@ def search(request):
     keywords = request.GET.get("q", default="").strip()
     tag = request.GET.get("tag", default="").strip()
     p = request.GET.get("page", default="1")
-    page_number = int(p) if p.isdigit() else 1
+    p = int(p) if p.isdigit() else 1
     if not (keywords or tag):
         return render(
             request,
@@ -108,48 +96,14 @@ def search(request):
         site = SiteManager.get_site_by_url(keywords)
         if site:
             return fetch(request, keywords, False, site)
-    if settings.SEARCH_BACKEND is None:
-        # return limited results if no SEARCH_BACKEND
-        result = lambda: None
-        result.items = Item.objects.filter(title__contains=keywords)[:10]
-        result.num_pages = 1
-    else:
-        result = Indexer.search(keywords, page=page_number, category=category, tag=tag)
-    keys = []
-    items = []
-    urls = []
-    for i in result.items:
-        key = (
-            i.isbn
-            if hasattr(i, "isbn")
-            else (i.imdb_code if hasattr(i, "imdb_code") else None)
-        )
-        if key is None:
-            items.append(i)
-        elif key not in keys:
-            keys.append(key)
-            items.append(i)
-        for res in i.external_resources.all():
-            urls.append(res.url)
-    cache_key = f"search_{category}_{keywords}"
-    urls = list(set(cache.get(cache_key, []) + urls))
-    cache.set(cache_key, urls, timeout=300)
 
-    # hide show if its season exists
-    seasons = [i for i in items if i.__class__ == TVSeason]
-    for season in seasons:
-        if season.show in items:
-            items.remove(season.show)
-
+    items, num_pages, _ = query_index(keywords, category, tag, p)
     return render(
         request,
         "search_results.html",
         {
             "items": items,
-            "pagination": PageLinksGenerator(
-                PAGE_LINK_NUMBER, page_number, result.num_pages
-            ),
-            "categories": ["book", "movie", "music", "game"],
+            "pagination": PageLinksGenerator(PAGE_LINK_NUMBER, p, num_pages),
             "sites": SiteName.labels,
             "hide_category": category is not None and category != "movietv",
         },
@@ -185,19 +139,3 @@ def refetch(request):
     if not url:
         raise BadRequest()
     return fetch(request, url, True)
-
-
-def fetch_task(url, is_refetch):
-    item_url = "-"
-    try:
-        site = SiteManager.get_site_by_url(url)
-        site.get_resource_ready(ignore_existing_content=is_refetch)
-        item = site.get_item()
-        if item:
-            _logger.info(f"fetched {url} {item.url} {item}")
-            item_url = item.url
-        else:
-            _logger.error(f"fetch {url} failed")
-    except Exception as e:
-        _logger.error(f"fetch {url} error {e}")
-    return item_url

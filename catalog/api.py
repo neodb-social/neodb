@@ -1,17 +1,18 @@
+from django.utils.translation import gettext_lazy as _
+from django.http import HttpResponse
+from django.http import Http404
+from ninja import Schema
+from common.api import *
 from .models import *
 from .common import *
 from .sites import *
-from ninja import Schema
-from django.http import Http404
-from common.api import *
-from .search.views import enqueue_fetch
-from django.utils.translation import gettext_lazy as _
-from django.db import models
-from django.http import HttpRequest, HttpResponse
+from .search.models import enqueue_fetch, query_index
 
 
 class SearchResult(Schema):
-    items: list[ItemSchema]
+    data: List[ItemSchema]
+    pages: int
+    count: int
 
 
 @api.get(
@@ -20,17 +21,29 @@ class SearchResult(Schema):
     summary="Search items in catalog",
     auth=None,
 )
-def search_item(request, query: str, category: AvailableItemCategory | None = None):
+def search_item(
+    request, query: str, category: AvailableItemCategory | None = None, page: int = 1
+):
+    """
+    Search items in catalog
+
+    count and pages are estimated, the actual data may be less
+
+    unlike the web search, this does not show external results,
+    nor does it parse a url to fetch an item. to do that, use /catalog/fetch.
+    """
     query = query.strip()
     if not query:
         return 400, {"message": "Invalid query"}
-    result = Indexer.search(query, page=1, category=category)
-    return 200, {"items": result.items}
+    items, num_pages, count = query_index(
+        query, page=page, category=category, prepare_external=False
+    )
+    return 200, {"data": items, "pages": num_pages, "count": count}
 
 
 @api.get(
     "/catalog/fetch",
-    response={200: ItemSchema, 202: Result},
+    response={200: ItemSchema, 202: Result, 404: Result},
     summary="Fetch item from URL of a supported site",
     auth=None,
 )
@@ -44,7 +57,7 @@ def fetch_item(request, url: str):
     """
     site = SiteManager.get_site_by_url(url)
     if not site:
-        raise Http404(url)
+        return 404, {"message": "URL not supported"}
     item = site.get_item()
     if item:
         return 200, item
@@ -128,6 +141,11 @@ def get_game(request, uuid: str, response: HttpResponse):
 
 
 # Legacy API will be removed soon
+
+
+class SearchResultLegacy(Schema):
+    items: List[ItemSchema]
+    pages: int
 
 
 @api.post(

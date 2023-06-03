@@ -15,30 +15,12 @@ from .game.models import Game, GameSchema, GameInSchema
 from .podcast.models import Podcast, PodcastSchema, PodcastInSchema, PodcastEpisode
 from .performance.models import Performance
 from .collection.models import Collection as CatalogCollection
+from .search.models import Indexer
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 import logging
 
 _logger = logging.getLogger(__name__)
-
-# if settings.SEARCH_BACKEND == "MEILISEARCH":
-#     from .search.meilisearch import Indexer
-# el
-if settings.SEARCH_BACKEND == "TYPESENSE":
-    from .search.typesense import Indexer
-else:
-
-    class Indexer:
-        @classmethod
-        def search(cls, q, page=1, category=None, tag=None, sort=None):
-            result = lambda: None
-            result.items = Item.objects.filter(title__contains=q)[:10]
-            result.num_pages = 1
-            return result
-
-        @classmethod
-        def update_model_indexable(cls, model):
-            pass
 
 
 # class Exhibition(Item):

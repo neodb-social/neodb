@@ -26,6 +26,12 @@
               <hgroup>
                 <h5>“{{ request.GET.q }}” {% trans '的搜索结果' %}</h5>
                 <div>
+                  {% if request.GET.c and request.GET.c != 'all' %}
+                    <a href="?q={{ request.GET.q }}&c=all">全部</a>
+                  {% else %}
+                    全部
+                  {% endif %}
+                  |
                   {% if request.GET.c != 'book' %}
                     <a href="?q={{ request.GET.q }}&c=book">书籍</a>
                   {% else %}
@@ -54,12 +60,6 @@
                     <a href="?q={{ request.GET.q }}&c=game">游戏</a>
                   {% else %}
                     游戏
-                  {% endif %}
-                  |
-                  {% if request.GET.c and request.GET.c != 'all' %}
-                    <a href="?q={{ request.GET.q }}&c=all">全部</a>
-                  {% else %}
-                    全部
                   {% endif %}
                 </div>
               </hgroup>
