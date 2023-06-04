@@ -1092,7 +1092,7 @@ class Mark:
     def shelf(self):
         return self.shelfmember.parent if self.shelfmember else None
 
-    @cached_property
+    @property
     def shelf_type(self):
         return self.shelfmember.parent.shelf_type if self.shelfmember else None
 
@@ -1229,7 +1229,6 @@ class Mark:
                 if self.shelfmember.metadata and not share_as_new_post
                 else None
             )
-            self.translated_status = self.action_label
             self.save = lambda **args: None
             if not share_mark(self):
                 raise ValueError("sharing failed")
