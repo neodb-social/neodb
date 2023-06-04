@@ -2,6 +2,26 @@
   width: unset !important;
 }
 
+.mark-line {
+  margin-bottom: var(--pico-spacing);
+
+  >div:last-child {
+    margin-top: calc(-0.3rem * var(--pico-line-height));
+    text-align: right;
+  }
+}
+
+@media (max-width: 768px) {
+  .mark-line {
+
+    >div,
+    >div:last-child {
+      margin-top: unset;
+      text-align: center;
+    }
+  }
+}
+
 .tag-input {
   display: -webkit-box;
   display: -ms-flexbox;
