@@ -157,11 +157,13 @@ class TheMovieDatabase:
                     if m["media_type"] == "tv":
                         cat = ItemCategory.TV
                         title = m["name"]
-                        subtitle = f"{m.get('first_air_date')} {m.get('original_name')}"
+                        subtitle = f"{m.get('first_air_date', '')} {m.get('original_name', '')}"
                     else:
                         cat = ItemCategory.Movie
                         title = m["title"]
-                        subtitle = f"{m.get('release_date')} {m.get('original_name')}"
+                        subtitle = (
+                            f"{m.get('release_date', '')} {m.get('original_name', '')}"
+                        )
                     cover = f"https://image.tmdb.org/t/p/w500/{m.get('poster_path')}"
                     results.append(
                         SearchResultItem(

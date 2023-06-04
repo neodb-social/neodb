@@ -8,11 +8,12 @@
         <img src="{% static 'img/logo.svg' %}" alt="" />
       </a>
     </ul>
-    <ul class="nav-search">
+    <ul class="nav-search {% if request.GET.q %}unhide{% endif %}">
       <li>
         <form role="search" method="get" action="{% url 'catalog:search' %}">
           <input type="search"
                  name="q"
+                 id="q"
                  placeholder="搜索标题、创作者、ISBN、链接(如 https://movie.douban.com/subject/1297880/ )"
                  class="search"
                  value="{{ request.GET.q|default:'' }}" />
@@ -35,7 +36,7 @@
     </ul>
     <ul>
       <li class="small-only">
-        <a _="on click toggle .unhide on .nav-search">搜索</a>
+        <a _="on click toggle .unhide on .nav-search then call #q.focus()">搜索</a>
       </li>
       <li>
         <a class="{% if current == 'discover' %}secondary{% endif %}"

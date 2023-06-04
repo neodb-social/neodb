@@ -1,10 +1,6 @@
 from django import forms
 from markdownx.fields import MarkdownxFormField
-import django.contrib.postgres.forms as postgres
-from django.utils import formats
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-import json
 from .models import *
 from common.forms import PreviewImageInput
 
@@ -18,7 +14,7 @@ class ReviewForm(forms.ModelForm):
         }
 
     title = forms.CharField(label=_("评论标题"))
-    body = MarkdownxFormField(label=_("评论正文 (Markdown)"), strip=False)
+    body = MarkdownxFormField(label=_("评论正文 (Markdown格式可参考下方语法范例)"), strip=False)
     share_to_mastodon = forms.BooleanField(
         label=_("分享到联邦网络"), initial=False, required=False
     )

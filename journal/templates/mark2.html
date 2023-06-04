@@ -41,7 +41,7 @@
           </div>
           <div>
             <fieldset>
-              <span _=" on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
+              <span class="rating-editor {% if shelf_type == 'wishlist' %}hidden{% endif %}" _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
                 <div/>
                 in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
                 <div/>
@@ -51,9 +51,7 @@
                 <div/>
                 in me set star_input to the
                 <input/>
-                in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' remove .yellow from star_div end " class="rating-editor
-                {% if shelf_type == "wishlist" %}hidden{% endif %}
-                ">
+                in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' remove .yellow from star_div end">
                 {{ mark.rating_grade|rating_star }}
                 <input type="hidden"
                        name="rating_grade"
@@ -65,6 +63,7 @@
         </div>
         <textarea name="text"
                   rows="4"
+                  autofocus
                   placeholder="提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦网络实例时间线。"
                   id="id_text">{{ mark.comment_text|default:"" }}</textarea>
         <div class="mark-modal__tag">
