@@ -73,7 +73,7 @@ class DoubanDramaTestCase(TestCase):
         self.assertEqual(item.performer, ["安蘭けい", "柚希礼音", "遠野あすか", "霧矢大夢", "龍真咲"])
         self.assertEqual(len(resource.related_resources), 4)
         crawl_related_resources_task(resource.id)  # force the async job to run now
-        productions = list(item.productions.all())
+        productions = list(item.productions.all().order_by("title"))
         self.assertEqual(len(productions), 4)
         self.assertEqual(productions[0].opening_date, "2008-06-20")
         self.assertEqual(productions[0].closing_date, "2008-08-04")

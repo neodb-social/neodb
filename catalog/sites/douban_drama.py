@@ -133,10 +133,14 @@ class DoubanDrama(AbstractSite):
         )
         data["other_title"] = other_title_elem
 
-        plot_elem = h.xpath("//div[@id='link-report']/text()")
+        plot_elem = h.xpath("//div[@class='pure-text']/div[@class='full']/text()")
         if len(plot_elem) == 0:
-            plot_elem = h.xpath("//div[@class='abstract']/text()")
-        data["brief"] = "\n".join(plot_elem) if len(plot_elem) > 0 else ""
+            plot_elem = h.xpath(
+                "//div[@class='pure-text']/div[@class='abstract']/text()"
+            )
+        if len(plot_elem) == 0:
+            plot_elem = h.xpath("//div[@class='pure-text']/text()")
+        data["brief"] = "\n".join(plot_elem)
 
         data["genre"] = [
             s.strip()
