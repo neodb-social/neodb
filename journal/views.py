@@ -832,18 +832,21 @@ def profile(request, user_name):
         ItemCategory.Music,
         ItemCategory.Podcast,
         ItemCategory.Game,
+        ItemCategory.Performance,
     ]
     for category in visbile_categories:
         shelf_list[category] = {}
         for shelf_type in ShelfType:
-            members = user.shelf_manager.get_latest_members(
-                shelf_type, category
-            ).filter(qv)
-            shelf_list[category][shelf_type] = {
-                "title": user.shelf_manager.get_label(shelf_type, category),
-                "count": members.count(),
-                "members": members[:10].prefetch_related("item"),
-            }
+            label = user.shelf_manager.get_label(shelf_type, category)
+            if label is not None:
+                members = user.shelf_manager.get_latest_members(
+                    shelf_type, category
+                ).filter(qv)
+                shelf_list[category][shelf_type] = {
+                    "title": label,
+                    "count": members.count(),
+                    "members": members[:10].prefetch_related("item"),
+                }
         reviews = (
             Review.objects.filter(owner=user)
             .filter(qv)

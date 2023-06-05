@@ -34,30 +34,34 @@
   </div>
 {% endblock %}
 {% block content %}
-  {% for prod in item.productions.all %}
-    {% if forloop.first %}
+  {% with item.productions.all as productions %}
+    {% if productions %}
       <h5>{% trans '上演版本' %}</h5>
-    {% endif %}
-    <hgroup>
-      <h6>
-        <a href="{{ prod.url }}">{{ prod.title }}</a>
-      </h6>
       <div>
-        {% include '_people.html' with people=prod.troupe _role='剧团' max=2 %}
-        <div>
-          {% if prod.opening_date %}上演日期：{{ prod.opening_date }}{% endif %}
-        </div>
-        {% include '_people.html' with people=prod.location _role='上演剧院' max=2 %}
-        {% if prod.language %}语言：{{ prod.language }}{% endif %}
+        {% for prod in productions %}
+          <hgroup>
+            <h6>
+              <a href="{{ prod.url }}">{{ prod.title }}</a>
+            </h6>
+            <div>
+              {% include '_people.html' with people=prod.troupe _role='剧团' max=2 %}
+              <div>
+                {% if prod.opening_date %}上演日期：{{ prod.opening_date }}{% endif %}
+              </div>
+              {% include '_people.html' with people=prod.location _role='上演剧院' max=2 %}
+              {% if prod.language %}语言：{{ prod.language }}{% endif %}
+            </div>
+            <div class="tldr-2">
+              {% include '_people.html' with people=prod.director role='导演' max=2 %}
+              {% include '_people.html' with people=prod.playwright role='编剧' max=2 %}
+              {% include '_people.html' with people=prod.performer role='演员' max=5 %}
+              {% include '_people.html' with people=prod.composer role='作曲' max=2 %}
+              {% include '_people.html' with people=prod.choreographer role='编舞' max=2 %}
+              {% include '_people.html' with people=prod.crew role='演职人员' max=5 %}
+            </div>
+          </hgroup>
+        {% endfor %}
       </div>
-      <div class="tldr-2">
-        {% include '_people.html' with people=prod.director role='导演' max=2 %}
-        {% include '_people.html' with people=prod.playwright role='编剧' max=2 %}
-        {% include '_people.html' with people=prod.performer role='演员' max=5 %}
-        {% include '_people.html' with people=prod.composer role='作曲' max=2 %}
-        {% include '_people.html' with people=prod.choreographer role='编舞' max=2 %}
-        {% include '_people.html' with people=prod.crew role='演职人员' max=5 %}
-      </div>
-    </hgroup>
-  {% endfor %}
+    {% endif %}
+  {% endwith %}
 {% endblock %}

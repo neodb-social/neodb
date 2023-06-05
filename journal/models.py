@@ -600,6 +600,7 @@ ShelfTypeNames = [
     [ItemCategory.Podcast, ShelfType.PROGRESS, _("在听")],
     [ItemCategory.Podcast, ShelfType.COMPLETE, _("听过")],
     [ItemCategory.Performance, ShelfType.WISHLIST, _("想看")],
+    # disable progress shelf for performance
     [ItemCategory.Performance, ShelfType.PROGRESS, _("")],
     [ItemCategory.Performance, ShelfType.COMPLETE, _("看过")],
 ]
@@ -789,8 +790,10 @@ class ShelfManager:
     def get_label(cls, shelf_type, item_category):
         ic = ItemCategory(item_category).label
         st = cls.get_action_label(shelf_type, item_category)
-        return _("{shelf_label}的{item_category}").format(
-            shelf_label=st, item_category=ic
+        return (
+            _("{shelf_label}的{item_category}").format(shelf_label=st, item_category=ic)
+            if st
+            else None
         )
 
     @staticmethod
