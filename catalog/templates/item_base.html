@@ -352,6 +352,8 @@
           <h5>简介</h5>
           {% if item.brief %}
             <p class="tldr" _="on click toggle .tldr on me">{{ item.brief | linebreaksbr }}</p>
+          {% elif item.parent_item.brief %}
+            <p class="tldr" _="on click toggle .tldr on me">{{ item.parent_item.brief | linebreaksbr }}</p>
           {% else %}
             <p class="empty">暂缺</p>
           {% endif %}

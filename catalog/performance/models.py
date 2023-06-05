@@ -106,16 +106,16 @@ class Performance(Item):
         "other_title",
         "genre",
         "language",
-        "director",
-        "playwright",
-        "performer",
-        "composer",
-        "choreographer",
-        "crew",
-        "troupe",
-        "location",
         "opening_date",
         "closing_date",
+        "troupe",
+        "location",
+        "director",
+        "playwright",
+        "composer",
+        "choreographer",
+        "performer",
+        "crew",
         "official_site",
     ]
 
@@ -123,7 +123,7 @@ class Performance(Item):
     def all_productions(self):
         return (
             self.productions.all()
-            .order_by("metadata__opening_date")
+            .order_by("metadata__opening_date", "title")
             .filter(is_deleted=False, merged_to_item=None)
         )
 
@@ -223,17 +223,18 @@ class PerformanceProduction(Item):
         "brief",
         "orig_title",
         "other_title",
+        "genre",
         "language",
-        "director",
-        "playwright",
-        "performer",
-        "composer",
-        "choreographer",
-        "crew",
-        "troupe",
-        "location",
         "opening_date",
         "closing_date",
+        "troupe",
+        "location",
+        "director",
+        "playwright",
+        "composer",
+        "choreographer",
+        "performer",
+        "crew",
         "official_site",
     ]
 
