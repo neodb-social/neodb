@@ -49,9 +49,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "django.contrib.postgres",
-    "django_sass",
     "django_rq",
     "django_bleach",
+    "django_jsonform",
     "oauth2_provider",
     "tz_detect",
     "sass_processor",
@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     "polymorphic",
     "easy_thumbnails",
     "user_messages",
-    "jsoneditor",
     "fontawesomefree",
 ]
 

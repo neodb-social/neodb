@@ -1,0 +1,45 @@
+// override django_jsonform/react-json-form styles
+.rjf-form-wrapper {
+  input[type="text"] {
+    max-width: unset !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    font-size: unset !important;
+  }
+
+  .rjf-add-button {
+    background: var(--pico-background) !important;
+    color: var(--pico-secondary) !important;
+    border: solid 1px var(--pico-secondary) !important;
+    margin-left: 5px !important;
+  }
+
+  .rjf-form-row-controls {
+    button {
+      padding: unset !important;
+      font-size: unset !important;
+      margin-bottom: 0 !important;
+    }
+  }
+
+  .rjf-form-row-inner>div {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(0%, 1fr));
+
+    >label {
+      margin-top: var(--pico-form-element-spacing-vertical);
+    }
+
+    >* {
+      width: max-content !important;
+
+
+      button {
+        padding: unset !important;
+        font-size: unset !important;
+        margin-bottom: 0 !important;
+      }
+
+    }
+  }
+}

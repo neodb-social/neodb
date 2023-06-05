@@ -9,10 +9,12 @@ from django.core.exceptions import FieldError
 from django.db.models import fields
 from django.utils import dateparse, timezone
 
-from django.contrib.postgres.fields import ArrayField as DJANGO_ArrayField
+# from django.contrib.postgres.fields import ArrayField as DJANGO_ArrayField
+from django_jsonform.models.fields import ArrayField as DJANGO_ArrayField
 
 # from django.db.models import JSONField as DJANGO_JSONField
-from jsoneditor.fields.django3_jsonfield import JSONField as DJANGO_JSONField
+# from jsoneditor.fields.django3_jsonfield import JSONField as DJANGO_JSONField
+from django_jsonform.models.fields import JSONField as DJANGO_JSONField
 
 
 __all__ = (
@@ -232,9 +234,9 @@ class URLField(JSONFieldMixin, fields.URLField):
 
 
 class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
-    def __init__(self, *args, **kwargs):
-        kwargs["help_text"] = _("多项之间以英文逗号分隔")
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     kwargs["help_text"] = _("多项之间以英文逗号分隔")
+    #     super().__init__(*args, **kwargs)
 
     def from_json(self, value):  # backward compatible with dirty legacy data
         if value:
