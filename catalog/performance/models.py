@@ -42,56 +42,56 @@ class Performance(Item):
     )
     other_title = jsondata.ArrayField(
         verbose_name=_("其它标题"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
+        base_field=models.CharField(blank=False, default="", max_length=200),
         null=False,
         blank=True,
         default=list,
     )
     genre = jsondata.ArrayField(
         verbose_name=_("类型"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
+        base_field=models.CharField(blank=False, default="", max_length=200),
         null=False,
         blank=False,
         default=list,
     )
     language = jsondata.ArrayField(
         verbose_name=_("语言"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
+        base_field=models.CharField(blank=False, default="", max_length=200),
         null=False,
         blank=True,
         default=list,
     )
     director = jsondata.ArrayField(
         verbose_name=_("导演"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     playwright = jsondata.ArrayField(
         verbose_name=_("编剧"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     orig_creator = jsondata.ArrayField(
         verbose_name=_("原作者"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     composer = jsondata.ArrayField(
         verbose_name=_("作曲"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     choreographer = jsondata.ArrayField(
         verbose_name=_("编舞"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
@@ -105,14 +105,14 @@ class Performance(Item):
     )
     performer = jsondata.ArrayField(
         verbose_name=_("表演者"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     troupe = jsondata.ArrayField(
         verbose_name=_("剧团"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
@@ -126,16 +126,13 @@ class Performance(Item):
     )
     location = jsondata.ArrayField(
         verbose_name=_("剧场空间"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     opening_date = jsondata.CharField(
-        verbose_name=_("首演日期"),
-        max_length=100,
-        null=True,
-        blank=True,
+        verbose_name=_("首演日期"), max_length=100, null=True, blank=True
     )
     closing_date = jsondata.CharField(
         verbose_name=_("结束日期"), max_length=100, null=True, blank=True
@@ -187,49 +184,49 @@ class PerformanceProduction(Item):
     )
     other_title = jsondata.ArrayField(
         verbose_name=_("其它标题"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
+        base_field=models.CharField(blank=False, default="", max_length=200),
         null=False,
         blank=True,
         default=list,
     )
     language = jsondata.ArrayField(
         verbose_name=_("语言"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
+        base_field=models.CharField(blank=False, default="", max_length=200),
         null=False,
         blank=True,
         default=list,
     )
     director = jsondata.ArrayField(
         verbose_name=_("导演"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     playwright = jsondata.ArrayField(
         verbose_name=_("编剧"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     orig_creator = jsondata.ArrayField(
         verbose_name=_("原作者"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     composer = jsondata.ArrayField(
         verbose_name=_("作曲"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     choreographer = jsondata.ArrayField(
         verbose_name=_("编舞"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
@@ -243,14 +240,14 @@ class PerformanceProduction(Item):
     )
     performer = jsondata.ArrayField(
         verbose_name=_("表演者"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     troupe = jsondata.ArrayField(
         verbose_name=_("剧团"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
@@ -264,7 +261,7 @@ class PerformanceProduction(Item):
     )
     location = jsondata.ArrayField(
         verbose_name=_("剧场空间"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
