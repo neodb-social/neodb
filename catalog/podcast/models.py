@@ -90,7 +90,7 @@ class PodcastEpisode(Item):
         return self.program
 
     @property
-    def full_title(self):
+    def display_title(self):
         return f"{self.program.title} - {self.title}"
 
     @property

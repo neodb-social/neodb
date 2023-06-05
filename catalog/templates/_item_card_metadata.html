@@ -5,9 +5,9 @@
   <h5>
     <a href="{{ item.url }}">
       {% if request.GET.q %}
-        {{ item.full_title | highlight:request.GET.q }}
+        {{ item.display_title | highlight:request.GET.q }}
       {% else %}
-        {{ item.full_title }}
+        {{ item.display_title }}
       {% endif %}
     </a>
     <small>
@@ -50,9 +50,11 @@
         </span>
       {% endif %}
       {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
-      {% include '_people.html' with people=item.genre role='' max=10 %}
-      {% if item.language %}<span>{{ item.language }}</span>{% endif %}
-      {% include '_people.html' with people=item.platform role='' max=10 %}
+      {% include '_people.html' with people=item.genre role='' max=2 %}
+      {% include '_people.html' with people=item.troupe role='' max=2 %}
+      {% include '_people.html' with people=item.location role='' max=2 %}
+      {% include '_people.html' with people=item.language role='' max=5 %}
+      {% include '_people.html' with people=item.platform role='' max=5 %}
       {% if item.show %}
         <span>{{ item.show.type.label }}：<a href="{{ item.show.url }}">{{ item.show.title }}</a></span>
       {% endif %}

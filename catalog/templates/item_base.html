@@ -16,14 +16,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title"
-          content="{{ site_name }}{% trans item.category.label %} - {{ item.full_title }}">
+          content="{{ site_name }}{% trans item.category.label %} - {{ item.display_title }}">
     <meta property="og:type" content="{{ item.category }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     {% if item.has_cover %}<meta property="og:image" content="{{ item.cover_image_url }}">{% endif %}
     <meta property="og:site_name" content="{{ site_name }}">
     <meta property="og:description" content="{{ item.brief }}">
     {% if item.is_deleted or item.merged_to_item %}<meta name="robots" content="noindex">{% endif %}
-    <title>{{ site_name }} - {% trans item.category.label %} | {{ item.full_title }}</title>
+    <title>{{ site_name }} - {% trans item.category.label %} | {{ item.display_title }}</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
     {% block head %}{% endblock %}
   </head>
@@ -36,7 +36,7 @@
           [MERGED TO <a href="{{ item.merged_to_item.url }}">{{ item.merged_to_item.title }}</a>]
         {% endif %}
         <h1>
-          {{ item.full_title }}
+          {{ item.display_title }}
           <small>
             {% if item.year %}({{ item.year }}){% endif %}
           </small>

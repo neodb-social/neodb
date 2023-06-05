@@ -406,7 +406,7 @@ def get_status_id_by_url(url):
 
 def get_spoiler_text(text, item):
     if text.find(">!") != -1:
-        spoiler_text = f"关于《{item.full_title}》 可能有关键情节等敏感内容"
+        spoiler_text = f"关于《{item.display_title}》 可能有关键情节等敏感内容"
         return spoiler_text, text.replace(">!", "").replace("!<", "")
     else:
         return None, text
@@ -447,7 +447,7 @@ def share_mark(mark):
         mark.rating_grade,
         MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode,
     )
-    content = f"{mark.action_label}《{mark.item.full_title}》{stars}\n{mark.item.absolute_url}\n{mark.comment_text or ''}{tags}"
+    content = f"{mark.action_label}《{mark.item.display_title}》{stars}\n{mark.item.absolute_url}\n{mark.comment_text or ''}{tags}"
     update_id = get_status_id_by_url(mark.shared_link)
     spoiler_text, content = get_spoiler_text(content, mark.item)
     response = post_toot(
@@ -495,7 +495,7 @@ def share_review(review):
         if user.get_preference().mastodon_append_tag
         else ""
     )
-    content = f"发布了关于《{review.item.full_title}》的评论\n{review.title}\n{review.absolute_url}{tags}"
+    content = f"发布了关于《{review.item.display_title}》的评论\n{review.title}\n{review.absolute_url}{tags}"
     update_id = None
     if review.metadata.get(
         "shared_link"

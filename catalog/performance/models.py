@@ -225,7 +225,7 @@ class PerformanceProduction(Item):
         return self.show
 
     @property
-    def full_title(self):
+    def display_title(self):
         return f"{self.show.title} {self.title}"
 
     @property

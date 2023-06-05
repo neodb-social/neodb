@@ -221,7 +221,7 @@ class BaseSchema(Schema):
     api_url: str
     category: ItemCategory
     parent_uuid: str | None
-    full_title: str
+    display_title: str
     external_resources: list[ExternalResourceSchema] | None
 
 
@@ -360,7 +360,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return self.__class__.__name__.lower()
 
     @property
-    def full_title(self):
+    def display_title(self):
         return self.title
 
     @classmethod

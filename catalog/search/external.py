@@ -21,7 +21,7 @@ class SearchResultItem:
         }
         self.source_site = source_site
         self.source_url = source_url
-        self.title = title
+        self.display_title = title
         self.subtitle = subtitle
         self.brief = brief
         self.cover_image_url = cover_url
