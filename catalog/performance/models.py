@@ -48,6 +48,13 @@ class Performance(Item):
         blank=True,
         default=list,
     )
+    orig_creator = jsondata.ArrayField(
+        verbose_name=_("原作者"),
+        base_field=models.CharField(blank=True, default="", max_length=500),
+        null=False,
+        blank=True,
+        default=list,
+    )
     composer = jsondata.ArrayField(
         verbose_name=_("作曲"),
         base_field=models.CharField(blank=True, default="", max_length=500),
@@ -112,6 +119,7 @@ class Performance(Item):
         "location",
         "director",
         "playwright",
+        "orig_creator",
         "composer",
         "choreographer",
         "performer",
@@ -162,6 +170,13 @@ class PerformanceProduction(Item):
     )
     playwright = jsondata.ArrayField(
         verbose_name=_("编剧"),
+        base_field=models.CharField(blank=True, default="", max_length=500),
+        null=False,
+        blank=True,
+        default=list,
+    )
+    orig_creator = jsondata.ArrayField(
+        verbose_name=_("原作者"),
         base_field=models.CharField(blank=True, default="", max_length=500),
         null=False,
         blank=True,
@@ -223,7 +238,6 @@ class PerformanceProduction(Item):
         "brief",
         "orig_title",
         "other_title",
-        "genre",
         "language",
         "opening_date",
         "closing_date",
@@ -231,6 +245,7 @@ class PerformanceProduction(Item):
         "location",
         "director",
         "playwright",
+        "orig_creator",
         "composer",
         "choreographer",
         "performer",
