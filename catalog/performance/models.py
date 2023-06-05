@@ -2,6 +2,7 @@ from catalog.common import *
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 from catalog.common.utils import DEFAULT_ITEM_COVER
+from functools import cached_property
 
 
 class Performance(Item):
@@ -113,6 +114,14 @@ class Performance(Item):
         "opening_date",
         "official_site",
     ]
+
+    @cached_property
+    def all_productions(self):
+        return (
+            self.productions.all()
+            .order_by("title")
+            .filter(is_deleted=False, merged_to_item=None)
+        )
 
 
 class PerformanceProduction(Item):
@@ -231,7 +240,7 @@ class PerformanceProduction(Item):
     @property
     def cover_image_url(self):
         return (
-            self.cover_image_url
+            self.cover.url
             if self.cover and self.cover != DEFAULT_ITEM_COVER
             else self.show.cover_image_url
         )

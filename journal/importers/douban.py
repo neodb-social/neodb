@@ -120,11 +120,14 @@ class DoubanImporter:
         "想玩": [ShelfType.WISHLIST],
         "在玩": [ShelfType.PROGRESS],
         "玩过": [ShelfType.COMPLETE],
+        "想看的舞台剧": [ShelfType.WISHLIST],
+        "看过的舞台剧": [ShelfType.COMPLETE],
     }
     review_sheet_config = {
         "书评": [Edition],
         "影评": [Movie],
         "乐评": [Album],
+        "剧评": [Performance],
         "游戏评论&攻略": [Game],
     }
     mark_data = {}

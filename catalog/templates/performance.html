@@ -32,7 +32,7 @@
   </div>
 {% endblock %}
 {% block content %}
-  {% with item.productions.all as productions %}
+  {% with item.all_productions as productions %}
     {% if productions %}
       <h5>{% trans '上演版本' %}</h5>
       <div>

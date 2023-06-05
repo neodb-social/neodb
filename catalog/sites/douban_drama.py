@@ -4,6 +4,7 @@ from .douban import DoubanDownloader
 import logging
 from lxml import html
 from django.core.cache import cache
+import re
 
 _logger = logging.getLogger(__name__)
 
@@ -23,11 +24,17 @@ class DoubanDramaVersion(AbstractSite):
 
     SITE_NAME = SiteName.Douban
     ID_TYPE = IdType.DoubanDramaVersion
-    URL_PATTERNS = [
-        # the pattern is skipped to avoid user fetching the version without fetching the drama page
-    ]
+    URL_PATTERNS = [r"\w+://www.douban.com/location/drama/(\d+)/#(\d+)$"]
+
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = PerformanceProduction
+
+    @classmethod
+    def url_to_id(cls, url: str):
+        m = re.match(cls.URL_PATTERNS[0], url)
+        if not m:
+            return None
+        return m.group(1) + "-" + m.group(2)
 
     @classmethod
     def id_to_url(cls, id_value):
@@ -49,8 +56,11 @@ class DoubanDramaVersion(AbstractSite):
         p = "//div[@id='" + version_id + "']"
         q = p + "//dt[text()='{}：']/following-sibling::dd[1]/a/span/text()"
         q2 = p + "//dt[text()='{}：']/following-sibling::dd[1]/text()"
+        title = " ".join(h.xpath(p + "//h3/text()")).strip()
+        if not title:
+            raise ParseError(self, "title")
         data = {
-            "title": " ".join(h.xpath(p + "//h3/text()")).strip(),
+            "title": title,
             "director": [x.strip() for x in h.xpath(q.format("导演"))],
             "playwright": [x.strip() for x in h.xpath(q.format("编剧"))],
             "performer": [x.strip() for x in h.xpath(q.format("主演"))],
@@ -60,6 +70,8 @@ class DoubanDramaVersion(AbstractSite):
             "troupe": [x.strip() for x in h.xpath(q.format("演出团体"))],
             "location": [x.strip() for x in h.xpath(q.format("演出剧院"))],
         }
+        img_url_elem = h.xpath("//img[@itemprop='image']/@src")
+        data["cover_image_url"] = img_url_elem[0].strip() if img_url_elem else None
         pd = ResourceContent(metadata=data)
         pd.metadata["required_resources"] = [
             {
@@ -70,6 +82,15 @@ class DoubanDramaVersion(AbstractSite):
                 "url": show_url,
             }
         ]
+        if pd.metadata["cover_image_url"]:
+            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
+            try:
+                pd.cover_image = imgdl.download().content
+                pd.cover_image_extention = imgdl.extention
+            except Exception:
+                _logger.debug(
+                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
+                )
         return pd
 
 
@@ -77,7 +98,7 @@ class DoubanDramaVersion(AbstractSite):
 class DoubanDrama(AbstractSite):
     SITE_NAME = SiteName.Douban
     ID_TYPE = IdType.DoubanDrama
-    URL_PATTERNS = [r"\w+://www.douban.com/location/drama/(\d+)/"]
+    URL_PATTERNS = [r"\w+://www.douban.com/location/drama/(\d+)/[^#]*$"]
     WIKI_PROPERTY_ID = "P6443"
     DEFAULT_MODEL = Performance
 
