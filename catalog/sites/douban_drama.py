@@ -70,6 +70,12 @@ class DoubanDramaVersion(AbstractSite):
             "troupe": [x.strip() for x in h.xpath(q.format("演出团体"))],
             "location": [x.strip() for x in h.xpath(q.format("演出剧院"))],
         }
+        if data["opening_date"]:
+            d = data["opening_date"].split("-")
+            l = len(d) if len(d) < 6 else 6
+            if l > 3:
+                data["opening_date"] = "-".join(d[:3])
+                data["closing_date"] = "-".join(d[0 : 6 - l] + d[3:l])
         img_url_elem = h.xpath("//img[@itemprop='image']/@src")
         data["cover_image_url"] = img_url_elem[0].strip() if img_url_elem else None
         pd = ResourceContent(metadata=data)
@@ -135,7 +141,7 @@ class DoubanDrama(AbstractSite):
         data["genre"] = [
             s.strip()
             for s in h.xpath(
-                "//dl//dt[text()='类型：']/following-sibling::dd[@itemprop='genre']/text()"
+                "//div[@class='meta']//dl//dt[text()='类型：']/following-sibling::dd[@itemprop='genre']/text()"
             )
         ]
         # data["version"] = [
@@ -181,8 +187,16 @@ class DoubanDrama(AbstractSite):
             )
         ]
 
-        date_elem = h.xpath("//dl//dt[text()='演出日期：']/following::dd/text()")
+        date_elem = h.xpath(
+            "//div[@class='meta']//dl//dt[text()='演出日期：']/following::dd/text()"
+        )
         data["opening_date"] = date_elem[0] if date_elem else None
+        if data["opening_date"]:
+            d = data["opening_date"].split("-")
+            l = len(d) if len(d) < 6 else 6
+            if l > 3:
+                data["opening_date"] = "-".join(d[:3])
+                data["closing_date"] = "-".join(d[0 : 6 - l] + d[3:l])
 
         data["location"] = [
             s.strip()

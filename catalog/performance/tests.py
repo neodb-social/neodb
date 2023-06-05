@@ -75,6 +75,12 @@ class DoubanDramaTestCase(TestCase):
         crawl_related_resources_task(resource.id)  # force the async job to run now
         productions = list(item.productions.all())
         self.assertEqual(len(productions), 4)
+        self.assertEqual(productions[0].opening_date, "2008-06-20")
+        self.assertEqual(productions[0].closing_date, "2008-08-04")
+        self.assertEqual(productions[2].opening_date, "2017-03-10")
+        self.assertEqual(productions[2].closing_date, "2017-03-17")
+        self.assertEqual(productions[3].opening_date, "2017-11-13")
+        self.assertEqual(productions[3].closing_date, None)
         self.assertEqual(productions[3].title, "ミュージカル（2017年）版")
         self.assertEqual(len(productions[3].performer), 6)
         self.assertEqual(productions[3].language, ["日语"])

@@ -12,6 +12,12 @@
 <!-- class specific details -->
 {% block details %}
   <div>
+    {% if item.opening_date %}
+      <span>{{ item.opening_date }}</span>
+      {% if item.closing_date %}~ <span>{{ item.closing_date }}</span>{% endif %}
+    {% endif %}
+  </div>
+  <div>
     {% if item.show %}
       {% trans '所属剧目' %}： <span><a href="{{ item.show.url }}"></span>{{ item.show.title }}</a>
     {% endif %}
@@ -21,9 +27,6 @@
   <div>{% include '_people.html' with people=item.troupe role='剧团' max=5 %}</div>
   <div>{% include '_people.html' with people=item.location role='剧院' max=5 %}</div>
   <div>{% include '_people.html' with people=item.language role='语言' max=5 %}</div>
-  <div>
-    {% if item.opening_date %}日期： <span>{{ item.opening_date }}</span>{% endif %}
-  </div>
   <div>{% include '_people.html' with people=item.director role='导演' max=5 %}</div>
   <div>{% include '_people.html' with people=item.playwright role='编剧' max=5 %}</div>
   <div>{% include '_people.html' with people=item.performer role='演员' max=10 %}</div>

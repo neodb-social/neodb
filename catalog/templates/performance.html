@@ -12,13 +12,16 @@
 <!-- class specific details -->
 {% block details %}
   <div>{% include '_people.html' with people=item.other_title _role='其他标题' max=5 %}</div>
+  <div>
+    {% if item.opening_date %}
+      <span>{{ item.opening_date }}</span>
+      {% if item.closing_date %}~ <span>{{ item.closing_date }}</span>{% endif %}
+    {% endif %}
+  </div>
   <div>{% include '_people.html' with people=item.genre role='类型' max=5 %}</div>
   <div>{% include '_people.html' with people=item.troupe role='剧团' max=5 %}</div>
   <div>{% include '_people.html' with people=item.location role='剧院' max=5 %}</div>
   <div>{% include '_people.html' with people=item.language role='语言' max=5 %}</div>
-  <div>
-    {% if item.opening_date %}日期： <span>{{ item.opening_date }}</span>{% endif %}
-  </div>
   <div>{% include '_people.html' with people=item.director role='导演' max=5 %}</div>
   <div>{% include '_people.html' with people=item.playwright role='编剧' max=5 %}</div>
   <div>{% include '_people.html' with people=item.performer role='演员' max=10 %}</div>
@@ -42,10 +45,11 @@
               <a href="{{ prod.url }}">{{ prod.title }}</a>
             </h6>
             <div>
+              {% if prod.opening_date %}
+                <span>{{ prod.opening_date }}</span>
+                {% if prod.closing_date %}~ <span>{{ prod.closing_date }}</span>{% endif %}
+              {% endif %}
               {% include '_people.html' with people=prod.troupe _role='剧团' max=2 %}
-              <div>
-                {% if prod.opening_date %}上演日期：{{ prod.opening_date }}{% endif %}
-              </div>
               {% include '_people.html' with people=prod.location _role='上演剧院' max=2 %}
               {% include '_people.html' with people=prod.language _role='语言' max=5 %}
             </div>
