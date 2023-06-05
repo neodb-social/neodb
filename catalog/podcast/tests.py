@@ -11,7 +11,7 @@ from catalog.common import *
 #         t_id = "657765158"
 #         t_url = "https://podcasts.apple.com/us/podcast/%E5%A4%A7%E5%86%85%E5%AF%86%E8%B0%88/id657765158"
 #         t_url2 = "https://podcasts.apple.com/us/podcast/id657765158"
-#         p1 = SiteManager.get_site_by_id_type(IdType.ApplePodcast)
+#         p1 = SiteManager.get_site_cls_by_id_type(IdType.ApplePodcast)
 #         self.assertIsNotNone(p1)
 #         self.assertEqual(p1.validate_url(t_url), True)
 #         p2 = SiteManager.get_site_by_url(t_url)

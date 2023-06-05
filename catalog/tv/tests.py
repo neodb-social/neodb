@@ -21,7 +21,7 @@ class TMDBTVTestCase(TestCase):
         t_url = "https://www.themoviedb.org/tv/57243-doctor-who"
         t_url1 = "https://www.themoviedb.org/tv/57243-doctor-who/seasons"
         t_url2 = "https://www.themoviedb.org/tv/57243"
-        p1 = SiteManager.get_site_by_id_type(IdType.TMDB_TV)
+        p1 = SiteManager.get_site_cls_by_id_type(IdType.TMDB_TV)
         self.assertIsNotNone(p1)
         self.assertEqual(p1.validate_url(t_url), True)
         self.assertEqual(p1.validate_url(t_url1), True)
@@ -52,7 +52,7 @@ class TMDBTVSeasonTestCase(TestCase):
         t_id = "57243-11"
         t_url = "https://www.themoviedb.org/tv/57243-doctor-who/season/11"
         t_url_unique = "https://www.themoviedb.org/tv/57243/season/11"
-        p1 = SiteManager.get_site_by_id_type(IdType.TMDB_TVSeason)
+        p1 = SiteManager.get_site_cls_by_id_type(IdType.TMDB_TVSeason)
         self.assertIsNotNone(p1)
         self.assertEqual(p1.validate_url(t_url), True)
         self.assertEqual(p1.validate_url(t_url_unique), True)

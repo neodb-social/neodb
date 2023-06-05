@@ -51,7 +51,7 @@ class IGDB(AbstractSite):
     DEFAULT_MODEL = Game
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://www.igdb.com/games/" + id_value
 
     @classmethod
@@ -139,7 +139,7 @@ class IGDB(AbstractSite):
             }
         )
         if steam_url:
-            pd.lookup_ids[IdType.Steam] = SiteManager.get_site_by_id_type(
+            pd.lookup_ids[IdType.Steam] = SiteManager.get_site_cls_by_id_type(
                 IdType.Steam
             ).url_to_id(steam_url)
         if pd.metadata["cover_image_url"]:

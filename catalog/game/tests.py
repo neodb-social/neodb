@@ -8,7 +8,7 @@ class IGDBTestCase(TestCase):
         t_id_type = IdType.IGDB
         t_id_value = "portal-2"
         t_url = "https://www.igdb.com/games/portal-2"
-        site = SiteManager.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)
@@ -54,7 +54,7 @@ class SteamTestCase(TestCase):
         t_id_value = "620"
         t_url = "https://store.steampowered.com/app/620/Portal_2/"
         t_url2 = "https://store.steampowered.com/app/620"
-        site = SiteManager.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)
@@ -84,7 +84,7 @@ class DoubanGameTestCase(TestCase):
         t_id_type = IdType.DoubanGame
         t_id_value = "10734307"
         t_url = "https://www.douban.com/game/10734307/"
-        site = SiteManager.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)
@@ -110,7 +110,7 @@ class BangumiGameTestCase(TestCase):
         t_id_type = IdType.Bangumi
         t_id_value = "15912"
         t_url = "https://bgm.tv/subject/15912"
-        site = SiteManager.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)

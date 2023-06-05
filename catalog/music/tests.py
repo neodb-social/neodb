@@ -18,7 +18,7 @@ class SpotifyTestCase(TestCase):
         t_id_type = IdType.Spotify_Album
         t_id_value = "65KwtzkJXw7oT819NFWmEP"
         t_url = "https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP"
-        site = SiteManager.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)
@@ -44,7 +44,7 @@ class DoubanMusicTestCase(TestCase):
         t_id_type = IdType.DoubanMusic
         t_id_value = "33551231"
         t_url = "https://music.douban.com/subject/33551231/"
-        site = SiteManager.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)
@@ -89,7 +89,7 @@ class BandcampTestCase(TestCase):
         t_id_value = "intlanthem.bandcamp.com/album/in-these-times"
         t_url = "https://intlanthem.bandcamp.com/album/in-these-times?from=hpbcw"
         t_url2 = "https://intlanthem.bandcamp.com/album/in-these-times"
-        site = SiteManager.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)
@@ -116,7 +116,7 @@ class DiscogsReleaseTestCase(TestCase):
         t_id_value = "25829341"
         t_url = "https://www.discogs.com/release/25829341-JID-The-Never-Story"
         t_url_2 = "https://www.discogs.com/release/25829341"
-        site = SiteManager.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)
@@ -146,7 +146,7 @@ class DiscogsMasterTestCase(TestCase):
         t_id_value = "469004"
         t_url = "https://www.discogs.com/master/469004-The-XX-Coexist"
         t_url_2 = "https://www.discogs.com/master/469004"
-        site = SiteManager.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)
@@ -173,7 +173,7 @@ class AppleMusicTestCase(TestCase):
         t_id_value = "1284391545"
         t_url = "https://music.apple.com/us/album/kids-only/1284391545"
         t_url_2 = "https://music.apple.com/album/1284391545"
-        site = SiteManager.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)

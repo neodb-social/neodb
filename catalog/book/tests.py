@@ -76,7 +76,7 @@ class GoodreadsTestCase(TestCase):
         t_id = "77566"
         t_url = "https://www.goodreads.com/zh/book/show/77566.Hyperion"
         t_url2 = "https://www.goodreads.com/book/show/77566"
-        p1 = SiteManager.get_site_by_id_type(t_type)
+        p1 = SiteManager.get_site_cls_by_id_type(t_type)
         p2 = SiteManager.get_site_by_url(t_url)
         self.assertEqual(p1.id_to_url(t_id), t_url2)
         self.assertEqual(p2.url_to_id(t_url), t_id)

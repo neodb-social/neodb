@@ -10,7 +10,7 @@ class DoubanDramaTestCase(TestCase):
     def test_parse(self):
         t_id = "24849279"
         t_url = "https://www.douban.com/location/drama/24849279/"
-        p1 = SiteManager.get_site_by_id_type(IdType.DoubanDrama)
+        p1 = SiteManager.get_site_cls_by_id_type(IdType.DoubanDrama)
         self.assertIsNotNone(p1)
         p1 = SiteManager.get_site_by_url(t_url)
         self.assertIsNotNone(p1)

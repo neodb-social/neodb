@@ -6,7 +6,7 @@ class DoubanMovieTestCase(TestCase):
     def test_parse(self):
         t_id = "3541415"
         t_url = "https://movie.douban.com/subject/3541415/"
-        p1 = SiteManager.get_site_by_id_type(IdType.DoubanMovie)
+        p1 = SiteManager.get_site_cls_by_id_type(IdType.DoubanMovie)
         self.assertIsNotNone(p1)
         self.assertEqual(p1.validate_url(t_url), True)
         p2 = SiteManager.get_site_by_url(t_url)
@@ -33,7 +33,7 @@ class TMDBMovieTestCase(TestCase):
             "https://www.themoviedb.org/movie/293767-billy-lynn-s-long-halftime-walk"
         )
         t_url2 = "https://www.themoviedb.org/movie/293767"
-        p1 = SiteManager.get_site_by_id_type(IdType.TMDB_Movie)
+        p1 = SiteManager.get_site_cls_by_id_type(IdType.TMDB_Movie)
         self.assertIsNotNone(p1)
         self.assertEqual(p1.validate_url(t_url), True)
         self.assertEqual(p1.validate_url(t_url2), True)
@@ -59,7 +59,7 @@ class IMDBMovieTestCase(TestCase):
         t_id = "tt1375666"
         t_url = "https://www.imdb.com/title/tt1375666/"
         t_url2 = "https://www.imdb.com/title/tt1375666/"
-        p1 = SiteManager.get_site_by_id_type(IdType.IMDB)
+        p1 = SiteManager.get_site_cls_by_id_type(IdType.IMDB)
         self.assertIsNotNone(p1)
         self.assertEqual(p1.validate_url(t_url), True)
         self.assertEqual(p1.validate_url(t_url2), True)

@@ -234,8 +234,11 @@ class SiteManager:
         return target
 
     @staticmethod
-    def get_site_by_id_type(typ: str) -> AbstractSite | None:
-        return SiteManager.registry[typ]() if typ in SiteManager.registry else None
+    def get_site_cls_by_id_type(typ: str) -> AbstractSite:
+        if typ in SiteManager.registry:
+            return SiteManager.registry[typ]
+        else:
+            raise ValueError(f"Site for {typ} not found")
 
     @staticmethod
     def get_site_by_url(url: str) -> AbstractSite | None:
@@ -271,7 +274,7 @@ class SiteManager:
         return SiteManager.register.values()
 
 
-ExternalResource.get_site = lambda resource: SiteManager.get_site_by_id_type(
+ExternalResource.get_site = lambda resource: SiteManager.get_site_cls_by_id_type(
     resource.id_type
 )  # type: ignore
 
