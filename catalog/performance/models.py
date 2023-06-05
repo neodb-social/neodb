@@ -1,8 +1,35 @@
-from catalog.common import *
+from functools import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+from catalog.common import *
 from catalog.common.utils import DEFAULT_ITEM_COVER
-from functools import cached_property
+
+
+_CREW_SCHEMA = {
+    "type": "list",
+    "items": {
+        "type": "dict",
+        "keys": {
+            "name": {"type": "string", "title": _("名字")},
+            "role": {"type": "string", "title": _("职能")},
+        },
+        "required": ["role", "name"],
+    },
+    "uniqueItems": True,
+}
+
+_ACTOR_SCHEMA = {
+    "type": "list",
+    "items": {
+        "type": "dict",
+        "keys": {
+            "name": {"type": "string", "title": _("名字"), "placeholder": _("演员名字，必填")},
+            "role": {"type": "string", "title": _("角色"), "placeholder": _("也可不填写")},
+        },
+        "required": ["name"],
+    },
+    "uniqueItems": True,
+}
 
 
 class Performance(Item):
@@ -69,8 +96,15 @@ class Performance(Item):
         blank=True,
         default=list,
     )
-    performer = jsondata.ArrayField(
+    actor = jsondata.JSONField(
         verbose_name=_("演员"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=_ACTOR_SCHEMA,
+    )
+    performer = jsondata.ArrayField(
+        verbose_name=_("表演者"),
         base_field=models.CharField(blank=True, default="", max_length=500),
         null=False,
         blank=True,
@@ -83,12 +117,12 @@ class Performance(Item):
         blank=True,
         default=list,
     )
-    crew = jsondata.ArrayField(
+    crew = jsondata.JSONField(
         verbose_name=_("其他演职人员和团体"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=_CREW_SCHEMA,
     )
     location = jsondata.ArrayField(
         verbose_name=_("剧场空间"),
@@ -98,7 +132,10 @@ class Performance(Item):
         default=list,
     )
     opening_date = jsondata.CharField(
-        verbose_name=_("首演日期"), max_length=100, null=True, blank=True
+        verbose_name=_("首演日期"),
+        max_length=100,
+        null=True,
+        blank=True,
     )
     closing_date = jsondata.CharField(
         verbose_name=_("结束日期"), max_length=100, null=True, blank=True
@@ -122,6 +159,7 @@ class Performance(Item):
         "orig_creator",
         "composer",
         "choreographer",
+        "actor",
         "performer",
         "crew",
         "official_site",
@@ -196,8 +234,15 @@ class PerformanceProduction(Item):
         blank=True,
         default=list,
     )
-    performer = jsondata.ArrayField(
+    actor = jsondata.JSONField(
         verbose_name=_("演员"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=_ACTOR_SCHEMA,
+    )
+    performer = jsondata.ArrayField(
+        verbose_name=_("表演者"),
         base_field=models.CharField(blank=True, default="", max_length=500),
         null=False,
         blank=True,
@@ -210,12 +255,12 @@ class PerformanceProduction(Item):
         blank=True,
         default=list,
     )
-    crew = jsondata.ArrayField(
+    crew = jsondata.JSONField(
         verbose_name=_("其他演职人员和团体"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=_CREW_SCHEMA,
     )
     location = jsondata.ArrayField(
         verbose_name=_("剧场空间"),
@@ -248,6 +293,7 @@ class PerformanceProduction(Item):
         "orig_creator",
         "composer",
         "choreographer",
+        "actor",
         "performer",
         "crew",
         "official_site",

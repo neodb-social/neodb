@@ -63,7 +63,7 @@ class DoubanDramaVersion(AbstractSite):
             "title": title,
             "director": [x.strip() for x in h.xpath(q.format("导演"))],
             "playwright": [x.strip() for x in h.xpath(q.format("编剧"))],
-            "performer": [x.strip() for x in h.xpath(q.format("主演"))],
+            # "actor": [x.strip() for x in h.xpath(q.format("主演"))],
             "composer": [x.strip() for x in h.xpath(q.format("作曲"))],
             "language": [x.strip() for x in h.xpath(q2.format("语言"))],
             "opening_date": " ".join(h.xpath(q2.format("演出日期"))).strip(),
@@ -76,6 +76,14 @@ class DoubanDramaVersion(AbstractSite):
             if l > 3:
                 data["opening_date"] = "-".join(d[:3])
                 data["closing_date"] = "-".join(d[0 : 6 - l] + d[3:l])
+        actor_elem = h.xpath(p + "//dt[text()='主演：']/following-sibling::dd[1]/a")
+        data["actor"] = []
+        for e in actor_elem:
+            n = "".join(e.xpath("span/text()")).strip()
+            t = "".join(e.xpath("following-sibling::text()[1]")).strip()
+            t = re.sub(r"^[\s\(饰]*(.+)\)[\s\/]*$", r"\1", t).strip()
+            t = t if t != "/" else ""
+            data["actor"].append({"name": n, "role": t})
         img_url_elem = h.xpath("//img[@itemprop='image']/@src")
         data["cover_image_url"] = img_url_elem[0].strip() if img_url_elem else None
         pd = ResourceContent(metadata=data)
@@ -184,8 +192,8 @@ class DoubanDrama(AbstractSite):
                 "//div[@class='meta']/dl//dt[text()='编剧：']/following-sibling::dd/a[@itemprop='author']//text()"
             )
         ]
-        data["performer"] = [
-            s.strip()
+        data["actor"] = [
+            {"name": s.strip(), "role": ""}
             for s in h.xpath(
                 "//div[@class='meta']/dl//dt[text()='主演：']/following-sibling::dd/a[@itemprop='actor']//text()"
             )

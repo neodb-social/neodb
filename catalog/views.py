@@ -183,7 +183,14 @@ def edit(request, item_path, item_uuid):
             form.instance.save()
             return redirect(form.instance.url)
         else:
-            raise BadRequest(form.errors)
+            e = form.errors
+            e.additonal_detail = []
+            for f, v in e.as_data().items():
+                for validation_error in v:
+                    if hasattr(validation_error, "error_map"):
+                        for f2, v2 in validation_error.error_map.items():
+                            e.additonal_detail.append(f"{f}§{f2}: {'; '.join(v2)}")
+            raise BadRequest(e)
     else:
         raise BadRequest()
 

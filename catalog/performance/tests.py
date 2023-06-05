@@ -70,11 +70,31 @@ class DoubanDramaTestCase(TestCase):
         # )
         self.assertEqual(item.director, ["小池修一郎", "小池 修一郎", "石丸さち子"])
         self.assertEqual(item.playwright, ["小池修一郎", "Baroness Orczy（原作）", "小池 修一郎"])
-        self.assertEqual(item.performer, ["安蘭けい", "柚希礼音", "遠野あすか", "霧矢大夢", "龍真咲"])
+        self.assertEqual(
+            item.actor,
+            [
+                {"name": "安蘭けい", "role": ""},
+                {"name": "柚希礼音", "role": ""},
+                {"name": "遠野あすか", "role": ""},
+                {"name": "霧矢大夢", "role": ""},
+                {"name": "龍真咲", "role": ""},
+            ],
+        )
         self.assertEqual(len(resource.related_resources), 4)
         crawl_related_resources_task(resource.id)  # force the async job to run now
         productions = list(item.productions.all().order_by("title"))
         self.assertEqual(len(productions), 4)
+        self.assertEqual(
+            productions[3].actor,
+            [
+                {"name": "石丸幹二", "role": "パーシー・ブレイクニー"},
+                {"name": "石井一孝", "role": "ショーヴラン"},
+                {"name": "安蘭けい", "role": "マルグリット・サン・ジュスト"},
+                {"name": "上原理生", "role": ""},
+                {"name": "泉見洋平", "role": ""},
+                {"name": "松下洸平", "role": "アルマン"},
+            ],
+        )
         self.assertEqual(productions[0].opening_date, "2008-06-20")
         self.assertEqual(productions[0].closing_date, "2008-08-04")
         self.assertEqual(productions[2].opening_date, "2017-03-10")
@@ -82,7 +102,7 @@ class DoubanDramaTestCase(TestCase):
         self.assertEqual(productions[3].opening_date, "2017-11-13")
         self.assertEqual(productions[3].closing_date, None)
         self.assertEqual(productions[3].title, "ミュージカル（2017年）版")
-        self.assertEqual(len(productions[3].performer), 6)
+        self.assertEqual(len(productions[3].actor), 6)
         self.assertEqual(productions[3].language, ["日语"])
         self.assertEqual(productions[3].opening_date, "2017-11-13")
         self.assertEqual(productions[3].location, ["梅田芸術劇場メインホール"])
