@@ -30,7 +30,7 @@
             <option {% if request.GET.c and request.GET.c == 'game' or '/game/' in request.path %}selected{% endif %}
                     value="game">游戏</option>
             <option {% if request.GET.c and request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
-                    value="game">演出</option>
+                    value="performance">演出</option>
           </select>
           <input type="submit" value="&#xf002;" class="fa-solid" />
         </form>

@@ -67,8 +67,6 @@ class Podcast(Item):
         return f"http://{self.primary_lookup_id_value}"
 
 
-# class PodcastEpisode(Item):
-#     pass
 class PodcastEpisode(Item):
     category = ItemCategory.Podcast
     url_path = "podcast/episode"
