@@ -29,6 +29,15 @@
         </div>
       </details>
     {% endfor %}
+    {% if item.child_class %}
+      <details>
+        <summary>{% trans '新建子条目' %}</summary>
+        <form method="get" action="{% url 'catalog:create' item.child_class %}">
+          <input name="parent" type=hidden value="{{ item.uuid }}">
+          <input class="contrast" type="submit" value="{{ item.child_class }}">
+        </form>
+      </details>
+    {% endif %}
     {% if item.class_name == "movie" or item.class_name == "tvshow" %}
       <details>
         <summary>{% trans '切换分类' %}</summary>

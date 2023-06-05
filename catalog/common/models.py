@@ -240,6 +240,7 @@ class ItemSchema(ItemInSchema, BaseSchema):
 class Item(SoftDeleteMixin, PolymorphicModel):
     url_path = None  # subclass must specify this
     type = None  # subclass must specify this
+    parent_class = None  # subclass may specify this to allow create child item
     category = None  # subclass must specify this
     demonstrative = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
@@ -306,6 +307,9 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     @property
     def parent_item(self):
         return None
+
+    def set_parent_item(self, value):
+        raise ValueError("cannot set parent item")
 
     @property
     def parent_uuid(self):

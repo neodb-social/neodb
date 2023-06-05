@@ -20,25 +20,25 @@
     <p>当然也可以手工创建条目：</p>
     <ul>
       <li>
-        <a href="{% url 'catalog:create' 'Edition' %}">{% trans '添加图书' %}</a>
+        <a href="{% url 'catalog:create' 'Edition' %}?title={{ request.GET.q | default:'' }}">{% trans '添加图书' %}</a>
       </li>
       <li>
-        <a href="{% url 'catalog:create' 'Movie' %}">{% trans '添加电影' %}</a>
+        <a href="{% url 'catalog:create' 'Movie' %}?title={{ request.GET.q | default:'' }}">{% trans '添加电影' %}</a>
       </li>
       <li>
-        <a href="{% url 'catalog:create' 'TVShow' %}">{% trans '添加剧集' %}</a>
+        <a href="{% url 'catalog:create' 'TVShow' %}?title={{ request.GET.q | default:'' }}">{% trans '添加电视剧集' %}</a>
       </li>
       <li>
-        <a href="{% url 'catalog:create' 'Podcast' %}">{% trans '添加播客' %}</a>
+        <a href="{% url 'catalog:create' 'Podcast' %}?title={{ request.GET.q | default:'' }}">{% trans '添加播客' %}</a>
       </li>
       <li>
-        <a href="{% url 'catalog:create' 'Album' %}">{% trans '添加专辑' %}</a>
+        <a href="{% url 'catalog:create' 'Album' %}?title={{ request.GET.q | default:'' }}">{% trans '添加音乐专辑' %}</a>
       </li>
       <li>
-        <a href="{% url 'catalog:create' 'Game' %}">{% trans '添加游戏' %}</a>
+        <a href="{% url 'catalog:create' 'Game' %}?title={{ request.GET.q | default:'' }}">{% trans '添加游戏' %}</a>
       </li>
       <li>
-        <a href="{% url 'catalog:create' 'Performance' %}">{% trans '添加剧目' %}</a>
+        <a href="{% url 'catalog:create' 'Performance' %}?title={{ request.GET.q | default:'' }}">{% trans '添加表演或戏剧作品' %}</a>
       </li>
     </ul>
   </article>

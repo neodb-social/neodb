@@ -124,11 +124,15 @@ def retrieve(request, item_path, item_uuid):
 
 @login_required
 def create(request, item_model):
+    form_cls = CatalogForms.get(item_model)
+    if not form_cls:
+        raise BadRequest("Invalid item type")
     if request.method == "GET":
-        form_cls = CatalogForms.get(item_model)
-        if not form_cls:
-            raise BadRequest()
-        form = form_cls()
+        form = form_cls(
+            initial={
+                "title": request.GET.get("title", ""),
+            }
+        )
         return render(
             request,
             "catalog_edit.html",
@@ -137,19 +141,27 @@ def create(request, item_model):
             },
         )
     elif request.method == "POST":
-        form_cls = CatalogForms.get(item_model)
-        if not form_cls:
-            raise BadRequest()
         form = form_cls(request.POST, request.FILES)
+        parent = None
+        if request.GET.get("parent", ""):
+            parent = get_object_or_404(
+                Item, uid=get_uuid_or_404(request.GET.get("parent", ""))
+            )
+            if parent.child_class != form.instance.__class__.__name__:
+                raise BadRequest(
+                    f"Invalid parent type: {form.instance.__class__} -> {parent.__class__}"
+                )
         if form.is_valid():
             form.instance.last_editor = request.user
             form.instance.edited_time = timezone.now()
+            if parent:
+                form.instance.set_parent_item(parent)
             form.instance.save()
             return redirect(form.instance.url)
         else:
             raise BadRequest(form.errors)
     else:
-        raise BadRequest()
+        raise BadRequest("Invalid request method")
 
 
 @login_required

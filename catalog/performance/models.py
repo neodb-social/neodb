@@ -34,6 +34,7 @@ _ACTOR_SCHEMA = {
 
 class Performance(Item):
     type = ItemType.Performance
+    child_class = "PerformanceProduction"
     category = ItemCategory.Performance
     url_path = "performance"
     demonstrative = _("这部剧作")
@@ -300,9 +301,13 @@ class PerformanceProduction(Item):
     def parent_item(self):
         return self.show
 
+    def set_parent_item(self, value):
+        print("set", value)
+        self.show = value
+
     @property
     def display_title(self):
-        return f"{self.show.title} {self.title}"
+        return f"{self.show.title if self.show else '♢'} {self.title}"
 
     @property
     def cover_image_url(self):
@@ -310,6 +315,8 @@ class PerformanceProduction(Item):
             self.cover.url
             if self.cover and self.cover != DEFAULT_ITEM_COVER
             else self.show.cover_image_url
+            if self.show
+            else None
         )
 
     def update_linked_items_from_external_resource(self, resource):

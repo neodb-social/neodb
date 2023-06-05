@@ -38,8 +38,7 @@
       <div class="grid__main">
         {% if item.is_deleted %}<i>条目已被删除</i>{% endif %}
         {% if item.merged_to_item %}<i>条目已被合并</i>{% endif %}
-        <form action="{{ submit_url }}"
-              method="post"
+        <form method="post"
               enctype="multipart/form-data"
               _=" init set .rjf-add-button's innerHTML to '➕' end">
           {% csrf_token %}

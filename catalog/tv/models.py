@@ -72,6 +72,7 @@ class TVSeasonSchema(TVSeasonInSchema, BaseSchema):
 
 class TVShow(Item):
     type = ItemType.TVShow
+    child_class = "TVSeason"
     category = ItemCategory.TV
     url_path = "tv"
     demonstrative = _("这部剧集")
@@ -350,6 +351,9 @@ class TVSeason(Item):
     @property
     def parent_item(self):
         return self.show
+
+    def set_parent_item(self, value):
+        self.show = value
 
 
 class TVEpisode(Item):
