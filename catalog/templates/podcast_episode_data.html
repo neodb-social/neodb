@@ -4,7 +4,7 @@
 {% load humanize %}
 {% for ep in episodes %}
   <p>
-    <h6 class="entity-desc__title">
+    <h6>
       <a data-media="{{ ep.media_url }}"
          data-cover="{{ ep.cover_url|default:item.cover.url }}"
          class="episode gg-play-button-o"

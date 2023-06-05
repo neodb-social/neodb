@@ -185,7 +185,7 @@ class ProxiedDownloader(BasicDownloader):
             else:  # resp_type == RESPONSE_NETWORK_ERROR:
                 url = urls.pop(0) if len(urls) else None
         self.response_type = resp_type
-        if self.response_type == RESPONSE_OK:
+        if self.response_type == RESPONSE_OK and resp:
             return resp
         else:
             raise DownloadError(self)

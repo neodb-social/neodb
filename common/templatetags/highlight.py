@@ -31,9 +31,3 @@ def highlight(text, search):
             i += 1
         rtext += m
     return mark_safe(rtext)
-
-
-@register.filter
-@stringfilter
-def strip_season(text):
-    return re.sub(r"\s*第\s*\d+\s*季$", "", text)

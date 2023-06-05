@@ -18,6 +18,7 @@ class GameSchema(GameInSchema, BaseSchema):
 
 
 class Game(Item):
+    type = ItemType.Game
     category = ItemCategory.Game
     url_path = "game"
     demonstrative = _("这个游戏")

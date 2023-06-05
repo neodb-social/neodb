@@ -20,6 +20,7 @@ class AlbumSchema(AlbumInSchema, BaseSchema):
 
 
 class Album(Item):
+    type = ItemType.Album
     url_path = "album"
     category = ItemCategory.Music
     demonstrative = _("这张专辑")

@@ -20,7 +20,7 @@
     <p>当然也可以手工创建条目：</p>
     <ul>
       <li>
-        <a href="{% url 'catalog:create' 'Edition' %}">{% trans '添加书' %}</a>
+        <a href="{% url 'catalog:create' 'Edition' %}">{% trans '添加图书' %}</a>
       </li>
       <li>
         <a href="{% url 'catalog:create' 'Movie' %}">{% trans '添加电影' %}</a>
@@ -36,6 +36,9 @@
       </li>
       <li>
         <a href="{% url 'catalog:create' 'Game' %}">{% trans '添加游戏' %}</a>
+      </li>
+      <li>
+        <a href="{% url 'catalog:create' 'Performance' %}">{% trans '添加剧目' %}</a>
       </li>
     </ul>
   </article>

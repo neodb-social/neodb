@@ -27,7 +27,7 @@ div.item {
 
   }
 
-  .metadata {
+  .brief {
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
@@ -39,7 +39,7 @@ div.item {
     }
   }
 
-  .brief {
+  .full {
     text-overflow: ellipsis;
     word-wrap: break-word;
     overflow: hidden;

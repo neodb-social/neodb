@@ -16,14 +16,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title"
-          content="{{ site_name }}{% trans item.category.label %} - {{ item.title }}">
+          content="{{ site_name }}{% trans item.category.label %} - {{ item.full_title }}">
     <meta property="og:type" content="{{ item.category }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     {% if item.has_cover %}<meta property="og:image" content="{{ item.cover_image_url }}">{% endif %}
     <meta property="og:site_name" content="{{ site_name }}">
     <meta property="og:description" content="{{ item.brief }}">
     {% if item.is_deleted or item.merged_to_item %}<meta name="robots" content="noindex">{% endif %}
-    <title>{{ site_name }} - {% trans item.category.label %} | {{ item.title }}</title>
+    <title>{{ site_name }} - {% trans item.category.label %} | {{ item.full_title }}</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
     {% block head %}{% endblock %}
   </head>
@@ -36,11 +36,8 @@
           [MERGED TO <a href="{{ item.merged_to_item.url }}">{{ item.merged_to_item.title }}</a>]
         {% endif %}
         <h1>
-          {{ item.title }}
+          {{ item.full_title }}
           <small>
-            {% if item.season_number %}
-              {% trans '第' %}{{ item.season_number|apnumber }}{% trans '季' %}
-            {% endif %}
             {% if item.year %}({{ item.year }}){% endif %}
           </small>
         </h1>
@@ -51,7 +48,8 @@
         </span>
       </div>
       <div id="item-cover" class="left">
-        <img src="{{ item.cover|thumb:'normal' }}" alt="{{ item.title }}">
+        <img src="{{ item.cover_image_url|default:item.cover.url }}"
+             alt="{{ item.title }}">
       </div>
       {% if request.user.is_authenticated and not mark.shelf_type %}
         <div id="item-primary-action" class="right mark">

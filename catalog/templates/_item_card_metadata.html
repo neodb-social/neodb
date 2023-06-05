@@ -5,13 +5,12 @@
   <h5>
     <a href="{{ item.url }}">
       {% if request.GET.q %}
-        {{ item.title | strip_season | highlight:request.GET.q }}
+        {{ item.full_title | highlight:request.GET.q }}
       {% else %}
-        {{ item.title | strip_season }}
+        {{ item.full_title }}
       {% endif %}
     </a>
     <small>
-      {% if item.season_number %}第{{ item.season_number|apnumber }}季{% endif %}
       {% if item.year %}({{ item.year }}){% endif %}
       {% if not hide_category %}<span class="category">[{{ item.category.label }}]</span>{% endif %}
       <span class="site-list">
@@ -32,46 +31,51 @@
   </div>
 </hgroup>
 <div>
-  <div class="metadata">
-    {% if item.rating %}<span>{{ item.rating | floatformat:1 }}分({{ item.rating_count }}人)</span>{% endif %}
-    {% include '_people.html' with people=item.author role='作者' max=2 %}
-    {% include '_people.html' with people=item.translator role='译者' max=2 %}
-    {% include '_people.html' with people=item.director role='导演' max=2 %}
-    {% include '_people.html' with people=item.hosts role='' max=2 %}
-    {% include '_people.html' with people=item.artist role='' max=2 %}
-    {% include '_people.html' with people=item.developer role='' max=2 %}
-    {% if item.pub_house %}<span>{{ item.pub_house }}</span>{% endif %}
-    {% if item.pub_year %}
-      <span>
-        {{ item.pub_year }}{% trans '年' %}
-        {% if item.pub_month %}
-          {{ item.pub_month }}{% trans '月' %}
-        {% endif %}
-      </span>
-    {% endif %}
-    {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
-    {% include '_people.html' with people=item.genre role='' max=10 %}
-    {% include '_people.html' with people=item.platform role='' max=10 %}
-    {% if item.show %}
-      <span>{% trans '所属剧集：' %}<a href="{{ item.show.url }}">{{ item.show.title }}</a></span>
-    {% endif %}
-  </div>
   <div class="brief">
-    {% if item.actor %}
-      {% include '_people.html' with people=item.actor role='主演' max=2 %}
-      <br>
-    {% endif %}
-    {% if item.other_title %}
-      {% include '_people.html' with people=item.other_title role='又名' max=2 %}
-      <br>
-    {% endif %}
-    {% if not hide_brief %}
-      {% if request.GET.q %}
-        {{ item.brief | linebreaksbr | highlight:request.GET.q }}
-      {% else %}
-        {{ item.brief | linebreaksbr }}
+    {% block brief %}
+      {% if item.rating %}<span>{{ item.rating | floatformat:1 }}分({{ item.rating_count }}人)</span>{% endif %}
+      {% include '_people.html' with people=item.author role='作者' max=2 %}
+      {% include '_people.html' with people=item.translator role='译者' max=2 %}
+      {% include '_people.html' with people=item.director role='导演' max=2 %}
+      {% include '_people.html' with people=item.hosts role='' max=2 %}
+      {% include '_people.html' with people=item.artist role='' max=2 %}
+      {% include '_people.html' with people=item.developer role='' max=2 %}
+      {% if item.pub_house %}<span>{{ item.pub_house }}</span>{% endif %}
+      {% if item.pub_year %}
+        <span>
+          {{ item.pub_year }}{% trans '年' %}
+          {% if item.pub_month %}
+            {{ item.pub_month }}{% trans '月' %}
+          {% endif %}
+        </span>
       {% endif %}
-    {% endif %}
+      {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
+      {% include '_people.html' with people=item.genre role='' max=10 %}
+      {% if item.language %}<span>{{ item.language }}</span>{% endif %}
+      {% include '_people.html' with people=item.platform role='' max=10 %}
+      {% if item.show %}
+        <span>{{ item.show.type.label }}：<a href="{{ item.show.url }}">{{ item.show.title }}</a></span>
+      {% endif %}
+    {% endblock brief %}
+  </div>
+  <div class="full">
+    {% block full %}
+      {% if item.actor %}
+        {% include '_people.html' with people=item.actor role='主演' max=2 %}
+        <br>
+      {% endif %}
+      {% if item.other_title %}
+        {% include '_people.html' with people=item.other_title role='又名' max=2 %}
+        <br>
+      {% endif %}
+      {% if not hide_brief %}
+        {% if request.GET.q %}
+          {{ item.brief | linebreaksbr | highlight:request.GET.q }}
+        {% else %}
+          {{ item.brief | linebreaksbr }}
+        {% endif %}
+      {% endif %}
+    {% endblock full %}
   </div>
   {% if show_tags %}
     <div class="tag-list">

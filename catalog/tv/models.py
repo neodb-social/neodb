@@ -67,11 +67,11 @@ class TVSeasonInSchema(ItemInSchema):
 
 
 class TVSeasonSchema(TVSeasonInSchema, BaseSchema):
-    show_uuid: str | None = None
     pass
 
 
 class TVShow(Item):
+    type = ItemType.TVShow
     category = ItemCategory.TV
     url_path = "tv"
     demonstrative = _("这部剧集")
@@ -202,6 +202,7 @@ class TVShow(Item):
 
 
 class TVSeason(Item):
+    type = ItemType.TVSeason
     category = ItemCategory.TV
     url_path = "tv/season"
     demonstrative = _("这季剧集")
@@ -319,23 +320,28 @@ class TVSeason(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
+    @property
+    def full_title(self):
+        if self.season_number and not re.match(r"^.+第.+季$", self.title):
+            return f"{self.title} 第{self.season_number}季"  # TODO i18n
+        else:
+            return self.title
+
     def update_linked_items_from_external_resource(self, resource):
-        """add Work from resource.metadata['work'] if not yet"""
-        links = resource.required_resources + resource.related_resources
-        for w in links:
+        for w in resource.required_resources:
             if w["model"] == "TVShow":
                 p = ExternalResource.objects.filter(
                     id_type=w["id_type"], id_value=w["id_value"]
                 ).first()
-                if p and p.item and w in resource.required_resources:
+                if p and p.item:
                     self.show = p.item
 
     def all_seasons(self):
         return self.show.all_seasons if self.show else []
 
     @property
-    def show_uuid(self):
-        return self.show.uuid if self.show else None
+    def parent_item(self):
+        return self.show
 
 
 class TVEpisode(Item):

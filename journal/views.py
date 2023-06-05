@@ -241,7 +241,7 @@ def comment(request, item_uuid, focus_item_uuid):
             shared_link = comment.metadata.get("shared_link") if comment else None
             status_id = get_status_id_by_url(shared_link)
             link = focus_item.get_absolute_url_with_position(position or None)
-            status = f"分享{ItemCategory(item.category).label}《{item.title} - {focus_item.title}》\n{link}\n\n{text}"
+            status = f"分享{ItemCategory(item.category).label}《{focus_item.full_title}》\n{link}\n\n{text}"
             spoiler, status = get_spoiler_text(status, item)
             try:
                 response = post_toot(

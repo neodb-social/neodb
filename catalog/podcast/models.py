@@ -90,6 +90,10 @@ class PodcastEpisode(Item):
         return self.program
 
     @property
+    def full_title(self):
+        return f"{self.program.title} - {self.title}"
+
+    @property
     def cover_image_url(self):
         return self.cover_url or self.program.cover_image_url
 

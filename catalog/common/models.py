@@ -63,6 +63,7 @@ class IdType(models.TextChoices):
     DoubanMusic = "doubanmusic", _("豆瓣音乐")
     DoubanGame = "doubangame", _("豆瓣游戏")
     DoubanDrama = "doubandrama", _("豆瓣舞台剧")
+    DoubanDramaVersion = "doubandrama_version", _("豆瓣舞台剧版本")
     BooksTW = "bookstw", _("博客来图书")
     Bandcamp = "bandcamp", _("Bandcamp")
     Spotify_Album = "spotify_album", _("Spotify专辑")
@@ -96,16 +97,17 @@ IdealIdTypes = [
 
 class ItemType(models.TextChoices):
     Book = "book", _("书")
-    TV = "tv", _("剧集")
+    TVShow = "tvshow", _("剧集")
     TVSeason = "tvseason", _("剧集分季")
     TVEpisode = "tvepisode", _("剧集分集")
     Movie = "movie", _("电影")
-    Music = "music", _("音乐")
+    Album = "music", _("音乐专辑")
     Game = "game", _("游戏")
-    Boardgame = "boardgame", _("桌游")
     Podcast = "podcast", _("播客")
+    PodcastEpisode = "podcastepisode", _("播客单集")
     FanFic = "fanfic", _("网文")
-    Performance = "performance", _("演出")
+    Performance = "performance", _("剧目")
+    PerformanceProduction = "production", _("上演")
     Exhibition = "exhibition", _("展览")
     Collection = "collection", _("收藏单")
 
@@ -116,7 +118,6 @@ class ItemCategory(models.TextChoices):
     TV = "tv", _("剧集")
     Music = "music", _("音乐")
     Game = "game", _("游戏")
-    Boardgame = "boardgame", _("桌游")
     Podcast = "podcast", _("播客")
     FanFic = "fanfic", _("网文")
     Performance = "performance", _("演出")
@@ -130,10 +131,9 @@ class AvailableItemCategory(models.TextChoices):
     TV = "tv", _("剧集")
     Music = "music", _("音乐")
     Game = "game", _("游戏")
-    # Boardgame = "boardgame", _("桌游")
     Podcast = "podcast", _("播客")
+    Performance = "performance", _("演出")
     # FanFic = "fanfic", _("网文")
-    # Performance = "performance", _("演出")
     # Exhibition = "exhibition", _("展览")
     # Collection = "collection", _("收藏单")
 
@@ -220,8 +220,8 @@ class BaseSchema(Schema):
     url: str
     api_url: str
     category: ItemCategory
-    # primary_lookup_id_type: str | None
-    # primary_lookup_id_value: str | None
+    parent_uuid: str | None
+    full_title: str
     external_resources: list[ExternalResourceSchema] | None
 
 
@@ -239,6 +239,7 @@ class ItemSchema(ItemInSchema, BaseSchema):
 
 class Item(SoftDeleteMixin, PolymorphicModel):
     url_path = None  # subclass must specify this
+    type = None  # subclass must specify this
     category = None  # subclass must specify this
     demonstrative = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
@@ -302,6 +303,14 @@ class Item(SoftDeleteMixin, PolymorphicModel):
                 return t, lookup_ids[t]
         return list(lookup_ids.items())[0]
 
+    @property
+    def parent_item(self):
+        return None
+
+    @property
+    def parent_uuid(self):
+        return self.parent_item.uuid if self.parent_item else None
+
     def merge_to(self, to_item):
         if to_item is None:
             raise ValueError("cannot merge to an empty item")
@@ -349,6 +358,10 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     @property
     def class_name(self):
         return self.__class__.__name__.lower()
+
+    @property
+    def full_title(self):
+        return self.title
 
     @classmethod
     def get_by_url(cls, url_or_b62):

@@ -8,6 +8,7 @@ from . import jsondata
 __all__ = (
     "IdType",
     "SiteName",
+    "ItemType",
     "ItemCategory",
     "AvailableItemCategory",
     "Item",

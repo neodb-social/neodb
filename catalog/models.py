@@ -13,7 +13,7 @@ from .tv.models import (
 from .music.models import Album, AlbumSchema, AlbumInSchema
 from .game.models import Game, GameSchema, GameInSchema
 from .podcast.models import Podcast, PodcastSchema, PodcastInSchema, PodcastEpisode
-from .performance.models import Performance
+from .performance.models import Performance, PerformanceProduction
 from .collection.models import Collection as CatalogCollection
 from .search.models import Indexer
 from django.contrib.contenttypes.models import ContentType
@@ -30,12 +30,6 @@ _logger = logging.getLogger(__name__)
 
 
 # class Fanfic(Item):
-
-#     class Meta:
-#         proxy = True
-
-
-# class Boardgame(Item):
 
 #     class Meta:
 #         proxy = True
@@ -75,8 +69,9 @@ def init_catalog_search_models():
             "Catalog models are not being indexed with DISABLE_MODEL_SIGNAL configuration"
         )
         return
+    # skip indexing if the item type should never show up in search
     Indexer.update_model_indexable(Edition)
-    Indexer.update_model_indexable(Work)
+    # Indexer.update_model_indexable(Work)
     Indexer.update_model_indexable(Movie)
     Indexer.update_model_indexable(TVShow)
     Indexer.update_model_indexable(TVSeason)
@@ -84,4 +79,5 @@ def init_catalog_search_models():
     Indexer.update_model_indexable(Game)
     Indexer.update_model_indexable(Podcast)
     Indexer.update_model_indexable(Performance)
+    # Indexer.update_model_indexable(PerformanceProduction)
     # Indexer.update_model_indexable(CatalogCollection)

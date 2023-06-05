@@ -61,6 +61,12 @@
                   {% else %}
                     游戏
                   {% endif %}
+                  |
+                  {% if request.GET.c != 'performance' %}
+                    <a href="?q={{ request.GET.q }}&c=performance">演出</a>
+                  {% else %}
+                    演出
+                  {% endif %}
                 </div>
               </hgroup>
             {% endif %}

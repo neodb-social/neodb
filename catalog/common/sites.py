@@ -70,9 +70,10 @@ class AbstractSite:
     def __str__(self):
         return f"<{self.__class__.__name__}: {self.url}>"
 
-    def __init__(self, url=None):
-        self.id_value = self.url_to_id(url) if url else None
-        self.url = self.id_to_url(self.id_value) if url else None
+    def __init__(self, url=None, id_value=None):
+        # use id if possible, url will be cleaned up by id_to_url()
+        self.id_value = id_value or (self.url_to_id(url) if url else None)
+        self.url = self.id_to_url(self.id_value) if self.id_value else None
         self.resource = None
 
     def get_resource(self) -> ExternalResource:
@@ -215,8 +216,9 @@ class AbstractSite:
                     _logger.error(f'unable to get site for {linked_resource["url"]}')
             if p.related_resources:
                 django_rq.get_queue("crawl").enqueue(crawl_related_resources_task, p.pk)
-            p.item.update_linked_items_from_external_resource(p)
-            p.item.save()
+            if p.item:
+                p.item.update_linked_items_from_external_resource(p)
+                p.item.save()
         return p
 
 
@@ -232,7 +234,7 @@ class SiteManager:
         return target
 
     @staticmethod
-    def get_site_by_id_type(typ: str):
+    def get_site_by_id_type(typ: str) -> AbstractSite | None:
         return SiteManager.registry[typ]() if typ in SiteManager.registry else None
 
     @staticmethod
@@ -253,13 +255,16 @@ class SiteManager:
         return cls(url) if cls else None
 
     @staticmethod
+    def get_site_by_id(id_type: IdType, id_value: str) -> AbstractSite | None:
+        if not id_type in SiteManager.registry:
+            return None
+        cls = SiteManager.registry[id_type]
+        return cls(id_value=id_value)
+
+    @staticmethod
     def get_id_by_url(url: str):
         site = SiteManager.get_site_by_url(url)
         return site.url_to_id(url) if site else None
-
-    @staticmethod
-    def get_site_by_resource(resource):
-        return SiteManager.get_site_by_id_type(resource.id_type)
 
     @staticmethod
     def get_all_sites():
@@ -268,7 +273,7 @@ class SiteManager:
 
 ExternalResource.get_site = lambda resource: SiteManager.get_site_by_id_type(
     resource.id_type
-)
+)  # type: ignore
 
 
 def crawl_related_resources_task(resource_pk):
@@ -280,13 +285,17 @@ def crawl_related_resources_task(resource_pk):
     for w in links:
         try:
             item = None
-            site = SiteManager.get_site_by_url(w["url"])
+            site = None
+            if w.get("id_value") and w.get("id_type"):
+                site = SiteManager.get_site_by_id(w["id_type"], w["id_value"])
+            if not site and w.get("url"):
+                site = SiteManager.get_site_by_url(w["url"])
             if site:
                 site.get_resource_ready(ignore_existing_content=False, auto_link=True)
                 item = site.get_item()
             if item:
-                _logger.info(f"crawled {w['url']} {item}")
+                _logger.info(f"crawled {w} {item}")
             else:
-                _logger.warn(f"crawl {w['url']} failed")
+                _logger.warn(f"crawl {w} failed")
         except Exception as e:
-            _logger.warn(f"crawl {w['url']} error {e}")
+            _logger.warn(f"crawl {w} error {e}")

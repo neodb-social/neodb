@@ -1,13 +1,17 @@
 from catalog.common import *
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+from catalog.common.utils import DEFAULT_ITEM_COVER
 
 
 class Performance(Item):
+    type = ItemType.Performance
     category = ItemCategory.Performance
     url_path = "performance"
-    demonstrative = _("这个演出")
-    douban_drama = LookupIdDescriptor(IdType.DoubanDrama)
+    demonstrative = _("这部剧作")
+    orig_title = jsondata.CharField(
+        verbose_name=_("原名"), blank=True, default="", max_length=500
+    )
     other_title = jsondata.ArrayField(
         verbose_name=_("其它标题"),
         base_field=models.CharField(blank=True, default="", max_length=200),
@@ -22,9 +26,9 @@ class Performance(Item):
         blank=True,
         default=list,
     )
-    version = jsondata.ArrayField(
-        verbose_name=_("版本"),
-        base_field=models.CharField(),
+    language = jsondata.ArrayField(
+        verbose_name=_("语言"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=False,
         blank=False,
         default=list,
@@ -43,8 +47,8 @@ class Performance(Item):
         blank=False,
         default=list,
     )
-    actor = jsondata.ArrayField(
-        verbose_name=_("主演"),
+    performer = jsondata.ArrayField(
+        verbose_name=_("演员"),
         base_field=models.CharField(),
         null=False,
         blank=False,
@@ -71,8 +75,15 @@ class Performance(Item):
         blank=False,
         default=list,
     )
-    theatre = jsondata.ArrayField(
-        verbose_name=_("剧场"),
+    crew = jsondata.ArrayField(
+        verbose_name=_("其他演职人员和团体"),
+        base_field=models.CharField(),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    location = jsondata.ArrayField(
+        verbose_name=_("剧场空间"),
         base_field=models.CharField(),
         null=False,
         blank=False,
@@ -87,19 +98,149 @@ class Performance(Item):
     METADATA_COPY_LIST = [
         "title",
         "brief",
+        "orig_title",
         "other_title",
         "genre",
-        "version",
+        "language",
         "director",
         "playwright",
-        "actor",
+        "performer",
         "composer",
         "choreographer",
+        "crew",
         "troupe",
-        "theatre",
+        "location",
         "opening_date",
         "official_site",
     ]
 
-    class Meta:
-        proxy = True
+
+class PerformanceProduction(Item):
+    type = ItemType.PerformanceProduction
+    category = ItemCategory.Performance
+    url_path = "performance/production"
+    demonstrative = _("这次上演")
+    show = models.ForeignKey(
+        Performance, null=True, on_delete=models.SET_NULL, related_name="productions"
+    )
+    orig_title = jsondata.CharField(
+        verbose_name=_("原名"), blank=True, default="", max_length=500
+    )
+    other_title = jsondata.ArrayField(
+        verbose_name=_("其它标题"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    language = jsondata.ArrayField(
+        verbose_name=_("语言"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    director = jsondata.ArrayField(
+        verbose_name=_("导演"),
+        base_field=models.CharField(),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    playwright = jsondata.ArrayField(
+        verbose_name=_("编剧"),
+        base_field=models.CharField(),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    performer = jsondata.ArrayField(
+        verbose_name=_("演员"),
+        base_field=models.CharField(),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    composer = jsondata.ArrayField(
+        verbose_name=_("作曲"),
+        base_field=models.CharField(),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    choreographer = jsondata.ArrayField(
+        verbose_name=_("编舞"),
+        base_field=models.CharField(),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    troupe = jsondata.ArrayField(
+        verbose_name=_("剧团"),
+        base_field=models.CharField(),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    crew = jsondata.ArrayField(
+        verbose_name=_("其他演职人员和团体"),
+        base_field=models.CharField(),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    location = jsondata.ArrayField(
+        verbose_name=_("剧场空间"),
+        base_field=models.CharField(),
+        null=False,
+        blank=False,
+        default=list,
+    )
+    opening_date = jsondata.CharField(
+        verbose_name=_("演出日期"), max_length=100, null=True, blank=True
+    )
+    official_site = jsondata.CharField(
+        verbose_name=_("官方网站"), max_length=1000, null=True, blank=True
+    )
+    METADATA_COPY_LIST = [
+        "title",
+        "brief",
+        "orig_title",
+        "other_title",
+        "language",
+        "director",
+        "playwright",
+        "performer",
+        "composer",
+        "choreographer",
+        "crew",
+        "troupe",
+        "location",
+        "opening_date",
+        "official_site",
+    ]
+
+    @property
+    def parent_item(self):
+        return self.show
+
+    @property
+    def full_title(self):
+        return f"{self.show.title} {self.title}"
+
+    @property
+    def cover_image_url(self):
+        return (
+            self.cover_image_url
+            if self.cover and self.cover != DEFAULT_ITEM_COVER
+            else self.show.cover_image_url
+        )
+
+    def update_linked_items_from_external_resource(self, resource):
+        for r in resource.required_resources:
+            if r["model"] == "Performance":
+                resource = ExternalResource.objects.filter(
+                    id_type=r["id_type"], id_value=r["id_value"]
+                ).first()
+                if resource and resource.item:
+                    self.show = resource.item

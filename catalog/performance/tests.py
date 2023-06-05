@@ -1,5 +1,6 @@
 from django.test import TestCase
 from catalog.common import *
+from catalog.common.sites import crawl_related_resources_task
 
 
 class DoubanDramaTestCase(TestCase):
@@ -35,15 +36,18 @@ class DoubanDramaTestCase(TestCase):
         item = site.get_item()
         self.assertEqual(item.title, "相声说垮鬼子们")
         self.assertEqual(item.opening_date, "1997-05")
-        self.assertEqual(item.theatre, ["臺北新舞臺"])
+        self.assertEqual(item.location, ["臺北新舞臺"])
 
         t_url = "https://www.douban.com/location/drama/24311571/"
         site = SiteManager.get_site_by_url(t_url)
+        if site is None:
+            raise ValueError()
         resource = site.get_resource_ready()
         item = site.get_item()
-        self.assertEqual(
-            sorted(item.other_title), ["Iphigenie auf Tauris", "死而复生的伊菲格尼"]
-        )
+        if item is None:
+            raise ValueError()
+        self.assertEqual(item.orig_title, "Iphigenie auf Tauris")
+        self.assertEqual(sorted(item.other_title), ["死而复生的伊菲格尼"])
         self.assertEqual(item.opening_date, "1974-04-21")
         self.assertEqual(item.choreographer, ["Pina Bausch"])
 
@@ -53,16 +57,26 @@ class DoubanDramaTestCase(TestCase):
         resource = site.get_resource_ready()
         self.assertEqual(site.ready, True)
         self.assertEqual(resource.metadata["title"], "红花侠")
+        self.assertEqual(resource.metadata["orig_title"], "スカーレットピンパーネル")
         item = site.get_item()
+        if item is None:
+            raise ValueError()
         self.assertEqual(item.title, "红花侠")
-        self.assertEqual(
-            sorted(item.other_title), ["THE SCARLET PIMPERNEL", "スカーレットピンパーネル"]
-        )
+        self.assertEqual(sorted(item.other_title), ["THE SCARLET PIMPERNEL"])
         self.assertEqual(len(item.brief), 545)
         self.assertEqual(item.genre, ["音乐剧"])
-        self.assertEqual(
-            item.version, ["08星组公演版", "10年月組公演版", "17年星組公演版", "ュージカル（2017年）版"]
-        )
+        # self.assertEqual(
+        #     item.version, ["08星组公演版", "10年月組公演版", "17年星組公演版", "ュージカル（2017年）版"]
+        # )
         self.assertEqual(item.director, ["小池修一郎", "小池 修一郎", "石丸さち子"])
         self.assertEqual(item.playwright, ["小池修一郎", "Baroness Orczy（原作）", "小池 修一郎"])
-        self.assertEqual(item.actor, ["安蘭けい", "柚希礼音", "遠野あすか", "霧矢大夢", "龍真咲"])
+        self.assertEqual(item.performer, ["安蘭けい", "柚希礼音", "遠野あすか", "霧矢大夢", "龍真咲"])
+        self.assertEqual(len(resource.related_resources), 4)
+        crawl_related_resources_task(resource.id)  # force the async job to run now
+        productions = list(item.productions.all())
+        self.assertEqual(len(productions), 4)
+        self.assertEqual(productions[3].title, "ミュージカル（2017年）版")
+        self.assertEqual(len(productions[3].performer), 6)
+        self.assertEqual(productions[3].language, ["日语"])
+        self.assertEqual(productions[3].opening_date, "2017-11-13")
+        self.assertEqual(productions[3].location, ["梅田芸術劇場メインホール"])

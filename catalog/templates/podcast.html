@@ -55,7 +55,7 @@
   </div>
 {% endblock %}
 {% block content %}
-  <h5 class="entity-desc__title">{% trans '近期节目' %}</h5>
+  <h5>{% trans '近期节目' %}</h5>
   <div hx-get="{% url 'catalog:episode_data' item.uuid %}"
        hx-trigger="load"
        hx-swap="outerHTML"></div>
