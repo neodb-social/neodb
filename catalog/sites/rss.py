@@ -10,6 +10,12 @@ from django.utils.timezone import make_aware
 import bleach
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
+from catalog.common.downloaders import (
+    get_mock_file,
+    get_mock_mode,
+    _local_response_path,
+)
+import pickle
 
 _logger = logging.getLogger(__name__)
 
@@ -28,12 +34,20 @@ class RSS(AbstractSite):
         feed = cache.get(url)
         if feed:
             return feed
-        req = urllib.request.Request(url)
-        req.add_header("User-Agent", "NeoDB/0.5")
-        try:
-            feed = podcastparser.parse(url, urllib.request.urlopen(req, timeout=3))
-        except:
-            return None
+        if get_mock_mode():
+            feed = pickle.load(open(_local_response_path + get_mock_file(url), "rb"))
+        else:
+            req = urllib.request.Request(url)
+            req.add_header("User-Agent", "NeoDB/0.5")
+            try:
+                feed = podcastparser.parse(url, urllib.request.urlopen(req, timeout=3))
+            except:
+                return None
+            if settings.DOWNLOADER_SAVEDIR:
+                pickle.dump(
+                    feed,
+                    open(settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(url), "wb"),
+                )
         cache.set(url, feed, timeout=300)
         return feed
 
