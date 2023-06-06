@@ -2,7 +2,49 @@ from functools import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 from catalog.common import *
+from catalog.common.models import ItemSchema
 from catalog.common.utils import DEFAULT_ITEM_COVER
+from ninja import Schema
+
+
+class CrewMemberSchema(Schema):
+    name: str
+    role: str | None
+
+
+class PerformanceSchema(ItemSchema):
+    orig_title: str | None = None
+    other_title: list[str]
+    genre: list[str]
+    language: list[str]
+    opening_date: str | None = None
+    closing_date: str | None = None
+    director: list[str]
+    playwright: list[str]
+    orig_creator: list[str]
+    composer: list[str]
+    choreographer: list[str]
+    performer: list[str]
+    actor: list[CrewMemberSchema]
+    crew: list[CrewMemberSchema]
+    official_site: str | None = None
+
+
+class PerformanceProductionSchema(ItemSchema):
+    orig_title: str | None = None
+    other_title: list[str]
+    language: list[str]
+    opening_date: str | None = None
+    closing_date: str | None = None
+    director: list[str]
+    playwright: list[str]
+    orig_creator: list[str]
+    composer: list[str]
+    choreographer: list[str]
+    performer: list[str]
+    actor: list[CrewMemberSchema]
+    crew: list[CrewMemberSchema]
+    official_site: str | None = None
 
 
 _CREW_SCHEMA = {

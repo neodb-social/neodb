@@ -13,7 +13,12 @@ from .tv.models import (
 from .music.models import Album, AlbumSchema, AlbumInSchema
 from .game.models import Game, GameSchema, GameInSchema
 from .podcast.models import Podcast, PodcastSchema, PodcastInSchema, PodcastEpisode
-from .performance.models import Performance, PerformanceProduction
+from .performance.models import (
+    Performance,
+    PerformanceProduction,
+    PerformanceSchema,
+    PerformanceProductionSchema,
+)
 from .collection.models import Collection as CatalogCollection
 from .search.models import Indexer
 from django.contrib.contenttypes.models import ContentType

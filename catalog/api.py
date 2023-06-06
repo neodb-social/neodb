@@ -140,6 +140,24 @@ def get_game(request, uuid: str, response: HttpResponse):
     return _get_item(Game, uuid, response)
 
 
+@api.get(
+    "/performance/{uuid}",
+    response={200: PerformanceSchema, 302: RedirectedResult, 404: Result},
+    auth=None,
+)
+def get_performance(request, uuid: str, response: HttpResponse):
+    return _get_item(Performance, uuid, response)
+
+
+@api.get(
+    "/performance/production/{uuid}",
+    response={200: PerformanceProductionSchema, 302: RedirectedResult, 404: Result},
+    auth=None,
+)
+def get_performance_production(request, uuid: str, response: HttpResponse):
+    return _get_item(PerformanceProduction, uuid, response)
+
+
 # Legacy API will be removed soon
 
 
