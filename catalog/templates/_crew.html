@@ -1,15 +1,13 @@
-{% if people %}
-  <span>
-    {% if role %}{{ role }}：{% endif %}
-    {% for p in people %}
+{% for role, list in people.items %}
+  <div class="crew-list">
+    {{ role }}：
+    {% for p in list %}
       {% if forloop.counter <= max %}
         {% if not forloop.first %}、{% endif %}
-        <span>{{ p.name }}
-          {% if p.role.strip %}({{ p.role }}){% endif %}
-        </span>
+        <span>{{ p }}</span>
       {% elif forloop.last %}
         等
       {% endif %}
     {% endfor %}
-  </span>
-{% endif %}
+  </div>
+{% endfor %}

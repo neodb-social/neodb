@@ -32,6 +32,14 @@ _ACTOR_SCHEMA = {
 }
 
 
+def _crew_by_role(crew):
+    roles = set([c["role"] for c in crew if c.get("role")])
+    r = {key: [] for key in roles}
+    for c in crew:
+        r[c["role"]].append(c["name"])
+    return r
+
+
 class Performance(Item):
     type = ItemType.Performance
     child_class = "PerformanceProduction"
@@ -170,6 +178,10 @@ class Performance(Item):
             .order_by("metadata__opening_date", "title")
             .filter(is_deleted=False, merged_to_item=None)
         )
+
+    @cached_property
+    def crew_by_role(self):
+        return _crew_by_role(self.crew)
 
 
 class PerformanceProduction(Item):
@@ -327,3 +339,7 @@ class PerformanceProduction(Item):
                 ).first()
                 if resource and resource.item:
                     self.show = resource.item
+
+    @cached_property
+    def crew_by_role(self):
+        return _crew_by_role(self.crew)
