@@ -238,7 +238,7 @@ class ItemSchema(ItemInSchema, BaseSchema):
 
 
 class Item(SoftDeleteMixin, PolymorphicModel):
-    url_path = None  # subclass must specify this
+    url_path = "item"  # subclass must specify this
     type = None  # subclass must specify this
     parent_class = None  # subclass may specify this to allow create child item
     category = None  # subclass must specify this
@@ -349,15 +349,15 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @property
     def url(self):
-        return f"/{self.url_path}/{self.uuid}" if self.url_path else None
+        return f"/{self.url_path}/{self.uuid}"
 
     @property
     def absolute_url(self):
-        return f"{settings.APP_WEBSITE}{self.url}" if self.url_path else None
+        return f"{settings.APP_WEBSITE}{self.url}"
 
     @property
     def api_url(self):
-        return f"/api{self.url}" if self.url_path else None
+        return f"/api{self.url}"
 
     @property
     def class_name(self):

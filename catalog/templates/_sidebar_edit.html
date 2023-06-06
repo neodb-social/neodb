@@ -38,60 +38,38 @@
         </form>
       </details>
     {% endif %}
-    {% if item.class_name == "movie" or item.class_name == "tvshow" %}
-      <details>
-        <summary>{% trans '切换分类' %}</summary>
-        {% if item.class_name == "movie" %}
+    <details>
+      <summary>{% trans '切换分类' %}</summary>
+      {% if item.class_name == "movie" %}
+        <form method="post"
+              action="{% url 'catalog:recast' item.url_path item.uuid %}"
+              onsubmit="return confirm('确认切换吗？');">
+          {% csrf_token %}
+          <input type="hidden" value="tvshow" name="class">
+          <input class="contrast" type="submit" value="{% trans '更改为剧集' %}">
+        </form>
+      {% elif item.class_name == "tvshow" %}
+        {% if item.all_seasons %}<i>⛔️ 条目下已有子项</i>{% endif %}
+        {% if not item.all_seasons or request.user.is_staff %}
           <form method="post"
                 action="{% url 'catalog:recast' item.url_path item.uuid %}"
                 onsubmit="return confirm('确认切换吗？');">
             {% csrf_token %}
-            <input type="hidden" value="tvshow" name="class">
-            <input class="contrast" type="submit" value="{% trans '更改为剧集' %}">
+            <input type="hidden" value="movie" name="class">
+            <input class="contrast" type="submit" value="{% trans '更改为电影' %}">
           </form>
-        {% elif item.class_name == "tvshow" %}
-          {% if item.all_seasons %}
-            <i>⛔️ 条目下有子项</i>
-          {% else %}
-            <form method="post"
-                  action="{% url 'catalog:recast' item.url_path item.uuid %}"
-                  onsubmit="return confirm('确认切换吗？');">
-              {% csrf_token %}
-              <input type="hidden" value="movie" name="class">
-              <input class="contrast" type="submit" value="{% trans '更改为电影' %}">
-            </form>
-          {% endif %}
-          {% if request.user.is_superuser %}
-            <form method="post"
-                  action="{% url 'catalog:recast' item.url_path item.uuid %}"
-                  onsubmit="return confirm('确认切换吗？');">
-              {% csrf_token %}
-              <input type="hidden" value="tvseason" name="class">
-              <input class="contrast" type="submit" value="{% trans '更改为单季' %}">
-            </form>
-          {% endif %}
-        {% endif %}
-      </details>
-    {% endif %}
-    {% if item.class_name == "tvseason" %}
-      {% if not item.show or request.user.is_staff %}
-        <details>
-          <summary>{% trans '将本季关联到电视剧' %}</summary>
           <form method="post"
-                action="{% url 'catalog:assign_parent' item.url_path item.uuid %}"
-                onsubmit="return confirm('本操作不可撤销。确认关联吗？');">
+                action="{% url 'catalog:recast' item.url_path item.uuid %}"
+                onsubmit="return confirm('确认切换吗？');">
             {% csrf_token %}
-            <input type="url"
-                   name="parent_item_url"
-                   placeholder="目标条目URL"
-                   value="{{ item.show.absolute_url }}"
-                   required>
-            <br>
-            <input class="contrast" type="submit" value="{% trans '提交' %}">
+            <input type="hidden" value="tvseason" name="class">
+            <input class="contrast" type="submit" value="{% trans '更改为单季' %}">
           </form>
-        </details>
+        {% endif %}
+      {% else %}
+        <i>此类条目无法切换</i>
       {% endif %}
-    {% endif %}
+    </details>
     {% if item.is_deleted and not request.user.is_staff %}
       <i>⛔️ 条目已被删除</i>
     {% elif item.merged_to_item and not request.user.is_staff %}

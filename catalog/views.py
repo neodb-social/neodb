@@ -235,11 +235,11 @@ def recast(request, item_path, item_uuid):
         else (Movie if cls == "movie" else (TVSeason if cls == "tvseason" else None))
     )
     if not model:
-        raise BadRequest("Invalid target")
-    if item.__class__ == model:
-        raise BadRequest("Same target")
+        raise BadRequest("Invalid target type")
+    if isinstance(item, model):
+        raise BadRequest("Same target type")
     _logger.warn(f"{request.user} recasting {item} to {model}")
-    if item.__class__ == TVShow:
+    if isinstance(item, TVShow):
         for season in item.seasons.all():
             _logger.warn(f"{request.user} recast orphaning season {season}")
             season.show = None
@@ -268,16 +268,15 @@ def assign_parent(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    new_item = Item.get_by_url(request.POST.get("parent_item_url"))
-    if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
+    parent_item = Item.get_by_url(request.POST.get("parent_item_url"))
+    if not parent_item or parent_item.is_deleted or parent_item.merged_to_item_id:
         raise BadRequest("Can't assign parent to a deleted or redirected item")
-    if item.__class__ != TVSeason or new_item.__class__ != TVShow:
-        raise BadRequest("Can't assign parent for this item")
-    if not request.user.is_staff and item.show:
-        raise PermissionDenied()
-    _logger.warn(f"{request.user} assign {item} to {new_item}")
-    item.show = new_item
-    item.save(update_fields=["show"])
+    if parent_item.child_class != item.__class__.__name__:
+        raise BadRequest("Incompatible child item type")
+    if not request.user.is_staff and item.parent_item:
+        raise BadRequest("Already assigned to a parent item")
+    _logger.warn(f"{request.user} assign {item} to {parent_item}")
+    item.set_parent_item(parent_item, save=True)
     return redirect(item.url)
 
 
@@ -291,20 +290,11 @@ def merge(request, item_path, item_uuid):
     if request.POST.get("new_item_url"):
         new_item = Item.get_by_url(request.POST.get("new_item_url"))
         if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
-            messages.add_message(request, messages.ERROR, _("不能合并到一个被删除或合并过的条目。"))
-            return redirect(item.url)
-        if request.user.is_staff and (
-            (item.class_name == "tvseason" and new_item.class_name == "tvshow")
-            or (item.class_name == "tvshow" and new_item.class_name == "tvseason")
-        ):
-            pass
-        elif new_item.class_name != item.class_name:
-            messages.add_message(
-                request,
-                messages.ERROR,
-                _("不能合并到一个不同类的条目。") + f" ({item.class_name} to {new_item.class_name})",
+            raise BadRequest(_("不能合并到一个被删除或合并过的条目。"))
+        if new_item.class_name != item.class_name:
+            raise BadRequest(
+                _("不能合并不同类的条目") + f" ({item.class_name} to {new_item.class_name})"
             )
-            return redirect(item.url)
         _logger.warn(f"{request.user} merges {item} to {new_item}")
         item.merge_to(new_item)
         update_journal_for_merged_item(item_uuid)

@@ -10,11 +10,6 @@
 {% load strip_scheme %}
 {% load thumb %}
 {% block details %}
-  <div>
-    {% if item.show %}
-      {% trans '所属剧集：' %}<a href="{{ item.show.url }}">{{ item.show.title }}</a>
-    {% endif %}
-  </div>
   {% with item.all_seasons as seasons %}
     {% if seasons %}
       <div>
