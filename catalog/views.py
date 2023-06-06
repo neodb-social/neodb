@@ -210,9 +210,21 @@ def recast(request, item_path, item_uuid):
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     cls = request.POST.get("class")
-    model = TVShow if cls == "tvshow" else (Movie if cls == "movie" else None)
+    model = (
+        TVShow
+        if cls == "tvshow"
+        else (Movie if cls == "movie" else (TVSeason if cls == "tvseason" else None))
+    )
     if not model:
-        raise BadRequest()
+        raise BadRequest("Invalid target")
+    if item.__class__ == model:
+        raise BadRequest("Same target")
+    _logger.warn(f"{request.user} recasting {item} to {model}")
+    if item.__class__ == TVShow:
+        for season in item.seasons.all():
+            _logger.warn(f"{request.user} recast orphaning season {season}")
+            season.show = None
+            season.save(update_fields=["show"])
     new_item = item.recast_to(model)
     return redirect(new_item.url)
 

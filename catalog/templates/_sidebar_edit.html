@@ -32,23 +32,36 @@
     {% if item.class_name == "movie" or item.class_name == "tvshow" %}
       <details>
         <summary>{% trans '切换分类' %}</summary>
-        <form method="post"
-              action="{% url 'catalog:recast' item.url_path item.uuid %}"
-              onsubmit="return confirm('确认切换吗？');">
-          {% csrf_token %}
-          {% if item.class_name == "movie" %}
+        {% if item.class_name == "movie" %}
+          <form method="post"
+                action="{% url 'catalog:recast' item.url_path item.uuid %}"
+                onsubmit="return confirm('确认切换吗？');">
+            {% csrf_token %}
             <input type="hidden" value="tvshow" name="class">
             <input class="contrast" type="submit" value="{% trans '更改为剧集' %}">
-          {% endif %}
-          {% if item.class_name == "tvshow" %}
-            {% if item.all_seasons %}
-              <i>⛔️ 条目下有子项</i>
-            {% else %}
+          </form>
+        {% elif item.class_name == "tvshow" %}
+          {% if item.all_seasons %}
+            <i>⛔️ 条目下有子项</i>
+          {% else %}
+            <form method="post"
+                  action="{% url 'catalog:recast' item.url_path item.uuid %}"
+                  onsubmit="return confirm('确认切换吗？');">
+              {% csrf_token %}
               <input type="hidden" value="movie" name="class">
               <input class="contrast" type="submit" value="{% trans '更改为电影' %}">
-            {% endif %}
+            </form>
           {% endif %}
-        </form>
+          {% if request.user.is_superuser %}
+            <form method="post"
+                  action="{% url 'catalog:recast' item.url_path item.uuid %}"
+                  onsubmit="return confirm('确认切换吗？');">
+              {% csrf_token %}
+              <input type="hidden" value="tvseason" name="class">
+              <input class="contrast" type="submit" value="{% trans '更改为单季' %}">
+            </form>
+          {% endif %}
+        {% endif %}
       </details>
     {% endif %}
     {% if item.class_name == "tvseason" %}
