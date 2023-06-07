@@ -1,3 +1,4 @@
+import json
 from catalog.common import *
 from .tmdb import search_tmdb_by_imdb_id
 from catalog.movie.models import *
@@ -23,7 +24,6 @@ class IMDB(AbstractSite):
         return "https://www.imdb.com/title/" + id_value + "/"
 
     def scrape(self):
-        self.scraped = False
         res_data = search_tmdb_by_imdb_id(self.id_value)
         if (
             "movie_results" in res_data
@@ -56,8 +56,47 @@ class IMDB(AbstractSite):
                     "IMDB id matching TMDB but not first episode, this is not supported",
                 )
         else:
-            raise ParseError(self, "IMDB id not found in TMDB")
+            # IMDB id not found in TMDB use real IMDB scraper
+            return self.scrape_imdb()
         tmdb = SiteManager.get_site_by_url(url)
         pd = tmdb.scrape()
         pd.metadata["preferred_model"] = tmdb.DEFAULT_MODEL.__name__
+        return pd
+
+    def scrape_imdb(self):
+        h = BasicDownloader(self.url).download().html()
+        elem = h.xpath('//script[@id="__NEXT_DATA__"]/text()')
+        src = elem[0].strip() if elem else None
+        if not src:
+            raise ParseError(self, "__NEXT_DATA__ element")
+        d = json.loads(src)["props"]["pageProps"]["aboveTheFoldData"]
+        data = {
+            "title": d["titleText"]["text"],
+            "year": d["releaseYear"]["year"],
+            "is_series": d["titleType"]["isSeries"],
+            "is_episode": d["titleType"]["isEpisode"],
+            "genre": [x["text"] for x in d["genres"]["genres"]],
+            "brief": d["plot"].get("plotText") if d.get("plot") else None,
+            "cover_image_url": d["primaryImage"].get("url")
+            if d.get("primaryImage")
+            else None,
+        }
+        # TODO more data fields and localized title (in <url>releaseinfo/)
+        data["preferred_model"] = (
+            ""  # "TVSeason" not supported yet
+            if data["is_episode"]
+            else ("TVShow" if data["is_series"] else "Movie")
+        )
+
+        pd = ResourceContent(metadata=data)
+        pd.lookup_ids[IdType.IMDB] = self.id_value
+        if pd.metadata["cover_image_url"]:
+            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
+            try:
+                pd.cover_image = imgdl.download().content
+                pd.cover_image_extention = imgdl.extention
+            except Exception:
+                _logger.debug(
+                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
+                )
         return pd
