@@ -62,10 +62,10 @@
   </div>
   <div class="full">
     {% block full %}
-      {% if item.actor %}
+      {% comment %} {% if item.actor %}
         {% include '_people.html' with people=item.actor role='主演' max=2 %}
         <br>
-      {% endif %}
+      {% endif %} {% endcomment %}
       {% if item.other_title %}
         {% include '_people.html' with people=item.other_title role='又名' max=2 %}
         <br>
