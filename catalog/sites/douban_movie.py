@@ -101,7 +101,12 @@ class DoubanMovie(AbstractSite):
                 else:
                     time = st.split("(")[0]
                     region = st.split("(")[1][0:-1]
-                showtime.append({time: region})
+                showtime.append(
+                    {
+                        "region": region,
+                        "time": time,
+                    }
+                )
         else:
             showtime = None
 

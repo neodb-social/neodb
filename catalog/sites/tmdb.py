@@ -64,7 +64,7 @@ class TMDB_Movie(AbstractSite):
             )
             imdb_code = res_data["external_ids"]["imdb_id"]
             showtime = (
-                [{res_data["first_air_date"]: "首播日期"}]
+                [{"time": res_data["first_air_date"], "region": "首播日期"}]
                 if res_data["first_air_date"]
                 else None
             )
@@ -78,7 +78,7 @@ class TMDB_Movie(AbstractSite):
                 else None
             )
             showtime = (
-                [{res_data["release_date"]: "发布日期"}]
+                [{"time": res_data["release_date"], "region": "发布日期"}]
                 if res_data["release_date"]
                 else None
             )
@@ -198,7 +198,7 @@ class TMDB_TV(AbstractSite):
             )
             imdb_code = res_data["external_ids"]["imdb_id"]
             showtime = (
-                [{res_data["first_air_date"]: "首播日期"}]
+                [{"time": res_data["first_air_date"], "region": "首播日期"}]
                 if res_data["first_air_date"]
                 else None
             )
@@ -212,7 +212,7 @@ class TMDB_TV(AbstractSite):
                 else None
             )
             showtime = (
-                [{res_data["release_date"]: "发布日期"}]
+                [{"time": res_data["release_date"], "region": "发布日期"}]
                 if res_data["release_date"]
                 else None
             )

@@ -94,9 +94,25 @@ class Movie(Item):
         blank=True,
         default=list,
         schema={
-            "type": "array",
-            "items": {"type": "dict", "additionalProperties": True, "keys": []},
-        },  # TODO fix it as simple dict...
+            "type": "list",
+            "items": {
+                "type": "dict",
+                "additionalProperties": False,
+                "keys": {
+                    "time": {
+                        "type": "string",
+                        "title": _("日期"),
+                        "placeholder": _("必填"),
+                    },
+                    "region": {
+                        "type": "string",
+                        "title": _("区域或类型"),
+                        "placeholder": _("如中国大陆或柏林电影节"),
+                    },
+                },
+                "required": ["time"],
+            },
+        },
     )
     site = jsondata.URLField(
         verbose_name=_("官方网站"), blank=True, default="", max_length=200

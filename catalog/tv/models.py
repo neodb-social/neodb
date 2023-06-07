@@ -148,8 +148,13 @@ class TVShow(Item):
         default=list,
         schema={
             "type": "array",
-            "items": {"type": "dict", "additionalProperties": True, "keys": []},
-        },  # TODO fix it as simple dict...
+            "items": {
+                "type": "dict",
+                "additionalProperties": False,
+                "keys": ["region", "time"],
+                "required": ["time"],
+            },
+        },
     )
     site = jsondata.URLField(
         verbose_name=_("官方网站"), blank=True, default="", max_length=200
@@ -284,8 +289,13 @@ class TVSeason(Item):
         default=list,
         schema={
             "type": "array",
-            "items": {"type": "dict", "additionalProperties": True, "keys": []},
-        },  # TODO fix it as simple dict...
+            "items": {
+                "type": "dict",
+                "additionalProperties": False,
+                "keys": ["region", "time"],
+                "required": ["time"],
+            },
+        },
     )
     site = jsondata.URLField(
         verbose_name=_("官方网站"), blank=True, default="", max_length=200

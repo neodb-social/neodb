@@ -138,11 +138,9 @@
     {% if item.showtime %}
       {% trans '上映时间：' %}
       {% for showtime in item.showtime %}
-        {% for time, region in showtime.items %}
-          <span>{{ time }}
-            {% if region != '' %}({{ region }}){% endif %}
-          </span>
-        {% endfor %}
+        <span>{{ showtime.time }}
+          {% if showtime.region %}({{ showtime.region }}){% endif %}
+        </span>
         {% if not forloop.last %}/{% endif %}
       {% endfor %}
     {% endif %}
