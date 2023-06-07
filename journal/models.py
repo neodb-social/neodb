@@ -963,9 +963,13 @@ class Tag(List):
 
     @staticmethod
     def cleanup_title(title, replace=True):
-        t = title.strip().lower()
-        # t = re.sub(r"\W", "_", title.strip().lower())
+        t = re.sub(r"\s+", " ", title.strip())
         return "_" if not title and replace else t
+
+    @staticmethod
+    def deep_cleanup_title(title):
+        """Remove all non-word characters, only for public index purpose"""
+        return re.sub(r"\W+", " ", title).strip()
 
 
 class TagManager:
@@ -978,7 +982,10 @@ class TagManager:
             .annotate(frequency=Count("owner"))
             .order_by("-frequency")[:20]
         )
-        return sorted(list(map(lambda t: t["title"], tags)))
+        tag_titles = [
+            t for t in set(map(lambda t: Tag.deep_cleanup_title(t["title"]), tags)) if t
+        ]
+        return tag_titles
 
     @staticmethod
     def all_tags_for_user(user, public_only=False):

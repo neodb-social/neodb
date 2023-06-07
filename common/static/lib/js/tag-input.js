@@ -114,7 +114,7 @@ function inputTags(configs) {
                 tags_arr = [];
 
             for (let i = 0; i < tags.length; i++) {
-                tags_arr.push(tags[i].textContent.toLowerCase());
+                tags_arr.push(tags[i].textContent.replace(/\s+/g, ' ').trim());
             }
             this.tags_array = tags_arr;
 
