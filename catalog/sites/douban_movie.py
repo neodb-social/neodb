@@ -231,9 +231,12 @@ class DoubanMovie(AbstractSite):
                 and len(res_data["tv_episode_results"]) > 0
             )
             if pd.metadata["preferred_model"] == "TVSeason" and has_tv:
-                if pd.metadata.get("season") and pd.metadata.get("season") != 1:
+                if (
+                    pd.metadata.get("season_number")
+                    and pd.metadata.get("season_number") != 1
+                ):
                     _logger.warn(f"{imdb_code} matched imdb tv show, force season 1")
-                    pd.metadata["season"] = 1
+                    pd.metadata["season_number"] = 1
             elif pd.metadata["preferred_model"] == "TVSeason" and has_episode:
                 if res_data["tv_episode_results"][0]["episode_number"] != 1:
                     _logger.warning(

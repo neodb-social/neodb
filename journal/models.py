@@ -1264,7 +1264,7 @@ def remove_data_by_user(user: User):
     FeaturedCollection.objects.filter(owner=user).delete()
 
 
-def update_journal_for_merged_item(legacy_item_uuid):
+def update_journal_for_merged_item(legacy_item_uuid, delete_duplicated=False):
     legacy_item = Item.get_by_url(legacy_item_uuid)
     if not legacy_item:
         _logger.error("update_journal_for_merged_item: unable to find item")
@@ -1276,10 +1276,15 @@ def update_journal_for_merged_item(legacy_item_uuid):
                 p.item = new_item
                 p.save(update_fields=["item_id"])
             except:
-                _logger.warn(
-                    f"deleted piece {p} when merging {cls.__name__}: {legacy_item} -> {new_item}"
-                )
-                p.delete()
+                if delete_duplicated:
+                    _logger.warn(
+                        f"deleted piece {p} when merging {cls.__name__}: {legacy_item} -> {new_item}"
+                    )
+                    p.delete()
+                else:
+                    _logger.warn(
+                        f"skip piece {p} when merging {cls.__name__}: {legacy_item} -> {new_item}"
+                    )
 
 
 def journal_exists_for_item(item):
