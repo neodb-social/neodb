@@ -108,18 +108,18 @@ class TagTest(TestCase):
         pass
 
     def test_user_tag(self):
-        t1 = "tag-1"
-        t2 = "tag-2"
-        t3 = "tag-3"
+        t1 = "tag 1"
+        t2 = "tag 2"
+        t3 = "tag 3"
         TagManager.tag_item_by_user(self.book1, self.user2, [t1, t3])
         self.assertEqual(self.book1.tags, [t1, t3])
         TagManager.tag_item_by_user(self.book1, self.user2, [t2, t3])
         self.assertEqual(self.book1.tags, [t2, t3])
 
     def test_tag(self):
-        t1 = "tag-1"
-        t2 = "tag-2"
-        t3 = "tag-3"
+        t1 = "tag 1"
+        t2 = "tag 2"
+        t3 = "tag 3"
         TagManager.add_tag_by_user(self.book1, t3, self.user2)
         TagManager.add_tag_by_user(self.book1, t1, self.user1)
         TagManager.add_tag_by_user(self.book1, t1, self.user2)
@@ -173,4 +173,4 @@ class MarkTest(TestCase):
 
         TagManager.tag_item_by_user(self.book1, self.user1, [" Sci-Fi ", " fic "])
         mark = Mark(self.user1, self.book1)
-        self.assertEqual(mark.tags, ["fic", "sci-fi"])
+        self.assertEqual(mark.tags, ["Sci-Fi", "fic"])

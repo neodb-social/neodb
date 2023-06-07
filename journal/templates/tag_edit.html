@@ -41,7 +41,7 @@
                            required=""
                            id="id_visibility_0"
                            {% if tag.visibility == 0 %}checked{% endif %}>
-                    公开
+                    公共
                   </label>
                 </li>
                 <li>
@@ -52,12 +52,13 @@
                            required=""
                            id="id_visibility_2"
                            {% if tag.visibility != 0 %}checked{% endif %}>
-                    仅自己
+                    个人
                   </label>
                 </li>
               </ul>
             </span>
           </div>
+          <i>个人标签仅限于在个人主页的标签列表里不向他人展示，如果公开标记一个条目时使用这个标签仍会被别人看到。</i>
         </div>
         <div class="mark-modal__confirm-button">
           <input type="submit" class="button float-right" value="保存">

@@ -643,10 +643,6 @@ class ShelfMember(ListMember):
     def tags(self):
         return self.mark.tags
 
-    @property
-    def public_tags(self):
-        return self.mark.public_tags
-
 
 class Shelf(List):
     class Meta:
@@ -974,7 +970,7 @@ class Tag(List):
 
 class TagManager:
     @staticmethod
-    def public_tags_for_item(item):
+    def indexable_tags_for_item(item):
         tags = (
             item.tag_set.all()
             .filter(visibility=0)
@@ -982,9 +978,13 @@ class TagManager:
             .annotate(frequency=Count("owner"))
             .order_by("-frequency")[:20]
         )
-        tag_titles = [
-            t for t in set(map(lambda t: Tag.deep_cleanup_title(t["title"]), tags)) if t
-        ]
+        tag_titles = sorted(
+            [
+                t
+                for t in set(map(lambda t: Tag.deep_cleanup_title(t["title"]), tags))
+                if t
+            ]
+        )
         return tag_titles
 
     @staticmethod
@@ -1062,18 +1062,8 @@ class TagManager:
             ]
         )
 
-    def get_item_public_tags(self, item):
-        return sorted(
-            [
-                m["parent__title"]
-                for m in TagMember.objects.filter(
-                    parent__owner=self.owner, item=item, visibility=0
-                ).values("parent__title")
-            ]
-        )
 
-
-Item.tags = property(TagManager.public_tags_for_item)
+Item.tags = property(TagManager.indexable_tags_for_item)
 User.tags = property(TagManager.all_tags_for_user)
 User.tag_manager = cached_property(TagManager.get_manager_for_user)
 User.tag_manager.__set_name__(User, "tag_manager")
@@ -1143,10 +1133,6 @@ class Mark:
     @cached_property
     def tags(self):
         return self.owner.tag_manager.get_item_tags(self.item)
-
-    @cached_property
-    def public_tags(self):
-        return self.owner.tag_manager.get_item_public_tags(self.item)
 
     @cached_property
     def rating_grade(self):
