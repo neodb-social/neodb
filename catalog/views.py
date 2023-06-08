@@ -371,7 +371,8 @@ def comments(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
         raise Http404()
-    queryset = Comment.objects.filter(item=item).order_by("-created_time")
+    ids = [i.id for i in item.child_items] + [item.id]
+    queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
     queryset = queryset.filter(query_visible(request.user))
     before_time = request.GET.get("last")
     if before_time:
@@ -380,6 +381,7 @@ def comments(request, item_path, item_uuid):
         request,
         "item_comments.html",
         {
+            "item": item,
             "comments": queryset[:11],
         },
     )
@@ -390,7 +392,8 @@ def reviews(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
         raise Http404()
-    queryset = Review.objects.filter(item=item).order_by("-created_time")
+    ids = [i.id for i in item.child_items] + [item.id]
+    queryset = Review.objects.filter(item_id__in=ids).order_by("-created_time")
     queryset = queryset.filter(query_visible(request.user))
     before_time = request.GET.get("last")
     if before_time:
@@ -399,6 +402,7 @@ def reviews(request, item_path, item_uuid):
         request,
         "item_reviews.html",
         {
+            "item": item,
             "reviews": queryset[:11],
         },
     )

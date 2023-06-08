@@ -333,7 +333,8 @@ class Rating(Content):
 
     @staticmethod
     def get_rating_for_item(item):
-        stat = Rating.objects.filter(item=item, grade__isnull=False).aggregate(
+        ids = [i.id for i in item.child_items] + [item.id]
+        stat = Rating.objects.filter(item_id__in=ids, grade__isnull=False).aggregate(
             average=Avg("grade"), count=Count("item")
         )
         return round(stat["average"], 1) if stat["count"] >= MIN_RATING_COUNT else None

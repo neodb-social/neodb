@@ -210,6 +210,10 @@ class TVShow(Item):
             .filter(is_deleted=False, merged_to_item=None)
         )
 
+    @property
+    def child_items(self):
+        return self.all_seasons
+
 
 class TVSeason(Item):
     type = ItemType.TVSeason

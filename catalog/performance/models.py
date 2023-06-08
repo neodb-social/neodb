@@ -225,6 +225,10 @@ class Performance(Item):
     def crew_by_role(self):
         return _crew_by_role(self.crew)
 
+    @property
+    def child_items(self):
+        return self.all_productions
+
 
 class PerformanceProduction(Item):
     type = ItemType.PerformanceProduction

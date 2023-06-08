@@ -30,6 +30,8 @@
       <span class="action inline">
         <span class="timestamp">{{ review.created_time|date }}</span>
       </span>
+      评论
+      {% if review.item != item %}<a href="{{ review.item.url }}">{{ review.item.title }}</a>{% endif %}
       <div>
         <span>
           <a href="{% url 'journal:review_retrieve' review.uuid %}">{{ review.title }}</a>

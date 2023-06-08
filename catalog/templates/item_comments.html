@@ -26,7 +26,6 @@
         <a href="{% url 'journal:user_profile' comment.owner.mastodon_username %}"
            class="nickname"
            title="@{{ comment.owner.mastodon_username }}">{{ comment.owner.display_name }}</a>
-        {% if comment.focus_item %}<a href="{{ comment.focus_item.url }}">{{ comment.focus_item.title }}</a>{% endif %}
       </span>
       <span class="action inline">
         <span class="timestamp">
@@ -34,6 +33,8 @@
           {{ comment.mark.action_label }}
         </span>
       </span>
+      {% if comment.focus_item %}<a href="{{ comment.focus_item.url }}">{{ comment.focus_item.title }}</a>{% endif %}
+      {% if comment.item != item %}<a href="{{ comment.item.url }}">{{ comment.item.title }}</a>{% endif %}
       <div>{{ comment.html|safe }}</div>
     </section>
   {% else %}
