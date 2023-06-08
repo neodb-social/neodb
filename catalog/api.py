@@ -35,7 +35,7 @@ def search_item(
     query = query.strip()
     if not query:
         return 400, {"message": "Invalid query"}
-    items, num_pages, count = query_index(
+    items, num_pages, count, _ = query_index(
         query, page=page, category=category, prepare_external=False
     )
     return 200, {"data": items, "pages": num_pages, "count": count}

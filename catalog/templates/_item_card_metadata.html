@@ -53,7 +53,7 @@
       {% include '_people.html' with people=item.genre role='' max=2 %}
       {% include '_people.html' with people=item.troupe role='' max=2 %}
       {% include '_people.html' with people=item.location role='' max=2 %}
-      {% include '_people.html' with people=item.language role='' max=5 %}
+      {% comment %} {% include '_people.html' with people=item.language role='' max=5 %} {% endcomment %}
       {% include '_people.html' with people=item.platform role='' max=5 %}
       {% if item.show %}
         <span>{{ item.show.type.label }}：<a href="{{ item.show.url }}">{{ item.show.title }}</a></span>

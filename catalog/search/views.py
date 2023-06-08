@@ -97,12 +97,13 @@ def search(request):
         if site:
             return fetch(request, keywords, False, site)
 
-    items, num_pages, _ = query_index(keywords, category, tag, p)
+    items, num_pages, _, dup_items = query_index(keywords, category, tag, p)
     return render(
         request,
         "search_results.html",
         {
             "items": items,
+            "dup_items": dup_items,
             "pagination": PageLinksGenerator(PAGE_LINK_NUMBER, p, num_pages),
             "sites": SiteName.labels,
             "hide_category": category is not None and category != "movietv",

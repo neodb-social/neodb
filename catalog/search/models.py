@@ -39,22 +39,38 @@ else:
 
 def query_index(keywords, category=None, tag=None, page=1, prepare_external=True):
     result = Indexer.search(keywords, page=page, category=category, tag=tag)
-    keys = []
+    keys = set()
     items = []
+    duplicated_items = []
     urls = []
     for i in result.items:
-        key = (
-            i.isbn
+        if i.is_deleted or i.merged_to_item:  # only happen if index is delayed
+            continue
+        my_key = (
+            [i.isbn]
             if hasattr(i, "isbn")
-            else (i.imdb_code if hasattr(i, "imdb_code") else None)
+            else ([i.imdb_code] if hasattr(i, "imdb_code") else [])
         )
-        if key is None:
-            items.append(i)
-        elif key not in keys:  # skip dup with same imdb or isbn
-            keys.append(key)
+        if hasattr(i, "works"):
+            my_key += [i[0] for i in i.works.all().values_list("id")]
+        if len(my_key):
+            l = len(keys) + len(my_key)
+            keys.update(my_key)
+            # check and skip dup with same imdb or isbn or works id
+            if len(keys) < l:
+                duplicated_items.append(i)
+            else:
+                items.append(i)
+        else:
             items.append(i)
         for res in i.external_resources.all():
             urls.append(res.url)
+    # hide show if its season exists
+    seasons = [i for i in items if i.__class__ == TVSeason]
+    for season in seasons:
+        if season.show in items:
+            duplicated_items.append(season.show)
+            items.remove(season.show)
 
     if prepare_external:
         # store site url to avoid dups in external search
@@ -62,13 +78,7 @@ def query_index(keywords, category=None, tag=None, page=1, prepare_external=True
         urls = list(set(cache.get(cache_key, []) + urls))
         cache.set(cache_key, urls, timeout=300)
 
-    # hide show if its season exists
-    seasons = [i for i in items if i.__class__ == TVSeason]
-    for season in seasons:
-        if season.show in items:
-            items.remove(season.show)
-
-    return items, result.num_pages, result.count
+    return items, result.num_pages, result.count, duplicated_items
 
 
 def enqueue_fetch(url, is_refetch):

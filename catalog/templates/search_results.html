@@ -81,6 +81,20 @@
               {% empty %}
                 <p class="empty">{% trans '无站内条目匹配' %}</p>
               {% endfor %}
+            </div>
+            {% if dup_items %}
+              <p class="empty">
+                已从结果中略去了来自同一著作或有相同标识号的 {{ dup_items|length }}个条目，<a href="#" _="on click toggle .hidden on #dup">点击这里可重新显示</a>
+              </p>
+              <div class="item-card-list hidden" id="dup">
+                {% for item in dup_items %}
+                  {% with "list_item_"|add:item.class_name|add:".html" as template %}
+                    {% include template with show_tags=1 %}
+                  {% endwith %}
+                {% endfor %}
+              </div>
+            {% endif %}
+            <div class="item-card-list">
               {% if request.GET.q and user.is_authenticated %}
                 <p hx-get="{% url 'catalog:external_search' %}?q={{ request.GET.q }}&c={{ request.GET.c }}&page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
                    hx-trigger="load"
