@@ -59,17 +59,17 @@ class Edition(Item):
     METADATA_COPY_LIST = [
         "title",
         "subtitle",
-        "orig_title",
-        "language",
         "author",
-        "translator",
         "pub_house",
         "pub_year",
         "pub_month",
+        "language",
+        "orig_title",
+        "translator",
+        "series",
         "imprint",
         "binding",
         "pages",
-        "series",
         "price",
         "brief",
         "contents",
@@ -109,7 +109,7 @@ class Edition(Item):
     pub_month = jsondata.IntegerField(
         _("出版月份"),
         null=True,
-        blank=False,
+        blank=True,
         validators=[MinValueValidator(1), MaxValueValidator(12)],
     )
     binding = jsondata.CharField(
