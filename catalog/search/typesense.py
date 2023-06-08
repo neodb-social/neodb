@@ -132,7 +132,7 @@ class Indexer:
 
     @classmethod
     def init(cls):
-        idx = cls.instance().collections[INDEX_NAME]
+        idx = cls.instance().collections
         if idx:
             # idx.delete()
             idx.create(cls.config())
