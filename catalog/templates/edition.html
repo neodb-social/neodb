@@ -96,39 +96,41 @@
   {% endif %}
 {% endblock %}
 {% block left_sidebar %}
+  <script>
+  $(function () {
+    function _sidebar_auto_collapse(mm){
+      if (mm.matches) {
+        $('.auto-collapse').removeAttr('open')
+      } else {
+        $('.auto-collapse').attr('open', '')
+      }
+    }
+    var mm = window.matchMedia("(max-width: 768px)")
+    mm.addListener(_sidebar_auto_collapse);
+    _sidebar_auto_collapse(mm);
+  });
+  </script>
   {% with related_books=item.get_related_books %}
     {% if related_books.count > 0 %}
       <section>
-        <h5>{% trans '其它版本' %}</h5>
-        {% for b in related_books %}
-          <p>
-            <a href="{{ b.url }}">{{ b.title }}</a>
-            <small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
-            {% comment %} {% for res in b.external_resources.all %}
+        <details class="auto-collapse" open>
+          <summary>{% trans '这本书还有其它版本' %}</summary>
+          {% for b in related_books %}
+            <div>
+              <a href="{{ b.url }}">{{ b.title }}</a>
+              <small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
+              {% comment %} {% for res in b.external_resources.all %}
               <a href="{{ res.url }}">
                 <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
               </a>
-            {% endfor %} {% endcomment %}
-          </p>
-        {% endfor %}
+              {% endfor %} {% endcomment %}
+            </div>
+          {% endfor %}
+        </details>
       </section>
     {% endif %}
   {% endwith %}
   {% if item.isbn %}
-    <script>
-    $(function () {
-      function _sidebar_auto_collapse(mm){
-        if (mm.matches) {
-          $('.auto-collapse').removeAttr('open')
-        } else {
-          $('.auto-collapse').attr('open', '')
-        }
-      }
-      var mm = window.matchMedia("(max-width: 768px)")
-      mm.addListener(_sidebar_auto_collapse);
-      _sidebar_auto_collapse(mm);
-    });
-    </script>
     <section>
       <details class="auto-collapse" open>
         <summary>{% trans '借阅或购买' %}</summary>
