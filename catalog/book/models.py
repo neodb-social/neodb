@@ -167,6 +167,7 @@ class Edition(Item):
         works = list(self.works.all())
         return (
             Edition.objects.filter(works__in=works)
+            .distinct()
             .exclude(pk=self.pk)
             .exclude(is_deleted=True)
             .exclude(merged_to_item__isnull=False)
@@ -179,6 +180,9 @@ class Work(Item):
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
     editions = models.ManyToManyField(Edition, related_name="works")
+    # TODO: we have many duplicates due to 302
+    # a lazy fix is to remove smaller DoubanBook_Work ids
+    # but ideally deal with 302 in scrape().
 
 
 class Series(Item):
