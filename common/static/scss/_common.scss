@@ -27,6 +27,18 @@
   visibility: hidden;
 }
 
+.folded {
+  max-height: 0;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.2s ease;
+}
+
+.folded.unfold {
+  max-height: max-content;
+  transform: scaleY(1);
+}
+
 a:not(:hover) {
   text-decoration: none;
 }

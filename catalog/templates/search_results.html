@@ -84,9 +84,9 @@
             </div>
             {% if dup_items %}
               <p class="empty">
-                已从结果中略去了来自同一著作或有相同标识号的 {{ dup_items|length }}个条目，<a href="#" _="on click toggle .hidden on #dup">点击这里可重新显示</a>
+                已从结果中略去了来自同一著作或有相同标识号的 {{ dup_items|length }}个条目，<a _="on click toggle .unfold on #dup">点击这里可重新显示</a>
               </p>
-              <div class="item-card-list hidden" id="dup">
+              <div class="item-card-list folded" id="dup">
                 {% for item in dup_items %}
                   {% with "list_item_"|add:item.class_name|add:".html" as template %}
                     {% include template with show_tags=1 %}

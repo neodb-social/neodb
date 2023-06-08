@@ -171,6 +171,7 @@ class Edition(Item):
             .exclude(pk=self.pk)
             .exclude(is_deleted=True)
             .exclude(merged_to_item__isnull=False)
+            .order_by("title")
         )
 
 
