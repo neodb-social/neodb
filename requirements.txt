@@ -1,5 +1,5 @@
 dateparser
-mistune @ git+https://github.com/alphatownsman/mistune.git@660b1c0100ecdd6cd6aca26a554be2606a67d67b
+mistune>=3.0.0
 rq>=1.12.0
 django~=3.2.19
 django-auditlog
