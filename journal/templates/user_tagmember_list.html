@@ -5,18 +5,21 @@
 {% endblock %}
 {% block head %}
   {{ tag.title }}
-  {% if user == request.user %}
-    <span class="action inline">
-      <span>
-        <a hx-get="{% url 'journal:user_tag_edit' %}?tag={{ tag.title }}"
-           hx-target="body"
-           hx-swap="beforeend"><i class="fa-regular fa-pen-to-square"></i></a>
-      </span>
-    </span>
-  {% endif %}
   <br>
   <small>
     {% if tag.visibility > 0 %}<i class="fa-solid fa-user" title="个人标签"></i>{% endif %}
     {{ user.mastodon_username }}的{% trans '标签' %}
+    {% if user == request.user %}
+      <form style="display:inline"
+            hx-get="{% url 'journal:user_tag_edit' %}"
+            hx-target="body"
+            hx-swap="beforeend"
+            hx-boost="true">
+        <input type="hidden" name="tag" value="{{ tag.title }}">
+        <button class="outline" style="padding:0 var(--pico-spacing);border:none;">
+          <i class="fa-regular fa-pen-to-square"></i>
+        </button>
+      </form>
+    {% endif %}
   </small>
 {% endblock %}
