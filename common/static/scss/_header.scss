@@ -75,8 +75,13 @@ body {
       }
 
       .nav-dropdown {
+        margin-right: 0rem !important;
 
-        //   margin-right: 8px !important;
+        // this fixes positioning in iOS 14 and lower but will break in other browsers and iOS 15+
+        // details.dropdown {
+        //   display: block !important;
+        // }
+
         ul li a {
           padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal) !important
         }
@@ -94,8 +99,25 @@ body {
   }
 
 
+  @media (max-width: 320px) {
 
+    //pack for small phones like iPhone 5s
+    .nav-dropdown {
+      li {
+        padding-left: 0;
+        padding-right: 0;
 
+        summary {
+          padding: 0 !important;
+        }
+
+        details.dropdown summary::after {
+          width: 0;
+        }
+
+      }
+    }
+  }
 
   @media (max-width: 768px) {
     body>header {
