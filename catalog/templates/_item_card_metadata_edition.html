@@ -39,5 +39,7 @@
     {% include '_people.html' with people=item.other_title role='又名' max=2 %}
     <br>
   {% endif %}
-  {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+  <div>
+    {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+  </div>
 {% endblock full %}

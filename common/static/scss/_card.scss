@@ -39,14 +39,15 @@ div.item {
     }
   }
 
-  .full {
+  .full>div {
     text-overflow: ellipsis;
     word-wrap: break-word;
     overflow: hidden;
-    -webkit-line-clamp: 4;
+    -webkit-line-clamp: 3;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     font-size: 80%;
+
   }
 
 }

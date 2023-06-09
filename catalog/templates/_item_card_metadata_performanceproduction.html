@@ -23,5 +23,7 @@
     {% include '_actor.html' with people=item.actor role='主演' max=2 %}
     {% include '_people.html' with people=item.performer role='表演者' max=2 %}
   </div>
-  {% if not hide_brief %}{{ item.brief | default:item.parent_item.brief | linebreaksbr }}{% endif %}
+  <div>
+    {% if not hide_brief %}{{ item.brief | default:item.parent_item.brief | linebreaksbr }}{% endif %}
+  </div>
 {% endblock full %}

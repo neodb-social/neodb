@@ -40,7 +40,9 @@
   </div>
   <div class="full">
     {% block full %}
-      {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+      <div>
+        {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+      </div>
     {% endblock full %}
   </div>
   {% if show_tags %}

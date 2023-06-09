@@ -15,5 +15,9 @@
     {% if item.release_date %}<span>发行时间：{{ item.release_date }}</span>{% endif %}
     {% include '_people.html' with people=item.company role='发行方' max=2 %}
   </div>
-  {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+  <div>
+    <div>
+      {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+    </div>
+  </div>
 {% endblock full %}
