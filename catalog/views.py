@@ -379,7 +379,7 @@ def comments(request, item_path, item_uuid):
         queryset = queryset.filter(created_time__lte=before_time)
     return render(
         request,
-        "item_comments.html",
+        "_item_comments.html",
         {
             "item": item,
             "comments": queryset[:11],
@@ -400,7 +400,7 @@ def reviews(request, item_path, item_uuid):
         queryset = queryset.filter(created_time__lte=before_time)
     return render(
         request,
-        "item_reviews.html",
+        "_item_reviews.html",
         {
             "item": item,
             "reviews": queryset[:11],

@@ -147,7 +147,7 @@ def mark(request, item_uuid):
         shelf_type = request.GET.get("shelf_type", mark.shelf_type)
         return render(
             request,
-            "mark2.html" if request.GET.get("new", 0) else "mark.html",
+            "mark.html",
             {
                 "item": item,
                 "mark": mark,

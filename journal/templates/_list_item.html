@@ -22,7 +22,7 @@
       <span>
         {% if not action.taken %}
           <a title="添加标记"
-             hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist&new=1"
+             hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist"
              hx-target="body"
              hx-swap="beforeend">
             <i class="fa-regular fa-bookmark"></i>
@@ -30,7 +30,7 @@
         {% else %}
           <a class="activated"
              title="修改标记"
-             hx-get="{% url 'journal:mark' item.uuid %}?new=1"
+             hx-get="{% url 'journal:mark' item.uuid %}"
              hx-target="body"
              hx-swap="beforeend">
             <i class="fa-solid fa-bookmark"></i>

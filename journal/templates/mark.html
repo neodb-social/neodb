@@ -8,336 +8,308 @@
 {% load truncate %}
 {% load highlight %}
 {% load thumb %}
-<div id="modal"
-     _="on closeModal add .closing then wait for animationend then remove me">
-  <div class="modal-underlay" _="on click trigger closeModal"></div>
-  <div class="modal-content">
-    <div class="add-to-list-modal__head">
-      <span class="add-to-list-modal__title">{% trans '标记' %} {{ item.title }}</span>
-      <span class="add-to-list-modal__close-button modal-close"
-            _="on click trigger closeModal">
-        <i class="fa-solid fa-xmark"></i>
-      </span>
-    </div>
+{% load duration %}
+<dialog open
+        _="on close_dialog add .closing then wait for animationend then remove me">
+  <article>
+    <header>
+      <link to="#"
+            aria-label="Close"
+            class="close"
+            _="on click trigger close_dialog" />
+      <strong>标记 {{ item.title }}</strong>
+    </header>
     <div class="add-to-list-modal__body">
-      <form action="{% url 'journal:mark' item.uuid %}" method="post">
+      <form method="post" action="{% url 'journal:mark' item.uuid %}">
         {% csrf_token %}
-        <div id="statusSelection" class="mark-modal__status-radio float-right">
-          <ul id="id_status">
-            {% for k, v in shelf_types %}
-              {% if v %}
-                <li>
-                  <label for="id_status_{{ k }}">
-                    <input type="radio"
-                           name="status"
-                           value="{{ k }}"
-                           required=""
-                           id="id_status_{{ k }}"
-                           {% if shelf_type == k %}checked=""{% endif %}>
-                    {{ v }}
-                  </label>
-                </li>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </div>
-        <div class="mark-modal__rating-star rating-star-edit"></div>
-        <input type="hidden"
-               name="rating"
-               id="id_rating"
-               value="{{ mark.rating_grade }}">
-        <div class="mark-modal__clear"></div>
-        <textarea name="text"
-                  cols="40"
-                  rows="10"
-                  placeholder="超过360字部分实例可能无法显示"
-                  id="id_text">{% if mark.comment_text %}{{ mark.comment_text }}{% endif %}</textarea>
-        <div class="mark-modal__tag">
-          <label>标签</label>
-          <div class="tag-input">
-            <input name="tags" type="text" placeholder="回车增加标签" id="id_tags" value="">
+        <div class="grid mark-line">
+          <div>
+            <fieldset>
+              {% for k, v in shelf_types %}
+                {% if v %}
+                  <input type="radio"
+                         name="status"
+                         value="{{ k }}"
+                         required
+                         id="id_status_{{ k }}"
+                         {% if k == "wishlist" %} _="on click add .hidden to .rating-editor" {% else %} _="on click remove .hidden from .rating-editor" {% endif %}
+                         {% if shelf_type == k %}checked=""{% endif %}>
+                  <label for="id_status_{{ k }}">{{ v }}</label>
+                {% endif %}
+              {% endfor %}
+            </fieldset>
           </div>
-        </div>
-        <div class="mark-modal__share-checkbox float-right">
-          <label for="id_share_to_mastodon">
-            <input type="checkbox"
-                   name="share_to_mastodon"
-                   id="id_share_to_mastodon"
-                   value="1"
-                   {% if not request.user.preference.default_no_share %}checked{% endif %}>
-            分享到联邦网络
-          </label>
-        </div>
-        <div class="mark-modal__option">
-          <div class="mark-modal__visibility-radio">
-            <span>可见性:
-              <ul id="id_visibility">
-                <li>
-                  <label for="id_visibility_0">
-                    <input type="radio"
-                           name="visibility"
-                           value="0"
-                           required=""
-                           id="id_visibility_0"
-                           {% if mark.visibility == 0 %}checked{% endif %}>
-                    公开
-                  </label>
-                </li>
-                <li>
-                  <label for="id_visibility_1">
-                    <input type="radio"
-                           name="visibility"
-                           value="1"
-                           required=""
-                           id="id_visibility_1"
-                           {% if mark.visibility == 1 %}checked{% endif %}>
-                    仅关注者
-                  </label>
-                </li>
-                <li>
-                  <label for="id_visibility_2">
-                    <input type="radio"
-                           name="visibility"
-                           value="2"
-                           required=""
-                           id="id_visibility_2"
-                           {% if mark.visibility == 2 %}checked{% endif %}>
-                    仅自己
-                  </label>
-                </li>
-              </ul>
+          <div>
+            <span class="rating-editor {% if shelf_type == 'wishlist' %}hidden{% endif %}" _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
+              <div/>
+              in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
+              <div/>
+              in me set star_input to the
+              <input/>
+              in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the
+              <div/>
+              in me set star_input to the
+              <input/>
+              in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' end">
+              {{ mark.rating_grade|rating_star }}
+              <input type="hidden"
+                     name="rating_grade"
+                     id="id_rating"
+                     value="{{ mark.rating_grade | default:0 }}">
             </span>
           </div>
         </div>
-        <div class="mark-modal__confirm-button">
-          <input type="submit" class="button float-right" value="保存">
+        <div>
+          <fieldset>
+            <textarea name="text"
+                      rows="5"
+                      autofocus
+                      placeholder="提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦网络实例时间线。"
+                      id="id_text">{{ mark.comment_text|default:"" }}</textarea>
+          </fieldset>
         </div>
-        <div class="mark-modal__option">
-          <div class="mark-modal__visibility-radio">
-            <span>更改标记日期:
-              <label for="mark_anotherday">
-                <input type="checkbox" name="mark_anotherday" value="1" id="mark_anotherday">
+        <div class="mark-modal__tag">
+          <div class="tag-input">
+            <input name="tags" type="text" placeholder="回车增加标签" id="id_tags" value="">
+            <!-- {{ tags }} -->
+          </div>
+        </div>
+        <div class="grid">
+          <div>
+            <fieldset>
+              <input type="radio"
+                     name="visibility"
+                     value="0"
+                     required
+                     id="id_visibility_0"
+                     {% if mark.visibility == 0 %}checked{% endif %}>
+              <label for="id_visibility_0">公开</label>
+              <input type="radio"
+                     name="visibility"
+                     value="1"
+                     required
+                     id="id_visibility_1"
+                     {% if mark.visibility == 1 %}checked{% endif %}>
+              <label for="id_visibility_1">仅关注者</label>
+              <input type="radio"
+                     name="visibility"
+                     value="2"
+                     required
+                     id="id_visibility_2"
+                     {% if mark.visibility == 2 %}checked{% endif %}>
+              <label for="id_visibility_2">仅自己</label>
+            </fieldset>
+          </div>
+          <div>
+            <fieldset>
+              <label for="id_share_to_mastodon">
+                <input role="switch"
+                       type="checkbox"
+                       name="share_to_mastodon"
+                       id="id_share_to_mastodon"
+                       value="1"
+                       {% if not request.user.preference.default_no_share %}checked{% endif %}>
+                分享到联邦网络
               </label>
-              <input type="date"
+            </fieldset>
+          </div>
+        </div>
+        <div class="grid">
+          <div>
+            <div>
+              <input role="switch"
+                     _="on click toggle .invisible on #mark_date  "
+                     type="checkbox"
+                     name="mark_anotherday"
+                     value="1"
+                     id="mark_anotherday">
+              <label for="mark_anotherday">更改日期:</label>
+              <input class="invisible"
+                     type="date"
                      name="mark_date"
                      id="mark_date"
                      min="1900-01-01"
                      max="{{ date_today }}"
-                     value="{{ date_today }}"
-                     style="display: none">
-            </span>
+                     value="{{ date_today }}">
+            </div>
+          </div>
+          <div>
+            <fieldset>
+              <input type="submit" value="保存">
+            </fieldset>
           </div>
         </div>
       </form>
+      <div>
+        {% if mark.id %}
+          <form id="mark_delete"
+                action="{% url 'journal:mark' mark.item.uuid %}"
+                method="post">
+            {% csrf_token %}
+            <input type="hidden" name="delete" value="1">
+            <a>
+              <button class="secondary" onclick="return confirm('确认删除这条标记、短评和标签？')">删除标记</button>
+            </a>
+          </form>
+        {% endif %}
+      </div>
     </div>
-  </div>
-</div>
+  </article>
+</dialog>
 <script>
-function inputTags(configs) {
+  function inputTags(configs) {
 
 
-  let tagsContainer = configs.container,
-    input = configs.container.querySelector('input')
+    let tagsContainer = configs.container,
+      input = configs.container.querySelector('input')
 
-  let _privateMethods = {
+    let _privateMethods = {
 
-    init: function (configs) {
+      init: function (configs) {
 
-      // this.inspectConfigProperties(configs);
+        // this.inspectConfigProperties(configs);
 
-      let self = this,
-        input_hidden = document.createElement('input');
-      let name = input.getAttribute('name'),
-        id = input.getAttribute('id');
-      input.removeAttribute('name');
-      // input.removeAttribute('id');
-      input_hidden.setAttribute('type', 'hidden');
-      // input_hidden.setAttribute('id', id);
-      input_hidden.setAttribute('name', name);
-      input.parentNode.insertBefore(input_hidden, input);
-      this.input_hidden = input_hidden
-
-      tagsContainer.addEventListener('click', function () {
-        input.focus();
-      });
-
-      if (configs.tags) {
-        for (let i = 0; i < configs.tags.length; i++) {
-          if (configs.tags[i]) {
-            this.create(configs.tags[i]);
-          }
-        }
-      }
-
-      input.addEventListener("focusout", function () {
-
-        let tag_txt = this.value.trim(),
-          tag_exists = false;
-
-        if (self.tags_array) {
-          tag_exists = Boolean(self.tags_array.indexOf(tag_txt) + 1);
-        }
-
-        if (tag_txt && tag_exists && !configs.allowDuplicateTags) {
-          self.showDuplicate(tag_txt);
-        }
-        else if (tag_txt && tag_exists && configs.allowDuplicateTags) {
-          self.create(tag_txt);
-        }
-        else if (tag_txt && !tag_exists) {
-          self.create(tag_txt);
-        }
-        this.value = "";
-
-      });
-
-      input.addEventListener('keydown', function (ev) {
-
-
-        if (ev.keyCode === 13 || ev.keyCode === 188 ||
-          (ev.keyCode === 32 && configs.allowDuplicateTags)) { // enter || comma || space
-          let event = new Event('focusout');
-          input.dispatchEvent(event);
-          ev.preventDefault();
-        }
-        else if (event.which === 8 && !input.value) { // backspace
-          let tag_nodes = document.querySelectorAll('.tag-input__tag');
-          if (tag_nodes.length > 0) {
-            input.addEventListener('keyup', function (event) {
-              if (event.which === 8) {
-                let node_to_del = tag_nodes[tag_nodes.length - 1];
-                node_to_del.remove();
-                self.update();
-              }
-            });
-          }
-          ev.preventDefault();
-        }
-      });
-    },
-
-    create: function (tag_txt) {
-
-      let tag_nodes = document.querySelectorAll('.tag-input__tag');
-
-      if (!configs.maxTags || tag_nodes.length < configs.maxTags) {
         let self = this,
-          span_tag = document.createElement('span'),
-          input_hidden_field = self.input_hidden;
+          input_hidden = document.createElement('input');
+        let name = input.getAttribute('name'),
+          id = input.getAttribute('id');
+        input.removeAttribute('name');
+        // input.removeAttribute('id');
+        input_hidden.setAttribute('type', 'hidden');
+        // input_hidden.setAttribute('id', id);
+        input_hidden.setAttribute('name', name);
+        input.parentNode.insertBefore(input_hidden, input);
+        this.input_hidden = input_hidden
 
-        span_tag.setAttribute('class', 'tag-input__tag');
-        span_tag.innerText = tag_txt;
-
-        let span_tag_close = document.createElement('span');
-        span_tag_close.setAttribute('class', 'tag-input__close');
-        span_tag.appendChild(span_tag_close);
-
-        tagsContainer.insertBefore(span_tag, input_hidden_field);
-
-        span_tag.childNodes[1].addEventListener('click', function () {
-          self.remove(this);
+        tagsContainer.addEventListener('click', function () {
+          input.focus();
         });
 
+        if (configs.tags) {
+          for (let i = 0; i < configs.tags.length; i++) {
+            if (configs.tags[i]) {
+              this.create(configs.tags[i]);
+            }
+          }
+        }
+
+        input.addEventListener("focusout", function () {
+
+          let tag_txt = this.value.trim(),
+            tag_exists = false;
+
+          if (self.tags_array) {
+            tag_exists = Boolean(self.tags_array.indexOf(tag_txt) + 1);
+          }
+
+          if (tag_txt && tag_exists && !configs.allowDuplicateTags) {
+            self.showDuplicate(tag_txt);
+          }
+          else if (tag_txt && tag_exists && configs.allowDuplicateTags) {
+            self.create(tag_txt);
+          }
+          else if (tag_txt && !tag_exists) {
+            self.create(tag_txt);
+          }
+          this.value = "";
+
+        });
+
+        input.addEventListener('keydown', function (ev) {
+
+
+          if (ev.keyCode === 13 || ev.keyCode === 188 ||
+            (ev.keyCode === 32 && configs.allowDuplicateTags)) { // enter || comma || space
+            let event = new Event('focusout');
+            input.dispatchEvent(event);
+            ev.preventDefault();
+          }
+          else if (event.which === 8 && !input.value) { // backspace
+            let tag_nodes = document.querySelectorAll('.tag-input__tag');
+            if (tag_nodes.length > 0) {
+              input.addEventListener('keyup', function (event) {
+                if (event.which === 8) {
+                  let node_to_del = tag_nodes[tag_nodes.length - 1];
+                  node_to_del.remove();
+                  self.update();
+                }
+              });
+            }
+            ev.preventDefault();
+          }
+        });
+      },
+
+      create: function (tag_txt) {
+
+        let tag_nodes = document.querySelectorAll('.tag-input__tag');
+
+        if (!configs.maxTags || tag_nodes.length < configs.maxTags) {
+          let self = this,
+            span_tag = document.createElement('span'),
+            input_hidden_field = self.input_hidden;
+
+          span_tag.setAttribute('class', 'tag-input__tag');
+          span_tag.innerText = tag_txt;
+
+          let span_tag_close = document.createElement('span');
+          span_tag_close.setAttribute('class', 'tag-input__close');
+          span_tag.appendChild(span_tag_close);
+
+          tagsContainer.insertBefore(span_tag, input_hidden_field);
+
+          span_tag.childNodes[1].addEventListener('click', function () {
+            self.remove(this);
+          });
+
+          this.update();
+
+        }
+      },
+
+      update: function () {
+
+        let tags = document.getElementsByClassName('tag-input__tag'),
+          tags_arr = [];
+
+        for (let i = 0; i < tags.length; i++) {
+          tags_arr.push(tags[i].textContent.toLowerCase());
+        }
+        this.tags_array = tags_arr;
+
+        this.input_hidden.setAttribute('value', tags_arr.join());
+      },
+
+      remove: function (tag) {
+        configs.onTagRemove(tag.parentNode.textContent);
+        tag.parentNode.remove();
         this.update();
+      },
 
-      }
-    },
+      showDuplicate: function (tag_value) {
+        let tags = document.getElementsByClassName('tag-input__tag');
 
-    update: function () {
-
-      let tags = document.getElementsByClassName('tag-input__tag'),
-        tags_arr = [];
-
-      for (let i = 0; i < tags.length; i++) {
-        tags_arr.push(tags[i].textContent.toLowerCase());
-      }
-      this.tags_array = tags_arr;
-
-      this.input_hidden.setAttribute('value', tags_arr.join());
-    },
-
-    remove: function (tag) {
-      configs.onTagRemove(tag.parentNode.textContent);
-      tag.parentNode.remove();
-      this.update();
-    },
-
-    showDuplicate: function (tag_value) {
-      let tags = document.getElementsByClassName('tag-input__tag');
-
-      for (let i = 0; i < tags.length; i++) {
-        if (tags[i].textContent === tag_value) {
-          tags[i].classList.add("tag-input__tag--highlight");
-          window.setTimeout(function () {
-            tags[i].classList.remove("tag-input__tag--highlight");
-          }, configs.duplicateTime);
+        for (let i = 0; i < tags.length; i++) {
+          if (tags[i].textContent === tag_value) {
+            tags[i].classList.add("tag-input__tag--highlight");
+            window.setTimeout(function () {
+              tags[i].classList.remove("tag-input__tag--highlight");
+            }, configs.duplicateTime);
+          }
         }
       }
     }
-  }
 
-  _privateMethods.init(configs);
-  // return false;
-}
-(function(){
-  new inputTags({
-    container: document.getElementsByClassName("tag-input")[0],
-    tags : "{{ tags }}".split(","),
-    allowDuplicateTags : false,
-    duplicateTime: 300,
-    onTagRemove : function (tag) {},
-  });
-  // editable rating star in modal
-  ratingLabels = $("#modal .rating-star-edit");
-  $(ratingLabels).each( function(index, value) {
-    let ratingScore = $("input[type='hidden'][name='rating']").val() / 2;
-    let label = $(this);
-    label.starRating({
-      initialRating: ratingScore,
-      starSize: 20,
-      onHover: function(currentIndex, currentRating, $el){
-        $("input[type='hidden'][name='rating']").val(currentIndex);
-      },
-      onLeave: function(currentIndex, currentRating, $el){
-        $("input[type='hidden'][name='rating']").val(currentRating * 2);
-      }
+    _privateMethods.init(configs);
+    // return false;
+  }
+  (function () {
+    new inputTags({
+      container: document.getElementsByClassName("tag-input")[0],
+      tags: "{{ tags }}".split(","),
+      allowDuplicateTags: false,
+      duplicateTime: 300,
+      onTagRemove: function (tag) { },
     });
-  });
-
-  //show date picker if mark yesterday
-  $("#modal #mark_anotherday").on('click', function(e) {
-    if ($("#modal #mark_anotherday:checked").val() == '1') {
-      $("#modal #mark_date").show()
-    } else {
-      $("#modal #mark_date").hide()
-    }
-  });
-
-  // hide rating star when select wish
-  const WISH_CODE = "wishlist";
-  if ($("#statusSelection input[type='radio']:checked").val() == WISH_CODE) {
-    $("#modal .rating-star-edit").hide();
-  }
-  $("#statusSelection input[type='radio']").on('click', function() {
-    if ($(this).val() == WISH_CODE) {
-      $("#modal .rating-star-edit").hide();
-    } else {
-      $("#modal .rating-star-edit").show();
-    }
-
-  });
-
-// show confirm modal
-  $("#modal a.delete").on('click', function(e) {
-    e.preventDefault();
-    $(".confirm-modal").show();
-    $(".bg-mask").show();
-  });
-
-// confirm modal
-  $(".confirm-modal input[type='submit']").on('click', function(e) {
-    e.preventDefault();
-    $("#modal form").submit();
-  });
-})();
+  })();
 </script>

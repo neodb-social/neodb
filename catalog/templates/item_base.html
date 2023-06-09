@@ -58,7 +58,7 @@
               {% if v %}
                 <button class="primary"
                         data-status="{{ k }}"
-                        hx-get="{% url 'journal:mark' item.uuid %}?shelf_type={{ k }}&new=1"
+                        hx-get="{% url 'journal:mark' item.uuid %}?shelf_type={{ k }}"
                         hx-target="body"
                         hx-swap="beforeend">{% trans v %}</button>
               {% endif %}
@@ -86,7 +86,7 @@
         <div id="item-primary-mark" class="right mark">
           <div class="item-action">
             <button class="outline edit"
-                    hx-get="{% url 'journal:mark' item.uuid %}?new=1"
+                    hx-get="{% url 'journal:mark' item.uuid %}"
                     hx-target="body"
                     hx-swap="beforeend">
               {{ mark.created_time | date }} {% trans mark.action_label %}
@@ -111,7 +111,7 @@
               我的标签
               <small>
                 <a href="#"
-                   hx-get="{% url 'journal:mark' item.uuid %}?new=1"
+                   hx-get="{% url 'journal:mark' item.uuid %}"
                    class="item-mark-icon"
                    hx-target="body"
                    hx-swap="beforeend">
@@ -136,7 +136,7 @@
               我的短评
               <small>
                 <a href="#"
-                   hx-get="{% url 'journal:mark' item.uuid %}?new=1"
+                   hx-get="{% url 'journal:mark' item.uuid %}"
                    class="item-mark-icon"
                    hx-target="body"
                    hx-swap="beforeend">
@@ -208,7 +208,7 @@
               我的收藏单
               <small>
                 <a href="#"
-                   hx-get="{% url 'journal:add_to_collection' item.uuid %}?new=1"
+                   hx-get="{% url 'journal:add_to_collection' item.uuid %}"
                    class="edit"
                    hx-target="body"
                    hx-swap="beforeend">

@@ -39,17 +39,17 @@ def fetch_refresh(request, job_id):
         item_url = "-"
     if item_url:
         if item_url == "-":
-            return render(request, "fetch_failed.html")
+            return render(request, "_fetch_failed.html")
         else:
             return HTTPResponseHXRedirect(item_url)
     else:
         retry = int(request.GET.get("retry", 0)) + 1
         if retry > 10:
-            return render(request, "fetch_failed.html")
+            return render(request, "_fetch_failed.html")
         else:
             return render(
                 request,
-                "fetch_refresh.html",
+                "_fetch_refresh.html",
                 {"job_id": job_id, "retry": retry, "delay": retry * 2},
             )
 
