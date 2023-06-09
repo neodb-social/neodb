@@ -279,7 +279,7 @@
               {% endif %}
             </div>
           {% endif %}
-          <div class="rating{% if not item.rating %} unavailable{% endif %}">
+          <div class="rating solo-hidden {% if not item.rating %}unavailable{% endif %}">
             <div class="display">
               <div>
                 <hgroup>
@@ -313,7 +313,7 @@
               <span>评分人数不足</span>
             </div>
           </div>
-          <div class="tag-list">
+          <div class="tag-list solo-hidden">
             {% for tag in item.tags %}
               <span>
                 <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
@@ -364,7 +364,7 @@
           {% endif %}
           {% block content %}{% endblock %}
         </section>
-        <section>
+        <section class="solo-hidden">
           <h5>
             短评
             {% if request.user.is_authenticated %}
@@ -386,7 +386,7 @@
             <p class="empty">登录后可见</p>
           {% endif %}
         </section>
-        <section class="entity-reviews">
+        <section class="solo-hidden">
           <h5>
             {% trans '评论' %}
             {% comment %}

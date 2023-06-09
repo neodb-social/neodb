@@ -124,17 +124,23 @@
           <section>
             <details>
               <summary>{% trans '当前设备设置' %}</summary>
+              <h6>专注模式 (实验功能)</h6>
+              <p>
+                <input type="checkbox" id="solo_mode">
+                <label for="solo_mode">启用专注模式后搜索和条目页面将不再显示来自他人的评价和打分</label>
+              </p>
               <h6>自定义样式代码 (实验功能)</h6>
               <textarea id="user_style"></textarea>
               <br>
-              <button onclick="localStorage.setItem('user_style', document.getElementById('user_style').value);location.reload();">
-                保存
-              </button>
+              <button onclick="save_local();">保存</button>
             </details>
             <script>
-              const s = localStorage.getItem("user_style");
-              if (s) {
-                document.getElementById("user_style").value = s;
+              $("#user_style").val(localStorage.getItem("user_style")||"");
+              $("#solo_mode").prop("checked", localStorage.getItem("solo_mode")=="1");
+              function save_local() {
+                localStorage.setItem("user_style", $("#user_style").val());
+                localStorage.setItem("solo_mode", $("#solo_mode").prop("checked")?"1":"0");
+                alert("本地设置已保存");
               }
             </script>
           </section>

@@ -43,6 +43,12 @@
     style.innerHTML = s;
     document.head.appendChild(style);
   }
+  const solo = localStorage.getItem("solo_mode");
+  if (solo) {
+    const style = document.createElement("style");
+    style.innerHTML = ".solo-hidden {display: none;}";
+    document.head.appendChild(style);
+  }
 })();
 </script>
 <link rel="icon" href="{% static 'img/logo-icon.png' %}">
