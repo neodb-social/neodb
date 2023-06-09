@@ -147,11 +147,22 @@ class TVShow(Item):
         blank=True,
         default=list,
         schema={
-            "type": "array",
+            "type": "list",
             "items": {
                 "type": "dict",
                 "additionalProperties": False,
-                "keys": ["region", "time"],
+                "keys": {
+                    "time": {
+                        "type": "string",
+                        "title": _("日期"),
+                        "placeholder": _("必填"),
+                    },
+                    "region": {
+                        "type": "string",
+                        "title": _("区域或类型"),
+                        "placeholder": _("如中国大陆或柏林电影节"),
+                    },
+                },
                 "required": ["time"],
             },
         },
@@ -292,11 +303,22 @@ class TVSeason(Item):
         blank=True,
         default=list,
         schema={
-            "type": "array",
+            "type": "list",
             "items": {
                 "type": "dict",
                 "additionalProperties": False,
-                "keys": ["region", "time"],
+                "keys": {
+                    "time": {
+                        "type": "string",
+                        "title": _("日期"),
+                        "placeholder": _("必填"),
+                    },
+                    "region": {
+                        "type": "string",
+                        "title": _("区域或类型"),
+                        "placeholder": _("如中国大陆或柏林电影节"),
+                    },
+                },
                 "required": ["time"],
             },
         },
