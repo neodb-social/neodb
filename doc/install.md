@@ -77,8 +77,7 @@ python3 manage.py migrate
 
 Rebuild static assets
 ```
-python3 manage.py sass common/static/sass/boofilsic.sass common/static/css/boofilsic.min.css -t compressed
-python3 manage.py sass common/static/sass/boofilsic.sass common/static/css/boofilsic.css
+python3 manage.py compilescss
 python3 manage.py collectstatic
 ```
 
