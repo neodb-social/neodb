@@ -46,6 +46,8 @@ def query_index(keywords, category=None, tag=None, page=1, prepare_external=True
     for i in result.items:
         if i.is_deleted or i.merged_to_item:  # only happen if index is delayed
             continue
+        if i.class_name == "work":  # TODO: add searchable_item_class global config
+            continue
         my_key = (
             [i.isbn]
             if hasattr(i, "isbn")
