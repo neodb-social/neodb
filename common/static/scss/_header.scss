@@ -142,20 +142,18 @@ body {
     padding-top: 0.4em !important;
     text-align: center;
     margin-bottom: 4px !important;
-    width: 100%;
 
-    .footer__border {
-      width: 100%;
+    >div {
       padding-top: 4px;
-    }
 
-    .footer__link {
-      margin: 0 12px;
-      white-space: nowrap;
-      min-width: 15vw;
+      >div {
+        white-space: nowrap;
+        min-width: 15vw;
+      }
     }
 
     @media (min-width: 769px) {
+      width: 60%;
       clear: both;
       position: absolute !important;
       left: 50%;
