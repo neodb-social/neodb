@@ -48,7 +48,9 @@
             {% if not item or item.editable or request.user.is_staff %}
               <input type="submit" value="{% trans '保存' %}">
             {% endif %}
-            <input type="reset" value="{% trans '返回' %}" onclick="history.go(-1);">
+            <input type="reset"
+                   value="{% trans '返回' %}"
+                   onclick="{% if item %}window.location='{{ item.url }}'{% else %}history.go(-1){% endif %}">
           </div>
         </form>
       </div>

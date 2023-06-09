@@ -360,7 +360,6 @@ class PerformanceProduction(Item):
         return self.show
 
     def set_parent_item(self, value):
-        print("set", value)
         self.show = value
 
     @property

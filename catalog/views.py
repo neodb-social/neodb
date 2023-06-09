@@ -291,7 +291,8 @@ def assign_parent(request, item_path, item_uuid):
     if not request.user.is_staff and item.parent_item:
         raise BadRequest("Already assigned to a parent item")
     _logger.warn(f"{request.user} assign {item} to {parent_item}")
-    item.set_parent_item(parent_item, save=True)
+    item.set_parent_item(parent_item)
+    item.save()
     return redirect(item.url)
 
 
