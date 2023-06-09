@@ -1,0 +1,30 @@
+&>footer {
+  text-align: center;
+  margin-bottom: 4px;
+  width: 80%;
+  transform: translateX(-50%);
+  position: absolute;
+  width: 60%;
+  clear: both;
+  left: 50%;
+
+  @media (max-width: 768px) {
+    width: 80%;
+  }
+
+  >div.grid {
+    padding-top: 4px;
+
+    @media (max-width: 768px) {
+      grid-row-gap: unset;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+
+    >div {
+      white-space: nowrap;
+      min-width: 15vw;
+    }
+  }
+
+}

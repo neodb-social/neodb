@@ -98,10 +98,8 @@ body {
     }
   }
 
-
+  //pack for small phones like iPhone 5s
   @media (max-width: 320px) {
-
-    //pack for small phones like iPhone 5s
     .nav-dropdown {
       li {
         padding-left: 0;
@@ -114,7 +112,6 @@ body {
         details.dropdown summary::after {
           width: 0;
         }
-
       }
     }
   }
@@ -152,35 +149,5 @@ body {
       flex-basis: 100%;
       width: 0;
     }
-
-    // .nav-dropdown {
-    //   margin-right: 0 !important;
-    // }
   }
-
-
-
-  &>footer {
-    padding-top: 0.4em !important;
-    text-align: center;
-    margin-bottom: 4px !important;
-
-    >div {
-      padding-top: 4px;
-
-      >div {
-        white-space: nowrap;
-        min-width: 15vw;
-      }
-    }
-
-    @media (min-width: 769px) {
-      width: 60%;
-      clear: both;
-      position: absolute !important;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-  }
-
 }
