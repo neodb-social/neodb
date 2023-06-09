@@ -3,9 +3,7 @@
 {% load l10n %}
 <div class="item-list sortable">
   {% for member in collection.ordered_members %}
-    {% with "list_item_"|add:member.item.class_name|add:".html" as template %}
-      {% include template with item=member.item mark=None collection_member=member %}
-    {% endwith %}
+    {% include '_list_item.html' with item=member.item mark=None collection_member=member %}
   {% empty %}
     暂无条目
   {% endfor %}

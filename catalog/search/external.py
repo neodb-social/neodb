@@ -15,9 +15,15 @@ class SearchResultItem:
     def __init__(
         self, category, source_site, source_url, title, subtitle, brief, cover_url
     ):
+        self.class_name = "base"
         self.category = category
         self.external_resources = {
-            "all": [{"url": source_url, "site_name": {"label": source_site}}]
+            "all": [
+                {
+                    "url": source_url,
+                    "site_name": {"label": source_site, "value": source_site},
+                }
+            ]
         }
         self.source_site = source_site
         self.source_url = source_url

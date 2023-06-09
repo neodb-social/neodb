@@ -26,6 +26,10 @@
         <img src="{{ item.cover_image_url }}" alt="cover" />
       </a>
     </div>
-    <div>{% include "_item_card_metadata.html" %}</div>
+    <div>
+      {% with "_item_card_metadata_"|add:item.class_name|add:".html" as template %}
+        {% include template %}
+      {% endwith %}
+    </div>
   </div>
 {% endif %}

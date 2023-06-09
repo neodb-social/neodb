@@ -154,3 +154,10 @@ form img {
   border: 2px solid var(--pico-primary);
   -webkit-transition: ease-out 0.2s;
 }
+
+.multi-fields {
+  >span:not(:first-child):before {
+    content: "/";
+    margin: 0 0.5em;
+  }
+}

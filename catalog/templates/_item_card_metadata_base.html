@@ -1,0 +1,57 @@
+{% load highlight %}
+{% load humanize %}
+{% load i18n %}
+<hgroup>
+  <h5>
+    <a href="{{ item.url }}">
+      {% if request.GET.q %}
+        {{ item.display_title | highlight:request.GET.q }}
+      {% else %}
+        {{ item.display_title }}
+      {% endif %}
+    </a>
+    <small>
+      {% if item.year %}({{ item.year }}){% endif %}
+      {% if not hide_category %}<span class="category">[{{ item.category.label }}]</span>{% endif %}
+      <span class="site-list">
+        {% for res in item.external_resources.all %}
+          <a href="{{ res.url }}" class="{{ res.site_name.value }}">{{ res.site_name.label }}</a>
+        {% endfor %}
+      </span>
+    </small>
+  </h5>
+  <small>
+    {% if item.subtitle %}<span>{{ item.subtitle }}</span>{% endif %}
+    {% if item.orig_title %}
+      <span>
+        {{ item.orig_title }}
+        {% if item.season_number %}Season {{ item.season_number }}{% endif %}
+      </span>
+    {% endif %}
+    {% if item.parent_item %}
+      <span>所属{{ item.parent_item.type.label }}：<a href="{{ item.parent_item.url }}">{{ item.parent_item.title }}</a></span>
+    {% endif %}
+  </small>
+</hgroup>
+<div>
+  <div class="brief">
+    {% block brief %}
+    {% endblock brief %}
+  </div>
+  <div class="full">
+    {% block full %}
+      {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+    {% endblock full %}
+  </div>
+  {% if show_tags %}
+    <div class="tag-list">
+      {% for tag in item.tags %}
+        {% if forloop.counter <= 5 %}
+          <span>
+            <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
+          </span>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

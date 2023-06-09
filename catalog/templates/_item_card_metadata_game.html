@@ -1,0 +1,23 @@
+{% extends "_item_card_metadata_base.html" %}
+{% load humanize %}
+{% load i18n %}
+{% block brief %}
+  <div class="multi-fields">
+    {% if item.rating %}<span>{{ item.rating | floatformat:1 }}分({{ item.rating_count }}人)</span>{% endif %}
+    {% if item.other_title %}
+      {% include '_people.html' with people=item.other_title role='又名' max=2 %}
+    {% endif %}
+    {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
+  </div>
+{% endblock brief %}
+{% block full %}
+  <div class="multi-fields">
+    {% include '_people.html' with people=item.genre role='类型' max=2 %}
+    {% include '_people.html' with people=item.platform role='平台' max=5 %}
+    {% include '_people.html' with people=item.developer role='研发' max=2 %}
+    {% include '_people.html' with people=item.publisher role='发行' max=2 %}
+  </div>
+  <div>
+    {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+  </div>
+{% endblock full %}

@@ -1,0 +1,25 @@
+{% extends "_item_card_metadata_base.html" %}
+{% load humanize %}
+{% load i18n %}
+{% block brief %}
+  <div class="multi-fields">
+    {% if item.rating %}<span>{{ item.rating | floatformat:1 }}分({{ item.rating_count }}人)</span>{% endif %}
+    {% include '_people.html' with people=item.genre role='类型' max=2 %}
+    {% include '_people.html' with people=item.language role='语言' max=5 %}
+    {% include '_people.html' with people=item.troupe role='剧团' max=2 %}
+    {% include '_people.html' with people=item.location role='剧院' max=2 %}
+    {% include '_people.html' with people=item.director role='导演' max=2 %}
+    {% include '_people.html' with people=item.orig_creator role='原作' max=2 %}
+  </div>
+{% endblock brief %}
+{% block full %}
+  <div class="multi-fields">
+    {% include '_people.html' with people=item.other_title role='又名' max=2 %}
+    {% include '_people.html' with people=item.playwright role='编剧' max=2 %}
+    {% include '_people.html' with people=item.composer role='作曲' max=2 %}
+    {% include '_people.html' with people=item.choreographer role='编舞' max=2 %}
+    {% include '_actor.html' with people=item.actor role='主演' max=2 %}
+    {% include '_people.html' with people=item.performer role='表演者' max=2 %}
+  </div>
+  {% if not hide_brief %}{{ item.brief | default:item.parent_item.brief | linebreaksbr }}{% endif %}
+{% endblock full %}

@@ -9,6 +9,10 @@
     </a>
   </div>
   <footer>
-    <div>{% include "_item_card_metadata.html" with hide_brief=1 hide_category=1 %}</div>
+    <div>
+      {% with "_item_card_metadata_"|add:item.class_name|add:".html" as template %}
+        {% include template with hide_brief=1 hide_category=1 %}
+      {% endwith %}
+    </div>
   </footer>
 </article>

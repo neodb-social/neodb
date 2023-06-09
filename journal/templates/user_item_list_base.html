@@ -23,9 +23,7 @@
         </h5>
         <div>
           {% for member in members %}
-            {% with "list_item_"|add:member.item.class_name|add:".html" as template %}
-              {% include template with item=member.item mark=member.mark hide_category=True %}
-            {% endwith %}
+            {% include "_list_item.html" with item=member.item mark=member.mark hide_category=True %}
           {% empty %}
             <div>{% trans '无结果' %}</div>
           {% endfor %}
