@@ -122,6 +122,16 @@ def retrieve(request, item_path, item_uuid):
     )
 
 
+def _add_error_map_detail(e):
+    e.additonal_detail = []
+    for f, v in e.as_data().items():
+        for validation_error in v:
+            if hasattr(validation_error, "error_map") and validation_error.error_map:
+                for f2, v2 in validation_error.error_map.items():
+                    e.additonal_detail.append(f"{f}§{f2}: {'; '.join(v2)}")
+    return e
+
+
 @login_required
 def create(request, item_model):
     form_cls = CatalogForms.get(item_model)
@@ -159,7 +169,7 @@ def create(request, item_model):
             form.instance.save()
             return redirect(form.instance.url)
         else:
-            raise BadRequest(form.errors)
+            raise BadRequest(_add_error_map_detail(form.errors))
     else:
         raise BadRequest("Invalid request method")
 
@@ -195,14 +205,7 @@ def edit(request, item_path, item_uuid):
             form.instance.save()
             return redirect(form.instance.url)
         else:
-            e = form.errors
-            e.additonal_detail = []
-            for f, v in e.as_data().items():
-                for validation_error in v:
-                    if hasattr(validation_error, "error_map"):
-                        for f2, v2 in validation_error.error_map.items():
-                            e.additonal_detail.append(f"{f}§{f2}: {'; '.join(v2)}")
-            raise BadRequest(e)
+            raise BadRequest(_add_error_map_detail(form.errors))
     else:
         raise BadRequest()
 
