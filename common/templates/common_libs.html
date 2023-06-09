@@ -43,7 +43,7 @@
     style.innerHTML = s;
     document.head.appendChild(style);
   }
-  const solo = localStorage.getItem("solo_mode");
+  const solo = localStorage.getItem("solo_mode")=="1";
   if (solo) {
     const style = document.createElement("style");
     style.innerHTML = ".solo-hidden {display: none;}";
