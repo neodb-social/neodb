@@ -126,6 +126,7 @@ class AbstractSite:
 
     @classmethod
     def match_or_create_item_for_resource(cls, resource):
+        previous_item = resource.item
         resource.item = cls.match_existing_item_for_resource(resource)
         if resource.item is None:
             model = cls.get_model_for_resource(resource)
@@ -136,6 +137,8 @@ class AbstractSite:
             obj["primary_lookup_id_type"] = t
             obj["primary_lookup_id_value"] = v
             resource.item = model.objects.create(**obj)
+        if previous_item != resource.item:
+            resource.save(update_fields=["item"])
         return resource.item
 
     def get_item(self):
