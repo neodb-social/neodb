@@ -8,7 +8,7 @@ from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotEx
 from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
-from catalog.common.models import ExternalResource, IdealIdTypes
+from catalog.common.models import ExternalResource, IdType, IdealIdTypes
 from .models import *
 from django.views.decorators.clickjacking import xframe_options_exempt
 from journal.models import Mark, ShelfMember, Review, Comment, query_item_category
@@ -232,6 +232,12 @@ def recast(request, item_path, item_uuid):
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     cls = request.POST.get("class")
+    # TODO move some of the logic to model
+    douban_movie_to_tvseason = False
+    if cls == "tvshow":
+        if item.external_resources.filter(id_type=IdType.DoubanMovie).exists():
+            cls = "tvseason"
+            douban_movie_to_tvseason = True
     model = (
         TVShow
         if cls == "tvshow"
@@ -248,6 +254,12 @@ def recast(request, item_path, item_uuid):
             season.show = None
             season.save(update_fields=["show"])
     new_item = item.recast_to(model)
+    if douban_movie_to_tvseason:
+        for res in item.external_resources.filter(
+            id_type__in=[IdType.IMDB, IdType.TMDB_TV]
+        ):
+            res.item = None
+            res.save(update_fields=["item"])
     return redirect(new_item.url)
 
 
