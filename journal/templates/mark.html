@@ -70,8 +70,11 @@
         </div>
         <div class="mark-modal__tag">
           <div class="tag-input">
-            <input name="tags" type="text" placeholder="回车增加标签" id="id_tags" value="">
-            <!-- {{ tags }} -->
+            <input name="tags"
+                   type="text"
+                   placeholder="回车增加标签"
+                   id="tags_input"
+                   data-initial-value="{{ tags }}">
           </div>
         </div>
         <div class="grid">
@@ -306,7 +309,7 @@
   (function () {
     new inputTags({
       container: document.getElementsByClassName("tag-input")[0],
-      tags: "{{ tags }}".split(","),
+      tags: $("#tags_input").data("initial-value").split(","),
       allowDuplicateTags: false,
       duplicateTime: 300,
       onTagRemove: function (tag) { },
