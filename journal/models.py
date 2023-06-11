@@ -333,7 +333,7 @@ class Rating(Content):
 
     @staticmethod
     def get_rating_for_item(item):
-        ids = [i.id for i in item.child_items] + [item.id]
+        ids = item.child_item_ids + [item.id]
         stat = Rating.objects.filter(item_id__in=ids, grade__isnull=False).aggregate(
             average=Avg("grade"), count=Count("item")
         )

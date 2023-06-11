@@ -1,10 +1,10 @@
 body>footer {
+  font-size: 80%;
   text-align: center;
   margin-bottom: 4px;
-  width: 80%;
+  width: 60%;
   transform: translateX(-50%);
   position: absolute;
-  width: 60%;
   clear: both;
   left: 50%;
 
@@ -14,9 +14,10 @@ body>footer {
 
   >div.grid {
     padding-top: 4px;
+    padding-left: 15%;
+    padding-right: 15%;
 
     @media (max-width: 768px) {
-      grid-row-gap: unset;
       grid-template-columns: 1fr 1fr 1fr;
     }
 

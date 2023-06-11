@@ -310,7 +310,11 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @property
     def child_items(self):
-        return []
+        return Item.objects.none()
+
+    @property
+    def child_item_ids(self):
+        return list(self.child_items.values_list("id", flat=True))
 
     def set_parent_item(self, value):
         raise ValueError("cannot set parent item")
