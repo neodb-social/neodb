@@ -341,7 +341,8 @@ class Rating(Content):
 
     @staticmethod
     def get_rating_count_for_item(item):
-        stat = Rating.objects.filter(item=item, grade__isnull=False).aggregate(
+        ids = item.child_item_ids + [item.id]
+        stat = Rating.objects.filter(item_id__in=ids, grade__isnull=False).aggregate(
             count=Count("item")
         )
         return stat["count"]
