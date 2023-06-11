@@ -69,7 +69,7 @@ def export_marks_task(user):
             world_rating = (movie.rating / 2) if movie.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
             my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
-            text = mark.text
+            text = mark.comment_text
             source_url = _get_source_url(movie)
             url = movie.absolute_url
             line = [
@@ -109,7 +109,7 @@ def export_marks_task(user):
             world_rating = (album.rating / 2) if album.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
             my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
-            text = mark.text
+            text = mark.comment_text
             source_url = _get_source_url(album)
             url = album.absolute_url
             line = [
@@ -151,7 +151,7 @@ def export_marks_task(user):
             world_rating = (book.rating / 2) if book.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
             my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
-            text = mark.text
+            text = mark.comment_text
             source_url = _get_source_url(book)
             url = book.absolute_url
             line = [
@@ -193,7 +193,7 @@ def export_marks_task(user):
             world_rating = (game.rating / 2) if game.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
             my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
-            text = mark.text
+            text = mark.comment_text
             source_url = _get_source_url(game)
             url = game.absolute_url
             line = [
@@ -229,7 +229,7 @@ def export_marks_task(user):
             world_rating = (podcast.rating / 2) if podcast.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
             my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
-            text = mark.text
+            text = mark.comment_text
             source_url = _get_source_url(podcast)
             url = podcast.absolute_url
             line = [
