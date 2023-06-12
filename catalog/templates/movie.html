@@ -12,13 +12,6 @@
 <!-- class specific details -->
 {% block details %}
   <div>
-    {% if item.imdb %}
-      {% trans 'IMDb：' %}<a href="https://www.imdb.com/title/{{ item.imdb }}/"
-   target="_blank"
-   rel="noopener">{{ item.imdb }}</a>
-    {% endif %}
-  </div>
-  <div>
     {% if item.director %}
       {% trans '导演：' %}
       {% for director in item.director %}
@@ -30,13 +23,12 @@
       {% if item.director|length > 5 %}
         <a href="javascript:void(0);" id="directorMore">{% trans '更多' %}</a>
         <script>
-			$("#directorMore").on('click', function (e) {
-				$("span.director:not(:visible)").each(function (e) {
-					$(this).parent().removeAttr('style');
-				});
-				$(this).remove();
-			})
-
+        $("#directorMore").on('click', function (e) {
+          $("span.director:not(:visible)").each(function (e) {
+            $(this).parent().removeAttr('style');
+          });
+          $(this).remove();
+        })
         </script>
       {% endif %}
     {% endif %}
@@ -152,6 +144,13 @@
         <span>{{ t }}</span>
         {% if not forloop.last %}/{% endif %}
       {% endfor %}
+    {% endif %}
+  </div>
+  <div>
+    {% if item.imdb %}
+      {% trans 'IMDb：' %}<a href="https://www.imdb.com/title/{{ item.imdb }}/"
+   target="_blank"
+   rel="noopener">{{ item.imdb }}</a>
     {% endif %}
   </div>
   <div>

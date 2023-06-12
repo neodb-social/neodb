@@ -1296,4 +1296,4 @@ def journal_exists_for_item(item):
     return False
 
 
-Item.journal_exist = property(journal_exists_for_item)
+Item.journal_exists = journal_exists_for_item

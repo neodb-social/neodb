@@ -280,8 +280,12 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         ]
 
     def clear(self):
+        self.set_parent_item(None)
         self.primary_lookup_id_value = None
         self.primary_lookup_id_type = None
+        for res in self.external_resources.all():
+            res.item = None
+            res.save()
 
     def __str__(self):
         return f"{self.__class__.__name__}|{self.id}|{self.uuid} {self.primary_lookup_id_type}:{self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
@@ -317,7 +321,8 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return list(self.child_items.values_list("id", flat=True))
 
     def set_parent_item(self, value):
-        raise ValueError("cannot set parent item")
+        # raise ValueError("cannot set parent item")
+        pass
 
     @property
     def parent_uuid(self):

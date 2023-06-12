@@ -73,7 +73,7 @@ def retrieve(request, item_path, item_uuid):
     item_url = f"/{item_path}/{item_uuid}"
     if item.url != item_url:
         return redirect(item.url)
-    skipcheck = request.GET.get("skipcheck", False) and request.user.is_staff
+    skipcheck = request.GET.get("skipcheck", False) and request.user.is_authenticated
     if not skipcheck and item.merged_to_item:
         return redirect(item.merged_to_item.url)
     if not skipcheck and item.is_deleted:
@@ -119,6 +119,16 @@ def retrieve(request, item_path, item_uuid):
             "collection_list": collection_list,
             "shelf_types": shelf_types,
         },
+    )
+
+
+def episode_data(request, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    qs = item.episodes.all().order_by("-pub_date")
+    if request.GET.get("last"):
+        qs = qs.filter(pub_date__lt=request.GET.get("last"))
+    return render(
+        request, "podcast_episode_data.html", {"item": item, "episodes": qs[:5]}
     )
 
 
@@ -215,11 +225,8 @@ def delete(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not request.user.is_staff and item.journal_exist:
+    if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied()
-    for res in item.external_resources.all():
-        res.item = None
-        res.save()
     item.delete()
     return (
         redirect(item.url + "?skipcheck=1") if request.user.is_staff else redirect("/")
@@ -297,11 +304,22 @@ def assign_parent(request, item_path, item_uuid):
 
 
 @login_required
+def remove_unused_seasons(request, item_path, item_uuid):
+    if request.method != "POST":
+        raise BadRequest()
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    for s in item.seasons.all():
+        if not s.journal_exists():
+            s.delete()
+    return redirect(item.url)
+
+
+@login_required
 def merge(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not request.user.is_staff and item.journal_exist:
+    if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied()
     if request.POST.get("new_item_url"):
         new_item = Item.get_by_url(request.POST.get("new_item_url"))
@@ -321,16 +339,6 @@ def merge(request, item_path, item_uuid):
             item.merged_to_item = None
             item.save()
         return redirect(item.url)
-
-
-def episode_data(request, item_uuid):
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    qs = item.episodes.all().order_by("-pub_date")
-    if request.GET.get("last"):
-        qs = qs.filter(pub_date__lt=request.GET.get("last"))
-    return render(
-        request, "podcast_episode_data.html", {"item": item, "episodes": qs[:5]}
-    )
 
 
 @login_required
@@ -387,7 +395,7 @@ def comments(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
         raise Http404()
-    ids = list(item.child_item_ids) + [item.id]
+    ids = item.child_item_ids + [item.id]
     queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
     queryset = queryset.filter(query_visible(request.user))
     before_time = request.GET.get("last")
@@ -408,7 +416,7 @@ def reviews(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
         raise Http404()
-    ids = list(item.child_item_ids) + [item.id]
+    ids = item.child_item_ids + [item.id]
     queryset = Review.objects.filter(item_id__in=ids).order_by("-created_time")
     queryset = queryset.filter(query_visible(request.user))
     before_time = request.GET.get("last")

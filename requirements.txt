@@ -1,5 +1,5 @@
 dateparser
-mistune>=3.0.0
+mistune
 rq>=1.12.0
 django~=3.2.19
 django-auditlog
@@ -20,7 +20,6 @@ django-tz-detect
 django-bleach
 django-redis
 django-oauth-toolkit
-meilisearch
 easy-thumbnails
 lxml
 openpyxl
@@ -36,5 +35,5 @@ markdownify
 igdb-api-v4
 podcastparser
 listparser
-fontawesomefree~=6.4.0
+fontawesomefree
 discord.py
