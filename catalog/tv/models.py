@@ -243,6 +243,7 @@ class TVSeason(Item):
     METADATA_COPY_LIST = [
         "title",
         "season_number",
+        "episode_count",
         "orig_title",
         "other_title",
         "director",
@@ -255,7 +256,6 @@ class TVSeason(Item):
         "language",
         "year",
         "duration",
-        "episode_count",
         "single_episode_length",
         "brief",
     ]

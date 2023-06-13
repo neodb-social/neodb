@@ -6,6 +6,20 @@
 {% load truncate %}
 {% if item %}
   <h5>进阶编辑选项</h5>
+  {% if item.is_deleted %}<p>🚫 条目已被删除</p>{% endif %}
+  {% if item.child_items %}<p>🚫 条目下已有子项</p>{% endif %}
+  {% if item.merged_to_item %}<p>🚫 条目已被合并到其他条目</p>{% endif %}
+  {% if item.journal_exists %}<p>🚸 条目已被用户标记过</p>{% endif %}
+  {% for i in item.merged_from_items.all %}
+    {% if forloop.first %}
+      🚸 以下条目被并入本条目：
+      <ul>
+      {% endif %}
+      <li>
+        <a href="{{ i.url }}?skipcheck=1">{{ i.title }}</a>
+      </li>
+      {% if forloop.last %}</ul>{% endif %}
+  {% endfor %}
   {% if item.editable or request.user.is_staff %}
     {% for res in form.instance.external_resources.all %}
       <details>
@@ -53,7 +67,6 @@
           <input class="contrast" type="submit" value="{% trans '更改为剧集' %}">
         </form>
       {% elif item.class_name == "tvshow" %}
-        {% if item.all_seasons %}<i>⛔️ 条目下已有子项</i>{% endif %}
         {% if not item.all_seasons or request.user.is_staff %}
           {% comment %} <form method="post" action="{% url 'catalog:recast' item.url_path item.uuid %}" onsubmit="return confirm('确认切换吗？');">
             {% csrf_token %}
@@ -72,45 +85,38 @@
         <i>此类条目无法切换</i>
       {% endif %}
     </details>
-    {% if item.is_deleted and not request.user.is_staff %}
-      <i>⛔️ 条目已被删除</i>
-    {% elif item.merged_to_item and not request.user.is_staff %}
-      <i>⛔️ 条目已被合并</i>
-    {% elif item.journal_exists and not request.user.is_staff %}
-      <i>⛔️ 条目已被用户标记过</i>
-    {% else %}
-      {% if item.class_name == "tvseason" or item.class_name == "performanceproduction" %}
-        {% if not item.show or request.user.is_superuser %}
-          <details>
-            <summary>将{{ item.type.label }}关联到上一级条目</summary>
-            <form method="post"
-                  action="{% url 'catalog:assign_parent' item.url_path item.uuid %}"
-                  onsubmit="return confirm('本操作不可撤销。确认关联吗？');">
-              {% csrf_token %}
-              <input type="url"
-                     name="parent_item_url"
-                     placeholder="目标条目URL"
-                     value="{{ item.show.absolute_url }}"
-                     required>
-              <br>
-              <input class="contrast" type="submit" value="{% trans '更新关联' %}">
-            </form>
-          </details>
-        {% endif %}
-      {% elif item.class_name == "tvshow" %}
+    {% if item.class_name == "tvseason" or item.class_name == "performanceproduction" %}
+      {% if not item.show or request.user.is_staff %}
         <details>
-          <summary>清理单季</summary>
+          <summary>关联到上一级条目</summary>
           <form method="post"
-                action="{% url 'catalog:remove_unused_seasons' item.url_path item.uuid %}"
-                onsubmit="return confirm('本操作不可撤销。确认删除吗？');">
+                action="{% url 'catalog:assign_parent' item.url_path item.uuid %}"
+                onsubmit="return confirm('本操作不可撤销。确认关联吗？');">
             {% csrf_token %}
-            <input class="contrast" type="submit" value="{% trans '删除未被标记的单季' %}">
+            <input type="url"
+                   name="parent_item_url"
+                   placeholder="目标条目URL，留空则取消现有关联"
+                   value="{{ item.show.absolute_url }}">
+            <br>
+            <input class="contrast" type="submit" value="{% trans '更新关联' %}">
           </form>
         </details>
       {% endif %}
+    {% endif %}
+    {% if item.class_name == "tvshow" %}
       <details>
-        <summary>{% trans '合并到同类另一条目' %}</summary>
-        {% if item.journal_exists %}<i>🚸 条目已被用户标记过</i>{% endif %}
+        <summary>清理单季</summary>
+        <form method="post"
+              action="{% url 'catalog:remove_unused_seasons' item.url_path item.uuid %}"
+              onsubmit="return confirm('本操作不可撤销。确认删除吗？');">
+          {% csrf_token %}
+          <input class="contrast" type="submit" value="{% trans '删除未被标记的单季' %}">
+        </form>
+      </details>
+    {% endif %}
+    {% if not item.journal_exists or request.user.is_staff %}
+      <details>
+        <summary>{% trans '合并' %}</summary>
         <form method="post"
               action="{% url 'catalog:merge' item.url_path item.uuid %}"
               onsubmit="return confirm('本操作不可撤销。确认合并吗？');">
@@ -120,18 +126,8 @@
                  placeholder="目标条目URL，留空则取消现有合并"
                  value="{{ item.merged_to_item.absolute_url }}">
           <br>
-          <input class="contrast" type="submit" value="{% trans '合并' %}">
+          <input class="contrast" type="submit" value="{% trans '合并到同类另一条目' %}">
         </form>
-        {% for i in item.merged_from_items.all %}
-          {% if forloop.first %}
-            从以下条目合并而来：
-            <ul>
-            {% endif %}
-            <li>
-              <a href="{{ i.url }}?skipcheck=1">{{ i.title }}</a>
-            </li>
-            {% if forloop.last %}</ul>{% endif %}
-        {% endfor %}
       </details>
       <details>
         <summary>{% trans '删除' %}</summary>
