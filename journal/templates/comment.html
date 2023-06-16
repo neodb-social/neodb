@@ -13,15 +13,14 @@
   <div class="modal-underlay" _="on click trigger closeModal"></div>
   <div class="modal-content" style="font-size: 80%;">
     <div class="add-to-list-modal__head">
-      <span class="add-to-list-modal__title"><small>{% trans '评论单集' %} {{ item.title }}: {{ focus_item.title }}</small></span>
+      <span class="add-to-list-modal__title"><small>{% trans '评论' %} {{ item.parent_item.title }}: {{ item.title }}</small></span>
       <span class="add-to-list-modal__close-button modal-close"
             _="on click trigger closeModal">
         <i class="fa-solid fa-xmark"></i>
       </span>
     </div>
     <div class="add-to-list-modal__body">
-      <form action="{% url 'journal:comment' item.uuid focus_item.uuid %}"
-            method="post">
+      <form action="{% url 'journal:comment' item.uuid %}" method="post">
         {% csrf_token %}
         <textarea name="text"
                   cols="40"
@@ -85,7 +84,7 @@
         <div class="mark-modal__confirm-button">
           <input type="submit" class="button float-right" value="保存">
         </div>
-        <div class="mark-modal__option">
+        <div {% if item.class_name != "podcastepisode" %}style="display:none;"{% endif %}>
           <div class="mark-modal__visibility-radio" role="group">
             <div>
               <input type="checkbox" name="share_position" value="1" id="share_position">

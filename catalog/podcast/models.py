@@ -66,6 +66,10 @@ class Podcast(Item):
             return None
         return f"http://{self.primary_lookup_id_value}"
 
+    @property
+    def child_items(self):
+        return self.episodes.all()
+
 
 class PodcastEpisode(Item):
     category = ItemCategory.Podcast

@@ -1,0 +1,23 @@
+<div class="pagination">
+  {% if pagination.has_prev %}
+    <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page=1"
+       class="pagination__nav-link pagination__nav-link">&laquo;</a>
+    <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page={{ pagination.previous_page }}"
+       class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
+  {% endif %}
+  {% for page in pagination.page_range %}
+    {% if page == pagination.current_page %}
+      <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page={{ page }}"
+         class="pagination__page-link pagination__page-link--current">{{ page }}</a>
+    {% else %}
+      <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page={{ page }}"
+         class="pagination__page-link">{{ page }}</a>
+    {% endif %}
+  {% endfor %}
+  {% if pagination.has_next %}
+    <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page={{ pagination.next_page }}"
+       class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+    <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page={{ pagination.last_page }}"
+       class="pagination__nav-link">&raquo;</a>
+  {% endif %}
+</div>

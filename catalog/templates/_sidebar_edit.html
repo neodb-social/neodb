@@ -77,11 +77,26 @@
     {% endfor %}
     {% if item.child_class %}
       <details>
-        <summary>{% trans '新建子条目' %}</summary>
+        <summary>{% trans '创建子条目' %}</summary>
         <form method="get" action="{% url 'catalog:create' item.child_class %}">
-          <input name="parent" type=hidden value="{{ item.uuid }}">
+          <input name="parent" type="hidden" value="{{ item.uuid }}">
           <input class="contrast" type="submit" value="{{ item.child_class }}">
         </form>
+      </details>
+    {% endif %}
+    {% if item.class_name == "tvseason" %}
+      <details>
+        <summary>{% trans '更新单集条目' %}</summary>
+        {% if item.imdb and item.season_number is not None %}
+          <form method="post"
+                action="{% url 'catalog:fetch_tvepisodes' item.url_path item.uuid %}">
+            {% csrf_token %}
+            <p>因豆瓣/IMDB/TMDB之间对分季处理的差异，少量剧集和动画可能无法返回正确结果，更新后请手工确认和清理。</p>
+            <input class="contrast" type="submit" value="{% trans '更新单集条目' %}">
+          </form>
+        {% else %}
+          <i>⛔️ 获取单集条目需要本季序号和IMDB，不便填写也可以手工创建子条目。</i>
+        {% endif %}
       </details>
     {% endif %}
     {% if item.class_name == "movie" %}

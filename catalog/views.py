@@ -8,6 +8,7 @@ from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from catalog.common.models import ExternalResource, IdType, IdealIdTypes
+from catalog.sites.imdb import IMDB
 from .models import *
 from django.views.decorators.clickjacking import xframe_options_exempt
 from journal.models import Mark, ShelfMember, Review, Comment, query_item_category
@@ -324,6 +325,18 @@ def remove_unused_seasons(request, item_path, item_uuid):
 
 
 @login_required
+def fetch_tvepisodes(request, item_path, item_uuid):
+    if request.method != "POST":
+        raise BadRequest()
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if item.class_name != "tvseason" or not item.imdb or item.season_number is None:
+        raise BadRequest()
+    django_rq.get_queue("crawl").enqueue(IMDB.fetch_episodes_for_season, item.uuid)
+    messages.add_message(request, messages.INFO, _("已开始更新单集信息"))
+    return redirect(item.url)
+
+
+@login_required
 def merge(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
@@ -362,9 +375,7 @@ def mark_list(request, item_path, item_uuid, following_only=False):
     paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)
     page_number = request.GET.get("page", default=1)
     marks = paginator.get_page(page_number)
-    marks.pagination = PageLinksGenerator(
-        PAGE_LINK_NUMBER, page_number, paginator.num_pages
-    )
+    pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
     return render(
         request,
         "item_mark_list.html",
@@ -372,6 +383,7 @@ def mark_list(request, item_path, item_uuid, following_only=False):
             "marks": marks,
             "item": item,
             "followeing_only": following_only,
+            "pagination": pagination,
         },
     )
 
@@ -385,15 +397,14 @@ def review_list(request, item_path, item_uuid):
     paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)
     page_number = request.GET.get("page", default=1)
     reviews = paginator.get_page(page_number)
-    reviews.pagination = PageLinksGenerator(
-        PAGE_LINK_NUMBER, page_number, paginator.num_pages
-    )
+    pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
     return render(
         request,
         "item_review_list.html",
         {
             "reviews": reviews,
             "item": item,
+            "pagination": pagination,
         },
     )
 
@@ -414,6 +425,32 @@ def comments(request, item_path, item_uuid):
         "_item_comments.html",
         {
             "item": item,
+            "comments": queryset[:11],
+        },
+    )
+
+
+@login_required
+def comments_by_episode(request, item_path, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not item:
+        raise Http404()
+    episode_uuid = request.GET.get("episode_uuid")
+    if episode_uuid:
+        ids = [TVEpisode.get_by_url(episode_uuid).id]
+    else:
+        ids = item.child_item_ids
+    queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
+    queryset = queryset.filter(query_visible(request.user))
+    before_time = request.GET.get("last")
+    if before_time:
+        queryset = queryset.filter(created_time__lte=before_time)
+    return render(
+        request,
+        "_item_comments_by_episode.html",
+        {
+            "item": item,
+            "episode_uuid": episode_uuid,
             "comments": queryset[:11],
         },
     )

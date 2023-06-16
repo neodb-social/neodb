@@ -212,14 +212,16 @@ class AbstractSite:
                 self.scrape_additional_data()
         if auto_link:
             for linked_resource in p.required_resources:
-                linked_site = SiteManager.get_site_by_url(linked_resource["url"])
-                if linked_site:
-                    linked_site.get_resource_ready(
-                        auto_link=False,
-                        preloaded_content=linked_resource.get("content"),
-                    )
-                else:
-                    _logger.error(f'unable to get site for {linked_resource["url"]}')
+                linked_url = linked_resource.get("url")
+                if linked_url:
+                    linked_site = SiteManager.get_site_by_url(linked_url)
+                    if linked_site:
+                        linked_site.get_resource_ready(
+                            auto_link=False,
+                            preloaded_content=linked_resource.get("content"),
+                        )
+                    else:
+                        _logger.error(f"unable to get site for {linked_url}")
             if p.related_resources:
                 django_rq.get_queue("crawl").enqueue(crawl_related_resources_task, p.pk)
             if p.item:

@@ -231,6 +231,7 @@ class TVSeason(Item):
     category = ItemCategory.TV
     url_path = "tv/season"
     demonstrative = _("这季剧集")
+    child_class = "TVEpisode"
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tvseason = PrimaryLookupIdDescriptor(IdType.TMDB_TVSeason)
@@ -391,16 +392,38 @@ class TVSeason(Item):
     def set_parent_item(self, value):
         self.show = value
 
+    @property
+    def child_items(self):
+        return self.episodes.all()
+
 
 class TVEpisode(Item):
     category = ItemCategory.TV
     url_path = "tv/episode"
-    show = models.ForeignKey(
-        TVShow, null=True, on_delete=models.SET_NULL, related_name="episodes"
-    )
     season = models.ForeignKey(
         TVSeason, null=True, on_delete=models.SET_NULL, related_name="episodes"
     )
+    season_number = jsondata.IntegerField(null=True)
     episode_number = models.PositiveIntegerField(null=True)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
-    METADATA_COPY_LIST = ["title", "brief", "episode_number"]
+    METADATA_COPY_LIST = ["title", "brief", "season_number", "episode_number"]
+
+    @property
+    def display_title(self):
+        return f"{self.season.display_title} 第{self.episode_number}集"  # TODO i18n
+
+    @property
+    def parent_item(self):
+        return self.season
+
+    def set_parent_item(self, value):
+        self.season = value
+
+    def update_linked_items_from_external_resource(self, resource):
+        for w in resource.required_resources:
+            if w["model"] == "TVSeason":
+                p = ExternalResource.objects.filter(
+                    id_type=w["id_type"], id_value=w["id_value"]
+                ).first()
+                if p and p.item:
+                    self.season = p.item

@@ -22,43 +22,45 @@
     <div class="add-to-list-modal__body">
       <form method="post" action="{% url 'journal:mark' item.uuid %}">
         {% csrf_token %}
-        <div class="grid mark-line">
-          <div>
-            <fieldset>
-              {% for k, v in shelf_types %}
-                {% if v %}
-                  <input type="radio"
-                         name="status"
-                         value="{{ k }}"
-                         required
-                         id="id_status_{{ k }}"
-                         {% if k == "wishlist" %} _="on click add .hidden to .rating-editor" {% else %} _="on click remove .hidden from .rating-editor" {% endif %}
-                         {% if shelf_type == k %}checked=""{% endif %}>
-                  <label for="id_status_{{ k }}">{{ v }}</label>
-                {% endif %}
-              {% endfor %}
-            </fieldset>
+        {% if shelf_types %}
+          <div class="grid mark-line">
+            <div>
+              <fieldset>
+                {% for k, v in shelf_types %}
+                  {% if v %}
+                    <input type="radio"
+                           name="status"
+                           value="{{ k }}"
+                           required
+                           id="id_status_{{ k }}"
+                           {% if k == "wishlist" %} _="on click add .hidden to .rating-editor" {% else %} _="on click remove .hidden from .rating-editor" {% endif %}
+                           {% if shelf_type == k %}checked=""{% endif %}>
+                    <label for="id_status_{{ k }}">{{ v }}</label>
+                  {% endif %}
+                {% endfor %}
+              </fieldset>
+            </div>
+            <div>
+              <span class="rating-editor {% if shelf_type == 'wishlist' %}hidden{% endif %}" _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
+                <div/>
+                in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
+                <div/>
+                in me set star_input to the
+                <input/>
+                in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the
+                <div/>
+                in me set star_input to the
+                <input/>
+                in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' end">
+                {{ mark.rating_grade|rating_star }}
+                <input type="hidden"
+                       name="rating_grade"
+                       id="id_rating"
+                       value="{{ mark.rating_grade | default:0 }}">
+              </span>
+            </div>
           </div>
-          <div>
-            <span class="rating-editor {% if shelf_type == 'wishlist' %}hidden{% endif %}" _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
-              <div/>
-              in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) set star_div to the
-              <div/>
-              in me set star_input to the
-              <input/>
-              in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the
-              <div/>
-              in me set star_input to the
-              <input/>
-              in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' end">
-              {{ mark.rating_grade|rating_star }}
-              <input type="hidden"
-                     name="rating_grade"
-                     id="id_rating"
-                     value="{{ mark.rating_grade | default:0 }}">
-            </span>
-          </div>
-        </div>
+        {% endif %}
         <div>
           <fieldset>
             <textarea name="text"

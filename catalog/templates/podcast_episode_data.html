@@ -20,7 +20,7 @@
         <a style="margin-right: 10px"
            title="评论单集"
            href="#"
-           hx-get="{% url 'journal:comment' item.uuid ep.uuid %}"
+           hx-get="{% url 'journal:comment' ep.uuid %}"
            hx-target="body"
            hx-swap="beforeend"><i class="fa-regular fa-comment-dots"></i></a>
       {% endif %}

@@ -21,14 +21,13 @@ _logger = logging.getLogger(__name__)
 
 
 class ActivityTemplate(models.TextChoices):
-    """ """
-
     MarkItem = "mark_item"
     ReviewItem = "review_item"
     CreateCollection = "create_collection"
     LikeCollection = "like_collection"
     FeatureCollection = "feature_collection"
-    CommentFocusItem = "comment_focus_item"
+    CommentChildItem = "comment_child_item"
+    CommentFocusItem = "comment_focus_item"  # TODO: remove this after migration
 
 
 class LocalActivity(models.Model, UserOwnedObjectMixin):
@@ -62,7 +61,7 @@ class ActivityManager:
         return (
             LocalActivity.objects.filter(q)
             .order_by("-created_time")
-            .prefetch_related("action_object")
+            .prefetch_related("action_object", "owner")
         )  # .select_related() https://github.com/django-polymorphic/django-polymorphic/pull/531
 
     @staticmethod
@@ -70,8 +69,8 @@ class ActivityManager:
         return ActivityManager(user)
 
 
-User.activity_manager = cached_property(ActivityManager.get_manager_for_user)
-User.activity_manager.__set_name__(User, "activity_manager")
+User.activity_manager = cached_property(ActivityManager.get_manager_for_user)  # type: ignore
+User.activity_manager.__set_name__(User, "activity_manager")  # type: ignore
 
 
 class DataSignalManager:
@@ -184,17 +183,31 @@ class FeaturedCollectionProcessor(DefaultActivityProcessor):
     template = ActivityTemplate.FeatureCollection
 
 
+# @DataSignalManager.register
+# class CommentFocusItemProcessor(DefaultActivityProcessor):
+#     model = Comment
+#     template = ActivityTemplate.CommentFocusItem
+
+#     def created(self):
+#         if self.action_object.focus_item:
+#             super().created()
+
+#     def updated(self):
+#         if self.action_object.focus_item:
+#             super().updated()
+
+
 @DataSignalManager.register
-class CommentFocusItemProcessor(DefaultActivityProcessor):
+class CommentChildItemProcessor(DefaultActivityProcessor):
     model = Comment
-    template = ActivityTemplate.CommentFocusItem
+    template = ActivityTemplate.CommentChildItem
 
     def created(self):
-        if self.action_object.focus_item:
+        if self.action_object.item.class_name in ["podcastepisode", "tvepisode"]:
             super().created()
 
     def updated(self):
-        if self.action_object.focus_item:
+        if self.action_object.item.class_name in ["podcastepisode", "tvepisode"]:
             super().updated()
 
 

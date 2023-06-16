@@ -365,24 +365,45 @@
           {% block content %}{% endblock %}
         </section>
         <section class="solo-hidden">
-          <h5>
-            短评
-            {% if request.user.is_authenticated %}
-              <small>
-                | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans '全部标记' %}</a>
-                | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">关注的人的标记</a>
-              </small>
-            {% endif %}
-          </h5>
           {% if request.user.is_authenticated %}
-            <div>
-              <div hx-get="{% url 'catalog:comments' item.url_path item.uuid %}"
-                   hx-trigger="intersect once"
-                   hx-swap="outerHTML">
-                <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+            <div id="comment-default">
+              <h5>
+                短评
+                <small>
+                  | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans '全部标记' %}</a>
+                  | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans '关注的人的标记' %}</a>
+                </small>
+              </h5>
+              <div id="comments">
+                <div hx-get="{% url 'catalog:comments' item.url_path item.uuid %}"
+                     hx-trigger="intersect once"
+                     hx-swap="outerHTML">
+                  <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                </div>
               </div>
             </div>
+            {% comment %} {% if item.class_name == "tvseason" %}
+              <div id="comment-by-episode" style="display: none;">
+                <h5>
+                  <small>
+                    <a _="on click hide #comment-by-episode then show #comment-default">短评</a>
+                    |
+                  </small>
+                  {% trans '分集短评' %}
+                  <small>
+                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans '全部标记' %}</a>
+                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans '关注的人的标记' %}</a>
+                  </small>
+                </h5>
+                <div>
+                  <div hx-get="{% url 'catalog:comments_by_episode' item.url_path item.uuid %}" hx-trigger="intersect once" hx-swap="outerHTML" id="#comments_by_episode">
+                    <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                  </div>
+                </div>
+              </div>
+            {% endif %} {% endcomment %}
           {% else %}
+            <h5>短评</h5>
             <p class="empty">登录后可见</p>
           {% endif %}
         </section>

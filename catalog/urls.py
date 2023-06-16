@@ -75,6 +75,13 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/fetch_tvepisodes$",
+        fetch_tvepisodes,
+        name="fetch_tvepisodes",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
         + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/merge$",
         merge,
         name="merge",
@@ -89,7 +96,14 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/comments",
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/comments_by_episode$",
+        comments_by_episode,
+        name="comments_by_episode",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/comments$",
         comments,
         name="comments",
     ),

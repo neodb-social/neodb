@@ -195,22 +195,71 @@ def mark(request, item_uuid):
     raise BadRequest()
 
 
+def post_comment(user, item, text, visibility, shared_link=None, position=None):
+    post_error = False
+    status_id = get_status_id_by_url(shared_link)
+    link = (
+        item.get_absolute_url_with_position(position) if position else item.absolute_url
+    )
+    action_label = "评论" if text else "分享"
+    status = f"{action_label}{ItemCategory(item.category).label}《{item.display_title}》\n{link}\n\n{text}"
+    spoiler, status = get_spoiler_text(status, item)
+    try:
+        response = post_toot(
+            user.mastodon_site,
+            status,
+            get_visibility(visibility, user),
+            user.mastodon_token,
+            False,
+            status_id,
+            spoiler,
+        )
+        if response and response.status_code in [200, 201]:
+            j = response.json()
+            if "url" in j:
+                shared_link = j["url"]
+    except Exception as e:
+        if settings.DEBUG:
+            raise
+        post_error = True
+    return post_error, shared_link
+
+
 @login_required
-def comment(request, item_uuid, focus_item_uuid):
+def comment_select_episode(request, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    focus_item = get_object_or_404(Item, uid=get_uuid_or_404(focus_item_uuid))
-    if focus_item.parent_item != item:
-        raise Http404()
-    comment = Comment.objects.filter(
-        owner=request.user, item=item, focus_item=focus_item
-    ).first()
     if request.method == "GET":
         return render(
             request,
-            "comment.html",
+            "comment_select_episode.html",
             {
                 "item": item,
-                "focus_item": focus_item,
+                "comment": comment,
+            },
+        )
+    raise BadRequest()
+
+
+@login_required
+def comment(request, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not item.class_name in ["podcastepisode", "tvepisode"]:
+        raise BadRequest("不支持评论此类型的条目")
+    # episode = None
+    # if item.class_name == "tvseason":
+    #     try:
+    #         episode = int(request.POST.get("episode", 0))
+    #     except:
+    #         episode = 0
+    #     if episode <= 0:
+    #         raise BadRequest("请输入正确的集数")
+    comment = Comment.objects.filter(owner=request.user, item=item).first()
+    if request.method == "GET":
+        return render(
+            request,
+            f"comment.html",
+            {
+                "item": item,
                 "comment": comment,
             },
         )
@@ -222,61 +271,57 @@ def comment(request, item_uuid, focus_item_uuid):
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
         visibility = int(request.POST.get("visibility", default=0))
         text = request.POST.get("text")
-        position = (
-            request.POST.get("position")
-            if request.POST.get("share_position")
-            else "0:0:0"
-        )
-        try:
-            pos = datetime.strptime(position, "%H:%M:%S")
-            position = pos.hour * 3600 + pos.minute * 60 + pos.second
-        except:
-            if settings.DEBUG:
-                raise
-            position = None
-        share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
-        shared_link = None
-        post_error = False
-        if share_to_mastodon:
-            shared_link = comment.metadata.get("shared_link") if comment else None
-            status_id = get_status_id_by_url(shared_link)
-            link = focus_item.get_absolute_url_with_position(position or None)
-            status = f"分享{ItemCategory(item.category).label}《{focus_item.display_title}》\n{link}\n\n{text}"
-            spoiler, status = get_spoiler_text(status, item)
+        position = None
+        if item.class_name == "podcastepisode":
+            position = request.POST.get("position") or "0:0:0"
             try:
-                response = post_toot(
-                    request.user.mastodon_site,
-                    status,
-                    get_visibility(visibility, request.user),
-                    request.user.mastodon_token,
-                    False,
-                    status_id,
-                    spoiler,
-                )
-                if response and response.status_code in [200, 201]:
-                    j = response.json()
-                    if "url" in j:
-                        shared_link = j["url"]
-            except Exception as e:
+                pos = datetime.strptime(position, "%H:%M:%S")
+                position = pos.hour * 3600 + pos.minute * 60 + pos.second
+            except:
                 if settings.DEBUG:
                     raise
-                post_error = True
-        if comment:
-            comment.visibility = visibility
-            comment.text = text
-            comment.metadata["position"] = position
-            if shared_link:
-                comment.metadata["shared_link"] = shared_link
-            comment.save()
-        else:
-            comment = Comment.objects.create(
-                owner=request.user,
-                item=item,
-                focus_item=focus_item,
-                text=text,
-                visibility=visibility,
-                metadata={"shared_link": shared_link, "position": position},
+                position = None
+        share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
+        shared_link = comment.metadata.get("shared_link") if comment else None
+        post_error = False
+        if share_to_mastodon:
+            post_error, shared_link = post_comment(
+                request.user, item, text, visibility, shared_link, position
             )
+        Comment.objects.update_or_create(
+            owner=request.user,
+            item=item,
+            # metadata__episode=episode,
+            defaults={
+                "text": text,
+                "visibility": visibility,
+                "metadata": {
+                    "shared_link": shared_link,
+                    "position": position,
+                },
+            },
+        )
+
+        # if comment:
+        #     comment.visibility = visibility
+        #     comment.text = text
+        #     comment.metadata["position"] = position
+        #     comment.metadata["episode"] = episode
+        #     if shared_link:
+        #         comment.metadata["shared_link"] = shared_link
+        #     comment.save()
+        # else:
+        #     comment = Comment.objects.create(
+        #         owner=request.user,
+        #         item=item,
+        #         text=text,
+        #         visibility=visibility,
+        #         metadata={
+        #             "shared_link": shared_link,
+        #             "position": position,
+        #             "episode": episode,
+        #         },
+        #     )
         if post_error:
             return render_relogin(request)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
@@ -648,11 +693,11 @@ def _render_list(
     paginator = Paginator(queryset, PAGE_SIZE)
     page_number = request.GET.get("page", default=1)
     members = paginator.get_page(page_number)
-    members.pagination = PageLinksGenerator(PAGE_SIZE, page_number, paginator.num_pages)
+    pagination = PageLinksGenerator(PAGE_SIZE, page_number, paginator.num_pages)
     return render(
         request,
         f"user_{type}_list.html",
-        {"user": user, "members": members, "tag": tag},
+        {"user": user, "members": members, "tag": tag, "pagination": pagination},
     )
 
 

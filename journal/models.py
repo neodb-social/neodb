@@ -321,6 +321,7 @@ class Review(Content):
 
 
 MIN_RATING_COUNT = 5
+RATING_INCLUDES_CHILD_ITEMS = ["tvshow", "performance"]
 
 
 class Rating(Content):
@@ -333,19 +334,47 @@ class Rating(Content):
 
     @staticmethod
     def get_rating_for_item(item):
-        ids = item.child_item_ids + [item.id]
-        stat = Rating.objects.filter(item_id__in=ids, grade__isnull=False).aggregate(
-            average=Avg("grade"), count=Count("item")
-        )
+        stat = Rating.objects.filter(grade__isnull=False)
+        if item.class_name in RATING_INCLUDES_CHILD_ITEMS:
+            stat = stat.filter(item_id__in=item.child_item_ids + [item.id])
+        else:
+            stat = stat.filter(item=item)
+        stat = stat.aggregate(average=Avg("grade"), count=Count("item"))
         return round(stat["average"], 1) if stat["count"] >= MIN_RATING_COUNT else None
 
     @staticmethod
     def get_rating_count_for_item(item):
-        ids = item.child_item_ids + [item.id]
-        stat = Rating.objects.filter(item_id__in=ids, grade__isnull=False).aggregate(
-            count=Count("item")
-        )
+        stat = Rating.objects.filter(grade__isnull=False)
+        if item.class_name in RATING_INCLUDES_CHILD_ITEMS:
+            stat = stat.filter(item_id__in=item.child_item_ids + [item.id])
+        else:
+            stat = stat.filter(item=item)
+        stat = stat.aggregate(count=Count("item"))
         return stat["count"]
+
+    @staticmethod
+    def get_rating_distribution_for_item(item):
+        stat = Rating.objects.filter(grade__isnull=False)
+        if item.class_name in RATING_INCLUDES_CHILD_ITEMS:
+            stat = stat.filter(item_id__in=item.child_item_ids + [item.id])
+        else:
+            stat = stat.filter(item=item)
+        stat = stat.values("grade").annotate(count=Count("grade")).order_by("grade")
+        g = [0] * 11
+        t = 0
+        for s in stat:
+            g[s["grade"]] = s["count"]
+            t += s["count"]
+        if t < MIN_RATING_COUNT:
+            return [0] * 5
+        r = [
+            100 * (g[1] + g[2]) // t,
+            100 * (g[3] + g[4]) // t,
+            100 * (g[5] + g[6]) // t,
+            100 * (g[7] + g[8]) // t,
+            100 * (g[9] + g[10]) // t,
+        ]
+        return r
 
     @staticmethod
     def rate_item_by_user(item, user, rating_grade, visibility=0):
@@ -370,30 +399,6 @@ class Rating(Content):
     def get_item_rating_by_user(item, user):
         rating = Rating.objects.filter(owner=user, item=item).first()
         return (rating.grade or None) if rating else None
-
-    @staticmethod
-    def get_rating_distribution_for_item(item):
-        stat = (
-            Rating.objects.filter(item=item, grade__isnull=False)
-            .values("grade")
-            .annotate(count=Count("grade"))
-            .order_by("grade")
-        )
-        g = [0] * 11
-        t = 0
-        for s in stat:
-            g[s["grade"]] = s["count"]
-            t += s["count"]
-        if t < MIN_RATING_COUNT:
-            return [0] * 5
-        r = [
-            100 * (g[1] + g[2]) // t,
-            100 * (g[3] + g[4]) // t,
-            100 * (g[5] + g[6]) // t,
-            100 * (g[7] + g[8]) // t,
-            100 * (g[9] + g[10]) // t,
-        ]
-        return r
 
 
 Item.rating = property(Rating.get_rating_for_item)
@@ -601,8 +606,9 @@ ShelfTypeNames = [
     [ItemCategory.Podcast, ShelfType.WISHLIST, _("想听")],
     [ItemCategory.Podcast, ShelfType.PROGRESS, _("在听")],
     [ItemCategory.Podcast, ShelfType.COMPLETE, _("听过")],
+    # disable all shelves for PodcastEpisode
     [ItemCategory.Performance, ShelfType.WISHLIST, _("想看")],
-    # disable progress shelf for performance
+    # disable progress shelf for Performance
     [ItemCategory.Performance, ShelfType.PROGRESS, _("")],
     [ItemCategory.Performance, ShelfType.COMPLETE, _("看过")],
 ]

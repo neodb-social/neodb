@@ -56,27 +56,7 @@
         {% empty %}
           <div>{% trans '暂无评论' %}</div>
         {% endfor %}
-        <div class="pagination">
-          {% if reviews.pagination.has_prev %}
-            <a href="?page=1" class="pagination__nav-link pagination__nav-link">&laquo;</a>
-            <a href="?page={{ reviews.previous_page_number }}"
-               class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
-          {% endif %}
-          {% for page in reviews.pagination.page_range %}
-            {% if page == reviews.pagination.current_page %}
-              <a href="?page={{ page }}"
-                 class="pagination__page-link pagination__page-link--current">{{ page }}</a>
-            {% else %}
-              <a href="?page={{ page }}" class="pagination__page-link">{{ page }}</a>
-            {% endif %}
-          {% endfor %}
-          {% if reviews.pagination.has_next %}
-            <a href="?page={{ reviews.next_page_number }}"
-               class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
-            <a href="?page={{ reviews.pagination.last_page }}"
-               class="pagination__nav-link">&raquo;</a>
-          {% endif %}
-        </div>
+        {% include "_pagination.html" %}
       </div>
       <aside class="grid__aside top">
         {% include "_sidebar_item.html" %}

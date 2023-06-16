@@ -1,0 +1,85 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load duration %}
+{% load user_actions %}
+<div id="comments_by_episode">
+  {% if not request.GET.last %}
+    <p>
+      <small>
+        <span class="season-number">
+          <a hx-swap="innerHTML"
+             hx-get="{% url "catalog:comments" item.url_path item.uuid %}"
+             hx-target="#comments">全部</a>
+        </span>
+        {% for ep in item.episodes.all %}
+          <span class="season-number">
+            <a hx-swap="innerHTML"
+               {% if ep.uuid == episode_uuid %} class="current" {% else %} hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ ep.uuid }}" {% endif %}
+               hx-target="#comments">第{{ ep.episode_number }}集</a>
+          </span>
+        {% endfor %}
+      </small>
+    </p>
+    <p>
+      <small>
+        <a href="#"
+           hx-get="{% url 'journal:comment' episode_uuid %}"
+           class="item-mark-icon"
+           hx-target="body"
+           hx-swap="beforeend">
+          {% if mark.comment_text %}
+            <i class="fa-solid fa-pen-to-square"></i>
+          {% else %}
+            <i class="fa-regular fa-square-plus"></i>
+          {% endif %}
+          写该集短评
+        </a>
+      </small>
+    </p>
+  {% endif %}
+  {% for comment in comments %}
+    {% if forloop.counter <= 10 %}
+      <section>
+        <span class="action">
+          <span>
+            {% liked_piece comment as liked %}
+            {% include 'like_stats.html' with liked=liked piece=comment %}
+          </span>
+          <span>
+            <a target="_blank"
+               rel="noopener"
+               {% if comment.metadata.shared_link %} href="{{ comment.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if comment.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+          </span>
+        </span>
+        <span>
+          {% if comment.rating_grade %}{{ comment.rating_grade|rating_star }}{% endif %}
+          <a href="{% url 'journal:user_profile' comment.owner.mastodon_username %}"
+             class="nickname"
+             title="@{{ comment.owner.mastodon_username }}">{{ comment.owner.display_name }}</a>
+        </span>
+        <span class="action inline">
+          <span class="timestamp">
+            {{ comment.created_time|date }}
+            {{ comment.mark.action_label }}
+          </span>
+        </span>
+        {% if comment.focus_item %}<a href="{{ comment.focus_item.url }}">{{ comment.focus_item.title }}</a>{% endif %}
+        {% if comment.item != item %}<a href="{{ comment.item.url }}">{{ comment.item.title }}</a>{% endif %}
+        <div>{{ comment.html|safe }}</div>
+      </section>
+    {% else %}
+      <a hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ episode_uuid }}&last={{ comment.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"
+         hx-trigger="click"
+         hx-swap="outerHTML">
+        <button class="outline">显示更多</button>
+      </a>
+    {% endif %}
+  {% empty %}
+    <div class="empty">{% trans '暂无' %}</div>
+  {% endfor %}
+</div>

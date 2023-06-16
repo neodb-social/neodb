@@ -417,3 +417,85 @@ class TMDB_TVSeason(AbstractSite):
                 raise ParseError("first episode id for season")
             pd.lookup_ids[IdType.IMDB] = d2["external_ids"].get("imdb_id")
         return pd
+
+
+@SiteManager.register
+class TMDB_TVEpisode(AbstractSite):
+    SITE_NAME = SiteName.TMDB
+    ID_TYPE = IdType.TMDB_TVEpisode
+    URL_PATTERNS = [
+        r"\w+://www.themoviedb.org/tv/(\d+)[^/]*/season/(\d+)/episode/(\d+)[^/]*$"
+    ]
+    WIKI_PROPERTY_ID = "?"
+    DEFAULT_MODEL = TVEpisode
+    ID_PATTERN = r"^(\d+)-(\d+)-(\d+)$"
+
+    @classmethod
+    def url_to_id(cls, url: str):
+        u = next(
+            iter([re.match(p, url) for p in cls.URL_PATTERNS if re.match(p, url)]), None
+        )
+        return u[1] + "-" + u[2] + "-" + u[3] if u else None
+
+    @classmethod
+    def id_to_url(cls, id_value):
+        v = id_value.split("-")
+        return f"https://www.themoviedb.org/tv/{v[0]}/season/{v[1]}/episode/{v[2]}"
+
+    def scrape(self):
+        v = self.id_value.split("-")
+        show_id = v[0]
+        season_id = v[1]
+        episode_id = v[2]
+        site = TMDB_TV(TMDB_TV.id_to_url(show_id))
+        show_resource = site.get_resource_ready(auto_create=False, auto_link=False)
+        api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}/episode/{episode_id}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+        d = BasicDownloader(api_url).download().json()
+        if not d.get("id"):
+            raise ParseError("id")
+        pd = ResourceContent(
+            metadata=_copy_dict(
+                d,
+                {
+                    "name": "title",
+                    "overview": "brief",
+                    # "air_date": "air_date",
+                    "season_number": 0,
+                    "episode_number": 0,
+                    "external_ids": [],
+                },
+            )
+        )
+        pd.metadata["required_resources"] = [
+            {
+                "model": "TVSeason",
+                "id_type": IdType.TMDB_TVSeason,
+                "id_value": f"{show_id}-{season_id}",
+                "title": f"TMDB TV Season {show_id}-{season_id}",
+                "url": f"https://www.themoviedb.org/tv/{show_id}/season/{season_id}",
+            }
+        ]
+        pd.lookup_ids[IdType.IMDB] = d["external_ids"].get("imdb_id")
+        pd.metadata["cover_image_url"] = (
+            ("https://image.tmdb.org/t/p/original/" + d["poster_path"])
+            if d.get("poster_path")
+            else None
+        )
+        pd.metadata["title"] = (
+            pd.metadata["title"]
+            if pd.metadata["title"]
+            else f'S{d["season_number"]} E{d["episode_number"]}'
+        )
+        if pd.metadata["cover_image_url"]:
+            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
+            try:
+                pd.cover_image = imgdl.download().content
+                pd.cover_image_extention = imgdl.extention
+            except Exception:
+                _logger.debug(
+                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
+                )
+
+        if pd.lookup_ids.get(IdType.IMDB):
+            pd.lookup_ids[IdType.IMDB] = pd.lookup_ids[IdType.IMDB]
+        return pd

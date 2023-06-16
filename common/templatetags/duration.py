@@ -31,3 +31,8 @@ def rating_star(value):
         pct = 0
     html = f'<span class="rating-star" data-rating="{v}"><div style="width:{pct}%;"></div></span>'
     return mark_safe(html)
+
+
+@register.filter
+def make_range(number):
+    return range(1, number + 1)

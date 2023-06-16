@@ -7,6 +7,24 @@
 {% load truncate %}
 {% load duration %}
 {% load user_actions %}
+{% if item.class_name == "tvseason" and not request.GET.last %}
+  <p>
+    <small>
+      {% if item.episodes.all %}
+        <span class="season-number"><a class="current">全部</a></span>
+        {% for ep in item.episodes.all %}
+          <span class="season-number">
+            <a hx-swap="innerHTML"
+               hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ ep.uuid }}"
+               hx-target="#comments">第{{ ep.episode_number }}集</a>
+          </span>
+        {% endfor %}
+      {% else %}
+        <i class="empty">编辑本条目添加分集信息后可开启分集短评功能。</i>
+      {% endif %}
+    </small>
+  </p>
+{% endif %}
 {% for comment in comments %}
   {% if forloop.counter <= 10 %}
     <section>
