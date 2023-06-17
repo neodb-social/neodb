@@ -243,6 +243,20 @@ def comment_select_episode(request, item_uuid):
 
 
 @login_required
+def mark_log(request, item_uuid, log_id):
+    """
+    Delete log of one item by log id.
+    """
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    mark = Mark(request.user, item)
+    if request.method == "POST":
+        if request.POST.get("delete", default=False):
+            mark.delete_log(log_id)
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    raise BadRequest()
+
+
+@login_required
 def comment(request, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item.class_name in ["podcastepisode", "tvepisode"]:

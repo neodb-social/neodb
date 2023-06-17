@@ -705,9 +705,10 @@ class ShelfManager:
     def locate_item(self, item) -> ShelfMember:
         return ShelfMember.objects.filter(item=item, owner=self.owner).first()
 
-    def move_item(self, item, shelf_type, visibility=0, metadata=None):
+    def move_item(self, item, shelf_type, visibility=0, metadata=None, silence=False):
         # shelf_type=None means remove from current shelf
         # metadata=None means no change
+        # silence=False means move_item is logged.
         if not item:
             raise ValueError("empty item")
         new_shelfmember = None
@@ -737,7 +738,7 @@ class ShelfManager:
             elif visibility != last_visibility:  # change visibility
                 last_shelfmember.visibility = visibility
                 last_shelfmember.save()
-        if changed:
+        if changed and not silence:
             if metadata is None:
                 metadata = last_metadata or {}
             log_time = (
@@ -1154,7 +1155,9 @@ class Mark:
         metadata=None,
         created_time=None,
         share_to_mastodon=False,
+        silence=False,
     ):
+        # silence=False means update is logged.
         share = (
             share_to_mastodon
             and shelf_type is not None
@@ -1170,9 +1173,13 @@ class Mark:
         original_visibility = self.visibility
         if shelf_type != self.shelf_type or visibility != original_visibility:
             self.shelfmember = self.owner.shelf_manager.move_item(
-                self.item, shelf_type, visibility=visibility, metadata=metadata
+                self.item,
+                shelf_type,
+                visibility=visibility,
+                metadata=metadata,
+                silence=silence,
             )
-        if self.shelfmember and created_time:
+        if not silence and self.shelfmember and created_time:
             # if it's an update(not delete) and created_time is specified,
             # update the timestamp of the shelfmember and log
             log = ShelfLogEntry.objects.filter(
@@ -1225,7 +1232,23 @@ class Mark:
             self.shelfmember.save()
 
     def delete(self):
+        self.logs.delete()  # When deleting a mark, all logs of the mark are deleted first.
         self.update(None, None, None, 0)
+
+    def delete_log(self, log_id):
+        ShelfLogEntry.objects.filter(
+            owner=self.owner, item=self.item, id=log_id
+        ).delete()
+        last_log = (
+            ShelfLogEntry.objects.exclude(shelf_type=None)
+            .filter(owner=self.owner, item=self.item)
+            .order_by("id")
+            .last()
+        )
+        if not last_log:
+            self.update(None, None, None, 0, silence=True)
+        else:
+            self.update(last_log.shelf_type, None, None, 0, silence=True)
 
     @property
     def logs(self):
