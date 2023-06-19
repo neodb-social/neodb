@@ -280,8 +280,7 @@ def unlink(request):
     if not res_id:
         raise BadRequest()
     resource = get_object_or_404(ExternalResource, id=res_id)
-    resource.item = None
-    resource.save()
+    resource.unlink_from_item()
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
@@ -308,9 +307,13 @@ def remove_unused_seasons(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    for s in item.seasons.all():
+    l = list(item.seasons.all())
+    for s in l:
         if not s.journal_exists():
             s.delete()
+    l = [s.id for s in l]
+    l2 = [s.id for s in item.seasons.all()]
+    item.log_action({"__remove_unused_seasons__": [l, l2]})
     return redirect(item.url)
 
 

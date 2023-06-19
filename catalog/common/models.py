@@ -338,6 +338,11 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     def parent_uuid(self):
         return self.parent_item.uuid if self.parent_item else None
 
+    def log_action(self, changes):
+        LogEntry.objects.log_create(
+            self, action=LogEntry.Action.UPDATE, changes=changes
+        )
+
     def merge_to(self, to_item):
         if to_item is None:
             raise ValueError("cannot merge to an empty item")
@@ -525,7 +530,18 @@ class ExternalResource(models.Model):
         unique_together = [["id_type", "id_value"]]
 
     def __str__(self):
-        return f"{self.pk}:{self.id_type}:{self.id_value if self.id_value else ''} ({self.url})"
+        return f"{self.pk}:{self.id_type}:{self.id_value or ''} ({self.url})"
+
+    def unlink_from_item(self):
+        LogEntry.objects.log_create(
+            self.item,
+            action=LogEntry.Action.UPDATE,
+            changes={
+                "__unlink__": [str(self), None],
+            },
+        )
+        self.item = None
+        self.save()
 
     def get_site(self):
         """place holder only, this will be injected from SiteManager"""

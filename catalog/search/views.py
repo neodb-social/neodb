@@ -62,6 +62,12 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = No
     item = site.get_item()
     if item and not is_refetch:
         return redirect(item.url)
+    if item and is_refetch:
+        item.log_action(
+            {
+                "__refetch__": [url, None],
+            }
+        )
     job_id = enqueue_fetch(url, is_refetch)
     return render(
         request,

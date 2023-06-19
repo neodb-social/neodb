@@ -1,4 +1,4 @@
-from .common.models import Item, ItemSchema
+from .common.models import ExternalResource, Item, ItemSchema
 from .book.models import Edition, Work, Series, EditionSchema, EditionInSchema
 from .movie.models import Movie, MovieSchema, MovieInSchema
 from .tv.models import (
@@ -92,7 +92,8 @@ def init_catalog_search_models():
 def init_catalog_audit_log():
     for cls in Item.__subclasses__():
         auditlog.register(
-            cls, exclude_fields=["metadata", "created_time", "edited_time"]
+            cls,
+            exclude_fields=["metadata", "created_time", "edited_time", "last_editor"],
         )
 
     auditlog.register(
