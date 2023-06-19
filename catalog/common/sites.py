@@ -149,7 +149,11 @@ class AbstractSite:
         if not p.ready:
             # raise ValueError(f'resource not ready for {self.url}')
             return None
-        return self.match_or_create_item_for_resource(p)
+        last_item = p.item
+        item = self.match_or_create_item_for_resource(p)
+        if last_item != p.item:
+            p.save()
+        return item
 
     @property
     def ready(self):
