@@ -98,7 +98,10 @@ class IMDB(AbstractSite):
             if data["is_episode"]
             else ("TVShow" if data["is_series"] else "Movie")
         )
-
+        if data["preferred_model"] == "TVEpisode" and data["title"].startswith(
+            "Episode #"
+        ):
+            data["title"] = re.sub(r"#(\d+).(\d+)", r"S\1E\2", data["title"][8:])
         pd = ResourceContent(metadata=data)
         pd.lookup_ids[IdType.IMDB] = self.id_value
         if pd.metadata["cover_image_url"]:
@@ -153,18 +156,31 @@ class IMDB(AbstractSite):
             _logger.warning(f"season {season} is missing season number or imdb id")
             return
         episodes = IMDB.get_episode_list(season.imdb, season.season_number)
-        if not episodes:
-            _logger.warning(f"season {season} has no episodes fetched")
-            return
-        if not season.episode_count or season.episode_count < len(episodes):
-            season.episode_count = len(episodes)
-            season.save()
-        for e in episodes:
-            episode = TVEpisode.objects.filter(
-                season=season, episode_number=e["episode_number"]
-            ).first()
-            if not episode:
-                site = SiteManager.get_site_by_url(e["url"])
-                episode = site.get_resource_ready().item
-                episode.set_parent_item(season)
-                episode.save()
+        if episodes:
+            if not season.episode_count or season.episode_count < len(episodes):
+                season.episode_count = len(episodes)
+                season.save()
+            for e in episodes:
+                episode = TVEpisode.objects.filter(
+                    season=season, episode_number=e["episode_number"]
+                ).first()
+                if not episode:
+                    site = SiteManager.get_site_by_url(e["url"])
+                    episode = site.get_resource_ready().item
+                    episode.set_parent_item(season)
+                    episode.save()
+        else:
+            _logger.warning(f"season {season} has no episodes fetched, creating dummy")
+            cnt = int(season.episode_count or 0)
+            if cnt > 20:
+                cnt = 20
+            for i in range(1, cnt + 1):
+                episode = TVEpisode.objects.filter(
+                    season=season, episode_number=i
+                ).first()
+                if not episode:
+                    TVEpisode.objects.create(
+                        title=f"S{season.season_number or '0'}E{i}",
+                        season=season,
+                        episode_number=i,
+                    )
