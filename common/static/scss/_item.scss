@@ -9,6 +9,8 @@
   }
 
   span.season-number {
+    line-height: 1.2em;
+
     a {
       border-radius: calc(var(--pico-spacing)/4);
       margin-right: 0.5em;
@@ -17,14 +19,20 @@
       text-decoration: none;
       white-space: nowrap;
       cursor: pointer;
-
-      &.current {
-        color: var(--pico-form-element-background-color);
-        background: var(--pico-primary);
-        line-height: 1.2em;
-        cursor: default;
-      }
     }
+
+    &.marked a {
+      background: var(--pico-secondary);
+      border: var(--pico-secondary) solid 1px;
+      color: var(--pico-form-element-background-color);
+    }
+
+    a.current {
+      color: var(--pico-form-element-background-color);
+      background: var(--pico-primary);
+      cursor: default;
+    }
+
   }
 
   .muted .fa-lock {

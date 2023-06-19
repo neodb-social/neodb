@@ -85,10 +85,14 @@ def retrieve(request, item_path, item_uuid):
     review = None
     my_collections = []
     collection_list = []
+    child_item_comments = []
     shelf_types = [(n[1], n[2]) for n in iter(ShelfTypeNames) if n[0] == item.category]
     if request.user.is_authenticated:
         visible = query_visible(request.user)
         mark = Mark(request.user, item)
+        child_item_comments = Comment.objects.filter(
+            owner=request.user, item__in=item.child_items.all()
+        )
         review = mark.review
         my_collections = item.collections.all().filter(owner=request.user)
         collection_list = (
@@ -113,6 +117,7 @@ def retrieve(request, item_path, item_uuid):
             "focus_item": focus_item,
             "mark": mark,
             "review": review,
+            "child_item_comments": child_item_comments,
             "my_collections": my_collections,
             "collection_list": collection_list,
             "shelf_types": shelf_types,

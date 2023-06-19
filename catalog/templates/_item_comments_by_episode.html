@@ -17,7 +17,7 @@
              hx-target="#comments">全部</a>
         </span>
         {% for ep in item.episodes.all %}
-          <span class="season-number">
+          <span class="season-number" id="ci_{{ ep.uuid }}">
             <a hx-swap="innerHTML"
                {% if ep.uuid == episode_uuid %} class="current" {% else %} hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ ep.uuid }}" {% endif %}
                hx-target="#comments">第{{ ep.episode_number }}集</a>
@@ -41,6 +41,13 @@
         </a>
       </small>
     </p>
+    <script defer>
+      $(function(){
+        window.cil.forEach(function(uuid){
+          $('#ci_'+uuid).addClass('marked');
+        })
+      });
+    </script>
   {% endif %}
   {% for comment in comments %}
     {% if forloop.counter <= 10 %}
