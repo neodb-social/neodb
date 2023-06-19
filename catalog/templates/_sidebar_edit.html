@@ -5,14 +5,42 @@
 {% load oauth_token %}
 {% load truncate %}
 {% if item %}
-  <h5>进阶编辑选项</h5>
-  {% if item.is_deleted %}<p>🚫 条目已被删除</p>{% endif %}
-  {% if item.child_items %}<p>🚫 条目下已有子项</p>{% endif %}
-  {% if item.merged_to_item %}<p>🚫 条目已被合并到其他条目</p>{% endif %}
-  {% if item.journal_exists %}<p>🚸 条目已被用户标记过</p>{% endif %}
+  <div class="action">
+    <span>
+      <a title="编辑条目" href="{% url 'catalog:edit' item.url_path item.uuid %}"><i class="fa-solid fa-pencil"></i></a>
+    </span>
+    <span>
+      <a title="编辑历史"
+         href="{% url 'catalog:history' item.url_path item.uuid %}"><i class="fa-solid fa-clock-rotate-left"></i></a>
+    </span>
+    <span>
+      <a title="返回条目" href="{{ item.url }}"><i class="fa-solid fa-info"></i></a>
+    </span>
+  </div>
+  <h5>编辑选项</h5>
+  {% if item.is_deleted %}
+    <p>
+      <i class="fa-solid fa-circle-xmark"></i> 条目已被删除
+    </p>
+  {% endif %}
+  {% if item.child_items %}
+    <p>
+      <i class="fa-solid fa-circle-exclamation"></i> 条目下已有子项
+    </p>
+  {% endif %}
+  {% if item.merged_to_item %}
+    <p>
+      <i class="fa-solid fa-circle-xmark"></i> 条目已被合并到其他条目
+    </p>
+  {% endif %}
+  {% if item.journal_exists %}
+    <p>
+      <i class="fa-solid fa-circle-exclamation"></i> 条目已被用户标记过
+    </p>
+  {% endif %}
   {% for i in item.merged_from_items.all %}
     {% if forloop.first %}
-      🚸 以下条目被并入本条目：
+      <i class="fa-solid fa-circle-info"></i> 以下条目被并入本条目：
       <ul>
       {% endif %}
       <li>
@@ -21,7 +49,7 @@
       {% if forloop.last %}</ul>{% endif %}
   {% endfor %}
   {% if item.editable or request.user.is_staff %}
-    {% for res in form.instance.external_resources.all %}
+    {% for res in item.external_resources.all %}
       <details>
         <summary>
           {% trans '源网站' %}: <a href="{{ res.url }}">{{ res.site_name.label }}</a>
@@ -56,9 +84,9 @@
         </form>
       </details>
     {% endif %}
-    <details>
-      <summary>{% trans '切换分类' %}</summary>
-      {% if item.class_name == "movie" %}
+    {% if item.class_name == "movie" %}
+      <details>
+        <summary>{% trans '切换分类' %}</summary>
         <form method="post"
               action="{% url 'catalog:recast' item.url_path item.uuid %}"
               onsubmit="return confirm('确认切换吗？');">
@@ -66,13 +94,18 @@
           <input type="hidden" value="tvshow" name="class">
           <input class="contrast" type="submit" value="{% trans '更改为剧集' %}">
         </form>
-      {% elif item.class_name == "tvshow" %}
-        {% if not item.all_seasons or request.user.is_staff %}
-          {% comment %} <form method="post" action="{% url 'catalog:recast' item.url_path item.uuid %}" onsubmit="return confirm('确认切换吗？');">
+      </details>
+    {% elif item.class_name == "tvshow" %}
+      {% if not item.all_seasons or request.user.is_staff %}
+        <details>
+          <summary>{% trans '切换分类' %}</summary>
+          <form method="post"
+                action="{% url 'catalog:recast' item.url_path item.uuid %}"
+                onsubmit="return confirm('确认切换吗？');">
             {% csrf_token %}
             <input type="hidden" value="movie" name="class">
             <input class="contrast" type="submit" value="{% trans '更改为电影' %}">
-          </form> {% endcomment %}
+          </form>
           <form method="post"
                 action="{% url 'catalog:recast' item.url_path item.uuid %}"
                 onsubmit="return confirm('确认切换吗？');">
@@ -80,11 +113,11 @@
             <input type="hidden" value="tvseason" name="class">
             <input class="contrast" type="submit" value="{% trans '更改为单季' %}">
           </form>
-        {% endif %}
-      {% else %}
-        <i>此类条目无法切换</i>
+        </details>
       {% endif %}
-    </details>
+    {% else %}
+      <!--此类条目无法切换-->
+    {% endif %}
     {% if item.class_name == "tvseason" or item.class_name == "performanceproduction" %}
       {% if not item.show or request.user.is_staff %}
         <details>
@@ -129,13 +162,13 @@
           <input class="contrast" type="submit" value="{% trans '合并到同类另一条目' %}">
         </form>
       </details>
-      <details>
-        <summary>{% trans '删除' %}</summary>
-        {% if item.class_name == "tvshow" and item.all_seasons %}
-          <i>⛔️ 条目下有子项</i>
-        {% elif item.merged_from_items.all %}
-          <i>⛔️ 有其他条目被并入</i>
-        {% else %}
+      {% if item.child_items %}
+        <!-- 条目下有子项 -->
+      {% elif item.merged_from_items.all %}
+        <!-- 有其他条目被并入 -->
+      {% else %}
+        <details>
+          <summary>{% trans '删除' %}</summary>
           <form method="post"
                 action="{% url 'catalog:delete' item.url_path item.uuid %}"
                 onsubmit="return confirm('本操作不可撤销。确认删除吗？');">
@@ -145,8 +178,8 @@
                    {% if item.is_deleted or item.merged_to_item %}disabled{% endif %}
                    value="{% trans '删除' %}">
           </form>
-        {% endif %}
-      </details>
+        </details>
+      {% endif %}
     {% endif %}
   {% endif %}
 {% endif %}

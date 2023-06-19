@@ -344,8 +344,12 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         )
 
     def merge_to(self, to_item):
+        self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
         if to_item is None:
-            raise ValueError("cannot merge to an empty item")
+            if self.merged_to_item is not None:
+                self.merged_to_item = None
+                self.save()
+            return
         elif to_item.merged_to_item is not None:
             raise ValueError("cannot merge with an item aleady merged")
         if to_item.__class__ != self.__class__:
@@ -377,8 +381,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             obj,
             action=LogEntry.Action.UPDATE,
             changes={
-                "polymorphic_ctype_id": [old_ct.id, ct.id],
-                "__model__": [old_ct.model, ct.model],
+                "!recast": [[old_ct.model, old_ct.id], [ct.model, ct.id]],
             },
         )
         return obj

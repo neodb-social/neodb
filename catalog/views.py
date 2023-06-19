@@ -1,5 +1,4 @@
 import logging
-from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
@@ -23,9 +22,7 @@ from journal.models import ShelfTypeNames, ShelfType, ItemCategory
 from .forms import *
 from .search.views import *
 from django.http import Http404
-from management.models import Announcement
 from django.core.cache import cache
-import random
 
 
 _logger = logging.getLogger(__name__)
@@ -185,6 +182,15 @@ def create(request, item_model):
 
 
 @login_required
+def history(request, item_path, item_uuid):
+    if request.method == "GET":
+        item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+        return render(request, "catalog_history.html", {"item": item})
+    else:
+        raise BadRequest()
+
+
+@login_required
 def edit(request, item_path, item_uuid):
     if request.method == "GET":
         item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
@@ -313,7 +319,7 @@ def remove_unused_seasons(request, item_path, item_uuid):
             s.delete()
     l = [s.id for s in l]
     l2 = [s.id for s in item.seasons.all()]
-    item.log_action({"__remove_unused_seasons__": [l, l2]})
+    item.log_action({"!remove_unused_seasons": [l, l2]})
     return redirect(item.url)
 
 
@@ -339,8 +345,7 @@ def merge(request, item_path, item_uuid):
     else:
         if item.merged_to_item:
             _logger.warn(f"{request.user} cancels merge for {item}")
-            item.merged_to_item = None
-            item.save()
+            item.merge_to(None)
         return redirect(item.url)
 
 

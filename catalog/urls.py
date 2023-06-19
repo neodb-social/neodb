@@ -40,6 +40,13 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/history$",
+        history,
+        name="history",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
         + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/edit$",
         edit,
         name="edit",

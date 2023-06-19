@@ -65,7 +65,7 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = No
     if item and is_refetch:
         item.log_action(
             {
-                "__refetch__": [url, None],
+                "!refetch": [url, None],
             }
         )
     job_id = enqueue_fetch(url, is_refetch)
