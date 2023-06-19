@@ -1,4 +1,10 @@
-from .common.models import ExternalResource, Item, ItemSchema
+from .common.models import (
+    ExternalResource,
+    Item,
+    ItemSchema,
+    item_content_types,
+    item_categories,
+)
 from .book.models import Edition, Work, Series, EditionSchema, EditionInSchema
 from .movie.models import Movie, MovieSchema, MovieInSchema
 from .tv.models import (
@@ -41,34 +47,6 @@ _logger = logging.getLogger(__name__)
 #         proxy = True
 
 
-_CATEGORY_LIST = None
-_CONTENT_TYPE_LIST = None
-
-
-def all_content_types():
-    global _CONTENT_TYPE_LIST
-    if _CONTENT_TYPE_LIST is None:
-        _CONTENT_TYPE_LIST = {}
-        for cls in Item.__subclasses__():
-            _CONTENT_TYPE_LIST[cls] = ContentType.objects.get(
-                app_label="catalog", model=cls.__name__.lower()
-            ).id
-    return _CONTENT_TYPE_LIST
-
-
-def all_categories():
-    global _CATEGORY_LIST
-    if _CATEGORY_LIST is None:
-        _CATEGORY_LIST = {}
-        for cls in Item.__subclasses__():
-            c = getattr(cls, "category", None)
-            if c not in _CATEGORY_LIST:
-                _CATEGORY_LIST[c] = [cls]
-            else:
-                _CATEGORY_LIST[c].append(cls)
-    return _CATEGORY_LIST
-
-
 def init_catalog_search_models():
     if settings.DISABLE_MODEL_SIGNAL:
         _logger.warn(
@@ -100,4 +78,4 @@ def init_catalog_audit_log():
         ExternalResource, include_fields=["item", "id_type", "id_value", "url"]
     )
 
-    Item._content_type_ids = list(all_content_types().values())
+    # _logger.debug(f"Catalog audit log initialized for {item_content_types().values()}")

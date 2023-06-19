@@ -280,13 +280,11 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             ]
         ]
 
-    _content_type_ids = []
-
     @cached_property
     def history(self):
         # can't use AuditlogHistoryField bc it will only return history with current content type
         return LogEntry.objects.filter(
-            object_id=self.id, content_type_id__in=self._content_type_ids
+            object_id=self.id, content_type_id__in=list(item_content_types().values())
         )
 
     def clear(self):
@@ -588,3 +586,34 @@ class ExternalResource(models.Model):
             else:
                 raise ValueError(f"preferred model {model} does not exist")
         return None
+
+
+_CONTENT_TYPE_LIST = None
+
+
+def item_content_types():
+    global _CONTENT_TYPE_LIST
+    if _CONTENT_TYPE_LIST is None:
+        _CONTENT_TYPE_LIST = {}
+        for cls in Item.__subclasses__():
+            _CONTENT_TYPE_LIST[cls] = ContentType.objects.get(
+                app_label="catalog", model=cls.__name__.lower()
+            ).id
+    return _CONTENT_TYPE_LIST
+
+
+_CATEGORY_LIST = None
+
+
+def item_categories():
+    global _CATEGORY_LIST
+    if _CATEGORY_LIST is None:
+        _CATEGORY_LIST = {}
+        for cls in Item.__subclasses__():
+            c = getattr(cls, "category", None)
+            if c not in _CATEGORY_LIST:
+                _CATEGORY_LIST[c] = [cls]
+            else:
+                _CATEGORY_LIST[c].append(cls)
+        print(_CATEGORY_LIST)
+    return _CATEGORY_LIST
