@@ -187,5 +187,6 @@
       {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
     </main>
     {% include "_footer.html" %}
+    <a href="{{ user.mastodon_account.url }}" rel="me" style="display:none">Mastodon verification</a>
   </body>
 </html>

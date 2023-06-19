@@ -104,7 +104,7 @@
     {% if request.user.is_authenticated %}
       {% include "_sidebar.html" with show_progress=1 %}
     {% else %}
-      {% include "partial/_sidebar_anonymous.html" %}
+      {% include "_sidebar_anonymous.html" %}
     {% endif %}
   </main>
   {% include "_footer.html" %}
