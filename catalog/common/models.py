@@ -1,3 +1,4 @@
+from functools import cached_property
 from polymorphic.models import PolymorphicModel
 from django.db import models
 import logging
@@ -8,7 +9,6 @@ from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.contenttypes.models import ContentType
 from django.utils.baseconv import base62
-from simple_history.models import HistoricalRecords
 import uuid
 from typing import cast
 from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
@@ -17,6 +17,8 @@ from django.conf import settings
 from users.models import User
 from django.db import connection
 from ninja import Schema
+from auditlog.context import disable_auditlog
+from auditlog.models import LogEntry, AuditlogHistoryField
 
 _logger = logging.getLogger(__name__)
 
@@ -259,7 +261,6 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False, db_index=True)
-    history = HistoricalRecords()
     merged_to_item = models.ForeignKey(
         "Item",
         null=True,
@@ -278,6 +279,15 @@ class Item(SoftDeleteMixin, PolymorphicModel):
                 "primary_lookup_id_value",
             ]
         ]
+
+    _content_type_ids = []
+
+    @cached_property
+    def history(self):
+        # can't use AuditlogHistoryField bc it will only return history with current content type
+        return LogEntry.objects.filter(
+            object_id=self.id, content_type_id__in=self._content_type_ids
+        )
 
     def clear(self):
         self.set_parent_item(None)
@@ -348,13 +358,25 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         if model not in Item.__subclasses__():
             raise ValueError("invalid model to recast to")
         ct = ContentType.objects.get_for_model(model)
+        old_ct = self.polymorphic_ctype
         tbl = self.__class__._meta.db_table
-        obj = model(item_ptr_id=self.pk, polymorphic_ctype=ct)
-        obj.save_base(raw=True)
-        obj.save(update_fields=["polymorphic_ctype"])
-        with connection.cursor() as cursor:
-            cursor.execute(f"DELETE FROM {tbl} WHERE item_ptr_id = %s", [self.pk])
-        return model.objects.get(pk=obj.pk)
+        with disable_auditlog():
+            # disable audit as serialization won't work here
+            obj = model(item_ptr_id=self.pk, polymorphic_ctype=ct)
+            obj.save_base(raw=True)
+            obj.save(update_fields=["polymorphic_ctype"])
+            with connection.cursor() as cursor:
+                cursor.execute(f"DELETE FROM {tbl} WHERE item_ptr_id = %s", [self.pk])
+        obj = model.objects.get(pk=obj.pk)
+        LogEntry.objects.log_create(
+            obj,
+            action=LogEntry.Action.UPDATE,
+            changes={
+                "polymorphic_ctype_id": [old_ct.id, ct.id],
+                "__model__": [old_ct.model, ct.model],
+            },
+        )
+        return obj
 
     @property
     def uuid(self):

@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     "oauth2_provider",
     "tz_detect",
     "sass_processor",
-    "simple_history",
+    "auditlog",
     "markdownx",
     "polymorphic",
     "easy_thumbnails",
@@ -85,7 +85,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
     "tz_detect.middleware.TimezoneMiddleware",
-    "simple_history.middleware.HistoryRequestMiddleware",
+    "auditlog.middleware.AuditlogMiddleware",
     "maintenance_mode.middleware.MaintenanceModeMiddleware",  # this should be last
 ]
 

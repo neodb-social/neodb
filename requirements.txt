@@ -9,7 +9,7 @@ libsass
 django-compressor
 django-sass-processor
 django-rq
-django-simple-history
+django-auditlog @ git+https://github.com/jazzband/django-auditlog.git@45591463e8192b4ac0095e259cc4dcea0ac2fd6c
 django-hijack
 django-user-messages
 django-slack

@@ -24,6 +24,7 @@ from .search.models import Indexer
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 import logging
+from auditlog.registry import auditlog
 
 _logger = logging.getLogger(__name__)
 
@@ -86,3 +87,16 @@ def init_catalog_search_models():
     Indexer.update_model_indexable(Performance)
     # Indexer.update_model_indexable(PerformanceProduction)
     # Indexer.update_model_indexable(CatalogCollection)
+
+
+def init_catalog_audit_log():
+    for cls in Item.__subclasses__():
+        auditlog.register(
+            cls, exclude_fields=["metadata", "created_time", "edited_time"]
+        )
+
+    auditlog.register(
+        ExternalResource, include_fields=["item", "id_type", "id_value", "url"]
+    )
+
+    Item._content_type_ids = list(all_content_types().values())

@@ -53,6 +53,39 @@
                    onclick="{% if item %}window.location='{{ item.url }}'{% else %}history.go(-1){% endif %}">
           </div>
         </form>
+        {% if request.user.is_superuser %}
+          <div>
+            <table class="table table-striped table-bordered">
+              <thead>
+                <tr style="background:#eee;">
+                  <th>Field</th>
+                  <th style="width:40%;padding-right: 8px;">From</th>
+                  <th style="width:40%;">To</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in item.history.all %}
+                  <tr>
+                    <td colspan="3" style="padding-top:1em;">
+                      ({{ log.id }}) <b>{{ log.actor }} {{ log.get_action_display }} on {{ log.timestamp }}</b>
+                    </td>
+                  </tr>
+                  {% for key, value in log.changes_dict.items %}
+                    <tr {% cycle 'style="background:#eee;"' '' %}>
+                      <td>{{ key }}</td>
+                      <td style="padding-left: 8px">{{ value.0|default:"None" }}</td>
+                      <td>{{ value.1|default:"None" }}</td>
+                    </tr>
+                  {% empty %}
+                    <p>No data.</p>
+                  {% endfor %}
+                {% empty %}
+                  <p>No history for this item has been logged yet.</p>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
       </div>
       <aside class="grid__aside">
         {% include "_sidebar_edit.html" %}
