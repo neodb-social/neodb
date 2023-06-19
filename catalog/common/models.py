@@ -617,5 +617,4 @@ def item_categories():
                 _CATEGORY_LIST[c] = [cls]
             else:
                 _CATEGORY_LIST[c].append(cls)
-        print(_CATEGORY_LIST)
     return _CATEGORY_LIST
