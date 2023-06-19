@@ -366,6 +366,8 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             raise ValueError("invalid model to recast to")
         ct = ContentType.objects.get_for_model(model)
         old_ct = self.polymorphic_ctype
+        if not old_ct:
+            raise ValueError("cannot recast item without polymorphic_ctype")
         tbl = self.__class__._meta.db_table
         with disable_auditlog():
             # disable audit as serialization won't work here
