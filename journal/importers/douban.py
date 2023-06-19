@@ -9,6 +9,7 @@ from user_messages import api as msg
 import django_rq
 from common.utils import GenerateDateUUIDMediaFilePath
 import os
+from auditlog.context import set_actor
 from catalog.common import *
 from catalog.common.downloaders import *
 from catalog.sites.douban import DoubanDownloader
@@ -188,13 +189,14 @@ class DoubanImporter:
         print(f"{self.user} import start")
         msg.info(self.user, f"开始导入豆瓣标记和评论")
         self.update_user_import_status(1)
-        self.load_sheets()
-        print(f"{self.user} sheet loaded, {self.total} lines total")
-        self.update_user_import_status(1)
-        for name, param in self.mark_sheet_config.items():
-            self.import_mark_sheet(self.mark_data[name], param[0], name)
-        for name, param in self.review_sheet_config.items():
-            self.import_review_sheet(self.review_data[name], name)
+        with set_actor(self.user):
+            self.load_sheets()
+            print(f"{self.user} sheet loaded, {self.total} lines total")
+            self.update_user_import_status(1)
+            for name, param in self.mark_sheet_config.items():
+                self.import_mark_sheet(self.mark_data[name], param[0], name)
+            for name, param in self.review_sheet_config.items():
+                self.import_review_sheet(self.review_data[name], name)
         self.update_user_import_status(0)
         msg.success(
             self.user,

@@ -377,13 +377,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             with connection.cursor() as cursor:
                 cursor.execute(f"DELETE FROM {tbl} WHERE item_ptr_id = %s", [self.pk])
         obj = model.objects.get(pk=obj.pk)
-        LogEntry.objects.log_create(
-            obj,
-            action=LogEntry.Action.UPDATE,
-            changes={
-                "!recast": [[old_ct.model, old_ct.id], [ct.model, ct.id]],
-            },
-        )
+        obj.log_action({"!recast": [old_ct.model, ct.model]})
         return obj
 
     @property
@@ -536,13 +530,7 @@ class ExternalResource(models.Model):
         return f"{self.pk}:{self.id_type}:{self.id_value or ''} ({self.url})"
 
     def unlink_from_item(self):
-        LogEntry.objects.log_create(
-            self.item,
-            action=LogEntry.Action.UPDATE,
-            changes={
-                "__unlink__": [str(self), None],
-            },
-        )
+        self.item.log_action({"!unlink": [str(self), None]})
         self.item = None
         self.save()
 

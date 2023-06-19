@@ -71,7 +71,20 @@ def init_catalog_audit_log():
     for cls in Item.__subclasses__():
         auditlog.register(
             cls,
-            exclude_fields=["metadata", "created_time", "edited_time", "last_editor"],
+            exclude_fields=[
+                "id",
+                "item_ptr",
+                "polymorphic_ctype",
+                "metadata",
+                "created_time",
+                "edited_time",
+                "last_editor",
+                # related fields are not supported in django-auditlog yet
+                "lookup_ids",
+                "external_resources",
+                "merged_from_items",
+                "focused_comments",
+            ],
         )
 
     auditlog.register(

@@ -138,6 +138,9 @@ class AbstractSite:
             obj["primary_lookup_id_value"] = v
             resource.item = model.objects.create(**obj)
         if previous_item != resource.item:
+            if previous_item:
+                previous_item.log_action({"unmatch": [str(resource), ""]})
+            resource.item.log_action({"!match": ["", str(resource)]})
             resource.save(update_fields=["item"])
         return resource.item
 
@@ -149,11 +152,7 @@ class AbstractSite:
         if not p.ready:
             # raise ValueError(f'resource not ready for {self.url}')
             return None
-        last_item = p.item
-        item = self.match_or_create_item_for_resource(p)
-        if last_item != p.item:
-            p.save()
-        return item
+        return self.match_or_create_item_for_resource(p)
 
     @property
     def ready(self):

@@ -68,7 +68,7 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = No
                 "!refetch": [url, None],
             }
         )
-    job_id = enqueue_fetch(url, is_refetch)
+    job_id = enqueue_fetch(url, is_refetch, request.user)
     return render(
         request,
         "fetch_pending.html",

@@ -3,6 +3,7 @@ from datetime import datetime
 from user_messages import api as msg
 import django_rq
 from django.utils.timezone import make_aware
+from auditlog.context import set_actor
 from catalog.common import *
 from catalog.models import *
 from journal.models import *
@@ -42,65 +43,66 @@ class GoodreadsImporter:
         match_profile = re.match(re_profile, url)
         total = 0
         visibility = user.preference.default_visibility
-        if match_list or match_shelf:
-            shelf = (
-                cls.parse_shelf(match_shelf[0], user)
-                if match_shelf
-                else cls.parse_list(match_list[0], user)
-            )
-            if shelf["title"] and shelf["books"]:
-                collection = Collection.objects.create(
-                    title=shelf["title"],
-                    brief=shelf["description"]
-                    + "\n\nImported from [Goodreads]("
-                    + url
-                    + ")",
-                    owner=user,
+        with set_actor(user):
+            if match_list or match_shelf:
+                shelf = (
+                    cls.parse_shelf(match_shelf[0], user)
+                    if match_shelf
+                    else cls.parse_list(match_list[0], user)
                 )
-                for book in shelf["books"]:
-                    collection.append_item(book["book"], note=book["review"])
-                    total += 1
-                collection.save()
-            msg.success(user, f'成功从Goodreads导入包含{total}本书的收藏单{shelf["title"]}。')
-        elif match_profile:
-            uid = match_profile[1]
-            shelves = {
-                ShelfType.WISHLIST: f"https://www.goodreads.com/review/list/{uid}?shelf=to-read",
-                ShelfType.PROGRESS: f"https://www.goodreads.com/review/list/{uid}?shelf=currently-reading",
-                ShelfType.COMPLETE: f"https://www.goodreads.com/review/list/{uid}?shelf=read",
-            }
-            for shelf_type in shelves:
-                shelf_url = shelves.get(shelf_type)
-                shelf = cls.parse_shelf(shelf_url, user)
-                for book in shelf["books"]:
-                    mark = Mark(user, book["book"])
-                    if (
-                        (
-                            mark.shelf_type == shelf_type
-                            and mark.comment_text == book["review"]
-                        )
-                        or (
-                            mark.shelf_type == ShelfType.COMPLETE
-                            and shelf_type != ShelfType.COMPLETE
-                        )
-                        or (
-                            mark.shelf_type == ShelfType.PROGRESS
-                            and shelf_type == ShelfType.WISHLIST
-                        )
-                    ):
-                        print(
-                            f'Skip {shelf_type}/{book["book"]} bc it was marked {mark.shelf_type}'
-                        )
-                    else:
-                        mark.update(
-                            shelf_type,
-                            book["review"],
-                            book["rating"],
-                            visibility=visibility,
-                            created_time=book["last_updated"] or timezone.now(),
-                        )
-                    total += 1
-            msg.success(user, f"成功从Goodreads用户主页导入{total}个标记。")
+                if shelf["title"] and shelf["books"]:
+                    collection = Collection.objects.create(
+                        title=shelf["title"],
+                        brief=shelf["description"]
+                        + "\n\nImported from [Goodreads]("
+                        + url
+                        + ")",
+                        owner=user,
+                    )
+                    for book in shelf["books"]:
+                        collection.append_item(book["book"], note=book["review"])
+                        total += 1
+                    collection.save()
+                msg.success(user, f'成功从Goodreads导入包含{total}本书的收藏单{shelf["title"]}。')
+            elif match_profile:
+                uid = match_profile[1]
+                shelves = {
+                    ShelfType.WISHLIST: f"https://www.goodreads.com/review/list/{uid}?shelf=to-read",
+                    ShelfType.PROGRESS: f"https://www.goodreads.com/review/list/{uid}?shelf=currently-reading",
+                    ShelfType.COMPLETE: f"https://www.goodreads.com/review/list/{uid}?shelf=read",
+                }
+                for shelf_type in shelves:
+                    shelf_url = shelves.get(shelf_type)
+                    shelf = cls.parse_shelf(shelf_url, user)
+                    for book in shelf["books"]:
+                        mark = Mark(user, book["book"])
+                        if (
+                            (
+                                mark.shelf_type == shelf_type
+                                and mark.comment_text == book["review"]
+                            )
+                            or (
+                                mark.shelf_type == ShelfType.COMPLETE
+                                and shelf_type != ShelfType.COMPLETE
+                            )
+                            or (
+                                mark.shelf_type == ShelfType.PROGRESS
+                                and shelf_type == ShelfType.WISHLIST
+                            )
+                        ):
+                            print(
+                                f'Skip {shelf_type}/{book["book"]} bc it was marked {mark.shelf_type}'
+                            )
+                        else:
+                            mark.update(
+                                shelf_type,
+                                book["review"],
+                                book["rating"],
+                                visibility=visibility,
+                                created_time=book["last_updated"] or timezone.now(),
+                            )
+                        total += 1
+                msg.success(user, f"成功从Goodreads用户主页导入{total}个标记。")
 
     @classmethod
     def get_book(cls, url, user):

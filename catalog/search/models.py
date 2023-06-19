@@ -8,6 +8,7 @@ from rq.job import Job
 from django.core.cache import cache
 import hashlib
 from .typesense import Indexer as TypeSenseIndexer
+from auditlog.context import set_actor
 
 # from .meilisearch import Indexer as MeiliSearchIndexer
 
@@ -85,7 +86,7 @@ def query_index(keywords, category=None, tag=None, page=1, prepare_external=True
     return items, result.num_pages, result.count, duplicated_items
 
 
-def enqueue_fetch(url, is_refetch):
+def enqueue_fetch(url, is_refetch, user=None):
     job_id = "fetch_" + hashlib.md5(url.encode()).hexdigest()
     in_progress = False
     try:
@@ -95,24 +96,25 @@ def enqueue_fetch(url, is_refetch):
         in_progress = False
     if not in_progress:
         django_rq.get_queue("fetch").enqueue(
-            _fetch_task, url, is_refetch, job_id=job_id
+            _fetch_task, url, is_refetch, user, job_id=job_id
         )
     return job_id
 
 
-def _fetch_task(url, is_refetch):
+def _fetch_task(url, is_refetch, user):
     item_url = "-"
-    try:
-        site = SiteManager.get_site_by_url(url)
-        if not site:
-            return None
-        site.get_resource_ready(ignore_existing_content=is_refetch)
-        item = site.get_item()
-        if item:
-            _logger.info(f"fetched {url} {item.url} {item}")
-            item_url = item.url
-        else:
-            _logger.error(f"fetch {url} failed")
-    except Exception as e:
-        _logger.error(f"fetch {url} error {e}")
-    return item_url
+    with set_actor(user):
+        try:
+            site = SiteManager.get_site_by_url(url)
+            if not site:
+                return None
+            site.get_resource_ready(ignore_existing_content=is_refetch)
+            item = site.get_item()
+            if item:
+                _logger.info(f"fetched {url} {item.url} {item}")
+                item_url = item.url
+            else:
+                _logger.error(f"fetch {url} failed")
+        except Exception as e:
+            _logger.error(f"fetch {url} error {e}")
+        return item_url
