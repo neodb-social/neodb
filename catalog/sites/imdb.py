@@ -75,7 +75,7 @@ class IMDB(AbstractSite):
         d = json.loads(src)["props"]["pageProps"]["aboveTheFoldData"]
         data = {
             "title": d["titleText"]["text"],
-            "year": d["releaseYear"]["year"],
+            "year": d["releaseYear"]["year"] if d.get("releaseYear") else None,
             "is_series": d["titleType"]["isSeries"],
             "is_episode": d["titleType"]["isEpisode"],
             "genre": [x["text"] for x in d["genres"]["genres"]],
