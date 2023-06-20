@@ -2,20 +2,26 @@
 <section>
   <h5>
     我的标签
-    <small>
+    {% if not mark.tags %}
+      <small>
+        <a href="#"
+           hx-get="{% url 'journal:mark' item.uuid %}"
+           class="item-mark-icon"
+           hx-target="body"
+           hx-swap="beforeend">
+          <i class="fa-regular fa-square-plus"></i>
+        </a>
+      </small>
+    {% endif %}
+  </h5>
+  <span class="action">
+    <span>
       <a href="#"
          hx-get="{% url 'journal:mark' item.uuid %}"
-         class="item-mark-icon"
          hx-target="body"
-         hx-swap="beforeend">
-        {% if mark.tags %}
-          <i class="fa-solid fa-pen-to-square"></i>
-        {% else %}
-          <i class="fa-regular fa-square-plus"></i>
-        {% endif %}
-      </a>
-    </small>
-  </h5>
+         hx-swap="beforeend"><i class="fa-solid fa-pen-to-square"></i></a>
+    </span>
+  </span>
   <div class="tag-list">
     {% for tag in mark.tags %}
       <span>
@@ -27,22 +33,26 @@
 <section>
   <h5>
     我的短评
-    <small>
-      <a href="#"
-         hx-get="{% url 'journal:mark' item.uuid %}"
-         class="item-mark-icon"
-         hx-target="body"
-         hx-swap="beforeend">
-        {% if mark.comment_text %}
-          <i class="fa-solid fa-pen-to-square"></i>
-        {% else %}
+    {% if not mark.comment %}
+      <small>
+        <a href="#"
+           hx-get="{% url 'journal:mark' item.uuid %}"
+           class="item-mark-icon"
+           hx-target="body"
+           hx-swap="beforeend">
           <i class="fa-regular fa-square-plus"></i>
-        {% endif %}
-      </a>
-    </small>
+        </a>
+      </small>
+    {% endif %}
   </h5>
   {% if mark.comment %}
     <span class="action">
+      <span>
+        <a href="#"
+           hx-get="{% url 'journal:mark' item.uuid %}"
+           hx-target="body"
+           hx-swap="beforeend"><i class="fa-solid fa-pen-to-square"></i></a>
+      </span>
       <span>
         {% liked_piece mark.comment as liked %}
         {% include 'like_stats.html' with liked=liked piece=mark.comment %}
@@ -55,8 +65,6 @@
       {% comment %} <span class="timestamp">{{ mark.comment.created_time|date }}</span> {% endcomment %}
     </span>
     <p>{{ mark.comment.html|safe }}</p>
-  {% else %}
-    <!-- <span class="empty">暂无</span> -->
   {% endif %}
   <script>window.cil=[];</script>
   {% for comment in child_item_comments %}
@@ -87,22 +95,23 @@
 <section>
   <h5>
     我的评论
-    <small>
-      {% if review %}
-        <a href="{% url 'journal:review_edit' item.uuid review.uuid %}"
-           class="item-mark-icon">
-          <i class="fa-solid fa-pen-to-square"></i>
-        </a>
-      {% else %}
+    {% if not review %}
+      <small>
         <a href="{% url 'journal:review_create' item.uuid %}"
            class="item-mark-icon">
           <i class="fa-regular fa-square-plus"></i>
         </a>
-      {% endif %}
-    </small>
+      </small>
+    {% endif %}
   </h5>
   {% if review %}
     <span class="action">
+      <span>
+        <a href="{% url 'journal:review_edit' item.uuid review.uuid %}"
+           class="item-mark-icon">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </a>
+      </span>
       <span>
         {% liked_piece mark.review as liked %}
         {% include 'like_stats.html' with liked=liked piece=mark.review %}
