@@ -385,6 +385,10 @@ class TVSeason(Item):
     def all_seasons(self):
         return self.show.all_seasons if self.show else []
 
+    @cached_property
+    def all_episodes(self):
+        return self.episodes.all().order_by("episode_number")
+
     @property
     def parent_item(self):
         return self.show

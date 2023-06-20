@@ -8,29 +8,25 @@
 {% load duration %}
 {% load user_actions %}
 {% if item.class_name == "tvseason" and not request.GET.last %}
-  <p>
-    <small>
-      {% if item.episodes.all %}
-        <span class="season-number"><a class="current">全部</a></span>
-        {% for ep in item.episodes.all %}
-          <span class="season-number" id="ci_{{ ep.uuid }}">
-            <a hx-swap="innerHTML"
-               hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ ep.uuid }}"
-               hx-target="#comments">第{{ ep.episode_number }}集</a>
-          </span>
-        {% endfor %}
-      {% else %}
-        <i class="empty">编辑本条目添加分集信息后可开启分集短评功能。</i>
-      {% endif %}
-    </small>
-  </p>
-  <script defer>
-    $(function(){
-      window.cil.forEach(function(uuid){
-        $('#ci_'+uuid).addClass('marked');
-      })
-    });
-  </script>
+  {% if item.all_episodes %}
+    <div class="season-picker">
+      <span class="season-number"><a class="current">全部</a></span>
+      {% for ep in item.all_episodes %}
+        <span class="season-number" id="ci_{{ ep.uuid }}">
+          <a hx-swap="innerHTML"
+             hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ ep.uuid }}"
+             hx-target="#comments">{{ ep.episode_number }}</a>
+        </span>
+      {% endfor %}
+    </div>
+    <script defer>$(function(){ window.cil.forEach(function(uuid){ $('#ci_'+uuid).addClass('marked'); }) });</script>
+  {% else %}
+    <span _="init get localStorage.getItem('x_add_episode') then if it then add .hidden to #x_add_episode"
+          id="x_add_episode">
+      <a href={% url 'catalog:edit' item.url_path item.uuid %}>使用编辑功能</a>批量获取或手工添加单集子条目后可开启分集短评。
+      [<a _="on click add .hidden to #x_add_episode then call localStorage.setItem('x_add_episode', 1)">不再提示</a>]
+    </span>
+  {% endif %}
 {% endif %}
 {% for comment in comments %}
   {% if forloop.counter <= 10 %}

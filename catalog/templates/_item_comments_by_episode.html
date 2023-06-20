@@ -9,22 +9,20 @@
 {% load user_actions %}
 <div id="comments_by_episode">
   {% if not request.GET.last %}
-    <p>
-      <small>
-        <span class="season-number">
+    <div class="season-picker">
+      <span class="season-number">
+        <a hx-swap="innerHTML"
+           hx-get="{% url "catalog:comments" item.url_path item.uuid %}"
+           hx-target="#comments">全部</a>
+      </span>
+      {% for ep in item.all_episodes %}
+        <span class="season-number" id="ci_{{ ep.uuid }}">
           <a hx-swap="innerHTML"
-             hx-get="{% url "catalog:comments" item.url_path item.uuid %}"
-             hx-target="#comments">全部</a>
+             {% if ep.uuid == episode_uuid %} class="current" {% else %} hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ ep.uuid }}" {% endif %}
+             hx-target="#comments">{{ ep.episode_number }}</a>
         </span>
-        {% for ep in item.episodes.all %}
-          <span class="season-number" id="ci_{{ ep.uuid }}">
-            <a hx-swap="innerHTML"
-               {% if ep.uuid == episode_uuid %} class="current" {% else %} hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ ep.uuid }}" {% endif %}
-               hx-target="#comments">第{{ ep.episode_number }}集</a>
-          </span>
-        {% endfor %}
-      </small>
-    </p>
+      {% endfor %}
+    </div>
     <p>
       <small>
         <a href="#"
