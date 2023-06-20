@@ -190,25 +190,25 @@ class IMDBTestCase(TestCase):
         season = SiteManager.get_site_by_url(t_url).get_resource_ready().item
         self.assertIsNotNone(season)
         self.assertIsNone(season.season_number)
-        IMDB.fetch_episodes_for_season(season.uuid)
+        IMDB.fetch_episodes_for_season(season)
         # no episodes fetch bc no season number
         episodes = list(season.episodes.all().order_by("episode_number"))
         self.assertEqual(len(episodes), 0)
         # set season number and fetch again
         season.season_number = 1
         season.save()
-        IMDB.fetch_episodes_for_season(season.uuid)
+        IMDB.fetch_episodes_for_season(season)
         episodes = list(season.episodes.all().order_by("episode_number"))
         self.assertEqual(len(episodes), 2)
         # fetch again, no duplicated episodes
-        IMDB.fetch_episodes_for_season(season.uuid)
+        IMDB.fetch_episodes_for_season(season)
         episodes2 = list(season.episodes.all().order_by("episode_number"))
         self.assertEqual(episodes, episodes2)
         # delete one episode and fetch again
         episodes[0].delete()
         episodes3 = list(season.episodes.all().order_by("episode_number"))
         self.assertEqual(len(episodes3), 1)
-        IMDB.fetch_episodes_for_season(season.uuid)
+        IMDB.fetch_episodes_for_season(season)
         episodes4 = list(season.episodes.all().order_by("episode_number"))
         self.assertEqual(len(episodes4), 2)
         self.assertEqual(episodes[1], episodes4[1])

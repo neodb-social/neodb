@@ -150,8 +150,7 @@ class IMDB(AbstractSite):
         return episodes
 
     @staticmethod
-    def fetch_episodes_for_season(season_uuid):
-        season = TVSeason.get_by_url(season_uuid)
+    def fetch_episodes_for_season(season):
         if not season.season_number or not season.imdb:
             _logger.warning(f"season {season} is missing season number or imdb id")
             return

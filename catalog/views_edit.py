@@ -13,6 +13,7 @@ from .forms import *
 from .search.views import *
 from journal.models import update_journal_for_merged_item
 from common.utils import get_uuid_or_404
+from auditlog.context import set_actor
 
 _logger = logging.getLogger(__name__)
 
@@ -219,9 +220,19 @@ def fetch_tvepisodes(request, item_path, item_uuid):
     if item.class_name != "tvseason" or not item.imdb or item.season_number is None:
         raise BadRequest()
     item.log_action({"!fetch_tvepisodes": ["", ""]})
-    django_rq.get_queue("crawl").enqueue(IMDB.fetch_episodes_for_season, item.uuid)
+    django_rq.get_queue("crawl").enqueue(
+        fetch_episodes_for_season_task, item.uuid, request.user
+    )
     messages.add_message(request, messages.INFO, _("已开始更新单集信息"))
     return redirect(item.url)
+
+
+def fetch_episodes_for_season_task(item_uuid, user):
+    with set_actor(user):
+        season = Item.get_by_url(item_uuid)
+        episodes = season.episode_uuids
+        IMDB.fetch_episodes_for_season(season)
+        season.log_action({"!fetch_tvepisodes": [episodes, season.episode_uuids]})
 
 
 @login_required
