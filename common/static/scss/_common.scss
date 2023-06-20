@@ -76,6 +76,11 @@ details {
   color: var(--pico-muted-color);
 }
 
+.hint {
+  color: var(--pico-muted-color);
+  opacity: 0.5;
+}
+
 .oneline {
   text-overflow: ellipsis;
   overflow: hidden;

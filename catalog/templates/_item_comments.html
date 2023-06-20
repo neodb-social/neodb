@@ -21,11 +21,12 @@
     </div>
     <script defer>$(function(){ window.cil.forEach(function(uuid){ $('#ci_'+uuid).addClass('marked'); }) });</script>
   {% else %}
-    <span _="init get localStorage.getItem('x_add_episode') then if it then add .hidden to #x_add_episode"
-          id="x_add_episode">
+    <p _="init get localStorage.getItem('x_add_episode') then if it then add .hidden to #x_add_episode"
+       id="x_add_episode"
+       class="hint">
       <a href={% url 'catalog:edit' item.url_path item.uuid %}>使用编辑功能</a>批量获取或手工添加单集子条目后可开启分集短评。
       [<a _="on click add .hidden to #x_add_episode then call localStorage.setItem('x_add_episode', 1)">不再提示</a>]
-    </span>
+    </p>
   {% endif %}
 {% endif %}
 {% for comment in comments %}
