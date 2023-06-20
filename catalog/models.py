@@ -15,6 +15,7 @@ from .tv.models import (
     TVShowInSchema,
     TVSeasonSchema,
     TVSeasonInSchema,
+    TVEpisodeSchema,
 )
 from .music.models import Album, AlbumSchema, AlbumInSchema
 from .game.models import Game, GameSchema, GameInSchema

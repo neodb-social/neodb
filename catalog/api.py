@@ -114,6 +114,15 @@ def get_tv_season(request, uuid: str, response: HttpResponse):
 
 
 @api.get(
+    "/tv/episode/{uuid}",
+    response={200: TVEpisodeSchema, 302: RedirectedResult, 404: Result},
+    auth=None,
+)
+def get_tv_episode(request, uuid: str, response: HttpResponse):
+    return _get_item(TVEpisode, uuid, response)
+
+
+@api.get(
     "/podcast/{uuid}",
     response={200: PodcastSchema, 302: RedirectedResult, 404: Result},
     auth=None,
