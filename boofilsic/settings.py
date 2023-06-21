@@ -71,6 +71,7 @@ INSTALLED_APPS += [
     "catalog.apps.CatalogConfig",
     "journal.apps.JournalConfig",
     "social.apps.SocialConfig",
+    "developer.apps.DeveloperConfig",
     "legacy.apps.LegacyConfig",
 ]
 
@@ -423,5 +424,6 @@ DISCORD_WEBHOOKS = {}
 
 NINJA_PAGINATION_PER_PAGE = 20
 OAUTH2_PROVIDER = {"ACCESS_TOKEN_EXPIRE_SECONDS": 3600 * 24 * 365}
+OAUTH2_PROVIDER_APPLICATION_MODEL = "developer.Application"
 
 DEVELOPER_CONSOLE_APPLICATION_CLIENT_ID = "NEODB_DEVELOPER_CONSOLE"
