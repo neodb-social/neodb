@@ -1019,7 +1019,7 @@ class TagManager:
                 tag = Tag.objects.create(
                     owner=user, title=title, visibility=default_visibility
                 )
-            tag.append_item(item)
+            tag.append_item(item, visibility=default_visibility)
         for title in current_titles - titles:
             tag = Tag.objects.filter(owner=user, title=title).first()
             tag.remove_item(item)
@@ -1030,16 +1030,6 @@ class TagManager:
             m.parent.title for m in TagMember.objects.filter(owner=user, item=item)
         ]
         return current_titles
-
-    @staticmethod
-    def add_tag_by_user(item, tag_title, user, default_visibility=0):
-        title = Tag.cleanup_title(tag_title)
-        tag = Tag.objects.filter(owner=user, title=title).first()
-        if not tag:
-            tag = Tag.objects.create(
-                owner=user, title=title, visibility=default_visibility
-            )
-        tag.append_item(item)
 
     @staticmethod
     def get_manager_for_user(user):
@@ -1055,10 +1045,6 @@ class TagManager:
     @property
     def public_tags(self):
         return TagManager.all_tags_for_user(self.owner, public_only=True)
-
-    def add_item_tags(self, item, tags, visibility=0):
-        for tag in tags:
-            TagManager.add_tag_by_user(item, tag, self.owner, visibility)
 
     def get_item_tags(self, item):
         return sorted(

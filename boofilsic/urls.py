@@ -20,7 +20,7 @@ from users.views import login
 from common.api import api
 
 urlpatterns = [
-    path("api/", api.urls),
+    path("api/", api.urls),  # type: ignore
     path("login/", login),
     path("markdownx/", include("markdownx.urls")),
     path("users/", include("users.urls")),
