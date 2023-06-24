@@ -366,19 +366,19 @@ RQ_QUEUES = {
         "DEFAULT_TIMEOUT": -1,
     },
     "import": {
-        "HOST": "localhost",
+        "HOST": REDIS_HOST,
         "PORT": 6379,
         "DB": 0,
         "DEFAULT_TIMEOUT": -1,
     },
     "fetch": {
-        "HOST": "localhost",
+        "HOST": REDIS_HOST,
         "PORT": 6379,
         "DB": 0,
         "DEFAULT_TIMEOUT": -1,
     },
     "crawl": {
-        "HOST": "localhost",
+        "HOST": REDIS_HOST,
         "PORT": 6379,
         "DB": 0,
         "DEFAULT_TIMEOUT": -1,

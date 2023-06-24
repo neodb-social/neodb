@@ -12,16 +12,22 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+PERMITTED_WRITE_METHODS = ["PUT", "POST", "DELETE", "PATCH"]
+PERMITTED_READ_METHODS = ["GET", "HEAD", "OPTIONS"]
+
 class OAuthAccessTokenAuth(HttpBearer):
-    def authenticate(self, request, token):
+    def authenticate(self, request, token) -> bool:
         if not token or not request.user.is_authenticated:
             _logger.debug("API auth: no access token or user not authenticated")
             return False
         request_scopes = []
-        if request.method.upper() in ["GET", "HEAD", "OPTIONS"]:
+        request_method = request_method.upper()
+        if request_method in PERMITTED_READ_METHODS:
             request_scopes = ["read"]
-        else:
+        elif request_method in PERMITTED_WRITE_METHODS:
             request_scopes = ["write"]
+        else:
+            return False
         validator = OAuth2Validator()
         core = OAuthLibCore(Server(validator))
         valid, oauthlib_req = core.verify_request(request, scopes=request_scopes)
