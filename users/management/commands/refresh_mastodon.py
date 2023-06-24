@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.utils import timezone
 from tqdm import tqdm
 
-
+# TODO remove once cron is done through rq schedular
 class Command(BaseCommand):
     help = "Refresh Mastodon data for all users if not updated in last 24h"
 

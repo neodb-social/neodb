@@ -1,26 +1,10 @@
-from django.shortcuts import reverse, redirect, render, get_object_or_404
-from django.http import HttpResponseBadRequest, HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.contrib import auth
-from django.contrib.auth import authenticate
-from django.core.paginator import Paginator
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count
-from .models import User, Report, Preference
-from .forms import ReportForm
+from .models import User
 from mastodon.api import *
-from mastodon import mastodon_request_included
 from common.config import *
-from common.utils import PageLinksGenerator
-from management.models import Announcement
-from mastodon.models import MastodonApplication
+from django.utils import timezone
+from datetime import timedelta
 from django.conf import settings
-from urllib.parse import quote
-from openpyxl import Workbook
-from common.utils import GenerateDateUUIDMediaFilePath
-from datetime import datetime
-import os
 
 
 def refresh_mastodon_data_task(user, token=None):
@@ -31,3 +15,20 @@ def refresh_mastodon_data_task(user, token=None):
         print(f"{user} mastodon data refreshed")
     else:
         print(f"{user} mastodon data refresh failed")
+
+
+def refresh_all_users_mastodon_data_task():
+        for user in User.objects.filter(
+            mastodon_last_refresh__lt=timezone.now() - timedelta(hours=settings.MASTODON_DATA_TTL),
+            is_active=True,
+        ):
+            if user.mastodon_token or user.mastodon_refresh_token:
+                print(f"Refreshing {user}")
+                if user.refresh_mastodon_data():
+                    print(f"Refreshed {user}")
+                    count += 1
+                else:
+                    print(f"Refresh failed for {user}")
+                user.save()
+            else:
+                print(f"Missing token for {user}")

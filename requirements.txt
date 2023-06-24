@@ -21,6 +21,7 @@ django-tz-detect
 django-bleach
 django-redis
 django-oauth-toolkit
+rq-scheduler
 easy-thumbnails
 lxml
 openpyxl
