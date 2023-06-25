@@ -39,7 +39,7 @@ else:
 
 
 def query_index(keywords, category=None, tag=None, page=1, prepare_external=True):
-    if page < 1 or page > 99 or (isinstance(keywords, str) and len(keywords) < 2):
+    if page < 1 or page > 99 or (not tag and isinstance(keywords, str) and len(keywords) < 2):
         return [], 0, 0, []
     result = Indexer.search(keywords, page=page, category=category, tag=tag)
     keys = set()
