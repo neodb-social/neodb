@@ -185,12 +185,13 @@ def assign_parent(request, item_path, item_uuid):
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     parent_item = Item.get_by_url(request.POST.get("parent_item_url"))
-    if not parent_item or parent_item.is_deleted or parent_item.merged_to_item_id:
-        raise BadRequest("Can't assign parent to a deleted or redirected item")
-    if parent_item.child_class != item.__class__.__name__:
-        raise BadRequest("Incompatible child item type")
-    if not request.user.is_staff and item.parent_item:
-        raise BadRequest("Already assigned to a parent item")
+    if parent_item:
+        if parent_item.is_deleted or parent_item.merged_to_item_id:
+            raise BadRequest("Can't assign parent to a deleted or redirected item")
+        if parent_item.child_class != item.__class__.__name__:
+            raise BadRequest("Incompatible child item type")
+    # if not request.user.is_staff and item.parent_item:
+    #     raise BadRequest("Already assigned to a parent item")
     _logger.warn(f"{request.user} assign {item} to {parent_item}")
     item.set_parent_item(parent_item)
     item.save()

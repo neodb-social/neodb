@@ -136,22 +136,20 @@
       <!--此类条目无法切换-->
     {% endif %}
     {% if item.class_name == "tvseason" or item.class_name == "performanceproduction" %}
-      {% if not item.show or request.user.is_staff %}
-        <details>
-          <summary>关联到上一级条目</summary>
-          <form method="post"
-                action="{% url 'catalog:assign_parent' item.url_path item.uuid %}"
-                onsubmit="return confirm('本操作不可撤销。确认关联吗？');">
-            {% csrf_token %}
-            <input type="url"
-                   name="parent_item_url"
-                   placeholder="目标条目URL，留空则取消现有关联"
-                   value="{{ item.show.absolute_url }}">
-            <br>
-            <input class="contrast" type="submit" value="{% trans '更新关联' %}">
-          </form>
-        </details>
-      {% endif %}
+      <details>
+        <summary>关联到上一级条目</summary>
+        <form method="post"
+              action="{% url 'catalog:assign_parent' item.url_path item.uuid %}"
+              onsubmit="return confirm('\确认关联吗？');">
+          {% csrf_token %}
+          <input type="url"
+                 name="parent_item_url"
+                 placeholder="目标条目URL，留空则取消现有关联"
+                 value="{{ item.show.absolute_url }}">
+          <br>
+          <input class="contrast" type="submit" value="{% trans '更新关联' %}">
+        </form>
+      </details>
     {% endif %}
     {% if item.class_name == "tvshow" %}
       <details>
