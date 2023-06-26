@@ -28,6 +28,14 @@ class DbIndexer:
     def update_model_indexable(cls, model):
         pass
 
+    @classmethod
+    def register_list_model(cls, list_model):
+        pass
+
+    @classmethod
+    def register_piece_model(cls, model):
+        pass
+
 
 # if settings.SEARCH_BACKEND == "MEILISEARCH":
 #
