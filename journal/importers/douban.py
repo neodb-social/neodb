@@ -363,13 +363,11 @@ class DoubanImporter:
             r"(?<=!\[\]\()([^)]+)(?=\))", lambda x: _fetch_remote_image(x[1]), content
         )
         params = {
-            "owner": self.user,
             "created_time": time,
             "edited_time": time,
             "title": title,
             "body": content,
             "visibility": self.visibility,
-            "item": item,
         }
-        Review.objects.create(**params)
+        Review.objects.update_or_create(owner=self.user, item=item, defaults=params)
         return 1
