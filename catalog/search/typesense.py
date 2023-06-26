@@ -1,3 +1,4 @@
+from datetime import timedelta
 import types
 import logging
 import typesense
@@ -54,7 +55,7 @@ logger = logging.getLogger(__name__)
 
 _PENDING_INDEX_KEY = "pending_index_ids"
 _PENDING_INDEX_QUEUE = "import"
-_PENDING_INDEX_JOB_ID = "pending_index_flush2"
+_PENDING_INDEX_JOB_ID = "pending_index_flush"
 
 
 def _update_index_task():
@@ -72,19 +73,19 @@ def enqueue_update_index(item_ids):
     if not item_ids:
         return
     get_redis_connection("default").sadd(_PENDING_INDEX_KEY, *item_ids)
-    queued = False
     try:
         job = Job.fetch(
             id=_PENDING_INDEX_JOB_ID,
             connection=django_rq.get_connection(_PENDING_INDEX_QUEUE),
         )
-        queued = job.get_status() == "queued"
+        if job.get_status() in ["queued", "scheduled"]:
+            job.cancel()
     except:
-        queued = False
-    if not queued:
-        django_rq.get_queue(_PENDING_INDEX_QUEUE).enqueue(
-            _update_index_task, job_id=_PENDING_INDEX_JOB_ID
-        )
+        pass
+    # using rq's built-in scheduler here, it can be switched to other similar implementations
+    django_rq.get_queue(_PENDING_INDEX_QUEUE).enqueue_in(
+        timedelta(seconds=2), _update_index_task, job_id=_PENDING_INDEX_JOB_ID
+    )
 
 
 def _item_post_save_handler(sender, instance, created, **kwargs):
