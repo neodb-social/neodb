@@ -80,7 +80,7 @@ def connect(request):
         login_domain.strip().lower().split("//")[-1].split("/")[0].split("@")[-1]
     )
     try:
-        app = get_mastodon_application(login_domain)
+        app = get_or_create_fediverse_application(login_domain)
         if app.api_domain and app.api_domain != app.domain_name:
             login_domain = app.api_domain
         login_url = get_mastodon_login_url(app, login_domain, request)

@@ -255,7 +255,7 @@ def detect_server_info(login_domain):
         raise Exception("实例返回信息无法识别")
 
 
-def get_mastodon_application(login_domain):
+def get_or_create_fediverse_application(login_domain):
     domain = login_domain
     app = MastodonApplication.objects.filter(domain_name=domain).first()
     if not app:
