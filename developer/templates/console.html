@@ -34,7 +34,7 @@
       </p>
       <details {% if token %}open{% endif %}>
         <summary>
-          <b>Test Access Token</b>
+          <a>Test Access Token</a>
         </summary>
         <form method="post" role="group">
           {% csrf_token %}
@@ -49,6 +49,38 @@
           Or use it in command line, like
           <code>curl -H "Authorization: Bearer YOUR_TOKEN" {{ site_url }}/api/me</code>
         </p>
+      </details>
+      <br>
+      <details>
+        <summary>
+          <a>How to authorize</a>
+        </summary>
+        0. Create an application
+        <br>
+        1. Guide your user to open this URL (you must have <code>https://example.org/callback</code> included in the Redirect URIs field)
+        <input type="text"
+               value="{{ site_url }}/oauth/authorize/?response_type=code&amp;client_id=CLIENT_ID&amp;redirect_uri=https://example.org/callback"
+               readonly>
+        2. Once authorizated by user, it will redirect to <code>https://example.org/callback</code> with a <code>code</code> parameter:
+        <input type="text"
+               value="https://example.org/callback?code=AUTH_CODE"
+               readonly>
+        3. Obtain access token with the following POST request:
+        <textarea readonly rows="7">
+    curl -X POST {{ site_url }}/oauth/token/ \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "client_id=CLIENT_ID" \
+    -d "client_secret=CLIENT_SECRET" \
+    -d "code=AUTH_CODE" \
+    -d "redirect_uri=https://example.org/callback" \
+    -d "grant_type=authorization_code"</textarea>
+        and access token will be returned in the response:
+        <textarea readonly rows="1">{"access_token": "ACCESS_TOKEN", "expires_in": 31536000, "token_type": "Bearer", "scope": "read write", "refresh_token": "REFRESH_TOKEN"}</textarea>
+        4. Use the access token to access protected endpoints like <code>/api/me</code>
+        <textarea readonly rows="1">curl -H "Authorization: Bearer ACCESS_TOKEN" -X GET http://localhost:8000/api/me</textarea>
+        and response will be returned accordingly:
+        <textarea readonly rows="1">{"url": "https://neodb.social/users/xxx@yyy.zzz/", "external_acct": "xxx@yyy.zzz", "display_name": "XYZ", "avatar": "https://yyy.zzz/xxx.gif"}</textarea>
+        more endpoints can be found in API Documentation below.
       </details>
       <div id="swagger-ui"></div>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-bundle.min.js"

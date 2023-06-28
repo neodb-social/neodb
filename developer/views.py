@@ -29,6 +29,7 @@ class ApplicationRegistration(BaseApplicationRegistration):
                 "name",
                 "url",
                 "description",
+                "client_secret",
                 "redirect_uris",
                 # "post_logout_redirect_uris",
             ),
@@ -38,7 +39,7 @@ class ApplicationRegistration(BaseApplicationRegistration):
         form.instance.user = self.request.user
         if not form.instance.id:
             form.instance.client_id = generate_client_id()
-            form.instance.client_secret = generate_client_secret()
+            # form.instance.client_secret = generate_client_secret()
             form.instance.client_type = Application.CLIENT_CONFIDENTIAL
             form.instance.authorization_grant_type = (
                 Application.GRANT_AUTHORIZATION_CODE
@@ -54,6 +55,7 @@ class ApplicationUpdate(BaseApplicationUpdate):
                 "name",
                 "url",
                 "description",
+                # "client_secret",
                 "redirect_uris",
                 # "post_logout_redirect_uris",
             ),
