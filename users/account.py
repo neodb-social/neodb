@@ -179,6 +179,8 @@ def logout(request):
 @mastodon_request_included
 @login_required
 def reconnect(request):
+    if request.META.get("HTTP_AUTHORIZATION"):
+        raise BadRequest("Only for web login")
     if request.method == "POST":
         request.session["swap_login"] = True
         request.session["swap_domain"] = request.POST["domain"]
@@ -258,6 +260,8 @@ def auth_logout(request):
 
 @login_required
 def clear_data(request):
+    if request.META.get("HTTP_AUTHORIZATION"):
+        raise BadRequest("Only for web login")
     if request.method == "POST":
         if request.POST.get("verification") == request.user.mastodon_username:
             remove_data_by_user(request.user)
