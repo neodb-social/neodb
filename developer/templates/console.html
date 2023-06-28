@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
   <head>
@@ -25,10 +26,15 @@
   <body>
     {% include "_header.html" %}
     <main class="container">
-      <h5>Developer Console</h5>
+      <h3>
+        Developer Console | <a href="{% url 'oauth2_provider:list' %}">{% trans "Your applications" %}</a>
+      </h3>
+      <p class="empty">
+        By using our APIs, you agree to our <a href="{% url 'management:retrieve_slug' 'developer-term' %}">term</a> and <a href="{% url 'management:retrieve_slug' 'data-policy' %}">data policy</a>.
+      </p>
       <details {% if token %}open{% endif %}>
         <summary>
-          <b>Access Token Management</b>
+          <b>Test Access Token</b>
         </summary>
         <form method="post" role="group">
           {% csrf_token %}
