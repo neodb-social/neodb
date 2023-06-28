@@ -10,10 +10,12 @@
         {% csrf_token %}
         {% if not application.is_official %}
           <p>
-            <b>{{ application.name }}</b> 是 <a href="{% url 'journal:user_profile' application.user.mastodon_username %}">{{ application.user.mastodon_username }}</a> 创建和维护的应用程序， 并非来自{{ site_name }}官方。
+            <b>{{ application.name }}</b> 是由 <a href="{% url 'journal:user_profile' application.user.mastodon_username %}">{{ application.user.mastodon_username }}</a> 创建和维护的应用程序。
+            {{ site_name }}无法保证其安全性和有效性，请自行验证确认后再授权。
           </p>
         {% endif %}
         {% if application.url %}应用网址: {{ application.url | urlize }}{% endif %}
+        <p>{{ application.description_html|safe }}</p>
         {% for field in form %}
           {% if field.is_hidden %}{{ field }}{% endif %}
         {% endfor %}

@@ -144,6 +144,15 @@
               }
             </script>
           </section>
+          <hr>
+          <section>
+            <details>
+              <summary>{% trans '应用管理' %}</summary>
+              <p>
+                <a href="{% url 'oauth2_provider:authorized-token-list' %}">查看已授权的应用程序</a>
+              </p>
+            </details>
+          </section>
         </article>
       </div>
       {% include "_sidebar.html" with show_profile=1 %}

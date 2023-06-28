@@ -44,7 +44,7 @@ _urlpatterns += [
     ),
     re_path(
         r"^developer/applications/register/$",
-        oauth2_views.ApplicationRegistration.as_view(),
+        ApplicationRegistration.as_view(),
         name="register",
     ),
     re_path(
@@ -59,7 +59,7 @@ _urlpatterns += [
     ),
     re_path(
         r"^developer/applications/(?P<pk>[\w-]+)/update/$",
-        oauth2_views.ApplicationUpdate.as_view(),
+        ApplicationUpdate.as_view(),
         name="update",
     ),
 ]

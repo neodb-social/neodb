@@ -4,9 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from oauth2_provider.forms import AllowForm
 from oauth2_provider.models import get_application_model
-from oauth2_provider.views import ProtectedResourceView
+from oauth2_provider.views import ApplicationRegistration as BaseApplicationRegistration
+from oauth2_provider.views import ApplicationUpdate as BaseApplicationUpdate
 from oauth2_provider.views.base import AuthorizationView as BaseAuthorizationView
 from oauth2_provider.settings import oauth2_settings
+from oauth2_provider.generators import generate_client_id, generate_client_secret
 from common.api import api
 from oauthlib.common import generate_token
 from oauth2_provider.models import AccessToken
@@ -15,10 +17,47 @@ from dateutil.relativedelta import relativedelta
 from oauth2_provider.models import RefreshToken
 from django.conf import settings
 from .models import Application
+from django.forms.models import modelform_factory
+from .models import Application
 
 
-class AuthorizationView(BaseAuthorizationView):
-    pass
+class ApplicationRegistration(BaseApplicationRegistration):
+    def get_form_class(self):
+        return modelform_factory(
+            Application,
+            fields=(
+                "name",
+                "url",
+                "description",
+                "redirect_uris",
+                # "post_logout_redirect_uris",
+            ),
+        )
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        if not form.instance.id:
+            form.instance.client_id = generate_client_id()
+            form.instance.client_secret = generate_client_secret()
+            form.instance.client_type = Application.CLIENT_CONFIDENTIAL
+            form.instance.authorization_grant_type = (
+                Application.GRANT_AUTHORIZATION_CODE
+            )
+        return super().form_valid(form)
+
+
+class ApplicationUpdate(BaseApplicationUpdate):
+    def get_form_class(self):
+        return modelform_factory(
+            get_application_model(),
+            fields=(
+                "name",
+                "url",
+                "description",
+                "redirect_uris",
+                # "post_logout_redirect_uris",
+            ),
+        )
 
 
 @login_required

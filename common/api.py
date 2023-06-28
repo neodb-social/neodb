@@ -18,7 +18,7 @@ class OAuthAccessTokenAuth(HttpBearer):
             _logger.debug("API auth: no access token or user not authenticated")
             return False
         request_scopes = []
-        if request.method.upper() in ["GET", "HEAD", "OPTIONS"]:
+        if request.method in ["GET", "HEAD", "OPTIONS"]:
             request_scopes = ["read"]
         else:
             request_scopes = ["write"]
