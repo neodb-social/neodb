@@ -243,6 +243,8 @@ def fetch_tvepisodes(request, item_path, item_uuid):
 def fetch_episodes_for_season_task(item_uuid, user):
     with set_actor(user):
         season = Item.get_by_url(item_uuid)
+        if not season:
+            return
         episodes = season.episode_uuids
         IMDB.fetch_episodes_for_season(season)
         season.log_action({"!fetch_tvepisodes": [episodes, season.episode_uuids]})
