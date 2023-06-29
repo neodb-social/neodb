@@ -129,6 +129,18 @@ def delete(request, item_path, item_uuid):
 
 
 @login_required
+def undelete(request, item_path, item_uuid):
+    if request.method != "POST":
+        raise BadRequest()
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not request.user.is_staff:
+        raise PermissionDenied()
+    item.is_deleted = False
+    item.save()
+    return redirect(item.url)
+
+
+@login_required
 def recast(request, item_path, item_uuid):
     if request.method != "POST":
         raise BadRequest()

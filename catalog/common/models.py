@@ -342,16 +342,16 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         )
 
     def merge_to(self, to_item):
-        self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
         if to_item is None:
             if self.merged_to_item is not None:
                 self.merged_to_item = None
                 self.save()
             return
-        elif to_item.merged_to_item is not None:
-            raise ValueError("cannot merge with an item aleady merged")
+        if to_item.merged_to_item is not None:
+            raise ValueError("cannot merge to item which is merged to another item")
         if to_item.__class__ != self.__class__:
-            _logger.warn(f"merging item across class from {self} to {to_item}")
+            raise ValueError(f"cannot merge to item in a different model")
+        self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
         self.merged_to_item = to_item
         self.save()
         for res in self.external_resources.all():
@@ -530,6 +530,8 @@ class ExternalResource(models.Model):
         return f"{self.pk}:{self.id_type}:{self.id_value or ''} ({self.url})"
 
     def unlink_from_item(self):
+        if not self.item:
+            return
         self.item.log_action({"!unlink": [str(self), None]})
         self.item = None
         self.save()
