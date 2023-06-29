@@ -110,7 +110,7 @@
         {% else %}
           <section>
             <p class="empty">
-              <span><a href="{% url 'users:login' %}">登录</a>后可管理标记收藏</span>
+              <span><a href="{% url 'users:login' %}?next={{ request.path }}">登录</a>后可管理标记收藏</span>
             </p>
           </section>
         {% endif %}
