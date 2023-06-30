@@ -242,17 +242,22 @@ def detect_server_info(login_domain):
     try:
         j = response.json()
         domain = j["uri"].lower().split("//")[-1].split("/")[0]
-        api_domain = domain
-        if "urls" in j and "streaming_api" in j["urls"]:
-            api_domain = j["urls"]["streaming_api"].split("://")[1]
-        server_version = j["version"]
-        logger.info(
-            f"detect_server_info: {login_domain} {domain} {api_domain} {server_version}"
-        )
-        return domain, api_domain, server_version
     except Exception as e:
         logger.error(f"Error connecting {login_domain}: {e}")
         raise Exception("实例返回信息无法识别")
+    server_version = j["version"]
+    api_domain = domain
+    if domain != login_domain:
+        url = f"https://{domain}/api/v1/instance"
+        try:
+            response = get(url, headers={"User-Agent": USER_AGENT})
+            j = response.json()
+        except:
+            api_domain = login_domain
+    logger.info(
+        f"detect_server_info: {login_domain} {domain} {api_domain} {server_version}"
+    )
+    return domain, api_domain, server_version
 
 
 def get_mastodon_application(login_domain):
