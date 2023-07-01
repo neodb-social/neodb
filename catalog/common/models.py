@@ -347,6 +347,8 @@ class Item(SoftDeleteMixin, PolymorphicModel):
                 self.merged_to_item = None
                 self.save()
             return
+        if to_item.pk == self.pk:
+            raise ValueError("cannot merge to self")
         if to_item.merged_to_item is not None:
             raise ValueError("cannot merge to item which is merged to another item")
         if to_item.__class__ != self.__class__:

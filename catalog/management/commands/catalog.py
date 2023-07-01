@@ -27,11 +27,6 @@ class Command(BaseCommand):
             action="store_true",
             help="check and fix integrity for merged and deleted items",
         )
-        parser.add_argument(
-            "--journal",
-            action="store_true",
-            help="check and fix remaining journal for merged and deleted items",
-        )
 
     def handle(self, *args, **options):
         self.verbose = options["verbose"]
@@ -40,8 +35,6 @@ class Command(BaseCommand):
             self.purge()
         if options["integrity"]:
             self.integrity()
-        if options["journal"]:
-            self.journal()
         self.stdout.write(self.style.SUCCESS(f"Done."))
 
     def purge(self):
@@ -101,15 +94,16 @@ class Command(BaseCommand):
                     r.item = i.merged_to_item
                     r.save()
 
-    def journal(self):
-        self.stdout.write(f"Checking deleted items with remaining journals...")
-        for i in Item.objects.filter(is_deleted=True):
-            if i.journal_exists():
-                self.stdout.write(f"! {i} : {i.absolute_url}?skipcheck=1")
+        self.stdout.write(f"Checking deleted item with child TV Season...")
+        for i in TVSeason.objects.filter(show__is_deleted=True):
+            self.stdout.write(f"! {i.show} : {i.show.absolute_url}?skipcheck=1")
+            if self.fix:
+                i.show.is_deleted = False
+                i.show.save()
 
-        self.stdout.write(f"Checking merged items with remaining journals...")
-        for i in Item.objects.filter(merged_to_item__isnull=False):
-            if i.journal_exists():
-                self.stdout.write(f"! {i} : {i.absolute_url}?skipcheck=1")
-                if self.fix:
-                    update_journal_for_merged_item(i.url)
+        self.stdout.write(f"Checking merged item with child TV Season...")
+        for i in TVSeason.objects.filter(show__merged_to_item__isnull=False):
+            self.stdout.write(f"! {i.show} : {i.show.absolute_url}?skipcheck=1")
+            if self.fix:
+                i.show = i.show.merged_to_item
+                i.save()
