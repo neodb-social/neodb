@@ -142,7 +142,7 @@ class AbstractSite:
     @classmethod
     def match_or_create_item_for_resource(cls, resource):
         previous_item = resource.item
-        resource.item = cls.match_existing_item_for_resource(resource)
+        resource.item = cls.match_existing_item_for_resource(resource) or previous_item
         if resource.item is None:
             model = cls.get_model_for_resource(resource)
             if not model:

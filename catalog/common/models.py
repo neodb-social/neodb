@@ -422,10 +422,13 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     #     return next((x[len(prefix):] for x in self.lookup_ids if x.startswith(prefix)), None)
 
     def update_lookup_ids(self, lookup_ids):
-        # TODO
-        # ll = set(lookup_ids)
-        # ll = list(filter(lambda a, b: b, ll))
-        pass
+        for t, v in lookup_ids:
+            if t in IdealIdTypes and self.primary_lookup_id_type not in IdealIdTypes:
+                self.primary_lookup_id_type = t
+                self.primary_lookup_id_value = v
+                return
+            if t == self.primary_lookup_id_type:
+                self.primary_lookup_id_value = v
 
     METADATA_COPY_LIST = [
         "title",
@@ -464,7 +467,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
                     setattr(self, k, p.metadata.get(k))
             if p.cover and (not self.has_cover() or ignore_existing_content):
                 self.cover = p.cover
-        self.update_lookup_ids(lookup_ids)
+        self.update_lookup_ids(list(set(lookup_ids)))
 
     def update_linked_items_from_external_resource(self, resource):
         """Subclass should override this"""
