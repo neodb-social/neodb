@@ -10,7 +10,16 @@ from .search.models import enqueue_fetch, query_index
 
 
 class SearchResult(Schema):
-    data: List[ItemSchema]
+    data: List[
+        EditionSchema
+        | MovieSchema
+        | TVShowSchema
+        | TVSeasonSchema
+        | AlbumSchema
+        | PodcastSchema
+        | GameSchema
+        | PerformanceSchema
+    ]
     pages: int
     count: int
 
