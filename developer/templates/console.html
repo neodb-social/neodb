@@ -1,10 +1,9 @@
 {% load i18n %}
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
   <head>
     <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css"
-          integrity="sha512-JArlzA682ixxKlWoGxYQxF+vHv527K1/NMnGbMxZERWr/16D7ZlPZUdq9+n5cA3TM030G57bSXYdN706FU9doQ=="
+          href="https://unpkg.com/swagger-ui-dist@5.1.0/swagger-ui.css"
           crossorigin="anonymous"
           referrerpolicy="no-referrer" />
     <title>{{ api.title }} Developer Console</title>
@@ -20,6 +19,10 @@
     }
     button svg {
       fill: var(--pico-primary);
+    }
+    #swagger-ui>div>div>.wrapper {
+      background-color: white;
+      padding: 0;
     }
     </style>
   </head>
@@ -82,9 +85,8 @@
         <textarea readonly rows="1">{"url": "https://neodb.social/users/xxx@yyy.zzz/", "external_acct": "xxx@yyy.zzz", "display_name": "XYZ", "avatar": "https://yyy.zzz/xxx.gif"}</textarea>
         more endpoints can be found in API Documentation below.
       </details>
-      <div id="swagger-ui"></div>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-bundle.min.js"
-              integrity="sha512-PijkKcRp7VDW1K2S8nNgljcNRrEQmazUc8sPiVRMciEuNzJzz2KeKb2Cjz/HdjZrKwmEYEyhOFZlOi0xzqWdqg=="
+      <div id="swagger-ui" data-theme="light"></div>
+      <script src="https://unpkg.com/swagger-ui-dist@5.1.0/swagger-ui-bundle.js"
               crossorigin="anonymous"
               referrerpolicy="no-referrer"></script>
       <script>
