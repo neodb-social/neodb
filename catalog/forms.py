@@ -7,7 +7,7 @@ from common.forms import PreviewImageInput
 CatalogForms = {}
 
 
-def _EditForm(item_model: Item):
+def _EditForm(item_model):
     item_fields = (
         ["id"]
         + item_model.METADATA_COPY_LIST

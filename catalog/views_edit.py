@@ -86,7 +86,8 @@ def edit(request, item_path, item_uuid):
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(instance=item)
         if (
-            item.external_resources.all().count() > 0
+            not request.user.is_staff
+            and item.external_resources.all().count() > 0
             and item.primary_lookup_id_value
             and item.primary_lookup_id_type in IdealIdTypes
         ):
@@ -98,7 +99,8 @@ def edit(request, item_path, item_uuid):
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(request.POST, request.FILES, instance=item)
         if (
-            item.external_resources.all().count() > 0
+            not request.user.is_staff
+            and item.external_resources.all().count() > 0
             and item.primary_lookup_id_value
             and item.primary_lookup_id_type in IdealIdTypes
         ):
