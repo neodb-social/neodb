@@ -114,7 +114,7 @@ def add_to_collection(request, item_uuid):
         cid = int(request.POST.get("collection_id", default=0))
         if not cid:
             cid = Collection.objects.create(
-                owner=request.user, title=f"{request.user.username}的收藏单"
+                owner=request.user, title=f"{request.user.display_name}的收藏单"
             ).id
         collection = Collection.objects.get(owner=request.user, id=cid)
         collection.append_item(item, note=request.POST.get("note"))
@@ -738,7 +738,7 @@ def user_tag_edit(request):
             tag.delete()
             msg.info(request.user, _("标签已删除"))
             return redirect(
-                reverse("journal:user_tag_list", args=[request.user.mastodon_username])
+                reverse("journal:user_tag_list", args=[request.user.mastodon_acct])
             )
         elif (
             tag_title != tag.title
@@ -754,7 +754,7 @@ def user_tag_edit(request):
         return redirect(
             reverse(
                 "journal:user_tag_member_list",
-                args=[request.user.mastodon_username, tag.title],
+                args=[request.user.mastodon_acct, tag.title],
             )
         )
     raise BadRequest()

@@ -19,7 +19,7 @@
     <meta property="og:description" content="{{ collection.description }}">
     <meta property="og:type" content="article">
     <meta property="og:article:author"
-          content="{{ collection.owner.username }}">
+          content="{{ collection.owner.display_name }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ collection.cover|thumb:'normal' }}">
     <title>{{ site_name }} {% trans '收藏单' %} - {{ collection.title }}</title>
@@ -56,13 +56,13 @@
             <div class="owner">
               <span class="avatar">
                 <img src="{{ collection.owner.mastodon_account.avatar }}"
-                     alt="{{ collection.owner.username }}">
+                     alt="{{ collection.owner.display_name }}">
               </span>
             </div>
             <div class="info">
               <p>
-                <a href="{% url 'journal:user_profile' collection.owner.mastodon_username %}">{{ collection.owner.mastodon_account.display_name }}</a>
-                <span class="handler">@{{ collection.owner.mastodon_username }}</span>
+                <a href="{{ collection.owner.url }}">{{ collection.owner.mastodon_account.display_name }}</a>
+                <span class="handler">@{{ collection.owner.handler }}</span>
               </p>
               <p>
                 {% for cat, count in collection.get_summary.items %}

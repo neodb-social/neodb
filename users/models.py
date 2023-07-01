@@ -1,4 +1,7 @@
 import uuid
+import re
+from django.core import validators
+from django.utils.deconstruct import deconstructible
 import django.contrib.postgres.fields as postgres
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -13,6 +16,16 @@ from mastodon.api import *
 from django.urls import reverse
 
 
+@deconstructible
+class UsernameValidator(validators.RegexValidator):
+    regex = r"^[a-zA-Z0-9_]{2,50}$"
+    message = _(
+        "Enter a valid username. This value may contain only unaccented lowercase a-z "
+        "and uppercase A-Z letters, numbers, and _ characters."
+    )
+    flags = re.ASCII
+
+
 def report_image_path(instance, filename):
     return GenerateDateUUIDMediaFilePath(
         instance, filename, settings.REPORT_MEDIA_PATH_ROOT
@@ -20,19 +33,23 @@ def report_image_path(instance, filename):
 
 
 class User(AbstractUser):
-    if settings.MASTODON_ALLOW_ANY_SITE:
-        username = models.CharField(
-            _("username"),
-            max_length=150,
-            unique=False,
-            help_text=_(
-                "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
-            ),
-        )
+    username_validator = UsernameValidator()
+    username = models.CharField(
+        _("username"),
+        max_length=50,
+        unique=True,
+        null=True,  # allow null for newly registered users who has not set a user name
+        help_text=_("Required. 50 characters or fewer. Letters, digits and _ only."),
+        validators=[username_validator],
+        error_messages={
+            "unique": _("A user with that username already exists."),
+        },
+    )
+    email = models.EmailField(_("email address"), unique=True, default=None, null=True)
     following = models.JSONField(default=list)
-    mastodon_id = models.CharField(max_length=100, blank=False)
-    # mastodon domain name, eg donotban.com
-    mastodon_site = models.CharField(max_length=100, blank=False)
+    mastodon_id = models.CharField(max_length=100, default=None, null=True)
+    mastodon_username = models.CharField(max_length=100, default=None, null=True)
+    mastodon_site = models.CharField(max_length=100, default=None, null=True)
     mastodon_token = models.CharField(max_length=2048, default="")
     mastodon_refresh_token = models.CharField(max_length=2048, default="")
     mastodon_locked = models.BooleanField(default=False)
@@ -50,8 +67,13 @@ class User(AbstractUser):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["username", "mastodon_site"], name="unique_user_identity"
-            )
+                fields=["mastodon_username", "mastodon_site"],
+                name="unique_mastodon_username",
+            ),
+            models.UniqueConstraint(
+                fields=["mastodon_id", "mastodon_site"],
+                name="unique_mastodon_id",
+            ),
         ]
 
     # def save(self, *args, **kwargs):
@@ -60,31 +82,58 @@ class User(AbstractUser):
     #     return super().save(*args, **kwargs)
 
     @property
-    def mastodon_username(self):
-        return self.username + "@" + self.mastodon_site
+    def mastodon_acct(self):
+        return (
+            f"{self.mastodon_username}@{self.mastodon_site}"
+            if self.mastodon_username
+            else ""
+        )
 
     @property
     def display_name(self):
         return (
-            self.mastodon_account["display_name"]
+            self.mastodon_account.get("display_name")
             if self.mastodon_account
-            and "display_name" in self.mastodon_account
-            and self.mastodon_account["display_name"]
-            else self.mastodon_username
+            else (self.username or self.mastodon_acct or "")
         )
 
     @property
+    def handler(self):
+        return self.mastodon_acct or self.username or f"~{self.pk}"
+
+    @property
     def url(self):
-        return reverse("journal:user_profile", args=[self.mastodon_username])
+        return reverse("journal:user_profile", args=[self.handler])
 
     def __str__(self):
-        return self.mastodon_username
+        return f'{self.pk}:{self.username or ""}:{self.mastodon_acct}'
 
     def get_preference(self):
         pref = Preference.objects.filter(user=self).first()  # self.preference
         if not pref:
             pref = Preference.objects.create(user=self)
         return pref
+
+    def clear(self):
+        if self.mastodon_site == "removed" and not self.is_active:
+            return
+        self.first_name = self.mastodon_username
+        self.last_name = self.mastodon_site
+        self.is_active = False
+        self.email = None
+        # self.username = "~removed~" + str(self.pk)
+        # to get ready for federation, username has to be reserved
+        self.mastodon_username = "~removed~" + str(self.pk)
+        self.mastodon_id = None
+        self.mastodon_site = "removed"
+        self.mastodon_token = ""
+        self.mastodon_locked = False
+        self.mastodon_followers = []
+        self.mastodon_following = []
+        self.mastodon_mutes = []
+        self.mastodon_blocks = []
+        self.mastodon_domain_blocks = []
+        self.mastodon_account = {}
 
     def refresh_mastodon_data(self):
         """Try refresh account data from mastodon server, return true if refreshed successfully, note it will not save to db"""
@@ -102,9 +151,11 @@ class User(AbstractUser):
         if mastodon_account:
             self.mastodon_account = mastodon_account
             self.mastodon_locked = mastodon_account["locked"]
-            if self.username != mastodon_account["username"]:
-                print(f"username changed from {self} to {mastodon_account['username']}")
-                self.username = mastodon_account["username"]
+            if self.mastodon_username != mastodon_account["username"]:
+                logger.warn(
+                    f"username changed from {self} to {mastodon_account['username']}"
+                )
+                self.mastodon_username = mastodon_account["username"]
             # self.mastodon_token = token
             # user.mastodon_id  = mastodon_account['id']
             self.mastodon_followers = get_related_acct_list(
@@ -139,7 +190,7 @@ class User(AbstractUser):
             target = User.get(m)
             if target and (
                 (not target.mastodon_locked)
-                or self.mastodon_username in target.mastodon_followers
+                or self.mastodon_acct in target.mastodon_followers
             ):
                 fl.append(target.pk)
         return fl
@@ -147,25 +198,25 @@ class User(AbstractUser):
     def is_blocking(self, target):
         return (
             (
-                target.mastodon_username in self.mastodon_blocks
+                target.mastodon_acct in self.mastodon_blocks
                 or target.mastodon_site in self.mastodon_domain_blocks
             )
             if target.is_authenticated
-            else self.preference.no_anonymous_view
+            else self.preference.no_anonymous_view  # type: ignore
         )
 
     def is_blocked_by(self, target):
         return target.is_authenticated and target.is_blocking(self)
 
     def is_muting(self, target):
-        return target.mastodon_username in self.mastodon_mutes
+        return target.mastodon_acct in self.mastodon_mutes
 
     def is_following(self, target):
         return (
-            self.mastodon_username in target.mastodon_followers
+            self.mastodon_acct in target.mastodon_followers
             if target.mastodon_locked
-            else self.mastodon_username in target.mastodon_followers
-            or target.mastodon_username in self.mastodon_following
+            else self.mastodon_acct in target.mastodon_followers
+            or target.mastodon_acct in self.mastodon_following
         )
 
     def is_followed_by(self, target):
@@ -196,14 +247,15 @@ class User(AbstractUser):
         return unread_announcements
 
     @classmethod
-    def get(cls, id):
-        if isinstance(id, str):
-            try:
-                username = id.split("@")[0]
-                site = id.split("@")[1]
-            except IndexError:
+    def get(cls, name):
+        if isinstance(name, str):
+            sp = name.split("@")
+            if len(sp) == 1:
+                query_kwargs = {"username": name}
+            elif len(sp) == 2:
+                query_kwargs = {"mastodon_username": sp[0], "mastodon_site": sp[1]}
+            else:
                 return None
-            query_kwargs = {"username": username, "mastodon_site": site}
         elif isinstance(id, int):
             query_kwargs = {"pk": id}
         else:
@@ -248,8 +300,6 @@ class Report(models.Model):
     )
     image = models.ImageField(
         upload_to=report_image_path,
-        height_field=None,
-        width_field=None,
         blank=True,
         default="",
     )

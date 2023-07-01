@@ -60,7 +60,7 @@
               <span class="timestamp">{{ mark.created_time|date }}</span>
             </div>
             <div>
-              {% comment %} <a href="{% url 'journal:user_profile' mark.owner.mastodon_username %}" title="@{{ mark.owner.mastodon_username }}">{{ mark.owner.display_name }}</a> {% endcomment %}
+              {% comment %} <a href="{{mark.owner.url }}" title="@{{ mark.owner.handler }}">{{ mark.owner.display_name }}</a> {% endcomment %}
               <span>{{ mark.action_label }}</span>
               {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
               {% if mark.comment.focus_item %}

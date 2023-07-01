@@ -21,12 +21,10 @@
         </span>
         <div class="spacing">
           <span>
-            <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}"
-               class="nickname">{{ activity.owner.display_name }}</a>
+            <a href="{{ activity.owner.url }}" class="nickname">{{ activity.owner.display_name }}</a>
           </span>
           <span>
-            <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}"
-               class="handler">@{{ activity.owner.mastodon_username }}</a>
+            <a href="{{ activity.owner.url }}" class="handler">@{{ activity.owner.handler }}</a>
           </span>
         </div>
         {% with "activity/"|add:activity.template|add:".html" as template %}

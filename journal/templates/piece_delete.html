@@ -22,7 +22,7 @@
         <div>
           <h6>{{ piece.title }}</h6>
           {% if piece.visibility > 0 %}<i class="fa-solid fa-lock"></i>{% endif %}
-          <a href="{% url 'journal:user_profile' piece.owner.mastodon_username %}">{{ piece.owner.username }}</a>
+          <a href="{{ piece.owner.url }}">{{ piece.owner.display_name }}</a>
           {{ piece.edited_time }}
         </div>
         <footer>

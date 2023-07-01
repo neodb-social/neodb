@@ -1,22 +1,19 @@
-from django.shortcuts import reverse, redirect, render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.contrib.auth import authenticate
-from django.core.paginator import Paginator
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist, BadRequest
 from django.db.models import Count
-from .models import User, Report, Preference
-from .forms import ReportForm
+from .models import User, Preference
 from mastodon.api import *
 from mastodon import mastodon_request_included
 from common.config import *
-from mastodon.models import MastodonApplication
 from mastodon.api import verify_account
 from django.conf import settings
 from urllib.parse import quote
 import django_rq
-from .account import *
 from .tasks import *
 from datetime import timedelta
 from django.utils import timezone
@@ -113,7 +110,7 @@ def OAuth2_login(request):
             {"msg": _("认证失败😫"), "secondary_msg": _("Mastodon服务未能返回有效认证信息")},
         )
     site = request.COOKIES.get("mastodon_domain")
-    if not code:
+    if not site:
         return render(
             request,
             "common/error.html",
@@ -137,8 +134,8 @@ def OAuth2_login(request):
 
     user = authenticate(request, token=token, site=site)
     if user:  # existing user
-        user.mastodon_token = token
-        user.mastodon_refresh_token = refresh_token
+        user.mastodon_token = token  # type: ignore
+        user.mastodon_refresh_token = refresh_token  # type: ignore
         user.save(update_fields=["mastodon_token", "mastodon_refresh_token"])
         auth_login(request, user)
         if request.session.get("next_url") is not None:
@@ -152,7 +149,8 @@ def OAuth2_login(request):
         if code != 200 or user_data is None:
             return render(request, "common/error.html", {"msg": _("联邦网络访问失败😫")})
         new_user = User(
-            username=user_data["username"],
+            username=None,
+            mastodon_username=user_data["username"],
             mastodon_id=user_data["id"],
             mastodon_site=site,
             mastodon_token=token,
@@ -206,18 +204,23 @@ def swap_login(request, token, site, refresh_token):
     current_user = request.user
     if code == 200 and data is not None:
         username = data["username"]
-        if username == current_user.username and site == current_user.mastodon_site:
+        if (
+            username == current_user.mastodon_username
+            and site == current_user.mastodon_site
+        ):
             messages.add_message(
                 request, messages.ERROR, _(f"该身份 {username}@{site} 与当前账号相同。")
             )
         else:
             try:
-                existing_user = User.objects.get(username=username, mastodon_site=site)
+                existing_user = User.objects.get(
+                    mastodon_username=username, mastodon_site=site
+                )
                 messages.add_message(
                     request, messages.ERROR, _(f"该身份 {username}@{site} 已被用于其它账号。")
                 )
             except ObjectDoesNotExist:
-                current_user.username = username
+                current_user.mastodon_username = username
                 current_user.mastodon_id = data["id"]
                 current_user.mastodon_site = site
                 current_user.mastodon_token = token
@@ -227,6 +230,7 @@ def swap_login(request, token, site, refresh_token):
                     update_fields=[
                         "username",
                         "mastodon_id",
+                        "mastodon_username",
                         "mastodon_site",
                         "mastodon_token",
                         "mastodon_refresh_token",
@@ -264,22 +268,9 @@ def clear_data(request):
     if request.META.get("HTTP_AUTHORIZATION"):
         raise BadRequest("Only for web login")
     if request.method == "POST":
-        if request.POST.get("verification") == request.user.mastodon_username:
+        if request.POST.get("verification") == request.user.mastodon_acct:
             remove_data_by_user(request.user)
-            request.user.first_name = request.user.username
-            request.user.last_name = request.user.mastodon_site
-            request.user.is_active = False
-            request.user.username = "removed_" + str(request.user.id)
-            request.user.mastodon_id = 0
-            request.user.mastodon_site = "removed"
-            request.user.mastodon_token = ""
-            request.user.mastodon_locked = False
-            request.user.mastodon_followers = []
-            request.user.mastodon_following = []
-            request.user.mastodon_mutes = []
-            request.user.mastodon_blocks = []
-            request.user.mastodon_domain_blocks = []
-            request.user.mastodon_account = {}
+            request.user.clear()
             request.user.save()
             auth_logout(request)
             return redirect(reverse("users:login"))

@@ -227,7 +227,6 @@ STATICFILES_FINDERS = [
 AUTH_USER_MODEL = "users.User"
 
 SILENCED_SYSTEM_CHECKS = [
-    "auth.W004",  # User.username is non-unique
     "admin.E404",  # Required by django-user-messages
 ]
 

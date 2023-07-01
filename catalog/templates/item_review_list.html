@@ -46,9 +46,9 @@
               </span>
               -
               <span>
-                <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}"
+                <a href="{{ review.owner.url }}"
                    class="nickname"
-                   title="@{{ review.owner.mastodon_username }}">{{ review.owner.display_name }}</a>
+                   title="@{{ review.owner.handler }}">{{ review.owner.display_name }}</a>
               </span>
             </div>
             <div>{{ review.plain_content | truncate:200 }}</div>

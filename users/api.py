@@ -19,7 +19,7 @@ class UserSchema(Schema):
 def me(request):
     return 200, {
         "url": settings.SITE_INFO["site_url"] + request.user.url,
-        "external_acct": request.user.mastodon_username,
+        "external_acct": request.user.mastodon_acct,
         "display_name": request.user.display_name,
         "avatar": request.user.mastodon_account.get("avatar"),
     }

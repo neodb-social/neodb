@@ -36,9 +36,10 @@ class OPMLImporter:
     def import_from_file_task(self, feeds):
         print(f"{self.user} import opml start")
         skip = 0
+        collection = None
         if self.mode == 1:
             collection = Collection.objects.create(
-                owner=self.user, title=f"{self.user.username}的播客订阅列表"
+                owner=self.user, title=f"{self.user.display_name}的播客订阅列表"
             )
         for feed in feeds:
             print(f"{self.user} import {feed.url}")
@@ -56,7 +57,7 @@ class OPMLImporter:
                     mark.update(
                         ShelfType.PROGRESS, None, None, visibility=self.visibility
                     )
-            elif self.mode == 1:
+            elif self.mode == 1 and collection:
                 collection.append_item(item)
         print(f"{self.user} import opml end")
         msg.success(

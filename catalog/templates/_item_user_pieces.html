@@ -25,7 +25,7 @@
   <div class="tag-list">
     {% for tag in mark.tags %}
       <span>
-        <a href="{% url 'journal:user_tag_member_list' request.user.mastodon_username tag %}">{{ tag }}</a>
+        <a href="{% url 'journal:user_tag_member_list' request.user.handler tag %}">{{ tag }}</a>
       </span>
     {% endfor %}
   </div>

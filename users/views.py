@@ -2,6 +2,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
+from management.models import Announcement
 from .models import User, Report, Preference
 from .forms import ReportForm
 from mastodon.api import *
@@ -81,15 +82,12 @@ def set_layout(request):
         if request.POST.get("name") == "profile":
             request.user.preference.profile_layout = layout
             request.user.preference.save(update_fields=["profile_layout"])
-            return redirect(
-                reverse("journal:user_profile", args=[request.user.mastodon_username])
-            )
+            return redirect(request.user.url)
         elif request.POST.get("name") == "discover":
             request.user.preference.discover_layout = layout
             request.user.preference.save(update_fields=["discover_layout"])
             return redirect(reverse("catalog:discover"))
-    else:
-        raise BadRequest()
+    raise BadRequest()
 
 
 @login_required

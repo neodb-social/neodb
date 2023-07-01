@@ -13,23 +13,17 @@ class OAuth2Backend(ModelBackend):
         """when username is provided, assume that token is newly obtained and valid"""
         if token is None or site is None:
             return
-
+        mastodon_id = None
         if username is None:
             code, user_data = verify_account(site, token)
-            if code == 200:
-                userid = user_data["id"]
-            else:
-                # aquiring user data fail means token is invalid thus auth fail
-                return None
-
-        # when username is provided, assume that token is newly obtained and valid
+            if code == 200 and user_data:
+                mastodon_id = user_data["id"]
+        if not mastodon_id:
+            return None
         try:
             user = UserModel._default_manager.get(
-                mastodon_id=userid, mastodon_site=site
+                mastodon_id=mastodon_id, mastodon_site=site
             )
+            return user if self.user_can_authenticate(user) else None
         except UserModel.DoesNotExist:
-            return None
-        else:
-            if self.user_can_authenticate(user):
-                return user
             return None

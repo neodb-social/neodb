@@ -38,8 +38,7 @@
           <summary>
             <div>
               <div class="avatar">
-                <a href="{% url 'journal:user_profile' user.mastodon_username %}"
-                   onclick="window.location = this.href">
+                <a href="{{ user.url }}" onclick="window.location = this.href">
                   {% comment %} onclick to workaround webkit issue with <a />  in <summary /> {% endcomment %}
                   <img src="{{ user.mastodon_account.avatar }}" alt="">
                 </a>
@@ -52,7 +51,7 @@
                        target="_blank"
                        rel="noopener"
                        onclick="window.open(this.href)">
-                      <span class="handler">@{{ user.mastodon_username }}</span>
+                      <span class="handler">@{{ user.handler }}</span>
                     </a>
                     {% current_user_relationship user as relationship %}
                     {% if relationship %}<span>{{ relationship }}</span>{% endif %}
@@ -188,7 +187,7 @@
           <div class="tag-list">
             {% for t in top_tags %}
               <span>
-                <a href="{% url 'journal:user_tag_member_list' user.mastodon_username t %}">{{ t }}</a>
+                <a href="{% url 'journal:user_tag_member_list' user.handler t %}">{{ t }}</a>
               </span>
             {% empty %}
               <div class="empty">暂无可见标签</div>
@@ -196,7 +195,7 @@
           </div>
           <small>
             {% if top_tags %}
-              <a href="{% url 'journal:user_tag_list' user.mastodon_username %}">...{% trans '全部' %}</a>
+              <a href="{% url 'journal:user_tag_list' user.handler %}">...{% trans '全部' %}</a>
             {% endif %}
           </small>
         </details>

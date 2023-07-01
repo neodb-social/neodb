@@ -110,12 +110,12 @@ def post_toot(
         try:
             if update_id:
                 response = put(url + "/" + update_id, headers=headers, data=payload)
-            if update_id is None or response.status_code != 200:
+            if update_id is None or (response and response.status_code != 200):
                 headers["Idempotency-Key"] = random_string_generator(16)
                 response = post(url, headers=headers, data=payload)
-            if response.status_code == 201:
+            if response and response.status_code == 201:
                 response.status_code = 200
-            if response.status_code != 200:
+            if response and response.status_code != 200:
                 logger.error(f"Error {url} {response.status_code}")
         except Exception:
             response = None
@@ -470,7 +470,7 @@ def share_mark(mark):
             mark.shared_link = j["url"]
         elif "data" in j:
             mark.shared_link = (
-                f"https://twitter.com/{user.username}/status/{j['data']['id']}"
+                f"https://twitter.com/{user.mastodon_username}/status/{j['data']['id']}"
             )
         if mark.shared_link:
             mark.save(update_fields=["shared_link"])
@@ -539,7 +539,11 @@ def share_collection(collection, comment, user, visibility_no):
     user_str = (
         "我"
         if user == collection.owner
-        else " @" + collection.owner.mastodon_username + " "
+        else (
+            " @" + collection.owner.mastodon_acct + " "
+            if collection.owner.mastodon_acct
+            else " " + collection.owner.username + " "
+        )
     )
     content = f"分享{user_str}的收藏单《{collection.title}》\n{collection.absolute_url}\n{comment}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)

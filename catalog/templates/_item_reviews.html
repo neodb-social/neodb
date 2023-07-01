@@ -23,9 +23,9 @@
       </span>
       <span>
         {% if review.rating_grade %}{{ review.rating_grade|rating_star }}{% endif %}
-        <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}"
+        <a href="{{ review.owner.url }}"
            class="nickname"
-           title="@{{ review.owner.mastodon_username }}">{{ review.owner.display_name }}</a>
+           title="@{{ review.owner.handler }}">{{ review.owner.display_name }}</a>
       </span>
       <span class="action inline">
         <span class="timestamp">{{ review.created_time|date }}</span>

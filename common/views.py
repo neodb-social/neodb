@@ -6,18 +6,14 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def me(request):
-    return redirect(
-        reverse("journal:user_profile", args=[request.user.mastodon_username])
-    )
+    return redirect(request.user.url)
 
 
 def home(request):
     if request.user.is_authenticated:
         home = request.user.get_preference().classic_homepage
         if home == 1:
-            return redirect(
-                reverse("journal:user_profile", args=[request.user.mastodon_username])
-            )
+            return redirect(request.user.url)
         elif home == 2:
             return redirect(reverse("social:feed"))
         else:

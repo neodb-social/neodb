@@ -63,9 +63,9 @@
         </span>
         <span>
           {% if comment.rating_grade %}{{ comment.rating_grade|rating_star }}{% endif %}
-          <a href="{% url 'journal:user_profile' comment.owner.mastodon_username %}"
+          <a href="{{ comment.owner.url }}"
              class="nickname"
-             title="@{{ comment.owner.mastodon_username }}">{{ comment.owner.display_name }}</a>
+             title="@{{ comment.owner.handler }}">{{ comment.owner.display_name }}</a>
         </span>
         <span class="action inline">
           <span class="timestamp">

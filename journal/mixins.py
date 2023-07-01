@@ -44,7 +44,7 @@ class UserOwnedObjectMixin:
             filter(
                 lambda _entity: _entity.is_visible_to(request_user)
                 and (
-                    _entity.owner.mastodon_username in request_user.mastodon_following
+                    _entity.owner.mastodon_acct in request_user.mastodon_following
                     if following_only
                     else True
                 ),
