@@ -36,7 +36,7 @@ class User(AbstractUser):
     username_validator = UsernameValidator()
     username = models.CharField(
         _("username"),
-        max_length=50,
+        max_length=100,
         unique=True,
         null=True,  # allow null for newly registered users who has not set a user name
         help_text=_("Required. 50 characters or fewer. Letters, digits and _ only."),
