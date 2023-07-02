@@ -38,3 +38,4 @@ podcastparser
 listparser
 fontawesomefree
 discord.py
+loguru

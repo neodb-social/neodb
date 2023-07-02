@@ -21,7 +21,6 @@ from catalog.common.utils import DEFAULT_ITEM_COVER, piece_cover_path
 from django.utils.baseconv import base62
 from django.db.models import Q
 from catalog.models import *
-from django.contrib.contenttypes.models import ContentType
 from .renderers import render_md, render_text
 from catalog.common import jsondata
 from django.db import connection

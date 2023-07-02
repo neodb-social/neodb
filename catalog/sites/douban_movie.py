@@ -3,7 +3,7 @@ from .douban import *
 from catalog.movie.models import *
 from catalog.tv.models import *
 import logging
-from django.db import models
+import json
 from django.utils.translation import gettext_lazy as _
 from .tmdb import TMDB_TV, TMDB_TVSeason, search_tmdb_by_imdb_id, query_tmdb_tv_episode
 
@@ -28,6 +28,10 @@ class DoubanMovie(AbstractSite):
 
     def scrape(self):
         content = DoubanDownloader(self.url).download().html()
+        schema_data = "".join(
+            content.xpath('//script[@type="application/ld+json"]/text()')
+        )
+        d = json.loads(schema_data) if schema_data else {}
 
         try:
             raw_title = content.xpath("//span[@property='v:itemreviewed']/text()")[
@@ -181,8 +185,7 @@ class DoubanMovie(AbstractSite):
             else None
         )
 
-        # if has field `episodes` not none then must be series
-        is_series = True if episodes else False
+        is_series = d.get("@type") == "TVSeries" or episodes is not None
 
         brief_elem = content.xpath("//span[@class='all hidden']")
         if not brief_elem:

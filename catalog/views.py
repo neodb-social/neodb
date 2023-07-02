@@ -2,20 +2,15 @@ import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponseRedirect
 from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
 from django.db.models import Count
-from django.utils import timezone
 from django.core.paginator import Paginator
-from catalog.common.models import ExternalResource, IdType, IdealIdTypes
-from catalog.sites.imdb import IMDB
 from .models import *
 from django.views.decorators.clickjacking import xframe_options_exempt
 from journal.models import Mark, ShelfMember, Review, Comment, query_item_category
 from journal.models import (
     query_visible,
     query_following,
-    update_journal_for_merged_item,
 )
 from common.utils import PageLinksGenerator, get_uuid_or_404
 from common.config import PAGE_LINK_NUMBER

@@ -24,6 +24,7 @@ from django.contrib import messages
 from journal.models import remove_data_by_user
 from django.db.models import Q
 from django.core.cache import cache
+from django.db.models import Count
 
 
 # the 'login' page that user can see
@@ -35,13 +36,13 @@ def login(request):
         sites = cache.get(cache_key, [])
         if not sites:
             sites = list(
-                MastodonApplication.objects.all()
-                .exclude(Q(domain_name__contains="@"))
-                .exclude(Q(domain_name__contains=":"))
-                .order_by("domain_name")
-                .values_list("domain_name")
+                User.objects.filter(is_active=True)
+                .values("mastodon_site")
+                .annotate(total=Count("mastodon_site"))
+                .order_by("-total")
+                .values_list("mastodon_site", flat=True)
             )
-            cache.set(cache_key, sites, timeout=3600)
+            cache.set(cache_key, sites, timeout=3600 * 8)
         # store redirect url in the cookie
         if request.GET.get("next"):
             request.session["next_url"] = request.GET.get("next")
@@ -179,6 +180,8 @@ def logout(request):
 @mastodon_request_included
 @login_required
 def reconnect(request):
+    if request.META.get("HTTP_AUTHORIZATION"):
+        raise BadRequest("Only for web login")
     if request.method == "POST":
         request.session["swap_login"] = True
         request.session["swap_domain"] = request.POST["domain"]
@@ -258,6 +261,8 @@ def auth_logout(request):
 
 @login_required
 def clear_data(request):
+    if request.META.get("HTTP_AUTHORIZATION"):
+        raise BadRequest("Only for web login")
     if request.method == "POST":
         if request.POST.get("verification") == request.user.mastodon_username:
             remove_data_by_user(request.user)

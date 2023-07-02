@@ -64,20 +64,9 @@ class Command(BaseCommand):
         )  # if h == 0 else c.objects.filter(edited_time__gt=timezone.now() - timedelta(hours=h))
         pg = Paginator(qs.order_by("id"), BATCH_SIZE)
         for p in tqdm(pg.page_range):
-            items = list(
-                map(
-                    lambda o: Indexer.obj_to_dict(o),
-                    [
-                        x
-                        for x in pg.get_page(p).object_list
-                        if hasattr(x, "indexable_fields")
-                    ],
-                )
-            )
-            if items:
-                Indexer.replace_batch(items)
-                while Indexer.busy():
-                    sleep(0.5)
+            Indexer.replace_batch(pg.get_page(p).object_list)
+            while Indexer.busy():
+                sleep(0.5)
 
     def handle(self, *args, **options):
         if options["init"]:

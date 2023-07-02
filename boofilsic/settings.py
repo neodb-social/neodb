@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     "django_rq",
     "django_bleach",
     "django_jsonform",
-    "oauth2_provider",
     "tz_detect",
     "sass_processor",
     "auditlog",
@@ -71,7 +70,12 @@ INSTALLED_APPS += [
     "catalog.apps.CatalogConfig",
     "journal.apps.JournalConfig",
     "social.apps.SocialConfig",
+    "developer.apps.DeveloperConfig",
     "legacy.apps.LegacyConfig",
+]
+
+INSTALLED_APPS += [  # we may override templates in these 3rd party apps
+    "oauth2_provider",
 ]
 
 MIDDLEWARE = [
@@ -422,6 +426,10 @@ MAINTENANCE_MODE_IGNORE_URLS = (r"^/users/connect/", r"^/users/OAuth2_login/")
 DISCORD_WEBHOOKS = {}
 
 NINJA_PAGINATION_PER_PAGE = 20
-OAUTH2_PROVIDER = {"ACCESS_TOKEN_EXPIRE_SECONDS": 3600 * 24 * 365}
+OAUTH2_PROVIDER = {
+    "ACCESS_TOKEN_EXPIRE_SECONDS": 3600 * 24 * 365,
+    "PKCE_REQUIRED": False,
+}
+OAUTH2_PROVIDER_APPLICATION_MODEL = "developer.Application"
 
 DEVELOPER_CONSOLE_APPLICATION_CLIENT_ID = "NEODB_DEVELOPER_CONSOLE"

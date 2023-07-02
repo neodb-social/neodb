@@ -342,16 +342,18 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         )
 
     def merge_to(self, to_item):
-        self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
         if to_item is None:
             if self.merged_to_item is not None:
                 self.merged_to_item = None
                 self.save()
             return
-        elif to_item.merged_to_item is not None:
-            raise ValueError("cannot merge with an item aleady merged")
+        if to_item.pk == self.pk:
+            raise ValueError("cannot merge to self")
+        if to_item.merged_to_item is not None:
+            raise ValueError("cannot merge to item which is merged to another item")
         if to_item.__class__ != self.__class__:
-            _logger.warn(f"merging item across class from {self} to {to_item}")
+            raise ValueError(f"cannot merge to item in a different model")
+        self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
         self.merged_to_item = to_item
         self.save()
         for res in self.external_resources.all():
@@ -422,10 +424,13 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     #     return next((x[len(prefix):] for x in self.lookup_ids if x.startswith(prefix)), None)
 
     def update_lookup_ids(self, lookup_ids):
-        # TODO
-        # ll = set(lookup_ids)
-        # ll = list(filter(lambda a, b: b, ll))
-        pass
+        for t, v in lookup_ids:
+            if t in IdealIdTypes and self.primary_lookup_id_type not in IdealIdTypes:
+                self.primary_lookup_id_type = t
+                self.primary_lookup_id_value = v
+                return
+            if t == self.primary_lookup_id_type:
+                self.primary_lookup_id_value = v
 
     METADATA_COPY_LIST = [
         "title",
@@ -464,7 +469,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
                     setattr(self, k, p.metadata.get(k))
             if p.cover and (not self.has_cover() or ignore_existing_content):
                 self.cover = p.cover
-        self.update_lookup_ids(lookup_ids)
+        self.update_lookup_ids(list(set(lookup_ids)))
 
     def update_linked_items_from_external_resource(self, resource):
         """Subclass should override this"""
@@ -530,6 +535,8 @@ class ExternalResource(models.Model):
         return f"{self.pk}:{self.id_type}:{self.id_value or ''} ({self.url})"
 
     def unlink_from_item(self):
+        if not self.item:
+            return
         self.item.log_action({"!unlink": [str(self), None]})
         self.item = None
         self.save()

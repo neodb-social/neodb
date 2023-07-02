@@ -86,7 +86,8 @@ def edit(request, item_path, item_uuid):
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(instance=item)
         if (
-            item.external_resources.all().count() > 0
+            not request.user.is_staff
+            and item.external_resources.all().count() > 0
             and item.primary_lookup_id_value
             and item.primary_lookup_id_type in IdealIdTypes
         ):
@@ -98,7 +99,8 @@ def edit(request, item_path, item_uuid):
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(request.POST, request.FILES, instance=item)
         if (
-            item.external_resources.all().count() > 0
+            not request.user.is_staff
+            and item.external_resources.all().count() > 0
             and item.primary_lookup_id_value
             and item.primary_lookup_id_type in IdealIdTypes
         ):
@@ -126,6 +128,18 @@ def delete(request, item_path, item_uuid):
     return (
         redirect(item.url + "?skipcheck=1") if request.user.is_staff else redirect("/")
     )
+
+
+@login_required
+def undelete(request, item_path, item_uuid):
+    if request.method != "POST":
+        raise BadRequest()
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not request.user.is_staff:
+        raise PermissionDenied()
+    item.is_deleted = False
+    item.save()
+    return redirect(item.url)
 
 
 @login_required
@@ -185,12 +199,13 @@ def assign_parent(request, item_path, item_uuid):
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     parent_item = Item.get_by_url(request.POST.get("parent_item_url"))
-    if not parent_item or parent_item.is_deleted or parent_item.merged_to_item_id:
-        raise BadRequest("Can't assign parent to a deleted or redirected item")
-    if parent_item.child_class != item.__class__.__name__:
-        raise BadRequest("Incompatible child item type")
-    if not request.user.is_staff and item.parent_item:
-        raise BadRequest("Already assigned to a parent item")
+    if parent_item:
+        if parent_item.is_deleted or parent_item.merged_to_item_id:
+            raise BadRequest("Can't assign parent to a deleted or redirected item")
+        if parent_item.child_class != item.__class__.__name__:
+            raise BadRequest("Incompatible child item type")
+    # if not request.user.is_staff and item.parent_item:
+    #     raise BadRequest("Already assigned to a parent item")
     _logger.warn(f"{request.user} assign {item} to {parent_item}")
     item.set_parent_item(parent_item)
     item.save()
@@ -230,6 +245,8 @@ def fetch_tvepisodes(request, item_path, item_uuid):
 def fetch_episodes_for_season_task(item_uuid, user):
     with set_actor(user):
         season = Item.get_by_url(item_uuid)
+        if not season:
+            return
         episodes = season.episode_uuids
         IMDB.fetch_episodes_for_season(season)
         season.log_action({"!fetch_tvepisodes": [episodes, season.episode_uuids]})

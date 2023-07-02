@@ -10,7 +10,16 @@ from .search.models import enqueue_fetch, query_index
 
 
 class SearchResult(Schema):
-    data: List[ItemSchema]
+    data: List[
+        EditionSchema
+        | MovieSchema
+        | TVShowSchema
+        | TVSeasonSchema
+        | AlbumSchema
+        | PodcastSchema
+        | GameSchema
+        | PerformanceSchema
+    ]
     pages: int
     count: int
 
@@ -66,7 +75,7 @@ def fetch_item(request, url: str):
 
 
 def _get_item(cls, uuid, response):
-    item = cls.get_by_url(uuid)
+    item = Item.get_by_url(uuid)
     if not item:
         return 404, {"message": "Item not found"}
     if item.merged_to_item:
@@ -74,6 +83,9 @@ def _get_item(cls, uuid, response):
         return 302, {"message": "Item merged", "url": item.merged_to_item.api_url}
     if item.is_deleted:
         return 404, {"message": "Item not found"}
+    if item.__class__ != cls:
+        response["Location"] = item.api_url
+        return 302, {"message": "Item recasted", "url": item.api_url}
     return item
 
 

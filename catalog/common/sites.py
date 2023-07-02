@@ -8,7 +8,7 @@ ResourceContent persists as an ExternalResource which may link to an Item
 """
 from typing import Callable
 import re
-from .models import ExternalResource, IdType, Item
+from .models import ExternalResource, IdType, IdealIdTypes, Item
 from dataclasses import dataclass, field
 import logging
 import json
@@ -122,12 +122,27 @@ class AbstractSite:
                 matched = model.objects.filter(
                     primary_lookup_id_type=t, primary_lookup_id_value=v
                 ).first()
+            if matched is None:
+                matched = model.objects.filter(
+                    primary_lookup_id_type=resource.id_type,
+                    primary_lookup_id_value=resource.id_value,
+                ).first()
+            if matched and matched.merged_to_item:
+                matched = matched.merged_to_item
+            if (
+                matched
+                and matched.primary_lookup_id_type not in IdealIdTypes
+                and t in IdealIdTypes
+            ):
+                matched.primary_lookup_id_type = t
+                matched.primary_lookup_id_value = v
+                matched.save()
         return matched
 
     @classmethod
     def match_or_create_item_for_resource(cls, resource):
         previous_item = resource.item
-        resource.item = cls.match_existing_item_for_resource(resource)
+        resource.item = cls.match_existing_item_for_resource(resource) or previous_item
         if resource.item is None:
             model = cls.get_model_for_resource(resource)
             if not model:
@@ -211,7 +226,7 @@ class AbstractSite:
                 p.item.save()
                 self.scrape_additional_data()
         if auto_link:
-            for linked_resource in p.required_resources:
+            for linked_resource in p.required_resources:  # type: ignore
                 linked_url = linked_resource.get("url")
                 if linked_url:
                     linked_site = SiteManager.get_site_by_url(linked_url)
@@ -293,7 +308,7 @@ def crawl_related_resources_task(resource_pk):
         _logger.warn(f"crawl resource not found {resource_pk}")
         return
     links = resource.related_resources
-    for w in links:
+    for w in links:  # type: ignore
         try:
             item = None
             site = None
