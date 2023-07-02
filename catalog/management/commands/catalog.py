@@ -94,6 +94,32 @@ class Command(BaseCommand):
                     r.item = i.merged_to_item
                     r.save()
 
+        tvshow_ct_id = ContentType.objects.get_for_model(TVShow).id
+        self.stdout.write(f"Checking TVShow merged to other class...")
+        for i in (
+            TVShow.objects.filter(merged_to_item__isnull=False)
+            .filter(merged_to_item__isnull=False)
+            .exclude(merged_to_item__polymorphic_ctype_id=tvshow_ct_id)
+        ):
+            if i.child_items.all().exists():
+                self.stdout.write(f"! with season {i} : {i.absolute_url}?skipcheck=1")
+                if self.fix:
+                    i.merged_to_item = None
+                    i.save()
+            else:
+                self.stdout.write(f"! no season {i} : {i.absolute_url}?skipcheck=1")
+                if self.fix:
+                    i.recast_to(TVShow)
+
+        self.stdout.write(f"Checking TVSeason is child of other class...")
+        for i in TVSeason.objects.filter(show__isnull=False).exclude(
+            show__polymorphic_ctype_id=tvshow_ct_id
+        ):
+            self.stdout.write(f"! {i.show} : {i.show.absolute_url}?skipcheck=1")
+            if self.fix:
+                i.show = None
+                i.save()
+
         self.stdout.write(f"Checking deleted item with child TV Season...")
         for i in TVSeason.objects.filter(show__is_deleted=True):
             self.stdout.write(f"! {i.show} : {i.show.absolute_url}?skipcheck=1")
