@@ -12,11 +12,13 @@ def move_username(apps, schema_editor):
         u.username = u.mastodon_username + "@" + u.mastodon_site
         u.save()
 
+
 def clear_username(apps, schema_editor):
     User = apps.get_model("users", "User")
     for u in User.objects.all():
         u.username = None
         u.save()
+
 
 class Migration(migrations.Migration):
     dependencies = [
