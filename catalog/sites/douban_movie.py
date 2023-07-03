@@ -28,10 +28,15 @@ class DoubanMovie(AbstractSite):
 
     def scrape(self):
         content = DoubanDownloader(self.url).download().html()
-        schema_data = "".join(
-            content.xpath('//script[@type="application/ld+json"]/text()')
-        )
-        d = json.loads(schema_data) if schema_data else {}
+        try:
+            schema_data = "".join(
+                content.xpath('//script[@type="application/ld+json"]/text()')
+            ).replace(
+                "\n", ""
+            )  # strip \n bc multi-line string is not properly coded in json by douban
+            d = json.loads(schema_data) if schema_data else {}
+        except Exception as e:
+            d = {}
 
         try:
             raw_title = content.xpath("//span[@property='v:itemreviewed']/text()")[
