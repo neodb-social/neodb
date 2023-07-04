@@ -62,6 +62,18 @@ def data(request):
     )
 
 
+@mastodon_request_included
+@login_required
+def account_info(request):
+    return render(
+        request,
+        "users/account.html",
+        {
+            "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
+        },
+    )
+
+
 @login_required
 def data_import_status(request):
     return render(

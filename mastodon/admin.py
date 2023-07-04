@@ -53,7 +53,7 @@ class MastodonApplicationModelAdmin(admin.ModelAdmin):
                         try:
                             response = create_app(request.POST.get("domain_name"))
                         except (Timeout, ConnectionError):
-                            request.POST["domain_name"] = _("联邦网络请求超时。")
+                            request.POST["domain_name"] = _("联邦宇宙请求超时。")
                         except Exception as e:
                             request.POST["domain_name"] = str(e)
                         else:

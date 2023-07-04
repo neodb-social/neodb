@@ -1,0 +1,30 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans '验证电子邮件' %}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+  </head>
+  <body>
+    <div class="container">
+      <article>
+        <header style="text-align: center;">
+          <img src="{% static 'img/logo.svg' %}" class="logo" alt="logo">
+        </header>
+        <h4>验证电子邮件</h4>
+        {% if success %}
+          <p>
+            {{ request.user.email }} 验证成功，<a href="{% url 'common:home' %}">点击这里返回首页</a>。
+          </p>
+        {% else %}
+          <p>
+            链接无效或已过期，<a href="{% url 'users:login' %}">点击这里重新登录</a>。
+          </p>
+        {% endif %}
+      </article>
+    </div>
+  </body>
+</html>

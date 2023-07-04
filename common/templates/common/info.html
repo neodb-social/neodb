@@ -1,0 +1,29 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container">
+      <article class="error">
+        <header>
+          <h3>{{ msg }}</h3>
+        </header>
+        {{ secondary_msg|default:"" }}
+      </article>
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

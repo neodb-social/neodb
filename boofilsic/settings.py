@@ -273,6 +273,9 @@ EXPORT_FILE_PATH_ROOT = "export/"
 # Allow user to login via any Mastodon/Pleroma sites
 MASTODON_ALLOW_ANY_SITE = False
 
+# Allow user to create account with email (and link to Mastodon account later)
+ALLOW_EMAIL_ONLY_ACCOUNT = False
+
 # Timeout of requests to Mastodon, in seconds
 MASTODON_TIMEOUT = 30
 

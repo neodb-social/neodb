@@ -83,7 +83,7 @@
         </article>
         <article>
           <details>
-            <summary>{% trans '导入Goodreads帐号或书单' %}</summary>
+            <summary>{% trans '导入Goodreads账号或书单' %}</summary>
             <form action="{% url 'users:import_goodreads' %}" method="post">
               {% csrf_token %}
               <div>
@@ -173,59 +173,6 @@
                 <input type="radio" name="visibility" id="visSelf" value="2">
                 <label for="visSelf">{% trans '仅自己' %}</label>
               </div>
-            </form>
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans '更新社交关系数据' %}</summary>
-            <form action="{% url 'users:sync_mastodon' %}"
-                  method="post"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <input type="submit"  value="{% trans '同步' %}" id="uploadBtn" />
-              上次更新时间 {{ user.mastodon_last_refresh }}
-              <div>
-                为了正确高效的展示短评和评论，{{ site_name }}会缓存你在联邦网络的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
-              </div>
-            </form>
-          </details>
-        </article>
-        {% if allow_any_site %}
-          <article>
-            <details>
-              <summary>{% trans '替换社交账号' %}</summary>
-              <form action="{% url 'users:reconnect' %}" method="post">
-                {% csrf_token %}
-                <div>
-                  输入新社交账号所在的实例域名
-                  <input type="input" name="domain" value="" placeholder="例如mastodon.online">
-                  <input type="submit"  value="{% trans '登录新账号' %}" id="uploadBtn" />
-                </div>
-                <div>替换后可使用新的联邦网络身份来登录{{ site_name }}和控制数据可见性，已有的标记评论收藏单等数据不受影响。</div>
-              </form>
-            </details>
-          </article>
-        {% endif %}
-        <article>
-          <details>
-            <summary>{% trans '删除数据和帐号信息' %}</summary>
-            <form action="{% url 'users:clear_data' %}" method="post">
-              {% csrf_token %}
-              <div>
-                输入完整的 用户名@实例名 以确认删除
-                <input type="input"
-                       name="verification"
-                       value=""
-                       required
-                       placeholder="Gargron@mastodon.social">
-                {% if import_status.douban_pending %}
-                  <input type="submit" value="暂时无法删除，因为有导入任务正在进行" disabled />
-                {% else %}
-                  <input type="submit"  value="{% trans '永久删除' %}" id="uploadBtn" />
-                {% endif %}
-              </div>
-              <div>删除将无法撤销</div>
             </form>
           </details>
         </article>

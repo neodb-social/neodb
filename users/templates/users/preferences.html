@@ -18,112 +18,104 @@
     <main>
       <div class="grid__main">
         <article>
-          <form action="{% url 'users:preferences' %}" method="post">
-            <section>
-              <details>
-                <summary>{% trans '使用偏好设置' %}</summary>
-                {% csrf_token %}
-                <span>{% trans '新标记默认可见性：' %}</span>
-                <div>
-                  <input type="radio"
-                         name="default_visibility"
-                         value="0"
-                         required=""
-                         id="id_visibility_0"
-                         {% if request.user.preference.default_visibility == 0 %}checked{% endif %}>
-                  <label for="id_visibility_0">公开</label>
-                  <input type="radio"
-                         name="default_visibility"
-                         value="1"
-                         required=""
-                         id="id_visibility_1"
-                         {% if request.user.preference.default_visibility == 1 %}checked{% endif %}>
-                  <label for="id_visibility_1">仅关注者</label>
-                  <input type="radio"
-                         name="default_visibility"
-                         value="2"
-                         required=""
-                         id="id_visibility_2"
-                         {% if request.user.preference.default_visibility == 2 %}checked{% endif %}>
-                  <label for="id_visibility_2">仅自己</label>
-                </div>
-                <br>
-                <span>{% trans '登录后显示：' %}</span>
-                <div>
-                  <input type="radio"
-                         name="classic_homepage"
-                         value="0"
-                         id="classic_homepage0"
-                         {% if request.user.preference.classic_homepage == 0 %}checked{% endif %}>
-                  <label for="classic_homepage0">内容发现</label>
-                  <input type="radio"
-                         name="classic_homepage"
-                         value="2"
-                         id="classic_homepage2"
-                         {% if request.user.preference.classic_homepage == 2 %}checked{% endif %}>
-                  <label for="classic_homepage2">好友动态</label>
-                  <input type="radio"
-                         name="classic_homepage"
-                         value="1"
-                         id="classic_homepage1"
-                         {% if request.user.preference.classic_homepage == 1 %}checked{% endif %}>
-                  <label for="classic_homepage1">个人主页</label>
-                </div>
-                <br style="margin-bottom:1.5em">
-                <div>
+          <details open>
+            <summary>
+              <b>{% trans '使用偏好' %}</b>
+            </summary>
+            <form action="{% url 'users:preferences' %}" method="post">
+              {% csrf_token %}
+              <fieldset>
+                <legend>{% trans '登录后显示：' %}</legend>
+                <input type="radio"
+                       name="classic_homepage"
+                       value="0"
+                       id="classic_homepage0"
+                       {% if request.user.preference.classic_homepage == 0 %}checked{% endif %}>
+                <label for="classic_homepage0">内容发现</label>
+                <input type="radio"
+                       name="classic_homepage"
+                       value="2"
+                       id="classic_homepage2"
+                       {% if request.user.preference.classic_homepage == 2 %}checked{% endif %}>
+                <label for="classic_homepage2">好友动态</label>
+                <input type="radio"
+                       name="classic_homepage"
+                       value="1"
+                       id="classic_homepage1"
+                       {% if request.user.preference.classic_homepage == 1 %}checked{% endif %}>
+                <label for="classic_homepage1">个人主页</label>
+              </fieldset>
+              <fieldset>
+                <legend>{% trans '新标记默认可见性：' %}</legend>
+                <input type="radio"
+                       name="default_visibility"
+                       value="0"
+                       required=""
+                       id="id_visibility_0"
+                       {% if request.user.preference.default_visibility == 0 %}checked{% endif %}>
+                <label for="id_visibility_0">公开</label>
+                <input type="radio"
+                       name="default_visibility"
+                       value="1"
+                       required=""
+                       id="id_visibility_1"
+                       {% if request.user.preference.default_visibility == 1 %}checked{% endif %}>
+                <label for="id_visibility_1">仅关注者</label>
+                <input type="radio"
+                       name="default_visibility"
+                       value="2"
+                       required=""
+                       id="id_visibility_2"
+                       {% if request.user.preference.default_visibility == 2 %}checked{% endif %}>
+                <label for="id_visibility_2">仅自己</label>
+              </fieldset>
+              <fieldset>
+                <label>
                   <input type="checkbox"
                          name="no_anonymous_view"
-                         id="no_anonymous_view"
                          {% if request.user.preference.no_anonymous_view %}checked{% endif %}>
-                  <label for="no_anonymous_view">{% trans '不允许未登录用户访问你的个人主页' %}</label>
-                </div>
-                <br style="margin-bottom:1.5em">
-                <div>
+                  {% trans '仅允许已登录用户查看你的个人主页' %}
+                </label>
+              </fieldset>
+              <fieldset>
+                <label>
                   <input type="checkbox"
                          name="show_last_edit"
-                         id="show_last_edit"
                          {% if request.user.preference.show_last_edit %}checked{% endif %}>
-                  <label for="show_last_edit">{% trans '显示你是某条目的最近编辑者' %}</label>
-                </div>
-              </details>
-            </section>
-            <section>
-              <details>
-                <summary>{% trans '社交网络分享相关设置' %}</summary>
-                <div>
+                  {% trans '显示你是某条目的最近编辑者' %}
+                </label>
+              </fieldset>
+              <fieldset>
+                <label>
                   <input type="checkbox"
                          name="mastodon_publish_public"
-                         id="mastodon_publish_public"
                          {% if request.user.preference.mastodon_publish_public %}checked{% endif %}>
-                  <label for="mastodon_publish_public">
-                    以公开方式分享的帖文发布到<em data-tooltip="选中时为public，未选中时为unlisted">公共时间轴</em>
-                  </label>
-                </div>
-                <br>
-                <br>
-                <span>{% trans '在联邦网络上分享帖文时在结尾附加标签：' %}</span>
-                <div>
-                  <input name="mastodon_append_tag"
-                         id="tag"
-                         placeholder="#我的书影音"
-                         value="{{ request.user.preference.mastodon_append_tag }}">
-                </div>
-                <br>
-                <div>
+                  标记时以公开方式分享的帖文发布到<em data-tooltip="选中时为public，未选中时为unlisted">公共时间轴</em>
+                </label>
+              </fieldset>
+              <fieldset>
+                <label>
                   <input type="checkbox"
                          name="default_no_share"
-                         id="default_no_share"
                          {% if request.user.preference.default_no_share %}checked{% endif %}>
-                  <label for="default_no_share">标记时默认不分享到联邦网络</label>
-                </div>
-              </details>
-            </section>
-            <input type="submit" value="{% trans '保存' %}">
-          </form>
-          <hr>
-          <section>
-            <details>
-              <summary>{% trans '当前设备设置' %}</summary>
+                  标记时默认不分享到联邦宇宙
+                </label>
+              </fieldset>
+              <fieldset>
+                <label for="mastodon_append_tag">{% trans '在联邦宇宙分享帖文时在结尾附加标签：' %}</label>
+                <input name="mastodon_append_tag"
+                       id="mastodon_append_tag"
+                       placeholder="例如 #我的书影音"
+                       value="{{ request.user.preference.mastodon_append_tag }}">
+              </fieldset>
+              <input type="submit" value="{% trans '保存' %}">
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans '当前设备设置' %}</summary>
+            <form onsubmit="return false;">
               <h6>专注模式 (实验功能)</h6>
               <p>
                 <input type="checkbox" id="solo_mode">
@@ -132,9 +124,10 @@
               <h6>自定义样式代码 (实验功能)</h6>
               <textarea id="user_style"></textarea>
               <br>
-              <button onclick="save_local();">保存</button>
-            </details>
-            <script>
+              <input type="button" onclick="save_local();" value="保存">
+            </form>
+          </details>
+          <script>
               $("#user_style").val(localStorage.getItem("user_style")||"");
               $("#solo_mode").prop("checked", localStorage.getItem("solo_mode")=="1");
               function save_local() {
@@ -142,17 +135,15 @@
                 localStorage.setItem("solo_mode", $("#solo_mode").prop("checked")?"1":"0");
                 alert("本地设置已保存");
               }
-            </script>
-          </section>
-          <hr>
-          <section>
-            <details>
-              <summary>{% trans '应用管理' %}</summary>
-              <p>
-                <a href="{% url 'oauth2_provider:authorized-token-list' %}">查看已授权的应用程序</a>
-              </p>
-            </details>
-          </section>
+          </script>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans '应用管理' %}</summary>
+            <p>
+              <a href="{% url 'oauth2_provider:authorized-token-list' %}">查看已授权的应用程序</a>
+            </p>
+          </details>
         </article>
       </div>
       {% include "_sidebar.html" with show_profile=1 %}

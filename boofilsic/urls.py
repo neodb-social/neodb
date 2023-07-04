@@ -18,12 +18,21 @@ from django.urls import path, include
 from django.conf import settings
 from users.views import login
 from common.api import api
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path("api/", api.urls),  # type: ignore
     path("login/", login),
     path("markdownx/", include("markdownx.urls")),
-    path("users/", include("users.urls")),
+    path("account/", include("users.urls")),
+    path(
+        "users/connect/",
+        RedirectView.as_view(url="/account/connect", query_string=True),
+    ),
+    path(
+        "users/OAuth2_login/",
+        RedirectView.as_view(url="/account/login/oauth", query_string=True),
+    ),
     path("", include("catalog.urls")),
     path("", include("journal.urls")),
     path("timeline/", include("social.urls")),

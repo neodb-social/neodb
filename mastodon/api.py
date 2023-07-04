@@ -301,7 +301,7 @@ def get_mastodon_application(login_domain):
 
 
 def get_mastodon_login_url(app, login_domain, request):
-    url = request.scheme + "://" + request.get_host() + reverse("users:OAuth2_login")
+    url = request.scheme + "://" + request.get_host() + "/users/OAuth2_login/"
     if login_domain == TWITTER_DOMAIN:
         return f"https://twitter.com/i/oauth2/authorize?response_type=code&client_id={app.client_id}&redirect_uri={quote(url)}&scope={quote(settings.TWITTER_CLIENT_SCOPE)}&state=state&code_challenge=challenge&code_challenge_method=plain"
     version = app.server_version or ""
@@ -326,9 +326,7 @@ def get_mastodon_login_url(app, login_domain, request):
 def obtain_token(site, request, code):
     """Returns token if success else None."""
     mast_app = MastodonApplication.objects.get(domain_name=site)
-    redirect_uri = (
-        request.scheme + "://" + request.get_host() + reverse("users:OAuth2_login")
-    )
+    redirect_uri = request.scheme + "://" + request.get_host() + "/users/OAuth2_login/"
     payload = {
         "client_id": mast_app.client_id,
         "client_secret": mast_app.client_secret,

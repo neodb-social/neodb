@@ -66,7 +66,7 @@
             <textarea name="text"
                       rows="5"
                       autofocus
-                      placeholder="提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦网络实例时间线。"
+                      placeholder="提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实例时间线。"
                       id="id_text">{{ mark.comment_text|default:"" }}</textarea>
           </fieldset>
         </div>
@@ -114,7 +114,7 @@
                        id="id_share_to_mastodon"
                        value="1"
                        {% if not request.user.preference.default_no_share %}checked{% endif %}>
-                分享到联邦网络
+                分享到联邦宇宙
               </label>
             </fieldset>
           </div>

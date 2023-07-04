@@ -50,43 +50,82 @@
         {% if user.is_authenticated %}
           <a href="{% url 'common:home' %}" class="button">{% trans '前往首页' %}</a>
         {% else %}
-          <form action="{% url 'users:connect' %}">
+          <form action="{% url 'users:connect' %}" method="post">
+            {% csrf_token %}
             {% if allow_any_site %}
+              <input required
+                     name="email"
+                     id="email"
+                     type="email"
+                     placeholder="电子邮件地址"
+                     disabled
+                     autocomplete="email"
+                     style="display:none" />
               <input required
                      name="domain"
                      id="domain"
                      autofocus
-                     pattern="(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,})"
+                     pattern="(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,})"
                      title="实例域名(不含@和@之前的部分)，如mastodon.social"
                      placeholder="实例域名(不含@和@之前的部分)，如mastodon.social"
-                     autocomplete="off"
                      autocorrect="off"
                      autocapitalize="off"
                      spellcheck="false" />
-              <input type='submit' value="{% trans '授权登录' %}" id="loginButton" disabled />
+              <div role="group" style="width:100%">
+                <select style="width:max-content"
+                        required
+                        onchange="switch_login()"
+                        name="method">
+                  <option disabled value="">选择登录方式</option>
+                  <option selected value="fedi">通过联邦宇宙</option>
+                  <option value="email">通过电子邮件</option>
+                </select>
+                <input style="width:100%"
+                       type='submit'
+                       value="{% trans '授权登录' %}"
+                       id="loginButton"
+                       disabled />
+              </div>
               <script type="text/javascript">if (Cookies.get('mastodon_domain')) $('#domain').val(Cookies.get('mastodon_domain'));</script>
               {{ sites|json_script:"sites-data" }}
               <script>
-          const sites = JSON.parse(document.getElementById('sites-data').textContent);
-          const autoCompleteJS = new autoComplete({ placeHolder: "输入或选择实例域名(不含@和@之前的部分)",
-            selector: "#domain",
-            data: {
-                src: sites
-            },
-            submit: true,
-            resultsList: {
-              tabSelect: true,
-              maxResults: 10
-            },
-            events: {
-              input: {
-                selection: (event) => {
-                  const selection = event.detail.selection.value;
-                  autoCompleteJS.input.value = selection;
+              function switch_login(){
+                if ($('select').val() == 'email') {
+                  $('#domain').prop("disabled", true);
+                  $('#domain').hide();
+                  $('#email').prop("disabled", false);
+                  $('#email').show();
+                  $('#email')[0].focus();
+                  //$('#domain').val('');
+                } else {
+                  $('#email').prop("disabled", true);
+                  $('#email').hide();
+                  $('#domain').prop("disabled", false);
+                  $('#domain').show();
+                  $('#domain')[0].focus();
+                  //$('#email').val('');
                 }
               }
-            }
-          });
+              const sites = JSON.parse(document.getElementById('sites-data').textContent);
+              const autoCompleteJS = new autoComplete({ placeHolder: "输入或选择实例域名(不含@和@之前的部分)",
+                selector: "#domain",
+                data: {
+                    src: sites
+                },
+                submit: true,
+                resultsList: {
+                  tabSelect: true,
+                  maxResults: 10
+                },
+                events: {
+                  input: {
+                    selection: (event) => {
+                      const selection = event.detail.selection.value;
+                      autoCompleteJS.input.value = selection;
+                    }
+                  }
+                }
+              });
               </script>
             {% else %}
               <select name="domain" placeholder="test">
@@ -101,9 +140,10 @@
         <div class="delayed">部分模块加载超时，请检查网络（翻墙）设置。</div>
       </div>
     </article>
-    {% comment %} </main> {% endcomment %}
     <footer>
-      <small>本站使用cookie提供必要的功能，继续访问视为同意。</small>
+      <small>如果你还没有注册过<em data-tooltip="联邦宇宙(Fediverse 亦称长毛象)是一种分布式社交网络">联邦宇宙</em>，可先<a href="https://joinmastodon.org/zh/servers" target="_blank">选择实例并注册</a></small>
+      <br>
+      <small>继续访问或注册视为同意本站<a href="{% url 'management:retrieve_slug' 'data-policy' %}">数据方针</a>及使用cookie提供必要功能</small>
     </footer>
   </body>
 </html>

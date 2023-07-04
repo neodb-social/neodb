@@ -109,7 +109,7 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f"! no season {i} : {i.absolute_url}?skipcheck=1")
                 if self.fix:
-                    i.recast_to(TVShow)
+                    i.recast_to(i.merged_to_item.__class__)
 
         self.stdout.write(f"Checking TVSeason is child of other class...")
         for i in TVSeason.objects.filter(show__isnull=False).exclude(

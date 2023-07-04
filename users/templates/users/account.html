@@ -1,0 +1,129 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="zh" class="classic-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - 账号信息</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+  </head>
+  <body>
+    {% include "_header.html" with current="data" %}
+    <main>
+      <div class="grid__main">
+        {% if allow_any_site %}
+          <article>
+            <details open>
+              <summary>{% trans '用户名、电子邮件与社交账号' %}</summary>
+              <form action="{% url 'users:register' %}?next={{ request.path }}"
+                    method="post">
+                <small>{{ error }}</small>
+                <fieldset>
+                  <label>
+                    用户名
+                    <input name="username"
+                           _="on input remove [@disabled] from #save end"
+                           placeholder="2-30个字符，限英文字母数字下划线，确认后不可更改"
+                           required
+                           {% if request.user.username %}value="{{ request.user.username }}" aria-invalid="false" readonly{% endif %}
+                           pattern="^[a-zA-Z0-9_]{2,30}$" />
+                  </label>
+                  <label>
+                    电子邮件地址
+                    <input type="email"
+                           name="email"
+                           _="on input remove [@disabled] from #save then remove [@aria-invalid] end"
+                           {% if request.user.email %}value="{{ request.user.email }}" aria-invalid="false"{% endif %}
+                           placeholder="推荐，可作为备用登录方式"
+                           autocomplete="email" />
+                    {% if request.user.pending_email %}
+                      <small>当前待确认的电子邮件地址为{{ request.user.pending_email }}，请查收邮件并点击确认链接；如长时间未收到可重新输入并保存。</small>
+                    {% endif %}
+                  </label>
+                </fieldset>
+                {% csrf_token %}
+                <input type="submit" value="{% trans '保存' %}" disabled id="save">
+              </form>
+              <form action="{% url 'users:reconnect' %}" method="post">
+                {% csrf_token %}
+                <fieldset>
+                  <label>
+                    社交账号
+                    <input type="input"
+                           {% if request.user.mastodon_acct %}aria-invalid="false"{% endif %}
+                           value="{{ request.user.mastodon_acct | default:'未关联' }}"
+                           readonly>
+                  </label>
+                  <label>
+                    如需关联到另一个社交账号，请输入新账号所在的实例域名
+                    <input type="input"
+                           name="domain"
+                           value=""
+                           placeholder="例如mastodon.online"
+                           _="on input remove [@disabled] from #bind end">
+                  </label>
+                  <input type="submit" value="{% trans '登录并关联新账号' %}" disabled id="bind" />
+                </fieldset>
+                <div>替换关联后可使用新的联邦宇宙身份来登录{{ site_name }}和控制数据可见性，已有的标记评论收藏单等数据不受影响。</div>
+              </form>
+            </details>
+          </article>
+        {% endif %}
+        <article>
+          <details>
+            <summary>{% trans '更新社交关系数据' %}</summary>
+            <form action="{% url 'users:sync_mastodon' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="submit"  value="{% trans '同步' %}" id="uploadBtn" />
+              上次更新时间 {{ user.mastodon_last_refresh }}
+              <div>
+                为了正确高效的展示短评和评论，{{ site_name }}会缓存你在联邦宇宙的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
+              </div>
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans '删除数据和账号信息' %}</summary>
+            <form action="{% url 'users:clear_data' %}"
+                  method="post"
+                  onsubmit="return confirm('账号数据一旦删除后将无法恢复。确认删除吗？');">
+              {% csrf_token %}
+              <div>
+                输入完整的 <code>用户名@实例名</code> 以确认删除
+                <input type="input"
+                       name="verification"
+                       _="on input remove [@disabled] from #delete end"
+                       value=""
+                       required
+                       aria-invalid="true"
+                       aria-describedby="invalid-helper"
+                       placeholder="Gargron@mastodon.social">
+                <small id="invalid-helper">账号数据一旦删除后将无法恢复</small>
+                {% if import_status.douban_pending %}
+                  <input type="submit" value="暂时无法删除，因为有导入任务正在进行" disabled />
+                {% else %}
+                  <input type="submit"
+                         value="{% trans '永久删除' %}"
+                         class="contrast"
+                         disabled
+                         id="delete" />
+                {% endif %}
+              </div>
+            </form>
+          </details>
+        </article>
+      </div>
+      {% include "_sidebar.html" with show_profile=1 %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

@@ -21,6 +21,7 @@ django-tz-detect
 django-bleach
 django-redis
 django-oauth-toolkit
+django-anymail
 easy-thumbnails
 lxml
 openpyxl

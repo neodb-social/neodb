@@ -1,9 +1,7 @@
-import uuid
 import re
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
-import django.contrib.postgres.fields as postgres
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
@@ -14,16 +12,32 @@ from django.conf import settings
 from management.models import Announcement
 from mastodon.api import *
 from django.urls import reverse
+from django.db.models import Q
+
+
+RESERVED_USERNAMES = [
+    "connect",
+    "oauth2_login",
+    "__",
+    "admin",
+    "api",
+    "me",
+]
 
 
 @deconstructible
 class UsernameValidator(validators.RegexValidator):
-    regex = r"^[a-zA-Z0-9_]{2,50}$"
+    regex = r"^[a-zA-Z0-9_]{2,30}$"
     message = _(
         "Enter a valid username. This value may contain only unaccented lowercase a-z "
         "and uppercase A-Z letters, numbers, and _ characters."
     )
     flags = re.ASCII
+
+    def __call__(self, value):
+        if value and value.lower() in RESERVED_USERNAMES:
+            raise ValidationError(self.message, code=self.code)
+        return super().__call__(value)
 
 
 def report_image_path(instance, filename):
@@ -46,6 +60,9 @@ class User(AbstractUser):
         },
     )
     email = models.EmailField(_("email address"), unique=True, default=None, null=True)
+    pending_email = models.EmailField(
+        _("email address pending verification"), default=None, null=True
+    )
     following = models.JSONField(default=list)
     mastodon_id = models.CharField(max_length=100, default=None, null=True)
     mastodon_username = models.CharField(max_length=100, default=None, null=True)
@@ -73,6 +90,14 @@ class User(AbstractUser):
             models.UniqueConstraint(
                 fields=["mastodon_id", "mastodon_site"],
                 name="unique_mastodon_id",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(is_active=False)
+                    | Q(mastodon_username__isnull=False)
+                    | Q(email__isnull=False)
+                ),
+                name="at_least_one_login_method",
             ),
         ]
 

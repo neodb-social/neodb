@@ -65,10 +65,13 @@
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
             {% if request.user.is_authenticated %}
               <li>
-                <a href="{% url 'users:data' %}">数据</a>
+                <a href="{% url 'users:data' %}">数据管理</a>
               </li>
               <li>
-                <a href="{% url 'users:preferences' %}">设置</a>
+                <a href="{% url 'users:preferences' %}">使用设置</a>
+              </li>
+              <li>
+                <a href="{% url 'users:info' %}">账号信息</a>
               </li>
               <li>
                 <a href="{% url 'users:logout' %}">登出</a>
