@@ -4,7 +4,8 @@
 <html lang="zh">
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;URL={{ login_url }}" />
+    <meta http-equiv="refresh"
+          content="0;URL={% url 'users:login' %}?next={{ request.path }}" />
     <title>{{ site_name }} - {{ username }}@{{ site }}</title>
     <link rel="alternate"
           type="application/rss+xml"

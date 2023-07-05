@@ -837,18 +837,13 @@ def user_liked_collection_list(request, user_name):
 
 
 def profile_anonymous(request, id):
-    login_url = settings.LOGIN_URL + "?next=" + request.get_full_path()
     try:
         username = id.split("@")[0]
         site = id.split("@")[1]
         return render(
             request,
             "users/home_anonymous.html",
-            {
-                "login_url": login_url,
-                "username": username,
-                "site": site,
-            },
+            {"username": username, "site": site},
         )
     except Exception:
         return redirect(login_url)

@@ -298,7 +298,7 @@ STAR_EMPTY = ":star_empty:"
 DEFAULT_PASSWORD = "ab7nsm8didusbaqPgq"
 
 # Default redirect loaction when access login required view
-LOGIN_URL = "/users/login/"
+LOGIN_URL = "/account/login"
 
 # Admin site root url
 ADMIN_URL = "tertqX7256n7ej8nbv5cwvsegdse6w7ne5rHd"

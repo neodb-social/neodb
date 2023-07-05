@@ -3,7 +3,7 @@ from .views import *
 
 app_name = "users"
 urlpatterns = [
-    path("login/", login, name="login"),
+    path("login", login, name="login"),
     path("login/oauth", OAuth2_login, name="login_oauth"),
     path("login/email", verify_email, name="login_email"),
     path("verify_email", verify_email, name="verify_email"),
