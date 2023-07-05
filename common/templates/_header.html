@@ -59,19 +59,19 @@
           <summary aria-haspopup="listbox">
             <span class="avatar">
               <img alt=""
-                   src="{% if request.user.is_authenticated %}{{ request.user.mastodon_account.avatar }}{% else %}data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=={% endif %}" />
+                   src="{% if request.user.is_authenticated %}{{ request.user.avatar }}{% else %}{% static 'img/avatar.svg' %}{% endif %}" />
             </span>
           </summary>
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
             {% if request.user.is_authenticated %}
               <li>
-                <a href="{% url 'users:data' %}">数据管理</a>
+                <a href="{% url 'users:data' %}">数据</a>
               </li>
               <li>
-                <a href="{% url 'users:preferences' %}">使用设置</a>
+                <a href="{% url 'users:preferences' %}">设置</a>
               </li>
               <li>
-                <a href="{% url 'users:info' %}">账号信息</a>
+                <a href="{% url 'users:info' %}">账号</a>
               </li>
               <li>
                 <a href="{% url 'users:logout' %}">登出</a>
@@ -92,14 +92,19 @@
     </ul>
   </nav>
 </header>
+{% comment %}
+  {% if request.user.is_authenticated and not request.user.username %}
+<ul class="messages" style="text-align:center">
+    <li class="error">
+      请<a href="{% url 'users:info' %}">设置用户名</a>
+    </li>
+</ul>
+  {% endif %}
+{% endcomment %}
 {% if messages %}
-  <div class="main-section-wrapper"
-       style="margin-bottom: 10px;
-              text-align:center">
-    <ul class="messages">
-      {% for message in messages %}
-        <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-      {% endfor %}
-    </ul>
-  </div>
+  <ul class="messages" style="text-align:center">
+    {% for message in messages %}
+      <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
 {% endif %}

@@ -21,6 +21,7 @@
           </p>
         {% else %}
           <p>
+            {{ error }}
             链接无效或已过期，<a href="{% url 'users:login' %}">点击这里重新登录</a>。
           </p>
         {% endif %}

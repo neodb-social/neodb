@@ -13,6 +13,8 @@ from management.models import Announcement
 from mastodon.api import *
 from django.urls import reverse
 from django.db.models import Q
+from django.templatetags.static import static
+import hashlib
 
 
 RESERVED_USERNAMES = [
@@ -123,6 +125,19 @@ class User(AbstractUser):
         )
 
     @property
+    def avatar(self):
+        if self.mastodon_account:
+            return self.mastodon_account.get("avatar") or static(
+                "static/img/avatar.svg"
+            )
+        if self.email:
+            return (
+                "https://www.gravatar.com/avatar/"
+                + hashlib.md5(self.email.lower().encode()).hexdigest()
+            )
+        return static("static/img/avatar.svg")
+
+    @property
     def handler(self):
         return self.mastodon_acct or self.username or f"~{self.pk}"
 
@@ -142,13 +157,13 @@ class User(AbstractUser):
     def clear(self):
         if self.mastodon_site == "removed" and not self.is_active:
             return
-        self.first_name = self.mastodon_username
-        self.last_name = self.mastodon_site
+        self.first_name = self.mastodon_acct or ""
+        self.last_name = self.email or ""
         self.is_active = False
         self.email = None
         # self.username = "~removed~" + str(self.pk)
         # to get ready for federation, username has to be reserved
-        self.mastodon_username = "~removed~" + str(self.pk)
+        self.mastodon_username = None
         self.mastodon_id = None
         self.mastodon_site = "removed"
         self.mastodon_token = ""
@@ -275,14 +290,19 @@ class User(AbstractUser):
     def get(cls, name):
         if isinstance(name, str):
             sp = name.split("@")
-            if len(sp) == 1:
+            if name.startswith("~"):
+                try:
+                    query_kwargs = {"pk": int(name[1:])}
+                except:
+                    return None
+            elif len(sp) == 1:
                 query_kwargs = {"username": name}
             elif len(sp) == 2:
                 query_kwargs = {"mastodon_username": sp[0], "mastodon_site": sp[1]}
             else:
                 return None
-        elif isinstance(id, int):
-            query_kwargs = {"pk": id}
+        elif isinstance(name, int):
+            query_kwargs = {"pk": name}
         else:
             return None
         return User.objects.filter(**query_kwargs).first()

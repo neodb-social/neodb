@@ -82,8 +82,12 @@
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              <input type="submit"  value="{% trans '同步' %}" id="uploadBtn" />
-              上次更新时间 {{ user.mastodon_last_refresh }}
+              <input type="submit"
+                     value="{% trans '同步' %}"
+                     {% if not request.user.mastodon_username %}disabled{% endif %} />
+              <small>
+                {% if user.mastodon_last_refresh %}上次更新时间 {{ user.mastodon_last_refresh }}{% endif %}
+              </small>
               <div>
                 为了正确高效的展示短评和评论，{{ site_name }}会缓存你在联邦宇宙的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
               </div>
@@ -98,11 +102,12 @@
                   onsubmit="return confirm('账号数据一旦删除后将无法恢复。确认删除吗？');">
               {% csrf_token %}
               <div>
-                输入完整的 <code>用户名@实例名</code> 以确认删除
-                <input type="input"
+                输入完整的 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除
+                <input type="email"
                        name="verification"
                        _="on input remove [@disabled] from #delete end"
                        value=""
+                       autocomplete="off"
                        required
                        aria-invalid="true"
                        aria-describedby="invalid-helper"

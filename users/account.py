@@ -180,7 +180,9 @@ def OAuth2_login(request):
             return render(request, "common/error.html", {"msg": _("联邦宇宙访问失败😫")})
         return register_new_user(
             request,
-            username=None,
+            username=None
+            if settings.MASTODON_ALLOW_ANY_SITE
+            else user_data["username"],
             mastodon_username=user_data["username"],
             mastodon_id=user_data["id"],
             mastodon_site=site,
@@ -251,7 +253,6 @@ class RegistrationForm(forms.ModelForm):
 def send_verification_link(user_id, action, email):
     s = {"i": user_id, "e": email, "a": action}
     v = TimestampSigner().sign_object(s)  # type: ignore
-    site = settings.SITE_INFO["site_name"]
     if action == "verify":
         subject = f'{settings.SITE_INFO["site_name"]} - {_("验证电子邮件地址")}'
         url = settings.SITE_INFO["site_url"] + "/account/verify_email?c=" + v
@@ -263,15 +264,16 @@ def send_verification_link(user_id, action, email):
     elif action == "register":
         subject = f'{settings.SITE_INFO["site_name"]} - {_("注册新账号")}'
         url = settings.SITE_INFO["site_url"] + "/account/register_email?c=" + v
-        msg = f"你好，\n{site}还没有与{email}关联的账号。你希望注册一个新账号吗？\n"
-        msg += f"如果你已经注册过{site}或联邦宇宙（长毛象），不必重新注册，只要用联邦宇宙身份登录{site}，再关联这个电子邮件地址，未来就可以通过邮件登录。\n"
+        msg = f"你好，\n本站没有与{email}关联的账号。你希望注册一个新账号吗？\n"
+        msg += f"如果你已经注册过本站或联邦宇宙（长毛象），不必重新注册，只要用联邦宇宙身份登录本站，再关联这个电子邮件地址，未来就可以通过邮件登录。\n"
         msg += f"\n如果你还没有联邦宇宙身份，可以访问这里选择实例并创建一个： https://joinmastodon.org/zh/servers\n"
         if settings.ALLOW_EMAIL_ONLY_ACCOUNT:
-            msg += f"\n如果你不便使用联邦宇宙身份，可以点击以下链接注册新的{site}账号，以后再关联到联邦宇宙。\n{url}\n"
+            msg += f"\n如果你不便使用联邦宇宙身份，可以点击以下链接注册新的本站账号，以后再关联到联邦宇宙。\n{url}\n"
         msg += f"\n如果你没有打算用此电子邮件地址注册或登录本站，请忽略此邮件。"
     else:
         raise ValueError("Invalid action")
     try:
+        logger.info(f"Sending email to {email} with subject {subject}")
         send_mail(
             subject=subject,
             message=msg,
@@ -287,6 +289,13 @@ def verify_email(request):
     error = ""
     try:
         s = TimestampSigner().unsign_object(request.GET.get("c"), max_age=60 * 15)  # type: ignore
+    except Exception as e:
+        logger.error(e)
+        error = _("链接无效或已过期")
+        return render(
+            request, "users/verify_email.html", {"success": False, "error": error}
+        )
+    try:
         email = s["e"]
         action = s["a"]
         if action == "verify":
@@ -314,7 +323,8 @@ def verify_email(request):
             else:
                 return register_new_user(request, username=None, email=email)
     except Exception as e:
-        error = _("链接已失效")
+        logger.error(e)
+        error = _("无法完成验证")
     return render(
         request, "users/verify_email.html", {"success": False, "error": error}
     )
@@ -426,7 +436,7 @@ def swap_login(request, token, site, refresh_token):
                     ]
                 )
                 django_rq.get_queue("mastodon").enqueue(
-                    refresh_mastodon_data_task, current_user, token
+                    refresh_mastodon_data_task, current_user.pk, token
                 )
                 messages.add_message(
                     request, messages.INFO, _(f"账号身份已更新为 {username}@{site}。")
@@ -443,7 +453,7 @@ def auth_login(request, user):
         user.mastodon_last_refresh < timezone.now() - timedelta(hours=1)
         or user.mastodon_account == {}
     ):
-        django_rq.get_queue("mastodon").enqueue(refresh_mastodon_data_task, user)
+        django_rq.get_queue("mastodon").enqueue(refresh_mastodon_data_task, user.pk)
 
 
 def auth_logout(request):
@@ -465,7 +475,8 @@ def clear_data(request):
     if request.META.get("HTTP_AUTHORIZATION"):
         raise BadRequest("Only for web login")
     if request.method == "POST":
-        if request.POST.get("verification") == request.user.mastodon_acct:
+        v = request.POST.get("verification")
+        if v and (v == request.user.mastodon_acct or v == request.user.email):
             django_rq.get_queue("mastodon").enqueue(clear_data_task, request.user.id)
             auth_logout(request)
             return redirect(reverse("users:login"))

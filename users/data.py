@@ -118,9 +118,9 @@ def export_marks(request):
 
 @login_required
 def sync_mastodon(request):
-    if request.method == "POST":
+    if request.method == "POST" and request.user.mastodon_username:
         django_rq.get_queue("mastodon").enqueue(
-            refresh_mastodon_data_task, request.user
+            refresh_mastodon_data_task, request.user.pk
         )
         messages.add_message(request, messages.INFO, _("同步已开始。"))
     return redirect(reverse("users:data"))
