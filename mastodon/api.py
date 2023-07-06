@@ -235,16 +235,16 @@ def detect_server_info(login_domain):
         response = get(url, headers={"User-Agent": USER_AGENT})
     except:
         logger.error(f"Error connecting {login_domain}")
-        raise Exception("无法连接实例")
+        raise Exception(f"无法连接 {login_domain}")
     if response.status_code != 200:
         logger.error(f"Error connecting {login_domain}: {response.status_code}")
-        raise Exception("实例返回错误，代码: " + str(response.status_code))
+        raise Exception(f"实例 {login_domain} 返回错误，代码: {response.status_code}")
     try:
         j = response.json()
         domain = j["uri"].lower().split("//")[-1].split("/")[0]
     except Exception as e:
         logger.error(f"Error connecting {login_domain}: {e}")
-        raise Exception("实例返回信息无法识别")
+        raise Exception(f"实例 {login_domain} 返回信息无法识别")
     server_version = j["version"]
     api_domain = domain
     if domain != login_domain:
