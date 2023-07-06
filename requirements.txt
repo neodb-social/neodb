@@ -1,7 +1,7 @@
 dateparser
 mistune
 rq>=1.12.0
-django~=3.2.19
+django~=4.2.3
 django-auditlog
 django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e69480c64ad9c5d0499f4a8625da78cf2bb7691b
 django-jsonform
