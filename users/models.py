@@ -3,6 +3,7 @@ from django.core import validators
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
 from django.db import models
+from django.db.models.functions import Lower
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.core.serializers.json import DjangoJSONEncoder
@@ -86,11 +87,21 @@ class User(AbstractUser):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["mastodon_username", "mastodon_site"],
+                Lower("username"),
+                name="unique_username",
+            ),
+            models.UniqueConstraint(
+                Lower("email"),
+                name="unique_email",
+            ),
+            models.UniqueConstraint(
+                Lower("mastodon_username"),
+                Lower("mastodon_site"),
                 name="unique_mastodon_username",
             ),
             models.UniqueConstraint(
-                fields=["mastodon_id", "mastodon_site"],
+                Lower("mastodon_id"),
+                Lower("mastodon_site"),
                 name="unique_mastodon_id",
             ),
             models.CheckConstraint(
