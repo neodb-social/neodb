@@ -1,6 +1,6 @@
 {% for user in list %}
   <p style="border-bottom: gray 1px dashed; padding-bottom:4px;">
-    <span class="action">{% include 'users/profile_actions.html' %}</span>
+    <span class="action">{% include 'users/profile_actions.html' with show_home=1 %}</span>
     <code class="{{ id }}_handler"
           style="cursor:pointer"
           onmouseleave="$(this).removeAttr('data-tooltip')"
@@ -15,7 +15,7 @@
       <a id="download_{{ id }}" title="导出列表" download="neodb_{{ id }}.csv"><i class="fa-solid fa-download"></i></a>
     </span>
   </span>
-  此处只列出你在{{ site_name }}{{ name }}的用户，联邦宇宙{{ name }}列表可在你所属实例查询管理。
+  此处只列出你在{{ site_name }}{{ name }}，联邦宇宙{{ name }}列表可在你所属实例查询管理。
 </p>
 <script>
 let csv = "data:text/csv;charset=utf-8,Account address,Show boosts,Notify on new posts,Languages\n"

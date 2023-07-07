@@ -13,6 +13,15 @@
     <span class="tag-list">
       <span><a>{{ relationship.status }}</a></span>
     </span>
+  {% else %}
+    <span style="padding-bottom:1em;display:inline-block">&nbsp;</span>
+  {% endif %}
+  {% if show_home %}
+    <span>
+      <a title="用户主页" href="{{ user.url }}">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </span>
   {% endif %}
   {% if relationship.following %}
     {% if relationship.unfollowable %}

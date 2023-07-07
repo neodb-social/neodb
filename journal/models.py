@@ -58,10 +58,15 @@ def max_visiblity_to(viewer, owner):
 
 def query_visible(user):
     return (
-        Q(visibility=0)
-        | Q(owner_id__in=user.following if user.is_authenticated else [], visibility=1)
-        | Q(owner_id=user.id)
-    ) & ~Q(owner_id__in=user.ignoring)
+        (
+            Q(visibility=0)
+            | Q(owner_id__in=user.following, visibility=1)
+            | Q(owner_id=user.id)
+        )
+        & ~Q(owner_id__in=user.ignoring)
+        if user.is_authenticated
+        else Q(visibility=0)
+    )
 
 
 def query_following(user):

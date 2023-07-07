@@ -92,6 +92,12 @@
             {% include 'users/relationship_list.html' with name="关注" id="follow" list=request.user.local_following.all %}
           </details>
         </article>
+        <article id="local_following">
+          <details>
+            <summary>{% trans '关注了你的用户' %}</summary>
+            {% include 'users/relationship_list.html' with name="关注者" id="follower" list=request.user.local_followers.all %}
+          </details>
+        </article>
         <article>
           <details>
             <summary>{% trans '已隐藏的用户' %}</summary>
