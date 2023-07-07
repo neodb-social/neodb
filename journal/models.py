@@ -61,7 +61,7 @@ def query_visible(user):
         Q(visibility=0)
         | Q(owner_id__in=user.following if user.is_authenticated else [], visibility=1)
         | Q(owner_id=user.id)
-    )
+    ) & ~Q(owner_id__in=user.ignoring)
 
 
 def query_following(user):

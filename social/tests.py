@@ -42,7 +42,7 @@ class SocialTest(TestCase):
         # bob follows alice, see 2 activities
         self.bob.mastodon_following = ["Alice@MySpace"]
         self.alice.mastodon_follower = ["Bob@KKCity"]
-        self.bob.following = self.bob.get_following_ids()
+        self.bob.following = self.bob.merge_following_ids()
         timeline2 = self.bob.activity_manager.get_timeline()
         self.assertEqual(len(timeline2), 2)
 

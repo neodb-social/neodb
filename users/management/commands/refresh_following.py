@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         count = 0
         for user in tqdm(User.objects.all()):
-            user.following = user.get_following_ids()
+            user.following = user.merge_following_ids()
             if user.following:
                 count += 1
                 user.save(update_fields=["following"])

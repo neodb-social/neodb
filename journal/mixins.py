@@ -17,11 +17,7 @@ class UserOwnedObjectMixin:
             return self.visibility == 0
         if self.visibility == 2:
             return False
-        if (
-            viewer.is_blocking(owner)
-            or owner.is_blocking(viewer)
-            or viewer.is_muting(owner)
-        ):
+        if viewer.is_blocking(owner) or owner.is_blocking(viewer):
             return False
         if self.visibility == 1:
             return viewer.is_following(owner)

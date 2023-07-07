@@ -123,7 +123,7 @@ def sync_mastodon(request):
             refresh_mastodon_data_task, request.user.pk
         )
         messages.add_message(request, messages.INFO, _("同步已开始。"))
-    return redirect(reverse("users:data"))
+    return redirect(reverse("users:info"))
 
 
 @login_required

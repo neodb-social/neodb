@@ -16,8 +16,8 @@ from discord import SyncWebhook
 
 
 def render_user_not_found(request):
-    msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-    sec_msg = _("")
+    sec_msg = _("😖哎呀，这位用户好像还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
+    msg = _("未找到该用户")
     return render(
         request,
         "common/error.html",
@@ -29,7 +29,7 @@ def render_user_not_found(request):
 
 
 def render_user_blocked(request):
-    msg = _("你没有访问TA主页的权限😥")
+    msg = _("没有访问该用户主页的权限")
     return render(
         request,
         "common/error.html",
@@ -81,7 +81,7 @@ def follow(request, user_name):
         raise BadRequest()
     user = User.get(user_name)
     if request.user.follow(user):
-        return render(request, "users/followed.html", context={"user": user})
+        return render(request, "users/profile_actions.html", context={"user": user})
     else:
         raise BadRequest()
 
@@ -92,7 +92,51 @@ def unfollow(request, user_name):
         raise BadRequest()
     user = User.get(user_name)
     if request.user.unfollow(user):
-        return render(request, "users/unfollowed.html", context={"user": user})
+        return render(request, "users/profile_actions.html", context={"user": user})
+    else:
+        raise BadRequest()
+
+
+@login_required
+def mute(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.mute(user):
+        return render(request, "users/profile_actions.html", context={"user": user})
+    else:
+        raise BadRequest()
+
+
+@login_required
+def unmute(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.unmute(user):
+        return render(request, "users/profile_actions.html", context={"user": user})
+    else:
+        raise BadRequest()
+
+
+@login_required
+def block(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.block(user):
+        return render(request, "users/profile_actions.html", context={"user": user})
+    else:
+        raise BadRequest()
+
+
+@login_required
+def unblock(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.unblock(user):
+        return render(request, "users/profile_actions.html", context={"user": user})
     else:
         raise BadRequest()
 

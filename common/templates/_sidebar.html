@@ -32,7 +32,6 @@
     </section>
   {% endif %}
   {% if show_profile %}
-    {% current_user_relationship user as relationship %}
     <section class="profile">
       <article>
         <details class="auto-collapse" open>
@@ -56,46 +55,21 @@
                     </a>
                   </div>
                 </hgroup>
-                {% if relationship.status %}
-                  <div class="tag-list">
-                    <span><a>{{ relationship.status }}</a></span>
-                  </div>
-                {% endif %}
               </div>
             </div>
           </summary>
-          <span class="action">
-            {% if user.locked %}
-              <span>
-                <a title="用户已开启关注审核"
-                   hx-post="{% url 'users:locked' user.handler %}"
-                   hx-target="body"
-                   hx-swap="beforeend">
-                  <i class="fa-solid fa-user-shield"></i>
-                </a>
-              </span>
-            {% elif user != request.user %}
-              {% if not relationship.following %}
+          <span class="action" id="profile_actions">
+            {% if user == request.user %}
+              {% if user.locked %}
                 <span>
-                  <a title="关注ta"
-                     hx-post="{% url 'users:follow' user.handler %}"
-                     hx-swap="outerHTML">
-                    <i class="fa-solid fa-user-plus"></i>
+                  <a title="你已开启关注审核">
+                    <i class="fa-solid fa-user-shield"></i>
                   </a>
                 </span>
-              {% elif relationship.unfollowable %}
-                <span>
-                  <a title="取消关注"
-                     hx-post="{% url 'users:unfollow' user.handler %}"
-                     hx-swap="outerHTML">
-                    <i class="fa-solid fa-user-xmark"></i>
-                  </a>
-                </span>
-              {% else %}
-                <span><a title="已在联邦宇宙关注了ta"><i class="fa-solid fa-user-check"></i></a></span>
               {% endif %}
+            {% else %}
+              {% include 'users/profile_actions.html' %}
             {% endif %}
-            {% comment %} <span><a href="{% url 'users:report' %}?user_id={{ user.id }}">{% trans '投诉用户' %}</a></span> {% endcomment %}
           </span>
           <p>{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
         </details>

@@ -55,7 +55,8 @@ class ActivityManager:
         self.owner = user
 
     def get_timeline(self, before_time=None):
-        q = Q(owner_id__in=self.owner.following, visibility__lt=2) | Q(owner=self.owner)
+        following = [x for x in self.owner.following if x not in self.owner.ignoring]
+        q = Q(owner_id__in=following, visibility__lt=2) | Q(owner=self.owner)
         if before_time:
             q = q & Q(created_time__lt=before_time)
         return (
