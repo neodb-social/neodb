@@ -241,6 +241,10 @@ class User(AbstractUser):
         if self.pk in target.following:
             target.following.remove(self.pk)
             target.save(update_fields=["following"])
+        if target in self.local_following.all():
+            self.local_following.remove(target)
+        if self in target.local_following.all():
+            target.local_following.remove(self)
         if target.pk not in self.rejecting:
             self.rejecting.append(target.pk)
             self.save(update_fields=["rejecting"])

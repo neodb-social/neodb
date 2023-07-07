@@ -86,9 +86,27 @@
             </details>
           </article>
         {% endif %}
+        <article id="local_following">
+          <details>
+            <summary>{% trans '正在关注的用户' %}</summary>
+            {% include 'users/relationship_list.html' with name="关注" id="follow" list=request.user.local_following.all %}
+          </details>
+        </article>
         <article>
           <details>
-            <summary>{% trans '更新社交关系数据' %}</summary>
+            <summary>{% trans '已隐藏的用户' %}</summary>
+            {% include 'users/relationship_list.html' with name="隐藏" id="mute" list=request.user.local_muting.all %}
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans '已屏蔽的用户' %}</summary>
+            {% include 'users/relationship_list.html' with name="屏蔽" id="block" list=request.user.local_blocking.all %}
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans '同步联邦宇宙身份和社交关系数据' %}</summary>
             <form action="{% url 'users:sync_mastodon' %}"
                   method="post"
                   enctype="multipart/form-data">
