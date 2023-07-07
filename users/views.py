@@ -76,6 +76,34 @@ def following(request, id):
 
 
 @login_required
+def follow(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.follow(user):
+        return render(request, "users/followed.html", context={"user": user})
+    else:
+        raise BadRequest()
+
+
+@login_required
+def unfollow(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.unfollow(user):
+        return render(request, "users/unfollowed.html", context={"user": user})
+    else:
+        raise BadRequest()
+
+
+@login_required
+def follow_locked(request, user_name):
+    user = User.get(user_name)
+    return render(request, "users/follow_locked.html", context={"user": user})
+
+
+@login_required
 def set_layout(request):
     if request.method == "POST":
         layout = json.loads(request.POST.get("layout"))

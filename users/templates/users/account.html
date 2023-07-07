@@ -20,7 +20,7 @@
         {% if allow_any_site %}
           <article>
             <details open>
-              <summary>{% trans '用户名、电子邮件与社交账号' %}</summary>
+              <summary>{% trans '用户名、电子邮件与社交身份' %}</summary>
               <form action="{% url 'users:register' %}?next={{ request.path }}"
                     method="post">
                 <small>{{ error }}</small>
@@ -54,23 +54,34 @@
                 {% csrf_token %}
                 <fieldset>
                   <label>
-                    社交账号
+                    社交身份
                     <input type="input"
                            {% if request.user.mastodon_acct %}aria-invalid="false"{% endif %}
                            value="{{ request.user.mastodon_acct | default:'未关联' }}"
                            readonly>
                   </label>
                   <label>
-                    如需关联到另一个社交账号，请输入新账号所在的实例域名
+                    {% if request.user.mastodon_acct %}
+                      如需关联到另一个联邦宇宙社交身份，请输入新身份所在的实例域名
+                    {% else %}
+                      请输入已注册实例域名
+                    {% endif %}
                     <input type="input"
                            name="domain"
                            value=""
                            placeholder="例如mastodon.online"
                            _="on input remove [@disabled] from #bind end">
                   </label>
-                  <input type="submit" value="{% trans '登录并关联新账号' %}" disabled id="bind" />
+                  <input type="submit" value="{% trans '登录实例并关联' %}" disabled id="bind" />
+                  <small>
+                    {% if request.user.mastodon_acct %}
+                      替换关联后可使用新的联邦宇宙身份来登录{{ site_name }}和控制数据可见性，已有的标记评论收藏单等数据不受影响。
+                    {% else %}
+                      启用联邦宇宙身份后可关注更多的用户并用到本站完整功能。
+                      如果你还没有注册过<em data-tooltip="联邦宇宙(Fediverse 亦称长毛象)是一种分布式社交网络">联邦宇宙</em>，可先<a href="https://joinmastodon.org/zh/servers" target="_blank">选择实例并注册</a>。
+                    {% endif %}
+                  </small>
                 </fieldset>
-                <div>替换关联后可使用新的联邦宇宙身份来登录{{ site_name }}和控制数据可见性，已有的标记评论收藏单等数据不受影响。</div>
               </form>
             </details>
           </article>

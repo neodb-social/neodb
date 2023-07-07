@@ -32,13 +32,14 @@
     </section>
   {% endif %}
   {% if show_profile %}
+    {% current_user_relationship user as relationship %}
     <section class="profile">
       <article>
         <details class="auto-collapse" open>
           <summary>
             <div>
               <div class="avatar">
-                <a href="{{ user.url }}" onclick="window.location = this.href">
+                <a href="{{ user.url }}" onclick="window.location = this.href;">
                   {% comment %} onclick to workaround webkit issue with <a />  in <summary /> {% endcomment %}
                   <img src="{{ user.avatar }}" alt="">
                 </a>
@@ -50,25 +51,53 @@
                     <a href="{{ user.mastodon_account.url }}"
                        target="_blank"
                        rel="noopener"
-                       onclick="window.open(this.href)">
+                       onclick="window.open(this.href); return false;">
                       <span class="handler">@{{ user.handler }}</span>
                     </a>
-                    {% current_user_relationship user as relationship %}
-                    {% if relationship %}<span>{{ relationship }}</span>{% endif %}
                   </div>
                 </hgroup>
+                {% if relationship.status %}
+                  <div class="tag-list">
+                    <span><a>{{ relationship.status }}</a></span>
+                  </div>
+                {% endif %}
               </div>
             </div>
           </summary>
-          <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
-          {% if request.user != user %}
-            <span class="action">
-              <small>
-                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
-                   class="user-profile__report-link">{% trans '投诉用户' %}</a>
-              </small>
-            </span>
-          {% endif %}
+          <span class="action">
+            {% if user.locked %}
+              <span>
+                <a title="用户已开启关注审核"
+                   hx-post="{% url 'users:locked' user.handler %}"
+                   hx-target="body"
+                   hx-swap="beforeend">
+                  <i class="fa-solid fa-user-shield"></i>
+                </a>
+              </span>
+            {% elif user != request.user %}
+              {% if not relationship.following %}
+                <span>
+                  <a title="关注ta"
+                     hx-post="{% url 'users:follow' user.handler %}"
+                     hx-swap="outerHTML">
+                    <i class="fa-solid fa-user-plus"></i>
+                  </a>
+                </span>
+              {% elif relationship.unfollowable %}
+                <span>
+                  <a title="取消关注"
+                     hx-post="{% url 'users:unfollow' user.handler %}"
+                     hx-swap="outerHTML">
+                    <i class="fa-solid fa-user-xmark"></i>
+                  </a>
+                </span>
+              {% else %}
+                <span><a title="已在联邦宇宙关注了ta"><i class="fa-solid fa-user-check"></i></a></span>
+              {% endif %}
+            {% endif %}
+            {% comment %} <span><a href="{% url 'users:report' %}?user_id={{ user.id }}">{% trans '投诉用户' %}</a></span> {% endcomment %}
+          </span>
+          <p>{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
         </details>
       </article>
     </section>

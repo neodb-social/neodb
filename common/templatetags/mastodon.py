@@ -1,6 +1,7 @@
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
+from django.utils.translation import gettext_lazy as _
 
 
 register = template.Library()
@@ -15,12 +16,28 @@ def mastodon(domain):
 @register.simple_tag(takes_context=True)
 def current_user_relationship(context, user):
     current_user = context["request"].user
-    if current_user and current_user.is_authenticated:
+    r = {
+        "following": False,
+        "followable": False,
+        "unfollowable": False,
+        "status": "",
+    }
+    if (
+        current_user
+        and current_user.is_authenticated
+        and current_user != user
+        and not current_user.is_blocked_by(user)
+    ):
         if current_user.is_following(user):
+            r["following"] = True
+            if user in current_user.local_following.all():
+                r["unfollowable"] = True
             if current_user.is_followed_by(user):
-                return "互相关注"
+                r["status"] = _("互相关注")
             else:
-                return "已关注"
-        elif current_user.is_followed_by(user):
-            return "被ta关注"
-    return None
+                r["status"] = _("已关注")
+        else:
+            r["followable"] = True
+            if current_user.is_followed_by(user):
+                r["status"] = _("被ta关注")
+    return r

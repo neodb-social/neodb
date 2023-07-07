@@ -62,11 +62,24 @@ class User(AbstractUser):
             "unique": _("A user with that username already exists."),
         },
     )
-    email = models.EmailField(_("email address"), unique=True, default=None, null=True)
+    email = models.EmailField(
+        _("email address"),
+        unique=True,
+        default=None,
+        null=True,
+    )
     pending_email = models.EmailField(
         _("email address pending verification"), default=None, null=True
     )
+    local_following = models.ManyToManyField(
+        through="Follow",
+        to="self",
+        through_fields=("owner", "target"),
+        symmetrical=False,
+        related_name="local_followers",
+    )
     following = models.JSONField(default=list)
+    # followers = models.JSONField(default=list)
     mastodon_id = models.CharField(max_length=100, default=None, null=True)
     mastodon_username = models.CharField(max_length=100, default=None, null=True)
     mastodon_site = models.CharField(max_length=100, default=None, null=True)
@@ -114,11 +127,6 @@ class User(AbstractUser):
             ),
         ]
 
-    # def save(self, *args, **kwargs):
-    #     """ Automatically populate password field with settings.DEFAULT_PASSWORD before saving."""
-    #     self.set_password(settings.DEFAULT_PASSWORD)
-    #     return super().save(*args, **kwargs)
-
     @property
     def mastodon_acct(self):
         return (
@@ -126,6 +134,10 @@ class User(AbstractUser):
             if self.mastodon_username
             else ""
         )
+
+    @property
+    def locked(self):
+        return self.mastodon_locked
 
     @property
     def display_name(self):
@@ -158,6 +170,33 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.pk}:{self.username or ""}:{self.mastodon_acct}'
+
+    def follow(self, target: "User"):
+        if (
+            target is None
+            or target.pk in self.following
+            or target.locked
+            or self.mastodon_acct in target.mastodon_blocks
+            or target.mastodon_acct in self.mastodon_blocks
+        ):
+            return False
+        self.local_following.add(target)
+        self.following.append(target.pk)
+        self.save()
+        return True
+
+    def unfollow(self, target: "User"):
+        print(target)
+        print(target in self.local_following.all())
+        if target and target in self.local_following.all():
+            self.local_following.remove(target)
+            try:
+                self.following.remove(target.pk)
+                self.save()
+            except ValueError:
+                pass
+            return True
+        return False
 
     def get_preference(self):
         pref = Preference.objects.filter(user=self).first()  # self.preference
@@ -265,9 +304,10 @@ class User(AbstractUser):
     def is_following(self, target):
         return (
             self.mastodon_acct in target.mastodon_followers
-            if target.mastodon_locked
-            else self.mastodon_acct in target.mastodon_followers
+            if target.locked
+            else target.pk in self.following
             or target.mastodon_acct in self.mastodon_following
+            or self.mastodon_acct in target.mastodon_followers
         )
 
     def is_followed_by(self, target):
@@ -345,6 +385,13 @@ class Preference(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+
+class Follow(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    target = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    created_time = models.DateTimeField(auto_now_add=True)
+    edited_time = models.DateTimeField(auto_now=True)
 
 
 class Report(models.Model):
