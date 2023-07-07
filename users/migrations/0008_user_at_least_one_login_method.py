@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("users", "0007_user_pending_email"),
+        ("users", "0007_username_case_insensitive"),
     ]
 
     operations = [

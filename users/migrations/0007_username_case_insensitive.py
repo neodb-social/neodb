@@ -6,7 +6,7 @@ import django.db.models.functions.text
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("users", "0006_unique_email"),
+        ("users", "0007_user_pending_email"),
     ]
 
     operations = [
