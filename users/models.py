@@ -283,6 +283,9 @@ class User(AbstractUser):
                 or self.mastodon_acct in target.mastodon_followers
             ):
                 fl.append(target.pk)
+        for user in self.local_following.all():
+            if user.pk not in fl and not user.locked and not user.is_blocking(self):
+                fl.append(user.pk)
         return fl
 
     def is_blocking(self, target):
