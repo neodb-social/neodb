@@ -473,8 +473,8 @@ class User(AbstractUser):
             self.mastodon_acct in target.mastodon_followers
             if target.locked
             else target.pk in self.following
-            or target.mastodon_acct in self.mastodon_following
-            or self.mastodon_acct in target.mastodon_followers
+            # or target.mastodon_acct in self.mastodon_following
+            # or self.mastodon_acct in target.mastodon_followers
         )
 
     def is_followed_by(self, target):
