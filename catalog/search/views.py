@@ -16,7 +16,7 @@ from rq.job import Job
 from .external import ExternalSources
 from django.core.cache import cache
 import hashlib
-from .models import query_index, enqueue_fetch
+from .models import get_fetch_lock, query_index, enqueue_fetch
 
 _logger = logging.getLogger(__name__)
 
@@ -68,7 +68,9 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = No
                 "!refetch": [url, None],
             }
         )
-    job_id = enqueue_fetch(url, is_refetch, request.user)
+    job_id = None
+    if is_refetch or get_fetch_lock():
+        job_id = enqueue_fetch(url, is_refetch, request.user)
     return render(
         request,
         "fetch_pending.html",
@@ -98,7 +100,7 @@ def search(request):
             },
         )
 
-    if request.user.is_authenticated and keywords.find("://") > 0:
+    if keywords.find("://") > 0:
         site = SiteManager.get_site_by_url(keywords)
         if site:
             return fetch(request, keywords, False, site)

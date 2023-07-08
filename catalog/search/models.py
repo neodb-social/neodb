@@ -9,6 +9,7 @@ from django.core.cache import cache
 import hashlib
 from .typesense import Indexer as TypeSenseIndexer
 from auditlog.context import set_actor
+from django.core.cache import cache
 
 # from .meilisearch import Indexer as MeiliSearchIndexer
 
@@ -96,6 +97,17 @@ def query_index(keywords, category=None, tag=None, page=1, prepare_external=True
         cache.set(cache_key, urls, timeout=300)
 
     return items, result.num_pages, result.count, duplicated_items
+
+
+_fetch_lock_key = "_fetch_lock"
+_fetch_lock_ttl = 2
+
+
+def get_fetch_lock():
+    if cache.get(_fetch_lock_key):
+        return False
+    cache.set(_fetch_lock_key, 1, timeout=_fetch_lock_ttl)
+    return True
 
 
 def enqueue_fetch(url, is_refetch, user=None):

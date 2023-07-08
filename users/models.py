@@ -18,7 +18,7 @@ from django.db.models import Q, F, Value
 from django.db.models.functions import Concat
 from django.templatetags.static import static
 import hashlib
-
+from loguru import logger
 
 RESERVED_USERNAMES = [
     "connect",
@@ -394,7 +394,7 @@ class User(AbstractUser):
             self.merge_relationships()
             updated = True
         elif code == 401:
-            print(f"401 {self}")
+            logger.error(f"401 {self}")
             self.mastodon_token = ""
         return updated
 

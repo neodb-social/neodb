@@ -6,7 +6,7 @@ from common.api import *
 from .models import *
 from .common import *
 from .sites import *
-from .search.models import enqueue_fetch, query_index
+from .search.models import enqueue_fetch, query_index, get_fetch_lock
 
 
 class SearchResult(Schema):
@@ -70,7 +70,8 @@ def fetch_item(request, url: str):
     item = site.get_item()
     if item:
         return 200, item
-    enqueue_fetch(url, False)
+    if get_fetch_lock():
+        enqueue_fetch(url, False)
     return 202, {"message": "Fetch in progress"}
 
 
