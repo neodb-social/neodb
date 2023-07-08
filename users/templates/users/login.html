@@ -77,12 +77,12 @@
                         onchange="switch_login()"
                         name="method">
                   <option disabled value="">选择登录方式</option>
-                  <option selected value="fedi">通过联邦宇宙</option>
-                  <option value="email">通过电子邮件</option>
+                  <option selected value="fedi">联邦宇宙授权</option>
+                  <option value="email">电子邮件验证</option>
                 </select>
                 <input style="width:100%"
                        type='submit'
-                       value="{% trans '授权登录' %}"
+                       value="{% trans '登录/注册' %}"
                        id="loginButton"
                        disabled />
               </div>
