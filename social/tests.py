@@ -52,3 +52,15 @@ class SocialTest(TestCase):
         self.assertEqual(len(timeline), 3)
         timeline2 = self.bob.activity_manager.get_timeline()
         self.assertEqual(len(timeline2), 2)
+
+        # remote unfollow
+        self.bob.mastodon_following = []
+        self.alice.mastodon_follower = []
+        self.bob.merge_relationships()
+        timeline = self.bob.activity_manager.get_timeline()
+        self.assertEqual(len(timeline), 0)
+
+        # local follow
+        self.bob.follow(self.alice)
+        timeline = self.bob.activity_manager.get_timeline()
+        self.assertEqual(len(timeline), 2)

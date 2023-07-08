@@ -10,7 +10,7 @@ class UserTest(TestCase):
         self.bob = User.objects.create(mastodon_site="KKCity", mastodon_username="Bob")
 
     def test_local_follow(self):
-        self.alice.follow(self.bob)
+        self.assertTrue(self.alice.follow(self.bob))
         self.assertTrue(
             Follow.objects.filter(owner=self.alice, target=self.bob).exists()
         )
@@ -19,19 +19,31 @@ class UserTest(TestCase):
         self.assertTrue(self.alice.is_following(self.bob))
         self.assertTrue(self.bob.is_followed_by(self.alice))
 
-        self.alice.follow(self.bob)
+        self.assertFalse(self.alice.follow(self.bob))
         self.assertEqual(
             Follow.objects.filter(owner=self.alice, target=self.bob).count(), 1
         )
         self.assertEqual(self.alice.following, [self.bob.pk])
 
-        self.alice.unfollow(self.bob)
+        self.assertTrue(self.alice.unfollow(self.bob))
         self.assertFalse(
             Follow.objects.filter(owner=self.alice, target=self.bob).exists()
         )
         self.assertFalse(self.alice.is_following(self.bob))
         self.assertFalse(self.bob.is_followed_by(self.alice))
         self.assertEqual(self.alice.following, [])
+
+    def test_locked(self):
+        self.bob.mastodon_locked = True
+        self.bob.save()
+        self.assertFalse(self.alice.follow(self.bob))
+        self.bob.mastodon_locked = False
+        self.bob.save()
+        self.assertTrue(self.alice.follow(self.bob))
+        self.assertTrue(self.alice.is_following(self.bob))
+        self.bob.mastodon_locked = True
+        self.bob.save()
+        self.assertFalse(self.alice.is_following(self.bob))
 
     def test_external_follow(self):
         self.alice.mastodon_following.append(self.bob.mastodon_acct)
