@@ -852,9 +852,11 @@ def profile_anonymous(request, id):
 def profile(request, user_name):
     if request.method != "GET":
         raise BadRequest()
-    user = User.get(user_name)
+    user = User.get(user_name, case_sensitive=True)
     if user is None or not user.is_active:
         return render_user_not_found(request)
+    if user.handler != user_name:
+        return redirect(user.url)
     if not request.user.is_authenticated and user.get_preference().no_anonymous_view:
         return profile_anonymous(request, user_name)
     # access one's own home page

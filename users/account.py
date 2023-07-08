@@ -75,7 +75,7 @@ def connect(request):
                 "common/error.html",
                 {"msg": _("无效的电子邮件地址")},
             )
-        user = User.objects.filter(email=login_email).first()
+        user = User.objects.filter(email__iexact=login_email).first()
         django_rq.get_queue("mastodon").enqueue(
             send_verification_link,
             user.pk if user else 0,
@@ -236,13 +236,20 @@ class RegistrationForm(forms.ModelForm):
         username = self.cleaned_data.get("username")
         if username and self.instance and self.instance.username:
             username = self.instance.username
+        elif (
+            username
+            and User.objects.filter(username__iexact=username)
+            .exclude(pk=self.instance.pk if self.instance else -1)
+            .exists()
+        ):
+            raise forms.ValidationError(_("This username is already in use."))
         return username
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
         if (
             email
-            and User.objects.filter(email=email)
+            and User.objects.filter(email__iexact=email)
             .exclude(pk=self.instance.pk if self.instance else -1)
             .exists()
         ):
@@ -317,7 +324,7 @@ def verify_email(request):
             else:
                 error = _("电子邮件地址不匹配")
         elif action == "register":
-            user = User.objects.filter(email=email).first()
+            user = User.objects.filter(email__iexact=email).first()
             if user:
                 error = _("此电子邮件地址已被注册")
             else:
@@ -348,7 +355,9 @@ def register(request):
         if not form.is_valid():
             return render(request, "users/register.html", {"form": form})
         if request.user.username is None and form.cleaned_data["username"]:
-            if User.objects.filter(username=form.cleaned_data["username"]).exists():
+            if User.objects.filter(
+                username__iexact=form.cleaned_data["username"]
+            ).exists():
                 return render(
                     request,
                     "users/register.html",
@@ -360,8 +369,10 @@ def register(request):
             request.user.username = form.cleaned_data["username"]
             username_changed = True
         if form.cleaned_data["email"]:
-            if form.cleaned_data["email"] != request.user.email:
-                if User.objects.filter(email=form.cleaned_data["email"]).exists():
+            if form.cleaned_data["email"].lower() != (request.user.email or "").lower():
+                if User.objects.filter(
+                    email__iexact=form.cleaned_data["email"]
+                ).exists():
                     return render(
                         request,
                         "users/register.html",
@@ -412,7 +423,7 @@ def swap_login(request, token, site, refresh_token):
         else:
             try:
                 existing_user = User.objects.get(
-                    mastodon_username=username, mastodon_site=site
+                    mastodon_username__iexact=username, mastodon_site__iexact=site
                 )
                 messages.add_message(
                     request, messages.ERROR, _(f"该身份 {username}@{site} 已被用于其它账号。")

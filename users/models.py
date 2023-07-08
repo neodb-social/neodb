@@ -505,7 +505,7 @@ class User(AbstractUser):
         return unread_announcements
 
     @classmethod
-    def get(cls, name):
+    def get(cls, name, case_sensitive=False):
         if isinstance(name, str):
             sp = name.split("@")
             if name.startswith("~"):
@@ -514,9 +514,18 @@ class User(AbstractUser):
                 except:
                     return None
             elif len(sp) == 1:
-                query_kwargs = {"username": name}
+                query_kwargs = {
+                    "username__iexact" if case_sensitive else "username": name
+                }
             elif len(sp) == 2:
-                query_kwargs = {"mastodon_username": sp[0], "mastodon_site": sp[1]}
+                query_kwargs = {
+                    "mastodon_username__iexact"
+                    if case_sensitive
+                    else "mastodon_username": sp[0],
+                    "mastodon_site__iexact"
+                    if case_sensitive
+                    else "mastodon_site": sp[1],
+                }
             else:
                 return None
         elif isinstance(name, int):

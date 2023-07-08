@@ -22,7 +22,7 @@ class OAuth2Backend(ModelBackend):
             return None
         try:
             user = UserModel._default_manager.get(
-                mastodon_id=mastodon_id, mastodon_site=site
+                mastodon_id__iexact=mastodon_id, mastodon_site__iexact=site
             )
             return user if self.user_can_authenticate(user) else None
         except UserModel.DoesNotExist:

@@ -262,9 +262,9 @@ def detect_server_info(login_domain):
 
 def get_mastodon_application(login_domain):
     domain = login_domain
-    app = MastodonApplication.objects.filter(domain_name=domain).first()
+    app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
     if not app:
-        app = MastodonApplication.objects.filter(api_domain=domain).first()
+        app = MastodonApplication.objects.filter(api_domain__iexact=domain).first()
     if app:
         return app
     if domain == TWITTER_DOMAIN:
@@ -274,7 +274,7 @@ def get_mastodon_application(login_domain):
         raise Exception("不支持其它实例登录")
     domain, api_domain, server_version = detect_server_info(login_domain)
     if login_domain != domain:
-        app = MastodonApplication.objects.filter(domain_name=domain).first()
+        app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
         if app:
             return app
     response = create_app(api_domain)
@@ -289,8 +289,8 @@ def get_mastodon_application(login_domain):
         logger.error(f"Error creating app for {domain}: unable to parse response")
         raise Exception("实例注册应用失败，返回内容无法识别")
     app = MastodonApplication.objects.create(
-        domain_name=domain,
-        api_domain=api_domain,
+        domain_name=domain.lower(),
+        api_domain=api_domain.lower(),
         server_version=server_version,
         app_id=data["id"],
         client_id=data["client_id"],
