@@ -366,7 +366,7 @@ class User(AbstractUser):
             self.mastodon_account = mastodon_account
             self.mastodon_locked = mastodon_account["locked"]
             if self.mastodon_username != mastodon_account["username"]:
-                logger.warn(
+                logger.warning(
                     f"username changed from {self} to {mastodon_account['username']}"
                 )
                 self.mastodon_username = mastodon_account["username"]

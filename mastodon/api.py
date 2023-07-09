@@ -9,8 +9,7 @@ from urllib.parse import quote
 from .models import MastodonApplication
 from mastodon.utils import rating_to_emoji
 import re
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 # See https://docs.joinmastodon.org/methods/accounts/
 

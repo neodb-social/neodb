@@ -175,7 +175,9 @@ def mark(request, item_uuid):
             mark_date = None
             if request.POST.get("mark_anotherday"):
                 dt = parse_datetime(request.POST.get("mark_date", "") + " 20:00:00")
-                mark_date = timezone.get_current_timezone().localize(dt) if dt else None
+                mark_date = (
+                    dt.replace(tzinfo=timezone.get_current_timezone()) if dt else None
+                )
                 if mark_date and mark_date >= timezone.now():
                     mark_date = None
             TagManager.tag_item_by_user(item, request.user, tags, visibility)
@@ -612,8 +614,9 @@ def review_edit(request, item_uuid, review_uuid=None):
         if form.is_valid():
             mark_date = None
             if request.POST.get("mark_anotherday"):
-                mark_date = timezone.get_current_timezone().localize(
-                    parse_datetime(request.POST.get("mark_date") + " 20:00:00")
+                dt = parse_datetime(request.POST.get("mark_date") + " 20:00:00")
+                mark_date = (
+                    dt.replace(tzinfo=timezone.get_current_timezone()) if dt else None
                 )
             body = form.instance.body
             if request.POST.get("leading_space"):
