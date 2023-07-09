@@ -27,6 +27,7 @@ def preferences(request):
     if request.method == "POST":
         preference.default_visibility = int(request.POST.get("default_visibility"))
         preference.default_no_share = bool(request.POST.get("default_no_share"))
+        preference.no_anonymous_view = bool(request.POST.get("no_anonymous_view"))
         preference.classic_homepage = int(request.POST.get("classic_homepage"))
         preference.mastodon_publish_public = bool(
             request.POST.get("mastodon_publish_public")
@@ -39,6 +40,7 @@ def preferences(request):
             update_fields=[
                 "default_visibility",
                 "default_no_share",
+                "no_anonymous_view",
                 "classic_homepage",
                 "mastodon_publish_public",
                 "mastodon_append_tag",

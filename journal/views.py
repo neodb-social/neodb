@@ -839,30 +839,16 @@ def user_liked_collection_list(request, user_name):
     )
 
 
-def profile_anonymous(request, id):
-    try:
-        username = id.split("@")[0]
-        site = id.split("@")[1]
-        return render(
-            request,
-            "users/home_anonymous.html",
-            {"username": username, "site": site},
-        )
-    except Exception:
-        return redirect(login_url)
-
-
 def profile(request, user_name):
     if request.method != "GET":
         raise BadRequest()
     user = User.get(user_name, case_sensitive=True)
     if user is None or not user.is_active:
         return render_user_not_found(request)
-    if user.handler != user_name:
+    if user.mastodon_acct != user_name and user.username != user_name:
         return redirect(user.url)
     if not request.user.is_authenticated and user.get_preference().no_anonymous_view:
-        return profile_anonymous(request, user_name)
-    # access one's own home page
+        return render(request, "users/home_anonymous.html", {"user": user})
     if user != request.user and (
         user.is_blocked_by(request.user) or user.is_blocking(request.user)
     ):
