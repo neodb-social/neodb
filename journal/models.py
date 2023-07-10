@@ -125,7 +125,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @property
     def absolute_url(self):
-        return (settings.APP_WEBSITE + self.url) if self.url_path else None
+        return (settings.SITE_INFO["site_url"] + self.url) if self.url_path else None
 
     @property
     def api_url(self):

@@ -392,7 +392,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @property
     def absolute_url(self):
-        return f"{settings.APP_WEBSITE}{self.url}"
+        return f"{settings.SITE_INFO['site_url']}{self.url}"
 
     @property
     def api_url(self):
@@ -451,7 +451,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     @property
     def cover_image_url(self):
         return (
-            f"{settings.APP_WEBSITE}{self.cover.url}"
+            f"{settings.SITE_INFO['site_url']}{self.cover.url}"
             if self.cover and self.cover != DEFAULT_ITEM_COVER
             else None
         )

@@ -58,7 +58,7 @@ TWITTER_API_POST = "https://api.twitter.com/2/tweets"
 
 TWITTER_API_TOKEN = "https://api.twitter.com/2/oauth2/token"
 
-USER_AGENT = f"{settings.CLIENT_NAME}/1.0"
+USER_AGENT = f"{settings.SITE_INFO['site_name']}/1.0"
 
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
 put = functools.partial(requests.put, timeout=settings.MASTODON_TIMEOUT)
@@ -138,10 +138,10 @@ def create_app(domain_name):
         url = "http://" + domain_name + API_CREATE_APP
 
     payload = {
-        "client_name": settings.CLIENT_NAME,
+        "client_name": settings.SITE_INFO["site_name"],
         "scopes": settings.MASTODON_CLIENT_SCOPE,
         "redirect_uris": settings.REDIRECT_URIS,
-        "website": settings.APP_WEBSITE,
+        "website": settings.SITE_INFO["site_url"],
     }
 
     response = post(url, data=payload, headers={"User-Agent": USER_AGENT})
@@ -300,7 +300,7 @@ def get_mastodon_application(login_domain):
 
 
 def get_mastodon_login_url(app, login_domain, request):
-    url = request.scheme + "://" + request.get_host() + "/users/OAuth2_login/"
+    url = settings.REDIRECT_URIS
     if login_domain == TWITTER_DOMAIN:
         return f"https://twitter.com/i/oauth2/authorize?response_type=code&client_id={app.client_id}&redirect_uri={quote(url)}&scope={quote(settings.TWITTER_CLIENT_SCOPE)}&state=state&code_challenge=challenge&code_challenge_method=plain"
     version = app.server_version or ""
@@ -325,7 +325,7 @@ def get_mastodon_login_url(app, login_domain, request):
 def obtain_token(site, request, code):
     """Returns token if success else None."""
     mast_app = MastodonApplication.objects.get(domain_name=site)
-    redirect_uri = request.scheme + "://" + request.get_host() + "/users/OAuth2_login/"
+    redirect_uri = settings.REDIRECT_URIS
     payload = {
         "client_id": mast_app.client_id,
         "client_secret": mast_app.client_secret,

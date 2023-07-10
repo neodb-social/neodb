@@ -15,7 +15,7 @@ class ReviewFeed(Feed):
         return "%s的评论" % user.display_name if user else "无效链接"
 
     def link(self, user):
-        return user.url if user else settings.APP_WEBSITE
+        return user.url if user else settings.SITE_INFO["site_url"]
 
     def description(self, user):
         return "%s的评论合集 - NeoDB" % user.display_name if user else "无效链接"

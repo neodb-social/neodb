@@ -77,7 +77,18 @@
               {% for item in items %}
                 {% include '_list_item.html' with show_tags=1 %}
               {% empty %}
-                <p class="empty">{% trans '无站内条目匹配' %}</p>
+                <p>
+                  无站内条目匹配。
+                  {% if user.is_authenticated %}系统会尝试搜索其它网站的条目，点击标题可添加到本站。{% endif %}
+                </p>
+                <p>
+                  如果你在
+                  {% for site in sites %}
+                    {{ site }}
+                    {% if not forloop.last %}/{% endif %}
+                  {% endfor %}
+                  找到了相关条目，也可以把链接(如 <code>https://movie.douban.com/subject/1309046/</code> )输入到搜索栏中提交保存到本站。
+                </p>
               {% endfor %}
             </div>
             {% if dup_items %}
@@ -98,6 +109,8 @@
                   <span><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
                   {% trans '正在实时搜索站外条目' %}
                 </p>
+              {% else %}
+                登录用户可看到来自其它网站的搜索结果。
               {% endif %}
             </div>
           </div>
