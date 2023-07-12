@@ -63,9 +63,6 @@
               {% comment %} <a href="{{mark.owner.url }}" title="@{{ mark.owner.handler }}">{{ mark.owner.display_name }}</a> {% endcomment %}
               <span>{{ mark.action_label }}</span>
               {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
-              {% if mark.comment.focus_item %}
-                <a href="{{ mark.comment.focus_item.url }}">{{ mark.comment.focus_item.title }}</a>
-              {% endif %}
             </div>
             {% if mark.tags %}
               <div class="tag-list">

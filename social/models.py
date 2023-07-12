@@ -27,7 +27,6 @@ class ActivityTemplate(models.TextChoices):
     LikeCollection = "like_collection"
     FeatureCollection = "feature_collection"
     CommentChildItem = "comment_child_item"
-    CommentFocusItem = "comment_focus_item"  # TODO: remove this after migration
 
 
 class LocalActivity(models.Model, UserOwnedObjectMixin):
@@ -182,20 +181,6 @@ class LikeCollectionProcessor(DefaultActivityProcessor):
 class FeaturedCollectionProcessor(DefaultActivityProcessor):
     model = FeaturedCollection
     template = ActivityTemplate.FeatureCollection
-
-
-# @DataSignalManager.register
-# class CommentFocusItemProcessor(DefaultActivityProcessor):
-#     model = Comment
-#     template = ActivityTemplate.CommentFocusItem
-
-#     def created(self):
-#         if self.action_object.focus_item:
-#             super().created()
-
-#     def updated(self):
-#         if self.action_object.focus_item:
-#             super().updated()
 
 
 @DataSignalManager.register

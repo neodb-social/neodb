@@ -161,9 +161,10 @@ class User(AbstractUser):
     @property
     def display_name(self):
         return (
-            self.mastodon_account.get("display_name")
-            if self.mastodon_account
-            else (self.username or self.mastodon_acct or "")
+            (self.mastodon_account.get("display_name") if self.mastodon_account else "")
+            or self.username
+            or self.mastodon_acct
+            or ""
         )
 
     @property

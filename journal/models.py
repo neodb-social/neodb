@@ -212,9 +212,6 @@ class Memo(Content):
 
 class Comment(Content):
     text = models.TextField(blank=False, null=False)
-    focus_item = models.ForeignKey(
-        Item, on_delete=models.PROTECT, null=True, related_name="focused_comments"
-    )
 
     @property
     def html(self):
@@ -232,18 +229,14 @@ class Comment(Content):
 
     @property
     def item_url(self):
-        if self.focus_item:
-            return self.focus_item.get_absolute_url_with_position(
-                self.metadata["position"]
-            )
+        if self.metadata.get("position"):
+            return self.item.get_absolute_url_with_position(self.metadata["position"])
         else:
             return self.item.url
 
     @staticmethod
     def comment_item_by_user(item, user, text, visibility=0, created_time=None):
-        comment = Comment.objects.filter(
-            owner=user, item=item, focus_item__isnull=True
-        ).first()
+        comment = Comment.objects.filter(owner=user, item=item).first()
         if not text:
             if comment is not None:
                 comment.delete()
@@ -1138,9 +1131,7 @@ class Mark:
 
     @cached_property
     def comment(self):
-        return Comment.objects.filter(
-            owner=self.owner, item=self.item, focus_item__isnull=True
-        ).first()
+        return Comment.objects.filter(owner=self.owner, item=self.item).first()
 
     @property
     def comment_text(self):
