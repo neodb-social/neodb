@@ -88,7 +88,12 @@ def visible_categories(request):
         vc = [
             x
             for x in item_categories()
-            if x.value not in request.user.preference.hidden_categories
+            if x.value
+            not in (
+                request.user.preference.hidden_categories
+                if request.user.is_authenticated
+                else []
+            )
         ]
         request.session["p_categories"] = vc
     return vc
