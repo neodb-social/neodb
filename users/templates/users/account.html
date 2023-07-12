@@ -53,18 +53,24 @@
               <form action="{% url 'users:reconnect' %}" method="post">
                 {% csrf_token %}
                 <fieldset>
-                  <label>
-                    社交身份
-                    <input type="input"
-                           {% if request.user.mastodon_acct %}aria-invalid="false"{% endif %}
-                           value="{{ request.user.mastodon_acct | default:'未关联' }}"
-                           readonly>
-                  </label>
+                  {% if request.user.mastodon_acct %}
+                    <label>
+                      已关联社交身份
+                      <input type="input"
+                             {% if request.user.mastodon_acct %}aria-invalid="false"{% endif %}
+                             value="{{ request.user.mastodon_acct | default:'未关联' }}"
+                             readonly>
+                    </label>
+                  {% else %}
+                    <p>
+                      如果你还没有在任何<em data-tooltip="联邦宇宙(Fediverse 有时也被称为长毛象)是一种分布式社交网络">联邦宇宙</em>实例注册过，可先<a href="https://joinmastodon.org/zh/servers" target="_blank">选择实例并注册</a>。
+                    </p>
+                  {% endif %}
                   <label>
                     {% if request.user.mastodon_acct %}
                       如需关联到另一个联邦宇宙社交身份，请输入新身份所在的实例域名
                     {% else %}
-                      请输入已注册实例域名
+                      如果你已经注册过联邦宇宙实例，请输入实例域名
                     {% endif %}
                     <input type="input"
                            name="domain"
@@ -77,8 +83,7 @@
                     {% if request.user.mastodon_acct %}
                       替换关联后可使用新的联邦宇宙身份来登录{{ site_name }}和控制数据可见性，已有的标记评论收藏单等数据不受影响。
                     {% else %}
-                      启用联邦宇宙身份后可关注更多的用户并用到本站完整功能。
-                      如果你还没有注册过<em data-tooltip="联邦宇宙(Fediverse 亦称长毛象)是一种分布式社交网络">联邦宇宙</em>，可先<a href="https://joinmastodon.org/zh/servers" target="_blank">选择实例并注册</a>。
+                      启用联邦宇宙身份后可发现和关注<em data-tooltip="部分用户开启了关注审核，你需有联邦宇宙身份方可请求关注">更多</em>的用户，并使用本站完整功能。
                     {% endif %}
                   </small>
                 </fieldset>

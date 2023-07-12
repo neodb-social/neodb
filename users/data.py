@@ -158,8 +158,8 @@ def import_douban(request):
     if request.method == "POST":
         importer = DoubanImporter(
             request.user,
-            int(request.POST.get("visibility")),
-            int(request.POST.get("import_mode")),
+            int(request.POST.get("visibility", 0)),
+            int(request.POST.get("import_mode", 0)),
         )
         if importer.import_from_file(request.FILES["file"]):
             messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))

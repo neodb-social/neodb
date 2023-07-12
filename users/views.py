@@ -40,42 +40,6 @@ def render_user_blocked(request):
 
 
 @login_required
-def followers(request, id):
-    if request.method == "GET":
-        user = User.get(id)
-        if user is None or user != request.user:
-            return render_user_not_found(request)
-        return render(
-            request,
-            "users/relation_list.html",
-            {
-                "user": user,
-                "is_followers_page": True,
-            },
-        )
-    else:
-        raise BadRequest()
-
-
-@login_required
-def following(request, id):
-    if request.method == "GET":
-        user = User.get(id)
-        if user is None or user != request.user:
-            return render_user_not_found(request)
-        return render(
-            request,
-            "users/relation_list.html",
-            {
-                "user": user,
-                "page_type": "followers",
-            },
-        )
-    else:
-        raise BadRequest()
-
-
-@login_required
 def follow(request, user_name):
     if request.method != "POST":
         raise BadRequest()

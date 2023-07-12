@@ -106,15 +106,13 @@
     </ul>
   </nav>
 </header>
-{% comment %}
-  {% if request.user.is_authenticated and not request.user.username %}
-<ul class="messages" style="text-align:center">
+{% if request.user.is_authenticated and not request.user.mastodon_username and not request.user.username %}
+  <ul class="messages" style="text-align:center">
     <li class="error">
       请<a href="{% url 'users:info' %}">设置用户名</a>
     </li>
-</ul>
-  {% endif %}
-{% endcomment %}
+  </ul>
+{% endif %}
 {% if messages %}
   <ul class="messages" style="text-align:center">
     {% for message in messages %}

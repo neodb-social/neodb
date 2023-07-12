@@ -25,8 +25,8 @@
           title="{{ site_name }} - @{{ user.handler }}的评论"
           href="{{ request.build_absolute_uri }}feed/reviews/">
     {% include "common_libs.html" with jquery=0 v2=1 %}
-    <script src="{% static 'lib/js/calendar_yearview_blocks.js' %}" defer></script>
-    <link href="{% static 'lib/css/calendar_yearview_blocks.css' %}"
+    <script src="{% static 'js/calendar_yearview_blocks.js' %}" defer></script>
+    <link href="{% static 'css/calendar_yearview_blocks.css' %}"
           media="all"
           rel="stylesheet" />
   </head>
