@@ -18,7 +18,7 @@ _logger = logging.getLogger(__name__)
 
 class DbIndexer:
     @classmethod
-    def search(cls, q, page=1, category=None, tag=None, sort=None):
+    def search(cls, q, page=1, categories=None, tag=None, sort=None):
         result = lambda: None
         result.items = Item.objects.filter(title__contains=q)[:10]
         result.num_pages = 1
@@ -47,14 +47,14 @@ else:
     Indexer = DbIndexer
 
 
-def query_index(keywords, category=None, tag=None, page=1, prepare_external=True):
+def query_index(keywords, categories=None, tag=None, page=1, prepare_external=True):
     if (
         page < 1
         or page > 99
         or (not tag and isinstance(keywords, str) and len(keywords) < 2)
     ):
         return [], 0, 0, []
-    result = Indexer.search(keywords, page=page, category=category, tag=tag)
+    result = Indexer.search(keywords, page=page, categories=categories, tag=tag)
     keys = set()
     items = []
     duplicated_items = []
@@ -92,7 +92,7 @@ def query_index(keywords, category=None, tag=None, page=1, prepare_external=True
 
     if prepare_external:
         # store site url to avoid dups in external search
-        cache_key = f"search_{category}_{keywords}"
+        cache_key = f"search_{','.join(categories or [])}_{keywords}"
         urls = list(set(cache.get(cache_key, []) + urls))
         cache.set(cache_key, urls, timeout=300)
 

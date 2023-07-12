@@ -20,7 +20,7 @@ from django.templatetags.static import static
 import hashlib
 from loguru import logger
 
-RESERVED_USERNAMES = [
+_RESERVED_USERNAMES = [
     "connect",
     "oauth2_login",
     "__",
@@ -40,7 +40,7 @@ class UsernameValidator(validators.RegexValidator):
     flags = re.ASCII
 
     def __call__(self, value):
-        if value and value.lower() in RESERVED_USERNAMES:
+        if value and value.lower() in _RESERVED_USERNAMES:
             raise ValidationError(self.message, code=self.code)
         return super().__call__(value)
 
@@ -52,6 +52,7 @@ def report_image_path(instance, filename):
 
 
 class User(AbstractUser):
+    preference: "Preference"
     username_validator = UsernameValidator()
     username = models.CharField(
         _("username"),
@@ -457,7 +458,7 @@ class User(AbstractUser):
                 or target.mastodon_site in self.mastodon_domain_blocks
             )
             if target.is_authenticated
-            else self.preference.no_anonymous_view  # type: ignore
+            else self.preference.no_anonymous_view
         )
 
     def is_blocked_by(self, target):
@@ -556,6 +557,7 @@ class Preference(models.Model):
     mastodon_append_tag = models.CharField(max_length=2048, default="")
     show_last_edit = models.PositiveSmallIntegerField(default=0)
     no_anonymous_view = models.PositiveSmallIntegerField(default=0)
+    hidden_categories = models.JSONField(default=list)
 
     def __str__(self):
         return str(self.user)

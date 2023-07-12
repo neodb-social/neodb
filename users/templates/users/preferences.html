@@ -4,6 +4,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
+{% load duration %}
 {% load thumb %}
 <!DOCTYPE html>
 <html lang="zh" class="classic-page">
@@ -107,6 +108,18 @@
                        id="mastodon_append_tag"
                        placeholder="例如 #我的书影音"
                        value="{{ request.user.preference.mastodon_append_tag }}">
+              </fieldset>
+              <fieldset>
+                <legend>{% trans '搜索时不显示以下类型：' %}</legend>
+                <select name="hidden_categories" size="3" multiple>
+                  {% all_categories as categories %}
+                  {% for c in categories %}
+                    <option value="{{ c.value }}"
+                            {% if c in request.user.preference.hidden_categories %}selected{% endif %}>
+                      {{ c.label }}
+                    </option>
+                  {% endfor %}
+                </select>
               </fieldset>
               <input type="submit" value="{% trans '保存' %}">
             </form>

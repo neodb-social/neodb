@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponseRedirect
-from catalog.common.models import SiteName
+from catalog.common.models import ItemCategory, SiteName
 from catalog.common.sites import AbstractSite, SiteManager
 from ..models import *
 from django.conf import settings
@@ -82,10 +82,27 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = No
     )
 
 
+def visible_categories(request):
+    vc = request.session.get("p_categories", None)
+    if vc is None:
+        vc = [
+            x
+            for x in item_categories()
+            if x.value not in request.user.preference.hidden_categories
+        ]
+        request.session["p_categories"] = vc
+    return vc
+
+
 def search(request):
     category = request.GET.get("c", default="all").strip().lower()
-    if category == "all":
+    if category == "all" or not category:
         category = None
+        categories = visible_categories(request)
+    elif category == "movietv":
+        categories = [ItemCategory.Movie, ItemCategory.TV]
+    else:
+        categories = [ItemCategory(category)]
     keywords = request.GET.get("q", default="").strip()
     tag = request.GET.get("tag", default="").strip()
     p = request.GET.get("page", default="1")
@@ -105,7 +122,7 @@ def search(request):
         if site:
             return fetch(request, keywords, False, site)
 
-    items, num_pages, _, dup_items = query_index(keywords, category, tag, p)
+    items, num_pages, _, dup_items = query_index(keywords, categories, tag, p)
     return render(
         request,
         "search_results.html",

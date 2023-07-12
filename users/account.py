@@ -457,9 +457,16 @@ def swap_login(request, token, site, refresh_token):
     return redirect(reverse("users:data"))
 
 
+def clear_preference_cache(request):
+    for key in list(request.session.keys()):
+        if key.startswith("p_"):
+            del request.session[key]
+
+
 def auth_login(request, user):
     """Decorates django ``login()``. Attach token to session."""
     auth.login(request, user, backend="mastodon.auth.OAuth2Backend")
+    clear_preference_cache(request)
     if (
         user.mastodon_last_refresh < timezone.now() - timedelta(hours=1)
         or user.mastodon_account == {}

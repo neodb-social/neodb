@@ -2,8 +2,20 @@ from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.text import Truncator
 from django.utils.safestring import mark_safe
+from catalog.common.models import ItemCategory, item_categories
+from catalog.search.views import visible_categories as _visible_categories
 
 register = template.Library()
+
+
+@register.simple_tag(takes_context=True)
+def visible_categories(context):
+    return _visible_categories(context["request"])
+
+
+@register.simple_tag
+def all_categories():
+    return item_categories()
 
 
 @register.filter(is_safe=True)

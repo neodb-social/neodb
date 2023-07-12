@@ -88,7 +88,7 @@ classDiagram
 
 Add a new site
 --------------
-> **Site official API** should be the prioritised way to get data when adding a new site.
+ - If official API is available for the site, it should be the preferred way to get data.
  - add a new value to `IdType` and `SiteName` in `catalog/common/models.py`
  - add a new file in `catalog/sites/`, a new class inherits `AbstractSite`, with:
     * `SITE_NAME`

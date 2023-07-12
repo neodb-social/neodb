@@ -45,7 +45,10 @@ def search_item(
     if not query:
         return 400, {"message": "Invalid query"}
     items, num_pages, count, _ = query_index(
-        query, page=page, category=category, prepare_external=False
+        query,
+        page=page,
+        categories=[category] if category else None,
+        prepare_external=False,
     )
     return 200, {"data": items, "pages": num_pages, "count": count}
 

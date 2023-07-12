@@ -29,6 +29,7 @@ def preferences(request):
         preference.default_no_share = bool(request.POST.get("default_no_share"))
         preference.no_anonymous_view = bool(request.POST.get("no_anonymous_view"))
         preference.classic_homepage = int(request.POST.get("classic_homepage"))
+        preference.hidden_categories = request.POST.getlist("hidden_categories")
         preference.mastodon_publish_public = bool(
             request.POST.get("mastodon_publish_public")
         )
@@ -45,8 +46,10 @@ def preferences(request):
                 "mastodon_publish_public",
                 "mastodon_append_tag",
                 "show_last_edit",
+                "hidden_categories",
             ]
         )
+        clear_preference_cache(request)
     return render(request, "users/preferences.html")
 
 

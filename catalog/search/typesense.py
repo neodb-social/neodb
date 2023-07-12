@@ -311,13 +311,10 @@ class Indexer:
             logger.warn(f"delete item error: \n{e}")
 
     @classmethod
-    def search(cls, q, page=1, category=None, tag=None, sort=None):
+    def search(cls, q, page=1, categories=None, tag=None, sort=None):
         f = []
-        if category:
-            if category == "movietv":
-                f.append("category:= [movie,tv]")
-            else:
-                f.append("category:= " + category)
+        if categories:
+            f.append(f"category:= [{','.join(categories)}]")
         if tag:
             f.append(f"tags:= '{tag}'")
         filters = " && ".join(f)

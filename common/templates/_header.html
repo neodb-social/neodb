@@ -1,4 +1,5 @@
 {% load admin_url %}
+{% load duration %}
 {% load static %}
 {% load i18n %}
 <header class="container-fluid">
@@ -18,19 +19,32 @@
                  class="search"
                  value="{{ request.GET.q|default:'' }}" />
           <select name="c">
+            {% visible_categories as cats %}
             <option value="all">全部</option>
-            <option {% if request.GET.c and request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %}
-                    value="book">书籍</option>
-            <option {% if request.GET.c and request.GET.c == 'movietv' or '/movie/' in request.path or '/tv/' in request.path %}selected{% endif %}
-                    value="movietv">影视</option>
-            <option {% if request.GET.c and request.GET.c == 'podcast' or '/podcast/' in request.path %}selected{% endif %}
-                    value="podcast">播客</option>
-            <option {% if request.GET.c and request.GET.c == 'music' or '/album/' in request.path %}selected{% endif %}
-                    value="music">音乐</option>
-            <option {% if request.GET.c and request.GET.c == 'game' or '/game/' in request.path %}selected{% endif %}
-                    value="game">游戏</option>
-            <option {% if request.GET.c and request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
-                    value="performance">演出</option>
+            {% if 'book' in cats %}
+              <option {% if request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %}
+                      value="book">书籍</option>
+            {% endif %}
+            {% if 'movie' in cats or 'tv' in cats %}
+              <option {% if request.GET.c and request.GET.c == 'movietv' or '/movie/' in request.path or '/tv/' in request.path %}selected{% endif %}
+                      value="movietv">影视</option>
+            {% endif %}
+            {% if 'podcast' in cats %}
+              <option {% if request.GET.c and request.GET.c == 'podcast' or '/podcast/' in request.path %}selected{% endif %}
+                      value="podcast">播客</option>
+            {% endif %}
+            {% if 'music' in cats %}
+              <option {% if request.GET.c and request.GET.c == 'music' or '/album/' in request.path %}selected{% endif %}
+                      value="music">音乐</option>
+            {% endif %}
+            {% if 'game' in cats %}
+              <option {% if request.GET.c and request.GET.c == 'game' or '/game/' in request.path %}selected{% endif %}
+                      value="game">游戏</option>
+            {% endif %}
+            {% if 'performance' in cats %}
+              <option {% if request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
+                      value="performance">演出</option>
+            {% endif %}
           </select>
           <input type="submit" value="&#xf002;" class="fa-solid" />
         </form>
