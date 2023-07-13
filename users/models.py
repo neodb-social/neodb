@@ -394,7 +394,7 @@ class User(AbstractUser):
             self.merge_relationships()
             updated = True
         elif code == 401:
-            logger.error(f"401 {self}")
+            logger.error(f"Refresh mastodon data error 401 for {self}")
             self.mastodon_token = ""
         return updated
 

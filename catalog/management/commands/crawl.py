@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from catalog.common import *
 import re
 from urllib.parse import urljoin
+from loguru import logger
 
 
 class Command(BaseCommand):
@@ -12,6 +13,7 @@ class Command(BaseCommand):
         parser.add_argument("--pattern", help="pattern to navigate", action="store")
 
     def handle(self, *args, **options):
+        logger.info("Crawl starts.")
         queue = [str(options["start"])]
         pattern = options["pattern"] or ""
         history = []
@@ -22,7 +24,7 @@ class Command(BaseCommand):
         while queue and len(history) < 1000:
             url = queue.pop(0)
             history.append(url)
-            self.stdout.write(f"Navigating {url}")
+            logger.info(f"Navigating {url}")
             content = ProxiedDownloader(url).download().html()
             urls = content.xpath("//a/@href")
             for _u in urls:
@@ -33,8 +35,8 @@ class Command(BaseCommand):
                         u = site.url
                         if u not in history:
                             history.append(u)
-                            self.stdout.write(f"Fetching {u}")
+                            logger.info(f"Fetching {u}")
                             site.get_resource_ready()
                     elif pattern and u.find(pattern) >= 0:
                         queue.append(u)
-        self.stdout.write(self.style.SUCCESS(f"Done."))
+        logger.info("Crawl finished.")

@@ -17,10 +17,11 @@ def refresh_mastodon_data_task(user_id, token=None):
         user.save()
         logger.info(f"{user} mastodon data refreshed")
     else:
-        logger.error(f"{user} mastodon data refresh failed")
+        logger.warning(f"{user} mastodon data refresh failed")
 
 
 def refresh_all_mastodon_data_task(ttl_hours):
+    logger.info(f"Mastodon data refresh start")
     count = 0
     for user in tqdm(
         User.objects.filter(
@@ -29,15 +30,16 @@ def refresh_all_mastodon_data_task(ttl_hours):
         )
     ):
         if user.mastodon_token or user.mastodon_refresh_token:
-            tqdm.write(f"Refreshing {user}")
+            logger.info(f"Refreshing {user}")
             if user.refresh_mastodon_data():
-                tqdm.write(f"Refreshed {user}")
+                logger.info(f"Refreshed {user}")
                 count += 1
             else:
-                tqdm.write(f"Refresh failed for {user}")
+                logger.warning(f"Refresh failed for {user}")
             user.save()
         else:
-            tqdm.write(f"Missing token for {user}")
+            logger.warning(f"Missing token for {user}")
     logger.info(f"{count} users updated")
     c = User.merge_rejected_by()
     logger.info(f"{c} users's rejecting list updated")
+    logger.info(f"Mastodon data refresh done")

@@ -1,12 +1,11 @@
 from django.core.management.base import BaseCommand
 from django.core.cache import cache
-import pprint
 from catalog.models import *
 from journal.models import ShelfMember, query_item_category, ItemCategory, Comment
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Count, F
-
+from loguru import logger
 
 MAX_ITEMS_PER_PERIOD = 12
 MIN_MARKS = 2
@@ -60,6 +59,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options["update"]:
+            logger.info("Discover data update start.")
             cache_key = "public_gallery"
             gallery_categories = [
                 ItemCategory.Book,
@@ -75,16 +75,16 @@ class Command(BaseCommand):
                 item_ids = []
                 while days >= MIN_DAYS_FOR_PERIOD:
                     ids = self.get_popular_marked_item_ids(category, days, item_ids)
-                    self.stdout.write(
-                        f"Marked {category} for last {days} days: {len(ids)}"
+                    logger.info(
+                        f"Most marked {category} in last {days} days: {len(ids)}"
                     )
                     item_ids = ids + item_ids
                     days //= 2
                 if category == ItemCategory.Podcast:
                     days = MAX_DAYS_FOR_PERIOD // 4
                     extra_ids = self.get_popular_commented_podcast_ids(days, item_ids)
-                    self.stdout.write(
-                        f"Most commented podcast for last {days} days: {len(extra_ids)}"
+                    logger.info(
+                        f"Most commented podcast in last {days} days: {len(extra_ids)}"
                     )
                     item_ids = extra_ids + item_ids
                 items = [Item.objects.get(pk=i) for i in item_ids]
@@ -99,4 +99,4 @@ class Command(BaseCommand):
                     }
                 )
             cache.set(cache_key, gallery_list, timeout=None)
-        self.stdout.write(self.style.SUCCESS(f"Done."))
+            logger.info("Discover data updated.")
