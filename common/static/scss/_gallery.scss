@@ -25,6 +25,8 @@
     list-style: none;
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
+    scrollbar-width: thin; //firefox 100+ broke this in macos
+    scrollbar-color: var(--pico-range-active-border-color) var(--pico-range-border-color);
 
     &::-webkit-scrollbar {
       height: var(--pico-nav-link-spacing-vertical);

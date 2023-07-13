@@ -23,6 +23,10 @@ class Application(AbstractApplication):
     url = models.URLField(null=True, blank=True)
     is_official = models.BooleanField(default=False)
     unique_together = [["user", "name"]]
+    redirect_uris = models.TextField(
+        blank=False,
+        help_text=_("Allowed URIs list, space separated, at least one URI is required"),
+    )
 
     def description_html(self):
         return render_md(self.description)
