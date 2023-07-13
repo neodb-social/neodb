@@ -161,7 +161,9 @@ def mark(request, item_uuid):
         if request.POST.get("delete", default=False):
             silence = request.POST.get("silence", False)
             mark.delete(silence=silence)
-            if silence:  # this means the mark is deleted from mark_history, thus redirect to item page
+            if (
+                silence
+            ):  # this means the mark is deleted from mark_history, thus redirect to item page
                 return redirect(
                     reverse("catalog:retrieve", args=[item.url_path, item.uuid])
                 )

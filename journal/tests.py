@@ -96,6 +96,24 @@ class ShelfTest(TestCase):
         self.assertEqual(Mark(user, book1).visibility, 1)
         self.assertEqual(shelf_manager.get_log_for_item(book1).count(), 5)
 
+        # test silence mark mode -> no log
+        shelf_manager.move_item(book1, ShelfType.WISHLIST, silence=True)
+        self.assertEqual(log.count(), 5)
+        shelf_manager.move_item(book1, ShelfType.PROGRESS, silence=True)
+        self.assertEqual(log.count(), 5)
+        # test delete one log
+        first_log = log.first()
+        Mark(user, book1).delete_log(first_log.id)
+        self.assertEqual(log.count(), 4)
+        # test delete mark -> leave one log: 移除标记
+        Mark(user, book1).delete()
+        self.assertEqual(log.count(), 1)
+        # test delete all logs
+        shelf_manager.move_item(book1, ShelfType.PROGRESS)
+        self.assertEqual(log.count(), 2)
+        Mark(user, book1).delete(silence=True)
+        self.assertEqual(log.count(), 0)
+
 
 class TagTest(TestCase):
     def setUp(self):
