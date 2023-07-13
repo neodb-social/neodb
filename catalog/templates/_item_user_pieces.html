@@ -154,11 +154,33 @@
     {% endfor %}
   </div>
 </section>
-<!--
-    <section>
-      <h5>标记历史</h5>
-      <div>
-        {% for log in mark.logs %}{{ log.timestamp|date }} {{ log.action_label }}<br>{% endfor %}
-      </div>
-    </section>
-    -->
+<section>
+  <h5>
+    标记历史
+    {% if mark.logs %}
+      <small>
+        <a href="{% url 'journal:mark_history' item.uuid %}"
+           class="item-mark-icon"
+           hx-target="body"
+           hx-swap="beforeend">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </a>
+      </small>
+    {% endif %}
+  </h5>
+  {% if mark.logs %}
+    <div>
+      {% for log in mark.logs %}
+        <span class="action">
+          <span>
+            <a target="_blank" rel="noopener"></a>
+          </span>
+          <span class="timestamp">{{ log.timestamp|date }}</span>
+        </span>
+        <p>• {{ log.action_label }}</p>
+      {% endfor %}
+    </div>
+  {% else %}
+    <span class="empty">暂无</span>
+  {% endif %}
+</section>
