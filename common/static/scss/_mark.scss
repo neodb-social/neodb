@@ -11,6 +11,32 @@
   }
 }
 
+#mark-history-header {
+  display: flex;
+  align-items: center;
+}
+
+.log-info {
+  margin-right: 0.5rem;
+}
+
+#log-delete-all {
+  margin-left: 2rem;
+    margin-bottom: 1rem;
+    align-items: center;
+    display: inline;
+    padding: calc(var(--pico-spacing)/6);
+    border-radius: calc(var(--pico-spacing)/4);
+    border-width: 2px;
+    font-size: 80%;
+    font-weight: lighter;
+    word-break: keep-all;
+    opacity: 1;
+    font-weight: 400;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   .mark-line {
 

@@ -1,0 +1,76 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="zh" class="content-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ item.title }} - {% trans '标记历史' %}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+    <style type="text/css">#id_visibility, #id_visibility li {padding-left:0; margin-bottom:0; display: inline-block !important;}</style>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div>
+        <div id="mark-history-header">
+          <h3>标记历史</h3>
+          {% if mark.logs %}
+            <form id="mark_delete"
+                  action="{% url 'journal:mark' mark.item.uuid %}"
+                  method="post">
+              {% csrf_token %}
+              <input type="hidden" name="delete" value="1">
+              <input type="hidden" name="silence" value="True">
+              <a>
+                <button class="secondary"
+                        id="log-delete-all"
+                        onclick="return confirm('确认清空标记历史？当前标记也会一并删除')">清空标记历史</button>
+              </a>
+            </form>
+          {% endif %}
+        </div>
+        {% if mark.logs %}
+          <article>
+            <div>
+              {% for log in mark.logs %}
+                <div>
+                  <form id="mark_log_delete_{{ log.id }}"
+                        action="{% url 'journal:mark_log' item.uuid log.id %}"
+                        method="post">
+                    {% csrf_token %}
+                    <span class="log-info">•</span>
+                    <span class="timestamp log-info">{{ log.timestamp|date }}</span>
+                    <span class="log-info">{{ log.action_label }}</span>
+                    <input type="hidden" name="delete" value="1">
+                    <input type="hidden" name="log_id" id="{{ log.id }}">
+                    <a href="javascript:$('#mark_log_delete_{{ log.id }}').submit()"
+                       class="delete">
+                      <i class="fa-solid fa-square-xmark"></i>
+                    </a>
+                  </form>
+                </div>
+              {% endfor %}
+            </div>
+          </article>
+        {% endif %}
+        <br>
+        <a href="{% url 'catalog:retrieve' item.url_path item.uuid %}">返回条目</a>
+      </div>
+      <aside>
+        {% include "_sidebar_item.html" with item=item %}
+      </aside>
+    </main>
+    <script>
+          $(".spoiler").on('click', function(){
+            $(this).toggleClass('revealed');
+          })
+    </script>
+    {% include "_footer.html" %}
+  </body>
+</html>

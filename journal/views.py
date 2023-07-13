@@ -159,7 +159,12 @@ def mark(request, item_uuid):
         )
     elif request.method == "POST":
         if request.POST.get("delete", default=False):
-            mark.delete()
+            silence = request.POST.get("silence", False)
+            mark.delete(silence=silence)
+            if silence:  # this means the mark is deleted from mark_history, thus redirect to item page
+                return redirect(
+                    reverse("catalog:retrieve", args=[item.url_path, item.uuid])
+                )
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
         else:
             visibility = int(request.POST.get("visibility", default=0))
@@ -254,6 +259,21 @@ def mark_log(request, item_uuid, log_id):
             mark.delete_log(log_id)
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
     raise BadRequest()
+
+
+@login_required
+def mark_history(request, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    mark = Mark(request.user, item)
+    if request.method == "GET":
+        return render(
+            request,
+            "mark_history.html",
+            {
+                "item": item,
+                "mark": mark,
+            },
+        )
 
 
 @login_required

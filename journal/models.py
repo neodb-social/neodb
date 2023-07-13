@@ -1231,9 +1231,9 @@ class Mark:
             self.shelfmember.metadata["shared_link"] = None
             self.shelfmember.save()
 
-    def delete(self):
+    def delete(self, silence=False):
         self.logs.delete()  # When deleting a mark, all logs of the mark are deleted first.
-        self.update(None, None, None, 0)
+        self.update(None, None, None, 0, silence=silence)
 
     def delete_log(self, log_id):
         ShelfLogEntry.objects.filter(
