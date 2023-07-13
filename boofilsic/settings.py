@@ -259,7 +259,7 @@ SYNC_FILE_PATH_ROOT = "sync/"
 EXPORT_FILE_PATH_ROOT = "export/"
 
 # Allow user to login via any Mastodon/Pleroma sites
-MASTODON_ALLOW_ANY_SITE = False
+ALLOW_ANY_SITE = False
 
 # Allow user to create account with email (and link to Mastodon account later)
 ALLOW_EMAIL_ONLY_ACCOUNT = False
