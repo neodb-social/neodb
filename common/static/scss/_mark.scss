@@ -58,17 +58,6 @@ ul.log-list {
   align-items: center;
 }
 
-footer.log-command {
-  display: flex;
-  justify-content: flex-end;
-
-  .action {
-    display: flex;
-    align-items: center;
-      margin-right: 10px;
-  }
-}
-
 @media (max-width: 768px) {
   .mark-line {
 

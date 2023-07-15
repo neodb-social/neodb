@@ -188,7 +188,7 @@
         </li>
       {% endfor %}
     </ul>
-    <footer class="log-command">
+    <div class="log-command">
       <span class="action hidden-command " style="display:none">
         <form id="mark_delete"
               action="{% url 'journal:mark' mark.item.uuid %}"
@@ -199,7 +199,7 @@
           <a href="#" onclick="deleteAllLog(event)">清空标记历史</a>
         </form>
       </span>
-    </footer>
+    </div>
   {% else %}
     <span class="empty">暂无</span>
   {% endif %}
