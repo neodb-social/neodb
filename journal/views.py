@@ -162,7 +162,7 @@ def mark(request, item_uuid):
             silence = request.POST.get("silence", False)
             mark.delete(silence=silence)
             if (
-                silence
+                    silence
             ):  # this means the mark is deleted from mark_history, thus redirect to item page
                 return redirect(
                     reverse("catalog:retrieve", args=[item.url_path, item.uuid])
@@ -279,6 +279,21 @@ def mark_history(request, item_uuid):
 
 
 @login_required
+def mark_history_edit(request, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    mark = Mark(request.user, item)
+    if request.method == "GET":
+        return render(
+            request,
+            "mark_history_edit.html",
+            {
+                "item": item,
+                "mark": mark,
+            },
+        )
+
+
+@login_required
 def comment(request, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item.class_name in ["podcastepisode", "tvepisode"]:
@@ -382,10 +397,10 @@ def collection_retrieve(request, collection_uuid):
         else None
     )
     available_as_featured = (
-        request.user.is_authenticated
-        and (following or request.user == collection.owner)
-        and not featured_since
-        and collection.members.all().exists()
+            request.user.is_authenticated
+            and (following or request.user == collection.owner)
+            and not featured_since
+            and collection.members.all().exists()
     )
     stats = {}
     if featured_since:
@@ -702,13 +717,13 @@ def render_list_not_fount(request):
 
 
 def _render_list(
-    request, user_name, type, shelf_type=None, item_category=None, tag_title=None
+        request, user_name, type, shelf_type=None, item_category=None, tag_title=None
 ):
     user = User.get(user_name)
     if user is None:
         return render_user_not_found(request)
     if user != request.user and (
-        request.user.is_blocked_by(user) or request.user.is_blocking(user)
+            request.user.is_blocked_by(user) or request.user.is_blocking(user)
     ):
         return render_user_blocked(request)
     tag = None
@@ -780,8 +795,8 @@ def user_tag_edit(request):
                 reverse("journal:user_tag_list", args=[request.user.mastodon_acct])
             )
         elif (
-            tag_title != tag.title
-            and Tag.objects.filter(owner=request.user, title=tag_title).exists()
+                tag_title != tag.title
+                and Tag.objects.filter(owner=request.user, title=tag_title).exists()
         ):
             msg.error(request.user, _("标签已存在"))
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
@@ -810,7 +825,7 @@ def user_tag_list(request, user_name):
     if user is None:
         return render_user_not_found(request)
     if user != request.user and (
-        request.user.is_blocked_by(user) or request.user.is_blocking(user)
+            request.user.is_blocked_by(user) or request.user.is_blocking(user)
     ):
         return render_user_blocked(request)
     tags = Tag.objects.filter(owner=user)
@@ -833,7 +848,7 @@ def user_collection_list(request, user_name):
     if user is None:
         return render_user_not_found(request)
     if user != request.user and (
-        request.user.is_blocked_by(user) or request.user.is_blocking(user)
+            request.user.is_blocked_by(user) or request.user.is_blocking(user)
     ):
         return render_user_blocked(request)
     collections = Collection.objects.filter(owner=user)
@@ -858,7 +873,7 @@ def user_liked_collection_list(request, user_name):
     if user is None:
         return render_user_not_found(request)
     if user != request.user and (
-        request.user.is_blocked_by(user) or request.user.is_blocking(user)
+            request.user.is_blocked_by(user) or request.user.is_blocking(user)
     ):
         return render_user_blocked(request)
     collections = Collection.objects.filter(likes__owner=user)
@@ -886,7 +901,7 @@ def profile(request, user_name):
     if not request.user.is_authenticated and user.get_preference().no_anonymous_view:
         return render(request, "users/home_anonymous.html", {"user": user})
     if user != request.user and (
-        user.is_blocked_by(request.user) or user.is_blocking(request.user)
+            user.is_blocked_by(request.user) or user.is_blocking(request.user)
     ):
         return render_user_blocked(request)
 

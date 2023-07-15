@@ -169,17 +169,19 @@
     {% endif %}
   </h5>
   {% if mark.logs %}
-    <div>
+    <ul class="log-list">
       {% for log in mark.logs %}
-        <span class="action">
-          <span>
-            <a target="_blank" rel="noopener"></a>
+        <li>
+          <span class="action">
+            <span>
+              <a target="_blank" rel="noopener"></a>
+            </span>
+            <span class="timestamp">{{ log.timestamp|date }}</span>
           </span>
-          <span class="timestamp">{{ log.timestamp|date }}</span>
-        </span>
-        <p>• {{ log.action_label }}</p>
+          <p>{{ log.action_label }}</p>
+        </li>
       {% endfor %}
-    </div>
+    </ul>
   {% else %}
     <span class="empty">暂无</span>
   {% endif %}

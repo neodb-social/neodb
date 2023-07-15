@@ -24,28 +24,34 @@
             <ul class="log-list">
               {% for log in mark.logs %}
                 <li>
-                  <span class="log-info">{{ log.timestamp|date }}</span>
-                  <span class="log-info">{{ log.action_label }}</span>
+                  <form id="mark_log_delete_{{ log.id }}"
+                        action="{% url 'journal:mark_log' item.uuid log.id %}"
+                        method="post">
+                    {% csrf_token %}
+                    <span class="log-info">{{ log.timestamp|date }}</span>
+                    <span class="log-info">{{ log.action_label }}</span>
+                    <input type="hidden" name="delete" value="1">
+                    <input type="hidden" name="log_id" id="{{ log.id }}">
+                    <a href="javascript:$('#mark_log_delete_{{ log.id }}').submit()"
+                       class="delete">
+                      <i class="fa-solid fa-square-xmark"></i>
+                    </a>
+                  </form>
                 </li>
               {% endfor %}
             </ul>
-            {% if mark.logs %}
-              <footer class="log-command">
-                <span class="action">
-                  <a href="{% url 'journal:mark_history_edit' item.uuid %}">{% trans '编辑' %}</a>
-                </span>
-                <span class="action">
-                  <form id="mark_delete"
-                        action="{% url 'journal:mark' mark.item.uuid %}"
-                        method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="delete" value="1">
-                    <input type="hidden" name="silence" value="True">
-                    <a href="#" onclick="deleteLog(event)">清空标记历史</a>
-                  </form>
-                </span>
-              </footer>
-            {% endif %}
+            <footer class="log-command">
+              <span class="action">
+                <form id="mark_delete"
+                      action="{% url 'journal:mark' mark.item.uuid %}"
+                      method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="delete" value="1">
+                  <input type="hidden" name="silence" value="True">
+                  <a href="#" onclick="deleteLog(event)">清空标记历史</a>
+                </form>
+              </span>
+            </footer>
           </article>
         {% endif %}
         <br>
