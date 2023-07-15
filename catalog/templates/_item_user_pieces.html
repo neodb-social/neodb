@@ -159,12 +159,7 @@
     标记历史
     {% if mark.logs %}
       <small>
-        <a href="{% url 'journal:mark_history' item.uuid %}"
-           class="item-mark-icon"
-           hx-target="body"
-           hx-swap="beforeend">
-          <i class="fa-solid fa-pen-to-square"></i>
-        </a>
+        <a href="#" onclick="toggleEditing()" id="edit">编辑</a>
       </small>
     {% endif %}
   </h5>
@@ -172,12 +167,72 @@
     <ul class="log-list">
       {% for log in mark.logs %}
         <li>
-          <span class="log-info">{{ log.timestamp|date }}</span>
-          <span class="log-info">{{ log.action_label }}</span>
+          <form id="mark_log_delete_{{ log.id }}"
+                action="{% url 'journal:mark_log' item.uuid log.id %}"
+                method="post">
+            {% csrf_token %}
+            <div class="log-info-container">
+              <span class="log-info">{{ log.timestamp|date }}</span>
+              <span class="log-info">{{ log.action_label }}</span>
+              <input type="hidden" name="delete" value="1">
+              <input type="hidden" name="log_id" id="{{ log.id }}">
+              <span class="hidden-command log-info" style="display:none">
+                <a href="javascript:void(0)"
+                   onclick="deleteLog('{{ log.id }}')"
+                   class="item-mark-icon">
+                  <i class="fa-solid fa-square-xmark"></i>
+                </a>
+              </span>
+            </div>
+          </form>
         </li>
       {% endfor %}
     </ul>
+    <footer class="log-command">
+      <span class="action hidden-command " style="display:none">
+        <form id="mark_delete"
+              action="{% url 'journal:mark' mark.item.uuid %}"
+              method="post">
+          {% csrf_token %}
+          <input type="hidden" name="delete" value="1">
+          <input type="hidden" name="silence" value="True">
+          <a href="#" onclick="deleteAllLog(event)">清空标记历史</a>
+        </form>
+      </span>
+    </footer>
   {% else %}
     <span class="empty">暂无</span>
   {% endif %}
 </section>
+<script>
+function toggleEditing() {
+  var buttons = document.getElementsByClassName("hidden-command");
+  var toggle = document.getElementById("edit");
+
+  for (var i = 0; i < buttons.length; i++) {
+    var button = buttons[i];
+    if (button.style.display === "none") {
+      button.style.display = "block";
+      toggle.innerHTML = "取消编辑";
+    } else {
+      button.style.display = "none";
+      toggle.innerHTML = "编辑";
+    }
+  }
+};
+
+function deleteAllLog(event) {
+    event.preventDefault(); // Prevent the default link behavior
+
+    const confirmation = confirm('确认清空标记历史？当前标记也会一并删除');
+    if (confirmation) {
+      const form = document.getElementById('mark_delete');
+      form.submit(); // Submit the form
+    }
+};
+
+function deleteLog(logId) {
+    const form = document.getElementById(`mark_log_delete_${logId}`);
+    form.submit(); // Submit the form
+}
+</script>

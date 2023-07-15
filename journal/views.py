@@ -264,26 +264,6 @@ def mark_log(request, item_uuid, log_id):
 
 
 @login_required
-def mark_history(request, item_uuid):
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    mark = Mark(request.user, item)
-    editing = False
-    if request.path.startswith("/mark_history/edit/"):
-        editing = True
-
-    if request.method == "GET":
-        return render(
-            request,
-            "mark_history.html",
-            {
-                "item": item,
-                "mark": mark,
-                "editing": editing,
-            },
-        )
-
-
-@login_required
 def comment(request, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item.class_name in ["podcastepisode", "tvepisode"]:
