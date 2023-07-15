@@ -17,7 +17,7 @@ def move_username(apps, schema_editor):
 def clear_username(apps, schema_editor):
     User = apps.get_model("users", "User")
     for u in User.objects.all():
-        u.username = None if settings.ALLOW_ANY_SITE else u.mastodon_username
+        u.username = None if settings.MASTODON_ALLOW_ANY_SITE else u.mastodon_username
         u.save()
 
 
