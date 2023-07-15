@@ -24,9 +24,7 @@ urlpatterns = [
     path("comment/<str:item_uuid>", comment, name="comment"),
     path("mark_log/<str:item_uuid>/<str:log_id>", mark_log, name="mark_log"),
     path("mark_history/<str:item_uuid>", mark_history, name="mark_history"),
-    path(
-        "mark_history/edit/<str:item_uuid>", mark_history_edit, name="mark_history_edit"
-    ),
+    path("mark_history/edit/<str:item_uuid>", mark_history, name="mark_history_edit"),
     path(
         "add_to_collection/<str:item_uuid>", add_to_collection, name="add_to_collection"
     ),
