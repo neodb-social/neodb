@@ -12,16 +12,19 @@
 }
 
 
-.log-info {
-  margin-right: 0.5rem;
-}
+
 
 ul.log-list {
   padding-left: 20px;
 
   li {
     list-style-type: disc;
+
+    .log-info {
+      margin-right: 0.5rem;
+    }
   }
+
 }
 
 footer.log-command {
