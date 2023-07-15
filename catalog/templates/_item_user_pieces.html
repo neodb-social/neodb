@@ -172,13 +172,8 @@
     <ul class="log-list">
       {% for log in mark.logs %}
         <li>
-          <span class="action">
-            <span>
-              <a target="_blank" rel="noopener"></a>
-            </span>
-            <span class="timestamp">{{ log.timestamp|date }}</span>
-          </span>
-          <p>{{ log.action_label }}</p>
+          <span class="log-info">{{ log.timestamp|date }}</span>
+          <span class="log-info">{{ log.action_label }}</span>
         </li>
       {% endfor %}
     </ul>
