@@ -27,11 +27,11 @@ ul.log-list {
 footer.log-command {
   display: flex;
   justify-content: flex-end;
-//   flex-direction: row-reverse;
+
   .action {
-    display: flex; /* Align items within each span */
-    align-items: center; /* Center items vertically */
-      margin-right: 10px; /* Add some spacing between items */
+    display: flex;
+    align-items: center;
+      margin-right: 10px;
   }
 }
 @media (max-width: 768px) {
