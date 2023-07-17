@@ -22,7 +22,7 @@ urlpatterns = [
     path("unlike/<str:piece_uuid>", unlike, name="unlike"),
     path("mark/<str:item_uuid>", mark, name="mark"),
     path("comment/<str:item_uuid>", comment, name="comment"),
-    path("mark_log/<str:item_uuid>/<str:log_id>", mark_log, name="mark_log"),
+    path("mark_log/<str:item_uuid>/<int:log_id>", mark_log, name="mark_log"),
     path(
         "add_to_collection/<str:item_uuid>", add_to_collection, name="add_to_collection"
     ),

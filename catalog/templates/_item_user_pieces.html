@@ -4,24 +4,28 @@
     我的标签
     {% if not mark.tags %}
       <small>
-        <a href="#"
-           hx-get="{% url 'journal:mark' item.uuid %}"
-           class="item-mark-icon"
-           hx-target="body"
-           hx-swap="beforeend">
-          <i class="fa-regular fa-square-plus"></i>
-        </a>
+        <span class="action inline">
+          <a href="#"
+             hx-get="{% url 'journal:mark' item.uuid %}"
+             class="item-mark-icon"
+             hx-target="body"
+             hx-swap="beforeend">
+            <i class="fa-regular fa-square-plus"></i>
+          </a>
+        </span>
       </small>
     {% endif %}
   </h5>
-  <span class="action">
-    <span>
-      <a href="#"
-         hx-get="{% url 'journal:mark' item.uuid %}"
-         hx-target="body"
-         hx-swap="beforeend"><i class="fa-solid fa-pen-to-square"></i></a>
+  {% if mark.tags %}
+    <span class="action">
+      <span>
+        <a href="#"
+           hx-get="{% url 'journal:mark' item.uuid %}"
+           hx-target="body"
+           hx-swap="beforeend"><i class="fa-solid fa-pen-to-square"></i></a>
+      </span>
     </span>
-  </span>
+  {% endif %}
   <div class="tag-list">
     {% for tag in mark.tags %}
       <span>
@@ -35,13 +39,15 @@
     我的短评
     {% if not mark.comment %}
       <small>
-        <a href="#"
-           hx-get="{% url 'journal:mark' item.uuid %}"
-           class="item-mark-icon"
-           hx-target="body"
-           hx-swap="beforeend">
-          <i class="fa-regular fa-square-plus"></i>
-        </a>
+        <span class="action inline">
+          <a href="#"
+             hx-get="{% url 'journal:mark' item.uuid %}"
+             class="item-mark-icon"
+             hx-target="body"
+             hx-swap="beforeend">
+            <i class="fa-regular fa-square-plus"></i>
+          </a>
+        </span>
       </small>
     {% endif %}
   </h5>
@@ -97,10 +103,12 @@
     我的评论
     {% if not review %}
       <small>
-        <a href="{% url 'journal:review_create' item.uuid %}"
-           class="item-mark-icon">
-          <i class="fa-regular fa-square-plus"></i>
-        </a>
+        <span class="action inline">
+          <a href="{% url 'journal:review_create' item.uuid %}"
+             class="item-mark-icon">
+            <i class="fa-regular fa-square-plus"></i>
+          </a>
+        </span>
       </small>
     {% endif %}
   </h5>
@@ -119,7 +127,7 @@
       <span>
         <a target="_blank"
            rel="noopener"
-           {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打���联邦网���分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+           {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
       </span>
       <span class="timestamp">{{ mark.review.created_time|date }}</span>
     </span>
@@ -134,13 +142,15 @@
   <h5>
     我的收藏单
     <small>
-      <a href="#"
-         hx-get="{% url 'journal:add_to_collection' item.uuid %}"
-         class="edit"
-         hx-target="body"
-         hx-swap="beforeend">
-        <i class="fa-regular fa-square-plus"></i>
-      </a>
+      <span class="action inline">
+        <a href="#"
+           hx-get="{% url 'journal:add_to_collection' item.uuid %}"
+           class="edit"
+           hx-target="body"
+           hx-swap="beforeend">
+          <i class="fa-regular fa-square-plus"></i>
+        </a>
+      </span>
     </small>
   </h5>
   <div>
@@ -154,85 +164,17 @@
     {% endfor %}
   </div>
 </section>
-<section>
-  <h5>
-    标记历史
-    {% if mark.logs %}
+{% if mark.logs %}
+  <section id="mark-history">
+    <h5>
+      标记历史
       <small>
-        <a href="#" onclick="toggleEditing()" id="edit">编辑</a>
+        <span class="action inline">
+          <a href="#"
+             _="on click toggle .hide-action on #log-list then toggle .activated"><i class="fa-solid fa-pen-to-square"></i></a>
+        </span>
       </small>
-    {% endif %}
-  </h5>
-  {% if mark.logs %}
-    <ul class="log-list">
-      {% for log in mark.logs %}
-        <li>
-          <form id="mark_log_delete_{{ log.id }}"
-                action="{% url 'journal:mark_log' item.uuid log.id %}"
-                method="post">
-            {% csrf_token %}
-            <div class="log-info-container">
-              <span class="log-info">{{ log.timestamp|date }}</span>
-              <span class="log-info">{{ log.action_label }}</span>
-              <input type="hidden" name="delete" value="1">
-              <input type="hidden" name="log_id" id="{{ log.id }}">
-              <span class="hidden-command log-info" style="display:none">
-                <a href="javascript:void(0)"
-                   onclick="deleteLog('{{ log.id }}')"
-                   class="item-mark-icon">
-                  <i class="fa-solid fa-square-xmark"></i>
-                </a>
-              </span>
-            </div>
-          </form>
-        </li>
-      {% endfor %}
-    </ul>
-    <div class="log-command">
-      <span class="action hidden-command " style="display:none">
-        <form id="mark_delete"
-              action="{% url 'journal:mark' mark.item.uuid %}"
-              method="post">
-          {% csrf_token %}
-          <input type="hidden" name="delete" value="1">
-          <input type="hidden" name="silence" value="True">
-          <a href="#" onclick="deleteAllLog(event)">清空标记历史</a>
-        </form>
-      </span>
-    </div>
-  {% else %}
-    <span class="empty">暂无</span>
-  {% endif %}
-</section>
-<script>
-function toggleEditing() {
-  var buttons = document.getElementsByClassName("hidden-command");
-  var toggle = document.getElementById("edit");
-
-  for (var i = 0; i < buttons.length; i++) {
-    var button = buttons[i];
-    if (button.style.display === "none") {
-      button.style.display = "block";
-      toggle.innerHTML = "取消编辑";
-    } else {
-      button.style.display = "none";
-      toggle.innerHTML = "编辑";
-    }
-  }
-};
-
-function deleteAllLog(event) {
-    event.preventDefault(); // Prevent the default link behavior
-
-    const confirmation = confirm('确认清空标记历史？当前标记也会一并删除');
-    if (confirmation) {
-      const form = document.getElementById('mark_delete');
-      form.submit(); // Submit the form
-    }
-};
-
-function deleteLog(logId) {
-    const form = document.getElementById(`mark_log_delete_${logId}`);
-    form.submit(); // Submit the form
-}
-</script>
+    </h5>
+    <div id="log-list" class="hide-action">{% include '_item_user_mark_history.html' %}</div>
+  </section>
+{% endif %}

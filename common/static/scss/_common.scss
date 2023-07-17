@@ -141,6 +141,12 @@ details {
   }
 }
 
+.hide-action {
+  .action {
+    display: none !important;
+  }
+}
+
 form img {
   max-height: 20vh;
 }

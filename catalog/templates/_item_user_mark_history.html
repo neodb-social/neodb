@@ -1,0 +1,25 @@
+<ul>
+  {% for log in mark.logs %}
+    <li>
+      {{ log.timestamp|date }}
+      {{ log.action_label }}
+      <span class="action inline">
+        <a hx-post="{% url 'journal:mark_log' mark.item.uuid log.id %}?delete=1"
+           hx-target="#log-list">
+          <i class="fa-solid fa-square-xmark"></i>
+        </a>
+      </span>
+    </li>
+  {% empty %}
+    <li _="init transition #mark-history opacity to 0 then remove #mark-history">无标记历史</li>
+  {% endfor %}
+</ul>
+<div class="action inline">
+  <ul>
+    <button class="secondary outline"
+            hx-post="{% url 'journal:mark_log' mark.item.uuid 0 %}?delete=1"
+            hx-target="#log-list"
+            hx-confirm="确定清除所有标记历史吗？">清除所有标记历史</button>
+  </ul>
+  <p>清除标记历史不会删除或改变现有标记</p>
+</div>

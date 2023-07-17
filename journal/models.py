@@ -1232,23 +1232,16 @@ class Mark:
             self.shelfmember.save()
 
     def delete(self, silence=False):
-        self.logs.delete()  # When deleting a mark, all logs of the mark are deleted first.
+        # self.logs.delete()  # When deleting a mark, all logs of the mark are deleted first.
         self.update(None, None, None, 0, silence=silence)
 
     def delete_log(self, log_id):
         ShelfLogEntry.objects.filter(
             owner=self.owner, item=self.item, id=log_id
         ).delete()
-        last_log = (
-            ShelfLogEntry.objects.exclude(shelf_type=None)
-            .filter(owner=self.owner, item=self.item)
-            .order_by("id")
-            .last()
-        )
-        if not last_log:
-            self.update(None, None, None, 0, silence=True)
-        else:
-            self.update(last_log.shelf_type, None, None, 0, silence=True)
+
+    def delete_all_logs(self):
+        self.logs.delete()
 
     @property
     def logs(self):

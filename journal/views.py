@@ -257,9 +257,12 @@ def mark_log(request, item_uuid, log_id):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     mark = Mark(request.user, item)
     if request.method == "POST":
-        if request.POST.get("delete", default=False):
-            mark.delete_log(log_id)
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        if request.GET.get("delete", default=False):
+            if log_id:
+                mark.delete_log(log_id)
+            else:
+                mark.delete_all_logs()
+            return render(request, "_item_user_mark_history.html", {"mark": mark})
     raise BadRequest()
 
 
