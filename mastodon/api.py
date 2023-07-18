@@ -50,14 +50,6 @@ API_CREATE_APP = "/api/v1/apps"
 # GET
 API_SEARCH = "/api/v2/search"
 
-TWITTER_DOMAIN = "twitter.com"
-
-TWITTER_API_ME = "https://api.twitter.com/2/users/me"
-
-TWITTER_API_POST = "https://api.twitter.com/2/tweets"
-
-TWITTER_API_TOKEN = "https://api.twitter.com/2/oauth2/token"
-
 USER_AGENT = f"{settings.SITE_INFO['site_name']}/1.0"
 
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
@@ -88,36 +80,27 @@ def post_toot(
         "Idempotency-Key": random_string_generator(16),
     }
     response = None
-    if site == TWITTER_DOMAIN:
-        url = TWITTER_API_POST
-        payload = {"text": content if len(content) <= 150 else content[0:150] + "..."}
-        response = post(url, headers=headers, json=payload)
-        if response.status_code == 201:
+    url = "https://" + get_api_domain(site) + API_PUBLISH_TOOT
+    payload = {
+        "status": content,
+        "visibility": visibility,
+    }
+    if spoiler_text:
+        payload["spoiler_text"] = spoiler_text
+    if local_only:
+        payload["local_only"] = True
+    try:
+        if update_id:
+            response = put(url + "/" + update_id, headers=headers, data=payload)
+        if update_id is None or (response and response.status_code != 200):
+            headers["Idempotency-Key"] = random_string_generator(16)
+            response = post(url, headers=headers, data=payload)
+        if response and response.status_code == 201:
             response.status_code = 200
-        if response.status_code != 200:
+        if response and response.status_code != 200:
             logger.error(f"Error {url} {response.status_code}")
-    else:
-        url = "https://" + get_api_domain(site) + API_PUBLISH_TOOT
-        payload = {
-            "status": content,
-            "visibility": visibility,
-        }
-        if spoiler_text:
-            payload["spoiler_text"] = spoiler_text
-        if local_only:
-            payload["local_only"] = True
-        try:
-            if update_id:
-                response = put(url + "/" + update_id, headers=headers, data=payload)
-            if update_id is None or (response and response.status_code != 200):
-                headers["Idempotency-Key"] = random_string_generator(16)
-                response = post(url, headers=headers, data=payload)
-            if response and response.status_code == 201:
-                response.status_code = 200
-            if response and response.status_code != 200:
-                logger.error(f"Error {url} {response.status_code}")
-        except Exception:
-            response = None
+    except Exception:
+        response = None
     return response
 
 
@@ -155,29 +138,6 @@ def random_string_generator(n):
 
 
 def verify_account(site, token):
-    if site == TWITTER_DOMAIN:
-        url = (
-            TWITTER_API_ME
-            + "?user.fields=id,username,name,description,profile_image_url,created_at,protected"
-        )
-        try:
-            response = get(
-                url,
-                headers={"User-Agent": USER_AGENT, "Authorization": f"Bearer {token}"},
-            )
-            if response.status_code != 200:
-                logger.error(f"Error {url} {response.status_code}")
-                return response.status_code, None
-            r = response.json()["data"]
-            r["display_name"] = r["name"]
-            r["note"] = r["description"]
-            r["avatar"] = r["profile_image_url"]
-            r["avatar_static"] = r["profile_image_url"]
-            r["locked"] = r["protected"]
-            r["url"] = f'https://{TWITTER_DOMAIN}/{r["username"]}'
-            return 200, r
-        except Exception:
-            return -1, None
     url = "https://" + get_api_domain(site) + API_VERIFY_ACCOUNT
     try:
         response = get(
@@ -191,8 +151,6 @@ def verify_account(site, token):
 
 
 def get_related_acct_list(site, token, api):
-    if site == TWITTER_DOMAIN:
-        return []
     url = "https://" + get_api_domain(site) + api
     results = []
     while url:
@@ -266,8 +224,6 @@ def get_mastodon_application(login_domain):
         app = MastodonApplication.objects.filter(api_domain__iexact=domain).first()
     if app:
         return app
-    if domain == TWITTER_DOMAIN:
-        raise Exception("Twitter未配置")
     if not settings.MASTODON_ALLOW_ANY_SITE:
         logger.error(f"Disallowed to create app for {domain}")
         raise Exception("不支持其它实例登录")
@@ -301,8 +257,6 @@ def get_mastodon_application(login_domain):
 
 def get_mastodon_login_url(app, login_domain, request):
     url = settings.REDIRECT_URIS
-    if login_domain == TWITTER_DOMAIN:
-        return f"https://twitter.com/i/oauth2/authorize?response_type=code&client_id={app.client_id}&redirect_uri={quote(url)}&scope={quote(settings.TWITTER_CLIENT_SCOPE)}&state=state&code_challenge=challenge&code_challenge_method=plain"
     version = app.server_version or ""
     scope = (
         settings.MASTODON_LEGACY_CLIENT_SCOPE
@@ -337,11 +291,6 @@ def obtain_token(site, request, code):
     auth = None
     if mast_app.is_proxy:
         url = "https://" + mast_app.proxy_to + API_OBTAIN_TOKEN
-    elif site == TWITTER_DOMAIN:
-        url = TWITTER_API_TOKEN
-        auth = (mast_app.client_id, mast_app.client_secret)
-        del payload["client_secret"]
-        payload["code_verifier"] = "challenge"
     else:
         url = (
             "https://"
@@ -362,23 +311,7 @@ def obtain_token(site, request, code):
 
 
 def refresh_access_token(site, refresh_token):
-    if site != TWITTER_DOMAIN:
-        return None
-    mast_app = MastodonApplication.objects.get(domain_name=site)
-    url = TWITTER_API_TOKEN
-    payload = {
-        "client_id": mast_app.client_id,
-        "refresh_token": refresh_token,
-        "grant_type": "refresh_token",
-    }
-    headers = {"User-Agent": USER_AGENT}
-    auth = (mast_app.client_id, mast_app.client_secret)
-    response = post(url, data=payload, headers=headers, auth=auth)
-    if response.status_code != 200:
-        logger.error(f"Error {url} {response.status_code}")
-        return None
-    data = response.json()
-    return data.get("access_token")
+    pass
 
 
 def revoke_token(site, token):
@@ -465,10 +398,6 @@ def share_mark(mark):
         j = response.json()
         if "url" in j:
             mark.shared_link = j["url"]
-        elif "data" in j:
-            mark.shared_link = (
-                f"https://twitter.com/{user.mastodon_username}/status/{j['data']['id']}"
-            )
         if mark.shared_link:
             mark.save(update_fields=["shared_link"])
         return True
