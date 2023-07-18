@@ -24,6 +24,7 @@ from catalog.models import *
 from .renderers import render_md, render_text
 from catalog.common import jsondata
 from django.db import connection
+from django.core.exceptions import PermissionDenied
 
 _logger = logging.getLogger(__name__)
 
@@ -1215,8 +1216,12 @@ class Mark:
                 else None
             )
             self.save = lambda **args: None
-            if not share_mark(self):
-                raise ValueError("sharing failed")
+            result, code = share_mark(self)
+            if not result:
+                if code == 401:
+                    raise PermissionDenied()
+                else:
+                    raise ValueError(code)
             if self.shelfmember.metadata.get("shared_link") != self.shared_link:
                 self.shelfmember.metadata["shared_link"] = self.shared_link
                 self.shelfmember.save()

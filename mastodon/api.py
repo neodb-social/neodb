@@ -92,12 +92,12 @@ def post_toot(
     try:
         if update_id:
             response = put(url + "/" + update_id, headers=headers, data=payload)
-        if update_id is None or (response and response.status_code != 200):
+        if not update_id or (response is not None and response.status_code != 200):
             headers["Idempotency-Key"] = random_string_generator(16)
             response = post(url, headers=headers, data=payload)
-        if response and response.status_code == 201:
+        if response is not None and response.status_code == 201:
             response.status_code = 200
-        if response and response.status_code != 200:
+        if response is not None and response.status_code != 200:
             logger.error(f"Error {url} {response.status_code}")
     except Exception:
         response = None
@@ -394,16 +394,16 @@ def share_mark(mark):
         update_id,
         spoiler_text,
     )
-    if response and response.status_code in [200, 201]:
+    if response is not None and response.status_code in [200, 201]:
         j = response.json()
         if "url" in j:
             mark.shared_link = j["url"]
         if mark.shared_link:
             mark.save(update_fields=["shared_link"])
-        return True
+        return True, 200
     else:
         logger.error(response)
-        return False
+        return False, response.status_code if response is not None else -1
 
 
 def share_review(review):
@@ -438,7 +438,7 @@ def share_review(review):
     response = post_toot(
         user.mastodon_site, content, visibility, user.mastodon_token, False, update_id
     )
-    if response and response.status_code in [200, 201]:
+    if response is not None and response.status_code in [200, 201]:
         j = response.json()
         if "url" in j:
             review.metadata["shared_link"] = j["url"]
@@ -473,7 +473,7 @@ def share_collection(collection, comment, user, visibility_no):
     )
     content = f"分享{user_str}的收藏单《{collection.title}》\n{collection.absolute_url}\n{comment}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
-    if response and response.status_code in [200, 201]:
+    if response is not None and response.status_code in [200, 201]:
         return True
     else:
         return False

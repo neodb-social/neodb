@@ -190,9 +190,20 @@ def mark(request, item_uuid):
                     share_to_mastodon=share_to_mastodon,
                     created_time=mark_date,
                 )
-            except ValueError as e:
-                _logger.warn(f"post to mastodon error {e}")
+            except PermissionDenied as e:
+                _logger.warn(f"post to mastodon error 401 {request.user}")
                 return render_relogin(request)
+            except ValueError as e:
+                _logger.warn(f"post to mastodon error {e} {request.user}")
+                err = _("内容长度超出实例限制") if str(e) == "422" else str(e)
+                return render(
+                    request,
+                    "common/error.html",
+                    {
+                        "msg": _("标记已保存，但是未能分享到联邦宇宙"),
+                        "secondary_msg": err,
+                    },
+                )
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
     raise BadRequest()
 
