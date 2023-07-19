@@ -1,10 +1,12 @@
+import logging
+
+import dateparser
+
 from catalog.common import *
 from catalog.models import *
 from catalog.music.utils import upc_to_gtin_13
-from .douban import DoubanDownloader
-import dateparser
-import logging
 
+from .douban import DoubanDownloader
 
 _logger = logging.getLogger(__name__)
 
@@ -16,6 +18,7 @@ class DoubanMusic(AbstractSite):
     URL_PATTERNS = [
         r"\w+://music\.douban\.com/subject/(\d+)/{0,1}",
         r"\w+://m.douban.com/music/subject/(\d+)/{0,1}",
+        r"\w+://www.douban.com/doubanapp/dispatch\?uri=/music/(\d+)/",
     ]
     WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Album

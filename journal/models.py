@@ -1,30 +1,30 @@
-from django.db import models
+import re
+import uuid
+from functools import cached_property
+
+import django.dispatch
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from django.db import connection, models
+from django.db.models import Avg, Count, Q
+from django.utils import timezone
+from django.utils.baseconv import base62
+from django.utils.translation import gettext_lazy as _
+from markdownx.models import MarkdownxField
 from polymorphic.models import PolymorphicModel
+
+from catalog.collection.models import Collection as CatalogCollection
+from catalog.common import jsondata
+from catalog.common.models import Item, ItemCategory
+from catalog.common.utils import DEFAULT_ITEM_COVER, piece_cover_path
+from catalog.models import *
 from mastodon.api import share_review
 from users.models import User
-from catalog.common.models import Item, ItemCategory
+
 from .mixins import UserOwnedObjectMixin
-from catalog.collection.models import Collection as CatalogCollection
-from markdownx.models import MarkdownxField
-from django.utils import timezone
-from django.conf import settings
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.utils.translation import gettext_lazy as _
-from django.core.validators import RegexValidator
-from functools import cached_property
-from django.db.models import Count, Avg
-from django.contrib.contenttypes.models import ContentType
-import django.dispatch
-import uuid
-import re
-from catalog.common.utils import DEFAULT_ITEM_COVER, piece_cover_path
-from django.utils.baseconv import base62
-from django.db.models import Q
-from catalog.models import *
 from .renderers import render_md, render_text
-from catalog.common import jsondata
-from django.db import connection
-from django.core.exceptions import PermissionDenied
 
 _logger = logging.getLogger(__name__)
 
@@ -703,7 +703,7 @@ class ShelfManager:
         for qt in ShelfType:
             self.shelf_list[qt] = Shelf.objects.create(owner=self.owner, shelf_type=qt)
 
-    def locate_item(self, item) -> ShelfMember:
+    def locate_item(self, item) -> ShelfMember | None:
         return ShelfMember.objects.filter(item=item, owner=self.owner).first()
 
     def move_item(self, item, shelf_type, visibility=0, metadata=None):
@@ -1020,7 +1020,8 @@ class TagManager:
             tag.append_item(item, visibility=default_visibility)
         for title in current_titles - titles:
             tag = Tag.objects.filter(owner=user, title=title).first()
-            tag.remove_item(item)
+            if tag:
+                tag.remove_item(item)
 
     @staticmethod
     def get_item_tags_by_user(item, user):

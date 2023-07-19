@@ -1,12 +1,14 @@
+import json
+import logging
+
+from django.utils.translation import gettext_lazy as _
+
 from catalog.common import *
-from .douban import *
 from catalog.movie.models import *
 from catalog.tv.models import *
-import logging
-import json
-from django.utils.translation import gettext_lazy as _
-from .tmdb import TMDB_TV, TMDB_TVSeason, search_tmdb_by_imdb_id, query_tmdb_tv_episode
 
+from .douban import *
+from .tmdb import TMDB_TV, TMDB_TVSeason, query_tmdb_tv_episode, search_tmdb_by_imdb_id
 
 _logger = logging.getLogger(__name__)
 
@@ -18,6 +20,7 @@ class DoubanMovie(AbstractSite):
     URL_PATTERNS = [
         r"\w+://movie\.douban\.com/subject/(\d+)/{0,1}",
         r"\w+://m.douban.com/movie/subject/(\d+)/{0,1}",
+        r"\w+://www.douban.com/doubanapp/dispatch\?uri=/movie/(\d+)/",
     ]
     WIKI_PROPERTY_ID = "?"
     # no DEFAULT_MODEL as it may be either TV Season and Movie
