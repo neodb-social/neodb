@@ -1,15 +1,17 @@
-import requests
-import string
-import random
 import functools
 import logging
-from django.conf import settings
-from django.urls import reverse
-from urllib.parse import quote
-from .models import MastodonApplication
-from mastodon.utils import rating_to_emoji
+import random
 import re
+import string
+from urllib.parse import quote
+
+import requests
+from django.conf import settings
 from loguru import logger
+
+from mastodon.utils import rating_to_emoji
+
+from .models import MastodonApplication
 
 # See https://docs.joinmastodon.org/methods/accounts/
 

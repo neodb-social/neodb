@@ -1,34 +1,34 @@
 import logging
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
+from datetime import datetime
+
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import gettext_lazy as _
-from django.http import Http404, HttpResponse
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
+from django.core.paginator import Paginator
 from django.db.models import Count
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from django.core.paginator import Paginator
+from django.utils.translation import gettext_lazy as _
+from user_messages import api as msg
 
+from common.utils import PageLinksGenerator, get_uuid_or_404
 from journal.renderers import convert_leading_space_in_md
-from .models import *
-from django.conf import settings
-from django.http import HttpResponseRedirect
-from management.models import Announcement
-from .forms import *
 from mastodon.api import (
     get_spoiler_text,
-    share_review,
-    share_collection,
     get_status_id_by_url,
-    post_toot,
     get_visibility,
+    post_toot,
+    share_collection,
+    share_review,
 )
+from users.models import User
 from users.views import render_user_blocked, render_user_not_found
-from users.models import User, Report, Preference
-from common.utils import PageLinksGenerator, get_uuid_or_404
-from user_messages import api as msg
-from datetime import datetime
+
+from .forms import *
+from .models import *
 
 _logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
@@ -215,7 +215,7 @@ def mark(request, item_uuid):
     raise BadRequest()
 
 
-def post_comment(user, item, text, visibility, shared_link=None, position=None):
+def share_comment(user, item, text, visibility, shared_link=None, position=None):
     post_error = False
     status_id = get_status_id_by_url(shared_link)
     link = (
@@ -243,21 +243,6 @@ def post_comment(user, item, text, visibility, shared_link=None, position=None):
             raise
         post_error = True
     return post_error, shared_link
-
-
-@login_required
-def comment_select_episode(request, item_uuid):
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if request.method == "GET":
-        return render(
-            request,
-            "comment_select_episode.html",
-            {
-                "item": item,
-                "comment": comment,
-            },
-        )
-    raise BadRequest()
 
 
 @login_required
@@ -321,8 +306,8 @@ def comment(request, item_uuid):
         share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
         shared_link = comment.metadata.get("shared_link") if comment else None
         post_error = False
-        if share_to_mastodon:
-            post_error, shared_link = post_comment(
+        if share_to_mastodon and request.user.mastodon_username:
+            post_error, shared_link = share_comment(
                 request.user, item, text, visibility, shared_link, position
             )
         Comment.objects.update_or_create(

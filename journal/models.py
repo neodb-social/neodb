@@ -313,7 +313,7 @@ class Review(Content):
         review, created = cls.objects.update_or_create(
             item=item, owner=user, defaults=defaults
         )
-        if share_to_mastodon:
+        if share_to_mastodon and user.mastodon_username:
             share_review(review)
         return review
 
@@ -1162,6 +1162,7 @@ class Mark:
         # silence=False means update is logged.
         share = (
             share_to_mastodon
+            and self.owner.mastodon_username
             and shelf_type is not None
             and (
                 shelf_type != self.shelf_type
