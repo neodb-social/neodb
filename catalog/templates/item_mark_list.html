@@ -43,7 +43,7 @@
                 <span>
                   <a target="_blank"
                      rel="noopener"
-                     {% if mark.metadata.shared_link %} href="{{ mark.metadata.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                     {% if mark.shared_link %} href="{{ mark.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
                 </span>
                 <span class="timestamp">{{ mark.created_time|date }}</span>
               </div>

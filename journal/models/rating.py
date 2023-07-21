@@ -1,10 +1,12 @@
+from datetime import datetime
+
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import connection, models
 from django.db.models import Avg, Count, Q
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Item, ItemCategory
-from users.models import User
+from users.models import APIdentity
 
 from .common import Content
 
@@ -19,6 +21,51 @@ class Rating(Content):
     grade = models.PositiveSmallIntegerField(
         default=0, validators=[MaxValueValidator(10), MinValueValidator(1)], null=True
     )
+
+    @property
+    def ap_object(self):
+        return {
+            "id": self.absolute_url,
+            "type": "Rating",
+            "best": 10,
+            "worst": 1,
+            "value": self.grade,
+            "published": self.created_time.isoformat(),
+            "updated": self.edited_time.isoformat(),
+            "attributedTo": self.owner.actor_uri,
+            "relatedWith": self.item.absolute_url,
+            "url": self.absolute_url,
+        }
+
+    @classmethod
+    def update_by_ap_object(cls, owner, item, obj, post_id, visibility):
+        value = obj.get("value", 0) if obj else 0
+        if not value:
+            cls.objects.filter(owner=owner, item=item).delete()
+            return
+        best = obj.get("best", 5)
+        worst = obj.get("worst", 1)
+        if best <= worst:
+            return
+        if value < worst:
+            value = worst
+        if value > best:
+            value = best
+        if best != 10 or worst != 1:
+            value = round(9 * (value - worst) / (best - worst)) + 1
+        else:
+            value = round(value)
+        d = {
+            "grade": value,
+            "local": False,
+            "remote_id": obj["id"],
+            "post_id": post_id,
+            "visibility": visibility,
+            "created_time": datetime.fromisoformat(obj["published"]),
+            "edited_time": datetime.fromisoformat(obj["updated"]),
+        }
+        p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
+        return p
 
     @staticmethod
     def get_rating_for_item(item: Item) -> float | None:
@@ -65,19 +112,19 @@ class Rating(Content):
         return r
 
     @staticmethod
-    def rate_item_by_user(
-        item: Item, user: User, rating_grade: int | None, visibility: int = 0
+    def update_item_rating(
+        item: Item, owner: APIdentity, rating_grade: int | None, visibility: int = 0
     ):
         if rating_grade and (rating_grade < 1 or rating_grade > 10):
             raise ValueError(f"Invalid rating grade: {rating_grade}")
-        rating = Rating.objects.filter(owner=user, item=item).first()
+        rating = Rating.objects.filter(owner=owner, item=item).first()
         if not rating_grade:
             if rating:
                 rating.delete()
                 rating = None
         elif rating is None:
             rating = Rating.objects.create(
-                owner=user, item=item, grade=rating_grade, visibility=visibility
+                owner=owner, item=item, grade=rating_grade, visibility=visibility
             )
         elif rating.grade != rating_grade or rating.visibility != visibility:
             rating.visibility = visibility
@@ -86,6 +133,6 @@ class Rating(Content):
         return rating
 
     @staticmethod
-    def get_item_rating_by_user(item: Item, user: User) -> int | None:
-        rating = Rating.objects.filter(owner=user, item=item).first()
+    def get_item_rating(item: Item, owner: APIdentity) -> int | None:
+        rating = Rating.objects.filter(owner=owner, item=item).first()
         return (rating.grade or None) if rating else None

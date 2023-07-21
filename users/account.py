@@ -396,6 +396,7 @@ def register(request):
             )
             messages.add_message(request, messages.INFO, _("已发送验证邮件，请查收。"))
         if username_changed:
+            request.user.initiatialize()
             messages.add_message(request, messages.INFO, _("用户名已设置。"))
         if email_cleared:
             messages.add_message(request, messages.INFO, _("电子邮件地址已取消关联。"))
@@ -480,9 +481,9 @@ def auth_logout(request):
 def clear_data_task(user_id):
     user = User.objects.get(pk=user_id)
     user_str = str(user)
-    remove_data_by_user(user)
+    if user.identity:
+        remove_data_by_user(user.identity)
     user.clear()
-    user.save()
     logger.warning(f"User {user_str} data cleared.")
 
 

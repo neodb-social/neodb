@@ -27,7 +27,7 @@ from journal.models import (
     ShelfMember,
     UserOwnedObjectMixin,
 )
-from users.models import User
+from users.models import APIdentity
 
 _logger = logging.getLogger(__name__)
 
@@ -42,10 +42,8 @@ class ActivityTemplate(models.TextChoices):
 
 
 class LocalActivity(models.Model, UserOwnedObjectMixin):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    visibility = models.PositiveSmallIntegerField(
-        default=0
-    )  # 0: Public / 1: Follower only / 2: Self only
+    owner = models.ForeignKey(APIdentity, on_delete=models.CASCADE)  # type: ignore
+    visibility = models.PositiveSmallIntegerField(default=0)  # type: ignore
     template = models.CharField(
         blank=False, choices=ActivityTemplate.choices, max_length=50
     )
@@ -62,11 +60,11 @@ class LocalActivity(models.Model, UserOwnedObjectMixin):
 
 
 class ActivityManager:
-    def __init__(self, user):
-        self.owner = user
+    def __init__(self, owner: APIdentity):
+        self.owner = owner
 
     def get_timeline(self, before_time=None):
-        following = [x for x in self.owner.following if x not in self.owner.ignoring]
+        following = [x for x in self.owner.following if x not in self.owner.muting]
         q = Q(owner_id__in=following, visibility__lt=2) | Q(owner=self.owner)
         if before_time:
             q = q & Q(created_time__lt=before_time)
@@ -205,5 +203,5 @@ class CommentChildItemProcessor(DefaultActivityProcessor):
             super().updated()
 
 
-def reset_social_visibility_for_user(user: User, visibility: int):
-    LocalActivity.objects.filter(owner=user).update(visibility=visibility)
+def reset_social_visibility_for_user(owner: APIdentity, visibility: int):
+    LocalActivity.objects.filter(owner=owner).update(visibility=visibility)

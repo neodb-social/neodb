@@ -1,6 +1,11 @@
 import os
 
+# import django_stubs_ext
+
+# django_stubs_ext.monkeypatch()
+
 NEODB_VERSION = "0.8"
+DATABASE_ROUTERS = ["takahe.db_routes.TakaheRouter"]
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__name__))
 
@@ -65,6 +70,7 @@ INSTALLED_APPS += [
     "journal.apps.JournalConfig",
     "social.apps.SocialConfig",
     "developer.apps.DeveloperConfig",
+    "takahe.apps.TakaheConfig",
     "legacy.apps.LegacyConfig",
 ]
 
@@ -110,6 +116,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "boofilsic.wsgi.application"
 
+SESSION_COOKIE_NAME = "neodbsid"
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -131,7 +139,25 @@ DATABASES = {
             "client_encoding": "UTF8",
             # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
         },
-    }
+        "TEST": {
+            "DEPENDENCIES": ["takahe"],
+        },
+    },
+    "takahe": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("TAKAHE_DB_NAME", "test_neodb_takahe"),
+        "USER": os.environ.get("TAKAHE_DB_USER", "testuser"),
+        "PASSWORD": os.environ.get("TAKAHE_DB_PASSWORD", "testpass"),
+        "HOST": os.environ.get("TAKAHE_DB_HOST", "127.0.0.1"),
+        "PORT": os.environ.get("TAKAHE_DB_PORT", 15432),
+        "OPTIONS": {
+            "client_encoding": "UTF8",
+            # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
+        },
+        "TEST": {
+            "DEPENDENCIES": [],
+        },
+    },
 }
 
 # Customized auth backend, glue OAuth2 and Django User model together
@@ -189,6 +215,8 @@ AUTH_USER_MODEL = "users.User"
 
 SILENCED_SYSTEM_CHECKS = [
     "admin.E404",  # Required by django-user-messages
+    "models.W035",  # Required by takahe: identical table name in different database
+    "fields.W344",  # Required by takahe: identical table name in different database
 ]
 
 MEDIA_URL = "/media/"
@@ -358,6 +386,7 @@ SEARCH_BACKEND = None
 if os.environ.get("NEODB_TYPESENSE_ENABLE", ""):
     SEARCH_BACKEND = "TYPESENSE"
 
+TYPESENSE_INDEX_NAME = "catalog"
 TYPESENSE_CONNECTION = {
     "api_key": os.environ.get("NEODB_TYPESENSE_KEY", "insecure"),
     "nodes": [
@@ -371,6 +400,7 @@ TYPESENSE_CONNECTION = {
 }
 
 
+DOWNLOADER_CACHE_TIMEOUT = 300
 DOWNLOADER_RETRIES = 3
 DOWNLOADER_SAVEDIR = None
 DISABLE_MODEL_SIGNAL = False  # disable index and social feeds during importing/etc

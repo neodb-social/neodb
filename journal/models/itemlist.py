@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 
 from catalog.models import Item, ItemCategory
-from users.models import User
+from users.models import APIdentity
 
 from .common import Piece
 
@@ -15,24 +15,21 @@ list_remove = django.dispatch.Signal()
 
 class List(Piece):
     """
-    List (abstract class)
+    List (abstract model)
     """
 
-    owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
         default=0
     )  # 0: Public / 1: Follower only / 2: Self only
-    created_time = models.DateTimeField(
-        default=timezone.now
-    )  # auto_now_add=True  FIXME revert this after migration
-    edited_time = models.DateTimeField(
-        default=timezone.now
-    )  # auto_now=True   FIXME revert this after migration
+    created_time = models.DateTimeField(default=timezone.now)
+    edited_time = models.DateTimeField(default=timezone.now)
     metadata = models.JSONField(default=dict)
 
     class Meta:
         abstract = True
 
+    MEMBER_CLASS: Piece
     # MEMBER_CLASS = None  # subclass must override this
     # subclass must add this:
     # items = models.ManyToManyField(Item, through='ListMember')
@@ -146,14 +143,12 @@ class ListMember(Piece):
     parent = models.ForeignKey('List', related_name='members', on_delete=models.CASCADE)
     """
 
-    owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
         default=0
     )  # 0: Public / 1: Follower only / 2: Self only
     created_time = models.DateTimeField(default=timezone.now)
-    edited_time = models.DateTimeField(
-        default=timezone.now
-    )  # auto_now=True   FIXME revert this after migration
+    edited_time = models.DateTimeField(default=timezone.now)
     metadata = models.JSONField(default=dict)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     position = models.PositiveIntegerField()

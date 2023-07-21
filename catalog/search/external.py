@@ -23,7 +23,8 @@ class SearchResultItem:
             "all": [
                 {
                     "url": source_url,
-                    "site_name": {"label": source_site, "value": source_site},
+                    "site_name": source_site,
+                    "site_label": source_site,
                 }
             ]
         }

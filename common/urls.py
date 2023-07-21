@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from .views import *
 
@@ -7,4 +7,5 @@ urlpatterns = [
     path("", home),
     path("home/", home, name="home"),
     path("me/", me, name="me"),
+    re_path("^~neodb~(?P<uri>.+)", ap_redirect),
 ]

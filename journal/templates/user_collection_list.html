@@ -37,7 +37,7 @@
               <span>
                 <a target="_blank"
                    rel="noopener"
-                   {% if collection.metadata.shared_link %} href="{{ collection.metadata.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                   {% if collection.shared_link %} href="{{ collection.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
               </span>
               <span class="timestamp">{{ collection.created_time|date }}</span>
             </div>

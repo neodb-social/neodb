@@ -31,10 +31,17 @@ class Command(BaseCommand):
         self.stdout.write(f"Fetching from {site}")
         if options["save"]:
             resource = site.get_resource_ready(ignore_existing_content=options["force"])
-            pprint.pp(resource.metadata)
-            pprint.pp(site.get_item())
-            pprint.pp(site.get_item().cover)
-            pprint.pp(site.get_item().metadata)
+            if resource:
+                pprint.pp(resource.metadata)
+            else:
+                self.stdout.write(self.style.ERROR(f"Unable to get resource for {url}"))
+            item = site.get_item()
+            if item:
+                pprint.pp(item.cover)
+                pprint.pp(item.metadata)
+                pprint.pp(item.absolute_url)
+            else:
+                self.stdout.write(self.style.ERROR(f"Unable to get item for {url}"))
         else:
             resource = site.scrape()
             pprint.pp(resource.metadata)

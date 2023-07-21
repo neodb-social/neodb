@@ -6,7 +6,7 @@ from django.urls import reverse
 
 @login_required
 def me(request):
-    return redirect(request.user.url)
+    return redirect(request.user.identity.url)
 
 
 def home(request):
@@ -20,6 +20,10 @@ def home(request):
             return redirect(reverse("catalog:discover"))
     else:
         return redirect(reverse("catalog:discover"))
+
+
+def ap_redirect(request, uri):
+    return redirect(uri)
 
 
 def error_400(request, exception=None):

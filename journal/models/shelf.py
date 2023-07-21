@@ -1,14 +1,17 @@
+from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING
 
 from django.db import connection, models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from loguru import logger
 
 from catalog.models import Item, ItemCategory
-from users.models import User
+from takahe.models import Identity
+from users.models import APIdentity
 
-from .common import query_item_category
+from .common import q_item_in_category
 from .itemlist import List, ListMember
 
 if TYPE_CHECKING:
@@ -60,6 +63,43 @@ class ShelfMember(ListMember):
             models.Index(fields=["parent_id", "visibility", "created_time"]),
         ]
 
+    @property
+    def ap_object(self):
+        return {
+            "id": self.absolute_url,
+            "type": "Status",
+            "status": self.parent.shelf_type,
+            "published": self.created_time.isoformat(),
+            "updated": self.edited_time.isoformat(),
+            "attributedTo": self.owner.actor_uri,
+            "relatedWith": self.item.absolute_url,
+            "url": self.absolute_url,
+        }
+
+    @classmethod
+    def update_by_ap_object(
+        cls, owner: APIdentity, item: Identity, obj: dict, post_id: int, visibility: int
+    ):
+        if not obj:
+            cls.objects.filter(owner=owner, item=item).delete()
+            return
+        shelf = owner.shelf_manager.get_shelf(obj["status"])
+        if not shelf:
+            logger.warning(f"unable to locate shelf for {owner}, {obj}")
+            return
+        d = {
+            "parent": shelf,
+            "position": 0,
+            "local": False,
+            # "remote_id": obj["id"],
+            "post_id": post_id,
+            "visibility": visibility,
+            "created_time": datetime.fromisoformat(obj["published"]),
+            "edited_time": datetime.fromisoformat(obj["updated"]),
+        }
+        p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
+        return p
+
     @cached_property
     def mark(self) -> "Mark":
         from .mark import Mark
@@ -108,7 +148,7 @@ class Shelf(List):
 
 
 class ShelfLogEntry(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     shelf_type = models.CharField(choices=ShelfType.choices, max_length=100, null=True)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     timestamp = models.DateTimeField()  # this may later be changed by user
@@ -135,8 +175,8 @@ class ShelfManager:
     ShelfLogEntry can later be modified if user wish to change history
     """
 
-    def __init__(self, user):
-        self.owner = user
+    def __init__(self, owner):
+        self.owner = owner
         qs = Shelf.objects.filter(owner=self.owner)
         self.shelf_list = {v.shelf_type: v for v in qs}
         if len(self.shelf_list) == 0:
@@ -146,13 +186,18 @@ class ShelfManager:
         for qt in ShelfType:
             self.shelf_list[qt] = Shelf.objects.create(owner=self.owner, shelf_type=qt)
 
-    def locate_item(self, item) -> ShelfMember | None:
+    def locate_item(self, item: Item) -> ShelfMember | None:
         return ShelfMember.objects.filter(item=item, owner=self.owner).first()
 
-    def move_item(self, item, shelf_type, visibility=0, metadata=None, silence=False):
+    def move_item(
+        self,
+        item: Item,
+        shelf_type: ShelfType,
+        visibility: int = 0,
+        metadata: dict | None = None,
+    ):
         # shelf_type=None means remove from current shelf
         # metadata=None means no change
-        # silence=False means move_item is logged.
         if not item:
             raise ValueError("empty item")
         new_shelfmember = None
@@ -185,7 +230,7 @@ class ShelfManager:
                 elif visibility != last_visibility:  # change visibility
                     last_shelfmember.visibility = visibility
                     last_shelfmember.save()
-        if changed and not silence:
+        if changed:
             if metadata is None:
                 metadata = last_metadata or {}
             log_time = (
@@ -205,18 +250,20 @@ class ShelfManager:
     def get_log(self):
         return ShelfLogEntry.objects.filter(owner=self.owner).order_by("timestamp")
 
-    def get_log_for_item(self, item):
+    def get_log_for_item(self, item: Item):
         return ShelfLogEntry.objects.filter(owner=self.owner, item=item).order_by(
             "timestamp"
         )
 
-    def get_shelf(self, shelf_type):
+    def get_shelf(self, shelf_type: ShelfType):
         return self.shelf_list[shelf_type]
 
-    def get_latest_members(self, shelf_type, item_category=None):
+    def get_latest_members(
+        self, shelf_type: ShelfType, item_category: ItemCategory | None = None
+    ):
         qs = self.shelf_list[shelf_type].members.all().order_by("-created_time")
         if item_category:
-            return qs.filter(query_item_category(item_category))
+            return qs.filter(q_item_in_category(item_category))
         else:
             return qs
 
@@ -229,14 +276,16 @@ class ShelfManager:
     #     return shelf.members.all().order_by
 
     @classmethod
-    def get_action_label(cls, shelf_type, item_category) -> str:
+    def get_action_label(
+        cls, shelf_type: ShelfType, item_category: ItemCategory
+    ) -> str:
         sts = [
             n[2] for n in ShelfTypeNames if n[0] == item_category and n[1] == shelf_type
         ]
         return sts[0] if sts else str(shelf_type)
 
     @classmethod
-    def get_label(cls, shelf_type, item_category):
+    def get_label(cls, shelf_type: ShelfType, item_category: ItemCategory):
         ic = ItemCategory(item_category).label
         st = cls.get_action_label(shelf_type, item_category)
         return (
@@ -246,10 +295,10 @@ class ShelfManager:
         )
 
     @staticmethod
-    def get_manager_for_user(user):
-        return ShelfManager(user)
+    def get_manager_for_user(owner: APIdentity):
+        return ShelfManager(owner)
 
-    def get_calendar_data(self, max_visiblity):
+    def get_calendar_data(self, max_visiblity: int):
         shelf_id = self.get_shelf(ShelfType.COMPLETE).pk
         timezone_offset = timezone.localtime(timezone.now()).strftime("%z")
         timezone_offset = timezone_offset[: len(timezone_offset) - 2]

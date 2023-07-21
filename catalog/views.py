@@ -19,9 +19,9 @@ from journal.models import (
     ShelfMember,
     ShelfType,
     ShelfTypeNames,
-    query_following,
-    query_item_category,
-    query_visible,
+    q_item_in_category,
+    q_piece_in_home_feed_of_user,
+    q_piece_visible_to_user,
 )
 
 from .forms import *
@@ -74,6 +74,8 @@ def retrieve(request, item_path, item_uuid):
     item_url = f"/{item_path}/{item_uuid}"
     if item.url != item_url:
         return redirect(item.url)
+    if request.headers.get("Accept", "").endswith("json"):
+        return redirect(item.api_url)
     skipcheck = request.GET.get("skipcheck", False) and request.user.is_authenticated
     if not skipcheck and item.merged_to_item:
         return redirect(item.merged_to_item.url)
@@ -91,16 +93,16 @@ def retrieve(request, item_path, item_uuid):
     child_item_comments = []
     shelf_types = [(n[1], n[2]) for n in iter(ShelfTypeNames) if n[0] == item.category]
     if request.user.is_authenticated:
-        visible = query_visible(request.user)
-        mark = Mark(request.user, item)
+        visible = q_piece_visible_to_user(request.user)
+        mark = Mark(request.user.identity, item)
         child_item_comments = Comment.objects.filter(
-            owner=request.user, item__in=item.child_items.all()
+            owner=request.user.identity, item__in=item.child_items.all()
         )
         review = mark.review
-        my_collections = item.collections.all().filter(owner=request.user)
+        my_collections = item.collections.all().filter(owner=request.user.identity)
         collection_list = (
             item.collections.all()
-            .exclude(owner=request.user)
+            .exclude(owner=request.user.identity)
             .filter(visible)
             .annotate(like_counts=Count("likes"))
             .order_by("-like_counts")
@@ -145,9 +147,9 @@ def mark_list(request, item_path, item_uuid, following_only=False):
         raise Http404()
     queryset = ShelfMember.objects.filter(item=item).order_by("-created_time")
     if following_only:
-        queryset = queryset.filter(query_following(request.user))
+        queryset = queryset.filter(q_piece_in_home_feed_of_user(request.user))
     else:
-        queryset = queryset.filter(query_visible(request.user))
+        queryset = queryset.filter(q_piece_visible_to_user(request.user))
     paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)
     page_number = request.GET.get("page", default=1)
     marks = paginator.get_page(page_number)
@@ -169,7 +171,7 @@ def review_list(request, item_path, item_uuid):
     if not item:
         raise Http404()
     queryset = Review.objects.filter(item=item).order_by("-created_time")
-    queryset = queryset.filter(query_visible(request.user))
+    queryset = queryset.filter(q_piece_visible_to_user(request.user))
     paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)
     page_number = request.GET.get("page", default=1)
     reviews = paginator.get_page(page_number)
@@ -192,7 +194,7 @@ def comments(request, item_path, item_uuid):
         raise Http404()
     ids = item.child_item_ids + [item.id]
     queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
-    queryset = queryset.filter(query_visible(request.user))
+    queryset = queryset.filter(q_piece_visible_to_user(request.user))
     before_time = request.GET.get("last")
     if before_time:
         queryset = queryset.filter(created_time__lte=before_time)
@@ -218,7 +220,7 @@ def comments_by_episode(request, item_path, item_uuid):
     else:
         ids = item.child_item_ids
     queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
-    queryset = queryset.filter(query_visible(request.user))
+    queryset = queryset.filter(q_piece_visible_to_user(request.user))
     before_time = request.GET.get("last")
     if before_time:
         queryset = queryset.filter(created_time__lte=before_time)
@@ -240,7 +242,7 @@ def reviews(request, item_path, item_uuid):
         raise Http404()
     ids = item.child_item_ids + [item.id]
     queryset = Review.objects.filter(item_id__in=ids).order_by("-created_time")
-    queryset = queryset.filter(query_visible(request.user))
+    queryset = queryset.filter(q_piece_visible_to_user(request.user))
     before_time = request.GET.get("last")
     if before_time:
         queryset = queryset.filter(created_time__lte=before_time)

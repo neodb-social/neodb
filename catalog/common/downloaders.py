@@ -10,6 +10,7 @@ from urllib.parse import quote
 import filetype
 import requests
 from django.conf import settings
+from django.core.cache import cache
 from lxml import html
 from PIL import Image
 from requests import Response
@@ -153,7 +154,6 @@ class BasicDownloader:
     def _download(self, url) -> Tuple[DownloaderResponse | MockResponse, int]:
         try:
             if not _mock_mode:
-                # TODO cache = get/set from redis
                 resp = requests.get(
                     url, headers=self.headers, timeout=self.get_timeout()
                 )
@@ -254,6 +254,19 @@ class RetryDownloader(BasicDownloader):
                 _logger.debug("Retry " + self.url)
                 time.sleep((settings.DOWNLOADER_RETRIES - retries) * 0.5)
         raise DownloadError(self, "max out of retries")
+
+
+class CachedDownloader(BasicDownloader):
+    def download(self):
+        cache_key = "dl:" + self.url
+        resp = cache.get(cache_key)
+        if resp:
+            self.response_type = RESPONSE_OK
+        else:
+            resp = super().download()
+            if self.response_type == RESPONSE_OK:
+                cache.set(cache_key, resp, timeout=settings.DOWNLOADER_CACHE_TIMEOUT)
+        return resp
 
 
 class ImageDownloaderMixin:

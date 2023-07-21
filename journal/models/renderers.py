@@ -19,7 +19,7 @@ _mistune_plugins = [
 _markdown = mistune.create_markdown(plugins=_mistune_plugins)
 
 
-def convert_leading_space_in_md(body) -> str:
+def convert_leading_space_in_md(body: str) -> str:
     body = re.sub(r"^\s+$", "", body, flags=re.MULTILINE)
     body = re.sub(
         r"^(\u2003*)( +)",
@@ -30,11 +30,11 @@ def convert_leading_space_in_md(body) -> str:
     return body
 
 
-def render_md(s) -> str:
+def render_md(s: str) -> str:
     return cast(str, _markdown(s))
 
 
-def _spolier(s):
+def _spolier(s: str) -> str:
     l = s.split(">!", 1)
     if len(l) == 1:
         return escape(s)
@@ -48,5 +48,5 @@ def _spolier(s):
     )
 
 
-def render_text(s):
+def render_text(s: str) -> str:
     return _spolier(s)

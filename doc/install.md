@@ -33,8 +33,8 @@ Install PostgreSQL, Redis and Python (3.10 or above) if not yet
 ### 1.1 Database
 Setup database
 ```
-CREATE DATABASE neodb ENCODING 'UTF8' LC_COLLATE='en_US.UTF-8' LC_CTYPE='en_US.UTF-8' TEMPLATE template0;
 CREATE ROLE neodb with LOGIN ENCRYPTED PASSWORD 'abadface';
+CREATE DATABASE neodb ENCODING 'UTF8' LC_COLLATE='en_US.UTF-8' LC_CTYPE='en_US.UTF-8' TEMPLATE template0;
 GRANT ALL ON DATABASE neodb TO neodb;
 ```
 

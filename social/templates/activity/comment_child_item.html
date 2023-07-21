@@ -53,7 +53,7 @@
     {% endif %}
   </span>
   <span>
-    <a {% if activity.action_object.metadata.shared_link %} href="{{ activity.action_object.metadata.shared_link }}" target="_blank" rel="noopener" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if activity.action_object.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %} "></i></a>
+    <a {% if activity.action_object.shared_link %} href="{{ activity.action_object.shared_link }}" target="_blank" rel="noopener" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if activity.action_object.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %} "></i></a>
   </span>
 </span>
 <div class="spacing">

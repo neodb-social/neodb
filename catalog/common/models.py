@@ -13,7 +13,7 @@ from django.db import connection, models
 from django.utils import timezone
 from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
-from ninja import Schema
+from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
 from catalog.common import jsondata
@@ -46,6 +46,7 @@ class SiteName(models.TextChoices):
     RSS = "rss", _("RSS")
     Discogs = "discogs", _("Discogs")
     AppleMusic = "apple_music", _("苹果音乐")
+    Fediverse = "fedi", _("联邦实例")
 
 
 class IdType(models.TextChoices):
@@ -90,6 +91,7 @@ class IdType(models.TextChoices):
     Bangumi = "bangumi", _("Bangumi")
     ApplePodcast = "apple_podcast", _("苹果播客")
     AppleMusic = "apple_music", _("苹果音乐")
+    Fediverse = "fedi", _("联邦实例")
 
 
 IdealIdTypes = [
@@ -225,6 +227,8 @@ class ExternalResourceSchema(Schema):
 
 
 class BaseSchema(Schema):
+    id: str = Field(alias="absolute_url")
+    type: str = Field(alias="ap_object_type")
     uuid: str
     url: str
     api_url: str
@@ -250,7 +254,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     url_path = "item"  # subclass must specify this
     type = None  # subclass must specify this
     parent_class = None  # subclass may specify this to allow create child item
-    category: ItemCategory | None = None  # subclass must specify this
+    category: ItemCategory  # subclass must specify this
     demonstrative: "_StrOrPromise | None" = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     title = models.CharField(_("标题"), max_length=1000, default="")
@@ -344,6 +348,25 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     @property
     def parent_uuid(self):
         return self.parent_item.uuid if self.parent_item else None
+
+    @classmethod
+    def get_ap_object_type(cls):
+        return cls.__name__
+
+    @property
+    def ap_object_type(self):
+        return self.get_ap_object_type()
+
+    @property
+    def ap_object_ref(self):
+        o = {
+            "type": self.get_ap_object_type(),
+            "url": self.absolute_url,
+            "name": self.title,
+        }
+        if self.has_cover():
+            o["image"] = self.cover_image_url
+        return o
 
     def log_action(self, changes):
         LogEntry.objects.log_create(
@@ -561,10 +584,13 @@ class ExternalResource(models.Model):
     edited_time = models.DateTimeField(auto_now=True)
     required_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
-    )
+    )  # links required to generate Item from this resource, e.g. parent TVShow of TVSeason
     related_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
-    )
+    )  # links related to this resource which may be fetched later, e.g. sub TVSeason of TVShow
+    prematched_resources = jsondata.ArrayField(
+        models.CharField(), null=False, blank=False, default=list
+    )  # links to help match an existing Item from this resource
 
     class Meta:
         unique_together = [["id_type", "id_value"]]
@@ -585,12 +611,23 @@ class ExternalResource(models.Model):
         return SiteManager.get_site_cls_by_id_type(self.id_type)
 
     @property
-    def site_name(self):
+    def site_name(self) -> SiteName:
         try:
-            return self.get_site().SITE_NAME
+            site = self.get_site()
+            return site.SITE_NAME if site else SiteName.Unknown
         except:
             _logger.warning(f"Unknown site for {self}")
             return SiteName.Unknown
+
+    @property
+    def site_label(self):
+        if self.id_type == IdType.Fediverse:
+            from takahe.utils import Takahe
+
+            domain = self.id_value.split("://")[1].split("/")[0]
+            n = Takahe.get_node_name_for_domain(domain)
+            return n or domain
+        return self.site_name.label
 
     def update_content(self, resource_content):
         self.other_lookup_ids = resource_content.lookup_ids
@@ -615,7 +652,16 @@ class ExternalResource(models.Model):
         d = {k: v for k, v in d.items() if bool(v)}
         return d
 
-    def get_preferred_model(self) -> type[Item] | None:
+    def get_lookup_ids(self, default_model):
+        lookup_ids = self.get_all_lookup_ids()
+        model = self.get_item_model(default_model)
+        bt, bv = model.get_best_lookup_id(lookup_ids)
+        ids = [(t, v) for t, v in lookup_ids.items() if t and v and t != bt]
+        if bt and bv:
+            ids = [(bt, bv)] + ids
+        return ids
+
+    def get_item_model(self, default_model: type[Item]) -> type[Item]:
         model = self.metadata.get("preferred_model")
         if model:
             m = ContentType.objects.filter(
@@ -625,7 +671,7 @@ class ExternalResource(models.Model):
                 return cast(Item, m).model_class()
             else:
                 raise ValueError(f"preferred model {model} does not exist")
-        return None
+        return default_model
 
 
 _CONTENT_TYPE_LIST = None

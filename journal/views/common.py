@@ -1,3 +1,5 @@
+import functools
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
@@ -6,14 +8,33 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
-from common.utils import PageLinksGenerator, get_uuid_or_404
-from users.models import User
+from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
+from users.models import APIdentity
 from users.views import render_user_blocked, render_user_not_found
 
 from ..forms import *
 from ..models import *
 
 PAGE_SIZE = 10
+
+
+def target_identity_required(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        request = kwargs["request"]
+        handler = kwargs["user_name"]
+        try:
+            target = APIdentity.get_by_handler(handler)
+        except:
+            return render_user_not_found(request)
+        if not target.is_visible_to_user(request.user):
+            return render_user_blocked(request)
+        request.target_identity = target
+        # request.identity = (
+        #     request.user.identity if request.user.is_authenticated else None
+        # )
+
+    return wrapper
 
 
 def render_relogin(request):
@@ -41,42 +62,45 @@ def render_list_not_found(request):
     )
 
 
+@login_required
+@target_identity_required
 def render_list(
-    request, user_name, type, shelf_type=None, item_category=None, tag_title=None
+    request: AuthedHttpRequest,
+    user_name,
+    type,
+    shelf_type=None,
+    item_category=None,
+    tag_title=None,
 ):
-    user = User.get(user_name)
-    if user is None:
-        return render_user_not_found(request)
-    if user != request.user and (
-        request.user.is_blocked_by(user) or request.user.is_blocking(user)
-    ):
-        return render_user_blocked(request)
+    target = request.target_identity
+    viewer = request.user.identity
     tag = None
     if type == "mark":
-        queryset = user.shelf_manager.get_latest_members(shelf_type, item_category)
+        queryset = target.user.shelf_manager.get_latest_members(
+            shelf_type, item_category
+        )
     elif type == "tagmember":
-        tag = Tag.objects.filter(owner=user, title=tag_title).first()
+        tag = Tag.objects.filter(owner=target, title=tag_title).first()
         if not tag:
             return render_list_not_found(request)
-        if tag.visibility != 0 and user != request.user:
+        if tag.visibility != 0 and target != viewer:
             return render_list_not_found(request)
         queryset = TagMember.objects.filter(parent=tag)
-    elif type == "review":
-        queryset = Review.objects.filter(owner=user)
-        queryset = queryset.filter(query_item_category(item_category))
+    elif type == "review" and item_category:
+        queryset = Review.objects.filter(q_item_in_category(item_category))
     else:
         raise BadRequest()
-    queryset = queryset.filter(q_visible_to(request.user, user)).order_by(
-        "-created_time"
-    )
+    queryset = queryset.filter(
+        q_owned_piece_visible_to_user(request.user, target)
+    ).order_by("-created_time")
     paginator = Paginator(queryset, PAGE_SIZE)
-    page_number = request.GET.get("page", default=1)
+    page_number = int(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)
     pagination = PageLinksGenerator(PAGE_SIZE, page_number, paginator.num_pages)
     return render(
         request,
         f"user_{type}_list.html",
-        {"user": user, "members": members, "tag": tag, "pagination": pagination},
+        {"user": target.user, "members": members, "tag": tag, "pagination": pagination},
     )
 
 

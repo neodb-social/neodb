@@ -130,9 +130,14 @@ def search(request):
         )
 
     if keywords.find("://") > 0:
+        host = keywords.split("://")[1].split("/")[0]
+        if host == settings.SITE_INFO["site_domain"]:
+            return redirect(keywords)
         site = SiteManager.get_site_by_url(keywords)
         if site:
             return fetch(request, keywords, False, site)
+        if request.GET.get("r"):
+            return redirect(keywords)
 
     items, num_pages, _, dup_items = query_index(keywords, categories, tag, p)
     return render(

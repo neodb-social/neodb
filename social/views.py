@@ -1,7 +1,6 @@
 import logging
 
-from django.conf import settings
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
@@ -65,7 +64,7 @@ def data(request):
         request,
         "feed_data.html",
         {
-            "activities": ActivityManager(request.user).get_timeline(
+            "activities": ActivityManager(request.user.identity).get_timeline(
                 before_time=request.GET.get("last")
             )[:PAGE_SIZE],
         },

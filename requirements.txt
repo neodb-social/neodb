@@ -1,8 +1,8 @@
+cachetools
 dateparser
 discord.py
 django~=4.2.4
 django-anymail
-django-auditlog
 django-auditlog @ git+https://github.com/jazzband/django-auditlog.git@45591463e8192b4ac0095e259cc4dcea0ac2fd6c
 django-bleach
 django-compressor
@@ -25,6 +25,7 @@ easy-thumbnails
 filetype
 fontawesomefree
 gunicorn
+httpx
 igdb-api-v4
 libsass
 listparser
@@ -41,3 +42,4 @@ rq>=1.12.0
 setproctitle
 tqdm
 typesense
+urlman

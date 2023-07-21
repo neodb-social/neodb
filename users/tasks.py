@@ -42,6 +42,4 @@ def refresh_all_mastodon_data_task(ttl_hours):
         else:
             logger.warning(f"Missing token for {user}")
     logger.info(f"{count} users updated")
-    c = User.merge_rejected_by()
-    logger.info(f"{c} users's rejecting list updated")
     logger.info(f"Mastodon data refresh done")

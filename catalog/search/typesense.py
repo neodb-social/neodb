@@ -14,7 +14,6 @@ from typesense.exceptions import ObjectNotFound
 
 from catalog.models import Item
 
-INDEX_NAME = "catalog"
 SEARCHABLE_ATTRIBUTES = [
     "title",
     "orig_title",
@@ -125,7 +124,7 @@ class Indexer:
     def instance(cls) -> Collection:
         if cls._instance is None:
             cls._instance = typesense.Client(settings.TYPESENSE_CONNECTION).collections[
-                INDEX_NAME
+                settings.TYPESENSE_INDEX_NAME
             ]
         return cls._instance  # type: ignore
 
@@ -178,7 +177,7 @@ class Indexer:
             {"name": ".*", "optional": True, "locale": "zh", "type": "auto"},
         ]
         return {
-            "name": INDEX_NAME,
+            "name": settings.TYPESENSE_INDEX_NAME,
             "fields": fields,
             # "default_sorting_field": "rating_count",
         }

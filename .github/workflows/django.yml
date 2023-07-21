@@ -1,4 +1,4 @@
-name: all tests
+name: tests
 
 on:
   push:
@@ -6,8 +6,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  django:
     runs-on: ubuntu-latest
     services:
       redis:
@@ -15,20 +14,25 @@ jobs:
         ports:
           - 6379:6379
       db:
-        image: postgres:12.13-alpine
+        image: postgres
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: admin123
-          POSTGRES_DB: test
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: test_neodb
         ports:
           - 5432:5432
-        options: --mount type=tmpfs,destination=/var/lib/postgresql/data --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
+      db2:
+        image: postgres
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: test_neodb_takahe
+        ports:
+          - 15432:5432
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ['3.10', '3.11']
-
+        python-version: ['3.11']
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}

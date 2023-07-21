@@ -5,10 +5,9 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F, Q, Value
+from django.db.models import F, Manager, Q, Value
 from django.db.models.functions import Concat, Lower
 from django.templatetags.static import static
 from django.urls import reverse
@@ -19,8 +18,10 @@ from loguru import logger
 
 from management.models import Announcement
 from mastodon.api import *
+from takahe.utils import Takahe
 
 if TYPE_CHECKING:
+    from .apidentity import APIdentity
     from .preference import Preference
 
 _RESERVED_USERNAMES = [
@@ -48,6 +49,7 @@ class UsernameValidator(UnicodeUsernameValidator):
 
 
 class User(AbstractUser):
+    identity: "APIdentity"
     preference: "Preference"
     username_validator = UsernameValidator()
     username = models.CharField(
@@ -142,15 +144,6 @@ class User(AbstractUser):
             ),
         ]
 
-    @staticmethod
-    def register(**param):
-        from .preference import Preference
-
-        new_user = User(**param)
-        new_user.save()
-        Preference.objects.create(user=new_user)
-        return new_user
-
     @cached_property
     def mastodon_acct(self):
         return (
@@ -185,7 +178,9 @@ class User(AbstractUser):
 
     @property
     def handler(self):
-        return self.mastodon_acct or self.username or f"~{self.pk}"
+        return (
+            f"{self.username}" if self.username else self.mastodon_acct or f"~{self.pk}"
+        )
 
     @property
     def url(self):
@@ -193,105 +188,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.pk}:{self.username or ""}:{self.mastodon_acct}'
-
-    @property
-    def ignoring(self):
-        return self.muting + self.rejecting
-
-    def follow(self, target: "User"):
-        if (
-            target is None
-            or target.locked
-            or self.is_following(target)
-            or self.is_blocking(target)
-            or self.is_blocked_by(target)
-        ):
-            return False
-        self.local_following.add(target)
-        self.following.append(target.pk)
-        self.save(update_fields=["following"])
-        return True
-
-    def unfollow(self, target: "User"):
-        if target and target in self.local_following.all():
-            self.local_following.remove(target)
-            if (
-                target.pk in self.following
-                and target.mastodon_acct not in self.mastodon_following
-            ):
-                self.following.remove(target.pk)
-                self.save(update_fields=["following"])
-            return True
-        return False
-
-    def remove_follower(self, target: "User"):
-        if target is None or self not in target.local_following.all():
-            return False
-        target.local_following.remove(self)
-        if (
-            self.pk in target.following
-            and self.mastodon_acct not in target.mastodon_following
-        ):
-            target.following.remove(self.pk)
-            target.save(update_fields=["following"])
-        return True
-
-    def block(self, target: "User"):
-        if target is None or target in self.local_blocking.all():
-            return False
-        self.local_blocking.add(target)
-        if target.pk in self.following:
-            self.following.remove(target.pk)
-            self.save(update_fields=["following"])
-        if self.pk in target.following:
-            target.following.remove(self.pk)
-            target.save(update_fields=["following"])
-        if target in self.local_following.all():
-            self.local_following.remove(target)
-        if self in target.local_following.all():
-            target.local_following.remove(self)
-        if target.pk not in self.rejecting:
-            self.rejecting.append(target.pk)
-            self.save(update_fields=["rejecting"])
-        if self.pk not in target.rejecting:
-            target.rejecting.append(self.pk)
-            target.save(update_fields=["rejecting"])
-        return True
-
-    def unblock(self, target: "User"):
-        if target and target in self.local_blocking.all():
-            self.local_blocking.remove(target)
-            if not self.is_blocked_by(target):
-                if target.pk in self.rejecting:
-                    self.rejecting.remove(target.pk)
-                    self.save(update_fields=["rejecting"])
-                if self.pk in target.rejecting:
-                    target.rejecting.remove(self.pk)
-                    target.save(update_fields=["rejecting"])
-            return True
-        return False
-
-    def mute(self, target: "User"):
-        if (
-            target is None
-            or target in self.local_muting.all()
-            or target.mastodon_acct in self.mastodon_mutes
-        ):
-            return False
-        self.local_muting.add(target)
-        if target.pk not in self.muting:
-            self.muting.append(target.pk)
-        self.save()
-        return True
-
-    def unmute(self, target: "User"):
-        if target and target in self.local_muting.all():
-            self.local_muting.remove(target)
-            if target.pk in self.muting:
-                self.muting.remove(target.pk)
-                self.save()
-            return True
-        return False
 
     def clear(self):
         if self.mastodon_site == "removed" and not self.is_active:
@@ -313,40 +209,13 @@ class User(AbstractUser):
         self.mastodon_blocks = []
         self.mastodon_domain_blocks = []
         self.mastodon_account = {}
+        self.save()
+        self.identity.deleted = timezone.now()
+        self.identity.save()
 
-    def merge_relationships(self):
-        self.muting = self.merged_muting_ids()
-        self.rejecting = self.merged_rejecting_ids()
-        # caculate following after rejecting is merged
-        self.following = self.merged_following_ids()
-
-    @classmethod
-    def merge_rejected_by(cls):
-        """
-        Caculate rejecting field to include blocked by for external users
-        Should be invoked after invoking merge_relationships() for all users
-        """
-        # FIXME this is quite inifficient, should only invoked in async task
-        external_users = list(
-            cls.objects.filter(mastodon_username__isnull=False, is_active=True)
-        )
-        reject_changed = []
-        follow_changed = []
-        for u in external_users:
-            for v in external_users:
-                if v.pk in u.rejecting and u.pk not in v.rejecting:
-                    v.rejecting.append(u.pk)
-                    if v not in reject_changed:
-                        reject_changed.append(v)
-                    if u.pk in v.following:
-                        v.following.remove(u.pk)
-                        if v not in follow_changed:
-                            follow_changed.append(v)
-        for u in reject_changed:
-            u.save(update_fields=["rejecting"])
-        for u in follow_changed:
-            u.save(update_fields=["following"])
-        return len(follow_changed) + len(reject_changed)
+    def sync_relationships(self):
+        # FIXME
+        pass
 
     def refresh_mastodon_data(self):
         """Try refresh account data from mastodon server, return true if refreshed successfully, note it will not save to db"""
@@ -390,111 +259,12 @@ class User(AbstractUser):
             self.mastodon_domain_blocks = get_related_acct_list(
                 self.mastodon_site, self.mastodon_token, "/api/v1/domain_blocks"
             )
-            self.merge_relationships()
+            self.sync_relationships()
             updated = True
         elif code == 401:
             logger.error(f"Refresh mastodon data error 401 for {self}")
             self.mastodon_token = ""
         return updated
-
-    def merged_following_ids(self):
-        fl = []
-        for m in self.mastodon_following:
-            target = User.get(m)
-            if target and (
-                (not target.mastodon_locked)
-                or self.mastodon_acct in target.mastodon_followers
-            ):
-                fl.append(target.pk)
-        for user in self.local_following.all():
-            if user.pk not in fl and not user.locked and not user.is_blocking(self):
-                fl.append(user.pk)
-        fl = [x for x in fl if x not in self.rejecting]
-        return sorted(fl)
-
-    def merged_muting_ids(self):
-        external_muting_user_ids = list(
-            User.objects.all()
-            .annotate(acct=Concat("mastodon_username", Value("@"), "mastodon_site"))
-            .filter(acct__in=self.mastodon_mutes)
-            .values_list("pk", flat=True)
-        )
-        l = list(
-            set(
-                external_muting_user_ids
-                + list(self.local_muting.all().values_list("pk", flat=True))
-            )
-        )
-        return sorted(l)
-
-    def merged_rejecting_ids(self):
-        domain_blocked_user_ids = list(
-            User.objects.filter(
-                mastodon_site__in=self.mastodon_domain_blocks
-            ).values_list("pk", flat=True)
-        )
-        external_blocking_user_ids = list(
-            User.objects.all()
-            .annotate(acct=Concat("mastodon_username", Value("@"), "mastodon_site"))
-            .filter(acct__in=self.mastodon_blocks)
-            .values_list("pk", flat=True)
-        )
-        l = list(
-            set(
-                domain_blocked_user_ids
-                + external_blocking_user_ids
-                + list(self.local_blocking.all().values_list("pk", flat=True))
-                + list(self.local_blocked_by.all().values_list("pk", flat=True))  # type: ignore
-                + list(self.local_muting.all().values_list("pk", flat=True))
-            )
-        )
-        return sorted(l)
-
-    def is_blocking(self, target):
-        return (
-            (
-                target in self.local_blocking.all()
-                or target.mastodon_acct in self.mastodon_blocks
-                or target.mastodon_site in self.mastodon_domain_blocks
-            )
-            if target.is_authenticated
-            else self.preference.no_anonymous_view
-        )
-
-    def is_blocked_by(self, target):
-        return target.is_authenticated and target.is_blocking(self)
-
-    def is_muting(self, target):
-        return target.pk in self.muting or target.mastodon_acct in self.mastodon_mutes
-
-    def is_following(self, target):
-        return (
-            self.mastodon_acct in target.mastodon_followers
-            if target.locked
-            else target.pk in self.following
-            # or target.mastodon_acct in self.mastodon_following
-            # or self.mastodon_acct in target.mastodon_followers
-        )
-
-    def is_followed_by(self, target):
-        return target.is_following(self)
-
-    def get_mark_for_item(self, item):
-        params = {item.__class__.__name__.lower() + "_id": item.id, "owner": self}
-        mark = item.mark_class.objects.filter(**params).first()
-        return mark
-
-    def get_max_visibility(self, viewer):
-        if not viewer.is_authenticated:
-            return 0
-        elif viewer == self:
-            return 2
-        elif viewer.is_blocked_by(self):
-            return -1
-        elif viewer.is_following(self):
-            return 1
-        else:
-            return 0
 
     @property
     def unread_announcements(self):
@@ -503,59 +273,71 @@ class User(AbstractUser):
         ).order_by("-pk")
         return unread_announcements
 
+    @property
+    def activity_manager(self):
+        if not self.identity:
+            raise ValueError("User has no identity")
+        return self.identity.activity_manager
+
+    @property
+    def shelf_manager(self):
+        if not self.identity:
+            raise ValueError("User has no identity")
+        return self.identity.shelf_manager
+
+    @property
+    def tag_manager(self):
+        if not self.identity:
+            raise ValueError("User has no identity")
+        return self.identity.tag_manager
+
     @classmethod
     def get(cls, name, case_sensitive=False):
         if isinstance(name, str):
-            sp = name.split("@")
             if name.startswith("~"):
                 try:
                     query_kwargs = {"pk": int(name[1:])}
                 except:
                     return None
-            elif len(sp) == 1:
+            elif name.startswith("@"):
                 query_kwargs = {
-                    "username__iexact" if case_sensitive else "username": name
-                }
-            elif len(sp) == 2:
-                query_kwargs = {
-                    "mastodon_username__iexact"
-                    if case_sensitive
-                    else "mastodon_username": sp[0],
-                    "mastodon_site__iexact"
-                    if case_sensitive
-                    else "mastodon_site": sp[1],
+                    "username__iexact" if case_sensitive else "username": name[1:]
                 }
             else:
-                return None
+                sp = name.split("@")
+                if len(sp) == 2:
+                    query_kwargs = {
+                        "mastodon_username__iexact"
+                        if case_sensitive
+                        else "mastodon_username": sp[0],
+                        "mastodon_site__iexact"
+                        if case_sensitive
+                        else "mastodon_site": sp[1],
+                    }
+                else:
+                    return None
         elif isinstance(name, int):
             query_kwargs = {"pk": name}
         else:
             return None
         return User.objects.filter(**query_kwargs).first()
 
-    @property
-    def tags(self):
-        from journal.models import TagManager
+    @classmethod
+    def register(cls, **param):
+        from .preference import Preference
 
-        return TagManager.all_tags_for_user(self)
+        new_user = cls(**param)
+        new_user.save()
+        Preference.objects.create(user=new_user)
+        if new_user.username:  # TODO make username required in registeration
+            new_user.initialize()
+        return new_user
 
-    @cached_property
-    def tag_manager(self):
-        from journal.models import TagManager
+    def initialize(self):
+        Takahe.init_identity_for_local_user(self)
 
-        return TagManager.get_manager_for_user(self)
 
-    @cached_property
-    def shelf_manager(self):
-        from journal.models import ShelfManager
-
-        return ShelfManager.get_manager_for_user(self)
-
-    @cached_property
-    def activity_manager(self):
-        from social.models import ActivityManager
-
-        return ActivityManager.get_manager_for_user(self)
+# TODO the following models should be deprecated soon
 
 
 class Follow(models.Model):

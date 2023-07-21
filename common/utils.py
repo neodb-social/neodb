@@ -1,8 +1,21 @@
 import uuid
+from typing import TYPE_CHECKING
 
-from django.http import Http404
+from django.http import Http404, HttpRequest
 from django.utils import timezone
 from django.utils.baseconv import base62
+
+if TYPE_CHECKING:
+    from users.models import APIdentity, User
+
+
+class AuthedHttpRequest(HttpRequest):
+    """
+    A subclass of HttpRequest for type-checking only
+    """
+
+    user: "User"
+    target_identity: "APIdentity"
 
 
 class PageLinksGenerator:

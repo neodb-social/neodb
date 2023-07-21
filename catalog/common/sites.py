@@ -39,7 +39,7 @@ class AbstractSite:
     Abstract class to represent a site
     """
 
-    SITE_NAME: SiteName | None = None
+    SITE_NAME: SiteName
     ID_TYPE: IdType | None = None
     WIKI_PROPERTY_ID: str | None = "P0undefined0"
     DEFAULT_MODEL: Type[Item] | None = None
@@ -104,18 +104,29 @@ class AbstractSite:
         return content.xpath(query)[0].strip()
 
     @classmethod
-    def get_model_for_resource(cls, resource):
-        model = resource.get_preferred_model()
-        return model or cls.DEFAULT_MODEL
+    def match_existing_item_for_resource(
+        cls, resource: ExternalResource
+    ) -> Item | None:
+        """
+        try match an existing Item for a given ExternalResource
 
-    @classmethod
-    def match_existing_item_for_resource(cls, resource) -> Item | None:
-        model = cls.get_model_for_resource(resource)
+        order of matching:
+        1. look for other ExternalResource by url in prematched_resources, if found, return the item
+        2. look for Item by primary_lookup_id_type and primary_lookup_id_value
+
+        """
+        for resource_link in resource.prematched_resources:  # type: ignore
+            url = resource_link.get("url")
+            if url:
+                matched_resource = ExternalResource.objects.filter(url=url).first()
+                if matched_resource and matched_resource.item:
+                    return matched_resource.item
+        model = resource.get_item_model(cls.DEFAULT_MODEL)
         if not model:
             return None
-        t, v = model.get_best_lookup_id(resource.get_all_lookup_ids())
-        matched = None
-        if t is not None:
+        ids = resource.get_lookup_ids(cls.DEFAULT_MODEL)
+        for t, v in ids:
+            matched = None
             matched = model.objects.filter(
                 primary_lookup_id_type=t,
                 primary_lookup_id_value=v,
@@ -143,14 +154,15 @@ class AbstractSite:
                 matched.primary_lookup_id_type = t
                 matched.primary_lookup_id_value = v
                 matched.save()
-        return matched
+            if matched:
+                return matched
 
     @classmethod
     def match_or_create_item_for_resource(cls, resource):
         previous_item = resource.item
         resource.item = cls.match_existing_item_for_resource(resource) or previous_item
         if resource.item is None:
-            model = cls.get_model_for_resource(resource)
+            model = resource.get_item_model(cls.DEFAULT_MODEL)
             if not model:
                 return None
             t, v = model.get_best_lookup_id(resource.get_all_lookup_ids())
@@ -243,7 +255,7 @@ class AbstractSite:
                         )
                     else:
                         _logger.error(f"unable to get site for {linked_url}")
-            if p.related_resources:
+            if p.related_resources or p.prematched_resources:
                 django_rq.get_queue("crawl").enqueue(crawl_related_resources_task, p.pk)
             if p.item:
                 p.item.update_linked_items_from_external_resource(p)
@@ -318,7 +330,7 @@ def crawl_related_resources_task(resource_pk):
     if not resource:
         _logger.warn(f"crawl resource not found {resource_pk}")
         return
-    links = resource.related_resources
+    links = (resource.related_resources or []) + (resource.prematched_resources or [])  # type: ignore
     for w in links:  # type: ignore
         try:
             item = None

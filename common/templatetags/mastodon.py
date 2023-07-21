@@ -3,6 +3,8 @@ from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django.utils.translation import gettext_lazy as _
 
+from users.models import APIdentity, User
+
 register = template.Library()
 
 
@@ -13,9 +15,10 @@ def mastodon(domain):
 
 
 @register.simple_tag(takes_context=True)
-def current_user_relationship(context, user):
+def current_user_relationship(context, user: "User"):
     current_user = context["request"].user
     r = {
+        "requesting": False,
         "following": False,
         "unfollowable": False,
         "muting": False,
@@ -24,21 +27,23 @@ def current_user_relationship(context, user):
         "status": "",
     }
     if current_user and current_user.is_authenticated and current_user != user:
-        if current_user.is_blocking(user) or user.is_blocking(current_user):
+        current_identity = context["request"].user.identity
+        target_identity = user.identity
+        if current_identity.is_blocking(
+            target_identity
+        ) or current_identity.is_blocked_by(target_identity):
             r["rejecting"] = True
         else:
-            r["muting"] = current_user.is_muting(user)
-            if user in current_user.local_muting.all():
-                r["unmutable"] = current_user
-            if current_user.is_following(user):
-                r["following"] = True
-                if user in current_user.local_following.all():
-                    r["unfollowable"] = True
-                if current_user.is_followed_by(user):
+            r["muting"] = current_identity.is_muting(target_identity)
+            r["unmutable"] = r["muting"]
+            r["following"] = current_identity.is_following(target_identity)
+            r["unfollowable"] = r["following"]
+            if r["following"]:
+                if current_identity.is_followed_by(target_identity):
                     r["status"] = _("互相关注")
                 else:
                     r["status"] = _("已关注")
             else:
-                if current_user.is_followed_by(user):
+                if current_identity.is_followed_by(target_identity):
                     r["status"] = _("被ta关注")
     return r

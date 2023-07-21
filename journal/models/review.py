@@ -7,8 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from markdownx.models import MarkdownxField
 
 from catalog.models import Item
-from mastodon.api import share_review
-from users.models import User
+from users.models import APIdentity
 
 from .common import Content
 from .rating import Rating
@@ -44,21 +43,20 @@ class Review(Content):
 
     @cached_property
     def rating_grade(self):
-        return Rating.get_item_rating_by_user(self.item, self.owner)
+        return Rating.get_item_rating(self.item, self.owner)
 
     @classmethod
-    def review_item_by_user(
+    def update_item_review(
         cls,
         item: Item,
-        user: User,
+        owner: APIdentity,
         title: str | None,
         body: str | None,
         visibility=0,
         created_time=None,
-        share_to_mastodon=False,
     ):
         if title is None:
-            review = Review.objects.filter(owner=user, item=item).first()
+            review = Review.objects.filter(owner=owner, item=item).first()
             if review is not None:
                 review.delete()
             return None
@@ -71,9 +69,7 @@ class Review(Content):
             defaults["created_time"] = (
                 created_time if created_time < timezone.now() else timezone.now()
             )
-        review, created = cls.objects.update_or_create(
-            item=item, owner=user, defaults=defaults
+        review, _ = cls.objects.update_or_create(
+            item=item, owner=owner, defaults=defaults
         )
-        if share_to_mastodon and user.mastodon_username:
-            share_review(review)
         return review

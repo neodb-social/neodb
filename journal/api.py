@@ -10,8 +10,9 @@ from oauth2_provider.decorators import protected_resource
 
 from catalog.common.models import *
 from common.api import *
+from mastodon.api import share_review
 
-from .models import *
+from .models import Mark, Review, ShelfType, TagManager, q_item_in_category
 
 
 class MarkSchema(Schema):
@@ -84,9 +85,9 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
-    m = Mark(request.user, item)
+    m = Mark(request.user.identity, item)
     try:
-        TagManager.tag_item_by_user(item, request.user, mark.tags, mark.visibility)
+        TagManager.tag_item(item, request.user, mark.tags, mark.visibility)
         m.update(
             mark.shelf_type,
             mark.comment_text,
@@ -114,7 +115,7 @@ def delete_mark(request, item_uuid: str):
     m = Mark(request.user, item)
     m.delete()
     # skip tag deletion for now to be consistent with web behavior
-    # TagManager.tag_item_by_user(item, request.user, [], 0)
+    # TagManager.tag_item(item, request.user, [], 0)
     return 200, {"message": "OK"}
 
 
@@ -144,9 +145,9 @@ def list_reviews(request, category: AvailableItemCategory | None = None):
 
     `category` is optional, reviews for all categories will be returned if not specified.
     """
-    queryset = Review.objects.filter(owner=request.user)
+    queryset = Review.objects.filter(owner=request.user.identity)
     if category:
-        queryset = queryset.filter(query_item_category(category))
+        queryset = queryset.filter(q_item_in_category(category))
     return queryset.prefetch_related("item")
 
 
@@ -161,7 +162,7 @@ def get_review_by_item(request, item_uuid: str):
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
-    review = Review.objects.filter(owner=request.user, item=item).first()
+    review = Review.objects.filter(owner=request.user.identity, item=item).first()
     if not review:
         return 404, {"message": "Review not found"}
     return review
@@ -182,15 +183,17 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
-    Review.review_item_by_user(
+    Review.update_item_review(
         item,
         request.user,
         review.title,
         review.body,
         review.visibility,
         created_time=review.created_time,
-        share_to_mastodon=review.post_to_fediverse,
     )
+    if review.post_to_fediverse and request.user.mastodon_username:
+        share_review(review)
+
     return 200, {"message": "OK"}
 
 
@@ -205,7 +208,7 @@ def delete_review(request, item_uuid: str):
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
-    Review.review_item_by_user(item, request.user, None, None)
+    Review.update_item_review(item, request.user, None, None)
     return 200, {"message": "OK"}
 
 

@@ -29,16 +29,19 @@ class Command(BaseCommand):
             logger.info(f"Navigating {url}")
             content = ProxiedDownloader(url).download().html()
             urls = content.xpath("//a/@href")
-            for _u in urls:
+            for _u in urls:  # type:ignore
                 u = urljoin(url, _u)
                 if u not in history and u not in queue:
                     if len([p for p in item_patterns if re.match(p, u)]) > 0:
                         site = SiteManager.get_site_by_url(u)
-                        u = site.url
-                        if u not in history:
-                            history.append(u)
-                            logger.info(f"Fetching {u}")
-                            site.get_resource_ready()
+                        if site:
+                            u = site.url
+                            if u not in history:
+                                history.append(u)
+                                logger.info(f"Fetching {u}")
+                                site.get_resource_ready()
+                        else:
+                            logger.warning(f"unable to parse {u}")
                     elif pattern and u.find(pattern) >= 0:
                         queue.append(u)
         logger.info("Crawl finished.")

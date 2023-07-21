@@ -2,65 +2,86 @@ from django.test import TestCase
 
 from catalog.models import *
 from journal.models import *
+from takahe.utils import Takahe
 from users.models import User
 
 from .models import *
 
 
 class SocialTest(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.book1 = Edition.objects.create(title="Hyperion")
         self.book2 = Edition.objects.create(title="Andymion")
         self.movie = Edition.objects.create(title="Fight Club")
-        self.alice = User.register(mastodon_site="MySpace", mastodon_username="Alice")
-        self.bob = User.register(mastodon_site="KKCity", mastodon_username="Bob")
+        self.alice = User.register(
+            username="Alice", mastodon_site="MySpace", mastodon_username="Alice"
+        )
+        self.bob = User.register(
+            username="Bob", mastodon_site="KKCity", mastodon_username="Bob"
+        )
 
     def test_timeline(self):
+        alice_feed = self.alice.identity.activity_manager
+        bob_feed = self.bob.identity.activity_manager
+
         # alice see 0 activity in timeline in the beginning
-        timeline = self.alice.activity_manager.get_timeline()
-        self.assertEqual(len(timeline), 0)
+        self.assertEqual(len(alice_feed.get_timeline()), 0)
 
         # 1 activity after adding first book to shelf
-        self.alice.shelf_manager.move_item(self.book1, ShelfType.WISHLIST, visibility=1)
-        timeline = self.alice.activity_manager.get_timeline()
-        self.assertEqual(len(timeline), 1)
+        self.alice.identity.shelf_manager.move_item(
+            self.book1, ShelfType.WISHLIST, visibility=1
+        )
+        self.assertEqual(len(alice_feed.get_timeline()), 1)
 
         # 2 activities after adding second book to shelf
-        self.alice.shelf_manager.move_item(self.book2, ShelfType.WISHLIST)
-        timeline = self.alice.activity_manager.get_timeline()
-        self.assertEqual(len(timeline), 2)
+        self.alice.identity.shelf_manager.move_item(self.book2, ShelfType.WISHLIST)
+        self.assertEqual(len(alice_feed.get_timeline()), 2)
 
         # 2 activities after change first mark
-        self.alice.shelf_manager.move_item(self.book1, ShelfType.PROGRESS)
-        timeline = self.alice.activity_manager.get_timeline()
-        self.assertEqual(len(timeline), 2)
+        self.alice.identity.shelf_manager.move_item(self.book1, ShelfType.PROGRESS)
+        self.assertEqual(len(alice_feed.get_timeline()), 2)
 
         # bob see 0 activity in timeline in the beginning
-        timeline2 = self.bob.activity_manager.get_timeline()
-        self.assertEqual(len(timeline2), 0)
+        self.assertEqual(len(bob_feed.get_timeline()), 0)
 
         # bob follows alice, see 2 activities
-        self.bob.mastodon_following = ["Alice@MySpace"]
-        self.alice.mastodon_follower = ["Bob@KKCity"]
-        self.bob.merge_relationships()
-        timeline2 = self.bob.activity_manager.get_timeline()
-        self.assertEqual(len(timeline2), 2)
+        self.bob.identity.follow(self.alice.identity)
+        Takahe._force_state_cycle()
+        self.assertEqual(len(bob_feed.get_timeline()), 2)
+
+        # bob mute, then unmute alice
+        self.bob.identity.mute(self.alice.identity)
+        Takahe._force_state_cycle()
+        self.assertEqual(len(bob_feed.get_timeline()), 0)
+        self.bob.identity.unmute(self.alice.identity)
+        Takahe._force_state_cycle()
+        self.assertEqual(len(bob_feed.get_timeline()), 2)
 
         # alice:3 bob:2 after alice adding second book to shelf as private
-        self.alice.shelf_manager.move_item(self.movie, ShelfType.WISHLIST, visibility=2)
-        timeline = self.alice.activity_manager.get_timeline()
-        self.assertEqual(len(timeline), 3)
-        timeline2 = self.bob.activity_manager.get_timeline()
-        self.assertEqual(len(timeline2), 2)
+        self.alice.identity.shelf_manager.move_item(
+            self.movie, ShelfType.WISHLIST, visibility=2
+        )
+        self.assertEqual(len(alice_feed.get_timeline()), 3)
+        self.assertEqual(len(bob_feed.get_timeline()), 2)
 
-        # remote unfollow
-        self.bob.mastodon_following = []
-        self.alice.mastodon_follower = []
-        self.bob.merge_relationships()
-        timeline = self.bob.activity_manager.get_timeline()
-        self.assertEqual(len(timeline), 0)
+        # alice mute bob
+        self.alice.identity.mute(self.bob.identity)
+        Takahe._force_state_cycle()
+        self.assertEqual(len(bob_feed.get_timeline()), 2)
 
-        # local follow
-        self.bob.follow(self.alice)
-        timeline = self.bob.activity_manager.get_timeline()
-        self.assertEqual(len(timeline), 2)
+        # bob unfollow alice
+        self.bob.identity.unfollow(self.alice.identity)
+        Takahe._force_state_cycle()
+        self.assertEqual(len(bob_feed.get_timeline()), 0)
+
+        # bob follow alice
+        self.bob.identity.follow(self.alice.identity)
+        Takahe._force_state_cycle()
+        self.assertEqual(len(bob_feed.get_timeline()), 2)
+
+        # alice block bob
+        self.alice.identity.block(self.bob.identity)
+        Takahe._force_state_cycle()
+        self.assertEqual(len(bob_feed.get_timeline()), 0)

@@ -261,7 +261,7 @@ class DoubanImporter:
         )
         print("+", end="", flush=True)
         if tags:
-            TagManager.tag_item_by_user(item, self.user, tags)
+            TagManager.tag_item(item, self.user, tags)
         return 1
 
     def import_review_sheet(self, worksheet, sheet_name):

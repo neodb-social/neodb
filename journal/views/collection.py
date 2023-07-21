@@ -1,28 +1,28 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from catalog.models import *
-from common.utils import PageLinksGenerator, get_uuid_or_404
-from journal.models.renderers import convert_leading_space_in_md
+from catalog.models import Item
+from common.utils import AuthedHttpRequest, get_uuid_or_404
 from mastodon.api import share_collection
 from users.models import User
+from users.models.apidentity import APIdentity
 from users.views import render_user_blocked, render_user_not_found
 
 from ..forms import *
 from ..models import *
-from .common import render_relogin
+from .common import render_relogin, target_identity_required
 
 
 @login_required
-def add_to_collection(request, item_uuid):
+def add_to_collection(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if request.method == "GET":
-        collections = Collection.objects.filter(owner=request.user)
+        collections = Collection.objects.filter(owner=request.user.identity)
         return render(
             request,
             "add_to_collection.html",
@@ -35,14 +35,14 @@ def add_to_collection(request, item_uuid):
         cid = int(request.POST.get("collection_id", default=0))
         if not cid:
             cid = Collection.objects.create(
-                owner=request.user, title=f"{request.user.display_name}的收藏单"
+                owner=request.user.identity, title=f"{request.user.display_name}的收藏单"
             ).id
-        collection = Collection.objects.get(owner=request.user, id=cid)
+        collection = Collection.objects.get(owner=request.user.identity, id=cid)
         collection.append_item(item, note=request.POST.get("note"))
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 
-def collection_retrieve(request, collection_uuid):
+def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
@@ -53,19 +53,19 @@ def collection_retrieve(request, collection_uuid):
         else False
     )
     featured_since = (
-        collection.featured_by_user_since(request.user)
+        collection.featured_since(request.user.identity)
         if request.user.is_authenticated
         else None
     )
     available_as_featured = (
         request.user.is_authenticated
-        and (following or request.user == collection.owner)
+        and (following or request.user.identity == collection.owner)
         and not featured_since
         and collection.members.all().exists()
     )
     stats = {}
     if featured_since:
-        stats = collection.get_stats_for_user(request.user)
+        stats = collection.get_stats(request.user.identity)
         stats["wishlist_deg"] = (
             round(stats["wishlist"] / stats["total"] * 360) if stats["total"] else 0
         )
@@ -90,33 +90,35 @@ def collection_retrieve(request, collection_uuid):
 
 
 @login_required
-def collection_add_featured(request, collection_uuid):
+def collection_add_featured(request: AuthedHttpRequest, collection_uuid):
     if request.method != "POST":
         raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
-    FeaturedCollection.objects.update_or_create(owner=request.user, target=collection)
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    FeaturedCollection.objects.update_or_create(
+        owner=request.user.identity, target=collection
+    )
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 
 @login_required
-def collection_remove_featured(request, collection_uuid):
+def collection_remove_featured(request: AuthedHttpRequest, collection_uuid):
     if request.method != "POST":
         raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
     fc = FeaturedCollection.objects.filter(
-        owner=request.user, target=collection
+        owner=request.user.identity, target=collection
     ).first()
     if fc:
         fc.delete()
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 
 @login_required
-def collection_share(request, collection_uuid):
+def collection_share(request: AuthedHttpRequest, collection_uuid):
     collection = (
         get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
         if collection_uuid
@@ -130,14 +132,16 @@ def collection_share(request, collection_uuid):
         visibility = int(request.POST.get("visibility", default=0))
         comment = request.POST.get("comment")
         if share_collection(collection, comment, request.user, visibility):
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
         else:
             return render_relogin(request)
     else:
         raise BadRequest()
 
 
-def collection_retrieve_items(request, collection_uuid, edit=False, msg=None):
+def collection_retrieve_items(
+    request: AuthedHttpRequest, collection_uuid, edit=False, msg=None
+):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
@@ -155,7 +159,7 @@ def collection_retrieve_items(request, collection_uuid, edit=False, msg=None):
 
 
 @login_required
-def collection_append_item(request, collection_uuid):
+def collection_append_item(request: AuthedHttpRequest, collection_uuid):
     if request.method != "POST":
         raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
@@ -175,7 +179,7 @@ def collection_append_item(request, collection_uuid):
 
 
 @login_required
-def collection_remove_item(request, collection_uuid, item_uuid):
+def collection_remove_item(request: AuthedHttpRequest, collection_uuid, item_uuid):
     if request.method != "POST":
         raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
@@ -187,7 +191,9 @@ def collection_remove_item(request, collection_uuid, item_uuid):
 
 
 @login_required
-def collection_move_item(request, direction, collection_uuid, item_uuid):
+def collection_move_item(
+    request: AuthedHttpRequest, direction, collection_uuid, item_uuid
+):
     if request.method != "POST":
         raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
@@ -202,7 +208,7 @@ def collection_move_item(request, direction, collection_uuid, item_uuid):
 
 
 @login_required
-def collection_update_member_order(request, collection_uuid):
+def collection_update_member_order(request: AuthedHttpRequest, collection_uuid):
     if request.method != "POST":
         raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
@@ -217,7 +223,7 @@ def collection_update_member_order(request, collection_uuid):
 
 
 @login_required
-def collection_update_item_note(request, collection_uuid, item_uuid):
+def collection_update_item_note(request: AuthedHttpRequest, collection_uuid, item_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied()
@@ -241,7 +247,7 @@ def collection_update_item_note(request, collection_uuid, item_uuid):
 
 
 @login_required
-def collection_edit(request, collection_uuid=None):
+def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
     collection = (
         get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
         if collection_uuid
@@ -259,7 +265,7 @@ def collection_edit(request, collection_uuid=None):
             {
                 "form": form,
                 "collection": collection,
-                "user": collection.owner if collection else request.user,
+                "user": collection.owner.user if collection else request.user,
             },
         )
     elif request.method == "POST":
@@ -270,7 +276,7 @@ def collection_edit(request, collection_uuid=None):
         )
         if form.is_valid():
             if not collection:
-                form.instance.owner = request.user
+                form.instance.owner = request.user.identity
             form.instance.edited_time = timezone.now()
             form.save()
             return redirect(
@@ -283,47 +289,34 @@ def collection_edit(request, collection_uuid=None):
 
 
 @login_required
-def user_collection_list(request, user_name):
-    user = User.get(user_name)
-    if user is None:
-        return render_user_not_found(request)
-    if user != request.user and (
-        request.user.is_blocked_by(user) or request.user.is_blocking(user)
-    ):
-        return render_user_blocked(request)
-    collections = Collection.objects.filter(owner=user)
-    if user != request.user:
-        if request.user.is_following(user):
-            collections = collections.filter(visibility__in=[0, 1])
-        else:
-            collections = collections.filter(visibility=0)
+@target_identity_required
+def user_collection_list(request: AuthedHttpRequest, user_name):
+    target = request.target_identity
+    collections = Collection.objects.filter(owner=target).filter(
+        q_owned_piece_visible_to_user(request.user, target)
+    )
     return render(
         request,
         "user_collection_list.html",
         {
-            "user": user,
+            "user": target.user,
             "collections": collections,
         },
     )
 
 
 @login_required
-def user_liked_collection_list(request, user_name):
-    user = User.get(user_name)
-    if user is None:
-        return render_user_not_found(request)
-    if user != request.user and (
-        request.user.is_blocked_by(user) or request.user.is_blocking(user)
-    ):
-        return render_user_blocked(request)
-    collections = Collection.objects.filter(likes__owner=user)
-    if user != request.user:
-        collections = collections.filter(query_visible(request.user))
+@target_identity_required
+def user_liked_collection_list(request: AuthedHttpRequest, user_name):
+    target = request.target_identity
+    collections = Collection.objects.filter(likes__owner=target)
+    if target.user != request.user:
+        collections = collections.filter(q_piece_visible_to_user(request.user))
     return render(
         request,
         "user_collection_list.html",
         {
-            "user": user,
+            "user": target.user,
             "collections": collections,
             "liked": True,
         },
