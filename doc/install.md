@@ -6,12 +6,12 @@ This is a very basic guide with limited detail, contributions welcomed
 - [1 Install](#1-install)
   * [1.1 Database](#11-database)
   * [1.2 Configuration](#12-configuration)
-  * [1.3 Packages & Build](#13-packages---build)
+  * [1.3 Packages and Build](#13-packages-and-build)
 - [2 Start services](#2-start-services)
 - [3 Migrate from an earlier version](#3-migrate-from-an-earlier-version)
-- [4 Add Cron Jobs (optional)](#4-add-cron-jobs--optional-)
-- [5 Index and Search (optional)](#5-index-and-search--optional-)
-- [6 Other maintenance tasks (optional)](#6-other-maintenance-tasks--optional-)
+- [4 Add Cron Jobs (optional)](#4-add-cron-jobs-optional)
+- [5 Index and Search (optional)](#5-index-and-search-optional)
+- [6 Other maintenance tasks (optional)](#6-other-maintenance-tasks-optional)
 - [7 Frequently Asked Questions](#7-frequently-asked-questions)
 
 
@@ -48,7 +48,7 @@ The most important configurations to setup are:
 
 More details on `settings.py` in [configuration.md](configuration.md)
 
-### 1.3 Packages & Build
+### 1.3 Packages and Build
 Create and use `venv` as you normally would, then install packages
 ```
 python3 -m pip install -r requirements.txt
