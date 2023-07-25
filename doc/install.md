@@ -23,7 +23,6 @@ Install PostgreSQL, Redis and Python (3.10 or above) if not yet
 Setup database
 ```
 CREATE DATABASE neodb ENCODING 'UTF8' LC_COLLATE='en_US.UTF-8' LC_CTYPE='en_US.UTF-8' TEMPLATE template0;
-\c neodb;
 CREATE ROLE neodb with LOGIN ENCRYPTED PASSWORD 'abadface';
 GRANT ALL ON DATABASE neodb TO neodb;
 ```
@@ -146,7 +145,9 @@ python3 manage.py createapplication --client-id NEODB_DEVELOPER_CONSOLE --skip-a
 
 ### I got Error: “无效的登录回调地址”.
 
-Check `REDIRECT_URIS` in `settings.py`, the final value should be `"http://localhost/" + "/account/login/oauth"`. If you are specifying a port, add the port to the localhost address. Please also delete the app record in the database: 
+Check `REDIRECT_URIS` in `settings.py`, the final value should be `"http://localhost/account/login/oauth"` or sth similar. If you are specifying a port, add the port to the localhost address. 
+
+If any change was made to `REDIRECT_URIS`, existing apps registered in Mastodon are no longer valid, so delete the app record in the database: 
 ```
-delete from mastodon_mastodonapplication where domain_name = 'your_domain_name';
+delete from mastodon_mastodonapplication;
 ```
