@@ -7,13 +7,15 @@ Scraping the website directly.
 - It requires Apple Developer Membership ($99 per year) to obtain a token.
 
 """
-from catalog.common import *
-from catalog.models import *
-from .douban import *
 import json
 import logging
+
 import dateparser
 
+from catalog.common import *
+from catalog.models import *
+
+from .douban import *
 
 _logger = logging.getLogger(__name__)
 
@@ -75,7 +77,7 @@ class AppleMusic(AbstractSite):
             for i, track in enumerate(track_data["ogSongs"], 1)
         ]
         duration_list = [
-            track["attributes"].get("durationInMillis")
+            track["attributes"].get("durationInMillis", 0)
             for track in track_data["ogSongs"]
         ]
         duration = int(sum(duration_list))

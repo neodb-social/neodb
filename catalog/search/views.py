@@ -1,22 +1,25 @@
-import uuid
+import hashlib
 import logging
-from django.core.exceptions import BadRequest
-from django.shortcuts import render, redirect
+import uuid
+
+import django_rq
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import gettext_lazy as _
+from django.core.cache import cache
+from django.core.exceptions import BadRequest
 from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.utils.translation import gettext_lazy as _
+from rq.job import Job
+
 from catalog.common.models import ItemCategory, SiteName
 from catalog.common.sites import AbstractSite, SiteManager
-from ..models import *
-from django.conf import settings
-from common.utils import PageLinksGenerator
 from common.config import PAGE_LINK_NUMBER
-import django_rq
-from rq.job import Job
+from common.utils import PageLinksGenerator
+
+from ..models import *
 from .external import ExternalSources
-from django.core.cache import cache
-import hashlib
-from .models import get_fetch_lock, query_index, enqueue_fetch
+from .models import enqueue_fetch, get_fetch_lock, query_index
 
 _logger = logging.getLogger(__name__)
 
@@ -29,7 +32,6 @@ class HTTPResponseHXRedirect(HttpResponseRedirect):
     status_code = 200
 
 
-@login_required
 def fetch_refresh(request, job_id):
     retry = request.GET
     try:
