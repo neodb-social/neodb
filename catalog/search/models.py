@@ -127,7 +127,7 @@ def enqueue_fetch(url, is_refetch, user=None):
 
 def _fetch_task(url, is_refetch, user):
     item_url = "-"
-    with set_actor(user):
+    with set_actor(user if user and user.is_authenticated else None):
         try:
             site = SiteManager.get_site_by_url(url)
             if not site:
