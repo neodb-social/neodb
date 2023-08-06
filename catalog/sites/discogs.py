@@ -21,6 +21,7 @@ class DiscogsRelease(AbstractSite):
     URL_PATTERNS = [
         r"https://www\.discogs\.com/release/(\d+)[^\d]*",
         r"https://www\.discogs\.com/[a-z]{2}/release/(\d+)[^\d]*",
+        r"https://www\.discogs\.com/[a-z]{2}_[A-Z]{2}/release/(\d+)[^\d]*",
     ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
