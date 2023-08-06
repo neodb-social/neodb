@@ -18,7 +18,10 @@ _logger = logging.getLogger(__name__)
 class DiscogsRelease(AbstractSite):
     SITE_NAME = SiteName.Discogs
     ID_TYPE = IdType.Discogs_Release
-    URL_PATTERNS = [r"https://www\.discogs\.com/release/(\d+)[^\d]*"]
+    URL_PATTERNS = [
+        r"https://www\.discogs\.com/release/(\d+)[^\d]*",
+        r"https://www\.discogs\.com/[a-z]{2}/release/(\d+)[^\d]*",
+    ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
 
