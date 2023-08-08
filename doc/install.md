@@ -75,7 +75,7 @@ pdm check
 
 Initialize database
 ```
-pdm db
+pdm dbmigrate
 ```
 
 Build static assets (production only)
@@ -107,7 +107,7 @@ To show all available tasks, you can run `pdm run --list`.
 -------------------------------
 Update database
 ```
-pdm db
+pdm dbmigrate
 ```
 
 Rebuild static assets

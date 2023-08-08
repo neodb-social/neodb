@@ -65,7 +65,7 @@ dev = [
 dev = { cmd = "python manage.py runserver", help = "Run the django development server, don't use it in production" }
 test = { cmd = "python manage.py test", help = "Run the django test suite" }
 check = { cmd = "python manage.py check", help = "Check the problems of the project" }
-db = { cmd = "python manage.py migrate", help = "Prepare the database" }
+dbmigrate = { cmd = "python manage.py migrate", help = "Prepare the database" }
 build_static = { shell = "python manage.py compilescss && python manage.py collectstatic", help = "Build static files(production-only)" }
 rqworker = { cmd = "python manage.py rqworker --with-scheduler import export mastodon fetch crawl", help = "Start the job queue worker" }
 create_index = { shell = "python manage.py index --init && python3 manage.py index --reindex", help = "Build the initial search index" }
