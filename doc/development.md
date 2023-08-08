@@ -5,18 +5,49 @@ Obviously a working version of local NeoDB instance has to be established first,
 
 Install development related packages
 ```
-python3 -m pip install -r requirements-dev.txt
+pdm install --dev
 ```
 
 Install pre-commit hooks
 ```
-$ pre-commit install
+$ pdm run pre-commit install
 pre-commit installed at .git/hooks/pre-commit
 ```
 
+Manage Dependencies
+-------------------
+
+It's recommended to use PDM to add and remove dependencies.
+
+Add a dependency:
+
+```
+pdm add some-package
+```
+
+Add a dev dependency:
+
+```
+pdm add -d some-package
+```
+
+Remove a dependency:
+
+```
+pdm remove some-package
+```
+
+Update all dependencies to the latest version in the lockfile:
+
+```
+pdm update
+```
+
+Refer to the [PDM documentation](https://pdm.fming.dev/latest/usage/dependency) for more details.
+
 Run Test
 --------
-`python3 manage.py test` will run the tests
+`pdm test` will run the tests
 
 Alternative you may create the test database from freshly created database:
 ```
@@ -24,7 +55,7 @@ CREATE DATABASE test_neodb WITH TEMPLATE neodb;
 ```
 and run the test without re-create it every time
 ```
-$ python3 manage.py test --keepdb
+$ pdm test --keepdb
 
 Using existing test database for alias 'default'...
 System check identified no issues (2 silenced).

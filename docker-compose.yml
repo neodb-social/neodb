@@ -27,7 +27,7 @@ x-shared:
       - NEODB_MEDIA_ROOT=/www/media/
     restart: "on-failure"
     volumes:
-      - ${NEODB_DATA:-../data}/neodb-media:/www/media
+      - ${NEODB_DATA:-../data}/web:/www
     depends_on:
       - neodb-redis
       - neodb-db
@@ -68,7 +68,7 @@ services:
   migration:
     <<: *neodb-service
     restart: "no"
-    command: python /neodb/manage.py migrate
+    command: .venv/bin/python /neodb/manage.py migrate
     depends_on:
       neodb-db:
         condition: service_healthy
@@ -81,30 +81,32 @@ services:
     <<: *neodb-service
     # ports:
     #   - "18000:8000"
-    command: gunicorn boofilsic.wsgi -w 8 --preload -b 0.0.0.0:8000
+    command: .venv/bin/gunicorn boofilsic.wsgi -w 8 --preload -b 0.0.0.0:8000
     depends_on:
       migration:
         condition: service_completed_successfully
 
   neodb-worker:
     <<: *neodb-service
-    command: python /neodb/manage.py rqworker --with-scheduler import export mastodon fetch crawl
+    command: .venv/bin/python /neodb/manage.py rqworker --with-scheduler import export mastodon fetch crawl
     depends_on:
       migration:
         condition: service_completed_successfully
 
   neodb-worker-secondary:
     <<: *neodb-service
-    command: python /neodb/manage.py rqworker --with-scheduler fetch crawl
+    command: .venv/bin/python /neodb/manage.py rqworker --with-scheduler fetch crawl
     depends_on:
       migration:
         condition: service_completed_successfully
 
   neodb-nginx:
-    <<: *neodb-service
-    command: nginx
+    image: nginx:1-alpine
     depends_on:
       neodb-web:
         condition: service_started
     ports:
       - "${NEODB_PORT:-8000}:8000"
+    volumes:
+      - misc/nginx.conf.d:/etc/nginx/conf.d
+      - ${NEODB_DATA:-../data}/web:/www

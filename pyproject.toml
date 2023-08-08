@@ -1,9 +1,81 @@
+[project]
+dependencies = [
+    "dateparser",
+    "mistune",
+    "rq>=1.12.0",
+    "django~=4.2.3",
+    "django-auditlog",
+    "django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e69480c64ad9c5d0499f4a8625da78cf2bb7691b",
+    "django-jsonform",
+    "libsass",
+    "django-compressor",
+    "django-sass-processor",
+    "django-rq",
+    "django-simple-history",
+    "django-auditlog @ git+https://github.com/jazzband/django-auditlog.git@45591463e8192b4ac0095e259cc4dcea0ac2fd6c",
+    "django-hijack",
+    "django-user-messages",
+    "django-slack",
+    "django-ninja",
+    "django-polymorphic",
+    "django-maintenance-mode",
+    "django-tz-detect",
+    "django-bleach",
+    "django-redis",
+    "django-oauth-toolkit",
+    "django-anymail",
+    "easy-thumbnails",
+    "lxml",
+    "openpyxl",
+    "psycopg2-binary",
+    "requests",
+    "filetype",
+    "setproctitle",
+    "tqdm",
+    "opencc",
+    "dnspython",
+    "typesense",
+    "markdownify",
+    "igdb-api-v4",
+    "podcastparser",
+    "listparser",
+    "fontawesomefree",
+    "discord-py",
+    "loguru",
+    "setuptools>=68.0.0",
+    "gunicorn>=21.2.0",
+    "eventlet>=0.33.3",
+]
+requires-python = ">=3.10"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pre-commit",
+    "black",
+    "django-debug-toolbar",
+    "coverage",
+    "djlint",
+]
+
+[tool.pdm.scripts]
+dev = { cmd = "python manage.py runserver", help = "Run the django development server, don't use it in production" }
+test = { cmd = "python manage.py test", help = "Run the django test suite" }
+check = { cmd = "python manage.py check", help = "Check the problems of the project" }
+db = { cmd = "python manage.py migrate", help = "Prepare the database" }
+build_static = { shell = "python manage.py compilescss && python manage.py collectstatic", help = "Build static files(production-only)" }
+rqworker = { cmd = "python manage.py rqworker --with-scheduler import export mastodon fetch crawl", help = "Start the job queue worker" }
+create_index = { shell = "python manage.py index --init && python3 manage.py index --reindex", help = "Build the initial search index" }
+
 [tool.pyright]
 exclude = [ "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/sites/douban_*" ]
 
 [tool.djlint]
-ignore="T002,T003,H006,H019,H020,H021,H023,H030,H031"
-indent=2
+ignore = "T002,T003,H006,H019,H020,H021,H023,H030,H031"
+indent = 2
 
 [tool.isort]
 profile = "black"

@@ -32,13 +32,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: pdm-project/pdm@v3
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
     - name: Install Dependencies
       run: |
-        pip install -r requirements.txt
+        pdm install --prod
     - name: Run Tests
       run: |
-        python manage.py test
+        pdm test

@@ -41,3 +41,4 @@ log
 
 # test coverage
 /.coverage
+.pdm-python
