@@ -332,6 +332,9 @@ class Indexer:
             # 'sort_by': None,
         }
         results = types.SimpleNamespace()
+        results.items = []
+        results.count = 0
+        results.num_pages = 1
 
         try:
             r = cls.instance().documents.search(options)
@@ -346,10 +349,9 @@ class Indexer:
             results.count = r["found"]
             results.num_pages = (r["found"] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
         except ObjectNotFound:
-            results.items = []
-            results.count = 0
-            results.num_pages = 1
-
+            pass
+        except Exception as e:
+            logger.error(e)
         return results
 
     @classmethod

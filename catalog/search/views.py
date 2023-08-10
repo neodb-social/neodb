@@ -103,13 +103,18 @@ def visible_categories(request):
 
 def search(request):
     category = request.GET.get("c", default="all").strip().lower()
+    hide_category = False
     if category == "all" or not category:
         category = None
         categories = visible_categories(request)
     elif category == "movietv":
         categories = [ItemCategory.Movie, ItemCategory.TV]
     else:
-        categories = [ItemCategory(category)]
+        try:
+            categories = [ItemCategory(category)]
+            hide_category = True
+        except:
+            categories = visible_categories(request)
     keywords = request.GET.get("q", default="").strip()
     tag = request.GET.get("tag", default="").strip()
     p = request.GET.get("page", default="1")
@@ -138,7 +143,7 @@ def search(request):
             "dup_items": dup_items,
             "pagination": PageLinksGenerator(PAGE_LINK_NUMBER, p, num_pages),
             "sites": SiteName.labels,
-            "hide_category": category is not None and category != "movietv",
+            "hide_category": hide_category,
         },
     )
 
