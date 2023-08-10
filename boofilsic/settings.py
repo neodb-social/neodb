@@ -237,7 +237,7 @@ SITE_INFO = {
     "sentry_dsn": None,
 }
 
-REDIRECT_URIS = SITE_INFO["site_url"] + "/users/OAuth2_login/"
+REDIRECT_URIS = f'{SITE_INFO["site_url"]}/users/OAuth2_login/'
 # if you are creating new site, use
 # REDIRECT_URIS = SITE_INFO["site_url"] + "/account/login/oauth"
 
@@ -386,11 +386,11 @@ SEARCH_INDEX_NEW_ONLY = False
 # MEILISEARCH_KEY = 'deadbeef'
 
 # SEARCH_BACKEND = "TYPESENSE"
-# TYPESENSE_CONNECTION = {
-#    "api_key": "xyz",
-#    "nodes": [{"host": "localhost", "port": "8108", "protocol": "http"}],
-#    "connection_timeout_seconds": 2,
-# }
+TYPESENSE_CONNECTION = {
+    "api_key": "xyz",
+    "nodes": [{"host": "localhost", "port": "8108", "protocol": "http"}],
+    "connection_timeout_seconds": 2,
+}
 
 SEARCH_BACKEND = None
 
@@ -410,7 +410,8 @@ DISABLE_MODEL_SIGNAL = False  # disable index and social feeds during importing/
 # SILKY_MAX_RESPONSE_BODY_SIZE = 1024  # If response body>1024 bytes, ignore
 # SILKY_INTERCEPT_PERCENT = 10
 
-DISCORD_WEBHOOKS = {}
+DISCORD_WEBHOOKS = {"user-report": None}
+
 
 NINJA_PAGINATION_PER_PAGE = 20
 OAUTH2_PROVIDER = {

@@ -22,7 +22,7 @@ from common.api import api
 from users.views import login
 
 urlpatterns = [
-    # path("api/", api.urls),  # type: ignore
+    path("api/", api.urls),  # type: ignore
     path("login/", login),
     path("markdownx/", include("markdownx.urls")),
     path("account/", include("users.urls")),

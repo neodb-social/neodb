@@ -1,5 +1,5 @@
 from django import template
-from django.shortcuts import reverse
+from django.urls import reverse
 
 from journal.models import Collection, Like
 

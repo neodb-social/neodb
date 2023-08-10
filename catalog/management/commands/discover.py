@@ -7,7 +7,7 @@ from django.utils import timezone
 from loguru import logger
 
 from catalog.models import *
-from journal.models import Comment, ItemCategory, ShelfMember, query_item_category
+from journal.models import Comment, ShelfMember, query_item_category
 
 MAX_ITEMS_PER_PERIOD = 12
 MIN_MARKS = 2

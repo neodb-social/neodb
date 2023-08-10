@@ -10,11 +10,11 @@ import json
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import Callable, Type
 
 import django_rq
 
-from .models import ExternalResource, IdealIdTypes, IdType, Item
+from .models import ExternalResource, IdealIdTypes, IdType, Item, SiteName
 
 _logger = logging.getLogger(__name__)
 
@@ -38,10 +38,10 @@ class AbstractSite:
     Abstract class to represent a site
     """
 
-    SITE_NAME = None
-    ID_TYPE = None
-    WIKI_PROPERTY_ID = "P0undefined0"
-    DEFAULT_MODEL = None
+    SITE_NAME: SiteName | None = None
+    ID_TYPE: IdType | None = None
+    WIKI_PROPERTY_ID: str | None = "P0undefined0"
+    DEFAULT_MODEL: Type[Item] | None = None
     URL_PATTERNS = [r"\w+://undefined/(\d+)"]
 
     @classmethod
@@ -57,7 +57,7 @@ class AbstractSite:
         return False
 
     @classmethod
-    def id_to_url(cls, id_value):
+    def id_to_url(cls, id_value: str):
         return "https://undefined/" + id_value
 
     @classmethod

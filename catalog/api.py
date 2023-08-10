@@ -205,7 +205,7 @@ def search_item_legacy(
     query = query.strip()
     if not query:
         return 400, {"message": "Invalid query"}
-    result = Indexer.search(query, page=1, category=category)
+    result = Indexer.search(query, page=1, categories=[category])
     return 200, {"items": result.items}
 
 

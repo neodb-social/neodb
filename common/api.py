@@ -69,7 +69,7 @@ class PageNumberPagination(NinjaPageNumberPagination):
 
 api = NinjaAPI(
     auth=OAuthAccessTokenAuth(),
-    title=settings.SITE_INFO["site_name"] + " API",
+    title=f'{settings.SITE_INFO["site_name"]} API',
     version="1.0.0",
     description=f"{settings.SITE_INFO['site_name']} API <hr/><a href='{settings.SITE_INFO['site_url']}'>Learn more</a>",
 )

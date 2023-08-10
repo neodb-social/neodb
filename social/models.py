@@ -8,6 +8,7 @@ ActivityManager generates chronological view for user and, in future, ActivitySt
 
 import logging
 from functools import cached_property
+from typing import Type
 
 from django.conf import settings
 from django.db import models
@@ -125,8 +126,8 @@ class DataSignalManager:
 
 
 class DefaultActivityProcessor:
-    model = None
-    template = None
+    model: Type[Piece]
+    template: ActivityTemplate
 
     def __init__(self, action_object):
         self.action_object = action_object

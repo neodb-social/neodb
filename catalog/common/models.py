@@ -246,8 +246,8 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     url_path = "item"  # subclass must specify this
     type = None  # subclass must specify this
     parent_class = None  # subclass may specify this to allow create child item
-    category = None  # subclass must specify this
-    demonstrative = None  # subclass must specify this
+    category: ItemCategory | None = None  # subclass must specify this
+    demonstrative: str | None = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     title = models.CharField(_("标题"), max_length=1000, default="")
     brief = models.TextField(_("简介"), blank=True, default="")
