@@ -5,3 +5,5 @@ exclude = [ "media", ".venv", ".git" ]
 ignore="T002,T003,H006,H019,H020,H021,H023,H030,H031"
 indent=2
 
+[tool.isort]
+profile = "black"

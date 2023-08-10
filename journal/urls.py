@@ -1,8 +1,8 @@
 from django.urls import path, re_path
 
-from catalog.models import *
+from catalog.models import item_categories
 
-from .feeds import ReviewFeed
+from .models import ShelfType
 from .views import *
 
 app_name = "journal"

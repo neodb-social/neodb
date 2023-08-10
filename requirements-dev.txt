@@ -4,3 +4,5 @@ black~=22.12.0
 django-debug-toolbar
 coverage
 djlint~=1.32.1
+types-dateparser
+types-tqdm
