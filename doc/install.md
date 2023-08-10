@@ -42,7 +42,7 @@ SECRET_KEY = "my_key"
 
 The most important configurations to setup are:
 
-- `MASTODON_ALLOW_ANY_SITE` set to `True` so that user can login via any Mastodon API compatible sites (e.g. Mastodon/Pleroma) 
+- `MASTODON_ALLOW_ANY_SITE` set to `True` so that user can login via any Mastodon API compatible sites (e.g. Mastodon/Pleroma)
 - `REDIRECT_URIS` should be `SITE_INFO["site_url"] + "/account/login/oauth"`. If you want to run **on local**, `SITE_INFO["site_url"]` should be set to `"http://localhost/"`
 
 More details on `settings.py` in [configuration.md](configuration.md)
@@ -89,7 +89,7 @@ python3 manage.py runserver
 It should be ready to serve from here, to run web server for production, consider `gunicorn -w 8 boofilsic.wsgi` in systemd or sth similar
 
 
-3 Migrate from an earlier version 
+3 Migrate from an earlier version
 -------------------------------
 Update database
 ```
@@ -145,9 +145,9 @@ python3 manage.py createapplication --client-id NEODB_DEVELOPER_CONSOLE --skip-a
 
 ### I got Error: “无效的登录回调地址”.
 
-Check `REDIRECT_URIS` in `settings.py`, the final value should be `"http://localhost/account/login/oauth"` or sth similar. If you are specifying a port, add the port to the localhost address. 
+Check `REDIRECT_URIS` in `settings.py`, the final value should be `"http://localhost/account/login/oauth"` or sth similar. If you are specifying a port, add the port to the localhost address.
 
-If any change was made to `REDIRECT_URIS`, existing apps registered in Mastodon are no longer valid, so delete the app record in the database: 
+If any change was made to `REDIRECT_URIS`, existing apps registered in Mastodon are no longer valid, so delete the app record in the database:
 ```
 delete from mastodon_mastodonapplication;
 ```

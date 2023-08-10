@@ -1,42 +1,42 @@
 dateparser
-mistune
-rq>=1.12.0
+discord.py
 django~=4.2.4
-django-auditlog
-django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e69480c64ad9c5d0499f4a8625da78cf2bb7691b
-django-jsonform
-libsass
-django-compressor
-django-sass-processor
-django-rq
-django-simple-history  # no longer used but kept for migration code which is used by tests
-django-auditlog @ git+https://github.com/jazzband/django-auditlog.git@45591463e8192b4ac0095e259cc4dcea0ac2fd6c
-django-hijack
-django-user-messages
-django-slack
-django-ninja
-django-polymorphic
-django-maintenance-mode
-django-tz-detect
-django-bleach
-django-redis
-django-oauth-toolkit
 django-anymail
+django-auditlog
+django-auditlog @ git+https://github.com/jazzband/django-auditlog.git@45591463e8192b4ac0095e259cc4dcea0ac2fd6c
+django-bleach
+django-compressor
+django-hijack
+django-jsonform
+django-maintenance-mode
+django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e69480c64ad9c5d0499f4a8625da78cf2bb7691b
+django-ninja
+django-oauth-toolkit
+django-polymorphic
+django-redis
+django-rq
+django-sass-processor
+django-simple-history  # no longer used but kept for migration code which is used by tests
+django-slack
+django-tz-detect
+django-user-messages
+dnspython
 easy-thumbnails
+filetype
+fontawesomefree
+igdb-api-v4
+libsass
+listparser
+loguru
 lxml
+markdownify
+mistune
+opencc
 openpyxl
+podcastparser
 psycopg2-binary
 requests
-filetype
+rq>=1.12.0
 setproctitle
 tqdm
-opencc
-dnspython
 typesense
-markdownify
-igdb-api-v4
-podcastparser
-listparser
-fontawesomefree
-discord.py
-loguru
