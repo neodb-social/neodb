@@ -1,4 +1,5 @@
 from django.contrib.auth.backends import ModelBackend, UserModel
+
 from .api import verify_account
 
 

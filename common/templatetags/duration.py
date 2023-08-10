@@ -1,7 +1,8 @@
 from django import template
 from django.template.defaultfilters import stringfilter
-from django.utils.text import Truncator
 from django.utils.safestring import mark_safe
+from django.utils.text import Truncator
+
 from catalog.common.models import ItemCategory, item_categories
 from catalog.search.views import visible_categories as _visible_categories
 

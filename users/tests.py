@@ -1,13 +1,13 @@
 from django.test import TestCase
+
 from .models import *
+from .models.user import Block, Follow, Mute
 
 
 class UserTest(TestCase):
     def setUp(self):
-        self.alice = User.objects.create(
-            mastodon_site="MySpace", mastodon_username="Alice"
-        )
-        self.bob = User.objects.create(mastodon_site="KKCity", mastodon_username="Bob")
+        self.alice = User.register(mastodon_site="MySpace", mastodon_username="Alice")
+        self.bob = User.register(mastodon_site="KKCity", mastodon_username="Bob")
 
     def test_local_follow(self):
         self.assertTrue(self.alice.follow(self.bob))

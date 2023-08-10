@@ -1,15 +1,17 @@
 """
 Discogs.
 """
+import json
+import logging
+
+import requests
 from django.conf import settings
+
 from catalog.common import *
 from catalog.models import *
 from catalog.music.utils import upc_to_gtin_13
-from .douban import *
-import json
-import logging
-import requests
 
+from .douban import *
 
 _logger = logging.getLogger(__name__)
 

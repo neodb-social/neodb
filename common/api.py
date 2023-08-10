@@ -1,13 +1,14 @@
-from ninja import NinjaAPI, Schema
-from django.conf import settings
+import logging
 from typing import Any, Callable, List, Optional, Tuple, Type
-from ninja.pagination import PageNumberPagination as NinjaPageNumberPagination
+
+from django.conf import settings
 from django.db.models import QuerySet
+from ninja import NinjaAPI, Schema
+from ninja.pagination import PageNumberPagination as NinjaPageNumberPagination
 from ninja.security import HttpBearer
-from oauthlib.oauth2 import Server
 from oauth2_provider.oauth2_backends import OAuthLibCore
 from oauth2_provider.oauth2_validators import OAuth2Validator
-import logging
+from oauthlib.oauth2 import Server
 
 _logger = logging.getLogger(__name__)
 

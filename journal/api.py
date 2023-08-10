@@ -1,15 +1,17 @@
-from .models import *
-from ninja import Schema
-from common.api import *
-from oauth2_provider.decorators import protected_resource
-from ninja.security import django_auth
-from django.contrib.auth.decorators import login_required
-from catalog.common.models import *
-from typing import List
-from ninja.pagination import paginate
-from ninja import Field
 from datetime import datetime
+from typing import List
+
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from ninja import Field, Schema
+from ninja.pagination import paginate
+from ninja.security import django_auth
+from oauth2_provider.decorators import protected_resource
+
+from catalog.common.models import *
+from common.api import *
+
+from .models import *
 
 
 class MarkSchema(Schema):

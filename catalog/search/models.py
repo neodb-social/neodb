@@ -1,15 +1,17 @@
-import logging
-from django.utils.translation import gettext_lazy as _
-from catalog.common.sites import SiteManager
-from ..models import TVSeason, Item
-from django.conf import settings
-import django_rq
-from rq.job import Job
-from django.core.cache import cache
 import hashlib
-from .typesense import Indexer as TypeSenseIndexer
+import logging
+
+import django_rq
 from auditlog.context import set_actor
+from django.conf import settings
 from django.core.cache import cache
+from django.utils.translation import gettext_lazy as _
+from rq.job import Job
+
+from catalog.common.sites import SiteManager
+
+from ..models import Item, TVSeason
+from .typesense import Indexer as TypeSenseIndexer
 
 # from .meilisearch import Indexer as MeiliSearchIndexer
 

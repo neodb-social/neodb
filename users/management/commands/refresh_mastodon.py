@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from users.tasks import refresh_all_mastodon_data_task
 
 

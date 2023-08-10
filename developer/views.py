@@ -1,23 +1,22 @@
-from django.shortcuts import render
-from loguru import logger
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.forms.models import modelform_factory
+from django.shortcuts import render
 from django.urls import reverse
+from django.utils import timezone
+from loguru import logger
 from oauth2_provider.forms import AllowForm
-from oauth2_provider.models import get_application_model
+from oauth2_provider.generators import generate_client_id, generate_client_secret
+from oauth2_provider.models import AccessToken, RefreshToken, get_application_model
+from oauth2_provider.settings import oauth2_settings
 from oauth2_provider.views import ApplicationRegistration as BaseApplicationRegistration
 from oauth2_provider.views import ApplicationUpdate as BaseApplicationUpdate
 from oauth2_provider.views.base import AuthorizationView as BaseAuthorizationView
-from oauth2_provider.settings import oauth2_settings
-from oauth2_provider.generators import generate_client_id, generate_client_secret
-from common.api import api
 from oauthlib.common import generate_token
-from oauth2_provider.models import AccessToken
-from django.utils import timezone
-from dateutil.relativedelta import relativedelta
-from oauth2_provider.models import RefreshToken
-from django.conf import settings
-from .models import Application
-from django.forms.models import modelform_factory
+
+from common.api import api
+
 from .models import Application
 
 

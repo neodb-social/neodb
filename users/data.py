@@ -1,29 +1,30 @@
+import django_rq
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
-from mastodon.api import *
-from mastodon import mastodon_request_included
-from common.config import *
-from django.conf import settings
-import django_rq
-from .account import *
-from .tasks import *
-from django.contrib import messages
 
-from journal.importers.opml import OPMLImporter
+from common.config import *
+from journal.exporters.doufen import export_marks_task
 from journal.importers.douban import DoubanImporter
 from journal.importers.goodreads import GoodreadsImporter
-from journal.exporters.doufen import export_marks_task
+from journal.importers.opml import OPMLImporter
 from journal.models import reset_journal_visibility_for_user
+from mastodon import mastodon_request_included
+from mastodon.api import *
 from social.models import reset_social_visibility_for_user
+
+from .account import *
+from .tasks import *
 
 
 @mastodon_request_included
 @login_required
 def preferences(request):
-    preference = request.user.get_preference()
+    preference = request.user.preference
     if request.method == "POST":
         preference.default_visibility = int(request.POST.get("default_visibility"))
         preference.default_no_share = bool(request.POST.get("default_no_share"))
@@ -61,8 +62,8 @@ def data(request):
         "users/data.html",
         {
             "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
-            "import_status": request.user.get_preference().import_status,
-            "export_status": request.user.get_preference().export_status,
+            "import_status": request.user.preference.import_status,
+            "export_status": request.user.preference.export_status,
         },
     )
 
@@ -85,7 +86,7 @@ def data_import_status(request):
         request,
         "users/data_import_status.html",
         {
-            "import_status": request.user.get_preference().import_status,
+            "import_status": request.user.preference.import_status,
         },
     )
 

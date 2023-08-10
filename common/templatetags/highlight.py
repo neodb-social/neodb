@@ -1,8 +1,9 @@
-from django import template
-from django.utils.safestring import mark_safe
-from django.template.defaultfilters import stringfilter
-from opencc import OpenCC
 import re
+
+from django import template
+from django.template.defaultfilters import stringfilter
+from django.utils.safestring import mark_safe
+from opencc import OpenCC
 
 cc = OpenCC("t2s")
 register = template.Library()

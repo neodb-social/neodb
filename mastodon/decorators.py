@@ -1,5 +1,6 @@
-from django.http import HttpResponse
 import functools
+
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from requests.exceptions import Timeout

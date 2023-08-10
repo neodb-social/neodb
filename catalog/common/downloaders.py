@@ -1,17 +1,17 @@
-import requests
-import filetype
-from PIL import Image
-from io import BytesIO
-from requests.exceptions import RequestException
-from django.conf import settings
-from pathlib import Path
 import json
-from io import StringIO
+import logging
 import re
 import time
-import logging
-from lxml import html
+from io import BytesIO, StringIO
+from pathlib import Path
 from urllib.parse import quote
+
+import filetype
+import requests
+from django.conf import settings
+from lxml import html
+from PIL import Image
+from requests.exceptions import RequestException
 
 _logger = logging.getLogger(__name__)
 

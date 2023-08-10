@@ -1,24 +1,32 @@
 import logging
-from django.shortcuts import render, get_object_or_404, redirect
+
 from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
-from django.db.models import Count
-from django.core.paginator import Paginator
-from .models import *
-from django.views.decorators.clickjacking import xframe_options_exempt
-from journal.models import Mark, ShelfMember, Review, Comment, query_item_category
-from journal.models import (
-    query_visible,
-    query_following,
-)
-from common.utils import PageLinksGenerator, get_uuid_or_404
-from common.config import PAGE_LINK_NUMBER
-from journal.models import ShelfTypeNames, ShelfType, ItemCategory
-from .forms import *
-from .search.views import *
-from django.http import Http404
 from django.core.cache import cache
+from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
+from django.core.paginator import Paginator
+from django.db.models import Count
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.clickjacking import xframe_options_exempt
+
+from common.config import PAGE_LINK_NUMBER
+from common.utils import PageLinksGenerator, get_uuid_or_404
+from journal.models import (
+    Comment,
+    Mark,
+    Review,
+    ShelfMember,
+    ShelfType,
+    ShelfTypeNames,
+    query_following,
+    query_item_category,
+    query_visible,
+)
+
+from .forms import *
+from .models import *
+from .search.views import *
 from .views_edit import *
 
 _logger = logging.getLogger(__name__)
@@ -205,7 +213,8 @@ def comments_by_episode(request, item_path, item_uuid):
         raise Http404()
     episode_uuid = request.GET.get("episode_uuid")
     if episode_uuid:
-        ids = [TVEpisode.get_by_url(episode_uuid).id]
+        episode = TVEpisode.get_by_url(episode_uuid)
+        ids = [episode.pk] if episode else []
     else:
         ids = item.child_item_ids
     queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
@@ -250,7 +259,7 @@ def discover(request):
         raise BadRequest()
     user = request.user
     if user.is_authenticated:
-        layout = user.get_preference().discover_layout
+        layout = user.preference.discover_layout
     else:
         layout = []
 

@@ -1,21 +1,19 @@
 import copy
 from datetime import date, datetime
-from importlib import import_module
 from functools import partialmethod
-from django.utils.translation import gettext_lazy as _
+from importlib import import_module
 
 import django
 from django.core.exceptions import FieldError
 from django.db.models import fields
 from django.utils import dateparse, timezone
-
-# from django.contrib.postgres.fields import ArrayField as DJANGO_ArrayField
-from django_jsonform.models.fields import ArrayField as DJANGO_ArrayField
+from django.utils.translation import gettext_lazy as _
 
 # from django.db.models import JSONField as DJANGO_JSONField
 # from jsoneditor.fields.django3_jsonfield import JSONField as DJANGO_JSONField
+# from django.contrib.postgres.fields import ArrayField as DJANGO_ArrayField
+from django_jsonform.models.fields import ArrayField as DJANGO_ArrayField
 from django_jsonform.models.fields import JSONField as DJANGO_JSONField
-
 
 __all__ = (
     "BooleanField",

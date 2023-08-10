@@ -1,10 +1,11 @@
 import json
-from catalog.common import *
-from .tmdb import search_tmdb_by_imdb_id
-from catalog.movie.models import *
-from catalog.tv.models import *
 import logging
 
+from catalog.common import *
+from catalog.movie.models import *
+from catalog.tv.models import *
+
+from .tmdb import search_tmdb_by_imdb_id
 
 _logger = logging.getLogger(__name__)
 

@@ -1,9 +1,10 @@
-from catalog.common import *
-from catalog.book.models import *
-from catalog.book.utils import *
-from .douban import *
 import logging
 
+from catalog.book.models import *
+from catalog.book.utils import *
+from catalog.common import *
+
+from .douban import *
 
 _logger = logging.getLogger(__name__)
 

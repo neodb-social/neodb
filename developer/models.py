@@ -1,9 +1,10 @@
-from django.db import models
 from django.core.validators import RegexValidator
+from django.db import models
 from django.utils.translation import gettext_lazy as _
-from oauth2_provider.models import AbstractApplication
 from markdownx.models import MarkdownxField
-from journal.renderers import render_md
+from oauth2_provider.models import AbstractApplication
+
+from journal.models.renderers import render_md
 
 
 class Application(AbstractApplication):

@@ -1,12 +1,13 @@
-from django.utils.timezone import make_aware
-from datetime import datetime
-from catalog.book.models import Edition, Work
-from catalog.common import *
-from catalog.book.utils import detect_isbn_asin
-from lxml import html
 import json
 import logging
+from datetime import datetime
 
+from django.utils.timezone import make_aware
+from lxml import html
+
+from catalog.book.models import Edition, Work
+from catalog.book.utils import detect_isbn_asin
+from catalog.common import *
 
 _logger = logging.getLogger(__name__)
 

@@ -1,12 +1,13 @@
+from django.http import Http404, HttpResponse
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponse
-from django.http import Http404
 from ninja import Schema
+
 from common.api import *
-from .models import *
+
 from .common import *
+from .models import *
+from .search.models import enqueue_fetch, get_fetch_lock, query_index
 from .sites import *
-from .search.models import enqueue_fetch, query_index, get_fetch_lock
 
 
 class SearchResult(Schema):

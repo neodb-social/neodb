@@ -6,14 +6,15 @@ a Site should map to a unique set of url patterns.
 a Site may scrape a url and store result in ResourceContent
 ResourceContent persists as an ExternalResource which may link to an Item
 """
-from typing import Callable
-import re
-from .models import ExternalResource, IdType, IdealIdTypes, Item
-from dataclasses import dataclass, field
-import logging
 import json
+import logging
+import re
+from dataclasses import dataclass, field
+from typing import Callable
+
 import django_rq
 
+from .models import ExternalResource, IdealIdTypes, IdType, Item
 
 _logger = logging.getLogger(__name__)
 
@@ -295,11 +296,6 @@ class SiteManager:
     @staticmethod
     def get_all_sites():
         return SiteManager.register.values()
-
-
-ExternalResource.get_site = lambda resource: SiteManager.get_site_cls_by_id_type(
-    resource.id_type
-)  # type: ignore
 
 
 def crawl_related_resources_task(resource_pk):

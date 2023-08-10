@@ -1,8 +1,10 @@
 from django import forms
-from markdownx.fields import MarkdownxFormField
 from django.utils.translation import gettext_lazy as _
-from .models import *
+from markdownx.fields import MarkdownxFormField
+
 from common.forms import PreviewImageInput
+
+from .models import *
 
 
 class ReviewForm(forms.ModelForm):

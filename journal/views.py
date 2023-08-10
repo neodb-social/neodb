@@ -14,8 +14,9 @@ from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from user_messages import api as msg
 
+from catalog.models import *
 from common.utils import PageLinksGenerator, get_uuid_or_404
-from journal.renderers import convert_leading_space_in_md
+from journal.models.renderers import convert_leading_space_in_md
 from mastodon.api import (
     get_spoiler_text,
     get_status_id_by_url,
@@ -375,13 +376,13 @@ def collection_retrieve(request, collection_uuid):
     if featured_since:
         stats = collection.get_stats_for_user(request.user)
         stats["wishlist_deg"] = (
-            stats["wishlist"] / stats["total"] * 360 if stats["total"] else 0
+            round(stats["wishlist"] / stats["total"] * 360) if stats["total"] else 0
         )
         stats["progress_deg"] = (
-            stats["progress"] / stats["total"] * 360 if stats["total"] else 0
+            round(stats["progress"] / stats["total"] * 360) if stats["total"] else 0
         )
         stats["complete_deg"] = (
-            stats["complete"] / stats["total"] * 360 if stats["total"] else 0
+            round(stats["complete"] / stats["total"] * 360) if stats["total"] else 0
         )
     return render(
         request,
@@ -650,6 +651,8 @@ def review_edit(request, item_uuid, review_uuid=None):
                 mark_date,
                 form.cleaned_data["share_to_mastodon"],
             )
+            if not review:
+                raise BadRequest()
             return redirect(reverse("journal:review_retrieve", args=[review.uuid]))
         else:
             raise BadRequest()
@@ -867,7 +870,7 @@ def profile(request, user_name):
         return render_user_not_found(request)
     if user.mastodon_acct != user_name and user.username != user_name:
         return redirect(user.url)
-    if not request.user.is_authenticated and user.get_preference().no_anonymous_view:
+    if not request.user.is_authenticated and user.preference.no_anonymous_view:
         return render(request, "users/home_anonymous.html", {"user": user})
     if user != request.user and (
         user.is_blocked_by(request.user) or user.is_blocking(request.user)
@@ -936,7 +939,7 @@ def profile(request, user_name):
                 for i in liked_collections.order_by("-edited_time")[:10]
             ],
             "liked_collections_count": liked_collections.count(),
-            "layout": user.get_preference().profile_layout,
+            "layout": user.preference.profile_layout,
         },
     )
 

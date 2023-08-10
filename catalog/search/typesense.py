@@ -1,16 +1,18 @@
-from datetime import timedelta
-import types
 import logging
-import typesense
-from typesense.exceptions import ObjectNotFound
-from typesense.collection import Collection
-from django.conf import settings
-from django.db.models.signals import post_save, post_delete
-from catalog.models import Item
+import types
+from datetime import timedelta
 from pprint import pprint
+
 import django_rq
-from rq.job import Job
+import typesense
+from django.conf import settings
+from django.db.models.signals import post_delete, post_save
 from django_redis import get_redis_connection
+from rq.job import Job
+from typesense.collection import Collection
+from typesense.exceptions import ObjectNotFound
+
+from catalog.models import Item
 
 INDEX_NAME = "catalog"
 SEARCHABLE_ATTRIBUTES = [

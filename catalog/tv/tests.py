@@ -1,7 +1,8 @@
 from django.test import TestCase
+
 from catalog.common import *
-from catalog.tv.models import *
 from catalog.sites.imdb import IMDB
+from catalog.tv.models import *
 
 
 class JSONFieldTestCase(TestCase):

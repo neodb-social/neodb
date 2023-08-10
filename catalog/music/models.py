@@ -1,7 +1,9 @@
 from datetime import date
-from catalog.common.models import *
-from django.utils.translation import gettext_lazy as _
+
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+from catalog.common.models import *
 
 
 class AlbumInSchema(ItemInSchema):

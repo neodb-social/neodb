@@ -1,7 +1,9 @@
 from django import forms
-from .models import Report
 from django.utils.translation import gettext_lazy as _
+
 from common.forms import PreviewImageInput
+
+from .models import Report
 
 
 class ReportForm(forms.ModelForm):

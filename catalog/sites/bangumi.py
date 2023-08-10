@@ -1,7 +1,7 @@
-from catalog.common import *
-from catalog.models import *
 import logging
 
+from catalog.common import *
+from catalog.models import *
 
 _logger = logging.getLogger(__name__)
 

@@ -6,16 +6,27 @@ ActivityManager generates chronological view for user and, in future, ActivitySt
 
 """
 
-from django.db import models
-from users.models import User
-from catalog.common.models import Item
-from journal.models import *
 import logging
 from functools import cached_property
-from django.db.models.signals import post_save, post_delete, pre_delete
-from django.db.models import Q
-from django.conf import settings
 
+from django.conf import settings
+from django.db import models
+from django.db.models import Q
+from django.db.models.signals import post_delete, post_save, pre_delete
+from django.utils import timezone
+
+from catalog.common.models import Item
+from journal.models import (
+    Collection,
+    Comment,
+    FeaturedCollection,
+    Like,
+    Piece,
+    Review,
+    ShelfMember,
+    UserOwnedObjectMixin,
+)
+from users.models import User
 
 _logger = logging.getLogger(__name__)
 

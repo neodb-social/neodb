@@ -1,12 +1,14 @@
-from django.core.management.base import BaseCommand
-from django.conf import settings
-from catalog.models import *
 import pprint
-from django.core.paginator import Paginator
-from tqdm import tqdm
-from time import sleep
 from datetime import timedelta
+from time import sleep
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
 from django.utils import timezone
+from tqdm import tqdm
+
+from catalog.models import *
 
 BATCH_SIZE = 1000
 

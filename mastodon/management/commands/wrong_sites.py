@@ -1,7 +1,8 @@
-from django.core.management.base import BaseCommand
-from mastodon.models import MastodonApplication
 from django.conf import settings
+from django.core.management.base import BaseCommand
+
 from mastodon.api import get_instance_info
+from mastodon.models import MastodonApplication
 from users.models import User
 
 

@@ -1,11 +1,12 @@
+import json
+import logging
+import re
+import urllib.parse
+
+import dateparser
+
 from catalog.common import *
 from catalog.models import *
-import logging
-import urllib.parse
-import dateparser
-import re
-import json
-
 
 _logger = logging.getLogger(__name__)
 

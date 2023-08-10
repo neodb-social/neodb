@@ -52,7 +52,7 @@ API_CREATE_APP = "/api/v1/apps"
 # GET
 API_SEARCH = "/api/v2/search"
 
-USER_AGENT = f"{settings.SITE_INFO['site_name']}/1.0"
+USER_AGENT = f"NeoDB/{settings.NEODB_VERSION} (+{settings.SITE_INFO.get('site_url', 'undefined')})"
 
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
 put = functools.partial(requests.put, timeout=settings.MASTODON_TIMEOUT)
@@ -192,8 +192,8 @@ def detect_server_info(login_domain):
     url = f"https://{login_domain}/api/v1/instance"
     try:
         response = get(url, headers={"User-Agent": USER_AGENT})
-    except:
-        logger.error(f"Error connecting {login_domain}")
+    except Exception as e:
+        logger.error(f"Error connecting {login_domain} {e}")
         raise Exception(f"无法连接 {login_domain}")
     if response.status_code != 200:
         logger.error(f"Error connecting {login_domain}: {response.status_code}")
@@ -354,7 +354,7 @@ def get_visibility(visibility, user):
         return TootVisibilityEnum.DIRECT
     elif visibility == 1:
         return TootVisibilityEnum.PRIVATE
-    elif user.get_preference().mastodon_publish_public:
+    elif user.preference.mastodon_publish_public:
         return TootVisibilityEnum.PUBLIC
     else:
         return TootVisibilityEnum.UNLISTED
@@ -368,16 +368,16 @@ def share_mark(mark):
         visibility = TootVisibilityEnum.DIRECT
     elif mark.visibility == 1:
         visibility = TootVisibilityEnum.PRIVATE
-    elif user.get_preference().mastodon_publish_public:
+    elif user.preference.mastodon_publish_public:
         visibility = TootVisibilityEnum.PUBLIC
     else:
         visibility = TootVisibilityEnum.UNLISTED
     tags = (
         "\n"
-        + user.get_preference().mastodon_append_tag.replace(
+        + user.preference.mastodon_append_tag.replace(
             "[category]", str(ItemCategory(mark.item.category).label)
         )
-        if user.get_preference().mastodon_append_tag
+        if user.preference.mastodon_append_tag
         else ""
     )
     stars = rating_to_emoji(
@@ -416,16 +416,16 @@ def share_review(review):
         visibility = TootVisibilityEnum.DIRECT
     elif review.visibility == 1:
         visibility = TootVisibilityEnum.PRIVATE
-    elif user.get_preference().mastodon_publish_public:
+    elif user.preference.mastodon_publish_public:
         visibility = TootVisibilityEnum.PUBLIC
     else:
         visibility = TootVisibilityEnum.UNLISTED
     tags = (
         "\n"
-        + user.get_preference().mastodon_append_tag.replace(
+        + user.preference.mastodon_append_tag.replace(
             "[category]", str(ItemCategory(review.item.category).label)
         )
-        if user.get_preference().mastodon_append_tag
+        if user.preference.mastodon_append_tag
         else ""
     )
     content = f"发布了关于《{review.item.display_title}》的评论\n{review.title}\n{review.absolute_url}{tags}"
@@ -455,13 +455,13 @@ def share_collection(collection, comment, user, visibility_no):
         visibility = TootVisibilityEnum.DIRECT
     elif visibility_no == 1:
         visibility = TootVisibilityEnum.PRIVATE
-    elif user.get_preference().mastodon_publish_public:
+    elif user.preference.mastodon_publish_public:
         visibility = TootVisibilityEnum.PUBLIC
     else:
         visibility = TootVisibilityEnum.UNLISTED
     tags = (
-        "\n" + user.get_preference().mastodon_append_tag.replace("[category]", "收藏单")
-        if user.get_preference().mastodon_append_tag
+        "\n" + user.preference.mastodon_append_tag.replace("[category]", "收藏单")
+        if user.preference.mastodon_append_tag
         else ""
     )
     user_str = (

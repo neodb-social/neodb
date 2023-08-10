@@ -1,5 +1,7 @@
 import os
 
+NEODB_VERSION = "0.8"
+
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__name__))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)

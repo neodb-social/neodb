@@ -1,8 +1,10 @@
-from django.core.management.base import BaseCommand
-from catalog.common import *
 import re
 from urllib.parse import urljoin
+
+from django.core.management.base import BaseCommand
 from loguru import logger
+
+from catalog.common import *
 
 
 class Command(BaseCommand):

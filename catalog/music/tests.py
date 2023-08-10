@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from catalog.common import *
 from catalog.models import *
 from catalog.music.utils import *

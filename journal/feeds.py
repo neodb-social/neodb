@@ -1,8 +1,11 @@
-from django.contrib.syndication.views import Feed
-from journal.renderers import render_md
 import mimetypes
-from .models import *
+
 from django.conf import settings
+from django.contrib.syndication.views import Feed
+
+from journal.models.renderers import render_md
+
+from .models import *
 
 MAX_ITEM_PER_TYPE = 10
 

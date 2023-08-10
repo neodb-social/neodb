@@ -1,6 +1,8 @@
+import pprint
+
 from django.core.management.base import BaseCommand
 from django.db.models import Count, F
-import pprint
+
 from catalog.models import *
 from journal.models import update_journal_for_merged_item
 

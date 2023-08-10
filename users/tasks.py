@@ -1,9 +1,11 @@
-from django.conf import settings
-from .models import User
 from datetime import timedelta
+
+from django.conf import settings
 from django.utils import timezone
-from tqdm import tqdm
 from loguru import logger
+from tqdm import tqdm
+
+from .models import User
 
 
 def refresh_mastodon_data_task(user_id, token=None):

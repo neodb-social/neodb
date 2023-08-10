@@ -1,29 +1,32 @@
-from functools import cached_property
-from polymorphic.models import PolymorphicModel
-from django.db import models
 import logging
 import re
-from catalog.common import jsondata
-from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.contrib.contenttypes.models import ContentType
-from django.utils.baseconv import base62
 import uuid
+from functools import cached_property
 from typing import cast
-from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
-from .mixins import SoftDeleteMixin
-from django.conf import settings
-from users.models import User
-from django.db import connection
-from ninja import Schema
+
 from auditlog.context import disable_auditlog
-from auditlog.models import LogEntry, AuditlogHistoryField
+from auditlog.models import AuditlogHistoryField, LogEntry
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import connection, models
+from django.utils import timezone
+from django.utils.baseconv import base62
+from django.utils.translation import gettext_lazy as _
+from ninja import Schema
+from polymorphic.models import PolymorphicModel
+
+from catalog.common import jsondata
+from users.models import User
+
+from .mixins import SoftDeleteMixin
+from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
 
 _logger = logging.getLogger(__name__)
 
 
 class SiteName(models.TextChoices):
+    Unknown = "unknown", _("未知站点")
     Douban = "douban", _("豆瓣")
     Goodreads = "goodreads", _("Goodreads")
     GoogleBooks = "googlebooks", _("谷歌图书")
@@ -482,6 +485,35 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     def editable(self):
         return not self.is_deleted and self.merged_to_item is None
 
+    @property
+    def rating(self):
+        from journal.models import Rating
+
+        return Rating.get_rating_for_item(self)
+
+    @property
+    def rating_count(self):
+        from journal.models import Rating
+
+        return Rating.get_rating_count_for_item(self)
+
+    @property
+    def rating_dist(self):
+        from journal.models import Rating
+
+        return Rating.get_rating_distribution_for_item(self)
+
+    @property
+    def tags(self):
+        from journal.models import TagManager
+
+        return TagManager.indexable_tags_for_item(self)
+
+    def journal_exists(self):
+        from journal.models import journal_exists_for_item
+
+        return journal_exists_for_item(self)
+
 
 class ItemLookupId(models.Model):
     item = models.ForeignKey(
@@ -542,12 +574,17 @@ class ExternalResource(models.Model):
         self.save()
 
     def get_site(self):
-        """place holder only, this will be injected from SiteManager"""
-        pass
+        from .sites import SiteManager
+
+        return SiteManager.get_site_cls_by_id_type(self.id_type)
 
     @property
     def site_name(self):
-        return getattr(self.get_site(), "SITE_NAME")
+        try:
+            return self.get_site().SITE_NAME
+        except:
+            _logger.warning(f"Unknown site for {self}")
+            return SiteName.Unknown
 
     def update_content(self, resource_content):
         self.other_lookup_ids = resource_content.lookup_ids

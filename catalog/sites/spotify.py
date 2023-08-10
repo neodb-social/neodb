@@ -1,17 +1,19 @@
 """
 Spotify
 """
+import datetime
+import logging
+import time
+
+import dateparser
+import requests
 from django.conf import settings
+
 from catalog.common import *
 from catalog.models import *
 from catalog.music.utils import upc_to_gtin_13
-from .douban import *
-import time
-import datetime
-import requests
-import dateparser
-import logging
 
+from .douban import *
 
 _logger = logging.getLogger(__name__)
 

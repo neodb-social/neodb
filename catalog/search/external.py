@@ -1,11 +1,13 @@
+import logging
 from urllib.parse import quote_plus
+
+import requests
 from django.conf import settings
+from lxml import html
+
 from catalog.common import *
 from catalog.models import *
 from catalog.sites.spotify import get_spotify_token
-import requests
-from lxml import html
-import logging
 
 SEARCH_PAGE_SIZE = 5  # not all apis support page size
 logger = logging.getLogger(__name__)

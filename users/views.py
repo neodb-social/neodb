@@ -1,18 +1,21 @@
-from django.shortcuts import redirect, render, get_object_or_404
-from django.urls import reverse
-from django.contrib.auth.decorators import login_required
-from django.utils.translation import gettext_lazy as _
-from management.models import Announcement
-from .models import User, Report, Preference
-from .forms import ReportForm
-from mastodon.api import *
-from common.config import *
-from .account import *
-from .data import *
 import json
+
+from discord import SyncWebhook
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import HttpResponseRedirect
-from discord import SyncWebhook
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+
+from common.config import *
+from management.models import Announcement
+from mastodon.api import *
+
+from .account import *
+from .data import *
+from .forms import ReportForm
+from .models import Preference, Report, User
 
 
 def render_user_not_found(request):
@@ -150,7 +153,7 @@ def report(request):
             form.save()
             dw = settings.DISCORD_WEBHOOKS.get("user-report")
             if dw:
-                webhook = SyncWebhook.from_url(dw)
+                webhook = SyncWebhook.from_url(dw)  # type: ignore
                 webhook.send(
                     f"New report from {request.user} about {form.instance.reported_user} : {form.instance.message}"
                 )

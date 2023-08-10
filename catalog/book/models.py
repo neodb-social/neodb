@@ -20,7 +20,9 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from catalog.common.models import *
+
 from .utils import *
 
 

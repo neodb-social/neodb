@@ -1,6 +1,7 @@
-from typing import cast
-import mistune
 import re
+from typing import cast
+
+import mistune
 from django.utils.html import escape
 
 MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.renderers.render_md"

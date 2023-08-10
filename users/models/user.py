@@ -1,24 +1,26 @@
-from functools import cached_property
+import hashlib
 import re
+from functools import cached_property
+from typing import TYPE_CHECKING
+
+from django.contrib.auth.models import AbstractUser
 from django.core import validators
 from django.core.exceptions import ValidationError
-from django.utils.deconstruct import deconstructible
 from django.db import models
-from django.db.models.functions import Lower
-from django.contrib.auth.models import AbstractUser
+from django.db.models import F, Q, Value
+from django.db.models.functions import Concat, Lower
+from django.templatetags.static import static
+from django.urls import reverse
 from django.utils import timezone
-from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
-from common.utils import GenerateDateUUIDMediaFilePath
-from django.conf import settings
+from loguru import logger
+
 from management.models import Announcement
 from mastodon.api import *
-from django.urls import reverse
-from django.db.models import Q, F, Value
-from django.db.models.functions import Concat
-from django.templatetags.static import static
-import hashlib
-from loguru import logger
+
+if TYPE_CHECKING:
+    from .preference import Preference
 
 _RESERVED_USERNAMES = [
     "connect",
@@ -34,8 +36,7 @@ _RESERVED_USERNAMES = [
 class UsernameValidator(validators.RegexValidator):
     regex = r"^[a-zA-Z0-9_]{2,30}$"
     message = _(
-        "Enter a valid username. This value may contain only unaccented lowercase a-z "
-        "and uppercase A-Z letters, numbers, and _ characters."
+        "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
     )
     flags = re.ASCII
 
@@ -43,12 +44,6 @@ class UsernameValidator(validators.RegexValidator):
         if value and value.lower() in _RESERVED_USERNAMES:
             raise ValidationError(self.message, code=self.code)
         return super().__call__(value)
-
-
-def report_image_path(instance, filename):
-    return GenerateDateUUIDMediaFilePath(
-        instance, filename, settings.REPORT_MEDIA_PATH_ROOT
-    )
 
 
 class User(AbstractUser):
@@ -145,6 +140,15 @@ class User(AbstractUser):
                 name="at_least_one_login_method",
             ),
         ]
+
+    @staticmethod
+    def register(**param):
+        from .preference import Preference
+
+        new_user = User(**param)
+        new_user.save()
+        Preference.objects.create(user=new_user)
+        return new_user
 
     @cached_property
     def mastodon_acct(self):
@@ -287,12 +291,6 @@ class User(AbstractUser):
                 self.save()
             return True
         return False
-
-    def get_preference(self):
-        pref = Preference.objects.filter(user=self).first()  # self.preference
-        if not pref:
-            pref = Preference.objects.create(user=self)
-        return pref
 
     def clear(self):
         if self.mastodon_site == "removed" and not self.is_active:
@@ -534,34 +532,23 @@ class User(AbstractUser):
             return None
         return User.objects.filter(**query_kwargs).first()
 
+    @property
+    def tags(self):
+        from journal.models import TagManager
 
-class Preference(models.Model):
-    user = models.OneToOneField(User, models.CASCADE, primary_key=True)
-    profile_layout = models.JSONField(
-        blank=True,
-        default=list,
-    )
-    discover_layout = models.JSONField(
-        blank=True,
-        default=list,
-    )
-    export_status = models.JSONField(
-        blank=True, null=True, encoder=DjangoJSONEncoder, default=dict
-    )
-    import_status = models.JSONField(
-        blank=True, null=True, encoder=DjangoJSONEncoder, default=dict
-    )
-    default_no_share = models.BooleanField(default=False)
-    default_visibility = models.PositiveSmallIntegerField(default=0)
-    classic_homepage = models.PositiveSmallIntegerField(null=False, default=0)
-    mastodon_publish_public = models.BooleanField(null=False, default=False)
-    mastodon_append_tag = models.CharField(max_length=2048, default="")
-    show_last_edit = models.PositiveSmallIntegerField(default=0)
-    no_anonymous_view = models.PositiveSmallIntegerField(default=0)
-    hidden_categories = models.JSONField(default=list)
+        return TagManager.all_tags_for_user(self)
 
-    def __str__(self):
-        return str(self.user)
+    @cached_property
+    def tag_manager(self):
+        from journal.models import TagManager
+
+        return TagManager.get_manager_for_user(self)
+
+    @cached_property
+    def shelf_manager(self):
+        from journal.models import ShelfManager
+
+        return ShelfManager.get_manager_for_user(self)
 
 
 class Follow(models.Model):
@@ -583,20 +570,3 @@ class Mute(models.Model):
     target = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
-
-
-class Report(models.Model):
-    submit_user = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name="sumbitted_reports", null=True
-    )
-    reported_user = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name="accused_reports", null=True
-    )
-    image = models.ImageField(
-        upload_to=report_image_path,
-        blank=True,
-        default="",
-    )
-    is_read = models.BooleanField(default=False)
-    submitted_time = models.DateTimeField(auto_now_add=True)
-    message = models.CharField(max_length=1000)

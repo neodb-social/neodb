@@ -1,5 +1,7 @@
-from django.core.management.base import BaseCommand
 import pprint
+
+from django.core.management.base import BaseCommand
+
 from catalog.common import SiteManager
 from catalog.sites import *
 

@@ -1,7 +1,9 @@
-from django.core.management.base import BaseCommand
-from users.models import User
 from datetime import timedelta
+
+from django.core.management.base import BaseCommand
 from django.utils import timezone
+
+from users.models import User
 
 
 class Command(BaseCommand):

@@ -1,7 +1,8 @@
 from ninja import Schema
-from common.api import *
-from oauth2_provider.decorators import protected_resource
 from ninja.security import django_auth
+from oauth2_provider.decorators import protected_resource
+
+from common.api import *
 
 
 class UserSchema(Schema):

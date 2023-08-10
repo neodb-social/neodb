@@ -1,7 +1,7 @@
 from django.test import TestCase
-from catalog.podcast.models import *
-from catalog.common import *
 
+from catalog.common import *
+from catalog.podcast.models import *
 
 # class ApplePodcastTestCase(TestCase):
 #     def setUp(self):

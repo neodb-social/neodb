@@ -1,11 +1,13 @@
-from django.core.management.base import BaseCommand
-from django.core.cache import cache
-from catalog.models import *
-from journal.models import ShelfMember, query_item_category, ItemCategory, Comment
 from datetime import timedelta
-from django.utils import timezone
+
+from django.core.cache import cache
+from django.core.management.base import BaseCommand
 from django.db.models import Count, F
+from django.utils import timezone
 from loguru import logger
+
+from catalog.models import *
+from journal.models import Comment, ItemCategory, ShelfMember, query_item_category
 
 MAX_ITEMS_PER_PERIOD = 12
 MIN_MARKS = 2

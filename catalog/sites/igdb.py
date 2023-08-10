@@ -4,15 +4,16 @@ IGDB
 use (e.g. "portal-2") as id, which is different from real id in IGDB API
 """
 
-from catalog.common import *
-from catalog.models import *
-from django.conf import settings
-from igdb.wrapper import IGDBWrapper
-import requests
 import datetime
 import json
 import logging
 
+import requests
+from django.conf import settings
+from igdb.wrapper import IGDBWrapper
+
+from catalog.common import *
+from catalog.models import *
 
 _logger = logging.getLogger(__name__)
 

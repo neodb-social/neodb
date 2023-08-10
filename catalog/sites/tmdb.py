@@ -2,14 +2,16 @@
 The Movie Database
 """
 
+import logging
 import re
+
 from django.conf import settings
+
 from catalog.common import *
-from .douban import *
 from catalog.movie.models import *
 from catalog.tv.models import *
-import logging
 
+from .douban import *
 
 _logger = logging.getLogger(__name__)
 

@@ -1,15 +1,17 @@
-from django.core.management.base import BaseCommand
+import pprint
+from datetime import timedelta
+from time import sleep
+
 from django.conf import settings
+from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
+from django.utils import timezone
+from loguru import logger
+from tqdm import tqdm
+
 from catalog.common.models import IdType
 from catalog.models import *
 from catalog.sites import RSS
-import pprint
-from django.core.paginator import Paginator
-from tqdm import tqdm
-from time import sleep
-from datetime import timedelta
-from django.utils import timezone
-from loguru import logger
 
 
 class Command(BaseCommand):

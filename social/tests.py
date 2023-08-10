@@ -1,8 +1,10 @@
 from django.test import TestCase
+
 from catalog.models import *
 from journal.models import *
-from .models import *
 from users.models import User
+
+from .models import *
 
 
 class SocialTest(TestCase):
@@ -10,10 +12,8 @@ class SocialTest(TestCase):
         self.book1 = Edition.objects.create(title="Hyperion")
         self.book2 = Edition.objects.create(title="Andymion")
         self.movie = Edition.objects.create(title="Fight Club")
-        self.alice = User.objects.create(
-            mastodon_site="MySpace", mastodon_username="Alice"
-        )
-        self.bob = User.objects.create(mastodon_site="KKCity", mastodon_username="Bob")
+        self.alice = User.register(mastodon_site="MySpace", mastodon_username="Alice")
+        self.bob = User.register(mastodon_site="KKCity", mastodon_username="Bob")
 
     def test_timeline(self):
         # alice see 0 activity in timeline in the beginning

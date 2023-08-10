@@ -1,6 +1,6 @@
 import re
-from catalog.common import *
 
+from catalog.common import *
 
 RE_NUMBERS = re.compile(r"\d+\d*")
 RE_WHITESPACES = re.compile(r"\s+")

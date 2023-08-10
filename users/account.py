@@ -1,32 +1,32 @@
-from django.shortcuts import redirect, render, get_object_or_404
-from django.urls import reverse
-from django.contrib.auth.decorators import login_required
-from django.contrib import auth
-from django.contrib.auth import authenticate
-from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ObjectDoesNotExist, BadRequest
-from django.db.models import Count
-from .models import User, Preference
-from mastodon.api import *
-from mastodon import mastodon_request_included
-from common.config import *
-from mastodon.api import verify_account
-from django.conf import settings
-from urllib.parse import quote
-import django_rq
-from .tasks import *
 from datetime import timedelta
-from django.utils import timezone
-from django.contrib import messages
-from journal.models import remove_data_by_user
-from django.db.models import Q
-from django.core.cache import cache
-from django.db.models import Count
+from urllib.parse import quote
+
+import django_rq
 from django import forms
-from django.core.signing import TimestampSigner
+from django.conf import settings
+from django.contrib import auth, messages
+from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
+from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.core.mail import send_mail
-from loguru import logger
+from django.core.signing import TimestampSigner
 from django.core.validators import EmailValidator
+from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from loguru import logger
+
+from common.config import *
+from journal.models import remove_data_by_user
+from mastodon import mastodon_request_included
+from mastodon.api import *
+from mastodon.api import verify_account
+
+from .models import Preference, User
+from .tasks import *
 
 
 # the 'login' page that user can see
@@ -193,9 +193,7 @@ def OAuth2_login(request):
 
 
 def register_new_user(request, **param):
-    new_user = User(**param)
-    new_user.save()
-    Preference.objects.create(user=new_user)
+    new_user = User.register(**param)
     request.session["new_user"] = True
     auth_login(request, new_user)
     return redirect(reverse("users:register"))

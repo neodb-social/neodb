@@ -1,9 +1,10 @@
 from django.contrib import admin
-from .models import *
-from .api import create_app
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from requests.exceptions import Timeout
-from django.core.exceptions import ObjectDoesNotExist
+
+from .api import create_app
+from .models import *
 
 
 # Register your models here.
