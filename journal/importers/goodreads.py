@@ -3,6 +3,7 @@ from datetime import datetime
 
 import django_rq
 from auditlog.context import set_actor
+from django.utils import timezone
 from django.utils.timezone import make_aware
 from user_messages import api as msg
 
@@ -45,12 +46,12 @@ class GoodreadsImporter:
         total = 0
         visibility = user.preference.default_visibility
         with set_actor(user):
-            if match_list or match_shelf:
-                shelf = (
-                    cls.parse_shelf(match_shelf[0], user)
-                    if match_shelf
-                    else cls.parse_list(match_list[0], user)
-                )
+            shelf = None
+            if match_shelf:
+                shelf = cls.parse_shelf(match_shelf[0], user)
+            elif match_list:
+                shelf = cls.parse_list(match_list[0], user)
+            if shelf:
                 if shelf["title"] and shelf["books"]:
                     collection = Collection.objects.create(
                         title=shelf["title"],
@@ -119,7 +120,7 @@ class GoodreadsImporter:
     @classmethod
     def parse_shelf(cls, url, user):
         # return {'title': 'abc', books: [{'book': obj, 'rating': 10, 'review': 'txt'}, ...]}
-        title = None
+        title = ""
         books = []
         url_shelf = url + "&view=table"
         while url_shelf:
@@ -205,7 +206,7 @@ class GoodreadsImporter:
                     pass  # likely just download error
             next_elem = content.xpath("//a[@class='next_page']/@href")
             url_shelf = (
-                f"https://www.goodreads.com{next_elem[0].strip()}"
+                f"https://www.goodreads.com{next_elem[0].strip()}"  # type:ignore
                 if next_elem
                 else None
             )
@@ -214,8 +215,8 @@ class GoodreadsImporter:
     @classmethod
     def parse_list(cls, url, user):
         # return {'title': 'abc', books: [{'book': obj, 'rating': 10, 'review': 'txt'}, ...]}
-        title = None
-        description = None
+        title = ""
+        description = ""
         books = []
         url_shelf = url
         while url_shelf:
@@ -225,10 +226,12 @@ class GoodreadsImporter:
             if not title_elem:
                 print(f"List parsing error {url_shelf}")
                 break
-            title = title_elem[0].strip()
-            description = content.xpath('//div[@class="mediumText"]/text()')[0].strip()
+            title: str = title_elem[0].strip()  # type:ignore
+            desc_elem = content.xpath('//div[@class="mediumText"]/text()')
+            description: str = desc_elem[0].strip()  # type:ignore
             print("List title: " + title)
-            for link in content.xpath('//a[@class="bookTitle"]/@href'):
+            links = content.xpath('//a[@class="bookTitle"]/@href')
+            for link in links:  # type:ignore
                 url_book = "https://www.goodreads.com" + link
                 try:
                     book = cls.get_book(url_book, user)
@@ -244,7 +247,7 @@ class GoodreadsImporter:
                     pass  # likely just download error
             next_elem = content.xpath("//a[@class='next_page']/@href")
             url_shelf = (
-                ("https://www.goodreads.com" + next_elem[0].strip())
+                f"https://www.goodreads.com{next_elem[0].strip()}"  # type:ignore
                 if next_elem
                 else None
             )

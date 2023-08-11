@@ -98,6 +98,10 @@ class AbstractSite:
     def scrape_additional_data(self):
         pass
 
+    @staticmethod
+    def query_str(content, query: str) -> str:
+        return content.xpath(query)[0].strip()
+
     @classmethod
     def get_model_for_resource(cls, resource):
         model = resource.get_preferred_model()

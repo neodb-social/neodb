@@ -53,8 +53,7 @@ class Goodreads(AbstractSite):
             h = dl.download().html()
         # Next.JS version of GoodReads
         # JSON.parse(document.getElementById('__NEXT_DATA__').innerHTML)['props']['pageProps']['apolloState']
-        elem = h.xpath('//script[@id="__NEXT_DATA__"]/text()')
-        src = elem[0].strip() if elem else None
+        src = self.query_str(h, '//script[@id="__NEXT_DATA__"]/text()')
         if not src:
             raise ParseError(self, "__NEXT_DATA__ element")
         d = json.loads(src)["props"]["pageProps"]["apolloState"]
@@ -134,16 +133,14 @@ class Goodreads_Work(AbstractSite):
 
     def scrape(self, response=None):
         content = BasicDownloader(self.url).download().html()
-        title_elem = content.xpath("//h1/a/text()")
-        title = title_elem[0].strip() if title_elem else None
+        title = self.query_str(content, "//h1/a/text()")
         if not title:
             raise ParseError(self, "title")
-        author_elem = content.xpath("//h2/a/text()")
-        author = author_elem[0].strip() if author_elem else None
-        first_published_elem = content.xpath("//h2/span/text()")
-        first_published = (
-            first_published_elem[0].strip() if first_published_elem else None
-        )
+        author = self.query_str(content, "//h2/a/text()")
+        try:
+            first_published = self.query_str(content, "//h2/span/text()")
+        except:
+            first_published = None
         pd = ResourceContent(
             metadata={
                 "title": title,

@@ -68,8 +68,8 @@ class Spotify(AbstractSite):
             else:
                 track_list.append(str(track["track_number"]) + ". " + track["name"])
         track_list = "\n".join(track_list)
-
-        release_date = dateparser.parse(res_data["release_date"]).strftime("%Y-%m-%d")
+        dt = dateparser.parse(res_data["release_date"])
+        release_date = dt.strftime("%Y-%m-%d") if dt else None
 
         gtin = None
         if res_data["external_ids"].get("upc"):

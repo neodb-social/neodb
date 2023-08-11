@@ -57,11 +57,16 @@ class IMDB(AbstractSite):
             season_number = res_data["tv_episode_results"][0]["season_number"]
             episode_number = res_data["tv_episode_results"][0]["episode_number"]
             url = f"https://www.themoviedb.org/tv/{tv_id}/season/{season_number}/episode/{episode_number}"
+        pd = None
         if url:
             tmdb = SiteManager.get_site_by_url(url)
-            pd = tmdb.scrape()
-            pd.metadata["preferred_model"] = tmdb.DEFAULT_MODEL.__name__
-            pd.metadata["required_resources"] = []  # do not auto fetch parent season
+            if tmdb:
+                pd = tmdb.scrape()
+                pd.metadata["preferred_model"] = (
+                    tmdb.DEFAULT_MODEL.__name__ if tmdb.DEFAULT_MODEL else None
+                )
+                # do not auto fetch parent season
+                pd.metadata["required_resources"] = []
         if not pd:
             # if IMDB id not found in TMDB, use real IMDB scraper
             pd = self.scrape_imdb()
@@ -69,8 +74,7 @@ class IMDB(AbstractSite):
 
     def scrape_imdb(self):
         h = BasicDownloader(self.url).download().html()
-        elem = h.xpath('//script[@id="__NEXT_DATA__"]/text()')
-        src = elem[0].strip() if elem else None
+        src = self.query_str(h, '//script[@id="__NEXT_DATA__"]/text()')
         if not src:
             raise ParseError(self, "__NEXT_DATA__ element")
         d = json.loads(src)["props"]["pageProps"]["aboveTheFoldData"]
@@ -120,15 +124,14 @@ class IMDB(AbstractSite):
     def get_episode_list(show_id, season_id):
         url = f"https://m.imdb.com/title/{show_id}/"
         h = BasicDownloader(url).download().html()
-        show_url = "".join(
-            h.xpath('//a[@data-testid="hero-title-block__series-link"]/@href')
-        ).split("?")[0]
+        u: str = h.xpath('//a[@data-testid="hero-title-block__series-link"]/@href')  # type: ignore
+        show_url = "".join(u).split("?")[0]
         if not show_url:
             show_url = f"/title/{show_id}/"
         url = f"https://m.imdb.com{show_url}episodes/?season={season_id}"
         h = BasicDownloader(url).download().html()
         episodes = []
-        for e in h.xpath('//div[@id="eplist"]/div/a'):
+        for e in h.xpath('//div[@id="eplist"]/div/a'):  # type: ignore
             episode_number = e.xpath(
                 './span[contains(@class,"episode-list__title")]/text()'
             )[0].strip()
@@ -166,9 +169,12 @@ class IMDB(AbstractSite):
                 ).first()
                 if not episode:
                     site = SiteManager.get_site_by_url(e["url"])
-                    episode = site.get_resource_ready().item
-                    episode.set_parent_item(season)
-                    episode.save()
+                    if site:
+                        res = site.get_resource_ready()
+                        if res and res.item:
+                            episode = res.item
+                            episode.set_parent_item(season)
+                            episode.save()
         else:
             _logger.warning(f"season {season} has no episodes fetched, creating dummy")
             cnt = int(season.episode_count or 0)

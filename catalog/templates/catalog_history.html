@@ -60,7 +60,11 @@
                   <td>{{ value.1|default:"-" }}</td>
                 </tr>
               {% empty %}
-                <p>No data.</p>
+                <tr>
+                  <td>-</td>
+                  <td></td>
+                  <td></td>
+                </tr>
               {% endfor %}
             {% empty %}
               <p>No history for this item has been logged yet.</p>

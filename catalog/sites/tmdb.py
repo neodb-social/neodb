@@ -44,7 +44,7 @@ class TMDB_Movie(AbstractSite):
     DEFAULT_MODEL = Movie
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return f"https://www.themoviedb.org/movie/{id_value}"
 
     def scrape(self):
@@ -178,7 +178,7 @@ class TMDB_TV(AbstractSite):
     DEFAULT_MODEL = TVShow
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return f"https://www.themoviedb.org/tv/{id_value}"
 
     def scrape(self):
@@ -338,6 +338,8 @@ class TMDB_TVSeason(AbstractSite):
         return f"https://www.themoviedb.org/tv/{v[0]}/season/{v[1]}"
 
     def scrape(self):
+        if not self.id_value:
+            raise ParseError(self, "id_value")
         v = self.id_value.split("-")
         show_id = v[0]
         season_id = v[1]
@@ -346,7 +348,7 @@ class TMDB_TVSeason(AbstractSite):
         api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
         d = BasicDownloader(api_url).download().json()
         if not d.get("id"):
-            raise ParseError("id")
+            raise ParseError(self, "id")
         pd = ResourceContent(
             metadata=_copy_dict(
                 d,
@@ -401,12 +403,14 @@ class TMDB_TVSeason(AbstractSite):
             # this should not happen
             _logger.warning("Unexpected IMDB id for TMDB tv season")
         elif pd.metadata.get("season_number") == 1:
-            res = SiteManager.get_site_by_url(
+            site = SiteManager.get_site_by_url(
                 f"https://www.themoviedb.org/tv/{show_id}"
-            ).get_resource_ready()
-            pd.lookup_ids[IdType.IMDB] = (
-                res.other_lookup_ids.get(IdType.IMDB) if res else None
             )
+            if site:
+                res = site.get_resource_ready()
+                pd.lookup_ids[IdType.IMDB] = (
+                    res.other_lookup_ids.get(IdType.IMDB) if res else None
+                )
         elif len(pd.metadata["episode_number_list"]) == 0:
             _logger.warning(
                 "Unable to lookup IMDB id for TMDB tv season with zero episodes"
@@ -416,7 +420,7 @@ class TMDB_TVSeason(AbstractSite):
             api_url2 = f"https://api.themoviedb.org/3/tv/{v[0]}/season/{v[1]}/episode/{ep}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
             d2 = BasicDownloader(api_url2).download().json()
             if not d2.get("id"):
-                raise ParseError("first episode id for season")
+                raise ParseError(self, "first episode id for season")
             pd.lookup_ids[IdType.IMDB] = d2["external_ids"].get("imdb_id")
         return pd
 
@@ -445,6 +449,8 @@ class TMDB_TVEpisode(AbstractSite):
         return f"https://www.themoviedb.org/tv/{v[0]}/season/{v[1]}/episode/{v[2]}"
 
     def scrape(self):
+        if not self.id_value:
+            raise ParseError(self, "id_value")
         v = self.id_value.split("-")
         show_id = v[0]
         season_id = v[1]
@@ -454,7 +460,7 @@ class TMDB_TVEpisode(AbstractSite):
         api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}/episode/{episode_id}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
         d = BasicDownloader(api_url).download().json()
         if not d.get("id"):
-            raise ParseError("id")
+            raise ParseError(self, "id")
         pd = ResourceContent(
             metadata=_copy_dict(
                 d,

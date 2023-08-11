@@ -1,5 +1,5 @@
 [tool.pyright]
-exclude = [ "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/importers", "**/sites" ]
+exclude = [ "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/sites/douban_*" ]
 
 [tool.djlint]
 ignore="T002,T003,H006,H019,H020,H021,H023,H030,H031"

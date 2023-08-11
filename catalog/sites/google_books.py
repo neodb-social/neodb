@@ -20,7 +20,7 @@ class GoogleBooks(AbstractSite):
     DEFAULT_MODEL = Edition
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://books.google.com/books?id=" + id_value
 
     def scrape(self):

@@ -57,7 +57,8 @@ class AppleMusic(AbstractSite):
         if content is None:
             raise ParseError(self, f"localized content for {self.url}")
         elem = content.xpath("//script[@id='serialized-server-data']/text()")
-        page_data = json.loads(elem[0])[0]
+        txt: str = elem[0]  # type:ignore
+        page_data = json.loads(txt)[0]
         album_data = page_data["data"]["sections"][0]["items"][0]
         title = album_data["title"]
         brief = album_data.get("modalPresentationDescriptor")
@@ -67,11 +68,11 @@ class AppleMusic(AbstractSite):
 
         track_data = page_data["data"]["seoData"]
         date_elem = track_data.get("musicReleaseDate")
+        release_datetime = dateparser.parse(date_elem.strip()) if date_elem else None
         release_date = (
-            dateparser.parse(date_elem.strip()).strftime("%Y-%m-%d")
-            if date_elem
-            else None
+            release_datetime.strftime("%Y-%m-%d") if release_datetime else None
         )
+
         track_list = [
             f"{i}. {track['attributes']['name']}"
             for i, track in enumerate(track_data["ogSongs"], 1)
@@ -87,7 +88,10 @@ class AppleMusic(AbstractSite):
                 genre[0]
             ]  # apple treat "Music" as a genre. Thus, only the first genre is obtained.
 
-        image_elem = content.xpath("//source[@type='image/jpeg']/@srcset")[0]
+        images = (
+            content.xpath("//source[@type='image/jpeg']/@srcset") if content else []
+        )
+        image_elem: str = images[0] if images else ""  # type:ignore
         image_url = image_elem.split(" ")[0] if image_elem else None
 
         pd = ResourceContent(

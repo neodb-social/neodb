@@ -61,7 +61,7 @@ class IGDB(AbstractSite):
         if get_mock_mode():
             r = BasicDownloader(key).download().json()
         else:
-            r = json.loads(_wrapper.api_request(p, q))
+            r = json.loads(_wrapper.api_request(p, q))  # type: ignore
             if settings.DOWNLOADER_SAVEDIR:
                 with open(
                     settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(key),
