@@ -14,9 +14,6 @@ This is a very basic guide with limited detail, contributions welcomed
   - [3 Migrate from an earlier version](#3-migrate-from-an-earlier-version)
   - [4 Add Cron Jobs (optional)](#4-add-cron-jobs-optional)
   - [5 Index and Search (optional)](#5-index-and-search-optional)
-  - [6 Other maintenance tasks (optional)](#6-other-maintenance-tasks-optional)
-  - [7 Frequently Asked Questions](#7-frequently-asked-questions)
-    - [I got Error: “无效的登录回调地址”.](#i-got-error-无效的登录回调地址)
 
 0 Run in Docker
 ---------------
@@ -70,17 +67,18 @@ pdm install
 
 Quick check
 ```
-pdm check
+pdm run manage.py check
 ```
 
 Initialize database
 ```
-pdm dbmigrate
+pdm run manage.py migrate
 ```
 
 Build static assets (production only)
 ```
-pdm build_static
+pdm run manage.py compilescss
+pdm run manage.py collectstatic
 ```
 
 2 Start services
@@ -90,12 +88,12 @@ Make sure PostgreSQL and Redis are running
 Start job queue server
 ```
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES  # required and only for macOS, otherwise it may crash
-pdm rqworker
+pdm run manage.py rqworker --with-scheduler import export mastodon fetch crawl
 ```
 
 Run web server in dev mode
 ```
-pdm dev
+pdm run manage.py runserver
 ```
 
 It should be ready to serve from here, to run web server for production, consider `gunicorn -w 8 boofilsic.wsgi` in systemd or sth similar.
@@ -107,7 +105,7 @@ To show all available tasks, you can run `pdm run --list`.
 -------------------------------
 Update database
 ```
-pdm dbmigrate
+pdm run manage.py migrate
 ```
 
 Rebuild static assets
@@ -124,8 +122,8 @@ add `pdm run python manage.py refresh_mastodon` to crontab to run hourly, it wil
 
 Build initial index, it may take a few minutes or hours depending on the data size.
 ```
-pdm create-index
-```
+pdm run manage.py index --init
+pdm run manage.py index --reindex```
 
 6 Other maintenance tasks (optional)
 -----------------------

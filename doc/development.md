@@ -47,7 +47,7 @@ Refer to the [PDM documentation](https://pdm.fming.dev/latest/usage/dependency) 
 
 Run Test
 --------
-`pdm test` will run the tests
+`pdm run manage.py test` will run the tests
 
 Alternative you may create the test database from freshly created database:
 ```
@@ -55,7 +55,7 @@ CREATE DATABASE test_neodb WITH TEMPLATE neodb;
 ```
 and run the test without re-create it every time
 ```
-$ pdm test --keepdb
+$ pdm run manage.py test --keepdb
 
 Using existing test database for alias 'default'...
 System check identified no issues (2 silenced).
