@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from openpyxl import Workbook
 
-from catalog.common.models import IdType
+from catalog.models import *
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import *
 

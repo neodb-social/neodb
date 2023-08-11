@@ -1,3 +1,9 @@
+from typing import TYPE_CHECKING, Type
+
+if TYPE_CHECKING:
+    from .common import Piece
+
+
 class UserOwnedObjectMixin:
     """
     UserOwnedObjectMixin
@@ -7,7 +13,7 @@ class UserOwnedObjectMixin:
     visibility = models.PositiveSmallIntegerField(default=0)
     """
 
-    def is_visible_to(self, viewer):
+    def is_visible_to(self: "Piece", viewer):  # type: ignore
         owner = self.owner
         if owner == viewer:
             return True
@@ -24,13 +30,13 @@ class UserOwnedObjectMixin:
         else:
             return True
 
-    def is_editable_by(self, viewer):
+    def is_editable_by(self: "Piece", viewer):  # type: ignore
         return viewer.is_authenticated and (
             viewer.is_staff or viewer.is_superuser or viewer == self.owner
         )
 
     @classmethod
-    def get_available(cls, entity, request_user, following_only=False):
+    def get_available(cls: "Type[Piece]", entity, request_user, following_only=False):  # type: ignore
         # e.g. SongMark.get_available(song, request.user)
         query_kwargs = {entity.__class__.__name__.lower(): entity}
         all_entities = cls.objects.filter(**query_kwargs).order_by(

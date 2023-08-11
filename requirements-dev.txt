@@ -1,8 +1,8 @@
 black~=22.12.0
 coverage
 django-debug-toolbar
+django-stubs
 djlint~=1.32.1
 isort~=5.12.0
-pre-commit~=3.3.3
-types-dateparser
-types-tqdm
+pre-commit
+pyright

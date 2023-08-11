@@ -37,3 +37,11 @@ repos:
     hooks:
       - id: djlint-reformat-django
       - id: djlint-django
+
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: python -m pyright
+        language: system
+        pass_filenames: false

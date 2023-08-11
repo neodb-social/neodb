@@ -13,6 +13,7 @@ from .common import (
 from .like import Like
 from .mark import Mark
 from .rating import Rating
+from .renderers import render_md
 from .review import Review
 from .shelf import (
     Shelf,

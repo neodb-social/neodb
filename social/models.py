@@ -81,10 +81,6 @@ class ActivityManager:
         return ActivityManager(user)
 
 
-User.activity_manager = cached_property(ActivityManager.get_manager_for_user)  # type: ignore
-User.activity_manager.__set_name__(User, "activity_manager")  # type: ignore
-
-
 class DataSignalManager:
     processors = {}
 

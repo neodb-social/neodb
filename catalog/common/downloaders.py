@@ -4,6 +4,7 @@ import re
 import time
 from io import BytesIO, StringIO
 from pathlib import Path
+from typing import Tuple
 from urllib.parse import quote
 
 import filetype
@@ -11,6 +12,7 @@ import requests
 from django.conf import settings
 from lxml import html
 from PIL import Image
+from requests import Response
 from requests.exceptions import RequestException
 
 _logger = logging.getLogger(__name__)
@@ -50,6 +52,53 @@ def get_mock_file(url):
     if len(fn) > 255:
         fn = fn[:255]
     return fn
+
+
+_local_response_path = (
+    str(Path(__file__).parent.parent.parent.absolute()) + "/test_data/"
+)
+
+
+class MockResponse:
+    def __init__(self, url):
+        self.url = url
+        fn = _local_response_path + get_mock_file(url)
+        try:
+            self.content = Path(fn).read_bytes()
+            self.status_code = 200
+            _logger.debug(f"use local response for {url} from {fn}")
+        except Exception:
+            self.content = b"Error: response file not found"
+            self.status_code = 404
+            _logger.debug(f"local response not found for {url} at {fn}")
+
+    @property
+    def text(self):
+        return self.content.decode("utf-8")
+
+    def json(self):
+        return json.load(StringIO(self.text))
+
+    def html(self):
+        return html.fromstring(  # may throw exception unexpectedly due to OS bug, see https://github.com/neodb-social/neodb/issues/5
+            self.content.decode("utf-8")
+        )
+
+    @property
+    def headers(self):
+        return {
+            "Content-Type": "image/jpeg" if self.url.endswith("jpg") else "text/html"
+        }
+
+
+requests.Response.html = MockResponse.html  # type:ignore
+
+
+class DownloaderResponse(Response):
+    def html(self):
+        return html.fromstring(  # may throw exception unexpectedly due to OS bug, see https://github.com/neodb-social/neodb/issues/5
+            self.content.decode("utf-8")
+        )
 
 
 class DownloadError(Exception):
@@ -101,7 +150,7 @@ class BasicDownloader:
         else:
             return RESPONSE_INVALID_CONTENT
 
-    def _download(self, url):
+    def _download(self, url) -> Tuple[DownloaderResponse | MockResponse, int]:
         try:
             if not _mock_mode:
                 # TODO cache = get/set from redis
@@ -125,12 +174,12 @@ class BasicDownloader:
                 {"response_type": response_type, "url": url, "exception": None}
             )
 
-            return resp, response_type
+            return resp, response_type  # type: ignore
         except RequestException as e:
             self.logs.append(
                 {"response_type": RESPONSE_NETWORK_ERROR, "url": url, "exception": e}
             )
-            return None, RESPONSE_NETWORK_ERROR
+            return None, RESPONSE_NETWORK_ERROR  # type: ignore
 
     def download(self):
         resp, self.response_type = self._download(self.url)
@@ -209,9 +258,10 @@ class RetryDownloader(BasicDownloader):
 
 class ImageDownloaderMixin:
     def __init__(self, url, referer=None):
+        self.extention = None
         if referer is not None:
-            self.headers["Referer"] = referer
-        super().__init__(url)
+            self.headers["Referer"] = referer  # type: ignore
+        super().__init__(url)  # type: ignore
 
     def validate_response(self, response):
         if response and response.status_code == 200:
@@ -236,12 +286,12 @@ class ImageDownloaderMixin:
 
     @classmethod
     def download_image(cls, image_url, page_url, headers=None):
-        imgdl = cls(image_url, page_url)
+        imgdl: BasicDownloader = cls(image_url, page_url)  # type:ignore
         if headers is not None:
             imgdl.headers = headers
         try:
             image = imgdl.download().content
-            image_extention = imgdl.extention
+            image_extention = imgdl.extention  # type:ignore
             return image, image_extention
         except Exception:
             return None, None
@@ -253,43 +303,3 @@ class BasicImageDownloader(ImageDownloaderMixin, BasicDownloader):
 
 class ProxiedImageDownloader(ImageDownloaderMixin, ProxiedDownloader):
     pass
-
-
-_local_response_path = (
-    str(Path(__file__).parent.parent.parent.absolute()) + "/test_data/"
-)
-
-
-class MockResponse:
-    def __init__(self, url):
-        self.url = url
-        fn = _local_response_path + get_mock_file(url)
-        try:
-            self.content = Path(fn).read_bytes()
-            self.status_code = 200
-            _logger.debug(f"use local response for {url} from {fn}")
-        except Exception:
-            self.content = b"Error: response file not found"
-            self.status_code = 404
-            _logger.debug(f"local response not found for {url} at {fn}")
-
-    @property
-    def text(self):
-        return self.content.decode("utf-8")
-
-    def json(self):
-        return json.load(StringIO(self.text))
-
-    def html(self):
-        return html.fromstring(  # may throw exception unexpectedly due to OS bug, see https://github.com/neodb-social/neodb/issues/5
-            self.content.decode("utf-8")
-        )
-
-    @property
-    def headers(self):
-        return {
-            "Content-Type": "image/jpeg" if self.url.endswith("jpg") else "text/html"
-        }
-
-
-requests.Response.html = MockResponse.html

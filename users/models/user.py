@@ -4,6 +4,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -33,7 +34,7 @@ _RESERVED_USERNAMES = [
 
 
 @deconstructible
-class UsernameValidator(validators.RegexValidator):
+class UsernameValidator(UnicodeUsernameValidator):
     regex = r"^[a-zA-Z0-9_]{2,30}$"
     message = _(
         "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
@@ -549,6 +550,12 @@ class User(AbstractUser):
         from journal.models import ShelfManager
 
         return ShelfManager.get_manager_for_user(self)
+
+    @cached_property
+    def activity_manager(self):
+        from social.models import ActivityManager
+
+        return ActivityManager.get_manager_for_user(self)
 
 
 class Follow(models.Model):

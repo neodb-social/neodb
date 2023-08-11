@@ -108,12 +108,15 @@ class GoodreadsImporter:
     @classmethod
     def get_book(cls, url, user):
         site = SiteManager.get_site_by_url(url)
-        book = site.get_item()
-        if not book:
-            book = site.get_resource_ready().item
-            book.last_editor = user
-            book.save()
-        return book
+        if site:
+            book = site.get_item()
+            if not book:
+                resource = site.get_resource_ready()
+                if resource and resource.item:
+                    book = resource.item
+                    book.last_editor = user
+                    book.save()
+            return book
 
     @classmethod
     def parse_shelf(cls, url, user):
@@ -129,12 +132,13 @@ class GoodreadsImporter:
                 if not title_elem:
                     print(f"Shelf parsing error {url_shelf}")
                     break
-                title = title_elem[0].strip()
+                title = title_elem[0].strip()  # type:ignore
                 print("Shelf title: " + title)
             except Exception:
                 print(f"Shelf loading/parsing error {url_shelf}")
                 break
-            for cell in content.xpath("//tbody[@id='booksBody']/tr"):
+            cells = content.xpath("//tbody[@id='booksBody']/tr")
+            for cell in cells:  # type:ignore
                 url_book = (
                     "https://www.goodreads.com"
                     + cell.xpath(".//td[@class='field title']//a/@href")[0].strip()
@@ -167,10 +171,12 @@ class GoodreadsImporter:
                     c2 = BasicDownloader(url_review).download().html()
                     review_elem = c2.xpath("//div[@itemprop='reviewBody']/text()")
                     review = (
-                        "\n".join(p.strip() for p in review_elem) if review_elem else ""
+                        "\n".join(p.strip() for p in review_elem)  # type:ignore
+                        if review_elem
+                        else ""
                     )
                     date_elem = c2.xpath("//div[@class='readingTimeline__text']/text()")
-                    for d in date_elem:
+                    for d in date_elem:  # type:ignore
                         date_matched = re.search(r"(\w+)\s+(\d+),\s+(\d+)", d)
                         if date_matched:
                             last_updated = make_aware(
@@ -201,7 +207,7 @@ class GoodreadsImporter:
                     pass  # likely just download error
             next_elem = content.xpath("//a[@class='next_page']/@href")
             url_shelf = (
-                ("https://www.goodreads.com" + next_elem[0].strip())
+                f"https://www.goodreads.com{next_elem[0].strip()}"
                 if next_elem
                 else None
             )

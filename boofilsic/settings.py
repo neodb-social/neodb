@@ -155,7 +155,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
-MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.renderers.render_md"
+MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.models.render_md"
 
 
 # Internationalization

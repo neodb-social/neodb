@@ -2,7 +2,7 @@ import logging
 import re
 import uuid
 from functools import cached_property
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from auditlog.context import disable_auditlog
 from auditlog.models import AuditlogHistoryField, LogEntry
@@ -21,6 +21,9 @@ from users.models import User
 
 from .mixins import SoftDeleteMixin
 from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
+
+if TYPE_CHECKING:
+    from django.utils.functional import _StrOrPromise
 
 _logger = logging.getLogger(__name__)
 
@@ -247,7 +250,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     type = None  # subclass must specify this
     parent_class = None  # subclass may specify this to allow create child item
     category: ItemCategory | None = None  # subclass must specify this
-    demonstrative: str | None = None  # subclass must specify this
+    demonstrative: "_StrOrPromise | None" = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     title = models.CharField(_("标题"), max_length=1000, default="")
     brief = models.TextField(_("简介"), blank=True, default="")

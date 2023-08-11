@@ -4,8 +4,6 @@ from typing import cast
 import mistune
 from django.utils.html import escape
 
-MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.renderers.render_md"
-
 _mistune_plugins = [
     "url",
     "strikethrough",

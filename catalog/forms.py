@@ -37,7 +37,7 @@ def _EditForm(item_model):
             }
 
         def clean(self):
-            data = super().clean()
+            data = super().clean() or {}
             t, v = self.Meta.model.lookup_id_cleanup(
                 data.get("primary_lookup_id_type"), data.get("primary_lookup_id_value")
             )

@@ -8,9 +8,13 @@ from .book.models import Edition, EditionInSchema, EditionSchema, Series, Work
 from .collection.models import Collection as CatalogCollection
 from .common.models import (
     ExternalResource,
+    IdType,
     Item,
     ItemCategory,
+    ItemInSchema,
     ItemSchema,
+    ItemType,
+    SiteName,
     item_categories,
     item_content_types,
 )
