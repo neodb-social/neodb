@@ -146,7 +146,7 @@
               {% if item.last_editor and item.last_editor.preference.show_last_edit %}
                 <span>
                   {% trans '最近编辑：' %}
-                  <a href="{{ item.last_editor.url }}">{{ item.last_editor | default:"" }}</a>
+                  <a href="{{ item.last_editor.url }}">{{ item.last_editor.display_name | default:"" }}</a>
                 </span>
               {% endif %}
             </div>

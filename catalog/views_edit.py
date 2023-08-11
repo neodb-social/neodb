@@ -61,7 +61,6 @@ def create(request, item_model):
                     f"Invalid parent type: {form.instance.__class__} -> {parent.__class__}"
                 )
         if form.is_valid():
-            form.instance.last_editor = request.user
             form.instance.edited_time = timezone.now()
             if parent:
                 form.instance.set_parent_item(parent)
@@ -110,7 +109,6 @@ def edit(request, item_path, item_uuid):
             form.fields["primary_lookup_id_type"].disabled = True
             form.fields["primary_lookup_id_value"].disabled = True
         if form.is_valid():
-            form.instance.last_editor = request.user
             form.instance.edited_time = timezone.now()
             form.instance.save()
             return redirect(form.instance.url)

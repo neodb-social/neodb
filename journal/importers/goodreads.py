@@ -114,8 +114,6 @@ class GoodreadsImporter:
                 resource = site.get_resource_ready()
                 if resource and resource.item:
                     book = resource.item
-                    book.last_editor = user
-                    book.save()
             return book
 
     @classmethod

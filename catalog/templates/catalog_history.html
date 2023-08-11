@@ -43,7 +43,14 @@
             {% for log in item.history.all %}
               <tr>
                 <td colspan="3">
-                  <b title="#{{ log.id }}">{{ log.actor }} {{ log.get_action_display }} on {{ log.timestamp }}</b>
+                  <b title="#{{ log.id }}">
+                    {% if request.user.is_staff or log.actor.preference.show_last_edit %}
+                      {{ log.actor.handler }}
+                    {% else %}
+                      <i class="fa-solid fa-user-secret"></i>
+                    {% endif %}
+                  </b>
+                  {{ log.get_action_display }} on {{ log.timestamp }}
                 </td>
               </tr>
               {% for key, value in log.changes_dict.items %}

@@ -87,7 +87,6 @@ def init_catalog_audit_log():
                 "metadata",
                 "created_time",
                 "edited_time",
-                "last_editor",
                 # related fields are not supported in django-auditlog yet
                 "lookup_ids",
                 "external_resources",

@@ -17,13 +17,14 @@ from ninja import Schema
 from polymorphic.models import PolymorphicModel
 
 from catalog.common import jsondata
-from users.models import User
 
 from .mixins import SoftDeleteMixin
 from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
 
 if TYPE_CHECKING:
     from django.utils.functional import _StrOrPromise
+
+    from users.models import User
 
 _logger = logging.getLogger(__name__)
 
@@ -274,9 +275,6 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         default=None,
         related_name="merged_from_items",
     )
-    last_editor = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name="+", null=True, blank=False
-    )
 
     class Meta:
         index_together = [
@@ -292,6 +290,11 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return LogEntry.objects.filter(
             object_id=self.id, content_type_id__in=list(item_content_types().values())
         )
+
+    @cached_property
+    def last_editor(self) -> "User | None":
+        last_edit = self.history.order_by("-timestamp").first()
+        return last_edit.actor if last_edit else None
 
     def clear(self):
         self.set_parent_item(None)
