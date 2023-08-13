@@ -2,10 +2,11 @@ from functools import cached_property
 
 from django.conf import settings
 from django.db import models
-from loguru import logger
+from django.templatetags.static import static
 
 from takahe.utils import Takahe
 
+from .preference import Preference
 from .user import User
 
 
@@ -16,7 +17,9 @@ class APIdentity(models.Model):
     This model is used as 1:1 mapping to Takahe Identity Model
     """
 
-    user = models.OneToOneField("User", models.CASCADE, related_name="identity")
+    user = models.OneToOneField(
+        "User", models.SET_NULL, related_name="identity", null=True
+    )
     local = models.BooleanField()
     username = models.CharField(max_length=500, blank=True, null=True)
     domain_name = models.CharField(max_length=500, blank=True, null=True)
@@ -27,6 +30,9 @@ class APIdentity(models.Model):
             models.Index(fields=["local", "username"]),
             models.Index(fields=["domain_name", "username"]),
         ]
+
+    def __str__(self):
+        return f"{self.pk}:{self.username}@{self.domain_name}"
 
     @cached_property
     def takahe_identity(self):
@@ -45,6 +51,10 @@ class APIdentity(models.Model):
         return self.takahe_identity.discoverable
 
     @property
+    def locked(self):
+        return self.takahe_identity.manually_approves_followers
+
+    @property
     def actor_uri(self):
         return self.takahe_identity.actor_uri
 
@@ -54,11 +64,15 @@ class APIdentity(models.Model):
 
     @property
     def display_name(self):
-        return self.takahe_identity.name
+        return self.takahe_identity.name or self.username
+
+    @property
+    def summary(self):
+        return self.takahe_identity.summary or ""
 
     @property
     def avatar(self):
-        return self.user.avatar  # FiXME
+        return self.takahe_identity.icon_uri or static("img/avatar.svg")  # fixme
 
     @property
     def url(self):
@@ -66,14 +80,18 @@ class APIdentity(models.Model):
 
     @property
     def preference(self):
-        return self.user.preference
+        return self.user.preference if self.user else Preference()
+
+    @property
+    def full_handle(self):
+        return f"@{self.username}@{self.domain_name}"
 
     @property
     def handler(self):
         if self.local:
             return self.username
         else:
-            return f"{self.username}@{self.domain_name}"
+            return f"@{self.username}@{self.domain_name}"
 
     @property
     def following(self):
@@ -157,21 +175,40 @@ class APIdentity(models.Model):
 
     @classmethod
     def get_by_handler(cls, handler: str) -> "APIdentity":
+        """
+        Handler format
+        'id' - local identity with username 'id'
+        'id@site' - local identity with linked mastodon id == 'id@site'
+        '@id' - local identity with username 'id'
+        '@id@site' - remote activitypub identity 'id@site'
+        """
         s = handler.split("@")
-        if len(s) == 1:
-            return cls.objects.get(username=s[0], local=True, deleted__isnull=True)
-        elif len(s) == 2:
+        l = len(s)
+        if l == 1 or (l == 2 and s[0] == ""):
             return cls.objects.get(
-                user__mastodon_username=s[0],
-                user__mastodon_site=s[1],
+                username__iexact=s[0] if l == 1 else s[1],
+                local=True,
                 deleted__isnull=True,
             )
-        elif len(s) == 3 and s[0] == "":
+        elif l == 2:
             return cls.objects.get(
-                username=s[0], domain_name=s[1], local=False, deleted__isnull=True
+                user__mastodon_username__iexact=s[0],
+                user__mastodon_site__iexact=s[1],
+                deleted__isnull=True,
             )
+        elif l == 3 and s[0] == "":
+            i = cls.objects.filter(
+                username__iexact=s[1], domain_name__iexact=s[2], deleted__isnull=True
+            ).first()
+            if i:
+                return i
+            if s[2].lower() != settings.SITE_INFO["site_domain"].lower():
+                identity = Takahe.get_identity_by_handler(s[1], s[2])
+                if identity:
+                    return Takahe.get_or_create_remote_apidentity(identity)
+            raise cls.DoesNotExist(f"Identity not exist {handler}")
         else:
-            raise cls.DoesNotExist(f"Invalid handler {handler}")
+            raise cls.DoesNotExist(f"Identity handler invalid {handler}")
 
     @cached_property
     def activity_manager(self):

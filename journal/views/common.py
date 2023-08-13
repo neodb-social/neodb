@@ -20,11 +20,9 @@ PAGE_SIZE = 10
 
 def target_identity_required(func):
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        request = kwargs["request"]
-        handler = kwargs["user_name"]
+    def wrapper(request, user_name, *args, **kwargs):
         try:
-            target = APIdentity.get_by_handler(handler)
+            target = APIdentity.get_by_handler(user_name)
         except:
             return render_user_not_found(request)
         if not target.is_visible_to_user(request.user):
@@ -33,6 +31,7 @@ def target_identity_required(func):
         # request.identity = (
         #     request.user.identity if request.user.is_authenticated else None
         # )
+        return func(request, user_name, *args, **kwargs)
 
     return wrapper
 
@@ -100,7 +99,13 @@ def render_list(
     return render(
         request,
         f"user_{type}_list.html",
-        {"user": target.user, "members": members, "tag": tag, "pagination": pagination},
+        {
+            "user": target.user,
+            "identity": target,
+            "members": members,
+            "tag": tag,
+            "pagination": pagination,
+        },
     )
 
 

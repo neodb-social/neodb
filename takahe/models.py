@@ -1393,3 +1393,34 @@ class Block(models.Model):
                 block.uri = source.actor_uri + f"block/{block.pk}/"
                 block.save()
         return block
+
+
+class InboxMessage(models.Model):
+    """
+    an incoming inbox message that needs processing.
+
+    Yes, this is kind of its own message queue built on the state graph system.
+    It's fine. It'll scale up to a decent point.
+    """
+
+    message = models.JSONField()
+
+    # state = StateField(InboxMessageStates)
+    state = models.CharField(max_length=100, default="received")
+    state_changed = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # managed = False
+        db_table = "users_inboxmessage"
+
+    @classmethod
+    def create_internal(cls, payload):
+        """
+        Creates an internal action message
+        """
+        cls.objects.create(
+            message={
+                "type": "__internal__",
+                "object": payload,
+            }
+        )

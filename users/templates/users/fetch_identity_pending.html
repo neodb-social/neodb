@@ -1,0 +1,42 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load highlight %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="zh" class="classic-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans '查询用户' %}</title>
+    {% include "common_libs.html" with jquery=0 v2=1 %}
+  </head>
+  <body>
+    {% include '_header.html' %}
+    <main>
+      <div class="grid__main">
+        <article>
+          {% if handle %}
+            <h5>正在从联邦网络查询{{ handle }}</h5>
+            <div hx-get="{% url 'users:fetch_refresh' %}?handle={{ handle }}"
+                 hx-trigger="load delay:2s"
+                 hx-swap="outerHTML">
+              <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+            </div>
+          {% else %}
+            <h5>获取系统繁忙，请稍等几秒钟再搜索</h5>
+          {% endif %}
+        </article>
+      </div>
+      <aside class="grid__aside bottom">
+        {% include "_sidebar_search.html" %}
+      </aside>
+    </main>
+    {% include '_footer.html' %}
+  </body>
+</html>

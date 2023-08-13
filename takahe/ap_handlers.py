@@ -66,7 +66,7 @@ def _get_visibility(post_visibility):
 
 def _update_or_create_post(pk, obj):
     post = Post.objects.get(pk=pk)
-    owner = Takahe.get_or_create_apidentity(post.author)
+    owner = Takahe.get_or_create_remote_apidentity(post.author)
     if not post.type_data:
         logger.warning(f"Post {post} has no type_data")
         return

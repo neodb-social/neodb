@@ -1,13 +1,11 @@
-import hashlib
 import logging
-import uuid
+import re
 
 import django_rq
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import BadRequest
-from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from rq.job import Job
@@ -15,7 +13,8 @@ from rq.job import Job
 from catalog.common.models import ItemCategory, SiteName
 from catalog.common.sites import AbstractSite, SiteManager
 from common.config import PAGE_LINK_NUMBER
-from common.utils import PageLinksGenerator
+from common.utils import HTTPResponseHXRedirect, PageLinksGenerator
+from users.views import query_identity
 
 from ..models import *
 from .external import ExternalSources
@@ -24,16 +23,7 @@ from .models import enqueue_fetch, get_fetch_lock, query_index
 _logger = logging.getLogger(__name__)
 
 
-class HTTPResponseHXRedirect(HttpResponseRedirect):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self["HX-Redirect"] = self["Location"]
-
-    status_code = 200
-
-
 def fetch_refresh(request, job_id):
-    retry = request.GET
     try:
         job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
         item_url = job.return_value()
@@ -102,6 +92,9 @@ def visible_categories(request):
 
 
 def search(request):
+    keywords = request.GET.get("q", default="").strip()
+    if re.match(r"^[@＠]", keywords):
+        return query_identity(request, keywords.replace("＠", "@"))
     category = request.GET.get("c", default="all").strip().lower()
     hide_category = False
     if category == "all" or not category:
@@ -115,7 +108,6 @@ def search(request):
             hide_category = True
         except:
             categories = visible_categories(request)
-    keywords = request.GET.get("q", default="").strip()
     tag = request.GET.get("tag", default="").strip()
     p = request.GET.get("page", default="1")
     p = int(p) if p.isdigit() else 1

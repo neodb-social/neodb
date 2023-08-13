@@ -312,6 +312,7 @@ def discover(request):
         "discover.html",
         {
             "user": user,
+            "identity": user.identity,
             "gallery_list": gallery_list,
             "recent_podcast_episodes": recent_podcast_episodes,
             "books_in_progress": books_in_progress,

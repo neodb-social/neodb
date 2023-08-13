@@ -9,18 +9,20 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from common.config import *
+from common.utils import HTTPResponseHXRedirect
 from management.models import Announcement
 from mastodon.api import *
+from takahe.utils import Takahe
 
 from .account import *
 from .data import *
 from .forms import ReportForm
-from .models import Preference, Report, User
+from .models import APIdentity, Preference, Report, User
 
 
-def render_user_not_found(request):
+def render_user_not_found(request, user_name=""):
     sec_msg = _("😖哎呀，这位用户好像还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-    msg = _("未找到该用户")
+    msg = _("未找到用户") + user_name
     return render(
         request,
         "common/error.html",
@@ -40,6 +42,37 @@ def render_user_blocked(request):
             "msg": msg,
         },
     )
+
+
+def query_identity(request, handle):
+    try:
+        i = APIdentity.get_by_handler(handle)
+        return redirect(i.url)
+    except APIdentity.DoesNotExist:
+        if len(handle.split("@")) == 3:
+            Takahe.fetch_remote_identity(handle)
+            return render(
+                request, "users/fetch_identity_pending.html", {"handle": handle}
+            )
+        else:
+            return render_user_not_found(request, handle)
+
+
+def fetch_refresh(request):
+    handle = request.GET.get("handle", "")
+    try:
+        i = APIdentity.get_by_handler(handle)
+        return HTTPResponseHXRedirect(i.url)
+    except:
+        retry = int(request.GET.get("retry", 0)) + 1
+        if retry > 10:
+            return render(request, "users/fetch_identity_failed.html")
+        else:
+            return render(
+                request,
+                "users/fetch_identity_refresh.html",
+                {"handle": handle, "retry": retry, "delay": retry * 2},
+            )
 
 
 @login_required

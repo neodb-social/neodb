@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from django.http import Http404, HttpRequest
+from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.utils import timezone
 from django.utils.baseconv import base62
 
@@ -16,6 +16,14 @@ class AuthedHttpRequest(HttpRequest):
 
     user: "User"
     target_identity: "APIdentity"
+
+
+class HTTPResponseHXRedirect(HttpResponseRedirect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self["HX-Redirect"] = self["Location"]
+
+    status_code = 200
 
 
 class PageLinksGenerator:

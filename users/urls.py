@@ -12,6 +12,7 @@ urlpatterns = [
     path("register", register, name="register"),
     path("connect", connect, name="connect"),
     path("reconnect", reconnect, name="reconnect"),
+    path("fetch_refresh", fetch_refresh, name="fetch_refresh"),
     path("data", data, name="data"),
     path("info", account_info, name="info"),
     path("data/import/status", data_import_status, name="import_status"),

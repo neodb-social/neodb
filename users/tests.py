@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 
 from takahe.utils import Takahe
@@ -15,6 +16,24 @@ class UserTest(TestCase):
         self.bob = User.register(
             mastodon_site="KKCity", mastodon_username="Bob", username="bob"
         ).identity
+        self.domain = settings.SITE_INFO.get("site_domain")
+
+    def test_handle(self):
+        self.assertEqual(APIdentity.get_by_handler("Alice"), self.alice)
+        self.assertEqual(APIdentity.get_by_handler("@alice"), self.alice)
+        self.assertEqual(APIdentity.get_by_handler("Alice@MySpace"), self.alice)
+        self.assertEqual(APIdentity.get_by_handler("alice@myspace"), self.alice)
+        self.assertEqual(APIdentity.get_by_handler("@alice@" + self.domain), self.alice)
+        self.assertEqual(APIdentity.get_by_handler("@Alice@" + self.domain), self.alice)
+        self.assertRaises(
+            APIdentity.DoesNotExist, APIdentity.get_by_handler, "@Alice@MySpace"
+        )
+        self.assertRaises(
+            APIdentity.DoesNotExist, APIdentity.get_by_handler, "@alice@KKCity"
+        )
+
+    def test_fetch(self):
+        pass
 
     def test_follow(self):
         self.alice.follow(self.bob)

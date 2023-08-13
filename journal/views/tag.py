@@ -31,6 +31,7 @@ def user_tag_list(request, user_name):
         "user_tag_list.html",
         {
             "user": target.user,
+            "identity": target,
             "tags": tags,
         },
     )

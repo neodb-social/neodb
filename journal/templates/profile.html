@@ -10,19 +10,20 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% if user == request.user %}
+    {% if identity.user == request.user %}
       <title>{{ site_name }} - {% trans '我的个人主页' %}</title>
     {% else %}
-      <title>{{ site_name }} - {{ user.display_name }}</title>
+      <title>{{ site_name }} - {{ identity.display_name }}</title>
     {% endif %}
-    <meta property="og:title" content="{{ site_name }}用户 - {{ user.handler }}">
+    <meta property="og:title"
+          content="{{ identity.handler }} - {{ site_name }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:image" content="{{ user.avatar }}">
+    <meta property="og:image" content="{{ identity.avatar }}">
     <meta property="og:site_name" content="{{ site_name }}">
-    {% if user.preference.no_anonymous_view %}<meta name="robots" content="noindex">{% endif %}
+    {% if identity.preference.no_anonymous_view %}<meta name="robots" content="noindex">{% endif %}
     <link rel="alternate"
           type="application/rss+xml"
-          title="{{ site_name }} - {{ user.handler }}的评论"
+          title="{{ site_name }} - {{ identity.handler }}的评论"
           href="{{ request.build_absolute_uri }}feed/reviews/">
     {% include "common_libs.html" with jquery=0 v2=1 %}
     <script src="{% static 'js/calendar_yearview_blocks.js' %}" defer></script>
@@ -31,7 +32,7 @@
           rel="stylesheet" />
   </head>
   <body>
-    {% if request.user == user %}
+    {% if request.user == identity.user %}
       {% include "_header.html" with current="home" %}
     {% else %}
       {% include "_header.html" %}
@@ -48,7 +49,7 @@
                 </p>
               </div>
               <span class="calendar_data"
-                    hx-get="{% url 'journal:user_calendar_data' user.handler %}"
+                    hx-get="{% url 'journal:user_calendar_data' identity.handler %}"
                     hx-trigger="load"
                     hx-swap="innerHTML"
                     style="display:none"></span>
@@ -62,7 +63,7 @@
                 <h5>
                   {{ shelf.title }}
                   <small>
-                    <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' user.handler category %}{% else %}{% url 'journal:user_mark_list' user.handler shelf_type category %}{% endif %}">{{ shelf.count }}</a>
+                    <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' identity.handler category %}{% else %}{% url 'journal:user_mark_list' identity.handler shelf_type category %}{% endif %}">{{ shelf.count }}</a>
                   </small>
                 </h5>
                 <ul class="cards">
@@ -89,8 +90,8 @@
             <h5>
               {% trans '创建的收藏单' %}
               <small>
-                <a href="{% url 'journal:user_collection_list' user.handler %}">{{ collections_count }}</a>
-                {% if user == request.user %}
+                <a href="{% url 'journal:user_collection_list' identity.handler %}">{{ collections_count }}</a>
+                {% if identity.user == request.user %}
                   <a href="{% url 'journal:collection_create' %}">
                     <i class="fa-regular fa-square-plus"></i>
                   </a>
@@ -117,7 +118,7 @@
             <h5>
               {% trans '关注的收藏单' %}
               <small>
-                <a href="{% url 'journal:user_liked_collection_list' user.handler %}">{{ liked_collections_count }}</a>
+                <a href="{% url 'journal:user_liked_collection_list' identity.handler %}">{{ liked_collections_count }}</a>
               </small>
             </h5>
             <ul class="cards">
@@ -186,6 +187,10 @@
       {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
     </main>
     {% include "_footer.html" %}
-    <a href="{{ user.mastodon_account.url }}" rel="me" style="display:none">Mastodon verification</a>
+    {% if identity.user and identity.user.mastodon_account %}
+      <a href="{{ identity.user.mastodon_account.url }}"
+         rel="me"
+         style="display:none">Mastodon verification</a>
+    {% endif %}
   </body>
 </html>

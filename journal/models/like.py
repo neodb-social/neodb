@@ -19,26 +19,24 @@ class Like(Piece):  # TODO remove
 
     @staticmethod
     def user_liked_piece(owner, piece):
-        return Like.objects.filter(owner=owner.identity, target=piece).exists()
+        return Like.objects.filter(owner=owner, target=piece).exists()
 
     @staticmethod
     def user_like_piece(owner, piece):
         if not piece:
             return
-        like = Like.objects.filter(owner=owner.identity, target=piece).first()
+        like = Like.objects.filter(owner=owner, target=piece).first()
         if not like:
-            like = Like.objects.create(owner=owner.identity, target=piece)
+            like = Like.objects.create(owner=owner, target=piece)
         return like
 
     @staticmethod
     def user_unlike_piece(owner, piece):
         if not piece:
             return
-        Like.objects.filter(owner=owner.identity, target=piece).delete()
+        Like.objects.filter(owner=owner, target=piece).delete()
 
     @staticmethod
     def user_likes_by_class(owner, cls):
         ctype_id = ContentType.objects.get_for_model(cls)
-        return Like.objects.filter(
-            owner=owner.identity, target__polymorphic_ctype=ctype_id
-        )
+        return Like.objects.filter(owner=owner, target__polymorphic_ctype=ctype_id)

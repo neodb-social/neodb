@@ -486,4 +486,24 @@ class Migration(migrations.Migration):
                 "unique_together": {("source", "target")},
             },
         ),
+        migrations.CreateModel(
+            name="InboxMessage",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("message", models.JSONField()),
+                ("state", models.CharField(default="received", max_length=100)),
+                ("state_changed", models.DateTimeField(auto_now_add=True)),
+            ],
+            options={
+                "db_table": "users_inboxmessage",
+            },
+        ),
     ]

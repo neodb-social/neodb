@@ -56,6 +56,7 @@ def init_identity(apps, schema_editor):
         takahe_identity = TakaheIdentity.objects.create(
             pk=user.pk,
             actor_uri=f"https://{service_domain or domain}/@{username}@{domain}/",
+            profile_uri=user.url,
             username=username,
             domain=tdomain,
             name=username,
@@ -66,7 +67,6 @@ def init_identity(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("users", "0012_apidentity"),
     ]

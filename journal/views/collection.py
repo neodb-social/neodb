@@ -266,6 +266,7 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
                 "form": form,
                 "collection": collection,
                 "user": collection.owner.user if collection else request.user,
+                "identity": collection.owner if collection else request.user.identity,
             },
         )
     elif request.method == "POST":
@@ -300,6 +301,7 @@ def user_collection_list(request: AuthedHttpRequest, user_name):
         "user_collection_list.html",
         {
             "user": target.user,
+            "identity": target,
             "collections": collections,
         },
     )
@@ -317,6 +319,7 @@ def user_liked_collection_list(request: AuthedHttpRequest, user_name):
         "user_collection_list.html",
         {
             "user": target.user,
+            "identity": target,
             "collections": collections,
             "liked": True,
         },

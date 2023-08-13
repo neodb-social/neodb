@@ -81,6 +81,7 @@ def profile(request: AuthedHttpRequest, user_name):
         "profile.html",
         {
             "user": target.user,
+            "identity": target,
             "top_tags": top_tags,
             "shelf_list": shelf_list,
             "collections": collections[:10],
@@ -96,13 +97,14 @@ def profile(request: AuthedHttpRequest, user_name):
 
 
 def user_calendar_data(request, user_name):
-    if request.method != "GET":
+    if request.method != "GET" or not request.user.is_authenticated:
         raise BadRequest()
-    user = User.get(user_name)
-    if user is None or not request.user.is_authenticated:
-        return HttpResponse("")
-    max_visiblity = max_visiblity_to_user(request.user, user.identity)
-    calendar_data = user.shelf_manager.get_calendar_data(max_visiblity)
+    try:
+        target = APIdentity.get_by_handler(user_name)
+    except:
+        return HttpResponse("unavailable")
+    max_visiblity = max_visiblity_to_user(request.user, target)
+    calendar_data = target.shelf_manager.get_calendar_data(max_visiblity)
     return render(
         request,
         "calendar_data.html",

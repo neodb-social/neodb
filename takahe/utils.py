@@ -89,6 +89,7 @@ class Takahe:
             logger.info(f"Creating takahe identity {u}@{domain}")
             identity = Identity.objects.create(
                 actor_uri=f"https://{domain.uri_domain}/@{u.username}@{domain.domain}/",
+                profile_uri=u.url,
                 username=u.username,
                 domain=domain,
                 name=u.username,
@@ -122,6 +123,16 @@ class Takahe:
         return apidentity
 
     @staticmethod
+    def get_identity_by_handler(username: str, domain: str) -> Identity | None:
+        return Identity.objects.filter(
+            username__iexact=username, domain__domain__iexact=domain
+        ).first()
+
+    @staticmethod
+    def fetch_remote_identity(handler: str) -> int | None:
+        InboxMessage.create_internal({"type": "FetchIdentity", "handle": handler})
+
+    @staticmethod
     def get_identity(pk: int):
         return Identity.objects.get(pk=pk)
 
@@ -134,20 +145,21 @@ class Takahe:
         )
 
     @staticmethod
-    def get_or_create_apidentity(identity: Identity):
+    def get_or_create_remote_apidentity(identity: Identity):
         from users.models import APIdentity
 
         apid = APIdentity.objects.filter(pk=identity.pk).first()
         if not apid:
             if identity.local:
                 raise ValueError(f"local takahe identity {identity} missing APIdentity")
-            if not identity.domain:
+            if not identity.domain_id:
                 raise ValueError(f"remote takahe identity {identity} missing domain")
             apid = APIdentity.objects.create(
                 id=identity.pk,
+                user=None,
                 local=False,
                 username=identity.username,
-                domain_name=identity.domain.domain,
+                domain_name=identity.domain_id,
                 deleted=identity.deleted,
             )
         return apid

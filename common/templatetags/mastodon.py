@@ -15,8 +15,12 @@ def mastodon(domain):
 
 
 @register.simple_tag(takes_context=True)
-def current_user_relationship(context, user: "User"):
-    current_user = context["request"].user
+def current_user_relationship(context, target_identity: "APIdentity"):
+    current_identity = (
+        context["request"].user.identity
+        if context["request"].user.is_authenticated
+        else None
+    )
     r = {
         "requesting": False,
         "following": False,
@@ -26,9 +30,7 @@ def current_user_relationship(context, user: "User"):
         "rejecting": False,
         "status": "",
     }
-    if current_user and current_user.is_authenticated and current_user != user:
-        current_identity = context["request"].user.identity
-        target_identity = user.identity
+    if current_identity and current_identity != target_identity:
         if current_identity.is_blocking(
             target_identity
         ) or current_identity.is_blocked_by(target_identity):
