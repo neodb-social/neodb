@@ -4,9 +4,11 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("journal", "0013_remove_comment_focus_item"),
+        (
+            "journal",
+            "0013_remove_comment_focus_item",
+        ),
     ]
 
     operations = [
