@@ -25,11 +25,6 @@ def profile(request: AuthedHttpRequest, user_name):
     if not request.user.is_authenticated and target.preference.no_anonymous_view:
         return render(request, "users/home_anonymous.html", {"user": target.user})
     me = target.user == request.user
-    if not me and (
-        target.is_blocked_by(request.user.identity)
-        or target.is_blocking(request.user.identity)
-    ):
-        return render_user_blocked(request)
 
     qv = q_owned_piece_visible_to_user(request.user, target)
     shelf_list = {}

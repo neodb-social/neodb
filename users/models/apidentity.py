@@ -63,6 +63,10 @@ class APIdentity(models.Model):
         return self.takahe_identity.icon_uri
 
     @property
+    def profile_uri(self):
+        return self.takahe_identity.profile_uri
+
+    @property
     def display_name(self):
         return self.takahe_identity.name or self.username
 
@@ -194,7 +198,7 @@ class APIdentity(models.Model):
 
     def is_visible_to_user(self, viewing_user: User):
         return (
-            viewing_user.is_authenticated
+            (not viewing_user.is_authenticated)
             or viewing_user == self.user
             or (
                 not self.is_blocking(viewing_user.identity)

@@ -23,6 +23,25 @@
       </a>
     </span>
   {% endif %}
+  {% if not identity.local %}
+    <span>
+      <a href="{{ identity.profile_uri }}"
+         target="_blank"
+         rel="noopener"
+         title="用户实例主页">
+        <i class="fa-solid fa-circle-nodes"></i>
+      </a>
+    </span>
+  {% elif identity.user and identity.user.mastodon_account %}
+    <span>
+      <a href="{{ identity.user.mastodon_account.url }}"
+         target="_blank"
+         rel="noopener"
+         title="@{{ identity.user.mastodon_acct }}">
+        <i class="fa-brands fa-mastodon"></i>
+      </a>
+    </span>
+  {% endif %}
   {% if relationship.following %}
     <span>
       <a title="已关注，点击可取消关注"
@@ -59,7 +78,7 @@
          hx-post="{% url 'users:mute' identity.handler %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
-        <i class="fa-regular fa-eye"></i>
+        <i class="fa-solid fa-eye"></i>
       </a>
     </span>
   {% else %}
@@ -69,7 +88,7 @@
          hx-post="{% url 'users:unmute' identity.handler %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
-        <i class="fa-regular fa-eye-slash"></i>
+        <i class="fa-solid fa-eye-slash"></i>
       </a>
     </span>
   {% endif %}

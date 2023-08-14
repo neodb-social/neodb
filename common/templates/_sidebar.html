@@ -48,15 +48,6 @@
                   <h6 class="nickname">{{ identity.display_name }}</h6>
                   <div>
                     <span class="handler">{{ identity.full_handle }}</span>
-                    {% if identity.user and identity.user.mastodon_account %}
-                      <a href="{{ identity.user.mastodon_account.url }}"
-                         target="_blank"
-                         rel="noopener"
-                         onclick="window.open(this.href); return false;"
-                         title="@{{ identity.user.mastodon_acct }}">
-                        <i class="fa-solid fa-circle-nodes"></i>
-                      </a>
-                    {% endif %}
                   </div>
                 </hgroup>
               </div>
@@ -71,7 +62,7 @@
                   </a>
                 </span>
               {% endif %}
-            {% else %}
+            {% elif request.user.is_authenticated %}
               {% include 'users/profile_actions.html' %}
             {% endif %}
           </span>
