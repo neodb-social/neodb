@@ -137,7 +137,7 @@
             </ul>
           </section>
         </div>
-        {% if user == request.user %}
+        {% if identity.user == request.user %}
           <div class="entity-sort-control">
             <div class="entity-sort-control__button" id="sortEditButton">
               <span class="entity-sort-control__text" id="sortEditText">{% trans '编辑布局' %}</span>

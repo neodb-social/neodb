@@ -48,7 +48,7 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
         raise PermissionDenied()
     follower_count = collection.likes.all().count()
     following = (
-        Like.user_liked_piece(request.user, collection)
+        Like.user_liked_piece(request.user.identity, collection)
         if request.user.is_authenticated
         else False
     )
@@ -85,6 +85,7 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
             "stats": stats,
             "available_as_featured": available_as_featured,
             "featured_since": featured_since,
+            "editable": collection.is_editable_by(request.user),
         },
     )
 

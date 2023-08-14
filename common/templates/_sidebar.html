@@ -53,7 +53,7 @@
                          target="_blank"
                          rel="noopener"
                          onclick="window.open(this.href); return false;"
-                         title="@{{ user.mastodon_acct }}">
+                         title="@{{ identity.user.mastodon_acct }}">
                         <i class="fa-solid fa-circle-nodes"></i>
                       </a>
                     {% endif %}
@@ -88,7 +88,7 @@
           {% for featured_collection in identity.featured_collections.all %}
             {% user_visibility_of featured_collection as visible %}
             {% if visible %}
-              {% user_stats_of collection=featured_collection user=user as stats %}
+              {% user_stats_of collection=featured_collection identity=identity as stats %}
               <div>
                 <a href="{{ featured_collection.collection.url }}">{{ featured_collection.collection.title }}</a> <small>{{ stats.complete }} / {{ stats.total }}</small>
                 <br>
@@ -96,7 +96,7 @@
               </div>
             {% endif %}
           {% empty %}
-            {% if request.user == user %}
+            {% if request.user == identity.user %}
               <div class="empty">将自己或他人的收藏单设为目标，这里就会显示进度</div>
             {% else %}
               <div class="empty">暂未设置目标</div>

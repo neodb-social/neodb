@@ -9,7 +9,11 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from common.config import *
-from common.utils import HTTPResponseHXRedirect
+from common.utils import (
+    AuthedHttpRequest,
+    HTTPResponseHXRedirect,
+    target_identity_required,
+)
 from management.models import Announcement
 from mastodon.api import *
 from takahe.utils import Takahe
@@ -76,81 +80,113 @@ def fetch_refresh(request):
 
 
 @login_required
-def follow(request, user_name):
+@target_identity_required
+def follow(request: AuthedHttpRequest, user_name):
     if request.method != "POST":
         raise BadRequest()
-    user = User.get(user_name)
-    if request.user.follow(user):
-        return render(request, "users/profile_actions.html", context={"user": user})
-    else:
-        raise BadRequest()
+    request.user.identity.follow(request.target_identity)
+    return render(
+        request,
+        "users/profile_actions.html",
+        context={"identity": request.target_identity},
+    )
 
 
 @login_required
-def unfollow(request, user_name):
+@target_identity_required
+def unfollow(request: AuthedHttpRequest, user_name):
     if request.method != "POST":
         raise BadRequest()
-    user = User.get(user_name)
-    if request.user.unfollow(user):
-        return render(request, "users/profile_actions.html", context={"user": user})
-    else:
-        raise BadRequest()
+    request.user.identity.unfollow(request.target_identity)
+    return render(
+        request,
+        "users/profile_actions.html",
+        context={"identity": request.target_identity},
+    )
 
 
 @login_required
-def mute(request, user_name):
+@target_identity_required
+def mute(request: AuthedHttpRequest, user_name):
     if request.method != "POST":
         raise BadRequest()
-    user = User.get(user_name)
-    if request.user.mute(user):
-        return render(request, "users/profile_actions.html", context={"user": user})
-    else:
-        raise BadRequest()
+    request.user.identity.mute(request.target_identity)
+    return render(
+        request,
+        "users/profile_actions.html",
+        context={"identity": request.target_identity},
+    )
 
 
 @login_required
-def unmute(request, user_name):
+@target_identity_required
+def unmute(request: AuthedHttpRequest, user_name):
     if request.method != "POST":
         raise BadRequest()
-    user = User.get(user_name)
-    if request.user.unmute(user):
-        return render(request, "users/profile_actions.html", context={"user": user})
-    else:
-        raise BadRequest()
+    request.user.identity.unmute(request.target_identity)
+    return render(
+        request,
+        "users/profile_actions.html",
+        context={"identity": request.target_identity},
+    )
 
 
 @login_required
-def block(request, user_name):
+@target_identity_required
+def block(request: AuthedHttpRequest, user_name):
     if request.method != "POST":
         raise BadRequest()
-    user = User.get(user_name)
-    if request.user.block(user):
-        return render(request, "users/profile_actions.html", context={"user": user})
-    else:
-        raise BadRequest()
+    request.user.identity.block(request.target_identity)
+    return render(
+        request,
+        "users/profile_actions.html",
+        context={"identity": request.target_identity},
+    )
 
 
 @login_required
-def unblock(request, user_name):
+@target_identity_required
+def unblock(request: AuthedHttpRequest, user_name):
     if request.method != "POST":
         raise BadRequest()
-    user = User.get(user_name)
-    if request.user.unblock(user):
-        return render(request, "users/profile_actions.html", context={"user": user})
-    else:
+    request.user.identity.unblock(request.target_identity)
+    return render(
+        request,
+        "users/profile_actions.html",
+        context={"identity": request.target_identity},
+    )
+
+
+@login_required
+@target_identity_required
+def accept_follow_request(request: AuthedHttpRequest, user_name):
+    if request.method != "POST":
         raise BadRequest()
+    request.user.identity.accept_follow_request(request.target_identity)
+    return render(
+        request,
+        "users/profile_actions.html",
+        context={"identity": request.target_identity},
+    )
 
 
 @login_required
-def follow_locked(request, user_name):
-    user = User.get(user_name)
-    return render(request, "users/follow_locked.html", context={"user": user})
+@target_identity_required
+def reject_follow_request(request: AuthedHttpRequest, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    request.user.identity.reject_follow_request(request.target_identity)
+    return render(
+        request,
+        "users/profile_actions.html",
+        context={"identity": request.target_identity},
+    )
 
 
 @login_required
-def set_layout(request):
+def set_layout(request: AuthedHttpRequest):
     if request.method == "POST":
-        layout = json.loads(request.POST.get("layout"))
+        layout = json.loads(request.POST.get("layout", {}))  # type: ignore
         if request.POST.get("name") == "profile":
             request.user.preference.profile_layout = layout
             request.user.preference.save(update_fields=["profile_layout"])
@@ -163,7 +199,7 @@ def set_layout(request):
 
 
 @login_required
-def report(request):
+def report(request: AuthedHttpRequest):
     if request.method == "GET":
         user_id = request.GET.get("user_id")
         if user_id:
@@ -204,7 +240,7 @@ def report(request):
 
 
 @login_required
-def manage_report(request):
+def manage_report(request: AuthedHttpRequest):
     if not request.user.is_staff:
         raise PermissionDenied()
     if request.method == "GET":
@@ -224,7 +260,7 @@ def manage_report(request):
 
 
 @login_required
-def mark_announcements_read(request):
+def mark_announcements_read(request: AuthedHttpRequest):
     if request.method == "POST":
         try:
             request.user.read_announcement_index = Announcement.objects.latest("pk").pk
@@ -232,4 +268,4 @@ def mark_announcements_read(request):
         except ObjectDoesNotExist:
             # when there is no annoucenment
             pass
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))

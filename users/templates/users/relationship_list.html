@@ -1,10 +1,10 @@
-{% for user in list %}
+{% for identity in list %}
   <p style="border-bottom: gray 1px dashed; padding-bottom:4px;">
     <span class="action">{% include 'users/profile_actions.html' with show_home=1 %}</span>
     <code class="{{ id }}_handler"
           style="cursor:pointer"
           onmouseleave="$(this).removeAttr('data-tooltip')"
-          onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">{{ user.handler }}</code>
+          onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">{{ identity.handler }}</code>
   </p>
 {% empty %}
   <p class="empty">无数据</p>

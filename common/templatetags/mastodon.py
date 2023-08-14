@@ -1,9 +1,7 @@
 from django import template
-from django.conf import settings
-from django.template.defaultfilters import stringfilter
 from django.utils.translation import gettext_lazy as _
 
-from users.models import APIdentity, User
+from users.models import APIdentity
 
 register = template.Library()
 
@@ -16,7 +14,7 @@ def mastodon(domain):
 
 @register.simple_tag(takes_context=True)
 def current_user_relationship(context, target_identity: "APIdentity"):
-    current_identity = (
+    current_identity: "APIdentity | None" = (
         context["request"].user.identity
         if context["request"].user.is_authenticated
         else None
@@ -24,9 +22,7 @@ def current_user_relationship(context, target_identity: "APIdentity"):
     r = {
         "requesting": False,
         "following": False,
-        "unfollowable": False,
         "muting": False,
-        "unmutable": False,
         "rejecting": False,
         "status": "",
     }
@@ -36,10 +32,9 @@ def current_user_relationship(context, target_identity: "APIdentity"):
         ) or current_identity.is_blocked_by(target_identity):
             r["rejecting"] = True
         else:
+            r["requesting"] = current_identity.is_requesting(target_identity)
             r["muting"] = current_identity.is_muting(target_identity)
-            r["unmutable"] = r["muting"]
             r["following"] = current_identity.is_following(target_identity)
-            r["unfollowable"] = r["following"]
             if r["following"]:
                 if current_identity.is_followed_by(target_identity):
                     r["status"] = _("互相关注")

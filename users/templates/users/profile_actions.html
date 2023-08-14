@@ -24,39 +24,34 @@
     </span>
   {% endif %}
   {% if relationship.following %}
-    {% if relationship.unfollowable %}
-      <span>
-        <a title="已关注，点击可取消关注"
-           class="activated"
-           hx-post="{% url 'users:unfollow' identity.handler %}"
-           hx-target="closest .action"
-           hx-swap="innerHTML">
-          <i class="fa-solid fa-user-check"></i>
-        </a>
-      </span>
-    {% else %}
-      <span><a title="已在联邦宇宙关注该用户" class="activated"><i class="fa-solid fa-circle-check"></i></a></span>
-    {% endif %}
+    <span>
+      <a title="已关注，点击可取消关注"
+         class="activated"
+         hx-post="{% url 'users:unfollow' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-user-check"></i>
+      </a>
+    </span>
+  {% elif relationship.requesting %}
+    <span>
+      <a title="已发送关注请求，点击可取消"
+         class="activated"
+         hx-post="{% url 'users:unfollow' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-user-clock"></i>
+      </a>
+    </span>
   {% else %}
-    {% if identity.locked %}
-      <span>
-        <a title="用户已开启关注审核"
-           hx-post="{% url 'users:locked' identity.handler %}"
-           hx-target="body"
-           hx-swap="beforeend">
-          <i class="fa-solid fa-user-shield"></i>
-        </a>
-      </span>
-    {% else %}
-      <span>
-        <a title="点击可关注该用户"
-           hx-post="{% url 'users:follow' identity.handler %}"
-           hx-target="closest .action"
-           hx-swap="innerHTML">
-          <i class="fa-solid fa-user-plus"></i>
-        </a>
-      </span>
-    {% endif %}
+    <span>
+      <a title="点击可关注该用户"
+         hx-post="{% url 'users:follow' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-user-plus"></i>
+      </a>
+    </span>
   {% endif %}
   {% if not relationship.muting %}
     <span>
@@ -64,23 +59,17 @@
          hx-post="{% url 'users:mute' identity.handler %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
-        <i class="fa-solid fa-volume-high"></i>
+        <i class="fa-regular fa-eye"></i>
       </a>
     </span>
-  {% elif relationship.unmutable %}
+  {% else %}
     <span>
       <a title="已隐藏，点击可取消隐藏"
          class="activated"
          hx-post="{% url 'users:unmute' identity.handler %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
-        <i class="fa-solid fa-volume-off"></i>
-      </a>
-    </span>
-  {% else %}
-    <span>
-      <a title="已在联邦宇宙中隐藏" class="activated">
-        <i class="fa-solid fa-volume-xmark"></i>
+        <i class="fa-regular fa-eye-slash"></i>
       </a>
     </span>
   {% endif %}

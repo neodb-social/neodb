@@ -70,6 +70,7 @@ class Takahe:
         """
         from users.models import APIdentity
 
+        logger.info(f"User {u} initialize identity")
         if not u.username:
             logger.warning(f"User {u} has no username")
             return None

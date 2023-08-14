@@ -3,6 +3,7 @@ from django.template.defaultfilters import stringfilter
 
 from journal.models import Collection
 from journal.models.mixins import UserOwnedObjectMixin
+from users.models.apidentity import APIdentity
 from users.models.user import User
 
 register = template.Library()
@@ -22,8 +23,8 @@ def user_progress_of(collection: Collection, user: User):
 
 
 @register.simple_tag()
-def user_stats_of(collection: Collection, user: User):
-    return collection.get_stats(user.identity) if user and user.is_authenticated else {}
+def user_stats_of(collection: Collection, identity: APIdentity):
+    return collection.get_stats(identity) if identity else {}
 
 
 @register.filter(is_safe=True)

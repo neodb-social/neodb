@@ -63,6 +63,7 @@ def init_identity(apps, schema_editor):
             local=True,
             discoverable=not user.preference.no_anonymous_view,
         )
+        takahe_identity.generate_keypair()
         takahe_user.identities.add(takahe_identity)
 
 

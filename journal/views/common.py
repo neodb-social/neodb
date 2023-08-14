@@ -1,5 +1,3 @@
-import functools
-
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
@@ -8,32 +6,17 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
-from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
-from users.models import APIdentity
-from users.views import render_user_blocked, render_user_not_found
+from common.utils import (
+    AuthedHttpRequest,
+    PageLinksGenerator,
+    get_uuid_or_404,
+    target_identity_required,
+)
 
 from ..forms import *
 from ..models import *
 
 PAGE_SIZE = 10
-
-
-def target_identity_required(func):
-    @functools.wraps(func)
-    def wrapper(request, user_name, *args, **kwargs):
-        try:
-            target = APIdentity.get_by_handler(user_name)
-        except:
-            return render_user_not_found(request)
-        if not target.is_visible_to_user(request.user):
-            return render_user_blocked(request)
-        request.target_identity = target
-        # request.identity = (
-        #     request.user.identity if request.user.is_authenticated else None
-        # )
-        return func(request, user_name, *args, **kwargs)
-
-    return wrapper
 
 
 def render_relogin(request):

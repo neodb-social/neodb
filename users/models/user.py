@@ -333,8 +333,14 @@ class User(AbstractUser):
             new_user.initialize()
         return new_user
 
+    def identity_linked(self):
+        from .apidentity import APIdentity
+
+        return APIdentity.objects.filter(user=self).exists()
+
     def initialize(self):
         Takahe.init_identity_for_local_user(self)
+        self.identity.shelf_manager
 
 
 # TODO the following models should be deprecated soon

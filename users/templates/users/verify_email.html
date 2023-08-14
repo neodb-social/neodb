@@ -17,7 +17,7 @@
         <h4>验证电子邮件</h4>
         {% if success %}
           <p>
-            {{ user.email }} 验证成功，<a href="{% url 'common:home' %}">点击这里返回首页</a>。
+            {{ request.user.email }} 验证成功，<a href="{% url 'common:home' %}">点击这里返回首页</a>。
           </p>
         {% else %}
           <p>

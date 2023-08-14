@@ -91,28 +91,34 @@
             </details>
           </article>
         {% endif %}
-        <article id="local_following">
+        <article>
           <details>
             <summary>{% trans '正在关注的用户' %}</summary>
-            {% include 'users/relationship_list.html' with name="关注" id="follow" list=request.user.local_following.all %}
+            {% include 'users/relationship_list.html' with name="关注" id="follow" list=request.user.identity.following_identities.all %}
           </details>
         </article>
-        <article id="local_following">
+        <article>
           <details>
             <summary>{% trans '关注了你的用户' %}</summary>
-            {% include 'users/relationship_list.html' with name="关注者" id="follower" list=request.user.local_followers.all %}
+            {% include 'users/relationship_list.html' with name="关注者" id="follower" list=request.user.identity.follower_identities.all %}
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans '请求关注你的用户' %}</summary>
+            {% include 'users/relationship_list.html' with name="请求关注者" id="follow_request" list=request.user.identity.follow_requesting_identities.all %}
           </details>
         </article>
         <article>
           <details>
             <summary>{% trans '已隐藏的用户' %}</summary>
-            {% include 'users/relationship_list.html' with name="隐藏" id="mute" list=request.user.local_muting.all %}
+            {% include 'users/relationship_list.html' with name="隐藏" id="mute" list=request.user.identity.muting_identities.all %}
           </details>
         </article>
         <article>
           <details>
             <summary>{% trans '已屏蔽的用户' %}</summary>
-            {% include 'users/relationship_list.html' with name="屏蔽" id="block" list=request.user.local_blocking.all %}
+            {% include 'users/relationship_list.html' with name="屏蔽" id="block" list=request.user.identity.blocking_identities.all %}
           </details>
         </article>
         <article>
@@ -126,7 +132,7 @@
                      value="{% trans '同步' %}"
                      {% if not request.user.mastodon_username %}disabled{% endif %} />
               <small>
-                {% if user.mastodon_last_refresh %}上次更新时间 {{ user.mastodon_last_refresh }}{% endif %}
+                {% if request.user.mastodon_last_refresh %}上次更新时间 {{ request.user.mastodon_last_refresh }}{% endif %}
               </small>
               <div>
                 为了正确高效的展示短评和评论，{{ site_name }}会缓存你在联邦宇宙的关注、屏蔽和隐藏列表。如果你刚刚更新过帐户的上锁状态、增减过关注、隐藏或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
@@ -167,7 +173,7 @@
           </details>
         </article>
       </div>
-      {% include "_sidebar.html" with show_profile=1 %}
+      {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
     </main>
     {% include "_footer.html" %}
   </body>

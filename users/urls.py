@@ -27,7 +27,6 @@ urlpatterns = [
     path("preferences", preferences, name="preferences"),
     path("logout", logout, name="logout"),
     path("layout", set_layout, name="set_layout"),
-    path("locked/<str:user_name>", follow_locked, name="locked"),
     path("follow/<str:user_name>", follow, name="follow"),
     path("unfollow/<str:user_name>", unfollow, name="unfollow"),
     path("mute/<str:user_name>", mute, name="mute"),

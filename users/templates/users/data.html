@@ -177,7 +177,7 @@
           </details>
         </article>
       </div>
-      {% include "_sidebar.html" with show_profile=1 %}
+      {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
     </main>
     {% include "_footer.html" %}
   </body>

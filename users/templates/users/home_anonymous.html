@@ -6,21 +6,23 @@
     <meta charset="UTF-8">
     <meta http-equiv="refresh"
           content="0;URL={% url 'users:login' %}?next={{ request.path }}" />
-    <title>{{ site_name }} - {{ user.display_name }}</title>
+    <title>{{ site_name }} - {{ identity.handler }}</title>
     <link rel="alternate"
           type="application/rss+xml"
-          title="{{ site_name }} - {{ user.display_name }}的评论"
+          title="{{ site_name }} - {{ identity.handler }}的评论"
           href="{{ request.build_absolute_uri }}feed/reviews/">
     <meta property="og:title"
-          content="{{ site_name }} - {{ user.display_name }}的主页">
+          content="{{ site_name }} - {{ identity.handler }}的主页">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image"
           content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
   </head>
   <body>
-    {% if user.mastodon_account.url %}
-      <a href="{{ user.mastodon_account.url }}" rel="me" style="display:none">Mastodon verification</a>
+    {% if identity.user.mastodon_account.url %}
+      <a href="{{ identity.user.mastodon_account.url }}"
+         rel="me"
+         style="display:none">Mastodon verification</a>
     {% endif %}
   </body>
 </html>

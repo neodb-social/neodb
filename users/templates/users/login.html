@@ -47,7 +47,7 @@
         <img src="{% static 'img/logo.svg' %}" class="logo" alt="logo">
       </header>
       <div>
-        {% if user.is_authenticated %}
+        {% if request.user.is_authenticated %}
           <a href="{% url 'common:home' %}" class="button">{% trans '前往首页' %}</a>
         {% else %}
           <form action="{% url 'users:connect' %}" method="post">

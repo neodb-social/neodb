@@ -1,3 +1,4 @@
+import functools
 import uuid
 from typing import TYPE_CHECKING
 
@@ -24,6 +25,27 @@ class HTTPResponseHXRedirect(HttpResponseRedirect):
         self["HX-Redirect"] = self["Location"]
 
     status_code = 200
+
+
+def target_identity_required(func):
+    @functools.wraps(func)
+    def wrapper(request, user_name, *args, **kwargs):
+        from users.models import APIdentity
+        from users.views import render_user_blocked, render_user_not_found
+
+        try:
+            target = APIdentity.get_by_handler(user_name)
+        except APIdentity.DoesNotExist:
+            return render_user_not_found(request)
+        if not target.is_visible_to_user(request.user):
+            return render_user_blocked(request)
+        request.target_identity = target
+        # request.identity = (
+        #     request.user.identity if request.user.is_authenticated else None
+        # )
+        return func(request, user_name, *args, **kwargs)
+
+    return wrapper
 
 
 class PageLinksGenerator:

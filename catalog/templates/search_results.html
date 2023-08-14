@@ -93,7 +93,7 @@
               {% empty %}
                 <p>
                   无站内条目匹配。
-                  {% if user.is_authenticated %}系统会尝试搜索其它网站的条目，点击标题可添加到本站。{% endif %}
+                  {% if request.user.is_authenticated %}系统会尝试搜索其它网站的条目，点击标题可添加到本站。{% endif %}
                 </p>
                 <p>
                   如果你在
@@ -116,7 +116,7 @@
               </div>
             {% endif %}
             <div class="item-card-list">
-              {% if request.GET.q and user.is_authenticated %}
+              {% if request.GET.q and request.user.is_authenticated %}
                 <p hx-get="{% url 'catalog:external_search' %}?q={{ request.GET.q }}&c={{ request.GET.c }}&page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
                    hx-trigger="load"
                    hx-swap="outerHTML">

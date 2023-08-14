@@ -98,12 +98,36 @@ class APIdentity(models.Model):
         return Takahe.get_following_ids(self.pk)
 
     @property
+    def followers(self):
+        return Takahe.get_follower_ids(self.pk)
+
+    @property
     def muting(self):
         return Takahe.get_muting_ids(self.pk)
 
     @property
     def blocking(self):
         return Takahe.get_blocking_ids(self.pk)
+
+    @property
+    def following_identities(self):
+        return APIdentity.objects.filter(pk__in=self.following)
+
+    @property
+    def follower_identities(self):
+        return APIdentity.objects.filter(pk__in=self.followers)
+
+    @property
+    def muting_identities(self):
+        return APIdentity.objects.filter(pk__in=self.muting)
+
+    @property
+    def blocking_identities(self):
+        return APIdentity.objects.filter(pk__in=self.blocking)
+
+    @property
+    def follow_requesting_identities(self):
+        return APIdentity.objects.filter(pk__in=self.following_request)
 
     @property
     def rejecting(self):
@@ -119,11 +143,13 @@ class APIdentity(models.Model):
     def unfollow(self, target: "APIdentity"):  # this also cancels follow request
         Takahe.unfollow(self.pk, target.pk)
 
+    @property
     def requested_followers(self):
-        Takahe.get_requested_follower_ids(self.pk)
+        return Takahe.get_requested_follower_ids(self.pk)
 
+    @property
     def following_request(self):
-        Takahe.get_following_request_ids(self.pk)
+        return Takahe.get_following_request_ids(self.pk)
 
     def accept_follow_request(self, target: "APIdentity"):
         Takahe.accept_follow_request(self.pk, target.pk)
@@ -159,6 +185,9 @@ class APIdentity(models.Model):
 
     def is_following(self, target: "APIdentity"):
         return target.pk in self.following
+
+    def is_requesting(self, target: "APIdentity"):
+        return target.pk in self.following_request
 
     def is_followed_by(self, target: "APIdentity"):
         return target.is_following(self)
