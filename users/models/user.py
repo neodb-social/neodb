@@ -3,7 +3,7 @@ import re
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -46,6 +46,24 @@ class UsernameValidator(UnicodeUsernameValidator):
         if value and value.lower() in _RESERVED_USERNAMES:
             raise ValidationError(self.message, code=self.code)
         return super().__call__(value)
+
+
+class UserManager(BaseUserManager):
+    def create_user(self, username, email, password=None):
+        Takahe.get_domain()  # ensure configuration is complete
+        user = User.register(username=username, email=email)
+        return user
+
+    def create_superuser(self, username, email, password=None):
+        from takahe.models import User as TakaheUser
+
+        Takahe.get_domain()  # ensure configuration is complete
+        user = User.register(username=username, email=email, is_superuser=True)
+        tu = TakaheUser.objects.get(pk=user.pk, email="@" + username)
+        tu.admin = True
+        tu.set_password(password)
+        tu.save()
+        return user
 
 
 class User(AbstractUser):
@@ -113,6 +131,7 @@ class User(AbstractUser):
     # store the latest read announcement id,
     # every time user read the announcement update this field
     read_announcement_index = models.PositiveIntegerField(default=0)
+    objects = UserManager()
 
     class Meta:
         constraints = [

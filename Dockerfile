@@ -25,7 +25,7 @@ RUN apt-get purge -y --auto-remove \
 RUN python3 manage.py compilescss \
     && python3 manage.py collectstatic --noinput
 RUN cp -R misc/www /www
-RUN mv static /www/static
+RUN mv static /www/s
 
 # invoke check by default
 CMD [ "python3", "/neodb/manage.py", "check" ]

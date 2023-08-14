@@ -201,7 +201,7 @@ if os.getenv("NEODB_SSL", "") != "":
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = "/static/"
+STATIC_URL = "/s/"
 STATIC_ROOT = os.environ.get("NEODB_STATIC_ROOT", os.path.join(BASE_DIR, "static/"))
 
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
@@ -219,7 +219,7 @@ SILENCED_SYSTEM_CHECKS = [
     "fields.W344",  # Required by takahe: identical table name in different database
 ]
 
-MEDIA_URL = "/media/"
+MEDIA_URL = "/m/"
 MEDIA_ROOT = os.environ.get("NEODB_MEDIA_ROOT", os.path.join(BASE_DIR, "media/"))
 
 SITE_DOMAIN = os.environ.get("NEODB_SITE_DOMAIN", "nicedb.org")
