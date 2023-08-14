@@ -1,9 +1,8 @@
 from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
-from django.utils.text import Truncator
 
-from catalog.common.models import ItemCategory, item_categories
+from catalog.common.models import item_categories
 from catalog.search.views import visible_categories as _visible_categories
 
 register = template.Library()
@@ -22,12 +21,15 @@ def all_categories():
 @register.filter(is_safe=True)
 @stringfilter
 def duration_format(value, unit):
-    duration = int(value or 0) // int(unit or 1)
-    h = duration // 3600
-    m = duration % 3600 // 60
-    s = duration % 60
-    return f"{h}:{m:02}:{s:02}" if h else f"{m}:{s:02}"
-    # return (f"{h}小时 " if h else "") + (f"{m}分钟" if m else "")
+    try:
+        duration = int(value or 0) // int(unit or 1)
+        h = duration // 3600
+        m = duration % 3600 // 60
+        s = duration % 60
+        return f"{h}:{m:02}:{s:02}" if h else f"{m:02}:{s:02}"
+        # return (f"{h}小时 " if h else "") + (f"{m}分钟" if m else "")
+    except:
+        return f"{value} (format error)"
 
 
 @register.filter(is_safe=True)
