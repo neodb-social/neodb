@@ -90,7 +90,10 @@ class DiscogsRelease(AbstractSite):
 class DiscogsMaster(AbstractSite):
     SITE_NAME = SiteName.Discogs
     ID_TYPE = IdType.Discogs_Master
-    URL_PATTERNS = [r"https://www\.discogs\.com/master/(\d+)[^\d]*"]
+    URL_PATTERNS = [
+        r"^https://www\.discogs\.com/master/(\d+)[^\d]*",
+        r"^https://www\.discogs\.com/[\w\-]+/master/(\d+)[^\d]*",
+    ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
 

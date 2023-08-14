@@ -28,7 +28,7 @@ class Spotify(AbstractSite):
     ID_TYPE = IdType.Spotify_Album
     URL_PATTERNS = [
         r"^\w+://open\.spotify\.com/album/([a-zA-Z0-9]+).*",
-        r"^\w+://open\.spotify\.com/[\w-]+/album/([a-zA-Z0-9]+).*",
+        r"^\w+://open\.spotify\.com/[\w\-]+/album/([a-zA-Z0-9]+).*",
     ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
