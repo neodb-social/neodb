@@ -39,7 +39,7 @@ class AppleMusic(AbstractSite):
     def get_localized_urls(self):
         return [
             f"https://music.apple.com/{locale}/album/{self.id_value}"
-            for locale in ["hk", "tw", "us", "sg", "cn", "gb", "ca", "fr"]
+            for locale in ["hk", "tw", "us", "sg", "jp", "cn", "gb", "ca", "fr"]
         ]
 
     def scrape(self):
@@ -88,9 +88,7 @@ class AppleMusic(AbstractSite):
                 genre[0]
             ]  # apple treat "Music" as a genre. Thus, only the first genre is obtained.
 
-        images = (
-            content.xpath("//source[@type='image/jpeg']/@srcset") if content else []
-        )
+        images = content.xpath("//source[@type='image/jpeg']/@srcset")
         image_elem: str = images[0] if images else ""  # type:ignore
         image_url = image_elem.split(" ")[0] if image_elem else None
 
