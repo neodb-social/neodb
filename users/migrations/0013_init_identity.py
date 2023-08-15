@@ -52,7 +52,9 @@ def init_identity(apps, schema_editor):
             domain_name=domain,
             deleted=None if user.is_active else user.updated,
         )
-        takahe_user = TakaheUser.objects.create(pk=user.pk, email=handler)
+        takahe_user = TakaheUser.objects.create(
+            pk=user.pk, email=handler, admin=user.is_superuser
+        )
         takahe_identity = TakaheIdentity.objects.create(
             pk=user.pk,
             actor_uri=f"https://{service_domain or domain}/@{username}@{domain}/",

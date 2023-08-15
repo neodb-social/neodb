@@ -133,12 +133,13 @@ class Mark:
             shelf_type != self.shelf_type
             or comment_text != self.comment_text
             or rating_grade != self.rating_grade
+            or visibility != self.visibility
         )
-        if shelf_type is None:
+        if shelf_type is None or visibility != self.visibility:
             Takahe.delete_mark(self)
         if created_time and created_time >= timezone.now():
             created_time = None
-        post_as_new = shelf_type != self.shelf_type
+        post_as_new = shelf_type != self.shelf_type or visibility != self.visibility
         original_visibility = self.visibility
         if shelf_type != self.shelf_type or visibility != original_visibility:
             self.shelfmember = self.owner.shelf_manager.move_item(

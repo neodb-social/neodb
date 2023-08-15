@@ -342,6 +342,7 @@ class Takahe:
         content: str,
         visibility: Visibilities,
         data: dict | None = None,
+        reply_to_pk: int | None = None,
         post_pk: int | None = None,
         post_time: datetime.datetime | None = None,
     ) -> int | None:
@@ -351,6 +352,13 @@ class Takahe:
             if post_pk
             else None
         )
+        if post_pk and not post:
+            raise ValueError(f"Cannot find post to edit: {post_pk}")
+        reply_to_post = (
+            Post.objects.filter(pk=reply_to_pk).first() if reply_to_pk else None
+        )
+        if reply_to_pk and not reply_to_post:
+            raise ValueError(f"Cannot find post to reply: {reply_to_pk}")
         if post:
             post.edit_local(
                 pre_conetent, content, visibility=visibility, type_data=data
@@ -363,8 +371,13 @@ class Takahe:
                 visibility=visibility,
                 type_data=data,
                 published=post_time,
+                reply_to=reply_to_post,
             )
         return post.pk if post else None
+
+    @staticmethod
+    def get_post(post_pk: int) -> str | None:
+        return Post.objects.filter(pk=post_pk).first()
 
     @staticmethod
     def get_post_url(post_pk: int) -> str | None:
@@ -466,6 +479,12 @@ class Takahe:
         post.calculate_stats()
 
     @staticmethod
+    def reply_post(
+        post_pk: int, identity_pk: int, content: str, visibility: Visibilities
+    ):
+        return Takahe.post(identity_pk, "", content, visibility, reply_to_pk=post_pk)
+
+    @staticmethod
     def like_post(post_pk: int, identity_pk: int):
         return Takahe.interact_post(post_pk, identity_pk, "like")
 
@@ -497,3 +516,33 @@ class Takahe:
             logger.warning(f"Cannot find post {post_pk}")
             return {}
         return post.stats or {}
+
+    @staticmethod
+    def get_post_replies(post_pk: int, identity_pk: int | None):
+        node = Post.objects.filter(pk=post_pk).first()
+        if not node:
+            return Post.objects.none()
+        identity = (
+            Identity.objects.filter(pk=identity_pk).first() if identity_pk else None
+        )
+        child_queryset = (
+            Post.objects.not_hidden()
+            .prefetch_related(
+                # "attachments",
+                "mentions",
+                "emojis",
+            )
+            .select_related(
+                "author",
+                "author__domain",
+            )
+            .filter(in_reply_to=node.object_uri)
+            .order_by("published")
+        )
+        if identity:
+            child_queryset = child_queryset.visible_to(
+                identity=identity, include_replies=True
+            )
+        else:
+            child_queryset = child_queryset.unlisted(include_replies=True)
+        return child_queryset

@@ -219,6 +219,7 @@ SILENCED_SYSTEM_CHECKS = [
     "fields.W344",  # Required by takahe: identical table name in different database
 ]
 
+TAKAHE_MEDIA_PREFIX = "/media/"
 MEDIA_URL = "/m/"
 MEDIA_ROOT = os.environ.get("NEODB_MEDIA_ROOT", os.path.join(BASE_DIR, "media/"))
 

@@ -62,6 +62,16 @@
                   </a>
                 </span>
               {% endif %}
+              {% if identity.user.mastodon_account %}
+                <span>
+                  <a href="{{ identity.user.mastodon_account.url }}"
+                     target="_blank"
+                     rel="noopener"
+                     title="@{{ identity.user.mastodon_acct }}">
+                    <i class="fa-brands fa-mastodon"></i>
+                  </a>
+                </span>
+              {% endif %}
             {% elif request.user.is_authenticated %}
               {% include 'users/profile_actions.html' %}
             {% endif %}

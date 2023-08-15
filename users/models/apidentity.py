@@ -66,17 +66,18 @@ class APIdentity(models.Model):
     def profile_uri(self):
         return self.takahe_identity.profile_uri
 
-    @property
+    @cached_property
     def display_name(self):
         return self.takahe_identity.name or self.username
 
-    @property
+    @cached_property
     def summary(self):
         return self.takahe_identity.summary or ""
 
     @property
     def avatar(self):
-        return self.takahe_identity.icon_uri or static("img/avatar.svg")  # fixme
+        # return self.takahe_identity.icon_uri or static("img/avatar.svg")  # fixme
+        return f"/proxy/identity_icon/{self.pk}/"
 
     @property
     def url(self):

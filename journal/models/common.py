@@ -141,6 +141,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return f"/api/{self.url}" if self.url_path else None
 
     @property
+    def post(self):
+        return Takahe.get_post(self.post_id) if self.post_id else None
+
+    @property
     def shared_link(self):
         return Takahe.get_post_url(self.post_id) if self.post_id else None
 
@@ -152,6 +156,17 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     def is_liked_by(self, user):
         return self.post_id and Takahe.post_liked_by(self.post_id, user)
+
+    @property
+    def reply_count(self):
+        return (
+            Takahe.get_post_stats(self.post_id).get("replies", 0) if self.post_id else 0
+        )
+
+    def get_replies(self, viewing_identity):
+        return Takahe.get_post_replies(
+            self.post_id, viewing_identity.pk if viewing_identity else None
+        )
 
     @classmethod
     def get_by_url(cls, url_or_b62):

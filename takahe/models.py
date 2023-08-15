@@ -22,7 +22,7 @@ from django.utils.safestring import mark_safe
 from loguru import logger
 from lxml import etree
 
-from .html import FediverseHtmlParser
+from .html import ContentRenderer, FediverseHtmlParser
 from .uris import *
 
 if TYPE_CHECKING:
@@ -420,6 +420,14 @@ class Identity(models.Model):
         return f"{self.username}@(unknown server)"
 
     @property
+    def url(self):
+        return (
+            f"/users/{self.username}/"
+            if self.local
+            else f"/users/@{self.username}@{self.domain_id}/"
+        )
+
+    @property
     def user_pk(self):
         user = self.users.first()
         return user.pk if user else None
@@ -630,6 +638,101 @@ class Follow(models.Model):
         return f"#{self.id}: {self.source} → {self.target}"
 
 
+class PostQuerySet(models.QuerySet):
+    def not_hidden(self):
+        query = self.exclude(state__in=["deleted", "deleted_fanned_out"])
+        return query
+
+    def public(self, include_replies: bool = False):
+        query = self.filter(
+            visibility__in=[
+                Post.Visibilities.public,
+                Post.Visibilities.local_only,
+            ],
+        )
+        if not include_replies:
+            return query.filter(in_reply_to__isnull=True)
+        return query
+
+    def local_public(self, include_replies: bool = False):
+        query = self.filter(
+            visibility__in=[
+                Post.Visibilities.public,
+                Post.Visibilities.local_only,
+            ],
+            local=True,
+        )
+        if not include_replies:
+            return query.filter(in_reply_to__isnull=True)
+        return query
+
+    def unlisted(self, include_replies: bool = False):
+        query = self.filter(
+            visibility__in=[
+                Post.Visibilities.public,
+                Post.Visibilities.local_only,
+                Post.Visibilities.unlisted,
+            ],
+        )
+        if not include_replies:
+            return query.filter(in_reply_to__isnull=True)
+        return query
+
+    def visible_to(self, identity: Identity | None, include_replies: bool = False):
+        if identity is None:
+            return self.unlisted(include_replies=include_replies)
+        query = self.filter(
+            models.Q(
+                visibility__in=[
+                    Post.Visibilities.public,
+                    Post.Visibilities.local_only,
+                    Post.Visibilities.unlisted,
+                ]
+            )
+            | models.Q(
+                visibility=Post.Visibilities.followers,
+                author__inbound_follows__source=identity,
+            )
+            | models.Q(
+                mentions=identity,
+            )
+            | models.Q(author=identity)
+        ).distinct()
+        if not include_replies:
+            return query.filter(in_reply_to__isnull=True)
+        return query
+
+    # def tagged_with(self, hashtag: str | Hashtag):
+    #     if isinstance(hashtag, str):
+    #         tag_q = models.Q(hashtags__contains=hashtag)
+    #     else:
+    #         tag_q = models.Q(hashtags__contains=hashtag.hashtag)
+    #         if hashtag.aliases:
+    #             for alias in hashtag.aliases:
+    #                 tag_q |= models.Q(hashtags__contains=alias)
+    #     return self.filter(tag_q)
+
+
+class PostManager(models.Manager):
+    def get_queryset(self):
+        return PostQuerySet(self.model, using=self._db)
+
+    def not_hidden(self):
+        return self.get_queryset().not_hidden()
+
+    def public(self, include_replies: bool = False):
+        return self.get_queryset().public(include_replies=include_replies)
+
+    def local_public(self, include_replies: bool = False):
+        return self.get_queryset().local_public(include_replies=include_replies)
+
+    def unlisted(self, include_replies: bool = False):
+        return self.get_queryset().unlisted(include_replies=include_replies)
+
+    # def tagged_with(self, hashtag: str | Hashtag):
+    #     return self.get_queryset().tagged_with(hashtag=hashtag)
+
+
 class Post(models.Model):
     """
     A post (status, toot) that is either local or remote.
@@ -739,6 +842,7 @@ class Post(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    objects = PostManager()
 
     class Meta:
         # managed = False
@@ -810,7 +914,6 @@ class Post(models.Model):
         with transaction.atomic():
             # Find mentions in this post
             mentions = cls.mentions_from_content(content, author)
-            # mentions = set()
             if reply_to:
                 mentions.add(reply_to.author)
                 # Maintain local-only for replies
@@ -955,6 +1058,10 @@ class Post(models.Model):
         if save:
             self.save()
 
+    @property
+    def safe_content_local(self):
+        return ContentRenderer(local=True).render_post(self.content, self)
+
 
 class EmojiQuerySet(models.QuerySet):
     def usable(self, domain: Domain | None = None):
@@ -1070,7 +1177,8 @@ class Emoji(models.Model):
     def full_url(self, always_show=False) -> RelativeAbsoluteUrl:
         if self.is_usable or always_show:
             if self.file:
-                return AutoAbsoluteUrl(self.file.url)
+                return AutoAbsoluteUrl(settings.TAKAHE_MEDIA_PREFIX + self.file.name)
+                # return AutoAbsoluteUrl(self.file.url)
             elif self.remote_url:
                 return ProxyAbsoluteUrl(
                     f"/proxy/emoji/{self.pk}/",
