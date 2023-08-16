@@ -5,11 +5,13 @@ from django.db import migrations, models, transaction
 from loguru import logger
 from tqdm import tqdm
 
+from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
 from takahe.models import Identity as TakaheIdentity
 from takahe.models import User as TakaheUser
 
 domain = settings.SITE_INFO["site_domain"]
+name = settings.SITE_INFO["site_name"]
 service_domain = settings.SITE_INFO.get("site_service_domain")
 
 
@@ -26,6 +28,28 @@ def init_domain(apps, schema_editor):
         )
     else:
         logger.info(f"Takahe domain {domain} already exists")
+
+    TakaheConfig.objects.update_or_create(
+        key="public_timeline",
+        user=None,
+        identity=None,
+        domain=None,
+        defaults={"json": False},
+    )
+    TakaheConfig.objects.update_or_create(
+        key="site_name",
+        user=None,
+        identity=None,
+        domain=None,
+        defaults={"json": name},
+    )
+    TakaheConfig.objects.update_or_create(
+        key="site_name",
+        user=None,
+        identity=None,
+        domain=domain,
+        defaults={"json": name},
+    )
 
 
 def init_identity(apps, schema_editor):

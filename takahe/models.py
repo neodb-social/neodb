@@ -1532,3 +1532,50 @@ class InboxMessage(models.Model):
                 "object": payload,
             }
         )
+
+
+class Config(models.Model):
+    """
+    A configuration setting for either the server or a specific user or identity.
+
+    The possible options and their defaults are defined at the bottom of the file.
+    """
+
+    key = models.CharField(max_length=500)
+
+    user = models.ForeignKey(
+        User,
+        blank=True,
+        null=True,
+        related_name="configs",
+        on_delete=models.CASCADE,
+    )
+
+    identity = models.ForeignKey(
+        Identity,
+        blank=True,
+        null=True,
+        related_name="configs",
+        on_delete=models.CASCADE,
+    )
+
+    domain = models.ForeignKey(
+        Domain,
+        blank=True,
+        null=True,
+        related_name="configs",
+        on_delete=models.CASCADE,
+    )
+
+    json = models.JSONField(blank=True, null=True)
+    image = models.ImageField(
+        blank=True,
+        null=True,
+    )
+
+    class Meta:
+        # managed = False
+        db_table = "core_config"
+        unique_together = [
+            ("key", "user", "identity", "domain"),
+        ]
