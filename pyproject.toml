@@ -59,6 +59,7 @@ dev = [
     "django-debug-toolbar",
     "coverage",
     "djlint",
+    "django-stubs",
     "pyright>=1.1.322",
 ]
 

@@ -132,11 +132,6 @@ Requeue failed import jobs
 pdm run rq requeue --all --queue import
 ```
 
-Run in Docker
-```
-docker-compose up --build -d
-```
-
 Run Test Coverage
 ```
 pdm run coverage run --source='.' manage.py test

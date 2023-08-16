@@ -8,6 +8,7 @@ x-shared:
   neodb-service: &neodb-service
     build: .
     image: neodb:latest
+    platform: linux/amd64
     env_file:
       - neodb.env
     environment:
@@ -108,5 +109,5 @@ services:
     ports:
       - "${NEODB_PORT:-8000}:8000"
     volumes:
-      - misc/nginx.conf.d:/etc/nginx/conf.d
+      - ./misc/nginx.conf.d:/etc/nginx/conf.d
       - ${NEODB_DATA:-../data}/web:/www
