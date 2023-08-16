@@ -59,6 +59,7 @@ dev = [
     "django-debug-toolbar",
     "coverage",
     "djlint",
+    "pyright>=1.1.322",
 ]
 
 [tool.pdm.scripts]
@@ -69,6 +70,7 @@ dbmigrate = { cmd = "python manage.py migrate", help = "Prepare the database" }
 build_static = { shell = "python manage.py compilescss && python manage.py collectstatic", help = "Build static files(production-only)" }
 rqworker = { cmd = "python manage.py rqworker --with-scheduler import export mastodon fetch crawl", help = "Start the job queue worker" }
 create_index = { shell = "python manage.py index --init && python3 manage.py index --reindex", help = "Build the initial search index" }
+typecheck = { cmd = "python -m pyright", help = "Run the type checker" }
 
 [tool.pyright]
 exclude = [ "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/sites/douban_*" ]

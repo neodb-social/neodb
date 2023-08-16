@@ -35,7 +35,7 @@ jobs:
       uses: pdm-project/setup-pdm@v3
       with:
         python-version: ${{ matrix.python-version }}
-        cache: pip
+        cache: 'true'
     - name: Install Dependencies
       run: |
         pdm install --prod
