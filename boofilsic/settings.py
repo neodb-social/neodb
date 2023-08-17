@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     "polymorphic",
     "easy_thumbnails",
     "user_messages",
-    "fontawesomefree",
     # "anymail",
     # "silk",
 ]
@@ -130,9 +129,9 @@ CACHES = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("NEODB_DB_NAME", "test"),
-        "USER": os.environ.get("NEODB_DB_USER", "postgres"),
-        "PASSWORD": os.environ.get("NEODB_DB_PASSWORD", "admin123"),
+        "NAME": os.environ.get("NEODB_DB_NAME", "test_neodb"),
+        "USER": os.environ.get("NEODB_DB_USER", "testuser"),
+        "PASSWORD": os.environ.get("NEODB_DB_PASSWORD", "testpass"),
         "HOST": os.environ.get("NEODB_DB_HOST", "127.0.0.1"),
         "PORT": int(os.environ.get("NEODB_DB_PORT", 5432)),
         "OPTIONS": {
@@ -191,7 +190,6 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-
 if os.getenv("NEODB_SSL", "") != "":
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_PRELOAD = True
@@ -237,6 +235,10 @@ SITE_INFO = {
 REDIRECT_URIS = SITE_INFO["site_url"] + "/account/login/oauth"
 # for sites migrated from previous version, either wipe mastodon client ids or use:
 # REDIRECT_URIS = f'{SITE_INFO["site_url"]}/users/OAuth2_login/'
+
+CSRF_TRUSTED_ORIGINS = [SITE_INFO["site_url"]]
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS += ["http://127.0.0.1:8000", "http://localhost:8000"]
 
 # Path to save report related images, ends with slash
 REPORT_MEDIA_PATH_ROOT = "report/"

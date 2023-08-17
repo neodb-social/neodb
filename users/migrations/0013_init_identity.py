@@ -47,7 +47,7 @@ def init_domain(apps, schema_editor):
         key="site_name",
         user=None,
         identity=None,
-        domain=domain,
+        domain_id=domain,
         defaults={"json": name},
     )
 

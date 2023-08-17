@@ -19,7 +19,6 @@ from journal.models import (
     ShelfMember,
     ShelfType,
     ShelfTypeNames,
-    q_item_in_category,
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
@@ -259,12 +258,6 @@ def reviews(request, item_path, item_uuid):
 def discover(request):
     if request.method != "GET":
         raise BadRequest()
-    user = request.user
-    if user.is_authenticated:
-        layout = user.preference.discover_layout
-    else:
-        layout = []
-
     cache_key = "public_gallery"
     gallery_list = cache.get(cache_key, [])
 
@@ -276,10 +269,12 @@ def discover(request):
     #     )
     #     gallery["items"] = Item.objects.filter(id__in=ids)
 
-    if user.is_authenticated:
+    if request.user.is_authenticated:
+        layout = request.user.preference.discover_layout
+        identity = request.user.identity
         podcast_ids = [
             p.item_id
-            for p in user.shelf_manager.get_latest_members(
+            for p in identity.shelf_manager.get_latest_members(
                 ShelfType.PROGRESS, ItemCategory.Podcast
             )
         ]
@@ -289,7 +284,7 @@ def discover(request):
         books_in_progress = Edition.objects.filter(
             id__in=[
                 p.item_id
-                for p in user.shelf_manager.get_latest_members(
+                for p in identity.shelf_manager.get_latest_members(
                     ShelfType.PROGRESS, ItemCategory.Book
                 )[:10]
             ]
@@ -297,22 +292,23 @@ def discover(request):
         tvshows_in_progress = Item.objects.filter(
             id__in=[
                 p.item_id
-                for p in user.shelf_manager.get_latest_members(
+                for p in identity.shelf_manager.get_latest_members(
                     ShelfType.PROGRESS, ItemCategory.TV
                 )[:10]
             ]
         )
     else:
+        identity = None
         recent_podcast_episodes = []
         books_in_progress = []
         tvshows_in_progress = []
+        layout = []
 
     return render(
         request,
         "discover.html",
         {
-            "user": user,
-            "identity": user.identity,
+            "identity": identity,
             "gallery_list": gallery_list,
             "recent_podcast_episodes": recent_podcast_episodes,
             "books_in_progress": books_in_progress,

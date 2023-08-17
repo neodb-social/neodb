@@ -1,0 +1,10 @@
+.DS_Store
+.env
+.venv
+.vscode
+.github
+.git
+__pycache__
+/doc
+/media
+/static

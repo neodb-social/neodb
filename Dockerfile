@@ -1,10 +1,14 @@
 # syntax=docker/dockerfile:1
-FROM python:3.11-slim-bullseye
+FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+RUN useradd -U app
 COPY . /neodb
+RUN mkdir -p /www
 WORKDIR /neodb
-RUN apt-get update \
+RUN mv neodb-takahe /takahe
+RUN cp misc/neodb-manage misc/takahe-manage /bin
+RUN --mount=type=cache,target=/var/cache/apt apt-get update \
     && apt-get install -y --no-install-recommends \
         build-essential \
         libpq-dev \
@@ -13,10 +17,13 @@ RUN apt-get update \
         nginx \
         opencc \
         git
+RUN busybox --install
 COPY misc/nginx.conf.d/* /etc/nginx/conf.d/
-RUN echo >> /etc/nginx/nginx.conf
-RUN echo 'daemon off;' >> /etc/nginx/nginx.conf
-RUN python3 -m pip install --no-cache-dir --upgrade -r requirements.txt
+
+RUN --mount=type=cache,target=/root/.cache python3 -m pip install --upgrade -r requirements.txt
+
+RUN --mount=type=cache,target=/root/.cache cd /takahe && python3 -m pip install --upgrade -r requirements.txt
+
 RUN apt-get purge -y --auto-remove \
         build-essential \
         libpq-dev \
@@ -24,8 +31,10 @@ RUN apt-get purge -y --auto-remove \
 
 RUN python3 manage.py compilescss \
     && python3 manage.py collectstatic --noinput
-RUN cp -R misc/www /www
-RUN mv static /www/s
+
+RUN cd /takahe && TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" python3 manage.py collectstatic --noinput
+
+USER app:app
 
 # invoke check by default
-CMD [ "python3", "/neodb/manage.py", "check" ]
+CMD [ "sh", "-c", 'python3 /neodb/manage.py check && TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" python3 manage.py collectstatic --noinput python3 /takahe/manage.py check' ]

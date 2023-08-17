@@ -76,8 +76,10 @@ class APIdentity(models.Model):
 
     @property
     def avatar(self):
-        # return self.takahe_identity.icon_uri or static("img/avatar.svg")  # fixme
-        return f"/proxy/identity_icon/{self.pk}/"
+        if self.local:
+            return self.takahe_identity.icon_uri or static("img/avatar.svg")
+        else:
+            return f"/proxy/identity_icon/{self.pk}/"
 
     @property
     def url(self):

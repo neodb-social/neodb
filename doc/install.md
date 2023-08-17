@@ -20,11 +20,7 @@ This is a very basic guide with limited detail, contributions welcomed
 0 Run in Docker
 ---------------
 
-```
-cp neodb.env.dist neodb.env  # update this configuration
-
-docker-compose up
-```
+Recommended, see [Docker Installation](install-docker.md)
 
 1 Manual Install
 ----------------

@@ -1,0 +1,4 @@
+[submodule "neodb-takahe"]
+	path = neodb-takahe
+	url = git@github.com:alphatownsman/neodb-takahe.git
+	branch = neodb

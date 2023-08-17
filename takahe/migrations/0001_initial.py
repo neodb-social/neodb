@@ -506,4 +506,55 @@ class Migration(migrations.Migration):
                 "db_table": "users_inboxmessage",
             },
         ),
+        migrations.CreateModel(
+            name="Config",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("key", models.CharField(max_length=500)),
+                ("json", models.JSONField(blank=True, null=True)),
+                ("image", models.ImageField(blank=True, null=True, upload_to="")),
+                (
+                    "domain",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="configs",
+                        to="takahe.domain",
+                    ),
+                ),
+                (
+                    "identity",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="configs",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="configs",
+                        to="takahe.user",
+                    ),
+                ),
+            ],
+            options={
+                "db_table": "core_config",
+                "unique_together": {("key", "user", "identity", "domain")},
+            },
+        ),
     ]

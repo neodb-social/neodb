@@ -342,9 +342,9 @@ class Takahe:
         content: str,
         visibility: Visibilities,
         data: dict | None = None,
-        reply_to_pk: int | None = None,
         post_pk: int | None = None,
         post_time: datetime.datetime | None = None,
+        reply_to_pk: int | None = None,
     ) -> int | None:
         identity = Identity.objects.get(pk=author_pk)
         post = (
@@ -403,7 +403,7 @@ class Takahe:
             if user.preference.mastodon_append_tag
             else ""
         )
-        stars = _rating_to_emoji(mark.rating_grade, 0)
+        stars = _rating_to_emoji(mark.rating_grade, 1)
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{mark.item.url}"
 
         pre_conetent = (
@@ -518,7 +518,9 @@ class Takahe:
         return post.stats or {}
 
     @staticmethod
-    def get_post_replies(post_pk: int, identity_pk: int | None):
+    def get_post_replies(post_pk: int | None, identity_pk: int | None):
+        if not post_pk:
+            return Post.objects.none()
         node = Post.objects.filter(pk=post_pk).first()
         if not node:
             return Post.objects.none()

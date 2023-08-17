@@ -23,7 +23,6 @@ django-user-messages
 dnspython
 easy-thumbnails
 filetype
-fontawesomefree
 gunicorn
 httpx
 igdb-api-v4
