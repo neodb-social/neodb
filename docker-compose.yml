@@ -28,7 +28,7 @@ x-shared:
       - NEODB_MEDIA_ROOT=/www/media/
     restart: "on-failure"
     volumes:
-      - ${NEODB_DATA:-../data}/web:/www
+      - web-vol:/www
     depends_on:
       - neodb-redis
       - neodb-db
@@ -110,4 +110,12 @@ services:
       - "${NEODB_PORT:-8000}:8000"
     volumes:
       - ./misc/nginx.conf.d:/etc/nginx/conf.d
-      - ${NEODB_DATA:-../data}/web:/www
+      - web-vol:/www
+
+volumes:
+  web-vol:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${NEODB_DATA:-../data}/web
+      o: bind
