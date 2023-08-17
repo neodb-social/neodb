@@ -24,6 +24,7 @@ dnspython
 easy-thumbnails
 filetype
 fontawesomefree
+gunicorn
 igdb-api-v4
 libsass
 listparser

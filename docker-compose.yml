@@ -1,32 +1,110 @@
-version: '3'
+version: "3.4"
+
+# NEODB Docker Compose File
+#
+# Note: configuration here may not be secure for production usage
+
+x-shared:
+  neodb-service: &neodb-service
+    build: .
+    image: neodb:latest
+    env_file:
+      - neodb.env
+    environment:
+      - NEODB_DB_NAME=neodb
+      - NEODB_DB_USER=neodb
+      - NEODB_DB_PASSWORD=aubergine
+      - NEODB_DB_HOST=neodb-db
+      - NEODB_DB_PORT=5432
+      - NEODB_REDIS_HOST=neodb-redis
+      - NEODB_REDIS_PORT=6379
+      - NEODB_REDIS_DB=0
+      - NEODB_TYPESENSE_ENABLE=1
+      - NEODB_TYPESENSE_HOST=neodb-search
+      - NEODB_TYPESENSE_PORT=8108
+      - NEODB_TYPESENSE_KEY=eggplant
+      - NEODB_STATIC_ROOT=/www/static/
+      - NEODB_MEDIA_ROOT=/www/media/
+    restart: "on-failure"
+    volumes:
+      - ${NEODB_DATA:-../data}/neodb-media:/www/media
+    depends_on:
+      - neodb-redis
+      - neodb-db
+      - neodb-search
 
 services:
-  redis:
+  neodb-redis:
     image: redis:alpine
-
-  db:
-    image: postgres:14-alpine
-    volumes:
-      - /tmp/data/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-
-  web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/code
     ports:
-      - "8000:8000"
+      - "16379:6379"
+
+  neodb-search:
+    image: typesense/typesense:0.25.0
+    restart: "on-failure"
+    healthcheck:
+      test: ['CMD', 'curl', '-vf', 'http://127.0.0.1:8108/health']
+    # ports:
+    #   - "18108:8108"
     environment:
-      - DB_HOST=db
-      - DB_NAME=postgres
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - REDIS_HOST=redis
-      - DJANGO_SETTINGS_MODULE=yoursettings.dev
+      GLOG_minloglevel: 2
+    volumes:
+      - ${NEODB_DATA:-../data}/typesense:/data
+    command: '--data-dir /data --api-key=eggplant'
+
+  neodb-db:
+    image: postgres:14-alpine
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'neodb']
+    volumes:
+      - ${NEODB_DATA:-../data}/neodb-data:/var/lib/postgresql/data
+    # ports:
+    #   - "15432:5432"
+    environment:
+      - POSTGRES_DB=neodb
+      - POSTGRES_USER=neodb
+      - POSTGRES_PASSWORD=aubergine
+
+  migration:
+    <<: *neodb-service
+    restart: "no"
+    command: python /neodb/manage.py migrate
     depends_on:
-      - db
-      - redis
+      neodb-db:
+        condition: service_healthy
+      neodb-search:
+        condition: service_started
+      neodb-redis:
+        condition: service_started
+
+  neodb-web:
+    <<: *neodb-service
+    # ports:
+    #   - "18000:8000"
+    command: gunicorn boofilsic.wsgi -w 8 --preload -b 0.0.0.0:8000
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+
+  neodb-worker:
+    <<: *neodb-service
+    command: python /neodb/manage.py rqworker --with-scheduler import export mastodon fetch crawl
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+
+  neodb-worker-secondary:
+    <<: *neodb-service
+    command: python /neodb/manage.py rqworker --with-scheduler fetch crawl
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+
+  neodb-nginx:
+    <<: *neodb-service
+    command: nginx
+    depends_on:
+      neodb-web:
+        condition: service_started
+    ports:
+      - "${NEODB_PORT:-8000}:8000"

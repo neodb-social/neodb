@@ -19,6 +19,8 @@ _logger = logging.getLogger(__name__)
 
 
 def _igdb_access_token():
+    if not settings.IGDB_CLIENT_SECRET:
+        return "<missing>"
     try:
         token = requests.post(
             f"https://id.twitch.tv/oauth2/token?client_id={settings.IGDB_CLIENT_ID}&client_secret={settings.IGDB_CLIENT_SECRET}&grant_type=client_credentials"

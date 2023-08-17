@@ -3,7 +3,8 @@ NiceDB / NeoDB - Getting Start
 This is a very basic guide with limited detail, contributions welcomed
 
 ## Table of Contents
-- [1 Install](#1-install)
+- [Run in Docker](#0-run-in-docker)
+- [1 Install](#1-manual-install)
   * [1.1 Database](#11-database)
   * [1.2 Configuration](#12-configuration)
   * [1.3 Packages and Build](#13-packages-and-build)
@@ -15,8 +16,18 @@ This is a very basic guide with limited detail, contributions welcomed
 - [7 Frequently Asked Questions](#7-frequently-asked-questions)
 
 
-1 Install
--------
+
+0 Run in Docker
+---------------
+
+```
+cp neodb.env.dist neodb.env  # update this configuration
+
+docker-compose up
+```
+
+1 Manual Install
+----------------
 Install PostgreSQL, Redis and Python (3.10 or above) if not yet
 
 ### 1.1 Database
@@ -121,12 +132,6 @@ python3 manage.py index --reindex
 Requeue failed import jobs
 ```
 rq requeue --all --queue import
-```
-
-Run in Docker
-```
-docker-compose build
-docker-compose up
 ```
 
 Run Tests

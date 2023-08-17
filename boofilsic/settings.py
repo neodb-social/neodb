@@ -7,17 +7,19 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__name__))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys
-DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# for legacy deployment:
+# DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "nbv58c^&b8-095(^)&_BV98596v)&CX#^$&%*^V5"
+# SECURITY WARNING: use your own secret key and keep it!
+SECRET_KEY = os.environ.get("NEODB_SECRET_KEY", "insecure")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("NEODB_DEBUG", "") != ""
 
 ALLOWED_HOSTS = ["*"]
 
@@ -117,34 +119,20 @@ CACHES = {
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-if DEBUG:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("DB_NAME", "test"),
-            "USER": os.environ.get("DB_USER", "postgres"),
-            "PASSWORD": os.environ.get("DB_PASSWORD", "admin123"),
-            "HOST": os.environ.get("DB_HOST", "127.0.0.1"),
-            "OPTIONS": {
-                "client_encoding": "UTF8",
-                # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
-            },
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("NEODB_DB_NAME", "test"),
+        "USER": os.environ.get("NEODB_DB_USER", "postgres"),
+        "PASSWORD": os.environ.get("NEODB_DB_PASSWORD", "admin123"),
+        "HOST": os.environ.get("NEODB_DB_HOST", "127.0.0.1"),
+        "PORT": int(os.environ.get("NEODB_DB_PORT", 5432)),
+        "OPTIONS": {
+            "client_encoding": "UTF8",
+            # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
+        },
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "boofilsic",
-            "USER": "doubaniux",
-            "PASSWORD": "password",
-            "HOST": "localhost",
-            "OPTIONS": {
-                "client_encoding": "UTF8",
-                # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
-            },
-        }
-    }
+}
 
 # Customized auth backend, glue OAuth2 and Django User model together
 # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#authentication-backends
@@ -172,14 +160,19 @@ USE_L10N = True
 USE_TZ = True
 
 
-if not DEBUG:
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+if os.getenv("NEODB_SSL", "") != "":
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_PRELOAD = True
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_SECONDS = 31536000
 
+if not DEBUG:
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,
@@ -208,7 +201,7 @@ if not DEBUG:
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+STATIC_ROOT = os.environ.get("NEODB_STATIC_ROOT", os.path.join(BASE_DIR, "static/"))
 
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 STATICFILES_FINDERS = [
@@ -224,23 +217,22 @@ SILENCED_SYSTEM_CHECKS = [
 ]
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+MEDIA_ROOT = os.environ.get("NEODB_MEDIA_ROOT", os.path.join(BASE_DIR, "media/"))
 
+SITE_DOMAIN = os.environ.get("NEODB_SITE_DOMAIN", "nicedb.org")
 SITE_INFO = {
-    "site_name": os.environ.get("APP_NAME", "NiceDB"),
-    "site_url": os.environ.get("APP_URL", "https://nicedb.org"),
+    "site_name": os.environ.get("NEODB_SITE_NAME", "NiceDB"),
+    "site_domain": SITE_DOMAIN,
+    "site_url": os.environ.get("NEODB_SITE_URL", "https://" + SITE_DOMAIN),
     "support_link": "https://github.com/doubaniux/boofilsic/issues",
     "social_link": "https://donotban.com/@testie",
     "donation_link": "https://patreon.com/tertius",
-    "version_hash": None,
     "settings_module": os.getenv("DJANGO_SETTINGS_MODULE"),
-    "sentry_dsn": None,
 }
 
-REDIRECT_URIS = f'{SITE_INFO["site_url"]}/users/OAuth2_login/'
-# if you are creating new site, use
-# REDIRECT_URIS = SITE_INFO["site_url"] + "/account/login/oauth"
-
+REDIRECT_URIS = SITE_INFO["site_url"] + "/account/login/oauth"
+# for sites migrated from previous version, either wipe mastodon client ids or use:
+# REDIRECT_URIS = f'{SITE_INFO["site_url"]}/users/OAuth2_login/'
 
 # Path to save report related images, ends with slash
 REPORT_MEDIA_PATH_ROOT = "report/"
@@ -261,7 +253,7 @@ SYNC_FILE_PATH_ROOT = "sync/"
 EXPORT_FILE_PATH_ROOT = "export/"
 
 # Allow user to login via any Mastodon/Pleroma sites
-MASTODON_ALLOW_ANY_SITE = False
+MASTODON_ALLOW_ANY_SITE = True
 
 # Allow user to create account with email (and link to Mastodon account later)
 ALLOW_EMAIL_ONLY_ACCOUNT = False
@@ -312,7 +304,7 @@ DISCOGS_API_KEY = "***REMOVED***"
 
 # IGDB
 IGDB_CLIENT_ID = "deadbeef"
-IGDB_CLIENT_SECRET = "deadbeef"
+IGDB_CLIENT_SECRET = ""
 
 BLEACH_STRIP_COMMENTS = True
 BLEACH_STRIP_TAGS = True
@@ -335,43 +327,45 @@ if DEBUG:
 # https://django-debug-toolbar.readthedocs.io/en/latest/
 # maybe benchmarking before deployment
 
-REDIS_HOST = os.environ.get("REDIS_HOST", "127.0.0.1")
+REDIS_HOST = os.environ.get("NEODB_REDIS_HOST", "127.0.0.1")
+REDIS_PORT = int(os.environ.get("NEODB_REDIS_PORT", 6379))
+REDIS_DB = int(os.environ.get("NEODB_REDIS_DB", 0))
 
 RQ_QUEUES = {
     "mastodon": {
         "HOST": REDIS_HOST,
-        "PORT": 6379,
-        "DB": 0,
+        "PORT": REDIS_PORT,
+        "DB": REDIS_DB,
         "DEFAULT_TIMEOUT": -1,
     },
     "export": {
         "HOST": REDIS_HOST,
-        "PORT": 6379,
-        "DB": 0,
+        "PORT": REDIS_PORT,
+        "DB": REDIS_DB,
         "DEFAULT_TIMEOUT": -1,
     },
     "import": {
-        "HOST": "localhost",
-        "PORT": 6379,
-        "DB": 0,
+        "HOST": REDIS_HOST,
+        "PORT": REDIS_PORT,
+        "DB": REDIS_DB,
         "DEFAULT_TIMEOUT": -1,
     },
     "fetch": {
-        "HOST": "localhost",
-        "PORT": 6379,
-        "DB": 0,
+        "HOST": REDIS_HOST,
+        "PORT": REDIS_PORT,
+        "DB": REDIS_DB,
         "DEFAULT_TIMEOUT": -1,
     },
     "crawl": {
-        "HOST": "localhost",
-        "PORT": 6379,
-        "DB": 0,
+        "HOST": REDIS_HOST,
+        "PORT": REDIS_PORT,
+        "DB": REDIS_DB,
         "DEFAULT_TIMEOUT": -1,
     },
     "doufen": {
         "HOST": REDIS_HOST,
-        "PORT": 6379,
-        "DB": 0,
+        "PORT": REDIS_PORT,
+        "DB": REDIS_DB,
         "DEFAULT_TIMEOUT": -1,
     },
 }
@@ -380,19 +374,27 @@ RQ_SHOW_ADMIN_LINK = True
 
 SEARCH_INDEX_NEW_ONLY = False
 
+SEARCH_BACKEND = None
 
 # SEARCH_BACKEND = 'MEILISEARCH'
 # MEILISEARCH_SERVER = 'http://127.0.0.1:7700'
 # MEILISEARCH_KEY = 'deadbeef'
 
-# SEARCH_BACKEND = "TYPESENSE"
+if os.environ.get("NEODB_TYPESENSE_ENABLE", ""):
+    SEARCH_BACKEND = "TYPESENSE"
+
 TYPESENSE_CONNECTION = {
-    "api_key": "xyz",
-    "nodes": [{"host": "localhost", "port": "8108", "protocol": "http"}],
+    "api_key": os.environ.get("NEODB_TYPESENSE_KEY", "insecure"),
+    "nodes": [
+        {
+            "host": os.environ.get("NEODB_TYPESENSE_HOST", "127.0.0.1"),
+            "port": os.environ.get("NEODB_TYPESENSE_PORT", "8108"),
+            "protocol": "http",
+        }
+    ],
     "connection_timeout_seconds": 2,
 }
 
-SEARCH_BACKEND = None
 
 DOWNLOADER_RETRIES = 3
 DOWNLOADER_SAVEDIR = None
