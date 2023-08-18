@@ -24,11 +24,11 @@ x-shared:
       - NEODB_TYPESENSE_HOST=neodb-search
       - NEODB_TYPESENSE_PORT=8108
       - NEODB_TYPESENSE_KEY=eggplant
-      - NEODB_STATIC_ROOT=/web/www/static/
-      - NEODB_MEDIA_ROOT=/web/www/media/
+      - NEODB_STATIC_ROOT=/www/static/
+      - NEODB_MEDIA_ROOT=/www/media/
     restart: "on-failure"
     volumes:
-      - web-vol:/web
+      - ${NEODB_DATA:-../data}/neodb-media:/www/media
     depends_on:
       - neodb-redis
       - neodb-db
@@ -102,20 +102,11 @@ services:
         condition: service_completed_successfully
 
   neodb-nginx:
-    image: nginx:1-alpine
+    <<: *neodb-service
+    command: nginx
+    user: root
     depends_on:
       neodb-web:
         condition: service_started
     ports:
       - "${NEODB_PORT:-8000}:8000"
-    volumes:
-      - ${NEODB_DATA:-../data}/web/nginx.conf.d:/etc/nginx/conf.d
-      - ${NEODB_DATA:-../data}/web/www:/www
-
-volumes:
-  web-vol:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${NEODB_DATA:-../data}/web
-      o: bind
