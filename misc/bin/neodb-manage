@@ -1,0 +1,2 @@
+#!/bin/sh
+/neodb/.venv/bin/python /neodb/manage.py $@

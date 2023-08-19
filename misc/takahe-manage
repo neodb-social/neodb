@@ -1,2 +1,0 @@
-#!/bin/sh
-python /takahe/manage.py $@

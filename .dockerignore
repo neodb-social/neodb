@@ -8,3 +8,5 @@ __pycache__
 /doc
 /media
 /static
+/docker-compose.yml
+/Dockerfile

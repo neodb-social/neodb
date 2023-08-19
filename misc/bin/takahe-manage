@@ -1,0 +1,2 @@
+#!/bin/sh
+/takahe/.venv/bin/python /takahe/manage.py $@

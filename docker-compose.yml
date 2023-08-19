@@ -13,7 +13,7 @@ version: "3.8"
 x-shared:
   neodb-service: &neodb-service
     build: .
-    image: nerodb/neodb:latest
+    image: neodb/neodb:${TAG:-latest}
     environment:
       - NEODB_DB_NAME=neodb
       - NEODB_DB_USER=neodb
@@ -110,7 +110,7 @@ services:
   migration:
     <<: *neodb-service
     restart: "no"
-    command: "sh -c 'python /takahe/manage.py migrate && python /neodb/manage.py migrate'"
+    command: "sh -c '/takahe/.venv/bin/python /takahe/manage.py migrate && /neodb/.venv/bin/python /neodb/manage.py migrate'"
     depends_on:
       neodb-db:
         condition: service_healthy
@@ -125,7 +125,7 @@ services:
     <<: *neodb-service
     # ports:
     #   - "18000:8000"
-    command: gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload -b 0.0.0.0:8000
+    command: /neodb/.venv/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload -b 0.0.0.0:8000
     healthcheck:
       test: ['CMD', 'wget', '-qO/tmp/test', 'http://127.0.0.1:8000/discover/']
     depends_on:
@@ -134,14 +134,14 @@ services:
 
   neodb-worker:
     <<: *neodb-service
-    command: python /neodb/manage.py rqworker --with-scheduler import export mastodon fetch crawl
+    command: /neodb/.venv/bin/python /neodb/manage.py rqworker --with-scheduler import export mastodon fetch crawl
     depends_on:
       migration:
         condition: service_completed_successfully
 
   neodb-worker-extra:
     <<: *neodb-service
-    command: python /neodb/manage.py rqworker --with-scheduler fetch crawl
+    command: /neodb/.venv/bin/python /neodb/manage.py rqworker --with-scheduler fetch crawl
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -150,7 +150,7 @@ services:
     <<: *neodb-service
     # ports:
     #   - "19000:8000"
-    command: gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8} --preload -b 0.0.0.0:8000
+    command: /takahe/.venv/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8} --preload -b 0.0.0.0:8000
     healthcheck:
       test: ['CMD', 'wget', '-qO/tmp/test', 'http://127.0.0.1:8000/nodeinfo/2.0/']
     depends_on:
@@ -159,7 +159,7 @@ services:
 
   takahe-stator:
     <<: *neodb-service
-    command: python /takahe/manage.py runstator
+    command: /takahe/.venv/bin/python /takahe/manage.py runstator
     depends_on:
       migration:
         condition: service_completed_successfully
