@@ -345,7 +345,7 @@ class Takahe:
         post_pk: int | None = None,
         post_time: datetime.datetime | None = None,
         reply_to_pk: int | None = None,
-    ) -> int | None:
+    ) -> Post | None:
         identity = Identity.objects.get(pk=author_pk)
         post = (
             Post.objects.filter(author=identity, pk=post_pk).first()
@@ -373,7 +373,7 @@ class Takahe:
                 published=post_time,
                 reply_to=reply_to_post,
             )
-        return post.pk if post else None
+        return post
 
     @staticmethod
     def get_post(post_pk: int) -> str | None:
@@ -390,7 +390,7 @@ class Takahe:
             Post.objects.filter(pk=mark.shelfmember.post_id).update(state="deleted")
 
     @staticmethod
-    def post_mark(mark, share_as_new_post: bool):
+    def post_mark(mark, share_as_new_post: bool) -> Post | None:
         from catalog.common import ItemCategory
         from takahe.utils import Takahe
 
@@ -427,7 +427,7 @@ class Takahe:
             v = Takahe.Visibilities.public
         else:
             v = Takahe.Visibilities.unlisted
-        post_pk = Takahe.post(
+        post = Takahe.post(
             mark.owner.pk,
             pre_conetent,
             content,
@@ -436,15 +436,18 @@ class Takahe:
             None if share_as_new_post else mark.shelfmember.post_id,
             mark.shelfmember.created_time,
         )
-        if post_pk != mark.shelfmember.post_id:
-            mark.shelfmember.post_id = post_pk
+        if not post:
+            return
+        if post.pk != mark.shelfmember.post_id:
+            mark.shelfmember.post_id = post.pk
             mark.shelfmember.save(update_fields=["post_id"])
-        if mark.comment and post_pk != mark.comment.post_id:
-            mark.comment.post_id = post_pk
+        if mark.comment and post.pk != mark.comment.post_id:
+            mark.comment.post_id = post.pk
             mark.comment.save(update_fields=["post_id"])
-        if mark.rating and post_pk != mark.rating.post_id:
-            mark.rating.post_id = post_pk
+        if mark.rating and post.pk != mark.rating.post_id:
+            mark.rating.post_id = post.pk
             mark.rating.save(update_fields=["post_id"])
+        return post
 
     @staticmethod
     def interact_post(post_pk: int, identity_pk: int, type: str):

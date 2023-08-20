@@ -21,6 +21,7 @@ from catalog.common import jsondata
 from catalog.common.models import Item, ItemCategory
 from catalog.common.utils import DEFAULT_ITEM_COVER, piece_cover_path
 from catalog.models import *
+from mastodon.api import boost_toot
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -88,8 +89,8 @@ class Mark:
         if self.shelfmember:
             return self.shelfmember.visibility
         else:
-            logger.warning(f"no shelfmember for mark {self.owner}, {self.item}")
-            return 2
+            # mark not saved yet, return default visibility for editing ui
+            return self.owner.preference.default_visibility
 
     @cached_property
     def tags(self) -> list[str]:
@@ -181,8 +182,23 @@ class Mark:
             Rating.update_item_rating(self.item, self.owner, rating_grade, visibility)
             self.rating_grade = rating_grade
 
-        if post_to_feed:
-            Takahe.post_mark(self, post_as_new)
+        post = Takahe.post_mark(self, post_as_new) if post_to_feed else None
+        if share_to_mastodon and post:
+            if (
+                self.owner.user
+                and self.owner.user.mastodon_token
+                and self.owner.user.mastodon_site
+            ):
+                # TODO: make this a async task, given post to mastodon is slow and takahe post fanout may take time
+                if boost_toot(
+                    self.owner.user.mastodon_site,
+                    self.owner.user.mastodon_token,
+                    post.url,
+                ):
+                    return True
+            return False
+        else:
+            return True
 
     def delete(self):
         # self.logs.delete()  # When deleting a mark, all logs of the mark are deleted first.

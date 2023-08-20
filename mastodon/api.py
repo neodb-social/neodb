@@ -67,6 +67,56 @@ def get_api_domain(domain):
 # low level api below
 
 
+def boost_toot(site, token, toot_url):
+    domain = get_api_domain(site)
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Authorization": f"Bearer {token}",
+    }
+    url = (
+        "https://"
+        + domain
+        + API_SEARCH
+        + "?type=statuses&resolve=true&q="
+        + quote(toot_url)
+    )
+    try:
+        response = get(url, headers=headers)
+        if response.status_code != 200:
+            logger.error(f"Error search {toot_url} on {domain} {response.status_code}")
+            return None
+        j = response.json()
+        if "statuses" in j and len(j["statuses"]) > 0:
+            s = j["statuses"][0]
+            if s["uri"] != toot_url and s["url"] != toot_url:
+                logger.error(
+                    f"Error status url mismatch {s['uri']} or {s['uri']} != {toot_url}"
+                )
+                return None
+            if s["reblogged"]:
+                logger.info(f"Already boosted {toot_url}")
+                # TODO unboost and boost again?
+                return None
+            url = (
+                "https://"
+                + domain
+                + API_PUBLISH_TOOT
+                + "/"
+                + j["statuses"][0]["id"]
+                + "/reblog"
+            )
+            response = post(url, headers=headers)
+            if response.status_code != 200:
+                logger.error(
+                    f"Error search {toot_url} on {domain} {response.status_code}"
+                )
+                return None
+            return response.json()
+    except Exception:
+        logger.error(f"Error search {toot_url} on {domain}")
+        return None
+
+
 def post_toot(
     site,
     content,
