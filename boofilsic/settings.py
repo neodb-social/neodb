@@ -1,13 +1,14 @@
 import os
 
-# import django_stubs_ext
+import environ
 
-# django_stubs_ext.monkeypatch()
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
 
 NEODB_VERSION = "0.8"
 DATABASE_ROUTERS = ["takahe.db_routes.TakaheRouter"]
-
-PROJECT_ROOT = os.path.abspath(os.path.dirname(__name__))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -406,3 +407,9 @@ OAUTH2_PROVIDER = {
 OAUTH2_PROVIDER_APPLICATION_MODEL = "developer.Application"
 
 DEVELOPER_CONSOLE_APPLICATION_CLIENT_ID = "NEODB_DEVELOPER_CONSOLE"
+
+SETUP_ADMIN_USERNAMES = [
+    u for u in os.environ.get("NEODB_ADMIN_USERNAMES", "").split(",") if u
+]
+
+SITE_INFO["site_logo"] = os.environ.get("NEODB_SITE_LOGO", "/s/img/logo.svg")

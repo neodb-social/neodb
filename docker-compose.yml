@@ -17,8 +17,10 @@ x-shared:
     environment:
       - NEODB_SITE_NAME
       - NEODB_SITE_DOMAIN
+      - NEODB_SITE_LOGO
       - NEODB_DEBUG
       - NEODB_SECRET_KEY
+      - NEODB_ADMIN_USERNAMES
       - NEODB_DB_NAME=neodb
       - NEODB_DB_USER=neodb
       - NEODB_DB_PASSWORD=aubergine

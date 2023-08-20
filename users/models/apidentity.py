@@ -40,7 +40,9 @@ class APIdentity(models.Model):
 
     @property
     def is_active(self):
-        return self.user.is_active and self.takahe_identity.deleted is None
+        return (
+            self.user and self.user.is_active and self.takahe_identity.deleted is None
+        )
 
     @property
     def name(self):

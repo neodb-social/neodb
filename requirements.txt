@@ -6,6 +6,7 @@ django-anymail
 django-auditlog @ git+https://github.com/jazzband/django-auditlog.git@45591463e8192b4ac0095e259cc4dcea0ac2fd6c
 django-bleach
 django-compressor
+django-environ
 django-hijack
 django-jsonform
 django-maintenance-mode

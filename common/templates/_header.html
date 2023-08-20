@@ -6,7 +6,7 @@
   <nav>
     <ul class="nav-logo">
       <a href="{% url 'common:home' %}">
-        <img src="{% static 'img/logo.svg' %}" alt="" />
+        <img src="{{ site_logo }}" alt="" />
       </a>
     </ul>
     <ul class="nav-search {% if request.GET.q %}unhide{% endif %}">
