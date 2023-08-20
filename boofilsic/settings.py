@@ -201,6 +201,10 @@ if os.getenv("NEODB_SSL", "") != "":
 
 STATIC_URL = "/s/"
 STATIC_ROOT = os.environ.get("NEODB_STATIC_ROOT", os.path.join(BASE_DIR, "static/"))
+if DEBUG:
+    # django-sass-processor will generate neodb.css on-the-fly when DEBUG
+    # NEODB_STATIC_ROOT is readonly in docker mode, so we give it a writable place
+    SASS_PROCESSOR_ROOT = "/tmp"
 
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 STATICFILES_FINDERS = [
@@ -338,42 +342,13 @@ REDIS_PORT = int(os.environ.get("NEODB_REDIS_PORT", 6379))
 REDIS_DB = int(os.environ.get("NEODB_REDIS_DB", 0))
 
 RQ_QUEUES = {
-    "mastodon": {
+    q: {
         "HOST": REDIS_HOST,
         "PORT": REDIS_PORT,
         "DB": REDIS_DB,
         "DEFAULT_TIMEOUT": -1,
-    },
-    "export": {
-        "HOST": REDIS_HOST,
-        "PORT": REDIS_PORT,
-        "DB": REDIS_DB,
-        "DEFAULT_TIMEOUT": -1,
-    },
-    "import": {
-        "HOST": REDIS_HOST,
-        "PORT": REDIS_PORT,
-        "DB": REDIS_DB,
-        "DEFAULT_TIMEOUT": -1,
-    },
-    "fetch": {
-        "HOST": REDIS_HOST,
-        "PORT": REDIS_PORT,
-        "DB": REDIS_DB,
-        "DEFAULT_TIMEOUT": -1,
-    },
-    "crawl": {
-        "HOST": REDIS_HOST,
-        "PORT": REDIS_PORT,
-        "DB": REDIS_DB,
-        "DEFAULT_TIMEOUT": -1,
-    },
-    "doufen": {
-        "HOST": REDIS_HOST,
-        "PORT": REDIS_PORT,
-        "DB": REDIS_DB,
-        "DEFAULT_TIMEOUT": -1,
-    },
+    }
+    for q in ["mastodon", "export", "import", "fetch", "crawl", "ap"]
 }
 
 RQ_SHOW_ADMIN_LINK = True

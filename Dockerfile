@@ -27,6 +27,7 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get update \
     && apt-get install -y --no-install-recommends libpq-dev \
         busybox \
         nginx \
+        gettext-base \
         opencc
 RUN busybox --install
 
@@ -42,12 +43,12 @@ COPY --from=build /takahe/.venv .venv
 RUN pwd && ls
 RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" .venv/bin/python3 manage.py collectstatic --noinput
 
-COPY misc/nginx.conf.d/* /etc/nginx/conf.d/
+WORKDIR /neodb
 COPY misc/bin/* /bin/
 RUN mkdir -p /www
 RUN useradd -U app
+RUN rm -rf /var/lib/apt/lists/*
 
-WORKDIR /neodb
 USER app:app
 
 # invoke check by default

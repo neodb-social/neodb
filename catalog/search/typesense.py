@@ -2,12 +2,14 @@ import logging
 import types
 from datetime import timedelta
 from pprint import pprint
+from time import sleep
 
 import django_rq
 import typesense
 from django.conf import settings
 from django.db.models.signals import post_delete, post_save
 from django_redis import get_redis_connection
+from loguru import logger
 from rq.job import Job
 from typesense.collection import Collection
 from typesense.exceptions import ObjectNotFound
@@ -49,9 +51,6 @@ INDEXABLE_FLOAT_TYPES = ["DecimalField"]
 SORTING_ATTRIBUTE = None
 # NONINDEXABLE_TYPES = ['ForeignKey', 'FileField',]
 SEARCH_PAGE_SIZE = 20
-
-
-logger = logging.getLogger(__name__)
 
 
 _PENDING_INDEX_KEY = "pending_index_ids"
@@ -184,10 +183,30 @@ class Indexer:
 
     @classmethod
     def init(cls):
-        idx = typesense.Client(settings.TYPESENSE_CONNECTION).collections
-        if idx:
-            # idx.delete()
-            idx.create(cls.config())
+        try:
+            client = typesense.Client(settings.TYPESENSE_CONNECTION)
+            wait = 5
+            while not client.operations.is_healthy() and wait:
+                logger.warning("Typesense: server not healthy")
+                sleep(1)
+                wait -= 1
+            idx = client.collections[settings.TYPESENSE_INDEX_NAME]
+            if idx:
+                try:
+                    i = idx.retrieve()
+                    logger.debug(
+                        f"Typesense: index {settings.TYPESENSE_INDEX_NAME} has {i['num_documents']} documents"
+                    )
+                    return
+                except:
+                    client.collections.create(cls.config())
+                    logger.info(
+                        f"Typesense: index {settings.TYPESENSE_INDEX_NAME} created"
+                    )
+                    return
+            logger.error("Typesense: server unknown error")
+        except Exception as e:
+            logger.error(f"Typesense: server error {e}")
 
     @classmethod
     def delete_index(cls):
@@ -309,7 +328,7 @@ class Indexer:
         try:
             cls.instance().documents[pk].delete()
         except Exception as e:
-            logger.warn(f"delete item error: \n{e}")
+            logger.warning(f"delete item error: \n{e}")
 
     @classmethod
     def search(cls, q, page=1, categories=None, tag=None, sort=None):

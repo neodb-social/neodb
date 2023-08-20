@@ -15,6 +15,10 @@ x-shared:
     build: .
     image: neodb/neodb:${TAG:-latest}
     environment:
+      - NEODB_SITE_NAME
+      - NEODB_SITE_DOMAIN
+      - NEODB_DEBUG
+      - NEODB_SECRET_KEY
       - NEODB_DB_NAME=neodb
       - NEODB_DB_USER=neodb
       - NEODB_DB_PASSWORD=aubergine
@@ -29,6 +33,7 @@ x-shared:
       - NEODB_TYPESENSE_KEY=eggplant
       - NEODB_FROM_EMAIL=no-reply@${NEODB_SITE_DOMAIN}
       - NEODB_MEDIA_ROOT=/www/m/
+      - NEODB_WEB_SERVER=neodb-web:8000
       - TAKAHE_DB_NAME=takahe
       - TAKAHE_DB_USER=takahe
       - TAKAHE_DB_PASSWORD=aubergine
@@ -46,6 +51,7 @@ x-shared:
       - TAKAHE_STATOR_CONCURRENCY=4
       - TAKAHE_STATOR_CONCURRENCY_PER_MODEL=2
       - TAKAHE_DEBUG=${NEODB_DEBUG:-False}
+      - TAKAHE_WEB_SERVER=takahe-web:8000
     restart: "on-failure"
     volumes:
       - ${NEODB_DATA:-../data}/neodb-media:/www/m
@@ -110,7 +116,7 @@ services:
   migration:
     <<: *neodb-service
     restart: "no"
-    command: "sh -c '/takahe/.venv/bin/python /takahe/manage.py migrate && /neodb/.venv/bin/python /neodb/manage.py migrate'"
+    command: /bin/neodb-init
     depends_on:
       neodb-db:
         condition: service_healthy
@@ -127,21 +133,21 @@ services:
     #   - "18000:8000"
     command: /neodb/.venv/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload -b 0.0.0.0:8000
     healthcheck:
-      test: ['CMD', 'wget', '-qO/tmp/test', 'http://127.0.0.1:8000/discover/']
+      test: ['CMD', 'wget', '-qO/tmp/test', 'http://127.0.0.1:8000/nodeinfo/2.0/']
     depends_on:
       migration:
         condition: service_completed_successfully
 
   neodb-worker:
     <<: *neodb-service
-    command: /neodb/.venv/bin/python /neodb/manage.py rqworker --with-scheduler import export mastodon fetch crawl
+    command: /neodb/.venv/bin/python /neodb/manage.py rqworker --with-scheduler import export mastodon fetch crawl ap
     depends_on:
       migration:
         condition: service_completed_successfully
 
   neodb-worker-extra:
     <<: *neodb-service
-    command: /neodb/.venv/bin/python /neodb/manage.py rqworker --with-scheduler fetch crawl
+    command: /neodb/.venv/bin/python /neodb/manage.py rqworker --with-scheduler fetch crawl ap
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -167,7 +173,7 @@ services:
   nginx:
     <<: *neodb-service
     user: "root:root"
-    command: nginx -g 'daemon off;'
+    command: nginx-start
     depends_on:
       takahe-web:
         condition: service_started

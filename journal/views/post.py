@@ -3,7 +3,6 @@ from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDen
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from httpx import request
 
 from catalog.models import *
 from common.utils import (
