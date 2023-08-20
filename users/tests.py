@@ -41,12 +41,14 @@ class UserTest(TestCase):
         self.assertTrue(self.alice.is_following(self.bob))
         self.assertTrue(self.bob.is_followed_by(self.alice))
         self.assertEqual(self.alice.following, [self.bob.pk])
+        self.assertEqual(self.bob.followers, [self.alice.pk])
 
         self.alice.unfollow(self.bob)
         Takahe._force_state_cycle()
         self.assertFalse(self.alice.is_following(self.bob))
         self.assertFalse(self.bob.is_followed_by(self.alice))
         self.assertEqual(self.alice.following, [])
+        self.assertEqual(self.bob.followers, [])
 
     def test_mute(self):
         self.alice.mute(self.bob)

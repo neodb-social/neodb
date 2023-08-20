@@ -182,7 +182,7 @@ class Takahe:
     def get_follower_ids(identity_pk: int):
         targets = Follow.objects.filter(
             target_id=identity_pk, state="accepted"
-        ).values_list("target", flat=True)
+        ).values_list("source", flat=True)
         return list(targets)
 
     @staticmethod
@@ -196,7 +196,7 @@ class Takahe:
     def get_requested_follower_ids(identity_pk: int):
         targets = Follow.objects.filter(
             target_id=identity_pk, state="pending_approval"
-        ).values_list("target", flat=True)
+        ).values_list("source", flat=True)
         return list(targets)
 
     @staticmethod
