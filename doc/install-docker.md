@@ -2,7 +2,7 @@ Run NeoDB in Docker
 ===================
 
 ## Overview
-For small and medium NeoDB instances, it's recommended to deploy as a local container cluster with `docker-compose`.
+For small and medium NeoDB instances, it's recommended to deploy as a local container cluster with Docker Compose. If you are running a large instance, please see the bottom of doc for some tips.
 
 ```mermaid
 flowchart TB
@@ -26,13 +26,20 @@ flowchart TB
     end
 ```
 
-As shown in the diagram, a reverse proxy server (e.g. nginx, or Cloudflare tunnel) will be required, it should have SSL configured and pointing to `http://localhost:8000`; the rest is handled by `docker-compose` and containers.
+As shown in the diagram, a reverse proxy server (e.g. nginx, or Cloudflare tunnel) will be required, it should have SSL configured and pointing to `http://localhost:8000`; the rest is handled by `docker compose` and containers.
 
 ## Install Docker and add user to docker group
-Create a user (e.g. `neouser`) to run neodb, execute these as *root* :
+
+Follow [official instructions](https://docs.docker.com/compose/install/) to install Docker Compose.
+
+Note: Docker Compose V1 is no longer supported. Please verify its version before next step:
 ```
-# apt install docker.io docker-compose
-# adduser --ingroup docker neouser
+$ docker compose version
+```
+
+To run neodb as your own user (e.g. `neouser`), add them to docker group:
+```
+$ sudo usermod -aG docker neouser
 ```
 
 ## Get configuration files
@@ -48,13 +55,13 @@ Change essential options like `NEODB_SITE_DOMAIN` in `.env` before starting the 
 - `NEODB_SECRET_KEY` - encryption key of session data
 - `NEODB_DATA` is the path to store db/media/cache, it's `../data` by default, but can be any path that's writable
 
-See `configuration.md` for more details
+See `neodb.env.example` and `configuration.md` for more options
 
 ## Start docker
 in the folder with `docker-compose.yml` and `neodb.env`, execute as the user you just created:
 ```
-$ docker-compose pull
-$ docker-compose up -d
+$ docker compose pull
+$ docker compose --profile production up -d
 ```
 
 In a minute or so, the site should be up at 127.0.0.1:8000 , you may check it with:
@@ -77,25 +84,26 @@ NeoDB requires `https` by default. Although `http` may be technically possible, 
 
 Check the release notes, update `docker-compose.yml` and `.env` as instructed. pull the image
 ```
-docker-compose pull
+docker compose pull
 ```
 
 If there's no change in `docker-compose.yml`, restart only NeoDB services:
 ```
-$ docker-compose stop neodb-web neodb-worker neodb-worker-extra takahe-web takahe-stator nginx
-$ docker-compose up -d
+$ docker compose stop neodb-web neodb-worker neodb-worker-extra takahe-web takahe-stator nginx
+$ docker compose --profile production up -d
 ```
 
 Otherwise restart the entire cluster:
 ```
-$ docker-compose down
-$ docker-compose up -d
+$ docker compose down
+$ docker compose --profile production up -d
 ```
 
 ## Troubleshooting
 
- - `docker-compose ps` to see if any service is down, (btw it's normal that `migration` is in `Exit 0` state)
- - `docker-compose run shell` to run a shell into the cluster; or `docker-compose run root` for root shell, and `apt` is available if extra package needed
+ - `docker compose ps` to see if any service is down, (btw it's normal that `migration` is in `Exit 0` state)
+ - `docker compose run shell` to run a shell into the cluster; or `docker compose run root` for root shell, and `apt` is available if extra package needed
+ - see `Debug in Docker` in [development doc](development.md) for debugging tips
 
 ## Scaling
 

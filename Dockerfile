@@ -52,4 +52,4 @@ RUN rm -rf /var/lib/apt/lists/*
 USER app:app
 
 # invoke check by default
-CMD [ "sh", "-c", 'neodb-manage check && TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" takahe-manage check' ]
+CMD [ "neodb-hello"]

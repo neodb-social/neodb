@@ -1,2 +1,2 @@
 #!/bin/sh
-/takahe/.venv/bin/python /takahe/manage.py $@
+cd /takahe && .venv/bin/python manage.py $@

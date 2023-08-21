@@ -15,6 +15,7 @@ class Command(BaseCommand):
 
     def sync_site_config(self):
         domain = settings.SITE_INFO["site_domain"]
+        icon = settings.SITE_INFO["site_logo"]
         name = settings.SITE_INFO["site_name"]
         service_domain = settings.SITE_INFO.get("site_service_domain")
         TakaheConfig.objects.update_or_create(
@@ -30,6 +31,20 @@ class Command(BaseCommand):
             identity=None,
             domain_id=domain,
             defaults={"json": name},
+        )
+        TakaheConfig.objects.update_or_create(
+            key="site_icon",
+            user=None,
+            identity=None,
+            domain_id=None,
+            defaults={"json": icon},
+        )
+        TakaheConfig.objects.update_or_create(
+            key="site_icon",
+            user=None,
+            identity=None,
+            domain_id=domain,
+            defaults={"json": icon},
         )
 
     def sync_admin_user(self):

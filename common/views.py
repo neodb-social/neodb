@@ -51,7 +51,7 @@ def nodeinfo2(request):
             usage["localComments"] = row[0]
     return JsonResponse(
         {
-            "version": "2.1",
+            "version": "2.0",
             "software": {
                 "name": "neodb",
                 "version": settings.NEODB_VERSION,
@@ -59,6 +59,7 @@ def nodeinfo2(request):
                 "homepage": "https://neodb.net/",
             },
             "protocols": ["activitypub", "neodb"],
+            "openRegistrations": False,  # settings.SITE_INFO["open_registrations"],
             "services": {"outbound": [], "inbound": []},
             "usage": usage,
             "metadata": {"nodeName": settings.SITE_INFO["site_name"]},

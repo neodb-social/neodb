@@ -1,3 +1,3 @@
 #!/bin/sh
-envsubst '${NEODB_WEB_SERVER} ${TAKAHE_WEB_SERVER}' < /neodb/misc/nginx.conf.d/neodb.conf > /etc/nginx/conf.d/neodb.conf
+envsubst '${NEODB_WEB_SERVER} ${TAKAHE_WEB_SERVER}' < $NGINX_CONF > /etc/nginx/conf.d/neodb.conf
 nginx -g 'daemon off;'

@@ -1,2 +1,2 @@
 #!/bin/sh
-/neodb/.venv/bin/python /neodb/manage.py $@
+cd /neodb && .venv/bin/python manage.py $@

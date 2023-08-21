@@ -22,6 +22,8 @@ This is a very basic guide with limited detail, contributions welcomed
 
 Recommended, see [Docker Installation](install-docker.md)
 
+*Manual installation are no longer recommended and the doc below may be outdated*
+
 1 Manual Install
 ----------------
 Install PostgreSQL, Redis and Python (3.10 or above) if not yet

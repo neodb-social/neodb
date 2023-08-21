@@ -1,10 +1,13 @@
 #!/bin/sh
-echo '\033[0;35m====== NeoDB ======\033[0m'
-echo Initializing ${NEODB_SITE_NAME} on ${NEODB_SITE_DOMAIN}
-
-[[ -z "${NEODB_DEBUG}" ]] || echo DEBUG is ON
-[[ -z "${NEODB_DEBUG}" ]] || set
+echo '\033[0;35m====== Welcome to NeoDB ======\033[0m'
+echo Your configuration is for ${NEODB_SITE_NAME} on ${NEODB_SITE_DOMAIN}
+[[ -z "${NEODB_DEBUG}" ]] || echo DEBUG is ON, show environment:
+[[ -z "${NEODB_DEBUG}" ]] || env
+echo
+echo NeoDB initializing...
 
 /takahe/.venv/bin/python /takahe/manage.py migrate || exit $?
 /neodb/.venv/bin/python /neodb/manage.py migrate || exit $?
 /neodb/.venv/bin/python /neodb/manage.py setup || exit $?
+
+echo NeoDB initialization complete.
