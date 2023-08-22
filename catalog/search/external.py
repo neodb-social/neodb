@@ -1,6 +1,9 @@
+import asyncio
 import logging
+import time
 from urllib.parse import quote_plus
 
+import httpx
 import requests
 from django.conf import settings
 from lxml import html
@@ -283,12 +286,64 @@ class ApplePodcast:
         return results
 
 
+class Fediverse:
+    @staticmethod
+    async def search_task(host, q, category=None):
+        async with httpx.AsyncClient() as client:
+            results = []
+            try:
+                response = await client.get(
+                    f"https://{host}/api/catalog/search?query={q}&category={category or ''}",
+                    timeout=2,
+                )
+                r = response.json()
+            except:
+                return []
+            if "data" in r:
+                for item in r["data"]:
+                    url = f"https://{host}{item['url']}"  # FIXME update API and use abs urls
+                    try:
+                        cat = ItemCategory(item["category"])
+                    except:
+                        cat = ""
+                    results.append(
+                        SearchResultItem(
+                            cat,
+                            host,
+                            url,
+                            item["display_title"],
+                            "",
+                            item["brief"],
+                            item["cover_image_url"],
+                        )
+                    )
+        return results
+
+    @classmethod
+    def search(cls, q, page=1, category=None):
+        from takahe.utils import Takahe
+
+        peers = Takahe.get_neodb_peers()
+        # peers = ["neodb.social", "green.eggplant.place"]
+        tasks = [Fediverse.search_task(host, q, category) for host in peers]
+        # loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        results = []
+        for r in loop.run_until_complete(asyncio.gather(*tasks)):
+            results.extend(r)
+        return results
+
+
 class ExternalSources:
     @classmethod
     def search(cls, c, q, page=1):
         if not q:
             return []
         results = []
+        results.extend(
+            Fediverse.search(q, page, category=c if c and c != "all" else None)
+        )
         if c == "" or c is None:
             c = "all"
         if c == "all" or c == "movietv":

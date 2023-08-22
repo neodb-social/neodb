@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from django.conf import settings
+from django.core.cache import cache
 
 from .models import *
 
@@ -578,3 +579,16 @@ class Takahe:
                 "state_locked_until",
             ]
         )
+
+    @staticmethod
+    def get_neodb_peers():
+        cache_key = "neodb_peers"
+        peers = cache.get(cache_key, None)
+        if peers is None:
+            peers = list(
+                Domain.objects.filter(
+                    nodeinfo__protocols__contains="neodb", local=False
+                ).values_list("pk", flat=True)
+            )
+            cache.set(cache_key, peers, timeout=1800)
+        return peers
