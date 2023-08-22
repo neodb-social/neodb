@@ -34,7 +34,7 @@ x-shared:
       NEODB_TYPESENSE_PORT: 8108
       NEODB_TYPESENSE_KEY: eggplant
       NEODB_FROM_EMAIL: no-reply@${NEODB_SITE_DOMAIN}
-      NEODB_MEDIA_ROOT: /www/m/
+      NEODB_MEDIA_ROOT: /www/m
       TAKAHE_DB_NAME: takahe
       TAKAHE_DB_USER: takahe
       TAKAHE_DB_PASSWORD: aubergine
@@ -47,7 +47,7 @@ x-shared:
       TAKAHE_DATABASE_SERVER: postgres://takahe:aubergine@takahe-db/takahe
       TAKAHE_CACHES_DEFAULT: redis://redis:6379/0
       TAKAHE_MEDIA_BACKEND: local://www/media/
-      TAKAHE_MEDIA_ROOT: /www/media/
+      TAKAHE_MEDIA_ROOT: /www/media
       TAKAHE_USE_PROXY_HEADERS: true
       TAKAHE_STATOR_CONCURRENCY: 4
       TAKAHE_STATOR_CONCURRENCY_PER_MODEL: 2
@@ -147,7 +147,7 @@ services:
     <<: *neodb-service
     # ports:
     #   - "18000:8000"
-    command: /neodb/.venv/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload -b 0.0.0.0:8000
+    command: /neodb/.venv/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload  --max-requests 1000 -b 0.0.0.0:8000
     healthcheck:
       test: ['CMD', 'wget', '-qO/tmp/test', 'http://127.0.0.1:8000/nodeinfo/2.0/']
     depends_on:
@@ -172,7 +172,7 @@ services:
     <<: *neodb-service
     # ports:
     #   - "19000:8000"
-    command: /takahe/.venv/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8} --preload -b 0.0.0.0:8000
+    command: /takahe/.venv/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8}  --max-requests 1000 --preload -b 0.0.0.0:8000
     healthcheck:
       test: ['CMD', 'wget', '-qO/tmp/test', 'http://127.0.0.1:8000/nodeinfo/2.0/']
     depends_on:

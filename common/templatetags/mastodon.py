@@ -21,6 +21,7 @@ def current_user_relationship(context, target_identity: "APIdentity"):
     )
     r = {
         "requesting": False,
+        "requested": False,
         "following": False,
         "muting": False,
         "rejecting": False,
@@ -33,6 +34,7 @@ def current_user_relationship(context, target_identity: "APIdentity"):
             r["rejecting"] = True
         else:
             r["requesting"] = current_identity.is_requesting(target_identity)
+            r["requested"] = current_identity.is_requested(target_identity)
             r["muting"] = current_identity.is_muting(target_identity)
             r["following"] = current_identity.is_following(target_identity)
             if r["following"]:

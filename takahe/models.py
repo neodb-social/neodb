@@ -1,4 +1,5 @@
 import datetime
+import os
 import re
 import secrets
 import ssl
@@ -15,10 +16,12 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.core.files.storage import FileSystemStorage
 from django.db import models, transaction
 from django.template.defaultfilters import linebreaks_filter
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from lxml import etree
 
@@ -280,6 +283,24 @@ class Domain(models.Model):
         return self.domain
 
 
+def upload_store():
+    return FileSystemStorage(
+        location=settings.TAKAHE_MEDIA_ROOT, base_url=settings.TAKAHE_MEDIA_URL
+    )
+
+
+def upload_namer(prefix, instance, filename):
+    """
+    Names uploaded images.
+
+    By default, obscures the original name with a random UUID.
+    """
+    _, old_extension = os.path.splitext(filename)
+    new_filename = secrets.token_urlsafe(20)
+    now = timezone.now()
+    return f"{prefix}/{now.year}/{now.month}/{now.day}/{new_filename}{old_extension}"
+
+
 class Identity(models.Model):
     """
     Represents both local and remote Fediverse identities (actors)
@@ -303,6 +324,8 @@ class Identity(models.Model):
     # state = StateField(IdentityStates)
     state = models.CharField(max_length=100, default="outdated")
     state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
 
     local = models.BooleanField(db_index=True)
     users = models.ManyToManyField(
@@ -321,10 +344,12 @@ class Identity(models.Model):
         related_name="identities",
     )
 
-    name = models.CharField(max_length=500, blank=True, null=True)
-    summary = models.TextField(blank=True, null=True)
-    manually_approves_followers = models.BooleanField(blank=True, null=True)
-    discoverable = models.BooleanField(default=True)
+    name = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("昵称"))
+    summary = models.TextField(blank=True, null=True, verbose_name=_("简介"))
+    manually_approves_followers = models.BooleanField(
+        default=False, verbose_name=_("手工审核关注者")
+    )
+    discoverable = models.BooleanField(default=True, verbose_name=_("允许被发现或推荐"))
 
     profile_uri = models.CharField(max_length=500, blank=True, null=True)
     inbox_uri = models.CharField(max_length=500, blank=True, null=True)
@@ -337,12 +362,19 @@ class Identity(models.Model):
     featured_collection_uri = models.CharField(max_length=500, blank=True, null=True)
     actor_type = models.CharField(max_length=100, default="person")
 
-    # icon = models.ImageField(
-    #     upload_to=partial(upload_namer, "profile_images"), blank=True, null=True
-    # )
-    # image = models.ImageField(
-    #     upload_to=partial(upload_namer, "background_images"), blank=True, null=True
-    # )
+    icon = models.ImageField(
+        upload_to=partial(upload_namer, "profile_images"),
+        blank=True,
+        null=True,
+        verbose_name=_("头像"),
+        storage=upload_store,
+    )
+    image = models.ImageField(
+        upload_to=partial(upload_namer, "background_images"),
+        blank=True,
+        null=True,
+        storage=upload_store,
+    )
 
     # Should be a list of {"name":..., "value":...} dicts
     metadata = models.JSONField(blank=True, null=True)
@@ -1177,7 +1209,7 @@ class Emoji(models.Model):
     def full_url(self, always_show=False) -> RelativeAbsoluteUrl:
         if self.is_usable or always_show:
             if self.file:
-                return AutoAbsoluteUrl(settings.TAKAHE_MEDIA_PREFIX + self.file.name)
+                return AutoAbsoluteUrl(settings.TAKAHE_MEDIA_URL + self.file.name)
                 # return AutoAbsoluteUrl(self.file.url)
             elif self.remote_url:
                 return ProxyAbsoluteUrl(

@@ -207,7 +207,6 @@ if DEBUG:
     # NEODB_STATIC_ROOT is readonly in docker mode, so we give it a writable place
     SASS_PROCESSOR_ROOT = "/tmp"
 
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
@@ -222,10 +221,25 @@ SILENCED_SYSTEM_CHECKS = [
     "fields.W344",  # Required by takahe: identical table name in different database
 ]
 
-TAKAHE_MEDIA_PREFIX = "/media/"
+TAKAHE_MEDIA_URL = os.environ.get("TAKAHE_MEDIA_URL", "/media/")
+TAKAHE_MEDIA_ROOT = os.environ.get("TAKAHE_MEDIA_ROOT", "media")
 MEDIA_URL = "/m/"
-MEDIA_ROOT = os.environ.get("NEODB_MEDIA_ROOT", os.path.join(BASE_DIR, "media/"))
-
+MEDIA_ROOT = os.environ.get("NEODB_MEDIA_ROOT", os.path.join(BASE_DIR, "media"))
+STORAGES = {  # TODO: support S3
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+    },
+    "takahe": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": TAKAHE_MEDIA_ROOT,
+            "base_url": TAKAHE_MEDIA_URL,
+        },
+    },
+}
 SITE_DOMAIN = os.environ.get("NEODB_SITE_DOMAIN", "nicedb.org")
 SITE_INFO = {
     "site_name": os.environ.get("NEODB_SITE_NAME", "NiceDB"),

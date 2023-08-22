@@ -551,3 +551,30 @@ class Takahe:
         else:
             child_queryset = child_queryset.unlisted(include_replies=True)
         return child_queryset
+
+    @staticmethod
+    def html2txt(html: str) -> str:
+        if not html:
+            return ""
+        return FediverseHtmlParser(html).plain_text
+
+    @staticmethod
+    def txt2html(txt: str) -> str:
+        if not txt:
+            return ""
+        return FediverseHtmlParser(linebreaks_filter(txt)).html
+
+    @staticmethod
+    def update_state(obj, state):
+        obj.state = state
+        obj.state_changed = timezone.now()
+        obj.state_next_attempt = None
+        obj.state_locked_until = None
+        obj.save(
+            update_fields=[
+                "state",
+                "state_changed",
+                "state_next_attempt",
+                "state_locked_until",
+            ]
+        )

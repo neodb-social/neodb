@@ -22,6 +22,7 @@ from .account import *
 from .data import *
 from .forms import ReportForm
 from .models import APIdentity, Preference, Report, User
+from .profile import account_info, account_profile
 
 
 def render_user_not_found(request, user_name=""):

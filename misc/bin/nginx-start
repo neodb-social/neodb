@@ -1,3 +1,4 @@
 #!/bin/sh
+chown app:app /www/media /www/m
 envsubst '${NEODB_WEB_SERVER} ${TAKAHE_WEB_SERVER}' < $NGINX_CONF > /etc/nginx/conf.d/neodb.conf
 nginx -g 'daemon off;'

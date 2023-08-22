@@ -79,7 +79,11 @@ class APIdentity(models.Model):
     @property
     def avatar(self):
         if self.local:
-            return self.takahe_identity.icon_uri or static("img/avatar.svg")
+            return (
+                self.takahe_identity.icon.url
+                if self.takahe_identity.icon
+                else static("img/avatar.svg")
+            )
         else:
             return f"/proxy/identity_icon/{self.pk}/"
 
@@ -135,6 +139,10 @@ class APIdentity(models.Model):
         return APIdentity.objects.filter(pk__in=self.blocking)
 
     @property
+    def requested_follower_identities(self):
+        return APIdentity.objects.filter(pk__in=self.requested_followers)
+
+    @property
     def follow_requesting_identities(self):
         return APIdentity.objects.filter(pk__in=self.following_request)
 
@@ -161,10 +169,10 @@ class APIdentity(models.Model):
         return Takahe.get_following_request_ids(self.pk)
 
     def accept_follow_request(self, target: "APIdentity"):
-        Takahe.accept_follow_request(self.pk, target.pk)
+        Takahe.accept_follow_request(target.pk, self.pk)
 
     def reject_follow_request(self, target: "APIdentity"):
-        Takahe.reject_follow_request(self.pk, target.pk)
+        Takahe.reject_follow_request(target.pk, self.pk)
 
     def block(self, target: "APIdentity"):
         Takahe.block(self.pk, target.pk)
@@ -197,6 +205,9 @@ class APIdentity(models.Model):
 
     def is_requesting(self, target: "APIdentity"):
         return target.pk in self.following_request
+
+    def is_requested(self, target: "APIdentity"):
+        return target.pk in self.requested_followers
 
     def is_followed_by(self, target: "APIdentity"):
         return target.is_following(self)

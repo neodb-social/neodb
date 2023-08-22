@@ -186,14 +186,7 @@ class User(AbstractUser):
 
     @property
     def avatar(self):
-        if self.mastodon_account:
-            return self.mastodon_account.get("avatar") or static("img/avatar.svg")
-        if self.email:
-            return (
-                "https://www.gravatar.com/avatar/"
-                + hashlib.md5(self.email.lower().encode()).hexdigest()
-            )
-        return static("img/avatar.svg")
+        return self.identity.avatar if self.identity else static("img/avatar.svg")
 
     @property
     def handler(self):

@@ -19,7 +19,7 @@
       <div class="grid__main">
         {% if allow_any_site %}
           <article>
-            <details open>
+            <details>
               <summary>{% trans '用户名、电子邮件与社交身份' %}</summary>
               <form action="{% url 'users:register' %}?next={{ request.path }}"
                     method="post">
@@ -93,6 +93,22 @@
         {% endif %}
         <article>
           <details>
+            <summary>昵称、头像与其它个人信息</summary>
+            <form action="{% url 'users:profile' %}?next={{ request.path }}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% include "_field.html" with field=profile_form.name %}
+              {% include "_field.html" with field=profile_form.summary %}
+              {% include "_field.html" with field=profile_form.icon %}
+              {% include "_field.html" with field=profile_form.discoverable %}
+              {% include "_field.html" with field=profile_form.manually_approves_followers %}
+              {% csrf_token %}
+              <input type="submit" value="{% trans '保存' %}" id="save">
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
             <summary>{% trans '正在关注的用户' %}</summary>
             {% include 'users/relationship_list.html' with name="关注" id="follow" list=request.user.identity.following_identities.all %}
           </details>
@@ -106,7 +122,7 @@
         <article>
           <details>
             <summary>{% trans '请求关注你的用户' %}</summary>
-            {% include 'users/relationship_list.html' with name="请求关注者" id="follow_request" list=request.user.identity.follow_requesting_identities.all %}
+            {% include 'users/relationship_list.html' with name="请求关注者" id="follow_request" list=request.user.identity.requested_follower_identities.all %}
           </details>
         </article>
         <article>

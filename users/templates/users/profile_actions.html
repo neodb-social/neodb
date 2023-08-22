@@ -42,6 +42,26 @@
       </a>
     </span>
   {% endif %}
+  {% if relationship.requested %}
+    <span>
+      <a title="接受关注请求"
+         class="activated"
+         hx-post="{% url 'users:accept_follow_request' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-check"></i>
+      </a>
+    </span>
+    <span>
+      <a title="拒绝关注请求"
+         class="activated"
+         hx-post="{% url 'users:reject_follow_request' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-xmark"></i>
+      </a>
+    </span>
+  {% endif %}
   {% if relationship.following %}
     <span>
       <a title="已关注，点击可取消关注"

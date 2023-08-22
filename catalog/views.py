@@ -9,6 +9,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.decorators.http import require_http_methods
 
 from common.config import PAGE_LINK_NUMBER
 from common.utils import PageLinksGenerator, get_uuid_or_404
@@ -255,6 +256,7 @@ def reviews(request, item_path, item_uuid):
     )
 
 
+@require_http_methods(["GET"])
 def discover(request):
     if request.method != "GET":
         raise BadRequest()
