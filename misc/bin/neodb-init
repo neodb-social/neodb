@@ -6,8 +6,8 @@ echo Your configuration is for ${NEODB_SITE_NAME} on ${NEODB_SITE_DOMAIN}
 echo
 echo NeoDB initializing...
 
-/takahe/.venv/bin/python /takahe/manage.py migrate || exit $?
-/neodb/.venv/bin/python /neodb/manage.py migrate || exit $?
-/neodb/.venv/bin/python /neodb/manage.py setup || exit $?
+takahe-manage migrate || exit $?
+neodb-manage migrate || exit $?
+neodb-manage setup || exit $?
 
 echo NeoDB initialization complete.

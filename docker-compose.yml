@@ -35,6 +35,7 @@ x-shared:
       NEODB_TYPESENSE_KEY: eggplant
       NEODB_FROM_EMAIL: no-reply@${NEODB_SITE_DOMAIN}
       NEODB_MEDIA_ROOT: /www/m
+      NEODB_VENV: /neodb-venv
       TAKAHE_DB_NAME: takahe
       TAKAHE_DB_USER: takahe
       TAKAHE_DB_PASSWORD: aubergine
@@ -52,6 +53,7 @@ x-shared:
       TAKAHE_STATOR_CONCURRENCY: 4
       TAKAHE_STATOR_CONCURRENCY_PER_MODEL: 2
       TAKAHE_DEBUG: ${NEODB_DEBUG:-False}
+      TAKAHE_VENV: /takahe-venv
     restart: "on-failure"
     volumes:
       - ${NEODB_DATA:-../data}/neodb-media:/www/m
@@ -147,7 +149,7 @@ services:
     <<: *neodb-service
     # ports:
     #   - "18000:8000"
-    command: /neodb/.venv/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload  --max-requests 1000 -b 0.0.0.0:8000
+    command: ${NEODB_VENV:-/neodb-venv}/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload  --max-requests 1000 -b 0.0.0.0:8000
     healthcheck:
       test: ['CMD', 'wget', '-qO/tmp/test', 'http://127.0.0.1:8000/nodeinfo/2.0/']
     depends_on:
@@ -156,14 +158,14 @@ services:
 
   neodb-worker:
     <<: *neodb-service
-    command: /neodb/.venv/bin/python /neodb/manage.py rqworker --with-scheduler import export mastodon fetch crawl ap
+    command: neodb-manage rqworker --with-scheduler import export mastodon fetch crawl ap
     depends_on:
       migration:
         condition: service_completed_successfully
 
   neodb-worker-extra:
     <<: *neodb-service
-    command: /neodb/.venv/bin/python /neodb/manage.py rqworker --with-scheduler fetch crawl ap
+    command: neodb-manage rqworker --with-scheduler fetch crawl ap
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -172,7 +174,7 @@ services:
     <<: *neodb-service
     # ports:
     #   - "19000:8000"
-    command: /takahe/.venv/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8}  --max-requests 1000 --preload -b 0.0.0.0:8000
+    command: ${TAKAHE_VENV:-/takahe-venv}/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8}  --max-requests 1000 --preload -b 0.0.0.0:8000
     healthcheck:
       test: ['CMD', 'wget', '-qO/tmp/test', 'http://127.0.0.1:8000/nodeinfo/2.0/']
     depends_on:
@@ -181,7 +183,7 @@ services:
 
   takahe-stator:
     <<: *neodb-service
-    command: /takahe/.venv/bin/python /takahe/manage.py runstator
+    command: takahe-manage runstator
     depends_on:
       migration:
         condition: service_completed_successfully

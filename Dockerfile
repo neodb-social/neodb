@@ -8,13 +8,13 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt apt-get update \
 
 COPY requirements.txt /neodb/
 WORKDIR /neodb
-RUN python -m venv .venv
-RUN --mount=type=cache,sharing=locked,target=/root/.cache .venv/bin/python3 -m pip install --upgrade -r requirements.txt
+RUN python -m venv /neodb-venv
+RUN --mount=type=cache,sharing=locked,target=/root/.cache /neodb-venv/bin/python3 -m pip install --upgrade -r requirements.txt
 
 COPY neodb-takahe/requirements.txt /takahe/
 WORKDIR /takahe
-RUN python -m venv /takahe/.venv
-RUN --mount=type=cache,sharing=locked,target=/root/.cache .venv/bin/python3 -m pip install --upgrade -r requirements.txt
+RUN python -m venv /takahe-venv
+RUN --mount=type=cache,sharing=locked,target=/root/.cache /takahe-venv/bin/python3 -m pip install --upgrade -r requirements.txt
 
 RUN apt-get purge -y --auto-remove build-essential && rm -rf /var/lib/apt/lists/*
 
@@ -33,15 +33,15 @@ RUN busybox --install
 
 COPY . /neodb
 WORKDIR /neodb
-COPY --from=build /neodb/.venv .venv
-RUN .venv/bin/python3 manage.py compilescss
-RUN .venv/bin/python3 manage.py collectstatic --noinput
+COPY --from=build /neodb-venv /neodb-venv
+RUN /neodb-venv/bin/python3 manage.py compilescss
+RUN /neodb-venv/bin/python3 manage.py collectstatic --noinput
 
 RUN mv /neodb/neodb-takahe /takahe
 WORKDIR /takahe
-COPY --from=build /takahe/.venv .venv
+COPY --from=build /takahe-venv /takahe-venv
 RUN pwd && ls
-RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" .venv/bin/python3 manage.py collectstatic --noinput
+RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" /takahe-venv/bin/python3 manage.py collectstatic --noinput
 
 WORKDIR /neodb
 COPY misc/bin/* /bin/

@@ -54,7 +54,13 @@ To debug source code with `docker compose`, add `NEODB_DEBUG=True` in `.env`, an
 - use `dev-shell` and `dev-root` to invoke shells, instead of `shell` and `root`
 - there's no automatic `migration` container, but it can be triggered manually via `docker compose run dev-shell neodb-init`
 
-Also note: debugging in this way requires `${NEODB_SRC}/.venv` and `${TAKAHE_SRC}/.venv` both ready with all the requirements installed, and python binary pointing to `/usr/local/bin/python` (because that's where python is in the docker base image).
+Note:
+- Python virtual environments inside docker image, which are `/neodb-venv` and `/takahe-venv`, will be used by default. They can be changed to different locations with `TAKAHE_VENV` and `NEODB_VENV` if needed, usually in a case of the local code using a package not in docker venv.
+- Some packages inside python virtual environments are platform dependent, so mount venv from macOS into the Linux container will likely not work.
+- Python servers are launched as `app` user, who has no write access to anywhere except /tmp and media path, that's by design.
+- Database/redis used in the container cluster are not accessible outside, which is by design. Querying them can be done by either apt update/install client packages in `dev-root` or `root` container, or a modified `docker-compose.yml` with `ports` section uncommented.
+
+ requires `${NEODB_SRC}/.venv` and `${TAKAHE_SRC}/.venv` both ready with all the requirements installed, and python binary pointing to `/usr/local/bin/python` (because that's where python is in the docker base image).
 
 Applications
 ------------
