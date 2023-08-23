@@ -54,6 +54,8 @@ To debug source code with `docker compose`, add `NEODB_DEBUG=True` in `.env`, an
 - use `dev-shell` and `dev-root` to invoke shells, instead of `shell` and `root`
 - there's no automatic `migration` container, but it can be triggered manually via `docker compose run dev-shell neodb-init`
 
+Also note: debugging in this way requires `${NEODB_SRC}/.venv` and `${TAKAHE_SRC}/.venv` both ready with all the requirements installed, and python binary pointing to `/usr/local/bin/python` (because that's where python is in the docker base image).
+
 Applications
 ------------
 Main django apps for NeoDB:
