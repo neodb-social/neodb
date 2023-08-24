@@ -43,9 +43,9 @@ OK
 Preserving test database for alias 'default'...
 ```
 
-Debug in Docker
----------------
-To debug source code with `docker compose`, add `NEODB_DEBUG=True` in `.env`, and use `--profile dev` instead of `--profile production` in commands. The `dev` profile is different from `production`:
+Development in Docker
+---------------------
+To run local source code with `docker compose`, add `NEODB_DEBUG=True` in `.env`, and use `--profile dev` instead of `--profile production` in commands. The `dev` profile is different from `production`:
 
 - code in `NEODB_SRC` (default: .) and `TAKAHE_SRC` (default: ./neodb-takahe) will be mounted and used in the container instead of code in the image
 - `runserver` with autoreload will be used instead of `gunicorn` for both neodb and takahe web server
@@ -55,12 +55,12 @@ To debug source code with `docker compose`, add `NEODB_DEBUG=True` in `.env`, an
 - there's no automatic `migration` container, but it can be triggered manually via `docker compose run dev-shell neodb-init`
 
 Note:
-- Python virtual environments inside docker image, which are `/neodb-venv` and `/takahe-venv`, will be used by default. They can be changed to different locations with `TAKAHE_VENV` and `NEODB_VENV` if needed, usually in a case of the local code using a package not in docker venv.
-- Some packages inside python virtual environments are platform dependent, so mount venv from macOS into the Linux container will likely not work.
+- Python virtual environments inside docker image, which are `/neodb-venv` and `/takahe-venv`, will be used by default. They can be changed to different locations with `TAKAHE_VENV` and `NEODB_VENV` if needed, usually in a case of development code using a package not in docker venv.
+- Some packages inside python virtual environments are platform dependent, so mount venv built by macOS host into the Linux container will likely not work.
 - Python servers are launched as `app` user, who has no write access to anywhere except /tmp and media path, that's by design.
 - Database/redis used in the container cluster are not accessible outside, which is by design. Querying them can be done by either apt update/install client packages in `dev-root` or `root` container, or a modified `docker-compose.yml` with `ports` section uncommented.
 
- requires `${NEODB_SRC}/.venv` and `${TAKAHE_SRC}/.venv` both ready with all the requirements installed, and python binary pointing to `/usr/local/bin/python` (because that's where python is in the docker base image).
+To run local unit tests, use `docker compose run dev-shell neodb-manage test`
 
 Applications
 ------------

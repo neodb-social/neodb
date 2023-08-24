@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   push_to_docker_hub:
     name: build image and push to Docker Hub
-    if: github.repository_owner == 'neodb-social'
+    # if: github.repository_owner == 'neodb-social'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo

@@ -186,7 +186,9 @@ class User(AbstractUser):
 
     @property
     def avatar(self):
-        return self.identity.avatar if self.identity else static("img/avatar.svg")
+        return (
+            self.identity.avatar if self.identity else settings.SITE_INFO["user_icon"]
+        )
 
     @property
     def handler(self):

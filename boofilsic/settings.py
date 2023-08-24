@@ -6,6 +6,149 @@ env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
 )
+# TODO: use django-environ or similar package for env parsing
+
+# ====== USER CONFIGUTRATION START ======
+
+# SECURITY WARNING: use your own secret key and keep it!
+SECRET_KEY = os.environ.get("NEODB_SECRET_KEY", "insecure")
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get("NEODB_DEBUG", "") != ""
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("NEODB_DB_NAME", "test_neodb"),
+        "USER": os.environ.get("NEODB_DB_USER", "testuser"),
+        "PASSWORD": os.environ.get("NEODB_DB_PASSWORD", "testpass"),
+        "HOST": os.environ.get("NEODB_DB_HOST", "127.0.0.1"),
+        "PORT": int(os.environ.get("NEODB_DB_PORT", 5432)),
+        "OPTIONS": {
+            "client_encoding": "UTF8",
+            # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
+        },
+        "TEST": {
+            "DEPENDENCIES": ["takahe"],
+        },
+    },
+    "takahe": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("TAKAHE_DB_NAME", "test_neodb_takahe"),
+        "USER": os.environ.get("TAKAHE_DB_USER", "testuser"),
+        "PASSWORD": os.environ.get("TAKAHE_DB_PASSWORD", "testpass"),
+        "HOST": os.environ.get("TAKAHE_DB_HOST", "127.0.0.1"),
+        "PORT": os.environ.get("TAKAHE_DB_PORT", 15432),
+        "OPTIONS": {
+            "client_encoding": "UTF8",
+            # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
+        },
+        "TEST": {
+            "DEPENDENCIES": [],
+        },
+    },
+}
+
+REDIS_HOST = os.environ.get("NEODB_REDIS_HOST", "127.0.0.1")
+REDIS_PORT = int(os.environ.get("NEODB_REDIS_PORT", 6379))
+REDIS_DB = int(os.environ.get("NEODB_REDIS_DB", 0))
+
+if os.environ.get("NEODB_TYPESENSE_ENABLE", ""):
+    SEARCH_BACKEND = "TYPESENSE"
+
+SEARCH_BACKEND = None
+
+# SEARCH_BACKEND = 'MEILISEARCH'
+# MEILISEARCH_SERVER = 'http://127.0.0.1:7700'
+# MEILISEARCH_KEY = 'deadbeef'
+
+TYPESENSE_CONNECTION = {
+    "api_key": os.environ.get("NEODB_TYPESENSE_KEY", "insecure"),
+    "nodes": [
+        {
+            "host": os.environ.get("NEODB_TYPESENSE_HOST", "127.0.0.1"),
+            "port": os.environ.get("NEODB_TYPESENSE_PORT", "8108"),
+            "protocol": "http",
+        }
+    ],
+    "connection_timeout_seconds": 2,
+}
+
+SITE_DOMAIN = os.environ.get("NEODB_SITE_DOMAIN", "nicedb.org")
+SITE_INFO = {
+    "site_name": os.environ.get("NEODB_SITE_NAME", "NiceDB"),
+    "site_domain": SITE_DOMAIN,
+    "site_url": os.environ.get("NEODB_SITE_URL", "https://" + SITE_DOMAIN),
+    "site_logo": os.environ.get("NEODB_SITE_LOGO", "/s/img/logo.svg"),
+    "site_icon": os.environ.get("NEODB_SITE_ICON", "/s/img/logo.svg"),
+    "user_icon": os.environ.get("NEODB_USER_ICON", "/s/img/avatar.svg"),
+    "social_link": "https://donotban.com/@testie",
+    "support_link": "https://github.com/doubaniux/boofilsic/issues",
+    "donation_link": "https://patreon.com/tertius",
+}
+
+SETUP_ADMIN_USERNAMES = [
+    u for u in os.environ.get("NEODB_ADMIN_USERNAMES", "").split(",") if u
+]
+
+
+# Mastodon/Pleroma instance allowed to login, keep empty to allow any instance to login
+MASTODON_ALLOWED_SITES = []
+
+# Allow user to create account with email (and link to Mastodon account later)
+ALLOW_EMAIL_ONLY_ACCOUNT = False
+
+# Timeout of requests to Mastodon, in seconds
+MASTODON_TIMEOUT = 30
+
+MASTODON_CLIENT_SCOPE = "read:accounts read:follows read:search read:blocks read:mutes write:statuses write:media"
+# use the following to avoid re-authorize when migrating to a future version with more features
+# MASTODON_CLIENT_SCOPE = "read write follow"
+
+# some Mastodon-compatible software like Pixelfed does not support granular scopes
+MASTODON_LEGACY_CLIENT_SCOPE = "read write follow"
+
+# Emoji code in mastodon
+STAR_SOLID = ":star_solid:"
+STAR_HALF = ":star_half:"
+STAR_EMPTY = ":star_empty:"
+
+DISCORD_WEBHOOKS = {"user-report": None}
+
+# Spotify credentials
+SPOTIFY_CREDENTIAL = "***REMOVED***"
+
+# The Movie Database (TMDB) API Keys
+TMDB_API3_KEY = "***REMOVED***"
+# TMDB_API4_KEY = "deadbeef.deadbeef.deadbeef"
+
+# Google Books API Key
+GOOGLE_API_KEY = "***REMOVED***"
+
+# Discogs API Key
+# How to get: a personal access token from https://www.discogs.com/settings/developers
+DISCOGS_API_KEY = "***REMOVED***"
+
+# IGDB
+IGDB_CLIENT_ID = "deadbeef"
+IGDB_CLIENT_SECRET = ""
+
+# List of available proxies for proxy downloader, in format of ["http://x.y:port?url=__URL__", ...]
+DOWNLOADER_PROXY_LIST = [
+    u for u in os.environ.get("NEODB_DOWNLOADER_PROXY_LIST", "").split(",") if u
+]
+
+# Backup proxy for proxy downloader, in format of "http://xyz:port?url=__URL__"
+DOWNLOADER_BACKUP_PROXY = os.environ.get("NEODB_DOWNLOADER_BACKUP_PROXY", "")
+
+# Timeout of downloader requests, in seconds
+DOWNLOADER_REQUEST_TIMEOUT = 90
+# Timeout of downloader cache, in seconds
+DOWNLOADER_CACHE_TIMEOUT = 300
+# Number of retries of downloader, when site is using RetryDownloader
+DOWNLOADER_RETRIES = 3
+
+# ====== USER CONFIGUTRATION END ======
 
 NEODB_VERSION = "0.8"
 DATABASE_ROUTERS = ["takahe.db_routes.TakaheRouter"]
@@ -16,16 +159,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # for legacy deployment:
 # DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
-
-# SECURITY WARNING: use your own secret key and keep it!
-SECRET_KEY = os.environ.get("NEODB_SECRET_KEY", "insecure")
-
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("NEODB_DEBUG", "") != ""
 
 ALLOWED_HOSTS = ["*"]
 
@@ -118,51 +251,6 @@ WSGI_APPLICATION = "boofilsic.wsgi.application"
 
 SESSION_COOKIE_NAME = "neodbsid"
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-    }
-}
-
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("NEODB_DB_NAME", "test_neodb"),
-        "USER": os.environ.get("NEODB_DB_USER", "testuser"),
-        "PASSWORD": os.environ.get("NEODB_DB_PASSWORD", "testpass"),
-        "HOST": os.environ.get("NEODB_DB_HOST", "127.0.0.1"),
-        "PORT": int(os.environ.get("NEODB_DB_PORT", 5432)),
-        "OPTIONS": {
-            "client_encoding": "UTF8",
-            # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
-        },
-        "TEST": {
-            "DEPENDENCIES": ["takahe"],
-        },
-    },
-    "takahe": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("TAKAHE_DB_NAME", "test_neodb_takahe"),
-        "USER": os.environ.get("TAKAHE_DB_USER", "testuser"),
-        "PASSWORD": os.environ.get("TAKAHE_DB_PASSWORD", "testpass"),
-        "HOST": os.environ.get("TAKAHE_DB_HOST", "127.0.0.1"),
-        "PORT": os.environ.get("TAKAHE_DB_PORT", 15432),
-        "OPTIONS": {
-            "client_encoding": "UTF8",
-            # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
-        },
-        "TEST": {
-            "DEPENDENCIES": [],
-        },
-    },
-}
-
-# Customized auth backend, glue OAuth2 and Django User model together
-# https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#authentication-backends
-
 AUTHENTICATION_BACKENDS = [
     "mastodon.auth.OAuth2Backend",
     "oauth2_provider.backends.OAuth2Backend",
@@ -170,7 +258,6 @@ AUTHENTICATION_BACKENDS = [
 
 
 MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.models.render_md"
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -185,20 +272,18 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+
 if os.getenv("NEODB_SSL", "") != "":
+    # FIXME: remove this since user may enforce SSL in reverse proxy
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_PRELOAD = True
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_SECONDS = 31536000
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/s/"
 STATIC_ROOT = os.environ.get("NEODB_STATIC_ROOT", os.path.join(BASE_DIR, "static/"))
@@ -240,16 +325,9 @@ STORAGES = {  # TODO: support S3
         },
     },
 }
-SITE_DOMAIN = os.environ.get("NEODB_SITE_DOMAIN", "nicedb.org")
-SITE_INFO = {
-    "site_name": os.environ.get("NEODB_SITE_NAME", "NiceDB"),
-    "site_domain": SITE_DOMAIN,
-    "site_url": os.environ.get("NEODB_SITE_URL", "https://" + SITE_DOMAIN),
-    "support_link": "https://github.com/doubaniux/boofilsic/issues",
-    "social_link": "https://donotban.com/@testie",
-    "donation_link": "https://patreon.com/tertius",
-    "settings_module": os.getenv("DJANGO_SETTINGS_MODULE"),
-}
+
+# Allow user to login via any Mastodon/Pleroma sites
+MASTODON_ALLOW_ANY_SITE = False if MASTODON_ALLOWED_SITES else True
 
 REDIRECT_URIS = SITE_INFO["site_url"] + "/account/login/oauth"
 # for sites migrated from previous version, either wipe mastodon client ids or use:
@@ -277,59 +355,11 @@ DEFAULT_COLLECTION_IMAGE = os.path.join(COLLECTION_MEDIA_PATH_ROOT, "default.svg
 SYNC_FILE_PATH_ROOT = "sync/"
 EXPORT_FILE_PATH_ROOT = "export/"
 
-# Allow user to login via any Mastodon/Pleroma sites
-MASTODON_ALLOW_ANY_SITE = True
-
-# Allow user to create account with email (and link to Mastodon account later)
-ALLOW_EMAIL_ONLY_ACCOUNT = False
-
-# Timeout of requests to Mastodon, in seconds
-MASTODON_TIMEOUT = 30
-
-MASTODON_CLIENT_SCOPE = "read write follow"
-# use the following if it's a new site
-# MASTODON_CLIENT_SCOPE = 'read:accounts read:follows read:search read:blocks read:mutes write:statuses write:media'
-
-MASTODON_LEGACY_CLIENT_SCOPE = "read write follow"
-
-# Emoji code in mastodon
-STAR_SOLID = ":star_solid:"
-STAR_HALF = ":star_half:"
-STAR_EMPTY = ":star_empty:"
-
 # Default redirect loaction when access login required view
 LOGIN_URL = "/account/login"
 
 # Admin site root url
 ADMIN_URL = "tertqX7256n7ej8nbv5cwvsegdse6w7ne5rHd"
-
-SCRAPING_TIMEOUT = 90
-
-# ScraperAPI api key
-SCRAPERAPI_KEY = "***REMOVED***"
-PROXYCRAWL_KEY = None
-SCRAPESTACK_KEY = None
-
-# Spotify credentials
-SPOTIFY_CREDENTIAL = "***REMOVED***"
-
-# IMDb API service https://imdb-api.com/
-IMDB_API_KEY = "***REMOVED***"
-
-# The Movie Database (TMDB) API Keys
-TMDB_API3_KEY = "***REMOVED***"
-# TMDB_API4_KEY = "deadbeef.deadbeef.deadbeef"
-
-# Google Books API Key
-GOOGLE_API_KEY = "***REMOVED***"
-
-# Discogs API Key
-# How to get: a personal access token from https://www.discogs.com/settings/developers
-DISCOGS_API_KEY = "***REMOVED***"
-
-# IGDB
-IGDB_CLIENT_ID = "deadbeef"
-IGDB_CLIENT_SECRET = ""
 
 BLEACH_STRIP_COMMENTS = True
 BLEACH_STRIP_TAGS = True
@@ -349,12 +379,6 @@ THUMBNAIL_ALIASES = {
 if DEBUG:
     THUMBNAIL_DEBUG = True
 
-# https://django-debug-toolbar.readthedocs.io/en/latest/
-# maybe benchmarking before deployment
-
-REDIS_HOST = os.environ.get("NEODB_REDIS_HOST", "127.0.0.1")
-REDIS_PORT = int(os.environ.get("NEODB_REDIS_PORT", 6379))
-REDIS_DB = int(os.environ.get("NEODB_REDIS_DB", 0))
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -379,32 +403,10 @@ RQ_SHOW_ADMIN_LINK = True
 
 SEARCH_INDEX_NEW_ONLY = False
 
-SEARCH_BACKEND = None
-
-# SEARCH_BACKEND = 'MEILISEARCH'
-# MEILISEARCH_SERVER = 'http://127.0.0.1:7700'
-# MEILISEARCH_KEY = 'deadbeef'
-
-if os.environ.get("NEODB_TYPESENSE_ENABLE", ""):
-    SEARCH_BACKEND = "TYPESENSE"
-
 TYPESENSE_INDEX_NAME = "catalog"
-TYPESENSE_CONNECTION = {
-    "api_key": os.environ.get("NEODB_TYPESENSE_KEY", "insecure"),
-    "nodes": [
-        {
-            "host": os.environ.get("NEODB_TYPESENSE_HOST", "127.0.0.1"),
-            "port": os.environ.get("NEODB_TYPESENSE_PORT", "8108"),
-            "protocol": "http",
-        }
-    ],
-    "connection_timeout_seconds": 2,
-}
 
-
-DOWNLOADER_CACHE_TIMEOUT = 300
-DOWNLOADER_RETRIES = 3
 DOWNLOADER_SAVEDIR = None
+
 DISABLE_MODEL_SIGNAL = False  # disable index and social feeds during importing/etc
 
 # MAINTENANCE_MODE = False
@@ -419,9 +421,6 @@ DISABLE_MODEL_SIGNAL = False  # disable index and social feeds during importing/
 # SILKY_MAX_RESPONSE_BODY_SIZE = 1024  # If response body>1024 bytes, ignore
 # SILKY_INTERCEPT_PERCENT = 10
 
-DISCORD_WEBHOOKS = {"user-report": None}
-
-
 NINJA_PAGINATION_PER_PAGE = 20
 OAUTH2_PROVIDER = {
     "ACCESS_TOKEN_EXPIRE_SECONDS": 3600 * 24 * 365,
@@ -430,9 +429,3 @@ OAUTH2_PROVIDER = {
 OAUTH2_PROVIDER_APPLICATION_MODEL = "developer.Application"
 
 DEVELOPER_CONSOLE_APPLICATION_CLIENT_ID = "NEODB_DEVELOPER_CONSOLE"
-
-SETUP_ADMIN_USERNAMES = [
-    u for u in os.environ.get("NEODB_ADMIN_USERNAMES", "").split(",") if u
-]
-
-SITE_INFO["site_logo"] = os.environ.get("NEODB_SITE_LOGO", "/s/img/logo.svg")

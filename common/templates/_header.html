@@ -73,7 +73,7 @@
           <summary aria-haspopup="listbox">
             <span class="avatar">
               <img alt=""
-                   src="{% if request.user.is_authenticated %}{{ request.user.avatar }}{% else %}{% static 'img/avatar.svg' %}{% endif %}" />
+                   src="{% if request.user.is_authenticated %}{{ request.user.avatar }}{% else %}{{ user_icon }}{% endif %}" />
             </span>
           </summary>
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">

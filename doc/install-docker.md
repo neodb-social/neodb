@@ -47,13 +47,15 @@ $ sudo usermod -aG docker neouser
  - grab `docker-compose.yml` and `neodb.env.example` from source code
  - rename `neodb.env.example` to `.env`
 
-## Set up .env file
+## Set up .env file and www root
 Change essential options like `NEODB_SITE_DOMAIN` in `.env` before starting the cluster for the first time. Changing them later may have unintended consequences, please make sure they are correct before exposing the service externally.
 
 - `NEODB_SITE_NAME` - name of your site
 - `NEODB_SITE_DOMAIN` - domain name of your site
 - `NEODB_SECRET_KEY` - encryption key of session data
 - `NEODB_DATA` is the path to store db/media/cache, it's `../data` by default, but can be any path that's writable
+
+Optionally, `robots.txt` and `logo.png` may be placed under `$NEODB_DATA/www-root/`.
 
 See `neodb.env.example` and `configuration.md` for more options
 
@@ -104,6 +106,10 @@ $ docker compose --profile production up -d
  - `docker compose ps` to see if any service is down, (btw it's normal that `migration` is in `Exit 0` state)
  - `docker compose run shell` to run a shell into the cluster; or `docker compose run root` for root shell, and `apt` is available if extra package needed
  - see `Debug in Docker` in [development doc](development.md) for debugging tips
+
+## Multiple instance
+
+It's possible to run multiple clusters in one host server, as long as `NEODB_SITE_DOMAIN`, `NEODB_PORT` and `NEODB_DATA` are different.
 
 ## Scaling
 
