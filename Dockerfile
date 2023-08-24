@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 RUN --mount=type=cache,sharing=locked,target=/var/cache/apt apt-get update \
-    && apt-get install -y --no-install-recommends build-essential libpq-dev python3-venv opencc git
+    && apt-get install -y --no-install-recommends build-essential libpq-dev python3-venv git
 
 COPY requirements.txt /neodb/
 WORKDIR /neodb
@@ -27,8 +27,7 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get update \
     && apt-get install -y --no-install-recommends libpq-dev \
         busybox \
         nginx \
-        gettext-base \
-        opencc
+        gettext-base
 RUN busybox --install
 
 COPY . /neodb
@@ -40,7 +39,6 @@ RUN /neodb-venv/bin/python3 manage.py collectstatic --noinput
 RUN mv /neodb/neodb-takahe /takahe
 WORKDIR /takahe
 COPY --from=build /takahe-venv /takahe-venv
-RUN pwd && ls
 RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" /takahe-venv/bin/python3 manage.py collectstatic --noinput
 
 WORKDIR /neodb
@@ -51,5 +49,4 @@ RUN rm -rf /var/lib/apt/lists/*
 
 USER app:app
 
-# invoke check by default
 CMD [ "neodb-hello"]

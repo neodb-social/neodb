@@ -3,21 +3,28 @@ import re
 from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
-from opencc import OpenCC
 
-cc = OpenCC("t2s")
 register = template.Library()
+
+
+# opencc is removed for now due to package installation issues
+# to re-enable it, add it to Dockerfile/requirements.txt and uncomment the following lines
+# from opencc import OpenCC
+# cc = OpenCC("t2s")
+def _cc(text):
+    return text
+    # return cc.convert(text)
 
 
 @register.filter
 @stringfilter
 def highlight(text, search):
-    otext = cc.convert(text.lower())
+    otext = _cc(text.lower())
     l = len(text)
     if l != len(otext):
         return text  # in rare cases, the lowered&converted text has a different length
     rtext = ""
-    words = list(set([w for w in cc.convert(search.strip().lower()).split(" ") if w]))
+    words = list(set([w for w in _cc(search.strip().lower()).split(" ") if w]))
     words.sort(key=len, reverse=True)
     i = 0
     while i < l:
