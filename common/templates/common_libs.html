@@ -5,9 +5,9 @@
   {% tz_detect %}
 {% endif %}
 {% if jquery %}
-  <script src="https://cdn.staticfile.org/jquery/3.6.3/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
 {% else %}
-  <script src="https://cdn.staticfile.org/cash/8.1.5/cash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cash-dom@8.1.5/dist/cash.min.js"></script>
 {% endif %}
 <script type="text/javascript">
   if (!$.fn.is_visible) $.fn.is_visible = function () {
@@ -21,14 +21,14 @@
     return this;
   };
 </script>
-<script src="https://cdn.staticfile.org/htmx/1.9.2/htmx.min.js"></script>
-<script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
+<script src="https://cdn.jsdelivr.net/npm/htmx.org@1.9.4/dist/htmx.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hyperscript.org@0.9.5"></script>
 <link rel="stylesheet"
-      href="https://unpkg.com/@picocss/pico@2.0.0-alpha1/css/pico.min.css" />
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.0-alpha1/css/pico.min.css" />
 <link href="{% sass_src 'scss/neodb.scss' %}"
       rel="stylesheet"
       type="text/css" />
-<link href="{% static 'fontawesomefree/css/all.min.css' %}"
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/fontawesome.min.css"
       rel="stylesheet"
       type="text/css">
 <link rel="search"
