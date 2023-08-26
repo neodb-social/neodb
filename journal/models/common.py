@@ -1,5 +1,7 @@
 import re
 import uuid
+from functools import cached_property
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.db import connection, models
@@ -10,13 +12,14 @@ from django.utils.translation import gettext_lazy as _
 from polymorphic.models import PolymorphicModel
 
 from catalog.common.models import AvailableItemCategory, Item, ItemCategory
-from catalog.models import *
+from catalog.models import item_categories, item_content_types
 from takahe.utils import Takahe
 from users.models import APIdentity, User
 
 from .mixins import UserOwnedObjectMixin
 
-_logger = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from takahe.models import Post
 
 
 class VisibilityType(models.IntegerChoices):
@@ -117,12 +120,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     url_path = "p"  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     local = models.BooleanField(default=True)
-    post_id = models.BigIntegerField(null=True, default=None)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["post_id"]),
-        ]
+    posts = models.ManyToManyField(
+        "takahe.Post", related_name="pieces", through="PiecePost"
+    )
 
     @property
     def uuid(self):
@@ -141,31 +141,31 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return f"/api/{self.url}" if self.url_path else None
 
     @property
-    def post(self):
-        return Takahe.get_post(self.post_id) if self.post_id else None
-
-    @property
     def shared_link(self):
-        return Takahe.get_post_url(self.post_id) if self.post_id else None
+        return Takahe.get_post_url(self.latest_post.pk) if self.latest_post else None
 
     @property
     def like_count(self):
         return (
-            Takahe.get_post_stats(self.post_id).get("likes", 0) if self.post_id else 0
+            Takahe.get_post_stats(self.latest_post.pk).get("likes", 0)
+            if self.latest_post
+            else 0
         )
 
     def is_liked_by(self, user):
-        return self.post_id and Takahe.post_liked_by(self.post_id, user)
+        return self.latest_post and Takahe.post_liked_by(self.latest_post.pk, user)
 
     @property
     def reply_count(self):
         return (
-            Takahe.get_post_stats(self.post_id).get("replies", 0) if self.post_id else 0
+            Takahe.get_post_stats(self.latest_post.pk).get("replies", 0)
+            if self.latest_post
+            else 0
         )
 
     def get_replies(self, viewing_identity):
-        return Takahe.get_post_replies(
-            self.post_id, viewing_identity.pk if viewing_identity else None
+        return Takahe.get_replies_for_posts(
+            self.all_post_ids, viewing_identity.pk if viewing_identity else None
         )
 
     @classmethod
@@ -188,6 +188,37 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     @property
     def ap_object(self):
         raise NotImplemented
+
+    def link_post_id(self, post_id: int):
+        PiecePost.objects.get_or_create(piece=self, post_id=post_id)
+
+    def link_post(self, post: "Post"):
+        return self.link_post_id(post.pk)
+
+    @cached_property
+    def latest_post(self):
+        # local post id is ordered by their created time
+        pp = PiecePost.objects.filter(piece=self).order_by("-post_id").first()
+        return Takahe.get_post(pp.post_id) if pp else None  # type: ignore
+
+    @cached_property
+    def all_post_ids(self):
+        post_ids = list(
+            PiecePost.objects.filter(piece=self).values_list("post_id", flat=True)
+        )
+        return post_ids
+
+
+class PiecePost(models.Model):
+    piece = models.ForeignKey(Piece, on_delete=models.CASCADE)
+    post = models.ForeignKey(
+        "takahe.Post", db_constraint=False, db_index=True, on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["piece", "post"], name="unique_piece_post"),
+        ]
 
 
 class Content(Piece):

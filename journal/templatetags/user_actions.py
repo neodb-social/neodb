@@ -23,9 +23,9 @@ def wish_item_action(context, item):
 def like_piece_action(context, piece):
     user = context["request"].user
     action = {}
-    if user and user.is_authenticated and piece and piece.post_id:
+    if user and user.is_authenticated and piece and piece.latest_post:
         action = {
-            "taken": Takahe.post_liked_by(piece.post_id, user),
+            "taken": Takahe.post_liked_by(piece.latest_post.pk, user),
             "url": reverse("journal:like", args=[piece.uuid]),
         }
     return action

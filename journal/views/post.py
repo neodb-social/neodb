@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from catalog.models import *
 from common.utils import (
     AuthedHttpRequest,
     PageLinksGenerator,
@@ -23,12 +22,14 @@ def piece_replies(request: AuthedHttpRequest, piece_uuid: str):
     if not piece.is_visible_to(request.user):
         raise PermissionDenied()
     replies = piece.get_replies(request.user.identity)
-    return render(request, "replies.html", {"post": piece.post, "replies": replies})
+    return render(
+        request, "replies.html", {"post": piece.latest_post, "replies": replies}
+    )
 
 
 @login_required
 def post_replies(request: AuthedHttpRequest, post_id: int):
-    replies = Takahe.get_post_replies(post_id, request.user.identity.pk)
+    replies = Takahe.get_replies_for_posts([post_id], request.user.identity.pk)
     return render(
         request, "replies.html", {"post": Takahe.get_post(post_id), "replies": replies}
     )
@@ -41,7 +42,7 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
     if request.method != "POST" or not content:
         raise BadRequest()
     Takahe.reply_post(post_id, request.user.identity.pk, content, visibility)
-    replies = Takahe.get_post_replies(post_id, request.user.identity.pk)
+    replies = Takahe.get_replies_for_posts([post_id], request.user.identity.pk)
     return render(
         request, "replies.html", {"post": Takahe.get_post(post_id), "replies": replies}
     )

@@ -377,8 +377,12 @@ class Takahe:
         return post
 
     @staticmethod
-    def get_post(post_pk: int) -> str | None:
+    def get_post(post_pk: int) -> Post | None:
         return Post.objects.filter(pk=post_pk).first()
+
+    @staticmethod
+    def get_posts(post_pks: list[int]):
+        return Post.objects.filter(pk__in=post_pks)
 
     @staticmethod
     def get_post_url(post_pk: int) -> str | None:
@@ -386,9 +390,8 @@ class Takahe:
         return post.object_uri if post else None
 
     @staticmethod
-    def delete_mark(mark):
-        if mark.shelfmember and mark.shelfmember.post_id:
-            Post.objects.filter(pk=mark.shelfmember.post_id).update(state="deleted")
+    def delete_posts(post_pks):
+        Post.objects.filter(pk__in=post_pks).update(state="deleted")
 
     @staticmethod
     def post_mark(mark, share_as_new_post: bool) -> Post | None:
@@ -428,26 +431,21 @@ class Takahe:
             v = Takahe.Visibilities.public
         else:
             v = Takahe.Visibilities.unlisted
+        existing_post = None if share_as_new_post else mark.shelfmember.latest_post
         post = Takahe.post(
             mark.owner.pk,
             pre_conetent,
             content,
             v,
             data,
-            None if share_as_new_post else mark.shelfmember.post_id,
+            existing_post.pk if existing_post else None,
             mark.shelfmember.created_time,
         )
         if not post:
             return
-        if post.pk != mark.shelfmember.post_id:
-            mark.shelfmember.post_id = post.pk
-            mark.shelfmember.save(update_fields=["post_id"])
-        if mark.comment and post.pk != mark.comment.post_id:
-            mark.comment.post_id = post.pk
-            mark.comment.save(update_fields=["post_id"])
-        if mark.rating and post.pk != mark.rating.post_id:
-            mark.rating.post_id = post.pk
-            mark.rating.save(update_fields=["post_id"])
+        for piece in [mark.shelfmember, mark.comment, mark.rating]:
+            if piece:
+                piece.link_post(post)
         return post
 
     @staticmethod
@@ -522,11 +520,11 @@ class Takahe:
         return post.stats or {}
 
     @staticmethod
-    def get_post_replies(post_pk: int | None, identity_pk: int | None):
-        if not post_pk:
-            return Post.objects.none()
-        node = Post.objects.filter(pk=post_pk).first()
-        if not node:
+    def get_replies_for_posts(post_pks: list[int], identity_pk: int | None):
+        post_uris = Post.objects.filter(pk__in=post_pks).values_list(
+            "object_uri", flat=True
+        )
+        if not post_uris.exists():
             return Post.objects.none()
         identity = (
             Identity.objects.filter(pk=identity_pk).first() if identity_pk else None
@@ -542,7 +540,7 @@ class Takahe:
                 "author",
                 "author__domain",
             )
-            .filter(in_reply_to=node.object_uri)
+            .filter(in_reply_to__in=post_uris)
             .order_by("published")
         )
         if identity:

@@ -51,8 +51,9 @@ def like(request: AuthedHttpRequest, piece_uuid):
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
     if not piece:
         raise Http404()
-    if piece.post_id:
-        Takahe.like_post(piece.post_id, request.user.identity.pk)
+    post = piece.latest_post
+    if post:
+        Takahe.like_post(post.pk, request.user.identity.pk)
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     elif request.GET.get("stats"):
@@ -76,8 +77,9 @@ def unlike(request: AuthedHttpRequest, piece_uuid):
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
     if not piece:
         raise Http404()
-    if piece.post_id:
-        Takahe.unlike_post(piece.post_id, request.user.identity.pk)
+    post = piece.latest_post
+    if post:
+        Takahe.unlike_post(post.pk, request.user.identity.pk)
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     elif request.GET.get("stats"):

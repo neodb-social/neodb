@@ -46,10 +46,10 @@
                data-uuid="{{ comment.item.uuid }}"><i class="fa-regular fa-circle-play"></i></a>
           </span>
         {% endif %}
-        {% if comment.post %}
-          {% include "action_reply_post.html" with post=comment.post %}
-          {% include "action_like_post.html" with post=comment.post %}
-          {% include "action_open_post.html" with post=comment.post %}
+        {% if comment.latest_post %}
+          {% include "action_reply_piece.html" with post=comment.latest_post piece=comment %}
+          {% include "action_like_post.html" with post=comment.latest_post %}
+          {% include "action_open_post.html" with post=comment.latest_post %}
         {% endif %}
       </span>
       <span>
@@ -66,7 +66,7 @@
       </span>
       {% if comment.item != item %}<a href="{{ comment.item_url }}">{{ comment.item.title }}</a>{% endif %}
       <div>{{ comment.html|safe }}</div>
-      {% if comment.post_id %}<div id="replies_{{ comment.post_id }}"></div>{% endif %}
+      {% if comment.latest_post %}<div id="replies_{{ comment.latest_post.pk }}"></div>{% endif %}
     </section>
   {% else %}
     <a hx-get="{% url 'catalog:comments' comment.item.url_path comment.item.uuid %}?last={{ comment.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"

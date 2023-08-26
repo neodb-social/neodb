@@ -97,7 +97,7 @@ def post_updated(pk, obj):
 
 
 def post_deleted(pk, obj):
-    Piece.objects.filter(post_id=pk, local=False).delete()
+    Piece.objects.filter(posts__id=pk, local=False).delete()
 
 
 def user_follow_updated(source_identity_pk, target_identity_pk):

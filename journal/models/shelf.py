@@ -92,12 +92,12 @@ class ShelfMember(ListMember):
             "position": 0,
             "local": False,
             # "remote_id": obj["id"],
-            "post_id": post_id,
             "visibility": visibility,
             "created_time": datetime.fromisoformat(obj["published"]),
             "edited_time": datetime.fromisoformat(obj["updated"]),
         }
         p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
+        p.link_post_id(post_id)
         return p
 
     @cached_property
@@ -277,12 +277,11 @@ class ShelfManager:
 
     @classmethod
     def get_action_label(
-        cls, shelf_type: ShelfType, item_category: ItemCategory
+        cls, shelf_type: ShelfType | str, item_category: ItemCategory
     ) -> str:
-        sts = [
-            n[2] for n in ShelfTypeNames if n[0] == item_category and n[1] == shelf_type
-        ]
-        return sts[0] if sts else str(shelf_type)
+        st = str(shelf_type)
+        sts = [n[2] for n in ShelfTypeNames if n[0] == item_category and n[1] == st]
+        return sts[0] if sts else st
 
     @classmethod
     def get_label(cls, shelf_type: ShelfType, item_category: ItemCategory):

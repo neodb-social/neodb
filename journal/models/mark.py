@@ -20,7 +20,6 @@ from catalog.collection.models import Collection as CatalogCollection
 from catalog.common import jsondata
 from catalog.common.models import Item, ItemCategory
 from catalog.common.utils import DEFAULT_ITEM_COVER, piece_cover_path
-from catalog.models import *
 from mastodon.api import boost_toot
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -137,7 +136,8 @@ class Mark:
             or visibility != self.visibility
         )
         if shelf_type is None or visibility != self.visibility:
-            Takahe.delete_mark(self)
+            if self.shelfmember:
+                Takahe.delete_posts(self.shelfmember.all_post_ids)
         if created_time and created_time >= timezone.now():
             created_time = None
         post_as_new = shelf_type != self.shelf_type or visibility != self.visibility

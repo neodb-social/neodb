@@ -1,0 +1,9 @@
+<span>
+  <a hx-get="{% url 'journal:piece_replies' piece.uuid %}"
+     hx-swap="outerHTML"
+     hx-trigger="click once"
+     hx-target="#replies_{{ post.pk }}">
+    <i class="fa-solid fa-reply"></i>
+    {% if post.stats.replies %}<span>{{ post.stats.replies }}</span>{% endif %}
+  </a>
+</span>
