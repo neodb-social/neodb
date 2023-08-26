@@ -6,17 +6,20 @@ ENV PYTHONUNBUFFERED=1
 RUN --mount=type=cache,sharing=locked,target=/var/cache/apt apt-get update \
     && apt-get install -y --no-install-recommends build-essential libpq-dev python3-venv git
 
-COPY requirements.txt /neodb/
+COPY . /neodb
+
+RUN echo neodb-`cd /neodb && git rev-parse --short HEAD`-`cd /neodb/neodb-takahe && git rev-parse --short HEAD`-`date -u +%Y%m%d%H%M%S` > /neodb/version
+RUN rm -rf /neodb/.git /neodb/neodb-takahe/.git
+
+RUN mv /neodb/neodb-takahe /takahe
+
 WORKDIR /neodb
 RUN python -m venv /neodb-venv
 RUN --mount=type=cache,sharing=locked,target=/root/.cache /neodb-venv/bin/python3 -m pip install --upgrade -r requirements.txt
 
-COPY neodb-takahe/requirements.txt /takahe/
 WORKDIR /takahe
 RUN python -m venv /takahe-venv
 RUN --mount=type=cache,sharing=locked,target=/root/.cache /takahe-venv/bin/python3 -m pip install --upgrade -r requirements.txt
-
-RUN apt-get purge -y --auto-remove build-essential && rm -rf /var/lib/apt/lists/*
 
 # runtime stage
 FROM python:3.11-slim as runtime
@@ -32,14 +35,16 @@ RUN busybox --install
 
 # postgresql and redis cli are not required, but install for development convenience
 RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get install -y --no-install-recommends postgresql-client redis-tools
+RUN useradd -U app
+RUN rm -rf /var/lib/apt/lists/*
 
-COPY . /neodb
+COPY --from=build /neodb /neodb
 WORKDIR /neodb
 COPY --from=build /neodb-venv /neodb-venv
 RUN /neodb-venv/bin/python3 manage.py compilescss
 RUN /neodb-venv/bin/python3 manage.py collectstatic --noinput
 
-RUN mv /neodb/neodb-takahe /takahe
+COPY --from=build /takahe /takahe
 WORKDIR /takahe
 COPY --from=build /takahe-venv /takahe-venv
 RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" /takahe-venv/bin/python3 manage.py collectstatic --noinput
@@ -47,8 +52,6 @@ RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_
 WORKDIR /neodb
 COPY misc/bin/* /bin/
 RUN mkdir -p /www
-RUN useradd -U app
-RUN rm -rf /var/lib/apt/lists/*
 
 USER app:app
 

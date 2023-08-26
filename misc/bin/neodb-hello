@@ -1,18 +1,21 @@
 #!/bin/sh
 echo '\033[0;35m====== Welcome to NeoDB ======\033[0m'
+cat /neodb/version
 echo Your configuration is for ${NEODB_SITE_NAME} on ${NEODB_SITE_DOMAIN}
-[[ -z "${NEODB_DEBUG}" ]] || echo DEBUG is ON
+[[ -z "${NEODB_DEBUG}" ]] || echo DEBUG is ON, showing environment variables:
 [[ -z "${NEODB_DEBUG}" ]] || env
-echo Running some basic checks...
-neodb-manage check
-TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" takahe-manage check
+[[ -z "${NEODB_DEBUG}" ]] || echo Running some basic checks...
+[[ -z "${NEODB_DEBUG}" ]] || neodb-manage check
+[[ -z "${NEODB_DEBUG}" ]] || TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" takahe-manage check
+[[ -z "${NEODB_DEBUG}" ]] || echo check complete.
 cat <<EOF
-check complete
 
 check Docker Compose version:   docker compose version
-start NeoDB (root) shell:       docker compose run -it <shell|root>
+start NeoDB (root) shell:       docker compose run <shell|root>
 start NeoDB instance:           docker compose --profile <production|dev> up -d
+stop NeoDB instance:            docker compose --profile <production|dev> down -d
+update NeoDB instance:          docker compose --profile <production|dev> pull
 
-Please follow latest documentations on https://neodb.net to configure your instance before continuing.
+Please follow instructions on https://neodb.net to configure and run your instance.
 
 EOF

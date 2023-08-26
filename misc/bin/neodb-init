@@ -1,5 +1,6 @@
 #!/bin/sh
 echo '\033[0;35m====== Welcome to NeoDB ======\033[0m'
+cat /neodb/version
 echo Your configuration is for ${NEODB_SITE_NAME} on ${NEODB_SITE_DOMAIN}
 [[ -z "${NEODB_DEBUG}" ]] || echo DEBUG is ON, show environment:
 [[ -z "${NEODB_DEBUG}" ]] || env

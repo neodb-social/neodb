@@ -3,7 +3,6 @@
 .venv
 .vscode
 .github
-.git
 .gitignore
 .pre-commit-config.yaml
 __pycache__
