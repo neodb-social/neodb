@@ -28,6 +28,14 @@ git submodule update --init
 
 then install requirements and pre-commit hook for `neodb-takahe` project (using a different venv is preferred)
 
+
+Migration
+---------
+Always run `python3 manage.py migrate` for takahe first, before do that for neodb.
+
+If models in `takahe/models.py` are changed, just regenerate `takahe/migrations/0001_initial.py` instead of adding incremental migrations, because these migrations will never be applied except for constructing a test database.
+
+
 Run Test
 --------
 `python3 manage.py test` will run the tests
