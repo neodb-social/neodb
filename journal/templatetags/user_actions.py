@@ -34,12 +34,7 @@ def like_piece_action(context, piece):
 @register.simple_tag(takes_context=True)
 def liked_piece(context, piece):
     user = context["request"].user
-    return (
-        user
-        and user.is_authenticated
-        and piece.post_id
-        and Takahe.get_user_interaction(piece.post_id, user.identity.pk, "like")
-    )
+    return user and user.is_authenticated and piece.is_liked_by(user.identity)
 
 
 @register.simple_tag(takes_context=True)

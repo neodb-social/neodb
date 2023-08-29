@@ -501,6 +501,8 @@ class Takahe:
 
     @staticmethod
     def get_user_interaction(post_pk: int, identity_pk: int, type: str):
+        if not post_pk or not identity_pk:
+            return None
         post = Post.objects.filter(pk=post_pk).first()
         if not post:
             logger.warning(f"Cannot find post {post_pk}")

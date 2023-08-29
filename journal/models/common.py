@@ -152,8 +152,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             else 0
         )
 
-    def is_liked_by(self, user):
-        return self.latest_post and Takahe.post_liked_by(self.latest_post.pk, user)
+    def is_liked_by(self, identity):
+        return self.latest_post and Takahe.post_liked_by(
+            self.latest_post.pk, identity.pk
+        )
 
     @property
     def reply_count(self):

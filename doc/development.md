@@ -21,6 +21,13 @@ $ pre-commit install
 pre-commit installed at .git/hooks/pre-commit
 ```
 
+Make sure code in submodule is updated
+```
+git submodule update --init
+```
+
+then install requirements and pre-commit hook for `neodb-takahe` project (using a different venv is preferred)
+
 Run Test
 --------
 `python3 manage.py test` will run the tests
