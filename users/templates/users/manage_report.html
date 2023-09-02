@@ -18,9 +18,9 @@
       {% for report in reports %}
         <article>
           <header>
-            <a href="{% url 'journal:user_profile' report.submit_user.mastodon_username %}">{{ report.submit_user.username }}</a>
+            <a href="{{ report.submit_user.url }}">{{ report.submit_user.display_name }}</a>
             {% trans '投诉了' %}
-            <a href="{% url 'journal:user_profile' report.reported_user.mastodon_username %}">{{ report.reported_user.username }}</a>
+            <a href="{{ report.reported_user.url }}">{{ report.reported_user.display_name }}</a>
             @{{ report.submitted_time }}
           </header>
           <p>{{ report.message }}</p>

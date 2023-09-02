@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from catalog.common import *
 from catalog.models import *
 from catalog.music.utils import *
@@ -116,10 +117,16 @@ class DiscogsReleaseTestCase(TestCase):
         t_id_value = "25829341"
         t_url = "https://www.discogs.com/release/25829341-JID-The-Never-Story"
         t_url_2 = "https://www.discogs.com/release/25829341"
+        t_url_3 = "https://www.discogs.com/jp/release/25829341-JID-The-Never-Story"
+        t_url_4 = "https://www.discogs.com/pt_BR/release/25829341-JID-The-Never-Story"
         site = SiteManager.get_site_cls_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
         site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.url, t_url_2)
+        site = SiteManager.get_site_by_url(t_url_3)
+        self.assertEqual(site.url, t_url_2)
+        site = SiteManager.get_site_by_url(t_url_4)
         self.assertEqual(site.url, t_url_2)
         self.assertEqual(site.id_value, t_id_value)
         site = SiteManager.get_site_by_url(t_url_2)

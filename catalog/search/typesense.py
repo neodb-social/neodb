@@ -1,16 +1,18 @@
-from datetime import timedelta
-import types
 import logging
-import typesense
-from typesense.exceptions import ObjectNotFound
-from typesense.collection import Collection
-from django.conf import settings
-from django.db.models.signals import post_save, post_delete
-from catalog.models import Item
+import types
+from datetime import timedelta
 from pprint import pprint
+
 import django_rq
-from rq.job import Job
+import typesense
+from django.conf import settings
+from django.db.models.signals import post_delete, post_save
 from django_redis import get_redis_connection
+from rq.job import Job
+from typesense.collection import Collection
+from typesense.exceptions import ObjectNotFound
+
+from catalog.models import Item
 
 INDEX_NAME = "catalog"
 SEARCHABLE_ATTRIBUTES = [
@@ -311,13 +313,10 @@ class Indexer:
             logger.warn(f"delete item error: \n{e}")
 
     @classmethod
-    def search(cls, q, page=1, category=None, tag=None, sort=None):
+    def search(cls, q, page=1, categories=None, tag=None, sort=None):
         f = []
-        if category:
-            if category == "movietv":
-                f.append("category:= [movie,tv]")
-            else:
-                f.append("category:= " + category)
+        if categories:
+            f.append(f"category:= [{','.join(categories)}]")
         if tag:
             f.append(f"tags:= '{tag}'")
         filters = " && ".join(f)
@@ -333,6 +332,9 @@ class Indexer:
             # 'sort_by': None,
         }
         results = types.SimpleNamespace()
+        results.items = []
+        results.count = 0
+        results.num_pages = 1
 
         try:
             r = cls.instance().documents.search(options)
@@ -347,10 +349,9 @@ class Indexer:
             results.count = r["found"]
             results.num_pages = (r["found"] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
         except ObjectNotFound:
-            results.items = []
-            results.count = 0
-            results.num_pages = 1
-
+            pass
+        except Exception as e:
+            logger.error(e)
         return results
 
     @classmethod

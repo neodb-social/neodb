@@ -1,3 +1,12 @@
+.content-page {
+  form {
+    .helptext {
+      position: relative;
+      top: calc(0em - var(--pico-spacing));
+      font-style: italic;
+    }
+  }
+}
 // override django_jsonform/react-json-form styles
 .rjf-form-wrapper {
   input[type="text"] {

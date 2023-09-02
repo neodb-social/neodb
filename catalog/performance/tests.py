@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from catalog.common import *
 from catalog.common.sites import crawl_related_resources_task
 
@@ -10,6 +11,9 @@ class DoubanDramaTestCase(TestCase):
     def test_parse(self):
         t_id = "24849279"
         t_url = "https://www.douban.com/location/drama/24849279/"
+        t_url2 = (
+            "https://www.douban.com/doubanapp/dispatch?uri=/drama/24849279/&dt_dapp=1"
+        )
         p1 = SiteManager.get_site_cls_by_id_type(IdType.DoubanDrama)
         self.assertIsNotNone(p1)
         p1 = SiteManager.get_site_by_url(t_url)
@@ -17,6 +21,7 @@ class DoubanDramaTestCase(TestCase):
         self.assertEqual(p1.validate_url(t_url), True)
         self.assertEqual(p1.id_to_url(t_id), t_url)
         self.assertEqual(p1.url_to_id(t_url), t_id)
+        self.assertEqual(p1.url_to_id(t_url2), t_id)
 
     @use_local_response
     def test_scrape(self):

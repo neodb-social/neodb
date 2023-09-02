@@ -24,10 +24,24 @@ tv specials are are shown as movies
 For now, we follow Douban convention, but keep an eye on it in case it breaks its own rules...
 
 """
+import re
 from functools import cached_property
-from catalog.common.models import *
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from catalog.common import (
+    BaseSchema,
+    ExternalResource,
+    IdType,
+    Item,
+    ItemCategory,
+    ItemInSchema,
+    ItemSchema,
+    ItemType,
+    PrimaryLookupIdDescriptor,
+    jsondata,
+)
 
 
 class TVShowInSchema(ItemInSchema):

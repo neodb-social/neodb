@@ -1,15 +1,21 @@
-from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404
-from .models import Announcement
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.views.generic import *
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 from django.views.generic.edit import ModelFormMixin
 
+from .models import Announcement
 
 # https://docs.djangoproject.com/en/3.1/topics/class-based-views/intro/
-decorators = [login_required, user_passes_test(lambda u: u.is_superuser)]
+decorators = [login_required, user_passes_test(lambda u: u.is_superuser)]  # type:ignore
 
 
 class AnnouncementDetailView(DetailView, ModelFormMixin):

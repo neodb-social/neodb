@@ -1,8 +1,10 @@
 from django.test import TestCase
+
 from catalog.models import *
 from journal.models import *
-from .models import *
 from users.models import User
+
+from .models import *
 
 
 class SocialTest(TestCase):
@@ -10,8 +12,8 @@ class SocialTest(TestCase):
         self.book1 = Edition.objects.create(title="Hyperion")
         self.book2 = Edition.objects.create(title="Andymion")
         self.movie = Edition.objects.create(title="Fight Club")
-        self.alice = User.objects.create(mastodon_site="MySpace", username="Alice")
-        self.bob = User.objects.create(mastodon_site="KKCity", username="Bob")
+        self.alice = User.register(mastodon_site="MySpace", mastodon_username="Alice")
+        self.bob = User.register(mastodon_site="KKCity", mastodon_username="Bob")
 
     def test_timeline(self):
         # alice see 0 activity in timeline in the beginning
@@ -40,7 +42,7 @@ class SocialTest(TestCase):
         # bob follows alice, see 2 activities
         self.bob.mastodon_following = ["Alice@MySpace"]
         self.alice.mastodon_follower = ["Bob@KKCity"]
-        self.bob.following = self.bob.get_following_ids()
+        self.bob.merge_relationships()
         timeline2 = self.bob.activity_manager.get_timeline()
         self.assertEqual(len(timeline2), 2)
 
@@ -50,3 +52,15 @@ class SocialTest(TestCase):
         self.assertEqual(len(timeline), 3)
         timeline2 = self.bob.activity_manager.get_timeline()
         self.assertEqual(len(timeline2), 2)
+
+        # remote unfollow
+        self.bob.mastodon_following = []
+        self.alice.mastodon_follower = []
+        self.bob.merge_relationships()
+        timeline = self.bob.activity_manager.get_timeline()
+        self.assertEqual(len(timeline), 0)
+
+        # local follow
+        self.bob.follow(self.alice)
+        timeline = self.bob.activity_manager.get_timeline()
+        self.assertEqual(len(timeline), 2)

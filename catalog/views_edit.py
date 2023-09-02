@@ -1,19 +1,22 @@
 import logging
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponseRedirect
-from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
-from django.utils import timezone
-from django.contrib import messages
-from .common.models import ExternalResource, IdType, IdealIdTypes
-from .sites.imdb import IMDB
-from .models import *
-from .forms import *
-from .search.views import *
-from journal.models import update_journal_for_merged_item
-from common.utils import get_uuid_or_404
+
 from auditlog.context import set_actor
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
+from common.utils import get_uuid_or_404
+from journal.models import update_journal_for_merged_item
+
+from .common.models import ExternalResource, IdealIdTypes, IdType
+from .forms import *
+from .models import *
+from .search.views import *
+from .sites.imdb import IMDB
 
 _logger = logging.getLogger(__name__)
 
@@ -58,7 +61,6 @@ def create(request, item_model):
                     f"Invalid parent type: {form.instance.__class__} -> {parent.__class__}"
                 )
         if form.is_valid():
-            form.instance.last_editor = request.user
             form.instance.edited_time = timezone.now()
             if parent:
                 form.instance.set_parent_item(parent)
@@ -107,7 +109,6 @@ def edit(request, item_path, item_uuid):
             form.fields["primary_lookup_id_type"].disabled = True
             form.fields["primary_lookup_id_value"].disabled = True
         if form.is_valid():
-            form.instance.last_editor = request.user
             form.instance.edited_time = timezone.now()
             form.instance.save()
             return redirect(form.instance.url)

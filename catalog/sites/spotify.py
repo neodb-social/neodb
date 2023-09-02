@@ -1,17 +1,19 @@
 """
 Spotify
 """
+import datetime
+import logging
+import time
+
+import dateparser
+import requests
 from django.conf import settings
+
 from catalog.common import *
 from catalog.models import *
 from catalog.music.utils import upc_to_gtin_13
-from .douban import *
-import time
-import datetime
-import requests
-import dateparser
-import logging
 
+from .douban import *
 
 _logger = logging.getLogger(__name__)
 
@@ -24,7 +26,10 @@ spotify_token_expire_time = time.time()
 class Spotify(AbstractSite):
     SITE_NAME = SiteName.Spotify
     ID_TYPE = IdType.Spotify_Album
-    URL_PATTERNS = [r"\w+://open\.spotify\.com/album/([a-zA-Z0-9]+).*"]
+    URL_PATTERNS = [
+        r"^\w+://open\.spotify\.com/album/([a-zA-Z0-9]+).*",
+        r"^\w+://open\.spotify\.com/[\w\-]+/album/([a-zA-Z0-9]+).*",
+    ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
 
@@ -66,8 +71,8 @@ class Spotify(AbstractSite):
             else:
                 track_list.append(str(track["track_number"]) + ". " + track["name"])
         track_list = "\n".join(track_list)
-
-        release_date = dateparser.parse(res_data["release_date"]).strftime("%Y-%m-%d")
+        dt = dateparser.parse(res_data["release_date"])
+        release_date = dt.strftime("%Y-%m-%d") if dt else None
 
         gtin = None
         if res_data["external_ids"].get("upc"):

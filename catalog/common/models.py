@@ -1,29 +1,36 @@
-from functools import cached_property
-from polymorphic.models import PolymorphicModel
-from django.db import models
 import logging
 import re
-from catalog.common import jsondata
-from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.contrib.contenttypes.models import ContentType
-from django.utils.baseconv import base62
 import uuid
-from typing import cast
-from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
-from .mixins import SoftDeleteMixin
-from django.conf import settings
-from users.models import User
-from django.db import connection
-from ninja import Schema
+from functools import cached_property
+from typing import TYPE_CHECKING, cast
+
 from auditlog.context import disable_auditlog
-from auditlog.models import LogEntry, AuditlogHistoryField
+from auditlog.models import AuditlogHistoryField, LogEntry
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import connection, models
+from django.utils import timezone
+from django.utils.baseconv import base62
+from django.utils.translation import gettext_lazy as _
+from ninja import Schema
+from polymorphic.models import PolymorphicModel
+
+from catalog.common import jsondata
+
+from .mixins import SoftDeleteMixin
+from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
+
+if TYPE_CHECKING:
+    from django.utils.functional import _StrOrPromise
+
+    from users.models import User
 
 _logger = logging.getLogger(__name__)
 
 
 class SiteName(models.TextChoices):
+    Unknown = "unknown", _("未知站点")
     Douban = "douban", _("豆瓣")
     Goodreads = "goodreads", _("Goodreads")
     GoogleBooks = "googlebooks", _("谷歌图书")
@@ -243,8 +250,8 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     url_path = "item"  # subclass must specify this
     type = None  # subclass must specify this
     parent_class = None  # subclass may specify this to allow create child item
-    category = None  # subclass must specify this
-    demonstrative = None  # subclass must specify this
+    category: ItemCategory | None = None  # subclass must specify this
+    demonstrative: "_StrOrPromise | None" = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     title = models.CharField(_("标题"), max_length=1000, default="")
     brief = models.TextField(_("简介"), blank=True, default="")
@@ -268,9 +275,6 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         default=None,
         related_name="merged_from_items",
     )
-    last_editor = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name="+", null=True, blank=False
-    )
 
     class Meta:
         index_together = [
@@ -286,6 +290,11 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return LogEntry.objects.filter(
             object_id=self.id, content_type_id__in=list(item_content_types().values())
         )
+
+    @cached_property
+    def last_editor(self) -> "User | None":
+        last_edit = self.history.order_by("-timestamp").first()
+        return last_edit.actor if last_edit else None
 
     def clear(self):
         self.set_parent_item(None)
@@ -392,7 +401,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @property
     def absolute_url(self):
-        return f"{settings.APP_WEBSITE}{self.url}"
+        return f"{settings.SITE_INFO['site_url']}{self.url}"
 
     @property
     def api_url(self):
@@ -451,7 +460,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     @property
     def cover_image_url(self):
         return (
-            f"{settings.APP_WEBSITE}{self.cover.url}"
+            f"{settings.SITE_INFO['site_url']}{self.cover.url}"
             if self.cover and self.cover != DEFAULT_ITEM_COVER
             else None
         )
@@ -481,6 +490,35 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     @property
     def editable(self):
         return not self.is_deleted and self.merged_to_item is None
+
+    @property
+    def rating(self):
+        from journal.models import Rating
+
+        return Rating.get_rating_for_item(self)
+
+    @property
+    def rating_count(self):
+        from journal.models import Rating
+
+        return Rating.get_rating_count_for_item(self)
+
+    @property
+    def rating_dist(self):
+        from journal.models import Rating
+
+        return Rating.get_rating_distribution_for_item(self)
+
+    @property
+    def tags(self):
+        from journal.models import TagManager
+
+        return TagManager.indexable_tags_for_item(self)
+
+    def journal_exists(self):
+        from journal.models import journal_exists_for_item
+
+        return journal_exists_for_item(self)
 
 
 class ItemLookupId(models.Model):
@@ -542,12 +580,17 @@ class ExternalResource(models.Model):
         self.save()
 
     def get_site(self):
-        """place holder only, this will be injected from SiteManager"""
-        pass
+        from .sites import SiteManager
+
+        return SiteManager.get_site_cls_by_id_type(self.id_type)
 
     @property
     def site_name(self):
-        return getattr(self.get_site(), "SITE_NAME")
+        try:
+            return self.get_site().SITE_NAME
+        except:
+            _logger.warning(f"Unknown site for {self}")
+            return SiteName.Unknown
 
     def update_content(self, resource_content):
         self.other_lookup_ids = resource_content.lookup_ids

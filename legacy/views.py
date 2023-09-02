@@ -1,9 +1,10 @@
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.baseconv import base62
 
 from catalog.collection.models import Collection
-from .models import *
 from catalog.models import Item
-from django.utils.baseconv import base62
+
+from .models import *
 
 
 def book(request, id):

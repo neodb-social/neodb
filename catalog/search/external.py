@@ -1,11 +1,13 @@
+import logging
 from urllib.parse import quote_plus
+
+import requests
 from django.conf import settings
+from lxml import html
+
 from catalog.common import *
 from catalog.models import *
 from catalog.sites.spotify import get_spotify_token
-import requests
-from lxml import html
-import logging
 
 SEARCH_PAGE_SIZE = 5  # not all apis support page size
 logger = logging.getLogger(__name__)
@@ -63,22 +65,26 @@ class Goodreads:
             r = requests.get(search_url)
             if r.url.startswith("https://www.goodreads.com/book/show/"):
                 # Goodreads will 302 if only one result matches ISBN
-                res = SiteManager.get_site_by_url(r.url).get_resource_ready()
-                subtitle = f"{res.metadata['pub_year']} {', '.join(res.metadata['author'])} {', '.join(res.metadata['translator'] if res.metadata['translator'] else [])}"
-                results.append(
-                    SearchResultItem(
-                        ItemCategory.Book,
-                        SiteName.Goodreads,
-                        res.url,
-                        res.metadata["title"],
-                        subtitle,
-                        res.metadata["brief"],
-                        res.metadata["cover_image_url"],
-                    )
-                )
+                site = SiteManager.get_site_by_url(r.url)
+                if site:
+                    res = site.get_resource_ready()
+                    if res:
+                        subtitle = f"{res.metadata['pub_year']} {', '.join(res.metadata['author'])} {', '.join(res.metadata['translator'] if res.metadata['translator'] else [])}"
+                        results.append(
+                            SearchResultItem(
+                                ItemCategory.Book,
+                                SiteName.Goodreads,
+                                res.url,
+                                res.metadata["title"],
+                                subtitle,
+                                res.metadata["brief"],
+                                res.metadata["cover_image_url"],
+                            )
+                        )
             else:
                 h = html.fromstring(r.content.decode("utf-8"))
-                for c in h.xpath('//tr[@itemtype="http://schema.org/Book"]'):
+                books = h.xpath('//tr[@itemtype="http://schema.org/Book"]')
+                for c in books:  # type:ignore
                     el_cover = c.xpath('.//img[@class="bookCover"]/@src')
                     cover = el_cover[0] if el_cover else None
                     el_title = c.xpath('.//a[@class="bookTitle"]//text()')
@@ -226,7 +232,8 @@ class Bandcamp:
             search_url = f"https://bandcamp.com/search?from=results&item_type=a&page={page}&q={quote_plus(q)}"
             r = requests.get(search_url)
             h = html.fromstring(r.content.decode("utf-8"))
-            for c in h.xpath('//li[@class="searchresult data-search"]'):
+            albums = h.xpath('//li[@class="searchresult data-search"]')
+            for c in albums:  # type:ignore
                 el_cover = c.xpath('.//div[@class="art"]/img/@src')
                 cover = el_cover[0] if el_cover else None
                 el_title = c.xpath('.//div[@class="heading"]//text()')

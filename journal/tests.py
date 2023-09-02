@@ -1,15 +1,18 @@
+import time
+
 from django.test import TestCase
-from .models import *
+
 from catalog.models import *
 from users.models import User
-import time
+
+from .models import *
 
 
 class CollectionTest(TestCase):
     def setUp(self):
         self.book1 = Edition.objects.create(title="Hyperion")
         self.book2 = Edition.objects.create(title="Andymion")
-        self.user = User.objects.create()
+        self.user = User.register(email="a@b.com")
         pass
 
     def test_collection(self):
@@ -39,7 +42,7 @@ class ShelfTest(TestCase):
         pass
 
     def test_shelf(self):
-        user = User.objects.create(mastodon_site="site", username="name")
+        user = User.register(mastodon_site="site", mastodon_username="name")
         shelf_manager = ShelfManager(user=user)
         self.assertEqual(user.shelf_set.all().count(), 3)
         book1 = Edition.objects.create(title="Hyperion")
@@ -96,15 +99,33 @@ class ShelfTest(TestCase):
         self.assertEqual(Mark(user, book1).visibility, 1)
         self.assertEqual(shelf_manager.get_log_for_item(book1).count(), 5)
 
+        # test silence mark mode -> no log
+        shelf_manager.move_item(book1, ShelfType.WISHLIST, silence=True)
+        self.assertEqual(log.count(), 5)
+        shelf_manager.move_item(book1, ShelfType.PROGRESS, silence=True)
+        self.assertEqual(log.count(), 5)
+        # test delete one log
+        first_log = log.first()
+        Mark(user, book1).delete_log(first_log.id)
+        self.assertEqual(log.count(), 4)
+        # # test delete mark -> leave one log: 移除标记
+        # Mark(user, book1).delete()
+        # self.assertEqual(log.count(), 1)
+        # # test delete all logs
+        # shelf_manager.move_item(book1, ShelfType.PROGRESS)
+        # self.assertEqual(log.count(), 2)
+        # Mark(user, book1).delete(silence=True)
+        # self.assertEqual(log.count(), 0)
+
 
 class TagTest(TestCase):
     def setUp(self):
         self.book1 = Edition.objects.create(title="Hyperion")
         self.book2 = Edition.objects.create(title="Andymion")
         self.movie1 = Edition.objects.create(title="Hyperion, The Movie")
-        self.user1 = User.objects.create(mastodon_site="site", username="name")
-        self.user2 = User.objects.create(mastodon_site="site2", username="name2")
-        self.user3 = User.objects.create(mastodon_site="site2", username="name3")
+        self.user1 = User.register(mastodon_site="site", mastodon_username="name")
+        self.user2 = User.register(mastodon_site="site2", mastodon_username="name2")
+        self.user3 = User.register(mastodon_site="site2", mastodon_username="name3")
         pass
 
     def test_user_tag(self):
@@ -120,8 +141,8 @@ class TagTest(TestCase):
 class MarkTest(TestCase):
     def setUp(self):
         self.book1 = Edition.objects.create(title="Hyperion")
-        self.user1 = User.objects.create(mastodon_site="site", username="name")
-        pref = self.user1.get_preference()
+        self.user1 = User.register(mastodon_site="site", mastodon_username="name")
+        pref = self.user1.preference
         pref.default_visibility = 2
         pref.save()
 

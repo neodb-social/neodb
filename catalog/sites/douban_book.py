@@ -1,9 +1,10 @@
-from catalog.common import *
-from .douban import *
-from catalog.book.models import *
-from catalog.book.utils import *
 import logging
 
+from catalog.book.models import *
+from catalog.book.utils import *
+from catalog.common import *
+
+from .douban import *
 
 _logger = logging.getLogger(__name__)
 
@@ -15,6 +16,7 @@ class DoubanBook(AbstractSite):
     URL_PATTERNS = [
         r"\w+://book\.douban\.com/subject/(\d+)/{0,1}",
         r"\w+://m.douban.com/book/subject/(\d+)/{0,1}",
+        r"\w+://www.douban.com/doubanapp/dispatch\?uri=/book/(\d+)/",
     ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Edition

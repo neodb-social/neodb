@@ -11,6 +11,39 @@
   }
 }
 
+// make log list like a timeline list
+// source: https://dev.to/peterc/how-to-create-joined-bulletpoint-lists-with-css-bbc-news-style-1eem
+#log-list ul {
+
+  li {
+    list-style: none;
+    padding-bottom: 1rem;
+    border-left: 1px solid var(--pico-range-active-border-color);
+    position: relative;
+    padding-left: 0.75em;
+    margin-left: 1em;
+    margin-bottom: 0;
+
+    // The actual line being placed before each list item, tweak width and color as appropriate
+    &:before {
+      content: "";
+      width: 0.5em;
+      height: 0.5em;
+      border: 1px solid var(--pico-range-active-border-color);
+      background: var(--pico-background-color);
+      border-radius: 50%;
+      position: absolute;
+      left: -0.275em;
+      top: 0.5em;
+    }
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+}
+
+
 @media (max-width: 768px) {
   .mark-line {
 

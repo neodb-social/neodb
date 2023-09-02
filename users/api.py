@@ -1,7 +1,8 @@
 from ninja import Schema
-from common.api import *
-from oauth2_provider.decorators import protected_resource
 from ninja.security import django_auth
+from oauth2_provider.decorators import protected_resource
+
+from common.api import *
 
 
 class UserSchema(Schema):
@@ -19,7 +20,7 @@ class UserSchema(Schema):
 def me(request):
     return 200, {
         "url": settings.SITE_INFO["site_url"] + request.user.url,
-        "external_acct": request.user.mastodon_username,
+        "external_acct": request.user.mastodon_acct,
         "display_name": request.user.display_name,
-        "avatar": request.user.mastodon_account.get("avatar"),
+        "avatar": request.user.avatar,
     }

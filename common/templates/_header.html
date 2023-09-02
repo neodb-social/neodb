@@ -1,4 +1,5 @@
 {% load admin_url %}
+{% load duration %}
 {% load static %}
 {% load i18n %}
 <header class="container-fluid">
@@ -14,23 +15,36 @@
           <input type="search"
                  name="q"
                  id="q"
-                 placeholder="搜索标题、创作者、ISBN、链接(如 https://movie.douban.com/subject/1297880/ )"
+                 placeholder="标题、创作者、ISBN、站外条目链接"
                  class="search"
                  value="{{ request.GET.q|default:'' }}" />
           <select name="c">
+            {% visible_categories as cats %}
             <option value="all">全部</option>
-            <option {% if request.GET.c and request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %}
-                    value="book">书籍</option>
-            <option {% if request.GET.c and request.GET.c == 'movietv' or '/movie/' in request.path or '/tv/' in request.path %}selected{% endif %}
-                    value="movietv">影视</option>
-            <option {% if request.GET.c and request.GET.c == 'podcast' or '/podcast/' in request.path %}selected{% endif %}
-                    value="podcast">播客</option>
-            <option {% if request.GET.c and request.GET.c == 'music' or '/album/' in request.path %}selected{% endif %}
-                    value="music">音乐</option>
-            <option {% if request.GET.c and request.GET.c == 'game' or '/game/' in request.path %}selected{% endif %}
-                    value="game">游戏</option>
-            <option {% if request.GET.c and request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
-                    value="performance">演出</option>
+            {% if 'book' in cats %}
+              <option {% if request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %}
+                      value="book">书籍</option>
+            {% endif %}
+            {% if 'movie' in cats or 'tv' in cats %}
+              <option {% if request.GET.c and request.GET.c == 'movietv' or '/movie/' in request.path or '/tv/' in request.path %}selected{% endif %}
+                      value="movietv">影视</option>
+            {% endif %}
+            {% if 'podcast' in cats %}
+              <option {% if request.GET.c and request.GET.c == 'podcast' or '/podcast/' in request.path %}selected{% endif %}
+                      value="podcast">播客</option>
+            {% endif %}
+            {% if 'music' in cats %}
+              <option {% if request.GET.c and request.GET.c == 'music' or '/album/' in request.path %}selected{% endif %}
+                      value="music">音乐</option>
+            {% endif %}
+            {% if 'game' in cats %}
+              <option {% if request.GET.c and request.GET.c == 'game' or '/game/' in request.path %}selected{% endif %}
+                      value="game">游戏</option>
+            {% endif %}
+            {% if 'performance' in cats %}
+              <option {% if request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
+                      value="performance">演出</option>
+            {% endif %}
           </select>
           <input type="submit" value="&#xf002;" class="fa-solid" />
         </form>
@@ -59,7 +73,7 @@
           <summary aria-haspopup="listbox">
             <span class="avatar">
               <img alt=""
-                   src="{% if request.user.is_authenticated %}{{ request.user.mastodon_account.avatar }}{% else %}data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=={% endif %}" />
+                   src="{% if request.user.is_authenticated %}{{ request.user.avatar }}{% else %}{% static 'img/avatar.svg' %}{% endif %}" />
             </span>
           </summary>
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
@@ -69,6 +83,9 @@
               </li>
               <li>
                 <a href="{% url 'users:preferences' %}">设置</a>
+              </li>
+              <li>
+                <a href="{% url 'users:info' %}">账号</a>
               </li>
               <li>
                 <a href="{% url 'users:logout' %}">登出</a>
@@ -89,14 +106,17 @@
     </ul>
   </nav>
 </header>
+{% if request.user.is_authenticated and not request.user.mastodon_username and not request.user.username %}
+  <ul class="messages" style="text-align:center">
+    <li class="error">
+      请<a href="{% url 'users:info' %}">设置用户名</a>
+    </li>
+  </ul>
+{% endif %}
 {% if messages %}
-  <div class="main-section-wrapper"
-       style="margin-bottom: 10px;
-              text-align:center">
-    <ul class="messages">
-      {% for message in messages %}
-        <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-      {% endfor %}
-    </ul>
-  </div>
+  <ul class="messages" style="text-align:center">
+    {% for message in messages %}
+      <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
 {% endif %}

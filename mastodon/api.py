@@ -1,16 +1,17 @@
-import requests
-import string
-import random
 import functools
 import logging
-from django.conf import settings
-from django.urls import reverse
-from urllib.parse import quote
-from .models import MastodonApplication
-from mastodon.utils import rating_to_emoji
+import random
 import re
+import string
+from urllib.parse import quote
 
-logger = logging.getLogger(__name__)
+import requests
+from django.conf import settings
+from loguru import logger
+
+from mastodon.utils import rating_to_emoji
+
+from .models import MastodonApplication
 
 # See https://docs.joinmastodon.org/methods/accounts/
 
@@ -51,15 +52,7 @@ API_CREATE_APP = "/api/v1/apps"
 # GET
 API_SEARCH = "/api/v2/search"
 
-TWITTER_DOMAIN = "twitter.com"
-
-TWITTER_API_ME = "https://api.twitter.com/2/users/me"
-
-TWITTER_API_POST = "https://api.twitter.com/2/tweets"
-
-TWITTER_API_TOKEN = "https://api.twitter.com/2/oauth2/token"
-
-USER_AGENT = f"{settings.CLIENT_NAME}/1.0"
+USER_AGENT = f"NeoDB/{settings.NEODB_VERSION} (+{settings.SITE_INFO.get('site_url', 'undefined')})"
 
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
 put = functools.partial(requests.put, timeout=settings.MASTODON_TIMEOUT)
@@ -89,36 +82,27 @@ def post_toot(
         "Idempotency-Key": random_string_generator(16),
     }
     response = None
-    if site == TWITTER_DOMAIN:
-        url = TWITTER_API_POST
-        payload = {"text": content if len(content) <= 150 else content[0:150] + "..."}
-        response = post(url, headers=headers, json=payload)
-        if response.status_code == 201:
+    url = "https://" + get_api_domain(site) + API_PUBLISH_TOOT
+    payload = {
+        "status": content,
+        "visibility": visibility,
+    }
+    if spoiler_text:
+        payload["spoiler_text"] = spoiler_text
+    if local_only:
+        payload["local_only"] = True
+    try:
+        if update_id:
+            response = put(url + "/" + update_id, headers=headers, data=payload)
+        if not update_id or (response is not None and response.status_code != 200):
+            headers["Idempotency-Key"] = random_string_generator(16)
+            response = post(url, headers=headers, data=payload)
+        if response is not None and response.status_code == 201:
             response.status_code = 200
-        if response.status_code != 200:
+        if response is not None and response.status_code != 200:
             logger.error(f"Error {url} {response.status_code}")
-    else:
-        url = "https://" + get_api_domain(site) + API_PUBLISH_TOOT
-        payload = {
-            "status": content,
-            "visibility": visibility,
-        }
-        if spoiler_text:
-            payload["spoiler_text"] = spoiler_text
-        if local_only:
-            payload["local_only"] = True
-        try:
-            if update_id:
-                response = put(url + "/" + update_id, headers=headers, data=payload)
-            if update_id is None or response.status_code != 200:
-                headers["Idempotency-Key"] = random_string_generator(16)
-                response = post(url, headers=headers, data=payload)
-            if response.status_code == 201:
-                response.status_code = 200
-            if response.status_code != 200:
-                logger.error(f"Error {url} {response.status_code}")
-        except Exception:
-            response = None
+    except Exception:
+        response = None
     return response
 
 
@@ -139,10 +123,10 @@ def create_app(domain_name):
         url = "http://" + domain_name + API_CREATE_APP
 
     payload = {
-        "client_name": settings.CLIENT_NAME,
+        "client_name": settings.SITE_INFO["site_name"],
         "scopes": settings.MASTODON_CLIENT_SCOPE,
         "redirect_uris": settings.REDIRECT_URIS,
-        "website": settings.APP_WEBSITE,
+        "website": settings.SITE_INFO["site_url"],
     }
 
     response = post(url, data=payload, headers={"User-Agent": USER_AGENT})
@@ -156,29 +140,6 @@ def random_string_generator(n):
 
 
 def verify_account(site, token):
-    if site == TWITTER_DOMAIN:
-        url = (
-            TWITTER_API_ME
-            + "?user.fields=id,username,name,description,profile_image_url,created_at,protected"
-        )
-        try:
-            response = get(
-                url,
-                headers={"User-Agent": USER_AGENT, "Authorization": f"Bearer {token}"},
-            )
-            if response.status_code != 200:
-                logger.error(f"Error {url} {response.status_code}")
-                return response.status_code, None
-            r = response.json()["data"]
-            r["display_name"] = r["name"]
-            r["note"] = r["description"]
-            r["avatar"] = r["profile_image_url"]
-            r["avatar_static"] = r["profile_image_url"]
-            r["locked"] = r["protected"]
-            r["url"] = f'https://{TWITTER_DOMAIN}/{r["username"]}'
-            return 200, r
-        except Exception:
-            return -1, None
     url = "https://" + get_api_domain(site) + API_VERIFY_ACCOUNT
     try:
         response = get(
@@ -192,8 +153,6 @@ def verify_account(site, token):
 
 
 def get_related_acct_list(site, token, api):
-    if site == TWITTER_DOMAIN:
-        return []
     url = "https://" + get_api_domain(site) + api
     results = []
     while url:
@@ -233,18 +192,18 @@ def detect_server_info(login_domain):
     url = f"https://{login_domain}/api/v1/instance"
     try:
         response = get(url, headers={"User-Agent": USER_AGENT})
-    except:
-        logger.error(f"Error connecting {login_domain}")
-        raise Exception("无法连接实例")
+    except Exception as e:
+        logger.error(f"Error connecting {login_domain} {e}")
+        raise Exception(f"无法连接 {login_domain}")
     if response.status_code != 200:
         logger.error(f"Error connecting {login_domain}: {response.status_code}")
-        raise Exception("实例返回错误，代码: " + str(response.status_code))
+        raise Exception(f"实例 {login_domain} 返回错误，代码: {response.status_code}")
     try:
         j = response.json()
         domain = j["uri"].lower().split("//")[-1].split("/")[0]
     except Exception as e:
         logger.error(f"Error connecting {login_domain}: {e}")
-        raise Exception("实例返回信息无法识别")
+        raise Exception(f"实例 {login_domain} 返回信息无法识别")
     server_version = j["version"]
     api_domain = domain
     if domain != login_domain:
@@ -262,19 +221,17 @@ def detect_server_info(login_domain):
 
 def get_or_create_fediverse_application(login_domain):
     domain = login_domain
-    app = MastodonApplication.objects.filter(domain_name=domain).first()
+    app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
     if not app:
-        app = MastodonApplication.objects.filter(api_domain=domain).first()
+        app = MastodonApplication.objects.filter(api_domain__iexact=domain).first()
     if app:
         return app
-    if domain == TWITTER_DOMAIN:
-        raise Exception("Twitter未配置")
     if not settings.MASTODON_ALLOW_ANY_SITE:
         logger.error(f"Disallowed to create app for {domain}")
         raise Exception("不支持其它实例登录")
     domain, api_domain, server_version = detect_server_info(login_domain)
     if login_domain != domain:
-        app = MastodonApplication.objects.filter(domain_name=domain).first()
+        app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
         if app:
             return app
     response = create_app(api_domain)
@@ -289,8 +246,8 @@ def get_or_create_fediverse_application(login_domain):
         logger.error(f"Error creating app for {domain}: unable to parse response")
         raise Exception("实例注册应用失败，返回内容无法识别")
     app = MastodonApplication.objects.create(
-        domain_name=domain,
-        api_domain=api_domain,
+        domain_name=domain.lower(),
+        api_domain=api_domain.lower(),
         server_version=server_version,
         app_id=data["id"],
         client_id=data["client_id"],
@@ -301,9 +258,7 @@ def get_or_create_fediverse_application(login_domain):
 
 
 def get_mastodon_login_url(app, login_domain, request):
-    url = request.scheme + "://" + request.get_host() + reverse("users:OAuth2_login")
-    if login_domain == TWITTER_DOMAIN:
-        return f"https://twitter.com/i/oauth2/authorize?response_type=code&client_id={app.client_id}&redirect_uri={quote(url)}&scope={quote(settings.TWITTER_CLIENT_SCOPE)}&state=state&code_challenge=challenge&code_challenge_method=plain"
+    url = settings.REDIRECT_URIS
     version = app.server_version or ""
     scope = (
         settings.MASTODON_LEGACY_CLIENT_SCOPE
@@ -326,9 +281,7 @@ def get_mastodon_login_url(app, login_domain, request):
 def obtain_token(site, request, code):
     """Returns token if success else None."""
     mast_app = MastodonApplication.objects.get(domain_name=site)
-    redirect_uri = (
-        request.scheme + "://" + request.get_host() + reverse("users:OAuth2_login")
-    )
+    redirect_uri = settings.REDIRECT_URIS
     payload = {
         "client_id": mast_app.client_id,
         "client_secret": mast_app.client_secret,
@@ -340,11 +293,6 @@ def obtain_token(site, request, code):
     auth = None
     if mast_app.is_proxy:
         url = "https://" + mast_app.proxy_to + API_OBTAIN_TOKEN
-    elif site == TWITTER_DOMAIN:
-        url = TWITTER_API_TOKEN
-        auth = (mast_app.client_id, mast_app.client_secret)
-        del payload["client_secret"]
-        payload["code_verifier"] = "challenge"
     else:
         url = (
             "https://"
@@ -365,23 +313,7 @@ def obtain_token(site, request, code):
 
 
 def refresh_access_token(site, refresh_token):
-    if site != TWITTER_DOMAIN:
-        return None
-    mast_app = MastodonApplication.objects.get(domain_name=site)
-    url = TWITTER_API_TOKEN
-    payload = {
-        "client_id": mast_app.client_id,
-        "refresh_token": refresh_token,
-        "grant_type": "refresh_token",
-    }
-    headers = {"User-Agent": USER_AGENT}
-    auth = (mast_app.client_id, mast_app.client_secret)
-    response = post(url, data=payload, headers=headers, auth=auth)
-    if response.status_code != 200:
-        logger.error(f"Error {url} {response.status_code}")
-        return None
-    data = response.json()
-    return data.get("access_token")
+    pass
 
 
 def revoke_token(site, token):
@@ -422,7 +354,7 @@ def get_visibility(visibility, user):
         return TootVisibilityEnum.DIRECT
     elif visibility == 1:
         return TootVisibilityEnum.PRIVATE
-    elif user.get_preference().mastodon_publish_public:
+    elif user.preference.mastodon_publish_public:
         return TootVisibilityEnum.PUBLIC
     else:
         return TootVisibilityEnum.UNLISTED
@@ -436,16 +368,16 @@ def share_mark(mark):
         visibility = TootVisibilityEnum.DIRECT
     elif mark.visibility == 1:
         visibility = TootVisibilityEnum.PRIVATE
-    elif user.get_preference().mastodon_publish_public:
+    elif user.preference.mastodon_publish_public:
         visibility = TootVisibilityEnum.PUBLIC
     else:
         visibility = TootVisibilityEnum.UNLISTED
     tags = (
         "\n"
-        + user.get_preference().mastodon_append_tag.replace(
+        + user.preference.mastodon_append_tag.replace(
             "[category]", str(ItemCategory(mark.item.category).label)
         )
-        if user.get_preference().mastodon_append_tag
+        if user.preference.mastodon_append_tag
         else ""
     )
     stars = rating_to_emoji(
@@ -464,20 +396,16 @@ def share_mark(mark):
         update_id,
         spoiler_text,
     )
-    if response and response.status_code in [200, 201]:
+    if response is not None and response.status_code in [200, 201]:
         j = response.json()
         if "url" in j:
             mark.shared_link = j["url"]
-        elif "data" in j:
-            mark.shared_link = (
-                f"https://twitter.com/{user.username}/status/{j['data']['id']}"
-            )
         if mark.shared_link:
             mark.save(update_fields=["shared_link"])
-        return True
+        return True, 200
     else:
         logger.error(response)
-        return False
+        return False, response.status_code if response is not None else -1
 
 
 def share_review(review):
@@ -488,16 +416,16 @@ def share_review(review):
         visibility = TootVisibilityEnum.DIRECT
     elif review.visibility == 1:
         visibility = TootVisibilityEnum.PRIVATE
-    elif user.get_preference().mastodon_publish_public:
+    elif user.preference.mastodon_publish_public:
         visibility = TootVisibilityEnum.PUBLIC
     else:
         visibility = TootVisibilityEnum.UNLISTED
     tags = (
         "\n"
-        + user.get_preference().mastodon_append_tag.replace(
+        + user.preference.mastodon_append_tag.replace(
             "[category]", str(ItemCategory(review.item.category).label)
         )
-        if user.get_preference().mastodon_append_tag
+        if user.preference.mastodon_append_tag
         else ""
     )
     content = f"发布了关于《{review.item.display_title}》的评论\n{review.title}\n{review.absolute_url}{tags}"
@@ -512,7 +440,7 @@ def share_review(review):
     response = post_toot(
         user.mastodon_site, content, visibility, user.mastodon_token, False, update_id
     )
-    if response and response.status_code in [200, 201]:
+    if response is not None and response.status_code in [200, 201]:
         j = response.json()
         if "url" in j:
             review.metadata["shared_link"] = j["url"]
@@ -527,23 +455,27 @@ def share_collection(collection, comment, user, visibility_no):
         visibility = TootVisibilityEnum.DIRECT
     elif visibility_no == 1:
         visibility = TootVisibilityEnum.PRIVATE
-    elif user.get_preference().mastodon_publish_public:
+    elif user.preference.mastodon_publish_public:
         visibility = TootVisibilityEnum.PUBLIC
     else:
         visibility = TootVisibilityEnum.UNLISTED
     tags = (
-        "\n" + user.get_preference().mastodon_append_tag.replace("[category]", "收藏单")
-        if user.get_preference().mastodon_append_tag
+        "\n" + user.preference.mastodon_append_tag.replace("[category]", "收藏单")
+        if user.preference.mastodon_append_tag
         else ""
     )
     user_str = (
         "我"
         if user == collection.owner
-        else " @" + collection.owner.mastodon_username + " "
+        else (
+            " @" + collection.owner.mastodon_acct + " "
+            if collection.owner.mastodon_acct
+            else " " + collection.owner.username + " "
+        )
     )
     content = f"分享{user_str}的收藏单《{collection.title}》\n{collection.absolute_url}\n{comment}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
-    if response and response.status_code in [200, 201]:
+    if response is not None and response.status_code in [200, 201]:
         return True
     else:
         return False

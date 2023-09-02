@@ -58,9 +58,9 @@
         <summary>
           <a>How to authorize</a>
         </summary>
-        0. Create an application
+        0. Create an application (you must have at least one URL included in the Redirect URIs field, e.g. <code>https://example.org/callback</code>)
         <br>
-        1. Guide your user to open this URL (you must have <code>https://example.org/callback</code> included in the Redirect URIs field)
+        1. Guide your user to open this URL
         <input type="text"
                value="{{ site_url }}/oauth/authorize/?response_type=code&amp;client_id=CLIENT_ID&amp;redirect_uri=https://example.org/callback"
                readonly>

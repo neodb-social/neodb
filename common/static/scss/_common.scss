@@ -135,6 +135,16 @@ details {
     color: var(--pico-primary);
     opacity: 1;
   }
+
+  .tag-list a:not(:hover) {
+    color: white;
+  }
+}
+
+.hide-action {
+  .action {
+    display: none !important;
+  }
 }
 
 form img {

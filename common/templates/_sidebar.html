@@ -38,10 +38,9 @@
           <summary>
             <div>
               <div class="avatar">
-                <a href="{% url 'journal:user_profile' user.mastodon_username %}"
-                   onclick="window.location = this.href">
+                <a href="{{ user.url }}" onclick="window.location = this.href;">
                   {% comment %} onclick to workaround webkit issue with <a />  in <summary /> {% endcomment %}
-                  <img src="{{ user.mastodon_account.avatar }}" alt="">
+                  <img src="{{ user.avatar }}" alt="">
                 </a>
               </div>
               <div>
@@ -51,25 +50,28 @@
                     <a href="{{ user.mastodon_account.url }}"
                        target="_blank"
                        rel="noopener"
-                       onclick="window.open(this.href)">
-                      <span class="handler">@{{ user.mastodon_username }}</span>
+                       onclick="window.open(this.href); return false;">
+                      <span class="handler">@{{ user.handler }}</span>
                     </a>
-                    {% current_user_relationship user as relationship %}
-                    {% if relationship %}<span>{{ relationship }}</span>{% endif %}
                   </div>
                 </hgroup>
               </div>
             </div>
           </summary>
-          <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
-          {% if request.user != user %}
-            <span class="action">
-              <small>
-                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
-                   class="user-profile__report-link">{% trans '投诉用户' %}</a>
-              </small>
-            </span>
-          {% endif %}
+          <span class="action">
+            {% if user == request.user %}
+              {% if user.locked %}
+                <span>
+                  <a title="你已开启关注审核">
+                    <i class="fa-solid fa-user-shield"></i>
+                  </a>
+                </span>
+              {% endif %}
+            {% else %}
+              {% include 'users/profile_actions.html' %}
+            {% endif %}
+          </span>
+          <p>{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
         </details>
       </article>
     </section>
@@ -188,7 +190,7 @@
           <div class="tag-list">
             {% for t in top_tags %}
               <span>
-                <a href="{% url 'journal:user_tag_member_list' user.mastodon_username t %}">{{ t }}</a>
+                <a href="{% url 'journal:user_tag_member_list' user.handler t %}">{{ t }}</a>
               </span>
             {% empty %}
               <div class="empty">暂无可见标签</div>
@@ -196,7 +198,7 @@
           </div>
           <small>
             {% if top_tags %}
-              <a href="{% url 'journal:user_tag_list' user.mastodon_username %}">...{% trans '全部' %}</a>
+              <a href="{% url 'journal:user_tag_list' user.handler %}">...{% trans '全部' %}</a>
             {% endif %}
           </small>
         </details>

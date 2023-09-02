@@ -4,7 +4,9 @@
 
 Boofilsic/NeoDB is an open source project and free service to help users manage, share and discover collections, reviews and ratings for culture products (e.g. books, movies, music, podcasts, games and performances) in Fediverse.
 
-[NeoDB.social](https://neodb.social) and [NiceDB](https://nicedb.org) are free services hosted by volunteers.
+[NeoDB.social](https://neodb.social) and [NiceDB](https://nicedb.org) are free instances hosted by volunteers. Your support is essential to keep the service free and open-sourced.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/neodb)
 
 ## Features
  - Manage a shared catalog of books/movies/tv shows/music album/games/podcasts/performances
@@ -17,6 +19,7 @@ Boofilsic/NeoDB is an open source project and free service to help users manage,
  	 	 * Google Books
  	 	 * Discogs
  	 	 * Spotify
+     * Apple Music
  	 	 * Bandcamp
  	 	 * Steam
  	 	 * IGDB
@@ -38,7 +41,9 @@ Boofilsic/NeoDB is an open source project and free service to help users manage,
  	   * eligible items, e.g. podcasts and albums, are playable in feed
  	 + link Fediverse account and import social graph
  	 + share collections and reviews to Fediverse ~~and Twitter~~ feed
- 	 + there's a plan to add ActivityPub support in the near future
+ 	 + ActivityPub support is under development, a pre-alpha version is available for developers as [docker image](https://hub.docker.com/r/neodb/neodb)
+ - Other
+   + i18n/language support are planned
 
 ## Install
 Please see [doc/install.md](doc/install.md)

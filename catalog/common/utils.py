@@ -1,7 +1,7 @@
 import logging
-from django.utils import timezone
 import uuid
 
+from django.utils import timezone
 
 _logger = logging.getLogger(__name__)
 

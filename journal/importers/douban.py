@@ -1,42 +1,45 @@
-import openpyxl
-import re
-from markdownify import markdownify as md
-from datetime import datetime
 import logging
-import pytz
-from django.conf import settings
-from user_messages import api as msg
-import django_rq
-from common.utils import GenerateDateUUIDMediaFilePath
 import os
+import re
+from datetime import datetime
+
+import django_rq
+import openpyxl
+import pytz
 from auditlog.context import set_actor
+from django.conf import settings
+from loguru import logger
+from markdownify import markdownify as md
+from user_messages import api as msg
+
 from catalog.common import *
 from catalog.common.downloaders import *
+from catalog.models import *
 from catalog.sites.douban import DoubanDownloader
+from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import *
 
-_logger = logging.getLogger(__name__)
 _tz_sh = pytz.timezone("Asia/Shanghai")
 
 
 def _fetch_remote_image(url):
     try:
-        print(f"fetching remote image {url}")
+        logger.info(f"fetching remote image {url}")
         imgdl = ProxiedImageDownloader(url)
         raw_img = imgdl.download().content
         ext = imgdl.extention
         f = GenerateDateUUIDMediaFilePath(
-            None, "x." + ext, settings.MARKDOWNX_MEDIA_PATH
+            None, f"x.{ext}", settings.MARKDOWNX_MEDIA_PATH
         )
         file = settings.MEDIA_ROOT + f
         local_url = settings.MEDIA_URL + f
         os.makedirs(os.path.dirname(file), exist_ok=True)
         with open(file, "wb") as binary_file:
             binary_file.write(raw_img)
-        # print(f'remote image saved as {local_url}')
+        # logger.info(f'remote image saved as {local_url}')
         return local_url
     except Exception:
-        print(f"unable to fetch remote image {url}")
+        logger.error(f"unable to fetch remote image {url}")
         return url
 
 
@@ -46,10 +49,9 @@ class DoubanImporter:
     skipped = 0
     imported = 0
     failed = []
-    user = None
     visibility = 0
     mode = 0
-    file = None
+    file = ""
 
     def __init__(self, user, visibility, mode):
         self.user = user
@@ -146,7 +148,7 @@ class DoubanImporter:
             for name in config:
                 data[name] = []
                 if name in wb:
-                    print(f"{self.user} parsing {name}")
+                    logger.info(f"{self.user} parsing {name}")
                     for row in wb[name].iter_rows(min_row=2, values_only=True):
                         cells = [cell for cell in row]
                         if len(cells) > 6 and cells[0]:
@@ -186,12 +188,12 @@ class DoubanImporter:
         #             return cells[3]
 
     def import_from_file_task(self):
-        print(f"{self.user} import start")
+        logger.info(f"{self.user} import start")
         msg.info(self.user, f"开始导入豆瓣标记和评论")
         self.update_user_import_status(1)
         with set_actor(self.user):
             self.load_sheets()
-            print(f"{self.user} sheet loaded, {self.total} lines total")
+            logger.info(f"{self.user} sheet loaded, {self.total} lines total")
             self.update_user_import_status(1)
             for name, param in self.mark_sheet_config.items():
                 self.import_mark_sheet(self.mark_data[name], param[0], name)
@@ -208,7 +210,7 @@ class DoubanImporter:
     def import_mark_sheet(self, worksheet, shelf_type, sheet_name):
         prefix = f"{self.user} {sheet_name}|"
         if worksheet is None:  # or worksheet.max_row < 2:
-            print(f"{prefix} empty sheet")
+            logger.warning(f"{prefix} empty sheet")
             return
         for cells in worksheet:
             if len(cells) < 6:
@@ -241,7 +243,7 @@ class DoubanImporter:
         """
         item = self.get_item_by_url(url)
         if not item:
-            print(f"{self.user} | match/fetch {url} failed")
+            logger.warning(f"{self.user} | match/fetch {url} failed")
             return
         mark = Mark(self.user, item)
         if self.mode == 0 and (
@@ -265,7 +267,7 @@ class DoubanImporter:
     def import_review_sheet(self, worksheet, sheet_name):
         prefix = f"{self.user} {sheet_name}|"
         if worksheet is None:  # or worksheet.max_row < 2:
-            print(f"{prefix} empty sheet")
+            logger.warning(f"{prefix} empty sheet")
             return
         for cells in worksheet:
             if len(cells) < 6:
@@ -304,19 +306,18 @@ class DoubanImporter:
         item = None
         try:
             site = SiteManager.get_site_by_url(url)
+            if not site:
+                raise ValueError(f"URL unrecognized {url}")
             item = site.get_item()
             if not item:
-                print(f"fetching {url}")
+                logger.info(f"fetching {url}")
                 site.get_resource_ready()
                 item = site.get_item()
-                item.last_editor = self.user
-                item.save()
             else:
-                # print(f"matched {url}")
+                # logger.info(f"matched {url}")
                 print(".", end="", flush=True)
         except Exception as e:
-            print(f"fetching exception: {url} {e}")
-            _logger.error(f"scrape failed: {url}", exc_info=e)
+            logger.error(f"fetching exception: {url} {e}")
         if item is None:
             self.failed.append(url)
         return item
@@ -328,23 +329,24 @@ class DoubanImporter:
         prefix = f"{self.user} |"
         url = self.guess_entity_url(entity_title, rating, time)
         if url is None:
-            print(f"{prefix} fetching review {review_url}")
+            logger.info(f"{prefix} fetching review {review_url}")
             try:
                 h = DoubanDownloader(review_url).download().html()
-                for u in h.xpath("//header[@class='main-hd']/a/@href"):
+                urls = h.xpath("//header[@class='main-hd']/a/@href")
+                for u in urls:  # type:ignore
                     if ".douban.com/subject/" in u:
                         url = u
                 if not url:
-                    print(
+                    logger.warning(
                         f"{prefix} fetching error {review_url} unable to locate entity url"
                     )
                     return
             except Exception:
-                print(f"{prefix} fetching review exception {review_url}")
+                logger.error(f"{prefix} fetching review exception {review_url}")
                 return
         item = self.get_item_by_url(url)
         if not item:
-            print(f"{prefix} match/fetch {url} failed")
+            logger.warning(f"{prefix} match/fetch {url} failed")
             return
         if (
             self.mode == 1

@@ -1,22 +1,26 @@
-from django.shortcuts import redirect, render, get_object_or_404
-from django.urls import reverse
-from django.contrib.auth.decorators import login_required
-from django.utils.translation import gettext_lazy as _
-from .models import User, Report, Preference
-from .forms import ReportForm
-from mastodon.api import *
-from common.config import *
-from .account import *
-from .data import *
 import json
+
+from discord import SyncWebhook
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import HttpResponseRedirect
-from discord import SyncWebhook
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+
+from common.config import *
+from management.models import Announcement
+from mastodon.api import *
+
+from .account import *
+from .data import *
+from .forms import ReportForm
+from .models import Preference, Report, User
 
 
 def render_user_not_found(request):
-    msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-    sec_msg = _("")
+    sec_msg = _("😖哎呀，这位用户好像还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
+    msg = _("未找到该用户")
     return render(
         request,
         "common/error.html",
@@ -28,7 +32,7 @@ def render_user_not_found(request):
 
 
 def render_user_blocked(request):
-    msg = _("你没有访问TA主页的权限😥")
+    msg = _("没有访问该用户主页的权限")
     return render(
         request,
         "common/error.html",
@@ -39,39 +43,75 @@ def render_user_blocked(request):
 
 
 @login_required
-def followers(request, id):
-    if request.method == "GET":
-        user = User.get(id)
-        if user is None or user != request.user:
-            return render_user_not_found(request)
-        return render(
-            request,
-            "users/relation_list.html",
-            {
-                "user": user,
-                "is_followers_page": True,
-            },
-        )
+def follow(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.follow(user):
+        return render(request, "users/profile_actions.html", context={"user": user})
     else:
         raise BadRequest()
 
 
 @login_required
-def following(request, id):
-    if request.method == "GET":
-        user = User.get(id)
-        if user is None or user != request.user:
-            return render_user_not_found(request)
-        return render(
-            request,
-            "users/relation_list.html",
-            {
-                "user": user,
-                "page_type": "followers",
-            },
-        )
+def unfollow(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.unfollow(user):
+        return render(request, "users/profile_actions.html", context={"user": user})
     else:
         raise BadRequest()
+
+
+@login_required
+def mute(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.mute(user):
+        return render(request, "users/profile_actions.html", context={"user": user})
+    else:
+        raise BadRequest()
+
+
+@login_required
+def unmute(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.unmute(user):
+        return render(request, "users/profile_actions.html", context={"user": user})
+    else:
+        raise BadRequest()
+
+
+@login_required
+def block(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.block(user):
+        return render(request, "users/profile_actions.html", context={"user": user})
+    else:
+        raise BadRequest()
+
+
+@login_required
+def unblock(request, user_name):
+    if request.method != "POST":
+        raise BadRequest()
+    user = User.get(user_name)
+    if request.user.unblock(user):
+        return render(request, "users/profile_actions.html", context={"user": user})
+    else:
+        raise BadRequest()
+
+
+@login_required
+def follow_locked(request, user_name):
+    user = User.get(user_name)
+    return render(request, "users/follow_locked.html", context={"user": user})
 
 
 @login_required
@@ -81,15 +121,12 @@ def set_layout(request):
         if request.POST.get("name") == "profile":
             request.user.preference.profile_layout = layout
             request.user.preference.save(update_fields=["profile_layout"])
-            return redirect(
-                reverse("journal:user_profile", args=[request.user.mastodon_username])
-            )
+            return redirect(request.user.url)
         elif request.POST.get("name") == "discover":
             request.user.preference.discover_layout = layout
             request.user.preference.save(update_fields=["discover_layout"])
             return redirect(reverse("catalog:discover"))
-    else:
-        raise BadRequest()
+    raise BadRequest()
 
 
 @login_required
@@ -116,7 +153,7 @@ def report(request):
             form.save()
             dw = settings.DISCORD_WEBHOOKS.get("user-report")
             if dw:
-                webhook = SyncWebhook.from_url(dw)
+                webhook = SyncWebhook.from_url(dw)  # type: ignore
                 webhook.send(
                     f"New report from {request.user} about {form.instance.reported_user} : {form.instance.message}"
                 )

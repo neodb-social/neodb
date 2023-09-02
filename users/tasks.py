@@ -1,33 +1,47 @@
-from django.shortcuts import reverse, redirect, render, get_object_or_404
-from django.http import HttpResponseBadRequest, HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.contrib import auth
-from django.contrib.auth import authenticate
-from django.core.paginator import Paginator
-from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count
-from .models import User, Report, Preference
-from .forms import ReportForm
-from mastodon.api import *
-from mastodon import mastodon_request_included
-from common.config import *
-from common.utils import PageLinksGenerator
-from management.models import Announcement
-from mastodon.models import MastodonApplication
+from datetime import timedelta
+
 from django.conf import settings
-from urllib.parse import quote
-from openpyxl import Workbook
-from common.utils import GenerateDateUUIDMediaFilePath
-from datetime import datetime
-import os
+from django.utils import timezone
+from loguru import logger
+from tqdm import tqdm
+
+from .models import User
 
 
-def refresh_mastodon_data_task(user, token=None):
+def refresh_mastodon_data_task(user_id, token=None):
+    user = User.objects.get(pk=user_id)
+    if not user.mastodon_username:
+        logger.info(f"{user} mastodon data refresh skipped")
+        return
     if token:
         user.mastodon_token = token
     if user.refresh_mastodon_data():
         user.save()
-        print(f"{user} mastodon data refreshed")
+        logger.info(f"{user} mastodon data refreshed")
     else:
-        print(f"{user} mastodon data refresh failed")
+        logger.warning(f"{user} mastodon data refresh failed")
+
+
+def refresh_all_mastodon_data_task(ttl_hours):
+    logger.info(f"Mastodon data refresh start")
+    count = 0
+    for user in tqdm(
+        User.objects.filter(
+            mastodon_last_refresh__lt=timezone.now() - timedelta(hours=ttl_hours),
+            is_active=True,
+        )
+    ):
+        if user.mastodon_token or user.mastodon_refresh_token:
+            logger.info(f"Refreshing {user}")
+            if user.refresh_mastodon_data():
+                logger.info(f"Refreshed {user}")
+                count += 1
+            else:
+                logger.warning(f"Refresh failed for {user}")
+            user.save()
+        else:
+            logger.warning(f"Missing token for {user}")
+    logger.info(f"{count} users updated")
+    c = User.merge_rejected_by()
+    logger.info(f"{c} users's rejecting list updated")
+    logger.info(f"Mastodon data refresh done")

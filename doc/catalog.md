@@ -88,7 +88,7 @@ classDiagram
 
 Add a new site
 --------------
-> **Site official API** should be the prioritised way to get data when adding a new site.
+ - If official API is available for the site, it should be the preferred way to get data.
  - add a new value to `IdType` and `SiteName` in `catalog/common/models.py`
  - add a new file in `catalog/sites/`, a new class inherits `AbstractSite`, with:
     * `SITE_NAME`
@@ -112,4 +112,3 @@ Add a new site
    - Command: `python3 manage.py test [--keepdb]`. More detailed for `test`, please check [this doc](https://github.com/neodb-social/neodb/blob/main/doc/development.md#run-test)
    - See [this issue](https://github.com/neodb-social/neodb/issues/5) if `lxml.etree.ParserError` occurs on macOS.
  - add a site UI label to `common/static/scss/_sitelabel.scss`
-

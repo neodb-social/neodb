@@ -1,8 +1,8 @@
+import logging
+import re
+
 from catalog.common import *
 from catalog.models import *
-import re
-import logging
-
 
 _logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class GoogleBooks(AbstractSite):
     DEFAULT_MODEL = Edition
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://books.google.com/books?id=" + id_value
 
     def scrape(self):
@@ -56,15 +56,15 @@ class GoogleBooks(AbstractSite):
         brief = re.sub(r"<.*?>", "", brief.replace("<br", "\n<br"))
         img_url = None
         if "imageLinks" in b["volumeInfo"]:
-            # if "extraLarge" in b["volumeInfo"]["imageLinks"]:
-            #     img_url = b["volumeInfo"]["imageLinks"]["extraLarge"]
-            # elif "large" in b["volumeInfo"]["imageLinks"]:
-            #     img_url = b["volumeInfo"]["imageLinks"]["large"]
-            # elif "thumbnail" in b["volumeInfo"]["imageLinks"]:
-            #     img_url = b["volumeInfo"]["imageLinks"]["thumbnail"]
-            if "thumbnail" in b["volumeInfo"]["imageLinks"]:
+            if "extraLarge" in b["volumeInfo"]["imageLinks"]:
+                img_url = b["volumeInfo"]["imageLinks"]["extraLarge"]
+            elif "large" in b["volumeInfo"]["imageLinks"]:
+                img_url = b["volumeInfo"]["imageLinks"]["large"]
+            elif "thumbnail" in b["volumeInfo"]["imageLinks"]:
                 img_url = b["volumeInfo"]["imageLinks"]["thumbnail"]
-                img_url = img_url.replace("zoom=1", "")
+            # if "thumbnail" in b["volumeInfo"]["imageLinks"]:
+            #     img_url = b["volumeInfo"]["imageLinks"]["thumbnail"]
+            #     img_url = img_url.replace("zoom=1", "")
         isbn10 = None
         isbn13 = None
         for iid in (

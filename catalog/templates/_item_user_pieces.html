@@ -4,28 +4,32 @@
     我的标签
     {% if not mark.tags %}
       <small>
-        <a href="#"
-           hx-get="{% url 'journal:mark' item.uuid %}"
-           class="item-mark-icon"
-           hx-target="body"
-           hx-swap="beforeend">
-          <i class="fa-regular fa-square-plus"></i>
-        </a>
+        <span class="action inline">
+          <a href="#"
+             hx-get="{% url 'journal:mark' item.uuid %}"
+             class="item-mark-icon"
+             hx-target="body"
+             hx-swap="beforeend">
+            <i class="fa-regular fa-square-plus"></i>
+          </a>
+        </span>
       </small>
     {% endif %}
   </h5>
-  <span class="action">
-    <span>
-      <a href="#"
-         hx-get="{% url 'journal:mark' item.uuid %}"
-         hx-target="body"
-         hx-swap="beforeend"><i class="fa-solid fa-pen-to-square"></i></a>
+  {% if mark.tags %}
+    <span class="action">
+      <span>
+        <a href="#"
+           hx-get="{% url 'journal:mark' item.uuid %}"
+           hx-target="body"
+           hx-swap="beforeend"><i class="fa-solid fa-pen-to-square"></i></a>
+      </span>
     </span>
-  </span>
+  {% endif %}
   <div class="tag-list">
     {% for tag in mark.tags %}
       <span>
-        <a href="{% url 'journal:user_tag_member_list' request.user.mastodon_username tag %}">{{ tag }}</a>
+        <a href="{% url 'journal:user_tag_member_list' request.user.handler tag %}">{{ tag }}</a>
       </span>
     {% endfor %}
   </div>
@@ -35,13 +39,15 @@
     我的短评
     {% if not mark.comment %}
       <small>
-        <a href="#"
-           hx-get="{% url 'journal:mark' item.uuid %}"
-           class="item-mark-icon"
-           hx-target="body"
-           hx-swap="beforeend">
-          <i class="fa-regular fa-square-plus"></i>
-        </a>
+        <span class="action inline">
+          <a href="#"
+             hx-get="{% url 'journal:mark' item.uuid %}"
+             class="item-mark-icon"
+             hx-target="body"
+             hx-swap="beforeend">
+            <i class="fa-regular fa-square-plus"></i>
+          </a>
+        </span>
       </small>
     {% endif %}
   </h5>
@@ -60,7 +66,7 @@
       <span>
         <a target="_blank"
            rel="noopener"
-           {% if mark.comment.metadata.shared_link %} href="{{ mark.comment.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.comment.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+           {% if mark.comment.metadata.shared_link %} href="{{ mark.comment.metadata.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.comment.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
       </span>
       {% comment %} <span class="timestamp">{{ mark.comment.created_time|date }}</span> {% endcomment %}
     </span>
@@ -83,7 +89,7 @@
       <span>
         <a target="_blank"
            rel="noopener"
-           {% if comment.metadata.shared_link %} href="{{ comment.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if comment.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+           {% if comment.metadata.shared_link %} href="{{ comment.metadata.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if comment.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
       </span>
       {% comment %} <span class="timestamp">{{ comment.created_time|date }}</span> {% endcomment %}
     </span>
@@ -97,10 +103,12 @@
     我的评论
     {% if not review %}
       <small>
-        <a href="{% url 'journal:review_create' item.uuid %}"
-           class="item-mark-icon">
-          <i class="fa-regular fa-square-plus"></i>
-        </a>
+        <span class="action inline">
+          <a href="{% url 'journal:review_create' item.uuid %}"
+             class="item-mark-icon">
+            <i class="fa-regular fa-square-plus"></i>
+          </a>
+        </span>
       </small>
     {% endif %}
   </h5>
@@ -119,7 +127,7 @@
       <span>
         <a target="_blank"
            rel="noopener"
-           {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打���联邦网���分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+           {% if mark.review.metadata.shared_link %} href="{{ mark.review.metadata.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
       </span>
       <span class="timestamp">{{ mark.review.created_time|date }}</span>
     </span>
@@ -134,13 +142,15 @@
   <h5>
     我的收藏单
     <small>
-      <a href="#"
-         hx-get="{% url 'journal:add_to_collection' item.uuid %}"
-         class="edit"
-         hx-target="body"
-         hx-swap="beforeend">
-        <i class="fa-regular fa-square-plus"></i>
-      </a>
+      <span class="action inline">
+        <a href="#"
+           hx-get="{% url 'journal:add_to_collection' item.uuid %}"
+           class="edit"
+           hx-target="body"
+           hx-swap="beforeend">
+          <i class="fa-regular fa-square-plus"></i>
+        </a>
+      </span>
     </small>
   </h5>
   <div>
@@ -154,11 +164,16 @@
     {% endfor %}
   </div>
 </section>
-<!--
-    <section>
-      <h5>标记历史</h5>
-      <div>
-        {% for log in mark.logs %}{{ log.timestamp|date }} {{ log.action_label }}<br>{% endfor %}
-      </div>
-    </section>
-    -->
+{% if mark.logs %}
+  <section id="mark-history">
+    <h5>
+      标记历史
+      <small>
+        <span class="action inline">
+          <a _="on click toggle .hide-action on #log-list then toggle .activated"><i class="fa-solid fa-pen-to-square"></i></a>
+        </span>
+      </small>
+    </h5>
+    <div id="log-list" class="hide-action">{% include '_item_user_mark_history.html' %}</div>
+  </section>
+{% endif %}

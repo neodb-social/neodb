@@ -4,20 +4,23 @@ IGDB
 use (e.g. "portal-2") as id, which is different from real id in IGDB API
 """
 
-from catalog.common import *
-from catalog.models import *
-from django.conf import settings
-from igdb.wrapper import IGDBWrapper
-import requests
 import datetime
 import json
 import logging
 
+import requests
+from django.conf import settings
+from igdb.wrapper import IGDBWrapper
+
+from catalog.common import *
+from catalog.models import *
 
 _logger = logging.getLogger(__name__)
 
 
 def _igdb_access_token():
+    if not settings.IGDB_CLIENT_SECRET:
+        return "<missing>"
     try:
         token = requests.post(
             f"https://id.twitch.tv/oauth2/token?client_id={settings.IGDB_CLIENT_ID}&client_secret={settings.IGDB_CLIENT_SECRET}&grant_type=client_credentials"
@@ -60,7 +63,7 @@ class IGDB(AbstractSite):
         if get_mock_mode():
             r = BasicDownloader(key).download().json()
         else:
-            r = json.loads(_wrapper.api_request(p, q))
+            r = json.loads(_wrapper.api_request(p, q))  # type: ignore
             if settings.DOWNLOADER_SAVEDIR:
                 with open(
                     settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(key),

@@ -1,7 +1,9 @@
-from django.core.management.base import BaseCommand
-from users.models import User
 from datetime import timedelta
+
+from django.core.management.base import BaseCommand
 from django.utils import timezone
+
+from users.models import User
 
 
 class Command(BaseCommand):
@@ -12,8 +14,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         h = int(options["id"])
-        u = User.objects.get(id=h)
-        u.username = "(duplicated)" + u.username
+        u = User.objects.get(pk=h)
         u.is_active = False
         u.save()
-        print(f"{u} updated")
+        print(f"{u} disabled")

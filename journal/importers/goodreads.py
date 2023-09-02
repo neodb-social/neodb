@@ -1,14 +1,16 @@
 import re
 from datetime import datetime
-from user_messages import api as msg
+
 import django_rq
-from django.utils.timezone import make_aware
 from auditlog.context import set_actor
+from django.utils import timezone
+from django.utils.timezone import make_aware
+from user_messages import api as msg
+
 from catalog.common import *
+from catalog.common.downloaders import *
 from catalog.models import *
 from journal.models import *
-from catalog.common.downloaders import *
-
 
 re_list = r"^https://www.goodreads.com/list/show/\d+"
 re_shelf = r"^https://www.goodreads.com/review/list/\d+[^?]*\?shelf=[^&]+"
@@ -44,12 +46,12 @@ class GoodreadsImporter:
         total = 0
         visibility = user.preference.default_visibility
         with set_actor(user):
-            if match_list or match_shelf:
-                shelf = (
-                    cls.parse_shelf(match_shelf[0], user)
-                    if match_shelf
-                    else cls.parse_list(match_list[0], user)
-                )
+            shelf = None
+            if match_shelf:
+                shelf = cls.parse_shelf(match_shelf[0], user)
+            elif match_list:
+                shelf = cls.parse_list(match_list[0], user)
+            if shelf:
                 if shelf["title"] and shelf["books"]:
                     collection = Collection.objects.create(
                         title=shelf["title"],
@@ -107,17 +109,18 @@ class GoodreadsImporter:
     @classmethod
     def get_book(cls, url, user):
         site = SiteManager.get_site_by_url(url)
-        book = site.get_item()
-        if not book:
-            book = site.get_resource_ready().item
-            book.last_editor = user
-            book.save()
-        return book
+        if site:
+            book = site.get_item()
+            if not book:
+                resource = site.get_resource_ready()
+                if resource and resource.item:
+                    book = resource.item
+            return book
 
     @classmethod
     def parse_shelf(cls, url, user):
         # return {'title': 'abc', books: [{'book': obj, 'rating': 10, 'review': 'txt'}, ...]}
-        title = None
+        title = ""
         books = []
         url_shelf = url + "&view=table"
         while url_shelf:
@@ -128,12 +131,13 @@ class GoodreadsImporter:
                 if not title_elem:
                     print(f"Shelf parsing error {url_shelf}")
                     break
-                title = title_elem[0].strip()
+                title = title_elem[0].strip()  # type:ignore
                 print("Shelf title: " + title)
             except Exception:
                 print(f"Shelf loading/parsing error {url_shelf}")
                 break
-            for cell in content.xpath("//tbody[@id='booksBody']/tr"):
+            cells = content.xpath("//tbody[@id='booksBody']/tr")
+            for cell in cells:  # type:ignore
                 url_book = (
                     "https://www.goodreads.com"
                     + cell.xpath(".//td[@class='field title']//a/@href")[0].strip()
@@ -166,10 +170,12 @@ class GoodreadsImporter:
                     c2 = BasicDownloader(url_review).download().html()
                     review_elem = c2.xpath("//div[@itemprop='reviewBody']/text()")
                     review = (
-                        "\n".join(p.strip() for p in review_elem) if review_elem else ""
+                        "\n".join(p.strip() for p in review_elem)  # type:ignore
+                        if review_elem
+                        else ""
                     )
                     date_elem = c2.xpath("//div[@class='readingTimeline__text']/text()")
-                    for d in date_elem:
+                    for d in date_elem:  # type:ignore
                         date_matched = re.search(r"(\w+)\s+(\d+),\s+(\d+)", d)
                         if date_matched:
                             last_updated = make_aware(
@@ -200,7 +206,7 @@ class GoodreadsImporter:
                     pass  # likely just download error
             next_elem = content.xpath("//a[@class='next_page']/@href")
             url_shelf = (
-                ("https://www.goodreads.com" + next_elem[0].strip())
+                f"https://www.goodreads.com{next_elem[0].strip()}"  # type:ignore
                 if next_elem
                 else None
             )
@@ -209,8 +215,8 @@ class GoodreadsImporter:
     @classmethod
     def parse_list(cls, url, user):
         # return {'title': 'abc', books: [{'book': obj, 'rating': 10, 'review': 'txt'}, ...]}
-        title = None
-        description = None
+        title = ""
+        description = ""
         books = []
         url_shelf = url
         while url_shelf:
@@ -220,10 +226,12 @@ class GoodreadsImporter:
             if not title_elem:
                 print(f"List parsing error {url_shelf}")
                 break
-            title = title_elem[0].strip()
-            description = content.xpath('//div[@class="mediumText"]/text()')[0].strip()
+            title: str = title_elem[0].strip()  # type:ignore
+            desc_elem = content.xpath('//div[@class="mediumText"]/text()')
+            description: str = desc_elem[0].strip()  # type:ignore
             print("List title: " + title)
-            for link in content.xpath('//a[@class="bookTitle"]/@href'):
+            links = content.xpath('//a[@class="bookTitle"]/@href')
+            for link in links:  # type:ignore
                 url_book = "https://www.goodreads.com" + link
                 try:
                     book = cls.get_book(url_book, user)
@@ -239,7 +247,7 @@ class GoodreadsImporter:
                     pass  # likely just download error
             next_elem = content.xpath("//a[@class='next_page']/@href")
             url_shelf = (
-                ("https://www.goodreads.com" + next_elem[0].strip())
+                f"https://www.goodreads.com{next_elem[0].strip()}"  # type:ignore
                 if next_elem
                 else None
             )

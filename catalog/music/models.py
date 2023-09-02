@@ -1,7 +1,20 @@
 from datetime import date
-from catalog.common.models import *
-from django.utils.translation import gettext_lazy as _
+
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+from catalog.common import (
+    BaseSchema,
+    ExternalResource,
+    IdType,
+    Item,
+    ItemCategory,
+    ItemInSchema,
+    ItemSchema,
+    ItemType,
+    PrimaryLookupIdDescriptor,
+    jsondata,
+)
 
 
 class AlbumInSchema(ItemInSchema):
@@ -43,7 +56,7 @@ class Album(Item):
         "bandcamp_album_id",
     ]
     release_date = jsondata.DateField(_("发行日期"), null=True, blank=True)
-    duration = jsondata.IntegerField(_("时长"), null=True, blank=True)
+    duration = jsondata.IntegerField(_("时长"), null=True, blank=True, help_text=_("毫秒数"))
     artist = jsondata.ArrayField(
         models.CharField(blank=True, default="", max_length=200),
         verbose_name=_("艺术家"),

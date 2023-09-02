@@ -13,17 +13,27 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
-from users.views import login
+from django.contrib import admin
+from django.urls import include, path
+from django.views.generic import RedirectView
+
 from common.api import api
+from users.views import login
 
 urlpatterns = [
     path("api/", api.urls),  # type: ignore
     path("login/", login),
     path("markdownx/", include("markdownx.urls")),
-    path("users/", include("users.urls")),
+    path("account/", include("users.urls")),
+    path(
+        "users/connect/",
+        RedirectView.as_view(url="/account/connect", query_string=True),
+    ),
+    path(
+        "users/OAuth2_login/",
+        RedirectView.as_view(url="/account/login/oauth", query_string=True),
+    ),
     path("", include("catalog.urls")),
     path("", include("journal.urls")),
     path("timeline/", include("social.urls")),

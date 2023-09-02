@@ -16,7 +16,8 @@
     <meta property="og:title"
           content="{{ site_name }} - {{ review.title }} ({{ review.item.title }} {% trans '评论' %})">
     <meta property="og:type" content="article">
-    <meta property="og:article:author" content="{{ review.owner.username }}">
+    <meta property="og:article:author"
+          content="{{ review.owner.display_name }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ review.item.cover|thumb:'normal' }}">
     <meta property="og:site_name" content="{{ site_name }}">
@@ -40,7 +41,7 @@
                   <span>
                     <a target="_blank"
                        rel="noopener"
-                       {% if review.metadata.shared_link %} href="{{ review.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                       {% if review.metadata.shared_link %} href="{{ review.metadata.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
                   </span>
                   {% if request.user == review.owner %}{% endif %}
                 </div>
@@ -50,13 +51,12 @@
             <div class="owner-info">
               <div class="owner">
                 <span class="avatar">
-                  <img src="{{ review.owner.mastodon_account.avatar }}"
-                       alt="{{ review.owner.username }}">
+                  <img src="{{ review.owner.avatar }}" alt="{{ review.owner.display_name }}">
                 </span>
               </div>
               <div class="info">
-                <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}">{{ review.owner.display_name }}</a>
-                <span class="handler">@{{ review.owner.mastodon_username }}</span>
+                <a href="{{ review.owner.url }}">{{ review.owner.display_name }}</a>
+                <span class="handler">@{{ review.owner.handler }}</span>
                 <br>
                 评论
                 <a href="{{ review.item.url }}">{{ review.item.title }}</a>

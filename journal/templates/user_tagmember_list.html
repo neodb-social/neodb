@@ -1,14 +1,14 @@
 {% extends "user_item_list_base.html" %}
 {% load i18n %}
 {% block title %}
-  <title>{{ site_name }} - {{ user.mastodon_username }} - {{ tag.title }} {% trans '标签' %}</title>
+  <title>{{ site_name }} - {{ user.display_name }} - {{ tag.title }} {% trans '标签' %}</title>
 {% endblock %}
 {% block head %}
   {{ tag.title }}
   <br>
   <small>
     {% if tag.visibility > 0 %}<i class="fa-solid fa-user" title="个人标签"></i>{% endif %}
-    {{ user.mastodon_username }}的{% trans '标签' %}
+    {{ user.display_name }}的{% trans '标签' %}
     {% if user == request.user %}
       <form style="display:inline"
             hx-get="{% url 'journal:user_tag_edit' %}"

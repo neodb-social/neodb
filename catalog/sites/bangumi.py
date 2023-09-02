@@ -1,7 +1,7 @@
-from catalog.common import *
-from catalog.models import *
 import logging
 
+from catalog.common import *
+from catalog.models import *
 
 _logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ class Bangumi(AbstractSite):
     DEFAULT_MODEL = None
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return f"https://bgm.tv/subject/{id_value}"
 
     def scrape(self):

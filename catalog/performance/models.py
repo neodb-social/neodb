@@ -1,10 +1,12 @@
 from functools import cached_property
-from django.utils.translation import gettext_lazy as _
+
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+from ninja import Schema
+
 from catalog.common import *
 from catalog.common.models import ItemSchema
 from catalog.common.utils import DEFAULT_ITEM_COVER
-from ninja import Schema
 
 
 class CrewMemberSchema(Schema):

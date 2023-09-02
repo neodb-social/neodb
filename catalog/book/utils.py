@@ -1,5 +1,6 @@
 import re
-from .models import IdType
+
+from ..common.models import IdType
 
 
 def check_digit_10(isbn):

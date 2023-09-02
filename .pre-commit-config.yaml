@@ -1,19 +1,47 @@
+exclude: ^test_data/
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
     hooks:
     -   id: check-yaml
+    -   id: check-json
+    -   id: check-xml
+    -   id: check-toml
+    -   id: check-symlinks
+    -   id: check-added-large-files
+        args: [--maxkb=1024]
+    -   id: detect-private-key
+    -   id: end-of-file-fixer
+    -   id: fix-byte-order-marker
+    -   id: debug-statements
+    -   id: check-merge-conflict
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
--   repo: https://github.com/psf/black
+    -   id: requirements-txt-fixer
+    -   id: mixed-line-ending
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ["--profile=black"]
+
+  - repo: https://github.com/psf/black
     rev: 22.12.0
     hooks:
     -   id: black
         language_version: python3.11
-repos:
+
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.30.2
+    rev: v1.32.1
     hooks:
       - id: djlint-reformat-django
       - id: djlint-django
 
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: python -m pyright
+        language: system
+        pass_filenames: false

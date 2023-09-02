@@ -1,14 +1,17 @@
-import logging
-from django.utils.translation import gettext_lazy as _
-from catalog.common.sites import SiteManager
-from ..models import TVSeason, Item
-from django.conf import settings
-import django_rq
-from rq.job import Job
-from django.core.cache import cache
 import hashlib
-from .typesense import Indexer as TypeSenseIndexer
+import logging
+
+import django_rq
 from auditlog.context import set_actor
+from django.conf import settings
+from django.core.cache import cache
+from django.utils.translation import gettext_lazy as _
+from rq.job import Job
+
+from catalog.common.sites import SiteManager
+
+from ..models import Item, TVSeason
+from .typesense import Indexer as TypeSenseIndexer
 
 # from .meilisearch import Indexer as MeiliSearchIndexer
 
@@ -17,7 +20,7 @@ _logger = logging.getLogger(__name__)
 
 class DbIndexer:
     @classmethod
-    def search(cls, q, page=1, category=None, tag=None, sort=None):
+    def search(cls, q, page=1, categories=None, tag=None, sort=None):
         result = lambda: None
         result.items = Item.objects.filter(title__contains=q)[:10]
         result.num_pages = 1
@@ -46,14 +49,14 @@ else:
     Indexer = DbIndexer
 
 
-def query_index(keywords, category=None, tag=None, page=1, prepare_external=True):
+def query_index(keywords, categories=None, tag=None, page=1, prepare_external=True):
     if (
         page < 1
         or page > 99
         or (not tag and isinstance(keywords, str) and len(keywords) < 2)
     ):
         return [], 0, 0, []
-    result = Indexer.search(keywords, page=page, category=category, tag=tag)
+    result = Indexer.search(keywords, page=page, categories=categories, tag=tag)
     keys = set()
     items = []
     duplicated_items = []
@@ -91,11 +94,22 @@ def query_index(keywords, category=None, tag=None, page=1, prepare_external=True
 
     if prepare_external:
         # store site url to avoid dups in external search
-        cache_key = f"search_{category}_{keywords}"
+        cache_key = f"search_{','.join(categories or [])}_{keywords}"
         urls = list(set(cache.get(cache_key, []) + urls))
         cache.set(cache_key, urls, timeout=300)
 
     return items, result.num_pages, result.count, duplicated_items
+
+
+_fetch_lock_key = "_fetch_lock"
+_fetch_lock_ttl = 2
+
+
+def get_fetch_lock():
+    if cache.get(_fetch_lock_key):
+        return False
+    cache.set(_fetch_lock_key, 1, timeout=_fetch_lock_ttl)
+    return True
 
 
 def enqueue_fetch(url, is_refetch, user=None):
@@ -115,7 +129,7 @@ def enqueue_fetch(url, is_refetch, user=None):
 
 def _fetch_task(url, is_refetch, user):
     item_url = "-"
-    with set_actor(user):
+    with set_actor(user if user and user.is_authenticated else None):
         try:
             site = SiteManager.get_site_by_url(url)
             if not site:

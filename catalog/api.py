@@ -1,12 +1,13 @@
+from django.http import Http404, HttpResponse
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponse
-from django.http import Http404
 from ninja import Schema
+
 from common.api import *
-from .models import *
+
 from .common import *
+from .models import *
+from .search.models import enqueue_fetch, get_fetch_lock, query_index
 from .sites import *
-from .search.models import enqueue_fetch, query_index
 
 
 class SearchResult(Schema):
@@ -45,7 +46,10 @@ def search_item(
     if not query:
         return 400, {"message": "Invalid query"}
     items, num_pages, count, _ = query_index(
-        query, page=page, category=category, prepare_external=False
+        query,
+        page=page,
+        categories=[category] if category else None,
+        prepare_external=False,
     )
     return 200, {"data": items, "pages": num_pages, "count": count}
 
@@ -70,7 +74,8 @@ def fetch_item(request, url: str):
     item = site.get_item()
     if item:
         return 200, item
-    enqueue_fetch(url, False)
+    if get_fetch_lock():
+        enqueue_fetch(url, False)
     return 202, {"message": "Fetch in progress"}
 
 
@@ -200,7 +205,7 @@ def search_item_legacy(
     query = query.strip()
     if not query:
         return 400, {"message": "Invalid query"}
-    result = Indexer.search(query, page=1, category=category)
+    result = Indexer.search(query, page=1, categories=[category])
     return 200, {"items": result.items}
 
 

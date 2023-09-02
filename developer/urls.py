@@ -1,10 +1,10 @@
-from django.urls import path, re_path, include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.urls import include, path, re_path
 from oauth2_provider import views as oauth2_views
 from oauth2_provider.views import oidc as oidc_views
-from .views import *
 
+from .views import *
 
 _urlpatterns = [
     re_path(

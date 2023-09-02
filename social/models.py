@@ -6,16 +6,28 @@ ActivityManager generates chronological view for user and, in future, ActivitySt
 
 """
 
-from django.db import models
-from users.models import User
-from catalog.common.models import Item
-from journal.models import *
 import logging
 from functools import cached_property
-from django.db.models.signals import post_save, post_delete, pre_delete
-from django.db.models import Q
-from django.conf import settings
+from typing import Type
 
+from django.conf import settings
+from django.db import models
+from django.db.models import Q
+from django.db.models.signals import post_delete, post_save, pre_delete
+from django.utils import timezone
+
+from catalog.common.models import Item
+from journal.models import (
+    Collection,
+    Comment,
+    FeaturedCollection,
+    Like,
+    Piece,
+    Review,
+    ShelfMember,
+    UserOwnedObjectMixin,
+)
+from users.models import User
 
 _logger = logging.getLogger(__name__)
 
@@ -27,7 +39,6 @@ class ActivityTemplate(models.TextChoices):
     LikeCollection = "like_collection"
     FeatureCollection = "feature_collection"
     CommentChildItem = "comment_child_item"
-    CommentFocusItem = "comment_focus_item"  # TODO: remove this after migration
 
 
 class LocalActivity(models.Model, UserOwnedObjectMixin):
@@ -55,7 +66,8 @@ class ActivityManager:
         self.owner = user
 
     def get_timeline(self, before_time=None):
-        q = Q(owner_id__in=self.owner.following, visibility__lt=2) | Q(owner=self.owner)
+        following = [x for x in self.owner.following if x not in self.owner.ignoring]
+        q = Q(owner_id__in=following, visibility__lt=2) | Q(owner=self.owner)
         if before_time:
             q = q & Q(created_time__lt=before_time)
         return (
@@ -67,10 +79,6 @@ class ActivityManager:
     @staticmethod
     def get_manager_for_user(user):
         return ActivityManager(user)
-
-
-User.activity_manager = cached_property(ActivityManager.get_manager_for_user)  # type: ignore
-User.activity_manager.__set_name__(User, "activity_manager")  # type: ignore
 
 
 class DataSignalManager:
@@ -114,8 +122,8 @@ class DataSignalManager:
 
 
 class DefaultActivityProcessor:
-    model = None
-    template = None
+    model: Type[Piece]
+    template: ActivityTemplate
 
     def __init__(self, action_object):
         self.action_object = action_object
@@ -181,20 +189,6 @@ class LikeCollectionProcessor(DefaultActivityProcessor):
 class FeaturedCollectionProcessor(DefaultActivityProcessor):
     model = FeaturedCollection
     template = ActivityTemplate.FeatureCollection
-
-
-# @DataSignalManager.register
-# class CommentFocusItemProcessor(DefaultActivityProcessor):
-#     model = Comment
-#     template = ActivityTemplate.CommentFocusItem
-
-#     def created(self):
-#         if self.action_object.focus_item:
-#             super().created()
-
-#     def updated(self):
-#         if self.action_object.focus_item:
-#             super().updated()
 
 
 @DataSignalManager.register

@@ -1,8 +1,9 @@
-from django.core.management.base import BaseCommand
 import pprint
+
+from django.core.management.base import BaseCommand
 from redis import Redis
-from rq.job import Job
 from rq import Queue
+from rq.job import Job
 
 
 class Command(BaseCommand):

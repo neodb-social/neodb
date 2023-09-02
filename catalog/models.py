@@ -1,37 +1,45 @@
+import logging
+
+from auditlog.registry import auditlog
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+
+from .book.models import Edition, EditionInSchema, EditionSchema, Series, Work
+from .collection.models import Collection as CatalogCollection
 from .common.models import (
     ExternalResource,
+    IdType,
     Item,
+    ItemCategory,
+    ItemInSchema,
     ItemSchema,
-    item_content_types,
+    ItemType,
+    SiteName,
     item_categories,
+    item_content_types,
 )
-from .book.models import Edition, Work, Series, EditionSchema, EditionInSchema
-from .movie.models import Movie, MovieSchema, MovieInSchema
-from .tv.models import (
-    TVShow,
-    TVSeason,
-    TVEpisode,
-    TVShowSchema,
-    TVShowInSchema,
-    TVSeasonSchema,
-    TVSeasonInSchema,
-    TVEpisodeSchema,
-)
-from .music.models import Album, AlbumSchema, AlbumInSchema
-from .game.models import Game, GameSchema, GameInSchema
-from .podcast.models import Podcast, PodcastSchema, PodcastInSchema, PodcastEpisode
+from .game.models import Game, GameInSchema, GameSchema
+from .movie.models import Movie, MovieInSchema, MovieSchema
+from .music.models import Album, AlbumInSchema, AlbumSchema
 from .performance.models import (
     Performance,
     PerformanceProduction,
-    PerformanceSchema,
     PerformanceProductionSchema,
+    PerformanceSchema,
 )
-from .collection.models import Collection as CatalogCollection
-from .search.models import Indexer
-from django.contrib.contenttypes.models import ContentType
-from django.conf import settings
-import logging
-from auditlog.registry import auditlog
+from .podcast.models import Podcast, PodcastEpisode, PodcastInSchema, PodcastSchema
+from .tv.models import (
+    TVEpisode,
+    TVEpisodeSchema,
+    TVSeason,
+    TVSeasonInSchema,
+    TVSeasonSchema,
+    TVShow,
+    TVShowInSchema,
+    TVShowSchema,
+)
+
+from .search.models import Indexer  # isort:skip
 
 _logger = logging.getLogger(__name__)
 
@@ -79,7 +87,6 @@ def init_catalog_audit_log():
                 "metadata",
                 "created_time",
                 "edited_time",
-                "last_editor",
                 # related fields are not supported in django-auditlog yet
                 "lookup_ids",
                 "external_resources",

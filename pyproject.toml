@@ -1,7 +1,23 @@
 [tool.pyright]
-exclude = [ "media", ".venv", ".git" ]
+exclude = [ "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/sites/douban_*" ]
 
 [tool.djlint]
 ignore="T002,T003,H006,H019,H020,H021,H023,H030,H031"
 indent=2
 
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+exclude = [
+    '^neodb/',
+    '^legacy/',
+]
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "boofilsic.settings"
+
+[tool.ruff]
+ignore = ['E501']
+exclude = [ "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/importers", "**/sites", "legacy" ]

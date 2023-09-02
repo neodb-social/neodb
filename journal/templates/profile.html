@@ -15,19 +15,18 @@
     {% else %}
       <title>{{ site_name }} - {{ user.display_name }}</title>
     {% endif %}
-    <meta property="og:title"
-          content="{{ site_name }}用户 - @{{ user.mastodon_username }}">
+    <meta property="og:title" content="{{ site_name }}用户 - @{{ user.handler }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:image" content="{{ user.mastodon_account.avatar }}">
+    <meta property="og:image" content="{{ user.avatar }}">
     <meta property="og:site_name" content="{{ site_name }}">
     {% if user.preference.no_anonymous_view %}<meta name="robots" content="noindex">{% endif %}
     <link rel="alternate"
           type="application/rss+xml"
-          title="{{ site_name }} - {{ user.mastodon_username }}的评论"
+          title="{{ site_name }} - @{{ user.handler }}的评论"
           href="{{ request.build_absolute_uri }}feed/reviews/">
     {% include "common_libs.html" with jquery=0 v2=1 %}
-    <script src="{% static 'lib/js/calendar_yearview_blocks.js' %}" defer></script>
-    <link href="{% static 'lib/css/calendar_yearview_blocks.css' %}"
+    <script src="{% static 'js/calendar_yearview_blocks.js' %}" defer></script>
+    <link href="{% static 'css/calendar_yearview_blocks.css' %}"
           media="all"
           rel="stylesheet" />
   </head>
@@ -49,7 +48,7 @@
                 </p>
               </div>
               <span class="calendar_data"
-                    hx-get="{% url 'journal:user_calendar_data' user.mastodon_username %}"
+                    hx-get="{% url 'journal:user_calendar_data' user.handler %}"
                     hx-trigger="load"
                     hx-swap="innerHTML"
                     style="display:none"></span>
@@ -63,7 +62,7 @@
                 <h5>
                   {{ shelf.title }}
                   <small>
-                    <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' user.mastodon_username category %}{% else %}{% url 'journal:user_mark_list' user.mastodon_username shelf_type category %}{% endif %}">{{ shelf.count }}</a>
+                    <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' user.handler category %}{% else %}{% url 'journal:user_mark_list' user.handler shelf_type category %}{% endif %}">{{ shelf.count }}</a>
                   </small>
                 </h5>
                 <ul class="cards">
@@ -90,7 +89,7 @@
             <h5>
               {% trans '创建的收藏单' %}
               <small>
-                <a href="{% url 'journal:user_collection_list' user.mastodon_username %}">{{ collections_count }}</a>
+                <a href="{% url 'journal:user_collection_list' user.handler %}">{{ collections_count }}</a>
                 {% if user == request.user %}
                   <a href="{% url 'journal:collection_create' %}">
                     <i class="fa-regular fa-square-plus"></i>
@@ -118,7 +117,7 @@
             <h5>
               {% trans '关注的收藏单' %}
               <small>
-                <a href="{% url 'journal:user_liked_collection_list' user.mastodon_username %}">{{ liked_collections_count }}</a>
+                <a href="{% url 'journal:user_liked_collection_list' user.handler %}">{{ liked_collections_count }}</a>
               </small>
             </h5>
             <ul class="cards">

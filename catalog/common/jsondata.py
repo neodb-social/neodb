@@ -1,21 +1,19 @@
 import copy
 from datetime import date, datetime
-from importlib import import_module
 from functools import partialmethod
-from django.utils.translation import gettext_lazy as _
+from importlib import import_module
 
 import django
 from django.core.exceptions import FieldError
 from django.db.models import fields
 from django.utils import dateparse, timezone
-
-# from django.contrib.postgres.fields import ArrayField as DJANGO_ArrayField
-from django_jsonform.models.fields import ArrayField as DJANGO_ArrayField
+from django.utils.translation import gettext_lazy as _
 
 # from django.db.models import JSONField as DJANGO_JSONField
 # from jsoneditor.fields.django3_jsonfield import JSONField as DJANGO_JSONField
+# from django.contrib.postgres.fields import ArrayField as DJANGO_ArrayField
+from django_jsonform.models.fields import ArrayField as DJANGO_ArrayField
 from django_jsonform.models.fields import JSONField as DJANGO_JSONField
-
 
 __all__ = (
     "BooleanField",
@@ -82,6 +80,9 @@ class JSONFieldDescriptor(object):
         setattr(instance, self.field.json_field_name, json_value)
 
 
+fields.CharField
+
+
 class JSONFieldMixin(object):
     """
     Override django.db.model.fields.Field.contribute_to_class
@@ -92,11 +93,11 @@ class JSONFieldMixin(object):
         self.json_field_name = kwargs.pop("json_field_name", "metadata")
         super(JSONFieldMixin, self).__init__(*args, **kwargs)
 
-    def contribute_to_class(self, cls, name, private_only=False):
+    def contribute_to_class(self: "fields.Field", cls, name, private_only=False):  # type: ignore
         self.set_attributes_from_name(name)
         self.model = cls
         self.concrete = False
-        self.column = self.json_field_name
+        self.column = self.json_field_name  # type: ignore
         cls._meta.add_field(self, private=True)
 
         if not getattr(cls, self.attname, None):
@@ -133,11 +134,11 @@ class JSONFieldMixin(object):
                 return transform
 
         json_field = self.model._meta.get_field(self.json_field_name)
-        transform = json_field.get_transform(self.name)
+        transform = json_field.get_transform(self.name)  # type: ignore
         if transform is None:
             raise FieldError(
                 "JSONField '%s' has no support for key '%s' %s lookup"
-                % (self.json_field_name, self.name, name)
+                % (self.json_field_name, self.name, name)  # type: ignore
             )
 
         return TransformFactoryWrapper(json_field, transform, name)
@@ -172,10 +173,17 @@ class DateField(JSONFieldMixin, fields.DateField):
 
 
 class DateTimeField(JSONFieldMixin, fields.DateTimeField):
-    def to_json(self, value):
+    def to_json(self, value: datetime | date | str):
         if value:
             if not isinstance(value, (datetime, date)):
-                value = dateparse.parse_date(value)
+                v = dateparse.parse_date(value)
+                if v is None:
+                    raise ValueError(
+                        "DateTimeField: '{value}' has invalid datatime format"
+                    )
+                value = v
+            if isinstance(value, date):
+                value = datetime.combine(value, datetime.time.min())
             if not timezone.is_aware(value):
                 value = timezone.make_aware(value)
             return value.isoformat()

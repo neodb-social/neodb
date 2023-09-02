@@ -13,7 +13,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ user.mastodon_username }} -
+    <title>{{ site_name }} - {{ user.display_name }} -
       {% if liked %}关注的{% endif %}
     收藏单</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
@@ -37,15 +37,15 @@
               <span>
                 <a target="_blank"
                    rel="noopener"
-                   {% if collection.metadata.shared_link %} href="{{ collection.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                   {% if collection.metadata.shared_link %} href="{{ collection.metadata.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
               </span>
               <span class="timestamp">{{ collection.created_time|date }}</span>
             </div>
             <span><a href="{{ collection.url }}">{{ collection.title }}</a></span>
             {% if liked %}
               -
-              <a href="{% url 'journal:user_profile' collection.owner.mastodon_username %}"
-                 title="@{{ collection.owner.mastodon_username }}">{{ collection.owner.display_name }}</a>
+              <a href="{{ collection.owner.url }}"
+                 title="@{{ collection.owner.handler }}">{{ collection.owner.display_name }}</a>
             {% endif %}
           </p>
         {% empty %}

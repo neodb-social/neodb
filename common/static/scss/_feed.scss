@@ -1,5 +1,7 @@
 .feed-page {
   .feed {
+    word-break: break-word;
+
     .avatar {
       height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4 - 8px);
       width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4 - 8px);

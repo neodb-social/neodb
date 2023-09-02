@@ -1,8 +1,9 @@
 from django.urls import path, re_path
-from .views import *
-from .feeds import ReviewFeed
-from catalog.models import *
 
+from catalog.models import item_categories
+
+from .models import ShelfType
+from .views import *
 
 app_name = "journal"
 
@@ -22,6 +23,7 @@ urlpatterns = [
     path("unlike/<str:piece_uuid>", unlike, name="unlike"),
     path("mark/<str:item_uuid>", mark, name="mark"),
     path("comment/<str:item_uuid>", comment, name="comment"),
+    path("mark_log/<str:item_uuid>/<int:log_id>", mark_log, name="mark_log"),
     path(
         "add_to_collection/<str:item_uuid>", add_to_collection, name="add_to_collection"
     ),
@@ -82,7 +84,7 @@ urlpatterns = [
         name="collection_remove_featured",
     ),
     re_path(
-        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/(?P<shelf_type>"
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/(?P<shelf_type>"
         + _get_all_shelf_types()
         + ")/(?P<item_category>"
         + _get_all_categories()
@@ -91,14 +93,14 @@ urlpatterns = [
         name="user_mark_list",
     ),
     re_path(
-        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/reviews/(?P<item_category>"
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/reviews/(?P<item_category>"
         + _get_all_categories()
         + ")/$",
         user_review_list,
         name="user_review_list",
     ),
     re_path(
-        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/tags/(?P<tag_title>.+)/$",
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/tags/(?P<tag_title>.+)/$",
         user_tag_member_list,
         name="user_tag_member_list",
     ),
@@ -108,23 +110,25 @@ urlpatterns = [
         name="user_tag_edit",
     ),
     re_path(
-        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/collections/$",
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/collections/$",
         user_collection_list,
         name="user_collection_list",
     ),
     re_path(
-        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/like/collections/$",
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/like/collections/$",
         user_liked_collection_list,
         name="user_liked_collection_list",
     ),
     re_path(
-        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/tags/$",
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/tags/$",
         user_tag_list,
         name="user_tag_list",
     ),
-    re_path(r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/$", profile, name="user_profile"),
     re_path(
-        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/calendar_data$",
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/$", profile, name="user_profile"
+    ),
+    re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/calendar_data$",
         user_calendar_data,
         name="user_calendar_data",
     ),

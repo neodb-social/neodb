@@ -1,8 +1,10 @@
-from django.core.management.base import BaseCommand
-from users.models import User
 from datetime import timedelta
+
+from django.core.management.base import BaseCommand
 from django.utils import timezone
 from tqdm import tqdm
+
+from users.models import User
 
 
 class Command(BaseCommand):
@@ -11,7 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         count = 0
         for user in tqdm(User.objects.all()):
-            user.following = user.get_following_ids()
+            user.following = user.merged_following_ids()
             if user.following:
                 count += 1
                 user.save(update_fields=["following"])

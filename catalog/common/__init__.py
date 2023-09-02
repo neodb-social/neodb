@@ -1,9 +1,8 @@
-from .models import *
-from .sites import *
-from .downloaders import *
-from .scrapers import *
 from . import jsondata
-
+from .downloaders import *
+from .models import *
+from .scrapers import *
+from .sites import *
 
 __all__ = (
     "IdType",

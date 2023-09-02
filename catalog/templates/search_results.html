@@ -4,6 +4,7 @@
 {% load humanize %}
 {% load admin_url %}
 {% load mastodon %}
+{% load duration %}
 {% load oauth_token %}
 {% load truncate %}
 {% load highlight %}
@@ -26,46 +27,59 @@
               <hgroup>
                 <h5>“{{ request.GET.q }}” {% trans '的搜索结果' %}</h5>
                 <div>
+                  {% visible_categories as cats %}
                   {% if request.GET.c and request.GET.c != 'all' %}
-                    <a href="?q={{ request.GET.q }}&c=all">全部</a>
+                    <a href="?q={{ request.GET.q }}&amp;c=all">全部</a>
                   {% else %}
                     全部
                   {% endif %}
-                  |
-                  {% if request.GET.c != 'book' %}
-                    <a href="?q={{ request.GET.q }}&c=book">书籍</a>
-                  {% else %}
-                    书籍
+                  {% if 'book' in cats %}
+                    |
+                    {% if request.GET.c != 'book' %}
+                      <a href="?q={{ request.GET.q }}&amp;c=book">书籍</a>
+                    {% else %}
+                      书籍
+                    {% endif %}
                   {% endif %}
-                  |
-                  {% if request.GET.c != 'movietv' %}
-                    <a href="?q={{ request.GET.q }}&c=movietv">影视</a>
-                  {% else %}
-                    影视
+                  {% if 'movie' in cats or 'tv' in cats %}
+                    |
+                    {% if request.GET.c != 'movietv' %}
+                      <a href="?q={{ request.GET.q }}&amp;c=movietv">影视</a>
+                    {% else %}
+                      影视
+                    {% endif %}
                   {% endif %}
-                  |
-                  {% if request.GET.c != 'podcast' %}
-                    <a href="?q={{ request.GET.q }}&c=podcast">播客</a>
-                  {% else %}
-                    播客
+                  {% if 'podcast' in cats %}
+                    |
+                    {% if request.GET.c != 'podcast' %}
+                      <a href="?q={{ request.GET.q }}&amp;c=podcast">播客</a>
+                    {% else %}
+                      播客
+                    {% endif %}
                   {% endif %}
-                  |
-                  {% if request.GET.c != 'music' %}
-                    <a href="?q={{ request.GET.q }}&c=music">音乐</a>
-                  {% else %}
-                    音乐
+                  {% if 'music' in cats %}
+                    |
+                    {% if request.GET.c != 'music' %}
+                      <a href="?q={{ request.GET.q }}&amp;c=music">音乐</a>
+                    {% else %}
+                      音乐
+                    {% endif %}
                   {% endif %}
-                  |
-                  {% if request.GET.c != 'game' %}
-                    <a href="?q={{ request.GET.q }}&c=game">游戏</a>
-                  {% else %}
-                    游戏
+                  {% if 'game' in cats %}
+                    |
+                    {% if request.GET.c != 'game' %}
+                      <a href="?q={{ request.GET.q }}&amp;c=game">游戏</a>
+                    {% else %}
+                      游戏
+                    {% endif %}
                   {% endif %}
-                  |
-                  {% if request.GET.c != 'performance' %}
-                    <a href="?q={{ request.GET.q }}&c=performance">演出</a>
-                  {% else %}
-                    演出
+                  {% if 'performance' in cats %}
+                    |
+                    {% if request.GET.c != 'performance' %}
+                      <a href="?q={{ request.GET.q }}&amp;c=performance">演出</a>
+                    {% else %}
+                      演出
+                    {% endif %}
                   {% endif %}
                 </div>
               </hgroup>
@@ -77,7 +91,18 @@
               {% for item in items %}
                 {% include '_list_item.html' with show_tags=1 %}
               {% empty %}
-                <p class="empty">{% trans '无站内条目匹配' %}</p>
+                <p>
+                  无站内条目匹配。
+                  {% if user.is_authenticated %}系统会尝试搜索其它网站的条目，点击标题可添加到本站。{% endif %}
+                </p>
+                <p>
+                  如果你在
+                  {% for site in sites %}
+                    {{ site }}
+                    {% if not forloop.last %}/{% endif %}
+                  {% endfor %}
+                  找到了相关条目，也可以把链接(如 <code>https://movie.douban.com/subject/1309046/</code> )输入到搜索栏中提交保存到本站。
+                </p>
               {% endfor %}
             </div>
             {% if dup_items %}
@@ -98,29 +123,31 @@
                   <span><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
                   {% trans '正在实时搜索站外条目' %}
                 </p>
+              {% else %}
+                登录用户可看到来自其它网站的搜索结果。
               {% endif %}
             </div>
           </div>
           <div class="pagination">
             {% if pagination.has_prev %}
-              <a href="?page=1&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
+              <a href="?page=1&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
                  class="pagination__nav-link pagination__nav-link">&laquo;</a>
-              <a href="?page={{ pagination.previous_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
+              <a href="?page={{ pagination.previous_page }}&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
                  class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
             {% endif %}
             {% for page in pagination.page_range %}
               {% if page == pagination.current_page %}
-                <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
+                <a href="?page={{ page }}&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
                    class="pagination__page-link pagination__page-link--current">{{ page }}</a>
               {% else %}
-                <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
+                <a href="?page={{ page }}&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
                    class="pagination__page-link">{{ page }}</a>
               {% endif %}
             {% endfor %}
             {% if pagination.has_next %}
-              <a href="?page={{ pagination.next_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
+              <a href="?page={{ pagination.next_page }}&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
                  class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
-              <a href="?page={{ pagination.last_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
+              <a href="?page={{ pagination.last_page }}&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
                  class="pagination__nav-link">&raquo;</a>
             {% endif %}
           </div>

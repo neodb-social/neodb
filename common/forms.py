@@ -1,10 +1,11 @@
-from django import forms
-from markdownx.fields import MarkdownxFormField
-import django.contrib.postgres.forms as postgres
-from django.utils import formats
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 import json
+
+import django.contrib.postgres.forms as postgres
+from django import forms
+from django.core.exceptions import ValidationError
+from django.utils import formats
+from django.utils.translation import gettext_lazy as _
+from markdownx.fields import MarkdownxFormField
 
 
 class PreviewImageInput(forms.FileInput):

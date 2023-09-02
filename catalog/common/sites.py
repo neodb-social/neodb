@@ -6,14 +6,15 @@ a Site should map to a unique set of url patterns.
 a Site may scrape a url and store result in ResourceContent
 ResourceContent persists as an ExternalResource which may link to an Item
 """
-from typing import Callable
-import re
-from .models import ExternalResource, IdType, IdealIdTypes, Item
-from dataclasses import dataclass, field
-import logging
 import json
+import logging
+import re
+from dataclasses import dataclass, field
+from typing import Callable, Type
+
 import django_rq
 
+from .models import ExternalResource, IdealIdTypes, IdType, Item, SiteName
 
 _logger = logging.getLogger(__name__)
 
@@ -37,10 +38,10 @@ class AbstractSite:
     Abstract class to represent a site
     """
 
-    SITE_NAME = None
-    ID_TYPE = None
-    WIKI_PROPERTY_ID = "P0undefined0"
-    DEFAULT_MODEL = None
+    SITE_NAME: SiteName | None = None
+    ID_TYPE: IdType | None = None
+    WIKI_PROPERTY_ID: str | None = "P0undefined0"
+    DEFAULT_MODEL: Type[Item] | None = None
     URL_PATTERNS = [r"\w+://undefined/(\d+)"]
 
     @classmethod
@@ -56,7 +57,7 @@ class AbstractSite:
         return False
 
     @classmethod
-    def id_to_url(cls, id_value):
+    def id_to_url(cls, id_value: str):
         return "https://undefined/" + id_value
 
     @classmethod
@@ -96,6 +97,10 @@ class AbstractSite:
 
     def scrape_additional_data(self):
         pass
+
+    @staticmethod
+    def query_str(content, query: str) -> str:
+        return content.xpath(query)[0].strip()
 
     @classmethod
     def get_model_for_resource(cls, resource):
@@ -295,11 +300,6 @@ class SiteManager:
     @staticmethod
     def get_all_sites():
         return SiteManager.register.values()
-
-
-ExternalResource.get_site = lambda resource: SiteManager.get_site_cls_by_id_type(
-    resource.id_type
-)  # type: ignore
 
 
 def crawl_related_resources_task(resource_pk):

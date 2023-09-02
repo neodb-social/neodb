@@ -1,0 +1,27 @@
+<dialog open
+        _="on close_dialog add .closing then wait for animationend then remove me">
+  <article>
+    <header>
+      <link to="#"
+            aria-label="Close"
+            class="close"
+            _="on click trigger close_dialog" />
+      <strong>在联邦宇宙关注用户</strong>
+    </header>
+    <div>
+      <p>{{ user.display_name | default:user.mastodon_acct }} 已经开启了关注审核，请复制以下ID，到你所在的联邦宇宙实例中去关注ta。</p>
+      <p style="text-align:center;">
+        <code onclick="navigator.clipboard.writeText(this.innerText);"
+              data-tooltip="点击复制">@{{ user.mastodon_acct }}</code>
+      </p>
+      <p>如果你已经关注了ta，请耐心等待ta的审核。</p>
+      {% if not request.user.mastodon_acct %}
+        <p>
+          如果你还没有注册过<em data-tooltip="联邦宇宙(Fediverse 亦称长毛象)是一种分布式社交网络">联邦宇宙</em>，
+          可先<a href="https://joinmastodon.org/zh/servers" target="_blank">选择实例并注册</a>，
+          再到本站的<a href="{% url 'users:info' %}">账号管理</a>中关联你的联邦宇宙身份。
+        </p>
+      {% endif %}
+    </div>
+  </article>
+</dialog>

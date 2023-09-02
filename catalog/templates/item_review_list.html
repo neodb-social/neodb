@@ -31,7 +31,7 @@
               <span>
                 <a target="_blank"
                    rel="noopener"
-                   {% if review.metadata.shared_link %} href="{{ review.metadata.shared_link }}" title="打开联邦网络分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                   {% if review.metadata.shared_link %} href="{{ review.metadata.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
               </span>
               <span>
                 {% liked_piece review as liked %}
@@ -46,9 +46,9 @@
               </span>
               -
               <span>
-                <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}"
+                <a href="{{ review.owner.url }}"
                    class="nickname"
-                   title="@{{ review.owner.mastodon_username }}">{{ review.owner.display_name }}</a>
+                   title="@{{ review.owner.handler }}">{{ review.owner.display_name }}</a>
               </span>
             </div>
             <div>{{ review.plain_content | truncate:200 }}</div>

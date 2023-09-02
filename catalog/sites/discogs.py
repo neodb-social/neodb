@@ -1,15 +1,17 @@
 """
 Discogs.
 """
+import json
+import logging
+
+import requests
 from django.conf import settings
+
 from catalog.common import *
 from catalog.models import *
 from catalog.music.utils import upc_to_gtin_13
-from .douban import *
-import json
-import logging
-import requests
 
+from .douban import *
 
 _logger = logging.getLogger(__name__)
 
@@ -18,7 +20,11 @@ _logger = logging.getLogger(__name__)
 class DiscogsRelease(AbstractSite):
     SITE_NAME = SiteName.Discogs
     ID_TYPE = IdType.Discogs_Release
-    URL_PATTERNS = [r"https://www\.discogs\.com/release/(\d+)[^\d]*"]
+    URL_PATTERNS = [
+        r"https://www\.discogs\.com/release/(\d+)[^\d]*",
+        r"https://www\.discogs\.com/[a-z]{2}/release/(\d+)[^\d]*",
+        r"https://www\.discogs\.com/[a-z]{2}_[A-Z]{2}/release/(\d+)[^\d]*",
+    ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
 
@@ -84,7 +90,10 @@ class DiscogsRelease(AbstractSite):
 class DiscogsMaster(AbstractSite):
     SITE_NAME = SiteName.Discogs
     ID_TYPE = IdType.Discogs_Master
-    URL_PATTERNS = [r"https://www\.discogs\.com/master/(\d+)[^\d]*"]
+    URL_PATTERNS = [
+        r"^https://www\.discogs\.com/master/(\d+)[^\d]*",
+        r"^https://www\.discogs\.com/[\w\-]+/master/(\d+)[^\d]*",
+    ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
 

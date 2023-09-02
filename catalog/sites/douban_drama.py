@@ -1,10 +1,13 @@
+import logging
+import re
+
+from django.core.cache import cache
+from lxml import html
+
 from catalog.common import *
 from catalog.models import *
+
 from .douban import DoubanDownloader
-import logging
-from lxml import html
-from django.core.cache import cache
-import re
 
 _logger = logging.getLogger(__name__)
 
@@ -112,7 +115,10 @@ class DoubanDramaVersion(AbstractSite):
 class DoubanDrama(AbstractSite):
     SITE_NAME = SiteName.Douban
     ID_TYPE = IdType.DoubanDrama
-    URL_PATTERNS = [r"\w+://www.douban.com/location/drama/(\d+)/[^#]*$"]
+    URL_PATTERNS = [
+        r"\w+://www.douban.com/location/drama/(\d+)/[^#]*$",
+        r"\w+://www.douban.com/doubanapp/dispatch\?uri=/drama/(\d+)/",
+    ]
     WIKI_PROPERTY_ID = "P6443"
     DEFAULT_MODEL = Performance
 

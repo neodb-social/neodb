@@ -2,7 +2,6 @@
 
 from django.db import migrations, models
 
-
 sql = 'ALTER TABLE users_preference ALTER COLUMN "classic_homepage" TYPE SMALLINT USING CASE WHEN classic_homepage THEN 1 ELSE 0 END;'
 
 

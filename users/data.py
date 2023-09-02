@@ -1,33 +1,36 @@
+import django_rq
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
-from mastodon.api import *
-from mastodon import mastodon_request_included
-from common.config import *
-from django.conf import settings
-import django_rq
-from .account import *
-from .tasks import *
-from django.contrib import messages
 
-from journal.importers.opml import OPMLImporter
+from common.config import *
+from journal.exporters.doufen import export_marks_task
 from journal.importers.douban import DoubanImporter
 from journal.importers.goodreads import GoodreadsImporter
-from journal.exporters.doufen import export_marks_task
+from journal.importers.opml import OPMLImporter
 from journal.models import reset_journal_visibility_for_user
+from mastodon import mastodon_request_included
+from mastodon.api import *
 from social.models import reset_social_visibility_for_user
+
+from .account import *
+from .tasks import *
 
 
 @mastodon_request_included
 @login_required
 def preferences(request):
-    preference = request.user.get_preference()
+    preference = request.user.preference
     if request.method == "POST":
         preference.default_visibility = int(request.POST.get("default_visibility"))
         preference.default_no_share = bool(request.POST.get("default_no_share"))
+        preference.no_anonymous_view = bool(request.POST.get("no_anonymous_view"))
         preference.classic_homepage = int(request.POST.get("classic_homepage"))
+        preference.hidden_categories = request.POST.getlist("hidden_categories")
         preference.mastodon_publish_public = bool(
             request.POST.get("mastodon_publish_public")
         )
@@ -39,12 +42,15 @@ def preferences(request):
             update_fields=[
                 "default_visibility",
                 "default_no_share",
+                "no_anonymous_view",
                 "classic_homepage",
                 "mastodon_publish_public",
                 "mastodon_append_tag",
                 "show_last_edit",
+                "hidden_categories",
             ]
         )
+        clear_preference_cache(request)
     return render(request, "users/preferences.html")
 
 
@@ -56,8 +62,20 @@ def data(request):
         "users/data.html",
         {
             "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
-            "import_status": request.user.get_preference().import_status,
-            "export_status": request.user.get_preference().export_status,
+            "import_status": request.user.preference.import_status,
+            "export_status": request.user.preference.export_status,
+        },
+    )
+
+
+@mastodon_request_included
+@login_required
+def account_info(request):
+    return render(
+        request,
+        "users/account.html",
+        {
+            "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
         },
     )
 
@@ -68,7 +86,7 @@ def data_import_status(request):
         request,
         "users/data_import_status.html",
         {
-            "import_status": request.user.get_preference().import_status,
+            "import_status": request.user.preference.import_status,
         },
     )
 
@@ -106,12 +124,12 @@ def export_marks(request):
 
 @login_required
 def sync_mastodon(request):
-    if request.method == "POST":
+    if request.method == "POST" and request.user.mastodon_username:
         django_rq.get_queue("mastodon").enqueue(
-            refresh_mastodon_data_task, request.user
+            refresh_mastodon_data_task, request.user.pk
         )
         messages.add_message(request, messages.INFO, _("同步已开始。"))
-    return redirect(reverse("users:data"))
+    return redirect(reverse("users:info"))
 
 
 @login_required
@@ -141,8 +159,8 @@ def import_douban(request):
     if request.method == "POST":
         importer = DoubanImporter(
             request.user,
-            int(request.POST.get("visibility")),
-            int(request.POST.get("import_mode")),
+            int(request.POST.get("visibility", 0)),
+            int(request.POST.get("import_mode", 0)),
         )
         if importer.import_from_file(request.FILES["file"]):
             messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))

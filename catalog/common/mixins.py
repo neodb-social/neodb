@@ -17,6 +17,6 @@ class SoftDeleteMixin:
         if soft:
             self.clear()
             self.is_deleted = True
-            self.save(using=using)
+            self.save(using=using)  # type: ignore
         else:
-            return super().delete(using=using, *args, **kwargs)
+            return super().delete(using=using, *args, **kwargs)  # type: ignore

@@ -1,6 +1,7 @@
 from django import template
+from django.urls import reverse
+
 from journal.models import Collection, Like
-from django.shortcuts import reverse
 
 register = template.Library()
 

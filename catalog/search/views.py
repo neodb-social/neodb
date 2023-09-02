@@ -1,22 +1,25 @@
-import uuid
-import logging
-from django.core.exceptions import BadRequest
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponseRedirect
-from catalog.common.models import SiteName
-from catalog.common.sites import AbstractSite, SiteManager
-from ..models import *
-from django.conf import settings
-from common.utils import PageLinksGenerator
-from common.config import PAGE_LINK_NUMBER
-import django_rq
-from rq.job import Job
-from .external import ExternalSources
-from django.core.cache import cache
 import hashlib
-from .models import query_index, enqueue_fetch
+import logging
+import uuid
+
+import django_rq
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
+from django.core.exceptions import BadRequest
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.utils.translation import gettext_lazy as _
+from rq.job import Job
+
+from catalog.common.models import ItemCategory, SiteName
+from catalog.common.sites import AbstractSite, SiteManager
+from common.config import PAGE_LINK_NUMBER
+from common.utils import PageLinksGenerator
+
+from ..models import *
+from .external import ExternalSources
+from .models import enqueue_fetch, get_fetch_lock, query_index
 
 _logger = logging.getLogger(__name__)
 
@@ -29,7 +32,6 @@ class HTTPResponseHXRedirect(HttpResponseRedirect):
     status_code = 200
 
 
-@login_required
 def fetch_refresh(request, job_id):
     retry = request.GET
     try:
@@ -68,7 +70,9 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = No
                 "!refetch": [url, None],
             }
         )
-    job_id = enqueue_fetch(url, is_refetch, request.user)
+    job_id = None
+    if is_refetch or get_fetch_lock():
+        job_id = enqueue_fetch(url, is_refetch, request.user)
     return render(
         request,
         "fetch_pending.html",
@@ -80,10 +84,37 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = No
     )
 
 
+def visible_categories(request):
+    vc = request.session.get("p_categories", None)
+    if vc is None:
+        vc = [
+            x
+            for x in item_categories()
+            if x.value
+            not in (
+                request.user.preference.hidden_categories
+                if request.user.is_authenticated
+                else []
+            )
+        ]
+        request.session["p_categories"] = vc
+    return vc
+
+
 def search(request):
     category = request.GET.get("c", default="all").strip().lower()
-    if category == "all":
+    hide_category = False
+    if category == "all" or not category:
         category = None
+        categories = visible_categories(request)
+    elif category == "movietv":
+        categories = [ItemCategory.Movie, ItemCategory.TV]
+    else:
+        try:
+            categories = [ItemCategory(category)]
+            hide_category = True
+        except:
+            categories = visible_categories(request)
     keywords = request.GET.get("q", default="").strip()
     tag = request.GET.get("tag", default="").strip()
     p = request.GET.get("page", default="1")
@@ -98,12 +129,12 @@ def search(request):
             },
         )
 
-    if request.user.is_authenticated and keywords.find("://") > 0:
+    if keywords.find("://") > 0:
         site = SiteManager.get_site_by_url(keywords)
         if site:
             return fetch(request, keywords, False, site)
 
-    items, num_pages, _, dup_items = query_index(keywords, category, tag, p)
+    items, num_pages, _, dup_items = query_index(keywords, categories, tag, p)
     return render(
         request,
         "search_results.html",
@@ -112,7 +143,7 @@ def search(request):
             "dup_items": dup_items,
             "pagination": PageLinksGenerator(PAGE_LINK_NUMBER, p, num_pages),
             "sites": SiteName.labels,
-            "hide_category": category is not None and category != "movietv",
+            "hide_category": hide_category,
         },
     )
 

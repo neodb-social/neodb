@@ -1,34 +1,67 @@
 {% load i18n %}
 {% load static %}
 <!DOCTYPE html>
-<html lang="zh" class="login-page">
+<html lang="zh">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '注册完成' %}</title>
+    <title>{{ site_name }} - {% trans '注册信息' %}</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
   </head>
   <body>
-    <article>
-      <header style="text-align: center;">
-        <img src="{% static 'img/logo.svg' %}" class="logo" alt="logo">
-      </header>
-      <p>欢迎来到{{ site_name }}！</p>
-      <p>
-        {{ site_name }}还在不断完善中，丰富的内容需要大家共同创造。
-        试图添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严肃处理。
-        {{ site_name }}继承了联邦宇宙的用户关系，比如您在联邦宇宙屏蔽了某人，那您将不会在书影音的公共区域看到TA的痕迹。
-        本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href="{% url 'management:retrieve_slug' 'data-policy' %}">站内公告</a>。
-      </p>
-      <p>
-        此外，{{ site_name }}现处于测试阶段，疏漏在所难免，请妥善备份您的数据。
-        使用过程中遇到的问题或者错误欢迎向<a href="{{ support_link }}">维护者</a>提出。感谢理解和支持！
-      </p>
-      <form action="{% url 'common:home' %}">
-        <input type="submit"
-               class="button"
-               value="{% trans 'Cut the sh*t and get me in!' %}">
-      </form>
-    </article>
+    <div class="container">
+      <article>
+        <header style="text-align: center;">
+          <img src="{% static 'img/logo.svg' %}" class="logo" alt="logo">
+        </header>
+        {% if request.session.new_user %}
+          <h4>欢迎来到{{ site_name }}，{{ request.user.mastodon_acct }}！</h4>
+          <p>
+            {{ site_name }}还在不断完善中。
+            丰富的内容需要大家共同创造，试图添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严肃处理。
+            本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href="{% url 'management:retrieve_slug' 'data-policy' %}">站内公告</a>。
+            本站提供API和导出功能，请妥善备份您的数据，使用过程中遇到的问题或者错误欢迎向<a href="{{ support_link }}">维护者</a>提出。感谢理解和支持！
+          </p>
+        {% endif %}
+        {% if form %}
+          <form action="{% url 'users:register' %}" method="post">
+            <small>{{ error }}</small>
+            <fieldset>
+              <label>
+                请输入你想在{{ site_name }}使用的用户名
+                <input name="username"
+                       placeholder="2-30个字符，限英文字母数字下划线，确认后不可更改"
+                       value="{{ form.username.value|default:request.user.username|default:'' }}"
+                       required
+                       _="on input remove [@aria-invalid] end"
+                       {% if request.user.username and not form.username.errors %}aria-invalid="false" readonly{% endif %}
+                       {% if form.username.errors %}aria-invalid="true"{% endif %}
+                       pattern="^[a-zA-Z0-9_]{2,30}$" />
+                {% for error in form.username.errors %}<small>{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                以及作为备用登录方式的电子邮件地址（推荐）
+                <input type="email"
+                       name="email"
+                       {% if request.user.email and not request.user.mastodon_acct %}readonly{% endif %}
+                       {% if request.user.email %}value="{{ request.user.email }}" aria-invalid="false"{% endif %}
+                       placeholder="设置后请查收邮件点击其中的确认链接"
+                       autocomplete="email" />
+                {% if request.user.pending_email %}
+                  <small>当前待确认的电子邮件地址为{{ request.user.pending_email }}，请查收邮件并点击确认链接；如长时间未收到可重新输入并保存。</small>
+                {% endif %}
+                {% for error in form.email.errors %}<small>{{ error }}</small>{% endfor %}
+              </label>
+            </fieldset>
+            {% csrf_token %}
+            <input type="submit" value="{% trans '确认并保存' %}">
+          </form>
+        {% else %}
+          <form action="{% url 'common:home' %}" method="get">
+            <input type="submit" value="{% trans 'Cut the sh*t and get me in!' %}">
+          </form>
+        {% endif %}
+      </article>
+    </div>
   </body>
 </html>

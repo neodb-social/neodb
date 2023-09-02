@@ -1,7 +1,9 @@
-from django.core.management.base import BaseCommand
 import pprint
-from journal.models import *
+
+from django.core.management.base import BaseCommand
+
 from journal.importers.douban import DoubanImporter
+from journal.models import *
 from users.models import User
 
 

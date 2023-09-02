@@ -17,7 +17,7 @@
   </span>
   <div class="spacing">
     关注了
-    <a href="{% url 'journal:user_profile' collection.owner.mastodon_username %}">{{ collection.owner.display_name }}</a>
+    <a href="{{ collection.owner.url }}">{{ collection.owner.display_name }}</a>
     的收藏单
     <a href="{{ collection.url }}">{{ collection.title }}</a>
   </div>

@@ -1,6 +1,7 @@
 from django import template
-from journal.models import Collection, Like
 from django.template.defaultfilters import stringfilter
+
+from journal.models import Collection, Like
 
 register = template.Library()
 

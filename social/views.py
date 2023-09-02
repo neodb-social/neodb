@@ -1,12 +1,15 @@
 import logging
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import BadRequest
-from .models import *
-from django.conf import settings
-from management.models import Announcement
 
+from django.conf import settings
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import BadRequest
+from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
+
+from catalog.models import *
+from journal.models import *
+
+from .models import *
 
 _logger = logging.getLogger(__name__)
 
