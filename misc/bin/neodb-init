@@ -9,6 +9,5 @@ echo NeoDB initializing...
 
 takahe-manage migrate || exit $?
 neodb-manage migrate || exit $?
-neodb-manage setup || exit $?
 
 echo NeoDB initialization complete.

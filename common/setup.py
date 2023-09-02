@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.core.management.base import BaseCommand
 from loguru import logger
 
 from catalog.search.typesense import Indexer
@@ -10,8 +9,10 @@ from takahe.models import User as TakaheUser
 from users.models import User
 
 
-class Command(BaseCommand):
-    help = "Post-Migration Setup"
+class Setup:
+    """
+    Post-Migration Setup
+    """
 
     def create_site(self, domain, service_domain):
         TakaheDomain.objects.create(
@@ -36,9 +37,19 @@ class Command(BaseCommand):
         icon = settings.SITE_INFO["site_logo"]
         name = settings.SITE_INFO["site_name"]
         service_domain = settings.SITE_INFO.get("site_service_domain")
+
         if not TakaheDomain.objects.filter(domain=domain).exists():
-            logger.warning(f"Domain {domain} not found, creating...")
+            logger.info(f"Domain {domain} not found, creating...")
             self.create_site(domain, service_domain)
+            if (
+                TakaheIdentity.objects.filter(local=True)
+                .exclude(domain_id__isnull=True)
+                .exists()
+            ):
+                logger.warning(
+                    f"Local identities are found for other domains, there might be a configuration issue."
+                )
+
         TakaheConfig.objects.update_or_create(
             key="site_name",
             user=None,
@@ -79,7 +90,8 @@ class Command(BaseCommand):
                 TakaheUser.objects.filter(email=f"@{user.username}").update(admin=True)
                 logger.info(f"Updated user {user.username} as admin")
 
-    def handle(self, *args, **options):
+    def run(self):
+        logger.info("Running post-migration setup...")
         # Update site name if changed
         self.sync_site_config()
 
@@ -92,3 +104,5 @@ class Command(BaseCommand):
         Indexer.init()
 
         # Register cron jobs if not yet
+
+        logger.info("Finished post-migration setup.")

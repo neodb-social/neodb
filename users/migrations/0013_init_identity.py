@@ -16,6 +16,12 @@ service_domain = settings.SITE_INFO.get("site_service_domain")
 
 
 def init_domain(apps, schema_editor):
+    User = apps.get_model("users", "User")
+    if not User.objects.exists():
+        logger.warning(
+            "No users found, skip domain migration (if you are running initial migration for new site, pls ignore this)"
+        )
+        return
     d = TakaheDomain.objects.filter(domain=domain).first()
     if not d:
         logger.info(f"Creating takahe domain {domain}")
@@ -54,6 +60,11 @@ def init_domain(apps, schema_editor):
 
 def init_identity(apps, schema_editor):
     User = apps.get_model("users", "User")
+    if not User.objects.exists():
+        logger.warning(
+            "No users found, skip identity migration (if you are running initial migration for new site, pls ignore this)"
+        )
+        return
     APIdentity = apps.get_model("users", "APIdentity")
     tdomain = TakaheDomain.objects.filter(domain=domain).first()
     if User.objects.filter(username__isnull=True).exists():
