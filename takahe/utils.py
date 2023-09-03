@@ -592,3 +592,10 @@ class Takahe:
             )
             cache.set(cache_key, peers, timeout=1800)
         return peers
+
+    @staticmethod
+    def verify_invite(token):
+        if not token:
+            return False
+        invite = Invite.objects.filter(token=token).first()
+        return invite and invite.valid

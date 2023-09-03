@@ -132,12 +132,23 @@
               });
               </script>
             {% else %}
-              <select name="domain" placeholder="test">
+              <select name="domain">
                 {% for site in sites %}
                   <option value="{{ site.domain_name }}" data-client-id="{{ site.client_id }}">@{{ site.domain_name }}</option>
                 {% endfor %}
               </select>
               <input type='submit' value="{% trans '授权登录' %}" id="loginButton" />
+            {% endif %}
+            {% if invite_status %}
+              <small>
+                {% if invite_status == 1 %}
+                  <i class="fa-solid fa-circle-check"></i> 邀请链接有效，可注册新用户
+                {% elif invite_status == -1 %}
+                  <i class="fa-solid fa-person-circle-question"></i> 本站目前为邀请注册，已有账户可直接登入，新用户请使用有效邀请链接注册
+                {% elif invite_status == -2 %}
+                  <i class="fa-solid fa-circle-xmark"></i> 邀请链接无效，已有账户可直接登入，新用户请使用有效邀请链接注册
+                {% endif %}
+              </small>
             {% endif %}
           </form>
         {% endif %}

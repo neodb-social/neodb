@@ -2,7 +2,8 @@ import logging
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
@@ -19,6 +20,8 @@ PAGE_SIZE = 10
 def feed(request):
     if request.method != "GET":
         raise BadRequest()
+    if not request.user.registration_complete:
+        return redirect(reverse("users:register"))
     user = request.user
     podcast_ids = [
         p.item_id

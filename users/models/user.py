@@ -203,6 +203,10 @@ class User(AbstractUser):
     def __str__(self):
         return f'{self.pk}:{self.username or ""}:{self.mastodon_acct}'
 
+    @property
+    def registration_complete(self):
+        return self.username is not None
+
     def clear(self):
         if self.mastodon_site == "removed" and not self.is_active:
             return

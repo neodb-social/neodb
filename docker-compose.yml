@@ -21,6 +21,7 @@ x-shared:
       NEODB_DEBUG:
       NEODB_SECRET_KEY:
       NEODB_ADMIN_USERNAMES:
+      NEODB_INVITE_ONLY:
       NEODB_DB_NAME: neodb
       NEODB_DB_USER: neodb
       NEODB_DB_PASSWORD: aubergine

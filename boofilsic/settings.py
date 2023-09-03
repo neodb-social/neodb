@@ -91,6 +91,7 @@ SETUP_ADMIN_USERNAMES = [
     u for u in os.environ.get("NEODB_ADMIN_USERNAMES", "").split(",") if u
 ]
 
+INVITE_ONLY = os.environ.get("NEODB_INVITE_ONLY", "") != ""
 
 # Mastodon/Pleroma instance allowed to login, keep empty to allow any instance to login
 MASTODON_ALLOWED_SITES = []

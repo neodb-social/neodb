@@ -25,6 +25,7 @@ from journal.models import remove_data_by_user
 from mastodon import mastodon_request_included
 from mastodon.api import *
 from mastodon.api import verify_account
+from takahe.utils import Takahe
 
 from .models import Preference, User
 from .tasks import *
@@ -49,7 +50,13 @@ def login(request):
         # store redirect url in the cookie
         if request.GET.get("next"):
             request.session["next_url"] = request.GET.get("next")
-
+        invite_status = -1 if settings.INVITE_ONLY else 0
+        if settings.INVITE_ONLY and request.GET.get("invite"):
+            if Takahe.verify_invite(request.GET.get("invite")):
+                invite_status = 1
+                request.session["invite"] = request.GET.get("invite")
+            else:
+                invite_status = -2
         return render(
             request,
             "users/login.html",
@@ -58,6 +65,7 @@ def login(request):
                 "scope": quote(settings.MASTODON_CLIENT_SCOPE),
                 "selected_site": selected_site,
                 "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
+                "invite_status": invite_status,
             },
         )
     else:
@@ -188,6 +196,18 @@ def OAuth2_login(request):
 
 
 def register_new_user(request, **param):
+    if settings.INVITE_ONLY:
+        if not Takahe.verify_invite(request.session.get("invite")):
+            return render(
+                request,
+                "common/error.html",
+                {
+                    "msg": _("注册失败😫"),
+                    "secondary_msg": _("本站仅限邀请注册"),
+                },
+            )
+        else:
+            del request.session["invite"]
     new_user = User.register(**param)
     request.session["new_user"] = True
     auth_login(request, new_user)

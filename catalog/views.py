@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
@@ -272,6 +273,8 @@ def discover(request):
     #     gallery["items"] = Item.objects.filter(id__in=ids)
 
     if request.user.is_authenticated:
+        if not request.user.registration_complete:
+            return redirect(reverse("users:register"))
         layout = request.user.preference.discover_layout
         identity = request.user.identity
         podcast_ids = [
