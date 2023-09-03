@@ -131,6 +131,10 @@ class Takahe:
         ).first()
 
     @staticmethod
+    def create_internal_message(message: dict):
+        InboxMessage.create_internal(message)
+
+    @staticmethod
     def fetch_remote_identity(handler: str) -> int | None:
         InboxMessage.create_internal({"type": "FetchIdentity", "handle": handler})
 

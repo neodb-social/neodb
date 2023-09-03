@@ -602,4 +602,27 @@ class Migration(migrations.Migration):
                 "unique_together": {("key", "user", "identity", "domain")},
             },
         ),
+        migrations.CreateModel(
+            name="Invite",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("token", models.CharField(max_length=500, unique=True)),
+                ("note", models.TextField(blank=True, null=True)),
+                ("uses", models.IntegerField(blank=True, null=True)),
+                ("expires", models.DateTimeField(blank=True, null=True)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                "db_table": "users_invite",
+            },
+        ),
     ]

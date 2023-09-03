@@ -4,8 +4,10 @@ from loguru import logger
 from catalog.search.typesense import Indexer
 from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
+from takahe.models import Follow as TakaheFollow
 from takahe.models import Identity as TakaheIdentity
 from takahe.models import User as TakaheUser
+from takahe.utils import Takahe
 from users.models import User
 
 
@@ -90,6 +92,48 @@ class Setup:
                 TakaheUser.objects.filter(email=f"@{user.username}").update(admin=True)
                 logger.info(f"Updated user {user.username} as admin")
 
+    def sync_relay(self):
+        relay_follow = TakaheFollow.objects.filter(
+            source__username="__relay__",
+            source__local=True,
+            target__actor_uri=settings.DEFAULT_RELAY_SERVER,
+        ).first()
+        if settings.DISABLE_DEFAULT_RELAY:
+            if relay_follow:
+                logger.info("Default relay is disabled, unsubscribing...")
+                Takahe.create_internal_message(
+                    {
+                        "type": "UnfollowRelay",
+                        "actor_uri": settings.DEFAULT_RELAY_SERVER,
+                    }
+                )
+            else:
+                logger.debug(f"Default relay is disabled.")
+        else:
+            if relay_follow:
+                logger.debug(
+                    f"Default relay is enabled and subscribed, state: {relay_follow.state}"
+                )
+            else:
+                logger.info("Default relay is enabled, subscribing...")
+                relay_actor = TakaheIdentity.objects.filter(
+                    username="__relay__",
+                    local=True,
+                ).first()
+                if not relay_actor:
+                    logger.warning(
+                        f"Default relay is enabled but relay actor does not exist."
+                    )
+                    return
+                Takahe.create_internal_message(
+                    {
+                        "type": "AddFollow",
+                        "source": relay_actor.pk,
+                        "target_actor": settings.DEFAULT_RELAY_SERVER,
+                        "boosts": False,
+                    }
+                )
+
     def run(self):
         logger.info("Running post-migration setup...")
         # Update site name if changed
@@ -97,6 +141,9 @@ class Setup:
 
         # Create/update admin user if configured in env
         self.sync_admin_user()
+
+        # Subscribe to default relay if enabled
+        self.sync_relay()
 
         # Create basic emoji if not exists
 
