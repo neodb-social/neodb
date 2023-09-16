@@ -6,4 +6,4 @@ djlint~=1.32.1
 isort~=5.12.0
 lxml-stubs
 pre-commit
-pyright==1.1.322
+pyright==1.1.327

@@ -920,7 +920,7 @@ class Post(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    objects = PostManager()
+    objects: PostManager = PostManager()
 
     class Meta:
         # managed = False
@@ -1102,19 +1102,6 @@ class Post(models.Model):
             if identity is not None:
                 mentions.add(identity)
         return mentions
-
-    def ensure_hashtags(self) -> None:
-        """
-        Ensure any of the already parsed hashtags from this Post
-        have a corresponding Hashtag record.
-        """
-        # Ensure hashtags
-        if self.hashtags:
-            for hashtag in self.hashtags:
-                tag, _ = Hashtag.objects.get_or_create(
-                    hashtag=hashtag[: Hashtag.MAXIMUM_LENGTH],
-                )
-                tag.transition_perform("outdated")
 
     def calculate_stats(self, save=True):
         """

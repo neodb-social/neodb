@@ -1,7 +1,7 @@
 import hashlib
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -131,7 +131,7 @@ class User(AbstractUser):
     # store the latest read announcement id,
     # every time user read the announcement update this field
     read_announcement_index = models.PositiveIntegerField(default=0)
-    objects = UserManager()
+    objects: ClassVar[UserManager] = UserManager()
 
     class Meta:
         constraints = [

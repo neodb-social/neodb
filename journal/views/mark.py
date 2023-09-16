@@ -21,8 +21,7 @@ from mastodon.api import (
 )
 from takahe.utils import Takahe
 
-from ..forms import *
-from ..models import *
+from ..models import Comment, Mark, Piece, ShelfType, ShelfTypeNames, TagManager
 from .common import render_list, render_relogin, target_identity_required
 
 _logger = logging.getLogger(__name__)

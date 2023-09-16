@@ -369,7 +369,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return o
 
     def log_action(self, changes):
-        LogEntry.objects.log_create(
+        LogEntry.objects.log_create(  # type: ignore
             self, action=LogEntry.Action.UPDATE, changes=changes
         )
 
