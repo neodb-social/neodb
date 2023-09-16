@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import Callable, Type
 
 import django_rq
+import requests
 
 from .models import ExternalResource, IdealIdTypes, IdType, Item, SiteName
 
@@ -276,6 +277,21 @@ class SiteManager:
             filter(lambda p: p.validate_url(url), SiteManager.registry.values()), None
         )
         if cls is None:
+            try:
+                url2 = requests.head(url, allow_redirects=True, timeout=1).url
+                if url2 != url:
+                    cls = next(
+                        filter(
+                            lambda p: p.validate_url(url2),
+                            SiteManager.registry.values(),
+                        ),
+                        None,
+                    )
+                    if cls:
+                        url = url2
+            except:
+                pass
+        if cls is None:
             cls = next(
                 filter(
                     lambda p: p.validate_url_fallback(url),
@@ -291,11 +307,6 @@ class SiteManager:
             return None
         cls = SiteManager.registry[id_type]
         return cls(id_value=id_value)
-
-    @staticmethod
-    def get_id_by_url(url: str):
-        site = SiteManager.get_site_by_url(url)
-        return site.url_to_id(url) if site else None
 
     @staticmethod
     def get_all_sites():
