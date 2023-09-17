@@ -172,31 +172,6 @@ if os.getenv("NEODB_SSL", "") != "":
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_SECONDS = 31536000
 
-if not DEBUG:
-    LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "simple": {
-                "format": "{levelname} {asctime} {name}:{lineno} {message}",
-                "style": "{",
-            },
-        },
-        "handlers": {
-            "file": {
-                "level": "INFO",
-                "class": "logging.FileHandler",
-                "filename": os.path.join(BASE_DIR, "log"),
-                "formatter": "simple",
-            },
-        },
-        "root": {
-            "handlers": ["file"],
-            "level": "INFO",
-            "propagate": True,
-        },
-    }
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
