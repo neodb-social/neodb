@@ -25,7 +25,8 @@ class SearchResult(Schema):
     count: int
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/catalog/search",
     response={200: SearchResult, 400: Result},
     summary="Search items in catalog",
@@ -54,7 +55,8 @@ def search_item(
     return 200, {"data": items, "pages": num_pages, "count": count}
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/catalog/fetch",
     response={200: ItemSchema, 202: Result, 404: Result},
     summary="Fetch item from URL of a supported site",
@@ -94,7 +96,8 @@ def _get_item(cls, uuid, response):
     return item
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/book/{uuid}",
     response={200: EditionSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -103,7 +106,8 @@ def get_book(request, uuid: str, response: HttpResponse):
     return _get_item(Edition, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/movie/{uuid}",
     response={200: MovieSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -112,7 +116,8 @@ def get_movie(request, uuid: str, response: HttpResponse):
     return _get_item(Movie, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/tv/{uuid}",
     response={200: TVShowSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -121,7 +126,8 @@ def get_tv_show(request, uuid: str, response: HttpResponse):
     return _get_item(TVShow, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/tv/season/{uuid}",
     response={200: TVSeasonSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -130,7 +136,8 @@ def get_tv_season(request, uuid: str, response: HttpResponse):
     return _get_item(TVSeason, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/tv/episode/{uuid}",
     response={200: TVEpisodeSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -139,7 +146,8 @@ def get_tv_episode(request, uuid: str, response: HttpResponse):
     return _get_item(TVEpisode, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/podcast/{uuid}",
     response={200: PodcastSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -148,7 +156,8 @@ def get_podcast(request, uuid: str, response: HttpResponse):
     return _get_item(Podcast, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/album/{uuid}",
     response={200: AlbumSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -157,7 +166,8 @@ def get_album(request, uuid: str, response: HttpResponse):
     return _get_item(Album, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/game/{uuid}",
     response={200: GameSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -166,7 +176,8 @@ def get_game(request, uuid: str, response: HttpResponse):
     return _get_item(Game, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/performance/{uuid}",
     response={200: PerformanceSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -175,7 +186,8 @@ def get_performance(request, uuid: str, response: HttpResponse):
     return _get_item(Performance, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/performance/production/{uuid}",
     response={200: PerformanceProductionSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -192,7 +204,8 @@ class SearchResultLegacy(Schema):
     pages: int
 
 
-@api.post(
+@api.api_operation(
+    ["POST", "OPTIONS"],
     "/catalog/search",
     response={200: SearchResult, 400: Result},
     summary="This method is deprecated, will be removed by Aug 1 2023; use GET instead",
@@ -209,7 +222,8 @@ def search_item_legacy(
     return 200, {"items": result.items}
 
 
-@api.post(
+@api.api_operation(
+    ["POST", "OPTIONS"],
     "/catalog/fetch",
     response={200: ItemSchema, 202: Result},
     summary="This method is deprecated, will be removed by Aug 1 2023; use GET instead",
@@ -227,7 +241,8 @@ def fetch_item_legacy(request, url: str):
     return 202, {"message": "Fetch in progress"}
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/movie/{uuid}/",
     response={200: MovieSchema, 302: RedirectedResult, 404: Result},
     summary="This method is deprecated, will be removed by Aug 1 2023",
@@ -238,7 +253,8 @@ def get_movie_legacy(request, uuid: str, response: HttpResponse):
     return _get_item(Movie, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/tv/{uuid}/",
     response={200: TVShowSchema, 302: RedirectedResult, 404: Result},
     summary="This method is deprecated, will be removed by Aug 1 2023",
@@ -249,7 +265,8 @@ def get_tv_show_legacy(request, uuid: str, response: HttpResponse):
     return _get_item(TVShow, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/tvseason/{uuid}/",
     response={200: TVSeasonSchema, 302: RedirectedResult, 404: Result},
     summary="This method is deprecated, will be removed by Aug 1 2023",
@@ -260,7 +277,8 @@ def get_tv_season_legacy(request, uuid: str, response: HttpResponse):
     return _get_item(TVSeason, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/podcast/{uuid}/",
     response={200: PodcastSchema, 302: RedirectedResult, 404: Result},
     summary="This method is deprecated, will be removed by Aug 1 2023",
@@ -271,7 +289,8 @@ def get_podcast_legacy(request, uuid: str, response: HttpResponse):
     return _get_item(Podcast, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/album/{uuid}/",
     response={200: AlbumSchema, 302: RedirectedResult, 404: Result},
     summary="This method is deprecated, will be removed by Aug 1 2023",
@@ -282,7 +301,8 @@ def get_album_legacy(request, uuid: str, response: HttpResponse):
     return _get_item(Album, uuid, response)
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/game/{uuid}/",
     response={200: GameSchema, 302: RedirectedResult, 404: Result},
     summary="This method is deprecated, will be removed by Aug 1 2023",

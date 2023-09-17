@@ -12,7 +12,8 @@ class UserSchema(Schema):
     avatar: str
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/me",
     response={200: UserSchema, 401: Result},
     summary="Get current user's basic info",

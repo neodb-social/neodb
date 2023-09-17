@@ -34,7 +34,11 @@ class MarkInSchema(Schema):
     post_to_fediverse: bool = False
 
 
-@api.get("/me/shelf/{type}", response={200: List[MarkSchema], 401: Result, 403: Result})
+@api.api_operation(
+    ["GET", "OPTIONS"],
+    "/me/shelf/{type}",
+    response={200: List[MarkSchema], 401: Result, 403: Result},
+)
 @paginate(PageNumberPagination)
 def list_marks_on_shelf(
     request, type: ShelfType, category: AvailableItemCategory | None = None
@@ -51,7 +55,8 @@ def list_marks_on_shelf(
     return queryset
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/me/shelf/item/{item_uuid}",
     response={200: MarkSchema, 401: Result, 403: Result, 404: Result},
 )
@@ -68,7 +73,8 @@ def get_mark_by_item(request, item_uuid: str):
     return shelfmember
 
 
-@api.post(
+@api.api_operation(
+    ["POST", "OPTIONS"],
     "/me/shelf/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
 )
@@ -100,7 +106,8 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     return 200, {"message": "OK"}
 
 
-@api.delete(
+@api.api_operation(
+    ["DELETE", "OPTIONS"],
     "/me/shelf/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
 )
@@ -136,7 +143,11 @@ class ReviewInSchema(Schema):
     post_to_fediverse: bool = False
 
 
-@api.get("/me/review/", response={200: List[ReviewSchema], 401: Result, 403: Result})
+@api.api_operation(
+    ["GET", "OPTIONS"],
+    "/me/review/",
+    response={200: List[ReviewSchema], 401: Result, 403: Result},
+)
 @paginate(PageNumberPagination)
 def list_reviews(request, category: AvailableItemCategory | None = None):
     """
@@ -150,7 +161,8 @@ def list_reviews(request, category: AvailableItemCategory | None = None):
     return queryset.prefetch_related("item")
 
 
-@api.get(
+@api.api_operation(
+    ["GET", "OPTIONS"],
     "/me/review/item/{item_uuid}",
     response={200: ReviewSchema, 401: Result, 403: Result, 404: Result},
 )
@@ -194,7 +206,8 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
     return 200, {"message": "OK"}
 
 
-@api.delete(
+@api.api_operation(
+    ["DELETE", "OPTIONS"],
     "/me/review/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
 )
