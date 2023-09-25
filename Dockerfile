@@ -41,8 +41,8 @@ RUN rm -rf /var/lib/apt/lists/*
 COPY --from=build /neodb /neodb
 WORKDIR /neodb
 COPY --from=build /neodb-venv /neodb-venv
-RUN /neodb-venv/bin/python3 manage.py compilescss
-RUN /neodb-venv/bin/python3 manage.py collectstatic --noinput
+RUN NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py compilescss
+RUN NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py collectstatic --noinput
 
 COPY --from=build /takahe /takahe
 WORKDIR /takahe

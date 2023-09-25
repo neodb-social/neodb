@@ -15,36 +15,31 @@ x-shared:
     build: .
     image: ${NEODB_IMAGE:-neodb/neodb:latest}
     environment:
+      NEODB_DEBUG:
+      NEODB_SECRET_KEY:
       NEODB_SITE_NAME:
       NEODB_SITE_DOMAIN:
       NEODB_SITE_LOGO:
-      NEODB_DEBUG:
-      NEODB_SECRET_KEY:
+      NEODB_SITE_ICON:
+      NEODB_USER_ICON:
+      NEODB_SITE_LINKS:
       NEODB_ADMIN_USERNAMES:
       NEODB_INVITE_ONLY:
+      NEODB_LOGIN_ENABLE_EMAIL_ONLY:
+      NEODB_LOGIN_MASTODON_WHITELIST:
+      NEODB_MASTODON_CLIENT_SCOPE:
       NEODB_DISABLE_DEFAULT_RELAY:
-      NEODB_DB_NAME: neodb
-      NEODB_DB_USER: neodb
-      NEODB_DB_PASSWORD: aubergine
-      NEODB_DB_HOST: neodb-db
-      NEODB_DB_PORT: 5432
-      NEODB_REDIS_HOST: redis
-      NEODB_REDIS_PORT: 6379
-      NEODB_REDIS_DB: 0
-      NEODB_TYPESENSE_ENABLE: 1
-      NEODB_TYPESENSE_HOST: typesense
-      NEODB_TYPESENSE_PORT: 8108
-      NEODB_TYPESENSE_KEY: eggplant
+      NEODB_DB_URL: postgres://neodb:aubergine@neodb-db/neodb
+      TAKAHE_DB_URL: postgres://takahe:aubergine@takahe-db/takahe
+      NEODB_REDIS_URL: redis://redis:6379/0
+      NEODB_SEARCH_URL: typesense://user:eggplant@typesense:8108/catalog
+      NEODB_EMAIL_URL:
       NEODB_FROM_EMAIL: no-reply@${NEODB_SITE_DOMAIN}
       NEODB_DOWNLOADER_PROXY_LIST:
       NEODB_DOWNLOADER_BACKUP_PROXY:
+      NEODB_DOWNLOADER_SAVE_DIR:
       NEODB_MEDIA_ROOT: /www/m
       NEODB_VENV: /neodb-venv
-      TAKAHE_DB_NAME: takahe
-      TAKAHE_DB_USER: takahe
-      TAKAHE_DB_PASSWORD: aubergine
-      TAKAHE_DB_HOST: takahe-db
-      TAKAHE_DB_PORT: 5432
       TAKAHE_SECRET_KEY: ${NEODB_SECRET_KEY}
       TAKAHE_MAIN_DOMAIN: ${NEODB_SITE_DOMAIN}
       TAKAHE_MEDIA_URL: https://${NEODB_SITE_DOMAIN}/media/
@@ -58,6 +53,14 @@ x-shared:
       TAKAHE_STATOR_CONCURRENCY_PER_MODEL: 2
       TAKAHE_DEBUG: ${NEODB_DEBUG:-False}
       TAKAHE_VENV: /takahe-venv
+      SPOTIFY_API_KEY:
+      TMDB_API_V3_KEY:
+      GOOGLE_API_KEY:
+      DISCOGS_API_KEY:
+      IGDB_CLIENT_ID:
+      IGDB_CLIENT_SECRET:
+      DISCORD_WEBHOOKS:
+      SLACK_API_TOKEN:
     restart: "on-failure"
     volumes:
       - ${NEODB_DATA:-../data}/neodb-media:/www/m

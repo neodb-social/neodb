@@ -133,9 +133,7 @@
               </script>
             {% else %}
               <select name="domain">
-                {% for site in sites %}
-                  <option value="{{ site.domain_name }}" data-client-id="{{ site.client_id }}">@{{ site.domain_name }}</option>
-                {% endfor %}
+                {% for site in sites %}<option value="{{ site }}">@{{ site }}</option>{% endfor %}
               </select>
               <input type='submit' value="{% trans '授权登录' %}" id="loginButton" />
             {% endif %}

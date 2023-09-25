@@ -78,7 +78,6 @@ class APIdentity(models.Model):
 
     @property
     def avatar(self):
-        print(self.takahe_identity)
         if self.local:
             return (
                 self.takahe_identity.icon.url

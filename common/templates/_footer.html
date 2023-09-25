@@ -1,24 +1,12 @@
 <footer class="footer">
   <hr>
   <div class="grid">
-    {% if social_link %}
+    {% for link in site_links %}
       <a class="footer__link"
          target="_blank"
          rel="noopener"
-         href="{{ social_link }}">关注我们</a>
-    {% endif %}
-    {% if support_link %}
-      <a class="footer__link"
-         target="_blank"
-         rel="noopener"
-         href="{{ support_link }}">问题反馈</a>
-    {% endif %}
-    {% if donation_link %}
-      <a class="footer__link"
-         target="_blank"
-         rel="noopener"
-         href="{{ donation_link }}">捐助本站</a>
-    {% endif %}
+         href="{{ link.url }}">{{ link.title }}</a>
+    {% endfor %}
     <a class="footer__link" href="{% url 'management:list' %}">公告栏</a>
     <a class="footer__link" href="{% url 'oauth2_provider:developer' %}">应用开发</a>
     <a class="footer__link"
