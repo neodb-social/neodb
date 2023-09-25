@@ -64,7 +64,7 @@ To run local source code with `docker compose`, add `NEODB_DEBUG=True` in `.env`
 
 - code in `NEODB_SRC` (default: .) and `TAKAHE_SRC` (default: ./neodb-takahe) will be mounted and used in the container instead of code in the image
 - `runserver` with autoreload will be used instead of `gunicorn` for both neodb and takahe web server
-- /static/ and /s/ url are not map to pre-generated static file path
+- /static/ and /s/ url are not map to pre-generated/collected static file path,  `NEODB_DEBUG=True` will locate static files from source code
 - one `rqworker` container will be started, instead of two
 - use `dev-shell` and `dev-root` to invoke shells, instead of `shell` and `root`
 - there's no automatic `migration` container, but it can be triggered manually via `docker compose run dev-shell neodb-init`

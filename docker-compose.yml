@@ -34,7 +34,7 @@ x-shared:
       NEODB_REDIS_URL: redis://redis:6379/0
       NEODB_SEARCH_URL: typesense://user:eggplant@typesense:8108/catalog
       NEODB_EMAIL_URL:
-      NEODB_FROM_EMAIL: no-reply@${NEODB_SITE_DOMAIN}
+      NEODB_EMAIL_FROM: no-reply@${NEODB_SITE_DOMAIN}
       NEODB_DOWNLOADER_PROXY_LIST:
       NEODB_DOWNLOADER_BACKUP_PROXY:
       NEODB_DOWNLOADER_SAVE_DIR:
@@ -51,14 +51,14 @@ x-shared:
       TAKAHE_USE_PROXY_HEADERS: true
       TAKAHE_STATOR_CONCURRENCY: 4
       TAKAHE_STATOR_CONCURRENCY_PER_MODEL: 2
-      TAKAHE_DEBUG: ${NEODB_DEBUG:-False}
+      TAKAHE_DEBUG: ${NEODB_DEBUG:-True}
       TAKAHE_VENV: /takahe-venv
       SPOTIFY_API_KEY:
       TMDB_API_V3_KEY:
       GOOGLE_API_KEY:
       DISCOGS_API_KEY:
-      IGDB_CLIENT_ID:
-      IGDB_CLIENT_SECRET:
+      IGDB_API_CLIENT_ID:
+      IGDB_API_CLIENT_SECRET:
       DISCORD_WEBHOOKS:
       SLACK_API_TOKEN:
     restart: "on-failure"

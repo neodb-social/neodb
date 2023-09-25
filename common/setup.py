@@ -1,7 +1,7 @@
 from django.conf import settings
 from loguru import logger
 
-from catalog.search.typesense import Indexer
+from catalog.search.models import Indexer
 from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
 from takahe.models import Follow as TakaheFollow

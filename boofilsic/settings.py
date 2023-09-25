@@ -15,7 +15,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 # ====== List of user configuration variables ======
 env = environ.FileAwareEnv(
     # WARNING: do not run with debug mode turned on in production
-    NEODB_DEBUG=(bool, False),
+    NEODB_DEBUG=(bool, True),
     # WARNING: must use your own key and keep it secret
     NEODB_SECRET_KEY=(str),
     # Site information
@@ -60,16 +60,16 @@ env = environ.FileAwareEnv(
     # INTEGRATED TAKAHE CONFIGURATION
     TAKAHE_DB_URL=(str, "postgres://takahe:takahepass@127.0.0.1:5432/takahe"),
     # Spotify - https://developer.spotify.com/
-    SPOTIFY_API_KEY=(str, ""),
+    SPOTIFY_API_KEY=(str, "TESTONLY"),
     # The Movie Database (TMDB) - https://developer.themoviedb.org/
-    TMDB_API_V3_KEY=(str, ""),
+    TMDB_API_V3_KEY=(str, "TESTONLY"),
     # Google Books - https://developers.google.com/books/docs/v1/using - not used at the moment
-    GOOGLE_API_KEY=(str, ""),
+    GOOGLE_API_KEY=(str, "TESTONLY"),
     # Discogs - personal access token from https://www.discogs.com/settings/developers
-    DISCOGS_API_KEY=(str, ""),
+    DISCOGS_API_KEY=(str, "TESTONLY"),
     # IGDB - https://api-docs.igdb.com/
-    IGDB_CLIENT_ID=(str, ""),
-    IGDB_CLIENT_SECRET=(str, ""),
+    IGDB_API_CLIENT_ID=(str, "TESTONLY"),
+    IGDB_API_CLIENT_SECRET=(str, ""),
     # Discord webhooks
     DISCORD_WEBHOOKS=(dict, {"user-report": None}),
     # Slack API token, for sending exceptions to Slack, may deprecate in future
@@ -198,8 +198,8 @@ TMDB_API3_KEY = env("TMDB_API_V3_KEY")
 # TMDB_API4_KEY = env('TMDB_API_V4_KEY')
 # GOOGLE_API_KEY = env('GOOGLE_API_KEY')
 DISCOGS_API_KEY = env("DISCOGS_API_KEY")
-IGDB_CLIENT_ID = env("IGDB_CLIENT_ID")
-IGDB_CLIENT_SECRET = env("IGDB_CLIENT_SECRET")
+IGDB_CLIENT_ID = env("IGDB_API_CLIENT_ID")
+IGDB_CLIENT_SECRET = env("IGDB_API_CLIENT_SECRET")
 SLACK_TOKEN = env("SLACK_API_TOKEN")
 SLACK_CHANNEL = "alert"
 

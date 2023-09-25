@@ -54,6 +54,7 @@ Change essential options like `NEODB_SITE_DOMAIN` in `.env` before starting the 
 - `NEODB_SITE_DOMAIN` - domain name of your site
 - `NEODB_SECRET_KEY` - encryption key of session data
 - `NEODB_DATA` is the path to store db/media/cache, it's `../data` by default, but can be any path that's writable
+- `NEODB_DEBUG` - set to `False` for production deployment
 
 Optionally, `robots.txt` and `logo.png` may be placed under `$NEODB_DATA/www-root/`.
 
