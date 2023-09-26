@@ -225,7 +225,7 @@ services:
   dev-neodb-web:
     <<: *dev-neodb-service
     ports:
-      - "18000:8000"
+      - "${NEODB_DEV_PORT:-8001}:8000"
     command: neodb-manage runserver 0.0.0.0:8000
 
   dev-neodb-worker:
@@ -235,7 +235,7 @@ services:
   dev-takahe-web:
     <<: *dev-neodb-service
     ports:
-      - "19000:8000"
+      - "${TAKAHE_DEV_PORT:-8002}:8000"
     command: takahe-manage runserver 0.0.0.0:8000
 
   dev-takahe-stator:
