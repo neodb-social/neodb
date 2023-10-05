@@ -6,9 +6,10 @@
 .gitignore
 .pre-commit-config.yaml
 __pycache__
+/compose.yml
+/compose.override.yml
 /Dockerfile
 /doc
-/docker-compose.yml
 /media
 /static
 /test_data

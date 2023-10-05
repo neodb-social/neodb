@@ -2,12 +2,12 @@ Run NeoDB in Docker
 ===================
 
 ## Overview
-For small and medium NeoDB instances, it's recommended to deploy as a local container cluster with Docker Compose. If you are running a large instance, please see the bottom of doc for some tips.
+For small and medium NeoDB instances, it's recommended to deploy as a local container cluster with Docker Compose. To run a large instance, please see the bottom of doc for some tips.
 
 ```mermaid
 flowchart TB
     web[[Your reverse proxy server with SSL]] --- neodb-nginx[nginx listening on localhost:8000]
-    subgraph Containers managed by docker-compose
+    subgraph Containers managed by compose.yml
     neodb-nginx --- neodb-web
     neodb-nginx --- takahe-web
     neodb-worker --- typesense[(typesense)]
@@ -44,7 +44,7 @@ $ sudo usermod -aG docker neouser
 
 ## Get configuration files
  - create a folder for configuration, eg ~/neodb/config
- - grab `docker-compose.yml` and `neodb.env.example` from source code
+ - grab `compose.yml` and `neodb.env.example` from source code
  - rename `neodb.env.example` to `.env`
 
 ## Set up .env file and www root
@@ -61,7 +61,7 @@ Optionally, `robots.txt` and `logo.png` may be placed under `$NEODB_DATA/www-roo
 See `neodb.env.example` and `configuration.md` for more options
 
 ## Start docker
-in the folder with `docker-compose.yml` and `neodb.env`, execute as the user you just created:
+in the folder with `compose.yml` and `neodb.env`, execute as the user you just created:
 ```
 $ docker compose pull
 $ docker compose --profile production up -d
@@ -85,12 +85,12 @@ NeoDB requires `https` by default. Although `http` may be technically possible, 
 
 ## Update NeoDB
 
-Check the release notes, update `docker-compose.yml` and `.env` as instructed. pull the image
+Check the release notes, update `compose.yml` and `.env` as instructed. pull the image
 ```
 docker compose pull
 ```
 
-If there's no change in `docker-compose.yml`, restart only NeoDB services:
+If there's no change in `compose.yml`, restart only NeoDB services:
 ```
 $ docker compose stop neodb-web neodb-worker neodb-worker-extra takahe-web takahe-stator nginx
 $ docker compose --profile production up -d
@@ -101,6 +101,8 @@ Otherwise restart the entire cluster:
 $ docker compose down
 $ docker compose --profile production up -d
 ```
+
+If there is `compose.override.yml` in the directory, make sure it's compatible with the updated `compose.yml`.
 
 ## Troubleshooting
 
@@ -114,6 +116,6 @@ It's possible to run multiple clusters in one host server, as long as `NEODB_SIT
 
 ## Scaling
 
-If you are running a high-traffic instance, spin up `NEODB_WEB_WORKER_NUM`, `TAKAHE_WEB_WORKER_NUM`, `TAKAHE_STATOR_CONCURRENCY` and `TAKAHE_STATOR_CONCURRENCY_PER_MODEL` as long as your host server can handle them.
+For high-traffic instance, spin up `NEODB_WEB_WORKER_NUM`, `TAKAHE_WEB_WORKER_NUM`, `TAKAHE_STATOR_CONCURRENCY` and `TAKAHE_STATOR_CONCURRENCY_PER_MODEL` as long as the host server can handle them.
 
 Further scaling up with multiple nodes (e.g. via Kubernetes) is beyond the scope of this document, but consider run db/redis/typesense separately, and then duplicate web/worker/stator containers as long as connections and mounts are properly configured; `migration` only runs once when start or upgrade, it should be kept that way.

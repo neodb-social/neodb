@@ -73,7 +73,7 @@ Note:
 - Python virtual environments inside docker image, which are `/neodb-venv` and `/takahe-venv`, will be used by default. They can be changed to different locations with `TAKAHE_VENV` and `NEODB_VENV` if needed, usually in a case of development code using a package not in docker venv.
 - Some packages inside python virtual environments are platform dependent, so mount venv built by macOS host into the Linux container will likely not work.
 - Python servers are launched as `app` user, who has no write access to anywhere except /tmp and media path, that's by design.
-- Database/redis used in the container cluster are not accessible outside, which is by design. Querying them can be done by either apt update/install client packages in `dev-root` or `root` container, or a modified `docker-compose.yml` with `ports` section uncommented.
+- Database/redis used in the container cluster are not accessible outside, which is by design. Querying them can be done by either apt update/install client packages in `dev-root` or `root` container, or create `compose.override.yml` to uncomment `ports` section.
 
 To run local unit tests, use `docker compose run dev-shell neodb-manage test`
 
