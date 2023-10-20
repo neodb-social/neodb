@@ -43,7 +43,7 @@ $ sudo usermod -aG docker neouser
 ```
 
 ## Get configuration files
- - create a folder for configuration, eg ~/neodb/config
+ - create a folder for configuration, eg ~/mysite/config
  - grab `compose.yml` and `neodb.env.example` from source code
  - rename `neodb.env.example` to `.env`
 
@@ -67,7 +67,13 @@ $ docker compose pull
 $ docker compose --profile production up -d
 ```
 
-In a minute or so, the site should be up at 127.0.0.1:8000 , you may check it with:
+Starting up for the first time might take a few minutes, depending on download speed, use the following commands for status and logs:
+```
+$ docker compose ps
+$ docker compose --profile production logs -f
+```
+
+In a few seconds, the site should be up at 127.0.0.1:8000 , you may check it with:
 ```
 $ curl http://localhost:8000/nodeinfo/2.0/
 ```
@@ -76,6 +82,8 @@ JSON response will be returned if the server is up and running:
 ```
 {"version": "2.0", "software": {"name": "neodb", "version": "0.8-dev"}, "protocols": ["activitypub", "neodb"], "services": {"outbound": [], "inbound": []}, "usage": {"users": {"total": 1}, "localPosts": 0}, "openRegistrations": true, "metadata": {}}
 ```
+
+
 
 ## Make the site available publicly
 
@@ -96,13 +104,31 @@ $ docker compose stop neodb-web neodb-worker neodb-worker-extra takahe-web takah
 $ docker compose --profile production up -d
 ```
 
-Otherwise restart the entire cluster:
+Otherwise restart the entire cluster (including database/etc, hence slower):
 ```
 $ docker compose down
 $ docker compose --profile production up -d
 ```
 
 If there is `compose.override.yml` in the directory, make sure it's compatible with the updated `compose.yml`.
+
+## Folders explained
+a typical neodb folder after starting up should look like:
+```
+mysite
+├── data                # neodb data folder, location can be changed via NEODB_DATA in .env
+│   ├── neodb-db        # neodb database
+│   ├── neodb-media     # uid must be 1000 (app user in docker image), chmod if not so
+│   ├── redis           # neodb/takahe cache
+│   ├── takahe-cache    # uid must be 33 (www-data user in docker image), chmod if not so
+│   ├── takahe-db       # neodb database
+│   ├── takahe-media    # uid must be 1000 (app user in docker image), chmod if not so
+│   ├── typesense       # neodb search index
+│   └── www-root        # neodb web root for robots.txt, logo.png and etc
+└── config
+    ├── compose.yml     # copied from neodb release
+    └── .env            # your configuration, see neodb.env.example
+```
 
 ## Troubleshooting
 
