@@ -9,5 +9,6 @@ echo NeoDB initializing...
 
 takahe-manage migrate || exit $?
 neodb-manage migrate || exit $?
+neodb-manage cron --schedule || exit $?
 
 echo NeoDB initialization complete.

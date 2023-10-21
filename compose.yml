@@ -166,14 +166,14 @@ services:
 
   neodb-worker:
     <<: *neodb-service
-    command: neodb-manage rqworker --with-scheduler import export mastodon fetch crawl ap
+    command: neodb-manage rqworker --with-scheduler import export mastodon fetch crawl ap cron
     depends_on:
       migration:
         condition: service_completed_successfully
 
   neodb-worker-extra:
     <<: *neodb-service
-    command: neodb-manage rqworker --with-scheduler fetch crawl ap
+    command: neodb-manage rqworker fetch crawl ap
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -231,7 +231,7 @@ services:
 
   dev-neodb-worker:
     <<: *dev-neodb-service
-    command: neodb-manage rqworker --with-scheduler import export mastodon fetch crawl ap
+    command: neodb-manage rqworker --with-scheduler import export mastodon fetch crawl ap cron
 
   dev-takahe-web:
     <<: *dev-neodb-service

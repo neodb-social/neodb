@@ -99,7 +99,7 @@ RQ_QUEUES = {
         "DB": _parsed_redis_url.path[1:],
         "DEFAULT_TIMEOUT": -1,
     }
-    for q in ["mastodon", "export", "import", "fetch", "crawl", "ap"]
+    for q in ["mastodon", "export", "import", "fetch", "crawl", "ap", "cron"]
 }
 
 _parsed_search_url = env.url("NEODB_SEARCH_URL")
