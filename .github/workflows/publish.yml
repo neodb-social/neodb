@@ -1,4 +1,4 @@
-name: publish
+name: docker image
 
 on:
   workflow_run:
