@@ -117,14 +117,14 @@ a typical neodb folder after starting up should look like:
 ```
 mysite
 ├── data                # neodb data folder, location can be changed via NEODB_DATA in .env
-│   ├── neodb-db        # neodb database
-│   ├── neodb-media     # uid must be 1000 (app user in docker image), chmod if not so
-│   ├── redis           # neodb/takahe cache
-│   ├── takahe-cache    # uid must be 33 (www-data user in docker image), chmod if not so
-│   ├── takahe-db       # neodb database
-│   ├── takahe-media    # uid must be 1000 (app user in docker image), chmod if not so
-│   ├── typesense       # neodb search index
-│   └── www-root        # neodb web root for robots.txt, logo.png and etc
+│   ├── neodb-db        # neodb database
+│   ├── neodb-media     # uid must be 1000 (app user in docker image), chmod if not so
+│   ├── redis           # neodb/takahe cache
+│   ├── takahe-cache    # uid must be 33 (www-data user in docker image), chmod if not so
+│   ├── takahe-db       # neodb database
+│   ├── takahe-media    # uid must be 1000 (app user in docker image), chmod if not so
+│   ├── typesense       # neodb search index
+│   └── www-root        # neodb web root for robots.txt, logo.png and etc
 └── config
     ├── compose.yml     # copied from neodb release
     └── .env            # your configuration, see neodb.env.example

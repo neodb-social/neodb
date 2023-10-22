@@ -1,10 +1,9 @@
 cachetools
 dateparser
 discord.py
-django~=4.2.5
+django~=4.2.6
 django-anymail
-#django-auditlog @ git+https://github.com/jazzband/django-auditlog.git@45591463e8192b4ac0095e259cc4dcea0ac2fd6c
-django-auditlog>=3.0.0-beta.1
+django-auditlog>=3.0.0-beta.2
 django-bleach
 django-compressor
 django-environ

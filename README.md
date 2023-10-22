@@ -41,7 +41,7 @@ Boofilsic/NeoDB is an open source project and free service to help users manage,
  	   * eligible items, e.g. podcasts and albums, are playable in feed
  	 + link Fediverse account and import social graph
  	 + share collections and reviews to Fediverse ~~and Twitter~~ feed
- 	 + ActivityPub support is under development, a pre-alpha version is available for developers as [docker image](https://hub.docker.com/r/neodb/neodb)
+ 	 + ActivityPub support is under active development
  - Other
    + i18n/language support are planned
 
