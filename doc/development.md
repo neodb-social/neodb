@@ -82,6 +82,15 @@ Note:
 
 To run local unit tests, use `docker compose run dev-shell neodb-manage test`
 
+Development with Github Codespace
+---------------------------------
+At the time of writing, docker compose will work in Github Codespace by adding this in `.env`:
+
+```
+NEODB_SITE_DOMAIN=${CODESPACE_NAME}-8000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
+```
+
+
 Applications
 ------------
 Main django apps for NeoDB:
