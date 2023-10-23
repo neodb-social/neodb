@@ -2,7 +2,7 @@ name: docker image
 
 on:
   workflow_run:
-    workflows: ["tests"]
+    workflows: ["unit test"]
     branches:
       - main
       - activitypub

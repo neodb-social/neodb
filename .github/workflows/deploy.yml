@@ -1,7 +1,7 @@
-name: deployment
+name: preview deployment
 on:
   workflow_run:
-    workflows: ["publish"]
+    workflows: ["docker image"]
     types:
       - completed
 concurrency:
@@ -10,7 +10,7 @@ concurrency:
 jobs:
   deployment:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    name: Preview Deployment
+    name: deployment to preview environment
     runs-on: ubuntu-latest
     environment: ${{ vars.DEPLOY_ENV }}
     steps:
