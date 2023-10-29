@@ -2,6 +2,7 @@ from django import template
 from django.urls import reverse
 
 from journal.models import Collection, Like
+from takahe.utils import Takahe
 
 register = template.Library()
 
@@ -22,10 +23,9 @@ def wish_item_action(context, item):
 def like_piece_action(context, piece):
     user = context["request"].user
     action = {}
-    if user and user.is_authenticated:
+    if user and user.is_authenticated and piece and piece.latest_post:
         action = {
-            "taken": piece.owner == user
-            or Like.objects.filter(target=piece, owner=user).first() is not None,
+            "taken": Takahe.post_liked_by(piece.latest_post.pk, user),
             "url": reverse("journal:like", args=[piece.uuid]),
         }
     return action
@@ -34,4 +34,14 @@ def like_piece_action(context, piece):
 @register.simple_tag(takes_context=True)
 def liked_piece(context, piece):
     user = context["request"].user
-    return user and user.is_authenticated and Like.user_liked_piece(user, piece)
+    return user and user.is_authenticated and piece.is_liked_by(user.identity)
+
+
+@register.simple_tag(takes_context=True)
+def liked_post(context, post):
+    user = context["request"].user
+    return (
+        user
+        and user.is_authenticated
+        and Takahe.post_liked_by(post.pk, user.identity.pk)
+    )

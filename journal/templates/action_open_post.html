@@ -1,0 +1,18 @@
+<span>
+  <a target="_blank"
+     rel="noopener"
+     href="{{ post.object_uri }}"
+     class="disabled">
+    {% if post.visibility == 1 %}
+      <i class="fa-solid fa-lock-open"></i>
+    {% elif post.visibility == 2 %}
+      <i class="fa-solid fa-lock"></i>
+    {% elif post.visibility == 3 %}
+      <i class="fa-solid fa-at"></i>
+    {% elif post.visibility == 4 %}
+      <i class="fa-solid fa-igloo"></i>
+    {% else %}
+      <i class="fa-solid fa-globe"></i>
+    {% endif %}
+  </a>
+</span>

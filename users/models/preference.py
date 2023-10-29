@@ -20,6 +20,7 @@ from loguru import logger
 from common.utils import GenerateDateUUIDMediaFilePath
 from management.models import Announcement
 from mastodon.api import *
+from takahe.utils import Takahe
 
 from .user import User
 

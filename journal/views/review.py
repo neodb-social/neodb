@@ -12,9 +12,11 @@ from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
-from common.utils import PageLinksGenerator, get_uuid_or_404
+from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
 from journal.models.renderers import convert_leading_space_in_md, render_md
+from mastodon.api import share_review
 from users.models import User
+from users.models.apidentity import APIdentity
 
 from ..forms import *
 from ..models import *
@@ -32,7 +34,7 @@ def review_retrieve(request, review_uuid):
 
 
 @login_required
-def review_edit(request, item_uuid, review_uuid=None):
+def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     review = (
         get_object_or_404(Review, uid=get_uuid_or_404(review_uuid))
@@ -65,24 +67,28 @@ def review_edit(request, item_uuid, review_uuid=None):
         if form.is_valid():
             mark_date = None
             if request.POST.get("mark_anotherday"):
-                dt = parse_datetime(request.POST.get("mark_date") + " 20:00:00")
+                dt = parse_datetime(request.POST.get("mark_date", "") + " 20:00:00")
                 mark_date = (
                     dt.replace(tzinfo=timezone.get_current_timezone()) if dt else None
                 )
             body = form.instance.body
             if request.POST.get("leading_space"):
                 body = convert_leading_space_in_md(body)
-            review = Review.review_item_by_user(
+            review = Review.update_item_review(
                 item,
-                request.user,
+                request.user.identity,
                 form.cleaned_data["title"],
                 body,
                 form.cleaned_data["visibility"],
                 mark_date,
-                form.cleaned_data["share_to_mastodon"],
             )
             if not review:
                 raise BadRequest()
+            if (
+                form.cleaned_data["share_to_mastodon"]
+                and request.user.mastodon_username
+            ):
+                share_review(review)
             return redirect(reverse("journal:review_retrieve", args=[review.uuid]))
         else:
             raise BadRequest()
@@ -90,7 +96,6 @@ def review_edit(request, item_uuid, review_uuid=None):
         raise BadRequest()
 
 
-@login_required
 def user_review_list(request, user_name, item_category):
     return render_list(request, user_name, "review", item_category=item_category)
 
@@ -100,16 +105,16 @@ MAX_ITEM_PER_TYPE = 10
 
 class ReviewFeed(Feed):
     def get_object(self, request, id):
-        return User.get(id)
+        return APIdentity.get_by_handler(id)
 
-    def title(self, user):
-        return "%s的评论" % user.display_name if user else "无效链接"
+    def title(self, owner):
+        return "%s的评论" % owner.display_name if owner else "无效链接"
 
-    def link(self, user):
-        return user.url if user else settings.SITE_INFO["site_url"]
+    def link(self, owner):
+        return owner.url if owner else settings.SITE_INFO["site_url"]
 
-    def description(self, user):
-        return "%s的评论合集 - NeoDB" % user.display_name if user else "无效链接"
+    def description(self, owner):
+        return "%s的评论合集 - NeoDB" % owner.display_name if owner else "无效链接"
 
     def items(self, user):
         if user is None or user.preference.no_anonymous_view:

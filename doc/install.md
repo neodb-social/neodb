@@ -20,11 +20,9 @@ This is a very basic guide with limited detail, contributions welcomed
 0 Run in Docker
 ---------------
 
-```
-cp neodb.env.dist neodb.env  # update this configuration
+Recommended, see [Docker Installation](install-docker.md)
 
-docker-compose up
-```
+*Manual installation are no longer recommended and the doc below may be outdated*
 
 1 Manual Install
 ----------------
@@ -33,8 +31,8 @@ Install PostgreSQL, Redis and Python (3.10 or above) if not yet
 ### 1.1 Database
 Setup database
 ```
-CREATE DATABASE neodb ENCODING 'UTF8' LC_COLLATE='en_US.UTF-8' LC_CTYPE='en_US.UTF-8' TEMPLATE template0;
 CREATE ROLE neodb with LOGIN ENCRYPTED PASSWORD 'abadface';
+CREATE DATABASE neodb ENCODING 'UTF8' LC_COLLATE='en_US.UTF-8' LC_CTYPE='en_US.UTF-8' TEMPLATE template0;
 GRANT ALL ON DATABASE neodb TO neodb;
 ```
 

@@ -2,3 +2,7 @@
 	path = webapp
 	url = https://github.com/neodb-social/webapp.git
 	branch = main
+[submodule "neodb-takahe"]
+	path = neodb-takahe
+	url = https://github.com/neodb-social/neodb-takahe.git
+	branch = neodb

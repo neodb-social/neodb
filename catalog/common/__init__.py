@@ -24,6 +24,7 @@ __all__ = (
     "use_local_response",
     "RetryDownloader",
     "BasicDownloader",
+    "CachedDownloader",
     "ProxiedDownloader",
     "BasicImageDownloader",
     "ProxiedImageDownloader",

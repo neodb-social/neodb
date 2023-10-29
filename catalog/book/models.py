@@ -166,7 +166,7 @@ class Edition(Item):
         """add Work from resource.metadata['work'] if not yet"""
         links = resource.required_resources + resource.related_resources
         for w in links:
-            if w["model"] == "Work":
+            if w.get("model") == "Work":
                 work = Work.objects.filter(
                     primary_lookup_id_type=w["id_type"],
                     primary_lookup_id_value=w["id_value"],

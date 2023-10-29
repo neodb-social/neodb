@@ -1,9 +1,10 @@
-import pprint
-
 from django.core.management.base import BaseCommand
 
+from catalog.models import Item
 from journal.importers.douban import DoubanImporter
 from journal.models import *
+from journal.models.common import Content
+from journal.models.itemlist import ListMember
 from users.models import User
 
 

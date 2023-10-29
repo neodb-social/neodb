@@ -1,6 +1,8 @@
 # Boofilsic/NeoDB
 
-![Test Status](https://github.com/neodb-social/neodb/actions/workflows/django.yml/badge.svg?branch=main)
+![](https://github.com/neodb-social/neodb/actions/workflows/check.yml/badge.svg?branch=main)
+![](https://github.com/neodb-social/neodb/actions/workflows/tests.yml/badge.svg?branch=main)
+![](https://github.com/neodb-social/neodb/actions/workflows/publish.yml/badge.svg?branch=main)
 
 Boofilsic/NeoDB is an open source project and free service to help users manage, share and discover collections, reviews and ratings for culture products (e.g. books, movies, music, podcasts, games and performances) in Fediverse.
 
@@ -41,7 +43,7 @@ Boofilsic/NeoDB is an open source project and free service to help users manage,
  	   * eligible items, e.g. podcasts and albums, are playable in feed
  	 + link Fediverse account and import social graph
  	 + share collections and reviews to Fediverse ~~and Twitter~~ feed
- 	 + ActivityPub support is under development, a pre-alpha version is available for developers as [docker image](https://hub.docker.com/r/neodb/neodb)
+ 	 + ActivityPub support is under active development
  - Other
    + i18n/language support are planned
 

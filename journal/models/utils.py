@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from catalog.models import Item
-from users.models import User
+from users.models import APIdentity
 
 from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
@@ -10,27 +10,28 @@ from .common import Content
 from .itemlist import ListMember
 from .rating import Rating
 from .review import Review
-from .shelf import Shelf, ShelfLogEntry, ShelfManager, ShelfMember
-from .tag import Tag, TagManager, TagMember
+from .shelf import ShelfLogEntry, ShelfMember
+from .tag import Tag, TagMember
 
 
-def reset_journal_visibility_for_user(user: User, visibility: int):
-    ShelfMember.objects.filter(owner=user).update(visibility=visibility)
-    Comment.objects.filter(owner=user).update(visibility=visibility)
-    Rating.objects.filter(owner=user).update(visibility=visibility)
-    Review.objects.filter(owner=user).update(visibility=visibility)
+def reset_journal_visibility_for_user(owner: APIdentity, visibility: int):
+    ShelfMember.objects.filter(owner=owner).update(visibility=visibility)
+    Comment.objects.filter(owner=owner).update(visibility=visibility)
+    Rating.objects.filter(owner=owner).update(visibility=visibility)
+    Review.objects.filter(owner=owner).update(visibility=visibility)
 
 
-def remove_data_by_user(user: User):
-    ShelfMember.objects.filter(owner=user).delete()
-    Comment.objects.filter(owner=user).delete()
-    Rating.objects.filter(owner=user).delete()
-    Review.objects.filter(owner=user).delete()
-    TagMember.objects.filter(owner=user).delete()
-    Tag.objects.filter(owner=user).delete()
-    CollectionMember.objects.filter(owner=user).delete()
-    Collection.objects.filter(owner=user).delete()
-    FeaturedCollection.objects.filter(owner=user).delete()
+def remove_data_by_user(owner: APIdentity):
+    ShelfMember.objects.filter(owner=owner).delete()
+    ShelfLogEntry.objects.filter(owner=owner).delete()
+    Comment.objects.filter(owner=owner).delete()
+    Rating.objects.filter(owner=owner).delete()
+    Review.objects.filter(owner=owner).delete()
+    TagMember.objects.filter(owner=owner).delete()
+    Tag.objects.filter(owner=owner).delete()
+    CollectionMember.objects.filter(owner=owner).delete()
+    Collection.objects.filter(owner=owner).delete()
+    FeaturedCollection.objects.filter(owner=owner).delete()
 
 
 def update_journal_for_merged_item(

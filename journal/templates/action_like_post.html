@@ -1,0 +1,15 @@
+{% load user_actions %}
+<span hx-target="this" hx-swap="outerHTML">
+  {% liked_post post as liked %}
+  {% if liked %}
+    <a class="activated" hx-post="{% url 'journal:post_unlike' post.pk %}">
+      <i class="fa-solid fa-thumbs-up }}"></i>
+      <span>{{ post.stats.likes }}</span>
+    </a>
+  {% else %}
+    <a hx-post="{% url 'journal:post_like' post.pk %}">
+      <i class="fa-regular fa-thumbs-up }}"></i>
+      {% if post.stats.likes %}<span>{{ post.stats.likes }}</span>{% endif %}
+    </a>
+  {% endif %}
+</span>

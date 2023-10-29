@@ -4,11 +4,11 @@ from .common import (
     Piece,
     UserOwnedObjectMixin,
     VisibilityType,
-    max_visiblity_to,
-    q_visible_to,
-    query_following,
-    query_item_category,
-    query_visible,
+    max_visiblity_to_user,
+    q_item_in_category,
+    q_owned_piece_visible_to_user,
+    q_piece_in_home_feed_of_user,
+    q_piece_visible_to_user,
 )
 from .like import Like
 from .mark import Mark

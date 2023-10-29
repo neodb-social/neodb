@@ -7,7 +7,7 @@ from django.utils import timezone
 from loguru import logger
 
 from catalog.models import *
-from journal.models import Comment, ShelfMember, query_item_category
+from journal.models import Comment, ShelfMember, q_item_in_category
 
 MAX_ITEMS_PER_PERIOD = 12
 MIN_MARKS = 2
@@ -28,7 +28,7 @@ class Command(BaseCommand):
     def get_popular_marked_item_ids(self, category, days, exisiting_ids):
         item_ids = [
             m["item_id"]
-            for m in ShelfMember.objects.filter(query_item_category(category))
+            for m in ShelfMember.objects.filter(q_item_in_category(category))
             .filter(created_time__gt=timezone.now() - timedelta(days=days))
             .exclude(item_id__in=exisiting_ids)
             .values("item_id")
@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
     def get_popular_commented_podcast_ids(self, days, exisiting_ids):
         return list(
-            Comment.objects.filter(query_item_category(ItemCategory.Podcast))
+            Comment.objects.filter(q_item_in_category(ItemCategory.Podcast))
             .filter(created_time__gt=timezone.now() - timedelta(days=days))
             .annotate(p=F("item__podcastepisode__program"))
             .filter(p__isnull=False)

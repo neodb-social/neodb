@@ -13,7 +13,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ user.display_name }} -
+    <title>{{ site_name }} - {{ identity.display_name }} -
       {% if liked %}关注的{% endif %}
     收藏单</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
@@ -23,7 +23,7 @@
     <main>
       <div class="grid__main">
         <h5>
-          {{ user.display_name }} -
+          {{ identity.display_name }} -
           {% if liked %}关注的{% endif %}
           收藏单
         </h5>
@@ -37,7 +37,7 @@
               <span>
                 <a target="_blank"
                    rel="noopener"
-                   {% if collection.metadata.shared_link %} href="{{ collection.metadata.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                   {% if collection.shared_link %} href="{{ collection.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
               </span>
               <span class="timestamp">{{ collection.created_time|date }}</span>
             </div>

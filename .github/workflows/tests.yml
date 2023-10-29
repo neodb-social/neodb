@@ -1,0 +1,55 @@
+name: unit test
+
+on:
+  push:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  django:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+      db:
+        image: postgres
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: test_neodb
+        ports:
+          - 5432:5432
+      db2:
+        image: postgres
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: test_neodb_takahe
+        ports:
+          - 15432:5432
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ['3.11']
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt
+    - name: Run Tests
+      env:
+        NEODB_DB_URL: postgres://testuser:testpass@127.0.0.1/test_neodb
+        TAKAHE_DB_URL: postgres://testuser:testpass@127.0.0.1/test_neodb_takahe
+        NEODB_REDIS_URL: redis://127.0.0.1:6379/0
+        NEODB_SITE_NAME: test
+        NEODB_SITE_DOMAIN: test.domain
+        NEODB_SECRET_KEY: test
+      run: |
+        python manage.py test

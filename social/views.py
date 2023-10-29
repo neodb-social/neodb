@@ -1,9 +1,9 @@
 import logging
 
-from django.conf import settings
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
@@ -20,6 +20,8 @@ PAGE_SIZE = 10
 def feed(request):
     if request.method != "GET":
         raise BadRequest()
+    if not request.user.registration_complete:
+        return redirect(reverse("users:register"))
     user = request.user
     podcast_ids = [
         p.item_id
@@ -65,7 +67,7 @@ def data(request):
         request,
         "feed_data.html",
         {
-            "activities": ActivityManager(request.user).get_timeline(
+            "activities": ActivityManager(request.user.identity).get_timeline(
                 before_time=request.GET.get("last")
             )[:PAGE_SIZE],
         },

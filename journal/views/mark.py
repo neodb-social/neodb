@@ -12,17 +12,17 @@ from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
-from common.utils import PageLinksGenerator, get_uuid_or_404
+from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
 from mastodon.api import (
     get_spoiler_text,
     get_status_id_by_url,
     get_visibility,
     post_toot,
 )
+from takahe.utils import Takahe
 
-from ..forms import *
-from ..models import *
-from .common import render_list, render_relogin
+from ..models import Comment, Mark, Piece, ShelfType, ShelfTypeNames, TagManager
+from .common import render_list, render_relogin, target_identity_required
 
 _logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
@@ -31,28 +31,30 @@ _checkmark = "✔️".encode("utf-8")
 
 
 @login_required
-def wish(request, item_uuid):
+def wish(request: AuthedHttpRequest, item_uuid):
     if request.method != "POST":
         raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
         raise Http404()
-    request.user.shelf_manager.move_item(item, ShelfType.WISHLIST)
+    request.user.identity.shelf_manager.move_item(item, ShelfType.WISHLIST)
     if request.GET.get("back"):
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     return HttpResponse(_checkmark)
 
 
 @login_required
-def like(request, piece_uuid):
+def like(request: AuthedHttpRequest, piece_uuid):
     if request.method != "POST":
         raise BadRequest()
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
     if not piece:
         raise Http404()
-    Like.user_like_piece(request.user, piece)
+    post = piece.latest_post
+    if post:
+        Takahe.like_post(post.pk, request.user.identity.pk)
     if request.GET.get("back"):
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     elif request.GET.get("stats"):
         return render(
             request,
@@ -68,15 +70,17 @@ def like(request, piece_uuid):
 
 
 @login_required
-def unlike(request, piece_uuid):
+def unlike(request: AuthedHttpRequest, piece_uuid):
     if request.method != "POST":
         raise BadRequest()
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
     if not piece:
         raise Http404()
-    Like.user_unlike_piece(request.user, piece)
+    post = piece.latest_post
+    if post:
+        Takahe.unlike_post(post.pk, request.user.identity.pk)
     if request.GET.get("back"):
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     elif request.GET.get("stats"):
         return render(
             request,
@@ -92,11 +96,11 @@ def unlike(request, piece_uuid):
 
 
 @login_required
-def mark(request, item_uuid):
+def mark(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    mark = Mark(request.user, item)
+    mark = Mark(request.user.identity, item)
     if request.method == "GET":
-        tags = TagManager.get_item_tags_by_user(item, request.user)
+        tags = request.user.identity.tag_manager.get_item_tags(item)
         shelf_types = [
             (n[1], n[2]) for n in iter(ShelfTypeNames) if n[0] == item.category
         ]
@@ -115,15 +119,8 @@ def mark(request, item_uuid):
         )
     elif request.method == "POST":
         if request.POST.get("delete", default=False):
-            silence = request.POST.get("silence", False)
-            mark.delete(silence=silence)
-            if (
-                silence
-            ):  # this means the mark is deleted from mark_history, thus redirect to item page
-                return redirect(
-                    reverse("catalog:retrieve", args=[item.url_path, item.uuid])
-                )
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+            mark.delete()
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
         else:
             visibility = int(request.POST.get("visibility", default=0))
             rating_grade = request.POST.get("rating_grade", default=0)
@@ -143,7 +140,7 @@ def mark(request, item_uuid):
                 )
                 if mark_date and mark_date >= timezone.now():
                     mark_date = None
-            TagManager.tag_item_by_user(item, request.user, tags, visibility)
+            TagManager.tag_item(item, request.user.identity, tags, visibility)
             try:
                 mark.update(
                     status,
@@ -167,7 +164,7 @@ def mark(request, item_uuid):
                         "secondary_msg": err,
                     },
                 )
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     raise BadRequest()
 
 
@@ -202,12 +199,12 @@ def share_comment(user, item, text, visibility, shared_link=None, position=None)
 
 
 @login_required
-def mark_log(request, item_uuid, log_id):
+def mark_log(request: AuthedHttpRequest, item_uuid, log_id):
     """
     Delete log of one item by log id.
     """
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    mark = Mark(request.user, item)
+    mark = Mark(request.user.identity, item)
     if request.method == "POST":
         if request.GET.get("delete", default=False):
             if log_id:
@@ -219,7 +216,7 @@ def mark_log(request, item_uuid, log_id):
 
 
 @login_required
-def comment(request, item_uuid):
+def comment(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item.class_name in ["podcastepisode", "tvepisode"]:
         raise BadRequest("不支持评论此类型的条目")
@@ -246,7 +243,7 @@ def comment(request, item_uuid):
             if not comment:
                 raise Http404()
             comment.delete()
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
         visibility = int(request.POST.get("visibility", default=0))
         text = request.POST.get("text")
         position = None
@@ -302,12 +299,11 @@ def comment(request, item_uuid):
         #     )
         if post_error:
             return render_relogin(request)
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     raise BadRequest()
 
 
-@login_required
-def user_mark_list(request, user_name, shelf_type, item_category):
+def user_mark_list(request: AuthedHttpRequest, user_name, shelf_type, item_category):
     return render_list(
         request, user_name, "mark", shelf_type=shelf_type, item_category=item_category
     )

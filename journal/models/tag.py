@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.collection.models import Collection as CatalogCollection
 from catalog.models import Item
-from users.models import User
+from users.models import APIdentity
 
 from .itemlist import List, ListMember
 
@@ -66,9 +66,9 @@ class TagManager:
         return tag_titles
 
     @staticmethod
-    def all_tags_for_user(user, public_only=False):
+    def all_tags_by_owner(owner, public_only=False):
         tags = (
-            user.tag_set.all()
+            owner.tag_set.all()
             .values("title")
             .annotate(frequency=Count("members__id"))
             .order_by("-frequency")
@@ -78,46 +78,44 @@ class TagManager:
         return list(map(lambda t: t["title"], tags))
 
     @staticmethod
-    def tag_item_by_user(item, user, tag_titles, default_visibility=0):
+    def tag_item(
+        item: Item,
+        owner: APIdentity,
+        tag_titles: list[str],
+        default_visibility: int = 0,
+    ):
         titles = set([Tag.cleanup_title(tag_title) for tag_title in tag_titles])
         current_titles = set(
-            [m.parent.title for m in TagMember.objects.filter(owner=user, item=item)]
+            [m.parent.title for m in TagMember.objects.filter(owner=owner, item=item)]
         )
         for title in titles - current_titles:
-            tag = Tag.objects.filter(owner=user, title=title).first()
+            tag = Tag.objects.filter(owner=owner, title=title).first()
             if not tag:
                 tag = Tag.objects.create(
-                    owner=user, title=title, visibility=default_visibility
+                    owner=owner, title=title, visibility=default_visibility
                 )
             tag.append_item(item, visibility=default_visibility)
         for title in current_titles - titles:
-            tag = Tag.objects.filter(owner=user, title=title).first()
+            tag = Tag.objects.filter(owner=owner, title=title).first()
             if tag:
                 tag.remove_item(item)
 
     @staticmethod
-    def get_item_tags_by_user(item, user):
-        current_titles = [
-            m.parent.title for m in TagMember.objects.filter(owner=user, item=item)
-        ]
-        return current_titles
+    def get_manager_for_user(owner):
+        return TagManager(owner)
 
-    @staticmethod
-    def get_manager_for_user(user):
-        return TagManager(user)
-
-    def __init__(self, user):
-        self.owner = user
+    def __init__(self, owner):
+        self.owner = owner
 
     @property
     def all_tags(self):
-        return TagManager.all_tags_for_user(self.owner)
+        return TagManager.all_tags_by_owner(self.owner)
 
     @property
     def public_tags(self):
-        return TagManager.all_tags_for_user(self.owner, public_only=True)
+        return TagManager.all_tags_by_owner(self.owner, public_only=True)
 
-    def get_item_tags(self, item):
+    def get_item_tags(self, item: Item):
         return sorted(
             [
                 m["parent__title"]

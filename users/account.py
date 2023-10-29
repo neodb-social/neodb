@@ -20,10 +20,12 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from common.config import *
+from common.utils import AuthedHttpRequest
 from journal.models import remove_data_by_user
 from mastodon import mastodon_request_included
 from mastodon.api import *
 from mastodon.api import verify_account
+from takahe.utils import Takahe
 
 from .models import Preference, User
 from .tasks import *
@@ -48,7 +50,13 @@ def login(request):
         # store redirect url in the cookie
         if request.GET.get("next"):
             request.session["next_url"] = request.GET.get("next")
-
+        invite_status = -1 if settings.INVITE_ONLY else 0
+        if settings.INVITE_ONLY and request.GET.get("invite"):
+            if Takahe.verify_invite(request.GET.get("invite")):
+                invite_status = 1
+                request.session["invite"] = request.GET.get("invite")
+            else:
+                invite_status = -2
         return render(
             request,
             "users/login.html",
@@ -57,6 +65,7 @@ def login(request):
                 "scope": quote(settings.MASTODON_CLIENT_SCOPE),
                 "selected_site": selected_site,
                 "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
+                "invite_status": invite_status,
             },
         )
     else:
@@ -162,18 +171,12 @@ def OAuth2_login(request):
     ):  # swap login for existing user
         return swap_login(request, token, site, refresh_token)
 
-    user = authenticate(request, token=token, site=site)
+    user: User = authenticate(request, token=token, site=site)  # type: ignore
     if user:  # existing user
         user.mastodon_token = token  # type: ignore
         user.mastodon_refresh_token = refresh_token  # type: ignore
         user.save(update_fields=["mastodon_token", "mastodon_refresh_token"])
-        auth_login(request, user)
-        if request.session.get("next_url") is not None:
-            response = redirect(request.session.get("next_url"))
-            del request.session["next_url"]
-        else:
-            response = redirect(reverse("common:home"))
-        return response
+        return login_existing_user(request, user)
     else:  # newly registered user
         code, user_data = verify_account(site, token)
         if code != 200 or user_data is None:
@@ -193,10 +196,34 @@ def OAuth2_login(request):
 
 
 def register_new_user(request, **param):
+    if settings.INVITE_ONLY:
+        if not Takahe.verify_invite(request.session.get("invite")):
+            return render(
+                request,
+                "common/error.html",
+                {
+                    "msg": _("注册失败😫"),
+                    "secondary_msg": _("本站仅限邀请注册"),
+                },
+            )
+        else:
+            del request.session["invite"]
     new_user = User.register(**param)
     request.session["new_user"] = True
     auth_login(request, new_user)
     return redirect(reverse("users:register"))
+
+
+def login_existing_user(request, existing_user):
+    auth_login(request, existing_user)
+    if not existing_user.username or not existing_user.identity:
+        response = redirect(reverse("account:register"))
+    elif request.session.get("next_url") is not None:
+        response = redirect(request.session.get("next_url"))
+        del request.session["next_url"]
+    else:
+        response = redirect(reverse("common:home"))
+    return response
 
 
 @mastodon_request_included
@@ -317,8 +344,7 @@ def verify_email(request):
         elif action == "login":
             user = User.objects.get(pk=s["i"])
             if user.email == email:
-                auth_login(request, user)
-                return redirect(reverse("common:home"))
+                return login_existing_user(request, user)
             else:
                 error = _("电子邮件地址不匹配")
         elif action == "register":
@@ -336,7 +362,7 @@ def verify_email(request):
 
 
 @login_required
-def register(request):
+def register(request: AuthedHttpRequest):
     form = None
     if settings.MASTODON_ALLOW_ANY_SITE:
         form = RegistrationForm(request.POST)
@@ -352,7 +378,7 @@ def register(request):
         email_cleared = False
         if not form.is_valid():
             return render(request, "users/register.html", {"form": form})
-        if request.user.username is None and form.cleaned_data["username"]:
+        if not request.user.username and form.cleaned_data["username"]:
             if User.objects.filter(
                 username__iexact=form.cleaned_data["username"]
             ).exists():
@@ -390,11 +416,13 @@ def register(request):
         if request.user.pending_email:
             django_rq.get_queue("mastodon").enqueue(
                 send_verification_link,
-                request.user.id,
+                request.user.pk,
                 "verify",
                 request.user.pending_email,
             )
             messages.add_message(request, messages.INFO, _("已发送验证邮件，请查收。"))
+        if request.user.username and not request.user.identity_linked():
+            request.user.initialize()
         if username_changed:
             messages.add_message(request, messages.INFO, _("用户名已设置。"))
         if email_cleared:
@@ -480,9 +508,9 @@ def auth_logout(request):
 def clear_data_task(user_id):
     user = User.objects.get(pk=user_id)
     user_str = str(user)
-    remove_data_by_user(user)
+    if user.identity:
+        remove_data_by_user(user.identity)
     user.clear()
-    user.save()
     logger.warning(f"User {user_str} data cleared.")
 
 

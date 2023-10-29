@@ -13,7 +13,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ user.display_name }} 的标签</title>
+    <title>{{ site_name }} - {{ identity.display_name }} 的标签</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}
   </head>
   <body>
@@ -25,7 +25,7 @@
           {% for v in tags %}
             <span style="margin-right:2em; white-space: nowrap;">
               <span>
-                <a href="{% url 'journal:user_tag_member_list' user.handler v.title %}">{{ v.title }}</a>
+                <a href="{% url 'journal:user_tag_member_list' identity.handler v.title %}">{{ v.title }}</a>
               </span>
               <span>({{ v.total }})</span>
             </span>

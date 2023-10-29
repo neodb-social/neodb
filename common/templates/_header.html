@@ -6,7 +6,7 @@
   <nav>
     <ul class="nav-logo">
       <a href="{% url 'common:home' %}">
-        <img src="{% static 'img/logo.svg' %}" alt="" />
+        <img src="{{ site_logo }}" alt="" />
       </a>
     </ul>
     <ul class="nav-search {% if request.GET.q %}unhide{% endif %}">
@@ -15,7 +15,7 @@
           <input type="search"
                  name="q"
                  id="q"
-                 placeholder="标题、创作者、ISBN、站外条目链接"
+                 placeholder="标题、创作者、ISBN、站外条目链接、@用户名、@用户名@实例"
                  class="search"
                  value="{{ request.GET.q|default:'' }}" />
           <select name="c">
@@ -73,7 +73,7 @@
           <summary aria-haspopup="listbox">
             <span class="avatar">
               <img alt=""
-                   src="{% if request.user.is_authenticated %}{{ request.user.avatar }}{% else %}{% static 'img/avatar.svg' %}{% endif %}" />
+                   src="{% if request.user.is_authenticated %}{{ request.user.avatar }}{% else %}{{ user_icon }}{% endif %}" />
             </span>
           </summary>
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">

@@ -115,7 +115,7 @@
         </section>
         <section>
           <div class="action">
-            {% if request.user == collection.owner %}
+            {% if request.user.identity == collection.owner %}
               <span>
                 <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '编辑' %}</a>
               </span>
@@ -129,7 +129,7 @@
           <span>创建于 {{ collection.created_time | date }}</span>
         </section>
       </div>
-      {% include "_sidebar.html" with user=collection.owner show_profile=1 %}
+      {% include "_sidebar.html" with identity=collection.owner show_profile=1 %}
     </main>
     {% include "_footer.html" %}
   </body>

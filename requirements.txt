@@ -1,12 +1,13 @@
+cachetools
 dateparser
 discord.py
-django~=4.2.4
+django~=4.2.6
 django-anymail
-django-auditlog
-django-auditlog @ git+https://github.com/jazzband/django-auditlog.git@45591463e8192b4ac0095e259cc4dcea0ac2fd6c
+django-auditlog>=3.0.0-beta.2
 django-bleach
 django-compressor
 django-cors-headers
+django-environ
 django-hijack
 django-jsonform
 django-maintenance-mode
@@ -24,8 +25,8 @@ django-user-messages
 dnspython
 easy-thumbnails
 filetype
-fontawesomefree
 gunicorn
+httpx
 igdb-api-v4
 libsass
 listparser
@@ -33,7 +34,6 @@ loguru
 lxml
 markdownify
 mistune
-opencc
 openpyxl
 podcastparser
 psycopg2-binary
@@ -42,3 +42,4 @@ rq>=1.12.0
 setproctitle
 tqdm
 typesense
+urlman

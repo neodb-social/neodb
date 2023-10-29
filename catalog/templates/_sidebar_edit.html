@@ -52,7 +52,7 @@
     {% for res in item.external_resources.all %}
       <details>
         <summary>
-          {% trans '源网站' %}: <a href="{{ res.url }}">{{ res.site_name.label }}</a>
+          {% trans '源网站' %}: <a href="{{ res.url }}">{{ res.site_label }}</a>
         </summary>
         <div class="grid">
           <form method="post"

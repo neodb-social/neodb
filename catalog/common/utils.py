@@ -36,4 +36,4 @@ def piece_cover_path(item, filename):
         + "."
         + filename.split(".")[-1]
     )
-    return f"user/{item.owner_id}/{fn}"
+    return f"user/{item.owner_id or '_'}/{fn}"

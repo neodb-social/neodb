@@ -47,9 +47,7 @@ def export_marks_task(user):
     ]:
         ws = wb.create_sheet(title=label)
         shelf = user.shelf_manager.get_shelf(status)
-        q = query_item_category(ItemCategory.Movie) | query_item_category(
-            ItemCategory.TV
-        )
+        q = q_item_in_category(ItemCategory.Movie) | q_item_in_category(ItemCategory.TV)
         marks = shelf.members.all().filter(q).order_by("created_time")
         ws.append(heading)
         for mm in marks:
@@ -95,7 +93,7 @@ def export_marks_task(user):
     ]:
         ws = wb.create_sheet(title=label)
         shelf = user.shelf_manager.get_shelf(status)
-        q = query_item_category(ItemCategory.Music)
+        q = q_item_in_category(ItemCategory.Music)
         marks = shelf.members.all().filter(q).order_by("created_time")
         ws.append(heading)
         for mm in marks:
@@ -135,7 +133,7 @@ def export_marks_task(user):
     ]:
         ws = wb.create_sheet(title=label)
         shelf = user.shelf_manager.get_shelf(status)
-        q = query_item_category(ItemCategory.Book)
+        q = q_item_in_category(ItemCategory.Book)
         marks = shelf.members.all().filter(q).order_by("created_time")
         ws.append(heading)
         for mm in marks:
@@ -177,7 +175,7 @@ def export_marks_task(user):
     ]:
         ws = wb.create_sheet(title=label)
         shelf = user.shelf_manager.get_shelf(status)
-        q = query_item_category(ItemCategory.Game)
+        q = q_item_in_category(ItemCategory.Game)
         marks = shelf.members.all().filter(q).order_by("created_time")
         ws.append(heading)
         for mm in marks:
@@ -219,7 +217,7 @@ def export_marks_task(user):
     ]:
         ws = wb.create_sheet(title=label)
         shelf = user.shelf_manager.get_shelf(status)
-        q = query_item_category(ItemCategory.Podcast)
+        q = q_item_in_category(ItemCategory.Podcast)
         marks = shelf.members.all().filter(q).order_by("created_time")
         ws.append(heading)
         for mm in marks:
@@ -267,7 +265,7 @@ def export_marks_task(user):
         (ItemCategory.Podcast, "播客评论"),
     ]:
         ws = wb.create_sheet(title=label)
-        q = query_item_category(category)
+        q = q_item_in_category(category)
         reviews = Review.objects.filter(owner=user).filter(q).order_by("created_time")
         ws.append(review_heading)
         for review in reviews:

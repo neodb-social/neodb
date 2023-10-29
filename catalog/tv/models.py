@@ -437,7 +437,7 @@ class TVEpisode(Item):
 
     @property
     def display_title(self):
-        return f"{self.season.display_title} 第{self.episode_number}集"  # TODO i18n
+        return f"{self.season.display_title if self.season else ''} 第{self.episode_number}集"  # TODO i18n
 
     @property
     def parent_item(self):

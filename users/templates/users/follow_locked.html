@@ -9,10 +9,10 @@
       <strong>在联邦宇宙关注用户</strong>
     </header>
     <div>
-      <p>{{ user.display_name | default:user.mastodon_acct }} 已经开启了关注审核，请复制以下ID，到你所在的联邦宇宙实例中去关注ta。</p>
+      <p>{{ identity.display_name }} 已经开启了关注审核，请复制以下ID，到你所在的联邦宇宙实例中去关注ta。</p>
       <p style="text-align:center;">
         <code onclick="navigator.clipboard.writeText(this.innerText);"
-              data-tooltip="点击复制">@{{ user.mastodon_acct }}</code>
+              data-tooltip="点击复制">@{{ identity.user.mastodon_acct }}</code>
       </p>
       <p>如果你已经关注了ta，请耐心等待ta的审核。</p>
       {% if not request.user.mastodon_acct %}

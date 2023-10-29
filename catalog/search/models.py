@@ -20,6 +20,10 @@ _logger = logging.getLogger(__name__)
 
 class DbIndexer:
     @classmethod
+    def init(cls):
+        pass
+
+    @classmethod
     def search(cls, q, page=1, categories=None, tag=None, sort=None):
         result = lambda: None
         result.items = Item.objects.filter(title__contains=q)[:10]

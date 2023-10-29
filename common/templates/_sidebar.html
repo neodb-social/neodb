@@ -38,40 +38,45 @@
           <summary>
             <div>
               <div class="avatar">
-                <a href="{{ user.url }}" onclick="window.location = this.href;">
+                <a href="{{ identity.url }}" onclick="window.location = this.href;">
                   {% comment %} onclick to workaround webkit issue with <a />  in <summary /> {% endcomment %}
-                  <img src="{{ user.avatar }}" alt="">
+                  <img src="{{ identity.avatar }}" alt="">
                 </a>
               </div>
               <div>
                 <hgroup>
-                  <h6 class="nickname">{{ user.display_name }}</h6>
+                  <h6 class="nickname">{{ identity.display_name }}</h6>
                   <div>
-                    <a href="{{ user.mastodon_account.url }}"
-                       target="_blank"
-                       rel="noopener"
-                       onclick="window.open(this.href); return false;">
-                      <span class="handler">@{{ user.handler }}</span>
-                    </a>
+                    <span class="handler">{{ identity.full_handle }}</span>
                   </div>
                 </hgroup>
               </div>
             </div>
           </summary>
           <span class="action">
-            {% if user == request.user %}
-              {% if user.locked %}
+            {% if identity.user == request.user %}
+              {% if identity.locked %}
                 <span>
                   <a title="你已开启关注审核">
                     <i class="fa-solid fa-user-shield"></i>
                   </a>
                 </span>
               {% endif %}
-            {% else %}
+              {% if identity.user.mastodon_account %}
+                <span>
+                  <a href="{{ identity.user.mastodon_account.url }}"
+                     target="_blank"
+                     rel="noopener"
+                     title="@{{ identity.user.mastodon_acct }}">
+                    <i class="fa-brands fa-mastodon"></i>
+                  </a>
+                </span>
+              {% endif %}
+            {% elif request.user.is_authenticated %}
               {% include 'users/profile_actions.html' %}
             {% endif %}
           </span>
-          <p>{{ user.mastodon_account.note|bleach:"a,p,span,br" }}</p>
+          <p>{{ identity.summary|bleach:"a,p,span,br" }}</p>
         </details>
       </article>
     </section>
@@ -79,12 +84,12 @@
   {% if show_progress %}
     <section>
       <article>
-        <details {% if user.featured_collections.all %}open{% endif %}>
+        <details {% if identity.featured_collections.all %}open{% endif %}>
           <summary>{% trans '当前目标' %}</summary>
-          {% for featured_collection in user.featured_collections.all %}
+          {% for featured_collection in identity.featured_collections.all %}
             {% user_visibility_of featured_collection as visible %}
             {% if visible %}
-              {% user_stats_of collection=featured_collection user=user as stats %}
+              {% user_stats_of collection=featured_collection identity=identity as stats %}
               <div>
                 <a href="{{ featured_collection.collection.url }}">{{ featured_collection.collection.title }}</a> <small>{{ stats.complete }} / {{ stats.total }}</small>
                 <br>
@@ -92,7 +97,7 @@
               </div>
             {% endif %}
           {% empty %}
-            {% if request.user == user %}
+            {% if request.user == identity.user %}
               <div class="empty">将自己或他人的收藏单设为目标，这里就会显示进度</div>
             {% else %}
               <div class="empty">暂未设置目标</div>
@@ -190,7 +195,7 @@
           <div class="tag-list">
             {% for t in top_tags %}
               <span>
-                <a href="{% url 'journal:user_tag_member_list' user.handler t %}">{{ t }}</a>
+                <a href="{% url 'journal:user_tag_member_list' identity.handler t %}">{{ t }}</a>
               </span>
             {% empty %}
               <div class="empty">暂无可见标签</div>
@@ -198,7 +203,7 @@
           </div>
           <small>
             {% if top_tags %}
-              <a href="{% url 'journal:user_tag_list' user.handler %}">...{% trans '全部' %}</a>
+              <a href="{% url 'journal:user_tag_list' identity.handler %}">...{% trans '全部' %}</a>
             {% endif %}
           </small>
         </details>

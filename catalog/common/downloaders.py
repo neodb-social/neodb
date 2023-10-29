@@ -10,6 +10,7 @@ from urllib.parse import quote
 import filetype
 import requests
 from django.conf import settings
+from django.core.cache import cache
 from lxml import html
 from PIL import Image
 from requests import Response
@@ -140,7 +141,7 @@ class BasicDownloader:
             self.headers = headers
 
     def get_timeout(self):
-        return settings.SCRAPING_TIMEOUT
+        return settings.DOWNLOADER_REQUEST_TIMEOUT
 
     def validate_response(self, response):
         if response is None:
@@ -153,7 +154,6 @@ class BasicDownloader:
     def _download(self, url) -> Tuple[DownloaderResponse | MockResponse, int]:
         try:
             if not _mock_mode:
-                # TODO cache = get/set from redis
                 resp = requests.get(
                     url, headers=self.headers, timeout=self.get_timeout()
                 )
@@ -191,26 +191,17 @@ class BasicDownloader:
 
 class ProxiedDownloader(BasicDownloader):
     def get_proxied_urls(self):
+        if not settings.DOWNLOADER_PROXY_LIST:
+            return [self.url]
         urls = []
-        if settings.SCRAPESTACK_KEY is not None:
-            # urls.append(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={self.url}')
-            urls.append(
-                f"http://api.scrapestack.com/scrape?keep_headers=1&access_key={settings.SCRAPESTACK_KEY}&url={quote(self.url)}"
-            )
-        if settings.PROXYCRAWL_KEY is not None:
-            urls.append(
-                f"https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={quote(self.url)}"
-            )
-        if settings.SCRAPERAPI_KEY is not None:
-            urls.append(
-                f"http://api.scraperapi.com/?api_key={settings.SCRAPERAPI_KEY}&url={quote(self.url)}"
-            )
+        for p in settings.DOWNLOADER_PROXY_LIST:
+            urls.append(p.replace("__URL__", quote(self.url)))
         return urls
 
     def get_special_proxied_url(self):
         return (
-            f"{settings.LOCAL_PROXY}?url={quote(self.url)}"
-            if settings.LOCAL_PROXY is not None
+            settings.DOWNLOADER_BACKUP_PROXY.replace("__URL__", quote(self.url))
+            if settings.DOWNLOADER_BACKUP_PROXY
             else None
         )
 
@@ -254,6 +245,19 @@ class RetryDownloader(BasicDownloader):
                 _logger.debug("Retry " + self.url)
                 time.sleep((settings.DOWNLOADER_RETRIES - retries) * 0.5)
         raise DownloadError(self, "max out of retries")
+
+
+class CachedDownloader(BasicDownloader):
+    def download(self):
+        cache_key = "dl:" + self.url
+        resp = cache.get(cache_key)
+        if resp:
+            self.response_type = RESPONSE_OK
+        else:
+            resp = super().download()
+            if self.response_type == RESPONSE_OK:
+                cache.set(cache_key, resp, timeout=settings.DOWNLOADER_CACHE_TIMEOUT)
+        return resp
 
 
 class ImageDownloaderMixin:

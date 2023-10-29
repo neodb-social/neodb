@@ -1,5 +1,5 @@
 import functools
-import logging
+import html
 import random
 import re
 import string
@@ -65,6 +65,56 @@ def get_api_domain(domain):
 
 
 # low level api below
+
+
+def boost_toot(site, token, toot_url):
+    domain = get_api_domain(site)
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Authorization": f"Bearer {token}",
+    }
+    url = (
+        "https://"
+        + domain
+        + API_SEARCH
+        + "?type=statuses&resolve=true&q="
+        + quote(toot_url)
+    )
+    try:
+        response = get(url, headers=headers)
+        if response.status_code != 200:
+            logger.error(f"Error search {toot_url} on {domain} {response.status_code}")
+            return None
+        j = response.json()
+        if "statuses" in j and len(j["statuses"]) > 0:
+            s = j["statuses"][0]
+            if s["uri"] != toot_url and s["url"] != toot_url:
+                logger.error(
+                    f"Error status url mismatch {s['uri']} or {s['uri']} != {toot_url}"
+                )
+                return None
+            if s["reblogged"]:
+                logger.info(f"Already boosted {toot_url}")
+                # TODO unboost and boost again?
+                return None
+            url = (
+                "https://"
+                + domain
+                + API_PUBLISH_TOOT
+                + "/"
+                + j["statuses"][0]["id"]
+                + "/reblog"
+            )
+            response = post(url, headers=headers)
+            if response.status_code != 200:
+                logger.error(
+                    f"Error search {toot_url} on {domain} {response.status_code}"
+                )
+                return None
+            return response.json()
+    except Exception:
+        logger.error(f"Error search {toot_url} on {domain}")
+        return None
 
 
 def post_toot(
@@ -193,7 +243,7 @@ def detect_server_info(login_domain):
     try:
         response = get(url, headers={"User-Agent": USER_AGENT})
     except Exception as e:
-        logger.error(f"Error connecting {login_domain} {e}")
+        logger.error(f"Error connecting {login_domain}: {e}")
         raise Exception(f"无法连接 {login_domain}")
     if response.status_code != 200:
         logger.error(f"Error connecting {login_domain}: {response.status_code}")
@@ -363,7 +413,7 @@ def get_visibility(visibility, user):
 def share_mark(mark):
     from catalog.common import ItemCategory
 
-    user = mark.owner
+    user = mark.owner.user
     if mark.visibility == 2:
         visibility = TootVisibilityEnum.DIRECT
     elif mark.visibility == 1:
@@ -466,10 +516,10 @@ def share_collection(collection, comment, user, visibility_no):
     )
     user_str = (
         "我"
-        if user == collection.owner
+        if user == collection.owner.user
         else (
-            " @" + collection.owner.mastodon_acct + " "
-            if collection.owner.mastodon_acct
+            " @" + collection.owner.user.mastodon_acct + " "
+            if collection.owner.user.mastodon_acct
             else " " + collection.owner.username + " "
         )
     )

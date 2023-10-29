@@ -1,21 +1,24 @@
-name: Deployment
+name: preview deployment
 on:
   workflow_run:
-    workflows: ["all tests"]
-    branches: [main]
+    workflows: ["docker image"]
     types:
       - completed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   deployment:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    name: Deployment
+    name: deployment to preview environment
     runs-on: ubuntu-latest
-    environment: preview
+    environment: ${{ vars.DEPLOY_ENV }}
     steps:
     - name: ssh
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.SSH_HOST }}
+        port: ${{ secrets.SSH_PORT }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         script: ${{ vars.DEPLOY_SCRIPT }}

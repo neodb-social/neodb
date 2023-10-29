@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
+
+from users.models import APIdentity, User
 
 if TYPE_CHECKING:
     from .common import Piece
@@ -9,18 +11,24 @@ class UserOwnedObjectMixin:
     UserOwnedObjectMixin
 
     Models must add these:
-    owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(default=0)
     """
 
-    def is_visible_to(self: "Piece", viewer):  # type: ignore
+    owner: APIdentity
+    visibility: int
+
+    def is_visible_to(self: "Piece | Self", viewing_user: User) -> bool:  # type: ignore
         owner = self.owner
-        if owner == viewer:
-            return True
-        if not owner.is_active:
+        if not owner or not owner.is_active:
             return False
-        if not viewer.is_authenticated:
+        if owner.user == viewing_user:
+            return True
+        if not viewing_user.is_authenticated:
             return self.visibility == 0
+        viewer = viewing_user.identity  # type: ignore[assignment]
+        if not viewer:
+            return False
         if self.visibility == 2:
             return False
         if viewer.is_blocking(owner) or owner.is_blocking(viewer):
@@ -30,27 +38,9 @@ class UserOwnedObjectMixin:
         else:
             return True
 
-    def is_editable_by(self: "Piece", viewer):  # type: ignore
-        return viewer.is_authenticated and (
-            viewer.is_staff or viewer.is_superuser or viewer == self.owner
+    def is_editable_by(self: "Piece", viewing_user: User):  # type: ignore
+        return viewing_user.is_authenticated and (
+            viewing_user.is_staff
+            or viewing_user.is_superuser
+            or viewing_user == self.owner.user
         )
-
-    @classmethod
-    def get_available(cls: "Type[Piece]", entity, request_user, following_only=False):  # type: ignore
-        # e.g. SongMark.get_available(song, request.user)
-        query_kwargs = {entity.__class__.__name__.lower(): entity}
-        all_entities = cls.objects.filter(**query_kwargs).order_by(
-            "-created_time"
-        )  # get all marks for song
-        visible_entities = list(
-            filter(
-                lambda _entity: _entity.is_visible_to(request_user)
-                and (
-                    _entity.owner.mastodon_acct in request_user.mastodon_following
-                    if following_only
-                    else True
-                ),
-                all_entities,
-            )
-        )
-        return visible_entities

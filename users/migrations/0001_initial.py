@@ -137,9 +137,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            managers=[
-                ("objects", django.contrib.auth.models.UserManager()),
-            ],
         ),
         migrations.CreateModel(
             name="Preference",

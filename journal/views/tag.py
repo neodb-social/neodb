@@ -13,29 +13,25 @@ from users.views import render_user_blocked, render_user_not_found
 
 from ..forms import *
 from ..models import *
-from .common import render_list
+from .common import render_list, target_identity_required
 
 PAGE_SIZE = 10
 
 
 @login_required
+@target_identity_required
 def user_tag_list(request, user_name):
-    user = User.get(user_name)
-    if user is None:
-        return render_user_not_found(request)
-    if user != request.user and (
-        request.user.is_blocked_by(user) or request.user.is_blocking(user)
-    ):
-        return render_user_blocked(request)
-    tags = Tag.objects.filter(owner=user)
-    if user != request.user:
+    target = request.target
+    tags = Tag.objects.filter(owner=target)
+    if target.user != request.user:
         tags = tags.filter(visibility=0)
     tags = tags.values("title").annotate(total=Count("members")).order_by("-total")
     return render(
         request,
         "user_tag_list.html",
         {
-            "user": user,
+            "user": target.user,
+            "identity": target,
             "tags": tags,
         },
     )
@@ -47,7 +43,7 @@ def user_tag_edit(request):
         tag_title = Tag.cleanup_title(request.GET.get("tag", ""), replace=False)
         if not tag_title:
             raise Http404()
-        tag = Tag.objects.filter(owner=request.user, title=tag_title).first()
+        tag = Tag.objects.filter(owner=request.user.identity, title=tag_title).first()
         if not tag:
             raise Http404()
         return render(request, "tag_edit.html", {"tag": tag})
@@ -55,7 +51,7 @@ def user_tag_edit(request):
         tag_title = Tag.cleanup_title(request.POST.get("title", ""), replace=False)
         tag_id = request.POST.get("id")
         tag = (
-            Tag.objects.filter(owner=request.user, id=tag_id).first()
+            Tag.objects.filter(owner=request.user.identity, id=tag_id).first()
             if tag_id
             else None
         )
@@ -70,7 +66,9 @@ def user_tag_edit(request):
             )
         elif (
             tag_title != tag.title
-            and Tag.objects.filter(owner=request.user, title=tag_title).exists()
+            and Tag.objects.filter(
+                owner=request.user.identity, title=tag_title
+            ).exists()
         ):
             msg.error(request.user, _("标签已存在"))
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
@@ -88,6 +86,5 @@ def user_tag_edit(request):
     raise BadRequest()
 
 
-@login_required
 def user_tag_member_list(request, user_name, tag_title):
     return render_list(request, user_name, "tagmember", tag_title=tag_title)

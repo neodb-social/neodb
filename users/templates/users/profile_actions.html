@@ -1,10 +1,10 @@
 {% load mastodon %}
-{% current_user_relationship user as relationship %}
+{% current_user_relationship identity as relationship %}
 {% if relationship.rejecting %}
   <span class="tag-list">
     <span><a title="点击可取消屏蔽"
    hx-confirm="确定要取消对该用户的屏蔽吗？"
-   hx-post="{% url 'users:unblock' user.handler %}"
+   hx-post="{% url 'users:unblock' identity.handler %}"
    hx-target="closest .action"
    hx-swap="innerHTML">已屏蔽</a></span>
   </span>
@@ -18,80 +18,108 @@
   {% endif %}
   {% if show_home %}
     <span>
-      <a title="用户主页" href="{{ user.url }}">
+      <a title="用户主页" href="{{ identity.url }}">
         <i class="fa-solid fa-home"></i>
       </a>
     </span>
   {% endif %}
+  {% if not identity.local %}
+    <span>
+      <a href="{{ identity.profile_uri }}"
+         target="_blank"
+         rel="noopener"
+         title="用户原始主页">
+        <i class="fa-solid fa-circle-nodes"></i>
+      </a>
+    </span>
+  {% elif identity.user and identity.user.mastodon_account %}
+    <span>
+      <a href="{{ identity.user.mastodon_account.url }}"
+         target="_blank"
+         rel="noopener"
+         title="@{{ identity.user.mastodon_acct }}">
+        <i class="fa-brands fa-mastodon"></i>
+      </a>
+    </span>
+  {% endif %}
+  {% if relationship.requested %}
+    <span>
+      <a title="接受关注请求"
+         class="activated"
+         hx-post="{% url 'users:accept_follow_request' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-check"></i>
+      </a>
+    </span>
+    <span>
+      <a title="拒绝关注请求"
+         class="activated"
+         hx-post="{% url 'users:reject_follow_request' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-xmark"></i>
+      </a>
+    </span>
+  {% endif %}
   {% if relationship.following %}
-    {% if relationship.unfollowable %}
-      <span>
-        <a title="已关注，点击可取消关注"
-           class="activated"
-           hx-post="{% url 'users:unfollow' user.handler %}"
-           hx-target="closest .action"
-           hx-swap="innerHTML">
-          <i class="fa-solid fa-user-check"></i>
-        </a>
-      </span>
-    {% else %}
-      <span><a title="已在联邦宇宙关注该用户" class="activated"><i class="fa-solid fa-circle-check"></i></a></span>
-    {% endif %}
+    <span>
+      <a title="已关注，点击可取消关注"
+         class="activated"
+         hx-post="{% url 'users:unfollow' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-user-check"></i>
+      </a>
+    </span>
+  {% elif relationship.requesting %}
+    <span>
+      <a title="已发送关注请求，点击可取消"
+         class="activated"
+         hx-post="{% url 'users:unfollow' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-user-clock"></i>
+      </a>
+    </span>
   {% else %}
-    {% if user.locked %}
-      <span>
-        <a title="用户已开启关注审核"
-           hx-post="{% url 'users:locked' user.handler %}"
-           hx-target="body"
-           hx-swap="beforeend">
-          <i class="fa-solid fa-user-shield"></i>
-        </a>
-      </span>
-    {% else %}
-      <span>
-        <a title="点击可关注该用户"
-           hx-post="{% url 'users:follow' user.handler %}"
-           hx-target="closest .action"
-           hx-swap="innerHTML">
-          <i class="fa-solid fa-user-plus"></i>
-        </a>
-      </span>
-    {% endif %}
+    <span>
+      <a title="点击可关注该用户"
+         hx-post="{% url 'users:follow' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-user-plus"></i>
+      </a>
+    </span>
   {% endif %}
   {% if not relationship.muting %}
     <span>
       <a title="点击可隐藏该用户"
-         hx-post="{% url 'users:mute' user.handler %}"
+         hx-post="{% url 'users:mute' identity.handler %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
-        <i class="fa-solid fa-volume-high"></i>
-      </a>
-    </span>
-  {% elif relationship.unmutable %}
-    <span>
-      <a title="已隐藏，点击可取消隐藏"
-         class="activated"
-         hx-post="{% url 'users:unmute' user.handler %}"
-         hx-target="closest .action"
-         hx-swap="innerHTML">
-        <i class="fa-solid fa-volume-off"></i>
+        <i class="fa-solid fa-eye"></i>
       </a>
     </span>
   {% else %}
     <span>
-      <a title="已在联邦宇宙中隐藏" class="activated">
-        <i class="fa-solid fa-volume-xmark"></i>
+      <a title="已隐藏，点击可取消隐藏"
+         class="activated"
+         hx-post="{% url 'users:unmute' identity.handler %}"
+         hx-target="closest .action"
+         hx-swap="innerHTML">
+        <i class="fa-solid fa-eye-slash"></i>
       </a>
     </span>
   {% endif %}
   <span>
     <a title="点击可屏蔽该用户"
        hx-confirm="确定要屏蔽该用户吗？"
-       hx-post="{% url 'users:block' user.handler %}"
+       hx-post="{% url 'users:block' identity.handler %}"
        hx-target="closest .action"
        hx-swap="innerHTML">
       <i class="fa-solid fa-user-slash"></i>
     </a>
   </span>
-  {% comment %} <span><a href="{% url 'users:report' %}?user_id={{ user.id }}">{% trans '投诉用户' %}</a></span> {% endcomment %}
+  {% comment %} <span><a href="{% url 'users:report' %}?user_id={{ identity.id }}">{% trans '投诉用户' %}</a></span> {% endcomment %}
 {% endif %}

@@ -33,7 +33,8 @@ class RSS(AbstractSite):
     def parse_feed_from_url(url):
         if not url:
             return None
-        feed = cache.get(url)
+        cache_key = f"rss:{url}"
+        feed = cache.get(cache_key)
         if feed:
             return feed
         if get_mock_mode():
@@ -50,7 +51,7 @@ class RSS(AbstractSite):
                     feed,
                     open(settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(url), "wb"),
                 )
-        cache.set(url, feed, timeout=300)
+        cache.set(cache_key, feed, timeout=settings.DOWNLOADER_CACHE_TIMEOUT)
         return feed
 
     @classmethod
