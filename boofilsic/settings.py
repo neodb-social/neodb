@@ -249,7 +249,6 @@ INSTALLED_APPS = [
     "polymorphic",
     "easy_thumbnails",
     "user_messages",
-    "fontawesomefree",
     "corsheaders",
     "anymail",
     # "silk",
