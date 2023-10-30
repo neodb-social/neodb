@@ -18,19 +18,21 @@
     {% include "_header.html" %}
     <main>
       <div class="grid__main">
-        <h5>
+        <h5 class="large-only">
           {% block head %}{{ identity.display_name }}{% endblock %}
         </h5>
         <div>
           {% for member in members %}
             {% include "_list_item.html" with item=member.item mark=member.mark hide_category=True %}
           {% empty %}
-            <div>{% trans '无结果' %}</div>
+            <div>{% trans '暂无匹配的条目' %}</div>
           {% endfor %}
         </div>
         {% include "_pagination.html" %}
       </div>
-      {% include "_sidebar.html" with show_profile=1 %}
+      {% block sidebar %}
+        {% include "_sidebar.html" with show_profile=1 %}
+      {% endblock %}
     </main>
     {% include "_footer.html" %}
   </body>

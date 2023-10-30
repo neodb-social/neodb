@@ -306,6 +306,7 @@ def send_verification_link(user_id, action, email):
         raise ValueError("Invalid action")
     try:
         logger.info(f"Sending email to {email} with subject {subject}")
+        logger.debug(msg)
         send_mail(
             subject=subject,
             message=msg,

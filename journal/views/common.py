@@ -1,6 +1,9 @@
+import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
+from django.db.models import Min
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -53,6 +56,7 @@ def render_list(
     shelf_type=None,
     item_category=None,
     tag_title=None,
+    year=None,
 ):
     target = request.target_identity
     viewer = request.user.identity
@@ -72,9 +76,19 @@ def render_list(
         queryset = Review.objects.filter(q_item_in_category(item_category))
     else:
         raise BadRequest()
+    start_date = queryset.aggregate(Min("created_time"))["created_time__min"]
+    if start_date:
+        start_year = start_date.year
+        current_year = datetime.datetime.now().year
+        years = reversed(range(start_year, current_year + 1))
+    else:
+        years = []
     queryset = queryset.filter(
         q_owned_piece_visible_to_user(request.user, target)
     ).order_by("-created_time")
+    if year:
+        year = int(year)
+        queryset = queryset.filter(created_time__year=year)
     paginator = Paginator(queryset, PAGE_SIZE)
     page_number = int(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)
@@ -88,6 +102,10 @@ def render_list(
             "members": members,
             "tag": tag,
             "pagination": pagination,
+            "years": years,
+            "year": year,
+            "shelf": shelf_type,
+            "category": item_category,
         },
     )
 

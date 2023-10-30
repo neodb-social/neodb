@@ -96,8 +96,10 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
         raise BadRequest()
 
 
-def user_review_list(request, user_name, item_category):
-    return render_list(request, user_name, "review", item_category=item_category)
+def user_review_list(request, user_name, item_category, year=None):
+    return render_list(
+        request, user_name, "review", item_category=item_category, year=None
+    )
 
 
 MAX_ITEM_PER_TYPE = 10

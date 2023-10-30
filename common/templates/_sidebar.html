@@ -210,6 +210,9 @@
       </article>
     </section>
   {% endif %}
+  {% if sidebar_template %}
+    {% include sidebar_template %}
+  {% endif %}
 </aside>
 <script>
   $(function () {

@@ -98,11 +98,27 @@ urlpatterns = [
         name="user_mark_list",
     ),
     re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/(?P<shelf_type>"
+        + _get_all_shelf_types()
+        + ")/(?P<item_category>"
+        + _get_all_categories()
+        + r")/(?P<year>\d+)/$",
+        user_mark_list,
+        name="user_mark_list_year",
+    ),
+    re_path(
         r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/reviews/(?P<item_category>"
         + _get_all_categories()
         + ")/$",
         user_review_list,
         name="user_review_list",
+    ),
+    re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/reviews/(?P<item_category>"
+        + _get_all_categories()
+        + r")/(?P<year>\d+)/$",
+        user_review_list,
+        name="user_review_list_year",
     ),
     re_path(
         r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/tags/(?P<tag_title>.+)/$",

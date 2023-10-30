@@ -303,7 +303,14 @@ def comment(request: AuthedHttpRequest, item_uuid):
     raise BadRequest()
 
 
-def user_mark_list(request: AuthedHttpRequest, user_name, shelf_type, item_category):
+def user_mark_list(
+    request: AuthedHttpRequest, user_name, shelf_type, item_category, year=None
+):
     return render_list(
-        request, user_name, "mark", shelf_type=shelf_type, item_category=item_category
+        request,
+        user_name,
+        "mark",
+        shelf_type=shelf_type,
+        item_category=item_category,
+        year=year,
     )
