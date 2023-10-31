@@ -80,6 +80,18 @@ class IMDBMovieTestCase(TestCase):
         self.assertEqual(site.resource.item.imdb, "tt1375666")
 
 
+class BangumiMovieTestCase(TestCase):
+    @use_local_response
+    def test_scrape(self):
+        url = "https://bgm.tv/subject/237"
+        site = SiteManager.get_site_by_url(url)
+        self.assertEqual(site.id_value, "237")
+        site.get_resource_ready()
+        self.assertEqual(site.resource.metadata["title"], "攻壳机动队")
+        self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
+        self.assertEqual(site.resource.item.imdb, "tt0113568")
+
+
 class MultiMovieSitesTestCase(TestCase):
     @use_local_response
     def test_movies(self):

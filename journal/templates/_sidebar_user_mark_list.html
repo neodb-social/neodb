@@ -1,0 +1,76 @@
+{% load admin_url %}
+{% load duration %}
+{% load static %}
+{% load i18n %}
+<section class="filter">
+  <script>
+		function filter() {
+			location = '{{ user.identity.url }}' + $('#shelf')[0].value + '/' + $('#category')[0].value + '/' + ( $('#year')[0].value ? $('#year')[0].value + '/' : '' );
+		}
+
+  </script>
+  <form role="search" method="get" action="">
+    <select name="year" id="year" onchange="filter()">
+      <option value="">全部</option>
+      {% for y in years %}
+        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+      {% endfor %}
+    </select>
+    <select name="shelf" id="shelf" onchange="filter()">
+      <option {% if '/wishlist/' in request.path %}selected{% endif %}
+              value="wishlist">想看</option>
+      <option {% if '/progress/' in request.path %}selected{% endif %}
+              value="progress">在看</option>
+      <option {% if '/complete/' in request.path %}selected{% endif %}
+              value="complete">看过</option>
+      <option {% if '/reviews/' in request.path %}selected{% endif %}
+              value="reviews">评论</option>
+    </select>
+    <select name="category" id="category" onchange="filter()">
+      {% visible_categories as cats %}
+      {% if 'book' in cats %}
+        <option {% if '/book/' in request.path %}selected{% endif %} value="book">书籍</option>
+      {% endif %}
+      {% if 'movie' in cats %}
+        <option {% if '/movie/' in request.path %}selected{% endif %} value="movie">电影</option>
+      {% endif %}
+      {% if 'tv' in cats %}
+        <option {% if '/tv/' in request.path %}selected{% endif %} value="tv">剧集</option>
+      {% endif %}
+      {% if 'podcast' in cats %}
+        <option {% if '/podcast/' in request.path %}selected{% endif %}
+                value="podcast">播客</option>
+      {% endif %}
+      {% if 'music' in cats %}
+        <option {% if '/music/' in request.path %}selected{% endif %} value="music">音乐</option>
+      {% endif %}
+      {% if 'game' in cats %}
+        <option {% if '/game/' in request.path %}selected{% endif %} value="game">游戏</option>
+      {% endif %}
+      {% if 'performance' in cats %}
+        <option {% if '/performance/' in request.path %}selected{% endif %}
+                value="performance">演出</option>
+      {% endif %}
+    </select>
+  </form>
+  <!--
+  <style type="text/css">
+	#rating_select input {
+		padding: var(--pico-form-element-spacing-vertical) calc(var(--pico-form-element-spacing-horizontal)/4) !important
+	}
+</style>
+<form role="search" method="get" action="" id="rating_select">
+<input type="submit" class="secondary outline" value="1">
+<input type="submit" class="secondary outline" value="2">
+<input type="submit" class="secondary outline" value="3">
+<input type="submit" class="secondary outline" value="4">
+<input type="submit" class="secondary outline" value="5">
+<input type="submit" class="secondary outline" value="6">
+<input type="submit" class="secondary outline" value="7">
+<input type="submit" class="secondary outline" value="8">
+<input type="submit" class="secondary outline" value="9">
+<input type="submit" class="secondary" value="10">
+<input type="submit" class="secondary outline" value="*">
+</form>
+-->
+</section>
