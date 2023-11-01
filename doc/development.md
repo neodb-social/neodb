@@ -82,6 +82,19 @@ Note:
 
 To run local unit tests, use `docker compose run dev-shell neodb-manage test`
 
+To expose the neodb and takahe web server directly, in the folder for configuration, create `compose.override.yml` with the following content:
+
+```
+services:
+  dev-neodb-web:
+    ports:
+      - "8001:8000"
+
+  dev-takahe-web:
+    ports:
+      - "8002:8000"
+```
+
 Development with Github Codespace
 ---------------------------------
 At the time of writing, docker compose will work in Github Codespace by adding this in `.env`:
