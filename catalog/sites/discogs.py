@@ -43,7 +43,7 @@ class DiscogsRelease(AbstractSite):
         )
 
         media, disc_count = None, None
-        formats = release.get("formats")
+        formats = release.get("formats", [])
         if len(formats) == 1:
             media = formats[0].get("name")
             disc_count = formats[0].get("qty")
@@ -57,7 +57,7 @@ class DiscogsRelease(AbstractSite):
                         i["value"].replace(" ", "").replace("-", "")
                     )
         image_url = None
-        if len(release.get("images")) > 0:
+        if len(release.get("images", [])) > 0:
             image_url = release["images"][0].get("uri")
         pd = ResourceContent(
             metadata={
