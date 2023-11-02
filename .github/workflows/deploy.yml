@@ -22,3 +22,10 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         script: ${{ vars.DEPLOY_SCRIPT }}
+
+    - name: Send Discord notification
+      uses: appleboy/discord-action@master
+      with:
+        webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+        webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+        args: Deployment complete.

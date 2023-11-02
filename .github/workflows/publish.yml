@@ -25,6 +25,20 @@ jobs:
         with:
           submodules: 'true'
 
+      - name: Check git version
+        id: version
+        run: |
+          echo "neodb=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          cd neodb-takahe
+          echo "takahe=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Send Discord notification
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          args: Building docker image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -52,3 +66,10 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Send Discord notification complete
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          args: Published docker image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
