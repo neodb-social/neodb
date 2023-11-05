@@ -7,7 +7,7 @@ from rq.registry import ScheduledJobRegistry
 
 
 class BaseJob:
-    interval = timedelta(seconds=1)
+    interval = timedelta(hours=1)
 
     @classmethod
     def cancel(cls):
@@ -25,7 +25,7 @@ class BaseJob:
     @classmethod
     def schedule(cls):
         job_id = cls.__name__
-        logger.info(f"Scheduling job: {job_id}")
+        logger.info(f"Scheduling job: {job_id} in {cls.interval}")
         django_rq.get_queue("cron").enqueue_in(
             cls.interval, cls._run, job_id=job_id, result_ttl=0, failure_ttl=0
         )
