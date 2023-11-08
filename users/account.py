@@ -232,6 +232,8 @@ class RegistrationForm(forms.ModelForm):
 
     def clean_username(self):
         username = self.cleaned_data.get("username")
+        if not username:
+            raise forms.ValidationError(_("Username is required."))
         if username and self.instance and self.instance.username:
             username = self.instance.username
         elif (
