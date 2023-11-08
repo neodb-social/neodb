@@ -82,7 +82,7 @@ class APIdentity(models.Model):
             return (
                 self.takahe_identity.icon.url
                 if self.takahe_identity.icon
-                else settings.SITE_INFO["user_icon"]
+                else self.takahe_identity.icon_uri or settings.SITE_INFO["user_icon"]
             )
         else:
             return f"/proxy/identity_icon/{self.pk}/"

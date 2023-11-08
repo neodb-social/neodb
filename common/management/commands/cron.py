@@ -3,6 +3,7 @@ from loguru import logger
 
 from catalog.jobs import *  # noqa
 from common.models import JobManager
+from users.jobs import *  # noqa
 
 
 class Command(BaseCommand):

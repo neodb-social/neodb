@@ -139,20 +139,49 @@
         </article>
         <article>
           <details>
-            <summary>{% trans '同步联邦宇宙身份和社交关系数据' %}</summary>
+            <summary>{% trans '同步联邦宇宙信息和社交数据' %}</summary>
+            <form action="{% url 'users:sync_mastodon_preference' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <fieldset>
+                <label>
+                  <input type="checkbox"
+                         name="mastodon_sync_userinfo"
+                         {% if not request.user.preference.mastodon_skip_userinfo %}checked{% endif %}>
+                  {% trans '自动同步用户昵称等基本信息' %}
+                </label>
+              </fieldset>
+              <fieldset>
+                <label>
+                  <input type="checkbox"
+                         name="mastodon_sync_relationship"
+                         {% if not request.user.preference.mastodon_skip_relationship %}checked{% endif %}>
+                  {% trans '自动导入新增的关注、屏蔽和隐藏列表' %}
+                </label>
+              </fieldset>
+              <input type="submit"
+                     value="{% trans '保存同步设置' %}"
+                     {% if not request.user.mastodon_username %}disabled{% endif %} />
+              <small>
+                {{ site_name }}会按照以上设置每天自动导入你在联邦宇宙实例中新增的关注、屏蔽和隐藏列表；
+                <br>
+                如果你在联邦宇宙实例中关注的用户加入了NeoDB，你会自动关注她；
+                <br>
+                如果你在联邦宇宙实例中取消了关注、屏蔽或隐藏，{{ site_name }}不会自动取消，但你可以手动移除。
+              </small>
+            </form>
             <form action="{% url 'users:sync_mastodon' %}"
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
+              <small>如果希望立即开始同步，可以点击下方按钮。</small>
               <input type="submit"
-                     value="{% trans '同步' %}"
+                     value="{% trans '立即同步' %}"
                      {% if not request.user.mastodon_username %}disabled{% endif %} />
               <small>
                 {% if request.user.mastodon_last_refresh %}上次更新时间 {{ request.user.mastodon_last_refresh }}{% endif %}
               </small>
-              <div>
-                为了正确高效的展示短评和评论，{{ site_name }}会缓存你在联邦宇宙的关注、屏蔽和隐藏列表。如果你刚刚更新过帐户的上锁状态、增减过关注、隐藏或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
-              </div>
             </form>
           </details>
         </article>

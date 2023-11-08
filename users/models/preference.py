@@ -49,6 +49,8 @@ class Preference(models.Model):
     show_last_edit = models.PositiveSmallIntegerField(default=0)
     no_anonymous_view = models.PositiveSmallIntegerField(default=0)
     hidden_categories = models.JSONField(default=list)
+    mastodon_skip_userinfo = models.BooleanField(null=False, default=False)
+    mastodon_skip_relationship = models.BooleanField(null=False, default=False)
 
     def __str__(self):
         return str(self.user)

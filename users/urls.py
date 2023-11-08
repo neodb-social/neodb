@@ -23,6 +23,11 @@ urlpatterns = [
     path("data/export/reviews", export_reviews, name="export_reviews"),
     path("data/export/marks", export_marks, name="export_marks"),
     path("data/sync_mastodon", sync_mastodon, name="sync_mastodon"),
+    path(
+        "data/sync_mastodon_preference",
+        sync_mastodon_preference,
+        name="sync_mastodon_preference",
+    ),
     path("data/reset_visibility", reset_visibility, name="reset_visibility"),
     path("data/clear_data", clear_data, name="clear_data"),
     path("preferences", preferences, name="preferences"),

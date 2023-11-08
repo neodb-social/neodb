@@ -231,12 +231,44 @@ class User(AbstractUser):
         self.identity.deleted = timezone.now()
         self.identity.save()
 
-    def sync_relationships(self):
-        # FIXME
-        pass
+    def sync_relationship(self):
+        for target in self.mastodon_followers:
+            t = target.split("@")
+            target_user = User.objects.filter(
+                mastodon_username=t[0], mastodon_site=t[1]
+            ).first()
+            if target_user and not self.identity.is_following(target_user.identity):
+                self.identity.follow(target_user.identity)
+        for target in self.mastodon_blocks:
+            t = target.split("@")
+            target_user = User.objects.filter(
+                mastodon_username=t[0], mastodon_site=t[1]
+            ).first()
+            if target_user and not self.identity.is_blocking(target_user.identity):
+                self.identity.block(target_user.identity)
+        for target in self.mastodon_mutes:
+            t = target.split("@")
+            target_user = User.objects.filter(
+                mastodon_username=t[0], mastodon_site=t[1]
+            ).first()
+            if target_user and not self.identity.is_muting(target_user.identity):
+                self.identity.mute(target_user.identity)
+
+    def sync_identity(self):
+        identity = self.identity.takahe_identity
+        identity.name = (
+            self.mastodon_account.get("display_name")
+            or identity.name
+            or identity.username
+        )
+        identity.summary = self.mastodon_account.get("note") or identity.summary
+        identity.manually_approves_followers = self.mastodon_locked
+        identity.icon_uri = self.mastodon_account.get("avatar")
+        identity.save()
 
     def refresh_mastodon_data(self):
         """Try refresh account data from mastodon server, return true if refreshed successfully, note it will not save to db"""
+        logger.debug(f"Refreshing Mastodon data for {self}")
         self.mastodon_last_refresh = timezone.now()
         code, mastodon_account = verify_account(self.mastodon_site, self.mastodon_token)
         if code == 401 and self.mastodon_refresh_token:
@@ -247,7 +279,6 @@ class User(AbstractUser):
                 code, mastodon_account = verify_account(
                     self.mastodon_site, self.mastodon_token
                 )
-        updated = False
         if mastodon_account:
             self.mastodon_account = mastodon_account
             self.mastodon_locked = mastodon_account["locked"]
@@ -277,12 +308,17 @@ class User(AbstractUser):
             self.mastodon_domain_blocks = get_related_acct_list(
                 self.mastodon_site, self.mastodon_token, "/api/v1/domain_blocks"
             )
-            self.sync_relationships()
-            updated = True
+            self.save()
+            if not self.preference.mastodon_skip_userinfo:
+                self.sync_identity()
+            if not self.preference.mastodon_skip_relationship:
+                self.sync_relationship()
+            return True
         elif code == 401:
             logger.error(f"Refresh mastodon data error 401 for {self}")
             self.mastodon_token = ""
-        return updated
+            self.save(update_fields=["mastodon_token"])
+        return False
 
     @property
     def unread_announcements(self):

@@ -13,7 +13,6 @@ from journal.importers.douban import DoubanImporter
 from journal.importers.goodreads import GoodreadsImporter
 from journal.importers.opml import OPMLImporter
 from journal.models import reset_journal_visibility_for_user
-from mastodon import mastodon_request_included
 from mastodon.api import *
 from social.models import reset_social_visibility_for_user
 
@@ -21,7 +20,6 @@ from .account import *
 from .tasks import *
 
 
-@mastodon_request_included
 @login_required
 def preferences(request):
     preference = request.user.preference
@@ -54,7 +52,6 @@ def preferences(request):
     return render(request, "users/preferences.html")
 
 
-@mastodon_request_included
 @login_required
 def data(request):
     return render(
@@ -79,7 +76,6 @@ def data_import_status(request):
     )
 
 
-@mastodon_request_included
 @login_required
 def export_reviews(request):
     if request.method != "POST":
@@ -87,7 +83,6 @@ def export_reviews(request):
     return render(request, "users/data.html")
 
 
-@mastodon_request_included
 @login_required
 def export_marks(request):
     if request.method == "POST":
@@ -117,6 +112,20 @@ def sync_mastodon(request):
             refresh_mastodon_data_task, request.user.pk
         )
         messages.add_message(request, messages.INFO, _("同步已开始。"))
+    return redirect(reverse("users:info"))
+
+
+@login_required
+def sync_mastodon_preference(request):
+    if request.method == "POST":
+        request.user.preference.mastodon_skip_userinfo = (
+            request.POST.get("mastodon_sync_userinfo", "") == ""
+        )
+        request.user.preference.mastodon_skip_relationship = (
+            request.POST.get("mastodon_sync_relationship", "") == ""
+        )
+        request.user.preference.save()
+        messages.add_message(request, messages.INFO, _("同步设置已保存。"))
     return redirect(reverse("users:info"))
 
 
