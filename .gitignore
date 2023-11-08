@@ -2,6 +2,9 @@
 .venv
 /.env
 /neodb.env
+/compose.override.yml
+/neodb-takahe
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -28,8 +28,20 @@ _RESERVED_USERNAMES = [
     "oauth2_login",
     "__",
     "admin",
+    "admins",
+    "administrator",
+    "administrators",
     "api",
     "me",
+    "neodb",
+    "relay",
+    "__relay__",
+    "system",
+    "__system__",
+    "root",
+    "announce",
+    "announcement",
+    "announcements",
 ]
 
 
