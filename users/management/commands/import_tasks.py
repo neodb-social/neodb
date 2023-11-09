@@ -24,4 +24,3 @@ class Command(BaseCommand):
                     user.preference.save(update_fields=["import_status"])
                     count += 1
             self.stdout.write(self.style.SUCCESS(f"{count} users reset"))
-
