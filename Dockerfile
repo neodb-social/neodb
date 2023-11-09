@@ -15,6 +15,8 @@ RUN mv /neodb/neodb-takahe /takahe
 
 WORKDIR /neodb
 RUN python -m venv /neodb-venv
+RUN find misc/wheels-cache -type f | xargs -n 1 /neodb-venv/bin/python3 -m pip install || echo incompatible wheel ignored
+RUN rm -rf misc/wheels-cache
 RUN --mount=type=cache,sharing=locked,target=/root/.cache /neodb-venv/bin/python3 -m pip install --upgrade -r requirements.txt
 
 WORKDIR /takahe
