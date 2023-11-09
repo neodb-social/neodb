@@ -10,16 +10,15 @@ def migrate_relationships(apps, schema_editor):
     APIdentity = apps.get_model("users", "APIdentity")
     logger.info(f"Migrate user relationship")
     for user in tqdm(User.objects.all()):
-        for target in user.local_following:
+        for target in user.local_following.all():
             user.identity.follow(User.objects.get(pk=target).identity)
-        for target in user.local_blocking:
+        for target in user.local_blocking.all():
             user.identity.block(User.objects.get(pk=target).identity)
-        for target in user.local_muting:
+        for target in user.local_muting.all():
             user.identity.block(User.objects.get(pk=target).identity)
         user.sync_relationship()
     for user in tqdm(User.objects.all()):
-        for req in user.identity.following_request:
-            target_identity = APIdentity.objects.get(pk=req)
+        for target_identity in user.identity.follow_requesting_identities:
             target_identity.accept_follow_request(user.identity)
 
 

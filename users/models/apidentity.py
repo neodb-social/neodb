@@ -144,7 +144,7 @@ class APIdentity(models.Model):
 
     @property
     def follow_requesting_identities(self):
-        return APIdentity.objects.filter(pk__in=self.following_request)
+        return APIdentity.objects.filter(pk__in=self.following_requests)
 
     @property
     def rejecting(self):
@@ -165,7 +165,7 @@ class APIdentity(models.Model):
         return Takahe.get_requested_follower_ids(self.pk)
 
     @property
-    def following_request(self):
+    def following_requests(self):
         return Takahe.get_following_request_ids(self.pk)
 
     def accept_follow_request(self, target: "APIdentity"):
@@ -204,7 +204,7 @@ class APIdentity(models.Model):
         return target.pk in self.following
 
     def is_requesting(self, target: "APIdentity"):
-        return target.pk in self.following_request
+        return target.pk in self.following_requests
 
     def is_requested(self, target: "APIdentity"):
         return target.pk in self.requested_followers
