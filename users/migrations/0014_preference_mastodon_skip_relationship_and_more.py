@@ -6,10 +6,10 @@ from tqdm import tqdm
 
 
 def migrate_relationships(apps, schema_editor):
-    User = apps.get_model("users", "User")
-    APIdentity = apps.get_model("users", "APIdentity")
+    from users.models import APIdentity, User
+
     logger.info(f"Migrate user relationship")
-    for user in tqdm(User.objects.all()):
+    for user in tqdm(User.objects.filter(is_active=True)):
         for target in user.local_following.all():
             user.identity.follow(User.objects.get(pk=target).identity)
         for target in user.local_blocking.all():
@@ -17,7 +17,7 @@ def migrate_relationships(apps, schema_editor):
         for target in user.local_muting.all():
             user.identity.block(User.objects.get(pk=target).identity)
         user.sync_relationship()
-    for user in tqdm(User.objects.all()):
+    for user in tqdm(User.objects.filter(is_active=True)):
         for target_identity in user.identity.follow_requesting_identities:
             target_identity.accept_follow_request(user.identity)
 
@@ -29,7 +29,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(migrate_relationships),
         migrations.AddField(
             model_name="preference",
             name="mastodon_skip_relationship",
@@ -40,4 +39,5 @@ class Migration(migrations.Migration):
             name="mastodon_skip_userinfo",
             field=models.BooleanField(default=False),
         ),
+        migrations.RunPython(migrate_relationships),
     ]
