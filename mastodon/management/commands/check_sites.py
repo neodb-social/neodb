@@ -2,6 +2,7 @@ import pprint
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from django.utils import timezone
 from loguru import logger
 
@@ -19,14 +20,20 @@ class Command(BaseCommand):
         count_checked = 0
         count_unreachable = 0
         count_disabled = 0
-        for site in MastodonApplication.objects.exclude(disabled=True):
+        q = Q(last_reachable_date__lte=timezone.now() - timedelta(days=1)) | Q(
+            last_reachable_date__isnull=True
+        )
+        for site in MastodonApplication.objects.exclude(disabled=True).filter(q):
             domain = None
             count_checked += 1
             try:
-                domain, api_domain, v = detect_server_info(site.domain_name)
+                api_domain = site.api_domain or site.domain_name
+                domain, api_domain, v = detect_server_info(api_domain)
                 site.last_reachable_date = timezone.now()
             except:
-                logger.warning(f"Failed to detect server info for {site.domain_name}")
+                logger.warning(
+                    f"Failed to detect server info for {site.domain_name}/{site.api_domain}"
+                )
                 count_unreachable += 1
                 if site.last_reachable_date is None:
                     site.last_reachable_date = timezone.now() - timedelta(days=1)
