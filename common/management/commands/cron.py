@@ -3,6 +3,7 @@ from loguru import logger
 
 from catalog.jobs import *  # noqa
 from common.models import JobManager
+from mastodon.jobs import *  # noqa
 from users.jobs import *  # noqa
 
 
