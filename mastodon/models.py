@@ -17,7 +17,8 @@ class MastodonApplication(models.Model):
     max_status_len = models.PositiveIntegerField(
         _("max toot len"), blank=False, default=500
     )
-
+    last_reachable_date = models.DateTimeField(null=True, default=None)
+    disabled = models.BooleanField(default=False)
     is_proxy = models.BooleanField(default=False, blank=True)
     proxy_to = models.CharField(max_length=100, blank=True, default="")
 
