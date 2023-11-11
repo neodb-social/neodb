@@ -127,8 +127,8 @@ class IGDB(AbstractSite):
             metadata={
                 "title": r["name"],
                 "other_title": [],
-                "developer": [developer],
-                "publisher": [publisher],
+                "developer": [developer] if developer else [],
+                "publisher": [publisher] if publisher else [],
                 "release_date": release_date,
                 "genre": genre,
                 "platform": platform,
