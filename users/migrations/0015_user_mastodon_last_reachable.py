@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("users", "0014_preference_mastodon_skip_relationship_and_more"),
+        ("users", "0011_preference_hidden_categories"),
     ]
 
     operations = [

@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
     # ]
 
     dependencies = [
-        ("users", "0011_preference_hidden_categories"),
+        ("users", "0015_user_mastodon_last_reachable"),
         ("takahe", "0001_initial"),
     ]
 
