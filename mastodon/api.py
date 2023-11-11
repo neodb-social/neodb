@@ -183,6 +183,20 @@ def create_app(domain_name):
     return response
 
 
+def webfinger(site, username) -> dict | None:
+    url = f"https://{site}/.well-known/webfinger?resource=acct:{username}@{site}"
+    try:
+        response = get(url, headers={"User-Agent": USER_AGENT})
+        if response.status_code != 200:
+            logger.error(f"Error webfinger {username}@{site} {response.status_code}")
+            return None
+        j = response.json()
+        return j
+    except Exception:
+        logger.error(f"Error webfinger {username}@{site}")
+        return None
+
+
 # utils below
 def random_string_generator(n):
     s = string.ascii_letters + string.punctuation + string.digits

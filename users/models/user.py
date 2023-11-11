@@ -128,6 +128,7 @@ class User(AbstractUser):
     mastodon_domain_blocks = models.JSONField(default=list)
     mastodon_account = models.JSONField(default=dict)
     mastodon_last_refresh = models.DateTimeField(default=timezone.now)
+    mastodon_last_reachable = models.DateTimeField(default=timezone.now)
     # store the latest read announcement id,
     # every time user read the announcement update this field
     read_announcement_index = models.PositiveIntegerField(default=0)
@@ -267,9 +268,14 @@ class User(AbstractUser):
         identity.save()
 
     def refresh_mastodon_data(self):
-        """Try refresh account data from mastodon server, return true if refreshed successfully, note it will not save to db"""
+        """Try refresh account data from mastodon server, return True if refreshed successfully"""
         logger.debug(f"Refreshing Mastodon data for {self}")
         self.mastodon_last_refresh = timezone.now()
+        if not webfinger(self.mastodon_site, self.mastodon_username):
+            logger.error(f"Unable to fetch web finger for {self}")
+            self.save(update_fields=["mastodon_last_refresh"])
+            return False
+        self.mastodon_last_reachable = timezone.now()
         code, mastodon_account = verify_account(self.mastodon_site, self.mastodon_token)
         if code == 401 and self.mastodon_refresh_token:
             self.mastodon_token = refresh_access_token(
@@ -317,7 +323,15 @@ class User(AbstractUser):
         elif code == 401:
             logger.error(f"Refresh mastodon data error 401 for {self}")
             self.mastodon_token = ""
-            self.save(update_fields=["mastodon_token"])
+        else:
+            logger.error(f"Refresh mastodon data error 401 for {self}")
+        self.save(
+            update_fields=[
+                "mastodon_token",
+                "mastodon_last_refresh",
+                "mastodon_last_reachable",
+            ]
+        )
         return False
 
     @property
