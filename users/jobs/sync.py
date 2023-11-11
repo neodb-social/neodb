@@ -19,7 +19,8 @@ class MastodonUserSync(BaseJob):
         ttl_hours = 12
         qs = (
             User.objects.exclude(
-                preference__mastodon_skip_userinfo=True, mastodon_skip_relationship=True
+                preference__mastodon_skip_userinfo=True,
+                preference__mastodon_skip_relationship=True,
             )
             .filter(
                 mastodon_last_refresh__lt=timezone.now() - timedelta(hours=ttl_hours)

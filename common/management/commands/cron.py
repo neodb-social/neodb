@@ -40,5 +40,7 @@ class Command(BaseCommand):
                 if not run:
                     logger.error(f"Job not found: {job_id}")
         if options["list"]:
+            all_jobs = [j.__name__ for j in JobManager.registry]
+            logger.info(f"{len(all_jobs)} available jobs: {' '.join(all_jobs)}")
             jobs = JobManager.get_scheduled_job_ids()
-            logger.info(f"{len(jobs)} scheduled jobs: {jobs}")
+            logger.info(f"{len(jobs)} scheduled jobs: {' '.join(jobs)}")
