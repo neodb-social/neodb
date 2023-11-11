@@ -6,20 +6,25 @@ from tqdm import tqdm
 
 
 def migrate_relationships(apps, schema_editor):
-    from users.models import APIdentity, User
-
+    User = apps.get_model("users", "User")
+    APIdentity = apps.get_model("users", "APIdentity")
     logger.info(f"Migrate user relationship")
     for user in tqdm(User.objects.filter(is_active=True)):
+        identity = APIdentity.objects.get(user=user)
         for target in user.local_following.all():
-            user.identity.follow(User.objects.get(pk=target).identity)
+            target_identity = APIdentity.objects.get(user=target)
+            identity.follow(target_identity)
         for target in user.local_blocking.all():
-            user.identity.block(User.objects.get(pk=target).identity)
+            target_identity = APIdentity.objects.get(user=target)
+            identity.block(target_identity)
         for target in user.local_muting.all():
-            user.identity.block(User.objects.get(pk=target).identity)
+            target_identity = APIdentity.objects.get(user=target)
+            identity.mute(target_identity)
         user.sync_relationship()
     for user in tqdm(User.objects.filter(is_active=True)):
-        for target_identity in user.identity.follow_requesting_identities:
-            target_identity.accept_follow_request(user.identity)
+        identity = APIdentity.objects.get(user=user)
+        for target_identity in identity.follow_requesting_identities:
+            target_identity.accept_follow_request(identity)
 
 
 class Migration(migrations.Migration):
