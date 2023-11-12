@@ -42,4 +42,4 @@ class Command(BaseCommand):
                                 self.style.SUCCESS(f"{registry.key} {repr(job)}")
                             )
                         except Exception as e:
-                            print(f"Error fetching {registry.key} {job_id}")
+                            print(f"Fetching {registry.key} {job_id} error: {e}")

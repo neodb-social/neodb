@@ -1,10 +1,24 @@
+import random
+from time import sleep
+
 from django.core.management.base import BaseCommand
 from loguru import logger
 
 from catalog.jobs import *  # noqa
-from common.models import JobManager
+from common.models import BaseJob, JobManager
 from mastodon.jobs import *  # noqa
 from users.jobs import *  # noqa
+
+# @JobManager.register
+# class DummyJob(BaseJob):
+#     interval = timedelta(seconds=10)
+
+#     def run(self):
+#         logger.info("Dummy job started")
+#         if random.choice([0, 1]) == 0:
+#             raise Exception("Dummy job randomly failed")
+#         sleep(3)
+#         logger.info("Dummy job stopped")
 
 
 class Command(BaseCommand):
