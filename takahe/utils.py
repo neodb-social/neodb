@@ -603,3 +603,15 @@ class Takahe:
             return False
         invite = Invite.objects.filter(token=token).first()
         return invite and invite.valid
+
+    @staticmethod
+    def get_local_user_by_token(token):
+        from users.models import APIdentity
+
+        if not token:
+            return None
+        t = Token.objects.filter(token=token, revoked__isnull=True).first()
+        if not t or not t.identity:
+            return None
+        identity = APIdentity.objects.filter(pk=t.identity.pk).first()
+        return identity.user if identity else None

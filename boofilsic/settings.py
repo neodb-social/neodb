@@ -312,10 +312,7 @@ WSGI_APPLICATION = "boofilsic.wsgi.application"
 
 SESSION_COOKIE_NAME = "neodbsid"
 
-AUTHENTICATION_BACKENDS = [
-    "mastodon.auth.OAuth2Backend",
-    "oauth2_provider.backends.OAuth2Backend",
-]
+AUTHENTICATION_BACKENDS = ["mastodon.auth.OAuth2Backend"]
 
 LOGGING = {
     "version": 1,

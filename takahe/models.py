@@ -1653,3 +1653,68 @@ class Config(models.Model):
         unique_together = [
             ("key", "user", "identity", "domain"),
         ]
+
+
+class Application(models.Model):
+    """
+    OAuth applications
+    """
+
+    client_id = models.CharField(max_length=500)
+    client_secret = models.CharField(max_length=500)
+
+    redirect_uris = models.TextField()
+    scopes = models.TextField()
+
+    name = models.CharField(max_length=500)
+    website = models.CharField(max_length=500, blank=True, null=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        # managed = False
+        db_table = "api_application"
+
+
+class Token(models.Model):
+    """
+    An (access) token to call the API with.
+
+    Can be either tied to a user, or app-level only.
+    """
+
+    application = models.ForeignKey(
+        "takahe.Application",
+        on_delete=models.CASCADE,
+        related_name="tokens",
+    )
+
+    user = models.ForeignKey(
+        "takahe.User",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="tokens",
+    )
+
+    identity = models.ForeignKey(
+        "takahe.Identity",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="tokens",
+    )
+
+    token = models.CharField(max_length=500, unique=True)
+    scopes = models.JSONField()
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    revoked = models.DateTimeField(blank=True, null=True)
+
+    push_subscription = models.JSONField(blank=True, null=True)
+
+    class Meta:
+        # managed = False
+        db_table = "api_token"
