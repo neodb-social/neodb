@@ -42,6 +42,7 @@ urlpatterns = [
     path("", include("common.urls")),
     path("", include("legacy.urls")),
     path("", include("developer.urls")),
+    path("", include("takahe.urls")),
     # path("oauth/", include("oauth2_provider.urls", namespace="oauth2_provider")),
     path("tz_detect/", include("tz_detect.urls")),
     path(settings.ADMIN_URL + "/", admin.site.urls),

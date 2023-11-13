@@ -16,6 +16,28 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name="TakaheSession",
+            fields=[
+                (
+                    "session_key",
+                    models.CharField(
+                        max_length=40,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="session key",
+                    ),
+                ),
+                ("session_data", models.TextField(verbose_name="session data")),
+                (
+                    "expire_date",
+                    models.DateTimeField(db_index=True, verbose_name="expire date"),
+                ),
+            ],
+            options={
+                "db_table": "django_session",
+            },
+        ),
+        migrations.CreateModel(
             name="Domain",
             fields=[
                 (
