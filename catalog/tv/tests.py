@@ -158,7 +158,7 @@ class MultiTVSitesTestCase(TestCase):
     @use_local_response
     def test_tvspecial(self):
         url1 = "https://www.themoviedb.org/movie/282758-doctor-who-the-runaway-bride"
-        url2 = "hhttps://www.imdb.com/title/tt0827573/"
+        url2 = "https://www.imdb.com/title/tt0827573/"
         url3 = "https://movie.douban.com/subject/4296866/"
         p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
         p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
