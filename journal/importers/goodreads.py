@@ -12,9 +12,9 @@ from catalog.common.downloaders import *
 from catalog.models import *
 from journal.models import *
 
-re_list = r"^https://www.goodreads.com/list/show/\d+"
-re_shelf = r"^https://www.goodreads.com/review/list/\d+[^?]*\?shelf=[^&]+"
-re_profile = r"^https://www.goodreads.com/user/show/(\d+)"
+re_list = r"^https://www\.goodreads\.com/list/show/\d+"
+re_shelf = r"^https://www\.goodreads\.com/review/list/\d+[^?]*\?shelf=[^&]+"
+re_profile = r"^https://www\.goodreads\.com/user/show/(\d+)"
 gr_rating = {
     "did not like it": 2,
     "it was ok": 4,

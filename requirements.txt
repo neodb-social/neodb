@@ -43,3 +43,4 @@ setproctitle
 tqdm
 typesense
 urlman
+validators

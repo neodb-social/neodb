@@ -36,8 +36,8 @@ class Goodreads(AbstractSite):
     WIKI_PROPERTY_ID = "P2968"
     DEFAULT_MODEL = Edition
     URL_PATTERNS = [
-        r".+goodreads.com/.*book/show/(\d+)",
-        r".+goodreads.com/.*book/(\d+)",
+        r".+goodreads\.com/.*book/show/(\d+)",
+        r".+goodreads\.com/.*book/(\d+)",
     ]
 
     @classmethod
@@ -125,7 +125,7 @@ class Goodreads_Work(AbstractSite):
     ID_TYPE = IdType.Goodreads_Work
     WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Work
-    URL_PATTERNS = [r".+goodreads.com/work/editions/(\d+)"]
+    URL_PATTERNS = [r".+goodreads\.com/work/editions/(\d+)"]
 
     @classmethod
     def id_to_url(cls, id_value):

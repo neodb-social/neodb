@@ -14,6 +14,7 @@ from typing import Callable, Type
 
 import django_rq
 import requests
+from validators import url as url_validate
 
 from .models import ExternalResource, IdealIdTypes, IdType, Item, SiteName
 
@@ -283,7 +284,9 @@ class SiteManager:
 
     @staticmethod
     def get_site_by_url(url: str) -> AbstractSite | None:
-        if not url:
+        if not url or not url_validate(
+            url, skip_ipv6_addr=True, skip_ipv4_addr=True, may_have_port=False
+        ):
             return None
         cls = next(
             filter(lambda p: p.validate_url(url), SiteManager.registry.values()), None
