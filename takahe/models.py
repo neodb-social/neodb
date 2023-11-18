@@ -361,7 +361,7 @@ class Identity(models.Model):
     Represents both local and remote Fediverse identities (actors)
     """
 
-    domain_id: int
+    domain_id: str
 
     class Restriction(models.IntegerChoices):
         none = 0

@@ -108,24 +108,13 @@ def post_deleted(pk, obj):
     Piece.objects.filter(posts__id=pk, local=False).delete()
 
 
-def user_follow_updated(source_identity_pk, target_identity_pk):
-    u = Takahe.get_local_user_by_identity(source_identity_pk)
-    # Takahe.update_user_following(u)
-    logger.info(f"User {u} following updated")
-
-
-def user_mute_updated(source_identity_pk, target_identity_pk):
-    u = Takahe.get_local_user_by_identity(source_identity_pk)
-    # Takahe.update_user_muting(u)
-    logger.info(f"User {u} muting updated")
-
-
-def user_block_updated(source_identity_pk, target_identity_pk):
-    u = Takahe.get_local_user_by_identity(source_identity_pk)
-    if u:
-        # Takahe.update_user_rejecting(u)
-        logger.info(f"User {u} rejecting updated")
-    u = Takahe.get_local_user_by_identity(target_identity_pk)
-    if u:
-        # Takahe.update_user_rejecting(u)
-        logger.info(f"User {u} rejecting updated")
+def identity_fetched(pk):
+    identity = Takahe.get_identity(pk)
+    if identity.username and identity.domain:
+        apid = Takahe.get_or_create_remote_apidentity(identity)
+        if apid:
+            logger.debug(f"Identity {identity} synced")
+        else:
+            logger.warning(f"Identity {identity} not synced")
+    else:
+        logger.warning(f"Identity {identity} has no username or domain")
