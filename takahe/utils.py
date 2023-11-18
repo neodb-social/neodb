@@ -420,7 +420,8 @@ class Takahe:
         content = f"{stars}\n{mark.comment_text or ''}{tags}"
         data = {
             "object": {
-                "relatedWith": [mark.item.ap_object_ref, mark.shelfmember.ap_object]
+                "tag": [mark.item.ap_object_ref],
+                "relatedWith": [mark.shelfmember.ap_object],
             }
         }
         if mark.comment:

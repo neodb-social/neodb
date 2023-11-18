@@ -361,7 +361,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     def ap_object_ref(self):
         o = {
             "type": self.get_ap_object_type(),
-            "url": self.absolute_url,
+            "href": self.absolute_url,
             "name": self.title,
         }
         if self.has_cover():

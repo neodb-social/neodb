@@ -30,18 +30,25 @@ _supported_ap_journal_types = {
 }
 
 
-def _parse_links(objects):
-    logger.debug(f"Parsing links from {objects}")
-    items = []
+def _parse_item_links(objects):
+    logger.debug(f"Parsing item links from {objects}")
+    items = [
+        obj["href"]
+        for obj in objects
+        if obj["type"] in _supported_ap_catalog_item_types
+    ]
+    return items
+
+
+def _parse_piece_objects(objects):
+    logger.debug(f"Parsing pieces from {objects}")
     pieces = []
     for obj in objects:
-        if obj["type"] in _supported_ap_catalog_item_types:
-            items.append(obj["url"])
-        elif obj["type"] in _supported_ap_journal_types.keys():
+        if obj["type"] in _supported_ap_journal_types.keys():
             pieces.append(obj)
         else:
             logger.warning(f'Unknown link type {obj["type"]}')
-    return items, pieces
+    return pieces
 
 
 def _get_or_create_item_by_ap_url(url):
@@ -70,7 +77,8 @@ def _update_or_create_post(pk, obj):
     if not post.type_data:
         logger.warning(f"Post {post} has no type_data")
         return
-    items, pieces = _parse_links(post.type_data["object"]["relatedWith"])
+    items = _parse_item_links(post.type_data["object"]["tag"])
+    pieces = _parse_piece_objects(post.type_data["object"]["relatedWith"])
     logger.info(f"Post {post} has items {items} and pieces {pieces}")
     if len(items) == 0:
         logger.warning(f"Post {post} has no remote items")

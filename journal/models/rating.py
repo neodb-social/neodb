@@ -34,7 +34,7 @@ class Rating(Content):
             "updated": self.edited_time.isoformat(),
             "attributedTo": self.owner.actor_uri,
             "relatedWith": self.item.absolute_url,
-            "url": self.absolute_url,
+            "href": self.absolute_url,
         }
 
     @classmethod
