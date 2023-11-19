@@ -166,7 +166,7 @@ class MarkTest(TestCase):
         self.assertEqual(mark.tags, [])
 
     def test_review(self):
-        review = Review.update_item_review(
+        review, post = Review.update_item_review(
             self.book1, self.user1.identity, "Critic", "Review"
         )
         mark = Mark(self.user1.identity, self.book1)

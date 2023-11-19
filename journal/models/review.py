@@ -33,6 +33,20 @@ class Review(Content):
             " ", _RE_SPOILER_TAG.sub("***", html.replace("\n", " "))
         )
 
+    @property
+    def ap_object(self):
+        return {
+            "id": self.absolute_url,
+            "type": "Review",
+            "name": self.title,
+            "content": self.html_content,
+            "published": self.created_time.isoformat(),
+            "updated": self.edited_time.isoformat(),
+            "attributedTo": self.owner.actor_uri,
+            "relatedWith": self.item.absolute_url,
+            "href": self.absolute_url,
+        }
+
     @cached_property
     def mark(self):
         from .mark import Mark
@@ -55,11 +69,13 @@ class Review(Content):
         visibility=0,
         created_time=None,
     ):
+        from takahe.utils import Takahe
+
         if title is None:
             review = Review.objects.filter(owner=owner, item=item).first()
             if review is not None:
                 review.delete()
-            return None
+            return None, None
         defaults = {
             "title": title,
             "body": body,
@@ -69,7 +85,8 @@ class Review(Content):
             defaults["created_time"] = (
                 created_time if created_time < timezone.now() else timezone.now()
             )
-        review, _ = cls.objects.update_or_create(
+        review, created = cls.objects.update_or_create(
             item=item, owner=owner, defaults=defaults
         )
-        return review
+        post = Takahe.post_review(review, created)
+        return review, post

@@ -398,9 +398,55 @@ class Takahe:
         Post.objects.filter(pk__in=post_pks).update(state="deleted")
 
     @staticmethod
+    def post_review(review, share_as_new_post: bool) -> Post | None:
+        from catalog.common import ItemCategory
+
+        user = review.owner.user
+        tags = (
+            "\n"
+            + user.preference.mastodon_append_tag.replace(
+                "[category]", str(ItemCategory(review.item.category).label)
+            )
+            if user.preference.mastodon_append_tag
+            else ""
+        )
+        stars = _rating_to_emoji(review.rating_grade, 1)
+        item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{review.item.url}"
+
+        pre_conetent = f'发布了关于<a href="{item_link}">《{review.item.display_title}》</a>的评论：<br><a href="{review.absolute_url}">{review.title}</a>'
+        content = f"{stars}\n{tags}"
+        data = {
+            "object": {
+                "tag": [review.item.ap_object_ref],
+                "relatedWith": [review.ap_object],
+            }
+        }
+        if review.visibility == 1:
+            v = Takahe.Visibilities.followers
+        elif review.visibility == 2:
+            v = Takahe.Visibilities.mentioned
+        elif user.preference.mastodon_publish_public:
+            v = Takahe.Visibilities.public
+        else:
+            v = Takahe.Visibilities.unlisted
+        existing_post = None if share_as_new_post else review.latest_post
+        post = Takahe.post(  # TODO post as Article?
+            review.owner.pk,
+            pre_conetent,
+            content,
+            v,
+            data,
+            existing_post.pk if existing_post else None,
+            review.created_time,
+        )
+        if not post:
+            return
+        review.link_post(post)
+        return post
+
+    @staticmethod
     def post_mark(mark, share_as_new_post: bool) -> Post | None:
         from catalog.common import ItemCategory
-        from takahe.utils import Takahe
 
         user = mark.owner.user
         tags = (
