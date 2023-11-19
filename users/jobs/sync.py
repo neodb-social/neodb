@@ -26,6 +26,7 @@ class MastodonUserSync(BaseJob):
                 mastodon_last_refresh__lt=timezone.now() - timedelta(hours=ttl_hours)
             )
             .filter(
+                username__isnull=False,
                 is_active=True,
             )
             .exclude(mastodon_token__isnull=True)
