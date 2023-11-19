@@ -10,28 +10,32 @@ import logging
 
 import requests
 from django.conf import settings
+from django.core.cache import cache
 from igdb.wrapper import IGDBWrapper
 
 from catalog.common import *
 from catalog.models import *
 
 _logger = logging.getLogger(__name__)
+_cache_key = "igdb_access_token"
 
 
 def _igdb_access_token():
     if not settings.IGDB_CLIENT_SECRET:
         return "<missing>"
     try:
-        token = requests.post(
-            f"https://id.twitch.tv/oauth2/token?client_id={settings.IGDB_CLIENT_ID}&client_secret={settings.IGDB_CLIENT_SECRET}&grant_type=client_credentials"
-        ).json()["access_token"]
+        token = cache.get(_cache_key)
+        if not token:
+            j = requests.post(
+                f"https://id.twitch.tv/oauth2/token?client_id={settings.IGDB_CLIENT_ID}&client_secret={settings.IGDB_CLIENT_SECRET}&grant_type=client_credentials"
+            ).json()
+            token = j["access_token"]
+            ttl = j["expires_in"] - 60
+            cache.set(_cache_key, token, ttl)
     except Exception:
         _logger.error("unable to obtain IGDB token")
         token = "<invalid>"
     return token
-
-
-_wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())
 
 
 def search_igdb_by_3p_url(steam_url):
@@ -63,6 +67,7 @@ class IGDB(AbstractSite):
         if get_mock_mode():
             r = BasicDownloader(key).download().json()
         else:
+            _wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())
             r = json.loads(_wrapper.api_request(p, q))  # type: ignore
             if settings.DOWNLOADER_SAVEDIR:
                 with open(
