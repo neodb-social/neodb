@@ -185,11 +185,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @classmethod
     def update_by_ap_object(cls, owner, item, obj, post_id, visibility):
-        raise NotImplemented
+        raise NotImplementedError()
 
     @property
     def ap_object(self):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def link_post_id(self, post_id: int):
         PiecePost.objects.get_or_create(piece=self, post_id=post_id)

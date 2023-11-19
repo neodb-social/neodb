@@ -1,9 +1,11 @@
 import re
+from datetime import datetime
 from functools import cached_property
 
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from markdownify import markdownify as md
 from markdownx.models import MarkdownxField
 
 from catalog.models import Item
@@ -46,6 +48,21 @@ class Review(Content):
             "relatedWith": self.item.absolute_url,
             "href": self.absolute_url,
         }
+
+    @classmethod
+    def update_by_ap_object(cls, owner, item, obj, post_id, visibility):
+        d = {
+            "title": obj["name"],
+            "body": md(obj["content"].strip()),
+            "local": False,
+            "remote_id": obj["id"],
+            "visibility": visibility,
+            "created_time": datetime.fromisoformat(obj["published"]),
+            "edited_time": datetime.fromisoformat(obj["updated"]),
+        }
+        p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
+        p.link_post_id(post_id)
+        return p
 
     @cached_property
     def mark(self):
