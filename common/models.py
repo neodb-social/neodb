@@ -75,3 +75,13 @@ class JobManager:
     def get_scheduled_job_ids(cls):
         registry = ScheduledJobRegistry(queue=django_rq.get_queue("cron"))
         return registry.get_job_ids()
+
+    @classmethod
+    def schedule_all(cls):
+        # TODO rewrite lazy import in a better way
+        from catalog.jobs import DiscoverGenerator, PodcastUpdater
+        from mastodon.jobs import MastodonSiteCheck
+        from users.jobs import MastodonUserSync
+
+        cls.cancel()
+        cls.schedule()

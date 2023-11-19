@@ -2,13 +2,21 @@ import os
 
 import environ
 
-NEODB_VERSION = "0.8"
+from boofilsic import __version__
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+try:
+    with open(os.path.join(BASE_DIR, "build_version")) as f:
+        NEODB_VERSION = __version__ + "-" + f.read().strip()
+except:
+    NEODB_VERSION = __version__ + "-dev"
+
 
 # Parse configuration from:
 # - environment variables
 # - .env file in project root directory
 # - /etc/neodb.conf
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 environ.Env.read_env("/etc/neodb.conf")
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 

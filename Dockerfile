@@ -8,7 +8,7 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt apt-get update \
 
 COPY . /neodb
 
-RUN echo neodb-`cd /neodb && git rev-parse --short HEAD`-`cd /neodb/neodb-takahe && git rev-parse --short HEAD`-`date -u +%Y%m%d%H%M%S` > /neodb/version
+RUN echo `cd /neodb && git rev-parse --short HEAD`-`cd /neodb/neodb-takahe && git rev-parse --short HEAD`-`date -u +%Y%m%d%H%M%S` > /neodb/build_version
 RUN rm -rf /neodb/.git /neodb/neodb-takahe/.git
 
 RUN mv /neodb/neodb-takahe /takahe

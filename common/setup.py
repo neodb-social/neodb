@@ -2,6 +2,7 @@ from django.conf import settings
 from loguru import logger
 
 from catalog.search.models import Indexer
+from common.models import JobManager
 from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
 from takahe.models import Follow as TakaheFollow
@@ -151,5 +152,6 @@ class Setup:
         Indexer.init()
 
         # Register cron jobs if not yet
+        JobManager.schedule_all()
 
         logger.info("Finished post-migration setup.")

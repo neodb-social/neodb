@@ -4,10 +4,7 @@ from time import sleep
 from django.core.management.base import BaseCommand
 from loguru import logger
 
-from catalog.jobs import *  # noqa
 from common.models import BaseJob, JobManager
-from mastodon.jobs import *  # noqa
-from users.jobs import *  # noqa
 
 # @JobManager.register
 # class DummyJob(BaseJob):

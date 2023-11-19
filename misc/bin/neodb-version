@@ -1,0 +1,2 @@
+#!/bin/sh
+echo "from django.conf import settings; print(settings.NEODB_VERSION+(' debug:on' if settings.DEBUG else ''))" | neodb-manage shell
