@@ -111,11 +111,11 @@ class PodcastEpisode(Item):
     def cover_image_url(self):
         return self.cover_url or self.program.cover_image_url
 
-    def get_absolute_url_with_position(self, position=None):
+    def get_url_with_position(self, position=None):
         return (
-            self.absolute_url
+            self.url
             if position is None or position == ""
-            else f"{self.absolute_url}?position={position}"
+            else f"{self.url}?position={position}"
         )
 
     class Meta:

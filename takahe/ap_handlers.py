@@ -18,6 +18,7 @@ _supported_ap_catalog_item_types = [
     "Album",
     "Game",
     "Podcast",
+    "PodcastEpisode",
     "Performance",
     "PerformanceProduction",
 ]
@@ -30,14 +31,12 @@ _supported_ap_journal_types = {
 }
 
 
-def _parse_item_links(objects):
+def _parse_items(objects):
     logger.debug(f"Parsing item links from {objects}")
     if not objects:
         return []
     objs = objects if isinstance(objects, list) else [objects]
-    items = [
-        obj["href"] for obj in objs if obj["type"] in _supported_ap_catalog_item_types
-    ]
+    items = [obj for obj in objs if obj["type"] in _supported_ap_catalog_item_types]
     return items
 
 
@@ -55,8 +54,14 @@ def _parse_piece_objects(objects):
     return pieces
 
 
-def _get_or_create_item_by_ap_url(url):
-    logger.debug(f"Fetching item by ap from {url}")
+def _get_or_create_item(item_obj):
+    logger.debug(f"Fetching item by ap from {item_obj}")
+    typ = item_obj["type"]
+    url = item_obj["href"]
+    if typ in ["TVEpisode", "PodcastEpisode"]:
+        # TODO support episode item
+        # match and fetch parent item first
+        return None
     site = SiteManager.get_site_by_url(url)
     if not site:
         return None
@@ -75,13 +80,13 @@ def _get_visibility(post_visibility):
             return 0
 
 
-def _update_or_create_post(pk, obj):
+def post_fetched(pk, obj):
     post = Post.objects.get(pk=pk)
     owner = Takahe.get_or_create_remote_apidentity(post.author)
     if not post.type_data:
         logger.warning(f"Post {post} has no type_data")
         return
-    items = _parse_item_links(post.type_data["object"]["tag"])
+    items = _parse_items(post.type_data["object"]["tag"])
     pieces = _parse_piece_objects(post.type_data["object"]["relatedWith"])
     logger.info(f"Post {post} has items {items} and pieces {pieces}")
     if len(items) == 0:
@@ -90,18 +95,13 @@ def _update_or_create_post(pk, obj):
     elif len(items) > 1:
         logger.warning(f"Post {post} has more than one remote item")
         return
-    remote_url = items[0]
-    item = _get_or_create_item_by_ap_url(remote_url)
+    item = _get_or_create_item(items[0])
     if not item:
-        logger.warning(f"Post {post} has no local item")
+        logger.warning(f"Post {post} has no local item matched or created")
         return
     for p in pieces:
         cls = _supported_ap_journal_types[p["type"]]
         cls.update_by_ap_object(owner, item, p, pk, _get_visibility(post.visibility))
-
-
-def post_fetched(pk, obj):
-    _update_or_create_post(pk, obj)
 
 
 def post_deleted(pk, obj):

@@ -17,7 +17,7 @@ class Comment(Content):
 
     @property
     def ap_object(self):
-        return {
+        d = {
             "id": self.absolute_url,
             "type": "Comment",
             "content": self.text,
@@ -27,6 +27,10 @@ class Comment(Content):
             "relatedWith": self.item.absolute_url,
             "href": self.absolute_url,
         }
+        if self.metadata.get("position"):
+            d["relatedWithItemPosition"] = self.metadata["position"]
+            d["relatedWithItemPositionType"] = "time"
+        return d
 
     @classmethod
     def update_by_ap_object(cls, owner, item, obj, post_id, visibility):
@@ -42,6 +46,8 @@ class Comment(Content):
             "created_time": datetime.fromisoformat(obj["published"]),
             "edited_time": datetime.fromisoformat(obj["updated"]),
         }
+        if obj.get("relatedWithItemPosition"):
+            d["metadata"] = {"position": obj["relatedWithItemPosition"]}
         p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
         p.link_post_id(post_id)
         return p
@@ -65,7 +71,7 @@ class Comment(Content):
     @property
     def item_url(self):
         if self.metadata.get("position"):
-            return self.item.get_absolute_url_with_position(self.metadata["position"])
+            return self.item.get_url_with_position(self.metadata["position"])
         else:
             return self.item.url
 

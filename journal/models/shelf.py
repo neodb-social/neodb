@@ -80,6 +80,7 @@ class ShelfMember(ListMember):
     def update_by_ap_object(
         cls, owner: APIdentity, item: Identity, obj: dict, post_id: int, visibility: int
     ):
+        # TODO check timestamp? (update may come in with inconsistent sequence)
         if not obj:
             cls.objects.filter(owner=owner, item=item).delete()
             return

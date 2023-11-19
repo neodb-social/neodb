@@ -398,6 +398,50 @@ class Takahe:
         Post.objects.filter(pk__in=post_pks).update(state="deleted")
 
     @staticmethod
+    def post_comment(comment, share_as_new_post: bool) -> Post | None:
+        from catalog.common import ItemCategory
+
+        user = comment.owner.user
+        category = str(ItemCategory(comment.item.category).label)
+        tags = (
+            "\n" + user.preference.mastodon_append_tag.replace("[category]", category)
+            if user.preference.mastodon_append_tag
+            else ""
+        )
+        item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{comment.item_url}"
+        action_label = "评论" if comment.text else "分享"
+        pre_conetent = f'{action_label}{category}<a href="{item_link}">《{comment.item.display_title}》</a><br>'
+        content = f"{comment.text}\n{tags}"
+        data = {
+            "object": {
+                "tag": [comment.item.ap_object_ref],
+                "relatedWith": [comment.ap_object],
+            }
+        }
+        if comment.visibility == 1:
+            v = Takahe.Visibilities.followers
+        elif comment.visibility == 2:
+            v = Takahe.Visibilities.mentioned
+        elif user.preference.mastodon_publish_public:
+            v = Takahe.Visibilities.public
+        else:
+            v = Takahe.Visibilities.unlisted
+        existing_post = None if share_as_new_post else comment.latest_post
+        post = Takahe.post(  # TODO post as Article?
+            comment.owner.pk,
+            pre_conetent,
+            content,
+            v,
+            data,
+            existing_post.pk if existing_post else None,
+            comment.created_time,
+        )
+        if not post:
+            return
+        comment.link_post(post)
+        return post
+
+    @staticmethod
     def post_review(review, share_as_new_post: bool) -> Post | None:
         from catalog.common import ItemCategory
 

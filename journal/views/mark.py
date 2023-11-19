@@ -13,12 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
-from mastodon.api import (
-    get_spoiler_text,
-    get_status_id_by_url,
-    get_visibility,
-    post_toot,
-)
+from mastodon.api import boost_toot
 from takahe.utils import Takahe
 
 from ..models import Comment, Mark, Piece, ShelfType, ShelfTypeNames, TagManager
@@ -168,36 +163,6 @@ def mark(request: AuthedHttpRequest, item_uuid):
     raise BadRequest()
 
 
-def share_comment(user, item, text, visibility, shared_link=None, position=None):
-    post_error = False
-    status_id = get_status_id_by_url(shared_link)
-    link = (
-        item.get_absolute_url_with_position(position) if position else item.absolute_url
-    )
-    action_label = "评论" if text else "分享"
-    status = f"{action_label}{ItemCategory(item.category).label}《{item.display_title}》\n{link}\n\n{text}"
-    spoiler, status = get_spoiler_text(status, item)
-    try:
-        response = post_toot(
-            user.mastodon_site,
-            status,
-            get_visibility(visibility, user),
-            user.mastodon_token,
-            False,
-            status_id,
-            spoiler,
-        )
-        if response and response.status_code in [200, 201]:
-            j = response.json()
-            if "url" in j:
-                shared_link = j["url"]
-    except Exception as e:
-        if settings.DEBUG:
-            raise
-        post_error = True
-    return post_error, shared_link
-
-
 @login_required
 def mark_log(request: AuthedHttpRequest, item_uuid, log_id):
     """
@@ -220,15 +185,7 @@ def comment(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item.class_name in ["podcastepisode", "tvepisode"]:
         raise BadRequest("不支持评论此类型的条目")
-    # episode = None
-    # if item.class_name == "tvseason":
-    #     try:
-    #         episode = int(request.POST.get("episode", 0))
-    #     except:
-    #         episode = 0
-    #     if episode <= 0:
-    #         raise BadRequest("请输入正确的集数")
-    comment = Comment.objects.filter(owner=request.user, item=item).first()
+    comment = Comment.objects.filter(owner=request.user.identity, item=item).first()
     if request.method == "GET":
         return render(
             request,
@@ -256,49 +213,22 @@ def comment(request: AuthedHttpRequest, item_uuid):
                 if settings.DEBUG:
                     raise
                 position = None
-        share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
-        shared_link = comment.metadata.get("shared_link") if comment else None
-        post_error = False
-        if share_to_mastodon and request.user.mastodon_username:
-            post_error, shared_link = share_comment(
-                request.user, item, text, visibility, shared_link, position
-            )
-        Comment.objects.update_or_create(
-            owner=request.user,
-            item=item,
-            # metadata__episode=episode,
-            defaults={
-                "text": text,
-                "visibility": visibility,
-                "metadata": {
-                    "shared_link": shared_link,
-                    "position": position,
-                },
-            },
+        d = {"text": text, "visibility": visibility}
+        if position:
+            d["metadata"] = {"position": position}
+        comment, _ = Comment.objects.update_or_create(
+            owner=request.user.identity, item=item, defaults=d
         )
-
-        # if comment:
-        #     comment.visibility = visibility
-        #     comment.text = text
-        #     comment.metadata["position"] = position
-        #     comment.metadata["episode"] = episode
-        #     if shared_link:
-        #         comment.metadata["shared_link"] = shared_link
-        #     comment.save()
-        # else:
-        #     comment = Comment.objects.create(
-        #         owner=request.user,
-        #         item=item,
-        #         text=text,
-        #         visibility=visibility,
-        #         metadata={
-        #             "shared_link": shared_link,
-        #             "position": position,
-        #             "episode": episode,
-        #         },
-        #     )
-        if post_error:
-            return render_relogin(request)
+        post = Takahe.post_comment(comment, False)
+        share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
+        if post and share_to_mastodon and request.user.mastodon_username:
+            boost_toot(
+                request.user.mastodon_site,
+                request.user.mastodon_token,
+                post.url,
+            )
+            # if post_error:
+            #     return render_relogin(request)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     raise BadRequest()
 
