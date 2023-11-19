@@ -32,18 +32,22 @@ _supported_ap_journal_types = {
 
 def _parse_item_links(objects):
     logger.debug(f"Parsing item links from {objects}")
+    if not objects:
+        return []
+    objs = objects if isinstance(objects, list) else [objects]
     items = [
-        obj["href"]
-        for obj in objects
-        if obj["type"] in _supported_ap_catalog_item_types
+        obj["href"] for obj in objs if obj["type"] in _supported_ap_catalog_item_types
     ]
     return items
 
 
 def _parse_piece_objects(objects):
     logger.debug(f"Parsing pieces from {objects}")
+    if not objects:
+        return []
+    objs = objects if isinstance(objects, list) else [objects]
     pieces = []
-    for obj in objects:
+    for obj in objs:
         if obj["type"] in _supported_ap_journal_types.keys():
             pieces.append(obj)
         else:
@@ -96,11 +100,7 @@ def _update_or_create_post(pk, obj):
         cls.update_by_ap_object(owner, item, p, pk, _get_visibility(post.visibility))
 
 
-def post_created(pk, obj):
-    _update_or_create_post(pk, obj)
-
-
-def post_updated(pk, obj):
+def post_fetched(pk, obj):
     _update_or_create_post(pk, obj)
 
 

@@ -48,7 +48,7 @@ class EditionInSchema(ItemInSchema):
     pub_month: int | None = None
     binding: str | None = None
     price: str | None = None
-    pages: str | None = None
+    pages: int | str | None = None
     series: str | None = None
     imprint: str | None = None
 
