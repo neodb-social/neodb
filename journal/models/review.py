@@ -41,7 +41,9 @@ class Review(Content):
             "id": self.absolute_url,
             "type": "Review",
             "name": self.title,
-            "content": self.html_content,
+            # "content": self.html_content,
+            "content": self.body,
+            "mediaType": "text/markdown",
             "published": self.created_time.isoformat(),
             "updated": self.edited_time.isoformat(),
             "attributedTo": self.owner.actor_uri,
@@ -51,9 +53,14 @@ class Review(Content):
 
     @classmethod
     def update_by_ap_object(cls, owner, item, obj, post_id, visibility):
+        content = (
+            obj["content"]
+            if obj.get("mediaType") == "text/markdown"
+            else md(obj["content"])
+        )
         d = {
             "title": obj["name"],
-            "body": md(obj["content"].strip()),
+            "body": content,
             "local": False,
             "remote_id": obj["id"],
             "visibility": visibility,
