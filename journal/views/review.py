@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from catalog.models import *
 from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
 from journal.models.renderers import convert_leading_space_in_md, render_md
-from mastodon.api import boost_toot
+from mastodon.api import boost_toot_later
 from users.models import User
 from users.models.apidentity import APIdentity
 
@@ -84,16 +84,8 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
             )
             if not review:
                 raise BadRequest()
-            if (
-                form.cleaned_data["share_to_mastodon"]
-                and request.user.mastodon_username
-                and post
-            ):
-                boost_toot(
-                    request.user.mastodon_site,
-                    request.user.mastodon_token,
-                    post.url,
-                )
+            if form.cleaned_data["share_to_mastodon"] and post:
+                boost_toot_later(request.user, post.url)
             return redirect(reverse("journal:review_retrieve", args=[review.uuid]))
         else:
             raise BadRequest()

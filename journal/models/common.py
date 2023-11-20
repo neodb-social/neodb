@@ -197,6 +197,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def link_post(self, post: "Post"):
         return self.link_post_id(post.pk)
 
+    def clear_post_ids(self):
+        PiecePost.objects.filter(piece=self).delete()
+
     @cached_property
     def latest_post(self):
         # local post id is ordered by their created time

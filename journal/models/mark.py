@@ -20,7 +20,7 @@ from catalog.collection.models import Collection as CatalogCollection
 from catalog.common import jsondata
 from catalog.common.models import Item, ItemCategory
 from catalog.common.utils import DEFAULT_ITEM_COVER, piece_cover_path
-from mastodon.api import boost_toot
+from mastodon.api import boost_toot_later
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -119,86 +119,134 @@ class Mark:
     def review(self) -> Review | None:
         return Review.objects.filter(owner=self.owner, item=self.item).first()
 
+    @property
+    def logs(self):
+        return ShelfLogEntry.objects.filter(owner=self.owner, item=self.item).order_by(
+            "timestamp"
+        )
+
+    """
+    log entries
+    log entry will be created when item is added to shelf
+    log entry will be created when item is moved to another shelf
+    log entry will be created when item is removed from shelf (TODO change this to DEFERRED shelf)
+    timestamp of log entry will be updated whenever created_time of shelfmember is updated
+    any log entry can be deleted by user arbitrarily
+
+    posts
+    post will be created and set as current when item added to shelf
+    current post will be updated when comment or rating is updated
+    post will not be updated if only created_time is changed
+    post will be deleted, re-created and set as current if visibility changed
+    when item is moved to another shelf, a new post will be created
+    when item is removed from shelf, all post will be deleted
+
+    boost
+    post will be boosted to mastodon if user has mastodon token and site configured
+    """
+
+    @property
+    def all_post_ids(self):
+        """all post ids for this user and item"""
+        pass
+
+    @property
+    def current_post_ids(self):
+        """all post ids for this user and item for its current shelf"""
+        pass
+
+    @property
+    def latest_post_id(self):
+        """latest post id for this user and item for its current shelf"""
+        pass
+
+    def wish(self):
+        """add to wishlist if not on shelf"""
+        if self.shelfmember:
+            logger.warning("item already on shelf, cannot wishlist again")
+            return False
+        self.shelfmember = ShelfMember.objects.create(
+            owner=self.owner,
+            item=self.item,
+            parent=Shelf.objects.get(owner=self.owner, shelf_type=ShelfType.WISHLIST),
+            visibility=self.owner.preference.default_visibility,
+        )
+        self.shelfmember.create_log_entry()
+        post = Takahe.post_mark(self, True)
+        if post and not self.owner.preference.default_no_share:
+            boost_toot_later(self.owner, post.url)
+        return True
+
     def update(
         self,
-        shelf_type,
-        comment_text,
-        rating_grade,
-        visibility,
+        shelf_type: ShelfType | None,
+        comment_text: str | None,
+        rating_grade: int | None,
+        visibility: int,
         metadata=None,
         created_time=None,
         share_to_mastodon=False,
     ):
-        post_to_feed = shelf_type is not None and (
-            shelf_type != self.shelf_type
-            or comment_text != self.comment_text
-            or rating_grade != self.rating_grade
-            or visibility != self.visibility
-        )
-        if shelf_type is None or visibility != self.visibility:
-            if self.shelfmember:
-                Takahe.delete_posts(self.shelfmember.all_post_ids)
+        """change shelf, comment or rating"""
         if created_time and created_time >= timezone.now():
             created_time = None
-        post_as_new = shelf_type != self.shelf_type or visibility != self.visibility
-        original_visibility = self.visibility
-        if shelf_type != self.shelf_type or visibility != original_visibility:
-            self.shelfmember = self.owner.shelf_manager.move_item(
-                self.item,
-                shelf_type,
-                visibility=visibility,
-                metadata=metadata,
+        last_shelf_type = self.shelf_type
+        last_visibility = self.visibility if last_shelf_type else None
+        if shelf_type is None:  # TODO change this use case to DEFERRED status
+            # take item off shelf
+            if last_shelf_type:
+                Takahe.delete_posts(self.shelfmember.all_post_ids)
+                self.shelfmember.log_and_delete()
+            return
+        # create/update shelf member and shelf log if necessary
+        if last_shelf_type == shelf_type:
+            shelfmember_changed = False
+            if last_visibility != visibility:
+                self.shelfmember.visibility = visibility
+                shelfmember_changed = True
+                # retract most recent post about this status when visibility changed
+                Takahe.delete_posts([self.shelfmember.latest_post_id])
+            if created_time and created_time != self.shelfmember.created_time:
+                self.shelfmember.created_time = created_time
+                log_entry = self.shelfmember.ensure_log_entry()
+                log_entry.timestamp = created_time
+                log_entry.save(update_fields=["timestamp"])
+                self.shelfmember.change_timestamp(created_time)
+                shelfmember_changed = True
+            if shelfmember_changed:
+                self.shelfmember.save()
+        else:
+            shelf = Shelf.objects.get(owner=self.owner, shelf_type=shelf_type)
+            d = {"parent": shelf, "visibility": visibility, "position": 0}
+            if metadata:
+                d["metadata"] = metadata
+            if created_time:
+                d["created_time"] = created_time
+            self.shelfmember, _ = ShelfMember.objects.update_or_create(
+                owner=self.owner, item=self.item, defaults=d
             )
-        if self.shelfmember and created_time:
-            # if it's an update(not delete) and created_time is specified,
-            # update the timestamp of the shelfmember and log
-            log = ShelfLogEntry.objects.filter(
-                owner=self.owner,
-                item=self.item,
-                timestamp=self.shelfmember.created_time,
-            ).first()
-            self.shelfmember.created_time = created_time
-            self.shelfmember.save(update_fields=["created_time"])
-            if log:
-                log.timestamp = created_time
-                log.save(update_fields=["timestamp"])
-            else:
-                ShelfLogEntry.objects.create(
-                    owner=self.owner,
-                    shelf_type=shelf_type,
-                    item=self.item,
-                    metadata=self.metadata,
-                    timestamp=created_time,
-                )
-        if comment_text != self.comment_text or visibility != original_visibility:
+            self.shelfmember.create_log_entry()
+            self.shelfmember.clear_post_ids()
+        # create/update/detele comment if necessary
+        if comment_text != self.comment_text or visibility != last_visibility:
             self.comment = Comment.comment_item(
                 self.item,
                 self.owner,
                 comment_text,
                 visibility,
-                self.shelfmember.created_time if self.shelfmember else None,
+                self.shelfmember.created_time,
             )
-        if rating_grade != self.rating_grade or visibility != original_visibility:
+        # create/update/detele rating if necessary
+        if rating_grade != self.rating_grade or visibility != last_visibility:
             Rating.update_item_rating(self.item, self.owner, rating_grade, visibility)
             self.rating_grade = rating_grade
-
-        post = Takahe.post_mark(self, post_as_new) if post_to_feed else None
-        if share_to_mastodon and post:
-            if (
-                self.owner.user
-                and self.owner.user.mastodon_token
-                and self.owner.user.mastodon_site
-            ):
-                # TODO: make this a async task, given post to mastodon is slow and takahe post fanout may take time
-                if boost_toot(
-                    self.owner.user.mastodon_site,
-                    self.owner.user.mastodon_token,
-                    post.url,
-                ):
-                    return True
-            return False
-        else:
-            return True
+        # publish a new or updated ActivityPub post
+        post_as_new = shelf_type != self.shelf_type or visibility != self.visibility
+        post = Takahe.post_mark(self, post_as_new)
+        # async boost to mastodon
+        if post and share_to_mastodon:
+            boost_toot_later(self.owner, post.url)
+        return True
 
     def delete(self):
         # self.logs.delete()  # When deleting a mark, all logs of the mark are deleted first.
@@ -211,9 +259,3 @@ class Mark:
 
     def delete_all_logs(self):
         self.logs.delete()
-
-    @property
-    def logs(self):
-        return ShelfLogEntry.objects.filter(owner=self.owner, item=self.item).order_by(
-            "timestamp"
-        )

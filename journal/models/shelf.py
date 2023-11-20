@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from catalog.models import Item, ItemCategory
-from takahe.models import Identity
+from takahe.models import Identity, Post
 from users.models import APIdentity
 
 from .common import q_item_in_category
@@ -92,7 +92,6 @@ class ShelfMember(ListMember):
             "parent": shelf,
             "position": 0,
             "local": False,
-            # "remote_id": obj["id"],
             "visibility": visibility,
             "created_time": datetime.fromisoformat(obj["published"]),
             "edited_time": datetime.fromisoformat(obj["updated"]),
@@ -129,6 +128,38 @@ class ShelfMember(ListMember):
     def tags(self):
         return self.mark.tags
 
+    def get_log_entry(self):
+        return ShelfLogEntry.objects.filter(
+            owner=self.owner,
+            item=self.item,
+            timestamp=self.created_time,
+        ).first()
+
+    def create_log_entry(self):
+        return ShelfLogEntry.objects.create(
+            owner=self.owner,
+            shelf_type=self.shelf_type,
+            item=self.item,
+            metadata=self.metadata,
+            timestamp=self.created_time,
+        )
+
+    def ensure_log_entry(self):
+        return self.get_log_entry() or self.create_log_entry()
+
+    def log_and_delete(self):
+        ShelfLogEntry.objects.create(
+            owner=self.owner,
+            shelf_type=None,
+            item=self.item,
+            timestamp=timezone.now(),
+        )
+        self.delete()
+
+    def link_post_id(self, post_id: int):
+        self.ensure_log_entry().link_post_id(post_id)
+        return super().link_post_id(post_id)
+
 
 class Shelf(List):
     """
@@ -153,9 +184,12 @@ class ShelfLogEntry(models.Model):
     shelf_type = models.CharField(choices=ShelfType.choices, max_length=100, null=True)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     timestamp = models.DateTimeField()  # this may later be changed by user
-    metadata = models.JSONField(default=dict)
+    metadata = models.JSONField(default=dict)  # TODO Remove this field
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
+    posts = models.ManyToManyField(
+        "takahe.Post", related_name="log_entries", through="ShelfLogEntryPost"
+    )
 
     def __str__(self):
         return f"{self.owner}:{self.shelf_type}:{self.item.uuid}:{self.timestamp}:{self.metadata}"
@@ -166,6 +200,23 @@ class ShelfLogEntry(models.Model):
             return ShelfManager.get_action_label(self.shelf_type, self.item.category)
         else:
             return _("移除标记")
+
+    def link_post_id(self, post_id: int):
+        ShelfLogEntryPost.objects.get_or_create(log_entry=self, post_id=post_id)
+
+
+class ShelfLogEntryPost(models.Model):
+    log_entry = models.ForeignKey(ShelfLogEntry, on_delete=models.CASCADE)
+    post = models.ForeignKey(
+        "takahe.Post", db_constraint=False, db_index=True, on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["log_entry", "post"], name="unique_log_entry_post"
+            ),
+        ]
 
 
 class ShelfManager:
@@ -190,7 +241,7 @@ class ShelfManager:
     def locate_item(self, item: Item) -> ShelfMember | None:
         return ShelfMember.objects.filter(item=item, owner=self.owner).first()
 
-    def move_item(
+    def move_item(  # TODO remove this method
         self,
         item: Item,
         shelf_type: ShelfType,

@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
-from mastodon.api import boost_toot
+from mastodon.api import boost_toot_later
 from takahe.utils import Takahe
 
 from ..models import Comment, Mark, Piece, ShelfType, ShelfTypeNames, TagManager
@@ -32,7 +32,7 @@ def wish(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
         raise Http404()
-    request.user.identity.shelf_manager.move_item(item, ShelfType.WISHLIST)
+    Mark(request.user.identity, item).wish()
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     return HttpResponse(_checkmark)
@@ -221,14 +221,8 @@ def comment(request: AuthedHttpRequest, item_uuid):
         )
         post = Takahe.post_comment(comment, False)
         share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
-        if post and share_to_mastodon and request.user.mastodon_username:
-            boost_toot(
-                request.user.mastodon_site,
-                request.user.mastodon_token,
-                post.url,
-            )
-            # if post_error:
-            #     return render_relogin(request)
+        if post and share_to_mastodon:
+            boost_toot_later(request.user, post.url)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     raise BadRequest()
 

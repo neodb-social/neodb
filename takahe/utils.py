@@ -438,7 +438,7 @@ class Takahe:
         )
         if not post:
             return
-        comment.link_post(post)
+        comment.link_post_id(post.pk)
         return post
 
     @staticmethod
@@ -485,7 +485,7 @@ class Takahe:
         )
         if not post:
             return
-        review.link_post(post)
+        review.link_post_id(post.pk)
         return post
 
     @staticmethod
@@ -540,7 +540,7 @@ class Takahe:
             return
         for piece in [mark.shelfmember, mark.comment, mark.rating]:
             if piece:
-                piece.link_post(post)
+                piece.link_post_id(post.pk)
         return post
 
     @staticmethod

@@ -5,6 +5,7 @@ import re
 import string
 from urllib.parse import quote
 
+import django_rq
 import requests
 from django.conf import settings
 from loguru import logger
@@ -115,6 +116,13 @@ def boost_toot(site, token, toot_url):
     except Exception:
         logger.error(f"Error search {toot_url} on {domain}")
         return None
+
+
+def boost_toot_later(user, post_url):
+    if user and user.mastodon_token and user.mastodon_site and post_url:
+        django_rq.get_queue("fetch").enqueue(
+            boost_toot, user.mastodon_site, user.mastodon_token, post_url
+        )
 
 
 def post_toot(

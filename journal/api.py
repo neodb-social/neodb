@@ -10,7 +10,7 @@ from oauth2_provider.decorators import protected_resource
 
 from catalog.common.models import *
 from common.api import *
-from mastodon.api import boost_toot
+from mastodon.api import boost_toot_later
 
 from .models import Mark, Review, ShelfType, TagManager, q_item_in_category
 
@@ -195,7 +195,7 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
-    r, p = Review.update_item_review(
+    r, post = Review.update_item_review(
         item,
         request.user,
         review.title,
@@ -203,13 +203,8 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
         review.visibility,
         created_time=review.created_time,
     )
-    if p and review.post_to_fediverse and request.user.mastodon_username:
-        boost_toot(
-            request.user.mastodon_site,
-            request.user.mastodon_token,
-            p.url,
-        )
-
+    if post and review.post_to_fediverse:
+        boost_toot_later(request.user, post.url)
     return 200, {"message": "OK"}
 
 
