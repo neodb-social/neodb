@@ -219,16 +219,19 @@ class DoubanImporter:
             url = cells[3]
             time = cells[4]
             rating = cells[5]
-            rating_grade = int(rating) * 2 if rating else None
+            try:
+                rating_grade = int(rating) * 2 if rating else None
+            except:
+                rating_grade = None
             tags = cells[6] if len(cells) >= 7 else ""
             tags = tags.split(",") if tags else []
             comment = cells[7] if len(cells) >= 8 else None
             self.processed += 1
-            if time:
+            try:
                 if type(time) == str:
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
                 time = time.replace(tzinfo=_tz_sh)
-            else:
+            except:
                 time = None
             r = self.import_mark(url, shelf_type, comment, rating_grade, tags, time)
             if r == 1:
@@ -319,7 +322,7 @@ class DoubanImporter:
         except Exception as e:
             logger.error(f"fetching exception: {url} {e}")
         if item is None:
-            self.failed.append(url)
+            self.failed.append(str(url))
         return item
 
     def import_review(self, entity_title, rating, title, review_url, content, time):
