@@ -32,7 +32,9 @@ def wish(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
         raise Http404()
-    Mark(request.user.identity, item).wish()
+    mark = Mark(request.user.identity, item)
+    if not mark.shelf_type:
+        mark.update(ShelfType.WISHLIST)
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     return HttpResponse(_checkmark)

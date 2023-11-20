@@ -128,24 +128,32 @@ class ShelfMember(ListMember):
     def tags(self):
         return self.mark.tags
 
-    def get_log_entry(self):
-        return ShelfLogEntry.objects.filter(
-            owner=self.owner,
-            item=self.item,
-            timestamp=self.created_time,
-        ).first()
+    # def get_log_entry(self):
+    #     return ShelfLogEntry.objects.filter(
+    #         owner=self.owner,
+    #         item=self.item,
+    #         shelf_type=self.shelf_type,
+    #         timestamp=self.created_time,
+    #     ).first()
 
-    def create_log_entry(self):
-        return ShelfLogEntry.objects.create(
+    # def create_log_entry(self):
+    #     return ShelfLogEntry.objects.create(
+    #         owner=self.owner,
+    #         shelf_type=self.shelf_type,
+    #         item=self.item,
+    #         metadata=self.metadata,
+    #         timestamp=self.created_time,
+    #     )
+
+    def ensure_log_entry(self):
+        log, _ = ShelfLogEntry.objects.get_or_create(
             owner=self.owner,
             shelf_type=self.shelf_type,
             item=self.item,
-            metadata=self.metadata,
             timestamp=self.created_time,
+            defaults={"metadata": self.metadata},
         )
-
-    def ensure_log_entry(self):
-        return self.get_log_entry() or self.create_log_entry()
+        return log
 
     def log_and_delete(self):
         ShelfLogEntry.objects.create(
@@ -240,67 +248,6 @@ class ShelfManager:
 
     def locate_item(self, item: Item) -> ShelfMember | None:
         return ShelfMember.objects.filter(item=item, owner=self.owner).first()
-
-    def move_item(  # TODO remove this method
-        self,
-        item: Item,
-        shelf_type: ShelfType,
-        visibility: int = 0,
-        metadata: dict | None = None,
-    ):
-        # shelf_type=None means remove from current shelf
-        # metadata=None means no change
-        if not item:
-            raise ValueError("empty item")
-        new_shelfmember = None
-        last_shelfmember = self.locate_item(item)
-        last_shelf = last_shelfmember.parent if last_shelfmember else None
-        last_metadata = last_shelfmember.metadata if last_shelfmember else None
-        last_visibility = last_shelfmember.visibility if last_shelfmember else None
-        shelf = self.shelf_list[shelf_type] if shelf_type else None
-        changed = False
-        if last_shelf != shelf:  # change shelf
-            changed = True
-            if last_shelf:
-                last_shelf.remove_item(item)
-            if shelf:
-                new_shelfmember = shelf.append_item(
-                    item, visibility=visibility, metadata=metadata or {}
-                )
-        elif last_shelf is None:
-            raise ValueError("empty shelf")
-        else:
-            new_shelfmember = last_shelfmember
-            if last_shelfmember:
-                if (
-                    metadata is not None and metadata != last_metadata
-                ):  # change metadata
-                    changed = True
-                    last_shelfmember.metadata = metadata
-                    last_shelfmember.visibility = visibility
-                    last_shelfmember.save()
-                elif visibility != last_visibility:  # change visibility
-                    last_shelfmember.visibility = visibility
-                    last_shelfmember.save()
-        if changed:
-            if metadata is None:
-                metadata = last_metadata or {}
-            log_time = (
-                new_shelfmember.created_time
-                if new_shelfmember and new_shelfmember != last_shelfmember
-                else timezone.now()
-            )
-            ShelfLogEntry.objects.create(
-                owner=self.owner,
-                shelf_type=shelf_type,
-                item=item,
-                metadata=metadata,
-                timestamp=log_time,
-            )
-        return new_shelfmember
-
-    def get_log(self):
-        return ShelfLogEntry.objects.filter(owner=self.owner).order_by("timestamp")
 
     def get_log_for_item(self, item: Item):
         return ShelfLogEntry.objects.filter(owner=self.owner, item=item).order_by(

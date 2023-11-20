@@ -396,6 +396,19 @@ class Takahe:
     @staticmethod
     def delete_posts(post_pks):
         Post.objects.filter(pk__in=post_pks).update(state="deleted")
+        # TimelineEvent.objects.filter(subject_post__in=[post.pk]).delete()
+        PostInteraction.objects.filter(post__in=post_pks).update(state="undone")
+
+    @staticmethod
+    def visibility_n2t(visibility: int, default_public) -> Visibilities:
+        if visibility == 1:
+            return Takahe.Visibilities.followers
+        elif visibility == 2:
+            return Takahe.Visibilities.mentioned
+        elif default_public:
+            return Takahe.Visibilities.public
+        else:
+            return Takahe.Visibilities.unlisted
 
     @staticmethod
     def post_comment(comment, share_as_new_post: bool) -> Post | None:
@@ -418,14 +431,9 @@ class Takahe:
                 "relatedWith": [comment.ap_object],
             }
         }
-        if comment.visibility == 1:
-            v = Takahe.Visibilities.followers
-        elif comment.visibility == 2:
-            v = Takahe.Visibilities.mentioned
-        elif user.preference.mastodon_publish_public:
-            v = Takahe.Visibilities.public
-        else:
-            v = Takahe.Visibilities.unlisted
+        v = Takahe.visibility_n2t(
+            comment.visibility, user.preference.mastodon_publish_public
+        )
         existing_post = None if share_as_new_post else comment.latest_post
         post = Takahe.post(  # TODO post as Article?
             comment.owner.pk,
@@ -465,14 +473,9 @@ class Takahe:
                 "relatedWith": [review.ap_object],
             }
         }
-        if review.visibility == 1:
-            v = Takahe.Visibilities.followers
-        elif review.visibility == 2:
-            v = Takahe.Visibilities.mentioned
-        elif user.preference.mastodon_publish_public:
-            v = Takahe.Visibilities.public
-        else:
-            v = Takahe.Visibilities.unlisted
+        v = Takahe.visibility_n2t(
+            review.visibility, user.preference.mastodon_publish_public
+        )
         existing_post = None if share_as_new_post else review.latest_post
         post = Takahe.post(  # TODO post as Article?
             review.owner.pk,
@@ -518,14 +521,9 @@ class Takahe:
             data["object"]["relatedWith"].append(mark.comment.ap_object)
         if mark.rating:
             data["object"]["relatedWith"].append(mark.rating.ap_object)
-        if mark.visibility == 1:
-            v = Takahe.Visibilities.followers
-        elif mark.visibility == 2:
-            v = Takahe.Visibilities.mentioned
-        elif user.preference.mastodon_publish_public:
-            v = Takahe.Visibilities.public
-        else:
-            v = Takahe.Visibilities.unlisted
+        v = Takahe.visibility_n2t(
+            mark.visibility, user.preference.mastodon_publish_public
+        )
         existing_post = None if share_as_new_post else mark.shelfmember.latest_post
         post = Takahe.post(
             mark.owner.pk,

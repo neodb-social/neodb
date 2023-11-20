@@ -88,7 +88,7 @@ class Mark:
         if self.shelfmember:
             return self.shelfmember.visibility
         else:
-            # mark not saved yet, return default visibility for editing ui
+            # mark not created/saved yet, use user's default visibility
             return self.owner.preference.default_visibility
 
     @cached_property
@@ -148,41 +148,24 @@ class Mark:
     @property
     def all_post_ids(self):
         """all post ids for this user and item"""
-        pass
+        return self.logs.values_list("posts", flat=True)
 
     @property
     def current_post_ids(self):
-        """all post ids for this user and item for its current shelf"""
-        pass
+        """all post ids for this user and item for its current status"""
+        return self.shelfmember.all_post_ids if self.shelfmember else []
 
     @property
     def latest_post_id(self):
-        """latest post id for this user and item for its current shelf"""
-        pass
-
-    def wish(self):
-        """add to wishlist if not on shelf"""
-        if self.shelfmember:
-            logger.warning("item already on shelf, cannot wishlist again")
-            return False
-        self.shelfmember = ShelfMember.objects.create(
-            owner=self.owner,
-            item=self.item,
-            parent=Shelf.objects.get(owner=self.owner, shelf_type=ShelfType.WISHLIST),
-            visibility=self.owner.preference.default_visibility,
-        )
-        self.shelfmember.create_log_entry()
-        post = Takahe.post_mark(self, True)
-        if post and not self.owner.preference.default_no_share:
-            boost_toot_later(self.owner, post.url)
-        return True
+        """latest post id for this user and item for its current status"""
+        return self.shelfmember.latest_post_id if self.shelfmember else None
 
     def update(
         self,
         shelf_type: ShelfType | None,
-        comment_text: str | None,
-        rating_grade: int | None,
-        visibility: int,
+        comment_text: str | None = None,
+        rating_grade: int | None = None,
+        visibility: int | None = None,
         metadata=None,
         created_time=None,
         share_to_mastodon=False,
@@ -190,6 +173,8 @@ class Mark:
         """change shelf, comment or rating"""
         if created_time and created_time >= timezone.now():
             created_time = None
+        if visibility is None:
+            visibility = self.visibility
         last_shelf_type = self.shelf_type
         last_visibility = self.visibility if last_shelf_type else None
         if shelf_type is None:  # TODO change this use case to DEFERRED status
@@ -201,14 +186,19 @@ class Mark:
         # create/update shelf member and shelf log if necessary
         if last_shelf_type == shelf_type:
             shelfmember_changed = False
+            log_entry = self.shelfmember.ensure_log_entry()
+            if metadata is not None and metadata != self.shelfmember.metadata:
+                self.shelfmember.metadata = metadata
+                shelfmember_changed = True
             if last_visibility != visibility:
                 self.shelfmember.visibility = visibility
                 shelfmember_changed = True
                 # retract most recent post about this status when visibility changed
-                Takahe.delete_posts([self.shelfmember.latest_post_id])
+                latest_post = self.shelfmember.latest_post
+                if latest_post:
+                    Takahe.delete_posts([latest_post.pk])
             if created_time and created_time != self.shelfmember.created_time:
                 self.shelfmember.created_time = created_time
-                log_entry = self.shelfmember.ensure_log_entry()
                 log_entry.timestamp = created_time
                 log_entry.save(update_fields=["timestamp"])
                 self.shelfmember.change_timestamp(created_time)
@@ -225,24 +215,28 @@ class Mark:
             self.shelfmember, _ = ShelfMember.objects.update_or_create(
                 owner=self.owner, item=self.item, defaults=d
             )
-            self.shelfmember.create_log_entry()
+            self.shelfmember.ensure_log_entry()
             self.shelfmember.clear_post_ids()
         # create/update/detele comment if necessary
-        if comment_text != self.comment_text or visibility != last_visibility:
-            self.comment = Comment.comment_item(
-                self.item,
-                self.owner,
-                comment_text,
-                visibility,
-                self.shelfmember.created_time,
-            )
+        if comment_text is not None:
+            if comment_text != self.comment_text or visibility != last_visibility:
+                self.comment = Comment.comment_item(
+                    self.item,
+                    self.owner,
+                    comment_text,
+                    visibility,
+                    self.shelfmember.created_time,
+                )
         # create/update/detele rating if necessary
-        if rating_grade != self.rating_grade or visibility != last_visibility:
-            Rating.update_item_rating(self.item, self.owner, rating_grade, visibility)
-            self.rating_grade = rating_grade
+        if rating_grade is not None:
+            if rating_grade != self.rating_grade or visibility != last_visibility:
+                Rating.update_item_rating(
+                    self.item, self.owner, rating_grade, visibility
+                )
+                self.rating_grade = rating_grade
         # publish a new or updated ActivityPub post
-        post_as_new = shelf_type != self.shelf_type or visibility != self.visibility
-        post = Takahe.post_mark(self, post_as_new)
+        post_as_new = shelf_type != last_shelf_type or visibility != last_visibility
+        post = Takahe.post_mark(self, post_as_new)  # this will update linked post
         # async boost to mastodon
         if post and share_to_mastodon:
             boost_toot_later(self.owner, post.url)
@@ -250,7 +244,7 @@ class Mark:
 
     def delete(self):
         # self.logs.delete()  # When deleting a mark, all logs of the mark are deleted first.
-        self.update(None, None, None, 0)
+        self.update(None)
 
     def delete_log(self, log_id):
         ShelfLogEntry.objects.filter(

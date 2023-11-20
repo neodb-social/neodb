@@ -30,17 +30,15 @@ class SocialTest(TestCase):
         self.assertEqual(len(alice_feed.get_timeline()), 0)
 
         # 1 activity after adding first book to shelf
-        self.alice.identity.shelf_manager.move_item(
-            self.book1, ShelfType.WISHLIST, visibility=1
-        )
+        Mark(self.alice.identity, self.book1).update(ShelfType.WISHLIST, visibility=1)
         self.assertEqual(len(alice_feed.get_timeline()), 1)
 
         # 2 activities after adding second book to shelf
-        self.alice.identity.shelf_manager.move_item(self.book2, ShelfType.WISHLIST)
+        Mark(self.alice.identity, self.book2).update(ShelfType.WISHLIST)
         self.assertEqual(len(alice_feed.get_timeline()), 2)
 
         # 2 activities after change first mark
-        self.alice.identity.shelf_manager.move_item(self.book1, ShelfType.PROGRESS)
+        Mark(self.alice.identity, self.book1).update(ShelfType.PROGRESS)
         self.assertEqual(len(alice_feed.get_timeline()), 2)
 
         # bob see 0 activity in timeline in the beginning
@@ -60,9 +58,7 @@ class SocialTest(TestCase):
         self.assertEqual(len(bob_feed.get_timeline()), 2)
 
         # alice:3 bob:2 after alice adding second book to shelf as private
-        self.alice.identity.shelf_manager.move_item(
-            self.movie, ShelfType.WISHLIST, visibility=2
-        )
+        Mark(self.alice.identity, self.movie).update(ShelfType.WISHLIST, visibility=2)
         self.assertEqual(len(alice_feed.get_timeline()), 3)
         self.assertEqual(len(bob_feed.get_timeline()), 2)
 

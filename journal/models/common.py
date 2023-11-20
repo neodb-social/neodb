@@ -194,9 +194,6 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def link_post_id(self, post_id: int):
         PiecePost.objects.get_or_create(piece=self, post_id=post_id)
 
-    def link_post(self, post: "Post"):
-        return self.link_post_id(post.pk)
-
     def clear_post_ids(self):
         PiecePost.objects.filter(piece=self).delete()
 
