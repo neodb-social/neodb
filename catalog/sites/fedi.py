@@ -21,6 +21,7 @@ class FediverseInstance(AbstractSite):
     }
     supported_types = {
         "Book": Edition,
+        "Edition": Edition,
         "Movie": Movie,
         "TVShow": TVShow,
         "TVSeason": TVSeason,
