@@ -12,6 +12,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RemoveField(
+            model_name="shelflogentry",
+            name="metadata",
+        ),
         migrations.CreateModel(
             name="ShelfLogEntryPost",
             fields=[

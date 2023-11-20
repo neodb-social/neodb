@@ -128,30 +128,12 @@ class ShelfMember(ListMember):
     def tags(self):
         return self.mark.tags
 
-    # def get_log_entry(self):
-    #     return ShelfLogEntry.objects.filter(
-    #         owner=self.owner,
-    #         item=self.item,
-    #         shelf_type=self.shelf_type,
-    #         timestamp=self.created_time,
-    #     ).first()
-
-    # def create_log_entry(self):
-    #     return ShelfLogEntry.objects.create(
-    #         owner=self.owner,
-    #         shelf_type=self.shelf_type,
-    #         item=self.item,
-    #         metadata=self.metadata,
-    #         timestamp=self.created_time,
-    #     )
-
     def ensure_log_entry(self):
         log, _ = ShelfLogEntry.objects.get_or_create(
             owner=self.owner,
             shelf_type=self.shelf_type,
             item=self.item,
             timestamp=self.created_time,
-            defaults={"metadata": self.metadata},
         )
         return log
 
@@ -192,7 +174,6 @@ class ShelfLogEntry(models.Model):
     shelf_type = models.CharField(choices=ShelfType.choices, max_length=100, null=True)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     timestamp = models.DateTimeField()  # this may later be changed by user
-    metadata = models.JSONField(default=dict)  # TODO Remove this field
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
     posts = models.ManyToManyField(
@@ -200,7 +181,7 @@ class ShelfLogEntry(models.Model):
     )
 
     def __str__(self):
-        return f"{self.owner}:{self.shelf_type}:{self.item.uuid}:{self.timestamp}:{self.metadata}"
+        return f"{self.owner}:{self.shelf_type}:{self.item.uuid}:{self.timestamp}"
 
     @property
     def action_label(self):

@@ -68,8 +68,6 @@ class ShelfTest(TestCase):
         self.assertEqual(len(Mark(user.identity, book1).all_post_ids), 2)
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 2)
-        last_log = log.last()
-        self.assertEqual(last_log.metadata if last_log else 42, {})
         Mark(user.identity, book1).update(ShelfType.PROGRESS, metadata={"progress": 1})
         time.sleep(0.001)
         self.assertEqual(q1.members.all().count(), 1)
