@@ -66,8 +66,6 @@ def embed(request, item_path, item_uuid):
 
 
 def retrieve(request, item_path, item_uuid):
-    if request.method != "GET":
-        raise BadRequest()
     # item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     item = Item.get_by_url(item_uuid)
     if item is None:
@@ -75,13 +73,15 @@ def retrieve(request, item_path, item_uuid):
     item_url = f"/{item_path}/{item_uuid}"
     if item.url != item_url:
         return redirect(item.url)
-    if request.headers.get("Accept", "").endswith("json"):
-        return redirect(item.api_url)
     skipcheck = request.GET.get("skipcheck", False) and request.user.is_authenticated
     if not skipcheck and item.merged_to_item:
         return redirect(item.merged_to_item.url)
     if not skipcheck and item.is_deleted:
         raise Http404()
+    if request.headers.get("Accept", "").endswith("json"):
+        return redirect(item.api_url)
+    if request.method != "GET":
+        raise BadRequest()
     focus_item = None
     if request.GET.get("focus"):
         focus_item = get_object_or_404(
