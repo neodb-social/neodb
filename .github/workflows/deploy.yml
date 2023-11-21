@@ -14,6 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ vars.DEPLOY_ENV }}
     steps:
+    - name: Send start notification
+      uses: appleboy/discord-action@master
+      with:
+        webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+        webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+        color: "#6848a9"
+        message: "Deployment started."
     - name: ssh
       uses: appleboy/ssh-action@master
       with:
@@ -22,10 +29,10 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         script: ${{ vars.DEPLOY_SCRIPT }}
-
-    - name: Send Discord notification
+    - name: Send complete notification
       uses: appleboy/discord-action@master
       with:
         webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
         webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-        args: Deployment complete.
+        color: "#6848a9"
+        message: "Deployment complete."

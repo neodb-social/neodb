@@ -210,8 +210,7 @@ class Mark:
             d = {"parent": shelf, "visibility": visibility, "position": 0}
             if metadata:
                 d["metadata"] = metadata
-            if created_time:
-                d["created_time"] = created_time
+            d["created_time"] = created_time or timezone.now()
             self.shelfmember, _ = ShelfMember.objects.update_or_create(
                 owner=self.owner, item=self.item, defaults=d
             )

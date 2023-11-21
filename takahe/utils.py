@@ -524,7 +524,13 @@ class Takahe:
         v = Takahe.visibility_n2t(
             mark.visibility, user.preference.mastodon_publish_public
         )
-        existing_post = None if share_as_new_post else mark.shelfmember.latest_post
+        existing_post = (
+            None
+            if share_as_new_post
+            or mark.shelfmember.latest_post is None
+            or mark.shelfmember.latest_post.state in ["deleted", "deleted_fanned_out"]
+            else mark.shelfmember.latest_post
+        )
         post = Takahe.post(
             mark.owner.pk,
             pre_conetent,

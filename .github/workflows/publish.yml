@@ -36,7 +36,8 @@ jobs:
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          args: Building docker image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
+          color: "#1857a4"
+          message: Building docker image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -71,4 +72,5 @@ jobs:
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          args: Published docker image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
+          color: "#1857a4"
+          message: Published docker image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
