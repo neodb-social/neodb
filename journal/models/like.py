@@ -14,7 +14,7 @@ class Like(Piece):  # TODO remove
         default=0
     )  # 0: Public / 1: Follower only / 2: Self only
     created_time = models.DateTimeField(default=timezone.now)
-    edited_time = models.DateTimeField(default=timezone.now)
+    edited_time = models.DateTimeField(auto_now=True)
     target = models.ForeignKey(Piece, on_delete=models.CASCADE, related_name="likes")
 
     @staticmethod

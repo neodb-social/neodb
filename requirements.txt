@@ -1,9 +1,9 @@
 cachetools
 dateparser
 discord.py
-django~=4.2.6
+django~=4.2.7
 django-anymail
-django-auditlog>=3.0.0-beta.2
+django-auditlog>=3.0.0-beta.3
 django-bleach
 django-compressor
 django-cors-headers

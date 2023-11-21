@@ -235,9 +235,7 @@ class Content(Piece):
         default=0
     )  # 0: Public / 1: Follower only / 2: Self only
     created_time = models.DateTimeField(default=timezone.now)
-    edited_time = models.DateTimeField(
-        default=timezone.now
-    )  # auto_now=True   FIXME revert this after migration
+    edited_time = models.DateTimeField(auto_now=True)
     metadata = models.JSONField(default=dict)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     remote_id = models.CharField(max_length=200, null=True, default=None)

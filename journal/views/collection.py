@@ -279,7 +279,6 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
         if form.is_valid():
             if not collection:
                 form.instance.owner = request.user.identity
-            form.instance.edited_time = timezone.now()
             form.save()
             return redirect(
                 reverse("journal:collection_retrieve", args=[form.instance.uuid])
