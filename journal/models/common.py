@@ -198,10 +198,15 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         PiecePost.objects.filter(piece=self).delete()
 
     @cached_property
-    def latest_post(self):
-        # local post id is ordered by their created time
+    def latest_post_id(self):
+        # post id is ordered by their created time
         pp = PiecePost.objects.filter(piece=self).order_by("-post_id").first()
-        return Takahe.get_post(pp.post_id) if pp else None  # type: ignore
+        return pp.post_id if pp else None
+
+    @cached_property
+    def latest_post(self):
+        pk = self.latest_post_id
+        return Takahe.get_post(pk) if pk else None
 
     @cached_property
     def all_post_ids(self):
@@ -212,6 +217,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
 
 class PiecePost(models.Model):
+    post_id: int
     piece = models.ForeignKey(Piece, on_delete=models.CASCADE)
     post = models.ForeignKey(
         "takahe.Post", db_constraint=False, db_index=True, on_delete=models.CASCADE

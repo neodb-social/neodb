@@ -80,10 +80,9 @@ class ShelfMember(ListMember):
     def update_by_ap_object(
         cls, owner: APIdentity, item: Identity, obj: dict, post_id: int, visibility: int
     ):
-        # TODO check timestamp? (update may come in with inconsistent sequence)
-        if not obj:
-            cls.objects.filter(owner=owner, item=item).delete()
-            return
+        p = cls.objects.filter(owner=owner, item=item).first()
+        if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
+            return p  # incoming ap object is older than what we have, no update needed
         shelf = owner.shelf_manager.get_shelf(obj["status"])
         if not shelf:
             logger.warning(f"unable to locate shelf for {owner}, {obj}")
@@ -147,7 +146,8 @@ class ShelfMember(ListMember):
         self.delete()
 
     def link_post_id(self, post_id: int):
-        self.ensure_log_entry().link_post_id(post_id)
+        if self.local:
+            self.ensure_log_entry().link_post_id(post_id)
         return super().link_post_id(post_id)
 
 

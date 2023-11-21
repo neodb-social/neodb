@@ -61,12 +61,16 @@ def _get_or_create_item(item_obj):
     if typ in ["TVEpisode", "PodcastEpisode"]:
         # TODO support episode item
         # match and fetch parent item first
+        logger.debug(f"{typ}:{url} not supported yet")
         return None
     site = SiteManager.get_site_by_url(url)
     if not site:
+        logger.warning(f"Site not found for {url}")
         return None
     site.get_resource_ready()
     item = site.get_item()
+    if not item:
+        logger.warning(f"Item not fetched for {url}")
     return item
 
 
@@ -100,12 +104,21 @@ def post_fetched(pk, obj):
         logger.warning(f"Post {post} has no local item matched or created")
         return
     for p in pieces:
-        cls = _supported_ap_journal_types[p["type"]]
+        cls = _supported_ap_journal_types.get(p["type"])
+        if not cls:
+            logger.warning(f'Unknown link type {p["type"]}')
+            continue
         cls.update_by_ap_object(owner, item, p, pk, _get_visibility(post.visibility))
 
 
 def post_deleted(pk, obj):
-    Piece.objects.filter(posts__id=pk, local=False).delete()
+    for piece in Piece.objects.filter(posts__id=pk, local=False):
+        # delete piece if the deleted post is the most recent one for the piece
+        if piece.latest_post_id == pk:
+            logger.debug(f"Deleting remote piece {piece}")
+            piece.delete()
+        else:
+            logger.debug(f"Matched remote piece {piece} has newer posts, not deleting")
 
 
 def identity_fetched(pk):

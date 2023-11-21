@@ -53,6 +53,9 @@ class Review(Content):
 
     @classmethod
     def update_by_ap_object(cls, owner, item, obj, post_id, visibility):
+        p = cls.objects.filter(owner=owner, item=item).first()
+        if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
+            return p  # incoming ap object is older than what we have, no update needed
         content = (
             obj["content"]
             if obj.get("mediaType") == "text/markdown"

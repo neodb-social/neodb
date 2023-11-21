@@ -11,12 +11,10 @@
 {% load duration %}
 {% wish_item_action activity.action_object.item as action %}
 <span class="action">
-  {% if activity.action_object.mark.comment_text %}
-    <span>
-      {% liked_piece activity.action_object.mark.comment as liked %}
-      {% include 'like_stats.html' with liked=liked piece=activity.action_object.mark.comment %}
-    </span>
-  {% endif %}
+  <span>
+    {% liked_piece activity.action_object as liked %}
+    {% include 'like_stats.html' with liked=liked piece=activity.action_object %}
+  </span>
   {% comment %}
   <span>
     <a><i class="fa-solid fa-circle-play"></i></a>
