@@ -39,6 +39,7 @@ podcastparser
 psycopg2-binary
 requests
 rq>=1.12.0
+sentry-sdk
 setproctitle
 tqdm
 typesense

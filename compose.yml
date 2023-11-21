@@ -30,6 +30,8 @@ x-shared:
       NEODB_LOGIN_MASTODON_WHITELIST:
       NEODB_MASTODON_CLIENT_SCOPE:
       NEODB_DISABLE_DEFAULT_RELAY:
+      NEODB_SENTRY_DSN:
+      TAKAHE_SENTRY_DSN:
       NEODB_DB_URL: postgres://neodb:aubergine@neodb-db/neodb
       TAKAHE_DB_URL: postgres://takahe:aubergine@takahe-db/takahe
       NEODB_REDIS_URL: redis://redis:6379/0

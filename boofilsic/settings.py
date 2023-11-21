@@ -83,6 +83,7 @@ env = environ.FileAwareEnv(
     DISCORD_WEBHOOKS=(dict, {"user-report": None}),
     # Slack API token, for sending exceptions to Slack, may deprecate in future
     SLACK_API_TOKEN=(str, ""),
+    NEODB_SENTRY_DSN=(str, ""),
 )
 
 # ====== End of user configuration variables ======
@@ -508,3 +509,15 @@ CORS_ALLOW_METHODS = (
     # "PUT",
 )
 DEFAULT_RELAY_SERVER = "https://relay.neodb.net/actor"
+
+SENTRY_DSN = env("NEODB_SENTRY_DSN")
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        release=NEODB_VERSION,
+        traces_sample_rate=1 if DEBUG else 0.01,
+    )
