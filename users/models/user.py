@@ -235,25 +235,25 @@ class User(AbstractUser):
     def sync_relationship(self):
         for target in self.mastodon_followers:
             t = target.split("@")
-            target_user = User.objects.filter(
-                mastodon_username=t[0], mastodon_site=t[1]
+            target_identity = APIdentity.objects.filter(
+                user__mastodon_username=t[0], user__mastodon_site=t[1]
             ).first()
-            if target_user and not self.identity.is_following(target_user.identity):
-                self.identity.follow(target_user.identity)
+            if target_identity and not self.identity.is_following(target_identity):
+                self.identity.follow(target_identity)
         for target in self.mastodon_blocks:
             t = target.split("@")
-            target_user = User.objects.filter(
-                mastodon_username=t[0], mastodon_site=t[1]
+            target_identity = APIdentity.objects.filter(
+                user__mastodon_username=t[0], user__mastodon_site=t[1]
             ).first()
-            if target_user and not self.identity.is_blocking(target_user.identity):
-                self.identity.block(target_user.identity)
+            if target_identity and not self.identity.is_blocking(target_identity):
+                self.identity.block(target_identity)
         for target in self.mastodon_mutes:
             t = target.split("@")
-            target_user = User.objects.filter(
-                mastodon_username=t[0], mastodon_site=t[1]
+            target_identity = APIdentity.objects.filter(
+                user__mastodon_username=t[0], user__mastodon_site=t[1]
             ).first()
-            if target_user and not self.identity.is_muting(target_user.identity):
-                self.identity.mute(target_user.identity)
+            if target_identity and not self.identity.is_muting(target_identity):
+                self.identity.mute(target_identity)
 
     def sync_identity(self):
         identity = self.identity.takahe_identity
