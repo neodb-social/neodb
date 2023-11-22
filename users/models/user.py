@@ -233,6 +233,8 @@ class User(AbstractUser):
         self.identity.save()
 
     def sync_relationship(self):
+        from .apidentity import APIdentity
+
         for target in self.mastodon_followers:
             t = target.split("@")
             target_identity = APIdentity.objects.filter(
