@@ -341,6 +341,9 @@ LOGGING = {
 }
 
 if SLACK_TOKEN:
+    INSTALLED_APPS += [
+        "django_slack",
+    ]
     LOGGING["handlers"]["slack"] = {
         "level": "ERROR",
         "class": "django_slack.log.SlackExceptionHandler",
