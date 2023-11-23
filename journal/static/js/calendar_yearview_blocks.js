@@ -105,7 +105,7 @@
                     var color = settings.colors[item_name]?settings.colors[item_name]:settings.colors['default'];
 
                     // Fill a square for the 1st item
-                    item_html += '<rect class="day" width="11" height="11" y="' + y + '" fill="' + color + match_today + '" data-items="' + items_str + '" data-legend="' + legend + '" data-date="' + data_date + '"/>';
+                    item_html += '<rect class="day" ' + (items.length<2 ? 'rx="2" ry="2"' : '') + ' width="11" height="11" y="' + y + '" fill="' + color + match_today + '" data-items="' + items_str + '" data-legend="' + legend + '" data-date="' + data_date + '"/>';
                     if (items.length === 2) { // Fill a trangle for the 2nd
                         var item_name_1 = items[1]?items[1]:false;
                         var color_1 = settings.colors[item_name_1]?settings.colors[item_name_1]:settings.colors['default'];
