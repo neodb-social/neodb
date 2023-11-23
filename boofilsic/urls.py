@@ -34,6 +34,10 @@ urlpatterns = [
         "users/OAuth2_login/",
         RedirectView.as_view(url="/account/login/oauth", query_string=True),
     ),
+    path(
+        "auth/edit",  # some apps like elk will use this url
+        RedirectView.as_view(url="/account/profile", query_string=True),
+    ),
     path("", include("catalog.urls")),
     path("", include("journal.urls")),
     path("timeline/", include("social.urls")),
