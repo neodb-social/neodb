@@ -282,23 +282,44 @@ class ShelfManager:
         timezone_offset = timezone.localtime(timezone.now()).strftime("%z")
         timezone_offset = timezone_offset[: len(timezone_offset) - 2]
         calendar_data = {}
-        sql = "SELECT to_char(DATE(journal_shelfmember.created_time::timestamp AT TIME ZONE %s), 'YYYY-MM-DD') AS dat, django_content_type.model typ, COUNT(1) count FROM journal_shelfmember, catalog_item, django_content_type WHERE journal_shelfmember.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND parent_id = %s AND journal_shelfmember.created_time >= NOW() - INTERVAL '366 days' AND journal_shelfmember.visibility <= %s GROUP BY item_id, dat, typ;"
-        with connection.cursor() as cursor:
-            cursor.execute(sql, [timezone_offset, shelf_id, int(max_visiblity)])
-            data = cursor.fetchall()
-            for line in data:
-                date = line[0]
-                typ = line[1]
-                if date not in calendar_data:
-                    calendar_data[date] = {"items": []}
-                if typ[:2] == "tv":
-                    typ = "movie"
-                elif typ == "album":
-                    typ = "music"
-                elif typ == "edition":
-                    typ = "book"
-                elif typ not in ["book", "movie", "music", "game"]:
-                    typ = "other"
-                if typ not in calendar_data[date]["items"]:
-                    calendar_data[date]["items"].append(typ)
+        queries = [
+            (
+                "SELECT to_char(DATE(journal_shelfmember.created_time::timestamp AT TIME ZONE %s), 'YYYY-MM-DD') AS dat, django_content_type.model typ, COUNT(1) count FROM journal_shelfmember, catalog_item, django_content_type WHERE journal_shelfmember.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND parent_id = %s AND journal_shelfmember.created_time >= NOW() - INTERVAL '366 days' AND journal_shelfmember.visibility <= %s GROUP BY item_id, dat, typ;",
+                [timezone_offset, shelf_id, int(max_visiblity)],
+            ),
+            (
+                "SELECT to_char(DATE(journal_comment.created_time::timestamp AT TIME ZONE %s), 'YYYY-MM-DD') AS dat, django_content_type.model typ, COUNT(1) count FROM journal_comment, catalog_item, django_content_type WHERE journal_comment.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND journal_comment.created_time >= NOW() - INTERVAL '366 days' AND journal_comment.visibility <= %s GROUP BY item_id, dat, typ;",
+                [timezone_offset, int(max_visiblity)],
+            ),
+        ]
+        for sql, params in queries:
+            with connection.cursor() as cursor:
+                cursor.execute(sql, params)
+                data = cursor.fetchall()
+                for line in data:
+                    date = line[0]
+                    typ = line[1]
+                    if date not in calendar_data:
+                        calendar_data[date] = {"items": []}
+                    if typ[:2] == "tv":
+                        typ = "tv"
+                    elif typ[:7] == "podcast":
+                        typ = "podcast"
+                    elif typ == "album":
+                        typ = "music"
+                    elif typ == "edition":
+                        typ = "book"
+                    elif typ not in [
+                        "book",
+                        "movie",
+                        "tv",
+                        "music",
+                        "game",
+                        "podcast",
+                        "performance",
+                    ]:
+                        print(typ)
+                        typ = "other"
+                    if typ not in calendar_data[date]["items"]:
+                        calendar_data[date]["items"].append(typ)
         return calendar_data
