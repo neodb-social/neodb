@@ -260,8 +260,8 @@ class ShelfManager:
                 [timezone_offset, shelf_id, int(max_visiblity)],
             ),
             (
-                "SELECT to_char(DATE(journal_comment.created_time::timestamp AT TIME ZONE %s), 'YYYY-MM-DD') AS dat, django_content_type.model typ, COUNT(1) count FROM journal_comment, catalog_item, django_content_type WHERE journal_comment.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND journal_comment.created_time >= NOW() - INTERVAL '366 days' AND journal_comment.visibility <= %s GROUP BY item_id, dat, typ;",
-                [timezone_offset, int(max_visiblity)],
+                "SELECT to_char(DATE(journal_comment.created_time::timestamp AT TIME ZONE %s), 'YYYY-MM-DD') AS dat, django_content_type.model typ, COUNT(1) count FROM journal_comment, catalog_item, django_content_type WHERE journal_comment.owner_id = %s AND journal_comment.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND journal_comment.created_time >= NOW() - INTERVAL '366 days' AND journal_comment.visibility <= %s GROUP BY item_id, dat, typ;",
+                [timezone_offset, self.owner.id, int(max_visiblity)],
             ),
         ]
         for sql, params in queries:
