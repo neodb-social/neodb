@@ -66,6 +66,8 @@ env = environ.FileAwareEnv(
     NEODB_DOWNLOADER_CACHE_TIMEOUT=(int, 300),
     # Number of retries of downloader, when site is using RetryDownloader
     NEODB_DOWNLOADER_RETRIES=(int, 3),
+    # Disable cron jobs
+    NEODB_DISABLE_CRON=(bool, False),
     # INTEGRATED TAKAHE CONFIGURATION
     TAKAHE_DB_URL=(str, "postgres://takahe:takahepass@127.0.0.1:5432/takahe"),
     # Spotify - https://developer.spotify.com/
@@ -219,6 +221,8 @@ DOWNLOADER_BACKUP_PROXY = env("NEODB_DOWNLOADER_BACKUP_PROXY", default="")  # ty
 DOWNLOADER_REQUEST_TIMEOUT = env("NEODB_DOWNLOADER_REQUEST_TIMEOUT")
 DOWNLOADER_CACHE_TIMEOUT = env("NEODB_DOWNLOADER_CACHE_TIMEOUT")
 DOWNLOADER_RETRIES = env("NEODB_DOWNLOADER_RETRIES")
+
+DISABLE_CRON = env("NEODB_DISABLE_CRON")
 
 # ====== USER CONFIGUTRATION END ======
 
@@ -502,7 +506,7 @@ DEVELOPER_CONSOLE_APPLICATION_CLIENT_ID = "NEODB_DEVELOPER_CONSOLE"
 # CORS_ALLOWED_ORIGINS = []
 # CORS_ALLOWED_ORIGIN_REGEXES = []
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_URLS_REGEX = r"^/api/.*$"
+CORS_URLS_REGEX = r"^/(api|nodeinfo)/.*$"
 CORS_ALLOW_METHODS = (
     "DELETE",
     "GET",

@@ -152,6 +152,9 @@ class Setup:
         Indexer.init()
 
         # Register cron jobs if not yet
-        JobManager.schedule_all()
+        if settings.DISABLE_CRON:
+            logger.info("Cron jobs are disabled.")
+        else:
+            JobManager.schedule_all()
 
         logger.info("Finished post-migration setup.")
