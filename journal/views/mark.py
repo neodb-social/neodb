@@ -131,7 +131,14 @@ def mark(request: AuthedHttpRequest, item_uuid):
             )
             mark_date = None
             if request.POST.get("mark_anotherday"):
-                dt = parse_datetime(request.POST.get("mark_date", "") + " 20:00:00")
+                shelf_time_offset = {
+                    ShelfType.WISHLIST: " 20:00:00",
+                    ShelfType.PROGRESS: " 21:00:00",
+                    ShelfType.COMPLETE: " 22:00:00",
+                }
+                dt = parse_datetime(
+                    request.POST.get("mark_date", "") + shelf_time_offset[status]
+                )
                 mark_date = (
                     dt.replace(tzinfo=timezone.get_current_timezone()) if dt else None
                 )

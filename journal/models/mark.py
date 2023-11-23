@@ -194,14 +194,12 @@ class Mark:
                 self.shelfmember.visibility = visibility
                 shelfmember_changed = True
                 # retract most recent post about this status when visibility changed
-                latest_post = self.shelfmember.latest_post
-                if latest_post:
-                    Takahe.delete_posts([latest_post.pk])
+                if self.shelfmember.latest_post:
+                    Takahe.delete_posts([self.shelfmember.latest_post.pk])
             if created_time and created_time != self.shelfmember.created_time:
                 self.shelfmember.created_time = created_time
                 log_entry.timestamp = created_time
                 log_entry.save(update_fields=["timestamp"])
-                self.shelfmember.change_timestamp(created_time)
                 shelfmember_changed = True
             if shelfmember_changed:
                 self.shelfmember.save()

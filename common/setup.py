@@ -109,7 +109,7 @@ class Setup:
                     }
                 )
             else:
-                logger.debug(f"Default relay is disabled.")
+                logger.info(f"Default relay is disabled.")
         else:
             if relay_follow:
                 logger.debug(

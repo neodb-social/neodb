@@ -137,7 +137,7 @@ class ShelfMember(ListMember):
         return log
 
     def log_and_delete(self):
-        ShelfLogEntry.objects.create(
+        ShelfLogEntry.objects.get_or_create(
             owner=self.owner,
             shelf_type=None,
             item=self.item,
@@ -179,6 +179,14 @@ class ShelfLogEntry(models.Model):
     posts = models.ManyToManyField(
         "takahe.Post", related_name="log_entries", through="ShelfLogEntryPost"
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["owner", "item", "timestamp", "shelf_type"],
+                name="unique_shelf_log_entry",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.owner}:{self.shelf_type}:{self.item.uuid}:{self.timestamp}"
