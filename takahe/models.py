@@ -1032,7 +1032,9 @@ class Post(models.Model):
             post.emojis.set(emojis)
             if published and published < timezone.now():
                 post.published = published
-                if timezone.now() - published > datetime.timedelta(days=9):
+                if timezone.now() - published > datetime.timedelta(
+                    days=settings.FANOUT_LIMIT_DAYS
+                ):
                     post.state = "fanned_out"  # add post quietly if it's old
             # if attachments:# FIXME
             #     post.attachments.set(attachments)
@@ -1045,6 +1047,13 @@ class Post(models.Model):
             # Recalculate parent stats for replies
             if reply_to:
                 reply_to.calculate_stats()
+            if post.state == "fanned_out":
+                FanOut.objects.create(
+                    identity=author,
+                    type="post",
+                    subject_post=post,
+                )
+
         return post
 
     def edit_local(
@@ -1135,6 +1144,69 @@ class Post(models.Model):
     @property
     def safe_content_local(self):
         return ContentRenderer(local=True).render_post(self.content, self)
+
+
+class FanOut(models.Model):
+    """
+    An activity that needs to get to an inbox somewhere.
+    """
+
+    class Meta:
+        # managed = False
+        db_table = "activities_fanout"
+
+    class Types(models.TextChoices):
+        post = "post"
+        post_edited = "post_edited"
+        post_deleted = "post_deleted"
+        interaction = "interaction"
+        undo_interaction = "undo_interaction"
+        identity_edited = "identity_edited"
+        identity_deleted = "identity_deleted"
+        identity_created = "identity_created"
+        identity_moved = "identity_moved"
+
+    state = models.CharField(max_length=100, default="outdated")
+    state_changed = models.DateTimeField(auto_now_add=True)
+
+    # The user this event is targeted at
+    # We always need this, but if there is a shared inbox URL on the user
+    # we'll deliver to that and won't have fanouts for anyone else with the
+    # same one.
+    identity = models.ForeignKey(
+        "takahe.Identity",
+        on_delete=models.CASCADE,
+        related_name="fan_outs",
+    )
+
+    # What type of activity it is
+    type = models.CharField(max_length=100, choices=Types.choices)
+
+    # Links to the appropriate objects
+    subject_post = models.ForeignKey(
+        "takahe.Post",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="fan_outs",
+    )
+    subject_post_interaction = models.ForeignKey(
+        "takahe.PostInteraction",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="fan_outs",
+    )
+    subject_identity = models.ForeignKey(
+        "takahe.Identity",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="subject_fan_outs",
+    )
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
 
 class EmojiQuerySet(models.QuerySet):

@@ -647,4 +647,80 @@ class Migration(migrations.Migration):
                 "db_table": "users_invite",
             },
         ),
+        migrations.CreateModel(
+            name="FanOut",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("state", models.CharField(default="outdated", max_length=100)),
+                ("state_changed", models.DateTimeField(auto_now_add=True)),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[
+                            ("post", "Post"),
+                            ("post_edited", "Post Edited"),
+                            ("post_deleted", "Post Deleted"),
+                            ("interaction", "Interaction"),
+                            ("undo_interaction", "Undo Interaction"),
+                            ("identity_edited", "Identity Edited"),
+                            ("identity_deleted", "Identity Deleted"),
+                            ("identity_created", "Identity Created"),
+                            ("identity_moved", "Identity Moved"),
+                        ],
+                        max_length=100,
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                (
+                    "identity",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="fan_outs",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "subject_identity",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="subject_fan_outs",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "subject_post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="fan_outs",
+                        to="takahe.post",
+                    ),
+                ),
+                (
+                    "subject_post_interaction",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="fan_outs",
+                        to="takahe.postinteraction",
+                    ),
+                ),
+            ],
+            options={
+                "db_table": "activities_fanout",
+            },
+        ),
     ]
