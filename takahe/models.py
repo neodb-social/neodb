@@ -1032,7 +1032,7 @@ class Post(models.Model):
             post.emojis.set(emojis)
             if published and published < timezone.now():
                 post.published = published
-                if timezone.now() - published > datetime.timedelta(days=2):
+                if timezone.now() - published > datetime.timedelta(days=9):
                     post.state = "fanned_out"  # add post quietly if it's old
             # if attachments:# FIXME
             #     post.attachments.set(attachments)
