@@ -37,6 +37,9 @@ def target_identity_required(func):
             target = APIdentity.get_by_handler(user_name)
         except APIdentity.DoesNotExist:
             return render_user_not_found(request)
+        target_user = target.user
+        if target_user and not target_user.is_active:
+            return render_user_not_found(request)
         if not target.is_visible_to_user(request.user):
             return render_user_blocked(request)
         request.target_identity = target

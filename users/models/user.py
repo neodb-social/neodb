@@ -1,5 +1,6 @@
 import hashlib
 import re
+from datetime import timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar
 
@@ -275,7 +276,14 @@ class User(AbstractUser):
         self.mastodon_last_refresh = timezone.now()
         if not webfinger(self.mastodon_site, self.mastodon_username):
             logger.error(f"Unable to fetch web finger for {self}")
-            self.save(update_fields=["mastodon_last_refresh"])
+            if (
+                timezone.now() - self.mastodon_last_reachable
+                > timedelta(days=settings.DEACTIVATE_AFTER_UNREACHABLE_DAYS)
+                and not self.email
+            ):
+                logger.warning(f"Deactivate {self} bc unable to reach for too long")
+                self.is_active = False
+            self.save(update_fields=["mastodon_last_refresh", "is_active"])
             return False
         self.mastodon_last_reachable = timezone.now()
         code, mastodon_account = verify_account(self.mastodon_site, self.mastodon_token)
