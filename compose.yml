@@ -65,6 +65,7 @@ x-shared:
       IGDB_API_CLIENT_SECRET:
       DISCORD_WEBHOOKS:
       SLACK_API_TOKEN:
+      SSL_ONLY:
     restart: "on-failure"
     volumes:
       - ${NEODB_DATA:-../data}/neodb-media:/www/m

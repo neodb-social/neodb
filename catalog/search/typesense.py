@@ -182,6 +182,17 @@ class Indexer:
         }
 
     @classmethod
+    def check(cls):
+        client = typesense.Client(settings.TYPESENSE_CONNECTION)
+        wait = 5
+        if not client.operations.is_healthy():
+            raise ValueError("Typesense: server not healthy")
+        idx = client.collections[settings.TYPESENSE_INDEX_NAME]
+        if not idx:
+            raise ValueError("Typesense: index not found")
+        return idx.retrieve()
+
+    @classmethod
     def init(cls):
         try:
             client = typesense.Client(settings.TYPESENSE_CONNECTION)

@@ -20,6 +20,10 @@ _logger = logging.getLogger(__name__)
 
 class DbIndexer:
     @classmethod
+    def check(cls):
+        pass
+
+    @classmethod
     def init(cls):
         pass
 

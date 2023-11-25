@@ -1,4 +1,6 @@
+import django
 from django.conf import settings
+from django.core.checks import Error, Warning
 from loguru import logger
 
 from catalog.search.models import Indexer
@@ -158,3 +160,62 @@ class Setup:
             JobManager.schedule_all()
 
         logger.info("Finished post-migration setup.")
+
+    def check(self):
+        from redis import Redis
+
+        errors = []
+        # check env
+        domain = settings.SITE_INFO.get("site_domain")
+        if not domain:
+            errors.append(
+                Error(
+                    "SITE DOMAIN is not specified",
+                    hint="Check NEODB_SITE_DOMAIN in .env",
+                    id="neodb.E001",
+                )
+            )
+        # check redis
+        try:
+            redis = Redis.from_url(settings.REDIS_URL)
+            if not redis:
+                raise Exception("Redis unavailable")
+            redis.ping()
+        except Exception as e:
+            errors.append(
+                Error(
+                    f"Error while connecting to redis: {e}",
+                    hint="Check NEODB_REDIS_URL in .env",
+                    id="neodb.E002",
+                )
+            )
+        # check indexer
+        try:
+            Indexer.check()
+        except Exception as e:
+            errors.append(
+                Error(
+                    f"Error while connecting to elasticsearch: {e}",
+                    hint="Check ELASTICSEARCH_URL in .env",
+                    id="neodb.E003",
+                )
+            )
+        # check takahe
+        try:
+            if not TakaheDomain.objects.filter(domain=domain).exists():
+                errors.append(
+                    Warning(
+                        f"Domain {domain} not found in takahe database",
+                        hint="Run migration once to create the domain",
+                        id="neodb.W001",
+                    )
+                )
+        except Exception as e:
+            errors.append(
+                Error(
+                    f"Error while querying Takahe database: {e}",
+                    hint="Check TAKAHE_DB_URL in .env",
+                    id="neodb.E004",
+                )
+            )
+        return errors

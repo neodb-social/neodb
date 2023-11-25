@@ -5,7 +5,7 @@ echo Your configuration is for ${NEODB_SITE_NAME} on ${NEODB_SITE_DOMAIN}
 [[ -z "${NEODB_DEBUG}" ]] || echo DEBUG is ON, showing environment variables:
 [[ -z "${NEODB_DEBUG}" ]] || env
 [[ -z "${NEODB_DEBUG}" ]] || echo Running some basic checks...
-[[ -z "${NEODB_DEBUG}" ]] || neodb-manage check
+[[ -z "${NEODB_DEBUG}" ]] || neodb-manage check --database default --database takahe --deploy
 [[ -z "${NEODB_DEBUG}" ]] || TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" takahe-manage check
 [[ -z "${NEODB_DEBUG}" ]] || echo check complete.
 cat <<EOF

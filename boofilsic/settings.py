@@ -85,6 +85,8 @@ env = environ.FileAwareEnv(
     DISCORD_WEBHOOKS=(dict, {"user-report": None}),
     # Slack API token, for sending exceptions to Slack, may deprecate in future
     SLACK_API_TOKEN=(str, ""),
+    # SSL only, better be True for production security
+    SSL_ONLY=(bool, False),
     NEODB_SENTRY_DSN=(str, ""),
     NEODB_FANOUT_LIMIT_DAYS=(int, 9),
 )
@@ -101,8 +103,8 @@ DATABASES["default"]["OPTIONS"] = {"client_encoding": "UTF8"}
 DATABASES["default"]["TEST"] = {"DEPENDENCIES": ["takahe"]}
 DATABASES["takahe"]["OPTIONS"] = {"client_encoding": "UTF8"}
 DATABASES["takahe"]["TEST"] = {"DEPENDENCIES": []}
+REDIS_URL = env("NEODB_REDIS_URL")
 CACHES = {"default": env.cache_url("NEODB_REDIS_URL")}
-
 _parsed_redis_url = env.url("NEODB_REDIS_URL")
 RQ_QUEUES = {
     q: {
@@ -375,13 +377,11 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-
-if env("NEODB_SSL", default="") != "":  # type: ignore
-    # FIXME: remove this since user may enforce SSL in reverse proxy
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_SECONDS = 31536000
+SSL_ONLY = env("SSL_ONLY")
+SECURE_SSL_REDIRECT = SSL_ONLY
+SECURE_HSTS_PRELOAD = SSL_ONLY
+SECURE_HSTS_INCLUDE_SUBDOMAINS = SSL_ONLY
+SECURE_HSTS_SECONDS = 2592000 if SSL_ONLY else 0
 
 STATIC_URL = "/s/"
 STATIC_ROOT = env("NEODB_STATIC_ROOT", default=os.path.join(BASE_DIR, "static/"))  # type: ignore

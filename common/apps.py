@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.core.checks import Tags, register
 from django.db.models.signals import post_migrate
 
 
@@ -12,3 +13,10 @@ class CommonConfig(AppConfig):
         from .setup import Setup
 
         Setup().run()
+
+
+@register(Tags.admin, deploy=True)
+def setup_check(app_configs, **kwargs):
+    from .setup import Setup
+
+    return Setup().check()
