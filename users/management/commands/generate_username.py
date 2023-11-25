@@ -22,9 +22,9 @@ class Command(BaseCommand):
                 un = f"_{user.pk}"
             if un.lower() in _RESERVED_USERNAMES:
                 un = f"__{un}"
-            if User.objects.filter(username=un).exists():
+            if User.objects.filter(username__iexact=un).exists():
                 un = f"{un}_{user.pk}"
-            print(f"{user} -> un")
+            print(f"{user} -> {un}")
             user.username = un
             user.save(update_fields=["username"])
             count += 1
