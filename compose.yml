@@ -33,10 +33,10 @@ x-shared:
       NEODB_DISABLE_CRON:
       NEODB_SENTRY_DSN:
       TAKAHE_SENTRY_DSN:
-      NEODB_DB_URL: postgres://neodb:aubergine@neodb-db/neodb
-      TAKAHE_DB_URL: postgres://takahe:aubergine@takahe-db/takahe
-      NEODB_REDIS_URL: redis://redis:6379/0
-      NEODB_SEARCH_URL: typesense://user:eggplant@typesense:8108/catalog
+      NEODB_DB_URL: ${NEODB_DB_URL:-postgres://neodb:aubergine@neodb-db/neodb}
+      TAKAHE_DB_URL: ${TAKAHE_DB_URL:-postgres://takahe:aubergine@takahe-db/takahe}
+      NEODB_REDIS_URL: ${NEODB_REDIS_URL:-redis://redis:6379/0}
+      NEODB_SEARCH_URL: ${NEODB_SEARCH_URL:-typesense://user:eggplant@typesense:8108/catalog}
       NEODB_EMAIL_URL:
       NEODB_EMAIL_FROM: no-reply@${NEODB_SITE_DOMAIN}
       NEODB_DOWNLOADER_PROXY_LIST:
@@ -48,8 +48,8 @@ x-shared:
       TAKAHE_MAIN_DOMAIN: ${NEODB_SITE_DOMAIN}
       TAKAHE_MEDIA_URL: https://${NEODB_SITE_DOMAIN}/media/
       TAKAHE_EMAIL_FROM: no-reply@${NEODB_SITE_DOMAIN}
-      TAKAHE_DATABASE_SERVER: postgres://takahe:aubergine@takahe-db/takahe
-      TAKAHE_CACHES_DEFAULT: redis://redis:6379/0
+      TAKAHE_DATABASE_SERVER: ${TAKAHE_DATABASE_SERVER:-postgres://takahe:aubergine@takahe-db/takahe}
+      TAKAHE_CACHES_DEFAULT: ${TAKAHE_CACHES_DEFAULT:-redis://redis:6379/0}
       TAKAHE_MEDIA_BACKEND: local://www/media/
       TAKAHE_MEDIA_ROOT: /www/media
       TAKAHE_USE_PROXY_HEADERS: true

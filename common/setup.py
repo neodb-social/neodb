@@ -185,7 +185,7 @@ class Setup:
             errors.append(
                 Error(
                     f"Error while connecting to redis: {e}",
-                    hint="Check NEODB_REDIS_URL in .env",
+                    hint="Check NEODB_REDIS_URL/TAKAHE_CACHES_DEFAULT in .env",
                     id="neodb.E002",
                 )
             )
@@ -195,8 +195,8 @@ class Setup:
         except Exception as e:
             errors.append(
                 Error(
-                    f"Error while connecting to elasticsearch: {e}",
-                    hint="Check ELASTICSEARCH_URL in .env",
+                    f"Error while connecting to search index server: {e}",
+                    hint='Check NEODB_SEARCH_URL in .env, and run "neodb-manage migration"',
                     id="neodb.E003",
                 )
             )
@@ -213,8 +213,8 @@ class Setup:
         except Exception as e:
             errors.append(
                 Error(
-                    f"Error while querying Takahe database: {e}",
-                    hint="Check TAKAHE_DB_URL in .env",
+                    f"Error while querying takahe database: {e}",
+                    hint='Check TAKAHE_DB_URL/TAKAHE_DATABASE_SERVER in .env, and run "takahe-manage migration"',
                     id="neodb.E004",
                 )
             )
