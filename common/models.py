@@ -53,12 +53,12 @@ class JobManager:
         return target
 
     @classmethod
-    def schedule(cls):
+    def schedule_all(cls):
         for j in cls.registry:
             j.schedule()
 
     @classmethod
-    def cancel(cls):
+    def cancel_all(cls):
         for j in cls.registry:
             j.cancel()
 
@@ -77,11 +77,11 @@ class JobManager:
         return registry.get_job_ids()
 
     @classmethod
-    def schedule_all(cls):
+    def reschedule_all(cls):
         # TODO rewrite lazy import in a better way
         from catalog.jobs import DiscoverGenerator, PodcastUpdater
         from mastodon.jobs import MastodonSiteCheck
         from users.jobs import MastodonUserSync
 
-        cls.cancel()
-        cls.schedule()
+        cls.cancel_all()
+        cls.schedule_all()

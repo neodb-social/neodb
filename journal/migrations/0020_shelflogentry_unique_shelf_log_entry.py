@@ -2,6 +2,14 @@
 
 from django.db import migrations, models
 
+_sql = """DELETE
+FROM journal_shelflogentry a USING journal_shelflogentry b
+WHERE a.ctid < b.ctid
+    AND a.item_id=b.item_id
+    AND a.owner_id=b.owner_id
+    AND a.timestamp=b.timestamp
+    AND a.shelf_type=b.shelf_type"""
+
 
 class Migration(migrations.Migration):
 
@@ -10,6 +18,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL("SET CONSTRAINTS ALL IMMEDIATE;"),
+        migrations.RunSQL(
+            sql=_sql,
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        migrations.RunSQL("SET CONSTRAINTS ALL DEFERRED;"),
         migrations.AddConstraint(
             model_name="shelflogentry",
             constraint=models.UniqueConstraint(

@@ -526,7 +526,7 @@ class Identity(models.Model):
         based on probing host-meta.
         """
         with httpx.Client(
-            timeout=settings.SETUP.REMOTE_TIMEOUT,
+            timeout=settings.TAKAHE_REMOTE_TIMEOUT,
             headers={"User-Agent": settings.TAKAHE_USER_AGENT},
         ) as client:
             try:
@@ -565,7 +565,7 @@ class Identity(models.Model):
 
         # Go make a Webfinger request
         with httpx.Client(
-            timeout=settings.SETUP.REMOTE_TIMEOUT,
+            timeout=settings.TAKAHE_REMOTE_TIMEOUT,
             headers={"User-Agent": settings.TAKAHE_USER_AGENT},
         ) as client:
             try:
@@ -1066,6 +1066,7 @@ class Post(models.Model):
         attachments: list | None = None,
         attachment_attributes: list | None = None,
         type_data: dict | None = None,
+        edited: datetime.datetime | None = None,
     ):
         with transaction.atomic():
             # Strip all HTML and apply linebreaks filter
@@ -1099,6 +1100,12 @@ class Post(models.Model):
             self.state_changed = timezone.now()
             self.state_next_attempt = None
             self.state_locked_until = None
+            if edited and edited < timezone.now():
+                self.published = edited
+                if timezone.now() - edited > datetime.timedelta(
+                    days=settings.FANOUT_LIMIT_DAYS
+                ):
+                    self.state = "edited_fanned_out"  # add post quietly if it's old
             self.save()
 
     @classmethod
@@ -1109,13 +1116,13 @@ class Post(models.Model):
             handle = handle.lower()
             if "@" in handle:
                 username, domain = handle.split("@", 1)
+                local = False
             else:
                 username = handle
                 domain = author.domain_id
+                local = author.local
             identity = Identity.by_username_and_domain(
-                username=username,
-                domain=domain,
-                fetch=True,
+                username=username, domain=domain, fetch=True, local=local
             )
             if identity is not None:
                 mentions.add(identity)

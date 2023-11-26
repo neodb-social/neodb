@@ -192,6 +192,10 @@ REDIRECT_URIS = env(
 
 # Timeout of requests to Mastodon, in seconds
 MASTODON_TIMEOUT = env("NEODB_LOGIN_MASTODON_TIMEOUT", default=10)  # type: ignore
+TAKAHE_REMOTE_TIMEOUT = MASTODON_TIMEOUT
+
+NEODB_USER_AGENT = f"NeoDB/{NEODB_VERSION} (+{SITE_INFO.get('site_url', 'undefined')})"
+TAKAHE_USER_AGENT = NEODB_USER_AGENT
 
 # Scope when creating Mastodon apps
 # Alternatively, use "read write follow" to avoid re-authorize when migrating to a future version with more features

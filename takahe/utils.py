@@ -366,7 +366,11 @@ class Takahe:
             raise ValueError(f"Cannot find post to reply: {reply_to_pk}")
         if post:
             post.edit_local(
-                pre_conetent, content, visibility=visibility, type_data=data
+                pre_conetent,
+                content,
+                visibility=visibility,
+                type_data=data,
+                edited=post_time,
             )
         else:
             post = Post.create_local(
@@ -435,7 +439,7 @@ class Takahe:
             comment.visibility, user.preference.mastodon_publish_public
         )
         existing_post = None if share_as_new_post else comment.latest_post
-        post = Takahe.post(  # TODO post as Article?
+        post = Takahe.post(
             comment.owner.pk,
             pre_conetent,
             content,

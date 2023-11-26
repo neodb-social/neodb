@@ -41,7 +41,7 @@ class RSS(AbstractSite):
             feed = pickle.load(open(_local_response_path + get_mock_file(url), "rb"))
         else:
             req = urllib.request.Request(url)
-            req.add_header("User-Agent", "NeoDB/0.5")
+            req.add_header("User-Agent", settings.NEODB_USER_AGENT)
             try:
                 feed = podcastparser.parse(url, urllib.request.urlopen(req, timeout=3))
             except:

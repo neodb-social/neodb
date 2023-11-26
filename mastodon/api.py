@@ -53,7 +53,7 @@ API_CREATE_APP = "/api/v1/apps"
 # GET
 API_SEARCH = "/api/v2/search"
 
-USER_AGENT = f"NeoDB/{settings.NEODB_VERSION} (+{settings.SITE_INFO.get('site_url', 'undefined')})"
+USER_AGENT = settings.NEODB_USER_AGENT
 
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
 put = functools.partial(requests.put, timeout=settings.MASTODON_TIMEOUT)

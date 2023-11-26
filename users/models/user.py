@@ -236,26 +236,23 @@ class User(AbstractUser):
     def sync_relationship(self):
         from .apidentity import APIdentity
 
-        for target in self.mastodon_followers:
-            t = target.split("@")
-            target_identity = APIdentity.objects.filter(
-                user__mastodon_username=t[0], user__mastodon_site=t[1]
-            ).first()
-            if target_identity and not self.identity.is_following(target_identity):
+        def get_identities(accts: list):
+            q = Q(pk__in=[])
+            for acct in accts or []:
+                t = acct.split("@") if acct else []
+                if len(t) == 2:
+                    q = q | Q(mastodon_username=t[0], mastodon_site=t[1])
+            users = User.objects.filter(is_active=True).filter(q)
+            return APIdentity.objects.filter(user__in=users)
+
+        for target_identity in get_identities(self.mastodon_following):
+            if not self.identity.is_following(target_identity):
                 self.identity.follow(target_identity)
-        for target in self.mastodon_blocks:
-            t = target.split("@")
-            target_identity = APIdentity.objects.filter(
-                user__mastodon_username=t[0], user__mastodon_site=t[1]
-            ).first()
-            if target_identity and not self.identity.is_blocking(target_identity):
+        for target_identity in get_identities(self.mastodon_blocks):
+            if not self.identity.is_blocking(target_identity):
                 self.identity.block(target_identity)
-        for target in self.mastodon_mutes:
-            t = target.split("@")
-            target_identity = APIdentity.objects.filter(
-                user__mastodon_username=t[0], user__mastodon_site=t[1]
-            ).first()
-            if target_identity and not self.identity.is_muting(target_identity):
+        for target_identity in get_identities(self.mastodon_mutes):
+            if not self.identity.is_muting(target_identity):
                 self.identity.mute(target_identity)
 
     def sync_identity(self):

@@ -18,6 +18,7 @@ class Command(BaseCommand):
             domain=domain,
             local=True,
             service_domain=service_domain,
+            state="updated",
             notes="NeoDB",
             nodeinfo={},
         )

@@ -20,12 +20,15 @@ class Setup:
     """
 
     def create_site(self, domain, service_domain):
-        TakaheDomain.objects.create(
+        TakaheDomain.objects.update_or_create(
             domain=domain,
-            local=True,
-            service_domain=service_domain,
-            notes="NeoDB",
-            nodeinfo={},
+            defaults={
+                "local": True,
+                "service_domain": service_domain,
+                "notes": "NeoDB",
+                "nodeinfo": {},
+                "state": "updated",
+            },
         )
         TakaheConfig.objects.update_or_create(
             key="public_timeline",
@@ -156,8 +159,9 @@ class Setup:
         # Register cron jobs if not yet
         if settings.DISABLE_CRON:
             logger.info("Cron jobs are disabled.")
+            JobManager.cancel_all()
         else:
-            JobManager.schedule_all()
+            JobManager.reschedule_all()
 
         logger.info("Finished post-migration setup.")
 

@@ -41,10 +41,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options["cancel"]:
-            JobManager.cancel()
+            JobManager.cancel_all()
         if options["schedule"]:
-            JobManager.cancel()  # cancel previously scheduled jobs if any
-            JobManager.schedule()
+            JobManager.cancel_all()  # cancel previously scheduled jobs if any
+            JobManager.schedule_all()
         if options["runonce"]:
             for job_id in options["runonce"]:
                 run = JobManager.run(job_id)

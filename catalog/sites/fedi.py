@@ -32,7 +32,10 @@ class FediverseInstance(AbstractSite):
         "Performance": Performance,
         "PerformanceProduction": PerformanceProduction,
     }
-    request_header = {"User-Agent": "NeoDB/0.5", "Accept": "application/activity+json"}
+    request_header = {
+        "User-Agent": settings.NEODB_USER_AGENT,
+        "Accept": "application/activity+json",
+    }
 
     @classmethod
     def id_to_url(cls, id_value):
