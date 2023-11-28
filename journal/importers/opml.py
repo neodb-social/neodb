@@ -33,7 +33,7 @@ class OPMLImporter:
         with set_actor(self.user):
             if self.mode == 1:
                 collection = Collection.objects.create(
-                    owner=self.user, title=f"{self.user.display_name}的播客订阅列表"
+                    owner=self.user.identity, title=f"{self.user.display_name}的播客订阅列表"
                 )
             for feed in feeds:
                 logger.info(f"{self.user} import {feed.url}")
@@ -43,7 +43,7 @@ class OPMLImporter:
                     continue
                 item = res.item
                 if self.mode == 0:
-                    mark = Mark(self.user, item)
+                    mark = Mark(self.user.identity, item)
                     if mark.shelfmember:
                         logger.info(f"{self.user} marked, skip {feed.url}")
                         skip += 1

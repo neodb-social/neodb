@@ -88,7 +88,7 @@
                        value=""
                        placeholder="例如 https://www.goodreads.com/user/show/12345-janedoe"
                        required>
-                <input type="submit"  value="{% trans '导入' %}" id="uploadBtn" />
+                <input type="submit"  value="{% trans '导入' %}" />
               </div>
               <ul>
                 <li>
@@ -128,7 +128,7 @@
                 <br>
                 选择OPML文件
                 <input type="file" name="file" id="excel" required accept=".opml,.xml">
-                <input type="submit"  value="{% trans '导入' %}" id="uploadBtn" />
+                <input type="submit"  value="{% trans '导入' %}" />
               </div>
             </form>
           </details>
@@ -140,14 +140,8 @@
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              {% if export_status.marks_pending %}
-                <input type="submit"
-                       value="{% trans '正在导出标记、短评和评论' %}"
-                       id="uploadBtn"
-                       disabled />
-              {% else %}
-                <input type="submit"  value="{% trans '导出标记、短评和评论' %}" id="uploadBtn" />
-              {% endif %}
+              <input type="submit"
+                     {% if export_status.marks_pending %} value="{% trans '正在导出标记、短评和评论' %}" onclick="return confirm('短期重复导出可能有无法预期的效果，确定现在导出吗？')" {% else %} value="{% trans '导出标记、短评和评论' %}" {% endif %} />
               {% if export_status.marks_file %}
                 <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a>
               {% endif %}
@@ -159,7 +153,7 @@
             <summary>{% trans '重置所有标记和短评可见性' %}</summary>
             <form action="{% url 'users:reset_visibility' %}" method="post">
               {% csrf_token %}
-              <input type="submit"  value="{% trans '重置' %}" id="uploadBtn" />
+              <input type="submit"  value="{% trans '重置' %}" />
               <div>
                 <input type="radio" name="visibility" id="visPublic" value="0" checked>
                 <label for="visPublic">{% trans '公开' %}</label>

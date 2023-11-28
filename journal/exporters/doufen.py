@@ -33,7 +33,7 @@ def export_marks_task(user):
     user.preference.export_status["marks_pending"] = True
     user.preference.save(update_fields=["export_status"])
     filename = GenerateDateUUIDMediaFilePath(
-        None, "f.xlsx", settings.MEDIA_ROOT + settings.EXPORT_FILE_PATH_ROOT
+        None, "f.xlsx", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
     )
     if not os.path.exists(os.path.dirname(filename)):
         os.makedirs(os.path.dirname(filename))
@@ -266,7 +266,11 @@ def export_marks_task(user):
     ]:
         ws = wb.create_sheet(title=label)
         q = q_item_in_category(category)
-        reviews = Review.objects.filter(owner=user).filter(q).order_by("created_time")
+        reviews = (
+            Review.objects.filter(owner=user.identity)
+            .filter(q)
+            .order_by("created_time")
+        )
         ws.append(review_heading)
         for review in reviews:
             title = review.title

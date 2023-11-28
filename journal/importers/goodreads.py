@@ -59,7 +59,7 @@ class GoodreadsImporter:
                         + "\n\nImported from [Goodreads]("
                         + url
                         + ")",
-                        owner=user,
+                        owner=user.identity,
                     )
                     for book in shelf["books"]:
                         collection.append_item(book["book"], note=book["review"])
@@ -77,7 +77,7 @@ class GoodreadsImporter:
                     shelf_url = shelves.get(shelf_type)
                     shelf = cls.parse_shelf(shelf_url, user)
                     for book in shelf["books"]:
-                        mark = Mark(user, book["book"])
+                        mark = Mark(user.identity, book["book"])
                         if (
                             (
                                 mark.shelf_type == shelf_type

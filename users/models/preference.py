@@ -17,7 +17,6 @@ from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
-from common.utils import GenerateDateUUIDMediaFilePath
 from management.models import Announcement
 from mastodon.api import *
 from takahe.utils import Takahe

@@ -86,10 +86,9 @@ def export_reviews(request):
 @login_required
 def export_marks(request):
     if request.method == "POST":
-        if not request.user.preference.export_status.get("marks_pending"):
-            django_rq.get_queue("export").enqueue(export_marks_task, request.user)
-            request.user.preference.export_status["marks_pending"] = True
-            request.user.preference.save()
+        django_rq.get_queue("export").enqueue(export_marks_task, request.user)
+        request.user.preference.export_status["marks_pending"] = True
+        request.user.preference.save()
         messages.add_message(request, messages.INFO, _("导出已开始。"))
         return redirect(reverse("users:data"))
     else:

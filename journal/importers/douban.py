@@ -31,7 +31,7 @@ def _fetch_remote_image(url):
         f = GenerateDateUUIDMediaFilePath(
             None, f"x.{ext}", settings.MARKDOWNX_MEDIA_PATH
         )
-        file = settings.MEDIA_ROOT + f
+        file = settings.MEDIA_ROOT + "/" + f
         local_url = settings.MEDIA_URL + f
         os.makedirs(os.path.dirname(file), exist_ok=True)
         with open(file, "wb") as binary_file:
@@ -93,8 +93,12 @@ class DoubanImporter:
                 uploaded_file, read_only=True, data_only=True, keep_links=False
             )
             wb.close()
-            file = settings.MEDIA_ROOT + GenerateDateUUIDMediaFilePath(
-                None, "x.xlsx", settings.SYNC_FILE_PATH_ROOT
+            file = (
+                settings.MEDIA_ROOT
+                + "/"
+                + GenerateDateUUIDMediaFilePath(
+                    None, "x.xlsx", settings.SYNC_FILE_PATH_ROOT
+                )
             )
             os.makedirs(os.path.dirname(file), exist_ok=True)
             with open(file, "wb") as destination:
@@ -106,7 +110,8 @@ class DoubanImporter:
             django_rq.get_queue("import").enqueue(
                 self.import_from_file_task, job_id=jid
             )
-        except Exception:
+        except Exception as e:
+            logger.error(e)
             return False
         return True
 
@@ -248,7 +253,7 @@ class DoubanImporter:
         if not item:
             logger.warning(f"{self.user} | match/fetch {url} failed")
             return
-        mark = Mark(self.user, item)
+        mark = Mark(self.user.identity, item)
         if self.mode == 0 and (
             mark.shelf_type == shelf_type
             or mark.shelf_type == ShelfType.COMPLETE
@@ -264,7 +269,7 @@ class DoubanImporter:
         )
         print("+", end="", flush=True)
         if tags:
-            TagManager.tag_item(item, self.user, tags)
+            TagManager.tag_item(item, self.user.identity, tags)
         return 1
 
     def import_review_sheet(self, worksheet, sheet_name):
@@ -353,7 +358,7 @@ class DoubanImporter:
             return
         if (
             self.mode == 1
-            and Review.objects.filter(owner=self.user, item=item).exists()
+            and Review.objects.filter(owner=self.user.identity, item=item).exists()
         ):
             return 2
         content = re.sub(
@@ -374,5 +379,7 @@ class DoubanImporter:
             "body": content,
             "visibility": self.visibility,
         }
-        Review.objects.update_or_create(owner=self.user, item=item, defaults=params)
+        Review.objects.update_or_create(
+            owner=self.user.identity, item=item, defaults=params
+        )
         return 1
