@@ -76,6 +76,8 @@ class Command(BaseCommand):
                                 Takahe.post_comment(p, self.post_new)
                         elif p.__class__ == Review:
                             Takahe.post_review(p, self.post_new)
+                        elif p.__class__ == Collection:
+                            Takahe.post_collection(p)
         set_disable_timeline(False)
 
     def process_timeline(self):
