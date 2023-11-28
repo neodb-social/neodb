@@ -10,7 +10,7 @@ from oauth2_provider.decorators import protected_resource
 
 from catalog.common.models import *
 from common.api import *
-from mastodon.api import boost_toot_later
+from mastodon.api import boost_toot_later, share_review
 
 from .models import Mark, Review, ShelfType, TagManager, q_item_in_category
 
@@ -204,7 +204,10 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
         created_time=review.created_time,
     )
     if post and review.post_to_fediverse:
-        boost_toot_later(request.user, post.url)
+        if settings.FORCE_CLASSIC_REPOST:
+            share_review(review)
+        else:
+            boost_toot_later(request.user, post.url)
     return 200, {"message": "OK"}
 
 

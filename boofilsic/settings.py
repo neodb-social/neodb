@@ -89,6 +89,7 @@ env = environ.FileAwareEnv(
     SSL_ONLY=(bool, False),
     NEODB_SENTRY_DSN=(str, ""),
     NEODB_FANOUT_LIMIT_DAYS=(int, 9),
+    NEODB_FORCE_CLASSIC_REPOST=(bool, False),
 )
 
 # ====== End of user configuration variables ======
@@ -231,6 +232,7 @@ DOWNLOADER_RETRIES = env("NEODB_DOWNLOADER_RETRIES")
 
 DISABLE_CRON = env("NEODB_DISABLE_CRON")
 FANOUT_LIMIT_DAYS = env("NEODB_FANOUT_LIMIT_DAYS")
+FORCE_CLASSIC_REPOST = env("NEODB_FORCE_CLASSIC_REPOST")
 # ====== USER CONFIGUTRATION END ======
 
 DATABASE_ROUTERS = ["takahe.db_routes.TakaheRouter"]

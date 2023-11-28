@@ -20,7 +20,7 @@ from catalog.collection.models import Collection as CatalogCollection
 from catalog.common import jsondata
 from catalog.common.models import Item, ItemCategory
 from catalog.common.utils import DEFAULT_ITEM_COVER, piece_cover_path
-from mastodon.api import boost_toot_later
+from mastodon.api import boost_toot_later, share_mark
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -236,7 +236,10 @@ class Mark:
         post = Takahe.post_mark(self, post_as_new)  # this will update linked post
         # async boost to mastodon
         if post and share_to_mastodon:
-            boost_toot_later(self.owner, post.url)
+            if settings.FORCE_CLASSIC_REPOST:
+                share_mark(self)
+            else:
+                boost_toot_later(self.owner, post.url)
         return True
 
     def delete(self):

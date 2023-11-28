@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
@@ -8,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Item
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from mastodon.api import share_collection
+from mastodon.api import boost_toot_later, share_collection
 from users.models import User
 from users.models.apidentity import APIdentity
 from users.views import render_user_blocked, render_user_not_found
@@ -120,22 +121,25 @@ def collection_remove_featured(request: AuthedHttpRequest, collection_uuid):
 
 @login_required
 def collection_share(request: AuthedHttpRequest, collection_uuid):
-    collection = (
-        get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
-        if collection_uuid
-        else None
+    collection = get_object_or_404(
+        Collection, uid=get_uuid_or_404(collection_uuid) if collection_uuid else None
     )
     if collection and not collection.is_visible_to(request.user):
         raise PermissionDenied()
     if request.method == "GET":
         return render(request, "collection_share.html", {"collection": collection})
     elif request.method == "POST":
-        visibility = int(request.POST.get("visibility", default=0))
-        comment = request.POST.get("comment")
-        if share_collection(collection, comment, request.user, visibility):
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+        if settings.FORCE_CLASSIC_REPOST:
+            visibility = int(request.POST.get("visibility", default=0))
+            comment = request.POST.get("comment")
+            if share_collection(collection, comment, request.user, visibility):
+                return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+            else:
+                return render_relogin(request)
         else:
-            return render_relogin(request)
+            if collection.latest_post:
+                boost_toot_later(request.user, collection.latest_post)
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     else:
         raise BadRequest()
 
