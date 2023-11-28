@@ -370,7 +370,7 @@ class Takahe:
                 content,
                 visibility=visibility,
                 type_data=data,
-                edited=post_time,
+                published=post_time,
             )
         else:
             post = Post.create_local(
@@ -413,6 +413,49 @@ class Takahe:
             return Takahe.Visibilities.public
         else:
             return Takahe.Visibilities.unlisted
+
+    @staticmethod
+    def post_collection(collection):
+        existing_post = collection.latest_post
+        user = collection.owner.user
+        visibility = Takahe.visibility_n2t(
+            collection, user.preference.mastodon_publish_public
+        )
+        if existing_post and visibility != existing_post.visibility:
+            Takahe.delete_posts([existing_post])
+            existing_post = None
+        data = {
+            "object": {
+                # "tag": [item.ap_object_ref for item in collection.items],
+                "relatedWith": [collection.ap_object],
+            }
+        }
+        if existing_post and existing_post.type_data == data:
+            return existing_post
+        action_label = "创建"
+        category = "收藏单"
+        item_link = collection.absolute_url
+        pre_conetent = f'{action_label}{category}<a href="{item_link}">《{collection.title}》</a><br>'
+        content = ""
+        data = {
+            "object": {
+                # "tag": [item.ap_object_ref for item in collection.items],
+                "relatedWith": [collection.ap_object],
+            }
+        }
+        post = Takahe.post(
+            collection.owner.pk,
+            pre_conetent,
+            content,
+            visibility,
+            data,
+            existing_post.pk if existing_post else None,
+            collection.created_time,
+        )
+        if not post:
+            return
+        collection.link_post_id(post.pk)
+        return post
 
     @staticmethod
     def post_comment(comment, share_as_new_post: bool) -> Post | None:

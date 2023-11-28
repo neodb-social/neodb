@@ -80,6 +80,8 @@ class Collection(List):
         )
 
     def save(self, *args, **kwargs):
+        from takahe.utils import Takahe
+
         if getattr(self, "catalog_item", None) is None:
             self.catalog_item = CatalogCollection()
         if (
@@ -91,6 +93,21 @@ class Collection(List):
             self.catalog_item.cover = self.cover  # type: ignore
             self.catalog_item.save()
         super().save(*args, **kwargs)
+        Takahe.post_collection(self)
+
+    @property
+    def ap_object(self):
+        return {
+            "id": self.absolute_url,
+            "type": "Collection",
+            "name": self.title,
+            "content": self.brief,
+            "mediaType": "text/markdown",
+            "published": self.created_time.isoformat(),
+            "updated": self.edited_time.isoformat(),
+            "attributedTo": self.owner.actor_uri,
+            "href": self.absolute_url,
+        }
 
 
 class FeaturedCollection(Piece):

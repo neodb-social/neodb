@@ -90,8 +90,9 @@ def post_fetched(pk, obj):
     if not post.type_data:
         logger.warning(f"Post {post} has no type_data")
         return
-    items = _parse_items(post.type_data["object"]["tag"])
-    pieces = _parse_piece_objects(post.type_data["object"]["relatedWith"])
+    ap_object = post.type_data.get("object", {})
+    items = _parse_items(ap_object.get("tag"))
+    pieces = _parse_piece_objects(ap_object.get("relatedWith"))
     logger.info(f"Post {post} has items {items} and pieces {pieces}")
     if len(items) == 0:
         logger.warning(f"Post {post} has no remote items")

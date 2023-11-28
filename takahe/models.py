@@ -33,6 +33,14 @@ if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
 
 
+_disable_timeline = False
+
+
+def set_disable_timeline(disable: bool):
+    global _disable_timeline
+    _disable_timeline = disable
+
+
 class TakaheSession(models.Model):
     session_key = models.CharField(_("session key"), max_length=40, primary_key=True)
     session_data = models.TextField(_("session data"))
@@ -984,6 +992,20 @@ class Post(models.Model):
             .first()
         )
 
+    def add_to_timeline(self, owner: Identity):
+        """
+        Creates a TimelineEvent for this post on owner's timeline
+        """
+        return TimelineEvent.objects.update_or_create(
+            identity=owner,
+            type=TimelineEvent.Types.post,
+            subject_post=self,
+            subject_identity=self.author,
+            defaults={
+                "published": self.published,
+            },
+        )[0]
+
     @classmethod
     def create_local(
         cls,
@@ -1032,8 +1054,10 @@ class Post(models.Model):
             post.emojis.set(emojis)
             if published and published < timezone.now():
                 post.published = published
-                if timezone.now() - published > datetime.timedelta(
-                    days=settings.FANOUT_LIMIT_DAYS
+                if (
+                    timezone.now() - published
+                    > datetime.timedelta(days=settings.FANOUT_LIMIT_DAYS)
+                    and _disable_timeline
                 ):
                     post.state = "fanned_out"  # add post quietly if it's old
             # if attachments:# FIXME
@@ -1047,13 +1071,8 @@ class Post(models.Model):
             # Recalculate parent stats for replies
             if reply_to:
                 reply_to.calculate_stats()
-            if post.state == "fanned_out":
-                FanOut.objects.create(
-                    identity=author,
-                    type="post",
-                    subject_post=post,
-                )
-
+            if post.state == "fanned_out" and not _disable_timeline:
+                post.add_to_timeline(author)
         return post
 
     def edit_local(
@@ -1066,7 +1085,7 @@ class Post(models.Model):
         attachments: list | None = None,
         attachment_attributes: list | None = None,
         type_data: dict | None = None,
-        edited: datetime.datetime | None = None,
+        published: datetime.datetime | None = None,
     ):
         with transaction.atomic():
             # Strip all HTML and apply linebreaks filter
@@ -1100,12 +1119,8 @@ class Post(models.Model):
             self.state_changed = timezone.now()
             self.state_next_attempt = None
             self.state_locked_until = None
-            if edited and edited < timezone.now():
-                self.published = edited
-                if timezone.now() - edited > datetime.timedelta(
-                    days=settings.FANOUT_LIMIT_DAYS
-                ):
-                    self.state = "edited_fanned_out"  # add post quietly if it's old
+            if _disable_timeline:  # NeoDB: disable fanout during migration
+                self.state = "edited_fanned_out"
             self.save()
 
     @classmethod
@@ -1685,6 +1700,75 @@ class InboxMessage(models.Model):
                 "object": payload,
             }
         )
+
+
+class TimelineEvent(models.Model):
+    """
+    Something that has happened to an identity that we want them to see on one
+    or more timelines, like posts, likes and follows.
+    """
+
+    class Types(models.TextChoices):
+        post = "post"
+        boost = "boost"  # A boost from someone (post substitute)
+        mentioned = "mentioned"
+        liked = "liked"  # Someone liking one of our posts
+        followed = "followed"
+        follow_requested = "follow_requested"
+        boosted = "boosted"  # Someone boosting one of our posts
+        announcement = "announcement"  # Server announcement
+        identity_created = "identity_created"  # New identity created
+
+    # The user this event is for
+    identity = models.ForeignKey(
+        Identity,
+        on_delete=models.CASCADE,
+        related_name="timeline_events",
+    )
+
+    # What type of event it is
+    type = models.CharField(max_length=100, choices=Types.choices)
+
+    # The subject of the event (which is used depends on the type)
+    subject_post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="timeline_events",
+    )
+    subject_post_interaction = models.ForeignKey(
+        PostInteraction,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="timeline_events",
+    )
+    subject_identity = models.ForeignKey(
+        Identity,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="timeline_events_about_us",
+    )
+
+    published = models.DateTimeField(default=timezone.now)
+    seen = models.BooleanField(default=False)
+    dismissed = models.BooleanField(default=False)
+
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            # This relies on a DB that can use left subsets of indexes
+            models.Index(
+                fields=["identity", "type", "subject_post", "subject_identity"]
+            ),
+            models.Index(fields=["identity", "type", "subject_identity"]),
+            models.Index(fields=["identity", "created"]),
+        ]
+        # managed = False
+        db_table = "activities_timelineevent"
 
 
 class Config(models.Model):
