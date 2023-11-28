@@ -24,7 +24,7 @@ class Comment(Content):
             "published": self.created_time.isoformat(),
             "updated": self.edited_time.isoformat(),
             "attributedTo": self.owner.actor_uri,
-            "relatedWith": self.item.absolute_url,
+            "withRegardTo": self.item.absolute_url,
             "href": self.absolute_url,
         }
         if self.metadata.get("position"):
