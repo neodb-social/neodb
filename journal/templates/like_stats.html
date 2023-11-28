@@ -3,16 +3,16 @@
      {% if request.user.is_authenticated %} hx-post="{% url 'journal:unlike' piece.uuid %}?stats=1&amp;icon={{ icon }}&amp;label={{ label }}" {% endif %}
      hx-swap="outerHTML"
      hx-target="this"
-     title="已{{ label|default:'赞' }}">
-    <i class="fa-solid {{ icon|default:'fa-thumbs-up' }}"></i>
+     title="已喜欢">
+    <i class="fa-solid fa-heart"></i>
     <span>{{ piece.like_count }}</span>
   </a>
 {% else %}
   <a hx-swap="outerHTML"
      hx-target="this"
      {% if request.user.is_authenticated %} hx-post="{% url 'journal:like' piece.uuid %}?stats=1&amp;icon={{ icon }}&amp;label={{ label }}" {% endif %}
-     title="{{ label|default:'赞' }}">
-    <i class="fa-regular {{ icon|default:'fa-thumbs-up' }}"></i>
+     title="喜欢">
+    <i class="fa-regular fa-heart"></i>
     {% if piece.like_count %}<span>{{ piece.like_count }}</span>{% endif %}
   </a>
 {% endif %}
