@@ -68,13 +68,8 @@
                   仅自己
                 </label>
               </p>
-              {% if import_status.douban_pending %}
-                <input type="submit"
-                       value="{% trans '备份文件已上传，请等待导入完成或刷新页面查看最新进度' %}"
-                       disabled />
-              {% else %}
-                <input type="submit"  value="{% trans '导入' %}" />
-              {% endif %}
+              <input type="submit"
+                     {% if import_status.douban_pending %} onclick="return confirm('短期重复上传可能有无法预期的效果，确定现在上传导入吗？')" value="{% trans '备份文件已上传，请等待导入完成或刷新页面查看最新进度' %}" {% else %} value="{% trans '导入' %}" {% endif %} />
             </form>
             <div hx-get="{% url 'users:import_status' %}"
                  hx-trigger="load delay:1s"
