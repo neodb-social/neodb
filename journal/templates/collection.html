@@ -33,11 +33,11 @@
           <hgroup>
             <h3>
               <div class="action">
+                <span>
+                  {% liked_piece collection as liked %}
+                  {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-heart' %}
+                </span>
                 {% if request.user.is_authenticated %}
-                  <span>
-                    {% liked_piece collection as liked %}
-                    {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-bookmark' %}
-                  </span>
                   <span>{% include '_feature_stats.html' with featured=featured_since %}</span>
                   <span>
                     <a href="#"
@@ -114,19 +114,40 @@
                hx-trigger="load"></div>
         </section>
         <section>
-          <div class="action">
-            {% if request.user.identity == collection.owner %}
+          {% if request.user.is_authenticated %}
+            <span class="action">
               <span>
-                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '编辑' %}</a>
+                <a hx-get="{% url 'journal:piece_replies' collection.uuid %}"
+                   hx-swap="outerHTML"
+                   hx-trigger="click once"
+                   hx-target="#replies_{{ collection.latest_post.pk }}">
+                  {{ collection.latest_post.stats.replies | default:'' }}
+                  回应
+                </a>
               </span>
-              <span>
-                <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans '删除' %}</a>
-              </span>
-            {% elif editable %}
-              <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '协助整理' %}</a>
-            {% endif %}
-          </div>
-          <span>创建于 {{ collection.created_time | date }}</span>
+              {% if request.user.identity == collection.owner %}
+                <span>
+                  <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '编辑' %}</a>
+                </span>
+                <span>
+                  <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans '删除' %}</a>
+                </span>
+              {% elif editable %}
+                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '协助整理' %}</a>
+              {% endif %}
+            </span>
+          {% endif %}
+          <span class="action inline">
+            <span>
+              <a target="_blank"
+                 rel="noopener"
+                 href="{{ collection.shared_link }}"
+                 title="打开联邦宇宙分享链接"><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+            </span>
+            <span><a>创建于 {{ collection.created_time|date }}</a></span>
+          </span>
+        </section>
+        <section id="replies_{{ collection.latest_post.pk }}">
         </section>
       </div>
       {% include "_sidebar.html" with identity=collection.owner show_profile=1 %}
