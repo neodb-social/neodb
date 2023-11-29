@@ -228,28 +228,33 @@ def get_related_acct_list(site, token, api):
     url = "https://" + get_api_domain(site) + api
     results = []
     while url:
-        response = get(
-            url, headers={"User-Agent": USER_AGENT, "Authorization": f"Bearer {token}"}
-        )
-        url = None
-        if response.status_code == 200:
-            results.extend(
-                map(
-                    lambda u: (
-                        u["acct"]
-                        if u["acct"].find("@") != -1
-                        else u["acct"] + "@" + site
-                    )
-                    if "acct" in u
-                    else u,
-                    response.json(),
-                )
+        try:
+            response = get(
+                url,
+                headers={"User-Agent": USER_AGENT, "Authorization": f"Bearer {token}"},
             )
-            if "Link" in response.headers:
-                for ls in response.headers["Link"].split(","):
-                    li = ls.strip().split(";")
-                    if li[1].strip() == 'rel="next"':
-                        url = li[0].strip().replace(">", "").replace("<", "")
+            url = None
+            if response.status_code == 200:
+                results.extend(
+                    map(
+                        lambda u: (
+                            u["acct"]
+                            if u["acct"].find("@") != -1
+                            else u["acct"] + "@" + site
+                        )
+                        if "acct" in u
+                        else u,
+                        response.json(),
+                    )
+                )
+                if "Link" in response.headers:
+                    for ls in response.headers["Link"].split(","):
+                        li = ls.strip().split(";")
+                        if li[1].strip() == 'rel="next"':
+                            url = li[0].strip().replace(">", "").replace("<", "")
+        except Exception as e:
+            logger.error("Error GET {url} : {e}")
+            url = None
     return results
 
 
