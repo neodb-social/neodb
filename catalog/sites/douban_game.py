@@ -66,11 +66,8 @@ class DoubanGame(AbstractSite):
         date_elem = content.xpath(
             "//dl[@class='game-attr']//dt[text()='发行日期:']/following-sibling::dd[1]/text()"
         )
-        release_date = (
-            dateparser.parse(date_elem[0].strip()).strftime("%Y-%m-%d")
-            if date_elem
-            else None
-        )
+        release_date = dateparser.parse(date_elem[0].strip()) if date_elem else None
+        release_date = release_date.strftime("%Y-%m-%d") if release_date else None
 
         brief_elem = content.xpath("//div[@class='mod item-desc']/p/text()")
         brief = "\n".join(brief_elem) if brief_elem else None

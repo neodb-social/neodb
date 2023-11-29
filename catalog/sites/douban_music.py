@@ -50,11 +50,8 @@ class DoubanMusic(AbstractSite):
         date_elem = content.xpath(
             "//div[@id='info']//span[text()='发行时间:']/following::text()[1]"
         )
-        release_date = (
-            dateparser.parse(date_elem[0].strip()).strftime("%Y-%m-%d")
-            if date_elem
-            else None
-        )
+        release_date = dateparser.parse(date_elem[0].strip()) if date_elem else None
+        release_date = release_date.strftime("%Y-%m-%d") if release_date else None
 
         company_elem = content.xpath(
             "//div[@id='info']//span[text()='出版者:']/following::text()[1]"
