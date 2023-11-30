@@ -13,7 +13,7 @@ version: "3.8"
 x-shared:
   neodb-service: &neodb-service
     build: .
-    image: ${NEODB_IMAGE:-neodb/neodb:main}
+    image: ${NEODB_IMAGE:-neodb/neodb:latest}
     environment:
       NEODB_DEBUG:
       NEODB_SECRET_KEY:

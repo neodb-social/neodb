@@ -1,15 +1,12 @@
-name: Development Image
+name: Release Image
 
 on:
-  workflow_run:
-    workflows: ["unit test"]
-    branches:
-      - main
-    types:
-      - completed
+  push:
+    tags:
+      - "v*"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -37,7 +34,7 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#1857a4"
-          message: Building development image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
+          message: Building release image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -51,7 +48,9 @@ jobs:
         with:
           images: neodb/neodb
           tags: |
-            type=edge,branch=main
+            type=raw,value=latest
+            type=semver,pattern={{version}}
+            type=raw,value=${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
 
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
@@ -75,4 +74,4 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#1857a4"
-          message: Published development image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
+          message: Published release image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
