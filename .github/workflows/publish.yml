@@ -31,13 +31,18 @@ jobs:
           cd neodb-takahe
           echo "takahe=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
+      - name: Overwrite version in code
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: echo '__version__ = "'$REF_NAME'"' > boofilsic/__init__.py
+
       - name: Send Discord notification
         uses: appleboy/discord-action@master
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#1857a4"
-          message: Building development image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
+          message: Building development image ${{ github.ref_name }}-${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -75,4 +80,4 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#1857a4"
-          message: Published development image ${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
+          message: Published development image ${{ github.ref_name }}-${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
