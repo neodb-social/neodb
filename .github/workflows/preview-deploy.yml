@@ -1,12 +1,15 @@
-name: preview deployment
+name: Preview Deployment
+
 on:
   workflow_run:
-    workflows: ["docker image"]
+    workflows: ["Development Image"]
     types:
       - completed
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}
   cancel-in-progress: true
+
 jobs:
   deployment:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -20,7 +23,7 @@ jobs:
         webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
         webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
         color: "#6848a9"
-        message: "Deployment started."
+        message: Deployment ${{ github.ref_name }} started
     - name: ssh
       uses: appleboy/ssh-action@master
       with:
@@ -35,4 +38,4 @@ jobs:
         webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
         webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
         color: "#6848a9"
-        message: "Deployment complete."
+        message: Deployment ${{ github.ref_name }} complete
