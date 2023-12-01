@@ -33,6 +33,7 @@ env = environ.FileAwareEnv(
     NEODB_SITE_ICON=(str, "/s/img/logo.svg"),
     NEODB_USER_ICON=(str, "/s/img/avatar.svg"),
     NEODB_SITE_INTRO=(str, ""),
+    NEODB_SITE_HEAD=(str, ""),
     # Links in site footer
     NEODB_SITE_LINKS=(dict, {}),
     # Invite only mode
@@ -163,6 +164,7 @@ SITE_INFO = {
     "site_icon": env("NEODB_SITE_ICON"),
     "user_icon": env("NEODB_USER_ICON"),
     "site_intro": env("NEODB_SITE_INTRO"),
+    "site_head": env("NEODB_SITE_HEAD"),
     "site_links": [{"title": k, "url": v} for k, v in env("NEODB_SITE_LINKS").items()],
 }
 

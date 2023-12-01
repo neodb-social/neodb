@@ -49,7 +49,7 @@ class ApplicationRegistration(BaseApplicationRegistration):
 class ApplicationUpdate(BaseApplicationUpdate):
     def get_form_class(self):
         return modelform_factory(
-            get_application_model(),
+            get_application_model(),  # type:ignore
             fields=(
                 "name",
                 "url",
