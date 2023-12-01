@@ -37,6 +37,7 @@
     <main class="container">
       <h1 class="header">
         {% trans '公告栏' %}
+        {% if request.user.is_superuser %}🦹🏻{% endif %}
         {% if request.user.is_staff %}🧙🏻{% endif %}
       </h1>
       {% if request.user.is_superuser %}

@@ -10,7 +10,7 @@ try:
     with open(os.path.join(BASE_DIR, "build_version")) as f:
         NEODB_VERSION = __version__ + "-" + f.read().strip()
 except:
-    NEODB_VERSION = __version__ + "-dev"
+    NEODB_VERSION = __version__ + "-unknown"
 
 
 # Parse configuration from:
@@ -155,6 +155,7 @@ elif _parsed_email_url.scheme:
 
 SITE_DOMAIN = env("NEODB_SITE_DOMAIN")
 SITE_INFO = {
+    "neodb_version": NEODB_VERSION,
     "site_name": env("NEODB_SITE_NAME"),
     "site_domain": SITE_DOMAIN,
     "site_url": env("NEODB_SITE_URL", default="https://" + SITE_DOMAIN),

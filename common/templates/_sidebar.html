@@ -213,6 +213,17 @@
   {% if sidebar_template %}
     {% include sidebar_template %}
   {% endif %}
+  {% if request.user.is_superuser and identity.local and request.user.identity != identity and request.GET.sudo %}
+    <section class="hijacker">
+      <form action="{% url 'hijack:acquire' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="user_pk" value="{{ identity.user.pk }}">
+        <button type="submit">View as them</button>
+        <button _="on click hide .hijacker then halt default">Hide</button>
+        <input type="hidden" name="next" value="{{ request.path }}">
+      </form>
+    </section>
+  {% endif %}
 </aside>
 <script>
   $(function () {
