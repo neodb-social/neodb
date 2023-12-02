@@ -148,7 +148,7 @@
           <div>
             <a target="_blank"
                rel="noopener"
-               href="https://library.oapen.org/discover?filtertype_1=isbn&filter_relational_operator_1=equals&filter_1={{ item.isbn }}">
+               href="https://library.oapen.org/discover?filtertype_1=isbn&amp;filter_relational_operator_1=equals&amp;filter_1={{ item.isbn }}">
             OAPEN</a>
           </div>
           <div>
@@ -160,11 +160,45 @@
             <a target="_blank"
                rel="noopener"
                href="https://www.amazon.com/s?k={{ item.isbn }}">Amazon</a>
+            <a target="_blank"
+               rel="noopener"
+               href="https://www.amazon.de/s?k={{ item.isbn }}">DE</a>
+            <a target="_blank"
+               rel="noopener"
+               href="https://www.amazon.co.jp/s?k={{ item.isbn }}">JP</a>
+            <a target="_blank"
+               rel="noopener"
+               href="https://www.amazon.co.uk/s?k={{ item.isbn }}">UK</a>
+          </div>
+          <div>
+            <a target="_blank"
+               rel="noopener"
+               href="https://www.kobo.com/search?query={{ item.isbn }}">Kobo</a>
+            <a target="_blank"
+               rel="noopener"
+               href="https://www.kobo.com/jp/en/search?query={{ item.isbn }}">JP</a>
+            <a target="_blank"
+               rel="noopener"
+               href="https://www.kobo.com/tw/zh/search?query={{ item.isbn }}">TW</a>
+            <a target="_blank"
+               rel="noopener"
+               href="https://www.kobo.com/us/en/search?query={{ item.isbn }}">US</a>
           </div>
           <div>
             <a target="_blank"
                rel="noopener"
                href="https://www.duozhuayu.com/search/book/{{ item.isbn }}">多抓鱼</a>
+            <a target="_blank"
+               rel="noopener"
+               href="https://search.kongfz.com/product_result/?key={{ item.isbn }}">孔夫子旧书</a>
+          </div>
+          <div>
+            <a target="_blank"
+               rel="noopener"
+               href="https://search.books.com.tw/search/query/key/{{ item.isbn }}/cat/all">博客来</a>
+            <a target="_blank"
+               rel="noopener"
+               href="https://readmoo.com/search/keyword?q={{ item.isbn }}">Readmoo 讀墨</a>
           </div>
         </div>
       </details>
