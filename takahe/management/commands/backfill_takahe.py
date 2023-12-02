@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
@@ -18,6 +20,8 @@ from users.models import APIdentity
 from users.models import User as NeoUser
 
 BATCH_SIZE = 1000
+
+TIMELINE_START = datetime.datetime(2023, 7, 1, tzinfo=timezone.utc)
 
 
 def content_type_id(cls):
@@ -115,7 +119,7 @@ class Command(BaseCommand):
                             published=post.published,
                         )
                     )
-                    if post.visibility != 3:
+                    if post.visibility != 3 and post.published > TIMELINE_START:
                         for follower_id in followers[post.author_id]:
                             events.append(
                                 TimelineEvent(
