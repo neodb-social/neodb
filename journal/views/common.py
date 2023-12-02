@@ -53,7 +53,7 @@ def render_list(
     request: AuthedHttpRequest,
     user_name,
     type,
-    shelf_type=None,
+    shelf_type: ShelfType | None = None,
     item_category=None,
     tag_title=None,
     year=None,
@@ -61,10 +61,8 @@ def render_list(
     target = request.target_identity
     viewer = request.user.identity
     tag = None
-    if type == "mark":
-        queryset = target.user.shelf_manager.get_latest_members(
-            shelf_type, item_category
-        )
+    if type == "mark" and shelf_type:
+        queryset = target.shelf_manager.get_latest_members(shelf_type, item_category)
     elif type == "tagmember":
         tag = Tag.objects.filter(owner=target, title=tag_title).first()
         if not tag:

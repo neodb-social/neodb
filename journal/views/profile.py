@@ -50,8 +50,10 @@ def profile(request: AuthedHttpRequest, user_name):
                     "count": members.count(),
                     "members": members[:10].prefetch_related("item"),
                 }
-        reviews = Review.objects.filter(q_item_in_category(category)).order_by(
-            "-created_time"
+        reviews = (
+            Review.objects.filter(q_item_in_category(category))
+            .filter(qv)
+            .order_by("-created_time")
         )
         shelf_list[category]["reviewed"] = {
             "title": "评论过的" + category.label,

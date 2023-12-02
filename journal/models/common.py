@@ -37,7 +37,7 @@ def q_owned_piece_visible_to_user(viewing_user: User, owner: APIdentity):
         return Q(visibility=0)
     viewer = viewing_user.identity
     if viewer == owner:
-        return Q()
+        return Q(owner=owner)
     # elif viewer.is_blocked_by(owner):
     #     return Q(pk__in=[])
     elif viewer.is_following(owner):
