@@ -690,6 +690,19 @@ class Identity(models.Model):
         self.public_key_id = self.actor_uri + "#main-key"
         self.save()
 
+    def ensure_uris(self):
+        """
+        Ensures that local identities have all the URIs populated on their fields
+        (this lets us add new ones easily)
+        """
+        if self.local:
+            self.inbox_uri = self.actor_uri + "inbox/"
+            self.outbox_uri = self.actor_uri + "outbox/"
+            self.featured_collection_uri = self.actor_uri + "collections/featured/"
+            self.followers_uri = self.actor_uri + "followers/"
+            self.following_uri = self.actor_uri + "following/"
+            self.shared_inbox_uri = f"https://{self.domain.uri_domain}/inbox/"
+
 
 class Follow(models.Model):
     """

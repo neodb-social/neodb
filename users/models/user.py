@@ -414,6 +414,8 @@ class User(AbstractUser):
         return APIdentity.objects.filter(user=self).exists()
 
     def initialize(self):
+        if not self.username:
+            raise ValueError("Username is not set")
         Takahe.init_identity_for_local_user(self)
         self.identity.shelf_manager
 

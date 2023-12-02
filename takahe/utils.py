@@ -99,6 +99,7 @@ class Takahe:
                 discoverable=not u.preference.no_anonymous_view,
             )
             identity.generate_keypair()
+            identity.ensure_uris()
         if not user.identities.filter(pk=identity.pk).exists():
             user.identities.add(identity)
         apidentity = APIdentity.objects.filter(pk=identity.pk).first()
