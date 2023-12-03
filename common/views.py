@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
+from boofilsic import __version__
 from users.models import User
 
 
@@ -51,7 +52,7 @@ def nodeinfo2(request):
             "version": "2.0",
             "software": {
                 "name": "neodb",
-                "version": settings.NEODB_VERSION,
+                "version": __version__,
                 "repository": "https://github.com/neodb-social/neodb",
                 "homepage": "https://neodb.net/",
             },
@@ -59,7 +60,10 @@ def nodeinfo2(request):
             "openRegistrations": not settings.INVITE_ONLY,
             "services": {"outbound": [], "inbound": []},
             "usage": usage,
-            "metadata": {"nodeName": settings.SITE_INFO["site_name"]},
+            "metadata": {
+                "nodeName": settings.SITE_INFO["site_name"],
+                "nodeRevision": settings.NEODB_VERSION,
+            },
         }
     )
 
