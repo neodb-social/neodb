@@ -17,12 +17,11 @@
       {% endfor %}
     </select>
     <select name="shelf" id="shelf" onchange="filter()">
-      <option {% if '/wishlist/' in request.path %}selected{% endif %}
-              value="wishlist">想看</option>
-      <option {% if '/progress/' in request.path %}selected{% endif %}
-              value="progress">在看</option>
-      <option {% if '/complete/' in request.path %}selected{% endif %}
-              value="complete">看过</option>
+      {% for typ, label in shelf_labels %}
+        {% if label %}
+          <option {% if typ in request.path %}selected{% endif %} value="{{ typ }}">{{ label }}</option>
+        {% endif %}
+      {% endfor %}
       <option {% if '/reviews/' in request.path %}selected{% endif %}
               value="reviews">评论</option>
     </select>

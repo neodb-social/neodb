@@ -25,7 +25,7 @@ class ShelfType(models.TextChoices):
     # DISCARDED = ('discarded', '放弃')
 
 
-ShelfTypeNames = [
+SHELF_LABELS = [
     [ItemCategory.Book, ShelfType.WISHLIST, _("想读")],
     [ItemCategory.Book, ShelfType.PROGRESS, _("在读")],
     [ItemCategory.Book, ShelfType.COMPLETE, _("读过")],
@@ -50,6 +50,10 @@ ShelfTypeNames = [
     [ItemCategory.Performance, ShelfType.PROGRESS, _("")],
     [ItemCategory.Performance, ShelfType.COMPLETE, _("看过")],
 ]
+
+
+def get_shelf_labels_for_category(item_category: ItemCategory):
+    return [(n[1], n[2]) for n in SHELF_LABELS if n[0] == item_category]
 
 
 class ShelfMember(ListMember):
@@ -268,7 +272,7 @@ class ShelfManager:
         cls, shelf_type: ShelfType | str, item_category: ItemCategory
     ) -> str:
         st = str(shelf_type)
-        sts = [n[2] for n in ShelfTypeNames if n[0] == item_category and n[1] == st]
+        sts = [n[2] for n in SHELF_LABELS if n[0] == item_category and n[1] == st]
         return sts[0] if sts else st
 
     @classmethod

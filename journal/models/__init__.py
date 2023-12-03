@@ -16,12 +16,13 @@ from .rating import Rating
 from .renderers import render_md
 from .review import Review
 from .shelf import (
+    SHELF_LABELS,
     Shelf,
     ShelfLogEntry,
     ShelfManager,
     ShelfMember,
     ShelfType,
-    ShelfTypeNames,
+    get_shelf_labels_for_category,
 )
 from .tag import Tag, TagManager, TagMember
 from .utils import (

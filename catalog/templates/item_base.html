@@ -54,7 +54,7 @@
       {% if request.user.is_authenticated and not mark.shelf_type %}
         <div id="item-primary-action" class="right mark">
           <div class="item-action item-mark-buttons">
-            {% for k, v in shelf_types %}
+            {% for k, v in shelf_labels %}
               {% if v %}
                 <button class="primary"
                         data-status="{{ k }}"

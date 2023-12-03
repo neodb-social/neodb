@@ -16,7 +16,14 @@ from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
 from mastodon.api import boost_toot_later
 from takahe.utils import Takahe
 
-from ..models import Comment, Mark, Piece, ShelfType, ShelfTypeNames, TagManager
+from ..models import (
+    Comment,
+    Mark,
+    Piece,
+    ShelfType,
+    TagManager,
+    get_shelf_labels_for_category,
+)
 from .common import render_list, render_relogin, target_identity_required
 
 _logger = logging.getLogger(__name__)
@@ -98,9 +105,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
     mark = Mark(request.user.identity, item)
     if request.method == "GET":
         tags = request.user.identity.tag_manager.get_item_tags(item)
-        shelf_types = [
-            (n[1], n[2]) for n in iter(ShelfTypeNames) if n[0] == item.category
-        ]
+        shelf_labels = get_shelf_labels_for_category(item.category)
         shelf_type = request.GET.get("shelf_type", mark.shelf_type)
         return render(
             request,
@@ -110,7 +115,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
                 "mark": mark,
                 "shelf_type": shelf_type,
                 "tags": ",".join(tags),
-                "shelf_types": shelf_types,
+                "shelf_labels": shelf_labels,
                 "date_today": timezone.localdate().isoformat(),
             },
         )
