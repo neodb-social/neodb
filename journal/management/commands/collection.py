@@ -1,12 +1,12 @@
 import json
+import sys
 
 from django.core.management.base import BaseCommand
 
 from catalog.models import Item
 from common.utils import get_uuid_or_404
 from journal.models import *
-from takahe.utils import *
-from users.models import APIdentity
+from users.models import User
 
 
 # TODO make this available in UI
@@ -53,7 +53,7 @@ class Command(BaseCommand):
         print(json.dumps(data, indent=2))
 
     def process_import(self, username):
-        owner = APIdentity.objects.get(username=username, local=True)
+        owner = User.objects.get(username=username)
         data = json.load(sys.stdin)
         collection = Collection.objects.create(
             owner=owner,
