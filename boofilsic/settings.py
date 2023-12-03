@@ -15,10 +15,10 @@ except:
 
 # Parse configuration from:
 # - environment variables
-# - .env file in project root directory
-# - /etc/neodb.conf
-environ.Env.read_env("/etc/neodb.conf")
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+# - neodb.env file in project root directory
+# - /etc/neodb.env
+environ.Env.read_env("/etc/neodb.env")
+environ.Env.read_env(os.path.join(BASE_DIR, "neodb.env"))
 
 # ====== List of user configuration variables ======
 env = environ.FileAwareEnv(

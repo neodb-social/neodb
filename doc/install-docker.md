@@ -61,7 +61,7 @@ Optionally, `robots.txt` and `logo.png` may be placed under `$NEODB_DATA/www-roo
 See `neodb.env.example` and `configuration.md` for more options
 
 ## Start docker
-in the folder with `compose.yml` and `neodb.env`, execute as the user you just created:
+in the folder with `compose.yml` and `.env`, execute as the user you just created:
 ```
 $ docker compose pull
 $ docker compose --profile production up -d
