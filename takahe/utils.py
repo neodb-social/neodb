@@ -6,6 +6,7 @@ from django.core.cache import cache
 from .models import *
 
 if TYPE_CHECKING:
+    from journal.models import Collection
     from users.models import APIdentity
     from users.models import User as NeoUser
 
@@ -426,11 +427,11 @@ class Takahe:
             return Takahe.Visibilities.unlisted
 
     @staticmethod
-    def post_collection(collection):
+    def post_collection(collection: "Collection"):
         existing_post = collection.latest_post
         user = collection.owner.user
         visibility = Takahe.visibility_n2t(
-            collection, user.preference.mastodon_publish_public
+            collection.visibility, user.preference.mastodon_publish_public
         )
         if existing_post and visibility != existing_post.visibility:
             Takahe.delete_posts([existing_post])
