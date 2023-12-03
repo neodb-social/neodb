@@ -79,7 +79,7 @@ class Takahe:
         handler = "@" + u.username
         if not user:
             logger.info(f"Creating takahe user {u}")
-            user = User.objects.create(pk=u.pk, email=handler)
+            user = User.objects.create(pk=u.pk, email=handler, password=u.password)
         else:
             if user.email != handler:
                 logger.warning(f"Updating takahe user {u} email to {handler}")

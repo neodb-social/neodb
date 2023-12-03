@@ -78,10 +78,5 @@ class JobManager:
 
     @classmethod
     def reschedule_all(cls):
-        # TODO rewrite lazy import in a better way
-        from catalog.jobs import DiscoverGenerator, PodcastUpdater
-        from mastodon.jobs import MastodonSiteCheck
-        from users.jobs import MastodonUserSync
-
         cls.cancel_all()
         cls.schedule_all()

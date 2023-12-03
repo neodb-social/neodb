@@ -11,5 +11,8 @@ class CatalogConfig(AppConfig):
         from catalog.models import init_catalog_audit_log, init_catalog_search_models
         from journal import models as journal_models
 
+        # register cron jobs
+        from catalog.jobs import DiscoverGenerator, PodcastUpdater  # isort:skip
+
         init_catalog_search_models()
         init_catalog_audit_log()

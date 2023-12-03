@@ -33,12 +33,12 @@ if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
 
 
-_disable_timeline = False
+_migration_mode = False
 
 
-def set_disable_timeline(disable: bool):
-    global _disable_timeline
-    _disable_timeline = disable
+def set_migration_mode(disable: bool):
+    global _migration_mode
+    _migration_mode = disable
 
 
 class TakaheSession(models.Model):
@@ -1035,14 +1035,16 @@ class Post(models.Model):
     ) -> "Post":
         with transaction.atomic():
             # Find mentions in this post
-            mentions = cls.mentions_from_content(content, author)
+            mentions = (
+                set() if _migration_mode else cls.mentions_from_content(content, author)
+            )
             if reply_to:
                 mentions.add(reply_to.author)
                 # Maintain local-only for replies
                 if reply_to.visibility == reply_to.Visibilities.local_only:
                     visibility = reply_to.Visibilities.local_only
             # Find emoji in this post
-            emojis = Emoji.emojis_from_content(content, None)
+            emojis = [] if _migration_mode else Emoji.emojis_from_content(content, None)
             # Strip all unwanted HTML and apply linebreaks filter, grabbing hashtags on the way
             parser = FediverseHtmlParser(linebreaks_filter(content), find_hashtags=True)
             content = parser.html.replace("<p>", "<p>" + raw_prepend_content, 1)
@@ -1070,7 +1072,7 @@ class Post(models.Model):
                 if (
                     timezone.now() - published
                     > datetime.timedelta(days=settings.FANOUT_LIMIT_DAYS)
-                    and _disable_timeline
+                    and _migration_mode
                 ):
                     post.state = "fanned_out"  # add post quietly if it's old
             # if attachments:# FIXME
@@ -1084,7 +1086,7 @@ class Post(models.Model):
             # Recalculate parent stats for replies
             if reply_to:
                 reply_to.calculate_stats()
-            if post.state == "fanned_out" and not _disable_timeline:
+            if post.state == "fanned_out" and not _migration_mode:
                 post.add_to_timeline(author)
         return post
 
@@ -1132,7 +1134,7 @@ class Post(models.Model):
             self.state_changed = timezone.now()
             self.state_next_attempt = None
             self.state_locked_until = None
-            if _disable_timeline:  # NeoDB: disable fanout during migration
+            if _migration_mode:  # NeoDB: disable fanout during migration
                 self.state = "edited_fanned_out"
             self.save()
 

@@ -91,7 +91,7 @@ def init_identity(apps, schema_editor):
             else user.mastodon_last_reachable + timedelta(days=90),
         )
         takahe_user = TakaheUser.objects.create(
-            pk=user.pk, email=handler, admin=user.is_superuser
+            pk=user.pk, email=handler, admin=user.is_superuser, password=user.password
         )
         takahe_identity = TakaheIdentity.objects.create(
             pk=user.pk,
