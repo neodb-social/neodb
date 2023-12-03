@@ -41,18 +41,11 @@ def nodeinfo2(request):
     # TODO filter local with SQL function in https://wiki.postgresql.org/wiki/Count_estimate
     with connection.cursor() as cursor:
         cursor.execute(
-            "SELECT n_live_tup FROM pg_stat_all_tables WHERE relname = 'journal_shelfmember';"
+            "SELECT n_live_tup FROM pg_stat_all_tables WHERE relname = 'journal_shelflogentry';"
         )
         row = cursor.fetchone()
         if row:
             usage["localPosts"] = row[0]
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT n_live_tup FROM pg_stat_all_tables WHERE relname = 'journal_comment';"
-        )
-        row = cursor.fetchone()
-        if row:
-            usage["localComments"] = row[0]
     return JsonResponse(
         {
             "version": "2.0",
@@ -63,7 +56,7 @@ def nodeinfo2(request):
                 "homepage": "https://neodb.net/",
             },
             "protocols": ["activitypub", "neodb"],
-            "openRegistrations": False,  # settings.SITE_INFO["open_registrations"],
+            "openRegistrations": not settings.INVITE_ONLY,
             "services": {"outbound": [], "inbound": []},
             "usage": usage,
             "metadata": {"nodeName": settings.SITE_INFO["site_name"]},

@@ -9,14 +9,15 @@ from django.utils.http import http_date
 from loguru import logger
 
 from .models import TakaheSession
+from .utils import Takahe
 
 _TAKAHE_SESSION_COOKIE_NAME = "sessionid"
 
 
 @login_required
-def auth_login(request: HttpRequest):
+def auth_login(request):
     """Redirect to the login page if not yet, otherwise sync login info to takahe session"""
-
+    Takahe.sync_password(request.user)
     # if SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies" in Takahe
     session = SessionStore(session_key=request.COOKIES.get(_TAKAHE_SESSION_COOKIE_NAME))
     session._session_cache = request.session._session  # type: ignore

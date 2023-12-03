@@ -62,6 +62,16 @@ class Takahe:
             return domain.nodeinfo.get("metadata", {}).get("nodeName")
 
     @staticmethod
+    def sync_password(u: "NeoUser"):
+        user = User.objects.filter(pk=u.pk).first()
+        if not user:
+            raise ValueError(f"Cannot find takahe user {u}")
+        elif user.password != u.password:
+            logger.info(f"Updating takahe user {u} password")
+            user.password = u.password
+            user.save()
+
+    @staticmethod
     def init_identity_for_local_user(u: "NeoUser"):
         """
         When a new local NeoDB user is created,

@@ -1065,16 +1065,17 @@ class Post(models.Model):
             )
             post.object_uri = post.urls.object_uri
             post.url = post.absolute_object_uri()
-            post.mentions.set(mentions)
-            post.emojis.set(emojis)
-            if published and published < timezone.now():
-                post.published = published
-                if (
-                    timezone.now() - published
-                    > datetime.timedelta(days=settings.FANOUT_LIMIT_DAYS)
-                    and _migration_mode
-                ):
-                    post.state = "fanned_out"  # add post quietly if it's old
+            if _migration_mode:
+                post.state = "fanned_out"
+            else:
+                post.mentions.set(mentions)
+                post.emojis.set(emojis)
+                if published and published < timezone.now():
+                    post.published = published
+                    if timezone.now() - published > datetime.timedelta(
+                        days=settings.FANOUT_LIMIT_DAYS
+                    ):
+                        post.state = "fanned_out"  # add post quietly if it's old
             # if attachments:# FIXME
             #     post.attachments.set(attachments)
             # if question: # FIXME
@@ -1087,6 +1088,7 @@ class Post(models.Model):
             if reply_to:
                 reply_to.calculate_stats()
             if post.state == "fanned_out" and not _migration_mode:
+                # add post to auther's timeline directly if it's old
                 post.add_to_timeline(author)
         return post
 
