@@ -71,7 +71,7 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = No
             }
         )
     job_id = None
-    if is_refetch or get_fetch_lock():
+    if is_refetch or get_fetch_lock(request.user, url):
         job_id = enqueue_fetch(url, is_refetch, request.user)
     return render(
         request,
