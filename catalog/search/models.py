@@ -109,11 +109,19 @@ def query_index(keywords, categories=None, tag=None, page=1, prepare_external=Tr
     return items, result.num_pages, result.count, duplicated_items
 
 
-_fetch_lock_key = "_fetch_lock"
-_fetch_lock_ttl = 2
-
-
-def get_fetch_lock():
+def get_fetch_lock(user, url):
+    if user and user.is_authenticated:
+        _fetch_lock_key = f"_fetch_lock:{user.id}"
+        _fetch_lock_ttl = 1 if settings.DEBUG else 3
+    else:
+        _fetch_lock_key = "_fetch_lock"
+        _fetch_lock_ttl = 1 if settings.DEBUG else 15
+    if cache.get(_fetch_lock_key):
+        return False
+    cache.set(_fetch_lock_key, 1, timeout=_fetch_lock_ttl)
+    # do not fetch the same url twice in 2 hours
+    _fetch_lock_key = f"_fetch_lock:{url}"
+    _fetch_lock_ttl = 1 if settings.DEBUG else 7200
     if cache.get(_fetch_lock_key):
         return False
     cache.set(_fetch_lock_key, 1, timeout=_fetch_lock_ttl)

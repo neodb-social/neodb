@@ -67,8 +67,9 @@ def fetch_item(request, url: str):
     Convert a URL from a supported site (e.g. https://m.imdb.com/title/tt2852400/) to an item.
 
     If the item is not available in the catalog, HTTP 202 will be returned.
-    Wait 10 seconds or longer, call with same input again, it may return the actual fetched item.
+    Wait 15 seconds or longer, call with same input again, it may return the actual fetched item.
     Some site may take ~90 seconds to fetch.
+    If not getting the item after 120 seconds, please stop and consider the URL is not available.
     """
     site = SiteManager.get_site_by_url(url)
     if not site:
@@ -76,7 +77,7 @@ def fetch_item(request, url: str):
     item = site.get_item()
     if item:
         return 200, item
-    if get_fetch_lock():
+    if get_fetch_lock(request.user, url):
         enqueue_fetch(url, False)
     return 202, {"message": "Fetch in progress"}
 
