@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import sleep
 
 from loguru import logger
 
@@ -123,7 +124,15 @@ def post_deleted(pk, obj):
 
 
 def identity_fetched(pk):
-    identity = Takahe.get_identity(pk)
+    try:
+        identity = Identity.objects.get(pk=pk)
+    except Identity.DoesNotExist:
+        sleep(2)
+        try:
+            identity = Identity.objects.get(pk=pk)
+        except Identity.DoesNotExist:
+            logger.warning(f"Fetched identity {pk} not found")
+            return
     if identity.username and identity.domain:
         apid = Takahe.get_or_create_remote_apidentity(identity)
         if apid:
