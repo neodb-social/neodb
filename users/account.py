@@ -217,7 +217,7 @@ def register_new_user(request, **param):
 def login_existing_user(request, existing_user):
     auth_login(request, existing_user)
     if not existing_user.username or not existing_user.identity:
-        response = redirect(reverse("account:register"))
+        response = redirect(reverse("users:register"))
     elif request.session.get("next_url") is not None:
         response = redirect(request.session.get("next_url"))
         del request.session["next_url"]

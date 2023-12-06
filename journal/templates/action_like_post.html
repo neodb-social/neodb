@@ -3,12 +3,12 @@
   {% liked_post post as liked %}
   {% if liked %}
     <a class="activated" hx-post="{% url 'journal:post_unlike' post.pk %}">
-      <i class="fa-solid fa-thumbs-up }}"></i>
+      <i class="fa-solid fa-heart }}"></i>
       <span>{{ post.stats.likes }}</span>
     </a>
   {% else %}
     <a hx-post="{% url 'journal:post_like' post.pk %}">
-      <i class="fa-regular fa-thumbs-up }}"></i>
+      <i class="fa-regular fa-heart }}"></i>
       {% if post.stats.likes %}<span>{{ post.stats.likes }}</span>{% endif %}
     </a>
   {% endif %}
