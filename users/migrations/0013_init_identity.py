@@ -106,6 +106,7 @@ def init_identity(apps, schema_editor):
             state_next_attempt=timezone.now() + timedelta(days=365 * 99),
         )
         takahe_identity.generate_keypair()
+        takahe_identity.ensure_uris()
         takahe_user.identities.add(takahe_identity)
 
 

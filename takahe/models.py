@@ -702,6 +702,7 @@ class Identity(models.Model):
             self.followers_uri = self.actor_uri + "followers/"
             self.following_uri = self.actor_uri + "following/"
             self.shared_inbox_uri = f"https://{self.domain.uri_domain}/inbox/"
+            self.save()
 
 
 class Follow(models.Model):
