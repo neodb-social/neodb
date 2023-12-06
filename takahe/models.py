@@ -30,8 +30,7 @@ from .html import ContentRenderer, FediverseHtmlParser
 from .uris import *
 
 if TYPE_CHECKING:
-    from django.db.models.manager import RelatedManager
-
+    from django_stubs_ext.db.models.manager import RelatedManager
 
 _migration_mode = False
 
@@ -201,7 +200,8 @@ class Invite(models.Model):
 
 
 class User(AbstractBaseUser):
-    identities: "RelatedManager[Identity]"
+    if TYPE_CHECKING:
+        identities: RelatedManager["Identity"]
 
     class Meta:
         # managed = False
@@ -1492,18 +1492,6 @@ class Hashtag(models.Model):
                 day = int(parts[2])
                 results[date(year, month, day)] = val
         return dict(sorted(results.items(), reverse=True)[:num])
-
-    def to_mastodon_json(self, following: bool | None = None):
-        value = {
-            "name": self.hashtag,
-            "url": self.urls.view.full(),  # type: ignore
-            "history": [],
-        }
-
-        if following is not None:
-            value["following"] = following
-
-        return value
 
 
 class PostInteraction(models.Model):

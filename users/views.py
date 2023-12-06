@@ -193,7 +193,7 @@ def reject_follow_request(request: AuthedHttpRequest, user_name):
 @login_required
 def set_layout(request: AuthedHttpRequest):
     if request.method == "POST":
-        layout = json.loads(request.POST.get("layout", {}))  # type: ignore
+        layout = json.loads(request.POST.get("layout", "{}"))
         if request.POST.get("name") == "profile":
             request.user.preference.profile_layout = layout
             request.user.preference.save(update_fields=["profile_layout"])
@@ -229,7 +229,7 @@ def report(request: AuthedHttpRequest):
             form.save()
             dw = settings.DISCORD_WEBHOOKS.get("user-report")
             if dw:
-                webhook = SyncWebhook.from_url(dw)  # type: ignore
+                webhook = SyncWebhook.from_url(dw)
                 webhook.send(
                     f"New report from {request.user} about {form.instance.reported_user} : {form.instance.message}"
                 )

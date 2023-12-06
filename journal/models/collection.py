@@ -90,7 +90,7 @@ class Collection(List):
         ):
             self.catalog_item.title = self.title
             self.catalog_item.brief = self.brief
-            self.catalog_item.cover = self.cover  # type: ignore
+            self.catalog_item.cover = self.cover
             self.catalog_item.save()
         super().save(*args, **kwargs)
         Takahe.post_collection(self)

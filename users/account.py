@@ -173,8 +173,8 @@ def OAuth2_login(request):
 
     user: User = authenticate(request, token=token, site=site)  # type: ignore
     if user:  # existing user
-        user.mastodon_token = token  # type: ignore
-        user.mastodon_refresh_token = refresh_token  # type: ignore
+        user.mastodon_token = token
+        user.mastodon_refresh_token = refresh_token
         user.save(update_fields=["mastodon_token", "mastodon_refresh_token"])
         return login_existing_user(request, user)
     else:  # newly registered user
@@ -284,7 +284,7 @@ class RegistrationForm(forms.ModelForm):
 
 def send_verification_link(user_id, action, email):
     s = {"i": user_id, "e": email, "a": action}
-    v = TimestampSigner().sign_object(s)  # type: ignore
+    v = TimestampSigner().sign_object(s)
     if action == "verify":
         subject = f'{settings.SITE_INFO["site_name"]} - {_("验证电子邮件地址")}'
         url = settings.SITE_INFO["site_url"] + "/account/verify_email?c=" + v
@@ -321,7 +321,7 @@ def send_verification_link(user_id, action, email):
 def verify_email(request):
     error = ""
     try:
-        s = TimestampSigner().unsign_object(request.GET.get("c"), max_age=60 * 15)  # type: ignore
+        s = TimestampSigner().unsign_object(request.GET.get("c"), max_age=60 * 15)
     except Exception as e:
         logger.error(e)
         error = _("链接无效或已过期")

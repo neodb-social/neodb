@@ -151,7 +151,7 @@ class BasicDownloader:
         else:
             return RESPONSE_INVALID_CONTENT
 
-    def _download(self, url) -> Tuple[DownloaderResponse | MockResponse, int]:
+    def _download(self, url) -> Tuple[DownloaderResponse | MockResponse | None, int]:
         try:
             if not _mock_mode:
                 resp = requests.get(
@@ -179,7 +179,7 @@ class BasicDownloader:
             self.logs.append(
                 {"response_type": RESPONSE_NETWORK_ERROR, "url": url, "exception": e}
             )
-            return None, RESPONSE_NETWORK_ERROR  # type: ignore
+            return None, RESPONSE_NETWORK_ERROR
 
     def download(self):
         resp, self.response_type = self._download(self.url)
@@ -237,7 +237,7 @@ class RetryDownloader(BasicDownloader):
         while retries:
             retries -= 1
             resp, self.response_type = self._download(self.url)
-            if self.response_type == RESPONSE_OK:
+            if self.response_type == RESPONSE_OK and resp:
                 return resp
             elif self.response_type != RESPONSE_NETWORK_ERROR and retries == 0:
                 raise DownloadError(self)

@@ -42,7 +42,7 @@ class ActivityTemplate(models.TextChoices):
 
 
 class LocalActivity(models.Model, UserOwnedObjectMixin):
-    owner = models.ForeignKey(APIdentity, on_delete=models.CASCADE)  # type: ignore
+    owner = models.ForeignKey(APIdentity, on_delete=models.CASCADE)
     visibility = models.PositiveSmallIntegerField(default=0)  # type: ignore
     template = models.CharField(
         blank=False, choices=ActivityTemplate.choices, max_length=50

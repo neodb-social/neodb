@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 from users.models import APIdentity, User
 
 if TYPE_CHECKING:
+    from django.db.models import ForeignKey
+
     from .common import Piece
 
 
@@ -15,8 +17,9 @@ class UserOwnedObjectMixin:
     visibility = models.PositiveSmallIntegerField(default=0)
     """
 
-    owner: APIdentity
-    visibility: int
+    if TYPE_CHECKING:
+        owner: ForeignKey[APIdentity, Piece]
+        visibility: int
 
     def is_visible_to(self: "Piece | Self", viewing_user: User) -> bool:  # type: ignore
         owner = self.owner
@@ -26,7 +29,7 @@ class UserOwnedObjectMixin:
             return True
         if not viewing_user.is_authenticated:
             return self.visibility == 0
-        viewer = viewing_user.identity  # type: ignore[assignment]
+        viewer = viewing_user.identity
         if not viewer:
             return False
         if self.visibility == 2:

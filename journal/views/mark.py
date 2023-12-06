@@ -127,7 +127,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
             visibility = int(request.POST.get("visibility", default=0))
             rating_grade = request.POST.get("rating_grade", default=0)
             rating_grade = int(rating_grade) if rating_grade else None
-            status = ShelfType(request.POST.get("status"))
+            status = ShelfType(request.POST.get("status", "wishlist"))
             text = request.POST.get("text")
             tags = request.POST.get("tags")
             tags = tags.split(",") if tags else []
