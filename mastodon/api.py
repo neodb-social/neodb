@@ -265,7 +265,7 @@ class TootVisibilityEnum:
     UNLISTED = "unlisted"
 
 
-def detect_server_info(login_domain):
+def detect_server_info(login_domain) -> tuple[str, str, str]:
     url = f"https://{login_domain}/api/v1/instance"
     try:
         response = get(url, headers={"User-Agent": USER_AGENT})
@@ -306,7 +306,16 @@ def get_or_create_fediverse_application(login_domain):
     if not settings.MASTODON_ALLOW_ANY_SITE:
         logger.error(f"Disallowed to create app for {domain}")
         raise Exception("不支持其它实例登录")
+    if settings.SITE_DOMAIN.lower() == login_domain.lower():
+        raise ValueError("必须使用其它实例登录")
     domain, api_domain, server_version = detect_server_info(login_domain)
+    if (
+        settings.SITE_DOMAIN.lower() == domain.lower()
+        or settings.SITE_DOMAIN.lower() == api_domain.lower()
+    ):
+        raise ValueError("必须使用其它实例登录")
+    if "neodb/" in server_version:
+        raise ValueError("必须使用非NeoDB实例登录")
     if login_domain != domain:
         app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
         if app:
