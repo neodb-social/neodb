@@ -146,15 +146,21 @@ def block(request: AuthedHttpRequest, user_name):
 
 
 @login_required
-@target_identity_required
 def unblock(request: AuthedHttpRequest, user_name):
     if request.method != "POST":
         raise BadRequest()
-    request.user.identity.unblock(request.target_identity)
+    try:
+        target = APIdentity.get_by_handler(user_name)
+    except APIdentity.DoesNotExist:
+        return render_user_not_found(request)
+    target_user = target.user
+    if target_user and not target_user.is_active:
+        return render_user_not_found(request)
+    request.user.identity.unblock(target)
     return render(
         request,
         "users/profile_actions.html",
-        context={"identity": request.target_identity},
+        context={"identity": target},
     )
 
 
