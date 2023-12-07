@@ -10,14 +10,13 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="{{ site_name }} - 联邦宇宙书影音游戏标注平台">
+    <meta property="og:title" content="{{ site_name }} - 分布式书影音播客游戏收藏评论交流社区">
     <meta name="description"
           property="og:description"
-          content="{{ site_name }}致力于为联邦宇宙居民提供一个自由、开放、互联的书籍、电影、音乐和游戏收藏评论空间">
+          content="{{ site_description }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ site_url }}">
-    <meta property="og:image"
-          content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
+    <meta property="og:image" content="{{ site_logo }}">
     <meta property="og:site_name" content="{{ site_name }}">
     <title>{{ site_name }} - {% trans '发现' %}</title>
     {% include "common_libs.html" with jquery=0 v2=1 %}

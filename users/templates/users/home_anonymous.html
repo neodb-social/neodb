@@ -15,8 +15,7 @@
           content="{{ site_name }} - {{ identity.handler }}的主页">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:image"
-          content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
+    <meta property="og:image" content="{{ identity.avatar }}">
   </head>
   <body>
     {% if identity.user.mastodon_account.url %}
