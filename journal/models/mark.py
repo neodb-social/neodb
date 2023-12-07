@@ -239,7 +239,7 @@ class Mark:
             if settings.FORCE_CLASSIC_REPOST:
                 share_mark(self)
             else:
-                boost_toot_later(self.owner, post.url)
+                boost_toot_later(self.owner.user, post.url)
         return True
 
     def delete(self):
