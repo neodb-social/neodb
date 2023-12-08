@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from .book.models import Edition, EditionInSchema, EditionSchema, Series, Work
 from .collection.models import Collection as CatalogCollection
 from .common.models import (
+    AvailableItemCategory,
     ExternalResource,
     IdType,
     Item,

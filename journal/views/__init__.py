@@ -20,3 +20,4 @@ from .post import piece_replies, post_like, post_replies, post_reply, post_unlik
 from .profile import profile, user_calendar_data
 from .review import ReviewFeed, review_edit, review_retrieve, user_review_list
 from .tag import user_tag_edit, user_tag_list, user_tag_member_list
+from .wrapped import WrappedView
