@@ -536,10 +536,11 @@ SENTRY_DSN = env("NEODB_SENTRY_DSN")
 if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.loguru import LoguruIntegration
 
     sentry_sdk.init(
         dsn=SENTRY_DSN,
-        integrations=[DjangoIntegration()],
+        integrations=[LoguruIntegration(), DjangoIntegration()],
         release=NEODB_VERSION,
-        traces_sample_rate=1 if DEBUG else 0.01,
+        traces_sample_rate=1 if DEBUG else 0.001,
     )

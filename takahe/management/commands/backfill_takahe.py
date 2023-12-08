@@ -60,6 +60,23 @@ class Command(BaseCommand):
         parser.add_argument("--count", default=0, action="store")
 
     def process_post(self):
+        def batch(pieces, tracker):
+            with transaction.atomic(using="default"):
+                with transaction.atomic(using="takahe"):
+                    for p in pieces:
+                        if p.__class__ == ShelfMember:
+                            mark = Mark(p.owner, p.item)
+                            Takahe.post_mark(mark, self.post_new)
+                        elif p.__class__ == Comment:
+                            if p.item.__class__ in [PodcastEpisode, TVEpisode]:
+                                Takahe.post_comment(p, self.post_new)
+                        elif p.__class__ == Review:
+                            Takahe.post_review(p, self.post_new)
+                        elif p.__class__ == Collection:
+                            Takahe.post_collection(p)
+                    tracker.set_postfix_str(str(pieces[-1].pk))
+                    tracker.update(len(pieces))
+
         logger.info(f"Generating posts...")
         set_migration_mode(True)
         qs = Piece.objects.filter(
@@ -72,21 +89,15 @@ class Command(BaseCommand):
         ).order_by("id")
         if self.starting_id:
             qs = qs.filter(id__gte=self.starting_id)
-        with transaction.atomic(using="default"):
-            with transaction.atomic(using="takahe"):
-                tracker = tqdm(qs.iterator(), total=self.count_est or qs.count())
-                for p in tracker:
-                    tracker.set_postfix_str(f"{p.id}")
-                    if p.__class__ == ShelfMember:
-                        mark = Mark(p.owner, p.item)
-                        Takahe.post_mark(mark, self.post_new)
-                    elif p.__class__ == Comment:
-                        if p.item.__class__ in [PodcastEpisode, TVEpisode]:
-                            Takahe.post_comment(p, self.post_new)
-                    elif p.__class__ == Review:
-                        Takahe.post_review(p, self.post_new)
-                    elif p.__class__ == Collection:
-                        Takahe.post_collection(p)
+        tracker = tqdm(total=self.count_est or qs.count())
+        pieces = []
+        for piece in qs.iterator():
+            pieces.append(piece)
+            if len(pieces) >= BATCH_SIZE:
+                batch(pieces, tracker)
+                pieces = []
+        if pieces:
+            batch(pieces, tracker)
         set_migration_mode(False)
 
     def process_timeline(self):
