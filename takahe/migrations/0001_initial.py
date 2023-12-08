@@ -723,4 +723,94 @@ class Migration(migrations.Migration):
                 "db_table": "activities_fanout",
             },
         ),
+        migrations.CreateModel(
+            name="TimelineEvent",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[
+                            ("post", "Post"),
+                            ("boost", "Boost"),
+                            ("mentioned", "Mentioned"),
+                            ("liked", "Liked"),
+                            ("followed", "Followed"),
+                            ("follow_requested", "Follow Requested"),
+                            ("boosted", "Boosted"),
+                            ("announcement", "Announcement"),
+                            ("identity_created", "Identity Created"),
+                        ],
+                        max_length=100,
+                    ),
+                ),
+                ("published", models.DateTimeField(default=django.utils.timezone.now)),
+                ("seen", models.BooleanField(default=False)),
+                ("dismissed", models.BooleanField(default=False)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                (
+                    "identity",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="timeline_events",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "subject_identity",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="timeline_events_about_us",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "subject_post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="timeline_events",
+                        to="takahe.post",
+                    ),
+                ),
+                (
+                    "subject_post_interaction",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="timeline_events",
+                        to="takahe.postinteraction",
+                    ),
+                ),
+            ],
+            options={
+                "db_table": "activities_timelineevent",
+                "indexes": [
+                    models.Index(
+                        fields=["identity", "type", "subject_post", "subject_identity"],
+                        name="activities__identit_0b93c3_idx",
+                    ),
+                    models.Index(
+                        fields=["identity", "type", "subject_identity"],
+                        name="activities__identit_cc2290_idx",
+                    ),
+                    models.Index(
+                        fields=["identity", "created"],
+                        name="activities__identit_872fbb_idx",
+                    ),
+                ],
+            },
+        ),
     ]
