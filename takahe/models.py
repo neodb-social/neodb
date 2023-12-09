@@ -1068,6 +1068,8 @@ class Post(models.Model):
             post.url = post.absolute_object_uri()
             if _migration_mode:
                 post.state = "fanned_out"
+                if published:
+                    post.published = published
             else:
                 post.mentions.set(mentions)
                 post.emojis.set(emojis)

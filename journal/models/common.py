@@ -34,7 +34,7 @@ def q_owned_piece_visible_to_user(viewing_user: User, owner: APIdentity):
         or not viewing_user.is_authenticated
         or not viewing_user.identity
     ):
-        return Q(visibility=0)
+        return Q(owner=owner, visibility=0)
     viewer = viewing_user.identity
     if viewer == owner:
         return Q(owner=owner)
