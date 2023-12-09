@@ -13,7 +13,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 
 from common.config import PAGE_LINK_NUMBER
-from common.utils import PageLinksGenerator, get_uuid_or_404
+from common.utils import PageLinksGenerator, get_uuid_or_404, user_identity_required
 from journal.models import (
     Comment,
     Mark,
@@ -65,6 +65,7 @@ def embed(request, item_path, item_uuid):
     )
 
 
+@user_identity_required
 def retrieve(request, item_path, item_uuid):
     # item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     item = Item.get_by_url(item_uuid)

@@ -133,8 +133,8 @@ def reset_visibility(request):
     if request.method == "POST":
         visibility = int(request.POST.get("visibility"))
         visibility = visibility if visibility >= 0 and visibility <= 2 else 0
-        reset_journal_visibility_for_user(request.user, visibility)
-        reset_social_visibility_for_user(request.user, visibility)
+        reset_journal_visibility_for_user(request.user.identity, visibility)
+        reset_social_visibility_for_user(request.user.identity, visibility)
         messages.add_message(request, messages.INFO, _("已重置。"))
     return redirect(reverse("users:data"))
 

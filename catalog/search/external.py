@@ -51,13 +51,6 @@ class SearchResultItem:
         return False
 
 
-class ProxiedRequest:
-    @classmethod
-    def get(cls, url):
-        u = f"http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={quote_plus(url)}"
-        return requests.get(u, timeout=10)
-
-
 class Goodreads:
     @classmethod
     def search(cls, q, page=1):
@@ -66,7 +59,7 @@ class Goodreads:
             search_url = (
                 f"https://www.goodreads.com/search?page={page}&q={quote_plus(q)}"
             )
-            r = requests.get(search_url)
+            r = requests.get(search_url, timeout=2)
             if r.url.startswith("https://www.goodreads.com/book/show/"):
                 # Goodreads will 302 if only one result matches ISBN
                 site = SiteManager.get_site_by_url(r.url)
@@ -119,7 +112,7 @@ class GoogleBooks:
         results = []
         try:
             api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q={quote_plus(q)}&startIndex={SEARCH_PAGE_SIZE*(page-1)}&maxResults={SEARCH_PAGE_SIZE}&maxAllowedMaturityRating=MATURE"
-            j = requests.get(api_url).json()
+            j = requests.get(api_url, timeout=2).json()
             if "items" in j:
                 for b in j["items"]:
                     if "title" not in b["volumeInfo"]:
@@ -166,7 +159,7 @@ class TheMovieDatabase:
         results = []
         try:
             api_url = f"https://api.themoviedb.org/3/search/multi?query={quote_plus(q)}&page={page}&api_key={settings.TMDB_API3_KEY}&language=zh-CN&include_adult=true"
-            j = requests.get(api_url).json()
+            j = requests.get(api_url, timeout=2).json()
             for m in j["results"]:
                 if m["media_type"] in ["tv", "movie"]:
                     url = f"https://www.themoviedb.org/{m['media_type']}/{m['id']}"
@@ -204,7 +197,7 @@ class Spotify:
         try:
             api_url = f"https://api.spotify.com/v1/search?q={q}&type=album&limit={SEARCH_PAGE_SIZE}&offset={page*SEARCH_PAGE_SIZE}"
             headers = {"Authorization": f"Bearer {get_spotify_token()}"}
-            j = requests.get(api_url, headers=headers).json()
+            j = requests.get(api_url, headers=headers, timeout=2).json()
             for a in j["albums"]["items"]:
                 title = a["name"]
                 subtitle = a["release_date"]
@@ -234,7 +227,7 @@ class Bandcamp:
         results = []
         try:
             search_url = f"https://bandcamp.com/search?from=results&item_type=a&page={page}&q={quote_plus(q)}"
-            r = requests.get(search_url)
+            r = requests.get(search_url, timeout=2)
             h = html.fromstring(r.content.decode("utf-8"))
             albums = h.xpath('//li[@class="searchresult data-search"]')
             for c in albums:  # type:ignore
@@ -268,7 +261,7 @@ class ApplePodcast:
         results = []
         try:
             search_url = f"https://itunes.apple.com/search?entity=podcast&limit={page*SEARCH_PAGE_SIZE}&term={quote_plus(q)}"
-            r = requests.get(search_url).json()
+            r = requests.get(search_url, timeout=2).json()
             for p in r["results"][(page - 1) * SEARCH_PAGE_SIZE :]:
                 results.append(
                     SearchResultItem(

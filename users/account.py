@@ -323,7 +323,7 @@ def verify_email(request):
     try:
         s = TimestampSigner().unsign_object(request.GET.get("c"), max_age=60 * 15)
     except Exception as e:
-        logger.error(e)
+        logger.warning(f"login link invalid {e}")
         error = _("链接无效或已过期")
         return render(
             request, "users/verify_email.html", {"success": False, "error": error}

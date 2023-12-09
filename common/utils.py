@@ -27,6 +27,23 @@ class HTTPResponseHXRedirect(HttpResponseRedirect):
     status_code = 200
 
 
+def user_identity_required(func):  # TODO make this a middleware
+    @functools.wraps(func)
+    def wrapper(request, *args, **kwargs):
+        from users.models import APIdentity
+
+        identity = None
+        if request.user.is_authenticated:
+            try:
+                identity = APIdentity.objects.get(user=request.user)
+            except APIdentity.DoesNotExist:
+                return HttpResponseRedirect("/account/register")
+        request.identity = identity
+        return func(request, *args, **kwargs)
+
+    return wrapper
+
+
 def target_identity_required(func):
     @functools.wraps(func)
     def wrapper(request, user_name, *args, **kwargs):
@@ -38,14 +55,21 @@ def target_identity_required(func):
         except APIdentity.DoesNotExist:
             return render_user_not_found(request)
         target_user = target.user
+        viewer = None
         if target_user and not target_user.is_active:
             return render_user_not_found(request)
-        if not target.is_visible_to_user(request.user):
-            return render_user_blocked(request)
+        if request.user.is_authenticated:
+            try:
+                viewer = APIdentity.objects.get(user=request.user)
+            except APIdentity.DoesNotExist:
+                return HttpResponseRedirect("/account/register")
+            if request.user != target_user:
+                if target.is_blocking(viewer) or target.is_blocked_by(viewer):
+                    return render_user_blocked(request)
+        else:
+            viewer = None
         request.target_identity = target
-        # request.identity = (
-        #     request.user.identity if request.user.is_authenticated else None
-        # )
+        request.identity = viewer
         return func(request, user_name, *args, **kwargs)
 
     return wrapper

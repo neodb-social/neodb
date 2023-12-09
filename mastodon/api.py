@@ -253,7 +253,7 @@ def get_related_acct_list(site, token, api):
                         if li[1].strip() == 'rel="next"':
                             url = li[0].strip().replace(">", "").replace("<", "")
         except Exception as e:
-            logger.error("Error GET {url} : {e}")
+            logger.warning(f"Error GET {url} : {e}")
             url = None
     return results
 
@@ -270,16 +270,16 @@ def detect_server_info(login_domain) -> tuple[str, str, str]:
     try:
         response = get(url, headers={"User-Agent": USER_AGENT})
     except Exception as e:
-        logger.error(f"Error connecting {login_domain}: {e}")
+        logger.warning(f"Error connecting {login_domain}: {e}")
         raise Exception(f"无法连接 {login_domain}")
     if response.status_code != 200:
-        logger.error(f"Error connecting {login_domain}: {response.status_code}")
+        logger.warning(f"Error connecting {login_domain}: {response.status_code}")
         raise Exception(f"实例 {login_domain} 返回错误，代码: {response.status_code}")
     try:
         j = response.json()
         domain = j["uri"].lower().split("//")[-1].split("/")[0]
     except Exception as e:
-        logger.error(f"Error connecting {login_domain}: {e}")
+        logger.warning(f"Error connecting {login_domain}: {e}")
         raise Exception(f"实例 {login_domain} 返回信息无法识别")
     server_version = j["version"]
     api_domain = domain

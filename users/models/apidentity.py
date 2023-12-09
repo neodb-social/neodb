@@ -212,16 +212,6 @@ class APIdentity(models.Model):
     def is_followed_by(self, target: "APIdentity"):
         return target.is_following(self)
 
-    def is_visible_to_user(self, viewing_user: User):
-        return (
-            (not viewing_user.is_authenticated)
-            or viewing_user == self.user
-            or (
-                not self.is_blocking(viewing_user.identity)
-                and not self.is_blocked_by(viewing_user.identity)
-            )
-        )
-
     @classmethod
     def get_by_handler(cls, handler: str) -> "APIdentity":
         """

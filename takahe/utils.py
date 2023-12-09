@@ -434,7 +434,7 @@ class Takahe:
             collection.visibility, user.preference.mastodon_publish_public
         )
         if existing_post and visibility != existing_post.visibility:
-            Takahe.delete_posts([existing_post])
+            Takahe.delete_posts([existing_post.pk])
             existing_post = None
         data = {
             "object": {

@@ -23,7 +23,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, "neodb.env"))
 # ====== List of user configuration variables ======
 env = environ.FileAwareEnv(
     # WARNING: do not run with debug mode turned on in production
-    NEODB_DEBUG=(bool, True),
+    NEODB_DEBUG=(bool, False),
     # WARNING: must use your own key and keep it secret
     NEODB_SECRET_KEY=(str),
     # Site information
