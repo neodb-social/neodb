@@ -418,6 +418,8 @@ class User(AbstractUser):
             raise ValueError("Username is not set")
         Takahe.init_identity_for_local_user(self)
         self.identity.shelf_manager
+        if self.mastodon_acct:
+            Takahe.fetch_remote_identity(self.mastodon_acct)
 
 
 # TODO the following models should be deprecated soon
