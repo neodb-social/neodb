@@ -551,7 +551,7 @@ class Takahe:
         return post
 
     @staticmethod
-    def post_mark(mark, share_as_new_post: bool) -> Post | None:
+    def post_mark(mark, share_as_new_post: bool, append_content="") -> Post | None:
         from catalog.common import ItemCategory
 
         user = mark.owner.user
@@ -569,7 +569,7 @@ class Takahe:
         pre_conetent = (
             f'{mark.action_label}<a href="{item_link}">《{mark.item.display_title}》</a>'
         )
-        content = f"{stars}\n{mark.comment_text or ''}{tags}"
+        content = f"{stars} \n{mark.comment_text or ''}{tags}"
         data = {
             "object": {
                 "tag": [mark.item.ap_object_ref],
@@ -593,7 +593,7 @@ class Takahe:
         post = Takahe.post(
             mark.owner.pk,
             pre_conetent,
-            content,
+            content + append_content,
             v,
             data,
             existing_post.pk if existing_post else None,
