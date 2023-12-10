@@ -272,7 +272,7 @@ class User(AbstractUser):
         logger.debug(f"Refreshing Mastodon data for {self}")
         self.mastodon_last_refresh = timezone.now()
         if not webfinger(self.mastodon_site, self.mastodon_username):
-            logger.error(f"Unable to fetch web finger for {self}")
+            logger.warning(f"Unable to fetch web finger for {self}")
             if (
                 timezone.now() - self.mastodon_last_reachable
                 > timedelta(days=settings.DEACTIVATE_AFTER_UNREACHABLE_DAYS)
@@ -328,10 +328,10 @@ class User(AbstractUser):
                 self.sync_relationship()
             return True
         elif code == 401:
-            logger.error(f"Refresh mastodon data error 401 for {self}")
+            logger.warning(f"Refresh mastodon data error 401 for {self}")
             self.mastodon_token = ""
         else:
-            logger.error(f"Refresh mastodon data error 401 for {self}")
+            logger.warning(f"Refresh mastodon data error {code} for {self}")
         self.save(
             update_fields=[
                 "mastodon_token",

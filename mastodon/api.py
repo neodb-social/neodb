@@ -84,18 +84,20 @@ def boost_toot(site, token, toot_url):
     try:
         response = get(url, headers=headers)
         if response.status_code != 200:
-            logger.error(f"Error search {toot_url} on {domain} {response.status_code}")
+            logger.warning(
+                f"Error search {toot_url} on {domain} {response.status_code}"
+            )
             return None
         j = response.json()
         if "statuses" in j and len(j["statuses"]) > 0:
             s = j["statuses"][0]
             if s["uri"] != toot_url and s["url"] != toot_url:
-                logger.error(
+                logger.warning(
                     f"Error status url mismatch {s['uri']} or {s['uri']} != {toot_url}"
                 )
                 return None
             if s["reblogged"]:
-                logger.info(f"Already boosted {toot_url}")
+                logger.warning(f"Already boosted {toot_url}")
                 # TODO unboost and boost again?
                 return None
             url = (
@@ -108,13 +110,13 @@ def boost_toot(site, token, toot_url):
             )
             response = post(url, headers=headers)
             if response.status_code != 200:
-                logger.error(
+                logger.warning(
                     f"Error search {toot_url} on {domain} {response.status_code}"
                 )
                 return None
             return response.json()
     except Exception:
-        logger.error(f"Error search {toot_url} on {domain}")
+        logger.warning(f"Error search {toot_url} on {domain}")
         return None
 
 
@@ -158,7 +160,7 @@ def post_toot(
         if response is not None and response.status_code == 201:
             response.status_code = 200
         if response is not None and response.status_code != 200:
-            logger.error(f"Error {url} {response.status_code}")
+            logger.warning(f"Error {url} {response.status_code}")
     except Exception:
         response = None
     return response
@@ -196,12 +198,12 @@ def webfinger(site, username) -> dict | None:
     try:
         response = get(url, headers={"User-Agent": USER_AGENT})
         if response.status_code != 200:
-            logger.error(f"Error webfinger {username}@{site} {response.status_code}")
+            logger.warning(f"Error webfinger {username}@{site} {response.status_code}")
             return None
         j = response.json()
         return j
     except Exception:
-        logger.error(f"Error webfinger {username}@{site}")
+        logger.warning(f"Error webfinger {username}@{site}")
         return None
 
 
@@ -304,7 +306,7 @@ def get_or_create_fediverse_application(login_domain):
     if app:
         return app
     if not settings.MASTODON_ALLOW_ANY_SITE:
-        logger.error(f"Disallowed to create app for {domain}")
+        logger.warning(f"Disallowed to create app for {domain}")
         raise Exception("不支持其它实例登录")
     if settings.SITE_DOMAIN.lower() == login_domain.lower():
         raise ValueError("必须使用其它实例登录")
@@ -389,10 +391,10 @@ def obtain_token(site, request, code):
         response = post(url, data=payload, headers=headers, auth=auth)
         # {"token_type":"bearer","expires_in":7200,"access_token":"VGpkOEZGR3FQRDJ5NkZ0dmYyYWIwS0dqeHpvTnk4eXp0NV9nWDJ2TEpmM1ZTOjE2NDg3ODMxNTU4Mzc6MToxOmF0OjE","scope":"block.read follows.read offline.access tweet.write users.read mute.read","refresh_token":"b1pXbGEzeUF1WE5yZHJOWmxTeWpvMTBrQmZPd0czLU0tQndZQTUyU3FwRDVIOjE2NDg3ODMxNTU4Mzg6MToxOnJ0OjE"}
         if response.status_code != 200:
-            logger.error(f"Error {url} {response.status_code}")
+            logger.warning(f"Error {url} {response.status_code}")
             return None, None
     except Exception as e:
-        logger.error(f"Error {url} {e}")
+        logger.warning(f"Error {url} {e}")
         return None, None
     data = response.json()
     return data.get("access_token"), data.get("refresh_token", "")
@@ -490,7 +492,7 @@ def share_mark(mark):
             mark.save(update_fields=["shared_link"])
         return True, 200
     else:
-        logger.error(response)
+        logger.warning(response)
         return False, response.status_code if response is not None else -1
 
 
