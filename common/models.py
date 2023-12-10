@@ -7,7 +7,7 @@ from rq.registry import ScheduledJobRegistry
 
 
 class BaseJob:
-    interval = timedelta(hours=1)  # don't set it less than 1 minute
+    interval = timedelta(0)  # 0 = disabled, don't set it less than 1 minute
 
     @classmethod
     def cancel(cls):
@@ -25,6 +25,9 @@ class BaseJob:
     @classmethod
     def schedule(cls):
         job_id = cls.__name__
+        if cls.interval <= timedelta(0):
+            logger.info(f"Skip scheduling job: {job_id}")
+            return
         logger.info(f"Scheduling job: {job_id} in {cls.interval}")
         django_rq.get_queue("cron").enqueue_in(
             cls.interval,

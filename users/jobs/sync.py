@@ -11,7 +11,7 @@ from users.models import Preference, User
 
 @JobManager.register
 class MastodonUserSync(BaseJob):
-    interval = timedelta(hours=2)
+    interval = timedelta(hours=0)
 
     def run(self):
         logger.info("Mastodon User Sync start.")
