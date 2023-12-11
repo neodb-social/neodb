@@ -55,10 +55,8 @@ class Goodreads:
     @classmethod
     def search(cls, q, page=1):
         results = []
+        search_url = f"https://www.goodreads.com/search?page={page}&q={quote_plus(q)}"
         try:
-            search_url = (
-                f"https://www.goodreads.com/search?page={page}&q={quote_plus(q)}"
-            )
             r = requests.get(search_url, timeout=2)
             if r.url.startswith("https://www.goodreads.com/book/show/"):
                 # Goodreads will 302 if only one result matches ISBN
@@ -101,6 +99,8 @@ class Goodreads:
                             cover,
                         )
                     )
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Search {search_url} error: {e}")
         except Exception as e:
             logger.error(f"Goodreads search '{q}' error: {e}")
         return results
@@ -110,8 +110,8 @@ class GoogleBooks:
     @classmethod
     def search(cls, q, page=1):
         results = []
+        api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q={quote_plus(q)}&startIndex={SEARCH_PAGE_SIZE*(page-1)}&maxResults={SEARCH_PAGE_SIZE}&maxAllowedMaturityRating=MATURE"
         try:
-            api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q={quote_plus(q)}&startIndex={SEARCH_PAGE_SIZE*(page-1)}&maxResults={SEARCH_PAGE_SIZE}&maxAllowedMaturityRating=MATURE"
             j = requests.get(api_url, timeout=2).json()
             if "items" in j:
                 for b in j["items"]:
@@ -148,6 +148,8 @@ class GoogleBooks:
                             cover,
                         )
                     )
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Search {api_url} error: {e}")
         except Exception as e:
             logger.error(f"GoogleBooks search '{q}' error: {e}")
         return results
@@ -157,8 +159,8 @@ class TheMovieDatabase:
     @classmethod
     def search(cls, q, page=1):
         results = []
+        api_url = f"https://api.themoviedb.org/3/search/multi?query={quote_plus(q)}&page={page}&api_key={settings.TMDB_API3_KEY}&language=zh-CN&include_adult=true"
         try:
-            api_url = f"https://api.themoviedb.org/3/search/multi?query={quote_plus(q)}&page={page}&api_key={settings.TMDB_API3_KEY}&language=zh-CN&include_adult=true"
             j = requests.get(api_url, timeout=2).json()
             for m in j["results"]:
                 if m["media_type"] in ["tv", "movie"]:
@@ -185,6 +187,8 @@ class TheMovieDatabase:
                             cover,
                         )
                     )
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Search {api_url} error: {e}")
         except Exception as e:
             logger.error(f"TMDb search '{q}' error: {e}")
         return results
@@ -194,8 +198,8 @@ class Spotify:
     @classmethod
     def search(cls, q, page=1):
         results = []
+        api_url = f"https://api.spotify.com/v1/search?q={q}&type=album&limit={SEARCH_PAGE_SIZE}&offset={page*SEARCH_PAGE_SIZE}"
         try:
-            api_url = f"https://api.spotify.com/v1/search?q={q}&type=album&limit={SEARCH_PAGE_SIZE}&offset={page*SEARCH_PAGE_SIZE}"
             headers = {"Authorization": f"Bearer {get_spotify_token()}"}
             j = requests.get(api_url, headers=headers, timeout=2).json()
             for a in j["albums"]["items"]:
@@ -216,6 +220,8 @@ class Spotify:
                         cover,
                     )
                 )
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Search {api_url} error: {e}")
         except Exception as e:
             logger.error(f"Spotify search '{q}' error: {e}")
         return results
@@ -225,8 +231,8 @@ class Bandcamp:
     @classmethod
     def search(cls, q, page=1):
         results = []
+        search_url = f"https://bandcamp.com/search?from=results&item_type=a&page={page}&q={quote_plus(q)}"
         try:
-            search_url = f"https://bandcamp.com/search?from=results&item_type=a&page={page}&q={quote_plus(q)}"
             r = requests.get(search_url, timeout=2)
             h = html.fromstring(r.content.decode("utf-8"))
             albums = h.xpath('//li[@class="searchresult data-search"]')
@@ -250,6 +256,8 @@ class Bandcamp:
                         cover,
                     )
                 )
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Search {search_url} error: {e}")
         except Exception as e:
             logger.error(f"Goodreads search '{q}' error: {e}")
         return results
@@ -259,8 +267,8 @@ class ApplePodcast:
     @classmethod
     def search(cls, q, page=1):
         results = []
+        search_url = f"https://itunes.apple.com/search?entity=podcast&limit={page*SEARCH_PAGE_SIZE}&term={quote_plus(q)}"
         try:
-            search_url = f"https://itunes.apple.com/search?entity=podcast&limit={page*SEARCH_PAGE_SIZE}&term={quote_plus(q)}"
             r = requests.get(search_url, timeout=2).json()
             for p in r["results"][(page - 1) * SEARCH_PAGE_SIZE :]:
                 results.append(
@@ -274,6 +282,8 @@ class ApplePodcast:
                         p["artworkUrl600"],
                     )
                 )
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Search {search_url} error: {e}")
         except Exception as e:
             logger.error(f"ApplePodcast search '{q}' error: {e}")
         return results
@@ -282,15 +292,17 @@ class ApplePodcast:
 class Fediverse:
     @staticmethod
     async def search_task(host, q, category=None):
+        api_url = f"https://{host}/api/catalog/search?query={quote_plus(q)}{'&category='+category if category else ''}"
         async with httpx.AsyncClient() as client:
             results = []
             try:
                 response = await client.get(
-                    f"https://{host}/api/catalog/search?query={q}&category={category or ''}",
+                    api_url,
                     timeout=2,
                 )
                 r = response.json()
-            except:
+            except Exception as e:
+                logger.warning(f"Search {api_url} error: {e}")
                 return []
             if "data" in r:
                 for item in r["data"]:
