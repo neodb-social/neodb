@@ -61,5 +61,4 @@ def auth_login(request):
 
 def auth_logout(request: HttpRequest):
     response = redirect("/account/logout")
-    response.delete_cookie(settings.TAKAHE_SESSION_COOKIE_NAME)
     return response

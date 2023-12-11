@@ -193,7 +193,7 @@
                   onsubmit="return confirm('账号数据一旦删除后将无法恢复。确认删除吗？');">
               {% csrf_token %}
               <div>
-                输入完整的 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除
+                输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除
                 <input type="email"
                        name="verification"
                        _="on input remove [@disabled] from #delete end"

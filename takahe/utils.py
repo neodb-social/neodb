@@ -143,6 +143,18 @@ class Takahe:
         ).first()
 
     @staticmethod
+    def delete_identity(identity_pk: int):
+        identity = Identity.objects.filter(pk=identity_pk).first()
+        if not identity:
+            logger.warning(f"Cannot find identity {identity_pk}")
+            return
+        logger.warning(f"Deleting identity {identity}")
+        identity.state = "deleted"
+        identity.deleted = timezone.now()
+        identity.state_next_attempt = timezone.now()
+        identity.save()
+
+    @staticmethod
     def create_internal_message(message: dict):
         InboxMessage.create_internal(message)
 

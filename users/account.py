@@ -234,10 +234,7 @@ def login_existing_user(request, existing_user):
 def logout(request):
     if request.method == "GET":
         # revoke_token(request.user.mastodon_site, request.user.mastodon_token)
-        auth_logout(request)
-        response = redirect(reverse("users:login"))
-        response.delete_cookie(settings.TAKAHE_SESSION_COOKIE_NAME)
-        return response
+        return auth_logout(request)
     else:
         raise BadRequest()
 
@@ -509,6 +506,9 @@ def auth_login(request, user):
 def auth_logout(request):
     """Decorates django ``logout()``. Release token in session."""
     auth.logout(request)
+    response = redirect("/")
+    response.delete_cookie(settings.TAKAHE_SESSION_COOKIE_NAME)
+    return response
 
 
 def clear_data_task(user_id):
@@ -516,6 +516,7 @@ def clear_data_task(user_id):
     user_str = str(user)
     if user.identity:
         remove_data_by_user(user.identity)
+    Takahe.delete_identity(user.identity.pk)
     user.clear()
     logger.warning(f"User {user_str} data cleared.")
 
@@ -528,8 +529,7 @@ def clear_data(request):
         v = request.POST.get("verification")
         if v and (v == request.user.mastodon_acct or v == request.user.email):
             django_rq.get_queue("mastodon").enqueue(clear_data_task, request.user.id)
-            auth_logout(request)
-            return redirect(reverse("users:login"))
+            return auth_logout(request)
         else:
             messages.add_message(request, messages.ERROR, _("验证信息不符。"))
     return redirect(reverse("users:data"))
