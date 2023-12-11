@@ -233,15 +233,16 @@ class Mark:
                 self.rating_grade = rating_grade
         # publish a new or updated ActivityPub post
         post_as_new = shelf_type != last_shelf_type or visibility != last_visibility
+        classic_repost = self.owner.user.preference.mastodon_repost_mode == 1
         append = (
             f" \n@{self.owner.user.mastodon_acct}"
-            if visibility > 0 and share_to_mastodon
+            if visibility > 0 and share_to_mastodon and not classic_repost
             else ""
         )
         post = Takahe.post_mark(self, post_as_new, append)
         # async boost to mastodon
         if post and share_to_mastodon:
-            if settings.FORCE_CLASSIC_REPOST:
+            if classic_repost:
                 share_mark(self)
             else:
                 boost_toot_later(self.owner.user, post.url)

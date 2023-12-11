@@ -25,31 +25,37 @@ def preferences(request):
     preference = request.user.preference
     if request.method == "POST":
         preference.default_visibility = int(request.POST.get("default_visibility"))
-        preference.default_no_share = bool(request.POST.get("default_no_share"))
+        preference.mastodon_default_repost = (
+            int(request.POST.get("mastodon_default_repost", 0)) == 1
+        )
         preference.no_anonymous_view = bool(request.POST.get("no_anonymous_view"))
         preference.classic_homepage = int(request.POST.get("classic_homepage"))
         preference.hidden_categories = request.POST.getlist("hidden_categories")
-        preference.mastodon_publish_public = bool(
-            request.POST.get("mastodon_publish_public")
-        )
+        preference.post_public_mode = int(request.POST.get("post_public_mode"))
         preference.show_last_edit = bool(request.POST.get("show_last_edit"))
+        preference.mastodon_repost_mode = int(request.POST.get("mastodon_repost_mode"))
         preference.mastodon_append_tag = request.POST.get(
             "mastodon_append_tag", ""
         ).strip()
         preference.save(
             update_fields=[
                 "default_visibility",
-                "default_no_share",
+                "post_public_mode",
                 "no_anonymous_view",
                 "classic_homepage",
-                "mastodon_publish_public",
                 "mastodon_append_tag",
+                "mastodon_repost_mode",
+                "mastodon_default_repost",
                 "show_last_edit",
                 "hidden_categories",
             ]
         )
         clear_preference_cache(request)
-    return render(request, "users/preferences.html")
+    return render(
+        request,
+        "users/preferences.html",
+        {"enable_local_only": settings.ENABLE_LOCAL_ONLY},
+    )
 
 
 @login_required

@@ -26,7 +26,7 @@
             <form action="{% url 'users:preferences' %}" method="post">
               {% csrf_token %}
               <fieldset>
-                <legend>{% trans '登录后显示：' %}</legend>
+                {% trans '登录后显示：' %}
                 <input type="radio"
                        name="classic_homepage"
                        value="0"
@@ -47,7 +47,7 @@
                 <label for="classic_homepage1">个人主页</label>
               </fieldset>
               <fieldset>
-                <legend>{% trans '新标记默认可见性：' %}</legend>
+                {% trans '发表时的默认可见性：' %}
                 <input type="radio"
                        name="default_visibility"
                        value="0"
@@ -68,42 +68,67 @@
                        required=""
                        id="id_visibility_2"
                        {% if request.user.preference.default_visibility == 2 %}checked{% endif %}>
-                <label for="id_visibility_2">仅自己</label>
+                <label for="id_visibility_2">仅本人和被提及的用户</label>
               </fieldset>
               <fieldset>
-                <label>
-                  <input type="checkbox"
-                         name="no_anonymous_view"
-                         {% if request.user.preference.no_anonymous_view %}checked{% endif %}>
-                  {% trans '仅允许已登录用户查看你的个人主页' %}
+                可见性选择「公开」时以如下方式发布到联邦网络：
+                <input type="radio"
+                       id="post_public_mode_0"
+                       name="post_public_mode"
+                       value="0"
+                       {% if request.user.preference.post_public_mode == 0 %}checked{% endif %} />
+                <label for="post_public_mode_0">Public</label>
+                <input type="radio"
+                       id="post_public_mode_1"
+                       name="post_public_mode"
+                       value="1"
+                       {% if request.user.preference.post_public_mode == 1 %}checked{% endif %} />
+                <label for="post_public_mode_1">
+                  Unlisted
+                  <em data-tooltip="unlisted帖子不会出现在本站和外站公共时间轴"><i class="fa fa-question-circle"></i></em>
                 </label>
+                {% if enable_local_only %}
+                  <input type="radio"
+                         id="post_public_mode_4"
+                         name="post_public_mode"
+                         value="4"
+                         {% if request.user.preference.post_public_mode == 4 %}checked{% endif %} />
+                  <label for="post_public_mode_4">仅本站</label>
+                {% endif %}
               </fieldset>
+              {% if request.user.mastodon_acct %}
+                <fieldset>
+                  转发到 @{{ request.user.mastodon_acct }} 时间轴时：
+                  <input type="radio"
+                         name="mastodon_repost_mode"
+                         value="0"
+                         required=""
+                         id="mastodon_repost_mode_0"
+                         {% if request.user.preference.mastodon_repost_mode == 0 %}checked{% endif %}>
+                  <label for="mastodon_repost_mode_0">使用转播（推荐）</label>
+                  <input type="radio"
+                         name="mastodon_repost_mode"
+                         value="1"
+                         required=""
+                         id="mastodon_repost_mode_1"
+                         {% if request.user.preference.mastodon_repost_mode == 1 %}checked{% endif %}>
+                  <label for="mastodon_repost_mode_1">
+                    另发新帖文
+                    <em data-tooltip="其他人对新帖的回应、点赞不会被记录，修改标记可能产生重复帖文"><i class="fa fa-question-circle"></i></em>
+                  </label>
+                </fieldset>
+                <fieldset>
+                  <label>
+                    发表时默认选中转发到 @{{ request.user.mastodon_acct }} 时间轴
+                    <input type="checkbox"
+                           name="mastodon_default_repost"
+                           value="1"
+                           {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
+                  </label>
+                </fieldset>
+              {% endif %}
               <fieldset>
-                <label>
-                  <input type="checkbox"
-                         name="show_last_edit"
-                         {% if request.user.preference.show_last_edit %}checked{% endif %}>
-                  {% trans '显示你是某条目的最近编辑者' %}
-                </label>
-              </fieldset>
-              <fieldset>
-                <label>
-                  <input type="checkbox"
-                         name="mastodon_publish_public"
-                         {% if request.user.preference.mastodon_publish_public %}checked{% endif %}>
-                  标记时以公开方式分享的帖文发布到<em data-tooltip="选中时为public，未选中时为unlisted">公共时间轴</em>
-                </label>
-              </fieldset>
-              <fieldset>
-                <label>
-                  <input type="checkbox"
-                         name="default_no_share"
-                         {% if request.user.preference.default_no_share %}checked{% endif %}>
-                  标记时默认不分享到联邦宇宙
-                </label>
-              </fieldset>
-              <fieldset>
-                <label for="mastodon_append_tag">{% trans '在联邦宇宙分享帖文时在结尾附加标签：' %}</label>
+                <label for="mastodon_append_tag">{% trans '发表标记时在结尾附加标签：' %}</label>
                 <input name="mastodon_append_tag"
                        id="mastodon_append_tag"
                        placeholder="例如 #我的书影音"
@@ -120,6 +145,23 @@
                     </option>
                   {% endfor %}
                 </select>
+              </fieldset>
+              <fieldset>
+                <label>
+                  <input type="checkbox"
+                         name="no_anonymous_view"
+                         {% if request.user.preference.no_anonymous_view %}checked{% endif %}>
+                  {% trans '未登录访客不能查看你的个人信息' %}
+                  <em data-tooltip="此选项仅针对网页访客，如果不希望被联邦网络用户看到请在发表时选择仅关注者或本人"><i class="fa fa-question-circle"></i></em>
+                </label>
+              </fieldset>
+              <fieldset>
+                <label>
+                  <input type="checkbox"
+                         name="show_last_edit"
+                         {% if request.user.preference.show_last_edit %}checked{% endif %}>
+                  {% trans '显示你是某条目的最近编辑者' %}
+                </label>
               </fieldset>
               <input type="submit" value="{% trans '保存' %}">
             </form>

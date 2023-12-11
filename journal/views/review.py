@@ -85,7 +85,7 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
             if not review:
                 raise BadRequest()
             if form.cleaned_data["share_to_mastodon"] and post:
-                if settings.FORCE_CLASSIC_REPOST:
+                if request.user.preference.mastodon_repost_mode == 1:
                     share_review(review)
                 else:
                     boost_toot_later(request.user, post.url)

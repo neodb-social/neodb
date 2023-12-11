@@ -50,8 +50,8 @@
           <label>
             <input type="radio"
                    name="visibility"
-                   value="{% if request.user.preference.mastodon_publish_public %}0{% else %}1{% endif %}"
-                   {% if post.visibility <= 1 %}checked{% endif %} />
+                   value="{{ request.user.preference.post_public_mode }}"
+                   {% if post.visibility <= 1 or post.visibility == 4 %}checked{% endif %} />
             <i class="fa-solid fa-globe"></i>
           </label>
         </li>

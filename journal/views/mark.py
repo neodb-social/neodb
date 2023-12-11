@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
-from mastodon.api import boost_toot_later
+from mastodon.api import boost_toot_later, share_comment
 from takahe.utils import Takahe
 
 from ..models import (
@@ -236,7 +236,10 @@ def comment(request: AuthedHttpRequest, item_uuid):
         post = Takahe.post_comment(comment, False)
         share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
         if post and share_to_mastodon:
-            boost_toot_later(request.user, post.url)
+            if request.user.preference.mastodon_repost_mode == 1:
+                share_comment(comment)
+            else:
+                boost_toot_later(request.user, post.url)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     raise BadRequest()
 

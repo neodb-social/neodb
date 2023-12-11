@@ -91,7 +91,9 @@ def boost_toot(site, token, toot_url):
         j = response.json()
         if "statuses" in j and len(j["statuses"]) > 0:
             s = j["statuses"][0]
-            if s["uri"] != toot_url and s["url"] != toot_url:
+            url_id = toot_url.split("/posts/")[-1]
+            url_id2 = s["uri"].split("/posts/")[-1]
+            if s["uri"] != toot_url and s["url"] != toot_url and url_id != url_id2:
                 logger.warning(
                     f"Error status url mismatch {s['uri']} or {s['uri']} != {toot_url}"
                 )
@@ -437,29 +439,57 @@ def get_spoiler_text(text, item):
         return None, text
 
 
-def get_visibility(visibility, user):
+def get_toot_visibility(visibility, user):
     if visibility == 2:
         return TootVisibilityEnum.DIRECT
     elif visibility == 1:
         return TootVisibilityEnum.PRIVATE
-    elif user.preference.mastodon_publish_public:
+    elif user.preference.post_public_mode == 0:
         return TootVisibilityEnum.PUBLIC
     else:
         return TootVisibilityEnum.UNLISTED
+
+
+def share_comment(comment):
+    from catalog.common import ItemCategory
+
+    user = comment.owner.user
+    visibility = get_toot_visibility(comment.visibility, user)
+    tags = (
+        "\n"
+        + user.preference.mastodon_append_tag.replace(
+            "[category]", str(ItemCategory(comment.item.category).label)
+        )
+        if user.preference.mastodon_append_tag
+        else ""
+    )
+    content = f"评论《{comment.item.display_title}》\n{comment.text}\n{comment.item.absolute_url}{tags}"
+    update_id = None
+    if comment.metadata.get(
+        "shared_link"
+    ):  # "https://mastodon.social/@username/1234567890"
+        r = re.match(
+            r".+/(\w+)$", comment.metadata.get("shared_link")
+        )  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
+        update_id = r[1] if r else None
+    response = post_toot(
+        user.mastodon_site, content, visibility, user.mastodon_token, False, update_id
+    )
+    if response is not None and response.status_code in [200, 201]:
+        j = response.json()
+        if "url" in j:
+            comment.metadata["shared_link"] = j["url"]
+            comment.save()
+        return True
+    else:
+        return False
 
 
 def share_mark(mark):
     from catalog.common import ItemCategory
 
     user = mark.owner.user
-    if mark.visibility == 2:
-        visibility = TootVisibilityEnum.DIRECT
-    elif mark.visibility == 1:
-        visibility = TootVisibilityEnum.PRIVATE
-    elif user.preference.mastodon_publish_public:
-        visibility = TootVisibilityEnum.PUBLIC
-    else:
-        visibility = TootVisibilityEnum.UNLISTED
+    visibility = get_toot_visibility(mark.visibility, user)
     tags = (
         "\n"
         + user.preference.mastodon_append_tag.replace(
@@ -473,7 +503,7 @@ def share_mark(mark):
         MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode,
     )
     content = f"{mark.action_label}《{mark.item.display_title}》{stars}\n{mark.item.absolute_url}\n{mark.comment_text or ''}{tags}"
-    update_id = get_status_id_by_url(mark.shared_link)
+    update_id = None  # get_status_id_by_url(mark.shared_link)
     spoiler_text, content = get_spoiler_text(content, mark.item)
     response = post_toot(
         user.mastodon_site,
@@ -485,11 +515,11 @@ def share_mark(mark):
         spoiler_text,
     )
     if response is not None and response.status_code in [200, 201]:
-        j = response.json()
-        if "url" in j:
-            mark.shared_link = j["url"]
-        if mark.shared_link:
-            mark.save(update_fields=["shared_link"])
+        # j = response.json()
+        # if "url" in j:
+        #     mark.shared_link = j["url"]
+        # if mark.shared_link:
+        #     mark.save(update_fields=["shared_link"])
         return True, 200
     else:
         logger.warning(response)
@@ -499,15 +529,8 @@ def share_mark(mark):
 def share_review(review):
     from catalog.common import ItemCategory
 
-    user = review.owner
-    if review.visibility == 2:
-        visibility = TootVisibilityEnum.DIRECT
-    elif review.visibility == 1:
-        visibility = TootVisibilityEnum.PRIVATE
-    elif user.preference.mastodon_publish_public:
-        visibility = TootVisibilityEnum.PUBLIC
-    else:
-        visibility = TootVisibilityEnum.UNLISTED
+    user = review.owner.user
+    visibility = get_toot_visibility(review.visibility, user)
     tags = (
         "\n"
         + user.preference.mastodon_append_tag.replace(
@@ -538,15 +561,8 @@ def share_review(review):
         return False
 
 
-def share_collection(collection, comment, user, visibility_no):
-    if visibility_no == 2:
-        visibility = TootVisibilityEnum.DIRECT
-    elif visibility_no == 1:
-        visibility = TootVisibilityEnum.PRIVATE
-    elif user.preference.mastodon_publish_public:
-        visibility = TootVisibilityEnum.PUBLIC
-    else:
-        visibility = TootVisibilityEnum.UNLISTED
+def share_collection(collection, comment, user, visibility_no, link):
+    visibility = get_toot_visibility(visibility_no, user)
     tags = (
         "\n" + user.preference.mastodon_append_tag.replace("[category]", "收藏单")
         if user.preference.mastodon_append_tag
@@ -561,7 +577,7 @@ def share_collection(collection, comment, user, visibility_no):
             else " " + collection.owner.username + " "
         )
     )
-    content = f"分享{user_str}的收藏单《{collection.title}》\n{collection.absolute_url}\n{comment}{tags}"
+    content = f"分享{user_str}的收藏单《{collection.title}》\n{link}\n{comment}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
     if response is not None and response.status_code in [200, 201]:
         return True

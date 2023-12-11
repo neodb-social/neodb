@@ -31,13 +31,15 @@
           <div class="mark-modal__share-checkbox float-right"
                style="width:max-content">
             <label for="id_share_to_mastodon">
-              <input type="checkbox"
-                     name="share_to_mastodon"
-                     id="id_share_to_mastodon"
-                     value="1"
-                     {% if not request.user.preference.default_no_share %}checked{% endif %}>
-              分享到联邦宇宙
-            </label>
+              {% if request.user.mastodon_acct %}
+                <input type="checkbox"
+                       name="share_to_mastodon"
+                       id="id_share_to_mastodon"
+                       value="1"
+                       {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
+                转发到<em data-tooltip="@{{ request.user.mastodon_acct }}">主ID</em>时间轴
+              </label>
+            {% endif %}
           </div>
           <div class="mark-modal__option" style="width:max-content;">
             <div class="mark-modal__visibility-radio">

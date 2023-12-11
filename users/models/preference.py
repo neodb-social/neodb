@@ -40,16 +40,23 @@ class Preference(models.Model):
     import_status = models.JSONField(
         blank=True, null=True, encoder=DjangoJSONEncoder, default=dict
     )
-    default_no_share = models.BooleanField(default=False)
-    default_visibility = models.PositiveSmallIntegerField(default=0)
+    # 0: public, 1: follower only, 2: private
+    default_visibility = models.PositiveSmallIntegerField(null=False, default=0)
+    # 0: public, 1: unlisted, 4: local
+    post_public_mode = models.PositiveSmallIntegerField(null=False, default=0)
+    # 0: discover, 1: timeline, 2: my profile
     classic_homepage = models.PositiveSmallIntegerField(null=False, default=0)
-    mastodon_publish_public = models.BooleanField(null=False, default=False)
-    mastodon_append_tag = models.CharField(max_length=2048, default="")
-    show_last_edit = models.PositiveSmallIntegerField(default=0)
+    show_last_edit = models.PositiveSmallIntegerField(null=False, default=1)
     no_anonymous_view = models.PositiveSmallIntegerField(default=0)
     hidden_categories = models.JSONField(default=list)
+    mastodon_append_tag = models.CharField(max_length=2048, default="")
+    mastodon_default_repost = models.BooleanField(null=False, default=True)
+    mastodon_repost_mode = models.PositiveSmallIntegerField(null=False, default=0)
     mastodon_skip_userinfo = models.BooleanField(null=False, default=False)
     mastodon_skip_relationship = models.BooleanField(null=False, default=False)
+    # Removed:
+    # mastodon_publish_public = models.BooleanField(null=False, default=False)
+    # default_no_share = models.BooleanField(null=False, default=False)
 
     def __str__(self):
         return str(self.user)

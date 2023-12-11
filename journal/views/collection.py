@@ -129,17 +129,26 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
     if request.method == "GET":
         return render(request, "collection_share.html", {"collection": collection})
     elif request.method == "POST":
-        if settings.FORCE_CLASSIC_REPOST:
-            visibility = int(request.POST.get("visibility", default=0))
-            comment = request.POST.get("comment")
-            if share_collection(collection, comment, request.user, visibility):
-                return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
-            else:
-                return render_relogin(request)
+        comment = request.POST.get("comment")
+        # boost if possible, otherwise quote
+        if (
+            not comment
+            and request.user.preference.mastodon_repost_mode == 0
+            and collection.latest_post
+        ):
+            boost_toot_later(request.user, collection.latest_post.url)
         else:
-            if collection.latest_post:
-                boost_toot_later(request.user, collection.latest_post)
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+            visibility = int(request.POST.get("visibility", default=0))
+            link = (
+                collection.latest_post.url
+                if collection.latest_post
+                else collection.absolute_url
+            )
+            if not share_collection(
+                collection, comment, request.user, visibility, link
+            ):
+                return render_relogin(request)
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     else:
         raise BadRequest()
 

@@ -41,6 +41,7 @@ x-shared:
       NEODB_SEARCH_URL: ${NEODB_SEARCH_URL:-typesense://user:eggplant@typesense:8108/catalog}
       NEODB_EMAIL_URL:
       NEODB_EMAIL_FROM: no-reply@${NEODB_SITE_DOMAIN}
+      NEODB_ENABLE_LOCAL_ONLY:
       NEODB_FANOUT_LIMIT_DAYS:
       TAKAHE_FANOUT_LIMIT_DAYS:
       NEODB_DOWNLOADER_PROXY_LIST:

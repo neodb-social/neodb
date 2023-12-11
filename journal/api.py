@@ -204,7 +204,7 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
         created_time=review.created_time,
     )
     if post and review.post_to_fediverse:
-        if settings.FORCE_CLASSIC_REPOST:
+        if request.user.preference.mastodon_repost_mode == 1:
             share_review(review)
         else:
             boost_toot_later(request.user, post.url)
