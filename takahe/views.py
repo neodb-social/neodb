@@ -8,11 +8,14 @@ from django.shortcuts import redirect, render
 from django.utils.http import http_date
 from loguru import logger
 
+from common.utils import user_identity_required
+
 from .models import TakaheSession
 from .utils import Takahe
 
 
 @login_required
+@user_identity_required
 def auth_login(request):
     """Redirect to the login page if not yet, otherwise sync login info to takahe session"""
     Takahe.sync_password(request.user)
@@ -24,7 +27,7 @@ def auth_login(request):
     session["_auth_user_backend"] = "django.contrib.auth.backends.ModelBackend"
     session_key: str = session._get_session_key()  # type: ignore
 
-    # if SESSION_ENGINE = "django.contrib.sessions.backends.db"
+    # if SESSION_ENGINE = "django.contrib.sessions.backends.db" in Takahe
     # sess = request.session._session
     # sess["_auth_user_backend"] = "django.contrib.auth.backends.ModelBackend"
     # logger.info(f"session: {sess}")
