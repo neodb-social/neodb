@@ -57,14 +57,14 @@ class Goodreads:
         results = []
         search_url = f"https://www.goodreads.com/search?page={page}&q={quote_plus(q)}"
         try:
-            r = requests.get(search_url, timeout=2)
+            r = requests.get(search_url, timeout=3)
             if r.url.startswith("https://www.goodreads.com/book/show/"):
                 # Goodreads will 302 if only one result matches ISBN
                 site = SiteManager.get_site_by_url(r.url)
                 if site:
                     res = site.get_resource_ready()
                     if res:
-                        subtitle = f"{res.metadata['pub_year']} {', '.join(res.metadata['author'])} {', '.join(res.metadata['translator'] if res.metadata['translator'] else [])}"
+                        subtitle = f"{res.metadata.get('pub_year')} {', '.join(res.metadata.get('author', []))} {', '.join(res.metadata.get('translator', []))}"
                         results.append(
                             SearchResultItem(
                                 ItemCategory.Book,
@@ -72,8 +72,8 @@ class Goodreads:
                                 res.url,
                                 res.metadata["title"],
                                 subtitle,
-                                res.metadata["brief"],
-                                res.metadata["cover_image_url"],
+                                res.metadata.get("brief"),
+                                res.metadata.get("cover_image_url"),
                             )
                         )
             else:
