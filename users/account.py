@@ -211,7 +211,9 @@ def register_new_user(request, **param):
     new_user = User.register(**param)
     request.session["new_user"] = True
     auth_login(request, new_user)
-    return redirect(reverse("users:register"))
+    response = redirect(reverse("users:register"))
+    response.delete_cookie(settings.TAKAHE_SESSION_COOKIE_NAME)
+    return response
 
 
 def login_existing_user(request, existing_user):
@@ -223,6 +225,7 @@ def login_existing_user(request, existing_user):
         del request.session["next_url"]
     else:
         response = redirect(reverse("common:home"))
+    response.delete_cookie(settings.TAKAHE_SESSION_COOKIE_NAME)
     return response
 
 
@@ -232,7 +235,9 @@ def logout(request):
     if request.method == "GET":
         # revoke_token(request.user.mastodon_site, request.user.mastodon_token)
         auth_logout(request)
-        return redirect(reverse("users:login"))
+        response = redirect(reverse("users:login"))
+        response.delete_cookie(settings.TAKAHE_SESSION_COOKIE_NAME)
+        return response
     else:
         raise BadRequest()
 
