@@ -184,7 +184,7 @@ services:
 
   neodb-worker-extra:
     <<: *neodb-service
-    command: neodb-manage rqworker fetch crawl ap
+    command: neodb-manage rqworker mastodon fetch crawl ap
     depends_on:
       migration:
         condition: service_completed_successfully
