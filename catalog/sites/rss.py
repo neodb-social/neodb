@@ -45,7 +45,15 @@ class RSS(AbstractSite):
             try:
                 feed = podcastparser.parse(url, urllib.request.urlopen(req, timeout=3))
             except:
-                return None
+                url = url.replace("https://", "http://")
+                req = urllib.request.Request(url)
+                req.add_header("User-Agent", settings.NEODB_USER_AGENT)
+                try:
+                    feed = podcastparser.parse(
+                        url, urllib.request.urlopen(req, timeout=3)
+                    )
+                except:
+                    return None
             if settings.DOWNLOADER_SAVEDIR:
                 pickle.dump(
                     feed,
