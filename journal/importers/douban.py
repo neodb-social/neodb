@@ -312,6 +312,9 @@ class DoubanImporter:
 
     def get_item_by_url(self, url):
         item = None
+        if not url:
+            logger.warning(f"URL empty")
+            return None
         try:
             site = SiteManager.get_site_by_url(url)
             if not site:

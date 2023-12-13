@@ -162,31 +162,34 @@ class TheMovieDatabase:
         api_url = f"https://api.themoviedb.org/3/search/multi?query={quote_plus(q)}&page={page}&api_key={settings.TMDB_API3_KEY}&language=zh-CN&include_adult=true"
         try:
             j = requests.get(api_url, timeout=2).json()
-            for m in j["results"]:
-                if m["media_type"] in ["tv", "movie"]:
-                    url = f"https://www.themoviedb.org/{m['media_type']}/{m['id']}"
-                    if m["media_type"] == "tv":
-                        cat = ItemCategory.TV
-                        title = m["name"]
-                        subtitle = f"{m.get('first_air_date', '')} {m.get('original_name', '')}"
-                    else:
-                        cat = ItemCategory.Movie
-                        title = m["title"]
-                        subtitle = (
-                            f"{m.get('release_date', '')} {m.get('original_name', '')}"
+            if j.get("results"):
+                for m in j["results"]:
+                    if m["media_type"] in ["tv", "movie"]:
+                        url = f"https://www.themoviedb.org/{m['media_type']}/{m['id']}"
+                        if m["media_type"] == "tv":
+                            cat = ItemCategory.TV
+                            title = m["name"]
+                            subtitle = f"{m.get('first_air_date', '')} {m.get('original_name', '')}"
+                        else:
+                            cat = ItemCategory.Movie
+                            title = m["title"]
+                            subtitle = f"{m.get('release_date', '')} {m.get('original_name', '')}"
+                        cover = (
+                            f"https://image.tmdb.org/t/p/w500/{m.get('poster_path')}"
                         )
-                    cover = f"https://image.tmdb.org/t/p/w500/{m.get('poster_path')}"
-                    results.append(
-                        SearchResultItem(
-                            cat,
-                            SiteName.TMDB,
-                            url,
-                            title,
-                            subtitle,
-                            m.get("overview"),
-                            cover,
+                        results.append(
+                            SearchResultItem(
+                                cat,
+                                SiteName.TMDB,
+                                url,
+                                title,
+                                subtitle,
+                                m.get("overview"),
+                                cover,
+                            )
                         )
-                    )
+            else:
+                logger.warning(f"TMDB search '{q}' no results found.")
         except requests.exceptions.RequestException as e:
             logger.warning(f"Search {api_url} error: {e}")
         except Exception as e:
@@ -202,24 +205,27 @@ class Spotify:
         try:
             headers = {"Authorization": f"Bearer {get_spotify_token()}"}
             j = requests.get(api_url, headers=headers, timeout=2).json()
-            for a in j["albums"]["items"]:
-                title = a["name"]
-                subtitle = a["release_date"]
-                for artist in a["artists"]:
-                    subtitle += " " + artist["name"]
-                url = a["external_urls"]["spotify"]
-                cover = a["images"][0]["url"]
-                results.append(
-                    SearchResultItem(
-                        ItemCategory.Music,
-                        SiteName.Spotify,
-                        url,
-                        title,
-                        subtitle,
-                        "",
-                        cover,
+            if j.get("albums"):
+                for a in j["albums"]["items"]:
+                    title = a["name"]
+                    subtitle = a["release_date"]
+                    for artist in a["artists"]:
+                        subtitle += " " + artist["name"]
+                    url = a["external_urls"]["spotify"]
+                    cover = a["images"][0]["url"]
+                    results.append(
+                        SearchResultItem(
+                            ItemCategory.Music,
+                            SiteName.Spotify,
+                            url,
+                            title,
+                            subtitle,
+                            "",
+                            cover,
+                        )
                     )
-                )
+            else:
+                logger.warning(f"Spotify search '{q}' no results found.")
         except requests.exceptions.RequestException as e:
             logger.warning(f"Search {api_url} error: {e}")
         except Exception as e:
@@ -271,17 +277,18 @@ class ApplePodcast:
         try:
             r = requests.get(search_url, timeout=2).json()
             for p in r["results"][(page - 1) * SEARCH_PAGE_SIZE :]:
-                results.append(
-                    SearchResultItem(
-                        ItemCategory.Podcast,
-                        SiteName.RSS,
-                        p["feedUrl"],
-                        p["trackName"],
-                        p["artistName"],
-                        "",
-                        p["artworkUrl600"],
+                if p.get("feedUrl"):
+                    results.append(
+                        SearchResultItem(
+                            ItemCategory.Podcast,
+                            SiteName.RSS,
+                            p["feedUrl"],
+                            p["trackName"],
+                            p["artistName"],
+                            "",
+                            p["artworkUrl600"],
+                        )
                     )
-                )
         except requests.exceptions.RequestException as e:
             logger.warning(f"Search {search_url} error: {e}")
         except Exception as e:
