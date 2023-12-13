@@ -11,6 +11,7 @@ from mastodon.models import MastodonApplication
 
 @JobManager.register
 class MastodonSiteCheck(BaseJob):
+    interval = timedelta(days=1)
     max_unreachable_days = 31
 
     def run(self):

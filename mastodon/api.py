@@ -498,9 +498,10 @@ def share_mark(mark):
         if user.preference.mastodon_append_tag
         else ""
     )
+    site = MastodonApplication.objects.filter(domain_name=user.mastodon_site).first()
     stars = rating_to_emoji(
         mark.rating_grade,
-        MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode,
+        site.star_mode if site else 0,
     )
     content = f"{mark.action_label}《{mark.item.display_title}》{stars}\n{mark.item.absolute_url}\n{mark.comment_text or ''}{tags}"
     update_id = None  # get_status_id_by_url(mark.shared_link)

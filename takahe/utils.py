@@ -217,7 +217,7 @@ class Takahe:
     @staticmethod
     def get_following_request_ids(identity_pk: int):
         targets = Follow.objects.filter(
-            source_id=identity_pk, state="pending_approval"
+            source_id=identity_pk, state__in=["unrequested", "pending_approval"]
         ).values_list("target", flat=True)
         return list(targets)
 

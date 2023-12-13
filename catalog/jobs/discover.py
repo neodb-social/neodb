@@ -17,7 +17,7 @@ MIN_DAYS_FOR_PERIOD = 6
 
 @JobManager.register
 class DiscoverGenerator(BaseJob):
-    interval = timedelta(hours=3)
+    interval = timedelta(hours=2)
 
     def get_popular_marked_item_ids(self, category, days, exisiting_ids):
         item_ids = [
