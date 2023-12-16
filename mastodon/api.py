@@ -503,9 +503,9 @@ def share_mark(mark):
         mark.rating_grade,
         site.star_mode if site else 0,
     )
-    content = f"{mark.action_label}《{mark.item.display_title}》{stars}\n{mark.item.absolute_url}\n{mark.comment_text or ''}{tags}"
+    spoiler_text, txt = get_spoiler_text(mark.comment_text or "", mark.item)
+    content = f"{mark.action_label}《{mark.item.display_title}》{stars}\n{mark.item.absolute_url}\n{txt}{tags}"
     update_id = None  # get_status_id_by_url(mark.shared_link)
-    spoiler_text, content = get_spoiler_text(content, mark.item)
     response = post_toot(
         user.mastodon_site,
         content,

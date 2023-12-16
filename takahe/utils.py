@@ -370,6 +370,8 @@ class Takahe:
         pre_conetent: str,
         content: str,
         visibility: Visibilities,
+        summary: str | None = None,
+        sensitive: bool = False,
         data: dict | None = None,
         post_pk: int | None = None,
         post_time: datetime.datetime | None = None,
@@ -392,6 +394,8 @@ class Takahe:
             post.edit_local(
                 pre_conetent,
                 content,
+                summary,
+                sensitive,
                 visibility=visibility,
                 type_data=data,
                 published=post_time,
@@ -401,6 +405,8 @@ class Takahe:
                 identity,
                 pre_conetent,
                 content,
+                summary,
+                sensitive,
                 visibility=visibility,
                 type_data=data,
                 published=post_time,
@@ -426,6 +432,14 @@ class Takahe:
         Post.objects.filter(pk__in=post_pks).update(state="deleted")
         # TimelineEvent.objects.filter(subject_post__in=[post.pk]).delete()
         PostInteraction.objects.filter(post__in=post_pks).update(state="undone")
+
+    @staticmethod
+    def get_spoiler_text(text, item):
+        if text and text.find(">!") != -1:
+            spoiler_text = f"关于《{item.display_title}》 可能有关键情节等敏感内容"
+            return spoiler_text, text.replace(">!", "").replace("!<", "")
+        else:
+            return None, text or ""
 
     @staticmethod
     def visibility_n2t(visibility: int, post_public_mode: int) -> Visibilities:
@@ -476,6 +490,8 @@ class Takahe:
             pre_conetent,
             content,
             visibility,
+            None,
+            False,
             data,
             existing_post.pk if existing_post else None,
             collection.created_time,
@@ -499,7 +515,8 @@ class Takahe:
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{comment.item_url}"
         action_label = "评论" if comment.text else "分享"
         pre_conetent = f'{action_label}{category}<a href="{item_link}">《{comment.item.display_title}》</a><br>'
-        content = f"{comment.text}\n{tags}"
+        spoiler, txt = Takahe.get_spoiler_text(comment.text, comment.item)
+        content = f"{txt}\n{tags}"
         data = {
             "object": {
                 "tag": [comment.item.ap_object_ref],
@@ -513,6 +530,8 @@ class Takahe:
             pre_conetent,
             content,
             v,
+            spoiler,
+            spoiler is not None,
             data,
             existing_post.pk if existing_post else None,
             comment.created_time,
@@ -553,6 +572,8 @@ class Takahe:
             pre_conetent,
             content,
             v,
+            None,
+            False,
             data,
             existing_post.pk if existing_post else None,
             review.created_time,
@@ -581,7 +602,8 @@ class Takahe:
         pre_conetent = (
             f'{mark.action_label}<a href="{item_link}">《{mark.item.display_title}》</a>'
         )
-        content = f"{stars} \n{mark.comment_text or ''}{tags}"
+        spoiler, txt = Takahe.get_spoiler_text(mark.comment_text, mark.item)
+        content = f"{stars} \n{txt}{tags}"
         data = {
             "object": {
                 "tag": [mark.item.ap_object_ref],
@@ -605,6 +627,8 @@ class Takahe:
             pre_conetent,
             content + append_content,
             v,
+            spoiler,
+            spoiler is not None,
             data,
             existing_post.pk if existing_post else None,
             mark.shelfmember.created_time,
