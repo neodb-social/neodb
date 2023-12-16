@@ -247,7 +247,7 @@ class Mark:
         # async boost to mastodon
         if post and share_to_mastodon:
             if classic_repost:
-                share_mark(self)
+                share_mark(self, post_as_new)
             else:
                 boost_toot_later(self.owner.user, post.url)
         return True

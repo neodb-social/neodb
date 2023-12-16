@@ -485,7 +485,7 @@ def share_comment(comment):
         return False
 
 
-def share_mark(mark):
+def share_mark(mark, post_as_new=False):
     from catalog.common import ItemCategory
 
     user = mark.owner.user
@@ -505,7 +505,11 @@ def share_mark(mark):
     )
     spoiler_text, txt = get_spoiler_text(mark.comment_text or "", mark.item)
     content = f"{mark.action_label}《{mark.item.display_title}》{stars}\n{mark.item.absolute_url}\n{txt}{tags}"
-    update_id = None  # get_status_id_by_url(mark.shared_link)
+    update_id = (
+        None
+        if post_as_new
+        else get_status_id_by_url((mark.shelfmember.metadata or {}).get("shared_link"))
+    )
     response = post_toot(
         user.mastodon_site,
         content,
@@ -516,11 +520,10 @@ def share_mark(mark):
         spoiler_text,
     )
     if response is not None and response.status_code in [200, 201]:
-        # j = response.json()
-        # if "url" in j:
-        #     mark.shared_link = j["url"]
-        # if mark.shared_link:
-        #     mark.save(update_fields=["shared_link"])
+        j = response.json()
+        if "url" in j:
+            mark.shelfmember.metadata = {"shared_link": j["url"]}
+            mark.shelfmember.save(update_fields=["metadata"])
         return True, 200
     else:
         logger.warning(response)
