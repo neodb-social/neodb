@@ -11,7 +11,7 @@ django-environ
 django-hijack
 django-jsonform
 django-maintenance-mode
-django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e69480c64ad9c5d0499f4a8625da78cf2bb7691b
+django-markdownx
 django-ninja
 django-oauth-toolkit
 django-polymorphic
