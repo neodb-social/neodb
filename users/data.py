@@ -33,7 +33,9 @@ def preferences(request):
         preference.hidden_categories = request.POST.getlist("hidden_categories")
         preference.post_public_mode = int(request.POST.get("post_public_mode"))
         preference.show_last_edit = bool(request.POST.get("show_last_edit"))
-        preference.mastodon_repost_mode = int(request.POST.get("mastodon_repost_mode"))
+        preference.mastodon_repost_mode = int(
+            request.POST.get("mastodon_repost_mode", 0)
+        )
         preference.mastodon_append_tag = request.POST.get(
             "mastodon_append_tag", ""
         ).strip()
