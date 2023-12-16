@@ -182,6 +182,10 @@ class Mark:
             if last_shelf_type:
                 Takahe.delete_posts(self.shelfmember.all_post_ids)
                 self.shelfmember.log_and_delete()
+            if self.comment:
+                self.comment.delete()
+            if self.rating:
+                self.rating.delete()
             return
         # create/update shelf member and shelf log if necessary
         if last_shelf_type == shelf_type:
