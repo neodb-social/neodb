@@ -105,8 +105,6 @@ x-shared:
 services:
   redis:
     image: redis:alpine
-    # ports:
-    #   - "16379:6379"
     command: redis-server --save 60 1 --loglevel warning
     volumes:
       - ${NEODB_DATA:-../data}/redis:/data
@@ -130,8 +128,6 @@ services:
       test: ['CMD', 'pg_isready', '-U', 'neodb']
     volumes:
       - ${NEODB_DATA:-../data}/neodb-db:/var/lib/postgresql/data
-    # ports:
-    #   - "15432:5432"
     environment:
       - POSTGRES_DB=neodb
       - POSTGRES_USER=neodb
@@ -143,8 +139,6 @@ services:
       test: ['CMD', 'pg_isready', '-U', 'takahe']
     volumes:
       - ${NEODB_DATA:-../data}/takahe-db:/var/lib/postgresql/data
-    # ports:
-    #   - "16432:5432"
     environment:
       - POSTGRES_DB=takahe
       - POSTGRES_USER=takahe
@@ -166,11 +160,9 @@ services:
 
   neodb-web:
     <<: *neodb-service
-    # ports:
-    #   - "18000:8000"
-    command: ${NEODB_VENV:-/neodb-venv}/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload  --max-requests 1000 -b 0.0.0.0:8000
+    command: ${NEODB_VENV:-/neodb-venv}/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload --max-requests 2000 -b 0.0.0.0:8000
     healthcheck:
-      test: ['CMD', 'wget', '-qO/tmp/test', 'http://127.0.0.1:8000/nodeinfo/2.0/']
+      test: ['CMD', 'wget', '-qO/tmp/test', '--header', 'X-Forwarded-Proto: https', 'http://127.0.0.1:8000/nodeinfo/2.0/']
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -191,11 +183,9 @@ services:
 
   takahe-web:
     <<: *neodb-service
-    # ports:
-    #   - "19000:8000"
-    command: ${TAKAHE_VENV:-/takahe-venv}/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8}  --max-requests 1000 --preload -b 0.0.0.0:8000
+    command: ${TAKAHE_VENV:-/takahe-venv}/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8} --max-requests 2000 --preload -b 0.0.0.0:8000
     healthcheck:
-      test: ['CMD', 'wget', '-qO/tmp/test', 'http://127.0.0.1:8000/nodeinfo/2.0/']
+      test: ['CMD', 'wget', '-qO/tmp/test', '--header', 'X-Forwarded-Proto: https', 'http://127.0.0.1:8000/api/v1/instance']
     depends_on:
       migration:
         condition: service_completed_successfully
