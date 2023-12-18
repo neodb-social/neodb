@@ -203,7 +203,10 @@ class Mark:
             if created_time and created_time != self.shelfmember.created_time:
                 self.shelfmember.created_time = created_time
                 log_entry.timestamp = created_time
-                log_entry.save(update_fields=["timestamp"])
+                try:
+                    log_entry.save(update_fields=["timestamp"])
+                except:
+                    log_entry.delete()
                 shelfmember_changed = True
             if shelfmember_changed:
                 self.shelfmember.save()
