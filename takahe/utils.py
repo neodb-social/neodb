@@ -589,10 +589,10 @@ class Takahe:
 
         user = mark.owner.user
         tags = (
-            "\n"
-            + user.preference.mastodon_append_tag.replace(
+            user.preference.mastodon_append_tag.replace(
                 "[category]", str(ItemCategory(mark.item.category).label)
             )
+            + "\n"
             if user.preference.mastodon_append_tag
             else ""
         )
@@ -603,7 +603,7 @@ class Takahe:
             f'{mark.action_label}<a href="{item_link}">《{mark.item.display_title}》</a>'
         )
         spoiler, txt = Takahe.get_spoiler_text(mark.comment_text, mark.item)
-        content = f"{stars} \n{txt}{tags}"
+        content = f"{stars} \n{txt}\n{tags}"
         data = {
             "object": {
                 "tag": [mark.item.ap_object_ref],

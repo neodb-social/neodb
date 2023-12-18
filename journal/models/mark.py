@@ -242,7 +242,7 @@ class Mark:
         post_as_new = shelf_type != last_shelf_type or visibility != last_visibility
         classic_repost = self.owner.user.preference.mastodon_repost_mode == 1
         append = (
-            f" \n@{self.owner.user.mastodon_acct}"
+            f"@{self.owner.user.mastodon_acct}\n"
             if visibility > 0 and share_to_mastodon and not classic_repost
             else ""
         )
