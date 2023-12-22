@@ -155,4 +155,5 @@ urlpatterns = [
     ),
     path("users/<str:id>/feed/reviews/", ReviewFeed(), name="review_feed"),
     path("wrapped/<int:year>/", WrappedView.as_view(), name="wrapped"),
+    path("wrapped/<int:year>/share", WrappedShareView.as_view(), name="wrapped_share"),
 ]

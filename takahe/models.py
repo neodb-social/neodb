@@ -848,6 +848,7 @@ class Post(models.Model):
     """
 
     interactions: "models.QuerySet[PostInteraction]"
+    attachments: "models.QuerySet[PostAttachment]"
 
     class Visibilities(models.IntegerChoices):
         public = 0
@@ -1079,8 +1080,8 @@ class Post(models.Model):
                         days=settings.FANOUT_LIMIT_DAYS
                     ):
                         post.state = "fanned_out"  # add post quietly if it's old
-            # if attachments:# FIXME
-            #     post.attachments.set(attachments)
+            if attachments:
+                post.attachments.set(attachments)
             # if question: # FIXME
             #     post.type = question["type"]
             #     post.type_data = PostTypeData(__root__=question).__root__
@@ -1121,7 +1122,8 @@ class Post(models.Model):
             self.edited = timezone.now()
             self.mentions.set(self.mentions_from_content(content, self.author))
             self.emojis.set(Emoji.emojis_from_content(content, None))
-            # self.attachments.set(attachments or []) # fixme
+            if attachments is not None:
+                self.attachments.set(attachments or [])  # type: ignore
             if type_data:
                 self.type_data = type_data
             self.save()
@@ -1249,6 +1251,65 @@ class FanOut(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+
+class PostAttachment(models.Model):
+    """
+    An attachment to a Post. Could be an image, a video, etc.
+    """
+
+    post = models.ForeignKey(
+        "takahe.post",
+        on_delete=models.CASCADE,
+        related_name="attachments",
+        blank=True,
+        null=True,
+    )
+    author = models.ForeignKey(
+        "takahe.Identity",
+        on_delete=models.CASCADE,
+        related_name="attachments",
+        blank=True,
+        null=True,
+    )
+
+    # state = StateField(graph=PostAttachmentStates)
+    state = models.CharField(max_length=100, default="new")
+    state_changed = models.DateTimeField(auto_now_add=True)
+
+    mimetype = models.CharField(max_length=200)
+
+    # Files may not be populated if it's remote and not cached on our side yet
+    file = models.FileField(
+        upload_to=partial(upload_namer, "attachments"),
+        null=True,
+        blank=True,
+        storage=upload_store,
+    )
+    thumbnail = models.ImageField(
+        upload_to=partial(upload_namer, "attachment_thumbnails"),
+        null=True,
+        blank=True,
+        storage=upload_store,
+    )
+
+    remote_url = models.CharField(max_length=500, null=True, blank=True)
+
+    # This is the description for images, at least
+    name = models.TextField(null=True, blank=True)
+
+    width = models.IntegerField(null=True, blank=True)
+    height = models.IntegerField(null=True, blank=True)
+    focal_x = models.FloatField(null=True, blank=True)
+    focal_y = models.FloatField(null=True, blank=True)
+    blurhash = models.TextField(null=True, blank=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        # managed = False
+        db_table = "activities_postattachment"
 
 
 class EmojiQuerySet(models.QuerySet):

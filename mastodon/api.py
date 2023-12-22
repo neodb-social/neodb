@@ -3,6 +3,7 @@ import html
 import random
 import re
 import string
+import time
 from urllib.parse import quote
 
 import django_rq
@@ -129,6 +130,33 @@ def boost_toot_later(user, post_url):
         )
 
 
+def post_toot_later(
+    user,
+    content,
+    visibility,
+    local_only=False,
+    update_id=None,
+    spoiler_text=None,
+    img=None,
+    img_name=None,
+    img_type=None,
+):
+    if user and user.mastodon_token and user.mastodon_site and content:
+        django_rq.get_queue("fetch").enqueue(
+            post_toot,
+            user.mastodon_site,
+            content,
+            visibility,
+            user.mastodon_token,
+            local_only,
+            update_id,
+            spoiler_text,
+            img,
+            img_name,
+            img_type,
+        )
+
+
 def post_toot(
     site,
     content,
@@ -137,18 +165,47 @@ def post_toot(
     local_only=False,
     update_id=None,
     spoiler_text=None,
+    img=None,
+    img_name=None,
+    img_type=None,
 ):
     headers = {
         "User-Agent": USER_AGENT,
         "Authorization": f"Bearer {token}",
         "Idempotency-Key": random_string_generator(16),
     }
+    media_id = None
+    if img and img_name and img_type:
+        try:
+            media_id = (
+                requests.post(
+                    "https://" + get_api_domain(site) + "/api/v1/media",
+                    headers=headers,
+                    data={},
+                    files={"file": (img_name, img, img_type)},
+                )
+                .json()
+                .get("id")
+            )
+            ready = False
+            while ready is False:
+                time.sleep(3)
+                j = requests.get(
+                    "https://" + get_api_domain(site) + "/api/v1/media/" + media_id,
+                    headers=headers,
+                ).json()
+                ready = j.get("url") is not None
+        except Exception as e:
+            logger.warning(f"Error uploading image {e}")
+        headers["Idempotency-Key"] = random_string_generator(16)
     response = None
     url = "https://" + get_api_domain(site) + API_PUBLISH_TOOT
     payload = {
         "status": content,
         "visibility": visibility,
     }
+    if media_id:
+        payload["media_ids[]"] = [media_id]
     if spoiler_text:
         payload["spoiler_text"] = spoiler_text
     if local_only:
@@ -163,7 +220,8 @@ def post_toot(
             response.status_code = 200
         if response is not None and response.status_code != 200:
             logger.warning(f"Error {url} {response.status_code}")
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Error posting {e}")
         response = None
     return response
 

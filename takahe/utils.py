@@ -1,7 +1,11 @@
+import io
 from typing import TYPE_CHECKING
 
+# import blurhash
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files.images import ImageFile
+from PIL import Image
 
 from .models import *
 
@@ -365,6 +369,37 @@ class Takahe:
         Block.objects.exclude(state="sent").delete()
 
     @staticmethod
+    def upload_image(
+        author_pk: int,
+        filename: str,
+        content: bytes,
+        mimetype: str,
+        description: str = "",
+    ) -> PostAttachment:
+        if len(content) > 1024 * 1024 * 5:
+            raise ValueError("Image too large")
+        main_file = ImageFile(io.BytesIO(content), name=filename)
+        resized_image = Image.open(io.BytesIO(content))
+        resized_image.thumbnail((400, 225), resample=Image.Resampling.BILINEAR)
+        new_image_bytes = io.BytesIO()
+        resized_image.save(new_image_bytes, format="webp", save_all=True)
+        thumbnail_file = ImageFile(new_image_bytes, name="image.webp")
+        # hash = blurhash.encode(resized_image, 4, 4)
+        attachment = PostAttachment.objects.create(
+            mimetype=mimetype,
+            width=main_file.width,
+            height=main_file.height,
+            name=description or None,
+            state="fetched",
+            author_id=author_pk,
+            file=main_file,
+            thumbnail=thumbnail_file,
+            # blurhash=hash,
+        )
+        attachment.save()
+        return attachment
+
+    @staticmethod
     def post(
         author_pk: int,
         pre_conetent: str,
@@ -376,6 +411,7 @@ class Takahe:
         post_pk: int | None = None,
         post_time: datetime.datetime | None = None,
         reply_to_pk: int | None = None,
+        attachments: list | None = None,
     ) -> Post | None:
         identity = Identity.objects.get(pk=author_pk)
         post = (
@@ -399,6 +435,7 @@ class Takahe:
                 visibility=visibility,
                 type_data=data,
                 published=post_time,
+                attachments=attachments,
             )
         else:
             post = Post.create_local(
@@ -411,6 +448,7 @@ class Takahe:
                 type_data=data,
                 published=post_time,
                 reply_to=reply_to_post,
+                attachments=attachments,
             )
         return post
 

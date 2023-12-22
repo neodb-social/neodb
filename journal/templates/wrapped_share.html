@@ -1,0 +1,80 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load highlight %}
+{% load thumb %}
+{% load duration %}
+<dialog open
+        _="on close_dialog add .closing then wait for animationend then remove me">
+  <article>
+    <header>
+      <link to="#"
+            aria-label="Close"
+            class="close"
+            _="on click trigger close_dialog" />
+      <strong>分享年度统计图</strong>
+    </header>
+    <div>
+      <form method="post" action="{% url 'journal:wrapped_share' year %}">
+        {% csrf_token %}
+        <input type="hidden" name="img" id="img" value="">
+        <div style="display: flex;">
+          <div style="width:6em; margin:1em;">
+            <img id="preview" alt="preview" style="width:6em;" />
+          </div>
+          <div style="width:100%;">
+            <textarea type="text"
+                      name="comment"
+                      placeholder="分享附言"
+                      style="width:100%;
+                             height:100%">分享 #我的{{year}}书影音</textarea>
+          </div>
+        </div>
+        <div style="margin:0.5em">
+          <fieldset>
+            可见性:
+            <input type="radio"
+                   name="visibility"
+                   value="0"
+                   required
+                   id="id_visibility_0"
+                   checked />
+            <label for="id_visibility_0">公开</label>
+            <input type="radio"
+                   name="visibility"
+                   value="1"
+                   required
+                   id="id_visibility_1">
+            <label for="id_visibility_1">仅关注者</label>
+            <input type="radio"
+                   name="visibility"
+                   value="2"
+                   required=""
+                   id="id_visibility_2">
+            <label for="id_visibility_2">仅自己</label>
+          </fieldset>
+        </div>
+        <div>
+          <input type="submit" value="{% trans '分享' %}">
+        </div>
+      </form>
+    </div>
+  </article>
+  <script type="text/javascript">
+    function share(uri){
+      const pfx = 'data:image/png;base64,';
+      $('#preview').attr('src', uri);
+      if (uri.startsWith(pfx)) {
+        $('#img').val(uri.substring(pfx.length));
+      } else {
+        alert('分享失败');
+      }
+    }
+    svgAsPngUri($('#viz0').children('svg')[0]).then(share);
+  </script>
+</dialog>

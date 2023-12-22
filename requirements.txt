@@ -1,3 +1,4 @@
+blurhash-python
 cachetools
 dateparser
 discord.py

@@ -14,10 +14,11 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ identity.display_name }} - {{ year }} 年度小结</title>
+    <title>{{ site_name }} - {{ identity.display_name }} - {{ year }} 年度统计</title>
     {% include "common_libs.html" %}
     {% comment %} <script src="https://unpkg.com/rough-viz@2.0.5"></script> {% endcomment %}
     <script src="{% static 'js/roughviz.umd.js' %}"></script>
+    {% comment %} <script src="{% static 'js/saveSvgAsPng.js' %}"></script> {% endcomment %}
     <script src="https://cdn.jsdelivr.net/npm/save-svg-as-png@1.4.17/lib/saveSvgAsPng.min.js"></script>
     <style>
       .yAxisviz0, .rough-yAxisviz0 {
@@ -33,13 +34,22 @@
     <main>
       <div class="grid__main">
         <span class="action">
+          <!-- <span>
+            <a onclick="download()" title="换样子"><i class="fa-solid fa-chart-simple"></i></a>
+          </span> -->
           <span>
-            <a onclick="saveSvgAsPng($('#viz0').children('svg')[0], 'wrapped.png');"><i class="fa-solid fa-download"></i></a>
+            <a hx-get="{% url 'journal:wrapped_share' year %}"
+               hx-target="body"
+               hx-swap="beforeend"
+               title="转发到时间轴"><i class="fa-solid fa-repeat"></i></a>
+          </span>
+          <span>
+            <a onclick="saveSvgAsPng($('#viz0').children('svg')[0], 'wrapped.png');"
+               title="下载图片"><i class="fa-solid fa-download"></i></a>
           </span>
         </span>
         <h5>{{ year }} 年度统计</h5>
-        <div id="viz0" style="width: 100%; height: 50vh;"></div>
-        {% comment %} <div id="viz1" style="width: 12em; height: 12em;"></div> {% endcomment %}
+        <div id="viz0" style="max-width: 100%; aspect-ratio: 1 / 1;"></div>
         {{ by_cat|json_script:"cat-data" }}
         {{ monthly|json_script:"mon-data" }}
         {{ data|json_script:"data" }}
@@ -50,13 +60,25 @@
             {
               title: "{{ identity.user.mastodon_acct | default:identity.full_handle }} - {{ year }}",
               element: '#viz0',
+              font: 1,
               data: data,
               labels: "Month",
               highlight: "#666",
-              roughness: 0,
-              fillStyle: 'cross-hatch',
-              margin: { top: 60, left: 40, right: 40, bottom: 80 },
+              stackColorMapping:   {
+                '📚': '#B4D2A5',
+                '🎬': '#7CBDFE',
+                '📺': '#FED37C',
+                '💿': '#FEA36D',
+                '🎮': '#C5A290',
+                '🎙️': '#9D6AB0',
+                '🎭': '#FE7C7C',
+                'x': '#FDDB23',
+              },
+              roughness: 1,
+              fillStyle: 'solid',
+              margin: { top: 80, left: 20, right: 20, bottom: 80 },
               stroke: 1,
+              padding: 0.2,
               color: 'red',
               strokeWidth: 1,
               axisStrokeWidth: 1,
@@ -74,7 +96,7 @@
             .attr("y", 0 - viz0.margin.top / 2)
             .attr("class", "title")
             .attr("text-anchor", "middle")
-            .style( "font-size", 20 )
+            .style( "font-size", 20)
             .style( "font-weight", "bold" )
             .style("font-family", viz0.fontFamily)
             .style("color", "#000")
@@ -82,7 +104,7 @@
 
             viz0.svg.append("text")
             .attr("x", viz0.width / 2)
-            .attr("y", viz0.height + viz0.margin.top -10)
+            .attr("y", viz0.height + viz0.margin.top -30)
             .attr("class", "title")
             .attr("text-anchor", "middle")
             .style( "font-size", 20 )
@@ -92,14 +114,13 @@
 
             viz0.svg.append("text")
             .attr("x", viz0.width)
-            .attr("y", viz0.height + viz0.margin.top + 10)
+            .attr("y", viz0.height + viz0.margin.top -10)
             .attr("class", "title")
             .attr("text-anchor", "end")
-            .style( "font-size", 12 )
+            .style( "font-size", 10 )
             .style("font-family", viz0.fontFamily)
             .style("color", "#666")
             .text("{{ identity.profile_uri }}");
-
           };
           if ($('#viz0')[0].clientHeight < 250) {
               $('#viz0')[0].style.height = $('#viz0')[0].clientWidth + 'px';
