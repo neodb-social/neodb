@@ -813,4 +813,77 @@ class Migration(migrations.Migration):
                 ],
             },
         ),
+        migrations.CreateModel(
+            name="PostAttachment",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("state", models.CharField(default="new", max_length=100)),
+                ("state_changed", models.DateTimeField(auto_now_add=True)),
+                ("mimetype", models.CharField(max_length=200)),
+                (
+                    "file",
+                    models.FileField(
+                        blank=True,
+                        null=True,
+                        storage=takahe.models.upload_store,
+                        upload_to=functools.partial(
+                            takahe.models.upload_namer, *("attachments",), **{}
+                        ),
+                    ),
+                ),
+                (
+                    "thumbnail",
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        storage=takahe.models.upload_store,
+                        upload_to=functools.partial(
+                            takahe.models.upload_namer,
+                            *("attachment_thumbnails",),
+                            **{}
+                        ),
+                    ),
+                ),
+                ("remote_url", models.CharField(blank=True, max_length=500, null=True)),
+                ("name", models.TextField(blank=True, null=True)),
+                ("width", models.IntegerField(blank=True, null=True)),
+                ("height", models.IntegerField(blank=True, null=True)),
+                ("focal_x", models.FloatField(blank=True, null=True)),
+                ("focal_y", models.FloatField(blank=True, null=True)),
+                ("blurhash", models.TextField(blank=True, null=True)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                (
+                    "author",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="attachments",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="attachments",
+                        to="takahe.post",
+                    ),
+                ),
+            ],
+            options={
+                "db_table": "activities_postattachment",
+            },
+        ),
     ]
