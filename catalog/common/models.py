@@ -253,6 +253,7 @@ class ItemSchema(ItemInSchema, BaseSchema):
 class Item(SoftDeleteMixin, PolymorphicModel):
     url_path = "item"  # subclass must specify this
     type = None  # subclass must specify this
+    child_class = None  # subclass may specify this to allow link to parent item
     parent_class = None  # subclass may specify this to allow create child item
     category: ItemCategory  # subclass must specify this
     demonstrative: "_StrOrPromise | None" = None  # subclass must specify this
