@@ -42,7 +42,14 @@
         <div class="sortable">
           {% if request.user.is_authenticated %}
             <section class="entity-sort shelf" id="calendar_grid">
-              <h5>书影音日历</h5>
+              <h5>
+                书影音日历
+                {% if year %}
+                  <small>
+                    <a href="{% url 'journal:wrapped' year %}">{{ year }} 年度统计</a>
+                  </small>
+                {% endif %}
+              </h5>
               <div class="calendar_view cards">
                 <p style="text-align: center;">
                   <i class="fa-solid fa-compact-disc fa-spin loading"></i>

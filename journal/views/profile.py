@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -71,8 +73,16 @@ def profile(request: AuthedHttpRequest, user_name):
             q_piece_visible_to_user(request.user)
         )
         top_tags = target.tag_manager.public_tags[:10]
+        year = None
     else:
         top_tags = target.tag_manager.all_tags[:10]
+        today = datetime.date.today()
+        if today.month > 11:
+            year = today.year
+        elif today.month < 2:
+            year = today.year - 1
+        else:
+            year = None
     return render(
         request,
         "profile.html",
@@ -89,6 +99,7 @@ def profile(request: AuthedHttpRequest, user_name):
             ],
             "liked_collections_count": liked_collections.count(),
             "layout": target.preference.profile_layout,
+            "year": year,
         },
     )
 

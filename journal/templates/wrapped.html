@@ -34,14 +34,14 @@
     <main>
       <div class="grid__main">
         <span class="action">
-          <!-- <span>
-            <a onclick="download()" title="换样子"><i class="fa-solid fa-chart-simple"></i></a>
-          </span> -->
+          <span>
+            <a onclick="restyle()" title="换样子"><i class="fa-solid fa-shuffle"></i></a>
+          </span>
           <span>
             <a hx-get="{% url 'journal:wrapped_share' year %}"
                hx-target="body"
                hx-swap="beforeend"
-               title="转发到时间轴"><i class="fa-solid fa-repeat"></i></a>
+               title="转发到时间轴"><i class="fa-solid fa-share-from-square"></i></a>
           </span>
           <span>
             <a onclick="saveSvgAsPng($('#viz0').children('svg')[0], 'wrapped.png');"
@@ -56,38 +56,37 @@
         <script>
           var cats = JSON.parse(document.getElementById('cat-data').textContent);
           var data = JSON.parse(document.getElementById('data').textContent);
-          var viz0 = new roughViz.StackedBar(
-            {
-              title: "{{ identity.user.mastodon_acct | default:identity.full_handle }} - {{ year }}",
-              element: '#viz0',
-              font: 1,
-              data: data,
-              labels: "Month",
-              highlight: "#666",
-              stackColorMapping:   {
-                '📚': '#B4D2A5',
-                '🎬': '#7CBDFE',
-                '📺': '#FED37C',
-                '💿': '#FEA36D',
-                '🎮': '#C5A290',
-                '🎙️': '#9D6AB0',
-                '🎭': '#FE7C7C',
-                'x': '#FDDB23',
-              },
-              roughness: 1,
-              fillStyle: 'solid',
-              margin: { top: 80, left: 20, right: 20, bottom: 80 },
-              stroke: 1,
-              padding: 0.2,
-              color: 'red',
-              strokeWidth: 1,
-              axisStrokeWidth: 1,
-              innerStrokeWidth: 1,
-              fillWeight: 1,
-              axisRoughness: 1,
-              yLabel:"",
-            }
-          );
+          var opts = {
+            title: "{{ identity.user.mastodon_acct | default:identity.full_handle }} - {{ year }}",
+            element: '#viz0',
+            font: 1,
+            data: data,
+            labels: "Month",
+            highlight: "#666",
+            stackColorMapping:   {
+              '📚': '#B4D2A5',
+              '🎬': '#7CBDFE',
+              '📺': '#FED37C',
+              '💿': '#FEA36D',
+              '🎮': '#C5A290',
+              '🎙️': '#9D6AB0',
+              '🎭': '#FE7C7C',
+              'x': '#FDDB23',
+            },
+            roughness: 1,
+            fillStyle: 'solid',
+            margin: { top: 80, left: 20, right: 20, bottom: 80 },
+            stroke: 1,
+            padding: 0.2,
+            color: 'red',
+            strokeWidth: 1,
+            axisStrokeWidth: 1,
+            innerStrokeWidth: 1,
+            fillWeight: 1,
+            axisRoughness: 1,
+            yLabel:"",
+          };
+          var viz0 = new roughViz.StackedBar(opts);
           viz0.setTitle = function(title) {
             $('#viz0').children('svg').css("background-color", "#fbfcfc").css("border-radius", "1rem");
 
@@ -126,6 +125,11 @@
               $('#viz0')[0].style.height = $('#viz0')[0].clientWidth + 'px';
           }
           viz0.boundRedraw()
+          function restyle() {
+            opts.roughness = Math.random()*4;
+            opts.fillStyle = ["hachure", "solid", "zigzag", "cross-hatch", "dashed", "zigzag-line"][Math.floor(Math.random() * 6)];
+            viz0.redraw(opts);
+          }
         </script>
       </div>
       {% include "_sidebar.html" with show_profile=1 %}
