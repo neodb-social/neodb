@@ -97,6 +97,9 @@
             <form action="{% url 'users:profile' %}?next={{ request.path }}"
                   method="post"
                   enctype="multipart/form-data">
+              {% if request.user.mastodon_acct and not request.user.preference.mastodon_skip_userinfo %}
+                <small class="invalid">请先关闭「自动同步用户昵称等基本信息」设置，否则这里的设置会在同步时被覆盖。</small>
+              {% endif %}
               {% include "_field.html" with field=profile_form.name %}
               {% include "_field.html" with field=profile_form.summary %}
               {% include "_field.html" with field=profile_form.icon %}

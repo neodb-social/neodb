@@ -70,6 +70,14 @@ details {
   margin: 0;
 }
 
+.invalid {
+  color: var(--pico-del-color);
+}
+
+.valid {
+  color: var(--pico-ins-color);
+}
+
 .empty {
   font-style: italic;
   font-size: 80%;

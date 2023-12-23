@@ -31,7 +31,7 @@
 
 .item-page {
   main {
-    width: 100vw;
+    // width: 100vw;
     padding: calc(1*var(--pico-spacing)) calc(3*var(--pico-spacing));
 
     .middle {
@@ -78,7 +78,7 @@
 .classic-page,
 .feed-page {
   main {
-    width: 100vw;
+    // width: 100vw;
     display: grid;
     grid-template-columns: 64% 32%;
     grid-template-areas: "main aside";
