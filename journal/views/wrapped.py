@@ -9,8 +9,13 @@ from django.http import HttpRequest, HttpResponseRedirect
 from django.http.response import HttpResponse
 from django.views.generic.base import TemplateView
 
-from catalog.models import AvailableItemCategory, ItemCategory, item_content_types
-from journal.models import ShelfType
+from catalog.models import (
+    AvailableItemCategory,
+    ItemCategory,
+    PodcastEpisode,
+    item_content_types,
+)
+from journal.models import Comment, ShelfType
 from mastodon.api import boost_toot_later, get_toot_visibility, post_toot_later
 from takahe.utils import Takahe
 from users.models import User
@@ -55,6 +60,17 @@ class WrappedView(LoginRequiredMixin, TemplateView):
                 ShelfType.COMPLETE, ItemCategory(cat)
             ).filter(created_time__year=year)
             cnt[cat] = queryset.count()
+            if cat.value == "podcast":
+                pc = (
+                    Comment.objects.filter(
+                        owner=target,
+                        item__polymorphic_ctype_id=item_content_types()[PodcastEpisode],
+                    )
+                    .values("item__podcastepisode__program_id")
+                    .distinct()
+                    .count()
+                )
+                cnt[cat] += pc
             if cnt[cat] > 0:
                 cats.append(f"{_type_emoji[cat.value]}x{cnt[cat]}")
         context["by_cat"] = "  ".join(cats)
@@ -70,7 +86,21 @@ class WrappedView(LoginRequiredMixin, TemplateView):
         )
         data = [{"Month": calendar.month_abbr[m]} for m in range(1, 13)]
         for m, ct, cnt in all:
-            data[m - 1][_item_types[ct]] = cnt
+            data[m - 1][_item_types[ct]] = data[m - 1].get(_item_types[ct], 0) + cnt
+        podcast_by_month = list(
+            Comment.objects.filter(
+                owner=target,
+                item__polymorphic_ctype_id=item_content_types()[PodcastEpisode],
+            )
+            .filter(created_time__year=year)
+            .annotate(month=ExtractMonth("created_time"))
+            .values("item__podcastepisode__program_id", "month")
+            .distinct()
+            .annotate(total=Count("month", distinct=True))
+            .values_list("month", "total")
+        )
+        for m, cnt in podcast_by_month:
+            data[m - 1]["🎙️"] = data[m - 1].get("🎙️", 0) + cnt
         context["data"] = data
         return context
 

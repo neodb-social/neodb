@@ -684,6 +684,10 @@ class Takahe:
         if not post:
             logger.warning(f"Cannot find post {post_pk}")
             return
+        identity = Identity.objects.filter(pk=identity_pk).first()
+        if not identity:
+            logger.warning(f"Cannot find identity {identity_pk}")
+            return
         interaction = PostInteraction.objects.get_or_create(
             type=type,
             identity_id=identity_pk,
