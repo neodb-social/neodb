@@ -41,9 +41,6 @@ def _type_to_emoji():
     return {v: _type_emoji.get(k.__name__.lower(), k.__name__) for k, v in cts.items()}
 
 
-_item_types = _type_to_emoji()
-
-
 class WrappedView(LoginRequiredMixin, TemplateView):
     template_name = "wrapped.html"
 
@@ -55,6 +52,7 @@ class WrappedView(LoginRequiredMixin, TemplateView):
         context["identity"] = target
         cnt = {}
         cats = []
+        _item_types = _type_to_emoji()
         for cat in AvailableItemCategory:
             queryset = target.shelf_manager.get_latest_members(
                 ShelfType.COMPLETE, ItemCategory(cat)
