@@ -202,6 +202,10 @@ class User(AbstractUser):
     def url(self):
         return reverse("journal:user_profile", args=[self.handler])
 
+    @property
+    def absolute_url(self):
+        return settings.SITE_INFO["site_url"] + self.url
+
     def __str__(self):
         return f'{self.pk}:{self.username or ""}:{self.mastodon_acct}'
 

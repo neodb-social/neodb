@@ -106,7 +106,7 @@ class Takahe:
             logger.info(f"Creating takahe identity {u}@{domain}")
             identity = Identity.objects.create(
                 actor_uri=f"https://{domain.uri_domain}/@{u.username}@{domain.domain}/",
-                profile_uri=u.url,
+                profile_uri=u.absolute_url,
                 username=u.username,
                 domain=domain,
                 name=u.username,
