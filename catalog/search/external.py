@@ -212,7 +212,7 @@ class Spotify:
                     for artist in a["artists"]:
                         subtitle += " " + artist["name"]
                     url = a["external_urls"]["spotify"]
-                    cover = a["images"][0]["url"]
+                    cover = a["images"][0]["url"] if a.get("images") else None
                     results.append(
                         SearchResultItem(
                             ItemCategory.Music,
