@@ -207,7 +207,7 @@ class User(AbstractUser):
         return settings.SITE_INFO["site_url"] + self.url
 
     def __str__(self):
-        return f'{self.pk}:{self.username or ""}:{self.mastodon_acct}'
+        return f'USER:{self.pk}:{self.username or "<missing>"}:{self.mastodon_acct or self.email}'
 
     @property
     def registration_complete(self):

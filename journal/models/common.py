@@ -241,7 +241,7 @@ class Content(Piece):
     remote_id = models.CharField(max_length=200, null=True, default=None)
 
     def __str__(self):
-        return f"{self.uuid}@{self.item}"
+        return f"{self.__class__.__name__}:{self.uuid}@{self.item}"
 
     class Meta:
         abstract = True

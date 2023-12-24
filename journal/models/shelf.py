@@ -193,7 +193,7 @@ class ShelfLogEntry(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.owner}:{self.shelf_type}:{self.item.uuid}:{self.timestamp}"
+        return f"LOG:{self.owner}:{self.shelf_type}:{self.item.uuid}:{self.timestamp}"
 
     @property
     def action_label(self):
