@@ -153,7 +153,7 @@ def external_search(request):
     keywords = request.GET.get("q", default="").strip()
     page_number = int(request.GET.get("page", default=1))
     items = ExternalSources.search(category, keywords, page_number) if keywords else []
-    cache_key = f"search_{category}_{keywords}"
+    cache_key = f"search_{category if category!='movietv' else 'movie,tv'}_{keywords}"
     dedupe_urls = cache.get(cache_key, [])
     items = [i for i in items if i.source_url not in dedupe_urls]
 
