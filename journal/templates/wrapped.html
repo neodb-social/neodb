@@ -35,7 +35,7 @@
       <div class="grid__main">
         <span class="action">
           <span>
-            <a onclick="restyle()" title="换样子"><i class="fa-solid fa-shuffle"></i></a>
+            <a onclick="restyle()" title="随机风格"><i class="fa-solid fa-shuffle"></i></a>
           </span>
           <span>
             <a hx-get="{% url 'journal:wrapped_share' year %}"
@@ -44,7 +44,7 @@
                title="转发到时间轴"><i class="fa-solid fa-share-from-square"></i></a>
           </span>
           <span>
-            <a onclick="saveSvgAsPng($('#viz0').children('svg')[0], 'wrapped.png');"
+            <a onclick="saveSvgAsPng($('#viz0').children('svg')[0], '{{ year }}-wrapped.png');"
                title="下载图片"><i class="fa-solid fa-download"></i></a>
           </span>
         </span>
@@ -95,10 +95,10 @@
             .attr("y", 0 - viz0.margin.top / 2)
             .attr("class", "title")
             .attr("text-anchor", "middle")
-            .style( "font-size", 20)
-            .style( "font-weight", "bold" )
+            .style("font-size", 20)
+            .style("font-weight", "bold")
             .style("font-family", viz0.fontFamily)
-            .style("color", "#000")
+            .style("color", "#666")
             .text(title);
 
             viz0.svg.append("text")
@@ -106,7 +106,7 @@
             .attr("y", viz0.height + viz0.margin.top -30)
             .attr("class", "title")
             .attr("text-anchor", "middle")
-            .style( "font-size", 20 )
+            .style("font-size", 20)
             .style("font-family", viz0.fontFamily)
             .style("color", "#000")
             .text(cats);
@@ -116,15 +116,12 @@
             .attr("y", viz0.height + viz0.margin.top -10)
             .attr("class", "title")
             .attr("text-anchor", "end")
-            .style( "font-size", 10 )
+            .style("font-size", 10)
             .style("font-family", viz0.fontFamily)
             .style("color", "#666")
             .text("{{ identity.profile_uri }}");
           };
-          if ($('#viz0')[0].clientHeight < 250) {
-              $('#viz0')[0].style.height = $('#viz0')[0].clientWidth + 'px';
-          }
-          viz0.boundRedraw()
+          viz0.boundRedraw();
           function restyle() {
             opts.roughness = Math.random()*4;
             opts.fillStyle = ["hachure", "solid", "zigzag", "cross-hatch", "dashed", "zigzag-line"][Math.floor(Math.random() * 6)];
