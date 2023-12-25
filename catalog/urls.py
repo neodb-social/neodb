@@ -36,6 +36,13 @@ urlpatterns = [
         retrieve,
         name="retrieve",
     ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/$",
+        retrieve_redirect,
+        name="retrieve_redirect",
+    ),
     path("podcast/<str:item_uuid>/episodes", episode_data, name="episode_data"),
     path("catalog/create/<str:item_model>", create, name="create"),
     re_path(

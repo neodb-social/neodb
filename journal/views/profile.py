@@ -5,6 +5,7 @@ from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDen
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 from user_messages import api as msg
 
 from catalog.models import *
@@ -17,6 +18,7 @@ from ..models import *
 from .common import render_list, target_identity_required
 
 
+@require_http_methods(["GET"])
 @target_identity_required
 def profile(request: AuthedHttpRequest, user_name):
     if request.method != "GET":

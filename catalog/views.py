@@ -42,6 +42,10 @@ def retrieve_by_uuid(request, item_uid):
     return redirect(item.url)
 
 
+def retrieve_redirect(request, item_path, item_uuid):
+    return redirect(f"/{item_path}/{item_uuid}")
+
+
 @xframe_options_exempt
 def embed(request, item_path, item_uuid):
     if request.method != "GET":
