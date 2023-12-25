@@ -205,6 +205,38 @@ class Takahe:
         return NeoUser.objects.get(identity_id=identity.pk) if identity.local else None
 
     @staticmethod
+    def get_is_following(identity_pk: int, target_pk: int):
+        return Follow.objects.filter(
+            source_id=identity_pk, target_id=target_pk, state="accepted"
+        ).exists()
+
+    @staticmethod
+    def get_is_follow_requesting(identity_pk: int, target_pk: int):
+        return Follow.objects.filter(
+            source_id=identity_pk,
+            target_id=target_pk,
+            state__in=["unrequested", "pending_approval"],
+        ).exists()
+
+    @staticmethod
+    def get_is_muting(identity_pk: int, target_pk: int):
+        return Block.objects.filter(
+            source_id=identity_pk,
+            target_id=target_pk,
+            state__in=["new", "sent", "awaiting_expiry"],
+            mute=True,
+        ).exists()
+
+    @staticmethod
+    def get_is_blocking(identity_pk: int, target_pk: int):
+        return Block.objects.filter(
+            source_id=identity_pk,
+            target_id=target_pk,
+            state__in=["new", "sent", "awaiting_expiry"],
+            mute=False,
+        ).exists()
+
+    @staticmethod
     def get_following_ids(identity_pk: int):
         targets = Follow.objects.filter(
             source_id=identity_pk, state="accepted"
@@ -247,11 +279,11 @@ class Takahe:
         return follow
 
     @staticmethod
-    def follow(source_pk: int, target_pk: int):
+    def follow(source_pk: int, target_pk: int, force_accept: bool = False):
         try:
             follow = Follow.objects.get(source_id=source_pk, target_id=target_pk)
             if follow.state != "accepted":
-                follow.state = "unrequested"
+                follow.state = "accepted" if force_accept else "unrequested"
                 follow.save()
         except Follow.DoesNotExist:
             source = Identity.objects.get(pk=source_pk)
@@ -260,7 +292,7 @@ class Takahe:
                 target_id=target_pk,
                 boosts=True,
                 uri="",
-                state="unrequested",
+                state="accepted" if force_accept else "unrequested",
             )
             follow.uri = source.actor_uri + f"follow/{follow.pk}/"
             follow.save()

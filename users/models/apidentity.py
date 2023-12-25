@@ -154,8 +154,8 @@ class APIdentity(models.Model):
     def ignoring(self):
         return self.muting + self.rejecting
 
-    def follow(self, target: "APIdentity"):
-        Takahe.follow(self.pk, target.pk)
+    def follow(self, target: "APIdentity", force_accept: bool = False):
+        Takahe.follow(self.pk, target.pk, force_accept)
 
     def unfollow(self, target: "APIdentity"):  # this also cancels follow request
         Takahe.unfollow(self.pk, target.pk)
@@ -192,25 +192,25 @@ class APIdentity(models.Model):
         )
 
     def is_blocking(self, target: "APIdentity"):
-        return target.pk in self.blocking
+        return Takahe.get_is_blocking(self.pk, target.pk)
 
     def is_blocked_by(self, target: "APIdentity"):
-        return target.is_blocking(self)
+        return Takahe.get_is_blocking(target.pk, self.pk)
 
     def is_muting(self, target: "APIdentity"):
-        return target.pk in self.muting
+        return Takahe.get_is_muting(self.pk, target.pk)
 
     def is_following(self, target: "APIdentity"):
-        return target.pk in self.following
-
-    def is_requesting(self, target: "APIdentity"):
-        return target.pk in self.following_requests
-
-    def is_requested(self, target: "APIdentity"):
-        return target.pk in self.requested_followers
+        return Takahe.get_is_following(self.pk, target.pk)
 
     def is_followed_by(self, target: "APIdentity"):
-        return target.is_following(self)
+        return Takahe.get_is_following(target.pk, self.pk)
+
+    def is_requesting(self, target: "APIdentity"):
+        return Takahe.get_is_follow_requesting(self.pk, target.pk)
+
+    def is_requested(self, target: "APIdentity"):
+        return Takahe.get_is_follow_requesting(target.pk, self.pk)
 
     @classmethod
     def get_by_handler(cls, handler: str) -> "APIdentity":

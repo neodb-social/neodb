@@ -164,6 +164,9 @@ class User(AbstractUser):
                 name="at_least_one_login_method",
             ),
         ]
+        indexes = [
+            models.Index(fields=["mastodon_site", "mastodon_username"]),
+        ]
 
     @cached_property
     def mastodon_acct(self):
@@ -241,17 +244,23 @@ class User(AbstractUser):
         from .apidentity import APIdentity
 
         def get_identities(accts: list):
-            q = Q(pk__in=[])
+            q = None
             for acct in accts or []:
                 t = acct.split("@") if acct else []
                 if len(t) == 2:
-                    q = q | Q(mastodon_username=t[0], mastodon_site=t[1])
-            users = User.objects.filter(is_active=True).filter(q)
-            return APIdentity.objects.filter(user__in=users)
+                    if q:
+                        q = q | Q(
+                            user__mastodon_username=t[0], user__mastodon_site=t[1]
+                        )
+                    else:
+                        q = Q(user__mastodon_username=t[0], user__mastodon_site=t[1])
+            if not q:
+                return APIdentity.objects.none()
+            return APIdentity.objects.filter(q).filter(user__is_active=True)
 
         for target_identity in get_identities(self.mastodon_following):
             if not self.identity.is_following(target_identity):
-                self.identity.follow(target_identity)
+                self.identity.follow(target_identity, True)
         for target_identity in get_identities(self.mastodon_blocks):
             if not self.identity.is_blocking(target_identity):
                 self.identity.block(target_identity)
