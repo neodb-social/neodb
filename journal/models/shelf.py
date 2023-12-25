@@ -170,7 +170,7 @@ class Shelf(List):
     )
 
     def __str__(self):
-        return f"{self.id} [{self.owner} {self.shelf_type} list]"
+        return f"Shelf:{self.owner.username}:{self.shelf_type}"
 
 
 class ShelfLogEntry(models.Model):

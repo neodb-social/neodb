@@ -105,7 +105,7 @@
                          required=""
                          id="mastodon_repost_mode_0"
                          {% if request.user.preference.mastodon_repost_mode == 0 %}checked{% endif %}>
-                  <label for="mastodon_repost_mode_0">使用转播（推荐）</label>
+                  <label for="mastodon_repost_mode_0">使用转播（boost）</label>
                   <input type="radio"
                          name="mastodon_repost_mode"
                          value="1"
@@ -114,7 +114,7 @@
                          {% if request.user.preference.mastodon_repost_mode == 1 %}checked{% endif %}>
                   <label for="mastodon_repost_mode_1">
                     另发新帖文
-                    <em data-tooltip="其他人对新帖的回应、点赞不会被记录，修改标记可能产生重复帖文"><i class="fa fa-question-circle"></i></em>
+                    <em data-tooltip="删改标记可能产生重复帖文，其他人对新帖的回应、点赞不会被记录"><i class="fa fa-question-circle"></i></em>
                   </label>
                 </fieldset>
                 <fieldset>

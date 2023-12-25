@@ -164,4 +164,4 @@ class ListMember(Piece):
         abstract = True
 
     def __str__(self):
-        return f"{self.__class__.__name__}:{self.id}@{self.position}:{self.item}"
+        return f"{self.__class__.__name__}:{self.id}[{self.parent}]:{self.item}"
