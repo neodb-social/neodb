@@ -46,10 +46,9 @@ def retrieve_redirect(request, item_path, item_uuid):
     return redirect(f"/{item_path}/{item_uuid}")
 
 
+@require_http_methods(["GET"])
 @xframe_options_exempt
 def embed(request, item_path, item_uuid):
-    if request.method != "GET":
-        raise BadRequest()
     item = Item.get_by_url(item_uuid)
     if item is None:
         raise Http404()
@@ -69,6 +68,7 @@ def embed(request, item_path, item_uuid):
     )
 
 
+@require_http_methods(["GET"])
 @user_identity_required
 def retrieve(request, item_path, item_uuid):
     # item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
@@ -85,8 +85,6 @@ def retrieve(request, item_path, item_uuid):
         raise Http404()
     if request.headers.get("Accept", "").endswith("json"):
         return redirect(item.api_url)
-    if request.method != "GET":
-        raise BadRequest()
     focus_item = None
     if request.GET.get("focus"):
         focus_item = get_object_or_404(
@@ -264,8 +262,6 @@ def reviews(request, item_path, item_uuid):
 
 @require_http_methods(["GET"])
 def discover(request):
-    if request.method != "GET":
-        raise BadRequest()
     cache_key = "public_gallery"
     gallery_list = cache.get(cache_key, [])
 

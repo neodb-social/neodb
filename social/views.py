@@ -5,6 +5,7 @@ from django.core.exceptions import BadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
 from journal.models import *
@@ -16,10 +17,9 @@ _logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
 
 
+@require_http_methods(["GET"])
 @login_required
 def feed(request):
-    if request.method != "GET":
-        raise BadRequest()
     if not request.user.registration_complete:
         return redirect(reverse("users:register"))
     user = request.user
@@ -60,9 +60,8 @@ def feed(request):
 
 
 @login_required
+@require_http_methods(["GET"])
 def data(request):
-    if request.method != "GET":
-        raise BadRequest()
     return render(
         request,
         "feed_data.html",

@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 from loguru import logger
 
 from common.config import *
@@ -136,11 +137,9 @@ def connect(request):
 
 
 # mastodon server redirect back to here
+@require_http_methods(["GET"])
 @mastodon_request_included
 def OAuth2_login(request):
-    if request.method != "GET":
-        raise BadRequest()
-
     code = request.GET.get("code")
     if not code:
         return render(

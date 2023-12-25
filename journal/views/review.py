@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
@@ -23,6 +24,7 @@ from ..models import *
 from .common import render_list
 
 
+@require_http_methods(["GET"])
 def review_retrieve(request, review_uuid):
     # piece = get_object_or_404(Review, uid=get_uuid_or_404(review_uuid))
     piece = Review.get_by_url(review_uuid)

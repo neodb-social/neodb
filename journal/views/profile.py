@@ -21,8 +21,6 @@ from .common import render_list, target_identity_required
 @require_http_methods(["GET"])
 @target_identity_required
 def profile(request: AuthedHttpRequest, user_name):
-    if request.method != "GET":
-        raise BadRequest()
     target = request.target_identity
     # if user.mastodon_acct != user_name and user.username != user_name:
     #     return redirect(user.url)
@@ -106,13 +104,11 @@ def profile(request: AuthedHttpRequest, user_name):
     )
 
 
+@require_http_methods(["GET"])
+@login_required
+@target_identity_required
 def user_calendar_data(request, user_name):
-    if request.method != "GET" or not request.user.is_authenticated:
-        raise BadRequest()
-    try:
-        target = APIdentity.get_by_handler(user_name)
-    except:
-        return HttpResponse("unavailable")
+    target = request.target_identity
     max_visiblity = max_visiblity_to_user(request.user, target)
     calendar_data = target.shelf_manager.get_calendar_data(max_visiblity)
     return render(
