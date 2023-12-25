@@ -68,7 +68,7 @@ def embed(request, item_path, item_uuid):
     )
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "HEAD"])
 @user_identity_required
 def retrieve(request, item_path, item_uuid):
     # item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
@@ -260,7 +260,7 @@ def reviews(request, item_path, item_uuid):
     )
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "HEAD"])
 def discover(request):
     cache_key = "public_gallery"
     gallery_list = cache.get(cache_key, [])
