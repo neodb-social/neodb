@@ -10,6 +10,7 @@ class UserSchema(Schema):
     external_acct: str
     display_name: str
     avatar: str
+    username: str
 
 
 @api.api_operation(
@@ -20,6 +21,7 @@ class UserSchema(Schema):
 )
 def me(request):
     return 200, {
+        "username": request.user.username,
         "url": settings.SITE_INFO["site_url"] + request.user.url,
         "external_acct": request.user.mastodon_acct,
         "display_name": request.user.display_name,
