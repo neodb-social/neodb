@@ -122,6 +122,7 @@ def connect(request):
         if app.api_domain and app.api_domain != app.domain_name:
             login_domain = app.api_domain
         login_url = get_mastodon_login_url(app, login_domain, request)
+        request.session["mastodon_domain"] = app.domain_name
         resp = redirect(login_url)
         resp.set_cookie("mastodon_domain", app.domain_name)
         return resp
@@ -139,7 +140,7 @@ def connect(request):
 # mastodon server redirect back to here
 @require_http_methods(["GET"])
 @mastodon_request_included
-def OAuth2_login(request):
+def connect_redirect_back(request):
     code = request.GET.get("code")
     if not code:
         return render(
@@ -147,12 +148,12 @@ def OAuth2_login(request):
             "common/error.html",
             {"msg": _("认证失败😫"), "secondary_msg": _("Mastodon服务未能返回有效认证信息")},
         )
-    site = request.COOKIES.get("mastodon_domain")
+    site = request.session.get("mastodon_domain")
     if not site:
         return render(
             request,
             "common/error.html",
-            {"msg": _("认证失败😫"), "secondary_msg": _("无效Cookie信息")},
+            {"msg": _("认证失败😫"), "secondary_msg": _("无效会话信息")},
         )
     try:
         token, refresh_token = obtain_token(site, request, code)
