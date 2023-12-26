@@ -28,10 +28,10 @@ class MarkSchema(Schema):
 class MarkInSchema(Schema):
     shelf_type: ShelfType
     visibility: int = Field(ge=0, le=2)
-    comment_text: str | None
-    rating_grade: int | None = Field(ge=1, le=10)
+    comment_text: str = ""
+    rating_grade: int = Field(0, ge=0, le=10)
     tags: list[str] = []
-    created_time: datetime | None
+    created_time: datetime | None = None
     post_to_fediverse: bool = False
 
 
@@ -138,7 +138,7 @@ class ReviewSchema(Schema):
 
 class ReviewInSchema(Schema):
     visibility: int = Field(ge=0, le=2)
-    created_time: datetime | None
+    created_time: datetime | None = None
     title: str
     body: str
     post_to_fediverse: bool = False
