@@ -43,6 +43,10 @@ def add_to_collection(request: AuthedHttpRequest, item_uuid):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 
+def collection_retrieve_redirect(request: AuthedHttpRequest, collection_uuid):
+    return redirect(f"/collection/{collection_uuid}", permanent=True)
+
+
 def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):

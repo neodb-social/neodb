@@ -549,5 +549,6 @@ if SENTRY_DSN:
         dsn=SENTRY_DSN,
         integrations=[LoguruIntegration(), DjangoIntegration()],
         release=NEODB_VERSION,
+        send_default_pii=True,
         traces_sample_rate=1 if DEBUG else 0.001,
     )

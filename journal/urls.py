@@ -43,6 +43,11 @@ urlpatterns = [
         collection_retrieve,
         name="collection_retrieve",
     ),
+    path(
+        "collection/<str:collection_uuid>/",
+        collection_retrieve_redirect,
+        name="collection_retrieve_redirect",
+    ),
     path("collection/create/", collection_edit, name="collection_create"),
     path(
         "collection/edit/<str:collection_uuid>", collection_edit, name="collection_edit"

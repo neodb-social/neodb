@@ -8,6 +8,7 @@ from .collection import (
     collection_remove_item,
     collection_retrieve,
     collection_retrieve_items,
+    collection_retrieve_redirect,
     collection_share,
     collection_update_item_note,
     collection_update_member_order,

@@ -43,7 +43,7 @@ def retrieve_by_uuid(request, item_uid):
 
 
 def retrieve_redirect(request, item_path, item_uuid):
-    return redirect(f"/{item_path}/{item_uuid}")
+    return redirect(f"/{item_path}/{item_uuid}", permanent=True)
 
 
 @require_http_methods(["GET"])
