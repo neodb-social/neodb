@@ -28,6 +28,10 @@
         {% comment %} opacity: 0.3; {% endcomment %}
       }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Borel&family=Bruno+Ace&family=Caveat&family=Coming+Soon&family=Covered+By+Your+Grace&family=Fondamento&family=Indie+Flower&family=Neucha&family=VT323&display=swap"
+          rel="stylesheet">
   </head>
   <body>
     {% include "_header.html" %}
@@ -54,6 +58,7 @@
         {{ monthly|json_script:"mon-data" }}
         {{ data|json_script:"data" }}
         <script>
+          fontFamily = "Neucha, cursive";
           var cats = JSON.parse(document.getElementById('cat-data').textContent);
           var data = JSON.parse(document.getElementById('data').textContent);
           var opts = {
@@ -97,7 +102,7 @@
             .attr("text-anchor", "middle")
             .style("font-size", 20)
             .style("font-weight", "bold")
-            .style("font-family", viz0.fontFamily)
+            .style("font-family", fontFamily)
             .style("color", "#666")
             .text(title);
 
@@ -107,7 +112,7 @@
             .attr("class", "title")
             .attr("text-anchor", "middle")
             .style("font-size", 20)
-            .style("font-family", viz0.fontFamily)
+            .style("font-family", fontFamily)
             .style("color", "#000")
             .text(cats);
 
@@ -117,12 +122,14 @@
             .attr("class", "title")
             .attr("text-anchor", "end")
             .style("font-size", 10)
-            .style("font-family", viz0.fontFamily)
+            .style("font-family", fontFamily)
             .style("color", "#666")
             .text("{{ identity.profile_uri }}");
           };
           viz0.boundRedraw();
           function restyle() {
+            var font = ["Neucha", "Borel", "Bruno Ace", "Caveat", "Coming Soon", "Covered By Your Grace", "Fondamento", "Indie Flower", "VT323"][Math.floor(Math.random() * 9)];
+            fontFamily = font + ", cursive";
             opts.roughness = Math.random()*4;
             opts.fillStyle = ["hachure", "solid", "zigzag", "cross-hatch", "dashed", "zigzag-line"][Math.floor(Math.random() * 6)];
             viz0.redraw(opts);
