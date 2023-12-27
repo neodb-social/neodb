@@ -15,8 +15,6 @@ from django.views.decorators.http import require_http_methods
 from catalog.models import *
 from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
 from journal.models.renderers import convert_leading_space_in_md, render_md
-from mastodon.api import boost_toot_later, share_review
-from users.models import User
 from users.models.apidentity import APIdentity
 
 from ..forms import *
@@ -76,21 +74,17 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
             body = form.instance.body
             if request.POST.get("leading_space"):
                 body = convert_leading_space_in_md(body)
-            review, post = Review.update_item_review(
+            review = Review.update_item_review(
                 item,
                 request.user.identity,
                 form.cleaned_data["title"],
                 body,
                 form.cleaned_data["visibility"],
                 mark_date,
+                form.cleaned_data["share_to_mastodon"],
             )
             if not review:
                 raise BadRequest()
-            if form.cleaned_data["share_to_mastodon"] and post:
-                if request.user.preference.mastodon_repost_mode == 1:
-                    share_review(review)
-                else:
-                    boost_toot_later(request.user, post.url)
             return redirect(reverse("journal:review_retrieve", args=[review.uuid]))
         else:
             raise BadRequest()

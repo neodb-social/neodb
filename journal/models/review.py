@@ -9,6 +9,7 @@ from markdownify import markdownify as md
 from markdownx.models import MarkdownxField
 
 from catalog.models import Item
+from mastodon.api import boost_toot_later, share_review
 from users.models import APIdentity
 
 from .common import Content
@@ -95,6 +96,7 @@ class Review(Content):
         body: str | None,
         visibility=0,
         created_time=None,
+        share_to_mastodon: bool = False,
     ):
         from takahe.utils import Takahe
 
@@ -116,4 +118,12 @@ class Review(Content):
             item=item, owner=owner, defaults=defaults
         )
         post = Takahe.post_review(review, created)
-        return review, post
+        if post and share_to_mastodon:
+            if (
+                owner.user.preference.mastodon_repost_mode == 1
+                and owner.user.mastodon_site
+            ):
+                share_review(review)
+            else:
+                boost_toot_later(owner.user, post.url)
+        return review

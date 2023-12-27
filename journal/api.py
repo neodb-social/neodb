@@ -1,16 +1,11 @@
 from datetime import datetime
 from typing import List
 
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from ninja import Field, Schema
 from ninja.pagination import paginate
-from ninja.security import django_auth
-from oauth2_provider.decorators import protected_resource
 
 from catalog.common.models import *
 from common.api import *
-from mastodon.api import boost_toot_later, share_review
 
 from .models import Mark, Review, ShelfType, TagManager, q_item_in_category
 
@@ -192,19 +187,15 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
-    r, post = Review.update_item_review(
+    Review.update_item_review(
         item,
         request.user.identity,
         review.title,
         review.body,
         review.visibility,
         created_time=review.created_time,
+        share_to_mastodon=review.post_to_fediverse,
     )
-    if post and review.post_to_fediverse:
-        if request.user.preference.mastodon_repost_mode == 1:
-            share_review(r)
-        else:
-            boost_toot_later(request.user, post.url)
     return 200, {"message": "OK"}
 
 
