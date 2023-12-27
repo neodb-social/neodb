@@ -92,18 +92,15 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     if not item:
         return 404, {"message": "Item not found"}
     m = Mark(request.user.identity, item)
-    try:
-        TagManager.tag_item(item, request.user, mark.tags, mark.visibility)
-        m.update(
-            mark.shelf_type,
-            mark.comment_text,
-            mark.rating_grade,
-            mark.visibility,
-            created_time=mark.created_time,
-            share_to_mastodon=mark.post_to_fediverse,
-        )
-    except ValueError as e:
-        pass  # ignore sharing error
+    TagManager.tag_item(item, request.user.identity, mark.tags, mark.visibility)
+    m.update(
+        mark.shelf_type,
+        mark.comment_text,
+        mark.rating_grade,
+        mark.visibility,
+        created_time=mark.created_time,
+        share_to_mastodon=mark.post_to_fediverse,
+    )
     return 200, {"message": "OK"}
 
 
@@ -119,7 +116,7 @@ def delete_mark(request, item_uuid: str):
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
-    m = Mark(request.user, item)
+    m = Mark(request.user.identity, item)
     m.delete()
     # skip tag deletion for now to be consistent with web behavior
     # TagManager.tag_item(item, request.user, [], 0)
@@ -197,7 +194,7 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
         return 404, {"message": "Item not found"}
     r, post = Review.update_item_review(
         item,
-        request.user,
+        request.user.identity,
         review.title,
         review.body,
         review.visibility,
@@ -205,7 +202,7 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
     )
     if post and review.post_to_fediverse:
         if request.user.preference.mastodon_repost_mode == 1:
-            share_review(review)
+            share_review(r)
         else:
             boost_toot_later(request.user, post.url)
     return 200, {"message": "OK"}
@@ -223,7 +220,7 @@ def delete_review(request, item_uuid: str):
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
-    Review.update_item_review(item, request.user, None, None)
+    Review.update_item_review(item, request.user.identity, None, None)
     return 200, {"message": "OK"}
 
 
