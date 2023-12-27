@@ -12,10 +12,19 @@ class Command(BaseCommand):
     help = "Show jobs in queue"
 
     def add_arguments(self, parser):
+        parser.add_argument("--retry", action="append")
         parser.add_argument("--delete", action="append")
         parser.add_argument("--list", action="store_true")
 
     def handle(self, *args, **options):
+        if options["retry"]:
+            queue = Queue(connection=django_rq.get_connection("fetch"))
+            registry = queue.failed_job_registry
+            for job_id in options["retry"]:
+                # registry.requeue(job_id)
+                job = Job.fetch(job_id, connection=django_rq.get_connection("fetch"))
+                job.requeue()
+                self.stdout.write(self.style.SUCCESS(f"Retrying {job_id}"))
         if options["delete"]:
             for job_id in options["delete"]:
                 job = Job.fetch(job_id, connection=django_rq.get_connection("fetch"))
