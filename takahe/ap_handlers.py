@@ -123,6 +123,14 @@ def post_deleted(pk, obj):
             logger.debug(f"Matched remote piece {piece} has newer posts, not deleting")
 
 
+def post_interacted(interaction_pk, interaction, post_pk, identity_pk):
+    pass
+
+
+def post_uninteracted(interaction_pk, interaction, post_pk, identity_pk):
+    pass
+
+
 def identity_fetched(pk):
     try:
         identity = Identity.objects.get(pk=pk)
