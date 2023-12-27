@@ -104,7 +104,7 @@ class Review(Content):
             review = Review.objects.filter(owner=owner, item=item).first()
             if review is not None:
                 review.delete()
-            return None, None
+            return None
         defaults = {
             "title": title,
             "body": body,
