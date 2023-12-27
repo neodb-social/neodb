@@ -63,11 +63,11 @@ def profile(request: AuthedHttpRequest, user_name):
             "members": reviews[:10].prefetch_related("item"),
         }
     collections = Collection.objects.filter(qv).order_by("-created_time")
-    liked_collections = (
-        Like.user_likes_by_class(target, Collection)
-        .order_by("-edited_time")
-        .values_list("target_id", flat=True)
-    )
+    liked_collections = Collection.objects.filter(
+        interactions__identity=target,
+        interactions__interaction_type="like",
+        interactions__target_type="Collection",
+    ).order_by("-edited_time")
     if not me:
         liked_collections = liked_collections.filter(
             q_piece_visible_to_user(request.user)
@@ -93,10 +93,7 @@ def profile(request: AuthedHttpRequest, user_name):
             "shelf_list": shelf_list,
             "collections": collections[:10],
             "collections_count": collections.count(),
-            "liked_collections": [
-                Collection.objects.get(id=i)
-                for i in liked_collections.order_by("-edited_time")[:10]
-            ],
+            "liked_collections": liked_collections[:10],
             "liked_collections_count": liked_collections.count(),
             "layout": target.preference.profile_layout,
             "year": year,

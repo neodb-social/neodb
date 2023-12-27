@@ -1,11 +1,10 @@
-from datetime import datetime
 from time import sleep
 
 from loguru import logger
 
 from catalog.common import *
-from journal.models import Comment, Piece, Rating, Review, ShelfMember
-from users.models import User as NeoUser
+from journal.models import Comment, Piece, PieceInteraction, Rating, Review, ShelfMember
+from users.models.apidentity import APIdentity
 
 from .models import Follow, Identity, Post
 from .utils import Takahe
@@ -124,11 +123,36 @@ def post_deleted(pk, obj):
 
 
 def post_interacted(interaction_pk, interaction, post_pk, identity_pk):
-    pass
+    if interaction not in ["like", "boost", "pin"]:
+        return
+    p = Piece.objects.filter(posts__id=post_pk).first()
+    if not p:
+        return
+    if not APIdentity.objects.filter(pk=identity_pk).exists():
+        logger.warning(f"Identity {identity_pk} not found for interaction")
+        return
+    PieceInteraction.objects.get_or_create(
+        target=p,
+        identity_id=identity_pk,
+        interaction_type=interaction,
+        defaults={"target_type": p.__class__.__name__},
+    )
 
 
 def post_uninteracted(interaction_pk, interaction, post_pk, identity_pk):
-    pass
+    if interaction not in ["like", "boost", "pin"]:
+        return
+    p = Piece.objects.filter(posts__id=post_pk).first()
+    if not p:
+        return
+    if not APIdentity.objects.filter(pk=identity_pk).exists():
+        logger.warning(f"Identity {identity_pk} not found for interaction")
+        return
+    PieceInteraction.objects.filter(
+        target=p,
+        identity_id=identity_pk,
+        interaction_type=interaction,
+    ).delete()
 
 
 def identity_fetched(pk):

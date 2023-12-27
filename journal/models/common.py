@@ -230,21 +230,26 @@ class PiecePost(models.Model):
 
 
 class PieceInteraction(models.Model):
-    piece = models.ForeignKey(Piece, on_delete=models.CASCADE)
+    target = models.ForeignKey(
+        Piece, on_delete=models.CASCADE, related_name="interactions"
+    )
+    target_type = models.CharField(max_length=50)
     interaction_type = models.CharField(max_length=50)
-    identity = models.ForeignKey(APIdentity, on_delete=models.CASCADE)
+    identity = models.ForeignKey(
+        APIdentity, on_delete=models.CASCADE, related_name="interactions"
+    )
     created_time = models.DateTimeField(default=timezone.now)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["identity", "interaction_type", "piece"],
+                fields=["identity", "interaction_type", "target"],
                 name="unique_interaction",
             ),
         ]
         indexes = [
             models.Index(fields=["identity", "interaction_type", "created_time"]),
-            models.Index(fields=["piece", "interaction_type", "created_time"]),
+            models.Index(fields=["target", "interaction_type", "created_time"]),
         ]
 
 

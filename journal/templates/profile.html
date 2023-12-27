@@ -123,7 +123,7 @@
                    id="collection_marked"
                    {% if not liked_collections_count %}style="display:none;"{% endif %}>
             <h5>
-              {% trans '关注的收藏单' %}
+              {% trans '喜欢的收藏单' %}
               <small>
                 <a href="{% url 'journal:user_liked_collection_list' identity.handler %}">{{ liked_collections_count }}</a>
               </small>

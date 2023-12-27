@@ -328,7 +328,11 @@ def user_collection_list(request: AuthedHttpRequest, user_name):
 @target_identity_required
 def user_liked_collection_list(request: AuthedHttpRequest, user_name):
     target = request.target_identity
-    collections = Collection.objects.filter(likes__owner=target)
+    collections = Collection.objects.filter(
+        interactions__identity=target,
+        interactions__interaction_type="like",
+        interactions__target_type="Collection",
+    ).order_by("-edited_time")
     if target.user != request.user:
         collections = collections.filter(q_piece_visible_to_user(request.user))
     return render(

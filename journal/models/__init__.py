@@ -2,6 +2,8 @@ from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
 from .common import (
     Piece,
+    PieceInteraction,
+    PiecePost,
     UserOwnedObjectMixin,
     VisibilityType,
     max_visiblity_to_user,
