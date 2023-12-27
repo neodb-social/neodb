@@ -47,7 +47,12 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
         form = (
             ReviewForm(instance=review)
             if review
-            else ReviewForm(initial={"item": item.id, "share_to_mastodon": True})
+            else ReviewForm(
+                initial={
+                    "item": item.id,
+                    "share_to_mastodon": request.user.preference.mastodon_default_repost,
+                }
+            )
         )
         return render(
             request,
