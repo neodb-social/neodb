@@ -13,14 +13,16 @@ from rq.job import Job
 from catalog.common.models import ItemCategory, SiteName
 from catalog.common.sites import AbstractSite, SiteManager
 from common.config import PAGE_LINK_NUMBER
-from common.utils import HTTPResponseHXRedirect, PageLinksGenerator
+from common.utils import (
+    HTTPResponseHXRedirect,
+    PageLinksGenerator,
+    user_identity_required,
+)
 from users.views import query_identity
 
 from ..models import *
 from .external import ExternalSources
 from .models import enqueue_fetch, get_fetch_lock, query_index
-
-_logger = logging.getLogger(__name__)
 
 
 def fetch_refresh(request, job_id):
@@ -91,6 +93,7 @@ def visible_categories(request):
     return vc
 
 
+@user_identity_required
 def search(request):
     keywords = request.GET.get("q", default="").strip()
     if re.match(r"^[@＠]", keywords):
