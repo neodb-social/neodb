@@ -1,7 +1,7 @@
 import io
 from typing import TYPE_CHECKING
 
-# import blurhash
+import blurhash
 from django.conf import settings
 from django.core.cache import cache
 from django.core.files.images import ImageFile
@@ -416,7 +416,7 @@ class Takahe:
         new_image_bytes = io.BytesIO()
         resized_image.save(new_image_bytes, format="webp", save_all=True)
         thumbnail_file = ImageFile(new_image_bytes, name="image.webp")
-        # hash = blurhash.encode(resized_image, 4, 4)
+        hash = blurhash.encode(resized_image, 4, 4)
         attachment = PostAttachment.objects.create(
             mimetype=mimetype,
             width=main_file.width,
@@ -426,7 +426,7 @@ class Takahe:
             author_id=author_pk,
             file=main_file,
             thumbnail=thumbnail_file,
-            # blurhash=hash,
+            blurhash=hash,
         )
         attachment.save()
         return attachment
