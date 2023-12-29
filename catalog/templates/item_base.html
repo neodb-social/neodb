@@ -237,50 +237,34 @@
           {% block content %}{% endblock %}
         </section>
         <section class="solo-hidden">
-          {% if request.user.is_authenticated %}
-            <div>
-              <h5>
-                短评
-                <small>
+          <div>
+            <h5>
+              短评
+              <small>
+                {% if request.user.is_authenticated %}
                   | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans '全部标记' %}</a>
                   | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans '关注的人的标记' %}</a>
-                </small>
-              </h5>
-              <div id="comments">
-                <div hx-swap="outerHTML"
-                     hx-get="{% if request.GET.focus and item.class_name == "tvseason" %}{% url 'catalog:comments_by_episode' item.url_path item.uuid %}?episode_uuid={{ request.GET.focus }}{% else %}{% url 'catalog:comments' item.url_path item.uuid %}{% endif %}"
-                     hx-trigger="intersect once">
-                  <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-                </div>
-              </div>
-            </div>
-          {% else %}
-            <h5>短评</h5>
-            <p class="empty">登录后可见</p>
-          {% endif %}
-        </section>
-        <section class="solo-hidden">
-          <h5>
-            {% trans '评论' %}
-            {% comment %}
-            {% if request.user.is_authenticated %}
-            <small>
-              | <a href="{% url 'catalog:review_list' item.url_path item.uuid %}">{% trans '全部评论' %}</a>
-            </small>
-            {% endif %}
-            {% endcomment %}
-          </h5>
-          {% if request.user.is_authenticated %}
-            <div>
-              <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}"
-                   hx-trigger="intersect once"
-                   hx-swap="outerHTML">
+                {% endif %}
+              </small>
+            </h5>
+            <div id="comments">
+              <div hx-swap="outerHTML"
+                   hx-get="{% if request.GET.focus and item.class_name == "tvseason" %}{% url 'catalog:comments_by_episode' item.url_path item.uuid %}?episode_uuid={{ request.GET.focus }}{% else %}{% url 'catalog:comments' item.url_path item.uuid %}{% endif %}"
+                   hx-trigger="intersect once">
                 <i class="fa-solid fa-compact-disc fa-spin loading"></i>
               </div>
             </div>
-          {% else %}
-            <p class="empty">登录后可见</p>
-          {% endif %}
+          </div>
+        </section>
+        <section class="solo-hidden">
+          <h5>{% trans '评论' %}</h5>
+          <div>
+            <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}"
+                 hx-trigger="intersect once"
+                 hx-swap="outerHTML">
+              <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+            </div>
+          </div>
         </section>
       </div>
       <div id="item-more" class="middle">

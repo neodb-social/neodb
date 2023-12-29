@@ -1,13 +1,17 @@
 {% load user_actions %}
-<span hx-target="this" hx-swap="outerHTML">
+<span hx-target="this"
+      hx-swap="outerHTML"
+      {% if not request.user.is_authenticated %}hx-disable{% endif %}>
   {% liked_post post as liked %}
   {% if liked %}
-    <a class="activated" hx-post="{% url 'journal:post_unlike' post.pk %}">
+    <a class="activated"
+       hx-post="{% url 'journal:post_unlike' post.pk %}"
+       title="已喜欢">
       <i class="fa-solid fa-heart }}"></i>
       <span>{{ post.stats.likes }}</span>
     </a>
   {% else %}
-    <a hx-post="{% url 'journal:post_like' post.pk %}">
+    <a hx-post="{% url 'journal:post_like' post.pk %}" title="喜欢">
       <i class="fa-regular fa-heart }}"></i>
       {% if post.stats.likes %}<span>{{ post.stats.likes }}</span>{% endif %}
     </a>

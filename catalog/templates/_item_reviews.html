@@ -11,15 +11,11 @@
   {% if forloop.counter <= 10 %}
     <section>
       <span class="action">
-        <span>
-          {% liked_piece review as liked %}
-          {% include 'like_stats.html' with liked=liked piece=review %}
-        </span>
-        <span>
-          <a target="_blank"
-             rel="noopener"
-             {% if review.shared_link %} href="{{ review.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
-        </span>
+        {% if review.latest_post %}
+          {% include "action_reply_piece.html" with post=review.latest_post piece=review href=review.url %}
+          {% include "action_like_post.html" with post=review.latest_post %}
+          {% include "action_open_post.html" with post=review.latest_post %}
+        {% endif %}
       </span>
       <span>
         {% if review.rating_grade %}{{ review.rating_grade|rating_star }}{% endif %}
@@ -29,8 +25,8 @@
       </span>
       <span class="action inline">
         <span class="timestamp">{{ review.created_time|date }}</span>
+        <span class="timestamp">评论</span>
       </span>
-      评论
       {% if review.item != item %}<a href="{{ review.item.url }}">{{ review.item.title }}</a>{% endif %}
       <div>
         <span>

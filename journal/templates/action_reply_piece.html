@@ -1,8 +1,11 @@
 <span>
-  <a hx-get="{% url 'journal:piece_replies' piece.uuid %}"
+  <a title="回应"
+     {% if href %} href="{{ href }}" {% else %} {% if not request.user.is_authenticated %}hx-disable{% endif %}
+     hx-get="{% url 'journal:piece_replies' piece.uuid %}"
      hx-swap="outerHTML"
      hx-trigger="click once"
-     hx-target="#replies_{{ post.pk }}">
+     hx-target="#replies_{{ post.pk }}"
+     {% endif %}>
     <i class="fa-solid fa-reply"></i>
     {% if post.stats.replies %}<span>{{ post.stats.replies }}</span>{% endif %}
   </a>

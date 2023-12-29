@@ -191,7 +191,6 @@ def review_list(request, item_path, item_uuid):
     )
 
 
-@login_required
 def comments(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
@@ -212,7 +211,6 @@ def comments(request, item_path, item_uuid):
     )
 
 
-@login_required
 def comments_by_episode(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
@@ -239,7 +237,6 @@ def comments_by_episode(request, item_path, item_uuid):
     )
 
 
-@login_required
 def reviews(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item:
