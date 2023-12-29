@@ -33,6 +33,7 @@ x-shared:
       NEODB_MASTODON_CLIENT_SCOPE:
       NEODB_DISABLE_DEFAULT_RELAY:
       NEODB_DISABLE_CRON:
+      NEODB_DISABLE_CRON_JOBS:
       NEODB_SENTRY_DSN:
       TAKAHE_SENTRY_DSN:
       NEODB_DB_URL: ${NEODB_DB_URL:-postgres://neodb:aubergine@neodb-db/neodb}

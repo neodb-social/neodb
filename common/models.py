@@ -5,6 +5,8 @@ from loguru import logger
 from rq.job import Job
 from rq.registry import ScheduledJobRegistry
 
+from boofilsic import settings
+
 
 class BaseJob:
     interval = timedelta(0)  # 0 = disabled, don't set it less than 1 minute
@@ -25,7 +27,7 @@ class BaseJob:
     @classmethod
     def schedule(cls):
         job_id = cls.__name__
-        if cls.interval <= timedelta(0):
+        if cls.interval <= timedelta(0) or job_id in settings.DISABLE_CRON_JOBS:
             logger.info(f"Skip scheduling job: {job_id}")
             return
         logger.info(f"Scheduling job: {job_id} in {cls.interval}")

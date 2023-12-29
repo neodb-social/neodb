@@ -62,7 +62,7 @@ def user_tag_edit(request):
             tag.delete()
             msg.info(request.user, _("标签已删除"))
             return redirect(
-                reverse("journal:user_tag_list", args=[request.user.mastodon_acct])
+                reverse("journal:user_tag_list", args=[request.user.username])
             )
         elif (
             tag_title != tag.title
@@ -80,7 +80,7 @@ def user_tag_edit(request):
         return redirect(
             reverse(
                 "journal:user_tag_member_list",
-                args=[request.user.mastodon_acct, tag.title],
+                args=[request.user.username, tag.title],
             )
         )
     raise BadRequest()
