@@ -16,7 +16,7 @@ from .common.models import ExternalResource, IdealIdTypes, IdType
 from .forms import *
 from .models import *
 from .search.views import *
-from .sites.imdb import IMDB
+from .sites.imdb import IMDB as IMDB
 
 _logger = logging.getLogger(__name__)
 

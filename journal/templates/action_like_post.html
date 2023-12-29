@@ -1,8 +1,8 @@
 {% load user_actions %}
+{% liked_post post as liked %}
 <span hx-target="this"
       hx-swap="outerHTML"
       {% if not request.user.is_authenticated %}hx-disable{% endif %}>
-  {% liked_post post as liked %}
   {% if liked %}
     <a class="activated"
        hx-post="{% url 'journal:post_unlike' post.pk %}"

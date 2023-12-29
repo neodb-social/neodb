@@ -49,6 +49,7 @@
         {% if comment.latest_post %}
           {% include "action_reply_piece.html" with post=comment.latest_post piece=comment %}
           {% include "action_like_post.html" with post=comment.latest_post %}
+          {% include "action_boost_post.html" with post=comment.latest_post %}
           {% include "action_open_post.html" with post=comment.latest_post %}
         {% endif %}
       </span>

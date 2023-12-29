@@ -51,15 +51,12 @@
     {% if forloop.counter <= 10 %}
       <section>
         <span class="action">
-          <span>
-            {% liked_piece comment as liked %}
-            {% include 'like_stats.html' with liked=liked piece=comment %}
-          </span>
-          <span>
-            <a target="_blank"
-               rel="noopener"
-               {% if comment.shared_link %} href="{{ comment.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if comment.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
-          </span>
+          {% if comment.latest_post %}
+            {% include "action_reply_piece.html" with post=comment.latest_post piece=comment %}
+            {% include "action_like_post.html" with post=comment.latest_post %}
+            {% include "action_boost_post.html" with post=comment.latest_post %}
+            {% include "action_open_post.html" with post=comment.latest_post %}
+          {% endif %}
         </span>
         <span>
           {% if comment.rating_grade %}{{ comment.rating_grade|rating_star }}{% endif %}

@@ -34,10 +34,10 @@
             <hgroup>
               <h3>
                 <div class="action">
-                  <span>
-                    {% liked_piece review as liked %}
-                    {% include 'like_stats.html' with liked=liked piece=review icon='fa-heart' %}
-                  </span>
+                  {% if review.latest_post %}
+                    {% include "action_like_post.html" with post=review.latest_post %}
+                    {% include "action_boost_post.html" with post=review.latest_post %}
+                  {% endif %}
                 </div>
                 {{ review.title }}
               </h3>

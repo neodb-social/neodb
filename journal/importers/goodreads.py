@@ -132,7 +132,7 @@ class GoodreadsImporter:
                     print(f"Shelf parsing error {url_shelf}")
                     break
                 title = title_elem[0].strip()  # type:ignore
-                print("Shelf title: " + title)
+                print(f"Shelf title: {title}")
             except Exception:
                 print(f"Shelf loading/parsing error {url_shelf}")
                 break

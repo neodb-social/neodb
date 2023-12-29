@@ -17,7 +17,14 @@ from .collection import (
 )
 from .common import piece_delete
 from .mark import comment, like, mark, mark_log, unlike, user_mark_list, wish
-from .post import piece_replies, post_like, post_replies, post_reply, post_unlike
+from .post import (
+    piece_replies,
+    post_boost,
+    post_like,
+    post_replies,
+    post_reply,
+    post_unlike,
+)
 from .profile import profile, user_calendar_data
 from .review import ReviewFeed, review_edit, review_retrieve, user_review_list
 from .tag import user_tag_edit, user_tag_list, user_tag_member_list

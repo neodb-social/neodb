@@ -34,17 +34,12 @@
           {% with member.mark as mark %}
             <section>
               <div class="action">
-                {% if mark.comment %}
-                  <span>
-                    {% liked_piece mark.comment as liked %}
-                    {% include 'like_stats.html' with liked=liked piece=mark.comment %}
-                  </span>
+                {% if mark.comment.latest_post %}
+                  {% include "action_reply_piece.html" with post=mark.comment.latest_post piece=mark.comment %}
+                  {% include "action_like_post.html" with post=mark.comment.latest_post %}
+                  {% include "action_boost_post.html" with post=mark.comment.latest_post %}
                 {% endif %}
-                <span>
-                  <a target="_blank"
-                     rel="noopener"
-                     {% if mark.shared_link %} href="{{ mark.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if mark.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
-                </span>
+                {% include "action_open_post.html" with post=mark.shelfmember.latest_post %}
                 <span class="timestamp">{{ mark.created_time|date }}</span>
               </div>
               <div>
@@ -54,6 +49,7 @@
                 {% if mark.comment.item != item %}<a href="{{ mark.comment.item_url }}">{{ mark.comment.item.title }}</a>{% endif %}
               </div>
               <div>{{ mark.comment.html|safe }}</div>
+              {% if mark.comment.latest_post %}<div id="replies_{{ mark.comment.latest_post.pk }}"></div>{% endif %}
             </section>
           {% endwith %}
         {% empty %}

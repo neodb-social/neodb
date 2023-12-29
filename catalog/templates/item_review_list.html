@@ -28,15 +28,12 @@
         {% for review in reviews %}
           <section>
             <div class="action">
-              <span>
-                <a target="_blank"
-                   rel="noopener"
-                   {% if review.shared_link %} href="{{ review.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if review.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
-              </span>
-              <span>
-                {% liked_piece review as liked %}
-                {% include 'like_stats.html' with liked=liked piece=review %}
-              </span>
+              {% if review.latest_post %}
+                {% include "action_reply_piece.html" with post=review.latest_post piece=review href=review.url %}
+                {% include "action_like_post.html" with post=review.latest_post %}
+                {% include "action_boost_post.html" with post=review.latest_post %}
+                {% include "action_open_post.html" with post=review.latest_post %}
+              {% endif %}
               <span class="timestamp">{{ review.created_time|date }}</span>
             </div>
             <div>

@@ -26,6 +26,7 @@ urlpatterns = [
     path("piece/<str:piece_uuid>/replies", piece_replies, name="piece_replies"),
     path("post/<int:post_id>/replies", post_replies, name="post_replies"),
     path("post/<int:post_id>/reply", post_reply, name="post_reply"),
+    path("post/<int:post_id>/boost", post_boost, name="post_boost"),
     path("post/<int:post_id>/like", post_like, name="post_like"),
     path("post/<int:post_id>/unlike", post_unlike, name="post_unlike"),
     path("mark_log/<str:item_uuid>/<int:log_id>", mark_log, name="mark_log"),

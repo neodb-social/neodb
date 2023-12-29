@@ -754,6 +754,15 @@ class Takahe:
         return Takahe.post(identity_pk, "", content, visibility, reply_to_pk=post_pk)
 
     @staticmethod
+    def boost_post(post_pk: int, identity_pk: int):
+        return Takahe.interact_post(post_pk, identity_pk, "boost")
+
+    @staticmethod
+    def post_boosted_by(post_pk: int, identity_pk: int) -> bool:
+        interaction = Takahe.get_user_interaction(post_pk, identity_pk, "boost")
+        return interaction is not None and interaction.state in ["new", "fanned_out"]
+
+    @staticmethod
     def like_post(post_pk: int, identity_pk: int):
         return Takahe.interact_post(post_pk, identity_pk, "like")
 

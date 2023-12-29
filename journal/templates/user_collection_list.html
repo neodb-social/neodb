@@ -30,16 +30,11 @@
         {% for collection in collections %}
           <p>
             <div class="action">
-              <span>
-                {% liked_piece collection as liked %}
-                {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-heart' %}
-              </span>
-              <span>
-                <a target="_blank"
-                   rel="noopener"
-                   {% if collection.shared_link %} href="{{ collection.shared_link }}" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
-              </span>
-              <span class="timestamp">{{ collection.created_time|date }}</span>
+              {% if collection.latest_post %}
+                {% include "action_like_post.html" with post=collection.latest_post %}
+                {% include "action_boost_post.html" with post=collection.latest_post %}
+                {% include "action_open_post.html" with post=collection.latest_post %}
+              {% endif %}
             </div>
             <span><a href="{{ collection.url }}">{{ collection.title }}</a></span>
             {% if liked %}

@@ -3,6 +3,7 @@ from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDen
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 from common.utils import (
     AuthedHttpRequest,
@@ -10,6 +11,7 @@ from common.utils import (
     get_uuid_or_404,
     target_identity_required,
 )
+from mastodon.api import boost_toot_later
 from takahe.utils import Takahe
 
 from ..forms import *
@@ -35,11 +37,12 @@ def post_replies(request: AuthedHttpRequest, post_id: int):
     )
 
 
+@require_http_methods(["POST"])
 @login_required
 def post_reply(request: AuthedHttpRequest, post_id: int):
     content = request.POST.get("content", "").strip()
     visibility = Takahe.Visibilities(int(request.POST.get("visibility", -1)))
-    if request.method != "POST" or not content:
+    if not content:
         raise BadRequest()
     Takahe.reply_post(post_id, request.user.identity.pk, content, visibility)
     replies = Takahe.get_replies_for_posts([post_id], request.user.identity.pk)
@@ -48,14 +51,24 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
     )
 
 
+@require_http_methods(["POST"])
+@login_required
+def post_boost(request: AuthedHttpRequest, post_id: int):
+    Takahe.boost_post(post_id, request.user.identity.pk)
+    post_url = request.POST.get("post_url")
+    if post_url and request.user.mastodon_site:
+        boost_toot_later(request.user, post_url)
+    return render(request, "action_boost_post.html", {"post": Takahe.get_post(post_id)})
+
+
+@require_http_methods(["POST"])
 @login_required
 def post_like(request: AuthedHttpRequest, post_id: int):
-    if request.method != "POST":
-        raise BadRequest()
     Takahe.like_post(post_id, request.user.identity.pk)
     return render(request, "action_like_post.html", {"post": Takahe.get_post(post_id)})
 
 
+@require_http_methods(["POST"])
 @login_required
 def post_unlike(request: AuthedHttpRequest, post_id: int):
     if request.method != "POST":

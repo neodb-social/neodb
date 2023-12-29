@@ -33,10 +33,6 @@
           <hgroup>
             <h3>
               <div class="action">
-                <span>
-                  {% liked_piece collection as liked %}
-                  {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-heart' %}
-                </span>
                 {% if request.user.is_authenticated %}
                   <span>{% include '_feature_stats.html' with featured=featured_since %}</span>
                   <span>
@@ -46,6 +42,10 @@
                        hx-swap="beforeend"
                        title="分享到联邦宇宙"><i class="fa-solid fa-share-nodes"></i></a>
                   </span>
+                {% endif %}
+                {% if collection.latest_post %}
+                  {% include "action_like_post.html" with post=collection.latest_post %}
+                  {% include "action_boost_post.html" with post=collection.latest_post %}
                 {% endif %}
               </div>
               {{ collection.title }}
