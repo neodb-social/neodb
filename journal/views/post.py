@@ -54,11 +54,15 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
 @require_http_methods(["POST"])
 @login_required
 def post_boost(request: AuthedHttpRequest, post_id: int):
-    Takahe.boost_post(post_id, request.user.identity.pk)
-    post_url = request.POST.get("post_url")
-    if post_url and request.user.mastodon_site:
-        boost_toot_later(request.user, post_url)
-    return render(request, "action_boost_post.html", {"post": Takahe.get_post(post_id)})
+    # classic_repost = request.user.preference.mastodon_repost_mode == 1
+    post = Takahe.get_post(post_id)
+    if not post:
+        raise BadRequest()
+    if request.user.mastodon_site:
+        boost_toot_later(request.user, post.object_uri)
+    else:
+        Takahe.boost_post(post_id, request.user.identity.pk)
+    return render(request, "action_boost_post.html", {"post": post})
 
 
 @require_http_methods(["POST"])
