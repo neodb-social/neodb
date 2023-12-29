@@ -15,6 +15,7 @@ from journal.importers.opml import OPMLImporter
 from journal.models import reset_journal_visibility_for_user
 from mastodon.api import *
 from social.models import reset_social_visibility_for_user
+from takahe.models import Identity
 
 from .account import *
 from .tasks import *
@@ -23,12 +24,14 @@ from .tasks import *
 @login_required
 def preferences(request):
     preference = request.user.preference
+    identity = request.user.identity
     if request.method == "POST":
+        identity.anonymous_viewable = bool(request.POST.get("anonymous_viewable"))
+        identity.save(update_fields=["anonymous_viewable"])
         preference.default_visibility = int(request.POST.get("default_visibility"))
         preference.mastodon_default_repost = (
             int(request.POST.get("mastodon_default_repost", 0)) == 1
         )
-        preference.no_anonymous_view = bool(request.POST.get("no_anonymous_view"))
         preference.classic_homepage = int(request.POST.get("classic_homepage"))
         preference.hidden_categories = request.POST.getlist("hidden_categories")
         preference.post_public_mode = int(request.POST.get("post_public_mode"))
@@ -43,7 +46,6 @@ def preferences(request):
             update_fields=[
                 "default_visibility",
                 "post_public_mode",
-                "no_anonymous_view",
                 "classic_homepage",
                 "mastodon_append_tag",
                 "mastodon_repost_mode",

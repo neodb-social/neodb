@@ -24,7 +24,7 @@ def profile(request: AuthedHttpRequest, user_name):
     target = request.target_identity
     # if user.mastodon_acct != user_name and user.username != user_name:
     #     return redirect(user.url)
-    if not request.user.is_authenticated and target.preference.no_anonymous_view:
+    if not request.user.is_authenticated and not target.anonymous_viewable:
         return render(request, "users/home_anonymous.html", {"user": target.user})
     me = target.user == request.user
 

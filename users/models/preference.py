@@ -47,7 +47,7 @@ class Preference(models.Model):
     # 0: discover, 1: timeline, 2: my profile
     classic_homepage = models.PositiveSmallIntegerField(null=False, default=0)
     show_last_edit = models.PositiveSmallIntegerField(null=False, default=1)
-    no_anonymous_view = models.PositiveSmallIntegerField(default=0)
+    no_anonymous_view = models.PositiveSmallIntegerField(default=0)  # TODO remove
     hidden_categories = models.JSONField(default=list)
     mastodon_append_tag = models.CharField(max_length=2048, default="")
     mastodon_default_repost = models.BooleanField(null=False, default=True)

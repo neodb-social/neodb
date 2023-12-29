@@ -120,7 +120,7 @@ class ReviewFeed(Feed):
         return "%s的评论合集 - NeoDB" % owner.display_name if owner else "无效链接"
 
     def items(self, user):
-        if user is None or user.preference.no_anonymous_view:
+        if user is None or not user.identity.anonymous_viewable:
             return []
         reviews = Review.objects.filter(owner=user, visibility=0)[:MAX_ITEM_PER_TYPE]
         return reviews

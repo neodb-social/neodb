@@ -24,6 +24,7 @@ class APIdentity(models.Model):
     username = models.CharField(max_length=500, blank=True, null=True)
     domain_name = models.CharField(max_length=500, blank=True, null=True)
     deleted = models.DateTimeField(null=True, blank=True)
+    anonymous_viewable = models.BooleanField(null=False, default=True)
 
     class Meta:
         indexes = [

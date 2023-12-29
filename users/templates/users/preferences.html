@@ -149,9 +149,9 @@
               <fieldset>
                 <label>
                   <input type="checkbox"
-                         name="no_anonymous_view"
-                         {% if request.user.preference.no_anonymous_view %}checked{% endif %}>
-                  {% trans '未登录访客不能查看你的个人信息' %}
+                         name="anonymous_viewable"
+                         {% if request.user.identity.anonymous_viewable %}checked{% endif %}>
+                  {% trans '匿名访客和搜索引擎可以查看你的个人主页' %}
                   <em data-tooltip="此选项仅针对网页访客，如果不希望被联邦网络用户看到请在发表时选择仅关注者或本人"><i class="fa fa-question-circle"></i></em>
                 </label>
               </fieldset>

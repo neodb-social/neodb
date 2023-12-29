@@ -64,7 +64,7 @@ def max_visiblity_to_user(viewing_user: User, owner: APIdentity):
 
 def q_piece_visible_to_user(user: User):
     if not user or not user.is_authenticated or not user.identity:
-        return Q(visibility=0, owner__user__preference__no_anonymous_view=False)
+        return Q(visibility=0, owner__anonymous_viewable=True)
     return (
         Q(visibility=0)
         | Q(owner_id__in=user.identity.following, visibility=1)

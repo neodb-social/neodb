@@ -111,7 +111,7 @@ class Takahe:
                 domain=domain,
                 name=u.username,
                 local=True,
-                discoverable=not u.preference.no_anonymous_view,
+                discoverable=True,
             )
             identity.generate_keypair()
             identity.ensure_uris()
@@ -195,6 +195,7 @@ class Takahe:
                 username=identity.username,
                 domain_name=identity.domain_id,
                 deleted=identity.deleted,
+                anonymous_viewable=False,
             )
         return apid
 

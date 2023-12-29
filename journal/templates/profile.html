@@ -20,7 +20,7 @@
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ identity.avatar }}">
     <meta property="og:site_name" content="{{ site_name }}">
-    {% if identity.preference.no_anonymous_view %}<meta name="robots" content="noindex">{% endif %}
+    {% if not identity.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
     <link rel="alternate"
           type="application/rss+xml"
           title="{{ site_name }} - {{ identity.handler }}的评论"
