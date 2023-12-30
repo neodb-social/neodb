@@ -12,7 +12,7 @@
       }
     }
 
-    section {
+    > section {
       margin-bottom: var(--pico-spacing);
       display: grid;
       grid-template-columns: auto 1fr;

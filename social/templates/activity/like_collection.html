@@ -10,10 +10,12 @@
 {% load user_actions %}
 {% with activity.action_object.target as collection %}
   <span class="action">
-    <span>
-      {% liked_piece collection as liked %}
-      {% include 'like_stats.html' with liked=liked piece=collection label='关注' icon='fa-heart' %}
-    </span>
+    {% if activity.action_object.latest_post %}
+      {% include "action_reply_piece.html" with post=activity.action_object.latest_post piece=activity.action_object %}
+      {% include "action_like_post.html" with post=activity.action_object.latest_post %}
+      {% include "action_boost_post.html" with post=activity.action_object.latest_post %}
+      {% include "action_open_post.html" with post=activity.action_object.latest_post %}
+    {% endif %}
   </span>
   <div class="spacing">
     关注了

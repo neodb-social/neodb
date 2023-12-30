@@ -12,16 +12,6 @@
 {% wish_item_action activity.action_object.item.parent_item as action %}
 {% like_piece_action activity.action_object as like_action %}
 <span class="action">
-  <span>
-    {% liked_piece activity.action_object as liked %}
-    {% include 'like_stats.html' with liked=liked piece=activity.action_object %}
-  </span>
-  <span>
-    <a title="评论节目"
-       hx-get="{% url 'journal:comment' activity.action_object.item.uuid %}"
-       hx-target="body"
-       hx-swap="beforeend"><i class="fa-regular fa-comment"></i></a>
-  </span>
   {% if activity.action_object.item.class_name == 'podcastepisode' %}
     <span>
       <a title="播放节目"
@@ -35,26 +25,31 @@
          data-position="{{ activity.action_object.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
     </span>
   {% endif %}
+  <!--
   <span>
     {% if not action.taken %}
-      <a title="添加标记"
-         hx-get="{% url 'journal:mark' activity.action_object.item.parent_item.uuid %}?shelf_type=wishlist"
-         hx-target="body"
-         hx-swap="beforeend">
+      <a title="添加标记" hx-get="{% url 'journal:mark' activity.action_object.item.parent_item.uuid %}?shelf_type=wishlist" hx-target="body" hx-swap="beforeend">
         <i class="fa-regular fa-bookmark"></i>
       </a>
     {% else %}
-      <a title="修改标记"
-         hx-get="{% url 'journal:mark' activity.action_object.item.parent_item.uuid %}"
-         hx-target="body"
-         hx-swap="beforeend">
+      <a title="修改标记" hx-get="{% url 'journal:mark' activity.action_object.item.parent_item.uuid %}" hx-target="body" hx-swap="beforeend">
         <i class="fa-solid fa-bookmark"></i>
       </a>
     {% endif %}
   </span>
+  -->
   <span>
-    <a {% if activity.action_object.shared_link %} href="{{ activity.action_object.shared_link }}" target="_blank" rel="noopener" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if activity.action_object.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %} "></i></a>
+    <a title="评论节目"
+       hx-get="{% url 'journal:comment' activity.action_object.item.uuid %}"
+       hx-target="body"
+       hx-swap="beforeend"><i class="fa-regular fa-comment"></i></a>
   </span>
+  {% if activity.action_object.latest_post %}
+    {% include "action_reply_piece.html" with post=activity.action_object.latest_post piece=activity.action_object %}
+    {% include "action_like_post.html" with post=activity.action_object.latest_post %}
+    {% include "action_boost_post.html" with post=activity.action_object.latest_post %}
+    {% include "action_open_post.html" with post=activity.action_object.latest_post %}
+  {% endif %}
 </span>
 <div class="spacing">
   {{ activity.action_object.mark.action_label }}
@@ -68,9 +63,8 @@
 </div>
 <article>
   {% include "_item_card.html" with item=activity.action_object.item.parent_item allow_embed=1 %}
-  {% if activity.action_object.mark.comment_text %}
-    <footer>
-      <p>{{ activity.action_object.mark.comment_html|safe }}</p>
-    </footer>
-  {% endif %}
+  <footer>
+    {% if activity.action_object.mark.comment_text %}<p>{{ activity.action_object.mark.comment_html|safe }}</p>{% endif %}
+    <p id="replies_{{ activity.action_object.latest_post.pk }}"></p>
+  </footer>
 </article>

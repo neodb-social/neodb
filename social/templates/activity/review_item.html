@@ -12,10 +12,6 @@
 {% wish_item_action activity.action_object.item as action %}
 <span class="action">
   <span>
-    {% liked_piece activity.action_object as liked %}
-    {% include 'like_stats.html' with liked=liked piece=activity.action_object %}
-  </span>
-  <span>
     {% if not action.taken %}
       <a title="添加标记"
          hx-get="{% url 'journal:mark' activity.action_object.item.uuid %}?shelf_type=wishlist"
@@ -32,9 +28,12 @@
       </a>
     {% endif %}
   </span>
-  <span>
-    <a {% if activity.action_object.shared_link %} href="{{ activity.action_object.shared_link }}" target="_blank" rel="noopener" title="打开联邦宇宙分享链接" {% else %} class="disabled" {% endif %}><i class="fa-solid {% if activity.action_object.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %} "></i></a>
-  </span>
+  {% if activity.action_object.latest_post %}
+    {% include "action_reply_piece.html" with post=activity.action_object.latest_post piece=activity.action_object %}
+    {% include "action_like_post.html" with post=activity.action_object.latest_post %}
+    {% include "action_boost_post.html" with post=activity.action_object.latest_post %}
+    {% include "action_open_post.html" with post=activity.action_object.latest_post %}
+  {% endif %}
 </span>
 <div class="spacing">
   写了评论
@@ -47,5 +46,6 @@
   {% include "_item_card.html" with item=activity.action_object.item allow_embed=1 %}
   <footer>
     <p>{{ activity.action_object.plain_content|truncate:200 }}</p>
+    <p id="replies_{{ activity.action_object.latest_post.pk }}"></p>
   </footer>
 </article>
