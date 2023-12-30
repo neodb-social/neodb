@@ -6,7 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
@@ -16,14 +15,7 @@ from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
 from mastodon.api import boost_toot_later, share_comment
 from takahe.utils import Takahe
 
-from ..models import (
-    Comment,
-    Mark,
-    Piece,
-    ShelfType,
-    TagManager,
-    get_shelf_labels_for_category,
-)
+from ..models import Comment, Mark, ShelfType, TagManager, get_shelf_labels_for_category
 from .common import render_list, render_relogin, target_identity_required
 
 _logger = logging.getLogger(__name__)
@@ -44,58 +36,6 @@ def wish(request: AuthedHttpRequest, item_uuid):
         mark.update(ShelfType.WISHLIST)
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
-    return HttpResponse(_checkmark)
-
-
-@login_required
-def like(request: AuthedHttpRequest, piece_uuid):
-    if request.method != "POST":
-        raise BadRequest()
-    piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
-    if not piece:
-        raise Http404()
-    post = piece.latest_post
-    if post:
-        Takahe.like_post(post.pk, request.user.identity.pk)
-    if request.GET.get("back"):
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
-    elif request.GET.get("stats"):
-        return render(
-            request,
-            "like_stats.html",
-            {
-                "piece": piece,
-                "liked": True,
-                "label": request.GET.get("label"),
-                "icon": request.GET.get("icon"),
-            },
-        )
-    return HttpResponse(_checkmark)
-
-
-@login_required
-def unlike(request: AuthedHttpRequest, piece_uuid):
-    if request.method != "POST":
-        raise BadRequest()
-    piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
-    if not piece:
-        raise Http404()
-    post = piece.latest_post
-    if post:
-        Takahe.unlike_post(post.pk, request.user.identity.pk)
-    if request.GET.get("back"):
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
-    elif request.GET.get("stats"):
-        return render(
-            request,
-            "like_stats.html",
-            {
-                "piece": piece,
-                "liked": False,
-                "label": request.GET.get("label"),
-                "icon": request.GET.get("icon"),
-            },
-        )
     return HttpResponse(_checkmark)
 
 

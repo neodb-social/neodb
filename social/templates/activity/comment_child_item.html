@@ -10,7 +10,6 @@
 {% load user_actions %}
 {% load duration %}
 {% wish_item_action activity.action_object.item.parent_item as action %}
-{% like_piece_action activity.action_object as like_action %}
 <span class="action">
   {% if activity.action_object.item.class_name == 'podcastepisode' %}
     <span>
