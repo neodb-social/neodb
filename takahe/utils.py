@@ -549,7 +549,9 @@ class Takahe:
         category = "收藏单"
         item_link = collection.absolute_url
         pre_conetent = f'{action_label}{category}<a href="{item_link}">《{collection.title}》</a><br>'
-        content = ""
+        content = collection.plain_content
+        if len(content) > 360:
+            content = content[:357] + "..."
         data = {
             "object": {
                 # "tag": [item.ap_object_ref for item in collection.items],

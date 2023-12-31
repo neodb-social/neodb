@@ -52,7 +52,7 @@ class Collection(List):
         return html
 
     @property
-    def plain_description(self):
+    def plain_content(self):
         html = render_md(self.brief)
         return _RE_HTML_TAG.sub(" ", html)
 
