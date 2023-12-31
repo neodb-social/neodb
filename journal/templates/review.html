@@ -63,7 +63,7 @@
               {{ review.html_content | safe }}
             {% else %}
               <p class="empty">
-                <span>作者已设置为<a href="{% url 'users:login' %}?next={{ request.path }}">登录</a>后可查看</span>
+                <span>作者已设置仅限<a href="{% url 'users:login' %}?next={{ request.path }}">登录</a>用户查看</span>
               </p>
             {% endif %}
           </div>

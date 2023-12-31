@@ -49,6 +49,17 @@ def render_user_blocked(request):
     )
 
 
+def render_user_noanonymous(request):
+    msg = _("作者已设置仅限登录用户查看")
+    return render(
+        request,
+        "common/error.html",
+        {
+            "msg": msg,
+        },
+    )
+
+
 def query_identity(request, handle):
     try:
         i = APIdentity.get_by_handler(handle)

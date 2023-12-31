@@ -29,12 +29,11 @@ class VisibilityType(models.IntegerChoices):
 
 
 def q_owned_piece_visible_to_user(viewing_user: User, owner: APIdentity):
-    if (
-        not viewing_user
-        or not viewing_user.is_authenticated
-        or not viewing_user.identity
-    ):
-        return Q(owner=owner, visibility=0)
+    if not viewing_user or not viewing_user.is_authenticated:
+        if owner.anonymous_viewable:
+            return Q(owner=owner, visibility=0)
+        else:
+            return Q(pk__in=[])
     viewer = viewing_user.identity
     if viewer == owner:
         return Q(owner=owner)
@@ -47,11 +46,7 @@ def q_owned_piece_visible_to_user(viewing_user: User, owner: APIdentity):
 
 
 def max_visiblity_to_user(viewing_user: User, owner: APIdentity):
-    if (
-        not viewing_user
-        or not viewing_user.is_authenticated
-        or not viewing_user.identity
-    ):
+    if not viewing_user or not viewing_user.is_authenticated:
         return 0
     viewer = viewing_user.identity
     if viewer == owner:
@@ -62,20 +57,20 @@ def max_visiblity_to_user(viewing_user: User, owner: APIdentity):
         return 0
 
 
-def q_piece_visible_to_user(user: User):
-    if not user or not user.is_authenticated or not user.identity:
+def q_piece_visible_to_user(viewing_user: User):
+    if not viewing_user or not viewing_user.is_authenticated:
         return Q(visibility=0, owner__anonymous_viewable=True)
+    viewer = viewing_user.identity
     return (
         Q(visibility=0)
-        | Q(owner_id__in=user.identity.following, visibility=1)
-        | Q(owner_id=user.identity.pk)
-    ) & ~Q(owner_id__in=user.identity.ignoring)
+        | Q(owner_id__in=viewer.following, visibility=1)
+        | Q(owner_id=viewer.pk)
+    ) & ~Q(owner_id__in=viewer.ignoring)
 
 
-def q_piece_in_home_feed_of_user(user: User):
-    return Q(owner_id__in=user.identity.following, visibility__lt=2) | Q(
-        owner_id=user.identity.pk
-    )
+def q_piece_in_home_feed_of_user(viewing_user: User):
+    viewer = viewing_user.identity
+    return Q(owner_id__in=viewer.following, visibility__lt=2) | Q(viewer.pk)
 
 
 def q_item_in_category(item_category: ItemCategory | AvailableItemCategory):
