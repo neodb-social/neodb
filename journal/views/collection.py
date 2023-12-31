@@ -310,8 +310,10 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
 @target_identity_required
 def user_collection_list(request: AuthedHttpRequest, user_name):
     target = request.target_identity
-    collections = Collection.objects.filter(owner=target).filter(
-        q_owned_piece_visible_to_user(request.user, target)
+    collections = (
+        Collection.objects.filter(owner=target)
+        .filter(q_owned_piece_visible_to_user(request.user, target))
+        .order_by("-edited_time")
     )
     return render(
         request,

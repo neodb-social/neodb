@@ -3,7 +3,7 @@
 {% load i18n %}
 {% block brief %}
   {% if item.rating %}
-    <span class="solo-hidden">{{ item.rating | floatformat:1 }}分({{ item.rating_count }}人)</span>
+    <span class="solo-hidden">{{ item.rating | floatformat:1 }} ({{ item.rating_count }}人评分)</span>
   {% endif %}
   {% include '_people.html' with people=item.author role='作者' max=2 %}
   {% include '_people.html' with people=item.translator role='译者' max=2 %}
