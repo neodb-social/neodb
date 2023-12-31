@@ -382,7 +382,17 @@ class DoubanImporter:
             "body": content,
             "visibility": self.visibility,
         }
-        Review.objects.update_or_create(
-            owner=self.user.identity, item=item, defaults=params
-        )
+        try:
+            Review.objects.update_or_create(
+                owner=self.user.identity, item=item, defaults=params
+            )
+        except:
+            logger.warning(f"{prefix} update multiple review {review_url}")
+            r = (
+                Review.objects.filter(owner=self.user.identity, item=item)
+                .order_by("-created_time")
+                .first()
+            )
+            if r:
+                Review.objects.filter(pk=r.pk).update(**params)
         return 1
