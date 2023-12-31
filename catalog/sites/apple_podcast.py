@@ -25,16 +25,17 @@ class ApplePodcast(AbstractSite):
         dl = BasicDownloader(api_url)
         resp = dl.download()
         r = resp.json()["results"][0]
+        feed_url = r["feedUrl"]
         pd = ResourceContent(
             metadata={
                 "title": r["trackName"],
-                "feed_url": r["feedUrl"],
+                "feed_url": feed_url,
                 "hosts": [r["artistName"]],
                 "genres": r["genres"],
                 "cover_image_url": r["artworkUrl600"],
             }
         )
-        pd.lookup_ids[IdType.RSS] = RSS.url_to_id(pd.metadata.get("feed_url"))
+        pd.lookup_ids[IdType.RSS] = RSS.url_to_id(feed_url)
         if pd.metadata["cover_image_url"]:
             imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
             try:

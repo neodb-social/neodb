@@ -345,6 +345,8 @@ class TMDB_TVSeason(AbstractSite):
         season_id = v[1]
         site = TMDB_TV(TMDB_TV.id_to_url(show_id))
         show_resource = site.get_resource_ready(auto_create=False, auto_link=False)
+        if not show_resource:
+            raise ValueError(f"TMDB: failed to get show for season {self.url}")
         api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
         d = BasicDownloader(api_url).download().json()
         if not d.get("id"):

@@ -1,3 +1,4 @@
+# pyright: reportIncompatibleMethodOverride=false, reportFunctionMemberAccess=false
 import copy
 from datetime import date, datetime
 from functools import partialmethod

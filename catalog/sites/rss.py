@@ -80,9 +80,11 @@ class RSS(AbstractSite):
             return False
 
     def scrape(self):
+        if not self.url:
+            raise ValueError(f"no url avaialble in RSS site")
         feed = self.parse_feed_from_url(self.url)
         if not feed:
-            return None
+            raise ValueError(f"no feed avaialble in {self.url}")
         pd = ResourceContent(
             metadata={
                 "title": feed["title"],

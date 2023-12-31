@@ -10,8 +10,10 @@ class OAuth2Backend(ModelBackend):
     #  a user object that matches those credentials."
     # arg request is an interface specification, not used in this implementation
 
-    def authenticate(self, request, token=None, username=None, site=None, **kwargs):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         """when username is provided, assume that token is newly obtained and valid"""
+        token = kwargs.get("token", None)
+        site = kwargs.get("site", None)
         if token is None or site is None:
             return
         mastodon_id = None

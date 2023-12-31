@@ -105,8 +105,8 @@ MAX_ITEM_PER_TYPE = 10
 
 
 class ReviewFeed(Feed):
-    def get_object(self, request, id):
-        return APIdentity.get_by_handler(id)
+    def get_object(self, request, *args, **kwargs):
+        return APIdentity.get_by_handler(kwargs["username"])
 
     def title(self, owner):
         return "%s的评论" % owner.display_name if owner else "无效链接"
@@ -115,7 +115,12 @@ class ReviewFeed(Feed):
         return owner.url if owner else settings.SITE_INFO["site_url"]
 
     def description(self, owner):
-        return "%s的评论合集 - NeoDB" % owner.display_name if owner else "无效链接"
+        if not owner:
+            return "无效链接"
+        elif not owner.anonymous_viewable:
+            return "该用户已关闭匿名查看"
+        else:
+            return "%s的评论合集 - NeoDB" % owner.display_name
 
     def items(self, owner):
         if owner is None or not owner.anonymous_viewable:
@@ -135,7 +140,7 @@ class ReviewFeed(Feed):
 
     # item_link is only needed if NewsItem has no get_absolute_url method.
     def item_link(self, item: Review):
-        return item.absolute_url
+        return str(item.absolute_url)
 
     def item_categories(self, item):
         return [item.item.category.label]

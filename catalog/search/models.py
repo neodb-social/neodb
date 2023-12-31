@@ -1,3 +1,4 @@
+# pyright: reportFunctionMemberAccess=false
 import hashlib
 import logging
 

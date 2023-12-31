@@ -7,7 +7,7 @@ RE_WHITESPACES = re.compile(r"\s+")
 
 
 class DoubanDownloader(ProxiedDownloader):
-    def validate_response(self, response):
+    def validate_response(self, response) -> int:
         if response is None:
             return RESPONSE_NETWORK_ERROR
         elif response.status_code == 204:

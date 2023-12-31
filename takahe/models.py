@@ -485,7 +485,7 @@ class Identity(models.Model):
         admin_edit = "{admin}{self.pk}/"
         djadmin_edit = "/djadmin/users/identity/{self.id}/change/"
 
-        def get_scheme(self, url):
+        def get_scheme(self, url):  # pyright: ignore
             return "https"
 
         def get_hostname(self, url):
@@ -973,7 +973,7 @@ class Post(models.Model):
         action_reply = "/compose/?reply_to={self.id}"
         admin_edit = "/djadmin/activities/post/{self.id}/change/"
 
-        def get_scheme(self, url):
+        def get_scheme(self, url):  # pyright: ignore
             return "https"
 
         def get_hostname(self, url):

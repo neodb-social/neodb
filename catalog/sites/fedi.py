@@ -47,7 +47,7 @@ class FediverseInstance(AbstractSite):
         return "https://" + u[0].lower() + "/" + u[1]
 
     @classmethod
-    def validate_url_fallback(cls, url):
+    def validate_url_fallback(cls, url: str):
         val = URLValidator()
         try:
             val(url)

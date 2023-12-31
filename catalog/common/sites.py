@@ -55,7 +55,7 @@ class AbstractSite:
         return u is not None
 
     @classmethod
-    def validate_url_fallback(cls, url: str):
+    def validate_url_fallback(cls, url: str) -> bool:
         return False
 
     @classmethod
@@ -264,12 +264,17 @@ class AbstractSite:
         return p
 
 
+from typing import Any, Callable, Type, TypeVar
+
+T = TypeVar("T")
+
+
 class SiteManager:
     registry = {}
 
     @staticmethod
-    def register(target) -> Callable:
-        id_type = target.ID_TYPE
+    def register(target: Type[T]) -> Type[T]:
+        id_type = target.ID_TYPE  # type: ignore
         if id_type in SiteManager.registry:
             raise ValueError(f"Site for {id_type} already exists")
         SiteManager.registry[id_type] = target
@@ -325,7 +330,7 @@ class SiteManager:
 
     @staticmethod
     def get_all_sites():
-        return SiteManager.register.values()
+        return SiteManager.registry.values()
 
 
 def crawl_related_resources_task(resource_pk):

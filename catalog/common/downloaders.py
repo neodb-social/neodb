@@ -143,7 +143,7 @@ class BasicDownloader:
     def get_timeout(self):
         return settings.DOWNLOADER_REQUEST_TIMEOUT
 
-    def validate_response(self, response):
+    def validate_response(self, response) -> int:
         if response is None:
             return RESPONSE_NETWORK_ERROR
         elif response.status_code == 200:

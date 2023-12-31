@@ -45,6 +45,7 @@ class Bandcamp(AbstractSite):
                     return True
         except Exception:
             pass
+        return False
 
     def scrape(self):
         content = BasicDownloader(self.url).download().html()
