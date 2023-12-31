@@ -70,7 +70,7 @@ def q_piece_visible_to_user(viewing_user: User):
 
 def q_piece_in_home_feed_of_user(viewing_user: User):
     viewer = viewing_user.identity
-    return Q(owner_id__in=viewer.following, visibility__lt=2) | Q(viewer.pk)
+    return Q(owner_id__in=viewer.following, visibility__lt=2) | Q(owner_id=viewer.pk)
 
 
 def q_item_in_category(item_category: ItemCategory | AvailableItemCategory):
