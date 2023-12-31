@@ -184,3 +184,26 @@ form img {
     margin: 0 0.5em;
   }
 }
+
+.pagination {
+  text-align: center;
+  width: 100%;
+  margin-top: 1em;
+  a {
+    margin: 0 0.3em;
+  }
+  .s, .prev, .next {
+    font-size: 1.4em;
+  }
+  .prev {
+    margin-right: 0.5em;
+  }
+  .next {
+    margin-left: 0.5em;
+  }
+  .current {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: var(--pico-secondary);
+  }
+}

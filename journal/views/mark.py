@@ -11,7 +11,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
-from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
+from common.utils import AuthedHttpRequest, get_uuid_or_404
 from mastodon.api import boost_toot_later, share_comment
 from takahe.utils import Takahe
 
@@ -184,14 +184,7 @@ def comment(request: AuthedHttpRequest, item_uuid):
     raise BadRequest()
 
 
-def user_mark_list(
-    request: AuthedHttpRequest, user_name, shelf_type, item_category, year=None
-):
+def user_mark_list(request: AuthedHttpRequest, user_name, shelf_type, item_category):
     return render_list(
-        request,
-        user_name,
-        "mark",
-        shelf_type=shelf_type,
-        item_category=item_category,
-        year=year,
+        request, user_name, "mark", shelf_type=shelf_type, item_category=item_category
     )

@@ -5,52 +5,65 @@
 <section class="filter">
   <script>
 		function filter() {
-			location = '{{ user.identity.url }}' + $('#shelf')[0].value + '/' + $('#category')[0].value + '/' + ( $('#year')[0].value ? $('#year')[0].value + '/' : '' );
+      var q = [];
+      if ($('#year')[0].value) {
+        q.push('year=' + $('#year')[0].value)
+      }
+      if ($('#sort')[0].value) {
+        q.push('sort=' + $('#sort')[0].value)
+      }
+      location = '{{ user.identity.url }}' + $('#shelf')[0].value + '/' + $('#category')[0].value + '/' + (q.length ? '?' + q.join('&') : '')
 		}
-
   </script>
-  <form role="search" method="get" action="">
-    <select name="year" id="year" onchange="filter()">
-      <option value="">全部</option>
-      {% for y in years %}
-        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
-      {% endfor %}
-    </select>
-    <select name="shelf" id="shelf" onchange="filter()">
-      {% for typ, label in shelf_labels %}
-        {% if label %}
-          <option {% if typ in request.path %}selected{% endif %} value="{{ typ }}">{{ label }}</option>
+  <form method="get" action="">
+    <fieldset role="search" style="width: 100%; padding;">
+      <select name="shelf" id="shelf" onchange="filter()">
+        {% for typ, label in shelf_labels %}
+          {% if label %}
+            <option {% if typ in request.path %}selected{% endif %} value="{{ typ }}">{{ label }}</option>
+          {% endif %}
+        {% endfor %}
+        <option {% if '/reviews/' in request.path %}selected{% endif %}
+                value="reviews">评论</option>
+      </select>
+      <select name="category" id="category" onchange="filter()">
+        {% visible_categories as cats %}
+        {% if 'book' in cats %}
+          <option {% if '/book/' in request.path %}selected{% endif %} value="book">书籍</option>
         {% endif %}
-      {% endfor %}
-      <option {% if '/reviews/' in request.path %}selected{% endif %}
-              value="reviews">评论</option>
-    </select>
-    <select name="category" id="category" onchange="filter()">
-      {% visible_categories as cats %}
-      {% if 'book' in cats %}
-        <option {% if '/book/' in request.path %}selected{% endif %} value="book">书籍</option>
-      {% endif %}
-      {% if 'movie' in cats %}
-        <option {% if '/movie/' in request.path %}selected{% endif %} value="movie">电影</option>
-      {% endif %}
-      {% if 'tv' in cats %}
-        <option {% if '/tv/' in request.path %}selected{% endif %} value="tv">剧集</option>
-      {% endif %}
-      {% if 'podcast' in cats %}
-        <option {% if '/podcast/' in request.path %}selected{% endif %}
-                value="podcast">播客</option>
-      {% endif %}
-      {% if 'music' in cats %}
-        <option {% if '/music/' in request.path %}selected{% endif %} value="music">音乐</option>
-      {% endif %}
-      {% if 'game' in cats %}
-        <option {% if '/game/' in request.path %}selected{% endif %} value="game">游戏</option>
-      {% endif %}
-      {% if 'performance' in cats %}
-        <option {% if '/performance/' in request.path %}selected{% endif %}
-                value="performance">演出</option>
-      {% endif %}
-    </select>
+        {% if 'movie' in cats %}
+          <option {% if '/movie/' in request.path %}selected{% endif %} value="movie">电影</option>
+        {% endif %}
+        {% if 'tv' in cats %}
+          <option {% if '/tv/' in request.path %}selected{% endif %} value="tv">剧集</option>
+        {% endif %}
+        {% if 'podcast' in cats %}
+          <option {% if '/podcast/' in request.path %}selected{% endif %}
+                  value="podcast">播客</option>
+        {% endif %}
+        {% if 'music' in cats %}
+          <option {% if '/music/' in request.path %}selected{% endif %} value="music">音乐</option>
+        {% endif %}
+        {% if 'game' in cats %}
+          <option {% if '/game/' in request.path %}selected{% endif %} value="game">游戏</option>
+        {% endif %}
+        {% if 'performance' in cats %}
+          <option {% if '/performance/' in request.path %}selected{% endif %}
+                  value="performance">演出</option>
+        {% endif %}
+      </select>
+      <select name="year" id="year" onchange="filter()">
+        <option value="">全部</option>
+        {% for y in years %}
+          <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+      <select name="sort" id="sort" onchange="filter()">
+        <option value="" disabled>排列顺序</option>
+        <option value="">时间</option>
+        <option value="rating" {% if 'rating' == sort %}selected{% endif %}>评分</option>
+      </select>
+    </fieldset>
   </form>
   <!--
   <style type="text/css">

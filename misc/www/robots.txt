@@ -1,2 +1,14 @@
+User-agent: CCBot
+Disallow: /review/
+
 User-agent: GPTBot
+Disallow: /review/
+
+User-agent: Google-Extended
+Disallow: /review/
+
+User-agent: FacebookBot
+Disallow: /review/
+
+User-agent: Omgilibot
 Disallow: /review/

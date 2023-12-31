@@ -259,6 +259,15 @@ class ShelfManager:
         else:
             return qs
 
+    def get_members(
+        self, shelf_type: ShelfType, item_category: ItemCategory | None = None
+    ):
+        qs = self.shelf_list[shelf_type].members.all()
+        if item_category:
+            return qs.filter(q_item_in_category(item_category))
+        else:
+            return qs
+
     # def get_items_on_shelf(self, item_category, shelf_type):
     #     shelf = (
     #         self.owner.shelf_set.all()

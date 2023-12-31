@@ -5,12 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from common.utils import (
-    AuthedHttpRequest,
-    PageLinksGenerator,
-    get_uuid_or_404,
-    target_identity_required,
-)
+from common.utils import AuthedHttpRequest, get_uuid_or_404, target_identity_required
 from mastodon.api import boost_toot_later
 from takahe.utils import Takahe
 

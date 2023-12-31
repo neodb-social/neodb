@@ -1,11 +1,12 @@
 from datetime import datetime
+from typing import Any
 
-from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
-from django.db import connection, models
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 from django.db.models import Avg, Count, Q
 from django.utils.translation import gettext_lazy as _
 
-from catalog.models import Item, ItemCategory
+from catalog.models import Item
 from users.models import APIdentity
 
 from .common import Content
@@ -116,24 +117,22 @@ class Rating(Content):
 
     @staticmethod
     def update_item_rating(
-        item: Item, owner: APIdentity, rating_grade: int | None, visibility: int = 0
+        item: Item,
+        owner: APIdentity,
+        rating_grade: int | None,
+        visibility: int = 0,
+        created_time: datetime | None = None,
     ):
         if rating_grade and (rating_grade < 1 or rating_grade > 10):
             raise ValueError(f"Invalid rating grade: {rating_grade}")
-        rating = Rating.objects.filter(owner=owner, item=item).first()
         if not rating_grade:
-            if rating:
-                rating.delete()
-                rating = None
-        elif rating is None:
-            rating = Rating.objects.create(
-                owner=owner, item=item, grade=rating_grade, visibility=visibility
-            )
-        elif rating.grade != rating_grade or rating.visibility != visibility:
-            rating.visibility = visibility
-            rating.grade = rating_grade
-            rating.save()
-        return rating
+            Rating.objects.filter(owner=owner, item=item).delete()
+        else:
+            d: dict[str, Any] = {"grade": rating_grade, "visibility": visibility}
+            if created_time:
+                d["created_time"] = created_time
+            r, _ = Rating.objects.update_or_create(owner=owner, item=item, defaults=d)
+            return r
 
     @staticmethod
     def get_item_rating(item: Item, owner: APIdentity) -> int | None:

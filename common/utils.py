@@ -1,10 +1,14 @@
 import functools
+import re
 import uuid
 from typing import TYPE_CHECKING
 
-from django.http import Http404, HttpRequest, HttpResponseRedirect
+from django.db.models import query
+from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
 from django.utils.baseconv import base62
+
+from .config import PAGE_LINK_NUMBER
 
 if TYPE_CHECKING:
     from users.models import APIdentity, User
@@ -82,8 +86,19 @@ class PageLinksGenerator:
     length -- the number of page links in pagination
     """
 
-    def __init__(self, length: int, current_page: int, total_pages: int):
+    def __init__(
+        self, current_page: int, total_pages: int, query: QueryDict | None = None
+    ):
+        length = PAGE_LINK_NUMBER
         current_page = int(current_page)
+        self.query_string = ""
+        if query:
+            q = query.copy()
+            if q.get("page"):
+                q.pop("page")
+            self.query_string = q.urlencode()
+        if self.query_string:
+            self.query_string += "&"
         self.current_page = current_page
         self.previous_page = current_page - 1 if current_page > 1 else None
         self.next_page = current_page + 1 if current_page < total_pages else None

@@ -141,7 +141,7 @@ def search(request):
         {
             "items": items,
             "dup_items": dup_items,
-            "pagination": PageLinksGenerator(PAGE_LINK_NUMBER, p, num_pages),
+            "pagination": PageLinksGenerator(p, num_pages, request.GET),
             "sites": SiteName.labels,
             "hide_category": hide_category,
         },

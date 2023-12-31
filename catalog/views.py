@@ -157,7 +157,7 @@ def mark_list(request, item_path, item_uuid, following_only=False):
     paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)
     page_number = request.GET.get("page", default=1)
     marks = paginator.get_page(page_number)
-    pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
+    pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
     return render(
         request,
         "item_mark_list.html",
@@ -179,7 +179,7 @@ def review_list(request, item_path, item_uuid):
     paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)
     page_number = request.GET.get("page", default=1)
     reviews = paginator.get_page(page_number)
-    pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
+    pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
     return render(
         request,
         "item_review_list.html",

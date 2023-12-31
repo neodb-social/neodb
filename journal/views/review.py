@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
-from common.utils import AuthedHttpRequest, PageLinksGenerator, get_uuid_or_404
+from common.utils import AuthedHttpRequest, get_uuid_or_404
 from journal.models.renderers import convert_leading_space_in_md, render_md
 from users.models.apidentity import APIdentity
 
@@ -97,10 +97,8 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
         raise BadRequest()
 
 
-def user_review_list(request, user_name, item_category, year=None):
-    return render_list(
-        request, user_name, "review", item_category=item_category, year=None
-    )
+def user_review_list(request, user_name, item_category):
+    return render_list(request, user_name, "review", item_category=item_category)
 
 
 MAX_ITEM_PER_TYPE = 10
