@@ -27,6 +27,14 @@
 </head>
 <body>
   {% include "_header.html" with current="discover" %}
+  <script>
+    function _scroll_left(el){
+      el.scrollBy(0-el.offsetWidth, 0);
+    }
+    function _scroll_right(el){
+      el.scrollBy(el.offsetWidth, 0);
+    }
+  </script>
   <main>
     <div class="grid__main">
       <div class="sortable">
@@ -34,6 +42,18 @@
           <section class="entity-sort shelf"
                    id="{{ gallery.name }}"
                    {% if not gallery.items %}style="display:none;"{% endif %}>
+            <span class="action">
+              <span>
+                <a _="on click set el to the next
+                  <ul/>
+                then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+              </span>
+              <span>
+                <a _="on click set el to the next
+                  <ul/>
+                then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+              </span>
+            </span>
             <h5>{{ gallery.title }}</h5>
             <ul class="cards">
               {% for item in gallery.items %}

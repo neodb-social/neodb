@@ -4,7 +4,7 @@
 {% block brief %}
   <div class="multi-fields">
     {% if item.rating %}
-      <span class="solo-hidden">{{ item.rating | floatformat:1 }} ({{ item.rating_count }}人评分)</span>
+      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }}人评分)</small></span>
     {% endif %}
     {% include '_people.html' with people=item.hosts role='主播' max=5 %}
   </div>

@@ -42,6 +42,18 @@
         <div class="sortable">
           {% if request.user.is_authenticated %}
             <section class="entity-sort shelf" id="calendar_grid">
+              <span class="action">
+                <span>
+                  <a _="on click set el to the next
+                    <ul/>
+                  then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+                </span>
+                <span>
+                  <a _="on click set el to the next
+                    <ul/>
+                  then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+                </span>
+              </span>
               <h5>
                 书影音日历
                 {% if year %}
@@ -67,6 +79,18 @@
               <section class="entity-sort shelf"
                        id="{{ category }}_{{ shelf_type }}"
                        {% if not shelf.count %}style="display:none;"{% endif %}>
+                <span class="action">
+                  <span>
+                    <a _="on click set el to the next
+                      <ul/>
+                    then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+                  </span>
+                  <span>
+                    <a _="on click set el to the next
+                      <ul/>
+                    then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+                  </span>
+                </span>
                 <h5>
                   {{ shelf.title }}
                   <small>
@@ -94,6 +118,18 @@
           <section class="entity-sort shelf"
                    id="collection_created"
                    {% if not collections_count %}style="display:none;"{% endif %}>
+            <span class="action">
+              <span>
+                <a _="on click set el to the next
+                  <ul/>
+                then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+              </span>
+              <span>
+                <a _="on click set el to the next
+                  <ul/>
+                then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+              </span>
+            </span>
             <h5>
               {% trans '创建的收藏单' %}
               <small>
@@ -122,6 +158,18 @@
           <section class="entity-sort shelf"
                    id="collection_marked"
                    {% if not liked_collections_count %}style="display:none;"{% endif %}>
+            <span class="action">
+              <span>
+                <a _="on click set el to the next
+                  <ul/>
+                then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+              </span>
+              <span>
+                <a _="on click set el to the next
+                  <ul/>
+                then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+              </span>
+            </span>
             <h5>
               {% trans '喜欢的收藏单' %}
               <small>

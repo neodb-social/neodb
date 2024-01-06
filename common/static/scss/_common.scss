@@ -106,6 +106,12 @@ details {
   opacity: 0.5;
 }
 
+.shelf {
+  .action {
+    margin-top: 0.1em;
+  }
+}
+
 .action {
   width: max-content;
   float: right;

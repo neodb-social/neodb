@@ -310,7 +310,6 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
         raise BadRequest()
 
 
-@login_required
 @target_identity_required
 def user_collection_list(request: AuthedHttpRequest, user_name):
     target = request.target_identity
@@ -332,7 +331,6 @@ def user_collection_list(request: AuthedHttpRequest, user_name):
     )
 
 
-@login_required
 @target_identity_required
 def user_liked_collection_list(request: AuthedHttpRequest, user_name):
     target = request.target_identity
