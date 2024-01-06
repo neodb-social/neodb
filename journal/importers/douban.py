@@ -229,7 +229,10 @@ class DoubanImporter:
             except:
                 rating_grade = None
             tags = cells[6] if len(cells) >= 7 else ""
-            tags = tags.split(",") if tags else []
+            try:
+                tags = tags.split(",") if tags else []
+            except:
+                tags = []
             comment = cells[7] if len(cells) >= 8 else None
             self.processed += 1
             try:

@@ -31,6 +31,16 @@ class AppleMusic(AbstractSite):
     ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Album
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0) Gecko/20100101 Firefox/107.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
+        "Accept-Encoding": "gzip, deflate",
+        "Connection": "keep-alive",
+        "DNT": "1",
+        "Upgrade-Insecure-Requests": "1",
+        "Cache-Control": "no-cache",
+    }
 
     @classmethod
     def id_to_url(cls, id_value):
@@ -49,10 +59,10 @@ class AppleMusic(AbstractSite):
         # or to find an AppleMusic API to get available locales for an album
         for url in self.get_localized_urls():
             try:
-                content = BasicDownloader(url).download().html()
+                content = BasicDownloader(url, headers=self.headers).download().html()
                 _logger.info(f"got localized content from {url}")
                 break
-            except Exception:
+            except:
                 pass
         if content is None:
             raise ParseError(self, f"localized content for {self.url}")

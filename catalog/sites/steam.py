@@ -46,9 +46,12 @@ class Steam(AbstractSite):
             "//div[@class='details_block']/b[2]/following-sibling::a/text()"
         )
         platform = ["PC"]
-        brief = self.query_str(
-            content, "//div[@class='game_description_snippet']/text()"
-        )
+        try:
+            brief = self.query_str(
+                content, "//div[@class='game_description_snippet']/text()"
+            )
+        except:
+            brief = ""
         # try Steam images if no image from IGDB
         if pd.cover_image is None:
             pd.metadata["cover_image_url"] = self.query_str(

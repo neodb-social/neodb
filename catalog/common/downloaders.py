@@ -110,7 +110,7 @@ class DownloadError(Exception):
             error = "Invalid Response"
         elif downloader.response_type == RESPONSE_NETWORK_ERROR:
             error = "Network Error"
-        elif downloader.response_type == RESPONSE_NETWORK_ERROR:
+        elif downloader.response_type == RESPONSE_CENSORSHIP:
             error = "Censored Content"
         else:
             error = "Unknown Error"
