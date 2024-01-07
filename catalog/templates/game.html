@@ -11,73 +11,25 @@
 {% load thumb %}
 <!-- class specific details -->
 {% block details %}
-  <div>
-    {% if item.other_title %}
-      {% trans '别名：' %}
-      {% for other_title in item.other_title %}
-        <span {% if forloop.counter > 5 %}style="display: none;"{% endif %}>
-          <span class="other_title">{{ other_title }}</span>
-          {% if not forloop.last %}/{% endif %}
-        </span>
-      {% endfor %}
-      {% if item.other_title|length > 5 %}
-        <a href="javascript:void(0);" id="otherTitleMore">{% trans '更多' %}</a>
-        <script>
-			$("#otherTitleMore").on('click', function (e) {
-				$("span.other_title:not(:visible)").each(function (e) {
-					$(this).parent().removeAttr('style');
-				});
-				$(this).remove();
-			})
-
-        </script>
-      {% endif %}
-    {% endif %}
-  </div>
-  <div>
-    {% if item.genre %}
-      {% trans '类型：' %}
-      {% for genre in item.genre %}
-        <span>{{ genre }}</span>
-        {% if not forloop.last %}/{% endif %}
-      {% endfor %}
-    {% endif %}
-  </div>
-  <div>
-    {% if item.developer %}
-      {% trans '开发商：' %}
-      {% for developer in item.developer %}
-        <span>{{ developer }}</span>
-        {% if not forloop.last %}/{% endif %}
-      {% endfor %}
-    {% endif %}
-  </div>
-  <div>
-    {% if item.publisher %}
-      {% trans '发行商：' %}
-      {% for publisher in item.publisher %}
-        <span>{{ publisher }}</span>
-        {% if not forloop.last %}/{% endif %}
-      {% endfor %}
-    {% endif %}
+  <div class="tldr-2" _="on click toggle .tldr-2 on me">
+    {% include '_people.html' with people=item.other_title _role='别名' max=99 %}
   </div>
   <div>
     {% if item.release_date %}
-      {% trans '发行日期：' %}{{ item.release_date }}
+      {% trans '发行时间：' %}{{ item.release_date }}
+    {% elif item.release_year %}
+      {% trans '发行时间：' %}{{ item.release_year }}
     {% endif %}
   </div>
+  <div>{% include '_people.html' with people=item.platform role='平台' max=8 %}</div>
+  <div>{% include '_people.html' with people=item.genre role='类型' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.designer role='设计者' max=3 %}</div>
+  <div>{% include '_people.html' with people=item.artist role='艺术家' max=3 %}</div>
+  <div>{% include '_people.html' with people=item.developer role='开发商' max=1 %}</div>
+  <div>{% include '_people.html' with people=item.publisher role='发行商' max=1 %}</div>
   <div>
     {% if item.official_site %}
       {% trans '官方网站：' %}{{ item.official_site|urlizetrunc:24 }}
-    {% endif %}
-  </div>
-  <div>
-    {% if item.platform %}
-      {% trans '平台：' %}
-      {% for platform in item.platform %}
-        <span>{{ platform }}</span>
-        {% if not forloop.last %}/{% endif %}
-      {% endfor %}
     {% endif %}
   </div>
 {% endblock %}

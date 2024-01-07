@@ -43,8 +43,11 @@ class Game(Item):
         "title",
         "brief",
         "other_title",
+        "designer",
+        "artist",
         "developer",
         "publisher",
+        "release_year",
         "release_date",
         "genre",
         "platform",
@@ -54,6 +57,22 @@ class Game(Item):
     other_title = jsondata.ArrayField(
         base_field=models.CharField(blank=True, default="", max_length=500),
         verbose_name=_("其它标题"),
+        null=True,
+        blank=True,
+        default=list,
+    )
+
+    designer = jsondata.ArrayField(
+        base_field=models.CharField(blank=True, default="", max_length=500),
+        verbose_name=_("设计者"),
+        null=True,
+        blank=True,
+        default=list,
+    )
+
+    artist = jsondata.ArrayField(
+        base_field=models.CharField(blank=True, default="", max_length=500),
+        verbose_name=_("艺术家"),
         null=True,
         blank=True,
         default=list,
@@ -74,6 +93,8 @@ class Game(Item):
         blank=True,
         default=list,
     )
+
+    release_year = jsondata.IntegerField(verbose_name=_("发布年份"), null=True, blank=True)
 
     release_date = jsondata.DateField(
         verbose_name=_("发布日期"),
@@ -106,6 +127,7 @@ class Game(Item):
         id_types = [
             IdType.IGDB,
             IdType.Steam,
+            IdType.BGG,
             IdType.DoubanGame,
             IdType.Bangumi,
         ]

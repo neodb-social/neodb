@@ -11,7 +11,7 @@ import filetype
 import requests
 from django.conf import settings
 from django.core.cache import cache
-from lxml import html
+from lxml import etree, html
 from PIL import Image
 from requests import Response
 from requests.exceptions import RequestException
@@ -85,6 +85,9 @@ class MockResponse:
             self.content.decode("utf-8")
         )
 
+    def xml(self):
+        return etree.fromstring(self.content, base_url=self.url)
+
     @property
     def headers(self):
         return {
@@ -93,6 +96,7 @@ class MockResponse:
 
 
 requests.Response.html = MockResponse.html  # type:ignore
+requests.Response.xml = MockResponse.xml  # type:ignore
 
 
 class DownloaderResponse(Response):
@@ -100,6 +104,9 @@ class DownloaderResponse(Response):
         return html.fromstring(  # may throw exception unexpectedly due to OS bug, see https://github.com/neodb-social/neodb/issues/5
             self.content.decode("utf-8")
         )
+
+    def xml(self):
+        return etree.fromstring(self.content, base_url=self.url)
 
 
 class DownloadError(Exception):

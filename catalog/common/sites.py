@@ -104,6 +104,10 @@ class AbstractSite:
     def query_str(content, query: str) -> str:
         return content.xpath(query)[0].strip()
 
+    @staticmethod
+    def query_list(content, query: str) -> list[str]:
+        return list(content.xpath(query))
+
     @classmethod
     def match_existing_item_for_resource(
         cls, resource: ExternalResource

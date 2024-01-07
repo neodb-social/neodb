@@ -2,6 +2,7 @@ from ..common.sites import SiteManager
 from .apple_music import AppleMusic
 from .bandcamp import Bandcamp
 from .bangumi import Bangumi
+from .bgg import BoardGameGeek
 from .bookstw import BooksTW
 from .discogs import DiscogsMaster, DiscogsRelease
 from .douban_book import DoubanBook
