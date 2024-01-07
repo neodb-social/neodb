@@ -24,7 +24,7 @@ class RelativeAbsoluteUrl:
 
 class AutoAbsoluteUrl(RelativeAbsoluteUrl):
     """
-    Automatically makes the absolute variant by using either settings.MAIN_DOMAIN
+    Automatically makes the absolute variant by using either settings.SITE_DOMAIN
     or a passed identity's URI domain.
     """
 
@@ -37,7 +37,7 @@ class AutoAbsoluteUrl(RelativeAbsoluteUrl):
         if identity:
             absolute_prefix = f"https://{identity.domain.uri_domain}/"
         else:
-            absolute_prefix = f"https://{settings.MAIN_DOMAIN}/"
+            absolute_prefix = f"https://{settings.SITE_DOMAIN}/"
         self.absolute = urljoin(absolute_prefix, self.relative)
 
 
@@ -85,5 +85,5 @@ class StaticAbsoluteUrl(RelativeAbsoluteUrl):
             super().__init__(static_url)
         else:
             super().__init__(
-                urljoin(f"https://{settings.MAIN_DOMAIN}/", static_url), static_url
+                urljoin(f"https://{settings.SITE_DOMAIN}/", static_url), static_url
             )
