@@ -23,7 +23,7 @@
     <meta property="og:site_name" content="{{ site_name }}">
     {% if not identity.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }}{% trans '评论' %} - {{ review.title }}</title>
-    {% include "common_libs.html" with jquery=0 v2=1 %}
+    {% include "common_libs.html" %}
   </head>
   <body>
     {% include "_header.html" %}

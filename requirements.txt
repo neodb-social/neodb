@@ -29,6 +29,7 @@ filetype
 gunicorn
 httpx
 igdb-api-v4
+langdetect
 libsass
 listparser
 loguru

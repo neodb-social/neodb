@@ -24,7 +24,7 @@
     <meta property="og:description" content="{{ item.brief }}">
     {% if item.is_deleted or item.merged_to_item %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }} - {% trans item.category.label %} | {{ item.display_title }}</title>
-    {% include "common_libs.html" with jquery=0 v2=1 %}
+    {% include "common_libs.html" %}
     {% block head %}{% endblock %}
   </head>
   <body>
