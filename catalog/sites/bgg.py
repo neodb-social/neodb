@@ -12,6 +12,13 @@ from catalog.common import *
 from catalog.models import *
 
 
+def _lang(s: str) -> str:
+    try:
+        return detect(s)
+    except Exception:
+        return "en"
+
+
 @SiteManager.register
 class BoardGameGeek(AbstractSite):
     SITE_NAME = SiteName.BGG
@@ -36,7 +43,7 @@ class BoardGameGeek(AbstractSite):
         title = self.query_str(item, "name[@type='primary']/@value")
         other_title = self.query_list(item, "name[@type='alternate']/@value")
         zh_title = [
-            t for t in other_title if detect(t) in ["zh", "jp", "ko", "zh-cn", "zh-tw"]
+            t for t in other_title if _lang(t) in ["zh", "jp", "ko", "zh-cn", "zh-tw"]
         ]
         if zh_title:
             for z in zh_title:
