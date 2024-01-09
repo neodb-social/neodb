@@ -37,13 +37,13 @@ urlpatterns = [
         "review/edit/<str:item_uuid>/<str:review_uuid>", review_edit, name="review_edit"
     ),
     path("review/delete/<str:piece_uuid>", piece_delete, name="review_delete"),
-    path(
-        "collection/<str:collection_uuid>",
+    re_path(
+        r"^collection/(?P<collection_uuid>[A-Za-z0-9]{21,22})$",
         collection_retrieve,
         name="collection_retrieve",
     ),
-    path(
-        "collection/<str:collection_uuid>/",
+    re_path(
+        r"^collection/(?P<collection_uuid>[A-Za-z0-9]{21,22})/$",
         collection_retrieve_redirect,
         name="collection_retrieve_redirect",
     ),
