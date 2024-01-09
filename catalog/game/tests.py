@@ -107,6 +107,7 @@ class DoubanGameTestCase(TestCase):
 
 
 class BangumiGameTestCase(TestCase):
+    @use_local_response
     def test_parse(self):
         t_id_type = IdType.Bangumi
         t_id_value = "15912"
@@ -120,20 +121,21 @@ class BangumiGameTestCase(TestCase):
 
 
 class BoardGameGeekTestCase(TestCase):
+    @use_local_response
     def test_scrape(self):
         t_url = "https://boardgamegeek.com/boardgame/167791"
         site = SiteManager.get_site_by_url(t_url)
         self.assertIsNotNone(site)
+        self.assertEqual(site.ID_TYPE, IdType.BGG)
+        self.assertEqual(site.id_value, "167791")
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
         self.assertEqual(site.resource.metadata["title"], "Terraforming Mars")
         self.assertIsInstance(site.resource.item, Game)
-        self.assertEqual(site.resource.item.id_type, IdType.BGG)
-        self.assertEqual(site.resource.item.id_value, "167791")
         self.assertEqual(site.resource.item.platform, ["Boardgame"])
+        self.assertEqual(site.resource.item.genre[0], "Economic")
         self.assertEqual(site.resource.item.other_title[0], "殖民火星")
-        # self.assertEqual(site.resource.item.genre[0], )
         self.assertEqual(site.resource.item.designer, ["Jacob Fryxelius"])
 
 

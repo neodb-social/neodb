@@ -498,7 +498,7 @@ RQ_SHOW_ADMIN_LINK = DEBUG
 
 SEARCH_INDEX_NEW_ONLY = False
 
-DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default=None)  # type: ignore
+DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="/tmp")  # type: ignore
 
 DISABLE_MODEL_SIGNAL = False  # disable index and social feeds during importing/etc
 

@@ -35,7 +35,9 @@ class BoardGameGeek(AbstractSite):
         item = items[0]
         title = self.query_str(item, "name[@type='primary']/@value")
         other_title = self.query_list(item, "name[@type='alternate']/@value")
-        zh_title = [t for t in other_title if detect(t).startswith("zh")]
+        zh_title = [
+            t for t in other_title if detect(t) in ["zh", "jp", "ko", "zh-cn", "zh-tw"]
+        ]
         if zh_title:
             for z in zh_title:
                 other_title.remove(z)
