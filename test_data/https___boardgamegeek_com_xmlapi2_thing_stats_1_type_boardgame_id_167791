@@ -1,0 +1,1425 @@
+<?xml version="1.0" encoding="utf-8"?><items termsofuse="https://boardgamegeek.com/xmlapi/termsofuse"><item type="boardgame" id="167791">
+         <thumbnail>https://cf.geekdo-images.com/wg9oOLcsKvDesSUdZQ4rxw__thumb/img/BTxqxgYay5tHJfVoJ2NF5g43_gA=/fit-in/200x150/filters:strip_icc()/pic3536616.jpg</thumbnail>
+      <image>https://cf.geekdo-images.com/wg9oOLcsKvDesSUdZQ4rxw__original/img/thIqWDnH9utKuoKVEUqveDixprI=/0x0/filters:format(jpeg)/pic3536616.jpg</image>
+                                     				
+				<name type="primary" sortindex="1" value="Terraforming Mars" />
+			
+						                               				
+				<name type="alternate" sortindex="3" value="A Mars terraformálása" />
+			    				
+				<name type="alternate" sortindex="1" value="Mars: Teraformace" />
+			    				
+				<name type="alternate" sortindex="1" value="Teraformiranje Marsa" />
+			    				
+				<name type="alternate" sortindex="1" value="Terraformacja Marsa" />
+			    				
+				<name type="alternate" sortindex="1" value="Terraformarea Planetei Marte" />
+			    				
+				<name type="alternate" sortindex="1" value="Terraforming Mars: Ο Αποικισμός Του Άρη" />
+			    				
+				<name type="alternate" sortindex="1" value="Покорение Марса" />
+			    				
+				<name type="alternate" sortindex="1" value="Тераформирай Марс" />
+			    				
+				<name type="alternate" sortindex="1" value="Тераформування Марса" />
+			    				
+				<name type="alternate" sortindex="1" value="टेराफॉर्मिंग मार्स" />
+			    				
+				<name type="alternate" sortindex="1" value="พลิกพิภพดาวอังคาร" />
+			    				
+				<name type="alternate" sortindex="1" value="テラフォーミング・マーズ" />
+			    				
+				<name type="alternate" sortindex="1" value="殖民火星" />
+			    				
+				<name type="alternate" sortindex="1" value="重塑火星" />
+			    				
+				<name type="alternate" sortindex="1" value="테라포밍 마스" />
+			
+						               													<description>In the 2400s, mankind begins to terraform the planet Mars. Giant corporations, sponsored by the World Government on Earth, initiate huge projects to raise the temperature, the oxygen level, and the ocean coverage until the environment is habitable. In Terraforming Mars, you play one of those corporations and work together in the terraforming process, but compete for getting victory points that are awarded not only for your contribution to the terraforming, but also for advancing human infrastructure throughout the solar system, and doing other commendable things.&amp;#10;&amp;#10;The players acquire unique project cards (from over two hundred different ones) by buying them to their hand. The cards can give you immediate bonuses, as well as increasing your production of different resources. Many cards also have requirements and they become playable when the temperature, oxygen, or ocean coverage increases enough. Buying cards is costly, so there is a balance between buying cards and actually playing them. Standard Projects are always available to complement your cards. Your basic income, as well as your basic score, is based on your Terraform Rating. However, your income is complemented with your production, and you also get VPs from many other sources.&amp;#10;&amp;#10;Each player keeps track of their production and resources on their player boards, and the game uses six types of resources: MegaCredits, Steel, Titanium, Plants, Energy, and Heat. On the game board, you compete for the best places for your city tiles, ocean tiles, and greenery tiles. You also compete for different Milestones and Awards worth many VPs. Each round is called a generation and consists of the following phases:&amp;#10;&amp;#10;1) Player order shifts clockwise.&amp;#10;2) Research phase: All players buy cards from four privately drawn.&amp;#10;3) Action phase: Players take turns doing 1-2 actions from these options: Playing a card, claiming a Milestone, funding an Award, using a Standard project, converting plant into greenery tiles (and raising oxygen), converting heat into a temperature raise, and using the action of a card in play. The turn continues around the table (sometimes several laps) until all players have passed.&amp;#10;4) Production phase: Players get resources according to their terraform rating and production parameters.&amp;#10;&amp;#10;When the three global parameters (temperature, oxygen, ocean) have all reached their goal, the terraforming is complete, and the game ends after that generation. Count your Terraform Rating and other VPs to determine the winning corporation!&amp;#10;&amp;#10;</description>
+										      	               				<yearpublished value="2016" />
+						               				<minplayers value="1" />
+						               				<maxplayers value="5" />
+						      			<poll name="suggested_numplayers" title="User Suggested Number of Players" totalvotes="2426">
+			
+		<results numplayers="1">		
+					<result value="Best" numvotes="195" />
+					<result value="Recommended" numvotes="1081" />
+					<result value="Not Recommended" numvotes="426" />
+				</results>					
+			
+		<results numplayers="2">		
+					<result value="Best" numvotes="487" />
+					<result value="Recommended" numvotes="1333" />
+					<result value="Not Recommended" numvotes="223" />
+				</results>					
+			
+		<results numplayers="3">		
+					<result value="Best" numvotes="1424" />
+					<result value="Recommended" numvotes="605" />
+					<result value="Not Recommended" numvotes="36" />
+				</results>					
+			
+		<results numplayers="4">		
+					<result value="Best" numvotes="801" />
+					<result value="Recommended" numvotes="987" />
+					<result value="Not Recommended" numvotes="167" />
+				</results>					
+			
+		<results numplayers="5">		
+					<result value="Best" numvotes="100" />
+					<result value="Recommended" numvotes="631" />
+					<result value="Not Recommended" numvotes="961" />
+				</results>					
+			
+		<results numplayers="5+">		
+					<result value="Best" numvotes="9" />
+					<result value="Recommended" numvotes="8" />
+					<result value="Not Recommended" numvotes="1119" />
+				</results>					
+	</poll> 			               				<playingtime value="120" />
+						               				<minplaytime value="120" />
+						               				<maxplaytime value="120" />
+						               				<minage value="12" />
+						      			<poll name="suggested_playerage" title="User Suggested Player Age" totalvotes="397">
+			<results>		
+					<result value="2" numvotes="0" />
+					<result value="3" numvotes="0" />
+					<result value="4" numvotes="0" />
+					<result value="5" numvotes="0" />
+					<result value="6" numvotes="0" />
+					<result value="8" numvotes="23" />
+					<result value="10" numvotes="92" />
+					<result value="12" numvotes="166" />
+					<result value="14" numvotes="103" />
+					<result value="16" numvotes="9" />
+					<result value="18" numvotes="2" />
+					<result value="21 and up" numvotes="2" />
+				</results>					
+	</poll> 			      			<poll name="language_dependence" title="Language Dependence" totalvotes="108">
+			
+		<results>		
+					<result level="26" value="No necessary in-game text" numvotes="0" />
+					<result level="27" value="Some necessary text - easily memorized or small crib sheet" numvotes="9" />
+					<result level="28" value="Moderate in-game text - needs crib sheet or paste ups" numvotes="45" />
+					<result level="29" value="Extensive use of text - massive conversion needed to be playable" numvotes="51" />
+					<result level="30" value="Unplayable in another language" numvotes="3" />
+				</results>					
+	</poll> 			      			 			      				
+		 			
+
+			
+		
+					<link type="boardgamecategory" id="1021" value="Economic" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamecategory" id="1084" value="Environmental" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamecategory" id="1088" value="Industry / Manufacturing" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamecategory" id="1016" value="Science Fiction" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamecategory" id="1113" value="Space Exploration" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamecategory" id="1086" value="Territory Building" />
+		
+									
+			
+
+			      				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2984" value="Closed Drafting" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2912" value="Contracts" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2043" value="Enclosure" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2875" value="End Game Bonuses" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2040" value="Hand Management" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2026" value="Hexagon Grid" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2902" value="Income" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2004" value="Set Collection" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2819" value="Solo / Solitaire Game" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="3100" value="Tags" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2686" value="Take That" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2849" value="Tech Trees / Tech Tracks" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2002" value="Tile Placement" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2828" value="Turn Order: Progressive" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2015" value="Variable Player Powers" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2897" value="Variable Set-up" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamemechanic" id="2874" value="Victory Points as a Resource" />
+		
+									
+			
+
+			      				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="77906" value="Category: Dized Tutorial" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="64952" value="Components: Map (Global Scale)" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="65191" value="Components: Multi-Use Cards" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="78432" value="Digital Implementations: Google Play" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="77349" value="Digital Implementations: Steam" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="46915" value="Game: Terraforming Mars" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="27646" value="Mechanism: Tableau Building" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="81586" value="Occupation: Engineer" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="5666" value="Players: Games with Solitaire Rules" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="49694" value="Setting: Future Timeline (Fryxgames)" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="19298" value="Space: Earth's Solar System" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="43631" value="Space: Jupiter" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="10169" value="Space: Mars" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamefamily" id="66167" value="Theme: Science" />
+		
+									
+			
+
+			      				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="317189" value="Meeple BR Jogos Promo Pack #1" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="380299" value="Terraforming Mars: 16 Psyche Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="401513" value="Terraforming Mars: Amazonis Planitia" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="322281" value="Terraforming Mars: Asteroid Rights Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="265081" value="Terraforming Mars: Atmo Collectors Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="395612" value="Terraforming Mars: Automa" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="339849" value="Terraforming Mars: Bactoviral Research Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="241497" value="Terraforming Mars: BGG User-Created Corporation Pack" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="311247" value="Terraforming Mars: Big Box" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="312319" value="Terraforming Mars: Big Box Promo Pack" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="332774" value="Terraforming Mars: Bio Printing Facility Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="255681" value="Terraforming Mars: Colonies" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="370074" value="Terraforming Mars: Corporate Archives Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="400568" value="Terraforming Mars: Directed Heat Usage Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="375783" value="Terraforming Mars: Double Down Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="296298" value="Terraforming Mars: French Championship Promo Cards" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="346129" value="Terraforming Mars: Harvest Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="377179" value="Terraforming Mars: Head Start Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="218127" value="Terraforming Mars: Hellas &amp; Elysium" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="408591" value="Terraforming Mars: Icy Impactors Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="265083" value="Terraforming Mars: Jovian Lanterns Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="265084" value="Terraforming Mars: Lunar Exports Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="364339" value="Terraforming Mars: Merger Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="401114" value="Terraforming Mars: Milestones &amp; Awards" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="358525" value="Terraforming Mars: New Partner Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="352525" value="Terraforming Mars: Outdoor Sports Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="230241" value="Terraforming Mars: Penguins Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="247030" value="Terraforming Mars: Prelude" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="387809" value="Terraforming Mars: Prelude 2" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="381423" value="Terraforming Mars: Robot Pollinators Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="230123" value="Terraforming Mars: Self-Replicating Robots Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="202825" value="Terraforming Mars: Small Asteroid Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="226297" value="Terraforming Mars: Snow Algae Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="390472" value="Terraforming Mars: Supercapacitors Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="365385" value="Terraforming Mars: Terra Cimmeria" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="273473" value="Terraforming Mars: Turmoil" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="279345" value="Terraforming Mars: Turmoil Promos" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="359145" value="Terraforming Mars: Utopia Planitia" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="365384" value="Terraforming Mars: Vastitas Borealis" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameexpansion" id="231965" value="Terraforming Mars: Venus Next" />
+		
+									
+			
+
+			      			
+
+			      				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="334522" value="Terraforming Mars: reDrewno Insert" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="303515" value="Terraforming Mars: BGExpansions Astronaut Track Token Pack" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="358215" value="Terraforming Mars: BGExpansions Draft Coin" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="358214" value="Terraforming Mars: BGExpansions Track Tokens" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="266249" value="Terraforming Mars: BoardGameBoost Player Mat Overlay" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="272797" value="Terraforming Mars: Broken Token 3D Greenery Hex Tiles" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="272801" value="Terraforming Mars: Broken Token 3D Ocean Hex Tiles" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="272799" value="Terraforming Mars: Broken Token 3D Space Colony Hex Tiles" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="328115" value="Terraforming Mars: Broken Token Acrylic Overlay" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="272795" value="Terraforming Mars: Broken Token Acrylic Token Set" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="272792" value="Terraforming Mars: Broken Token Organizer – Extra Dividers" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="230053" value="Terraforming Mars: Broken Token Organizer with First Player Token and Acrylic Markers" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="306381" value="Terraforming Mars: Broken Token Single Player Tray" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="272800" value="Terraforming Mars: Broken Token Space Colony City Hex Tiles" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="312374" value="Terraforming Mars: City Domes" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="352313" value="Terraforming Mars: Custom Card Sleeves" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="293310" value="Terraforming Mars: Dual Layer Player Boards" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="263156" value="Terraforming Mars: e-Raptor Insert" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="263382" value="Terraforming Mars: e-Raptor Organizer" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="220036" value="Terraforming Mars: Eightbitwood Player Mat Overlay" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="365388" value="Terraforming Mars: Elysium – Big Board Edition" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="375798" value="Terraforming Mars: Eurohell Design 3D Tokens" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="263728" value="Terraforming Mars: Folded Space Insert" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="326364" value="Terraforming Mars: Folded Space Insert (Second edition)" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="215570" value="Terraforming Mars: Game Trayz Player Mat" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="278695" value="Terraforming Mars: Gathering of Friends Promo Card" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="365387" value="Terraforming Mars: Hellas – Big Board Edition" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="271967" value="Terraforming Mars: Insert Here Insert" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="306355" value="Terraforming Mars: Laserox Resource Tokens" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="306356" value="Terraforming Mars: Laserox Resource Tokens II" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="326742" value="Terraforming Mars: Laserox Terraformer's Toolbox Insert" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="336608" value="Terraforming Mars: Laserox Tokens" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="294179" value="Terraforming Mars: Meeple Realty Insert" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="312376" value="Terraforming Mars: Metal Resource Cubes" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="406648" value="Terraforming Mars: Moedas &amp; Co. First Player Metal Token" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="363974" value="Terraforming Mars: Moedas &amp; Co. Metal Coins" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="209030" value="Terraforming Mars: Player Mat Overlay" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="236423" value="Terraforming Mars: Player Mat Overlay with Backboard" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="264181" value="Terraforming Mars: Rover First Player Marker" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="343464" value="Terraforming Mars: Shipshape Gamer Player Mat Overlay" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="373842" value="Terraforming Mars: Spike Craft Insert" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="365386" value="Terraforming Mars: Tharsis – Big Board Edition" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="385703" value="Terraforming Mars: The GiftForge Icon counter" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="348608" value="Terraforming Mars: The GiftForge Insert" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="385702" value="Terraforming Mars: The GiftForge Player board" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="385705" value="Terraforming Mars: The GiftForge Tokens" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="267171" value="Terraforming Mars: Tower Rex Organizer" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="312375" value="Terraforming Mars: Trade Fleets &amp; Chairman Seat" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameaccessory" id="385696" value="Terraforming Mars: Turmoil – The GiftForge Committee board" />
+		
+									
+			
+
+			      			
+
+			      			
+
+			      			
+
+			      				
+		 			
+
+			
+		
+					<link type="boardgameimplementation" id="328871" value="Terraforming Mars: Ares Expedition" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameimplementation" id="296108" value="Terraforming Mars: The Dice Game" />
+		
+									
+			
+
+			      			
+
+			      	      	      				
+		 			
+
+			
+		
+					<link type="boardgamedesigner" id="52075" value="Jacob Fryxelius" />
+		
+									
+			
+
+			      				
+		 			
+
+			
+		
+					<link type="boardgameartist" id="62819" value="Isaac Fryxelius" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgameartist" id="52076" value="Daniel Fryxelius" />
+		
+									
+			
+
+			      	      				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="18575" value="FryxGames" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="3475" value="Arclight Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="46980" value="Brädspel.se" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="22560" value="Fantasmagoria" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="4785" value="Ghenos Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="46884" value="Green Elephant Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="5380" value="Intrafin Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="6214" value="Kaissa Chess &amp; Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="32866" value="Kilogames" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="8291" value="Korea Boardgames" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="3218" value="Lautapelit.fi" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="34801" value="Lavka Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="25203" value="Lex Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="30677" value="Maldito Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="32591" value="MeepleBR" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="7992" value="MINDOK" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="51614" value="MIPL" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="23756" value="MYBG Co., Ltd." />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="32395" value="NeoTroy Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="7466" value="Rebel Sp. z o.o." />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="36563" value="Reflexshop" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="24844" value="Schwerkraft-Verlag" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="33998" value="Siam Board Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="11652" value="Stronghold Games" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="48279" value="SuperHeated Neurons" />
+		
+									
+				
+		 			
+
+			
+		
+					<link type="boardgamepublisher" id="36763" value="Surfin' Meeple China" />
+		
+									
+			
+
+			
+	
+
+	
+
+	
+	
+	
+   		<statistics page="1">
+								<ratings >
+			<usersrated value="95092" />
+			<average value="8.36679" />
+			<bayesaverage value="8.22032" />
+
+			<ranks>
+															<rank type="subtype" id="1" name="boardgame" friendlyname="Board Game Rank" value="6" bayesaverage="8.22032" />
+																				<rank type="family" id="5497" name="strategygames" friendlyname="Strategy Game Rank" value="7" bayesaverage="8.19919" />
+												</ranks>
+
+			<stddev value="1.41625" />
+			<median value="0" />
+			<owned value="132139" />
+			<trading value="757" />
+			<wanting value="1915" />
+			<wishing value="22572" />
+			<numcomments value="13462" />
+			<numweights value="3911" />
+			<averageweight value="3.2598" />
+			</ratings>
+								</statistics>
+     
+	
+          
+</item>
+</items>
