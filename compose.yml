@@ -112,7 +112,7 @@ services:
       - ${NEODB_DATA:-../data}/redis:/data
 
   typesense:
-    image: typesense/typesense:0.25.1
+    image: typesense/typesense:0.25.2
     restart: "on-failure"
     # healthcheck:
     #   test: ['CMD', 'curl', '-vf', 'http://127.0.0.1:8108/health']
