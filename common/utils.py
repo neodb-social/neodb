@@ -151,7 +151,7 @@ class PageLinksGenerator:
         # assert self.has_prev is not None and self.has_next is not None
 
 
-def GenerateDateUUIDMediaFilePath(instance, filename, path_root):
+def GenerateDateUUIDMediaFilePath(filename, path_root):
     ext = filename.split(".")[-1]
     filename = "%s.%s" % (uuid.uuid4(), ext)
     root = ""

@@ -10,9 +10,7 @@ from .user import User
 
 
 def report_image_path(instance, filename):
-    return GenerateDateUUIDMediaFilePath(
-        instance, filename, settings.REPORT_MEDIA_PATH_ROOT
-    )
+    return GenerateDateUUIDMediaFilePath(filename, settings.REPORT_MEDIA_PATH_ROOT)
 
 
 class Report(models.Model):

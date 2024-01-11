@@ -33,7 +33,7 @@ def export_marks_task(user):
     user.preference.export_status["marks_pending"] = True
     user.preference.save(update_fields=["export_status"])
     filename = GenerateDateUUIDMediaFilePath(
-        None, "f.xlsx", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
+        "f.xlsx", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
     )
     if not os.path.exists(os.path.dirname(filename)):
         os.makedirs(os.path.dirname(filename))

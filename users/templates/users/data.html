@@ -106,6 +106,54 @@
         </article>
         <article>
           <details>
+            <summary>{% trans '导入Letterboxd标记' %}</summary>
+            <form action="{% url 'users:import_letterboxd' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              在Letterboxd网站的<a href="https://letterboxd.com/settings/data/"
+   target="_blank"
+   rel="noopener">Settings页面中选择DATA</a>，或在其app的Settings菜单中选择Advanced Settings，点击 EXPORT YOUR DATA，即可下载导出名称类似<code>letterboxd-username-2018-03-11-07-52-utc.zip</code>的文件，勿需解压。
+              <br>
+              <input type="file" name="file" required accept=".zip">
+              <p>
+                可见性:
+                <br>
+                <label for="l_visibility_0">
+                  <input type="radio"
+                         name="visibility"
+                         value="0"
+                         required=""
+                         id="l_visibility_0"
+                         checked>
+                  公开
+                </label>
+                <label for="l_visibility_1">
+                  <input type="radio"
+                         name="visibility"
+                         value="1"
+                         required=""
+                         id="l_visibility_1">
+                  仅关注者
+                </label>
+                <label for="l_visibility_2">
+                  <input type="radio"
+                         name="visibility"
+                         value="2"
+                         required=""
+                         id="l_visibility_2">
+                  仅自己
+                </label>
+              </p>
+              <input type="submit" value="{% trans '导入' %}" />
+              {% if letterboxd_task %}
+                最近导入于{{ letterboxd_task.created_time }}，状态：{{ letterboxd_task.get_state_display }}。 {{ letterboxd_task.message }}
+              {% endif %}
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
             <summary>{% trans '导入播客订阅列表' %}</summary>
             <form action="{% url 'users:import_opml' %}"
                   method="post"

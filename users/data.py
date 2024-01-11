@@ -1,3 +1,5 @@
+import os
+
 import django_rq
 from django.conf import settings
 from django.contrib import messages
@@ -8,14 +10,15 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from common.config import *
+from common.utils import GenerateDateUUIDMediaFilePath
 from journal.exporters.doufen import export_marks_task
 from journal.importers.douban import DoubanImporter
 from journal.importers.goodreads import GoodreadsImporter
+from journal.importers.letterboxd import LetterboxdImporter
 from journal.importers.opml import OPMLImporter
 from journal.models import reset_journal_visibility_for_user
 from mastodon.api import *
 from social.models import reset_social_visibility_for_user
-from takahe.models import Identity
 
 from .account import *
 from .tasks import *
@@ -71,6 +74,7 @@ def data(request):
             "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
             "import_status": request.user.preference.import_status,
             "export_status": request.user.preference.export_status,
+            "letterboxd_task": LetterboxdImporter.latest_task(request.user),
         },
     )
 
@@ -172,6 +176,27 @@ def import_douban(request):
             messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))
         else:
             messages.add_message(request, messages.ERROR, _("无法识别文件。"))
+    return redirect(reverse("users:data"))
+
+
+@login_required
+def import_letterboxd(request):
+    if request.method == "POST":
+        f = (
+            settings.MEDIA_ROOT
+            + "/"
+            + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
+        )
+        os.makedirs(os.path.dirname(f), exist_ok=True)
+        with open(f, "wb+") as destination:
+            for chunk in request.FILES["file"].chunks():
+                destination.write(chunk)
+        LetterboxdImporter.enqueue(
+            request.user,
+            visibility=int(request.POST.get("visibility", 0)),
+            file=f,
+        )
+        messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))
     return redirect(reverse("users:data"))
 
 

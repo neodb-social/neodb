@@ -28,9 +28,7 @@ def _fetch_remote_image(url):
         imgdl = ProxiedImageDownloader(url)
         raw_img = imgdl.download().content
         ext = imgdl.extention
-        f = GenerateDateUUIDMediaFilePath(
-            None, f"x.{ext}", settings.MARKDOWNX_MEDIA_PATH
-        )
+        f = GenerateDateUUIDMediaFilePath(f"x.{ext}", settings.MARKDOWNX_MEDIA_PATH)
         file = settings.MEDIA_ROOT + "/" + f
         local_url = settings.MEDIA_URL + f
         os.makedirs(os.path.dirname(file), exist_ok=True)
@@ -96,9 +94,7 @@ class DoubanImporter:
             file = (
                 settings.MEDIA_ROOT
                 + "/"
-                + GenerateDateUUIDMediaFilePath(
-                    None, "x.xlsx", settings.SYNC_FILE_PATH_ROOT
-                )
+                + GenerateDateUUIDMediaFilePath("x.xlsx", settings.SYNC_FILE_PATH_ROOT)
             )
             os.makedirs(os.path.dirname(file), exist_ok=True)
             with open(file, "wb") as destination:

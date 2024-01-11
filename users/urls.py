@@ -19,6 +19,7 @@ urlpatterns = [
     path("data/import/status", data_import_status, name="import_status"),
     path("data/import/goodreads", import_goodreads, name="import_goodreads"),
     path("data/import/douban", import_douban, name="import_douban"),
+    path("data/import/letterboxd", import_letterboxd, name="import_letterboxd"),
     path("data/import/opml", import_opml, name="import_opml"),
     path("data/export/reviews", export_reviews, name="export_reviews"),
     path("data/export/marks", export_marks, name="export_marks"),

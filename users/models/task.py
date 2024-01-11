@@ -1,27 +1,9 @@
-import hashlib
-import re
-from functools import cached_property
-from operator import index
-
+import django_rq
 from auditlog.context import set_actor
-from django.conf import settings
-from django.contrib.auth.models import AbstractUser
-from django.core import validators
-from django.core.exceptions import ValidationError
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.db.models import F, Q, Value
-from django.db.models.functions import Concat, Lower
-from django.templatetags.static import static
-from django.urls import reverse
-from django.utils import timezone
-from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
-
-from management.models import Announcement
-from mastodon.api import *
-from takahe.utils import Takahe
+from user_messages import api as msg
 
 from .user import User
 
@@ -58,6 +40,14 @@ class Task(models.Model):
         return self.job_id
 
     @classmethod
+    def latest_task(cls, user: User):
+        return (
+            cls.objects.filter(user=user, type=cls.TaskType)
+            .order_by("-created_time")
+            .first()
+        )
+
+    @classmethod
     def enqueue(cls, user: User, **kwargs) -> "Task":
         d = cls.DefaultMetadata.copy()
         d.update(kwargs)
@@ -80,6 +70,12 @@ class Task(models.Model):
             task.message = "Error occured."
             task.state = cls.States.failed
             task.save(update_fields=["state", "message"])
+        task = cls.objects.get(pk=task_id)
+        if task.message:
+            if task.state == cls.States.complete:
+                msg.success(task.user, f"[{task.type}] {task.message}")
+            else:
+                msg.error(task.user, f"[{task.type}] {task.message}")
 
     def run(self) -> None:
         raise NotImplemented
