@@ -113,7 +113,7 @@
               {% csrf_token %}
               在Letterboxd网站的<a href="https://letterboxd.com/settings/data/"
    target="_blank"
-   rel="noopener">Settings页面中选择DATA</a>，或在其app的Settings菜单中选择Advanced Settings，点击 EXPORT YOUR DATA，即可下载导出名称类似<code>letterboxd-username-2018-03-11-07-52-utc.zip</code>的文件，勿需解压。
+   rel="noopener">Settings页面中选择DATA</a>，或在其app的Settings菜单中选择Advanced Settings，点击 EXPORT YOUR DATA，即可下载导出名称类似<code>letterboxd-username-2018-03-11-07-52-utc.zip</code>的文件，不必解压。
               <br>
               <input type="file" name="file" required accept=".zip">
               <p>
@@ -146,9 +146,18 @@
                 </label>
               </p>
               <input type="submit" value="{% trans '导入' %}" />
-              {% if letterboxd_task %}
-                最近导入于{{ letterboxd_task.created_time }}，状态：{{ letterboxd_task.get_state_display }}。 {{ letterboxd_task.message }}
-              {% endif %}
+              <small>
+                导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评。
+                {% if letterboxd_task %}
+                  <br>
+                  最近导入于{{ letterboxd_task.created_time }}，状态：{{ letterboxd_task.get_state_display }}。
+                  <br>
+                  {{ letterboxd_task.message }}
+                  {% if letterboxd_task.metadata.failed_urls %}
+                    <textarea readonly>{% for url in letterboxd_task.metadata.failed_urls %}{{url}}&#10;{% endfor %}</textarea>
+                  {% endif %}
+                {% endif %}
+              </small>
             </form>
           </details>
         </article>

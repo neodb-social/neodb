@@ -39,7 +39,7 @@ def _copy_dict(s, key_map):
 class TMDB_Movie(AbstractSite):
     SITE_NAME = SiteName.TMDB
     ID_TYPE = IdType.TMDB_Movie
-    URL_PATTERNS = [r"\w+://www.themoviedb.org/movie/(\d+)"]
+    URL_PATTERNS = [r"^\w+://www.themoviedb.org/movie/(\d+)"]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Movie
 
@@ -171,8 +171,8 @@ class TMDB_TV(AbstractSite):
     SITE_NAME = SiteName.TMDB
     ID_TYPE = IdType.TMDB_TV
     URL_PATTERNS = [
-        r"\w+://www.themoviedb.org/tv/(\d+)[^/]*$",
-        r"\w+://www.themoviedb.org/tv/(\d+)[^/]*/seasons",
+        r"^\w+://www.themoviedb.org/tv/(\d+)[^/]*/?$",
+        r"^\w+://www.themoviedb.org/tv/(\d+)[^/]*/seasons$",
     ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = TVShow
@@ -320,7 +320,7 @@ class TMDB_TV(AbstractSite):
 class TMDB_TVSeason(AbstractSite):
     SITE_NAME = SiteName.TMDB
     ID_TYPE = IdType.TMDB_TVSeason
-    URL_PATTERNS = [r"\w+://www.themoviedb.org/tv/(\d+)[^/]*/season/(\d+)[^/]*$"]
+    URL_PATTERNS = [r"^\w+://www.themoviedb.org/tv/(\d+)[^/]*/season/(\d+)[^/]*/?$"]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = TVSeason
     ID_PATTERN = r"^(\d+)-(\d+)$"

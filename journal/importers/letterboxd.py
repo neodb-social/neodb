@@ -5,6 +5,7 @@ import zipfile
 import pytz
 from django.utils.dateparse import parse_datetime
 from loguru import logger
+from markdownify import markdownify as md
 
 from catalog.common import *
 from catalog.common.downloaders import *
@@ -25,6 +26,7 @@ class LetterboxdImporter(Task):
         "imported": 0,
         "failed": 0,
         "visibility": 0,
+        "failed_urls": [],
         "file": None,
     }
 
@@ -34,28 +36,33 @@ class LetterboxdImporter(Task):
     def get_item_by_url(self, url):
         try:
             h = BasicDownloader(url).download().html()
-            if not h.xpath("//body/@data-tmdb-type"):
+            tu = h.xpath("//a[@data-track-action='TMDb']/@href")
+            if not tu:
                 i = h.xpath('//span[@class="film-title-wrapper"]/a/@href')
                 u2 = "https://letterboxd.com" + i[0]  # type:ignore
                 h = BasicDownloader(u2).download().html()
-            tt = h.xpath("//body/@data-tmdb-type")[0].strip()  # type:ignore
-            ti = str(h.xpath("//body/@data-tmdb-id")[0].strip())  # type:ignore
-            if tt != "movie" or not ti:
-                logger.error(f"Unknown TMDB ({tt}/{ti}) for {url}")
+                tu = h.xpath("//a[@data-track-action='TMDb']/@href")
+            if not tu:
+                logger.error(f"Unknown TMDB for {url}")
                 return None
-            site = SiteManager.get_site_by_id(IdType.TMDB_Movie, ti)
+            site = SiteManager.get_site_by_url(tu[0])  # type:ignore
             if not site:
                 return None
+            if site.ID_TYPE == IdType.TMDB_TV:
+                site = SiteManager.get_site_by_url(f"{site.url}/season/1")
+                if not site:
+                    return None
             site.get_resource_ready()
-            return site.get_item()
+            item = site.get_item()
+            return item
         except Exception as e:
             logger.error(f"Unable to parse {url} {e}")
 
-    def mark(self, url, shelf_type, date, rating=None, review=None, tags=None):
+    def mark(self, url, shelf_type, date, rating=None, text=None, tags=None):
         item = self.get_item_by_url(url)
         if not item:
             logger.error(f"Unable to get item for {url}")
-            self.progress(-1)
+            self.progress(-1, url)
             return
         owner = self.user.identity
         mark = Mark(owner, item)
@@ -68,7 +75,7 @@ class LetterboxdImporter(Task):
             )
         ):
             self.progress(0)
-            return 0
+            return
         visibility = self.metadata["visibility"]
         shelf_time_offset = {
             ShelfType.WISHLIST: " 20:00:00",
@@ -78,10 +85,19 @@ class LetterboxdImporter(Task):
         dt = parse_datetime(date + shelf_time_offset[shelf_type])
         if dt:
             dt = dt.replace(tzinfo=_tz_sh)
+        rating_grade = round(float(rating) * 2) if rating else None
+        comment = None
+        if text:
+            text = md(text)
+            if len(text) < 360:
+                comment = text
+            else:
+                title = f"评《{item.title}》"
+                Review.update_item_review(item, owner, title, text, visibility, dt)
         mark.update(
             shelf_type,
-            comment_text=review or None,
-            rating_grade=round(float(rating) * 2) if rating else None,
+            comment_text=comment,
+            rating_grade=rating_grade,
             visibility=visibility,
             created_time=dt,
         )
@@ -90,7 +106,7 @@ class LetterboxdImporter(Task):
             TagManager.tag_item(item, owner, tag_titles, visibility)
         self.progress(1)
 
-    def progress(self, mark_state: int):
+    def progress(self, mark_state: int, url=None):
         self.metadata["total"] += 1
         self.metadata["processed"] += 1
         match mark_state:
@@ -100,6 +116,8 @@ class LetterboxdImporter(Task):
                 self.metadata["skipped"] += 1
             case _:
                 self.metadata["failed"] += 1
+                if url:
+                    self.metadata["failed_urls"].append(url)
         self.message = f"{self.metadata['imported']} imported, {self.metadata['skipped']} skipped, {self.metadata['failed']} failed"
         self.save(update_fields=["metadata", "message"])
 
