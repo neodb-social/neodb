@@ -270,6 +270,9 @@ class User(AbstractUser):
 
     def sync_identity(self):
         identity = self.identity.takahe_identity
+        if identity.deleted:
+            logger.error(f"Identity {identity} is deleted, skip sync")
+            return
         identity.name = (
             self.mastodon_account.get("display_name")
             or identity.name
@@ -334,7 +337,17 @@ class User(AbstractUser):
             self.mastodon_domain_blocks = get_related_acct_list(
                 self.mastodon_site, self.mastodon_token, "/api/v1/domain_blocks"
             )
-            self.save()
+            self.save(
+                update_fields=[
+                    "mastodon_account",
+                    "mastodon_locked",
+                    "mastodon_followers",
+                    "mastodon_following",
+                    "mastodon_mutes",
+                    "mastodon_blocks",
+                    "mastodon_domain_blocks",
+                ]
+            )
             if not self.preference.mastodon_skip_userinfo:
                 self.sync_identity()
             if not self.preference.mastodon_skip_relationship:
