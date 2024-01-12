@@ -147,13 +147,15 @@
               </p>
               <input type="submit" value="{% trans '导入' %}" />
               <small>
-                导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评。
+                导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。
                 {% if letterboxd_task %}
                   <br>
                   最近导入于{{ letterboxd_task.created_time }}，状态：{{ letterboxd_task.get_state_display }}。
                   <br>
                   {{ letterboxd_task.message }}
                   {% if letterboxd_task.metadata.failed_urls %}
+                    导入失败的链接（通常由于Letterboxd的信息错误，请手工添加标记）：
+                    <br>
                     <textarea readonly>{% for url in letterboxd_task.metadata.failed_urls %}{{url}}&#10;{% endfor %}</textarea>
                   {% endif %}
                 {% endif %}

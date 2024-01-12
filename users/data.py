@@ -173,7 +173,7 @@ def import_douban(request):
             int(request.POST.get("import_mode", 0)),
         )
         if importer.import_from_file(request.FILES["file"]):
-            messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))
+            messages.add_message(request, messages.INFO, _("文件已上传，等待后台导入。"))
         else:
             messages.add_message(request, messages.ERROR, _("无法识别文件。"))
     return redirect(reverse("users:data"))
@@ -196,7 +196,7 @@ def import_letterboxd(request):
             visibility=int(request.POST.get("visibility", 0)),
             file=f,
         )
-        messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))
+        messages.add_message(request, messages.INFO, _("文件已上传，等待后台导入。"))
     return redirect(reverse("users:data"))
 
 
@@ -209,7 +209,7 @@ def import_opml(request):
             int(request.POST.get("import_mode", 0)),
         )
         if importer.import_from_file(request.FILES["file"]):
-            messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))
+            messages.add_message(request, messages.INFO, _("文件已上传，等待后台导入。"))
         else:
             messages.add_message(request, messages.ERROR, _("无法识别文件。"))
     return redirect(reverse("users:data"))

@@ -37,11 +37,13 @@ class LetterboxdImporter(Task):
         try:
             h = BasicDownloader(url).download().html()
             tu = h.xpath("//a[@data-track-action='TMDb']/@href")
+            iu = h.xpath("//a[@data-track-action='IMDb']/@href")
             if not tu:
                 i = h.xpath('//span[@class="film-title-wrapper"]/a/@href')
                 u2 = "https://letterboxd.com" + i[0]  # type:ignore
                 h = BasicDownloader(u2).download().html()
                 tu = h.xpath("//a[@data-track-action='TMDb']/@href")
+                iu = h.xpath("//a[@data-track-action='IMDb']/@href")
             if not tu:
                 logger.error(f"Unknown TMDB for {url}")
                 return None
@@ -52,11 +54,21 @@ class LetterboxdImporter(Task):
                 site = SiteManager.get_site_by_url(f"{site.url}/season/1")
                 if not site:
                     return None
-            site.get_resource_ready()
-            item = site.get_item()
-            return item
+            try:
+                site.get_resource_ready()
+                return site.get_item()
+            except:
+                imdb_url = str(iu[0])  # type:ignore
+                logger.warning(
+                    f"Fetching {url}: TMDB {site.url} failed, try IMDB {imdb_url}"
+                )
+                site = SiteManager.get_site_by_url(imdb_url)
+                if not site:
+                    return None
+                site.get_resource_ready()
+                return site.get_item()
         except Exception as e:
-            logger.error(f"Unable to parse {url} {e}")
+            logger.error(f"Fetching {url}: error {e}")
 
     def mark(self, url, shelf_type, date, rating=None, text=None, tags=None):
         item = self.get_item_by_url(url)

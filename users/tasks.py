@@ -1,9 +1,4 @@
-from datetime import timedelta
-
-from django.conf import settings
-from django.utils import timezone
 from loguru import logger
-from tqdm import tqdm
 
 from .models import User
 
