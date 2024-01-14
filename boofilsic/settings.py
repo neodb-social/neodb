@@ -70,6 +70,8 @@ env = environ.FileAwareEnv(
     NEODB_DOWNLOADER_CACHE_TIMEOUT=(int, 300),
     # Number of retries of downloader, when site is using RetryDownloader
     NEODB_DOWNLOADER_RETRIES=(int, 3),
+    # Number of marks required for an item to be included in discover
+    NEODB_MIN_MARKS_FOR_DISCOVER=(int, 1),
     # Disable cron jobs
     NEODB_DISABLE_CRON=(bool, False),
     NEODB_DISABLE_CRON_JOBS=(list, []),
@@ -179,6 +181,8 @@ INVITE_ONLY = env("NEODB_INVITE_ONLY")
 # By default, NeoDB will relay with relay.neodb.net so that public user ratings/etc can be shared across instances
 # If you are running a development server, set this to True to disable this behavior
 DISABLE_DEFAULT_RELAY = env("NEODB_DISABLE_DEFAULT_RELAY", default=DEBUG)
+
+MIN_MARKS_FOR_DISCOVER = env("NEODB_MIN_MARKS_FOR_DISCOVER")
 
 MASTODON_ALLOWED_SITES = env("NEODB_LOGIN_MASTODON_WHITELIST")
 

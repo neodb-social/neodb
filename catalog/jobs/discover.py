@@ -10,14 +10,14 @@ from common.models import BaseJob, JobManager
 from journal.models import Comment, ShelfMember, q_item_in_category
 
 MAX_ITEMS_PER_PERIOD = 12
-MIN_MARKS = 1
+MIN_MARKS = settings.MIN_MARKS_FOR_DISCOVER
 MAX_DAYS_FOR_PERIOD = 96
 MIN_DAYS_FOR_PERIOD = 6
 
 
 @JobManager.register
 class DiscoverGenerator(BaseJob):
-    interval = timedelta(hours=2)
+    interval = timedelta(hours=1)
 
     def get_popular_marked_item_ids(self, category, days, exisiting_ids):
         item_ids = [
