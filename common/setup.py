@@ -157,7 +157,7 @@ class Setup:
         Indexer.init()
 
         # Register cron jobs if not yet
-        if settings.DISABLE_CRON:
+        if settings.DISABLE_CRON_JOBS and "*" in settings.DISABLE_CRON_JOBS:
             logger.info("Cron jobs are disabled.")
             JobManager.cancel_all()
         else:

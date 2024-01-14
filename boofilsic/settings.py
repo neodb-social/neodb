@@ -72,8 +72,7 @@ env = environ.FileAwareEnv(
     NEODB_DOWNLOADER_RETRIES=(int, 3),
     # Number of marks required for an item to be included in discover
     NEODB_MIN_MARKS_FOR_DISCOVER=(int, 1),
-    # Disable cron jobs
-    NEODB_DISABLE_CRON=(bool, False),
+    # Disable cron jobs, * for all
     NEODB_DISABLE_CRON_JOBS=(list, []),
     # INTEGRATED TAKAHE CONFIGURATION
     TAKAHE_DB_URL=(str, "postgres://takahe:takahepass@127.0.0.1:5432/takahe"),
@@ -243,7 +242,6 @@ DOWNLOADER_REQUEST_TIMEOUT = env("NEODB_DOWNLOADER_REQUEST_TIMEOUT")
 DOWNLOADER_CACHE_TIMEOUT = env("NEODB_DOWNLOADER_CACHE_TIMEOUT")
 DOWNLOADER_RETRIES = env("NEODB_DOWNLOADER_RETRIES")
 
-DISABLE_CRON = env("NEODB_DISABLE_CRON")
 DISABLE_CRON_JOBS = env("NEODB_DISABLE_CRON_JOBS")
 FANOUT_LIMIT_DAYS = env("NEODB_FANOUT_LIMIT_DAYS")
 # ====== USER CONFIGUTRATION END ======
