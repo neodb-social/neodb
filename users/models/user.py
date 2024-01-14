@@ -214,6 +214,13 @@ class User(AbstractUser):
     def registration_complete(self):
         return self.username is not None
 
+    @property
+    def last_usage(self):
+        from journal.models import Piece
+
+        p = Piece.objects.filter(owner=self.identity).order_by("-edited_time").first()
+        return p.edited_time if p else None
+
     def clear(self):
         if self.mastodon_site == "removed" and not self.is_active:
             return
@@ -344,6 +351,8 @@ class User(AbstractUser):
                     "mastodon_mutes",
                     "mastodon_blocks",
                     "mastodon_domain_blocks",
+                    "mastodon_last_refresh",
+                    "mastodon_last_reachable",
                 ]
             )
             if not self.preference.mastodon_skip_userinfo:
