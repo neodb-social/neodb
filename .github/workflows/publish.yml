@@ -34,7 +34,9 @@ jobs:
       - name: Overwrite version in code
         env:
           REF_NAME: ${{ github.ref_name }}
-        run: echo '__version__ = "'$REF_NAME'"' > boofilsic/__init__.py
+        run: |
+          echo '__version__ = "'$REF_NAME'"' > boofilsic/__init__.py
+          echo '__version__ = "'$REF_NAME'"' > neodb-takahe/takahe/neodb.py
 
       - name: Send Discord notification
         uses: appleboy/discord-action@master
