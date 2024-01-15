@@ -216,9 +216,13 @@ class User(AbstractUser):
 
     @property
     def last_usage(self):
-        from journal.models import Piece
+        from journal.models import ShelfMember
 
-        p = Piece.objects.filter(owner=self.identity).order_by("-edited_time").first()
+        p = (
+            ShelfMember.objects.filter(owner=self.identity)
+            .order_by("-edited_time")
+            .first()
+        )
         return p.edited_time if p else None
 
     def clear(self):
