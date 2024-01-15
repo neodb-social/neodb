@@ -9,6 +9,7 @@ from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
 from takahe.models import Follow as TakaheFollow
 from takahe.models import Identity as TakaheIdentity
+from takahe.models import Relay as TakaheRelay
 from takahe.models import User as TakaheUser
 from takahe.utils import Takahe
 from users.models import User
@@ -99,45 +100,24 @@ class Setup:
                 logger.info(f"Updated user {user.username} as admin")
 
     def sync_relay(self):
-        relay_follow = TakaheFollow.objects.filter(
-            source__username="__relay__",
-            source__local=True,
-            target__actor_uri=settings.DEFAULT_RELAY_SERVER,
+        relay = TakaheRelay.objects.filter(
+            state__in=["new", "subscribing", "subscribed"],
+            inbox_uri=settings.DEFAULT_RELAY_SERVER,
         ).first()
         if settings.DISABLE_DEFAULT_RELAY:
-            if relay_follow:
+            if relay:
                 logger.info("Default relay is disabled, unsubscribing...")
-                Takahe.create_internal_message(
-                    {
-                        "type": "UnfollowRelay",
-                        "actor_uri": settings.DEFAULT_RELAY_SERVER,
-                    }
-                )
+                Takahe.update_state(relay, "unsubscribing")
             else:
                 logger.info(f"Default relay is disabled.")
         else:
-            if relay_follow:
-                logger.debug(
-                    f"Default relay is enabled and subscribed, state: {relay_follow.state}"
-                )
+            if relay:
+                logger.debug(f"Default relay is enabled, state: {relay.state}")
             else:
                 logger.info("Default relay is enabled, subscribing...")
-                relay_actor = TakaheIdentity.objects.filter(
-                    username="__relay__",
-                    local=True,
-                ).first()
-                if not relay_actor:
-                    logger.warning(
-                        f"Default relay is enabled but relay actor does not exist."
-                    )
-                    return
-                Takahe.create_internal_message(
-                    {
-                        "type": "AddFollow",
-                        "source": relay_actor.pk,
-                        "target_actor": settings.DEFAULT_RELAY_SERVER,
-                        "boosts": False,
-                    }
+                TakaheRelay.objects.update_or_create(
+                    inbox_uri=settings.DEFAULT_RELAY_SERVER,
+                    defaults={"state": "new"},
                 )
 
     def run(self):

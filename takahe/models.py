@@ -1885,3 +1885,20 @@ class Config(models.Model):
         unique_together = [
             ("key", "user", "identity", "domain"),
         ]
+
+
+class Relay(models.Model):
+    inbox_uri = models.CharField(max_length=500, unique=True)
+
+    # state = StateField(RelayStates)
+    state = models.CharField(max_length=100, default="new")
+    state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        # managed = False
+        db_table = "users_relay"

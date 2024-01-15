@@ -886,4 +886,31 @@ class Migration(migrations.Migration):
                 "db_table": "activities_postattachment",
             },
         ),
+        migrations.CreateModel(
+            name="Relay",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("inbox_uri", models.CharField(max_length=500, unique=True)),
+                ("state", models.CharField(default="new", max_length=100)),
+                ("state_changed", models.DateTimeField(auto_now_add=True)),
+                ("state_next_attempt", models.DateTimeField(blank=True, null=True)),
+                (
+                    "state_locked_until",
+                    models.DateTimeField(blank=True, db_index=True, null=True),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                "db_table": "users_relay",
+            },
+        ),
     ]

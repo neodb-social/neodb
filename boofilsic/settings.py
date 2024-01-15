@@ -541,7 +541,7 @@ CORS_ALLOW_METHODS = (
 
 DEACTIVATE_AFTER_UNREACHABLE_DAYS = 120
 
-DEFAULT_RELAY_SERVER = "https://relay.neodb.net/actor"
+DEFAULT_RELAY_SERVER = "https://relay.neodb.net/inbox"
 
 SENTRY_DSN = env("NEODB_SENTRY_DSN")
 if SENTRY_DSN:
