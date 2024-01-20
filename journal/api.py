@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 
+from django.http import Http404, HttpResponse
 from ninja import Field, Schema
 from ninja.pagination import paginate
 
@@ -54,15 +55,18 @@ def list_marks_on_shelf(
 @api.api_operation(
     ["GET", "OPTIONS"],
     "/me/shelf/item/{item_uuid}",
-    response={200: MarkSchema, 401: Result, 403: Result, 404: Result},
+    response={200: MarkSchema, 302: Result, 401: Result, 403: Result, 404: Result},
 )
-def get_mark_by_item(request, item_uuid: str):
+def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     """
     Get holding mark on current user's shelf by item uuid
     """
     item = Item.get_by_url(item_uuid)
-    if not item:
+    if not item or item.is_deleted:
         return 404, {"message": "Item not found"}
+    if item.merged_to_item:
+        response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}"
+        return 302, {"message": "Item merged", "url": item.merged_to_item.api_url}
     shelfmember = request.user.shelf_manager.locate_item(item)
     if not shelfmember:
         return 404, {"message": "Mark not found"}
@@ -84,7 +88,7 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     updating mark without `rating_grade`, `comment_text` or `tags` field will clear them.
     """
     item = Item.get_by_url(item_uuid)
-    if not item:
+    if not item or item.is_deleted or item.merged_to_item:
         return 404, {"message": "Item not found"}
     m = Mark(request.user.identity, item)
     TagManager.tag_item(item, request.user.identity, mark.tags, mark.visibility)
