@@ -32,7 +32,7 @@ class MarkInSchema(Schema):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/me/shelf/{type}",
     response={200: List[MarkSchema], 401: Result, 403: Result},
 )
@@ -53,7 +53,7 @@ def list_marks_on_shelf(
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/me/shelf/item/{item_uuid}",
     response={200: MarkSchema, 302: Result, 401: Result, 403: Result, 404: Result},
 )
@@ -74,7 +74,7 @@ def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
 
 
 @api.api_operation(
-    ["POST", "OPTIONS"],
+    ["POST"],
     "/me/shelf/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
 )
@@ -104,7 +104,7 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
 
 
 @api.api_operation(
-    ["DELETE", "OPTIONS"],
+    ["DELETE"],
     "/me/shelf/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
 )
@@ -141,7 +141,7 @@ class ReviewInSchema(Schema):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/me/review/",
     response={200: List[ReviewSchema], 401: Result, 403: Result},
 )
@@ -159,7 +159,7 @@ def list_reviews(request, category: AvailableItemCategory | None = None):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/me/review/item/{item_uuid}",
     response={200: ReviewSchema, 401: Result, 403: Result, 404: Result},
 )
@@ -204,7 +204,7 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
 
 
 @api.api_operation(
-    ["DELETE", "OPTIONS"],
+    ["DELETE"],
     "/me/review/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
 )

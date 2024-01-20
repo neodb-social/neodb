@@ -26,7 +26,7 @@ class SearchResult(Schema):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/catalog/search",
     response={200: SearchResult, 400: Result},
     summary="Search items in catalog",
@@ -56,7 +56,7 @@ def search_item(
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/catalog/fetch",
     response={200: ItemSchema, 202: Result, 404: Result},
     summary="Fetch item from URL of a supported site",
@@ -98,7 +98,7 @@ def _get_item(cls, uuid, response):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/book/{uuid}",
     response={200: EditionSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -108,7 +108,7 @@ def get_book(request, uuid: str, response: HttpResponse):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/movie/{uuid}",
     response={200: MovieSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -118,7 +118,7 @@ def get_movie(request, uuid: str, response: HttpResponse):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/tv/{uuid}",
     response={200: TVShowSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -128,7 +128,7 @@ def get_tv_show(request, uuid: str, response: HttpResponse):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/tv/season/{uuid}",
     response={200: TVSeasonSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -138,7 +138,7 @@ def get_tv_season(request, uuid: str, response: HttpResponse):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/tv/episode/{uuid}",
     response={200: TVEpisodeSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -148,7 +148,7 @@ def get_tv_episode(request, uuid: str, response: HttpResponse):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/podcast/{uuid}",
     response={200: PodcastSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -158,7 +158,7 @@ def get_podcast(request, uuid: str, response: HttpResponse):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/album/{uuid}",
     response={200: AlbumSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -168,7 +168,7 @@ def get_album(request, uuid: str, response: HttpResponse):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/game/{uuid}",
     response={200: GameSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -178,7 +178,7 @@ def get_game(request, uuid: str, response: HttpResponse):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/performance/{uuid}",
     response={200: PerformanceSchema, 302: RedirectedResult, 404: Result},
     auth=None,
@@ -188,7 +188,7 @@ def get_performance(request, uuid: str, response: HttpResponse):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/performance/production/{uuid}",
     response={200: PerformanceProductionSchema, 302: RedirectedResult, 404: Result},
     auth=None,

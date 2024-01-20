@@ -14,7 +14,7 @@ class UserSchema(Schema):
 
 
 @api.api_operation(
-    ["GET", "OPTIONS"],
+    ["GET"],
     "/me",
     response={200: UserSchema, 401: Result},
     summary="Get current user's basic info",
