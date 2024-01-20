@@ -1,4 +1,5 @@
-# NeoDB
+# 🧩 NeoDB
+_mark the things you love._
 
 ![](https://github.com/neodb-social/neodb/actions/workflows/check.yml/badge.svg?branch=main)
 ![](https://github.com/neodb-social/neodb/actions/workflows/tests.yml/badge.svg?branch=main)
@@ -7,7 +8,7 @@
 
 NeoDB (fka boofilsic) is an open source project and free service to help users manage, share and discover collections, reviews and ratings for culture products (e.g. books, movies, music, podcasts, games and performances) in Fediverse.
 
-[NeoDB.social](https://neodb.social) and [NiceDB](https://nicedb.org) are free instances hosted by volunteers. Your support is essential to keep the service free and open-sourced.
+[NeoDB.social](https://neodb.social) and [NiceDB](https://nicedb.org) are free instances hosted by volunteers. Your support is essential to keep these services free and open-sourced.
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/neodb)
 
