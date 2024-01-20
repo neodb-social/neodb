@@ -27,6 +27,7 @@ NeoDB (fka boofilsic) is an open source project and free service to help users m
     * Steam
     * IGDB
     * Bangumi
+    * Board Game Geek
     * any RSS link to a podcast
 - Logged in users can manage their collections:
   + mark an item as wishlist/in progress/complete
@@ -37,7 +38,8 @@ NeoDB (fka boofilsic) is an open source project and free service to help users m
   + Import and export full user data archive
   + import list or archives from some 3rd party sites:
     * Goodreads reading list
-    * Douban archive (via Doufen)
+    * Letterboxd watch list
+    * Douban archive (via [Doufen](https://doufen.org/))
 - Social features:
   + view home feed with friends' activities
     * every activity can be set as viewable to self/follower-only/public
@@ -45,10 +47,10 @@ NeoDB (fka boofilsic) is an open source project and free service to help users m
   + login with other Fediverse server account and import social graph
     * supported servers: Mastodon/Pleroma/Firefish/GoToSocial/Pixelfed/friendica/Takahē
   + share collections and reviews to Fediverse ~~and Twitter~~ feed
-  + ActivityPub support is under active development
-    * NeoDB users can interact with users on other ActivityPub services like Mastodon and Pleroma
-    * NeoDB instances communicate via an extended version of ActivityPub
-    * NeoDB instances may share public rating and reviews with relays
+  + ActivityPub support
+    * NeoDB users can follow and interact with users on other ActivityPub services like Mastodon and Pleroma
+    * NeoDB instances communicate with each other via an extended version of ActivityPub
+    * NeoDB instances may share public rating and reviews with a default relay
     * implementation is based on [Takahē](https://jointakahe.org/) server
 - Other
   + i18n/language support are planned
@@ -67,5 +69,5 @@ Please see [doc/install.md](doc/install.md)
 
 ## Sponsor
 If you like this project, please consider sponsoring
- - NeoDB on [ko-fi](https://ko-fi.com/neodb) or [liberapay](https://liberapay.com/neodb)
+ - NeoDB on [ko-fi](https://ko-fi.com/neodb)
  - NiceDB on [Patreon](https://patreon.com/tertius).
