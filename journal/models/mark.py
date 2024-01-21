@@ -68,6 +68,10 @@ class Mark:
         return ""
 
     @property
+    def action_label_for_feed(self) -> str:
+        return re.sub(r"不(.+)了", r"不再\1", str(self.action_label))  # TODO i18n
+
+    @property
     def shelf_label(self) -> str | None:
         return (
             ShelfManager.get_label(self.shelf_type, self.item.category)

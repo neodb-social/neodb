@@ -36,7 +36,7 @@
   {% endif %}
 </span>
 <div class="spacing">
-  {{ activity.action_object.mark.action_label }}
+  {{ activity.action_object.mark.action_label_for_feed }}
   {% comment %} {{ activity.action_object.item.title }} {% endcomment %}
   {% if activity.action_object.mark.rating_grade %}
     {{ activity.action_object.mark.rating_grade | rating_star }}

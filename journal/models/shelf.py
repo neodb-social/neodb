@@ -8,7 +8,6 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from catalog.models import Item, ItemCategory
-from takahe.models import Identity, Post
 from users.models import APIdentity
 
 from .common import q_item_in_category
@@ -22,33 +21,40 @@ class ShelfType(models.TextChoices):
     WISHLIST = ("wishlist", "未开始")
     PROGRESS = ("progress", "进行中")
     COMPLETE = ("complete", "完成")
-    # DISCARDED = ('discarded', '放弃')
+    DROPPED = ("dropped", "放弃")
 
 
 SHELF_LABELS = [
     [ItemCategory.Book, ShelfType.WISHLIST, _("想读")],
     [ItemCategory.Book, ShelfType.PROGRESS, _("在读")],
     [ItemCategory.Book, ShelfType.COMPLETE, _("读过")],
+    [ItemCategory.Book, ShelfType.DROPPED, _("不读了")],
     [ItemCategory.Movie, ShelfType.WISHLIST, _("想看")],
     [ItemCategory.Movie, ShelfType.PROGRESS, _("在看")],
     [ItemCategory.Movie, ShelfType.COMPLETE, _("看过")],
+    [ItemCategory.Movie, ShelfType.DROPPED, _("不看了")],
     [ItemCategory.TV, ShelfType.WISHLIST, _("想看")],
     [ItemCategory.TV, ShelfType.PROGRESS, _("在看")],
     [ItemCategory.TV, ShelfType.COMPLETE, _("看过")],
+    [ItemCategory.TV, ShelfType.DROPPED, _("不看了")],
     [ItemCategory.Music, ShelfType.WISHLIST, _("想听")],
     [ItemCategory.Music, ShelfType.PROGRESS, _("在听")],
     [ItemCategory.Music, ShelfType.COMPLETE, _("听过")],
+    [ItemCategory.Music, ShelfType.DROPPED, _("不听了")],
     [ItemCategory.Game, ShelfType.WISHLIST, _("想玩")],
     [ItemCategory.Game, ShelfType.PROGRESS, _("在玩")],
     [ItemCategory.Game, ShelfType.COMPLETE, _("玩过")],
+    [ItemCategory.Game, ShelfType.DROPPED, _("不玩了")],
     [ItemCategory.Podcast, ShelfType.WISHLIST, _("想听")],
     [ItemCategory.Podcast, ShelfType.PROGRESS, _("在听")],
     [ItemCategory.Podcast, ShelfType.COMPLETE, _("听过")],
+    [ItemCategory.Podcast, ShelfType.DROPPED, _("不听了")],
     # disable all shelves for PodcastEpisode
     [ItemCategory.Performance, ShelfType.WISHLIST, _("想看")],
     # disable progress shelf for Performance
     [ItemCategory.Performance, ShelfType.PROGRESS, _("")],
     [ItemCategory.Performance, ShelfType.COMPLETE, _("看过")],
+    [ItemCategory.Performance, ShelfType.DROPPED, _("不看了")],
 ]
 
 
@@ -82,7 +88,7 @@ class ShelfMember(ListMember):
 
     @classmethod
     def update_by_ap_object(
-        cls, owner: APIdentity, item: Identity, obj: dict, post_id: int, visibility: int
+        cls, owner: APIdentity, item: Item, obj: dict, post_id: int, visibility: int
     ):
         p = cls.objects.filter(owner=owner, item=item).first()
         if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
@@ -232,12 +238,14 @@ class ShelfManager:
         self.owner = owner
         qs = Shelf.objects.filter(owner=self.owner)
         self.shelf_list = {v.shelf_type: v for v in qs}
-        if len(self.shelf_list) == 0:
+        if len(self.shelf_list) < len(ShelfType):
             self.initialize()
 
     def initialize(self):
         for qt in ShelfType:
-            self.shelf_list[qt] = Shelf.objects.create(owner=self.owner, shelf_type=qt)
+            self.shelf_list[qt] = Shelf.objects.get_or_create(
+                owner=self.owner, shelf_type=qt
+            )[0]
 
     def locate_item(self, item: Item) -> ShelfMember | None:
         return ShelfMember.objects.filter(item=item, owner=self.owner).first()

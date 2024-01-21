@@ -10,6 +10,7 @@
 {% load thumb %}
 {% load duration %}
 <dialog open
+        class="mark-editor"
         _="on close_dialog add .closing then wait for animationend then remove me">
   <article>
     <header>
@@ -19,7 +20,7 @@
             _="on click trigger close_dialog" />
       <strong>标记 {{ item.title }}</strong>
     </header>
-    <div class="add-to-list-modal__body">
+    <div>
       <form method="post" action="{% url 'journal:mark' item.uuid %}">
         {% csrf_token %}
         {% if shelf_labels %}
@@ -33,7 +34,7 @@
                            value="{{ k }}"
                            required
                            id="id_status_{{ k }}"
-                           {% if k == "wishlist" %} _="on click add .hidden to .rating-editor" {% else %} _="on click remove .hidden from .rating-editor" {% endif %}
+                           {% if k == "wishlist" or k == "dropped" %} _="on click add .hidden to .rating-editor" {% else %} _="on click remove .hidden from .rating-editor" {% endif %}
                            {% if shelf_type == k %}checked=""{% endif %}>
                     <label for="id_status_{{ k }}">{{ v }}</label>
                   {% endif %}
@@ -70,7 +71,7 @@
                       id="id_text">{{ mark.comment_text|default:"" }}</textarea>
           </fieldset>
         </div>
-        <div class="mark-modal__tag">
+        <div>
           <div class="tag-input">
             <input name="tags"
                    type="text"

@@ -548,7 +548,9 @@ class Takahe:
         action_label = "创建"
         category = "收藏单"
         item_link = collection.absolute_url
-        pre_conetent = f'{action_label}{category}<a href="{item_link}">《{collection.title}》</a><br>'
+        pre_conetent = (
+            f'{action_label}{category} <a href="{item_link}">{collection.title}</a><br>'
+        )
         content = collection.plain_content
         if len(content) > 360:
             content = content[:357] + "..."
@@ -587,7 +589,7 @@ class Takahe:
         )
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{comment.item_url}"
         action_label = "评论" if comment.text else "分享"
-        pre_conetent = f'{action_label}{category}<a href="{item_link}">《{comment.item.display_title}》</a><br>'
+        pre_conetent = f'{action_label}{category} <a href="{item_link}">{comment.item.display_title}</a><br>'
         spoiler, txt = Takahe.get_spoiler_text(comment.text, comment.item)
         content = f"{txt}\n{tags}"
         data = {
@@ -630,7 +632,7 @@ class Takahe:
         stars = _rating_to_emoji(review.rating_grade, 1)
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{review.item.url}"
 
-        pre_conetent = f'发布了关于<a href="{item_link}">《{review.item.display_title}》</a>的评论：<br><a href="{review.absolute_url}">{review.title}</a>'
+        pre_conetent = f'发布了关于 <a href="{item_link}">{review.item.display_title}</a> 的评论：<br><a href="{review.absolute_url}">{review.title}</a>'
         content = f"{stars}\n{tags}"
         data = {
             "object": {
@@ -671,10 +673,8 @@ class Takahe:
         )
         stars = _rating_to_emoji(mark.rating_grade, 1)
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{mark.item.url}"
-
-        pre_conetent = (
-            f'{mark.action_label}<a href="{item_link}">《{mark.item.display_title}》</a>'
-        )
+        action = mark.action_label_for_feed
+        pre_conetent = f'{action} <a href="{item_link}">{mark.item.display_title}</a>'
         spoiler, txt = Takahe.get_spoiler_text(mark.comment_text, mark.item)
         content = f"{stars} \n{txt}\n{tags}"
         data = {

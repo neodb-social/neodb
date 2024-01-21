@@ -42,6 +42,8 @@ def profile(request: AuthedHttpRequest, user_name):
     for category in visbile_categories:
         shelf_list[category] = {}
         for shelf_type in ShelfType:
+            if shelf_type == ShelfType.DROPPED:
+                continue
             label = target.shelf_manager.get_label(shelf_type, category)
             if label is not None:
                 members = target.shelf_manager.get_latest_members(

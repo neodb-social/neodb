@@ -55,7 +55,7 @@
         <div id="item-primary-action" class="right mark">
           <div class="item-action item-mark-buttons">
             {% for k, v in shelf_labels %}
-              {% if v %}
+              {% if v and k != 'dropped' %}
                 <button class="primary"
                         data-status="{{ k }}"
                         hx-get="{% url 'journal:mark' item.uuid %}?shelf_type={{ k }}"

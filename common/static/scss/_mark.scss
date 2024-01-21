@@ -1,3 +1,9 @@
+.mark-editor {
+  [type=checkbox], [type=radio] {
+    margin-inline-end: .1em;
+  }
+}
+
 #mark_date {
   width: unset !important;
 }

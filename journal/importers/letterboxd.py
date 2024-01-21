@@ -82,7 +82,7 @@ class LetterboxdImporter(Task):
             mark.shelf_type == shelf_type
             or mark.shelf_type == ShelfType.COMPLETE
             or (
-                mark.shelf_type == ShelfType.PROGRESS
+                mark.shelf_type in [ShelfType.PROGRESS, ShelfType.DROPPED]
                 and shelf_type == ShelfType.WISHLIST
             )
         ):
