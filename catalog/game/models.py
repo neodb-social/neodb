@@ -102,6 +102,7 @@ class Game(Item):
         auto_now_add=False,
         null=True,
         blank=True,
+        help_text=_("YYYY-MM-DD"),
     )
 
     genre = jsondata.ArrayField(
