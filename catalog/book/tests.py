@@ -118,6 +118,14 @@ class GoodreadsTestCase(TestCase):
         )
 
     @use_local_response
+    def test_scrape2(self):
+        site = SiteManager.get_site_by_url(
+            "https://www.goodreads.com/book/show/13079982-fahrenheit-451"
+        )
+        site.get_resource_ready()
+        self.assertNotIn("<br", site.resource.metadata.get("brief"))
+
+    @use_local_response
     def test_asin(self):
         t_url = "https://www.goodreads.com/book/show/45064996-hyperion"
         site = SiteManager.get_site_by_url(t_url)

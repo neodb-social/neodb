@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from datetime import datetime
 
 from django.utils.timezone import make_aware
@@ -68,6 +69,10 @@ class Goodreads(AbstractSite):
             raise ParseError(self, "Book in __NEXT_DATA__ json")
         data["title"] = b["title"]
         data["brief"] = b["description"]
+        if data["brief"]:
+            data["brief"] = re.sub(
+                r"<[^>]*>", "", data["brief"].replace("<br />", "\n")
+            )
         ids = {}
         t, n = detect_isbn_asin(b["details"].get("asin"))
         if t:
