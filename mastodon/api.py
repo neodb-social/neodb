@@ -562,7 +562,7 @@ def share_mark(mark, post_as_new=False):
         site.star_mode if site else 0,
     )
     spoiler_text, txt = get_spoiler_text(mark.comment_text or "", mark.item)
-    content = f"{mark.action_label}《{mark.item.display_title}》{stars}\n{mark.item.absolute_url}\n{txt}{tags}"
+    content = f"{mark.action_label_for_feed}《{mark.item.display_title}》{stars}\n{mark.item.absolute_url}\n{txt}{tags}"
     update_id = (
         None
         if post_as_new

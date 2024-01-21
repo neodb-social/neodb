@@ -675,8 +675,7 @@ class Takahe:
         )
         stars = _rating_to_emoji(mark.rating_grade, 1)
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{mark.item.url}"
-        action = mark.action_label_for_feed
-        pre_conetent = f'{action} <a href="{item_link}">{mark.item.display_title}</a>'
+        pre_conetent = f'{mark.action_label_for_feed} <a href="{item_link}">{mark.item.display_title}</a>'
         spoiler, txt = Takahe.get_spoiler_text(mark.comment_text, mark.item)
         content = f"{stars} \n{txt}\n{tags}"
         data = {

@@ -49,7 +49,9 @@ class WrappedView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         user: User = self.request.user  # type: ignore
         target = user.identity
-        year = kwargs.get("year")
+        year = int(kwargs.get("year", 0))
+        if year < 1970 or year > 2100:
+            year = 2000
         context = super().get_context_data(**kwargs)
         context["identity"] = target
         cnt = {}
