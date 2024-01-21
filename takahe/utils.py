@@ -188,15 +188,17 @@ class Takahe:
                 raise ValueError(f"local takahe identity {identity} missing APIdentity")
             if not identity.domain_id:
                 raise ValueError(f"remote takahe identity {identity} missing domain")
-            apid = APIdentity.objects.create(
+            apid = APIdentity.objects.get_or_create(
                 id=identity.pk,
-                user=None,
-                local=False,
-                username=identity.username,
-                domain_name=identity.domain_id,
-                deleted=identity.deleted,
-                anonymous_viewable=False,
-            )
+                defaults={
+                    "user": None,
+                    "local": False,
+                    "username": identity.username,
+                    "domain_name": identity.domain_id,
+                    "deleted": identity.deleted,
+                    "anonymous_viewable": False,
+                },
+            )[0]
         return apid
 
     @staticmethod
