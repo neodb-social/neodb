@@ -47,7 +47,7 @@ class ShelfTest(TestCase):
     def test_shelf(self):
         user = User.register(email="a@b.com", username="user")
         shelf_manager = user.identity.shelf_manager
-        self.assertEqual(len(shelf_manager.shelf_list.items()), 3)
+        self.assertEqual(len(shelf_manager.shelf_list.items()), 4)
         book1 = Edition.objects.create(title="Hyperion")
         book2 = Edition.objects.create(title="Andymion")
         q1 = shelf_manager.get_shelf(ShelfType.WISHLIST)
