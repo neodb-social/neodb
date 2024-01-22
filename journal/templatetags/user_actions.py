@@ -10,7 +10,7 @@ register = template.Library()
 def wish_item_action(context, item):
     user = context["request"].user
     action = {}
-    if user and user.is_authenticated:
+    if user and user.is_authenticated and item:
         action = {
             "taken": user.shelf_manager.locate_item(item) is not None,
             "url": reverse("journal:wish", args=[item.uuid]),
