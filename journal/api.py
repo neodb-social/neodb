@@ -90,6 +90,8 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     item = Item.get_by_url(item_uuid)
     if not item or item.is_deleted or item.merged_to_item:
         return 404, {"message": "Item not found"}
+    if mark.created_time and mark.created_time >= timezone.now():
+        mark.created_time = None
     m = Mark(request.user.identity, item)
     TagManager.tag_item(item, request.user.identity, mark.tags, mark.visibility)
     m.update(
@@ -191,6 +193,8 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
+    if review.created_time and review.created_time >= timezone.now():
+        review.created_time = None
     Review.update_item_review(
         item,
         request.user.identity,
