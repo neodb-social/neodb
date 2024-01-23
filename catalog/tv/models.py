@@ -388,7 +388,12 @@ class TVSeason(Item):
     @property
     def display_title(self):
         if self.season_number and not re.match(r"^.+第.+季$", self.title):
-            return f"{self.title} 第{self.season_number}季"  # TODO i18n
+            if self.parent_item and (
+                self.parent_item.season_count == 1 or not self.parent_item.season_count
+            ):
+                return self.title
+            else:
+                return f"{self.title} 第{self.season_number}季"  # TODO i18n
         else:
             return self.title
 
