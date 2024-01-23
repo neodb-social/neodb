@@ -10,6 +10,8 @@
 {% load strip_scheme %}
 {% load thumb %}
 {% block head %}
-  <meta http-equiv="refresh"
-        content="0;url={{ item.parent_item.url }}?focus={{ item.uuid }}" />
+  {% if item.parent_item %}
+    <meta http-equiv="refresh"
+          content="0;url={{ item.parent_item.url }}?focus={{ item.uuid }}" />
+  {% endif %}
 {% endblock %}

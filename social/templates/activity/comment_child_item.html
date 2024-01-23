@@ -24,19 +24,6 @@
          data-position="{{ activity.action_object.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
     </span>
   {% endif %}
-  <!--
-  <span>
-    {% if not action.taken %}
-      <a title="添加标记" hx-get="{% url 'journal:mark' activity.action_object.item.parent_item.uuid %}?shelf_type=wishlist" hx-target="body" hx-swap="beforeend">
-        <i class="fa-regular fa-bookmark"></i>
-      </a>
-    {% else %}
-      <a title="修改标记" hx-get="{% url 'journal:mark' activity.action_object.item.parent_item.uuid %}" hx-target="body" hx-swap="beforeend">
-        <i class="fa-solid fa-bookmark"></i>
-      </a>
-    {% endif %}
-  </span>
-  -->
   <span>
     <a title="评论节目"
        hx-get="{% url 'journal:comment' activity.action_object.item.uuid %}"
@@ -61,7 +48,11 @@
   {% endif %}
 </div>
 <article>
-  {% include "_item_card.html" with item=activity.action_object.item.parent_item allow_embed=1 %}
+  {% if activity.action_object.item.parent_item %}
+    {% include "_item_card.html" with item=activity.action_object.item.parent_item allow_embed=1 %}
+  {% else %}
+    {% include "_item_card.html" with item=activity.action_object.item %}
+  {% endif %
   <footer>
     {% if activity.action_object.mark.comment_text %}<p>{{ activity.action_object.mark.comment_html|safe }}</p>{% endif %}
     <p id="replies_{{ activity.action_object.latest_post.pk }}"></p>
