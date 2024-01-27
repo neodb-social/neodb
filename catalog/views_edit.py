@@ -1,13 +1,15 @@
 import logging
 
 from auditlog.context import set_actor
+from discord import SyncWebhook
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
-from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
-from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import BadRequest, PermissionDenied
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 from common.utils import get_uuid_or_404
 from journal.models import update_journal_for_merged_item
@@ -31,6 +33,7 @@ def _add_error_map_detail(e):
     return e
 
 
+@require_http_methods(["GET", "POST"])
 @login_required
 def create(request, item_model):
     form_cls = CatalogForms.get(item_model)
@@ -72,15 +75,14 @@ def create(request, item_model):
         raise BadRequest("Invalid request method")
 
 
+@require_http_methods(["GET"])
 @login_required
 def history(request, item_path, item_uuid):
-    if request.method == "GET":
-        item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-        return render(request, "catalog_history.html", {"item": item})
-    else:
-        raise BadRequest()
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    return render(request, "catalog_history.html", {"item": item})
 
 
+@require_http_methods(["GET", "POST"])
 @login_required
 def edit(request, item_path, item_uuid):
     if request.method == "GET":
@@ -118,10 +120,9 @@ def edit(request, item_path, item_uuid):
         raise BadRequest()
 
 
+@require_http_methods(["POST"])
 @login_required
 def delete(request, item_path, item_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied()
@@ -131,10 +132,9 @@ def delete(request, item_path, item_uuid):
     )
 
 
+@require_http_methods(["POST"])
 @login_required
 def undelete(request, item_path, item_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff:
         raise PermissionDenied()
@@ -143,10 +143,9 @@ def undelete(request, item_path, item_uuid):
     return redirect(item.url)
 
 
+@require_http_methods(["POST"])
 @login_required
 def recast(request, item_path, item_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     cls = request.POST.get("class")
     # TODO move some of the logic to model
@@ -180,10 +179,9 @@ def recast(request, item_path, item_uuid):
     return redirect(new_item.url)
 
 
+@require_http_methods(["POST"])
 @login_required
 def unlink(request):
-    if request.method != "POST":
-        raise BadRequest()
     if not request.user.is_staff:
         raise PermissionDenied()
     res_id = request.POST.get("id")
@@ -194,10 +192,9 @@ def unlink(request):
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
+@require_http_methods(["POST"])
 @login_required
 def assign_parent(request, item_path, item_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     parent_item = Item.get_by_url(request.POST.get("parent_item_url"))
     if parent_item:
@@ -213,10 +210,9 @@ def assign_parent(request, item_path, item_uuid):
     return redirect(item.url)
 
 
+@require_http_methods(["POST"])
 @login_required
 def remove_unused_seasons(request, item_path, item_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     l = list(item.seasons.all())
     for s in l:
@@ -228,10 +224,9 @@ def remove_unused_seasons(request, item_path, item_uuid):
     return redirect(item.url)
 
 
+@require_http_methods(["POST"])
 @login_required
 def fetch_tvepisodes(request, item_path, item_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if item.class_name != "tvseason" or not item.imdb or item.season_number is None:
         raise BadRequest()
@@ -253,10 +248,9 @@ def fetch_episodes_for_season_task(item_uuid, user):
         season.log_action({"!fetch_tvepisodes": [episodes, season.episode_uuids]})
 
 
+@require_http_methods(["POST"])
 @login_required
 def merge(request, item_path, item_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied()
@@ -277,3 +271,22 @@ def merge(request, item_path, item_uuid):
             _logger.warn(f"{request.user} cancels merge for {item}")
             item.merge_to(None)
         return redirect(item.url)
+
+
+@require_http_methods(["POST"])
+@login_required
+def suggest(request, item_path, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    dw = settings.DISCORD_WEBHOOKS.get("suggest")
+    if not dw:
+        raise Http404("Webhook not configured")
+    webhook = SyncWebhook.from_url(dw)
+    webhook.send(
+        f"""Suggestion for {item.display_title}
+        {item.absolute_url}
+        {request.POST.get('action', '<none>')}
+        {request.POST.get('detail', '<none>')}
+        by {request.user.username} ({request.user.absolute_url})
+        """
+    )
+    return redirect(item.url)
