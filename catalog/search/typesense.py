@@ -367,7 +367,6 @@ class Indexer:
 
         try:
             r = cls.instance().documents.search(options)
-            # pprint(r)
             results.items = list(
                 [
                     x

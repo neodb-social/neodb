@@ -347,7 +347,6 @@ class ShelfManager:
                         "podcast",
                         "performance",
                     ]:
-                        print(typ)
                         typ = "other"
                     if typ not in calendar_data[date]["items"]:
                         calendar_data[date]["items"].append(typ)

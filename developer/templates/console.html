@@ -62,7 +62,7 @@
         <br>
         1. Guide your user to open this URL
         <input type="text"
-               value="{{ site_url }}/oauth/authorize/?response_type=code&amp;client_id=CLIENT_ID&amp;redirect_uri=https://example.org/callback"
+               value="{{ site_url }}/auth/oauth/authorize/?response_type=code&amp;client_id=CLIENT_ID&amp;redirect_uri=https://example.org/callback"
                readonly>
         2. Once authorizated by user, it will redirect to <code>https://example.org/callback</code> with a <code>code</code> parameter:
         <input type="text"
@@ -70,7 +70,7 @@
                readonly>
         3. Obtain access token with the following POST request:
         <textarea readonly rows="7">
-    curl -X POST {{ site_url }}/oauth/token/ \
+    curl -X POST {{ site_url }}/auth/oauth/token/ \
     -H "Content-Type: application/x-www-form-urlencoded" \
     -d "client_id=CLIENT_ID" \
     -d "client_secret=CLIENT_SECRET" \
