@@ -52,7 +52,7 @@
     {% include "_item_card.html" with item=activity.action_object.item.parent_item allow_embed=1 %}
   {% else %}
     {% include "_item_card.html" with item=activity.action_object.item %}
-  {% endif %
+  {% endif %}
   <footer>
     {% if activity.action_object.mark.comment_text %}<p>{{ activity.action_object.mark.comment_html|safe }}</p>{% endif %}
     <p id="replies_{{ activity.action_object.latest_post.pk }}"></p>
