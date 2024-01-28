@@ -169,6 +169,15 @@ services:
       migration:
         condition: service_completed_successfully
 
+  neodb-web-api:
+    <<: *neodb-service
+    command: ${NEODB_VENV:-/neodb-venv}/bin/gunicorn boofilsic.wsgi -w ${NEODB_API_WORKER_NUM:-4} --preload --max-requests 2000 -b 0.0.0.0:8000
+    healthcheck:
+      test: ['CMD', 'wget', '-qO/tmp/test', '--header', 'X-Forwarded-Proto: https', 'http://127.0.0.1:8000/nodeinfo/2.0/']
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+
   neodb-worker:
     <<: *neodb-service
     command: neodb-manage rqworker --with-scheduler import export mastodon fetch crawl ap cron
@@ -205,6 +214,7 @@ services:
     command: nginx-start
     environment:
       NEODB_WEB_SERVER: neodb-web:8000
+      NEODB_API_SERVER: neodb-web-api:8000
       TAKAHE_WEB_SERVER: takahe-web:8000
       NGINX_CONF: /neodb/misc/nginx.conf.d/neodb.conf
     depends_on:
