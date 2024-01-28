@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <link rel="stylesheet"
-          href="https://unpkg.com/swagger-ui-dist@5.1.0/swagger-ui.css"
+          href="https://unpkg.com/swagger-ui-dist@5.11.1/swagger-ui.css"
           crossorigin="anonymous"
           referrerpolicy="no-referrer" />
     <title>{{ api.title }} Developer Console</title>
@@ -23,6 +23,12 @@
     #swagger-ui>div>div>.wrapper {
       background-color: white;
       padding: 0;
+    }
+    #swagger-ui>div>div>.wrapper button {
+      background-color: unset;
+    }
+    #swagger-ui>div>div>.wrapper button.btn.execute {
+      background-color: #4990e2;
     }
     </style>
   </head>
@@ -86,7 +92,7 @@
         more endpoints can be found in API Documentation below.
       </details>
       <div id="swagger-ui" data-theme="light"></div>
-      <script src="https://unpkg.com/swagger-ui-dist@5.1.0/swagger-ui-bundle.js"
+      <script src="https://unpkg.com/swagger-ui-dist@5.11.1/swagger-ui-bundle.js"
               crossorigin="anonymous"
               referrerpolicy="no-referrer"></script>
       <script>

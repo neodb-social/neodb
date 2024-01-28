@@ -1,14 +1,24 @@
 from datetime import datetime
 from typing import List
 
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from ninja import Field, Schema
 from ninja.pagination import paginate
 
 from catalog.common.models import *
 from common.api import *
 
-from .models import Mark, Review, ShelfType, TagManager, q_item_in_category
+from .models import (
+    Collection,
+    Mark,
+    Review,
+    ShelfType,
+    Tag,
+    TagManager,
+    q_item_in_category,
+)
+
+# Mark
 
 
 class MarkSchema(Schema):
@@ -31,10 +41,10 @@ class MarkInSchema(Schema):
     post_to_fediverse: bool = False
 
 
-@api.api_operation(
-    ["GET"],
+@api.get(
     "/me/shelf/{type}",
     response={200: List[MarkSchema], 401: Result, 403: Result},
+    tags=["mark"],
 )
 @paginate(PageNumberPagination)
 def list_marks_on_shelf(
@@ -52,10 +62,10 @@ def list_marks_on_shelf(
     return queryset
 
 
-@api.api_operation(
-    ["GET"],
+@api.get(
     "/me/shelf/item/{item_uuid}",
     response={200: MarkSchema, 302: Result, 401: Result, 403: Result, 404: Result},
+    tags=["mark"],
 )
 def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     """
@@ -73,10 +83,10 @@ def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     return shelfmember
 
 
-@api.api_operation(
-    ["POST"],
+@api.post(
     "/me/shelf/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["mark"],
 )
 def mark_item(request, item_uuid: str, mark: MarkInSchema):
     """
@@ -105,10 +115,10 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     return 200, {"message": "OK"}
 
 
-@api.api_operation(
-    ["DELETE"],
+@api.delete(
     "/me/shelf/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["mark"],
 )
 def delete_mark(request, item_uuid: str):
     """
@@ -122,6 +132,9 @@ def delete_mark(request, item_uuid: str):
     # skip tag deletion for now to be consistent with web behavior
     # TagManager.tag_item(item, request.user, [], 0)
     return 200, {"message": "OK"}
+
+
+# Review
 
 
 class ReviewSchema(Schema):
@@ -142,10 +155,10 @@ class ReviewInSchema(Schema):
     post_to_fediverse: bool = False
 
 
-@api.api_operation(
-    ["GET"],
+@api.get(
     "/me/review/",
     response={200: List[ReviewSchema], 401: Result, 403: Result},
+    tags=["review"],
 )
 @paginate(PageNumberPagination)
 def list_reviews(request, category: AvailableItemCategory | None = None):
@@ -160,10 +173,10 @@ def list_reviews(request, category: AvailableItemCategory | None = None):
     return queryset.prefetch_related("item")
 
 
-@api.api_operation(
-    ["GET"],
+@api.get(
     "/me/review/item/{item_uuid}",
     response={200: ReviewSchema, 401: Result, 403: Result, 404: Result},
+    tags=["review"],
 )
 def get_review_by_item(request, item_uuid: str):
     """
@@ -181,6 +194,7 @@ def get_review_by_item(request, item_uuid: str):
 @api.post(
     "/me/review/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["review"],
 )
 def review_item(request, item_uuid: str, review: ReviewInSchema):
     """
@@ -207,10 +221,10 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
     return 200, {"message": "OK"}
 
 
-@api.api_operation(
-    ["DELETE"],
+@api.delete(
     "/me/review/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["review"],
 )
 def delete_review(request, item_uuid: str):
     """

@@ -13,11 +13,11 @@ class UserSchema(Schema):
     username: str
 
 
-@api.api_operation(
-    ["GET"],
+@api.get(
     "/me",
     response={200: UserSchema, 401: Result},
     summary="Get current user's basic info",
+    tags=["user"],
 )
 def me(request):
     return 200, {
