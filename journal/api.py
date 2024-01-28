@@ -237,16 +237,371 @@ def delete_review(request, item_uuid: str):
     return 200, {"message": "OK"}
 
 
-# @api.get("/me/collection/")
-# @api.post("/me/collection/")
-# @api.get("/me/collection/{uuid}")
-# @api.put("/me/collection/{uuid}")
-# @api.delete("/me/collection/{uuid}")
-# @api.get("/me/collection/{uuid}/item/")
-# @api.post("/me/collection/{uuid}/item/")
+# Collection
 
-# @api.get("/me/tag/")
-# @api.post("/me/tag/")
-# @api.get("/me/tag/{title}")
-# @api.put("/me/tag/{title}")
-# @api.delete("/me/tag/{title}")
+
+class CollectionSchema(Schema):
+    uuid: str
+    url: str
+    visibility: int = Field(ge=0, le=2)
+    created_time: datetime
+    title: str
+    brief: str
+    cover: str
+    html_content: str
+
+
+class CollectionInSchema(Schema):
+    title: str
+    brief: str
+    visibility: int = Field(ge=0, le=2)
+
+
+class CollectionItemSchema(Schema):
+    item: ItemSchema
+    note: str
+
+
+class CollectionItemInSchema(Schema):
+    item_uuid: str
+    note: str
+
+
+@api.get(
+    "/me/collection/",
+    response={200: List[CollectionSchema], 401: Result, 403: Result},
+    tags=["collection"],
+)
+@paginate(PageNumberPagination)
+def list_collections(request):
+    """
+    Get collections created by current user
+    """
+    queryset = Collection.objects.filter(owner=request.user.identity)
+    return queryset
+
+
+@api.get(
+    "/me/collection/{collection_uuid}",
+    response={200: CollectionSchema, 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+)
+def get_collection(request, collection_uuid: str):
+    """
+    Get collections by its uuid
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if c.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    return c
+
+
+@api.post(
+    "/me/collection/",
+    response={200: CollectionSchema, 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+)
+def create_collection(request, c_in: CollectionInSchema):
+    """
+    Create collection.
+
+    `title`, `brief` (markdown formatted) and `visibility` are required;
+    """
+    c = Collection.objects.create(
+        owner=request.user.identity,
+        title=c_in.title,
+        brief=c_in.brief,
+        visibility=c_in.visibility,
+    )
+    return c
+
+
+@api.put(
+    "/me/collection/{collection_uuid}",
+    response={200: CollectionSchema, 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+)
+def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
+    """
+    Update collection.
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if c.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    c.title = c_in.title
+    c.brief = c_in.brief
+    c.visibility = c_in.visibility
+    c.save()
+    return c
+
+
+@api.delete(
+    "/me/collection/{collection_uuid}",
+    response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+)
+def delete_collection(request, collection_uuid: str):
+    """
+    Remove a collection.
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if c.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    c.delete()
+    return 200, {"message": "OK"}
+
+
+@api.get(
+    "/me/collection/{collection_uuid}/item/",
+    response={200: List[CollectionItemSchema], 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+)
+@paginate(PageNumberPagination)
+def collection_list_items(request, collection_uuid: str):
+    """
+    Get items in a collection collections
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if c.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    return c.ordered_members
+
+
+@api.post(
+    "/me/collection/{collection_uuid}/item/",
+    response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+)
+def collection_add_item(
+    request, collection_uuid: str, collection_item: CollectionItemInSchema
+):
+    """
+    Add an item to collection
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if c.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    if not collection_item.item_uuid:
+        return 404, {"message": "Item not found"}
+    item = Item.get_by_url(collection_item.item_uuid)
+    if not item:
+        return 404, {"message": "Item not found"}
+    c.append_item(item, note=collection_item.note)
+    return 200, {"message": "OK"}
+
+
+@api.delete(
+    "/me/collection/{collection_uuid}/item/{item_uuid}",
+    response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+)
+def collection_delete_item(request, collection_uuid: str, item_uuid: str):
+    """
+    Remove an item from collection
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if c.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    item = Item.get_by_url(item_uuid)
+    if not item:
+        return 404, {"message": "Item not found"}
+    c.remove_item(item)
+    return 200, {"message": "OK"}
+
+
+class TagSchema(Schema):
+    uuid: str
+    title: str
+    visibility: int = Field(ge=0, le=2)
+
+
+class TagInSchema(Schema):
+    title: str
+    visibility: int = Field(ge=0, le=2)
+
+
+class TagItemSchema(Schema):
+    item: ItemSchema
+
+
+class TagItemInSchema(Schema):
+    item_uuid: str
+
+
+@api.get(
+    "/me/tag/",
+    response={200: List[TagSchema], 401: Result, 403: Result},
+    tags=["tag"],
+)
+@paginate(PageNumberPagination)
+def list_tags(request, title: str | None = None):
+    """
+    Get tags created by current user
+
+    `title` is optional, all tags will be returned if not specified.
+    """
+    queryset = Tag.objects.filter(owner=request.user.identity)
+    if title:
+        queryset = queryset.filter(title=Tag.cleanup_title(title))
+    return queryset
+
+
+@api.get(
+    "/me/tag/{tag_uuid}",
+    response={200: TagSchema, 401: Result, 403: Result, 404: Result},
+    tags=["tag"],
+)
+def get_tag(request, tag_uuid: str):
+    """
+    Get tags by its uuid
+    """
+    tag = Tag.get_by_url(tag_uuid)
+    if not tag:
+        return 404, {"message": "Tag not found"}
+    if tag.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    return tag
+
+
+@api.post(
+    "/me/tag/",
+    response={200: TagSchema, 401: Result, 403: Result, 404: Result},
+    tags=["tag"],
+)
+def create_tag(request, t_in: TagInSchema):
+    """
+    Create tag.
+
+    `title` is required, `visibility` can only be 0 or 2; if tag with same title exists, existing tag will be returned.
+    """
+    title = Tag.cleanup_title(t_in.title)
+    visibility = 2 if t_in.visibility else 0
+    tag, created = Tag.objects.get_or_create(
+        owner=request.user.identity,
+        title=title,
+        defaults={"visibility": visibility},
+    )
+    if not created:
+        tag.visibility = visibility
+        tag.save()
+    return tag
+
+
+@api.put(
+    "/me/tag/{tag_uuid}",
+    response={200: TagSchema, 401: Result, 403: Result, 404: Result, 409: Result},
+    tags=["tag"],
+)
+def update_tag(request, tag_uuid: str, t_in: TagInSchema):
+    """
+    Update tag.
+
+    rename tag with an existing title will return HTTP 409 error
+    """
+    tag = Tag.get_by_url(tag_uuid)
+    if not tag:
+        return 404, {"message": "Tag not found"}
+    if tag.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    title = Tag.cleanup_title(tag.title)
+    visibility = 2 if t_in.visibility else 0
+    if title != tag.title:
+        try:
+            tag.title = title
+            tag.visibility = visibility
+            tag.save()
+        except:
+            return 409, {"message": "Tag with same title exists"}
+    return tag
+
+
+@api.delete(
+    "/me/tag/{tag_uuid}",
+    response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["tag"],
+)
+def delete_tag(request, tag_uuid: str):
+    """
+    Remove a tag.
+    """
+    tag = Tag.get_by_url(tag_uuid)
+    if not tag:
+        return 404, {"message": "Tag not found"}
+    if tag.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    tag.delete()
+    return 200, {"message": "OK"}
+
+
+@api.get(
+    "/me/tag/{tag_uuid}/item/",
+    response={200: List[TagItemSchema], 401: Result, 403: Result, 404: Result},
+    tags=["tag"],
+)
+@paginate(PageNumberPagination)
+def tag_list_items(request, tag_uuid: str):
+    """
+    Get items in a tag tags
+    """
+    tag = Tag.get_by_url(tag_uuid)
+    if not tag:
+        return 404, {"message": "Tag not found"}
+    if tag.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    return tag.members.all()
+
+
+@api.post(
+    "/me/tag/{tag_uuid}/item/",
+    response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["tag"],
+)
+def tag_add_item(request, tag_uuid: str, tag_item: TagItemInSchema):
+    """
+    Add an item to tag
+    """
+    tag = Tag.get_by_url(tag_uuid)
+    if not tag:
+        return 404, {"message": "Tag not found"}
+    if tag.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    if not tag_item.item_uuid:
+        return 404, {"message": "Item not found"}
+    item = Item.get_by_url(tag_item.item_uuid)
+    if not item:
+        return 404, {"message": "Item not found"}
+    tag.append_item(item)
+    return 200, {"message": "OK"}
+
+
+@api.delete(
+    "/me/tag/{tag_uuid}/item/{item_uuid}",
+    response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["tag"],
+)
+def tag_delete_item(request, tag_uuid: str, item_uuid: str):
+    """
+    Remove an item from tag
+    """
+    tag = Tag.get_by_url(tag_uuid)
+    if not tag:
+        return 404, {"message": "Tag not found"}
+    if tag.owner != request.user.identity:
+        return 403, {"message": "Not owner"}
+    item = Item.get_by_url(item_uuid)
+    if not item:
+        return 404, {"message": "Item not found"}
+    tag.remove_item(item)
+    return 200, {"message": "OK"}

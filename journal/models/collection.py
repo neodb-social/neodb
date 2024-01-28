@@ -47,7 +47,7 @@ class Collection(List):
     )
 
     @property
-    def html(self):
+    def html_content(self):
         html = render_md(self.brief)
         return html
 
