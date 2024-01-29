@@ -95,6 +95,14 @@ class Collection(List):
         super().save(*args, **kwargs)
         Takahe.post_collection(self)
 
+    def delete(self, *args, **kwargs):
+        existing_post = self.latest_post
+        if existing_post:
+            from takahe.utils import Takahe
+
+            Takahe.delete_posts([existing_post.pk])
+        return super().delete(*args, **kwargs)
+
     @property
     def ap_object(self):
         return {
