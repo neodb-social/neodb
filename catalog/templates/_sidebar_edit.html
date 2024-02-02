@@ -205,14 +205,15 @@
       {% csrf_token %}
       <select name="action" aria-label="Select action..." required>
         <option selected disabled value="">请选择建议类型...</option>
-        <option value="metadata">更正条目信息</option>
         <option value="merge">合并到其它条目</option>
         <option value="type">更改条目类型</option>
+        <option value="metadata">更正条目信息</option>
+        <option value="delete">删除条目</option>
         <option value="other">其它修改</option>
       </select>
       <textarea name="detail" required placeholder="建议详情。如提议合并，请包含合并目标条目网址。"></textarea>
       <input type="submit" value="{% trans '提交' %}">
-      <small>建议会由管理员处理，也可能被社区其他用户查看或讨论；与具体条目不相关的建议请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。</small>
+      <small>本站由用户共同维护，用户可自主修改部分条目信息。当你不确定自己的修改是否得当或不能做出某种修改时，可在此处向管理员提出建议。管理员会认真考虑处理每一条建议，虽然不保证总是完全采纳；建议也可能被社区其他用户查看或讨论。如果有与具体条目不相关的建议，请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。</small>
     </form>
   </details>
 {% endif %}

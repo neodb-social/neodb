@@ -282,11 +282,8 @@ def suggest(request, item_path, item_uuid):
         raise Http404("Webhook not configured")
     webhook = SyncWebhook.from_url(dw)
     webhook.send(
-        f"""Suggestion for {item.display_title}
-        {item.absolute_url}
-        {request.POST.get('action', '<none>')}
-        {request.POST.get('detail', '<none>')}
-        by {request.user.username} ({request.user.absolute_url})
-        """
+        f"{item.absolute_url}\n> {request.POST.get('detail', '<none>')}\nby [@{request.user.username}]({request.user.absolute_url})",
+        thread_name=f"[{request.POST.get('action', 'none')}] {item.display_title}",
+        username=f"@{request.user.username}",
     )
     return redirect(item.url)
