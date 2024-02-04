@@ -77,24 +77,31 @@
     {% endfor %}
     {% if item.child_class %}
       <details>
-        <summary>{% trans '创建子条目' %}</summary>
+        <summary>
+          {% trans '编辑下一级条目' %} <small>({{ item.child_items.count }})</small>
+        </summary>
+        <p class="tag-list" style="overflow: scroll; max-height: 20em;">
+          {% for ep in item.child_items %}
+            <span class="season-number" id="ci_{{ ep.uuid }}">
+              <a href="{% url 'catalog:edit' ep.url_path ep.uuid %}">{{ ep.episode_number|default:ep.title|default:"#" }}</a>
+            </span>
+          {% endfor %}
+        </p>
         <form method="get" action="{% url 'catalog:create' item.child_class %}">
           <input name="parent" type="hidden" value="{{ item.uuid }}">
-          <input class="contrast" type="submit" value="{{ item.child_class }}">
+          <input class="contrast" type="submit" value="创建{{ item.child_class }}">
         </form>
       </details>
     {% endif %}
     {% if item.class_name == "tvseason" %}
       <details>
-        <summary>{% trans '批量获取单集子条目' %}</summary>
+        <summary>{% trans '批量获取单集条目' %}</summary>
         {% if item.imdb and item.season_number is not None %}
           <form method="post"
                 action="{% url 'catalog:fetch_tvepisodes' item.url_path item.uuid %}">
             {% csrf_token %}
-            <p>
-              <i class="fa-solid fa-circle-info"></i> 因豆瓣/IMDB/TMDB之间对分季处理的差异，少量剧集和动画可能无法返回正确结果，更新后请手工确认和清理。
-            </p>
-            <input class="contrast" type="submit" value="{% trans '批量获取单集子条目' %}">
+            <input class="contrast" type="submit" value="{% trans '开始批量获取' %}">
+            <small>因豆瓣/IMDB/TMDB之间对分季处理的差异，少量剧集和动画可能无法返回正确结果，更新后请手工确认和清理。</small>
           </form>
         {% else %}
           <i><i class="fa-solid fa-circle-exclamation"></i> 批量获取单集子条目需要本季序号和IMDB信息，不便填写也可以手工创建子条目。</i>
@@ -132,6 +139,17 @@
           </form>
         </details>
       {% endif %}
+    {% elif item.class_name == "album" %}
+      <details>
+        <summary>{% trans '切换分类' %}</summary>
+        <form method="post"
+              action="{% url 'catalog:recast' item.url_path item.uuid %}"
+              onsubmit="return confirm('确认切换吗？');">
+          {% csrf_token %}
+          <input type="hidden" value="podcast" name="class">
+          <input class="contrast" type="submit" value="{% trans '更改为播客' %}">
+        </form>
+      </details>
     {% else %}
       <!--此类条目无法切换-->
     {% endif %}
@@ -140,7 +158,7 @@
         <summary>关联到上一级条目</summary>
         <form method="post"
               action="{% url 'catalog:assign_parent' item.url_path item.uuid %}"
-              onsubmit="return confirm('\确认关联吗？');">
+              onsubmit="return confirm('确认关联吗？');">
           {% csrf_token %}
           <input type="url"
                  name="parent_item_url"

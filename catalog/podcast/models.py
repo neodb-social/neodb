@@ -27,6 +27,7 @@ class PodcastSchema(PodcastInSchema, BaseSchema):
 
 class Podcast(Item):
     category = ItemCategory.Podcast
+    child_class = "PodcastEpisode"
     url_path = "podcast"
     demonstrative = _("这档播客")
     # apple_podcast = PrimaryLookupIdDescriptor(IdType.ApplePodcast)
@@ -80,7 +81,7 @@ class Podcast(Item):
 
     @property
     def child_items(self):
-        return self.episodes.all()
+        return self.episodes.filter(is_deleted=False, merged_to_item=None)
 
 
 class PodcastEpisode(Item):
@@ -90,7 +91,9 @@ class PodcastEpisode(Item):
     # uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     program = models.ForeignKey(Podcast, models.CASCADE, related_name="episodes")
     guid = models.CharField(null=True, max_length=1000)
-    pub_date = models.DateTimeField()
+    pub_date = models.DateTimeField(
+        verbose_name=_("发布时间"), help_text="yyyy/mm/dd hh:mm"
+    )
     media_url = models.CharField(null=True, max_length=1000)
     # title = models.CharField(default="", max_length=1000)
     # description = models.TextField(null=True)
@@ -99,9 +102,18 @@ class PodcastEpisode(Item):
     cover_url = models.CharField(null=True, max_length=1000)
     duration = models.PositiveIntegerField(null=True)
 
+    METADATA_COPY_LIST = [
+        "title",
+        "brief",
+        "pub_date",
+    ]
+
     @property
     def parent_item(self):
         return self.program
+
+    def set_parent_item(self, value):
+        self.program = value
 
     @property
     def display_title(self):
@@ -117,6 +129,10 @@ class PodcastEpisode(Item):
             if position is None or position == ""
             else f"{self.url}?position={position}"
         )
+
+    @classmethod
+    def lookup_id_type_choices(cls):
+        return []
 
     class Meta:
         index_together = [
