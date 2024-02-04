@@ -364,6 +364,13 @@ class PerformanceProduction(Item):
     def set_parent_item(self, value):
         self.show = value
 
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.DoubanDramaVersion,
+        ]
+        return [(i.value, i.label) for i in id_types]
+
     @property
     def display_title(self):
         return f"{self.show.title if self.show else '♢'} {self.title}"

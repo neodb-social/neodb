@@ -451,6 +451,14 @@ class TVEpisode(Item):
     def set_parent_item(self, value):
         self.season = value
 
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.IMDB,
+            IdType.TMDB_TVEpisode,
+        ]
+        return [(i.value, i.label) for i in id_types]
+
     def update_linked_items_from_external_resource(self, resource):
         for w in resource.required_resources:
             if w["model"] == "TVSeason":
