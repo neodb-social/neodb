@@ -176,12 +176,13 @@ class IMDB(AbstractSite):
                         if res and res.item:
                             episode = res.item
                             episode.set_parent_item(season)
+                            episode.season_number = season.season_number
                             episode.save()
         else:
             _logger.warning(f"season {season} has no episodes fetched, creating dummy")
             cnt = int(season.episode_count or 0)
-            if cnt > 20:
-                cnt = 20
+            if cnt > 50:
+                cnt = 50
             for i in range(1, cnt + 1):
                 episode = TVEpisode.objects.filter(
                     season=season, episode_number=i
@@ -190,5 +191,6 @@ class IMDB(AbstractSite):
                     TVEpisode.objects.create(
                         title=f"S{season.season_number or '0'}E{i}",
                         season=season,
+                        season_number=season.season_number,
                         episode_number=i,
                     )
