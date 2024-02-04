@@ -24,6 +24,20 @@ class CollectionMember(ListMember):
 
     note = jsondata.CharField(_("备注"), null=True, blank=True)
 
+    @property
+    def ap_object(self):
+        return {
+            "id": self.absolute_url,
+            "type": "CollectionItem",
+            "collection": self.parent.absolute_url,
+            "published": self.created_time.isoformat(),
+            "updated": self.edited_time.isoformat(),
+            "attributedTo": self.owner.actor_uri,
+            "withRegardTo": self.item.absolute_url,
+            "note": self.note,
+            "href": self.absolute_url,
+        }
+
 
 class Collection(List):
     url_path = "collection"

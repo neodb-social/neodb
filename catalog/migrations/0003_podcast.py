@@ -114,7 +114,12 @@ class Migration(migrations.Migration):
                 ("cover_url", models.CharField(max_length=1000, null=True)),
                 ("media_url", models.CharField(max_length=1000, null=True)),
                 ("guid", models.CharField(max_length=1000, null=True)),
-                ("pub_date", models.DateTimeField()),
+                (
+                    "pub_date",
+                    models.DateTimeField(
+                        help_text="yyyy/mm/dd hh:mm", verbose_name="发布时间"
+                    ),
+                ),
                 ("duration", models.PositiveIntegerField(null=True)),
                 (
                     "program",

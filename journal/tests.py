@@ -3,6 +3,7 @@ import time
 from django.test import TestCase
 
 from catalog.models import *
+from journal.models.common import Debris
 from users.models import User
 
 from .models import *
@@ -188,3 +189,35 @@ class MarkTest(TestCase):
         TagManager.tag_item(self.book1, self.user1.identity, [" Sci-Fi ", " fic "])
         mark = Mark(self.user1.identity, self.book1)
         self.assertEqual(mark.tags, ["Sci-Fi", "fic"])
+
+
+class DebrisTest(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.book1 = Edition.objects.create(title="Hyperion")
+        self.book2 = Edition.objects.create(title="Hyperion clone")
+        self.book3 = Edition.objects.create(title="Hyperion clone 2")
+        self.user1 = User.register(email="test@test", username="test")
+
+    def test_journal_migration(self):
+        TagManager.tag_item(self.book1, self.user1.identity, ["Sci-Fi", "fic"])
+        mark = Mark(self.user1.identity, self.book1)
+        mark.update(ShelfType.WISHLIST, "a gentle comment", 9, 1)
+        Review.update_item_review(self.book1, self.user1.identity, "Critic", "Review")
+        collection = Collection.objects.create(title="test", owner=self.user1.identity)
+        collection.append_item(self.book1)
+        self.book1.merge_to(self.book2)
+        update_journal_for_merged_item(self.book1.uuid, delete_duplicated=True)
+        cnt = Debris.objects.all().count()
+        self.assertEqual(cnt, 0)
+
+        TagManager.tag_item(self.book3, self.user1.identity, ["Sci-Fi", "fic"])
+        mark = Mark(self.user1.identity, self.book3)
+        mark.update(ShelfType.WISHLIST, "a gentle comment", 9, 1)
+        Review.update_item_review(self.book3, self.user1.identity, "Critic", "Review")
+        collection.append_item(self.book3)
+        self.book3.merge_to(self.book2)
+        update_journal_for_merged_item(self.book3.uuid, delete_duplicated=True)
+        cnt = Debris.objects.all().count()
+        self.assertEqual(cnt, 4)  # Rating, Shelf, 2x TagMember

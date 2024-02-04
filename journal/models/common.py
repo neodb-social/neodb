@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.db import connection, models
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, CharField, Count, Q
 from django.utils import timezone
 from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
@@ -264,3 +264,19 @@ class Content(Piece):
 
     class Meta:
         abstract = True
+
+
+class Debris(Content):
+    class_name = CharField(max_length=50)
+
+    @classmethod
+    def create_from_piece(cls, c: Piece):
+        return cls.objects.create(
+            class_name=c.__class__.__name__,
+            owner=c.owner,
+            visibility=c.visibility,
+            created_time=c.created_time,
+            metadata=c.ap_object,
+            item=c.item,
+            remote_id=c.remote_id if hasattr(c, "remote_id") else None,
+        )

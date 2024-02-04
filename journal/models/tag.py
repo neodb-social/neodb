@@ -19,6 +19,19 @@ class TagMember(ListMember):
     class Meta:
         unique_together = [["parent", "item"]]
 
+    @property
+    def ap_object(self):
+        return {
+            "id": self.absolute_url,
+            "type": "Tag",
+            "tag": self.parent.title,
+            "published": self.created_time.isoformat(),
+            "updated": self.edited_time.isoformat(),
+            "attributedTo": self.owner.actor_uri,
+            "withRegardTo": self.item.absolute_url,
+            "href": self.absolute_url,
+        }
+
 
 TagValidators = [RegexValidator(regex=r"\s+", inverse_match=True)]
 

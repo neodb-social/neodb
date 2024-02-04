@@ -1,3 +1,5 @@
+from django.db import transaction
+from django.db.utils import IntegrityError
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
@@ -6,7 +8,7 @@ from users.models import APIdentity
 
 from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
-from .common import Content
+from .common import Content, Debris
 from .itemlist import ListMember
 from .rating import Rating
 from .review import Review
@@ -42,21 +44,26 @@ def update_journal_for_merged_item(
         logger.error("update_journal_for_merged_item: unable to find item")
         return
     new_item = legacy_item.merged_to_item
+    delete_q = []
     for cls in list(Content.__subclasses__()) + list(ListMember.__subclasses__()):
         for p in cls.objects.filter(item=legacy_item):
-            try:
-                p.item = new_item
-                p.save(update_fields=["item_id"])
-            except:
-                if delete_duplicated:
-                    logger.warning(
-                        f"deleted piece {p} when merging {cls.__name__}: {legacy_item} -> {new_item}"
-                    )
-                    p.delete()
-                else:
-                    logger.warning(
-                        f"skip piece {p} when merging {cls.__name__}: {legacy_item} -> {new_item}"
-                    )
+            with transaction.atomic():
+                try:
+                    p.item = new_item
+                    p.save(update_fields=["item_id"])
+                except IntegrityError:
+                    if delete_duplicated:
+                        logger.warning(
+                            f"deleted piece {p.id} when merging {cls.__name__}: {legacy_item_uuid} -> {new_item.uuid}"
+                        )
+                        delete_q.append(p)
+                    else:
+                        logger.warning(
+                            f"skip piece {p.id} when merging {cls.__name__}: {legacy_item_uuid} -> {new_item.uuid}"
+                        )
+    for p in delete_q:
+        Debris.create_from_piece(p)
+        p.delete()
 
 
 def journal_exists_for_item(item: Item) -> bool:
