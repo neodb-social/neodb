@@ -87,6 +87,9 @@ $(()=>{
 		artist: "{{ item.hosts|join:' / '|escapejs }}"
 	})
 	if (position) window.player._initSeek = position;
+  {% if request.user.is_authenticated %}
+  set_podcast_comment_button("{% url 'journal:comment' focus_item.uuid %}")
+  {% endif %}
 	{% endif %}
 });
   </script>

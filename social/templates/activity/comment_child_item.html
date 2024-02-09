@@ -21,6 +21,7 @@
          data-title="{{ activity.action_object.item.title }}"
          data-album="{{ activity.action_object.item.parent_item.title }}"
          data-hosts="{{ activity.action_object.item.parent_item.hosts|join:' / ' }}"
+         {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' activity.action_object.item.uuid %}" {% endif %}
          data-position="{{ activity.action_object.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
     </span>
   {% endif %}
