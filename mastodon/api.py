@@ -460,10 +460,6 @@ def obtain_token(site, request, code):
     return data.get("access_token"), data.get("refresh_token", "")
 
 
-def refresh_access_token(site, refresh_token):
-    pass
-
-
 def revoke_token(site, token):
     mast_app = MastodonApplication.objects.get(domain_name=site)
 

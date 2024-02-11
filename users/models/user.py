@@ -292,7 +292,7 @@ class User(AbstractUser):
         identity.icon_uri = self.mastodon_account.get("avatar")
         identity.save()
 
-    def refresh_mastodon_data(self):
+    def refresh_mastodon_data(self, skip_detail=False):
         """Try refresh account data from mastodon server, return True if refreshed successfully"""
         logger.debug(f"Refreshing Mastodon data for {self}")
         self.mastodon_last_refresh = timezone.now()
@@ -308,75 +308,60 @@ class User(AbstractUser):
             self.save(update_fields=["mastodon_last_refresh", "is_active"])
             return False
         self.mastodon_last_reachable = timezone.now()
+        self.save(update_fields=["mastodon_last_refresh", "mastodon_last_reachable"])
         code, mastodon_account = verify_account(self.mastodon_site, self.mastodon_token)
-        if code == 401 and self.mastodon_refresh_token:
-            self.mastodon_token = refresh_access_token(
-                self.mastodon_site, self.mastodon_refresh_token
-            )
-            if self.mastodon_token:
-                code, mastodon_account = verify_account(
-                    self.mastodon_site, self.mastodon_token
-                )
-        if mastodon_account:
-            self.mastodon_account = mastodon_account
-            self.mastodon_locked = mastodon_account["locked"]
-            if self.mastodon_username != mastodon_account["username"]:
-                logger.warning(
-                    f"username changed from {self} to {mastodon_account['username']}"
-                )
-                self.mastodon_username = mastodon_account["username"]
-            # self.mastodon_token = token
-            # user.mastodon_id  = mastodon_account['id']
-            self.mastodon_followers = get_related_acct_list(
-                self.mastodon_site,
-                self.mastodon_token,
-                f"/api/v1/accounts/{self.mastodon_id}/followers",
-            )
-            self.mastodon_following = get_related_acct_list(
-                self.mastodon_site,
-                self.mastodon_token,
-                f"/api/v1/accounts/{self.mastodon_id}/following",
-            )
-            self.mastodon_mutes = get_related_acct_list(
-                self.mastodon_site, self.mastodon_token, "/api/v1/mutes"
-            )
-            self.mastodon_blocks = get_related_acct_list(
-                self.mastodon_site, self.mastodon_token, "/api/v1/blocks"
-            )
-            self.mastodon_domain_blocks = get_related_acct_list(
-                self.mastodon_site, self.mastodon_token, "/api/v1/domain_blocks"
-            )
-            self.save(
-                update_fields=[
-                    "mastodon_account",
-                    "mastodon_locked",
-                    "mastodon_followers",
-                    "mastodon_following",
-                    "mastodon_mutes",
-                    "mastodon_blocks",
-                    "mastodon_domain_blocks",
-                    "mastodon_last_refresh",
-                    "mastodon_last_reachable",
-                ]
-            )
-            if not self.preference.mastodon_skip_userinfo:
-                self.sync_identity()
-            if not self.preference.mastodon_skip_relationship:
-                self.sync_relationship()
-            return True
-        elif code == 401:
+        if code == 401:
             logger.warning(f"Refresh mastodon data error 401 for {self}")
             self.mastodon_token = ""
-        else:
+            self.save(update_fields=["mastodon_token"])
+            return False
+        if not mastodon_account:
             logger.warning(f"Refresh mastodon data error {code} for {self}")
+            return False
+        if skip_detail:
+            return True
+        self.mastodon_account = mastodon_account
+        self.mastodon_locked = mastodon_account["locked"]
+        if self.mastodon_username != mastodon_account["username"]:
+            logger.warning(
+                f"username changed from {self} to {mastodon_account['username']}"
+            )
+            self.mastodon_username = mastodon_account["username"]
+        self.mastodon_followers = get_related_acct_list(
+            self.mastodon_site,
+            self.mastodon_token,
+            f"/api/v1/accounts/{self.mastodon_id}/followers",
+        )
+        self.mastodon_following = get_related_acct_list(
+            self.mastodon_site,
+            self.mastodon_token,
+            f"/api/v1/accounts/{self.mastodon_id}/following",
+        )
+        self.mastodon_mutes = get_related_acct_list(
+            self.mastodon_site, self.mastodon_token, "/api/v1/mutes"
+        )
+        self.mastodon_blocks = get_related_acct_list(
+            self.mastodon_site, self.mastodon_token, "/api/v1/blocks"
+        )
+        self.mastodon_domain_blocks = get_related_acct_list(
+            self.mastodon_site, self.mastodon_token, "/api/v1/domain_blocks"
+        )
         self.save(
             update_fields=[
-                "mastodon_token",
-                "mastodon_last_refresh",
-                "mastodon_last_reachable",
+                "mastodon_account",
+                "mastodon_locked",
+                "mastodon_followers",
+                "mastodon_following",
+                "mastodon_mutes",
+                "mastodon_blocks",
+                "mastodon_domain_blocks",
             ]
         )
-        return False
+        if not self.preference.mastodon_skip_userinfo:
+            self.sync_identity()
+        if not self.preference.mastodon_skip_relationship:
+            self.sync_relationship()
+        return True
 
     @property
     def unread_announcements(self):
