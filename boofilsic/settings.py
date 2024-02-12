@@ -319,6 +319,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "tz_detect.middleware.TimezoneMiddleware",
     "auditlog.middleware.AuditlogMiddleware",
     # "maintenance_mode.middleware.MaintenanceModeMiddleware",  # this should be last if enabled
