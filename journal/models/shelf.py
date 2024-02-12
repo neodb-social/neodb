@@ -52,7 +52,7 @@ SHELF_LABELS = [
     # disable all shelves for PodcastEpisode
     [ItemCategory.Performance, ShelfType.WISHLIST, _("想看")],
     # disable progress shelf for Performance
-    [ItemCategory.Performance, ShelfType.PROGRESS, _("")],
+    [ItemCategory.Performance, ShelfType.PROGRESS, ""],
     [ItemCategory.Performance, ShelfType.COMPLETE, _("看过")],
     [ItemCategory.Performance, ShelfType.DROPPED, _("不看了")],
 ]
