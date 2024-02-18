@@ -89,6 +89,22 @@ class Snowflake:
         return (now << 22) | (rand_seq << 3) | type_id
 
     @classmethod
+    def generate_post_at(cls, t: float) -> int:
+        """
+        Generates a snowflake-style ID for post at given time
+
+        post time before EPOCH (2022) will be mixed in with Jan 2022
+        """
+        if t > cls.EPOCH:
+            now: int = int((t - cls.EPOCH) * 1000)
+        else:
+            now: int = int(t) if t > 0 else 0
+        # Generate random data
+        rand_seq: int = secrets.randbits(19)
+        # Compose them together
+        return (now << 22) | (rand_seq << 3) | cls.TYPE_POST
+
+    @classmethod
     def get_type(cls, snowflake: int) -> int:
         """
         Returns the type of a given snowflake ID
@@ -1054,32 +1070,35 @@ class Post(models.Model):
                 sorted([tag[: Hashtag.MAXIMUM_LENGTH] for tag in parser.hashtags])
                 or None
             )
+            post_obj = {
+                "author": author,
+                "content": content,
+                "summary": summary or None,
+                "sensitive": bool(summary) or sensitive,
+                "local": True,
+                "visibility": visibility,
+                "hashtags": hashtags,
+                "in_reply_to": reply_to.object_uri if reply_to else None,
+            }
+            if published:
+                _delta = timezone.now() - published
+                if _delta > datetime.timedelta(0):
+                    post_obj["published"] = published
+                    if _delta > datetime.timedelta(days=settings.FANOUT_LIMIT_DAYS):
+                        post_obj["id"] = Snowflake.generate_post_at(
+                            published.timestamp()
+                        )
+                        post_obj["state"] = "fanned_out"  # add post quietly if it's old
             # Make the Post object
-            post = cls.objects.create(
-                author=author,
-                content=content,
-                summary=summary or None,
-                sensitive=bool(summary) or sensitive,
-                local=True,
-                visibility=visibility,
-                hashtags=hashtags,
-                in_reply_to=reply_to.object_uri if reply_to else None,
-            )
-            post.object_uri = post.urls.object_uri
-            post.url = post.absolute_object_uri()
+            post = cls.objects.create(**post_obj)
+
             if _migration_mode:
                 post.state = "fanned_out"
-                if published:
-                    post.published = published
             else:
                 post.mentions.set(mentions)
                 post.emojis.set(emojis)
-                if published and published < timezone.now():
-                    post.published = published
-                    if timezone.now() - published > datetime.timedelta(
-                        days=settings.FANOUT_LIMIT_DAYS
-                    ):
-                        post.state = "fanned_out"  # add post quietly if it's old
+            post.object_uri = post.urls.object_uri
+            post.url = post.absolute_object_uri()
             if attachments:
                 post.attachments.set(attachments)
             # if question: # FIXME
