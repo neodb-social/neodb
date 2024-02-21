@@ -3,9 +3,11 @@ from datetime import timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar
 
+import httpx
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import F, Manager, Q, Value
 from django.db.models.functions import Concat, Lower
@@ -282,14 +284,19 @@ class User(AbstractUser):
         if identity.deleted:
             logger.error(f"Identity {identity} is deleted, skip sync")
             return
-        identity.name = (
-            self.mastodon_account.get("display_name")
-            or identity.name
-            or identity.username
-        )
-        identity.summary = self.mastodon_account.get("note") or identity.summary
+        acct = self.mastodon_account
+        identity.name = acct.get("display_name") or identity.name or identity.username
+        identity.summary = acct.get("note") or identity.summary
         identity.manually_approves_followers = self.mastodon_locked
-        identity.icon_uri = self.mastodon_account.get("avatar")
+        if not bool(identity.icon) or identity.icon_uri != acct.get("avatar"):
+            identity.icon_uri = acct.get("avatar")
+            if identity.icon_uri:
+                try:
+                    r = httpx.get(identity.icon_uri)
+                    f = ContentFile(r.content, name=identity.icon_uri.split("/")[-1])
+                    identity.icon.save(f.name, f, save=False)
+                except Exception as e:
+                    logger.error(f"Get icon failed: {identity} {identity.icon_uri} {e}")
         identity.save()
 
     def refresh_mastodon_data(self, skip_detail=False):
