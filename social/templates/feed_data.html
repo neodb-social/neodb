@@ -24,7 +24,7 @@
             <a href="{{ activity.owner.url }}" class="nickname">{{ activity.owner.display_name }}</a>
           </span>
           <span>
-            <a href="{{ activity.owner.url }}" class="handler">{{ activity.owner.full_handle }}</a>
+            <a href="{{ activity.owner.url }}" class="handler">@{{ activity.owner.full_handle }}</a>
           </span>
         </div>
         {% with "activity/"|add:activity.template|add:".html" as template %}

@@ -98,7 +98,7 @@ class APIdentity(models.Model):
 
     @property
     def full_handle(self):
-        return f"@{self.username}@{self.domain_name}"
+        return f"{self.username}@{self.domain_name}"
 
     @property
     def handler(self):

@@ -6,7 +6,7 @@ from catalog.common import *
 from journal.models import Comment, Piece, PieceInteraction, Rating, Review, ShelfMember
 from users.models.apidentity import APIdentity
 
-from .models import Follow, Identity, Post
+from .models import Follow, Identity, Post, TimelineEvent
 from .utils import Takahe
 
 _supported_ap_catalog_item_types = [
@@ -128,8 +128,22 @@ def post_interacted(interaction_pk, interaction, post_pk, identity_pk):
     p = Piece.objects.filter(posts__id=post_pk).first()
     if not p:
         return
-    if not APIdentity.objects.filter(pk=identity_pk).exists():
+    apid = APIdentity.objects.filter(pk=identity_pk).first()
+    if not apid:
         logger.warning(f"Identity {identity_pk} not found for interaction")
+        return
+    if (
+        interaction == "boost"
+        and p.local
+        and p.owner.user.mastodon_acct == apid.full_handle
+    ):
+        # ignore boost by oneself
+        TimelineEvent.objects.filter(
+            identity_id=p.owner_id,
+            type="boosted",
+            subject_post_id=post_pk,
+            subject_identity_id=identity_pk,
+        ).delete()
         return
     PieceInteraction.objects.get_or_create(
         target=p,
