@@ -19,17 +19,17 @@ class UserTest(TestCase):
         self.domain = settings.SITE_INFO.get("site_domain")
 
     def test_handle(self):
-        self.assertEqual(APIdentity.get_by_handler("Alice"), self.alice)
-        self.assertEqual(APIdentity.get_by_handler("@alice"), self.alice)
-        self.assertEqual(APIdentity.get_by_handler("Alice@MySpace"), self.alice)
-        self.assertEqual(APIdentity.get_by_handler("alice@myspace"), self.alice)
-        self.assertEqual(APIdentity.get_by_handler("@alice@" + self.domain), self.alice)
-        self.assertEqual(APIdentity.get_by_handler("@Alice@" + self.domain), self.alice)
+        self.assertEqual(APIdentity.get_by_handle("Alice"), self.alice)
+        self.assertEqual(APIdentity.get_by_handle("@alice"), self.alice)
+        self.assertEqual(APIdentity.get_by_handle("Alice@MySpace", True), self.alice)
+        self.assertEqual(APIdentity.get_by_handle("alice@myspace", True), self.alice)
+        self.assertEqual(APIdentity.get_by_handle("@alice@" + self.domain), self.alice)
+        self.assertEqual(APIdentity.get_by_handle("@Alice@" + self.domain), self.alice)
         self.assertRaises(
-            APIdentity.DoesNotExist, APIdentity.get_by_handler, "@Alice@MySpace"
+            APIdentity.DoesNotExist, APIdentity.get_by_handle, "@Alice@MySpace"
         )
         self.assertRaises(
-            APIdentity.DoesNotExist, APIdentity.get_by_handler, "@alice@KKCity"
+            APIdentity.DoesNotExist, APIdentity.get_by_handle, "@alice@KKCity"
         )
 
     def test_fetch(self):

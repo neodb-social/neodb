@@ -90,7 +90,7 @@ class APIdentity(models.Model):
 
     @property
     def url(self):
-        return f"/users/{self.handler}/"
+        return f"/users/{self.handle}/" if self.local else f"/users/@{self.handle}/"
 
     @property
     def preference(self):
@@ -101,11 +101,11 @@ class APIdentity(models.Model):
         return f"{self.username}@{self.domain_name}"
 
     @property
-    def handler(self):
+    def handle(self):
         if self.local:
             return self.username
         else:
-            return f"@{self.username}@{self.domain_name}"
+            return f"{self.username}@{self.domain_name}"
 
     @property
     def following(self):
@@ -214,11 +214,25 @@ class APIdentity(models.Model):
         return Takahe.get_is_follow_requesting(target.pk, self.pk)
 
     @classmethod
-    def get_by_handler(cls, handler: str) -> "APIdentity":
+    def get_remote(cls, username, domain):
+        i = cls.objects.filter(
+            username__iexact=username, domain_name__iexact=domain, deleted__isnull=True
+        ).first()
+        if i:
+            return i
+        if domain != settings.SITE_INFO["site_domain"].lower():
+            identity = Takahe.get_identity_by_handler(username, domain)
+            if identity:
+                return Takahe.get_or_create_remote_apidentity(identity)
+
+    @classmethod
+    def get_by_handle(cls, handler: str, match_linked=False) -> "APIdentity":
         """
         Handler format
         'id' - local identity with username 'id'
-        'id@site' - local identity with linked mastodon id == 'id@site'
+        'id@site'
+            match_linked = True - local identity with linked mastodon id == 'id@site' (for backward compatibility)
+            match_linked = False - remote activitypub identity 'id@site'
         '@id' - local identity with username 'id'
         '@id@site' - remote activitypub identity 'id@site'
         """
@@ -231,22 +245,22 @@ class APIdentity(models.Model):
                 deleted__isnull=True,
             )
         elif l == 2:
-            return cls.objects.get(
-                user__mastodon_username__iexact=s[0],
-                user__mastodon_site__iexact=s[1],
-                deleted__isnull=True,
-            )
+            if match_linked:
+                return cls.objects.get(
+                    user__mastodon_username__iexact=s[0],
+                    user__mastodon_site__iexact=s[1],
+                    deleted__isnull=True,
+                )
+            else:
+                i = cls.get_remote(s[0], s[1])
+                if i:
+                    return i
+                raise cls.DoesNotExist(f"Identity not found @{handler}")
         elif l == 3 and s[0] == "":
-            i = cls.objects.filter(
-                username__iexact=s[1], domain_name__iexact=s[2], deleted__isnull=True
-            ).first()
+            i = cls.get_remote(s[1], s[2])
             if i:
                 return i
-            if s[2].lower() != settings.SITE_INFO["site_domain"].lower():
-                identity = Takahe.get_identity_by_handler(s[1], s[2])
-                if identity:
-                    return Takahe.get_or_create_remote_apidentity(identity)
-            raise cls.DoesNotExist(f"Identity not exist {handler}")
+            raise cls.DoesNotExist(f"Identity not found {handler}")
         else:
             raise cls.DoesNotExist(f"Identity handler invalid {handler}")
 

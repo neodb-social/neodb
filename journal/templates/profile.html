@@ -10,21 +10,21 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% if identity.user == request.user %}
+    {% if me %}
       <title>{{ site_name }} - {% trans '我的个人主页' %}</title>
     {% else %}
       <title>{{ site_name }} - {{ identity.display_name }}</title>
     {% endif %}
     <meta property="og:title"
-          content="{{ identity.handler }} - {{ site_name }}">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+          content="{{ site_name }} - @{{ identity.handle }}">
+    <meta property="og:url" content="{{ identity.url }}">
     <meta property="og:image" content="{{ identity.avatar }}">
     <meta property="og:site_name" content="{{ site_name }}">
     {% if not identity.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
     <link rel="alternate"
           type="application/rss+xml"
-          title="{{ site_name }} - {{ identity.handler }}的评论"
-          href="{{ request.build_absolute_uri }}feed/reviews/">
+          title="{{ site_name }} - @{{ identity.handle }}的评论"
+          href="{{ identity.url }}/feed/reviews/">
     {% include "common_libs.html" %}
     <script src="{% static 'js/calendar_yearview_blocks.js' %}" defer></script>
     <link href="{% static 'css/calendar_yearview_blocks.css' %}"
@@ -68,7 +68,7 @@
                 </p>
               </div>
               <span class="calendar_data"
-                    hx-get="{% url 'journal:user_calendar_data' identity.handler %}"
+                    hx-get="{% url 'journal:user_calendar_data' identity.handle %}"
                     hx-trigger="load"
                     hx-swap="innerHTML"
                     style="display:none"></span>
@@ -94,7 +94,7 @@
                 <h5>
                   {{ shelf.title }}
                   <small>
-                    <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' identity.handler category %}{% else %}{% url 'journal:user_mark_list' identity.handler shelf_type category %}{% endif %}">{{ shelf.count }}</a>
+                    <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' identity.handle category %}{% else %}{% url 'journal:user_mark_list' identity.handle shelf_type category %}{% endif %}">{{ shelf.count }}</a>
                   </small>
                 </h5>
                 <ul class="cards">
@@ -133,7 +133,7 @@
             <h5>
               {% trans '创建的收藏单' %}
               <small>
-                <a href="{% url 'journal:user_collection_list' identity.handler %}">{{ collections_count }}</a>
+                <a href="{% url 'journal:user_collection_list' identity.handle %}">{{ collections_count }}</a>
                 {% if identity.user == request.user %}
                   <a href="{% url 'journal:collection_create' %}">
                     <i class="fa-regular fa-square-plus"></i>
@@ -173,7 +173,7 @@
             <h5>
               {% trans '喜欢的收藏单' %}
               <small>
-                <a href="{% url 'journal:user_liked_collection_list' identity.handler %}">{{ liked_collections_count }}</a>
+                <a href="{% url 'journal:user_liked_collection_list' identity.handle %}">{{ liked_collections_count }}</a>
               </small>
             </h5>
             <ul class="cards">

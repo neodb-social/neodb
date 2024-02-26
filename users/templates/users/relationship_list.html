@@ -4,7 +4,7 @@
     <code class="{{ id }}_handler"
           style="cursor:pointer"
           onmouseleave="$(this).removeAttr('data-tooltip')"
-          onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">{{ identity.handler }}</code>
+          onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">@{{ identity.handle }}</code>
   </p>
 {% empty %}
   <p class="empty">无数据</p>

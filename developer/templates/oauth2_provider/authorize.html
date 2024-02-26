@@ -10,7 +10,7 @@
         {% csrf_token %}
         {% if not application.is_official %}
           <p>
-            <b>{{ application.name }}</b> 是由 <a href="{{ application.user.identity.url }}">@{{ application.user.identity.handler }}</a> 创建和维护的应用程序。
+            <b>{{ application.name }}</b> 是由 <a href="{{ application.user.identity.url }}">@{{ application.user.identity.handle }}</a> 创建和维护的应用程序。
             {{ site_name }}无法保证其安全性和有效性，请自行验证确认后再授权。
           </p>
         {% endif %}

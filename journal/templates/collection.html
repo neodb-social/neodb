@@ -62,7 +62,7 @@
             <div class="info">
               <p>
                 <a href="{{ collection.owner.url }}">{{ collection.owner.mastodon_account.display_name }}</a>
-                <span class="handler">@{{ collection.owner.handler }}</span>
+                <span class="handler">@{{ collection.owner.handle }}</span>
               </p>
               <p>
                 {% for cat, count in collection.get_summary.items %}

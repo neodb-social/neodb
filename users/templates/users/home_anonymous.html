@@ -4,21 +4,16 @@
 <html lang="zh">
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh"
-          content="0;URL={% url 'users:login' %}?next={{ request.path }}" />
-    <title>{{ site_name }} - {{ identity.handler }}</title>
-    <link rel="alternate"
-          type="application/rss+xml"
-          title="{{ site_name }} - {{ identity.handler }}的评论"
-          href="{{ request.build_absolute_uri }}feed/reviews/">
+    <meta http-equiv="refresh" content="0;URL={{ redir }}" />
+    <title>{{ site_name }} - {{ identity.handle }}</title>
     <meta property="og:title"
-          content="{{ site_name }} - {{ identity.handler }}的主页">
+          content="{{ site_name }} - {{ identity.handle }}的主页">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:url" content="{{ identity.url }}">
     <meta property="og:image" content="{{ identity.avatar }}">
   </head>
   <body>
-    {% if identity.user.mastodon_account.url %}
+    {% if identity.local and identity.user.mastodon_account.url %}
       <a href="{{ identity.user.mastodon_account.url }}"
          rel="me"
          style="display:none">Mastodon verification</a>

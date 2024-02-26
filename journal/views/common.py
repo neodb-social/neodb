@@ -13,6 +13,7 @@ from common.utils import (
     AuthedHttpRequest,
     PageLinksGenerator,
     get_uuid_or_404,
+    profile_identity_required,
     target_identity_required,
 )
 

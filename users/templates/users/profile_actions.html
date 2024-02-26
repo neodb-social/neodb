@@ -4,7 +4,7 @@
   <span class="tag-list">
     <span><a title="点击可取消屏蔽"
    hx-confirm="确定要取消对该用户的屏蔽吗？"
-   hx-post="{% url 'users:unblock' identity.handler %}"
+   hx-post="{% url 'users:unblock' identity.handle %}"
    hx-target="closest .action"
    hx-swap="innerHTML">已屏蔽</a></span>
   </span>
@@ -46,7 +46,7 @@
     <span>
       <a title="接受关注请求"
          class="activated"
-         hx-post="{% url 'users:accept_follow_request' identity.handler %}"
+         hx-post="{% url 'users:accept_follow_request' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
         <i class="fa-solid fa-check"></i>
@@ -55,7 +55,7 @@
     <span>
       <a title="拒绝关注请求"
          class="activated"
-         hx-post="{% url 'users:reject_follow_request' identity.handler %}"
+         hx-post="{% url 'users:reject_follow_request' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
         <i class="fa-solid fa-xmark"></i>
@@ -66,7 +66,7 @@
     <span>
       <a title="已关注，点击可取消关注"
          class="activated"
-         hx-post="{% url 'users:unfollow' identity.handler %}"
+         hx-post="{% url 'users:unfollow' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
         <i class="fa-solid fa-user-check"></i>
@@ -76,7 +76,7 @@
     <span>
       <a title="已发送关注请求，点击可取消"
          class="activated"
-         hx-post="{% url 'users:unfollow' identity.handler %}"
+         hx-post="{% url 'users:unfollow' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
         <i class="fa-solid fa-user-clock"></i>
@@ -85,7 +85,7 @@
   {% else %}
     <span>
       <a title="点击可关注该用户"
-         hx-post="{% url 'users:follow' identity.handler %}"
+         hx-post="{% url 'users:follow' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
         <i class="fa-solid fa-user-plus"></i>
@@ -95,7 +95,7 @@
   {% if not relationship.muting %}
     <span>
       <a title="点击可隐藏该用户"
-         hx-post="{% url 'users:mute' identity.handler %}"
+         hx-post="{% url 'users:mute' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
         <i class="fa-solid fa-eye"></i>
@@ -105,7 +105,7 @@
     <span>
       <a title="已隐藏，点击可取消隐藏"
          class="activated"
-         hx-post="{% url 'users:unmute' identity.handler %}"
+         hx-post="{% url 'users:unmute' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
         <i class="fa-solid fa-eye-slash"></i>
@@ -115,11 +115,10 @@
   <span>
     <a title="点击可屏蔽该用户"
        hx-confirm="确定要屏蔽该用户吗？"
-       hx-post="{% url 'users:block' identity.handler %}"
+       hx-post="{% url 'users:block' identity.handle %}"
        hx-target="closest .action"
        hx-swap="innerHTML">
       <i class="fa-solid fa-user-slash"></i>
     </a>
   </span>
-  {% comment %} <span><a href="{% url 'users:report' %}?user_id={{ identity.id }}">{% trans '投诉用户' %}</a></span> {% endcomment %}
 {% endif %}

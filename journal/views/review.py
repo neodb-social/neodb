@@ -3,8 +3,8 @@ import mimetypes
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.syndication.views import Feed
-from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.core.exceptions import BadRequest, PermissionDenied
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -106,7 +106,7 @@ MAX_ITEM_PER_TYPE = 10
 
 class ReviewFeed(Feed):
     def get_object(self, request, *args, **kwargs):
-        return APIdentity.get_by_handler(kwargs["username"])
+        return APIdentity.get_by_handle(kwargs["username"])
 
     def title(self, owner):
         return "%s的评论" % owner.display_name if owner else "无效链接"

@@ -43,7 +43,7 @@
                 <span class="timestamp">{{ mark.created_time|date }}</span>
               </div>
               <div>
-                <a href="{{ mark.owner.url }}" title="@{{ mark.owner.handler }}">{{ mark.owner.display_name }}</a>
+                <a href="{{ mark.owner.url }}" title="@{{ mark.owner.handle }}">{{ mark.owner.display_name }}</a>
                 <span>{{ mark.action_label }}</span>
                 {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
                 {% if mark.comment.item != item %}<a href="{{ mark.comment.item_url }}">{{ mark.comment.item.title }}</a>{% endif %}

@@ -25,7 +25,7 @@
           {% for v in tags %}
             <span style="margin-right:2em; white-space: nowrap;">
               <span>
-                <a href="{% url 'journal:user_tag_member_list' identity.handler v.title %}">{{ v.title }}</a>
+                <a href="{% url 'journal:user_tag_member_list' identity.handle v.title %}">{{ v.title }}</a>
               </span>
               <span>({{ v.total }})</span>
             </span>

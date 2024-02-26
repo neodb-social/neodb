@@ -1,9 +1,7 @@
 import functools
-import re
 import uuid
 from typing import TYPE_CHECKING
 
-from django.db.models import query
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
 from django.utils.baseconv import base62
@@ -55,7 +53,38 @@ def target_identity_required(func):
         from users.views import render_user_blocked, render_user_not_found
 
         try:
-            target = APIdentity.get_by_handler(user_name)
+            target = APIdentity.get_by_handle(user_name)
+        except APIdentity.DoesNotExist:
+            return render_user_not_found(request)
+        target_user = target.user
+        viewer = None
+        if target_user and not target_user.is_active:
+            return render_user_not_found(request)
+        if request.user.is_authenticated:
+            try:
+                viewer = APIdentity.objects.get(user=request.user)
+            except APIdentity.DoesNotExist:
+                return HttpResponseRedirect("/account/register")
+            if request.user != target_user:
+                if target.is_blocking(viewer) or target.is_blocked_by(viewer):
+                    return render_user_blocked(request)
+        else:
+            viewer = None
+        request.target_identity = target
+        request.identity = viewer
+        return func(request, user_name, *args, **kwargs)
+
+    return wrapper
+
+
+def profile_identity_required(func):
+    @functools.wraps(func)
+    def wrapper(request, user_name, *args, **kwargs):
+        from users.models import APIdentity
+        from users.views import render_user_blocked, render_user_not_found
+
+        try:
+            target = APIdentity.get_by_handle(user_name, match_linked=True)
         except APIdentity.DoesNotExist:
             return render_user_not_found(request)
         target_user = target.user

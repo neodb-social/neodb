@@ -62,7 +62,7 @@ def render_user_noanonymous(request):
 
 def query_identity(request, handle):
     try:
-        i = APIdentity.get_by_handler(handle)
+        i = APIdentity.get_by_handle(handle)
         return redirect(i.url)
     except APIdentity.DoesNotExist:
         if len(handle.split("@")) == 3:
@@ -77,7 +77,7 @@ def query_identity(request, handle):
 def fetch_refresh(request):
     handle = request.GET.get("handle", "")
     try:
-        i = APIdentity.get_by_handler(handle)
+        i = APIdentity.get_by_handle(handle)
         return HTTPResponseHXRedirect(i.url)
     except:
         retry = int(request.GET.get("retry", 0)) + 1
@@ -161,7 +161,7 @@ def unblock(request: AuthedHttpRequest, user_name):
     if request.method != "POST":
         raise BadRequest()
     try:
-        target = APIdentity.get_by_handler(user_name)
+        target = APIdentity.get_by_handle(user_name)
     except APIdentity.DoesNotExist:
         return render_user_not_found(request)
     target_user = target.user

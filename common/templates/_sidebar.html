@@ -196,7 +196,7 @@
           <div class="tag-list">
             {% for t in top_tags %}
               <span>
-                <a href="{% url 'journal:user_tag_member_list' identity.handler t %}">{{ t }}</a>
+                <a href="{% url 'journal:user_tag_member_list' identity.user.handler t %}">{{ t }}</a>
               </span>
             {% empty %}
               <div class="empty">暂无可见标签</div>
@@ -204,7 +204,7 @@
           </div>
           <small>
             {% if top_tags %}
-              <a href="{% url 'journal:user_tag_list' identity.handler %}">...{% trans '全部' %}</a>
+              <a href="{% url 'journal:user_tag_list' identity.user.handler %}">...{% trans '全部' %}</a>
             {% endif %}
           </small>
         </details>

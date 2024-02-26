@@ -1,32 +1,42 @@
 import datetime
 
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
-from user_messages import api as msg
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest
-from users.models import APIdentity, User
-from users.views import render_user_blocked, render_user_not_found
 
 from ..forms import *
 from ..models import *
-from .common import render_list, target_identity_required
+from .common import profile_identity_required, target_identity_required
 
 
 @require_http_methods(["GET"])
-@target_identity_required
+@profile_identity_required
 def profile(request: AuthedHttpRequest, user_name):
     target = request.target_identity
-    # if user.mastodon_acct != user_name and user.username != user_name:
-    #     return redirect(user.url)
-    if not request.user.is_authenticated and not target.anonymous_viewable:
-        return render(request, "users/home_anonymous.html", {"user": target.user})
-    me = target.user == request.user
+
+    if not request.user.is_authenticated and (
+        not target.local or not target.anonymous_viewable
+    ):
+        return render(
+            request,
+            "users/home_anonymous.html",
+            {"identity": target, "redir": f"/account/login?next={target.url}"},
+        )
+
+    if (target.local and user_name != target.handle) or (
+        not target.local and user_name != f"@{target.handle}"
+    ):
+        return render(
+            request,
+            "users/home_anonymous.html",
+            {"identity": target, "redir": target.url},
+        )
+
+    me = target.local and target.user == request.user
 
     qv = q_owned_piece_visible_to_user(request.user, target)
     shelf_list = {}
@@ -91,6 +101,7 @@ def profile(request: AuthedHttpRequest, user_name):
         {
             "user": target.user,
             "identity": target,
+            "me": me,
             "top_tags": top_tags,
             "shelf_list": shelf_list,
             "collections": collections[:10],
