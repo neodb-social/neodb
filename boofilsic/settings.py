@@ -1,6 +1,7 @@
 import os
 
 import environ
+from django.utils.translation import gettext_lazy as _
 
 from boofilsic import __version__
 
@@ -34,7 +35,10 @@ env = environ.FileAwareEnv(
     NEODB_USER_ICON=(str, "/s/img/avatar.svg"),
     NEODB_SITE_INTRO=(str, ""),
     NEODB_SITE_HEAD=(str, ""),
-    NEODB_SITE_DESCRIPTION=(str, "一个自由、开放、互联的书籍、电影、音乐和游戏收藏评论交流社区"),
+    NEODB_SITE_DESCRIPTION=(
+        str,
+        "reviews about book, film, music, podcast and game.",
+    ),
     # Links in site footer
     NEODB_SITE_LINKS=(dict, {}),
     # Invite only mode
@@ -384,6 +388,11 @@ MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.models.render_md"
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = "zh-hans"
+LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
+# LANGUAGES = (
+#     ("en", _("English")),
+#     ("zh-hans", _("Simplified Chinese")),
+# )
 
 TIME_ZONE = env("NEODB_TIMEZONE", default="Asia/Shanghai")  # type: ignore
 

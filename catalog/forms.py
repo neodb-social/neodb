@@ -23,10 +23,13 @@ def _EditForm(item_model):
         primary_lookup_id_type = forms.ChoiceField(
             required=False,
             choices=item_model.lookup_id_type_choices(),
-            label=_("主要标识类型"),
+            label=_("Primary ID Type"),
+            help_text="automatically detected, usually no change necessary",
         )
         primary_lookup_id_value = forms.CharField(
-            required=False, label=_("主要标识数据通常由系统自动检测，请勿随意更改现有值，新增条目不确定留空即可")
+            required=False,
+            label=_("Primary ID Value"),
+            help_text="automatically detected, usually no change necessary, left empty if unsure",
         )
 
         class Meta:

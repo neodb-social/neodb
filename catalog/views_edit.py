@@ -234,7 +234,7 @@ def fetch_tvepisodes(request, item_path, item_uuid):
     django_rq.get_queue("crawl").enqueue(
         fetch_episodes_for_season_task, item.uuid, request.user
     )
-    messages.add_message(request, messages.INFO, _("已开始更新单集信息"))
+    messages.add_message(request, messages.INFO, _("Updating episodes"))
     return redirect(item.url)
 
 
@@ -257,10 +257,11 @@ def merge(request, item_path, item_uuid):
     if request.POST.get("new_item_url"):
         new_item = Item.get_by_url(request.POST.get("new_item_url"))
         if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
-            raise BadRequest(_("不能合并到一个被删除或合并过的条目。"))
+            raise BadRequest(_("Cannot be merged to an item already deleted or merged"))
         if new_item.class_name != item.class_name:
             raise BadRequest(
-                _("不能合并不同类的条目") + f" ({item.class_name} to {new_item.class_name})"
+                _("Cannot merge items in different categories")
+                + f" ({item.class_name} to {new_item.class_name})"
             )
         _logger.warn(f"{request.user} merges {item} to {new_item}")
         item.merge_to(new_item)

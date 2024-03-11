@@ -141,7 +141,7 @@
             <div class="item-edit">
               <span class="action inline">
                 <a href="{% url 'catalog:edit' item.url_path item.uuid %}"
-                   title="{% trans '编辑' %}{{ item.demonstrative }}"><i class="fa-solid fa-pen-to-square"></i></a>
+                   title="{% trans '编辑这个条目' %}"><i class="fa-solid fa-pen-to-square"></i></a>
               </span>
               {% if item.last_editor and item.last_editor.preference.show_last_edit %}
                 <span>

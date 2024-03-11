@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.core.cache import cache
 from django.db.models import Count, F
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from catalog.models import *
@@ -87,7 +88,7 @@ class DiscoverGenerator(BaseJob):
                 {
                     "name": "popular_" + category.value,
                     "title": ""
-                    + (category.label if category != ItemCategory.Book else "图书"),
+                    + (category.label if category != ItemCategory.Book else _("Book")),
                     "items": items,
                 }
             )

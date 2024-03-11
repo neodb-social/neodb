@@ -4,8 +4,15 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from ninja import Schema
 
-from catalog.common import *
-from catalog.common.models import ItemSchema
+from catalog.common import (
+    ExternalResource,
+    IdType,
+    Item,
+    ItemCategory,
+    ItemSchema,
+    ItemType,
+    jsondata,
+)
 from catalog.common.utils import DEFAULT_ITEM_COVER
 
 
@@ -54,8 +61,8 @@ _CREW_SCHEMA = {
     "items": {
         "type": "dict",
         "keys": {
-            "name": {"type": "string", "title": _("名字")},
-            "role": {"type": "string", "title": _("职能")},
+            "name": {"type": "string", "title": _("name")},
+            "role": {"type": "string", "title": _("role")},
         },
         "required": ["role", "name"],
     },
@@ -67,8 +74,16 @@ _ACTOR_SCHEMA = {
     "items": {
         "type": "dict",
         "keys": {
-            "name": {"type": "string", "title": _("名字"), "placeholder": _("演员名字，必填")},
-            "role": {"type": "string", "title": _("角色"), "placeholder": _("也可不填写")},
+            "name": {
+                "type": "string",
+                "title": _("name"),
+                "placeholder": _("required"),
+            },
+            "role": {
+                "type": "string",
+                "title": _("role"),
+                "placeholder": _("optional"),
+            },
         },
         "required": ["name"],
     },
@@ -89,109 +104,108 @@ class Performance(Item):
     child_class = "PerformanceProduction"
     category = ItemCategory.Performance
     url_path = "performance"
-    demonstrative = _("这部剧作")
     orig_title = jsondata.CharField(
-        verbose_name=_("原名"), blank=True, default="", max_length=500
+        verbose_name=_("original name"), blank=True, default="", max_length=500
     )
     other_title = jsondata.ArrayField(
-        verbose_name=_("其它标题"),
+        verbose_name=_("other title"),
         base_field=models.CharField(blank=False, default="", max_length=200),
         null=False,
         blank=True,
         default=list,
     )
     genre = jsondata.ArrayField(
-        verbose_name=_("类型"),
+        verbose_name=_("genre"),
         base_field=models.CharField(blank=False, default="", max_length=200),
         null=False,
         blank=False,
         default=list,
     )
     language = jsondata.ArrayField(
-        verbose_name=_("语言"),
+        verbose_name=_("language"),
         base_field=models.CharField(blank=False, default="", max_length=200),
         null=False,
         blank=True,
         default=list,
     )
     director = jsondata.ArrayField(
-        verbose_name=_("导演"),
+        verbose_name=_("director"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     playwright = jsondata.ArrayField(
-        verbose_name=_("编剧"),
+        verbose_name=_("playwright"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     orig_creator = jsondata.ArrayField(
-        verbose_name=_("原作者"),
+        verbose_name=_("original creator"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     composer = jsondata.ArrayField(
-        verbose_name=_("作曲"),
+        verbose_name=_("composer"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     choreographer = jsondata.ArrayField(
-        verbose_name=_("编舞"),
+        verbose_name=_("choreographer"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     actor = jsondata.JSONField(
-        verbose_name=_("演员"),
+        verbose_name=_("actor"),
         null=False,
         blank=True,
         default=list,
         schema=_ACTOR_SCHEMA,
     )
     performer = jsondata.ArrayField(
-        verbose_name=_("表演者"),
+        verbose_name=_("performer"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     troupe = jsondata.ArrayField(
-        verbose_name=_("剧团"),
+        verbose_name=_("troupe"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     crew = jsondata.JSONField(
-        verbose_name=_("其他演职人员和团体"),
+        verbose_name=_("crew"),
         null=False,
         blank=True,
         default=list,
         schema=_CREW_SCHEMA,
     )
     location = jsondata.ArrayField(
-        verbose_name=_("剧场空间"),
+        verbose_name=_("theater"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     opening_date = jsondata.CharField(
-        verbose_name=_("首演日期"), max_length=100, null=True, blank=True
+        verbose_name=_("opening date"), max_length=100, null=True, blank=True
     )
     closing_date = jsondata.CharField(
-        verbose_name=_("结束日期"), max_length=100, null=True, blank=True
+        verbose_name=_("closing date"), max_length=100, null=True, blank=True
     )
     official_site = jsondata.CharField(
-        verbose_name=_("官方网站"), max_length=1000, null=True, blank=True
+        verbose_name=_("website"), max_length=1000, null=True, blank=True
     )
     METADATA_COPY_LIST = [
         "title",
@@ -236,105 +250,104 @@ class PerformanceProduction(Item):
     type = ItemType.PerformanceProduction
     category = ItemCategory.Performance
     url_path = "performance/production"
-    demonstrative = _("这次上演")
     show = models.ForeignKey(
         Performance, null=True, on_delete=models.SET_NULL, related_name="productions"
     )
     orig_title = jsondata.CharField(
-        verbose_name=_("原名"), blank=True, default="", max_length=500
+        verbose_name=_("original title"), blank=True, default="", max_length=500
     )
     other_title = jsondata.ArrayField(
-        verbose_name=_("其它标题"),
+        verbose_name=_("other title"),
         base_field=models.CharField(blank=False, default="", max_length=200),
         null=False,
         blank=True,
         default=list,
     )
     language = jsondata.ArrayField(
-        verbose_name=_("语言"),
+        verbose_name=_("language"),
         base_field=models.CharField(blank=False, default="", max_length=200),
         null=False,
         blank=True,
         default=list,
     )
     director = jsondata.ArrayField(
-        verbose_name=_("导演"),
+        verbose_name=_("director"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     playwright = jsondata.ArrayField(
-        verbose_name=_("编剧"),
+        verbose_name=_("playwright"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     orig_creator = jsondata.ArrayField(
-        verbose_name=_("原作者"),
+        verbose_name=_("original creator"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     composer = jsondata.ArrayField(
-        verbose_name=_("作曲"),
+        verbose_name=_("composer"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     choreographer = jsondata.ArrayField(
-        verbose_name=_("编舞"),
+        verbose_name=_("choreographer"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     actor = jsondata.JSONField(
-        verbose_name=_("演员"),
+        verbose_name=_("actor"),
         null=False,
         blank=True,
         default=list,
         schema=_ACTOR_SCHEMA,
     )
     performer = jsondata.ArrayField(
-        verbose_name=_("表演者"),
+        verbose_name=_("performer"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     troupe = jsondata.ArrayField(
-        verbose_name=_("剧团"),
+        verbose_name=_("troupe"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     crew = jsondata.JSONField(
-        verbose_name=_("其他演职人员和团体"),
+        verbose_name=_("crew"),
         null=False,
         blank=True,
         default=list,
         schema=_CREW_SCHEMA,
     )
     location = jsondata.ArrayField(
-        verbose_name=_("剧场空间"),
+        verbose_name=_("theater"),
         base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
     )
     opening_date = jsondata.CharField(
-        verbose_name=_("首演日期"), max_length=100, null=True, blank=False
+        verbose_name=_("opening date"), max_length=100, null=True, blank=False
     )
     closing_date = jsondata.CharField(
-        verbose_name=_("结束日期"), max_length=100, null=True, blank=True
+        verbose_name=_("closing date"), max_length=100, null=True, blank=True
     )
     official_site = jsondata.CharField(
-        verbose_name=_("官方网站"), max_length=1000, null=True, blank=True
+        verbose_name=_("website"), max_length=1000, null=True, blank=True
     )
     METADATA_COPY_LIST = [
         "title",

@@ -28,7 +28,7 @@ def duration_format(value, unit):
         s = duration % 60
         return f"{h}:{m:02}:{s:02}" if h else f"{m:02}:{s:02}"
         # return (f"{h}小时 " if h else "") + (f"{m}分钟" if m else "")
-    except:
+    except Exception:
         return f"{value} (format error)"
 
 

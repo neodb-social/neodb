@@ -39,10 +39,10 @@ def current_user_relationship(context, target_identity: "APIdentity"):
             r["following"] = current_identity.is_following(target_identity)
             if r["following"]:
                 if current_identity.is_followed_by(target_identity):
-                    r["status"] = _("互相关注")
+                    r["status"] = _("mutual followed")
                 else:
-                    r["status"] = _("已关注")
+                    r["status"] = _("followed")
             else:
                 if current_identity.is_followed_by(target_identity):
-                    r["status"] = _("被ta关注")
+                    r["status"] = _("following you")
     return r

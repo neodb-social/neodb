@@ -22,19 +22,17 @@ from .mixins import SoftDeleteMixin
 from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
 
 if TYPE_CHECKING:
-    from django.utils.functional import _StrOrPromise
-
     from users.models import User
 
 _logger = logging.getLogger(__name__)
 
 
 class SiteName(models.TextChoices):
-    Unknown = "unknown", _("未知站点")
-    Douban = "douban", _("豆瓣")
+    Unknown = "unknown", _("Unknown")
+    Douban = "douban", _("Douban")
     Goodreads = "goodreads", _("Goodreads")
-    GoogleBooks = "googlebooks", _("谷歌图书")
-    BooksTW = "bookstw", _("博客来")
+    GoogleBooks = "googlebooks", _("Google Books")
+    BooksTW = "bookstw", _("BooksTW")
     IMDB = "imdb", _("IMDb")
     TMDB = "tmdb", _("TMDB")
     Bandcamp = "bandcamp", _("Bandcamp")
@@ -43,57 +41,57 @@ class SiteName(models.TextChoices):
     Steam = "steam", _("Steam")
     Bangumi = "bangumi", _("Bangumi")
     BGG = "bgg", _("BGG")
-    # ApplePodcast = "apple_podcast", _("苹果播客")
+    # ApplePodcast = "apple_podcast", _("Apple Podcast")
     RSS = "rss", _("RSS")
     Discogs = "discogs", _("Discogs")
-    AppleMusic = "apple_music", _("苹果音乐")
-    Fediverse = "fedi", _("联邦实例")
+    AppleMusic = "apple_music", _("Apple Music")
+    Fediverse = "fedi", _("Fediverse")
 
 
 class IdType(models.TextChoices):
-    WikiData = "wikidata", _("维基数据")
+    WikiData = "wikidata", _("WikiData")
     ISBN10 = "isbn10", _("ISBN10")
     ISBN = "isbn", _("ISBN")  # ISBN 13
     ASIN = "asin", _("ASIN")
     ISSN = "issn", _("ISSN")
-    CUBN = "cubn", _("统一书号")
+    CUBN = "cubn", _("CUBN")
     ISRC = "isrc", _("ISRC")  # only for songs
-    GTIN = "gtin", _("GTIN UPC EAN码")  # GTIN-13, ISBN is separate
+    GTIN = "gtin", _("GTIN UPC EAN")  # GTIN-13, ISBN is separate
     RSS = "rss", _("RSS Feed URL")
     IMDB = "imdb", _("IMDb")
-    TMDB_TV = "tmdb_tv", _("TMDB剧集")
-    TMDB_TVSeason = "tmdb_tvseason", _("TMDB剧集")
-    TMDB_TVEpisode = "tmdb_tvepisode", _("TMDB剧集")
-    TMDB_Movie = "tmdb_movie", _("TMDB电影")
+    TMDB_TV = "tmdb_tv", _("TMDB TV Serie")
+    TMDB_TVSeason = "tmdb_tvseason", _("TMDB TV Season")
+    TMDB_TVEpisode = "tmdb_tvepisode", _("TMDB TV Episode")
+    TMDB_Movie = "tmdb_movie", _("TMDB Movie")
     Goodreads = "goodreads", _("Goodreads")
-    Goodreads_Work = "goodreads_work", _("Goodreads著作")
-    GoogleBooks = "googlebooks", _("谷歌图书")
-    DoubanBook = "doubanbook", _("豆瓣读书")
-    DoubanBook_Work = "doubanbook_work", _("豆瓣读书著作")
-    DoubanMovie = "doubanmovie", _("豆瓣电影")
-    DoubanMusic = "doubanmusic", _("豆瓣音乐")
-    DoubanGame = "doubangame", _("豆瓣游戏")
-    DoubanDrama = "doubandrama", _("豆瓣舞台剧")
-    DoubanDramaVersion = "doubandrama_version", _("豆瓣舞台剧版本")
-    BooksTW = "bookstw", _("博客来图书")
+    Goodreads_Work = "goodreads_work", _("Goodreads Work")
+    GoogleBooks = "googlebooks", _("Google Books")
+    DoubanBook = "doubanbook", _("Douban Book")
+    DoubanBook_Work = "doubanbook_work", _("Douban Book Work")
+    DoubanMovie = "doubanmovie", _("Douban Movie")
+    DoubanMusic = "doubanmusic", _("Douban Music")
+    DoubanGame = "doubangame", _("Douban Game")
+    DoubanDrama = "doubandrama", _("Douban Drama")
+    DoubanDramaVersion = "doubandrama_version", _("Douban Drama Version")
+    BooksTW = "bookstw", _("BooksTW Book")
     Bandcamp = "bandcamp", _("Bandcamp")
-    Spotify_Album = "spotify_album", _("Spotify专辑")
-    Spotify_Show = "spotify_show", _("Spotify播客")
+    Spotify_Album = "spotify_album", _("Spotify Album")
+    Spotify_Show = "spotify_show", _("Spotify Podcast")
     Discogs_Release = "discogs_release", ("Discogs Release")
     Discogs_Master = "discogs_master", ("Discogs Master")
     MusicBrainz = "musicbrainz", ("MusicBrainz ID")
-    DoubanBook_Author = "doubanbook_author", _("豆瓣读书作者")
-    DoubanCelebrity = "doubanmovie_celebrity", _("豆瓣电影影人")
-    Goodreads_Author = "goodreads_author", _("Goodreads作者")
-    Spotify_Artist = "spotify_artist", _("Spotify艺术家")
-    TMDB_Person = "tmdb_person", _("TMDB影人")
-    IGDB = "igdb", _("IGDB游戏")
-    BGG = "bgg", _("BGG桌游")
-    Steam = "steam", _("Steam游戏")
+    # DoubanBook_Author = "doubanbook_author", _("豆瓣读书作者")
+    # DoubanCelebrity = "doubanmovie_celebrity", _("豆瓣电影影人")
+    # Goodreads_Author = "goodreads_author", _("Goodreads作者")
+    # Spotify_Artist = "spotify_artist", _("Spotify艺术家")
+    # TMDB_Person = "tmdb_person", _("TMDB影人")
+    IGDB = "igdb", _("IGDB Game")
+    BGG = "bgg", _("BGG Boardgame")
+    Steam = "steam", _("Steam Game")
     Bangumi = "bangumi", _("Bangumi")
-    ApplePodcast = "apple_podcast", _("苹果播客")
-    AppleMusic = "apple_music", _("苹果音乐")
-    Fediverse = "fedi", _("联邦实例")
+    ApplePodcast = "apple_podcast", _("Apple Podcast")
+    AppleMusic = "apple_music", _("Apple Music")
+    Fediverse = "fedi", _("Fediverse")
 
 
 IdealIdTypes = [
@@ -109,46 +107,43 @@ IdealIdTypes = [
 
 
 class ItemType(models.TextChoices):
-    Book = "book", _("书")
-    TVShow = "tvshow", _("剧集")
-    TVSeason = "tvseason", _("剧集分季")
-    TVEpisode = "tvepisode", _("剧集分集")
-    Movie = "movie", _("电影")
-    Album = "music", _("音乐专辑")
-    Game = "game", _("游戏")
-    Podcast = "podcast", _("播客")
-    PodcastEpisode = "podcastepisode", _("播客单集")
-    FanFic = "fanfic", _("网文")
-    Performance = "performance", _("剧目")
-    PerformanceProduction = "production", _("上演")
-    Exhibition = "exhibition", _("展览")
-    Collection = "collection", _("收藏单")
+    Book = "book", _("Book")
+    TVShow = "tvshow", _("TV Serie")
+    TVSeason = "tvseason", _("TV Season")
+    TVEpisode = "tvepisode", _("TV Episode")
+    Movie = "movie", _("Movie")
+    Album = "music", _("Album")
+    Game = "game", _("Game")
+    Podcast = "podcast", _("Podcast Program")
+    PodcastEpisode = "podcastepisode", _("Podcast Episode")
+    Performance = "performance", _("Performance")
+    PerformanceProduction = "production", _("Production")
+    FanFic = "fanfic", _("Fanfix")
+    Exhibition = "exhibition", _("Exhibition")
+    Collection = "collection", _("Collection")
 
 
 class ItemCategory(models.TextChoices):
-    Book = "book", _("书")
-    Movie = "movie", _("电影")
-    TV = "tv", _("剧集")
-    Music = "music", _("音乐")
-    Game = "game", _("游戏")
-    Podcast = "podcast", _("播客")
-    FanFic = "fanfic", _("网文")
-    Performance = "performance", _("演出")
-    Exhibition = "exhibition", _("展览")
-    Collection = "collection", _("收藏单")
+    Book = "book", _("Book")
+    Movie = "movie", _("Movie")
+    TV = "tv", _("TV")
+    Music = "music", _("Music")
+    Game = "game", _("Game")
+    Podcast = "podcast", _("Podcast")
+    Performance = "performance", _("Performance")
+    FanFic = "fanfic", _("FanFic")
+    Exhibition = "exhibition", _("Exhibition")
+    Collection = "collection", _("Collection")
 
 
 class AvailableItemCategory(models.TextChoices):
-    Book = "book", _("书")
-    Movie = "movie", _("电影")
-    TV = "tv", _("剧集")
-    Music = "music", _("音乐")
-    Game = "game", _("游戏")
-    Podcast = "podcast", _("播客")
-    Performance = "performance", _("演出")
-    # FanFic = "fanfic", _("网文")
-    # Exhibition = "exhibition", _("展览")
-    # Collection = "collection", _("收藏单")
+    Book = "book", _("Book")
+    Movie = "movie", _("Movie")
+    TV = "tv", _("TV")
+    Music = "music", _("Music")
+    Game = "game", _("Game")
+    Podcast = "podcast", _("Podcast")
+    Performance = "performance", _("Performance")
 
 
 # class SubItemType(models.TextChoices):
@@ -258,19 +253,22 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     child_class = None  # subclass may specify this to allow link to parent item
     parent_class = None  # subclass may specify this to allow create child item
     category: ItemCategory  # subclass must specify this
-    demonstrative: "_StrOrPromise | None" = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
-    title = models.CharField(_("标题"), max_length=1000, default="")
-    brief = models.TextField(_("简介"), blank=True, default="")
+    title = models.CharField(_("title"), max_length=1000, default="")
+    brief = models.TextField(_("description"), blank=True, default="")
     primary_lookup_id_type = models.CharField(
-        _("主要标识类型"), blank=False, null=True, max_length=50
+        _("Primary ID Type"), blank=False, null=True, max_length=50
     )
     primary_lookup_id_value = models.CharField(
-        _("主要标识数值"), blank=False, null=True, max_length=1000
+        _("Primary ID Value"),
+        blank=False,
+        null=True,
+        max_length=1000,
+        help_text="automatically detected, usually no change necessary, left empty if unsure",
     )
-    metadata = models.JSONField(_("其它信息"), blank=True, null=True, default=dict)
+    metadata = models.JSONField(_("metadata"), blank=True, null=True, default=dict)
     cover = models.ImageField(
-        _("封面"), upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True
+        _("cover"), upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True
     )
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
@@ -552,10 +550,12 @@ class ItemLookupId(models.Model):
         Item, null=True, on_delete=models.SET_NULL, related_name="lookup_ids"
     )
     id_type = models.CharField(
-        _("源网站"), blank=True, choices=IdType.choices, max_length=50
+        _("source site"), blank=True, choices=IdType.choices, max_length=50
     )
-    id_value = models.CharField(_("源网站ID"), blank=True, max_length=1000)
-    raw_url = models.CharField(_("源网站ID"), blank=True, max_length=1000, unique=True)
+    id_value = models.CharField(_("ID on source site"), blank=True, max_length=1000)
+    raw_url = models.CharField(
+        _("source url"), blank=True, max_length=1000, unique=True
+    )
 
     class Meta:
         unique_together = [["id_type", "id_value"]]

@@ -41,7 +41,6 @@ class Movie(Item):
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_movie = PrimaryLookupIdDescriptor(IdType.TMDB_Movie)
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
-    demonstrative = _("这部电影")
 
     METADATA_COPY_LIST = [
         "title",
@@ -63,45 +62,45 @@ class Movie(Item):
         "brief",
     ]
     orig_title = jsondata.CharField(
-        verbose_name=_("原始标题"), blank=True, default="", max_length=500
+        verbose_name=_("original title"), blank=True, default="", max_length=500
     )
     other_title = jsondata.ArrayField(
-        verbose_name=_("其它标题"),
+        verbose_name=_("other title"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     director = jsondata.ArrayField(
-        verbose_name=_("导演"),
+        verbose_name=_("director"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     playwright = jsondata.ArrayField(
-        verbose_name=_("编剧"),
+        verbose_name=_("playwright"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     actor = jsondata.ArrayField(
-        verbose_name=_("演员"),
+        verbose_name=_("actor"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     genre = jsondata.ArrayField(
-        verbose_name=_("类型"),
+        verbose_name=_("genre"),
         base_field=models.CharField(blank=True, default="", max_length=50),
         null=True,
         blank=True,
         default=list,
     )  # , choices=MovieGenreEnum.choices
     showtime = jsondata.JSONField(
-        _("上映日期"),
+        _("release date"),
         null=True,
         blank=True,
         default=list,
@@ -113,13 +112,15 @@ class Movie(Item):
                 "keys": {
                     "time": {
                         "type": "string",
-                        "title": _("日期"),
-                        "placeholder": _("必填"),
+                        "title": _("date"),
+                        "placeholder": _("required"),
                     },
                     "region": {
                         "type": "string",
-                        "title": _("区域或类型"),
-                        "placeholder": _("如中国大陆或柏林电影节"),
+                        "title": _("region or event"),
+                        "placeholder": _(
+                            "Germany or Toronto International Film Festival"
+                        ),
                     },
                 },
                 "required": ["time"],
@@ -127,10 +128,10 @@ class Movie(Item):
         },
     )
     site = jsondata.URLField(
-        verbose_name=_("官方网站"), blank=True, default="", max_length=200
+        verbose_name=_("website"), blank=True, default="", max_length=200
     )
     area = jsondata.ArrayField(
-        verbose_name=_("国家地区"),
+        verbose_name=_("region"),
         base_field=models.CharField(
             blank=True,
             default="",
@@ -141,7 +142,7 @@ class Movie(Item):
         default=list,
     )
     language = jsondata.ArrayField(
-        verbose_name=_("语言"),
+        verbose_name=_("language"),
         base_field=models.CharField(
             blank=True,
             default="",
@@ -151,9 +152,9 @@ class Movie(Item):
         blank=True,
         default=list,
     )
-    year = jsondata.IntegerField(verbose_name=_("年份"), null=True, blank=True)
+    year = jsondata.IntegerField(verbose_name=_("year"), null=True, blank=True)
     duration = jsondata.CharField(
-        verbose_name=_("片长"), blank=True, default="", max_length=200
+        verbose_name=_("length"), blank=True, default="", max_length=200
     )
     season_number = jsondata.IntegerField(
         null=True, blank=True

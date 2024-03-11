@@ -61,7 +61,6 @@ class EditionSchema(EditionInSchema, BaseSchema):
 class Edition(Item):
     category = ItemCategory.Book
     url_path = "book"
-    demonstrative = _("这本书")
 
     isbn = PrimaryLookupIdDescriptor(IdType.ISBN)
     asin = PrimaryLookupIdDescriptor(IdType.ASIN)
@@ -88,53 +87,53 @@ class Edition(Item):
         "contents",
     ]
     subtitle = jsondata.CharField(
-        _("副标题"), null=True, blank=True, default=None, max_length=500
+        _("subtitle"), null=True, blank=True, default=None, max_length=500
     )
     orig_title = jsondata.CharField(
-        _("原名"), null=True, blank=True, default=None, max_length=500
+        _("original title"), null=True, blank=True, default=None, max_length=500
     )
     author = jsondata.ArrayField(
-        verbose_name=_("作者"),
+        verbose_name=_("author"),
         base_field=models.CharField(max_length=500),
         null=False,
         blank=False,
         default=list,
     )
     translator = jsondata.ArrayField(
-        verbose_name=_("译者"),
+        verbose_name=_("translator"),
         base_field=models.CharField(max_length=500),
         null=True,
         blank=True,
         default=list,
     )
     language = jsondata.CharField(
-        _("语言"), null=True, blank=True, default=None, max_length=500
+        _("language"), null=True, blank=True, default=None, max_length=500
     )
     pub_house = jsondata.CharField(
-        _("出版社"), null=True, blank=False, default=None, max_length=500
+        _("publisher"), null=True, blank=False, default=None, max_length=500
     )
     pub_year = jsondata.IntegerField(
-        _("出版年份"),
+        _("publication year"),
         null=True,
         blank=False,
         validators=[MinValueValidator(1), MaxValueValidator(2999)],
     )
     pub_month = jsondata.IntegerField(
-        _("出版月份"),
+        _("publication month"),
         null=True,
         blank=True,
         validators=[MinValueValidator(1), MaxValueValidator(12)],
     )
     binding = jsondata.CharField(
-        _("装订"), null=True, blank=True, default=None, max_length=500
+        _("binding"), null=True, blank=True, default=None, max_length=500
     )
-    pages = jsondata.IntegerField(_("页数"), blank=True, default=None)
+    pages = jsondata.IntegerField(_("pages"), blank=True, default=None)
     series = jsondata.CharField(
-        _("丛书"), null=True, blank=True, default=None, max_length=500
+        _("series"), null=True, blank=True, default=None, max_length=500
     )
-    contents = jsondata.TextField(_("目录"), null=True, blank=True, default=None)
-    price = jsondata.CharField(_("价格"), null=True, blank=True, max_length=500)
-    imprint = jsondata.CharField(_("出品方"), null=True, blank=True, max_length=500)
+    contents = jsondata.TextField(_("contents"), null=True, blank=True, default=None)
+    price = jsondata.CharField(_("price"), null=True, blank=True, max_length=500)
+    imprint = jsondata.CharField(_("imprint"), null=True, blank=True, max_length=500)
 
     @property
     def isbn10(self):

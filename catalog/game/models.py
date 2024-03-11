@@ -34,7 +34,6 @@ class Game(Item):
     type = ItemType.Game
     category = ItemCategory.Game
     url_path = "game"
-    demonstrative = _("这个游戏")
     igdb = PrimaryLookupIdDescriptor(IdType.IGDB)
     steam = PrimaryLookupIdDescriptor(IdType.Steam)
     douban_game = PrimaryLookupIdDescriptor(IdType.DoubanGame)
@@ -56,7 +55,7 @@ class Game(Item):
 
     other_title = jsondata.ArrayField(
         base_field=models.CharField(blank=True, default="", max_length=500),
-        verbose_name=_("其它标题"),
+        verbose_name=_("other title"),
         null=True,
         blank=True,
         default=list,
@@ -64,7 +63,7 @@ class Game(Item):
 
     designer = jsondata.ArrayField(
         base_field=models.CharField(blank=True, default="", max_length=500),
-        verbose_name=_("设计者"),
+        verbose_name=_("designer"),
         null=True,
         blank=True,
         default=list,
@@ -72,7 +71,7 @@ class Game(Item):
 
     artist = jsondata.ArrayField(
         base_field=models.CharField(blank=True, default="", max_length=500),
-        verbose_name=_("艺术家"),
+        verbose_name=_("artist"),
         null=True,
         blank=True,
         default=list,
@@ -80,7 +79,7 @@ class Game(Item):
 
     developer = jsondata.ArrayField(
         base_field=models.CharField(blank=True, default="", max_length=500),
-        verbose_name=_("开发商"),
+        verbose_name=_("developer"),
         null=True,
         blank=True,
         default=list,
@@ -88,16 +87,18 @@ class Game(Item):
 
     publisher = jsondata.ArrayField(
         base_field=models.CharField(blank=True, default="", max_length=500),
-        verbose_name=_("发行商"),
+        verbose_name=_("publisher"),
         null=True,
         blank=True,
         default=list,
     )
 
-    release_year = jsondata.IntegerField(verbose_name=_("发布年份"), null=True, blank=True)
+    release_year = jsondata.IntegerField(
+        verbose_name=_("year of publication"), null=True, blank=True
+    )
 
     release_date = jsondata.DateField(
-        verbose_name=_("发布日期"),
+        verbose_name=_("date of publication"),
         auto_now=False,
         auto_now_add=False,
         null=True,
@@ -106,7 +107,7 @@ class Game(Item):
     )
 
     genre = jsondata.ArrayField(
-        verbose_name=_("类型"),
+        verbose_name=_("genre"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
@@ -114,13 +115,13 @@ class Game(Item):
     )
 
     platform = jsondata.ArrayField(
-        verbose_name=_("平台"),
+        verbose_name=_("platform"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         default=list,
     )
 
     official_site = jsondata.CharField(
-        verbose_name=_("官方网站"), max_length=1000, null=True, blank=True
+        verbose_name=_("website"), max_length=1000, null=True, blank=True
     )
 
     @classmethod

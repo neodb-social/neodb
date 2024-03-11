@@ -244,7 +244,7 @@ class URLField(JSONFieldMixin, fields.URLField):
 
 class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
     # def __init__(self, *args, **kwargs):
-    #     kwargs["help_text"] = _("多项之间以英文逗号分隔")
+    #     kwargs["help_text"] = _("comma separated list of values")
     #     super().__init__(*args, **kwargs)
 
     def from_json(self, value):  # backward compatible with dirty legacy data

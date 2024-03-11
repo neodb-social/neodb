@@ -29,12 +29,11 @@ class Podcast(Item):
     category = ItemCategory.Podcast
     child_class = "PodcastEpisode"
     url_path = "podcast"
-    demonstrative = _("这档播客")
     # apple_podcast = PrimaryLookupIdDescriptor(IdType.ApplePodcast)
     # ximalaya = LookupIdDescriptor(IdType.Ximalaya)
     # xiaoyuzhou = LookupIdDescriptor(IdType.Xiaoyuzhou)
     genre = jsondata.ArrayField(
-        verbose_name=_("类型"),
+        verbose_name=_("genre"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
@@ -42,13 +41,13 @@ class Podcast(Item):
     )
 
     hosts = jsondata.ArrayField(
-        verbose_name=_("主播"),
+        verbose_name=_("host"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         default=list,
     )
 
     official_site = jsondata.CharField(
-        verbose_name=_("官方网站"), max_length=1000, null=True, blank=True
+        verbose_name=_("website"), max_length=1000, null=True, blank=True
     )
 
     METADATA_COPY_LIST = [
@@ -87,12 +86,11 @@ class Podcast(Item):
 class PodcastEpisode(Item):
     category = ItemCategory.Podcast
     url_path = "podcast/episode"
-    demonstrative = _("这集节目")
     # uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     program = models.ForeignKey(Podcast, models.CASCADE, related_name="episodes")
     guid = models.CharField(null=True, max_length=1000)
     pub_date = models.DateTimeField(
-        verbose_name=_("发布时间"), help_text="yyyy/mm/dd hh:mm"
+        verbose_name=_("date of publication"), help_text="yyyy/mm/dd hh:mm"
     )
     media_url = models.CharField(null=True, max_length=1000)
     # title = models.CharField(default="", max_length=1000)

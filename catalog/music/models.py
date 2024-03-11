@@ -36,7 +36,6 @@ class Album(Item):
     type = ItemType.Album
     url_path = "album"
     category = ItemCategory.Music
-    demonstrative = _("这张专辑")
     barcode = PrimaryLookupIdDescriptor(IdType.GTIN)
     douban_music = PrimaryLookupIdDescriptor(IdType.DoubanMusic)
     spotify_album = PrimaryLookupIdDescriptor(IdType.Spotify_Album)
@@ -56,16 +55,18 @@ class Album(Item):
         "bandcamp_album_id",
     ]
     release_date = jsondata.DateField(
-        _("发行日期"), null=True, blank=True, help_text=_("YYYY-MM-DD")
+        _("release date"), null=True, blank=True, help_text=_("YYYY-MM-DD")
     )
-    duration = jsondata.IntegerField(_("时长"), null=True, blank=True, help_text=_("毫秒数"))
+    duration = jsondata.IntegerField(
+        _("length"), null=True, blank=True, help_text=_("milliseconds")
+    )
     artist = jsondata.ArrayField(
         models.CharField(blank=True, default="", max_length=200),
-        verbose_name=_("艺术家"),
+        verbose_name=_("artist"),
         default=list,
     )
     genre = jsondata.ArrayField(
-        verbose_name=_("流派"),
+        verbose_name=_("genre"),
         base_field=models.CharField(blank=True, default="", max_length=50),
         null=True,
         blank=True,
@@ -73,23 +74,27 @@ class Album(Item):
     )
     company = jsondata.ArrayField(
         models.CharField(blank=True, default="", max_length=500),
-        verbose_name=_("发行方"),
+        verbose_name=_("publisher"),
         null=True,
         blank=True,
         default=list,
     )
-    track_list = jsondata.TextField(_("曲目"), blank=True, default="")
+    track_list = jsondata.TextField(_("tracks"), blank=True, default="")
     other_title = jsondata.ArrayField(
-        verbose_name=_("其它标题"),
+        verbose_name=_("other title"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
-    album_type = jsondata.CharField(_("专辑类型"), blank=True, default="", max_length=500)
-    media = jsondata.CharField(_("介质"), blank=True, default="", max_length=500)
+    album_type = jsondata.CharField(
+        _("album type"), blank=True, default="", max_length=500
+    )
+    media = jsondata.CharField(_("media type"), blank=True, default="", max_length=500)
     bandcamp_album_id = jsondata.CharField(blank=True, default="", max_length=500)
-    disc_count = jsondata.IntegerField(_("碟片数"), blank=True, default="", max_length=500)
+    disc_count = jsondata.IntegerField(
+        _("number of disc"), blank=True, default="", max_length=500
+    )
 
     def get_embed_link(self):
         for res in self.external_resources.all():
