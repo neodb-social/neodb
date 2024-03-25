@@ -22,7 +22,7 @@ class CollectionMember(ListMember):
         "Collection", related_name="members", on_delete=models.CASCADE
     )
 
-    note = jsondata.CharField(_("备注"), null=True, blank=True)
+    note = jsondata.CharField(_("note"), null=True, blank=True)
 
     @property
     def ap_object(self):
@@ -45,8 +45,8 @@ class Collection(List):
     catalog_item = models.OneToOneField(
         CatalogCollection, on_delete=models.PROTECT, related_name="journal_item"
     )
-    title = models.CharField(_("标题"), max_length=1000, default="")
-    brief = models.TextField(_("简介"), blank=True, default="")
+    title = models.CharField(_("title"), max_length=1000, default="")
+    brief = models.TextField(_("description"), blank=True, default="")
     cover = models.ImageField(
         upload_to=piece_cover_path, default=DEFAULT_ITEM_COVER, blank=True
     )

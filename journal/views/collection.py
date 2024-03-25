@@ -40,7 +40,8 @@ def add_to_collection(request: AuthedHttpRequest, item_uuid):
         cid = int(request.POST.get("collection_id", default=0))
         if not cid:
             cid = Collection.objects.create(
-                owner=request.user.identity, title=f"{request.user.display_name}的收藏单"
+                owner=request.user.identity,
+                title=_("Collection by {0}").format(request.user.display_name),
             ).id
         collection = Collection.objects.get(owner=request.user.identity, id=cid)
         collection.append_item(item, note=request.POST.get("note"))
@@ -196,7 +197,7 @@ def collection_append_item(request: AuthedHttpRequest, collection_uuid):
         collection.save()
         msg = None
     else:
-        msg = _("条目链接无法识别，请输入本站已有条目的链接。")
+        msg = _("Unable to find the item, please use item url from this site.")
     return collection_retrieve_items(request, collection_uuid, True, msg)
 
 

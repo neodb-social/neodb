@@ -109,18 +109,22 @@ class ReviewFeed(Feed):
         return APIdentity.get_by_handle(kwargs["username"])
 
     def title(self, owner):
-        return "%s的评论" % owner.display_name if owner else "无效链接"
+        return (
+            _("Reviews by {0}").format(owner.display_name)
+            if owner
+            else _("link unavailable")
+        )
 
     def link(self, owner):
         return owner.url if owner else settings.SITE_INFO["site_url"]
 
     def description(self, owner):
         if not owner:
-            return "无效链接"
+            return _("link unavailable")
         elif not owner.anonymous_viewable:
-            return "该用户已关闭匿名查看"
+            return _("anonymous access disabled by owner")
         else:
-            return "%s的评论合集 - NeoDB" % owner.display_name
+            return _("Reviews by {0}").format(owner.display_name)
 
     def items(self, owner):
         if owner is None or not owner.anonymous_viewable:
@@ -129,7 +133,9 @@ class ReviewFeed(Feed):
         return reviews
 
     def item_title(self, item: Review):
-        return f"{item.title} - 评论《{item.item.title}》"
+        return _("{review_title} - a review of {item_title}").format(
+            review_title=item.title, item_title=item.item.title
+        )
 
     def item_description(self, item: Review):
         target_html = (

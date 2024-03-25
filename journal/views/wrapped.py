@@ -138,5 +138,5 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
             )
         elif post:
             boost_toot_later(user, post.url)
-        messages.add_message(request, messages.INFO, _("已分享到时间轴。"))
+        messages.add_message(request, messages.INFO, _("Summary posted to timeline."))
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))

@@ -5,6 +5,7 @@ import blurhash
 from django.conf import settings
 from django.core.cache import cache
 from django.core.files.images import ImageFile
+from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
 from .models import *
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
 def _int(s: str):
     try:
         return int(s)
-    except:
+    except Exception:
         return -1
 
 
@@ -509,7 +510,9 @@ class Takahe:
     @staticmethod
     def get_spoiler_text(text, item):
         if text and text.find(">!") != -1:
-            spoiler_text = f"关于《{item.display_title}》 可能有关键情节等敏感内容"
+            spoiler_text = _(
+                "regarding {item_title}, may contain spoiler or triggering content"
+            ).format(item_title=item.display_title)
             return spoiler_text, text.replace(">!", "").replace("!<", "")
         else:
             return None, text or ""
@@ -547,12 +550,9 @@ class Takahe:
         }
         if existing_post and existing_post.type_data == data:
             return existing_post
-        action_label = "创建"
-        category = "收藏单"
+        action = _("created collection")
         item_link = collection.absolute_url
-        pre_conetent = (
-            f'{action_label}{category} <a href="{item_link}">{collection.title}</a><br>'
-        )
+        pre_conetent = f'{action} <a href="{item_link}">{collection.title}</a><br>'
         content = collection.plain_content
         if len(content) > 360:
             content = content[:357] + "..."
@@ -581,6 +581,7 @@ class Takahe:
     @staticmethod
     def post_comment(comment, share_as_new_post: bool) -> Post | None:
         from catalog.common import ItemCategory
+        from journal.models import ShelfManager, ShelfType
 
         user = comment.owner.user
         category = str(ItemCategory(comment.item.category).label)
@@ -590,8 +591,12 @@ class Takahe:
             else ""
         )
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{comment.item_url}"
-        action_label = "评论" if comment.text else "分享"
-        pre_conetent = f'{action_label}{category} <a href="{item_link}">{comment.item.display_title}</a><br>'
+        action = ShelfManager.get_action_label(
+            ShelfType.PROGRESS, comment.item.category
+        )
+        pre_conetent = (
+            f'{action} <a href="{item_link}">{comment.item.display_title}</a><br>'
+        )
         spoiler, txt = Takahe.get_spoiler_text(comment.text, comment.item)
         content = f"{txt}\n{tags}"
         data = {
@@ -634,7 +639,12 @@ class Takahe:
         stars = _rating_to_emoji(review.rating_grade, 1)
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{review.item.url}"
 
-        pre_conetent = f'发布了关于 <a href="{item_link}">{review.item.display_title}</a> 的评论：<br><a href="{review.absolute_url}">{review.title}</a>'
+        pre_conetent = (
+            "wrote a review of {item_title}".format(
+                item_title=f'<a href="{item_link}">{review.item.display_title}</a>'
+            )
+            + f'<br><a href="{review.absolute_url}">{review.title}</a>'
+        )
         content = f"{stars}\n{tags}"
         data = {
             "object": {

@@ -15,7 +15,9 @@ def mastodon_request_included(func):
             return func(*args, **kwargs)
         except (Timeout, ConnectionError):
             return render(
-                args[0], "common/error.html", {"msg": _("联邦宇宙请求超时叻_(´ཀ`」 ∠)__ ")}
+                args[0],
+                "common/error.html",
+                {"msg": _("Timeout connecting to Fediverse.")},
             )
 
     return wrapper

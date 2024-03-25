@@ -18,44 +18,44 @@ if TYPE_CHECKING:
 
 
 class ShelfType(models.TextChoices):
-    WISHLIST = ("wishlist", "未开始")
-    PROGRESS = ("progress", "进行中")
-    COMPLETE = ("complete", "完成")
-    DROPPED = ("dropped", "放弃")
+    WISHLIST = ("wishlist", _("WISHLIST"))
+    PROGRESS = ("progress", _("PROGRESS"))
+    COMPLETE = ("complete", _("COMPLETE"))
+    DROPPED = ("dropped", _("DROPPED"))
 
 
 SHELF_LABELS = [
-    [ItemCategory.Book, ShelfType.WISHLIST, _("想读")],
-    [ItemCategory.Book, ShelfType.PROGRESS, _("在读")],
-    [ItemCategory.Book, ShelfType.COMPLETE, _("读过")],
-    [ItemCategory.Book, ShelfType.DROPPED, _("不读了")],
-    [ItemCategory.Movie, ShelfType.WISHLIST, _("想看")],
-    [ItemCategory.Movie, ShelfType.PROGRESS, _("在看")],
-    [ItemCategory.Movie, ShelfType.COMPLETE, _("看过")],
-    [ItemCategory.Movie, ShelfType.DROPPED, _("不看了")],
-    [ItemCategory.TV, ShelfType.WISHLIST, _("想看")],
-    [ItemCategory.TV, ShelfType.PROGRESS, _("在看")],
-    [ItemCategory.TV, ShelfType.COMPLETE, _("看过")],
-    [ItemCategory.TV, ShelfType.DROPPED, _("不看了")],
-    [ItemCategory.Music, ShelfType.WISHLIST, _("想听")],
-    [ItemCategory.Music, ShelfType.PROGRESS, _("在听")],
-    [ItemCategory.Music, ShelfType.COMPLETE, _("听过")],
-    [ItemCategory.Music, ShelfType.DROPPED, _("不听了")],
-    [ItemCategory.Game, ShelfType.WISHLIST, _("想玩")],
-    [ItemCategory.Game, ShelfType.PROGRESS, _("在玩")],
-    [ItemCategory.Game, ShelfType.COMPLETE, _("玩过")],
-    [ItemCategory.Game, ShelfType.DROPPED, _("不玩了")],
-    [ItemCategory.Podcast, ShelfType.WISHLIST, _("想听")],
-    [ItemCategory.Podcast, ShelfType.PROGRESS, _("在听")],
-    [ItemCategory.Podcast, ShelfType.COMPLETE, _("听过")],
-    [ItemCategory.Podcast, ShelfType.DROPPED, _("不听了")],
-    # disable all shelves for PodcastEpisode
-    [ItemCategory.Performance, ShelfType.WISHLIST, _("想看")],
+    [ItemCategory.Book, ShelfType.WISHLIST, _("wants to read")],
+    [ItemCategory.Book, ShelfType.PROGRESS, _("started reading")],
+    [ItemCategory.Book, ShelfType.COMPLETE, _("finished reading")],
+    [ItemCategory.Book, ShelfType.DROPPED, _("stopped reading")],
+    [ItemCategory.Movie, ShelfType.WISHLIST, _("wants to watch")],
+    [ItemCategory.Movie, ShelfType.PROGRESS, _("started watching")],
+    [ItemCategory.Movie, ShelfType.COMPLETE, _("finished watching")],
+    [ItemCategory.Movie, ShelfType.DROPPED, _("stopped watching")],
+    [ItemCategory.TV, ShelfType.WISHLIST, _("wants to watch")],
+    [ItemCategory.TV, ShelfType.PROGRESS, _("started watching")],
+    [ItemCategory.TV, ShelfType.COMPLETE, _("finished watching")],
+    [ItemCategory.TV, ShelfType.DROPPED, _("stopped watching")],
+    [ItemCategory.Music, ShelfType.WISHLIST, _("wants to listen")],
+    [ItemCategory.Music, ShelfType.PROGRESS, _("started listening")],
+    [ItemCategory.Music, ShelfType.COMPLETE, _("finished listening")],
+    [ItemCategory.Music, ShelfType.DROPPED, _("stopped listening")],
+    [ItemCategory.Game, ShelfType.WISHLIST, _("wants to play")],
+    [ItemCategory.Game, ShelfType.PROGRESS, _("started playing")],
+    [ItemCategory.Game, ShelfType.COMPLETE, _("finished playing")],
+    [ItemCategory.Game, ShelfType.DROPPED, _("stopped playing")],
+    [ItemCategory.Podcast, ShelfType.WISHLIST, _("wants to listen")],
+    [ItemCategory.Podcast, ShelfType.PROGRESS, _("started listening")],
+    [ItemCategory.Podcast, ShelfType.COMPLETE, _("finished listening")],
+    [ItemCategory.Podcast, ShelfType.DROPPED, _("stopped listening")],
+    [ItemCategory.Performance, ShelfType.WISHLIST, _("wants to see")],
     # disable progress shelf for Performance
     [ItemCategory.Performance, ShelfType.PROGRESS, ""],
-    [ItemCategory.Performance, ShelfType.COMPLETE, _("看过")],
-    [ItemCategory.Performance, ShelfType.DROPPED, _("不看了")],
+    [ItemCategory.Performance, ShelfType.COMPLETE, _("finished seeing")],
+    [ItemCategory.Performance, ShelfType.DROPPED, _("stopped seeing")],
 ]
+# grammatically problematic, for translation only
 
 
 def get_shelf_labels_for_category(item_category: ItemCategory):
@@ -206,7 +206,7 @@ class ShelfLogEntry(models.Model):
         if self.shelf_type:
             return ShelfManager.get_action_label(self.shelf_type, self.item.category)
         else:
-            return _("移除标记")
+            return _("removed mark")
 
     def link_post_id(self, post_id: int):
         ShelfLogEntryPost.objects.get_or_create(log_entry=self, post_id=post_id)
@@ -297,7 +297,7 @@ class ShelfManager:
         ic = ItemCategory(item_category).label
         st = cls.get_action_label(shelf_type, item_category)
         return (
-            _("{shelf_label}的{item_category}").format(shelf_label=st, item_category=ic)
+            _("{shelf_label} {item_category}").format(shelf_label=st, item_category=ic)
             if st
             else None
         )

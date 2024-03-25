@@ -56,11 +56,11 @@ def user_tag_edit(request):
             else None
         )
         if not tag or not tag_title:
-            msg.error(request.user, _("无效标签"))
+            msg.error(request.user, _("Invalid tag."))
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
         if request.POST.get("delete"):
             tag.delete()
-            msg.info(request.user, _("标签已删除"))
+            msg.info(request.user, _("Tag deleted."))
             return redirect(
                 reverse("journal:user_tag_list", args=[request.user.username])
             )
@@ -70,13 +70,13 @@ def user_tag_edit(request):
                 owner=request.user.identity, title=tag_title
             ).exists()
         ):
-            msg.error(request.user, _("标签已存在"))
+            msg.error(request.user, _("Duplicated tag."))
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
         tag.title = tag_title
         tag.visibility = int(request.POST.get("visibility", 0))
         tag.visibility = 0 if tag.visibility == 0 else 2
         tag.save()
-        msg.info(request.user, _("标签已修改"))
+        msg.info(request.user, _("Tag updated."))
         return redirect(
             reverse(
                 "journal:user_tag_member_list",

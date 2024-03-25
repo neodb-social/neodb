@@ -106,12 +106,16 @@ def mark(request: AuthedHttpRequest, item_uuid):
                 return render_relogin(request)
             except ValueError as e:
                 _logger.warn(f"post to mastodon error {e} {request.user}")
-                err = _("内容长度超出实例限制") if str(e) == "422" else str(e)
+                err = (
+                    _("Content too long for your Mastodon instance.")
+                    if str(e) == "422"
+                    else str(e)
+                )
                 return render(
                     request,
                     "common/error.html",
                     {
-                        "msg": _("标记已保存，但是未能分享到联邦宇宙"),
+                        "msg": _("Data saved but unable to repost to Fediverse."),
                         "secondary_msg": err,
                     },
                 )
@@ -140,7 +144,7 @@ def mark_log(request: AuthedHttpRequest, item_uuid, log_id):
 def comment(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item.class_name in ["podcastepisode", "tvepisode"]:
-        raise BadRequest("不支持评论此类型的条目")
+        raise BadRequest("Commenting this type of items is not supported yet.")
     comment = Comment.objects.filter(owner=request.user.identity, item=item).first()
     if request.method == "GET":
         return render(

@@ -1,6 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load l10n %}
+{% load humanize %}
 {% load admin_url %}
 {% load mastodon %}
 {% load oauth_token %}
@@ -17,7 +18,7 @@
     <div>
       <div>
         <span class="time">
-          <span>{{ activity.action_object.created_time|prettydate }}</span>
+          <span>{{ activity.action_object.created_time|naturaltime }}</span>
         </span>
         <div class="spacing">
           <span>

@@ -29,16 +29,16 @@ def render_relogin(request):
         "common/error.html",
         {
             "url": reverse("users:connect") + "?domain=" + request.user.mastodon_site,
-            "msg": _("信息已保存，但是未能分享到联邦宇宙"),
+            "msg": _("Data saved but unable to repost to Fediverse."),
             "secondary_msg": _(
-                "可能是你在联邦宇宙(Mastodon/Pleroma/...)的登录状态过期了，正在跳转到联邦宇宙重新登录😼"
+                "Redirecting to your Mastodon instance now to re-authenticate."
             ),
         },
     )
 
 
 def render_list_not_found(request):
-    msg = _("相关列表不存在")
+    msg = _("List not found.")
     return render(
         request,
         "common/error.html",

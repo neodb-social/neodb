@@ -1,5 +1,4 @@
 import functools
-import html
 import random
 import re
 import string
@@ -9,6 +8,7 @@ from urllib.parse import quote
 import django_rq
 import requests
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from mastodon.utils import rating_to_emoji
@@ -350,7 +350,7 @@ def detect_server_info(login_domain) -> tuple[str, str, str]:
         try:
             response = get(url, headers={"User-Agent": USER_AGENT})
             j = response.json()
-        except:
+        except Exception:
             api_domain = login_domain
     logger.info(
         f"detect_server_info: {login_domain} {domain} {api_domain} {server_version}"
@@ -487,7 +487,9 @@ def get_status_id_by_url(url):
 
 def get_spoiler_text(text, item):
     if text.find(">!") != -1:
-        spoiler_text = f"关于《{item.display_title}》 可能有关键情节等敏感内容"
+        spoiler_text = _(
+            "regarding {item_title}, may contain spoiler or triggering content"
+        ).format(item_title=item.display_title)
         return spoiler_text, text.replace(">!", "").replace("!<", "")
     else:
         return None, text
@@ -506,6 +508,7 @@ def get_toot_visibility(visibility, user):
 
 def share_comment(comment):
     from catalog.common import ItemCategory
+    from journal.models import ShelfManager, ShelfType
 
     user = comment.owner.user
     visibility = get_toot_visibility(comment.visibility, user)
@@ -517,7 +520,8 @@ def share_comment(comment):
         if user.preference.mastodon_append_tag
         else ""
     )
-    content = f"评论《{comment.item.display_title}》\n{comment.text}\n{comment.item.absolute_url}{tags}"
+    action = ShelfManager.get_action_label(ShelfType.PROGRESS, comment.item.category)
+    content = f"{action} {comment.item.display_title}\n{comment.text}\n{comment.item.absolute_url}{tags}"
     update_id = None
     if comment.metadata.get(
         "shared_link"
@@ -597,7 +601,10 @@ def share_review(review):
         if user.preference.mastodon_append_tag
         else ""
     )
-    content = f"发布了关于《{review.item.display_title}》的评论\n{review.title}\n{review.absolute_url}{tags}"
+    content = (
+        "wrote a review of {item_title}".format(item_title=review.item.display_title)
+        + "\n{review.title}\n{review.absolute_url}{tags}"
+    )
     update_id = None
     if review.metadata.get(
         "shared_link"
@@ -622,20 +629,23 @@ def share_review(review):
 def share_collection(collection, comment, user, visibility_no, link):
     visibility = get_toot_visibility(visibility_no, user)
     tags = (
-        "\n" + user.preference.mastodon_append_tag.replace("[category]", "收藏单")
+        "\n"
+        + user.preference.mastodon_append_tag.replace("[category]", _("collection"))
         if user.preference.mastodon_append_tag
         else ""
     )
     user_str = (
-        "我"
+        _("shared my collection")
         if user == collection.owner.user
         else (
-            " @" + collection.owner.user.mastodon_acct + " "
-            if collection.owner.user.mastodon_acct
-            else " " + collection.owner.username + " "
+            _("shared {username}'s collection").format(
+                username=" @" + collection.owner.user.mastodon_acct + " "
+                if collection.owner.user.mastodon_acct
+                else " " + collection.owner.username + " "
+            )
         )
     )
-    content = f"分享{user_str}的收藏单《{collection.title}》\n{link}\n{comment}{tags}"
+    content = f"{user_str}:{collection.title}\n{link}\n{comment}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
     if response is not None and response.status_code in [200, 201]:
         return True
