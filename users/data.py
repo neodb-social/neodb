@@ -57,6 +57,11 @@ def preferences(request):
                 "hidden_categories",
             ]
         )
+        lang = request.POST.get("language")
+        print(lang)
+        if lang in dict(settings.LANGUAGES).keys() and lang != request.user.language:
+            request.user.language = lang
+            request.user.save(update_fields=["language"])
         clear_preference_cache(request)
     return render(
         request,

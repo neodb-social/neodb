@@ -42,3 +42,7 @@ log
 
 # test coverage
 /.coverage
+
+
+# translations
+*.mo

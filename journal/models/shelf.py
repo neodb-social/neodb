@@ -24,42 +24,251 @@ class ShelfType(models.TextChoices):
     DROPPED = ("dropped", _("DROPPED"))
 
 
-SHELF_LABELS = [
-    [ItemCategory.Book, ShelfType.WISHLIST, _("wants to read")],
-    [ItemCategory.Book, ShelfType.PROGRESS, _("started reading")],
-    [ItemCategory.Book, ShelfType.COMPLETE, _("finished reading")],
-    [ItemCategory.Book, ShelfType.DROPPED, _("stopped reading")],
-    [ItemCategory.Movie, ShelfType.WISHLIST, _("wants to watch")],
-    [ItemCategory.Movie, ShelfType.PROGRESS, _("started watching")],
-    [ItemCategory.Movie, ShelfType.COMPLETE, _("finished watching")],
-    [ItemCategory.Movie, ShelfType.DROPPED, _("stopped watching")],
-    [ItemCategory.TV, ShelfType.WISHLIST, _("wants to watch")],
-    [ItemCategory.TV, ShelfType.PROGRESS, _("started watching")],
-    [ItemCategory.TV, ShelfType.COMPLETE, _("finished watching")],
-    [ItemCategory.TV, ShelfType.DROPPED, _("stopped watching")],
-    [ItemCategory.Music, ShelfType.WISHLIST, _("wants to listen")],
-    [ItemCategory.Music, ShelfType.PROGRESS, _("started listening")],
-    [ItemCategory.Music, ShelfType.COMPLETE, _("finished listening")],
-    [ItemCategory.Music, ShelfType.DROPPED, _("stopped listening")],
-    [ItemCategory.Game, ShelfType.WISHLIST, _("wants to play")],
-    [ItemCategory.Game, ShelfType.PROGRESS, _("started playing")],
-    [ItemCategory.Game, ShelfType.COMPLETE, _("finished playing")],
-    [ItemCategory.Game, ShelfType.DROPPED, _("stopped playing")],
-    [ItemCategory.Podcast, ShelfType.WISHLIST, _("wants to listen")],
-    [ItemCategory.Podcast, ShelfType.PROGRESS, _("started listening")],
-    [ItemCategory.Podcast, ShelfType.COMPLETE, _("finished listening")],
-    [ItemCategory.Podcast, ShelfType.DROPPED, _("stopped listening")],
-    [ItemCategory.Performance, ShelfType.WISHLIST, _("wants to see")],
+_REVIEWED = "reviewed"
+
+_SHELF_LABELS = [
+    [
+        ItemCategory.Book,
+        ShelfType.WISHLIST,
+        _("books to read"),
+        _("want to read"),
+        _("wants to read {item}"),
+    ],
+    [
+        ItemCategory.Book,
+        ShelfType.PROGRESS,
+        _("books reading"),
+        _("start reading"),
+        _("started reading {item}"),
+    ],
+    [
+        ItemCategory.Book,
+        ShelfType.COMPLETE,
+        _("books completed"),
+        _("finish reading"),
+        _("finished reading {item}"),
+    ],
+    [
+        ItemCategory.Book,
+        ShelfType.DROPPED,
+        _("books dropped"),
+        _("stop reading"),
+        _("stopped reading {item}"),
+    ],
+    [
+        ItemCategory.Book,
+        _REVIEWED,
+        _("books reviewed"),
+        _("review"),
+        _("wrote a review of {item}"),
+    ],
+    [
+        ItemCategory.Movie,
+        ShelfType.WISHLIST,
+        _("movies to watch"),
+        _("want to watch"),
+        _("wants to watch {item}"),
+    ],
+    [
+        ItemCategory.Movie,
+        ShelfType.PROGRESS,
+        _("movies watching"),
+        _("start watching"),
+        _("started watching {item}"),
+    ],
+    [
+        ItemCategory.Movie,
+        ShelfType.COMPLETE,
+        _("movies watched"),
+        _("finish watching"),
+        _("finished watching {item}"),
+    ],
+    [
+        ItemCategory.Movie,
+        ShelfType.DROPPED,
+        _("movies dropped"),
+        _("stop watching"),
+        _("stopped watching {item}"),
+    ],
+    [
+        ItemCategory.Movie,
+        _REVIEWED,
+        _("movies reviewed"),
+        _("review"),
+        _("wrote a review of {item}"),
+    ],
+    [
+        ItemCategory.TV,
+        ShelfType.WISHLIST,
+        _("TV shows to watch"),
+        _("want to watch"),
+        _("wants to watch {item}"),
+    ],
+    [
+        ItemCategory.TV,
+        ShelfType.PROGRESS,
+        _("TV shows watching"),
+        _("start watching"),
+        _("started watching {item}"),
+    ],
+    [
+        ItemCategory.TV,
+        ShelfType.COMPLETE,
+        _("TV shows watched"),
+        _("finish watching"),
+        _("finished watching {item}"),
+    ],
+    [
+        ItemCategory.TV,
+        ShelfType.DROPPED,
+        _("TV shows dropped"),
+        _("stop watching"),
+        _("stopped watching {item}"),
+    ],
+    [
+        ItemCategory.TV,
+        _REVIEWED,
+        _("TV shows reviewed"),
+        _("review"),
+        _("wrote a review of {item}"),
+    ],
+    [
+        ItemCategory.Music,
+        ShelfType.WISHLIST,
+        _("albums to listen"),
+        _("want to listen"),
+        _("wants to listen {item}"),
+    ],
+    [
+        ItemCategory.Music,
+        ShelfType.PROGRESS,
+        _("albums listening"),
+        _("start listening"),
+        _("started listening {item}"),
+    ],
+    [
+        ItemCategory.Music,
+        ShelfType.COMPLETE,
+        _("albums to listen"),
+        _("finish listening"),
+        _("finished listening {item}"),
+    ],
+    [
+        ItemCategory.Music,
+        ShelfType.DROPPED,
+        _("albums dropped"),
+        _("stop listening"),
+        _("stopped listening {item}"),
+    ],
+    [
+        ItemCategory.Music,
+        _REVIEWED,
+        _("albums reviewed"),
+        _("review"),
+        _("wrote a review of {item}"),
+    ],
+    [
+        ItemCategory.Game,
+        ShelfType.WISHLIST,
+        _("games to play"),
+        _("want to play"),
+        _("wants to play {item}"),
+    ],
+    [
+        ItemCategory.Game,
+        ShelfType.PROGRESS,
+        _("games playing"),
+        _("start playing"),
+        _("started playing {item}"),
+    ],
+    [
+        ItemCategory.Game,
+        ShelfType.COMPLETE,
+        _("games played"),
+        _("finish playing"),
+        _("finished playing {item}"),
+    ],
+    [
+        ItemCategory.Game,
+        ShelfType.DROPPED,
+        _("games dropped"),
+        _("stop playing"),
+        _("stopped playing {item}"),
+    ],
+    [
+        ItemCategory.Game,
+        _REVIEWED,
+        _("games reviewed"),
+        _("review"),
+        _("wrote a review of {item}"),
+    ],
+    [
+        ItemCategory.Podcast,
+        ShelfType.WISHLIST,
+        _("podcasts to listen"),
+        _("want to listen"),
+        _("wants to listen {item}"),
+    ],
+    [
+        ItemCategory.Podcast,
+        ShelfType.PROGRESS,
+        _("podcasts listening"),
+        _("start listening"),
+        _("started listening {item}"),
+    ],
+    [
+        ItemCategory.Podcast,
+        ShelfType.COMPLETE,
+        _("podcasts listened"),
+        _("finish listening"),
+        _("finished listening {item}"),
+    ],
+    [
+        ItemCategory.Podcast,
+        ShelfType.DROPPED,
+        _("podcasts dropped"),
+        _("stop listening"),
+        _("stopped listening {item}"),
+    ],
+    [
+        ItemCategory.Podcast,
+        _REVIEWED,
+        _("podcasts reviewed"),
+        _("review"),
+        _("wrote a review of {item}"),
+    ],
+    [
+        ItemCategory.Performance,
+        ShelfType.WISHLIST,
+        _("performances to see"),
+        _("want to see"),
+        _("wants to see {item}"),
+    ],
     # disable progress shelf for Performance
-    [ItemCategory.Performance, ShelfType.PROGRESS, ""],
-    [ItemCategory.Performance, ShelfType.COMPLETE, _("finished seeing")],
-    [ItemCategory.Performance, ShelfType.DROPPED, _("stopped seeing")],
+    [ItemCategory.Performance, ShelfType.PROGRESS, "", "", ""],
+    [
+        ItemCategory.Performance,
+        ShelfType.COMPLETE,
+        _("performances saw"),
+        _("finish seeing"),
+        _("finished seeing {item}"),
+    ],
+    [
+        ItemCategory.Performance,
+        ShelfType.DROPPED,
+        _("performances dropped"),
+        _("stop seeing"),
+        _("stopped seeing {item}"),
+    ],
+    [
+        ItemCategory.Performance,
+        _REVIEWED,
+        _("performances reviewed"),
+        _("review"),
+        _("wrote a review of {item}"),
+    ],
 ]
 # grammatically problematic, for translation only
-
-
-def get_shelf_labels_for_category(item_category: ItemCategory):
-    return [(n[1], n[2]) for n in SHELF_LABELS if n[0] == item_category]
 
 
 class ShelfMember(ListMember):
@@ -285,22 +494,38 @@ class ShelfManager:
     #     return shelf.members.all().order_by
 
     @classmethod
+    def get_labels_for_category(cls, item_category: ItemCategory):
+        return [(n[1], n[2]) for n in _SHELF_LABELS if n[0] == item_category]
+
+    @classmethod
+    def get_actions_for_category(cls, item_category: ItemCategory):
+        return [
+            (n[1], n[3])
+            for n in _SHELF_LABELS
+            if n[0] == item_category and n[1] != _REVIEWED
+        ]
+
+    @classmethod
+    def get_label(cls, shelf_type: ShelfType | str, item_category: ItemCategory) -> str:
+        st = str(shelf_type)
+        sts = [n[2] for n in _SHELF_LABELS if n[0] == item_category and n[1] == st]
+        return sts[0] if sts else st
+
+    @classmethod
     def get_action_label(
         cls, shelf_type: ShelfType | str, item_category: ItemCategory
     ) -> str:
         st = str(shelf_type)
-        sts = [n[2] for n in SHELF_LABELS if n[0] == item_category and n[1] == st]
+        sts = [n[3] for n in _SHELF_LABELS if n[0] == item_category and n[1] == st]
         return sts[0] if sts else st
 
     @classmethod
-    def get_label(cls, shelf_type: ShelfType, item_category: ItemCategory):
-        ic = ItemCategory(item_category).label
-        st = cls.get_action_label(shelf_type, item_category)
-        return (
-            _("{shelf_label} {item_category}").format(shelf_label=st, item_category=ic)
-            if st
-            else None
-        )
+    def get_action_template(
+        cls, shelf_type: ShelfType | str, item_category: ItemCategory
+    ) -> str:
+        st = str(shelf_type)
+        sts = [n[4] for n in _SHELF_LABELS if n[0] == item_category and n[1] == st]
+        return sts[0] if sts else st
 
     @staticmethod
     def get_manager_for_user(owner: APIdentity):

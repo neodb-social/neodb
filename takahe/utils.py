@@ -591,11 +591,14 @@ class Takahe:
             else ""
         )
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{comment.item_url}"
-        action = ShelfManager.get_action_label(
+        tpl = ShelfManager.get_action_template(
             ShelfType.PROGRESS, comment.item.category
         )
         pre_conetent = (
-            f'{action} <a href="{item_link}">{comment.item.display_title}</a><br>'
+            _(tpl).format(
+                item=f'<a href="{item_link}">{comment.item.display_title}</a>'
+            )
+            + "<br>"
         )
         spoiler, txt = Takahe.get_spoiler_text(comment.text, comment.item)
         content = f"{txt}\n{tags}"
@@ -626,6 +629,7 @@ class Takahe:
     @staticmethod
     def post_review(review, share_as_new_post: bool) -> Post | None:
         from catalog.common import ItemCategory
+        from journal.models import ShelfManager
 
         user = review.owner.user
         tags = (
@@ -639,10 +643,9 @@ class Takahe:
         stars = _rating_to_emoji(review.rating_grade, 1)
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{review.item.url}"
 
+        tpl = ShelfManager.get_action_template("reviewed", review.item.category)
         pre_conetent = (
-            "wrote a review of {item_title}".format(
-                item_title=f'<a href="{item_link}">{review.item.display_title}</a>'
-            )
+            _(tpl).format(item=f'<a href="{item_link}">{review.item.display_title}</a>')
             + f'<br><a href="{review.absolute_url}">{review.title}</a>'
         )
         content = f"{stars}\n{tags}"
@@ -685,7 +688,7 @@ class Takahe:
         )
         stars = _rating_to_emoji(mark.rating_grade, 1)
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{mark.item.url}"
-        pre_conetent = f'{mark.action_label_for_feed} <a href="{item_link}">{mark.item.display_title}</a>'
+        pre_conetent = mark.get_action_for_feed(item_link=item_link)
         spoiler, txt = Takahe.get_spoiler_text(mark.comment_text, mark.item)
         content = f"{stars} \n{txt}\n{tags}"
         data = {

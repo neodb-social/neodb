@@ -2,6 +2,7 @@ from datetime import date
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from catalog.common import (
     BaseSchema,
@@ -66,7 +67,7 @@ class Album(Item):
         default=list,
     )
     genre = jsondata.ArrayField(
-        verbose_name=_("genre"),
+        verbose_name=pgettext_lazy("music", "genre"),
         base_field=models.CharField(blank=True, default="", max_length=50),
         null=True,
         blank=True,

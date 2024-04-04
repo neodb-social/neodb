@@ -71,6 +71,21 @@ class Mark:
     def action_label_for_feed(self) -> str:
         return str(self.action_label)
 
+    def get_action_for_feed(self, item_link=None):
+        if self.shelfmember and self.shelf_type:
+            tpl = ShelfManager.get_action_template(self.shelf_type, self.item.category)
+        elif self.comment:
+            tpl = ShelfManager.get_action_template(
+                ShelfType.PROGRESS, self.comment.item.category
+            )
+        else:
+            tpl = ""
+        if item_link:
+            i = f'<a href="{item_link}">{self.item.display_title}</a>'
+        else:
+            i = self.item.display_title
+        return _(tpl).format(item=i)
+
     @property
     def shelf_label(self) -> str | None:
         return (

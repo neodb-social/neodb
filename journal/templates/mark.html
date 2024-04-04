@@ -23,11 +23,11 @@
     <div>
       <form method="post" action="{% url 'journal:mark' item.uuid %}">
         {% csrf_token %}
-        {% if shelf_labels %}
+        {% if shelf_actions %}
           <div class="grid mark-line">
             <div>
               <fieldset>
-                {% for k, v in shelf_labels %}
+                {% for k, v in shelf_actions %}
                   {% if v %}
                     <input type="radio"
                            name="status"

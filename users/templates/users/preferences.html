@@ -135,6 +135,16 @@
                        value="{{ request.user.preference.mastodon_append_tag }}">
               </fieldset>
               <fieldset>
+                {% all_languages as languages %}
+                <label>{% trans 'language' %}</label>
+                <select name="language">
+                  {% for lang in languages %}
+                    <option value="{{ lang.0 }}"
+                            {% if lang.0 == request.user.language %}selected{% endif %}>{{ lang.1 }}</option>
+                  {% endfor %}
+                </select>
+              </fieldset>
+              <fieldset>
                 <legend>{% trans '搜索时不显示以下类型：' %}</legend>
                 <select name="hidden_categories" size="3" multiple>
                   {% all_categories as categories %}

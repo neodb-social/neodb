@@ -17,15 +17,7 @@ from .mark import Mark
 from .rating import Rating
 from .renderers import render_md
 from .review import Review
-from .shelf import (
-    SHELF_LABELS,
-    Shelf,
-    ShelfLogEntry,
-    ShelfManager,
-    ShelfMember,
-    ShelfType,
-    get_shelf_labels_for_category,
-)
+from .shelf import Shelf, ShelfLogEntry, ShelfManager, ShelfMember, ShelfType
 from .tag import Tag, TagManager, TagMember
 from .utils import (
     journal_exists_for_item,

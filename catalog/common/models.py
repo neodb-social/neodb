@@ -118,7 +118,7 @@ class ItemType(models.TextChoices):
     PodcastEpisode = "podcastepisode", _("Podcast Episode")
     Performance = "performance", _("Performance")
     PerformanceProduction = "production", _("Production")
-    FanFic = "fanfic", _("Fanfix")
+    FanFic = "fanfic", _("Fanfic")
     Exhibition = "exhibition", _("Exhibition")
     Collection = "collection", _("Collection")
 

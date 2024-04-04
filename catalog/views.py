@@ -17,9 +17,9 @@ from journal.models import (
     Comment,
     Mark,
     Review,
+    ShelfManager,
     ShelfMember,
     ShelfType,
-    get_shelf_labels_for_category,
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
@@ -94,7 +94,7 @@ def retrieve(request, item_path, item_uuid):
     my_collections = []
     collection_list = []
     child_item_comments = []
-    shelf_labels = get_shelf_labels_for_category(item.category)
+    shelf_actions = ShelfManager.get_actions_for_category(item.category)
     if request.user.is_authenticated:
         visible = q_piece_visible_to_user(request.user)
         mark = Mark(request.user.identity, item)
@@ -128,7 +128,7 @@ def retrieve(request, item_path, item_uuid):
             "child_item_comments": child_item_comments,
             "my_collections": my_collections,
             "collection_list": collection_list,
-            "shelf_labels": shelf_labels,
+            "shelf_actions": shelf_actions,
         },
     )
 

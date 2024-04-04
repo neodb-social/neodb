@@ -102,7 +102,9 @@ def render_list(
     page_number = int(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
-    shelf_labels = get_shelf_labels_for_category(item_category) if item_category else []
+    shelf_labels = (
+        ShelfManager.get_labels_for_category(item_category) if item_category else []
+    )
     return render(
         request,
         f"user_{type}_list.html",

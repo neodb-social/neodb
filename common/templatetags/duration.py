@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 
@@ -16,6 +17,11 @@ def visible_categories(context):
 @register.simple_tag
 def all_categories():
     return item_categories()
+
+
+@register.simple_tag
+def all_languages():
+    return settings.LANGUAGES
 
 
 @register.filter(is_safe=True)

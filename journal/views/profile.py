@@ -70,9 +70,7 @@ def profile(request: AuthedHttpRequest, user_name):
             .order_by("-created_time")
         )
         shelf_list[category]["reviewed"] = {
-            "title": _("{shelf_label} {item_category}").format(
-                shelf_label="reviewed", item_category=category.label
-            ),
+            "title": target.shelf_manager.get_label("reviewed", category),
             "count": reviews.count(),
             "members": reviews[:10].prefetch_related("item"),
         }

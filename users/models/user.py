@@ -4,6 +4,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar
 
 import httpx
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
@@ -90,6 +91,13 @@ class User(AbstractUser):
     )
     pending_email = models.EmailField(
         _("email address pending verification"), default=None, null=True
+    )
+    language = models.CharField(
+        _("language"),
+        max_length=10,
+        choices=settings.LANGUAGES,
+        null=False,
+        default="en",
     )
     local_following = models.ManyToManyField(
         through="Follow",
@@ -431,6 +439,8 @@ class User(AbstractUser):
         from .preference import Preference
 
         new_user = cls(**param)
+        if "language" not in param:
+            new_user.language = settings.LANGUAGE_CODE
         new_user.save()
         Preference.objects.create(user=new_user)
         if new_user.username:  # TODO make username required in registeration

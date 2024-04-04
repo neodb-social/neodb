@@ -4,7 +4,6 @@ from functools import cached_property
 
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 from markdownify import markdownify as md
 from markdownx.models import MarkdownxField
 

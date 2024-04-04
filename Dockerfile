@@ -36,13 +36,14 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get update \
 RUN busybox --install
 
 # postgresql and redis cli are not required, but install for development convenience
-RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get install -y --no-install-recommends postgresql-client redis-tools
+RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get install -y --no-install-recommends postgresql-client redis-tools gettext
 RUN useradd -U app
 RUN rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /neodb /neodb
 WORKDIR /neodb
 COPY --from=build /neodb-venv /neodb-venv
+RUN /neodb-venv/bin/django-admin compilemessages
 RUN NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py compilescss
 RUN NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py collectstatic --noinput
 

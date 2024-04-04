@@ -36,7 +36,7 @@
   {% endif %}
 </span>
 <div class="spacing">
-  写了评论
+  {% blocktrans with item=activity.action_object.item.title %}wrote a review of {{item}}{% endblocktrans %}
   <a href="{{ activity.action_object.url }}">{{ activity.action_object.title }}</a>
   {% if activity.action_object.mark.rating_grade %}
     {{ activity.action_object.mark.rating_grade | rating_star }}

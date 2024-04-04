@@ -520,8 +520,11 @@ def share_comment(comment):
         if user.preference.mastodon_append_tag
         else ""
     )
-    action = ShelfManager.get_action_label(ShelfType.PROGRESS, comment.item.category)
-    content = f"{action} {comment.item.display_title}\n{comment.text}\n{comment.item.absolute_url}{tags}"
+    tpl = ShelfManager.get_action_template(ShelfType.PROGRESS, comment.item.category)
+    content = (
+        _(tpl).format(item=comment.item.display_title)
+        + f"\n{comment.text}\n{comment.item.absolute_url}{tags}"
+    )
     update_id = None
     if comment.metadata.get(
         "shared_link"
@@ -562,7 +565,9 @@ def share_mark(mark, post_as_new=False):
         site.star_mode if site else 0,
     )
     spoiler_text, txt = get_spoiler_text(mark.comment_text or "", mark.item)
-    content = f"{mark.action_label_for_feed}《{mark.item.display_title}》{stars}\n{mark.item.absolute_url}\n{txt}{tags}"
+    content = (
+        f"{mark.get_action_for_feed()} {stars}\n{mark.item.absolute_url}\n{txt}{tags}"
+    )
     update_id = (
         None
         if post_as_new
@@ -590,6 +595,7 @@ def share_mark(mark, post_as_new=False):
 
 def share_review(review):
     from catalog.common import ItemCategory
+    from journal.models import ShelfManager
 
     user = review.owner.user
     visibility = get_toot_visibility(review.visibility, user)
@@ -601,9 +607,11 @@ def share_review(review):
         if user.preference.mastodon_append_tag
         else ""
     )
+    tpl = ShelfManager.get_action_template("reviewed", review.item.category)
     content = (
-        "wrote a review of {item_title}".format(item_title=review.item.display_title)
-        + "\n{review.title}\n{review.absolute_url}{tags}"
+        _(tpl).format(item=review.item.display_title)
+        + "\n{review.title}\n{review.absolute_url} "
+        + tags
     )
     update_id = None
     if review.metadata.get(
