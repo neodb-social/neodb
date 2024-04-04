@@ -390,9 +390,11 @@ MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.models.render_md"
 LANGUAGE_CODE = env("NEODB_LANGUAGE", default="zh-hans")  # type: ignore
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 LANGUAGES = (
-    # ("en", _("English")),
+    ("en", _("English")),
     ("zh-hans", _("Simplified Chinese")),
 )
+if SITE_DOMAIN == "neodb.social":
+    LANGUAGES = (("zh-hans", _("Simplified Chinese")),)
 
 TIME_ZONE = env("NEODB_TIMEZONE", default="Asia/Shanghai")  # type: ignore
 
