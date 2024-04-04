@@ -6,11 +6,13 @@ from tqdm import tqdm
 
 
 def migrate_relationships(apps, schema_editor):
-    # User = apps.get_model("users", "User")
-    # APIdentity = apps.get_model("users", "APIdentity")
-    from takahe.models import Block as TakaheBlock
-    from takahe.models import Follow as TakaheFollow
-    from users.models import APIdentity, User
+    User = apps.get_model("users", "User")
+    APIdentity = apps.get_model("users", "APIdentity")
+    TakaheBlock = apps.get_model("takahe", "Block")
+    TakaheFollow = apps.get_model("takahe", "Follow")
+    # from takahe.models import Block as TakaheBlock
+    # from takahe.models import Follow as TakaheFollow
+    # from users.models import APIdentity, User
 
     logger.info(f"Migrate local user relationship")
     for user in tqdm(User.objects.filter(is_active=True)):
@@ -33,7 +35,6 @@ def migrate_relationships(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("users", "0013_init_identity"),
     ]
