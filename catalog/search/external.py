@@ -57,7 +57,20 @@ class Goodreads:
         results = []
         search_url = f"https://www.goodreads.com/search?page={page}&q={quote_plus(q)}"
         try:
-            r = requests.get(search_url, timeout=3)
+            r = requests.get(
+                search_url,
+                timeout=3,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0) Gecko/20100101 Firefox/107.0",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
+                    "Accept-Encoding": "gzip, deflate",
+                    "Connection": "keep-alive",
+                    "DNT": "1",
+                    "Upgrade-Insecure-Requests": "1",
+                    "Cache-Control": "no-cache",
+                },
+            )
             if r.url.startswith("https://www.goodreads.com/book/show/"):
                 # Goodreads will 302 if only one result matches ISBN
                 site = SiteManager.get_site_by_url(r.url)

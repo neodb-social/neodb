@@ -21,7 +21,11 @@ class Command(BaseCommand):
         if options["refresh"]:
             for site in MastodonApplication.objects.exclude(disabled=True):
                 allow_multiple_redir = True
-                response = create_app(site.api_domain, allow_multiple_redir)
+                try:
+                    response = create_app(site.api_domain, allow_multiple_redir)
+                except Exception as e:
+                    self.stdout.write(f"Error creating app on {site.api_domain}: {e}")
+                    continue
                 if response.status_code != 200:
                     self.stdout.write(
                         f"Error creating app on {site.api_domain}: {response.status_code}"
