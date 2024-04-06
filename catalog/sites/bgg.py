@@ -38,7 +38,7 @@ class BoardGameGeek(AbstractSite):
         content = BasicDownloader(api_url).download().xml()
         items = list(content.xpath("/items/item"))  # type: ignore
         if not len(items):
-            raise ParseError("boardgame not found", field="id")
+            raise ParseError(scraper=self, field="id")
         item = items[0]
         title = self.query_str(item, "name[@type='primary']/@value")
         other_title = self.query_list(item, "name[@type='alternate']/@value")
