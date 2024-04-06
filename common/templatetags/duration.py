@@ -54,6 +54,12 @@ def rating_star(value):
     return mark_safe(html)
 
 
+@register.filter()
+@stringfilter
+def relative_uri(value: str) -> str:
+    return str(value).replace(settings.SITE_INFO["site_url"], "")
+
+
 @register.filter
 def make_range(number):
     return range(1, number + 1)

@@ -126,7 +126,7 @@ def search(request):
 
     if keywords.find("://") > 0:
         host = keywords.split("://")[1].split("/")[0]
-        if host == settings.SITE_INFO["site_domain"]:
+        if host in settings.SITE_DOMAINS:
             return redirect(keywords)
         site = SiteManager.get_site_by_url(keywords)
         if site:

@@ -147,14 +147,18 @@
                 {% endif %}
               </small>
             {% endif %}
+            <small id="fedi-tips">如不便或尚未<a href="https://joinmastodon.org/zh/servers" target="_blank">注册联邦宇宙</a>，也可以在上方选择「电子邮件验证」注册登录本站。</small>
+            <small id="email-tips" style="display:none;">现有用户通过联邦宇宙登录后关联电子邮件地址，即可通过邮件登录本站；如不便使用联邦宇宙，也可在此输入邮件地址注册账号，未来再关联到联邦宇宙。</small>
           </form>
         {% endif %}
+        <small class="hide_unless_alter_domain">
+          <br>
+          这是{{ site_name }}的临时镜像，请尽可能使用<a href="{{ site_url }}{{ request.get_full_path }}">原始站点</a>。
+        </small>
         <div class="delayed">部分模块加载超时，请检查网络（翻墙）设置。</div>
       </div>
     </article>
     <footer>
-      <small id="fedi-tips">如尚未<a href="https://joinmastodon.org/zh/servers" target="_blank">注册联邦宇宙</a>，也可点选「电子邮件验证」注册登录本站。</small>
-      <small id="email-tips" style="display:none;">现有用户通过联邦宇宙登录后关联电子邮件地址，即可通过邮件登录本站；如不便使用联邦宇宙，也可在此输入邮件地址注册账号，未来再关联到联邦宇宙。</small>
       <br>
       <small>继续访问或注册视为同意本站<a href="{% url 'management:retrieve_slug' 'data-policy' %}">数据方针</a>及使用cookie提供必要功能</small>
     </footer>

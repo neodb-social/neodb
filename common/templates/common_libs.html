@@ -51,4 +51,9 @@
 <link rel="apple-touch-icon" href="{{ site_logo }}">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="{{ site_name }}">
+{% if request.META.HTTP_HOST == site_domain %}
+  <style type="text/css">.hide_unless_alter_domain{display:none;}</style>
+{% else %}
+  <meta name="robots" content="noindex">
+{% endif %}
 {{ site_head|safe }}

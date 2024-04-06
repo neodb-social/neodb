@@ -18,7 +18,7 @@
     <meta property="og:title"
           content="{{ site_name }}{% trans item.category.label %} - {{ item.display_title }}">
     <meta property="og:type" content="{{ item.category }}">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:url" content="{{ item.absolute_url }}">
     {% if item.has_cover %}<meta property="og:image" content="{{ item.cover_image_url }}">{% endif %}
     <meta property="og:site_name" content="{{ site_name }}">
     <meta property="og:description" content="{{ item.brief }}">
@@ -48,7 +48,7 @@
         </span>
       </div>
       <div id="item-cover" class="left">
-        <img src="{{ item.cover_image_url|default:item.cover.url }}"
+        <img src="{{ item.cover_image_url|default:item.cover.url|relative_uri }}"
              alt="{{ item.title }}">
       </div>
       {% if request.user.is_authenticated and not mark.shelf_type %}

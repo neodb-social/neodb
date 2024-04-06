@@ -41,6 +41,8 @@ env = environ.FileAwareEnv(
     ),
     # Links in site footer
     NEODB_SITE_LINKS=(dict, {}),
+    # Alternative domains
+    NEODB_ALTERNATIVE_DOMAINS=(list, []),
     # Default language
     NEODB_LANGUAGE=(str, "zh-hans"),
     # Invite only mode
@@ -200,12 +202,9 @@ ALLOW_EMAIL_ONLY_ACCOUNT = env.bool(
 # Allow user to login via any Mastodon/Pleroma sites
 MASTODON_ALLOW_ANY_SITE = len(MASTODON_ALLOWED_SITES) == 0
 
-REDIRECT_URIS = env(
-    "NEODB_LOGIN_MASTODON_REDIRECT_URI",
-    default=SITE_INFO["site_url"] + "/account/login/oauth",
-)
-# for sites migrated from previous version, either wipe mastodon client ids or use:
-# REDIRECT_URIS = f'{SITE_INFO["site_url"]}/users/OAuth2_login/'
+ALTERNATIVE_DOMAINS = env("NEODB_ALTERNATIVE_DOMAINS", default=[])  # type: ignore
+
+SITE_DOMAINS = [SITE_DOMAIN] + ALTERNATIVE_DOMAINS
 
 ENABLE_LOCAL_ONLY = env("NEODB_ENABLE_LOCAL_ONLY")
 

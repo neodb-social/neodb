@@ -51,10 +51,7 @@ class FediverseInstance(AbstractSite):
         val = URLValidator()
         try:
             val(url)
-            if (
-                url.split("://", 1)[1].split("/", 1)[0].lower()
-                == settings.SITE_INFO["site_domain"]
-            ):
+            if url.split("://", 1)[1].split("/", 1)[0].lower() in settings.SITE_DOMAINS:
                 # disallow local instance URLs
                 return False
             return cls.get_json_from_url(url) is not None

@@ -8,6 +8,7 @@ from urllib.parse import quote
 import django_rq
 import requests
 from django.conf import settings
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
@@ -226,29 +227,22 @@ def post_toot(
     return response
 
 
-def create_app(domain_name):
-    # naive protocal strip
-    is_http = False
-    if domain_name.startswith("https://"):
-        domain_name = domain_name.replace("https://", "")
-    elif domain_name.startswith("http://"):
-        is_http = True
-        domain_name = domain_name.replace("http://", "")
-    if domain_name.endswith("/"):
-        domain_name = domain_name[0:-1]
+def _get_redirect_uris(allow_multiple=True) -> str:
+    u = settings.SITE_INFO["site_url"] + "/account/login/oauth"
+    if not allow_multiple:
+        return u
+    u2s = [f"https://{d}/account/login/oauth" for d in settings.ALTERNATIVE_DOMAINS]
+    return "\n".join([u] + u2s)
 
-    if not is_http:
-        url = "https://" + domain_name + API_CREATE_APP
-    else:
-        url = "http://" + domain_name + API_CREATE_APP
 
+def create_app(domain_name, allow_multiple_redir):
+    url = "https://" + domain_name + API_CREATE_APP
     payload = {
         "client_name": settings.SITE_INFO["site_name"],
         "scopes": settings.MASTODON_CLIENT_SCOPE,
-        "redirect_uris": settings.REDIRECT_URIS,
+        "redirect_uris": _get_redirect_uris(allow_multiple_redir),
         "website": settings.SITE_INFO["site_url"],
     }
-
     response = post(url, data=payload, headers={"User-Agent": USER_AGENT})
     return response
 
@@ -368,12 +362,12 @@ def get_or_create_fediverse_application(login_domain):
     if not settings.MASTODON_ALLOW_ANY_SITE:
         logger.warning(f"Disallowed to create app for {domain}")
         raise Exception("不支持其它实例登录")
-    if settings.SITE_DOMAIN.lower() == login_domain.lower():
+    if login_domain.lower() in settings.SITE_DOMAINS:
         raise ValueError("必须使用其它实例登录")
     domain, api_domain, server_version = detect_server_info(login_domain)
     if (
-        settings.SITE_DOMAIN.lower() == domain.lower()
-        or settings.SITE_DOMAIN.lower() == api_domain.lower()
+        domain.lower() in settings.SITE_DOMAINS
+        or api_domain.lower() in settings.SITE_DOMAINS
     ):
         raise ValueError("必须使用其它实例登录")
     if "neodb/" in server_version:
@@ -382,7 +376,8 @@ def get_or_create_fediverse_application(login_domain):
         app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
         if app:
             return app
-    response = create_app(api_domain)
+    allow_multiple_redir = True  # TODO detect site supports multiple redirect uris
+    response = create_app(api_domain, allow_multiple_redir)
     if response.status_code != 200:
         logger.error(
             f"Error creating app for {domain} on {api_domain}: {response.status_code}"
@@ -406,7 +401,7 @@ def get_or_create_fediverse_application(login_domain):
 
 
 def get_mastodon_login_url(app, login_domain, request):
-    url = settings.REDIRECT_URIS
+    url = request.build_absolute_uri(reverse("users:login_oauth"))
     version = app.server_version or ""
     scope = (
         settings.MASTODON_LEGACY_CLIENT_SCOPE
@@ -429,7 +424,7 @@ def get_mastodon_login_url(app, login_domain, request):
 def obtain_token(site, request, code):
     """Returns token if success else None."""
     mast_app = MastodonApplication.objects.get(domain_name=site)
-    redirect_uri = settings.REDIRECT_URIS
+    redirect_uri = request.build_absolute_uri(reverse("users:login_oauth"))
     payload = {
         "client_id": mast_app.client_id,
         "client_secret": mast_app.client_secret,

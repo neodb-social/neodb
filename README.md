@@ -1,5 +1,5 @@
 # 🧩 NeoDB
-_mark the things you love._
+_mark the things you love_
 
 ![](https://github.com/neodb-social/neodb/actions/workflows/check.yml/badge.svg?branch=main)
 ![](https://github.com/neodb-social/neodb/actions/workflows/tests.yml/badge.svg?branch=main)
