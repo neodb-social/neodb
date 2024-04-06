@@ -15,5 +15,5 @@ def thumb(source, alias):
             return source.url
         else:
             return thumbnail_url(source, alias)
-    except Exception as e:
+    except Exception:
         return ""

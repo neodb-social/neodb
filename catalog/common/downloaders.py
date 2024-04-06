@@ -172,7 +172,7 @@ class BasicDownloader:
                             encoding="utf-8",
                         ) as fp:
                             fp.write(resp.text)
-                    except:
+                    except Exception:
                         _logger.warn("Save downloaded data failed.")
             else:
                 resp = MockResponse(self.url)

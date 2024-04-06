@@ -224,7 +224,7 @@ class Mark:
                 log_entry.timestamp = created_time
                 try:
                     log_entry.save(update_fields=["timestamp"])
-                except:
+                except Exception:
                     log_entry.delete()
                 shelfmember_changed = True
             if shelfmember_changed:

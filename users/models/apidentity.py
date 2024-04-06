@@ -237,14 +237,14 @@ class APIdentity(models.Model):
         '@id@site' - remote activitypub identity 'id@site'
         """
         s = handler.split("@")
-        l = len(s)
-        if l == 1 or (l == 2 and s[0] == ""):
+        sl = len(s)
+        if sl == 1 or (sl == 2 and s[0] == ""):
             return cls.objects.get(
-                username__iexact=s[0] if l == 1 else s[1],
+                username__iexact=s[0] if sl == 1 else s[1],
                 local=True,
                 deleted__isnull=True,
             )
-        elif l == 2:
+        elif sl == 2:
             if match_linked:
                 return cls.objects.get(
                     user__mastodon_username__iexact=s[0],
@@ -256,7 +256,7 @@ class APIdentity(models.Model):
                 if i:
                     return i
                 raise cls.DoesNotExist(f"Identity not found @{handler}")
-        elif l == 3 and s[0] == "":
+        elif sl == 3 and s[0] == "":
             i = cls.get_remote(s[1], s[2])
             if i:
                 return i

@@ -39,7 +39,7 @@ class OPMLImporter:
                 logger.info(f"{self.user} import {feed.url}")
                 try:
                     res = RSS(feed.url).get_resource_ready()
-                except:
+                except Exception:
                     res = None
                 if not res or not res.item:
                     logger.warning(f"{self.user} feed error {feed.url}")

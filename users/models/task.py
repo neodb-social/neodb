@@ -78,4 +78,4 @@ class Task(models.Model):
                 msg.error(task.user, f"[{task.type}] {task.message}")
 
     def run(self) -> None:
-        raise NotImplemented
+        raise NotImplementedError("subclass must implement this")

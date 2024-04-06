@@ -20,14 +20,14 @@ def _cc(text):
 @stringfilter
 def highlight(text, search):
     otext = _cc(text.lower())
-    l = len(text)
-    if l != len(otext):
+    sl = len(text)
+    if sl != len(otext):
         return text  # in rare cases, the lowered&converted text has a different length
     rtext = ""
     words = list(set([w for w in _cc(search.strip().lower()).split(" ") if w]))
     words.sort(key=len, reverse=True)
     i = 0
-    while i < l:
+    while i < sl:
         m = None
         for w in words:
             if otext[i : i + len(w)] == w:

@@ -1,5 +1,6 @@
+from typing import Any, Callable, List, Optional, Tuple, Type
+
 from django.http import HttpResponse
-from django.utils.translation import gettext_lazy as _
 from ninja import Schema
 
 from common.api import *

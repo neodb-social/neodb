@@ -80,7 +80,7 @@ def enqueue_update_index(item_ids):
         )
         if job.get_status() in ["queued", "scheduled"]:
             job.cancel()
-    except:
+    except Exception:
         pass
     # using rq's built-in scheduler here, it can be switched to other similar implementations
     django_rq.get_queue(_PENDING_INDEX_QUEUE).enqueue_in(
@@ -184,7 +184,6 @@ class Indexer:
     @classmethod
     def check(cls):
         client = typesense.Client(settings.TYPESENSE_CONNECTION)
-        wait = 5
         if not client.operations.is_healthy():
             raise ValueError("Typesense: server not healthy")
         idx = client.collections[settings.TYPESENSE_INDEX_NAME]
@@ -209,7 +208,7 @@ class Indexer:
                         f"Typesense: index {settings.TYPESENSE_INDEX_NAME} has {i['num_documents']} documents"
                     )
                     return
-                except:
+                except Exception:
                     client.collections.create(cls.config())
                     logger.info(
                         f"Typesense: index {settings.TYPESENSE_INDEX_NAME} created"

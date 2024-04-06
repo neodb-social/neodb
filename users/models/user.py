@@ -409,7 +409,7 @@ class User(AbstractUser):
             if name.startswith("~"):
                 try:
                     query_kwargs = {"pk": int(name[1:])}
-                except:
+                except Exception:
                     return None
             elif name.startswith("@"):
                 query_kwargs = {

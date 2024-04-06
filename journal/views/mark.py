@@ -101,7 +101,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
                     share_to_mastodon=share_to_mastodon,
                     created_time=mark_date,
                 )
-            except PermissionDenied as e:
+            except PermissionDenied:
                 _logger.warn(f"post to mastodon error 401 {request.user}")
                 return render_relogin(request)
             except ValueError as e:
@@ -143,13 +143,13 @@ def mark_log(request: AuthedHttpRequest, item_uuid, log_id):
 @login_required
 def comment(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not item.class_name in ["podcastepisode", "tvepisode"]:
+    if item.class_name not in ["podcastepisode", "tvepisode"]:
         raise BadRequest("Commenting this type of items is not supported yet.")
     comment = Comment.objects.filter(owner=request.user.identity, item=item).first()
     if request.method == "GET":
         return render(
             request,
-            f"comment.html",
+            "comment.html",
             {
                 "item": item,
                 "comment": comment,
@@ -169,7 +169,7 @@ def comment(request: AuthedHttpRequest, item_uuid):
             try:
                 pos = datetime.strptime(position, "%H:%M:%S")
                 position = pos.hour * 3600 + pos.minute * 60 + pos.second
-            except:
+            except Exception:
                 if settings.DEBUG:
                     raise
                 position = None

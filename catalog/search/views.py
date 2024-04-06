@@ -29,7 +29,7 @@ def fetch_refresh(request, job_id):
     try:
         job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
         item_url = job.return_value()
-    except:
+    except Exception:
         item_url = "-"
     if item_url:
         if item_url == "-":
@@ -109,7 +109,7 @@ def search(request):
         try:
             categories = [ItemCategory(category)]
             hide_category = True
-        except:
+        except Exception:
             categories = visible_categories(request)
     tag = request.GET.get("tag", default="").strip()
     p = request.GET.get("page", default="1")
@@ -134,7 +134,7 @@ def search(request):
         if request.GET.get("r"):
             return redirect(keywords)
 
-    items, num_pages, _, dup_items = query_index(keywords, categories, tag, p)
+    items, num_pages, __, dup_items = query_index(keywords, categories, tag, p)
     return render(
         request,
         "search_results.html",

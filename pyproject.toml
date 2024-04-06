@@ -1,6 +1,7 @@
 [tool.pyright]
 exclude = [ "media", ".venv", ".git", "playground", "catalog/*/tests.py", "neodb", "**/migrations",  "**/sites/douban_*", "neodb-takahe" ]
 reportIncompatibleVariableOverride = false
+reportUnusedImport = false
 
 [tool.djlint]
 ignore="T002,T003,H006,H019,H020,H021,H023,H030,H031"
@@ -20,5 +21,5 @@ plugins = ["mypy_django_plugin.main"]
 django_settings_module = "boofilsic.settings"
 
 [tool.ruff]
-ignore = ['E501']
-exclude = [ "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/importers", "**/sites", "legacy" ]
+exclude = ["neodb-takahe/*", "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/importers", "**/sites", "legacy" ]
+lint.ignore = ["F401", "F403", "F405"]

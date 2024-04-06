@@ -1705,7 +1705,7 @@ class Block(models.Model):
             raise ValueError("You cannot block from a remote Identity")
         block = cls.maybe_get(source=source, target=target, mute=False)
         if block is not None:
-            if not block.state in ["new", "sent", "awaiting_expiry"]:
+            if block.state not in ["new", "sent", "awaiting_expiry"]:
                 block.state = BlockStates.new  # type:ignore
             block.save()
         else:
@@ -1735,7 +1735,7 @@ class Block(models.Model):
             raise ValueError("You cannot mute from a remote Identity")
         block = cls.maybe_get(source=source, target=target, mute=True)
         if block is not None:
-            if not block in ["new", "sent", "awaiting_expiry"]:
+            if block not in ["new", "sent", "awaiting_expiry"]:
                 block.state = BlockStates.new  # type:ignore
             if duration:
                 block.expires = timezone.now() + datetime.timedelta(seconds=duration)

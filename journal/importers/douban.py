@@ -222,12 +222,12 @@ class DoubanImporter:
             rating = cells[5]
             try:
                 rating_grade = int(rating) * 2 if rating else None
-            except:
+            except Exception:
                 rating_grade = None
             tags = cells[6] if len(cells) >= 7 else ""
             try:
                 tags = tags.split(",") if tags else []
-            except:
+            except Exception:
                 tags = []
             comment = cells[7] if len(cells) >= 8 else None
             self.processed += 1
@@ -235,7 +235,7 @@ class DoubanImporter:
                 if type(time) == str:
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
                 time = time.replace(tzinfo=_tz_sh)
-            except:
+            except Exception:
                 time = None
             r = self.import_mark(url, shelf_type, comment, rating_grade, tags, time)
             if r == 1:
@@ -385,7 +385,7 @@ class DoubanImporter:
             Review.objects.update_or_create(
                 owner=self.user.identity, item=item, defaults=params
             )
-        except:
+        except Exception:
             logger.warning(f"{prefix} update multiple review {review_url}")
             r = (
                 Review.objects.filter(owner=self.user.identity, item=item)

@@ -29,7 +29,7 @@ class MastodonSiteCheck(BaseJob):
                 api_domain = site.api_domain or site.domain_name
                 domain, api_domain, v = detect_server_info(api_domain)
                 site.last_reachable_date = timezone.now()
-            except:
+            except Exception:
                 logger.warning(
                     f"Failed to detect server info for {site.domain_name}/{site.api_domain}"
                 )

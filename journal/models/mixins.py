@@ -21,7 +21,7 @@ class UserOwnedObjectMixin:
         owner: ForeignKey[APIdentity, Piece]
         visibility: int
 
-    def is_visible_to(self: "Piece | Self", viewing_user: User) -> bool:  # type: ignore
+    def is_visible_to(self: "Piece", viewing_user: User) -> bool:  # noqa # type: ignore
         owner = self.owner
         if not owner or not owner.is_active:
             return False

@@ -385,7 +385,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         if to_item.merged_to_item is not None:
             raise ValueError("cannot merge to item which is merged to another item")
         if to_item.__class__ != self.__class__:
-            raise ValueError(f"cannot merge to item in a different model")
+            raise ValueError("cannot merge to item in a different model")
         self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
         self.merged_to_item = to_item
         self.save()
@@ -448,7 +448,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
                 b62 = r[0]
         try:
             item = cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
-        except:
+        except Exception:
             item = None
         return item
 
@@ -618,7 +618,7 @@ class ExternalResource(models.Model):
         try:
             site = self.get_site()
             return site.SITE_NAME if site else SiteName.Unknown
-        except:
+        except Exception:
             _logger.warning(f"Unknown site for {self}")
             return SiteName.Unknown
 

@@ -57,7 +57,7 @@ class LetterboxdImporter(Task):
             try:
                 site.get_resource_ready()
                 return site.get_item()
-            except:
+            except Exception:
                 imdb_url = str(iu[0])  # type:ignore
                 logger.warning(
                     f"Fetching {url}: TMDB {site.url} failed, try IMDB {imdb_url}"

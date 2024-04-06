@@ -12,7 +12,7 @@ register = template.Library()
 @register.simple_tag(takes_context=True)
 def user_visibility_of(context, piece: UserOwnedObjectMixin):
     user = context["request"].user
-    return piece.is_visible_to(user)
+    return piece.is_visible_to(user)  # type: ignore
 
 
 @register.simple_tag()

@@ -67,7 +67,7 @@ class Rating(Content):
             "created_time": datetime.fromisoformat(obj["published"]),
             "edited_time": datetime.fromisoformat(obj["updated"]),
         }
-        p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
+        p = cls.objects.update_or_create(owner=owner, item=item, defaults=d)[0]
         p.link_post_id(post_id)
         return p
 

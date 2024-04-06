@@ -79,7 +79,7 @@ def fetch_refresh(request):
     try:
         i = APIdentity.get_by_handle(handle)
         return HTTPResponseHXRedirect(i.url)
-    except:
+    except Exception:
         retry = int(request.GET.get("retry", 0)) + 1
         if retry > 10:
             return render(request, "users/fetch_identity_failed.html")

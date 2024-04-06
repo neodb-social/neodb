@@ -214,13 +214,13 @@ def assign_parent(request, item_path, item_uuid):
 @login_required
 def remove_unused_seasons(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    l = list(item.seasons.all())
-    for s in l:
+    sl = list(item.seasons.all())
+    for s in sl:
         if not s.journal_exists():
             s.delete()
-    l = [s.id for s in l]
-    l2 = [s.id for s in item.seasons.all()]
-    item.log_action({"!remove_unused_seasons": [l, l2]})
+    ol = [s.id for s in sl]
+    nl = [s.id for s in item.seasons.all()]
+    item.log_action({"!remove_unused_seasons": [ol, nl]})
     return redirect(item.url)
 
 

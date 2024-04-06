@@ -35,12 +35,12 @@ def render_md(s: str) -> str:
 
 
 def _spolier(s: str) -> str:
-    l = s.split(">!", 1)
-    if len(l) == 1:
+    sl = s.split(">!", 1)
+    if len(sl) == 1:
         return escape(s)
-    r = l[1].split("!<", 1)
+    r = sl[1].split("!<", 1)
     return (
-        escape(l[0])
+        escape(sl[0])
         + '<span class="spoiler" _="on click toggle .revealed on me">'
         + escape(r[0])
         + "</span>"

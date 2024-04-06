@@ -4,7 +4,7 @@ from .models import *
 from .scrapers import *
 from .sites import *
 
-__all__ = (
+__all__ = (  # noqa
     "IdType",
     "SiteName",
     "ItemType",

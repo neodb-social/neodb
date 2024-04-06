@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 try:
     with open(os.path.join(BASE_DIR, "build_version")) as f:
         NEODB_VERSION = __version__ + "-" + f.read().strip()
-except:
+except Exception:
     NEODB_VERSION = __version__ + "-unknown"
 
 

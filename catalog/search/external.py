@@ -316,7 +316,7 @@ class Fediverse:
                     url = f"https://{host}{item['url']}"  # FIXME update API and use abs urls
                     try:
                         cat = ItemCategory(item["category"])
-                    except:
+                    except Exception:
                         cat = ""
                     results.append(
                         SearchResultItem(

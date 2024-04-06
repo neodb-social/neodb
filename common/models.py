@@ -21,7 +21,7 @@ class BaseJob:
                 job.cancel()
             registry = ScheduledJobRegistry(queue=django_rq.get_queue("cron"))
             registry.remove(job)
-        except:
+        except Exception:
             pass
 
     @classmethod

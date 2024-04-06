@@ -30,7 +30,7 @@ class DbIndexer:
 
     @classmethod
     def search(cls, q, page=1, categories=None, tag=None, sort=None):
-        result = lambda: None
+        result = lambda: None  # noqa
         result.items = Item.objects.filter(title__contains=q)[:10]
         result.num_pages = 1
         result.count = len(result.items)
@@ -83,10 +83,10 @@ def query_index(keywords, categories=None, tag=None, page=1, prepare_external=Tr
         if hasattr(i, "works"):
             my_key += [i[0] for i in i.works.all().values_list("id")]
         if len(my_key):
-            l = len(keys) + len(my_key)
+            sl = len(keys) + len(my_key)
             keys.update(my_key)
             # check and skip dup with same imdb or isbn or works id
-            if len(keys) < l:
+            if len(keys) < sl:
                 duplicated_items.append(i)
             else:
                 items.append(i)
@@ -135,7 +135,7 @@ def enqueue_fetch(url, is_refetch, user=None):
     try:
         job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
         in_progress = job.get_status() in ["queued", "started"]
-    except:
+    except Exception:
         in_progress = False
     if not in_progress:
         django_rq.get_queue("fetch").enqueue(

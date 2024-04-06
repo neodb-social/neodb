@@ -522,7 +522,7 @@ def update_tag(request, tag_uuid: str, t_in: TagInSchema):
             tag.title = title
             tag.visibility = visibility
             tag.save()
-        except:
+        except Exception:
             return 409, {"message": "Tag with same title exists"}
     return tag
 

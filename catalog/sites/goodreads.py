@@ -144,7 +144,7 @@ class Goodreads_Work(AbstractSite):
         author = self.query_str(content, "//h2/a/text()")
         try:
             first_published = self.query_str(content, "//h2/span/text()")
-        except:
+        except Exception:
             first_published = None
         pd = ResourceContent(
             metadata={

@@ -62,7 +62,7 @@ class AppleMusic(AbstractSite):
                 content = BasicDownloader(url, headers=self.headers).download().html()
                 _logger.info(f"got localized content from {url}")
                 break
-            except:
+            except Exception:
                 pass
         if content is None:
             raise ParseError(self, f"localized content for {self.url}")

@@ -50,7 +50,7 @@ class Steam(AbstractSite):
             brief = self.query_str(
                 content, "//div[@class='game_description_snippet']/text()"
             )
-        except:
+        except Exception:
             brief = ""
         # try Steam images if no image from IGDB
         if pd.cover_image is None:

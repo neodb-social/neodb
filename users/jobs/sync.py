@@ -40,4 +40,4 @@ class MastodonUserSync(BaseJob):
                     logger.warning(f"Skip {user} detail because of inactivity.")
                     skip_detail = True
             user.refresh_mastodon_data(skip_detail)
-        logger.info(f"Mastodon User Sync finished.")
+        logger.info("Mastodon User Sync finished.")

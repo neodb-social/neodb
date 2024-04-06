@@ -71,7 +71,7 @@ class Bandcamp(AbstractSite):
             release_date = (
                 release_datetime.strftime("%Y-%m-%d") if release_datetime else None
             )
-        except:
+        except Exception:
             release_date = None
         duration = None
         company = None

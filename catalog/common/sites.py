@@ -10,7 +10,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import Callable, Type
+from typing import Any, Callable, Type, TypeVar
 
 import django_rq
 import requests
@@ -268,8 +268,6 @@ class AbstractSite:
         return p
 
 
-from typing import Any, Callable, Type, TypeVar
-
 T = TypeVar("T")
 
 
@@ -313,7 +311,7 @@ class SiteManager:
                     )
                     if cls:
                         url = url2
-            except:
+            except Exception:
                 pass
         if cls is None:
             cls = next(
@@ -327,7 +325,7 @@ class SiteManager:
 
     @staticmethod
     def get_site_by_id(id_type: IdType, id_value: str) -> AbstractSite | None:
-        if not id_type in SiteManager.registry:
+        if id_type not in SiteManager.registry:
             return None
         cls = SiteManager.registry[id_type]
         return cls(id_value=id_value)

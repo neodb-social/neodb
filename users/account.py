@@ -79,7 +79,7 @@ def connect(request):
         login_email = request.POST.get("email", "")
         try:
             EmailValidator()(login_email)
-        except:
+        except Exception:
             return render(
                 request,
                 "common/error.html",
@@ -299,11 +299,11 @@ def send_verification_link(user_id, action, email):
         subject = f'{settings.SITE_INFO["site_name"]} - {_("注册新账号")}'
         url = settings.SITE_INFO["site_url"] + "/account/register_email?c=" + v
         msg = f"你好，\n本站没有与{email}关联的账号。你希望注册一个新账号吗？\n"
-        msg += f"\n如果你已注册过本站或某个联邦宇宙（长毛象）实例，不必重新注册，只要用联邦宇宙身份登录本站，再关联这个电子邮件地址，即可通过邮件登录。\n"
-        msg += f"\n如果你还没有联邦宇宙身份，可以访问这里选择实例并创建一个： https://joinmastodon.org/zh/servers\n"
+        msg += "\n如果你已注册过本站或某个联邦宇宙（长毛象）实例，不必重新注册，只要用联邦宇宙身份登录本站，再关联这个电子邮件地址，即可通过邮件登录。\n"
+        msg += "\n如果你还没有联邦宇宙身份，可以访问这里选择实例并创建一个： https://joinmastodon.org/zh/servers\n"
         if settings.ALLOW_EMAIL_ONLY_ACCOUNT:
             msg += f"\n如果你不便使用联邦宇宙身份，也可以点击以下链接使用电子邮件注册一个新账号，以后再关联到联邦宇宙。\n{url}\n"
-        msg += f"\n如果你没有打算用此电子邮件地址注册或登录本站，请忽略此邮件。"
+        msg += "\n如果你没有打算用此电子邮件地址注册或登录本站，请忽略此邮件。"
     else:
         raise ValueError("Invalid action")
     try:
@@ -451,7 +451,7 @@ def swap_login(request, token, site, refresh_token):
             )
         else:
             try:
-                existing_user = User.objects.get(
+                User.objects.get(
                     mastodon_username__iexact=username, mastodon_site__iexact=site
                 )
                 messages.add_message(

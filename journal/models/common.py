@@ -174,17 +174,17 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 b62 = r[0]
         try:
             obj = cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
-        except:
+        except Exception:
             obj = None
         return obj
 
     @classmethod
     def update_by_ap_object(cls, owner, item, obj, post_id, visibility):
-        raise NotImplementedError()
+        raise NotImplementedError("subclass must implement this")
 
     @property
     def ap_object(self):
-        raise NotImplementedError()
+        raise NotImplementedError("subclass must implement this")
 
     def link_post_id(self, post_id: int):
         PiecePost.objects.get_or_create(piece=self, post_id=post_id)

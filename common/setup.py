@@ -56,7 +56,7 @@ class Setup:
                 .exists()
             ):
                 logger.warning(
-                    f"Local identities are found for other domains, there might be a configuration issue."
+                    "Local identities are found for other domains, there might be a configuration issue."
                 )
 
         TakaheConfig.objects.update_or_create(
@@ -109,7 +109,7 @@ class Setup:
                 logger.info("Default relay is disabled, unsubscribing...")
                 Takahe.update_state(relay, "unsubscribing")
             else:
-                logger.info(f"Default relay is disabled.")
+                logger.info("Default relay is disabled.")
         else:
             if relay:
                 logger.debug(f"Default relay is enabled, state: {relay.state}")
