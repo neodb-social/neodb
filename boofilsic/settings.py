@@ -179,9 +179,9 @@ SITE_INFO = {
     "site_description": env("NEODB_SITE_DESCRIPTION"),
     "site_head": env("NEODB_SITE_HEAD"),
     "site_links": [{"title": k, "url": v} for k, v in env("NEODB_SITE_LINKS").items()],
-    # "cdn_url": "/cdn",
+    "cdn_url": "/jsdelivr",
     # "cdn_url": "https://cdn.jsdelivr.net",
-    "cdn_url": "https://fastly.jsdelivr.net",
+    # "cdn_url": "https://fastly.jsdelivr.net",
 }
 
 SETUP_ADMIN_USERNAMES = env("NEODB_ADMIN_USERNAMES")
