@@ -357,6 +357,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "boofilsic.wsgi.application"
 
 SESSION_COOKIE_NAME = "neodbsid"
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 AUTHENTICATION_BACKENDS = [
     "mastodon.auth.OAuth2Backend",
