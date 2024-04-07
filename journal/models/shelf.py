@@ -149,7 +149,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Music,
         ShelfType.COMPLETE,
-        _("albums to listen"),
+        _("albums listened"),
         _("finish listening"),
         _("finished listening {item}"),
     ],

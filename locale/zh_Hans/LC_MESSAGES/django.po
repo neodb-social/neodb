@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-03 20:28-0400\n"
+"POT-Creation-Date: 2024-04-07 00:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: boofilsic/settings.py:395
+msgid "English"
+msgstr "英语"
+
+#: boofilsic/settings.py:396 boofilsic/settings.py:399
+msgid "Simplified Chinese"
+msgstr "简体中文"
 
 #: catalog/book/models.py:90
 msgid "subtitle"
@@ -37,7 +45,8 @@ msgstr "译者"
 
 #: catalog/book/models.py:110 catalog/movie/models.py:145
 #: catalog/performance/models.py:125 catalog/performance/models.py:267
-#: catalog/tv/models.py:207 catalog/tv/models.py:369
+#: catalog/tv/models.py:207 catalog/tv/models.py:369 users/models/user.py:96
+#: users/templates/users/preferences.html:139
 msgid "language"
 msgstr "语言"
 
@@ -757,9 +766,9 @@ msgstr ""
 
 #: catalog/templates/catalog_edit.html:49 catalog/templates/discover.html:79
 #: journal/templates/add_to_collection.html:39
-#: journal/templates/collection_edit.html:42 journal/templates/profile.html:201
+#: journal/templates/collection_edit.html:41 journal/templates/profile.html:201
 #: users/templates/users/account.html:51 users/templates/users/account.html:109
-#: users/templates/users/preferences.html:166
+#: users/templates/users/preferences.html:176
 msgid "保存"
 msgstr ""
 
@@ -1097,31 +1106,31 @@ msgstr ""
 msgid "系统错误"
 msgstr ""
 
-#: common/templates/_sidebar.html:29
+#: common/templates/_sidebar.html:30
 msgid "全部标为已读"
 msgstr ""
 
-#: common/templates/_sidebar.html:89
+#: common/templates/_sidebar.html:90
 msgid "当前目标"
 msgstr ""
 
-#: common/templates/_sidebar.html:115
+#: common/templates/_sidebar.html:116
 msgid "在听播客的近期单集"
 msgstr ""
 
-#: common/templates/_sidebar.html:150
+#: common/templates/_sidebar.html:151
 msgid "在读的书"
 msgstr ""
 
-#: common/templates/_sidebar.html:173
+#: common/templates/_sidebar.html:174
 msgid "在看的剧集"
 msgstr ""
 
-#: common/templates/_sidebar.html:196
+#: common/templates/_sidebar.html:197
 msgid "常用标签"
 msgstr ""
 
-#: common/templates/_sidebar.html:208
+#: common/templates/_sidebar.html:209
 msgid "全部"
 msgstr ""
 
@@ -1153,7 +1162,7 @@ msgstr ""
 msgid "Allowed URIs list, space separated, at least one URI is required"
 msgstr ""
 
-#: developer/templates/console.html:39
+#: developer/templates/console.html:37
 #: developer/templates/oauth2_provider/application_list.html:5
 msgid "Your applications"
 msgstr ""
@@ -1418,7 +1427,7 @@ msgstr "不再看的剧集"
 msgid "TV shows reviewed"
 msgstr "评论过的剧集"
 
-#: journal/models/shelf.py:138 journal/models/shelf.py:152
+#: journal/models/shelf.py:138
 msgid "albums to listen"
 msgstr "想听的专辑"
 
@@ -1443,6 +1452,11 @@ msgstr "在听"
 #, python-brace-format
 msgid "started listening {item}"
 msgstr "在听 {item}"
+
+#: journal/models/shelf.py:152
+#| msgid "albums listening"
+msgid "albums listened"
+msgstr "听过的专辑"
 
 #: journal/models/shelf.py:153 journal/models/shelf.py:223
 msgid "finish listening"
@@ -1748,20 +1762,20 @@ msgstr ""
 msgid "暂无公告"
 msgstr ""
 
-#: mastodon/api.py:491 takahe/utils.py:514
+#: mastodon/api.py:486 takahe/utils.py:514
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "关于 {item_title}，可能包含剧透或敏感内容"
 
-#: mastodon/api.py:641
+#: mastodon/api.py:636
 msgid "collection"
 msgstr "收藏单"
 
-#: mastodon/api.py:646
+#: mastodon/api.py:641
 msgid "shared my collection"
 msgstr "分享我的收藏单"
 
-#: mastodon/api.py:649
+#: mastodon/api.py:644
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
@@ -1863,6 +1877,7 @@ msgid "This account is inactive."
 msgstr ""
 
 #: social/templates/activity/review_item.html:39
+#, python-format
 msgid "wrote a review of %(item)s"
 msgstr "评论了 %(item)s"
 
@@ -2013,39 +2028,39 @@ msgstr ""
 msgid "验证信息不符。"
 msgstr ""
 
-#: users/data.py:106
+#: users/data.py:111
 msgid "导出已开始。"
 msgstr ""
 
-#: users/data.py:117
+#: users/data.py:122
 msgid "导出文件已过期，请重新导出"
 msgstr ""
 
-#: users/data.py:127
+#: users/data.py:132
 msgid "同步已开始。"
 msgstr ""
 
-#: users/data.py:141
+#: users/data.py:146
 msgid "同步设置已保存。"
 msgstr ""
 
-#: users/data.py:152
+#: users/data.py:157
 msgid "已重置。"
 msgstr ""
 
-#: users/data.py:161
+#: users/data.py:166
 msgid "链接已保存，等待后台导入。"
 msgstr ""
 
-#: users/data.py:163
+#: users/data.py:168
 msgid "无法识别链接。"
 msgstr ""
 
-#: users/data.py:176 users/data.py:199 users/data.py:212
+#: users/data.py:181 users/data.py:204 users/data.py:217
 msgid "文件已上传，等待后台导入。"
 msgstr ""
 
-#: users/data.py:178 users/data.py:214
+#: users/data.py:183 users/data.py:219
 msgid "无法识别文件。"
 msgstr ""
 
@@ -2061,29 +2076,29 @@ msgstr ""
 msgid "相关证据"
 msgstr ""
 
-#: users/models/user.py:42
+#: users/models/user.py:43
 msgid ""
 "Enter a valid username. This value may contain only unaccented lowercase a-z "
 "and uppercase A-Z letters, numbers, and _ characters."
 msgstr ""
 
-#: users/models/user.py:75
+#: users/models/user.py:76
 msgid "username"
 msgstr ""
 
-#: users/models/user.py:79
+#: users/models/user.py:80
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
 msgstr ""
 
-#: users/models/user.py:82
+#: users/models/user.py:83
 msgid "A user with that username already exists."
 msgstr ""
 
-#: users/models/user.py:86
+#: users/models/user.py:87
 msgid "email address"
 msgstr ""
 
-#: users/models/user.py:92
+#: users/models/user.py:93
 msgid "email address pending verification"
 msgstr ""
 
@@ -2244,23 +2259,23 @@ msgstr ""
 msgid "发表标记时在结尾附加标签："
 msgstr ""
 
-#: users/templates/users/preferences.html:138
+#: users/templates/users/preferences.html:148
 msgid "搜索时不显示以下类型："
 msgstr ""
 
-#: users/templates/users/preferences.html:154
+#: users/templates/users/preferences.html:164
 msgid "匿名访客和搜索引擎可以查看你的个人主页"
 msgstr ""
 
-#: users/templates/users/preferences.html:163
+#: users/templates/users/preferences.html:173
 msgid "显示你是某条目的最近编辑者"
 msgstr ""
 
-#: users/templates/users/preferences.html:172
+#: users/templates/users/preferences.html:182
 msgid "当前设备设置"
 msgstr ""
 
-#: users/templates/users/preferences.html:197
+#: users/templates/users/preferences.html:207
 msgid "应用管理"
 msgstr ""
 
