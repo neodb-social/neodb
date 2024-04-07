@@ -3,9 +3,7 @@
 <html lang="en">
   <head>
     <link rel="stylesheet"
-          href="https://unpkg.com/swagger-ui-dist@5.11.1/swagger-ui.css"
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer" />
+          href="{{ cdn_url }}/npm/swagger-ui-dist@5.13.0/swagger-ui.min.css">
     <title>{{ api.title }} Developer Console</title>
     {% include "common_libs.html" %}
     <style type="text/css">
@@ -92,9 +90,7 @@
         more endpoints can be found in API Documentation below.
       </details>
       <div id="swagger-ui" data-theme="light"></div>
-      <script src="https://unpkg.com/swagger-ui-dist@5.11.1/swagger-ui-bundle.js"
-              crossorigin="anonymous"
-              referrerpolicy="no-referrer"></script>
+      <script src="{{ cdn_url }}/npm/swagger-ui-dist@5.13.0/swagger-ui-bundle.min.js"></script>
       <script>
         const ui = SwaggerUIBundle({
         url: '{{ openapi_json_url }}',

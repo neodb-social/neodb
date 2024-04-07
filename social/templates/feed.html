@@ -13,8 +13,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans '动态' %}</title>
     {% include "common_libs.html" %}
-    <script src="https://cdn.jsdelivr.net/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/shikwasa@2.2.1/dist/style.min.css"
+    <script src="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
+    <link href="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/style.min.css"
           rel="stylesheet"></link>
   <script src="{% static 'js/podcast.js' %}"></script>
 </head>

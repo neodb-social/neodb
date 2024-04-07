@@ -223,8 +223,7 @@
             <input type="hidden" name="name" value="profile">
             <input type="hidden" name="layout">
           </form>
-          <script src="https://cdn.staticfile.org/html5sortable/0.13.3/html5sortable.min.js"
-                  crossorigin="anonymous"></script>
+          <script src="{{ cdn_url }}/npm/html5sortable@0.13.3/dist/html5sortable.min.js"></script>
           <script src="{% static 'js/sort_layout.js' %}"></script>
         {% endif %}
         {{ layout|json_script:"layout-data" }}

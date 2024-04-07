@@ -16,10 +16,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {{ identity.display_name }} - {{ year }} 年度统计</title>
     {% include "common_libs.html" %}
-    {% comment %} <script src="https://unpkg.com/rough-viz@2.0.5"></script> {% endcomment %}
+    {% comment %} <script src="{{ cdn_url }}/npm/rough-viz@2.0.5/dist/roughviz.umd.min.js"></script> {% endcomment %}
     <script src="{% static 'js/roughviz.umd.js' %}"></script>
-    {% comment %} <script src="{% static 'js/saveSvgAsPng.js' %}"></script> {% endcomment %}
-    <script src="https://cdn.jsdelivr.net/npm/save-svg-as-png@1.4.17/lib/saveSvgAsPng.min.js"></script>
+    <script src="{{ cdn_url }}/npm/save-svg-as-png@1.4.17/lib/saveSvgAsPng.min.js"></script>
     <style>
       .yAxisviz0, .rough-yAxisviz0 {
         display: none;
