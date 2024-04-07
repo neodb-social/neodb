@@ -2,7 +2,7 @@ blurhash-python
 cachetools
 dateparser
 discord.py
-django~=4.2.9
+django~=4.2.11
 django-anymail
 django-auditlog>=3.0.0-beta.4
 django-bleach

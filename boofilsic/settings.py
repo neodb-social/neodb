@@ -166,7 +166,7 @@ elif _parsed_email_url.scheme:
     EMAIL_TIMEOUT = 5
     vars().update(_parsed_email_config)
 
-SITE_DOMAIN = env("NEODB_SITE_DOMAIN")
+SITE_DOMAIN = env("NEODB_SITE_DOMAIN").lower()
 SITE_INFO = {
     "neodb_version": NEODB_VERSION,
     "site_name": env("NEODB_SITE_NAME"),
@@ -205,9 +205,11 @@ ALLOW_EMAIL_ONLY_ACCOUNT = env.bool(
 # Allow user to login via any Mastodon/Pleroma sites
 MASTODON_ALLOW_ANY_SITE = len(MASTODON_ALLOWED_SITES) == 0
 
-ALTERNATIVE_DOMAINS = env("NEODB_ALTERNATIVE_DOMAINS", default=[])  # type: ignore
+ALTERNATIVE_DOMAINS = [d.lower() for d in env("NEODB_ALTERNATIVE_DOMAINS", default=[])]  # type: ignore
 
 SITE_DOMAINS = [SITE_DOMAIN] + ALTERNATIVE_DOMAINS
+
+ALLOWED_HOSTS = SITE_DOMAINS
 
 ENABLE_LOCAL_ONLY = env("NEODB_ENABLE_LOCAL_ONLY")
 
@@ -259,8 +261,6 @@ DATABASE_ROUTERS = ["takahe.db_routes.TakaheRouter"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # for legacy deployment:
 # DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-
-ALLOWED_HOSTS = ["*"]
 
 # To allow debug in template context
 # https://docs.djangoproject.com/en/3.1/ref/settings/#internal-ips

@@ -220,7 +220,7 @@ class APIdentity(models.Model):
         ).first()
         if i:
             return i
-        if domain != settings.SITE_INFO["site_domain"].lower():
+        if domain != settings.SITE_DOMAIN:
             identity = Takahe.get_identity_by_handler(username, domain)
             if identity:
                 return Takahe.get_or_create_remote_apidentity(identity)
