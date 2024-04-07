@@ -184,11 +184,10 @@
       <details>
         <summary>{% trans '合并' %}</summary>
         <form method="post"
-              action="{% url 'catalog:merge' item.url_path item.uuid %}"
-              onsubmit="return confirm('本操作不可撤销。确认合并吗？');">
+              action="{% url 'catalog:merge' item.url_path item.uuid %}">
           {% csrf_token %}
           <input type="url"
-                 name="new_item_url"
+                 name="target_item_url"
                  placeholder="目标条目URL，留空则取消现有合并"
                  {% if item.is_deleted and not item.merged_to_item %}disabled{% endif %}
                  value="{{ item.merged_to_item.absolute_url }}">
@@ -204,8 +203,7 @@
         <details>
           <summary>{% trans '删除' %}</summary>
           <form method="post"
-                action="{% url 'catalog:delete' item.url_path item.uuid %}"
-                onsubmit="return confirm('本操作不可撤销。确认删除吗？');">
+                action="{% url 'catalog:delete' item.url_path item.uuid %}">
             {% csrf_token %}
             <input class="contrast"
                    type="submit"

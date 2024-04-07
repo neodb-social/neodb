@@ -126,10 +126,15 @@ def delete(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied()
-    item.delete()
-    return (
-        redirect(item.url + "?skipcheck=1") if request.user.is_staff else redirect("/")
-    )
+    if request.POST.get("sure", 0) != "1":
+        return render(request, "catalog_delete.html", {"item": item})
+    else:
+        item.delete()
+        return (
+            redirect(item.url + "?skipcheck=1")
+            if request.user.is_staff
+            else redirect("/")
+        )
 
 
 @require_http_methods(["POST"])
@@ -254,8 +259,13 @@ def merge(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied()
-    if request.POST.get("new_item_url"):
-        new_item = Item.get_by_url(request.POST.get("new_item_url"))
+    if request.POST.get("sure", 0) != "1":
+        new_item = Item.get_by_url(request.POST.get("target_item_url"))
+        return render(
+            request, "catalog_merge.html", {"item": item, "new_item": new_item}
+        )
+    elif request.POST.get("target_item_url"):
+        new_item = Item.get_by_url(request.POST.get("target_item_url"))
         if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
             raise BadRequest(_("Cannot be merged to an item already deleted or merged"))
         if new_item.class_name != item.class_name:

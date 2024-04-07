@@ -1,0 +1,94 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans 'Confirmation' %}</title>
+    {% include "common_libs.html" %}
+    {% if url %}<meta http-equiv="refresh" content="3;url={{ url }}">{% endif %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container">
+      <h2>
+        {% if new_item %}
+          {% trans 'Are you sure to merge?' %}
+        {% else %}
+          {% trans 'Are you sure to cancel merge?' %}
+        {% endif %}
+      </h2>
+      <div>
+        <article class="item-card deleting">{% include "_item_card.html" with item=item %}</article>
+        {% if item.is_deleted %}
+          <p>
+            <i class="fa-solid fa-circle-xmark"></i> 条目已被删除
+          </p>
+        {% endif %}
+        {% if item.child_items %}
+          <p>
+            <i class="fa-solid fa-circle-exclamation"></i> 条目下已有子项
+          </p>
+        {% endif %}
+        {% if item.merged_to_item %}
+          <p>
+            <i class="fa-solid fa-circle-xmark"></i> 条目已被合并到其他条目
+          </p>
+        {% endif %}
+        {% if item.journal_exists %}
+          <p>
+            <i class="fa-solid fa-circle-exclamation"></i> 条目已被用户标记过
+          </p>
+        {% endif %}
+        {% if new_item %}
+          <div>
+          <center><i class="fa-solid fa-angles-down"></i>
+          <i class="fa-solid fa-angles-down"></i>
+          <i class="fa-solid fa-angles-down"></i>
+        </center>
+      </div>
+      <article class="item-card">{% include "_item_card.html" with item=new_item %}</article>
+      {% if new_item.is_deleted %}
+        <p>
+          <i class="fa-solid fa-circle-xmark"></i> 条目已被删除
+        </p>
+      {% endif %}
+      {% if new_item.child_items %}
+        <p>
+          <i class="fa-solid fa-circle-exclamation"></i> 条目下已有子项
+        </p>
+      {% endif %}
+      {% if new_item.merged_to_item %}
+        <p>
+          <i class="fa-solid fa-circle-xmark"></i> 条目已被合并到其他条目
+        </p>
+      {% endif %}
+      {% if new_item.journal_exists %}
+        <p>
+          <i class="fa-solid fa-circle-exclamation"></i> 条目已被用户标记过
+        </p>
+      {% endif %}
+    {% endif %}
+  </div>
+  <form method="post"
+        action="{% url 'catalog:merge' item.url_path item.uuid %}"
+        onsubmit="return confirm('本操作不可撤销。确认吗？');">
+    {% csrf_token %}
+    <input type="hidden"
+           name="target_item_url"
+           value="{{ request.POST.target_item_url }}">
+    <input type="hidden" name="sure" value="1">
+    <input type="submit" value="{% trans 'Yes' %}">
+    <input type="reset" value="{% trans 'No' %}" onclick="history.go(-1)">
+  </form>
+</main>
+{% include "_footer.html" %}
+</body>
+</html>

@@ -84,6 +84,16 @@ details {
   color: var(--pico-muted-color);
 }
 
+.deleting {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--pico-muted-border-color),
+    var(--pico-muted-border-color) 10px,
+    var(--pico-background-color) 10px,
+    var(--pico-background-color) 20px
+  );
+}
+
 .hint {
   color: var(--pico-muted-color);
   opacity: 0.5;
