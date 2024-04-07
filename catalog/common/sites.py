@@ -298,7 +298,7 @@ class SiteManager:
         cls = next(
             filter(lambda p: p.validate_url(url), SiteManager.registry.values()), None
         )
-        if cls is None:
+        if cls is None and re.match(r"^https?://(spotify.link|t.co).+", url):
             try:
                 url2 = requests.head(url, allow_redirects=True, timeout=1).url
                 if url2 != url:
