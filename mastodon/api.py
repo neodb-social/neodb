@@ -376,7 +376,10 @@ def get_or_create_fediverse_application(login_domain):
         app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
         if app:
             return app
-    allow_multiple_redir = True  # TODO detect site supports multiple redirect uris
+    allow_multiple_redir = True
+    if "; Pixelfed" in server_version or server_version.startswith("0."):
+        # Pixelfed and GoToSocial don't support multiple redirect uris
+        allow_multiple_redir = False
     response = create_app(api_domain, allow_multiple_redir)
     if response.status_code != 200:
         logger.error(

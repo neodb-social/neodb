@@ -2,7 +2,7 @@ import pprint
 
 from django.core.management.base import BaseCommand
 
-from mastodon.api import create_app
+from mastodon.api import create_app, detect_server_info
 from mastodon.models import MastodonApplication
 
 
@@ -20,7 +20,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options["refresh"]:
             for site in MastodonApplication.objects.exclude(disabled=True):
+                try:
+                    _, _, server_version = detect_server_info(site.api_domain)
+                except Exception:
+                    continue
                 allow_multiple_redir = True
+                if "; Pixelfed" in server_version or server_version.startswith("0."):
+                    allow_multiple_redir = False
+                if allow_multiple_redir:
+                    continue
                 try:
                     response = create_app(site.api_domain, allow_multiple_redir)
                 except Exception as e:
