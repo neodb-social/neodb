@@ -1,7 +1,6 @@
 import logging
 
 from auditlog.context import set_actor
-from discord import SyncWebhook
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
@@ -11,7 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from common.utils import get_uuid_or_404
+from common.utils import discord_send, get_uuid_or_404
 from journal.models import update_journal_for_merged_item
 
 from .common.models import ExternalResource, IdealIdTypes, IdType
@@ -130,6 +129,12 @@ def delete(request, item_path, item_uuid):
         return render(request, "catalog_delete.html", {"item": item})
     else:
         item.delete()
+        discord_send(
+            "audit",
+            f"{item.absolute_url}?skipcheck=1\nby [@{request.user.username}]({request.user.absolute_url})",
+            thread_name=f"[delete] {item.display_title}",
+            username=f"@{request.user.username}",
+        )
         return (
             redirect(item.url + "?skipcheck=1")
             if request.user.is_staff
@@ -169,6 +174,12 @@ def recast(request, item_path, item_uuid):
     if isinstance(item, model):
         raise BadRequest("Same target type")
     _logger.warn(f"{request.user} recasting {item} to {model}")
+    discord_send(
+        "audit",
+        f"{item.absolute_url}\n{item.__class__.__name__} ➡ {model.__name__}\nby [@{request.user.username}]({request.user.absolute_url})",
+        thread_name=f"[recast] {item.display_title}",
+        username=f"@{request.user.username}",
+    )
     if isinstance(item, TVShow):
         for season in item.seasons.all():
             _logger.warn(f"{request.user} recast orphaning season {season}")
@@ -225,6 +236,12 @@ def remove_unused_seasons(request, item_path, item_uuid):
             s.delete()
     ol = [s.id for s in sl]
     nl = [s.id for s in item.seasons.all()]
+    discord_send(
+        "audit",
+        f"{item.absolute_url}\n{ol} ➡ {nl}\nby [@{request.user.username}]({request.user.absolute_url})",
+        thread_name=f"[cleanup] {item.display_title}",
+        username=f"@{request.user.username}",
+    )
     item.log_action({"!remove_unused_seasons": [ol, nl]})
     return redirect(item.url)
 
@@ -276,11 +293,23 @@ def merge(request, item_path, item_uuid):
         _logger.warn(f"{request.user} merges {item} to {new_item}")
         item.merge_to(new_item)
         update_journal_for_merged_item(item_uuid)
+        discord_send(
+            "audit",
+            f"{item.absolute_url}?skipcheck=1\n⬇\n{new_item.absolute_url}\nby [@{request.user.username}]({request.user.absolute_url})",
+            thread_name=f"[merge] {item.display_title}",
+            username=f"@{request.user.username}",
+        )
         return redirect(new_item.url)
     else:
         if item.merged_to_item:
             _logger.warn(f"{request.user} cancels merge for {item}")
             item.merge_to(None)
+        discord_send(
+            "audit",
+            f"{item.absolute_url}\n⬇\n(none)\nby [@{request.user.username}]({request.user.absolute_url})",
+            thread_name=f"[merge] {item.display_title}",
+            username=f"@{request.user.username}",
+        )
         return redirect(item.url)
 
 
@@ -288,13 +317,11 @@ def merge(request, item_path, item_uuid):
 @login_required
 def suggest(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    dw = settings.DISCORD_WEBHOOKS.get("suggest")
-    if not dw:
-        raise Http404("Webhook not configured")
-    webhook = SyncWebhook.from_url(dw)
-    webhook.send(
+    if not discord_send(
+        "suggest",
         f"{item.absolute_url}\n> {request.POST.get('detail', '<none>')}\nby [@{request.user.username}]({request.user.absolute_url})",
         thread_name=f"[{request.POST.get('action', 'none')}] {item.display_title}",
         username=f"@{request.user.username}",
-    )
+    ):
+        raise Http404("Discord webhook not configured")
     return redirect(item.url)

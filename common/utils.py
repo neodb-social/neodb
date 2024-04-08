@@ -2,6 +2,8 @@ import functools
 import uuid
 from typing import TYPE_CHECKING
 
+from discord import SyncWebhook
+from django.conf import settings
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
 from django.utils.baseconv import base62
@@ -197,3 +199,12 @@ def get_uuid_or_404(uuid_b62):
         return uuid.UUID(int=i)
     except ValueError:
         raise Http404("Malformed Base62 UUID")
+
+
+def discord_send(channel, content, **args) -> bool:
+    dw = settings.DISCORD_WEBHOOKS.get(channel)
+    if not dw:
+        return False
+    webhook = SyncWebhook.from_url(dw)
+    webhook.send(content, **args)
+    return True
