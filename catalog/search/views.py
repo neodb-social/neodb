@@ -77,6 +77,8 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = No
 
 
 def visible_categories(request):
+    if not hasattr(request, "user"):
+        return []
     vc = request.session.get("p_categories", None)
     if vc is None:
         vc = [
