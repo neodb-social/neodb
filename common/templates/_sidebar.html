@@ -77,7 +77,9 @@
               {% include 'users/profile_actions.html' %}
             {% endif %}
           </span>
-          <p>{{ identity.summary|bleach:"a,p,span,br" }}</p>
+          <p>
+            {{ identity.summary|bleach:"a,p,span,br"|default:"<br>" }}
+          </p>
         </details>
       </article>
     </section>

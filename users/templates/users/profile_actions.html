@@ -32,15 +32,30 @@
         <i class="fa-solid fa-circle-nodes"></i>
       </a>
     </span>
-  {% elif identity.user and identity.user.mastodon_account %}
-    <span>
-      <a href="{{ identity.user.mastodon_account.url }}"
-         target="_blank"
-         rel="noopener"
-         title="@{{ identity.user.mastodon_acct }}">
-        <i class="fa-brands fa-mastodon"></i>
-      </a>
-    </span>
+  {% else %}
+    {% if identity.user.is_superuser %}
+      <span>
+        <a title="admin">
+          <i class="fa-solid fa-user-astronaut"></i>
+        </a>
+      </span>
+    {% elif identity.user.is_staff %}
+      <span>
+        <a title="staff">
+          <i class="fa-solid fa-hat-wizard"></i>
+        </a>
+      </span>
+    {% endif %}
+    {% if identity.user and identity.user.mastodon_account %}
+      <span>
+        <a href="{{ identity.user.mastodon_account.url }}"
+           target="_blank"
+           rel="noopener"
+           title="@{{ identity.user.mastodon_acct }}">
+          <i class="fa-brands fa-mastodon"></i>
+        </a>
+      </span>
+    {% endif %}
   {% endif %}
   {% if relationship.requested %}
     <span>
