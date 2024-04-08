@@ -49,4 +49,4 @@ def _spolier(s: str) -> str:
 
 
 def render_text(s: str) -> str:
-    return _spolier(s)
+    return _spolier(s).strip().replace("\n", "<br>")

@@ -72,7 +72,7 @@
         </span>
         {% if comment.focus_item %}<a href="{{ comment.focus_item.url }}">{{ comment.focus_item.title }}</a>{% endif %}
         {% if comment.item != item %}<a href="{{ comment.item.url }}">{{ comment.item.title }}</a>{% endif %}
-        <div>{{ comment.html|safe }}</div>
+        <div class="tldr" _="on click toggle .tldr on me">{{ comment.html|safe }}</div>
       </section>
     {% else %}
       <a hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ episode_uuid }}&last={{ comment.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"

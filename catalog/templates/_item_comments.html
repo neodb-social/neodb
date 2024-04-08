@@ -67,7 +67,7 @@
         </span>
       </span>
       {% if comment.item != item %}<a href="{{ comment.item_url }}">{{ comment.item.title }}</a>{% endif %}
-      <div>{{ comment.html|safe }}</div>
+      <div class="tldr" _="on click toggle .tldr on me">{{ comment.html|safe }}</div>
       {% if comment.latest_post %}<div id="replies_{{ comment.latest_post.pk }}"></div>{% endif %}
     </section>
   {% else %}
