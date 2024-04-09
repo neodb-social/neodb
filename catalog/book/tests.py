@@ -6,6 +6,8 @@ from catalog.common import *
 
 
 class BookTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         hyperion = Edition.objects.create(title="Hyperion")
         hyperion.pages = 500
@@ -55,20 +57,64 @@ class BookTestCase(TestCase):
         self.assertEqual(hyperion.isbn, "9780575099432")
         self.assertEqual(hyperion.isbn10, "0575099437")
 
-    def test_work(self):
-        hyperion_print = Edition.objects.get(title="Hyperion")
-        hyperion_ebook = Edition(title="Hyperion")
-        hyperion_ebook.save()
-        hyperion_ebook.asin = "B0043M6780"
-        hyperion = Work(title="Hyperion")
-        hyperion.save()
-        hyperion.editions.add(hyperion_print)
-        hyperion.editions.add(hyperion_ebook)
-        # andymion = Edition(title="Andymion", pages=42)
+
+class WorkTestCase(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.hyperion_hardcover = Edition.objects.create(title="Hyperion")
+        self.hyperion_hardcover.pages = 481
+        self.hyperion_hardcover.isbn = "9780385249492"
+        self.hyperion_hardcover.save()
+        self.hyperion_print = Edition.objects.create(title="Hyperion")
+        self.hyperion_print.pages = 500
+        self.hyperion_print.isbn = "9780553283686"
+        self.hyperion_print.save()
+        self.hyperion_ebook = Edition(title="Hyperion")
+        self.hyperion_ebook.asin = "B0043M6780"
+        self.hyperion_ebook.save()
+        self.andymion_print = Edition.objects.create(title="Andymion", pages=42)
         # serie = Serie(title="Hyperion Cantos")
+        self.hyperion = Work(title="Hyperion")
+        self.hyperion.save()
+
+    def test_work(self):
+        self.assertFalse(self.hyperion_print.has_related_books())
+        self.hyperion.editions.add(self.hyperion_print)
+        self.assertFalse(self.hyperion_print.has_related_books())
+
+    def test_link(self):
+        self.hyperion_print.link_to_related_book(self.hyperion_ebook)
+        self.assertTrue(self.hyperion_print.has_related_books())
+        self.assertTrue(self.hyperion_ebook.has_related_books())
+        self.assertTrue(self.hyperion_print.has_works())
+        self.assertEqual(
+            self.hyperion_print.works.first().title, self.hyperion_print.title
+        )
+        self.hyperion_print.unlink_from_all_works()
+        self.assertFalse(self.hyperion_print.has_related_books())
+        self.assertFalse(self.hyperion_ebook.has_related_books())
+        self.hyperion_print.link_to_related_book(self.hyperion_ebook)
+        self.assertTrue(self.hyperion_print.has_related_books())
+        self.assertTrue(self.hyperion_ebook.has_related_books())
+        self.hyperion_ebook.unlink_from_all_works()
+        self.assertFalse(self.hyperion_print.has_related_books())
+        self.assertFalse(self.hyperion_ebook.has_related_books())
+
+    def test_link3(self):
+        self.hyperion_print.link_to_related_book(self.hyperion_ebook)
+        self.hyperion_ebook.link_to_related_book(self.hyperion_hardcover)
+        self.hyperion_print.link_to_related_book(self.hyperion_hardcover)
+        self.assertTrue(self.hyperion_print.has_works())
+        self.assertEqual(self.hyperion_print.works.all().count(), 1)
+        self.assertEqual(
+            self.hyperion_ebook.works.all().first().editions.all().count(), 3
+        )
 
 
 class GoodreadsTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         pass
 
@@ -148,6 +194,8 @@ class GoodreadsTestCase(TestCase):
 
 
 class GoogleBooksTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_type = IdType.GoogleBooks
         t_id = "hV--zQEACAAJ"
@@ -179,6 +227,8 @@ class GoogleBooksTestCase(TestCase):
 
 
 class BooksTWTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_type = IdType.BooksTW
         t_id = "0010947886"
@@ -227,6 +277,8 @@ class BooksTWTestCase(TestCase):
 
 
 class DoubanBookTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         pass
 
@@ -289,6 +341,8 @@ class DoubanBookTestCase(TestCase):
 
 
 class MultiBookSitesTestCase(TestCase):
+    databases = "__all__"
+
     @use_local_response
     def test_editions(self):
         # isbn = '9781847498571'

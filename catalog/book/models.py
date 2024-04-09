@@ -17,6 +17,8 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 
 """
 
+from os.path import exists
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -185,6 +187,31 @@ class Edition(Item):
             .exclude(merged_to_item__isnull=False)
             .order_by("title")
         )
+
+    def has_related_books(self):
+        works = list(self.works.all())
+        if not works:
+            return False
+        return Edition.objects.filter(works__in=works).exclude(pk=self.pk).exists()
+
+    def link_to_related_book(self, target: "Edition") -> bool:
+        if target == self or target.is_deleted or target.merged_to_item:
+            return False
+        if target.works.all().exists():
+            for work in target.works.all():
+                self.works.add(work)
+        elif self.works.all().exists():
+            for work in self.works.all():
+                target.works.add(work)
+        else:
+            Work.objects.create(title=self.title).editions.add(self, target)
+        return True
+
+    def unlink_from_all_works(self):
+        self.works.clear()
+
+    def has_works(self):
+        return self.works.all().exists()
 
 
 class Work(Item):

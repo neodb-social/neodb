@@ -110,8 +110,8 @@ env = environ.FileAwareEnv(
 SECRET_KEY = env("NEODB_SECRET_KEY")
 DEBUG = env("NEODB_DEBUG")
 DATABASES = {
-    "default": env.db_url("NEODB_DB_URL"),
     "takahe": env.db_url("TAKAHE_DB_URL"),
+    "default": env.db_url("NEODB_DB_URL"),
 }
 DATABASES["default"]["OPTIONS"] = {"client_encoding": "UTF8"}
 DATABASES["default"]["TEST"] = {"DEPENDENCIES": ["takahe"]}
