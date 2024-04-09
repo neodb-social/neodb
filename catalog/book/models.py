@@ -245,6 +245,15 @@ class Work(Item):
     # a lazy fix is to remove smaller DoubanBook_Work ids
     # but ideally deal with 302 in scrape().
 
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.DoubanBook_Work,
+            IdType.Goodreads_Work,
+            IdType.WikiData,
+        ]
+        return [(i.value, i.label) for i in id_types]
+
     def merge_to(self, to_item):
         super().merge_to(to_item)
         for edition in self.editions.all():

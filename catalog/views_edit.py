@@ -279,7 +279,9 @@ def merge(request, item_path, item_uuid):
     if request.POST.get("sure", 0) != "1":
         new_item = Item.get_by_url(request.POST.get("target_item_url"))
         return render(
-            request, "catalog_merge.html", {"item": item, "new_item": new_item}
+            request,
+            "catalog_merge.html",
+            {"item": item, "new_item": new_item, "mode": "merge"},
         )
     elif request.POST.get("target_item_url"):
         new_item = Item.get_by_url(request.POST.get("target_item_url"))
@@ -311,6 +313,56 @@ def merge(request, item_path, item_uuid):
             username=f"@{request.user.username}",
         )
         return redirect(item.url)
+
+
+@require_http_methods(["POST"])
+@login_required
+def link_edition(request, item_path, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    new_item = Item.get_by_url(request.POST.get("target_item_url"))
+    if (
+        not new_item
+        or new_item.is_deleted
+        or new_item.merged_to_item_id
+        or item == new_item
+    ):
+        raise BadRequest(_("Cannot be linked to an item already deleted or merged"))
+    if item.class_name != "edition" or new_item.class_name != "edition":
+        raise BadRequest(_("Cannot link items other than editions"))
+    if request.POST.get("sure", 0) != "1":
+        new_item = Item.get_by_url(request.POST.get("target_item_url"))
+        return render(
+            request,
+            "catalog_merge.html",
+            {"item": item, "new_item": new_item, "mode": "link"},
+        )
+    _logger.warn(f"{request.user} merges {item} to {new_item}")
+    item.link_to_related_book(new_item)
+    discord_send(
+        "audit",
+        f"{item.absolute_url}?skipcheck=1\n⬇\n{new_item.absolute_url}\nby [@{request.user.username}]({request.user.absolute_url})",
+        thread_name=f"[link edition] {item.display_title}",
+        username=f"@{request.user.username}",
+    )
+    return redirect(item.url)
+
+
+@require_http_methods(["POST"])
+@login_required
+def unlink_works(request, item_path, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not request.user.is_staff and item.journal_exists():
+        raise PermissionDenied()
+    item.unlink_from_all_works()
+    discord_send(
+        "audit",
+        f"{item.absolute_url}?skipcheck=1\nby [@{request.user.username}]({request.user.absolute_url})",
+        thread_name=f"[unlink works] {item.display_title}",
+        username=f"@{request.user.username}",
+    )
+    return (
+        redirect(item.url + "?skipcheck=1") if request.user.is_staff else redirect("/")
+    )
 
 
 @require_http_methods(["POST"])

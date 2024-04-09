@@ -19,14 +19,20 @@
     {% include "_header.html" %}
     <main class="container">
       <h2>
-        {% if new_item %}
-          {% trans 'Are you sure to merge?' %}
-        {% else %}
-          {% trans 'Are you sure to cancel merge?' %}
+        {% if mode == "merge" %}
+          {% if new_item %}
+            {% trans 'Are you sure to merge?' %}
+          {% else %}
+            {% trans 'Are you sure to cancel merge?' %}
+          {% endif %}
+        {% elif mode == "link" %}
+          {% trans 'Are you sure to link?' %}
         {% endif %}
       </h2>
       <div>
-        <article class="item-card deleting">{% include "_item_card.html" with item=item %}</article>
+        <article class="item-card {% if mode == 'merge' %}deleting{% endif %}">
+          {% include "_item_card.html" with item=item %}
+        </article>
         {% if item.is_deleted %}
           <p>
             <i class="fa-solid fa-circle-xmark"></i> 条目已被删除
@@ -78,7 +84,7 @@
     {% endif %}
   </div>
   <form method="post"
-        action="{% url 'catalog:merge' item.url_path item.uuid %}"
+        {% if mode == "merge" %} action="{% url 'catalog:merge' item.url_path item.uuid %}" {% elif mode == "link" %} action="{% url 'catalog:link_edition' item.url_path item.uuid %}" {% endif %}
         onsubmit="return confirm('本操作不可撤销。确认吗？');">
     {% csrf_token %}
     <input type="hidden"

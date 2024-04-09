@@ -213,23 +213,61 @@
         </details>
       {% endif %}
     {% endif %}
+    {% if item.class_name == 'edition' %}
+      {% if item.has_works %}
+        <details>
+          <summary>{% trans '著作' %}</summary>
+          这个图书版本属于以下著作
+          {% for i in item.works.all %}
+            <li>
+              <a href="{{ i.url }}?skipcheck=1">{{ i.title }}</a>
+            </li>
+          {% endfor %}
+          <form method="post"
+                onsubmit="return confirm('本操作不可撤销。确认吗？');"
+                action="{% url 'catalog:unlink_works' item.url_path item.uuid %}">
+            {% csrf_token %}
+            <input class="contrast"
+                   type="submit"
+                   {% if not request.user.is_staff %}disabled{% endif %}
+                   value="{% trans '取消关联到上述著作' %}">
+          </form>
+        </details>
+      {% endif %}
+      {% if not item.has_works %}
+        <details>
+          <summary>{% trans '关联' %}</summary>
+          <form method="post"
+                action="{% url 'catalog:link_edition' item.url_path item.uuid %}">
+            {% csrf_token %}
+            <input type="url"
+              name="target_item_url"
+              placeholder="{{ site_url }}/book/1234/
+              {% if item.is_deleted and not item.merged_to_item %}disabled{% endif %}
+              value="">
+              <input class="contrast" type="submit" value="{% trans '关联到同一著作的另一本书' %}">
+            </form>
+          </details>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+    <details>
+      <summary>{% trans '修改建议' %}</summary>
+      <form method="post"
+            action="{% url 'catalog:suggest' item.url_path item.uuid %}">
+        {% csrf_token %}
+        <select name="action" aria-label="Select action..." required>
+          <option selected disabled value="">请选择建议类型...</option>
+          <option value="merge">合并到其它条目</option>
+          <option value="link">关联到其它条目</option>
+          <option value="type">更改条目类型</option>
+          <option value="metadata">更正条目信息</option>
+          <option value="delete">删除条目</option>
+          <option value="other">其它修改</option>
+        </select>
+        <textarea name="detail" required placeholder="建议详情。如提议合并或关联，请包含目标条目网址。"></textarea>
+        <input type="submit" value="{% trans '提交' %}">
+        <small>本站由用户共同维护，用户可自主修改部分条目信息。当你不确定自己的修改是否得当或不能做出某种修改时，可在此处向管理员提出建议。管理员会认真考虑处理每一条建议，虽然不保证总是完全采纳；建议也可能被社区其他用户查看或讨论。如果有与具体条目不相关的建议，请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。</small>
+      </form>
+    </details>
   {% endif %}
-  <details>
-    <summary>{% trans '修改建议' %}</summary>
-    <form method="post"
-          action="{% url 'catalog:suggest' item.url_path item.uuid %}">
-      {% csrf_token %}
-      <select name="action" aria-label="Select action..." required>
-        <option selected disabled value="">请选择建议类型...</option>
-        <option value="merge">合并到其它条目</option>
-        <option value="type">更改条目类型</option>
-        <option value="metadata">更正条目信息</option>
-        <option value="delete">删除条目</option>
-        <option value="other">其它修改</option>
-      </select>
-      <textarea name="detail" required placeholder="建议详情。如提议合并，请包含合并目标条目网址。"></textarea>
-      <input type="submit" value="{% trans '提交' %}">
-      <small>本站由用户共同维护，用户可自主修改部分条目信息。当你不确定自己的修改是否得当或不能做出某种修改时，可在此处向管理员提出建议。管理员会认真考虑处理每一条建议，虽然不保证总是完全采纳；建议也可能被社区其他用户查看或讨论。如果有与具体条目不相关的建议，请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。</small>
-    </form>
-  </details>
-{% endif %}
