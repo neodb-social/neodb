@@ -10,7 +10,17 @@
 {% load strip_scheme %}
 {% load thumb %}
 <!-- class specific details -->
-{% block details %}{% endblock %}
+{% block details %}
+  <div>
+    {% if item.other_title %}
+      {% trans '又名：' %}
+      {% for t in item.other_title %}
+        <span>{{ t }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+{% endblock %}
 {% block left_sidebar %}{% endblock %}
 <!-- class specific sidebar -->
 {% block sidebar %}{% endblock %}
