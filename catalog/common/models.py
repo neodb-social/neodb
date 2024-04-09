@@ -350,6 +350,14 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     def parent_uuid(self):
         return self.parent_item.uuid if self.parent_item else None
 
+    @property
+    def sibling_items(self):
+        return Item.objects.none()
+
+    @property
+    def sibling_item_ids(self):
+        return list(self.sibling_items.values_list("id", flat=True))
+
     @classmethod
     def get_ap_object_type(cls):
         return cls.__name__

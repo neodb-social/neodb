@@ -110,7 +110,7 @@
     _sidebar_auto_collapse(mm);
   });
   </script>
-  {% with related_books=item.get_related_books %}
+  {% with related_books=item.sibling_items %}
     {% if related_books.count > 0 %}
       <section>
         <details class="auto-collapse" open>

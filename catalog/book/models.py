@@ -198,15 +198,14 @@ class Edition(Item):
                 if work and work not in self.works.all():
                     self.works.add(work)
 
-    def get_related_books(self):
+    @property
+    def sibling_items(self):
         works = list(self.works.all())
         return (
             Edition.objects.filter(works__in=works)
-            .distinct()
             .exclude(pk=self.pk)
             .exclude(is_deleted=True)
             .exclude(merged_to_item__isnull=False)
-            .order_by("title")
         )
 
     def has_related_books(self):
@@ -275,16 +274,17 @@ class Work(Item):
         return [(i.value, i.label) for i in id_types]
 
     def merge_to(self, to_item):
+        super().merge_to(to_item)
+        for edition in self.editions.all():
+            to_item.editions.add(edition)
+        self.editions.clear()
         if (
             to_item
             and self.title != to_item.title
             and self.title not in to_item.other_title
         ):
             to_item.other_title += [self.title]
-        super().merge_to(to_item)
-        for edition in self.editions.all():
-            to_item.editions.add(edition)
-        self.editions.clear()
+            to_item.save()
 
     def delete(self, using=None, soft=True, *args, **kwargs):
         if soft:

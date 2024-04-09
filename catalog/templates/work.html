@@ -30,6 +30,18 @@
     {% endif %}
   </div>
 {% endblock %}
-{% block left_sidebar %}{% endblock %}
+{% block left_sidebar %}
+  <div _="init hide .item-mark-buttons then hide .item-mark-icon end">
+    <details open>
+      <summary>{% trans '本著作包含以下图书版本' %}</summary>
+      {% for b in item.editions.all %}
+        <div>
+          <a href="{{ b.url }}">{{ b.title }}</a>
+          <small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
+        </div>
+      {% endfor %}
+    </details>
+  </div>
+{% endblock %}
 <!-- class specific sidebar -->
 {% block sidebar %}{% endblock %}

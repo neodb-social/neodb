@@ -64,21 +64,6 @@
               {% endif %}
             {% endfor %}
           </div>
-          <div class="work-tip" style="display:none;">
-            {% if item.class_name == 'work' %}
-              <div _="init hide .item-mark-buttons then hide .item-mark-icon then show .work-tip end">
-                <details open>
-                  <summary>{% trans '本著作包含以下图书版本' %}</summary>
-                  {% for b in item.editions.all %}
-                    <div>
-                      <a href="{{ b.url }}">{{ b.title }}</a>
-                      <small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
-                    </div>
-                  {% endfor %}
-                </details>
-              </div>
-            {% endif %}
-          </div>
           <div class="tv-tip" style="display:none;">
             这是全剧条目，以下是可标记的单季
             {% if item.class_name == 'tvshow' %}
