@@ -20,6 +20,15 @@
       {% endfor %}
     {% endif %}
   </div>
+  <div>
+    {% if item.author %}
+      {% trans '作者：' %}
+      {% for author in item.author %}
+        <span>{{ author }}</span>
+        {% if not forloop.last %}/{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
 {% endblock %}
 {% block left_sidebar %}{% endblock %}
 <!-- class specific sidebar -->
