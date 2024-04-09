@@ -22,6 +22,7 @@ from os.path import exists
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from loguru import logger as _logger
 
 from catalog.common import (
     BaseSchema,
@@ -163,19 +164,39 @@ class Edition(Item):
             return detect_isbn_asin(lookup_id_value)
         return super().lookup_id_cleanup(lookup_id_type, lookup_id_value)
 
+    def merge_to(self, to_item):
+        super().merge_to(to_item)
+        for work in self.works.all():
+            to_item.works.add(work)
+        self.works.clear()
+
+    def delete(self, using=None, soft=True, *args, **kwargs):
+        if soft:
+            self.works.clear()
+        return super().delete(using, soft, *args, **kwargs)
+
     def update_linked_items_from_external_resource(self, resource):
         """add Work from resource.metadata['work'] if not yet"""
         links = resource.required_resources + resource.related_resources
         for w in links:
             if w.get("model") == "Work":
-                work = Work.objects.filter(
-                    primary_lookup_id_type=w["id_type"],
-                    primary_lookup_id_value=w["id_value"],
+                work_res = ExternalResource.objects.filter(
+                    id_type=w["id_type"], id_value=w["id_value"]
                 ).first()
+                if work_res:
+                    work = work_res.item
+                    if not work:
+                        _logger.warning(f"Unable to find work for {work_res}")
+                else:
+                    _logger.warning(
+                        f'Unable to find resource for {w["id_type"]}:{w["id_value"]}'
+                    )
+                    work = Work.objects.filter(
+                        primary_lookup_id_type=w["id_type"],
+                        primary_lookup_id_value=w["id_value"],
+                    ).first()
                 if work and work not in self.works.all():
                     self.works.add(work)
-                # if not work:
-                #     _logger.info(f'Unable to find link for {w["url"]}')
 
     def get_related_books(self):
         works = list(self.works.all())
@@ -223,6 +244,17 @@ class Work(Item):
     # TODO: we have many duplicates due to 302
     # a lazy fix is to remove smaller DoubanBook_Work ids
     # but ideally deal with 302 in scrape().
+
+    def merge_to(self, to_item):
+        super().merge_to(to_item)
+        for edition in self.editions.all():
+            to_item.editions.add(edition)
+        self.editions.clear()
+
+    def delete(self, using=None, soft=True, *args, **kwargs):
+        if soft:
+            self.editions.clear()
+        return super().delete(using, soft, *args, **kwargs)
 
 
 class Series(Item):

@@ -387,3 +387,46 @@ class MultiBookSitesTestCase(TestCase):
         self.assertEqual(w3e[1].title, "黄金时代")
         e = Edition.objects.get(primary_lookup_id_value=9781662601217)
         self.assertEqual(e.title, "Golden Age: A Novel")
+
+    @use_local_response
+    def test_works_merge(self):
+        # url1 and url4 has same ISBN, hence they share same Edition instance, which belongs to 2 Work instances
+        url1 = "https://book.douban.com/subject/1089243/"
+        url2 = "https://book.douban.com/subject/2037260/"
+        url3 = "https://www.goodreads.com/book/show/59952545-golden-age"
+        url4 = "https://www.goodreads.com/book/show/11798823"
+        p1 = SiteManager.get_site_by_url(
+            url1
+        ).get_resource_ready()  # lxml bug may break this
+        w1 = p1.item.works.all().first()
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        w2 = p2.item.works.all().first()
+        self.assertEqual(w1, w2)
+        self.assertEqual(p1.item.works.all().count(), 1)
+        p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
+        w3 = p3.item.works.all().first()
+        self.assertNotEqual(w3, w2)
+        self.assertEqual(w2.external_resources.all().count(), 1)
+        self.assertEqual(w3.external_resources.all().count(), 1)
+        w3.merge_to(w2)
+        self.assertEqual(w2.external_resources.all().count(), 2)
+        self.assertEqual(w3.external_resources.all().count(), 0)
+        self.assertEqual(w2.editions.all().count(), 3)
+        self.assertEqual(w3.editions.all().count(), 0)
+        p4 = SiteManager.get_site_by_url(url4).get_resource_ready()
+        self.assertEqual(p4.item.id, p1.item.id)
+        self.assertEqual(p4.item.works.all().count(), 1)
+        self.assertEqual(p1.item.works.all().count(), 1)
+        w2e = w2.editions.all().order_by("title")
+        self.assertEqual(w2e.count(), 3)
+        self.assertEqual(w2e[0].title, "Golden Age: A Novel")
+        self.assertEqual(w2e[1].title, "Wang in Love and Bondage")
+        self.assertEqual(w2e[2].title, "黄金时代")
+        w3e = w3.editions.all().order_by("title")
+        self.assertEqual(w3e.count(), 0)
+        e = Edition.objects.get(primary_lookup_id_value=9781662601217)
+        self.assertEqual(e.title, "Golden Age: A Novel")
+        w2e[1].delete()
+        self.assertEqual(w2.editions.all().count(), 2)
+        w2e.delete()
+        self.assertEqual(p1.item.works.all().count(), 0)
