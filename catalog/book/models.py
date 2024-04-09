@@ -241,6 +241,26 @@ class Work(Item):
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
     editions = models.ManyToManyField(Edition, related_name="works")
+    author = jsondata.ArrayField(
+        verbose_name=_("author"),
+        base_field=models.CharField(max_length=500),
+        null=True,
+        blank=True,
+        default=list,
+    )
+    other_title = jsondata.ArrayField(
+        verbose_name=_("other title"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
+        null=True,
+        blank=True,
+        default=list,
+    )
+    METADATA_COPY_LIST = [
+        "title",
+        "other_title",
+        "author",
+        "brief",
+    ]
     # TODO: we have many duplicates due to 302
     # a lazy fix is to remove smaller DoubanBook_Work ids
     # but ideally deal with 302 in scrape().
@@ -248,13 +268,19 @@ class Work(Item):
     @classmethod
     def lookup_id_type_choices(cls):
         id_types = [
+            IdType.WikiData,
             IdType.DoubanBook_Work,
             IdType.Goodreads_Work,
-            IdType.WikiData,
         ]
         return [(i.value, i.label) for i in id_types]
 
     def merge_to(self, to_item):
+        if (
+            to_item
+            and self.title != to_item.title
+            and self.title not in to_item.other_title
+        ):
+            to_item.other_title += [self.title]
         super().merge_to(to_item)
         for edition in self.editions.all():
             to_item.editions.add(edition)

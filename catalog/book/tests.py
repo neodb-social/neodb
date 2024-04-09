@@ -83,6 +83,13 @@ class WorkTestCase(TestCase):
         self.hyperion.editions.add(self.hyperion_print)
         self.assertFalse(self.hyperion_print.has_related_books())
 
+    def test_merge(self):
+        w1 = Work.objects.create(title="title1")
+        w2 = Work.objects.create(title="title2")
+        w2.merge_to(w1)
+        self.assertEqual(w1.title, "title1")
+        self.assertEqual(w1.other_title, ["title2"])
+
     def test_link(self):
         self.hyperion_print.link_to_related_book(self.hyperion_ebook)
         self.assertTrue(self.hyperion_print.has_related_books())
