@@ -208,6 +208,11 @@ class Edition(Item):
             .exclude(merged_to_item__isnull=False)
         )
 
+    @property
+    def title_deco(self):
+        a = [str(i) for i in [self.pub_house, self.pub_year] if i]
+        return f"({' '.join(a)})" if a else ""
+
     def has_related_books(self):
         works = list(self.works.all())
         if not works:

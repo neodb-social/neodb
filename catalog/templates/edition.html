@@ -118,7 +118,7 @@
           {% for b in related_books %}
             <div>
               <a href="{{ b.url }}">{{ b.title }}</a>
-              <small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
+              <small class="title_deco">{{ b.title_deco }}</small>
               {% comment %} {% for res in b.external_resources.all %}
               <a href="{{ res.url }}">
                 <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>

@@ -355,6 +355,10 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return Item.objects.none()
 
     @property
+    def title_deco(self) -> str:
+        return ""
+
+    @property
     def sibling_item_ids(self):
         return list(self.sibling_items.values_list("id", flat=True))
 

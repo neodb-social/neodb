@@ -28,7 +28,9 @@
         <span class="timestamp">{{ review.created_time|date }}</span>
         <span class="timestamp">评论</span>
       </span>
-      {% if review.item != item %}<a href="{{ review.item.url }}">{{ review.item.title }}</a>{% endif %}
+      {% if review.item != item %}
+        <a href="{{ review.item.url }}">{{ review.item.title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
+      {% endif %}
       <div>
         <span>
           <a href="{% url 'journal:review_retrieve' review.uuid %}">{{ review.title }}</a>
