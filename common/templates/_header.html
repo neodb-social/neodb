@@ -92,7 +92,10 @@
               </li>
               {% if request.user.is_superuser %}
                 <li>
-                  <a href="{% admin_url %}">后台</a>
+                  <a href="{% admin_url %}">django</a>
+                </li>
+                <li>
+                  <a href="/admin/">admin</a>
                 </li>
               {% endif %}
             {% else %}
