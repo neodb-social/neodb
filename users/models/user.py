@@ -31,6 +31,10 @@ _RESERVED_USERNAMES = [
     "oauth2_login",
     "__",
     "admin",
+    "administrator",
+    "system",
+    "user",
+    "users",
     "api",
     "me",
 ]

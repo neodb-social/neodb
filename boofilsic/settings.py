@@ -358,6 +358,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "boofilsic.wsgi.application"
 
 SESSION_COOKIE_NAME = "neodbsid"
+SESSION_COOKIE_AGE = 90 * 24 * 60 * 60  # 90 days
 
 AUTHENTICATION_BACKENDS = [
     "mastodon.auth.OAuth2Backend",

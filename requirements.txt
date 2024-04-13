@@ -4,7 +4,7 @@ dateparser
 discord.py
 django~=4.2.11
 django-anymail
-django-auditlog>=3.0.0-beta.4
+django-auditlog>=3.0.0
 django-bleach
 django-compressor
 django-cors-headers

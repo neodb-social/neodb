@@ -8,6 +8,7 @@ urlpatterns = [
     path("login/oauth", connect_redirect_back, name="login_oauth"),
     path("login/email", verify_email, name="login_email"),
     path("verify_email", verify_email, name="verify_email"),
+    path("verify_code", verify_code, name="verify_code"),
     path("register_email", verify_email, name="register_email"),
     path("register", register, name="register"),
     path("connect", connect, name="connect"),

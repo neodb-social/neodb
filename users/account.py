@@ -16,6 +16,7 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from loguru import logger
@@ -86,18 +87,24 @@ def connect(request):
                 {"msg": _("无效的电子邮件地址")},
             )
         user = User.objects.filter(email__iexact=login_email).first()
+        code = base62.encode(random.randint(pow(62, 4), pow(62, 5) - 1))
+        cache.set(f"login_{code}", login_email, timeout=60 * 15)
+        request.session["login_email"] = login_email
+        action = "login" if user else "register"
         django_rq.get_queue("mastodon").enqueue(
             send_verification_link,
             user.pk if user else 0,
-            "login" if user else "register",
+            action,
             login_email,
+            code,
         )
         return render(
             request,
-            "common/info.html",
+            "common/verify.html",
             {
                 "msg": _("验证邮件已发送"),
                 "secondary_msg": _("请查阅收件箱"),
+                "action": action,
             },
         )
     login_domain = (
@@ -284,7 +291,7 @@ class RegistrationForm(forms.ModelForm):
         return email
 
 
-def send_verification_link(user_id, action, email):
+def send_verification_link(user_id, action, email, code=""):
     s = {"i": user_id, "e": email, "a": action}
     v = TimestampSigner().sign_object(s)
     if action == "verify":
@@ -292,9 +299,13 @@ def send_verification_link(user_id, action, email):
         url = settings.SITE_INFO["site_url"] + "/account/verify_email?c=" + v
         msg = f"你好，\n请点击以下链接验证你的电子邮件地址 {email}\n{url}\n\n如果你没有注册过本站，请忽略此邮件。"
     elif action == "login":
-        subject = f'{settings.SITE_INFO["site_name"]} - {_("登录")}'
+        subject = f'{settings.SITE_INFO["site_name"]} - {_("登录")} {code}'
         url = settings.SITE_INFO["site_url"] + "/account/login/email?c=" + v
-        msg = f"你好，\n请点击以下链接登录{email}账号\n{url}\n\n如果你没有请求登录本站，请忽略此邮件；如果你确信账号存在安全风险，请更改注册邮件地址或与我们联系。"
+        msg = (
+            "你好，\n请"
+            + f"在登录界面输入如下验证码：\n\n{code}\n\n或"
+            + f"点击以下链接登录{email}账号\n{url}\n\n如果你没有请求登录本站，请忽略此邮件；如果你确信账号存在安全风险，请更改注册邮件地址或与我们联系。"
+        )
     elif action == "register":
         subject = f'{settings.SITE_INFO["site_name"]} - {_("注册新账号")}'
         url = settings.SITE_INFO["site_url"] + "/account/register_email?c=" + v
@@ -318,6 +329,36 @@ def send_verification_link(user_id, action, email):
         )
     except Exception as e:
         logger.error(e)
+
+
+@require_http_methods(["POST"])
+def verify_code(request):
+    code = request.POST.get("code")
+    if not code:
+        return render(
+            request,
+            "common/verify.html",
+            {
+                "error": _("无效的验证码"),
+            },
+        )
+    login_email = cache.get(f"login_{code}")
+    if not login_email or request.session.get("login_email") != login_email:
+        return render(
+            request,
+            "common/verify.html",
+            {
+                "error": _("无效的验证码"),
+            },
+        )
+    cache.delete(f"login_{code}")
+    user = User.objects.filter(email__iexact=login_email).first()
+    if user:
+        resp = login_existing_user(request, user)
+    else:
+        resp = register_new_user(request, username=None, email=login_email)
+    resp.set_cookie("mastodon_domain", "@")
+    return resp
 
 
 def verify_email(request):

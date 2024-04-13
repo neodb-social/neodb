@@ -1,0 +1,52 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container">
+      <article>
+        <header>
+          <h3>验证邮件已发送</h3>
+        </header>
+        请点击邮件中的登录链接，或输入收到的验证码：
+        <style type="text/css">
+          .otp input {
+            font-family: monospace;
+            font-weight: bolder;
+            letter-spacing: 2em;
+            text-align: center;
+          }
+        </style>
+        <form action="{% url 'users:verify_code' %}" method="post">
+          <div class="otp">
+            <input name="code"
+                   maxlength="5"
+                   value=""
+                   autocomplete="one-time-code"
+                   autocapitalize="none"
+                   autocorrect="off"
+                   required
+                   pattern="^[a-zA-Z0-9]{5}$" />
+            <small>{{ error }}</small>
+          </div>
+          <input type="submit" value="提交" />
+          {% csrf_token %}
+        </form>
+      </article>
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

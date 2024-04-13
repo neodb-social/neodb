@@ -85,7 +85,6 @@
                        id="loginButton"
                        disabled />
               </div>
-              <script type="text/javascript">if (Cookies.get('mastodon_domain')) $('#domain').val(Cookies.get('mastodon_domain'));</script>
               {{ sites|json_script:"sites-data" }}
               <script>
               function switch_login(){
@@ -129,6 +128,15 @@
                   }
                 }
               });
+              var d = Cookies.get('mastodon_domain');
+              if (d) {
+                if (d == "@") {
+                  $('select').val('email');
+                  switch_login()
+                } else {
+                  $('#domain').val(Cookies.get('mastodon_domain'));
+                }
+              }
               </script>
             {% else %}
               <select name="domain">
