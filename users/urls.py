@@ -51,8 +51,6 @@ urlpatterns = [
     path("unmute/<str:user_name>", unmute, name="unmute"),
     path("block/<str:user_name>", block, name="block"),
     path("unblock/<str:user_name>", unblock, name="unblock"),
-    path("report", report, name="report"),
-    path("manage_report", manage_report, name="manage_report"),
     path(
         "mark_announcements_read/",
         mark_announcements_read,

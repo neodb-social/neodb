@@ -20,8 +20,7 @@ from takahe.utils import Takahe
 
 from .account import *
 from .data import *
-from .forms import ReportForm
-from .models import APIdentity, Preference, Report, User
+from .models import APIdentity, Preference, User
 from .profile import account_info, account_profile
 
 
@@ -214,67 +213,6 @@ def set_layout(request: AuthedHttpRequest):
             request.user.preference.save(update_fields=["discover_layout"])
             return redirect(reverse("catalog:discover"))
     raise BadRequest()
-
-
-@login_required
-def report(request: AuthedHttpRequest):
-    if request.method == "GET":
-        user_id = request.GET.get("user_id")
-        if user_id:
-            user = get_object_or_404(User, pk=user_id)
-            form = ReportForm(initial={"reported_user": user})
-        else:
-            form = ReportForm()
-        return render(
-            request,
-            "users/report.html",
-            {
-                "form": form,
-            },
-        )
-    elif request.method == "POST":
-        form = ReportForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.instance.is_read = False
-            form.instance.submit_user = request.user
-            form.save()
-            dw = settings.DISCORD_WEBHOOKS.get("user-report")
-            if dw:
-                webhook = SyncWebhook.from_url(dw)
-                webhook.send(
-                    f"New report from {request.user} about {form.instance.reported_user} : {form.instance.message}"
-                )
-            return redirect(reverse("common:home"))
-        else:
-            return render(
-                request,
-                "users/report.html",
-                {
-                    "form": form,
-                },
-            )
-    else:
-        raise BadRequest()
-
-
-@login_required
-def manage_report(request: AuthedHttpRequest):
-    if not request.user.is_staff:
-        raise PermissionDenied()
-    if request.method == "GET":
-        reports = Report.objects.all()
-        for r in reports.filter(is_read=False):
-            r.is_read = True
-            r.save()
-        return render(
-            request,
-            "users/manage_report.html",
-            {
-                "reports": reports,
-            },
-        )
-    else:
-        raise BadRequest()
 
 
 @login_required

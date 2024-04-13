@@ -8,7 +8,6 @@ from django.conf import settings
 from django.db import migrations, models
 
 import users.models
-from users.models.report import report_image_path
 
 
 class Migration(migrations.Migration):
@@ -175,47 +174,6 @@ class Migration(migrations.Migration):
                 ("mastodon_append_tag", models.CharField(default="", max_length=2048)),
                 ("show_last_edit", models.PositiveSmallIntegerField(default=0)),
                 ("no_anonymous_view", models.PositiveSmallIntegerField(default=0)),
-            ],
-        ),
-        migrations.CreateModel(
-            name="Report",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "image",
-                    models.ImageField(
-                        blank=True, default="", upload_to=report_image_path
-                    ),
-                ),
-                ("is_read", models.BooleanField(default=False)),
-                ("submitted_time", models.DateTimeField(auto_now_add=True)),
-                ("message", models.CharField(max_length=1000)),
-                (
-                    "reported_user",
-                    models.ForeignKey(
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        related_name="accused_reports",
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-                (
-                    "submit_user",
-                    models.ForeignKey(
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        related_name="sumbitted_reports",
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
             ],
         ),
         migrations.AddConstraint(
