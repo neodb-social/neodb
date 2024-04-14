@@ -181,7 +181,16 @@
           <details>
             <summary>{% trans '当前设备设置' %}</summary>
             <form onsubmit="return false;">
-              <h6>专注模式 (实验功能)</h6>
+              <h6>明暗风格</h6>
+              <p>
+                <input type="radio" name="theme_color" id="theme_auto" value="">
+                <label for="theme_auto">系统</label>
+                <input type="radio" name="theme_color" id="theme_light" value="light">
+                <label for="theme_light">明亮</label>
+                <input type="radio" name="theme_color" id="theme_dark" value="dark">
+                <label for="theme_dark">暗色</label>
+              </p>
+              <h6>专注模式</h6>
               <p>
                 <input type="checkbox" id="solo_mode">
                 <label for="solo_mode">启用专注模式后搜索和条目页面将不再显示来自他人的评价和打分</label>
@@ -193,13 +202,21 @@
             </form>
           </details>
           <script>
-              $("#user_style").val(localStorage.getItem("user_style")||"");
-              $("#solo_mode").prop("checked", localStorage.getItem("solo_mode")=="1");
-              function save_local() {
-                localStorage.setItem("user_style", $("#user_style").val());
-                localStorage.setItem("solo_mode", $("#solo_mode").prop("checked")?"1":"0");
-                alert("本地设置已保存");
-              }
+            var _c=$('html').attr('data-theme')||null;
+            if (_c=="light") $('input[id=theme_light]').prop('checked', true);
+            if (_c=="dark") $('input[id=theme_dark]').prop('checked', true);
+            if (!_c) $('input[id=theme_auto]').prop('checked', true);
+            $("#user_style").val(localStorage.getItem("user_style")||"");
+            $("#solo_mode").prop("checked", localStorage.getItem("solo_mode")=="1");
+            function save_local() {
+              var _c=$('input[name=theme_color]:checked').val();
+              if (_c=="") _c=null;
+              $('html').attr('data-theme', _c);
+              localStorage.setItem("theme_color", _c);
+              localStorage.setItem("user_style", $("#user_style").val());
+              localStorage.setItem("solo_mode", $("#solo_mode").prop("checked")?"1":"0");
+              alert("当前设备设置已保存");
+            }
           </script>
         </article>
         <article>
