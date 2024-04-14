@@ -94,7 +94,8 @@
 // Rating Star with Font Awesome
 .rating-star {
   position: relative;
-  vertical-align: middle;
+  vertical-align: bottom;
+  color: var(--pico-mark-background-color);
   font-family: FontAwesome;
   display: inline-block;
 }

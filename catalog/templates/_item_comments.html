@@ -55,7 +55,6 @@
         {% endif %}
       </span>
       <span>
-        {% if comment.rating_grade %}{{ comment.rating_grade|rating_star }}{% endif %}
         <a href="{{ comment.owner.url }}"
            class="nickname"
            title="@{{ comment.owner.handle }}">{{ comment.owner.display_name }}</a>
@@ -69,7 +68,12 @@
       {% if comment.item != item %}
         <a href="{{ comment.item_url }}">{{ comment.item.title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
       {% endif %}
-      <div class="tldr" _="on click toggle .tldr on me">{{ comment.html|safe }}</div>
+      <div class="tldr" _="on click toggle .tldr on me">
+        <span>
+          {% if comment.rating_grade %}{{ comment.rating_grade|rating_star }}{% endif %}
+        </span>
+        {{ comment.html|safe }}
+      </div>
       {% if comment.latest_post %}<div id="replies_{{ comment.latest_post.pk }}"></div>{% endif %}
     </section>
   {% else %}

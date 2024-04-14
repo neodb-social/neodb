@@ -202,7 +202,7 @@
             </form>
           </details>
           <script>
-            var _c=$('html').attr('data-theme')||null;
+            var _c=$('html').attr('data-theme')||"";
             if (_c=="light") $('input[id=theme_light]').prop('checked', true);
             if (_c=="dark") $('input[id=theme_dark]').prop('checked', true);
             if (!_c) $('input[id=theme_auto]').prop('checked', true);
@@ -210,8 +210,7 @@
             $("#solo_mode").prop("checked", localStorage.getItem("solo_mode")=="1");
             function save_local() {
               var _c=$('input[name=theme_color]:checked').val();
-              if (_c=="") _c=null;
-              $('html').attr('data-theme', _c);
+              $('html').attr('data-theme', _c||"");
               localStorage.setItem("theme_color", _c);
               localStorage.setItem("user_style", $("#user_style").val());
               localStorage.setItem("solo_mode", $("#solo_mode").prop("checked")?"1":"0");

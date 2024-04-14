@@ -45,7 +45,7 @@
     style.innerHTML = ".solo-hidden {display: none;}";
     document.head.appendChild(style);
   }
-  $('html').attr('data-theme', localStorage.getItem("theme_color"))
+  $('html').attr('data-theme', localStorage.getItem("theme_color")||null)
 })();
 </script>
 <link rel="icon" href="{{ site_icon }}">
