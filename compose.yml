@@ -1,5 +1,3 @@
-version: "3.8"
-
 # NEODB Docker Compose File
 #
 # Note: may not be secure for production usage, use at your own risk
