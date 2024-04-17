@@ -891,3 +891,54 @@ class Takahe:
             return False
         invite = Invite.objects.filter(token=token).first()
         return invite and invite.valid
+
+    @staticmethod
+    def get_announcements():
+        now = timezone.now()
+        return Announcement.objects.filter(
+            models.Q(start__lte=now) | models.Q(start__isnull=True),
+            models.Q(end__gte=now) | models.Q(end__isnull=True),
+            published=True,
+        ).order_by("-start", "-created")
+
+    @staticmethod
+    def get_announcements_for_user(u: "NeoUser"):
+        identity = (
+            Identity.objects.filter(pk=u.identity.pk, local=True).first()
+            if u and u.is_authenticated and u.identity
+            else None
+        )
+        user = identity.users.all().first() if identity else None
+        if not user:
+            return Announcement.objects.none()
+        now = timezone.now()
+        return (
+            Announcement.objects.filter(
+                models.Q(start__lte=now) | models.Q(start__isnull=True),
+                models.Q(end__gte=now) | models.Q(end__isnull=True),
+                published=True,
+            )
+            .order_by("-start", "-created")
+            .exclude(seen=user)
+        )
+
+    @staticmethod
+    def mark_announcements_seen(u: "NeoUser"):
+        identity = (
+            Identity.objects.filter(pk=u.identity.pk, local=True).first()
+            if u and u.is_authenticated and u.identity
+            else None
+        )
+        user = identity.users.all().first() if identity else None
+        if not user:
+            return
+        now = timezone.now()
+        for a in (
+            Announcement.objects.filter(
+                models.Q(start__lte=now) | models.Q(start__isnull=True),
+                published=True,
+            )
+            .order_by("-start", "-created")
+            .exclude(seen=user)
+        ):
+            a.seen.add(user)

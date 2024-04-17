@@ -297,7 +297,6 @@ INSTALLED_APPS = [
 ]
 
 INSTALLED_APPS += [
-    "management.apps.ManagementConfig",
     "mastodon.apps.MastodonConfig",
     "common.apps.CommonConfig",
     "users.apps.UsersConfig",

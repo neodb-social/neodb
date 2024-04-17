@@ -1,10 +1,9 @@
 import json
 
-from discord import SyncWebhook
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.exceptions import BadRequest
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -14,14 +13,12 @@ from common.utils import (
     HTTPResponseHXRedirect,
     target_identity_required,
 )
-from management.models import Announcement
 from mastodon.api import *
 from takahe.utils import Takahe
 
 from .account import *
 from .data import *
-from .models import APIdentity, Preference, User
-from .profile import account_info, account_profile
+from .models import APIdentity
 
 
 def render_user_not_found(request, user_name=""):
@@ -92,9 +89,8 @@ def fetch_refresh(request):
 
 @login_required
 @target_identity_required
+@require_http_methods(["POST"])
 def follow(request: AuthedHttpRequest, user_name):
-    if request.method != "POST":
-        raise BadRequest()
     request.user.identity.follow(request.target_identity)
     return render(
         request,
@@ -105,9 +101,8 @@ def follow(request: AuthedHttpRequest, user_name):
 
 @login_required
 @target_identity_required
+@require_http_methods(["POST"])
 def unfollow(request: AuthedHttpRequest, user_name):
-    if request.method != "POST":
-        raise BadRequest()
     request.user.identity.unfollow(request.target_identity)
     return render(
         request,
@@ -118,9 +113,8 @@ def unfollow(request: AuthedHttpRequest, user_name):
 
 @login_required
 @target_identity_required
+@require_http_methods(["POST"])
 def mute(request: AuthedHttpRequest, user_name):
-    if request.method != "POST":
-        raise BadRequest()
     request.user.identity.mute(request.target_identity)
     return render(
         request,
@@ -131,9 +125,8 @@ def mute(request: AuthedHttpRequest, user_name):
 
 @login_required
 @target_identity_required
+@require_http_methods(["POST"])
 def unmute(request: AuthedHttpRequest, user_name):
-    if request.method != "POST":
-        raise BadRequest()
     request.user.identity.unmute(request.target_identity)
     return render(
         request,
@@ -144,9 +137,8 @@ def unmute(request: AuthedHttpRequest, user_name):
 
 @login_required
 @target_identity_required
+@require_http_methods(["POST"])
 def block(request: AuthedHttpRequest, user_name):
-    if request.method != "POST":
-        raise BadRequest()
     request.user.identity.block(request.target_identity)
     return render(
         request,
@@ -156,9 +148,8 @@ def block(request: AuthedHttpRequest, user_name):
 
 
 @login_required
+@require_http_methods(["POST"])
 def unblock(request: AuthedHttpRequest, user_name):
-    if request.method != "POST":
-        raise BadRequest()
     try:
         target = APIdentity.get_by_handle(user_name)
     except APIdentity.DoesNotExist:
@@ -176,9 +167,8 @@ def unblock(request: AuthedHttpRequest, user_name):
 
 @login_required
 @target_identity_required
+@require_http_methods(["POST"])
 def accept_follow_request(request: AuthedHttpRequest, user_name):
-    if request.method != "POST":
-        raise BadRequest()
     request.user.identity.accept_follow_request(request.target_identity)
     return render(
         request,
@@ -189,9 +179,8 @@ def accept_follow_request(request: AuthedHttpRequest, user_name):
 
 @login_required
 @target_identity_required
+@require_http_methods(["POST"])
 def reject_follow_request(request: AuthedHttpRequest, user_name):
-    if request.method != "POST":
-        raise BadRequest()
     request.user.identity.reject_follow_request(request.target_identity)
     return render(
         request,
@@ -201,27 +190,30 @@ def reject_follow_request(request: AuthedHttpRequest, user_name):
 
 
 @login_required
+@require_http_methods(["POST"])
 def set_layout(request: AuthedHttpRequest):
-    if request.method == "POST":
-        layout = json.loads(request.POST.get("layout", "{}"))
-        if request.POST.get("name") == "profile":
-            request.user.preference.profile_layout = layout
-            request.user.preference.save(update_fields=["profile_layout"])
-            return redirect(request.user.url)
-        elif request.POST.get("name") == "discover":
-            request.user.preference.discover_layout = layout
-            request.user.preference.save(update_fields=["discover_layout"])
-            return redirect(reverse("catalog:discover"))
+    layout = json.loads(request.POST.get("layout", "{}"))
+    if request.POST.get("name") == "profile":
+        request.user.preference.profile_layout = layout
+        request.user.preference.save(update_fields=["profile_layout"])
+        return redirect(request.user.url)
+    elif request.POST.get("name") == "discover":
+        request.user.preference.discover_layout = layout
+        request.user.preference.save(update_fields=["discover_layout"])
+        return redirect(reverse("catalog:discover"))
     raise BadRequest()
 
 
 @login_required
+@require_http_methods(["POST"])
 def mark_announcements_read(request: AuthedHttpRequest):
-    if request.method == "POST":
-        try:
-            request.user.read_announcement_index = Announcement.objects.latest("pk").pk
-            request.user.save(update_fields=["read_announcement_index"])
-        except ObjectDoesNotExist:
-            # when there is no annoucenment
-            pass
+    Takahe.mark_announcements_seen(request.user)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+
+
+def announcements(request):
+    return render(
+        request,
+        "users/announcements.html",
+        {"announcements": Takahe.get_announcements()},
+    )

@@ -1,5 +1,7 @@
 from django.urls import path
 
+from .account import *
+from .profile import *
 from .views import *
 
 app_name = "users"
@@ -55,5 +57,10 @@ urlpatterns = [
         "mark_announcements_read/",
         mark_announcements_read,
         name="mark_announcements_read",
+    ),
+    path(
+        "announcements/",
+        announcements,
+        name="announcements",
     ),
 ]

@@ -1921,3 +1921,42 @@ class Relay(models.Model):
     class Meta:
         # managed = False
         db_table = "users_relay"
+
+
+class Announcement(models.Model):
+    """
+    A server-wide announcement that users all see and can dismiss.
+    """
+
+    text = models.TextField()
+
+    published = models.BooleanField(
+        default=False,
+    )
+    start = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    end = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    include_unauthenticated = models.BooleanField(default=False)
+
+    # Note that this is against User, not Identity - it's one of the few places
+    # where we want it to be per login.
+    seen = models.ManyToManyField("User", blank=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        # managed = False
+        db_table = "users_announcement"
+
+    @property
+    def html(self) -> str:
+        from journal.models import render_md
+
+        return mark_safe(render_md(self.text))

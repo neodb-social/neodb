@@ -37,7 +37,7 @@
         Developer Console | <a href="{% url 'oauth2_provider:list' %}">{% trans "Your applications" %}</a>
       </h3>
       <p class="empty">
-        By using our APIs, you agree to our <a href="{% url 'management:retrieve_slug' 'developer-term' %}">term</a> and <a href="{% url 'management:retrieve_slug' 'data-policy' %}">data policy</a>.
+        By using our APIs, you agree to our <a href="/pages/terms">Terms of Service</a>.
       </p>
       <details {% if token %}open{% endif %}>
         <summary>

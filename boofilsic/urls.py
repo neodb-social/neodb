@@ -41,7 +41,6 @@ urlpatterns = [
     path("", include("catalog.urls")),
     path("", include("journal.urls")),
     path("timeline/", include("social.urls")),
-    path("announcement/", include("management.urls")),
     path("hijack/", include("hijack.urls")),
     path("", include("common.urls")),
     path("", include("legacy.urls")),

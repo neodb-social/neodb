@@ -913,4 +913,49 @@ class Migration(migrations.Migration):
                 "db_table": "users_relay",
             },
         ),
+        migrations.CreateModel(
+            name="Announcement",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "text",
+                    models.TextField(),
+                ),
+                (
+                    "published",
+                    models.BooleanField(
+                        default=False,
+                    ),
+                ),
+                (
+                    "start",
+                    models.DateTimeField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "end",
+                    models.DateTimeField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                ("include_unauthenticated", models.BooleanField(default=False)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                ("seen", models.ManyToManyField(blank=True, to="takahe.user")),
+            ],
+            options={
+                "db_table": "users_announcement",
+            },
+        ),
     ]

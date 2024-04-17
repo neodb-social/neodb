@@ -12,23 +12,14 @@
   {% if request.user.unread_announcements %}
     <section class="announcement">
       <article>
-        <h5>
-          未读公告
-          <small> | <a href="{% url 'management:list' %}">全部</a> </small>
-        </h5>
-        {% for ann in request.user.unread_announcements %}
-          <details open>
-            <summary>
-              {{ ann.title }}
-              <small>(<a href="{% url 'management:retrieve' ann.pk %}">{{ ann.created_time|date }}</a>)</small>
-            </summary>
-            <div class="tldr" _="on click toggle .tldr on me">{{ ann.get_html_content | safe }}</div>
-          </details>
-        {% endfor %}
-        <form action="{% url 'users:mark_announcements_read' %}" method="post">
-          {% csrf_token %}
-          <input type="submit" class="secondary outline" value="{% trans '全部标为已读' %}">
-        </form>
+        <details open>
+          <summary>未读公告</summary>
+          {% for ann in request.user.unread_announcements %}<div>{{ ann.html }}</div>{% endfor %}
+          <form action="{% url 'users:mark_announcements_read' %}" method="post">
+            {% csrf_token %}
+            <input type="submit" class="secondary outline" value="{% trans '全部标为已读' %}">
+          </form>
+        </details>
       </article>
     </section>
   {% endif %}

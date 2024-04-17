@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="zh">
   <head>
@@ -40,29 +41,18 @@
         {% if request.user.is_superuser %}🦹🏻{% endif %}
         {% if request.user.is_staff %}🧙🏻{% endif %}
       </h1>
-      {% if request.user.is_superuser %}
-        <a href="{% url 'management:create' %}" class="add">{% trans '发布新公告' %}</a>
-      {% endif %}
-      {% for announcement in object_list %}
+      {% for announcement in announcements %}
         <article>
-          <header>
-            <a href="{{ announcement.get_absolute_url }}">
-              <h4>{{ announcement.title }}</h4>
-            </a>
-            <span class="datetime">{{ announcement.created_time }}</span>
-            {% if request.user.is_superuser %}
-              <span class="operations">
-                <a href="{% url 'management:update' announcement.pk %}">{% trans '编辑' %}</a>
-                <a href="{% url 'management:delete' announcement.pk %}">{% trans '删除' %}</a>
-              </span>
-            {% endif %}
-          </header>
-          <p>{{ announcement.get_html_content | safe }}</p>
-        </article>
-      {% empty %}
-        <p>{% trans '暂无公告' %}</p>
-      {% endfor %}
-    </main>
-    {% include "_footer.html" %}
-  </body>
+          {{ announcement.html | safe }}
+          <footer>
+            <span class="action inline"><span><a>{{ announcement.created|default:announcement.created|naturaltime }}</a></span>
+          </span>
+        </footer>
+      </article>
+    {% empty %}
+      <p>{% trans '暂无公告' %}</p>
+    {% endfor %}
+  </main>
+  {% include "_footer.html" %}
+</body>
 </html>

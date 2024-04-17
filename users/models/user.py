@@ -18,7 +18,6 @@ from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
-from management.models import Announcement
 from mastodon.api import *
 from takahe.utils import Takahe
 
@@ -382,12 +381,11 @@ class User(AbstractUser):
             self.sync_relationship()
         return True
 
-    @property
+    @cached_property
     def unread_announcements(self):
-        unread_announcements = Announcement.objects.filter(
-            pk__gt=self.read_announcement_index
-        ).order_by("-pk")
-        return unread_announcements
+        from takahe.utils import Takahe
+
+        return Takahe.get_announcements_for_user(self)
 
     @property
     def activity_manager(self):
