@@ -43,7 +43,6 @@
         color: var(--pico-primary);
       }
 
-
       article {
         padding: calc(var(--pico-block-spacing-horizontal) / 2);
         margin-bottom: var(--pico-block-spacing-horizontal);
@@ -70,6 +69,10 @@
         padding-top: 0;
         padding-bottom: 0;
         margin: 0;
+      }
+
+      p:last-child {
+      margin-bottom: 0;
       }
 
       .spacing {
