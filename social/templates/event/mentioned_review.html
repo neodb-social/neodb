@@ -1,2 +1,5 @@
-replied to your review <a href="{{ event.piece.url }}">{{ event.piece.title }}</a> on <a href="{{ event.item.url }}">{{ event.item.display_title }}</a>
-{% include "events/_post.html" with post=event.reply %}
+{% load i18n %}
+{% blocktrans with item_url=event.item.url item_title=event.item.display_title piece_url=event.piece.url piece_title=event.piece.title %}
+replied to your review <a href="{{ piece_url }}">{{ piece_title }}</a> on <a href="{{ item_url }}">{{ item_title }}</a>
+{% endblocktrans %}
+{% include "event/_post.html" with post=event.reply %}

@@ -1,5 +1,8 @@
+{% load i18n %}
 {% load duration %}
-liked your comment on <a href="{{ event.item.url }}">{{ event.item.display_title }}</a>
+{% blocktrans with item_url=event.item.url item_title=event.item.display_title %}
+liked your comment on <a href="{{ item_url }}">{{ item_title }}</a>
+{% endblocktrans %}
 <blockquote class="tldr" _="on click toggle .tldr on me">
   <span>
     {% if event.piece.rating_grade %}{{ event.piece.rating_grade|rating_star }}{% endif %}

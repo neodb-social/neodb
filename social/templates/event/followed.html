@@ -1,5 +1,6 @@
+{% load i18n %}
 {% load bleach_tags %}
-followed you
+{% trans 'followed you' %}
 <blockquote class="tldr" _="on click toggle .tldr on me">
   <div>
     <span class="action">{% include 'users/profile_actions.html' with show_home=1 identity=event.identity %}</span>

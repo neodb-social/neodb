@@ -1,1 +1,4 @@
-liked your collection <a href="{{ event.piece.url }}">{{ event.piece.title }}</a>
+{% load i18n %}
+{% blocktrans with piece_url=event.piece.url piece_title=event.piece.title %}
+liked your collection <a href="{{ piece_url }}">{{ piece_title }}</a>
+{% endblocktrans %}

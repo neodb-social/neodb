@@ -1,5 +1,6 @@
+{% load i18n %}
 {% load bleach_tags %}
-boosted your post
+{% trans 'boosted your post' %}
 <blockquote class="tldr" _="on click toggle .tldr on me">
   {{ event.post.content|bleach:"a,p,span,br,div,img"|default:"<br>" }}
 </blockquote>

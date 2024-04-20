@@ -1,19 +1,16 @@
+{% load i18n %}
 <footer class="footer">
   <hr>
   <div class="grid">
-    {% for link in site_links %}
-      <a class="footer__link"
-         target="_blank"
-         rel="noopener"
-         href="{{ link.url }}">{{ link.title }}</a>
-    {% endfor %}
-    <a class="footer__link" href="{% url 'users:announcements' %}">公告栏</a>
-    <a class="footer__link" href="{% url 'oauth2_provider:developer' %}">应用开发</a>
-    <a class="footer__link"
-       title="{{ neodb_version }}"
+    {% for link in site_links %}<a target="_blank" rel="noopener" href="{{ link.url }}">{{ link.title }}</a>{% endfor %}
+    <!-- <a href="/pages/rules/">{% trans 'Rules' %}</a> -->
+    <!-- <a href="/pages/terms/">{% trans 'Terms' %}</a> -->
+    <a href="{% url 'users:announcements' %}">{% trans 'Announcements' %}</a>
+    <a href="{% url 'oauth2_provider:developer' %}">{% trans 'Developer' %}</a>
+    <a title="{{ neodb_version }}"
        target="_blank"
        rel="noopener"
-       href="https://github.com/neodb-social">源代码</a>
+       href="https://github.com/neodb-social">{% trans 'Source Code' %}</a>
   </div>
   <div class="hide_unless_alter_domain" style="padding-top: 1em;">
     这是{{ site_name }}的临时镜像，请尽可能使用<a href="{{ site_url }}{{ request.get_full_path }}">原始站点</a>。

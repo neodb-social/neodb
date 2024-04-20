@@ -14,35 +14,35 @@
           <input type="search"
                  name="q"
                  id="q"
-                 placeholder="标题、创作者、ISBN、站外条目链接、@用户名、@用户名@实例"
+                 placeholder="{% trans 'title, creator, ISBN, item url, @user, @user@instance' %}"
                  class="search"
                  value="{{ request.GET.q|default:'' }}" />
           <select name="c">
             {% visible_categories as cats %}
-            <option value="all">全部</option>
+            <option value="all">{% trans 'Everything' %}</option>
             {% if 'book' in cats %}
               <option {% if request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %}
-                      value="book">书籍</option>
+                      value="book">{% trans 'Book' %}</option>
             {% endif %}
             {% if 'movie' in cats or 'tv' in cats %}
               <option {% if request.GET.c and request.GET.c == 'movietv' or '/movie/' in request.path or '/tv/' in request.path %}selected{% endif %}
-                      value="movietv">影视</option>
+                      value="movietv">{% trans 'Movie & TV' %}</option>
             {% endif %}
             {% if 'podcast' in cats %}
               <option {% if request.GET.c and request.GET.c == 'podcast' or '/podcast/' in request.path %}selected{% endif %}
-                      value="podcast">播客</option>
+                      value="podcast">{% trans 'Podcast' %}</option>
             {% endif %}
             {% if 'music' in cats %}
               <option {% if request.GET.c and request.GET.c == 'music' or '/album/' in request.path %}selected{% endif %}
-                      value="music">音乐</option>
+                      value="music">{% trans 'Music' %}</option>
             {% endif %}
             {% if 'game' in cats %}
               <option {% if request.GET.c and request.GET.c == 'game' or '/game/' in request.path %}selected{% endif %}
-                      value="game">游戏</option>
+                      value="game">{% trans 'Game' %}</option>
             {% endif %}
             {% if 'performance' in cats %}
               <option {% if request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
-                      value="performance">演出</option>
+                      value="performance">{% trans 'Performance' %}</option>
             {% endif %}
           </select>
           <input type="submit" value="&#xf002;" class="fa-solid" />
@@ -51,19 +51,19 @@
     </ul>
     <ul>
       <li class="small-only">
-        <a _="on click toggle .unhide on .nav-search then call #q.focus()">搜索</a>
+        <a _="on click toggle .unhide on .nav-search then call #q.focus()">{% trans 'Search' %}</a>
       </li>
       <li>
         <a class="{% if current == 'discover' %}secondary{% endif %}"
-           href="{% url 'catalog:discover' %}">发现</a>
+           href="{% url 'catalog:discover' %}">{% trans 'Explore' %}</a>
       </li>
       <li>
         <a class="{% if current == 'timeline' %}secondary{% endif %}"
-           href="{% url 'social:feed' %}">动态</a>
+           href="{% url 'social:feed' %}">{% trans 'Feed' %}</a>
       </li>
       <li>
         <a class="{% if current == 'home' %}secondary{% endif %}"
-           href="{% url 'common:me' %}">个人</a>
+           href="{% url 'common:me' %}">{% trans 'Home' %}</a>
       </li>
     </ul>
     <ul class="nav-dropdown">
@@ -78,31 +78,31 @@
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
             {% if request.user.is_authenticated %}
               <li>
-                <a href="{% url 'social:notification' %}">通知</a>
+                <a href="{% url 'social:notification' %}">{% trans 'Notification' %}</a>
               </li>
               <li>
-                <a href="{% url 'users:data' %}">数据</a>
+                <a href="{% url 'users:data' %}">{% trans 'Data' %}</a>
               </li>
               <li>
-                <a href="{% url 'users:preferences' %}">设置</a>
+                <a href="{% url 'users:preferences' %}">{% trans 'Preferences' %}</a>
               </li>
               <li>
-                <a href="{% url 'users:info' %}">账号</a>
+                <a href="{% url 'users:info' %}">{% trans 'Account' %}</a>
               </li>
               <li>
-                <a href="{% url 'users:logout' %}">登出</a>
+                <a href="{% url 'users:logout' %}">{% trans 'Logout' %}</a>
               </li>
               {% if request.user.is_superuser %}
                 <li>
-                  <a href="/neodb-admin/">django</a>
+                  <a href="/neodb-admin/">{% trans 'Database' %}</a>
                 </li>
                 <li>
-                  <a href="/admin/">admin</a>
+                  <a href="/admin/">{% trans 'Manage' %}</a>
                 </li>
               {% endif %}
             {% else %}
               <li>
-                <a href="{% url 'users:login' %}?next={{ request.path }}">登录</a>
+                <a href="{% url 'users:login' %}?next={{ request.path }}">{% trans 'Sign up or Login' %}</a>
               </li>
             {% endif %}
           </ul>
