@@ -132,7 +132,7 @@ class NotificationEvent:
             self.post = self.post.in_reply_to_post() if self.post else None
         self.piece = Piece.get_by_post_id(self.post.id) if self.post else None
         self.item = getattr(self.piece, "item") if hasattr(self.piece, "item") else None
-        if self.piece and self.template in ["liked", "boost", "mentioned"]:
+        if self.piece and self.template in ["liked", "boosted", "mentioned"]:
             cls = self.piece.__class__.__name__.lower()
             self.template += "_" + cls
 
@@ -140,7 +140,14 @@ class NotificationEvent:
 @login_required
 @require_http_methods(["GET"])
 def events(request):
-    es = Takahe.get_events(request.user.identity.pk)
+    match request.GET.get("type"):
+        case "follow":
+            types = ["followed", "follow_requested"]
+        case "mention":
+            types = ["mentioned"]
+        case _:
+            types = ["liked", "boosted", "mentioned", "followed", "follow_requested"]
+    es = Takahe.get_events(request.user.identity.pk, types)
     last = request.GET.get("last")
     if last:
         es = es.filter(created__lt=last)

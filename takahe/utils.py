@@ -944,7 +944,7 @@ class Takahe:
             a.seen.add(user)
 
     @staticmethod
-    def get_events(identity_id: int):
+    def get_events(identity_id: int, types):
         return (
             TimelineEvent.objects.select_related(
                 "subject_post",
@@ -962,7 +962,7 @@ class Takahe:
                 "subject_post__emojis",
             )
             .filter(identity=identity_id)
-            .exclude(type__in=["post", "boost"])
+            .filter(type__in=types)
             .exclude(subject_identity_id=identity_id)
             .order_by("-created")
         )

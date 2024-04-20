@@ -36,7 +36,7 @@
   {% if forloop.last %}
     <div class="htmx-indicator"
          style="margin-left: 60px"
-         hx-get="{% url 'social:events' %}?last={{ event.created|date:'Y-m-d H:i:s.uO'|urlencode }}"
+         hx-get="{% url 'social:events' %}?type={{ request.GET.type }}&last={{ event.created|date:'Y-m-d H:i:s.uO'|urlencode }}"
          hx-trigger="revealed"
          hx-swap="outerHTML">
       <i class="fa-solid fa-compact-disc fa-spin loading"></i>
