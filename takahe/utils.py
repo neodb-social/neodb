@@ -962,7 +962,7 @@ class Takahe:
                 "subject_post__emojis",
             )
             .filter(identity=identity_id)
-            .exclude(type="post", subject_identity__isnull=True)
+            .exclude(type__in=["post", "boost"])
             .exclude(subject_identity_id=identity_id)
             .order_by("-created")
         )
