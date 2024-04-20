@@ -1,0 +1,51 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+{% load prettydate %}
+{% load user_actions %}
+{% load duration %}
+{% for event in events %}
+  <section class="activity">
+    <div class="avatar">
+      <img src="{{ event.identity.avatar }}" alt="cover" />
+    </div>
+    <div>
+      <div>
+        <span class="time">
+          <span>{{ event.created|naturaltime }}</span>
+        </span>
+        <div>
+          <span>
+            <a href="{{ event.identity.url }}"
+               class="nickname"
+               title="@{{ event.identity.full_handle }}">{{ event.identity.display_name }}</a>
+          </span>
+          {% with "event/"|add:event.template|add:".html" as template %}
+            {% include template %}
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+  </section>
+  {% if forloop.last %}
+    <div class="htmx-indicator"
+         style="margin-left: 60px"
+         hx-get="{% url 'social:events' %}?last={{ event.created|date:'Y-m-d H:i:s.uO'|urlencode }}"
+         hx-trigger="revealed"
+         hx-swap="outerHTML">
+      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+    </div>
+  {% endif %}
+{% empty %}
+  {% if request.GET.last %}
+    <div class="empty">{% trans 'nothing more.' %}</div>
+  {% else %}
+    <div class="empty">{% trans 'nothing so far.' %}</div>
+  {% endif %}
+{% endfor %}

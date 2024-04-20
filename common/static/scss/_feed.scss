@@ -66,6 +66,12 @@
         // margin-right: 4px;
       }
 
+      blockquote {
+        padding-top: 0;
+        padding-bottom: 0;
+        margin: 0;
+      }
+
       .spacing {
         margin-bottom: calc(var(--pico-block-spacing-horizontal)/2);
       }

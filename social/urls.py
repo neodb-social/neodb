@@ -6,4 +6,6 @@ app_name = "social"
 urlpatterns = [
     path("", feed, name="feed"),
     path("data", data, name="data"),
+    path("notification", notification, name="notification"),
+    path("events", events, name="events"),
 ]

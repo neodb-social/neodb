@@ -31,10 +31,13 @@ _RESERVED_USERNAMES = [
     "__",
     "admin",
     "administrator",
+    "service",
+    "support",
     "system",
     "user",
     "users",
     "api",
+    "bot",
     "me",
 ]
 

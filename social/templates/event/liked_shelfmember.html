@@ -1,0 +1,8 @@
+{% load duration %}
+liked your mark on <a href="{{ event.item.url }}">{{ event.item.display_title }}</a>
+<blockquote class="tldr" _="on click toggle .tldr on me">
+  <span>
+    {% if event.piece.mark.rating_grade %}{{ event.piece.mark.rating_grade|rating_star }}{% endif %}
+  </span>
+  {{ event.piece.mark.comment.html|safe }}
+</blockquote>

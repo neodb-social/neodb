@@ -179,6 +179,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return obj
 
     @classmethod
+    def get_by_post_id(cls, post_id: int):
+        pp = PiecePost.objects.filter(post_id=post_id).first()
+        return pp.piece if pp else None
+
+    @classmethod
     def update_by_ap_object(cls, owner, item, obj, post_id, visibility):
         raise NotImplementedError("subclass must implement this")
 

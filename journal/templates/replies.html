@@ -1,3 +1,4 @@
+{% load i18n %}
 <section class="replies" hx-target="this" hx-swap="outerHTML">
   {% for post in replies %}
     <div>
@@ -35,49 +36,51 @@
       <div id="replies_{{ post.pk }}"></div>
     </div>
   {% empty %}
-    <div class="empty">暂无回应</div>
+    <div class="empty">{% trans 'nothing so far.' %}</div>
   {% endfor %}
-  <form class="reply"
-        role="group"
-        hx-post="{% url 'journal:post_reply' post.pk %}"
-        hx-trigger="submit once">
-    <input name="content" type="text" placeholder="Type your reply" />
-    <details class="dropdown">
-      <summary>
-        <i class="fa-solid fa-users-gear"></i>
-      </summary>
-      <ul>
-        <li>
-          <label>
-            <input type="radio"
-                   name="visibility"
-                   value="{{ request.user.preference.post_public_mode }}"
-                   {% if post.visibility <= 1 or post.visibility == 4 %}checked{% endif %} />
-            <i class="fa-solid fa-globe"></i>
-          </label>
-        </li>
-        <li>
-          <label>
-            <input type="radio"
-                   name="visibility"
-                   value="2"
-                   {% if post.visibility == 2 %}checked{% endif %} />
-            <i class="fa-solid fa-lock"></i>
-          </label>
-        </li>
-        <li>
-          <label>
-            <input type="radio"
-                   name="visibility"
-                   value="3"
-                   {% if post.visibility == 3 %}checked{% endif %} />
-            <i class="fa-solid fa-at"></i>
-          </label>
-        </li>
-      </ul>
-    </details>
-    <button class="secondary">
-      <i class="fa-regular fa-paper-plane"></i>
-    </button>
-  </form>
+  {% if post %}
+    <form class="reply"
+          role="group"
+          hx-post="{% url 'journal:post_reply' post.pk %}"
+          hx-trigger="submit once">
+      <input name="content" type="text" placeholder="Type your reply" />
+      <details class="dropdown">
+        <summary>
+          <i class="fa-solid fa-users-gear"></i>
+        </summary>
+        <ul>
+          <li>
+            <label>
+              <input type="radio"
+                     name="visibility"
+                     value="{{ request.user.preference.post_public_mode }}"
+                     {% if post.visibility <= 1 or post.visibility == 4 %}checked{% endif %} />
+              <i class="fa-solid fa-globe"></i>
+            </label>
+          </li>
+          <li>
+            <label>
+              <input type="radio"
+                     name="visibility"
+                     value="2"
+                     {% if post.visibility == 2 %}checked{% endif %} />
+              <i class="fa-solid fa-lock"></i>
+            </label>
+          </li>
+          <li>
+            <label>
+              <input type="radio"
+                     name="visibility"
+                     value="3"
+                     {% if post.visibility == 3 %}checked{% endif %} />
+              <i class="fa-solid fa-at"></i>
+            </label>
+          </li>
+        </ul>
+      </details>
+      <button class="secondary">
+        <i class="fa-regular fa-paper-plane"></i>
+      </button>
+    </form>
+  {% endif %}
 </section>

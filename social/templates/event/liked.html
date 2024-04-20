@@ -1,0 +1,5 @@
+{% load bleach_tags %}
+liked your post
+<blockquote class="tldr" _="on click toggle .tldr on me">
+  {{ event.post.content|bleach:"a,p,span,br,div,img"|default:"<br>" }}
+</blockquote>

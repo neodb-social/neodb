@@ -942,3 +942,27 @@ class Takahe:
             .exclude(seen=user)
         ):
             a.seen.add(user)
+
+    @staticmethod
+    def get_events(identity_id: int):
+        return (
+            TimelineEvent.objects.select_related(
+                "subject_post",
+                "subject_post__author",
+                "subject_post__author__domain",
+                "subject_identity",
+                "subject_identity__domain",
+                "subject_post_interaction",
+                "subject_post_interaction__identity",
+                "subject_post_interaction__identity__domain",
+            )
+            .prefetch_related(
+                "subject_post__attachments",
+                "subject_post__mentions",
+                "subject_post__emojis",
+            )
+            .filter(identity=identity_id)
+            .exclude(type="post", subject_identity__isnull=True)
+            .exclude(subject_identity_id=identity_id)
+            .order_by("-created")
+        )

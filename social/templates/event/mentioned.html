@@ -1,0 +1,6 @@
+{% load bleach_tags %}
+mentioned you
+<blockquote class="tldr" _="on click toggle .tldr on me">
+  {{ event.post.content|bleach:"a,p,span,br,div,img"|default:"<br>" }}
+</blockquote>
+{% include "events/_post.html" with post=event.reply %}
