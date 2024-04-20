@@ -2,11 +2,7 @@
 {% load i18n %}
 {% load l10n %}
 {% load humanize %}
-{% load admin_url %}
 {% load mastodon %}
-{% load oauth_token %}
-{% load truncate %}
-{% load highlight %}
 {% load thumb %}
 {% for item in external_items %}
   <article class="item-card external">{% include "_item_card.html" with item=item %}</article>

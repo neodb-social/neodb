@@ -1,10 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load l10n %}
-{% load admin_url %}
 {% load mastodon %}
-{% load oauth_token %}
-{% load truncate %}
 {% load thumb %}
 <!DOCTYPE html>
 <html lang="zh" class="feed-page">
@@ -26,11 +23,11 @@
         {% trans 'Notification' %}
         <small>
           <a class="{% if not request.GET.type %}secondary{% endif %}"
-             href="{% url 'social:notification' %}">all</a> |
+             href="{% url 'social:notification' %}">{% trans 'all' %}</a> |
           <a class="{% if request.GET.type == 'mention' %}secondary{% endif %}"
-             href="{% url 'social:notification' %}?type=mention">mention</a> |
+             href="{% url 'social:notification' %}?type=mention">{% trans 'mention' %}</a> |
           <a class="{% if request.GET.type == 'follow' %}secondary{% endif %}"
-             href="{% url 'social:notification' %}?type=follow">follow</a>
+             href="{% url 'social:notification' %}?type=follow">{% trans 'follow' %}</a>
         </small>
       </h5>
       <div class="feed">

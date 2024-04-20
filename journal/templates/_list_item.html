@@ -1,11 +1,9 @@
 {# parameters: item, mark, collection_member, collection_edit + parameters passing down: show_tags, hide_category #}
 {% load thumb %}
-{% load highlight %}
 {% load i18n %}
 {% load l10n %}
 {% load user_actions %}
 {% load duration %}
-{% load truncate %}
 <article class="entity-sort item-card"
          {% if collection_edit %}data-member-id="{{ collection_member.id }}"{% endif %}>
   <span class="action">
@@ -72,13 +70,13 @@
             <span class="action">
               <span class="timestamp">{{ mark.review.created_time|date }}</span>
             </span>
-            <div>
+            <div class="tldr">
               评论:
               <span>
                 <a href="{% url 'journal:review_retrieve' mark.review.uuid %}">{{ mark.review.title }}</a>
               </span>
               -
-              {{ mark.review.plain_content | truncate:200 }}
+              {{ mark.review.plain_content }}
             </div>
           </section>
         {% endif %}

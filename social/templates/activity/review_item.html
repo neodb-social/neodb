@@ -1,10 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load l10n %}
-{% load admin_url %}
 {% load mastodon %}
-{% load oauth_token %}
-{% load truncate %}
 {% load thumb %}
 {% load prettydate %}
 {% load user_actions %}
@@ -45,7 +42,7 @@
 <article>
   {% include "_item_card.html" with item=activity.action_object.item allow_embed=1 %}
   <footer>
-    <p>{{ activity.action_object.plain_content|truncate:200 }}</p>
+    <p class="tldr-2">{{ activity.action_object.plain_content }}</p>
     <p id="replies_{{ activity.action_object.latest_post.pk }}"></p>
   </footer>
 </article>
