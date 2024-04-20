@@ -1,13 +1,13 @@
 {% load i18n %}
 {% load bleach_tags %}
 {% trans 'followed you' %}
+<div>
+  <span class="action">{% include 'users/profile_actions.html' with show_home=1 identity=event.identity %}</span>
+  <code class="{{ event.identity.id }}_handler"
+        style="cursor:copy"
+        onmouseleave="$(this).removeAttr('data-tooltip')"
+        onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">@{{ event.identity.full_handle }}</code>
+</div>
 <blockquote class="tldr" _="on click toggle .tldr on me">
-  <div>
-    <span class="action">{% include 'users/profile_actions.html' with show_home=1 identity=event.identity %}</span>
-    <code class="{{ event.identity.id }}_handler"
-          style="cursor:pointer"
-          onmouseleave="$(this).removeAttr('data-tooltip')"
-          onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">@{{ event.identity.full_handle }}</code>
-  </div>
   {{ event.identity.summary|bleach:"a,p,span,br"|default:"" }}
 </blockquote>
