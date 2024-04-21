@@ -337,7 +337,7 @@ msgstr "收藏单"
 
 #: catalog/common/models.py:129 catalog/common/models.py:142
 msgid "TV"
-msgstr "电视"
+msgstr "剧集"
 
 #: catalog/common/models.py:130 catalog/common/models.py:143
 #: common/templates/_header.html:37

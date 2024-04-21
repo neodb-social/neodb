@@ -327,7 +327,7 @@ def detect_server_info(login_domain) -> tuple[str, str, str]:
         response = get(url, headers={"User-Agent": USER_AGENT})
     except Exception as e:
         logger.warning(f"Error connecting {login_domain}: {e}")
-        raise Exception(f"无法连接 {login_domain}")
+        raise Exception(f"无法连接实例 {login_domain}")
     if response.status_code != 200:
         logger.warning(f"Error connecting {login_domain}: {response.status_code}")
         raise Exception(f"实例 {login_domain} 返回错误，代码: {response.status_code}")
@@ -398,7 +398,7 @@ def get_or_create_fediverse_application(login_domain):
         app_id=data["id"],
         client_id=data["client_id"],
         client_secret=data["client_secret"],
-        vapid_key=data["vapid_key"] if "vapid_key" in data else "",
+        vapid_key=data.get("vapid_key", ""),
     )
     return app
 
@@ -518,10 +518,11 @@ def share_comment(comment):
         if user.preference.mastodon_append_tag
         else ""
     )
+    spoiler_text, txt = get_spoiler_text(comment.text or "", comment.item)
     tpl = ShelfManager.get_action_template(ShelfType.PROGRESS, comment.item.category)
     content = (
         _(tpl).format(item=comment.item.display_title)
-        + f"\n{comment.text}\n{comment.item.absolute_url}{tags}"
+        + f"\n{txt}\n{comment.item.absolute_url}{tags}"
     )
     update_id = None
     if comment.metadata.get(
@@ -532,7 +533,13 @@ def share_comment(comment):
         )  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
         update_id = r[1] if r else None
     response = post_toot(
-        user.mastodon_site, content, visibility, user.mastodon_token, False, update_id
+        user.mastodon_site,
+        content,
+        visibility,
+        user.mastodon_token,
+        False,
+        update_id,
+        spoiler_text,
     )
     if response is not None and response.status_code in [200, 201]:
         j = response.json()
