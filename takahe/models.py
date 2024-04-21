@@ -1330,6 +1330,52 @@ class PostAttachment(models.Model):
         # managed = False
         db_table = "activities_postattachment"
 
+    def is_image(self):
+        return self.mimetype in [
+            "image/apng",
+            "image/avif",
+            "image/gif",
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+        ]
+
+    def is_video(self):
+        return self.mimetype in [
+            "video/mp4",
+            "video/ogg",
+            "video/webm",
+        ]
+
+    def thumbnail_url(self) -> RelativeAbsoluteUrl:
+        if self.thumbnail:
+            return RelativeAbsoluteUrl(self.thumbnail.url)
+        elif self.file:
+            return RelativeAbsoluteUrl(self.file.url)
+        else:
+            return ProxyAbsoluteUrl(
+                f"/proxy/post_attachment/{self.pk}/",
+                remote_url=self.remote_url,
+            )
+
+    def full_url(self):
+        if self.file:
+            return RelativeAbsoluteUrl(self.file.url)
+        if self.is_image():
+            return ProxyAbsoluteUrl(
+                f"/proxy/post_attachment/{self.pk}/",
+                remote_url=self.remote_url,
+            )
+        return RelativeAbsoluteUrl(self.remote_url)
+
+    @property
+    def file_display_name(self):
+        if self.remote_url:
+            return self.remote_url.rsplit("/", 1)[-1]
+        if self.file:
+            return self.file.name.rsplit("/", 1)[-1]
+        return f"attachment ({self.mimetype})"
+
 
 class EmojiQuerySet(models.QuerySet):
     def usable(self, domain: Domain | None = None):

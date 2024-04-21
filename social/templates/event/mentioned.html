@@ -2,6 +2,6 @@
 {% load bleach_tags %}
 {% trans 'mentioned you' %}
 <blockquote class="tldr" _="on click toggle .tldr on me">
-  {{ event.post.content|bleach:"a,p,span,br,div,img"|default:"<br>" }}
+  {{ event.post.content|bleach:"a,p,span,br,div,img"|default:"" }}
 </blockquote>
 {% include "event/_post.html" with post=event.reply %}

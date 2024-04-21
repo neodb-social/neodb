@@ -122,6 +122,16 @@ details {
   }
 }
 
+.post {
+  span.invisible {
+    display: none;
+  }
+
+  span.ellipsis:after {
+    content: "…";
+  }
+}
+
 .action {
   width: max-content;
   float: right;

@@ -2085,14 +2085,14 @@ msgstr "提到了你"
 msgid ""
 "\n"
 "replied to your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
-msgstr "\n评论了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgstr "\n回应了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/mentioned_comment.html:3
 #, python-format
 msgid ""
 "\n"
 "replied to your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n回复了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+msgstr "\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
 
 #: social/templates/event/mentioned_review.html:2
 #, python-format
@@ -2101,7 +2101,7 @@ msgid ""
 "replied to your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a "
 "href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n回复了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
+"\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
 "href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/mentioned_shelfmember.html:3
@@ -2109,7 +2109,7 @@ msgstr ""
 msgid ""
 "\n"
 "replied to your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n回复了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
+msgstr "\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
 #: social/templates/events.html:44
 msgid "nothing more."
