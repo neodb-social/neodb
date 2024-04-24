@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest, get_uuid_or_404
@@ -25,12 +26,9 @@ _checkmark = "✔️".encode("utf-8")
 
 
 @login_required
+@require_http_methods(["POST"])
 def wish(request: AuthedHttpRequest, item_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not item:
-        raise Http404()
     mark = Mark(request.user.identity, item)
     if not mark.shelf_type:
         mark.update(ShelfType.WISHLIST)
@@ -40,6 +38,7 @@ def wish(request: AuthedHttpRequest, item_uuid):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def mark(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     mark = Mark(request.user.identity, item)
@@ -59,7 +58,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
                 "date_today": timezone.localdate().isoformat(),
             },
         )
-    elif request.method == "POST":
+    else:
         if request.POST.get("delete", default=False):
             mark.delete()
             return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
@@ -120,27 +119,28 @@ def mark(request: AuthedHttpRequest, item_uuid):
                     },
                 )
             return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
-    raise BadRequest()
 
 
 @login_required
+@require_http_methods(["POST"])
 def mark_log(request: AuthedHttpRequest, item_uuid, log_id):
     """
     Delete log of one item by log id.
     """
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     mark = Mark(request.user.identity, item)
-    if request.method == "POST":
-        if request.GET.get("delete", default=False):
-            if log_id:
-                mark.delete_log(log_id)
-            else:
-                mark.delete_all_logs()
-            return render(request, "_item_user_mark_history.html", {"mark": mark})
-    raise BadRequest()
+    if request.GET.get("delete", default=False):
+        if log_id:
+            mark.delete_log(log_id)
+        else:
+            mark.delete_all_logs()
+        return render(request, "_item_user_mark_history.html", {"mark": mark})
+    else:
+        raise BadRequest(_("Invalid parameter"))
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def comment(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if item.class_name not in ["podcastepisode", "tvepisode"]:
@@ -155,10 +155,10 @@ def comment(request: AuthedHttpRequest, item_uuid):
                 "comment": comment,
             },
         )
-    elif request.method == "POST":
+    else:
         if request.POST.get("delete", default=False):
             if not comment:
-                raise Http404()
+                raise Http404(_("Content not found"))
             comment.delete()
             return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
         visibility = int(request.POST.get("visibility", default=0))
@@ -176,9 +176,9 @@ def comment(request: AuthedHttpRequest, item_uuid):
         d = {"text": text, "visibility": visibility}
         if position:
             d["metadata"] = {"position": position}
-        comment, _ = Comment.objects.update_or_create(
+        comment = Comment.objects.update_or_create(
             owner=request.user.identity, item=item, defaults=d
-        )
+        )[0]
         post = Takahe.post_comment(comment, False)
         share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
         if post and share_to_mastodon:
@@ -187,7 +187,6 @@ def comment(request: AuthedHttpRequest, item_uuid):
             else:
                 boost_toot_later(request.user, post.url)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
-    raise BadRequest()
 
 
 def user_mark_list(request: AuthedHttpRequest, user_name, shelf_type, item_category):

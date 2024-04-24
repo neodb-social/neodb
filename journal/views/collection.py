@@ -6,17 +6,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 from catalog.models import Item
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 from mastodon.api import boost_toot_later, share_collection
-from users.models import User
-from users.models.apidentity import APIdentity
-from users.views import (
-    render_user_blocked,
-    render_user_noanonymous,
-    render_user_not_found,
-)
 
 from ..forms import *
 from ..models import *
@@ -55,7 +49,7 @@ def collection_retrieve_redirect(request: AuthedHttpRequest, collection_uuid):
 def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     follower_count = collection.likes.all().count()
     following = (
         Like.user_liked_piece(request.user.identity, collection)
@@ -101,12 +95,11 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
 
 
 @login_required
+@require_http_methods(["POST"])
 def collection_add_featured(request: AuthedHttpRequest, collection_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     FeaturedCollection.objects.update_or_create(
         owner=request.user.identity, target=collection
     )
@@ -114,12 +107,11 @@ def collection_add_featured(request: AuthedHttpRequest, collection_uuid):
 
 
 @login_required
+@require_http_methods(["POST"])
 def collection_remove_featured(request: AuthedHttpRequest, collection_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     fc = FeaturedCollection.objects.filter(
         owner=request.user.identity, target=collection
     ).first()
@@ -129,15 +121,16 @@ def collection_remove_featured(request: AuthedHttpRequest, collection_uuid):
 
 
 @login_required
+@require_http_methods(["POST", "GET"])
 def collection_share(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(
         Collection, uid=get_uuid_or_404(collection_uuid) if collection_uuid else None
     )
     if collection and not collection.is_visible_to(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":
         return render(request, "collection_share.html", {"collection": collection})
-    elif request.method == "POST":
+    else:
         comment = request.POST.get("comment")
         # boost if possible, otherwise quote
         if (
@@ -158,8 +151,6 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
             ):
                 return render_relogin(request)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
-    else:
-        raise BadRequest()
 
 
 def collection_retrieve_items(
@@ -167,7 +158,7 @@ def collection_retrieve_items(
 ):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     form = CollectionForm(instance=collection)
     return render(
         request,
@@ -182,12 +173,11 @@ def collection_retrieve_items(
 
 
 @login_required
+@require_http_methods(["POST"])
 def collection_append_item(request: AuthedHttpRequest, collection_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
 
     url = request.POST.get("url")
     note = request.POST.get("note")
@@ -202,26 +192,24 @@ def collection_append_item(request: AuthedHttpRequest, collection_uuid):
 
 
 @login_required
+@require_http_methods(["POST"])
 def collection_remove_item(request: AuthedHttpRequest, collection_uuid, item_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not collection.is_editable_by(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     collection.remove_item(item)
     return collection_retrieve_items(request, collection_uuid, True)
 
 
 @login_required
+@require_http_methods(["POST"])
 def collection_move_item(
     request: AuthedHttpRequest, direction, collection_uuid, item_uuid
 ):
-    if request.method != "POST":
-        raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if direction == "up":
         collection.move_up_item(item)
@@ -231,45 +219,44 @@ def collection_move_item(
 
 
 @login_required
+@require_http_methods(["POST"])
 def collection_update_member_order(request: AuthedHttpRequest, collection_uuid):
-    if request.method != "POST":
-        raise BadRequest()
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     ids = request.POST.get("member_ids", "").strip()
     if not ids:
-        raise BadRequest()
+        raise BadRequest(_("Invalid parameter"))
     ordered_member_ids = [int(i) for i in ids.split(",")]
     collection.update_member_order(ordered_member_ids)
     return collection_retrieve_items(request, collection_uuid, True)
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def collection_update_item_note(request: AuthedHttpRequest, collection_uuid, item_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not collection.is_editable_by(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     if request.method == "POST":
         collection.update_item_metadata(
             item, {"note": request.POST.get("note", default="")}
         )
         return collection_retrieve_items(request, collection_uuid, True)
-    elif request.method == "GET":
+    else:
         member = collection.get_member_for_item(item)
         return render(
             request,
             "collection_update_item_note.html",
             {"collection": collection, "item": item, "note": member.note},
         )
-    else:
-        raise BadRequest()
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
     collection = (
         get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
@@ -277,7 +264,7 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
         else None
     )
     if collection and not collection.is_editable_by(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":
         form = CollectionForm(instance=collection) if collection else CollectionForm()
         if request.GET.get("title"):
@@ -292,7 +279,7 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
                 "identity": collection.owner if collection else request.user.identity,
             },
         )
-    elif request.method == "POST":
+    else:
         form = (
             CollectionForm(request.POST, request.FILES, instance=collection)
             if collection
@@ -306,16 +293,14 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
                 reverse("journal:collection_retrieve", args=[form.instance.uuid])
             )
         else:
-            raise BadRequest()
-    else:
-        raise BadRequest()
+            raise BadRequest(_("Invalid parameter"))
 
 
 @target_identity_required
 def user_collection_list(request: AuthedHttpRequest, user_name):
     target = request.target_identity
     if not request.user.is_authenticated and not target.anonymous_viewable:
-        return render_user_noanonymous(request)
+        raise PermissionDenied(_("Login required"))
     collections = (
         Collection.objects.filter(owner=target)
         .filter(q_owned_piece_visible_to_user(request.user, target))
@@ -336,7 +321,7 @@ def user_collection_list(request: AuthedHttpRequest, user_name):
 def user_liked_collection_list(request: AuthedHttpRequest, user_name):
     target = request.target_identity
     if not request.user.is_authenticated and not target.anonymous_viewable:
-        return render_user_noanonymous(request)
+        raise PermissionDenied(_("Login required"))
     collections = Collection.objects.filter(
         interactions__identity=target,
         interactions__interaction_type="like",

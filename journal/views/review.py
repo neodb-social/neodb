@@ -27,13 +27,14 @@ def review_retrieve(request, review_uuid):
     # piece = get_object_or_404(Review, uid=get_uuid_or_404(review_uuid))
     piece = Review.get_by_url(review_uuid)
     if piece is None:
-        raise Http404()
+        raise Http404(_("Content not found"))
     if not piece.is_visible_to(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     return render(request, "review.html", {"review": piece})
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     review = (
@@ -42,7 +43,7 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
         else None
     )
     if review and not review.is_editable_by(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":
         form = (
             ReviewForm(instance=review)
@@ -63,7 +64,7 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
                 "date_today": timezone.localdate().isoformat(),
             },
         )
-    elif request.method == "POST":
+    else:
         form = (
             ReviewForm(request.POST, instance=review)
             if review
@@ -89,12 +90,10 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
                 form.cleaned_data["share_to_mastodon"],
             )
             if not review:
-                raise BadRequest()
+                raise BadRequest(_("Invalid parameter"))
             return redirect(reverse("journal:review_retrieve", args=[review.uuid]))
         else:
-            raise BadRequest()
-    else:
-        raise BadRequest()
+            raise BadRequest(_("Invalid parameter"))
 
 
 def user_review_list(request, user_name, item_category):
@@ -112,7 +111,7 @@ class ReviewFeed(Feed):
         return (
             _("Reviews by {0}").format(owner.display_name)
             if owner
-            else _("link unavailable")
+            else _("Link invalid")
         )
 
     def link(self, owner):
@@ -120,9 +119,9 @@ class ReviewFeed(Feed):
 
     def description(self, owner):
         if not owner:
-            return _("link unavailable")
+            return _("Link invalid")
         elif not owner.anonymous_viewable:
-            return _("anonymous access disabled by owner")
+            return _("Login required")
         else:
             return _("Reviews by {0}").format(owner.display_name)
 

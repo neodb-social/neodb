@@ -50,11 +50,11 @@ def retrieve_redirect(request, item_path, item_uuid):
 def embed(request, item_path, item_uuid):
     item = Item.get_by_url(item_uuid)
     if item is None:
-        raise Http404()
+        raise Http404(_("Item not found"))
     if item.merged_to_item:
         return redirect(item.merged_to_item.url)
     if item.is_deleted:
-        raise Http404()
+        raise Http404(_("Item no longer exists"))
     focus_item = None
     if request.GET.get("focus"):
         focus_item = get_object_or_404(
@@ -73,7 +73,7 @@ def retrieve(request, item_path, item_uuid):
     # item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     item = Item.get_by_url(item_uuid)
     if item is None:
-        raise Http404()
+        raise Http404(_("Item not found"))
     item_url = f"/{item_path}/{item_uuid}"
     if item.url != item_url:
         return redirect(item.url)
@@ -81,7 +81,7 @@ def retrieve(request, item_path, item_uuid):
     if not skipcheck and item.merged_to_item:
         return redirect(item.merged_to_item.url)
     if not skipcheck and item.is_deleted:
-        raise Http404()
+        raise Http404(_("Item no longer exists"))
     if request.headers.get("Accept", "").endswith("json"):
         return redirect(item.api_url)
     focus_item = None
@@ -146,8 +146,6 @@ def episode_data(request, item_uuid):
 @login_required
 def mark_list(request, item_path, item_uuid, following_only=False):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not item:
-        raise Http404()
     queryset = ShelfMember.objects.filter(item=item).order_by("-created_time")
     if following_only:
         queryset = queryset.filter(q_piece_in_home_feed_of_user(request.user))
@@ -171,8 +169,6 @@ def mark_list(request, item_path, item_uuid, following_only=False):
 
 def review_list(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not item:
-        raise Http404()
     queryset = Review.objects.filter(item=item).order_by("-created_time")
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
     paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)
@@ -192,8 +188,6 @@ def review_list(request, item_path, item_uuid):
 
 def comments(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not item:
-        raise Http404()
     ids = item.child_item_ids + [item.id] + item.sibling_item_ids
     queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
@@ -212,8 +206,6 @@ def comments(request, item_path, item_uuid):
 
 def comments_by_episode(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not item:
-        raise Http404()
     episode_uuid = request.GET.get("episode_uuid")
     if episode_uuid:
         episode = TVEpisode.get_by_url(episode_uuid)
@@ -238,8 +230,6 @@ def comments_by_episode(request, item_path, item_uuid):
 
 def reviews(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not item:
-        raise Http404()
     ids = item.child_item_ids + [item.id] + item.sibling_item_ids
     queryset = Review.objects.filter(item_id__in=ids).order_by("-created_time")
     queryset = queryset.filter(q_piece_visible_to_user(request.user))

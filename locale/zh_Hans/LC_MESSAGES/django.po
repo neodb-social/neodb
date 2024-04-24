@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-20 12:47-0400\n"
+"POT-Creation-Date: 2024-04-24 01:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -578,6 +578,10 @@ msgstr "结束日期"
 msgid "host"
 msgstr "主播"
 
+#: catalog/search/views.py:54 catalog/search/views.py:178
+msgid "Invalid URL"
+msgstr "无效网址"
+
 #: catalog/templates/_item_card_metadata_edition.html:17
 #: catalog/templates/edition.html:54
 msgid "年"
@@ -1129,59 +1133,113 @@ msgstr ""
 msgid "season number"
 msgstr ""
 
-#: catalog/views_edit.py:259
+#: catalog/views.py:53 catalog/views.py:76
+msgid "Item not found"
+msgstr ""
+
+#: catalog/views.py:57 catalog/views.py:84
+msgid "Item no longer exists"
+msgstr ""
+
+#: catalog/views_edit.py:125 catalog/views_edit.py:148
+#: catalog/views_edit.py:200 catalog/views_edit.py:276
+#: catalog/views_edit.py:353 journal/views/collection.py:52
+#: journal/views/collection.py:102 journal/views/collection.py:114
+#: journal/views/collection.py:130 journal/views/collection.py:161
+#: journal/views/collection.py:180 journal/views/collection.py:200
+#: journal/views/collection.py:212 journal/views/collection.py:226
+#: journal/views/collection.py:240 journal/views/collection.py:243
+#: journal/views/collection.py:267 journal/views/common.py:134
+#: journal/views/post.py:20 journal/views/review.py:32
+#: journal/views/review.py:46
+msgid "Insufficient permission"
+msgstr ""
+
+#: catalog/views_edit.py:203 journal/views/collection.py:229
+#: journal/views/collection.py:296 journal/views/common.py:81
+#: journal/views/mark.py:139 journal/views/post.py:41 journal/views/post.py:55
+#: journal/views/review.py:93 journal/views/review.py:96 users/views.py:169
+msgid "Invalid parameter"
+msgstr "无效参数"
+
+#: catalog/views_edit.py:252
+msgid "Must be a TV Season with IMDB id and season id"
+msgstr ""
+
+#: catalog/views_edit.py:257
 msgid "Updating episodes"
 msgstr ""
 
-#: catalog/views_edit.py:289
+#: catalog/views_edit.py:287
 msgid "Cannot be merged to an item already deleted or merged"
 msgstr ""
 
-#: catalog/views_edit.py:292
+#: catalog/views_edit.py:290
 msgid "Cannot merge items in different categories"
 msgstr ""
 
-#: catalog/views_edit.py:329
+#: catalog/views_edit.py:327
 msgid "Cannot be linked to an item already deleted or merged"
 msgstr ""
 
-#: catalog/views_edit.py:331
+#: catalog/views_edit.py:329
 msgid "Cannot link items other than editions"
 msgstr ""
 
-#: common/templates/400.html:11
-msgid "无效请求"
-msgstr ""
+#: common/templates/400.html:22
+msgid ""
+"You may have submitted invalid data, or the content may have been deleted by "
+"the author."
+msgstr "您可能提交了无效的数据，或者相关内容已被作者删除。"
 
-#: common/templates/403.html:11
-msgid "权限不符"
-msgstr ""
+#: common/templates/400.html:24 common/templates/403.html:24
+#: common/templates/404.html:24
+msgid ""
+"If you believe this is our mistake, please contact us through the link at "
+"the bottom of the page."
+msgstr "如果您确信这是我们的错误，请通过页面底部的链接联系我们。"
 
-#: common/templates/404.html:11
-msgid "未找到"
-msgstr ""
+#: common/templates/403.html:22
+msgid ""
+"Author may require you to log in before accessing this content, or you do "
+"not have permission to view it."
+msgstr "作者可能希望您登录后访问，或者您没有权限查看此内容。"
 
-#: common/templates/500.html:11
-msgid "系统错误"
-msgstr ""
+#: common/templates/404.html:22
+msgid ""
+"You may have visited an incorrect URL, or the content you are looking for "
+"has been deleted by the author."
+msgstr "您可能访问了错误的网址，或者相关内容已被作者删除。"
 
-#: common/templates/_footer.html:11
+#: common/templates/500.html:22
+msgid ""
+"An internal error occurred. If this error occurs repeatedly, it will be "
+"recorded and handled by a human."
+msgstr "发生了一个内部错误，如果这个错误多次出现，后台会记录并会由人工处理。"
+
+#: common/templates/500.html:24
+msgid ""
+"If you have an urgent situation or any questions, please contact us through "
+"the link at the bottom of the page."
+msgstr "如果您有紧急情况或任何疑问，请通过页面底部的链接联系我们。"
+
+#: common/templates/_footer.html:6
 msgid "Rules"
 msgstr "站点规则"
 
-#: common/templates/_footer.html:12
+#: common/templates/_footer.html:7
 msgid "Terms"
 msgstr "服务协议"
 
-#: common/templates/_footer.html:13
+#: common/templates/_footer.html:8
 msgid "Announcements"
 msgstr "公告栏"
 
-#: common/templates/_footer.html:14
+#: common/templates/_footer.html:9
 msgid "Developer"
 msgstr "开发者"
 
-#: common/templates/_footer.html:19
+#: common/templates/_footer.html:13
 msgid "Source Code"
 msgstr "源代码"
 
@@ -1294,71 +1352,83 @@ msgstr "关注了你"
 msgid "just now"
 msgstr "刚刚"
 
+#: common/utils.py:61 common/utils.py:91 users/views.py:35 users/views.py:121
+msgid "User not found"
+msgstr "用户不存在"
+
+#: common/utils.py:65 common/utils.py:95 users/views.py:124
+msgid "User no longer exists"
+msgstr "用户不存在了"
+
+#: common/utils.py:73 common/utils.py:103
+msgid "Access denied"
+msgstr "访问被拒绝"
+
 #: developer/models.py:18
 msgid "minimum two characters, words and -_. only, no special characters"
-msgstr ""
+msgstr "两字符以上，无特殊字符"
 
 #: developer/models.py:29
 msgid "Allowed URIs list, space separated, at least one URI is required"
-msgstr ""
+msgstr "至少一个网址，空格分隔"
 
 #: developer/templates/console.html:37
 #: developer/templates/oauth2_provider/application_list.html:5
 msgid "Your applications"
-msgstr ""
+msgstr "你的应用程序"
 
 #: developer/templates/oauth2_provider/application_detail.html:9
 msgid "Client ID"
-msgstr ""
+msgstr "Client ID"
 
 #: developer/templates/oauth2_provider/application_detail.html:18
 msgid "URL"
-msgstr ""
+msgstr "网址"
 
 #: developer/templates/oauth2_provider/application_detail.html:24
 msgid "Description"
-msgstr ""
+msgstr "描述"
 
 #: developer/templates/oauth2_provider/application_detail.html:30
 msgid "Redirect Uris"
-msgstr ""
+msgstr "重定向网址"
 
 #: developer/templates/oauth2_provider/application_detail.html:38
 #: developer/templates/oauth2_provider/application_form.html:33
 msgid "Go Back"
-msgstr ""
+msgstr "返回"
 
 #: developer/templates/oauth2_provider/application_detail.html:40
 msgid "Edit"
-msgstr ""
+msgstr "编辑"
 
 #: developer/templates/oauth2_provider/application_detail.html:42
 msgid "Delete"
-msgstr ""
+msgstr "删除"
 
 #: developer/templates/oauth2_provider/application_form.html:8
 msgid "Edit application"
-msgstr ""
+msgstr "编辑应用程序"
 
 #: developer/templates/oauth2_provider/application_form.html:35
 msgid "Save"
-msgstr ""
+msgstr "保存"
 
 #: developer/templates/oauth2_provider/application_list.html:20
 msgid "New Application"
-msgstr ""
+msgstr "新建应用程序"
 
 #: developer/templates/oauth2_provider/application_list.html:23
 msgid "No applications defined"
-msgstr ""
+msgstr "尚无应用程序"
 
 #: developer/templates/oauth2_provider/application_list.html:23
 msgid "Click here"
-msgstr ""
+msgstr "点此"
 
 #: developer/templates/oauth2_provider/application_list.html:23
 msgid "if you want to register a new one"
-msgstr ""
+msgstr "如果你希望新注册一个"
 
 #: journal/forms.py:18 journal/forms.py:41
 msgid "Title"
@@ -1790,7 +1860,7 @@ msgstr ""
 msgid "喜欢的收藏单"
 msgstr ""
 
-#: journal/templates/replies.html:39 social/templates/events.html:46
+#: journal/templates/replies.html:46 social/templates/events.html:46
 msgid "nothing so far."
 msgstr "暂无内容。"
 
@@ -1824,83 +1894,92 @@ msgstr ""
 msgid "分享"
 msgstr ""
 
-#: journal/views/collection.py:44
+#: journal/views/collection.py:38
 #, python-brace-format
 msgid "Collection by {0}"
 msgstr "{0} 的收藏单"
 
-#: journal/views/collection.py:200
+#: journal/views/collection.py:190
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
 
-#: journal/views/common.py:32 journal/views/mark.py:118
+#: journal/views/collection.py:303 journal/views/collection.py:324
+#: journal/views/review.py:124
+msgid "Login required"
+msgstr "登录后访问"
+
+#: journal/views/common.py:33 journal/views/mark.py:117
 msgid "Data saved but unable to repost to Fediverse."
-msgstr ""
+msgstr "数据已保存但未能转发到联邦宇宙。"
 
-#: journal/views/common.py:34
+#: journal/views/common.py:35
 msgid "Redirecting to your Mastodon instance now to re-authenticate."
-msgstr ""
+msgstr "正在重定向到你的Mastodon实例以重新认证。"
 
-#: journal/views/common.py:41
+#: journal/views/common.py:42
 msgid "List not found."
-msgstr ""
+msgstr "列表未找到"
 
-#: journal/views/mark.py:110
+#: journal/views/mark.py:109
 msgid "Content too long for your Mastodon instance."
-msgstr ""
+msgstr "内容过长，超出了你的Mastodon实例的限制。"
 
-#: journal/views/review.py:113 journal/views/review.py:127
+#: journal/views/mark.py:161 journal/views/review.py:30
+msgid "Content not found"
+msgstr "内容未找到"
+
+#: journal/views/review.py:112 journal/views/review.py:126
 #, python-brace-format
 msgid "Reviews by {0}"
-msgstr ""
+msgstr "{0} 的评论"
 
-#: journal/views/review.py:115 journal/views/review.py:123
-msgid "link unavailable"
-msgstr ""
+#: journal/views/review.py:114 journal/views/review.py:122
+msgid "Link invalid"
+msgstr "链接无效"
 
-#: journal/views/review.py:125
-msgid "anonymous access disabled by owner"
-msgstr ""
-
-#: journal/views/review.py:136
+#: journal/views/review.py:135
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
-msgstr ""
+msgstr "{review_title} - 关于 {item_title} 的评论"
 
-#: journal/views/tag.py:59
-msgid "Invalid tag."
-msgstr ""
+#: journal/views/tag.py:43 journal/views/tag.py:57
+msgid "Invalid tag"
+msgstr "无效标签"
 
-#: journal/views/tag.py:63
+#: journal/views/tag.py:46
+msgid "Tag not found"
+msgstr "标签不存在"
+
+#: journal/views/tag.py:61
 msgid "Tag deleted."
-msgstr ""
+msgstr "标签已删除"
 
-#: journal/views/tag.py:73
+#: journal/views/tag.py:71
 msgid "Duplicated tag."
-msgstr ""
+msgstr "重复标签"
 
-#: journal/views/tag.py:79
+#: journal/views/tag.py:77
 msgid "Tag updated."
-msgstr ""
+msgstr "标签已更新"
 
 #: journal/views/wrapped.py:141
 msgid "Summary posted to timeline."
-msgstr ""
+msgstr "总结已发布到时间轴"
 
 #: mastodon/api.py:489 takahe/utils.py:514
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "关于 {item_title}，可能包含剧透或敏感内容"
 
-#: mastodon/api.py:639
+#: mastodon/api.py:646
 msgid "collection"
 msgstr "收藏单"
 
-#: mastodon/api.py:644
+#: mastodon/api.py:651
 msgid "shared my collection"
 msgstr "分享我的收藏单"
 
-#: mastodon/api.py:647
+#: mastodon/api.py:654
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
@@ -2007,14 +2086,18 @@ msgstr "转播了你的帖文"
 msgid ""
 "\n"
 "boosted your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
-msgstr "\n转播了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgstr ""
+"\n"
+"转播了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/boosted_comment.html:3
 #, python-format
 msgid ""
 "\n"
 "boosted your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+msgstr ""
+"\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
 
 #: social/templates/event/boosted_review.html:2
 #, python-format
@@ -2023,7 +2106,8 @@ msgid ""
 "boosted your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a "
 "href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
+"\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
 "href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/boosted_shelfmember.html:3
@@ -2031,7 +2115,9 @@ msgstr ""
 msgid ""
 "\n"
 "boosted your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
+msgstr ""
+"\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
 #: social/templates/event/follow_requested.html:3
 msgid "requested to follow you"
@@ -2050,14 +2136,18 @@ msgstr "赞了你的帖文"
 msgid ""
 "\n"
 "liked your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
-msgstr "\n赞了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgstr ""
+"\n"
+"赞了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/liked_comment.html:3
 #, python-format
 msgid ""
 "\n"
 "liked your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+msgstr ""
+"\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
 
 #: social/templates/event/liked_review.html:2
 #, python-format
@@ -2066,7 +2156,8 @@ msgid ""
 "liked your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a "
 "href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
+"\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
 "href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/liked_shelfmember.html:3
@@ -2074,7 +2165,9 @@ msgstr ""
 msgid ""
 "\n"
 "liked your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
+msgstr ""
+"\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
 #: social/templates/event/mentioned.html:3
 msgid "mentioned you"
@@ -2085,14 +2178,18 @@ msgstr "提到了你"
 msgid ""
 "\n"
 "replied to your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
-msgstr "\n回应了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgstr ""
+"\n"
+"回应了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/mentioned_comment.html:3
 #, python-format
 msgid ""
 "\n"
 "replied to your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+msgstr ""
+"\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
 
 #: social/templates/event/mentioned_review.html:2
 #, python-format
@@ -2101,7 +2198,8 @@ msgid ""
 "replied to your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a "
 "href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
+"\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
 "href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/mentioned_shelfmember.html:3
@@ -2109,7 +2207,9 @@ msgstr ""
 msgid ""
 "\n"
 "replied to your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
+msgstr ""
+"\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
 #: social/templates/events.html:44
 msgid "nothing more."
@@ -2167,114 +2267,118 @@ msgstr ""
 msgid "created collection"
 msgstr ""
 
-#: users/account.py:87
+#: users/account.py:86
 msgid "无效的电子邮件地址"
 msgstr ""
 
-#: users/account.py:105
+#: users/account.py:104
 msgid "验证邮件已发送"
 msgstr ""
 
-#: users/account.py:106
+#: users/account.py:105
 msgid "请查阅收件箱"
 msgstr ""
 
-#: users/account.py:156 users/account.py:163 users/account.py:173
+#: users/account.py:155 users/account.py:162 users/account.py:172
 msgid "认证失败😫"
 msgstr ""
 
-#: users/account.py:156
+#: users/account.py:155
 msgid "Mastodon服务未能返回有效认证信息"
 msgstr ""
 
-#: users/account.py:163
+#: users/account.py:162
 msgid "无效会话信息"
 msgstr ""
 
-#: users/account.py:173
+#: users/account.py:167
+msgid "Invalid instance domain"
+msgstr ""
+
+#: users/account.py:172
 msgid "Mastodon服务未能返回有效认证令牌"
 msgstr ""
 
-#: users/account.py:190
+#: users/account.py:189
 msgid "联邦宇宙访问失败😫"
 msgstr ""
 
-#: users/account.py:212
+#: users/account.py:211
 msgid "注册失败😫"
 msgstr ""
 
-#: users/account.py:213
+#: users/account.py:212
 msgid "本站仅限邀请注册"
 msgstr ""
 
-#: users/account.py:279
+#: users/account.py:273
 msgid "This username is already in use."
 msgstr ""
 
-#: users/account.py:290
+#: users/account.py:284
 msgid "This email address is already in use."
 msgstr ""
 
-#: users/account.py:342 users/account.py:351
+#: users/account.py:336 users/account.py:345
 msgid "无效的验证码"
 msgstr ""
 
-#: users/account.py:370
+#: users/account.py:364
 msgid "链接无效或已过期"
 msgstr ""
 
-#: users/account.py:387 users/account.py:393
+#: users/account.py:381 users/account.py:387
 msgid "电子邮件地址不匹配"
 msgstr ""
 
-#: users/account.py:397
+#: users/account.py:391
 msgid "此电子邮件地址已被注册"
 msgstr ""
 
-#: users/account.py:402
+#: users/account.py:396
 msgid "无法完成验证"
 msgstr ""
 
-#: users/account.py:434
+#: users/account.py:428
 msgid "用户名已被使用"
 msgstr ""
 
-#: users/account.py:449
+#: users/account.py:443
 msgid "电子邮件地址已被使用"
 msgstr ""
 
-#: users/account.py:467
+#: users/account.py:461
 msgid "已发送验证邮件，请查收。"
 msgstr ""
 
-#: users/account.py:471
+#: users/account.py:465
 msgid "用户名已设置。"
 msgstr ""
 
-#: users/account.py:473
+#: users/account.py:467
 msgid "电子邮件地址已取消关联。"
 msgstr ""
 
-#: users/account.py:491
+#: users/account.py:485
 #, python-brace-format
 msgid "该身份 {username}@{site} 与当前账号相同。"
 msgstr ""
 
-#: users/account.py:499
+#: users/account.py:493
 #, python-brace-format
 msgid "该身份 {username}@{site} 已被用于其它账号。"
 msgstr ""
 
-#: users/account.py:523
+#: users/account.py:517
 #, python-brace-format
 msgid "账号身份已更新为 {username}@{site}。"
 msgstr ""
 
-#: users/account.py:526
+#: users/account.py:520
 msgid "连接联邦宇宙获取身份信息失败。"
 msgstr ""
 
-#: users/account.py:575
+#: users/account.py:569
 msgid "验证信息不符。"
 msgstr ""
 
@@ -2534,18 +2638,5 @@ msgstr ""
 msgid "验证电子邮件"
 msgstr ""
 
-#: users/views.py:25
-msgid "😖哎呀，这位用户好像还没有加入本站，快去联邦宇宙呼唤TA来注册吧！"
-msgstr ""
-
-#: users/views.py:26
-msgid "未找到用户"
-msgstr ""
-
-#: users/views.py:38
-msgid "没有访问该用户主页的权限"
-msgstr ""
-
-#: users/views.py:49
-msgid "作者已设置仅限登录用户查看"
-msgstr ""
+#~ msgid "Invalid tag."
+#~ msgstr "无效标签"

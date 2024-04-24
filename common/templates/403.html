@@ -4,11 +4,11 @@
 {% load mastodon %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="zh">
+<html>
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '权限不符' %}</title>
+    <title>{{ site_name }} - 403</title>
     <meta name="robots" content="noindex">
     {% include "common_libs.html" %}
   </head>
@@ -17,10 +17,11 @@
     <main class="container">
       <article class="error">
         <header>
-          <h3>🙅🏻 权限不符</h3>
+          <h3>🙅🏻 {{ exception|default:"" }}</h3>
         </header>
-        {{ exception }}
-        您可能访问了错误的网址，或者相关内容已被作者删除。如果您确信这是我们的错误，请通过页面底部的链接联系我们。
+        {% blocktrans %}Author may require you to log in before accessing this content, or you do not have permission to view it.{% endblocktrans %}
+        <br>
+        {% blocktrans %}If you believe this is our mistake, please contact us through the link at the bottom of the page.{% endblocktrans %}
       </article>
     </main>
     {% include "_footer.html" %}

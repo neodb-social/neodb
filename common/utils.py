@@ -4,9 +4,11 @@ from typing import TYPE_CHECKING
 
 from discord import SyncWebhook
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
 from django.utils.baseconv import base62
+from django.utils.translation import gettext_lazy as _
 
 from .config import PAGE_LINK_NUMBER
 
@@ -52,16 +54,15 @@ def target_identity_required(func):
     @functools.wraps(func)
     def wrapper(request, user_name, *args, **kwargs):
         from users.models import APIdentity
-        from users.views import render_user_blocked, render_user_not_found
 
         try:
             target = APIdentity.get_by_handle(user_name)
         except APIdentity.DoesNotExist:
-            return render_user_not_found(request)
+            raise Http404(_("User not found"))
         target_user = target.user
         viewer = None
         if target_user and not target_user.is_active:
-            return render_user_not_found(request)
+            raise Http404(_("User no longer exists"))
         if request.user.is_authenticated:
             try:
                 viewer = APIdentity.objects.get(user=request.user)
@@ -69,7 +70,7 @@ def target_identity_required(func):
                 return HttpResponseRedirect("/account/register")
             if request.user != target_user:
                 if target.is_blocking(viewer) or target.is_blocked_by(viewer):
-                    return render_user_blocked(request)
+                    raise PermissionDenied(_("Access denied"))
         else:
             viewer = None
         request.target_identity = target
@@ -83,16 +84,15 @@ def profile_identity_required(func):
     @functools.wraps(func)
     def wrapper(request, user_name, *args, **kwargs):
         from users.models import APIdentity
-        from users.views import render_user_blocked, render_user_not_found
 
         try:
             target = APIdentity.get_by_handle(user_name, match_linked=True)
         except APIdentity.DoesNotExist:
-            return render_user_not_found(request)
+            raise Http404(_("User not found"))
         target_user = target.user
         viewer = None
         if target_user and not target_user.is_active:
-            return render_user_not_found(request)
+            raise Http404(_("User no longer exists"))
         if request.user.is_authenticated:
             try:
                 viewer = APIdentity.objects.get(user=request.user)
@@ -100,7 +100,7 @@ def profile_identity_required(func):
                 return HttpResponseRedirect("/account/register")
             if request.user != target_user:
                 if target.is_blocking(viewer) or target.is_blocked_by(viewer):
-                    return render_user_blocked(request)
+                    raise PermissionDenied(_("Access denied"))
         else:
             viewer = None
         request.target_identity = target

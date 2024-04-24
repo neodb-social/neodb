@@ -69,21 +69,16 @@ def nodeinfo2(request):
 
 
 def error_400(request, exception=None):
-    return render(
-        request,
-        "400.html",
-        {"exception": exception},
-        status=400,
-    )
+    return render(request, "400.html", status=400, context={"exception": exception})
 
 
 def error_403(request, exception=None):
-    return render(request, "403.html", status=403)
+    return render(request, "403.html", status=403, context={"exception": exception})
 
 
 def error_404(request, exception=None):
-    return render(request, "404.html", status=404)
+    return render(request, "404.html", status=404, context={"exception": exception})
 
 
 def error_500(request, exception=None):
-    return render(request, "500.html", status=500)
+    return render(request, "500.html", status=500, context={"exception": exception})

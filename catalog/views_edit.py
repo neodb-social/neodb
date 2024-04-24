@@ -97,7 +97,7 @@ def edit(request, item_path, item_uuid):
             form.fields["primary_lookup_id_type"].disabled = True
             form.fields["primary_lookup_id_value"].disabled = True
         return render(request, "catalog_edit.html", {"form": form, "item": item})
-    elif request.method == "POST":
+    else:
         item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(request.POST, request.FILES, instance=item)
@@ -115,8 +115,6 @@ def edit(request, item_path, item_uuid):
             return redirect(form.instance.url)
         else:
             raise BadRequest(_add_error_map_detail(form.errors))
-    else:
-        raise BadRequest()
 
 
 @require_http_methods(["POST"])
@@ -124,7 +122,7 @@ def edit(request, item_path, item_uuid):
 def delete(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and item.journal_exists():
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     if request.POST.get("sure", 0) != "1":
         return render(request, "catalog_delete.html", {"item": item})
     else:
@@ -147,7 +145,7 @@ def delete(request, item_path, item_uuid):
 def undelete(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff:
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     item.is_deleted = False
     item.save()
     return redirect(item.url)
@@ -199,10 +197,10 @@ def recast(request, item_path, item_uuid):
 @login_required
 def unlink(request):
     if not request.user.is_staff:
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     res_id = request.POST.get("id")
     if not res_id:
-        raise BadRequest()
+        raise BadRequest(_("Invalid parameter"))
     resource = get_object_or_404(ExternalResource, id=res_id)
     resource.unlink_from_item()
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
@@ -251,7 +249,7 @@ def remove_unused_seasons(request, item_path, item_uuid):
 def fetch_tvepisodes(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if item.class_name != "tvseason" or not item.imdb or item.season_number is None:
-        raise BadRequest()
+        raise BadRequest(_("Must be a TV Season with IMDB id and season id"))
     item.log_action({"!fetch_tvepisodes": ["", ""]})
     django_rq.get_queue("crawl").enqueue(
         fetch_episodes_for_season_task, item.uuid, request.user
@@ -275,7 +273,7 @@ def fetch_episodes_for_season_task(item_uuid, user):
 def merge(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and item.journal_exists():
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     if request.POST.get("sure", 0) != "1":
         new_item = Item.get_by_url(request.POST.get("target_item_url"))
         return render(
@@ -352,7 +350,7 @@ def link_edition(request, item_path, item_uuid):
 def unlink_works(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and item.journal_exists():
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     item.unlink_from_all_works()
     discord_send(
         "audit",

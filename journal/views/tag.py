@@ -1,15 +1,13 @@
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.db.models import Count
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 from user_messages import api as msg
 
 from catalog.models import *
-from users.models import User
-from users.views import render_user_blocked, render_user_not_found
 
 from ..forms import *
 from ..models import *
@@ -38,16 +36,17 @@ def user_tag_list(request, user_name):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def user_tag_edit(request):
     if request.method == "GET":
         tag_title = Tag.cleanup_title(request.GET.get("tag", ""), replace=False)
         if not tag_title:
-            raise Http404()
+            raise Http404(_("Invalid tag"))
         tag = Tag.objects.filter(owner=request.user.identity, title=tag_title).first()
         if not tag:
-            raise Http404()
+            raise Http404(_("Tag not found"))
         return render(request, "tag_edit.html", {"tag": tag})
-    elif request.method == "POST":
+    else:
         tag_title = Tag.cleanup_title(request.POST.get("title", ""), replace=False)
         tag_id = request.POST.get("id")
         tag = (
@@ -56,7 +55,7 @@ def user_tag_edit(request):
             else None
         )
         if not tag or not tag_title:
-            msg.error(request.user, _("Invalid tag."))
+            msg.error(request.user, _("Invalid tag"))
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
         if request.POST.get("delete"):
             tag.delete()
@@ -83,7 +82,6 @@ def user_tag_edit(request):
                 args=[request.user.username, tag.title],
             )
         )
-    raise BadRequest()
 
 
 def user_tag_member_list(request, user_name, tag_title):

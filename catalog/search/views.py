@@ -1,4 +1,3 @@
-import logging
 import re
 
 import django_rq
@@ -8,11 +7,11 @@ from django.core.cache import cache
 from django.core.exceptions import BadRequest
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 from rq.job import Job
 
 from catalog.common.models import ItemCategory, SiteName
 from catalog.common.sites import AbstractSite, SiteManager
-from common.config import PAGE_LINK_NUMBER
 from common.utils import (
     HTTPResponseHXRedirect,
     PageLinksGenerator,
@@ -52,7 +51,7 @@ def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = No
     if not site:
         site = SiteManager.get_site_by_url(url)
         if not site:
-            raise BadRequest()
+            raise BadRequest(_("Invalid URL"))
     item = site.get_item()
     if item and not is_refetch:
         return redirect(item.url)
@@ -172,10 +171,9 @@ def external_search(request):
 
 
 @login_required
+@require_http_methods(["POST"])
 def refetch(request):
-    if request.method != "POST":
-        raise BadRequest()
     url = request.POST.get("url")
     if not url:
-        raise BadRequest()
+        raise BadRequest(_("Invalid URL"))
     return fetch(request, url, True)

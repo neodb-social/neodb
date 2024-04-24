@@ -4,11 +4,11 @@
 {% load mastodon %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="zh">
+<html>
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '系统错误' %}</title>
+    <title>{{ site_name }} - 500</title>
     <meta name="robots" content="noindex">
     {% include "common_libs.html" %}
   </head>
@@ -17,9 +17,11 @@
     <main class="container">
       <article class="error">
         <header>
-          <h3>🤦🏻 系统内部错误</h3>
+          <h3>🤦🏻 My Bad</h3>
         </header>
-        发生了一个内部错误，如果这个错误多次出现，后台会记录并会由人工处理。如果您有紧急情况或任何疑问，请通过页面底部的链接联系我们。
+        {% blocktrans %}An internal error occurred. If this error occurs repeatedly, it will be recorded and handled by a human.{% endblocktrans %}
+        <br>
+        {% blocktrans %}If you have an urgent situation or any questions, please contact us through the link at the bottom of the page.{% endblocktrans %}
       </article>
     </main>
     {% include "_footer.html" %}

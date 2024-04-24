@@ -7,6 +7,7 @@ from django.db.models import F, Min, OuterRef, Subquery
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
 from common.utils import (
@@ -77,7 +78,7 @@ def render_list(
     elif type == "review" and item_category:
         queryset = Review.objects.filter(q_item_in_category(item_category))
     else:
-        raise BadRequest()
+        raise BadRequest(_("Invalid parameter"))
     if sort == "rating":
         rating = Rating.objects.filter(
             owner_id=OuterRef("owner_id"), item_id=OuterRef("item_id")
@@ -125,17 +126,16 @@ def render_list(
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def piece_delete(request, piece_uuid):
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
     return_url = request.GET.get("return_url", None) or "/"
     if not piece.is_editable_by(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":
         return render(
             request, "piece_delete.html", {"piece": piece, "return_url": return_url}
         )
-    elif request.method == "POST":
+    else:
         piece.delete()
         return redirect(return_url)
-    else:
-        raise BadRequest()

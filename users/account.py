@@ -32,46 +32,45 @@ from takahe.utils import Takahe
 from .models import Preference, User
 from .tasks import *
 
-
 # the 'login' page that user can see
-def login(request):
-    if request.method == "GET":
-        selected_site = request.GET.get("site", default="")
+require_http_methods(["GET"])
 
-        cache_key = "login_sites"
-        sites = cache.get(cache_key, [])
-        if not sites:
-            sites = list(
-                User.objects.filter(is_active=True)
-                .values("mastodon_site")
-                .annotate(total=Count("mastodon_site"))
-                .order_by("-total")
-                .values_list("mastodon_site", flat=True)
-            )
-            cache.set(cache_key, sites, timeout=3600 * 8)
-        # store redirect url in the cookie
-        if request.GET.get("next"):
-            request.session["next_url"] = request.GET.get("next")
-        invite_status = -1 if settings.INVITE_ONLY else 0
-        if settings.INVITE_ONLY and request.GET.get("invite"):
-            if Takahe.verify_invite(request.GET.get("invite")):
-                invite_status = 1
-                request.session["invite"] = request.GET.get("invite")
-            else:
-                invite_status = -2
-        return render(
-            request,
-            "users/login.html",
-            {
-                "sites": sites,
-                "scope": quote(settings.MASTODON_CLIENT_SCOPE),
-                "selected_site": selected_site,
-                "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
-                "invite_status": invite_status,
-            },
+
+def login(request):
+    selected_site = request.GET.get("site", default="")
+
+    cache_key = "login_sites"
+    sites = cache.get(cache_key, [])
+    if not sites:
+        sites = list(
+            User.objects.filter(is_active=True)
+            .values("mastodon_site")
+            .annotate(total=Count("mastodon_site"))
+            .order_by("-total")
+            .values_list("mastodon_site", flat=True)
         )
-    else:
-        raise BadRequest()
+        cache.set(cache_key, sites, timeout=3600 * 8)
+    # store redirect url in the cookie
+    if request.GET.get("next"):
+        request.session["next_url"] = request.GET.get("next")
+    invite_status = -1 if settings.INVITE_ONLY else 0
+    if settings.INVITE_ONLY and request.GET.get("invite"):
+        if Takahe.verify_invite(request.GET.get("invite")):
+            invite_status = 1
+            request.session["invite"] = request.GET.get("invite")
+        else:
+            invite_status = -2
+    return render(
+        request,
+        "users/login.html",
+        {
+            "sites": sites,
+            "scope": quote(settings.MASTODON_CLIENT_SCOPE),
+            "selected_site": selected_site,
+            "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
+            "invite_status": invite_status,
+        },
+    )
 
 
 # connect will send verification email or redirect to mastodon server
@@ -165,7 +164,7 @@ def connect_redirect_back(request):
     try:
         token, refresh_token = obtain_token(site, request, code)
     except ObjectDoesNotExist:
-        raise BadRequest()
+        raise BadRequest(_("Invalid instance domain"))
     if not token:
         return render(
             request,
@@ -239,24 +238,19 @@ def login_existing_user(request, existing_user):
 @mastodon_request_included
 @login_required
 def logout(request):
-    if request.method == "GET":
-        # revoke_token(request.user.mastodon_site, request.user.mastodon_token)
-        return auth_logout(request)
-    else:
-        raise BadRequest()
+    # revoke_token(request.user.mastodon_site, request.user.mastodon_token)
+    return auth_logout(request)
 
 
 @mastodon_request_included
 @login_required
+@require_http_methods(["POST"])
 def reconnect(request):
     if request.META.get("HTTP_AUTHORIZATION"):
         raise BadRequest("Only for web login")
-    if request.method == "POST":
-        request.session["swap_login"] = True
-        request.session["swap_domain"] = request.POST["domain"]
-        return connect(request)
-    else:
-        raise BadRequest()
+    request.session["swap_login"] = True
+    request.session["swap_domain"] = request.POST["domain"]
+    return connect(request)
 
 
 class RegistrationForm(forms.ModelForm):
