@@ -1,2 +1,2 @@
 #!/bin/sh
-cd /neodb && ${NEODB_VENV}/bin/python manage.py $@
+cd /neodb && exec ${NEODB_VENV}/bin/python manage.py $@

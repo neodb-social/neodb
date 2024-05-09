@@ -204,6 +204,7 @@ services:
   takahe-stator:
     <<: *neodb-service
     command: takahe-manage runstator
+    stop_signal: SIGINT
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -239,6 +240,7 @@ services:
   dev-neodb-web:
     <<: *dev-neodb-service
     command: neodb-manage runserver 0.0.0.0:8000
+    stop_signal: SIGINT
 
   dev-neodb-worker:
     <<: *dev-neodb-service
@@ -247,10 +249,12 @@ services:
   dev-takahe-web:
     <<: *dev-neodb-service
     command: takahe-manage runserver 0.0.0.0:8000
+    stop_signal: SIGINT
 
   dev-takahe-stator:
     <<: *dev-neodb-service
     command: takahe-manage runstator
+    stop_signal: SIGINT
 
   dev-nginx:
     <<: *dev-neodb-service
