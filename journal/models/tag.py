@@ -80,15 +80,10 @@ class TagManager:
 
     @staticmethod
     def all_tags_by_owner(owner, public_only=False):
-        tags = (
-            owner.tag_set.all()
-            .values("title")
-            .annotate(frequency=Count("members__id"))
-            .order_by("-frequency")
-        )
+        tags = owner.tag_set.all().annotate(total=Count("members")).order_by("-total")
         if public_only:
             tags = tags.filter(visibility=0)
-        return list(map(lambda t: t["title"], tags))
+        return tags
 
     @staticmethod
     def tag_item(

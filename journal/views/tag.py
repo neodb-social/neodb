@@ -20,10 +20,7 @@ PAGE_SIZE = 10
 @target_identity_required
 def user_tag_list(request, user_name):
     target = request.target_identity
-    tags = Tag.objects.filter(owner=target)
-    if target.user != request.user:
-        tags = tags.filter(visibility=0)
-    tags = tags.values("title").annotate(total=Count("members")).order_by("-total")
+    tags = TagManager.all_tags_by_owner(target, target.user != request.user)
     return render(
         request,
         "user_tag_list.html",
