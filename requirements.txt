@@ -15,7 +15,7 @@ django-maintenance-mode
 django-markdownx
 django-ninja
 django-oauth-toolkit==2.3.0
-django-polymorphic
+django-polymorphic @ git+https://github.com/jazzband/django-polymorphic/@v4.0.0a
 django-redis
 django-rq
 django-sass-processor
