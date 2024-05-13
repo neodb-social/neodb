@@ -1,4 +1,5 @@
 import os
+import sys
 
 import environ
 from django.utils.translation import gettext_lazy as _
@@ -102,6 +103,7 @@ env = environ.FileAwareEnv(
     # SSL only, better be True for production security
     SSL_ONLY=(bool, False),
     NEODB_SENTRY_DSN=(str, ""),
+    NEODB_SENTRY_SAMPLE_RATE=(float, 0),
     NEODB_FANOUT_LIMIT_DAYS=(int, 9),
 )
 
@@ -564,10 +566,14 @@ if SENTRY_DSN:
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.loguru import LoguruIntegration
 
+    sentry_env = sys.argv[0].split("/")[-1]
+    if len(sys.argv) > 1 and sentry_env in ("manage.py", "django-admin"):
+        sentry_env = sys.argv[1]
     sentry_sdk.init(
         dsn=SENTRY_DSN,
+        environment=sentry_env or "unknown",
         integrations=[LoguruIntegration(), DjangoIntegration()],
         release=NEODB_VERSION,
         send_default_pii=True,
-        traces_sample_rate=1 if DEBUG else 0.001,
+        traces_sample_rate=env("NEODB_SENTRY_SAMPLE_RATE"),
     )
