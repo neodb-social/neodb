@@ -75,7 +75,7 @@ class Rating(Content):
     def get_rating_for_item(item: Item) -> float | None:
         stat = Rating.objects.filter(grade__isnull=False)
         if item.class_name in RATING_INCLUDES_CHILD_ITEMS:
-            stat = stat.filter(item_id__in=item.child_item_ids + [item.id])
+            stat = stat.filter(item_id__in=item.child_item_ids + [item.pk])
         else:
             stat = stat.filter(item=item)
         stat = stat.aggregate(average=Avg("grade"), count=Count("item"))
@@ -85,7 +85,7 @@ class Rating(Content):
     def get_rating_count_for_item(item: Item) -> int:
         stat = Rating.objects.filter(grade__isnull=False)
         if item.class_name in RATING_INCLUDES_CHILD_ITEMS:
-            stat = stat.filter(item_id__in=item.child_item_ids + [item.id])
+            stat = stat.filter(item_id__in=item.child_item_ids + [item.pk])
         else:
             stat = stat.filter(item=item)
         stat = stat.aggregate(count=Count("item"))
@@ -95,7 +95,7 @@ class Rating(Content):
     def get_rating_distribution_for_item(item: Item):
         stat = Rating.objects.filter(grade__isnull=False)
         if item.class_name in RATING_INCLUDES_CHILD_ITEMS:
-            stat = stat.filter(item_id__in=item.child_item_ids + [item.id])
+            stat = stat.filter(item_id__in=item.child_item_ids + [item.pk])
         else:
             stat = stat.filter(item=item)
         stat = stat.values("grade").annotate(count=Count("grade")).order_by("grade")

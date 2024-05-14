@@ -50,7 +50,7 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
             if review
             else ReviewForm(
                 initial={
-                    "item": item.id,
+                    "item": item.pk,
                     "share_to_mastodon": request.user.preference.mastodon_default_repost,
                 }
             )

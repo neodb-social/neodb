@@ -358,7 +358,11 @@ def get_or_create_fediverse_application(login_domain):
     if not app:
         app = MastodonApplication.objects.filter(api_domain__iexact=domain).first()
     if app:
-        return app
+        if verify_client(app):
+            return app
+        else:
+            logger.warning(f"Invalid client app for {domain}")
+            app.delete()
     if not settings.MASTODON_ALLOW_ANY_SITE:
         logger.warning(f"Disallowed to create app for {domain}")
         raise Exception("不支持其它实例登录")
@@ -422,6 +426,30 @@ def get_mastodon_login_url(app, login_domain, request):
         + url
         + "&response_type=code"
     )
+
+
+def verify_client(mast_app):
+    payload = {
+        "client_id": mast_app.client_id,
+        "client_secret": mast_app.client_secret,
+        "redirect_uri": "urn:ietf:wg:oauth:2.0:oob",
+        "scope": settings.MASTODON_CLIENT_SCOPE,
+        "grant_type": "client_credentials",
+    }
+    headers = {"User-Agent": USER_AGENT}
+    url = "https://" + (mast_app.api_domain or mast_app.domain_name) + API_OBTAIN_TOKEN
+    try:
+        response = post(
+            url, data=payload, headers=headers, timeout=settings.MASTODON_TIMEOUT
+        )
+    except Exception as e:
+        logger.warning(f"Error {url} {e}")
+        return False
+    if response.status_code != 200:
+        logger.warning(f"Error {url} {response.status_code}")
+        return False
+    data = response.json()
+    return data.get("access_token") is not None
 
 
 def obtain_token(site, request, code):

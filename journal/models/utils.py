@@ -44,6 +44,9 @@ def update_journal_for_merged_item(
         logger.error("update_journal_for_merged_item: unable to find item")
         return
     new_item = legacy_item.merged_to_item
+    if not new_item:
+        logger.error("update_journal_for_merged_item: unable to find merged_to_item")
+        return
     delete_q = []
     for cls in list(Content.__subclasses__()) + list(ListMember.__subclasses__()):
         for p in cls.objects.filter(item=legacy_item):
@@ -54,12 +57,12 @@ def update_journal_for_merged_item(
                 except IntegrityError:
                     if delete_duplicated:
                         logger.warning(
-                            f"deleted piece {p.id} when merging {cls.__name__}: {legacy_item_uuid} -> {new_item.uuid}"
+                            f"deleted piece {p.pk} when merging {cls.__name__}: {legacy_item_uuid} -> {new_item.uuid}"
                         )
                         delete_q.append(p)
                     else:
                         logger.warning(
-                            f"skip piece {p.id} when merging {cls.__name__}: {legacy_item_uuid} -> {new_item.uuid}"
+                            f"skip piece {p.pk} when merging {cls.__name__}: {legacy_item_uuid} -> {new_item.uuid}"
                         )
     for p in delete_q:
         Debris.create_from_piece(p)

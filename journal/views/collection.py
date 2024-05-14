@@ -36,7 +36,7 @@ def add_to_collection(request: AuthedHttpRequest, item_uuid):
             cid = Collection.objects.create(
                 owner=request.user.identity,
                 title=_("Collection by {0}").format(request.user.display_name),
-            ).id
+            ).pk
         collection = Collection.objects.get(owner=request.user.identity, id=cid)
         collection.append_item(item, note=request.POST.get("note"))
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))

@@ -217,7 +217,7 @@ ALLOWED_HOSTS = ["*"]
 ENABLE_LOCAL_ONLY = env("NEODB_ENABLE_LOCAL_ONLY")
 
 # Timeout of requests to Mastodon, in seconds
-MASTODON_TIMEOUT = env("NEODB_LOGIN_MASTODON_TIMEOUT", default=10)  # type: ignore
+MASTODON_TIMEOUT = env("NEODB_LOGIN_MASTODON_TIMEOUT", default=5)  # type: ignore
 TAKAHE_REMOTE_TIMEOUT = MASTODON_TIMEOUT
 
 NEODB_USER_AGENT = f"NeoDB/{NEODB_VERSION} (+{SITE_INFO.get('site_url', 'undefined')})"

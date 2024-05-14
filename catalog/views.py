@@ -188,7 +188,7 @@ def review_list(request, item_path, item_uuid):
 
 def comments(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    ids = item.child_item_ids + [item.id] + item.sibling_item_ids
+    ids = item.child_item_ids + [item.pk] + item.sibling_item_ids
     queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
     before_time = request.GET.get("last")
@@ -230,7 +230,7 @@ def comments_by_episode(request, item_path, item_uuid):
 
 def reviews(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    ids = item.child_item_ids + [item.id] + item.sibling_item_ids
+    ids = item.child_item_ids + [item.pk] + item.sibling_item_ids
     queryset = Review.objects.filter(item_id__in=ids).order_by("-created_time")
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
     before_time = request.GET.get("last")

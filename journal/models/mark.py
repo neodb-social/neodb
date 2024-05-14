@@ -47,7 +47,7 @@ class Mark:
 
     @property
     def id(self) -> int | None:
-        return self.shelfmember.id if self.shelfmember else None
+        return self.shelfmember.pk if self.shelfmember else None
 
     @cached_property
     def shelf(self) -> Shelf | None:

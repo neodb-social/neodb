@@ -293,7 +293,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     def history(self):
         # can't use AuditlogHistoryField bc it will only return history with current content type
         return LogEntry.objects.filter(
-            object_id=self.id, content_type_id__in=list(item_content_types().values())
+            object_id=self.pk, content_type_id__in=list(item_content_types().values())
         )
 
     @cached_property
@@ -310,7 +310,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             res.save()
 
     def __str__(self):
-        return f"{self.__class__.__name__}|{self.id}|{self.uuid} {self.primary_lookup_id_type}:{self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
+        return f"{self.__class__.__name__}|{self.pk}|{self.uuid} {self.primary_lookup_id_type}:{self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
 
     @classmethod
     def lookup_id_type_choices(cls):
