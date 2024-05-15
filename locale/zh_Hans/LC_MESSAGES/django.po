@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-24 01:50-0400\n"
+"POT-Creation-Date: 2024-05-15 03:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: boofilsic/settings.py:396
+#: boofilsic/settings.py:398
 msgid "English"
 msgstr "英语"
 
-#: boofilsic/settings.py:397 boofilsic/settings.py:400
+#: boofilsic/settings.py:399 boofilsic/settings.py:402
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
@@ -1328,7 +1328,7 @@ msgstr ""
 msgid "常用标签"
 msgstr ""
 
-#: common/templates/_sidebar.html:199
+#: common/templates/_sidebar.html:200
 msgid "全部"
 msgstr ""
 
@@ -1442,7 +1442,8 @@ msgstr "内容 （Markdown格式）"
 msgid "Post to Fediverse"
 msgstr "发布到联邦宇宙"
 
-#: journal/forms.py:25 journal/forms.py:45
+#: journal/forms.py:25 journal/forms.py:45 users/templates/users/data.html:40
+#: users/templates/users/data.html:134
 msgid "Visibility"
 msgstr "可见性"
 
@@ -1462,15 +1463,18 @@ msgstr "协作编辑"
 msgid "note"
 msgstr "备注"
 
-#: journal/models/common.py:26
+#: journal/models/common.py:26 users/templates/users/data.html:49
+#: users/templates/users/data.html:143
 msgid "Public"
 msgstr "公开"
 
-#: journal/models/common.py:27
+#: journal/models/common.py:27 users/templates/users/data.html:57
+#: users/templates/users/data.html:151
 msgid "Followers Only"
 msgstr "仅关注者"
 
-#: journal/models/common.py:28
+#: journal/models/common.py:28 users/templates/users/data.html:65
+#: users/templates/users/data.html:159
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
@@ -1942,44 +1946,44 @@ msgstr "链接无效"
 msgid "{review_title} - a review of {item_title}"
 msgstr "{review_title} - 关于 {item_title} 的评论"
 
-#: journal/views/tag.py:43 journal/views/tag.py:57
+#: journal/views/tag.py:41 journal/views/tag.py:55
 msgid "Invalid tag"
 msgstr "无效标签"
 
-#: journal/views/tag.py:46
+#: journal/views/tag.py:44
 msgid "Tag not found"
 msgstr "标签不存在"
 
-#: journal/views/tag.py:61
+#: journal/views/tag.py:59
 msgid "Tag deleted."
 msgstr "标签已删除"
 
-#: journal/views/tag.py:71
+#: journal/views/tag.py:69
 msgid "Duplicated tag."
 msgstr "重复标签"
 
-#: journal/views/tag.py:77
+#: journal/views/tag.py:75
 msgid "Tag updated."
 msgstr "标签已更新"
 
-#: journal/views/wrapped.py:141
+#: journal/views/wrapped.py:143
 msgid "Summary posted to timeline."
 msgstr "总结已发布到时间轴"
 
-#: mastodon/api.py:489 takahe/utils.py:514
+#: mastodon/api.py:517 takahe/utils.py:514
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "关于 {item_title}，可能包含剧透或敏感内容"
 
-#: mastodon/api.py:646
+#: mastodon/api.py:674
 msgid "collection"
 msgstr "收藏单"
 
-#: mastodon/api.py:651
+#: mastodon/api.py:679
 msgid "shared my collection"
 msgstr "分享我的收藏单"
 
-#: mastodon/api.py:654
+#: mastodon/api.py:682
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
@@ -2382,39 +2386,39 @@ msgstr ""
 msgid "验证信息不符。"
 msgstr ""
 
-#: users/data.py:111
+#: users/data.py:119
 msgid "导出已开始。"
 msgstr ""
 
-#: users/data.py:122
+#: users/data.py:130
 msgid "导出文件已过期，请重新导出"
 msgstr ""
 
-#: users/data.py:132
+#: users/data.py:140
 msgid "同步已开始。"
 msgstr ""
 
-#: users/data.py:146
+#: users/data.py:154
 msgid "同步设置已保存。"
 msgstr ""
 
-#: users/data.py:157
+#: users/data.py:165
 msgid "已重置。"
 msgstr ""
 
-#: users/data.py:166
+#: users/data.py:174
 msgid "链接已保存，等待后台导入。"
 msgstr ""
 
-#: users/data.py:168
+#: users/data.py:176
 msgid "无法识别链接。"
 msgstr ""
 
-#: users/data.py:181 users/data.py:204 users/data.py:217
+#: users/data.py:189 users/data.py:212 users/data.py:225
 msgid "文件已上传，等待后台导入。"
 msgstr ""
 
-#: users/data.py:183 users/data.py:219
+#: users/data.py:191 users/data.py:227
 msgid "无法识别文件。"
 msgstr ""
 
@@ -2509,60 +2513,122 @@ msgstr ""
 msgid "暂无公告"
 msgstr ""
 
-#: users/templates/users/data.html:19
-msgid "导入豆瓣标记和评论"
-msgstr ""
+#: users/templates/users/data.html:10
+msgid "Data Management"
+msgstr "数据管理"
 
-#: users/templates/users/data.html:69
-msgid "备份文件已上传，请等待导入完成或刷新页面查看最新进度"
-msgstr ""
+#: users/templates/users/data.html:19
+msgid "Import Marks and Reviews from Douban"
+msgstr "导入豆瓣标记和评论"
 
 #: users/templates/users/data.html:69 users/templates/users/data.html:88
-#: users/templates/users/data.html:145 users/templates/users/data.html:187
-msgid "导入"
-msgstr ""
+#: users/templates/users/data.html:162 users/templates/users/data.html:207
+msgid "Import"
+msgstr "导入"
 
 #: users/templates/users/data.html:78
-msgid "导入Goodreads账号或书单"
-msgstr ""
+msgid "Import Shelf or List from Goodreads"
+msgstr "导入Goodreads书架或书单"
 
-#: users/templates/users/data.html:106
-msgid "导入Letterboxd标记"
-msgstr ""
+#: users/templates/users/data.html:82
+msgid "Link to Goodreads Profile / Shelf / List"
+msgstr "Goodreads个人主页、书架或书单链接"
 
-#: users/templates/users/data.html:165
-msgid "导入播客订阅列表"
+#: users/templates/users/data.html:93
+msgid ""
+"want-to-read / currently-reading / read books and their reviews will be "
+"imported."
 msgstr ""
+"提交Goodreads用户主页链接将导入想读、在读、已读列表，每本书的评论导入为本站短"
+"评。"
 
-#: users/templates/users/data.html:194
-msgid "导出个人数据"
-msgstr ""
+#: users/templates/users/data.html:98
+msgid "Shelf will be imported as a new collection."
+msgstr "Goodreads书架将被导入为收藏单，每本书的评论导入为收藏单条目备注。"
 
-#: users/templates/users/data.html:200
-msgid "正在导出标记、短评和评论"
-msgstr ""
+#: users/templates/users/data.html:103
+msgid "List will be imported as a new collection."
+msgstr "Goodreads书单将被导入为收藏单，每本书的评论导入为收藏单条目备注。"
 
-#: users/templates/users/data.html:200
-msgid "导出标记、短评和评论"
-msgstr ""
+#: users/templates/users/data.html:115
+msgid "Import from Letterboxd"
+msgstr "导入Letterboxd标记"
 
-#: users/templates/users/data.html:210
+#: users/templates/users/data.html:164
+msgid "Only forward changes(none->to-watch->watched) will be imported."
+msgstr "导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
+
+#: users/templates/users/data.html:168
+msgid "Last import started"
+msgstr "最近导入时间"
+
+#: users/templates/users/data.html:169
+msgid "Status"
+msgstr "状态"
+
+#: users/templates/users/data.html:173
+msgid ""
+"Failed links, likely due to Letterboxd error, you may have to mark them "
+"manually"
+msgstr "导入失败的链接（通常由于Letterboxd的信息错误，请手工添加标记）"
+
+#: users/templates/users/data.html:185
+msgid "Import Podcast Subscriptions"
+msgstr "导入播客订阅列表 (OPML)"
+
+#: users/templates/users/data.html:191
+msgid "Import Method"
+msgstr "导入方式"
+
+#: users/templates/users/data.html:198
+msgid "Mark as listening"
+msgstr "标记为在听"
+
+#: users/templates/users/data.html:202
+msgid "Import as a new collection"
+msgstr "导入为新收藏单"
+
+#: users/templates/users/data.html:205
+msgid "Select OPML file"
+msgstr "选择OPML文件"
+
+#: users/templates/users/data.html:214
+msgid "Export Data"
+msgstr "导出数据"
+
+#: users/templates/users/data.html:220
+msgid "Export in progress"
+msgstr "正在导出"
+
+#: users/templates/users/data.html:220
+msgid "Export marks and reviews"
+msgstr "导出标记、短评和评论"
+
+#: users/templates/users/data.html:222
+msgid "Download"
+msgstr "下载"
+
+#: users/templates/users/data.html:229
+msgid "View Annual Summary"
+msgstr "查看年度小结"
+
+#: users/templates/users/data.html:242
 msgid "重置所有标记和短评可见性"
 msgstr ""
 
-#: users/templates/users/data.html:213
+#: users/templates/users/data.html:245
 msgid "重置"
 msgstr ""
 
-#: users/templates/users/data.html:216
+#: users/templates/users/data.html:248
 msgid "公开"
 msgstr ""
 
-#: users/templates/users/data.html:218
+#: users/templates/users/data.html:250
 msgid "仅关注者"
 msgstr ""
 
-#: users/templates/users/data.html:220
+#: users/templates/users/data.html:252
 msgid "仅自己"
 msgstr ""
 

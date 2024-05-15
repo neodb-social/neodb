@@ -1,5 +1,6 @@
 import base64
 import calendar
+import datetime
 from typing import Any
 
 from django.contrib import messages
@@ -51,9 +52,10 @@ class WrappedView(LoginRequiredMixin, TemplateView):
         target = user.identity
         year = int(kwargs.get("year", 0))
         if year < 1970 or year > 2100:
-            year = 2000
+            year = datetime.date.today().year
         context = super().get_context_data(**kwargs)
         context["identity"] = target
+        context["year"] = year
         cnt = {}
         cats = []
         _item_types = _type_to_emoji()

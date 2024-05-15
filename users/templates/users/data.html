@@ -7,7 +7,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - 数据管理</title>
+    <title>{{ site_name }} - {% trans 'Data Management' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -16,7 +16,7 @@
       <div class="grid__main">
         <article>
           <details>
-            <summary>{% trans '导入豆瓣标记和评论' %}</summary>
+            <summary>{% trans 'Import Marks and Reviews from Douban' %}</summary>
             <form action="{% url 'users:import_douban' %}"
                   method="post"
                   enctype="multipart/form-data">
@@ -37,7 +37,7 @@
                 </label>
               </fieldset>
               <p>
-                可见性:
+                {% trans 'Visibility' %}:
                 <br>
                 <label for="id_visibility_0">
                   <input type="radio"
@@ -46,7 +46,7 @@
                          required=""
                          id="id_visibility_0"
                          checked>
-                  公开
+                  {% trans 'Public' %}
                 </label>
                 <label for="id_visibility_1">
                   <input type="radio"
@@ -54,7 +54,7 @@
                          value="1"
                          required=""
                          id="id_visibility_1">
-                  仅关注者
+                  {% trans 'Followers Only' %}
                 </label>
                 <label for="id_visibility_2">
                   <input type="radio"
@@ -62,11 +62,11 @@
                          value="2"
                          required=""
                          id="id_visibility_2">
-                  仅自己
+                  {% trans 'Mentioned Only' %}
                 </label>
               </p>
               <input type="submit"
-                     {% if import_status.douban_pending %} onclick="return confirm('短期重复上传可能有无法预期的效果，确定现在上传导入吗？')" value="{% trans '备份文件已上传，请等待导入完成或刷新页面查看最新进度' %}" {% else %} value="{% trans '导入' %}" {% endif %} />
+                     {% if import_status.douban_pending %} onclick="return confirm('短期重复上传可能有无法预期的效果，确定现在上传导入吗？')" value="备份文件已上传，请等待导入完成或刷新页面查看最新进度" {% else %} value="{% trans 'Import' %}" {% endif %} />
             </form>
             <div hx-get="{% url 'users:import_status' %}"
                  hx-trigger="load delay:1s"
@@ -75,27 +75,33 @@
         </article>
         <article>
           <details>
-            <summary>{% trans '导入Goodreads账号或书单' %}</summary>
+            <summary>{% trans 'Import Shelf or List from Goodreads' %}</summary>
             <form action="{% url 'users:import_goodreads' %}" method="post">
               {% csrf_token %}
               <div>
-                输入Goodreads链接
+                {% trans 'Link to Goodreads Profile / Shelf / List' %}
                 <input type="url"
                        name="url"
                        value=""
-                       placeholder="例如 https://www.goodreads.com/user/show/12345-janedoe"
+                       placeholder="https://www.goodreads.com/user/show/12345-janedoe"
                        required>
-                <input type="submit"  value="{% trans '导入' %}" />
+                <input type="submit"  value="{% trans 'Import' %}" />
               </div>
               <ul>
                 <li>
-                  Goodreads用户主页链接形如 <code>https://www.goodreads.com/user/show/12345-janedoe</code> 将自动导入到当前用户的想读、在读、已读列表，每本书的评论导入为本站短评；
+                  Profile <code>https://www.goodreads.com/user/show/12345-janedoe</code>
+                  {% trans 'want-to-read / currently-reading / read books and their reviews will be imported.' %}
                 </li>
                 <li>
-                  Goodreads书单链接形如 <code>https://www.goodreads.com/review/list/12345-janedoe?shelf=name</code> 或 <code>https://www.goodreads.com/list/show/155086.Popular_Highlights</code> 将自动导入成为收藏单，每本书的评论导入为收藏单条目备注。
+                  Shelf <code>https://www.goodreads.com/review/list/12345-janedoe?shelf=name</code>
+                  {% trans 'Shelf will be imported as a new collection.' %}
                 </li>
                 <li>
-                  欲导入的Goodreads用户需将<mark>Who Can View My Profile</mark>设置为<mark>anyone</mark>，导入后可改回原设置。
+                  List <code>https://www.goodreads.com/list/show/155086.Popular_Highlights</code>
+                  {% trans 'List will be imported as a new collection.' %}
+                </li>
+                <li>
+                  <mark>Who Can View My Profile</mark> must be set as <mark>anyone</mark> prior to import.
                 </li>
               </ul>
             </form>
@@ -103,18 +109,27 @@
         </article>
         <article>
           <details>
-            <summary>{% trans '导入Letterboxd标记' %}</summary>
+            <summary>{% trans 'Import from Letterboxd' %}</summary>
             <form action="{% url 'users:import_letterboxd' %}"
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              在Letterboxd网站的<a href="https://letterboxd.com/settings/data/"
-   target="_blank"
-   rel="noopener">Settings页面中选择DATA</a>，或在其app的Settings菜单中选择Advanced Settings，点击 EXPORT YOUR DATA，即可下载导出名称类似<code>letterboxd-username-2018-03-11-07-52-utc.zip</code>的文件，不必解压。
+              <ul>
+                <li>
+                  In letterboxd.com,
+                  <a href="https://letterboxd.com/settings/data/"
+                     target="_blank"
+                     rel="noopener">click DATA in Settings</a>;
+                  or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA
+                </li>
+                <li>
+                  download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip.
+                </li>
+              </ul>
               <br>
               <input type="file" name="file" required accept=".zip">
               <p>
-                可见性:
+                {% trans 'Visibility' %}:
                 <br>
                 <label for="l_visibility_0">
                   <input type="radio"
@@ -123,7 +138,7 @@
                          required=""
                          id="l_visibility_0"
                          checked>
-                  公开
+                  {% trans 'Public' %}
                 </label>
                 <label for="l_visibility_1">
                   <input type="radio"
@@ -131,7 +146,7 @@
                          value="1"
                          required=""
                          id="l_visibility_1">
-                  仅关注者
+                  {% trans 'Followers Only' %}
                 </label>
                 <label for="l_visibility_2">
                   <input type="radio"
@@ -139,19 +154,20 @@
                          value="2"
                          required=""
                          id="l_visibility_2">
-                  仅自己
+                  {% trans 'Mentioned Only' %}
                 </label>
               </p>
-              <input type="submit" value="{% trans '导入' %}" />
+              <input type="submit" value="{% trans 'Import' %}" />
               <small>
-                导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。
+                {% trans 'Only forward changes(none->to-watch->watched) will be imported.' %}
                 {% if letterboxd_task %}
                   <br>
-                  最近导入于{{ letterboxd_task.created_time }}，状态：{{ letterboxd_task.get_state_display }}。
+                  {% trans 'Last import started' %}: {{ letterboxd_task.created_time }}
+                  {% trans 'Status' %}: {{ letterboxd_task.get_state_display }}。
                   <br>
                   {{ letterboxd_task.message }}
                   {% if letterboxd_task.metadata.failed_urls %}
-                    导入失败的链接（通常由于Letterboxd的信息错误，请手工添加标记）：
+                    {% trans 'Failed links, likely due to Letterboxd error, you may have to mark them manually' %}
                     <br>
                     <textarea readonly>{% for url in letterboxd_task.metadata.failed_urls %}{{url}}&#10;{% endfor %}</textarea>
                   {% endif %}
@@ -162,46 +178,58 @@
         </article>
         <article>
           <details>
-            <summary>{% trans '导入播客订阅列表' %}</summary>
+            <summary>{% trans 'Import Podcast Subscriptions' %}</summary>
             <form action="{% url 'users:import_opml' %}"
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
               <div>
-                导入方式：
+                {% trans 'Import Method' %}：
                 <label for="opml_import_mode_0">
                   <input id="opml_import_mode_0"
                          type="radio"
                          name="import_mode"
                          value="0"
                          checked>
-                  标记为在听的播客
+                  {% trans 'Mark as listening' %}
                 </label>
                 <label for="opml_import_mode_1">
                   <input id="opml_import_mode_1" type="radio" name="import_mode" value="1">
-                  导入为新收藏单
+                  {% trans 'Import as a new collection' %}
                 </label>
                 <br>
-                选择OPML文件
+                {% trans 'Select OPML file' %}
                 <input type="file" name="file" id="excel" required accept=".opml,.xml">
-                <input type="submit"  value="{% trans '导入' %}" />
+                <input type="submit"  value="{% trans 'Import' %}" />
               </div>
             </form>
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans '导出个人数据' %}</summary>
+            <summary>{% trans 'Export Data' %}</summary>
             <form action="{% url 'users:export_marks' %}"
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
               <input type="submit"
-                     {% if export_status.marks_pending %} value="{% trans '正在导出标记、短评和评论' %}" onclick="return confirm('短期重复导出可能有无法预期的效果，确定现在导出吗？')" {% else %} value="{% trans '导出标记、短评和评论' %}" {% endif %} />
+                     {% if export_status.marks_pending %} value="{% trans 'Export in progress' %}" {% else %} value="{% trans 'Export marks and reviews' %}" {% endif %} />
               {% if export_status.marks_file %}
-                <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a>
+                <a href="{% url 'users:export_marks' %}" download>{% trans 'Download' %} {{ export_status.marks_date }}</a>
               {% endif %}
             </form>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'View Annual Summary' %}</summary>
+            <div class="tag-list">
+              {% for year in years %}
+                <span>
+                  <a href="{% url 'journal:wrapped' year %}">{{ year }}</a>
+                </span>
+              {% endfor %}
+            </div>
           </details>
         </article>
         <!--

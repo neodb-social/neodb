@@ -142,6 +142,7 @@ urlpatterns = [
         name="user_calendar_data",
     ),
     path("users/<str:username>/feed/reviews/", ReviewFeed(), name="review_feed"),
+    path("wrapped/", WrappedView.as_view(), name="wrapped_current_year"),
     path("wrapped/<int:year>/", WrappedView.as_view(), name="wrapped"),
     path("wrapped/<int:year>/share", WrappedShareView.as_view(), name="wrapped_share"),
 ]

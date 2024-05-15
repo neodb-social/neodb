@@ -1,9 +1,11 @@
+import datetime
 import os
 
 import django_rq
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Min
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -16,7 +18,7 @@ from journal.importers.douban import DoubanImporter
 from journal.importers.goodreads import GoodreadsImporter
 from journal.importers.letterboxd import LetterboxdImporter
 from journal.importers.opml import OPMLImporter
-from journal.models import reset_journal_visibility_for_user
+from journal.models import ShelfType, reset_journal_visibility_for_user
 from mastodon.api import *
 from social.models import reset_social_visibility_for_user
 
@@ -72,6 +74,13 @@ def preferences(request):
 
 @login_required
 def data(request):
+    current_year = datetime.date.today().year
+    queryset = request.user.identity.shelf_manager.get_shelf(
+        ShelfType.COMPLETE
+    ).members.all()
+    start_date = queryset.aggregate(Min("created_time"))["created_time__min"]
+    start_year = start_date.year if start_date else current_year
+    years = reversed(range(start_year, current_year + 1))
     return render(
         request,
         "users/data.html",
@@ -80,6 +89,7 @@ def data(request):
             "import_status": request.user.preference.import_status,
             "export_status": request.user.preference.export_status,
             "letterboxd_task": LetterboxdImporter.latest_task(request.user),
+            "years": years,
         },
     )
 
