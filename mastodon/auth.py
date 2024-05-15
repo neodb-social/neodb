@@ -16,16 +16,16 @@ class OAuth2Backend(ModelBackend):
         site = kwargs.get("site", None)
         if token is None or site is None:
             return
-        mastodon_id = None
+        mastodon_username = None
         if username is None:
             code, user_data = verify_account(site, token)
             if code == 200 and user_data:
-                mastodon_id = user_data["id"]
-        if not mastodon_id:
+                mastodon_username = user_data.get("username")
+        if not mastodon_username:
             return None
         try:
             user = UserModel._default_manager.get(
-                mastodon_id__iexact=mastodon_id, mastodon_site__iexact=site
+                mastodon_username__iexact=mastodon_username, mastodon_site__iexact=site
             )
             return user if self.user_can_authenticate(user) else None
         except UserModel.DoesNotExist:
