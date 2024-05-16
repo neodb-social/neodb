@@ -32,8 +32,11 @@ class OPMLImporter:
         collection = None
         with set_actor(self.user):
             if self.mode == 1:
+                title = _("{username}'s podcast subscriptions").format(
+                    username=self.user.display_name
+                )
                 collection = Collection.objects.create(
-                    owner=self.user.identity, title=f"{self.user.display_name}的播客订阅列表"
+                    owner=self.user.identity, title=title
                 )
             for feed in feeds:
                 logger.info(f"{self.user} import {feed.url}")
@@ -59,5 +62,5 @@ class OPMLImporter:
         logger.info(f"{self.user} import opml end")
         msg.success(
             self.user,
-            f"OPML导入完成，共处理{len(feeds)}篇，已存在{skip}篇。",
+            f"OPML import complete, {len(feeds)} feeds processed, {skip} exisiting feeds skipped.",
         )

@@ -104,7 +104,7 @@ class LetterboxdImporter(Task):
             if len(text) < 360:
                 comment = text
             else:
-                title = f"评《{item.title}》"
+                title = _("a review of {item_title}").format(item_title=item.title)
                 Review.update_item_review(item, owner, title, text, visibility, dt)
         mark.update(
             shelf_type,

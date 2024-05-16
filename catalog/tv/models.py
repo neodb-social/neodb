@@ -401,7 +401,9 @@ class TVSeason(Item):
             ):
                 return self.title
             else:
-                return f"{self.title} 第{self.season_number}季"  # TODO i18n
+                return _("{show_title} S{season_number}").format(
+                    show_title=self.title, season_number=self.season_number
+                )
         else:
             return self.title
 
@@ -450,7 +452,14 @@ class TVEpisode(Item):
 
     @property
     def display_title(self):
-        return f"{self.season.display_title if self.season else ''} 第{self.episode_number}集"  # TODO i18n
+        return (
+            _("{season_title} E{episode_number}")
+            .format(
+                season_title=self.season.display_title if self.season else "",
+                episode_number=self.episode_number,
+            )
+            .strip()
+        )
 
     @property
     def parent_item(self):

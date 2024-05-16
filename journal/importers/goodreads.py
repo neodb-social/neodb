@@ -65,7 +65,10 @@ class GoodreadsImporter:
                         collection.append_item(book["book"], note=book["review"])
                         total += 1
                     collection.save()
-                msg.success(user, f'成功从Goodreads导入包含{total}本书的收藏单{shelf["title"]}。')
+                msg.success(
+                    user,
+                    f'Imported {total} books from Goodreads as a Collection {shelf["title"]}.',
+                )
             elif match_profile:
                 uid = match_profile[1]
                 shelves = {
@@ -104,7 +107,7 @@ class GoodreadsImporter:
                                 created_time=book["last_updated"] or timezone.now(),
                             )
                         total += 1
-                msg.success(user, f"成功从Goodreads用户主页导入{total}个标记。")
+                msg.success(user, f"Imported {total} records from Goodreads profile.")
 
     @classmethod
     def get_book(cls, url, user):

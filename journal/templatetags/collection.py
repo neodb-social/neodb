@@ -27,24 +27,24 @@ def user_stats_of(collection: Collection, identity: APIdentity):
     return collection.get_stats(identity) if identity else {}
 
 
-@register.filter(is_safe=True)
-@stringfilter
-def prural_items(category: str):
-    # TODO support i18n here
-    # return _(f"items of {category}")
-    if category == "book":
-        return "本书"
-    elif category == "movie":
-        return "部电影"
-    elif category == "tv":
-        return "部剧集"
-    elif category == "album" or category == "music":
-        return "张专辑"
-    elif category == "game":
-        return "个游戏"
-    elif category == "podcast":
-        return "个播客"
-    elif category == "performance":
-        return "场演出"
-    else:
-        return category
+# @register.filter(is_safe=True)
+# @stringfilter
+# def prural_items(category: str):
+#     # TODO support i18n here
+#     # return _(f"items of {category}")
+#     if category == "book":
+#         return "本书"
+#     elif category == "movie":
+#         return "部电影"
+#     elif category == "tv":
+#         return "部剧集"
+#     elif category == "album" or category == "music":
+#         return "张专辑"
+#     elif category == "game":
+#         return "个游戏"
+#     elif category == "podcast":
+#         return "个播客"
+#     elif category == "performance":
+#         return "场演出"
+#     else:
+#         return category

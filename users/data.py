@@ -118,7 +118,7 @@ def export_marks(request):
         django_rq.get_queue("export").enqueue(export_marks_task, request.user)
         request.user.preference.export_status["marks_pending"] = True
         request.user.preference.save()
-        messages.add_message(request, messages.INFO, _("导出已开始。"))
+        messages.add_message(request, messages.INFO, _("Generating exports."))
         return redirect(reverse("users:data"))
     else:
         try:
@@ -129,7 +129,9 @@ def export_marks(request):
                 response["Content-Disposition"] = 'attachment;filename="marks.xlsx"'
                 return response
         except Exception:
-            messages.add_message(request, messages.ERROR, _("导出文件已过期，请重新导出"))
+            messages.add_message(
+                request, messages.ERROR, _("Export file expired. Please export again.")
+            )
             return redirect(reverse("users:data"))
 
 
@@ -139,7 +141,7 @@ def sync_mastodon(request):
         django_rq.get_queue("mastodon").enqueue(
             refresh_mastodon_data_task, request.user.pk
         )
-        messages.add_message(request, messages.INFO, _("同步已开始。"))
+        messages.add_message(request, messages.INFO, _("Sync in progress."))
     return redirect(reverse("users:info"))
 
 
@@ -153,7 +155,7 @@ def sync_mastodon_preference(request):
             request.POST.get("mastodon_sync_relationship", "") == ""
         )
         request.user.preference.save()
-        messages.add_message(request, messages.INFO, _("同步设置已保存。"))
+        messages.add_message(request, messages.INFO, _("Settings saved."))
     return redirect(reverse("users:info"))
 
 
@@ -164,7 +166,7 @@ def reset_visibility(request):
         visibility = visibility if visibility >= 0 and visibility <= 2 else 0
         reset_journal_visibility_for_user(request.user.identity, visibility)
         reset_social_visibility_for_user(request.user.identity, visibility)
-        messages.add_message(request, messages.INFO, _("已重置。"))
+        messages.add_message(request, messages.INFO, _("Reset completed."))
     return redirect(reverse("users:data"))
 
 
@@ -173,9 +175,9 @@ def import_goodreads(request):
     if request.method == "POST":
         raw_url = request.POST.get("url")
         if GoodreadsImporter.import_from_url(raw_url, request.user):
-            messages.add_message(request, messages.INFO, _("链接已保存，等待后台导入。"))
+            messages.add_message(request, messages.INFO, _("Import in progress."))
         else:
-            messages.add_message(request, messages.ERROR, _("无法识别链接。"))
+            messages.add_message(request, messages.ERROR, _("Invalid URL."))
     return redirect(reverse("users:data"))
 
 
@@ -188,9 +190,11 @@ def import_douban(request):
             int(request.POST.get("import_mode", 0)),
         )
         if importer.import_from_file(request.FILES["file"]):
-            messages.add_message(request, messages.INFO, _("文件已上传，等待后台导入。"))
+            messages.add_message(
+                request, messages.INFO, _("File is uploaded and will be imported soon.")
+            )
         else:
-            messages.add_message(request, messages.ERROR, _("无法识别文件。"))
+            messages.add_message(request, messages.ERROR, _("Invalid file."))
     return redirect(reverse("users:data"))
 
 
@@ -211,7 +215,9 @@ def import_letterboxd(request):
             visibility=int(request.POST.get("visibility", 0)),
             file=f,
         )
-        messages.add_message(request, messages.INFO, _("文件已上传，等待后台导入。"))
+        messages.add_message(
+            request, messages.INFO, _("File is uploaded and will be imported soon.")
+        )
     return redirect(reverse("users:data"))
 
 
@@ -224,7 +230,9 @@ def import_opml(request):
             int(request.POST.get("import_mode", 0)),
         )
         if importer.import_from_file(request.FILES["file"]):
-            messages.add_message(request, messages.INFO, _("文件已上传，等待后台导入。"))
+            messages.add_message(
+                request, messages.INFO, _("File is uploaded and will be imported soon.")
+            )
         else:
-            messages.add_message(request, messages.ERROR, _("无法识别文件。"))
+            messages.add_message(request, messages.ERROR, _("Invalid file."))
     return redirect(reverse("users:data"))

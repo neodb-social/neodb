@@ -423,12 +423,17 @@ class Identity(models.Model):
         related_name="identities",
     )
 
-    name = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("昵称"))
-    summary = models.TextField(blank=True, null=True, verbose_name=_("简介"))
-    manually_approves_followers = models.BooleanField(
-        default=False, verbose_name=_("手工审核关注者")
+    name = models.CharField(
+        max_length=500, blank=True, null=True, verbose_name=_("Display Name")
     )
-    discoverable = models.BooleanField(default=True, verbose_name=_("允许被发现或推荐"))
+    summary = models.TextField(blank=True, null=True, verbose_name=_("Bio"))
+    manually_approves_followers = models.BooleanField(
+        default=False, verbose_name=_("Manually approve new followers")
+    )
+    discoverable = models.BooleanField(
+        default=True,
+        verbose_name=_("Include profile and posts in search and discovery"),
+    )
 
     profile_uri = models.CharField(max_length=500, blank=True, null=True)
     inbox_uri = models.CharField(max_length=500, blank=True, null=True)
@@ -445,13 +450,14 @@ class Identity(models.Model):
         upload_to=partial(upload_namer, "profile_images"),
         blank=True,
         null=True,
-        verbose_name=_("头像"),
+        verbose_name=_("Profile picture"),
         storage=upload_store,
     )
     image = models.ImageField(
         upload_to=partial(upload_namer, "background_images"),
         blank=True,
         null=True,
+        verbose_name=_("Header picture"),
         storage=upload_store,
     )
 

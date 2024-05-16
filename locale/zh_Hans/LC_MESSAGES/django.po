@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-15 03:12-0400\n"
+"POT-Creation-Date: 2024-05-15 20:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -817,15 +817,15 @@ msgstr ""
 
 #: catalog/templates/catalog_merge.html:21
 msgid "Are you sure to merge?"
-msgstr ""
+msgstr "确定合并吗？"
 
 #: catalog/templates/catalog_merge.html:23
 msgid "Are you sure to cancel merge?"
-msgstr ""
+msgstr "确定取消合并吗？"
 
 #: catalog/templates/catalog_merge.html:26
 msgid "Are you sure to link?"
-msgstr ""
+msgstr "确定关联吗？"
 
 #: catalog/templates/discover.html:18
 msgid "发现"
@@ -1133,13 +1133,23 @@ msgstr ""
 msgid "season number"
 msgstr ""
 
+#: catalog/tv/models.py:404
+#, python-brace-format
+msgid "{show_title} S{season_number}"
+msgstr "{show_title} 第{season_number}季"
+
+#: catalog/tv/models.py:455
+#, python-brace-format
+msgid "{season_title} E{episode_number}"
+msgstr "{season_title} 第{episode_number}集"
+
 #: catalog/views.py:53 catalog/views.py:76
 msgid "Item not found"
-msgstr ""
+msgstr "条目不存在"
 
 #: catalog/views.py:57 catalog/views.py:84
 msgid "Item no longer exists"
-msgstr ""
+msgstr "条目已不存在"
 
 #: catalog/views_edit.py:125 catalog/views_edit.py:148
 #: catalog/views_edit.py:200 catalog/views_edit.py:276
@@ -1153,7 +1163,7 @@ msgstr ""
 #: journal/views/post.py:20 journal/views/review.py:32
 #: journal/views/review.py:46
 msgid "Insufficient permission"
-msgstr ""
+msgstr "权限不足"
 
 #: catalog/views_edit.py:203 journal/views/collection.py:229
 #: journal/views/collection.py:296 journal/views/common.py:81
@@ -1443,7 +1453,7 @@ msgid "Post to Fediverse"
 msgstr "发布到联邦宇宙"
 
 #: journal/forms.py:25 journal/forms.py:45 users/templates/users/data.html:40
-#: users/templates/users/data.html:134
+#: users/templates/users/data.html:132
 msgid "Visibility"
 msgstr "可见性"
 
@@ -1459,22 +1469,30 @@ msgstr "创建者和他们的互相关注"
 msgid "Collaborative editing"
 msgstr "协作编辑"
 
+#: journal/importers/letterboxd.py:107
+msgid "a review of {item_title}"
+msgstr "关于 {item} 的评论"
+
+#: journal/importers/opml.py:35
+msgid "{username}'s podcast subscriptions"
+msgstr "{username} 的播客订阅"
+
 #: journal/models/collection.py:25
 msgid "note"
 msgstr "备注"
 
 #: journal/models/common.py:26 users/templates/users/data.html:49
-#: users/templates/users/data.html:143
+#: users/templates/users/data.html:141
 msgid "Public"
 msgstr "公开"
 
 #: journal/models/common.py:27 users/templates/users/data.html:57
-#: users/templates/users/data.html:151
+#: users/templates/users/data.html:149
 msgid "Followers Only"
 msgstr "仅关注者"
 
 #: journal/models/common.py:28 users/templates/users/data.html:65
-#: users/templates/users/data.html:159
+#: users/templates/users/data.html:157
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
@@ -2248,23 +2266,27 @@ msgid "expire date"
 msgstr ""
 
 #: takahe/models.py:426
-msgid "昵称"
+msgid "Display Name"
 msgstr ""
 
 #: takahe/models.py:427
-msgid "简介"
+msgid "Bio"
 msgstr ""
 
 #: takahe/models.py:429
-msgid "手工审核关注者"
+msgid "Manually approve new followers"
 msgstr ""
 
 #: takahe/models.py:431
-msgid "允许被发现或推荐"
+msgid "Include profile and posts in search and discovery"
 msgstr ""
 
 #: takahe/models.py:448
-msgid "头像"
+msgid "Profile picture"
+msgstr ""
+
+#: takahe/models.py:455
+msgid "Header picture"
 msgstr ""
 
 #: takahe/utils.py:553
@@ -2386,41 +2408,41 @@ msgstr ""
 msgid "验证信息不符。"
 msgstr ""
 
-#: users/data.py:119
-msgid "导出已开始。"
-msgstr ""
+#: users/data.py:121
+msgid "Generating exports."
+msgstr "正在生成导出文件。"
 
-#: users/data.py:130
-msgid "导出文件已过期，请重新导出"
-msgstr ""
+#: users/data.py:133
+msgid "Export file expired. Please export again."
+msgstr "导出文件已失效，请重新导出"
 
-#: users/data.py:140
-msgid "同步已开始。"
-msgstr ""
+#: users/data.py:144
+msgid "Sync in progress."
+msgstr "正在同步。"
 
-#: users/data.py:154
-msgid "同步设置已保存。"
-msgstr ""
+#: users/data.py:158
+msgid "Settings saved."
+msgstr "设置已保存"
 
-#: users/data.py:165
-msgid "已重置。"
-msgstr ""
+#: users/data.py:169
+msgid "Reset completed."
+msgstr "重置已完成。"
 
-#: users/data.py:174
-msgid "链接已保存，等待后台导入。"
-msgstr ""
+#: users/data.py:178
+msgid "Import in progress."
+msgstr "正在导出"
 
-#: users/data.py:176
-msgid "无法识别链接。"
-msgstr ""
+#: users/data.py:180
+msgid "Invalid URL."
+msgstr "无效网址。"
 
-#: users/data.py:189 users/data.py:212 users/data.py:225
-msgid "文件已上传，等待后台导入。"
-msgstr ""
+#: users/data.py:194 users/data.py:219 users/data.py:234
+msgid "File is uploaded and will be imported soon."
+msgstr "文件已上传，等待后台导入。"
 
-#: users/data.py:191 users/data.py:227
-msgid "无法识别文件。"
-msgstr ""
+#: users/data.py:197 users/data.py:237
+msgid "Invalid file."
+msgstr "无效文件。"
 
 #: users/models/user.py:49
 msgid ""
@@ -2522,7 +2544,7 @@ msgid "Import Marks and Reviews from Douban"
 msgstr "导入豆瓣标记和评论"
 
 #: users/templates/users/data.html:69 users/templates/users/data.html:88
-#: users/templates/users/data.html:162 users/templates/users/data.html:207
+#: users/templates/users/data.html:160 users/templates/users/data.html:203
 msgid "Import"
 msgstr "导入"
 
@@ -2542,93 +2564,94 @@ msgstr ""
 "提交Goodreads用户主页链接将导入想读、在读、已读列表，每本书的评论导入为本站短"
 "评。"
 
-#: users/templates/users/data.html:98
+#: users/templates/users/data.html:97
 msgid "Shelf will be imported as a new collection."
 msgstr "Goodreads书架将被导入为收藏单，每本书的评论导入为收藏单条目备注。"
 
-#: users/templates/users/data.html:103
+#: users/templates/users/data.html:101
 msgid "List will be imported as a new collection."
 msgstr "Goodreads书单将被导入为收藏单，每本书的评论导入为收藏单条目备注。"
 
-#: users/templates/users/data.html:115
+#: users/templates/users/data.html:112
 msgid "Import from Letterboxd"
 msgstr "导入Letterboxd标记"
 
-#: users/templates/users/data.html:164
+#: users/templates/users/data.html:162
 msgid "Only forward changes(none->to-watch->watched) will be imported."
-msgstr "导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
+msgstr ""
+"导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
 
-#: users/templates/users/data.html:168
+#: users/templates/users/data.html:165
 msgid "Last import started"
 msgstr "最近导入时间"
 
-#: users/templates/users/data.html:169
+#: users/templates/users/data.html:166
 msgid "Status"
 msgstr "状态"
 
-#: users/templates/users/data.html:173
+#: users/templates/users/data.html:170
 msgid ""
 "Failed links, likely due to Letterboxd error, you may have to mark them "
 "manually"
 msgstr "导入失败的链接（通常由于Letterboxd的信息错误，请手工添加标记）"
 
-#: users/templates/users/data.html:185
+#: users/templates/users/data.html:181
 msgid "Import Podcast Subscriptions"
 msgstr "导入播客订阅列表 (OPML)"
 
-#: users/templates/users/data.html:191
+#: users/templates/users/data.html:187
 msgid "Import Method"
 msgstr "导入方式"
 
-#: users/templates/users/data.html:198
+#: users/templates/users/data.html:194
 msgid "Mark as listening"
 msgstr "标记为在听"
 
-#: users/templates/users/data.html:202
+#: users/templates/users/data.html:198
 msgid "Import as a new collection"
 msgstr "导入为新收藏单"
 
-#: users/templates/users/data.html:205
+#: users/templates/users/data.html:201
 msgid "Select OPML file"
 msgstr "选择OPML文件"
 
-#: users/templates/users/data.html:214
+#: users/templates/users/data.html:210
 msgid "Export Data"
 msgstr "导出数据"
 
-#: users/templates/users/data.html:220
+#: users/templates/users/data.html:216
 msgid "Export in progress"
 msgstr "正在导出"
 
-#: users/templates/users/data.html:220
+#: users/templates/users/data.html:216
 msgid "Export marks and reviews"
 msgstr "导出标记、短评和评论"
 
-#: users/templates/users/data.html:222
+#: users/templates/users/data.html:218
 msgid "Download"
 msgstr "下载"
 
-#: users/templates/users/data.html:229
+#: users/templates/users/data.html:225
 msgid "View Annual Summary"
 msgstr "查看年度小结"
 
-#: users/templates/users/data.html:242
+#: users/templates/users/data.html:238
 msgid "重置所有标记和短评可见性"
 msgstr ""
 
-#: users/templates/users/data.html:245
+#: users/templates/users/data.html:241
 msgid "重置"
 msgstr ""
 
-#: users/templates/users/data.html:248
+#: users/templates/users/data.html:244
 msgid "公开"
 msgstr ""
 
-#: users/templates/users/data.html:250
+#: users/templates/users/data.html:246
 msgid "仅关注者"
 msgstr ""
 
-#: users/templates/users/data.html:252
+#: users/templates/users/data.html:248
 msgid "仅自己"
 msgstr ""
 
@@ -2703,6 +2726,3 @@ msgstr ""
 #: users/templates/users/verify_email.html:8
 msgid "验证电子邮件"
 msgstr ""
-
-#~ msgid "Invalid tag."
-#~ msgstr "无效标签"
