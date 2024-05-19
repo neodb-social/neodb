@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -37,16 +38,7 @@ def ap_redirect(request, uri):
 
 
 def nodeinfo2(request):
-    usage = {"users": {"total": User.objects.count()}}
-    # return estimated number of marks as posts, since count the whole table is slow
-    # TODO filter local with SQL function in https://wiki.postgresql.org/wiki/Count_estimate
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT n_live_tup FROM pg_stat_all_tables WHERE relname = 'journal_shelflogentry';"
-        )
-        row = cursor.fetchone()
-        if row:
-            usage["localPosts"] = row[0]
+    usage = cache.get("nodeinfo_usage") or {}
     return JsonResponse(
         {
             "version": "2.0",
