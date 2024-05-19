@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% include "common_libs.html" %}
-    <title>{{ site_name }} - {% trans '公告栏' %}</title>
+    <title>{{ site_name }} - {% trans 'Announcements' %}</title>
   </head>
   <body>
     {% include "_header.html" %}
@@ -37,7 +37,7 @@
     </style>
     <main class="container">
       <h1 class="header">
-        {% trans '公告栏' %}
+        {% trans 'Announcements' %}
         {% if request.user.is_superuser %}🦹🏻{% endif %}
         {% if request.user.is_staff %}🧙🏻{% endif %}
       </h1>
@@ -50,7 +50,7 @@
         </footer>
       </article>
     {% empty %}
-      <p>{% trans '暂无公告' %}</p>
+      <p>{% trans 'nothing so far.' %}</p>
     {% endfor %}
   </main>
   {% include "_footer.html" %}

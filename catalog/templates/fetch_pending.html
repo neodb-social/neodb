@@ -9,7 +9,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '搜索结果' %}</title>
+    <title>{{ site_name }} - {% trans 'Search results' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -18,14 +18,14 @@
       <div class="grid__main">
         <article>
           {% if job_id %}
-            <h5>正在从{{ site.SITE_NAME.label }}获取</h5>
+            <h5>{% blocktrans with site_label=site.SITE_NAME.label %}Fetching from {{ site_label }}{% endblocktrans %}</h5>
             <div hx-get="{% url 'catalog:fetch_refresh' job_id %}"
                  hx-trigger="load delay:2s"
                  hx-swap="outerHTML">
               <i class="fa-solid fa-compact-disc fa-spin loading"></i>
             </div>
           {% else %}
-            <h5>获取系统繁忙，请稍等几秒钟再搜索</h5>
+            <h5>{% trans "System busy, please try again in a minute." %}</h5>
           {% endif %}
         </article>
       </div>

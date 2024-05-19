@@ -15,9 +15,7 @@
     {% endif %}
   </span>
   <div class="spacing">
-    关注了
-    <a href="{{ collection.owner.url }}">{{ collection.owner.display_name }}</a>
-    的收藏单
+    {% blocktrans with owner_url=collection.owner.url owner_name=collection.owner.display_name %}liked  <a href="{{ owner_url }}">{{ owner_name }}</a>'s collection{% endblocktrans %}
     <a href="{{ collection.url }}">{{ collection.title }}</a>
   </div>
 {% endwith %}

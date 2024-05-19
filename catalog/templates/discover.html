@@ -7,7 +7,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="{{ site_name }} - 分布式书影音播客游戏收藏评论交流社区">
+    <meta property="og:title" content="{{ site_name }}">
     <meta name="description"
           property="og:description"
           content="{{ site_description }}">
@@ -15,7 +15,7 @@
     <meta property="og:url" content="{{ site_url }}">
     <meta property="og:image" content="{{ site_logo }}">
     <meta property="og:site_name" content="{{ site_name }}">
-    <title>{{ site_name }} - {% trans '发现' %}</title>
+    <title>{{ site_name }} - {% trans 'Discover' %}</title>
     {% include "common_libs.html" %}
     <script src="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
     <link href="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/style.min.css"
@@ -70,10 +70,10 @@
       {% if request.user.is_authenticated %}
         <div class="entity-sort-control">
           <div class="entity-sort-control__button" id="sortEditButton">
-            <span class="entity-sort-control__text" id="sortEditText">{% trans '编辑布局' %}</span>
+            <span class="entity-sort-control__text" id="sortEditText">{% trans 'edit layout' %}</span>
             <span class="entity-sort-control__text"
                   id="sortSaveText"
-                  style="display: none">{% trans '保存' %}</span>
+                  style="display: none">{% trans 'save' %}</span>
             <span class="icon-edit" id="sortEditIcon">
               <i class="fa-solid fa-pencil"></i>
             </span>
@@ -84,14 +84,14 @@
           <div class="entity-sort-control__button"
                id="sortExitButton"
                style="display: none">
-            <span class="entity-sort-control__text">{% trans '取消' %}</span>
+            <span class="entity-sort-control__text">{% trans 'cancel' %}</span>
           </div>
         </div>
         <div class="entity-sort-control__button entity-sort-control__button--float-right"
              id="toggleDisplayButtonTemplate"
              style="display: none">
-          <span class="showText" style="display: none;">{% trans '显示' %}</span>
-          <span class="hideText" style="display: none;">{% trans '隐藏' %}</span>
+          <span class="showText" style="display: none;">{% trans 'show' %}</span>
+          <span class="hideText" style="display: none;">{% trans 'hide' %}</span>
         </div>
         <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
           {% csrf_token %}

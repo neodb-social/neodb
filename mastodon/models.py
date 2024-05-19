@@ -3,6 +3,13 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
+class MastodonError(Exception):
+    instance: str
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(args)
+
+
 class MastodonApplication(models.Model):
     domain_name = models.CharField(_("site domain name"), max_length=200, unique=True)
     api_domain = models.CharField(_("domain for api call"), max_length=200, blank=True)

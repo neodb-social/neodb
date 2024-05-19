@@ -10,26 +10,27 @@
 {% block details %}
   <div>
     {% if item.opening_date %}
-      上演时间：<span>{{ item.opening_date }}</span>
+      {% trans "opening date" %}:
+      <span>{{ item.opening_date }}</span>
       {% if item.closing_date %}~ <span>{{ item.closing_date }}</span>{% endif %}
     {% endif %}
   </div>
-  <div>{% include '_people.html' with people=item.other_title _role='其他标题' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.genre role='类型' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.troupe role='剧团' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.location role='剧院' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.language role='语言' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.orig_creator role='原作' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.director role='导演' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.playwright role='编剧' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.composer role='作曲' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.choreographer role='编舞' max=5 %}</div>
-  <div>{% include '_actor.html' with people=item.actor role='演员' max=50 %}</div>
-  <div>{% include '_people.html' with people=item.performer role='表演者' max=50 %}</div>
-  <div>{% include '_crew.html' with people=item.crew role='演职人员' max=50 %}</div>
+  <div>{% include '_people.html' with people=item.other_title _role='other title' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.genre role='genre' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.troupe role='troupe' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.location role='theater' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.language role='language' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.orig_creator role='orginal creator' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.director role='director' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.playwright role='playwright' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.composer role='composer' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.choreographer role='choreographer' max=5 %}</div>
+  <div>{% include '_actor.html' with people=item.actor role='actor' max=50 %}</div>
+  <div>{% include '_people.html' with people=item.performer role='performer' max=50 %}</div>
+  <div>{% include '_crew.html' with people=item.crew role='crew' max=50 %}</div>
   <div>
     {% if item.official_site %}
-      {% trans '官方网站' %}： <span>{{ item.official_site|urlizetrunc:24 }}</span>
+      {% trans 'website' %}： <span>{{ item.official_site|urlizetrunc:24 }}</span>
     {% endif %}
   </div>
 {% endblock %}

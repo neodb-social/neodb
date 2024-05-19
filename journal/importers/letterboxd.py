@@ -4,6 +4,7 @@ import zipfile
 
 import pytz
 from django.utils.dateparse import parse_datetime
+from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from markdownify import markdownify as md
 

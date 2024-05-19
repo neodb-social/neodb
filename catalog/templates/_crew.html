@@ -1,12 +1,13 @@
+{% load i18n %}
 {% for role, list in people.items %}
   <div class="crew-list">
-    {{ role }}：
+    {% trans role %}:
     {% for p in list %}
       {% if forloop.counter <= max %}
-        {% if not forloop.first %}、{% endif %}
+        {% if not forloop.first %}/{% endif %}
         <span>{{ p }}</span>
       {% elif forloop.last %}
-        等
+        …
       {% endif %}
     {% endfor %}
   </div>

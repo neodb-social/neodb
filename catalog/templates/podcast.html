@@ -13,46 +13,16 @@
 <script src="{% static 'js/podcast.js' %}"></script>
 {% endblock %}
 {% block details %}
-  <div>
-    {% if item.genre %}
-      {% trans '类型：' %}
-      {% for genre in item.genre %}
-        <span>{{ genre }}</span>
-        {% if not forloop.last %}/{% endif %}
-      {% endfor %}
-    {% endif %}
-  </div>
+  <div>{% include '_people.html' with people=item.genre role='genre' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.hosts role='podcast host' max=5 %}</div>
   <div>
     {% if item.official_site %}
-      {% trans '网站：' %}{{ item.official_site|urlizetrunc:24 }}
-    {% endif %}
-  </div>
-  <div>
-    {% if item.hosts %}
-      {% trans '主播：' %}
-      {% for host in item.hosts %}
-        <span {% if forloop.counter > 5 %}style="display: none;"{% endif %}>
-          <span class="other_title">{{ host }}</span>
-          {% if not forloop.last %}/{% endif %}
-        </span>
-      {% endfor %}
-      {% if item.hosts|length > 5 %}
-        <a href="javascript:void(0);" id="otherTitleMore">{% trans '更多' %}</a>
-        <script>
-			$("#otherTitleMore").on('click', function (e) {
-				$("span.other_title:not(:visible)").each(function (e) {
-					$(this).parent().removeAttr('style');
-				});
-				$(this).remove();
-			})
-
-        </script>
-      {% endif %}
+      {% trans 'website' %}: {{ item.official_site|urlizetrunc:24 }}
     {% endif %}
   </div>
 {% endblock %}
 {% block content %}
-  <h5>{% trans '近期节目' %}</h5>
+  <h5>{% trans 'recent episodes' %}</h5>
   <div hx-get="{% url 'catalog:episode_data' item.uuid %}"
        hx-trigger="load"
        hx-swap="outerHTML"></div>
@@ -61,7 +31,7 @@
 {% block left_sidebar %}
   <section>
     <center>
-      <button href="#" class="podlove-subscribe-button-primary outline">{% trans '用播客应用订阅' %}</button>
+      <button href="#" class="podlove-subscribe-button-primary outline">{% trans 'subscribe in apps' %}</button>
     </center>
   </section>
   <script>

@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - 编辑历史 {{ item.title }}</title>
+    <title>{{ site_name }} - {{ item.title }} - {% trans "revision history" %}</title>
     {% include "common_libs.html" %}
     <style>
       aside details {
@@ -27,7 +27,7 @@
     {% include "_header.html" %}
     <main>
       <div class="grid__main">
-        <h4>{{ item.title }} 编辑历史</h4>
+        <h4>{{ item.title }} - {% trans "revision history" %}</h4>
         <table class="table table-striped table-bordered">
           <thead>
             <tr style="background:#eee;">

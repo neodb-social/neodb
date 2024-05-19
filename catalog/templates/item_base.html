@@ -62,7 +62,7 @@
             {% endfor %}
           </div>
           <div class="tv-tip" style="display:none;">
-            这是全剧条目，以下是可标记的单季
+            {% trans 'select one of the seasons to comment' %}
             {% if item.class_name == 'tvshow' %}
               {% with item.all_seasons as seasons %}
                 {% if seasons %}
@@ -97,7 +97,7 @@
             </button>
           </div>
           <div class="small-only" style="margin-top:2vh;">
-            <a href="#item-sidebar">标签 · 短评 · 评论 · 收藏</a>
+            <a href="#item-sidebar">{% trans 'mark, comment and collect' %}</a>
           </div>
         </div>
       {% endif %}
@@ -107,14 +107,16 @@
         {% else %}
           <section>
             <p class="empty">
-              <span><a href="{% url 'users:login' %}?next={{ request.path }}">登录</a>后可管理标记收藏</span>
+              <span><a href="{% url 'users:login' %}?next={{ request.path }}">
+                {% trans 'Login or register to review or add this item to your collection.' %}
+              </a></span>
             </p>
           </section>
         {% endif %}
         {% block sidebar %}{% endblock %}
         {% if collection_list %}
           <section>
-            <h5>相关收藏单</h5>
+            <h5>{% trans 'Related Collections' %}</h5>
             <div>
               {% for c in collection_list %}
                 <p>
@@ -129,20 +131,20 @@
       <div id="item-metadata" class="left">
         <section>
           {% block details %}
-            <div>此类数据尚未支持</div>
-            <div>uuid: {{ item.uuid }}</div>
-            <div>class: {{ item.class_name }}</div>
-            <div>category: {{ item.category }}</div>
+            <div>{% trans 'Unsupported item type.' %}</div>
+            <div>UUID: {{ item.uuid }}</div>
+            <div>Class: {{ item.class_name }}</div>
+            <div>Category: {{ item.category }}</div>
           {% endblock %}
           {% if request.user.is_authenticated %}
             <div class="item-edit">
               <span class="action inline">
                 <a href="{% url 'catalog:edit' item.url_path item.uuid %}"
-                   title="{% trans '编辑这个条目' %}"><i class="fa-solid fa-pen-to-square"></i></a>
+                   title="{% trans 'Edit this item' %}"><i class="fa-solid fa-pen-to-square"></i></a>
               </span>
               {% if item.last_editor and item.last_editor.preference.show_last_edit %}
                 <span>
-                  {% trans '最近编辑：' %}
+                  {% trans 'Last edited' %}:
                   <a href="{{ item.last_editor.url }}">{{ item.last_editor.display_name | default:"" }}</a>
                 </span>
               {% endif %}
@@ -155,7 +157,7 @@
                   <h3>
                     {{ item.rating | floatformat:1 }} <small>/ 10</small>
                   </h3>
-                  <p>{{ item.rating_count }}个评分</p>
+                  <p>{{ item.rating_count }} {% trans 'ratings' %}</p>
                 </hgroup>
               </div>
               <div data-placement="top">
@@ -179,7 +181,7 @@
               </div>
             </div>
             <div class="undisplay">
-              <span>评分人数不足</span>
+              <span>{% trans 'No enough ratings' %}</span>
             </div>
           </div>
           <div class="tag-list solo-hidden">
@@ -205,17 +207,17 @@
           {% endif %}
           {% if item.parent_item %}
             <p>
-              {% trans '所属' %}{{ item.parent_item.type.label }}： <span><a href="{{ item.parent_item.url }}"></span>{{ item.parent_item.title }}</a>
+              {% trans 'part of' %} {{ item.parent_item.type.label }}: <span><a href="{{ item.parent_item.url }}"></span>{{ item.parent_item.title }}</a>
             </p>
           {% endif %}
           {% if item.author or item.translator %}
             <p>
               <i>
-                {% include '_people.html' with people=item.author _role='作者' max=2 %}
+                {% include '_people.html' with people=item.author _role='author' max=2 %}
               </i>
               &nbsp;&nbsp;
               <i>
-                {% include '_people.html' with people=item.translator role='译者' max=2 %}
+                {% include '_people.html' with people=item.translator role='translated by' max=2 %}
               </i>
             </p>
           {% endif %}
@@ -223,24 +225,24 @@
       </div>
       <div id="item-detail" class="middle">
         <section id="item-content">
-          <h5>简介</h5>
+          <h5>{% trans 'overview' %}</h5>
           {% if item.brief %}
             <p class="tldr" _="on click toggle .tldr on me">{{ item.brief | linebreaksbr }}</p>
           {% elif item.parent_item.brief %}
             <p class="tldr" _="on click toggle .tldr on me">{{ item.parent_item.brief | linebreaksbr }}</p>
           {% else %}
-            <p class="empty">暂缺</p>
+            <p class="empty">{% trans 'nothing so far.' %}</p>
           {% endif %}
           {% block content %}{% endblock %}
         </section>
         <section class="solo-hidden">
           <div>
             <h5>
-              短评
+              {% trans 'comments' %}
               <small>
                 {% if request.user.is_authenticated %}
-                  | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans '全部标记' %}</a>
-                  | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans '关注的人的标记' %}</a>
+                  | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans 'marks' %}</a>
+                  | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans 'marks from who you follow' %}</a>
                 {% endif %}
               </small>
             </h5>
@@ -254,7 +256,7 @@
           </div>
         </section>
         <section class="solo-hidden">
-          <h5>{% trans '评论' %}</h5>
+          <h5>{% trans 'reviews' %}</h5>
           <div>
             <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}"
                  hx-trigger="intersect once"

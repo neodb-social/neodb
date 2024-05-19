@@ -94,7 +94,7 @@ class Album(Item):
     media = jsondata.CharField(_("media type"), blank=True, default="", max_length=500)
     bandcamp_album_id = jsondata.CharField(blank=True, default="", max_length=500)
     disc_count = jsondata.IntegerField(
-        _("number of disc"), blank=True, default="", max_length=500
+        _("number of discs"), blank=True, default="", max_length=500
     )
 
     def get_embed_link(self):

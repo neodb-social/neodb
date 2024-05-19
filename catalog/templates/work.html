@@ -8,29 +8,13 @@
 {% load thumb %}
 <!-- class specific details -->
 {% block details %}
-  <div>
-    {% if item.other_title %}
-      {% trans '又名：' %}
-      {% for t in item.other_title %}
-        <span>{{ t }}</span>
-        {% if not forloop.last %}/{% endif %}
-      {% endfor %}
-    {% endif %}
-  </div>
-  <div>
-    {% if item.author %}
-      {% trans '作者：' %}
-      {% for author in item.author %}
-        <span>{{ author }}</span>
-        {% if not forloop.last %}/{% endif %}
-      {% endfor %}
-    {% endif %}
-  </div>
+  <div>{% include '_people.html' with people=item.other_title role='other title' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.author role='author' max=5 %}</div>
 {% endblock %}
 {% block left_sidebar %}
   <div _="init hide .item-mark-buttons then hide .item-mark-icon end">
     <details open>
-      <summary>{% trans '本著作包含以下图书版本' %}</summary>
+      <summary>{% trans 'Editions' %}</summary>
       {% for b in item.editions.all %}
         <div>
           <a href="{{ b.url }}">{{ b.title }}</a>

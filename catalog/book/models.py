@@ -113,7 +113,7 @@ class Edition(Item):
         _("language"), null=True, blank=True, default=None, max_length=500
     )
     pub_house = jsondata.CharField(
-        _("publisher"), null=True, blank=False, default=None, max_length=500
+        _("publishing house"), null=True, blank=False, default=None, max_length=500
     )
     pub_year = jsondata.IntegerField(
         _("publication year"),

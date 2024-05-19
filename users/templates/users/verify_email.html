@@ -5,7 +5,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '验证电子邮件' %}</title>
+    <title>{{ site_name }} - {% trans 'Verify Your Email' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -14,15 +14,17 @@
         <header style="text-align: center;">
           <img src="{{ site_logo }}" class="logo" alt="logo">
         </header>
-        <h4>验证电子邮件</h4>
+        <h4>{% trans 'Verify Your Email' %}</h4>
         {% if success %}
           <p>
-            {{ request.user.email }} 验证成功，<a href="{% url 'common:home' %}">点击这里返回首页</a>。
+            {{ request.user.email }} {% trans "verified successfully." %}
+            <br>
+            <a href="{% url 'common:home' %}">{% trans "back to your home page." %}</a>
           </p>
         {% else %}
           <p>
             {{ error }}
-            <a href="{% url 'users:login' %}">点击这里重新登录</a>。
+            <a href="{% url 'users:login' %}">{% trans "login again" %}</a>
           </p>
         {% endif %}
       </article>

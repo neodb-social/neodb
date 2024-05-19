@@ -2,44 +2,42 @@
 {% load humanize %}
 {% load i18n %}
 {% block brief %}
-  {% if item.rating %}
-    <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }}人评分)</small></span>
-  {% endif %}
-  {% include '_people.html' with people=item.author role='作者' max=2 %}
-  {% include '_people.html' with people=item.translator role='译者' max=2 %}
-  {% include '_people.html' with people=item.director role='导演' max=2 %}
-  {% include '_people.html' with people=item.hosts role='' max=2 %}
-  {% include '_people.html' with people=item.artist role='' max=2 %}
-  {% include '_people.html' with people=item.developer role='' max=2 %}
-  {% if item.pub_house %}<span>{{ item.pub_house }}</span>{% endif %}
-  {% if item.pub_year %}
-    <span>
-      {{ item.pub_year }}{% trans '年' %}
-      {% if item.pub_month %}
-        {{ item.pub_month }}{% trans '月' %}
-      {% endif %}
-    </span>
-  {% endif %}
-  {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
-  {% include '_people.html' with people=item.genre role='' max=2 %}
-  {% include '_people.html' with people=item.troupe role='' max=2 %}
-  {% include '_people.html' with people=item.location role='' max=2 %}
-  {% comment %} {% include '_people.html' with people=item.language role='' max=5 %} {% endcomment %}
-  {% include '_people.html' with people=item.platform role='' max=5 %}
-  {% if item.show %}
-    <span>{{ item.show.type.label }}：<a href="{{ item.show.url }}">{{ item.show.title }}</a></span>
-  {% endif %}
+  <div class="multi-fields">
+    {% if item.rating %}
+      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
+    {% endif %}
+    {% include '_people.html' with people=item.author role='author' max=2 %}
+    {% include '_people.html' with people=item.translator role='translator' max=2 %}
+    {% include '_people.html' with people=item.director role='director' max=2 %}
+    {% include '_people.html' with people=item.hosts role='' max=2 %}
+    {% include '_people.html' with people=item.artist role='' max=2 %}
+    {% include '_people.html' with people=item.developer role='' max=2 %}
+    {% if item.pub_house %}<span>{{ item.pub_house }}</span>{% endif %}
+    {% if item.pub_year %}
+      <span>
+        {{ item.pub_year }}
+        {% if item.pub_month %}-{{ item.pub_month }}{% endif %}
+      </span>
+    {% endif %}
+    {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
+    {% include '_people.html' with people=item.genre role='' max=2 %}
+    {% include '_people.html' with people=item.troupe role='' max=2 %}
+    {% include '_people.html' with people=item.location role='' max=2 %}
+    {% comment %} {% include '_people.html' with people=item.language role='' max=5 %} {% endcomment %}
+    {% include '_people.html' with people=item.platform role='' max=5 %}
+    {% if item.show %}
+      <span>{{ item.show.type.label }}: <a href="{{ item.show.url }}">{{ item.show.title }}</a></span>
+    {% endif %}
+  </div>
 {% endblock brief %}
 {% block full %}
   {% comment %} {% if item.actor %}
-        {% include '_people.html' with people=item.actor role='主演' max=2 %}
+        {% include '_people.html' with people=item.actor role='actor' max=2 %}
         <br>
   {% endif %} {% endcomment %}
-  {% if item.other_title %}
-    {% include '_people.html' with people=item.other_title role='又名' max=2 %}
-    <br>
-  {% endif %}
-  <div>
-    {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
-  </div>
+  {% include '_people.html' with people=item.other_title role='other title' max=2 %}
+{% endif %}
+<div>
+  {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+</div>
 {% endblock full %}

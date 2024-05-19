@@ -4,20 +4,18 @@
 {% block brief %}
   <div class="multi-fields">
     {% if item.rating %}
-      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }}人评分)</small></span>
+      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
     {% endif %}
-    {% if item.other_title %}
-      {% include '_people.html' with people=item.other_title role='又名' max=2 %}
-    {% endif %}
+    {% include '_people.html' with people=item.other_title role='other title' max=2 %}
     {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
   </div>
 {% endblock brief %}
 {% block full %}
   <div class="multi-fields">
-    {% include '_people.html' with people=item.genre role='类型' max=2 %}
-    {% include '_people.html' with people=item.platform role='平台' max=5 %}
-    {% include '_people.html' with people=item.developer role='研发' max=2 %}
-    {% include '_people.html' with people=item.publisher role='发行' max=2 %}
+    {% include '_people.html' with people=item.genre role='genre' max=2 %}
+    {% include '_people.html' with people=item.platform role='platform' max=5 %}
+    {% include '_people.html' with people=item.developer role='developer' max=2 %}
+    {% include '_people.html' with people=item.publisher role='publisher' max=2 %}
   </div>
   <div>
     {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}

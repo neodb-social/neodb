@@ -7,7 +7,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ item.title }} - {% trans '评论' %}</title>
+    <title>{{ site_name }} - {% trans 'Review' %} - {{ item.display_title }}</title>
     {% include "common_libs.html" %}
     <style type="text/css">#id_visibility, #id_visibility li {padding-left:0; margin-bottom:0; display: inline-block !important;}</style>
   </head>
@@ -30,16 +30,17 @@
               <div>
                 <label for="leading_space" style="display: inline">
                   <input type="checkbox" name="leading_space" value="1" id="leading_space">
-                  保存时<span data-tooltip="希望行首缩进但不便输全角时可选此替换两半角为一全角">将行首空格替换为全角</span>
+                  {% trans "When saving, replace leading spaces with full-width spaces" %}
+                  <span data-tooltip="希望行首缩进但不便输全角时可选此替换两半角为一全角">?</span>
                 </label>
               </div>
               <div>{{ form.visibility }}</div>
               <div>{{ form.share_to_mastodon }}{{ form.share_to_mastodon.label }}</div>
             </div>
-            <input class="button float-right" type="submit" value="{% trans '提交' %}">
+            <input class="button float-right" type="submit" value="{% trans 'Save' %}">
             <div>
               <label for="mark_anotherday">
-                更改标记日期:
+                {% trans "change review date" %}
                 <input type="checkbox" name="mark_anotherday" value="1" id="mark_anotherday">
                 <input type="date"
                        name="mark_date"
@@ -63,7 +64,7 @@
           </form>
           <hr>
           <details>
-            <summary>Markdown语法参考</summary>
+            <summary>{% trans "Markdown format references" %}</summary>
             <pre>
 标题
 ====

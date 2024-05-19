@@ -5,7 +5,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '注册信息' %}</title>
+    <title>{{ site_name }} - {% trans 'Register' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -15,12 +15,11 @@
           <img src="{{ site_logo }}" class="logo" alt="logo">
         </header>
         {% if request.session.new_user %}
-          <h4>欢迎来到{{ site_name }}，{{ request.user.mastodon_acct }}！</h4>
+          <h4>{% trans "Welcome" %}</h4>
           <p>
-            {{ site_name }}还在不断完善中。
-            丰富的内容需要大家共同创造，试图添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严肃处理。
-            本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href="/pages/terms">站内公告</a>。
-            本站提供API和导出功能，请妥善备份您的数据，使用过程中遇到的问题或者错误欢迎向<a href="{{ support_link }}">维护者</a>提出。感谢理解和支持！
+            {% blocktrans %}
+                {{ site_name }} is flourishing because of collaborations and contributions from users like you. Please read our <a href="/pages/terms">term of service</a>, and feel free to <a href="{{ support_link }}">contact us</a> if you have any question or feedback.
+          {% endblocktrans %}
           </p>
         {% endif %}
         {% if form %}
@@ -28,33 +27,27 @@
             <small>{{ error }}</small>
             <fieldset>
               <label>
-                请输入你想在{{ site_name }}使用的用户名
-                <input name="username"
-                       placeholder="2-30个字符，限英文字母数字下划线，确认后不可更改"
-                       value="{{ form.username.value|default:request.user.username|default:'' }}"
-                       required
-                       _="on input remove [@aria-invalid] end"
-                       {% if request.user.username and not form.username.errors %}aria-invalid="false" readonly{% endif %}
-                       {% if form.username.errors %}aria-invalid="true"{% endif %}
-                       pattern="^[a-zA-Z0-9_]{2,30}$" />
+                {% blocktrans %}Your username on {{ site_name }}{% endblocktrans %}
+                <input name="username" placeholder="{% trans "2-30 alphabets, numbers or underscore, can't be changed once saved" %}" value="{{ form.username.value|default:request.user.username|default:'' }}" required _="on input remove [@aria-invalid] end" {% if request.user.username and not form.username.errors %}aria-invalid="false" readonly{% endif %} {% if form.username.errors %}aria-invalid="true"{% endif %} pattern="^[a-zA-Z0-9_]{2,30}$" />
                 {% for error in form.username.errors %}<small>{{ error }}</small>{% endfor %}
               </label>
               <label>
-                以及作为备用登录方式的电子邮件地址（推荐）
+                {% trans "email address (optional if you log in via other Fediverse site, but recommended)" %}
                 <input type="email"
                        name="email"
                        {% if request.user.email and not request.user.mastodon_acct %}readonly{% endif %}
                        {% if request.user.email %}value="{{ request.user.email }}" aria-invalid="false"{% endif %}
-                       placeholder="设置后请查收邮件点击其中的确认链接"
+                       placeholder="email"
                        autocomplete="email" />
                 {% if request.user.pending_email %}
-                  <small>当前待确认的电子邮件地址为{{ request.user.pending_email }}，请查收邮件并点击确认链接；如长时间未收到可重新输入并保存。</small>
+                  <small> {% blocktrans pending_email=request.user.pending_email %}Please click the confirmation link in the email sent to {{ pending_email }}; if you haven't received it for more than a few minutes, please input and save again.{% endblocktrans %} </small>
                 {% endif %}
                 {% for error in form.email.errors %}<small>{{ error }}</small>{% endfor %}
               </label>
             </fieldset>
             {% csrf_token %}
-            <input type="submit" value="{% trans '确认并保存' %}">
+            <input type="submit" value="{% trans 'Confirm and save' %}">
+            <small>{% trans "Once saved, click the confirmation link in the email you receive" %}</small>
           </form>
         {% else %}
           <form action="{% url 'common:home' %}" method="get">

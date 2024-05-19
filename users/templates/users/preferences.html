@@ -8,7 +8,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - 设置</title>
+    <title>{{ site_name }} - {% trans "Preferences" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -18,91 +18,97 @@
         <article>
           <details open>
             <summary>
-              <b>{% trans '使用偏好' %}</b>
+              <b>{% trans "Preferences" %}</b>
             </summary>
             <form action="{% url 'users:preferences' %}" method="post">
               {% csrf_token %}
               <fieldset>
-                {% trans '登录后显示：' %}
+                {% trans 'Default view once logged in' %}
                 <input type="radio"
                        name="classic_homepage"
                        value="0"
                        id="classic_homepage0"
                        {% if request.user.preference.classic_homepage == 0 %}checked{% endif %}>
-                <label for="classic_homepage0">内容发现</label>
+                <label for="classic_homepage0">{% trans "Discover" %}</label>
                 <input type="radio"
                        name="classic_homepage"
                        value="2"
                        id="classic_homepage2"
                        {% if request.user.preference.classic_homepage == 2 %}checked{% endif %}>
-                <label for="classic_homepage2">好友动态</label>
+                <label for="classic_homepage2">{% trans "Activities" %}</label>
                 <input type="radio"
                        name="classic_homepage"
                        value="1"
                        id="classic_homepage1"
                        {% if request.user.preference.classic_homepage == 1 %}checked{% endif %}>
-                <label for="classic_homepage1">个人主页</label>
+                <label for="classic_homepage1">{% trans "Home" %}</label>
               </fieldset>
               <fieldset>
-                {% trans '发表时的默认可见性：' %}
+                {% trans 'Default visibility' %}
                 <input type="radio"
                        name="default_visibility"
                        value="0"
                        required=""
                        id="id_visibility_0"
                        {% if request.user.preference.default_visibility == 0 %}checked{% endif %}>
-                <label for="id_visibility_0">公开</label>
+                <label for="id_visibility_0">{% trans "Public" %}</label>
                 <input type="radio"
                        name="default_visibility"
                        value="1"
                        required=""
                        id="id_visibility_1"
                        {% if request.user.preference.default_visibility == 1 %}checked{% endif %}>
-                <label for="id_visibility_1">仅关注者</label>
+                <label for="id_visibility_1">{% trans "Followers Only" %}</label>
                 <input type="radio"
                        name="default_visibility"
                        value="2"
                        required=""
                        id="id_visibility_2"
                        {% if request.user.preference.default_visibility == 2 %}checked{% endif %}>
-                <label for="id_visibility_2">仅本人和被提及的用户</label>
+                <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
               </fieldset>
               <fieldset>
-                可见性选择「公开」时以如下方式发布到联邦网络：
+                {% trans "Public status will be posted to fediverse" %}
                 <input type="radio"
                        id="post_public_mode_0"
                        name="post_public_mode"
                        value="0"
                        {% if request.user.preference.post_public_mode == 0 %}checked{% endif %} />
-                <label for="post_public_mode_0">Public</label>
+                <label for="post_public_mode_0">{% trans "in public timeline" %}</label>
                 <input type="radio"
                        id="post_public_mode_1"
                        name="post_public_mode"
                        value="1"
                        {% if request.user.preference.post_public_mode == 1 %}checked{% endif %} />
-                <label for="post_public_mode_1">
-                  Unlisted
-                  <em data-tooltip="unlisted帖子不会出现在本站和外站公共时间轴"><i class="fa fa-question-circle"></i></em>
-                </label>
+                <label for="post_public_mode_1">{% trans "unlisted and excluded from public timeline" %}</label>
                 {% if enable_local_only %}
                   <input type="radio"
                          id="post_public_mode_4"
                          name="post_public_mode"
                          value="4"
                          {% if request.user.preference.post_public_mode == 4 %}checked{% endif %} />
-                  <label for="post_public_mode_4">仅本站</label>
+                  <label for="post_public_mode_4">{% trans "local, this site only" %}</label>
                 {% endif %}
               </fieldset>
               {% if request.user.mastodon_acct %}
                 <fieldset>
-                  转发到<em data-tooltip="@{{ request.user.mastodon_acct }}">主ID</em>时间轴时：
+                  <label>
+                    {% trans "Repost to your timeline by default" %}
+                    <input type="checkbox"
+                           name="mastodon_default_repost"
+                           value="1"
+                           {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
+                  </label>
+                </fieldset>
+                <fieldset>
+                  {% trans "Method for reposting to your timeline" %}
                   <input type="radio"
                          name="mastodon_repost_mode"
                          value="0"
                          required=""
                          id="mastodon_repost_mode_0"
                          {% if request.user.preference.mastodon_repost_mode == 0 %}checked{% endif %}>
-                  <label for="mastodon_repost_mode_0">使用转播（boost）</label>
+                  <label for="mastodon_repost_mode_0">{% trans "boost" %}</label>
                   <input type="radio"
                          name="mastodon_repost_mode"
                          value="1"
@@ -110,25 +116,16 @@
                          id="mastodon_repost_mode_1"
                          {% if request.user.preference.mastodon_repost_mode == 1 %}checked{% endif %}>
                   <label for="mastodon_repost_mode_1">
-                    另发新帖文
-                    <em data-tooltip="删改标记可能产生重复帖文，其他人对新帖的回应、点赞不会被记录"><i class="fa fa-question-circle"></i></em>
-                  </label>
-                </fieldset>
-                <fieldset>
-                  <label>
-                    发表时默认选中 转发到<em data-tooltip="@{{ request.user.mastodon_acct }}">主ID</em>时间轴
-                    <input type="checkbox"
-                           name="mastodon_default_repost"
-                           value="1"
-                           {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
+                    {% trans "repost as new post" %}
+                    <em data-tooltip="{% trans "this method is less optimal, may generate duplicated posts and miss reactions." %}"><i class="fa fa-question-circle"></i></em>
                   </label>
                 </fieldset>
               {% endif %}
               <fieldset>
-                <label for="mastodon_append_tag">{% trans '发表标记时在结尾附加标签：' %}</label>
+                <label for="mastodon_append_tag">{% trans 'append tags when posting to timeline' %}</label>
                 <input name="mastodon_append_tag"
                        id="mastodon_append_tag"
-                       placeholder="例如 #我的书影音"
+                       placeholder="{% trans "e.g. #bookstodon" %}"
                        value="{{ request.user.preference.mastodon_append_tag }}">
               </fieldset>
               <fieldset>
@@ -142,7 +139,7 @@
                 </select>
               </fieldset>
               <fieldset>
-                <legend>{% trans '搜索时不显示以下类型：' %}</legend>
+                <legend>{% trans 'hide these categories in search results' %}</legend>
                 <select name="hidden_categories" size="3" multiple>
                   {% all_categories as categories %}
                   {% for c in categories %}
@@ -158,8 +155,8 @@
                   <input type="checkbox"
                          name="anonymous_viewable"
                          {% if request.user.identity.anonymous_viewable %}checked{% endif %}>
-                  {% trans '匿名访客和搜索引擎可以查看你的个人主页' %}
-                  <em data-tooltip="此选项仅针对网页访客，如果不希望被联邦网络用户看到请在发表时选择仅关注者或本人"><i class="fa fa-question-circle"></i></em>
+                  {% trans 'Profile visible to anonymous web visitors and search engines' %}
+                  <em data-tooltip="{% trans "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting" %}"><i class="fa fa-question-circle"></i></em>
                 </label>
               </fieldset>
               <fieldset>
@@ -167,35 +164,35 @@
                   <input type="checkbox"
                          name="show_last_edit"
                          {% if request.user.preference.show_last_edit %}checked{% endif %}>
-                  {% trans '显示你是某条目的最近编辑者' %}
+                  {% trans 'show your name on item page if you recently edited it' %}
                 </label>
               </fieldset>
-              <input type="submit" value="{% trans '保存' %}">
+              <input type="submit" value="{% trans 'Save' %}">
             </form>
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans '当前设备设置' %}</summary>
+            <summary>{% trans 'Settings for current device' %}</summary>
             <form onsubmit="return false;">
-              <h6>明暗风格</h6>
+              <h6>{% trans "theme" %}</h6>
               <p>
                 <input type="radio" name="theme_color" id="theme_auto" value="">
-                <label for="theme_auto">系统</label>
+                <label for="theme_auto">{% trans "system" %}</label>
                 <input type="radio" name="theme_color" id="theme_light" value="light">
-                <label for="theme_light">明亮</label>
+                <label for="theme_light">{% trans "light" %}</label>
                 <input type="radio" name="theme_color" id="theme_dark" value="dark">
-                <label for="theme_dark">暗色</label>
+                <label for="theme_dark">{% trans "dark" %}</label>
               </p>
-              <h6>专注模式</h6>
+              <h6>{% trans "focus mode" %}</h6>
               <p>
                 <input type="checkbox" id="solo_mode">
-                <label for="solo_mode">启用专注模式后搜索和条目页面将不再显示来自他人的评价和打分</label>
+                <label for="solo_mode">{% trans "hide reviews and ratings from other users" %}</label>
               </p>
-              <h6>自定义样式代码 (实验功能)</h6>
+              <h6>{% trans "custom styles" %}</h6>
               <textarea id="user_style"></textarea>
               <br>
-              <input type="button" onclick="save_local();" value="保存">
+              <input type="button" onclick="save_local();" value="{% trans "Save" %}">
             </form>
           </details>
           <script>
@@ -211,15 +208,15 @@
               localStorage.setItem("theme_color", _c);
               localStorage.setItem("user_style", $("#user_style").val());
               localStorage.setItem("solo_mode", $("#solo_mode").prop("checked")?"1":"0");
-              alert("当前设备设置已保存");
+              alert("{% trans "Settings for current device saved" %}");
             }
           </script>
         </article>
         <article>
           <details>
-            <summary>{% trans '应用管理' %}</summary>
+            <summary>{% trans 'Applications' %}</summary>
             <p>
-              <a href="{% url 'oauth2_provider:authorized-token-list' %}">查看已授权的应用程序</a>
+              <a href="{% url 'oauth2_provider:authorized-token-list' %}">{% trans "View authorized applications" %}</a>
             </p>
           </details>
         </article>

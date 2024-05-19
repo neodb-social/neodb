@@ -19,13 +19,16 @@
       &nbsp;
       {% if request.user.is_authenticated %}
         <a style="margin-right: 10px"
-           title="评论单集"
+           title="{% trans "comment this episode" %}"
            href="#"
            hx-get="{% url 'journal:comment' ep.uuid %}"
            hx-target="body"
            hx-swap="beforeend"><i class="fa-regular fa-comment-dots"></i></a>
       {% endif %}
-      <a title="打开源网站" target="_blank" rel="noopener" href="{{ ep.link }}"><i class="fa-solid fa-link"></i></a>
+      <a title="{% trans "original website" %}"
+         target="_blank"
+         rel="noopener"
+         href="{{ ep.link }}"><i class="fa-solid fa-link"></i></a>
       {{ ep.title }}
       <small style="color:lightgrey;">{{ ep.pub_date|date }}</small>
     </h6>
@@ -35,8 +38,8 @@
     <button class="outline"
             hx-get="{% url 'catalog:episode_data' item.uuid %}?last={{ ep.pub_date|date:'Y-m-d H:i:s.uO'|urlencode }}"
             hx-trigger="click"
-            hx-swap="outerHTML">显示更多</button>
+            hx-swap="outerHTML">{% trans "show more" %}</button>
   {% endif %}
 {% empty %}
-  <div>{% trans '目前没有更多内容了' %}</div>
+  <div>{% trans 'nothing more.' %}</div>
 {% endfor %}

@@ -10,7 +10,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '搜索' %} {{ request.GET.q }}</title>
+    <title>{{ site_name }} - {% trans 'Search Results' %} {{ request.GET.q }}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -21,67 +21,67 @@
           <div>
             {% if request.GET.q %}
               <hgroup>
-                <h5>“{{ request.GET.q }}” {% trans '的搜索结果' %}</h5>
+                <h5>“{{ request.GET.q }}”</h5>
                 <div>
                   {% visible_categories as cats %}
                   {% if request.GET.c and request.GET.c != 'all' %}
-                    <a href="?q={{ request.GET.q }}&amp;c=all">全部</a>
+                    <a href="?q={{ request.GET.q }}&amp;c=all">{% trans "all" %}</a>
                   {% else %}
-                    全部
+                    {% trans "all" %}
                   {% endif %}
                   {% if 'book' in cats %}
                     |
                     {% if request.GET.c != 'book' %}
-                      <a href="?q={{ request.GET.q }}&amp;c=book">书籍</a>
+                      <a href="?q={{ request.GET.q }}&amp;c=book">{% trans "books" %}</a>
                     {% else %}
-                      书籍
+                      {% trans "books" %}
                     {% endif %}
                   {% endif %}
                   {% if 'movie' in cats or 'tv' in cats %}
                     |
                     {% if request.GET.c != 'movietv' %}
-                      <a href="?q={{ request.GET.q }}&amp;c=movietv">影视</a>
+                      <a href="?q={{ request.GET.q }}&amp;c=movietv">{% trans "movie & tv" %}</a>
                     {% else %}
-                      影视
+                      {% trans "movie & tv" %}
                     {% endif %}
                   {% endif %}
                   {% if 'podcast' in cats %}
                     |
                     {% if request.GET.c != 'podcast' %}
-                      <a href="?q={{ request.GET.q }}&amp;c=podcast">播客</a>
+                      <a href="?q={{ request.GET.q }}&amp;c=podcast">{% trans "podcasts" %}</a>
                     {% else %}
-                      播客
+                      {% trans "podcasts" %}
                     {% endif %}
                   {% endif %}
                   {% if 'music' in cats %}
                     |
                     {% if request.GET.c != 'music' %}
-                      <a href="?q={{ request.GET.q }}&amp;c=music">音乐</a>
+                      <a href="?q={{ request.GET.q }}&amp;c=music">{% trans "music" %}</a>
                     {% else %}
-                      音乐
+                      {% trans "music" %}
                     {% endif %}
                   {% endif %}
                   {% if 'game' in cats %}
                     |
                     {% if request.GET.c != 'game' %}
-                      <a href="?q={{ request.GET.q }}&amp;c=game">游戏</a>
+                      <a href="?q={{ request.GET.q }}&amp;c=game">{% trans "games" %}</a>
                     {% else %}
-                      游戏
+                      {% trans "games" %}
                     {% endif %}
                   {% endif %}
                   {% if 'performance' in cats %}
                     |
                     {% if request.GET.c != 'performance' %}
-                      <a href="?q={{ request.GET.q }}&amp;c=performance">演出</a>
+                      <a href="?q={{ request.GET.q }}&amp;c=performance">{% trans "performances" %}</a>
                     {% else %}
-                      演出
+                      {% trans "performances" %}
                     {% endif %}
                   {% endif %}
                 </div>
               </hgroup>
             {% endif %}
             {% if request.GET.tag %}
-              <h5>{% trans '含有标签' %} “{{ request.GET.tag }}” {% trans '的结果' %}</h5>
+              <h5>{% trans 'tag' %}: “{{ request.GET.tag }}”</h5>
             {% endif %}
             <div class="item-card-list">
               {% for item in items %}
@@ -103,7 +103,7 @@
             </div>
             {% if dup_items %}
               <p class="empty">
-                已从结果中略去了来自同一著作或有相同标识号的 {{ dup_items|length }}个条目，<a _="on click toggle .unfold on #dup">点击这里可重新显示</a>
+                {% blocktrans with dups=dup_items|length %} {{ dups }} items are from the same work or have the same identifier, they are hidden from the search results, <a _="on click toggle .unfold on #dup">click hereto show them.</a> {% endblocktrans %}
               </p>
               <div class="item-card-list folded" id="dup">
                 {% for item in dup_items %}
@@ -113,14 +113,14 @@
             {% endif %}
             <div class="item-card-list">
               {% if request.GET.q and request.user.is_authenticated %}
-                <p hx-get="{% url 'catalog:external_search' %}?q={{ request.GET.q }}&c={{ request.GET.c }}&page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
+                <p hx-get="{% url 'catalog:external_search' %}?q={{ request.GET.q }}&amp;c={{ request.GET.c }}&amp;page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
                    hx-trigger="load"
                    hx-swap="outerHTML">
                   <span><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                  {% trans '正在实时搜索站外条目' %}
+                  {% trans 'Searching from other sites' %}
                 </p>
               {% else %}
-                登录用户可看到来自其它网站的搜索结果。
+                {% trans "Logged in user may see search results from other sites." %}
               {% endif %}
             </div>
           </div>

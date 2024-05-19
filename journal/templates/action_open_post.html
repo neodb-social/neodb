@@ -3,7 +3,7 @@
      rel="noopener"
      href="{{ post.object_uri }}"
      onclick="navigator.share({url:'{{ post.object_uri|escapejs }}'});event.preventDefault();"
-     title="联邦宇宙分享链接">
+     title="{% trans "link for fediverse" %}">
     {% if post.visibility == 1 %}
       <i class="fa-solid fa-lock-open"></i>
     {% elif post.visibility == 2 %}

@@ -42,10 +42,11 @@
   {% endif %}
 {% empty %}
   {% if request.GET.last %}
-    <div class="empty">{% trans '目前没有更多内容了' %}</div>
+    <div class="empty">{% trans 'nothing more.' %}</div>
   {% else %}
-    <div>
-      搜索并标记一些书影音/播客/游戏，<a href="{% url 'users:data' %}">导入你的豆瓣或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用{{ site_name }}的用户，这里就会显示你和她们的近期动态。
+    <div class="empty">
+      {% url 'users:data' as import_url %}
+      {% blocktrans %}Find and mark some books/movies/podcasts/games, <a href="{{ import_url }}">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow {{ site_name }} users on the fediverse, so their recent activities and yours will show up here.{% endblocktrans %}
     </div>
   {% endif %}
 {% endfor %}

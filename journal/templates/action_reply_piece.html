@@ -1,5 +1,5 @@
 <span>
-  <a title="回应"
+  <a title="{% trans "reply" %}"
      {% if href %} href="{{ href }}" {% else %} {% if not request.user.is_authenticated %}hx-disable{% endif %}
      hx-get="{% url 'journal:piece_replies' piece.uuid %}"
      hx-swap="outerHTML"

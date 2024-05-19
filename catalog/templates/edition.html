@@ -14,81 +14,61 @@
   {% if item.isbn %}<meta property="og:book:isbn" content="{{ item.isbn }}">{% endif %}
 {% endblock %}
 {% block details %}
-  <!-- <div>{% if item.subtitle %}{% trans '副标题：' %}{{ item.subtitle }}{% endif %}</div>
-<div>{% if item.orig_title %}{% trans '原作名：' %}{{ item.orig_title }}{% endif %}</div> -->
   <div>
     {% if item.isbn %}
-      {% trans 'ISBN：' %}{{ item.isbn }}
+      {% trans 'ISBN' %}: {{ item.isbn }}
     {% endif %}
   </div>
-  <div>
-    {% if item.author %}
-      {% trans '作者：' %}
-      {% for author in item.author %}
-        <span>{{ author }}</span>
-        {% if not forloop.last %}/{% endif %}
-      {% endfor %}
-    {% endif %}
-  </div>
-  <div>
-    {% if item.translator %}
-      {% trans '译者：' %}
-      {% for translator in item.translator %}
-        <span>{{ translator }}</span>
-        {% if not forloop.last %}/{% endif %}
-      {% endfor %}
-    {% endif %}
-  </div>
+  <div>{% include '_people.html' with people=item.author role='author' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.translator role='translator' max=5 %}</div>
   <div>
     {% if item.pub_house %}
-      {% trans '出版社：' %}{{ item.pub_house }}
+      {% trans 'publishing house' %}: {{ item.pub_house }}
     {% endif %}
   </div>
   <div>
     {% if item.imprint %}
-      {% trans '出品方：' %}{{ item.imprint }}
+      {% trans 'imprint' %}: {{ item.imprint }}
     {% endif %}
   </div>
   <div>
     {% if item.pub_year %}
-      {% trans '出版时间：' %}{{ item.pub_year }}{% trans '年' %}
-      {% if item.pub_month %}
-        {{ item.pub_month }}{% trans '月' %}
-      {% endif %}
+      {% trans 'publication date' %}: {{ item.pub_year }}
+      {% if item.pub_month %}-{{ item.pub_month }}{% endif %}
     {% endif %}
   </div>
   <div>
     {% if item.series %}
-      {% trans '丛书系列：' %}{{ item.series }}
+      {% trans 'series' %}: {{ item.series }}
     {% endif %}
   </div>
   <div>
     {% if item.language %}
-      {% trans '语言：' %}{{ item.language }}
+      {% trans 'language' %}: {{ item.language }}
     {% endif %}
   </div>
   <div>
     {% if item.binding %}
-      {% trans '装帧：' %}{{ item.binding }}
+      {% trans 'binding' %}: {{ item.binding }}
     {% endif %}
   </div>
   <div>
     {% if item.price %}
-      {% trans '定价：' %}{{ item.price }}
+      {% trans 'price' %}: {{ item.price }}
     {% endif %}
   </div>
   <div>
     {% if item.pages %}
-      {% trans '页数：' %}{{ item.pages }}
+      {% trans 'number of pages' %}: {{ item.pages }}
     {% endif %}
   </div>
   {% if item.other_info %}
-    {% for k, v in item.other_info.items %}<div>{{ k }}：{{ v|urlizetrunc:24 }}</div>{% endfor %}
+    {% for k, v in item.other_info.items %}<div>{{ k }}: {{ v|urlizetrunc:24 }}</div>{% endfor %}
   {% endif %}
 {% endblock %}
 {% block content %}
   {% if item.contents %}
-    <h5>目录</h5>
+    <h5>contents</h5>
     <p class="tldr" _="on click toggle .tldr on me">{{ item.contents | linebreaksbr }}</p>
   {% endif %}
 {% endblock %}
@@ -111,7 +91,7 @@
     {% if related_books.count > 0 %}
       <section>
         <details class="auto-collapse" open>
-          <summary>{% trans '这本书还有其它版本' %}</summary>
+          <summary>{% trans 'other editions' %}</summary>
           {% for b in related_books %}
             <div>
               <a href="{{ b.url }}">{{ b.title }}</a>
@@ -130,7 +110,7 @@
   {% if item.isbn %}
     <section>
       <details class="auto-collapse" open>
-        <summary>{% trans '借阅或购买' %}</summary>
+        <summary>{% trans 'Borrow or Buy' %}</summary>
         <div>
           <div>
             <a target="_blank"

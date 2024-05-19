@@ -4,16 +4,18 @@
 {% block brief %}
   <div class="multi-fields">
     {% if item.rating %}
-      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }}人评分)</small></span>
+      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
     {% endif %}
     {% include '_people.html' with people=item.artist role='' max=2 %}
-    {% include '_people.html' with people=item.genre role='流派' max=5 %}
+    {% include '_people.html' with people=item.genre role='genre' max=5 %}
   </div>
 {% endblock brief %}
 {% block full %}
   <div class="multi-fields">
-    {% if item.release_date %}<span>发行时间：{{ item.release_date }}</span>{% endif %}
-    {% include '_people.html' with people=item.company role='发行方' max=2 %}
+    {% if item.release_date %}
+      <span>{% trans "release date" %} {{ item.release_date }}</span>
+    {% endif %}
+    {% include '_people.html' with people=item.company role='publisher' max=2 %}
   </div>
   <div>
     <div>

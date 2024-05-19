@@ -7,15 +7,17 @@
           onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">@{{ identity.handle }}</code>
   </p>
 {% empty %}
-  <p class="empty">无数据</p>
+  <p class="empty">{% trans "nothing so far." %}</p>
 {% endfor %}
 <p>
   <span class="action">
     <span>
-      <a id="download_{{ id }}" title="导出列表" download="neodb_{{ id }}.csv"><i class="fa-solid fa-download"></i></a>
+      <a id="download_{{ id }}"
+         title="{% trans "export" %}"
+         download="neodb_{{ id }}.csv"><i class="fa-solid fa-download"></i></a>
     </span>
   </span>
-  此处仅列出并可导出你在{{ site_name }}的{{ name }}，联邦宇宙{{ name }}列表可在你所属实例查询管理。
+  {% blocktrans %}You may download {{ name }} on {{ site_name }} here.{% endblocktrans %}
 </p>
 <script>
 let csv = "data:text/csv;charset=utf-8,Account address,Show boosts,Notify on new posts,Languages\n"

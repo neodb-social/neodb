@@ -8,7 +8,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '动态' %}</title>
+    <title>{{ site_name }} - {% trans 'Activities from those you follow' %}</title>
     {% include "common_libs.html" %}
     <script src="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
     <link href="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/style.min.css"
@@ -19,7 +19,7 @@
   {% include "_header.html" with current="timeline" %}
   <main>
     <div class="grid__main">
-      <h5>好友动态</h5>
+      <h5>{% trans 'Activities from those you follow' %}</h5>
       <div class="feed">
         <div hx-get="{% url 'social:data' %}"
              hx-trigger="intersect once delay:0.1s"

@@ -321,22 +321,24 @@ class TootVisibilityEnum:
     UNLISTED = "unlisted"
 
 
-def detect_server_info(login_domain) -> tuple[str, str, str]:
+def detect_server_info(login_domain: str) -> tuple[str, str, str]:
     url = f"https://{login_domain}/api/v1/instance"
     try:
         response = get(url, headers={"User-Agent": USER_AGENT})
     except Exception as e:
-        logger.warning(f"Error connecting {login_domain}: {e}")
-        raise Exception(f"无法连接实例 {login_domain}")
+        logger.error(f"Error connecting {login_domain}: {e}")
+        raise Exception(f"Error connecting to instance {login_domain}")
     if response.status_code != 200:
-        logger.warning(f"Error connecting {login_domain}: {response.status_code}")
-        raise Exception(f"实例 {login_domain} 返回错误，代码: {response.status_code}")
+        logger.error(f"Error connecting {login_domain}: {response.status_code}")
+        raise Exception(
+            f"Instance {login_domain} returned error code {response.status_code}"
+        )
     try:
         j = response.json()
         domain = j["uri"].lower().split("//")[-1].split("/")[0]
     except Exception as e:
-        logger.warning(f"Error connecting {login_domain}: {e}")
-        raise Exception(f"实例 {login_domain} 返回信息无法识别")
+        logger.error(f"Error connecting {login_domain}: {e}")
+        raise Exception(f"Instance {login_domain} returned invalid data")
     server_version = j["version"]
     api_domain = domain
     if domain != login_domain:
@@ -365,17 +367,17 @@ def get_or_create_fediverse_application(login_domain):
             app.delete()
     if not settings.MASTODON_ALLOW_ANY_SITE:
         logger.warning(f"Disallowed to create app for {domain}")
-        raise Exception("不支持其它实例登录")
+        raise ValueError("Unsupported instance")
     if login_domain.lower() in settings.SITE_DOMAINS:
-        raise ValueError("必须使用其它实例登录")
+        raise ValueError("Unsupported instance")
     domain, api_domain, server_version = detect_server_info(login_domain)
     if (
         domain.lower() in settings.SITE_DOMAINS
         or api_domain.lower() in settings.SITE_DOMAINS
     ):
-        raise ValueError("必须使用其它实例登录")
+        raise ValueError("Unsupported instance")
     if "neodb/" in server_version:
-        raise ValueError("必须使用非NeoDB实例登录")
+        raise ValueError("Unsupported instance")
     if login_domain != domain:
         app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
         if app:
@@ -389,12 +391,12 @@ def get_or_create_fediverse_application(login_domain):
         logger.error(
             f"Error creating app for {domain} on {api_domain}: {response.status_code}"
         )
-        raise Exception("实例注册应用失败，代码: " + str(response.status_code))
+        raise Exception("Error creating app, code: " + str(response.status_code))
     try:
         data = response.json()
     except Exception:
         logger.error(f"Error creating app for {domain}: unable to parse response")
-        raise Exception("实例注册应用失败，返回内容无法识别")
+        raise Exception("Error creating app, invalid response")
     app = MastodonApplication.objects.create(
         domain_name=domain.lower(),
         api_domain=api_domain.lower(),

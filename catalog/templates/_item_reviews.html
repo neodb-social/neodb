@@ -23,7 +23,7 @@
       </span>
       <span class="action inline">
         <span class="timestamp">{{ review.created_time|date }}</span>
-        <span class="timestamp">评论</span>
+        <span class="timestamp">{% trans "review" %}</span>
       </span>
       {% if review.item != item %}
         <a href="{{ review.item.url }}">{{ review.item.title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
@@ -40,9 +40,9 @@
     <a hx-get="{% url 'catalog:reviews' review.item.url_path review.item.uuid %}?last={{ review.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"
        hx-trigger="click"
        hx-swap="outerHTML">
-      <button class="outline">显示更多</button>
+      <button class="outline">{% trans "show more" %}</button>
     </a>
   {% endif %}
 {% empty %}
-  <div class="empty">{% trans '暂无' %}</div>
+  <div class="empty">{% trans 'nothing more.' %}</div>
 {% endfor %}

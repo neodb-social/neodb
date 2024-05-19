@@ -4,18 +4,14 @@
 {% block brief %}
   <div class="multi-fields">
     {% if item.rating %}
-      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }}人评分)</small></span>
+      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
     {% endif %}
-    {% include '_people.html' with people=item.director role='导演' max=2 %}
-    {% include '_people.html' with people=item.actor role='主演' max=2 %}
+    {% include '_people.html' with people=item.director role='director' max=2 %}
+    {% include '_people.html' with people=item.actor role='actor' max=2 %}
   </div>
 {% endblock brief %}
 {% block full %}
-  <div class="multi-fields">
-    {% if item.other_title %}
-      {% include '_people.html' with people=item.other_title role='又名' max=5 %}
-    {% endif %}
-  </div>
+  <div class="multi-fields">{% include '_people.html' with people=item.other_title role='other title' max=2 %}</div>
   <div>
     {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
   </div>

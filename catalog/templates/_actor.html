@@ -1,14 +1,17 @@
+{% load i18n %}
 {% if people %}
   <span>
-    {% if role %}{{ role }}：{% endif %}
+    {% if role %}
+      {% trans role %}:
+    {% endif %}
     {% for p in people %}
       {% if forloop.counter <= max %}
-        {% if not forloop.first %}、{% endif %}
+        {% if not forloop.first %}/{% endif %}
         <span>{{ p.name }}
-          {% if p.role.strip %}(饰{{ p.role }}){% endif %}
+          {% if p.role.strip %}(as {{ p.role }}){% endif %}
         </span>
       {% elif forloop.last %}
-        等
+        …
       {% endif %}
     {% endfor %}
   </span>

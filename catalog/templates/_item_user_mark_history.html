@@ -11,7 +11,7 @@
       </span>
     </li>
   {% empty %}
-    <li _="init transition #mark-history opacity to 0 then remove #mark-history">无标记历史</li>
+    <li _="init transition #mark-history opacity to 0 then remove #mark-history">{% trans "no history." %}</li>
   {% endfor %}
 </ul>
 <div class="action inline">
@@ -19,7 +19,7 @@
     <button class="secondary outline"
             hx-post="{% url 'journal:mark_log' mark.item.uuid 0 %}?delete=1"
             hx-target="#log-list"
-            hx-confirm="确定清除所有标记历史吗？">清除所有标记历史</button>
+            hx-confirm="{% trans "sure to clear mark history?" %}">{% trans "clear mark history" %}</button>
   </ul>
-  <p>清除标记历史不会删除或改变现有标记</p>
+  <p>{% trans "clear history will not remove current mark" %}</p>
 </div>

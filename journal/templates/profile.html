@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% if me %}
-      <title>{{ site_name }} - {% trans '我的个人主页' %}</title>
+      <title>{{ site_name }} - {% trans 'Home' %}</title>
     {% else %}
       <title>{{ site_name }} - {{ identity.display_name }}</title>
     {% endif %}
@@ -20,7 +20,7 @@
     {% if not identity.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
     <link rel="alternate"
           type="application/rss+xml"
-          title="{{ site_name }} - @{{ identity.handle }}的评论"
+          title="{{ site_name }} - @{{ identity.handle }} - Reviews"
           href="{{ identity.url }}feed/reviews/">
     {% include "common_libs.html" %}
     <script src="{% static 'js/calendar_yearview_blocks.js' %}" defer></script>
@@ -52,10 +52,10 @@
                 </span>
               </span>
               <h5>
-                书影音日历
+                {% trans "calendar" %}
                 {% if year %}
                   <small>
-                    <a href="{% url 'journal:wrapped' year %}">{{ year }} 年度统计</a>
+                    <a href="{% url 'journal:wrapped' year %}">{{ year }} {% trans "annual summary" %}</a>
                   </small>
                 {% endif %}
               </h5>
@@ -106,7 +106,7 @@
                       </a>
                     </li>
                   {% empty %}
-                    <div>暂无记录</div>
+                    <div>{% trans "nothing so far." %}</div>
                   {% endfor %}
                 </ul>
               </section>
@@ -128,7 +128,7 @@
               </span>
             </span>
             <h5>
-              {% trans '创建的收藏单' %}
+              {% trans 'collection' %}
               <small>
                 <a href="{% url 'journal:user_collection_list' identity.handle %}">{{ collections_count }}</a>
                 {% if identity.user == request.user %}
@@ -168,7 +168,7 @@
               </span>
             </span>
             <h5>
-              {% trans '喜欢的收藏单' %}
+              {% trans 'liked collection' %}
               <small>
                 <a href="{% url 'journal:user_liked_collection_list' identity.handle %}">{{ liked_collections_count }}</a>
               </small>
@@ -184,7 +184,7 @@
                   </a>
                 </li>
               {% empty %}
-                <div>暂无记录</div>
+                <div>{% trans "nothing so far." %}</div>
               {% endfor %}
             </ul>
           </section>
@@ -192,10 +192,10 @@
         {% if identity.user == request.user %}
           <div class="entity-sort-control">
             <div class="entity-sort-control__button" id="sortEditButton">
-              <span class="entity-sort-control__text" id="sortEditText">{% trans '编辑布局' %}</span>
+              <span class="entity-sort-control__text" id="sortEditText">{% trans 'edit layout' %}</span>
               <span class="entity-sort-control__text"
                     id="sortSaveText"
-                    style="display: none">{% trans '保存' %}</span>
+                    style="display: none">{% trans 'save' %}</span>
               <span class="icon-edit" id="sortEditIcon">
                 <i class="fa-solid fa-pencil"></i>
               </span>
@@ -206,14 +206,14 @@
             <div class="entity-sort-control__button"
                  id="sortExitButton"
                  style="display: none">
-              <span class="entity-sort-control__text">{% trans '取消' %}</span>
+              <span class="entity-sort-control__text">{% trans 'cancel' %}</span>
             </div>
           </div>
           <div class="entity-sort-control__button entity-sort-control__button--float-right"
                id="toggleDisplayButtonTemplate"
                style="display: none">
-            <span class="showText" style="display: none;">{% trans '显示' %}</span>
-            <span class="hideText" style="display: none;">{% trans '隐藏' %}</span>
+            <span class="showText" style="display: none;">{% trans 'show' %}</span>
+            <span class="hideText" style="display: none;">{% trans 'hide' %}</span>
           </div>
           <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
             {% csrf_token %}

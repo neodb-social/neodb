@@ -9,7 +9,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '查询用户' %}</title>
+    <title>{{ site_name }} - {% trans 'Searching the fediverse' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -18,14 +18,14 @@
       <div class="grid__main">
         <article>
           {% if handle %}
-            <h5>正在从联邦网络查询{{ handle }}</h5>
+            <h5>{% trans "Searching the fediverse" %} - {{ handle }}</h5>
             <div hx-get="{% url 'users:fetch_refresh' %}?handle={{ handle }}"
                  hx-trigger="load delay:2s"
                  hx-swap="outerHTML">
               <i class="fa-solid fa-compact-disc fa-spin loading"></i>
             </div>
           {% else %}
-            <h5>获取系统繁忙，请稍等几秒钟再搜索</h5>
+            <h5>{% trans "System busy, please try again in a minute." %}</h5>
           {% endif %}
         </article>
       </div>

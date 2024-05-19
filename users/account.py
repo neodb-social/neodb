@@ -83,7 +83,7 @@ def connect(request):
             return render(
                 request,
                 "common/error.html",
-                {"msg": _("无效的电子邮件地址")},
+                {"msg": _("Invalid email address")},
             )
         user = User.objects.filter(email__iexact=login_email).first()
         code = base62.encode(random.randint(pow(62, 4), pow(62, 5) - 1))
@@ -101,8 +101,10 @@ def connect(request):
             request,
             "common/verify.html",
             {
-                "msg": _("验证邮件已发送"),
-                "secondary_msg": _("请查阅收件箱"),
+                "msg": _("Verification"),
+                "secondary_msg": _(
+                    "Verification email is being sent, please check your inbox."
+                ),
                 "action": action,
             },
         )
@@ -116,7 +118,7 @@ def connect(request):
             request,
             "common/error.html",
             {
-                "msg": "未指定实例域名",
+                "msg": _("Missing instance domain"),
                 "secondary_msg": "",
             },
         )
@@ -137,8 +139,8 @@ def connect(request):
             request,
             "common/error.html",
             {
-                "msg": "无法连接指定实例，请检查域名拼写",
-                "secondary_msg": str(e),
+                "msg": _("Error connecting to instance"),
+                "secondary_msg": f"{login_domain} {e}",
             },
         )
 
@@ -152,14 +154,20 @@ def connect_redirect_back(request):
         return render(
             request,
             "common/error.html",
-            {"msg": _("认证失败😫"), "secondary_msg": _("Mastodon服务未能返回有效认证信息")},
+            {
+                "msg": _("Authentication failed"),
+                "secondary_msg": _("Invalid response from Mastodon instance."),
+            },
         )
     site = request.session.get("mastodon_domain")
     if not site:
         return render(
             request,
             "common/error.html",
-            {"msg": _("认证失败😫"), "secondary_msg": _("无效会话信息")},
+            {
+                "msg": _("Authentication failed"),
+                "secondary_msg": _("Invalid cookie data."),
+            },
         )
     try:
         token, refresh_token = obtain_token(site, request, code)
@@ -169,7 +177,10 @@ def connect_redirect_back(request):
         return render(
             request,
             "common/error.html",
-            {"msg": _("认证失败😫"), "secondary_msg": _("Mastodon服务未能返回有效认证令牌")},
+            {
+                "msg": _("Authentication failed"),
+                "secondary_msg": _("Invalid token from Mastodon instance."),
+            },
         )
 
     if (
@@ -186,7 +197,14 @@ def connect_redirect_back(request):
     else:  # newly registered user
         code, user_data = verify_account(site, token)
         if code != 200 or user_data is None:
-            return render(request, "common/error.html", {"msg": _("联邦宇宙访问失败😫")})
+            return render(
+                request,
+                "common/error.html",
+                {
+                    "msg": _("Authentication failed"),
+                    "secondary_msg": _("Invalid account data from Mastodon instance."),
+                },
+            )
         return register_new_user(
             request,
             username=None
@@ -208,8 +226,8 @@ def register_new_user(request, **param):
                 request,
                 "common/error.html",
                 {
-                    "msg": _("注册失败😫"),
-                    "secondary_msg": _("本站仅限邀请注册"),
+                    "msg": _("Authentication failed"),
+                    "secondary_msg": _("Registration is for invitation only"),
                 },
             )
         else:
@@ -288,27 +306,35 @@ class RegistrationForm(forms.ModelForm):
 def send_verification_link(user_id, action, email, code=""):
     s = {"i": user_id, "e": email, "a": action}
     v = TimestampSigner().sign_object(s)
+    footer = _(
+        "\n\nIf you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
+    )
+    site = settings.SITE_INFO["site_name"]
     if action == "verify":
-        subject = f'{settings.SITE_INFO["site_name"]} - {_("验证电子邮件地址")}'
+        subject = f'{site} - {_("Verification")}'
         url = settings.SITE_INFO["site_url"] + "/account/verify_email?c=" + v
-        msg = f"你好，\n请点击以下链接验证你的电子邮件地址 {email}\n{url}\n\n如果你没有注册过本站，请忽略此邮件。"
-    elif action == "login":
-        subject = f'{settings.SITE_INFO["site_name"]} - {_("登录")} {code}'
-        url = settings.SITE_INFO["site_url"] + "/account/login/email?c=" + v
-        msg = (
-            "你好，\n请"
-            + f"在登录界面输入如下验证码：\n\n{code}\n\n或"
-            + f"点击以下链接登录{email}账号\n{url}\n\n如果你没有请求登录本站，请忽略此邮件；如果你确信账号存在安全风险，请更改注册邮件地址或与我们联系。"
+        msg = _("Click this link to verify your email address {email}\n{url}").format(
+            email=email, url=url, code=code
         )
+        msg += footer
+    elif action == "login":
+        subject = f'{site} - {_("Login")} {code}'
+        url = settings.SITE_INFO["site_url"] + "/account/login/email?c=" + v
+        msg = _(
+            "Use this code to confirm login as {email}\n\n{code}\n\nOr click this link to login\n{url}"
+        ).format(email=email, url=url, code=code)
+        msg += footer
     elif action == "register":
-        subject = f'{settings.SITE_INFO["site_name"]} - {_("注册新账号")}'
+        subject = f'{site} - {_("Register")}'
         url = settings.SITE_INFO["site_url"] + "/account/register_email?c=" + v
-        msg = f"你好，\n本站没有与{email}关联的账号。你希望注册一个新账号吗？\n"
-        msg += "\n如果你已注册过本站或某个联邦宇宙（长毛象）实例，不必重新注册，只要用联邦宇宙身份登录本站，再关联这个电子邮件地址，即可通过邮件登录。\n"
-        msg += "\n如果你还没有联邦宇宙身份，可以访问这里选择实例并创建一个： https://joinmastodon.org/zh/servers\n"
+        msg = _(
+            "There is no account registered with this email address yet.{email}\n\nIf you already have an account with a Fediverse identity, just login and add this email to you account.\n\n"
+        ).format(email=email, url=url, code=code)
         if settings.ALLOW_EMAIL_ONLY_ACCOUNT:
-            msg += f"\n如果你不便使用联邦宇宙身份，也可以点击以下链接使用电子邮件注册一个新账号，以后再关联到联邦宇宙。\n{url}\n"
-        msg += "\n如果你没有打算用此电子邮件地址注册或登录本站，请忽略此邮件。"
+            msg += _(
+                "\nIf you prefer to register a new account, please use this code: {code}\nOr click this link:\n{url}"
+            ).format(email=email, url=url, code=code)
+        msg += footer
     else:
         raise ValueError("Invalid action")
     try:
@@ -333,7 +359,7 @@ def verify_code(request):
             request,
             "common/verify.html",
             {
-                "error": _("无效的验证码"),
+                "error": _("Invalid verification code"),
             },
         )
     login_email = cache.get(f"login_{code}")
@@ -342,7 +368,7 @@ def verify_code(request):
             request,
             "common/verify.html",
             {
-                "error": _("无效的验证码"),
+                "error": _("Invalid verification code"),
             },
         )
     cache.delete(f"login_{code}")
@@ -361,7 +387,7 @@ def verify_email(request):
         s = TimestampSigner().unsign_object(request.GET.get("c"), max_age=60 * 15)
     except Exception as e:
         logger.warning(f"login link invalid {e}")
-        error = _("链接无效或已过期")
+        error = _("Invalid verification link")
         return render(
             request, "users/verify_email.html", {"success": False, "error": error}
         )
@@ -378,22 +404,22 @@ def verify_email(request):
                     request, "users/verify_email.html", {"success": True, "user": user}
                 )
             else:
-                error = _("电子邮件地址不匹配")
+                error = _("Email mismatch")
         elif action == "login":
             user = User.objects.get(pk=s["i"])
             if user.email == email:
                 return login_existing_user(request, user)
             else:
-                error = _("电子邮件地址不匹配")
+                error = _("Email mismatch")
         elif action == "register":
             user = User.objects.filter(email__iexact=email).first()
             if user:
-                error = _("此电子邮件地址已被注册")
+                error = _("Email in use")
             else:
                 return register_new_user(request, username=None, email=email)
     except Exception as e:
         logger.error(e)
-        error = _("无法完成验证")
+        error = _("Unable to verify")
     return render(
         request, "users/verify_email.html", {"success": False, "error": error}
     )
@@ -425,7 +451,7 @@ def register(request: AuthedHttpRequest):
                     "users/register.html",
                     {
                         "form": form,
-                        "error": _("用户名已被使用"),
+                        "error": _("Username in use"),
                     },
                 )
             request.user.username = form.cleaned_data["username"]
@@ -440,7 +466,7 @@ def register(request: AuthedHttpRequest):
                         "users/register.html",
                         {
                             "form": form,
-                            "error": _("电子邮件地址已被使用"),
+                            "error": _("Email in use"),
                         },
                     )
                 request.user.pending_email = form.cleaned_data["email"]
@@ -458,13 +484,19 @@ def register(request: AuthedHttpRequest):
                 "verify",
                 request.user.pending_email,
             )
-            messages.add_message(request, messages.INFO, _("已发送验证邮件，请查收。"))
+            messages.add_message(
+                request,
+                messages.INFO,
+                _("Verification email is being sent, please check your inbox."),
+            )
         if request.user.username and not request.user.identity_linked():
             request.user.initialize()
         if username_changed:
-            messages.add_message(request, messages.INFO, _("用户名已设置。"))
+            messages.add_message(request, messages.INFO, _("Username all set."))
         if email_cleared:
-            messages.add_message(request, messages.INFO, _("电子邮件地址已取消关联。"))
+            messages.add_message(
+                request, messages.INFO, _("Email removed from account.")
+            )
         if request.session.get("new_user"):
             del request.session["new_user"]
     return redirect(request.GET.get("next", reverse("common:home")))
@@ -482,7 +514,9 @@ def swap_login(request, token, site, refresh_token):
             and site == current_user.mastodon_site
         ):
             messages.add_message(
-                request, messages.ERROR, _(f"该身份 {username}@{site} 与当前账号相同。")
+                request,
+                messages.ERROR,
+                _("Unable to update login information: identical identity."),
             )
         else:
             try:
@@ -490,7 +524,9 @@ def swap_login(request, token, site, refresh_token):
                     mastodon_username__iexact=username, mastodon_site__iexact=site
                 )
                 messages.add_message(
-                    request, messages.ERROR, _(f"该身份 {username}@{site} 已被用于其它账号。")
+                    request,
+                    messages.ERROR,
+                    _("Unable to update login information: identity in use."),
                 )
             except ObjectDoesNotExist:
                 current_user.mastodon_username = username
@@ -514,10 +550,14 @@ def swap_login(request, token, site, refresh_token):
                     refresh_mastodon_data_task, current_user.pk, token
                 )
                 messages.add_message(
-                    request, messages.INFO, _(f"账号身份已更新为 {username}@{site}。")
+                    request,
+                    messages.INFO,
+                    _("Login information updated.") + f" {username}@{site}",
                 )
     else:
-        messages.add_message(request, messages.ERROR, _("连接联邦宇宙获取身份信息失败。"))
+        messages.add_message(
+            request, messages.ERROR, _("Invalid account data from Mastodon instance.")
+        )
     return redirect(reverse("users:data"))
 
 
@@ -566,5 +606,5 @@ def clear_data(request):
             django_rq.get_queue("mastodon").enqueue(clear_data_task, request.user.id)
             return auth_logout(request)
         else:
-            messages.add_message(request, messages.ERROR, _("验证信息不符。"))
+            messages.add_message(request, messages.ERROR, _("Account mismatch."))
     return redirect(reverse("users:data"))

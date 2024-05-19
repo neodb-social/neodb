@@ -6,7 +6,7 @@
   <a hx-post="{% url 'journal:post_boost' post.pk %}"
      hx-include="[name='post_url']"
      {% if boosted %}class="activated"{% endif %}
-     title="转播">
+     title="{% trans "boost" %}">
     <input type="hidden" name="post_url" value="{{ post.object_uri }}">
     <i class="fa-solid fa-retweet"></i>
     {% if post.stats.boosts > 1 %}<span>{{ post.stats.boosts }}</span>{% endif %}

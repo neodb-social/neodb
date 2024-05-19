@@ -29,7 +29,7 @@
       </span>
     {% endif %}
     {% if item.parent_item %}
-      <span>所属{{ item.parent_item.type.label }}：<a href="{{ item.parent_item.url }}">{{ item.parent_item.title }}</a></span>
+      <span>{% trans "part of" %} {{ item.parent_item.type.label }}: <a href="{{ item.parent_item.url }}">{{ item.parent_item.title }}</a></span>
     {% endif %}
   </small>
 </hgroup>
