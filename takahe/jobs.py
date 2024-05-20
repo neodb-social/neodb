@@ -39,7 +39,7 @@ class TakaheStats(BaseJob):
             .count(),
             "domain_count": Domain.objects.count(),
         }
-        cache.set("instance_info_stats", stats)
+        cache.set("instance_info_stats", stats, timeout=None)
         logger.debug(f"/api/v1/instance {stats}")
         # for /api/v2/instance
         usage = {
@@ -47,7 +47,7 @@ class TakaheStats(BaseJob):
                 "active_month": self.active_users(30),
             }
         }
-        cache.set("instance_info_usage", usage)
+        cache.set("instance_info_usage", usage, timeout=None)
         logger.debug(f"/api/v2/instance {usage}")
         # for NodeInfo
         nodeinfo_usage = {
@@ -60,6 +60,6 @@ class TakaheStats(BaseJob):
             "localComments": Comment.objects.filter(local=True).count()
             + Review.objects.filter(local=True).count(),
         }
-        cache.set("nodeinfo_usage", nodeinfo_usage)
+        cache.set("nodeinfo_usage", nodeinfo_usage, timeout=None)
         logger.debug(f"/nodeinfo/2.0/ {nodeinfo_usage}")
         logger.info("Tahake stats updated.")
