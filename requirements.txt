@@ -14,7 +14,7 @@ django-jsonform
 django-maintenance-mode
 django-markdownx
 django-ninja
-django-oauth-toolkit
+django-oauth-toolkit==2.3.0
 django-polymorphic
 django-redis
 django-rq
