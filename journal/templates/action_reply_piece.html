@@ -1,3 +1,4 @@
+{% load i18n %}
 <span>
   <a title="{% trans "reply" %}"
      {% if href %} href="{{ href }}" {% else %} {% if not request.user.is_authenticated %}hx-disable{% endif %}

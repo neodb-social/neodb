@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-19 13:03-0400\n"
+"POT-Creation-Date: 2024-05-20 10:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -600,7 +600,7 @@ msgstr "主播"
 msgid "Invalid URL"
 msgstr "无效网址"
 
-#: catalog/templates/_fetch_failed.html:3
+#: catalog/templates/_fetch_failed.html:4
 msgid ""
 "Unable to fetch from the link, please check again. Some sites may require "
 "login for certain links, please manually create them here."
@@ -670,39 +670,39 @@ msgstr "写该集短评"
 msgid "review"
 msgstr "评论"
 
-#: catalog/templates/_item_user_mark_history.html:14
+#: catalog/templates/_item_user_mark_history.html:15
 msgid "no history."
 msgstr "暂无标记历史"
 
-#: catalog/templates/_item_user_mark_history.html:22
+#: catalog/templates/_item_user_mark_history.html:23
 msgid "sure to clear mark history?"
 msgstr "确定清除所有标记历史吗？"
 
-#: catalog/templates/_item_user_mark_history.html:22
+#: catalog/templates/_item_user_mark_history.html:23
 msgid "clear mark history"
 msgstr "清除标记历史"
 
-#: catalog/templates/_item_user_mark_history.html:24
+#: catalog/templates/_item_user_mark_history.html:25
 msgid "clear history will not remove current mark"
 msgstr "清除标记历史不会删除或改变现有标记"
 
-#: catalog/templates/_item_user_pieces.html:4
+#: catalog/templates/_item_user_pieces.html:5
 msgid "my tags"
 msgstr "我的标签"
 
-#: catalog/templates/_item_user_pieces.html:39
+#: catalog/templates/_item_user_pieces.html:40
 msgid "my comments"
 msgstr "我的短评"
 
-#: catalog/templates/_item_user_pieces.html:99
+#: catalog/templates/_item_user_pieces.html:100
 msgid "my review"
 msgstr "我的评论"
 
-#: catalog/templates/_item_user_pieces.html:141
+#: catalog/templates/_item_user_pieces.html:142
 msgid "my collection"
 msgstr "我的收藏单"
 
-#: catalog/templates/_item_user_pieces.html:171
+#: catalog/templates/_item_user_pieces.html:172
 msgid "mark history"
 msgstr "标记历史"
 
@@ -857,12 +857,12 @@ msgid "Are you sure to delete?"
 msgstr "确认删除吗？"
 
 #: catalog/templates/catalog_delete.html:47
-#: catalog/templates/catalog_merge.html:91 neodb-takahe/activities/admin.py:25
+#: catalog/templates/catalog_merge.html:91
 msgid "Yes"
 msgstr "是"
 
 #: catalog/templates/catalog_delete.html:48
-#: catalog/templates/catalog_merge.html:92 neodb-takahe/activities/admin.py:26
+#: catalog/templates/catalog_merge.html:92
 msgid "No"
 msgstr "否"
 
@@ -1000,7 +1000,7 @@ msgstr "简介"
 #: catalog/templates/item_base.html:234 journal/templates/profile.html:109
 #: journal/templates/profile.html:187 journal/templates/replies.html:46
 #: social/templates/events.html:46 users/templates/users/announcements.html:53
-#: users/templates/users/relationship_list.html:10
+#: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
 msgstr "暂无内容。"
 
@@ -1518,12 +1518,12 @@ msgstr "创建者和他们的互相关注"
 msgid "Collaborative editing"
 msgstr "协作编辑"
 
-#: journal/importers/letterboxd.py:107
+#: journal/importers/letterboxd.py:108
 #, python-brace-format
 msgid "a review of {item_title}"
 msgstr "关于 {item_title} 的评论"
 
-#: journal/importers/opml.py:35
+#: journal/importers/opml.py:36
 #, python-brace-format
 msgid "{username}'s podcast subscriptions"
 msgstr "{username} 的播客订阅"
@@ -1885,24 +1885,24 @@ msgstr "评论过的演出"
 msgid "removed mark"
 msgstr "移除标记"
 
-#: journal/templates/action_boost_post.html:9
+#: journal/templates/action_boost_post.html:10
 #: users/templates/users/preferences.html:111
 msgid "boost"
-msgstr ""
+msgstr "转播"
 
-#: journal/templates/action_like_post.html:9
+#: journal/templates/action_like_post.html:10
 msgid "liked"
-msgstr ""
+msgstr "已喜欢"
 
-#: journal/templates/action_like_post.html:15
+#: journal/templates/action_like_post.html:16
 msgid "like"
-msgstr ""
+msgstr "喜欢"
 
-#: journal/templates/action_open_post.html:6
+#: journal/templates/action_open_post.html:7
 msgid "link for fediverse"
 msgstr "联邦宇宙分享链接"
 
-#: journal/templates/action_reply_piece.html:2
+#: journal/templates/action_reply_piece.html:3
 msgid "reply"
 msgstr "回应"
 
@@ -2146,42 +2146,6 @@ msgstr ""
 
 #: mastodon/models.py:42
 msgid "target site domain name"
-msgstr ""
-
-#: neodb-takahe/activities/admin.py:18
-msgid "Local Identity"
-msgstr ""
-
-#: neodb-takahe/core/admin.py:8
-msgid "config options type"
-msgstr ""
-
-#: neodb-takahe/core/admin.py:13
-msgid "System"
-msgstr ""
-
-#: neodb-takahe/core/admin.py:14
-msgid "Identity"
-msgstr ""
-
-#: neodb-takahe/core/admin.py:15
-msgid "User"
-msgstr ""
-
-#: neodb-takahe/users/admin.py:147
-msgid "Local Source Identity"
-msgstr ""
-
-#: neodb-takahe/users/admin.py:153
-msgid "Local Target Identity"
-msgstr ""
-
-#: neodb-takahe/users/views/auth.py:20
-msgid "No account was found with that email and password."
-msgstr ""
-
-#: neodb-takahe/users/views/auth.py:21
-msgid "This account is inactive."
 msgstr ""
 
 #: social/templates/activity/create_collection.html:17 takahe/utils.py:553
@@ -2511,6 +2475,7 @@ msgstr ""
 "\n"
 "如果你还没有联邦宇宙身份，可以访问这里选择实例并创建一个： https://"
 "joinmastodon.org/zh/servers"
+"\n"
 
 #: users/account.py:335
 #, python-brace-format
@@ -2628,7 +2593,7 @@ msgstr "必填，限字母数字下划线，最多30个字符。"
 msgid "A user with that username already exists."
 msgstr "使用该用户名的用户已存在。"
 
-#: users/models/user.py:93
+#: users/models/user.py:93 users/templates/users/login.html:60
 msgid "email address"
 msgstr "电子邮件地址"
 
@@ -2812,7 +2777,7 @@ msgstr ""
 msgid "仅自己"
 msgstr ""
 
-#: users/templates/users/fetch_identity_failed.html:3
+#: users/templates/users/fetch_identity_failed.html:4
 msgid ""
 "Unable to find the user, please check your spelling; or the server may be "
 "busy, please try again later."
@@ -2823,21 +2788,96 @@ msgstr "无法找到用户，请确认拼写正确；也可能服务器正忙，
 msgid "Searching the fediverse"
 msgstr "正在搜索联邦宇宙"
 
-#: users/templates/users/login.html:16
-msgid "登录"
-msgstr ""
+#: users/templates/users/login.html:16 users/templates/users/login.html:84
+#: users/templates/users/register.html:8
+msgid "Register"
+msgstr "注册"
+
+#: users/templates/users/login.html:16 users/templates/users/login.html:84
+msgid "Login"
+msgstr "登录"
 
 #: users/templates/users/login.html:51
-msgid "前往首页"
-msgstr ""
+#: users/templates/users/verify_email.html:22
+msgid "back to your home page."
+msgstr "返回首页"
 
-#: users/templates/users/login.html:85
-msgid "登录/注册"
-msgstr ""
+#: users/templates/users/login.html:69
+msgid "domain name of your instance, e.g. mastodon.social"
+msgstr "实例域名(不含@和@之前的部分)，如mastodon.social"
 
-#: users/templates/users/login.html:146
-msgid "授权登录"
+#: users/templates/users/login.html:78
+msgid "Login Method"
+msgstr "选择登录方式"
+
+#: users/templates/users/login.html:79
+msgid "Fediverse Identity"
+msgstr "联邦宇宙授权"
+
+#: users/templates/users/login.html:80
+msgid "Email Verification"
+msgstr "电子邮件验证"
+
+#: users/templates/users/login.html:112
+msgid "select or input domain name of your instance (excl. @)"
+msgstr "输入或选择实例域名(不含@和@之前的部分)"
+
+#: users/templates/users/login.html:145
+msgid "Authorize"
+msgstr "授权"
+
+#: users/templates/users/login.html:150
+msgid "Valid invitation code, please login or register."
+msgstr "邀请链接有效，可注册新用户"
+
+#: users/templates/users/login.html:152
+msgid ""
+"Please use invitation link to register a new account; existing user may "
+"login."
+msgstr "本站目前为邀请注册，已有账户可直接登入，新用户请使用有效邀请链接注册"
+
+#: users/templates/users/login.html:154
+msgid "Invitation code invalid or expired."
+msgstr "邀请链接无效，已有账户可直接登入，新用户请使用有效邀请链接注册"
+
+#: users/templates/users/login.html:159
+msgid ""
+"Select Email Verification if you don't have a <a href=\"https://joinmastodon."
+"org/servers\" target=\"_blank\">Fediverse account</a>."
+msgstr "如不便或尚未<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">注册联邦宇宙</a>，也可以在上方选择「电子邮件验证」注册登录本站。"
+
+#: users/templates/users/login.html:161
+msgid ""
+"Enter your email address to register or sign in if you don't have a "
+"Fediverse account, or have associated your email with your Fediverse account "
+"before; otherwise please sign in via Fediverse, and associate your email "
+"address once logged in."
 msgstr ""
+"现有用户通过联邦宇宙登录后关联电子邮件地址，即可通过邮件登录本站；如不便使用"
+"联邦宇宙，也可在此输入邮件地址注册账号，未来再关联到联邦宇宙。"
+
+#: users/templates/users/login.html:166
+#, python-format
+msgid ""
+"You are visiting an alternative domain for %(site_name)s, please always use "
+"<a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if "
+"possible."
+msgstr ""
+"这是%(site_name)s的临时镜像，请尽可能使用<a "
+"href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"
+
+#: users/templates/users/login.html:168
+msgid "Loading timed out, please check your network (VPN) settings."
+msgstr "部分模块加载超时，请检查网络（翻墙）设置。"
+
+#: users/templates/users/login.html:174
+msgid ""
+"Using this site implies consent of our <a href=\"/pages/rules/\">rules</a> "
+"and <a href=\"/pages/terms/\">terms</a>, and use of cookies to provide "
+"necessary functionality."
+msgstr ""
+"继续访问或注册视为同意<a href=\"/pages/rules/\">站规</a>与<a href=\"/pages/"
+"terms/\">协议</a>，及使用cookie提供必要功能"
 
 #: users/templates/users/preferences.html:26
 msgid "Default view once logged in"
@@ -2957,9 +2997,61 @@ msgstr "应用程序"
 msgid "View authorized applications"
 msgstr "查看已授权的应用程序"
 
-#: users/templates/users/register.html:8
-msgid "Register"
-msgstr "注册"
+#: users/templates/users/profile_actions.html:6
+msgid "click to unblock"
+msgstr "点击可取消屏蔽"
+
+#: users/templates/users/profile_actions.html:7
+msgid "are you sure to unblock?"
+msgstr "确定要取消对该用户的屏蔽吗？"
+
+#: users/templates/users/profile_actions.html:10
+msgid "blocked"
+msgstr "已屏蔽"
+
+#: users/templates/users/profile_actions.html:22
+msgid "user profile"
+msgstr "用户资料"
+
+#: users/templates/users/profile_actions.html:32
+msgid "original home"
+msgstr "原始主页"
+
+#: users/templates/users/profile_actions.html:63
+msgid "accept follow request"
+msgstr "接受关注请求"
+
+#: users/templates/users/profile_actions.html:72
+msgid "reject follow request"
+msgstr "拒绝关注请求"
+
+#: users/templates/users/profile_actions.html:83
+msgid "click to unfollow"
+msgstr "点击可取消关注"
+
+#: users/templates/users/profile_actions.html:93
+msgid "click to cancel follow request"
+msgstr "点击可取消关注请求"
+
+#: users/templates/users/profile_actions.html:103
+msgid "click to follow"
+msgstr "点击可关注"
+
+#: users/templates/users/profile_actions.html:113
+msgid "click to mute"
+msgstr "点击可取消屏蔽"
+
+#: users/templates/users/profile_actions.html:122
+msgid "click to unmute"
+msgstr "点击可取消静音"
+
+#: users/templates/users/profile_actions.html:132
+msgid "click to block"
+msgstr "点击可屏蔽"
+
+#: users/templates/users/profile_actions.html:133
+msgid "sure to block?"
+msgstr "确定屏蔽该用户吗？"
 
 #: users/templates/users/register.html:18
 msgid "Welcome"
@@ -3020,11 +3112,11 @@ msgstr "设置后请查收邮件并点击其中的确认链接"
 msgid "Cut the sh*t and get me in!"
 msgstr ""
 
-#: users/templates/users/relationship_list.html:16
+#: users/templates/users/relationship_list.html:17
 msgid "export"
 msgstr "导出"
 
-#: users/templates/users/relationship_list.html:20
+#: users/templates/users/relationship_list.html:21
 #, python-format
 msgid "You may download %(name)s on %(site_name)s here."
 msgstr ""
@@ -3039,10 +3131,6 @@ msgstr "验证电子邮件"
 #: users/templates/users/verify_email.html:20
 msgid "verified successfully."
 msgstr "验证成功"
-
-#: users/templates/users/verify_email.html:22
-msgid "back to your home page."
-msgstr "返回首页"
 
 #: users/templates/users/verify_email.html:27
 msgid "login again"

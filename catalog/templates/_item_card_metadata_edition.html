@@ -36,8 +36,7 @@
         <br>
   {% endif %} {% endcomment %}
   {% include '_people.html' with people=item.other_title role='other title' max=2 %}
-{% endif %}
-<div>
-  {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
-</div>
+  <div>
+    {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+  </div>
 {% endblock full %}

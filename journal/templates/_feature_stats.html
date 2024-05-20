@@ -1,3 +1,4 @@
+{% load i18n %}
 <form style="display:none"
       action="{% if featured %}{% url 'journal:collection_remove_featured' collection.uuid %}{% else %}{% url 'journal:collection_add_featured' collection.uuid %}{% endif %}"
       method="post"

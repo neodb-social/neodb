@@ -1,3 +1,4 @@
+{% load i18n %}
 <form hx-post="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"
       hx-target="#collection_items">
   <input name="note" value="{{ note }}">

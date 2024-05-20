@@ -1,12 +1,13 @@
+{% load i18n %}
 {% load mastodon %}
 {% current_user_relationship identity as relationship %}
 {% if relationship.rejecting %}
   <span class="tag-list">
-    <span><a title="点击可取消屏蔽"
-   hx-confirm="确定要取消对该用户的屏蔽吗？"
+    <span><a title="{% trans "click to unblock" %}"
+   hx-confirm="{% trans "are you sure to unblock?" %}"
    hx-post="{% url 'users:unblock' identity.handle %}"
    hx-target="closest .action"
-   hx-swap="innerHTML">已屏蔽</a></span>
+   hx-swap="innerHTML">{% trans "blocked" %}</a></span>
   </span>
 {% else %}
   {% if relationship.status %}
@@ -18,7 +19,7 @@
   {% endif %}
   {% if show_home %}
     <span>
-      <a title="用户主页" href="{{ identity.url }}">
+      <a title="{% trans "user profile" %}" href="{{ identity.url }}">
         <i class="fa-solid fa-home"></i>
       </a>
     </span>
@@ -28,7 +29,7 @@
       <a href="{{ identity.profile_uri }}"
          target="_blank"
          rel="noopener"
-         title="用户原始主页">
+         title="{% trans "original home" %}">
         <i class="fa-solid fa-circle-nodes"></i>
       </a>
     </span>
@@ -59,7 +60,7 @@
   {% endif %}
   {% if relationship.requested %}
     <span>
-      <a title="接受关注请求"
+      <a title="{% trans "accept follow request" %}"
          class="activated"
          hx-post="{% url 'users:accept_follow_request' identity.handle %}"
          hx-target="closest .action"
@@ -68,7 +69,7 @@
       </a>
     </span>
     <span>
-      <a title="拒绝关注请求"
+      <a title="{% trans "reject follow request" %}"
          class="activated"
          hx-post="{% url 'users:reject_follow_request' identity.handle %}"
          hx-target="closest .action"
@@ -79,7 +80,7 @@
   {% endif %}
   {% if relationship.following %}
     <span>
-      <a title="已关注，点击可取消关注"
+      <a title="{% trans "click to unfollow" %}"
          class="activated"
          hx-post="{% url 'users:unfollow' identity.handle %}"
          hx-target="closest .action"
@@ -89,7 +90,7 @@
     </span>
   {% elif relationship.requesting %}
     <span>
-      <a title="已发送关注请求，点击可取消"
+      <a title="{% trans "click to cancel follow request" %}"
          class="activated"
          hx-post="{% url 'users:unfollow' identity.handle %}"
          hx-target="closest .action"
@@ -99,7 +100,7 @@
     </span>
   {% else %}
     <span>
-      <a title="点击可关注该用户"
+      <a title="{% trans "click to follow" %}"
          hx-post="{% url 'users:follow' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -109,7 +110,7 @@
   {% endif %}
   {% if not relationship.muting %}
     <span>
-      <a title="点击可隐藏该用户"
+      <a title="{% trans "click to mute" %}"
          hx-post="{% url 'users:mute' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -118,7 +119,7 @@
     </span>
   {% else %}
     <span>
-      <a title="已隐藏，点击可取消隐藏"
+      <a title="{% trans "click to unmute" %}"
          class="activated"
          hx-post="{% url 'users:unmute' identity.handle %}"
          hx-target="closest .action"
@@ -128,8 +129,8 @@
     </span>
   {% endif %}
   <span>
-    <a title="点击可屏蔽该用户"
-       hx-confirm="确定要屏蔽该用户吗？"
+    <a title="{% trans 'click to block' %}"
+       hx-confirm="{% trans 'sure to block?' %}"
        hx-post="{% url 'users:block' identity.handle %}"
        hx-target="closest .action"
        hx-swap="innerHTML">
