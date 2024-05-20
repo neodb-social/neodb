@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-20 10:41-0400\n"
+"POT-Creation-Date: 2024-05-20 11:52-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2098,43 +2098,43 @@ msgstr "分享 {username} 的收藏单"
 
 #: mastodon/decorators.py:20
 msgid "Timeout connecting to Fediverse."
-msgstr ""
+msgstr "连接联邦宇宙实例超时"
 
 #: mastodon/models.py:14
 msgid "site domain name"
-msgstr ""
+msgstr "实例域名"
 
 #: mastodon/models.py:15
 msgid "domain for api call"
-msgstr ""
+msgstr "实例API域名"
 
 #: mastodon/models.py:16
 msgid "type and verion"
-msgstr ""
+msgstr "实例版本"
 
 #: mastodon/models.py:17
 msgid "in-site app id"
-msgstr ""
+msgstr "实例应用id"
 
 #: mastodon/models.py:18
 msgid "client id"
-msgstr ""
+msgstr "实例应用Client ID"
 
 #: mastodon/models.py:19
 msgid "client secret"
-msgstr ""
+msgstr "实例应用Client Secret"
 
 #: mastodon/models.py:20
 msgid "vapid key"
-msgstr ""
+msgstr "实例应用VAPID Key"
 
 #: mastodon/models.py:22
 msgid "0: custom emoji; 1: unicode moon; 2: text"
-msgstr ""
+msgstr "实例表情模式"
 
 #: mastodon/models.py:25
 msgid "max toot len"
-msgstr ""
+msgstr "帖文长度限制"
 
 #: mastodon/models.py:38
 msgid "username and original site"
@@ -2150,11 +2150,11 @@ msgstr ""
 
 #: social/templates/activity/create_collection.html:17 takahe/utils.py:553
 msgid "created collection"
-msgstr ""
+msgstr "创建了收藏单"
 
 #: social/templates/activity/feature_collection.html:18
 msgid "set a target"
-msgstr ""
+msgstr "设置了目标"
 
 #: social/templates/activity/like_collection.html:18
 #, python-format
@@ -2187,6 +2187,15 @@ msgid ""
 msgstr ""
 "\n"
 "转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+
+#: social/templates/event/boosted_rating.html:3
+#, python-format
+msgid ""
+"\n"
+"boosted your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
 
 #: social/templates/event/boosted_review.html:2
 #, python-format
@@ -2279,6 +2288,15 @@ msgid ""
 msgstr ""
 "\n"
 "回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+
+#: social/templates/event/mentioned_rating.html:3
+#, python-format
+msgid ""
+"\n"
+"replied to your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
 
 #: social/templates/event/mentioned_review.html:2
 #, python-format
@@ -2474,8 +2492,7 @@ msgstr ""
 "身份登录本站，再关联这个电子邮件地址，即可通过邮件登录。\n"
 "\n"
 "如果你还没有联邦宇宙身份，可以访问这里选择实例并创建一个： https://"
-"joinmastodon.org/zh/servers"
-"\n"
+"joinmastodon.org/zh/servers\n"
 
 #: users/account.py:335
 #, python-brace-format
@@ -2844,7 +2861,10 @@ msgstr "邀请链接无效，已有账户可直接登入，新用户请使用有
 msgid ""
 "Select Email Verification if you don't have a <a href=\"https://joinmastodon."
 "org/servers\" target=\"_blank\">Fediverse account</a>."
-msgstr "如不便或尚未<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">注册联邦宇宙</a>，也可以在上方选择「电子邮件验证」注册登录本站。"
+msgstr ""
+"如不便或尚未<a href=\"https://joinmastodon.org/zh/servers\" "
+"target=\"_blank\">注册联邦宇宙</a>，也可以在上方选择「电子邮件验证」注册登录"
+"本站。"
 
 #: users/templates/users/login.html:161
 msgid ""
