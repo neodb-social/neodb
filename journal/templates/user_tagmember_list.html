@@ -1,14 +1,17 @@
 {% extends "user_item_list_base.html" %}
 {% load i18n %}
 {% block title %}
-  <title>{{ site_name }} - {{ identity.display_name }} - {{ tag.title }} {% trans '标签' %}</title>
+  <title>{{ site_name }} - {{ identity.display_name }} - {% trans 'Tags' %} - {{ tag.title }}</title>
 {% endblock %}
 {% block head %}
   {{ tag.title }}
   <br>
   <small>
-    {% if tag.visibility > 0 %}<i class="fa-solid fa-user" title="个人标签"></i>{% endif %}
-    {{ identity.display_name }}的{% trans '标签' %}
+    {% if tag.visibility > 0 %}
+      <i class="fa-solid fa-user" title="{% trans "private tag" %}"></i>
+    {% endif %}
+    个人标签
+    {{ identity.display_name }} - {% trans 'Tags' %}
     {% if identity.user == request.user %}
       <form style="display:inline"
             hx-get="{% url 'journal:user_tag_edit' %}"

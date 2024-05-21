@@ -1,14 +1,12 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# NeoDB Translation.
+# Copyright (C) 2024 NeoDB Developers
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-20 18:21-0400\n"
+"POT-Creation-Date: 2024-05-22 18:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +15,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: boofilsic/settings.py:398
+#: boofilsic/settings.py:400
 msgid "English"
 msgstr "英语"
 
-#: boofilsic/settings.py:399 boofilsic/settings.py:402
+#: boofilsic/settings.py:401 boofilsic/settings.py:404
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
@@ -286,7 +284,7 @@ msgstr "书"
 msgid "TV Serie"
 msgstr "电视剧集"
 
-#: catalog/common/models.py:112
+#: catalog/common/models.py:112 catalog/templates/_sidebar_edit.html:140
 msgid "TV Season"
 msgstr "电视分季"
 
@@ -295,7 +293,7 @@ msgid "TV Episode"
 msgstr "电视单集"
 
 #: catalog/common/models.py:114 catalog/common/models.py:128
-#: catalog/common/models.py:141
+#: catalog/common/models.py:141 catalog/templates/_sidebar_edit.html:133
 msgid "Movie"
 msgstr "电影"
 
@@ -347,7 +345,7 @@ msgid "Music"
 msgstr "音乐"
 
 #: catalog/common/models.py:132 catalog/common/models.py:145
-#: common/templates/_header.html:33
+#: catalog/templates/_sidebar_edit.html:152 common/templates/_header.html:33
 msgid "Podcast"
 msgstr "播客"
 
@@ -647,6 +645,7 @@ msgstr "不再提示"
 #: catalog/templates/_item_comments_by_episode.html:78
 #: catalog/templates/_item_reviews.html:43
 #: catalog/templates/podcast_episode_data.html:41
+#: common/templates/_sidebar.html:202
 msgid "show more"
 msgstr "显示更多"
 
@@ -706,98 +705,250 @@ msgstr "我的收藏单"
 msgid "mark history"
 msgstr "标记历史"
 
-#: catalog/templates/_sidebar_edit.html:52
-msgid "源网站"
+#: catalog/templates/_sidebar_edit.html:7
+msgid "edit"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:61
-msgid "重新获取"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:11
+#: catalog/templates/catalog_history.html:9
+#: catalog/templates/catalog_history.html:30
+msgid "revision history"
+msgstr "编辑历史"
 
-#: catalog/templates/_sidebar_edit.html:69
-msgid "取消关联"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:15
+msgid "back to item"
+msgstr "回到条目"
 
-#: catalog/templates/_sidebar_edit.html:78
-msgid "编辑下一级条目"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:18
+msgid "Edit Options"
+msgstr "编辑选项"
 
-#: catalog/templates/_sidebar_edit.html:95
-msgid "批量获取单集条目"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:21
+#: catalog/templates/catalog_delete.html:23
+#: catalog/templates/catalog_edit.html:37
+#: catalog/templates/catalog_merge.html:35
+#: catalog/templates/catalog_merge.html:63
+msgid "Item has been deleted."
+msgstr "条目已被删除"
+
+#: catalog/templates/_sidebar_edit.html:26
+#: catalog/templates/catalog_delete.html:28
+#: catalog/templates/catalog_edit.html:40
+#: catalog/templates/catalog_merge.html:40
+#: catalog/templates/catalog_merge.html:68
+msgid "Item contains sub-items."
+msgstr "条目下已有子项"
+
+#: catalog/templates/_sidebar_edit.html:31
+#: catalog/templates/catalog_delete.html:33
+#: catalog/templates/catalog_merge.html:45
+#: catalog/templates/catalog_merge.html:73
+msgid "Item has been merged to another item."
+msgstr "条目已被合并到其他条目"
+
+#: catalog/templates/_sidebar_edit.html:36
+#: catalog/templates/catalog_delete.html:38
+#: catalog/templates/catalog_merge.html:50
+#: catalog/templates/catalog_merge.html:78
+msgid "Item has been marked by users."
+msgstr "条目已被用户标记过"
+
+#: catalog/templates/_sidebar_edit.html:41
+msgid "The following items are merged into this item"
+msgstr "以下条目被并入本条目"
+
+#: catalog/templates/_sidebar_edit.html:53
+msgid "External website"
+msgstr "外部网站"
+
+#: catalog/templates/_sidebar_edit.html:58
+msgid "Existing metadata might get overwritten, sure to proceed?"
+msgstr "现有信息可能会被覆盖。确认重新获取吗？"
+
+#: catalog/templates/_sidebar_edit.html:62
+msgid "Fetch again"
+msgstr "重新获取"
+
+#: catalog/templates/_sidebar_edit.html:67
+msgid "You may not be able to undo this operation, sure to remove?"
+msgstr "本操作不可撤销。确认取消关联吗？"
+
+#: catalog/templates/_sidebar_edit.html:72
+msgid "Remove link to site"
+msgstr "取消关联"
+
+#: catalog/templates/_sidebar_edit.html:81
+msgid "Edit sub-items"
+msgstr "编辑下级条目"
+
+#: catalog/templates/_sidebar_edit.html:94
+msgid "create"
+msgstr "创建"
 
 #: catalog/templates/_sidebar_edit.html:100
-msgid "开始批量获取"
-msgstr ""
+msgid "Fetch all episodes"
+msgstr "批量获取单集条目"
 
-#: catalog/templates/_sidebar_edit.html:110
-#: catalog/templates/_sidebar_edit.html:122
-#: catalog/templates/_sidebar_edit.html:141
-msgid "切换分类"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:105
+msgid "Fetch all"
+msgstr "批量获取"
 
-#: catalog/templates/_sidebar_edit.html:116
-msgid "更改为剧集"
+#: catalog/templates/_sidebar_edit.html:106
+msgid ""
+"Due to differences in how Douban, IMDB, and TMDB handle season data, a small "
+"number of TV shows and animations may not return correct results. Please "
+"manually verify and clean up after updating."
 msgstr ""
+"因豆瓣/IMDB/TMDB之间对分季处理的差异，少量剧集和动画可能无法返回正确结果，更"
+"新后请手工确认和清理。"
 
-#: catalog/templates/_sidebar_edit.html:128
-msgid "更改为电影"
+#: catalog/templates/_sidebar_edit.html:109
+msgid ""
+"To fetch all episodes, season numbers and IMDB information are required. If "
+"filling this out is inconvenient, you can also manually create sub-entries."
 msgstr ""
+"批量获取单集子条目需要本季序号和IMDB信息，不便填写也可以手工创建子条目。"
 
-#: catalog/templates/_sidebar_edit.html:135
-msgid "更改为单季"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:115
+#: catalog/templates/_sidebar_edit.html:127
+#: catalog/templates/_sidebar_edit.html:146
+msgid "switch category"
+msgstr "切换分类"
 
-#: catalog/templates/_sidebar_edit.html:147
-msgid "更改为播客"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:118
+msgid "Switching may remove some metadata. Sure to proceed?"
+msgstr "切换分类可能移除部分数据字段，确认切换吗？"
 
-#: catalog/templates/_sidebar_edit.html:165
-msgid "更新关联"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:121
+msgid "TV Show"
+msgstr "电视剧集"
+
+#: catalog/templates/_sidebar_edit.html:160
+msgid "link to parent item"
+msgstr "关联到上一级条目"
+
+#: catalog/templates/_sidebar_edit.html:163
+msgid "Sure to link?"
+msgstr "确认关联吗？"
+
+#: catalog/templates/_sidebar_edit.html:170
+msgid "Update link"
+msgstr "更新关联"
 
 #: catalog/templates/_sidebar_edit.html:176
-msgid "删除未被标记的单季"
-msgstr ""
+msgid "cleanup seasons"
+msgstr "本剧所有季"
 
-#: catalog/templates/_sidebar_edit.html:182
-msgid "合并"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:179
+#: catalog/templates/catalog_delete.html:44
+msgid "This operation cannot be undone. Sure to delete?"
+msgstr "本操作不可撤销。确认删除吗？"
 
-#: catalog/templates/_sidebar_edit.html:192
-msgid "合并到同类另一条目"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:183
+msgid "remove seasons not marked"
+msgstr "清理单季"
+
+#: catalog/templates/_sidebar_edit.html:189
+msgid "merge"
+msgstr "合并"
+
+#: catalog/templates/_sidebar_edit.html:195
+msgid "URL of target item, or empty if undo merge"
+msgstr "目标条目URL，留空则取消现有合并"
 
 #: catalog/templates/_sidebar_edit.html:201
-#: catalog/templates/_sidebar_edit.html:208
-#: journal/templates/collection.html:131 journal/templates/review.html:84
-msgid "删除"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:269
+msgid "merge to another item"
+msgstr "合并到另一条目"
 
-#: catalog/templates/_sidebar_edit.html:216
-msgid "著作"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:210
+#: catalog/templates/catalog_delete.html:11
+#: developer/templates/oauth2_provider/application_detail.html:42
+#: journal/templates/mark.html:157 journal/templates/piece_delete.html:9
+#: journal/templates/review.html:83
+msgid "Delete"
+msgstr "删除"
 
-#: catalog/templates/_sidebar_edit.html:230
-msgid "取消关联到上述著作"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:217
+msgid "delete"
+msgstr "删除"
 
-#: catalog/templates/_sidebar_edit.html:236
-msgid "关联"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:225
+msgid "Work"
+msgstr "作品"
+
+#: catalog/templates/_sidebar_edit.html:226
+msgid "This edition belongs to the following work"
+msgstr "这个图书版本属于以下作品"
+
+#: catalog/templates/_sidebar_edit.html:233
+msgid "Sure to unlink?"
+msgstr "确认取消关联吗？"
+
+#: catalog/templates/_sidebar_edit.html:239
+msgid "Unlink from work"
+msgstr "取消关联到上述著作"
 
 #: catalog/templates/_sidebar_edit.html:245
-msgid "关联到同一著作的另一本书"
-msgstr ""
+msgid "Link"
+msgstr "关联"
 
-#: catalog/templates/_sidebar_edit.html:252
-msgid "修改建议"
-msgstr ""
+#: catalog/templates/_sidebar_edit.html:256
+msgid "Link to another edition from same work"
+msgstr "关联到同一著作的另一本书"
 
-#: catalog/templates/_sidebar_edit.html:266
-#: journal/templates/collection_share.html:64
-msgid "提交"
+#: catalog/templates/_sidebar_edit.html:263
+msgid "Suggest Edits"
+msgstr "修改建议"
+
+#: catalog/templates/_sidebar_edit.html:268
+msgid "proposed action"
+msgstr "请选择建议类型..."
+
+#: catalog/templates/_sidebar_edit.html:270
+msgid "link to another item"
+msgstr "关联到另一条目"
+
+#: catalog/templates/_sidebar_edit.html:271
+msgid "change item category"
+msgstr "更改条目类型"
+
+#: catalog/templates/_sidebar_edit.html:272
+msgid "change item metadata"
+msgstr "更正条目信息"
+
+#: catalog/templates/_sidebar_edit.html:273
+msgid "remove item"
+msgstr "删除条目"
+
+#: catalog/templates/_sidebar_edit.html:274
+msgid "other"
+msgstr "其它"
+
+#: catalog/templates/_sidebar_edit.html:278
+msgid ""
+"To suggest merging or association, please include the URL of the target item"
+msgstr "建议详情。如提议合并或关联，请包含目标条目网址。"
+
+#: catalog/templates/_sidebar_edit.html:279
+msgid "submit"
+msgstr "提交"
+
+#: catalog/templates/_sidebar_edit.html:280
+msgid ""
+"As a user of this community, you may edit some metadata of items on this "
+"site. If you are unsure whether your edits are appropriate or are unable to "
+"make a certain change, you can make suggestions here. Moderators will "
+"consider each suggestion, although there is no guarantee that they will "
+"always be fully adopted; suggestions may also be viewed or discussed by "
+"other community users. If you have suggestions that are not related to a "
+"specific item, please contact us. Thank you for your support and "
+"contribution."
 msgstr ""
+"本站由用户共同维护，用户可自主修改部分条目信息。当你不确定自己的修改是否得当"
+"或不能做出某种修改时，可在此处向管理员提出建议。管理员会认真考虑处理每一条建"
+"议，虽然不保证总是完全采纳；建议也可能被社区其他用户查看或讨论。如果有与具体"
+"条目不相关的建议，请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。"
 
 #: catalog/templates/_sidebar_search.html:5
 msgid "Not the result you are looking for?"
@@ -847,49 +998,50 @@ msgstr "条形码"
 msgid "album media"
 msgstr "专辑介质"
 
-#: catalog/templates/catalog_delete.html:11
-#: catalog/templates/catalog_merge.html:11
-msgid "Confirmation"
-msgstr "确认"
-
 #: catalog/templates/catalog_delete.html:18
+#: journal/templates/piece_delete.html:17
 msgid "Are you sure to delete?"
 msgstr "确认删除吗？"
 
 #: catalog/templates/catalog_delete.html:47
-#: catalog/templates/catalog_merge.html:91 neodb-takahe/activities/admin.py:25
+#: catalog/templates/catalog_merge.html:91
+#: journal/templates/piece_delete.html:28 neodb-takahe/activities/admin.py:25
 msgid "Yes"
 msgstr "是"
 
 #: catalog/templates/catalog_delete.html:48
-#: catalog/templates/catalog_merge.html:92 neodb-takahe/activities/admin.py:26
+#: catalog/templates/catalog_merge.html:92
+#: journal/templates/piece_delete.html:32 neodb-takahe/activities/admin.py:26
 msgid "No"
 msgstr "否"
 
-#: catalog/templates/catalog_edit.html:11 journal/templates/collection.html:128
-#: journal/templates/review.html:81
-msgid "编辑"
-msgstr ""
+#: catalog/templates/catalog_edit.html:11
+#: developer/templates/oauth2_provider/application_detail.html:40
+#: journal/templates/review.html:80
+msgid "Edit"
+msgstr "编辑"
 
 #: catalog/templates/catalog_edit.html:13
-msgid "添加条目"
-msgstr ""
+msgid "Create"
+msgstr "创建"
 
-#: catalog/templates/catalog_edit.html:46
-#: journal/templates/add_to_collection.html:35
-#: journal/templates/collection_edit.html:38
-#: users/templates/users/account.html:48 users/templates/users/account.html:106
-msgid "保存"
-msgstr ""
+#: catalog/templates/catalog_edit.html:50
+#: developer/templates/oauth2_provider/application_form.html:35
+#: journal/templates/mark.html:142 journal/templates/review_edit.html:40
+#: users/templates/users/account.html:43 users/templates/users/account.html:104
+#: users/templates/users/preferences.html:170
+#: users/templates/users/preferences.html:195
+msgid "Save"
+msgstr "保存"
 
-#: catalog/templates/catalog_edit.html:49
-msgid "返回"
-msgstr ""
+#: catalog/templates/catalog_edit.html:53
+#: journal/templates/collection_update_item_note.html:8
+msgid "Cancel"
+msgstr "取消"
 
-#: catalog/templates/catalog_history.html:9
-#: catalog/templates/catalog_history.html:30
-msgid "revision history"
-msgstr "编辑历史"
+#: catalog/templates/catalog_merge.html:11
+msgid "Merge"
+msgstr "合并"
 
 #: catalog/templates/catalog_merge.html:21
 msgid "Are you sure to merge?"
@@ -902,6 +1054,10 @@ msgstr "确定取消合并吗？"
 #: catalog/templates/catalog_merge.html:26
 msgid "Are you sure to link?"
 msgstr "确定关联吗？"
+
+#: catalog/templates/catalog_merge.html:85
+msgid "This operation cannot be undone. Sure to merge?"
+msgstr "本操作不可撤销。确认合并吗？"
 
 #: catalog/templates/discover.html:18 users/templates/users/preferences.html:32
 msgid "Discover"
@@ -997,9 +1153,15 @@ msgstr "评分人数不足"
 msgid "overview"
 msgstr "简介"
 
-#: catalog/templates/item_base.html:234 journal/templates/profile.html:109
-#: journal/templates/profile.html:187 journal/templates/replies.html:46
-#: social/templates/events.html:46 users/templates/users/announcements.html:53
+#: catalog/templates/item_base.html:234
+#: catalog/templates/item_mark_list.html:54
+#: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:97
+#: common/templates/_sidebar.html:197 journal/templates/profile.html:109
+#: journal/templates/profile.html:151 journal/templates/profile.html:187
+#: journal/templates/replies.html:46
+#: journal/templates/user_item_list_base.html:25
+#: journal/templates/user_tag_list.html:29 social/templates/events.html:46
+#: users/templates/users/announcements.html:53
 #: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
 msgstr "暂无内容。"
@@ -1009,49 +1171,35 @@ msgid "comments"
 msgstr "短评"
 
 #: catalog/templates/item_base.html:244
+#: catalog/templates/item_mark_list.html:21
+#: catalog/templates/item_mark_list.html:24
+#: catalog/templates/item_review_list.html:20
 msgid "marks"
 msgstr "标记"
 
 #: catalog/templates/item_base.html:245
+#: catalog/templates/item_mark_list.html:22
+#: catalog/templates/item_mark_list.html:25
+#: catalog/templates/item_review_list.html:21
 msgid "marks from who you follow"
 msgstr "好友标记"
 
 #: catalog/templates/item_base.html:259
+#: catalog/templates/item_mark_list.html:27
+#: catalog/templates/item_review_list.html:22
 msgid "reviews"
 msgstr "评论"
 
 #: catalog/templates/item_mark_list.html:12
-msgid "的标记"
-msgstr ""
-
-#: catalog/templates/item_mark_list.html:21
-#: catalog/templates/item_mark_list.html:24
-#: catalog/templates/item_review_list.html:20
-msgid "全部标记"
-msgstr ""
-
-#: catalog/templates/item_mark_list.html:22
-#: catalog/templates/item_mark_list.html:25
-#: catalog/templates/item_review_list.html:21
-msgid "好友标记"
-msgstr ""
-
-#: catalog/templates/item_mark_list.html:27
-#: catalog/templates/item_review_list.html:22
-msgid "全部评论"
-msgstr ""
-
-#: catalog/templates/item_mark_list.html:54
-msgid "暂无标记"
-msgstr ""
+#: journal/templates/user_mark_list.html:4
+#: journal/templates/user_mark_list.html:7
+msgid "Marks"
+msgstr "标记"
 
 #: catalog/templates/item_review_list.html:12
-msgid "的评论"
-msgstr ""
-
-#: catalog/templates/item_review_list.html:50
-msgid "暂无评论"
-msgstr ""
+#: journal/templates/user_review_list.html:4
+msgid "Reviews"
+msgstr "评论"
 
 #: catalog/templates/movie.html:25
 msgid "number of Seasons"
@@ -1120,7 +1268,26 @@ msgstr "演出"
 msgid "tag"
 msgstr "标签"
 
-#: catalog/templates/search_results.html:106
+#: catalog/templates/search_results.html:91
+msgid "No items matching your search query."
+msgstr "无站内条目匹配。"
+
+#: catalog/templates/search_results.html:93
+msgid ""
+"System will search other websites and instances, click title of the item to "
+"save them locally. "
+msgstr "系统会尝试搜索其它网站的条目，点击标题可添加到本站。"
+
+#: catalog/templates/search_results.html:97
+msgid ""
+"If you have URL from one of these sites, please put the full URL (e.g. "
+"<code>https://www.imdb.com/title/tt2513074/</code>) to the search box and "
+"press Enter."
+msgstr ""
+"如果你在以下网站找到了相关条目，也可以把链接(如 <code>https://movie.douban."
+"com/subject/1309046/</code> )输入到搜索栏中提交保存到本站。"
+
+#: catalog/templates/search_results.html:107
 #, python-format
 msgid ""
 " %(dups)s items are from the same work or have the same identifier, they are "
@@ -1130,11 +1297,11 @@ msgstr ""
 "已从结果中略去了来自同一作品或有相同标识号的%(dups)s个条目，<a _=\"on click "
 "toggle .unfold on #dup\">点击这里可重新显示</a>"
 
-#: catalog/templates/search_results.html:120
+#: catalog/templates/search_results.html:121
 msgid "Searching from other sites"
 msgstr "正在搜索站外条目"
 
-#: catalog/templates/search_results.html:123
+#: catalog/templates/search_results.html:124
 msgid "Logged in user may see search results from other sites."
 msgstr "登录用户可看到来自其它网站的搜索结果。"
 
@@ -1297,6 +1464,16 @@ msgstr "开发者"
 msgid "Source Code"
 msgstr "源代码"
 
+#: common/templates/_footer.html:16 users/templates/users/login.html:166
+#, python-format
+msgid ""
+"You are visiting an alternative domain for %(site_name)s, please always use "
+"<a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if "
+"possible."
+msgstr ""
+"这是%(site_name)s的临时镜像，请尽可能使用<a "
+"href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"
+
 #: common/templates/_header.html:17
 msgid "title, creator, ISBN, item url, @user, @user@instance"
 msgstr "标题、创作者、ISBN、站外条目链接、@用户名、@用户名@实例"
@@ -1360,37 +1537,60 @@ msgstr "管理"
 msgid "Sign up or Login"
 msgstr "注册或登录"
 
-#: common/templates/_sidebar.html:17
-msgid "全部标为已读"
+#: common/templates/_header.html:117
+msgid "Set a username."
 msgstr ""
 
-#: common/templates/_sidebar.html:80
-msgid "当前目标"
-msgstr ""
+#: common/templates/_sidebar.html:13
+msgid "Unread Announcements"
+msgstr "未读公告"
 
-#: common/templates/_sidebar.html:106
-msgid "在听播客的近期单集"
-msgstr ""
+#: common/templates/_sidebar.html:19
+msgid "mark all as read"
+msgstr "全部标为已读"
 
-#: common/templates/_sidebar.html:141
-msgid "在读的书"
-msgstr ""
+#: common/templates/_sidebar.html:52
+msgid "approving followers manually"
+msgstr "已开启关注审核"
 
-#: common/templates/_sidebar.html:164
-msgid "在看的剧集"
-msgstr ""
+#: common/templates/_sidebar.html:82
+msgid "Current Targets"
+msgstr "当前目标"
 
-#: common/templates/_sidebar.html:187
-msgid "常用标签"
-msgstr ""
+#: common/templates/_sidebar.html:95
+msgid "Set a collection as target, its progress will show up here."
+msgstr "将自己或他人的收藏单设为目标，这里就会显示进度"
 
-#: common/templates/_sidebar.html:200
-msgid "全部"
-msgstr ""
+#: common/templates/_sidebar.html:108
+msgid "Recent podcast episodes"
+msgstr "近期播客节目"
+
+#: common/templates/_sidebar.html:143
+msgid "Currently reading"
+msgstr "正在阅读"
+
+#: common/templates/_sidebar.html:166
+msgid "Currently watching"
+msgstr "正在追看"
+
+#: common/templates/_sidebar.html:189
+msgid "Common Tags"
+msgstr "常用标签"
 
 #: common/templates/common/error.html:11
 msgid "Error"
-msgstr ""
+msgstr "错误"
+
+#: common/templates/common/verify.html:19 users/account.py:106
+#: users/account.py:490
+msgid "Verification email is being sent, please check your inbox."
+msgstr "验证邮件已发送，请查阅收件箱。"
+
+#: common/templates/common/verify.html:21
+msgid ""
+"Please click the login link in the email, or enter the verification code you "
+"received."
+msgstr "请点击邮件中的登录链接，或输入收到的验证码。"
 
 #: common/templatetags/mastodon.py:42
 msgid "mutual followed"
@@ -1454,24 +1654,9 @@ msgstr "重定向网址"
 msgid "Go Back"
 msgstr "返回"
 
-#: developer/templates/oauth2_provider/application_detail.html:40
-msgid "Edit"
-msgstr "编辑"
-
-#: developer/templates/oauth2_provider/application_detail.html:42
-msgid "Delete"
-msgstr "删除"
-
 #: developer/templates/oauth2_provider/application_form.html:8
 msgid "Edit application"
 msgstr "编辑应用程序"
-
-#: developer/templates/oauth2_provider/application_form.html:35
-#: journal/templates/review_edit.html:40
-#: users/templates/users/preferences.html:170
-#: users/templates/users/preferences.html:195
-msgid "Save"
-msgstr "保存"
 
 #: developer/templates/oauth2_provider/application_list.html:20
 msgid "New Application"
@@ -1501,7 +1686,8 @@ msgstr "内容 （Markdown格式）"
 msgid "Post to Fediverse"
 msgstr "发布到联邦宇宙"
 
-#: journal/forms.py:25 journal/forms.py:45 users/templates/users/data.html:40
+#: journal/forms.py:25 journal/forms.py:45
+#: journal/templates/wrapped_share.html:36 users/templates/users/data.html:40
 #: users/templates/users/data.html:132
 msgid "Visibility"
 msgstr "可见性"
@@ -1528,23 +1714,26 @@ msgstr "关于 {item_title} 的评论"
 msgid "{username}'s podcast subscriptions"
 msgstr "{username} 的播客订阅"
 
-#: journal/models/collection.py:25
+#: journal/models/collection.py:25 journal/templates/wrapped_share.html:29
 msgid "note"
 msgstr "备注"
 
-#: journal/models/common.py:26 users/templates/users/data.html:49
+#: journal/models/common.py:26 journal/templates/mark.html:88
+#: journal/templates/wrapped_share.html:43 users/templates/users/data.html:49
 #: users/templates/users/data.html:141
 #: users/templates/users/preferences.html:54
 msgid "Public"
 msgstr "公开"
 
-#: journal/models/common.py:27 users/templates/users/data.html:57
+#: journal/models/common.py:27 journal/templates/mark.html:95
+#: journal/templates/wrapped_share.html:49 users/templates/users/data.html:57
 #: users/templates/users/data.html:149
 #: users/templates/users/preferences.html:61
 msgid "Followers Only"
 msgstr "仅关注者"
 
-#: journal/models/common.py:28 users/templates/users/data.html:65
+#: journal/models/common.py:28 journal/templates/mark.html:102
+#: journal/templates/wrapped_share.html:55 users/templates/users/data.html:65
 #: users/templates/users/data.html:157
 #: users/templates/users/preferences.html:68
 msgid "Mentioned Only"
@@ -1885,6 +2074,34 @@ msgstr "评论过的演出"
 msgid "removed mark"
 msgstr "移除标记"
 
+#: journal/templates/_feature_stats.html:10
+msgid "stop tracking"
+msgstr "停止追踪目标"
+
+#: journal/templates/_feature_stats.html:11
+msgid "Stop tracking this target?"
+msgstr "停止追踪这个目标吗？"
+
+#: journal/templates/_feature_stats.html:15
+msgid "set as target"
+msgstr "设置为目标"
+
+#: journal/templates/_list_item.html:12
+msgid "Remove from collection"
+msgstr "从收藏单中移除"
+
+#: journal/templates/_list_item.html:22
+msgid "add mark"
+msgstr "添加标记"
+
+#: journal/templates/_list_item.html:30
+msgid "update mark"
+msgstr "更新标记"
+
+#: journal/templates/_list_item.html:89
+msgid "Update note"
+msgstr "修改备注"
+
 #: journal/templates/action_boost_post.html:10
 #: users/templates/users/preferences.html:111
 msgid "boost"
@@ -1898,11 +2115,11 @@ msgstr "已喜欢"
 msgid "like"
 msgstr "喜欢"
 
-#: journal/templates/action_open_post.html:7
+#: journal/templates/action_open_post.html:7 journal/templates/review.html:94
 msgid "link for fediverse"
 msgstr "联邦宇宙分享链接"
 
-#: journal/templates/action_reply_piece.html:3
+#: journal/templates/action_reply_piece.html:3 journal/templates/review.html:75
 msgid "reply"
 msgstr "回应"
 
@@ -1910,11 +2127,24 @@ msgstr "回应"
 msgid "添加到收藏单"
 msgstr ""
 
+#: journal/templates/add_to_collection.html:35
+#: journal/templates/collection_edit.html:38
+msgid "保存"
+msgstr ""
+
 #: journal/templates/collection.html:15 journal/templates/collection.html:22
 msgid "收藏单"
 msgstr ""
 
-#: journal/templates/collection.html:134
+#: journal/templates/collection.html:130
+msgid "编辑"
+msgstr ""
+
+#: journal/templates/collection.html:133
+msgid "删除"
+msgstr ""
+
+#: journal/templates/collection.html:136
 msgid "协助整理"
 msgstr ""
 
@@ -1930,23 +2160,50 @@ msgstr ""
 msgid "分享收藏单"
 msgstr ""
 
-#: journal/templates/comment.html:16 journal/templates/review.html:14
-#: journal/templates/review.html:22 journal/templates/user_review_list.html:4
-#: journal/templates/user_review_list.html:7
+#: journal/templates/collection_share.html:64
+msgid "提交"
+msgstr ""
+
+#: journal/templates/collection_update_item_note.html:5
+msgid "Update"
+msgstr "更新"
+
+#: journal/templates/comment.html:16
 msgid "评论"
 msgstr ""
 
-#: journal/templates/piece_delete.html:9 journal/templates/piece_delete.html:17
-msgid "确认删除"
-msgstr ""
+#: journal/templates/mark.html:17
+msgid "Mark"
+msgstr "标记"
 
-#: journal/templates/piece_delete.html:28
-msgid "确认"
-msgstr ""
+#: journal/templates/mark.html:43 journal/templates/mark.html:47
+#: journal/templates/mark.html:51
+msgid "not rated"
+msgstr "未评分"
 
-#: journal/templates/piece_delete.html:32
-msgid "取消"
+#: journal/templates/mark.html:66
+msgid ""
+"Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to "
+"show posts longer than 360 charactors."
 msgstr ""
+"提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实"
+"例时间轴。"
+
+#: journal/templates/mark.html:74
+msgid "add a tag and press Enter"
+msgstr "回车增加标签"
+
+#: journal/templates/mark.html:115
+msgid "Repost to your timeline"
+msgstr "转发到时间轴"
+
+#: journal/templates/mark.html:130
+msgid "change mark date"
+msgstr "指定标记日期"
+
+#: journal/templates/mark.html:156
+msgid "Sure to delete mark, comment and tags for this item?"
+msgstr "确认删除这条标记、短评和标签？"
 
 #: journal/templates/profile.html:55
 msgid "calendar"
@@ -1964,9 +2221,15 @@ msgstr "收藏单"
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/review_edit.html:10
+#: journal/templates/review.html:14 journal/templates/review.html:22
+#: journal/templates/review.html:52 journal/templates/review_edit.html:10
+#: journal/templates/user_review_list.html:7
 msgid "Review"
 msgstr "评论"
+
+#: journal/templates/review.html:62
+msgid "The author has set it to be viewable only by logged-in users."
+msgstr "作者已设置仅限已登录用户查看"
 
 #: journal/templates/review_edit.html:33
 msgid "When saving, replace leading spaces with full-width spaces"
@@ -1984,82 +2247,83 @@ msgstr "Markdown语法参考"
 msgid "编辑标签"
 msgstr ""
 
-#: journal/templates/user_item_list_base.html:25
-msgid "暂无匹配的条目"
-msgstr ""
-
-#: journal/templates/user_mark_list.html:4
-#: journal/templates/user_mark_list.html:7
-msgid "标记"
-msgstr ""
+#: journal/templates/user_tag_list.html:12
+#: journal/templates/user_tagmember_list.html:4
+#: journal/templates/user_tagmember_list.html:14
+msgid "Tags"
+msgstr "标签"
 
 #: journal/templates/user_tag_list.html:19
-msgid "全部标签"
-msgstr ""
+msgid "All Tags"
+msgstr "全部标签"
 
-#: journal/templates/user_tag_list.html:29
-msgid "暂无标签"
-msgstr ""
-
-#: journal/templates/user_tagmember_list.html:4
 #: journal/templates/user_tagmember_list.html:11
-msgid "标签"
-msgstr ""
+msgid "private tag"
+msgstr "个人标签"
+
+#: journal/templates/wrapped_share.html:16
+msgid "Share Annual Summary"
+msgstr "分享年度小结"
+
+#: journal/templates/wrapped_share.html:31
+#, python-format
+msgid "#%(year)s_report"
+msgstr "#我的#%(year)s书影音"
 
 #: journal/templates/wrapped_share.html:59
-msgid "分享"
-msgstr ""
+msgid "Share"
+msgstr "分享"
 
-#: journal/templatetags/collection.py:36
+#: journal/templatetags/collection.py:35
 #, python-format
 msgid "%(count)d book"
 msgid_plural "%(count)d books"
 msgstr[0] "%(count)d 本书"
 msgstr[1] "%(count)d 本书"
 
-#: journal/templatetags/collection.py:44
+#: journal/templatetags/collection.py:39
 #, python-format
 msgid "%(count)d movie"
 msgid_plural "%(count)d movies"
 msgstr[0] "%(count)d 部电影"
 msgstr[1] "%(count)d 部电影"
 
-#: journal/templatetags/collection.py:52
+#: journal/templatetags/collection.py:43
 #, python-format
 msgid "%(count)d tv show"
 msgid_plural "%(count)d tv shows"
 msgstr[0] "%(count)d 部电视剧"
 msgstr[1] "%(count)d 部电视剧"
 
-#: journal/templatetags/collection.py:60
+#: journal/templatetags/collection.py:47
 #, python-format
 msgid "%(count)d album"
 msgid_plural "%(count)d albums"
 msgstr[0] "%(count)d 张专辑"
 msgstr[1] "%(count)d 张专辑"
 
-#: journal/templatetags/collection.py:68
+#: journal/templatetags/collection.py:51
 #, python-format
 msgid "%(count)d game"
 msgid_plural "%(count)d games"
 msgstr[0] "%(count)d 个游戏"
 msgstr[1] "%(count)d 个游戏"
 
-#: journal/templatetags/collection.py:76
+#: journal/templatetags/collection.py:55
 #, python-format
 msgid "%(count)d podcast"
 msgid_plural "%(count)d podcasts"
 msgstr[0] "%(count)d 个播客"
 msgstr[1] "%(count)d 个播客"
 
-#: journal/templatetags/collection.py:84
+#: journal/templatetags/collection.py:60
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
 msgstr[0] "%(count)d 场演出"
 msgstr[1] "%(count)d 场演出"
 
-#: journal/templatetags/collection.py:92
+#: journal/templatetags/collection.py:67
 #, python-format
 msgid "%(count)d item"
 msgid_plural "%(count)d items"
@@ -2194,15 +2458,15 @@ msgstr "帖文长度限制"
 
 #: mastodon/models.py:38
 msgid "username and original site"
-msgstr ""
+msgstr "用户标识"
 
 #: mastodon/models.py:40
 msgid "local database id"
-msgstr ""
+msgstr "本地标识"
 
 #: mastodon/models.py:42
 msgid "target site domain name"
-msgstr ""
+msgstr "目标实例域名"
 
 #: neodb-takahe/activities/admin.py:18
 msgid "Local Identity"
@@ -2218,7 +2482,7 @@ msgstr "系统"
 
 #: neodb-takahe/core/admin.py:14
 msgid "Identity"
-msgstr "身份"
+msgstr "联邦宇宙身份"
 
 #: neodb-takahe/core/admin.py:15
 msgid "User"
@@ -2240,6 +2504,14 @@ msgstr ""
 msgid "This account is inactive."
 msgstr ""
 
+#: social/templates/activity/comment_child_item.html:13
+msgid "play"
+msgstr "播放"
+
+#: social/templates/activity/comment_child_item.html:26
+msgid "comment"
+msgstr "写短评"
+
 #: social/templates/activity/create_collection.html:17 takahe/utils.py:553
 msgid "created collection"
 msgstr "创建了收藏单"
@@ -2252,6 +2524,13 @@ msgstr "设置了目标"
 #, python-format
 msgid "liked  <a href=\"%(owner_url)s\">%(owner_name)s</a>'s collection"
 msgstr "赞了 <a href=\"%(owner_url)s\">%(owner_name)s</a> 的收藏单"
+
+#: social/templates/activity/mark_item.html:13
+#: social/templates/activity/mark_item.html:20
+#: social/templates/activity/review_item.html:13
+#: social/templates/activity/review_item.html:20
+msgid "mark"
+msgstr "标记"
 
 #: social/templates/activity/review_item.html:36
 #, python-format
@@ -2478,10 +2757,6 @@ msgstr "无效的电子邮件地址"
 msgid "Verification"
 msgstr "验证"
 
-#: users/account.py:106 users/account.py:490
-msgid "Verification email is being sent, please check your inbox."
-msgstr "验证邮件已发送，请查阅收件箱。"
-
 #: users/account.py:121
 msgid "Missing instance domain"
 msgstr "未指定实例域名"
@@ -2618,11 +2893,11 @@ msgstr "电子邮件地址已被注册"
 
 #: users/account.py:422
 msgid "Unable to verify"
-msgstr ""
+msgstr "无法完成验证"
 
 #: users/account.py:454
 msgid "Username in use"
-msgstr "无法完成验证"
+msgstr "用户名已被使用"
 
 #: users/account.py:495
 msgid "Username all set."
@@ -2648,39 +2923,39 @@ msgstr "登录信息已更新"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/data.py:121
+#: users/data.py:123
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/data.py:133
+#: users/data.py:135
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/data.py:144
+#: users/data.py:146
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/data.py:158
+#: users/data.py:160
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/data.py:169
+#: users/data.py:171
 msgid "Reset completed."
 msgstr "重置已完成。"
 
-#: users/data.py:178
+#: users/data.py:180
 msgid "Import in progress."
 msgstr "正在导出"
 
-#: users/data.py:180
+#: users/data.py:182
 msgid "Invalid URL."
 msgstr "无效网址。"
 
-#: users/data.py:194 users/data.py:219 users/data.py:234
+#: users/data.py:196 users/data.py:221 users/data.py:236
 msgid "File is uploaded and will be imported soon."
 msgstr "文件已上传，等待后台导入。"
 
-#: users/data.py:197 users/data.py:237
+#: users/data.py:199 users/data.py:239
 msgid "Invalid file."
 msgstr "无效文件。"
 
@@ -2710,61 +2985,177 @@ msgstr "电子邮件地址"
 msgid "email address pending verification"
 msgstr "待验证的电子邮件地址"
 
+#: users/templates/users/account.html:10
+msgid "Account Information"
+msgstr "账号信息"
+
 #: users/templates/users/account.html:20
-msgid "用户名、电子邮件与社交身份"
-msgstr ""
+msgid "Username, Email and Identities"
+msgstr "用户名、电子邮件与社交身份"
 
-#: users/templates/users/account.html:78
-msgid "登录实例并关联"
-msgstr ""
+#: users/templates/users/account.html:26
+msgid "Username"
+msgstr "用户名"
 
-#: users/templates/users/account.html:112
-msgid "正在关注的用户"
-msgstr ""
+#: users/templates/users/account.html:27 users/templates/users/register.html:31
+msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
+msgstr "2-30个字符，限英文字母数字下划线，保存后不可更改"
 
-#: users/templates/users/account.html:118
-msgid "关注了你的用户"
-msgstr ""
+#: users/templates/users/account.html:30 users/templates/users/register.html:35
+msgid ""
+"email address (optional if you log in via other Fediverse site, but "
+"recommended)"
+msgstr "以及作为备用登录方式的电子邮件地址（推荐）"
 
-#: users/templates/users/account.html:124
-msgid "请求关注你的用户"
+#: users/templates/users/account.html:38 users/templates/users/register.html:43
+#, python-format
+msgid ""
+"Please click the confirmation link in the email sent to %(pending_email)s; "
+"if you haven't received it for more than a few minutes, please input and "
+"save again."
 msgstr ""
+"当前待确认的电子邮件地址为%(pending_email)s，请查收邮件并点击确认链接；如长时"
+"间未收到可重新输入并保存。"
 
-#: users/templates/users/account.html:130
-msgid "已隐藏的用户"
-msgstr ""
+#: users/templates/users/account.html:50
+msgid "Associated identities"
+msgstr "已关联社交身份"
 
-#: users/templates/users/account.html:136
-msgid "已屏蔽的用户"
+#: users/templates/users/account.html:58
+#, fuzzy
+msgid ""
+"If you have not yet registered with any Federated instance, you may <a "
+"href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an "
+"instance</a> and register."
 msgstr ""
+"如果你还没有在任何<em data-tooltip=\"联邦宇宙(Fediverse 有时也被称为长毛象)是"
+"一种分布式社交网络\">联邦宇宙</em>实例注册过，可先<a href=\"https://"
+"joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。"
 
-#: users/templates/users/account.html:142
-msgid "同步联邦宇宙信息和社交数据"
-msgstr ""
+#: users/templates/users/account.html:63
+msgid ""
+"To associate with another federated identity, please enter the domain name "
+"of the instance where the new identity is located."
+msgstr "如需关联到另一个联邦宇宙社交身份，请输入新身份所在的实例域名"
 
-#: users/templates/users/account.html:152
-msgid "自动同步用户昵称等基本信息"
-msgstr ""
+#: users/templates/users/account.html:65
+msgid ""
+"If you have registered with a Federated instance, please enter the instance "
+"domain name."
+msgstr "如果你已经注册过联邦宇宙实例，请输入实例域名"
 
-#: users/templates/users/account.html:160
-msgid "自动导入新增的关注、屏蔽和隐藏列表"
-msgstr ""
+#: users/templates/users/account.html:74
+msgid "Go to target instance and authorize with the identity"
+msgstr "登录实例并关联"
 
-#: users/templates/users/account.html:164
-msgid "保存同步设置"
+#: users/templates/users/account.html:79
+msgid ""
+"After replacing the association, you may use the new Fediverse identity to "
+"log in and control data visibility. Existing data such as tags, comments, "
+"and collections will not be affected."
 msgstr ""
+"替换关联后可使用新的联邦宇宙身份来登录本站和控制数据可见性，已有的标记评论收"
+"藏单等数据不受影响。"
 
-#: users/templates/users/account.html:180
-msgid "立即同步"
-msgstr ""
+#: users/templates/users/account.html:81
+msgid ""
+"Once associated with Fediverse identity, you can discover more users and use "
+"the full features of this site."
+msgstr "关联联邦宇宙身份后可发现更多用户，并使用本站完整功能。"
 
-#: users/templates/users/account.html:190
-msgid "删除数据和账号信息"
-msgstr ""
+#: users/templates/users/account.html:91
+msgid "Display name, avatar and other information"
+msgstr "昵称、头像与其它个人信息"
 
-#: users/templates/users/account.html:211
-msgid "永久删除"
+#: users/templates/users/account.html:96
+msgid "Please turn off Sync display name, bio and avatar."
 msgstr ""
+"请先关闭「自动同步用户昵称等基本信息」设置，否则这里的设置会在同步时被覆盖。"
+
+#: users/templates/users/account.html:110
+msgid "Users you are following"
+msgstr "正在关注的用户"
+
+#: users/templates/users/account.html:116
+msgid "Users who follow you"
+msgstr "关注了你的用户"
+
+#: users/templates/users/account.html:122
+msgid "Users who request to follow you"
+msgstr "请求关注你的用户"
+
+#: users/templates/users/account.html:128
+msgid "Users you are muting"
+msgstr "已隐藏的用户"
+
+#: users/templates/users/account.html:134
+msgid "Users you are blocking"
+msgstr "已屏蔽的用户"
+
+#: users/templates/users/account.html:140
+msgid "Sync and import social account"
+msgstr "同步联邦宇宙信息和社交数据"
+
+#: users/templates/users/account.html:150
+msgid "Sync display name, bio and avatar"
+msgstr "自动同步用户昵称等基本信息"
+
+#: users/templates/users/account.html:158
+msgid "Sync follow, mute and block"
+msgstr "自动导入新增的关注、屏蔽和隐藏列表"
+
+#: users/templates/users/account.html:162
+msgid "Save sync settings"
+msgstr "保存同步设置"
+
+#: users/templates/users/account.html:165
+msgid ""
+"New follow, mute and blocks in the associated identity may be automatically "
+"imported; removal has to be done manually."
+msgstr ""
+"本站会按照以上设置每天自动导入你在联邦宇宙实例中新增的关注、屏蔽和隐藏列表；"
+"如果你在联邦宇宙实例中关注的用户加入了NeoDB，你会自动关注她；如果你在联邦宇宙"
+"实例中取消了关注、屏蔽或隐藏，本站不会自动取消，但你可以手动移除。"
+
+#: users/templates/users/account.html:172
+msgid "Click button below to start sync now."
+msgstr "如果希望立即开始同步，可以点击下方按钮。"
+
+#: users/templates/users/account.html:174
+msgid "Sync now"
+msgstr "立即同步"
+
+#: users/templates/users/account.html:178
+msgid "Last updated"
+msgstr "最近更新"
+
+#: users/templates/users/account.html:187
+msgid "Delete Account"
+msgstr "删除账号"
+
+#: users/templates/users/account.html:191
+msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
+msgstr "账号数据一旦删除后将无法恢复，确定继续吗？"
+
+#: users/templates/users/account.html:195
+msgid ""
+"Enter full <code>username@instance.social</code> or <code>email@domain.com</"
+"code> to confirm deletion."
+msgstr ""
+"输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确"
+"认删除"
+
+#: users/templates/users/account.html:205
+msgid "Once deleted, account data cannot be recovered."
+msgstr "账号数据一旦删除后将无法恢复"
+
+#: users/templates/users/account.html:207
+msgid "Importing in progress, can't delete now."
+msgstr "暂时无法删除，因为有导入任务正在进行"
+
+#: users/templates/users/account.html:210
+msgid "Permanently Delete"
+msgstr "永久删除"
 
 #: users/templates/users/data.html:10
 msgid "Data Management"
@@ -2967,16 +3358,6 @@ msgid ""
 msgstr ""
 "现有用户通过联邦宇宙登录后关联电子邮件地址，即可通过邮件登录本站；如不便使用"
 "联邦宇宙，也可在此输入邮件地址注册账号，未来再关联到联邦宇宙。"
-
-#: users/templates/users/login.html:166
-#, python-format
-msgid ""
-"You are visiting an alternative domain for %(site_name)s, please always use "
-"<a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if "
-"possible."
-msgstr ""
-"这是%(site_name)s的临时镜像，请尽可能使用<a "
-"href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"
 
 #: users/templates/users/login.html:168
 msgid "Loading timed out, please check your network (VPN) settings."
@@ -3192,26 +3573,6 @@ msgstr ""
 msgid "Your username on %(site_name)s"
 msgstr "你在%(site_name)s使用的用户名"
 
-#: users/templates/users/register.html:31
-msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
-msgstr "2-30个字符，限英文字母数字下划线，保存后不可更改"
-
-#: users/templates/users/register.html:35
-msgid ""
-"email address (optional if you log in via other Fediverse site, but "
-"recommended)"
-msgstr "以及作为备用登录方式的电子邮件地址（推荐）"
-
-#: users/templates/users/register.html:43
-#, python-format
-msgid ""
-"Please click the confirmation link in the email sent to %(pending_email)s; "
-"if you haven't received it for more than a few minutes, please input and "
-"save again."
-msgstr ""
-"当前待确认的电子邮件地址为%(pending_email)s，请查收邮件并点击确认链接；如长时"
-"间未收到可重新输入并保存。"
-
 #: users/templates/users/register.html:49
 msgid "Confirm and save"
 msgstr "确认并保存"
@@ -3229,11 +3590,8 @@ msgid "export"
 msgstr "导出"
 
 #: users/templates/users/relationship_list.html:21
-#, python-format
-msgid "You may download %(name)s on %(site_name)s here."
-msgstr ""
-"此处仅列出并可导出你在%(site_name)s的%(name)s，联邦宇宙%(name)s列表可在你所属"
-"实例查询管理。"
+msgid "You may download the list here."
+msgstr "此处可导出你在本站的关系列表。"
 
 #: users/templates/users/verify_email.html:8
 #: users/templates/users/verify_email.html:17
@@ -3247,6 +3605,3 @@ msgstr "验证成功"
 #: users/templates/users/verify_email.html:27
 msgid "login again"
 msgstr "重新登录"
-
-#~ msgid "list of seasons"
-#~ msgstr "分季列表"

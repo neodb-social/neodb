@@ -366,6 +366,8 @@ AUTHENTICATION_BACKENDS = [
     "oauth2_provider.backends.OAuth2Backend",
 ]
 
+LOG_LEVEL = env("NEODB_LOG_LEVEL", default="DEBUG" if DEBUG else "INFO")  # type:ignore
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -375,7 +377,7 @@ LOGGING = {
     "loggers": {
         "": {
             "handlers": ["console"],
-            "level": env("NEODB_LOG_LEVEL", default="DEBUG" if DEBUG else "INFO"),  # type: ignore
+            "level": LOG_LEVEL,
         },
     },
 }

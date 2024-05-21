@@ -10,11 +10,13 @@
     <section class="announcement">
       <article>
         <details open>
-          <summary>未读公告</summary>
+          <summary>{% trans "Unread Announcements" %}</summary>
           {% for ann in request.user.unread_announcements %}<div>{{ ann.html }}</div>{% endfor %}
           <form action="{% url 'users:mark_announcements_read' %}" method="post">
             {% csrf_token %}
-            <input type="submit" class="secondary outline" value="{% trans '全部标为已读' %}">
+            <input type="submit"
+                   class="secondary outline"
+                   value="{% trans 'mark all as read' %}">
           </form>
         </details>
       </article>
@@ -46,7 +48,7 @@
             {% if identity.user == request.user %}
               {% if identity.locked %}
                 <span>
-                  <a title="你已开启关注审核">
+                  <a title="{% trans "approving followers manually" %}">
                     <i class="fa-solid fa-user-shield"></i>
                   </a>
                 </span>
@@ -76,7 +78,7 @@
     <section>
       <article>
         <details {% if identity.featured_collections.all %}open{% endif %}>
-          <summary>{% trans '当前目标' %}</summary>
+          <summary>{% trans 'Current Targets' %}</summary>
           {% for featured_collection in identity.featured_collections.all %}
             {% user_visibility_of featured_collection as visible %}
             {% if visible %}
@@ -89,9 +91,9 @@
             {% endif %}
           {% empty %}
             {% if request.user == identity.user %}
-              <div class="empty">将自己或他人的收藏单设为目标，这里就会显示进度</div>
+              <div class="empty">{% trans "Set a collection as target, its progress will show up here." %}</div>
             {% else %}
-              <div class="empty">暂未设置目标</div>
+              <div class="empty">{% trans "nothing so far." %}</div>
             {% endif %}
           {% endfor %}
         </details>
@@ -102,7 +104,7 @@
     <section>
       <article>
         <details class="auto-collapse" open>
-          <summary>{% trans '在听播客的近期单集' %}</summary>
+          <summary>{% trans 'Recent podcast episodes' %}</summary>
           <div class="shelf">
             <ul class="cards">
               {% for item in recent_podcast_episodes %}
@@ -137,7 +139,7 @@
     <section>
       <article>
         <details class="auto-collapse" open>
-          <summary>{% trans '在读的书' %}</summary>
+          <summary>{% trans 'Currently reading' %}</summary>
           <div class="shelf">
             <ul class="cards">
               {% for item in books_in_progress %}
@@ -160,7 +162,7 @@
     <section>
       <article>
         <details class="auto-collapse" open>
-          <summary>{% trans '在看的剧集' %}</summary>
+          <summary>{% trans 'Currently watching' %}</summary>
           <div class="shelf">
             <ul class="cards">
               {% for item in tvshows_in_progress %}
@@ -183,7 +185,7 @@
     <section>
       <article>
         <details {% if top_tags %}class="auto-collapse" open{% endif %}>
-          <summary>{% trans '常用标签' %}</summary>
+          <summary>{% trans 'Common Tags' %}</summary>
           <div class="tag-list">
             {% for t in top_tags %}
               <span>
@@ -191,12 +193,12 @@
                 <small>({{ t.total }})</small>
               </span>
             {% empty %}
-              <div class="empty">暂无可见标签</div>
+              <div class="empty">{% trans "nothing so far." %}</div>
             {% endfor %}
           </div>
           <small>
             {% if top_tags %}
-              <a href="{% url 'journal:user_tag_list' identity.user.handler %}">...{% trans '全部' %}</a>
+              <a href="{% url 'journal:user_tag_list' identity.user.handler %}">...{% trans 'show more' %}</a>
             {% endif %}
           </small>
         </details>
@@ -211,7 +213,7 @@
       <form action="{% url 'hijack:acquire' %}" method="post">
         {% csrf_token %}
         <input type="hidden" name="user_pk" value="{{ identity.user.pk }}">
-        <button type="submit">View as them</button>
+        <button type="submit">Debug as them</button>
         <button _="on click hide .hijacker then halt default">Hide</button>
         <input type="hidden" name="next" value="{{ request.path }}">
       </form>

@@ -13,7 +13,7 @@
             aria-label="Close"
             class="close"
             _="on click trigger close_dialog" />
-      <strong>分享年度统计图</strong>
+      <strong>{% trans "Share Annual Summary" %}</strong>
     </header>
     <div>
       <form method="post" action="{% url 'journal:wrapped_share' year %}">
@@ -26,37 +26,37 @@
           <div style="width:100%;">
             <textarea type="text"
                       name="comment"
-                      placeholder="分享附言"
+                      placeholder="{% trans "note" %}"
                       style="width:100%;
-                             height:100%">分享 #我的{{year}}书影音</textarea>
+                             height:100%"> {% blocktrans %}#{{year}}_report{% endblocktrans %}</textarea>
           </div>
         </div>
         <div style="margin:0.5em">
           <fieldset>
-            可见性:
+            {% trans "Visibility" %}
             <input type="radio"
                    name="visibility"
                    value="0"
                    required
                    id="id_visibility_0"
                    checked />
-            <label for="id_visibility_0">公开</label>
+            <label for="id_visibility_0">{% trans "Public" %}</label>
             <input type="radio"
                    name="visibility"
                    value="1"
                    required
                    id="id_visibility_1">
-            <label for="id_visibility_1">仅关注者</label>
+            <label for="id_visibility_1">{% trans "Followers Only" %}</label>
             <input type="radio"
                    name="visibility"
                    value="2"
                    required=""
                    id="id_visibility_2">
-            <label for="id_visibility_2">仅自己</label>
+            <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
           </fieldset>
         </div>
         <div>
-          <input type="submit" value="{% trans '分享' %}">
+          <input type="submit" value="{% trans 'Share' %}">
         </div>
       </form>
     </div>
@@ -68,7 +68,7 @@
       if (uri.startsWith(pfx)) {
         $('#img').val(uri.substring(pfx.length));
       } else {
-        alert('分享失败');
+        alert('Error occured');
       }
     }
     svgAsPngUri($('#viz0').children('svg')[0]).then(share);

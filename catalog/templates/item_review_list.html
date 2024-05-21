@@ -9,7 +9,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ item.title }}{% trans '的评论' %}</title>
+    <title>{{ site_name }} - {{ item.display_title }} - {% trans 'Reviews' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -17,9 +17,9 @@
     <main>
       <div class="grid__main">
         <h5>
-          <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans '全部标记' %}</a>
-          | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans '好友标记' %}</a>
-          | {% trans '全部评论' %}
+          <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans 'marks' %}</a>
+          | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans 'marks from who you follow' %}</a>
+          | {% trans 'reviews' %}
         </h5>
         {% for review in reviews %}
           <section>
@@ -47,7 +47,7 @@
             <div class="tldr">{{ review.plain_content }}</div>
           </section>
         {% empty %}
-          <div>{% trans '暂无评论' %}</div>
+          <div>{% trans 'nothing so far.' %}</div>
         {% endfor %}
         {% include "_pagination.html" %}
       </div>

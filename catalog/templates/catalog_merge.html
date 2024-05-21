@@ -8,7 +8,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Confirmation' %}</title>
+    <title>{{ site_name }} - {% trans 'Merge' %}</title>
     {% include "common_libs.html" %}
     {% if url %}<meta http-equiv="refresh" content="3;url={{ url }}">{% endif %}
   </head>
@@ -32,22 +32,22 @@
         </article>
         {% if item.is_deleted %}
           <p>
-            <i class="fa-solid fa-circle-xmark"></i> 条目已被删除
+            <i class="fa-solid fa-circle-xmark"></i> {% trans "Item has been deleted." %}
           </p>
         {% endif %}
         {% if item.child_items %}
           <p>
-            <i class="fa-solid fa-circle-exclamation"></i> 条目下已有子项
+            <i class="fa-solid fa-circle-exclamation"></i> {% trans "Item contains sub-items." %}
           </p>
         {% endif %}
         {% if item.merged_to_item %}
           <p>
-            <i class="fa-solid fa-circle-xmark"></i> 条目已被合并到其他条目
+            <i class="fa-solid fa-circle-xmark"></i> {% trans "Item has been merged to another item." %}
           </p>
         {% endif %}
         {% if item.journal_exists %}
           <p>
-            <i class="fa-solid fa-circle-exclamation"></i> 条目已被用户标记过
+            <i class="fa-solid fa-circle-exclamation"></i> {% trans "Item has been marked by users." %}
           </p>
         {% endif %}
         {% if new_item %}
@@ -60,29 +60,29 @@
       <article class="item-card">{% include "_item_card.html" with item=new_item %}</article>
       {% if new_item.is_deleted %}
         <p>
-          <i class="fa-solid fa-circle-xmark"></i> 条目已被删除
+          <i class="fa-solid fa-circle-xmark"></i> {% trans "Item has been deleted." %}
         </p>
       {% endif %}
       {% if new_item.child_items %}
         <p>
-          <i class="fa-solid fa-circle-exclamation"></i> 条目下已有子项
+          <i class="fa-solid fa-circle-exclamation"></i> {% trans "Item contains sub-items." %}
         </p>
       {% endif %}
       {% if new_item.merged_to_item %}
         <p>
-          <i class="fa-solid fa-circle-xmark"></i> 条目已被合并到其他条目
+          <i class="fa-solid fa-circle-xmark"></i> {% trans "Item has been merged to another item." %}
         </p>
       {% endif %}
       {% if new_item.journal_exists %}
         <p>
-          <i class="fa-solid fa-circle-exclamation"></i> 条目已被用户标记过
+          <i class="fa-solid fa-circle-exclamation"></i> {% trans "Item has been marked by users." %}
         </p>
       {% endif %}
     {% endif %}
   </div>
   <form method="post"
         {% if mode == "merge" %} action="{% url 'catalog:merge' item.url_path item.uuid %}" {% elif mode == "link" %} action="{% url 'catalog:link_edition' item.url_path item.uuid %}" {% endif %}
-        onsubmit="return confirm('本操作不可撤销。确认吗？');">
+        onsubmit="return confirm('{% trans "This operation cannot be undone. Sure to merge?" %}');">
     {% csrf_token %}
     <input type="hidden"
            name="target_item_url"

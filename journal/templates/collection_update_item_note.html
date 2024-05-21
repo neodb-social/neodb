@@ -2,8 +2,8 @@
 <form hx-post="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"
       hx-target="#collection_items">
   <input name="note" value="{{ note }}">
-  <input type="submit" style="width:unset;" value="修改">
+  <input type="submit" style="width:unset;" value="{% trans "Update" %}">
   <button style="width:unset"
           hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1"
-          hx-target="#collection_items">取消</button>
+          hx-target="#collection_items">{% trans "Cancel" %}</button>
 </form>

@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans '确认删除' %}</title>
+    <title>{{ site_name }} - {% trans 'Delete' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -14,7 +14,7 @@
     <main class="container">
       <article>
         <header>
-          <h5>{% trans '确认删除' %}</h5>
+          <h5>{% trans 'Are you sure to delete?' %}</h5>
         </header>
         <div>
           <h6>{{ piece.title }}</h6>
@@ -25,11 +25,11 @@
         <footer>
           <form action="?return_url={{ return_url }}" method="post" role="group">
             {% csrf_token %}
-            <input type="submit" value="{% trans '确认' %}">
+            <input type="submit" value="{% trans 'Yes' %}">
             <input type="reset"
                    onclick="history.back()"
                    class="secondary"
-                   value="{% trans '取消' %}">
+                   value="{% trans 'No' %}">
           </form>
         </footer>
       </article>

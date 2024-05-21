@@ -30,7 +30,7 @@
   <div>{% include '_crew.html' with people=item.crew role='crew' max=50 %}</div>
   <div>
     {% if item.official_site %}
-      {% trans 'website' %}： <span>{{ item.official_site|urlizetrunc:24 }}</span>
+      {% trans 'website' %}: <span>{{ item.official_site|urlizetrunc:24 }}</span>
     {% endif %}
   </div>
 {% endblock %}

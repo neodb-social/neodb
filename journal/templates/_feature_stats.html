@@ -7,12 +7,13 @@
 </form>
 {% if featured %}
   <a class="activated"
-     title="停止追踪目标"
-     onclick="if (confirm('停止这个目标吗？')) $('#feature-form').submit();">
+     title="{% trans "stop tracking" %}"
+     onclick="if (confirm('{% trans "Stop tracking this target?" %}')) $('#feature-form').submit();">
     <i class="fa-solid fa-circle-dot"></i>
   </a>
 {% else %}
-  <a title="设为目标" onclick="$('#feature-form').submit()">
+  <a title="{% trans "set as target" %}"
+     onclick="$('#feature-form').submit()">
     <i class="fa-regular fa-circle-dot"></i>
   </a>
 {% endif %}

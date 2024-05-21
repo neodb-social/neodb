@@ -9,7 +9,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ item.title }}{% trans '的标记' %}</title>
+    <title>{{ site_name }} - {{ item.display_title }} - {% trans 'Marks' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -18,13 +18,13 @@
       <div class="grid__main">
         <h5>
           {% if followeing_only %}
-            <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans '全部标记' %}</a>
-            | {% trans '好友标记' %}
+            <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans 'marks' %}</a>
+            | {% trans 'marks from who you follow' %}
           {% else %}
-            {% trans '全部标记' %}
-            | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans '好友标记' %}</a>
+            {% trans 'marks' %}
+            | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans 'marks from who you follow' %}</a>
           {% endif %}
-          | <a href="{% url 'catalog:review_list' item.url_path item.uuid %}">{% trans '全部评论' %}</a>
+          | <a href="{% url 'catalog:review_list' item.url_path item.uuid %}">{% trans 'reviews' %}</a>
         </h5>
         {% for member in marks %}
           {% with member.mark as mark %}
@@ -51,7 +51,7 @@
             </section>
           {% endwith %}
         {% empty %}
-          <div>{% trans '暂无标记' %}</div>
+          <div>{% trans 'nothing so far.' %}</div>
         {% endfor %}
         {% include "_pagination.html" %}
       </div>

@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from common.config import *
-from common.utils import GenerateDateUUIDMediaFilePath
+from common.utils import GenerateDateUUIDMediaFilePath, profile_identity_required
 from journal.exporters.doufen import export_marks_task
 from journal.importers.douban import DoubanImporter
 from journal.importers.goodreads import GoodreadsImporter
@@ -27,6 +27,7 @@ from .tasks import *
 
 
 @login_required
+@profile_identity_required
 def preferences(request):
     preference = request.user.preference
     identity = request.user.identity
@@ -73,6 +74,7 @@ def preferences(request):
 
 
 @login_required
+@profile_identity_required
 def data(request):
     current_year = datetime.date.today().year
     queryset = request.user.identity.shelf_manager.get_shelf(

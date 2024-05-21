@@ -16,9 +16,9 @@
     <main class="container">
       <article>
         <header>
-          <h3>验证邮件已发送</h3>
+          <h3>{% trans "Verification email is being sent, please check your inbox." %}</h3>
         </header>
-        请点击邮件中的登录链接，或输入收到的验证码：
+        {% trans "Please click the login link in the email, or enter the verification code you received." %}
         <style type="text/css">
           .otp input {
             font-family: monospace;
@@ -39,7 +39,7 @@
                    pattern="^[a-zA-Z0-9]{5}$" />
             <small>{{ error }}</small>
           </div>
-          <input type="submit" value="提交" />
+          <input type="submit" value="Submit" />
           {% csrf_token %}
         </form>
       </article>

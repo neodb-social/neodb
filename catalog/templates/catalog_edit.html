@@ -8,9 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} -
       {% if form.instance.id %}
-        {% trans '编辑' %} {{ form.instance.title }}
+        {% trans 'Edit' %} {{ form.instance.title }}
       {% else %}
-        {% trans '添加条目' %}
+        {% trans 'Create' %}
       {% endif %}
     </title>
     {% include "common_libs.html" %}
@@ -33,8 +33,12 @@
     {% include "_header.html" %}
     <main>
       <div class="grid__main">
-        {% if item.is_deleted %}<i>条目已被删除</i>{% endif %}
-        {% if item.merged_to_item %}<i>条目已被合并</i>{% endif %}
+        {% if item.is_deleted %}
+          <i>{% trans "Item has been deleted." %}</i>
+        {% endif %}
+        {% if item.merged_to_item %}
+          <i>{% trans "Item contains sub-items." %}</i>
+        {% endif %}
         <form method="post"
               enctype="multipart/form-data"
               _=" init set .rjf-add-button's innerHTML to '➕' end">
@@ -43,10 +47,10 @@
           {{ form }}
           <div class="grid">
             {% if not item or item.editable or request.user.is_staff %}
-              <input type="submit" value="{% trans '保存' %}">
+              <input type="submit" value="{% trans 'Save' %}">
             {% endif %}
             <input type="reset"
-                   value="{% trans '返回' %}"
+                   value="{% trans 'Cancel' %}"
                    onclick="{% if item %}window.location='{{ item.url }}'{% else %}history.go(-1){% endif %}">
           </div>
         </form>

@@ -10,14 +10,14 @@
 <span class="action">
   <span>
     {% if not action.taken %}
-      <a title="添加标记"
+      <a title="{% trans "mark" %}"
          hx-get="{% url 'journal:mark' activity.action_object.item.uuid %}?shelf_type=wishlist"
          hx-target="body"
          hx-swap="beforeend">
         <i class="fa-regular fa-bookmark"></i>
       </a>
     {% else %}
-      <a title="修改标记"
+      <a title="{% trans "mark" %}"
          hx-get="{% url 'journal:mark' activity.action_object.item.uuid %}"
          hx-target="body"
          hx-swap="beforeend">

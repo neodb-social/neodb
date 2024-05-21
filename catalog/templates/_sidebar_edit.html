@@ -4,40 +4,41 @@
 {% if item %}
   <div class="action">
     <span>
-      <a title="编辑条目" href="{% url 'catalog:edit' item.url_path item.uuid %}"><i class="fa-solid fa-pen-to-square"></i></a>
+      <a title="{% trans "edit" %}"
+         href="{% url 'catalog:edit' item.url_path item.uuid %}"><i class="fa-solid fa-pen-to-square"></i></a>
     </span>
     <span>
-      <a title="编辑历史"
+      <a title="{% trans "revision history" %}"
          href="{% url 'catalog:history' item.url_path item.uuid %}"><i class="fa-solid fa-clock-rotate-left"></i></a>
     </span>
     <span>
-      <a title="返回条目" href="{{ item.url }}"><i class="fa-regular fa-file-lines"></i></a>
+      <a title="{% trans "back to item" %}" href="{{ item.url }}"><i class="fa-regular fa-file-lines"></i></a>
     </span>
   </div>
-  <h5>编辑选项</h5>
+  <h5>{% trans "Edit Options" %}</h5>
   {% if item.is_deleted %}
     <p>
-      <i class="fa-solid fa-circle-xmark"></i> 条目已被删除
+      <i class="fa-solid fa-circle-xmark"></i> {% trans "Item has been deleted." %}
     </p>
   {% endif %}
   {% if item.child_items %}
     <p>
-      <i class="fa-solid fa-circle-exclamation"></i> 条目下已有子项
+      <i class="fa-solid fa-circle-exclamation"></i> {% trans "Item contains sub-items." %}
     </p>
   {% endif %}
   {% if item.merged_to_item %}
     <p>
-      <i class="fa-solid fa-circle-xmark"></i> 条目已被合并到其他条目
+      <i class="fa-solid fa-circle-xmark"></i> {% trans "Item has been merged to another item." %}
     </p>
   {% endif %}
   {% if item.journal_exists %}
     <p>
-      <i class="fa-solid fa-circle-exclamation"></i> 条目已被用户标记过
+      <i class="fa-solid fa-circle-exclamation"></i> {% trans "Item has been marked by users." %}
     </p>
   {% endif %}
   {% for i in item.merged_from_items.all %}
     {% if forloop.first %}
-      <i class="fa-solid fa-circle-info"></i> 以下条目被并入本条目：
+      <i class="fa-solid fa-circle-info"></i> {% trans "The following items are merged into this item" %}
       <ul>
       {% endif %}
       <li>
@@ -49,24 +50,26 @@
     {% for res in item.external_resources.all %}
       <details>
         <summary>
-          {% trans '源网站' %}: <a href="{{ res.url }}">{{ res.site_label }}</a>
+          {% trans 'External website' %}: <a href="{{ res.url }}">{{ res.site_label }}</a>
         </summary>
         <div class="grid">
           <form method="post"
                 action="{% url 'catalog:refetch' %}"
-                onsubmit="return confirm('现有信息可能会被覆盖。确认重新获取吗？');">
+                onsubmit="return confirm('{% trans "Existing metadata might get overwritten, sure to proceed?" %}');">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ res.id }}">
             <input type="hidden" name="url" value="{{ res.url }}">
-            <input class="secondary" type="submit" value="{% trans '重新获取' %}">
+            <input class="secondary" type="submit" value="{% trans 'Fetch again' %}">
           </form>
           {% if request.user.is_staff %}
             <form method="post"
                   action="{% url 'catalog:unlink' %}"
-                  onsubmit="return confirm('本操作不可撤销。确认取消关联吗？');">
+                  onsubmit="return confirm('{% trans "You may not be able to undo this operation, sure to remove?" %}');">
               {% csrf_token %}
               <input type="hidden" name="id" value="{{ res.id }}">
-              <input class="contrast" type="submit" value="{% trans '取消关联' %}">
+              <input class="contrast"
+                     type="submit"
+                     value="{% trans 'Remove link to site' %}">
             </form>
           {% endif %}
         </div>
@@ -75,7 +78,7 @@
     {% if item.child_class %}
       <details>
         <summary>
-          {% trans '编辑下一级条目' %} <small>({{ item.child_items.count }})</small>
+          {% trans 'Edit sub-items' %} <small>({{ item.child_items.count }})</small>
         </summary>
         <p class="tag-list" style="overflow: scroll; max-height: 20em;">
           {% for ep in item.child_items %}
@@ -86,126 +89,132 @@
         </p>
         <form method="get" action="{% url 'catalog:create' item.child_class %}">
           <input name="parent" type="hidden" value="{{ item.uuid }}">
-          <input class="contrast" type="submit" value="创建{{ item.child_class }}">
+          <input class="contrast"
+                 type="submit"
+                 value="{% trans "create" %} {{ item.child_class }}">
         </form>
       </details>
     {% endif %}
     {% if item.class_name == "tvseason" %}
       <details>
-        <summary>{% trans '批量获取单集条目' %}</summary>
+        <summary>{% trans 'Fetch all episodes' %}</summary>
         {% if item.imdb and item.season_number is not None %}
           <form method="post"
                 action="{% url 'catalog:fetch_tvepisodes' item.url_path item.uuid %}">
             {% csrf_token %}
-            <input class="contrast" type="submit" value="{% trans '开始批量获取' %}">
-            <small>因豆瓣/IMDB/TMDB之间对分季处理的差异，少量剧集和动画可能无法返回正确结果，更新后请手工确认和清理。</small>
+            <input class="contrast" type="submit" value="{% trans 'Fetch all' %}">
+            <small>{% trans "Due to differences in how Douban, IMDB, and TMDB handle season data, a small number of TV shows and animations may not return correct results. Please manually verify and clean up after updating." %}</small>
           </form>
         {% else %}
-          <i><i class="fa-solid fa-circle-exclamation"></i> 批量获取单集子条目需要本季序号和IMDB信息，不便填写也可以手工创建子条目。</i>
+          <i class="fa-solid fa-circle-exclamation"></i> <i>{% trans "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries." %}</i>
         {% endif %}
       </details>
     {% endif %}
     {% if item.class_name == "movie" %}
       <details>
-        <summary>{% trans '切换分类' %}</summary>
+        <summary>{% trans 'switch category' %}</summary>
         <form method="post"
               action="{% url 'catalog:recast' item.url_path item.uuid %}"
-              onsubmit="return confirm('确认切换吗？');">
+              onsubmit="return confirm('{% trans "Switching may remove some metadata. Sure to proceed?" %}');">
           {% csrf_token %}
           <input type="hidden" value="tvshow" name="class">
-          <input class="contrast" type="submit" value="{% trans '更改为剧集' %}">
+          <input class="contrast" type="submit" value="➡ {% trans 'TV Show' %}">
         </form>
       </details>
     {% elif item.class_name == "tvshow" %}
       {% if not item.all_seasons or request.user.is_staff %}
         <details>
-          <summary>{% trans '切换分类' %}</summary>
+          <summary>{% trans 'switch category' %}</summary>
           <form method="post"
                 action="{% url 'catalog:recast' item.url_path item.uuid %}"
-                onsubmit="return confirm('确认切换吗？');">
+                onsubmit="return confirm('Switching may remove some metadata. Sure to proceed?');">
             {% csrf_token %}
             <input type="hidden" value="movie" name="class">
-            <input class="contrast" type="submit" value="{% trans '更改为电影' %}">
+            <input class="contrast" type="submit" value="➡ {% trans 'Movie' %}">
           </form>
           <form method="post"
                 action="{% url 'catalog:recast' item.url_path item.uuid %}"
-                onsubmit="return confirm('确认切换吗？');">
+                onsubmit="return confirm('Switching may remove some metadata. Sure to proceed?');">
             {% csrf_token %}
             <input type="hidden" value="tvseason" name="class">
-            <input class="contrast" type="submit" value="{% trans '更改为单季' %}">
+            <input class="contrast" type="submit" value="➡ {% trans 'TV Season' %}">
           </form>
         </details>
       {% endif %}
     {% elif item.class_name == "album" %}
       <details>
-        <summary>{% trans '切换分类' %}</summary>
+        <summary>{% trans 'switch category' %}</summary>
         <form method="post"
               action="{% url 'catalog:recast' item.url_path item.uuid %}"
-              onsubmit="return confirm('确认切换吗？');">
+              onsubmit="return confirm('Switching may remove some metadata. Sure to proceed?');">
           {% csrf_token %}
           <input type="hidden" value="podcast" name="class">
-          <input class="contrast" type="submit" value="{% trans '更改为播客' %}">
+          <input class="contrast" type="submit" value="➡ {% trans 'Podcast' %}">
         </form>
       </details>
     {% else %}
-      <!--此类条目无法切换-->
+      <!-- no switch possible -->
     {% endif %}
     {% if item.class_name == "tvseason" or item.class_name == "performanceproduction" %}
       <details>
-        <summary>关联到上一级条目</summary>
+        <summary>{% trans "link to parent item" %}</summary>
         <form method="post"
               action="{% url 'catalog:assign_parent' item.url_path item.uuid %}"
-              onsubmit="return confirm('确认关联吗？');">
+              onsubmit="return confirm('{% trans "Sure to link?" %}');">
           {% csrf_token %}
           <input type="url"
                  name="parent_item_url"
-                 placeholder="目标条目URL，留空则取消现有关联"
+                 placeholder=""
                  value="{{ item.show.absolute_url }}">
           <br>
-          <input class="contrast" type="submit" value="{% trans '更新关联' %}">
+          <input class="contrast" type="submit" value="{% trans 'Update link' %}">
         </form>
       </details>
     {% endif %}
     {% if item.class_name == "tvshow" %}
       <details>
-        <summary>清理单季</summary>
+        <summary>{% trans "cleanup seasons" %}</summary>
         <form method="post"
               action="{% url 'catalog:remove_unused_seasons' item.url_path item.uuid %}"
-              onsubmit="return confirm('本操作不可撤销。确认删除吗？');">
+              onsubmit="return confirm('{% trans "This operation cannot be undone. Sure to delete?" %}');">
           {% csrf_token %}
-          <input class="contrast" type="submit" value="{% trans '删除未被标记的单季' %}">
+          <input class="contrast"
+                 type="submit"
+                 value="{% trans 'remove seasons not marked' %}">
         </form>
       </details>
     {% endif %}
     {% if not item.journal_exists or request.user.is_staff %}
       <details>
-        <summary>{% trans '合并' %}</summary>
+        <summary>{% trans 'merge' %}</summary>
         <form method="post"
               action="{% url 'catalog:merge' item.url_path item.uuid %}">
           {% csrf_token %}
           <input type="url"
                  name="target_item_url"
-                 placeholder="目标条目URL，留空则取消现有合并"
+                 placeholder="{% trans "URL of target item, or empty if undo merge" %}"
                  {% if item.is_deleted and not item.merged_to_item %}disabled{% endif %}
                  value="{{ item.merged_to_item.absolute_url }}">
           <br>
-          <input class="contrast" type="submit" value="{% trans '合并到同类另一条目' %}">
+          <input class="contrast"
+                 type="submit"
+                 value="{% trans 'merge to another item' %}">
         </form>
       </details>
       {% if item.child_items %}
-        <!-- 条目下有子项 -->
+        <!-- contains child items -->
       {% elif item.merged_from_items.all %}
-        <!-- 有其他条目被并入 -->
+        <!-- merged from other items -->
       {% else %}
         <details>
-          <summary>{% trans '删除' %}</summary>
+          <summary>{% trans 'Delete' %}</summary>
           <form method="post"
                 action="{% url 'catalog:delete' item.url_path item.uuid %}">
             {% csrf_token %}
             <input class="contrast"
                    type="submit"
                    {% if item.is_deleted or item.merged_to_item %}disabled{% endif %}
-                   value="{% trans '删除' %}">
+                   value="{% trans 'delete' %}">
           </form>
         </details>
       {% endif %}
@@ -213,27 +222,27 @@
     {% if item.class_name == 'edition' %}
       {% if item.has_works %}
         <details>
-          <summary>{% trans '著作' %}</summary>
-          这个图书版本属于以下著作
+          <summary>{% trans 'Work' %}</summary>
+          {% trans "This edition belongs to the following work" %}
           {% for i in item.works.all %}
             <li>
               <a href="{{ i.url }}?skipcheck=1">{{ i.title }}</a>
             </li>
           {% endfor %}
           <form method="post"
-                onsubmit="return confirm('本操作不可撤销。确认吗？');"
+                onsubmit="return confirm('{% trans "Sure to unlink?" %}');"
                 action="{% url 'catalog:unlink_works' item.url_path item.uuid %}">
             {% csrf_token %}
             <input class="contrast"
                    type="submit"
                    {% if not request.user.is_staff %}disabled{% endif %}
-                   value="{% trans '取消关联到上述著作' %}">
+                   value="{% trans 'Unlink from work' %}">
           </form>
         </details>
       {% endif %}
       {% if not item.has_works %}
         <details>
-          <summary>{% trans '关联' %}</summary>
+          <summary>{% trans 'Link' %}</summary>
           <form method="post"
                 action="{% url 'catalog:link_edition' item.url_path item.uuid %}">
             {% csrf_token %}
@@ -242,29 +251,33 @@
               placeholder="{{ site_url }}/book/1234/
               {% if item.is_deleted and not item.merged_to_item %}disabled{% endif %}
               value="">
-              <input class="contrast" type="submit" value="{% trans '关联到同一著作的另一本书' %}">
+              <input class="contrast"
+                     type="submit"
+                     value="{% trans 'Link to another edition from same work' %}">
             </form>
           </details>
         {% endif %}
       {% endif %}
     {% endif %}
     <details>
-      <summary>{% trans '修改建议' %}</summary>
+      <summary>{% trans 'Suggest Edits' %}</summary>
       <form method="post"
             action="{% url 'catalog:suggest' item.url_path item.uuid %}">
         {% csrf_token %}
         <select name="action" aria-label="Select action..." required>
-          <option selected disabled value="">请选择建议类型...</option>
-          <option value="merge">合并到其它条目</option>
-          <option value="link">关联到其它条目</option>
-          <option value="type">更改条目类型</option>
-          <option value="metadata">更正条目信息</option>
-          <option value="delete">删除条目</option>
-          <option value="other">其它修改</option>
+          <option selected disabled value="">{% trans "proposed action" %}</option>
+          <option value="merge">{% trans "merge to another item" %}</option>
+          <option value="link">{% trans "link to another item" %}</option>
+          <option value="type">{% trans "change item category" %}</option>
+          <option value="metadata">{% trans "change item metadata" %}</option>
+          <option value="delete">{% trans "remove item" %}</option>
+          <option value="other">{% trans "other" %}</option>
         </select>
-        <textarea name="detail" required placeholder="建议详情。如提议合并或关联，请包含目标条目网址。"></textarea>
-        <input type="submit" value="{% trans '提交' %}">
-        <small>本站由用户共同维护，用户可自主修改部分条目信息。当你不确定自己的修改是否得当或不能做出某种修改时，可在此处向管理员提出建议。管理员会认真考虑处理每一条建议，虽然不保证总是完全采纳；建议也可能被社区其他用户查看或讨论。如果有与具体条目不相关的建议，请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。</small>
+        <textarea name="detail"
+                  required
+                  placeholder="{% trans "To suggest merging or association, please include the URL of the target item" %}"></textarea>
+        <input type="submit" value="{% trans 'submit' %}">
+        <small>{% trans "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution." %}</small>
       </form>
     </details>
   {% endif %}

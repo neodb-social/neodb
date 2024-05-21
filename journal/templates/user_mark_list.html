@@ -1,10 +1,10 @@
 {% extends 'user_item_list_base.html' %}
 {% load i18n %}
 {% block title %}
-  <title>{{ site_name }} - {{ identity.display_name }} - {% trans '标记' %}</title>
+  <title>{{ site_name }} - {{ identity.display_name }} - {% trans 'Marks' %}</title>
 {% endblock %}
 {% block head %}
-  {{ identity.display_name }} - {% trans '标记' %}
+  {{ identity.display_name }} - {% trans 'Marks' %}
 {% endblock %}
 {% block sidebar %}
   {% include "_sidebar.html" with show_profile=1 sidebar_template="_sidebar_user_mark_list.html" %}

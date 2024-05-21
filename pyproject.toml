@@ -2,6 +2,8 @@
 exclude = [ "media", ".venv", ".git", "playground", "catalog/*/tests.py", "neodb", "**/migrations",  "**/sites/douban_*", "neodb-takahe" ]
 reportIncompatibleVariableOverride = false
 reportUnusedImport = false
+reportUnknownVariableType = false
+reportConstantRedefinition = false
 
 [tool.djlint]
 ignore="T002,T003,H005,H006,H019,H020,H021,H023,H030,H031,D018"

@@ -114,7 +114,7 @@
 {% if request.user.is_authenticated and not request.user.mastodon_username and not request.user.username %}
   <ul class="messages" style="text-align:center">
     <li class="error">
-      请<a href="{% url 'users:info' %}">设置用户名</a>
+      <a href="{% url 'users:info' %}">{% trans "Set a username." %}</a>
     </li>
   </ul>
 {% endif %}

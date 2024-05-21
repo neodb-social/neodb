@@ -7,7 +7,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - 账号信息</title>
+    <title>{{ site_name }} - {% trans "Account Information" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -17,70 +17,68 @@
         {% if allow_any_site %}
           <article>
             <details>
-              <summary>{% trans '用户名、电子邮件与社交身份' %}</summary>
+              <summary>{% trans 'Username, Email and Identities' %}</summary>
               <form action="{% url 'users:register' %}?next={{ request.path }}"
                     method="post">
                 <small>{{ error }}</small>
                 <fieldset>
                   <label>
-                    用户名
-                    <input name="username"
-                           _="on input remove [@disabled] from #save end"
-                           placeholder="2-30个字符，限英文字母数字下划线，确认后不可更改"
-                           required
-                           {% if request.user.username %}value="{{ request.user.username }}" aria-invalid="false" readonly{% endif %}
-                           pattern="^[a-zA-Z0-9_]{2,30}$" />
+                    {% trans "Username" %}
+                    <input name="username" _="on input remove [@disabled] from #save end" placeholder="{% trans "2-30 alphabets, numbers or underscore, can't be changed once saved" %}" required {% if request.user.username %}value="{{ request.user.username }}" aria-invalid="false" readonly{% endif %} pattern="^[a-zA-Z0-9_]{2,30}$" />
                   </label>
                   <label>
-                    电子邮件地址
+                    {% trans "email address (optional if you log in via other Fediverse site, but recommended)" %}
                     <input type="email"
                            name="email"
                            _="on input remove [@disabled] from #save then remove [@aria-invalid] end"
                            {% if request.user.email %}value="{{ request.user.email }}" aria-invalid="false"{% endif %}
-                           placeholder="推荐，可作为备用登录方式"
+                           placeholder="email"
                            autocomplete="email" />
                     {% if request.user.pending_email %}
-                      <small>当前待确认的电子邮件地址为{{ request.user.pending_email }}，请查收邮件并点击确认链接；如长时间未收到可重新输入并保存。</small>
+                      <small> {% blocktrans with pending_email=request.user.pending_email %}Please click the confirmation link in the email sent to {{ pending_email }}; if you haven't received it for more than a few minutes, please input and save again.{% endblocktrans %} </small>
                     {% endif %}
                   </label>
                 </fieldset>
                 {% csrf_token %}
-                <input type="submit" value="{% trans '保存' %}" disabled id="save">
+                <input type="submit" value="{% trans 'Save' %}" disabled id="save">
               </form>
               <form action="{% url 'users:reconnect' %}" method="post">
                 {% csrf_token %}
                 <fieldset>
                   {% if request.user.mastodon_acct %}
                     <label>
-                      已关联社交身份
+                      {% trans "Associated identities" %}
                       <input type="input"
                              {% if request.user.mastodon_acct %}aria-invalid="false"{% endif %}
-                             value="{{ request.user.mastodon_acct | default:'未关联' }}"
+                             value="{{ request.user.mastodon_acct | default:'-' }}"
                              readonly>
                     </label>
                   {% else %}
                     <p>
-                      如果你还没有在任何<em data-tooltip="联邦宇宙(Fediverse 有时也被称为长毛象)是一种分布式社交网络">联邦宇宙</em>实例注册过，可先<a href="https://joinmastodon.org/zh/servers" target="_blank">选择实例并注册</a>。
+                      {% blocktrans %}If you have not yet registered with any Federated instance, you may <a href="https://joinmastodon.org/zh/servers" target="_blank">choose an instance</a> and register.{% endblocktrans %}
                     </p>
                   {% endif %}
                   <label>
                     {% if request.user.mastodon_acct %}
-                      如需关联到另一个联邦宇宙社交身份，请输入新身份所在的实例域名
+                      {% trans "To associate with another federated identity, please enter the domain name of the instance where the new identity is located." %}
                     {% else %}
-                      如果你已经注册过联邦宇宙实例，请输入实例域名
+                      {% trans "If you have registered with a Federated instance, please enter the instance domain name." %}
                     {% endif %}
                     <input type="input"
                            name="domain"
                            value=""
-                           placeholder="例如mastodon.online"
+                           placeholder="e.g. mastodon.online"
                            _="on input remove [@disabled] from #bind end">
                   </label>
-                  <input type="submit" value="{% trans '登录实例并关联' %}" disabled id="bind" />
+                  <input type="submit"
+                         value="{% trans 'Go to target instance and authorize with the identity' %}"
+                         disabled
+                         id="bind" />
                   <small>
                     {% if request.user.mastodon_acct %}
-                      替换关联后可使用新的联邦宇宙身份来登录{{ site_name }}和控制数据可见性，已有的标记评论收藏单等数据不受影响。
+                      {% blocktrans %}After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected.{% endblocktrans %}
                     {% else %}
-                      启用联邦宇宙身份后可发现和关注<em data-tooltip="部分用户开启了关注审核，你需有联邦宇宙身份方可请求关注">更多</em>的用户，并使用本站完整功能。
+                      {% trans "Once associated with Fediverse identity, you can discover more users and use the full features of this site." %}
                     {% endif %}
                   </small>
                 </fieldset>
@@ -90,12 +88,12 @@
         {% endif %}
         <article>
           <details>
-            <summary>昵称、头像与其它个人信息</summary>
+            <summary>{% trans "Display name, avatar and other information" %}</summary>
             <form action="{% url 'users:profile' %}?next={{ request.path }}"
                   method="post"
                   enctype="multipart/form-data">
               {% if request.user.mastodon_acct and not request.user.preference.mastodon_skip_userinfo %}
-                <small class="invalid">请先关闭「自动同步用户昵称等基本信息」设置，否则这里的设置会在同步时被覆盖。</small>
+                <small class="invalid">{% trans "Please turn off Sync display name, bio and avatar." %}</small>
               {% endif %}
               {% include "_field.html" with field=profile_form.name %}
               {% include "_field.html" with field=profile_form.summary %}
@@ -103,43 +101,43 @@
               {% include "_field.html" with field=profile_form.discoverable %}
               {% include "_field.html" with field=profile_form.manually_approves_followers %}
               {% csrf_token %}
-              <input type="submit" value="{% trans '保存' %}" id="save">
+              <input type="submit" value="{% trans 'Save' %}" id="save">
             </form>
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans '正在关注的用户' %}</summary>
-            {% include 'users/relationship_list.html' with name="关注" id="follow" list=request.user.identity.following_identities.all %}
+            <summary>{% trans 'Users you are following' %}</summary>
+            {% include 'users/relationship_list.html' with id="follow" list=request.user.identity.following_identities.all %}
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans '关注了你的用户' %}</summary>
-            {% include 'users/relationship_list.html' with name="关注者" id="follower" list=request.user.identity.follower_identities.all %}
+            <summary>{% trans 'Users who follow you' %}</summary>
+            {% include 'users/relationship_list.html' with id="follower" list=request.user.identity.follower_identities.all %}
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans '请求关注你的用户' %}</summary>
-            {% include 'users/relationship_list.html' with name="请求关注者" id="follow_request" list=request.user.identity.requested_follower_identities.all %}
+            <summary>{% trans 'Users who request to follow you' %}</summary>
+            {% include 'users/relationship_list.html' with id="follow_request" list=request.user.identity.requested_follower_identities.all %}
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans '已隐藏的用户' %}</summary>
-            {% include 'users/relationship_list.html' with name="隐藏" id="mute" list=request.user.identity.muting_identities.all %}
+            <summary>{% trans 'Users you are muting' %}</summary>
+            {% include 'users/relationship_list.html' with id="mute" list=request.user.identity.muting_identities.all %}
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans '已屏蔽的用户' %}</summary>
-            {% include 'users/relationship_list.html' with name="屏蔽" id="block" list=request.user.identity.blocking_identities.all %}
+            <summary>{% trans 'Users you are blocking' %}</summary>
+            {% include 'users/relationship_list.html' with id="block" list=request.user.identity.blocking_identities.all %}
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans '同步联邦宇宙信息和社交数据' %}</summary>
+            <summary>{% trans 'Sync and import social account' %}</summary>
             <form action="{% url 'users:sync_mastodon_preference' %}"
                   method="post"
                   enctype="multipart/form-data">
@@ -149,7 +147,7 @@
                   <input type="checkbox"
                          name="mastodon_sync_userinfo"
                          {% if not request.user.preference.mastodon_skip_userinfo %}checked{% endif %}>
-                  {% trans '自动同步用户昵称等基本信息' %}
+                  {% trans 'Sync display name, bio and avatar' %}
                 </label>
               </fieldset>
               <fieldset>
@@ -157,43 +155,44 @@
                   <input type="checkbox"
                          name="mastodon_sync_relationship"
                          {% if not request.user.preference.mastodon_skip_relationship %}checked{% endif %}>
-                  {% trans '自动导入新增的关注、屏蔽和隐藏列表' %}
+                  {% trans 'Sync follow, mute and block' %}
                 </label>
               </fieldset>
               <input type="submit"
-                     value="{% trans '保存同步设置' %}"
+                     value="{% trans 'Save sync settings' %}"
                      {% if not request.user.mastodon_username %}disabled{% endif %} />
               <small>
-                {{ site_name }}会按照以上设置每天自动导入你在联邦宇宙实例中新增的关注、屏蔽和隐藏列表；
-                <br>
-                如果你在联邦宇宙实例中关注的用户加入了NeoDB，你会自动关注她；
-                <br>
-                如果你在联邦宇宙实例中取消了关注、屏蔽或隐藏，{{ site_name }}不会自动取消，但你可以手动移除。
+                {% trans "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually." %}
               </small>
             </form>
             <form action="{% url 'users:sync_mastodon' %}"
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              <small>如果希望立即开始同步，可以点击下方按钮。</small>
+              <small>{% trans "Click button below to start sync now." %}</small>
               <input type="submit"
-                     value="{% trans '立即同步' %}"
+                     value="{% trans 'Sync now' %}"
                      {% if not request.user.mastodon_username %}disabled{% endif %} />
               <small>
-                {% if request.user.mastodon_last_refresh %}上次更新时间 {{ request.user.mastodon_last_refresh }}{% endif %}
+                {% if request.user.mastodon_last_refresh %}
+                  {% trans "Last updated" %} {{ request.user.mastodon_last_refresh }}
+                {% endif %}
+                上次更新时间
               </small>
             </form>
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans '删除数据和账号信息' %}</summary>
+            <summary>{% trans 'Delete Account' %}</summary>
+            删除数据和账号信息
             <form action="{% url 'users:clear_data' %}"
                   method="post"
-                  onsubmit="return confirm('账号数据一旦删除后将无法恢复。确认删除吗？');">
+                  onsubmit="return confirm('{% trans "Once deleted, account data cannot be recovered. Sure to proceed?" %}');">
+              账号数据一旦删除后将无法恢复。确认删除吗？
               {% csrf_token %}
               <div>
-                输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除
+                {% blocktrans %}Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion.{% endblocktrans %}
                 <input type="email"
                        name="verification"
                        _="on input remove [@disabled] from #delete end"
@@ -203,12 +202,12 @@
                        aria-invalid="true"
                        aria-describedby="invalid-helper"
                        placeholder="Gargron@mastodon.social">
-                <small id="invalid-helper">账号数据一旦删除后将无法恢复</small>
+                <small id="invalid-helper">{% trans "Once deleted, account data cannot be recovered." %}</small>
                 {% if import_status.douban_pending %}
-                  <input type="submit" value="暂时无法删除，因为有导入任务正在进行" disabled />
+                  <input type="submit" value="{% trans "Importing in progress, can't delete now." %}" disabled />
                 {% else %}
                   <input type="submit"
-                         value="{% trans '永久删除' %}"
+                         value="{% trans 'Permanently Delete' %}"
                          class="contrast"
                          disabled
                          id="delete" />

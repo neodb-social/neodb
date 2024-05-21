@@ -9,7 +9,7 @@
   <span class="action">
     {% if collection_edit %}
       <span>
-        <a title="从收藏单中删除条目"
+        <a title="{% trans "Remove from collection" %}"
            hx-target="#collection_items"
            hx-post="{% url 'journal:collection_remove_item' collection.uuid item.uuid %}">
           <i class="fa-solid fa-square-minus"></i>
@@ -19,7 +19,7 @@
       {% wish_item_action item as action %}
       <span>
         {% if not action.taken %}
-          <a title="添加标记"
+          <a title="{% trans "add mark" %}"
              hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist"
              hx-target="body"
              hx-swap="beforeend">
@@ -27,7 +27,7 @@
           </a>
         {% else %}
           <a class="activated"
-             title="修改标记"
+             title="{% trans "update mark" %}"
              hx-get="{% url 'journal:mark' item.uuid %}"
              hx-target="body"
              hx-swap="beforeend">
@@ -85,7 +85,7 @@
         <p hx-target="this" hx-swap="innerHTML">
           {% if collection_edit %}
             <span class="action">
-              <a title="修改备注"
+              <a title="{% trans "Update note" %}"
                  hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"><i class="fa-regular fa-pen-to-square"></i></a>
             </span>
           {% endif %}

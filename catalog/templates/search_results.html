@@ -10,7 +10,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Search Results' %} {{ request.GET.q }}</title>
+    <title>{{ site_name }} - {{ request.GET.q }} - {% trans 'Search Results' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -88,16 +88,17 @@
                 {% include '_list_item.html' with show_tags=1 %}
               {% empty %}
                 <p>
-                  无站内条目匹配。
-                  {% if request.user.is_authenticated %}系统会尝试搜索其它网站的条目，点击标题可添加到本站。{% endif %}
+                  {% trans "No items matching your search query." %}
+                  {% if request.user.is_authenticated %}
+                    {% trans "System will search other websites and instances, click title of the item to save them locally. " %}
+                  {% endif %}
                 </p>
                 <p>
-                  如果你在
+                  {% blocktrans %}If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter.{% endblocktrans %}
                   {% for site in sites %}
-                    {{ site }}
+                    {{ trans site }}
                     {% if not forloop.last %}/{% endif %}
                   {% endfor %}
-                  找到了相关条目，也可以把链接(如 <code>https://movie.douban.com/subject/1309046/</code> )输入到搜索栏中提交保存到本站。
                 </p>
               {% endfor %}
             </div>

@@ -14,7 +14,7 @@
             aria-label="Close"
             class="close"
             _="on click trigger close_dialog" />
-      <strong>标记 {{ item.title }}</strong>
+      <strong>{% trans "Mark" %} - {{ item.title }}</strong>
     </header>
     <div>
       <form method="post" action="{% url 'journal:mark' item.uuid %}">
@@ -40,15 +40,15 @@
             <div>
               <span class="rating-editor {% if shelf_type == 'wishlist' %}hidden{% endif %}" _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the
                 <div/>
-                in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the
+                in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the
                 <div/>
                 in me set star_input to the
                 <input/>
-                in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the
+                in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the
                 <div/>
                 in me set star_input to the
                 <input/>
-                in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '未评分' end">
+                in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' end">
                 {{ mark.rating_grade|rating_star }}
                 <input type="hidden"
                        name="rating_grade"
@@ -63,7 +63,7 @@
             <textarea name="text"
                       rows="5"
                       autofocus
-                      placeholder="提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实例时间轴。"
+                      placeholder="{% trans "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors." %}"
                       id="id_text">{{ mark.comment_text|default:"" }}</textarea>
           </fieldset>
         </div>
@@ -71,7 +71,7 @@
           <div class="tag-input">
             <input name="tags"
                    type="text"
-                   placeholder="回车增加标签"
+                   placeholder="{% trans "add a tag and press Enter" %}"
                    id="tags_input"
                    data-initial-value="{{ tags }}">
           </div>
@@ -85,21 +85,21 @@
                      required
                      id="id_visibility_0"
                      {% if mark.visibility == 0 %}checked{% endif %}>
-              <label for="id_visibility_0">公开</label>
+              <label for="id_visibility_0">{% trans "Public" %}</label>
               <input type="radio"
                      name="visibility"
                      value="1"
                      required
                      id="id_visibility_1"
                      {% if mark.visibility == 1 %}checked{% endif %}>
-              <label for="id_visibility_1">仅关注者</label>
+              <label for="id_visibility_1">{% trans "Followers Only" %}</label>
               <input type="radio"
                      name="visibility"
                      value="2"
                      required
                      id="id_visibility_2"
                      {% if mark.visibility == 2 %}checked{% endif %}>
-              <label for="id_visibility_2">仅自己</label>
+              <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
             </fieldset>
           </div>
           <div>
@@ -112,7 +112,7 @@
                          id="id_share_to_mastodon"
                          value="1"
                          {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
-                  转发到<em data-tooltip="@{{ request.user.mastodon_acct }}">主ID</em>时间轴
+                  {% trans "Repost to your timeline" %}
                 </label>
               {% endif %}
             </fieldset>
@@ -127,7 +127,7 @@
                      name="mark_anotherday"
                      value="1"
                      id="mark_anotherday">
-              <label for="mark_anotherday">更改日期:</label>
+              <label for="mark_anotherday">{% trans "change mark date" %}</label>
               <input class="invisible"
                      type="date"
                      name="mark_date"
@@ -139,7 +139,7 @@
           </div>
           <div>
             <fieldset>
-              <input type="submit" value="保存">
+              <input type="submit" value="{% trans "Save" %}">
             </fieldset>
           </div>
         </div>
@@ -152,7 +152,10 @@
             {% csrf_token %}
             <input type="hidden" name="delete" value="1">
             <a>
-              <button class="secondary" onclick="return confirm('确认删除这条标记、短评和标签？')">删除标记</button>
+              <button class="secondary"
+                      onclick="return confirm('{% trans "Sure to delete mark, comment and tags for this item?" %}')">
+                {% trans "Delete" %}
+              </button>
             </a>
           </form>
         {% endif %}

@@ -10,7 +10,7 @@
 <span class="action">
   {% if activity.action_object.item.class_name == 'podcastepisode' %}
     <span>
-      <a title="播放节目"
+      <a title="{% trans "play" %}"
          class="episode"
          data-uuid="{{ activity.action_object.item.uuid }}"
          data-media="{{ activity.action_object.item.media_url }}"
@@ -23,7 +23,7 @@
     </span>
   {% endif %}
   <span>
-    <a title="评论节目"
+    <a title="{% trans "comment" %}"
        hx-get="{% url 'journal:comment' activity.action_object.item.uuid %}"
        hx-target="body"
        hx-swap="beforeend"><i class="fa-regular fa-comment"></i></a>
