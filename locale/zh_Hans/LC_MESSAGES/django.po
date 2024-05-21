@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-20 11:52-0400\n"
+"POT-Creation-Date: 2024-05-20 18:21-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -857,12 +857,12 @@ msgid "Are you sure to delete?"
 msgstr "确认删除吗？"
 
 #: catalog/templates/catalog_delete.html:47
-#: catalog/templates/catalog_merge.html:91
+#: catalog/templates/catalog_merge.html:91 neodb-takahe/activities/admin.py:25
 msgid "Yes"
 msgstr "是"
 
 #: catalog/templates/catalog_delete.html:48
-#: catalog/templates/catalog_merge.html:92
+#: catalog/templates/catalog_merge.html:92 neodb-takahe/activities/admin.py:26
 msgid "No"
 msgstr "否"
 
@@ -2010,6 +2010,62 @@ msgstr ""
 msgid "分享"
 msgstr ""
 
+#: journal/templatetags/collection.py:36
+#, python-format
+msgid "%(count)d book"
+msgid_plural "%(count)d books"
+msgstr[0] "%(count)d 本书"
+msgstr[1] "%(count)d 本书"
+
+#: journal/templatetags/collection.py:44
+#, python-format
+msgid "%(count)d movie"
+msgid_plural "%(count)d movies"
+msgstr[0] "%(count)d 部电影"
+msgstr[1] "%(count)d 部电影"
+
+#: journal/templatetags/collection.py:52
+#, python-format
+msgid "%(count)d tv show"
+msgid_plural "%(count)d tv shows"
+msgstr[0] "%(count)d 部电视剧"
+msgstr[1] "%(count)d 部电视剧"
+
+#: journal/templatetags/collection.py:60
+#, python-format
+msgid "%(count)d album"
+msgid_plural "%(count)d albums"
+msgstr[0] "%(count)d 张专辑"
+msgstr[1] "%(count)d 张专辑"
+
+#: journal/templatetags/collection.py:68
+#, python-format
+msgid "%(count)d game"
+msgid_plural "%(count)d games"
+msgstr[0] "%(count)d 个游戏"
+msgstr[1] "%(count)d 个游戏"
+
+#: journal/templatetags/collection.py:76
+#, python-format
+msgid "%(count)d podcast"
+msgid_plural "%(count)d podcasts"
+msgstr[0] "%(count)d 个播客"
+msgstr[1] "%(count)d 个播客"
+
+#: journal/templatetags/collection.py:84
+#, python-format
+msgid "%(count)d performance"
+msgid_plural "%(count)d performances"
+msgstr[0] "%(count)d 场演出"
+msgstr[1] "%(count)d 场演出"
+
+#: journal/templatetags/collection.py:92
+#, python-format
+msgid "%(count)d item"
+msgid_plural "%(count)d items"
+msgstr[0] "%(count)d 个条目"
+msgstr[1] "%(count)d 个条目"
+
 #: journal/views/collection.py:38
 #, python-brace-format
 msgid "Collection by {0}"
@@ -2146,6 +2202,42 @@ msgstr ""
 
 #: mastodon/models.py:42
 msgid "target site domain name"
+msgstr ""
+
+#: neodb-takahe/activities/admin.py:18
+msgid "Local Identity"
+msgstr ""
+
+#: neodb-takahe/core/admin.py:8
+msgid "config options type"
+msgstr ""
+
+#: neodb-takahe/core/admin.py:13
+msgid "System"
+msgstr "系统"
+
+#: neodb-takahe/core/admin.py:14
+msgid "Identity"
+msgstr "身份"
+
+#: neodb-takahe/core/admin.py:15
+msgid "User"
+msgstr ""
+
+#: neodb-takahe/users/admin.py:147
+msgid "Local Source Identity"
+msgstr ""
+
+#: neodb-takahe/users/admin.py:153
+msgid "Local Target Identity"
+msgstr ""
+
+#: neodb-takahe/users/views/auth.py:20
+msgid "No account was found with that email and password."
+msgstr ""
+
+#: neodb-takahe/users/views/auth.py:21
+msgid "This account is inactive."
 msgstr ""
 
 #: social/templates/activity/create_collection.html:17 takahe/utils.py:553

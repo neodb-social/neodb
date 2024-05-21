@@ -1,5 +1,6 @@
 from django import template
 from django.template.defaultfilters import stringfilter
+from django.utils.translation import ngettext
 
 from journal.models import Collection
 from journal.models.mixins import UserOwnedObjectMixin
@@ -27,24 +28,42 @@ def user_stats_of(collection: Collection, identity: APIdentity):
     return collection.get_stats(identity) if identity else {}
 
 
-@register.filter(is_safe=True)
-@stringfilter
-def prural_items(category: str):
-    # TODO support i18n here
-    # return _(f"items of {category}")
-    if category == "book":
-        return "本书"
-    elif category == "movie":
-        return "部电影"
-    elif category == "tv":
-        return "部剧集"
-    elif category == "album" or category == "music":
-        return "张专辑"
-    elif category == "game":
-        return "个游戏"
-    elif category == "podcast":
-        return "个播客"
-    elif category == "performance":
-        return "场演出"
-    else:
-        return category
+@register.simple_tag()
+def prural_items(count: int, category: str):
+    match category:
+        case "book":
+            return ngettext("%(count)d book", "%(count)d books", count,) % {
+                "count": count,
+            }
+        case "movie":
+            return ngettext("%(count)d movie", "%(count)d movies", count,) % {
+                "count": count,
+            }
+        case "tv":
+            return ngettext("%(count)d tv show", "%(count)d tv shows", count,) % {
+                "count": count,
+            }
+        case "music":
+            return ngettext("%(count)d album", "%(count)d albums", count,) % {
+                "count": count,
+            }
+        case "game":
+            return ngettext("%(count)d game", "%(count)d games", count,) % {
+                "count": count,
+            }
+        case "podcast":
+            return ngettext("%(count)d podcast", "%(count)d podcasts", count,) % {
+                "count": count,
+            }
+        case "performance":
+            return ngettext(
+                "%(count)d performance",
+                "%(count)d performances",
+                count,
+            ) % {
+                "count": count,
+            }
+        case _:
+            return ngettext("%(count)d item", "%(count)d items", count,) % {
+                "count": count,
+            }

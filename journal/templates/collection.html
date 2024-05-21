@@ -63,7 +63,9 @@
               </p>
               <p>
                 {% for cat, count in collection.get_summary.items %}
-                  {% if count %}<span>{{ count }} {{ cat|prural_items }}</span>&nbsp;&nbsp;{% endif %}
+                  {% if count %}
+                    <span>{% prural_items count cat %}</span>&nbsp;&nbsp;
+                  {% endif %}
                 {% endfor %}
               </p>
               {% if featured_since %}
