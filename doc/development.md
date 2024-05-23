@@ -30,22 +30,22 @@ To develop Takahe, install requirements(-dev) and pre-commit hooks for `neodb-ta
 
 Start local instance for development
 ------------------------------------
-Follow [install guide](install-docker.md) to create `.env` in the root folder of NeoDB code, including at least these following configuration:
+Follow [install guide](install-docker.md) to create `.env` in the root folder of NeoDB code, including at least these configuration:
 ```
 NEODB_SITE_NAME="My Test"
 NEODB_SITE_DOMAIN=mydomain.dev
-NEODB_SECRET_KEY=_50_characters_of_length__No_whitespaces_
+NEODB_SECRET_KEY=_random_string__50_characters_of_length__no_whitespaces_
 NEODB_IMAGE=neodb/neodb:edge
 NEODB_DEBUG=True
 ```
 
-Run the following to download and start pgsql/redis/typesense before initializing database schema:
+Download and start pgsql/redis/typesense before initializing database schema:
 ```
 docker compose pull
 docker compose up -d
 ```
 
-To initialize database schema, instead of `python3 manage.py migrate`, run:
+Initialize database schema:
 ```
 docker compose --profile dev run --rm dev-shell neodb-init
 ```
@@ -75,11 +75,12 @@ git submodule update --init
 
 To save some typing, consider adding some aliases to `~/.profile`:
 ```
+alias neodb-logs='docker compose --profile dev logs'
 alias neodb-shell='docker compose --profile dev run --rm dev-shell'
 alias neodb-manage='docker compose --profile dev run --rm dev-shell neodb-manage'
 ```
 
-Use `neodb-init`, not `python3 manage.py migrate`, to update db schema after updating code:
+Always use `neodb-init`, not `python3 manage.py migrate`, to update db schema after updating code:
 ```
 neodb-shell neodb-init
 ```
@@ -111,8 +112,7 @@ Note:
   - `neodb-manage dbshell`
   - `neodb-shell redis-cli -h redis`
   - create `compose.override.yml` to uncomment `ports` section.
-
-To expose the neodb and takahe web server directly, in the folder for configuration, create `compose.override.yml` with the following content:
+- To expose the neodb and takahe web server directly, in the folder for configuration, create `compose.override.yml` with the following content:
 
 ```
 services:
