@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import time
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlparse
 
 import httpx
 import requests
@@ -326,6 +326,11 @@ class Fediverse:
                 return []
             if "data" in r:
                 for item in r["data"]:
+                    if any(
+                        urlparse(res["url"]).hostname in settings.SITE_DOMAINS
+                        for res in item.get("external_resources", [])
+                    ):
+                        continue
                     url = f"https://{host}{item['url']}"  # FIXME update API and use abs urls
                     try:
                         cat = ItemCategory(item["category"])

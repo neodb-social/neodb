@@ -62,7 +62,6 @@ def preferences(request):
             ]
         )
         lang = request.POST.get("language")
-        print(lang)
         if lang in dict(settings.LANGUAGES).keys() and lang != request.user.language:
             request.user.language = lang
             request.user.save(update_fields=["language"])
