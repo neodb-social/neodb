@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - 编辑收藏单 - {{ title }}</title>
+    <title>{{ site_name }} - {% trans "Collection" %} - {{ title }} - {% trans "Edit" %}</title>
     {% include "common_libs.html" %}
     <script src="{{ cdn_url }}/npm/html5sortable@0.13.3/dist/html5sortable.min.js"></script>
     <style type="text/css">
@@ -22,27 +22,27 @@
       <div class="grid__main">
         <h4>
           {% if collection %}
-            编辑 <a href="{{ collection.url }}">{{ collection.title }}</a>
+            {% trans "Edit" %} <a href="{{ collection.url }}">{{ collection.title }}</a>
           {% else %}
-            创建收藏单
+            {% trans "Create a new collection" %}
           {% endif %}
         </h4>
         <hr>
         <details {% if not collection %}open{% endif %}>
-          <summary>标题和描述</summary>
+          <summary>{% trans "Title and Description" %}</summary>
           <form class="entity-form markdown-content"
                 method="post"
                 enctype="multipart/form-data">
             {% csrf_token %}
             {{ form }}
-            <input class="button" type="submit" value="{% trans '保存' %}">
+            <input class="button" type="submit" value="{% trans 'Save' %}">
           </form>
           {{ form.media }}
         </details>
         {% if collection %}
           <hr>
           <details open>
-            <summary>条目</summary>
+            <summary>{% trans "Items" %}</summary>
             <div id="collection_items"
                  hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1"
                  hx-trigger="load"></div>

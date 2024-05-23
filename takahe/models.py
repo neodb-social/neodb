@@ -40,13 +40,13 @@ def set_migration_mode(disable: bool):
     _migration_mode = disable
 
 
-class TakaheSession(models.Model):
-    session_key = models.CharField(_("session key"), max_length=40, primary_key=True)
-    session_data = models.TextField(_("session data"))
-    expire_date = models.DateTimeField(_("expire date"), db_index=True)
+# class TakaheSession(models.Model):
+#     session_key = models.CharField(_("session key"), max_length=40, primary_key=True)
+#     session_data = models.TextField(_("session data"))
+#     expire_date = models.DateTimeField(_("expire date"), db_index=True)
 
-    class Meta:
-        db_table = "django_session"
+#     class Meta:
+#         db_table = "django_session"
 
 
 class Snowflake:

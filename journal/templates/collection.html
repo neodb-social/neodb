@@ -12,14 +12,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title"
-          content="{{ site_name }}{% trans '收藏单' %} - {{ collection.title }}">
+          content="{{ collection.title }} - {% trans 'Collection' %} - {{ site_name }}">
     <meta property="og:description" content="{{ collection.description }}">
     <meta property="og:type" content="article">
     <meta property="og:article:author"
           content="{{ collection.owner.display_name }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ collection.cover|thumb:'normal' }}">
-    <title>{{ site_name }} {% trans '收藏单' %} - {{ collection.title }}</title>
+    <title>{{ site_name }} - {% trans 'Collection' %} - {{ collection.title }}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -37,7 +37,7 @@
                        hx-get="{% url 'journal:collection_share' collection.uuid %}"
                        hx-target="body"
                        hx-swap="beforeend"
-                       title="分享到联邦宇宙"><i class="fa-solid fa-share-nodes"></i></a>
+                       title="{% trans "Share" %}"><i class="fa-solid fa-share-nodes"></i></a>
                   </span>
                 {% endif %}
                 {% if collection.latest_post %}
@@ -121,18 +121,18 @@
                    hx-trigger="click once"
                    hx-target="#replies_{{ collection.latest_post.pk }}">
                   {{ collection.latest_post.stats.replies | default:'' }}
-                  回应
+                  {% trans "Reply" %}
                 </a>
               </span>
               {% if request.user.identity == collection.owner %}
                 <span>
-                  <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '编辑' %}</a>
+                  <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans 'Edit' %}</a>
                 </span>
                 <span>
-                  <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans '删除' %}</a>
+                  <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans 'Delete' %}</a>
                 </span>
               {% elif editable %}
-                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans '协助整理' %}</a>
+                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans 'Collaborative editing' %}</a>
               {% endif %}
             </span>
           {% endif %}
@@ -142,9 +142,9 @@
                  rel="noopener"
                  href="{{ collection.shared_link }}"
                  onclick="navigator.share({url:'{{ collection.shared_link|escapejs }}'});event.preventDefault();"
-                 title="联邦宇宙分享链接"><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
+                 title="link for fediverse"><i class="fa-solid {% if collection.visibility > 0 %} fa-lock {% else %} fa-globe {% endif %}"></i></a>
             </span>
-            <span><a>创建于 {{ collection.created_time|date }}</a></span>
+            <span><a>{% trans "Created date" %}: {{ collection.created_time|date }}</a></span>
           </span>
         </section>
         <section id="replies_{{ collection.latest_post.pk }}">

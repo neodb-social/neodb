@@ -72,7 +72,7 @@
                      hx-trigger="click once"
                      hx-target="#replies_{{ review.latest_post.pk }}">
                     {{ review.latest_post.stats.replies | default:'' }}
-                    {% trans "reply" %}
+                    {% trans "Reply" %}
                   </a>
                 </span>
                 {% if request.user.identity == review.owner %}

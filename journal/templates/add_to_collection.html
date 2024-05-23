@@ -9,7 +9,7 @@
   <div class="modal-underlay" _="on click trigger closeModal"></div>
   <div class="modal-content">
     <div class="add-to-list-modal__head">
-      <span class="add-to-list-modal__title">{% trans '添加到收藏单' %}</span>
+      <span class="add-to-list-modal__title">{% trans 'Add to collection' %}</span>
       <span class="add-to-list-modal__close-button modal-close"
             _="on click trigger closeModal">
         <i class="fa-solid fa-xmark"></i>
@@ -26,13 +26,13 @@
               {% if collection.visibility > 0 %}🔒{% endif %}
             </option>
           {% endfor %}
-          <option value="0">新建收藏单</option>
+          <option value="0">({% trans "Create a new collection" %})</option>
         </select>
         <div>
-          <textarea type="text" name="note" placeholder="条目备注"></textarea>
+          <textarea type="text" name="note" placeholder="{% trans "Note" %}"></textarea>
         </div>
         <div class="add-to-list-modal__confirm-button">
-          <input type="submit" class="button float-right" value="{% trans '保存' %}">
+          <input type="submit" class="button float-right" value="{% trans 'Save' %}">
         </div>
       </form>
     </div>

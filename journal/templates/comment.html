@@ -13,7 +13,7 @@
             aria-label="Close"
             class="close"
             _="on click trigger close_dialog" />
-      <strong>{% trans '评论' %} {{ item.parent_item.title }}: {{ item.title }}</strong>
+      <strong>{% trans 'Comment' %} - {{ item.parent_item.title }}: {{ item.title }}</strong>
     </header>
     <div>
       <form action="{% url 'journal:comment' item.uuid %}" method="post">
@@ -21,7 +21,7 @@
         <textarea name="text"
                   cols="40"
                   rows="10"
-                  placeholder="提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实例时间轴。"
+                  placeholder="{% trans "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors." %}"
                   id="id_text">{% if comment.text %}{{ comment.text }}{% endif %}</textarea>
         <div class="grid">
           <div>
@@ -32,21 +32,21 @@
                      required=""
                      id="id_visibility_0"
                      {% if comment.visibility == 0 or not comment %}checked{% endif %}>
-              <label for="id_visibility_0">公开</label>
+              <label for="id_visibility_0">{% trans "Public" %}</label>
               <input type="radio"
                      name="visibility"
                      value="1"
                      required=""
                      id="id_visibility_1"
                      {% if comment.visibility == 1 %}checked{% endif %}>
-              <label for="id_visibility_1">仅关注者</label>
+              <label for="id_visibility_1">{% trans "Followers Only" %}</label>
               <input type="radio"
                      name="visibility"
                      value="2"
                      required=""
                      id="id_visibility_2"
                      {% if comment.visibility == 2 %}checked{% endif %}>
-              <label for="id_visibility_2">仅自己</label>
+              <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
             </fieldset>
           </div>
           <div>
@@ -59,7 +59,7 @@
                          id="id_share_to_mastodon"
                          value="1"
                          {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
-                  转发到<em data-tooltip="@{{ request.user.mastodon_acct }}">主ID</em>时间轴
+                  {% trans "Repost to your timeline" %}
                 </label>
               {% endif %}
             </fieldset>
@@ -72,7 +72,7 @@
           <div role="group">
             <div>
               <input type="checkbox" name="share_position" value="1" id="share_position">
-              <label for="share_position">分享播放位置:</label>
+              <label for="share_position">{% trans "share with playback position" %}</label>
             </div>
             <div>
               <input type="input"

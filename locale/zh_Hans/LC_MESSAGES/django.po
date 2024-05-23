@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-22 18:06-0400\n"
+"POT-Creation-Date: 2024-05-23 11:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -332,6 +332,9 @@ msgid "Exhibition"
 msgstr "展览"
 
 #: catalog/common/models.py:123 catalog/common/models.py:136
+#: journal/templates/collection.html:15 journal/templates/collection.html:22
+#: journal/templates/collection_edit.html:9
+#: journal/templates/collection_share.html:12
 msgid "Collection"
 msgstr "收藏单"
 
@@ -707,7 +710,7 @@ msgstr "标记历史"
 
 #: catalog/templates/_sidebar_edit.html:7
 msgid "edit"
-msgstr ""
+msgstr "编辑"
 
 #: catalog/templates/_sidebar_edit.html:11
 #: catalog/templates/catalog_history.html:9
@@ -864,8 +867,8 @@ msgstr "合并到另一条目"
 #: catalog/templates/_sidebar_edit.html:210
 #: catalog/templates/catalog_delete.html:11
 #: developer/templates/oauth2_provider/application_detail.html:42
-#: journal/templates/mark.html:157 journal/templates/piece_delete.html:9
-#: journal/templates/review.html:83
+#: journal/templates/collection.html:133 journal/templates/mark.html:157
+#: journal/templates/piece_delete.html:9 journal/templates/review.html:83
 msgid "Delete"
 msgstr "删除"
 
@@ -1017,7 +1020,10 @@ msgstr "否"
 
 #: catalog/templates/catalog_edit.html:11
 #: developer/templates/oauth2_provider/application_detail.html:40
-#: journal/templates/review.html:80
+#: journal/templates/collection.html:130
+#: journal/templates/collection_edit.html:9
+#: journal/templates/collection_edit.html:25 journal/templates/review.html:80
+#: journal/templates/tag_edit.html:12
 msgid "Edit"
 msgstr "编辑"
 
@@ -1027,7 +1033,9 @@ msgstr "创建"
 
 #: catalog/templates/catalog_edit.html:50
 #: developer/templates/oauth2_provider/application_form.html:35
-#: journal/templates/mark.html:142 journal/templates/review_edit.html:40
+#: journal/templates/add_to_collection.html:35
+#: journal/templates/collection_edit.html:38 journal/templates/mark.html:142
+#: journal/templates/review_edit.html:40 journal/templates/tag_edit.html:60
 #: users/templates/users/account.html:43 users/templates/users/account.html:104
 #: users/templates/users/preferences.html:170
 #: users/templates/users/preferences.html:195
@@ -1156,9 +1164,9 @@ msgstr "简介"
 #: catalog/templates/item_base.html:234
 #: catalog/templates/item_mark_list.html:54
 #: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:97
-#: common/templates/_sidebar.html:197 journal/templates/profile.html:109
-#: journal/templates/profile.html:151 journal/templates/profile.html:187
-#: journal/templates/replies.html:46
+#: common/templates/_sidebar.html:197 journal/templates/collection_items.html:8
+#: journal/templates/profile.html:109 journal/templates/profile.html:151
+#: journal/templates/profile.html:187 journal/templates/replies.html:46
 #: journal/templates/user_item_list_base.html:25
 #: journal/templates/user_tag_list.html:29 social/templates/events.html:46
 #: users/templates/users/announcements.html:53
@@ -1539,7 +1547,7 @@ msgstr "注册或登录"
 
 #: common/templates/_header.html:117
 msgid "Set a username."
-msgstr ""
+msgstr "设置用户名"
 
 #: common/templates/_sidebar.html:13
 msgid "Unread Announcements"
@@ -1687,8 +1695,9 @@ msgid "Post to Fediverse"
 msgstr "发布到联邦宇宙"
 
 #: journal/forms.py:25 journal/forms.py:45
-#: journal/templates/wrapped_share.html:36 users/templates/users/data.html:40
-#: users/templates/users/data.html:132
+#: journal/templates/collection_share.html:24
+#: journal/templates/tag_edit.html:30 journal/templates/wrapped_share.html:36
+#: users/templates/users/data.html:40 users/templates/users/data.html:132
 msgid "Visibility"
 msgstr "可见性"
 
@@ -1700,7 +1709,7 @@ msgstr "仅创建者"
 msgid "creator and their mutuals"
 msgstr "创建者和他们的互相关注"
 
-#: journal/forms.py:52
+#: journal/forms.py:52 journal/templates/collection.html:136
 msgid "Collaborative editing"
 msgstr "协作编辑"
 
@@ -1714,25 +1723,29 @@ msgstr "关于 {item_title} 的评论"
 msgid "{username}'s podcast subscriptions"
 msgstr "{username} 的播客订阅"
 
-#: journal/models/collection.py:25 journal/templates/wrapped_share.html:29
+#: journal/models/collection.py:25 journal/templates/collection_share.html:63
+#: journal/templates/wrapped_share.html:29
 msgid "note"
 msgstr "备注"
 
-#: journal/models/common.py:26 journal/templates/mark.html:88
-#: journal/templates/wrapped_share.html:43 users/templates/users/data.html:49
-#: users/templates/users/data.html:141
+#: journal/models/common.py:26 journal/templates/collection_share.html:35
+#: journal/templates/comment.html:35 journal/templates/mark.html:88
+#: journal/templates/tag_edit.html:40 journal/templates/wrapped_share.html:43
+#: users/templates/users/data.html:49 users/templates/users/data.html:141
 #: users/templates/users/preferences.html:54
 msgid "Public"
 msgstr "公开"
 
-#: journal/models/common.py:27 journal/templates/mark.html:95
+#: journal/models/common.py:27 journal/templates/collection_share.html:46
+#: journal/templates/comment.html:42 journal/templates/mark.html:95
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:57
 #: users/templates/users/data.html:149
 #: users/templates/users/preferences.html:61
 msgid "Followers Only"
 msgstr "仅关注者"
 
-#: journal/models/common.py:28 journal/templates/mark.html:102
+#: journal/models/common.py:28 journal/templates/collection_share.html:57
+#: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:65
 #: users/templates/users/data.html:157
 #: users/templates/users/preferences.html:68
@@ -2119,58 +2132,82 @@ msgstr "喜欢"
 msgid "link for fediverse"
 msgstr "联邦宇宙分享链接"
 
-#: journal/templates/action_reply_piece.html:3 journal/templates/review.html:75
+#: journal/templates/action_reply_piece.html:3
 msgid "reply"
 msgstr "回应"
 
 #: journal/templates/add_to_collection.html:12
-msgid "添加到收藏单"
-msgstr ""
+msgid "Add to collection"
+msgstr "添加到收藏单"
 
-#: journal/templates/add_to_collection.html:35
-#: journal/templates/collection_edit.html:38
-msgid "保存"
-msgstr ""
+#: journal/templates/add_to_collection.html:29
+#: journal/templates/collection_edit.html:27
+msgid "Create a new collection"
+msgstr "创建新收藏单"
 
-#: journal/templates/collection.html:15 journal/templates/collection.html:22
-msgid "收藏单"
-msgstr ""
-
-#: journal/templates/collection.html:130
-msgid "编辑"
-msgstr ""
-
-#: journal/templates/collection.html:133
-msgid "删除"
-msgstr ""
-
-#: journal/templates/collection.html:136
-msgid "协助整理"
-msgstr ""
-
+#: journal/templates/add_to_collection.html:32
 #: journal/templates/collection_items.html:24
-msgid "备注"
-msgstr ""
+msgid "Note"
+msgstr "备注"
 
-#: journal/templates/collection_items.html:26
-msgid "添加站内条目到收藏夹"
-msgstr ""
-
+#: journal/templates/collection.html:40
 #: journal/templates/collection_share.html:12
-msgid "分享收藏单"
-msgstr ""
+#: journal/templates/collection_share.html:66
+#: journal/templates/wrapped_share.html:59
+msgid "Share"
+msgstr "分享"
 
-#: journal/templates/collection_share.html:64
-msgid "提交"
-msgstr ""
+#: journal/templates/collection.html:125 journal/templates/review.html:75
+msgid "Reply"
+msgstr "回应"
+
+#: journal/templates/collection.html:148
+msgid "Created date"
+msgstr "创建日期"
+
+#: journal/templates/collection_edit.html:32
+msgid "Title and Description"
+msgstr "标题和描述"
+
+#: journal/templates/collection_edit.html:45
+msgid "Items"
+msgstr "条目"
+
+#: journal/templates/collection_items.html:28
+msgid "Add an item to this collection"
+msgstr "添加站内条目到收藏夹"
+
+#: journal/templates/collection_items.html:56
+msgid "Drag and drop to change the order order and click here to save"
+msgstr "拖拽修改条目顺序后点击这里保存"
+
+#: journal/templates/collection_share.html:24
+msgid "for the sharing post only, not visibility of the collection"
+msgstr "分享帖文的可见性，不同于收藏单本身的权限"
 
 #: journal/templates/collection_update_item_note.html:5
 msgid "Update"
 msgstr "更新"
 
 #: journal/templates/comment.html:16
-msgid "评论"
+msgid "Comment"
+msgstr "写短评"
+
+#: journal/templates/comment.html:24 journal/templates/mark.html:66
+msgid ""
+"Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to "
+"show posts longer than 360 charactors."
 msgstr ""
+"提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实"
+"例时间轴。"
+
+#: journal/templates/comment.html:62 journal/templates/mark.html:115
+msgid "Repost to your timeline"
+msgstr "转发到时间轴"
+
+#: journal/templates/comment.html:75
+msgid "share with playback position"
+msgstr "分享播放位置"
 
 #: journal/templates/mark.html:17
 msgid "Mark"
@@ -2181,21 +2218,9 @@ msgstr "标记"
 msgid "not rated"
 msgstr "未评分"
 
-#: journal/templates/mark.html:66
-msgid ""
-"Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to "
-"show posts longer than 360 charactors."
-msgstr ""
-"提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实"
-"例时间轴。"
-
 #: journal/templates/mark.html:74
 msgid "add a tag and press Enter"
 msgstr "回车增加标签"
-
-#: journal/templates/mark.html:115
-msgid "Repost to your timeline"
-msgstr "转发到时间轴"
 
 #: journal/templates/mark.html:130
 msgid "change mark date"
@@ -2221,6 +2246,10 @@ msgstr "收藏单"
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
+#: journal/templates/replies.html:53
+msgid "add a reply"
+msgstr "添加回应"
+
 #: journal/templates/review.html:14 journal/templates/review.html:22
 #: journal/templates/review.html:52 journal/templates/review_edit.html:10
 #: journal/templates/user_review_list.html:7
@@ -2244,8 +2273,25 @@ msgid "Markdown format references"
 msgstr "Markdown语法参考"
 
 #: journal/templates/tag_edit.html:12
-msgid "编辑标签"
+msgid "Tag"
+msgstr "标签"
+
+#: journal/templates/tag_edit.html:51
+msgid "Personal"
+msgstr "个人"
+
+#: journal/templates/tag_edit.html:57
+msgid ""
+"Personal tags are not shown to others when they view your tag list. However, "
+"if you use this tag when marking an item publicly, it might still be visible "
+"to others."
 msgstr ""
+"个人标签仅限于在个人主页的标签列表里不向他人展示，如果公开标记一个条目时使用"
+"这个标签仍会被别人看到。"
+
+#: journal/templates/tag_edit.html:67
+msgid "Delete this tag"
+msgstr "删除这个标签"
 
 #: journal/templates/user_tag_list.html:12
 #: journal/templates/user_tagmember_list.html:4
@@ -2269,10 +2315,6 @@ msgstr "分享年度小结"
 #, python-format
 msgid "#%(year)s_report"
 msgstr "#我的#%(year)s书影音"
-
-#: journal/templates/wrapped_share.html:59
-msgid "Share"
-msgstr "分享"
 
 #: journal/templatetags/collection.py:35
 #, python-format
@@ -2337,7 +2379,7 @@ msgstr "{0} 的收藏单"
 
 #: journal/views/collection.py:190
 msgid "Unable to find the item, please use item url from this site."
-msgstr ""
+msgstr "找不到条目，请使用本站条目网址。"
 
 #: journal/views/collection.py:303 journal/views/collection.py:324
 #: journal/views/review.py:124
@@ -2470,7 +2512,7 @@ msgstr "目标实例域名"
 
 #: neodb-takahe/activities/admin.py:18
 msgid "Local Identity"
-msgstr ""
+msgstr "本地身份"
 
 #: neodb-takahe/core/admin.py:8
 msgid "config options type"
@@ -2486,23 +2528,23 @@ msgstr "联邦宇宙身份"
 
 #: neodb-takahe/core/admin.py:15
 msgid "User"
-msgstr ""
+msgstr "用户"
 
 #: neodb-takahe/users/admin.py:147
 msgid "Local Source Identity"
-msgstr ""
+msgstr "本地源身份"
 
 #: neodb-takahe/users/admin.py:153
 msgid "Local Target Identity"
-msgstr ""
+msgstr "本地目标身份"
 
 #: neodb-takahe/users/views/auth.py:20
 msgid "No account was found with that email and password."
-msgstr ""
+msgstr "账号未找到"
 
 #: neodb-takahe/users/views/auth.py:21
 msgid "This account is inactive."
-msgstr ""
+msgstr "账号已失效"
 
 #: social/templates/activity/comment_child_item.html:13
 msgid "play"
@@ -2712,18 +2754,6 @@ msgstr "提及"
 #: social/templates/notification.html:30
 msgid "follow"
 msgstr "关注"
-
-#: takahe/models.py:44
-msgid "session key"
-msgstr ""
-
-#: takahe/models.py:45
-msgid "session data"
-msgstr ""
-
-#: takahe/models.py:46
-msgid "expire date"
-msgstr ""
 
 #: takahe/models.py:427
 msgid "Display Name"
@@ -2963,15 +2993,15 @@ msgstr "无效文件。"
 msgid ""
 "Enter a valid username. This value may contain only unaccented lowercase a-z "
 "and uppercase A-Z letters, numbers, and _ characters."
-msgstr ""
+msgstr "输入用户名，限英文字母数字下划线，最多30个字符。"
 
 #: users/models/user.py:82
 msgid "username"
-msgstr ""
+msgstr "用户名"
 
 #: users/models/user.py:86
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
-msgstr "必填，限字母数字下划线，最多30个字符。"
+msgstr "必填，限英文字母数字下划线，最多30个字符。"
 
 #: users/models/user.py:89
 msgid "A user with that username already exists."
@@ -3022,7 +3052,6 @@ msgid "Associated identities"
 msgstr "已关联社交身份"
 
 #: users/templates/users/account.html:58
-#, fuzzy
 msgid ""
 "If you have not yet registered with any Federated instance, you may <a "
 "href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an "
@@ -3256,26 +3285,6 @@ msgstr "下载"
 #: users/templates/users/data.html:225
 msgid "View Annual Summary"
 msgstr "查看年度小结"
-
-#: users/templates/users/data.html:238
-msgid "重置所有标记和短评可见性"
-msgstr ""
-
-#: users/templates/users/data.html:241
-msgid "重置"
-msgstr ""
-
-#: users/templates/users/data.html:244
-msgid "公开"
-msgstr ""
-
-#: users/templates/users/data.html:246
-msgid "仅关注者"
-msgstr ""
-
-#: users/templates/users/data.html:248
-msgid "仅自己"
-msgstr ""
 
 #: users/templates/users/fetch_identity_failed.html:4
 msgid ""

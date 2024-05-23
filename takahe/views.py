@@ -10,7 +10,6 @@ from loguru import logger
 
 from common.utils import user_identity_required
 
-from .models import TakaheSession
 from .utils import Takahe
 
 

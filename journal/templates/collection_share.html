@@ -9,7 +9,7 @@
   <div class="modal-underlay" _="on click trigger closeModal"></div>
   <div class="modal-content">
     <div class="add-to-list-modal__head">
-      <span class="add-to-list-modal__title">{% trans '分享收藏单' %} - {{ collection.title }}</span>
+      <span class="add-to-list-modal__title">{% trans 'Collection' %} - {{ collection.title }} - {% trans 'Share' %}</span>
       <span class="add-to-list-modal__close-button modal-close"
             _="on click trigger closeModal">
         <i class="fa-solid fa-xmark"></i>
@@ -20,7 +20,9 @@
             method="post">
         {% csrf_token %}
         <div>
-          <label for="id_visibility_0">分享可见性（不同于收藏单本身的权限）:</label>
+          <label for="id_visibility_0">
+            {% trans "Visibility" %} ({% trans "for the sharing post only, not visibility of the collection" %})
+          </label>
           <ul id="id_visibility">
             <li>
               <label for="id_visibility_0">
@@ -30,7 +32,7 @@
                        required=""
                        id="id_visibility_0"
                        {% if collection.visibility == 0 %}checked{% endif %}>
-                公开
+                {% trans "Public" %}
               </label>
             </li>
             <li>
@@ -41,7 +43,7 @@
                        required=""
                        id="id_visibility_1"
                        {% if collection.visibility == 1 %}checked{% endif %}>
-                仅关注者
+                {% trans "Followers Only" %}
               </label>
             </li>
             <li>
@@ -52,16 +54,16 @@
                        required=""
                        id="id_visibility_2"
                        {% if collection.visibility == 2 %}checked{% endif %}>
-                仅自己
+                {% trans "Mentioned Only" %}
               </label>
             </li>
           </ul>
         </div>
         <div>
-          <textarea type="text" name="comment" placeholder="分享附言"></textarea>
+          <textarea type="text" name="comment" placeholder="{% trans "note" %}"></textarea>
         </div>
         <div class="add-to-list-modal__confirm-button">
-          <input type="submit" class="button float-right" value="{% trans '提交' %}">
+          <input type="submit" class="button float-right" value="{% trans 'Share' %}">
         </div>
       </form>
     </div>

@@ -9,7 +9,7 @@
   <div class="modal-underlay" _="on click trigger closeModal"></div>
   <div class="modal-content">
     <div class="add-to-list-modal__head">
-      <span class="add-to-list-modal__title">{% trans '编辑标签' %} {{ item.title }}</span>
+      <span class="add-to-list-modal__title">{% trans 'Tag' %} - {{ item.title }} - {% trans 'Edit' %}</span>
       <span class="add-to-list-modal__close-button modal-close"
             _="on click trigger closeModal">
         <i class="fa-solid fa-xmark"></i>
@@ -27,7 +27,7 @@
         </div>
         <div class="mark-modal__option">
           <div class="mark-modal__visibility-radio">
-            <span>可见性：
+            <span>{% trans "Visibility" %}
               <ul id="id_visibility">
                 <li>
                   <label for="id_visibility_0">
@@ -37,7 +37,7 @@
                            required=""
                            id="id_visibility_0"
                            {% if tag.visibility == 0 %}checked{% endif %}>
-                    公共
+                    {% trans "Public" %}
                   </label>
                 </li>
                 <li>
@@ -48,23 +48,23 @@
                            required=""
                            id="id_visibility_2"
                            {% if tag.visibility != 0 %}checked{% endif %}>
-                    个人
+                    {% trans "Personal" %}
                   </label>
                 </li>
               </ul>
             </span>
           </div>
-          <i>个人标签仅限于在个人主页的标签列表里不向他人展示，如果公开标记一个条目时使用这个标签仍会被别人看到。</i>
+          <i>{% trans "Personal tags are not shown to others when they view your tag list. However, if you use this tag when marking an item publicly, it might still be visible to others." %}</i>
         </div>
         <div class="mark-modal__confirm-button">
-          <input type="submit" class="button float-right" value="保存">
+          <input type="submit" class="button float-right" value="{% trans "Save" %}">
         </div>
         <div class="mark-modal__option">
           <div class="mark-modal__visibility-radio">
             <span>
-              <label for="_delete" title="无法撤销">
+              <label for="_delete">
                 <input type="checkbox" name="delete" value="1" id="_delete">
-                删除这个标签
+                {% trans "Delete this tag" %}
               </label>
             </span>
           </div>

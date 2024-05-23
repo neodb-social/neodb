@@ -232,25 +232,25 @@
             </div>
           </details>
         </article>
-        <!--
+        {% comment %}
         <article>
           <details>
-            <summary>{% trans '重置所有标记和短评可见性' %}</summary>
+            <summary>{% trans 'Reset visibility for all marks' %}</summary>
             <form action="{% url 'users:reset_visibility' %}" method="post">
               {% csrf_token %}
-              <input type="submit"  value="{% trans '重置' %}" />
+              <input type="submit"  value="{% trans 'Reset' %}" />
               <div>
                 <input type="radio" name="visibility" id="visPublic" value="0" checked>
-                <label for="visPublic">{% trans '公开' %}</label>
+                <label for="visPublic">{% trans 'Public' %}</label>
                 <input type="radio" name="visibility" id="visFollower" value="1">
-                <label for="visFollower">{% trans '仅关注者' %}</label>
+                <label for="visFollower">{% trans 'Followers Only' %}</label>
                 <input type="radio" name="visibility" id="visSelf" value="2">
-                <label for="visSelf">{% trans '仅自己' %}</label>
+                <label for="visSelf">{% trans 'Mentioned Only' %}</label>
               </div>
             </form>
           </details>
         </article>
-        -->
+        {% endcomment %}
       </div>
       {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
     </main>

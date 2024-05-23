@@ -5,7 +5,7 @@
   {% for member in collection.ordered_members %}
     {% include '_list_item.html' with item=member.item mark=None collection_member=member %}
   {% empty %}
-    暂无条目
+    {% trans "nothing so far." %}
   {% endfor %}
 </div>
 {% if collection_edit %}
@@ -21,9 +21,11 @@
            required>
     <input type="text"
            name="comment"
-           placeholder="{% trans '备注' %}"
+           placeholder="{% trans 'Note' %}"
            style="min-width:24rem">
-    <input class="button" type="submit" value="{% trans '添加站内条目到收藏夹' %}">
+    <input class="button"
+           type="submit"
+           value="{% trans 'Add an item to this collection' %}">
   </form>
   <script>
     $(function () {
@@ -49,7 +51,9 @@
         method="post">
     {% csrf_token %}
     <input type="hidden" name="member_ids" id="member_ids" required>
-    <input type="submit" class="secondary" value="拖拽修改条目顺序后点击这里保存">
+    <input type="submit"
+           class="secondary"
+           value="{% trans "Drag and drop to change the order order and click here to save" %}">
   </form>
 {% endif %}
 {% if msg %}<script type="text/javascript">alert("{{ msg|escapejs }}");</script>{% endif %}
