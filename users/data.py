@@ -27,8 +27,9 @@ from .tasks import *
 
 
 @login_required
-@profile_identity_required
-def preferences(request, user_name):
+def preferences(request):
+    if not request.user.registration_complete:
+        return redirect(reverse("users:register"))
     preference = request.user.preference
     identity = request.user.identity
     if request.method == "POST":
@@ -74,8 +75,9 @@ def preferences(request, user_name):
 
 
 @login_required
-@profile_identity_required
-def data(request, user_name):
+def data(request):
+    if not request.user.registration_complete:
+        return redirect(reverse("users:register"))
     current_year = datetime.date.today().year
     queryset = request.user.identity.shelf_manager.get_shelf(
         ShelfType.COMPLETE
