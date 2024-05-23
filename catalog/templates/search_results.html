@@ -96,7 +96,7 @@
                 <p>
                   {% blocktrans %}If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter.{% endblocktrans %}
                   {% for site in sites %}
-                    {{ trans site }}
+                    {% trans site %}
                     {% if not forloop.last %}/{% endif %}
                   {% endfor %}
                 </p>
