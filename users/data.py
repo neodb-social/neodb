@@ -28,7 +28,7 @@ from .tasks import *
 
 @login_required
 @profile_identity_required
-def preferences(request):
+def preferences(request, user_name):
     preference = request.user.preference
     identity = request.user.identity
     if request.method == "POST":
@@ -75,7 +75,7 @@ def preferences(request):
 
 @login_required
 @profile_identity_required
-def data(request):
+def data(request, user_name):
     current_year = datetime.date.today().year
     queryset = request.user.identity.shelf_manager.get_shelf(
         ShelfType.COMPLETE
