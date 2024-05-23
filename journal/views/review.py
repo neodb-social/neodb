@@ -105,7 +105,7 @@ MAX_ITEM_PER_TYPE = 10
 
 class ReviewFeed(Feed):
     def get_object(self, request, *args, **kwargs):
-        return APIdentity.get_by_handle(kwargs["username"])
+        return APIdentity.get_by_handle(kwargs["username"], match_linked=True)
 
     def title(self, owner):
         return (

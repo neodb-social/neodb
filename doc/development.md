@@ -3,12 +3,17 @@ Development
 
 Overview
 --------
-NeoDB is a Django project, and it runs side by side with a [modified version](https://github.com/neodb-social/neodb-takahe) of [Takahē](https://github.com/jointakahe/takahe) (a separate Django project, code in `neodb_takahe` as submodule). They communicate mainly thru database and task queue, the diagram in [Docker Installation](install-docker.md) demonstrates a typical architecture. Currently the two are loosely coupled, so you may take either one offline without immediate impact on the other, which makes it very easy to conduct maintenance and troubleshooting separately. In the future, they may get combined but it's not decided and will not be decided very soon.
+NeoDB is a Django project, and it runs side by side with a [modified version](https://github.com/neodb-social/neodb-takahe) of [Takahē](https://github.com/jointakahe/takahe) (a separate Django project, code in `neodb_takahe` folder of this repo as submodule). They communicate with each other mainly thru database and task queue, the diagram in [Docker Installation](install-docker.md) demonstrates a typical architecture. Currently the two are loosely coupled, so you may take either one offline without immediate impact on the other, which makes it very easy to conduct maintenance and troubleshooting separately. In the future, they may get combined but it's not decided and will not be decided very soon.
+
+
+Prerequisite
+------------
+- Python 3.11.x
+- Docker Compose v2 or newer
 
 
 Prepare the code
 ----------------
-
 When checking out NeoDB source code, make sure submodules are also checked out:
 ```
 git clone https://github.com/neodb-social/neodb.git
@@ -16,7 +21,7 @@ cd neodb
 git submodule update --init
 ```
 
-Install Python 3.11 if not yet, optionally create and activate a venv.
+Create and activate a Python virtual environment, optional but recommended.
 
 Install development related packages and pre-commit hooks:
 ```
@@ -25,7 +30,9 @@ python3 -m pip install -r requirements-dev.txt
 python3 -m pre_commit install
 ```
 
-To develop Takahe, install requirements(-dev) and pre-commit hooks for `neodb-takahe` project as well, preferably using a different venv.
+To develop Takahe, install requirements(-dev) and pre-commit hooks for `neodb-takahe` project as well, preferably using a different virtual environment.
+
+Note: the virtual environments and packages installed in this step are mostly for linting, the actual virtual environments and packages are from NeoDB docker image, and they can be configured differently, more on this later in this document.
 
 
 Start local instance for development
@@ -67,6 +74,16 @@ Note: `dev` profile is for development only, and quite different from `productio
 
 Common development tasks
 ------------------------
+Shutdown the cluster:
+```
+docker compose --profile dev down
+```
+
+Restart background tasks (unlike web servers, background tasks don't auto reload after code change):
+```
+docker-compose --profile dev restart dev-neodb-worker dev-takahe-stator
+```
+
 When updating code, always update submodules:
 ```
 git pull
@@ -90,12 +107,9 @@ Run unit test:
 neodb-manage test
 ```
 
-Before committing code, if models in `takahe/models.py` are changed, instead of adding incremental migrations, just regenerate `takahe/migrations/0001_initial.py` instead, because these migrations will never be applied except for constructing a test database.
-
 
 Development in Docker Compose
 -----------------------------
-
 The `dev` profile is different from `production`:
 - code in `NEODB_SRC` (default: .) and `TAKAHE_SRC` (default: ./neodb-takahe) will be mounted and used in the container instead of code in the image
 - `runserver` with autoreload will be used instead of `gunicorn` for both neodb and takahe web server
@@ -137,11 +151,18 @@ NEODB_SITE_DOMAIN=${CODESPACE_NAME}-8000.${GITHUB_CODESPACES_PORT_FORWARDING_DOM
 
 Applications
 ------------
-Main django apps for NeoDB:
- - `users` manages user in typical django fashion
+Main Django apps for NeoDB:
+ - `users` manages user in typical Django fashion
  - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/) ~and [Twitter API](https://developer.twitter.com/en/docs/twitter-api)~ for user login and data sync
  - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](catalog.md) for more details
  - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag), see [journal.md](journal.md) for more details
  - `social` present timeline and notification for local users, see [social.md](social.md) for more details
  - `takahe` communicate with Takahe (a separate Django server, run side by side with this server, code in `neodb_takahe` as submodule)
  - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old urls to new ones. If your journey starts with 0.5 and later, feel free to ignore it.
+
+
+Miscellaneous notes
+-------------------
+If models in `takahe/models.py` are changed, instead of adding incremental migrations, just regenerate `takahe/migrations/0001_initial.py` instead, because these migrations will never be applied except for constructing a test database.
+
+A `libsass` wheel is stored in the repo to speed up docker image building process in Github Action.
