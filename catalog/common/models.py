@@ -1,4 +1,3 @@
-import logging
 import re
 import uuid
 from functools import cached_property
@@ -13,6 +12,7 @@ from django.db import connection, models
 from django.utils import timezone
 from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
+from loguru import logger
 from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
@@ -23,8 +23,6 @@ from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
 
 if TYPE_CHECKING:
     from users.models import User
-
-_logger = logging.getLogger(__name__)
 
 
 class SiteName(models.TextChoices):
@@ -406,7 +404,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             res.save()
 
     def recast_to(self, model):
-        _logger.warn(f"recast item {self} to {model}")
+        logger.warning(f"recast item {self} to {model}")
         if self.__class__ == model:
             return self
         if model not in Item.__subclasses__():
@@ -631,7 +629,7 @@ class ExternalResource(models.Model):
             site = self.get_site()
             return site.SITE_NAME if site else SiteName.Unknown
         except Exception:
-            _logger.warning(f"Unknown site for {self}")
+            logger.warning(f"Unknown site for {self}")
             return SiteName.Unknown
 
     @property

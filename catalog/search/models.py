@@ -1,12 +1,12 @@
 # pyright: reportFunctionMemberAccess=false
 import hashlib
-import logging
 
 import django_rq
 from auditlog.context import set_actor
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
+from loguru import logger
 from rq.job import Job
 
 from catalog.common.sites import SiteManager
@@ -15,8 +15,6 @@ from ..models import Item, TVSeason
 from .typesense import Indexer as TypeSenseIndexer
 
 # from .meilisearch import Indexer as MeiliSearchIndexer
-
-_logger = logging.getLogger(__name__)
 
 
 class DbIndexer:
@@ -154,10 +152,10 @@ def _fetch_task(url, is_refetch, user):
             site.get_resource_ready(ignore_existing_content=is_refetch)
             item = site.get_item()
             if item:
-                _logger.info(f"fetched {url} {item.url} {item}")
+                logger.info(f"fetched {url} {item.url} {item}")
                 item_url = item.url
             else:
-                _logger.error(f"fetch {url} failed")
+                logger.error(f"fetch {url} failed")
         except Exception as e:
-            _logger.error(f"fetch {url} error {e}")
+            logger.error(f"fetch {url} error", extra={"exception": e})
         return item_url

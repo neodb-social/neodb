@@ -11,13 +11,11 @@ import filetype
 import requests
 from django.conf import settings
 from django.core.cache import cache
+from loguru import logger
 from lxml import etree, html
 from PIL import Image
 from requests import Response
 from requests.exceptions import RequestException
-
-_logger = logging.getLogger(__name__)
-
 
 RESPONSE_OK = 0  # response is ready for pasring
 RESPONSE_INVALID_CONTENT = -1  # content not valid but no need to retry
@@ -67,11 +65,11 @@ class MockResponse:
         try:
             self.content = Path(fn).read_bytes()
             self.status_code = 200
-            _logger.debug(f"use local response for {url} from {fn}")
+            logger.debug(f"use local response for {url} from {fn}")
         except Exception:
             self.content = b"Error: response file not found"
             self.status_code = 404
-            _logger.debug(f"local response not found for {url} at {fn}")
+            logger.debug(f"local response not found for {url} at {fn}")
 
     @property
     def text(self):
@@ -173,7 +171,7 @@ class BasicDownloader:
                         ) as fp:
                             fp.write(resp.text)
                     except Exception:
-                        _logger.warn("Save downloaded data failed.")
+                        logger.warning("Save downloaded data failed.")
             else:
                 resp = MockResponse(self.url)
             response_type = self.validate_response(resp)
@@ -249,7 +247,7 @@ class RetryDownloader(BasicDownloader):
             elif self.response_type != RESPONSE_NETWORK_ERROR and retries == 0:
                 raise DownloadError(self)
             elif retries > 0:
-                _logger.debug("Retry " + self.url)
+                logger.debug("Retry " + self.url)
                 time.sleep((settings.DOWNLOADER_RETRIES - retries) * 0.5)
         raise DownloadError(self, "max out of retries")
 

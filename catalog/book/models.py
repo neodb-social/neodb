@@ -22,7 +22,7 @@ from os.path import exists
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from loguru import logger as _logger
+from loguru import logger
 
 from catalog.common import (
     BaseSchema,
@@ -186,9 +186,9 @@ class Edition(Item):
                 if work_res:
                     work = work_res.item
                     if not work:
-                        _logger.warning(f"Unable to find work for {work_res}")
+                        logger.warning(f"Unable to find work for {work_res}")
                 else:
-                    _logger.warning(
+                    logger.warning(
                         f'Unable to find resource for {w["id_type"]}:{w["id_value"]}'
                     )
                     work = Work.objects.filter(

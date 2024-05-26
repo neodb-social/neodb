@@ -1,5 +1,3 @@
-import logging
-
 from auditlog.context import set_actor
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from loguru import logger
 
 from common.utils import discord_send, get_uuid_or_404
 from journal.models import update_journal_for_merged_item
@@ -18,8 +17,6 @@ from .forms import *
 from .models import *
 from .search.views import *
 from .sites.imdb import IMDB as IMDB
-
-_logger = logging.getLogger(__name__)
 
 
 def _add_error_map_detail(e):
@@ -171,7 +168,7 @@ def recast(request, item_path, item_uuid):
         raise BadRequest("Invalid target type")
     if isinstance(item, model):
         raise BadRequest("Same target type")
-    _logger.warn(f"{request.user} recasting {item} to {model}")
+    logger.warning(f"{request.user} recasting {item} to {model}")
     discord_send(
         "audit",
         f"{item.absolute_url}\n{item.__class__.__name__} ➡ {model.__name__}\nby [@{request.user.username}]({request.user.absolute_url})",
@@ -180,7 +177,7 @@ def recast(request, item_path, item_uuid):
     )
     if isinstance(item, TVShow):
         for season in item.seasons.all():
-            _logger.warn(f"{request.user} recast orphaning season {season}")
+            logger.warning(f"{request.user} recast orphaning season {season}")
             season.show = None
             season.save(update_fields=["show"])
     new_item = item.recast_to(model)
@@ -218,7 +215,7 @@ def assign_parent(request, item_path, item_uuid):
             raise BadRequest("Incompatible child item type")
     # if not request.user.is_staff and item.parent_item:
     #     raise BadRequest("Already assigned to a parent item")
-    _logger.warn(f"{request.user} assign {item} to {parent_item}")
+    logger.warning(f"{request.user} assign {item} to {parent_item}")
     item.set_parent_item(parent_item)
     item.save()
     return redirect(item.url)
@@ -290,7 +287,7 @@ def merge(request, item_path, item_uuid):
                 _("Cannot merge items in different categories")
                 + f" ({item.class_name} to {new_item.class_name})"
             )
-        _logger.warn(f"{request.user} merges {item} to {new_item}")
+        logger.warning(f"{request.user} merges {item} to {new_item}")
         item.merge_to(new_item)
         update_journal_for_merged_item(item_uuid)
         discord_send(
@@ -302,7 +299,7 @@ def merge(request, item_path, item_uuid):
         return redirect(new_item.url)
     else:
         if item.merged_to_item:
-            _logger.warn(f"{request.user} cancels merge for {item}")
+            logger.warning(f"{request.user} cancels merge for {item}")
             item.merge_to(None)
         discord_send(
             "audit",
@@ -334,7 +331,7 @@ def link_edition(request, item_path, item_uuid):
             "catalog_merge.html",
             {"item": item, "new_item": new_item, "mode": "link"},
         )
-    _logger.warn(f"{request.user} merges {item} to {new_item}")
+    logger.warning(f"{request.user} merges {item} to {new_item}")
     item.link_to_related_book(new_item)
     discord_send(
         "audit",

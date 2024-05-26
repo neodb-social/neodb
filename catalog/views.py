@@ -1,5 +1,3 @@
-import logging
-
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.paginator import Paginator
@@ -28,9 +26,6 @@ from .forms import *
 from .models import *
 from .search.views import *
 from .views_edit import *
-
-_logger = logging.getLogger(__name__)
-
 
 NUM_REVIEWS_ON_ITEM_PAGE = 5
 NUM_REVIEWS_ON_LIST_PAGE = 20

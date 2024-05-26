@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 
 from django.conf import settings
@@ -10,6 +9,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from loguru import logger
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest, get_uuid_or_404
@@ -19,7 +19,6 @@ from takahe.utils import Takahe
 from ..models import Comment, Mark, ShelfManager, ShelfType, TagManager
 from .common import render_list, render_relogin, target_identity_required
 
-_logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
 
 _checkmark = "✔️".encode("utf-8")
@@ -101,12 +100,12 @@ def mark(request: AuthedHttpRequest, item_uuid):
                     created_time=mark_date,
                 )
             except PermissionDenied:
-                _logger.warn(f"post to mastodon error 401 {request.user}")
+                logger.warning(f"post to mastodon error 401 {request.user}")
                 return render_relogin(request)
             except ValueError as e:
-                _logger.warn(f"post to mastodon error {e} {request.user}")
+                logger.warning(f"post to mastodon error {e} {request.user}")
                 err = (
-                    _("Content too long for your Mastodon instance.")
+                    _("Content too long for your Fediverse instance.")
                     if str(e) == "422"
                     else str(e)
                 )
@@ -114,7 +113,9 @@ def mark(request: AuthedHttpRequest, item_uuid):
                     request,
                     "common/error.html",
                     {
-                        "msg": _("Data saved but unable to repost to Fediverse."),
+                        "msg": _(
+                            "Data saved but unable to repost to Fediverse instance."
+                        ),
                         "secondary_msg": err,
                     },
                 )

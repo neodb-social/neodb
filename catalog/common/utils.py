@@ -1,10 +1,6 @@
-import logging
 import uuid
 
 from django.utils import timezone
-
-_logger = logging.getLogger(__name__)
-
 
 DEFAULT_ITEM_COVER = "item/default.svg"
 

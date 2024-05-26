@@ -1,8 +1,7 @@
-import logging
-
 from auditlog.registry import auditlog
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from loguru import logger
 
 from .book.models import Edition, EditionInSchema, EditionSchema, Series, Work
 from .collection.models import Collection as CatalogCollection
@@ -42,8 +41,6 @@ from .tv.models import (
 
 from .search.models import Indexer  # isort:skip
 
-_logger = logging.getLogger(__name__)
-
 
 # class Exhibition(Item):
 
@@ -59,7 +56,7 @@ _logger = logging.getLogger(__name__)
 
 def init_catalog_search_models():
     if settings.DISABLE_MODEL_SIGNAL:
-        _logger.warn(
+        logger.warning(
             "Catalog models are not being indexed with DISABLE_MODEL_SIGNAL configuration"
         )
         return
@@ -100,4 +97,4 @@ def init_catalog_audit_log():
         ExternalResource, include_fields=["item", "id_type", "id_value", "url"]
     )
 
-    # _logger.debug(f"Catalog audit log initialized for {item_content_types().values()}")
+    # logger.debug(f"Catalog audit log initialized for {item_content_types().values()}")

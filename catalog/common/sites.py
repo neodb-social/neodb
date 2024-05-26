@@ -7,18 +7,16 @@ a Site may scrape a url and store result in ResourceContent
 ResourceContent persists as an ExternalResource which may link to an Item
 """
 import json
-import logging
 import re
 from dataclasses import dataclass, field
 from typing import Any, Callable, Type, TypeVar
 
 import django_rq
 import requests
+from loguru import logger
 from validators import url as url_validate
 
 from .models import ExternalResource, IdealIdTypes, IdType, Item, SiteName
-
-_logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -238,7 +236,7 @@ class AbstractSite:
             if resource_content:
                 p.update_content(resource_content)
         if not p.ready:
-            _logger.error(f"unable to get resource {self.url} ready")
+            logger.error(f"unable to get resource {self.url} ready")
             return None
         if auto_create:  # and (p.item is None or p.item.is_deleted):
             self.get_item()
@@ -259,7 +257,7 @@ class AbstractSite:
                             preloaded_content=linked_resource.get("content"),
                         )
                     else:
-                        _logger.error(f"unable to get site for {linked_url}")
+                        logger.error(f"unable to get site for {linked_url}")
             if p.related_resources or p.prematched_resources:
                 django_rq.get_queue("crawl").enqueue(crawl_related_resources_task, p.pk)
             if p.item:
@@ -338,7 +336,7 @@ class SiteManager:
 def crawl_related_resources_task(resource_pk):
     resource = ExternalResource.objects.filter(pk=resource_pk).first()
     if not resource:
-        _logger.warn(f"crawl resource not found {resource_pk}")
+        logger.warning(f"crawl resource not found {resource_pk}")
         return
     links = (resource.related_resources or []) + (resource.prematched_resources or [])  # type: ignore
     for w in links:  # type: ignore
@@ -353,8 +351,8 @@ def crawl_related_resources_task(resource_pk):
                 site.get_resource_ready(ignore_existing_content=False, auto_link=True)
                 item = site.get_item()
             if item:
-                _logger.info(f"crawled {w} {item}")
+                logger.info(f"crawled {w} {item}")
             else:
-                _logger.warn(f"crawl {w} failed")
+                logger.warning(f"crawl {w} failed")
         except Exception as e:
-            _logger.warn(f"crawl {w} error {e}")
+            logger.warning(f"crawl {w} error {e}")

@@ -6,17 +6,16 @@ use (e.g. "portal-2") as id, which is different from real id in IGDB API
 
 import datetime
 import json
-import logging
 
 import requests
 from django.conf import settings
 from django.core.cache import cache
 from igdb.wrapper import IGDBWrapper
+from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
 
-_logger = logging.getLogger(__name__)
 _cache_key = "igdb_access_token"
 
 
@@ -32,8 +31,8 @@ def _igdb_access_token():
             token = j["access_token"]
             ttl = j["expires_in"] - 60
             cache.set(_cache_key, token, ttl)
-    except Exception:
-        _logger.error("unable to obtain IGDB token")
+    except Exception as e:
+        logger.error("unable to obtain IGDB token", extra={"exception": e})
         token = "<invalid>"
     return token
 
@@ -156,7 +155,7 @@ class IGDB(AbstractSite):
                 pd.cover_image = imgdl.download().content
                 pd.cover_image_extention = imgdl.extention
             except Exception:
-                _logger.debug(
+                logger.debug(
                     f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
                 )
         return pd

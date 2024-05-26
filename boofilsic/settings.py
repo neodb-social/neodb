@@ -574,7 +574,10 @@ if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         environment=sentry_env or "unknown",
-        integrations=[LoguruIntegration(), DjangoIntegration()],
+        integrations=[
+            DjangoIntegration(),
+            LoguruIntegration(event_format="{name}:{function}:{line} - {message}"),
+        ],
         release=NEODB_VERSION,
         send_default_pii=True,
         traces_sample_rate=env("NEODB_SENTRY_SAMPLE_RATE"),

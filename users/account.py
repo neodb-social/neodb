@@ -156,7 +156,7 @@ def connect_redirect_back(request):
             "common/error.html",
             {
                 "msg": _("Authentication failed"),
-                "secondary_msg": _("Invalid response from Mastodon instance."),
+                "secondary_msg": _("Invalid response from Fediverse instance."),
             },
         )
     site = request.session.get("mastodon_domain")
@@ -179,7 +179,7 @@ def connect_redirect_back(request):
             "common/error.html",
             {
                 "msg": _("Authentication failed"),
-                "secondary_msg": _("Invalid token from Mastodon instance."),
+                "secondary_msg": _("Invalid token from Fediverse instance."),
             },
         )
 
@@ -202,7 +202,7 @@ def connect_redirect_back(request):
                 "common/error.html",
                 {
                     "msg": _("Authentication failed"),
-                    "secondary_msg": _("Invalid account data from Mastodon instance."),
+                    "secondary_msg": _("Invalid account data from Fediverse instance."),
                 },
             )
         return register_new_user(
@@ -348,7 +348,7 @@ def send_verification_link(user_id, action, email, code=""):
             fail_silently=False,
         )
     except Exception as e:
-        logger.error(e)
+        logger.error(f"send email {email} failed", extra={"exception": e})
 
 
 @require_http_methods(["POST"])
@@ -418,7 +418,7 @@ def verify_email(request):
             else:
                 return register_new_user(request, username=None, email=email)
     except Exception as e:
-        logger.error(e)
+        logger.error("verify email error", extra={"exception": e, "s": s})
         error = _("Unable to verify")
     return render(
         request, "users/verify_email.html", {"success": False, "error": error}
@@ -556,7 +556,7 @@ def swap_login(request, token, site, refresh_token):
                 )
     else:
         messages.add_message(
-            request, messages.ERROR, _("Invalid account data from Mastodon instance.")
+            request, messages.ERROR, _("Invalid account data from Fediverse instance.")
         )
     return redirect(reverse("users:data"))
 

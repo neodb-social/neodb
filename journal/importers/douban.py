@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 from datetime import datetime
@@ -36,8 +35,8 @@ def _fetch_remote_image(url):
             binary_file.write(raw_img)
         # logger.info(f'remote image saved as {local_url}')
         return local_url
-    except Exception:
-        logger.error(f"unable to fetch remote image {url}")
+    except Exception as e:
+        logger.error(f"unable to fetch image", extra={"url": url, "exception": e})
         return url
 
 
@@ -107,7 +106,9 @@ class DoubanImporter:
                 self.import_from_file_task, job_id=jid
             )
         except Exception as e:
-            logger.error(e)
+            logger.error(
+                f"unable to enqueue import {uploaded_file}", extra={"exception": e}
+            )
             return False
         return True
 
@@ -327,7 +328,7 @@ class DoubanImporter:
                 # logger.info(f"matched {url}")
                 print(".", end="", flush=True)
         except Exception as e:
-            logger.error(f"fetching exception: {url} {e}")
+            logger.error(f"fetching error: {url}", extra={"exception": e})
         if item is None:
             self.failed.append(str(url))
         return item

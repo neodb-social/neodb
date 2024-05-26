@@ -1,4 +1,3 @@
-import logging
 import types
 from datetime import timedelta
 from pprint import pprint

@@ -53,7 +53,7 @@ class SearchResultItem:
 
 class Goodreads:
     @classmethod
-    def search(cls, q, page=1):
+    def search(cls, q: str, page=1):
         results = []
         search_url = f"https://www.goodreads.com/search?page={page}&q={quote_plus(q)}"
         try:
@@ -115,7 +115,7 @@ class Goodreads:
         except requests.exceptions.RequestException as e:
             logger.warning(f"Search {search_url} error: {e}")
         except Exception as e:
-            logger.error(f"Goodreads search '{q}' error: {e}")
+            logger.error("Goodreads search error", extra={"query": q, "exception": e})
         return results
 
 
@@ -164,7 +164,7 @@ class GoogleBooks:
         except requests.exceptions.RequestException as e:
             logger.warning(f"Search {api_url} error: {e}")
         except Exception as e:
-            logger.error(f"GoogleBooks search '{q}' error: {e}")
+            logger.error("GoogleBooks search error", extra={"query": q, "exception": e})
         return results
 
 
@@ -206,7 +206,7 @@ class TheMovieDatabase:
         except requests.exceptions.RequestException as e:
             logger.warning(f"Search {api_url} error: {e}")
         except Exception as e:
-            logger.error(f"TMDb search '{q}' error: {e}")
+            logger.error("TMDb search error", extra={"query": q, "exception": e})
         return results
 
 
@@ -242,7 +242,7 @@ class Spotify:
         except requests.exceptions.RequestException as e:
             logger.warning(f"Search {api_url} error: {e}")
         except Exception as e:
-            logger.error(f"Spotify search '{q}' error: {e}")
+            logger.error("Spotify search error", extra={"query": q, "exception": e})
         return results
 
 
@@ -278,7 +278,7 @@ class Bandcamp:
         except requests.exceptions.RequestException as e:
             logger.warning(f"Search {search_url} error: {e}")
         except Exception as e:
-            logger.error(f"Goodreads search '{q}' error: {e}")
+            logger.error("Bandcamp search error", extra={"query": q, "exception": e})
         return results
 
 
@@ -305,7 +305,9 @@ class ApplePodcast:
         except requests.exceptions.RequestException as e:
             logger.warning(f"Search {search_url} error: {e}")
         except Exception as e:
-            logger.error(f"ApplePodcast search '{q}' error: {e}")
+            logger.error(
+                "ApplePodcast search error", extra={"query": q, "exception": e}
+            )
         return results
 
 
@@ -322,7 +324,10 @@ class Fediverse:
                 )
                 r = response.json()
             except Exception as e:
-                logger.warning(f"Search {api_url} error: {e}")
+                logger.error(
+                    f"Fediverse search {host} error",
+                    extra={"url": api_url, "query": q, "exception": e},
+                )
                 return []
             if "data" in r:
                 for item in r["data"]:

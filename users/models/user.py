@@ -310,7 +310,10 @@ class User(AbstractUser):
                     f = ContentFile(r.content, name=identity.icon_uri.split("/")[-1])
                     identity.icon.save(f.name, f, save=False)
                 except Exception as e:
-                    logger.error(f"Get icon failed: {identity} {identity.icon_uri} {e}")
+                    logger.error(
+                        f"fetch icon failed: {identity} {identity.icon_uri}",
+                        extra={"exception": e},
+                    )
         identity.save()
 
     def refresh_mastodon_data(self, skip_detail=False):

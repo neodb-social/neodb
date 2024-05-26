@@ -6,7 +6,6 @@ ActivityManager generates chronological view for user and, in future, ActivitySt
 
 """
 
-import logging
 from functools import cached_property
 from typing import Type
 
@@ -15,6 +14,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.utils import timezone
+from loguru import logger
 
 from catalog.common.models import Item
 from journal.models import (
@@ -28,8 +28,6 @@ from journal.models import (
     UserOwnedObjectMixin,
 )
 from users.models import APIdentity
-
-_logger = logging.getLogger(__name__)
 
 
 class ActivityTemplate(models.TextChoices):
@@ -105,7 +103,7 @@ class DataSignalManager:
     @staticmethod
     def add_handler_for_model(model):
         if settings.DISABLE_MODEL_SIGNAL:
-            _logger.warn(
+            logger.warning(
                 f"{model.__name__} are not being indexed with DISABLE_MODEL_SIGNAL configuration"
             )
             return

@@ -49,7 +49,7 @@ class Command(BaseCommand):
             for job_id in options["runonce"]:
                 run = JobManager.run(job_id)
                 if not run:
-                    logger.error(f"Job not found: {job_id}")
+                    logger.error(f"job not found: {job_id}")
         if options["list"]:
             all_jobs = [j.__name__ for j in JobManager.registry]
             logger.info(f"{len(all_jobs)} available jobs: {' '.join(all_jobs)}")
