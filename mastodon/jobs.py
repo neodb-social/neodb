@@ -5,7 +5,7 @@ from django.utils import timezone
 from loguru import logger
 
 from common.models import BaseJob, JobManager
-from mastodon.api import detect_server_info
+from mastodon.api import detect_server_info, verify_client
 from mastodon.models import MastodonApplication
 
 
@@ -29,9 +29,10 @@ class MastodonSiteCheck(BaseJob):
                 api_domain = site.api_domain or site.domain_name
                 domain, api_domain, v = detect_server_info(api_domain)
                 site.last_reachable_date = timezone.now()
-            except Exception:
-                logger.warning(
-                    f"Failed to detect server info for {site.domain_name}/{site.api_domain}"
+            except Exception as e:
+                logger.error(
+                    f"Failed to detect server info for {site.domain_name}/{site.api_domain}",
+                    extra={"exception": e},
                 )
                 count_unreachable += 1
                 if site.last_reachable_date is None:
@@ -43,6 +44,17 @@ class MastodonSiteCheck(BaseJob):
                     count_disabled += 1
             finally:
                 site.save(update_fields=["last_reachable_date", "disabled"])
+            try:
+                if not verify_client(site):
+                    logger.error(
+                        f"Unable to verify client app for {site.api_domain}, consider deleting it."
+                    )
+                    # site.delete()
+            except Exception as e:
+                logger.error(
+                    f"Failed to verify client app for {site.api_domain}",
+                    extra={"exception": e},
+                )
         logger.info(
             f"Mastodon Site Check finished, {count_checked} checked, {count_unreachable} unreachable, {count_disabled} disabled."
         )

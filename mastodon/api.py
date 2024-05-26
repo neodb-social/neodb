@@ -326,10 +326,10 @@ def detect_server_info(login_domain: str) -> tuple[str, str, str]:
     try:
         response = get(url, headers={"User-Agent": USER_AGENT})
     except Exception as e:
-        logger.error(f"Error connecting {login_domain}: {e}")
+        logger.error(f"Error connecting {login_domain}", extra={"exception": e})
         raise Exception(f"Error connecting to instance {login_domain}")
     if response.status_code != 200:
-        logger.error(f"Error connecting {login_domain}: {response.status_code}")
+        logger.error(f"Error connecting {login_domain}", extra={"response": response})
         raise Exception(
             f"Instance {login_domain} returned error code {response.status_code}"
         )
@@ -337,7 +337,7 @@ def detect_server_info(login_domain: str) -> tuple[str, str, str]:
         j = response.json()
         domain = j["uri"].lower().split("//")[-1].split("/")[0]
     except Exception as e:
-        logger.error(f"Error connecting {login_domain}: {e}")
+        logger.error(f"Error connecting {login_domain}", extra={"exception": e})
         raise Exception(f"Instance {login_domain} returned invalid data")
     server_version = j["version"]
     api_domain = domain
@@ -360,11 +360,7 @@ def get_or_create_fediverse_application(login_domain):
     if not app:
         app = MastodonApplication.objects.filter(api_domain__iexact=domain).first()
     if app:
-        if verify_client(app):
-            return app
-        else:
-            logger.warning(f"Invalid client app for {domain}")
-            app.delete()
+        return app
     if not settings.MASTODON_ALLOW_ANY_SITE:
         logger.warning(f"Disallowed to create app for {domain}")
         raise ValueError("Unsupported instance")
@@ -377,7 +373,7 @@ def get_or_create_fediverse_application(login_domain):
     ):
         raise ValueError("Unsupported instance")
     if "neodb/" in server_version:
-        raise ValueError("Unsupported instance")
+        raise ValueError("Unsupported instance type")
     if login_domain != domain:
         app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
         if app:
@@ -406,6 +402,11 @@ def get_or_create_fediverse_application(login_domain):
         client_secret=data["client_secret"],
         vapid_key=data.get("vapid_key", ""),
     )
+    # create a client token to avoid vacuum by Mastodon 4.2+
+    try:
+        verify_client(app)
+    except Exception as e:
+        logger.error(f"Error creating client token for {domain}", extra={"error": e})
     return app
 
 
