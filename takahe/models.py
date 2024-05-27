@@ -1095,24 +1095,25 @@ class Post(models.Model):
                             published.timestamp()
                         )
                         post_obj["state"] = "fanned_out"  # add post quietly if it's old
-            # Make the Post object
-            post = cls.objects.create(**post_obj)
+            with transaction.atomic(using="takahe"):
+                # Make the Post object
+                post = cls.objects.create(**post_obj)
 
-            if _migration_mode:
-                post.state = "fanned_out"
-            else:
-                post.mentions.set(mentions)
-                post.emojis.set(emojis)
-            post.object_uri = post.urls.object_uri
-            post.url = post.absolute_object_uri()
-            if attachments:
-                post.attachments.set(attachments)
-            # if question: # FIXME
-            #     post.type = question["type"]
-            #     post.type_data = PostTypeData(__root__=question).__root__
-            if type_data:
-                post.type_data = type_data
-            post.save()
+                if _migration_mode:
+                    post.state = "fanned_out"
+                else:
+                    post.mentions.set(mentions)
+                    post.emojis.set(emojis)
+                post.object_uri = post.urls.object_uri
+                post.url = post.absolute_object_uri()
+                if attachments:
+                    post.attachments.set(attachments)
+                # if question: # FIXME
+                #     post.type = question["type"]
+                #     post.type_data = PostTypeData(__root__=question).__root__
+                if type_data:
+                    post.type_data = type_data
+                post.save()
             # Recalculate parent stats for replies
             if reply_to:
                 reply_to.calculate_stats()
