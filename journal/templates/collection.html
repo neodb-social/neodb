@@ -89,17 +89,17 @@
           <section style="min-width:10vw;">
             <div class="donut" style="background: conic-gradient(#7CBDFE 0deg {{ stats.complete_deg }}deg, #B4D2A5 {{ stats.complete_deg }}deg {{ stats.complete_deg|add:stats.progress_deg }}deg, #ccc {{ stats.complete_deg|add:stats.progress_deg }}deg 1deg );"><div class="hole"><div class="text">
               {% if stats.progress %}
-              {{ stats.progress }} 进行中<br>
+              {{ stats.progress }} in progress<br>
               {% endif %}
               {% if stats.complete %}
-              {{ stats.complete }} 已完成
+              {{ stats.complete }} completed
               {% elif not stats.progress %}
-              尚未开始
+              not started
               {% endif %}
             </div></div></div>
             <div style="margin:8px; color:lightgray" class="muted">
-              开始于{{ featured_since|date }}
-              <a class="muted" href="#" title="停止" onclick="if (confirm('停止这个目标吗？')) $('#stop-featured').submit();"><i class="fa-solid fa-ban"></i></a>
+              Started {{ featured_since|date }}
+              <a class="muted" href="#" title="stop" onclick="if (confirm('Stop this target?')) $('#stop-featured').submit();"><i class="fa-solid fa-ban"></i></a>
               <form action="{% url 'journal:collection_remove_featured' collection.uuid %}" method="post" id="stop-featured">
                 {% csrf_token %}
               </form>

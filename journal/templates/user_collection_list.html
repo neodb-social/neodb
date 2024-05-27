@@ -11,8 +11,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {{ identity.display_name }} -
-      {% if liked %}喜欢的{% endif %}
-    收藏单</title>
+      {% if liked %}
+        {% trans "Liked Collections" %}
+      {% else %}
+        {% trans "Collections" %}
+      {% endif %}
+    </title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -21,8 +25,11 @@
       <div class="grid__main">
         <h5>
           {{ identity.display_name }} -
-          {% if liked %}喜欢的{% endif %}
-          收藏单
+          {% if liked %}
+            {% trans "Liked Collections" %}
+          {% else %}
+            {% trans "Collections" %}
+          {% endif %}
         </h5>
         {% for collection in collections %}
           <p>
@@ -41,7 +48,7 @@
             {% endif %}
           </p>
         {% empty %}
-          <div class="empty">暂无</div>
+          <div class="empty">{% trans "nothing so far." %}</div>
         {% endfor %}
       </div>
       {% include "_sidebar.html" with show_profile=1 %}

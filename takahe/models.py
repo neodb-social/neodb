@@ -98,7 +98,7 @@ class Snowflake:
         if t > cls.EPOCH:
             now: int = int((t - cls.EPOCH) * 1000)
         else:
-            now: int = int(t) if t > 0 else 0
+            now = int(t) if t > 0 else 0
         # Generate random data
         rand_seq: int = secrets.randbits(19)
         # Compose them together

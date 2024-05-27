@@ -179,7 +179,7 @@ def collection_append_item(request: AuthedHttpRequest, collection_uuid):
     if not collection.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
 
-    url = request.POST.get("url")
+    url = request.POST.get("url", "")
     note = request.POST.get("note")
     item = Item.get_by_url(url)
     if item:

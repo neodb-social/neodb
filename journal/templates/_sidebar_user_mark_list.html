@@ -23,44 +23,44 @@
           {% endif %}
         {% endfor %}
         <option {% if '/reviews/' in request.path %}selected{% endif %}
-                value="reviews">评论</option>
+                value="reviews">{% trans "review" %}</option>
       </select>
       <select name="category" id="category" onchange="filter()">
         {% visible_categories as cats %}
         {% if 'book' in cats %}
-          <option {% if '/book/' in request.path %}selected{% endif %} value="book">书籍</option>
+          <option {% if '/book/' in request.path %}selected{% endif %} value="book">{% trans "Book" %}</option>
         {% endif %}
         {% if 'movie' in cats %}
-          <option {% if '/movie/' in request.path %}selected{% endif %} value="movie">电影</option>
+          <option {% if '/movie/' in request.path %}selected{% endif %} value="movie">{% trans "Movie" %}</option>
         {% endif %}
         {% if 'tv' in cats %}
-          <option {% if '/tv/' in request.path %}selected{% endif %} value="tv">剧集</option>
+          <option {% if '/tv/' in request.path %}selected{% endif %} value="tv">{% trans "TV" %}</option>
         {% endif %}
         {% if 'podcast' in cats %}
           <option {% if '/podcast/' in request.path %}selected{% endif %}
-                  value="podcast">播客</option>
+                  value="podcast">{% trans "Podcast" %}</option>
         {% endif %}
         {% if 'music' in cats %}
-          <option {% if '/music/' in request.path %}selected{% endif %} value="music">音乐</option>
+          <option {% if '/music/' in request.path %}selected{% endif %} value="music">{% trans "Music" %}</option>
         {% endif %}
         {% if 'game' in cats %}
-          <option {% if '/game/' in request.path %}selected{% endif %} value="game">游戏</option>
+          <option {% if '/game/' in request.path %}selected{% endif %} value="game">{% trans "Game" %}</option>
         {% endif %}
         {% if 'performance' in cats %}
           <option {% if '/performance/' in request.path %}selected{% endif %}
-                  value="performance">演出</option>
+                  value="performance">{% trans "Performance" %}</option>
         {% endif %}
       </select>
       <select name="year" id="year" onchange="filter()">
-        <option value="">全部</option>
+        <option value="">{% trans "all" %}</option>
         {% for y in years %}
           <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
         {% endfor %}
       </select>
       <select name="sort" id="sort" onchange="filter()">
-        <option value="" disabled>排列顺序</option>
-        <option value="">时间</option>
-        <option value="rating" {% if 'rating' == sort %}selected{% endif %}>评分</option>
+        <option value="" disabled>{% trans "sorting" %}</option>
+        <option value="">{% trans "date" %}</option>
+        <option value="rating" {% if 'rating' == sort %}selected{% endif %}>{% trans "rating" %}</option>
       </select>
     </fieldset>
   </form>
@@ -70,18 +70,18 @@
 		padding: var(--pico-form-element-spacing-vertical) calc(var(--pico-form-element-spacing-horizontal)/4) !important
 	}
 </style>
-<form role="search" method="get" action="" id="rating_select">
-<input type="submit" class="secondary outline" value="1">
-<input type="submit" class="secondary outline" value="2">
-<input type="submit" class="secondary outline" value="3">
-<input type="submit" class="secondary outline" value="4">
-<input type="submit" class="secondary outline" value="5">
-<input type="submit" class="secondary outline" value="6">
-<input type="submit" class="secondary outline" value="7">
-<input type="submit" class="secondary outline" value="8">
-<input type="submit" class="secondary outline" value="9">
-<input type="submit" class="secondary" value="10">
-<input type="submit" class="secondary outline" value="*">
-</form>
--->
+  <form role="search" method="get" action="" id="rating_select">
+  <input type="submit" class="secondary outline" value="1">
+  <input type="submit" class="secondary outline" value="2">
+  <input type="submit" class="secondary outline" value="3">
+  <input type="submit" class="secondary outline" value="4">
+  <input type="submit" class="secondary outline" value="5">
+  <input type="submit" class="secondary outline" value="6">
+  <input type="submit" class="secondary outline" value="7">
+  <input type="submit" class="secondary outline" value="8">
+  <input type="submit" class="secondary outline" value="9">
+  <input type="submit" class="secondary" value="10">
+  <input type="submit" class="secondary outline" value="*">
+  </form>
+  -->
 </section>

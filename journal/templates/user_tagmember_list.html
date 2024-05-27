@@ -10,7 +10,6 @@
     {% if tag.visibility > 0 %}
       <i class="fa-solid fa-user" title="{% trans "private tag" %}"></i>
     {% endif %}
-    个人标签
     {{ identity.display_name }} - {% trans 'Tags' %}
     {% if identity.user == request.user %}
       <form style="display:inline"

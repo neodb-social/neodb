@@ -1,7 +1,7 @@
 import re
 import uuid
 from functools import cached_property
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Iterable, Type, cast
 
 from auditlog.context import disable_auditlog
 from auditlog.models import AuditlogHistoryField, LogEntry
@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection, models
+from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
@@ -145,26 +146,26 @@ class AvailableItemCategory(models.TextChoices):
 
 
 # class SubItemType(models.TextChoices):
-#     Season = "season", _("剧集分季")
-#     Episode = "episode", _("剧集分集")
-#     Version = "version", _("版本")
+#     Season = "season", _("season")
+#     Episode = "episode", _("episode")
+#     Version = "production", _("production")
 
 
 # class CreditType(models.TextChoices):
-#     Author = 'author', _('作者')
-#     Translater = 'translater', _('译者')
-#     Producer = 'producer', _('出品人')
-#     Director = 'director', _('电影')
-#     Actor = 'actor', _('演员')
-#     Playwright = 'playwright', _('播客')
-#     VoiceActor = 'voiceactor', _('配音')
-#     Host = 'host', _('主持人')
-#     Developer = 'developer', _('开发者')
-#     Publisher = 'publisher', _('出版方')
+#     Author = 'author', _('author')
+#     Translater = 'translater', _('translater')
+#     Producer = 'producer', _('producer')
+#     Director = 'director', _('director')
+#     Actor = 'actor', _('actor')
+#     Playwright = 'playwright', _('playwright')
+#     VoiceActor = 'voiceactor', _('voiceactor')
+#     Host = 'host', _('host')
+#     Developer = 'developer', _('developer')
+#     Publisher = 'publisher', _('publisher')
 
 
 class PrimaryLookupIdDescriptor(object):  # TODO make it mixin of Field
-    def __init__(self, id_type):
+    def __init__(self, id_type: IdType):
         self.id_type = id_type
 
     def __get__(self, instance, cls=None):
@@ -184,7 +185,7 @@ class PrimaryLookupIdDescriptor(object):  # TODO make it mixin of Field
 
 
 class LookupIdDescriptor(object):  # TODO make it mixin of Field
-    def __init__(self, id_type):
+    def __init__(self, id_type: IdType):
         self.id_type = id_type
 
     def __get__(self, instance, cls=None):
@@ -198,14 +199,14 @@ class LookupIdDescriptor(object):  # TODO make it mixin of Field
 
 # class ItemId(models.Model):
 #     item = models.ForeignKey('Item', models.CASCADE)
-#     id_type = models.CharField(_("源网站"), blank=False, choices=IdType.choices, max_length=50)
-#     id_value = models.CharField(_("源网站ID"), blank=False, max_length=1000)
+#     id_type = models.CharField(_("Id Type"), blank=False, choices=IdType.choices, max_length=50)
+#     id_value = models.CharField(_("ID Value"), blank=False, max_length=1000)
 
 
 # class ItemCredit(models.Model):
 #     item = models.ForeignKey('Item', models.CASCADE)
-#     credit_type = models.CharField(_("类型"), choices=CreditType.choices, blank=False, max_length=50)
-#     name = models.CharField(_("名字"), blank=False, max_length=1000)
+#     credit_type = models.CharField(_("Credit Type"), choices=CreditType.choices, blank=False, max_length=50)
+#     name = models.CharField(_("Name"), blank=False, max_length=1000)
 
 
 # def check_source_id(sid):
@@ -241,11 +242,11 @@ class ItemInSchema(Schema):
     rating_count: int | None
 
 
-class ItemSchema(ItemInSchema, BaseSchema):
+class ItemSchema(BaseSchema, ItemInSchema):
     pass
 
 
-class Item(SoftDeleteMixin, PolymorphicModel):
+class Item(PolymorphicModel, SoftDeleteMixin):
     url_path = "item"  # subclass must specify this
     type = None  # subclass must specify this
     child_class = None  # subclass may specify this to allow link to parent item
@@ -315,13 +316,15 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return IdType.choices
 
     @classmethod
-    def lookup_id_cleanup(cls, lookup_id_type, lookup_id_value):
+    def lookup_id_cleanup(
+        cls, lookup_id_type: str | IdType, lookup_id_value: str
+    ) -> tuple[str | IdType, str] | tuple[None, None]:
         if not lookup_id_type or not lookup_id_value or not lookup_id_value.strip():
             return None, None
         return lookup_id_type, lookup_id_value.strip()
 
     @classmethod
-    def get_best_lookup_id(cls, lookup_ids):
+    def get_best_lookup_id(cls, lookup_ids: dict[IdType, str]) -> tuple[IdType, str]:
         """get best available lookup id, ideally commonly used"""
         for t in IdealIdTypes:
             if lookup_ids.get(t):
@@ -333,23 +336,23 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return None
 
     @property
-    def child_items(self):
+    def child_items(self) -> "QuerySet[Item]":
         return Item.objects.none()
 
     @property
-    def child_item_ids(self):
+    def child_item_ids(self) -> list[int]:
         return list(self.child_items.values_list("id", flat=True))
 
-    def set_parent_item(self, value):
+    def set_parent_item(self, value: "Item | None"):
         # raise ValueError("cannot set parent item")
         pass
 
     @property
-    def parent_uuid(self):
+    def parent_uuid(self) -> str | None:
         return self.parent_item.uuid if self.parent_item else None
 
     @property
-    def sibling_items(self):
+    def sibling_items(self) -> "QuerySet[Item]":
         return Item.objects.none()
 
     @property
@@ -357,19 +360,19 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return ""
 
     @property
-    def sibling_item_ids(self):
+    def sibling_item_ids(self) -> list[int]:
         return list(self.sibling_items.values_list("id", flat=True))
 
     @classmethod
-    def get_ap_object_type(cls):
+    def get_ap_object_type(cls) -> str:
         return cls.__name__
 
     @property
-    def ap_object_type(self):
+    def ap_object_type(self) -> str:
         return self.get_ap_object_type()
 
     @property
-    def ap_object_ref(self):
+    def ap_object_ref(self) -> dict[str, Any]:
         o = {
             "type": self.get_ap_object_type(),
             "href": self.absolute_url,
@@ -379,12 +382,12 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             o["image"] = self.cover_image_url
         return o
 
-    def log_action(self, changes):
+    def log_action(self, changes: dict[str, Any]):
         LogEntry.objects.log_create(  # type: ignore
             self, action=LogEntry.Action.UPDATE, changes=changes
         )
 
-    def merge_to(self, to_item):
+    def merge_to(self, to_item: "Item | None"):
         if to_item is None:
             if self.merged_to_item is not None:
                 self.merged_to_item = None
@@ -394,7 +397,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             raise ValueError("cannot merge to self")
         if to_item.merged_to_item is not None:
             raise ValueError("cannot merge to item which is merged to another item")
-        if to_item.__class__ != self.__class__:
+        if not isinstance(to_item, self.__class__):
             raise ValueError("cannot merge to item in a different model")
         self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
         self.merged_to_item = to_item
@@ -403,11 +406,11 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             res.item = to_item
             res.save()
 
-    def recast_to(self, model):
+    def recast_to(self, model: "type[Item]") -> "Item":
         logger.warning(f"recast item {self} to {model}")
-        if self.__class__ == model:
+        if isinstance(self, model):
             return self
-        if model not in Item.__subclasses__():
+        if not issubclass(model, Item):
             raise ValueError("invalid model to recast to")
         ct = ContentType.objects.get_for_model(model)
         old_ct = self.polymorphic_ctype
@@ -442,15 +445,15 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         return f"/api{self.url}"
 
     @property
-    def class_name(self):
+    def class_name(self) -> str:
         return self.__class__.__name__.lower()
 
     @property
-    def display_title(self):
+    def display_title(self) -> str:
         return self.title
 
     @classmethod
-    def get_by_url(cls, url_or_b62):
+    def get_by_url(cls, url_or_b62: str) -> "Item | None":
         b62 = url_or_b62.strip().split("/")[-1]
         if len(b62) not in [21, 22]:
             r = re.search(r"[A-Za-z0-9]{21,22}", url_or_b62)
@@ -633,7 +636,7 @@ class ExternalResource(models.Model):
             return SiteName.Unknown
 
     @property
-    def site_label(self):
+    def site_label(self) -> str:
         if self.id_type == IdType.Fediverse:
             from takahe.utils import Takahe
 
@@ -704,7 +707,7 @@ def item_content_types():
 _CATEGORY_LIST = None
 
 
-def item_categories():
+def item_categories() -> dict[ItemCategory, list[type[Item]]]:
     global _CATEGORY_LIST
     if _CATEGORY_LIST is None:
         _CATEGORY_LIST = {}

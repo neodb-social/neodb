@@ -135,7 +135,7 @@ class BooksTW(AbstractSite):
         }
 
         pd = ResourceContent(metadata=data)
-        t, n = detect_isbn_asin(isbn)
+        t, n = detect_isbn_asin(str(isbn))
         if t:
             pd.lookup_ids[t] = n
         pd.cover_image, pd.cover_image_extention = BasicImageDownloader.download_image(

@@ -73,7 +73,7 @@ def q_piece_in_home_feed_of_user(viewing_user: User):
     return Q(owner_id__in=viewer.following, visibility__lt=2) | Q(owner_id=viewer.pk)
 
 
-def q_item_in_category(item_category: ItemCategory | AvailableItemCategory):
+def q_item_in_category(item_category: ItemCategory):
     classes = item_categories()[item_category]
     # q = Q(item__instance_of=classes[0])
     # for cls in classes[1:]:

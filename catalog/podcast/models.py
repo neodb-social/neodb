@@ -114,12 +114,14 @@ class PodcastEpisode(Item):
         self.program = value
 
     @property
-    def display_title(self):
-        return f"{self.program.title} - {self.title}"
+    def display_title(self) -> str:
+        return f"{self.program.title} - {self.title}" if self.program else self.title
 
     @property
-    def cover_image_url(self):
-        return self.cover_url or self.program.cover_image_url
+    def cover_image_url(self) -> str | None:
+        return self.cover_url or (
+            self.program.cover_image_url if self.program else None
+        )
 
     def get_url_with_position(self, position=None):
         return (

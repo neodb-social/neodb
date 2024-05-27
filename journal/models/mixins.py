@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from users.models import APIdentity, User
-
 if TYPE_CHECKING:
     from django.db.models import ForeignKey
+
+    from users.models import APIdentity, User
 
     from .common import Piece
 
@@ -21,7 +21,9 @@ class UserOwnedObjectMixin:
         owner: ForeignKey[APIdentity, Piece]
         visibility: int
 
-    def is_visible_to(self: "Piece", viewing_user: User) -> bool:  # noqa # type: ignore
+    def is_visible_to(
+        self: "Piece", viewing_user: "User"  # noqa # type: ignore
+    ) -> bool:
         owner = self.owner
         if not owner or not owner.is_active:
             return False
@@ -41,7 +43,7 @@ class UserOwnedObjectMixin:
         else:
             return True
 
-    def is_editable_by(self: "Piece", viewing_user: User):  # type: ignore
+    def is_editable_by(self: "Piece", viewing_user: "User"):  # type: ignore
         return viewing_user.is_authenticated and (
             viewing_user.is_staff
             or viewing_user.is_superuser

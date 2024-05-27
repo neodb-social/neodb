@@ -71,7 +71,7 @@
               <span class="timestamp">{{ mark.review.created_time|date }}</span>
             </span>
             <div class="tldr">
-              评论:
+              {% trans "Review" %}
               <span>
                 <a href="{% url 'journal:review_retrieve' mark.review.uuid %}">{{ mark.review.title }}</a>
               </span>

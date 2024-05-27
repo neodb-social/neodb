@@ -50,14 +50,15 @@ def is_asin(asin):
     return re.match(r"^B[A-Z0-9]{9}$", asin) is not None
 
 
-def detect_isbn_asin(s):
+def detect_isbn_asin(s: str) -> tuple[IdType, str] | tuple[None, None]:
     if not s:
         return None, None
     n = re.sub(r"[^0-9A-Z]", "", s.upper())
     if is_isbn_13(n):
         return IdType.ISBN, n
     if is_isbn_10(n):
-        return IdType.ISBN, isbn_10_to_13(n)
+        v = isbn_10_to_13(n)
+        return (IdType.ISBN, v) if v else (None, None)
     if is_asin(n):
         return IdType.ASIN, n
     return None, None

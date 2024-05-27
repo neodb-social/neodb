@@ -5,6 +5,11 @@ reportUnusedImport = false
 reportUnknownVariableType = false
 reportConstantRedefinition = false
 reportUnusedCallResult = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportAny = false
+reportImplicitOverride = false
+reportUninitializedInstanceVariable = false
 
 [tool.djlint]
 ignore="T002,T003,H005,H006,H019,H020,H021,H023,H030,H031,D018"

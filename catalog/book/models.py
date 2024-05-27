@@ -159,15 +159,16 @@ class Edition(Item):
         return [(i.value, i.label) for i in id_types]
 
     @classmethod
-    def lookup_id_cleanup(cls, lookup_id_type, lookup_id_value):
+    def lookup_id_cleanup(cls, lookup_id_type: str | IdType, lookup_id_value: str):
         if lookup_id_type in [IdType.ASIN.value, IdType.ISBN.value]:
             return detect_isbn_asin(lookup_id_value)
         return super().lookup_id_cleanup(lookup_id_type, lookup_id_value)
 
-    def merge_to(self, to_item):
+    def merge_to(self, to_item: "Edition | None"):
         super().merge_to(to_item)
-        for work in self.works.all():
-            to_item.works.add(work)
+        if to_item:
+            for work in self.works.all():
+                to_item.works.add(work)
         self.works.clear()
 
     def delete(self, using=None, soft=True, *args, **kwargs):
@@ -278,17 +279,18 @@ class Work(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
-    def merge_to(self, to_item):
+    def merge_to(self, to_item: "Work | None"):
         super().merge_to(to_item)
-        for edition in self.editions.all():
-            to_item.editions.add(edition)
+        if to_item:
+            for edition in self.editions.all():
+                to_item.editions.add(edition)
         self.editions.clear()
         if (
             to_item
             and self.title != to_item.title
             and self.title not in to_item.other_title
         ):
-            to_item.other_title += [self.title]
+            to_item.other_title += [self.title]  # type: ignore
             to_item.save()
 
     def delete(self, using=None, soft=True, *args, **kwargs):

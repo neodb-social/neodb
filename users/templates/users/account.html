@@ -177,7 +177,6 @@
                 {% if request.user.mastodon_last_refresh %}
                   {% trans "Last updated" %} {{ request.user.mastodon_last_refresh }}
                 {% endif %}
-                上次更新时间
               </small>
             </form>
           </details>
@@ -185,11 +184,9 @@
         <article>
           <details>
             <summary>{% trans 'Delete Account' %}</summary>
-            删除数据和账号信息
             <form action="{% url 'users:clear_data' %}"
                   method="post"
                   onsubmit="return confirm('{% trans "Once deleted, account data cannot be recovered. Sure to proceed?" %}');">
-              账号数据一旦删除后将无法恢复。确认删除吗？
               {% csrf_token %}
               <div>
                 {% blocktrans %}Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion.{% endblocktrans %}
