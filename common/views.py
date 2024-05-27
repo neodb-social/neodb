@@ -38,7 +38,7 @@ def ap_redirect(request, uri):
 
 
 def nodeinfo2(request):
-    usage = cache.get("nodeinfo_usage") or {}
+    usage = cache.get("nodeinfo_usage", default={})
     return JsonResponse(
         {
             "version": "2.0",
@@ -55,6 +55,7 @@ def nodeinfo2(request):
             "metadata": {
                 "nodeName": settings.SITE_INFO["site_name"],
                 "nodeRevision": settings.NEODB_VERSION,
+                "nodeEnvironment": "development" if settings.DEBUG else "production",
             },
         }
     )

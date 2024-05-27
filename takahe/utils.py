@@ -879,18 +879,20 @@ class Takahe:
         if peers is None:
             peers = list(
                 Domain.objects.filter(
-                    nodeinfo__protocols__contains="neodb", local=False
+                    nodeinfo__protocols__contains="neodb",
+                    nodeinfo__metadata__nodeEnvironment="production",
+                    local=False,
                 ).values_list("pk", flat=True)
             )
             cache.set(cache_key, peers, timeout=1800)
         return peers
 
     @staticmethod
-    def verify_invite(token):
+    def verify_invite(token: str) -> bool:
         if not token:
             return False
         invite = Invite.objects.filter(token=token).first()
-        return invite and invite.valid
+        return invite is not None and invite.valid
 
     @staticmethod
     def get_announcements():
@@ -944,7 +946,7 @@ class Takahe:
             a.seen.add(user)
 
     @staticmethod
-    def get_events(identity_id: int, types):
+    def get_events(identity_id: int, types: list[str]):
         return (
             TimelineEvent.objects.select_related(
                 "subject_post",
