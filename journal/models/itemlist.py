@@ -1,4 +1,5 @@
 from functools import cached_property
+from typing import TYPE_CHECKING
 
 import django.dispatch
 from django.db import models
@@ -18,10 +19,14 @@ class List(Piece):
     List (abstract model)
     """
 
+    if TYPE_CHECKING:
+        MEMBER_CLASS: "type[ListMember]"
+        members: "models.QuerySet[ListMember]"
+        items: "models.ManyToManyField[Item, List]"
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
         default=0
-    )  # 0: Public / 1: Follower only / 2: Self only
+    )  # 0: Public / 1: Follower only / 2: Self only # type:ignore
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(auto_now=True)
     metadata = models.JSONField(default=dict)
@@ -29,7 +34,6 @@ class List(Piece):
     class Meta:
         abstract = True
 
-    MEMBER_CLASS: Piece
     # MEMBER_CLASS = None  # subclass must override this
     # subclass must add this:
     # items = models.ManyToManyField(Item, through='ListMember')
@@ -76,9 +80,10 @@ class List(Piece):
         ml = self.ordered_members
         p = {"parent": self}
         p.update(params)
+        lm = ml.last()
         member = self.MEMBER_CLASS.objects.create(
             owner=self.owner,
-            position=ml.last().position + 1 if ml.count() else 1,
+            position=lm.position + 1 if lm else 1,
             item=item,
             **p,
         )
@@ -96,7 +101,7 @@ class List(Piece):
     def update_member_order(self, ordered_member_ids):
         for m in self.members.all():
             try:
-                i = ordered_member_ids.index(m.id)
+                i = ordered_member_ids.index(m.pk)
                 if m.position != i + 1:
                     m.position = i + 1
                     m.save()
@@ -142,10 +147,12 @@ class ListMember(Piece):
     parent = models.ForeignKey('List', related_name='members', on_delete=models.CASCADE)
     """
 
+    if TYPE_CHECKING:
+        parent: models.ForeignKey["ListMember", "List"]
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
         default=0
-    )  # 0: Public / 1: Follower only / 2: Self only
+    )  # 0: Public / 1: Follower only / 2: Self only  # type:ignore[reportAssignmentType]
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(auto_now=True)
     metadata = models.JSONField(default=dict)

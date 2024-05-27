@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -26,6 +28,8 @@ class PodcastSchema(PodcastInSchema, BaseSchema):
 
 
 class Podcast(Item):
+    if TYPE_CHECKING:
+        episodes: models.QuerySet["PodcastEpisode"]
     category = ItemCategory.Podcast
     child_class = "PodcastEpisode"
     url_path = "podcast"
@@ -107,10 +111,10 @@ class PodcastEpisode(Item):
     ]
 
     @property
-    def parent_item(self):
+    def parent_item(self) -> Podcast | None:  # type:ignore
         return self.program
 
-    def set_parent_item(self, value):
+    def set_parent_item(self, value: Podcast | None):  # type:ignore
         self.program = value
 
     @property
@@ -123,7 +127,7 @@ class PodcastEpisode(Item):
             self.program.cover_image_url if self.program else None
         )
 
-    def get_url_with_position(self, position=None):
+    def get_url_with_position(self, position: int | str | None = None):
         return (
             self.url
             if position is None or position == ""

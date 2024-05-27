@@ -1,7 +1,7 @@
 import re
 import uuid
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Iterable, Type, cast
+from typing import TYPE_CHECKING, Any, Iterable, Self, Type, cast
 
 from auditlog.context import disable_auditlog
 from auditlog.models import AuditlogHistoryField, LogEntry
@@ -9,7 +9,8 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection, models
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Value
+from django.template.defaultfilters import default
 from django.utils import timezone
 from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
@@ -19,11 +20,13 @@ from polymorphic.models import PolymorphicModel
 
 from catalog.common import jsondata
 
-from .mixins import SoftDeleteMixin
 from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
 
 if TYPE_CHECKING:
+    from journal.models import Collection
     from users.models import User
+
+    from .sites import ResourceContent
 
 
 class SiteName(models.TextChoices):
@@ -76,9 +79,9 @@ class IdType(models.TextChoices):
     Bandcamp = "bandcamp", _("Bandcamp")
     Spotify_Album = "spotify_album", _("Spotify Album")
     Spotify_Show = "spotify_show", _("Spotify Podcast")
-    Discogs_Release = "discogs_release", ("Discogs Release")
-    Discogs_Master = "discogs_master", ("Discogs Master")
-    MusicBrainz = "musicbrainz", ("MusicBrainz ID")
+    Discogs_Release = "discogs_release", _("Discogs Release")
+    Discogs_Master = "discogs_master", _("Discogs Master")
+    MusicBrainz = "musicbrainz", _("MusicBrainz ID")
     # DoubanBook_Author = "doubanbook_author", _("Douban Book Author")
     # DoubanCelebrity = "doubanmovie_celebrity", _("Douban Movie Celebrity")
     # Goodreads_Author = "goodreads_author", _("Goodreads Author")
@@ -168,14 +171,16 @@ class PrimaryLookupIdDescriptor(object):  # TODO make it mixin of Field
     def __init__(self, id_type: IdType):
         self.id_type = id_type
 
-    def __get__(self, instance, cls=None):
+    def __get__(
+        self, instance: "Item | None", cls: type[Any] | None = None
+    ) -> str | Self | None:
         if instance is None:
             return self
         if self.id_type != instance.primary_lookup_id_type:
             return None
         return instance.primary_lookup_id_value
 
-    def __set__(self, instance, id_value):
+    def __set__(self, instance: "Item", id_value: str | None):
         if id_value:
             instance.primary_lookup_id_type = self.id_type
             instance.primary_lookup_id_value = id_value
@@ -246,12 +251,16 @@ class ItemSchema(BaseSchema, ItemInSchema):
     pass
 
 
-class Item(PolymorphicModel, SoftDeleteMixin):
+class Item(PolymorphicModel):
+    if TYPE_CHECKING:
+        external_resources: QuerySet["ExternalResource"]
+        collections: QuerySet["Collection"]
+        merged_from_items: QuerySet["Item"]
+        merged_to_item_id: int
+    category: ItemCategory  # subclass must specify this
     url_path = "item"  # subclass must specify this
-    type = None  # subclass must specify this
     child_class = None  # subclass may specify this to allow link to parent item
     parent_class = None  # subclass may specify this to allow create child item
-    category: ItemCategory  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     title = models.CharField(_("title"), max_length=1000, default="")
     brief = models.TextField(_("description"), blank=True, default="")
@@ -287,6 +296,24 @@ class Item(PolymorphicModel, SoftDeleteMixin):
                 "primary_lookup_id_value",
             ]
         ]
+
+    def delete(
+        self,
+        using: Any = None,
+        keep_parents: bool = False,
+        soft: bool = True,
+        *args: tuple[Any, ...],
+        **kwargs: dict[str, Any],
+    ) -> tuple[int, dict[str, int]]:
+        if soft:
+            self.clear()
+            self.is_deleted = True
+            self.save(using=using)
+            return 0, {}
+        else:
+            return super().delete(
+                using=using, keep_parents=keep_parents, *args, **kwargs
+            )
 
     @cached_property
     def history(self):
@@ -324,7 +351,7 @@ class Item(PolymorphicModel, SoftDeleteMixin):
         return lookup_id_type, lookup_id_value.strip()
 
     @classmethod
-    def get_best_lookup_id(cls, lookup_ids: dict[IdType, str]) -> tuple[IdType, str]:
+    def get_best_lookup_id(cls, lookup_ids: dict[str, str]) -> tuple[str, str]:
         """get best available lookup id, ideally commonly used"""
         for t in IdealIdTypes:
             if lookup_ids.get(t):
@@ -406,7 +433,7 @@ class Item(PolymorphicModel, SoftDeleteMixin):
             res.item = to_item
             res.save()
 
-    def recast_to(self, model: "type[Item]") -> "Item":
+    def recast_to(self, model: "type[Any]") -> "Item":
         logger.warning(f"recast item {self} to {model}")
         if isinstance(self, model):
             return self
@@ -453,7 +480,7 @@ class Item(PolymorphicModel, SoftDeleteMixin):
         return self.title
 
     @classmethod
-    def get_by_url(cls, url_or_b62: str) -> "Item | None":
+    def get_by_url(cls, url_or_b62: str) -> "Self | None":
         b62 = url_or_b62.strip().split("/")[-1]
         if len(b62) not in [21, 22]:
             r = re.search(r"[A-Za-z0-9]{21,22}", url_or_b62)
@@ -469,7 +496,7 @@ class Item(PolymorphicModel, SoftDeleteMixin):
     #     prefix = id_type.strip().lower() + ':'
     #     return next((x[len(prefix):] for x in self.lookup_ids if x.startswith(prefix)), None)
 
-    def update_lookup_ids(self, lookup_ids):
+    def update_lookup_ids(self, lookup_ids: list[tuple[str, str]]):
         for t, v in lookup_ids:
             if t in IdealIdTypes and self.primary_lookup_id_type not in IdealIdTypes:
                 self.primary_lookup_id_type = t
@@ -484,25 +511,25 @@ class Item(PolymorphicModel, SoftDeleteMixin):
     ]  # list of metadata keys to copy from resource to item
 
     @classmethod
-    def copy_metadata(cls, metadata):
+    def copy_metadata(cls, metadata: dict[str, Any]) -> dict[str, Any]:
         return dict(
             (k, v)
             for k, v in metadata.items()
             if k in cls.METADATA_COPY_LIST and v is not None
         )
 
-    def has_cover(self):
-        return self.cover and self.cover != DEFAULT_ITEM_COVER
+    def has_cover(self) -> bool:
+        return bool(self.cover) and self.cover != DEFAULT_ITEM_COVER
 
     @property
-    def cover_image_url(self):
+    def cover_image_url(self) -> str | None:
         return (
-            f"{settings.SITE_INFO['site_url']}{self.cover.url}"
+            f"{settings.SITE_INFO['site_url']}{self.cover.url}"  # type:ignore
             if self.cover and self.cover != DEFAULT_ITEM_COVER
             else None
         )
 
-    def merge_data_from_external_resources(self, ignore_existing_content=False):
+    def merge_data_from_external_resources(self, ignore_existing_content: bool = False):
         """Subclass may override this"""
         lookup_ids = []
         for p in self.external_resources.all():
@@ -517,7 +544,7 @@ class Item(PolymorphicModel, SoftDeleteMixin):
                 self.cover = p.cover
         self.update_lookup_ids(list(set(lookup_ids)))
 
-    def update_linked_items_from_external_resource(self, resource):
+    def update_linked_items_from_external_resource(self, resource: "ExternalResource"):
         """Subclass should override this"""
         pass
 
@@ -575,6 +602,9 @@ class ItemLookupId(models.Model):
 
 
 class ExternalResource(models.Model):
+    if TYPE_CHECKING:
+        required_resources: list[dict[str, str]]
+        related_resources: list[dict[str, str]]
     item = models.ForeignKey(
         Item, null=True, on_delete=models.SET_NULL, related_name="external_resources"
     )
@@ -598,15 +628,21 @@ class ExternalResource(models.Model):
     scraped_time = models.DateTimeField(null=True)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
+
     required_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
-    )  # links required to generate Item from this resource, e.g. parent TVShow of TVSeason
+    )  # type: ignore
+    """ links required to generate Item from this resource, e.g. parent TVShow of TVSeason """
+
     related_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
-    )  # links related to this resource which may be fetched later, e.g. sub TVSeason of TVShow
+    )  # type: ignore
+    """links related to this resource which may be fetched later, e.g. sub TVSeason of TVShow"""
+
     prematched_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
-    )  # links to help match an existing Item from this resource
+    )
+    """links to help match an existing Item from this resource"""
 
     class Meta:
         unique_together = [["id_type", "id_value"]]
@@ -645,7 +681,7 @@ class ExternalResource(models.Model):
             return n or domain
         return self.site_name.label
 
-    def update_content(self, resource_content):
+    def update_content(self, resource_content: "ResourceContent"):
         self.other_lookup_ids = resource_content.lookup_ids
         self.metadata = resource_content.metadata
         if resource_content.cover_image and resource_content.cover_image_extention:
@@ -662,13 +698,15 @@ class ExternalResource(models.Model):
     def ready(self):
         return bool(self.metadata and self.scraped_time)
 
-    def get_all_lookup_ids(self):
+    def get_all_lookup_ids(self) -> dict[str, str]:
         d = self.other_lookup_ids.copy()
         d[self.id_type] = self.id_value
         d = {k: v for k, v in d.items() if bool(v)}
         return d
 
-    def get_lookup_ids(self, default_model):
+    def get_lookup_ids(
+        self, default_model: type[Item] | None = None
+    ) -> list[tuple[str, str]]:
         lookup_ids = self.get_all_lookup_ids()
         model = self.get_item_model(default_model)
         bt, bv = model.get_best_lookup_id(lookup_ids)
@@ -677,23 +715,30 @@ class ExternalResource(models.Model):
             ids = [(bt, bv)] + ids
         return ids
 
-    def get_item_model(self, default_model: type[Item]) -> type[Item]:
+    def get_item_model(self, default_model: type[Item] | None) -> type[Item]:
         model = self.metadata.get("preferred_model")
         if model:
             m = ContentType.objects.filter(
                 app_label="catalog", model=model.lower()
             ).first()
             if m:
-                return cast(Item, m).model_class()
+                mc: type[Item] | None = m.model_class()  # type: ignore
+                if not mc:
+                    raise ValueError(
+                        f"preferred model {model} does not exist in ContentType"
+                    )
+                return mc
             else:
                 raise ValueError(f"preferred model {model} does not exist")
+        if not default_model:
+            raise ValueError("no default preferred model specified")
         return default_model
 
 
 _CONTENT_TYPE_LIST = None
 
 
-def item_content_types():
+def item_content_types() -> dict[type[Item], int]:
     global _CONTENT_TYPE_LIST
     if _CONTENT_TYPE_LIST is None:
         _CONTENT_TYPE_LIST = {}

@@ -18,7 +18,9 @@ class UserOwnedObjectMixin:
     """
 
     if TYPE_CHECKING:
-        owner: ForeignKey[APIdentity, Piece]
+        owner: ForeignKey[Piece, APIdentity]
+        # owner: ForeignKey[APIdentity, Piece]
+        owner_id: int
         visibility: int
 
     def is_visible_to(

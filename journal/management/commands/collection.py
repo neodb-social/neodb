@@ -47,7 +47,7 @@ class Command(BaseCommand):
                 {
                     "title": member.item.title,
                     "url": member.item.absolute_url,
-                    "note": member.note,
+                    "note": member.note,  # type:ignore
                 }
             )
         print(json.dumps(data, indent=2))

@@ -533,7 +533,8 @@ class Takahe:
     @staticmethod
     def post_collection(collection: "Collection"):
         existing_post = collection.latest_post
-        user = collection.owner.user
+        owner: APIdentity = collection.owner
+        user = owner.user
         if not user:
             raise ValueError(f"Cannot find user for collection {collection}")
         visibility = Takahe.visibility_n2t(

@@ -5,6 +5,7 @@ from datetime import datetime
 
 import bleach
 import podcastparser
+from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator

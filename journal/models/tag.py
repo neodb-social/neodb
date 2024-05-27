@@ -1,5 +1,6 @@
 import re
 from functools import cached_property
+from typing import TYPE_CHECKING
 
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import connection, models
@@ -14,6 +15,8 @@ from .itemlist import List, ListMember
 
 
 class TagMember(ListMember):
+    if TYPE_CHECKING:
+        parent: models.ForeignKey["TagMember", "Tag"]
     parent = models.ForeignKey("Tag", related_name="members", on_delete=models.CASCADE)
 
     class Meta:

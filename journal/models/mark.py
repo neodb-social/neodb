@@ -42,7 +42,7 @@ class Mark:
         self.item = item
 
     @cached_property
-    def shelfmember(self) -> ShelfMember:
+    def shelfmember(self) -> ShelfMember | None:
         return self.owner.shelf_manager.locate_item(self.item)
 
     @property
@@ -198,7 +198,7 @@ class Mark:
         last_visibility = self.visibility if last_shelf_type else None
         if shelf_type is None:  # TODO change this use case to DEFERRED status
             # take item off shelf
-            if last_shelf_type:
+            if self.shelfmember:
                 Takahe.delete_posts(self.shelfmember.all_post_ids)
                 self.shelfmember.log_and_delete()
             if self.comment:
@@ -207,7 +207,7 @@ class Mark:
                 self.rating.delete()
             return
         # create/update shelf member and shelf log if necessary
-        if last_shelf_type == shelf_type:
+        if self.shelfmember and last_shelf_type == shelf_type:
             shelfmember_changed = False
             log_entry = self.shelfmember.ensure_log_entry()
             if metadata is not None and metadata != self.shelfmember.metadata:

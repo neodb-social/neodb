@@ -1,5 +1,6 @@
 import re
 from functools import cached_property
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -40,6 +41,8 @@ class CollectionMember(ListMember):
 
 
 class Collection(List):
+    if TYPE_CHECKING:
+        members: models.QuerySet[CollectionMember]
     url_path = "collection"
     MEMBER_CLASS = CollectionMember
     catalog_item = models.OneToOneField(

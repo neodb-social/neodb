@@ -869,8 +869,9 @@ class Post(models.Model):
     A post (status, toot) that is either local or remote.
     """
 
-    interactions: "models.QuerySet[PostInteraction]"
-    attachments: "models.QuerySet[PostAttachment]"
+    if TYPE_CHECKING:
+        interactions: "models.QuerySet[PostInteraction]"
+        attachments: "models.QuerySet[PostAttachment]"
 
     class Visibilities(models.IntegerChoices):
         public = 0

@@ -21,6 +21,8 @@ from .mixins import UserOwnedObjectMixin
 if TYPE_CHECKING:
     from takahe.models import Post
 
+    from .like import Like
+
 
 class VisibilityType(models.IntegerChoices):
     Public = 0, _("Public")
@@ -112,6 +114,8 @@ def q_item_in_category(item_category: ItemCategory):
 
 
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
+    if TYPE_CHECKING:
+        likes: models.QuerySet["Like"]
     url_path = "p"  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     local = models.BooleanField(default=True)
@@ -257,7 +261,7 @@ class Content(Piece):
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
         default=0
-    )  # 0: Public / 1: Follower only / 2: Self only
+    )  # 0: Public / 1: Follower only / 2: Self only # type:ignore
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(auto_now=True)
     metadata = models.JSONField(default=dict)
@@ -275,7 +279,7 @@ class Debris(Content):
     class_name = CharField(max_length=50)
 
     @classmethod
-    def create_from_piece(cls, c: Piece):
+    def create_from_piece(cls, c: Content):
         return cls.objects.create(
             class_name=c.__class__.__name__,
             owner=c.owner,

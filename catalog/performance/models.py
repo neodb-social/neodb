@@ -1,4 +1,5 @@
 from functools import cached_property
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -100,6 +101,8 @@ def _crew_by_role(crew):
 
 
 class Performance(Item):
+    if TYPE_CHECKING:
+        productions: models.QuerySet["PerformanceProduction"]
     type = ItemType.Performance
     child_class = "PerformanceProduction"
     category = ItemCategory.Performance
@@ -371,10 +374,10 @@ class PerformanceProduction(Item):
     ]
 
     @property
-    def parent_item(self):
+    def parent_item(self) -> Performance | None:  # type:ignore
         return self.show
 
-    def set_parent_item(self, value):
+    def set_parent_item(self, value: Performance | None):  # type:ignore
         self.show = value
 
     @classmethod
@@ -389,23 +392,23 @@ class PerformanceProduction(Item):
         return f"{self.show.title if self.show else '♢'} {self.title}"
 
     @property
-    def cover_image_url(self):
+    def cover_image_url(self) -> str | None:
         return (
-            self.cover.url
+            self.cover.url  # type:ignore
             if self.cover and self.cover != DEFAULT_ITEM_COVER
             else self.show.cover_image_url
             if self.show
             else None
         )
 
-    def update_linked_items_from_external_resource(self, resource):
+    def update_linked_items_from_external_resource(self, resource: ExternalResource):
         for r in resource.required_resources:
             if r["model"] == "Performance":
-                resource = ExternalResource.objects.filter(
+                res = ExternalResource.objects.filter(
                     id_type=r["id_type"], id_value=r["id_value"]
                 ).first()
-                if resource and resource.item:
-                    self.show = resource.item
+                if res and res.item:
+                    self.show = res.item
 
     @cached_property
     def crew_by_role(self):

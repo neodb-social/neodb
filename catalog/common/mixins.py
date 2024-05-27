@@ -13,10 +13,11 @@ class SoftDeleteMixin:
     def clear(self):
         pass
 
-    def delete(self, using=None, soft=True, *args, **kwargs):
+    def delete(self, using=None, keep_parents=False, soft=True, *args, **kwargs):
         if soft:
             self.clear()
             self.is_deleted = True
             self.save(using=using)  # type: ignore
+            return 0, {}
         else:
-            return super().delete(using=using, *args, **kwargs)  # type: ignore
+            return super().delete(using=using, keep_parents=keep_parents, *args, **kwargs)  # type: ignore

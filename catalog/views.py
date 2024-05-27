@@ -129,7 +129,7 @@ def retrieve(request, item_path, item_uuid):
 
 
 def episode_data(request, item_uuid):
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    item = get_object_or_404(Podcast, uid=get_uuid_or_404(item_uuid))
     qs = item.episodes.all().order_by("-pub_date")
     if request.GET.get("last"):
         qs = qs.filter(pub_date__lt=request.GET.get("last"))

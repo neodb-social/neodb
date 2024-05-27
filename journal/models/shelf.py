@@ -272,6 +272,9 @@ _SHELF_LABELS = [
 
 
 class ShelfMember(ListMember):
+    if TYPE_CHECKING:
+        parent: models.ForeignKey["ShelfMember", "Shelf"]
+
     parent = models.ForeignKey(
         "Shelf", related_name="members", on_delete=models.CASCADE
     )
@@ -374,6 +377,9 @@ class Shelf(List):
     """
     Shelf
     """
+
+    if TYPE_CHECKING:
+        members: models.QuerySet[ShelfMember]
 
     class Meta:
         unique_together = [["owner", "shelf_type"]]

@@ -247,7 +247,7 @@ def collection_update_item_note(request: AuthedHttpRequest, collection_uuid, ite
         )
         return collection_retrieve_items(request, collection_uuid, True)
     else:
-        member = collection.get_member_for_item(item)
+        member: CollectionMember = collection.get_member_for_item(item)  # type:ignore
         return render(
             request,
             "collection_update_item_note.html",

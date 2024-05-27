@@ -1,5 +1,6 @@
 import pprint
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db.models import Count, F
 
@@ -111,12 +112,14 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f"! no season {i} : {i.absolute_url}?skipcheck=1")
                 if self.fix:
-                    i.recast_to(i.merged_to_item.__class__)
+                    i.recast_to(i.merged_to_item.__class__)  # type:ignore
 
         self.stdout.write(f"Checking TVSeason is child of other class...")
         for i in TVSeason.objects.filter(show__isnull=False).exclude(
             show__polymorphic_ctype_id=tvshow_ct_id
         ):
+            if not i.show:
+                continue
             self.stdout.write(f"! {i.show} : {i.show.absolute_url}?skipcheck=1")
             if self.fix:
                 i.show = None
@@ -124,6 +127,8 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Checking deleted item with child TV Season...")
         for i in TVSeason.objects.filter(show__is_deleted=True):
+            if not i.show:
+                continue
             self.stdout.write(f"! {i.show} : {i.show.absolute_url}?skipcheck=1")
             if self.fix:
                 i.show.is_deleted = False
@@ -131,6 +136,8 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Checking merged item with child TV Season...")
         for i in TVSeason.objects.filter(show__merged_to_item__isnull=False):
+            if not i.show:
+                continue
             self.stdout.write(f"! {i.show} : {i.show.absolute_url}?skipcheck=1")
             if self.fix:
                 i.show = i.show.merged_to_item

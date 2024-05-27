@@ -18,6 +18,7 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 """
 
 from os.path import exists
+from typing import TYPE_CHECKING
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -62,6 +63,8 @@ class EditionSchema(EditionInSchema, BaseSchema):
 
 
 class Edition(Item):
+    if TYPE_CHECKING:
+        works: "models.ManyToManyField[Work, Edition]"
     category = ItemCategory.Book
     url_path = "book"
 
@@ -164,17 +167,17 @@ class Edition(Item):
             return detect_isbn_asin(lookup_id_value)
         return super().lookup_id_cleanup(lookup_id_type, lookup_id_value)
 
-    def merge_to(self, to_item: "Edition | None"):
+    def merge_to(self, to_item: "Edition | None"):  # type: ignore[reportIncompatibleMethodOverride]
         super().merge_to(to_item)
         if to_item:
             for work in self.works.all():
                 to_item.works.add(work)
         self.works.clear()
 
-    def delete(self, using=None, soft=True, *args, **kwargs):
+    def delete(self, using=None, keep_parents=False, soft=True, *args, **kwargs):
         if soft:
             self.works.clear()
-        return super().delete(using, soft, *args, **kwargs)
+        return super().delete(using, soft, keep_parents, *args, **kwargs)
 
     def update_linked_items_from_external_resource(self, resource):
         """add Work from resource.metadata['work'] if not yet"""
@@ -279,7 +282,7 @@ class Work(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
-    def merge_to(self, to_item: "Work | None"):
+    def merge_to(self, to_item: "Work | None"):  # type: ignore[reportIncompatibleMethodOverride]
         super().merge_to(to_item)
         if to_item:
             for edition in self.editions.all():
@@ -293,10 +296,10 @@ class Work(Item):
             to_item.other_title += [self.title]  # type: ignore
             to_item.save()
 
-    def delete(self, using=None, soft=True, *args, **kwargs):
+    def delete(self, using=None, keep_parents=False, soft=True, *args, **kwargs):
         if soft:
             self.editions.clear()
-        return super().delete(using, soft, *args, **kwargs)
+        return super().delete(using, keep_parents, soft, *args, **kwargs)
 
 
 class Series(Item):

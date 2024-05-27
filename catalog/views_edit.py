@@ -224,13 +224,13 @@ def assign_parent(request, item_path, item_uuid):
 @require_http_methods(["POST"])
 @login_required
 def remove_unused_seasons(request, item_path, item_uuid):
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    item = get_object_or_404(TVShow, uid=get_uuid_or_404(item_uuid))
     sl = list(item.seasons.all())
     for s in sl:
         if not s.journal_exists():
             s.delete()
-    ol = [s.id for s in sl]
-    nl = [s.id for s in item.seasons.all()]
+    ol = [s.pk for s in sl]
+    nl = [s.pk for s in item.seasons.all()]
     discord_send(
         "audit",
         f"{item.absolute_url}\n{ol} ➡ {nl}\nby [@{request.user.username}]({request.user.absolute_url})",
@@ -244,7 +244,7 @@ def remove_unused_seasons(request, item_path, item_uuid):
 @require_http_methods(["POST"])
 @login_required
 def fetch_tvepisodes(request, item_path, item_uuid):
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    item = get_object_or_404(TVSeason, uid=get_uuid_or_404(item_uuid))
     if item.class_name != "tvseason" or not item.imdb or item.season_number is None:
         raise BadRequest(_("TV Season with IMDB id and season number required."))
     item.log_action({"!fetch_tvepisodes": ["", ""]})
@@ -257,7 +257,7 @@ def fetch_tvepisodes(request, item_path, item_uuid):
 
 def fetch_episodes_for_season_task(item_uuid, user):
     with set_actor(user):
-        season = Item.get_by_url(item_uuid)
+        season = TVSeason.get_by_url(item_uuid)
         if not season:
             return
         episodes = season.episode_uuids
@@ -313,8 +313,8 @@ def merge(request, item_path, item_uuid):
 @require_http_methods(["POST"])
 @login_required
 def link_edition(request, item_path, item_uuid):
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    new_item = Item.get_by_url(request.POST.get("target_item_url"))
+    item = get_object_or_404(Edition, uid=get_uuid_or_404(item_uuid))
+    new_item = Edition.get_by_url(request.POST.get("target_item_url"))
     if (
         not new_item
         or new_item.is_deleted
@@ -325,7 +325,7 @@ def link_edition(request, item_path, item_uuid):
     if item.class_name != "edition" or new_item.class_name != "edition":
         raise BadRequest(_("Cannot link items other than editions"))
     if request.POST.get("sure", 0) != "1":
-        new_item = Item.get_by_url(request.POST.get("target_item_url"))
+        new_item = Edition.get_by_url(request.POST.get("target_item_url"))  # type: ignore
         return render(
             request,
             "catalog_merge.html",
@@ -345,7 +345,7 @@ def link_edition(request, item_path, item_uuid):
 @require_http_methods(["POST"])
 @login_required
 def unlink_works(request, item_path, item_uuid):
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    item = get_object_or_404(Edition, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied(_("Insufficient permission"))
     item.unlink_from_all_works()

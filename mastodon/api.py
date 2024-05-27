@@ -291,16 +291,17 @@ def get_related_acct_list(site, token, api):
             )
             url = None
             if response.status_code == 200:
+                r: list[dict[str, str]] = response.json()
                 results.extend(
                     map(
-                        lambda u: (
+                        lambda u: (  # type: ignore
                             u["acct"]
                             if u["acct"].find("@") != -1
                             else u["acct"] + "@" + site
                         )
                         if "acct" in u
                         else u,
-                        response.json(),
+                        r,
                     )
                 )
                 if "Link" in response.headers:

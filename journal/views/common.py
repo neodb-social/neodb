@@ -99,7 +99,7 @@ def render_list(
     if year:
         year = int(year)
         queryset = queryset.filter(created_time__year=year)
-    paginator = Paginator(queryset, PAGE_SIZE)
+    paginator = Paginator(queryset, PAGE_SIZE)  # type:ignore
     page_number = int(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)

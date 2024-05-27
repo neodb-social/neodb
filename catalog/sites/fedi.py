@@ -1,5 +1,6 @@
 import re
 
+from django.conf import settings
 from django.core.validators import URLValidator
 from loguru import logger
 

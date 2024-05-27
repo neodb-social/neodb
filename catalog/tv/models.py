@@ -26,9 +26,13 @@ For now, we follow Douban convention, but keep an eye on it in case it breaks it
 """
 import re
 from functools import cached_property
+from typing import TYPE_CHECKING, overload
 
+from auditlog.diff import ForeignKey
+from auditlog.models import QuerySet
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from typing_extensions import override
 
 from catalog.common import (
     BaseSchema,
@@ -90,6 +94,8 @@ class TVEpisodeSchema(ItemSchema):
 
 
 class TVShow(Item):
+    if TYPE_CHECKING:
+        seasons: QuerySet["TVSeason"]
     type = ItemType.TVShow
     child_class = "TVSeason"
     category = ItemCategory.TV
@@ -249,6 +255,8 @@ class TVShow(Item):
 
 
 class TVSeason(Item):
+    if TYPE_CHECKING:
+        episodes: models.QuerySet["TVEpisode"]
     type = ItemType.TVSeason
     category = ItemCategory.TV
     url_path = "tv/season"
@@ -424,10 +432,10 @@ class TVSeason(Item):
         return self.episodes.all().order_by("episode_number")
 
     @property
-    def parent_item(self):
+    def parent_item(self) -> TVShow | None:  # type:ignore
         return self.show
 
-    def set_parent_item(self, value):
+    def set_parent_item(self, value: TVShow | None):  # type:ignore
         self.show = value
 
     @property
@@ -462,10 +470,10 @@ class TVEpisode(Item):
         )
 
     @property
-    def parent_item(self):
+    def parent_item(self) -> TVSeason | None:  # type:ignore
         return self.season
 
-    def set_parent_item(self, value):
+    def set_parent_item(self, value: TVSeason | None):  # type:ignore
         self.season = value
 
     @classmethod
@@ -476,7 +484,7 @@ class TVEpisode(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
-    def update_linked_items_from_external_resource(self, resource):
+    def update_linked_items_from_external_resource(self, resource: ExternalResource):
         for w in resource.required_resources:
             if w["model"] == "TVSeason":
                 p = ExternalResource.objects.filter(
