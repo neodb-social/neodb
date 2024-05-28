@@ -355,12 +355,12 @@ class Fediverse:
         return results
 
     @classmethod
-    def search(cls, q, page=1, category=None):
+    def search(cls, q: str, page: int = 1, category: str | None = None):
         from takahe.utils import Takahe
 
         peers = Takahe.get_neodb_peers()
-        # peers = ["neodb.social", "green.eggplant.place"]
-        tasks = [Fediverse.search_task(host, q, category) for host in peers]
+        c = category if category != "movietv" else "movie,tv"
+        tasks = [Fediverse.search_task(host, q, c) for host in peers]
         # loop = asyncio.get_event_loop()
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
