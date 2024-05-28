@@ -44,17 +44,17 @@ class MastodonSiteCheck(BaseJob):
                     count_disabled += 1
             finally:
                 site.save(update_fields=["last_reachable_date", "disabled"])
-            try:
-                if not verify_client(site):
-                    logger.error(
-                        f"Unable to verify client app for {site.api_domain}, consider deleting it."
-                    )
-                    # site.delete()
-            except Exception as e:
-                logger.error(
-                    f"Failed to verify client app for {site.api_domain}",
-                    extra={"exception": e},
-                )
+            # try:
+            #     if not verify_client(site):
+            #         logger.error(
+            #             f"Unable to verify client app for {site.api_domain}, consider deleting it."
+            #         )
+            #         # site.delete()
+            # except Exception as e:
+            #     logger.error(
+            #         f"Failed to verify client app for {site.api_domain}",
+            #         extra={"exception": e},
+            #     )
         logger.info(
             f"Mastodon Site Check finished, {count_checked} checked, {count_unreachable} unreachable, {count_disabled} disabled."
         )
