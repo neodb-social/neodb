@@ -107,6 +107,13 @@ Run unit test:
 neodb-manage test
 ```
 
+Update translations:
+```
+django-admin makemessages --no-wrap --no-obsolete -i neodb-takahe -a
+# edit .po files, run the following to make sure edits are correct
+django-admin makemessages --no-wrap --no-obsolete -i neodb-takahe -a
+django-admin compilemessages
+```
 
 Development in Docker Compose
 -----------------------------

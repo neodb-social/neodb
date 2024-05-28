@@ -5,7 +5,7 @@
 [![GitHub License](https://img.shields.io/github/license/neodb-social/neodb?color=E69A48&style=for-the-badge)](https://github.com/neodb-social/neodb/blob/main/LICENSE)
 
 # 🧩 NeoDB
-_mark the things you love_
+_mark the things you love._
 
 NeoDB (fka boofilsic) is an open source project and free service to help users manage, share and discover collections, reviews and ratings for culture products (e.g. books, movies, music, podcasts, games and performances) in Fediverse.
 
