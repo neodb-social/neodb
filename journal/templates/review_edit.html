@@ -31,7 +31,6 @@
                 <label for="leading_space" style="display: inline">
                   <input type="checkbox" name="leading_space" value="1" id="leading_space">
                   {% trans "When saving, replace leading spaces with full-width spaces" %}
-                  <span data-tooltip="希望行首缩进但不便输全角时可选此替换两半角为一全角">?</span>
                 </label>
               </div>
               <div>{{ form.visibility }}</div>
@@ -63,55 +62,7 @@
             {{ form.media }}
           </form>
           <hr>
-          <details>
-            <summary>{% trans "Markdown format references" %}</summary>
-            <pre>
-标题
-====
-
-副标题
-------
-
-  新起段落需隔开一空行
-
-  段首缩进需使用中文全角空格
-
-[链接](https://zh.wikipedia.org/wiki/Markdown)
-**粗体**  *斜体* ==高亮== ~~删除~~
-^上^标 ~下~标 [拼(pīn)音(yīn)]
-
-> 引用
-> 文本
->> 多级引用
-
-行内 >! 剧透预警 !< （在短评中也可使用）
-
->! 多行
->! 剧透
-
-引用外部图片 ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)
-
-上传图片可拖拽图片文件到编辑框，或从剪贴板粘贴
-
----
-
-- Bullet
-- Points
-
-content in paragraph with footnote[^1] markup.
-[^1]: footnote explain
-
-```
-code
-```
-
-Table Header  | Second Header
-------------- | -------------
-Content Cell  | Content Cell
-Content Cell  | Content Cell
-
-            </pre>
-          </details>
+          {% include "markdown.html" %}
         </article>
       </div>
       <aside>

@@ -21,19 +21,17 @@
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              在<a href="https://doufen.org" target="_blank" rel="noopener">豆伴(豆坟)</a>导出时勾选<mark>书影音游剧</mark>和<mark>评论</mark>。
-              <br>
-              选择从豆伴(豆坟)导出的<code>.xlsx</code>文件:
+              {% blocktrans %}Select <code>.xlsx</code> exported from <a href="https://doufen.org" target="_blank" rel="noopener">Doufen</a>{% endblocktrans %}
               <input type="file" name="file" id="excel" required accept=".xlsx">
               <fieldset>
-                <legend>导入方式</legend>
+                <legend>{% trans "Import Method" %}</legend>
                 <label for="import_mode_0">
                   <input id="import_mode_0" type="radio" name="import_mode" value="0" checked>
-                  自动合并：仅更新正向变化(未标->想读->在读->已读)标记，不更新其它标记和现有评论（推荐）
+                  {% trans "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete." %}
                 </label>
                 <label for="import_mode_1">
                   <input id="import_mode_1" type="radio" name="import_mode" value="1">
-                  强制覆盖：覆盖已存在的标记和评论，导入文件中未涉及的条目标记和评论不会被改动。
+                  {% trans "Overwrite: update all imported status." %}
                 </label>
               </fieldset>
               <p>
@@ -66,7 +64,7 @@
                 </label>
               </p>
               <input type="submit"
-                     {% if import_status.douban_pending %} onclick="return confirm('短期重复上传可能有无法预期的效果，确定现在上传导入吗？')" value="备份文件已上传，请等待导入完成或刷新页面查看最新进度" {% else %} value="{% trans 'Import' %}" {% endif %} />
+                     {% if import_status.douban_pending %} onclick="return confirm('{% trans "Another import is in progress, starting a new import may cause issues, sure to import?" %}')" value="{% trans "Import in progress, please wait" %}" {% else %} value="{% trans 'Import' %}" {% endif %} />
             </form>
             <div hx-get="{% url 'users:import_status' %}"
                  hx-trigger="load delay:1s"

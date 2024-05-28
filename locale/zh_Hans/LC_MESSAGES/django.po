@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-26 22:53-0400\n"
+"POT-Creation-Date: 2024-05-28 09:57-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1018,13 +1018,13 @@ msgstr "确认删除吗？"
 
 #: catalog/templates/catalog_delete.html:47
 #: catalog/templates/catalog_merge.html:91
-#: journal/templates/piece_delete.html:28 neodb-takahe/activities/admin.py:25
+#: journal/templates/piece_delete.html:28
 msgid "Yes"
 msgstr "是"
 
 #: catalog/templates/catalog_delete.html:48
 #: catalog/templates/catalog_merge.html:92
-#: journal/templates/piece_delete.html:32 neodb-takahe/activities/admin.py:26
+#: journal/templates/piece_delete.html:32
 msgid "No"
 msgstr "否"
 
@@ -1045,7 +1045,7 @@ msgstr "创建"
 #: developer/templates/oauth2_provider/application_form.html:35
 #: journal/templates/add_to_collection.html:35
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
-#: journal/templates/mark.html:142 journal/templates/review_edit.html:40
+#: journal/templates/mark.html:142 journal/templates/review_edit.html:39
 #: journal/templates/tag_edit.html:60 users/templates/users/account.html:43
 #: users/templates/users/account.html:104
 #: users/templates/users/preferences.html:170
@@ -1178,7 +1178,7 @@ msgstr "简介"
 #: common/templates/_sidebar.html:197 journal/templates/collection_items.html:8
 #: journal/templates/profile.html:109 journal/templates/profile.html:151
 #: journal/templates/profile.html:187 journal/templates/replies.html:46
-#: journal/templates/user_collection_list.html:43
+#: journal/templates/user_collection_list.html:51
 #: journal/templates/user_item_list_base.html:25
 #: journal/templates/user_tag_list.html:29 social/templates/events.html:46
 #: users/templates/users/announcements.html:53
@@ -1403,28 +1403,28 @@ msgid "Invalid parameter"
 msgstr "无效参数"
 
 #: catalog/views_edit.py:249
-msgid "Must be a TV Season with IMDB id and season id"
-msgstr ""
+msgid "TV Season with IMDB id and season number required."
+msgstr "必须是电视剧分季，且包含IMDB id和分季序号。"
 
 #: catalog/views_edit.py:254
 msgid "Updating episodes"
-msgstr ""
+msgstr "正在更新单集列表"
 
 #: catalog/views_edit.py:284
 msgid "Cannot be merged to an item already deleted or merged"
-msgstr ""
+msgstr "无法合并到一个已经被合并或删除的条目"
 
 #: catalog/views_edit.py:287
 msgid "Cannot merge items in different categories"
-msgstr ""
+msgstr "无法合并不同类型的条目"
 
 #: catalog/views_edit.py:324
 msgid "Cannot be linked to an item already deleted or merged"
-msgstr ""
+msgstr "无法关联到一个已经被合并或删除的条目"
 
 #: catalog/views_edit.py:326
 msgid "Cannot link items other than editions"
-msgstr ""
+msgstr "无法关联到非图书类的条目"
 
 #: common/templates/400.html:22
 msgid ""
@@ -1709,7 +1709,7 @@ msgstr "发布到联邦宇宙"
 #: journal/forms.py:25 journal/forms.py:45
 #: journal/templates/collection_share.html:24
 #: journal/templates/tag_edit.html:30 journal/templates/wrapped_share.html:36
-#: users/templates/users/data.html:40 users/templates/users/data.html:132
+#: users/templates/users/data.html:38 users/templates/users/data.html:130
 msgid "Visibility"
 msgstr "可见性"
 
@@ -1743,23 +1743,23 @@ msgstr "备注"
 #: journal/models/common.py:26 journal/templates/collection_share.html:35
 #: journal/templates/comment.html:35 journal/templates/mark.html:88
 #: journal/templates/tag_edit.html:40 journal/templates/wrapped_share.html:43
-#: users/templates/users/data.html:49 users/templates/users/data.html:141
+#: users/templates/users/data.html:47 users/templates/users/data.html:139
 #: users/templates/users/preferences.html:54
 msgid "Public"
 msgstr "公开"
 
 #: journal/models/common.py:27 journal/templates/collection_share.html:46
 #: journal/templates/comment.html:42 journal/templates/mark.html:95
-#: journal/templates/wrapped_share.html:49 users/templates/users/data.html:57
-#: users/templates/users/data.html:149
+#: journal/templates/wrapped_share.html:49 users/templates/users/data.html:55
+#: users/templates/users/data.html:147
 #: users/templates/users/preferences.html:61
 msgid "Followers Only"
 msgstr "仅关注者"
 
 #: journal/models/common.py:28 journal/templates/collection_share.html:57
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
-#: journal/templates/wrapped_share.html:55 users/templates/users/data.html:65
-#: users/templates/users/data.html:157
+#: journal/templates/wrapped_share.html:55 users/templates/users/data.html:63
+#: users/templates/users/data.html:155
 #: users/templates/users/preferences.html:68
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
@@ -2305,6 +2305,103 @@ msgstr "指定标记日期"
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr "确认删除这条标记、短评和标签？"
 
+#: journal/templates/markdown.html:3
+msgid "Markdown format references"
+msgstr "Markdown语法参考"
+
+#: journal/templates/markdown.html:5
+msgid ""
+"\n"
+"Title\n"
+"=====\n"
+"\n"
+"Subtitle\n"
+"--------\n"
+"\n"
+"  Paragraphs need to be separated by a blank line\n"
+"\n"
+"  Indentation at the beginning of the paragraph requires using a Unicode "
+"full-width space\n"
+"\n"
+"[Link](https://zh.wikipedia.org/wiki/Markdown)\n"
+"**Bold**  *Italic* ==Highlight== ~~Strikethrough~~\n"
+"^Super^script ~Sub~script [拼(pīn)音(yīn)]\n"
+"\n"
+"Drag and drop an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/"
+"Wikipedia-logo-v2.svg)\n"
+"\n"
+"> Quote\n"
+">> Multi-level quote\n"
+"\n"
+"Inline >! spoiler warning !< (also in short comments)\n"
+"\n"
+">! Multi-line\n"
+">! Spoiler\n"
+"\n"
+"---\n"
+"\n"
+"- Bullet\n"
+"- Points\n"
+"\n"
+"content in paragraph with footnote[^1] markup.\n"
+"[^1]: footnote explain\n"
+"\n"
+"```\n"
+"code\n"
+"```\n"
+"\n"
+"Table Header  | Second Header\n"
+"------------- | -------------\n"
+"Content Cell  | Content Cell\n"
+"Content Cell  | Content Cell\n"
+msgstr ""
+"\n"
+"标题\n"
+"====\n"
+"\n"
+"副标题\n"
+"------\n"
+"\n"
+"  新起段落需隔开一空行\n"
+"\n"
+"  段首缩进需使用中文全角空格\n"
+"\n"
+"[链接](https://zh.wikipedia.org/wiki/Markdown)\n"
+"**粗体**  *斜体* ==高亮== ~~删除~~\n"
+"^上^标 ~下~标 [拼(pīn)音(yīn)]\n"
+"\n"
+"> 引用\n"
+"> 文本\n"
+">> 多级引用\n"
+"\n"
+"行内 >! 剧透预警 !< （在短评中也可使用）\n"
+"\n"
+">! 多行\n"
+">! 剧透\n"
+"\n"
+"引用外部图片 ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-"
+"logo-v2.svg)\n"
+"\n"
+"上传图片可拖拽图片文件到编辑框，或从剪贴板粘贴\n"
+"\n"
+"---\n"
+"\n"
+"- Bullet\n"
+"- Points\n"
+"\n"
+"content in paragraph with footnote[^1] markup.\n"
+"[^1]: footnote explain\n"
+"\n"
+"```\n"
+"code\n"
+"```\n"
+"\n"
+"Table Header  | Second Header\n"
+"------------- | -------------\n"
+"Content Cell  | Content Cell\n"
+"Content Cell  | Content Cell\n"
+"\n"
+
 #: journal/templates/profile.html:55
 msgid "calendar"
 msgstr "日历"
@@ -2333,13 +2430,9 @@ msgstr "作者已设置仅限已登录用户查看"
 msgid "When saving, replace leading spaces with full-width spaces"
 msgstr "保存时将行首空格替换为全角"
 
-#: journal/templates/review_edit.html:43
+#: journal/templates/review_edit.html:42
 msgid "change review date"
 msgstr "指定评论日期"
-
-#: journal/templates/review_edit.html:67
-msgid "Markdown format references"
-msgstr "Markdown语法参考"
 
 #: journal/templates/tag_edit.html:12
 msgid "Tag"
@@ -2362,19 +2455,19 @@ msgstr ""
 msgid "Delete this tag"
 msgstr "删除这个标签"
 
-#: journal/templates/user_collection_list.html:14
-#: journal/templates/user_collection_list.html:24
+#: journal/templates/user_collection_list.html:15
+#: journal/templates/user_collection_list.html:29
 msgid "Liked Collections"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/user_collection_list.html:14
-#: journal/templates/user_collection_list.html:24
+#: journal/templates/user_collection_list.html:17
+#: journal/templates/user_collection_list.html:31
 msgid "Collections"
 msgstr "收藏单"
 
 #: journal/templates/user_tag_list.html:12
 #: journal/templates/user_tagmember_list.html:4
-#: journal/templates/user_tagmember_list.html:14
+#: journal/templates/user_tagmember_list.html:13
 msgid "Tags"
 msgstr "标签"
 
@@ -2588,42 +2681,6 @@ msgstr "本地标识"
 #: mastodon/models.py:42
 msgid "target site domain name"
 msgstr "目标实例域名"
-
-#: neodb-takahe/activities/admin.py:18
-msgid "Local Identity"
-msgstr "本地身份"
-
-#: neodb-takahe/core/admin.py:8
-msgid "config options type"
-msgstr ""
-
-#: neodb-takahe/core/admin.py:13
-msgid "System"
-msgstr "系统"
-
-#: neodb-takahe/core/admin.py:14
-msgid "Identity"
-msgstr "联邦宇宙身份"
-
-#: neodb-takahe/core/admin.py:15
-msgid "User"
-msgstr "用户"
-
-#: neodb-takahe/users/admin.py:147
-msgid "Local Source Identity"
-msgstr "本地源身份"
-
-#: neodb-takahe/users/admin.py:153
-msgid "Local Target Identity"
-msgstr "本地目标身份"
-
-#: neodb-takahe/users/views/auth.py:20
-msgid "No account was found with that email and password."
-msgstr "账号未找到"
-
-#: neodb-takahe/users/views/auth.py:21
-msgid "This account is inactive."
-msgstr "账号已失效"
 
 #: social/templates/activity/comment_child_item.html:13
 msgid "play"
@@ -3237,15 +3294,15 @@ msgstr "立即同步"
 msgid "Last updated"
 msgstr "最近更新"
 
-#: users/templates/users/account.html:187
+#: users/templates/users/account.html:186
 msgid "Delete Account"
 msgstr "删除账号"
 
-#: users/templates/users/account.html:191
+#: users/templates/users/account.html:189
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "账号数据一旦删除后将无法恢复，确定继续吗？"
 
-#: users/templates/users/account.html:195
+#: users/templates/users/account.html:192
 msgid ""
 "Enter full <code>username@instance.social</code> or <code>email@domain.com</"
 "code> to confirm deletion."
@@ -3253,15 +3310,15 @@ msgstr ""
 "输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确"
 "认删除"
 
-#: users/templates/users/account.html:205
+#: users/templates/users/account.html:202
 msgid "Once deleted, account data cannot be recovered."
 msgstr "账号数据一旦删除后将无法恢复"
 
-#: users/templates/users/account.html:207
+#: users/templates/users/account.html:204
 msgid "Importing in progress, can't delete now."
 msgstr "暂时无法删除，因为有导入任务正在进行"
 
-#: users/templates/users/account.html:210
+#: users/templates/users/account.html:207
 msgid "Permanently Delete"
 msgstr "永久删除"
 
@@ -3273,20 +3330,57 @@ msgstr "数据管理"
 msgid "Import Marks and Reviews from Douban"
 msgstr "导入豆瓣标记和评论"
 
-#: users/templates/users/data.html:69 users/templates/users/data.html:88
-#: users/templates/users/data.html:160 users/templates/users/data.html:203
+#: users/templates/users/data.html:24
+msgid ""
+"Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" "
+"target=\"_blank\" rel=\"noopener\">Doufen</a>"
+msgstr ""
+"在<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆"
+"坟)</a>导出时勾选<mark>书影音游剧</mark>和<mark>评论</mark>。<br>选择从豆伴"
+"(豆坟)导出的<code>.xlsx</code>文件"
+
+#: users/templates/users/data.html:27 users/templates/users/data.html:185
+msgid "Import Method"
+msgstr "导入方式"
+
+#: users/templates/users/data.html:30
+msgid ""
+"Merge: only update when status changes from wishlist to in-progress, or from "
+"in-progress to complete."
+msgstr ""
+"自动合并：仅更新正向变化(未标->想读->在读->已读)标记，不更新其它标记和现有评"
+"论（推荐）"
+
+#: users/templates/users/data.html:34
+msgid "Overwrite: update all imported status."
+msgstr ""
+"强制覆盖：覆盖已存在的标记和评论，导入文件中未涉及的条目标记和评论不会被改"
+"动。"
+
+#: users/templates/users/data.html:67
+msgid ""
+"Another import is in progress, starting a new import may cause issues, sure "
+"to import?"
+msgstr "短期重复上传可能有无法预期的效果，确定现在上传导入吗？"
+
+#: users/templates/users/data.html:67
+msgid "Import in progress, please wait"
+msgstr "备份文件已上传，请等待导入完成或刷新页面查看最新进度"
+
+#: users/templates/users/data.html:67 users/templates/users/data.html:86
+#: users/templates/users/data.html:158 users/templates/users/data.html:201
 msgid "Import"
 msgstr "导入"
 
-#: users/templates/users/data.html:78
+#: users/templates/users/data.html:76
 msgid "Import Shelf or List from Goodreads"
 msgstr "导入Goodreads书架或书单"
 
-#: users/templates/users/data.html:82
+#: users/templates/users/data.html:80
 msgid "Link to Goodreads Profile / Shelf / List"
 msgstr "Goodreads个人主页、书架或书单链接"
 
-#: users/templates/users/data.html:93
+#: users/templates/users/data.html:91
 msgid ""
 "want-to-read / currently-reading / read books and their reviews will be "
 "imported."
@@ -3294,74 +3388,70 @@ msgstr ""
 "提交Goodreads用户主页链接将导入想读、在读、已读列表，每本书的评论导入为本站短"
 "评。"
 
-#: users/templates/users/data.html:97
+#: users/templates/users/data.html:95
 msgid "Shelf will be imported as a new collection."
 msgstr "Goodreads书架将被导入为收藏单，每本书的评论导入为收藏单条目备注。"
 
-#: users/templates/users/data.html:101
+#: users/templates/users/data.html:99
 msgid "List will be imported as a new collection."
 msgstr "Goodreads书单将被导入为收藏单，每本书的评论导入为收藏单条目备注。"
 
-#: users/templates/users/data.html:112
+#: users/templates/users/data.html:110
 msgid "Import from Letterboxd"
 msgstr "导入Letterboxd标记"
 
-#: users/templates/users/data.html:162
+#: users/templates/users/data.html:160
 msgid "Only forward changes(none->to-watch->watched) will be imported."
 msgstr ""
 "导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
 
-#: users/templates/users/data.html:165
+#: users/templates/users/data.html:163
 msgid "Last import started"
 msgstr "最近导入时间"
 
-#: users/templates/users/data.html:166
+#: users/templates/users/data.html:164
 msgid "Status"
 msgstr "状态"
 
-#: users/templates/users/data.html:170
+#: users/templates/users/data.html:168
 msgid ""
 "Failed links, likely due to Letterboxd error, you may have to mark them "
 "manually"
 msgstr "导入失败的链接（通常由于Letterboxd的信息错误，请手工添加标记）"
 
-#: users/templates/users/data.html:181
+#: users/templates/users/data.html:179
 msgid "Import Podcast Subscriptions"
 msgstr "导入播客订阅列表 (OPML)"
 
-#: users/templates/users/data.html:187
-msgid "Import Method"
-msgstr "导入方式"
-
-#: users/templates/users/data.html:194
+#: users/templates/users/data.html:192
 msgid "Mark as listening"
 msgstr "标记为在听"
 
-#: users/templates/users/data.html:198
+#: users/templates/users/data.html:196
 msgid "Import as a new collection"
 msgstr "导入为新收藏单"
 
-#: users/templates/users/data.html:201
+#: users/templates/users/data.html:199
 msgid "Select OPML file"
 msgstr "选择OPML文件"
 
-#: users/templates/users/data.html:210
+#: users/templates/users/data.html:208
 msgid "Export Data"
 msgstr "导出数据"
 
-#: users/templates/users/data.html:216
+#: users/templates/users/data.html:214
 msgid "Export in progress"
 msgstr "正在导出"
 
-#: users/templates/users/data.html:216
+#: users/templates/users/data.html:214
 msgid "Export marks and reviews"
 msgstr "导出标记、短评和评论"
 
-#: users/templates/users/data.html:218
+#: users/templates/users/data.html:216
 msgid "Download"
 msgstr "下载"
 
-#: users/templates/users/data.html:225
+#: users/templates/users/data.html:223
 msgid "View Annual Summary"
 msgstr "查看年度小结"
 

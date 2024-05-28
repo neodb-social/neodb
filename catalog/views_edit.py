@@ -246,7 +246,7 @@ def remove_unused_seasons(request, item_path, item_uuid):
 def fetch_tvepisodes(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if item.class_name != "tvseason" or not item.imdb or item.season_number is None:
-        raise BadRequest(_("Must be a TV Season with IMDB id and season id"))
+        raise BadRequest(_("TV Season with IMDB id and season number required."))
     item.log_action({"!fetch_tvepisodes": ["", ""]})
     django_rq.get_queue("crawl").enqueue(
         fetch_episodes_for_season_task, item.uuid, request.user

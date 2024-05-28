@@ -1,0 +1,48 @@
+{% load i18n %}
+<details>
+  <summary>{% trans "Markdown format references" %}</summary>
+  <pre>
+{% blocktrans %}
+Title
+=====
+
+Subtitle
+--------
+
+  Paragraphs need to be separated by a blank line
+
+  Indentation at the beginning of the paragraph requires using a Unicode full-width space
+
+[Link](https://zh.wikipedia.org/wiki/Markdown)
+**Bold**  *Italic* ==Highlight== ~~Strikethrough~~
+^Super^script ~Sub~script [拼(pīn)音(yīn)]
+
+Drag and drop an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)
+
+> Quote
+>> Multi-level quote
+
+Inline >! spoiler warning !< (also in short comments)
+
+>! Multi-line
+>! Spoiler
+
+---
+
+- Bullet
+- Points
+
+content in paragraph with footnote[^1] markup.
+[^1]: footnote explain
+
+```
+code
+```
+
+Table Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+{% endblocktrans %}
+	</pre>
+</details>
