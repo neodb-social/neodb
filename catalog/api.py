@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Any, Callable, List, Optional, Tuple, Type
 
 from django.http import HttpResponse
@@ -26,6 +27,17 @@ class SearchResult(Schema):
     count: int
 
 
+class SearchableItemCategory(Enum):
+    Book = "book"
+    Movie = "movie"
+    TV = "tv"
+    Movie_And_TV = "movie,tv"
+    Music = "music"
+    Game = "game"
+    Podcast = "podcast"
+    Performance = "performance"
+
+
 @api.get(
     "/catalog/search",
     response={200: SearchResult, 400: Result},
@@ -34,7 +46,7 @@ class SearchResult(Schema):
     tags=["catalog"],
 )
 def search_item(
-    request, query: str, category: AvailableItemCategory | None = None, page: int = 1
+    request, query: str, category: SearchableItemCategory | None = None, page: int = 1
 ):
     """
     Search items in catalog
@@ -47,10 +59,11 @@ def search_item(
     query = query.strip()
     if not query:
         return 400, {"message": "Invalid query"}
+    categories = category.value.split(",") if category else None
     items, num_pages, count, _ = query_index(
         query,
         page=page,
-        categories=[category] if category else None,
+        categories=categories,
         prepare_external=False,
     )
     return 200, {"data": items, "pages": num_pages, "count": count}
