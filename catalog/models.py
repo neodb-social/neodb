@@ -1,6 +1,5 @@
 from auditlog.registry import auditlog
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from loguru import logger
 
 from .book.models import Edition, EditionInSchema, EditionSchema, Series, Work
@@ -101,11 +100,6 @@ def init_catalog_audit_log():
 
 
 __all__ = [
-    "Edition",
-    "EditionInSchema",
-    "EditionSchema",
-    "Series",
-    "Work",
     "CatalogCollection",
     "AvailableItemCategory",
     "ExternalResource",
@@ -118,6 +112,11 @@ __all__ = [
     "SiteName",
     "item_categories",
     "item_content_types",
+    "Edition",
+    "EditionInSchema",
+    "EditionSchema",
+    "Series",
+    "Work",
     "Game",
     "GameInSchema",
     "GameSchema",

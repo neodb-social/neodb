@@ -6,7 +6,6 @@ import django.db.models.deletion
 import simple_history.models
 from django.db import migrations, models
 
-import catalog.common.mixins
 import catalog.common.utils
 
 
@@ -213,7 +212,7 @@ class Migration(migrations.Migration):
                 ("edited_time", models.DateTimeField(auto_now=True)),
                 ("is_deleted", models.BooleanField(db_index=True, default=False)),
             ],
-            bases=(catalog.common.mixins.SoftDeleteMixin, models.Model),
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name="Album",
