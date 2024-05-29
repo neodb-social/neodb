@@ -1,6 +1,7 @@
 import time
 from contextlib import nullcontext
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone as dttz
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -23,7 +24,7 @@ from users.models import User as NeoUser
 
 BATCH_SIZE = 1000
 
-TIMELINE_START = datetime.datetime(2023, 7, 1, tzinfo=timezone.utc)
+TIMELINE_START = datetime.datetime(2023, 7, 1, tzinfo=dttz.utc)
 
 
 def content_type_id(cls):

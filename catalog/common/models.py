@@ -8,11 +8,11 @@ from auditlog.models import AuditlogHistoryField, LogEntry
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.signing import b62_decode, b62_encode
 from django.db import connection, models
 from django.db.models import QuerySet, Value
 from django.template.defaultfilters import default
 from django.utils import timezone
-from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from ninja import Field, Schema
@@ -475,7 +475,7 @@ class Item(PolymorphicModel):
 
     @property
     def uuid(self):
-        return base62.encode(self.uid.int).zfill(22)
+        return b62_encode(self.uid.int).zfill(22)
 
     @property
     def url(self):
@@ -505,7 +505,7 @@ class Item(PolymorphicModel):
             if r:
                 b62 = r[0]
         try:
-            item = cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
+            item = cls.objects.get(uid=uuid.UUID(int=b62_decode(b62)))
         except Exception:
             item = None
         return item

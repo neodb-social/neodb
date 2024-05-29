@@ -10,7 +10,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator, RegexVa
 from django.db import connection, models
 from django.db.models import Avg, Count, Q
 from django.utils import timezone
-from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from markdownx.models import MarkdownxField

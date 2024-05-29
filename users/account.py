@@ -10,13 +10,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.core.signing import TimestampSigner
+from django.core.signing import TimestampSigner, b62_decode, b62_encode
 from django.core.validators import EmailValidator
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from loguru import logger
@@ -86,7 +85,7 @@ def connect(request):
                 {"msg": _("Invalid email address")},
             )
         user = User.objects.filter(email__iexact=login_email).first()
-        code = base62.encode(random.randint(pow(62, 4), pow(62, 5) - 1))
+        code = b62_encode(random.randint(pow(62, 4), pow(62, 5) - 1))
         cache.set(f"login_{code}", login_email, timeout=60 * 15)
         request.session["login_email"] = login_email
         action = "login" if user else "register"

@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING
 from discord import SyncWebhook
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.core.signing import b62_decode, b62_encode
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
-from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
 
 from .config import PAGE_LINK_NUMBER
@@ -195,7 +195,7 @@ def GenerateDateUUIDMediaFilePath(filename, path_root):
 
 def get_uuid_or_404(uuid_b62):
     try:
-        i = base62.decode(uuid_b62)
+        i = b62_decode(uuid_b62)
         return uuid.UUID(int=i)
     except ValueError:
         raise Http404("Malformed Base62 UUID")

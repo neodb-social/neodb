@@ -4,10 +4,10 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from django.conf import settings
+from django.core.signing import b62_decode, b62_encode
 from django.db import connection, models
 from django.db.models import Avg, CharField, Count, Q
 from django.utils import timezone
-from django.utils.baseconv import base62
 from django.utils.translation import gettext_lazy as _
 from polymorphic.models import PolymorphicModel
 
@@ -125,7 +125,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @property
     def uuid(self):
-        return base62.encode(self.uid.int)
+        return b62_encode(self.uid.int)
 
     @property
     def url(self):
@@ -177,7 +177,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             if r:
                 b62 = r[0]
         try:
-            obj = cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
+            obj = cls.objects.get(uid=uuid.UUID(int=b62_decode(b62)))
         except Exception:
             obj = None
         return obj
