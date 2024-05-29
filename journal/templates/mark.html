@@ -19,23 +19,28 @@
     <div>
       <form method="post" action="{% url 'journal:mark' item.uuid %}">
         {% csrf_token %}
-        {% if shelf_actions %}
+        {% if shelf_statuses %}
+          <input type="hidden" id="mark-status" name="status" value="{{ shelf_type }}">
           <div class="grid mark-line">
             <div>
-              <fieldset>
-                {% for k, v in shelf_actions %}
+              <div role="group">
+                {% for k, v in shelf_statuses %}
                   {% if v %}
-                    <input type="radio"
-                           name="status"
-                           value="{{ k }}"
-                           required
-                           id="id_status_{{ k }}"
-                           {% if k == "wishlist" or k == "dropped" %} _="on click add .hidden to .rating-editor" {% else %} _="on click remove .hidden from .rating-editor" {% endif %}
-                           {% if shelf_type == k %}checked=""{% endif %}>
-                    <label for="id_status_{{ k }}">{{ v }}</label>
+                    <button data-value="{{ k }}"
+                            id="id_status_{{ k }}"
+                            style="padding-left:0.1em;
+                                   padding-right:0.1em;
+                                   width:25%;
+                                   text-overflow: ellipsis;
+                                   white-space: nowrap;
+                                   overflow: hidden"
+                            {% if k == "wishlist" or k == "dropped" %} _="on click add .outline to .status-selector then remove .outline from me then set value of #mark-status to '{{ k }}' then add .hidden to .rating-editor then halt" {% else %} _="on click add .outline to .status-selector then remove .outline from me then set value of #mark-status to '{{ k }}' then remove .hidden from .rating-editor then halt" {% endif %}
+                            {% if shelf_type == k %}class="status-selector"{% else %}class="status-selector outline"{% endif %}>
+                      {{ v }}
+                    </button>
                   {% endif %}
                 {% endfor %}
-              </fieldset>
+              </div>
             </div>
             <div>
               <span class="rating-editor {% if shelf_type == 'wishlist' %}hidden{% endif %}" _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the
@@ -76,7 +81,7 @@
                    data-initial-value="{{ tags }}">
           </div>
         </div>
-        <div class="grid">
+        <div class="grid" style="overflow-x:scroll;">
           <div>
             <fieldset>
               <input type="radio"
@@ -112,7 +117,7 @@
                          id="id_share_to_mastodon"
                          value="1"
                          {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
-                  {% trans "Repost to your timeline" %}
+                  {% trans "Repost to timeline" %}
                 </label>
               {% endif %}
             </fieldset>

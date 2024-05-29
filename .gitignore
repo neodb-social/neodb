@@ -3,6 +3,7 @@
 /.env
 /neodb.env
 /compose.override.yml
+/typings
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

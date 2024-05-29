@@ -90,6 +90,7 @@ def retrieve(request, item_path, item_uuid):
     collection_list = []
     child_item_comments = []
     shelf_actions = ShelfManager.get_actions_for_category(item.category)
+    shelf_statuses = ShelfManager.get_statuses_for_category(item.category)
     if request.user.is_authenticated:
         visible = q_piece_visible_to_user(request.user)
         mark = Mark(request.user.identity, item)
@@ -124,6 +125,7 @@ def retrieve(request, item_path, item_uuid):
             "my_collections": my_collections,
             "collection_list": collection_list,
             "shelf_actions": shelf_actions,
+            "shelf_statuses": shelf_statuses,
         },
     )
 

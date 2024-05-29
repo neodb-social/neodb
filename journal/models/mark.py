@@ -1,6 +1,8 @@
 import re
 import uuid
+from datetime import datetime
 from functools import cached_property
+from typing import Any
 
 import django.dispatch
 from django.conf import settings
@@ -67,10 +69,20 @@ class Mark:
         return ""
 
     @property
+    def status_label(self) -> str:
+        if self.shelfmember and self.shelf_type:
+            return ShelfManager.get_status_label(self.shelf_type, self.item.category)
+        if self.comment:
+            return ShelfManager.get_status_label(
+                ShelfType.PROGRESS, self.comment.item.category
+            )
+        return ""
+
+    @property
     def action_label_for_feed(self) -> str:
         return str(self.action_label)
 
-    def get_action_for_feed(self, item_link=None):
+    def get_action_for_feed(self, item_link: str | None = None):
         if self.shelfmember and self.shelf_type:
             tpl = ShelfManager.get_action_template(self.shelf_type, self.item.category)
         elif self.comment:
@@ -94,11 +106,11 @@ class Mark:
         )
 
     @property
-    def created_time(self):
+    def created_time(self) -> datetime | None:
         return self.shelfmember.created_time if self.shelfmember else None
 
     @property
-    def metadata(self) -> dict | None:
+    def metadata(self) -> dict[str, Any] | None:
         return self.shelfmember.metadata if self.shelfmember else None
 
     @property
@@ -184,9 +196,9 @@ class Mark:
         comment_text: str | None = None,
         rating_grade: int | None = None,
         visibility: int | None = None,
-        metadata=None,
-        created_time=None,
-        share_to_mastodon=False,
+        metadata: dict[str, Any] | None = None,
+        created_time: datetime | None = None,
+        share_to_mastodon: bool = False,
     ):
         """change shelf, comment or rating"""
         if created_time and created_time >= timezone.now():
@@ -277,7 +289,7 @@ class Mark:
         # self.logs.delete()  # When deleting a mark, all logs of the mark are deleted first.
         self.update(None)
 
-    def delete_log(self, log_id):
+    def delete_log(self, log_id: int):
         ShelfLogEntry.objects.filter(
             owner=self.owner, item=self.item, id=log_id
         ).delete()

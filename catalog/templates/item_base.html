@@ -51,7 +51,7 @@
       {% if request.user.is_authenticated and not mark.shelf_type %}
         <div id="item-primary-action" class="right mark">
           <div class="item-action item-mark-buttons">
-            {% for k, v in shelf_actions %}
+            {% for k, v in shelf_statuses %}
               {% if v and k != 'dropped' %}
                 <button class="primary"
                         data-status="{{ k }}"
@@ -86,14 +86,16 @@
                     hx-get="{% url 'journal:mark' item.uuid %}"
                     hx-target="body"
                     hx-swap="beforeend">
-              {{ mark.created_time | date }} {% trans mark.action_label %}
+              <strong>{% trans mark.status_label %}</strong>
+              <br>
               {% if mark.rating_grade %}
-                <br>
                 {{ mark.rating_grade | rating_star }}
-                <!-- <span style="white-space: nowrap;">
+                <br>
+              {% endif %}
+              <small>{{ mark.created_time | date }}</small>
+              <!-- <span style="white-space: nowrap;">
           <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i><i class="fa-regular fa-star"></i>
         </span> -->
-              {% endif %}
             </button>
           </div>
           <div class="small-only" style="margin-top:2vh;">
@@ -140,7 +142,7 @@
             <div class="item-edit">
               <span class="action inline">
                 <a href="{% url 'catalog:edit' item.url_path item.uuid %}"
-                   title="{% trans 'Edit this item' %}"><i class="fa-solid fa-pen-to-square"></i></a>
+                   title="{% trans 'Edit this item' %}"><i class="fa-regular fa-pen-to-square"></i></a>
               </span>
               {% if item.last_editor and item.last_editor.preference.show_last_edit %}
                 <span>
@@ -217,7 +219,7 @@
               </i>
               &nbsp;&nbsp;
               <i>
-                {% include '_people.html' with people=item.translator role='translated by' max=2 %}
+                {% include '_people.html' with people=item.translator role='translator' max=2 %}
               </i>
             </p>
           {% endif %}

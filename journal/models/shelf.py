@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 from django.db import connection, models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
+from django.utils.translation import pgettext_lazy as __
 from loguru import logger
 
 from catalog.models import Item, ItemCategory
@@ -30,9 +32,10 @@ _SHELF_LABELS = [
     [
         ItemCategory.Book,
         ShelfType.WISHLIST,
-        _("books to read"),
-        _("want to read"),
-        _("wants to read {item}"),
+        _("books to read"),  # shelf label
+        _("want to read"),  # action label
+        _("wants to read {item}"),  # feed
+        _("to read"),  # status label
     ],
     [
         ItemCategory.Book,
@@ -40,6 +43,7 @@ _SHELF_LABELS = [
         _("books reading"),
         _("start reading"),
         _("started reading {item}"),
+        _("reading"),
     ],
     [
         ItemCategory.Book,
@@ -47,6 +51,7 @@ _SHELF_LABELS = [
         _("books completed"),
         _("finish reading"),
         _("finished reading {item}"),
+        _("read"),
     ],
     [
         ItemCategory.Book,
@@ -54,6 +59,7 @@ _SHELF_LABELS = [
         _("books dropped"),
         _("stop reading"),
         _("stopped reading {item}"),
+        _("stopped reading"),
     ],
     [
         ItemCategory.Book,
@@ -61,6 +67,7 @@ _SHELF_LABELS = [
         _("books reviewed"),
         _("review"),
         _("wrote a review of {item}"),
+        "",
     ],
     [
         ItemCategory.Movie,
@@ -68,6 +75,7 @@ _SHELF_LABELS = [
         _("movies to watch"),
         _("want to watch"),
         _("wants to watch {item}"),
+        _("to watch"),
     ],
     [
         ItemCategory.Movie,
@@ -75,6 +83,7 @@ _SHELF_LABELS = [
         _("movies watching"),
         _("start watching"),
         _("started watching {item}"),
+        _("watching"),
     ],
     [
         ItemCategory.Movie,
@@ -82,6 +91,7 @@ _SHELF_LABELS = [
         _("movies watched"),
         _("finish watching"),
         _("finished watching {item}"),
+        _("watched"),
     ],
     [
         ItemCategory.Movie,
@@ -89,6 +99,7 @@ _SHELF_LABELS = [
         _("movies dropped"),
         _("stop watching"),
         _("stopped watching {item}"),
+        _("stopped watching"),
     ],
     [
         ItemCategory.Movie,
@@ -96,6 +107,7 @@ _SHELF_LABELS = [
         _("movies reviewed"),
         _("review"),
         _("wrote a review of {item}"),
+        "",
     ],
     [
         ItemCategory.TV,
@@ -103,6 +115,7 @@ _SHELF_LABELS = [
         _("TV shows to watch"),
         _("want to watch"),
         _("wants to watch {item}"),
+        _("to watch"),
     ],
     [
         ItemCategory.TV,
@@ -110,6 +123,7 @@ _SHELF_LABELS = [
         _("TV shows watching"),
         _("start watching"),
         _("started watching {item}"),
+        _("watching"),
     ],
     [
         ItemCategory.TV,
@@ -117,6 +131,7 @@ _SHELF_LABELS = [
         _("TV shows watched"),
         _("finish watching"),
         _("finished watching {item}"),
+        _("watched"),
     ],
     [
         ItemCategory.TV,
@@ -124,6 +139,7 @@ _SHELF_LABELS = [
         _("TV shows dropped"),
         _("stop watching"),
         _("stopped watching {item}"),
+        _("stopped watching"),
     ],
     [
         ItemCategory.TV,
@@ -131,6 +147,7 @@ _SHELF_LABELS = [
         _("TV shows reviewed"),
         _("review"),
         _("wrote a review of {item}"),
+        "",
     ],
     [
         ItemCategory.Music,
@@ -138,6 +155,7 @@ _SHELF_LABELS = [
         _("albums to listen"),
         _("want to listen"),
         _("wants to listen {item}"),
+        _("to listen"),
     ],
     [
         ItemCategory.Music,
@@ -145,6 +163,7 @@ _SHELF_LABELS = [
         _("albums listening"),
         _("start listening"),
         _("started listening {item}"),
+        _("listening"),
     ],
     [
         ItemCategory.Music,
@@ -152,6 +171,7 @@ _SHELF_LABELS = [
         _("albums listened"),
         _("finish listening"),
         _("finished listening {item}"),
+        _("listened"),
     ],
     [
         ItemCategory.Music,
@@ -159,6 +179,7 @@ _SHELF_LABELS = [
         _("albums dropped"),
         _("stop listening"),
         _("stopped listening {item}"),
+        _("stopped listening"),
     ],
     [
         ItemCategory.Music,
@@ -166,6 +187,7 @@ _SHELF_LABELS = [
         _("albums reviewed"),
         _("review"),
         _("wrote a review of {item}"),
+        "",
     ],
     [
         ItemCategory.Game,
@@ -173,6 +195,7 @@ _SHELF_LABELS = [
         _("games to play"),
         _("want to play"),
         _("wants to play {item}"),
+        _("to play"),
     ],
     [
         ItemCategory.Game,
@@ -180,6 +203,7 @@ _SHELF_LABELS = [
         _("games playing"),
         _("start playing"),
         _("started playing {item}"),
+        _("playing"),
     ],
     [
         ItemCategory.Game,
@@ -187,6 +211,7 @@ _SHELF_LABELS = [
         _("games played"),
         _("finish playing"),
         _("finished playing {item}"),
+        _("played"),
     ],
     [
         ItemCategory.Game,
@@ -194,6 +219,7 @@ _SHELF_LABELS = [
         _("games dropped"),
         _("stop playing"),
         _("stopped playing {item}"),
+        _("stopped playing"),
     ],
     [
         ItemCategory.Game,
@@ -201,6 +227,7 @@ _SHELF_LABELS = [
         _("games reviewed"),
         _("review"),
         _("wrote a review of {item}"),
+        "",
     ],
     [
         ItemCategory.Podcast,
@@ -208,6 +235,7 @@ _SHELF_LABELS = [
         _("podcasts to listen"),
         _("want to listen"),
         _("wants to listen {item}"),
+        _("to listen"),
     ],
     [
         ItemCategory.Podcast,
@@ -215,6 +243,7 @@ _SHELF_LABELS = [
         _("podcasts listening"),
         _("start listening"),
         _("started listening {item}"),
+        _("listening"),
     ],
     [
         ItemCategory.Podcast,
@@ -222,6 +251,7 @@ _SHELF_LABELS = [
         _("podcasts listened"),
         _("finish listening"),
         _("finished listening {item}"),
+        _("listened"),
     ],
     [
         ItemCategory.Podcast,
@@ -229,6 +259,7 @@ _SHELF_LABELS = [
         _("podcasts dropped"),
         _("stop listening"),
         _("stopped listening {item}"),
+        _("stopped listening"),
     ],
     [
         ItemCategory.Podcast,
@@ -236,6 +267,7 @@ _SHELF_LABELS = [
         _("podcasts reviewed"),
         _("review"),
         _("wrote a review of {item}"),
+        "",
     ],
     [
         ItemCategory.Performance,
@@ -243,15 +275,17 @@ _SHELF_LABELS = [
         _("performances to see"),
         _("want to see"),
         _("wants to see {item}"),
+        _("to see"),
     ],
     # disable progress shelf for Performance
-    [ItemCategory.Performance, ShelfType.PROGRESS, "", "", ""],
+    [ItemCategory.Performance, ShelfType.PROGRESS, "", "", "", ""],
     [
         ItemCategory.Performance,
         ShelfType.COMPLETE,
         _("performances saw"),
         _("finish seeing"),
         _("finished seeing {item}"),
+        _("seen"),
     ],
     [
         ItemCategory.Performance,
@@ -259,6 +293,7 @@ _SHELF_LABELS = [
         _("performances dropped"),
         _("stop seeing"),
         _("stopped seeing {item}"),
+        _("stopped seeing"),
     ],
     [
         ItemCategory.Performance,
@@ -266,6 +301,7 @@ _SHELF_LABELS = [
         _("performances reviewed"),
         _("review"),
         _("wrote a review of {item}"),
+        "",
     ],
 ]
 # grammatically problematic, for translation only
@@ -512,6 +548,14 @@ class ShelfManager:
         ]
 
     @classmethod
+    def get_statuses_for_category(cls, item_category: ItemCategory):
+        return [
+            (n[1], n[5])
+            for n in _SHELF_LABELS
+            if n[0] == item_category and n[1] != _REVIEWED
+        ]
+
+    @classmethod
     def get_label(cls, shelf_type: ShelfType | str, item_category: ItemCategory) -> str:
         st = str(shelf_type)
         sts = [n[2] for n in _SHELF_LABELS if n[0] == item_category and n[1] == st]
@@ -523,6 +567,14 @@ class ShelfManager:
     ) -> str:
         st = str(shelf_type)
         sts = [n[3] for n in _SHELF_LABELS if n[0] == item_category and n[1] == st]
+        return sts[0] if sts else st
+
+    @classmethod
+    def get_status_label(
+        cls, shelf_type: ShelfType | str, item_category: ItemCategory
+    ) -> str:
+        st = str(shelf_type)
+        sts = [n[5] for n in _SHELF_LABELS if n[0] == item_category and n[1] == st]
         return sts[0] if sts else st
 
     @classmethod

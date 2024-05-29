@@ -118,7 +118,9 @@ details {
 
 .shelf {
   .action {
-    margin-top: 0.1em;
+    float: unset;
+    position: absolute;
+    right: 0;
   }
 }
 

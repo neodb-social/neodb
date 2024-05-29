@@ -1,12 +1,12 @@
 # NeoDB Translation.
 # Copyright (C) 2024 NeoDB Developers
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the NeoDB package.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-29 13:16-0400\n"
+"POT-Creation-Date: 2024-05-29 18:58-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -635,12 +635,12 @@ msgstr "无法加载条目，请确认链接正确。部分网站可能删除条
 #: catalog/templates/_item_card_metadata_tvseason.html:7
 #: catalog/templates/_item_card_metadata_tvshow.html:7
 #: catalog/templates/_item_card_metadata_work.html:7
-#: catalog/templates/item_base.html:160
+#: catalog/templates/item_base.html:181
 msgid "ratings"
 msgstr "个评分"
 
 #: catalog/templates/_item_card_metadata_base.html:32
-#: catalog/templates/item_base.html:210
+#: catalog/templates/item_base.html:231
 msgid "part of"
 msgstr "所属"
 
@@ -682,10 +682,10 @@ msgstr "没有更多内容了。"
 msgid "comment this episode"
 msgstr "写该集短评"
 
-#: catalog/templates/_item_reviews.html:26 journal/models/shelf.py:62
-#: journal/models/shelf.py:97 journal/models/shelf.py:132
-#: journal/models/shelf.py:167 journal/models/shelf.py:202
-#: journal/models/shelf.py:237 journal/models/shelf.py:267
+#: catalog/templates/_item_reviews.html:26 journal/models/shelf.py:68
+#: journal/models/shelf.py:108 journal/models/shelf.py:148
+#: journal/models/shelf.py:188 journal/models/shelf.py:228
+#: journal/models/shelf.py:268 journal/models/shelf.py:302
 #: journal/templates/_sidebar_user_mark_list.html:26
 msgid "review"
 msgstr "评论"
@@ -707,22 +707,18 @@ msgid "clear history will not remove current mark"
 msgstr "清除标记历史不会删除或改变现有标记"
 
 #: catalog/templates/_item_user_pieces.html:5
-msgid "my tags"
-msgstr "我的标签"
+msgid "my comment and tags"
+msgstr "我的短评和标签"
 
-#: catalog/templates/_item_user_pieces.html:40
-msgid "my comments"
-msgstr "我的短评"
-
-#: catalog/templates/_item_user_pieces.html:100
+#: catalog/templates/_item_user_pieces.html:67
 msgid "my review"
 msgstr "我的评论"
 
-#: catalog/templates/_item_user_pieces.html:142
+#: catalog/templates/_item_user_pieces.html:109
 msgid "my collection"
 msgstr "我的收藏单"
 
-#: catalog/templates/_item_user_pieces.html:172
+#: catalog/templates/_item_user_pieces.html:139
 msgid "mark history"
 msgstr "标记历史"
 
@@ -877,7 +873,7 @@ msgstr "合并到另一条目"
 #: catalog/templates/_sidebar_edit.html:210
 #: catalog/templates/catalog_delete.html:11
 #: developer/templates/oauth2_provider/application_detail.html:42
-#: journal/templates/collection.html:133 journal/templates/mark.html:157
+#: journal/templates/collection.html:133 journal/templates/mark.html:161
 #: journal/templates/piece_delete.html:9 journal/templates/review.html:83
 msgid "Delete"
 msgstr "删除"
@@ -1032,7 +1028,7 @@ msgstr "创建"
 #: developer/templates/oauth2_provider/application_form.html:35
 #: journal/templates/add_to_collection.html:35
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
-#: journal/templates/mark.html:142 journal/templates/review_edit.html:39
+#: journal/templates/mark.html:146 journal/templates/review_edit.html:39
 #: journal/templates/tag_edit.html:60 users/templates/users/account.html:43
 #: users/templates/users/account.html:104
 #: users/templates/users/preferences.html:170
@@ -1123,43 +1119,43 @@ msgstr "系统繁忙，请稍等几秒钟再搜索。"
 msgid "release year"
 msgstr "发行年份"
 
-#: catalog/templates/item_base.html:65
+#: catalog/templates/item_base.html:84
 msgid "select one of the seasons to comment"
 msgstr "这是全剧条目，以下是可标记的单季"
 
-#: catalog/templates/item_base.html:100
+#: catalog/templates/item_base.html:121
 msgid "mark, comment and collect"
 msgstr "标签 · 短评 · 评论 · 收藏"
 
-#: catalog/templates/item_base.html:111
+#: catalog/templates/item_base.html:132
 msgid "Login or register to review or add this item to your collection."
 msgstr "登录后可管理标记收藏"
 
-#: catalog/templates/item_base.html:119
+#: catalog/templates/item_base.html:140
 msgid "Related Collections"
 msgstr "相关收藏单"
 
-#: catalog/templates/item_base.html:134
+#: catalog/templates/item_base.html:155
 msgid "Unsupported item type."
 msgstr "此类数据尚未支持"
 
-#: catalog/templates/item_base.html:143
+#: catalog/templates/item_base.html:164
 msgid "Edit this item"
 msgstr "编辑这个条目"
 
-#: catalog/templates/item_base.html:147
+#: catalog/templates/item_base.html:168
 msgid "Last edited"
 msgstr "最近编辑"
 
-#: catalog/templates/item_base.html:184
+#: catalog/templates/item_base.html:205
 msgid "No enough ratings"
 msgstr "评分人数不足"
 
-#: catalog/templates/item_base.html:228
+#: catalog/templates/item_base.html:249
 msgid "overview"
 msgstr "简介"
 
-#: catalog/templates/item_base.html:234
+#: catalog/templates/item_base.html:255
 #: catalog/templates/item_mark_list.html:54
 #: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:97
 #: common/templates/_sidebar.html:197 journal/templates/collection_items.html:8
@@ -1173,25 +1169,25 @@ msgstr "简介"
 msgid "nothing so far."
 msgstr "暂无内容。"
 
-#: catalog/templates/item_base.html:241
+#: catalog/templates/item_base.html:262
 msgid "comments"
 msgstr "短评"
 
-#: catalog/templates/item_base.html:244
+#: catalog/templates/item_base.html:265
 #: catalog/templates/item_mark_list.html:21
 #: catalog/templates/item_mark_list.html:24
 #: catalog/templates/item_review_list.html:20
 msgid "marks"
 msgstr "标记"
 
-#: catalog/templates/item_base.html:245
+#: catalog/templates/item_base.html:266
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
 msgid "marks from who you follow"
 msgstr "好友标记"
 
-#: catalog/templates/item_base.html:259
+#: catalog/templates/item_base.html:280
 #: catalog/templates/item_mark_list.html:27
 #: catalog/templates/item_review_list.html:22
 msgid "reviews"
@@ -1372,7 +1368,7 @@ msgstr "权限不足"
 
 #: catalog/views_edit.py:200 journal/views/collection.py:229
 #: journal/views/collection.py:296 journal/views/common.py:81
-#: journal/views/mark.py:140 journal/views/post.py:41 journal/views/post.py:55
+#: journal/views/mark.py:142 journal/views/post.py:41 journal/views/post.py:55
 #: journal/views/review.py:93 journal/views/review.py:96 users/views.py:169
 msgid "Invalid parameter"
 msgstr "无效参数"
@@ -1697,7 +1693,7 @@ msgid "note"
 msgstr "备注"
 
 #: journal/models/common.py:28 journal/templates/collection_share.html:35
-#: journal/templates/comment.html:35 journal/templates/mark.html:88
+#: journal/templates/comment.html:35 journal/templates/mark.html:92
 #: journal/templates/tag_edit.html:40 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:47 users/templates/users/data.html:139
 #: users/templates/users/preferences.html:54
@@ -1705,7 +1701,7 @@ msgid "Public"
 msgstr "公开"
 
 #: journal/models/common.py:29 journal/templates/collection_share.html:46
-#: journal/templates/comment.html:42 journal/templates/mark.html:95
+#: journal/templates/comment.html:42 journal/templates/mark.html:99
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:55
 #: users/templates/users/data.html:147
 #: users/templates/users/preferences.html:61
@@ -1713,345 +1709,421 @@ msgid "Followers Only"
 msgstr "仅关注者"
 
 #: journal/models/common.py:30 journal/templates/collection_share.html:57
-#: journal/templates/comment.html:49 journal/templates/mark.html:102
+#: journal/templates/comment.html:49 journal/templates/mark.html:106
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:63
 #: users/templates/users/data.html:155
 #: users/templates/users/preferences.html:68
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/shelf.py:21
+#: journal/models/shelf.py:23
 msgid "WISHLIST"
 msgstr ""
 
-#: journal/models/shelf.py:22
+#: journal/models/shelf.py:24
 msgid "PROGRESS"
 msgstr ""
 
-#: journal/models/shelf.py:23
+#: journal/models/shelf.py:25
 msgid "COMPLETE"
 msgstr ""
 
-#: journal/models/shelf.py:24
+#: journal/models/shelf.py:26
 msgid "DROPPED"
 msgstr ""
 
-#: journal/models/shelf.py:33
+#: journal/models/shelf.py:35
 msgid "books to read"
 msgstr "想读的书"
 
-#: journal/models/shelf.py:34
+#: journal/models/shelf.py:36
 msgid "want to read"
 msgstr "想读"
 
-#: journal/models/shelf.py:35
+#: journal/models/shelf.py:37
 #, python-brace-format
 msgid "wants to read {item}"
 msgstr "想读 {item}"
 
-#: journal/models/shelf.py:40
+#: journal/models/shelf.py:38
+msgid "to read"
+msgstr "想读"
+
+#: journal/models/shelf.py:43
 msgid "books reading"
 msgstr "正在读的书"
 
-#: journal/models/shelf.py:41
+#: journal/models/shelf.py:44
 msgid "start reading"
 msgstr "在读"
 
-#: journal/models/shelf.py:42
+#: journal/models/shelf.py:45
 #, python-brace-format
 msgid "started reading {item}"
 msgstr "在读 {item}"
 
-#: journal/models/shelf.py:47
+#: journal/models/shelf.py:46
+msgid "reading"
+msgstr "在读"
+
+#: journal/models/shelf.py:51
 msgid "books completed"
 msgstr "读过的书"
 
-#: journal/models/shelf.py:48
+#: journal/models/shelf.py:52
 msgid "finish reading"
 msgstr "读过"
 
-#: journal/models/shelf.py:49
+#: journal/models/shelf.py:53
 #, python-brace-format
 msgid "finished reading {item}"
 msgstr "读过 {item}"
 
 #: journal/models/shelf.py:54
+msgid "read"
+msgstr "已读"
+
+#: journal/models/shelf.py:59
 msgid "books dropped"
 msgstr "不再读的书"
 
-#: journal/models/shelf.py:55
+#: journal/models/shelf.py:60
 msgid "stop reading"
 msgstr "不读了"
 
-#: journal/models/shelf.py:56
+#: journal/models/shelf.py:61
 #, python-brace-format
 msgid "stopped reading {item}"
 msgstr "不再读 {item}"
 
-#: journal/models/shelf.py:61
+#: journal/models/shelf.py:62
+msgid "stopped reading"
+msgstr "不读了"
+
+#: journal/models/shelf.py:67
 msgid "books reviewed"
 msgstr "评论过的书"
 
-#: journal/models/shelf.py:63 journal/models/shelf.py:98
-#: journal/models/shelf.py:133 journal/models/shelf.py:168
-#: journal/models/shelf.py:203 journal/models/shelf.py:238
-#: journal/models/shelf.py:268
+#: journal/models/shelf.py:69 journal/models/shelf.py:109
+#: journal/models/shelf.py:149 journal/models/shelf.py:189
+#: journal/models/shelf.py:229 journal/models/shelf.py:269
+#: journal/models/shelf.py:303
 #, python-brace-format
 msgid "wrote a review of {item}"
 msgstr "写了关于 {item} 的评论"
 
-#: journal/models/shelf.py:68
+#: journal/models/shelf.py:75
 msgid "movies to watch"
 msgstr "想看的电影"
 
-#: journal/models/shelf.py:69 journal/models/shelf.py:104
+#: journal/models/shelf.py:76 journal/models/shelf.py:116
 msgid "want to watch"
 msgstr "想看"
 
-#: journal/models/shelf.py:70 journal/models/shelf.py:105
+#: journal/models/shelf.py:77 journal/models/shelf.py:117
 #, python-brace-format
 msgid "wants to watch {item}"
 msgstr "想看 {item}"
 
-#: journal/models/shelf.py:75
+#: journal/models/shelf.py:78 journal/models/shelf.py:118
+msgid "to watch"
+msgstr "想看"
+
+#: journal/models/shelf.py:83
 msgid "movies watching"
 msgstr "正在看的电影"
 
-#: journal/models/shelf.py:76 journal/models/shelf.py:111
+#: journal/models/shelf.py:84 journal/models/shelf.py:124
 msgid "start watching"
 msgstr "在看"
 
-#: journal/models/shelf.py:77 journal/models/shelf.py:112
+#: journal/models/shelf.py:85 journal/models/shelf.py:125
 #, python-brace-format
 msgid "started watching {item}"
 msgstr "在看 {item}"
 
-#: journal/models/shelf.py:82
+#: journal/models/shelf.py:86 journal/models/shelf.py:126
+msgid "watching"
+msgstr "在看"
+
+#: journal/models/shelf.py:91
 msgid "movies watched"
 msgstr "看过的电影"
 
-#: journal/models/shelf.py:83 journal/models/shelf.py:118
+#: journal/models/shelf.py:92 journal/models/shelf.py:132
 msgid "finish watching"
 msgstr "看过"
 
-#: journal/models/shelf.py:84 journal/models/shelf.py:119
+#: journal/models/shelf.py:93 journal/models/shelf.py:133
 #, python-brace-format
 msgid "finished watching {item}"
 msgstr "看过 {item}"
 
-#: journal/models/shelf.py:89
+#: journal/models/shelf.py:94 journal/models/shelf.py:134
+msgid "watched"
+msgstr "看过"
+
+#: journal/models/shelf.py:99
 msgid "movies dropped"
 msgstr "不再看的电影"
 
-#: journal/models/shelf.py:90 journal/models/shelf.py:125
+#: journal/models/shelf.py:100 journal/models/shelf.py:140
 msgid "stop watching"
 msgstr "不看了"
 
-#: journal/models/shelf.py:91 journal/models/shelf.py:126
+#: journal/models/shelf.py:101 journal/models/shelf.py:141
 #, python-brace-format
 msgid "stopped watching {item}"
 msgstr "不再看 {item}"
 
-#: journal/models/shelf.py:96
+#: journal/models/shelf.py:102 journal/models/shelf.py:142
+msgid "stopped watching"
+msgstr "不看了"
+
+#: journal/models/shelf.py:107
 msgid "movies reviewed"
 msgstr "评论过的电影"
 
-#: journal/models/shelf.py:103
+#: journal/models/shelf.py:115
 msgid "TV shows to watch"
 msgstr "想看的剧集"
 
-#: journal/models/shelf.py:110
+#: journal/models/shelf.py:123
 msgid "TV shows watching"
 msgstr "正在看的剧集"
 
-#: journal/models/shelf.py:117
+#: journal/models/shelf.py:131
 msgid "TV shows watched"
 msgstr "看过的剧集"
 
-#: journal/models/shelf.py:124
+#: journal/models/shelf.py:139
 msgid "TV shows dropped"
 msgstr "不再看的剧集"
 
-#: journal/models/shelf.py:131
+#: journal/models/shelf.py:147
 msgid "TV shows reviewed"
 msgstr "评论过的剧集"
 
-#: journal/models/shelf.py:138
+#: journal/models/shelf.py:155
 msgid "albums to listen"
 msgstr "想听的专辑"
 
-#: journal/models/shelf.py:139 journal/models/shelf.py:209
+#: journal/models/shelf.py:156 journal/models/shelf.py:236
 msgid "want to listen"
 msgstr "想听"
 
-#: journal/models/shelf.py:140 journal/models/shelf.py:210
+#: journal/models/shelf.py:157 journal/models/shelf.py:237
 #, python-brace-format
 msgid "wants to listen {item}"
 msgstr "想听 {item}"
 
-#: journal/models/shelf.py:145
+#: journal/models/shelf.py:158 journal/models/shelf.py:238
+msgid "to listen"
+msgstr "想听"
+
+#: journal/models/shelf.py:163
 msgid "albums listening"
 msgstr "正在听的专辑"
 
-#: journal/models/shelf.py:146 journal/models/shelf.py:216
+#: journal/models/shelf.py:164 journal/models/shelf.py:244
 msgid "start listening"
 msgstr "在听"
 
-#: journal/models/shelf.py:147 journal/models/shelf.py:217
+#: journal/models/shelf.py:165 journal/models/shelf.py:245
 #, python-brace-format
 msgid "started listening {item}"
 msgstr "在听 {item}"
 
-#: journal/models/shelf.py:152
+#: journal/models/shelf.py:166 journal/models/shelf.py:246
+msgid "listening"
+msgstr "在听"
+
+#: journal/models/shelf.py:171
 msgid "albums listened"
 msgstr "听过的专辑"
 
-#: journal/models/shelf.py:153 journal/models/shelf.py:223
+#: journal/models/shelf.py:172 journal/models/shelf.py:252
 msgid "finish listening"
 msgstr "听过"
 
-#: journal/models/shelf.py:154 journal/models/shelf.py:224
+#: journal/models/shelf.py:173 journal/models/shelf.py:253
 #, python-brace-format
 msgid "finished listening {item}"
 msgstr "听过 {item}"
 
-#: journal/models/shelf.py:159
+#: journal/models/shelf.py:174 journal/models/shelf.py:254
+msgid "listened"
+msgstr "听过"
+
+#: journal/models/shelf.py:179
 msgid "albums dropped"
 msgstr "不再听的专辑"
 
-#: journal/models/shelf.py:160 journal/models/shelf.py:230
+#: journal/models/shelf.py:180 journal/models/shelf.py:260
 msgid "stop listening"
 msgstr "不听了"
 
-#: journal/models/shelf.py:161 journal/models/shelf.py:231
+#: journal/models/shelf.py:181 journal/models/shelf.py:261
 #, python-brace-format
 msgid "stopped listening {item}"
 msgstr "不听了 {item}"
 
-#: journal/models/shelf.py:166
+#: journal/models/shelf.py:182 journal/models/shelf.py:262
+msgid "stopped listening"
+msgstr "不听了"
+
+#: journal/models/shelf.py:187
 msgid "albums reviewed"
 msgstr "评论过的专辑"
 
-#: journal/models/shelf.py:173
+#: journal/models/shelf.py:195
 msgid "games to play"
 msgstr "想玩的游戏"
 
-#: journal/models/shelf.py:174
+#: journal/models/shelf.py:196
 msgid "want to play"
 msgstr "想玩"
 
-#: journal/models/shelf.py:175
+#: journal/models/shelf.py:197
 #, python-brace-format
 msgid "wants to play {item}"
 msgstr "想玩 {item}"
 
-#: journal/models/shelf.py:180
+#: journal/models/shelf.py:198
+msgid "to play"
+msgstr "想玩"
+
+#: journal/models/shelf.py:203
 msgid "games playing"
 msgstr "正在玩的游戏"
 
-#: journal/models/shelf.py:181
+#: journal/models/shelf.py:204
 msgid "start playing"
 msgstr "在玩"
 
-#: journal/models/shelf.py:182
+#: journal/models/shelf.py:205
 #, python-brace-format
 msgid "started playing {item}"
 msgstr "在玩 {item}"
 
-#: journal/models/shelf.py:187
+#: journal/models/shelf.py:206
+msgid "playing"
+msgstr "在玩"
+
+#: journal/models/shelf.py:211
 msgid "games played"
 msgstr "玩过的游戏"
 
-#: journal/models/shelf.py:188
+#: journal/models/shelf.py:212
 msgid "finish playing"
 msgstr "玩过"
 
-#: journal/models/shelf.py:189
+#: journal/models/shelf.py:213
 #, python-brace-format
 msgid "finished playing {item}"
 msgstr "玩过 {item}"
 
-#: journal/models/shelf.py:194
+#: journal/models/shelf.py:214
+msgid "played"
+msgstr "玩过"
+
+#: journal/models/shelf.py:219
 msgid "games dropped"
 msgstr "不再玩的游戏"
 
-#: journal/models/shelf.py:195
+#: journal/models/shelf.py:220
 msgid "stop playing"
 msgstr "不玩了"
 
-#: journal/models/shelf.py:196
+#: journal/models/shelf.py:221
 #, python-brace-format
 msgid "stopped playing {item}"
 msgstr "不再玩 {item}"
 
-#: journal/models/shelf.py:201
+#: journal/models/shelf.py:222
+msgid "stopped playing"
+msgstr "不玩了"
+
+#: journal/models/shelf.py:227
 msgid "games reviewed"
 msgstr "评论过的游戏"
 
-#: journal/models/shelf.py:208
+#: journal/models/shelf.py:235
 msgid "podcasts to listen"
 msgstr "想听的播客"
 
-#: journal/models/shelf.py:215
+#: journal/models/shelf.py:243
 msgid "podcasts listening"
 msgstr "正在听的播客"
 
-#: journal/models/shelf.py:222
+#: journal/models/shelf.py:251
 msgid "podcasts listened"
 msgstr "听过的播客"
 
-#: journal/models/shelf.py:229
+#: journal/models/shelf.py:259
 msgid "podcasts dropped"
 msgstr "不再听的播客"
 
-#: journal/models/shelf.py:236
+#: journal/models/shelf.py:267
 msgid "podcasts reviewed"
 msgstr "评论过的播客"
 
-#: journal/models/shelf.py:243
+#: journal/models/shelf.py:275
 msgid "performances to see"
 msgstr "想看的演出"
 
-#: journal/models/shelf.py:244
+#: journal/models/shelf.py:276
 msgid "want to see"
 msgstr "想看"
 
-#: journal/models/shelf.py:245
+#: journal/models/shelf.py:277
 #, python-brace-format
 msgid "wants to see {item}"
 msgstr "想看 {item}"
 
-#: journal/models/shelf.py:252
+#: journal/models/shelf.py:278
+msgid "to see"
+msgstr "想看"
+
+#: journal/models/shelf.py:285
 msgid "performances saw"
 msgstr "看过的演出"
 
-#: journal/models/shelf.py:253
+#: journal/models/shelf.py:286
 msgid "finish seeing"
 msgstr "看过"
 
-#: journal/models/shelf.py:254
+#: journal/models/shelf.py:287
 #, python-brace-format
 msgid "finished seeing {item}"
 msgstr "看过 {item}"
 
-#: journal/models/shelf.py:259
+#: journal/models/shelf.py:288
+msgid "seen"
+msgstr "看过"
+
+#: journal/models/shelf.py:293
 msgid "performances dropped"
 msgstr "不再看的演出"
 
-#: journal/models/shelf.py:260
+#: journal/models/shelf.py:294
 msgid "stop seeing"
 msgstr "不看了"
 
-#: journal/models/shelf.py:261
+#: journal/models/shelf.py:295
 #, python-brace-format
 msgid "stopped seeing {item}"
 msgstr "不再看 {item}"
 
-#: journal/models/shelf.py:266
+#: journal/models/shelf.py:296
+msgid "stopped seeing"
+msgstr "不看了"
+
+#: journal/models/shelf.py:301
 msgid "performances reviewed"
 msgstr "评论过的演出"
 
-#: journal/models/shelf.py:424
+#: journal/models/shelf.py:460
 msgid "removed mark"
 msgstr "移除标记"
 
@@ -2224,12 +2296,12 @@ msgstr "更新"
 msgid "Comment"
 msgstr "写短评"
 
-#: journal/templates/comment.html:24 journal/templates/mark.html:66
+#: journal/templates/comment.html:24 journal/templates/mark.html:70
 msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
 msgstr "提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实例时间轴。"
 
-#: journal/templates/comment.html:62 journal/templates/mark.html:115
-msgid "Repost to your timeline"
+#: journal/templates/comment.html:62 journal/templates/mark.html:119
+msgid "Repost to timeline"
 msgstr "转发到时间轴"
 
 #: journal/templates/comment.html:75
@@ -2240,20 +2312,20 @@ msgstr "分享播放位置"
 msgid "Mark"
 msgstr "标记"
 
-#: journal/templates/mark.html:43 journal/templates/mark.html:47
-#: journal/templates/mark.html:51
+#: journal/templates/mark.html:47 journal/templates/mark.html:51
+#: journal/templates/mark.html:55
 msgid "not rated"
 msgstr "未评分"
 
-#: journal/templates/mark.html:74
+#: journal/templates/mark.html:78
 msgid "add a tag and press Enter"
 msgstr "回车增加标签"
 
-#: journal/templates/mark.html:130
+#: journal/templates/mark.html:134
 msgid "change mark date"
 msgstr "指定标记日期"
 
-#: journal/templates/mark.html:156
+#: journal/templates/mark.html:160
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr "确认删除这条标记、短评和标签？"
 
@@ -2502,7 +2574,7 @@ msgstr "找不到条目，请使用本站条目网址。"
 msgid "Login required"
 msgstr "登录后访问"
 
-#: journal/views/common.py:33 journal/views/mark.py:117
+#: journal/views/common.py:33 journal/views/mark.py:119
 msgid "Data saved but unable to repost to Fediverse instance."
 msgstr "数据已保存但未能转发到联邦实例。"
 
@@ -2514,11 +2586,11 @@ msgstr "正在重定向到你的联邦实例以重新认证。"
 msgid "List not found."
 msgstr "列表未找到"
 
-#: journal/views/mark.py:108
+#: journal/views/mark.py:110
 msgid "Content too long for your Fediverse instance."
 msgstr "内容过长，超出了你的联邦实例的限制。"
 
-#: journal/views/mark.py:162 journal/views/review.py:30
+#: journal/views/mark.py:164 journal/views/review.py:30
 msgid "Content not found"
 msgstr "内容未找到"
 
@@ -3444,18 +3516,18 @@ msgid "local, this site only"
 msgstr "仅本站"
 
 #: users/templates/users/preferences.html:96
-msgid "Repost to your timeline by default"
+msgid "Turn on repost to timeline by default"
 msgstr "发表时默认转发到时间轴"
 
 #: users/templates/users/preferences.html:104
-msgid "Method for reposting to your timeline"
+msgid "Method for reposting to timeline"
 msgstr "转发到时间轴的方式"
 
 #: users/templates/users/preferences.html:119
 msgid "repost as new post"
 msgstr "另发新帖文"
 
-#: users/templates/users/preferences.html:120
+#: users/templates/users/preferences.html:121
 msgid "this method is less optimal, may generate duplicated posts and miss reactions."
 msgstr "这种方式可能产生重复帖文，且其他人对新帖的回应、点赞不会被记录"
 

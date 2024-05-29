@@ -44,6 +44,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
     if request.method == "GET":
         tags = request.user.identity.tag_manager.get_item_tags(item)
         shelf_actions = ShelfManager.get_actions_for_category(item.category)
+        shelf_statuses = ShelfManager.get_statuses_for_category(item.category)
         shelf_type = request.GET.get("shelf_type", mark.shelf_type)
         return render(
             request,
@@ -54,6 +55,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
                 "shelf_type": shelf_type,
                 "tags": ",".join(tags),
                 "shelf_actions": shelf_actions,
+                "shelf_statuses": shelf_statuses,
                 "date_today": timezone.localdate().isoformat(),
             },
         )
