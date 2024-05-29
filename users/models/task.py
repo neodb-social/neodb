@@ -14,10 +14,10 @@ class Task(models.Model):
     DefaultMetadata = {}
 
     class States(models.IntegerChoices):
-        pending = 0, "Pending"
-        started = 1, "Started"
-        complete = 2, "Complete"
-        failed = 3, "Failed"
+        pending = 0, _("Pending")  # type:ignore[reportCallIssue]
+        started = 1, _("Started")  # type:ignore[reportCallIssue]
+        complete = 2, _("Complete")  # type:ignore[reportCallIssue]
+        failed = 3, _("Failed")  # type:ignore[reportCallIssue]
 
     user = models.ForeignKey(User, models.CASCADE, null=False)
     type = models.CharField(max_length=20, null=False)

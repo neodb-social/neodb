@@ -30,70 +30,84 @@ if TYPE_CHECKING:
 
 
 class SiteName(models.TextChoices):
-    Unknown = "unknown", _("Unknown")
-    Douban = "douban", _("Douban")
-    Goodreads = "goodreads", _("Goodreads")
-    GoogleBooks = "googlebooks", _("Google Books")
-    BooksTW = "bookstw", _("BooksTW")
-    IMDB = "imdb", _("IMDb")
-    TMDB = "tmdb", _("TMDB")
-    Bandcamp = "bandcamp", _("Bandcamp")
-    Spotify = "spotify", _("Spotify")
-    IGDB = "igdb", _("IGDB")
-    Steam = "steam", _("Steam")
-    Bangumi = "bangumi", _("Bangumi")
-    BGG = "bgg", _("BGG")
-    # ApplePodcast = "apple_podcast", _("Apple Podcast")
-    RSS = "rss", _("RSS")
-    Discogs = "discogs", _("Discogs")
-    AppleMusic = "apple_music", _("Apple Music")
-    Fediverse = "fedi", _("Fediverse")
+    Unknown = "unknown", _("Unknown")  # type:ignore[reportCallIssue]
+    Douban = "douban", _("Douban")  # type:ignore[reportCallIssue]
+    Goodreads = "goodreads", _("Goodreads")  # type:ignore[reportCallIssue]
+    GoogleBooks = "googlebooks", _("Google Books")  # type:ignore[reportCallIssue]
+    BooksTW = "bookstw", _("BooksTW")  # type:ignore[reportCallIssue]
+    IMDB = "imdb", _("IMDb")  # type:ignore[reportCallIssue]
+    TMDB = "tmdb", _("TMDB")  # type:ignore[reportCallIssue]
+    Bandcamp = "bandcamp", _("Bandcamp")  # type:ignore[reportCallIssue]
+    Spotify = "spotify", _("Spotify")  # type:ignore[reportCallIssue]
+    IGDB = "igdb", _("IGDB")  # type:ignore[reportCallIssue]
+    Steam = "steam", _("Steam")  # type:ignore[reportCallIssue]
+    Bangumi = "bangumi", _("Bangumi")  # type:ignore[reportCallIssue]
+    BGG = "bgg", _("BGG")  # type:ignore[reportCallIssue]
+    # ApplePodcast = "apple_podcast", _("Apple Podcast")  # type:ignore[reportCallIssue]
+    RSS = "rss", _("RSS")  # type:ignore[reportCallIssue]
+    Discogs = "discogs", _("Discogs")  # type:ignore[reportCallIssue]
+    AppleMusic = "apple_music", _("Apple Music")  # type:ignore[reportCallIssue]
+    Fediverse = "fedi", _("Fediverse")  # type:ignore[reportCallIssue]
 
 
 class IdType(models.TextChoices):
-    WikiData = "wikidata", _("WikiData")
-    ISBN10 = "isbn10", _("ISBN10")
-    ISBN = "isbn", _("ISBN")  # ISBN 13
-    ASIN = "asin", _("ASIN")
-    ISSN = "issn", _("ISSN")
-    CUBN = "cubn", _("CUBN")
-    ISRC = "isrc", _("ISRC")  # only for songs
-    GTIN = "gtin", _("GTIN UPC EAN")  # GTIN-13, ISBN is separate
-    RSS = "rss", _("RSS Feed URL")
-    IMDB = "imdb", _("IMDb")
-    TMDB_TV = "tmdb_tv", _("TMDB TV Serie")
-    TMDB_TVSeason = "tmdb_tvseason", _("TMDB TV Season")
-    TMDB_TVEpisode = "tmdb_tvepisode", _("TMDB TV Episode")
-    TMDB_Movie = "tmdb_movie", _("TMDB Movie")
-    Goodreads = "goodreads", _("Goodreads")
-    Goodreads_Work = "goodreads_work", _("Goodreads Work")
-    GoogleBooks = "googlebooks", _("Google Books")
-    DoubanBook = "doubanbook", _("Douban Book")
-    DoubanBook_Work = "doubanbook_work", _("Douban Book Work")
-    DoubanMovie = "doubanmovie", _("Douban Movie")
-    DoubanMusic = "doubanmusic", _("Douban Music")
-    DoubanGame = "doubangame", _("Douban Game")
-    DoubanDrama = "doubandrama", _("Douban Drama")
-    DoubanDramaVersion = "doubandrama_version", _("Douban Drama Version")
-    BooksTW = "bookstw", _("BooksTW Book")
-    Bandcamp = "bandcamp", _("Bandcamp")
-    Spotify_Album = "spotify_album", _("Spotify Album")
-    Spotify_Show = "spotify_show", _("Spotify Podcast")
-    Discogs_Release = "discogs_release", _("Discogs Release")
-    Discogs_Master = "discogs_master", _("Discogs Master")
-    MusicBrainz = "musicbrainz", _("MusicBrainz ID")
-    # DoubanBook_Author = "doubanbook_author", _("Douban Book Author")
-    # DoubanCelebrity = "doubanmovie_celebrity", _("Douban Movie Celebrity")
-    # Goodreads_Author = "goodreads_author", _("Goodreads Author")
-    # Spotify_Artist = "spotify_artist", _("Spotify Artist")
-    # TMDB_Person = "tmdb_person", _("TMDB Person")
-    IGDB = "igdb", _("IGDB Game")
-    BGG = "bgg", _("BGG Boardgame")
-    Steam = "steam", _("Steam Game")
-    Bangumi = "bangumi", _("Bangumi")
-    ApplePodcast = "apple_podcast", _("Apple Podcast")
-    AppleMusic = "apple_music", _("Apple Music")
-    Fediverse = "fedi", _("Fediverse")
+    WikiData = "wikidata", _("WikiData")  # type:ignore[reportCallIssue]
+    ISBN10 = "isbn10", _("ISBN10")  # type:ignore[reportCallIssue]
+    ISBN = "isbn", _("ISBN")  # ISBN 13  # type:ignore[reportCallIssue]
+    ASIN = "asin", _("ASIN")  # type:ignore[reportCallIssue]
+    ISSN = "issn", _("ISSN")  # type:ignore[reportCallIssue]
+    CUBN = "cubn", _("CUBN")  # type:ignore[reportCallIssue]
+    ISRC = "isrc", _("ISRC")  # only for songs  # type:ignore[reportCallIssue]
+    GTIN = "gtin", _(
+        "GTIN UPC EAN"
+    )  # GTIN-13, ISBN is separate  # type:ignore[reportCallIssue]
+    RSS = "rss", _("RSS Feed URL")  # type:ignore[reportCallIssue]
+    IMDB = "imdb", _("IMDb")  # type:ignore[reportCallIssue]
+    TMDB_TV = "tmdb_tv", _("TMDB TV Serie")  # type:ignore[reportCallIssue]
+    TMDB_TVSeason = "tmdb_tvseason", _("TMDB TV Season")  # type:ignore[reportCallIssue]
+    TMDB_TVEpisode = "tmdb_tvepisode", _(
+        "TMDB TV Episode"
+    )  # type:ignore[reportCallIssue]
+    TMDB_Movie = "tmdb_movie", _("TMDB Movie")  # type:ignore[reportCallIssue]
+    Goodreads = "goodreads", _("Goodreads")  # type:ignore[reportCallIssue]
+    Goodreads_Work = "goodreads_work", _(
+        "Goodreads Work"
+    )  # type:ignore[reportCallIssue]
+    GoogleBooks = "googlebooks", _("Google Books")  # type:ignore[reportCallIssue]
+    DoubanBook = "doubanbook", _("Douban Book")  # type:ignore[reportCallIssue]
+    DoubanBook_Work = "doubanbook_work", _(
+        "Douban Book Work"
+    )  # type:ignore[reportCallIssue]
+    DoubanMovie = "doubanmovie", _("Douban Movie")  # type:ignore[reportCallIssue]
+    DoubanMusic = "doubanmusic", _("Douban Music")  # type:ignore[reportCallIssue]
+    DoubanGame = "doubangame", _("Douban Game")  # type:ignore[reportCallIssue]
+    DoubanDrama = "doubandrama", _("Douban Drama")  # type:ignore[reportCallIssue]
+    DoubanDramaVersion = "doubandrama_version", _(
+        "Douban Drama Version"
+    )  # type:ignore[reportCallIssue]
+    BooksTW = "bookstw", _("BooksTW Book")  # type:ignore[reportCallIssue]
+    Bandcamp = "bandcamp", _("Bandcamp")  # type:ignore[reportCallIssue]
+    Spotify_Album = "spotify_album", _("Spotify Album")  # type:ignore[reportCallIssue]
+    Spotify_Show = "spotify_show", _("Spotify Podcast")  # type:ignore[reportCallIssue]
+    Discogs_Release = "discogs_release", _(
+        "Discogs Release"
+    )  # type:ignore[reportCallIssue]
+    Discogs_Master = "discogs_master", _(
+        "Discogs Master"
+    )  # type:ignore[reportCallIssue]
+    MusicBrainz = "musicbrainz", _("MusicBrainz ID")  # type:ignore[reportCallIssue]
+    # DoubanBook_Author = "doubanbook_author", _("Douban Book Author")  # type:ignore[reportCallIssue]
+    # DoubanCelebrity = "doubanmovie_celebrity", _("Douban Movie Celebrity")  # type:ignore[reportCallIssue]
+    # Goodreads_Author = "goodreads_author", _("Goodreads Author")  # type:ignore[reportCallIssue]
+    # Spotify_Artist = "spotify_artist", _("Spotify Artist")  # type:ignore[reportCallIssue]
+    # TMDB_Person = "tmdb_person", _("TMDB Person")  # type:ignore[reportCallIssue]
+    IGDB = "igdb", _("IGDB Game")  # type:ignore[reportCallIssue]
+    BGG = "bgg", _("BGG Boardgame")  # type:ignore[reportCallIssue]
+    Steam = "steam", _("Steam Game")  # type:ignore[reportCallIssue]
+    Bangumi = "bangumi", _("Bangumi")  # type:ignore[reportCallIssue]
+    ApplePodcast = "apple_podcast", _("Apple Podcast")  # type:ignore[reportCallIssue]
+    AppleMusic = "apple_music", _("Apple Music")  # type:ignore[reportCallIssue]
+    Fediverse = "fedi", _("Fediverse")  # type:ignore[reportCallIssue]
 
 
 IdealIdTypes = [
@@ -109,49 +123,53 @@ IdealIdTypes = [
 
 
 class ItemType(models.TextChoices):
-    Book = "book", _("Book")
-    TVShow = "tvshow", _("TV Serie")
-    TVSeason = "tvseason", _("TV Season")
-    TVEpisode = "tvepisode", _("TV Episode")
-    Movie = "movie", _("Movie")
-    Album = "music", _("Album")
-    Game = "game", _("Game")
-    Podcast = "podcast", _("Podcast Program")
-    PodcastEpisode = "podcastepisode", _("Podcast Episode")
-    Performance = "performance", _("Performance")
-    PerformanceProduction = "production", _("Production")
-    FanFic = "fanfic", _("Fanfic")
-    Exhibition = "exhibition", _("Exhibition")
-    Collection = "collection", _("Collection")
+    Book = "book", _("Book")  # type:ignore[reportCallIssue]
+    TVShow = "tvshow", _("TV Serie")  # type:ignore[reportCallIssue]
+    TVSeason = "tvseason", _("TV Season")  # type:ignore[reportCallIssue]
+    TVEpisode = "tvepisode", _("TV Episode")  # type:ignore[reportCallIssue]
+    Movie = "movie", _("Movie")  # type:ignore[reportCallIssue]
+    Album = "music", _("Album")  # type:ignore[reportCallIssue]
+    Game = "game", _("Game")  # type:ignore[reportCallIssue]
+    Podcast = "podcast", _("Podcast Program")  # type:ignore[reportCallIssue]
+    PodcastEpisode = "podcastepisode", _(
+        "Podcast Episode"
+    )  # type:ignore[reportCallIssue]
+    Performance = "performance", _("Performance")  # type:ignore[reportCallIssue]
+    PerformanceProduction = "production", _(
+        "Production"
+    )  # type:ignore[reportCallIssue]
+    FanFic = "fanfic", _("Fanfic")  # type:ignore[reportCallIssue]
+    Exhibition = "exhibition", _("Exhibition")  # type:ignore[reportCallIssue]
+    Collection = "collection", _("Collection")  # type:ignore[reportCallIssue]
 
 
 class ItemCategory(models.TextChoices):
-    Book = "book", _("Book")
-    Movie = "movie", _("Movie")
-    TV = "tv", _("TV")
-    Music = "music", _("Music")
-    Game = "game", _("Game")
-    Podcast = "podcast", _("Podcast")
-    Performance = "performance", _("Performance")
-    FanFic = "fanfic", _("FanFic")
-    Exhibition = "exhibition", _("Exhibition")
-    Collection = "collection", _("Collection")
+    Book = "book", _("Book")  # type:ignore[reportCallIssue]
+    Movie = "movie", _("Movie")  # type:ignore[reportCallIssue]
+    TV = "tv", _("TV")  # type:ignore[reportCallIssue]
+    Music = "music", _("Music")  # type:ignore[reportCallIssue]
+    Game = "game", _("Game")  # type:ignore[reportCallIssue]
+    Podcast = "podcast", _("Podcast")  # type:ignore[reportCallIssue]
+    Performance = "performance", _("Performance")  # type:ignore[reportCallIssue]
+    FanFic = "fanfic", _("FanFic")  # type:ignore[reportCallIssue]
+    Exhibition = "exhibition", _("Exhibition")  # type:ignore[reportCallIssue]
+    Collection = "collection", _("Collection")  # type:ignore[reportCallIssue]
 
 
 class AvailableItemCategory(models.TextChoices):
-    Book = "book", _("Book")
-    Movie = "movie", _("Movie")
-    TV = "tv", _("TV")
-    Music = "music", _("Music")
-    Game = "game", _("Game")
-    Podcast = "podcast", _("Podcast")
-    Performance = "performance", _("Performance")
+    Book = "book", _("Book")  # type:ignore[reportCallIssue]
+    Movie = "movie", _("Movie")  # type:ignore[reportCallIssue]
+    TV = "tv", _("TV")  # type:ignore[reportCallIssue]
+    Music = "music", _("Music")  # type:ignore[reportCallIssue]
+    Game = "game", _("Game")  # type:ignore[reportCallIssue]
+    Podcast = "podcast", _("Podcast")  # type:ignore[reportCallIssue]
+    Performance = "performance", _("Performance")  # type:ignore[reportCallIssue]
 
 
 # class SubItemType(models.TextChoices):
-#     Season = "season", _("season")
-#     Episode = "episode", _("episode")
-#     Version = "production", _("production")
+#     Season = "season", _("season")  # type:ignore[reportCallIssue]
+#     Episode = "episode", _("episode")  # type:ignore[reportCallIssue]
+#     Version = "production", _("production")  # type:ignore[reportCallIssue]
 
 
 # class CreditType(models.TextChoices):

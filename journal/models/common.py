@@ -25,9 +25,9 @@ if TYPE_CHECKING:
 
 
 class VisibilityType(models.IntegerChoices):
-    Public = 0, _("Public")
-    Follower_Only = 1, _("Followers Only")
-    Private = 2, _("Mentioned Only")
+    Public = 0, _("Public")  # type:ignore[reportCallIssue]
+    Follower_Only = 1, _("Followers Only")  # type:ignore[reportCallIssue]
+    Private = 2, _("Mentioned Only")  # type:ignore[reportCallIssue]
 
 
 def q_owned_piece_visible_to_user(viewing_user: User, owner: APIdentity):

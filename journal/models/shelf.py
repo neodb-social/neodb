@@ -18,10 +18,10 @@ if TYPE_CHECKING:
 
 
 class ShelfType(models.TextChoices):
-    WISHLIST = ("wishlist", _("WISHLIST"))
-    PROGRESS = ("progress", _("PROGRESS"))
-    COMPLETE = ("complete", _("COMPLETE"))
-    DROPPED = ("dropped", _("DROPPED"))
+    WISHLIST = "wishlist", _("WISHLIST")  # type:ignore[reportCallIssue]
+    PROGRESS = "progress", _("PROGRESS")  # type:ignore[reportCallIssue]
+    COMPLETE = "complete", _("COMPLETE")  # type:ignore[reportCallIssue]
+    DROPPED = "dropped", _("DROPPED")  # type:ignore[reportCallIssue]
 
 
 _REVIEWED = "reviewed"
