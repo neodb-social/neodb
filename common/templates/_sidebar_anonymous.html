@@ -12,22 +12,25 @@
       </div>
     {% else %}
       <article>
-        <h3>欢迎 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>
+        {% url 'users:login' as login_url %}
+        {% blocktrans %}
+        <h3>Welcome 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>
         <p>
-          <i class="fa-solid fa-puzzle-piece"></i> &nbsp; {{ site_name }}致力于提供一个涵盖书籍、影视、音乐、游戏、播客的自由开放互联的收藏评论空间。 你可以在这里记录你的收藏和想法，以及发现新的内容和朋友。
+          <i class="fa-solid fa-puzzle-piece"></i> &nbsp; {{ site_name }} is committed to creating a free, open, and interconnected space for collecting and reviewing books, movies, music, games, and podcasts. Here, you can document your collections and thoughts, discover new content, and connect with others.
         </p>
         <p>
-          <i class="fa-solid fa-globe"></i> &nbsp; 登录{{ site_name }}的最佳方式通过联邦宇宙（Fediverse，有时也被称为<em data-tooltip="除了最常见的长毛象，另外也有Pleroma、GoToSocial、Takahē、Catodon等联邦宇宙实例服务">长毛象</em>，一种分布式社交网络）实例账号，如果你还没有注册过，可先<a href="https://joinmastodon.org/zh/servers" target="_blank">选择实例并注册</a>。
+          <i class="fa-solid fa-globe"></i> &nbsp; The best way to log in to {{ site_name }} is through a Fediverse (a distributed social network, including Mastodon/Pleroma/etc) instance account. If you haven’t registered yet, you can <a href="https://joinmastodon.org/en/servers" target="_blank">choose a Fediverse instance and sign up</a>.
         </p>
         <p>
-          <i class="fa-solid fa-envelope"></i> &nbsp; 如果还没准备好注册联邦宇宙也没问题，你可以在登录页面选择电子邮件注册，未来再连接到联邦宇宙。
+          <i class="fa-solid fa-envelope"></i> &nbsp; If you’re not ready to join the Fediverse, that’s perfectly fine. You can create an account here using your email address, and link it to the Fediverse whenever you’re ready.
         </p>
         <p>
-          <i class="fa-solid fa-circle-question"></i> &nbsp; 如果有任何问题或建议，欢迎通过<a href="https://mastodon.social/@neodb">联邦宇宙</a>或<a href="https://discord.gg/uprvcH8gqD">Discord</a>和我们联系。
+          <i class="fa-solid fa-circle-question"></i> &nbsp; If you have any questions or suggestions, feel free to contact us via <a href="https://mastodon.social/@neodb">Fediverse</a> or <a href="https://discord.gg/uprvcH8gqD">Discord</a>.
         </p>
         <p>
-          <i class="fa-solid fa-door-open"></i> &nbsp; <a href="{% url 'users:login' %}">点击这里</a>注册或登录。
+          <i class="fa-solid fa-door-open"></i> &nbsp; <a href="{{ login_url }}">Click here</a> to register or log in.
         </p>
+        {% endblocktrans %}
       </article>
     {% endif %}
   </section>

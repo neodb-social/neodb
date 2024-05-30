@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-29 18:58-0400\n"
+"POT-Creation-Date: 2024-05-30 09:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,7 +45,7 @@ msgstr "译者"
 #: catalog/performance/models.py:128 catalog/performance/models.py:270
 #: catalog/templates/edition.html:47 catalog/tv/models.py:213
 #: catalog/tv/models.py:377 users/models/user.py:102
-#: users/templates/users/preferences.html:133
+#: users/templates/users/preferences.html:131
 msgid "language"
 msgstr "语言"
 
@@ -287,8 +287,7 @@ msgid "Apple Podcast"
 msgstr "苹果播客"
 
 #: catalog/common/models.py:126 catalog/common/models.py:147
-#: catalog/common/models.py:160 catalog/jobs/discover.py:92
-#: common/templates/_header.html:25
+#: catalog/common/models.py:160 common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:31
 msgid "Book"
 msgstr "图书"
@@ -635,12 +634,12 @@ msgstr "无法加载条目，请确认链接正确。部分网站可能删除条
 #: catalog/templates/_item_card_metadata_tvseason.html:7
 #: catalog/templates/_item_card_metadata_tvshow.html:7
 #: catalog/templates/_item_card_metadata_work.html:7
-#: catalog/templates/item_base.html:181
+#: catalog/templates/item_base.html:162
 msgid "ratings"
 msgstr "个评分"
 
 #: catalog/templates/_item_card_metadata_base.html:32
-#: catalog/templates/item_base.html:231
+#: catalog/templates/item_base.html:212
 msgid "part of"
 msgstr "所属"
 
@@ -873,7 +872,7 @@ msgstr "合并到另一条目"
 #: catalog/templates/_sidebar_edit.html:210
 #: catalog/templates/catalog_delete.html:11
 #: developer/templates/oauth2_provider/application_detail.html:42
-#: journal/templates/collection.html:133 journal/templates/mark.html:161
+#: journal/templates/collection.html:133 journal/templates/mark.html:162
 #: journal/templates/piece_delete.html:9 journal/templates/review.html:83
 msgid "Delete"
 msgstr "删除"
@@ -1028,11 +1027,11 @@ msgstr "创建"
 #: developer/templates/oauth2_provider/application_form.html:35
 #: journal/templates/add_to_collection.html:35
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
-#: journal/templates/mark.html:146 journal/templates/review_edit.html:39
+#: journal/templates/mark.html:147 journal/templates/review_edit.html:39
 #: journal/templates/tag_edit.html:60 users/templates/users/account.html:43
 #: users/templates/users/account.html:104
-#: users/templates/users/preferences.html:170
-#: users/templates/users/preferences.html:195
+#: users/templates/users/preferences.html:168
+#: users/templates/users/preferences.html:193
 msgid "Save"
 msgstr "保存"
 
@@ -1119,43 +1118,43 @@ msgstr "系统繁忙，请稍等几秒钟再搜索。"
 msgid "release year"
 msgstr "发行年份"
 
-#: catalog/templates/item_base.html:84
+#: catalog/templates/item_base.html:65
 msgid "select one of the seasons to comment"
 msgstr "这是全剧条目，以下是可标记的单季"
 
-#: catalog/templates/item_base.html:121
+#: catalog/templates/item_base.html:102
 msgid "mark, comment and collect"
 msgstr "标签 · 短评 · 评论 · 收藏"
 
-#: catalog/templates/item_base.html:132
+#: catalog/templates/item_base.html:113
 msgid "Login or register to review or add this item to your collection."
 msgstr "登录后可管理标记收藏"
 
-#: catalog/templates/item_base.html:140
+#: catalog/templates/item_base.html:121
 msgid "Related Collections"
 msgstr "相关收藏单"
 
-#: catalog/templates/item_base.html:155
+#: catalog/templates/item_base.html:136
 msgid "Unsupported item type."
 msgstr "此类数据尚未支持"
 
-#: catalog/templates/item_base.html:164
+#: catalog/templates/item_base.html:145
 msgid "Edit this item"
 msgstr "编辑这个条目"
 
-#: catalog/templates/item_base.html:168
+#: catalog/templates/item_base.html:149
 msgid "Last edited"
 msgstr "最近编辑"
 
-#: catalog/templates/item_base.html:205
+#: catalog/templates/item_base.html:186
 msgid "No enough ratings"
 msgstr "评分人数不足"
 
-#: catalog/templates/item_base.html:249
+#: catalog/templates/item_base.html:230
 msgid "overview"
 msgstr "简介"
 
-#: catalog/templates/item_base.html:255
+#: catalog/templates/item_base.html:236
 #: catalog/templates/item_mark_list.html:54
 #: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:97
 #: common/templates/_sidebar.html:197 journal/templates/collection_items.html:8
@@ -1169,25 +1168,25 @@ msgstr "简介"
 msgid "nothing so far."
 msgstr "暂无内容。"
 
-#: catalog/templates/item_base.html:262
+#: catalog/templates/item_base.html:243
 msgid "comments"
 msgstr "短评"
 
-#: catalog/templates/item_base.html:265
+#: catalog/templates/item_base.html:246
 #: catalog/templates/item_mark_list.html:21
 #: catalog/templates/item_mark_list.html:24
 #: catalog/templates/item_review_list.html:20
 msgid "marks"
 msgstr "标记"
 
-#: catalog/templates/item_base.html:266
+#: catalog/templates/item_base.html:247
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
 msgid "marks from who you follow"
 msgstr "好友标记"
 
-#: catalog/templates/item_base.html:280
+#: catalog/templates/item_base.html:261
 #: catalog/templates/item_mark_list.html:27
 #: catalog/templates/item_review_list.html:22
 msgid "reviews"
@@ -1460,58 +1459,54 @@ msgstr "全部"
 msgid "Movie & TV"
 msgstr "影视"
 
-#: common/templates/_header.html:54
-msgid "Search"
-msgstr "搜索"
-
-#: common/templates/_header.html:58
+#: common/templates/_header.html:68
 msgid "Explore"
 msgstr "发现"
 
-#: common/templates/_header.html:62
+#: common/templates/_header.html:72
 msgid "Feed"
 msgstr "动态"
 
-#: common/templates/_header.html:66 journal/templates/profile.html:11
+#: common/templates/_header.html:76 journal/templates/profile.html:11
 #: users/templates/users/preferences.html:44
 msgid "Home"
 msgstr "主页"
 
-#: common/templates/_header.html:81 social/templates/notification.html:11
+#: common/templates/_header.html:91 social/templates/notification.html:11
 #: social/templates/notification.html:23
 msgid "Notification"
 msgstr "通知"
 
-#: common/templates/_header.html:84
+#: common/templates/_header.html:94
 msgid "Data"
 msgstr "数据"
 
-#: common/templates/_header.html:87 users/templates/users/preferences.html:11
+#: common/templates/_header.html:97 users/templates/users/preferences.html:11
 #: users/templates/users/preferences.html:21
 msgid "Preferences"
 msgstr "设置"
 
-#: common/templates/_header.html:90
+#: common/templates/_header.html:100
 msgid "Account"
 msgstr "账号"
 
-#: common/templates/_header.html:93
+#: common/templates/_header.html:103
 msgid "Logout"
 msgstr "登出"
 
-#: common/templates/_header.html:97
+#: common/templates/_header.html:107
 msgid "Database"
 msgstr "数据库"
 
-#: common/templates/_header.html:100
+#: common/templates/_header.html:110
 msgid "Manage"
 msgstr "管理"
 
-#: common/templates/_header.html:105
+#: common/templates/_header.html:115
 msgid "Sign up or Login"
 msgstr "注册或登录"
 
-#: common/templates/_header.html:117
+#: common/templates/_header.html:127
 msgid "Set a username."
 msgstr "设置用户名"
 
@@ -1550,6 +1545,47 @@ msgstr "正在追看"
 #: common/templates/_sidebar.html:189
 msgid "Common Tags"
 msgstr "常用标签"
+
+#: common/templates/_sidebar_anonymous.html:16
+#, python-format
+msgid ""
+"\n"
+"        <h3>Welcome 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s is committed to creating a free, open, and interconnected space for collecting and reviewing books, movies, music, games, and podcasts. Here, you can document your collections and thoughts, discover new content, and connect with others.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-globe\"></i> &nbsp; The best way to log in to %(site_name)s is through a Fediverse (a distributed social network, including Mastodon/Pleroma/etc) instance account. If you haven’t registered yet, you can <a href=\"https://joinmastodon.org/en/servers\" target=\"_blank\">choose a Fediverse instance and sign up</a>.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-envelope\"></i> &nbsp; If you’re not ready to join the Fediverse, that’s perfectly fine. You can create an account here using your email address, and link it to the Fediverse whenever you’re ready.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-circle-question\"></i> &nbsp; If you have any questions or suggestions, feel free to contact us via <a href=\"https://mastodon.social/@neodb\">Fediverse</a> or <a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">Click here</a> to register or log in.\n"
+"        </p>\n"
+"        "
+msgstr ""
+"\n"
+"<h3>欢迎 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
+"<p>\n"
+"  <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s 致力于提供一个涵盖书籍、影视、音乐、游戏、播客的自由开放互联的收藏评论空间。 你可以在这里记录你的收藏和想法，以及发现新的内容和朋友。\n"
+"</p>\n"
+"<p>\n"
+"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式通过联邦宇宙（Fediverse，有时也被称为<em data-tooltip=\"除了最常见的长毛象，另外也有Pleroma、GoToSocial、Takahē、Catodon等联邦宇宙实例服务\">长毛象</em>，一种分布式社交网络）实例账号，如果你还没有注册过，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。\n"
+"</p>\n"
+"<p>\n"
+"  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果还没准备好注册联邦宇宙也没问题，你可以在登录页面选择电子邮件注册，未来再连接到联邦宇宙。\n"
+"</p>\n"
+"<p>\n"
+"  <i class=\"fa-solid fa-circle-question\"></i> &nbsp; 如果有任何问题或建议，欢迎通过<a href=\"https://mastodon.social/@neodb\">联邦宇宙</a>或<a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>和我们联系。\n"
+"</p>\n"
+"<p>\n"
+"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">点击这里</a>注册或登录。\n"
+"</p>\n"
+"        "
 
 #: common/templates/common/error.html:11
 msgid "Error"
@@ -1693,7 +1729,7 @@ msgid "note"
 msgstr "备注"
 
 #: journal/models/common.py:28 journal/templates/collection_share.html:35
-#: journal/templates/comment.html:35 journal/templates/mark.html:92
+#: journal/templates/comment.html:35 journal/templates/mark.html:93
 #: journal/templates/tag_edit.html:40 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:47 users/templates/users/data.html:139
 #: users/templates/users/preferences.html:54
@@ -1701,7 +1737,7 @@ msgid "Public"
 msgstr "公开"
 
 #: journal/models/common.py:29 journal/templates/collection_share.html:46
-#: journal/templates/comment.html:42 journal/templates/mark.html:99
+#: journal/templates/comment.html:42 journal/templates/mark.html:100
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:55
 #: users/templates/users/data.html:147
 #: users/templates/users/preferences.html:61
@@ -1709,7 +1745,7 @@ msgid "Followers Only"
 msgstr "仅关注者"
 
 #: journal/models/common.py:30 journal/templates/collection_share.html:57
-#: journal/templates/comment.html:49 journal/templates/mark.html:106
+#: journal/templates/comment.html:49 journal/templates/mark.html:107
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:63
 #: users/templates/users/data.html:155
 #: users/templates/users/preferences.html:68
@@ -2296,11 +2332,11 @@ msgstr "更新"
 msgid "Comment"
 msgstr "写短评"
 
-#: journal/templates/comment.html:24 journal/templates/mark.html:70
+#: journal/templates/comment.html:24 journal/templates/mark.html:71
 msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
 msgstr "提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实例时间轴。"
 
-#: journal/templates/comment.html:62 journal/templates/mark.html:119
+#: journal/templates/comment.html:62 journal/templates/mark.html:120
 msgid "Repost to timeline"
 msgstr "转发到时间轴"
 
@@ -2312,20 +2348,20 @@ msgstr "分享播放位置"
 msgid "Mark"
 msgstr "标记"
 
-#: journal/templates/mark.html:47 journal/templates/mark.html:51
-#: journal/templates/mark.html:55
+#: journal/templates/mark.html:48 journal/templates/mark.html:52
+#: journal/templates/mark.html:56
 msgid "not rated"
 msgstr "未评分"
 
-#: journal/templates/mark.html:78
+#: journal/templates/mark.html:79
 msgid "add a tag and press Enter"
 msgstr "回车增加标签"
 
-#: journal/templates/mark.html:134
+#: journal/templates/mark.html:135
 msgid "change mark date"
 msgstr "指定标记日期"
 
-#: journal/templates/mark.html:160
+#: journal/templates/mark.html:161
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr "确认删除这条标记、短评和标签？"
 
@@ -3523,79 +3559,79 @@ msgstr "发表时默认转发到时间轴"
 msgid "Method for reposting to timeline"
 msgstr "转发到时间轴的方式"
 
-#: users/templates/users/preferences.html:119
+#: users/templates/users/preferences.html:118
 msgid "repost as new post"
 msgstr "另发新帖文"
 
-#: users/templates/users/preferences.html:121
+#: users/templates/users/preferences.html:119
 msgid "this method is less optimal, may generate duplicated posts and miss reactions."
 msgstr "这种方式可能产生重复帖文，且其他人对新帖的回应、点赞不会被记录"
 
-#: users/templates/users/preferences.html:125
+#: users/templates/users/preferences.html:123
 msgid "append tags when posting to timeline"
 msgstr "发布标记到时间轴时追加标签"
 
-#: users/templates/users/preferences.html:128
+#: users/templates/users/preferences.html:126
 msgid "e.g. #bookstodon"
 msgstr "例如 #书影音"
 
-#: users/templates/users/preferences.html:142
+#: users/templates/users/preferences.html:140
 msgid "hide these categories in search results"
 msgstr "搜索时不显示以下类型"
 
-#: users/templates/users/preferences.html:158
+#: users/templates/users/preferences.html:156
 msgid "Profile visible to anonymous web visitors and search engines"
 msgstr "匿名访客和搜索引擎可以查看你的个人主页"
 
-#: users/templates/users/preferences.html:159
+#: users/templates/users/preferences.html:157
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
 msgstr "此选项仅针对网页访客，如果不希望被联邦网络用户看到请在发表时选择仅关注者或本人"
 
-#: users/templates/users/preferences.html:167
+#: users/templates/users/preferences.html:165
 msgid "show your name on item page if you recently edited it"
 msgstr "显示你是某条目的最近编辑者"
 
-#: users/templates/users/preferences.html:176
+#: users/templates/users/preferences.html:174
 msgid "Settings for current device"
 msgstr "当前设备设置"
 
-#: users/templates/users/preferences.html:178
+#: users/templates/users/preferences.html:176
 msgid "theme"
 msgstr "主题"
 
-#: users/templates/users/preferences.html:181
+#: users/templates/users/preferences.html:179
 msgid "system"
 msgstr "系统"
 
-#: users/templates/users/preferences.html:183
+#: users/templates/users/preferences.html:181
 msgid "light"
 msgstr "明亮"
 
-#: users/templates/users/preferences.html:185
+#: users/templates/users/preferences.html:183
 msgid "dark"
 msgstr "暗色"
 
-#: users/templates/users/preferences.html:187
+#: users/templates/users/preferences.html:185
 msgid "focus mode"
 msgstr "专注模式"
 
-#: users/templates/users/preferences.html:190
+#: users/templates/users/preferences.html:188
 msgid "hide reviews and ratings from other users"
 msgstr "启用专注模式后搜索和条目页面将不再显示来自他人的评价和打分"
 
-#: users/templates/users/preferences.html:192
+#: users/templates/users/preferences.html:190
 msgid "custom styles"
 msgstr "自定义样式代码"
 
-#: users/templates/users/preferences.html:211
+#: users/templates/users/preferences.html:209
 msgid "Settings for current device saved"
 msgstr "当前设备设置已保存"
 
-#: users/templates/users/preferences.html:217
+#: users/templates/users/preferences.html:215
 msgid "Applications"
 msgstr "应用程序"
 
-#: users/templates/users/preferences.html:219
+#: users/templates/users/preferences.html:217
 msgid "View authorized applications"
 msgstr "查看已授权的应用程序"
 
