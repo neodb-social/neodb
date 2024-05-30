@@ -112,8 +112,10 @@
   }
 
   .item-action button {
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: 0.2em;
+    margin-right: 0.2em;
+    max-width: 31%;
+    white-space: nowrap;
   }
 
   .mark {

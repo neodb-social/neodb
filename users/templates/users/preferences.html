@@ -137,7 +137,7 @@
                 </select>
               </fieldset>
               <fieldset>
-                <legend>{% trans 'hide these categories in search results' %}</legend>
+                <label>{% trans 'hide these categories in search results' %}</label>
                 <select name="hidden_categories" size="3" multiple>
                   {% all_categories as categories %}
                   {% for c in categories %}
