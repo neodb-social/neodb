@@ -51,7 +51,7 @@
                 then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
               </span>
             </span>
-            <h5>{{ gallery.title }}</h5>
+            <h5>{{ gallery.category.label }}</h5>
             <ul class="cards">
               {% for item in gallery.items %}
                 <li class="card">

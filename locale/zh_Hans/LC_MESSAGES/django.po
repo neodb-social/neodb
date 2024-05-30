@@ -291,7 +291,7 @@ msgstr "苹果播客"
 #: common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:31
 msgid "Book"
-msgstr "书"
+msgstr "图书"
 
 #: catalog/common/models.py:127
 msgid "TV Serie"

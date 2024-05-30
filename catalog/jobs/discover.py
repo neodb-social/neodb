@@ -88,8 +88,7 @@ class DiscoverGenerator(BaseJob):
             gallery_list.append(
                 {
                     "name": "popular_" + category.value,
-                    "title": ""
-                    + (category.label if category != ItemCategory.Book else _("Book")),
+                    "category": category,
                     "items": items,
                 }
             )
