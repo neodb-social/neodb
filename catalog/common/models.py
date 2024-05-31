@@ -623,6 +623,7 @@ class ExternalResource(models.Model):
     if TYPE_CHECKING:
         required_resources: list[dict[str, str]]
         related_resources: list[dict[str, str]]
+        prematched_resources: list[dict[str, str]]
     item = models.ForeignKey(
         Item, null=True, on_delete=models.SET_NULL, related_name="external_resources"
     )
@@ -659,7 +660,7 @@ class ExternalResource(models.Model):
 
     prematched_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
-    )
+    )  # type: ignore
     """links to help match an existing Item from this resource"""
 
     class Meta:

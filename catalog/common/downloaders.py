@@ -4,7 +4,7 @@ import re
 import time
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, cast
 from urllib.parse import quote
 
 import filetype
@@ -93,10 +93,6 @@ class MockResponse:
         }
 
 
-requests.Response.html = MockResponse.html  # type:ignore
-requests.Response.xml = MockResponse.xml  # type:ignore
-
-
 class DownloaderResponse(Response):
     def html(self):
         return html.fromstring(  # may throw exception unexpectedly due to OS bug, see https://github.com/neodb-social/neodb/issues/5
@@ -159,8 +155,9 @@ class BasicDownloader:
     def _download(self, url) -> Tuple[DownloaderResponse | MockResponse | None, int]:
         try:
             if not _mock_mode:
-                resp = requests.get(
-                    url, headers=self.headers, timeout=self.get_timeout()
+                resp = cast(
+                    DownloaderResponse,
+                    requests.get(url, headers=self.headers, timeout=self.get_timeout()),
                 )
                 if settings.DOWNLOADER_SAVEDIR:
                     try:
@@ -179,7 +176,7 @@ class BasicDownloader:
                 {"response_type": response_type, "url": url, "exception": None}
             )
 
-            return resp, response_type  # type: ignore
+            return resp, response_type
         except RequestException as e:
             self.logs.append(
                 {"response_type": RESPONSE_NETWORK_ERROR, "url": url, "exception": e}

@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 import django.dispatch
 from django.db import models
@@ -73,7 +73,7 @@ class List(Piece):
         e.g. collection.append_item(item, note="abc") works, but collection.append_item(item, metadata={"note":"abc"}) doesn't
         """
         if item is None:
-            return None
+            raise ValueError("item is None")
         member = self.get_member_for_item(item)
         if member:
             return member

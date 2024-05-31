@@ -22,6 +22,7 @@ class CollectionTest(TestCase):
         collection = Collection.objects.get(title="test", owner=self.user.identity)
         self.assertEqual(collection.catalog_item.title, "test")
         member1 = collection.append_item(self.book1)
+        self.assertIsNotNone(member1)
         member1.note = "my notes"
         member1.save()
         collection.append_item(self.book2, note="test")
@@ -34,8 +35,14 @@ class CollectionTest(TestCase):
         collection.update_member_order([members[1].id, members[0].id])
         self.assertEqual(list(collection.ordered_items), [self.book1, self.book2])
         member1 = collection.get_member_for_item(self.book1)
+        self.assertIsNotNone(member1)
+        if member1 is None:
+            return
         self.assertEqual(member1.note, "my notes")
         member2 = collection.get_member_for_item(self.book2)
+        self.assertIsNotNone(member2)
+        if member2 is None:
+            return
         self.assertEqual(member2.note, "test")
 
 

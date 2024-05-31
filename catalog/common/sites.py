@@ -118,7 +118,7 @@ class AbstractSite:
         2. look for Item by primary_lookup_id_type and primary_lookup_id_value
 
         """
-        for resource_link in resource.prematched_resources:  # type: ignore
+        for resource_link in resource.prematched_resources:
             url = resource_link.get("url")
             if url:
                 matched_resource = ExternalResource.objects.filter(url=url).first()
@@ -247,7 +247,7 @@ class AbstractSite:
                 p.item.save()
                 self.scrape_additional_data()
         if auto_link:
-            for linked_resource in p.required_resources:  # type: ignore
+            for linked_resource in p.required_resources:
                 linked_url = linked_resource.get("url")
                 if linked_url:
                     linked_site = SiteManager.get_site_by_url(linked_url)
@@ -266,7 +266,7 @@ class AbstractSite:
         return p
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound=AbstractSite)
 
 
 class SiteManager:
@@ -274,7 +274,7 @@ class SiteManager:
 
     @staticmethod
     def register(target: Type[T]) -> Type[T]:
-        id_type = target.ID_TYPE  # type: ignore
+        id_type = target.ID_TYPE
         if id_type in SiteManager.registry:
             raise ValueError(f"Site for {id_type} already exists")
         SiteManager.registry[id_type] = target
@@ -322,7 +322,7 @@ class SiteManager:
         return cls(url) if cls else None
 
     @staticmethod
-    def get_site_by_id(id_type: IdType, id_value: str) -> AbstractSite | None:
+    def get_site_by_id(id_type: IdType | str, id_value: str) -> AbstractSite | None:
         if id_type not in SiteManager.registry:
             return None
         cls = SiteManager.registry[id_type]
@@ -338,8 +338,8 @@ def crawl_related_resources_task(resource_pk):
     if not resource:
         logger.warning(f"crawl resource not found {resource_pk}")
         return
-    links = (resource.related_resources or []) + (resource.prematched_resources or [])  # type: ignore
-    for w in links:  # type: ignore
+    links = (resource.related_resources or []) + (resource.prematched_resources or [])
+    for w in links:
         try:
             item = None
             site = None

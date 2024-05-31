@@ -11,7 +11,7 @@ profile = "black"
 
 [tool.mypy]
 exclude = [
-    '^neodb/',
+    '^neodb-takahe/',
     '^legacy/',
 ]
 plugins = ["mypy_django_plugin.main"]

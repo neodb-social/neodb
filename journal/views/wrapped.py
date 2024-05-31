@@ -117,7 +117,7 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
         comment = request.POST.get("comment", "")
         visibility = int(request.POST.get("visibility", 0))
         user: User = request.user  # type: ignore
-        identity = user.identity  # type: ignore
+        identity = user.identity
         media = Takahe.upload_image(
             identity.pk, "year.png", img, "image/png", "NeoDB Yearly Summary"
         )
