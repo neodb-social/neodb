@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-30 09:22-0400\n"
+"POT-Creation-Date: 2024-05-31 15:54-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -410,15 +410,15 @@ msgstr "来源站点标识"
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/common/models.py:630
+#: catalog/common/models.py:631
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/common/models.py:636
+#: catalog/common/models.py:637
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/common/models.py:639
+#: catalog/common/models.py:640
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
@@ -872,7 +872,7 @@ msgstr "合并到另一条目"
 #: catalog/templates/_sidebar_edit.html:210
 #: catalog/templates/catalog_delete.html:11
 #: developer/templates/oauth2_provider/application_detail.html:42
-#: journal/templates/collection.html:133 journal/templates/mark.html:162
+#: journal/templates/collection.html:135 journal/templates/mark.html:162
 #: journal/templates/piece_delete.html:9 journal/templates/review.html:83
 msgid "Delete"
 msgstr "删除"
@@ -1012,7 +1012,7 @@ msgstr "否"
 
 #: catalog/templates/catalog_edit.html:11
 #: developer/templates/oauth2_provider/application_detail.html:40
-#: journal/templates/collection.html:130
+#: journal/templates/collection.html:132
 #: journal/templates/collection_edit.html:9
 #: journal/templates/collection_edit.html:25 journal/templates/review.html:80
 #: journal/templates/tag_edit.html:12
@@ -1463,50 +1463,50 @@ msgstr "影视"
 msgid "Explore"
 msgstr "发现"
 
-#: common/templates/_header.html:72
+#: common/templates/_header.html:71
 msgid "Feed"
 msgstr "动态"
 
-#: common/templates/_header.html:76 journal/templates/profile.html:11
+#: common/templates/_header.html:74 journal/templates/profile.html:11
 #: users/templates/users/preferences.html:44
 msgid "Home"
 msgstr "主页"
 
-#: common/templates/_header.html:91 social/templates/notification.html:11
+#: common/templates/_header.html:89 social/templates/notification.html:11
 #: social/templates/notification.html:23
 msgid "Notification"
 msgstr "通知"
 
-#: common/templates/_header.html:94
+#: common/templates/_header.html:92
 msgid "Data"
 msgstr "数据"
 
-#: common/templates/_header.html:97 users/templates/users/preferences.html:11
+#: common/templates/_header.html:95 users/templates/users/preferences.html:11
 #: users/templates/users/preferences.html:21
 msgid "Preferences"
 msgstr "设置"
 
-#: common/templates/_header.html:100
+#: common/templates/_header.html:98
 msgid "Account"
 msgstr "账号"
 
-#: common/templates/_header.html:103
+#: common/templates/_header.html:101
 msgid "Logout"
 msgstr "登出"
 
-#: common/templates/_header.html:107
+#: common/templates/_header.html:105
 msgid "Database"
 msgstr "数据库"
 
-#: common/templates/_header.html:110
+#: common/templates/_header.html:108
 msgid "Manage"
 msgstr "管理"
 
-#: common/templates/_header.html:115
+#: common/templates/_header.html:113
 msgid "Sign up or Login"
 msgstr "注册或登录"
 
-#: common/templates/_header.html:127
+#: common/templates/_header.html:125
 msgid "Set a username."
 msgstr "设置用户名"
 
@@ -1709,7 +1709,7 @@ msgstr "仅创建者"
 msgid "creator and their mutuals"
 msgstr "创建者和他们的互相关注"
 
-#: journal/forms.py:52 journal/templates/collection.html:136
+#: journal/forms.py:52 journal/templates/collection.html:138
 msgid "Collaborative editing"
 msgstr "协作编辑"
 
@@ -2296,11 +2296,11 @@ msgstr "十二月"
 msgid "Share"
 msgstr "分享"
 
-#: journal/templates/collection.html:125 journal/templates/review.html:75
+#: journal/templates/collection.html:127 journal/templates/review.html:75
 msgid "Reply"
 msgstr "回应"
 
-#: journal/templates/collection.html:148
+#: journal/templates/collection.html:150
 msgid "Created date"
 msgstr "创建日期"
 
@@ -2845,6 +2845,15 @@ msgid ""
 msgstr ""
 "\n"
 "赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+
+#: social/templates/event/liked_rating.html:3
+#, python-format
+msgid ""
+"\n"
+"liked your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
 
 #: social/templates/event/liked_review.html:2
 #, python-format
