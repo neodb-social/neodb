@@ -3,7 +3,7 @@
 {% load mastodon %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="zh" class="classic-page">
+<html lang="zh" class="classic-page{% if me %} nav-page-home{% endif %}">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,7 +30,7 @@
   </head>
   <body>
     {% if request.user == identity.user %}
-      {% include "_header.html" with current="home" %}
+      {% include "_header.html" %}
     {% else %}
       {% include "_header.html" %}
     {% endif %}

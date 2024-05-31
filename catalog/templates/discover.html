@@ -3,7 +3,7 @@
 {% load mastodon %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="zh" class="classic-page">
+<html lang="zh" class="classic-page nav-page-discover">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +23,7 @@
   <script src="{% static 'js/podcast.js' %}"></script>
 </head>
 <body>
-  {% include "_header.html" with current="discover" %}
+  {% include "_header.html" %}
   <script>
     function _scroll_left(el){
       el.scrollBy(0-el.offsetWidth, 0);

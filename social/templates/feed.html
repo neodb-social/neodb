@@ -4,7 +4,7 @@
 {% load mastodon %}
 {% load thumb %}
 <!DOCTYPE html>
-<html lang="zh" class="feed-page">
+<html lang="zh" class="feed-page nav-page-feed">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +16,7 @@
   <script src="{% static 'js/podcast.js' %}"></script>
 </head>
 <body>
-  {% include "_header.html" with current="timeline" %}
+  {% include "_header.html" %}
   <main>
     <div class="grid__main">
       <h5>{% trans 'Activities from those you follow' %}</h5>

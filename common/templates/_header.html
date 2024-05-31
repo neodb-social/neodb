@@ -51,29 +51,27 @@
     </ul>
     <ul class="nav-links">
       <li class="small-only">
-        <a _="on click toggle .unhide on .nav-search then call #q.focus()"
+        <a class="nav-link-search"
+           _="on click toggle .unhide on .nav-search then call #q.focus()"
            href="#"><i class="fa-solid fa-magnifying-glass"></i></a>
       </li>
       <li class="small-only">
-        <a href="{% url 'catalog:discover' %}"><i class="fa-solid fa-globe"></i></a>
+        <a class="nav-link-discover" href="{% url 'catalog:discover' %}"><i class="fa-solid fa-globe"></i></a>
       </li>
       <li class="small-only">
-        <a href="{% url 'social:feed' %}"><i class="fa-solid fa-users"></i></a>
+        <a class="nav-link-feed" href="{% url 'social:feed' %}"><i class="fa-solid fa-users"></i></a>
       </li>
       <li class="small-only">
-        <a href="{% url 'common:me' %}"><i class="fa-solid fa-house-user"></i></a>
+        <a class="nav-link-home" href="{% url 'common:me' %}"><i class="fa-solid fa-house-user"></i></a>
       </li>
       <li class="large-only">
-        <a class="{% if current == 'discover' %}secondary{% endif %}"
-           href="{% url 'catalog:discover' %}">{% trans 'Explore' %}</a>
+        <a class="nav-link-discover" href="{% url 'catalog:discover' %}">{% trans 'Explore' %}</a>
       </li>
       <li class="large-only">
-        <a class="{% if current == 'timeline' %}secondary{% endif %}"
-           href="{% url 'social:feed' %}">{% trans 'Feed' %}</a>
+        <a class="nav-link-feed" href="{% url 'social:feed' %}">{% trans 'Feed' %}</a>
       </li>
       <li class="large-only">
-        <a class="{% if current == 'home' %}secondary{% endif %}"
-           href="{% url 'common:me' %}">{% trans 'Home' %}</a>
+        <a class="nav-link-home" href="{% url 'common:me' %}">{% trans 'Home' %}</a>
       </li>
     </ul>
     <ul class="nav-dropdown">

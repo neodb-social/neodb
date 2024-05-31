@@ -110,7 +110,9 @@
         <section>
           <div class="entity-list"
                hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}"
-               hx-trigger="load"></div>
+               hx-trigger="load">
+            <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+          </div>
         </section>
         <section>
           {% if request.user.is_authenticated %}
