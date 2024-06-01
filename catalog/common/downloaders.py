@@ -159,6 +159,7 @@ class BasicDownloader:
                     DownloaderResponse,
                     requests.get(url, headers=self.headers, timeout=self.get_timeout()),
                 )
+                resp.__class__ = DownloaderResponse
                 if settings.DOWNLOADER_SAVEDIR:
                     try:
                         with open(
