@@ -919,6 +919,9 @@ class Post(models.Model):
     # The main (HTML) content
     content = models.TextField()
 
+    # The language of the content
+    language = models.CharField(default="", blank=True)
+
     type = models.CharField(
         max_length=20,
         choices=Types.choices,

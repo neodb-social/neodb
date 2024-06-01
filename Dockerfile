@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.11-slim as build
+FROM python:3.12-slim as build
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
@@ -21,10 +21,10 @@ RUN --mount=type=cache,sharing=locked,target=/root/.cache /neodb-venv/bin/python
 
 WORKDIR /takahe
 RUN python -m venv /takahe-venv
-RUN --mount=type=cache,sharing=locked,target=/root/.cache /takahe-venv/bin/python3 -m pip install --upgrade -r requirements.txt
+RUN --mount=type=cache,sharing=locked,target=/root/.cache /takahe-venv/bin/python3 -m pip install --upgrade -r requirements.lock
 
 # runtime stage
-FROM python:3.11-slim as runtime
+FROM python:3.12-slim as runtime
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 

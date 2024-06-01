@@ -142,6 +142,6 @@ It's possible to run multiple clusters in one host server, as long as `NEODB_SIT
 
 ## Scaling
 
-For high-traffic instance, spin up `NEODB_WEB_WORKER_NUM`, `TAKAHE_WEB_WORKER_NUM`, `TAKAHE_STATOR_CONCURRENCY` and `TAKAHE_STATOR_CONCURRENCY_PER_MODEL` as long as the host server can handle them.
+For high-traffic instance, spin up `NEODB_WEB_WORKER_NUM`, `NEODB_API_WORKER_NUM`, `NEODB_RQ_WORKER_NUM`, `TAKAHE_WEB_WORKER_NUM`, `TAKAHE_STATOR_CONCURRENCY` and `TAKAHE_STATOR_CONCURRENCY_PER_MODEL` as long as the host server can handle them.
 
 Further scaling up with multiple nodes (e.g. via Kubernetes) is beyond the scope of this document, but consider run db/redis/typesense separately, and then duplicate web/worker/stator containers as long as connections and mounts are properly configured; `migration` only runs once when start or upgrade, it should be kept that way.
