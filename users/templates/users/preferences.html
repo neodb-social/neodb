@@ -128,7 +128,7 @@
               </fieldset>
               <fieldset>
                 {% all_languages as languages %}
-                <label>{% trans 'language' %}</label>
+                <label>{% trans 'Language' %}</label>
                 <select name="language">
                   {% for lang in languages %}
                     <option value="{{ lang.0 }}"
@@ -137,7 +137,7 @@
                 </select>
               </fieldset>
               <fieldset>
-                <label>{% trans 'hide these categories in search results' %}</label>
+                <label>{% trans 'Hide these categories in search results' %}</label>
                 <select name="hidden_categories" size="3" multiple>
                   {% all_categories as categories %}
                   {% for c in categories %}
@@ -162,7 +162,7 @@
                   <input type="checkbox"
                          name="show_last_edit"
                          {% if request.user.preference.show_last_edit %}checked{% endif %}>
-                  {% trans 'show your name on item page if you recently edited it' %}
+                  {% trans 'Show your name on item page if you recently edited it' %}
                 </label>
               </fieldset>
               <input type="submit" value="{% trans 'Save' %}">
@@ -182,12 +182,12 @@
                 <input type="radio" name="theme_color" id="theme_dark" value="dark">
                 <label for="theme_dark">{% trans "dark" %}</label>
               </p>
-              <h6>{% trans "focus mode" %}</h6>
+              <h6>{% trans "Focus mode" %}</h6>
               <p>
                 <input type="checkbox" id="solo_mode">
                 <label for="solo_mode">{% trans "hide reviews and ratings from other users" %}</label>
               </p>
-              <h6>{% trans "custom styles" %}</h6>
+              <h6>{% trans "Custom styles" %}</h6>
               <textarea id="user_style"></textarea>
               <br>
               <input type="button" onclick="save_local();" value="{% trans "Save" %}">

@@ -399,6 +399,7 @@ LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 LANGUAGES = (
     ("en", _("English")),
     ("zh-hans", _("Simplified Chinese")),
+    ("zh-hant", _("Traditional Chinese")),
 )
 if SITE_DOMAIN == "neodb.social":
     LANGUAGES = (("zh-hans", _("Simplified Chinese")),)
