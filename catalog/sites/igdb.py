@@ -139,10 +139,11 @@ class IGDB(AbstractSite):
                 "brief": brief,
                 "official_site": official_site,
                 "igdb_id": r["id"],
-                "cover_image_url": "https:"
-                + r["cover"]["url"].replace("t_thumb", "t_cover_big")
-                if r.get("cover")
-                else None,
+                "cover_image_url": (
+                    "https:" + r["cover"]["url"].replace("t_thumb", "t_cover_big")
+                    if r.get("cover")
+                    else None
+                ),
             }
         )
         if steam_url:

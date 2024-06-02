@@ -294,13 +294,15 @@ def get_related_acct_list(site, token, api):
                 r: list[dict[str, str]] = response.json()
                 results.extend(
                     map(
-                        lambda u: (  # type: ignore
-                            u["acct"]
-                            if u["acct"].find("@") != -1
-                            else u["acct"] + "@" + site
-                        )
-                        if "acct" in u
-                        else u,
+                        lambda u: (
+                            (  # type: ignore
+                                u["acct"]
+                                if u["acct"].find("@") != -1
+                                else u["acct"] + "@" + site
+                            )
+                            if "acct" in u
+                            else u
+                        ),
                         r,
                     )
                 )
@@ -684,9 +686,11 @@ def share_collection(collection, comment, user, visibility_no, link):
         if user == collection.owner.user
         else (
             _("shared {username}'s collection").format(
-                username=" @" + collection.owner.user.mastodon_acct + " "
-                if collection.owner.user.mastodon_acct
-                else " " + collection.owner.username + " "
+                username=(
+                    " @" + collection.owner.user.mastodon_acct + " "
+                    if collection.owner.user.mastodon_acct
+                    else " " + collection.owner.username + " "
+                )
             )
         )
     )

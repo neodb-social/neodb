@@ -24,6 +24,7 @@ tv specials are are shown as movies
 For now, we follow Douban convention, but keep an eye on it in case it breaks its own rules...
 
 """
+
 import re
 from functools import cached_property
 from typing import TYPE_CHECKING, overload

@@ -83,13 +83,13 @@ class IMDB(AbstractSite):
             "year": d["releaseYear"]["year"] if d.get("releaseYear") else None,
             "is_series": d["titleType"]["isSeries"],
             "is_episode": d["titleType"]["isEpisode"],
-            "genre": [x["text"] for x in d["genres"]["genres"]]
-            if d.get("genres")
-            else [],
+            "genre": (
+                [x["text"] for x in d["genres"]["genres"]] if d.get("genres") else []
+            ),
             "brief": d["plot"].get("plotText") if d.get("plot") else None,
-            "cover_image_url": d["primaryImage"].get("url")
-            if d.get("primaryImage")
-            else None,
+            "cover_image_url": (
+                d["primaryImage"].get("url") if d.get("primaryImage") else None
+            ),
         }
         if d.get("series"):
             episode_info = d["series"].get("episodeNumber")

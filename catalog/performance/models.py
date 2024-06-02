@@ -396,9 +396,7 @@ class PerformanceProduction(Item):
         return (
             self.cover.url  # type:ignore
             if self.cover and self.cover != DEFAULT_ITEM_COVER
-            else self.show.cover_image_url
-            if self.show
-            else None
+            else self.show.cover_image_url if self.show else None
         )
 
     def update_linked_items_from_external_resource(self, resource: ExternalResource):

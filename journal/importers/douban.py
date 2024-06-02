@@ -207,7 +207,10 @@ class DoubanImporter:
             f"豆瓣标记和评论导入完成，共处理{self.total}篇，已存在{self.skipped}篇，新增{self.imported}篇。",
         )
         if len(self.failed):
-            msg.error(self.user, f'豆瓣评论导入时未能处理以下网址：\n{" , ".join(self.failed)}')
+            msg.error(
+                self.user,
+                f'豆瓣评论导入时未能处理以下网址：\n{" , ".join(self.failed)}',
+            )
 
     def import_mark_sheet(self, worksheet, shelf_type, sheet_name):
         prefix = f"{self.user} {sheet_name}|"

@@ -30,7 +30,9 @@ class DoubanDramaTestCase(TestCase):
         resource = site.get_resource_ready()
         item = site.get_item()
         self.assertEqual(item.title, "不眠之人·拿破仑")
-        self.assertEqual(item.other_title, ["眠らない男・ナポレオン　―愛と栄光の涯（はて）に―"])
+        self.assertEqual(
+            item.other_title, ["眠らない男・ナポレオン　―愛と栄光の涯（はて）に―"]
+        )
         self.assertEqual(item.genre, ["音乐剧"])
         self.assertEqual(item.troupe, ["宝塚歌剧团"])
         self.assertEqual(item.composer, ["ジェラール・プレスギュルヴィック"])
@@ -74,7 +76,9 @@ class DoubanDramaTestCase(TestCase):
         #     item.version, ["08星组公演版", "10年月組公演版", "17年星組公演版", "ュージカル（2017年）版"]
         # )
         self.assertEqual(item.director, ["小池修一郎", "小池 修一郎", "石丸さち子"])
-        self.assertEqual(item.playwright, ["小池修一郎", "Baroness Orczy（原作）", "小池 修一郎"])
+        self.assertEqual(
+            item.playwright, ["小池修一郎", "Baroness Orczy（原作）", "小池 修一郎"]
+        )
         self.assertEqual(
             item.actor,
             [

@@ -37,7 +37,18 @@ def export_marks_task(user):
     )
     if not os.path.exists(os.path.dirname(filename)):
         os.makedirs(os.path.dirname(filename))
-    heading = ["标题", "简介", "豆瓣评分", "链接", "创建时间", "我的评分", "标签", "评论", "NeoDB链接", "其它ID"]
+    heading = [
+        "标题",
+        "简介",
+        "豆瓣评分",
+        "链接",
+        "创建时间",
+        "我的评分",
+        "标签",
+        "评论",
+        "NeoDB链接",
+        "其它ID",
+    ]
     wb = Workbook()
     # adding write_only=True will speed up but corrupt the xlsx and won't be importable
     for status, label in [

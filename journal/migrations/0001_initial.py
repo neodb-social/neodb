@@ -71,7 +71,10 @@ class Migration(migrations.Migration):
                     "title",
                     models.CharField(default="", max_length=1000, verbose_name="标题"),
                 ),
-                ("brief", models.TextField(blank=True, default="", verbose_name="简介")),
+                (
+                    "brief",
+                    models.TextField(blank=True, default="", verbose_name="简介"),
+                ),
                 (
                     "cover",
                     models.ImageField(

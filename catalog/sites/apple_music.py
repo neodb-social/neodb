@@ -7,6 +7,7 @@ Scraping the website directly.
 - It requires Apple Developer Membership ($99 per year) to obtain a token.
 
 """
+
 import json
 import logging
 

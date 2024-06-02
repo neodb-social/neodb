@@ -71,7 +71,8 @@ class SteamTestCase(TestCase):
         self.assertEqual(site.ready, True)
         self.assertEqual(site.resource.metadata["title"], "Portal 2")
         self.assertEqual(
-            site.resource.metadata["brief"], "“终身测试计划”现已升级，您可以为您自己或您的好友设计合作谜题！"
+            site.resource.metadata["brief"],
+            "“终身测试计划”现已升级，您可以为您自己或您的好友设计合作谜题！",
         )
         self.assertIsInstance(site.resource.item, Game)
         self.assertEqual(site.resource.item.steam, "620")
@@ -102,7 +103,9 @@ class DoubanGameTestCase(TestCase):
         self.assertEqual(site.resource.metadata["title"], "传送门2 Portal 2")
         self.assertIsInstance(site.resource.item, Game)
         self.assertEqual(site.resource.item.douban_game, "10734307")
-        self.assertEqual(site.resource.item.genre, ["第一人称射击", "益智", "射击", "动作"])
+        self.assertEqual(
+            site.resource.item.genre, ["第一人称射击", "益智", "射击", "动作"]
+        )
         self.assertEqual(site.resource.item.other_title, [])
 
 

@@ -279,7 +279,8 @@ class BooksTWTestCase(TestCase):
         self.assertEqual(site.resource.id_value, "0010947886")
         self.assertEqual(site.resource.item.isbn, "9786263152236")
         self.assertEqual(
-            site.resource.item.title, "阿拉伯人三千年：從民族、部落、語言、文化、宗教到帝國，綜覽阿拉伯世界的崛起、衰落與再興"
+            site.resource.item.title,
+            "阿拉伯人三千年：從民族、部落、語言、文化、宗教到帝國，綜覽阿拉伯世界的崛起、衰落與再興",
         )
 
 

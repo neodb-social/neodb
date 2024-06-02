@@ -90,9 +90,9 @@ class RSS(AbstractSite):
             metadata={
                 "title": feed["title"],
                 "brief": bleach.clean(feed["description"], strip=True),
-                "hosts": [feed.get("itunes_author")]
-                if feed.get("itunes_author")
-                else [],
+                "hosts": (
+                    [feed.get("itunes_author")] if feed.get("itunes_author") else []
+                ),
                 "official_site": feed.get("link"),
                 "cover_image_url": feed.get("cover_url"),
                 "genre": feed.get("itunes_categories", [None])[0],
@@ -126,9 +126,11 @@ class RSS(AbstractSite):
                     "brief": bleach.clean(episode.get("description"), strip=True),
                     "description_html": episode.get("description_html"),
                     "cover_url": episode.get("episode_art_url"),
-                    "media_url": episode.get("enclosures")[0].get("url")
-                    if episode.get("enclosures")
-                    else None,
+                    "media_url": (
+                        episode.get("enclosures")[0].get("url")
+                        if episode.get("enclosures")
+                        else None
+                    ),
                     "pub_date": make_aware(
                         datetime.fromtimestamp(episode.get("published"))
                     ),

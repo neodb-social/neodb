@@ -32,27 +32,51 @@ def user_stats_of(collection: Collection, identity: APIdentity):
 def prural_items(count: int, category: str):
     match category:
         case "book":
-            return ngettext("%(count)d book", "%(count)d books", count,) % {
+            return ngettext(
+                "%(count)d book",
+                "%(count)d books",
+                count,
+            ) % {
                 "count": count,
             }
         case "movie":
-            return ngettext("%(count)d movie", "%(count)d movies", count,) % {
+            return ngettext(
+                "%(count)d movie",
+                "%(count)d movies",
+                count,
+            ) % {
                 "count": count,
             }
         case "tv":
-            return ngettext("%(count)d tv show", "%(count)d tv shows", count,) % {
+            return ngettext(
+                "%(count)d tv show",
+                "%(count)d tv shows",
+                count,
+            ) % {
                 "count": count,
             }
         case "music":
-            return ngettext("%(count)d album", "%(count)d albums", count,) % {
+            return ngettext(
+                "%(count)d album",
+                "%(count)d albums",
+                count,
+            ) % {
                 "count": count,
             }
         case "game":
-            return ngettext("%(count)d game", "%(count)d games", count,) % {
+            return ngettext(
+                "%(count)d game",
+                "%(count)d games",
+                count,
+            ) % {
                 "count": count,
             }
         case "podcast":
-            return ngettext("%(count)d podcast", "%(count)d podcasts", count,) % {
+            return ngettext(
+                "%(count)d podcast",
+                "%(count)d podcasts",
+                count,
+            ) % {
                 "count": count,
             }
         case "performance":
@@ -64,6 +88,10 @@ def prural_items(count: int, category: str):
                 "count": count,
             }
         case _:
-            return ngettext("%(count)d item", "%(count)d items", count,) % {
+            return ngettext(
+                "%(count)d item",
+                "%(count)d items",
+                count,
+            ) % {
                 "count": count,
             }

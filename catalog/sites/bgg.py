@@ -3,6 +3,7 @@ BoardGameGeek
 
 ref: https://boardgamegeek.com/wiki/page/BGG_XML_API2
 """
+
 import html
 
 from langdetect import detect

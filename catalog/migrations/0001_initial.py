@@ -118,14 +118,21 @@ class Migration(migrations.Migration):
                     "title",
                     models.CharField(default="", max_length=1000, verbose_name="标题"),
                 ),
-                ("brief", models.TextField(blank=True, default="", verbose_name="简介")),
+                (
+                    "brief",
+                    models.TextField(blank=True, default="", verbose_name="简介"),
+                ),
                 (
                     "primary_lookup_id_type",
-                    models.CharField(max_length=50, null=True, verbose_name="主要标识类型"),
+                    models.CharField(
+                        max_length=50, null=True, verbose_name="主要标识类型"
+                    ),
                 ),
                 (
                     "primary_lookup_id_value",
-                    models.CharField(max_length=1000, null=True, verbose_name="主要标识数值"),
+                    models.CharField(
+                        max_length=1000, null=True, verbose_name="主要标识数值"
+                    ),
                 ),
                 (
                     "metadata",
@@ -184,14 +191,21 @@ class Migration(migrations.Migration):
                     "title",
                     models.CharField(default="", max_length=1000, verbose_name="标题"),
                 ),
-                ("brief", models.TextField(blank=True, default="", verbose_name="简介")),
+                (
+                    "brief",
+                    models.TextField(blank=True, default="", verbose_name="简介"),
+                ),
                 (
                     "primary_lookup_id_type",
-                    models.CharField(max_length=50, null=True, verbose_name="主要标识类型"),
+                    models.CharField(
+                        max_length=50, null=True, verbose_name="主要标识类型"
+                    ),
                 ),
                 (
                     "primary_lookup_id_value",
-                    models.CharField(max_length=1000, null=True, verbose_name="主要标识数值"),
+                    models.CharField(
+                        max_length=1000, null=True, verbose_name="主要标识数值"
+                    ),
                 ),
                 (
                     "metadata",
@@ -505,12 +519,17 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "id_value",
-                    models.CharField(blank=True, max_length=1000, verbose_name="源网站ID"),
+                    models.CharField(
+                        blank=True, max_length=1000, verbose_name="源网站ID"
+                    ),
                 ),
                 (
                     "raw_url",
                     models.CharField(
-                        blank=True, max_length=1000, unique=True, verbose_name="源网站ID"
+                        blank=True,
+                        max_length=1000,
+                        unique=True,
+                        verbose_name="源网站ID",
                     ),
                 ),
                 (

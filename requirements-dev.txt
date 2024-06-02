@@ -1,8 +1,8 @@
-black~=22.12.0
+black~=24.4.2
 coverage
 django-debug-toolbar
 django-stubs
-djlint~=1.34.0
+djlint~=1.34.1
 isort~=5.13.2
 lxml-stubs
 pre-commit

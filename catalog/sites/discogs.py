@@ -1,6 +1,7 @@
 """
 Discogs.
 """
+
 import json
 import logging
 

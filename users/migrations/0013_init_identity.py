@@ -86,9 +86,11 @@ def init_identity(apps, schema_editor):
             local=True,
             username=username,
             domain_name=domain,
-            deleted=None
-            if user.is_active
-            else user.mastodon_last_reachable + timedelta(days=90),
+            deleted=(
+                None
+                if user.is_active
+                else user.mastodon_last_reachable + timedelta(days=90)
+            ),
         )
         takahe_user = TakaheUser.objects.create(
             pk=user.pk, email=handler, admin=user.is_superuser, password=user.password

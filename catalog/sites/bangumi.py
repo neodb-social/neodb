@@ -43,7 +43,9 @@ class Bangumi(AbstractSite):
                 model = "TVSeason" if is_series else "Movie"
                 if dt:
                     year = dt.split("-")[0]
-                    showtime = [{"time": dt, "region": "首播日期" if is_series else "发布日期"}]
+                    showtime = [
+                        {"time": dt, "region": "首播日期" if is_series else "发布日期"}
+                    ]
             case 3:
                 model = "Album"
             case 4:

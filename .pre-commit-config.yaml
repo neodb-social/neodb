@@ -1,12 +1,15 @@
 exclude: ^test_data/
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.6.0
     hooks:
     -   id: check-yaml
     -   id: check-json
     -   id: check-xml
     -   id: check-toml
+    -   id: check-ast
+    -   id: check-docstring-first
+    -   id: check-executables-have-shebangs
     -   id: check-symlinks
     -   id: check-added-large-files
         args: [--maxkb=1024]
@@ -21,7 +24,7 @@ repos:
     -   id: mixed-line-ending
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.5
+    rev: v0.4.7
     hooks:
       - id: ruff
       # - id: ruff-format
@@ -33,7 +36,7 @@ repos:
         args: ["--profile=black"]
 
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 24.4.2
     hooks:
     -   id: black
 

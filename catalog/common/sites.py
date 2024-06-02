@@ -6,6 +6,7 @@ a Site should map to a unique set of url patterns.
 a Site may scrape a url and store result in ResourceContent
 ResourceContent persists as an ExternalResource which may link to an Item
 """
+
 import json
 import re
 from dataclasses import dataclass, field

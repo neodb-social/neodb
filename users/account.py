@@ -206,9 +206,9 @@ def connect_redirect_back(request):
             )
         return register_new_user(
             request,
-            username=None
-            if settings.MASTODON_ALLOW_ANY_SITE
-            else user_data["username"],
+            username=(
+                None if settings.MASTODON_ALLOW_ANY_SITE else user_data["username"]
+            ),
             mastodon_username=user_data["username"],
             mastodon_id=user_data["id"],
             mastodon_site=site,

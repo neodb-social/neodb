@@ -55,7 +55,9 @@ class BooksTW(AbstractSite):
         )
         translators = [s.strip() for s in translators]
 
-        language_elem = content.xpath("//div/ul/li[starts-with(text(),'語言：')]/text()")
+        language_elem = content.xpath(
+            "//div/ul/li[starts-with(text(),'語言：')]/text()"
+        )
         language = (
             language_elem[0].strip().split("：")[1].strip() if language_elem else None  # type: ignore
         )
@@ -70,9 +72,11 @@ class BooksTW(AbstractSite):
         pub_date = content.xpath("string(//div/ul/li[contains(text(),'出版日期：')])")
         pub_date = re.match(
             r"(\d+)/(\d+)/(\d+)\s*$",
-            pub_date.strip().split("：", 1)[1].strip().split(" ", 1)[0]  # type: ignore
-            if pub_date
-            else "",
+            (
+                pub_date.strip().split("：", 1)[1].strip().split(" ", 1)[0]  # type: ignore
+                if pub_date
+                else ""
+            ),
         )
         if pub_date:
             pub_year = int(pub_date[1])

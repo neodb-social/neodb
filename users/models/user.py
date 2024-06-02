@@ -427,12 +427,16 @@ class User(AbstractUser):
                 sp = name.split("@")
                 if len(sp) == 2:
                     query_kwargs = {
-                        "mastodon_username__iexact"
-                        if case_sensitive
-                        else "mastodon_username": sp[0],
-                        "mastodon_site__iexact"
-                        if case_sensitive
-                        else "mastodon_site": sp[1],
+                        (
+                            "mastodon_username__iexact"
+                            if case_sensitive
+                            else "mastodon_username"
+                        ): sp[0],
+                        (
+                            "mastodon_site__iexact"
+                            if case_sensitive
+                            else "mastodon_site"
+                        ): sp[1],
                     }
                 else:
                     return None
