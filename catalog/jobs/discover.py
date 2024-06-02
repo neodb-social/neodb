@@ -1,3 +1,4 @@
+import time
 from datetime import timedelta
 
 from django.conf import settings
@@ -15,6 +16,7 @@ MAX_ITEMS_PER_PERIOD = 12
 MIN_MARKS = settings.MIN_MARKS_FOR_DISCOVER
 MAX_DAYS_FOR_PERIOD = 96
 MIN_DAYS_FOR_PERIOD = 6
+DAYS_FOR_TRENDS = 3
 
 
 @JobManager.register
@@ -67,6 +69,7 @@ class DiscoverGenerator(BaseJob):
             ItemCategory.Podcast,
         ]
         gallery_list = []
+        trends = []
         for category in gallery_categories:
             days = MAX_DAYS_FOR_PERIOD
             item_ids = []
@@ -92,5 +95,40 @@ class DiscoverGenerator(BaseJob):
                     "items": items,
                 }
             )
+            item_ids = self.get_popular_marked_item_ids(category, DAYS_FOR_TRENDS, [])[
+                :3
+            ]
+            if category == ItemCategory.Podcast:
+                item_ids += self.get_popular_commented_podcast_ids(
+                    DAYS_FOR_TRENDS, item_ids
+                )[:3]
+            for i in Item.objects.filter(pk__in=set(item_ids)):
+                er = (
+                    i.external_resources.exclude(id_type=IdType.Fediverse).first()
+                    or i.external_resources.first()
+                )
+                cnt = ShelfMember.objects.filter(
+                    item=i, created_time__gt=timezone.now() - timedelta(days=1)
+                ).count()
+                trends.append(
+                    {
+                        "title": i.title,
+                        "description": i.brief,
+                        "url": i.absolute_url,
+                        "image": i.cover_image_url or "",
+                        "provider_name": str(er.site_name.label)
+                        if er
+                        else settings.SITE_INFO["site_name"],
+                        "history": [
+                            {
+                                "day": int(time.time() / 38600) * 38600,
+                                "accounts": cnt,
+                                "uses": cnt,
+                            }
+                        ],
+                    }
+                )
+
         cache.set(cache_key, gallery_list, timeout=None)
-        logger.info("Discover data updated.")
+        cache.set("trends_links", trends, timeout=None)
+        logger.info(f"Discover data updated, trends: {len(trends)}.")
