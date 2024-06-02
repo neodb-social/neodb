@@ -46,14 +46,15 @@ NEODB_IMAGE=neodb/neodb:edge
 NEODB_DEBUG=True
 ```
 
-Download and start pgsql/redis/typesense before initializing database schema:
+Download docker images and start pgsql/redis/typesense before initializing database schema:
 ```
-docker compose pull
+docker compose --profile dev pull
 docker compose up -d
 ```
 
 Initialize database schema:
 ```
+docker compose --profile dev run --rm dev-shell takahe-manage collectstatic --noinput
 docker compose --profile dev run --rm dev-shell neodb-init
 ```
 
