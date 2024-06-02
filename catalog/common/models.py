@@ -48,6 +48,7 @@ class SiteName(models.TextChoices):
     Discogs = "discogs", _("Discogs")  # type:ignore[reportCallIssue]
     AppleMusic = "apple_music", _("Apple Music")  # type:ignore[reportCallIssue]
     Fediverse = "fedi", _("Fediverse")  # type:ignore[reportCallIssue]
+    MusicBrainz = "musicbrainz", _("MusicBrainz")
 
 
 class IdType(models.TextChoices):
@@ -95,7 +96,7 @@ class IdType(models.TextChoices):
     Discogs_Master = "discogs_master", _(
         "Discogs Master"
     )  # type:ignore[reportCallIssue]
-    MusicBrainz = "musicbrainz", _("MusicBrainz ID")  # type:ignore[reportCallIssue]
+    MusicBrainz = "musicbrainz", _("MusicBrainz")  # type:ignore[reportCallIssue]
     # DoubanBook_Author = "doubanbook_author", _("Douban Book Author")  # type:ignore[reportCallIssue]
     # DoubanCelebrity = "doubanmovie_celebrity", _("Douban Movie Celebrity")  # type:ignore[reportCallIssue]
     # Goodreads_Author = "goodreads_author", _("Goodreads Author")  # type:ignore[reportCallIssue]

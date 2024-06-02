@@ -15,6 +15,7 @@ from .goodreads import Goodreads
 from .google_books import GoogleBooks
 from .igdb import IGDB
 from .imdb import IMDB
+from .musicbrainz import MusicBrainz
 from .rss import RSS
 from .spotify import Spotify
 from .steam import Steam
