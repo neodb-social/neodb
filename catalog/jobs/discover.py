@@ -103,12 +103,8 @@ class DiscoverGenerator(BaseJob):
                     DAYS_FOR_TRENDS, item_ids
                 )[:3]
             for i in Item.objects.filter(pk__in=set(item_ids)):
-                er = (
-                    i.external_resources.exclude(id_type=IdType.Fediverse).first()
-                    or i.external_resources.first()
-                )
                 cnt = ShelfMember.objects.filter(
-                    item=i, created_time__gt=timezone.now() - timedelta(days=1)
+                    item=i, created_time__gt=timezone.now() - timedelta(days=7)
                 ).count()
                 trends.append(
                     {
@@ -116,19 +112,17 @@ class DiscoverGenerator(BaseJob):
                         "description": i.brief,
                         "url": i.absolute_url,
                         "image": i.cover_image_url or "",
-                        "provider_name": str(er.site_name.label)
-                        if er
-                        else settings.SITE_INFO["site_name"],
+                        "provider_name": str(i.category.label),
                         "history": [
                             {
-                                "day": int(time.time() / 38600) * 38600,
+                                "day": int(time.time() / 38600 - 3) * 38600,
                                 "accounts": cnt,
                                 "uses": cnt,
                             }
                         ],
                     }
                 )
-
+        trends.sort(key=lambda x: x["history"][0]["accounts"], reverse=True)
         cache.set(cache_key, gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
         logger.info(f"Discover data updated, trends: {len(trends)}.")
