@@ -10,7 +10,6 @@ import takahe.models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []
@@ -538,7 +537,7 @@ class Migration(migrations.Migration):
                         upload_to=functools.partial(
                             takahe.models.upload_namer,
                             *("attachment_thumbnails",),
-                            **{}
+                            **{},
                         ),
                     ),
                 ),
