@@ -116,14 +116,14 @@ class DiscoverGenerator(BaseJob):
                         "provider_name": str(i.category.label),
                         "history": [
                             {
-                                "day": int(time.time() / 38600 - 3) * 38600,
-                                "accounts": cnt,
-                                "uses": cnt,
+                                "day": str(int(time.time() / 38400 - 3) * 38400),
+                                "accounts": str(cnt),
+                                "uses": str(cnt),
                             }
                         ],
                     }
                 )
-        trends.sort(key=lambda x: x["history"][0]["accounts"], reverse=True)
+        trends.sort(key=lambda x: int(x["history"][0]["accounts"]), reverse=True)
         collection_ids = (
             Collection.objects.filter(visibility=0)
             .annotate(num=Count("interactions"))
@@ -134,4 +134,6 @@ class DiscoverGenerator(BaseJob):
         cache.set(cache_key, gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
         cache.set("featured_collections", collection_ids, timeout=None)
-        logger.info(f"Discover data updated, trends: {len(trends)}.")
+        logger.info(
+            f"Discover data updated, trends: {len(trends)}, collections: {len(collection_ids)}."
+        )
