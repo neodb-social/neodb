@@ -10,7 +10,8 @@ from loguru import logger
 
 from catalog.models import *
 from common.models import BaseJob, JobManager
-from journal.models import Comment, ShelfMember, q_item_in_category
+from journal.models import Collection, Comment, ShelfMember, q_item_in_category
+from users.models import APIdentity
 
 MAX_ITEMS_PER_PERIOD = 12
 MIN_MARKS = settings.MIN_MARKS_FOR_DISCOVER
@@ -123,6 +124,14 @@ class DiscoverGenerator(BaseJob):
                     }
                 )
         trends.sort(key=lambda x: x["history"][0]["accounts"], reverse=True)
+        collection_ids = (
+            Collection.objects.filter(visibility=0)
+            .annotate(num=Count("interactions"))
+            .filter(num__gte=MIN_MARKS)
+            .order_by("-edited_time")
+            .values_list("pk", flat=True)[:40]
+        )
         cache.set(cache_key, gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
+        cache.set("featured_collections", collection_ids, timeout=None)
         logger.info(f"Discover data updated, trends: {len(trends)}.")

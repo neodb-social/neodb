@@ -12,6 +12,7 @@ from django.views.decorators.http import require_http_methods
 
 from common.utils import PageLinksGenerator, get_uuid_or_404, user_identity_required
 from journal.models import (
+    Collection,
     Comment,
     Mark,
     Review,
@@ -21,6 +22,7 @@ from journal.models import (
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
+from users.models.apidentity import APIdentity
 
 from .forms import *
 from .models import *
@@ -291,6 +293,14 @@ def discover(request):
         tvshows_in_progress = []
         layout = []
 
+    collection_ids = cache.get("featured_collections", [])
+    if collection_ids:
+        i = rot * len(collection_ids) // 10
+        collection_ids = collection_ids[i:] + collection_ids[:i]
+        featured_collections = Collection.objects.filter(pk__in=collection_ids)
+    else:
+        featured_collections = []
+
     return render(
         request,
         "discover.html",
@@ -300,6 +310,7 @@ def discover(request):
             "recent_podcast_episodes": recent_podcast_episodes,
             "books_in_progress": books_in_progress,
             "tvshows_in_progress": tvshows_in_progress,
+            "featured_collections": featured_collections,
             "layout": layout,
         },
     )
