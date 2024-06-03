@@ -1,7 +1,10 @@
+from datetime import date, datetime, timedelta, timezone
+
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 from catalog.common.models import item_categories
 from catalog.search.views import visible_categories as _visible_categories
@@ -35,6 +38,26 @@ def duration_format(value, unit):
         return f"{h}:{m:02}:{s:02}" if h else f"{m:02}:{s:02}"
     except Exception:
         return f"{value} (format error)"
+
+
+@register.filter(is_safe=True)
+def naturaldelta(v: datetime | None):
+    if not v:
+        return ""
+    d = int(datetime.timestamp(datetime.now()) - datetime.timestamp(v))
+    if d < 60:
+        return _("just now")
+    if d < 3600:
+        return f"{d//60}m"
+    if d < 38400:
+        return f"{d//3600}h"
+    if d < 38400 * 14:
+        return f"{d//38400}d"
+    if d < 38400 * 56:
+        return f"{d//38400//7}w"
+    if d < 38400 * 30 * 18:
+        return f"{d//38400//30}mo"
+    return f"{d//38400//365}yr"
 
 
 @register.filter(is_safe=True)

@@ -1,6 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load humanize %}
+{% load duration %}
 <!DOCTYPE html>
 <html lang="zh">
   <head>
@@ -45,7 +46,7 @@
         <article>
           {{ announcement.html | safe }}
           <footer>
-            <span class="action inline"><span><a>{{ announcement.created|default:announcement.created|naturaltime }}</a></span>
+            <span class="action inline"><span><a>{{ announcement.created|default:announcement.created|naturaldelta }}</a></span>
           </span>
         </footer>
       </article>

@@ -4,7 +4,6 @@
 {% load humanize %}
 {% load mastodon %}
 {% load thumb %}
-{% load prettydate %}
 {% load user_actions %}
 {% load duration %}
 {% for activity in activities %}
@@ -15,7 +14,7 @@
     <div>
       <div>
         <span class="time">
-          <span>{{ activity.action_object.created_time|naturaltime }}</span>
+          <span>{{ activity.action_object.created_time|naturaldelta }}</span>
         </span>
         <div class="spacing">
           <span>

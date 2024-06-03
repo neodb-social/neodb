@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-03 09:12-0400\n"
+"POT-Creation-Date: 2024-06-03 17:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -667,7 +667,7 @@ msgstr "不再提示"
 #: catalog/templates/_item_comments_by_episode.html:78
 #: catalog/templates/_item_reviews.html:43
 #: catalog/templates/podcast_episode_data.html:41
-#: common/templates/_sidebar.html:270
+#: common/templates/_sidebar.html:231
 msgid "show more"
 msgstr "顯示更多"
 
@@ -675,7 +675,7 @@ msgstr "顯示更多"
 #: catalog/templates/_item_comments_by_episode.html:82
 #: catalog/templates/_item_reviews.html:47
 #: catalog/templates/podcast_episode_data.html:44
-#: social/templates/events.html:44 social/templates/feed_data.html:45
+#: social/templates/events.html:43 social/templates/feed_data.html:44
 msgid "nothing more."
 msgstr "沒有更多內容了。"
 
@@ -1166,16 +1166,16 @@ msgstr "簡介"
 #: catalog/templates/item_base.html:236
 #: catalog/templates/item_mark_list.html:54
 #: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:37
-#: common/templates/_sidebar.html:86 common/templates/_sidebar.html:165
-#: common/templates/_sidebar.html:265
+#: common/templates/_sidebar.html:126 common/templates/_sidebar.html:226
 #: common/templates/_sidebar_anonymous.html:43
 #: common/templates/_sidebar_anonymous.html:58
-#: journal/templates/collection_items.html:8 journal/templates/profile.html:109
-#: journal/templates/profile.html:151 journal/templates/profile.html:187
+#: journal/templates/collection_items.html:8 journal/templates/posts.html:39
+#: journal/templates/profile.html:109 journal/templates/profile.html:151
+#: journal/templates/profile.html:187
 #: journal/templates/user_collection_list.html:51
 #: journal/templates/user_item_list_base.html:25
-#: journal/templates/user_tag_list.html:29 social/templates/events.html:46
-#: users/templates/users/announcements.html:53
+#: journal/templates/user_tag_list.html:29 social/templates/events.html:45
+#: users/templates/users/announcements.html:54
 #: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
 msgstr "暫無內容。"
@@ -1442,8 +1442,8 @@ msgid "Terms"
 msgstr "服務協議"
 
 #: common/templates/_footer.html:8 common/templates/_sidebar_anonymous.html:40
-#: users/templates/users/announcements.html:10
-#: users/templates/users/announcements.html:40
+#: users/templates/users/announcements.html:11
+#: users/templates/users/announcements.html:41
 msgid "Announcements"
 msgstr "公告欄"
 
@@ -1540,33 +1540,37 @@ msgstr "熱門標籤"
 msgid "Popular Posts"
 msgstr "熱門帖文"
 
-#: common/templates/_sidebar.html:120
+#: common/templates/_sidebar.html:81
 msgid "approving followers manually"
 msgstr "已開啓關注審覈"
 
-#: common/templates/_sidebar.html:150
+#: common/templates/_sidebar.html:111
 msgid "Current Targets"
 msgstr "當前目標"
 
-#: common/templates/_sidebar.html:163
+#: common/templates/_sidebar.html:124
 msgid "Set a collection as target, its progress will show up here."
 msgstr "將自己或他人的收藏單設爲目標，這裏就會顯示進度"
 
-#: common/templates/_sidebar.html:176
+#: common/templates/_sidebar.html:137
 msgid "Recent podcast episodes"
 msgstr "近期播客節目"
 
-#: common/templates/_sidebar.html:211
+#: common/templates/_sidebar.html:172
 msgid "Currently reading"
 msgstr "正在閱讀"
 
-#: common/templates/_sidebar.html:234
+#: common/templates/_sidebar.html:195
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:257
+#: common/templates/_sidebar.html:218
 msgid "Common Tags"
 msgstr "常用標籤"
+
+#: common/templates/_sidebar.html:242
+msgid "Recent Posts"
+msgstr "近期帖文"
 
 #: common/templates/_sidebar_anonymous.html:16
 #, python-format
@@ -1622,6 +1626,10 @@ msgstr "驗證郵件已發送，請查閱收件箱。"
 msgid "Please click the login link in the email, or enter the verification code you received."
 msgstr "請點擊郵件中的登錄鏈接，或輸入收到的驗證碼。"
 
+#: common/templatetags/duration.py:49
+msgid "just now"
+msgstr "剛剛"
+
 #: common/templatetags/mastodon.py:42
 msgid "mutual followed"
 msgstr "互相關注"
@@ -1633,10 +1641,6 @@ msgstr "已關注"
 #: common/templatetags/mastodon.py:47
 msgid "following you"
 msgstr "關注了你"
-
-#: common/templatetags/prettydate.py:18
-msgid "just now"
-msgstr "剛剛"
 
 #: common/utils.py:61 common/utils.py:91 users/views.py:35 users/views.py:121
 msgid "User not found"
@@ -2757,35 +2761,35 @@ msgstr "本地標識"
 msgid "target site domain name"
 msgstr "目標實例域名"
 
-#: social/templates/activity/comment_child_item.html:13
+#: social/templates/activity/comment_child_item.html:12
 msgid "play"
 msgstr "播放"
 
-#: social/templates/activity/comment_child_item.html:26
+#: social/templates/activity/comment_child_item.html:25
 msgid "comment"
 msgstr "寫短評"
 
-#: social/templates/activity/create_collection.html:17 takahe/utils.py:561
+#: social/templates/activity/create_collection.html:16 takahe/utils.py:561
 msgid "created collection"
 msgstr "創建了收藏單"
 
-#: social/templates/activity/feature_collection.html:18
+#: social/templates/activity/feature_collection.html:17
 msgid "set a target"
 msgstr "設置了目標"
 
-#: social/templates/activity/like_collection.html:18
+#: social/templates/activity/like_collection.html:17
 #, python-format
 msgid "liked  <a href=\"%(owner_url)s\">%(owner_name)s</a>'s collection"
 msgstr "讚了 <a href=\"%(owner_url)s\">%(owner_name)s</a> 的收藏單"
 
-#: social/templates/activity/mark_item.html:13
-#: social/templates/activity/mark_item.html:20
-#: social/templates/activity/review_item.html:13
-#: social/templates/activity/review_item.html:20
+#: social/templates/activity/mark_item.html:12
+#: social/templates/activity/mark_item.html:19
+#: social/templates/activity/review_item.html:12
+#: social/templates/activity/review_item.html:19
 msgid "mark"
 msgstr "標記"
 
-#: social/templates/activity/review_item.html:36
+#: social/templates/activity/review_item.html:35
 #, python-format
 msgid "wrote a review of %(item)s"
 msgstr "評論了 %(item)s"
@@ -2949,7 +2953,7 @@ msgstr ""
 msgid "Activities from those you follow"
 msgstr "好友動態"
 
-#: social/templates/feed_data.html:49
+#: social/templates/feed_data.html:48
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "搜索並標記一些書影音/播客/遊戲，<a href=\"%(import_url)s\">導入你的豆瓣、Letterboxd或Goodreads記錄</a>，去聯邦宇宙（長毛象）關注一些正在使用%(site_name)s的用戶，這裏就會顯示你和她們的近期動態。"
