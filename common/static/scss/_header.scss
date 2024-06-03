@@ -148,7 +148,10 @@ body {
     }
 
     .nav-links li.small-only {
-      font-size: 150%;
+      >.search-btn {
+        font-size: 125%;
+        margin-top: 0.2em;
+      }
       a {
         color: var(--pico-secondary);
       }
