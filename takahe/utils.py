@@ -973,8 +973,8 @@ class Takahe:
         )
 
     @staticmethod
-    def get_popular_posts(days: int = 14, limit: int = 20):
-        since = timezone.now().date() - timedelta(days=days)
+    def get_popular_posts(days: int = 30, min_interaction: int = 1):
+        since = timezone.now() - timedelta(days=days)
         domains = Takahe.get_neodb_peers() + [settings.SITE_DOMAIN]
         return (
             Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
@@ -982,8 +982,8 @@ class Takahe:
                 author__domain__in=domains, visibility__in=[0, 4], published__gte=since
             )
             .annotate(num_interactions=Count("interactions"))
-            .filter(num_interactions__gt=0)
-            .order_by("-num_interactions", "-published")[:limit]
+            .filter(num_interactions__gte=min_interaction)
+            .order_by("-num_interactions", "-published")
         )
 
     @staticmethod

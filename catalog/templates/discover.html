@@ -147,7 +147,48 @@
       {% endif %}
     </div>
     {% if request.user.is_authenticated %}
-      {% include "_sidebar.html" with identity=request.user.identity %}
+      <aside class="grid__aside sidebar">
+        {% if request.user.unread_announcements %}
+          <section class="announcement">
+            <article>
+              <details open>
+                <summary>{% trans "Unread Announcements" %}</summary>
+                {% for ann in request.user.unread_announcements %}<div>{{ ann.html }}</div>{% endfor %}
+                <form action="{% url 'users:mark_announcements_read' %}" method="post">
+                  {% csrf_token %}
+                  <input type="submit"
+                         class="secondary outline"
+                         value="{% trans 'mark all as read' %}">
+                </form>
+              </details>
+            </article>
+          </section>
+        {% endif %}
+        <section>
+          <article>
+            <details class="auto-collapse" open>
+              <summary>{% trans 'Popular Posts' %}</summary>
+              <div style="font-size:80%">{% include "posts.html" with posts=popular_posts %}</div>
+            </details>
+          </article>
+        </section>
+        <section>
+          <article>
+            <details class="auto-collapse" open>
+              <summary>{% trans 'Popular Tags' %}</summary>
+              <div class="tag-list">
+                {% for t in popular_tags %}
+                  <span>
+                    <a href="{% url 'catalog:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
+                  </span>
+                {% empty %}
+                  <div class="empty">{% trans "nothing so far." %}</div>
+                {% endfor %}
+              </div>
+            </details>
+          </article>
+        </section>
+      </aside>
     {% else %}
       {% include "_sidebar_anonymous.html" %}
     {% endif %}

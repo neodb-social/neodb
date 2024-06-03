@@ -23,34 +23,6 @@
       </article>
     </section>
   {% endif %}
-  {% if popular_tags is not None %}
-    <section>
-      <article>
-        <details class="auto-collapse" open>
-          <summary>{% trans 'Popular Tags' %}</summary>
-          <div class="tag-list">
-            {% for t in popular_tags %}
-              <span>
-                <a href="{% url 'catalog:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
-              </span>
-            {% empty %}
-              <div class="empty">{% trans "nothing so far." %}</div>
-            {% endfor %}
-          </div>
-        </details>
-      </article>
-    </section>
-  {% endif %}
-  {% if popular_posts is not None %}
-    <section>
-      <article>
-        <details class="auto-collapse" open>
-          <summary>{% trans 'Popular Posts' %}</summary>
-          <div style="font-size:80%">{% include "posts.html" with posts=popular_posts %}</div>
-        </details>
-      </article>
-    </section>
-  {% endif %}
   {% if show_profile %}
     <section class="profile">
       <article>

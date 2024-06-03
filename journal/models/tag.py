@@ -129,7 +129,7 @@ class TagManager:
         return TagManager.all_tags_by_owner(self.owner, public_only=True)
 
     @staticmethod
-    def popular_tags(days: int = 30, limit: int = 20):
+    def popular_tags(days: int = 30):
         t = timezone.now() - timedelta(days=days)
         titles = (
             TagMember.objects.filter(created_time__gt=t)
@@ -138,7 +138,7 @@ class TagManager:
             .values("title")
             .annotate(total=Count("parent_id", distinct=True))
             .order_by("-total")
-            .values_list("title", flat=True)[:limit]
+            .values_list("title", flat=True)
         )
         return titles
 
