@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-03 07:38-0400\n"
+"POT-Creation-Date: 2024-06-03 09:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "English"
 msgstr "英語"
 
-#: boofilsic/settings.py:401 boofilsic/settings.py:405
+#: boofilsic/settings.py:401
 msgid "Simplified Chinese"
 msgstr "簡體中文"
 
@@ -1168,8 +1168,8 @@ msgstr "簡介"
 #: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:37
 #: common/templates/_sidebar.html:86 common/templates/_sidebar.html:165
 #: common/templates/_sidebar.html:265
-#: common/templates/_sidebar_anonymous.html:41
-#: common/templates/_sidebar_anonymous.html:55
+#: common/templates/_sidebar_anonymous.html:43
+#: common/templates/_sidebar_anonymous.html:58
 #: journal/templates/collection_items.html:8 journal/templates/profile.html:109
 #: journal/templates/profile.html:151 journal/templates/profile.html:187
 #: journal/templates/user_collection_list.html:51
@@ -1532,7 +1532,7 @@ msgid "mark all as read"
 msgstr "全部標爲已讀"
 
 #: common/templates/_sidebar.html:30
-#: common/templates/_sidebar_anonymous.html:48
+#: common/templates/_sidebar_anonymous.html:51
 msgid "Popular Tags"
 msgstr "熱門標籤"
 
@@ -2975,14 +2975,18 @@ msgid "Manually approve new followers"
 msgstr "手工審覈關注者"
 
 #: takahe/models.py:435
-msgid "Include profile and posts in search and discovery"
-msgstr "允許個人資料和帖文包含在搜索和發現中"
+msgid "Include profile and posts in discovery"
+msgstr "允許個人資料和帖文包含在發現中"
 
-#: takahe/models.py:453
+#: takahe/models.py:438
+msgid "Include posts in search results"
+msgstr "允許帖文包含在搜索結果中"
+
+#: takahe/models.py:456
 msgid "Profile picture"
 msgstr "頭像"
 
-#: takahe/models.py:460
+#: takahe/models.py:463
 msgid "Header picture"
 msgstr "背景圖片"
 
@@ -3154,39 +3158,39 @@ msgstr "登錄信息已更新"
 msgid "Account mismatch."
 msgstr "賬號信息不匹配。"
 
-#: users/data.py:124
+#: users/data.py:127
 msgid "Generating exports."
 msgstr "正在生成導出文件。"
 
-#: users/data.py:136
+#: users/data.py:139
 msgid "Export file expired. Please export again."
 msgstr "導出文件已失效，請重新導出"
 
-#: users/data.py:147
+#: users/data.py:150
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/data.py:161
+#: users/data.py:164
 msgid "Settings saved."
 msgstr "設置已保存"
 
-#: users/data.py:172
+#: users/data.py:175
 msgid "Reset completed."
 msgstr "重置已完成。"
 
-#: users/data.py:181
+#: users/data.py:184
 msgid "Import in progress."
 msgstr "正在導出"
 
-#: users/data.py:183
+#: users/data.py:186
 msgid "Invalid URL."
 msgstr "無效網址。"
 
-#: users/data.py:197 users/data.py:222 users/data.py:237
+#: users/data.py:200 users/data.py:225 users/data.py:240
 msgid "File is uploaded and will be imported soon."
 msgstr "文件已上傳，等待後臺導入。"
 
-#: users/data.py:200 users/data.py:240
+#: users/data.py:203 users/data.py:243
 msgid "Invalid file."
 msgstr "無效文件。"
 

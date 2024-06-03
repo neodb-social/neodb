@@ -432,7 +432,10 @@ class Identity(models.Model):
     )
     discoverable = models.BooleanField(
         default=True,
-        verbose_name=_("Include profile and posts in search and discovery"),
+        verbose_name=_("Include profile and posts in discovery"),
+    )
+    indexable = models.BooleanField(
+        default=True, verbose_name=_("Include posts in search results")
     )
 
     profile_uri = models.CharField(max_length=500, blank=True, null=True)

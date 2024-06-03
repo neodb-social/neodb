@@ -9,6 +9,7 @@ from django.db.models import Min
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from common.config import *
@@ -64,6 +65,8 @@ def preferences(request):
         lang = request.POST.get("language")
         if lang in dict(settings.LANGUAGES).keys() and lang != request.user.language:
             request.user.language = lang
+            translation.activate(lang)
+            request.LANGUAGE_CODE = translation.get_language()
             request.user.save(update_fields=["language"])
         clear_preference_cache(request)
     return render(

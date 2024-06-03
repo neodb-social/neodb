@@ -13,7 +13,7 @@ from django.db import models
 from django.db.models import F, Manager, Q, Value
 from django.db.models.functions import Concat, Lower
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
@@ -452,7 +452,7 @@ class User(AbstractUser):
 
         new_user = cls(**param)
         if "language" not in param:
-            new_user.language = settings.LANGUAGE_CODE
+            new_user.language = translation.get_language()
         new_user.save()
         Preference.objects.create(user=new_user)
         if new_user.username:  # TODO make username required in registeration

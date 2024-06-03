@@ -401,8 +401,6 @@ LANGUAGES = (
     ("zh-hans", _("Simplified Chinese")),
     ("zh-hant", _("Traditional Chinese")),
 )
-if SITE_DOMAIN == "neodb.social":
-    LANGUAGES = (("zh-hans", _("Simplified Chinese")),)
 
 TIME_ZONE = env("NEODB_TIMEZONE", default="Asia/Shanghai")  # type: ignore
 

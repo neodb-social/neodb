@@ -156,7 +156,14 @@ class Migration(migrations.Migration):
                     "discoverable",
                     models.BooleanField(
                         default=True,
-                        verbose_name="Include profile and posts in search and discovery",
+                        verbose_name="Include profile and posts in discovery",
+                    ),
+                ),
+                (
+                    "indexable",
+                    models.BooleanField(
+                        default=True,
+                        verbose_name="Include posts in search results",
                     ),
                 ),
                 (
