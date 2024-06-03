@@ -4,7 +4,7 @@
 {% load thumb %}
 {% load collection %}
 {% load bleach_tags %}
-<div class="grid__aside">
+<aside class="grid__aside sidebar">
   <section>
     {% if site_intro %}
       <div hx-get="{{ site_intro }}" hx-trigger="load" hx-swap="outerHTML">
@@ -34,4 +34,42 @@
       </article>
     {% endif %}
   </section>
-</div>
+  <section class="announcement">
+    <article>
+      <details {% if announcements %}open{% endif %}>
+        <summary>{% trans "Announcements" %}</summary>
+        {% for ann in announcements %}<div>{{ ann.html }}</div>{% endfor %}
+      </details>
+    </article>
+  </section>
+  <section>
+    <article>
+      <details class="auto-collapse" open>
+        <summary>{% trans 'Popular Tags' %}</summary>
+        <div class="tag-list">
+          {% for t in popular_tags %}
+            <span>
+              <a href="{% url 'catalog:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
+            </span>
+          {% empty %}
+            <div class="empty">{% trans "nothing so far." %}</div>
+          {% endfor %}
+        </div>
+      </details>
+    </article>
+  </section>
+</aside>
+<script>
+  $(function () {
+    function _sidebar_auto_collapse(mm){
+      if (mm.matches) {
+        $('.auto-collapse').removeAttr('open')
+      } else {
+        $('.auto-collapse').attr('open', '')
+      }
+    }
+    var mm = window.matchMedia("(max-width: 768px)")
+    mm.addListener(_sidebar_auto_collapse);
+    _sidebar_auto_collapse(mm);
+  });
+</script>

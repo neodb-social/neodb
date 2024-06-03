@@ -1,10 +1,13 @@
 import io
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 import blurhash
 from django.conf import settings
 from django.core.cache import cache
 from django.core.files.images import ImageFile
+from django.db.models import Count
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
@@ -494,7 +497,11 @@ class Takahe:
 
     @staticmethod
     def get_posts(post_pks: list[int]):
-        return Post.objects.filter(pk__in=post_pks)
+        return (
+            Post.objects.filter(pk__in=post_pks)
+            .exclude(state__in=["deleted", "deleted_fanned_out"])
+            .prefetch_related("author", "attachments")
+        )
 
     @staticmethod
     def get_post_url(post_pk: int) -> str | None:
@@ -912,18 +919,13 @@ class Takahe:
             else None
         )
         user = identity.users.all().first() if identity else None
-        if not user:
-            return Announcement.objects.none()
         now = timezone.now()
-        return (
-            Announcement.objects.filter(
-                models.Q(start__lte=now) | models.Q(start__isnull=True),
-                models.Q(end__gte=now) | models.Q(end__isnull=True),
-                published=True,
-            )
-            .order_by("-start", "-created")
-            .exclude(seen=user)
-        )
+        qs = Announcement.objects.filter(
+            models.Q(start__lte=now) | models.Q(start__isnull=True),
+            models.Q(end__gte=now) | models.Q(end__isnull=True),
+            published=True,
+        ).order_by("-start", "-created")
+        return qs.exclude(seen=user) if user else qs
 
     @staticmethod
     def mark_announcements_seen(u: "NeoUser"):
@@ -968,4 +970,18 @@ class Takahe:
             .filter(type__in=types)
             .exclude(subject_identity_id=identity_id)
             .order_by("-created")
+        )
+
+    @staticmethod
+    def get_popular_posts(days: int = 14, limit: int = 20):
+        since = timezone.now().date() - timedelta(days=days)
+        domains = Takahe.get_neodb_peers() + [settings.SITE_DOMAIN]
+        return (
+            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
+            .filter(
+                author__domain__in=domains, visibility__in=[0, 4], published__gte=since
+            )
+            .annotate(num_interactions=Count("interactions"))
+            .filter(num_interactions__gt=0)
+            .order_by("-num_interactions", "-published")[:limit]
         )

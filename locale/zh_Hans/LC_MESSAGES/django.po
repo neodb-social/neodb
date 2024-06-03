@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-02 15:07-0400\n"
+"POT-Creation-Date: 2024-06-03 07:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -667,7 +667,7 @@ msgstr "不再提示"
 #: catalog/templates/_item_comments_by_episode.html:78
 #: catalog/templates/_item_reviews.html:43
 #: catalog/templates/podcast_episode_data.html:41
-#: common/templates/_sidebar.html:202
+#: common/templates/_sidebar.html:267
 msgid "show more"
 msgstr "显示更多"
 
@@ -1067,23 +1067,29 @@ msgstr "本操作不可撤销。确认合并吗？"
 msgid "Discover"
 msgstr "发现"
 
-#: catalog/templates/discover.html:73 journal/templates/profile.html:195
+#: catalog/templates/discover.html:84
+#: journal/templates/user_collection_list.html:17
+#: journal/templates/user_collection_list.html:31
+msgid "Collections"
+msgstr "收藏单"
+
+#: catalog/templates/discover.html:102 journal/templates/profile.html:195
 msgid "edit layout"
 msgstr "编辑布局"
 
-#: catalog/templates/discover.html:76 journal/templates/profile.html:198
+#: catalog/templates/discover.html:105 journal/templates/profile.html:198
 msgid "save"
 msgstr "保存"
 
-#: catalog/templates/discover.html:87 journal/templates/profile.html:209
+#: catalog/templates/discover.html:116 journal/templates/profile.html:209
 msgid "cancel"
 msgstr "取消"
 
-#: catalog/templates/discover.html:93 journal/templates/profile.html:215
+#: catalog/templates/discover.html:122 journal/templates/profile.html:215
 msgid "show"
 msgstr "显示"
 
-#: catalog/templates/discover.html:94 journal/templates/profile.html:216
+#: catalog/templates/discover.html:123 journal/templates/profile.html:216
 msgid "hide"
 msgstr "隐藏"
 
@@ -1159,10 +1165,12 @@ msgstr "简介"
 
 #: catalog/templates/item_base.html:236
 #: catalog/templates/item_mark_list.html:54
-#: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:97
-#: common/templates/_sidebar.html:197 journal/templates/collection_items.html:8
-#: journal/templates/profile.html:109 journal/templates/profile.html:151
-#: journal/templates/profile.html:187 journal/templates/replies.html:46
+#: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:37
+#: common/templates/_sidebar.html:83 common/templates/_sidebar.html:162
+#: common/templates/_sidebar.html:262
+#: common/templates/_sidebar_anonymous.html:55
+#: journal/templates/collection_items.html:8 journal/templates/profile.html:109
+#: journal/templates/profile.html:151 journal/templates/profile.html:187
 #: journal/templates/user_collection_list.html:51
 #: journal/templates/user_item_list_base.html:25
 #: journal/templates/user_tag_list.html:29 social/templates/events.html:46
@@ -1346,11 +1354,11 @@ msgstr "{show_title} 第{season_number}季"
 msgid "{season_title} E{episode_number}"
 msgstr "{season_title} 第{episode_number}集"
 
-#: catalog/views.py:48 catalog/views.py:71
+#: catalog/views.py:50 catalog/views.py:73
 msgid "Item not found"
 msgstr "条目不存在"
 
-#: catalog/views.py:52 catalog/views.py:79
+#: catalog/views.py:54 catalog/views.py:81
 msgid "Item no longer exists"
 msgstr "条目已不存在"
 
@@ -1432,7 +1440,8 @@ msgstr "站点规则"
 msgid "Terms"
 msgstr "服务协议"
 
-#: common/templates/_footer.html:8 users/templates/users/announcements.html:10
+#: common/templates/_footer.html:8 common/templates/_sidebar_anonymous.html:40
+#: users/templates/users/announcements.html:10
 #: users/templates/users/announcements.html:40
 msgid "Announcements"
 msgstr "公告栏"
@@ -1513,39 +1522,48 @@ msgstr "注册或登录"
 msgid "Set a username."
 msgstr "设置用户名"
 
-#: common/templates/_sidebar.html:13
+#: common/templates/_sidebar.html:14
 msgid "Unread Announcements"
 msgstr "未读公告"
 
-#: common/templates/_sidebar.html:19
+#: common/templates/_sidebar.html:20
 msgid "mark all as read"
 msgstr "全部标为已读"
 
-#: common/templates/_sidebar.html:52
+#: common/templates/_sidebar.html:30
+#: common/templates/_sidebar_anonymous.html:48
+msgid "Popular Tags"
+msgstr "热门标签"
+
+#: common/templates/_sidebar.html:48
+msgid "Popular Posts"
+msgstr "热门帖文"
+
+#: common/templates/_sidebar.html:117
 msgid "approving followers manually"
 msgstr "已开启关注审核"
 
-#: common/templates/_sidebar.html:82
+#: common/templates/_sidebar.html:147
 msgid "Current Targets"
 msgstr "当前目标"
 
-#: common/templates/_sidebar.html:95
+#: common/templates/_sidebar.html:160
 msgid "Set a collection as target, its progress will show up here."
 msgstr "将自己或他人的收藏单设为目标，这里就会显示进度"
 
-#: common/templates/_sidebar.html:108
+#: common/templates/_sidebar.html:173
 msgid "Recent podcast episodes"
 msgstr "近期播客节目"
 
-#: common/templates/_sidebar.html:143
+#: common/templates/_sidebar.html:208
 msgid "Currently reading"
 msgstr "正在阅读"
 
-#: common/templates/_sidebar.html:166
+#: common/templates/_sidebar.html:231
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:189
+#: common/templates/_sidebar.html:254
 msgid "Common Tags"
 msgstr "常用标签"
 
@@ -2478,6 +2496,10 @@ msgstr "收藏单"
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
+#: journal/templates/replies.html:46
+msgid "no replies so far."
+msgstr "暂无回应。"
+
 #: journal/templates/replies.html:53
 msgid "add a reply"
 msgstr "添加回应"
@@ -2514,11 +2536,6 @@ msgstr "删除这个标签"
 #: journal/templates/user_collection_list.html:29
 msgid "Liked Collections"
 msgstr "喜欢的收藏单"
-
-#: journal/templates/user_collection_list.html:17
-#: journal/templates/user_collection_list.html:31
-msgid "Collections"
-msgstr "收藏单"
 
 #: journal/templates/user_tag_list.html:12
 #: journal/templates/user_tagmember_list.html:4
@@ -2671,7 +2688,7 @@ msgstr "标签已更新"
 msgid "Summary posted to timeline."
 msgstr "总结已发布到时间轴"
 
-#: mastodon/api.py:523 takahe/utils.py:514
+#: mastodon/api.py:523 takahe/utils.py:521
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "关于 {item_title}，可能包含剧透或敏感内容"
@@ -2745,7 +2762,7 @@ msgstr "播放"
 msgid "comment"
 msgstr "写短评"
 
-#: social/templates/activity/create_collection.html:17 takahe/utils.py:554
+#: social/templates/activity/create_collection.html:17 takahe/utils.py:561
 msgid "created collection"
 msgstr "创建了收藏单"
 

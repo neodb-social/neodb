@@ -22,6 +22,7 @@ from journal.models import (
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
+from takahe.utils import Takahe
 
 from .forms import *
 from .models import *
@@ -260,9 +261,11 @@ def discover(request):
             return redirect(reverse("users:register"))
         layout = request.user.preference.discover_layout
         identity = request.user.identity
+        popular_posts = Takahe.get_posts(cache.get("popular_posts", []))
     else:
         identity = None
         layout = []
+        popular_posts = []
 
     collection_ids = cache.get("featured_collections", [])
     if collection_ids:
@@ -282,6 +285,7 @@ def discover(request):
             "gallery_list": gallery_list,
             "featured_collections": featured_collections,
             "popular_tags": popular_tags,
+            "popular_posts": popular_posts,
             "layout": layout,
         },
     )

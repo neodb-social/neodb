@@ -140,7 +140,7 @@ class TagManager:
             .order_by("-total")
             .values_list("title", flat=True)[:limit]
         )
-        return list(titles)
+        return titles
 
     def get_item_tags(self, item: Item):
         return sorted(

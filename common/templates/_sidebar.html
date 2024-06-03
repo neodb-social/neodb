@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+{% load humanize %}
 {% load mastodon %}
 {% load thumb %}
 {% load collection %}
@@ -32,6 +33,55 @@
               <span>
                 <a href="{% url 'catalog:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
               </span>
+            {% empty %}
+              <div class="empty">{% trans "nothing so far." %}</div>
+            {% endfor %}
+          </div>
+        </details>
+      </article>
+    </section>
+  {% endif %}
+  {% if popular_posts is not None %}
+    <section>
+      <article>
+        <details class="auto-collapse" open>
+          <summary>{% trans 'Popular Posts' %}</summary>
+          <div style="font-size:80%">
+            {% for post in popular_posts %}
+              <section class="activity">
+                <div>
+                  <span class="action">
+                    {# <span class="timestamp">{{ post.created|date }}</span> #}
+                    {% include "action_reply_post.html" %}
+                    {% include "action_like_post.html" %}
+                    {% include "action_boost_post.html" %}
+                    {% include "action_open_post.html" %}
+                  </span>
+                  <!--span class="avatar" style="margin:0.5em;">
+                  <img src="{{ post.author.icon_uri }}" alt="cover" />
+                </span -->
+                  <span style="">
+                    <a href="{{ post.author.url }}"
+                       class="nickname"
+                       title="@{{ post.author.handle }}">{{ post.author.name }}</a>
+                  </span>
+                  <div>{{ post.summary|default:'' }}</div>
+                  <div {% if post.summary or post.sensitive %}class="spoiler" _="on click toggle .revealed on me"{% endif %}>
+                    <div>
+                      {% for attachment in post.attachments.all %}
+                        {% if attachment.is_image %}
+                          <img src="{{ attachment.full_url.relative }}"
+                               alt="attachment.file_display_name"
+                               style="max-height:6em;
+                                      max-width:50%">
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    {{ post.content|bleach:"a,p,span,br,div,img"|default:"" }}
+                  </div>
+                </div>
+                <div id="replies_{{ post.pk }}"></div>
+              </section>
             {% empty %}
               <div class="empty">{% trans "nothing so far." %}</div>
             {% endfor %}

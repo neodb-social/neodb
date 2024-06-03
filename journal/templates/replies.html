@@ -43,7 +43,7 @@
       <div id="replies_{{ post.pk }}"></div>
     </div>
   {% empty %}
-    <div class="empty">{% trans 'nothing so far.' %}</div>
+    <div class="empty">{% trans 'no replies so far.' %}</div>
   {% endfor %}
   {% if post %}
     <form class="reply"

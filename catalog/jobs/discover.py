@@ -17,6 +17,7 @@ from journal.models import (
     TagManager,
     q_item_in_category,
 )
+from takahe.utils import Takahe
 from users.models import APIdentity
 
 MAX_ITEMS_PER_PERIOD = 12
@@ -138,10 +139,14 @@ class DiscoverGenerator(BaseJob):
             .values_list("pk", flat=True)[:40]
         )
         tags = TagManager.popular_tags(days=14, limit=20)
+        post_ids = Takahe.get_popular_posts(days=14, limit=20).values_list(
+            "pk", flat=True
+        )
         cache.set(cache_key, gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
         cache.set("featured_collections", collection_ids, timeout=None)
-        cache.set("popular_tags", tags, timeout=None)
+        cache.set("popular_tags", list(tags), timeout=None)
+        cache.set("popular_posts", list(post_ids), timeout=None)
         logger.info(
-            f"Discover data updated, trends: {len(trends)}, collections: {len(collection_ids)}, tags: {len(tags)}."
+            f"Discover data updated, trends: {len(trends)}, collections: {len(collection_ids)}, tags: {len(tags)}, posts: {len(post_ids)}."
         )
