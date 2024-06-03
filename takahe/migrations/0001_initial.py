@@ -850,6 +850,12 @@ class Migration(migrations.Migration):
                         default=True, help_text="Also follow boosts from this user"
                     ),
                 ),
+                (
+                    "notify",
+                    models.BooleanField(
+                        default=False, help_text="Notify about posts from this user"
+                    ),
+                ),
                 ("uri", models.CharField(blank=True, max_length=500, null=True)),
                 ("note", models.TextField(blank=True, null=True)),
                 ("state", models.CharField(default="unrequested", max_length=100)),

@@ -751,6 +751,9 @@ class Follow(models.Model):
     boosts = models.BooleanField(
         default=True, help_text="Also follow boosts from this user"
     )
+    notify = models.BooleanField(
+        default=False, help_text="Notify about posts from this user"
+    )
 
     uri = models.CharField(blank=True, null=True, max_length=500)
     note = models.TextField(blank=True, null=True)

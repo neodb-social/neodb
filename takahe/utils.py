@@ -985,3 +985,16 @@ class Takahe:
             .filter(num_interactions__gt=0)
             .order_by("-num_interactions", "-published")[:limit]
         )
+
+    @staticmethod
+    def get_recent_posts(author_pk: int, viewer_pk: int | None = None):
+        qs = (
+            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
+            .filter(author_id=author_pk)
+            .order_by("-published")
+        )
+        if viewer_pk and Takahe.get_is_following(viewer_pk, author_pk):
+            qs = qs.exclude(visibility=3)
+        else:
+            qs = qs.filter(visibility__in=[0, 1, 4])
+        return qs.prefetch_related("attachments", "author")

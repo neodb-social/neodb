@@ -7,6 +7,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest
+from takahe.utils import Takahe
 
 from ..forms import *
 from ..models import *
@@ -17,10 +18,8 @@ from .common import profile_identity_required, target_identity_required
 @profile_identity_required
 def profile(request: AuthedHttpRequest, user_name):
     target = request.target_identity
-
-    if not request.user.is_authenticated and (
-        not target.local or not target.anonymous_viewable
-    ):
+    anonymous = not request.user.is_authenticated
+    if anonymous and (not target.local or not target.anonymous_viewable):
         return render(
             request,
             "users/home_anonymous.html",
@@ -95,6 +94,10 @@ def profile(request: AuthedHttpRequest, user_name):
             year = today.year - 1
         else:
             year = None
+    if anonymous:
+        recent_posts = None
+    else:
+        recent_posts = Takahe.get_recent_posts(target.pk, request.user.identity.pk)[:10]
     return render(
         request,
         "profile.html",
@@ -103,6 +106,7 @@ def profile(request: AuthedHttpRequest, user_name):
             "identity": target,
             "me": me,
             "top_tags": top_tags,
+            "recent_posts": recent_posts,
             "shelf_list": shelf_list,
             "collections": collections[:10],
             "collections_count": collections.count(),
