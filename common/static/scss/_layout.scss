@@ -195,6 +195,10 @@
       >aside {
         order: 2;
 
+        >section {
+          margin-block: 0.5em;
+        }
+
         article.item {
           display: grid;
           grid-template-columns: 25% auto;

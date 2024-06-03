@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-03 07:26-0400\n"
+"POT-Creation-Date: 2024-06-03 07:38-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -667,7 +667,7 @@ msgstr "不再提示"
 #: catalog/templates/_item_comments_by_episode.html:78
 #: catalog/templates/_item_reviews.html:43
 #: catalog/templates/podcast_episode_data.html:41
-#: common/templates/_sidebar.html:267
+#: common/templates/_sidebar.html:270
 msgid "show more"
 msgstr "顯示更多"
 
@@ -1166,8 +1166,9 @@ msgstr "簡介"
 #: catalog/templates/item_base.html:236
 #: catalog/templates/item_mark_list.html:54
 #: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:37
-#: common/templates/_sidebar.html:83 common/templates/_sidebar.html:162
-#: common/templates/_sidebar.html:262
+#: common/templates/_sidebar.html:86 common/templates/_sidebar.html:165
+#: common/templates/_sidebar.html:265
+#: common/templates/_sidebar_anonymous.html:41
 #: common/templates/_sidebar_anonymous.html:55
 #: journal/templates/collection_items.html:8 journal/templates/profile.html:109
 #: journal/templates/profile.html:151 journal/templates/profile.html:187
@@ -1354,11 +1355,11 @@ msgstr "{show_title} 第{season_number}季"
 msgid "{season_title} E{episode_number}"
 msgstr "{season_title} 第{episode_number}集"
 
-#: catalog/views.py:50 catalog/views.py:73
+#: catalog/views.py:51 catalog/views.py:74
 msgid "Item not found"
 msgstr "條目不存在"
 
-#: catalog/views.py:54 catalog/views.py:81
+#: catalog/views.py:55 catalog/views.py:82
 msgid "Item no longer exists"
 msgstr "條目已不存在"
 
@@ -1539,31 +1540,31 @@ msgstr "熱門標籤"
 msgid "Popular Posts"
 msgstr "熱門帖文"
 
-#: common/templates/_sidebar.html:117
+#: common/templates/_sidebar.html:120
 msgid "approving followers manually"
 msgstr "已開啓關注審覈"
 
-#: common/templates/_sidebar.html:147
+#: common/templates/_sidebar.html:150
 msgid "Current Targets"
 msgstr "當前目標"
 
-#: common/templates/_sidebar.html:160
+#: common/templates/_sidebar.html:163
 msgid "Set a collection as target, its progress will show up here."
 msgstr "將自己或他人的收藏單設爲目標，這裏就會顯示進度"
 
-#: common/templates/_sidebar.html:173
+#: common/templates/_sidebar.html:176
 msgid "Recent podcast episodes"
 msgstr "近期播客節目"
 
-#: common/templates/_sidebar.html:208
+#: common/templates/_sidebar.html:211
 msgid "Currently reading"
 msgstr "正在閱讀"
 
-#: common/templates/_sidebar.html:231
+#: common/templates/_sidebar.html:234
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:254
+#: common/templates/_sidebar.html:257
 msgid "Common Tags"
 msgstr "常用標籤"
 

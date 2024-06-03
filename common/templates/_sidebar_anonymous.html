@@ -36,9 +36,12 @@
   </section>
   <section class="announcement">
     <article>
-      <details {% if announcements %}open{% endif %}>
+      <details {% if all_announcements %}class="auto-collapse" open{% endif %}>
         <summary>{% trans "Announcements" %}</summary>
-        {% for ann in announcements %}<div>{{ ann.html }}</div>{% endfor %}
+        {% for ann in all_announcements %}
+          <div>{{ ann.html }}</div>
+        {% empty %}{% trans "nothing so far." %}
+        {% endfor %}
       </details>
     </article>
   </section>
