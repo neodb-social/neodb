@@ -1,10 +1,12 @@
 import re
+from datetime import timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING
 
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import connection, models
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, F, Q
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from catalog.collection.models import Collection as CatalogCollection
@@ -125,6 +127,20 @@ class TagManager:
     @property
     def public_tags(self):
         return TagManager.all_tags_by_owner(self.owner, public_only=True)
+
+    @staticmethod
+    def popular_tags(days: int = 30, limit: int = 20):
+        t = timezone.now() - timedelta(days=days)
+        titles = (
+            TagMember.objects.filter(created_time__gt=t)
+            .filter(parent__visibility=0)
+            .annotate(title=F("parent__title"))
+            .values("title")
+            .annotate(total=Count("parent_id", distinct=True))
+            .order_by("-total")
+            .values_list("title", flat=True)[:limit]
+        )
+        return list(titles)
 
     def get_item_tags(self, item: Item):
         return sorted(

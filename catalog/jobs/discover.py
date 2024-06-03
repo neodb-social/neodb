@@ -10,7 +10,13 @@ from loguru import logger
 
 from catalog.models import *
 from common.models import BaseJob, JobManager
-from journal.models import Collection, Comment, ShelfMember, q_item_in_category
+from journal.models import (
+    Collection,
+    Comment,
+    ShelfMember,
+    TagManager,
+    q_item_in_category,
+)
 from users.models import APIdentity
 
 MAX_ITEMS_PER_PERIOD = 12
@@ -97,7 +103,7 @@ class DiscoverGenerator(BaseJob):
                 }
             )
             item_ids = self.get_popular_marked_item_ids(category, DAYS_FOR_TRENDS, [])[
-                :3
+                :5
             ]
             if category == ItemCategory.Podcast:
                 item_ids += self.get_popular_commented_podcast_ids(
@@ -131,9 +137,11 @@ class DiscoverGenerator(BaseJob):
             .order_by("-edited_time")
             .values_list("pk", flat=True)[:40]
         )
+        tags = TagManager.popular_tags(days=14, limit=20)
         cache.set(cache_key, gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
         cache.set("featured_collections", collection_ids, timeout=None)
+        cache.set("popular_tags", tags, timeout=None)
         logger.info(
-            f"Discover data updated, trends: {len(trends)}, collections: {len(collection_ids)}."
+            f"Discover data updated, trends: {len(trends)}, collections: {len(collection_ids)}, tags: {len(tags)}."
         )

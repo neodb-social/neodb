@@ -147,7 +147,7 @@
       {% endif %}
     </div>
     {% if request.user.is_authenticated %}
-      {% include "_sidebar.html" with show_progress=1 identity=request.user.identity %}
+      {% include "_sidebar.html" with identity=request.user.identity %}
     {% else %}
       {% include "_sidebar_anonymous.html" %}
     {% endif %}

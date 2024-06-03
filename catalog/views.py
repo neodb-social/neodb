@@ -22,7 +22,6 @@ from journal.models import (
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
-from users.models.apidentity import APIdentity
 
 from .forms import *
 from .models import *
@@ -261,36 +260,8 @@ def discover(request):
             return redirect(reverse("users:register"))
         layout = request.user.preference.discover_layout
         identity = request.user.identity
-        podcast_ids = [
-            p.item_id
-            for p in identity.shelf_manager.get_latest_members(
-                ShelfType.PROGRESS, ItemCategory.Podcast
-            )
-        ]
-        recent_podcast_episodes = PodcastEpisode.objects.filter(
-            program_id__in=podcast_ids
-        ).order_by("-pub_date")[:10]
-        books_in_progress = Edition.objects.filter(
-            id__in=[
-                p.item_id
-                for p in identity.shelf_manager.get_latest_members(
-                    ShelfType.PROGRESS, ItemCategory.Book
-                )[:10]
-            ]
-        )
-        tvshows_in_progress = Item.objects.filter(
-            id__in=[
-                p.item_id
-                for p in identity.shelf_manager.get_latest_members(
-                    ShelfType.PROGRESS, ItemCategory.TV
-                )[:10]
-            ]
-        )
     else:
         identity = None
-        recent_podcast_episodes = []
-        books_in_progress = []
-        tvshows_in_progress = []
         layout = []
 
     collection_ids = cache.get("featured_collections", [])
@@ -301,16 +272,16 @@ def discover(request):
     else:
         featured_collections = []
 
+    popular_tags = cache.get("popular_tags", [])
+
     return render(
         request,
         "discover.html",
         {
             "identity": identity,
             "gallery_list": gallery_list,
-            "recent_podcast_episodes": recent_podcast_episodes,
-            "books_in_progress": books_in_progress,
-            "tvshows_in_progress": tvshows_in_progress,
             "featured_collections": featured_collections,
+            "popular_tags": popular_tags,
             "layout": layout,
         },
     )
