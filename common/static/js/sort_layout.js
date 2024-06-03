@@ -83,6 +83,7 @@ $(() => {
             $("#sortExitButton").off();
             $("#sortEditButton").prop('disabled', true);
             $("#sortExitButton").prop('disabled', true);
+            $(".sortable .action").show()
 
             let rawData = sortable('.sortable', 'serialize')[0].items;
             let serializedData = []
@@ -112,6 +113,7 @@ $(() => {
             $("#sortSaveText").show();
             $("#sortEditText").hide();
             $("#sortExitButton").show();
+            $(".sortable .action").hide()
             sortable('.sortable', 'enable');
             $(".entity-sort").each((index, elem) => {
                 $(elem).show();
@@ -148,6 +150,7 @@ $(() => {
         $("#sortSaveText").hide();
         $("#sortEditText").show();
         $("#sortExitButton").hide();
+        $(".sortable .action").show()
         sortable('.sortable', 'disable');
         $(".entity-sort").each((index, elem) => {
             $(elem).removeClass("entity-sort--sortable");
