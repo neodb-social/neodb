@@ -196,6 +196,7 @@ form img {
   display: inline-block;
 
   img {
+    max-width: unset;
     border-radius: 50%;
     height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 2 - var(--pico-border-width) * 2);
     width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 2 - var(--pico-border-width) * 2);

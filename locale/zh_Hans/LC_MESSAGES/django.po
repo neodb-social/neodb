@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-03 17:32-0400\n"
+"POT-Creation-Date: 2024-06-03 21:53-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -667,7 +667,7 @@ msgstr "不再提示"
 #: catalog/templates/_item_comments_by_episode.html:78
 #: catalog/templates/_item_reviews.html:43
 #: catalog/templates/podcast_episode_data.html:41
-#: common/templates/_sidebar.html:231
+#: common/templates/_sidebar.html:203
 msgid "show more"
 msgstr "显示更多"
 
@@ -1093,6 +1093,40 @@ msgstr "显示"
 msgid "hide"
 msgstr "隐藏"
 
+#: catalog/templates/discover.html:155 common/templates/_sidebar.html:14
+msgid "Unread Announcements"
+msgstr "未读公告"
+
+#: catalog/templates/discover.html:161 common/templates/_sidebar.html:20
+msgid "mark all as read"
+msgstr "全部标为已读"
+
+#: catalog/templates/discover.html:170
+msgid "Popular Posts"
+msgstr "热门帖文"
+
+#: catalog/templates/discover.html:178
+#: common/templates/_sidebar_anonymous.html:51
+msgid "Popular Tags"
+msgstr "热门标签"
+
+#: catalog/templates/discover.html:185 catalog/templates/item_base.html:236
+#: catalog/templates/item_mark_list.html:54
+#: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:98
+#: common/templates/_sidebar.html:198
+#: common/templates/_sidebar_anonymous.html:43
+#: common/templates/_sidebar_anonymous.html:58
+#: journal/templates/collection_items.html:8 journal/templates/posts.html:43
+#: journal/templates/profile.html:109 journal/templates/profile.html:151
+#: journal/templates/profile.html:187
+#: journal/templates/user_collection_list.html:51
+#: journal/templates/user_item_list_base.html:25
+#: journal/templates/user_tag_list.html:29 social/templates/events.html:45
+#: users/templates/users/announcements.html:54
+#: users/templates/users/relationship_list.html:11
+msgid "nothing so far."
+msgstr "暂无内容。"
+
 #: catalog/templates/edition.html:36
 msgid "publication date"
 msgstr "发行时间"
@@ -1162,23 +1196,6 @@ msgstr "评分人数不足"
 #: catalog/templates/item_base.html:230
 msgid "overview"
 msgstr "简介"
-
-#: catalog/templates/item_base.html:236
-#: catalog/templates/item_mark_list.html:54
-#: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:37
-#: common/templates/_sidebar.html:126 common/templates/_sidebar.html:226
-#: common/templates/_sidebar_anonymous.html:43
-#: common/templates/_sidebar_anonymous.html:58
-#: journal/templates/collection_items.html:8 journal/templates/posts.html:39
-#: journal/templates/profile.html:109 journal/templates/profile.html:151
-#: journal/templates/profile.html:187
-#: journal/templates/user_collection_list.html:51
-#: journal/templates/user_item_list_base.html:25
-#: journal/templates/user_tag_list.html:29 social/templates/events.html:45
-#: users/templates/users/announcements.html:54
-#: users/templates/users/relationship_list.html:11
-msgid "nothing so far."
-msgstr "暂无内容。"
 
 #: catalog/templates/item_base.html:243
 msgid "comments"
@@ -1523,52 +1540,35 @@ msgstr "注册或登录"
 msgid "Set a username."
 msgstr "设置用户名"
 
-#: common/templates/_sidebar.html:14
-msgid "Unread Announcements"
-msgstr "未读公告"
-
-#: common/templates/_sidebar.html:20
-msgid "mark all as read"
-msgstr "全部标为已读"
-
-#: common/templates/_sidebar.html:30
-#: common/templates/_sidebar_anonymous.html:51
-msgid "Popular Tags"
-msgstr "热门标签"
-
-#: common/templates/_sidebar.html:48
-msgid "Popular Posts"
-msgstr "热门帖文"
-
-#: common/templates/_sidebar.html:81
+#: common/templates/_sidebar.html:53
 msgid "approving followers manually"
 msgstr "已开启关注审核"
 
-#: common/templates/_sidebar.html:111
+#: common/templates/_sidebar.html:83
 msgid "Current Targets"
 msgstr "当前目标"
 
-#: common/templates/_sidebar.html:124
+#: common/templates/_sidebar.html:96
 msgid "Set a collection as target, its progress will show up here."
 msgstr "将自己或他人的收藏单设为目标，这里就会显示进度"
 
-#: common/templates/_sidebar.html:137
+#: common/templates/_sidebar.html:109
 msgid "Recent podcast episodes"
 msgstr "近期播客节目"
 
-#: common/templates/_sidebar.html:172
+#: common/templates/_sidebar.html:144
 msgid "Currently reading"
 msgstr "正在阅读"
 
-#: common/templates/_sidebar.html:195
+#: common/templates/_sidebar.html:167
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:218
+#: common/templates/_sidebar.html:190
 msgid "Common Tags"
 msgstr "常用标签"
 
-#: common/templates/_sidebar.html:242
+#: common/templates/_sidebar.html:214
 msgid "Recent Posts"
 msgstr "近期帖文"
 

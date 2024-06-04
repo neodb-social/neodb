@@ -231,17 +231,3 @@
     </section>
   {% endif %}
 </aside>
-<script>
-  $(function () {
-    function _sidebar_auto_collapse(mm){
-      if (mm.matches) {
-        $('.auto-collapse').removeAttr('open')
-      } else {
-        $('.auto-collapse').attr('open', '')
-      }
-    }
-    var mm = window.matchMedia("(max-width: 768px)")
-    mm.addListener(_sidebar_auto_collapse);
-    _sidebar_auto_collapse(mm);
-  });
-</script>

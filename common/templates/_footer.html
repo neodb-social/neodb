@@ -18,6 +18,18 @@
 </footer>
 <div class="player"></div>
 <script>
+  $(function () {
+    function _sidebar_auto_collapse(mm){
+      if (mm.matches) {
+        $('.auto-collapse').removeAttr('open')
+      } else {
+        $('.auto-collapse').attr('open', '')
+      }
+    }
+    var mm = window.matchMedia("(max-width: 768px)")
+    mm.addListener(_sidebar_auto_collapse);
+    _sidebar_auto_collapse(mm);
+  });
   document.body.addEventListener('htmx:configRequest', (event) => {
     event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
   })
