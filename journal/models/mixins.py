@@ -24,7 +24,8 @@ class UserOwnedObjectMixin:
         visibility: int
 
     def is_visible_to(
-        self: "Piece", viewing_user: "User"  # noqa # type: ignore
+        self: "Piece",  # type: ignore
+        viewing_user: "User",
     ) -> bool:
         owner = self.owner
         if not owner or not owner.is_active:

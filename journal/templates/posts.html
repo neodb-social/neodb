@@ -12,7 +12,7 @@
       </div>
       <div style="flex-grow:1;">
         <span class="action">
-          <span class="timestamp">{{ post.created|naturaldelta }}</span>
+          <span class="timestamp">{{ post.published|naturaldelta }}</span>
           {% include "action_reply_post.html" %}
           {% include "action_like_post.html" %}
           {% include "action_boost_post.html" %}

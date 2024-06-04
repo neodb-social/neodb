@@ -58,8 +58,9 @@ class IdType(models.TextChoices):
     ISSN = "issn", _("ISSN")  # type:ignore[reportCallIssue]
     CUBN = "cubn", _("CUBN")  # type:ignore[reportCallIssue]
     ISRC = "isrc", _("ISRC")  # only for songs  # type:ignore[reportCallIssue]
-    GTIN = "gtin", _(
-        "GTIN UPC EAN"
+    GTIN = (
+        "gtin",
+        _("GTIN UPC EAN"),
     )  # GTIN-13, ISBN is separate  # type:ignore[reportCallIssue]
     RSS = "rss", _("RSS Feed URL")  # type:ignore[reportCallIssue]
     IMDB = "imdb", _("IMDb")  # type:ignore[reportCallIssue]

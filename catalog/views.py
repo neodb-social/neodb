@@ -264,9 +264,7 @@ def discover(request):
         identity = request.user.identity
         announcements = []
         post_ids = cache.get("popular_posts", [])
-        i = rot * len(post_ids) // 10
-        post_ids = post_ids[i:] + post_ids[:i]
-        popular_posts = Takahe.get_posts(post_ids)
+        popular_posts = Takahe.get_posts(post_ids).order_by("-published")
     else:
         identity = None
         layout = []
