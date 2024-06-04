@@ -78,11 +78,11 @@ dialog {
     .grid>div:nth-child(2) fieldset {
       float: unset;
     }
+    .grid {
+      grid-row-gap: 0;
+    }
   }
 
-  fieldset {
-    margin: 0;
-  }
 
   article {
     padding-bottom: 1em;

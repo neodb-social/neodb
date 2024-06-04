@@ -47,8 +47,7 @@ class Tag(List):
     title = models.CharField(
         max_length=100, null=False, blank=False, validators=TagValidators
     )
-    # TODO case convert and space removal on save
-    # TODO check on save
+    pinned = models.BooleanField(default=False, null=True)
 
     class Meta:
         unique_together = [["owner", "title"]]
@@ -61,7 +60,27 @@ class Tag(List):
     @staticmethod
     def deep_cleanup_title(title):
         """Remove all non-word characters, only for public index purpose"""
-        return re.sub(r"\W+", " ", title).rstrip().lstrip("# ").lower() or "_"
+        return re.sub(r"\W+", " ", title).rstrip().lstrip("# ").lower()[:100] or "_"
+
+    def update(
+        self, title: str, visibility: int | None = None, pinned: bool | None = None
+    ):
+        old_title = Tag.deep_cleanup_title(self.title)
+        new_title = Tag.deep_cleanup_title(title)
+        was_pinned = bool(self.pinned)
+        if visibility is not None:
+            self.visibility = 2 if visibility else 0
+        if pinned is not None:
+            self.pinned = pinned
+        self.title = title
+        self.save()
+        if was_pinned != self.pinned or (old_title != new_title and self.pinned):
+            from takahe.utils import Takahe
+
+            if was_pinned:
+                Takahe.unpin_hashtag_for_user(self.owner.pk, old_title)
+            if self.pinned:
+                Takahe.pin_hashtag_for_user(self.owner.pk, new_title)
 
 
 class TagManager:

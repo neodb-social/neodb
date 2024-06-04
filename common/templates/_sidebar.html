@@ -35,7 +35,7 @@
                   <img src="{{ identity.avatar|relative_uri }}" alt="">
                 </a>
               </div>
-              <div>
+              <div style="align-content:center;">
                 <hgroup>
                   <h6 class="nickname">{{ identity.display_name }}</h6>
                   <div>
@@ -68,9 +68,10 @@
               {% include 'users/profile_actions.html' %}
             {% endif %}
           </span>
-          <p>
-            {{ identity.summary|bleach:"a,p,span,br"|default:"<br>" }}
-          </p>
+          <div>
+            {{ identity.summary|bleach:"a,p,span,br"|default:"" }}
+            <br>
+          </div>
         </details>
       </article>
     </section>

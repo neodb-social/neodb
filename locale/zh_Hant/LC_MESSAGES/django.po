@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-04 10:15-0400\n"
+"POT-Creation-Date: 2024-06-04 16:48-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -667,7 +667,7 @@ msgstr "不再提示"
 #: catalog/templates/_item_comments_by_episode.html:78
 #: catalog/templates/_item_reviews.html:43
 #: catalog/templates/podcast_episode_data.html:41
-#: common/templates/_sidebar.html:203
+#: common/templates/_sidebar.html:204
 msgid "show more"
 msgstr "顯示更多"
 
@@ -1018,7 +1018,7 @@ msgstr "否"
 #: journal/templates/collection.html:132
 #: journal/templates/collection_edit.html:9
 #: journal/templates/collection_edit.html:25 journal/templates/review.html:80
-#: journal/templates/tag_edit.html:12
+#: journal/templates/tag_edit.html:16
 msgid "Edit"
 msgstr "編輯"
 
@@ -1031,7 +1031,7 @@ msgstr "創建"
 #: journal/templates/add_to_collection.html:35
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
 #: journal/templates/mark.html:147 journal/templates/review_edit.html:39
-#: journal/templates/tag_edit.html:60 users/templates/users/account.html:43
+#: journal/templates/tag_edit.html:51 users/templates/users/account.html:43
 #: users/templates/users/account.html:104
 #: users/templates/users/preferences.html:168
 #: users/templates/users/preferences.html:193
@@ -1112,8 +1112,8 @@ msgstr "熱門標籤"
 
 #: catalog/templates/discover.html:185 catalog/templates/item_base.html:236
 #: catalog/templates/item_mark_list.html:54
-#: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:98
-#: common/templates/_sidebar.html:198
+#: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:99
+#: common/templates/_sidebar.html:199
 #: common/templates/_sidebar_anonymous.html:43
 #: common/templates/_sidebar_anonymous.html:58
 #: journal/templates/collection_items.html:8 journal/templates/posts.html:45
@@ -1544,31 +1544,31 @@ msgstr "設置用戶名"
 msgid "approving followers manually"
 msgstr "已開啓關注審覈"
 
-#: common/templates/_sidebar.html:83
+#: common/templates/_sidebar.html:84
 msgid "Current Targets"
 msgstr "當前目標"
 
-#: common/templates/_sidebar.html:96
+#: common/templates/_sidebar.html:97
 msgid "Set a collection as target, its progress will show up here."
 msgstr "將自己或他人的收藏單設爲目標，這裏就會顯示進度"
 
-#: common/templates/_sidebar.html:109
+#: common/templates/_sidebar.html:110
 msgid "Recent podcast episodes"
 msgstr "近期播客節目"
 
-#: common/templates/_sidebar.html:144
+#: common/templates/_sidebar.html:145
 msgid "Currently reading"
 msgstr "正在閱讀"
 
-#: common/templates/_sidebar.html:167
+#: common/templates/_sidebar.html:168
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:190
+#: common/templates/_sidebar.html:191
 msgid "Common Tags"
 msgstr "常用標籤"
 
-#: common/templates/_sidebar.html:214
+#: common/templates/_sidebar.html:215
 msgid "Recent Posts"
 msgstr "近期帖文"
 
@@ -1722,8 +1722,8 @@ msgstr "發佈到聯邦宇宙"
 
 #: journal/forms.py:25 journal/forms.py:45
 #: journal/templates/collection_share.html:24
-#: journal/templates/tag_edit.html:30 journal/templates/wrapped_share.html:36
-#: users/templates/users/data.html:38 users/templates/users/data.html:130
+#: journal/templates/wrapped_share.html:36 users/templates/users/data.html:38
+#: users/templates/users/data.html:130
 msgid "Visibility"
 msgstr "可見性"
 
@@ -1756,7 +1756,7 @@ msgstr "備註"
 
 #: journal/models/common.py:28 journal/templates/collection_share.html:35
 #: journal/templates/comment.html:35 journal/templates/mark.html:93
-#: journal/templates/tag_edit.html:40 journal/templates/wrapped_share.html:43
+#: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:47 users/templates/users/data.html:139
 #: users/templates/users/preferences.html:54
 msgid "Public"
@@ -2493,7 +2493,7 @@ msgstr "日曆"
 msgid "annual summary"
 msgstr "年度小結"
 
-#: journal/templates/profile.html:131 mastodon/api.py:680
+#: journal/templates/profile.html:131 mastodon/api.py:670
 msgid "collection"
 msgstr "收藏單"
 
@@ -2521,19 +2521,19 @@ msgstr "保存時將行首空格替換爲全角"
 msgid "change review date"
 msgstr "指定評論日期"
 
-#: journal/templates/tag_edit.html:12
-msgid "Tag"
-msgstr "標籤"
+#: journal/templates/tag_edit.html:32
+msgid "Pin"
+msgstr "置頂"
 
-#: journal/templates/tag_edit.html:51
+#: journal/templates/tag_edit.html:49
 msgid "Personal"
 msgstr "個人"
 
-#: journal/templates/tag_edit.html:57
-msgid "Personal tags are not shown to others when they view your tag list. However, if you use this tag when marking an item publicly, it might still be visible to others."
-msgstr "個人標籤僅限於在個人主頁的標籤列表裏不向他人展示，如果公開標記一個條目時使用這個標籤仍會被別人看到。"
+#: journal/templates/tag_edit.html:52
+msgid "Personal tags are not shown to others when they view your tag list, unless you pin them. However, if you use this tag when marking an item publicly, it might still be visible to others."
+msgstr "個人標籤不被包括在條目的公共索引中，但如果公開標記一個條目時使用這個標籤仍會被別人看到。"
 
-#: journal/templates/tag_edit.html:67
+#: journal/templates/tag_edit.html:55
 msgid "Delete this tag"
 msgstr "刪除這個標籤"
 
@@ -2685,7 +2685,7 @@ msgstr "標籤已刪除"
 msgid "Duplicated tag."
 msgstr "重複標籤"
 
-#: journal/views/tag.py:75
+#: journal/views/tag.py:76
 msgid "Tag updated."
 msgstr "標籤已更新"
 
@@ -2698,11 +2698,11 @@ msgstr "總結已發佈到時間軸"
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "關於 {item_title}，可能包含劇透或敏感內容"
 
-#: mastodon/api.py:685
+#: mastodon/api.py:675
 msgid "shared my collection"
 msgstr "分享我的收藏單"
 
-#: mastodon/api.py:688
+#: mastodon/api.py:678
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏單"
@@ -2964,31 +2964,31 @@ msgstr "提及"
 msgid "follow"
 msgstr "關注"
 
-#: takahe/models.py:427
+#: takahe/models.py:430
 msgid "Display Name"
 msgstr "暱稱"
 
-#: takahe/models.py:429
+#: takahe/models.py:432
 msgid "Bio"
 msgstr "簡介"
 
-#: takahe/models.py:431
+#: takahe/models.py:434
 msgid "Manually approve new followers"
 msgstr "手工審覈關注者"
 
-#: takahe/models.py:435
+#: takahe/models.py:438
 msgid "Include profile and posts in discovery"
 msgstr "允許個人資料和帖文包含在發現中"
 
-#: takahe/models.py:438
+#: takahe/models.py:441
 msgid "Include posts in search results"
 msgstr "允許個人帖文包含在搜索結果中"
 
-#: takahe/models.py:456
+#: takahe/models.py:459
 msgid "Profile picture"
 msgstr "頭像"
 
-#: takahe/models.py:463
+#: takahe/models.py:466
 msgid "Header picture"
 msgstr "背景圖片"
 

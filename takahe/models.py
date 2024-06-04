@@ -5,7 +5,7 @@ import re
 import secrets
 import ssl
 import time
-from datetime import date
+from datetime import date, timedelta
 from functools import cached_property, partial
 from typing import TYPE_CHECKING, Literal, Optional
 from urllib.parse import urlparse
@@ -385,7 +385,10 @@ class Identity(models.Model):
     Represents both local and remote Fediverse identities (actors)
     """
 
-    domain_id: str
+    if TYPE_CHECKING:
+        domain_id: str
+        inbound_follows: "models.QuerySet[Follow]"
+        hashtag_features: "models.QuerySet[HashtagFeature]"
 
     class Restriction(models.IntegerChoices):
         none = 0
@@ -728,6 +731,34 @@ class Identity(models.Model):
             self.following_uri = self.actor_uri + "following/"
             self.shared_inbox_uri = f"https://{self.domain.uri_domain}/inbox/"
             self.save()
+
+    def get_remote_targets(self):
+        """
+        Returns an iterable with Identities of followers that have unique
+        shared_inbox among each other to be used as target.
+        """
+        if not self.local:
+            return []
+        remote_follower_ids = Follow.objects.filter(
+            target=self,
+            target__local=False,
+            state__in=["unrequested", "pending_approval", "accepting", "accepted"],
+        ).values_list("source", flat=True)
+        deduped_targets = set()
+        shared_inboxes = set()
+        for target in Identity.objects.filter(pk__in=remote_follower_ids):
+            if not target.shared_inbox_uri:
+                deduped_targets.add(target)
+            elif target.shared_inbox_uri not in shared_inboxes:
+                shared_inboxes.add(target.shared_inbox_uri)
+                deduped_targets.add(target)
+        return deduped_targets
+
+    def fanout(self, type: str, **kwargs):
+        for target in self.get_remote_targets():
+            FanOut.objects.create(
+                identity=target, subject_identity=self, type=type, **kwargs
+            )
 
 
 class Follow(models.Model):
@@ -1569,6 +1600,8 @@ class Hashtag(models.Model):
     # state = StateField(HashtagStates)
     state = models.CharField(max_length=100, default="outdated")
     state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
 
     # Metrics for this Hashtag
     stats = models.JSONField(null=True, blank=True)
@@ -1638,6 +1671,53 @@ class Hashtag(models.Model):
                 day = int(parts[2])
                 results[date(year, month, day)] = val
         return dict(sorted(results.items(), reverse=True)[:num])
+
+    @property
+    def needs_update(self):
+        if self.stats_updated is None:
+            return True
+        return timezone.now() - self.stats_updated > timedelta(hours=1)
+
+    @classmethod
+    def ensure_hashtag(cls, name, update=None):
+        """
+        Properly strips/trims/lowercases the hashtag name, and makes sure a Hashtag
+        object exists in the database, and returns it.
+        """
+        name = name.strip().lstrip("#").lower()[: Hashtag.MAXIMUM_LENGTH]
+        hashtag, created = cls.objects.get_or_create(hashtag=name)
+        if created or update or hashtag.needs_update:
+            hashtag.state = "outdated"
+            hashtag.state_changed = timezone.now()
+            hashtag.state_next_attempt = None
+            hashtag.state_locked_until = None
+            hashtag.save(
+                update_fields=[
+                    "state",
+                    "state_changed",
+                    "state_next_attempt",
+                    "state_locked_until",
+                ]
+            )
+        return hashtag
+
+
+class HashtagFeature(models.Model):
+    identity = models.ForeignKey(
+        "takahe.Identity",
+        on_delete=models.CASCADE,
+        related_name="hashtag_features",
+    )
+    hashtag = models.ForeignKey(
+        "takahe.Hashtag",
+        on_delete=models.CASCADE,
+        related_name="featurers",
+    )
+
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "users_hashtagfeature"
 
 
 class PostInteraction(models.Model):

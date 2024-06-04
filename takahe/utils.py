@@ -990,3 +990,21 @@ class Takahe:
         else:
             qs = qs.filter(visibility__in=[0, 1, 4])
         return qs.prefetch_related("attachments", "author")
+
+    @staticmethod
+    def pin_hashtag_for_user(identity_pk: int, hashtag: str):
+        tag = Hashtag.ensure_hashtag(hashtag)
+        identity = Identity.objects.get(pk=identity_pk)
+        feature, created = identity.hashtag_features.get_or_create(hashtag=tag)
+        if created:
+            identity.fanout("tag_featured", subject_hashtag=tag)
+
+    @staticmethod
+    def unpin_hashtag_for_user(identity_pk: int, hashtag: str):
+        identity = Identity.objects.get(pk=identity_pk)
+        featured = HashtagFeature.objects.filter(
+            identity=identity, hashtag_id=hashtag
+        ).first()
+        if featured:
+            identity.fanout("tag_unfeatured", subject_hashtag_id=hashtag)
+            featured.delete()

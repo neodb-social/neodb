@@ -68,10 +68,11 @@ def user_tag_edit(request):
         ):
             msg.error(request.user, _("Duplicated tag."))
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-        tag.title = tag_title
-        tag.visibility = int(request.POST.get("visibility", 0))
-        tag.visibility = 0 if tag.visibility == 0 else 2
-        tag.save()
+        tag.update(
+            tag_title,
+            int(request.POST.get("visibility", 0)),
+            bool(request.POST.get("pinned", 0)),
+        )
         msg.info(request.user, _("Tag updated."))
         return redirect(
             reverse(

@@ -4,72 +4,57 @@
 {% load humanize %}
 {% load mastodon %}
 {% load thumb %}
-<div id="modal"
-     _="on closeModal add .closing then wait for animationend then remove me">
-  <div class="modal-underlay" _="on click trigger closeModal"></div>
-  <div class="modal-content">
-    <div class="add-to-list-modal__head">
-      <span class="add-to-list-modal__title">{% trans 'Tag' %} - {{ item.title }} - {% trans 'Edit' %}</span>
-      <span class="add-to-list-modal__close-button modal-close"
-            _="on click trigger closeModal">
-        <i class="fa-solid fa-xmark"></i>
-      </span>
-    </div>
-    <div class="add-to-list-modal__body">
+<dialog open
+        class="tag-editor"
+        _="on close_dialog add .closing then wait for animationend then remove me">
+  <article>
+    <header>
+      <link to="#"
+            aria-label="Close"
+            class="close"
+            _="on click trigger close_dialog" />
+      <strong>{% trans 'Edit' %} {{ tag.title }}</strong>
+    </header>
+    <div>
       <form action="{% url 'journal:user_tag_edit' %}?tag={{ tag.title }}"
             method="post">
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ tag.id }}">
-        <div class="mark-modal__tag">
-          <div class="tag-input">
-            <input name="title" type="text" value="{{ tag.title }}" required>
-          </div>
-        </div>
-        <div class="mark-modal__option">
-          <div class="mark-modal__visibility-radio">
-            <span>{% trans "Visibility" %}
-              <ul id="id_visibility">
-                <li>
-                  <label for="id_visibility_0">
-                    <input type="radio"
-                           name="visibility"
-                           value="0"
-                           required=""
-                           id="id_visibility_0"
-                           {% if tag.visibility == 0 %}checked{% endif %}>
-                    {% trans "Public" %}
-                  </label>
-                </li>
-                <li>
-                  <label for="id_visibility_2">
-                    <input type="radio"
-                           name="visibility"
-                           value="2"
-                           required=""
-                           id="id_visibility_2"
-                           {% if tag.visibility != 0 %}checked{% endif %}>
-                    {% trans "Personal" %}
-                  </label>
-                </li>
-              </ul>
-            </span>
-          </div>
-          <i>{% trans "Personal tags are not shown to others when they view your tag list. However, if you use this tag when marking an item publicly, it might still be visible to others." %}</i>
-        </div>
-        <div class="mark-modal__confirm-button">
-          <input type="submit" class="button float-right" value="{% trans "Save" %}">
-        </div>
-        <div class="mark-modal__option">
-          <div class="mark-modal__visibility-radio">
-            <span>
-              <label for="_delete">
-                <input type="checkbox" name="delete" value="1" id="_delete">
-                {% trans "Delete this tag" %}
-              </label>
-            </span>
-          </div>
-        </div>
+        <input name="title" type="text" value="{{ tag.title }}" required>
+        <fieldset>
+          <label for="_pinned">
+            <input role="switch"
+                   type="checkbox"
+                   name="pinned"
+                   value="1"
+                   {% if tag.pinned %}checked{% endif %}
+                   id="_pinned">
+            {% trans "Pin" %}
+          </label>
+        </fieldset>
+        <fieldset>
+          <input type="radio"
+                 name="visibility"
+                 value="0"
+                 required=""
+                 id="id_visibility_0"
+                 {% if tag.visibility == 0 %}checked{% endif %}>
+          <label for="id_visibility_0">{% trans "Public" %}</label>
+          <input type="radio"
+                 name="visibility"
+                 value="2"
+                 required=""
+                 id="id_visibility_2"
+                 {% if tag.visibility != 0 %}checked{% endif %}>
+          <label for="id_visibility_2">{% trans "Personal" %}</label>
+        </fieldset>
+        <input type="submit" class="button float-right" value="{% trans "Save" %}">
+        <small>{% trans "Personal tags are not shown to others when they view your tag list, unless you pin them. However, if you use this tag when marking an item publicly, it might still be visible to others." %}</small>
+        <label for="_delete">
+          <input type="checkbox" name="delete" value="1" id="_delete">
+          {% trans "Delete this tag" %}
+        </label>
       </form>
     </div>
-  </div>
-</div>
+  </article>
+</dialog>
