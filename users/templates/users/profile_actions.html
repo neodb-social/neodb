@@ -62,6 +62,7 @@
     <span>
       <a title="{% trans "accept follow request" %}"
          class="activated"
+         hx-confirm="{% trans 'sure to accept follow request?' %}"
          hx-post="{% url 'users:accept_follow_request' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -71,6 +72,7 @@
     <span>
       <a title="{% trans "reject follow request" %}"
          class="activated"
+         hx-confirm="{% trans 'sure to reject follow request?' %}"
          hx-post="{% url 'users:reject_follow_request' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -82,6 +84,7 @@
     <span>
       <a title="{% trans "click to unfollow" %}"
          class="activated"
+         hx-confirm="{% trans 'sure to unfollow?' %}"
          hx-post="{% url 'users:unfollow' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -92,6 +95,7 @@
     <span>
       <a title="{% trans "click to cancel follow request" %}"
          class="activated"
+         hx-confirm="{% trans 'sure to cancel follow request?' %}"
          hx-post="{% url 'users:unfollow' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -101,6 +105,7 @@
   {% else %}
     <span>
       <a title="{% trans "click to follow" %}"
+         hx-confirm="{% trans 'sure to follow?' %}"
          hx-post="{% url 'users:follow' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
