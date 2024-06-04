@@ -107,16 +107,15 @@ class LetterboxdImporter(Task):
             else:
                 title = _("a review of {item_title}").format(item_title=item.title)
                 Review.update_item_review(item, owner, title, text, visibility, dt)
+        tag_titles = [s.strip() for s in tags.split(",")] if tags else None
         mark.update(
             shelf_type,
             comment_text=comment,
             rating_grade=rating_grade,
+            tags=tag_titles,
             visibility=visibility,
             created_time=dt,
         )
-        if tags:
-            tag_titles = [s.strip() for s in tags.split(",")]
-            TagManager.tag_item(item, owner, tag_titles, visibility)
         self.progress(1)
 
     def progress(self, mark_state: int, url=None):

@@ -195,6 +195,7 @@ class Mark:
         shelf_type: ShelfType | None,
         comment_text: str | None = None,
         rating_grade: int | None = None,
+        tags: list[str] | None = None,
         visibility: int | None = None,
         metadata: dict[str, Any] | None = None,
         created_time: datetime | None = None,
@@ -207,7 +208,9 @@ class Mark:
             visibility = self.visibility
         last_shelf_type = self.shelf_type
         last_visibility = self.visibility if last_shelf_type else None
-        if shelf_type is None:  # TODO change this use case to DEFERRED status
+        if tags is not None:
+            self.owner.tag_manager.tag_item(self.item, tags, visibility)
+        if shelf_type is None:
             # take item off shelf
             if self.shelfmember:
                 Takahe.delete_posts(self.shelfmember.all_post_ids)
@@ -285,9 +288,8 @@ class Mark:
                 boost_toot_later(self.owner.user, post.url)
         return True
 
-    def delete(self):
-        # self.logs.delete()  # When deleting a mark, all logs of the mark are deleted first.
-        self.update(None)
+    def delete(self, keep_tags=False):
+        self.update(None, tags=None if keep_tags else [])
 
     def delete_log(self, log_id: int):
         ShelfLogEntry.objects.filter(

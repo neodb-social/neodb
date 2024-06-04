@@ -268,11 +268,9 @@ class DoubanImporter:
             print("-", end="", flush=True)
             return 2
         mark.update(
-            shelf_type, comment, rating_grade, self.visibility, created_time=time
+            shelf_type, comment, rating_grade, tags, self.visibility, created_time=time
         )
         print("+", end="", flush=True)
-        if tags:
-            TagManager.tag_item(item, self.user.identity, tags)
         return 1
 
     def import_review_sheet(self, worksheet, sheet_name):

@@ -91,9 +91,9 @@ class TagManager:
         return tags
 
     @staticmethod
-    def tag_item(
-        item: Item,
+    def tag_item_for_owner(
         owner: APIdentity,
+        item: Item,
         tag_titles: list[str],
         default_visibility: int = 0,
     ):
@@ -112,6 +112,9 @@ class TagManager:
             tag = Tag.objects.filter(owner=owner, title=title).first()
             if tag:
                 tag.remove_item(item)
+
+    def tag_item(self, item: Item, tag_titles: list[str], default_visibility: int = 0):
+        TagManager.tag_item_for_owner(self.owner, item, tag_titles, default_visibility)
 
     @staticmethod
     def get_manager_for_user(owner):
@@ -144,10 +147,7 @@ class TagManager:
 
     def get_item_tags(self, item: Item):
         return sorted(
-            [
-                m["parent__title"]
-                for m in TagMember.objects.filter(
-                    parent__owner=self.owner, item=item
-                ).values("parent__title")
-            ]
+            TagMember.objects.filter(parent__owner=self.owner, item=item).values_list(
+                "parent__title", flat=True
+            )
         )

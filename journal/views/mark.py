@@ -91,12 +91,12 @@ def mark(request: AuthedHttpRequest, item_uuid):
                 )
                 if mark_date and mark_date >= timezone.now():
                     mark_date = None
-            TagManager.tag_item(item, request.user.identity, tags, visibility)
             try:
                 mark.update(
                     status,
                     text,
                     rating_grade,
+                    tags,
                     visibility,
                     share_to_mastodon=share_to_mastodon,
                     created_time=mark_date,

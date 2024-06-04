@@ -103,11 +103,11 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     if mark.created_time and mark.created_time >= timezone.now():
         mark.created_time = None
     m = Mark(request.user.identity, item)
-    TagManager.tag_item(item, request.user.identity, mark.tags, mark.visibility)
     m.update(
         mark.shelf_type,
         mark.comment_text,
         mark.rating_grade,
+        mark.tags,
         mark.visibility,
         created_time=mark.created_time,
         share_to_mastodon=mark.post_to_fediverse,
@@ -122,15 +122,13 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
 )
 def delete_mark(request, item_uuid: str):
     """
-    Remove a holding mark about an item for current user.
+    Remove a holding mark about an item for current user, unlike the web behavior, this does not clean up tags.
     """
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
     m = Mark(request.user.identity, item)
-    m.delete()
-    # skip tag deletion for now to be consistent with web behavior
-    # TagManager.tag_item(item, request.user, [], 0)
+    m.delete(keep_tags=True)
     return 200, {"message": "OK"}
 
 

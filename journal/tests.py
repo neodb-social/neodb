@@ -119,7 +119,7 @@ class ShelfTest(TestCase):
         self.assertEqual(len(Mark(user.identity, book1).all_post_ids), 3)
         time.sleep(0.001)
         Mark(user.identity, book1).update(
-            ShelfType.COMPLETE, metadata={"progress": 100}
+            ShelfType.COMPLETE, metadata={"progress": 100}, tags=["best"]
         )
         self.assertEqual(Mark(user.identity, book1).visibility, 1)
         self.assertEqual(shelf_manager.get_log_for_item(book1).count(), 3)
@@ -128,6 +128,9 @@ class ShelfTest(TestCase):
         # test delete mark ->  one more log
         Mark(user.identity, book1).delete()
         self.assertEqual(log.count(), 4)
+        deleted_mark = Mark(user.identity, book1)
+        self.assertEqual(deleted_mark.shelf_type, None)
+        self.assertEqual(deleted_mark.tags, [])
 
 
 class TagTest(TestCase):
@@ -140,16 +143,17 @@ class TagTest(TestCase):
         self.user1 = User.register(email="a@b.com", username="user")
         self.user2 = User.register(email="x@b.com", username="user2")
         self.user3 = User.register(email="y@b.com", username="user3")
-        pass
 
     def test_user_tag(self):
         t1 = "tag 1"
         t2 = "tag 2"
         t3 = "tag 3"
-        TagManager.tag_item(self.book1, self.user2.identity, [t1, t3])
+        TagManager.tag_item_for_owner(self.user2.identity, self.book1, [t1, t3])
         self.assertEqual(self.book1.tags, [t1, t3])
-        TagManager.tag_item(self.book1, self.user2.identity, [t2, t3])
+        TagManager.tag_item_for_owner(self.user2.identity, self.book1, [t2, t3])
         self.assertEqual(self.book1.tags, [t2, t3])
+        m = Mark(self.user2.identity, self.book1)
+        self.assertEqual(m.tags, [t2, t3])
 
 
 class MarkTest(TestCase):
@@ -171,7 +175,7 @@ class MarkTest(TestCase):
         self.assertEqual(mark.visibility, 2)
         self.assertEqual(mark.review, None)
         self.assertEqual(mark.tags, [])
-        mark.update(ShelfType.WISHLIST, "a gentle comment", 9, 1)
+        mark.update(ShelfType.WISHLIST, "a gentle comment", 9, None, 1)
 
         mark = Mark(self.user1.identity, self.book1)
         self.assertEqual(mark.shelf_type, ShelfType.WISHLIST)
@@ -193,7 +197,9 @@ class MarkTest(TestCase):
         self.assertIsNone(mark.review)
 
     def test_tag(self):
-        TagManager.tag_item(self.book1, self.user1.identity, [" Sci-Fi ", " fic "])
+        TagManager.tag_item_for_owner(
+            self.user1.identity, self.book1, [" Sci-Fi ", " fic "]
+        )
         mark = Mark(self.user1.identity, self.book1)
         self.assertEqual(mark.tags, ["Sci-Fi", "fic"])
 
@@ -208,9 +214,8 @@ class DebrisTest(TestCase):
         self.user1 = User.register(email="test@test", username="test")
 
     def test_journal_migration(self):
-        TagManager.tag_item(self.book1, self.user1.identity, ["Sci-Fi", "fic"])
         mark = Mark(self.user1.identity, self.book1)
-        mark.update(ShelfType.WISHLIST, "a gentle comment", 9, 1)
+        mark.update(ShelfType.WISHLIST, "a gentle comment", 9, ["Sci-Fi", "fic"], 1)
         Review.update_item_review(self.book1, self.user1.identity, "Critic", "Review")
         collection = Collection.objects.create(title="test", owner=self.user1.identity)
         collection.append_item(self.book1)
@@ -219,9 +224,8 @@ class DebrisTest(TestCase):
         cnt = Debris.objects.all().count()
         self.assertEqual(cnt, 0)
 
-        TagManager.tag_item(self.book3, self.user1.identity, ["Sci-Fi", "fic"])
         mark = Mark(self.user1.identity, self.book3)
-        mark.update(ShelfType.WISHLIST, "a gentle comment", 9, 1)
+        mark.update(ShelfType.WISHLIST, "a gentle comment", 9, ["Sci-Fi", "fic"], 1)
         Review.update_item_review(self.book3, self.user1.identity, "Critic", "Review")
         collection.append_item(self.book3)
         self.book3.merge_to(self.book2)
