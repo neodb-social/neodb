@@ -144,6 +144,10 @@ class TagTest(TestCase):
         self.user2 = User.register(email="x@b.com", username="user2")
         self.user3 = User.register(email="y@b.com", username="user3")
 
+    def test_cleanup(self):
+        self.assertEqual(Tag.cleanup_title("# "), "_")
+        self.assertEqual(Tag.deep_cleanup_title("# C "), "c")
+
     def test_user_tag(self):
         t1 = "tag 1"
         t2 = "tag 2"

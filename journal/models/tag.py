@@ -55,13 +55,13 @@ class Tag(List):
 
     @staticmethod
     def cleanup_title(title, replace=True):
-        t = re.sub(r"\s+", " ", title.strip())
-        return "_" if not title and replace else t
+        t = re.sub(r"\s+", " ", title.rstrip().lstrip("# "))
+        return "_" if not t and replace else t
 
     @staticmethod
     def deep_cleanup_title(title):
         """Remove all non-word characters, only for public index purpose"""
-        return re.sub(r"\W+", " ", title).strip()
+        return re.sub(r"\W+", " ", title).rstrip().lstrip("# ").lower() or "_"
 
 
 class TagManager:
@@ -78,7 +78,7 @@ class TagManager:
             [
                 t
                 for t in set(map(lambda t: Tag.deep_cleanup_title(t["title"]), tags))
-                if t
+                if t and t != "_"
             ]
         )
         return tag_titles

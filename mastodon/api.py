@@ -590,23 +590,13 @@ def share_mark(mark, post_as_new=False):
 
     user = mark.owner.user
     visibility = get_toot_visibility(mark.visibility, user)
-    tags = (
-        "\n"
-        + user.preference.mastodon_append_tag.replace(
-            "[category]", str(ItemCategory(mark.item.category).label)
-        )
-        if user.preference.mastodon_append_tag
-        else ""
-    )
     site = MastodonApplication.objects.filter(domain_name=user.mastodon_site).first()
     stars = rating_to_emoji(
         mark.rating_grade,
         site.star_mode if site else 0,
     )
     spoiler_text, txt = get_spoiler_text(mark.comment_text or "", mark.item)
-    content = (
-        f"{mark.get_action_for_feed()} {stars}\n{mark.item.absolute_url}\n{txt}{tags}"
-    )
+    content = f"{mark.get_action_for_feed()} {stars}\n{mark.item.absolute_url}\n{txt}{mark.tag_text}"
     update_id = (
         None
         if post_as_new

@@ -686,19 +686,11 @@ class Takahe:
         from catalog.common import ItemCategory
 
         user = mark.owner.user
-        tags = (
-            user.preference.mastodon_append_tag.replace(
-                "[category]", str(ItemCategory(mark.item.category).label)
-            )
-            + "\n"
-            if user.preference.mastodon_append_tag
-            else ""
-        )
         stars = _rating_to_emoji(mark.rating_grade, 1)
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{mark.item.url}"
         pre_conetent = mark.get_action_for_feed(item_link=item_link)
         spoiler, txt = Takahe.get_spoiler_text(mark.comment_text, mark.item)
-        content = f"{stars} \n{txt}\n{tags}"
+        content = f"{stars} \n{txt}\n{mark.tag_text}"
         data = {
             "object": {
                 "tag": [mark.item.ap_object_ref],

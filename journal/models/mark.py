@@ -126,6 +126,15 @@ class Mark:
         return self.owner.tag_manager.get_item_tags(self.item)
 
     @cached_property
+    def tag_text(self) -> str:
+        tags = [f"#{t}" for t in self.tags]
+        appending = self.owner.user.preference.mastodon_append_tag
+        if appending:
+            tags.append(appending)
+        tag_text = f"\n{' '.join(tags)}\n" if tags else ""
+        return tag_text
+
+    @cached_property
     def rating(self):
         return Rating.objects.filter(owner=self.owner, item=self.item).first()
 
