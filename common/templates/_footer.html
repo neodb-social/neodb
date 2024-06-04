@@ -18,6 +18,9 @@
 </footer>
 <div class="player"></div>
 <script>
+  document.body.addEventListener('htmx:configRequest', (event) => {
+    event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+  });
   $(function () {
     function _sidebar_auto_collapse(mm){
       if (mm.matches) {
@@ -29,8 +32,19 @@
     var mm = window.matchMedia("(max-width: 768px)")
     mm.addListener(_sidebar_auto_collapse);
     _sidebar_auto_collapse(mm);
+    $('.auto-keep-collapse').each(function(){
+      if (mm.matches || window.localStorage.getItem('details-'+$(this).attr('id'))=="closed") {
+        $(this).removeAttr('open');
+      } else {
+        $(this).attr('open', '');
+      }
+    });
+    setTimeout(function(){
+      $('.auto-keep-collapse').on('toggle', function(event) {
+        var id = $(this).attr('id')
+        var isOpen = $(this).attr('open') === ''
+        window.localStorage.setItem('details-' + id, isOpen ? 'open' : 'closed')
+      });
+    }, 0);
   });
-  document.body.addEventListener('htmx:configRequest', (event) => {
-    event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-  })
 </script>

@@ -151,7 +151,7 @@
         {% if request.user.unread_announcements %}
           <section class="announcement">
             <article>
-              <details open>
+              <details id="section-announcements" class="auto-keep-collapse" open>
                 <summary>{% trans "Unread Announcements" %}</summary>
                 {% for ann in request.user.unread_announcements %}<div>{{ ann.html }}</div>{% endfor %}
                 <form action="{% url 'users:mark_announcements_read' %}" method="post">
@@ -166,7 +166,7 @@
         {% endif %}
         <section>
           <article>
-            <details class="auto-collapse" open>
+            <details id="section-popular-posts" class="auto-keep-collapse" open>
               <summary>{% trans 'Popular Posts' %}</summary>
               <div style="font-size:80%">{% include "posts.html" with posts=popular_posts %}</div>
             </details>
@@ -174,7 +174,7 @@
         </section>
         <section>
           <article>
-            <details class="auto-collapse" open>
+            <details id="section-popular-tags" class="auto-keep-collapse" open>
               <summary>{% trans 'Popular Tags' %}</summary>
               <div class="tag-list">
                 {% for t in popular_tags %}
