@@ -47,7 +47,7 @@
         </a>
       </span>
     {% endif %}
-    {% if identity.user and identity.user.mastodon_account %}
+    {% if identity.user.mastodon_account %}
       <span>
         <a href="{{ identity.user.mastodon_account.url }}"
            target="_blank"

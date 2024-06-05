@@ -183,7 +183,7 @@
       </article>
     </section>
   {% endif %}
-  {% if top_tags is not None %}
+  {% if identity.user and top_tags is not None %}
     <section>
       <article>
         <details {% if top_tags %}class="auto-collapse" open{% endif %}>
@@ -191,7 +191,7 @@
           <div class="tag-list">
             {% for t in top_tags %}
               <span>
-                <a href="{% url 'journal:user_tag_member_list' identity.user.handler t.title %}">
+                <a href="{% url 'journal:user_tag_member_list' identity.handle t.title %}">
                   {% if t.pinned %}
                     <i class="fa-solid fa-crown" title="{% trans "featured tag" %}"></i>
                   {% endif %}
@@ -207,7 +207,7 @@
             {% endfor %}
           </div>
           <small>
-            <a href="{% url 'journal:user_tag_list' identity.user.handler %}">({% trans 'show all' %})</a>
+            <a href="{% url 'journal:user_tag_list' identity.handle %}">({% trans 'show all' %})</a>
           </small>
         </details>
       </article>
