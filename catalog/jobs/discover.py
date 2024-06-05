@@ -68,7 +68,6 @@ class DiscoverGenerator(BaseJob):
 
     def run(self):
         logger.info("Discover data update start.")
-        cache_key = "public_gallery"
         gallery_categories = [
             ItemCategory.Book,
             ItemCategory.Movie,
@@ -141,18 +140,21 @@ class DiscoverGenerator(BaseJob):
         )
         tags = TagManager.popular_tags(days=14)[:40]
         post_ids = set(
-            list(
-                Takahe.get_popular_posts(
-                    7, settings.MIN_MARKS_FOR_DISCOVER
-                ).values_list("pk", flat=True)[:10]
-            )
-            + list(
-                Takahe.get_popular_posts(
-                    28, settings.MIN_MARKS_FOR_DISCOVER
-                ).values_list("pk", flat=True)[:20]
-            )
+            Takahe.get_popular_posts(7, settings.MIN_MARKS_FOR_DISCOVER).values_list(
+                "pk", flat=True
+            )[:10]
+        ) | set(
+            Takahe.get_popular_posts(28, settings.MIN_MARKS_FOR_DISCOVER).values_list(
+                "pk", flat=True
+            )[:20]
         )
-        cache.set(cache_key, gallery_list, timeout=None)
+        if len(post_ids) < 30:
+            post_ids |= set(
+                Takahe.get_popular_posts(3, 1)
+                .order_by("-published")
+                .values_list("pk", flat=True)[:2]
+            )
+        cache.set("public_gallery", gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
         cache.set("featured_collections", collection_ids, timeout=None)
         cache.set("popular_tags", list(tags), timeout=None)

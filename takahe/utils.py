@@ -971,7 +971,9 @@ class Takahe:
         return (
             Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
             .filter(
-                author__domain__in=domains, visibility__in=[0, 4], published__gte=since
+                author__domain__in=domains,
+                visibility__in=[0, 1, 4],
+                published__gte=since,
             )
             .annotate(num_interactions=Count("interactions"))
             .filter(num_interactions__gte=min_interaction)
