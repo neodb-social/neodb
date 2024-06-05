@@ -21,13 +21,12 @@ cd neodb
 git submodule update --init
 ```
 
-Create and activate a Python virtual environment, optional but recommended.
-
-Install development related packages and pre-commit hooks:
+Install [rye](http://rye.astral.sh) package manager, packages and pre-commit hooks:
 ```
-python3 -m pip install -r requirements.txt
-python3 -m pip install -r requirements-dev.txt
-python3 -m pre_commit install
+curl -sSf https://rye.astral.sh/get | bash
+rye sync
+. .venv/bin/activate
+pre-commit install
 ```
 
 To develop Takahe, install requirements(-dev) and pre-commit hooks for `neodb-takahe` project as well, preferably using a different virtual environment.
