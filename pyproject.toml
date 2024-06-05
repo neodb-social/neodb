@@ -4,6 +4,71 @@ version = "0.9"
 description = "🧩 self-hosted server tracking what you read/watch/listen/play, powering a global distributed community federating via ActivityPub."
 readme = "README.md"
 requires-python = ">= 3.12"
+dependencies = [
+    "blurhash-python",
+    "cachetools",
+    "dateparser",
+    "discord.py",
+    "django~=4.2.11",
+    "django-anymail",
+    "django-auditlog>=3.0.0",
+    "django-bleach",
+    "django-compressor",
+    "django-cors-headers",
+    "django-environ",
+    "django-hijack",
+    "django-jsonform",
+    "django-maintenance-mode",
+    "django-markdownx",
+    "django-ninja",
+    "django-oauth-toolkit==2.3.0",
+    "django-polymorphic @ git+https://github.com/jazzband/django-polymorphic/@v4.0.0a",
+    "django-redis",
+    "django-rq",
+    "django-sass-processor",
+    "django-simple-history ",
+    "django-slack",
+    "django-tz-detect",
+    "django-user-messages",
+    "dnspython",
+    "easy-thumbnails",
+    "filetype",
+    "gunicorn",
+    "httpx",
+    "igdb-api-v4",
+    "langdetect",
+    "libsass",
+    "listparser",
+    "loguru",
+    "lxml",
+    "markdownify",
+    "mistune",
+    "openpyxl",
+    "podcastparser",
+    "psycopg2-binary",
+    "requests",
+    "rq",
+    "sentry-sdk",
+    "setproctitle",
+    "tqdm",
+    "typesense",
+    "urlman",
+    "validators",
+]
+
+[tool.rye]
+managed = true
+virtual = true
+dev-dependencies = [
+    "pre-commit>=3.7.0",
+    "black~=24.4.2",
+    "django-stubs",
+    "djlint~=1.34.1",
+    "isort~=5.13.2",
+    "lxml-stubs",
+    "pyright==1.1.365",
+    "ruff",
+]
 
 [tool.pyright]
 exclude = [ "media", ".venv", ".git", "playground", "catalog/*/tests.py", "journal/tests.py", "neodb", "**/migrations",  "**/sites/douban_*", "neodb-takahe" ]
@@ -17,10 +82,7 @@ indent=2
 profile = "black"
 
 [tool.mypy]
-exclude = [
-    '^neodb-takahe/',
-    '^legacy/',
-]
+exclude = ['^neodb-takahe/', '^legacy/', '^media/', '^playground/', '^catalog/*/tests.py', '^journal/tests.py', '^neodb/', '.*migrations.*', '.*sites/douban_.*' ]
 plugins = ["mypy_django_plugin.main"]
 
 [tool.django-stubs]
