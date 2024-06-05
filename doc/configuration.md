@@ -6,13 +6,18 @@ Settings you may want to change
 -------------------------------
 most settings resides in `settings.py`, a few notable ones:
 
- - `SECRET_KEY` must use your own, back it up well somewhere
- - `SITE_INFO` change by you need
- - `MASTODON_ALLOW_ANY_SITE` set to `True` so that user can login via any Mastodon API compatible sites (e.g. Mastodon/Pleroma)
- - `MASTODON_CLIENT_SCOPE` change it later may invalidate app token granted previously
- - `ADMIN_URL` admin page url, keep it private
- - `SEARCH_BACKEND` should be ~~either~~ `TYPESENSE` ~~or `MEILISEARCH`~~ so that search and index can function. `None` will use default database search, which is for development only and may gets deprecated soon.
-   - `MEILISEARCH` support is removed due to lack of usage, feel free to PR if you want to
+absolutely set these before start the instance for the first time:
+
+ - NEODB_SECRET_KEY - 50 characters of random string, no white space
+ - NEODB_SITE_NAME - the name of your site
+ - NEODB_SITE_DOMAIN - the domain name of your site
+
+`NEODB_SECRET_KEY` and `NEODB_SITE_DOMAIN` must not be changed later.
+
+if you are doing debug or development:
+
+ - NEODB_DEBUG - True will turn on debug for both neodb and takahe, turn off relay, and reveal self as debug mode in nodeinfo (so peers won't try to run fedi search on you)
+ - NEODB_IMAGE - the docker image to use, `neodb/neodb:edge` for the main branch
 
 
 Settings for Scrapers

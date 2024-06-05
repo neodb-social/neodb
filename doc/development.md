@@ -111,8 +111,8 @@ Update translations:
 ```
 django-admin makemessages --no-wrap --no-obsolete -i neodb-takahe -a
 # edit .po files, run the following to make sure edits are correct
-django-admin makemessages --no-wrap --no-obsolete -i neodb-takahe -a
-django-admin compilemessages
+django-admin makemessages --no-wrap --no-obsolete -i .venv -i neodb-takahe -a
+django-admin compilemessages -i .venv -i neodb-takahe
 ```
 
 Development in Docker Compose
