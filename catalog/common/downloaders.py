@@ -122,11 +122,21 @@ class DownloadError(Exception):
 
 
 class BasicDownloader:
+    @staticmethod
+    def get_accept_language():
+        match settings.LANGUAGE_CODE:
+            case "zh-hans":
+                return "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+            case "zh-hant":
+                return "zh-TW,zh-HK;q=0.7,zh;q=0.5,en-US;q=0.3,en;q=0.2"
+            case _:
+                return "en-US;q=0.3,en;q=0.2"
+
     headers = {
         # "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0) Gecko/20100101 Firefox/107.0",
         "User-Agent": "Mozilla/5.0 (iPad; CPU OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
+        "Accept-Language": get_accept_language(),
         "Accept-Encoding": "gzip, deflate",
         "Connection": "keep-alive",
         "DNT": "1",

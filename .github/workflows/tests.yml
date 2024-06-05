@@ -51,5 +51,6 @@ jobs:
         NEODB_SITE_NAME: test
         NEODB_SITE_DOMAIN: test.domain
         NEODB_SECRET_KEY: test
+        NEODB_LANGUAGE: zh-hans
       run: |
         python manage.py test

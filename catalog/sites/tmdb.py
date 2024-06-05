@@ -16,8 +16,18 @@ from .douban import *
 _logger = logging.getLogger(__name__)
 
 
+def get_language_code():
+    match settings.LANGUAGE_CODE:
+        case "zh-hans":
+            return "zh-CN"
+        case "zh-hant":
+            return "zh-TW"
+        case _:
+            return "en-US"
+
+
 def search_tmdb_by_imdb_id(imdb_id):
-    tmdb_api_url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&external_source=imdb_id"
+    tmdb_api_url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&external_source=imdb_id"
     res_data = BasicDownloader(tmdb_api_url).download().json()
     return res_data
 
@@ -50,9 +60,9 @@ class TMDB_Movie(AbstractSite):
     def scrape(self):
         is_series = False
         if is_series:
-            api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+            api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
         else:
-            api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+            api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
 
         res_data = BasicDownloader(api_url).download().json()
 
@@ -184,9 +194,9 @@ class TMDB_TV(AbstractSite):
     def scrape(self):
         is_series = True
         if is_series:
-            api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+            api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
         else:
-            api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+            api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
 
         res_data = BasicDownloader(api_url).download().json()
 
@@ -347,7 +357,7 @@ class TMDB_TVSeason(AbstractSite):
         show_resource = site.get_resource_ready(auto_create=False, auto_link=False)
         if not show_resource:
             raise ValueError(f"TMDB: failed to get show for season {self.url}")
-        api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+        api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
         d = BasicDownloader(api_url).download().json()
         if not d.get("id"):
             raise ParseError(self, "id")
@@ -419,7 +429,7 @@ class TMDB_TVSeason(AbstractSite):
             )
         else:
             ep = pd.metadata["episode_number_list"][0]
-            api_url2 = f"https://api.themoviedb.org/3/tv/{v[0]}/season/{v[1]}/episode/{ep}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+            api_url2 = f"https://api.themoviedb.org/3/tv/{v[0]}/season/{v[1]}/episode/{ep}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
             d2 = BasicDownloader(api_url2).download().json()
             if not d2.get("id"):
                 raise ParseError(self, "first episode id for season")
@@ -459,7 +469,7 @@ class TMDB_TVEpisode(AbstractSite):
         episode_id = v[2]
         site = TMDB_TV(TMDB_TV.id_to_url(show_id))
         show_resource = site.get_resource_ready(auto_create=False, auto_link=False)
-        api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}/episode/{episode_id}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+        api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}/episode/{episode_id}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
         d = BasicDownloader(api_url).download().json()
         if not d.get("id"):
             raise ParseError(self, "id")

@@ -104,7 +104,7 @@ neodb-shell neodb-init
 
 Run unit test:
 ```
-neodb-manage test
+NEODB_LANGUAGE=zh-hans neodb-manage test
 ```
 
 Update translations:
