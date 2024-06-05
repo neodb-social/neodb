@@ -4,24 +4,28 @@
   <title>{{ site_name }} - {{ identity.display_name }} - {% trans 'Tags' %} - {{ tag.title }}</title>
 {% endblock %}
 {% block head %}
+  <span class="action">
+    {% if tag.pinned %}
+      <span><a>
+        <i class="fa-solid fa-crown" title="{% trans "featured tag" %}"></i>
+      </a></span>
+    {% endif %}
+    {% if tag.visibility > 0 %}
+      <span><a>
+        <i class="fa-solid fa-user" title="{% trans "personal tag" %}"></i>
+      </a></span>
+    {% endif %}
+    {% if identity.user == request.user %}
+      <span>
+        <a hx-get="{% url 'journal:user_tag_edit' %}?tag={{ tag.title }}"
+           hx-target="body"
+           hx-swap="beforeend">
+          <i class="fa-regular fa-pen-to-square"></i>
+        </a>
+      </span>
+    {% endif %}
+  </span>
+  <span class="action inline"><span class="timestamp"><a><i class="fa-solid fa-hashtag"></i></a></span></span>
   {{ tag.title }}
   <br>
-  <small>
-    {% if tag.visibility > 0 %}
-      <i class="fa-solid fa-user" title="{% trans "private tag" %}"></i>
-    {% endif %}
-    {{ identity.display_name }} - {% trans 'Tags' %}
-    {% if identity.user == request.user %}
-      <form style="display:inline"
-            hx-get="{% url 'journal:user_tag_edit' %}"
-            hx-target="body"
-            hx-swap="beforeend"
-            hx-boost="true">
-        <input type="hidden" name="tag" value="{{ tag.title }}">
-        <button class="outline" style="padding:0 var(--pico-spacing);border:none;">
-          <i class="fa-regular fa-pen-to-square"></i>
-        </button>
-      </form>
-    {% endif %}
-  </small>
 {% endblock %}

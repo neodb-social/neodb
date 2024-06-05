@@ -51,6 +51,7 @@ class Tag(List):
 
     class Meta:
         unique_together = [["owner", "title"]]
+        indexes = [models.Index(fields=["owner", "pinned"])]
 
     @staticmethod
     def cleanup_title(title, replace=True):
@@ -103,13 +104,6 @@ class TagManager:
         return tag_titles
 
     @staticmethod
-    def all_tags_by_owner(owner, public_only=False):
-        tags = owner.tag_set.all().annotate(total=Count("members")).order_by("-total")
-        if public_only:
-            tags = tags.filter(visibility=0)
-        return tags
-
-    @staticmethod
     def tag_item_for_owner(
         owner: APIdentity,
         item: Item,
@@ -142,13 +136,14 @@ class TagManager:
     def __init__(self, owner):
         self.owner = owner
 
-    @property
-    def all_tags(self):
-        return TagManager.all_tags_by_owner(self.owner)
-
-    @property
-    def public_tags(self):
-        return TagManager.all_tags_by_owner(self.owner, public_only=True)
+    def get_tags(self, public_only=False, pinned_only=False):
+        tags = self.owner.tag_set.all()
+        tags = tags.annotate(total=Count("members")).order_by("-total")
+        if public_only:
+            tags = tags.filter(visibility=0)
+        if pinned_only:
+            tags = tags.filter(pinned=True)
+        return tags
 
     @staticmethod
     def popular_tags(days: int = 30):

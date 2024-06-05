@@ -83,10 +83,8 @@ def profile(request: AuthedHttpRequest, user_name):
         liked_collections = liked_collections.filter(
             q_piece_visible_to_user(request.user)
         )
-        top_tags = target.tag_manager.public_tags[:10]
         year = None
     else:
-        top_tags = target.tag_manager.all_tags[:10]
         today = datetime.date.today()
         if today.month > 11:
             year = today.year
@@ -94,6 +92,9 @@ def profile(request: AuthedHttpRequest, user_name):
             year = today.year - 1
         else:
             year = None
+    top_tags = target.tag_manager.get_tags(public_only=not me, pinned_only=True)[:10]
+    if not top_tags.exists():
+        top_tags = target.tag_manager.get_tags(public_only=not me)[:10]
     if anonymous:
         recent_posts = None
     else:

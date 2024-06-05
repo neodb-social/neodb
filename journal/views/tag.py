@@ -8,6 +8,8 @@ from django.views.decorators.http import require_http_methods
 from user_messages import api as msg
 
 from catalog.models import *
+from takahe.models import Identity
+from users.models import APIdentity
 
 from ..forms import *
 from ..models import *
@@ -19,8 +21,8 @@ PAGE_SIZE = 10
 @login_required
 @target_identity_required
 def user_tag_list(request, user_name):
-    target = request.target_identity
-    tags = TagManager.all_tags_by_owner(target, target.user != request.user)
+    target: APIdentity = request.target_identity
+    tags = target.tag_manager.get_tags(public_only=target.user != request.user)
     return render(
         request,
         "user_tag_list.html",

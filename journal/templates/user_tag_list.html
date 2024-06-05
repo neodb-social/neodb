@@ -21,12 +21,20 @@
           {% for v in tags %}
             <span style="margin-right:2em; white-space: nowrap;">
               <span>
-                <a href="{% url 'journal:user_tag_member_list' identity.handle v.title %}">{{ v.title }}</a>
+                <a href="{% url 'journal:user_tag_member_list' identity.handle v.title %}">
+                  {% if v.pinned %}
+                    <i class="fa-solid fa-crown" title="{% trans "featured tag" %}"></i>
+                  {% endif %}
+                  {% if v.visibility > 0 %}
+                    <i class="fa-solid fa-user" title="{% trans "personal tag" %}"></i>
+                  {% endif %}
+                  {{ v.title }}
+                </a>
               </span>
               <span>({{ v.total }})</span>
             </span>
           {% empty %}
-            {% trans 'nothing so far.' %}
+            {% trans 'no tags so far.' %}
           {% endfor %}
         </div>
       </div>

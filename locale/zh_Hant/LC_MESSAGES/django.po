@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-04 16:48-0400\n"
+"POT-Creation-Date: 2024-06-04 20:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -667,7 +667,6 @@ msgstr "不再提示"
 #: catalog/templates/_item_comments_by_episode.html:78
 #: catalog/templates/_item_reviews.html:43
 #: catalog/templates/podcast_episode_data.html:41
-#: common/templates/_sidebar.html:204
 msgid "show more"
 msgstr "顯示更多"
 
@@ -1113,7 +1112,6 @@ msgstr "熱門標籤"
 #: catalog/templates/discover.html:185 catalog/templates/item_base.html:236
 #: catalog/templates/item_mark_list.html:54
 #: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:99
-#: common/templates/_sidebar.html:199
 #: common/templates/_sidebar_anonymous.html:43
 #: common/templates/_sidebar_anonymous.html:58
 #: journal/templates/collection_items.html:8 journal/templates/posts.html:45
@@ -1121,8 +1119,7 @@ msgstr "熱門標籤"
 #: journal/templates/profile.html:187
 #: journal/templates/user_collection_list.html:51
 #: journal/templates/user_item_list_base.html:25
-#: journal/templates/user_tag_list.html:29 social/templates/events.html:45
-#: users/templates/users/announcements.html:54
+#: social/templates/events.html:45 users/templates/users/announcements.html:54
 #: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
 msgstr "暫無內容。"
@@ -1564,11 +1561,30 @@ msgstr "正在閱讀"
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:191
-msgid "Common Tags"
-msgstr "常用標籤"
+#: common/templates/_sidebar.html:191 journal/templates/user_tag_list.html:12
+#: journal/templates/user_tagmember_list.html:4
+msgid "Tags"
+msgstr "標籤"
 
-#: common/templates/_sidebar.html:215
+#: common/templates/_sidebar.html:197 journal/templates/user_tag_list.html:26
+#: journal/templates/user_tagmember_list.html:10
+msgid "featured tag"
+msgstr "置頂標籤"
+
+#: common/templates/_sidebar.html:200 journal/templates/user_tag_list.html:29
+#: journal/templates/user_tagmember_list.html:15
+msgid "personal tag"
+msgstr "個人標籤"
+
+#: common/templates/_sidebar.html:207 journal/templates/user_tag_list.html:37
+msgid "no tags so far."
+msgstr "暫無標籤。"
+
+#: common/templates/_sidebar.html:211
+msgid "show all"
+msgstr "顯示全部"
+
+#: common/templates/_sidebar.html:221
 msgid "Recent Posts"
 msgstr "近期帖文"
 
@@ -2530,7 +2546,7 @@ msgid "Personal"
 msgstr "個人"
 
 #: journal/templates/tag_edit.html:52
-msgid "Personal tags are not shown to others when they view your tag list, unless you pin them. However, if you use this tag when marking an item publicly, it might still be visible to others."
+msgid "Personal tags are not included in public index. However, if you use this tag when marking an item publicly, it might still be visible to others."
 msgstr "個人標籤不被包括在條目的公共索引中，但如果公開標記一個條目時使用這個標籤仍會被別人看到。"
 
 #: journal/templates/tag_edit.html:55
@@ -2542,19 +2558,9 @@ msgstr "刪除這個標籤"
 msgid "Liked Collections"
 msgstr "喜歡的收藏單"
 
-#: journal/templates/user_tag_list.html:12
-#: journal/templates/user_tagmember_list.html:4
-#: journal/templates/user_tagmember_list.html:13
-msgid "Tags"
-msgstr "標籤"
-
 #: journal/templates/user_tag_list.html:19
 msgid "All Tags"
 msgstr "全部標籤"
-
-#: journal/templates/user_tagmember_list.html:11
-msgid "private tag"
-msgstr "個人標籤"
 
 #: journal/templates/wrapped_share.html:16
 msgid "Share Annual Summary"
@@ -2669,23 +2675,23 @@ msgstr "鏈接無效"
 msgid "{review_title} - a review of {item_title}"
 msgstr "{review_title} - 關於 {item_title} 的評論"
 
-#: journal/views/tag.py:41 journal/views/tag.py:55
+#: journal/views/tag.py:43 journal/views/tag.py:57
 msgid "Invalid tag"
 msgstr "無效標籤"
 
-#: journal/views/tag.py:44
+#: journal/views/tag.py:46
 msgid "Tag not found"
 msgstr "標籤不存在"
 
-#: journal/views/tag.py:59
+#: journal/views/tag.py:61
 msgid "Tag deleted."
 msgstr "標籤已刪除"
 
-#: journal/views/tag.py:69
+#: journal/views/tag.py:71
 msgid "Duplicated tag."
 msgstr "重複標籤"
 
-#: journal/views/tag.py:76
+#: journal/views/tag.py:78
 msgid "Tag updated."
 msgstr "標籤已更新"
 

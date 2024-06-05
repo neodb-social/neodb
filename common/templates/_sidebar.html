@@ -183,25 +183,31 @@
       </article>
     </section>
   {% endif %}
-  {% if top_tags %}
+  {% if top_tags is not None %}
     <section>
       <article>
         <details {% if top_tags %}class="auto-collapse" open{% endif %}>
-          <summary>{% trans 'Common Tags' %}</summary>
+          <summary>{% trans 'Tags' %}</summary>
           <div class="tag-list">
             {% for t in top_tags %}
               <span>
-                <a href="{% url 'journal:user_tag_member_list' identity.user.handler t.title %}">{{ t.title }}</a>
+                <a href="{% url 'journal:user_tag_member_list' identity.user.handler t.title %}">
+                  {% if t.pinned %}
+                    <i class="fa-solid fa-crown" title="{% trans "featured tag" %}"></i>
+                  {% endif %}
+                  {% if t.visibility > 0 %}
+                    <i class="fa-solid fa-user" title="{% trans "personal tag" %}"></i>
+                  {% endif %}
+                  {{ t.title }}
+                </a>
                 <small>({{ t.total }})</small>
               </span>
             {% empty %}
-              <div class="empty">{% trans "nothing so far." %}</div>
+              <div class="empty">{% trans "no tags so far." %}</div>
             {% endfor %}
           </div>
           <small>
-            {% if top_tags %}
-              <a href="{% url 'journal:user_tag_list' identity.user.handler %}">...{% trans 'show more' %}</a>
-            {% endif %}
+            <a href="{% url 'journal:user_tag_list' identity.user.handler %}">({% trans 'show all' %})</a>
           </small>
         </details>
       </article>
