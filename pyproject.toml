@@ -92,3 +92,6 @@ django_settings_module = "boofilsic.settings"
 [tool.ruff]
 exclude = ["neodb-takahe/*", "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/importers", "**/sites", "legacy" ]
 lint.ignore = ["F401", "F403", "F405"]
+
+[tool.setuptools]
+py-modules = []
