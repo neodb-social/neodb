@@ -1,5 +1,5 @@
 Upgrade
--------
+=======
 
 Check the [release notes](https://github.com/neodb-social/neodb/releases), update `compose.yml` and `.env` as instructed.
 

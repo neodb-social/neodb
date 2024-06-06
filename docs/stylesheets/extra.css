@@ -1,8 +1,9 @@
 :root {
   --md-primary-fg-color:        #0172ad;
-/*  --md-primary-fg-color--light: #0172ad;*/
-/*  --md-primary-fg-color--dark:  #01aaff;*/
+  --md-primary-fg-color--light: #0172ad;
+  --md-primary-fg-color--dark:  #0172ad;
   --md-accent-fg-color:         #01aaff;
-/*  --md-accent-fg-color--light:  #01aaff;*/
+  --md-accent-fg-color--light:  #01aaff;
+  --md-accent-fg-color--dark:  #01aaff;
   font-family:system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, Helvetica, Arial, "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }

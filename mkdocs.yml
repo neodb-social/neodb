@@ -11,6 +11,7 @@ nav:
   - configuration.md
   - troubleshooting.md
   - development.md
+  - 'Our Story': story.md
 theme:
   logo: assets/logo.svg
   name: material
