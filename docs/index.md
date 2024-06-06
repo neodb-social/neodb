@@ -1,42 +1,42 @@
-NeoDB is both a free software and a global community. You can manage and discover collections, reviews and ratings for culture products (e.g. books, movies, music, podcasts, games and performances) in NeoDB; you can also share your collections and publish micro blogs, follow and communicate with each others in the Fediverse. You can image it as a mix of Mastodon, Goodreads, Letterboxd, RateYourMusic, Podchaser, and more.
+NeoDB is an open-source software and global community platform. It allows users to manage and explore collections, reviews, and ratings for various cultural products, including books, movies, music, podcasts, games, and performances. Additionally, users can share their collections, publish microblogs, and engage with others in the Fediverse. NeoDB combines the functionalities of platforms such as Mastodon, Goodreads, Letterboxd, RateYourMusic, and Podchaser, among others.
 
-NeoDB is an open source project licensed in AGPLv3.
+This project is licensed under AGPLv3.
+
 
 ## How to Join
 
-There are free instances hosted by volunteers, you may choose any to join:
+Free instances hosted by volunteers are available:
 
- - [NeoDB.social](https://neodb.social) - flagship instance
- - [NeoDB experimental](https://eggplant.place) - an instance running edge version of NeoDB software, may have more features and bugs
- - [NiceDB](https://nicedb.org) - the original one, running legacy version and registration limited.
+ - [NeoDB.social](https://neodb.social) - the flagship instance
+ - [NeoDB experimental](https://eggplant.place) - an instance running the edge version of NeoDB software, which may include more features and potential bugs
+ - [NiceDB](https://nicedb.org) - the original instance, running a legacy version and with limited registration.
 
-There are no mobile app for NeoDB yet, but the web version works well in mobile devices, and you can also use [Mastodon compatible apps](https://joinmastodon.org/apps) to login and use the micro blogging features.
-
+While there is no mobile app for NeoDB yet, the web version functions well on mobile devices. You can also use [Mastodon compatible apps](https://joinmastodon.org/apps) to log in and utilize the microblogging features.
 
 ## Host your own instance
 
-And you can [install and run your own instance](install.md). Feel free to let us know once your server is ready to share with public, so that we can add it to the list above.
+You can [install and run your own instance of NeoDB](install.md). If you decide to share your server with the public, please inform us so that we can add it to the list above.
 
-All instances are interacted with each other in Fediverse via ActivityPub, and you can follow users from other NeoDB instances or instances running other type of ActivityPub software like Mastodon.
+All instances interact with each other in the Fediverse via ActivityPub, allowing you to follow users from other NeoDB instances or instances running other ActivityPub software, such as Mastodon.
 
 
-## Contribution
+## API and Development
 
- - NeoDB has API to manage user's collections, swagger-based documentation is available in [NeoDB API Developer Console](https://neodb.social/developer/)
+ - NeoDB offers an API to manage user collections, with swagger-based documentation available in the [NeoDB API Developer Console](https://neodb.social/developer/).
  - [Mastodon client compatible API](https://docs.joinmastodon.org/client/) is also available
- - To help develop NeoDB, please see [development](development.md) for some basics to start with
+ - For those interested in developing for NeoDB, please refer to the [development](development.md) section for basic instructions to get started.
 
 
 ## Donation
 
- If you like this project, please consider sponsoring us. Your support is essential to keep these services free and open-sourced.
+If you appreciate this project, please consider sponsoring us. Your support is essential to keep these services free and open-source.
 
  [![Kofi](https://img.shields.io/badge/Ko--Fi-Donate-orange?label=Support%20this%20project%20on%20Ko-fi&style=for-the-badge&color=ff5f5f&logo=ko-fi)](https://ko-fi.com/neodb)
 
 
 ## Feedback
 
-Follow us on [Fediverse](https://mastodon.social/@neodb) or join our [Discord community](https://discord.gg/QBHkrV8bxK) to share your ideas/questions/creations
+Follow us on the Fediverse or join our Discord community to share your ideas, questions, or creations.
 
 [![Mastodon](https://img.shields.io/mastodon/follow/106935434138389355?domain=https%3A%2F%2Fmastodon.online&style=for-the-badge&logo=mastodon&logoColor=fff&label=%40neodb%40mastodon.online&color=6D75D2)](https://mastodon.online/@neodb)
 [![Mastodon](https://img.shields.io/mastodon/follow/106919732872456302?style=for-the-badge&logo=mastodon&logoColor=fff&label=%40neodb%40mastodon.social&color=6D75D2)](https://mastodon.social/@neodb)

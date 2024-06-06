@@ -1,6 +1,6 @@
 [project]
 name = "neodb"
-version = "0.9"
+version = "0.10"
 description = "🧩 self-hosted server tracking what you read/watch/listen/play, powering a global distributed community federating via ActivityPub."
 readme = "README.md"
 requires-python = ">= 3.12"

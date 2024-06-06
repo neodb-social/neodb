@@ -20,6 +20,7 @@ theme:
   features:
     # - navigation.tabs
     # - navigation.footer
+  custom_dir: docs/templates
 extra:
   social:
     - icon: fontawesome/brands/mastodon
