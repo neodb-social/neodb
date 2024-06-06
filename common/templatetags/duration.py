@@ -49,15 +49,15 @@ def naturaldelta(v: datetime | None):
         return _("just now")
     if d < 3600:
         return f"{d//60}m"
-    if d < 38400:
+    if d < 86400:
         return f"{d//3600}h"
-    if d < 38400 * 14:
-        return f"{d//38400}d"
-    if d < 38400 * 56:
-        return f"{d//38400//7}w"
-    if d < 38400 * 30 * 18:
-        return f"{d//38400//30}mo"
-    return f"{d//38400//365}yr"
+    if d < 86400 * 14:
+        return f"{d//86400}d"
+    if d < 86400 * 56:
+        return f"{d//86400//7}w"
+    if d < 86400 * 30 * 18:
+        return f"{d//86400//30}mo"
+    return f"{d//86400//365}yr"
 
 
 @register.filter(is_safe=True)

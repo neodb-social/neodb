@@ -9,12 +9,13 @@ __pycache__
 /compose.yml
 /compose.override.yml
 /Dockerfile
-/doc
+/docs
+/mkdocs.yml
 /media
 /static
 /test_data
 /neodb
-/neodb-takahe/doc
+/neodb-takahe/docs
 /neodb-takahe/docker
 /neodb-takahe/static-collected
 /neodb-takahe/takahe/local_settings.py

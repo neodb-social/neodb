@@ -3,7 +3,7 @@ Development
 
 Overview
 --------
-NeoDB is a Django project, and it runs side by side with a [modified version](https://github.com/neodb-social/neodb-takahe) of [Takahē](https://github.com/jointakahe/takahe) (a separate Django project, code in `neodb_takahe` folder of this repo as submodule). They communicate with each other mainly thru database and task queue, the diagram in [Docker Installation](install-docker.md) demonstrates a typical architecture. Currently the two are loosely coupled, so you may take either one offline without immediate impact on the other, which makes it very easy to conduct maintenance and troubleshooting separately. In the future, they may get combined but it's not decided and will not be decided very soon.
+NeoDB is a Django project, and it runs side by side with a [modified version](https://github.com/neodb-social/neodb-takahe) of [Takahē](https://github.com/jointakahe/takahe) (a separate Django project, code in `neodb_takahe` folder of this repo as submodule). They communicate with each other mainly thru database and task queue, [the diagram](troubleshooting.md#containers) demonstrates a typical architecture. Currently the two are loosely coupled, so you may take either one offline without immediate impact on the other, which makes it very easy to conduct maintenance and troubleshooting separately. In the future, they may get combined but it's not decided and will not be decided very soon.
 
 
 Prerequisite
@@ -36,7 +36,7 @@ Note: the virtual environments and packages installed in this step are mostly fo
 
 Start local instance for development
 ------------------------------------
-Follow [install guide](install-docker.md) to create `.env` in the root folder of NeoDB code, including at least these configuration:
+Follow [install guide](install.md) to create `.env` in the root folder of NeoDB code, including at least these configuration:
 ```
 NEODB_SITE_NAME="My Test"
 NEODB_SITE_DOMAIN=mydomain.dev
@@ -161,10 +161,10 @@ Applications
 Main Django apps for NeoDB:
  - `users` manages user in typical Django fashion
  - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/) ~and [Twitter API](https://developer.twitter.com/en/docs/twitter-api)~ for user login and data sync
- - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](catalog.md) for more details
- - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag), see [journal.md](journal.md) for more details
- - `social` present timeline and notification for local users, see [social.md](social.md) for more details
- - `takahe` communicate with Takahe (a separate Django server, run side by side with this server, code in `neodb_takahe` as submodule)
+ - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](internals/catalog.md) for more details
+ - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag), see [journal.md](internals/journal.md) for more details
+ - `social` present timeline and notification for local users, see [social.md](internals/social.md) for more details
+ - `takahe` communicate with Takahe (a separate Django server, run side by side with this server, code in `neodb_takahe` as submodule), see [federation.md](internals/federation.md) for customization of ActivityPub protocol
  - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old urls to new ones. If your journey starts with 0.5 and later, feel free to ignore it.
 
 

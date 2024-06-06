@@ -123,7 +123,7 @@ class DiscoverGenerator(BaseJob):
                         "provider_name": str(i.category.label),
                         "history": [
                             {
-                                "day": str(int(time.time() / 38400 - 3) * 38400),
+                                "day": str(int(time.time() / 86400 - 3) * 86400),
                                 "accounts": str(cnt),
                                 "uses": str(cnt),
                             }

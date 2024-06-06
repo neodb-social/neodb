@@ -68,6 +68,7 @@ dev-dependencies = [
     "lxml-stubs",
     "pyright==1.1.365",
     "ruff",
+    "mkdocs-material>=9.5.25",
 ]
 
 [tool.pyright]

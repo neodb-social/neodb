@@ -22,6 +22,8 @@ asgiref==3.8.1
     # via django-stubs
 attrs==23.2.0
     # via aiohttp
+babel==2.15.0
+    # via mkdocs-material
 beautifulsoup4==4.12.3
     # via markdownify
 black==24.4.2
@@ -44,9 +46,11 @@ charset-normalizer==3.3.2
 click==8.1.7
     # via black
     # via djlint
+    # via mkdocs
     # via rq
 colorama==0.4.6
     # via djlint
+    # via mkdocs-material
 cryptography==42.0.8
     # via jwcrypto
 cssbeautifier==1.15.1
@@ -114,6 +118,8 @@ filetype==1.2.0
 frozenlist==1.4.1
     # via aiohttp
     # via aiosignal
+ghp-import==2.1.0
+    # via mkdocs
 gunicorn==22.0.0
 h11==0.14.0
     # via httpcore
@@ -133,6 +139,9 @@ idna==3.7
     # via yarl
 igdb-api-v4==0.3.2
 isort==5.13.2
+jinja2==3.1.4
+    # via mkdocs
+    # via mkdocs-material
 jsbeautifier==1.15.1
     # via cssbeautifier
     # via djlint
@@ -148,8 +157,24 @@ lxml==5.2.2
 lxml-stubs==0.5.1
 markdown==3.6
     # via django-markdownx
+    # via mkdocs
+    # via mkdocs-material
+    # via pymdown-extensions
 markdownify==0.12.1
+markupsafe==2.1.5
+    # via jinja2
+    # via mkdocs
+mergedeep==1.3.4
+    # via mkdocs
+    # via mkdocs-get-deps
 mistune==3.0.2
+mkdocs==1.6.0
+    # via mkdocs-material
+mkdocs-get-deps==0.2.0
+    # via mkdocs
+mkdocs-material==9.5.25
+mkdocs-material-extensions==1.3.1
+    # via mkdocs-material
 multidict==6.0.5
     # via aiohttp
     # via yarl
@@ -164,15 +189,20 @@ openpyxl==3.1.3
 packaging==24.0
     # via black
     # via gunicorn
+    # via mkdocs
+paginate==0.5.6
+    # via mkdocs-material
 pathspec==0.12.1
     # via black
     # via djlint
+    # via mkdocs
 pillow==10.3.0
     # via blurhash-python
     # via django-markdownx
     # via easy-thumbnails
 platformdirs==4.2.2
     # via black
+    # via mkdocs-get-deps
     # via virtualenv
 podcastparser==0.6.10
 pre-commit==3.7.1
@@ -185,10 +215,15 @@ pydantic==2.7.3
     # via django-ninja
 pydantic-core==2.18.4
     # via pydantic
+pygments==2.18.0
+    # via mkdocs-material
+pymdown-extensions==10.8.1
+    # via mkdocs-material
 pyright==1.1.365
 python-dateutil==2.9.0.post0
     # via dateparser
     # via django-auditlog
+    # via ghp-import
 python-fsutil==0.14.1
     # via django-maintenance-mode
 pytz==2024.1
@@ -196,7 +231,13 @@ pytz==2024.1
     # via django-tz-detect
 pyyaml==6.0.1
     # via djlint
+    # via mkdocs
+    # via mkdocs-get-deps
     # via pre-commit
+    # via pymdown-extensions
+    # via pyyaml-env-tag
+pyyaml-env-tag==0.1
+    # via mkdocs
 rcssmin==1.1.1
     # via django-compressor
 redis==5.0.4
@@ -206,11 +247,13 @@ redis==5.0.4
 regex==2023.12.25
     # via dateparser
     # via djlint
+    # via mkdocs-material
 requests==2.32.3
     # via django-anymail
     # via django-oauth-toolkit
     # via django-slack
     # via igdb-api-v4
+    # via mkdocs-material
     # via typesense
 rjsmin==1.2.1
     # via django-compressor
@@ -257,6 +300,8 @@ urlman==2.0.2
 validators==0.28.3
 virtualenv==20.26.2
     # via pre-commit
+watchdog==4.0.1
+    # via mkdocs
 webencodings==0.5.1
     # via bleach
     # via tinycss2
