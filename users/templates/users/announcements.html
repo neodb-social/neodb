@@ -46,7 +46,7 @@
         <article>
           {{ announcement.html | safe }}
           <footer>
-            <span class="action inline"><span><a>{{ announcement.created|default:announcement.created|naturaldelta }}</a></span>
+            <span class="action inline"><span><a>{{ announcement.created|default:announcement.created|date }}</a></span>
           </span>
         </footer>
       </article>
