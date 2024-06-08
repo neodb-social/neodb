@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 from openpyxl import Workbook
 
 from catalog.models import *

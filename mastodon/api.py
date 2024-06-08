@@ -9,7 +9,7 @@ import django_rq
 import requests
 from django.conf import settings
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from loguru import logger
 
 from mastodon.utils import rating_to_emoji

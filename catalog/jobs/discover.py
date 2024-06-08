@@ -5,7 +5,6 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Count, F
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from boofilsic.settings import MIN_MARKS_FOR_DISCOVER

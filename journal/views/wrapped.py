@@ -9,7 +9,7 @@ from django.db.models import Count, F
 from django.db.models.functions import ExtractMonth
 from django.http import HttpRequest, HttpResponseRedirect
 from django.http.response import HttpResponse
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
 
 from catalog.models import (

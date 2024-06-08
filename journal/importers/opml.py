@@ -1,7 +1,7 @@
 import django_rq
 import listparser
 from auditlog.context import set_actor
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from loguru import logger
 from user_messages import api as msg
 

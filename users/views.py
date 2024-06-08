@@ -5,7 +5,7 @@ from django.core.exceptions import BadRequest
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from common.config import *
 from common.utils import (

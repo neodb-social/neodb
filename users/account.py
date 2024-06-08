@@ -16,19 +16,18 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from loguru import logger
 
 from common.config import *
 from common.utils import AuthedHttpRequest
 from journal.models import remove_data_by_user
-from mastodon import mastodon_request_included
 from mastodon.api import *
 from mastodon.api import verify_account
 from takahe.utils import Takahe
 
-from .models import Preference, User
+from .models import User
 from .tasks import *
 
 # the 'login' page that user can see
@@ -146,7 +145,6 @@ def connect(request):
 
 # mastodon server redirect back to here
 @require_http_methods(["GET"])
-@mastodon_request_included
 def connect_redirect_back(request):
     code = request.GET.get("code")
     if not code:
@@ -252,14 +250,12 @@ def login_existing_user(request, existing_user):
     return response
 
 
-@mastodon_request_included
 @login_required
 def logout(request):
     # revoke_token(request.user.mastodon_site, request.user.mastodon_token)
     return auth_logout(request)
 
 
-@mastodon_request_included
 @login_required
 @require_http_methods(["POST"])
 def reconnect(request):

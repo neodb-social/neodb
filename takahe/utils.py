@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.core.files.images import ImageFile
 from django.db.models import Count
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from PIL import Image
 
 from .models import *

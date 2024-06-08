@@ -1,14 +1,12 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from user_messages import api as msg
 
 from catalog.models import *
-from takahe.models import Identity
 from users.models import APIdentity
 
 from ..forms import *

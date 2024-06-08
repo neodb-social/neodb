@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.signing import b62_decode, b62_encode
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from .config import PAGE_LINK_NUMBER
 
