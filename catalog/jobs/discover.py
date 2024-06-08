@@ -147,14 +147,12 @@ class DiscoverGenerator(BaseJob):
                 "pk", flat=True
             )[:20]
         )
-        print(post_ids)
         if len(post_ids) < 30:
             post_ids |= set(
                 Comment.objects.filter(visibility=0)
                 .order_by("-created_time")
                 .values_list("posts", flat=True)[:2]
             )
-        print(post_ids)
         cache.set("public_gallery", gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
         cache.set("featured_collections", collection_ids, timeout=None)

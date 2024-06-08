@@ -5,12 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
-    replaces = [
-        ("journal", "0014_alter_piece_options_piece_local_piece_post_id_and_more"),
-        ("journal", "0015_alter_collection_featured_by_users_and_more"),
-    ]
-
     dependencies = [
         (
             "journal",
