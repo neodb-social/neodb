@@ -4,17 +4,19 @@ repo_url: http://github.com/neodb-social/neodb
 edit_uri: blob/main/docs/
 site_description: Mark the things you love.
 nav:
-  - Introduction: 'index.md'
+  - About: 'index.md'
   - features.md
   - install.md
   - upgrade.md
   - configuration.md
   - troubleshooting.md
   - development.md
-  - 'Our Story': story.md
+  - origin.md
 theme:
   logo: assets/logo.svg
   name: material
+  font:
+    text: Lato
   palette:
     primary: custom
     accent: custom
