@@ -194,6 +194,8 @@ form img {
 
 .avatar {
   display: inline-block;
+  overflow: hidden;
+  max-width: 3em;
 
   img {
     max-width: unset;
