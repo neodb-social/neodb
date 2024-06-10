@@ -529,13 +529,6 @@ DISABLE_MODEL_SIGNAL = False  # disable index and social feeds during importing/
 # SILKY_INTERCEPT_PERCENT = 10
 
 NINJA_PAGINATION_PER_PAGE = 20
-OAUTH2_PROVIDER = {
-    "ACCESS_TOKEN_EXPIRE_SECONDS": 3600 * 24 * 365,
-    "PKCE_REQUIRED": False,
-}
-OAUTH2_PROVIDER_APPLICATION_MODEL = "developer.Application"
-
-DEVELOPER_CONSOLE_APPLICATION_CLIENT_ID = "NEODB_DEVELOPER_CONSOLE"
 
 # https://github.com/adamchainz/django-cors-headers#configuration
 # CORS_ALLOWED_ORIGINS = []

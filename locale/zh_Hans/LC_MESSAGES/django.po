@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-04 20:43-0400\n"
+"POT-Creation-Date: 2024-06-10 17:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,15 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: boofilsic/settings.py:400
+#: boofilsic/settings.py:394
 msgid "English"
 msgstr "英语"
 
-#: boofilsic/settings.py:401
+#: boofilsic/settings.py:395
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
-#: boofilsic/settings.py:402
+#: boofilsic/settings.py:396
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
@@ -873,7 +873,6 @@ msgstr "合并到另一条目"
 
 #: catalog/templates/_sidebar_edit.html:210
 #: catalog/templates/catalog_delete.html:11
-#: developer/templates/oauth2_provider/application_detail.html:42
 #: journal/templates/collection.html:135 journal/templates/mark.html:162
 #: journal/templates/piece_delete.html:9 journal/templates/review.html:83
 msgid "Delete"
@@ -1012,9 +1011,7 @@ msgstr "是"
 msgid "No"
 msgstr "否"
 
-#: catalog/templates/catalog_edit.html:11
-#: developer/templates/oauth2_provider/application_detail.html:40
-#: journal/templates/collection.html:132
+#: catalog/templates/catalog_edit.html:11 journal/templates/collection.html:132
 #: journal/templates/collection_edit.html:9
 #: journal/templates/collection_edit.html:25 journal/templates/review.html:80
 #: journal/templates/tag_edit.html:16
@@ -1026,7 +1023,6 @@ msgid "Create"
 msgstr "创建"
 
 #: catalog/templates/catalog_edit.html:50
-#: developer/templates/oauth2_provider/application_form.html:35
 #: journal/templates/add_to_collection.html:35
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
 #: journal/templates/mark.html:147 journal/templates/review_edit.html:39
@@ -1633,8 +1629,8 @@ msgstr ""
 msgid "Error"
 msgstr "错误"
 
-#: common/templates/common/verify.html:19 users/account.py:105
-#: users/account.py:489
+#: common/templates/common/verify.html:19 users/account.py:104
+#: users/account.py:485
 msgid "Verification email is being sent, please check your inbox."
 msgstr "验证邮件已发送，请查阅收件箱。"
 
@@ -1669,60 +1665,6 @@ msgstr "用户不存在了"
 #: common/utils.py:73 common/utils.py:103
 msgid "Access denied"
 msgstr "访问被拒绝"
-
-#: developer/models.py:18
-msgid "minimum two characters, words and -_. only, no special characters"
-msgstr "两字符以上，无特殊字符"
-
-#: developer/models.py:29
-msgid "Allowed URIs list, space separated, at least one URI is required"
-msgstr "至少一个网址，空格分隔"
-
-#: developer/templates/console.html:37
-#: developer/templates/oauth2_provider/application_list.html:5
-msgid "Your applications"
-msgstr "你的应用程序"
-
-#: developer/templates/oauth2_provider/application_detail.html:9
-msgid "Client ID"
-msgstr "Client ID"
-
-#: developer/templates/oauth2_provider/application_detail.html:18
-msgid "URL"
-msgstr "网址"
-
-#: developer/templates/oauth2_provider/application_detail.html:24
-msgid "Description"
-msgstr "描述"
-
-#: developer/templates/oauth2_provider/application_detail.html:30
-msgid "Redirect Uris"
-msgstr "重定向网址"
-
-#: developer/templates/oauth2_provider/application_detail.html:38
-#: developer/templates/oauth2_provider/application_form.html:33
-msgid "Go Back"
-msgstr "返回"
-
-#: developer/templates/oauth2_provider/application_form.html:8
-msgid "Edit application"
-msgstr "编辑应用程序"
-
-#: developer/templates/oauth2_provider/application_list.html:20
-msgid "New Application"
-msgstr "新建应用程序"
-
-#: developer/templates/oauth2_provider/application_list.html:23
-msgid "No applications defined"
-msgstr "尚无应用程序"
-
-#: developer/templates/oauth2_provider/application_list.html:23
-msgid "Click here"
-msgstr "点此"
-
-#: developer/templates/oauth2_provider/application_list.html:23
-msgid "if you want to register a new one"
-msgstr "如果你希望新注册一个"
 
 #: journal/forms.py:18 journal/forms.py:41
 msgid "Title"
@@ -2675,23 +2617,23 @@ msgstr "链接无效"
 msgid "{review_title} - a review of {item_title}"
 msgstr "{review_title} - 关于 {item_title} 的评论"
 
-#: journal/views/tag.py:43 journal/views/tag.py:57
+#: journal/views/tag.py:41 journal/views/tag.py:55
 msgid "Invalid tag"
 msgstr "无效标签"
 
-#: journal/views/tag.py:46
+#: journal/views/tag.py:44
 msgid "Tag not found"
 msgstr "标签不存在"
 
-#: journal/views/tag.py:61
+#: journal/views/tag.py:59
 msgid "Tag deleted."
 msgstr "标签已删除"
 
-#: journal/views/tag.py:71
+#: journal/views/tag.py:69
 msgid "Duplicated tag."
 msgstr "重复标签"
 
-#: journal/views/tag.py:78
+#: journal/views/tag.py:76
 msgid "Tag updated."
 msgstr "标签已更新"
 
@@ -2699,7 +2641,7 @@ msgstr "标签已更新"
 msgid "Summary posted to timeline."
 msgstr "总结已发布到时间轴"
 
-#: mastodon/api.py:523 takahe/utils.py:521
+#: mastodon/api.py:523 takahe/utils.py:522
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "关于 {item_title}，可能包含剧透或敏感内容"
@@ -2712,10 +2654,6 @@ msgstr "分享我的收藏单"
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
-
-#: mastodon/decorators.py:20
-msgid "Timeout connecting to Fediverse."
-msgstr "连接联邦宇宙实例超时"
 
 #: mastodon/models.py:14
 msgid "site domain name"
@@ -2773,7 +2711,7 @@ msgstr "播放"
 msgid "comment"
 msgstr "写短评"
 
-#: social/templates/activity/create_collection.html:16 takahe/utils.py:561
+#: social/templates/activity/create_collection.html:16 takahe/utils.py:562
 msgid "created collection"
 msgstr "创建了收藏单"
 
@@ -2998,60 +2936,60 @@ msgstr "头像"
 msgid "Header picture"
 msgstr "背景图片"
 
-#: users/account.py:85
+#: users/account.py:84
 msgid "Invalid email address"
 msgstr "无效的电子邮件地址"
 
-#: users/account.py:103
+#: users/account.py:102
 msgid "Verification"
 msgstr "验证"
 
-#: users/account.py:120
+#: users/account.py:119
 msgid "Missing instance domain"
 msgstr "未指定实例域名"
 
-#: users/account.py:141
+#: users/account.py:140
 msgid "Error connecting to instance"
 msgstr "无法连接实例"
 
-#: users/account.py:157 users/account.py:167 users/account.py:180
-#: users/account.py:203 users/account.py:228
+#: users/account.py:155 users/account.py:165 users/account.py:178
+#: users/account.py:201 users/account.py:226
 msgid "Authentication failed"
 msgstr "认证失败"
 
-#: users/account.py:158
+#: users/account.py:156
 msgid "Invalid response from Fediverse instance."
 msgstr "联邦实例返回信息无效"
 
-#: users/account.py:168
+#: users/account.py:166
 msgid "Invalid cookie data."
 msgstr "无效cookie信息。"
 
-#: users/account.py:174
+#: users/account.py:172
 msgid "Invalid instance domain"
 msgstr "实例域名无效"
 
-#: users/account.py:181
+#: users/account.py:179
 msgid "Invalid token from Fediverse instance."
 msgstr "联邦实例返回了无效的认证令牌。"
 
-#: users/account.py:204 users/account.py:558
+#: users/account.py:202 users/account.py:554
 msgid "Invalid account data from Fediverse instance."
 msgstr "联邦实例返回了无效的账号数据。"
 
-#: users/account.py:229
+#: users/account.py:227
 msgid "Registration is for invitation only"
 msgstr "本站仅限邀请注册"
 
-#: users/account.py:290
+#: users/account.py:286
 msgid "This username is already in use."
 msgstr "用户名已被使用"
 
-#: users/account.py:301
+#: users/account.py:297
 msgid "This email address is already in use."
 msgstr "此电子邮件地址已被使用"
 
-#: users/account.py:309
+#: users/account.py:305
 msgid ""
 "\n"
 "\n"
@@ -3061,7 +2999,7 @@ msgstr ""
 "\n"
 "如果你没有打算用此电子邮件地址注册或登录本站，请忽略此邮件；如果你确信账号存在安全风险，请更改注册邮件地址或与我们联系。"
 
-#: users/account.py:315
+#: users/account.py:311
 #, python-brace-format
 msgid ""
 "Click this link to verify your email address {email}\n"
@@ -3071,7 +3009,7 @@ msgstr ""
 "请点击以下链接验证你的电子邮件地址 {email}\n"
 "{url}"
 
-#: users/account.py:323
+#: users/account.py:319
 #, python-brace-format
 msgid ""
 "Use this code to confirm login as {email}\n"
@@ -3089,7 +3027,7 @@ msgstr ""
 "或点击以下链接登录{email}账号\n"
 "{url}"
 
-#: users/account.py:330
+#: users/account.py:326
 #, python-brace-format
 msgid ""
 "There is no account registered with this email address yet.{email}\n"
@@ -3104,7 +3042,7 @@ msgstr ""
 "\n"
 "如果你还没有联邦宇宙身份，可以访问这里选择实例并创建一个： https://joinmastodon.org/zh/servers\n"
 
-#: users/account.py:334
+#: users/account.py:330
 #, python-brace-format
 msgid ""
 "\n"
@@ -3118,51 +3056,51 @@ msgstr ""
 "或者点击以下链接\n"
 "{url}"
 
-#: users/account.py:361 users/account.py:370
+#: users/account.py:357 users/account.py:366
 msgid "Invalid verification code"
 msgstr "验证码无效或已过期"
 
-#: users/account.py:389
+#: users/account.py:385
 msgid "Invalid verification link"
 msgstr "验证链接无效或已过期"
 
-#: users/account.py:406 users/account.py:412
+#: users/account.py:402 users/account.py:408
 msgid "Email mismatch"
 msgstr "电子邮件地址不匹配"
 
-#: users/account.py:416 users/account.py:468
+#: users/account.py:412 users/account.py:464
 msgid "Email in use"
 msgstr "电子邮件地址已被注册"
 
-#: users/account.py:421
+#: users/account.py:417
 msgid "Unable to verify"
 msgstr "无法完成验证"
 
-#: users/account.py:453
+#: users/account.py:449
 msgid "Username in use"
 msgstr "用户名已被使用"
 
-#: users/account.py:494
+#: users/account.py:490
 msgid "Username all set."
 msgstr "用户名已设置。"
 
-#: users/account.py:497
+#: users/account.py:493
 msgid "Email removed from account."
 msgstr "电子邮件地址已取消关联。"
 
-#: users/account.py:518
+#: users/account.py:514
 msgid "Unable to update login information: identical identity."
 msgstr "无法更新登录信息：该身份与当前账号相同。"
 
-#: users/account.py:528
+#: users/account.py:524
 msgid "Unable to update login information: identity in use."
 msgstr "无法更新登录信息：该身份已被其它账号使用。"
 
-#: users/account.py:554
+#: users/account.py:550
 msgid "Login information updated."
 msgstr "登录信息已更新"
 
-#: users/account.py:608
+#: users/account.py:604
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
