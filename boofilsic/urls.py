@@ -45,7 +45,6 @@ urlpatterns = [
     path("hijack/", include("hijack.urls")),
     path("", include("common.urls")),
     path("", include("legacy.urls")),
-    path("", include("developer.urls")),
     path("", include("takahe.urls")),
     path("tz_detect/", include("tz_detect.urls")),
     path(settings.ADMIN_URL + "/", admin.site.urls),

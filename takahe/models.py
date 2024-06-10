@@ -2103,3 +2103,113 @@ class Announcement(models.Model):
         from journal.models import render_md
 
         return mark_safe(render_md(self.text))
+
+
+class Application(models.Model):
+    """
+    OAuth applications
+    """
+
+    class Meta:
+        db_table = "api_application"
+
+    client_id = models.CharField(max_length=500)
+    client_secret = models.CharField(max_length=500)
+
+    redirect_uris = models.TextField()
+    scopes = models.TextField()
+
+    name = models.CharField(max_length=500)
+    website = models.CharField(max_length=500, blank=True, null=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
+class Authorization(models.Model):
+    """
+    An authorization code as part of the OAuth flow
+    """
+
+    class Meta:
+        db_table = "api_authorization"
+
+    application = models.ForeignKey(
+        "takahe.Application",
+        on_delete=models.CASCADE,
+        related_name="authorizations",
+    )
+
+    user = models.ForeignKey(
+        "takahe.User",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="authorizations",
+    )
+
+    identity = models.ForeignKey(
+        "takahe.Identity",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="authorizations",
+    )
+
+    code = models.CharField(max_length=128, blank=True, null=True, unique=True)
+    token = models.OneToOneField(
+        "takahe.Token",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+
+    scopes = models.JSONField()
+    redirect_uri = models.TextField(blank=True, null=True)
+    valid_for_seconds = models.IntegerField(default=60)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
+class Token(models.Model):
+    """
+    An (access) token to call the API with.
+
+    Can be either tied to a user, or app-level only.
+    """
+
+    class Meta:
+        db_table = "api_token"
+
+    identity_id: int | None
+    application = models.ForeignKey(
+        "takahe.Application",
+        on_delete=models.CASCADE,
+        related_name="tokens",
+    )
+
+    user = models.ForeignKey(
+        "takahe.User",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="tokens",
+    )
+
+    identity = models.ForeignKey(
+        "takahe.Identity",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="tokens",
+    )
+
+    token = models.CharField(max_length=500, unique=True)
+    scopes = models.JSONField()
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    revoked = models.DateTimeField(blank=True, null=True)
+
+    # push_subscription: "PushSubscription"

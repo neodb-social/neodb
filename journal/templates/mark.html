@@ -34,7 +34,7 @@
                                    text-overflow: ellipsis;
                                    white-space: nowrap;
                                    overflow: hidden"
-                            {% if k == "wishlist" or k == "dropped" %} _="on click add .outline to .status-selector then remove .outline from me then set value of #mark-status to '{{ k }}' then add .hidden to .rating-editor then halt" {% else %} _="on click add .outline to .status-selector then remove .outline from me then set value of #mark-status to '{{ k }}' then remove .hidden from .rating-editor then halt" {% endif %}
+                            {% if k == "wishlist" %} _="on click add .outline to .status-selector then remove .outline from me then set value of #mark-status to '{{ k }}' then add .hidden to .rating-editor then halt" {% else %} _="on click add .outline to .status-selector then remove .outline from me then set value of #mark-status to '{{ k }}' then remove .hidden from .rating-editor then halt" {% endif %}
                             {% if shelf_type == k %}class="status-selector"{% else %}class="status-selector outline"{% endif %}>
                       {{ v }}
                     </button>

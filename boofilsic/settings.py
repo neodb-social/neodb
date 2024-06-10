@@ -305,7 +305,6 @@ INSTALLED_APPS += [
     "catalog.apps.CatalogConfig",
     "journal.apps.JournalConfig",
     "social.apps.SocialConfig",
-    "developer.apps.DeveloperConfig",
     "takahe.apps.TakaheConfig",
     "legacy.apps.LegacyConfig",
 ]
@@ -313,9 +312,6 @@ INSTALLED_APPS += [
 for app in env("NEODB_EXTRA_APPS"):
     INSTALLED_APPS.append(app)
 
-INSTALLED_APPS += [  # we may override templates in these 3rd party apps
-    "oauth2_provider",
-]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -325,7 +321,6 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "oauth2_provider.middleware.OAuth2TokenMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
@@ -363,7 +358,6 @@ SESSION_COOKIE_AGE = 90 * 24 * 60 * 60  # 90 days
 
 AUTHENTICATION_BACKENDS = [
     "mastodon.auth.OAuth2Backend",
-    "oauth2_provider.backends.OAuth2Backend",
 ]
 
 LOG_LEVEL = env("NEODB_LOG_LEVEL", default="DEBUG" if DEBUG else "INFO")  # type:ignore

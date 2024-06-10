@@ -6,6 +6,7 @@ import blurhash
 from django.conf import settings
 from django.core.cache import cache
 from django.core.files.images import ImageFile
+from django.core.signing import b62_encode
 from django.db.models import Count
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -1010,3 +1011,50 @@ class Takahe:
         if featured:
             identity.fanout("tag_unfeatured", subject_hashtag_id=hashtag)
             featured.delete()
+
+    @staticmethod
+    def get_or_create_app(
+        name: str,
+        website: str,
+        redirect_uris: str,
+        owner_pk: int,
+        scopes: str = "read write follow",
+        client_id: str | None = None,
+    ):
+        client_id = client_id or (
+            "app-" + b62_encode(owner_pk).zfill(11) + "-" + secrets.token_urlsafe(16)
+        )
+        client_secret = secrets.token_urlsafe(40)
+        return Application.objects.get_or_create(
+            client_id=client_id,
+            defaults={
+                "name": name,
+                "website": website,
+                "client_secret": client_secret,
+                "redirect_uris": redirect_uris,
+                "scopes": scopes,
+            },
+        )[0]
+
+    @staticmethod
+    def get_apps(owner_pk: int):
+        return Application.objects.filter(
+            name__startswith="app-" + b62_encode(owner_pk).zfill(11)
+        )
+
+    @staticmethod
+    def refresh_token(app: Application, owner_pk: int, user_pk) -> str:
+        tk = Token.objects.filter(application=app, identity_id=owner_pk).first()
+        if tk:
+            tk.delete()
+        return Token.objects.create(
+            application=app,
+            identity_id=owner_pk,
+            user_id=user_pk,
+            scopes=["read", "write"],
+            token=secrets.token_urlsafe(43),
+        ).token
+
+    @staticmethod
+    def get_token(token: str) -> Token | None:
+        return Token.objects.filter(token=token).first()

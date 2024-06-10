@@ -26,7 +26,7 @@
   <div>{% include '_people.html' with people=item.publisher role='publisher' max=2 %}</div>
   <div>
     {% if item.official_site %}
-      {% trans 'website' %}{{ item.official_site|urlizetrunc:24 }}
+      {% trans 'website' %}: {{ item.official_site|urlizetrunc:24 }}
     {% endif %}
   </div>
 {% endblock %}

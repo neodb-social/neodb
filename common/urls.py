@@ -8,5 +8,6 @@ urlpatterns = [
     path("home/", home, name="home"),
     path("me/", me, name="me"),
     path("nodeinfo/2.0/", nodeinfo2),
+    path("developer/", console, name="developer"),
     re_path("^~neodb~(?P<uri>.+)", ap_redirect),
 ]

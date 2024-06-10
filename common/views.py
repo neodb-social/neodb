@@ -1,14 +1,14 @@
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from boofilsic import __version__
-from users.models import User
+from takahe.utils import Takahe
+
+from .api import api
 
 
 @login_required
@@ -75,3 +75,24 @@ def error_404(request, exception=None):
 
 def error_500(request, exception=None):
     return render(request, "500.html", status=500, context={"exception": exception})
+
+
+def console(request):
+    token = None
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect(reverse("users:login"))
+        app = Takahe.get_or_create_app(
+            "Dev Console",
+            settings.SITE_INFO["site_url"],
+            "",
+            owner_pk=0,
+            client_id="app-00000000000-dev",
+        )
+        token = Takahe.refresh_token(app, request.user.identity.pk, request.user.pk)
+    context = {
+        "api": api,
+        "token": token,
+        "openapi_json_url": reverse(f"{api.urls_namespace}:openapi-json"),
+    }
+    return render(request, "console.html", context)

@@ -33,11 +33,14 @@
   <body>
     {% include "_header.html" %}
     <main class="container">
-      <h3>
-        Developer Console | <a href="{% url 'oauth2_provider:list' %}">{% trans "Your applications" %}</a>
-      </h3>
-      <p class="empty">
-        By using our APIs, you agree to our <a href="/pages/terms">Terms of Service</a>.
+      <h3>Developer Console</h3>
+      <p>
+        <li class="empty">
+          By using our APIs, you agree to our <a href="/pages/terms">Terms of Service</a>.
+        </li>
+        <li class="empty">
+          In additional to APIs below, {{ site_name }} also supports a subset of <a href="https://docs.joinmastodon.org/client/intro/">Mastodon APIs</a>.
+        </li>
       </p>
       <details {% if token %}open{% endif %}>
         <summary>
@@ -48,7 +51,8 @@
           <input type="text"
                  readonly
                  value="{{ token | default:'Once generated, token will only be shown once here, previous tokens will be revoked.' }}">
-          <input type="submit" value="Generate" />
+          <input type="submit"
+                 {% if request.user.is_authenticated %}value="Generate"{% else %}value="Login to enerate" disabled{% endif %} />
         </form>
         <p>
           Click <code>Authorize</code> button below, input your token there to invoke APIs with your account, which is required for APIs like <code>/api/me</code>
@@ -62,32 +66,7 @@
         <summary>
           <a>How to authorize</a>
         </summary>
-        0. Create an application (you must have at least one URL included in the Redirect URIs field, e.g. <code>https://example.org/callback</code>)
-        <br>
-        1. Guide your user to open this URL
-        <input type="text"
-               value="{{ site_url }}/auth/oauth/authorize/?response_type=code&amp;client_id=CLIENT_ID&amp;redirect_uri=https://example.org/callback"
-               readonly>
-        2. Once authorizated by user, it will redirect to <code>https://example.org/callback</code> with a <code>code</code> parameter:
-        <input type="text"
-               value="https://example.org/callback?code=AUTH_CODE"
-               readonly>
-        3. Obtain access token with the following POST request:
-        <textarea readonly rows="7">
-    curl -X POST {{ site_url }}/auth/oauth/token/ \
-    -H "Content-Type: application/x-www-form-urlencoded" \
-    -d "client_id=CLIENT_ID" \
-    -d "client_secret=CLIENT_SECRET" \
-    -d "code=AUTH_CODE" \
-    -d "redirect_uri=https://example.org/callback" \
-    -d "grant_type=authorization_code"</textarea>
-        and access token will be returned in the response:
-        <textarea readonly rows="1">{"access_token": "ACCESS_TOKEN", "expires_in": 31536000, "token_type": "Bearer", "scope": "read write", "refresh_token": "REFRESH_TOKEN"}</textarea>
-        4. Use the access token to access protected endpoints like <code>/api/me</code>
-        <textarea readonly rows="1">curl -H "Authorization: Bearer ACCESS_TOKEN" -X GET http://localhost:8000/api/me</textarea>
-        and response will be returned accordingly:
-        <textarea readonly rows="1">{"url": "https://neodb.social/users/xxx@yyy.zzz/", "external_acct": "xxx@yyy.zzz", "display_name": "XYZ", "avatar": "https://yyy.zzz/xxx.gif"}</textarea>
-        more endpoints can be found in API Documentation below.
+        Please check <a href="https://neodb.net/api/">NeoDB documentation</a> for details.
       </details>
       <div id="swagger-ui" data-theme="light"></div>
       <script src="{{ cdn_url }}/npm/swagger-ui-dist@5.13.0/swagger-ui-bundle.min.js"></script>

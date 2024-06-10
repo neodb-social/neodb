@@ -214,7 +214,7 @@
           <details>
             <summary>{% trans 'Applications' %}</summary>
             <p>
-              <a href="{% url 'oauth2_provider:authorized-token-list' %}">{% trans "View authorized applications" %}</a>
+              <a href="/@{{ request.user.identity.handle }}/settings/tokens/">{% trans "View authorized applications" %}</a>
             </p>
           </details>
         </article>

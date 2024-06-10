@@ -13,6 +13,7 @@ from common.models import BaseJob, JobManager
 from journal.models import (
     Collection,
     Comment,
+    Review,
     ShelfMember,
     TagManager,
     q_item_in_category,
@@ -138,21 +139,24 @@ class DiscoverGenerator(BaseJob):
             .values_list("pk", flat=True)[:40]
         )
         tags = TagManager.popular_tags(days=14)[:40]
-        post_ids = set(
-            Takahe.get_popular_posts(7, settings.MIN_MARKS_FOR_DISCOVER).values_list(
-                "pk", flat=True
-            )[:10]
-        ) | set(
-            Takahe.get_popular_posts(28, settings.MIN_MARKS_FOR_DISCOVER).values_list(
-                "pk", flat=True
-            )[:20]
-        )
-        if len(post_ids) < 30:
-            post_ids |= set(
-                Comment.objects.filter(visibility=0)
-                .order_by("-created_time")
-                .values_list("posts", flat=True)[:2]
+        post_ids = (
+            set(
+                Takahe.get_popular_posts(
+                    28, settings.MIN_MARKS_FOR_DISCOVER
+                ).values_list("pk", flat=True)[:20]
             )
+            | set(
+                Takahe.get_popular_posts(
+                    7, settings.MIN_MARKS_FOR_DISCOVER
+                ).values_list("pk", flat=True)[:10]
+            )
+            | set(Takahe.get_popular_posts(2, 0).values_list("pk", flat=True)[:3])
+            | set(
+                Review.objects.filter(visibility=0)
+                .order_by("-created_time")
+                .values_list("posts", flat=True)[:3]
+            )
+        )
         cache.set("public_gallery", gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
         cache.set("featured_collections", collection_ids, timeout=None)

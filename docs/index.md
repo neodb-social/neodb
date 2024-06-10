@@ -22,8 +22,7 @@ All instances interact with each other in the Fediverse via ActivityPub, allowin
 
 ## API and Development
 
- - NeoDB offers an API to manage user collections, with swagger-based documentation available in the [NeoDB API Developer Console](https://neodb.social/developer/).
- - [Mastodon client compatible API](https://docs.joinmastodon.org/client/) is also available
+ - NeoDB offers [APIs to manage user collections](api.md), and [Mastodon client compatible API](https://docs.joinmastodon.org/client/) to manage user posts.
  - For those interested in developing for NeoDB, please refer to the [development](development.md) section for basic instructions to get started.
 
 

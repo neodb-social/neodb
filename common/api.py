@@ -6,9 +6,9 @@ from loguru import logger
 from ninja import NinjaAPI, Schema
 from ninja.pagination import PageNumberPagination as NinjaPageNumberPagination
 from ninja.security import HttpBearer
-from oauth2_provider.oauth2_backends import OAuthLibCore
-from oauth2_provider.oauth2_validators import OAuth2Validator
-from oauthlib.oauth2 import Server
+
+from takahe.utils import Takahe
+from users.models.apidentity import APIdentity
 
 PERMITTED_WRITE_METHODS = ["PUT", "POST", "DELETE", "PATCH"]
 PERMITTED_READ_METHODS = ["GET", "HEAD", "OPTIONS"]
@@ -16,23 +16,38 @@ PERMITTED_READ_METHODS = ["GET", "HEAD", "OPTIONS"]
 
 class OAuthAccessTokenAuth(HttpBearer):
     def authenticate(self, request, token) -> bool:
-        if not token or not request.user.is_authenticated:
-            logger.debug("API auth: no access token or user not authenticated")
+        if not token:
+            logger.debug("API auth: no access token provided")
             return False
-        request_scopes = []
+        tk = Takahe.get_token(token)
+        if not tk:
+            logger.debug("API auth: access token not found")
+            return False
+        request_scope = ""
         request_method = request.method
         if request_method in PERMITTED_READ_METHODS:
-            request_scopes = ["read"]
+            request_scope = "read"
         elif request_method in PERMITTED_WRITE_METHODS:
-            request_scopes = ["write"]
+            request_scope = "write"
         else:
+            logger.debug("API auth: unsupported HTTP method")
             return False
-        validator = OAuth2Validator()
-        core = OAuthLibCore(Server(validator))
-        valid, oauthlib_req = core.verify_request(request, scopes=request_scopes)
-        if not valid:
-            logger.debug(f"API auth: request scope {request_scopes} not verified")
-        return valid
+        if request_scope not in tk.scopes:
+            logger.debug("API auth: scope not allowed")
+            return False
+        identity = APIdentity.objects.filter(pk=tk.identity_id).first()
+        if not identity:
+            logger.debug("API auth: identity not found")
+            return False
+        if identity.deleted:
+            logger.debug("API auth: identity deleted")
+            return False
+        user = identity.user
+        if not user:
+            logger.debug("API auth: user not found")
+            return False
+        request.user = user
+        return True
 
 
 class EmptyResult(Schema):
