@@ -23,6 +23,9 @@ class OAuthAccessTokenAuth(HttpBearer):
         if not tk:
             logger.debug("API auth: access token not found")
             return False
+        if tk.revoked:
+            logger.debug("API auth: access token revoked")
+            return False
         request_scope = ""
         request_method = request.method
         if request_method in PERMITTED_READ_METHODS:
