@@ -32,13 +32,6 @@ from .uris import *
 if TYPE_CHECKING:
     from django_stubs_ext.db.models.manager import RelatedManager
 
-_migration_mode = False
-
-
-def set_migration_mode(disable: bool):
-    global _migration_mode
-    _migration_mode = disable
-
 
 # class TakaheSession(models.Model):
 #     session_key = models.CharField(_("session key"), max_length=40, primary_key=True)
@@ -1100,16 +1093,14 @@ class Post(models.Model):
     ) -> "Post":
         with transaction.atomic():
             # Find mentions in this post
-            mentions = (
-                set() if _migration_mode else cls.mentions_from_content(content, author)
-            )
+            mentions = cls.mentions_from_content(content, author)
             if reply_to:
                 mentions.add(reply_to.author)
                 # Maintain local-only for replies
                 if reply_to.visibility == reply_to.Visibilities.local_only:
                     visibility = reply_to.Visibilities.local_only
             # Find emoji in this post
-            emojis = [] if _migration_mode else Emoji.emojis_from_content(content, None)
+            emojis = Emoji.emojis_from_content(content, None)
             # Strip all unwanted HTML and apply linebreaks filter, grabbing hashtags on the way
             parser = FediverseHtmlParser(linebreaks_filter(content), find_hashtags=True)
             content = parser.html.replace("<p>", "<p>" + raw_prepend_content, 1)
@@ -1139,12 +1130,8 @@ class Post(models.Model):
             with transaction.atomic(using="takahe"):
                 # Make the Post object
                 post = cls.objects.create(**post_obj)
-
-                if _migration_mode:
-                    post.state = "fanned_out"
-                else:
-                    post.mentions.set(mentions)
-                    post.emojis.set(emojis)
+                post.mentions.set(mentions)
+                post.emojis.set(emojis)
                 post.object_uri = post.urls.object_uri
                 post.url = post.absolute_object_uri()
                 if attachments:
@@ -1158,7 +1145,7 @@ class Post(models.Model):
             # Recalculate parent stats for replies
             if reply_to:
                 reply_to.calculate_stats()
-            if post.state == "fanned_out" and not _migration_mode:
+            if post.state == "fanned_out":
                 # add post to auther's timeline directly if it's old
                 post.add_to_timeline(author)
         return post
@@ -1208,8 +1195,6 @@ class Post(models.Model):
             self.state_changed = timezone.now()
             self.state_next_attempt = None
             self.state_locked_until = None
-            if _migration_mode:  # NeoDB: disable fanout during migration
-                self.state = "edited_fanned_out"
             self.save()
 
     @classmethod
