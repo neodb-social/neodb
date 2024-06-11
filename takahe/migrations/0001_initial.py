@@ -973,4 +973,144 @@ class Migration(migrations.Migration):
                 "unique_together": {("key", "user", "identity", "domain")},
             },
         ),
+        migrations.CreateModel(
+            name="Application",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("client_id", models.CharField(max_length=500)),
+                ("client_secret", models.CharField(max_length=500)),
+                ("redirect_uris", models.TextField()),
+                ("scopes", models.TextField()),
+                ("name", models.CharField(max_length=500)),
+                ("website", models.CharField(blank=True, max_length=500, null=True)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                "db_table": "api_application",
+            },
+        ),
+        migrations.CreateModel(
+            name="Token",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("token", models.CharField(max_length=500, unique=True)),
+                ("scopes", models.JSONField()),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                ("revoked", models.DateTimeField(blank=True, null=True)),
+                (
+                    "application",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tokens",
+                        to="takahe.application",
+                    ),
+                ),
+                (
+                    "identity",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tokens",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tokens",
+                        to="takahe.user",
+                    ),
+                ),
+            ],
+            options={
+                "db_table": "api_token",
+            },
+        ),
+        migrations.CreateModel(
+            name="Authorization",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(
+                        blank=True, max_length=128, null=True, unique=True
+                    ),
+                ),
+                ("scopes", models.JSONField()),
+                ("redirect_uri", models.TextField(blank=True, null=True)),
+                ("valid_for_seconds", models.IntegerField(default=60)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                (
+                    "application",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="authorizations",
+                        to="takahe.application",
+                    ),
+                ),
+                (
+                    "identity",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="authorizations",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "token",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="takahe.token",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="authorizations",
+                        to="takahe.user",
+                    ),
+                ),
+            ],
+            options={
+                "db_table": "api_authorization",
+            },
+        ),
     ]
