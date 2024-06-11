@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
 _RESERVED_USERNAMES = [
     "connect",
-    "oauth2_login",
     "__",
     "admin",
     "administrator",
