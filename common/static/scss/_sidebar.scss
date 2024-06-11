@@ -47,6 +47,7 @@
     }
 
     .avatar {
+      height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4);
       max-height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4);
       max-width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4);
 

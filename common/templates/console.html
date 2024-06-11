@@ -52,7 +52,7 @@
                  readonly
                  value="{{ token | default:'Once generated, token will only be shown once here, previous tokens will be revoked.' }}">
           <input type="submit"
-                 {% if request.user.is_authenticated %}value="Generate"{% else %}value="Login to enerate" disabled{% endif %} />
+                 {% if request.user.is_authenticated %}value="Generate"{% else %}value="Login to generate" disabled{% endif %} />
         </form>
         <p>
           Click <code>Authorize</code> button below, input your token there to invoke APIs with your account, which is required for APIs like <code>/api/me</code>
