@@ -305,6 +305,7 @@ INSTALLED_APPS += [
     "catalog.apps.CatalogConfig",
     "journal.apps.JournalConfig",
     "social.apps.SocialConfig",
+    "developer.apps.DeveloperConfig",
     "takahe.apps.TakaheConfig",
     "legacy.apps.LegacyConfig",
 ]
@@ -312,6 +313,9 @@ INSTALLED_APPS += [
 for app in env("NEODB_EXTRA_APPS"):
     INSTALLED_APPS.append(app)
 
+INSTALLED_APPS += [  # we may override templates in these 3rd party apps
+    "oauth2_provider",
+]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
