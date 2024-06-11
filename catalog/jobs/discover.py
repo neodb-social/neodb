@@ -150,7 +150,7 @@ class DiscoverGenerator(BaseJob):
                     7, settings.MIN_MARKS_FOR_DISCOVER
                 ).values_list("pk", flat=True)[:10]
             )
-            | set(Takahe.get_popular_posts(2, 0).values_list("pk", flat=True)[:3])
+            | set(Takahe.get_popular_posts(1, 0).values_list("pk", flat=True)[:3])
             | set(
                 Review.objects.filter(visibility=0)
                 .order_by("-created_time")
