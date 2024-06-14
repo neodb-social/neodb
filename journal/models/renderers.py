@@ -4,9 +4,7 @@ from typing import TYPE_CHECKING, cast
 import mistune
 from django.utils.html import escape
 
-if TYPE_CHECKING:
-    from catalog.models import Item
-    from users.models import User
+from catalog.models import Item, ItemCategory
 
 _mistune_plugins = [
     "url",
@@ -56,9 +54,11 @@ def render_text(s: str) -> str:
     return _spolier(s).strip().replace("\n", "<br>")
 
 
-def render_post_with_macro(txt: str, item: "Item") -> str:
+def render_post_with_macro(txt: str, item: Item) -> str:
+    if not txt:
+        return ""
     return (
-        txt.replace("[category]", item.category.name)
+        txt.replace("[category]", str(ItemCategory(item.category).label))
         .replace("[title]", item.display_title)
         .replace("[url]", item.absolute_url)
     )

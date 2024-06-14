@@ -735,7 +735,7 @@ def share_review(review):
     tpl = ShelfManager.get_action_template("reviewed", review.item.category)
     content = (
         _(tpl).format(item=review.item.display_title)
-        + "\n{review.title}\n{review.absolute_url} "
+        + f"\n{review.title}\n{review.absolute_url} "
         + tags
     )
     update_id = None
