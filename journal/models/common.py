@@ -1,18 +1,23 @@
 import re
 import uuid
+from abc import abstractmethod
+from datetime import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Self
 
+# from deepmerge import always_merger
 from django.conf import settings
 from django.core.signing import b62_decode, b62_encode
 from django.db import connection, models
 from django.db.models import Avg, CharField, Count, Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from loguru import logger
 from polymorphic.models import PolymorphicModel
 
 from catalog.common.models import AvailableItemCategory, Item, ItemCategory
 from catalog.models import item_categories, item_content_types
+from mastodon.api import boost_toot_later, delete_toot, delete_toot_later, post_toot2
 from takahe.utils import Takahe
 from users.models import APIdentity, User
 
@@ -123,6 +128,28 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         "takahe.Post", related_name="pieces", through="PiecePost"
     )
 
+    def get_mastodon_repost_url(self):
+        return (self.metadata or {}).get("shared_link")
+
+    def set_mastodon_repost_url(self, url: str | None):
+        metadata = self.metadata or {}
+        if metadata.get("shared_link", None) == url:
+            return
+        if not url:
+            metadata.pop("shared_link", None)
+        else:
+            metadata["shared_link"] = url
+        self.metadata = metadata
+        self.save(update_fields=["metadata"])
+
+    def delete(self, *args, **kwargs):
+        if self.local:
+            Takahe.delete_posts(self.all_post_ids)
+            toot_url = self.get_mastodon_repost_url()
+            if toot_url:
+                delete_toot_later(self.owner.user, toot_url)
+        return super().delete(*args, **kwargs)
+
     @property
     def uuid(self):
         return b62_encode(self.uid.int)
@@ -138,10 +165,6 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     @property
     def api_url(self):
         return f"/api/{self.url}" if self.url_path else None
-
-    @property
-    def shared_link(self):
-        return Takahe.get_post_url(self.latest_post.pk) if self.latest_post else None
 
     @property
     def like_count(self):
@@ -187,16 +210,13 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         pp = PiecePost.objects.filter(post_id=post_id).first()
         return pp.piece if pp else None
 
-    @classmethod
-    def update_by_ap_object(cls, owner, item, obj, post_id, visibility):
-        raise NotImplementedError("subclass must implement this")
-
-    @property
-    def ap_object(self):
-        raise NotImplementedError("subclass must implement this")
-
     def link_post_id(self, post_id: int):
         PiecePost.objects.get_or_create(piece=self, post_id=post_id)
+        try:
+            del self.latest_post_id
+            del self.latest_post
+        except AttributeError:
+            pass
 
     def clear_post_ids(self):
         PiecePost.objects.filter(piece=self).delete()
@@ -218,6 +238,160 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             PiecePost.objects.filter(piece=self).values_list("post_id", flat=True)
         )
         return post_ids
+
+    @property
+    def ap_object(self):
+        raise NotImplementedError("subclass must implement this")
+
+    @classmethod
+    @abstractmethod
+    def params_from_ap_object(cls, post, obj, piece):
+        return {}
+
+    @abstractmethod
+    def to_post_params(self):
+        return {}
+
+    @abstractmethod
+    def to_mastodon_params(self):
+        return {}
+
+    @classmethod
+    def update_by_ap_object(cls, owner: APIdentity, item: Item, obj, post: Post):
+        """
+        Create or update a content piece with related AP message
+        """
+        p = cls.get_by_post_id(post.id)
+        if p and p.owner.pk != post.author_id:
+            logger.warning(f"Owner mismatch: {p.owner.pk} != {post.author_id}")
+            return
+        local = post.local
+        visibility = Takahe.visibility_t2n(post.visibility)
+        d = cls.params_from_ap_object(post, obj, p)
+        if p:
+            # update existing piece
+            edited = post.edited if local else datetime.fromisoformat(obj["updated"])
+            if p.edited_time >= edited:
+                # incoming ap object is older than what we have, no update needed
+                return p
+            d["edited_time"] = edited
+            for k, v in d.items():
+                setattr(p, k, v)
+            p.save(update_fields=d.keys())
+        else:
+            # no previously linked piece, create a new one and link to post
+            d.update(
+                {
+                    "item": item,
+                    "owner": owner,
+                    "local": post.local,
+                    "visibility": visibility,
+                    "remote_id": None if local else obj["id"],
+                }
+            )
+            if local:
+                d["created_time"] = post.published
+                d["edited_time"] = post.edited or post.published
+            else:
+                d["created_time"] = datetime.fromisoformat(obj["published"])
+                d["edited_time"] = datetime.fromisoformat(obj["updated"])
+            p = cls.objects.create(**d)
+            p.link_post_id(post.id)
+            if local:
+                # a local piece is reconstructred from a post, update post and fanout
+                if not post.type_data:
+                    post.type_data = {}
+                # always_merger.merge(
+                #     post.type_data,
+                #     {
+                #         "object": {
+                #             "tag": [item.ap_object_ref],
+                #             "relatedWith": [p.ap_object],
+                #         }
+                #     },
+                # )
+                post.type_data = {
+                    "object": {
+                        "tag": [item.ap_object_ref],
+                        "relatedWith": [p.ap_object],
+                    }
+                }
+                post.save(update_fields=["type_data"])
+                Takahe.update_state(post, "edited")
+        return p
+
+    def sync_to_mastodon(self, delete_existing=False):
+        user = self.owner.user
+        if not user.mastodon_site:
+            return
+        if user.preference.mastodon_repost_mode == 1:
+            if delete_existing:
+                self.delete_mastodon_repost()
+            return self.repost_to_mastodon()
+        elif self.latest_post:
+            return boost_toot_later(user, self.latest_post.url)
+        else:
+            logger.warning("No post found for piece")
+            return False, 404
+
+    def delete_mastodon_repost(self):
+        toot_url = self.get_mastodon_repost_url()
+        if toot_url:
+            self.set_mastodon_repost_url(None)
+            delete_toot(self.owner.user, toot_url)
+
+    def repost_to_mastodon(self):
+        user = self.owner.user
+        d = {
+            "user": user,
+            "visibility": self.visibility,
+            "update_toot_url": self.get_mastodon_repost_url(),
+        }
+        d.update(self.to_mastodon_params())
+        response = post_toot2(**d)
+        if response is not None and response.status_code in [200, 201]:
+            j = response.json()
+            if "url" in j:
+                metadata = {"shared_link": j["url"]}
+                if self.metadata != metadata:
+                    self.metadata = metadata
+                    self.save(update_fields=["metadata"])
+            return True, 200
+        else:
+            logger.warning(response)
+            return False, response.status_code if response is not None else -1
+
+    def sync_to_timeline(self, delete_existing=False):
+        user = self.owner.user
+        v = Takahe.visibility_n2t(self.visibility, user.preference.post_public_mode)
+        existing_post = self.latest_post
+        if existing_post and existing_post.state in ["deleted", "deleted_fanned_out"]:
+            existing_post = None
+        elif existing_post and delete_existing:
+            Takahe.delete_posts([existing_post.pk])
+            existing_post = None
+        params = {
+            "author_pk": self.owner.pk,
+            "visibility": v,
+            "post_pk": existing_post.pk if existing_post else None,
+            "post_time": self.created_time,  # type:ignore subclass must have this
+            "edit_time": self.edited_time,  # type:ignore subclass must have this
+            "data": {
+                "object": {
+                    "tag": (
+                        [self.item.ap_object_ref]  # type:ignore
+                        if hasattr(self, "item")
+                        else []
+                    ),
+                    "relatedWith": [self.ap_object],
+                }
+            },
+        }
+        params.update(self.to_post_params())
+        post = Takahe.post(**params)
+        if post and post != existing_post:
+            self.link_post_id(post.pk)
+        return post
 
 
 class PiecePost(models.Model):

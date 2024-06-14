@@ -16,7 +16,7 @@ from .collection import (
     user_liked_collection_list,
 )
 from .common import piece_delete
-from .mark import comment, mark, mark_log, user_mark_list, wish
+from .mark import comment, mark, mark_log, note, user_mark_list, wish
 from .post import (
     piece_replies,
     post_boost,

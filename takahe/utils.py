@@ -442,14 +442,15 @@ class Takahe:
     @staticmethod
     def post(
         author_pk: int,
-        pre_conetent: str,
         content: str,
         visibility: Visibilities,
+        pre_conetent: str = "",
         summary: str | None = None,
         sensitive: bool = False,
         data: dict | None = None,
         post_pk: int | None = None,
         post_time: datetime.datetime | None = None,
+        edit_time: datetime.datetime | None = None,
         reply_to_pk: int | None = None,
         attachments: list | None = None,
     ) -> Post | None:
@@ -475,6 +476,7 @@ class Takahe:
                 visibility=visibility,
                 type_data=data,
                 published=post_time,
+                edited=edit_time,
                 attachments=attachments,
             )
         else:
@@ -487,6 +489,7 @@ class Takahe:
                 visibility=visibility,
                 type_data=data,
                 published=post_time,
+                edited=edit_time,
                 reply_to=reply_to_post,
                 attachments=attachments,
             )
@@ -510,8 +513,23 @@ class Takahe:
         return post.object_uri if post else None
 
     @staticmethod
+    def update_post(post_pk, **kwargs):
+        Post.objects.filter(pk=post_pk).update(**kwargs)
+
+    @staticmethod
     def delete_posts(post_pks):
+        parent_posts = list(
+            Post.objects.filter(
+                object_uri__in=Post.objects.filter(
+                    pk__in=post_pks, in_reply_to__isnull=False
+                )
+                .distinct("in_reply_to")
+                .values_list("in_reply_to", flat=True)
+            )
+        )
         Post.objects.filter(pk__in=post_pks).update(state="deleted")
+        for post in parent_posts:
+            post.calculate_stats()
         # TimelineEvent.objects.filter(subject_post__in=[post.pk]).delete()
         PostInteraction.objects.filter(post__in=post_pks).update(state="undone")
 
@@ -537,6 +555,16 @@ class Takahe:
             return Takahe.Visibilities.unlisted
         else:
             return Takahe.Visibilities.public
+
+    @staticmethod
+    def visibility_t2n(visibility: int) -> int:
+        match visibility:
+            case 2:
+                return 1
+            case 3:
+                return 2
+            case _:
+                return 0
 
     @staticmethod
     def post_collection(collection: "Collection"):
@@ -573,9 +601,9 @@ class Takahe:
         }
         post = Takahe.post(
             collection.owner.pk,
-            pre_conetent,
             content,
             visibility,
+            pre_conetent,
             None,
             False,
             data,
@@ -621,9 +649,9 @@ class Takahe:
         existing_post = None if share_as_new_post else comment.latest_post
         post = Takahe.post(
             comment.owner.pk,
-            pre_conetent,
             content,
             v,
+            pre_conetent,
             spoiler,
             spoiler is not None,
             data,
@@ -668,9 +696,9 @@ class Takahe:
         existing_post = None if share_as_new_post else review.latest_post
         post = Takahe.post(  # TODO post as Article?
             review.owner.pk,
-            pre_conetent,
             content,
             v,
+            pre_conetent,
             None,
             False,
             data,
@@ -712,9 +740,9 @@ class Takahe:
         )
         post = Takahe.post(
             mark.owner.pk,
-            pre_conetent,
             content + append_content,
             v,
+            pre_conetent,
             spoiler,
             spoiler is not None,
             data,
@@ -768,7 +796,7 @@ class Takahe:
     def reply_post(
         post_pk: int, identity_pk: int, content: str, visibility: Visibilities
     ):
-        return Takahe.post(identity_pk, "", content, visibility, reply_to_pk=post_pk)
+        return Takahe.post(identity_pk, content, visibility, reply_to_pk=post_pk)
 
     @staticmethod
     def boost_post(post_pk: int, identity_pk: int):
@@ -859,7 +887,7 @@ class Takahe:
         return FediverseHtmlParser(linebreaks_filter(txt)).html
 
     @staticmethod
-    def update_state(obj, state):
+    def update_state(obj: Post | Relay, state: str):
         obj.state = state
         obj.state_changed = timezone.now()
         obj.state_next_attempt = None

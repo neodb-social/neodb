@@ -62,6 +62,40 @@
 </section>
 <section>
   <h5>
+    {% trans "my notes" %}
+    {% if mark.shelf %}
+      <small>
+        <span class="action inline">
+          <a href="#"
+             hx-get="{% url 'journal:note' item.uuid %}"
+             hx-target="body"
+             hx-swap="beforeend">
+            <i class="fa-regular fa-square-plus"></i>
+          </a>
+        </span>
+      </small>
+    {% endif %}
+  </h5>
+  {% for note in mark.notes %}
+    <span class="action">
+      <span>
+        <a href="#"
+           hx-get="{% url 'journal:note' note.item.uuid note.uuid %}"
+           hx-target="body"
+           hx-swap="beforeend"><i class="fa-regular fa-pen-to-square"></i></a>
+      </span>
+      {% if note.latest_post %}
+        {% include "action_like_post.html" with post=note.latest_post %}
+        {% include "action_boost_post.html" with post=note.latest_post %}
+        {% include "action_open_post.html" with post=note.latest_post %}
+      {% endif %}
+    </span>
+    <h6>{{ note.title|default:'' }}</h6>
+    <p>{{ note.content|linebreaks }}</p>
+  {% endfor %}
+</section>
+<section>
+  <h5>
     {% trans "my review" %}
     {% if not review %}
       <small>

@@ -1,6 +1,7 @@
 from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
 from .common import (
+    Content,
     Piece,
     PieceInteraction,
     PiecePost,
@@ -14,6 +15,7 @@ from .common import (
 from .like import Like
 from .mark import Mark
 from .mixins import UserOwnedObjectMixin
+from .note import Note
 from .rating import Rating
 from .renderers import render_md
 from .review import Review
@@ -43,6 +45,7 @@ __all__ = [
     "q_piece_visible_to_user",
     "Like",
     "Mark",
+    "Note",
     "Rating",
     "render_md",
     "Review",

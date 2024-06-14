@@ -42,6 +42,7 @@ click==8.1.7
 cryptography==42.0.8
     # via jwcrypto
 dateparser==1.2.0
+deepmerge==1.1.1
 discord-py==2.3.2
 django==4.2.13
     # via django-anymail

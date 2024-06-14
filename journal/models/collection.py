@@ -9,6 +9,7 @@ from catalog.collection.models import Collection as CatalogCollection
 from catalog.common import jsondata
 from catalog.common.utils import DEFAULT_ITEM_COVER, piece_cover_path
 from catalog.models import Item
+from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .common import Piece
@@ -113,11 +114,8 @@ class Collection(List):
         Takahe.post_collection(self)
 
     def delete(self, *args, **kwargs):
-        existing_post = self.latest_post
-        if existing_post:
-            from takahe.utils import Takahe
-
-            Takahe.delete_posts([existing_post.pk])
+        if self.local:
+            Takahe.delete_posts(self.all_post_ids)
         return super().delete(*args, **kwargs)
 
     @property

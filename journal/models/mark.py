@@ -26,6 +26,7 @@ from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .comment import Comment
+from .note import Note
 from .rating import Rating
 from .review import Review
 from .shelf import Shelf, ShelfLogEntry, ShelfManager, ShelfMember, ShelfType
@@ -104,6 +105,14 @@ class Mark:
             if self.shelf_type
             else None
         )
+
+    @cached_property
+    def notes(self):
+        return Note.objects.filter(owner=self.owner, item=self.item)
+        # post_ids = PiecePost.objects.filter(
+        #     piece__note__owner_id=self.owner.pk, piece__note__item_id=self.item.pk
+        # ).values_list("post_id", flat=True)
+        # return Takahe.get_posts(list(post_ids))
 
     @property
     def created_time(self) -> datetime | None:

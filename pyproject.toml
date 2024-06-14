@@ -54,6 +54,7 @@ dependencies = [
     "typesense",
     "urlman",
     "validators",
+    "deepmerge>=1.1.1",
 ]
 
 [tool.rye]
@@ -66,7 +67,7 @@ dev-dependencies = [
     "djlint~=1.34.1",
     "isort~=5.13.2",
     "lxml-stubs",
-    "pyright==1.1.366",
+    "pyright>=1.1.367",
     "ruff",
     "mkdocs-material>=9.5.25",
 ]

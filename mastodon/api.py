@@ -227,6 +227,83 @@ def post_toot(
     return response
 
 
+def delete_toot(user, toot_url):
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Authorization": f"Bearer {user.mastodon_token}",
+        "Idempotency-Key": random_string_generator(16),
+    }
+    toot_id = get_status_id_by_url(toot_url)
+    url = (
+        "https://"
+        + get_api_domain(user.mastodon_site)
+        + API_PUBLISH_TOOT
+        + "/"
+        + toot_id
+    )
+    try:
+        response = requests.delete(url, headers=headers)
+        if response.status_code != 200:
+            logger.warning(f"Error DELETE {url} {response.status_code}")
+    except Exception as e:
+        logger.warning(f"Error deleting {e}")
+
+
+def delete_toot_later(user, toot_url):
+    if user and user.mastodon_token and user.mastodon_site and toot_url:
+        django_rq.get_queue("fetch").enqueue(delete_toot, user, toot_url)
+
+
+def post_toot2(
+    user,
+    content,
+    visibility,
+    update_toot_url: str | None = None,
+    reply_to_toot_url: str | None = None,
+    sensitive: bool = False,
+    spoiler_text: str | None = None,
+):
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Authorization": f"Bearer {user.mastodon_token}",
+        "Idempotency-Key": random_string_generator(16),
+    }
+    response = None
+    url = "https://" + get_api_domain(user.mastodon_site) + API_PUBLISH_TOOT
+    payload = {
+        "status": content,
+        "visibility": get_toot_visibility(visibility, user),
+    }
+    update_id = get_status_id_by_url(update_toot_url)
+    reply_to_id = get_status_id_by_url(reply_to_toot_url)
+    if reply_to_id:
+        payload["in_reply_to_id"] = reply_to_id
+    # if media_id:
+    #     payload["media_ids[]"] = [media_id]
+    if spoiler_text:
+        payload["spoiler_text"] = spoiler_text
+    if sensitive:
+        payload["sensitive"] = True
+    try:
+        if update_id:
+            response = put(url + "/" + update_id, headers=headers, data=payload)
+        if not update_id or (response is not None and response.status_code != 200):
+            headers["Idempotency-Key"] = random_string_generator(16)
+            response = post(url, headers=headers, data=payload)
+        if response is not None and response.status_code != 200:
+            headers["Idempotency-Key"] = random_string_generator(16)
+            payload["in_reply_to_id"] = None
+            response = post(url, headers=headers, data=payload)
+        if response is not None and response.status_code == 201:
+            response.status_code = 200
+        if response is not None and response.status_code != 200:
+            logger.warning(f"Error {url} {response.status_code}")
+    except Exception as e:
+        logger.warning(f"Error posting {e}")
+        response = None
+    return response
+
+
 def _get_redirect_uris(allow_multiple=True) -> str:
     u = settings.SITE_INFO["site_url"] + "/account/login/oauth"
     if not allow_multiple:

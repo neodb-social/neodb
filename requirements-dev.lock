@@ -56,6 +56,7 @@ cryptography==42.0.8
 cssbeautifier==1.15.1
     # via djlint
 dateparser==1.2.0
+deepmerge==1.1.1
 discord-py==2.3.2
 distlib==0.3.8
     # via virtualenv
@@ -219,7 +220,7 @@ pygments==2.18.0
     # via mkdocs-material
 pymdown-extensions==10.8.1
     # via mkdocs-material
-pyright==1.1.366
+pyright==1.1.367
 python-dateutil==2.9.0.post0
     # via dateparser
     # via django-auditlog

@@ -1,9 +1,20 @@
 from time import sleep
+from typing import Any
 
+from django.conf import settings
 from loguru import logger
 
 from catalog.common import *
-from journal.models import Comment, Piece, PieceInteraction, Rating, Review, ShelfMember
+from journal.models import (
+    Comment,
+    Content,
+    Note,
+    Piece,
+    PieceInteraction,
+    Rating,
+    Review,
+    ShelfMember,
+)
 from users.models.apidentity import APIdentity
 
 from .models import Follow, Identity, Post, TimelineEvent
@@ -28,10 +39,11 @@ _supported_ap_journal_types = {
     "Rating": Rating,
     "Comment": Comment,
     "Review": Review,
+    "Note": Note,
 }
 
 
-def _parse_items(objects):
+def _parse_items(objects) -> list[dict[str, Any]]:
     logger.debug(f"Parsing item links from {objects}")
     if not objects:
         return []
@@ -40,7 +52,7 @@ def _parse_items(objects):
     return items
 
 
-def _parse_piece_objects(objects):
+def _parse_piece_objects(objects) -> list[dict[str, Any]]:
     logger.debug(f"Parsing pieces from {objects}")
     if not objects:
         return []
@@ -54,10 +66,15 @@ def _parse_piece_objects(objects):
     return pieces
 
 
-def _get_or_create_item(item_obj):
+def _get_or_create_item(item_obj) -> Item | None:
     logger.debug(f"Fetching item by ap from {item_obj}")
     typ = item_obj["type"]
     url = item_obj["href"]
+    if url.startswith(settings.SITE_INFO["site_url"]):
+        item = Item.get_by_url(url, True)
+        if not item:
+            logger.warning(f"Item not found for {url}")
+        return item
     if typ in ["TVEpisode", "PodcastEpisode"]:
         # TODO support episode item
         # match and fetch parent item first
@@ -74,25 +91,23 @@ def _get_or_create_item(item_obj):
     return item
 
 
-def _get_visibility(post_visibility):
-    match post_visibility:
-        case 2:
-            return 1
-        case 3:
-            return 2
-        case _:
-            return 0
+def post_created(pk, post_data):
+    return post_fetched(pk, post_data)
 
 
-def post_fetched(pk, obj):
+def post_edited(pk, post_data):
+    return post_fetched(pk, post_data)
+
+
+def post_fetched(pk, post_data):
     post = Post.objects.get(pk=pk)
     owner = Takahe.get_or_create_remote_apidentity(post.author)
-    if not post.type_data:
+    if not post.type_data and not post_data:
         logger.warning(f"Post {post} has no type_data")
         return
-    ap_object = post.type_data.get("object", {})
-    items = _parse_items(ap_object.get("tag"))
-    pieces = _parse_piece_objects(ap_object.get("relatedWith"))
+    ap_objects = post_data or post.type_data.get("object", {})
+    items = _parse_items(ap_objects.get("tag"))
+    pieces = _parse_piece_objects(ap_objects.get("relatedWith"))
     logger.info(f"Post {post} has items {items} and pieces {pieces}")
     if len(items) == 0:
         logger.warning(f"Post {post} has no remote items")
@@ -109,17 +124,20 @@ def post_fetched(pk, obj):
         if not cls:
             logger.warning(f'Unknown link type {p["type"]}')
             continue
-        cls.update_by_ap_object(owner, item, p, pk, _get_visibility(post.visibility))
+        cls.update_by_ap_object(owner, item, p, post)
 
 
-def post_deleted(pk, obj):
-    for piece in Piece.objects.filter(posts__id=pk, local=False):
+def post_deleted(pk, post_data):
+    for piece in Piece.objects.filter(posts__id=pk):
+        if piece.local and piece.__class__ != Note:
+            # no delete other than Note, for backward compatibility, should reconsider later
+            return
         # delete piece if the deleted post is the most recent one for the piece
         if piece.latest_post_id == pk:
-            logger.debug(f"Deleting remote piece {piece}")
+            logger.debug(f"Deleting piece {piece}")
             piece.delete()
         else:
-            logger.debug(f"Matched remote piece {piece} has newer posts, not deleting")
+            logger.debug(f"Matched piece {piece} has newer posts, not deleting")
 
 
 def post_interacted(interaction_pk, interaction, post_pk, identity_pk):

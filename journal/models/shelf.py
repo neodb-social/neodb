@@ -10,6 +10,7 @@ from django.utils.translation import pgettext_lazy as __
 from loguru import logger
 
 from catalog.models import Item, ItemCategory
+from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .common import q_item_in_category
@@ -335,9 +336,7 @@ class ShelfMember(ListMember):
         }
 
     @classmethod
-    def update_by_ap_object(
-        cls, owner: APIdentity, item: Item, obj: dict, post_id: int, visibility: int
-    ):
+    def update_by_ap_object(cls, owner: APIdentity, item: Item, obj: dict, post):
         p = cls.objects.filter(owner=owner, item=item).first()
         if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
             return p  # incoming ap object is older than what we have, no update needed
@@ -349,12 +348,12 @@ class ShelfMember(ListMember):
             "parent": shelf,
             "position": 0,
             "local": False,
-            "visibility": visibility,
+            "visibility": Takahe.visibility_t2n(post.visibility),
             "created_time": datetime.fromisoformat(obj["published"]),
             "edited_time": datetime.fromisoformat(obj["updated"]),
         }
         p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
-        p.link_post_id(post_id)
+        p.link_post_id(post.id)
         return p
 
     @cached_property

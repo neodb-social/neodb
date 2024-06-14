@@ -3,18 +3,17 @@
   <a target="_blank"
      rel="noopener"
      href="{{ post.object_uri }}"
-     onclick="navigator.share({url:'{{ post.object_uri|escapejs }}'});event.preventDefault();"
-     title="{% trans "link for fediverse" %}">
+     onclick="navigator.share({url:'{{ post.object_uri|escapejs }}'});event.preventDefault();">
     {% if post.visibility == 1 %}
-      <i class="fa-solid fa-lock-open"></i>
+      <i class="fa-solid fa-lock-open" title="{% trans "Public" %}"></i>
     {% elif post.visibility == 2 %}
-      <i class="fa-solid fa-lock"></i>
+      <i class="fa-solid fa-lock" title="{% trans "Followers Only" %}"></i>
     {% elif post.visibility == 3 %}
-      <i class="fa-solid fa-at"></i>
+      <i class="fa-solid fa-at" title="{% trans "Mentioned Only" %}"></i>
     {% elif post.visibility == 4 %}
-      <i class="fa-solid fa-igloo"></i>
+      <i class="fa-solid fa-igloo" title="{% trans "Public" %}"></i>
     {% else %}
-      <i class="fa-solid fa-globe"></i>
+      <i class="fa-solid fa-globe" title="{% trans "Public" %}"></i>
     {% endif %}
   </a>
 </span>

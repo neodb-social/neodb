@@ -499,7 +499,7 @@ class Item(PolymorphicModel):
         return self.title
 
     @classmethod
-    def get_by_url(cls, url_or_b62: str) -> "Self | None":
+    def get_by_url(cls, url_or_b62: str, resolve_merge=False) -> "Self | None":
         b62 = url_or_b62.strip().split("/")[-1]
         if len(b62) not in [21, 22]:
             r = re.search(r"[A-Za-z0-9]{21,22}", url_or_b62)
@@ -507,6 +507,14 @@ class Item(PolymorphicModel):
                 b62 = r[0]
         try:
             item = cls.objects.get(uid=uuid.UUID(int=b62_decode(b62)))
+            if resolve_merge:
+                resolve_cnt = 5
+                while item.merged_to_item and resolve_cnt > 0:
+                    item = item.merged_to_item
+                    resolve_cnt -= 1
+                if resolve_cnt == 0:
+                    logger.error(f"resolve merge loop for {item}")
+                    item = None
         except Exception:
             item = None
         return item

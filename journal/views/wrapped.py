@@ -123,9 +123,9 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
         )
         post = Takahe.post(
             identity.pk,
-            "",
             comment,
             Takahe.visibility_n2t(visibility, user.preference.post_public_mode),
+            "",
             attachments=[media],
         )
         classic_repost = user.preference.mastodon_repost_mode == 1

@@ -9,6 +9,7 @@ from markdownx.models import MarkdownxField
 
 from catalog.models import Item
 from mastodon.api import boost_toot_later, share_review
+from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .common import Content
@@ -52,7 +53,7 @@ class Review(Content):
         }
 
     @classmethod
-    def update_by_ap_object(cls, owner, item, obj, post_id, visibility):
+    def update_by_ap_object(cls, owner, item, obj, post):
         p = cls.objects.filter(owner=owner, item=item).first()
         if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
             return p  # incoming ap object is older than what we have, no update needed
@@ -66,12 +67,12 @@ class Review(Content):
             "body": content,
             "local": False,
             "remote_id": obj["id"],
-            "visibility": visibility,
+            "visibility": Takahe.visibility_t2n(post.visibility),
             "created_time": datetime.fromisoformat(obj["published"]),
             "edited_time": datetime.fromisoformat(obj["updated"]),
         }
         p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
-        p.link_post_id(post_id)
+        p.link_post_id(post.id)
         return p
 
     @cached_property

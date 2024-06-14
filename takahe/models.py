@@ -900,6 +900,7 @@ class Post(models.Model):
     """
 
     if TYPE_CHECKING:
+        author_id: int
         interactions: "models.QuerySet[PostInteraction]"
         attachments: "models.QuerySet[PostAttachment]"
 
@@ -933,6 +934,8 @@ class Post(models.Model):
     # state = StateField(PostStates)
     state = models.CharField(max_length=100, default="new")
     state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
 
     # If it is our post or not
     local = models.BooleanField()
@@ -1090,6 +1093,7 @@ class Post(models.Model):
         attachments: list | None = None,
         type_data: dict | None = None,
         published: datetime.datetime | None = None,
+        edited: datetime.datetime | None = None,
     ) -> "Post":
         with transaction.atomic():
             # Find mentions in this post
@@ -1118,6 +1122,8 @@ class Post(models.Model):
                 "hashtags": hashtags,
                 "in_reply_to": reply_to.object_uri if reply_to else None,
             }
+            if edited:
+                post_obj["edited"] = edited
             if published:
                 _delta = timezone.now() - published
                 if _delta > datetime.timedelta(0):
@@ -1161,6 +1167,7 @@ class Post(models.Model):
         attachment_attributes: list | None = None,
         type_data: dict | None = None,
         published: datetime.datetime | None = None,
+        edited: datetime.datetime | None = None,
     ):
         with transaction.atomic():
             # Strip all HTML and apply linebreaks filter
@@ -1173,7 +1180,7 @@ class Post(models.Model):
             self.summary = summary or None
             self.sensitive = bool(summary) if sensitive is None else sensitive
             self.visibility = visibility
-            self.edited = timezone.now()
+            self.edited = edited or timezone.now()
             self.mentions.set(self.mentions_from_content(content, self.author))
             self.emojis.set(Emoji.emojis_from_content(content, None))
             if attachments is not None:
@@ -1232,7 +1239,9 @@ class Post(models.Model):
                 type=PostInteraction.Types.boost,
                 state__in=["new", "fanned_out"],
             ).count(),
-            "replies": Post.objects.filter(in_reply_to=self.object_uri).count(),
+            "replies": Post.objects.filter(in_reply_to=self.object_uri)
+            .exclude(state__in=["deleted", "deleted_fanned_out"])
+            .count(),
         }
         if save:
             self.save()
