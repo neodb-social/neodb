@@ -228,7 +228,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return pp.post_id if pp else None
 
     @cached_property
-    def latest_post(self):
+    def latest_post(self) -> "Post | None":
         pk = self.latest_post_id
         return Takahe.get_post(pk) if pk else None
 

@@ -16,7 +16,7 @@ class Note(Content):
     title = models.TextField(blank=True, null=True, default=None)
     content = models.TextField(blank=False, null=False)
     sensitive = models.BooleanField(default=False, null=False)
-    attachements = models.JSONField(default=list)
+    attachments = models.JSONField(default=list)
 
     @property
     def html(self):
@@ -41,12 +41,23 @@ class Note(Content):
     @override
     @classmethod
     def params_from_ap_object(cls, post, obj, piece):
-        return {
+        params = {
             "title": obj.get("title", post.summary),
             "content": obj.get("content", "").strip(),
             "sensitive": obj.get("sensitive", post.sensitive),
-            # "attachements": obj.get("attachements", []),
+            "attachments": [],
         }
+        if post:
+            for atta in post.attachments.all():
+                params["attachments"].append(
+                    {
+                        "type": (atta.mimetype or "unknown").split("/")[0],
+                        "mimetype": atta.mimetype,
+                        "url": atta.full_url().absolute,
+                        "preview_url": atta.thumbnail_url().absolute,
+                    }
+                )
+        return params
 
     @override
     @classmethod
@@ -66,15 +77,21 @@ class Note(Content):
         return ShelfMember.objects.filter(item=self.item, owner=self.owner).first()
 
     def to_mastodon_params(self):
-        return {
+        params = {
             "spoiler_text": self.title,
             "content": self.content,
             "sensitive": self.sensitive,
-            # "attachements": self.attachements,
             "reply_to_toot_url": (
                 self.shelfmember.get_mastodon_repost_url() if self.shelfmember else None
             ),
         }
+        if self.latest_post:
+            attachments = []
+            for atta in self.latest_post.attachments.all():
+                attachments.append((atta.file_display_name, atta.file, atta.mimetype))
+            if attachments:
+                params["attachments"] = attachments
+        return params
 
     def to_post_params(self):
         return {
@@ -84,4 +101,5 @@ class Note(Content):
             "reply_to_pk": (
                 self.shelfmember.latest_post_id if self.shelfmember else None
             ),
+            # not passing "attachments" so it won't change
         }

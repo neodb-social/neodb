@@ -262,14 +262,16 @@ def post_toot2(
     reply_to_toot_url: str | None = None,
     sensitive: bool = False,
     spoiler_text: str | None = None,
+    attachments: list = [],
 ):
     headers = {
         "User-Agent": USER_AGENT,
         "Authorization": f"Bearer {user.mastodon_token}",
         "Idempotency-Key": random_string_generator(16),
     }
+    base_url = "https://" + get_api_domain(user.mastodon_site)
     response = None
-    url = "https://" + get_api_domain(user.mastodon_site) + API_PUBLISH_TOOT
+    url = base_url + API_PUBLISH_TOOT
     payload = {
         "status": content,
         "visibility": get_toot_visibility(visibility, user),
@@ -278,12 +280,29 @@ def post_toot2(
     reply_to_id = get_status_id_by_url(reply_to_toot_url)
     if reply_to_id:
         payload["in_reply_to_id"] = reply_to_id
-    # if media_id:
-    #     payload["media_ids[]"] = [media_id]
     if spoiler_text:
         payload["spoiler_text"] = spoiler_text
     if sensitive:
         payload["sensitive"] = True
+    media_ids = []
+    for atta in attachments:
+        try:
+            media_id = (
+                requests.post(
+                    base_url + "/api/v1/media",
+                    headers=headers,
+                    data={},
+                    files={"file": atta},
+                )
+                .json()
+                .get("id")
+            )
+            media_ids.append(media_id)
+        except Exception as e:
+            logger.warning(f"Error uploading image {e}")
+        headers["Idempotency-Key"] = random_string_generator(16)
+    if media_ids:
+        payload["media_ids[]"] = media_ids
     try:
         if update_id:
             response = put(url + "/" + update_id, headers=headers, data=payload)

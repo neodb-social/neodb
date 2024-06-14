@@ -1,8 +1,12 @@
 import re
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import mistune
 from django.utils.html import escape
+
+if TYPE_CHECKING:
+    from catalog.models import Item
+    from users.models import User
 
 _mistune_plugins = [
     "url",
@@ -50,3 +54,11 @@ def _spolier(s: str) -> str:
 
 def render_text(s: str) -> str:
     return _spolier(s).strip().replace("\n", "<br>")
+
+
+def render_post_with_macro(txt: str, item: "Item") -> str:
+    return (
+        txt.replace("[category]", item.category.name)
+        .replace("[title]", item.display_title)
+        .replace("[url]", item.absolute_url)
+    )

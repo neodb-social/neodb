@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 ("title", models.TextField(blank=True, default=None, null=True)),
                 ("content", models.TextField()),
                 ("sensitive", models.BooleanField(default=False)),
-                ("attachements", models.JSONField(default=list)),
+                ("attachments", models.JSONField(default=list)),
                 (
                     "item",
                     models.ForeignKey(

@@ -92,6 +92,16 @@
     </span>
     <h6>{{ note.title|default:'' }}</h6>
     <p>{{ note.content|linebreaks }}</p>
+    <div>
+      {% for attachment in note.attachments %}
+        {% if attachment.type == 'image' %}
+          <img src="{{ attachment.url }}"
+               alt="image attachment"
+               style="max-height:6em;
+                      max-width:50%">
+        {% endif %}
+      {% endfor %}
+    </div>
   {% endfor %}
 </section>
 <section>
