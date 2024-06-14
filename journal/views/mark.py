@@ -13,7 +13,7 @@ from loguru import logger
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from mastodon.api import boost_toot_later, share_comment
+from mastodon.api import boost_toot_later
 from takahe.utils import Takahe
 
 from ..models import Comment, Mark, Note, ShelfManager, ShelfType, TagManager
@@ -179,16 +179,14 @@ def comment(request: AuthedHttpRequest, item_uuid):
         d = {"text": text, "visibility": visibility}
         if position:
             d["metadata"] = {"position": position}
+        delete_existing_post = comment is not None and comment.visibility != visibility
+        share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
         comment = Comment.objects.update_or_create(
             owner=request.user.identity, item=item, defaults=d
         )[0]
-        post = Takahe.post_comment(comment, False)
-        share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
-        if post and share_to_mastodon:
-            if request.user.preference.mastodon_repost_mode == 1:
-                share_comment(comment)
-            else:
-                boost_toot_later(request.user, post.url)
+        comment.sync_to_timeline(delete_existing=delete_existing_post)
+        if share_to_mastodon:
+            comment.sync_to_mastodon(delete_existing=delete_existing_post)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 

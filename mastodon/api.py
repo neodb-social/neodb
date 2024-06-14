@@ -634,53 +634,6 @@ def get_toot_visibility(visibility, user):
         return TootVisibilityEnum.UNLISTED
 
 
-def share_comment(comment):
-    from catalog.common import ItemCategory
-    from journal.models import ShelfManager, ShelfType
-
-    user = comment.owner.user
-    visibility = get_toot_visibility(comment.visibility, user)
-    tags = (
-        "\n"
-        + user.preference.mastodon_append_tag.replace(
-            "[category]", str(ItemCategory(comment.item.category).label)
-        )
-        if user.preference.mastodon_append_tag
-        else ""
-    )
-    spoiler_text, txt = get_spoiler_text(comment.text or "", comment.item)
-    tpl = ShelfManager.get_action_template(ShelfType.PROGRESS, comment.item.category)
-    content = (
-        _(tpl).format(item=comment.item.display_title)
-        + f"\n{txt}\n{comment.item.absolute_url}{tags}"
-    )
-    update_id = None
-    if comment.metadata.get(
-        "shared_link"
-    ):  # "https://mastodon.social/@username/1234567890"
-        r = re.match(
-            r".+/(\w+)$", comment.metadata.get("shared_link")
-        )  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
-        update_id = r[1] if r else None
-    response = post_toot(
-        user.mastodon_site,
-        content,
-        visibility,
-        user.mastodon_token,
-        False,
-        update_id,
-        spoiler_text,
-    )
-    if response is not None and response.status_code in [200, 201]:
-        j = response.json()
-        if "url" in j:
-            comment.metadata["shared_link"] = j["url"]
-            comment.save()
-        return True
-    else:
-        return False
-
-
 def share_mark(mark, post_as_new=False):
     from catalog.common import ItemCategory
 

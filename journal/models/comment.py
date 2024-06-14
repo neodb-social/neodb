@@ -1,8 +1,10 @@
 from datetime import datetime
 from functools import cached_property
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from catalog.models import Item
 from takahe.utils import Takahe
@@ -10,7 +12,13 @@ from users.models import APIdentity
 
 from .common import Content
 from .rating import Rating
-from .renderers import render_text
+from .renderers import (
+    render_post_with_macro,
+    render_rating,
+    render_spoiler_text,
+    render_text,
+)
+from .shelf import ShelfManager, ShelfType
 
 
 class Comment(Content):
@@ -103,3 +111,45 @@ class Comment(Content):
                 comment.created_time = created_time
             comment.save()
         return comment
+
+    def get_repost_postfix(self):
+        tags = render_post_with_macro(
+            self.owner.user.preference.mastodon_append_tag, self.item
+        )
+        return "\n" + tags if tags else ""
+
+    def get_repost_template(self):
+        return _(
+            ShelfManager.get_action_template(ShelfType.PROGRESS, self.item.category)
+        )
+
+    def to_mastodon_params(self):
+        spoiler_text, txt = render_spoiler_text(self.text, self.item)
+        content = (
+            self.get_repost_template().format(item=self.item.display_title)
+            + f"\n{txt}\n{settings.SITE_INFO['site_url']}{self.item_url}"
+            + self.get_repost_postfix()
+        )
+        params = {
+            "content": content,
+            "spoiler_text": spoiler_text,
+            "sensitive": bool(spoiler_text),
+        }
+        return params
+
+    def to_post_params(self):
+        item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item_url}"
+        pre_conetent = (
+            self.get_repost_template().format(
+                item=f'<a href="{item_link}">{self.item.display_title}</a>'
+            )
+            + "<br>"
+        )
+        spoiler_text, txt = render_spoiler_text(self.text, self.item)
+        content = f"{txt}\n{self.get_repost_postfix()}"
+        return {
+            "pre_conetent": pre_conetent,
+            "content": content,
+            "summary": spoiler_text,
+            "sensitive": bool(spoiler_text),
+        }

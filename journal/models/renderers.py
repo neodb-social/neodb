@@ -1,9 +1,10 @@
 import re
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 import mistune
 from django.conf import settings
 from django.utils.html import escape
+from django.utils.translation import gettext as _
 
 from catalog.models import Item, ItemCategory
 
@@ -83,3 +84,15 @@ def render_rating(score: int | None, star_mode=0) -> str:
     emoji_code = emoji_code.replace("::", ": :")
     emoji_code = " " + emoji_code + " "
     return emoji_code
+
+
+def render_spoiler_text(text, item):
+    if not text:
+        return None, ""
+    if text.find(">!") != -1:
+        spoiler_text = _(
+            "regarding {item_title}, may contain spoiler or triggering content"
+        ).format(item_title=item.display_title)
+        return spoiler_text, text.replace(">!", "").replace("!<", "")
+    else:
+        return None, text

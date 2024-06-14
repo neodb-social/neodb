@@ -34,7 +34,7 @@ def home(request):
 
 
 def ap_redirect(request, uri):
-    return redirect(uri)
+    return redirect(request.get_full_path().replace("~neodb~", "/"))
 
 
 def nodeinfo2(request):

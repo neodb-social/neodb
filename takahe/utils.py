@@ -616,54 +616,6 @@ class Takahe:
         return post
 
     @staticmethod
-    def post_comment(comment, share_as_new_post: bool) -> Post | None:
-        from catalog.common import ItemCategory
-        from journal.models import ShelfManager, ShelfType
-
-        user = comment.owner.user
-        category = str(ItemCategory(comment.item.category).label)
-        tags = (
-            "\n" + user.preference.mastodon_append_tag.replace("[category]", category)
-            if user.preference.mastodon_append_tag
-            else ""
-        )
-        item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{comment.item_url}"
-        tpl = ShelfManager.get_action_template(
-            ShelfType.PROGRESS, comment.item.category
-        )
-        pre_conetent = (
-            _(tpl).format(
-                item=f'<a href="{item_link}">{comment.item.display_title}</a>'
-            )
-            + "<br>"
-        )
-        spoiler, txt = Takahe.get_spoiler_text(comment.text, comment.item)
-        content = f"{txt}\n{tags}"
-        data = {
-            "object": {
-                "tag": [comment.item.ap_object_ref],
-                "relatedWith": [comment.ap_object],
-            }
-        }
-        v = Takahe.visibility_n2t(comment.visibility, user.preference.post_public_mode)
-        existing_post = None if share_as_new_post else comment.latest_post
-        post = Takahe.post(
-            comment.owner.pk,
-            content,
-            v,
-            pre_conetent,
-            spoiler,
-            spoiler is not None,
-            data,
-            existing_post.pk if existing_post else None,
-            comment.created_time,
-        )
-        if not post:
-            return
-        comment.link_post_id(post.pk)
-        return post
-
-    @staticmethod
     def post_mark(mark, share_as_new_post: bool, append_content="") -> Post | None:
         from catalog.common import ItemCategory
 
