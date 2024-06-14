@@ -257,7 +257,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return {}
 
     @classmethod
-    def update_by_ap_object(cls, owner: APIdentity, item: Item, obj, post: Post):
+    def update_by_ap_object(cls, owner: APIdentity, item: Item, obj, post: "Post"):
         """
         Create or update a content piece with related AP message
         """
