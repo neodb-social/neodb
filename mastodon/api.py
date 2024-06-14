@@ -718,47 +718,6 @@ def share_mark(mark, post_as_new=False):
         return False, response.status_code if response is not None else -1
 
 
-def share_review(review):
-    from catalog.common import ItemCategory
-    from journal.models import ShelfManager
-
-    user = review.owner.user
-    visibility = get_toot_visibility(review.visibility, user)
-    tags = (
-        "\n"
-        + user.preference.mastodon_append_tag.replace(
-            "[category]", str(ItemCategory(review.item.category).label)
-        )
-        if user.preference.mastodon_append_tag
-        else ""
-    )
-    tpl = ShelfManager.get_action_template("reviewed", review.item.category)
-    content = (
-        _(tpl).format(item=review.item.display_title)
-        + f"\n{review.title}\n{review.absolute_url} "
-        + tags
-    )
-    update_id = None
-    if review.metadata.get(
-        "shared_link"
-    ):  # "https://mastodon.social/@username/1234567890"
-        r = re.match(
-            r".+/(\w+)$", review.metadata.get("shared_link")
-        )  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
-        update_id = r[1] if r else None
-    response = post_toot(
-        user.mastodon_site, content, visibility, user.mastodon_token, False, update_id
-    )
-    if response is not None and response.status_code in [200, 201]:
-        j = response.json()
-        if "url" in j:
-            review.metadata["shared_link"] = j["url"]
-            review.save()
-        return True
-    else:
-        return False
-
-
 def share_collection(collection, comment, user, visibility_no, link):
     visibility = get_toot_visibility(visibility_no, user)
     tags = (

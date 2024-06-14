@@ -18,7 +18,7 @@ class ReviewForm(forms.ModelForm):
     title = forms.CharField(label=_("Title"))
     body = MarkdownxFormField(label=_("Content (Markdown)"), strip=False)
     share_to_mastodon = forms.BooleanField(
-        label=_("Post to Fediverse"), initial=False, required=False
+        label=_("Post to Fediverse"), initial=True, required=False
     )
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     visibility = forms.TypedChoiceField(

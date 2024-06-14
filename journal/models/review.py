@@ -2,19 +2,22 @@ import re
 from datetime import datetime
 from functools import cached_property
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from markdownify import markdownify as md
 from markdownx.models import MarkdownxField
 
 from catalog.models import Item
-from mastodon.api import boost_toot_later, share_review
+from mastodon.api import boost_toot_later
 from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .common import Content
 from .rating import Rating
-from .renderers import render_md
+from .renderers import render_md, render_post_with_macro, render_rating
+from .shelf import ShelfManager
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
 _RE_SPOILER_TAG = re.compile(r'<(div|span)\sclass="spoiler">.*</(div|span)>')
@@ -75,6 +78,38 @@ class Review(Content):
         p.link_post_id(post.id)
         return p
 
+    def get_repost_postfix(self):
+        tags = render_post_with_macro(
+            self.owner.user.preference.mastodon_append_tag, self.item
+        )
+        return "\n" + tags if tags else ""
+
+    def get_repost_template(self):
+        return _(ShelfManager.get_action_template("reviewed", self.item.category))
+
+    def to_mastodon_params(self):
+        content = (
+            self.get_repost_template().format(item=self.item.display_title)
+            + f"\n{self.title}\n{self.absolute_url} "
+            + self.get_repost_postfix()
+        )
+        params = {"content": content}
+        return params
+
+    def to_post_params(self):
+        item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item.url}"
+        pre_conetent = (
+            self.get_repost_template().format(
+                item=f'<a href="{item_link}">{self.item.display_title}</a>'
+            )
+            + f'<br><a href="{self.absolute_url}">{self.title}</a>'
+        )
+        content = f"{render_rating(self.rating_grade, 1)}\n{self.get_repost_postfix()}"
+        return {
+            "pre_conetent": pre_conetent,
+            "content": content,
+        }
+
     @cached_property
     def mark(self):
         from .mark import Mark
@@ -98,13 +133,13 @@ class Review(Content):
         created_time=None,
         share_to_mastodon: bool = False,
     ):
-        from takahe.utils import Takahe
-
-        if title is None:
-            review = Review.objects.filter(owner=owner, item=item).first()
-            if review is not None:
+        review = Review.objects.filter(owner=owner, item=item).first()
+        delete_existing_post = False
+        if review is not None:
+            if title is None:
                 review.delete()
-            return None
+                return
+            delete_existing_post = review.visibility != visibility
         defaults = {
             "title": title,
             "body": body,
@@ -117,13 +152,7 @@ class Review(Content):
         review, created = cls.objects.update_or_create(
             item=item, owner=owner, defaults=defaults
         )
-        post = Takahe.post_review(review, created)
-        if post and share_to_mastodon:
-            if (
-                owner.user.preference.mastodon_repost_mode == 1
-                and owner.user.mastodon_site
-            ):
-                share_review(review)
-            else:
-                boost_toot_later(owner.user, post.url)
+        review.sync_to_timeline(delete_existing=delete_existing_post)
+        if share_to_mastodon:
+            review.sync_to_mastodon(delete_existing=delete_existing_post)
         return review

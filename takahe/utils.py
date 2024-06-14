@@ -664,53 +664,6 @@ class Takahe:
         return post
 
     @staticmethod
-    def post_review(review, share_as_new_post: bool) -> Post | None:
-        from catalog.common import ItemCategory
-        from journal.models import ShelfManager
-
-        user = review.owner.user
-        tags = (
-            "\n"
-            + user.preference.mastodon_append_tag.replace(
-                "[category]", str(ItemCategory(review.item.category).label)
-            )
-            if user.preference.mastodon_append_tag
-            else ""
-        )
-        stars = _rating_to_emoji(review.rating_grade, 1)
-        item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{review.item.url}"
-
-        tpl = ShelfManager.get_action_template("reviewed", review.item.category)
-        pre_conetent = (
-            _(tpl).format(item=f'<a href="{item_link}">{review.item.display_title}</a>')
-            + f'<br><a href="{review.absolute_url}">{review.title}</a>'
-        )
-        content = f"{stars}\n{tags}"
-        data = {
-            "object": {
-                "tag": [review.item.ap_object_ref],
-                "relatedWith": [review.ap_object],
-            }
-        }
-        v = Takahe.visibility_n2t(review.visibility, user.preference.post_public_mode)
-        existing_post = None if share_as_new_post else review.latest_post
-        post = Takahe.post(  # TODO post as Article?
-            review.owner.pk,
-            content,
-            v,
-            pre_conetent,
-            None,
-            False,
-            data,
-            existing_post.pk if existing_post else None,
-            review.created_time,
-        )
-        if not post:
-            return
-        review.link_post_id(post.pk)
-        return post
-
-    @staticmethod
     def post_mark(mark, share_as_new_post: bool, append_content="") -> Post | None:
         from catalog.common import ItemCategory
 

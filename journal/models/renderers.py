@@ -2,6 +2,7 @@ import re
 from typing import TYPE_CHECKING, cast
 
 import mistune
+from django.conf import settings
 from django.utils.html import escape
 
 from catalog.models import Item, ItemCategory
@@ -62,3 +63,23 @@ def render_post_with_macro(txt: str, item: Item) -> str:
         .replace("[title]", item.display_title)
         .replace("[url]", item.absolute_url)
     )
+
+
+def render_rating(score: int | None, star_mode=0) -> str:
+    """convert score(0~10) to mastodon star emoji code"""
+    if score is None or score == "" or score == 0:
+        return ""
+    solid_stars = score // 2
+    half_star = int(bool(score % 2))
+    empty_stars = 5 - solid_stars if not half_star else 5 - solid_stars - 1
+    if star_mode == 1:
+        emoji_code = "🌕" * solid_stars + "🌗" * half_star + "🌑" * empty_stars
+    else:
+        emoji_code = (
+            settings.STAR_SOLID * solid_stars
+            + settings.STAR_HALF * half_star
+            + settings.STAR_EMPTY * empty_stars
+        )
+    emoji_code = emoji_code.replace("::", ": :")
+    emoji_code = " " + emoji_code + " "
+    return emoji_code
