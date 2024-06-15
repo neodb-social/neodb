@@ -27,7 +27,17 @@ class Migration(migrations.Migration):
                         to="journal.piece",
                     ),
                 ),
-                ("visibility", models.PositiveSmallIntegerField(default=0)),
+                (
+                    "visibility",
+                    models.PositiveSmallIntegerField(
+                        choices=[
+                            (0, "Public"),
+                            (1, "Followers Only"),
+                            (2, "Mentioned Only"),
+                        ],
+                        default=0,
+                    ),
+                ),
                 (
                     "created_time",
                     models.DateTimeField(default=django.utils.timezone.now),

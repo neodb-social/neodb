@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
@@ -13,10 +14,8 @@ from loguru import logger
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from mastodon.api import boost_toot_later
-from takahe.utils import Takahe
 
-from ..models import Comment, Mark, Note, ShelfManager, ShelfType, TagManager
+from ..models import Comment, Mark, ShelfManager, ShelfType, TagManager
 from .common import render_list, render_relogin, target_identity_required
 
 PAGE_SIZE = 10
@@ -187,53 +186,6 @@ def comment(request: AuthedHttpRequest, item_uuid):
         comment.sync_to_timeline(delete_existing=delete_existing_post)
         if share_to_mastodon:
             comment.sync_to_mastodon(delete_existing=delete_existing_post)
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
-
-
-@login_required
-@require_http_methods(["GET", "POST"])
-def note(request: AuthedHttpRequest, item_uuid: str, note_uuid: str = ""):
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    note_uuid = request.POST.get("uuid", note_uuid)
-    note = None
-    content = request.POST.get("content")
-    if note_uuid:
-        note = get_object_or_404(
-            Note, owner=request.user.identity, item=item, uid=get_uuid_or_404(note_uuid)
-        )
-    if request.method == "GET":
-        return render(
-            request,
-            "note.html",
-            {
-                "item": item,
-                "note": note,
-            },
-        )
-    else:
-        if request.POST.get("delete", default=False) or not content:
-            if not note:
-                raise Http404(_("Content not found"))
-            note.delete()
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
-        share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
-        visibility = int(request.POST.get("visibility", default=0))
-        delete_existing_post = False
-        if note:
-            delete_existing_post = visibility != note.visibility
-            note.content = content
-            note.visibility = visibility
-            note.save()
-        else:
-            note = Note.objects.create(
-                owner=request.user.identity,
-                item=item,
-                content=content,
-                visibility=visibility,
-            )
-        note.sync_to_timeline(delete_existing=delete_existing_post)
-        if share_to_mastodon:
-            note.sync_to_mastodon(delete_existing=delete_existing_post)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 

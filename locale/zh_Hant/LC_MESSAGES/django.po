@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-13 20:50-0400\n"
+"POT-Creation-Date: 2024-06-15 18:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -715,15 +715,15 @@ msgstr "我的短評和標籤"
 msgid "my notes"
 msgstr "我的筆記"
 
-#: catalog/templates/_item_user_pieces.html:101
+#: catalog/templates/_item_user_pieces.html:118
 msgid "my review"
 msgstr "我的評論"
 
-#: catalog/templates/_item_user_pieces.html:143
+#: catalog/templates/_item_user_pieces.html:160
 msgid "my collection"
 msgstr "我的收藏單"
 
-#: catalog/templates/_item_user_pieces.html:173
+#: catalog/templates/_item_user_pieces.html:190
 msgid "mark history"
 msgstr "標記歷史"
 
@@ -1029,7 +1029,7 @@ msgstr "創建"
 #: catalog/templates/catalog_edit.html:50
 #: journal/templates/add_to_collection.html:35
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
-#: journal/templates/mark.html:147 journal/templates/note.html:66
+#: journal/templates/mark.html:147 journal/templates/note.html:39
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/account.html:43 users/templates/users/account.html:104
 #: users/templates/users/preferences.html:168
@@ -1114,7 +1114,7 @@ msgstr "熱門標籤"
 #: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:99
 #: common/templates/_sidebar_anonymous.html:43
 #: common/templates/_sidebar_anonymous.html:58
-#: journal/templates/collection_items.html:8 journal/templates/posts.html:45
+#: journal/templates/collection_items.html:8 journal/templates/posts.html:49
 #: journal/templates/profile.html:109 journal/templates/profile.html:151
 #: journal/templates/profile.html:187
 #: journal/templates/user_collection_list.html:51
@@ -1393,7 +1393,7 @@ msgstr "權限不足"
 
 #: catalog/views_edit.py:200 journal/views/collection.py:229
 #: journal/views/collection.py:296 journal/views/common.py:81
-#: journal/views/mark.py:142 journal/views/post.py:41 journal/views/post.py:55
+#: journal/views/mark.py:141 journal/views/post.py:41 journal/views/post.py:55
 #: journal/views/review.py:93 journal/views/review.py:96 users/views.py:169
 msgid "Invalid parameter"
 msgstr "無效參數"
@@ -1678,7 +1678,7 @@ msgstr "標題"
 msgid "Content (Markdown)"
 msgstr "內容 （Markdown格式）"
 
-#: journal/forms.py:21
+#: journal/forms.py:21 journal/views/note.py:26
 msgid "Post to Fediverse"
 msgstr "發佈到聯邦宇宙"
 
@@ -1722,30 +1722,95 @@ msgstr "備註"
 #: journal/templates/action_open_post.html:14
 #: journal/templates/action_open_post.html:16
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
-#: journal/templates/mark.html:93 journal/templates/note.html:32
-#: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
-#: users/templates/users/data.html:47 users/templates/users/data.html:139
+#: journal/templates/mark.html:93 journal/templates/tag_edit.html:42
+#: journal/templates/wrapped_share.html:43 users/templates/users/data.html:47
+#: users/templates/users/data.html:139
 #: users/templates/users/preferences.html:54
 msgid "Public"
 msgstr "公開"
 
 #: journal/models/common.py:34 journal/templates/action_open_post.html:10
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
-#: journal/templates/mark.html:100 journal/templates/note.html:39
-#: journal/templates/wrapped_share.html:49 users/templates/users/data.html:55
-#: users/templates/users/data.html:147
+#: journal/templates/mark.html:100 journal/templates/wrapped_share.html:49
+#: users/templates/users/data.html:55 users/templates/users/data.html:147
 #: users/templates/users/preferences.html:61
 msgid "Followers Only"
 msgstr "僅關注者"
 
 #: journal/models/common.py:35 journal/templates/action_open_post.html:12
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
-#: journal/templates/mark.html:107 journal/templates/note.html:46
-#: journal/templates/wrapped_share.html:55 users/templates/users/data.html:63
-#: users/templates/users/data.html:155
+#: journal/templates/mark.html:107 journal/templates/wrapped_share.html:55
+#: users/templates/users/data.html:63 users/templates/users/data.html:155
 #: users/templates/users/preferences.html:68
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
+
+#: journal/models/note.py:27
+msgid "Page"
+msgstr "頁碼"
+
+#: journal/models/note.py:28
+msgid "Chapter"
+msgstr "章節"
+
+#: journal/models/note.py:31
+msgid "Part"
+msgstr "分部"
+
+#: journal/models/note.py:32
+msgid "Episode"
+msgstr "單集"
+
+#: journal/models/note.py:33
+msgid "Track"
+msgstr "曲目"
+
+#: journal/models/note.py:34
+msgid "Cycle"
+msgstr "周目"
+
+#: journal/models/note.py:35
+msgid "Timestamp"
+msgstr "時間戳"
+
+#: journal/models/note.py:36
+msgid "Percentage"
+msgstr "百分比"
+
+#: journal/models/note.py:53
+#, python-brace-format
+msgid "Page {value}"
+msgstr "第{value}頁"
+
+#: journal/models/note.py:54
+#, python-brace-format
+msgid "Chapter {value}"
+msgstr "第{value}章"
+
+#: journal/models/note.py:57
+#, python-brace-format
+msgid "Part {value}"
+msgstr "第{value}部"
+
+#: journal/models/note.py:58
+#, python-brace-format
+msgid "Episode {value}"
+msgstr "第{value}集"
+
+#: journal/models/note.py:59
+#, python-brace-format
+msgid "Track {value}"
+msgstr "第{value}首"
+
+#: journal/models/note.py:60
+#, python-brace-format
+msgid "Cycle {value}"
+msgstr "{value}周目"
+
+#: journal/models/renderers.py:94 mastodon/api.py:619 takahe/utils.py:540
+#, python-brace-format
+msgid "regarding {item_title}, may contain spoiler or triggering content"
+msgstr "關於 {item_title}，可能包含劇透或敏感內容"
 
 #: journal/models/shelf.py:24
 msgid "WISHLIST"
@@ -2323,7 +2388,6 @@ msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to 
 msgstr "提示： 善用 &gt;!文字!&lt; 標記可隱藏劇透； 超過360字可能無法分享到聯邦宇宙實例時間軸。"
 
 #: journal/templates/comment.html:62 journal/templates/mark.html:120
-#: journal/templates/note.html:59
 msgid "Repost to timeline"
 msgstr "轉發到時間軸"
 
@@ -2450,6 +2514,10 @@ msgstr ""
 msgid "Note"
 msgstr "筆記"
 
+#: journal/templates/note.html:21
+msgid "Note with empty content will be deleted, sure to continue?"
+msgstr ""
+
 #: journal/templates/profile.html:55
 msgid "calendar"
 msgstr "日曆"
@@ -2458,7 +2526,7 @@ msgstr "日曆"
 msgid "annual summary"
 msgstr "年度小結"
 
-#: journal/templates/profile.html:131 mastodon/api.py:747
+#: journal/templates/profile.html:131 mastodon/api.py:678
 msgid "collection"
 msgstr "收藏單"
 
@@ -2590,7 +2658,7 @@ msgstr "找不到條目，請使用本站條目網址。"
 msgid "Login required"
 msgstr "登錄後訪問"
 
-#: journal/views/common.py:33 journal/views/mark.py:119
+#: journal/views/common.py:33 journal/views/mark.py:118
 msgid "Data saved but unable to repost to Fediverse instance."
 msgstr "數據已保存但未能轉發到聯邦實例。"
 
@@ -2602,14 +2670,34 @@ msgstr "正在重定向到你的聯邦實例以重新認證。"
 msgid "List not found."
 msgstr "列表未找到"
 
-#: journal/views/mark.py:110
+#: journal/views/mark.py:109
 msgid "Content too long for your Fediverse instance."
 msgstr "內容過長，超出了你的聯邦實例的限制。"
 
-#: journal/views/mark.py:164 journal/views/mark.py:218
+#: journal/views/mark.py:163 journal/views/note.py:94
 #: journal/views/review.py:30
 msgid "Content not found"
 msgstr "內容未找到"
+
+#: journal/views/note.py:44
+msgid "Progress (optional)"
+msgstr "進度（選填）"
+
+#: journal/views/note.py:46
+msgid "Note Content"
+msgstr "筆記內容"
+
+#: journal/views/note.py:48
+msgid "Content Warning (optional)"
+msgstr "劇透或敏感內容提示（選填）"
+
+#: journal/views/note.py:62
+msgid "Progress Type (optional)"
+msgstr "進度類型（選填）"
+
+#: journal/views/note.py:102
+msgid "Invalid form data"
+msgstr "無效表單信息。"
 
 #: journal/views/review.py:112 journal/views/review.py:126
 #, python-brace-format
@@ -2649,16 +2737,11 @@ msgstr "標籤已更新"
 msgid "Summary posted to timeline."
 msgstr "總結已發佈到時間軸"
 
-#: mastodon/api.py:600 takahe/utils.py:540
-#, python-brace-format
-msgid "regarding {item_title}, may contain spoiler or triggering content"
-msgstr "關於 {item_title}，可能包含劇透或敏感內容"
-
-#: mastodon/api.py:752
+#: mastodon/api.py:683
 msgid "shared my collection"
 msgstr "分享我的收藏單"
 
-#: mastodon/api.py:755
+#: mastodon/api.py:686
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏單"

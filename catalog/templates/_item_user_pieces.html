@@ -90,18 +90,25 @@
         {% include "action_open_post.html" with post=note.latest_post %}
       {% endif %}
     </span>
-    <h6>{{ note.title|default:'' }}</h6>
-    <p>{{ note.content|linebreaks }}</p>
-    <div>
-      {% for attachment in note.attachments %}
-        {% if attachment.type == 'image' %}
-          <img src="{{ attachment.url }}"
-               alt="image attachment"
-               style="max-height:6em;
-                      max-width:50%">
-        {% endif %}
-      {% endfor %}
-    </div>
+    {% if note.title %}<h6>{{ note.title|default:'' }}</h6>{% endif %}
+    <p>
+      {% if note.progress_value %}<span class="tag-list"><span><a>{{ note.progress_display }}</a></span></span>{% endif %}
+      {{ note.content|linebreaksbr }}
+      <div class="attachments">
+        {% for attachment in note.attachments %}
+          {% if attachment.type == 'image' %}
+            <a href="#img_{{ note.uuid }}_{{ loop.index }}">
+              <img src="{{ attachment.preview_url }}"
+                   alt="image attachment"
+                   class="preview">
+            </a>
+            <a href="#" class="lightbox" id="img_{{ note.uuid }}_{{ loop.index }}">
+              <span style="background-image: url('{{ attachment.url }}')"></span>
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </p>
   {% endfor %}
 </section>
 <section>

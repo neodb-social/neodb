@@ -434,8 +434,8 @@ class PieceInteraction(models.Model):
 class Content(Piece):
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
-        default=0
-    )  # 0: Public / 1: Follower only / 2: Self only # type:ignore
+        choices=VisibilityType.choices, default=0, null=False
+    )  # type:ignore
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(auto_now=True)
     metadata = models.JSONField(default=dict)

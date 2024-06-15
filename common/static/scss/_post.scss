@@ -27,3 +27,10 @@ section.replies {
 		}
 	}
 }
+
+.attachements {
+	img.preview {
+		max-height: 6em;
+	  max-width: 50%;
+	}
+}

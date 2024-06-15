@@ -5,14 +5,14 @@ from django.utils.translation import gettext_lazy as _
 
 from users.models import APIdentity
 
-from .common import Piece
+from .common import Piece, VisibilityType
 
 
 class Like(Piece):  # TODO remove
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
-        default=0
-    )  # 0: Public / 1: Follower only / 2: Self only  # type: ignore
+        choices=VisibilityType.choices, default=0, null=False
+    )  # type:ignore
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(auto_now=True)
     target = models.ForeignKey(Piece, on_delete=models.CASCADE, related_name="likes")

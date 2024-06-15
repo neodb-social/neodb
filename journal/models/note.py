@@ -1,9 +1,12 @@
+import re
 from functools import cached_property
 from typing import override
 
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
+from catalog.models import Item
 from mastodon.api import delete_toot_later
 from takahe.utils import Takahe
 
@@ -11,16 +14,73 @@ from .common import Content
 from .renderers import render_text
 from .shelf import ShelfMember
 
+_progress = re.compile(
+    r"^\s*(?P<prefix>(p|pg|page|ch|chapter|pt|part|e|ep|episode|trk|track|cycle))?(\s|\.|#)*(?P<value>(\d[\d\:\.\-]*\d|\d))\s*(?P<postfix>(%))?\s*(\s|\n|\.|:)",
+    re.IGNORECASE,
+)
+
+_number = re.compile(r"^[\s\d\:\.]+$")
+
 
 class Note(Content):
+    class ProgressType(models.TextChoices):
+        PAGE = "page", _("Page")
+        CHAPTER = "chapter", _("Chapter")
+        # SECTION = "section", _("Section")
+        # VOLUME = "volume", _("Volume")
+        PART = "part", _("Part")
+        EPISODE = "episode", _("Episode")
+        TRACK = "track", _("Track")
+        CYCLE = "cycle", _("Cycle")
+        TIMESTAMP = "timestamp", _("Timestamp")
+        PERCENTAGE = "percentage", _("Percentage")
+
     title = models.TextField(blank=True, null=True, default=None)
     content = models.TextField(blank=False, null=False)
     sensitive = models.BooleanField(default=False, null=False)
     attachments = models.JSONField(default=list)
+    progress_type = models.CharField(
+        max_length=50,
+        choices=ProgressType.choices,
+        blank=True,
+        null=True,
+        default=None,
+    )
+    progress_value = models.CharField(
+        max_length=500, blank=True, null=True, default=None
+    )
+    _progress_display_template = {
+        ProgressType.PAGE: _("Page {value}"),
+        ProgressType.CHAPTER: _("Chapter {value}"),
+        # ProgressType.SECTION: _("Section {value}"),
+        # ProgressType.VOLUME: _("Volume {value}"),
+        ProgressType.PART: _("Part {value}"),
+        ProgressType.EPISODE: _("Episode {value}"),
+        ProgressType.TRACK: _("Track {value}"),
+        ProgressType.CYCLE: _("Cycle {value}"),
+        ProgressType.PERCENTAGE: "{value}%",
+        ProgressType.TIMESTAMP: "{value}",
+    }
+
+    class Meta:
+        indexes = [models.Index(fields=["owner", "item", "created_time"])]
 
     @property
     def html(self):
         return render_text(self.content)
+
+    @property
+    def progress_display(self) -> str:
+        if not self.progress_value:
+            return ""
+        if not self.progress_type:
+            return str(self.progress_value)
+        tpl = Note._progress_display_template.get(self.progress_type, None)
+        if not tpl:
+            return str(self.progress_value)
+        if _number.match(self.progress_value):
+            return tpl.format(value=self.progress_value)
+        return self.progress_type.display + ": " + self.progress_value
 
     @property
     def ap_object(self):
@@ -36,6 +96,11 @@ class Note(Content):
             "withRegardTo": self.item.absolute_url,
             "href": self.absolute_url,
         }
+        if self.progress_value:
+            d["progress"] = {
+                "type": self.progress_type,
+                "value": self.progress_value,
+            }
         return d
 
     @override
@@ -47,6 +112,17 @@ class Note(Content):
             "sensitive": obj.get("sensitive", post.sensitive),
             "attachments": [],
         }
+        progress = obj.get("progress", {})
+        if progress.get("type"):
+            params["progress_type"] = progress.get("type")
+        if progress.get("value"):
+            params["progress_value"] = progress.get("value")
+        if post.local:
+            progress_type, progress_value = cls.extract_progress(params["content"])
+            print(progress_type, progress_value)
+            if progress_value:
+                params["progress_type"] = progress_type
+                params["progress_value"] = progress_value
         if post:
             for atta in post.attachments.all():
                 params["attachments"].append(
@@ -103,3 +179,79 @@ class Note(Content):
             ),
             # not passing "attachments" so it won't change
         }
+
+    @classmethod
+    def extract_progress(cls, content):
+        m = _progress.match(content)
+        if m and m["value"]:
+            typ_ = "percentage" if m["postfix"] == "%" else m["prefix"]
+            match typ_:
+                case "p" | "pg" | "page":
+                    typ = Note.ProgressType.PAGE
+                case "ch" | "chapter":
+                    typ = Note.ProgressType.CHAPTER
+                # case "vol" | "volume":
+                #     typ = ProgressType.VOLUME
+                # case "section":
+                #     typ = ProgressType.SECTION
+                case "pt" | "part":
+                    typ = Note.ProgressType.PART
+                case "e" | "ep" | "episode":
+                    typ = Note.ProgressType.EPISODE
+                case "trk" | "track":
+                    typ = Note.ProgressType.TRACK
+                case "cycle":
+                    typ = Note.ProgressType.CYCLE
+                case "percentage":
+                    typ = Note.ProgressType.PERCENTAGE
+                case _:
+                    typ = "timestamp" if ":" in m["value"] else None
+            return typ, m["value"]
+        return None, None
+
+    @classmethod
+    def get_progress_types_by_item(cls, item: Item):
+        match item.__class__.__name__:
+            case "Edition":
+                v = [
+                    Note.ProgressType.PAGE,
+                    Note.ProgressType.CHAPTER,
+                    Note.ProgressType.PERCENTAGE,
+                ]
+            case "TVShow" | "TVSeason":
+                v = [
+                    Note.ProgressType.PART,
+                    Note.ProgressType.EPISODE,
+                    Note.ProgressType.PERCENTAGE,
+                ]
+            case "Movie":
+                v = [
+                    Note.ProgressType.PART,
+                    Note.ProgressType.TIMESTAMP,
+                    Note.ProgressType.PERCENTAGE,
+                ]
+            case "Podcast":
+                v = [
+                    Note.ProgressType.EPISODE,
+                ]
+            case "TVEpisode" | "PodcastEpisode":
+                v = []
+            case "Album":
+                v = [
+                    Note.ProgressType.TRACK,
+                    Note.ProgressType.TIMESTAMP,
+                    Note.ProgressType.PERCENTAGE,
+                ]
+            case "Game":
+                v = [
+                    Note.ProgressType.CYCLE,
+                ]
+            case "Performance" | "PerformanceProduction":
+                v = [
+                    Note.ProgressType.PART,
+                    Note.ProgressType.TIMESTAMP,
+                    Note.ProgressType.PERCENTAGE,
+                ]
+            case _:
+                v = []
+        return v

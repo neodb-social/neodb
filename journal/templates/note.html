@@ -16,50 +16,23 @@
       <strong>{% trans 'Note' %} - {{ item.display_title }}</strong>
     </header>
     <div>
-      <form action="{% url 'journal:note' item.uuid %}" method="post">
+      <form action="{% url 'journal:note' item.uuid %}"
+            method="post"
+            onsubmit="return !!$('#{{ form.content.id_for_label }}').val() || confirm('{% trans "Note with empty content will be deleted, sure to continue?" %}');;">
         {% csrf_token %}
-        <input type="hidden" name="uuid" value="{{ note.uuid|default:'' }}">
-        <textarea name="content" cols="40" rows="10" placeholder="" id="id_content">{{ note.content|default:'' }}</textarea>
+        {{ form.uuid }}
         <div class="grid">
+          <div>{{ form.progress_type }}</div>
+          <div>{{ form.progress_value }}</div>
+        </div>
+        {{ form.content }}
+        {{ form.title }}
+        <div class="grid">
+          <div>{{ form.visibility }}</div>
           <div>
-            <fieldset>
-              <input type="radio"
-                     name="visibility"
-                     value="0"
-                     required=""
-                     id="id_visibility_0"
-                     {% if note.visibility == 0 or not note %}checked{% endif %}>
-              <label for="id_visibility_0">{% trans "Public" %}</label>
-              <input type="radio"
-                     name="visibility"
-                     value="1"
-                     required=""
-                     id="id_visibility_1"
-                     {% if note.visibility == 1 %}checked{% endif %}>
-              <label for="id_visibility_1">{% trans "Followers Only" %}</label>
-              <input type="radio"
-                     name="visibility"
-                     value="2"
-                     required=""
-                     id="id_visibility_2"
-                     {% if note.visibility == 2 %}checked{% endif %}>
-              <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
-            </fieldset>
-          </div>
-          <div>
-            <fieldset>
-              {% if request.user.mastodon_acct %}
-                <label for="id_share_to_mastodon">
-                  <input role="switch"
-                         type="checkbox"
-                         name="share_to_mastodon"
-                         id="id_share_to_mastodon"
-                         value="1"
-                         {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
-                  {% trans "Repost to timeline" %}
-                </label>
-              {% endif %}
-            </fieldset>
+            <label for="{{ form.share_to_mastodon.id_for_label }}">
+              {{ form.share_to_mastodon }} {{ form.share_to_mastodon.label }}
+            </label>
           </div>
         </div>
         <div>

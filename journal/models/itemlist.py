@@ -8,7 +8,7 @@ from django.utils import timezone
 from catalog.models import Item, ItemCategory
 from users.models import APIdentity
 
-from .common import Piece
+from .common import Piece, VisibilityType
 
 list_add = django.dispatch.Signal()
 list_remove = django.dispatch.Signal()
@@ -25,8 +25,8 @@ class List(Piece):
         items: "models.ManyToManyField[Item, List]"
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
-        default=0
-    )  # 0: Public / 1: Follower only / 2: Self only # type:ignore
+        choices=VisibilityType.choices, default=0, null=False
+    )  # type:ignore
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(auto_now=True)
     metadata = models.JSONField(default=dict)
@@ -151,8 +151,8 @@ class ListMember(Piece):
         parent: models.ForeignKey["ListMember", "List"]
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
-        default=0
-    )  # 0: Public / 1: Follower only / 2: Self only  # type:ignore[reportAssignmentType]
+        choices=VisibilityType.choices, default=0, null=False
+    )  # type:ignore
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(auto_now=True)
     metadata = models.JSONField(default=dict)

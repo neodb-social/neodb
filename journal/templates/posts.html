@@ -25,13 +25,17 @@
         </span>
         <div>{{ post.summary|default:'' }}</div>
         <div {% if post.summary or post.sensitive %}class="spoiler" _="on click toggle .revealed on me"{% endif %}>
-          <div>
+          <div class="attachments">
             {% for attachment in post.attachments.all %}
               {% if attachment.is_image %}
-                <img src="{{ attachment.full_url.relative }}"
-                     alt="attachment.file_display_name"
-                     style="max-height:6em;
-                            max-width:50%">
+                <a href="#img_{{ post.pk }}_{{ loop.index }}">
+                  <img src="{{ attachment.thumbnail_url.relative }}"
+                       alt="image attachment"
+                       class="preview">
+                </a>
+                <a href="#" class="lightbox" id="img_{{ post.pk }}_{{ loop.index }}">
+                  <span style="background-image: url('{{ attachment.full_url.relative }}')"></span>
+                </a>
               {% endif %}
             {% endfor %}
           </div>

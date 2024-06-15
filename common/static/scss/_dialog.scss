@@ -86,6 +86,16 @@ dialog {
 
   article {
     padding-bottom: 1em;
+    form {
+      overflow: hidden;
+      input[type="submit"] {
+        margin-top: 1em;
+      }
+      div.widget.radioselect {
+        display: flex;
+        grid-column-gap: 1em;
+      }
+    }
   }
 
   input[type="date"] {
