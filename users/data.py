@@ -36,6 +36,10 @@ def preferences(request):
     if request.method == "POST":
         identity.anonymous_viewable = bool(request.POST.get("anonymous_viewable"))
         identity.save(update_fields=["anonymous_viewable"])
+        tidentity = Takahe.get_identity(identity.pk)
+        tidentity.indexable = bool(request.POST.get("anonymous_viewable"))
+        tidentity.save(update_fields=["indexable"])
+
         preference.default_visibility = int(request.POST.get("default_visibility"))
         preference.mastodon_default_repost = (
             int(request.POST.get("mastodon_default_repost", 0)) == 1
