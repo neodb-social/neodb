@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-15 22:23-0400\n"
+"POT-Creation-Date: 2024-06-15 23:28-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1032,8 +1032,8 @@ msgstr "创建"
 #: journal/templates/mark.html:147 journal/templates/note.html:39
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/account.html:43 users/templates/users/account.html:102
-#: users/templates/users/preferences.html:168
-#: users/templates/users/preferences.html:193
+#: users/templates/users/preferences.html:187
+#: users/templates/users/preferences.html:212
 msgid "Save"
 msgstr "保存"
 
@@ -3653,70 +3653,78 @@ msgid "Language"
 msgstr "语言"
 
 #: users/templates/users/preferences.html:140
+msgid "Automatic bookmark for these categories"
+msgstr "以下类型自动加入书签"
+
+#: users/templates/users/preferences.html:153
+msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
+msgstr "将以下类型的条目设置为在读/在看/在玩/...时，自动把相应帖文添加为书签。这些书签帖文可在登录<a href=\"https://joinmastodon.org/apps\" target=\"_blank\">应用程序</a>（如<a href=\"https://phanpy.social/#/login?instance=neodb.social&submit=1\" target=\"_blank\">Phanpy</a>等）后查看和管理，你对这些帖子的回复会自动成为该条目的笔记。"
+
+#: users/templates/users/preferences.html:157
 msgid "Hide these categories in search results"
 msgstr "搜索时不显示以下类型"
 
-#: users/templates/users/preferences.html:156
+#: users/templates/users/preferences.html:175
 msgid "Profile visible to anonymous web visitors and search engines"
 msgstr "匿名访客和搜索引擎可以查看你的个人主页"
 
-#: users/templates/users/preferences.html:157
+#: users/templates/users/preferences.html:176
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
 msgstr "此选项仅针对网页访客，如果不希望被联邦网络用户看到请在发表时选择仅关注者或本人"
 
-#: users/templates/users/preferences.html:165
+#: users/templates/users/preferences.html:184
 msgid "Show your name on item page if you recently edited it"
 msgstr "显示你是某条目的最近编辑者"
 
-#: users/templates/users/preferences.html:174
+#: users/templates/users/preferences.html:193
 msgid "Settings for current device"
 msgstr "当前设备设置"
 
-#: users/templates/users/preferences.html:176
+#: users/templates/users/preferences.html:195
 msgid "theme"
 msgstr "主题"
 
-#: users/templates/users/preferences.html:179
+#: users/templates/users/preferences.html:198
 msgid "system"
 msgstr "系统"
 
-#: users/templates/users/preferences.html:181
+#: users/templates/users/preferences.html:200
 msgid "light"
 msgstr "明亮"
 
-#: users/templates/users/preferences.html:183
+#: users/templates/users/preferences.html:202
 msgid "dark"
 msgstr "暗色"
 
-#: users/templates/users/preferences.html:185
+#: users/templates/users/preferences.html:204
 msgid "Focus mode"
 msgstr "专注模式"
 
-#: users/templates/users/preferences.html:188
+#: users/templates/users/preferences.html:207
 msgid "hide reviews and ratings from other users"
 msgstr "启用专注模式后搜索和条目页面将不再显示来自他人的评价和打分"
 
-#: users/templates/users/preferences.html:190
+#: users/templates/users/preferences.html:209
 msgid "Custom styles"
 msgstr "自定义样式代码"
 
-#: users/templates/users/preferences.html:209
+#: users/templates/users/preferences.html:228
 msgid "Settings for current device saved"
 msgstr "当前设备设置已保存"
 
-#: users/templates/users/preferences.html:215
+#: users/templates/users/preferences.html:234
 msgid "Additional Settings"
 msgstr "更多设置"
 
-#: users/templates/users/preferences.html:217
+#: users/templates/users/preferences.html:236
 msgid "View authorized applications"
 msgstr "查看已授权的应用程序"
 
-#: users/templates/users/preferences.html:221
+#: users/templates/users/preferences.html:240
 msgid "Migrate account"
 msgstr "迁移账号"
 
-#: users/templates/users/preferences.html:223
+#: users/templates/users/preferences.html:242
 msgid "Link an email so that you can migrate followers from other Fediverse instances."
 msgstr "关联电子邮件后方可从其他实例迁入。"
 

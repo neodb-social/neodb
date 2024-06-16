@@ -23,6 +23,10 @@ from takahe.utils import Takahe
 from .user import User
 
 
+def _default_book_cats():
+    return ["book"]
+
+
 class Preference(models.Model):
     user = models.OneToOneField(User, models.CASCADE, primary_key=True)
     profile_layout = models.JSONField(
@@ -48,6 +52,7 @@ class Preference(models.Model):
     show_last_edit = models.PositiveSmallIntegerField(null=False, default=1)
     no_anonymous_view = models.PositiveSmallIntegerField(default=0)  # TODO remove
     hidden_categories = models.JSONField(default=list)
+    auto_bookmark_cats = models.JSONField(default=_default_book_cats)
     mastodon_append_tag = models.CharField(max_length=2048, default="")
     mastodon_default_repost = models.BooleanField(null=False, default=True)
     mastodon_repost_mode = models.PositiveSmallIntegerField(null=False, default=0)

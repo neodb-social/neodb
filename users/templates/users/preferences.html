@@ -137,14 +137,33 @@
                 </select>
               </fieldset>
               <fieldset>
+                <label>{% trans 'Automatic bookmark for these categories' %}</label>
+                <select name="auto_bookmark_cats" size="3" multiple>
+                  {% all_categories as categories %}
+                  {% for c in categories %}
+                    {% if c.value != 'collection' %}
+                      <option value="{{ c.value }}"
+                              {% if c in request.user.preference.auto_bookmark_cats %}selected{% endif %}>
+                        {{ c.label }}
+                      </option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+                <small>
+                  {% blocktrans %}When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href="https://joinmastodon.org/apps" target="_blank">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item.{% endblocktrans %}
+                </small>
+              </fieldset>
+              <fieldset>
                 <label>{% trans 'Hide these categories in search results' %}</label>
                 <select name="hidden_categories" size="3" multiple>
                   {% all_categories as categories %}
                   {% for c in categories %}
-                    <option value="{{ c.value }}"
-                            {% if c in request.user.preference.hidden_categories %}selected{% endif %}>
-                      {{ c.label }}
-                    </option>
+                    {% if c.value != 'collection' %}
+                      <option value="{{ c.value }}"
+                              {% if c in request.user.preference.hidden_categories %}selected{% endif %}>
+                        {{ c.label }}
+                      </option>
+                    {% endif %}
                   {% endfor %}
                 </select>
               </fieldset>

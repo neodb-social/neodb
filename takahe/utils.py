@@ -996,3 +996,7 @@ class Takahe:
     @staticmethod
     def get_token(token: str) -> Token | None:
         return Token.objects.filter(token=token).first()
+
+    @staticmethod
+    def bookmark(post_pk: int, identity_pk: int):
+        Bookmark.objects.get_or_create(post_id=post_pk, identity_id=identity_pk)

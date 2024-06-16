@@ -2215,3 +2215,21 @@ class Token(models.Model):
     revoked = models.DateTimeField(blank=True, null=True)
 
     # push_subscription: "PushSubscription"
+
+
+class Bookmark(models.Model):
+    class Meta:
+        db_table = "users_bookmark"
+
+    identity = models.ForeignKey(
+        "takahe.Identity",
+        on_delete=models.CASCADE,
+        related_name="bookmarks",
+    )
+    post = models.ForeignKey(
+        "takahe.Post",
+        on_delete=models.CASCADE,
+        related_name="bookmarks",
+    )
+
+    created = models.DateTimeField(auto_now_add=True)
