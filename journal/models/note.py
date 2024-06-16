@@ -86,7 +86,7 @@ class Note(Content):
             return str(self.progress_value)
         if _number.match(self.progress_value):
             return tpl.format(value=self.progress_value)
-        return self.progress_type.display + ": " + self.progress_value
+        return Note.ProgressType(self.progress_type).label + ": " + self.progress_value
 
     @property
     def ap_object(self):
