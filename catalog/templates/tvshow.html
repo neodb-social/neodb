@@ -13,7 +13,7 @@
   <div>{% include '_people.html' with people=item.playwright role='playwright' max=5 %}</div>
   <div>{% include '_people.html' with people=item.actor role='actor' max=5 %}</div>
   <div>{% include '_people.html' with people=item.genre role='genre' max=10 %}</div>
-  <div>{% include '_people.html' with people=item.area role='production area' max=10 %}</div>
+  <div>{% include '_people.html' with people=item.area role='region' max=10 %}</div>
   <div>{% include '_people.html' with people=item.language role='language' max=5 %}</div>
   {% with item.all_seasons as seasons %}
     {% if seasons %}
