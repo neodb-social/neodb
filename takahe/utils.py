@@ -496,6 +496,13 @@ class Takahe:
                 reply_to=reply_to_post,
                 attachments=attachments,
             )
+            TimelineEvent.objects.get_or_create(
+                identity=identity,
+                type="post",
+                subject_post=post,
+                subject_identity=identity,
+                defaults={"published": post_time},
+            )
         return post
 
     @staticmethod

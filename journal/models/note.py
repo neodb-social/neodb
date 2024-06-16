@@ -190,14 +190,13 @@ class Note(Content):
 
     def to_post_params(self):
         footer = f'\n<p>—<br><a href="{self.item.absolute_url}">{self.item.display_title}</a> {self.progress_display}\n</p>'
+        post = self.shelfmember.latest_post if self.shelfmember else None
         return {
             "summary": self.title,
             "content": self.content,
             "append_content": footer,
             "sensitive": self.sensitive,
-            "reply_to_pk": (
-                self.shelfmember.latest_post_id if self.shelfmember else None
-            ),
+            "reply_to_pk": post.pk if post else None,
             # not passing "attachments" so it won't change
         }
 
