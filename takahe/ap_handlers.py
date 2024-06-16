@@ -15,6 +15,7 @@ from journal.models import (
     Review,
     ShelfMember,
 )
+from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
 
 from .models import Follow, Identity, Post, TimelineEvent
@@ -102,6 +103,7 @@ def post_edited(pk, post_data):
 def post_fetched(pk, post_data):
     post = Post.objects.get(pk=pk)
     owner = Takahe.get_or_create_remote_apidentity(post.author)
+    activate_language_for_user(owner.user)
     if not post.type_data and not post_data:
         logger.warning(f"Post {post} has no type_data")
         return

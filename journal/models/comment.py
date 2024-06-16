@@ -139,7 +139,7 @@ class Comment(Content):
 
     def to_post_params(self):
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item_url}"
-        pre_conetent = (
+        prepend_content = (
             self.get_repost_template().format(
                 item=f'<a href="{item_link}">{self.item.display_title}</a>'
             )
@@ -148,7 +148,7 @@ class Comment(Content):
         spoiler_text, txt = render_spoiler_text(self.text, self.item)
         content = f"{txt}\n{self.get_repost_postfix()}"
         return {
-            "pre_conetent": pre_conetent,
+            "prepend_content": prepend_content,
             "content": content,
             "summary": spoiler_text,
             "sensitive": bool(spoiler_text),

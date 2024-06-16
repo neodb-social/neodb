@@ -444,7 +444,8 @@ class Takahe:
         author_pk: int,
         content: str,
         visibility: Visibilities,
-        pre_conetent: str = "",
+        prepend_content: str = "",
+        append_content: str = "",
         summary: str | None = None,
         sensitive: bool = False,
         data: dict | None = None,
@@ -469,8 +470,9 @@ class Takahe:
             raise ValueError(f"Cannot find post to reply: {reply_to_pk}")
         if post:
             post.edit_local(
-                pre_conetent,
                 content,
+                prepend_content,
+                append_content,
                 summary,
                 sensitive,
                 visibility=visibility,
@@ -482,8 +484,9 @@ class Takahe:
         else:
             post = Post.create_local(
                 identity,
-                pre_conetent,
                 content,
+                prepend_content,
+                append_content,
                 summary,
                 sensitive,
                 visibility=visibility,
@@ -589,7 +592,7 @@ class Takahe:
             return existing_post
         action = _("created collection")
         item_link = collection.absolute_url
-        pre_conetent = f'{action} <a href="{item_link}">{collection.title}</a><br>'
+        prepend_content = f'{action} <a href="{item_link}">{collection.title}</a><br>'
         content = collection.plain_content
         if len(content) > 360:
             content = content[:357] + "..."
@@ -603,7 +606,8 @@ class Takahe:
             collection.owner.pk,
             content,
             visibility,
-            pre_conetent,
+            prepend_content,
+            "",
             None,
             False,
             data,
@@ -622,7 +626,7 @@ class Takahe:
         user = mark.owner.user
         stars = _rating_to_emoji(mark.rating_grade, 1)
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{mark.item.url}"
-        pre_conetent = mark.get_action_for_feed(item_link=item_link)
+        prepend_content = mark.get_action_for_feed(item_link=item_link)
         spoiler, txt = Takahe.get_spoiler_text(mark.comment_text, mark.item)
         content = f"{stars} \n{txt}\n{mark.tag_text}"
         data = {
@@ -647,7 +651,8 @@ class Takahe:
             mark.owner.pk,
             content + append_content,
             v,
-            pre_conetent,
+            prepend_content,
+            "",
             spoiler,
             spoiler is not None,
             data,

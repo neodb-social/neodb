@@ -1084,8 +1084,9 @@ class Post(models.Model):
     def create_local(
         cls,
         author: Identity,
-        raw_prepend_content: str,
         content: str,
+        raw_prepend_content: str,
+        raw_append_content: str,
         summary: str | None = None,
         sensitive: bool = False,
         visibility: int = Visibilities.public,
@@ -1107,7 +1108,10 @@ class Post(models.Model):
             emojis = Emoji.emojis_from_content(content, None)
             # Strip all unwanted HTML and apply linebreaks filter, grabbing hashtags on the way
             parser = FediverseHtmlParser(linebreaks_filter(content), find_hashtags=True)
-            content = parser.html.replace("<p>", "<p>" + raw_prepend_content, 1)
+            content = (
+                parser.html.replace("<p>", "<p>" + raw_prepend_content, 1)
+                + raw_append_content
+            )
             hashtags = (
                 sorted([tag[: Hashtag.MAXIMUM_LENGTH] for tag in parser.hashtags])
                 or None
@@ -1158,8 +1162,9 @@ class Post(models.Model):
 
     def edit_local(
         self,
-        raw_prepend_content: str,
         content: str,
+        raw_prepend_content: str,
+        raw_append_content: str,
         summary: str | None = None,
         sensitive: bool | None = None,
         visibility: int = Visibilities.public,
@@ -1172,7 +1177,10 @@ class Post(models.Model):
         with transaction.atomic():
             # Strip all HTML and apply linebreaks filter
             parser = FediverseHtmlParser(linebreaks_filter(content), find_hashtags=True)
-            self.content = parser.html.replace("<p>", "<p>" + raw_prepend_content, 1)
+            self.content = (
+                parser.html.replace("<p>", "<p>" + raw_prepend_content, 1)
+                + raw_append_content
+            )
             self.hashtags = (
                 sorted([tag[: Hashtag.MAXIMUM_LENGTH] for tag in parser.hashtags])
                 or None

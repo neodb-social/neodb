@@ -2,6 +2,7 @@ import re
 from functools import cached_property
 from typing import override
 
+from deepmerge import always_merger
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
@@ -15,7 +16,12 @@ from .renderers import render_text
 from .shelf import ShelfMember
 
 _progress = re.compile(
-    r"^\s*(?P<prefix>(p|pg|page|ch|chapter|pt|part|e|ep|episode|trk|track|cycle))?(\s|\.|#)*(?P<value>(\d[\d\:\.\-]*\d|\d))\s*(?P<postfix>(%))?\s*(\s|\n|\.|:)",
+    r"(.*\s)?(?P<prefix>(p|pg|page|ch|chapter|pt|part|e|ep|episode|trk|track|cycle))(\s|\.|#)*(?P<value>(\d[\d\:\.\-]*\d|\d))\s*(?P<postfix>(%))?(\s|\n|\.|。)?$",
+    re.IGNORECASE,
+)
+
+_progress2 = re.compile(
+    r"(.*\s)?(?P<value>(\d[\d\:\.\-]*\d|\d))\s*(?P<postfix>(%))?(\s|\n|\.|。)?$",
     re.IGNORECASE,
 )
 
@@ -106,9 +112,17 @@ class Note(Content):
     @override
     @classmethod
     def params_from_ap_object(cls, post, obj, piece):
+        content = obj.get("content", "").strip()
+        footer = []
+        if post.local:
+            # strip footer from local post if detected
+            lines = content.splitlines()
+            if len(lines) > 2 and lines[-2].strip() in ["—", "-"]:
+                content = "\n".join(lines[:-2])
+                footer = lines[-2:]
         params = {
             "title": obj.get("title", post.summary),
-            "content": obj.get("content", "").strip(),
+            "content": content,
             "sensitive": obj.get("sensitive", post.sensitive),
             "attachments": [],
         }
@@ -117,12 +131,14 @@ class Note(Content):
             params["progress_type"] = progress.get("type")
         if progress.get("value"):
             params["progress_value"] = progress.get("value")
-        if post.local:
-            progress_type, progress_value = cls.extract_progress(params["content"])
-            print(progress_type, progress_value)
+        if post.local and len(footer) == 2:
+            progress_type, progress_value = cls.extract_progress(footer[1])
             if progress_value:
                 params["progress_type"] = progress_type
                 params["progress_value"] = progress_value
+            elif not footer[1].startswith("https://"):
+                # add footer back if unable to regconize correct patterns
+                params["content"] += "\n" + "\n".join(footer)
         if post:
             for atta in post.attachments.all():
                 params["attachments"].append(
@@ -138,14 +154,16 @@ class Note(Content):
     @override
     @classmethod
     def update_by_ap_object(cls, owner, item, obj, post):
+        # new_piece = cls.get_by_post_id(post.id) is None
         p = super().update_by_ap_object(owner, item, obj, post)
-        if (
-            p
-            and p.local
-            and owner.user.preference.mastodon_default_repost
-            and owner.user.mastodon_username
-        ):
-            p.sync_to_mastodon()
+        if p and p.local:
+            # if local piece is created from a post, update post type_data and fanout
+            p.sync_to_timeline()
+            if (
+                owner.user.preference.mastodon_default_repost
+                and owner.user.mastodon_username
+            ):
+                p.sync_to_mastodon()
         return p
 
     @cached_property
@@ -153,9 +171,10 @@ class Note(Content):
         return ShelfMember.objects.filter(item=self.item, owner=self.owner).first()
 
     def to_mastodon_params(self):
+        footer = f"\n—\n《{self.item.display_title}》 {self.progress_display}\n{self.item.absolute_url}"
         params = {
             "spoiler_text": self.title,
-            "content": self.content,
+            "content": self.content + footer,
             "sensitive": self.sensitive,
             "reply_to_toot_url": (
                 self.shelfmember.get_mastodon_repost_url() if self.shelfmember else None
@@ -170,9 +189,11 @@ class Note(Content):
         return params
 
     def to_post_params(self):
+        footer = f'\n<p>—<br><a href="{self.item.absolute_url}">{self.item.display_title}</a> {self.progress_display}\n</p>'
         return {
             "summary": self.title,
             "content": self.content,
+            "append_content": footer,
             "sensitive": self.sensitive,
             "reply_to_pk": (
                 self.shelfmember.latest_post_id if self.shelfmember else None
@@ -183,8 +204,11 @@ class Note(Content):
     @classmethod
     def extract_progress(cls, content):
         m = _progress.match(content)
+        if not m:
+            m = _progress2.match(content)
         if m and m["value"]:
-            typ_ = "percentage" if m["postfix"] == "%" else m["prefix"]
+            m = m.groupdict()
+            typ_ = "percentage" if m["postfix"] == "%" else m.get("prefix", "")
             match typ_:
                 case "p" | "pg" | "page":
                     typ = Note.ProgressType.PAGE

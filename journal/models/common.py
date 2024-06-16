@@ -297,27 +297,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 d["edited_time"] = datetime.fromisoformat(obj["updated"])
             p = cls.objects.create(**d)
             p.link_post_id(post.id)
-            if local:
-                # a local piece is reconstructred from a post, update post and fanout
-                if not post.type_data:
-                    post.type_data = {}
-                # always_merger.merge(
-                #     post.type_data,
-                #     {
-                #         "object": {
-                #             "tag": [item.ap_object_ref],
-                #             "relatedWith": [p.ap_object],
-                #         }
-                #     },
-                # )
-                post.type_data = {
-                    "object": {
-                        "tag": [item.ap_object_ref],
-                        "relatedWith": [p.ap_object],
-                    }
-                }
-                post.save(update_fields=["type_data"])
-                Takahe.update_state(post, "edited")
+        # subclass may have to add additional code to update type_data in local post
         return p
 
     def sync_to_mastodon(self, delete_existing=False):

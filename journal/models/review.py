@@ -98,7 +98,7 @@ class Review(Content):
 
     def to_post_params(self):
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item.url}"
-        pre_conetent = (
+        prepend_content = (
             self.get_repost_template().format(
                 item=f'<a href="{item_link}">{self.item.display_title}</a>'
             )
@@ -106,7 +106,7 @@ class Review(Content):
         )
         content = f"{render_rating(self.rating_grade, 1)}\n{self.get_repost_postfix()}"
         return {
-            "pre_conetent": pre_conetent,
+            "prepend_content": prepend_content,
             "content": content,
         }
 
