@@ -91,10 +91,8 @@
             <summary>{% trans "Display name, avatar and other information" %}</summary>
             <form action="{% url 'users:profile' %}?next={{ request.path }}"
                   method="post"
+                  {% if request.user.mastodon_acct and not request.user.preference.mastodon_skip_userinfo %}onsubmit="return confirm('{% trans "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?" %}')"{% endif %}
                   enctype="multipart/form-data">
-              {% if request.user.mastodon_acct and not request.user.preference.mastodon_skip_userinfo %}
-                <small class="invalid">{% trans "Please turn off Sync display name, bio and avatar." %}</small>
-              {% endif %}
               {% include "_field.html" with field=profile_form.name %}
               {% include "_field.html" with field=profile_form.summary %}
               {% include "_field.html" with field=profile_form.icon %}

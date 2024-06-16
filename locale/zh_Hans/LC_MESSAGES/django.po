@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-15 18:22-0400\n"
+"POT-Creation-Date: 2024-06-15 22:23-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1031,7 +1031,7 @@ msgstr "创建"
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
 #: journal/templates/mark.html:147 journal/templates/note.html:39
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
-#: users/templates/users/account.html:43 users/templates/users/account.html:104
+#: users/templates/users/account.html:43 users/templates/users/account.html:102
 #: users/templates/users/preferences.html:168
 #: users/templates/users/preferences.html:193
 msgid "Save"
@@ -1745,69 +1745,69 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/note.py:27
+#: journal/models/note.py:33
 msgid "Page"
 msgstr "页码"
 
-#: journal/models/note.py:28
+#: journal/models/note.py:34
 msgid "Chapter"
 msgstr "章节"
 
-#: journal/models/note.py:31
+#: journal/models/note.py:37
 msgid "Part"
 msgstr "分部"
 
-#: journal/models/note.py:32
+#: journal/models/note.py:38
 msgid "Episode"
 msgstr "单集"
 
-#: journal/models/note.py:33
+#: journal/models/note.py:39
 msgid "Track"
 msgstr "曲目"
 
-#: journal/models/note.py:34
+#: journal/models/note.py:40
 msgid "Cycle"
 msgstr "周目"
 
-#: journal/models/note.py:35
+#: journal/models/note.py:41
 msgid "Timestamp"
 msgstr "时间戳"
 
-#: journal/models/note.py:36
+#: journal/models/note.py:42
 msgid "Percentage"
 msgstr "百分比"
 
-#: journal/models/note.py:53
+#: journal/models/note.py:59
 #, python-brace-format
 msgid "Page {value}"
 msgstr "第{value}页"
 
-#: journal/models/note.py:54
+#: journal/models/note.py:60
 #, python-brace-format
 msgid "Chapter {value}"
 msgstr "第{value}章"
 
-#: journal/models/note.py:57
+#: journal/models/note.py:63
 #, python-brace-format
 msgid "Part {value}"
 msgstr "第{value}部"
 
-#: journal/models/note.py:58
+#: journal/models/note.py:64
 #, python-brace-format
 msgid "Episode {value}"
 msgstr "第{value}集"
 
-#: journal/models/note.py:59
+#: journal/models/note.py:65
 #, python-brace-format
 msgid "Track {value}"
 msgstr "第{value}首"
 
-#: journal/models/note.py:60
+#: journal/models/note.py:66
 #, python-brace-format
 msgid "Cycle {value}"
 msgstr "{value}周目"
 
-#: journal/models/renderers.py:94 mastodon/api.py:619 takahe/utils.py:540
+#: journal/models/renderers.py:94 mastodon/api.py:619 takahe/utils.py:543
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "关于 {item_title}，可能包含剧透或敏感内容"
@@ -2516,7 +2516,7 @@ msgstr "笔记"
 
 #: journal/templates/note.html:21
 msgid "Note with empty content will be deleted, sure to continue?"
-msgstr ""
+msgstr "无内容的笔记会被删除，确定继续吗？"
 
 #: journal/templates/profile.html:55
 msgid "calendar"
@@ -2733,7 +2733,7 @@ msgstr "重复标签"
 msgid "Tag updated."
 msgstr "标签已更新"
 
-#: journal/views/wrapped.py:143
+#: journal/views/wrapped.py:142
 msgid "Summary posted to timeline."
 msgstr "总结已发布到时间轴"
 
@@ -2802,7 +2802,7 @@ msgstr "播放"
 msgid "comment"
 msgstr "写短评"
 
-#: social/templates/activity/create_collection.html:16 takahe/utils.py:590
+#: social/templates/activity/create_collection.html:16 takahe/utils.py:593
 msgid "created collection"
 msgstr "创建了收藏单"
 
@@ -3328,83 +3328,83 @@ msgstr "关联联邦宇宙身份后可发现更多用户，并使用本站完整
 msgid "Display name, avatar and other information"
 msgstr "昵称、头像与其它个人信息"
 
-#: users/templates/users/account.html:96
-msgid "Please turn off Sync display name, bio and avatar."
-msgstr "请先关闭「自动同步用户昵称等基本信息」设置，否则这里的设置会在同步时被覆盖。"
+#: users/templates/users/account.html:94
+msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
+msgstr "在这里更新个人资料会停止从关联实例自动同步昵称等个人信息，确定继续吗？"
 
-#: users/templates/users/account.html:110
+#: users/templates/users/account.html:108
 msgid "Users you are following"
 msgstr "正在关注的用户"
 
-#: users/templates/users/account.html:116
+#: users/templates/users/account.html:114
 msgid "Users who follow you"
 msgstr "关注了你的用户"
 
-#: users/templates/users/account.html:122
+#: users/templates/users/account.html:120
 msgid "Users who request to follow you"
 msgstr "请求关注你的用户"
 
-#: users/templates/users/account.html:128
+#: users/templates/users/account.html:126
 msgid "Users you are muting"
 msgstr "已隐藏的用户"
 
-#: users/templates/users/account.html:134
+#: users/templates/users/account.html:132
 msgid "Users you are blocking"
 msgstr "已屏蔽的用户"
 
-#: users/templates/users/account.html:140
+#: users/templates/users/account.html:138
 msgid "Sync and import social account"
 msgstr "同步联邦宇宙信息和社交数据"
 
-#: users/templates/users/account.html:150
+#: users/templates/users/account.html:148
 msgid "Sync display name, bio and avatar"
 msgstr "自动同步用户昵称等基本信息"
 
-#: users/templates/users/account.html:158
+#: users/templates/users/account.html:156
 msgid "Sync follow, mute and block"
 msgstr "自动导入新增的关注、屏蔽和隐藏列表"
 
-#: users/templates/users/account.html:162
+#: users/templates/users/account.html:160
 msgid "Save sync settings"
 msgstr "保存同步设置"
 
-#: users/templates/users/account.html:165
+#: users/templates/users/account.html:163
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
 msgstr "本站会按照以上设置每天自动导入你在联邦宇宙实例中新增的关注、屏蔽和隐藏列表；如果你在联邦宇宙实例中关注的用户加入了NeoDB，你会自动关注她；如果你在联邦宇宙实例中取消了关注、屏蔽或隐藏，本站不会自动取消，但你可以手动移除。"
 
-#: users/templates/users/account.html:172
+#: users/templates/users/account.html:170
 msgid "Click button below to start sync now."
 msgstr "如果希望立即开始同步，可以点击下方按钮。"
 
-#: users/templates/users/account.html:174
+#: users/templates/users/account.html:172
 msgid "Sync now"
 msgstr "立即同步"
 
-#: users/templates/users/account.html:178
+#: users/templates/users/account.html:176
 msgid "Last updated"
 msgstr "最近更新"
 
-#: users/templates/users/account.html:186
+#: users/templates/users/account.html:184
 msgid "Delete Account"
 msgstr "删除账号"
 
-#: users/templates/users/account.html:189
+#: users/templates/users/account.html:187
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "账号数据一旦删除后将无法恢复，确定继续吗？"
 
-#: users/templates/users/account.html:192
+#: users/templates/users/account.html:190
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr "输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除"
 
-#: users/templates/users/account.html:202
+#: users/templates/users/account.html:200
 msgid "Once deleted, account data cannot be recovered."
 msgstr "账号数据一旦删除后将无法恢复"
 
-#: users/templates/users/account.html:204
+#: users/templates/users/account.html:202
 msgid "Importing in progress, can't delete now."
 msgstr "暂时无法删除，因为有导入任务正在进行"
 
-#: users/templates/users/account.html:207
+#: users/templates/users/account.html:205
 msgid "Permanently Delete"
 msgstr "永久删除"
 
@@ -3705,12 +3705,20 @@ msgid "Settings for current device saved"
 msgstr "当前设备设置已保存"
 
 #: users/templates/users/preferences.html:215
-msgid "Applications"
-msgstr "应用程序"
+msgid "Additional Settings"
+msgstr "更多设置"
 
 #: users/templates/users/preferences.html:217
 msgid "View authorized applications"
 msgstr "查看已授权的应用程序"
+
+#: users/templates/users/preferences.html:221
+msgid "Migrate account"
+msgstr "迁移账号"
+
+#: users/templates/users/preferences.html:223
+msgid "Link an email so that you can migrate followers from other Fediverse instances."
+msgstr "关联电子邮件后方可从其他实例迁入。"
 
 #: users/templates/users/profile_actions.html:6
 msgid "click to unblock"
