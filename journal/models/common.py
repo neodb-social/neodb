@@ -129,9 +129,16 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     )
 
     def get_mastodon_repost_url(self):
-        return (self.metadata or {}).get("shared_link")
+        return (
+            (self.metadata or {}).get("shared_link")
+            if hasattr(self, "metadata")
+            else None
+        )
 
     def set_mastodon_repost_url(self, url: str | None):
+        if not hasattr(self, "metadata"):
+            logger.warning("metadata field not found")
+            return
         metadata = self.metadata or {}
         if metadata.get("shared_link", None) == url:
             return
