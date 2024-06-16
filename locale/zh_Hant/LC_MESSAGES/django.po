@@ -3658,7 +3658,7 @@ msgstr "以下類型自動加入書籤"
 
 #: users/templates/users/preferences.html:153
 msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
-msgstr "將以下類型的條目設置爲在讀/在看/在玩/...時，自動把相應帖文添加爲書籤。這些書籤帖文可在登錄<a href=\"https://joinmastodon.org/apps\" target=\"_blank\">應用程序</a>（如<a href=\"https://phanpy.social/#/login?instance=neodb.social&submit=1\" target=\"_blank\">Phanpy</a>等）後查看和管理，你對這些帖子的回覆會自動成爲該條目的筆記。"
+msgstr "將這些類型的條目標記爲在讀/在看/在玩/...時，自動把相應帖文添加爲書籤。這些書籤帖文可使用<a href=\"https://joinmastodon.org/apps\" target=\"_blank\">應用程序</a>查看和管理，你對這些帖子的回覆會自動成爲該條目的筆記。"
 
 #: users/templates/users/preferences.html:157
 msgid "Hide these categories in search results"
