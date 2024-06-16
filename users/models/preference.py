@@ -50,7 +50,6 @@ class Preference(models.Model):
     # 0: discover, 1: timeline, 2: my profile
     classic_homepage = models.PositiveSmallIntegerField(null=False, default=0)
     show_last_edit = models.PositiveSmallIntegerField(null=False, default=1)
-    no_anonymous_view = models.PositiveSmallIntegerField(default=0)  # TODO remove
     hidden_categories = models.JSONField(default=list)
     auto_bookmark_cats = models.JSONField(default=_default_book_cats)
     mastodon_append_tag = models.CharField(max_length=2048, default="")
@@ -58,9 +57,6 @@ class Preference(models.Model):
     mastodon_repost_mode = models.PositiveSmallIntegerField(null=False, default=0)
     mastodon_skip_userinfo = models.BooleanField(null=False, default=False)
     mastodon_skip_relationship = models.BooleanField(null=False, default=False)
-    # Removed:
-    # mastodon_publish_public = models.BooleanField(null=False, default=False)
-    # default_no_share = models.BooleanField(null=False, default=False)
 
     def __str__(self):
         return str(self.user)
