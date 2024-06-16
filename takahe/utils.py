@@ -501,7 +501,7 @@ class Takahe:
                 type="post",
                 subject_post=post,
                 subject_identity=identity,
-                defaults={"published": post_time},
+                defaults={"published": post_time or timezone.now()},
             )
         return post
 
