@@ -16,6 +16,9 @@ if you are doing debug or development:
  - NEODB_DEBUG - True will turn on debug for both neodb and takahe, turn off relay, and reveal self as debug mode in nodeinfo (so peers won't try to run fedi search on you)
  - NEODB_IMAGE - the docker image to use, `neodb/neodb:edge` for the main branch
 
+## Settings for Federating
+
+ - `DISABLE_DEFAULT_RELAY` is set to `False` by default, the server will send and receive public posts from `relay.neodb.net`. `relay.neodb.net` is [open sourced](https://github.com/neodb-social/neodb-relay) and operated by NeoDB developers, it works like most ActivityPub relays except it only relays between NeoDB instances, it helps public information like catalogs and trends flow between NeoDB instances. You may set it to `True` if you don't want to relay public posts with other NeoDB instances.
 
 ## Settings for Scrapers
 

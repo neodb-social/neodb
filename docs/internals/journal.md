@@ -38,11 +38,10 @@ class Comment {
 }
 Content <|-- Note
 class Note {
-    +str text
-    +int position
-    +enum position_type
-    +str quotation
-    +Image image
+    +str title
+    +str content
+    +enum progress_type
+    +str progress_value
 
 }
 Content <|-- Reply
