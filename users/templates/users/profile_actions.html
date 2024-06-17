@@ -48,14 +48,16 @@
       </span>
     {% endif %}
     {% if identity.user.mastodon_account %}
-      <span>
-        <a href="{{ identity.user.mastodon_account.url }}"
-           target="_blank"
-           rel="noopener"
-           title="@{{ identity.user.mastodon_acct }}">
-          <i class="fa-brands fa-mastodon"></i>
-        </a>
-      </span>
+      {% if not identity.locked or request.user.is_superuser or relationship.requested or relationship.status %}
+        <span>
+          <a href="{{ identity.user.mastodon_account.url }}"
+             target="_blank"
+             rel="noopener"
+             title="@{{ identity.user.mastodon_acct }}">
+            <i class="fa-brands fa-mastodon"></i>
+          </a>
+        </span>
+      {% endif %}
     {% endif %}
   {% endif %}
   {% if relationship.requested %}
