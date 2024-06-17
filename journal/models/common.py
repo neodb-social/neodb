@@ -252,19 +252,23 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @classmethod
     @abstractmethod
-    def params_from_ap_object(cls, post, obj, piece):
+    def params_from_ap_object(
+        cls, post: "Post", obj: dict[str, Any], piece: Self | None
+    ) -> dict[str, Any]:
         return {}
 
     @abstractmethod
-    def to_post_params(self):
+    def to_post_params(self) -> dict[str, Any]:
         return {}
 
     @abstractmethod
-    def to_mastodon_params(self):
+    def to_mastodon_params(self) -> dict[str, Any]:
         return {}
 
     @classmethod
-    def update_by_ap_object(cls, owner: APIdentity, item: Item, obj, post: "Post"):
+    def update_by_ap_object(
+        cls, owner: APIdentity, item: Item, obj, post: "Post"
+    ) -> Self | None:
         """
         Create or update a content piece with related AP message
         """

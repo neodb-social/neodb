@@ -12,7 +12,9 @@ class CommonConfig(AppConfig):
     def setup(self, **kwargs):
         from .setup import Setup
 
-        Setup().run()
+        if kwargs.get("using", "") == "default":
+            # only run setup on the default database, not on takahe
+            Setup().run()
 
 
 @register(Tags.admin, deploy=True)

@@ -16,12 +16,12 @@ from .renderers import render_text
 from .shelf import ShelfMember
 
 _progress = re.compile(
-    r"(.*\s)?(?P<prefix>(p|pg|page|ch|chapter|pt|part|e|ep|episode|trk|track|cycle))(\s|\.|#)*(?P<value>(\d[\d\:\.\-]*\d|\d))\s*(?P<postfix>(%))?(\s|\n|\.|。)?$",
+    r"(.*\s)?(?P<prefix>(p|pg|page|ch|chapter|pt|part|e|ep|episode|trk|track|cycle))(\s|\.|#)*(?P<value>([\d\:\.\-]+))\s*(?P<postfix>(%))?(\s|\n|\.|。)?$",
     re.IGNORECASE,
 )
 
 _progress2 = re.compile(
-    r"(.*\s)?(?P<value>(\d[\d\:\.\-]*\d|\d))\s*(?P<postfix>(%))?(\s|\n|\.|。)?$",
+    r"(.*\s)?(?P<value>([\d\:\.\-]+))\s*(?P<postfix>(%))?(\s|\n|\.|。)?$",
     re.IGNORECASE,
 )
 
@@ -106,7 +106,7 @@ class Note(Content):
         }
         if self.progress_value:
             d["progress"] = {
-                "type": self.progress_type,
+                "type": self.progress_type or "",
                 "value": self.progress_value,
             }
         return d
@@ -114,33 +114,32 @@ class Note(Content):
     @override
     @classmethod
     def params_from_ap_object(cls, post, obj, piece):
-        content = obj.get("content", "").strip()
-        footer = []
-        if post.local:
-            # strip footer from local post if detected
-            lines = content.splitlines()
-            if len(lines) > 2 and lines[-2].strip() in _separaters:
-                content = "\n".join(lines[:-2])
-                footer = lines[-2:]
         params = {
             "title": obj.get("title", post.summary),
-            "content": content,
+            "content": obj.get("content", "").strip(),
             "sensitive": obj.get("sensitive", post.sensitive),
             "attachments": [],
         }
-        progress = obj.get("progress", {})
-        if progress.get("type"):
-            params["progress_type"] = progress.get("type")
-        if progress.get("value"):
-            params["progress_value"] = progress.get("value")
-        if post.local and len(footer) == 2:
-            progress_type, progress_value = cls.extract_progress(footer[1])
-            if progress_value:
+        if post.local:
+            # for local post, strip footer and detect progress from content
+            # if not detected, keep default/original value by not including it in return val
+            params["content"], progress_type, progress_value = cls.strip_footer(
+                params["content"]
+            )
+            if progress_value is not None:
                 params["progress_type"] = progress_type
                 params["progress_value"] = progress_value
-            elif not footer[1].startswith("https://"):
-                # add footer back if unable to regconize correct patterns
-                params["content"] += "\n" + "\n".join(footer)
+        else:
+            # for remote post, progress is always in "progress" field
+            progress = obj.get("progress", {})
+            params["progress_value"] = progress.get("value", None)
+            params["progress_type"] = None
+            if params["progress_value"]:
+                t = progress.get("type", None)
+                try:
+                    params["progress_type"] = Note.ProgressType(t)
+                except ValueError:
+                    pass
         if post:
             for atta in post.attachments.all():
                 params["attachments"].append(
@@ -205,11 +204,24 @@ class Note(Content):
         }
 
     @classmethod
-    def extract_progress(cls, content):
+    def strip_footer(cls, content: str) -> tuple[str, str | None, str | None]:
+        """strip footer if 2nd last line is "-" or similar characters"""
+        lines = content.splitlines()
+        if len(lines) < 3 or lines[-2].strip() not in _separaters:
+            return content, None, None
+        progress_type, progress_value = cls.extract_progress(lines[-1])
+        # if progress_value is None and not lines[-2].startswith("https://"):
+        #     return content, None, None
+        return "\n".join(lines[:-2]), progress_type, progress_value
+
+    @classmethod
+    def extract_progress(cls, content) -> tuple[str | None, str | None]:
         m = _progress.match(content)
         if not m:
             m = _progress2.match(content)
         if m and m["value"]:
+            if m["value"] == "-":
+                return None, ""
             m = m.groupdict()
             typ_ = "percentage" if m["postfix"] == "%" else m.get("prefix", "")
             match typ_:

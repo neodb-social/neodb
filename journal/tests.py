@@ -236,3 +236,60 @@ class DebrisTest(TestCase):
         update_journal_for_merged_item(self.book3.uuid, delete_duplicated=True)
         cnt = Debris.objects.all().count()
         self.assertEqual(cnt, 4)  # Rating, Shelf, 2x TagMember
+
+
+class NoteTest(TestCase):
+    databases = "__all__"
+
+    # def setUp(self):
+    #     self.book1 = Edition.objects.create(title="Hyperion")
+    #     self.user1 = User.register(email="test@test", username="test")
+
+    def test_parse(self):
+        c0 = "test \n - \n"
+        c, t, v = Note.strip_footer(c0)
+        self.assertEqual(c, c0)
+        self.assertEqual(t, None)
+        self.assertEqual(v, None)
+
+        c0 = "test\n \n - \nhttps://xyz"
+        c, t, v = Note.strip_footer(c0)
+        self.assertEqual(c, "test\n ")
+        self.assertEqual(t, None)
+        self.assertEqual(v, None)
+
+        c0 = "test \n - \np1"
+        c, t, v = Note.strip_footer(c0)
+        self.assertEqual(c, "test ")
+        self.assertEqual(t, Note.ProgressType.PAGE)
+        self.assertEqual(v, "1")
+
+        c0 = "test \n - \n pt 1 "
+        c, t, v = Note.strip_footer(c0)
+        self.assertEqual(c, "test ")
+        self.assertEqual(t, Note.ProgressType.PART)
+        self.assertEqual(v, "1")
+
+        c0 = "test \n - \nx chapter 1.1 \n"
+        c, t, v = Note.strip_footer(c0)
+        self.assertEqual(c, "test ")
+        self.assertEqual(t, Note.ProgressType.CHAPTER)
+        self.assertEqual(v, "1.1")
+
+        c0 = "test \n - \n book pg 1.1% "
+        c, t, v = Note.strip_footer(c0)
+        self.assertEqual(c, "test ")
+        self.assertEqual(t, Note.ProgressType.PERCENTAGE)
+        self.assertEqual(v, "1.1")
+
+        c0 = "test \n - \n show e 1. "
+        c, t, v = Note.strip_footer(c0)
+        self.assertEqual(c, "test ")
+        self.assertEqual(t, Note.ProgressType.EPISODE)
+        self.assertEqual(v, "1.")
+
+        c0 = "test \n - \nch 2"
+        c, t, v = Note.strip_footer(c0)
+        self.assertEqual(c, "test ")
+        self.assertEqual(t, Note.ProgressType.CHAPTER)
+        self.assertEqual(v, "2")

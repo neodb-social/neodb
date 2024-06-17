@@ -1080,6 +1080,15 @@ class Post(models.Model):
             },
         )[0]
 
+    @cached_property
+    def piece(self):
+        from journal.models import Piece, ShelfMember
+
+        pcs = Piece.objects.filter(post_id=self.pk)
+        if len(pcs) == 1:
+            return pcs[0]
+        return next((p for p in pcs if p.__class__ == ShelfMember), None)
+
     @classmethod
     def create_local(
         cls,

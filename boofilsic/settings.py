@@ -14,6 +14,7 @@ try:
 except Exception:
     NEODB_VERSION = __version__ + "-unknown"
 
+TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 # Parse configuration from:
 # - environment variables

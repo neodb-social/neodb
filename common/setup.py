@@ -121,7 +121,15 @@ class Setup:
                 )
 
     def run(self):
+        if settings.TESTING:
+            # Only do necessary initialization when testing
+            logger.info("Running minimal post-migration setup for testing...")
+            self.sync_site_config()
+            Indexer.init()
+            return
+
         logger.info("Running post-migration setup...")
+
         # Update site name if changed
         self.sync_site_config()
 

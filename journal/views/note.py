@@ -57,8 +57,12 @@ class NoteForm(NeoModelForm):
             self.fields["content"].required = False
         # get the corresponding progress types for the item
         types = Note.get_progress_types_by_item(item)
-        if self.instance.progress_type and self.instance.progress_type not in types:
-            types.append(self.instance.progress_type)
+        pt = self.instance.progress_type
+        if pt and pt not in types:
+            try:
+                types.append(Note.ProgressType(pt))
+            except ValueError:
+                pass
         choices = [("", _("Progress Type (optional)"))] + [(x, x.label) for x in types]
         self.fields["progress_type"].choices = choices  # type: ignore
 

@@ -519,6 +519,14 @@ class Item(PolymorphicModel):
             item = None
         return item
 
+    @classmethod
+    def get_by_remote_url(cls, url: str) -> "Self | None":
+        url_ = url.replace("/~neodb~/", "/")
+        if url_.startswith(settings.SITE_INFO["site_url"]):
+            return cls.get_by_url(url_, True)
+        er = ExternalResource.objects.filter(url=url_).first()
+        return er.item if er else None
+
     # def get_lookup_id(self, id_type: str) -> str:
     #     prefix = id_type.strip().lower() + ':'
     #     return next((x[len(prefix):] for x in self.lookup_ids if x.startswith(prefix)), None)
