@@ -27,6 +27,8 @@ _progress2 = re.compile(
 
 _number = re.compile(r"^[\s\d\:\.]+$")
 
+_separaters = {"–", "―", "−", "—", "-"}
+
 
 class Note(Content):
     class ProgressType(models.TextChoices):
@@ -117,7 +119,7 @@ class Note(Content):
         if post.local:
             # strip footer from local post if detected
             lines = content.splitlines()
-            if len(lines) > 2 and lines[-2].strip() in ["—", "-"]:
+            if len(lines) > 2 and lines[-2].strip() in _separaters:
                 content = "\n".join(lines[:-2])
                 footer = lines[-2:]
         params = {
