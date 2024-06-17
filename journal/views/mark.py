@@ -115,7 +115,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
                     "common/error.html",
                     {
                         "msg": _(
-                            "Data saved but unable to repost to Fediverse instance."
+                            "Data saved but unable to crosspost to Fediverse instance."
                         ),
                         "secondary_msg": err,
                     },

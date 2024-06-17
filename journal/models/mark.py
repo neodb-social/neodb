@@ -294,10 +294,10 @@ class Mark:
         # publish a new or updated ActivityPub post
         user = self.owner.user
         post_as_new = shelf_type != last_shelf_type or visibility != last_visibility
-        classic_repost = user.preference.mastodon_repost_mode == 1
+        classic_crosspost = user.preference.mastodon_repost_mode == 1
         append = (
             f"@{user.mastodon_acct}\n"
-            if visibility > 0 and share_to_mastodon and not classic_repost
+            if visibility > 0 and share_to_mastodon and not classic_crosspost
             else ""
         )
         post = Takahe.post_mark(self, post_as_new, append)
@@ -306,7 +306,7 @@ class Mark:
                 Takahe.bookmark(post.pk, self.owner.pk)
         # async boost to mastodon
         if post and share_to_mastodon:
-            if classic_repost:
+            if classic_crosspost:
                 share_mark(self, post_as_new)
             else:
                 boost_toot_later(user, post.url)

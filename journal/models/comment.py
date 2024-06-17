@@ -112,13 +112,13 @@ class Comment(Content):
             comment.save()
         return comment
 
-    def get_repost_postfix(self):
+    def get_crosspost_postfix(self):
         tags = render_post_with_macro(
             self.owner.user.preference.mastodon_append_tag, self.item
         )
         return "\n" + tags if tags else ""
 
-    def get_repost_template(self):
+    def get_crosspost_template(self):
         return _(
             ShelfManager.get_action_template(ShelfType.PROGRESS, self.item.category)
         )
@@ -126,9 +126,9 @@ class Comment(Content):
     def to_mastodon_params(self):
         spoiler_text, txt = render_spoiler_text(self.text, self.item)
         content = (
-            self.get_repost_template().format(item=self.item.display_title)
+            self.get_crosspost_template().format(item=self.item.display_title)
             + f"\n{txt}\n{settings.SITE_INFO['site_url']}{self.item_url}"
-            + self.get_repost_postfix()
+            + self.get_crosspost_postfix()
         )
         params = {
             "content": content,
@@ -140,13 +140,13 @@ class Comment(Content):
     def to_post_params(self):
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item_url}"
         prepend_content = (
-            self.get_repost_template().format(
+            self.get_crosspost_template().format(
                 item=f'<a href="{item_link}">{self.item.display_title}</a>'
             )
             + "<br>"
         )
         spoiler_text, txt = render_spoiler_text(self.text, self.item)
-        content = f"{txt}\n{self.get_repost_postfix()}"
+        content = f"{txt}\n{self.get_crosspost_postfix()}"
         return {
             "prepend_content": prepend_content,
             "content": content,

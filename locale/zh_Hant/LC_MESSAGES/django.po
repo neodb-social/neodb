@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-15 23:28-0400\n"
+"POT-Creation-Date: 2024-06-16 21:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1678,9 +1678,10 @@ msgstr "標題"
 msgid "Content (Markdown)"
 msgstr "內容 （Markdown格式）"
 
-#: journal/forms.py:21 journal/views/note.py:26
-msgid "Post to Fediverse"
-msgstr "發佈到聯邦宇宙"
+#: journal/forms.py:21 journal/templates/comment.html:62
+#: journal/templates/mark.html:120 journal/views/note.py:26
+msgid "Crosspost to timeline"
+msgstr "轉發到時間軸"
 
 #: journal/forms.py:25 journal/forms.py:45
 #: journal/templates/collection_share.html:24
@@ -1807,7 +1808,7 @@ msgstr "第{value}首"
 msgid "Cycle {value}"
 msgstr "{value}周目"
 
-#: journal/models/renderers.py:94 mastodon/api.py:619 takahe/utils.py:543
+#: journal/models/renderers.py:94 mastodon/api.py:619 takahe/utils.py:550
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "關於 {item_title}，可能包含劇透或敏感內容"
@@ -2387,10 +2388,6 @@ msgstr "寫短評"
 msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
 msgstr "提示： 善用 &gt;!文字!&lt; 標記可隱藏劇透； 超過360字可能無法分享到聯邦宇宙實例時間軸。"
 
-#: journal/templates/comment.html:62 journal/templates/mark.html:120
-msgid "Repost to timeline"
-msgstr "轉發到時間軸"
-
 #: journal/templates/comment.html:75
 msgid "share with playback position"
 msgstr "分享播放位置"
@@ -2659,7 +2656,7 @@ msgid "Login required"
 msgstr "登錄後訪問"
 
 #: journal/views/common.py:33 journal/views/mark.py:118
-msgid "Data saved but unable to repost to Fediverse instance."
+msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "數據已保存但未能轉發到聯邦實例。"
 
 #: journal/views/common.py:35
@@ -2802,7 +2799,7 @@ msgstr "播放"
 msgid "comment"
 msgstr "寫短評"
 
-#: social/templates/activity/create_collection.html:16 takahe/utils.py:593
+#: social/templates/activity/create_collection.html:16 takahe/utils.py:600
 msgid "created collection"
 msgstr "創建了收藏單"
 
@@ -3195,39 +3192,39 @@ msgstr "登錄信息已更新"
 msgid "Account mismatch."
 msgstr "賬號信息不匹配。"
 
-#: users/data.py:127
+#: users/data.py:131
 msgid "Generating exports."
 msgstr "正在生成導出文件。"
 
-#: users/data.py:139
+#: users/data.py:143
 msgid "Export file expired. Please export again."
 msgstr "導出文件已失效，請重新導出"
 
-#: users/data.py:150
+#: users/data.py:154
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/data.py:164
+#: users/data.py:168
 msgid "Settings saved."
 msgstr "設置已保存"
 
-#: users/data.py:175
+#: users/data.py:179
 msgid "Reset completed."
 msgstr "重置已完成。"
 
-#: users/data.py:184
+#: users/data.py:188
 msgid "Import in progress."
 msgstr "正在導出"
 
-#: users/data.py:186
+#: users/data.py:190
 msgid "Invalid URL."
 msgstr "無效網址。"
 
-#: users/data.py:200 users/data.py:225 users/data.py:240
+#: users/data.py:204 users/data.py:229 users/data.py:244
 msgid "File is uploaded and will be imported soon."
 msgstr "文件已上傳，等待後臺導入。"
 
-#: users/data.py:203 users/data.py:243
+#: users/data.py:207 users/data.py:247
 msgid "Invalid file."
 msgstr "無效文件。"
 
@@ -3625,15 +3622,15 @@ msgid "local, this site only"
 msgstr "僅本站"
 
 #: users/templates/users/preferences.html:96
-msgid "Turn on repost to timeline by default"
+msgid "Turn on crosspost to timeline by default"
 msgstr "發表時默認轉發到時間軸"
 
 #: users/templates/users/preferences.html:104
-msgid "Method for reposting to timeline"
+msgid "Method for crossposting to timeline"
 msgstr "轉發到時間軸的方式"
 
 #: users/templates/users/preferences.html:118
-msgid "repost as new post"
+msgid "create a new post"
 msgstr "另發新帖文"
 
 #: users/templates/users/preferences.html:119

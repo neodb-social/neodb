@@ -49,7 +49,7 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
 @require_http_methods(["POST"])
 @login_required
 def post_boost(request: AuthedHttpRequest, post_id: int):
-    # classic_repost = request.user.preference.mastodon_repost_mode == 1
+    # classic_crosspost = request.user.preference.mastodon_repost_mode == 1
     post = Takahe.get_post(post_id)
     if not post:
         raise BadRequest(_("Invalid parameter"))

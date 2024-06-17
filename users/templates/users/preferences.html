@@ -93,7 +93,7 @@
               {% if request.user.mastodon_acct %}
                 <fieldset>
                   <label>
-                    {% trans "Turn on repost to timeline by default" %}
+                    {% trans "Turn on crosspost to timeline by default" %}
                     <input type="checkbox"
                            name="mastodon_default_repost"
                            value="1"
@@ -101,7 +101,7 @@
                   </label>
                 </fieldset>
                 <fieldset>
-                  {% trans "Method for reposting to timeline" %}
+                  {% trans "Method for crossposting to timeline" %}
                   <input type="radio"
                          name="mastodon_repost_mode"
                          value="0"
@@ -115,7 +115,7 @@
                          required=""
                          id="mastodon_repost_mode_1"
                          {% if request.user.preference.mastodon_repost_mode == 1 %}checked{% endif %}>
-                  <label for="mastodon_repost_mode_1">{% trans "repost as new post" %}</label>
+                  <label for="mastodon_repost_mode_1">{% trans "create a new post" %}</label>
                   <em data-tooltip="{% trans "this method is less optimal, may generate duplicated posts and miss reactions." %}"><i class="fa fa-question-circle"></i></em>
                 </fieldset>
               {% endif %}

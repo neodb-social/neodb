@@ -30,7 +30,7 @@ def render_relogin(request):
         "common/error.html",
         {
             "url": reverse("users:connect") + "?domain=" + request.user.mastodon_site,
-            "msg": _("Data saved but unable to repost to Fediverse instance."),
+            "msg": _("Data saved but unable to crosspost to Fediverse instance."),
             "secondary_msg": _(
                 "Redirecting to your Fediverse instance now to re-authenticate."
             ),

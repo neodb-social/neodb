@@ -23,7 +23,7 @@ class NoteForm(NeoModelForm):
         widget=forms.RadioSelect(), choices=VisibilityType.choices, initial=0
     )
     share_to_mastodon = forms.BooleanField(
-        label=_("Post to Fediverse"), initial=True, required=False
+        label=_("Crosspost to timeline"), initial=True, required=False
     )
     uuid = forms.CharField(widget=forms.HiddenInput(), required=False)
     # content = forms.CharField(required=False, widget=forms.Textarea)

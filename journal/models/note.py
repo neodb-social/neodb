@@ -177,7 +177,9 @@ class Note(Content):
             "content": self.content + footer,
             "sensitive": self.sensitive,
             "reply_to_toot_url": (
-                self.shelfmember.get_mastodon_repost_url() if self.shelfmember else None
+                self.shelfmember.get_mastodon_crosspost_url()
+                if self.shelfmember
+                else None
             ),
         }
         if self.latest_post:

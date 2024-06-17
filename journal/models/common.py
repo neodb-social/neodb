@@ -128,14 +128,14 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         "takahe.Post", related_name="pieces", through="PiecePost"
     )
 
-    def get_mastodon_repost_url(self):
+    def get_mastodon_crosspost_url(self):
         return (
             (self.metadata or {}).get("shared_link")
             if hasattr(self, "metadata")
             else None
         )
 
-    def set_mastodon_repost_url(self, url: str | None):
+    def set_mastodon_crosspost_url(self, url: str | None):
         if not hasattr(self, "metadata"):
             logger.warning("metadata field not found")
             return
@@ -152,7 +152,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def delete(self, *args, **kwargs):
         if self.local:
             Takahe.delete_posts(self.all_post_ids)
-            toot_url = self.get_mastodon_repost_url()
+            toot_url = self.get_mastodon_crosspost_url()
             if toot_url:
                 delete_toot_later(self.owner.user, toot_url)
         return super().delete(*args, **kwargs)
@@ -314,7 +314,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         if user.preference.mastodon_repost_mode == 1:
             if delete_existing:
                 self.delete_mastodon_repost()
-            return self.repost_to_mastodon()
+            return self.crosspost_to_mastodon()
         elif self.latest_post:
             return boost_toot_later(user, self.latest_post.url)
         else:
@@ -322,17 +322,17 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             return False, 404
 
     def delete_mastodon_repost(self):
-        toot_url = self.get_mastodon_repost_url()
+        toot_url = self.get_mastodon_crosspost_url()
         if toot_url:
-            self.set_mastodon_repost_url(None)
+            self.set_mastodon_crosspost_url(None)
             delete_toot(self.owner.user, toot_url)
 
-    def repost_to_mastodon(self):
+    def crosspost_to_mastodon(self):
         user = self.owner.user
         d = {
             "user": user,
             "visibility": self.visibility,
-            "update_toot_url": self.get_mastodon_repost_url(),
+            "update_toot_url": self.get_mastodon_crosspost_url(),
         }
         d.update(self.to_mastodon_params())
         response = post_toot2(**d)

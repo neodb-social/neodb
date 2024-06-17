@@ -78,20 +78,20 @@ class Review(Content):
         p.link_post_id(post.id)
         return p
 
-    def get_repost_postfix(self):
+    def get_crosspost_postfix(self):
         tags = render_post_with_macro(
             self.owner.user.preference.mastodon_append_tag, self.item
         )
         return "\n" + tags if tags else ""
 
-    def get_repost_template(self):
+    def get_crosspost_template(self):
         return _(ShelfManager.get_action_template("reviewed", self.item.category))
 
     def to_mastodon_params(self):
         content = (
-            self.get_repost_template().format(item=self.item.display_title)
+            self.get_crosspost_template().format(item=self.item.display_title)
             + f"\n{self.title}\n{self.absolute_url} "
-            + self.get_repost_postfix()
+            + self.get_crosspost_postfix()
         )
         params = {"content": content}
         return params
@@ -99,12 +99,14 @@ class Review(Content):
     def to_post_params(self):
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item.url}"
         prepend_content = (
-            self.get_repost_template().format(
+            self.get_crosspost_template().format(
                 item=f'<a href="{item_link}">{self.item.display_title}</a>'
             )
             + f'<br><a href="{self.absolute_url}">{self.title}</a>'
         )
-        content = f"{render_rating(self.rating_grade, 1)}\n{self.get_repost_postfix()}"
+        content = (
+            f"{render_rating(self.rating_grade, 1)}\n{self.get_crosspost_postfix()}"
+        )
         return {
             "prepend_content": prepend_content,
             "content": content,

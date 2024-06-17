@@ -127,8 +127,8 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
             Takahe.visibility_n2t(visibility, user.preference.post_public_mode),
             attachments=[media],
         )
-        classic_repost = user.preference.mastodon_repost_mode == 1
-        if classic_repost:
+        classic_crosspost = user.preference.mastodon_repost_mode == 1
+        if classic_crosspost:
             post_toot_later(
                 user,
                 comment,

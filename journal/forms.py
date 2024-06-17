@@ -18,7 +18,7 @@ class ReviewForm(forms.ModelForm):
     title = forms.CharField(label=_("Title"))
     body = MarkdownxFormField(label=_("Content (Markdown)"), strip=False)
     share_to_mastodon = forms.BooleanField(
-        label=_("Post to Fediverse"), initial=True, required=False
+        label=_("Crosspost to timeline"), initial=True, required=False
     )
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     visibility = forms.TypedChoiceField(
@@ -40,7 +40,7 @@ class CollectionForm(forms.ModelForm):
     # id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     title = forms.CharField(label=_("Title"))
     brief = MarkdownxFormField(label=_("Content (Markdown)"), strip=False)
-    # share_to_mastodon = forms.BooleanField(label=_("Repost to Fediverse"), initial=True, required=False)
+    # share_to_mastodon = forms.BooleanField(label=_("Crosspost to timeline"), initial=True, required=False)
     visibility = forms.TypedChoiceField(
         label=_("Visibility"),
         initial=0,
