@@ -8,7 +8,7 @@
 {% load user_actions %}
 {% load duration %}
 {% for event in events %}
-  {% with event.subject_post as post %}
+  {% with post=event.subject_post piece=event.subject_post.piece item=event.subject_post.piece.item %}
     {% if not post %}
       <!-- invalid data {{ event.pk }} -->
     {% else %}
@@ -34,22 +34,22 @@
           <div style="flex-grow:1;">
             <span class="action">
               <span class="timestamp">{{ post.published|naturaldelta }}</span>
-              {% if post.piece and post.piece.item and post.piece.item.class_name != 'tvepisode' %}
+              {% if item and item.class_name != 'tvepisode' %}
                 <span>
-                  {% if post.piece.item.class_name == 'podcastepisode' %}
+                  {% if item.class_name == 'podcastepisode' %}
                     <a title="{% trans "play" %}"
                        class="episode"
-                       data-uuid="{{ post.piece.item.uuid }}"
-                       data-media="{{ post.piece.item.media_url }}"
-                       data-cover="{{ post.piece.item.cover_url|default:post.piece.item.parent_item.cover.url }}"
-                       data-title="{{ post.piece.item.title }}"
-                       data-album="{{ post.piece.item.parent_item.title }}"
-                       data-hosts="{{ post.piece.item.parent_item.hosts|join:' / ' }}"
-                       {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' post.piece.item.uuid %}" {% endif %}
-                       data-position="{{ post.piece.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
+                       data-uuid="{{ item.uuid }}"
+                       data-media="{{ item.media_url }}"
+                       data-cover="{{ item.cover_url|default:item.parent_item.cover.url }}"
+                       data-title="{{ item.title }}"
+                       data-album="{{ item.parent_item.title }}"
+                       data-hosts="{{ item.parent_item.hosts|join:' / ' }}"
+                       {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' item.uuid %}" {% endif %}
+                       data-position="{{ piece.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
                   {% else %}
                     <a title="{% trans "mark" %}"
-                       hx-get="{% url 'journal:mark' post.piece.item.uuid %}?shelf_type=wishlist"
+                       hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist"
                        hx-target="body"
                        hx-swap="beforeend">
                       <i class="fa-regular fa-bookmark"></i>
@@ -66,7 +66,7 @@
               <a href="{{ post.author.url }}"
                  class="nickname"
                  title="@{{ post.author.handle }}">{{ post.author.name }}</a>
-              {% if post.piece and post.piece.classname == 'note' %}
+              {% if piece and piece.classname == 'note' %}
                 {% trans "wrote a note" %}
               {% endif %}
             </span>
@@ -88,7 +88,7 @@
                     {% endif %}
                   {% endfor %}
                 </div>
-                {% if post.piece and post.piece.classname == 'note' %}
+                {% if piece and piece.classname == 'note' %}
                   <blockquote class="tldr"
                               _="on click toggle .tldr on me"
                               style="margin:0;
@@ -102,12 +102,10 @@
               </div>
               <div class="cover">
                 {% if post.piece %}
-                  {% if post.piece.item %}
-                    {# <article>{% include "_item_card.html" with item=post.piece.item allow_embed=1 %}</article> #}
-                    <a href="{{ post.piece.item.url }}" title="{{ post.piece.item.title }}">
-                      <img src="{{ post.piece.item.cover_image_url }}"
-                           title="{{ post.piece.item.title }}"
-                           alt="cover">
+                  {% if item %}
+                    {# <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article> #}
+                    <a href="{{ item.url }}" title="{{ item.title }}">
+                      <img src="{{ item.cover_image_url }}" title="{{ item.title }}" alt="cover">
                     </a>
                   {% endif %}
                 {% endif %}

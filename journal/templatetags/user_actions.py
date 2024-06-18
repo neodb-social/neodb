@@ -30,7 +30,7 @@ def liked_post(context, post):
     return (
         user
         and user.is_authenticated
-        and Takahe.post_liked_by(post.pk, user.identity.pk)
+        and post.interactions.filter(identity_id=user.identity.pk, type="like").exists()
     )
 
 
@@ -40,5 +40,7 @@ def boosted_post(context, post):
     return (
         user
         and user.is_authenticated
-        and Takahe.post_boosted_by(post.pk, user.identity.pk)
+        and post.interactions.filter(
+            identity_id=user.identity.pk, type="boost"
+        ).exists()
     )
