@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-18 09:14-0400\n"
+"POT-Creation-Date: 2024-06-18 17:29-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -675,7 +675,7 @@ msgstr "显示更多"
 #: catalog/templates/_item_reviews.html:47
 #: catalog/templates/podcast_episode_data.html:44
 #: social/templates/events.html:43 social/templates/feed_data.html:44
-#: social/templates/feed_events.html:133
+#: social/templates/feed_events.html:131
 msgid "nothing more."
 msgstr "没有更多内容了。"
 
@@ -2983,11 +2983,23 @@ msgstr ""
 "\n"
 "回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
-#: social/templates/feed.html:11 social/templates/feed.html:22
+#: social/templates/feed.html:11 social/templates/feed.html:23
 msgid "Activities from those you follow"
 msgstr "好友动态"
 
-#: social/templates/feed_data.html:48 social/templates/feed_events.html:137
+#: social/templates/feed.html:26 social/templates/feed.html:28
+msgid "All"
+msgstr "全部"
+
+#: social/templates/feed.html:26 social/templates/feed.html:28
+msgid "What they read/watch/..."
+msgstr "仅书影音"
+
+#: social/templates/feed.html:30
+msgid "Notifications"
+msgstr "通知"
+
+#: social/templates/feed_data.html:48 social/templates/feed_events.html:135
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\">导入你的豆瓣、Letterboxd或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用%(site_name)s的用户，这里就会显示你和她们的近期动态。"
