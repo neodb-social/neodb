@@ -20,7 +20,7 @@
   <main>
     <div class="grid__main">
       <h5>
-        {% trans 'Activities from those you follow' %}
+        <span class="large-only">{% trans 'Activities from those you follow' %}</span>
         <small>
           {% if feed_type == 1 %}
             <a href="{% url 'social:feed' %}">{% trans "All" %}</a> | {% trans "What they read/watch/..." %}
