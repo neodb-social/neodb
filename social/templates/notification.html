@@ -30,7 +30,7 @@
              href="{% url 'social:notification' %}?type=follow">{% trans 'follow' %}</a>
         </small>
       </h5>
-      <div class="feed">
+      <div class="notifications">
         <div hx-get="{% url 'social:events' %}?type={{ request.GET.type }}"
              hx-trigger="intersect once delay:0.1s"
              hx-swap="outerHTML">

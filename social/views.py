@@ -15,7 +15,7 @@ PAGE_SIZE = 10
 
 @require_http_methods(["GET"])
 @login_required
-def feed(request):
+def feed(request, typ=0):
     if not request.user.registration_complete:
         return redirect(reverse("users:register"))
     user = request.user
@@ -48,6 +48,7 @@ def feed(request):
         request,
         "feed.html",
         {
+            "feed_type": typ,
             "recent_podcast_episodes": recent_podcast_episodes,
             "books_in_progress": books_in_progress,
             "tvshows_in_progress": tvshows_in_progress,
@@ -55,18 +56,31 @@ def feed(request):
     )
 
 
+def focus(request):
+    return feed(request, typ=1)
+
+
 @login_required
 @require_http_methods(["GET"])
 def data(request):
     since_id = int(request.GET.get("last", 0))
+    typ = int(request.GET.get("typ", 0))
     identity_id = request.user.identity.pk
-    events = (
-        TimelineEvent.objects.filter(
-            identity_id=identity_id,
-            type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
-        )
-        .order_by("-id")
-        .select_related(
+    events = TimelineEvent.objects.filter(
+        identity_id=identity_id,
+        type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
+    )
+    match typ:
+        case 1:
+            events = events.filter(
+                subject_post__type_data__object__has_key="relatedWith"
+            )
+        case _:  # default: no replies
+            events = events.filter(subject_post__in_reply_to__isnull=True)
+    if since_id:
+        events = events.filter(id__lt=since_id)
+    events = list(
+        events.select_related(
             "subject_post",
             "subject_post__author",
             # "subject_post__author__domain",
@@ -81,10 +95,8 @@ def data(request):
             # "subject_post__mentions",
             # "subject_post__emojis",
         )
+        .order_by("-id")[:PAGE_SIZE]
     )
-    if since_id:
-        events = events.filter(id__lt=since_id)
-    events = list(events[:PAGE_SIZE])
     interactions = PostInteraction.objects.filter(
         identity_id=identity_id,
         post_id__in=[event.subject_post_id for event in events],
@@ -101,7 +113,7 @@ def data(request):
             event.subject_post_id,
             "boost",
         ) in interactions
-    return render(request, "feed_events.html", {"events": events})
+    return render(request, "feed_events.html", {"feed_type": typ, "events": events})
 
 
 # @login_required

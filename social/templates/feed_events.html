@@ -120,7 +120,7 @@
   {% if forloop.last %}
     <div class="htmx-indicator"
          style="margin-left: 60px"
-         hx-get="{% url 'social:data' %}?last={{ event.pk }}"
+         hx-get="{% url 'social:data' %}?last={{ event.pk }}&amp;typ={{ feed_type }}"
          hx-trigger="revealed"
          hx-swap="outerHTML">
       <i class="fa-solid fa-compact-disc fa-spin loading"></i>

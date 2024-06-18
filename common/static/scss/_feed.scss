@@ -21,4 +21,90 @@
       }
     }
   }
+  .notifications {
+    word-break: break-word;
+
+    .avatar {
+      height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4 - 8px);
+      width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4 - 8px);
+
+      img {
+        height: 100%;
+        width: 100%;
+      }
+    }
+
+    > section {
+      margin-bottom: var(--pico-spacing);
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto;
+      grid-column-gap: 1em;
+      grid-row-gap: 0px;
+      // align-items: center;
+      // justify-content: left;
+
+      .nickname a {
+        word-break: break-all;
+      }
+
+      .time {
+        width: max-content;
+        float: right;
+        color: var(--pico-muted-color);
+        opacity: 0.5;
+        margin-left: 1em;
+      }
+
+      .rating-star {
+        margin: 0 0.5em;
+      }
+
+      .rating-star,
+      .rating-star>* {
+        color: var(--pico-primary);
+      }
+
+      article {
+        padding: calc(var(--pico-block-spacing-horizontal) / 2);
+        margin-bottom: var(--pico-block-spacing-horizontal);
+
+        >div.item {
+          column-gap: calc(var(--pico-block-spacing-horizontal) / 2);
+
+          @media (max-width: 768px) {
+            grid-template-columns: calc(2.5rem * var(--pico-line-height)) auto
+          }
+        }
+
+        footer {
+          padding: calc(var(--pico-block-spacing-horizontal) / 2);
+          margin-left: calc(var(--pico-block-spacing-horizontal) * -0.5);
+          margin-right: calc(var(--pico-block-spacing-horizontal) * -0.5);
+          margin-top: calc(var(--pico-block-spacing-horizontal)/2);
+        }
+
+        // margin-right: 4px;
+      }
+
+      blockquote {
+        padding-top: 0;
+        padding-bottom: 0;
+        margin: 0;
+        color: var(--pico-muted-color);
+
+        a {
+          color: var(--pico-muted-color);
+        }
+      }
+
+      p:last-child {
+      margin-bottom: 0;
+      }
+
+      .spacing {
+        margin-bottom: calc(var(--pico-block-spacing-horizontal)/2);
+      }
+    }
+  }
 }
