@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-18 00:07-0400\n"
+"POT-Creation-Date: 2024-06-18 09:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -675,7 +675,7 @@ msgstr "显示更多"
 #: catalog/templates/_item_reviews.html:47
 #: catalog/templates/podcast_episode_data.html:44
 #: social/templates/events.html:43 social/templates/feed_data.html:44
-#: social/templates/feed_events.html:114
+#: social/templates/feed_events.html:133
 msgid "nothing more."
 msgstr "没有更多内容了。"
 
@@ -2794,7 +2794,7 @@ msgid "target site domain name"
 msgstr "目标实例域名"
 
 #: social/templates/activity/comment_child_item.html:12
-#: social/templates/feed_events.html:34
+#: social/templates/feed_events.html:40
 msgid "play"
 msgstr "播放"
 
@@ -2819,7 +2819,7 @@ msgstr "赞了 <a href=\"%(owner_url)s\">%(owner_name)s</a> 的收藏单"
 #: social/templates/activity/mark_item.html:19
 #: social/templates/activity/review_item.html:12
 #: social/templates/activity/review_item.html:19
-#: social/templates/feed_events.html:45
+#: social/templates/feed_events.html:51
 msgid "mark"
 msgstr "标记"
 
@@ -2987,16 +2987,16 @@ msgstr ""
 msgid "Activities from those you follow"
 msgstr "好友动态"
 
-#: social/templates/feed_data.html:48 social/templates/feed_events.html:118
+#: social/templates/feed_data.html:48 social/templates/feed_events.html:137
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\">导入你的豆瓣、Letterboxd或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用%(site_name)s的用户，这里就会显示你和她们的近期动态。"
 
-#: social/templates/feed_events.html:19
+#: social/templates/feed_events.html:23
 msgid "boosted"
 msgstr "转播了"
 
-#: social/templates/feed_events.html:64
+#: social/templates/feed_events.html:70
 msgid "wrote a note"
 msgstr "写了笔记"
 
