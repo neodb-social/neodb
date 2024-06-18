@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-16 21:51-0400\n"
+"POT-Creation-Date: 2024-06-18 00:07-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,15 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: boofilsic/settings.py:393
+#: boofilsic/settings.py:394
 msgid "English"
 msgstr "英语"
 
-#: boofilsic/settings.py:394
+#: boofilsic/settings.py:395
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
-#: boofilsic/settings.py:395
+#: boofilsic/settings.py:396
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
@@ -401,27 +401,27 @@ msgstr "元数据"
 msgid "cover"
 msgstr "封面"
 
-#: catalog/common/models.py:620
+#: catalog/common/models.py:628
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/common/models.py:622
+#: catalog/common/models.py:630
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/common/models.py:624
+#: catalog/common/models.py:632
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/common/models.py:640
+#: catalog/common/models.py:648
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/common/models.py:646
+#: catalog/common/models.py:654
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/common/models.py:649
+#: catalog/common/models.py:657
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
@@ -675,6 +675,7 @@ msgstr "显示更多"
 #: catalog/templates/_item_reviews.html:47
 #: catalog/templates/podcast_episode_data.html:44
 #: social/templates/events.html:43 social/templates/feed_data.html:44
+#: social/templates/feed_events.html:114
 msgid "nothing more."
 msgstr "没有更多内容了。"
 
@@ -1538,6 +1539,7 @@ msgid "Set a username."
 msgstr "设置用户名"
 
 #: common/templates/_sidebar.html:53
+#: users/templates/users/profile_actions.html:29
 msgid "approving followers manually"
 msgstr "已开启关注审核"
 
@@ -1746,64 +1748,64 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/note.py:33
+#: journal/models/note.py:35
 msgid "Page"
 msgstr "页码"
 
-#: journal/models/note.py:34
+#: journal/models/note.py:36
 msgid "Chapter"
 msgstr "章节"
 
-#: journal/models/note.py:37
+#: journal/models/note.py:39
 msgid "Part"
 msgstr "分部"
 
-#: journal/models/note.py:38
+#: journal/models/note.py:40
 msgid "Episode"
 msgstr "单集"
 
-#: journal/models/note.py:39
+#: journal/models/note.py:41
 msgid "Track"
 msgstr "曲目"
 
-#: journal/models/note.py:40
+#: journal/models/note.py:42
 msgid "Cycle"
 msgstr "周目"
 
-#: journal/models/note.py:41
+#: journal/models/note.py:43
 msgid "Timestamp"
 msgstr "时间戳"
 
-#: journal/models/note.py:42
+#: journal/models/note.py:44
 msgid "Percentage"
 msgstr "百分比"
 
-#: journal/models/note.py:59
+#: journal/models/note.py:61
 #, python-brace-format
 msgid "Page {value}"
 msgstr "第{value}页"
 
-#: journal/models/note.py:60
+#: journal/models/note.py:62
 #, python-brace-format
 msgid "Chapter {value}"
 msgstr "第{value}章"
 
-#: journal/models/note.py:63
+#: journal/models/note.py:65
 #, python-brace-format
 msgid "Part {value}"
 msgstr "第{value}部"
 
-#: journal/models/note.py:64
+#: journal/models/note.py:66
 #, python-brace-format
 msgid "Episode {value}"
 msgstr "第{value}集"
 
-#: journal/models/note.py:65
+#: journal/models/note.py:67
 #, python-brace-format
 msgid "Track {value}"
 msgstr "第{value}首"
 
-#: journal/models/note.py:66
+#: journal/models/note.py:68
 #, python-brace-format
 msgid "Cycle {value}"
 msgstr "{value}周目"
@@ -2671,7 +2673,7 @@ msgstr "列表未找到"
 msgid "Content too long for your Fediverse instance."
 msgstr "内容过长，超出了你的联邦实例的限制。"
 
-#: journal/views/mark.py:163 journal/views/note.py:94
+#: journal/views/mark.py:163 journal/views/note.py:98
 #: journal/views/review.py:30
 msgid "Content not found"
 msgstr "内容未找到"
@@ -2688,11 +2690,11 @@ msgstr "笔记内容"
 msgid "Content Warning (optional)"
 msgstr "剧透或敏感内容提示（选填）"
 
-#: journal/views/note.py:62
+#: journal/views/note.py:66
 msgid "Progress Type (optional)"
 msgstr "进度类型（选填）"
 
-#: journal/views/note.py:102
+#: journal/views/note.py:106
 msgid "Invalid form data"
 msgstr "无效表单信息。"
 
@@ -2792,6 +2794,7 @@ msgid "target site domain name"
 msgstr "目标实例域名"
 
 #: social/templates/activity/comment_child_item.html:12
+#: social/templates/feed_events.html:34
 msgid "play"
 msgstr "播放"
 
@@ -2816,6 +2819,7 @@ msgstr "赞了 <a href=\"%(owner_url)s\">%(owner_name)s</a> 的收藏单"
 #: social/templates/activity/mark_item.html:19
 #: social/templates/activity/review_item.html:12
 #: social/templates/activity/review_item.html:19
+#: social/templates/feed_events.html:45
 msgid "mark"
 msgstr "标记"
 
@@ -2983,10 +2987,18 @@ msgstr ""
 msgid "Activities from those you follow"
 msgstr "好友动态"
 
-#: social/templates/feed_data.html:48
+#: social/templates/feed_data.html:48 social/templates/feed_events.html:118
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\">导入你的豆瓣、Letterboxd或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用%(site_name)s的用户，这里就会显示你和她们的近期动态。"
+
+#: social/templates/feed_events.html:19
+msgid "boosted"
+msgstr "转播了"
+
+#: social/templates/feed_events.html:64
+msgid "wrote a note"
+msgstr "写了笔记"
 
 #: social/templates/notification.html:28
 msgid "mention"
@@ -3741,63 +3753,63 @@ msgstr "已屏蔽"
 msgid "user profile"
 msgstr "用户资料"
 
-#: users/templates/users/profile_actions.html:32
+#: users/templates/users/profile_actions.html:39
 msgid "original home"
 msgstr "原始主页"
 
-#: users/templates/users/profile_actions.html:63
+#: users/templates/users/profile_actions.html:72
 msgid "accept follow request"
 msgstr "接受关注请求"
 
-#: users/templates/users/profile_actions.html:65
+#: users/templates/users/profile_actions.html:74
 msgid "sure to accept follow request?"
 msgstr "确定接受关注请求吗？"
 
-#: users/templates/users/profile_actions.html:73
+#: users/templates/users/profile_actions.html:82
 msgid "reject follow request"
 msgstr "拒绝关注请求"
 
-#: users/templates/users/profile_actions.html:75
+#: users/templates/users/profile_actions.html:84
 msgid "sure to reject follow request?"
 msgstr "确定拒绝关注请求吗？"
 
-#: users/templates/users/profile_actions.html:85
+#: users/templates/users/profile_actions.html:94
 msgid "click to unfollow"
 msgstr "点击可取消关注"
 
-#: users/templates/users/profile_actions.html:87
+#: users/templates/users/profile_actions.html:96
 msgid "sure to unfollow?"
 msgstr "确定取消关注该用户吗？"
 
-#: users/templates/users/profile_actions.html:96
+#: users/templates/users/profile_actions.html:105
 msgid "click to cancel follow request"
 msgstr "点击可取消关注请求"
 
-#: users/templates/users/profile_actions.html:98
+#: users/templates/users/profile_actions.html:107
 msgid "sure to cancel follow request?"
 msgstr "确定取消关注请求吗？"
 
-#: users/templates/users/profile_actions.html:107
+#: users/templates/users/profile_actions.html:116
 msgid "click to follow"
 msgstr "点击可关注"
 
-#: users/templates/users/profile_actions.html:108
+#: users/templates/users/profile_actions.html:117
 msgid "sure to follow?"
 msgstr "确定关注该用户吗？"
 
-#: users/templates/users/profile_actions.html:118
-msgid "click to mute"
-msgstr "点击可取消屏蔽"
-
 #: users/templates/users/profile_actions.html:127
+msgid "click to mute"
+msgstr "点击可静音"
+
+#: users/templates/users/profile_actions.html:136
 msgid "click to unmute"
 msgstr "点击可取消静音"
 
-#: users/templates/users/profile_actions.html:137
+#: users/templates/users/profile_actions.html:146
 msgid "click to block"
 msgstr "点击可屏蔽"
 
-#: users/templates/users/profile_actions.html:138
+#: users/templates/users/profile_actions.html:147
 msgid "sure to block?"
 msgstr "确定屏蔽该用户吗？"
 

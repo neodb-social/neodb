@@ -1,0 +1,124 @@
+{% load bleach_tags %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load mastodon %}
+{% load thumb %}
+{% load user_actions %}
+{% load duration %}
+{% for event in events %}
+  {% with event.subject_post as post %}
+    <section class="activity post">
+      {% if event.type == "boost" %}
+        <div class="boosted">
+          <i class="fa-solid fa-retweet"
+             title="{{ event.published|naturaldelta }}"></i>
+          <a href="{{ event.subject_identity.url }}"
+             class="nickname"
+             title="@{{ event.subject_identity.handle }}">{{ event.subject_identity.name }}</a>
+          {% trans 'boosted' %}
+        </div>
+      {% endif %}
+      <div style="display:flex;">
+        <div>
+          <div class="avatar" style="margin:0.6em 0.6em 0.6em 0;">
+            <img src="{{ post.author.icon_uri }}" alt="@{{ post.author.handle }}" />
+          </div>
+        </div>
+        <div style="flex-grow:1;">
+          <span class="action">
+            <span class="timestamp">{{ post.published|naturaldelta }}</span>
+            {% if post.piece and post.piece.item and post.piece.item.classname != 'tvepisode' %}
+              <span>
+                {% if post.piece.item.classname == 'podcastepisode' %}
+                  <a title="{% trans "play" %}"
+                     class="episode"
+                     data-uuid="{{ post.piece.item.uuid }}"
+                     data-media="{{ post.piece.item.media_url }}"
+                     data-cover="{{ post.piece.item.cover_url|default:post.piece.item.parent_item.cover.url }}"
+                     data-title="{{ post.piece.item.title }}"
+                     data-album="{{ post.piece.item.parent_item.title }}"
+                     data-hosts="{{ post.piece.item.parent_item.hosts|join:' / ' }}"
+                     {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' post.piece.item.uuid %}" {% endif %}
+                     data-position="{{ post.piece.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
+                {% else %}
+                  <a title="{% trans "mark" %}"
+                     hx-get="{% url 'journal:mark' post.piece.item.uuid %}?shelf_type=wishlist"
+                     hx-target="body"
+                     hx-swap="beforeend">
+                    <i class="fa-regular fa-bookmark"></i>
+                  </a>
+                {% endif %}
+              </span>
+            {% endif %}
+            {% include "action_reply_post.html" %}
+            {% include "action_like_post.html" %}
+            {% include "action_boost_post.html" %}
+            {% include "action_open_post.html" %}
+          </span>
+          <span>
+            <a href="{{ post.author.url }}"
+               class="nickname"
+               title="@{{ post.author.handle }}">{{ post.author.name }}</a>
+            {% if post.piece and post.piece.classname == 'note' %}
+              {% trans "wrote a note" %}
+            {% endif %}
+          </span>
+          <div>{{ post.summary|default:'' }}</div>
+          <div {% if post.summary or post.sensitive %}class="spoiler" _="on click toggle .revealed on me"{% endif %}>
+            <div class="attachments">
+              {% for attachment in post.attachments.all %}
+                {% if attachment.is_image %}
+                  <a href="#img_{{ post.pk }}_{{ loop.index }}">
+                    <img src="{{ attachment.thumbnail_url.relative }}"
+                         alt="image attachment"
+                         class="preview">
+                  </a>
+                  <a href="#" class="lightbox" id="img_{{ post.pk }}_{{ loop.index }}">
+                    <span style="background-image: url('{{ attachment.full_url.relative }}')"></span>
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% if post.piece and post.piece.classname == 'note' %}
+              <blockquote class="tldr"
+                          _="on click toggle .tldr on me"
+                          style="margin:0;
+                                 padding-top:0;
+                                 padding-bottom:0">
+                {{ post.content|bleach:"a,p,span,br,div,img"|default:"" }}
+              </blockquote>
+            {% else %}
+              {{ post.content|bleach:"a,p,span,br,div,img"|default:"" }}
+            {% endif %}
+          </div>
+          {% if post.piece %}
+            {% if post.piece.item %}
+              <article>{% include "_item_card.html" with item=post.piece.item allow_embed=1 %}</article>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+      <div id="replies_{{ post.pk }}"></div>
+    </section>
+  {% endwith %}
+  {% if forloop.last %}
+    <div class="htmx-indicator"
+         style="margin-left: 60px"
+         hx-get="{% url 'social:data' %}?last={{ event.pk }}"
+         hx-trigger="revealed"
+         hx-swap="outerHTML">
+      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+    </div>
+  {% endif %}
+{% empty %}
+  {% if request.GET.last %}
+    <div class="empty">{% trans 'nothing more.' %}</div>
+  {% else %}
+    <div class="empty">
+      {% url 'users:data' as import_url %}
+      {% blocktrans %}Find and mark some books/movies/podcasts/games, <a href="{{ import_url }}">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow {{ site_name }} users on the fediverse, so their recent activities and yours will show up here.{% endblocktrans %}
+    </div>
+  {% endif %}
+{% endfor %}

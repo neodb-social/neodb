@@ -1084,7 +1084,7 @@ class Post(models.Model):
     def piece(self):
         from journal.models import Piece, ShelfMember
 
-        pcs = Piece.objects.filter(post_id=self.pk)
+        pcs = Piece.objects.filter(posts=self.pk)
         if len(pcs) == 1:
             return pcs[0]
         return next((p for p in pcs if p.__class__ == ShelfMember), None)

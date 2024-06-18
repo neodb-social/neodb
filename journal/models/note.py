@@ -210,9 +210,13 @@ class Note(Content):
         if len(lines) < 3 or lines[-2].strip() not in _separaters:
             return content, None, None
         progress_type, progress_value = cls.extract_progress(lines[-1])
-        # if progress_value is None and not lines[-2].startswith("https://"):
+        # if progress_value is None and not lines[-1].startswith("https://"):
         #     return content, None, None
-        return "\n".join(lines[:-2]), progress_type, progress_value
+        return (  # remove one extra empty line generated from <p> tags
+            "\n".join(lines[: (-3 if lines[-3] == "" else -2)]),
+            progress_type,
+            progress_value,
+        )
 
     @classmethod
     def extract_progress(cls, content) -> tuple[str | None, str | None]:
@@ -224,7 +228,7 @@ class Note(Content):
                 return None, ""
             m = m.groupdict()
             typ_ = "percentage" if m["postfix"] == "%" else m.get("prefix", "")
-            match typ_:
+            match typ_.lower():
                 case "p" | "pg" | "page":
                     typ = Note.ProgressType.PAGE
                 case "ch" | "chapter":

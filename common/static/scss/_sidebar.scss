@@ -1,6 +1,9 @@
 .sidebar {
   article {
     padding: calc(var(--pico-block-spacing-horizontal));
+    article {
+      box-shadow: unset;
+    }
   }
 
   details {
@@ -77,7 +80,7 @@
   @media (max-width: 768px) {
 
     section,
-    article,
+    >section>article,
     details {
       margin-bottom: 0;
     }

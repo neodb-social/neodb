@@ -264,6 +264,12 @@ class NoteTest(TestCase):
         self.assertEqual(t, Note.ProgressType.PAGE)
         self.assertEqual(v, "1")
 
+        c0 = "test \n - \nP 99"
+        c, t, v = Note.strip_footer(c0)
+        self.assertEqual(c, "test ")
+        self.assertEqual(t, Note.ProgressType.PAGE)
+        self.assertEqual(v, "99")
+
         c0 = "test \n - \n pt 1 "
         c, t, v = Note.strip_footer(c0)
         self.assertEqual(c, "test ")

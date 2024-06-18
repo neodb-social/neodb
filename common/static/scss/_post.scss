@@ -1,29 +1,34 @@
-section.replies {
-	border-left: 1px solid var(--pico-muted-color);
-	margin-left: var(--pico-spacing);
-	padding-left: var(--pico-spacing);
-	margin-bottom: 0 !important;
-	>div {
-		margin-bottom: calc(var(--pico-spacing));
-	}
+.post {
 	p {
-		margin-bottom: 0;
+		margin-bottom: 0.5em;
 	}
-	details {
-		summary {
-			text-decoration: underline;
+	section.replies {
+		border-left: 1px solid var(--pico-muted-color);
+		margin-left: var(--pico-spacing);
+		padding-left: var(--pico-spacing);
+		margin-bottom: 0 !important;
+		>div {
+			margin-bottom: calc(var(--pico-spacing));
 		}
-	}
-	form {
-		margin-bottom: 0;
-		select {
-			width: min-content;
+		p {
+			margin-bottom: 0;
 		}
-		button{
-			height: calc(1rem * var(--pico-line-height) + var(--pico-form-element-spacing-vertical) * 2 + var(--pico-border-width) * 2)
+		details {
+			summary {
+				text-decoration: underline;
+			}
 		}
-		details.dropdown > summary::after {
-		  display: none;
+		form {
+			margin-bottom: 0;
+			select {
+				width: min-content;
+			}
+			button{
+				height: calc(1rem * var(--pico-line-height) + var(--pico-form-element-spacing-vertical) * 2 + var(--pico-border-width) * 2)
+			}
+			details.dropdown > summary::after {
+			  display: none;
+			}
 		}
 	}
 }

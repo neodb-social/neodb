@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
 from journal.models import *
+from takahe.models import TimelineEvent
 from takahe.utils import Takahe
 
 from .models import *
@@ -57,15 +58,28 @@ def feed(request):
 @login_required
 @require_http_methods(["GET"])
 def data(request):
-    return render(
-        request,
-        "feed_data.html",
-        {
-            "activities": ActivityManager(request.user.identity).get_timeline(
-                before_time=request.GET.get("last")
-            )[:PAGE_SIZE],
-        },
-    )
+    since_id = int(request.GET.get("last", 0))
+    events = TimelineEvent.objects.filter(
+        identity_id=request.user.identity.pk,
+        type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
+    ).order_by("-id")
+    if since_id:
+        events = events.filter(id__lt=since_id)
+    return render(request, "feed_events.html", {"events": events})
+
+
+# @login_required
+# @require_http_methods(["GET"])
+# def data(request):
+#     return render(
+#         request,
+#         "feed_data.html",
+#         {
+#             "activities": ActivityManager(request.user.identity).get_timeline(
+#                 before_time=request.GET.get("last")
+#             )[:PAGE_SIZE],
+#         },
+#     )
 
 
 @require_http_methods(["GET"])

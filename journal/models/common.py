@@ -128,6 +128,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         "takahe.Post", related_name="pieces", through="PiecePost"
     )
 
+    @property
+    def classname(self) -> str:
+        return self.__class__.__name__.lower()
+
     def get_mastodon_crosspost_url(self):
         return (
             (self.metadata or {}).get("shared_link")
