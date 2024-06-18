@@ -59,10 +59,28 @@ def feed(request):
 @require_http_methods(["GET"])
 def data(request):
     since_id = int(request.GET.get("last", 0))
-    events = TimelineEvent.objects.filter(
-        identity_id=request.user.identity.pk,
-        type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
-    ).order_by("-id")
+    events = (
+        TimelineEvent.objects.filter(
+            identity_id=request.user.identity.pk,
+            type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
+        )
+        .order_by("-id")
+        .select_related(
+            "subject_post",
+            "subject_post__author",
+            "subject_post__author__domain",
+            "subject_identity",
+            "subject_identity__domain",
+            "subject_post_interaction",
+            "subject_post_interaction__identity",
+            "subject_post_interaction__identity__domain",
+        )
+        .prefetch_related(
+            "subject_post__attachments",
+            "subject_post__mentions",
+            "subject_post__emojis",
+        )
+    )
     if since_id:
         events = events.filter(id__lt=since_id)
     return render(request, "feed_events.html", {"events": events})
