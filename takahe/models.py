@@ -899,6 +899,9 @@ class Post(models.Model):
     A post (status, toot) that is either local or remote.
     """
 
+    liked_by_current_user = None
+    boosted_by_current_user = None
+
     if TYPE_CHECKING:
         author_id: int
         interactions: "models.QuerySet[PostInteraction]"
@@ -1949,6 +1952,9 @@ class TimelineEvent(models.Model):
     Something that has happened to an identity that we want them to see on one
     or more timelines, like posts, likes and follows.
     """
+
+    if TYPE_CHECKING:
+        subject_post_id: int
 
     class Types(models.TextChoices):
         post = "post"

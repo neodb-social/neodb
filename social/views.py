@@ -5,7 +5,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
 from journal.models import *
-from takahe.models import TimelineEvent
+from takahe.models import PostInteraction, TimelineEvent
 from takahe.utils import Takahe
 
 from .models import *
@@ -59,9 +59,10 @@ def feed(request):
 @require_http_methods(["GET"])
 def data(request):
     since_id = int(request.GET.get("last", 0))
+    identity_id = request.user.identity.pk
     events = (
         TimelineEvent.objects.filter(
-            identity_id=request.user.identity.pk,
+            identity_id=identity_id,
             type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
         )
         .order_by("-id")
@@ -83,6 +84,23 @@ def data(request):
     )
     if since_id:
         events = events.filter(id__lt=since_id)
+    events = list(events[:PAGE_SIZE])
+    interactions = PostInteraction.objects.filter(
+        identity_id=identity_id,
+        post_id__in=[event.subject_post_id for event in events],
+        type__in=["like", "boost"],
+        state__in=["new", "fanned_out"],
+    ).values_list("post_id", "type")
+    for event in events:
+        if event.subject_post_id:
+            event.subject_post.liked_by_current_user = (
+                event.subject_post_id,
+                "like",
+            ) in interactions
+        event.subject_post.boosted_by_current_user = (
+            event.subject_post_id,
+            "boost",
+        ) in interactions
     return render(request, "feed_events.html", {"events": events})
 
 

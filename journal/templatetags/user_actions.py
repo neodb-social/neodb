@@ -26,21 +26,27 @@ def liked_piece(context, piece):
 
 @register.simple_tag(takes_context=True)
 def liked_post(context, post):
-    user = context["request"].user
-    return (
-        user
-        and user.is_authenticated
-        and post.interactions.filter(identity_id=user.identity.pk, type="like").exists()
-    )
-
-
-@register.simple_tag(takes_context=True)
-def boosted_post(context, post):
+    if post.liked_by_current_user is not None:
+        return post.liked_by_current_user
     user = context["request"].user
     return (
         user
         and user.is_authenticated
         and post.interactions.filter(
-            identity_id=user.identity.pk, type="boost"
+            identity_id=user.identity.pk, type="like", state__in=["new", "fanned_out"]
+        ).exists()
+    )
+
+
+@register.simple_tag(takes_context=True)
+def boosted_post(context, post):
+    if post.boosted_by_current_user is not None:
+        return post.boosted_by_current_user
+    user = context["request"].user
+    return (
+        user
+        and user.is_authenticated
+        and post.interactions.filter(
+            identity_id=user.identity.pk, type="boost", state__in=["new", "fanned_out"]
         ).exists()
     )
