@@ -20,7 +20,8 @@
   <main>
     <div class="grid__main">
       <h5>
-        {% trans 'Notification' %}
+        <a href="{% url 'social:feed' %}">{% trans 'Activities from those you follow' %}</a>
+        | {% trans 'Notification' %}
         <small>
           <a class="{% if not request.GET.type %}secondary{% endif %}"
              href="{% url 'social:notification' %}">{% trans 'all' %}</a> |

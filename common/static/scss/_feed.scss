@@ -1,26 +1,4 @@
 .feed-page {
-  .feed {
-    .post {
-      .cover {
-        img {
-          max-width:6em;
-          max-height:12em;
-          margin:1em;
-          box-shadow: var(--pico-card-box-shadow);
-          @media (max-width: 768px) {
-            max-width:4em;
-            max-height:8em;
-            margin:0.5em 0 0.5em 0.5em;
-          }
-          @media (min-width: 1280px) {
-            max-width:8em;
-            max-height:16em;
-            margin:1em 1em 2em 2em;
-          }
-        }
-      }
-    }
-  }
   .notifications {
     word-break: break-word;
 
