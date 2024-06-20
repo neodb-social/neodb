@@ -166,15 +166,7 @@
         {% endif %}
         <section>
           <article>
-            <details id="section-popular-posts" class="auto-keep-collapse" open>
-              <summary>{% trans 'Popular Posts' %}</summary>
-              <div style="font-size:80%">{% include "posts.html" with posts=popular_posts %}</div>
-            </details>
-          </article>
-        </section>
-        <section>
-          <article>
-            <details id="section-popular-tags" class="auto-keep-collapse" open>
+            <details id="section-popular-tags" class="auto-keep-collapse">
               <summary>{% trans 'Popular Tags' %}</summary>
               <div class="tag-list">
                 {% for t in popular_tags %}
@@ -185,6 +177,14 @@
                   <div class="empty">{% trans "nothing so far." %}</div>
                 {% endfor %}
               </div>
+            </details>
+          </article>
+        </section>
+        <section>
+          <article>
+            <details id="section-popular-posts" class="auto-keep-collapse" open>
+              <summary>{% trans 'Popular Posts' %}</summary>
+              <div style="font-size:80%">{% include "posts.html" with posts=popular_posts %}</div>
             </details>
           </article>
         </section>

@@ -139,22 +139,33 @@ class DiscoverGenerator(BaseJob):
             .values_list("pk", flat=True)[:40]
         )
         tags = TagManager.popular_tags(days=14)[:40]
+        excluding_identities = Takahe.get_no_discover_identities()
         post_ids = (
             set(
                 Takahe.get_popular_posts(
-                    28, settings.MIN_MARKS_FOR_DISCOVER
-                ).values_list("pk", flat=True)[:20]
+                    28, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities
+                ).values_list("pk", flat=True)[:5]
             )
             | set(
                 Takahe.get_popular_posts(
-                    7, settings.MIN_MARKS_FOR_DISCOVER
+                    14, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities
+                ).values_list("pk", flat=True)[:5]
+            )
+            | set(
+                Takahe.get_popular_posts(
+                    7, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities
                 ).values_list("pk", flat=True)[:10]
             )
-            | set(Takahe.get_popular_posts(1, 0).values_list("pk", flat=True)[:3])
+            | set(
+                Takahe.get_popular_posts(1, 0, excluding_identities).values_list(
+                    "pk", flat=True
+                )[:3]
+            )
             | set(
                 Review.objects.filter(visibility=0)
+                .exclude(owner_id__in=excluding_identities)
                 .order_by("-created_time")
-                .values_list("posts", flat=True)[:3]
+                .values_list("posts", flat=True)[:5]
             )
         )
         cache.set("public_gallery", gallery_list, timeout=None)
@@ -163,5 +174,5 @@ class DiscoverGenerator(BaseJob):
         cache.set("popular_tags", list(tags), timeout=None)
         cache.set("popular_posts", list(post_ids), timeout=None)
         logger.info(
-            f"Discover data updated, trends: {len(trends)}, collections: {len(collection_ids)}, tags: {len(tags)}, posts: {len(post_ids)}."
+            f"Discover data updated, excluded: {len(excluding_identities)}, trends: {len(trends)}, collections: {len(collection_ids)}, tags: {len(tags)}, posts: {len(post_ids)}."
         )

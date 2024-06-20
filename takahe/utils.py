@@ -911,11 +911,20 @@ class Takahe:
         )
 
     @staticmethod
-    def get_popular_posts(days: int = 30, min_interaction: int = 1):
+    def get_no_discover_identities():
+        return list(
+            Identity.objects.filter(discoverable=False).values_list("pk", flat=True)
+        )
+
+    @staticmethod
+    def get_popular_posts(
+        days: int = 30, min_interaction: int = 1, exclude_identities: list[int] = []
+    ):
         since = timezone.now() - timedelta(days=days)
         domains = Takahe.get_neodb_peers() + [settings.SITE_DOMAIN]
         return (
             Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
+            .exclude(author_id__in=exclude_identities)
             .filter(
                 author__domain__in=domains,
                 visibility__in=[0, 1, 4],
