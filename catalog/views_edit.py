@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from loguru import logger
 
 from common.utils import discord_send, get_uuid_or_404
-from journal.models import update_journal_for_merged_item
+from journal.models import update_journal_for_merged_item_task
 
 from .common.models import ExternalResource, IdealIdTypes, IdType
 from .forms import *
@@ -289,7 +289,9 @@ def merge(request, item_path, item_uuid):
             )
         logger.warning(f"{request.user} merges {item} to {new_item}")
         item.merge_to(new_item)
-        update_journal_for_merged_item(item_uuid)
+        django_rq.get_queue("crawl").enqueue(
+            update_journal_for_merged_item_task, request.user.pk, item.uuid
+        )
         discord_send(
             "audit",
             f"{item.absolute_url}?skipcheck=1\n⬇\n{new_item.absolute_url}\nby [@{request.user.username}]({request.user.absolute_url})",

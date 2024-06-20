@@ -26,6 +26,7 @@ from .utils import (
     remove_data_by_user,
     reset_journal_visibility_for_user,
     update_journal_for_merged_item,
+    update_journal_for_merged_item_task,
 )
 
 __all__ = [
@@ -61,4 +62,5 @@ __all__ = [
     "remove_data_by_user",
     "reset_journal_visibility_for_user",
     "update_journal_for_merged_item",
+    "update_journal_for_merged_item_task",
 ]

@@ -1,10 +1,11 @@
+from auditlog.context import set_actor
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from catalog.models import Item
-from users.models import APIdentity
+from users.models import APIdentity, User
 
 from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
@@ -34,6 +35,11 @@ def remove_data_by_user(owner: APIdentity):
     CollectionMember.objects.filter(owner=owner).delete()
     Collection.objects.filter(owner=owner).delete()
     FeaturedCollection.objects.filter(owner=owner).delete()
+
+
+def update_journal_for_merged_item_task(editing_user_id: int, legacy_item_uuid: str):
+    with set_actor(User.objects.get(pk=editing_user_id)):
+        update_journal_for_merged_item(legacy_item_uuid)
 
 
 def update_journal_for_merged_item(
