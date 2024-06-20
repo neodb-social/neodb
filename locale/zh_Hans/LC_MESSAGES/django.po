@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-18 17:29-0400\n"
+"POT-Creation-Date: 2024-06-20 11:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -651,7 +651,7 @@ msgstr "所属"
 #: catalog/templates/search_results.html:28
 #: catalog/templates/search_results.html:30
 #: journal/templates/_sidebar_user_mark_list.html:55
-#: social/templates/notification.html:26
+#: social/templates/notification.html:27
 msgid "all"
 msgstr "全部"
 
@@ -1501,7 +1501,7 @@ msgid "Home"
 msgstr "主页"
 
 #: common/templates/_header.html:89 social/templates/notification.html:11
-#: social/templates/notification.html:23
+#: social/templates/notification.html:24
 msgid "Notification"
 msgstr "通知"
 
@@ -2984,6 +2984,7 @@ msgstr ""
 "回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
 #: social/templates/feed.html:11 social/templates/feed.html:23
+#: social/templates/notification.html:23
 msgid "Activities from those you follow"
 msgstr "好友动态"
 
@@ -3012,11 +3013,11 @@ msgstr "转播了"
 msgid "wrote a note"
 msgstr "写了笔记"
 
-#: social/templates/notification.html:28
+#: social/templates/notification.html:29
 msgid "mention"
 msgstr "提及"
 
-#: social/templates/notification.html:30
+#: social/templates/notification.html:31
 msgid "follow"
 msgstr "关注"
 
