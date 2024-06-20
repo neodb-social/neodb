@@ -21,6 +21,7 @@ from .note import note_edit
 from .post import (
     piece_replies,
     post_boost,
+    post_delete,
     post_like,
     post_replies,
     post_reply,

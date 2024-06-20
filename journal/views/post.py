@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -30,6 +31,21 @@ def post_replies(request: AuthedHttpRequest, post_id: int):
     return render(
         request, "replies.html", {"post": Takahe.get_post(post_id), "replies": replies}
     )
+
+
+@require_http_methods(["POST"])
+@login_required
+def post_delete(request: AuthedHttpRequest, post_id: int):
+    p = Takahe.get_post(post_id)
+    if not p:
+        raise Http404(_("Post not found"))
+    if p.author_id != request.user.identity.pk:
+        raise PermissionDenied(_("Insufficient permission"))
+    parent_post = p.in_reply_to_post()
+    Takahe.delete_posts([post_id])
+    if parent_post:
+        return post_replies(request, parent_post.pk)
+    return redirect(reverse("home"))  # FIXME
 
 
 @require_http_methods(["POST"])
