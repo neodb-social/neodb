@@ -3,12 +3,12 @@
   <a hx-post="{% url 'journal:post_delete' post.pk %}"
      hx-swap="outerHTML"
      hx-trigger="click once"
-     {% if post.piece %} hx-confirm="{% trans "are you sure to delete the mark or note related with this post?" %}" {% else %} hx-confirm="{% trans "are you sure to delete this post?" %}" {% endif %}
+     {% if post.piece %} hx-confirm="‼️ {% trans "Are you sure to delete this post and the mark or note related with it?" %}" {% elif parent_post %} hx-confirm="{% trans "Are you sure to delete this reply?" %}" {% else %} hx-confirm="{% trans "Are you sure to delete this post?" %}" {% endif %}
      hx-target="#replies_{{ parent_post.pk }}">
     {% if post.piece %}
       <!--i class="fa-regular fa-trash-can"></i -->
     {% else %}
-      <i class="fa-regular fa-square-minus"></i>
+      <i class="fa-regular fa-trash-can"></i>
     {% endif %}
   </a>
 </span>

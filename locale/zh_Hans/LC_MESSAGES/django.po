@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-20 11:26-0400\n"
+"POT-Creation-Date: 2024-06-20 21:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1102,15 +1102,11 @@ msgid "mark all as read"
 msgstr "全部标为已读"
 
 #: catalog/templates/discover.html:170
-msgid "Popular Posts"
-msgstr "热门帖文"
-
-#: catalog/templates/discover.html:178
 #: common/templates/_sidebar_anonymous.html:51
 msgid "Popular Tags"
 msgstr "热门标签"
 
-#: catalog/templates/discover.html:185 catalog/templates/item_base.html:236
+#: catalog/templates/discover.html:177 catalog/templates/item_base.html:236
 #: catalog/templates/item_mark_list.html:54
 #: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:99
 #: common/templates/_sidebar_anonymous.html:43
@@ -1124,6 +1120,10 @@ msgstr "热门标签"
 #: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
 msgstr "暂无内容。"
+
+#: catalog/templates/discover.html:186
+msgid "Popular Posts"
+msgstr "热门帖文"
 
 #: catalog/templates/edition.html:36
 msgid "publication date"
@@ -1380,21 +1380,21 @@ msgstr "条目已不存在"
 
 #: catalog/views_edit.py:122 catalog/views_edit.py:145
 #: catalog/views_edit.py:197 catalog/views_edit.py:273
-#: catalog/views_edit.py:350 journal/views/collection.py:52
+#: catalog/views_edit.py:352 journal/views/collection.py:52
 #: journal/views/collection.py:102 journal/views/collection.py:114
 #: journal/views/collection.py:130 journal/views/collection.py:161
 #: journal/views/collection.py:180 journal/views/collection.py:200
 #: journal/views/collection.py:212 journal/views/collection.py:226
 #: journal/views/collection.py:240 journal/views/collection.py:243
 #: journal/views/collection.py:267 journal/views/common.py:134
-#: journal/views/post.py:20 journal/views/review.py:32
+#: journal/views/post.py:21 journal/views/post.py:43 journal/views/review.py:32
 #: journal/views/review.py:46
 msgid "Insufficient permission"
 msgstr "权限不足"
 
 #: catalog/views_edit.py:200 journal/views/collection.py:229
 #: journal/views/collection.py:296 journal/views/common.py:81
-#: journal/views/mark.py:141 journal/views/post.py:41 journal/views/post.py:55
+#: journal/views/mark.py:141 journal/views/post.py:57 journal/views/post.py:71
 #: journal/views/review.py:93 journal/views/review.py:96 users/views.py:169
 msgid "Invalid parameter"
 msgstr "无效参数"
@@ -1415,11 +1415,11 @@ msgstr "无法合并到一个已经被合并或删除的条目"
 msgid "Cannot merge items in different categories"
 msgstr "无法合并不同类型的条目"
 
-#: catalog/views_edit.py:324
+#: catalog/views_edit.py:326
 msgid "Cannot be linked to an item already deleted or merged"
 msgstr "无法关联到一个已经被合并或删除的条目"
 
-#: catalog/views_edit.py:326
+#: catalog/views_edit.py:328
 msgid "Cannot link items other than editions"
 msgstr "无法关联到非图书类的条目"
 
@@ -2274,6 +2274,18 @@ msgstr "评分"
 msgid "boost"
 msgstr "转播"
 
+#: journal/templates/action_delete_post.html:6
+msgid "Are you sure to delete this post and the mark or note related with it?"
+msgstr "确认删除这则帖文及其对应的标记/笔记/评论吗？"
+
+#: journal/templates/action_delete_post.html:6
+msgid "Are you sure to delete this reply?"
+msgstr "确认删除这则回应吗？"
+
+#: journal/templates/action_delete_post.html:6
+msgid "Are you sure to delete this post?"
+msgstr "确认删除这则帖文吗？"
+
 #: journal/templates/action_like_post.html:10
 msgid "liked"
 msgstr "已喜欢"
@@ -2533,11 +2545,11 @@ msgstr "收藏单"
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/replies.html:46
+#: journal/templates/replies.html:53
 msgid "no replies so far."
 msgstr "暂无回应。"
 
-#: journal/templates/replies.html:53
+#: journal/templates/replies.html:61
 msgid "add a reply"
 msgstr "添加回应"
 
@@ -2697,6 +2709,10 @@ msgstr "进度类型（选填）"
 #: journal/views/note.py:106
 msgid "Invalid form data"
 msgstr "无效表单信息。"
+
+#: journal/views/post.py:41
+msgid "Post not found"
+msgstr "帖文未找到"
 
 #: journal/views/review.py:112 journal/views/review.py:126
 #, python-brace-format
