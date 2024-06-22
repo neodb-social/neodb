@@ -70,6 +70,9 @@
                 {% trans "wrote a note" %}
               {% endif %}
             </span>
+            {% if piece and piece.classname != 'note' %}
+              <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article>
+            {% endif %}
             <div>{{ post.summary|default:'' }}</div>
             <div style="display:flex;">
               <div style="flex-grow:1"
@@ -100,10 +103,9 @@
                   {{ post.content|bleach:"a,p,span,br,div,img"|default:"" }}
                 {% endif %}
               </div>
-              <div class="cover">
-                {% if post.piece %}
+              <div class="embed-cover">
+                {% if piece and piece.classname == 'note' %}
                   {% if item %}
-                    {# <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article> #}
                     <a href="{{ item.url }}" title="{{ item.title }}">
                       <img src="{{ item.cover_image_url }}" title="{{ item.title }}" alt="cover">
                     </a>
