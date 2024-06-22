@@ -47,12 +47,12 @@ jobs:
           tag: ${{ github.ref }}
 
       - name: snapshot code
-        run: zip -r /tmp/neodb-${{ github.ref }}.zip . -x '.git'
+        run: zip -r /tmp/neodb-source-${{ github.ref_name }}.zip . -x '.git'
 
       - uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: /tmp/neodb-${{ github.ref }}.zip
+          file: /tmp/neodb-source-${{ github.ref_name }}.zip
           tag: ${{ github.ref }}
 
       - name: Send Discord notification
