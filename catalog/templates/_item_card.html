@@ -2,23 +2,26 @@
 {% load duration %}
 {% if allow_embed and item.get_embed_link %}
   <div class="item player">
-    <h5>
-      <a href="{{ item.url }}">{{ item.title }}</a>
-      <small>
-        {% if not hide_category %}<span class="category">[{{ item.category.label }}]</span>{% endif %}
-        <span class="site-list">
-          {% for res in item.external_resources.all %}
-            <a href="{{ res.url }}" class="{{ res.site_name }}">{{ res.site_label }}</a>
-          {% endfor %}
-        </span>
-      </small>
-    </h5>
+    <hgroup>
+      <h5>
+        <a href="{{ item.url }}">{{ item.title }}</a>
+        <small>
+          {% if not hide_category %}<span class="category">[{{ item.category.label }}]</span>{% endif %}
+          <span class="site-list">
+            {% for res in item.external_resources.all %}
+              <a href="{{ res.url }}" class="{{ res.site_name }}">{{ res.site_label }}</a>
+            {% endfor %}
+          </span>
+        </small>
+      </h5>
+    </hgroup>
     <iframe src="{{ item.get_embed_link }}"
             frameborder="0"
             allowtransparency="true"
             allow="encrypted-media"
-            style="width: 100%;
-                   height: 120px"></iframe>
+            style="width:100%;
+                   height:120px;
+                   margin-top:0.5em"></iframe>
   </div>
 {% else %}
   <div class="item">
