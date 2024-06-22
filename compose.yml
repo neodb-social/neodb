@@ -164,7 +164,7 @@ services:
 
   neodb-web:
     <<: *neodb-service
-    command: ${NEODB_VENV:-/neodb-venv}/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload --max-requests 2000 --timeout 90 -b 0.0.0.0:8000
+    command: ${NEODB_VENV:-/neodb-venv}/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload --max-requests 2000 --timeout 60 -b 0.0.0.0:8000
     healthcheck:
       test: ['CMD', 'wget', '-qO/tmp/test', '--header', 'X-Forwarded-Proto: https', 'http://127.0.0.1:8000/nodeinfo/2.0/']
     depends_on:
@@ -173,7 +173,7 @@ services:
 
   neodb-web-api:
     <<: *neodb-service
-    command: ${NEODB_VENV:-/neodb-venv}/bin/gunicorn boofilsic.wsgi -w ${NEODB_API_WORKER_NUM:-4} --preload --max-requests 2000 --timeout 90 -b 0.0.0.0:8000
+    command: ${NEODB_VENV:-/neodb-venv}/bin/gunicorn boofilsic.wsgi -w ${NEODB_API_WORKER_NUM:-4} --preload --max-requests 2000 --timeout 30 -b 0.0.0.0:8000
     healthcheck:
       test: ['CMD', 'wget', '-qO/tmp/test', '--header', 'X-Forwarded-Proto: https', 'http://127.0.0.1:8000/nodeinfo/2.0/']
     depends_on:
@@ -196,7 +196,7 @@ services:
 
   takahe-web:
     <<: *neodb-service
-    command: ${TAKAHE_VENV:-/takahe-venv}/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8} --max-requests 2000 --timeout 90 --preload -b 0.0.0.0:8000
+    command: ${TAKAHE_VENV:-/takahe-venv}/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8} --max-requests 2000 --timeout 60 --preload -b 0.0.0.0:8000
     healthcheck:
       test: ['CMD', 'wget', '-qO/tmp/test', '--header', 'X-Forwarded-Proto: https', 'http://127.0.0.1:8000/api/v1/instance']
     depends_on:
