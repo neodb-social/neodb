@@ -10,35 +10,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release_upload:
-    name: Upload additional files to release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
-        with:
-          submodules: 'true'
-      - uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: compose.yml
-          tag: ${{ github.ref }}
-      - uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: neodb.env.example
-          tag: ${{ github.ref }}
-      - name: snapshot takahe code
-        run: zip -r neodb-takahe.zip neodb-takahe -x '.git'
-      - uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: neodb-takahe.zip
-          tag: ${{ github.ref }}
-
   build_and_push_image:
     name: build image and push to Docker Hub
-    # if: github.repository_owner == 'neodb-social'
+    if: github.repository_owner == 'neodb-social'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -59,6 +33,27 @@ jobs:
         run: |
           echo '__version__ = "'$REF_NAME'"' > boofilsic/__init__.py
           echo '__version__ = "'$REF_NAME'"' > neodb-takahe/takahe/neodb.py
+
+      - uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: compose.yml
+          tag: ${{ github.ref }}
+
+      - uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: neodb.env.example
+          tag: ${{ github.ref }}
+
+      - name: snapshot code
+        run: zip -r /tmp/neodb-${{ github.ref }}.zip . -x '.git'
+
+      - uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: /tmp/neodb-${{ github.ref }}.zip
+          tag: ${{ github.ref }}
 
       - name: Send Discord notification
         uses: appleboy/discord-action@master
