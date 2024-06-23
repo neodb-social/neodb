@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-20 21:41-0400\n"
+"POT-Creation-Date: 2024-06-23 17:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -675,7 +675,7 @@ msgstr "显示更多"
 #: catalog/templates/_item_reviews.html:47
 #: catalog/templates/podcast_episode_data.html:44
 #: social/templates/events.html:43 social/templates/feed_data.html:44
-#: social/templates/feed_events.html:131
+#: social/templates/feed_events.html:133
 msgid "nothing more."
 msgstr "没有更多内容了。"
 
@@ -1470,7 +1470,7 @@ msgstr "开发者"
 msgid "Source Code"
 msgstr "源代码"
 
-#: common/templates/_footer.html:16 users/templates/users/login.html:166
+#: common/templates/_footer.html:16 users/templates/users/login.html:161
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "这是%(site_name)s的临时镜像，请尽可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"
@@ -2761,53 +2761,41 @@ msgstr "分享我的收藏单"
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
 
-#: mastodon/models.py:14
+#: mastodon/models.py:7
 msgid "site domain name"
 msgstr "实例域名"
 
-#: mastodon/models.py:15
+#: mastodon/models.py:8
 msgid "domain for api call"
 msgstr "实例API域名"
 
-#: mastodon/models.py:16
+#: mastodon/models.py:9
 msgid "type and verion"
 msgstr "实例版本"
 
-#: mastodon/models.py:17
+#: mastodon/models.py:10
 msgid "in-site app id"
 msgstr "实例应用id"
 
-#: mastodon/models.py:18
+#: mastodon/models.py:11
 msgid "client id"
 msgstr "实例应用Client ID"
 
-#: mastodon/models.py:19
+#: mastodon/models.py:12
 msgid "client secret"
 msgstr "实例应用Client Secret"
 
-#: mastodon/models.py:20
+#: mastodon/models.py:13
 msgid "vapid key"
 msgstr "实例应用VAPID Key"
 
-#: mastodon/models.py:22
+#: mastodon/models.py:15
 msgid "0: custom emoji; 1: unicode moon; 2: text"
 msgstr "实例表情模式"
 
-#: mastodon/models.py:25
+#: mastodon/models.py:18
 msgid "max toot len"
 msgstr "帖文长度限制"
-
-#: mastodon/models.py:38
-msgid "username and original site"
-msgstr "用户标识"
-
-#: mastodon/models.py:40
-msgid "local database id"
-msgstr "本地标识"
-
-#: mastodon/models.py:42
-msgid "target site domain name"
-msgstr "目标实例域名"
 
 #: social/templates/activity/comment_child_item.html:12
 #: social/templates/feed_events.html:40
@@ -3016,7 +3004,7 @@ msgstr "仅书影音"
 msgid "Notifications"
 msgstr "通知"
 
-#: social/templates/feed_data.html:48 social/templates/feed_events.html:135
+#: social/templates/feed_data.html:48 social/templates/feed_events.html:137
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\">导入你的豆瓣、Letterboxd或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用%(site_name)s的用户，这里就会显示你和她们的近期动态。"
@@ -3301,7 +3289,7 @@ msgstr "必填，限英文字母数字下划线，最多30个字符。"
 msgid "A user with that username already exists."
 msgstr "使用该用户名的用户已存在。"
 
-#: users/models/user.py:92 users/templates/users/login.html:60
+#: users/models/user.py:92
 msgid "email address"
 msgstr "电子邮件地址"
 
@@ -3568,12 +3556,11 @@ msgstr "无法找到用户，请确认拼写正确；也可能服务器正忙，
 msgid "Searching the fediverse"
 msgstr "正在搜索联邦宇宙"
 
-#: users/templates/users/login.html:16 users/templates/users/login.html:84
-#: users/templates/users/register.html:8
+#: users/templates/users/login.html:16 users/templates/users/register.html:8
 msgid "Register"
 msgstr "注册"
 
-#: users/templates/users/login.html:16 users/templates/users/login.html:84
+#: users/templates/users/login.html:16
 msgid "Login"
 msgstr "登录"
 
@@ -3582,57 +3569,85 @@ msgstr "登录"
 msgid "back to your home page."
 msgstr "返回首页"
 
-#: users/templates/users/login.html:69
-msgid "domain name of your instance, e.g. mastodon.social"
+#: users/templates/users/login.html:56
+msgid "Email"
+msgstr "电子邮件"
+
+#: users/templates/users/login.html:61
+msgid "Fediverse (Mastodon)"
+msgstr "联邦宇宙（有时也被称为长毛象）"
+
+#: users/templates/users/login.html:71
+msgid "Threads"
+msgstr "Threads"
+
+#: users/templates/users/login.html:74
+msgid "Bluesky"
+msgstr "Bluesky"
+
+#: users/templates/users/login.html:89
+msgid "Enter your email address"
+msgstr "输入电子邮件地址"
+
+#: users/templates/users/login.html:91
+msgid "Verify Email"
+msgstr "验证电子邮件"
+
+#: users/templates/users/login.html:106
+msgid "domain of your instance, e.g. mastodon.social"
 msgstr "实例域名(不含@和@之前的部分)，如mastodon.social"
 
-#: users/templates/users/login.html:78
-msgid "Login Method"
-msgstr "选择登录方式"
-
-#: users/templates/users/login.html:79
-msgid "Fediverse Identity"
-msgstr "联邦宇宙授权"
-
-#: users/templates/users/login.html:80
-msgid "Email Verification"
-msgstr "电子邮件验证"
-
 #: users/templates/users/login.html:112
-msgid "select or input domain name of your instance (excl. @)"
-msgstr "输入或选择实例域名(不含@和@之前的部分)"
+msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
+msgstr "请输入你的实例域名(不含@和@之前的部分)；如果你的联邦账号是<i>@neodb@mastodon.social</i>只需要在此输入<i>mastodon.social</i>。"
 
-#: users/templates/users/login.html:145
-msgid "Authorize"
-msgstr "授权"
+#: users/templates/users/login.html:115 users/templates/users/login.html:145
+msgid "Authorize via Fediverse instance"
+msgstr "去联邦实例授权注册或登录"
 
-#: users/templates/users/login.html:150
+#: users/templates/users/login.html:117
+msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
+msgstr "如果你还没有或不便注册<a href=\"https://joinmastodon.org/servers\" target=\"_blank\">联邦实例</a>账号，也可先通过电子邮件或其它平台注册登录，未来再作关联。"
+
+#: users/templates/users/login.html:127
+msgid "Authorize via Threads"
+msgstr "去Threads授权注册或登录"
+
+#: users/templates/users/login.html:128
+msgid "If you have already account here registered via a different way, you may login through there and link with your Threads account in account settings."
+msgstr "如果你已通过其它方式注册过本站帐号，请用该方式登录后再关联Threads。"
+
+#: users/templates/users/login.html:137
+msgid "Authorize via Bluesky"
+msgstr "去Bluesky授权注册或登录"
+
+#: users/templates/users/login.html:138
+msgid "If you have already account here registered via a different way, you may login through there and link with your Bluesky account in account settings."
+msgstr "如果你已通过其它方式注册过本站帐号，请用该方式登录后再关联Bluesky。"
+
+#: users/templates/users/login.html:151
 msgid "Valid invitation code, please login or register."
 msgstr "邀请链接有效，可注册新用户"
 
-#: users/templates/users/login.html:152
+#: users/templates/users/login.html:153
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr "本站目前为邀请注册，已有账户可直接登入，新用户请使用有效邀请链接注册"
 
-#: users/templates/users/login.html:154
+#: users/templates/users/login.html:155
 msgid "Invitation code invalid or expired."
 msgstr "邀请链接无效，已有账户可直接登入，新用户请使用有效邀请链接注册"
 
-#: users/templates/users/login.html:159
-msgid "Select Email Verification if you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse account</a>."
-msgstr "如不便或尚未<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">注册联邦宇宙</a>，也可以在上方选择「电子邮件验证」注册登录本站。"
-
-#: users/templates/users/login.html:161
-msgid "Enter your email address to register or sign in if you don't have a Fediverse account, or have associated your email with your Fediverse account before; otherwise please sign in via Fediverse, and associate your email address once logged in."
-msgstr "现有用户通过联邦宇宙登录后关联电子邮件地址，即可通过邮件登录本站；如不便使用联邦宇宙，也可在此输入邮件地址注册账号，未来再关联到联邦宇宙。"
-
-#: users/templates/users/login.html:168
+#: users/templates/users/login.html:163
 msgid "Loading timed out, please check your network (VPN) settings."
 msgstr "部分模块加载超时，请检查网络（翻墙）设置。"
 
-#: users/templates/users/login.html:174
+#: users/templates/users/login.html:169
 msgid "Using this site implies consent of our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, and use of cookies to provide necessary functionality."
 msgstr "继续访问或注册视为同意<a href=\"/pages/rules/\">站规</a>与<a href=\"/pages/terms/\">协议</a>，及使用cookie提供必要功能"
+
+#: users/templates/users/login.html:175
+msgid "select or input domain name of your instance (excl. @)"
+msgstr "输入或选择实例域名(不含@和@之前的部分)"
 
 #: users/templates/users/preferences.html:26
 msgid "Default view once logged in"

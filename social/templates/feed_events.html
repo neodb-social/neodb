@@ -70,7 +70,7 @@
                 {% trans "wrote a note" %}
               {% endif %}
             </span>
-            {% if piece and piece.classname != 'note' %}
+            {% if piece and item and piece.classname != 'note' %}
               <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article>
             {% endif %}
             <div>{{ post.summary|default:'' }}</div>

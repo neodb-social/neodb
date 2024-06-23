@@ -1,19 +1,85 @@
 .login-page {
-  input:invalid {
-    border: var(--pico-primary) dashed 2px;
+  article {
+    header {
+      text-align: center;
+    }
   }
-
+  input:invalid {
+    background-image: var(--pico-icon-invalid);
+    padding-right: calc(var(--pico-form-element-spacing-horizontal) + 1.5rem)!important;
+    padding-left: var(--pico-form-element-spacing-horizontal);
+    padding-inline-start: var(--pico-form-element-spacing-horizontal)!important;
+    padding-inline-end: calc(var(--pico-form-element-spacing-horizontal) + 1.5rem)!important;
+    background-position: center right .75rem;
+    background-size: 1rem auto;
+    background-repeat: no-repeat;
+  }
   mark {
     padding: 0;
   }
-
-  .autoComplete_wrapper>ul {
+  :where(.autoComplete_wrapper)+small {
+  display: block;
+    width: 100%;
+    color: var(--pico-muted-color);
+  }
+  .autoComplete_wrapper {
+    position: relative;
+  }
+  .autoComplete_wrapper>input {
+    margin-bottom:0;
+  }
+  .autoComplete_wrapper > ul {
+    position: absolute;
+    max-height: 226px;
+    overflow-y: scroll;
+    top: 100%;
+    left: 0;
+    right: 0;
     padding: 0;
+    margin: 0.25rem 0 0 0;
+    border-radius: 0.6rem;
+    background-color: var(--pico-background-color);
+    box-shadow: 0 3px 6px rgba(149, 157, 165, 0.15);
+    border: 1px solid rgba(33, 33, 33, 0.07);
+    z-index: 1000;
+    outline: none;
+  }
+  .autoComplete_wrapper > ul[hidden],
+  .autoComplete_wrapper > ul:empty {
+    display: block;
+    opacity: 0;
+    transform: scale(0);
+  }
+  .autoComplete_wrapper > ul > li {
+    margin: 0.3rem;
+    padding: 0.3rem 0.5rem;
+    list-style: none;
+    text-align: left;
+    font-size: 1rem;
+    color: var(--pico-muted-color);
+    transition: all 0.1s ease-in-out;
+    border-radius: 0.35rem;
+    --background-color: rgba(255, 255, 255, 1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.2s ease;
   }
 
-  .autoComplete_wrapper>ul li {
-    list-style: none;
-    padding: 0 var(--pico-spacing);
+  .autoComplete_wrapper > ul > li::selection {
+    --color: rgba(#ffffff, 0);
+    --background-color: rgba(#ffffff, 0);
+  }
+
+  .autoComplete_wrapper > ul > li mark {
+    background-color: transparent;
+    --color: rgba(255, 122, 122, 1);
+    font-weight: bold;
+  }
+
+  .autoComplete_wrapper > ul > li mark::selection {
+    --color: rgba(#ffffff, 0);
+    --background-color: rgba(#ffffff, 0);
   }
 
   .autoComplete_wrapper>ul>li:hover {
