@@ -55,6 +55,7 @@ dependencies = [
     "urlman",
     "validators",
     "deepmerge>=1.1.1",
+    "django-typed-models>=0.14.0",
 ]
 
 [tool.rye]

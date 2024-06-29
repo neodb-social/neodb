@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from catalog.book.tests import *
+from catalog.common.jsondata import decrypt_str, encrypt_str
 from catalog.game.tests import *
 from catalog.movie.tests import *
 from catalog.music.tests import *
@@ -39,3 +40,9 @@ class CatalogCase(TestCase):
         self.hyperion_print.merge_to(self.hyperion_ebook)
         resloved = Item.get_by_url(self.hyperion_hardcover.url, True)
         self.assertEqual(resloved, self.hyperion_ebook)
+
+    def test_encypted_field(self):
+        o = "Hello, World!"
+        e = encrypt_str(o)
+        d = decrypt_str(e)
+        self.assertEqual(o, d)

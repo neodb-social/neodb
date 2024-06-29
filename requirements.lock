@@ -82,6 +82,7 @@ django-rq==2.10.2
 django-sass-processor==1.4.1
 django-simple-history==3.7.0
 django-slack==5.19.0
+django-typed-models==0.14.0
 django-tz-detect==0.5.0
 django-user-messages==1.0.0
 dnspython==2.6.1

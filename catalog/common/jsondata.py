@@ -1,13 +1,18 @@
 # pyright: reportIncompatibleMethodOverride=false, reportFunctionMemberAccess=false
 import copy
+from base64 import b64decode, b64encode
 from datetime import date, datetime
 from functools import partialmethod
+from hashlib import sha256
 from importlib import import_module
 
 import django
+from cryptography.fernet import Fernet, MultiFernet
+from django.conf import settings
 from django.core.exceptions import FieldError
-from django.db.models import fields
+from django.db.models import Value, fields
 from django.utils import dateparse, timezone
+from django.utils.encoding import force_bytes
 from django.utils.translation import gettext_lazy as _
 
 # from django.db.models import JSONField as DJANGO_JSONField
@@ -15,6 +20,28 @@ from django.utils.translation import gettext_lazy as _
 # from django.contrib.postgres.fields import ArrayField as DJANGO_ArrayField
 from django_jsonform.models.fields import ArrayField as DJANGO_ArrayField
 from django_jsonform.models.fields import JSONField as DJANGO_JSONField
+
+
+def _get_crypter():
+    configured_keys = [settings.SECRET_KEY] + settings.SECRET_KEY_FALLBACKS
+    keys = [Fernet(b64encode(sha256(force_bytes(k)).digest())) for k in configured_keys]
+    if len(keys) == 0:
+        raise ValueError("No keys defined")
+    return MultiFernet(keys)
+
+
+CRYPTER = _get_crypter()
+
+
+def encrypt_str(s: str) -> str:
+    # be sure to encode the string to bytes
+    return CRYPTER.encrypt(s.encode("utf-8")).decode("utf-8")
+
+
+def decrypt_str(t: str) -> str:
+    # be sure to decode the bytes to a string
+    return CRYPTER.decrypt(t.encode("utf-8")).decode("utf-8")
+
 
 __all__ = (
     "BooleanField",
@@ -29,6 +56,7 @@ __all__ = (
     "IPAddressField",
     "GenericIPAddressField",
     "NullBooleanField",
+    "EncryptedTextField",
     "TextField",
     "TimeField",
     "URLField",
@@ -79,9 +107,6 @@ class JSONFieldDescriptor(object):
             json_value[self.field.attname] = value
 
         setattr(instance, self.field.json_field_name, json_value)
-
-
-fields.CharField
 
 
 class JSONFieldMixin(object):
@@ -224,6 +249,16 @@ class NullBooleanField(JSONFieldMixin, fields.NullBooleanField):
 
 class TextField(JSONFieldMixin, fields.TextField):
     pass
+
+
+class EncryptedTextField(JSONFieldMixin, fields.TextField):
+    def to_json(self, value):
+        if value:
+            return encrypt_str(str(value))
+
+    def from_json(self, value):
+        if value:
+            return decrypt_str(value)
 
 
 class TimeField(JSONFieldMixin, fields.TimeField):
