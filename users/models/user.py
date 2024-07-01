@@ -387,7 +387,6 @@ class User(AbstractUser):
 
         account = param.pop("account", None)
         with transaction.atomic():
-            logger.debug(account.access_data)
             if account:
                 if account.platform == Platform.MASTODON:
                     param["mastodon_username"] = account.account_data["username"]
@@ -404,7 +403,6 @@ class User(AbstractUser):
             Preference.objects.create(user=new_user)
             if account:
                 account.user = new_user
-                logger.debug(account.access_data)
                 account.save()
             Takahe.init_identity_for_local_user(new_user)
             new_user.identity.shelf_manager

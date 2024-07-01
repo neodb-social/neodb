@@ -81,7 +81,7 @@ class JSONFieldDescriptor(object):
                 if hasattr(self.field, "from_json"):
                     value = self.field.from_json(value)
             elif self.field.has_default():
-                value = self.field.get_default()
+                value = self.field._get_default()
                 # if hasattr(self.field, "to_json"):
                 #     json_value[self.field.attname] = self.field.to_json(value)
                 # else:
