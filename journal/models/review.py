@@ -10,7 +10,6 @@ from markdownify import markdownify as md
 from markdownx.models import MarkdownxField
 
 from catalog.models import Item
-from mastodon.api import boost_toot_later
 from takahe.utils import Takahe
 from users.models import APIdentity
 

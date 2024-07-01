@@ -10,37 +10,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="CrossSiteUserInfo",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "uid",
-                    models.CharField(
-                        max_length=200, verbose_name="username and original site"
-                    ),
-                ),
-                (
-                    "local_id",
-                    models.PositiveIntegerField(verbose_name="local database id"),
-                ),
-                (
-                    "target_site",
-                    models.CharField(
-                        max_length=100, verbose_name="target site domain name"
-                    ),
-                ),
-                ("site_id", models.CharField(max_length=100)),
-            ],
-        ),
-        migrations.CreateModel(
             name="MastodonApplication",
             fields=[
                 (
@@ -92,11 +61,5 @@ class Migration(migrations.Migration):
                 ("is_proxy", models.BooleanField(blank=True, default=False)),
                 ("proxy_to", models.CharField(blank=True, default="", max_length=100)),
             ],
-        ),
-        migrations.AddConstraint(
-            model_name="crosssiteuserinfo",
-            constraint=models.UniqueConstraint(
-                fields=("uid", "target_site"), name="unique_cross_site_user_info"
-            ),
         ),
     ]

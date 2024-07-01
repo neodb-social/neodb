@@ -1,6 +1,9 @@
 from django.contrib.auth.backends import ModelBackend, UserModel
+from django.http import HttpRequest
 
-from .api import verify_account
+from mastodon.models.common import SocialAccount
+
+from .models import Mastodon
 
 
 class OAuth2Backend(ModelBackend):
@@ -10,23 +13,11 @@ class OAuth2Backend(ModelBackend):
     #  a user object that matches those credentials."
     # arg request is an interface specification, not used in this implementation
 
-    def authenticate(self, request, username=None, password=None, **kwargs):
+    def authenticate(
+        self, request: HttpRequest | None, username=None, password=None, **kwargs
+    ):
         """when username is provided, assume that token is newly obtained and valid"""
-        token = kwargs.get("token", None)
-        site = kwargs.get("site", None)
-        if token is None or site is None:
-            return
-        mastodon_username = None
-        if username is None:
-            code, user_data = verify_account(site, token)
-            if code == 200 and user_data:
-                mastodon_username = user_data.get("username")
-        if not mastodon_username:
+        account: SocialAccount = kwargs.get("social_account", None)
+        if not account or not account.user:
             return None
-        try:
-            user = UserModel._default_manager.get(
-                mastodon_username__iexact=mastodon_username, mastodon_site__iexact=site
-            )
-            return user if self.user_can_authenticate(user) else None
-        except UserModel.DoesNotExist:
-            return None
+        return account.user if self.user_can_authenticate(account.user) else None

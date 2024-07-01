@@ -42,7 +42,7 @@
                 <td colspan="3">
                   <b title="#{{ log.id }}">
                     {% if request.user.is_staff or log.actor.preference.show_last_edit %}
-                      {{ log.actor.handler }}
+                      {{ log.actor.username }}
                     {% else %}
                       <i class="fa-solid fa-user-secret"></i>
                     {% endif %}

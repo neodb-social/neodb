@@ -7,7 +7,6 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from common.utils import AuthedHttpRequest, get_uuid_or_404, target_identity_required
-from mastodon.api import boost_toot_later
 from takahe.utils import Takahe
 
 from ..forms import *
@@ -69,8 +68,8 @@ def post_boost(request: AuthedHttpRequest, post_id: int):
     post = Takahe.get_post(post_id)
     if not post:
         raise BadRequest(_("Invalid parameter"))
-    if request.user.mastodon_site and request.user.preference.mastodon_repost_mode == 1:
-        boost_toot_later(request.user, post.object_uri)
+    if request.user.mastodon and request.user.preference.mastodon_repost_mode == 1:
+        request.user.mastodon.boost_later(post.object_uri)
     else:
         Takahe.boost_post(post_id, request.user.identity.pk)
     return render(request, "action_boost_post.html", {"post": post})

@@ -70,7 +70,7 @@ django-bleach==3.1.0
 django-compressor==4.4
 django-cors-headers==4.3.1
 django-environ==0.11.2
-django-hijack==3.5.0
+django-hijack==3.5.4
 django-jsonform==2.22.0
 django-maintenance-mode==0.21.1
 django-markdownx==4.0.7

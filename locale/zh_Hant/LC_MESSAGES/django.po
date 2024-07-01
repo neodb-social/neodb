@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-23 17:34-0400\n"
+"POT-Creation-Date: 2024-07-01 17:19-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,15 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: boofilsic/settings.py:394
+#: boofilsic/settings.py:399
 msgid "English"
 msgstr "英語"
 
-#: boofilsic/settings.py:395
+#: boofilsic/settings.py:400
 msgid "Simplified Chinese"
 msgstr "簡體中文"
 
-#: boofilsic/settings.py:396
+#: boofilsic/settings.py:401
 msgid "Traditional Chinese"
 msgstr "繁體中文"
 
@@ -48,7 +48,7 @@ msgstr "譯者"
 #: catalog/book/models.py:116 catalog/movie/models.py:145
 #: catalog/performance/models.py:128 catalog/performance/models.py:270
 #: catalog/templates/edition.html:47 catalog/tv/models.py:214
-#: catalog/tv/models.py:378 users/models/user.py:101
+#: catalog/tv/models.py:378 users/models/user.py:96
 msgid "language"
 msgstr "語言"
 
@@ -1032,7 +1032,7 @@ msgstr "創建"
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
 #: journal/templates/mark.html:147 journal/templates/note.html:39
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
-#: users/templates/users/account.html:43 users/templates/users/account.html:102
+#: users/templates/users/account.html:47 users/templates/users/account.html:106
 #: users/templates/users/preferences.html:187
 #: users/templates/users/preferences.html:212
 msgid "Save"
@@ -1380,21 +1380,21 @@ msgstr "條目已不存在"
 
 #: catalog/views_edit.py:122 catalog/views_edit.py:145
 #: catalog/views_edit.py:197 catalog/views_edit.py:273
-#: catalog/views_edit.py:352 journal/views/collection.py:52
-#: journal/views/collection.py:102 journal/views/collection.py:114
-#: journal/views/collection.py:130 journal/views/collection.py:161
-#: journal/views/collection.py:180 journal/views/collection.py:200
-#: journal/views/collection.py:212 journal/views/collection.py:226
-#: journal/views/collection.py:240 journal/views/collection.py:243
-#: journal/views/collection.py:267 journal/views/common.py:134
-#: journal/views/post.py:21 journal/views/post.py:43 journal/views/review.py:32
+#: catalog/views_edit.py:352 journal/views/collection.py:50
+#: journal/views/collection.py:100 journal/views/collection.py:112
+#: journal/views/collection.py:129 journal/views/collection.py:195
+#: journal/views/collection.py:214 journal/views/collection.py:234
+#: journal/views/collection.py:246 journal/views/collection.py:260
+#: journal/views/collection.py:274 journal/views/collection.py:277
+#: journal/views/collection.py:301 journal/views/common.py:134
+#: journal/views/post.py:20 journal/views/post.py:42 journal/views/review.py:32
 #: journal/views/review.py:46
 msgid "Insufficient permission"
 msgstr "權限不足"
 
-#: catalog/views_edit.py:200 journal/views/collection.py:229
-#: journal/views/collection.py:296 journal/views/common.py:81
-#: journal/views/mark.py:141 journal/views/post.py:57 journal/views/post.py:71
+#: catalog/views_edit.py:200 journal/views/collection.py:263
+#: journal/views/collection.py:330 journal/views/common.py:81
+#: journal/views/mark.py:141 journal/views/post.py:56 journal/views/post.py:70
 #: journal/views/review.py:93 journal/views/review.py:96 users/views.py:169
 msgid "Invalid parameter"
 msgstr "無效參數"
@@ -1470,7 +1470,7 @@ msgstr "開發者"
 msgid "Source Code"
 msgstr "源代碼"
 
-#: common/templates/_footer.html:16 users/templates/users/login.html:161
+#: common/templates/_footer.html:16 users/templates/users/login.html:171
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "這是%(site_name)s的臨時鏡像，請儘可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站點</a>。"
@@ -1635,15 +1635,6 @@ msgstr ""
 msgid "Error"
 msgstr "錯誤"
 
-#: common/templates/common/verify.html:19 users/account.py:104
-#: users/account.py:485
-msgid "Verification email is being sent, please check your inbox."
-msgstr "驗證郵件已發送，請查閱收件箱。"
-
-#: common/templates/common/verify.html:21
-msgid "Please click the login link in the email, or enter the verification code you received."
-msgstr "請點擊郵件中的登錄鏈接，或輸入收到的驗證碼。"
-
 #: common/templatetags/duration.py:49
 msgid "just now"
 msgstr "剛剛"
@@ -1721,7 +1712,7 @@ msgstr "{username} 的播客訂閱"
 msgid "note"
 msgstr "備註"
 
-#: journal/models/common.py:33 journal/templates/action_open_post.html:8
+#: journal/models/common.py:32 journal/templates/action_open_post.html:8
 #: journal/templates/action_open_post.html:14
 #: journal/templates/action_open_post.html:16
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
@@ -1732,7 +1723,7 @@ msgstr "備註"
 msgid "Public"
 msgstr "公開"
 
-#: journal/models/common.py:34 journal/templates/action_open_post.html:10
+#: journal/models/common.py:33 journal/templates/action_open_post.html:10
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:100 journal/templates/wrapped_share.html:49
 #: users/templates/users/data.html:55 users/templates/users/data.html:147
@@ -1740,7 +1731,7 @@ msgstr "公開"
 msgid "Followers Only"
 msgstr "僅關注者"
 
-#: journal/models/common.py:35 journal/templates/action_open_post.html:12
+#: journal/models/common.py:34 journal/templates/action_open_post.html:12
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
 #: journal/templates/mark.html:107 journal/templates/wrapped_share.html:55
 #: users/templates/users/data.html:63 users/templates/users/data.html:155
@@ -1748,69 +1739,70 @@ msgstr "僅關注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/note.py:35
+#: journal/models/note.py:34
 msgid "Page"
 msgstr "頁碼"
 
-#: journal/models/note.py:36
+#: journal/models/note.py:35
 msgid "Chapter"
 msgstr "章節"
 
-#: journal/models/note.py:39
+#: journal/models/note.py:38
 msgid "Part"
 msgstr "分部"
 
-#: journal/models/note.py:40
+#: journal/models/note.py:39
 msgid "Episode"
 msgstr "單集"
 
-#: journal/models/note.py:41
+#: journal/models/note.py:40
 msgid "Track"
 msgstr "曲目"
 
-#: journal/models/note.py:42
+#: journal/models/note.py:41
 msgid "Cycle"
 msgstr "周目"
 
-#: journal/models/note.py:43
+#: journal/models/note.py:42
 msgid "Timestamp"
 msgstr "時間戳"
 
-#: journal/models/note.py:44
+#: journal/models/note.py:43
 msgid "Percentage"
 msgstr "百分比"
 
-#: journal/models/note.py:61
+#: journal/models/note.py:60
 #, python-brace-format
 msgid "Page {value}"
 msgstr "第{value}頁"
 
-#: journal/models/note.py:62
+#: journal/models/note.py:61
 #, python-brace-format
 msgid "Chapter {value}"
 msgstr "第{value}章"
 
-#: journal/models/note.py:65
+#: journal/models/note.py:64
 #, python-brace-format
 msgid "Part {value}"
 msgstr "第{value}部"
 
-#: journal/models/note.py:66
+#: journal/models/note.py:65
 #, python-brace-format
 msgid "Episode {value}"
 msgstr "第{value}集"
 
-#: journal/models/note.py:67
+#: journal/models/note.py:66
 #, python-brace-format
 msgid "Track {value}"
 msgstr "第{value}首"
 
-#: journal/models/note.py:68
+#: journal/models/note.py:67
 #, python-brace-format
 msgid "Cycle {value}"
 msgstr "{value}周目"
 
-#: journal/models/renderers.py:94 mastodon/api.py:619 takahe/utils.py:550
+#: journal/models/renderers.py:94 mastodon/models/mastodon.py:441
+#: takahe/utils.py:550
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "關於 {item_title}，可能包含劇透或敏感內容"
@@ -2537,7 +2529,7 @@ msgstr "日曆"
 msgid "annual summary"
 msgstr "年度小結"
 
-#: journal/templates/profile.html:131 mastodon/api.py:678
+#: journal/templates/profile.html:131 journal/views/collection.py:165
 msgid "collection"
 msgstr "收藏單"
 
@@ -2655,16 +2647,25 @@ msgid_plural "%(count)d items"
 msgstr[0] "%(count)d 個條目"
 msgstr[1] "%(count)d 個條目"
 
-#: journal/views/collection.py:38
+#: journal/views/collection.py:36
 #, python-brace-format
 msgid "Collection by {0}"
 msgstr "{0} 的收藏單"
 
-#: journal/views/collection.py:190
+#: journal/views/collection.py:170
+msgid "shared my collection"
+msgstr "分享我的收藏單"
+
+#: journal/views/collection.py:173
+#, python-brace-format
+msgid "shared {username}'s collection"
+msgstr "分享 {username} 的收藏單"
+
+#: journal/views/collection.py:224
 msgid "Unable to find the item, please use item url from this site."
 msgstr "找不到條目，請使用本站條目網址。"
 
-#: journal/views/collection.py:303 journal/views/collection.py:324
+#: journal/views/collection.py:337 journal/views/collection.py:358
 #: journal/views/review.py:124
 msgid "Login required"
 msgstr "登錄後訪問"
@@ -2710,7 +2711,7 @@ msgstr "進度類型（選填）"
 msgid "Invalid form data"
 msgstr "無效表單信息。"
 
-#: journal/views/post.py:41
+#: journal/views/post.py:40
 msgid "Post not found"
 msgstr "帖文未找到"
 
@@ -2748,54 +2749,119 @@ msgstr "重複標籤"
 msgid "Tag updated."
 msgstr "標籤已更新"
 
-#: journal/views/wrapped.py:142
+#: journal/views/wrapped.py:137
 msgid "Summary posted to timeline."
 msgstr "總結已發佈到時間軸"
 
-#: mastodon/api.py:683
-msgid "shared my collection"
-msgstr "分享我的收藏單"
+#: mastodon/models/common.py:12 users/templates/users/login.html:57
+msgid "Email"
+msgstr "電子郵件"
 
-#: mastodon/api.py:686
+#: mastodon/models/common.py:13
+msgid "Mastodon"
+msgstr "Mastodon"
+
+#: mastodon/models/common.py:14 users/templates/users/login.html:75
+msgid "Threads"
+msgstr "Threads"
+
+#: mastodon/models/common.py:15 users/templates/users/login.html:80
+msgid "Bluesky"
+msgstr "Bluesky"
+
+#: mastodon/models/email.py:51
+msgid ""
+"\n"
+"\n"
+"If you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
+msgstr ""
+"\n"
+"\n"
+"如果你沒有打算用此電子郵件地址註冊或登錄本站，請忽略此郵件；如果你確信賬號存在安全風險，請更改註冊郵件地址或與我們聯繫。"
+
+#: mastodon/models/email.py:58
 #, python-brace-format
-msgid "shared {username}'s collection"
-msgstr "分享 {username} 的收藏單"
+msgid ""
+"Use this code to verify your email address {email}\n"
+"\n"
+"{code}"
+msgstr ""
+"你好，\n"
+"請用以下代碼驗證你的電子郵件地址 {email}\n"
+"\n"
+"{code}"
 
-#: mastodon/models.py:7
+#: mastodon/models/email.py:62
+#, python-brace-format
+msgid ""
+"Use this code to login as {email}\n"
+"\n"
+"{code}"
+msgstr ""
+"你好，\n"
+"請輸入如下驗證碼登錄{email}賬號：\n"
+"\n"
+"{code}\n"
+
+#: mastodon/models/email.py:68
+#, python-brace-format
+msgid ""
+"There is no account registered with this email address yet: {email}\n"
+"\n"
+"If you already have an account with us, just login and add this email to you account.\n"
+"\n"
+"If you prefer to register a new account with this email, please use this verification code: {code}"
+msgstr ""
+"你好，\n"
+"本站沒有與{email}關聯的賬號。你希望註冊一個新賬號嗎？\n"
+"\n"
+"如果你已註冊過本站或某個聯邦宇宙（長毛象）實例，不必重新註冊，只要用聯邦宇宙身份登錄本站，再關聯這個電子郵件地址，即可通過郵件登錄。\n"
+"\n"
+"如果你確認要使用電子郵件新註冊賬號，請輸入如下驗證碼： {code}"
+
+#: mastodon/models/mastodon.py:544
 msgid "site domain name"
-msgstr "實例域名"
+msgstr "站點域名"
 
-#: mastodon/models.py:8
+#: mastodon/models/mastodon.py:545
 msgid "domain for api call"
-msgstr "實例API域名"
+msgstr "站點API域名"
 
-#: mastodon/models.py:9
+#: mastodon/models/mastodon.py:546
 msgid "type and verion"
-msgstr "實例版本"
+msgstr "站點類型和版本"
 
-#: mastodon/models.py:10
+#: mastodon/models/mastodon.py:547
 msgid "in-site app id"
 msgstr "實例應用id"
 
-#: mastodon/models.py:11
+#: mastodon/models/mastodon.py:548
 msgid "client id"
 msgstr "實例應用Client ID"
 
-#: mastodon/models.py:12
+#: mastodon/models/mastodon.py:549
 msgid "client secret"
 msgstr "實例應用Client Secret"
 
-#: mastodon/models.py:13
+#: mastodon/models/mastodon.py:550
 msgid "vapid key"
 msgstr "實例應用VAPID Key"
 
-#: mastodon/models.py:15
+#: mastodon/models/mastodon.py:552
 msgid "0: custom emoji; 1: unicode moon; 2: text"
 msgstr "實例表情模式"
 
-#: mastodon/models.py:18
+#: mastodon/models/mastodon.py:555
 msgid "max toot len"
 msgstr "帖文長度限制"
+
+#: mastodon/models/mastodon.py:617
+msgid "Boost"
+msgstr "轉播"
+
+#: mastodon/models/mastodon.py:618
+msgid "New Post"
+msgstr "新帖文"
 
 #: social/templates/activity/comment_child_item.html:12
 #: social/templates/feed_events.html:40
@@ -3053,171 +3119,97 @@ msgstr "頭像"
 msgid "Header picture"
 msgstr "背景圖片"
 
-#: users/account.py:84
+#: users/account.py:72
 msgid "Invalid email address"
 msgstr "無效的電子郵件地址"
 
-#: users/account.py:102
+#: users/account.py:79
 msgid "Verification"
 msgstr "驗證"
 
-#: users/account.py:119
+#: users/account.py:81 users/templates/users/verify.html:19
+msgid "Verification email is being sent, please check your inbox."
+msgstr "驗證郵件已發送，請查閱收件箱。"
+
+#: users/account.py:96
 msgid "Missing instance domain"
 msgstr "未指定實例域名"
 
-#: users/account.py:140
+#: users/account.py:111
 msgid "Error connecting to instance"
 msgstr "無法連接實例"
 
-#: users/account.py:155 users/account.py:165 users/account.py:178
-#: users/account.py:201 users/account.py:226
+#: users/account.py:126 users/account.py:136 users/account.py:149
+#: users/account.py:164 users/account.py:175 users/account.py:198
+#: users/account.py:313 users/account.py:340
 msgid "Authentication failed"
 msgstr "認證失敗"
 
-#: users/account.py:156
+#: users/account.py:127
 msgid "Invalid response from Fediverse instance."
 msgstr "聯邦實例返回信息無效"
 
-#: users/account.py:166
+#: users/account.py:137
 msgid "Invalid cookie data."
 msgstr "無效cookie信息。"
 
-#: users/account.py:172
+#: users/account.py:143
 msgid "Invalid instance domain"
 msgstr "實例域名無效"
 
-#: users/account.py:179
+#: users/account.py:150
 msgid "Invalid token from Fediverse instance."
 msgstr "聯邦實例返回了無效的認證令牌。"
 
-#: users/account.py:202 users/account.py:554
+#: users/account.py:165 users/account.py:459
 msgid "Invalid account data from Fediverse instance."
 msgstr "聯邦實例返回了無效的賬號數據。"
 
-#: users/account.py:227
+#: users/account.py:176 users/account.py:341
+msgid "Invalid user."
+msgstr "無效用戶。"
+
+#: users/account.py:199
 msgid "Registration is for invitation only"
 msgstr "本站僅限邀請註冊"
 
-#: users/account.py:286
+#: users/account.py:265
 msgid "This username is already in use."
 msgstr "用戶名已被使用"
 
-#: users/account.py:297
+#: users/account.py:276
 msgid "This email address is already in use."
 msgstr "此電子郵件地址已被使用"
 
-#: users/account.py:305
-msgid ""
-"\n"
-"\n"
-"If you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
-msgstr ""
-"\n"
-"\n"
-"如果你沒有打算用此電子郵件地址註冊或登錄本站，請忽略此郵件；如果你確信賬號存在安全風險，請更改註冊郵件地址或與我們聯繫。"
-
-#: users/account.py:311
-#, python-brace-format
-msgid ""
-"Click this link to verify your email address {email}\n"
-"{url}"
-msgstr ""
-"你好，\n"
-"請點擊以下鏈接驗證你的電子郵件地址 {email}\n"
-"{url}"
-
-#: users/account.py:319
-#, python-brace-format
-msgid ""
-"Use this code to confirm login as {email}\n"
-"\n"
-"{code}\n"
-"\n"
-"Or click this link to login\n"
-"{url}"
-msgstr ""
-"你好，\n"
-"請在登錄界面輸入如下驗證碼：\n"
-"\n"
-"{code}\n"
-"\n"
-"或點擊以下鏈接登錄{email}賬號\n"
-"{url}"
-
-#: users/account.py:326
-#, python-brace-format
-msgid ""
-"There is no account registered with this email address yet.{email}\n"
-"\n"
-"If you already have an account with a Fediverse identity, just login and add this email to you account.\n"
-"\n"
-msgstr ""
-"你好，\n"
-"本站沒有與{email}關聯的賬號。你希望註冊一個新賬號嗎？\n"
-"\n"
-"如果你已註冊過本站或某個聯邦宇宙（長毛象）實例，不必重新註冊，只要用聯邦宇宙身份登錄本站，再關聯這個電子郵件地址，即可通過郵件登錄。\n"
-"\n"
-"如果你還沒有聯邦宇宙身份，可以訪問這裏選擇實例並創建一個： https://joinmastodon.org/zh/servers\n"
-
-#: users/account.py:330
-#, python-brace-format
-msgid ""
-"\n"
-"If you prefer to register a new account, please use this code: {code}\n"
-"Or click this link:\n"
-"{url}"
-msgstr ""
-"\n"
-"如果你確定使用電子郵件註冊一個新賬號，可以輸入這個驗證碼\n"
-"{code}\n"
-"或者點擊以下鏈接\n"
-"{url}"
-
-#: users/account.py:357 users/account.py:366
+#: users/account.py:290 users/account.py:299
 msgid "Invalid verification code"
 msgstr "驗證碼無效或已過期"
 
-#: users/account.py:385
-msgid "Invalid verification link"
-msgstr "驗證鏈接無效或已過期"
-
-#: users/account.py:402 users/account.py:408
-msgid "Email mismatch"
-msgstr "電子郵件地址不匹配"
-
-#: users/account.py:412 users/account.py:464
-msgid "Email in use"
+#: users/account.py:314
+msgid "Email already in use"
 msgstr "電子郵件地址已被註冊"
 
-#: users/account.py:417
-msgid "Unable to verify"
-msgstr "無法完成驗證"
+#: users/account.py:382
+msgid "Valid username required"
+msgstr "請輸入有效的用戶名"
 
-#: users/account.py:449
+#: users/account.py:386
 msgid "Username in use"
 msgstr "用戶名已被使用"
 
-#: users/account.py:490
-msgid "Username all set."
-msgstr "用戶名已設置。"
-
-#: users/account.py:493
-msgid "Email removed from account."
-msgstr "電子郵件地址已取消關聯。"
-
-#: users/account.py:514
+#: users/account.py:418
 msgid "Unable to update login information: identical identity."
 msgstr "無法更新登錄信息：該身份與當前賬號相同。"
 
-#: users/account.py:524
+#: users/account.py:424
 msgid "Unable to update login information: identity in use."
 msgstr "無法更新登錄信息：該身份已被其它賬號使用。"
 
-#: users/account.py:550
+#: users/account.py:455
 msgid "Login information updated."
 msgstr "登錄信息已更新"
 
-#: users/account.py:604
+#: users/account.py:508
 msgid "Account mismatch."
 msgstr "賬號信息不匹配。"
 
@@ -3273,27 +3265,27 @@ msgstr "完成"
 msgid "Failed"
 msgstr "失敗"
 
-#: users/models/user.py:48
+#: users/models/user.py:50
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr "輸入用戶名，限英文字母數字下劃線，最多30個字符。"
 
-#: users/models/user.py:81
+#: users/models/user.py:85
 msgid "username"
 msgstr "用戶名"
 
-#: users/models/user.py:85
+#: users/models/user.py:89
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
 msgstr "必填，限英文字母數字下劃線，最多30個字符。"
 
-#: users/models/user.py:88
+#: users/models/user.py:92
 msgid "A user with that username already exists."
 msgstr "使用該用戶名的用戶已存在。"
 
-#: users/models/user.py:92
+#: users/models/user.py:105
 msgid "email address"
 msgstr "電子郵件地址"
 
-#: users/models/user.py:98
+#: users/models/user.py:111
 msgid "email address pending verification"
 msgstr "待驗證的電子郵件地址"
 
@@ -3309,128 +3301,132 @@ msgstr "用戶名、電子郵件與社交身份"
 msgid "Username"
 msgstr "用戶名"
 
-#: users/templates/users/account.html:27 users/templates/users/register.html:31
+#: users/templates/users/account.html:27 users/templates/users/register.html:23
 msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
 msgstr "2-30個字符，限英文字母數字下劃線，保存後不可更改"
 
-#: users/templates/users/account.html:30 users/templates/users/register.html:35
-msgid "email address (optional if you log in via other Fediverse site, but recommended)"
-msgstr "以及作爲備用登錄方式的電子郵件地址（推薦）"
+#: users/templates/users/account.html:30 users/templates/users/register.html:27
+msgid "Email address"
+msgstr "電子郵件地址"
 
-#: users/templates/users/account.html:38 users/templates/users/register.html:43
+#: users/templates/users/account.html:39 users/templates/users/register.html:36
 #, python-format
 msgid "Please click the confirmation link in the email sent to %(pending_email)s; if you haven't received it for more than a few minutes, please input and save again."
 msgstr "當前待確認的電子郵件地址爲%(pending_email)s，請查收郵件並點擊確認鏈接；如長時間未收到可重新輸入並保存。"
 
-#: users/templates/users/account.html:50
+#: users/templates/users/account.html:41 users/templates/users/register.html:39
+msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
+msgstr "推薦輸入電子郵件地址作爲備用登錄方式。"
+
+#: users/templates/users/account.html:54
 msgid "Associated identities"
 msgstr "已關聯社交身份"
 
-#: users/templates/users/account.html:58
+#: users/templates/users/account.html:62
 msgid "If you have not yet registered with any Federated instance, you may <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an instance</a> and register."
 msgstr "如果你還沒有在任何<em data-tooltip=\"聯邦宇宙(Fediverse 有時也被稱爲長毛象)是一種分佈式社交網絡\">聯邦宇宙</em>實例註冊過，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">選擇實例並註冊</a>。"
 
-#: users/templates/users/account.html:63
+#: users/templates/users/account.html:67
 msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
 msgstr "如需關聯到另一個聯邦宇宙社交身份，請輸入新身份所在的實例域名"
 
-#: users/templates/users/account.html:65
+#: users/templates/users/account.html:69
 msgid "If you have registered with a Federated instance, please enter the instance domain name."
 msgstr "如果你已經註冊過聯邦宇宙實例，請輸入實例域名"
 
-#: users/templates/users/account.html:74
+#: users/templates/users/account.html:78
 msgid "Go to target instance and authorize with the identity"
 msgstr "登錄實例並關聯"
 
-#: users/templates/users/account.html:79
+#: users/templates/users/account.html:83
 msgid "After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected."
 msgstr "替換關聯後可使用新的聯邦宇宙身份來登錄本站和控制數據可見性，已有的標記評論收藏單等數據不受影響。"
 
-#: users/templates/users/account.html:81
+#: users/templates/users/account.html:85
 msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
 msgstr "關聯聯邦宇宙身份後可發現更多用戶，並使用本站完整功能。"
 
-#: users/templates/users/account.html:91
+#: users/templates/users/account.html:95
 msgid "Display name, avatar and other information"
 msgstr "暱稱、頭像與其它個人信息"
 
-#: users/templates/users/account.html:94
+#: users/templates/users/account.html:98
 msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
 msgstr "在這裏更新個人資料會停止從關聯實例自動同步暱稱等個人信息，確定繼續嗎？"
 
-#: users/templates/users/account.html:108
+#: users/templates/users/account.html:112
 msgid "Users you are following"
 msgstr "正在關注的用戶"
 
-#: users/templates/users/account.html:114
+#: users/templates/users/account.html:118
 msgid "Users who follow you"
 msgstr "關注了你的用戶"
 
-#: users/templates/users/account.html:120
+#: users/templates/users/account.html:124
 msgid "Users who request to follow you"
 msgstr "請求關注你的用戶"
 
-#: users/templates/users/account.html:126
+#: users/templates/users/account.html:130
 msgid "Users you are muting"
 msgstr "已隱藏的用戶"
 
-#: users/templates/users/account.html:132
+#: users/templates/users/account.html:136
 msgid "Users you are blocking"
 msgstr "已屏蔽的用戶"
 
-#: users/templates/users/account.html:138
+#: users/templates/users/account.html:142
 msgid "Sync and import social account"
 msgstr "同步聯邦宇宙信息和社交數據"
 
-#: users/templates/users/account.html:148
+#: users/templates/users/account.html:152
 msgid "Sync display name, bio and avatar"
 msgstr "自動同步用戶暱稱等基本信息"
 
-#: users/templates/users/account.html:156
+#: users/templates/users/account.html:160
 msgid "Sync follow, mute and block"
 msgstr "自動導入新增的關注、屏蔽和隱藏列表"
 
-#: users/templates/users/account.html:160
+#: users/templates/users/account.html:164
 msgid "Save sync settings"
 msgstr "保存同步設置"
 
-#: users/templates/users/account.html:163
+#: users/templates/users/account.html:167
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
 msgstr "本站會按照以上設置每天自動導入你在聯邦宇宙實例中新增的關注、屏蔽和隱藏列表；如果你在聯邦宇宙實例中關注的用戶加入了NeoDB，你會自動關注她；如果你在聯邦宇宙實例中取消了關注、屏蔽或隱藏，本站不會自動取消，但你可以手動移除。"
 
-#: users/templates/users/account.html:170
+#: users/templates/users/account.html:174
 msgid "Click button below to start sync now."
 msgstr "如果希望立即開始同步，可以點擊下方按鈕。"
 
-#: users/templates/users/account.html:172
+#: users/templates/users/account.html:176
 msgid "Sync now"
 msgstr "立即同步"
 
-#: users/templates/users/account.html:176
+#: users/templates/users/account.html:180
 msgid "Last updated"
 msgstr "最近更新"
 
-#: users/templates/users/account.html:184
+#: users/templates/users/account.html:188
 msgid "Delete Account"
 msgstr "刪除賬號"
 
-#: users/templates/users/account.html:187
+#: users/templates/users/account.html:191
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "賬號數據一旦刪除後將無法恢復，確定繼續嗎？"
 
-#: users/templates/users/account.html:190
+#: users/templates/users/account.html:194
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr "輸入完整的登錄用 <code>用戶名@實例名</code> 或 <code>電子郵件地址</code> 以確認刪除"
 
-#: users/templates/users/account.html:200
+#: users/templates/users/account.html:204
 msgid "Once deleted, account data cannot be recovered."
 msgstr "賬號數據一旦刪除後將無法恢復"
 
-#: users/templates/users/account.html:202
+#: users/templates/users/account.html:206
 msgid "Importing in progress, can't delete now."
 msgstr "暫時無法刪除，因爲有導入任務正在進行"
 
-#: users/templates/users/account.html:205
+#: users/templates/users/account.html:209
 msgid "Permanently Delete"
 msgstr "永久刪除"
 
@@ -3557,6 +3553,7 @@ msgid "Searching the fediverse"
 msgstr "正在搜索聯邦宇宙"
 
 #: users/templates/users/login.html:16 users/templates/users/register.html:8
+#: users/templates/users/welcome.html:8
 msgid "Register"
 msgstr "註冊"
 
@@ -3569,85 +3566,73 @@ msgstr "登錄"
 msgid "back to your home page."
 msgstr "返回首頁"
 
-#: users/templates/users/login.html:56
-msgid "Email"
-msgstr "電子郵件"
-
-#: users/templates/users/login.html:61
+#: users/templates/users/login.html:63
 msgid "Fediverse (Mastodon)"
 msgstr "聯邦宇宙（有時也被稱爲長毛象）"
 
-#: users/templates/users/login.html:71
-msgid "Threads"
-msgstr "Threads"
-
-#: users/templates/users/login.html:74
-msgid "Bluesky"
-msgstr "Bluesky"
-
-#: users/templates/users/login.html:89
+#: users/templates/users/login.html:97
 msgid "Enter your email address"
 msgstr "輸入電子郵件地址"
 
-#: users/templates/users/login.html:91
+#: users/templates/users/login.html:99
 msgid "Verify Email"
 msgstr "驗證電子郵件"
 
-#: users/templates/users/login.html:106
-msgid "domain of your instance, e.g. mastodon.social"
+#: users/templates/users/login.html:114
+msgid "Domain of your instance, e.g. mastodon.social"
 msgstr "實例域名(不含@和@之前的部分)，如mastodon.social"
 
-#: users/templates/users/login.html:112
+#: users/templates/users/login.html:120
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
-msgstr "請輸入你的實例域名(不含@和@之前的部分)；如果你的聯邦賬號是<i>@neodb@mastodon.social</i>只需要在此輸入<i>mastodon.social</i>。"
+msgstr "請輸入你的實例域名(不含@和@之前的部分)；如果你的聯邦賬號是<i>@neodb@mastodon.social</i>，只需要在此輸入<i>mastodon.social</i>。"
 
-#: users/templates/users/login.html:115 users/templates/users/login.html:145
+#: users/templates/users/login.html:123 users/templates/users/login.html:154
 msgid "Authorize via Fediverse instance"
 msgstr "去聯邦實例授權註冊或登錄"
 
-#: users/templates/users/login.html:117
+#: users/templates/users/login.html:125
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
 msgstr "如果你還沒有或不便註冊<a href=\"https://joinmastodon.org/servers\" target=\"_blank\">聯邦實例</a>賬號，也可先通過電子郵件或其它平臺註冊登錄，未來再作關聯。"
 
-#: users/templates/users/login.html:127
+#: users/templates/users/login.html:135
 msgid "Authorize via Threads"
 msgstr "去Threads授權註冊或登錄"
 
-#: users/templates/users/login.html:128
+#: users/templates/users/login.html:136
 msgid "If you have already account here registered via a different way, you may login through there and link with your Threads account in account settings."
 msgstr "如果你已通過其它方式註冊過本站帳號，請用該方式登錄後再關聯Threads。"
 
-#: users/templates/users/login.html:137
+#: users/templates/users/login.html:145
 msgid "Authorize via Bluesky"
 msgstr "去Bluesky授權註冊或登錄"
 
-#: users/templates/users/login.html:138
+#: users/templates/users/login.html:146
 msgid "If you have already account here registered via a different way, you may login through there and link with your Bluesky account in account settings."
 msgstr "如果你已通過其它方式註冊過本站帳號，請用該方式登錄後再關聯Bluesky。"
 
-#: users/templates/users/login.html:151
+#: users/templates/users/login.html:161
 msgid "Valid invitation code, please login or register."
 msgstr "邀請鏈接有效，可註冊新用戶"
 
-#: users/templates/users/login.html:153
+#: users/templates/users/login.html:163
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr "本站目前爲邀請註冊，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
 
-#: users/templates/users/login.html:155
+#: users/templates/users/login.html:165
 msgid "Invitation code invalid or expired."
 msgstr "邀請鏈接無效，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
 
-#: users/templates/users/login.html:163
+#: users/templates/users/login.html:173
 msgid "Loading timed out, please check your network (VPN) settings."
 msgstr "部分模塊加載超時，請檢查網絡（翻牆）設置。"
 
-#: users/templates/users/login.html:169
-msgid "Using this site implies consent of our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, and use of cookies to provide necessary functionality."
+#: users/templates/users/login.html:179
+msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
 msgstr "繼續訪問或註冊視爲同意<a href=\"/pages/rules/\">站規</a>與<a href=\"/pages/terms/\">協議</a>，及使用cookie提供必要功能"
 
-#: users/templates/users/login.html:175
-msgid "select or input domain name of your instance (excl. @)"
-msgstr "輸入或選擇實例域名(不含@和@之前的部分)"
+#: users/templates/users/login.html:185
+msgid "Domain of your instance (excl. @)"
+msgstr "實例域名(不含@和@之前的部分)"
 
 #: users/templates/users/preferences.html:26
 msgid "Default view once logged in"
@@ -3857,34 +3842,16 @@ msgstr "點擊可屏蔽"
 msgid "sure to block?"
 msgstr "確定屏蔽該用戶嗎？"
 
-#: users/templates/users/register.html:18
-msgid "Welcome"
-msgstr "歡迎"
-
-#: users/templates/users/register.html:20
-#, python-format
-msgid ""
-"\n"
-"                %(site_name)s is flourishing because of collaborations and contributions from users like you. Please read our <a href=\"/pages/terms\">term of service</a>, and feel free to <a href=\"%(support_link)s\">contact us</a> if you have any question or feedback.\n"
-"          "
-msgstr ""
-"\n"
-"%(site_name)s還在不斷完善中。 豐富的內容需要大家共同創造，試圖添加垃圾數據（如添加信息混亂或缺失的書籍、以推廣爲主要目的的評論）將會受到嚴肅處理。 本站爲非盈利站點，cookie和其它數據保管使用原則請參閱<a href=\"/pages/terms\">站內公告</a>。 本站提供API和導出功能，請妥善備份您的數據，使用過程中遇到的問題或者錯誤歡迎向<a href=\"%(support_link)s\">維護者</a>提出。感謝理解和支持！"
-
-#: users/templates/users/register.html:30
+#: users/templates/users/register.html:22
 #, python-format
 msgid "Your username on %(site_name)s"
 msgstr "你在%(site_name)s使用的用戶名"
 
-#: users/templates/users/register.html:49
+#: users/templates/users/register.html:50
 msgid "Confirm and save"
 msgstr "確認並保存"
 
-#: users/templates/users/register.html:50
-msgid "Once saved, click the confirmation link in the email you receive"
-msgstr "設置後請查收郵件並點擊其中的確認鏈接"
-
-#: users/templates/users/register.html:54
+#: users/templates/users/register.html:54 users/templates/users/welcome.html:24
 msgid "Cut the sh*t and get me in!"
 msgstr ""
 
@@ -3895,6 +3862,10 @@ msgstr "導出"
 #: users/templates/users/relationship_list.html:21
 msgid "You may download the list here."
 msgstr "此處可導出你在本站的關係列表。"
+
+#: users/templates/users/verify.html:21
+msgid "Please enter the verification code you received."
+msgstr "請輸入收到的驗證碼。"
 
 #: users/templates/users/verify_email.html:8
 #: users/templates/users/verify_email.html:17
@@ -3908,3 +3879,17 @@ msgstr "驗證成功"
 #: users/templates/users/verify_email.html:27
 msgid "login again"
 msgstr "重新登錄"
+
+#: users/templates/users/welcome.html:17
+msgid "Welcome"
+msgstr "歡迎"
+
+#: users/templates/users/welcome.html:19
+#, python-format
+msgid ""
+"\n"
+"              %(site_name)s is flourishing because of collaborations and contributions from users like you. Please read our <a href=\"/pages/terms\">term of service</a>, and feel free to <a href=\"%(support_link)s\">contact us</a> if you have any question or feedback.\n"
+"        "
+msgstr ""
+"\n"
+"%(site_name)s還在不斷完善中。 豐富的內容需要大家共同創造，試圖添加垃圾數據（如添加信息混亂或缺失的書籍、以推廣爲主要目的的評論）將會受到嚴肅處理。 本站爲非盈利站點，cookie和其它數據保管使用原則請參閱<a href=\"/pages/terms\">站內公告</a>。 本站提供API和導出功能，請妥善備份您的數據，使用過程中遇到的問題或者錯誤歡迎向<a href=\"%(support_link)s\">維護者</a>提出。感謝理解和支持！"

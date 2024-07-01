@@ -7,13 +7,10 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
 from django.core.exceptions import BadRequest, ObjectDoesNotExist
-from django.core.mail import send_mail
-from django.core.signing import TimestampSigner, b62_decode, b62_encode
 from django.core.validators import EmailValidator
-from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, redirect, render
+from django.db import transaction
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -23,32 +20,19 @@ from loguru import logger
 from common.config import *
 from common.utils import AuthedHttpRequest
 from journal.models import remove_data_by_user
-from mastodon.api import *
-from mastodon.api import verify_account
+from mastodon.models import Email, Mastodon
+from mastodon.models.common import Platform, SocialAccount
+from mastodon.models.email import EmailAccount
 from takahe.utils import Takahe
 
 from .models import User
 from .tasks import *
 
-# the 'login' page that user can see
-require_http_methods(["GET"])
 
-
+@require_http_methods(["GET"])
 def login(request):
-    selected_site = request.GET.get("site", default="")
-
-    cache_key = "login_sites"
-    sites = cache.get(cache_key, [])
-    if not sites:
-        sites = list(
-            User.objects.filter(is_active=True)
-            .values("mastodon_site")
-            .annotate(total=Count("mastodon_site"))
-            .order_by("-total")
-            .values_list("mastodon_site", flat=True)
-        )
-        cache.set(cache_key, sites, timeout=3600 * 8)
-    # store redirect url in the cookie
+    selected_domain = request.GET.get("domain", default="")
+    sites = Mastodon.get_sites()
     if request.GET.get("next"):
         request.session["next_url"] = request.GET.get("next")
     invite_status = -1 if settings.INVITE_ONLY else 0
@@ -64,14 +48,18 @@ def login(request):
         {
             "sites": sites,
             "scope": quote(settings.MASTODON_CLIENT_SCOPE),
-            "selected_site": selected_site,
+            "selected_domain": selected_domain,
             "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
+            "enable_email": settings.ENABLE_LOGIN_EMAIL,
+            "enable_threads": settings.ENABLE_LOGIN_THREADS,
+            "enable_bluesky": settings.ENABLE_LOGIN_BLUESKY,
             "invite_status": invite_status,
         },
     )
 
 
 # connect will send verification email or redirect to mastodon server
+@require_http_methods(["GET", "POST"])
 def connect(request):
     if request.method == "POST" and request.POST.get("method") == "email":
         login_email = request.POST.get("email", "")
@@ -83,27 +71,16 @@ def connect(request):
                 "common/error.html",
                 {"msg": _("Invalid email address")},
             )
-        user = User.objects.filter(email__iexact=login_email).first()
-        code = b62_encode(random.randint(pow(62, 4), pow(62, 5) - 1))
-        cache.set(f"login_{code}", login_email, timeout=60 * 15)
-        request.session["login_email"] = login_email
-        action = "login" if user else "register"
-        django_rq.get_queue("mastodon").enqueue(
-            send_verification_link,
-            user.pk if user else 0,
-            action,
-            login_email,
-            code,
-        )
+        Email.send_login_email(request, login_email, "login")
         return render(
             request,
-            "common/verify.html",
+            "users/verify.html",
             {
                 "msg": _("Verification"),
                 "secondary_msg": _(
                     "Verification email is being sent, please check your inbox."
                 ),
-                "action": action,
+                "action": "login",
             },
         )
     login_domain = (
@@ -124,14 +101,8 @@ def connect(request):
         login_domain.strip().lower().split("//")[-1].split("/")[0].split("@")[-1]
     )
     try:
-        app = get_or_create_fediverse_application(login_domain)
-        if app.api_domain and app.api_domain != app.domain_name:
-            login_domain = app.api_domain
-        login_url = get_mastodon_login_url(app, login_domain, request)
-        request.session["mastodon_domain"] = app.domain_name
-        resp = redirect(login_url)
-        resp.set_cookie("mastodon_domain", app.domain_name)
-        return resp
+        login_url = Mastodon.generate_auth_url(login_domain, request)
+        return redirect(login_url)
     except Exception as e:
         return render(
             request,
@@ -167,7 +138,7 @@ def connect_redirect_back(request):
             },
         )
     try:
-        token, refresh_token = obtain_token(site, request, code)
+        token, refresh_token = Mastodon.obtain_token(site, code, request)
     except ObjectDoesNotExist:
         raise BadRequest(_("Invalid instance domain"))
     if not token:
@@ -180,43 +151,44 @@ def connect_redirect_back(request):
             },
         )
 
-    if (
-        request.session.get("swap_login", False) and request.user.is_authenticated
-    ):  # swap login for existing user
+    if request.session.get("swap_login", False) and request.user.is_authenticated:
+        # swap login for existing user
         return swap_login(request, token, site, refresh_token)
 
-    user: User = authenticate(request, token=token, site=site)  # type: ignore
-    if user:  # existing user
-        user.mastodon_token = token
-        user.mastodon_refresh_token = refresh_token
-        user.save(update_fields=["mastodon_token", "mastodon_refresh_token"])
-        return login_existing_user(request, user)
-    else:  # newly registered user
-        code, user_data = verify_account(site, token)
-        if code != 200 or user_data is None:
+    account = Mastodon.authenticate(site, token, refresh_token)
+    if not account:
+        return render(
+            request,
+            "common/error.html",
+            {
+                "msg": _("Authentication failed"),
+                "secondary_msg": _("Invalid account data from Fediverse instance."),
+            },
+        )
+    if account.user:  # existing user
+        user: User | None = authenticate(request, social_account=account)  # type: ignore
+        if not user:
             return render(
                 request,
                 "common/error.html",
                 {
                     "msg": _("Authentication failed"),
-                    "secondary_msg": _("Invalid account data from Fediverse instance."),
+                    "secondary_msg": _("Invalid user."),
                 },
             )
-        return register_new_user(
-            request,
-            username=(
-                None if settings.MASTODON_ALLOW_ANY_SITE else user_data["username"]
-            ),
-            mastodon_username=user_data["username"],
-            mastodon_id=user_data["id"],
-            mastodon_site=site,
-            mastodon_token=token,
-            mastodon_refresh_token=refresh_token,
-            mastodon_account=user_data,
+        return login_existing_user(request, user)
+    elif not settings.MASTODON_ALLOW_ANY_SITE:  # directly create a new user
+        new_user = User.register(
+            account=account,
+            username=account.username,
         )
+        auth_login(request, new_user)
+        return render(request, "users/welcome.html")
+    else:  # check invite and ask for username
+        return register_new_user(request, account)
 
 
-def register_new_user(request, **param):
+def register_new_user(request, account: SocialAccount):
     if settings.INVITE_ONLY:
         if not Takahe.verify_invite(request.session.get("invite")):
             return render(
@@ -227,14 +199,22 @@ def register_new_user(request, **param):
                     "secondary_msg": _("Registration is for invitation only"),
                 },
             )
-        else:
-            del request.session["invite"]
-    new_user = User.register(**param)
-    request.session["new_user"] = True
-    auth_login(request, new_user)
-    response = redirect(reverse("users:register"))
-    response.delete_cookie(settings.TAKAHE_SESSION_COOKIE_NAME)
-    return response
+        del request.session["invite"]
+    if request.user.is_authenticated:
+        auth.logout(request)
+    request.session["verified_account"] = account.to_dict()
+    if account.platform == Platform.EMAIL:
+        email_readyonly = True
+        data = {"email": account.handle}
+    else:
+        email_readyonly = False
+        data = {"email": ""}
+    form = RegistrationForm(data)
+    return render(
+        request,
+        "users/register.html",
+        {"form": form, "email_readyonly": email_readyonly},
+    )
 
 
 def login_existing_user(request, existing_user):
@@ -252,7 +232,6 @@ def login_existing_user(request, existing_user):
 
 @login_required
 def logout(request):
-    # revoke_token(request.user.mastodon_site, request.user.mastodon_token)
     return auth_logout(request)
 
 
@@ -287,249 +266,175 @@ class RegistrationForm(forms.ModelForm):
         return username
 
     def clean_email(self):
-        email = self.cleaned_data.get("email")
+        email = self.cleaned_data.get("email", "").strip()
         if (
             email
-            and User.objects.filter(email__iexact=email)
-            .exclude(pk=self.instance.pk if self.instance else -1)
+            and EmailAccount.objects.filter(handle__iexact=email)
+            .exclude(user_id=self.instance.pk if self.instance else -1)
             .exists()
         ):
             raise forms.ValidationError(_("This email address is already in use."))
         return email
 
 
-def send_verification_link(user_id, action, email, code=""):
-    s = {"i": user_id, "e": email, "a": action}
-    v = TimestampSigner().sign_object(s)
-    footer = _(
-        "\n\nIf you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
-    )
-    site = settings.SITE_INFO["site_name"]
-    if action == "verify":
-        subject = f'{site} - {_("Verification")}'
-        url = settings.SITE_INFO["site_url"] + "/account/verify_email?c=" + v
-        msg = _("Click this link to verify your email address {email}\n{url}").format(
-            email=email, url=url, code=code
-        )
-        msg += footer
-    elif action == "login":
-        subject = f'{site} - {_("Login")} {code}'
-        url = settings.SITE_INFO["site_url"] + "/account/login/email?c=" + v
-        msg = _(
-            "Use this code to confirm login as {email}\n\n{code}\n\nOr click this link to login\n{url}"
-        ).format(email=email, url=url, code=code)
-        msg += footer
-    elif action == "register":
-        subject = f'{site} - {_("Register")}'
-        url = settings.SITE_INFO["site_url"] + "/account/register_email?c=" + v
-        msg = _(
-            "There is no account registered with this email address yet.{email}\n\nIf you already have an account with a Fediverse identity, just login and add this email to you account.\n\n"
-        ).format(email=email, url=url, code=code)
-        if settings.ALLOW_EMAIL_ONLY_ACCOUNT:
-            msg += _(
-                "\nIf you prefer to register a new account, please use this code: {code}\nOr click this link:\n{url}"
-            ).format(email=email, url=url, code=code)
-        msg += footer
-    else:
-        raise ValueError("Invalid action")
-    try:
-        logger.info(f"Sending email to {email} with subject {subject}")
-        logger.debug(msg)
-        send_mail(
-            subject=subject,
-            message=msg,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            fail_silently=False,
-        )
-    except Exception as e:
-        logger.error(f"send email {email} failed", extra={"exception": e})
-
-
-@require_http_methods(["POST"])
+@require_http_methods(["GET", "POST"])
 def verify_code(request):
-    code = request.POST.get("code")
+    if request.method == "GET":
+        return render(request, "users/verify.html")
+    code = request.POST.get("code", "").strip()
     if not code:
         return render(
             request,
-            "common/verify.html",
+            "users/verify.html",
             {
                 "error": _("Invalid verification code"),
             },
         )
-    login_email = cache.get(f"login_{code}")
-    if not login_email or request.session.get("login_email") != login_email:
+    account = Email.authenticate(request, code)
+    if not account:
         return render(
             request,
-            "common/verify.html",
+            "users/verify.html",
             {
                 "error": _("Invalid verification code"),
             },
         )
-    cache.delete(f"login_{code}")
-    user = User.objects.filter(email__iexact=login_email).first()
-    if user:
-        resp = login_existing_user(request, user)
-    else:
-        resp = register_new_user(request, username=None, email=login_email)
-    resp.set_cookie("mastodon_domain", "@")
-    return resp
-
-
-def verify_email(request):
-    error = ""
-    try:
-        s = TimestampSigner().unsign_object(request.GET.get("c"), max_age=60 * 15)
-    except Exception as e:
-        logger.warning(f"login link invalid {e}")
-        error = _("Invalid verification link")
-        return render(
-            request, "users/verify_email.html", {"success": False, "error": error}
-        )
-    try:
-        email = s["e"]
-        action = s["a"]
-        if action == "verify":
-            user = User.objects.get(pk=s["i"])
-            if user.pending_email == email:
-                user.email = user.pending_email
-                user.pending_email = None
-                user.save(update_fields=["email", "pending_email"])
-                return render(
-                    request, "users/verify_email.html", {"success": True, "user": user}
-                )
+    if request.user.is_authenticated:
+        # existing logged in user to verify a pending email
+        if request.user.email_account == account:
+            # same email, nothing to do
+            return render(request, "users/welcome.html")
+        if account.user and account.user != request.user:
+            # email used by another user
+            return render(
+                request,
+                "common/error.html",
+                {
+                    "msg": _("Authentication failed"),
+                    "secondary_msg": _("Email already in use"),
+                },
+            )
+        with transaction.atomic():
+            if request.user.email_account:
+                request.user.email_account.delete()
+            account.user = request.user
+            account.save()
+            if request.session.get("new_user", 0):
+                try:
+                    del request.session["new_user"]
+                except KeyError:
+                    pass
+                return render(request, "users/welcome.html")
             else:
-                error = _("Email mismatch")
-        elif action == "login":
-            user = User.objects.get(pk=s["i"])
-            if user.email == email:
-                return login_existing_user(request, user)
-            else:
-                error = _("Email mismatch")
-        elif action == "register":
-            user = User.objects.filter(email__iexact=email).first()
-            if user:
-                error = _("Email in use")
-            else:
-                return register_new_user(request, username=None, email=email)
-    except Exception as e:
-        logger.error("verify email error", extra={"exception": e, "s": s})
-        error = _("Unable to verify")
-    return render(
-        request, "users/verify_email.html", {"success": False, "error": error}
-    )
+                return redirect(reverse("users:info"))
+    if account.user:
+        # existing user: log back in
+        user = authenticate(request, social_account=account)
+        if user:
+            return login_existing_user(request, user)
+        else:
+            return render(
+                request,
+                "common/error.html",
+                {
+                    "msg": _("Authentication failed"),
+                    "secondary_msg": _("Invalid user."),
+                },
+            )
+    # new user: check invite and ask for username
+    return register_new_user(request, account)
 
 
-@login_required
+@require_http_methods(["GET", "POST"])
 def register(request: AuthedHttpRequest):
-    form = None
-    if settings.MASTODON_ALLOW_ANY_SITE:
-        form = RegistrationForm(request.POST)
-        form.instance = (
+    if not settings.MASTODON_ALLOW_ANY_SITE:
+        return render(request, "users/welcome.html")
+    form = RegistrationForm(
+        request.POST,
+        instance=(
             User.objects.get(pk=request.user.pk)
             if request.user.is_authenticated
             else None
-        )
-    if request.method == "GET" or not form:
-        return render(request, "users/register.html", {"form": form})
-    elif request.method == "POST":
-        username_changed = False
-        email_cleared = False
-        if not form.is_valid():
-            return render(request, "users/register.html", {"form": form})
-        if not request.user.username and form.cleaned_data["username"]:
-            if User.objects.filter(
+        ),
+    )
+    verified_account = SocialAccount.from_dict(request.session.get("verified_account"))
+    email_readonly = (
+        verified_account is not None and verified_account.platform == Platform.EMAIL
+    )
+    error = None
+    if request.method == "POST" and form.is_valid():
+        if request.user.is_authenticated:
+            # logged in user to change email
+            current_email = (
+                request.user.email_account.handle
+                if request.user.email_account
+                else None
+            )
+            if (
+                form.cleaned_data["email"]
+                and form.cleaned_data["email"] != current_email
+            ):
+                Email.send_login_email(request, form.cleaned_data["email"], "verify")
+                return render(request, "users/verify.html")
+        else:
+            # new user finishes login process
+            if not form.cleaned_data["username"]:
+                error = _("Valid username required")
+            elif User.objects.filter(
                 username__iexact=form.cleaned_data["username"]
             ).exists():
-                return render(
-                    request,
-                    "users/register.html",
-                    {
-                        "form": form,
-                        "error": _("Username in use"),
-                    },
-                )
-            request.user.username = form.cleaned_data["username"]
-            username_changed = True
-        if form.cleaned_data["email"]:
-            if form.cleaned_data["email"].lower() != (request.user.email or "").lower():
-                if User.objects.filter(
-                    email__iexact=form.cleaned_data["email"]
-                ).exists():
-                    return render(
-                        request,
-                        "users/register.html",
-                        {
-                            "form": form,
-                            "error": _("Email in use"),
-                        },
-                    )
-                request.user.pending_email = form.cleaned_data["email"]
+                error = _("Username in use")
             else:
-                request.user.pending_email = None
-        elif request.user.email or request.user.pending_email:
-            request.user.pending_email = None
-            request.user.email = None
-            email_cleared = True
-        request.user.save()
-        if request.user.pending_email:
-            django_rq.get_queue("mastodon").enqueue(
-                send_verification_link,
-                request.user.pk,
-                "verify",
-                request.user.pending_email,
-            )
-            messages.add_message(
-                request,
-                messages.INFO,
-                _("Verification email is being sent, please check your inbox."),
-            )
-        if request.user.username and not request.user.identity_linked():
-            request.user.initialize()
-        if username_changed:
-            messages.add_message(request, messages.INFO, _("Username all set."))
-        if email_cleared:
-            messages.add_message(
-                request, messages.INFO, _("Email removed from account.")
-            )
-        if request.session.get("new_user"):
-            del request.session["new_user"]
-    return redirect(request.GET.get("next", reverse("common:home")))
+                # create new user
+                new_user = User.register(
+                    username=form.cleaned_data["username"], account=verified_account
+                )
+                auth_login(request, new_user)
+                if not email_readonly and form.cleaned_data["email"]:
+                    # verify email if presented
+                    Email.send_login_email(
+                        request, form.cleaned_data["email"], "verify"
+                    )
+                    request.session["new_user"] = 1
+                    return render(request, "users/verify.html")
+                return render(request, "users/welcome.html")
+    return render(
+        request,
+        "users/register.html",
+        {"form": form, "email_readonly": email_readonly, "error": error},
+    )
 
 
 def swap_login(request, token, site, refresh_token):
     del request.session["swap_login"]
     del request.session["swap_domain"]
-    code, data = verify_account(site, token)
+    account = Mastodon.authenticate(site, token, refresh_token)
     current_user = request.user
-    if code == 200 and data is not None:
-        username = data["username"]
-        if (
-            username == current_user.mastodon_username
-            and site == current_user.mastodon_site
-        ):
+    if account:
+        if account.user == current_user:
             messages.add_message(
                 request,
                 messages.ERROR,
                 _("Unable to update login information: identical identity."),
             )
+        elif account.user:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                _("Unable to update login information: identity in use."),
+            )
         else:
-            try:
-                User.objects.get(
-                    mastodon_username__iexact=username, mastodon_site__iexact=site
-                )
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    _("Unable to update login information: identity in use."),
-                )
-            except ObjectDoesNotExist:
-                current_user.mastodon_username = username
-                current_user.mastodon_id = data["id"]
-                current_user.mastodon_site = site
-                current_user.mastodon_token = token
-                current_user.mastodon_refresh_token = refresh_token
-                current_user.mastodon_account = data
+            with transaction.atomic():
+                if current_user.mastodon:
+                    current_user.mastodon.delete()
+                account.user = current_user
+                account.save()
+                current_user.mastodon_username = account.username
+                current_user.mastodon_id = account.account_data["id"]
+                current_user.mastodon_site = account.domain
+                current_user.mastodon_token = account.access_token
+                current_user.mastodon_refresh_token = account.refresh_token
+                current_user.mastodon_account = account.account_data
                 current_user.save(
                     update_fields=[
                         "username",
@@ -541,19 +446,19 @@ def swap_login(request, token, site, refresh_token):
                         "mastodon_account",
                     ]
                 )
-                django_rq.get_queue("mastodon").enqueue(
-                    refresh_mastodon_data_task, current_user.pk, token
-                )
-                messages.add_message(
-                    request,
-                    messages.INFO,
-                    _("Login information updated.") + f" {username}@{site}",
-                )
+            django_rq.get_queue("mastodon").enqueue(
+                refresh_mastodon_data_task, current_user.pk, token
+            )
+            messages.add_message(
+                request,
+                messages.INFO,
+                _("Login information updated.") + account.handle,
+            )
     else:
         messages.add_message(
             request, messages.ERROR, _("Invalid account data from Fediverse instance.")
         )
-    return redirect(reverse("users:data"))
+    return redirect(reverse("users:info"))
 
 
 def clear_preference_cache(request):
@@ -563,8 +468,8 @@ def clear_preference_cache(request):
 
 
 def auth_login(request, user):
-    """Decorates django ``login()``. Attach token to session."""
     auth.login(request, user, backend="mastodon.auth.OAuth2Backend")
+    request.session.pop("verified_account", None)
     clear_preference_cache(request)
     if (
         user.mastodon_last_refresh < timezone.now() - timedelta(hours=1)
@@ -574,7 +479,6 @@ def auth_login(request, user):
 
 
 def auth_logout(request):
-    """Decorates django ``logout()``. Release token in session."""
     auth.logout(request)
     response = redirect("/")
     response.delete_cookie(settings.TAKAHE_SESSION_COOKIE_NAME)

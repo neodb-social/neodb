@@ -8,7 +8,6 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from catalog.models import Item
-from mastodon.api import delete_toot_later
 from takahe.utils import Takahe
 
 from .common import Content
@@ -160,10 +159,7 @@ class Note(Content):
         if p and p.local:
             # if local piece is created from a post, update post type_data and fanout
             p.sync_to_timeline()
-            if (
-                owner.user.preference.mastodon_default_repost
-                and owner.user.mastodon_username
-            ):
+            if owner.user.preference.mastodon_default_repost and owner.user.mastodon:
                 p.sync_to_mastodon()
         return p
 

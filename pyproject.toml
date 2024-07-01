@@ -16,7 +16,7 @@ dependencies = [
     "django-compressor",
     "django-cors-headers",
     "django-environ",
-    "django-hijack",
+    "django-hijack>=3.5.4",
     "django-jsonform",
     "django-maintenance-mode",
     "django-markdownx",
@@ -64,11 +64,11 @@ virtual = true
 dev-dependencies = [
     "pre-commit>=3.7.0",
     "black~=24.4.2",
-    "django-stubs",
+    "django-stubs>=5.0.2",
     "djlint~=1.34.1",
     "isort~=5.13.2",
     "lxml-stubs",
-    "pyright>=1.1.367",
+    "pyright>=1.1.369",
     "ruff",
     "mkdocs-material>=9.5.25",
 ]

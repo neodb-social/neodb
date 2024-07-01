@@ -14,14 +14,6 @@
         <header style="text-align: center;">
           <img src="{{ site_logo }}" class="logo" alt="logo">
         </header>
-        {% if request.session.new_user %}
-          <h4>{% trans "Welcome" %}</h4>
-          <p>
-            {% blocktrans %}
-                {{ site_name }} is flourishing because of collaborations and contributions from users like you. Please read our <a href="/pages/terms">term of service</a>, and feel free to <a href="{{ support_link }}">contact us</a> if you have any question or feedback.
-          {% endblocktrans %}
-          </p>
-        {% endif %}
         {% if form %}
           <form action="{% url 'users:register' %}" method="post">
             <small>{{ error }}</small>
@@ -32,22 +24,30 @@
                 {% for error in form.username.errors %}<small>{{ error }}</small>{% endfor %}
               </label>
               <label>
-                {% trans "email address (optional if you log in via other Fediverse site, but recommended)" %}
+                {% trans "Email address" %}
                 <input type="email"
                        name="email"
-                       {% if request.user.email and not request.user.mastodon_acct %}readonly{% endif %}
-                       {% if request.user.email %}value="{{ request.user.email }}" aria-invalid="false"{% endif %}
+                       {% if email_readonly %}readonly aria-invalid="false"{% endif %}
+                       value="{{ form.email.value|default:'' }}"
                        placeholder="email"
                        autocomplete="email" />
-                {% if request.user.pending_email %}
-                  <small> {% blocktrans with pending_email=request.user.pending_email %}Please click the confirmation link in the email sent to {{ pending_email }}; if you haven't received it for more than a few minutes, please input and save again.{% endblocktrans %} </small>
-                {% endif %}
-                {% for error in form.email.errors %}<small>{{ error }}</small>{% endfor %}
+                <small>
+                  {% if request.session.pending_email %}
+                    {% blocktrans with pending_email=request.session.pending_email %}Please click the confirmation link in the email sent to {{ pending_email }}; if you haven't received it for more than a few minutes, please input and save again.{% endblocktrans %}
+                    <br>
+                  {% elif not form.email.value %}
+                    {% trans "Email is recommended as a backup login method, if you log in via a Fediverse instance" %}
+                    <br>
+                  {% endif %}
+                  {% for error in form.email.errors %}
+                    {{ error }}
+                    <br>
+                  {% endfor %}
+                </small>
               </label>
             </fieldset>
             {% csrf_token %}
             <input type="submit" value="{% trans 'Confirm and save' %}">
-            <small>{% trans "Once saved, click the confirmation link in the email you receive" %}</small>
           </form>
         {% else %}
           <form action="{% url 'common:home' %}" method="get">

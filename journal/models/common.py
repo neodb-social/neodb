@@ -17,7 +17,6 @@ from polymorphic.models import PolymorphicModel
 
 from catalog.common.models import AvailableItemCategory, Item, ItemCategory
 from catalog.models import item_categories, item_content_types
-from mastodon.api import boost_toot_later, delete_toot, delete_toot_later, post_toot2
 from takahe.utils import Takahe
 from users.models import APIdentity, User
 
@@ -157,8 +156,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         if self.local:
             Takahe.delete_posts(self.all_post_ids)
             toot_url = self.get_mastodon_crosspost_url()
-            if toot_url:
-                delete_toot_later(self.owner.user, toot_url)
+            if toot_url and self.owner.user.mastodon:
+                self.owner.user.mastodon.delete_later(toot_url)
         return super().delete(*args, **kwargs)
 
     @property
@@ -324,26 +323,28 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 self.delete_mastodon_repost()
             return self.crosspost_to_mastodon()
         elif self.latest_post:
-            return boost_toot_later(user, self.latest_post.url)
+            if user.mastodon:
+                user.mastodon.boost_later(self.latest_post.url)
         else:
             logger.warning("No post found for piece")
-            return False, 404
 
     def delete_mastodon_repost(self):
         toot_url = self.get_mastodon_crosspost_url()
         if toot_url:
             self.set_mastodon_crosspost_url(None)
-            delete_toot(self.owner.user, toot_url)
+            if self.owner.user.mastodon:
+                self.owner.user.mastodon.delete_later(toot_url)
 
     def crosspost_to_mastodon(self):
         user = self.owner.user
+        if not user or not user.mastodon:
+            return False, -1
         d = {
-            "user": user,
             "visibility": self.visibility,
             "update_toot_url": self.get_mastodon_crosspost_url(),
         }
         d.update(self.to_mastodon_params())
-        response = post_toot2(**d)
+        response = user.mastodon.post(**d)
         if response is not None and response.status_code in [200, 201]:
             j = response.json()
             if "url" in j:

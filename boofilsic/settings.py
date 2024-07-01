@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -164,10 +165,17 @@ if _parsed_email_url.scheme == "anymail":
 
     EMAIL_BACKEND = _parsed_email_url.hostname
     ANYMAIL = dict(parse.parse_qsl(_parsed_email_url.query))
+    ENABLE_LOGIN_EMAIL = True
 elif _parsed_email_url.scheme:
     _parsed_email_config = env.email("NEODB_EMAIL_URL")
     EMAIL_TIMEOUT = 5
     vars().update(_parsed_email_config)
+    ENABLE_LOGIN_EMAIL = True
+else:
+    ENABLE_LOGIN_EMAIL = False
+
+ENABLE_LOGIN_THREADS = False
+ENABLE_LOGIN_BLUESKY = False
 
 SITE_DOMAIN = env("NEODB_SITE_DOMAIN").lower()
 SITE_INFO = {
@@ -198,12 +206,6 @@ DISABLE_DEFAULT_RELAY = env("NEODB_DISABLE_DEFAULT_RELAY", default=DEBUG)
 MIN_MARKS_FOR_DISCOVER = env("NEODB_MIN_MARKS_FOR_DISCOVER")
 
 MASTODON_ALLOWED_SITES = env("NEODB_LOGIN_MASTODON_WHITELIST")
-
-# Allow user to create account with email (and link to Mastodon account later)
-ALLOW_EMAIL_ONLY_ACCOUNT = env.bool(
-    "NEODB_LOGIN_ENABLE_EMAIL_ONLY",
-    default=(_parsed_email_url.scheme and len(MASTODON_ALLOWED_SITES) == 0),  # type: ignore
-)
 
 # Allow user to login via any Mastodon/Pleroma sites
 MASTODON_ALLOW_ANY_SITE = len(MASTODON_ALLOWED_SITES) == 0
@@ -375,6 +377,9 @@ LOGGING = {
         },
     },
 }
+
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 if SLACK_TOKEN:
     INSTALLED_APPS += [

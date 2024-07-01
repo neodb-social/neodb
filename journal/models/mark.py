@@ -1,35 +1,48 @@
-import re
-import uuid
 from datetime import datetime
 from functools import cached_property
 from typing import Any
 
-import django.dispatch
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
-from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
-from django.db import connection, models
-from django.db.models import Avg, Count, Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
-from markdownx.models import MarkdownxField
-from polymorphic.models import PolymorphicModel
 
-from catalog.collection.models import Collection as CatalogCollection
-from catalog.common import jsondata
-from catalog.common.models import Item, ItemCategory
-from catalog.common.utils import DEFAULT_ITEM_COVER, piece_cover_path
-from mastodon.api import boost_toot_later, share_mark
+from catalog.models import Item, ItemCategory
+from mastodon.models import get_spoiler_text
 from takahe.utils import Takahe
-from users.models import APIdentity
+from users.models import APIdentity, User
 
 from .comment import Comment
 from .note import Note
 from .rating import Rating
 from .review import Review
 from .shelf import Shelf, ShelfLogEntry, ShelfManager, ShelfMember, ShelfType
+
+
+def share_mark(mark, post_as_new=False):
+    user = mark.owner.user
+    if not user or not user.mastodon:
+        return
+    stars = user.mastodon.rating_to_emoji(mark.rating_grade)
+    spoiler_text, txt = get_spoiler_text(mark.comment_text or "", mark.item)
+    content = f"{mark.get_action_for_feed()} {stars}\n{mark.item.absolute_url}\n{txt}{mark.tag_text}"
+    update_url = (
+        None if post_as_new else (mark.shelfmember.metadata or {}).get("shared_link")
+    )
+    response = user.mastodon.post(
+        content,
+        mark.visibility,
+        update_url,
+        spoiler_text,
+    )
+    if response is not None and response.status_code in [200, 201]:
+        j = response.json()
+        if "url" in j:
+            mark.shelfmember.metadata = {"shared_link": j["url"]}
+            mark.shelfmember.save(update_fields=["metadata"])
+        return True, 200
+    else:
+        logger.warning(response)
+        return False, response.status_code if response is not None else -1
 
 
 class Mark:
@@ -292,7 +305,7 @@ class Mark:
                 )
                 self.rating_grade = rating_grade
         # publish a new or updated ActivityPub post
-        user = self.owner.user
+        user: User = self.owner.user
         post_as_new = shelf_type != last_shelf_type or visibility != last_visibility
         classic_crosspost = user.preference.mastodon_repost_mode == 1
         append = (
@@ -308,8 +321,8 @@ class Mark:
         if post and share_to_mastodon:
             if classic_crosspost:
                 share_mark(self, post_as_new)
-            else:
-                boost_toot_later(user, post.url)
+            elif user.mastodon:
+                user.mastodon.boost_later(post.url)
         return True
 
     def delete(self, keep_tags=False):

@@ -236,7 +236,7 @@
               <a href="/@{{ request.user.identity.handle }}/settings/tokens/">{% trans "View authorized applications" %}</a>
             </p>
             <p>
-              {% if user.email %}
+              {% if user.email_account %}
                 <a href="/@{{ request.user.identity.handle }}/settings/migrate_in/">{% trans "Migrate account" %}</a>
               {% else %}
                 <a href="{% url 'users:info' %}">{% trans "Link an email so that you can migrate followers from other Fediverse instances." %}</a>

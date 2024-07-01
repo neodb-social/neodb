@@ -5,8 +5,7 @@ from django.utils import timezone
 from loguru import logger
 
 from common.models import BaseJob, JobManager
-from mastodon.api import detect_server_info, verify_client
-from mastodon.models import MastodonApplication
+from mastodon.models import MastodonApplication, detect_server_info, verify_client
 
 
 @JobManager.register

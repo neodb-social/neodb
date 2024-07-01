@@ -1,0 +1,29 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans 'Register' %}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    <div class="container">
+      <article>
+        <header style="text-align: center;">
+          <img src="{{ site_logo }}" class="logo" alt="logo">
+        </header>
+        <h4>{% trans "Welcome" %}</h4>
+        <p>
+          {% blocktrans %}
+              {{ site_name }} is flourishing because of collaborations and contributions from users like you. Please read our <a href="/pages/terms">term of service</a>, and feel free to <a href="{{ support_link }}">contact us</a> if you have any question or feedback.
+        {% endblocktrans %}
+        </p>
+        <form action="{{ request.session.next_url | default:'/' }}" method="get">
+          <input type="submit" value="{% trans 'Cut the sh*t and get me in!' %}">
+        </form>
+      </article>
+    </div>
+  </body>
+</html>

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.templatetags.static import static
 
+from mastodon.models.mastodon import MastodonAccount
 from takahe.utils import Takahe
 
 from .preference import Preference
@@ -17,9 +18,10 @@ class APIdentity(models.Model):
     This model is used as 1:1 mapping to Takahe Identity Model
     """
 
+    user: User
     user = models.OneToOneField(
-        "User", models.SET_NULL, related_name="identity", null=True
-    )
+        User, models.SET_NULL, related_name="identity", null=True
+    )  # type:ignore
     local = models.BooleanField()
     username = models.CharField(max_length=500, blank=True, null=True)
     domain_name = models.CharField(max_length=500, blank=True, null=True)
@@ -246,23 +248,24 @@ class APIdentity(models.Model):
             )
         elif sl == 2:
             if match_linked:
-                return cls.objects.get(
-                    user__mastodon_username__iexact=s[0],
-                    user__mastodon_site__iexact=s[1],
-                    deleted__isnull=True,
-                )
+                i = MastodonAccount.objects.get(
+                    handle__iexact=handler,
+                ).user.identity
+                if i.deleted:
+                    raise cls.DoesNotExist(f"Identity deleted {handler}")
+                return i
             else:
                 i = cls.get_remote(s[0], s[1])
                 if i:
                     return i
-                raise cls.DoesNotExist(f"Identity not found @{handler}")
+                raise cls.DoesNotExist(f"Identity not found {handler}")
         elif sl == 3 and s[0] == "":
             i = cls.get_remote(s[1], s[2])
             if i:
                 return i
             raise cls.DoesNotExist(f"Identity not found {handler}")
         else:
-            raise cls.DoesNotExist(f"Identity handler invalid {handler}")
+            raise cls.DoesNotExist(f"Identity handle invalid {handler}")
 
     @cached_property
     def activity_manager(self):

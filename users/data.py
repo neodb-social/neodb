@@ -147,7 +147,7 @@ def export_marks(request):
 
 @login_required
 def sync_mastodon(request):
-    if request.method == "POST" and request.user.mastodon_username:
+    if request.method == "POST" and request.user.mastodon:
         django_rq.get_queue("mastodon").enqueue(
             refresh_mastodon_data_task, request.user.pk
         )

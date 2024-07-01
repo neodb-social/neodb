@@ -27,16 +27,20 @@
                     <input name="username" _="on input remove [@disabled] from #save end" placeholder="{% trans "2-30 alphabets, numbers or underscore, can't be changed once saved" %}" required {% if request.user.username %}value="{{ request.user.username }}" aria-invalid="false" readonly{% endif %} pattern="^[a-zA-Z0-9_]{2,30}$" />
                   </label>
                   <label>
-                    {% trans "email address (optional if you log in via other Fediverse site, but recommended)" %}
+                    {% trans "Email address" %}
                     <input type="email"
                            name="email"
                            _="on input remove [@disabled] from #save then remove [@aria-invalid] end"
-                           {% if request.user.email %}value="{{ request.user.email }}" aria-invalid="false"{% endif %}
+                           {% if request.user.email_account %}value="{{ request.user.email_account.handle }}" aria-invalid="false"{% endif %}
                            placeholder="email"
                            autocomplete="email" />
-                    {% if request.user.pending_email %}
-                      <small> {% blocktrans with pending_email=request.user.pending_email %}Please click the confirmation link in the email sent to {{ pending_email }}; if you haven't received it for more than a few minutes, please input and save again.{% endblocktrans %} </small>
-                    {% endif %}
+                    <small>
+                      {% if request.session.pending_email %}
+                        {% blocktrans with pending_email=request.session.pending_email %}Please click the confirmation link in the email sent to {{ pending_email }}; if you haven't received it for more than a few minutes, please input and save again.{% endblocktrans %}
+                      {% elif not request.user.email_account %}
+                        {% trans "Email is recommended as a backup login method, if you log in via a Fediverse instance" %}
+                      {% endif %}
+                    </small>
                   </label>
                 </fieldset>
                 {% csrf_token %}

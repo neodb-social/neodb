@@ -1,16 +1,14 @@
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
+from django.core.exceptions import BadRequest, PermissionDenied
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import Item
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from mastodon.api import boost_toot_later, share_collection
+from users.models import User
 
 from ..forms import *
 from ..models import *
@@ -126,31 +124,67 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(
         Collection, uid=get_uuid_or_404(collection_uuid) if collection_uuid else None
     )
-    if collection and not collection.is_visible_to(request.user):
+    user = request.user
+    if collection and not collection.is_visible_to(user):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":
         return render(request, "collection_share.html", {"collection": collection})
     else:
-        comment = request.POST.get("comment")
+        comment = request.POST.get("comment", "")
         # boost if possible, otherwise quote
         if (
             not comment
-            and request.user.preference.mastodon_repost_mode == 0
+            and user.preference.mastodon_repost_mode == 0
             and collection.latest_post
         ):
-            boost_toot_later(request.user, collection.latest_post.url)
+            if user.mastodon:
+                user.mastodon.boost_later(collection.latest_post.url)
         else:
-            visibility = int(request.POST.get("visibility", default=0))
+            visibility = VisibilityType(request.POST.get("visibility", default=0))
             link = (
                 collection.latest_post.url
                 if collection.latest_post
                 else collection.absolute_url
-            )
-            if not share_collection(
-                collection, comment, request.user, visibility, link
-            ):
+            ) or ""
+            if not share_collection(collection, comment, user, visibility, link):
                 return render_relogin(request)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+
+
+def share_collection(
+    collection: Collection,
+    comment: str,
+    user: User,
+    visibility: VisibilityType,
+    link: str,
+):
+    if not user or not user.mastodon:
+        return
+    tags = (
+        "\n"
+        + user.preference.mastodon_append_tag.replace("[category]", _("collection"))
+        if user.preference.mastodon_append_tag
+        else ""
+    )
+    user_str = (
+        _("shared my collection")
+        if user == collection.owner.user
+        else (
+            _("shared {username}'s collection").format(
+                username=(
+                    " @" + collection.owner.user.mastodon_acct + " "
+                    if collection.owner.user.mastodon_acct
+                    else " " + collection.owner.username + " "
+                )
+            )
+        )
+    )
+    content = f"{user_str}:{collection.title}\n{link}\n{comment}{tags}"
+    response = user.mastodon.post(content, visibility)
+    if response is not None and response.status_code in [200, 201]:
+        return True
+    else:
+        return False
 
 
 def collection_retrieve_items(

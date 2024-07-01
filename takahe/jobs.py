@@ -7,8 +7,6 @@ from loguru import logger
 
 from common.models import BaseJob, JobManager
 from journal.models import Comment, Review, ShelfMember
-from mastodon.api import detect_server_info
-from mastodon.models import MastodonApplication
 from takahe.models import Domain, Identity, Post
 
 

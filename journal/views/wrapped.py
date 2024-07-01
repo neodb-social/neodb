@@ -19,7 +19,7 @@ from catalog.models import (
     item_content_types,
 )
 from journal.models import Comment, ShelfType
-from mastodon.api import boost_toot_later, get_toot_visibility, post_toot_later
+from journal.models.common import VisibilityType
 from takahe.utils import Takahe
 from users.models import User
 
@@ -115,7 +115,7 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         img = base64.b64decode(request.POST.get("img", ""))
         comment = request.POST.get("comment", "")
-        visibility = int(request.POST.get("visibility", 0))
+        visibility = VisibilityType(request.POST.get("visibility", 0))
         user: User = request.user  # type: ignore
         identity = user.identity
         media = Takahe.upload_image(
@@ -128,16 +128,11 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
             attachments=[media],
         )
         classic_crosspost = user.preference.mastodon_repost_mode == 1
-        if classic_crosspost:
-            post_toot_later(
-                user,
-                comment,
-                get_toot_visibility(visibility, user),
-                img=img,
-                img_name="year.png",
-                img_type="image/png",
+        if classic_crosspost and user.mastodon:
+            user.mastodon.post(
+                comment, visibility, attachments=[("year.png", img, "image/png")]
             )
-        elif post:
-            boost_toot_later(user, post.url)
+        elif post and user.mastodon:
+            user.mastodon.boost_later(post.url)
         messages.add_message(request, messages.INFO, _("Summary posted to timeline."))
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))

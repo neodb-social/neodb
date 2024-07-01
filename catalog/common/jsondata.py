@@ -1,4 +1,4 @@
-# pyright: reportIncompatibleMethodOverride=false, reportFunctionMemberAccess=false
+# pyright: reportIncompatibleMethodOverride=false
 import copy
 from base64 import b64decode, b64encode
 from datetime import date, datetime
@@ -7,10 +7,11 @@ from hashlib import sha256
 from importlib import import_module
 
 import django
+import loguru
 from cryptography.fernet import Fernet, MultiFernet
 from django.conf import settings
 from django.core.exceptions import FieldError
-from django.db.models import Value, fields
+from django.db.models import DEFERRED, fields  # type:ignore
 from django.utils import dateparse, timezone
 from django.utils.encoding import force_bytes
 from django.utils.translation import gettext_lazy as _
@@ -20,6 +21,7 @@ from django.utils.translation import gettext_lazy as _
 # from django.contrib.postgres.fields import ArrayField as DJANGO_ArrayField
 from django_jsonform.models.fields import ArrayField as DJANGO_ArrayField
 from django_jsonform.models.fields import JSONField as DJANGO_JSONField
+from loguru import logger
 
 
 def _get_crypter():
@@ -74,18 +76,20 @@ class JSONFieldDescriptor(object):
             return self
         json_value = getattr(instance, self.field.json_field_name)
         if isinstance(json_value, dict):
-            if self.field.attname in json_value or not self.field.has_default():
+            if self.field.attname in json_value:
                 value = json_value.get(self.field.attname, None)
                 if hasattr(self.field, "from_json"):
                     value = self.field.from_json(value)
-                return value
+            elif self.field.has_default():
+                value = self.field.get_default()
+                # if hasattr(self.field, "to_json"):
+                #     json_value[self.field.attname] = self.field.to_json(value)
+                # else:
+                #     json_value[self.field.attname] = value
+                # return value
             else:
-                default = self.field.get_default()
-                if hasattr(self.field, "to_json"):
-                    json_value[self.field.attname] = self.field.to_json(default)
-                else:
-                    json_value[self.field.attname] = default
-                return default
+                value = None
+            return value
         return None
 
     def __set__(self, instance, value):
@@ -123,7 +127,7 @@ class JSONFieldMixin(object):
         self.set_attributes_from_name(name)
         self.model = cls
         self.concrete = False
-        self.column = self.json_field_name  # type: ignore
+        self.column = None  # type: ignore
         cls._meta.add_field(self, private=True)
 
         if not getattr(cls, self.attname, None):
@@ -137,11 +141,13 @@ class JSONFieldMixin(object):
                 partialmethod(cls._get_FIELD_display, field=self),
             )
 
+        self.column = self.json_field_name  # type: ignore
+
     def get_lookup(self, lookup_name):
         # Always return None, to make get_transform been called
         return None
 
-    def get_transform(self, name):
+    def get_transform(self, lookup_name):
         class TransformFactoryWrapper:
             def __init__(self, json_field, transform, original_lookup):
                 self.json_field = json_field
@@ -164,17 +170,22 @@ class JSONFieldMixin(object):
         if transform is None:
             raise FieldError(
                 "JSONField '%s' has no support for key '%s' %s lookup"
-                % (self.json_field_name, self.name, name)  # type: ignore
+                % (self.json_field_name, self.name, lookup_name)  # type: ignore
             )
 
-        return TransformFactoryWrapper(json_field, transform, name)
+        return TransformFactoryWrapper(json_field, transform, lookup_name)
+
+    def get_default(self):
+        # deferred during obj initialization so it don't overwrite json with default value
+        return DEFERRED
 
 
 class BooleanField(JSONFieldMixin, fields.BooleanField):
-    def __init__(self, *args, **kwargs):
-        super(BooleanField, self).__init__(*args, **kwargs)
-        if django.VERSION < (2,):
-            self.blank = False
+    pass
+    # def __init__(self, *args, **kwargs):
+    #     super(BooleanField, self).__init__(*args, **kwargs)
+    #     if django.VERSION < (2,):
+    #         self.blank = False
 
 
 class CharField(JSONFieldMixin, fields.CharField):
@@ -209,7 +220,7 @@ class DateTimeField(JSONFieldMixin, fields.DateTimeField):
                     )
                 value = v
             if isinstance(value, date):
-                value = datetime.combine(value, datetime.time.min())
+                value = datetime.combine(value, datetime.min.time())
             if not timezone.is_aware(value):
                 value = timezone.make_aware(value)
             return value.isoformat()
