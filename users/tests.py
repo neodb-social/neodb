@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.test import TestCase
 
+from mastodon.models import MastodonAccount
 from takahe.utils import Takahe
 
 from .models import *
@@ -13,6 +14,9 @@ class UserTest(TestCase):
         self.alice = User.register(
             mastodon_site="MySpace", mastodon_username="Alice", username="alice"
         ).identity
+        MastodonAccount.objects.create(
+            handle="Alice@MySpace", user=self.alice.user, domain="MySpace", uid="42"
+        )
         self.bob = User.register(
             mastodon_site="KKCity", mastodon_username="Bob", username="bob"
         ).identity
