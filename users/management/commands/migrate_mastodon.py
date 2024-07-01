@@ -20,7 +20,7 @@ class Command(BaseCommand):
                     handle=f"{user.mastodon_username}@{user.mastodon_site}",
                     defaults={
                         "user": user,
-                        "uid": user.mastodon_username,
+                        "uid": user.mastodon_id,
                         "domain": user.mastodon_site,
                         "created": user.date_joined,
                         "last_refresh": user.mastodon_last_refresh,

@@ -775,7 +775,7 @@ class MastodonAccount(SocialAccount):
             logger.warning(f"Refresh mastodon data error {code} for {self}")
             return False
         handle = f"{mastodon_account['username']}@{self.domain}"
-        uid = mastodon_account["username"]
+        uid = mastodon_account["id"]
         if self.uid != uid:
             if self.uid:
                 logger.warning(f"user id changed {self.uid} -> {uid}")

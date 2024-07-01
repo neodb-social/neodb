@@ -2801,7 +2801,7 @@ msgstr ""
 "你好，\n"
 "请输入如下验证码登录{email}账号：\n"
 "\n"
-"{code}\n"
+"{code}"
 
 #: mastodon/models/email.py:68
 #, python-brace-format
