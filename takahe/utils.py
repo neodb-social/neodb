@@ -627,51 +627,6 @@ class Takahe:
         return post
 
     @staticmethod
-    def post_mark(mark, share_as_new_post: bool, append_content="") -> Post | None:
-        user = mark.owner.user
-        stars = _rating_to_emoji(mark.rating_grade, 1)
-        item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{mark.item.url}"
-        prepend_content = mark.get_action_for_feed(item_link=item_link)
-        spoiler, txt = Takahe.get_spoiler_text(mark.comment_text, mark.item)
-        content = f"{stars} \n{txt}\n{mark.tag_text}"
-        data = {
-            "object": {
-                "tag": [mark.item.ap_object_ref],
-                "relatedWith": [mark.shelfmember.ap_object],
-            }
-        }
-        if mark.comment:
-            data["object"]["relatedWith"].append(mark.comment.ap_object)
-        if mark.rating:
-            data["object"]["relatedWith"].append(mark.rating.ap_object)
-        v = Takahe.visibility_n2t(mark.visibility, user.preference.post_public_mode)
-        existing_post = (
-            None
-            if share_as_new_post
-            or mark.shelfmember.latest_post is None
-            or mark.shelfmember.latest_post.state in ["deleted", "deleted_fanned_out"]
-            else mark.shelfmember.latest_post
-        )
-        post = Takahe.post(
-            mark.owner.pk,
-            content + append_content,
-            v,
-            prepend_content,
-            "",
-            spoiler,
-            spoiler is not None,
-            data,
-            existing_post.pk if existing_post else None,
-            mark.shelfmember.created_time,
-        )
-        if not post:
-            return
-        for piece in [mark.shelfmember, mark.comment, mark.rating]:
-            if piece:
-                piece.link_post_id(post.pk)
-        return post
-
-    @staticmethod
     def interact_post(post_pk: int, identity_pk: int, type: str):
         post = Post.objects.filter(pk=post_pk).first()
         if not post:

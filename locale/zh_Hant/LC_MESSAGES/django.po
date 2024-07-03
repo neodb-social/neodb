@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-01 17:19-0400\n"
+"POT-Creation-Date: 2024-07-03 16:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,15 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: boofilsic/settings.py:399
+#: boofilsic/settings.py:406
 msgid "English"
 msgstr "英語"
 
-#: boofilsic/settings.py:400
+#: boofilsic/settings.py:407
 msgid "Simplified Chinese"
 msgstr "簡體中文"
 
-#: boofilsic/settings.py:401
+#: boofilsic/settings.py:408
 msgid "Traditional Chinese"
 msgstr "繁體中文"
 
@@ -48,7 +48,7 @@ msgstr "譯者"
 #: catalog/book/models.py:116 catalog/movie/models.py:145
 #: catalog/performance/models.py:128 catalog/performance/models.py:270
 #: catalog/templates/edition.html:47 catalog/tv/models.py:214
-#: catalog/tv/models.py:378 users/models/user.py:96
+#: catalog/tv/models.py:378 users/models/user.py:112
 msgid "language"
 msgstr "語言"
 
@@ -684,10 +684,10 @@ msgstr "沒有更多內容了。"
 msgid "comment this episode"
 msgstr "寫該集短評"
 
-#: catalog/templates/_item_reviews.html:26 journal/models/shelf.py:69
-#: journal/models/shelf.py:109 journal/models/shelf.py:149
-#: journal/models/shelf.py:189 journal/models/shelf.py:229
-#: journal/models/shelf.py:269 journal/models/shelf.py:303
+#: catalog/templates/_item_reviews.html:26 journal/models/shelf.py:71
+#: journal/models/shelf.py:111 journal/models/shelf.py:151
+#: journal/models/shelf.py:191 journal/models/shelf.py:231
+#: journal/models/shelf.py:271 journal/models/shelf.py:305
 #: journal/templates/_sidebar_user_mark_list.html:26
 msgid "review"
 msgstr "評論"
@@ -1032,7 +1032,7 @@ msgstr "創建"
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
 #: journal/templates/mark.html:147 journal/templates/note.html:39
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
-#: users/templates/users/account.html:47 users/templates/users/account.html:106
+#: users/templates/users/account.html:37 users/templates/users/account.html:67
 #: users/templates/users/preferences.html:187
 #: users/templates/users/preferences.html:212
 msgid "Save"
@@ -1108,7 +1108,8 @@ msgstr "熱門標籤"
 
 #: catalog/templates/discover.html:177 catalog/templates/item_base.html:236
 #: catalog/templates/item_mark_list.html:54
-#: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:99
+#: catalog/templates/item_review_list.html:50
+#: common/templates/_sidebar.html:109
 #: common/templates/_sidebar_anonymous.html:43
 #: common/templates/_sidebar_anonymous.html:58
 #: journal/templates/collection_items.html:8 journal/templates/posts.html:49
@@ -1386,16 +1387,17 @@ msgstr "條目已不存在"
 #: journal/views/collection.py:214 journal/views/collection.py:234
 #: journal/views/collection.py:246 journal/views/collection.py:260
 #: journal/views/collection.py:274 journal/views/collection.py:277
-#: journal/views/collection.py:301 journal/views/common.py:134
+#: journal/views/collection.py:301 journal/views/common.py:135
 #: journal/views/post.py:20 journal/views/post.py:42 journal/views/review.py:32
 #: journal/views/review.py:46
 msgid "Insufficient permission"
 msgstr "權限不足"
 
 #: catalog/views_edit.py:200 journal/views/collection.py:263
-#: journal/views/collection.py:330 journal/views/common.py:81
+#: journal/views/collection.py:330 journal/views/common.py:82
 #: journal/views/mark.py:141 journal/views/post.py:56 journal/views/post.py:70
-#: journal/views/review.py:93 journal/views/review.py:96 users/views.py:169
+#: journal/views/review.py:93 journal/views/review.py:96
+#: users/views/actions.py:169
 msgid "Invalid parameter"
 msgstr "無效參數"
 
@@ -1470,7 +1472,7 @@ msgstr "開發者"
 msgid "Source Code"
 msgstr "源代碼"
 
-#: common/templates/_footer.html:16 users/templates/users/login.html:171
+#: common/templates/_footer.html:16 users/templates/users/login.html:173
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "這是%(site_name)s的臨時鏡像，請儘可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站點</a>。"
@@ -1534,59 +1536,59 @@ msgstr "管理"
 msgid "Sign up or Login"
 msgstr "註冊或登錄"
 
-#: common/templates/_header.html:125
-msgid "Set a username."
-msgstr "設置用戶名"
+#: common/templates/_header.html:127
+msgid "Open"
+msgstr "打開"
 
 #: common/templates/_sidebar.html:53
 #: users/templates/users/profile_actions.html:29
 msgid "approving followers manually"
 msgstr "已開啓關注審覈"
 
-#: common/templates/_sidebar.html:84
+#: common/templates/_sidebar.html:94
 msgid "Current Targets"
 msgstr "當前目標"
 
-#: common/templates/_sidebar.html:97
+#: common/templates/_sidebar.html:107
 msgid "Set a collection as target, its progress will show up here."
 msgstr "將自己或他人的收藏單設爲目標，這裏就會顯示進度"
 
-#: common/templates/_sidebar.html:110
+#: common/templates/_sidebar.html:120
 msgid "Recent podcast episodes"
 msgstr "近期播客節目"
 
-#: common/templates/_sidebar.html:145
+#: common/templates/_sidebar.html:155
 msgid "Currently reading"
 msgstr "正在閱讀"
 
-#: common/templates/_sidebar.html:168
+#: common/templates/_sidebar.html:178
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:191 journal/templates/user_tag_list.html:12
+#: common/templates/_sidebar.html:201 journal/templates/user_tag_list.html:12
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
 msgstr "標籤"
 
-#: common/templates/_sidebar.html:197 journal/templates/user_tag_list.html:26
+#: common/templates/_sidebar.html:207 journal/templates/user_tag_list.html:26
 #: journal/templates/user_tagmember_list.html:10
 msgid "featured tag"
 msgstr "置頂標籤"
 
-#: common/templates/_sidebar.html:200 journal/templates/user_tag_list.html:29
+#: common/templates/_sidebar.html:210 journal/templates/user_tag_list.html:29
 #: journal/templates/user_tagmember_list.html:15
 msgid "personal tag"
 msgstr "個人標籤"
 
-#: common/templates/_sidebar.html:207 journal/templates/user_tag_list.html:37
+#: common/templates/_sidebar.html:217 journal/templates/user_tag_list.html:37
 msgid "no tags so far."
 msgstr "暫無標籤。"
 
-#: common/templates/_sidebar.html:211
+#: common/templates/_sidebar.html:221
 msgid "show all"
 msgstr "顯示全部"
 
-#: common/templates/_sidebar.html:221
+#: common/templates/_sidebar.html:231
 msgid "Recent Posts"
 msgstr "近期帖文"
 
@@ -1651,11 +1653,12 @@ msgstr "已關注"
 msgid "following you"
 msgstr "關注了你"
 
-#: common/utils.py:61 common/utils.py:91 users/views.py:35 users/views.py:121
+#: common/utils.py:61 common/utils.py:91 users/views/actions.py:35
+#: users/views/actions.py:121
 msgid "User not found"
 msgstr "用戶不存在"
 
-#: common/utils.py:65 common/utils.py:95 users/views.py:124
+#: common/utils.py:65 common/utils.py:95 users/views/actions.py:124
 msgid "User no longer exists"
 msgstr "用戶不存在了"
 
@@ -1712,7 +1715,7 @@ msgstr "{username} 的播客訂閱"
 msgid "note"
 msgstr "備註"
 
-#: journal/models/common.py:32 journal/templates/action_open_post.html:8
+#: journal/models/common.py:37 journal/templates/action_open_post.html:8
 #: journal/templates/action_open_post.html:14
 #: journal/templates/action_open_post.html:16
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
@@ -1723,7 +1726,7 @@ msgstr "備註"
 msgid "Public"
 msgstr "公開"
 
-#: journal/models/common.py:33 journal/templates/action_open_post.html:10
+#: journal/models/common.py:38 journal/templates/action_open_post.html:10
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:100 journal/templates/wrapped_share.html:49
 #: users/templates/users/data.html:55 users/templates/users/data.html:147
@@ -1731,13 +1734,25 @@ msgstr "公開"
 msgid "Followers Only"
 msgstr "僅關注者"
 
-#: journal/models/common.py:34 journal/templates/action_open_post.html:12
+#: journal/models/common.py:39 journal/templates/action_open_post.html:12
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
 #: journal/templates/mark.html:107 journal/templates/wrapped_share.html:55
 #: users/templates/users/data.html:63 users/templates/users/data.html:155
 #: users/templates/users/preferences.html:68
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
+
+#: journal/models/common.py:314
+msgid "A recent post was not posted to Threads."
+msgstr "帖文未能發佈到Threads。"
+
+#: journal/models/common.py:347
+msgid "A recent post was not posted to Mastodon, please re-authorize."
+msgstr "帖文未能發佈到聯邦實例，請重新驗證登錄。"
+
+#: journal/models/common.py:354
+msgid "A recent post was not posted to Mastodon."
+msgstr "帖文未能發佈到聯邦實例。"
 
 #: journal/models/note.py:34
 msgid "Page"
@@ -1807,414 +1822,414 @@ msgstr "{value}周目"
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "關於 {item_title}，可能包含劇透或敏感內容"
 
-#: journal/models/shelf.py:24
+#: journal/models/shelf.py:26
 msgid "WISHLIST"
 msgstr ""
 
-#: journal/models/shelf.py:25
+#: journal/models/shelf.py:27
 msgid "PROGRESS"
 msgstr ""
 
-#: journal/models/shelf.py:26
+#: journal/models/shelf.py:28
 msgid "COMPLETE"
 msgstr ""
 
-#: journal/models/shelf.py:27
+#: journal/models/shelf.py:29
 msgid "DROPPED"
 msgstr ""
 
-#: journal/models/shelf.py:36
+#: journal/models/shelf.py:38
 msgid "books to read"
 msgstr "想讀的書"
 
-#: journal/models/shelf.py:37
+#: journal/models/shelf.py:39
 msgid "want to read"
 msgstr "想讀"
 
-#: journal/models/shelf.py:38
+#: journal/models/shelf.py:40
 #, python-brace-format
 msgid "wants to read {item}"
 msgstr "想讀 {item}"
 
-#: journal/models/shelf.py:39
+#: journal/models/shelf.py:41
 msgid "to read"
 msgstr "想讀"
 
-#: journal/models/shelf.py:44
+#: journal/models/shelf.py:46
 msgid "books reading"
 msgstr "正在讀的書"
 
-#: journal/models/shelf.py:45
+#: journal/models/shelf.py:47
 msgid "start reading"
 msgstr "在讀"
 
-#: journal/models/shelf.py:46
+#: journal/models/shelf.py:48
 #, python-brace-format
 msgid "started reading {item}"
 msgstr "在讀 {item}"
 
-#: journal/models/shelf.py:47
+#: journal/models/shelf.py:49
 msgid "reading"
 msgstr "在讀"
 
-#: journal/models/shelf.py:52
+#: journal/models/shelf.py:54
 msgid "books completed"
 msgstr "讀過的書"
 
-#: journal/models/shelf.py:53
+#: journal/models/shelf.py:55
 msgid "finish reading"
 msgstr "讀過"
 
-#: journal/models/shelf.py:54
+#: journal/models/shelf.py:56
 #, python-brace-format
 msgid "finished reading {item}"
 msgstr "讀過 {item}"
 
-#: journal/models/shelf.py:55
+#: journal/models/shelf.py:57
 msgid "read"
 msgstr "已讀"
 
-#: journal/models/shelf.py:60
+#: journal/models/shelf.py:62
 msgid "books dropped"
 msgstr "不再讀的書"
 
-#: journal/models/shelf.py:61
+#: journal/models/shelf.py:63
 msgid "stop reading"
 msgstr "不讀了"
 
-#: journal/models/shelf.py:62
+#: journal/models/shelf.py:64
 #, python-brace-format
 msgid "stopped reading {item}"
 msgstr "不再讀 {item}"
 
-#: journal/models/shelf.py:63
+#: journal/models/shelf.py:65
 msgid "stopped reading"
 msgstr "不讀了"
 
-#: journal/models/shelf.py:68
+#: journal/models/shelf.py:70
 msgid "books reviewed"
 msgstr "評論過的書"
 
-#: journal/models/shelf.py:70 journal/models/shelf.py:110
-#: journal/models/shelf.py:150 journal/models/shelf.py:190
-#: journal/models/shelf.py:230 journal/models/shelf.py:270
-#: journal/models/shelf.py:304
+#: journal/models/shelf.py:72 journal/models/shelf.py:112
+#: journal/models/shelf.py:152 journal/models/shelf.py:192
+#: journal/models/shelf.py:232 journal/models/shelf.py:272
+#: journal/models/shelf.py:306
 #, python-brace-format
 msgid "wrote a review of {item}"
 msgstr "寫了關於 {item} 的評論"
 
-#: journal/models/shelf.py:76
+#: journal/models/shelf.py:78
 msgid "movies to watch"
 msgstr "想看的電影"
 
-#: journal/models/shelf.py:77 journal/models/shelf.py:117
+#: journal/models/shelf.py:79 journal/models/shelf.py:119
 msgid "want to watch"
 msgstr "想看"
 
-#: journal/models/shelf.py:78 journal/models/shelf.py:118
+#: journal/models/shelf.py:80 journal/models/shelf.py:120
 #, python-brace-format
 msgid "wants to watch {item}"
 msgstr "想看 {item}"
 
-#: journal/models/shelf.py:79 journal/models/shelf.py:119
+#: journal/models/shelf.py:81 journal/models/shelf.py:121
 msgid "to watch"
 msgstr "想看"
 
-#: journal/models/shelf.py:84
+#: journal/models/shelf.py:86
 msgid "movies watching"
 msgstr "正在看的電影"
 
-#: journal/models/shelf.py:85 journal/models/shelf.py:125
+#: journal/models/shelf.py:87 journal/models/shelf.py:127
 msgid "start watching"
 msgstr "在看"
 
-#: journal/models/shelf.py:86 journal/models/shelf.py:126
+#: journal/models/shelf.py:88 journal/models/shelf.py:128
 #, python-brace-format
 msgid "started watching {item}"
 msgstr "在看 {item}"
 
-#: journal/models/shelf.py:87 journal/models/shelf.py:127
+#: journal/models/shelf.py:89 journal/models/shelf.py:129
 msgid "watching"
 msgstr "在看"
 
-#: journal/models/shelf.py:92
+#: journal/models/shelf.py:94
 msgid "movies watched"
 msgstr "看過的電影"
 
-#: journal/models/shelf.py:93 journal/models/shelf.py:133
+#: journal/models/shelf.py:95 journal/models/shelf.py:135
 msgid "finish watching"
 msgstr "看過"
 
-#: journal/models/shelf.py:94 journal/models/shelf.py:134
+#: journal/models/shelf.py:96 journal/models/shelf.py:136
 #, python-brace-format
 msgid "finished watching {item}"
 msgstr "看過 {item}"
 
-#: journal/models/shelf.py:95 journal/models/shelf.py:135
+#: journal/models/shelf.py:97 journal/models/shelf.py:137
 msgid "watched"
 msgstr "看過"
 
-#: journal/models/shelf.py:100
+#: journal/models/shelf.py:102
 msgid "movies dropped"
 msgstr "不再看的電影"
 
-#: journal/models/shelf.py:101 journal/models/shelf.py:141
+#: journal/models/shelf.py:103 journal/models/shelf.py:143
 msgid "stop watching"
 msgstr "不看了"
 
-#: journal/models/shelf.py:102 journal/models/shelf.py:142
+#: journal/models/shelf.py:104 journal/models/shelf.py:144
 #, python-brace-format
 msgid "stopped watching {item}"
 msgstr "不再看 {item}"
 
-#: journal/models/shelf.py:103 journal/models/shelf.py:143
+#: journal/models/shelf.py:105 journal/models/shelf.py:145
 msgid "stopped watching"
 msgstr "不看了"
 
-#: journal/models/shelf.py:108
+#: journal/models/shelf.py:110
 msgid "movies reviewed"
 msgstr "評論過的電影"
 
-#: journal/models/shelf.py:116
+#: journal/models/shelf.py:118
 msgid "TV shows to watch"
 msgstr "想看的劇集"
 
-#: journal/models/shelf.py:124
+#: journal/models/shelf.py:126
 msgid "TV shows watching"
 msgstr "正在看的劇集"
 
-#: journal/models/shelf.py:132
+#: journal/models/shelf.py:134
 msgid "TV shows watched"
 msgstr "看過的劇集"
 
-#: journal/models/shelf.py:140
+#: journal/models/shelf.py:142
 msgid "TV shows dropped"
 msgstr "不再看的劇集"
 
-#: journal/models/shelf.py:148
+#: journal/models/shelf.py:150
 msgid "TV shows reviewed"
 msgstr "評論過的劇集"
 
-#: journal/models/shelf.py:156
+#: journal/models/shelf.py:158
 msgid "albums to listen"
 msgstr "想聽的專輯"
 
-#: journal/models/shelf.py:157 journal/models/shelf.py:237
+#: journal/models/shelf.py:159 journal/models/shelf.py:239
 msgid "want to listen"
 msgstr "想聽"
 
-#: journal/models/shelf.py:158 journal/models/shelf.py:238
+#: journal/models/shelf.py:160 journal/models/shelf.py:240
 #, python-brace-format
 msgid "wants to listen {item}"
 msgstr "想聽 {item}"
 
-#: journal/models/shelf.py:159 journal/models/shelf.py:239
+#: journal/models/shelf.py:161 journal/models/shelf.py:241
 msgid "to listen"
 msgstr "想聽"
 
-#: journal/models/shelf.py:164
+#: journal/models/shelf.py:166
 msgid "albums listening"
 msgstr "正在聽的專輯"
 
-#: journal/models/shelf.py:165 journal/models/shelf.py:245
+#: journal/models/shelf.py:167 journal/models/shelf.py:247
 msgid "start listening"
 msgstr "在聽"
 
-#: journal/models/shelf.py:166 journal/models/shelf.py:246
+#: journal/models/shelf.py:168 journal/models/shelf.py:248
 #, python-brace-format
 msgid "started listening {item}"
 msgstr "在聽 {item}"
 
-#: journal/models/shelf.py:167 journal/models/shelf.py:247
+#: journal/models/shelf.py:169 journal/models/shelf.py:249
 msgid "listening"
 msgstr "在聽"
 
-#: journal/models/shelf.py:172
+#: journal/models/shelf.py:174
 msgid "albums listened"
 msgstr "聽過的專輯"
 
-#: journal/models/shelf.py:173 journal/models/shelf.py:253
+#: journal/models/shelf.py:175 journal/models/shelf.py:255
 msgid "finish listening"
 msgstr "聽過"
 
-#: journal/models/shelf.py:174 journal/models/shelf.py:254
+#: journal/models/shelf.py:176 journal/models/shelf.py:256
 #, python-brace-format
 msgid "finished listening {item}"
 msgstr "聽過 {item}"
 
-#: journal/models/shelf.py:175 journal/models/shelf.py:255
+#: journal/models/shelf.py:177 journal/models/shelf.py:257
 msgid "listened"
 msgstr "聽過"
 
-#: journal/models/shelf.py:180
+#: journal/models/shelf.py:182
 msgid "albums dropped"
 msgstr "不再聽的專輯"
 
-#: journal/models/shelf.py:181 journal/models/shelf.py:261
+#: journal/models/shelf.py:183 journal/models/shelf.py:263
 msgid "stop listening"
 msgstr "不聽了"
 
-#: journal/models/shelf.py:182 journal/models/shelf.py:262
+#: journal/models/shelf.py:184 journal/models/shelf.py:264
 #, python-brace-format
 msgid "stopped listening {item}"
 msgstr "不聽了 {item}"
 
-#: journal/models/shelf.py:183 journal/models/shelf.py:263
+#: journal/models/shelf.py:185 journal/models/shelf.py:265
 msgid "stopped listening"
 msgstr "不聽了"
 
-#: journal/models/shelf.py:188
+#: journal/models/shelf.py:190
 msgid "albums reviewed"
 msgstr "評論過的專輯"
 
-#: journal/models/shelf.py:196
+#: journal/models/shelf.py:198
 msgid "games to play"
 msgstr "想玩的遊戲"
 
-#: journal/models/shelf.py:197
+#: journal/models/shelf.py:199
 msgid "want to play"
 msgstr "想玩"
 
-#: journal/models/shelf.py:198
+#: journal/models/shelf.py:200
 #, python-brace-format
 msgid "wants to play {item}"
 msgstr "想玩 {item}"
 
-#: journal/models/shelf.py:199
+#: journal/models/shelf.py:201
 msgid "to play"
 msgstr "想玩"
 
-#: journal/models/shelf.py:204
+#: journal/models/shelf.py:206
 msgid "games playing"
 msgstr "正在玩的遊戲"
 
-#: journal/models/shelf.py:205
+#: journal/models/shelf.py:207
 msgid "start playing"
 msgstr "在玩"
 
-#: journal/models/shelf.py:206
+#: journal/models/shelf.py:208
 #, python-brace-format
 msgid "started playing {item}"
 msgstr "在玩 {item}"
 
-#: journal/models/shelf.py:207
+#: journal/models/shelf.py:209
 msgid "playing"
 msgstr "在玩"
 
-#: journal/models/shelf.py:212
+#: journal/models/shelf.py:214
 msgid "games played"
 msgstr "玩過的遊戲"
 
-#: journal/models/shelf.py:213
+#: journal/models/shelf.py:215
 msgid "finish playing"
 msgstr "玩過"
 
-#: journal/models/shelf.py:214
+#: journal/models/shelf.py:216
 #, python-brace-format
 msgid "finished playing {item}"
 msgstr "玩過 {item}"
 
-#: journal/models/shelf.py:215
+#: journal/models/shelf.py:217
 msgid "played"
 msgstr "玩過"
 
-#: journal/models/shelf.py:220
+#: journal/models/shelf.py:222
 msgid "games dropped"
 msgstr "不再玩的遊戲"
 
-#: journal/models/shelf.py:221
+#: journal/models/shelf.py:223
 msgid "stop playing"
 msgstr "不玩了"
 
-#: journal/models/shelf.py:222
+#: journal/models/shelf.py:224
 #, python-brace-format
 msgid "stopped playing {item}"
 msgstr "不再玩 {item}"
 
-#: journal/models/shelf.py:223
+#: journal/models/shelf.py:225
 msgid "stopped playing"
 msgstr "不玩了"
 
-#: journal/models/shelf.py:228
+#: journal/models/shelf.py:230
 msgid "games reviewed"
 msgstr "評論過的遊戲"
 
-#: journal/models/shelf.py:236
+#: journal/models/shelf.py:238
 msgid "podcasts to listen"
 msgstr "想聽的播客"
 
-#: journal/models/shelf.py:244
+#: journal/models/shelf.py:246
 msgid "podcasts listening"
 msgstr "正在聽的播客"
 
-#: journal/models/shelf.py:252
+#: journal/models/shelf.py:254
 msgid "podcasts listened"
 msgstr "聽過的播客"
 
-#: journal/models/shelf.py:260
+#: journal/models/shelf.py:262
 msgid "podcasts dropped"
 msgstr "不再聽的播客"
 
-#: journal/models/shelf.py:268
+#: journal/models/shelf.py:270
 msgid "podcasts reviewed"
 msgstr "評論過的播客"
 
-#: journal/models/shelf.py:276
+#: journal/models/shelf.py:278
 msgid "performances to see"
 msgstr "想看的演出"
 
-#: journal/models/shelf.py:277
+#: journal/models/shelf.py:279
 msgid "want to see"
 msgstr "想看"
 
-#: journal/models/shelf.py:278
+#: journal/models/shelf.py:280
 #, python-brace-format
 msgid "wants to see {item}"
 msgstr "想看 {item}"
 
-#: journal/models/shelf.py:279
+#: journal/models/shelf.py:281
 msgid "to see"
 msgstr "想看"
 
-#: journal/models/shelf.py:286
+#: journal/models/shelf.py:288
 msgid "performances saw"
 msgstr "看過的演出"
 
-#: journal/models/shelf.py:287
+#: journal/models/shelf.py:289
 msgid "finish seeing"
 msgstr "看過"
 
-#: journal/models/shelf.py:288
+#: journal/models/shelf.py:290
 #, python-brace-format
 msgid "finished seeing {item}"
 msgstr "看過 {item}"
 
-#: journal/models/shelf.py:289
+#: journal/models/shelf.py:291
 msgid "seen"
 msgstr "看過"
 
-#: journal/models/shelf.py:294
+#: journal/models/shelf.py:296
 msgid "performances dropped"
 msgstr "不再看的演出"
 
-#: journal/models/shelf.py:295
+#: journal/models/shelf.py:297
 msgid "stop seeing"
 msgstr "不看了"
 
-#: journal/models/shelf.py:296
+#: journal/models/shelf.py:298
 #, python-brace-format
 msgid "stopped seeing {item}"
 msgstr "不再看 {item}"
 
-#: journal/models/shelf.py:297
+#: journal/models/shelf.py:299
 msgid "stopped seeing"
 msgstr "不看了"
 
-#: journal/models/shelf.py:302
+#: journal/models/shelf.py:304
 msgid "performances reviewed"
 msgstr "評論過的演出"
 
-#: journal/models/shelf.py:459
+#: journal/models/shelf.py:527
 msgid "removed mark"
 msgstr "移除標記"
 
@@ -2670,15 +2685,15 @@ msgstr "找不到條目，請使用本站條目網址。"
 msgid "Login required"
 msgstr "登錄後訪問"
 
-#: journal/views/common.py:33 journal/views/mark.py:118
+#: journal/views/common.py:34 journal/views/mark.py:118
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "數據已保存但未能轉發到聯邦實例。"
 
-#: journal/views/common.py:35
+#: journal/views/common.py:36
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr "正在重定向到你的聯邦實例以重新認證。"
 
-#: journal/views/common.py:42
+#: journal/views/common.py:43
 msgid "List not found."
 msgstr "列表未找到"
 
@@ -2749,27 +2764,28 @@ msgstr "重複標籤"
 msgid "Tag updated."
 msgstr "標籤已更新"
 
-#: journal/views/wrapped.py:137
+#: journal/views/wrapped.py:140
 msgid "Summary posted to timeline."
 msgstr "總結已發佈到時間軸"
 
-#: mastodon/models/common.py:12 users/templates/users/login.html:57
+#: mastodon/models/common.py:11 users/templates/users/account.html:44
+#: users/templates/users/login.html:57
 msgid "Email"
 msgstr "電子郵件"
 
-#: mastodon/models/common.py:13
+#: mastodon/models/common.py:12
 msgid "Mastodon"
 msgstr "Mastodon"
 
-#: mastodon/models/common.py:14 users/templates/users/login.html:75
+#: mastodon/models/common.py:13 users/templates/users/login.html:76
 msgid "Threads"
 msgstr "Threads"
 
-#: mastodon/models/common.py:15 users/templates/users/login.html:80
+#: mastodon/models/common.py:14 users/templates/users/login.html:83
 msgid "Bluesky"
 msgstr "Bluesky"
 
-#: mastodon/models/email.py:51
+#: mastodon/models/email.py:54
 msgid ""
 "\n"
 "\n"
@@ -2779,7 +2795,7 @@ msgstr ""
 "\n"
 "如果你沒有打算用此電子郵件地址註冊或登錄本站，請忽略此郵件；如果你確信賬號存在安全風險，請更改註冊郵件地址或與我們聯繫。"
 
-#: mastodon/models/email.py:58
+#: mastodon/models/email.py:61
 #, python-brace-format
 msgid ""
 "Use this code to verify your email address {email}\n"
@@ -2791,7 +2807,7 @@ msgstr ""
 "\n"
 "{code}"
 
-#: mastodon/models/email.py:62
+#: mastodon/models/email.py:65
 #, python-brace-format
 msgid ""
 "Use this code to login as {email}\n"
@@ -2803,7 +2819,7 @@ msgstr ""
 "\n"
 "{code}"
 
-#: mastodon/models/email.py:68
+#: mastodon/models/email.py:71
 #, python-brace-format
 msgid ""
 "There is no account registered with this email address yet: {email}\n"
@@ -2819,49 +2835,141 @@ msgstr ""
 "\n"
 "如果你確認要使用電子郵件新註冊賬號，請輸入如下驗證碼： {code}"
 
-#: mastodon/models/mastodon.py:544
+#: mastodon/models/mastodon.py:551
 msgid "site domain name"
 msgstr "站點域名"
 
-#: mastodon/models/mastodon.py:545
+#: mastodon/models/mastodon.py:552
 msgid "domain for api call"
 msgstr "站點API域名"
 
-#: mastodon/models/mastodon.py:546
+#: mastodon/models/mastodon.py:553
 msgid "type and verion"
 msgstr "站點類型和版本"
 
-#: mastodon/models/mastodon.py:547
+#: mastodon/models/mastodon.py:554
 msgid "in-site app id"
 msgstr "實例應用id"
 
-#: mastodon/models/mastodon.py:548
+#: mastodon/models/mastodon.py:555
 msgid "client id"
 msgstr "實例應用Client ID"
 
-#: mastodon/models/mastodon.py:549
+#: mastodon/models/mastodon.py:556
 msgid "client secret"
 msgstr "實例應用Client Secret"
 
-#: mastodon/models/mastodon.py:550
+#: mastodon/models/mastodon.py:557
 msgid "vapid key"
 msgstr "實例應用VAPID Key"
 
-#: mastodon/models/mastodon.py:552
+#: mastodon/models/mastodon.py:559
 msgid "0: custom emoji; 1: unicode moon; 2: text"
 msgstr "實例表情模式"
 
-#: mastodon/models/mastodon.py:555
+#: mastodon/models/mastodon.py:562
 msgid "max toot len"
 msgstr "帖文長度限制"
 
-#: mastodon/models/mastodon.py:617
+#: mastodon/models/mastodon.py:624
 msgid "Boost"
 msgstr "轉播"
 
-#: mastodon/models/mastodon.py:618
+#: mastodon/models/mastodon.py:625
 msgid "New Post"
 msgstr "新帖文"
+
+#: mastodon/views/common.py:29 mastodon/views/mastodon.py:37
+#: mastodon/views/mastodon.py:44 mastodon/views/mastodon.py:54
+#: mastodon/views/mastodon.py:61 mastodon/views/threads.py:40
+#: mastodon/views/threads.py:45 users/views/account.py:104
+msgid "Authentication failed"
+msgstr "認證失敗"
+
+#: mastodon/views/common.py:29 mastodon/views/common.py:79
+msgid "Invalid user."
+msgstr "無效用戶。"
+
+#: mastodon/views/common.py:44
+msgid "Registration failed"
+msgstr "註冊失敗"
+
+#: mastodon/views/common.py:44
+msgid "User already logged in."
+msgstr "用戶已經登錄了。"
+
+#: mastodon/views/common.py:52
+msgid "Unable to update login information: identical identity."
+msgstr "無法更新登錄信息：該身份與當前賬號相同。"
+
+#: mastodon/views/common.py:56
+msgid "Unable to update login information: identity in use."
+msgstr "無法更新登錄信息：該身份已被其它賬號使用。"
+
+#: mastodon/views/common.py:70
+msgid "Login information updated."
+msgstr "登錄信息已更新"
+
+#: mastodon/views/common.py:77 mastodon/views/common.py:79
+#: mastodon/views/common.py:83
+msgid "Disconnect identity failed"
+msgstr "未能取消身份關聯"
+
+#: mastodon/views/common.py:77
+msgid "Identity not found."
+msgstr "身份未找到"
+
+#: mastodon/views/common.py:84
+msgid "You cannot disconnect last login identity."
+msgstr "無法取消唯一的登錄用身份。"
+
+#: mastodon/views/email.py:19
+msgid "Invalid email address"
+msgstr "無效的電子郵件地址"
+
+#: mastodon/views/email.py:25
+msgid "Verification"
+msgstr "驗證"
+
+#: mastodon/views/email.py:27 users/templates/users/verify.html:19
+msgid "Verification email is being sent, please check your inbox."
+msgstr "驗證郵件已發送，請查閱收件箱。"
+
+#: mastodon/views/email.py:44 mastodon/views/email.py:53
+msgid "Invalid verification code"
+msgstr "驗證碼無效或已過期"
+
+#: mastodon/views/mastodon.py:17
+msgid "Missing instance domain"
+msgstr "未指定實例域名"
+
+#: mastodon/views/mastodon.py:26
+msgid "Error connecting to instance"
+msgstr "無法連接實例"
+
+#: mastodon/views/mastodon.py:38
+msgid "Invalid response from Fediverse instance."
+msgstr "聯邦實例返回信息無效"
+
+#: mastodon/views/mastodon.py:45
+msgid "Invalid cookie data."
+msgstr "無效cookie信息。"
+
+#: mastodon/views/mastodon.py:50
+msgid "Invalid instance domain"
+msgstr "實例域名無效"
+
+#: mastodon/views/mastodon.py:55
+msgid "Invalid token from Fediverse instance."
+msgstr "聯邦實例返回了無效的認證令牌。"
+
+#: mastodon/views/mastodon.py:62
+msgid "Invalid account data from Fediverse instance."
+msgstr "聯邦實例返回了無效的賬號數據。"
+
+#: mastodon/views/threads.py:45
+msgid "Invalid account data from Threads."
+msgstr "Threads返回了無效的賬號數據。"
 
 #: social/templates/activity/comment_child_item.html:12
 #: social/templates/feed_events.html:40
@@ -3119,136 +3227,6 @@ msgstr "頭像"
 msgid "Header picture"
 msgstr "背景圖片"
 
-#: users/account.py:72
-msgid "Invalid email address"
-msgstr "無效的電子郵件地址"
-
-#: users/account.py:79
-msgid "Verification"
-msgstr "驗證"
-
-#: users/account.py:81 users/templates/users/verify.html:19
-msgid "Verification email is being sent, please check your inbox."
-msgstr "驗證郵件已發送，請查閱收件箱。"
-
-#: users/account.py:96
-msgid "Missing instance domain"
-msgstr "未指定實例域名"
-
-#: users/account.py:111
-msgid "Error connecting to instance"
-msgstr "無法連接實例"
-
-#: users/account.py:126 users/account.py:136 users/account.py:149
-#: users/account.py:164 users/account.py:175 users/account.py:198
-#: users/account.py:313 users/account.py:340
-msgid "Authentication failed"
-msgstr "認證失敗"
-
-#: users/account.py:127
-msgid "Invalid response from Fediverse instance."
-msgstr "聯邦實例返回信息無效"
-
-#: users/account.py:137
-msgid "Invalid cookie data."
-msgstr "無效cookie信息。"
-
-#: users/account.py:143
-msgid "Invalid instance domain"
-msgstr "實例域名無效"
-
-#: users/account.py:150
-msgid "Invalid token from Fediverse instance."
-msgstr "聯邦實例返回了無效的認證令牌。"
-
-#: users/account.py:165 users/account.py:459
-msgid "Invalid account data from Fediverse instance."
-msgstr "聯邦實例返回了無效的賬號數據。"
-
-#: users/account.py:176 users/account.py:341
-msgid "Invalid user."
-msgstr "無效用戶。"
-
-#: users/account.py:199
-msgid "Registration is for invitation only"
-msgstr "本站僅限邀請註冊"
-
-#: users/account.py:265
-msgid "This username is already in use."
-msgstr "用戶名已被使用"
-
-#: users/account.py:276
-msgid "This email address is already in use."
-msgstr "此電子郵件地址已被使用"
-
-#: users/account.py:290 users/account.py:299
-msgid "Invalid verification code"
-msgstr "驗證碼無效或已過期"
-
-#: users/account.py:314
-msgid "Email already in use"
-msgstr "電子郵件地址已被註冊"
-
-#: users/account.py:382
-msgid "Valid username required"
-msgstr "請輸入有效的用戶名"
-
-#: users/account.py:386
-msgid "Username in use"
-msgstr "用戶名已被使用"
-
-#: users/account.py:418
-msgid "Unable to update login information: identical identity."
-msgstr "無法更新登錄信息：該身份與當前賬號相同。"
-
-#: users/account.py:424
-msgid "Unable to update login information: identity in use."
-msgstr "無法更新登錄信息：該身份已被其它賬號使用。"
-
-#: users/account.py:455
-msgid "Login information updated."
-msgstr "登錄信息已更新"
-
-#: users/account.py:508
-msgid "Account mismatch."
-msgstr "賬號信息不匹配。"
-
-#: users/data.py:131
-msgid "Generating exports."
-msgstr "正在生成導出文件。"
-
-#: users/data.py:143
-msgid "Export file expired. Please export again."
-msgstr "導出文件已失效，請重新導出"
-
-#: users/data.py:154
-msgid "Sync in progress."
-msgstr "正在同步。"
-
-#: users/data.py:168
-msgid "Settings saved."
-msgstr "設置已保存"
-
-#: users/data.py:179
-msgid "Reset completed."
-msgstr "重置已完成。"
-
-#: users/data.py:188
-msgid "Import in progress."
-msgstr "正在導出"
-
-#: users/data.py:190
-msgid "Invalid URL."
-msgstr "無效網址。"
-
-#: users/data.py:204 users/data.py:229 users/data.py:244
-msgid "File is uploaded and will be imported soon."
-msgstr "文件已上傳，等待後臺導入。"
-
-#: users/data.py:207 users/data.py:247
-msgid "Invalid file."
-msgstr "無效文件。"
-
 #: users/models/task.py:17
 msgid "Pending"
 msgstr "等待"
@@ -3265,27 +3243,27 @@ msgstr "完成"
 msgid "Failed"
 msgstr "失敗"
 
-#: users/models/user.py:50
+#: users/models/user.py:53
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr "輸入用戶名，限英文字母數字下劃線，最多30個字符。"
 
-#: users/models/user.py:85
+#: users/models/user.py:101
 msgid "username"
 msgstr "用戶名"
 
-#: users/models/user.py:89
+#: users/models/user.py:105
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
 msgstr "必填，限英文字母數字下劃線，最多30個字符。"
 
-#: users/models/user.py:92
+#: users/models/user.py:108
 msgid "A user with that username already exists."
 msgstr "使用該用戶名的用戶已存在。"
 
-#: users/models/user.py:105
+#: users/models/user.py:121
 msgid "email address"
 msgstr "電子郵件地址"
 
-#: users/models/user.py:111
+#: users/models/user.py:127
 msgid "email address pending verification"
 msgstr "待驗證的電子郵件地址"
 
@@ -3293,140 +3271,166 @@ msgstr "待驗證的電子郵件地址"
 msgid "Account Information"
 msgstr "賬號信息"
 
-#: users/templates/users/account.html:20
-msgid "Username, Email and Identities"
-msgstr "用戶名、電子郵件與社交身份"
+#: users/templates/users/account.html:19
+msgid "Display name, avatar and other information"
+msgstr "暱稱、頭像與其它個人信息"
 
-#: users/templates/users/account.html:26
+#: users/templates/users/account.html:22
+msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
+msgstr "在這裏更新個人資料會停止從關聯實例自動同步暱稱等個人信息，確定繼續嗎？"
+
+#: users/templates/users/account.html:25
 msgid "Username"
 msgstr "用戶名"
 
-#: users/templates/users/account.html:27 users/templates/users/register.html:23
-msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
-msgstr "2-30個字符，限英文字母數字下劃線，保存後不可更改"
-
-#: users/templates/users/account.html:30 users/templates/users/register.html:27
+#: users/templates/users/account.html:50 users/templates/users/register.html:30
 msgid "Email address"
 msgstr "電子郵件地址"
 
-#: users/templates/users/account.html:39 users/templates/users/register.html:36
+#: users/templates/users/account.html:59 users/templates/users/register.html:39
 #, python-format
 msgid "Please click the confirmation link in the email sent to %(pending_email)s; if you haven't received it for more than a few minutes, please input and save again."
 msgstr "當前待確認的電子郵件地址爲%(pending_email)s，請查收郵件並點擊確認鏈接；如長時間未收到可重新輸入並保存。"
 
-#: users/templates/users/account.html:41 users/templates/users/register.html:39
+#: users/templates/users/account.html:61 users/templates/users/register.html:42
 msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
 msgstr "推薦輸入電子郵件地址作爲備用登錄方式。"
 
-#: users/templates/users/account.html:54
-msgid "Associated identities"
-msgstr "已關聯社交身份"
+#: users/templates/users/account.html:73 users/templates/users/login.html:63
+msgid "Fediverse (Mastodon)"
+msgstr "聯邦宇宙（有時也被稱爲長毛象）"
 
-#: users/templates/users/account.html:62
-msgid "If you have not yet registered with any Federated instance, you may <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an instance</a> and register."
-msgstr "如果你還沒有在任何<em data-tooltip=\"聯邦宇宙(Fediverse 有時也被稱爲長毛象)是一種分佈式社交網絡\">聯邦宇宙</em>實例註冊過，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">選擇實例並註冊</a>。"
+#: users/templates/users/account.html:79
+msgid "Verified Identity"
+msgstr "已驗證的身份"
 
-#: users/templates/users/account.html:67
-msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
-msgstr "如需關聯到另一個聯邦宇宙社交身份，請輸入新身份所在的實例域名"
-
-#: users/templates/users/account.html:69
-msgid "If you have registered with a Federated instance, please enter the instance domain name."
-msgstr "如果你已經註冊過聯邦宇宙實例，請輸入實例域名"
-
-#: users/templates/users/account.html:78
-msgid "Go to target instance and authorize with the identity"
-msgstr "登錄實例並關聯"
-
-#: users/templates/users/account.html:83
-msgid "After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected."
-msgstr "替換關聯後可使用新的聯邦宇宙身份來登錄本站和控制數據可見性，已有的標記評論收藏單等數據不受影響。"
-
-#: users/templates/users/account.html:85
-msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
-msgstr "關聯聯邦宇宙身份後可發現更多用戶，並使用本站完整功能。"
-
-#: users/templates/users/account.html:95
-msgid "Display name, avatar and other information"
-msgstr "暱稱、頭像與其它個人信息"
-
-#: users/templates/users/account.html:98
-msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
-msgstr "在這裏更新個人資料會停止從關聯實例自動同步暱稱等個人信息，確定繼續嗎？"
-
-#: users/templates/users/account.html:112
-msgid "Users you are following"
-msgstr "正在關注的用戶"
-
-#: users/templates/users/account.html:118
-msgid "Users who follow you"
-msgstr "關注了你的用戶"
-
-#: users/templates/users/account.html:124
-msgid "Users who request to follow you"
-msgstr "請求關注你的用戶"
-
-#: users/templates/users/account.html:130
-msgid "Users you are muting"
-msgstr "已隱藏的用戶"
-
-#: users/templates/users/account.html:136
-msgid "Users you are blocking"
-msgstr "已屏蔽的用戶"
-
-#: users/templates/users/account.html:142
-msgid "Sync and import social account"
-msgstr "同步聯邦宇宙信息和社交數據"
-
-#: users/templates/users/account.html:152
-msgid "Sync display name, bio and avatar"
-msgstr "自動同步用戶暱稱等基本信息"
-
-#: users/templates/users/account.html:160
-msgid "Sync follow, mute and block"
-msgstr "自動導入新增的關注、屏蔽和隱藏列表"
-
-#: users/templates/users/account.html:164
-msgid "Save sync settings"
-msgstr "保存同步設置"
-
-#: users/templates/users/account.html:167
-msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
-msgstr "本站會按照以上設置每天自動導入你在聯邦宇宙實例中新增的關注、屏蔽和隱藏列表；如果你在聯邦宇宙實例中關注的用戶加入了NeoDB，你會自動關注她；如果你在聯邦宇宙實例中取消了關注、屏蔽或隱藏，本站不會自動取消，但你可以手動移除。"
-
-#: users/templates/users/account.html:174
-msgid "Click button below to start sync now."
-msgstr "如果希望立即開始同步，可以點擊下方按鈕。"
-
-#: users/templates/users/account.html:176
-msgid "Sync now"
-msgstr "立即同步"
-
-#: users/templates/users/account.html:180
+#: users/templates/users/account.html:86 users/templates/users/account.html:147
+#: users/templates/users/account.html:209
 msgid "Last updated"
 msgstr "最近更新"
 
-#: users/templates/users/account.html:188
+#: users/templates/users/account.html:92
+msgid "If you have not yet registered with any Federated instance, you may <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an instance</a> and register."
+msgstr "如果你還沒有在任何<em data-tooltip=\"聯邦宇宙(Fediverse 有時也被稱爲長毛象)是一種分佈式社交網絡\">聯邦宇宙</em>實例註冊過，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">選擇實例並註冊</a>。"
+
+#: users/templates/users/account.html:97
+msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
+msgstr "如需關聯到另一個聯邦宇宙社交身份，請輸入新身份所在的實例域名"
+
+#: users/templates/users/account.html:99
+msgid "If you have registered with a Federated instance, please enter the instance domain name."
+msgstr "如果你已經註冊過聯邦宇宙實例，請輸入實例域名"
+
+#: users/templates/users/account.html:108
+msgid "Go to target instance and authorize with the identity"
+msgstr "登錄實例並關聯"
+
+#: users/templates/users/account.html:113
+msgid "After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected."
+msgstr "替換關聯後可使用新的聯邦宇宙身份來登錄本站和控制數據可見性，已有的標記評論收藏單等數據不受影響。"
+
+#: users/templates/users/account.html:115
+msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
+msgstr "關聯聯邦宇宙身份後可發現更多用戶，並使用本站完整功能。"
+
+#: users/templates/users/account.html:123
+#: users/templates/users/account.html:159
+msgid "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?"
+msgstr "取消關聯後將無法使用這個身份登錄本站，確認繼續嗎？"
+
+#: users/templates/users/account.html:126
+msgid "Disconnect with this identity"
+msgstr "取消關聯"
+
+#: users/templates/users/account.html:134
+msgid "Threads.net"
+msgstr "Threads.net"
+
+#: users/templates/users/account.html:140
+msgid "Verified threads.net account"
+msgstr "已驗證的threads.net賬號"
+
+#: users/templates/users/account.html:153
+msgid "Link with a different threads.net account"
+msgstr "關聯另一個threads.net賬號"
+
+#: users/templates/users/account.html:153
+msgid "Link with a threads.net account"
+msgstr "關聯一個threads.net賬號"
+
+#: users/templates/users/account.html:162
+msgid "Disconnect with Threads"
+msgstr "取消關聯"
+
+#: users/templates/users/account.html:171
+msgid "Sync and import social account"
+msgstr "同步第三方社交網絡上的個人信息和社交數據"
+
+#: users/templates/users/account.html:181
+msgid "Sync display name, bio and avatar"
+msgstr "自動同步用戶暱稱等基本信息"
+
+#: users/templates/users/account.html:189
+msgid "Sync follow, mute and block"
+msgstr "自動導入新增的關注、屏蔽和隱藏列表"
+
+#: users/templates/users/account.html:193
+msgid "Save sync settings"
+msgstr "保存同步設置"
+
+#: users/templates/users/account.html:196
+msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
+msgstr "本站會按照以上設置每天自動導入你在聯邦宇宙實例等社交網絡中新增的關注、屏蔽和隱藏列表；如果你在聯邦宇宙實例中關注的用戶加入了本站，你會自動關注她；如果你在聯邦宇宙實例中取消了關注、屏蔽或隱藏，本站不會自動取消，但你可以手動移除。"
+
+#: users/templates/users/account.html:203
+msgid "Click button below to start sync now."
+msgstr "如果希望立即開始同步，可以點擊下方按鈕。"
+
+#: users/templates/users/account.html:205
+msgid "Sync now"
+msgstr "立即同步"
+
+#: users/templates/users/account.html:217
+msgid "Users you are following"
+msgstr "正在關注的用戶"
+
+#: users/templates/users/account.html:223
+msgid "Users who follow you"
+msgstr "關注了你的用戶"
+
+#: users/templates/users/account.html:229
+msgid "Users who request to follow you"
+msgstr "請求關注你的用戶"
+
+#: users/templates/users/account.html:235
+msgid "Users you are muting"
+msgstr "已隱藏的用戶"
+
+#: users/templates/users/account.html:241
+msgid "Users you are blocking"
+msgstr "已屏蔽的用戶"
+
+#: users/templates/users/account.html:248
 msgid "Delete Account"
 msgstr "刪除賬號"
 
-#: users/templates/users/account.html:191
+#: users/templates/users/account.html:251
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "賬號數據一旦刪除後將無法恢復，確定繼續嗎？"
 
-#: users/templates/users/account.html:194
+#: users/templates/users/account.html:254
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr "輸入完整的登錄用 <code>用戶名@實例名</code> 或 <code>電子郵件地址</code> 以確認刪除"
 
-#: users/templates/users/account.html:204
+#: users/templates/users/account.html:264
 msgid "Once deleted, account data cannot be recovered."
 msgstr "賬號數據一旦刪除後將無法恢復"
 
-#: users/templates/users/account.html:206
+#: users/templates/users/account.html:266
 msgid "Importing in progress, can't delete now."
 msgstr "暫時無法刪除，因爲有導入任務正在進行"
 
-#: users/templates/users/account.html:209
+#: users/templates/users/account.html:269
 msgid "Permanently Delete"
 msgstr "永久刪除"
 
@@ -3566,71 +3570,67 @@ msgstr "登錄"
 msgid "back to your home page."
 msgstr "返回首頁"
 
-#: users/templates/users/login.html:63
-msgid "Fediverse (Mastodon)"
-msgstr "聯邦宇宙（有時也被稱爲長毛象）"
-
-#: users/templates/users/login.html:97
+#: users/templates/users/login.html:99
 msgid "Enter your email address"
 msgstr "輸入電子郵件地址"
 
-#: users/templates/users/login.html:99
+#: users/templates/users/login.html:101
 msgid "Verify Email"
 msgstr "驗證電子郵件"
 
-#: users/templates/users/login.html:114
+#: users/templates/users/login.html:116
 msgid "Domain of your instance, e.g. mastodon.social"
 msgstr "實例域名(不含@和@之前的部分)，如mastodon.social"
 
-#: users/templates/users/login.html:120
+#: users/templates/users/login.html:122
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
 msgstr "請輸入你的實例域名(不含@和@之前的部分)；如果你的聯邦賬號是<i>@neodb@mastodon.social</i>，只需要在此輸入<i>mastodon.social</i>。"
 
-#: users/templates/users/login.html:123 users/templates/users/login.html:154
+#: users/templates/users/login.html:125 users/templates/users/login.html:156
 msgid "Authorize via Fediverse instance"
 msgstr "去聯邦實例授權註冊或登錄"
 
-#: users/templates/users/login.html:125
+#: users/templates/users/login.html:127
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
 msgstr "如果你還沒有或不便註冊<a href=\"https://joinmastodon.org/servers\" target=\"_blank\">聯邦實例</a>賬號，也可先通過電子郵件或其它平臺註冊登錄，未來再作關聯。"
 
-#: users/templates/users/login.html:135
+#: users/templates/users/login.html:137
 msgid "Authorize via Threads"
 msgstr "去Threads授權註冊或登錄"
 
-#: users/templates/users/login.html:136
+#: users/templates/users/login.html:138
 msgid "If you have already account here registered via a different way, you may login through there and link with your Threads account in account settings."
 msgstr "如果你已通過其它方式註冊過本站帳號，請用該方式登錄後再關聯Threads。"
 
-#: users/templates/users/login.html:145
+#: users/templates/users/login.html:147
 msgid "Authorize via Bluesky"
 msgstr "去Bluesky授權註冊或登錄"
 
-#: users/templates/users/login.html:146
+#: users/templates/users/login.html:148
 msgid "If you have already account here registered via a different way, you may login through there and link with your Bluesky account in account settings."
 msgstr "如果你已通過其它方式註冊過本站帳號，請用該方式登錄後再關聯Bluesky。"
 
-#: users/templates/users/login.html:161
+#: users/templates/users/login.html:163
 msgid "Valid invitation code, please login or register."
 msgstr "邀請鏈接有效，可註冊新用戶"
 
-#: users/templates/users/login.html:163
+#: users/templates/users/login.html:165
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr "本站目前爲邀請註冊，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
 
-#: users/templates/users/login.html:165
+#: users/templates/users/login.html:167
 msgid "Invitation code invalid or expired."
 msgstr "邀請鏈接無效，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
 
-#: users/templates/users/login.html:173
+#: users/templates/users/login.html:175
 msgid "Loading timed out, please check your network (VPN) settings."
 msgstr "部分模塊加載超時，請檢查網絡（翻牆）設置。"
 
-#: users/templates/users/login.html:179
+#: users/templates/users/login.html:181
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
 msgstr "繼續訪問或註冊視爲同意<a href=\"/pages/rules/\">站規</a>與<a href=\"/pages/terms/\">協議</a>，及使用cookie提供必要功能"
 
-#: users/templates/users/login.html:185
+#: users/templates/users/login.html:187
 msgid "Domain of your instance (excl. @)"
 msgstr "實例域名(不含@和@之前的部分)"
 
@@ -3786,72 +3786,76 @@ msgstr "用戶資料"
 msgid "original home"
 msgstr "原始主頁"
 
-#: users/templates/users/profile_actions.html:72
+#: users/templates/users/profile_actions.html:82
 msgid "accept follow request"
 msgstr "接受關注請求"
 
-#: users/templates/users/profile_actions.html:74
+#: users/templates/users/profile_actions.html:84
 msgid "sure to accept follow request?"
 msgstr "確定接受關注請求嗎？"
 
-#: users/templates/users/profile_actions.html:82
+#: users/templates/users/profile_actions.html:92
 msgid "reject follow request"
 msgstr "拒絕關注請求"
 
-#: users/templates/users/profile_actions.html:84
+#: users/templates/users/profile_actions.html:94
 msgid "sure to reject follow request?"
 msgstr "確定拒絕關注請求嗎？"
 
-#: users/templates/users/profile_actions.html:94
+#: users/templates/users/profile_actions.html:104
 msgid "click to unfollow"
 msgstr "點擊可取消關注"
 
-#: users/templates/users/profile_actions.html:96
+#: users/templates/users/profile_actions.html:106
 msgid "sure to unfollow?"
 msgstr "確定取消關注該用戶嗎？"
 
-#: users/templates/users/profile_actions.html:105
+#: users/templates/users/profile_actions.html:115
 msgid "click to cancel follow request"
 msgstr "點擊可取消關注請求"
 
-#: users/templates/users/profile_actions.html:107
+#: users/templates/users/profile_actions.html:117
 msgid "sure to cancel follow request?"
 msgstr "確定取消關注請求嗎？"
 
-#: users/templates/users/profile_actions.html:116
+#: users/templates/users/profile_actions.html:126
 msgid "click to follow"
 msgstr "點擊可關注"
 
-#: users/templates/users/profile_actions.html:117
+#: users/templates/users/profile_actions.html:127
 msgid "sure to follow?"
 msgstr "確定關注該用戶嗎？"
 
-#: users/templates/users/profile_actions.html:127
+#: users/templates/users/profile_actions.html:137
 msgid "click to mute"
 msgstr "點擊可靜音"
 
-#: users/templates/users/profile_actions.html:136
+#: users/templates/users/profile_actions.html:146
 msgid "click to unmute"
 msgstr "點擊可取消靜音"
 
-#: users/templates/users/profile_actions.html:146
+#: users/templates/users/profile_actions.html:156
 msgid "click to block"
 msgstr "點擊可屏蔽"
 
-#: users/templates/users/profile_actions.html:147
+#: users/templates/users/profile_actions.html:157
 msgid "sure to block?"
 msgstr "確定屏蔽該用戶嗎？"
 
-#: users/templates/users/register.html:22
+#: users/templates/users/register.html:25
 #, python-format
 msgid "Your username on %(site_name)s"
 msgstr "你在%(site_name)s使用的用戶名"
 
-#: users/templates/users/register.html:50
+#: users/templates/users/register.html:26
+msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
+msgstr "2-30個字符，限英文字母數字下劃線，保存後不可更改"
+
+#: users/templates/users/register.html:53
 msgid "Confirm and save"
 msgstr "確認並保存"
 
-#: users/templates/users/register.html:54 users/templates/users/welcome.html:24
+#: users/templates/users/register.html:57 users/templates/users/welcome.html:27
 msgid "Cut the sh*t and get me in!"
 msgstr ""
 
@@ -3880,11 +3884,11 @@ msgstr "驗證成功"
 msgid "login again"
 msgstr "重新登錄"
 
-#: users/templates/users/welcome.html:17
+#: users/templates/users/welcome.html:20
 msgid "Welcome"
 msgstr "歡迎"
 
-#: users/templates/users/welcome.html:19
+#: users/templates/users/welcome.html:22
 #, python-format
 msgid ""
 "\n"
@@ -3893,3 +3897,67 @@ msgid ""
 msgstr ""
 "\n"
 "%(site_name)s還在不斷完善中。 豐富的內容需要大家共同創造，試圖添加垃圾數據（如添加信息混亂或缺失的書籍、以推廣爲主要目的的評論）將會受到嚴肅處理。 本站爲非盈利站點，cookie和其它數據保管使用原則請參閱<a href=\"/pages/terms\">站內公告</a>。 本站提供API和導出功能，請妥善備份您的數據，使用過程中遇到的問題或者錯誤歡迎向<a href=\"%(support_link)s\">維護者</a>提出。感謝理解和支持！"
+
+#: users/views/account.py:78
+msgid "This username is already in use."
+msgstr "用戶名已被使用"
+
+#: users/views/account.py:89
+msgid "This email address is already in use."
+msgstr "此電子郵件地址已被使用"
+
+#: users/views/account.py:105
+msgid "Registration is for invitation only"
+msgstr "本站僅限邀請註冊"
+
+#: users/views/account.py:168
+msgid "Valid username required"
+msgstr "請輸入有效的用戶名"
+
+#: users/views/account.py:170
+msgid "Username in use"
+msgstr "用戶名已被使用"
+
+#: users/views/account.py:238
+msgid "Account is being deleted."
+msgstr "賬戶刪除進行中。"
+
+#: users/views/account.py:241
+msgid "Account mismatch."
+msgstr "賬號信息不匹配。"
+
+#: users/views/data.py:130
+msgid "Generating exports."
+msgstr "正在生成導出文件。"
+
+#: users/views/data.py:142
+msgid "Export file expired. Please export again."
+msgstr "導出文件已失效，請重新導出"
+
+#: users/views/data.py:153
+msgid "Sync in progress."
+msgstr "正在同步。"
+
+#: users/views/data.py:167
+msgid "Settings saved."
+msgstr "設置已保存"
+
+#: users/views/data.py:178
+msgid "Reset completed."
+msgstr "重置已完成。"
+
+#: users/views/data.py:187
+msgid "Import in progress."
+msgstr "正在導出"
+
+#: users/views/data.py:189
+msgid "Invalid URL."
+msgstr "無效網址。"
+
+#: users/views/data.py:203 users/views/data.py:228 users/views/data.py:243
+msgid "File is uploaded and will be imported soon."
+msgstr "文件已上傳，等待後臺導入。"
+
+#: users/views/data.py:206 users/views/data.py:246
+msgid "Invalid file."
+msgstr "無效文件。"

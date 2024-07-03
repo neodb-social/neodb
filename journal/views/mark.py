@@ -183,9 +183,10 @@ def comment(request: AuthedHttpRequest, item_uuid):
         comment = Comment.objects.update_or_create(
             owner=request.user.identity, item=item, defaults=d
         )[0]
-        comment.sync_to_timeline(delete_existing=delete_existing_post)
+        update_mode = 1 if delete_existing_post else 0
+        comment.sync_to_timeline(update_mode)
         if share_to_mastodon:
-            comment.sync_to_mastodon(delete_existing=delete_existing_post)
+            comment.sync_to_social_accounts(update_mode)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 

@@ -109,7 +109,7 @@
           </div>
           <div>
             <fieldset>
-              {% if request.user.mastodon %}
+              {% if request.user.mastodon or request.user.threads or request.user.bluesky %}
                 <label for="id_share_to_mastodon">
                   <input role="switch"
                          type="checkbox"

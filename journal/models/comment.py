@@ -123,7 +123,7 @@ class Comment(Content):
             ShelfManager.get_action_template(ShelfType.PROGRESS, self.item.category)
         )
 
-    def to_mastodon_params(self):
+    def to_crosspost_params(self):
         spoiler_text, txt = render_spoiler_text(self.text, self.item)
         content = (
             self.get_crosspost_template().format(item=self.item.display_title)

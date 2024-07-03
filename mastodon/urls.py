@@ -8,7 +8,7 @@ urlpatterns = [
     path("login/oauth", mastodon_oauth, name="oauth"),
     path("mastodon/login", mastodon_login, name="login"),
     path("mastodon/reconnect", mastodon_reconnect, name="reconnect"),
-    path("mastodon/disconnect", mastodon_disconnect, name="mastodon_disconnect"),
+    path("mastodon/disconnect", mastodon_disconnect, name="disconnect"),
     # Email
     path("email/login", email_login, name="email_login"),
     path("email/verify", email_verify, name="email_verify"),

@@ -1092,6 +1092,16 @@ class Post(models.Model):
             return pcs[0]
         return next((p for p in pcs if p.__class__ == ShelfMember), None)
 
+    @cached_property
+    def item(self):
+        from journal.models import ShelfLogEntry
+
+        p = self.piece
+        if p:
+            return p.item if hasattr(p, "item") else None  # type:ignore
+        log = ShelfLogEntry.objects.filter(shelflogentrypost__post_id=self.pk).first()
+        return log.item if log else None
+
     @classmethod
     def create_local(
         cls,

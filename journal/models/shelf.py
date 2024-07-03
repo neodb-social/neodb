@@ -2,11 +2,10 @@ from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+from django.conf import settings
 from django.db import connection, models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import pgettext_lazy
-from django.utils.translation import pgettext_lazy as __
 from loguru import logger
 
 from catalog.models import Item, ItemCategory
@@ -15,9 +14,12 @@ from users.models import APIdentity
 
 from .common import q_item_in_category
 from .itemlist import List, ListMember
+from .renderers import render_post_with_macro, render_rating
 
 if TYPE_CHECKING:
+    from .comment import Comment
     from .mark import Mark
+    from .rating import Rating
 
 
 class ShelfType(models.TextChoices):
@@ -356,6 +358,71 @@ class ShelfMember(ListMember):
         p.link_post_id(post.id)
         return p
 
+    def get_crosspost_postfix(self):
+        tags = render_post_with_macro(
+            self.owner.user.preference.mastodon_append_tag, self.item
+        )
+        return "\n" + tags if tags else ""
+
+    def get_crosspost_template(self):
+        return _(ShelfManager.get_action_template(self.shelf_type, self.item.category))
+
+    def to_crosspost_params(self):
+        action = self.get_crosspost_template().format(item=self.item.display_title)
+        if self.sibling_comment:
+            spoiler, txt = Takahe.get_spoiler_text(self.sibling_comment.text, self.item)
+        else:
+            spoiler, txt = None, ""
+        stars = (
+            self.owner.user.mastodon.rating_to_emoji(self.sibling_rating.grade)
+            if self.sibling_rating and self.owner.user.mastodon
+            else ""
+        )
+        content = f"{action} {stars} \n{self.item.absolute_url}\n{txt}\n{self.get_crosspost_postfix()}"
+        params = {"content": content, "spoiler_text": spoiler}
+        return params
+
+    def to_post_params(self):
+        item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item.url}"
+        action = self.get_crosspost_template().format(
+            item=f'<a href="{item_link}">{self.item.display_title}</a>'
+        )
+        if self.sibling_comment:
+            spoiler, txt = Takahe.get_spoiler_text(self.sibling_comment.text, self.item)
+        else:
+            spoiler, txt = None, ""
+        postfix = self.get_crosspost_postfix()
+        # add @user.mastodon.handle so that user can see it on Mastodon ?
+        # if self.visibility and self.owner.user.mastodon:
+        #     postfix += f" @{self.owner.user.mastodon.handle}"
+        content = f"{render_rating(self.sibling_rating.grade, 1) if self.sibling_rating else ''} \n{txt}\n{postfix}"
+        return {
+            "prepend_content": action,
+            "content": content,
+            "summary": spoiler,
+            "sensitive": spoiler is not None,
+        }
+
+    def get_ap_data(self):
+        data = super().get_ap_data()
+        if self.sibling_comment:
+            data["object"]["relatedWith"].append(self.sibling_comment.ap_object)
+        if self.sibling_rating:
+            data["object"]["relatedWith"].append(self.sibling_rating.ap_object)
+        return data
+
+    @cached_property
+    def sibling_comment(self) -> "Comment | None":
+        from .comment import Comment
+
+        return Comment.objects.filter(owner=self.owner, item=self.item).first()
+
+    @cached_property
+    def sibling_rating(self) -> "Rating | None":
+        from .rating import Rating
+
+        return Rating.objects.filter(owner=self.owner, item=self.item).first()
+
     @cached_property
     def mark(self) -> "Mark":
         from .mark import Mark
@@ -405,6 +472,7 @@ class ShelfMember(ListMember):
     def link_post_id(self, post_id: int):
         if self.local:
             self.ensure_log_entry().link_post_id(post_id)
+            print(self.ensure_log_entry(), post_id)
         return super().link_post_id(post_id)
 
 
@@ -460,6 +528,11 @@ class ShelfLogEntry(models.Model):
 
     def link_post_id(self, post_id: int):
         ShelfLogEntryPost.objects.get_or_create(log_entry=self, post_id=post_id)
+
+    def all_post_ids(self):
+        return ShelfLogEntryPost.objects.filter(log_entry=self).values_list(
+            "post_id", flat=True
+        )
 
 
 class ShelfLogEntryPost(models.Model):

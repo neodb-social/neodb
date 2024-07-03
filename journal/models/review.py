@@ -86,7 +86,7 @@ class Review(Content):
     def get_crosspost_template(self):
         return _(ShelfManager.get_action_template("reviewed", self.item.category))
 
-    def to_mastodon_params(self):
+    def to_crosspost_params(self):
         content = (
             self.get_crosspost_template().format(item=self.item.display_title)
             + f"\n{self.title}\n{self.absolute_url} "
@@ -153,7 +153,8 @@ class Review(Content):
         review, created = cls.objects.update_or_create(
             item=item, owner=owner, defaults=defaults
         )
-        review.sync_to_timeline(delete_existing=delete_existing_post)
+        update_mode = 1 if delete_existing_post else 0
+        review.sync_to_timeline(update_mode)
         if share_to_mastodon:
-            review.sync_to_mastodon(delete_existing=delete_existing_post)
+            review.sync_to_social_accounts(update_mode)
         return review

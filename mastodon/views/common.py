@@ -80,7 +80,8 @@ def disconnect_identity(request, account):
     with transaction.atomic():
         if request.user.social_accounts.all().count() <= 1:
             return render_error(
-                _("Unlink identity failed"), _("Unable to unlink last login identity.")
+                _("Disconnect identity failed"),
+                _("You cannot disconnect last login identity."),
             )
         account.delete()
     return redirect(reverse("users:info"))

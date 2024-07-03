@@ -160,21 +160,21 @@ class Note(Content):
             # if local piece is created from a post, update post type_data and fanout
             p.sync_to_timeline()
             if owner.user.preference.mastodon_default_repost and owner.user.mastodon:
-                p.sync_to_mastodon()
+                p.sync_to_social_accounts()
         return p
 
     @cached_property
     def shelfmember(self) -> ShelfMember | None:
         return ShelfMember.objects.filter(item=self.item, owner=self.owner).first()
 
-    def to_mastodon_params(self):
+    def to_crosspost_params(self):
         footer = f"\n—\n《{self.item.display_title}》 {self.progress_display}\n{self.item.absolute_url}"
         params = {
             "spoiler_text": self.title,
             "content": self.content + footer,
             "sensitive": self.sensitive,
-            "reply_to_toot_url": (
-                self.shelfmember.get_mastodon_crosspost_url()
+            "reply_to_id": (
+                (self.shelfmember.metadata or {}).get("mastodon_id")
                 if self.shelfmember
                 else None
             ),

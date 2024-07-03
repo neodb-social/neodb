@@ -19,7 +19,7 @@
         </header>
         {% if form %}
           <form action="{% url 'users:register' %}" method="post">
-            <small>{{ error }}</small>
+            <small>{{ error|default:"" }}</small>
             <fieldset>
               <label>
                 {% blocktrans %}Your username on {{ site_name }}{% endblocktrans %}

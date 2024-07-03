@@ -122,7 +122,12 @@
 {% if messages %}
   <ul class="messages" style="text-align:center">
     {% for message in messages %}
-      <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>
+        {% if message.meta.url %}
+          [<a href="{{ message.meta.url }}">{% trans "Open" %}</a>]
+        {% endif %}
+        {{ message }}
+      </li>
     {% endfor %}
   </ul>
 {% endif %}

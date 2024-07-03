@@ -5,8 +5,11 @@ from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Self
 
+import django_rq
+
 # from deepmerge import always_merger
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.core.signing import b62_decode, b62_encode
 from django.db import models
 from django.db.models import CharField, Q
@@ -14,10 +17,12 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from polymorphic.models import PolymorphicModel
+from user_messages import api as messages
 
 from catalog.common.models import Item, ItemCategory
 from catalog.models import item_categories, item_content_types
 from takahe.utils import Takahe
+from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User
 
 from .mixins import UserOwnedObjectMixin
@@ -90,36 +95,10 @@ def q_item_in_category(item_category: ItemCategory):
     return Q(item__polymorphic_ctype__in=contenttype_ids)
 
 
-# class ImportStatus(Enum):
-#     QUEUED = 0
-#     PROCESSING = 1
-#     FINISHED = 2
-
-
-# class ImportSession(models.Model):
-#     owner = models.ForeignKey(APIdentity, on_delete=models.CASCADE)
-#     status = models.PositiveSmallIntegerField(default=ImportStatus.QUEUED)
-#     importer = models.CharField(max_length=50)
-#     file = models.CharField()
-#     default_visibility = models.PositiveSmallIntegerField()
-#     total = models.PositiveIntegerField()
-#     processed = models.PositiveIntegerField()
-#     skipped = models.PositiveIntegerField()
-#     imported = models.PositiveIntegerField()
-#     failed = models.PositiveIntegerField()
-#     logs = models.JSONField(default=list)
-#     created_time = models.DateTimeField(auto_now_add=True)
-#     edited_time = models.DateTimeField(auto_now=True)
-
-#     class Meta:
-#         indexes = [
-#             models.Index(fields=["owner", "importer", "created_time"]),
-#         ]
-
-
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
     if TYPE_CHECKING:
         likes: models.QuerySet["Like"]
+        metadata: models.JSONField[Any, Any]
     url_path = "p"  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     local = models.BooleanField(default=True)
@@ -131,33 +110,16 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def classname(self) -> str:
         return self.__class__.__name__.lower()
 
-    def get_mastodon_crosspost_url(self):
-        return (
-            (self.metadata or {}).get("shared_link")
-            if hasattr(self, "metadata")
-            else None
-        )
-
-    def set_mastodon_crosspost_url(self, url: str | None):
-        if not hasattr(self, "metadata"):
-            logger.warning("metadata field not found")
-            return
-        metadata = self.metadata or {}
-        if metadata.get("shared_link", None) == url:
-            return
-        if not url:
-            metadata.pop("shared_link", None)
-        else:
-            metadata["shared_link"] = url
-        self.metadata = metadata
-        self.save(update_fields=["metadata"])
-
     def delete(self, *args, **kwargs):
         if self.local:
             Takahe.delete_posts(self.all_post_ids)
-            toot_url = self.get_mastodon_crosspost_url()
-            if toot_url and self.owner.user.mastodon:
-                self.owner.user.mastodon.delete_later(toot_url)
+            toot_id = (
+                (self.metadata or {}).get("mastodon_id")
+                if hasattr(self, "metadata")
+                else None
+            )
+            if toot_id and self.owner.user.mastodon:
+                self.owner.user.mastodon.delete_post_later(toot_id)
         return super().delete(*args, **kwargs)
 
     @property
@@ -265,7 +227,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return {}
 
     @abstractmethod
-    def to_mastodon_params(self) -> dict[str, Any]:
+    def to_crosspost_params(self) -> dict[str, Any]:
         return {}
 
     @classmethod
@@ -314,74 +276,120 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         # subclass may have to add additional code to update type_data in local post
         return p
 
-    def sync_to_mastodon(self, delete_existing=False):
-        user = self.owner.user
-        if not user.mastodon:
+    def get_crosspost_params(self):
+        d = {
+            "visibility": self.visibility,
+            "update_id": (self.metadata if hasattr(self, "metadata") else {}).get(
+                "mastodon_id"
+            ),
+        }
+        d.update(self.to_crosspost_params())
+        return d
+
+    def sync_to_social_accounts(self, update_mode: int = 0):
+        """update_mode: 0 update if exists otherwise create; 1: delete if exists and create; 2: only create"""
+        django_rq.get_queue("mastodon").enqueue(
+            self._sync_to_social_accounts, update_mode
+        )
+
+    def _sync_to_social_accounts(self, update_mode: int):
+        activate_language_for_user(self.owner.user)
+        params = self.get_crosspost_params()
+        metadata = self.metadata.copy()
+        self.sync_to_mastodon(params, update_mode)
+        self.sync_to_threads(params, update_mode)
+        if self.metadata != metadata:
+            self.save(update_fields=["metadata"])
+
+    def sync_to_threads(self, params, update_mode):
+        # skip non-public post as Threads does not support it
+        # update_mode will be ignored as update/delete are not supported either
+        threads = self.owner.user.threads
+        if params["visibility"] != 0 or not threads:
             return
-        if user.preference.mastodon_repost_mode == 1:
-            if delete_existing:
-                self.delete_mastodon_repost()
-            return self.crosspost_to_mastodon()
+        try:
+            r = threads.post(**params)
+        except Exception:
+            logger.warning(f"{self} post to {threads} failed")
+            messages.error(threads.user, _("A recent post was not posted to Threads."))
+            return False
+        self.metadata.update({"threads_" + k: v for k, v in r.items()})
+        return True
+
+    def sync_to_mastodon(self, params, update_mode):
+        mastodon = self.owner.user.mastodon
+        if not mastodon:
+            return
+        if self.owner.user.preference.mastodon_repost_mode == 1:
+            if update_mode == 1:
+                toot_id = self.metadata.pop("mastodon_id", None)
+                if toot_id:
+                    self.metadata.pop("mastodon_url", None)
+                    mastodon.delete(toot_id)
+            elif update_mode == 1:
+                params.pop("update_id", None)
+            return self.crosspost_to_mastodon(params)
         elif self.latest_post:
-            if user.mastodon:
-                user.mastodon.boost_later(self.latest_post.url)
+            mastodon.boost(self.latest_post.url)
         else:
             logger.warning("No post found for piece")
 
-    def delete_mastodon_repost(self):
-        toot_url = self.get_mastodon_crosspost_url()
-        if toot_url:
-            self.set_mastodon_crosspost_url(None)
-            if self.owner.user.mastodon:
-                self.owner.user.mastodon.delete_later(toot_url)
+    def crosspost_to_mastodon(self, params):
+        mastodon = self.owner.user.mastodon
+        if not mastodon:
+            return False
+        r = mastodon.post(**params)
+        try:
+            pass
+        except PermissionDenied:
+            messages.error(
+                mastodon.user,
+                _("A recent post was not posted to Mastodon, please re-authorize."),
+                meta={"url": mastodon.get_reauthorize_url()},
+            )
+            return False
+        except Exception:
+            logger.warning(f"{self} post to {mastodon} failed")
+            messages.error(
+                mastodon.user, _("A recent post was not posted to Mastodon.")
+            )
+            return False
+        self.metadata.update({"mastodon_" + k: v for k, v in r.items()})
+        return True
 
-    def crosspost_to_mastodon(self):
-        user = self.owner.user
-        if not user or not user.mastodon:
-            return False, -1
-        d = {
-            "visibility": self.visibility,
-            "update_toot_url": self.get_mastodon_crosspost_url(),
+    def get_ap_data(self):
+        return {
+            "object": {
+                "tag": (
+                    [self.item.ap_object_ref]  # type:ignore
+                    if hasattr(self, "item")
+                    else []
+                ),
+                "relatedWith": [self.ap_object],
+            }
         }
-        d.update(self.to_mastodon_params())
-        response = user.mastodon.post(**d)
-        if response is not None and response.status_code in [200, 201]:
-            j = response.json()
-            if "url" in j:
-                metadata = {"shared_link": j["url"]}
-                if self.metadata != metadata:
-                    self.metadata = metadata
-                    self.save(update_fields=["metadata"])
-            return True, 200
-        else:
-            logger.warning(response)
-            return False, response.status_code if response is not None else -1
 
-    def sync_to_timeline(self, delete_existing=False):
+    def sync_to_timeline(self, update_mode: int = 0):
+        """update_mode: 0 update if exists otherwise create; 1: delete if exists and create; 2: only create"""
         user = self.owner.user
         v = Takahe.visibility_n2t(self.visibility, user.preference.post_public_mode)
         existing_post = self.latest_post
-        if existing_post and existing_post.state in ["deleted", "deleted_fanned_out"]:
-            existing_post = None
-        elif existing_post and delete_existing:
-            Takahe.delete_posts([existing_post.pk])
-            existing_post = None
+        if existing_post:
+            if (
+                existing_post.state in ["deleted", "deleted_fanned_out"]
+                or update_mode == 2
+            ):
+                existing_post = None
+            elif update_mode == 1:
+                Takahe.delete_posts([existing_post.pk])
+                existing_post = None
         params = {
             "author_pk": self.owner.pk,
             "visibility": v,
             "post_pk": existing_post.pk if existing_post else None,
             "post_time": self.created_time,  # type:ignore subclass must have this
             "edit_time": self.edited_time,  # type:ignore subclass must have this
-            "data": {
-                "object": {
-                    "tag": (
-                        [self.item.ap_object_ref]  # type:ignore
-                        if hasattr(self, "item")
-                        else []
-                    ),
-                    "relatedWith": [self.ap_object],
-                }
-            },
+            "data": self.get_ap_data(),
         }
         params.update(self.to_post_params())
         post = Takahe.post(**params)

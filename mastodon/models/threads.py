@@ -1,8 +1,10 @@
 import functools
 from datetime import timedelta
+from urllib.parse import quote
 
 import requests
 from django.conf import settings
+from django.core.exceptions import RequestAborted
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
@@ -14,22 +16,22 @@ from .common import SocialAccount
 
 get = functools.partial(
     requests.get,
-    timeout=settings.MASTODON_TIMEOUT,
+    timeout=settings.THREADS_TIMEOUT,
     headers={"User-Agent": settings.NEODB_USER_AGENT},
 )
 put = functools.partial(
     requests.put,
-    timeout=settings.MASTODON_TIMEOUT,
+    timeout=settings.THREADS_TIMEOUT,
     headers={"User-Agent": settings.NEODB_USER_AGENT},
 )
 post = functools.partial(
     requests.post,
-    timeout=settings.MASTODON_TIMEOUT,
+    timeout=settings.THREADS_TIMEOUT,
     headers={"User-Agent": settings.NEODB_USER_AGENT},
 )
 delete = functools.partial(
     requests.post,
-    timeout=settings.MASTODON_TIMEOUT,
+    timeout=settings.THREADS_TIMEOUT,
     headers={"User-Agent": settings.NEODB_USER_AGENT},
 )
 
@@ -109,7 +111,7 @@ class Threads:
     def get_profile(
         token: str, user_id: str | None = None
     ) -> dict[str, str | int] | None:
-        url = f'https://graph.threads.net/v1.0/{user_id or "me"}?fields=id,username,name,threads_profile_picture_url,threads_biography&access_token={token}'
+        url = f'https://graph.threads.net/v1.0/{user_id or "me"}?fields=id,username,threads_profile_picture_url,threads_biography&access_token={token}'
         try:
             response = get(url)
         except Exception as e:
@@ -123,6 +125,30 @@ class Threads:
             logger.warning(f"Error {url} {data}")
             return None
         return data
+
+    @staticmethod
+    def post_single(token: str, user_id: str, text: str):
+        url = f"https://graph.threads.net/v1.0/{user_id}/threads?media_type=TEXT&access_token={token}&text={quote(text)}"
+        response = post(url)
+        if response.status_code != 200:
+            return None
+        media_container_id = (response.json() or {}).get("id")
+        if not media_container_id:
+            return None
+        url = f"https://graph.threads.net/v1.0/{user_id}/threads_publish?creation_id={media_container_id}&access_token={token}"
+        response = post(url)
+        if response.status_code != 200:
+            return None
+        return (response.json() or {}).get("id")
+
+    @staticmethod
+    def get_single(token: str, media_id: str) -> dict | None:
+        # url = f"https://graph.threads.net/v1.0/{media_id}?fields=id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,shortcode,thumbnail_url,children,is_quote_post&access_token={token}"
+        url = f"https://graph.threads.net/v1.0/{media_id}?fields=id,permalink,is_quote_post&access_token={token}"
+        response = post(url)
+        if response.status_code != 200:
+            return None
+        return response.json()
 
     @staticmethod
     def authenticate(request: HttpRequest, code: str) -> "ThreadsAccount | None":
@@ -195,7 +221,7 @@ class ThreadsAccount(SocialAccount):
             return False
         data = Threads.get_profile(self.access_token)
         if not data:
-            logger.warning("{self} unable to get profile")
+            logger.warning(f"{self} unable to get profile")
             return False
         if self.handle != data["username"]:
             if self.handle:
@@ -206,3 +232,16 @@ class ThreadsAccount(SocialAccount):
         if save:
             self.save(update_fields=["account_data", "handle", "last_refresh"])
         return True
+
+    def post(self, content: str, **kwargs):
+        text = (
+            content.replace(settings.STAR_SOLID + " ", "🌕")
+            .replace(settings.STAR_HALF + " ", "🌗")
+            .replace(settings.STAR_EMPTY + " ", "🌑")
+        )
+        media_id = Threads.post_single(self.access_token, self.uid, text)
+        if media_id:
+            d = Threads.get_single(self.access_token, media_id)
+            if d:
+                return {"id": media_id, "url": d["permalink"]}
+        raise RequestAborted()

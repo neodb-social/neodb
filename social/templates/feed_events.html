@@ -8,7 +8,7 @@
 {% load user_actions %}
 {% load duration %}
 {% for event in events %}
-  {% with post=event.subject_post piece=event.subject_post.piece item=event.subject_post.piece.item %}
+  {% with post=event.subject_post piece=event.subject_post.piece item=event.subject_post.item %}
     {% if not post %}
       <!-- invalid data {{ event.pk }} -->
     {% else %}
@@ -70,7 +70,7 @@
                 {% trans "wrote a note" %}
               {% endif %}
             </span>
-            {% if piece and item and piece.classname != 'note' %}
+            {% if item and piece.classname != 'note' %}
               <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article>
             {% endif %}
             <div>{{ post.summary|default:'' }}</div>

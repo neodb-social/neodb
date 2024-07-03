@@ -10,6 +10,7 @@ import django_rq
 import requests
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import PermissionDenied, RequestAborted
 from django.db import models
 from django.db.models import Count
 from django.http import HttpRequest
@@ -139,12 +140,11 @@ def boost_toot(domain, token, toot_url):
         return None
 
 
-def delete_toot(api_domain, access_token, toot_url):
+def delete_toot(api_domain, access_token, toot_id):
     headers = {
         "User-Agent": USER_AGENT,
         "Authorization": f"Bearer {access_token}",
     }
-    toot_id = get_status_id_by_url(toot_url)
     url = "https://" + api_domain + API_PUBLISH_TOOT + "/" + toot_id
     try:
         response = delete(url, headers=headers)
@@ -159,8 +159,8 @@ def post_toot2(
     access_token: str,
     content: str,
     visibility: TootVisibilityEnum,
-    update_toot_url: str | None = None,
-    reply_to_toot_url: str | None = None,
+    update_id: str | None = None,
+    reply_to_id: str | None = None,
     sensitive: bool = False,
     spoiler_text: str | None = None,
     attachments: list = [],
@@ -177,8 +177,8 @@ def post_toot2(
         "status": content,
         "visibility": visibility,
     }
-    update_id = get_status_id_by_url(update_toot_url)
-    reply_to_id = get_status_id_by_url(reply_to_toot_url)
+    # update_id = get_status_id_by_url(update_toot_url)
+    # reply_to_id = get_status_id_by_url(reply_to_toot_url)
     if reply_to_id:
         payload["in_reply_to_id"] = reply_to_id
     if spoiler_text:
@@ -415,7 +415,9 @@ def obtain_token(site, code, request):
     try:
         response = post(url, data=payload, headers=headers, auth=auth)
         if response.status_code != 200:
-            logger.warning(f"Error {url} {response.status_code}")
+            logger.warning(
+                f"Error {url} {payload} {response.status_code} {response.content}"
+            )
             return None, None
     except Exception as e:
         logger.warning(f"Error {url} {e}")
@@ -467,6 +469,13 @@ def get_or_create_fediverse_application(login_domain):
     if not app:
         app = MastodonApplication.objects.filter(api_domain__iexact=domain).first()
     if app:
+        if " Firefish " in app.server_version:
+            data = create_app(app.api_domain, True).json()
+            app.app_id = data["id"]
+            app.client_id = data["client_id"]
+            app.client_secret = data["client_secret"]
+            app.vapid_key = data.get("vapid_key", "")
+            app.save()
         return app
     if not settings.MASTODON_ALLOW_ANY_SITE:
         logger.warning(f"Disallowed to create app for {domain}")
@@ -804,38 +813,55 @@ class MastodonAccount(SocialAccount):
                 ]
             )
 
+    def boost(self, post_url: str):
+        boost_toot(self.api_domain, self.access_token, post_url)
+
     def boost_later(self, post_url: str):
         django_rq.get_queue("fetch").enqueue(
             boost_toot, self.api_domain, self.access_token, post_url
         )
 
-    def delete_later(self, post_url: str):
+    def delete_post(self, post_id: str):
+        delete_toot(self.api_domain, self.access_token, post_id)
+
+    def delete_post_later(self, post_id: str):
         django_rq.get_queue("fetch").enqueue(
-            delete_toot, self.api_domain, self.access_token, post_url
+            delete_toot, self.api_domain, self.access_token, post_id
         )
 
     def post(
         self,
         content: str,
         visibility: "VisibilityType",
-        update_toot_url: str | None = None,
-        reply_to_toot_url: str | None = None,
+        update_id: str | None = None,
+        reply_to_id: str | None = None,
         sensitive: bool = False,
         spoiler_text: str | None = None,
         attachments: list = [],
-    ) -> requests.Response | None:
+    ) -> dict:
         v = get_toot_visibility(visibility, self.user)
-        return post_toot2(
+        response = post_toot2(
             self.api_domain,
             self.access_token,
             content,
             v,
-            update_toot_url,
-            reply_to_toot_url,
+            update_id,
+            reply_to_id,
             sensitive,
             spoiler_text,
             attachments,
         )
+        if response:
+            if response.status_code in [200, 201]:
+                j = response.json()
+                return {"id": j["id"], "url": j["url"]}
+            elif response.status_code == 401:
+                raise PermissionDenied()
+        raise RequestAborted()
 
     def sync_later(self):
         Takahe.fetch_remote_identity(self.handle)
+        # TODO
+
+    def get_reauthorize_url(self):
+        return reverse("mastodon:connect") + "?domain=" + self.domain

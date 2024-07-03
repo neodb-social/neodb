@@ -180,10 +180,10 @@ def share_collection(
         )
     )
     content = f"{user_str}:{collection.title}\n{link}\n{comment}{tags}"
-    response = user.mastodon.post(content, visibility)
-    if response is not None and response.status_code in [200, 201]:
+    try:
+        user.mastodon.post(content, visibility)
         return True
-    else:
+    except Exception:
         return False
 
 

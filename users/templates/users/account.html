@@ -14,23 +14,43 @@
     {% include "_header.html" %}
     <main>
       <div class="grid__main">
+        <article>
+          <details>
+            <summary>{% trans "Display name, avatar and other information" %}</summary>
+            <form action="{% url 'users:profile' %}?next={{ request.path }}"
+                  method="post"
+                  {% if request.user.mastodon and not request.user.preference.mastodon_skip_userinfo %}onsubmit="return confirm('{% trans "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?" %}')"{% endif %}
+                  enctype="multipart/form-data">
+              <label>
+                {% trans "Username" %}
+                <input value="{{ request.user.username }}"
+                       aria-invalid="false"
+                       readonly
+                       disabled />
+              </label>
+              {% include "_field.html" with field=profile_form.name %}
+              {% include "_field.html" with field=profile_form.summary %}
+              {% include "_field.html" with field=profile_form.icon %}
+              {% include "_field.html" with field=profile_form.discoverable %}
+              {% include "_field.html" with field=profile_form.manually_approves_followers %}
+              {% csrf_token %}
+              <input type="submit" value="{% trans 'Save' %}" id="save">
+            </form>
+          </details>
+        </article>
         {% if allow_any_site %}
           <article>
             <details>
-              <summary>{% trans 'Username and Email' %}</summary>
+              <summary>{% trans 'Email' %}</summary>
               <form action="{% url 'users:register' %}?next={{ request.path }}"
                     method="post">
-                <small>{{ error }}</small>
+                <input value="{{ request.user.username }}" type="hidden" name="username" />
                 <fieldset>
-                  <label>
-                    {% trans "Username" %}
-                    <input name="username" _="on input remove [@disabled] from #save end" placeholder="{% trans "2-30 alphabets, numbers or underscore, can't be changed once saved" %}" required {% if request.user.username %}value="{{ request.user.username }}" aria-invalid="false" readonly{% endif %} pattern="^[a-zA-Z0-9_]{2,30}$" />
-                  </label>
                   <label>
                     {% trans "Email address" %}
                     <input type="email"
                            name="email"
-                           _="on input remove [@disabled] from #save then remove [@aria-invalid] end"
+                           _="on input remove [@disabled] from #save_email then remove [@aria-invalid] end"
                            {% if request.user.email_account %}value="{{ request.user.email_account.handle }}" aria-invalid="false"{% endif %}
                            placeholder="email"
                            autocomplete="email" />
@@ -44,7 +64,7 @@
                   </label>
                 </fieldset>
                 {% csrf_token %}
-                <input type="submit" value="{% trans 'Save' %}" disabled id="save">
+                <input type="submit" value="{% trans 'Save' %}" disabled id="save_email">
               </form>
             </details>
           </article>
@@ -97,6 +117,16 @@
                   </small>
                 </fieldset>
               </form>
+              {% if request.user.mastodon %}
+                <form action="{% url 'mastodon:disconnect' %}"
+                      method="post"
+                      onsubmit="return confirm('{% trans "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?" %}')">
+                  {% csrf_token %}
+                  <input type="submit"
+                         value="{% trans 'Disconnect with this identity' %}"
+                         class="secondary" />
+                </form>
+              {% endif %}
             </details>
           </article>
           <article>
@@ -120,59 +150,22 @@
                     </label>
                   {% endif %}
                   <input type="submit"
-                         {% if request.user.threads %} value="{% trans 'Link with a different threads.net account' %}" {% else %} {% trans "Link with a threads.net account" %} {% endif %} />
+                         value="{% if request.user.threads %} {% trans 'Link with a different threads.net account' %} {% else %} {% trans "Link with a threads.net account" %} {% endif %} " />
                 </fieldset>
               </form>
+              {% if request.user.threads %}
+                <form action="{% url 'mastodon:threads_login' %}"
+                      method="post"
+                      onsubmit="return confirm('{% trans "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?" %}')">
+                  {% csrf_token %}
+                  <input type="submit"
+                         value="{% trans 'Disconnect with Threads' %}"
+                         class="secondary" />
+                </form>
+              {% endif %}
             </details>
           </article>
         {% endif %}
-        <article>
-          <details>
-            <summary>{% trans "Display name, avatar and other information" %}</summary>
-            <form action="{% url 'users:profile' %}?next={{ request.path }}"
-                  method="post"
-                  {% if request.user.mastodon and not request.user.preference.mastodon_skip_userinfo %}onsubmit="return confirm('{% trans "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?" %}')"{% endif %}
-                  enctype="multipart/form-data">
-              {% include "_field.html" with field=profile_form.name %}
-              {% include "_field.html" with field=profile_form.summary %}
-              {% include "_field.html" with field=profile_form.icon %}
-              {% include "_field.html" with field=profile_form.discoverable %}
-              {% include "_field.html" with field=profile_form.manually_approves_followers %}
-              {% csrf_token %}
-              <input type="submit" value="{% trans 'Save' %}" id="save">
-            </form>
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans 'Users you are following' %}</summary>
-            {% include 'users/relationship_list.html' with id="follow" list=request.user.identity.following_identities.all %}
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans 'Users who follow you' %}</summary>
-            {% include 'users/relationship_list.html' with id="follower" list=request.user.identity.follower_identities.all %}
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans 'Users who request to follow you' %}</summary>
-            {% include 'users/relationship_list.html' with id="follow_request" list=request.user.identity.requested_follower_identities.all %}
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans 'Users you are muting' %}</summary>
-            {% include 'users/relationship_list.html' with id="mute" list=request.user.identity.muting_identities.all %}
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans 'Users you are blocking' %}</summary>
-            {% include 'users/relationship_list.html' with id="block" list=request.user.identity.blocking_identities.all %}
-          </details>
-        </article>
         <article>
           <details>
             <summary>{% trans 'Sync and import social account' %}</summary>
@@ -217,6 +210,36 @@
                 {% endif %}
               </small>
             </form>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Users you are following' %}</summary>
+            {% include 'users/relationship_list.html' with id="follow" list=request.user.identity.following_identities.all %}
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Users who follow you' %}</summary>
+            {% include 'users/relationship_list.html' with id="follower" list=request.user.identity.follower_identities.all %}
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Users who request to follow you' %}</summary>
+            {% include 'users/relationship_list.html' with id="follow_request" list=request.user.identity.requested_follower_identities.all %}
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Users you are muting' %}</summary>
+            {% include 'users/relationship_list.html' with id="mute" list=request.user.identity.muting_identities.all %}
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Users you are blocking' %}</summary>
+            {% include 'users/relationship_list.html' with id="block" list=request.user.identity.blocking_identities.all %}
           </details>
         </article>
         {% if allow_any_site %}

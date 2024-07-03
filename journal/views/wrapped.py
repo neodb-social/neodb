@@ -129,9 +129,12 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
         )
         classic_crosspost = user.preference.mastodon_repost_mode == 1
         if classic_crosspost and user.mastodon:
-            user.mastodon.post(
-                comment, visibility, attachments=[("year.png", img, "image/png")]
-            )
+            try:
+                user.mastodon.post(
+                    comment, visibility, attachments=[("year.png", img, "image/png")]
+                )
+            except Exception:
+                pass
         elif post and user.mastodon:
             user.mastodon.boost_later(post.url)
         messages.add_message(request, messages.INFO, _("Summary posted to timeline."))

@@ -18,33 +18,6 @@ from .review import Review
 from .shelf import Shelf, ShelfLogEntry, ShelfManager, ShelfMember, ShelfType
 
 
-def share_mark(mark, post_as_new=False):
-    user = mark.owner.user
-    if not user or not user.mastodon:
-        return
-    stars = user.mastodon.rating_to_emoji(mark.rating_grade)
-    spoiler_text, txt = get_spoiler_text(mark.comment_text or "", mark.item)
-    content = f"{mark.get_action_for_feed()} {stars}\n{mark.item.absolute_url}\n{txt}{mark.tag_text}"
-    update_url = (
-        None if post_as_new else (mark.shelfmember.metadata or {}).get("shared_link")
-    )
-    response = user.mastodon.post(
-        content,
-        mark.visibility,
-        update_url,
-        spoiler_text,
-    )
-    if response is not None and response.status_code in [200, 201]:
-        j = response.json()
-        if "url" in j:
-            mark.shelfmember.metadata = {"shared_link": j["url"]}
-            mark.shelfmember.save(update_fields=["metadata"])
-        return True, 200
-    else:
-        logger.warning(response)
-        return False, response.status_code if response is not None else -1
-
-
 class Mark:
     """
     Holding Mark for an item on an shelf,
@@ -241,6 +214,7 @@ class Mark:
             visibility = self.visibility
         last_shelf_type = self.shelf_type
         last_visibility = self.visibility if last_shelf_type else None
+        update_mode = 0
         if tags is not None:
             self.owner.tag_manager.tag_item(self.item, tags, visibility)
         if shelf_type is None:
@@ -264,8 +238,7 @@ class Mark:
                 self.shelfmember.visibility = visibility
                 shelfmember_changed = True
                 # retract most recent post about this status when visibility changed
-                if self.shelfmember.latest_post:
-                    Takahe.delete_posts([self.shelfmember.latest_post.pk])
+                update_mode = 1
             if created_time and created_time != self.shelfmember.created_time:
                 self.shelfmember.created_time = created_time
                 log_entry.timestamp = created_time
@@ -277,6 +250,8 @@ class Mark:
             if shelfmember_changed:
                 self.shelfmember.save()
         else:
+            # ignore most recent post if exists and create new one
+            update_mode = 2
             shelf = Shelf.objects.get(owner=self.owner, shelf_type=shelf_type)
             d = {"parent": shelf, "visibility": visibility, "position": 0}
             if metadata:
@@ -305,28 +280,17 @@ class Mark:
                 )
                 self.rating_grade = rating_grade
         # publish a new or updated ActivityPub post
-        user: User = self.owner.user
-        post_as_new = shelf_type != last_shelf_type or visibility != last_visibility
-        classic_crosspost = user.preference.mastodon_repost_mode == 1
-        append = (
-            f"@{user.mastodon.handle}\n"
-            if visibility > 0
-            and share_to_mastodon
-            and not classic_crosspost
-            and user.mastodon
-            else ""
-        )
-        post = Takahe.post_mark(self, post_as_new, append)
-        if post and self.item.category in (user.preference.auto_bookmark_cats or []):
-            if shelf_type == ShelfType.PROGRESS:
-                Takahe.bookmark(post.pk, self.owner.pk)
-        # async boost to mastodon
-        if post and share_to_mastodon:
-            if classic_crosspost:
-                share_mark(self, post_as_new)
-            elif user.mastodon:
-                user.mastodon.boost_later(post.url)
-        return True
+        post = self.shelfmember.sync_to_timeline(update_mode)
+        if share_to_mastodon:
+            self.shelfmember.sync_to_social_accounts(update_mode)
+        # auto add bookmark
+        if (
+            post
+            and shelf_type == ShelfType.PROGRESS
+            and self.item.category
+            in (self.owner.user.preference.auto_bookmark_cats or [])
+        ):
+            Takahe.bookmark(post.pk, self.owner.pk)
 
     def delete(self, keep_tags=False):
         self.update(None, tags=None if keep_tags else [])
