@@ -2,7 +2,6 @@ from django.db import models
 from django.db.models.functions import Lower
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from typedmodels.models import TypedModel
 
 from catalog.common import jsondata
@@ -67,11 +66,14 @@ class SocialAccount(TypedModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.platform}:{self.handle}"
+        return f"({self.pk}){self.platform}#{self.handle}:{self.uid}@{self.domain}"
 
     @property
     def platform(self) -> Platform:
         return Platform(self.type.replace("mastodon.", "", 1).replace("account", "", 1))
+
+    def sync_later(self):
+        pass
 
     def to_dict(self):
         # skip cached_property, datetime and other non-serializable fields

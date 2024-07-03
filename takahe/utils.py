@@ -628,8 +628,6 @@ class Takahe:
 
     @staticmethod
     def post_mark(mark, share_as_new_post: bool, append_content="") -> Post | None:
-        from catalog.common import ItemCategory
-
         user = mark.owner.user
         stars = _rating_to_emoji(mark.rating_grade, 1)
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{mark.item.url}"
@@ -804,7 +802,7 @@ class Takahe:
         return FediverseHtmlParser(linebreaks_filter(txt)).html
 
     @staticmethod
-    def update_state(obj: Post | Relay, state: str):
+    def update_state(obj: Post | Relay | Identity, state: str):
         obj.state = state
         obj.state_changed = timezone.now()
         obj.state_next_attempt = None

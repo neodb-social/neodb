@@ -12,10 +12,8 @@
     <meta property="og:image" content="{{ identity.avatar }}">
   </head>
   <body>
-    {% if identity.local and identity.user.mastodon_account.url %}
-      <a href="{{ identity.user.mastodon_account.url }}"
-         rel="me"
-         style="display:none">Mastodon verification</a>
+    {% if identity.local and identity.user.mastodon %}
+      <a href="{{ identity.user.mastodon.url }}" rel="me" style="display:none">Mastodon verification</a>
     {% endif %}
   </body>
 </html>

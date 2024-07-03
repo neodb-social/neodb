@@ -67,6 +67,9 @@ x-shared:
       TAKAHE_VAPID_PRIVATE_KEY:
       TAKAHE_DEBUG: ${NEODB_DEBUG:-False}
       TAKAHE_VENV: /takahe-venv
+      THREADS_APP_ID:
+      THREADS_APP_SECRET:
+      BLUESKY_LOGIN_ENABLED:
       SPOTIFY_API_KEY:
       TMDB_API_V3_KEY:
       GOOGLE_API_KEY:

@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
-from catalog.models import Item, ItemCategory
+from catalog.models import Item
 from mastodon.models import get_spoiler_text
 from takahe.utils import Takahe
 from users.models import APIdentity, User
@@ -309,8 +309,11 @@ class Mark:
         post_as_new = shelf_type != last_shelf_type or visibility != last_visibility
         classic_crosspost = user.preference.mastodon_repost_mode == 1
         append = (
-            f"@{user.mastodon_acct}\n"
-            if visibility > 0 and share_to_mastodon and not classic_crosspost
+            f"@{user.mastodon.handle}\n"
+            if visibility > 0
+            and share_to_mastodon
+            and not classic_crosspost
+            and user.mastodon
             else ""
         )
         post = Takahe.post_mark(self, post_as_new, append)

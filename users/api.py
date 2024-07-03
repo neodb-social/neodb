@@ -1,12 +1,11 @@
 from ninja import Schema
-from ninja.security import django_auth
 
 from common.api import *
 
 
 class UserSchema(Schema):
     url: str
-    external_acct: str
+    external_acct: str | None
     display_name: str
     avatar: str
     username: str
@@ -22,7 +21,9 @@ def me(request):
     return 200, {
         "username": request.user.username,
         "url": settings.SITE_INFO["site_url"] + request.user.url,
-        "external_acct": request.user.mastodon_acct,
+        "external_acct": (
+            request.user.mastodon.handle if request.user.mastodon else None
+        ),
         "display_name": request.user.display_name,
         "avatar": request.user.avatar,
     }

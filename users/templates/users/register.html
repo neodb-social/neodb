@@ -12,7 +12,10 @@
     <div class="container">
       <article>
         <header style="text-align: center;">
-          <img src="{{ site_logo }}" class="logo" alt="logo">
+          <img src="{{ site_logo }}"
+               class="logo"
+               alt="logo"
+               style="max-height: 42vh">
         </header>
         {% if form %}
           <form action="{% url 'users:register' %}" method="post">

@@ -12,8 +12,7 @@ from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import gettext as _
 
-from common.config import *
-from common.utils import GenerateDateUUIDMediaFilePath, profile_identity_required
+from common.utils import GenerateDateUUIDMediaFilePath
 from journal.exporters.doufen import export_marks_task
 from journal.importers.douban import DoubanImporter
 from journal.importers.goodreads import GoodreadsImporter
@@ -23,8 +22,8 @@ from journal.models import ShelfType, reset_journal_visibility_for_user
 from mastodon.api import *
 from social.models import reset_social_visibility_for_user
 
+from ..tasks import *
 from .account import *
-from .tasks import *
 
 
 @login_required

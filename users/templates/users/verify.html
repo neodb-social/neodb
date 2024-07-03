@@ -27,7 +27,7 @@
             text-align: center;
           }
         </style>
-        <form action="{% url 'users:verify_code' %}" method="post">
+        <form action="{% url 'mastodon:email_verify' %}" method="post">
           <div class="otp">
             <input name="code"
                    maxlength="5"

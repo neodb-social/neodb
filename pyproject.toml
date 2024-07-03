@@ -55,7 +55,8 @@ dependencies = [
     "urlman",
     "validators",
     "deepmerge>=1.1.1",
-    "django-typed-models>=0.14.0",
+    "django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git",
+    "atproto>=0.0.48",
 ]
 
 [tool.rye]
@@ -93,7 +94,7 @@ django_settings_module = "boofilsic.settings"
 
 [tool.ruff]
 exclude = ["neodb-takahe/*", "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/importers", "**/sites", "legacy" ]
-lint.ignore = ["F401", "F403", "F405"]
+lint.ignore = ["F403", "F405"]
 
 [tool.setuptools]
 py-modules = []

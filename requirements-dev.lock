@@ -20,6 +20,7 @@ asgiref==3.8.1
     # via django
     # via django-cors-headers
     # via django-stubs
+atproto==0.0.48
 attrs==23.2.0
     # via aiohttp
 babel==2.15.0
@@ -44,6 +45,7 @@ cfgv==3.4.0
 charset-normalizer==3.3.2
     # via requests
 click==8.1.7
+    # via atproto
     # via black
     # via djlint
     # via mkdocs
@@ -52,6 +54,7 @@ colorama==0.4.6
     # via djlint
     # via mkdocs-material
 cryptography==42.0.8
+    # via atproto
     # via jwcrypto
 cssbeautifier==1.15.1
     # via djlint
@@ -103,11 +106,12 @@ django-slack==5.19.0
 django-stubs==5.0.2
 django-stubs-ext==5.0.2
     # via django-stubs
-django-typed-models==0.14.0
+django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git@03921e05b39d07d143519a435259f66387a088bc
 django-tz-detect==0.5.0
 django-user-messages==1.0.0
 djlint==1.34.1
 dnspython==2.6.1
+    # via atproto
 easy-thumbnails==2.8.5
 editorconfig==0.12.4
     # via cssbeautifier
@@ -131,7 +135,8 @@ html-void-elements==0.1.0
     # via djlint
 httpcore==1.0.5
     # via httpx
-httpx==0.27.0
+httpx==0.26.0
+    # via atproto
 identify==2.5.36
     # via pre-commit
 idna==3.7
@@ -152,6 +157,8 @@ json5==0.9.25
 jwcrypto==1.5.6
     # via django-oauth-toolkit
 langdetect==1.0.9
+libipld==1.2.3
+    # via atproto
 libsass==0.23.0
 listparser==0.20
 loguru==0.7.2
@@ -214,6 +221,7 @@ psycopg2-binary==2.9.9
 pycparser==2.22
     # via cffi
 pydantic==2.7.3
+    # via atproto
     # via django-ninja
 pydantic-core==2.18.4
     # via pydantic
@@ -287,6 +295,7 @@ types-pyyaml==6.0.12.20240311
     # via django-stubs
 typesense==0.21.0
 typing-extensions==4.12.1
+    # via atproto
     # via django-stubs
     # via django-stubs-ext
     # via jwcrypto
@@ -307,5 +316,7 @@ watchdog==4.0.1
 webencodings==0.5.1
     # via bleach
     # via tinycss2
+websockets==12.0
+    # via atproto
 yarl==1.9.4
     # via aiohttp

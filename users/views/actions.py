@@ -16,9 +16,9 @@ from common.utils import (
 from mastodon.api import *
 from takahe.utils import Takahe
 
+from ..models import APIdentity
 from .account import *
 from .data import *
-from .models import APIdentity
 
 
 def query_identity(request, handle):

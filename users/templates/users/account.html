@@ -17,7 +17,7 @@
         {% if allow_any_site %}
           <article>
             <details>
-              <summary>{% trans 'Username, Email and Identities' %}</summary>
+              <summary>{% trans 'Username and Email' %}</summary>
               <form action="{% url 'users:register' %}?next={{ request.path }}"
                     method="post">
                 <small>{{ error }}</small>
@@ -46,16 +46,26 @@
                 {% csrf_token %}
                 <input type="submit" value="{% trans 'Save' %}" disabled id="save">
               </form>
-              <form action="{% url 'users:reconnect' %}" method="post">
+            </details>
+          </article>
+          <article>
+            <details>
+              <summary>{% trans "Fediverse (Mastodon)" %}</summary>
+              <form action="{% url 'mastodon:reconnect' %}" method="post">
                 {% csrf_token %}
                 <fieldset>
-                  {% if request.user.mastodon_acct %}
+                  {% if request.user.mastodon %}
                     <label>
-                      {% trans "Associated identities" %}
+                      <i class="fa-brands fa-mastodon"></i> {% trans "Verified Identity" %}
                       <input type="input"
-                             {% if request.user.mastodon_acct %}aria-invalid="false"{% endif %}
-                             value="{{ request.user.mastodon_acct | default:'-' }}"
+                             {% if request.user.mastodon %}aria-invalid="false"{% endif %}
+                             value="{{ request.user.mastodon.handle | default:'-' }}"
                              readonly>
+                      <small>
+                        {% if request.user.mastodon.last_refresh %}
+                          {% trans "Last updated" %} {{ request.user.mastodon.last_refresh }}
+                        {% endif %}
+                      </small>
                     </label>
                   {% else %}
                     <p>
@@ -63,7 +73,7 @@
                     </p>
                   {% endif %}
                   <label>
-                    {% if request.user.mastodon_acct %}
+                    {% if request.user.mastodon %}
                       {% trans "To associate with another federated identity, please enter the domain name of the instance where the new identity is located." %}
                     {% else %}
                       {% trans "If you have registered with a Federated instance, please enter the instance domain name." %}
@@ -79,12 +89,38 @@
                          disabled
                          id="bind" />
                   <small>
-                    {% if request.user.mastodon_acct %}
+                    {% if request.user.mastodon %}
                       {% blocktrans %}After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected.{% endblocktrans %}
                     {% else %}
                       {% trans "Once associated with Fediverse identity, you can discover more users and use the full features of this site." %}
                     {% endif %}
                   </small>
+                </fieldset>
+              </form>
+            </details>
+          </article>
+          <article>
+            <details>
+              <summary>{% trans "Threads.net" %}</summary>
+              <form action="{% url 'mastodon:threads_reconnect' %}" method="post">
+                {% csrf_token %}
+                <fieldset>
+                  {% if request.user.threads %}
+                    <label>
+                      <i class="fa-brands fa-threads"></i> {% trans "Verified threads.net account" %}
+                      <input type="input"
+                             aria-invalid="false"
+                             value="{{ request.user.threads.handle }}"
+                             readonly>
+                      <small>
+                        {% if request.user.threads.last_refresh %}
+                          {% trans "Last updated" %} {{ request.user.threads.last_refresh }}
+                        {% endif %}
+                      </small>
+                    </label>
+                  {% endif %}
+                  <input type="submit"
+                         {% if request.user.threads %} value="{% trans 'Link with a different threads.net account' %}" {% else %} {% trans "Link with a threads.net account" %} {% endif %} />
                 </fieldset>
               </form>
             </details>
@@ -95,7 +131,7 @@
             <summary>{% trans "Display name, avatar and other information" %}</summary>
             <form action="{% url 'users:profile' %}?next={{ request.path }}"
                   method="post"
-                  {% if request.user.mastodon_acct and not request.user.preference.mastodon_skip_userinfo %}onsubmit="return confirm('{% trans "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?" %}')"{% endif %}
+                  {% if request.user.mastodon and not request.user.preference.mastodon_skip_userinfo %}onsubmit="return confirm('{% trans "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?" %}')"{% endif %}
                   enctype="multipart/form-data">
               {% include "_field.html" with field=profile_form.name %}
               {% include "_field.html" with field=profile_form.summary %}
@@ -176,45 +212,47 @@
                      value="{% trans 'Sync now' %}"
                      {% if not request.user.mastodon_username %}disabled{% endif %} />
               <small>
-                {% if request.user.mastodon_last_refresh %}
-                  {% trans "Last updated" %} {{ request.user.mastodon_last_refresh }}
+                {% if request.user.mastodon.last_refresh %}
+                  {% trans "Last updated" %} {{ request.user.mastodon.last_refresh }}
                 {% endif %}
               </small>
             </form>
           </details>
         </article>
-        <article>
-          <details>
-            <summary>{% trans 'Delete Account' %}</summary>
-            <form action="{% url 'users:clear_data' %}"
-                  method="post"
-                  onsubmit="return confirm('{% trans "Once deleted, account data cannot be recovered. Sure to proceed?" %}');">
-              {% csrf_token %}
-              <div>
-                {% blocktrans %}Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion.{% endblocktrans %}
-                <input type="email"
-                       name="verification"
-                       _="on input remove [@disabled] from #delete end"
-                       value=""
-                       autocomplete="off"
-                       required
-                       aria-invalid="true"
-                       aria-describedby="invalid-helper"
-                       placeholder="Gargron@mastodon.social">
-                <small id="invalid-helper">{% trans "Once deleted, account data cannot be recovered." %}</small>
-                {% if import_status.douban_pending %}
-                  <input type="submit" value="{% trans "Importing in progress, can't delete now." %}" disabled />
-                {% else %}
-                  <input type="submit"
-                         value="{% trans 'Permanently Delete' %}"
-                         class="contrast"
-                         disabled
-                         id="delete" />
-                {% endif %}
-              </div>
-            </form>
-          </details>
-        </article>
+        {% if allow_any_site %}
+          <article>
+            <details>
+              <summary>{% trans 'Delete Account' %}</summary>
+              <form action="{% url 'users:clear_data' %}"
+                    method="post"
+                    onsubmit="return confirm('{% trans "Once deleted, account data cannot be recovered. Sure to proceed?" %}');">
+                {% csrf_token %}
+                <div>
+                  {% blocktrans %}Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion.{% endblocktrans %}
+                  <input type="email"
+                         name="verification"
+                         _="on input remove [@disabled] from #delete end"
+                         value=""
+                         autocomplete="off"
+                         required
+                         aria-invalid="true"
+                         aria-describedby="invalid-helper"
+                         placeholder="Gargron@mastodon.social">
+                  <small id="invalid-helper">{% trans "Once deleted, account data cannot be recovered." %}</small>
+                  {% if import_status.douban_pending %}
+                    <input type="submit" value="{% trans "Importing in progress, can't delete now." %}" disabled />
+                  {% else %}
+                    <input type="submit"
+                           value="{% trans 'Permanently Delete' %}"
+                           class="contrast"
+                           disabled
+                           id="delete" />
+                  {% endif %}
+                </div>
+              </form>
+            </details>
+          </article>
+        {% endif %}
       </div>
       {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
     </main>

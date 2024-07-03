@@ -10,20 +10,23 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import models, transaction
-from django.db.models import F, Manager, Q, Value
-from django.db.models.functions import Concat, Lower
+from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
-from mastodon.models import EmailAccount, MastodonAccount, Platform, SocialAccount
+from mastodon.models import (
+    BlueskyAccount,
+    EmailAccount,
+    MastodonAccount,
+    SocialAccount,
+    ThreadsAccount,
+)
 from takahe.utils import Takahe
 
 if TYPE_CHECKING:
-    from mastodon.models import Mastodon
-
     from .apidentity import APIdentity
     from .preference import Preference
 
@@ -59,18 +62,31 @@ class UsernameValidator(UnicodeUsernameValidator):
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
+        from mastodon.models import Email
+
         Takahe.get_domain()  # ensure configuration is complete
-        user = User.register(username=username, email=email)
+
+        user = User.register(username=username)
+        e = Email.new_account(email)
+        if not e:
+            raise ValueError("Invalid Email")
+        e.user = user
+        e.save()
         return user
 
     def create_superuser(self, username, email, password=None):
+        from mastodon.models import Email
         from takahe.models import User as TakaheUser
 
         Takahe.get_domain()  # ensure configuration is complete
-        user = User.register(username=username, email=email, is_superuser=True)
+        user = User.register(username=username, is_superuser=True)
+        e = Email.new_account(email)
+        if not e:
+            raise ValueError("Invalid Email")
+        e.user = user
+        e.save()
         tu = TakaheUser.objects.get(pk=user.pk, email="@" + username)
         tu.admin = True
-        tu.set_password(password)
         tu.save()
         return user
 
@@ -159,36 +175,20 @@ class User(AbstractUser):
                 Lower("username"),
                 name="unique_username",
             ),
-            models.UniqueConstraint(
-                Lower("email"),
-                name="unique_email",
-            ),
-            models.UniqueConstraint(
-                Lower("mastodon_username"),
-                Lower("mastodon_site"),
-                name="unique_mastodon_username",
-            ),
-            models.UniqueConstraint(
-                Lower("mastodon_id"),
-                Lower("mastodon_site"),
-                name="unique_mastodon_id",
-            ),
-            models.CheckConstraint(
-                check=(
-                    Q(is_active=False)
-                    | Q(mastodon_username__isnull=False)
-                    | Q(email__isnull=False)
-                ),
-                name="at_least_one_login_method",
-            ),
         ]
-        indexes = [
-            models.Index(fields=["mastodon_site", "mastodon_username"]),
-        ]
+        indexes = [models.Index("is_active", name="index_user_is_active")]
 
     @cached_property
     def mastodon(self) -> "MastodonAccount | None":
         return MastodonAccount.objects.filter(user=self).first()
+
+    @cached_property
+    def threads(self) -> "ThreadsAccount | None":
+        return ThreadsAccount.objects.filter(user=self).first()
+
+    @cached_property
+    def bluesky(self) -> "BlueskyAccount | None":
+        return BlueskyAccount.objects.filter(user=self).first()
 
     @cached_property
     def email_account(self) -> "EmailAccount | None":
@@ -239,34 +239,21 @@ class User(AbstractUser):
         return p.edited_time if p else None
 
     def clear(self):
-        if self.mastodon_site == "removed" and not self.is_active:
+        if not self.is_active:
             return
         with transaction.atomic():
-            self.first_name = self.mastodon_acct or ""
-            self.last_name = self.email or ""
+            accts = [str(a) for a in self.social_accounts.all()]
+            self.first_name = (";").join(accts)
+            self.last_name = self.username
             self.is_active = False
-            self.email = None
             # self.username = "~removed~" + str(self.pk)
             # to get ready for federation, username has to be reserved
-            self.mastodon_username = None
-            self.mastodon_id = None
-            self.mastodon_site = "removed"
-            self.mastodon_token = ""
-            self.mastodon_locked = False
-            self.mastodon_followers = []
-            self.mastodon_following = []
-            self.mastodon_mutes = []
-            self.mastodon_blocks = []
-            self.mastodon_domain_blocks = []
-            self.mastodon_account = {}
             self.save()
             self.identity.deleted = timezone.now()
             self.identity.save()
-            SocialAccount.objects.filter(user=self).delete()
+            self.social_accounts.all().delete()
 
     def sync_relationship(self):
-        from .apidentity import APIdentity
-
         def get_identity_ids(accts: list):
             return set(
                 MastodonAccount.objects.filter(handle__in=accts).values_list(
@@ -301,29 +288,59 @@ class User(AbstractUser):
                 Takahe.mute(me, target_identity)
 
     def sync_identity(self):
+        """sync display name, bio, and avatar from available sources"""
         identity = self.identity.takahe_identity
         if identity.deleted:
             logger.error(f"Identity {identity} is deleted, skip sync")
             return
         mastodon = self.mastodon
-        if not mastodon:
-            return
-        identity.name = mastodon.display_name or identity.name or identity.username
-        identity.summary = mastodon.note or identity.summary
-        identity.manually_approves_followers = mastodon.locked
-        if not bool(identity.icon) or identity.icon_uri != mastodon.avatar:
-            identity.icon_uri = mastodon.avatar
-            if identity.icon_uri:
+        threads = self.threads
+        # bluesky = self.bluesky
+        changed = False
+        name = (
+            (mastodon.display_name if mastodon else "")
+            or (threads.username if threads else "")
+            # or (bluesky.display_name if bluesky else "")
+            or identity.name
+            or identity.username
+        )
+        if identity.name != name:
+            identity.name = name
+            changed = True
+        summary = (
+            (mastodon.note if mastodon else "")
+            or (threads.threads_biography if threads else "")
+            # or (bluesky.note if bluesky else "")
+            or identity.summary
+        )
+        if identity.summary != summary:
+            identity.summary = summary
+            changed = True
+        identity.manually_approves_followers = (
+            mastodon.locked if mastodon else identity.manually_approves_followers
+        )
+        # it's tedious to update avatar repeatedly, so only sync it once
+        if not identity.icon:
+            url = None
+            if mastodon and mastodon.avatar:
+                url = mastodon.avatar
+            elif threads and threads.threads_profile_picture_url:
+                url = threads.threads_profile_picture_url
+            # elif bluesky and bluesky.
+            if url:
                 try:
-                    r = httpx.get(identity.icon_uri)
+                    r = httpx.get(url)
                     f = ContentFile(r.content, name=identity.icon_uri.split("/")[-1])
                     identity.icon.save(f.name, f, save=False)
+                    changed = True
                 except Exception as e:
                     logger.error(
                         f"fetch icon failed: {identity} {identity.icon_uri}",
                         extra={"exception": e},
                     )
-        identity.save()
+        if changed:
+            identity.save()
+            Takahe.update_state(identity, "outdated")
 
     def refresh_mastodon_data(self, skip_detail=False, sleep_hours=0):
         """Try refresh account data from mastodon server, return True if refreshed successfully"""
@@ -387,18 +404,12 @@ class User(AbstractUser):
 
         account = param.pop("account", None)
         with transaction.atomic():
-            if account:
-                if account.platform == Platform.MASTODON:
-                    param["mastodon_username"] = account.account_data["username"]
-                    param["mastodon_site"] = account.domain
-                    param["mastodon_id"] = account.account_data["id"]
-                elif account.platform == Platform.EMAIL:
-                    param["email"] = account.handle
             new_user = cls(**param)
             if not new_user.username:
                 raise ValueError("username is not set")
             if "language" not in param:
                 new_user.language = translation.get_language()
+            new_user.set_unusable_password()
             new_user.save()
             Preference.objects.create(user=new_user)
             if account:
@@ -406,9 +417,13 @@ class User(AbstractUser):
                 account.save()
             Takahe.init_identity_for_local_user(new_user)
             new_user.identity.shelf_manager
-            if new_user.mastodon:
-                Takahe.fetch_remote_identity(new_user.mastodon.handle)
             return new_user
+
+    def reconnect_account(self, account: SocialAccount):
+        with transaction.atomic():
+            SocialAccount.objects.filter(user=self, type=account.type).delete()
+            account.user = self
+            account.save()
 
 
 # TODO the following models should be deprecated soon

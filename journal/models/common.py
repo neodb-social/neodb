@@ -8,14 +8,14 @@ from typing import TYPE_CHECKING, Any, Self
 # from deepmerge import always_merger
 from django.conf import settings
 from django.core.signing import b62_decode, b62_encode
-from django.db import connection, models
-from django.db.models import Avg, CharField, Count, Q
+from django.db import models
+from django.db.models import CharField, Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from polymorphic.models import PolymorphicModel
 
-from catalog.common.models import AvailableItemCategory, Item, ItemCategory
+from catalog.common.models import Item, ItemCategory
 from catalog.models import item_categories, item_content_types
 from takahe.utils import Takahe
 from users.models import APIdentity, User
@@ -316,7 +316,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     def sync_to_mastodon(self, delete_existing=False):
         user = self.owner.user
-        if not user.mastodon_site:
+        if not user.mastodon:
             return
         if user.preference.mastodon_repost_mode == 1:
             if delete_existing:

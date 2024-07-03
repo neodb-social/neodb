@@ -1,18 +1,13 @@
 import random
-from datetime import timedelta
-from os.path import exists
-from urllib.parse import quote
 
 import django_rq
 from django.conf import settings
 from django.core.cache import cache
 from django.core.mail import send_mail
-from django.core.signing import TimestampSigner, b62_decode, b62_encode
+from django.core.signing import b62_encode
 from django.http import HttpRequest
 from django.utils.translation import gettext as _
 from loguru import logger
-
-from catalog.common import jsondata
 
 from .common import SocialAccount
 
@@ -24,6 +19,14 @@ class EmailAccount(SocialAccount):
 
 
 class Email:
+    @staticmethod
+    def new_account(email: str) -> EmailAccount | None:
+        sp = email.split("@", 1)
+        if len(sp) != 2:
+            return None
+        account = EmailAccount(handle=email, uid=sp[0], domain=sp[1])
+        return account
+
     @staticmethod
     def _send(email, subject, body):
         try:
@@ -88,8 +91,4 @@ class Email:
         existing_account = EmailAccount.objects.filter(handle__iexact=email).first()
         if existing_account:
             return existing_account
-        sp = email.split("@", 1)
-        if len(sp) != 2:
-            return None
-        account = EmailAccount(handle=email, uid=sp[0], domain=sp[1])
-        return account
+        return Email.new_account(email)

@@ -7,7 +7,6 @@ from loguru import logger
 from catalog.common import *
 from journal.models import (
     Comment,
-    Content,
     Note,
     Piece,
     PieceInteraction,
@@ -18,7 +17,7 @@ from journal.models import (
 from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
 
-from .models import Follow, Identity, Post, TimelineEvent
+from .models import Identity, Post, TimelineEvent
 from .utils import Takahe
 
 _supported_ap_catalog_item_types = [
@@ -155,7 +154,8 @@ def post_interacted(interaction_pk, interaction, post_pk, identity_pk):
     if (
         interaction == "boost"
         and p.local
-        and p.owner.user.mastodon_acct == apid.full_handle
+        and p.owner.user.mastodon
+        and p.owner.user.mastodon.handle == apid.full_handle
     ):
         # ignore boost by oneself
         TimelineEvent.objects.filter(

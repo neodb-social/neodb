@@ -58,7 +58,7 @@
           var cats = JSON.parse(document.getElementById('cat-data').textContent);
           var data = JSON.parse(document.getElementById('data').textContent);
           var opts = {
-            title: "@{{ identity.user.mastodon_acct | default:identity.full_handle }} - {{ year }}",
+            title: "@{{ identity.user.mastodon.handle | default:identity.full_handle }} - {{ year }}",
             element: '#viz0',
             font: 1,
             data: data,

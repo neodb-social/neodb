@@ -1,17 +1,11 @@
 from django.urls import path
 
-from .account import *
-from .profile import *
 from .views import *
 
 app_name = "users"
 urlpatterns = [
     path("login", login, name="login"),
-    path("login/oauth", connect_redirect_back, name="login_oauth"),
-    path("verify_code", verify_code, name="verify_code"),
     path("register", register, name="register"),
-    path("connect", connect, name="connect"),
-    path("reconnect", reconnect, name="reconnect"),
     path("fetch_refresh", fetch_refresh, name="fetch_refresh"),
     path("data", data, name="data"),
     path("info", account_info, name="info"),

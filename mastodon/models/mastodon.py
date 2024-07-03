@@ -2,17 +2,14 @@ import functools
 import random
 import re
 import string
-import time
 import typing
 from enum import StrEnum
 from urllib.parse import quote
 
 import django_rq
-import httpx
 import requests
 from django.conf import settings
 from django.core.cache import cache
-from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import Count
 from django.http import HttpRequest
@@ -24,6 +21,7 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from catalog.common import jsondata
+from takahe.utils import Takahe
 
 from .common import SocialAccount
 
@@ -395,7 +393,7 @@ def verify_client(mast_app):
 def obtain_token(site, code, request):
     """Returns token if success else None."""
     mast_app = MastodonApplication.objects.get(domain_name=site)
-    redirect_uri = request.build_absolute_uri(reverse("users:login_oauth"))
+    redirect_uri = request.build_absolute_uri(reverse("mastodon:oauth"))
     payload = {
         "client_id": mast_app.client_id,
         "client_secret": mast_app.client_secret,
@@ -520,7 +518,7 @@ def get_or_create_fediverse_application(login_domain):
 
 
 def get_mastodon_login_url(app, login_domain, request):
-    url = request.build_absolute_uri(reverse("users:login_oauth"))
+    url = request.build_absolute_uri(reverse("mastodon:oauth"))
     version = app.server_version or ""
     scope = (
         settings.MASTODON_LEGACY_CLIENT_SCOPE
@@ -838,3 +836,6 @@ class MastodonAccount(SocialAccount):
             spoiler_text,
             attachments,
         )
+
+    def sync_later(self):
+        Takahe.fetch_remote_identity(self.handle)

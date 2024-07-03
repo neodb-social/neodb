@@ -238,10 +238,8 @@
       {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
     </main>
     {% include "_footer.html" %}
-    {% if identity.user and identity.user.mastodon_account %}
-      <a href="{{ identity.user.mastodon_account.url }}"
-         rel="me"
-         style="display:none">Mastodon verification</a>
+    {% if identity.user and identity.user.mastodon %}
+      <a href="{{ identity.user.mastodon.url }}" rel="me" style="display:none">Mastodon verification</a>
     {% endif %}
   </body>
 </html>

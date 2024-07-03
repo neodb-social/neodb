@@ -1,4 +1,3 @@
-import django
 from django.conf import settings
 from django.core.checks import Error, Warning
 from loguru import logger
@@ -7,7 +6,6 @@ from catalog.search.models import Indexer
 from common.models import JobManager
 from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
-from takahe.models import Follow as TakaheFollow
 from takahe.models import Identity as TakaheIdentity
 from takahe.models import Relay as TakaheRelay
 from takahe.models import User as TakaheUser

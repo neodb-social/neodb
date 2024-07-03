@@ -52,7 +52,7 @@ def account_profile(request):
             i = form.save()
             Takahe.update_state(i, "edited")
             u = request.user
-            if u.mastodon_acct and not u.preference.mastodon_skip_userinfo:
+            if u.mastodon and not u.preference.mastodon_skip_userinfo:
                 u.preference.mastodon_skip_userinfo = True
                 u.preference.save(update_fields=["mastodon_skip_userinfo"])
     return HttpResponseRedirect(reverse("users:info"))

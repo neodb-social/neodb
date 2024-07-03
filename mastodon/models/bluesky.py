@@ -8,7 +8,7 @@ class Bluesky:
 
 
 class BlueskyAccount(SocialAccount):
-    username = jsondata.CharField(json_field_name="access_data", default="")
+    app_username = jsondata.CharField(json_field_name="access_data", default="")
     app_password = jsondata.EncryptedTextField(
         json_field_name="access_data", default=""
     )

@@ -14,6 +14,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         m = 0
         e = 0
+        qs = User.objects.filter(username__isnull=True)
+        print(f"Deleting {qs.count()} nameless users.")
+        qs.delete()
         for user in tqdm(User.objects.filter(is_active=True)):
             if user.mastodon_username:
                 MastodonAccount.objects.update_or_create(

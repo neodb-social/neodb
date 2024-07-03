@@ -119,13 +119,6 @@
     </ul>
   </nav>
 </header>
-{% if request.user.is_authenticated and not request.user.mastodon_username and not request.user.username %}
-  <ul class="messages" style="text-align:center">
-    <li class="error">
-      <a href="{% url 'users:info' %}">{% trans "Set a username." %}</a>
-    </li>
-  </ul>
-{% endif %}
 {% if messages %}
   <ul class="messages" style="text-align:center">
     {% for message in messages %}

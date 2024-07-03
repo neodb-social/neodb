@@ -90,7 +90,7 @@
                   <label for="post_public_mode_4">{% trans "local, this site only" %}</label>
                 {% endif %}
               </fieldset>
-              {% if request.user.mastodon_acct %}
+              {% if request.user.mastodon %}
                 <fieldset>
                   <label>
                     {% trans "Turn on crosspost to timeline by default" %}

@@ -54,13 +54,23 @@
                   </a>
                 </span>
               {% endif %}
-              {% if identity.user.mastodon_account %}
+              {% if identity.user.mastodon %}
                 <span>
-                  <a href="{{ identity.user.mastodon_account.url }}"
+                  <a href="{{ identity.user.mastodon.url }}"
                      target="_blank"
                      rel="noopener"
-                     title="@{{ identity.user.mastodon_acct }}">
+                     title="@{{ identity.user.mastodon.handle }}">
                     <i class="fa-brands fa-mastodon"></i>
+                  </a>
+                </span>
+              {% endif %}
+              {% if identity.user.threads %}
+                <span>
+                  <a href="{{ identity.user.threads.url }}"
+                     target="_blank"
+                     rel="noopener"
+                     title="@{{ identity.user.threads.handle }}">
+                    <i class="fa-brands fa-threads"></i>
                   </a>
                 </span>
               {% endif %}

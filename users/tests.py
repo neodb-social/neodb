@@ -11,15 +11,11 @@ class UserTest(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        self.alice = User.register(
-            mastodon_site="MySpace", mastodon_username="Alice", username="alice"
-        ).identity
+        self.alice = User.register(username="alice").identity
         MastodonAccount.objects.create(
             handle="Alice@MySpace", user=self.alice.user, domain="MySpace", uid="42"
         )
-        self.bob = User.register(
-            mastodon_site="KKCity", mastodon_username="Bob", username="bob"
-        ).identity
+        self.bob = User.register(username="bob").identity
         self.domain = settings.SITE_INFO.get("site_domain")
 
     def test_handle(self):

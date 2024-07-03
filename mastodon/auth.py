@@ -1,9 +1,7 @@
-from django.contrib.auth.backends import ModelBackend, UserModel
+from django.contrib.auth.backends import ModelBackend
 from django.http import HttpRequest
 
 from mastodon.models.common import SocialAccount
-
-from .models import Mastodon
 
 
 class OAuth2Backend(ModelBackend):

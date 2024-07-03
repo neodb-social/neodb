@@ -11,6 +11,12 @@ from takahe.utils import Takahe
 from .api import api
 
 
+def render_error(request, title, message=""):
+    return render(
+        request, "common/error.html", {"msg": title, "secondary_msg": message}
+    )
+
+
 @login_required
 def me(request):
     if not request.user.registration_complete:

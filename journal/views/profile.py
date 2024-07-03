@@ -5,12 +5,15 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
-from common.utils import AuthedHttpRequest
+from common.utils import (
+    AuthedHttpRequest,
+    profile_identity_required,
+    target_identity_required,
+)
 from takahe.utils import Takahe
 
 from ..forms import *
 from ..models import *
-from .common import profile_identity_required, target_identity_required
 
 
 @require_http_methods(["GET"])

@@ -1,7 +1,7 @@
 import datetime
 
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import F, Min, OuterRef, Subquery
 from django.shortcuts import get_object_or_404, redirect, render
@@ -14,7 +14,6 @@ from common.utils import (
     AuthedHttpRequest,
     PageLinksGenerator,
     get_uuid_or_404,
-    profile_identity_required,
     target_identity_required,
 )
 
@@ -29,7 +28,9 @@ def render_relogin(request):
         request,
         "common/error.html",
         {
-            "url": reverse("users:connect") + "?domain=" + request.user.mastodon_site,
+            "url": reverse("mastodon:connect")
+            + "?domain="
+            + request.user.mastodon.domain,
             "msg": _("Data saved but unable to crosspost to Fediverse instance."),
             "secondary_msg": _(
                 "Redirecting to your Fediverse instance now to re-authenticate."

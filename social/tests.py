@@ -15,12 +15,8 @@ class SocialTest(TestCase):
         self.book1 = Edition.objects.create(title="Hyperion")
         self.book2 = Edition.objects.create(title="Andymion")
         self.movie = Edition.objects.create(title="Fight Club")
-        self.alice = User.register(
-            username="Alice", mastodon_site="MySpace", mastodon_username="Alice"
-        )
-        self.bob = User.register(
-            username="Bob", mastodon_site="KKCity", mastodon_username="Bob"
-        )
+        self.alice = User.register(username="Alice")
+        self.bob = User.register(username="Bob")
 
     def test_timeline(self):
         alice_feed = self.alice.identity.activity_manager

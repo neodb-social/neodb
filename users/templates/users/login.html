@@ -70,22 +70,24 @@
               </svg>
               <!--<i class="fa-brands fa-mastodon"></i>-->
             </button>
-            <!--
             {% if enable_threads %}
-            <button class="platform outline" _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-threads" id="platform-threads" title="{% trans "Threads" %}">
-              <i class="fa-brands fa-threads"></i>
-            </button>
-            {%endif%}
+              <button class="platform outline" _="on click add .outline to .platform then remove .outline from me then hide
+                <form/>
+                then show #login-threads" id="platform-threads" title="{% trans "Threads" %}">
+                <i class="fa-brands fa-threads"></i>
+              </button>
+            {% endif %}
             {% if enable_bluesky %}
-            <button class="platform outline" _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-bluesky" id="platform-bluesky" title="{% trans "Bluesky" %}">
-              <i class="fa-brands fa-bluesky" style="font-size:85%"></i>
-            </button>
-            {%endif%}
-            -->
+              <button class="platform outline" _="on click add .outline to .platform then remove .outline from me then hide
+                <form/>
+                then show #login-bluesky" id="platform-bluesky" title="{% trans "Bluesky" %}">
+                <i class="fa-brands fa-bluesky" style="font-size:85%"></i>
+              </button>
+            {% endif %}
           </div>
           <form id="login-email"
                 style="display:none"
-                action="{% url 'users:connect' %}"
+                action="{% url 'mastodon:email_login' %}"
                 method="post"
                 onsubmit="return login(this);">
             {% csrf_token %}
@@ -100,7 +102,7 @@
           </form>
           <form id="login-mastodon"
                 style="display:none"
-                action="{% url 'users:connect' %}"
+                action="{% url 'mastodon:login' %}"
                 method="post"
                 onsubmit="return login(this);">
             {% csrf_token %}
@@ -127,7 +129,7 @@
           </form>
           <form id="login-threads"
                 style="display:none"
-                action="{% url 'users:connect' %}"
+                action="{% url 'mastodon:threads_login' %}"
                 method="post"
                 onsubmit="return login(this);">
             {% csrf_token %}
@@ -137,7 +139,7 @@
           </form>
           <form id="login-bluesky"
                 style="display:none"
-                action="{% url 'users:connect' %}"
+                action="{% url 'mastodon:login' %}"
                 method="post"
                 onsubmit="return login(this);">
             {% csrf_token %}

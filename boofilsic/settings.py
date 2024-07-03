@@ -102,6 +102,9 @@ env = environ.FileAwareEnv(
     DISCORD_WEBHOOKS=(dict, {"user-report": None}),
     # Slack API token, for sending exceptions to Slack, may deprecate in future
     SLACK_API_TOKEN=(str, ""),
+    THREADS_APP_ID=(str, ""),
+    THREADS_APP_SECRET=(str, ""),
+    BLUESKY_LOGIN_ENABLED=(bool, False),
     # SSL only, better be True for production security
     SSL_ONLY=(bool, False),
     NEODB_SENTRY_DSN=(str, ""),
@@ -174,8 +177,11 @@ elif _parsed_email_url.scheme:
 else:
     ENABLE_LOGIN_EMAIL = False
 
-ENABLE_LOGIN_THREADS = False
-ENABLE_LOGIN_BLUESKY = False
+
+THREADS_APP_ID = env("THREADS_APP_ID")
+THREADS_APP_SECRET = env("THREADS_APP_SECRET")
+
+BLUESKY_LOGIN_ENABLED = env("BLUESKY_LOGIN_ENABLED")
 
 SITE_DOMAIN = env("NEODB_SITE_DOMAIN").lower()
 SITE_INFO = {

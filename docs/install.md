@@ -80,6 +80,12 @@ You should see the same JSON response as above, and the site is now accessible t
 
 ## Register an account and make it admin
 
+If you have email sender properly configured, use this command to create an admin with a verified email (use any password as it won't be saved)
+
+```
+docker compose --profile production run --rm shell neodb-manage createsuperuser
+```
+
 Now open `https://yourdomain.tld` in your browser and register an account, assuming username `admin`
 
 add the following line to `.env` to make it an admin account:

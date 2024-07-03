@@ -172,8 +172,8 @@ def share_collection(
         else (
             _("shared {username}'s collection").format(
                 username=(
-                    " @" + collection.owner.user.mastodon_acct + " "
-                    if collection.owner.user.mastodon_acct
+                    " @" + collection.owner.user.mastodon.handle + " "
+                    if collection.owner.user.mastodon
                     else " " + collection.owner.username + " "
                 )
             )

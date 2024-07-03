@@ -27,9 +27,10 @@ urlpatterns = [
     path("login/", login),
     path("markdownx/", include("markdownx.urls")),
     path("account/", include("users.urls")),
+    path("account/", include("mastodon.urls")),
     path(
         "users/connect/",
-        RedirectView.as_view(url="/account/connect", query_string=True),
+        RedirectView.as_view(url="/mastodon/login", query_string=True),
     ),
     path(
         "auth/edit",  # some apps like elk will use this url
