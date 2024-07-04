@@ -51,13 +51,9 @@ def threads_oauth(request: HttpRequest):
 
 @require_http_methods(["GET"])
 def threads_uninstall(request: HttpRequest):
-    print(request.GET)
-    print(request.POST)
     return redirect(reverse("users:data"))
 
 
 @require_http_methods(["GET"])
 def threads_delete(request: HttpRequest):
-    print(request.GET)
-    print(request.POST)
     return redirect(reverse("users:data"))

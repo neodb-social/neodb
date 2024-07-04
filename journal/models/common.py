@@ -3,6 +3,7 @@ import uuid
 from abc import abstractmethod
 from datetime import datetime
 from functools import cached_property
+from operator import pos
 from typing import TYPE_CHECKING, Any, Self
 
 import django_rq
@@ -279,9 +280,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def get_crosspost_params(self):
         d = {
             "visibility": self.visibility,
-            "update_id": (self.metadata if hasattr(self, "metadata") else {}).get(
-                "mastodon_id"
-            ),
+            "update_ids": self.metadata.copy() if hasattr(self, "metadata") else {},
         }
         d.update(self.to_crosspost_params())
         return d
@@ -293,20 +292,51 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         )
 
     def _sync_to_social_accounts(self, update_mode: int):
+        def params_for_platform(params, platform):
+            p = params.copy()
+            for k in ["update_id", "reply_to_id"]:
+                ks = k + "s"
+                if ks in p:
+                    d = p.pop(ks)
+                    v = d.get(platform + "_id")
+                    if v:
+                        p[k] = v
+            return p
+
         activate_language_for_user(self.owner.user)
-        params = self.get_crosspost_params()
         metadata = self.metadata.copy()
-        self.sync_to_mastodon(params, update_mode)
-        self.sync_to_threads(params, update_mode)
+        # TODO migrate
+        params = self.get_crosspost_params()
+        self.sync_to_mastodon(params_for_platform(params, "mastodon"), update_mode)
+        self.sync_to_threads(params_for_platform(params, "threads"), update_mode)
+        self.sync_to_bluesky(params_for_platform(params, "bluesky"), update_mode)
         if self.metadata != metadata:
             self.save(update_fields=["metadata"])
+
+    def sync_to_bluesky(self, params, update_mode):
+        # skip non-public post as Bluesky does not support it
+        # update_mode 0 will act like 1 as bsky.app does not support edit
+        bluesky = self.owner.user.bluesky
+        if params["visibility"] != 0 or not bluesky:
+            return False
+        if update_mode in [0, 1]:
+            post_id = self.metadata.get("bluesky_id")
+            if post_id:
+                try:
+                    bluesky.delete_post(post_id)
+                except Exception as e:
+                    logger.warning(f"Delete {bluesky} post {post_id} error {e}")
+        r = bluesky.post(**params)
+        self.metadata.update({"bluesky_" + k: v for k, v in r.items()})
+        return True
 
     def sync_to_threads(self, params, update_mode):
         # skip non-public post as Threads does not support it
         # update_mode will be ignored as update/delete are not supported either
         threads = self.owner.user.threads
+        # return
         if params["visibility"] != 0 or not threads:
-            return
+            return False
         try:
             r = threads.post(**params)
         except RequestAborted:
@@ -319,13 +349,13 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def sync_to_mastodon(self, params, update_mode):
         mastodon = self.owner.user.mastodon
         if not mastodon:
-            return
+            return False
         if self.owner.user.preference.mastodon_repost_mode == 1:
             if update_mode == 1:
                 toot_id = self.metadata.pop("mastodon_id", None)
                 if toot_id:
                     self.metadata.pop("mastodon_url", None)
-                    mastodon.delete(toot_id)
+                    mastodon.delete_post(toot_id)
             elif update_mode == 1:
                 params.pop("update_id", None)
             return self.crosspost_to_mastodon(params)
@@ -333,6 +363,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             mastodon.boost(self.latest_post.url)
         else:
             logger.warning("No post found for piece")
+        return True
 
     def crosspost_to_mastodon(self, params):
         mastodon = self.owner.user.mastodon

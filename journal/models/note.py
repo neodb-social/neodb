@@ -173,10 +173,8 @@ class Note(Content):
             "spoiler_text": self.title,
             "content": self.content + footer,
             "sensitive": self.sensitive,
-            "reply_to_id": (
-                (self.shelfmember.metadata or {}).get("mastodon_id")
-                if self.shelfmember
-                else None
+            "reply_to_ids": (
+                self.shelfmember.metadata.copy() if self.shelfmember else {}
             ),
         }
         if self.latest_post:

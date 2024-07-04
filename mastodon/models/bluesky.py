@@ -1,6 +1,8 @@
 from functools import cached_property
+from operator import pos
 
 from atproto import Client, SessionEvent, client_utils
+from atproto_client import models
 from django.utils import timezone
 from loguru import logger
 
@@ -45,7 +47,6 @@ class BlueskyAccount(SocialAccount):
     )
 
     def on_session_change(self, event, session) -> None:
-        logger.debug("Bluesky session changed:", event, repr(session))
         if event in (SessionEvent.CREATE, SessionEvent.REFRESH):
             session_string = session.export()
             if session_string != self.session_string:
@@ -84,8 +85,21 @@ class BlueskyAccount(SocialAccount):
                 ]
             )
 
-    def post(self, content):
+    def post(self, content, reply_to_id=None, **kwargs):
+        reply_to = None
+        if reply_to_id:
+            posts = self._client.get_posts([reply_to_id]).posts
+            if posts:
+                root_post_ref = models.create_strong_ref(posts[0])
+                reply_to = models.AppBskyFeedPost.ReplyRef(
+                    parent=root_post_ref, root=root_post_ref
+                )
         text = client_utils.TextBuilder().text(content)
+        # todo OpenGraph
         # .link("Python SDK", "https://atproto.blue")
-        post = self._client.send_post(text)
-        return {"id": post.cid, "url": post.uri}
+        post = self._client.send_post(text, reply_to=reply_to)
+        # return AT uri as id since it's used as so.
+        return {"cid": post.cid, "id": post.uri}
+
+    def delete_post(self, post_uri):
+        self._client.delete_post(post_uri)

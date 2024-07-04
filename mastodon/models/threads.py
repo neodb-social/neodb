@@ -127,10 +127,14 @@ class Threads:
         return data
 
     @staticmethod
-    def post_single(token: str, user_id: str, text: str):
+    def post_single(token: str, user_id: str, text: str, reply_to_id=None):
         url = f"https://graph.threads.net/v1.0/{user_id}/threads?media_type=TEXT&access_token={token}&text={quote(text)}"
+        # TODO waiting for Meta to confirm it's bug or permission issue
+        # if reply_to_id:
+        #     url += "&reply_to_id=" + reply_to_id
         response = post(url)
         if response.status_code != 200:
+            logger.debug(f"Error {url} {response.status_code} {response.content}")
             return None
         media_container_id = (response.json() or {}).get("id")
         if not media_container_id:
@@ -138,8 +142,10 @@ class Threads:
         url = f"https://graph.threads.net/v1.0/{user_id}/threads_publish?creation_id={media_container_id}&access_token={token}"
         response = post(url)
         if response.status_code != 200:
+            logger.debug(f"Error {url} {response.status_code} {response.content}")
             return None
-        return (response.json() or {}).get("id")
+        media_id = (response.json() or {}).get("id")
+        return media_id
 
     @staticmethod
     def get_single(token: str, media_id: str) -> dict | None:
@@ -233,15 +239,17 @@ class ThreadsAccount(SocialAccount):
             self.save(update_fields=["account_data", "handle", "last_refresh"])
         return True
 
-    def post(self, content: str, **kwargs):
+    def post(self, content: str, reply_to_id=None, **kwargs):
         text = (
             content.replace(settings.STAR_SOLID + " ", "🌕")
             .replace(settings.STAR_HALF + " ", "🌗")
             .replace(settings.STAR_EMPTY + " ", "🌑")
         )
-        media_id = Threads.post_single(self.access_token, self.uid, text)
-        if media_id:
-            d = Threads.get_single(self.access_token, media_id)
-            if d:
-                return {"id": media_id, "url": d["permalink"]}
-        raise RequestAborted()
+        media_id = Threads.post_single(self.access_token, self.uid, text, reply_to_id)
+        if not media_id:
+            raise RequestAborted()
+        return {"id": media_id}
+        # if media_id:
+        #     d = Threads.get_single(self.access_token, media_id)
+        #     if d:
+        #         return {"id": media_id, "url": d["permalink"]}

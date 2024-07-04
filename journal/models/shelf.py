@@ -374,9 +374,7 @@ class ShelfMember(ListMember):
         else:
             spoiler, txt = None, ""
         stars = (
-            self.owner.user.mastodon.rating_to_emoji(self.sibling_rating.grade)
-            if self.sibling_rating and self.owner.user.mastodon
-            else ""
+            render_rating(self.sibling_rating.grade, 1) if self.sibling_rating else ""
         )
         content = f"{action} {stars} \n{self.item.absolute_url}\n{txt}\n{self.get_crosspost_postfix()}"
         params = {"content": content, "spoiler_text": spoiler}
@@ -472,7 +470,6 @@ class ShelfMember(ListMember):
     def link_post_id(self, post_id: int):
         if self.local:
             self.ensure_log_entry().link_post_id(post_id)
-            print(self.ensure_log_entry(), post_id)
         return super().link_post_id(post_id)
 
 
