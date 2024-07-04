@@ -80,7 +80,7 @@
             {% if enable_bluesky %}
               <button class="platform outline" _="on click add .outline to .platform then remove .outline from me then hide
                 <form/>
-                then show #login-bluesky" id="platform-bluesky" title="{% trans "Bluesky" %}">
+                then show #login-bluesky" id="platform-bluesky" title="{% trans "Bluesky (ATProto)" %}">
                 <i class="fa-brands fa-bluesky" style="font-size:85%"></i>
               </button>
             {% endif %}
@@ -139,12 +139,30 @@
           </form>
           <form id="login-bluesky"
                 style="display:none"
-                action="{% url 'mastodon:login' %}"
+                action="{% url 'mastodon:bluesky_login' %}"
                 method="post"
                 onsubmit="return login(this);">
             {% csrf_token %}
             <input name="method" value="bluesky" type="hidden" />
-            <input type='submit' value="{% trans 'Authorize via Bluesky' %}" />
+            <input required
+                   type="email"
+                   name="username"
+                   autofocus
+                   placeholder="{% trans 'Bluesky Login ID' %}"
+                   autocorrect="off"
+                   autocapitalize="off"
+                   autocomplete="off"
+                   spellcheck="false" />
+            <input required
+                   type="password"
+                   name="password"
+                   placeholder="{% trans 'Bluesky app password' %}"
+                   autocorrect="off"
+                   autocapitalize="off"
+                   autocomplete="off"
+                   spellcheck="false" />
+            <small>{% blocktrans %}App password can be created on <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app</a>.{% endblocktrans %}</small>
+            <input type='submit' value="{% trans 'Authorize via bsky.app' %}" />
             <small>{% trans "If you have already account here registered via a different way, you may login through there and link with your Bluesky account in account settings." %}</small>
           </form>
         {% else %}

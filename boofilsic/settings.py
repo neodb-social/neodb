@@ -104,7 +104,8 @@ env = environ.FileAwareEnv(
     SLACK_API_TOKEN=(str, ""),
     THREADS_APP_ID=(str, ""),
     THREADS_APP_SECRET=(str, ""),
-    BLUESKY_LOGIN_ENABLED=(bool, False),
+    NEODB_ENABLE_LOGIN_BLUESKY=(bool, False),
+    NEODB_ENABLE_LOGIN_THREADS=(bool, False),
     # SSL only, better be True for production security
     SSL_ONLY=(bool, False),
     NEODB_SENTRY_DSN=(str, ""),
@@ -181,7 +182,8 @@ else:
 THREADS_APP_ID = env("THREADS_APP_ID")
 THREADS_APP_SECRET = env("THREADS_APP_SECRET")
 
-BLUESKY_LOGIN_ENABLED = env("BLUESKY_LOGIN_ENABLED")
+ENABLE_LOGIN_BLUESKY = env("NEODB_ENABLE_LOGIN_BLUESKY")
+ENABLE_LOGIN_THREADS = env("NEODB_ENABLE_LOGIN_THREADS")
 
 SITE_DOMAIN = env("NEODB_SITE_DOMAIN").lower()
 SITE_INFO = {

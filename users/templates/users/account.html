@@ -154,12 +154,66 @@
                 </fieldset>
               </form>
               {% if request.user.threads %}
-                <form action="{% url 'mastodon:threads_login' %}"
+                <form action="{% url 'mastodon:threads_disconnect' %}"
                       method="post"
                       onsubmit="return confirm('{% trans "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?" %}')">
                   {% csrf_token %}
                   <input type="submit"
                          value="{% trans 'Disconnect with Threads' %}"
+                         class="secondary" />
+                </form>
+              {% endif %}
+            </details>
+          </article>
+          <article>
+            <details>
+              <summary>{% trans "Bluesky (ATProto)" %}</summary>
+              <form action="{% url 'mastodon:bluesky_reconnect' %}" method="post">
+                {% csrf_token %}
+                <fieldset>
+                  {% if request.user.bluesky %}
+                    <label>
+                      <i class="fa-brands fa-bluesky"></i> {% trans "Verified ATProto identity" %}
+                      <input type="input"
+                             aria-invalid="false"
+                             value="@{{ request.user.bluesky.handle }} {{ request.user.bluesky.uid }}"
+                             readonly>
+                      <small>
+                        {% if request.user.bluesky.last_refresh %}
+                          {% trans "Last updated" %} {{ request.user.bluesky.last_refresh }}
+                        {% endif %}
+                      </small>
+                    </label>
+                  {% endif %}
+                  <input required
+                         type="email"
+                         name="username"
+                         autofocus
+                         placeholder="{% trans 'Bluesky Login ID' %}"
+                         autocorrect="off"
+                         autocapitalize="off"
+                         autocomplete="off"
+                         spellcheck="false" />
+                  <input required
+                         type="password"
+                         name="password"
+                         placeholder="{% trans 'Bluesky app password' %}"
+                         autocorrect="off"
+                         autocapitalize="off"
+                         autocomplete="off"
+                         spellcheck="false" />
+                  <input type="submit"
+                         value="{% if request.user.bluesky %} {% trans 'Link with a different ATProto identity' %} {% else %} {% trans "Link with an ATProto identity" %} {% endif %} " />
+                  <small>{% blocktrans %}App password can be created on <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app</a>.{% endblocktrans %}</small>
+                </fieldset>
+              </form>
+              {% if request.user.bluesky %}
+                <form action="{% url 'mastodon:bluesky_disconnect' %}"
+                      method="post"
+                      onsubmit="return confirm('{% trans "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?" %}')">
+                  {% csrf_token %}
+                  <input type="submit"
+                         value="{% trans 'Disconnect with ATProto identity' %}"
                          class="secondary" />
                 </form>
               {% endif %}

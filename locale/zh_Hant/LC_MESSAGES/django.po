@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-03 16:40-0400\n"
+"POT-Creation-Date: 2024-07-04 00:13-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,15 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: boofilsic/settings.py:406
+#: boofilsic/settings.py:408
 msgid "English"
 msgstr "英語"
 
-#: boofilsic/settings.py:407
+#: boofilsic/settings.py:409
 msgid "Simplified Chinese"
 msgstr "簡體中文"
 
-#: boofilsic/settings.py:408
+#: boofilsic/settings.py:410
 msgid "Traditional Chinese"
 msgstr "繁體中文"
 
@@ -1108,8 +1108,7 @@ msgstr "熱門標籤"
 
 #: catalog/templates/discover.html:177 catalog/templates/item_base.html:236
 #: catalog/templates/item_mark_list.html:54
-#: catalog/templates/item_review_list.html:50
-#: common/templates/_sidebar.html:109
+#: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:90
 #: common/templates/_sidebar_anonymous.html:43
 #: common/templates/_sidebar_anonymous.html:58
 #: journal/templates/collection_items.html:8 journal/templates/posts.html:49
@@ -1472,7 +1471,7 @@ msgstr "開發者"
 msgid "Source Code"
 msgstr "源代碼"
 
-#: common/templates/_footer.html:16 users/templates/users/login.html:173
+#: common/templates/_footer.html:16 users/templates/users/login.html:191
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "這是%(site_name)s的臨時鏡像，請儘可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站點</a>。"
@@ -1545,50 +1544,50 @@ msgstr "打開"
 msgid "approving followers manually"
 msgstr "已開啓關注審覈"
 
-#: common/templates/_sidebar.html:94
+#: common/templates/_sidebar.html:75
 msgid "Current Targets"
 msgstr "當前目標"
 
-#: common/templates/_sidebar.html:107
+#: common/templates/_sidebar.html:88
 msgid "Set a collection as target, its progress will show up here."
 msgstr "將自己或他人的收藏單設爲目標，這裏就會顯示進度"
 
-#: common/templates/_sidebar.html:120
+#: common/templates/_sidebar.html:101
 msgid "Recent podcast episodes"
 msgstr "近期播客節目"
 
-#: common/templates/_sidebar.html:155
+#: common/templates/_sidebar.html:136
 msgid "Currently reading"
 msgstr "正在閱讀"
 
-#: common/templates/_sidebar.html:178
+#: common/templates/_sidebar.html:159
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:201 journal/templates/user_tag_list.html:12
+#: common/templates/_sidebar.html:182 journal/templates/user_tag_list.html:12
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
 msgstr "標籤"
 
-#: common/templates/_sidebar.html:207 journal/templates/user_tag_list.html:26
+#: common/templates/_sidebar.html:188 journal/templates/user_tag_list.html:26
 #: journal/templates/user_tagmember_list.html:10
 msgid "featured tag"
 msgstr "置頂標籤"
 
-#: common/templates/_sidebar.html:210 journal/templates/user_tag_list.html:29
+#: common/templates/_sidebar.html:191 journal/templates/user_tag_list.html:29
 #: journal/templates/user_tagmember_list.html:15
 msgid "personal tag"
 msgstr "個人標籤"
 
-#: common/templates/_sidebar.html:217 journal/templates/user_tag_list.html:37
+#: common/templates/_sidebar.html:198 journal/templates/user_tag_list.html:37
 msgid "no tags so far."
 msgstr "暫無標籤。"
 
-#: common/templates/_sidebar.html:221
+#: common/templates/_sidebar.html:202
 msgid "show all"
 msgstr "顯示全部"
 
-#: common/templates/_sidebar.html:231
+#: common/templates/_sidebar.html:212
 msgid "Recent Posts"
 msgstr "近期帖文"
 
@@ -1746,11 +1745,11 @@ msgstr "自己和提到的人"
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能發佈到Threads。"
 
-#: journal/models/common.py:347
+#: journal/models/common.py:346
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能發佈到聯邦實例，請重新驗證登錄。"
 
-#: journal/models/common.py:354
+#: journal/models/common.py:353
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能發佈到聯邦實例。"
 
@@ -2781,7 +2780,7 @@ msgstr "Mastodon"
 msgid "Threads"
 msgstr "Threads"
 
-#: mastodon/models/common.py:14 users/templates/users/login.html:83
+#: mastodon/models/common.py:14
 msgid "Bluesky"
 msgstr "Bluesky"
 
@@ -2879,47 +2878,63 @@ msgstr "轉播"
 msgid "New Post"
 msgstr "新帖文"
 
+#: mastodon/views/bluesky.py:22 mastodon/views/bluesky.py:28
 #: mastodon/views/common.py:29 mastodon/views/mastodon.py:37
 #: mastodon/views/mastodon.py:44 mastodon/views/mastodon.py:54
-#: mastodon/views/mastodon.py:61 mastodon/views/threads.py:40
-#: mastodon/views/threads.py:45 users/views/account.py:104
+#: mastodon/views/mastodon.py:61 mastodon/views/threads.py:41
+#: mastodon/views/threads.py:47 users/views/account.py:104
 msgid "Authentication failed"
 msgstr "認證失敗"
 
-#: mastodon/views/common.py:29 mastodon/views/common.py:79
+#: mastodon/views/bluesky.py:23
+msgid "Username and app password is required."
+msgstr "請輸入用戶名和密碼。"
+
+#: mastodon/views/bluesky.py:28
+msgid "Invalid account data from Bluesky."
+msgstr "Bluesky返回了無效的賬號數據。"
+
+#: mastodon/views/common.py:29 mastodon/views/common.py:94
 msgid "Invalid user."
 msgstr "無效用戶。"
 
-#: mastodon/views/common.py:44
+#: mastodon/views/common.py:45
 msgid "Registration failed"
 msgstr "註冊失敗"
 
-#: mastodon/views/common.py:44
+#: mastodon/views/common.py:45
 msgid "User already logged in."
 msgstr "用戶已經登錄了。"
 
-#: mastodon/views/common.py:52
-msgid "Unable to update login information: identical identity."
-msgstr "無法更新登錄信息：該身份與當前賬號相同。"
+#: mastodon/views/common.py:57
+#, python-brace-format
+msgid "Continue login as {handle}."
+msgstr "繼續以 {handle} 登錄。"
 
-#: mastodon/views/common.py:56
-msgid "Unable to update login information: identity in use."
-msgstr "無法更新登錄信息：該身份已被其它賬號使用。"
+#: mastodon/views/common.py:63
+msgid "Unable to update login information"
+msgstr "無法更新登錄信息"
 
-#: mastodon/views/common.py:70
-msgid "Login information updated."
-msgstr "登錄信息已更新"
+#: mastodon/views/common.py:64
+#, python-brace-format
+msgid "Identity {handle} in use by a different user."
+msgstr "身份 {handle}  已被其它賬號使用。"
 
-#: mastodon/views/common.py:77 mastodon/views/common.py:79
-#: mastodon/views/common.py:83
+#: mastodon/views/common.py:80
+#, python-brace-format
+msgid "Login information updated as {handle}."
+msgstr "登錄信息已更新爲{handle}。"
+
+#: mastodon/views/common.py:90 mastodon/views/common.py:94
+#: mastodon/views/common.py:100
 msgid "Disconnect identity failed"
 msgstr "未能取消身份關聯"
 
-#: mastodon/views/common.py:77
+#: mastodon/views/common.py:90
 msgid "Identity not found."
 msgstr "身份未找到"
 
-#: mastodon/views/common.py:84
+#: mastodon/views/common.py:101
 msgid "You cannot disconnect last login identity."
 msgstr "無法取消唯一的登錄用身份。"
 
@@ -2967,7 +2982,7 @@ msgstr "聯邦實例返回了無效的認證令牌。"
 msgid "Invalid account data from Fediverse instance."
 msgstr "聯邦實例返回了無效的賬號數據。"
 
-#: mastodon/views/threads.py:45
+#: mastodon/views/threads.py:47
 msgid "Invalid account data from Threads."
 msgstr "Threads返回了無效的賬號數據。"
 
@@ -3305,7 +3320,8 @@ msgid "Verified Identity"
 msgstr "已驗證的身份"
 
 #: users/templates/users/account.html:86 users/templates/users/account.html:147
-#: users/templates/users/account.html:209
+#: users/templates/users/account.html:183
+#: users/templates/users/account.html:263
 msgid "Last updated"
 msgstr "最近更新"
 
@@ -3335,6 +3351,7 @@ msgstr "關聯聯邦宇宙身份後可發現更多用戶，並使用本站完整
 
 #: users/templates/users/account.html:123
 #: users/templates/users/account.html:159
+#: users/templates/users/account.html:213
 msgid "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?"
 msgstr "取消關聯後將無法使用這個身份登錄本站，確認繼續嗎？"
 
@@ -3362,75 +3379,107 @@ msgstr "關聯一個threads.net賬號"
 msgid "Disconnect with Threads"
 msgstr "取消關聯"
 
-#: users/templates/users/account.html:171
+#: users/templates/users/account.html:170 users/templates/users/login.html:83
+msgid "Bluesky (ATProto)"
+msgstr "Bluesky (ATProto)"
+
+#: users/templates/users/account.html:176
+msgid "Verified ATProto identity"
+msgstr "已驗證的ATProto身份"
+
+#: users/templates/users/account.html:192 users/templates/users/login.html:151
+msgid "Bluesky Login ID"
+msgstr "Bluesky 登錄名"
+
+#: users/templates/users/account.html:200 users/templates/users/login.html:159
+msgid "Bluesky app password"
+msgstr "Bluesky 應用密碼"
+
+#: users/templates/users/account.html:206
+msgid "Link with a different ATProto identity"
+msgstr "關聯另一個ATProto身份"
+
+#: users/templates/users/account.html:206
+msgid "Link with an ATProto identity"
+msgstr "關聯ATProto身份"
+
+#: users/templates/users/account.html:207 users/templates/users/login.html:164
+msgid "App password can be created on <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
+msgstr "應用密碼可在 <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a> 創建管理。"
+
+#: users/templates/users/account.html:216
+msgid "Disconnect with ATProto identity"
+msgstr "取消關聯"
+
+#: users/templates/users/account.html:225
 msgid "Sync and import social account"
 msgstr "同步第三方社交網絡上的個人信息和社交數據"
 
-#: users/templates/users/account.html:181
+#: users/templates/users/account.html:235
 msgid "Sync display name, bio and avatar"
 msgstr "自動同步用戶暱稱等基本信息"
 
-#: users/templates/users/account.html:189
+#: users/templates/users/account.html:243
 msgid "Sync follow, mute and block"
 msgstr "自動導入新增的關注、屏蔽和隱藏列表"
 
-#: users/templates/users/account.html:193
+#: users/templates/users/account.html:247
 msgid "Save sync settings"
 msgstr "保存同步設置"
 
-#: users/templates/users/account.html:196
+#: users/templates/users/account.html:250
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
 msgstr "本站會按照以上設置每天自動導入你在聯邦宇宙實例等社交網絡中新增的關注、屏蔽和隱藏列表；如果你在聯邦宇宙實例中關注的用戶加入了本站，你會自動關注她；如果你在聯邦宇宙實例中取消了關注、屏蔽或隱藏，本站不會自動取消，但你可以手動移除。"
 
-#: users/templates/users/account.html:203
+#: users/templates/users/account.html:257
 msgid "Click button below to start sync now."
 msgstr "如果希望立即開始同步，可以點擊下方按鈕。"
 
-#: users/templates/users/account.html:205
+#: users/templates/users/account.html:259
 msgid "Sync now"
 msgstr "立即同步"
 
-#: users/templates/users/account.html:217
+#: users/templates/users/account.html:271
 msgid "Users you are following"
 msgstr "正在關注的用戶"
 
-#: users/templates/users/account.html:223
+#: users/templates/users/account.html:277
 msgid "Users who follow you"
 msgstr "關注了你的用戶"
 
-#: users/templates/users/account.html:229
+#: users/templates/users/account.html:283
 msgid "Users who request to follow you"
 msgstr "請求關注你的用戶"
 
-#: users/templates/users/account.html:235
+#: users/templates/users/account.html:289
 msgid "Users you are muting"
 msgstr "已隱藏的用戶"
 
-#: users/templates/users/account.html:241
+#: users/templates/users/account.html:295
 msgid "Users you are blocking"
 msgstr "已屏蔽的用戶"
 
-#: users/templates/users/account.html:248
+#: users/templates/users/account.html:302
 msgid "Delete Account"
 msgstr "刪除賬號"
 
-#: users/templates/users/account.html:251
+#: users/templates/users/account.html:305
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "賬號數據一旦刪除後將無法恢復，確定繼續嗎？"
 
-#: users/templates/users/account.html:254
+#: users/templates/users/account.html:308
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr "輸入完整的登錄用 <code>用戶名@實例名</code> 或 <code>電子郵件地址</code> 以確認刪除"
 
-#: users/templates/users/account.html:264
+#: users/templates/users/account.html:318
 msgid "Once deleted, account data cannot be recovered."
 msgstr "賬號數據一旦刪除後將無法恢復"
 
-#: users/templates/users/account.html:266
+#: users/templates/users/account.html:320
 msgid "Importing in progress, can't delete now."
 msgstr "暫時無法刪除，因爲有導入任務正在進行"
 
-#: users/templates/users/account.html:269
+#: users/templates/users/account.html:323
 msgid "Permanently Delete"
 msgstr "永久刪除"
 
@@ -3586,7 +3635,7 @@ msgstr "實例域名(不含@和@之前的部分)，如mastodon.social"
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
 msgstr "請輸入你的實例域名(不含@和@之前的部分)；如果你的聯邦賬號是<i>@neodb@mastodon.social</i>，只需要在此輸入<i>mastodon.social</i>。"
 
-#: users/templates/users/login.html:125 users/templates/users/login.html:156
+#: users/templates/users/login.html:125 users/templates/users/login.html:174
 msgid "Authorize via Fediverse instance"
 msgstr "去聯邦實例授權註冊或登錄"
 
@@ -3602,35 +3651,35 @@ msgstr "去Threads授權註冊或登錄"
 msgid "If you have already account here registered via a different way, you may login through there and link with your Threads account in account settings."
 msgstr "如果你已通過其它方式註冊過本站帳號，請用該方式登錄後再關聯Threads。"
 
-#: users/templates/users/login.html:147
-msgid "Authorize via Bluesky"
-msgstr "去Bluesky授權註冊或登錄"
+#: users/templates/users/login.html:165
+msgid "Authorize via bsky.app"
+msgstr "使用Bluesky賬號信息註冊或登錄"
 
-#: users/templates/users/login.html:148
+#: users/templates/users/login.html:166
 msgid "If you have already account here registered via a different way, you may login through there and link with your Bluesky account in account settings."
 msgstr "如果你已通過其它方式註冊過本站帳號，請用該方式登錄後再關聯Bluesky。"
 
-#: users/templates/users/login.html:163
+#: users/templates/users/login.html:181
 msgid "Valid invitation code, please login or register."
 msgstr "邀請鏈接有效，可註冊新用戶"
 
-#: users/templates/users/login.html:165
+#: users/templates/users/login.html:183
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr "本站目前爲邀請註冊，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
 
-#: users/templates/users/login.html:167
+#: users/templates/users/login.html:185
 msgid "Invitation code invalid or expired."
 msgstr "邀請鏈接無效，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
 
-#: users/templates/users/login.html:175
+#: users/templates/users/login.html:193
 msgid "Loading timed out, please check your network (VPN) settings."
 msgstr "部分模塊加載超時，請檢查網絡（翻牆）設置。"
 
-#: users/templates/users/login.html:181
+#: users/templates/users/login.html:199
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
 msgstr "繼續訪問或註冊視爲同意<a href=\"/pages/rules/\">站規</a>與<a href=\"/pages/terms/\">協議</a>，及使用cookie提供必要功能"
 
-#: users/templates/users/login.html:187
+#: users/templates/users/login.html:205
 msgid "Domain of your instance (excl. @)"
 msgstr "實例域名(不含@和@之前的部分)"
 
@@ -3786,59 +3835,59 @@ msgstr "用戶資料"
 msgid "original home"
 msgstr "原始主頁"
 
-#: users/templates/users/profile_actions.html:82
+#: users/templates/users/profile_actions.html:63
 msgid "accept follow request"
 msgstr "接受關注請求"
 
-#: users/templates/users/profile_actions.html:84
+#: users/templates/users/profile_actions.html:65
 msgid "sure to accept follow request?"
 msgstr "確定接受關注請求嗎？"
 
-#: users/templates/users/profile_actions.html:92
+#: users/templates/users/profile_actions.html:73
 msgid "reject follow request"
 msgstr "拒絕關注請求"
 
-#: users/templates/users/profile_actions.html:94
+#: users/templates/users/profile_actions.html:75
 msgid "sure to reject follow request?"
 msgstr "確定拒絕關注請求嗎？"
 
-#: users/templates/users/profile_actions.html:104
+#: users/templates/users/profile_actions.html:85
 msgid "click to unfollow"
 msgstr "點擊可取消關注"
 
-#: users/templates/users/profile_actions.html:106
+#: users/templates/users/profile_actions.html:87
 msgid "sure to unfollow?"
 msgstr "確定取消關注該用戶嗎？"
 
-#: users/templates/users/profile_actions.html:115
+#: users/templates/users/profile_actions.html:96
 msgid "click to cancel follow request"
 msgstr "點擊可取消關注請求"
 
-#: users/templates/users/profile_actions.html:117
+#: users/templates/users/profile_actions.html:98
 msgid "sure to cancel follow request?"
 msgstr "確定取消關注請求嗎？"
 
-#: users/templates/users/profile_actions.html:126
+#: users/templates/users/profile_actions.html:107
 msgid "click to follow"
 msgstr "點擊可關注"
 
-#: users/templates/users/profile_actions.html:127
+#: users/templates/users/profile_actions.html:108
 msgid "sure to follow?"
 msgstr "確定關注該用戶嗎？"
 
-#: users/templates/users/profile_actions.html:137
+#: users/templates/users/profile_actions.html:118
 msgid "click to mute"
 msgstr "點擊可靜音"
 
-#: users/templates/users/profile_actions.html:146
+#: users/templates/users/profile_actions.html:127
 msgid "click to unmute"
 msgstr "點擊可取消靜音"
 
-#: users/templates/users/profile_actions.html:156
+#: users/templates/users/profile_actions.html:137
 msgid "click to block"
 msgstr "點擊可屏蔽"
 
-#: users/templates/users/profile_actions.html:157
+#: users/templates/users/profile_actions.html:138
 msgid "sure to block?"
 msgstr "確定屏蔽該用戶嗎？"
 

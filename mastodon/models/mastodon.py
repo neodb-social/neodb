@@ -851,7 +851,7 @@ class MastodonAccount(SocialAccount):
             spoiler_text,
             attachments,
         )
-        if response:
+        if response is not None:
             if response.status_code in [200, 201]:
                 j = response.json()
                 return {"id": j["id"], "url": j["url"]}
@@ -864,4 +864,4 @@ class MastodonAccount(SocialAccount):
         # TODO
 
     def get_reauthorize_url(self):
-        return reverse("mastodon:connect") + "?domain=" + self.domain
+        return reverse("mastodon:login") + "?domain=" + self.domain

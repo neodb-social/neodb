@@ -83,6 +83,8 @@ class SocialAccount(TypedModel):
             if k
             not in [
                 "_state",
+                "_client",
+                "_profile",
                 "api_domain",
                 "created",
                 "modified",

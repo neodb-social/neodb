@@ -9,7 +9,7 @@ import django_rq
 
 # from deepmerge import always_merger
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, RequestAborted
 from django.core.signing import b62_decode, b62_encode
 from django.db import models
 from django.db.models import CharField, Q
@@ -309,7 +309,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             return
         try:
             r = threads.post(**params)
-        except Exception:
+        except RequestAborted:
             logger.warning(f"{self} post to {threads} failed")
             messages.error(threads.user, _("A recent post was not posted to Threads."))
             return False
@@ -338,9 +338,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         mastodon = self.owner.user.mastodon
         if not mastodon:
             return False
-        r = mastodon.post(**params)
         try:
-            pass
+            r = mastodon.post(**params)
         except PermissionDenied:
             messages.error(
                 mastodon.user,
@@ -348,7 +347,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 meta={"url": mastodon.get_reauthorize_url()},
             )
             return False
-        except Exception:
+        except RequestAborted:
             logger.warning(f"{self} post to {mastodon} failed")
             messages.error(
                 mastodon.user, _("A recent post was not posted to Mastodon.")

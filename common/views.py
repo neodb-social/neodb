@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
@@ -11,7 +11,7 @@ from takahe.utils import Takahe
 from .api import api
 
 
-def render_error(request, title, message=""):
+def render_error(request: HttpRequest, title, message=""):
     return render(
         request, "common/error.html", {"msg": title, "secondary_msg": message}
     )

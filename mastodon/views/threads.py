@@ -37,12 +37,14 @@ def threads_oauth(request: HttpRequest):
     code = request.GET.get("code")
     if not code:
         return render_error(
-            _("Authentication failed"), request.GET.get("error_description", "")
+            request,
+            _("Authentication failed"),
+            request.GET.get("error_description", ""),
         )
     account = Threads.authenticate(request, code)
     if not account:
         return render_error(
-            _("Authentication failed"), _("Invalid account data from Threads.")
+            request, _("Authentication failed"), _("Invalid account data from Threads.")
         )
     return process_verified_account(request, account)
 

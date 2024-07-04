@@ -46,8 +46,8 @@ def login(request):
             "selected_domain": selected_domain,
             "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
             "enable_email": settings.ENABLE_LOGIN_EMAIL,
-            "enable_threads": bool(settings.THREADS_APP_ID),
-            "enable_bluesky": settings.BLUESKY_LOGIN_ENABLED,
+            "enable_threads": settings.ENABLE_LOGIN_THREADS,
+            "enable_bluesky": settings.ENABLE_LOGIN_BLUESKY,
             "invite_status": invite_status,
         },
     )
