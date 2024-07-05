@@ -4,12 +4,14 @@ from functools import cached_property
 
 from atproto import Client, SessionEvent, client_utils
 from atproto_client import models
+from atproto_client.exceptions import AtProtocolError
 from atproto_identity.did.resolver import DidResolver
 from atproto_identity.handle.resolver import HandleResolver
 from django.utils import timezone
 from loguru import logger
 
 from catalog.common import jsondata
+from takahe.utils import Takahe
 
 from .common import SocialAccount
 
@@ -171,6 +173,52 @@ class BlueskyAccount(SocialAccount):
                 ]
             )
         return True
+
+    def refresh_graph(self, save=True) -> bool:
+        try:
+            r = self._client.get_followers(self.uid)
+            self.followers = [p.did for p in r.followers]
+            r = self._client.get_follows(self.uid)
+            self.following = [p.did for p in r.follows]
+            r = self._client.app.bsky.graph.get_mutes(
+                models.AppBskyGraphGetMutes.Params(cursor=None, limit=None)
+            )
+            self.mutes = [p.did for p in r.mutes]
+        except AtProtocolError as e:
+            logger.warning(f"{self} refresh_graph error: {e}")
+            return False
+        if save:
+            self.save(
+                update_fields=[
+                    "followers",
+                    "following",
+                    "mutes",
+                ]
+            )
+        return True
+
+    def sync_graph(self):
+        c = 0
+
+        def get_identity_ids(accts: list):
+            return set(
+                BlueskyAccount.objects.filter(
+                    domain=Bluesky._DOMAIN, uid__in=accts
+                ).values_list("user__identity", flat=True)
+            )
+
+        me = self.user.identity.pk
+        for target_identity in get_identity_ids(self.following):
+            if not Takahe.get_is_following(me, target_identity):
+                Takahe.follow(me, target_identity, True)
+                c += 1
+
+        for target_identity in get_identity_ids(self.mutes):
+            if not Takahe.get_is_muting(me, target_identity):
+                Takahe.mute(me, target_identity)
+                c += 1
+
+        return c
 
     def post(
         self,

@@ -778,6 +778,46 @@ class MastodonAccount(SocialAccount):
             )
         return True
 
+    def sync_graph(self):
+        c = 0
+
+        def get_identity_ids(accts: list):
+            return set(
+                MastodonAccount.objects.filter(handle__in=accts).values_list(
+                    "user__identity", flat=True
+                )
+            )
+
+        def get_identity_ids_in_domains(domains: list):
+            return set(
+                MastodonAccount.objects.filter(domain__in=domains).values_list(
+                    "user__identity", flat=True
+                )
+            )
+
+        me = self.user.identity.pk
+        for target_identity in get_identity_ids(self.following):
+            if not Takahe.get_is_following(me, target_identity):
+                Takahe.follow(me, target_identity, True)
+                c += 1
+
+        for target_identity in get_identity_ids(self.blocks):
+            if not Takahe.get_is_blocking(me, target_identity):
+                Takahe.block(me, target_identity)
+                c += 1
+
+        for target_identity in get_identity_ids_in_domains(self.domain_blocks):
+            if not Takahe.get_is_blocking(me, target_identity):
+                Takahe.block(me, target_identity)
+                c += 1
+
+        for target_identity in get_identity_ids(self.mutes):
+            if not Takahe.get_is_muting(me, target_identity):
+                Takahe.mute(me, target_identity)
+                c += 1
+
+        return c
+
     def boost(self, post_url: str):
         boost_toot(self._api_domain, self.access_token, post_url)
 

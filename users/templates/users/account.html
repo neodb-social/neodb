@@ -129,143 +129,144 @@
               {% endif %}
             </details>
           </article>
+          {% if enable_threads %}
+            <article>
+              <details>
+                <summary>{% trans "Threads.net" %}</summary>
+                <form action="{% url 'mastodon:threads_reconnect' %}" method="post">
+                  {% csrf_token %}
+                  <fieldset>
+                    {% if request.user.threads %}
+                      <label>
+                        <i class="fa-brands fa-threads"></i> {% trans "Verified threads.net account" %}
+                        <input type="input"
+                               aria-invalid="false"
+                               value="{{ request.user.threads.handle }}"
+                               readonly>
+                        <small>
+                          {% if request.user.threads.last_refresh %}
+                            {% trans "Last updated" %} {{ request.user.threads.last_refresh }}
+                          {% endif %}
+                        </small>
+                      </label>
+                    {% endif %}
+                    <input type="submit"
+                           value="{% if request.user.threads %} {% trans 'Link with a different threads.net account' %} {% else %} {% trans "Link with a threads.net account" %} {% endif %} " />
+                  </fieldset>
+                </form>
+                {% if request.user.threads %}
+                  <form action="{% url 'mastodon:threads_disconnect' %}"
+                        method="post"
+                        onsubmit="return confirm('{% trans "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?" %}')">
+                    {% csrf_token %}
+                    <input type="submit"
+                           value="{% trans 'Disconnect with Threads' %}"
+                           class="secondary" />
+                  </form>
+                {% endif %}
+              </details>
+            </article>
+          {% endif %}
+          {% if enable_bluesky %}
+            <article>
+              <details>
+                <summary>{% trans "Bluesky (ATProto)" %}</summary>
+                <form action="{% url 'mastodon:bluesky_reconnect' %}" method="post">
+                  {% csrf_token %}
+                  <fieldset>
+                    {% if request.user.bluesky %}
+                      <label>
+                        <i class="fa-brands fa-bluesky"></i> {% trans "Verified ATProto identity" %}
+                        <input type="input"
+                               aria-invalid="false"
+                               value="@{{ request.user.bluesky.handle }} {{ request.user.bluesky.uid }}"
+                               readonly>
+                        <small>
+                          {% if request.user.bluesky.last_refresh %}
+                            {% trans "Last updated" %} {{ request.user.bluesky.last_refresh }}
+                          {% endif %}
+                        </small>
+                      </label>
+                    {% endif %}
+                    <input required
+                           name="username"
+                           autofocus
+                           placeholder="{% trans 'Bluesky Login ID' %}"
+                           autocorrect="off"
+                           autocapitalize="off"
+                           autocomplete="off"
+                           spellcheck="false" />
+                    <input required
+                           type="password"
+                           name="password"
+                           placeholder="{% trans 'Bluesky app password' %}"
+                           autocorrect="off"
+                           autocapitalize="off"
+                           autocomplete="off"
+                           spellcheck="false" />
+                    <input type="submit"
+                           value="{% if request.user.bluesky %} {% trans 'Link with a different ATProto identity' %} {% else %} {% trans "Link with an ATProto identity" %} {% endif %} " />
+                    <small>{% blocktrans %}App password can be created on <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app</a>.{% endblocktrans %}</small>
+                  </fieldset>
+                </form>
+                {% if request.user.bluesky %}
+                  <form action="{% url 'mastodon:bluesky_disconnect' %}"
+                        method="post"
+                        onsubmit="return confirm('{% trans "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?" %}')">
+                    {% csrf_token %}
+                    <input type="submit"
+                           value="{% trans 'Disconnect with ATProto identity' %}"
+                           class="secondary" />
+                  </form>
+                {% endif %}
+              </details>
+            </article>
+          {% endif %}
+        {% endif %}
+        {% if request.user.social_accounts.all %}
           <article>
             <details>
-              <summary>{% trans "Threads.net" %}</summary>
-              <form action="{% url 'mastodon:threads_reconnect' %}" method="post">
+              <summary>{% trans 'Sync and import social account' %}</summary>
+              <form action="{% url 'users:sync_mastodon_preference' %}"
+                    method="post"
+                    enctype="multipart/form-data">
                 {% csrf_token %}
                 <fieldset>
-                  {% if request.user.threads %}
-                    <label>
-                      <i class="fa-brands fa-threads"></i> {% trans "Verified threads.net account" %}
-                      <input type="input"
-                             aria-invalid="false"
-                             value="{{ request.user.threads.handle }}"
-                             readonly>
-                      <small>
-                        {% if request.user.threads.last_refresh %}
-                          {% trans "Last updated" %} {{ request.user.threads.last_refresh }}
-                        {% endif %}
-                      </small>
-                    </label>
-                  {% endif %}
-                  <input type="submit"
-                         value="{% if request.user.threads %} {% trans 'Link with a different threads.net account' %} {% else %} {% trans "Link with a threads.net account" %} {% endif %} " />
+                  <label>
+                    <input type="checkbox"
+                           name="mastodon_sync_userinfo"
+                           {% if not request.user.preference.mastodon_skip_userinfo %}checked{% endif %}>
+                    {% trans 'Sync display name, bio and avatar' %}
+                  </label>
                 </fieldset>
-              </form>
-              {% if request.user.threads %}
-                <form action="{% url 'mastodon:threads_disconnect' %}"
-                      method="post"
-                      onsubmit="return confirm('{% trans "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?" %}')">
-                  {% csrf_token %}
-                  <input type="submit"
-                         value="{% trans 'Disconnect with Threads' %}"
-                         class="secondary" />
-                </form>
-              {% endif %}
-            </details>
-          </article>
-          <article>
-            <details>
-              <summary>{% trans "Bluesky (ATProto)" %}</summary>
-              <form action="{% url 'mastodon:bluesky_reconnect' %}" method="post">
-                {% csrf_token %}
                 <fieldset>
-                  {% if request.user.bluesky %}
-                    <label>
-                      <i class="fa-brands fa-bluesky"></i> {% trans "Verified ATProto identity" %}
-                      <input type="input"
-                             aria-invalid="false"
-                             value="@{{ request.user.bluesky.handle }} {{ request.user.bluesky.uid }}"
-                             readonly>
-                      <small>
-                        {% if request.user.bluesky.last_refresh %}
-                          {% trans "Last updated" %} {{ request.user.bluesky.last_refresh }}
-                        {% endif %}
-                      </small>
-                    </label>
-                  {% endif %}
-                  <input required
-                         type="email"
-                         name="username"
-                         autofocus
-                         placeholder="{% trans 'Bluesky Login ID' %}"
-                         autocorrect="off"
-                         autocapitalize="off"
-                         autocomplete="off"
-                         spellcheck="false" />
-                  <input required
-                         type="password"
-                         name="password"
-                         placeholder="{% trans 'Bluesky app password' %}"
-                         autocorrect="off"
-                         autocapitalize="off"
-                         autocomplete="off"
-                         spellcheck="false" />
-                  <input type="submit"
-                         value="{% if request.user.bluesky %} {% trans 'Link with a different ATProto identity' %} {% else %} {% trans "Link with an ATProto identity" %} {% endif %} " />
-                  <small>{% blocktrans %}App password can be created on <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app</a>.{% endblocktrans %}</small>
+                  <label>
+                    <input type="checkbox"
+                           name="mastodon_sync_relationship"
+                           {% if not request.user.preference.mastodon_skip_relationship %}checked{% endif %}>
+                    {% trans 'Sync follow, mute and block' %}
+                  </label>
                 </fieldset>
+                <input type="submit" value="{% trans 'Save sync settings' %}" />
+                <small>
+                  {% trans "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually." %}
+                </small>
               </form>
-              {% if request.user.bluesky %}
-                <form action="{% url 'mastodon:bluesky_disconnect' %}"
-                      method="post"
-                      onsubmit="return confirm('{% trans "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?" %}')">
-                  {% csrf_token %}
-                  <input type="submit"
-                         value="{% trans 'Disconnect with ATProto identity' %}"
-                         class="secondary" />
-                </form>
-              {% endif %}
+              <form action="{% url 'users:sync_mastodon' %}"
+                    method="post"
+                    enctype="multipart/form-data">
+                {% csrf_token %}
+                <small>{% trans "Click button below to start sync now." %}</small>
+                <input type="submit" value="{% trans 'Sync now' %}" />
+                <small>
+                  {% if request.user.mastodon.last_refresh %}
+                    {% trans "Last updated" %} {{ request.user.mastodon.last_refresh }}
+                  {% endif %}
+                </small>
+              </form>
             </details>
           </article>
         {% endif %}
-        <article>
-          <details>
-            <summary>{% trans 'Sync and import social account' %}</summary>
-            <form action="{% url 'users:sync_mastodon_preference' %}"
-                  method="post"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <fieldset>
-                <label>
-                  <input type="checkbox"
-                         name="mastodon_sync_userinfo"
-                         {% if not request.user.preference.mastodon_skip_userinfo %}checked{% endif %}>
-                  {% trans 'Sync display name, bio and avatar' %}
-                </label>
-              </fieldset>
-              <fieldset>
-                <label>
-                  <input type="checkbox"
-                         name="mastodon_sync_relationship"
-                         {% if not request.user.preference.mastodon_skip_relationship %}checked{% endif %}>
-                  {% trans 'Sync follow, mute and block' %}
-                </label>
-              </fieldset>
-              <input type="submit"
-                     value="{% trans 'Save sync settings' %}"
-                     {% if not request.user.mastodon_username %}disabled{% endif %} />
-              <small>
-                {% trans "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually." %}
-              </small>
-            </form>
-            <form action="{% url 'users:sync_mastodon' %}"
-                  method="post"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <small>{% trans "Click button below to start sync now." %}</small>
-              <input type="submit"
-                     value="{% trans 'Sync now' %}"
-                     {% if not request.user.mastodon_username %}disabled{% endif %} />
-              <small>
-                {% if request.user.mastodon.last_refresh %}
-                  {% trans "Last updated" %} {{ request.user.mastodon.last_refresh }}
-                {% endif %}
-              </small>
-            </form>
-          </details>
-        </article>
         <article>
           <details>
             <summary>{% trans 'Users you are following' %}</summary>

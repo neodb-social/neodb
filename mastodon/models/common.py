@@ -44,13 +44,13 @@ class SocialAccount(TypedModel):
     last_refresh = models.DateTimeField(default=None, null=True)
     last_reachable = models.DateTimeField(default=None, null=True)
 
-    sync_profile = jsondata.BooleanField(
-        json_field_name="preference_data", default=True
-    )
-    sync_graph = jsondata.BooleanField(json_field_name="preference_data", default=True)
-    sync_timeline = jsondata.BooleanField(
-        json_field_name="preference_data", default=True
-    )
+    # sync_profile = jsondata.BooleanField(
+    #     json_field_name="preference_data", default=True
+    # )
+    # sync_graph = jsondata.BooleanField(json_field_name="preference_data", default=True)
+    # sync_timeline = jsondata.BooleanField(
+    #     json_field_name="preference_data", default=True
+    # )
 
     class Meta:
         indexes = [
@@ -124,3 +124,6 @@ class SocialAccount(TypedModel):
             self.refresh_graph()
         logger.debug(f"{self} refreshed")
         return True
+
+    def sync_graph(self) -> int:
+        return 0

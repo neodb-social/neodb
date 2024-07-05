@@ -37,6 +37,9 @@ def account_info(request):
         "users/account.html",
         {
             "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
+            "enable_email": settings.ENABLE_LOGIN_EMAIL,
+            "enable_threads": settings.ENABLE_LOGIN_THREADS,
+            "enable_bluesky": settings.ENABLE_LOGIN_BLUESKY,
             "profile_form": profile_form,
         },
     )

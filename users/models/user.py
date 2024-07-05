@@ -254,40 +254,6 @@ class User(AbstractUser):
             self.identity.save()
             self.social_accounts.all().delete()
 
-    def sync_relationship(self):
-        def get_identity_ids(accts: list):
-            return set(
-                MastodonAccount.objects.filter(handle__in=accts).values_list(
-                    "user__identity", flat=True
-                )
-            )
-
-        def get_identity_ids_in_domains(domains: list):
-            return set(
-                MastodonAccount.objects.filter(domain__in=domains).values_list(
-                    "user__identity", flat=True
-                )
-            )
-
-        me = self.identity.pk
-        if not self.mastodon:
-            return
-        for target_identity in get_identity_ids(self.mastodon.following):
-            if not Takahe.get_is_following(me, target_identity):
-                Takahe.follow(me, target_identity, True)
-
-        for target_identity in get_identity_ids(self.mastodon.blocks):
-            if not Takahe.get_is_blocking(me, target_identity):
-                Takahe.block(me, target_identity)
-
-        for target_identity in get_identity_ids_in_domains(self.mastodon.domain_blocks):
-            if not Takahe.get_is_blocking(me, target_identity):
-                Takahe.block(me, target_identity)
-
-        for target_identity in get_identity_ids(self.mastodon.mutes):
-            if not Takahe.get_is_muting(me, target_identity):
-                Takahe.mute(me, target_identity)
-
     def sync_identity(self):
         """sync display name, bio, and avatar from available sources"""
         identity = self.identity.takahe_identity
@@ -356,17 +322,18 @@ class User(AbstractUser):
         if skip_graph:
             return
         if not self.preference.mastodon_skip_relationship:
-            self.sync_relationship()
-        return
+            c = 0
+            for account in self.social_accounts.all():
+                c += account.sync_graph()
+            if c:
+                logger.debug(f"{self} graph updated with {c} new relationship.")
 
     @staticmethod
     def sync_accounts_task(user_id):
         user = User.objects.get(pk=user_id)
         logger.info(f"{user} accounts sync start")
-        if user.sync_accounts():
-            logger.info(f"{user} accounts sync done")
-        else:
-            logger.warning(f"{user} accounts sync failed")
+        user.sync_accounts()
+        logger.info(f"{user} accounts sync end")
 
     def sync_accounts_later(self):
         django_rq.get_queue("mastodon").enqueue(User.sync_accounts_task, self.pk)
