@@ -19,10 +19,8 @@ from journal.importers.goodreads import GoodreadsImporter
 from journal.importers.letterboxd import LetterboxdImporter
 from journal.importers.opml import OPMLImporter
 from journal.models import ShelfType, reset_journal_visibility_for_user
-from mastodon.api import *
 from social.models import reset_social_visibility_for_user
 
-from ..tasks import *
 from .account import *
 
 
@@ -146,10 +144,8 @@ def export_marks(request):
 
 @login_required
 def sync_mastodon(request):
-    if request.method == "POST" and request.user.mastodon:
-        django_rq.get_queue("mastodon").enqueue(
-            refresh_mastodon_data_task, request.user.pk
-        )
+    if request.method == "POST":
+        request.user.sync_accounts_later()
         messages.add_message(request, messages.INFO, _("Sync in progress."))
     return redirect(reverse("users:info"))
 

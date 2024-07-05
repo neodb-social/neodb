@@ -70,9 +70,9 @@ class Bluesky:
         account.session_string = session_string
         account.base_url = base_url
         if account.pk:
-            account.refresh(save=True, did_refresh=False)
+            account.refresh(save=True, did_check=False)
         else:
-            account.refresh(save=False, did_refresh=False)
+            account.refresh(save=False, did_check=False)
         return account
 
 
@@ -108,40 +108,53 @@ class BlueskyAccount(SocialAccount):
     def url(self):
         return f"https://{self.handle}"
 
-    def refresh(self, save=True, did_refresh=True):
-        if did_refresh:
-            did = self.uid
-            did_r = DidResolver()
-            handle_r = HandleResolver(timeout=5)
-            did_doc = did_r.resolve(did)
-            if not did_doc:
-                logger.warning(f"ATProto refresh failed: did {did} -> <missing doc>")
-                return False
-            resolved_handle = did_doc.get_handle()
-            if not resolved_handle:
-                logger.warning(f"ATProto refresh failed: did {did} -> <missing handle>")
-                return False
-            resolved_did = handle_r.resolve(resolved_handle)
-            resolved_pds = did_doc.get_pds_endpoint()
-            if did != resolved_did:
-                logger.warning(
-                    f"ATProto refresh failed: did {did} -> handle {resolved_handle} -> did {resolved_did}"
-                )
-                return False
-            if resolved_handle != self.handle:
-                logger.debug(
-                    f"ATProto refresh: handle changed for did {did}: handle {self.handle} -> {resolved_handle}"
-                )
-                self.handle = resolved_handle
-            if resolved_pds != self.base_url:
-                logger.debug(
-                    f"ATProto refresh: pds changed for did {did}: handle {self.base_url} -> {resolved_pds}"
-                )
-                self.base_url = resolved_pds
+    def check_alive(self, save=True):
+        did = self.uid
+        did_r = DidResolver()
+        handle_r = HandleResolver(timeout=5)
+        did_doc = did_r.resolve(did)
+        if not did_doc:
+            logger.warning(f"ATProto refresh failed: did {did} -> <missing doc>")
+            return False
+        resolved_handle = did_doc.get_handle()
+        if not resolved_handle:
+            logger.warning(f"ATProto refresh failed: did {did} -> <missing handle>")
+            return False
+        resolved_did = handle_r.resolve(resolved_handle)
+        resolved_pds = did_doc.get_pds_endpoint()
+        if did != resolved_did:
+            logger.warning(
+                f"ATProto refresh failed: did {did} -> handle {resolved_handle} -> did {resolved_did}"
+            )
+            return False
+        if resolved_handle != self.handle:
+            logger.debug(
+                f"ATProto refresh: handle changed for did {did}: handle {self.handle} -> {resolved_handle}"
+            )
+            self.handle = resolved_handle
+        if resolved_pds != self.base_url:
+            logger.debug(
+                f"ATProto refresh: pds changed for did {did}: handle {self.base_url} -> {resolved_pds}"
+            )
+            self.base_url = resolved_pds
+        self.last_reachable = timezone.now()
+        if save:
+            self.save(
+                update_fields=[
+                    "access_data",
+                    "handle",
+                    "last_reachable",
+                ]
+            )
+        return True
+
+    def refresh(self, save=True, did_check=True):
+        if did_check:
+            self.check_alive(save=save)
         profile = self._client.me
         if not profile:
             logger.warning("Bluesky: client not logged in.")  # this should not happen
-            return None
+            return False
         if self.handle != profile.handle:
             logger.warning(
                 "ATProto refresh: handle mismatch {self.handle} from did doc -> {profile.handle} from PDS"
@@ -150,17 +163,14 @@ class BlueskyAccount(SocialAccount):
             k: v for k, v in profile.__dict__.items() if isinstance(v, (int, str))
         }
         self.last_refresh = timezone.now()
-        self.last_reachable = self.last_refresh
         if save:
             self.save(
                 update_fields=[
-                    "access_data",
                     "account_data",
-                    "handle",
-                    "last_refresh",
                     "last_reachable",
                 ]
             )
+        return True
 
     def post(
         self,

@@ -13,7 +13,6 @@ from common.utils import (
     HTTPResponseHXRedirect,
     target_identity_required,
 )
-from mastodon.api import *
 from takahe.utils import Takahe
 
 from ..models import APIdentity

@@ -3,6 +3,7 @@ from datetime import timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar
 
+import django_rq
 import httpx
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -221,7 +222,7 @@ class User(AbstractUser):
         return settings.SITE_INFO["site_url"] + self.url
 
     def __str__(self):
-        return f'USER:{self.pk}:{self.username or "<missing>"}:{self.mastodon or self.email_account or ""}'
+        return f'{self.pk}:{self.username or "<missing>"}'
 
     @property
     def registration_complete(self):
@@ -331,49 +332,44 @@ class User(AbstractUser):
             if url:
                 try:
                     r = httpx.get(url)
-                    f = ContentFile(r.content, name=identity.icon_uri.split("/")[-1])
-                    identity.icon.save(f.name, f, save=False)
-                    changed = True
                 except Exception as e:
                     logger.error(
-                        f"fetch icon failed: {identity} {identity.icon_uri}",
+                        f"fetch icon failed: {identity} {url}",
                         extra={"exception": e},
                     )
+                    r = None
+                if r:
+                    name = str(self.pk) + "-" + url.split("/")[-1].split("?")[0][-100:]
+                    f = ContentFile(r.content, name=name)
+                    identity.icon.save(name, f, save=False)
+                    changed = True
         if changed:
             identity.save()
             Takahe.update_state(identity, "outdated")
 
-    def refresh_mastodon_data(self, skip_detail=False, sleep_hours=0):
-        """Try refresh account data from mastodon server, return True if refreshed successfully"""
-        mastodon = self.mastodon
-        if not mastodon:
-            return False
-        if mastodon.last_refresh and mastodon.last_refresh > timezone.now() - timedelta(
-            hours=sleep_hours
-        ):
-            logger.debug(f"Skip refreshing Mastodon data for {self}")
-            return
-        logger.debug(f"Refreshing Mastodon data for {self}")
-        if not mastodon.check_alive():
-            if (
-                timezone.now() - self.mastodon_last_reachable
-                > timedelta(days=settings.DEACTIVATE_AFTER_UNREACHABLE_DAYS)
-                and not self.email
-            ):
-                logger.warning(f"Deactivate {self} bc unable to reach for too long")
-                self.is_active = False
-                self.save(update_fields=["is_active"])
-                return False
-        if not mastodon.refresh():
-            return False
-        if skip_detail:
-            return True
+    def sync_accounts(self, skip_graph=False, sleep_hours=0):
+        """Try refresh account data from 3p server"""
+        for account in self.social_accounts.all():
+            account.sync(skip_graph=skip_graph, sleep_hours=sleep_hours)
         if not self.preference.mastodon_skip_userinfo:
             self.sync_identity()
+        if skip_graph:
+            return
         if not self.preference.mastodon_skip_relationship:
-            mastodon.refresh_graph()
             self.sync_relationship()
-        return True
+        return
+
+    @staticmethod
+    def sync_accounts_task(user_id):
+        user = User.objects.get(pk=user_id)
+        logger.info(f"{user} accounts sync start")
+        if user.sync_accounts():
+            logger.info(f"{user} accounts sync done")
+        else:
+            logger.warning(f"{user} accounts sync failed")
+
+    def sync_accounts_later(self):
+        django_rq.get_queue("mastodon").enqueue(User.sync_accounts_task, self.pk)
 
     @cached_property
     def unread_announcements(self):

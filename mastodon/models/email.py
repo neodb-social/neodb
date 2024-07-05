@@ -15,7 +15,8 @@ _code_ttl = 60 * 15
 
 
 class EmailAccount(SocialAccount):
-    pass
+    def sync(self, skip_graph=False, sleep_hours=0) -> bool:
+        return True
 
 
 class Email:

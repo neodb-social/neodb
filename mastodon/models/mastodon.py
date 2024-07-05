@@ -576,6 +576,8 @@ class Mastodon:
                 existing_account.account_data = mastodon_account.account_data
                 existing_account.save(update_fields=["access_data", "account_data"])
                 return existing_account
+            # for fresh account, ping them for convenience
+            Takahe.fetch_remote_identity(mastodon_account.handle)
             return mastodon_account
 
 
@@ -774,6 +776,7 @@ class MastodonAccount(SocialAccount):
                     "domain_blocks",
                 ]
             )
+        return True
 
     def boost(self, post_url: str):
         boost_toot(self._api_domain, self.access_token, post_url)
@@ -829,10 +832,6 @@ class MastodonAccount(SocialAccount):
             elif response.status_code == 401:
                 raise PermissionDenied()
         raise RequestAborted()
-
-    def sync_later(self):
-        Takahe.fetch_remote_identity(self.handle)
-        # TODO
 
     def get_reauthorize_url(self):
         return reverse("mastodon:login") + "?domain=" + self.domain

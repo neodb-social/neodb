@@ -12,6 +12,7 @@ from django.utils import timezone
 from loguru import logger
 
 from catalog.common import jsondata
+from takahe.utils import Takahe
 
 from .common import SocialAccount
 
@@ -183,6 +184,8 @@ class Threads:
         account.domain = Threads.DOMAIN
         account.token_expires_at = expires_at
         account.refresh(save=False)
+        # for fresh account, ping them for convenience
+        Takahe.fetch_remote_identity(account.handle + "@" + Threads.DOMAIN)
         return account
 
 
@@ -237,7 +240,7 @@ class ThreadsAccount(SocialAccount):
         if self.handle != data["username"]:
             if self.handle:
                 logger.info(f'{self} handle changed to {data["username"]}')
-            self.handle = data["username"]
+            self.handle = str(data["username"])
         self.account_data = data
         self.last_refresh = timezone.now()
         if save:

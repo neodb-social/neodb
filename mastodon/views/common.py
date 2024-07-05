@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 
 from common.views import render_error
 from mastodon.models.common import SocialAccount
+from users.models import User
 from users.views.account import auth_login, logout_takahe
 
 
@@ -24,12 +25,12 @@ def process_verified_account(request: HttpRequest, account: SocialAccount):
 
 
 def login_existing_user(request: HttpRequest, account: SocialAccount):
-    user = authenticate(request, social_account=account)
+    user: User | None = authenticate(request, social_account=account)  # type:ignore
     if not user:
         return render_error(request, _("Authentication failed"), _("Invalid user."))
     existing_user = account.user
     auth_login(request, existing_user)
-    account.sync_later()
+    user.sync_accounts_later()
     if not existing_user.username or not existing_user.identity:
         # this should not happen
         response = redirect(reverse("users:register"))
@@ -50,7 +51,7 @@ def register_new_user(request: HttpRequest, account: SocialAccount):
 
 def reconnect_account(request, account: SocialAccount):
     if account.user == request.user:
-        account.sync_later()
+        account.user.sync_accounts_later()
         messages.add_message(
             request,
             messages.INFO,
@@ -73,7 +74,7 @@ def reconnect_account(request, account: SocialAccount):
             del request.session["new_user"]
             return render(request, "users/welcome.html")
         else:
-            account.sync_later()
+            request.user.sync_accounts_later()
             messages.add_message(
                 request,
                 messages.INFO,

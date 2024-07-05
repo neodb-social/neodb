@@ -1,7 +1,10 @@
+from datetime import timedelta
+
 from django.db import models
 from django.db.models.functions import Lower
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from loguru import logger
 from typedmodels.models import TypedModel
 
 from catalog.common import jsondata
@@ -66,14 +69,11 @@ class SocialAccount(TypedModel):
         ]
 
     def __str__(self) -> str:
-        return f"({self.pk}){self.platform}#{self.handle}:{self.uid}@{self.domain}"
+        return f"({self.pk}){self.platform}@{self.handle}"
 
     @property
     def platform(self) -> Platform:
         return Platform(self.type.replace("mastodon.", "", 1).replace("account", "", 1))
-
-    def sync_later(self):
-        pass
 
     def to_dict(self):
         # skip cached_property, datetime and other non-serializable fields
@@ -101,5 +101,26 @@ class SocialAccount(TypedModel):
     def check_alive(self) -> bool:
         return False
 
-    def sync(self) -> bool:
+    def refresh(self) -> bool:
         return False
+
+    def refresh_graph(self, save=True) -> bool:
+        return False
+
+    def sync(self, skip_graph=False, sleep_hours=0) -> bool:
+        if self.last_refresh and self.last_refresh > timezone.now() - timedelta(
+            hours=sleep_hours
+        ):
+            logger.debug(f"{self} skip refreshing as it's done recently")
+            return False
+        if not self.check_alive():
+            dt = timezone.now() - self.last_reachable
+            logger.warning(f"{self} unreachable for {dt.days} days")
+            return False
+        if not self.refresh():
+            logger.warning(f"{self} refresh failed")
+            return False
+        if not skip_graph:
+            self.refresh_graph()
+        logger.debug(f"{self} refreshed")
+        return True
