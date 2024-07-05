@@ -73,7 +73,7 @@ def render_rating(score: int | None, star_mode=0) -> str:
     solid_stars = score // 2
     half_star = int(bool(score % 2))
     empty_stars = 5 - solid_stars if not half_star else 5 - solid_stars - 1
-    if star_mode == 1:
+    if star_mode == 0:
         emoji_code = "🌕" * solid_stars + "🌗" * half_star + "🌑" * empty_stars
     else:
         emoji_code = (
@@ -87,12 +87,10 @@ def render_rating(score: int | None, star_mode=0) -> str:
 
 
 def render_spoiler_text(text, item):
-    if not text:
-        return None, ""
-    if text.find(">!") != -1:
+    if text and text.find(">!") != -1:
         spoiler_text = _(
             "regarding {item_title}, may contain spoiler or triggering content"
         ).format(item_title=item.display_title)
         return spoiler_text, text.replace(">!", "").replace("!<", "")
     else:
-        return None, text
+        return None, text or ""

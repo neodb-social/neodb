@@ -1,4 +1,5 @@
 import functools
+import typing
 from datetime import timedelta
 from urllib.parse import quote
 
@@ -13,6 +14,10 @@ from loguru import logger
 from catalog.common import jsondata
 
 from .common import SocialAccount
+
+if typing.TYPE_CHECKING:
+    from catalog.common.models import Item
+    from journal.models.common import Content, VisibilityType
 
 get = functools.partial(
     requests.get,
@@ -239,11 +244,21 @@ class ThreadsAccount(SocialAccount):
             self.save(update_fields=["account_data", "handle", "last_refresh"])
         return True
 
-    def post(self, content: str, reply_to_id=None, **kwargs):
+    def post(
+        self,
+        content: str,
+        visibility: "VisibilityType",
+        reply_to_id=None,
+        obj: "Item | Content | None" = None,
+        rating=None,
+        **kwargs,
+    ):
+        from journal.models.renderers import render_rating
+
         text = (
-            content.replace(settings.STAR_SOLID + " ", "🌕")
-            .replace(settings.STAR_HALF + " ", "🌗")
-            .replace(settings.STAR_EMPTY + " ", "🌑")
+            content.replace("##rating##", render_rating(rating))
+            .replace("##obj_link_if_plain##", obj.absolute_url + "\n" if obj else "")
+            .replace("##obj##", obj.display_title if obj else "")
         )
         media_id = Threads.post_single(self.access_token, self.uid, text, reply_to_id)
         if not media_id:

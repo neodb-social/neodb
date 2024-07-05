@@ -27,7 +27,8 @@ from takahe.utils import Takahe
 from .common import SocialAccount
 
 if typing.TYPE_CHECKING:
-    from journal.models.common import VisibilityType
+    from catalog.common.models import Item
+    from journal.models.common import Content, VisibilityType
 
 
 class TootVisibilityEnum(StrEnum):
@@ -177,8 +178,6 @@ def post_toot2(
         "status": content,
         "visibility": visibility,
     }
-    # update_id = get_status_id_by_url(update_toot_url)
-    # reply_to_id = get_status_id_by_url(reply_to_toot_url)
     if reply_to_id:
         payload["in_reply_to_id"] = reply_to_id
     if spoiler_text:
@@ -261,26 +260,6 @@ def webfinger(site, username) -> dict | None:
 def random_string_generator(n):
     s = string.ascii_letters + string.punctuation + string.digits
     return "".join(random.choice(s) for i in range(n))
-
-
-def rating_to_emoji(score, star_mode=0):
-    """convert score to mastodon star emoji code"""
-    if score is None or score == "" or score == 0:
-        return ""
-    solid_stars = score // 2
-    half_star = int(bool(score % 2))
-    empty_stars = 5 - solid_stars if not half_star else 5 - solid_stars - 1
-    if star_mode == 1:
-        emoji_code = "🌕" * solid_stars + "🌗" * half_star + "🌑" * empty_stars
-    else:
-        emoji_code = (
-            settings.STAR_SOLID * solid_stars
-            + settings.STAR_HALF * half_star
-            + settings.STAR_EMPTY * empty_stars
-        )
-    emoji_code = emoji_code.replace("::", ": :")
-    emoji_code = " " + emoji_code + " "
-    return emoji_code
 
 
 def verify_account(site, token):
@@ -424,25 +403,6 @@ def obtain_token(site, code, request):
         return None, None
     data = response.json()
     return data.get("access_token"), data.get("refresh_token", "")
-
-
-def get_status_id_by_url(url):
-    if not url:
-        return None
-    r = re.match(
-        r".+/(\w+)$", url
-    )  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
-    return r[1] if r else None
-
-
-def get_spoiler_text(text, item):
-    if text.find(">!") != -1:
-        spoiler_text = _(
-            "regarding {item_title}, may contain spoiler or triggering content"
-        ).format(item_title=item.display_title)
-        return spoiler_text, text.replace(">!", "").replace("!<", "")
-    else:
-        return None, text
 
 
 def get_toot_visibility(visibility, user) -> TootVisibilityEnum:
@@ -662,16 +622,18 @@ class MastodonAccount(SocialAccount):
         return app
 
     @functools.cached_property
-    def api_domain(self) -> str:
+    def _api_domain(self) -> str:
         app = self.application
         return app.api_domain if app else self.domain
 
-    def rating_to_emoji(self, rating_grade: int) -> str:
-        app = self.application
-        return rating_to_emoji(rating_grade, app.star_mode if app else 0)
+    def rating_to_emoji(self, rating_grade: int | None) -> str:
+        from journal.models.renderers import render_rating
+
+        app = self.application  # TODO fix star mode data flip in app
+        return render_rating(rating_grade, (0 if app.star_mode else 1) if app else 0)
 
     def _get(self, url: str):
-        url = url if url.startswith("https://") else f"https://{self.api_domain}{url}"
+        url = url if url.startswith("https://") else f"https://{self._api_domain}{url}"
         headers = {
             "User-Agent": settings.NEODB_USER_AGENT,
             "Authorization": f"Bearer {self.access_token}",
@@ -679,7 +641,7 @@ class MastodonAccount(SocialAccount):
         return get(url, headers=headers)
 
     def _post(self, url: str, data, files=None):
-        url = url if url.startswith("https://") else f"https://{self.api_domain}{url}"
+        url = url if url.startswith("https://") else f"https://{self._api_domain}{url}"
         return post(
             url,
             data=data,
@@ -692,7 +654,7 @@ class MastodonAccount(SocialAccount):
         )
 
     def _delete(self, url: str, data, files=None):
-        url = url if url.startswith("https://") else f"https://{self.api_domain}{url}"
+        url = url if url.startswith("https://") else f"https://{self._api_domain}{url}"
         return delete(
             url,
             headers={
@@ -702,7 +664,7 @@ class MastodonAccount(SocialAccount):
         )
 
     def _put(self, url: str, data, files=None):
-        url = url if url.startswith("https://") else f"https://{self.api_domain}{url}"
+        url = url if url.startswith("https://") else f"https://{self._api_domain}{url}"
         return put(
             url,
             data=data,
@@ -814,19 +776,19 @@ class MastodonAccount(SocialAccount):
             )
 
     def boost(self, post_url: str):
-        boost_toot(self.api_domain, self.access_token, post_url)
+        boost_toot(self._api_domain, self.access_token, post_url)
 
     def boost_later(self, post_url: str):
         django_rq.get_queue("fetch").enqueue(
-            boost_toot, self.api_domain, self.access_token, post_url
+            boost_toot, self._api_domain, self.access_token, post_url
         )
 
     def delete_post(self, post_id: str):
-        delete_toot(self.api_domain, self.access_token, post_id)
+        delete_toot(self._api_domain, self.access_token, post_id)
 
     def delete_post_later(self, post_id: str):
         django_rq.get_queue("fetch").enqueue(
-            delete_toot, self.api_domain, self.access_token, post_id
+            delete_toot, self._api_domain, self.access_token, post_id
         )
 
     def post(
@@ -838,12 +800,21 @@ class MastodonAccount(SocialAccount):
         sensitive: bool = False,
         spoiler_text: str | None = None,
         attachments: list = [],
+        obj: "Item | Content | None" = None,
+        rating: int | None = None,
     ) -> dict:
+        from journal.models.renderers import render_rating
+
         v = get_toot_visibility(visibility, self.user)
+        text = (
+            content.replace("##rating##", self.rating_to_emoji(rating))
+            .replace("##obj_link_if_plain##", obj.absolute_url + "\n" if obj else "")
+            .replace("##obj##", obj.display_title if obj else "")
+        )
         response = post_toot2(
-            self.api_domain,
+            self._api_domain,
             self.access_token,
-            content,
+            text,
             v,
             update_id,
             reply_to_id,

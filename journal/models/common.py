@@ -3,7 +3,6 @@ import uuid
 from abc import abstractmethod
 from datetime import datetime
 from functools import cached_property
-from operator import pos
 from typing import TYPE_CHECKING, Any, Self
 
 import django_rq
@@ -123,11 +122,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @property
     def url(self):
-        return f"/{self.url_path}/{self.uuid}" if self.url_path else None
+        return f"/{self.url_path}/{self.uuid}"
 
     @property
     def absolute_url(self):
-        return (settings.SITE_INFO["site_url"] + self.url) if self.url_path else None
+        return settings.SITE_INFO["site_url"] + self.url
 
     @property
     def api_url(self):
@@ -219,10 +218,18 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @abstractmethod
     def to_post_params(self) -> dict[str, Any]:
+        """
+        returns a dict of parameter to create a post
+        """
         return {}
 
     @abstractmethod
     def to_crosspost_params(self) -> dict[str, Any]:
+        """
+        returns a dict of parameter to create a post for each platform
+        "content" - required, may contain ##obj## / ##obj_link_if_plain## / ##rating##
+        ...
+        """
         return {}
 
     @classmethod
@@ -343,7 +350,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 except Exception as e:
                     logger.warning(f"Delete {bluesky} post {post_id} error {e}")
         r = bluesky.post(**params)
-        self.metadata.update({"bluesky_" + k: v for k, v in r.items()})
+        if r:
+            self.metadata.update({"bluesky_" + k: v for k, v in r.items()})
         return True
 
     def sync_to_threads(self, params, update_mode):
@@ -359,7 +367,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             logger.warning(f"{self} post to {threads} failed")
             messages.error(threads.user, _("A recent post was not posted to Threads."))
             return False
-        self.metadata.update({"threads_" + k: v for k, v in r.items()})
+        if r:
+            self.metadata.update({"threads_" + k: v for k, v in r.items()})
         return True
 
     def sync_to_mastodon(self, params, update_mode):
@@ -494,6 +503,14 @@ class Content(Piece):
 
     def __str__(self):
         return f"{self.__class__.__name__}:{self.uuid}@{self.item}"
+
+    @property
+    def display_title(self) -> str:
+        raise NotImplementedError("subclass should override this")
+
+    @property
+    def display_description(self) -> str:
+        raise NotImplementedError("subclass should override this")
 
     class Meta:
         abstract = True

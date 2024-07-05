@@ -544,16 +544,6 @@ class Takahe:
         PostInteraction.objects.filter(post__in=post_pks).update(state="undone")
 
     @staticmethod
-    def get_spoiler_text(text, item):
-        if text and text.find(">!") != -1:
-            spoiler_text = _(
-                "regarding {item_title}, may contain spoiler or triggering content"
-            ).format(item_title=item.display_title)
-            return spoiler_text, text.replace(">!", "").replace("!<", "")
-        else:
-            return None, text or ""
-
-    @staticmethod
     def visibility_n2t(visibility: int, post_public_mode: int) -> Visibilities:
         if visibility == 1:
             return Takahe.Visibilities.followers

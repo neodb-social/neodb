@@ -12,12 +12,7 @@ from users.models import APIdentity
 
 from .common import Content
 from .rating import Rating
-from .renderers import (
-    render_post_with_macro,
-    render_rating,
-    render_spoiler_text,
-    render_text,
-)
+from .renderers import render_post_with_macro, render_spoiler_text, render_text
 from .shelf import ShelfManager, ShelfType
 
 
@@ -125,15 +120,14 @@ class Comment(Content):
 
     def to_crosspost_params(self):
         spoiler_text, txt = render_spoiler_text(self.text, self.item)
-        content = (
-            self.get_crosspost_template().format(item=self.item.display_title)
-            + f"\n{txt}\n{settings.SITE_INFO['site_url']}{self.item_url}"
-            + self.get_crosspost_postfix()
-        )
+        txt = "\n" + txt if txt else ""
+        action = self.get_crosspost_template().format(item="##obj##")
+        content = f"{action}\n##obj_link_if_plain##{txt}{self.get_crosspost_postfix()}"
         params = {
             "content": content,
             "spoiler_text": spoiler_text,
             "sensitive": bool(spoiler_text),
+            "obj": self.item,
         }
         return params
 

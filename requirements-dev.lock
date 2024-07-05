@@ -20,7 +20,7 @@ asgiref==3.8.1
     # via django
     # via django-cors-headers
     # via django-stubs
-atproto==0.0.48
+atproto==0.0.49
 attrs==23.2.0
     # via aiohttp
 babel==2.15.0

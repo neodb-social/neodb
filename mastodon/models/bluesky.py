@@ -1,12 +1,11 @@
 import re
+import typing
 from functools import cached_property
-from operator import pos
 
 from atproto import Client, SessionEvent, client_utils
 from atproto_client import models
 from atproto_identity.did.resolver import DidResolver
 from atproto_identity.handle.resolver import HandleResolver
-from django.db.models import base
 from django.utils import timezone
 from loguru import logger
 
@@ -14,11 +13,15 @@ from catalog.common import jsondata
 
 from .common import SocialAccount
 
+if typing.TYPE_CHECKING:
+    from catalog.common.models import Item
+    from journal.models.common import Content
+
 
 class Bluesky:
     _DOMAIN = "-"
     _RE_HANDLE = re.compile(
-        r"/^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/"
+        r"^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$"
     )
     # for BlueskyAccount
     # uid is did and the only unique identifier
@@ -103,7 +106,7 @@ class BlueskyAccount(SocialAccount):
 
     @property
     def url(self):
-        return f"{self.base_url}/profile/{self.handle}"
+        return f"https://{self.handle}"
 
     def refresh(self, save=True, did_refresh=True):
         if did_refresh:
@@ -159,7 +162,16 @@ class BlueskyAccount(SocialAccount):
                 ]
             )
 
-    def post(self, content, reply_to_id=None, **kwargs):
+    def post(
+        self,
+        content,
+        reply_to_id=None,
+        obj: "Item | Content | None" = None,
+        rating=None,
+        **kwargs,
+    ):
+        from journal.models.renderers import render_rating
+
         reply_to = None
         if reply_to_id:
             posts = self._client.get_posts([reply_to_id]).posts
@@ -168,10 +180,30 @@ class BlueskyAccount(SocialAccount):
                 reply_to = models.AppBskyFeedPost.ReplyRef(
                     parent=root_post_ref, root=root_post_ref
                 )
-        text = client_utils.TextBuilder().text(content)
-        # todo OpenGraph
-        # .link("Python SDK", "https://atproto.blue")
-        post = self._client.send_post(text, reply_to=reply_to)
+        text = (
+            content.replace("##rating##", render_rating(rating))
+            .replace("##obj_link_if_plain##", "")
+            .split("##obj##")
+        )
+        richtext = client_utils.TextBuilder()
+        first = True
+        for t in text:
+            if not first and obj:
+                richtext.link(obj.display_title, obj.absolute_url)
+            else:
+                first = False
+            richtext.text(t)
+        if obj:
+            embed = models.AppBskyEmbedExternal.Main(
+                external=models.AppBskyEmbedExternal.External(
+                    title=obj.display_title,
+                    description=obj.display_description,
+                    uri=obj.absolute_url,
+                )
+            )
+        else:
+            embed = None
+        post = self._client.send_post(richtext, reply_to=reply_to, embed=embed)
         # return AT uri as id since it's used as so.
         return {"cid": post.cid, "id": post.uri}
 

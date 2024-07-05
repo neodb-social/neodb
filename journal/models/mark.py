@@ -4,12 +4,10 @@ from typing import Any
 
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 
 from catalog.models import Item
-from mastodon.models import get_spoiler_text
 from takahe.utils import Takahe
-from users.models import APIdentity, User
+from users.models import APIdentity
 
 from .comment import Comment
 from .note import Note

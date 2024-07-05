@@ -19,7 +19,7 @@ anyio==4.4.0
 asgiref==3.8.1
     # via django
     # via django-cors-headers
-atproto==0.0.48
+atproto==0.0.49
 attrs==23.2.0
     # via aiohttp
 beautifulsoup4==4.12.3

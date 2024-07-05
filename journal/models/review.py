@@ -28,6 +28,14 @@ class Review(Content):
     body = MarkdownxField()
 
     @property
+    def display_title(self):
+        return self.title
+
+    @property
+    def display_description(self):
+        return self.plain_content[:155]
+
+    @property
     def html_content(self):
         return render_md(self.body)
 
@@ -89,10 +97,10 @@ class Review(Content):
     def to_crosspost_params(self):
         content = (
             self.get_crosspost_template().format(item=self.item.display_title)
-            + f"\n{self.title}\n{self.absolute_url} "
+            + " ##rating##\n##obj##\n##obj_link_if_plain##"
             + self.get_crosspost_postfix()
         )
-        params = {"content": content}
+        params = {"content": content, "obj": self, "rating": self.rating_grade}
         return params
 
     def to_post_params(self):
@@ -103,9 +111,7 @@ class Review(Content):
             )
             + f'<br><a href="{self.absolute_url}">{self.title}</a>'
         )
-        content = (
-            f"{render_rating(self.rating_grade, 1)}\n{self.get_crosspost_postfix()}"
-        )
+        content = f"{render_rating(self.rating_grade)}\n{self.get_crosspost_postfix()}"
         return {
             "prepend_content": prepend_content,
             "content": content,

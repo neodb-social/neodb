@@ -498,6 +498,10 @@ class Item(PolymorphicModel):
     def display_title(self) -> str:
         return self.title
 
+    @property
+    def display_description(self):
+        return self.brief[:155]
+
     @classmethod
     def get_by_url(cls, url_or_b62: str, resolve_merge=False) -> "Self | None":
         b62 = url_or_b62.strip().split("/")[-1]

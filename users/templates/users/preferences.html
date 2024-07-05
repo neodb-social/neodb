@@ -108,14 +108,14 @@
                          required=""
                          id="mastodon_repost_mode_0"
                          {% if request.user.preference.mastodon_repost_mode == 0 %}checked{% endif %}>
-                  <label for="mastodon_repost_mode_0">{% trans "boost" %}</label>
+                  <label for="mastodon_repost_mode_0">{% trans "Boost if possible" %}</label>
                   <input type="radio"
                          name="mastodon_repost_mode"
                          value="1"
                          required=""
                          id="mastodon_repost_mode_1"
                          {% if request.user.preference.mastodon_repost_mode == 1 %}checked{% endif %}>
-                  <label for="mastodon_repost_mode_1">{% trans "create a new post" %}</label>
+                  <label for="mastodon_repost_mode_1">{% trans "Create a new post" %}</label>
                   <em data-tooltip="{% trans "this method is less optimal, may generate duplicated posts and miss reactions." %}"><i class="fa fa-question-circle"></i></em>
                 </fieldset>
               {% endif %}

@@ -56,7 +56,7 @@ dependencies = [
     "validators",
     "deepmerge>=1.1.1",
     "django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git",
-    "atproto>=0.0.48",
+    "atproto>=0.0.49",
     "pyright>=1.1.370",
 ]
 

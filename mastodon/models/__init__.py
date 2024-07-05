@@ -6,7 +6,6 @@ from .mastodon import (
     MastodonAccount,
     MastodonApplication,
     detect_server_info,
-    get_spoiler_text,
     verify_client,
 )
 from .threads import Threads, ThreadsAccount

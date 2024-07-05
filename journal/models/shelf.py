@@ -14,7 +14,7 @@ from users.models import APIdentity
 
 from .common import q_item_in_category
 from .itemlist import List, ListMember
-from .renderers import render_post_with_macro, render_rating
+from .renderers import render_post_with_macro, render_rating, render_spoiler_text
 
 if TYPE_CHECKING:
     from .comment import Comment
@@ -368,16 +368,20 @@ class ShelfMember(ListMember):
         return _(ShelfManager.get_action_template(self.shelf_type, self.item.category))
 
     def to_crosspost_params(self):
-        action = self.get_crosspost_template().format(item=self.item.display_title)
+        action = self.get_crosspost_template().format(item="##obj##")
         if self.sibling_comment:
-            spoiler, txt = Takahe.get_spoiler_text(self.sibling_comment.text, self.item)
+            spoiler, txt = render_spoiler_text(self.sibling_comment.text, self.item)
         else:
             spoiler, txt = None, ""
-        stars = (
-            render_rating(self.sibling_rating.grade, 1) if self.sibling_rating else ""
-        )
-        content = f"{action} {stars} \n{self.item.absolute_url}\n{txt}\n{self.get_crosspost_postfix()}"
-        params = {"content": content, "spoiler_text": spoiler}
+        rating = self.sibling_rating.grade if self.sibling_rating else ""
+        txt = "\n" + txt if txt else ""
+        content = f"{action} ##rating## \n##obj_link_if_plain##{txt}{self.get_crosspost_postfix()}"
+        params = {
+            "content": content,
+            "spoiler_text": spoiler,
+            "obj": self.item,
+            "rating": rating,
+        }
         return params
 
     def to_post_params(self):
@@ -386,14 +390,14 @@ class ShelfMember(ListMember):
             item=f'<a href="{item_link}">{self.item.display_title}</a>'
         )
         if self.sibling_comment:
-            spoiler, txt = Takahe.get_spoiler_text(self.sibling_comment.text, self.item)
+            spoiler, txt = render_spoiler_text(self.sibling_comment.text, self.item)
         else:
             spoiler, txt = None, ""
         postfix = self.get_crosspost_postfix()
         # add @user.mastodon.handle so that user can see it on Mastodon ?
         # if self.visibility and self.owner.user.mastodon:
         #     postfix += f" @{self.owner.user.mastodon.handle}"
-        content = f"{render_rating(self.sibling_rating.grade, 1) if self.sibling_rating else ''} \n{txt}\n{postfix}"
+        content = f"{render_rating(self.sibling_rating.grade) if self.sibling_rating else ''} \n{txt}\n{postfix}"
         return {
             "prepend_content": action,
             "content": content,
