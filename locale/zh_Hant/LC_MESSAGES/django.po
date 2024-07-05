@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-04 00:13-0400\n"
+"POT-Creation-Date: 2024-07-05 16:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,15 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: boofilsic/settings.py:408
+#: boofilsic/settings.py:410
 msgid "English"
 msgstr "英語"
 
-#: boofilsic/settings.py:409
+#: boofilsic/settings.py:411
 msgid "Simplified Chinese"
 msgstr "簡體中文"
 
-#: boofilsic/settings.py:410
+#: boofilsic/settings.py:412
 msgid "Traditional Chinese"
 msgstr "繁體中文"
 
@@ -401,27 +401,27 @@ msgstr "元數據"
 msgid "cover"
 msgstr "封面"
 
-#: catalog/common/models.py:628
+#: catalog/common/models.py:632
 msgid "source site"
 msgstr "來源站點"
 
-#: catalog/common/models.py:630
+#: catalog/common/models.py:634
 msgid "ID on source site"
 msgstr "來源站點標識"
 
-#: catalog/common/models.py:632
+#: catalog/common/models.py:636
 msgid "source url"
 msgstr "來源站點網址"
 
-#: catalog/common/models.py:648
+#: catalog/common/models.py:652
 msgid "IdType of the source site"
 msgstr "來源站點的主要標識類型"
 
-#: catalog/common/models.py:654
+#: catalog/common/models.py:658
 msgid "Primary Id on the source site"
 msgstr "來源站點的主要標識數據"
 
-#: catalog/common/models.py:657
+#: catalog/common/models.py:661
 msgid "url to the resource"
 msgstr "指向外部資源的網址"
 
@@ -879,7 +879,8 @@ msgstr "合併到另一條目"
 #: catalog/templates/_sidebar_edit.html:210
 #: catalog/templates/catalog_delete.html:11
 #: journal/templates/collection.html:135 journal/templates/mark.html:162
-#: journal/templates/piece_delete.html:9 journal/templates/review.html:83
+#: journal/templates/piece_delete.html:9 journal/templates/piece_delete.html:33
+#: journal/templates/review.html:83
 msgid "Delete"
 msgstr "刪除"
 
@@ -1000,19 +1001,16 @@ msgid "album media"
 msgstr "專輯介質"
 
 #: catalog/templates/catalog_delete.html:18
-#: journal/templates/piece_delete.html:17
 msgid "Are you sure to delete?"
 msgstr "確認刪除嗎？"
 
 #: catalog/templates/catalog_delete.html:47
 #: catalog/templates/catalog_merge.html:91
-#: journal/templates/piece_delete.html:28
 msgid "Yes"
 msgstr "是"
 
 #: catalog/templates/catalog_delete.html:48
 #: catalog/templates/catalog_merge.html:92
-#: journal/templates/piece_delete.html:32
 msgid "No"
 msgstr "否"
 
@@ -1040,6 +1038,7 @@ msgstr "保存"
 
 #: catalog/templates/catalog_edit.html:53
 #: journal/templates/collection_update_item_note.html:8
+#: journal/templates/piece_delete.html:37
 msgid "Cancel"
 msgstr "取消"
 
@@ -1471,7 +1470,7 @@ msgstr "開發者"
 msgid "Source Code"
 msgstr "源代碼"
 
-#: common/templates/_footer.html:16 users/templates/users/login.html:191
+#: common/templates/_footer.html:16 users/templates/users/login.html:192
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "這是%(site_name)s的臨時鏡像，請儘可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站點</a>。"
@@ -1741,15 +1740,15 @@ msgstr "僅關注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/common.py:314
+#: journal/models/common.py:368
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能發佈到Threads。"
 
-#: journal/models/common.py:346
+#: journal/models/common.py:402
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能發佈到聯邦實例，請重新驗證登錄。"
 
-#: journal/models/common.py:353
+#: journal/models/common.py:409
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能發佈到聯邦實例。"
 
@@ -1815,8 +1814,7 @@ msgstr "第{value}首"
 msgid "Cycle {value}"
 msgstr "{value}周目"
 
-#: journal/models/renderers.py:94 mastodon/models/mastodon.py:441
-#: takahe/utils.py:550
+#: journal/models/renderers.py:92
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "關於 {item_title}，可能包含劇透或敏感內容"
@@ -2228,7 +2226,7 @@ msgstr "不看了"
 msgid "performances reviewed"
 msgstr "評論過的演出"
 
-#: journal/models/shelf.py:527
+#: journal/models/shelf.py:528
 msgid "removed mark"
 msgstr "移除標記"
 
@@ -2276,7 +2274,6 @@ msgid "rating"
 msgstr "評分"
 
 #: journal/templates/action_boost_post.html:10
-#: users/templates/users/preferences.html:111
 msgid "boost"
 msgstr "轉播"
 
@@ -2534,6 +2531,19 @@ msgstr "筆記"
 #: journal/templates/note.html:21
 msgid "Note with empty content will be deleted, sure to continue?"
 msgstr "無內容的筆記會被刪除，確定繼續嗎？"
+
+#: journal/templates/piece_delete.html:22
+msgid "Are you sure to delete this entire content?"
+msgstr "確認刪除這則內容嗎？"
+
+#: journal/templates/piece_delete.html:23
+msgid "By deleting it, you will also lose track of others' comments and feedbacks to your content."
+msgstr "刪除後你將無法追溯其他用戶對此內容曾經作出的回應和互動。"
+
+#: journal/templates/piece_delete.html:24
+#: journal/templates/piece_delete.html:31
+msgid "Deletion cannot be undone, are you sure to continue?"
+msgstr "刪除不可撤銷。確認繼續嗎？"
 
 #: journal/templates/profile.html:55
 msgid "calendar"
@@ -2834,47 +2844,47 @@ msgstr ""
 "\n"
 "如果你確認要使用電子郵件新註冊賬號，請輸入如下驗證碼： {code}"
 
-#: mastodon/models/mastodon.py:551
+#: mastodon/models/mastodon.py:511
 msgid "site domain name"
 msgstr "站點域名"
 
-#: mastodon/models/mastodon.py:552
+#: mastodon/models/mastodon.py:512
 msgid "domain for api call"
 msgstr "站點API域名"
 
-#: mastodon/models/mastodon.py:553
+#: mastodon/models/mastodon.py:513
 msgid "type and verion"
 msgstr "站點類型和版本"
 
-#: mastodon/models/mastodon.py:554
+#: mastodon/models/mastodon.py:514
 msgid "in-site app id"
 msgstr "實例應用id"
 
-#: mastodon/models/mastodon.py:555
+#: mastodon/models/mastodon.py:515
 msgid "client id"
 msgstr "實例應用Client ID"
 
-#: mastodon/models/mastodon.py:556
+#: mastodon/models/mastodon.py:516
 msgid "client secret"
 msgstr "實例應用Client Secret"
 
-#: mastodon/models/mastodon.py:557
+#: mastodon/models/mastodon.py:517
 msgid "vapid key"
 msgstr "實例應用VAPID Key"
 
-#: mastodon/models/mastodon.py:559
+#: mastodon/models/mastodon.py:519
 msgid "0: custom emoji; 1: unicode moon; 2: text"
 msgstr "實例表情模式"
 
-#: mastodon/models/mastodon.py:562
+#: mastodon/models/mastodon.py:522
 msgid "max toot len"
 msgstr "帖文長度限制"
 
-#: mastodon/models/mastodon.py:624
+#: mastodon/models/mastodon.py:584
 msgid "Boost"
 msgstr "轉播"
 
-#: mastodon/models/mastodon.py:625
+#: mastodon/models/mastodon.py:585
 msgid "New Post"
 msgstr "新帖文"
 
@@ -2995,7 +3005,7 @@ msgstr "播放"
 msgid "comment"
 msgstr "寫短評"
 
-#: social/templates/activity/create_collection.html:16 takahe/utils.py:600
+#: social/templates/activity/create_collection.html:16 takahe/utils.py:590
 msgid "created collection"
 msgstr "創建了收藏單"
 
@@ -3387,11 +3397,11 @@ msgstr "Bluesky (ATProto)"
 msgid "Verified ATProto identity"
 msgstr "已驗證的ATProto身份"
 
-#: users/templates/users/account.html:192 users/templates/users/login.html:151
+#: users/templates/users/account.html:192
 msgid "Bluesky Login ID"
 msgstr "Bluesky 登錄名"
 
-#: users/templates/users/account.html:200 users/templates/users/login.html:159
+#: users/templates/users/account.html:200 users/templates/users/login.html:160
 msgid "Bluesky app password"
 msgstr "Bluesky 應用密碼"
 
@@ -3403,7 +3413,7 @@ msgstr "關聯另一個ATProto身份"
 msgid "Link with an ATProto identity"
 msgstr "關聯ATProto身份"
 
-#: users/templates/users/account.html:207 users/templates/users/login.html:164
+#: users/templates/users/account.html:207 users/templates/users/login.html:165
 msgid "App password can be created on <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
 msgstr "應用密碼可在 <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a> 創建管理。"
 
@@ -3635,7 +3645,7 @@ msgstr "實例域名(不含@和@之前的部分)，如mastodon.social"
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
 msgstr "請輸入你的實例域名(不含@和@之前的部分)；如果你的聯邦賬號是<i>@neodb@mastodon.social</i>，只需要在此輸入<i>mastodon.social</i>。"
 
-#: users/templates/users/login.html:125 users/templates/users/login.html:174
+#: users/templates/users/login.html:125 users/templates/users/login.html:175
 msgid "Authorize via Fediverse instance"
 msgstr "去聯邦實例授權註冊或登錄"
 
@@ -3651,35 +3661,43 @@ msgstr "去Threads授權註冊或登錄"
 msgid "If you have already account here registered via a different way, you may login through there and link with your Threads account in account settings."
 msgstr "如果你已通過其它方式註冊過本站帳號，請用該方式登錄後再關聯Threads。"
 
-#: users/templates/users/login.html:165
+#: users/templates/users/login.html:151
+msgid "Bluesky handle"
+msgstr "Bluesky用戶標識"
+
+#: users/templates/users/login.html:156
+msgid "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email."
+msgstr "請輸入你的ATProto用戶標識（例如neodb.bsky.social，不包含開頭的@），不要輸入電子郵件地址。"
+
+#: users/templates/users/login.html:166
 msgid "Authorize via bsky.app"
 msgstr "使用Bluesky賬號信息註冊或登錄"
 
-#: users/templates/users/login.html:166
+#: users/templates/users/login.html:167
 msgid "If you have already account here registered via a different way, you may login through there and link with your Bluesky account in account settings."
 msgstr "如果你已通過其它方式註冊過本站帳號，請用該方式登錄後再關聯Bluesky。"
 
-#: users/templates/users/login.html:181
+#: users/templates/users/login.html:182
 msgid "Valid invitation code, please login or register."
 msgstr "邀請鏈接有效，可註冊新用戶"
 
-#: users/templates/users/login.html:183
+#: users/templates/users/login.html:184
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr "本站目前爲邀請註冊，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
 
-#: users/templates/users/login.html:185
+#: users/templates/users/login.html:186
 msgid "Invitation code invalid or expired."
 msgstr "邀請鏈接無效，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
 
-#: users/templates/users/login.html:193
+#: users/templates/users/login.html:194
 msgid "Loading timed out, please check your network (VPN) settings."
 msgstr "部分模塊加載超時，請檢查網絡（翻牆）設置。"
 
-#: users/templates/users/login.html:199
+#: users/templates/users/login.html:200
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
 msgstr "繼續訪問或註冊視爲同意<a href=\"/pages/rules/\">站規</a>與<a href=\"/pages/terms/\">協議</a>，及使用cookie提供必要功能"
 
-#: users/templates/users/login.html:205
+#: users/templates/users/login.html:206
 msgid "Domain of your instance (excl. @)"
 msgstr "實例域名(不含@和@之前的部分)"
 
@@ -3719,8 +3737,12 @@ msgstr "發表時默認轉發到時間軸"
 msgid "Method for crossposting to timeline"
 msgstr "轉發到時間軸的方式"
 
+#: users/templates/users/preferences.html:111
+msgid "Boost if possible"
+msgstr "儘可能轉播原文"
+
 #: users/templates/users/preferences.html:118
-msgid "create a new post"
+msgid "Create a new post"
 msgstr "另發新帖文"
 
 #: users/templates/users/preferences.html:119
@@ -3745,7 +3767,7 @@ msgstr "以下類型自動加入書籤"
 
 #: users/templates/users/preferences.html:153
 msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
-msgstr "將這些類型的條目標記爲在讀/在看/在玩/...時，自動把相應帖文添加爲書籤。這些書籤帖文可使用<a href=\"https://joinmastodon.org/apps\" target=\"_blank\">應用程序</a>查看和管理，你對這些帖子的回覆會自動成爲該條目的筆記。"
+msgstr "將這些類型的條目標記爲在讀/在看/在玩/...時，自動把相應帖文添加爲書籤。這些書籤帖文可使用<a href=\"https://joinmastodon.org/apps\" target=\"_blank\">應用程序</a>查看和管理，你對這些帖文的回覆會自動成爲該條目的筆記。"
 
 #: users/templates/users/preferences.html:157
 msgid "Hide these categories in search results"
