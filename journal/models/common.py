@@ -114,13 +114,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def delete(self, *args, **kwargs):
         if self.local:
             Takahe.delete_posts(self.all_post_ids)
-            toot_id = (
-                (self.metadata or {}).get("mastodon_id")
-                if hasattr(self, "metadata")
-                else None
-            )
-            if toot_id and self.owner.user.mastodon:
-                self.owner.user.mastodon.delete_post_later(toot_id)
+            self.delete_crossposts()
         return super().delete(*args, **kwargs)
 
     @property
@@ -277,6 +271,22 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         # subclass may have to add additional code to update type_data in local post
         return p
 
+    @classmethod
+    def _delete_crossposts(cls, user_pk, metadata: dict):
+        user = User.objects.get(pk=user_pk)
+        toot_id = metadata.get("mastodon_id")
+        if toot_id and user.mastodon:
+            user.mastodon.delete_post(toot_id)
+        post_id = metadata.get("bluesky_id")
+        if toot_id and user.bluesky:
+            user.bluesky.delete_post(post_id)
+
+    def delete_crossposts(self):
+        if hasattr(self, "metadata") and self.metadata:
+            django_rq.get_queue("mastodon").enqueue(
+                self._delete_crossposts, self.owner.user_id, self.metadata
+            )
+
     def get_crosspost_params(self):
         d = {
             "visibility": self.visibility,
@@ -305,7 +315,13 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
         activate_language_for_user(self.owner.user)
         metadata = self.metadata.copy()
-        # TODO migrate
+
+        # backward compatible with previous way of storing mastodon id
+        legacy_mastodon_url = self.metadata.pop("shared_link", None)
+        if legacy_mastodon_url and not self.metadata.get("mastodon_id"):
+            self.metadata["mastodon_id"] = legacy_mastodon_url.split("/")[-1]
+            self.metadata["mastodon_url"] = legacy_mastodon_url
+
         params = self.get_crosspost_params()
         self.sync_to_mastodon(params_for_platform(params, "mastodon"), update_mode)
         self.sync_to_threads(params_for_platform(params, "threads"), update_mode)

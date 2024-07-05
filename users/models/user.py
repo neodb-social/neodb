@@ -295,12 +295,12 @@ class User(AbstractUser):
             return
         mastodon = self.mastodon
         threads = self.threads
-        # bluesky = self.bluesky
+        bluesky = self.bluesky
         changed = False
         name = (
             (mastodon.display_name if mastodon else "")
             or (threads.username if threads else "")
-            # or (bluesky.display_name if bluesky else "")
+            or (bluesky.display_name if bluesky else "")
             or identity.name
             or identity.username
         )
@@ -310,7 +310,7 @@ class User(AbstractUser):
         summary = (
             (mastodon.note if mastodon else "")
             or (threads.threads_biography if threads else "")
-            # or (bluesky.note if bluesky else "")
+            or (bluesky.description if bluesky else "")
             or identity.summary
         )
         if identity.summary != summary:
@@ -326,7 +326,8 @@ class User(AbstractUser):
                 url = mastodon.avatar
             elif threads and threads.threads_profile_picture_url:
                 url = threads.threads_profile_picture_url
-            # elif bluesky and bluesky.
+            elif bluesky and bluesky.avatar:
+                url = bluesky.avatar
             if url:
                 try:
                     r = httpx.get(url)

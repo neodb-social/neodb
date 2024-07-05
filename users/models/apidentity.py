@@ -19,6 +19,7 @@ class APIdentity(models.Model):
     """
 
     user: User
+    user_id: int
     user = models.OneToOneField(
         User, models.SET_NULL, related_name="identity", null=True
     )  # type:ignore

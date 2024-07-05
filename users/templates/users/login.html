@@ -145,14 +145,15 @@
             {% csrf_token %}
             <input name="method" value="bluesky" type="hidden" />
             <input required
-                   type="email"
                    name="username"
                    autofocus
-                   placeholder="{% trans 'Bluesky Login ID' %}"
+                   pattern="([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
+                   placeholder="{% trans 'Bluesky handle' %}"
                    autocorrect="off"
                    autocapitalize="off"
                    autocomplete="off"
                    spellcheck="false" />
+            <small>{% trans "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email." %}</small>
             <input required
                    type="password"
                    name="password"

@@ -1,8 +1,12 @@
+import re
 from functools import cached_property
 from operator import pos
 
 from atproto import Client, SessionEvent, client_utils
 from atproto_client import models
+from atproto_identity.did.resolver import DidResolver
+from atproto_identity.handle.resolver import HandleResolver
+from django.db.models import base
 from django.utils import timezone
 from loguru import logger
 
@@ -12,28 +16,60 @@ from .common import SocialAccount
 
 
 class Bluesky:
-    BASE_DOMAIN = "bsky.app"  # TODO support alternative servers
+    _DOMAIN = "-"
+    _RE_HANDLE = re.compile(
+        r"/^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/"
+    )
+    # for BlueskyAccount
+    # uid is did and the only unique identifier
+    # domain is not useful and will always be _DOMAIN
+    # handle and base_url may change in BlueskyAccount.refresh()
 
     @staticmethod
-    def authenticate(username: str, password: str) -> "BlueskyAccount | None":
+    def authenticate(handle: str, password: str) -> "BlueskyAccount | None":
+        if not Bluesky._RE_HANDLE.match(handle) or len(handle) > 500:
+            logger.warning(f"ATProto login failed: handle {handle} is invalid")
+            return None
         try:
-            client = Client()
-            profile = client.login(username, password)
+            handle_r = HandleResolver(timeout=5)
+            did = handle_r.resolve(handle)
+            if not did:
+                logger.warning(
+                    f"ATProto login failed: handle {handle} -> <missing did>"
+                )
+                return
+            did_r = DidResolver()
+            did_doc = did_r.resolve(did)
+            if not did_doc:
+                logger.warning(
+                    f"ATProto login failed: handle {handle} -> did {did} -> <missing doc>"
+                )
+                return
+            resolved_handle = did_doc.get_handle()
+            if resolved_handle != handle:
+                logger.warning(
+                    f"ATProto login failed: handle {handle} -> did {did} -> handle {resolved_handle}"
+                )
+                return
+            base_url = did_doc.get_pds_endpoint()
+            client = Client(base_url)
+            profile = client.login(handle, password)
             session_string = client.export_session_string()
         except Exception as e:
-            logger.debug(f"Bluesky login {username} exception {e}")
-            return None
-        existing_account = BlueskyAccount.objects.filter(
-            uid=profile.did, domain=Bluesky.BASE_DOMAIN
+            logger.debug(f"Bluesky login {handle} exception {e}")
+            return
+        account = BlueskyAccount.objects.filter(
+            uid=profile.did, domain=Bluesky._DOMAIN
         ).first()
-        if existing_account:
-            existing_account.session_string = session_string
-            existing_account.save(update_fields=["access_data"])
-            existing_account.refresh(save=True, profile=profile)
-            return existing_account
-        account = BlueskyAccount(uid=profile.did, domain=Bluesky.BASE_DOMAIN)
+        if not account:
+            account = BlueskyAccount(uid=profile.did, domain=Bluesky._DOMAIN)
+        account._client = client
         account.session_string = session_string
-        account.refresh(save=False, profile=profile)
+        account.base_url = base_url
+        if account.pk:
+            account.refresh(save=True, did_refresh=False)
+        else:
+            account.refresh(save=False, did_refresh=False)
         return account
 
 
@@ -42,9 +78,13 @@ class BlueskyAccount(SocialAccount):
     # app_password = jsondata.EncryptedTextField(
     #     json_field_name="access_data", default=""
     # )
+    base_url = jsondata.CharField(json_field_name="access_data", default=None)
     session_string = jsondata.EncryptedTextField(
         json_field_name="access_data", default=""
     )
+    display_name = jsondata.CharField(json_field_name="account_data", default="")
+    description = jsondata.CharField(json_field_name="account_data", default="")
+    avatar = jsondata.CharField(json_field_name="account_data", default="")
 
     def on_session_change(self, event, session) -> None:
         if event in (SessionEvent.CREATE, SessionEvent.REFRESH):
@@ -63,13 +103,46 @@ class BlueskyAccount(SocialAccount):
 
     @property
     def url(self):
-        return f"https://bsky.app/profile/{self.handle}"
+        return f"{self.base_url}/profile/{self.handle}"
 
-    def refresh(self, save=True, profile=None):
+    def refresh(self, save=True, did_refresh=True):
+        if did_refresh:
+            did = self.uid
+            did_r = DidResolver()
+            handle_r = HandleResolver(timeout=5)
+            did_doc = did_r.resolve(did)
+            if not did_doc:
+                logger.warning(f"ATProto refresh failed: did {did} -> <missing doc>")
+                return False
+            resolved_handle = did_doc.get_handle()
+            if not resolved_handle:
+                logger.warning(f"ATProto refresh failed: did {did} -> <missing handle>")
+                return False
+            resolved_did = handle_r.resolve(resolved_handle)
+            resolved_pds = did_doc.get_pds_endpoint()
+            if did != resolved_did:
+                logger.warning(
+                    f"ATProto refresh failed: did {did} -> handle {resolved_handle} -> did {resolved_did}"
+                )
+                return False
+            if resolved_handle != self.handle:
+                logger.debug(
+                    f"ATProto refresh: handle changed for did {did}: handle {self.handle} -> {resolved_handle}"
+                )
+                self.handle = resolved_handle
+            if resolved_pds != self.base_url:
+                logger.debug(
+                    f"ATProto refresh: pds changed for did {did}: handle {self.base_url} -> {resolved_pds}"
+                )
+                self.base_url = resolved_pds
+        profile = self._client.me
         if not profile:
-            _ = self._client
-            profile = self._profile
-        self.handle = profile.handle
+            logger.warning("Bluesky: client not logged in.")  # this should not happen
+            return None
+        if self.handle != profile.handle:
+            logger.warning(
+                "ATProto refresh: handle mismatch {self.handle} from did doc -> {profile.handle} from PDS"
+            )
         self.account_data = {
             k: v for k, v in profile.__dict__.items() if isinstance(v, (int, str))
         }
@@ -78,6 +151,7 @@ class BlueskyAccount(SocialAccount):
         if save:
             self.save(
                 update_fields=[
+                    "access_data",
                     "account_data",
                     "handle",
                     "last_refresh",
