@@ -1764,6 +1764,8 @@ class PostInteraction(models.Model):
     # state = StateField(PostInteractionStates)
     state = models.CharField(max_length=100, default="new")
     state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
 
     # The canonical object ID
     object_uri = models.CharField(max_length=500, blank=True, null=True, unique=True)

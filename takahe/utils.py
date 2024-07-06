@@ -617,7 +617,7 @@ class Takahe:
         return post
 
     @staticmethod
-    def interact_post(post_pk: int, identity_pk: int, type: str):
+    def interact_post(post_pk: int, identity_pk: int, type: str, flip=False):
         post = Post.objects.filter(pk=post_pk).first()
         if not post:
             logger.warning(f"Cannot find post {post_pk}")
@@ -626,14 +626,15 @@ class Takahe:
         if not identity:
             logger.warning(f"Cannot find identity {identity_pk}")
             return
-        interaction = PostInteraction.objects.get_or_create(
+        interaction, created = PostInteraction.objects.get_or_create(
             type=type,
             identity_id=identity_pk,
             post=post,
-        )[0]
-        if interaction.state not in ["new", "fanned_out"]:
-            interaction.state = "new"
-            interaction.save()
+        )
+        if flip and not created:
+            Takahe.update_state(interaction, "undone")
+        elif interaction.state not in ["new", "fanned_out"]:
+            Takahe.update_state(interaction, "new")
         post.calculate_stats()
         return interaction
 
@@ -660,7 +661,7 @@ class Takahe:
 
     @staticmethod
     def boost_post(post_pk: int, identity_pk: int):
-        return Takahe.interact_post(post_pk, identity_pk, "boost")
+        return Takahe.interact_post(post_pk, identity_pk, "boost", flip=True)
 
     @staticmethod
     def post_boosted_by(post_pk: int, identity_pk: int) -> bool:
@@ -747,7 +748,7 @@ class Takahe:
         return FediverseHtmlParser(linebreaks_filter(txt)).html
 
     @staticmethod
-    def update_state(obj: Post | Relay | Identity, state: str):
+    def update_state(obj: Post | PostInteraction | Relay | Identity, state: str):
         obj.state = state
         obj.state_changed = timezone.now()
         obj.state_next_attempt = None
