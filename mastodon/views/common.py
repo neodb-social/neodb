@@ -102,4 +102,11 @@ def disconnect_identity(request, account):
                 _("You cannot disconnect last login identity."),
             )
         account.delete()
+    messages.add_message(
+        request,
+        messages.INFO,
+        _("Login information about {handle} has been removed.").format(
+            handle=account.handle
+        ),
+    )
     return redirect(reverse("users:info"))

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from discord import SyncWebhook
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.signing import b62_decode, b62_encode
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
@@ -87,7 +87,7 @@ def profile_identity_required(func):
 
         try:
             target = APIdentity.get_by_handle(user_name, match_linked=True)
-        except APIdentity.DoesNotExist:
+        except ObjectDoesNotExist:
             raise Http404(_("User not found"))
         target_user = target.user
         viewer = None
