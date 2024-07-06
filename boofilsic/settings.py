@@ -85,6 +85,8 @@ env = environ.FileAwareEnv(
     NEODB_MIN_MARKS_FOR_DISCOVER=(int, 1),
     # Disable cron jobs, * for all
     NEODB_DISABLE_CRON_JOBS=(list, []),
+    # federated search peers
+    NEODB_SEARCH_PEERS=(list, []),
     # INTEGRATED TAKAHE CONFIGURATION
     TAKAHE_DB_URL=(str, "postgres://takahe:takahepass@127.0.0.1:5432/takahe"),
     # Spotify - https://developer.spotify.com/
@@ -268,6 +270,8 @@ DOWNLOADER_CACHE_TIMEOUT = env("NEODB_DOWNLOADER_CACHE_TIMEOUT")
 DOWNLOADER_RETRIES = env("NEODB_DOWNLOADER_RETRIES")
 
 DISABLE_CRON_JOBS = env("NEODB_DISABLE_CRON_JOBS")
+SEARCH_PEERS = env("NEODB_SEARCH_PEERS")
+
 FANOUT_LIMIT_DAYS = env("NEODB_FANOUT_LIMIT_DAYS")
 # ====== USER CONFIGUTRATION END ======
 

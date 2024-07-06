@@ -763,6 +763,8 @@ class Takahe:
 
     @staticmethod
     def get_neodb_peers():
+        if settings.SEARCH_PEERS:  # '-' = disable federated search
+            return [] if settings.SEARCH_PEERS == ["-"] else settings.SEARCH_PEERS
         cache_key = "neodb_peers"
         peers = cache.get(cache_key, None)
         if peers is None:

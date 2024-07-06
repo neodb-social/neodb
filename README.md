@@ -51,16 +51,18 @@ Follow us on [Fediverse](https://mastodon.social/@neodb) or join our [Discord co
   + view home feed with friends' activities
     * every activity can be set as viewable to self/follower-only/public
     * eligible items, e.g. podcasts and albums, are playable in feed
-  + login with other Fediverse server account and import social graph
+  + login with other Fediverse identity and import social graph
     * supported servers: Mastodon/Pleroma/Firefish/GoToSocial/Pixelfed/friendica/Takahē
-  + share collections and reviews to Fediverse ~~and Twitter~~ feed
+  + login with Bluesky / ATProto identity and import social graph
+  + login with threads.net (requires app verification by Meta)
+  + share collections and reviews to Fediverse/Bluesky/Threads
 - ActivityPub support
   + NeoDB users can follow and interact with users on other ActivityPub services like Mastodon and Pleroma
   + NeoDB instances communicate with each other via an extended version of ActivityPub
   + NeoDB instances may share public rating and reviews with a default relay
   + implementation is based on [Takahē](https://jointakahe.org/) server
 - Other
-  + i18n/language support is being worked on
+  + i18n: English, and Simp/Trad Chinese translation
 
 ## Host your own instance
 Please see [docs/install.md](docs/install.md)

@@ -159,7 +159,7 @@ class BlueskyAccount(SocialAccount):
             return False
         if self.handle != profile.handle:
             logger.warning(
-                "ATProto refresh: handle mismatch {self.handle} from did doc -> {profile.handle} from PDS"
+                f"ATProto refresh: handle mismatch {self.handle} from did doc -> {profile.handle} from PDS"
             )
         self.account_data = {
             k: v for k, v in profile.__dict__.items() if isinstance(v, (int, str))

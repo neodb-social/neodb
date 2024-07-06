@@ -42,9 +42,11 @@ NeoDB has [various features](features.md), and you may image it as a mix of Mast
   - view home feed with friends' activities
     - every activity can be set as viewable to self/follower-only/public
     - eligible items, e.g. podcasts and albums, are playable in feed
-  - login with other Fediverse server account and import social graph
+  - login with other Fediverse identity and import social graph
     - supported servers: Mastodon/Pleroma/Firefish/GoToSocial/Pixelfed/friendica/Takahē
-  - share collections and reviews to Fediverse ~~and Twitter~~ feed
+  - login with Bluesky / ATProto identity and import social graph
+  - login with threads.net (requires app verification by Meta)
+  - share collections and reviews to Fediverse/Bluesky/Threads
   - ActivityPub support
     - NeoDB users can follow and interact with users on other ActivityPub services like Mastodon and Pleroma
     - NeoDB instances communicate with each other via an extended version of ActivityPub

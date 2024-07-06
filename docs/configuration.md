@@ -40,7 +40,9 @@ if you are doing debug or development:
 
 ## Settings for Federation
 
- - `DISABLE_DEFAULT_RELAY` is set to `False` by default, the server will send and receive public posts from `relay.neodb.net`.
+ - `NEODB_SEARCH_PEERS` is empty by default, which means NeoDB will search all known peers running production version of NeoDB when user look for items. This can be set to a comma-separated list of host names, so that NeoDB will only search those servers; or search no other peers if set to just `-`.
+
+ - `NEODB_DISABLE_DEFAULT_RELAY` is set to `False` by default, the server will send and receive public posts from `relay.neodb.net`.
 
  	`relay.neodb.net` is [open sourced](https://github.com/neodb-social/neodb-relay) and operated by NeoDB developers, it works like most ActivityPub relays except it only relays between NeoDB instances, it helps public information like catalogs and trends flow between NeoDB instances. You may set it to `True` if you don't want to relay public posts with other NeoDB instances.
 
