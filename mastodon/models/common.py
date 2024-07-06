@@ -82,15 +82,12 @@ class SocialAccount(TypedModel):
             for k, v in self.__dict__.items()
             if k
             not in [
-                "_state",
-                "_client",
-                "_profile",
-                "api_domain",
                 "created",
                 "modified",
                 "last_refresh",
                 "last_reachable",
             ]
+            and not k.startswith("_")
         }
         return d
 

@@ -158,9 +158,11 @@ class BlueskyAccount(SocialAccount):
             logger.warning("Bluesky: client not logged in.")  # this should not happen
             return False
         if self.handle != profile.handle:
-            logger.warning(
-                f"ATProto refresh: handle mismatch {self.handle} from did doc -> {profile.handle} from PDS"
-            )
+            if self.handle:
+                logger.warning(
+                    f"ATProto refresh: handle mismatch {self.handle} from did doc -> {profile.handle} from PDS"
+                )
+            self.handle = profile.handle
         self.account_data = {
             k: v for k, v in profile.__dict__.items() if isinstance(v, (int, str))
         }
