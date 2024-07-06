@@ -102,7 +102,8 @@ class User(AbstractUser):
         _("username"),
         max_length=100,
         unique=True,
-        null=True,  # allow null for newly registered users who has not set a user name
+        null=False,
+        blank=False,
         help_text=_("Required. 50 characters or fewer. Letters, digits and _ only."),
         validators=[username_validator],
         error_messages={
@@ -116,59 +117,6 @@ class User(AbstractUser):
         null=False,
         default="en",
     )
-
-    # remove the following
-    email = models.EmailField(
-        _("email address"),
-        unique=True,
-        default=None,
-        null=True,
-    )
-    pending_email = models.EmailField(
-        _("email address pending verification"), default=None, null=True
-    )
-    local_following = models.ManyToManyField(
-        through="Follow",
-        to="self",
-        through_fields=("owner", "target"),
-        symmetrical=False,
-        related_name="local_followers",
-    )
-    local_blocking = models.ManyToManyField(
-        through="Block",
-        to="self",
-        through_fields=("owner", "target"),
-        symmetrical=False,
-        related_name="local_blocked_by",
-    )
-    local_muting = models.ManyToManyField(
-        through="Mute",
-        to="self",
-        through_fields=("owner", "target"),
-        symmetrical=False,
-        related_name="+",
-    )
-    following = models.JSONField(default=list)
-    muting = models.JSONField(default=list)
-    # rejecting = local/external blocking + local/external blocked_by + domain_blocking + domain_blocked_by
-    rejecting = models.JSONField(default=list)
-    mastodon_id = models.CharField(max_length=100, default=None, null=True)
-    mastodon_username = models.CharField(max_length=100, default=None, null=True)
-    mastodon_site = models.CharField(max_length=100, default=None, null=True)
-    mastodon_token = models.CharField(max_length=2048, default="")
-    mastodon_refresh_token = models.CharField(max_length=2048, default="")
-    mastodon_locked = models.BooleanField(default=False)
-    mastodon_followers = models.JSONField(default=list)
-    mastodon_following = models.JSONField(default=list)
-    mastodon_mutes = models.JSONField(default=list)
-    mastodon_blocks = models.JSONField(default=list)
-    mastodon_domain_blocks = models.JSONField(default=list)
-    mastodon_account = models.JSONField(default=dict)
-    mastodon_last_refresh = models.DateTimeField(default=timezone.now)
-    mastodon_last_reachable = models.DateTimeField(default=timezone.now)
-    # store the latest read announcement id,
-    # every time user read the announcement update this field
-    read_announcement_index = models.PositiveIntegerField(default=0)
 
     class Meta:
         constraints = [
@@ -388,27 +336,3 @@ class User(AbstractUser):
             SocialAccount.objects.filter(user=self, type=account.type).delete()
             account.user = self
             account.save()
-
-
-# TODO the following models should be deprecated soon
-
-
-class Follow(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
-    target = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
-    created_time = models.DateTimeField(auto_now_add=True)
-    edited_time = models.DateTimeField(auto_now=True)
-
-
-class Block(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
-    target = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
-    created_time = models.DateTimeField(auto_now_add=True)
-    edited_time = models.DateTimeField(auto_now=True)
-
-
-class Mute(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
-    target = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
-    created_time = models.DateTimeField(auto_now_add=True)
-    edited_time = models.DateTimeField(auto_now=True)
