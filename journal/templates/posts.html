@@ -39,7 +39,7 @@
               {% endif %}
             {% endfor %}
           </div>
-          {{ post.content|bleach:"a,p,span,br,div,img"|default:"" }}
+          <div class="tldr" _="on click toggle .tldr on me">{{ post.content|bleach:"a,p,span,br,div,img"|default:"" }}</div>
         </div>
       </div>
     </div>
