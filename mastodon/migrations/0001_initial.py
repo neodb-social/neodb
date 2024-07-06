@@ -48,8 +48,7 @@ class Migration(migrations.Migration):
                 (
                     "star_mode",
                     models.PositiveIntegerField(
-                        default=0,
-                        verbose_name="0: custom emoji; 1: unicode moon; 2: text",
+                        default=0, verbose_name="0: unicode moon; 1: custom emoji"
                     ),
                 ),
                 (

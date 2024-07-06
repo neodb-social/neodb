@@ -5,6 +5,55 @@ import django.db.models.functions.text
 import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
+from tqdm import tqdm
+
+from catalog.common import jsondata
+
+
+def move_masto_email(apps, schema_editor):
+    User = apps.get_model("users", "User")
+    MastodonAccount = apps.get_model("mastodon", "MastodonAccount")
+    EmailAccount = apps.get_model("mastodon", "EmailAccount")
+    m = 0
+    e = 0
+    qs = User.objects.filter(username__isnull=True)
+    print(f"Deleting {qs.count()} nameless users.")
+    qs.delete()
+    for user in tqdm(User.objects.filter(is_active=True)):
+        if user.mastodon_username:
+            MastodonAccount.objects.update_or_create(
+                handle=f"{user.mastodon_username}@{user.mastodon_site}",
+                defaults={
+                    "user": user,
+                    "uid": user.mastodon_id,
+                    "domain": user.mastodon_site,
+                    "created": user.date_joined,
+                    "last_refresh": user.mastodon_last_refresh,
+                    "last_reachable": user.mastodon_last_reachable,
+                    "followers": user.mastodon_followers,
+                    "following": user.mastodon_following,
+                    "blocks": user.mastodon_blocks,
+                    "mutes": user.mastodon_mutes,
+                    "domain_blocks": user.mastodon_domain_blocks,
+                    "account_data": user.mastodon_account,
+                    "access_data": {
+                        "access_token": jsondata.encrypt_str(user.mastodon_token)
+                    },
+                },
+            )
+            m += 1
+        if user.email:
+            EmailAccount.objects.update_or_create(
+                handle=user.email,
+                defaults={
+                    "user": user,
+                    "uid": user.email.split("@")[0],
+                    "domain": user.email.split("@")[1],
+                    "created": user.date_joined,
+                },
+            )
+            e += 1
+    print(f"{m} Mastodon, {e} Email migrated.")
 
 
 class Migration(migrations.Migration):
@@ -133,4 +182,5 @@ class Migration(migrations.Migration):
                 name="unique_social_type_handle",
             ),
         ),
+        migrations.RunPython(move_masto_email),
     ]

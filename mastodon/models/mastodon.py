@@ -38,6 +38,12 @@ class TootVisibilityEnum(StrEnum):
     UNLISTED = "unlisted"
 
 
+get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
+put = functools.partial(requests.put, timeout=settings.MASTODON_TIMEOUT)
+post = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
+delete = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
+_sites_cache_key = "login_sites"
+
 # See https://docs.joinmastodon.org/methods/accounts/
 
 # returns user info
@@ -317,10 +323,10 @@ def detect_server_info(login_domain: str) -> tuple[str, str, str]:
     try:
         response = get(url, headers={"User-Agent": USER_AGENT})
     except Exception as e:
-        logger.error(f"Error connecting {login_domain}", extra={"exception": e})
+        logger.warning(f"Error connecting {login_domain}", extra={"exception": e})
         raise Exception(f"Error connecting to instance {login_domain}")
     if response.status_code != 200:
-        logger.error(f"Error connecting {login_domain}", extra={"response": response})
+        logger.warning(f"Error in response from {login_domain} {response.status_code}")
         raise Exception(
             f"Instance {login_domain} returned error code {response.status_code}"
         )
@@ -328,7 +334,9 @@ def detect_server_info(login_domain: str) -> tuple[str, str, str]:
         j = response.json()
         domain = j["uri"].lower().split("//")[-1].split("/")[0]
     except Exception as e:
-        logger.error(f"Error connecting {login_domain}", extra={"exception": e})
+        logger.warning(
+            f"Error pasring response from {login_domain}", extra={"exception": e}
+        )
         raise Exception(f"Instance {login_domain} returned invalid data")
     server_version = j["version"]
     api_domain = domain
@@ -414,13 +422,6 @@ def get_toot_visibility(visibility, user) -> TootVisibilityEnum:
         return TootVisibilityEnum.PUBLIC
     else:
         return TootVisibilityEnum.UNLISTED
-
-
-get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
-put = functools.partial(requests.put, timeout=settings.MASTODON_TIMEOUT)
-post = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
-delete = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
-_sites_cache_key = "login_sites"
 
 
 def get_or_create_fediverse_application(login_domain):
@@ -516,7 +517,7 @@ class MastodonApplication(models.Model):
     client_secret = models.CharField(_("client secret"), max_length=200)
     vapid_key = models.CharField(_("vapid key"), max_length=200, null=True, blank=True)
     star_mode = models.PositiveIntegerField(
-        _("0: custom emoji; 1: unicode moon; 2: text"), blank=False, default=0
+        _("0: unicode moon; 1: custom emoji"), blank=False, default=0
     )
     max_status_len = models.PositiveIntegerField(
         _("max toot len"), blank=False, default=500
@@ -528,6 +529,24 @@ class MastodonApplication(models.Model):
 
     def __str__(self):
         return self.domain_name
+
+    def detect_configurations(self):
+        api_domain = self.api_domain or self.domain_name
+        url = f"https://{api_domain}/api/v1/instance"
+        response = get(url, headers={"User-Agent": settings.NEODB_USER_AGENT})
+        if response.status_code == 200:
+            j = response.json()
+            max_chars = (
+                j.get("configuration", {}).get("statuses", {}).get("max_characters")
+            )
+            if max_chars:
+                self.max_status_len = max_chars
+        url = f"https://{api_domain}/api/v1/custom_emojis"
+        response = get(url, headers={"User-Agent": settings.NEODB_USER_AGENT})
+        if response.status_code == 200:
+            j = response.json()
+            if next(filter(lambda e: e["shortcode"] == "star_half", j), None):
+                self.star_mode = 1
 
 
 class Mastodon:
@@ -631,8 +650,8 @@ class MastodonAccount(SocialAccount):
     def rating_to_emoji(self, rating_grade: int | None) -> str:
         from journal.models.renderers import render_rating
 
-        app = self.application  # TODO fix star mode data flip in app
-        return render_rating(rating_grade, (0 if app.star_mode else 1) if app else 0)
+        app = self.application
+        return render_rating(rating_grade, app.star_mode if app else 0)
 
     def _get(self, url: str):
         url = url if url.startswith("https://") else f"https://{self._api_domain}{url}"

@@ -111,8 +111,12 @@ class SocialAccount(TypedModel):
             logger.debug(f"{self} skip refreshing as it's done recently")
             return False
         if not self.check_alive():
-            dt = timezone.now() - self.last_reachable
-            logger.warning(f"{self} unreachable for {dt.days} days")
+            d = (
+                (timezone.now() - self.last_reachable).days
+                if self.last_reachable
+                else "unknown"
+            )
+            logger.warning(f"{self} unreachable for {d} days")
             return False
         if not self.refresh():
             logger.warning(f"{self} refresh failed")
