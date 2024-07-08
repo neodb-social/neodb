@@ -109,7 +109,7 @@ NEODB_LANGUAGE=zh-hans neodb-manage test
 
 Update translations:
 ```
-django-admin makemessages --no-wrap --no-obsolete -i neodb-takahe -a
+django-admin makemessages --no-wrap --no-obsolete -i .venv neodb-takahe -a
 # edit .po files, run the following to make sure edits are correct
 django-admin makemessages --no-wrap --no-obsolete -i .venv -i neodb-takahe -a
 django-admin compilemessages -i .venv -i neodb-takahe
@@ -118,6 +118,7 @@ django-admin compilemessages -i .venv -i neodb-takahe
 Development in Docker Compose
 -----------------------------
 The `dev` profile is different from `production`:
+
 - code in `NEODB_SRC` (default: .) and `TAKAHE_SRC` (default: ./neodb-takahe) will be mounted and used in the container instead of code in the image
 - `runserver` with autoreload will be used instead of `gunicorn` for both neodb and takahe web server
 - /static/ and /s/ url are not map to pre-generated/collected static file path,  `NEODB_DEBUG=True` is required locate static files from source code
@@ -126,13 +127,14 @@ The `dev` profile is different from `production`:
 - there's no automatic `migration` container, but it can be triggered manually via `docker compose run dev-shell neodb-init`
 
 Note:
+
 - Python virtual environments inside docker image, which are `/neodb-venv` and `/takahe-venv`, will be used by default. They can be changed to different locations with `TAKAHE_VENV` and `NEODB_VENV` if needed, usually in a case of development code using a package not in docker venv.
 - Some packages inside python virtual environments are platform dependent, so mount venv built by macOS host into the Linux container will likely not work.
 - Python servers are launched as `app` user, who has no write access to anywhere except /tmp and media path, that's by design.
 - Database/redis/typesense used in the container cluster are not accessible from host directly, which is by design. Querying them can be done by one of the following:
-  - `neodb-manage dbshell`
-  - `neodb-shell redis-cli -h redis`
-  - create `compose.override.yml` to uncomment `ports` section.
+    - `neodb-manage dbshell`
+    - `neodb-shell redis-cli -h redis`
+    - or create `compose.override.yml` to uncomment `ports` section.
 - To expose the neodb and takahe web server directly, in the folder for configuration, create `compose.override.yml` with the following content:
 
 ```
@@ -159,11 +161,12 @@ NEODB_SITE_DOMAIN=${CODESPACE_NAME}-8000.${GITHUB_CODESPACES_PORT_FORWARDING_DOM
 Applications
 ------------
 Main Django apps for NeoDB:
+
  - `users` manages user in typical Django fashion
- - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/) ~and [Twitter API](https://developer.twitter.com/en/docs/twitter-api)~ for user login and data sync
+ - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/), [Threads API](https://developers.facebook.com/docs/threads/) and [ATProto}(https://atproto.com) for user login and data sync
  - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](internals/catalog.md) for more details
- - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag), see [journal.md](internals/journal.md) for more details
- - `social` present timeline and notification for local users, see [social.md](internals/social.md) for more details
+ - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag/note), see [journal.md](internals/journal.md) for more details
+ - `social` present timeline and notification for local users
  - `takahe` communicate with Takahe (a separate Django server, run side by side with this server, code in `neodb_takahe` as submodule), see [federation.md](internals/federation.md) for customization of ActivityPub protocol
  - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old urls to new ones. If your journey starts with 0.5 and later, feel free to ignore it.
 
