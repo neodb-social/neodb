@@ -24,7 +24,7 @@ Follow [official instructions](https://docs.docker.com/engine/install/linux-post
 
 ## Prepare configuration files
  - create a folder for configuration, eg ~/mysite/config
- - grab [compose.yml](https://raw.githubusercontent.com/neodb-social/neodb/main/compose.yml) and [neodb.env.example](https://raw.githubusercontent.com/neodb-social/neodb/main/neodb.env.example) from source code
+ - grab `compose.yml` and `neodb.env.example` from [latest release](https://github.com/neodb-social/neodb/releases)
  - rename `neodb.env.example` to `.env`
 
 
@@ -36,6 +36,7 @@ Change essential options like `NEODB_SITE_DOMAIN` in `.env` before starting the 
 - `NEODB_SECRET_KEY` - encryption key of session data
 - `NEODB_DATA` is the path to store db/media/cache, it's `../data` by default, but can be any path that's writable
 - `NEODB_DEBUG` - set to `False` for production deployment
+- `NEODB_LANGUAGE` - default language when importing titles from 3rd party sites like TMDB and Steam, set it to one of `en` / `zh-hans` / `zh-hant`
 
 Optionally, `robots.txt` and `logo.png` may be placed under `$NEODB_DATA/www-root/`.
 

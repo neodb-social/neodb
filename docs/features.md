@@ -27,6 +27,7 @@ NeoDB has [various features](features.md), and you may image it as a mix of Mast
 
   - mark an item as wishlist/in progress/complete/dropped
   - rate and write reviews for an item
+  - write notes for an item with progress (e.g. reading notes at page 42)
   - create tags for an item, either privately or publicly
   - create and share list of items
   - tracking progress of a list (e.g. personal reading challenges)
@@ -53,6 +54,11 @@ NeoDB has [various features](features.md), and you may image it as a mix of Mast
     - NeoDB instances may share public rating and reviews with a default relay
     - implementation is based on [Takahē](https://jointakahe.org/) server
 
+
+## API
+  - Mastodon compatible API
+    - most mastodon compatible apps are compatible with NeoDB
+  - NeoDB API to manage reviews and collections
 
 ## Languages
 
