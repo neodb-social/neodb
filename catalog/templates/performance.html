@@ -42,7 +42,7 @@
         {% for prod in productions %}
           <hgroup>
             <h6>
-              <a href="{{ prod.url }}">{{ prod.title }}</a>
+              <a href="{{ prod.url }}">{{ prod.display_title }}</a>
             </h6>
             <div>
               {% if prod.opening_date %}

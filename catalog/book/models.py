@@ -37,6 +37,7 @@ from catalog.common import (
     jsondata,
 )
 from catalog.common.models import SCRIPT_CHOICES
+from common.models.misc import uniq
 
 from .utils import *
 
@@ -235,11 +236,20 @@ class Edition(Item):
         if target.works.all().exists():
             for work in target.works.all():
                 self.works.add(work)
+                work.localized_title = uniq(work.localized_title + self.localized_title)
+                work.save()
         elif self.works.all().exists():
             for work in self.works.all():
                 target.works.add(work)
+                work.localized_title = uniq(
+                    work.localized_title + target.localized_title
+                )
+                work.save()
         else:
-            Work.objects.create(title=self.title).editions.add(self, target)
+            work = Work.objects.create(title=self.title)
+            work.editions.add(self, target)
+            work.localized_title = self.localized_title
+            work.save()
         return True
 
     def unlink_from_all_works(self):
@@ -290,17 +300,14 @@ class Work(Item):
 
     def merge_to(self, to_item: "Work | None"):  # type: ignore[reportIncompatibleMethodOverride]
         super().merge_to(to_item)
-        if to_item:
-            for edition in self.editions.all():
-                to_item.editions.add(edition)
+        if not to_item:
+            return
+        for edition in self.editions.all():
+            to_item.editions.add(edition)
         self.editions.clear()
-        if (
-            to_item
-            and self.title != to_item.title
-            and self.title not in to_item.other_title
-        ):
-            to_item.other_title += [self.title]  # type: ignore
-            to_item.save()
+        to_item.other_title = uniq(to_item.other_title + [self.title])  # type: ignore
+        to_item.localized_title = uniq(to_item.localized_title + self.localized_title)
+        to_item.save()
 
     def delete(self, using=None, keep_parents=False, soft=True, *args, **kwargs):
         if soft:

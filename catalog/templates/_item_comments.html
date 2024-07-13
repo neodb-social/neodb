@@ -40,8 +40,8 @@
                data-cover="{{ comment.item.cover_url|default:item.cover.url }}"
                class="episode"
                data-hosts="{{ item.hosts|join:' / ' }}"
-               data-title="{{ comment.item.title }}"
-               data-album="{{ item.title }}"
+               data-title="{{ comment.item.display_title }}"
+               data-album="{{ item.display_title }}"
                {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' comment.item.uuid %}" {% endif %}
                data-uuid="{{ comment.item.uuid }}"><i class="fa-regular fa-circle-play"></i></a>
           </span>
@@ -65,7 +65,7 @@
         </span>
       </span>
       {% if comment.item != item %}
-        <a href="{{ comment.item_url }}">{{ comment.item.title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
+        <a href="{{ comment.item_url }}">{{ comment.item.display_title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
       {% endif %}
       <div class="tldr" _="on click toggle .tldr on me">
         <span>

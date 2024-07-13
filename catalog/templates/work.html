@@ -17,7 +17,7 @@
       <summary>{% trans 'Editions' %}</summary>
       {% for b in item.editions.all %}
         <div>
-          <a href="{{ b.url }}">{{ b.title }}</a>
+          <a href="{{ b.url }}">{{ b.display_title }}</a>
           <small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
         </div>
       {% endfor %}

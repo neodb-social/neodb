@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} -
       {% if form.instance.id %}
-        {% trans 'Edit' %} {{ form.instance.title }}
+        {% trans 'Edit' %} {{ form.instance.display_title }}
       {% else %}
         {% trans 'Create' %}
       {% endif %}

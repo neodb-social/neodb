@@ -67,8 +67,10 @@
             {{ comment.mark.action_label }}
           </span>
         </span>
-        {% if comment.focus_item %}<a href="{{ comment.focus_item.url }}">{{ comment.focus_item.title }}</a>{% endif %}
-        {% if comment.item != item %}<a href="{{ comment.item.url }}">{{ comment.item.title }}</a>{% endif %}
+        {% if comment.focus_item %}
+          <a href="{{ comment.focus_item.url }}">{{ comment.focus_item.display_title }}</a>
+        {% endif %}
+        {% if comment.item != item %}<a href="{{ comment.item.url }}">{{ comment.item.display_title }}</a>{% endif %}
         <div class="tldr" _="on click toggle .tldr on me">{{ comment.html|safe }}</div>
       </section>
     {% else %}

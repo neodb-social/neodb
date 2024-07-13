@@ -84,11 +84,14 @@ class WorkTestCase(TestCase):
         self.assertFalse(self.hyperion_print.has_related_books())
 
     def test_merge(self):
-        w1 = Work.objects.create(title="title1")
-        w2 = Work.objects.create(title="title2")
+        title1 = [{"lang": "zh", "text": "z"}]
+        title2 = [{"lang": "en", "text": "e"}]
+        w1 = Work.objects.create(title="title1", localized_title=title1)
+        w2 = Work.objects.create(title="title2", localized_title=title2)
         w2.merge_to(w1)
         self.assertEqual(w1.title, "title1")
         self.assertEqual(w1.other_title, ["title2"])
+        self.assertEqual(len(w1.localized_title), 2)
 
     def test_link(self):
         self.hyperion_print.link_to_related_book(self.hyperion_ebook)

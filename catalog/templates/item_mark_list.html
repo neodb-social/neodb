@@ -41,7 +41,9 @@
               <div>
                 <a href="{{ mark.owner.url }}" title="@{{ mark.owner.handle }}">{{ mark.owner.display_name }}</a>
                 <span>{{ mark.action_label }}</span>
-                {% if mark.comment.item != item %}<a href="{{ mark.comment.item_url }}">{{ mark.comment.item.title }}</a>{% endif %}
+                {% if mark.comment.item != item %}
+                  <a href="{{ mark.comment.item_url }}">{{ mark.comment.item.display_title }}</a>
+                {% endif %}
               </div>
               <div>
                 {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}

@@ -26,7 +26,7 @@
         <span class="timestamp">{% trans "review" %}</span>
       </span>
       {% if review.item != item %}
-        <a href="{{ review.item.url }}">{{ review.item.title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
+        <a href="{{ review.item.url }}">{{ review.item.display_title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
       {% endif %}
       <div class="tldr">
         <span>

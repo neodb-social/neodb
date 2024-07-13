@@ -106,18 +106,18 @@
                      data-uuid="{{ item.uuid }}"
                      data-media="{{ item.media_url }}"
                      data-cover="{{ item.cover_url|default:item.program.cover.url }}"
-                     data-title="{{ item.title }}"
-                     data-album="{{ item.program.title }}"
+                     data-title="{{ item.display_title }}"
+                     data-album="{{ item.program.display_title }}"
                      data-hosts="{{ item.program.hosts|join:' / ' }}"
                      {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' item.uuid %}" {% endif %}
                      data-position="0"
                      href="{{ item.url }}"
-                     title="{{ item.title }}">
+                     title="{{ item.display_title }}">
                     <img src="{{ item.cover_image_url|default:item.cover.url|relative_uri }}"
-                         alt="{{ item.title }}"
+                         alt="{{ item.display_title }}"
                          loading="lazy">
                     <div class="card-title">
-                      <i class="fa-solid fa-circle-play"></i> {{ item.title }}
+                      <i class="fa-solid fa-circle-play"></i> {{ item.display_title }}
                     </div>
                   </a>
                 </li>
@@ -137,11 +137,11 @@
             <ul class="cards">
               {% for item in books_in_progress %}
                 <li class="card">
-                  <a href="{{ item.url }}" title="{{ item.title }}">
+                  <a href="{{ item.url }}" title="{{ item.display_title }}">
                     <img src="{{ item.cover|thumb:'normal' }}"
-                         alt="{{ item.title }}"
+                         alt="{{ item.display_title }}"
                          loading="lazy">
-                    <div class="card-title">{{ item.title }}</div>
+                    <div class="card-title">{{ item.display_title }}</div>
                   </a>
                 </li>
               {% endfor %}
@@ -160,11 +160,11 @@
             <ul class="cards">
               {% for item in tvshows_in_progress %}
                 <li class="card">
-                  <a href="{{ item.url }}" title="{{ item.title }}">
+                  <a href="{{ item.url }}" title="{{ item.display_title }}">
                     <img src="{{ item.cover|thumb:'normal' }}"
-                         alt="{{ item.title }}"
+                         alt="{{ item.display_title }}"
                          loading="lazy">
-                    <div class="card-title">{{ item.title }}</div>
+                    <div class="card-title">{{ item.display_title }}</div>
                   </a>
                 </li>
               {% endfor %}

@@ -94,7 +94,7 @@
           <summary>{% trans 'other editions' %}</summary>
           {% for b in related_books %}
             <div>
-              <a href="{{ b.url }}">{{ b.title }}</a>
+              <a href="{{ b.url }}">{{ b.display_title }}</a>
               <small class="title_deco">{{ b.title_deco }}</small>
               {% comment %} {% for res in b.external_resources.all %}
               <a href="{{ res.url }}">

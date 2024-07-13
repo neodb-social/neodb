@@ -3,8 +3,11 @@ import pprint
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db.models import Count, F
+from tqdm import tqdm
 
+from catalog.book.tests import uniq
 from catalog.models import *
+from common.models.lang import detect_language
 from journal.models import update_journal_for_merged_item
 
 
@@ -26,6 +29,11 @@ class Command(BaseCommand):
             help="purge deleted items",
         )
         parser.add_argument(
+            "--localize",
+            action="store_true",
+            help="migrate localized title/description",
+        )
+        parser.add_argument(
             "--integrity",
             action="store_true",
             help="check and fix integrity for merged and deleted items",
@@ -38,7 +46,27 @@ class Command(BaseCommand):
             self.purge()
         if options["integrity"]:
             self.integrity()
+        if options["localize"]:
+            self.localize()
         self.stdout.write(self.style.SUCCESS(f"Done."))
+
+    def localize(self):
+        for i in tqdm(Item.objects.all()):
+            localized_title = [{"lang": detect_language(i.title), "text": i.title}]
+            if hasattr(i, "orig_title") and i.orig_title:  # type:ignore
+                localized_title += [
+                    {
+                        "lang": detect_language(i.orig_title),  # type:ignore
+                        "text": i.orig_title,  # type:ignore
+                    }
+                ]
+            if hasattr(i, "other_title") and i.other_title:  # type:ignore
+                for title in i.other_title:  # type:ignore
+                    localized_title += [{"lang": detect_language(title), "text": title}]
+            localized_desc = [{"lang": detect_language(i.brief), "text": i.brief}]
+            i.localized_title = uniq(localized_title)
+            i.localized_description = localized_desc
+            i.save(update_fields=["metadata"])
 
     def purge(self):
         for cls in Item.__subclasses__():

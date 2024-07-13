@@ -146,7 +146,7 @@ class TagTest(TestCase):
 
     def test_cleanup(self):
         self.assertEqual(Tag.cleanup_title("# "), "_")
-        self.assertEqual(Tag.deep_cleanup_title("# C "), "text")
+        self.assertEqual(Tag.deep_cleanup_title("# C "), "c")
 
     def test_user_tag(self):
         t1 = "tag 1"

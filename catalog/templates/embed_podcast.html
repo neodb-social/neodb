@@ -32,10 +32,10 @@ window.player = new Shikwasa.Player({
   theme: 'dark',
   themeColor: '#837FFF',
   audio: {
-		title: "{{ focus_item.title | escapejs }}",
+		title: "{{ focus_item.display_title | escapejs }}",
 		cover: "{{ focus_item.cover_url | default:item.cover.url | escapejs }}",
 		src: "{{ focus_item.media_url | escapejs }}",
-		album: "{{ item.title|escapejs }}",
+		album: "{{ item.display_title|escapejs }}",
 		artist: "{{ item.hosts|join:' / '|escapejs }}"
 	}
 });

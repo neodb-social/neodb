@@ -55,11 +55,11 @@
             <ul class="cards">
               {% for item in gallery.items %}
                 <li class="card">
-                  <a href="{{ item.url }}" title="{{ item.title }}">
+                  <a href="{{ item.url }}" title="{{ item.display_title }}">
                     <img src="{{ item.cover|thumb:'normal' }}"
-                         alt="{{ item.title }}"
+                         alt="{{ item.display_title }}"
                          loading="lazy">
-                    <div class="card-title">{{ item.title }}</div>
+                    <div class="card-title">{{ item.display_title }}</div>
                   </a>
                 </li>
               {% endfor %}
@@ -85,11 +85,11 @@
           <ul class="cards">
             {% for item in featured_collections %}
               <li class="card">
-                <a href="{{ item.url }}" title="{{ item.title }}">
+                <a href="{{ item.url }}" title="{{ item.display_title }}">
                   <img src="{{ item.cover|thumb:'normal' }}"
-                       alt="{{ item.title }}"
+                       alt="{{ item.display_title }}"
                        loading="lazy">
-                  <div class="card-title">{{ item.title }}</div>
+                  <div class="card-title">{{ item.display_title }}</div>
                 </a>
               </li>
             {% endfor %}

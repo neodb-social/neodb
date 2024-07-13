@@ -98,11 +98,11 @@
                   {% for member in shelf.members %}
                     <li class="card">
                       <a href="{% if shelf_type == 'reviewed' %}{{ member.url }}{% else %}{{ member.item.url }}{% endif %}"
-                         title="{{ member.item.title }}">
+                         title="{{ member.item.display_title }}">
                         <img src="{{ member.item.cover|thumb:'normal' }}"
-                             alt="{{ member.item.title }}"
+                             alt="{{ member.item.display_title }}"
                              loading="lazy">
-                        <div>{{ member.item.title }}</div>
+                        <div>{{ member.item.display_title }}</div>
                       </a>
                     </li>
                   {% empty %}

@@ -10,8 +10,8 @@
          class="episode gg-play-button-o"
          href="{{ ep.url }}"
          data-uuid="{{ ep.uuid }}"
-         data-title="{{ ep.title }}"
-         data-album="{{ item.title }}"
+         data-title="{{ ep.display_title }}"
+         data-album="{{ item.display_title }}"
          data-hosts="{{ item.hosts|join:' / ' }}"
          {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' ep.uuid %}" {% endif %}
          style="top:4px;
@@ -29,7 +29,7 @@
          target="_blank"
          rel="noopener"
          href="{{ ep.link }}"><i class="fa-solid fa-link"></i></a>
-      {{ ep.title }}
+      {{ ep.display_title }}
       <small style="color:lightgrey;">{{ ep.pub_date|date }}</small>
     </h6>
     <small class="tldr-2 muted" _="on click toggle .tldr-2">{{ ep.brief | linebreaksbr }}</small>

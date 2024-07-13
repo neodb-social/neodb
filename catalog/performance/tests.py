@@ -56,7 +56,6 @@ class DoubanDramaTestCase(TestCase):
         if item is None:
             raise ValueError()
         self.assertEqual(item.orig_title, "Iphigenie auf Tauris")
-        print(item.localized_title)
         self.assertEqual(len(item.localized_title), 3)
         self.assertEqual(item.opening_date, "1974-04-21")
         self.assertEqual(item.choreographer, ["Pina Bausch"])
@@ -94,7 +93,7 @@ class DoubanDramaTestCase(TestCase):
         )
         self.assertEqual(len(resource.related_resources), 4)
         crawl_related_resources_task(resource.id)  # force the async job to run now
-        productions = list(item.productions.all().order_by("title"))
+        productions = sorted(list(item.productions.all()), key=lambda p: p.opening_date)
         self.assertEqual(len(productions), 4)
         self.assertEqual(
             productions[3].actor,

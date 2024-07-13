@@ -36,7 +36,7 @@
   </section>
   <script>
 window.podcastData = {
-  "title": "{{ item.title | escapejs }}",
+  "title": "{{ item.display_title | escapejs }}",
   "subtitle": "",
   "description": "{{ item.brief | escapejs }}",
   "cover": "{{ item.cover.url | escapejs }}",
@@ -47,10 +47,10 @@ $(()=>{
 	var position = 1 * "{{request.GET.position|escapejs}}";
 	window.current_item_uuid = "{{focus_item.uuid}}";
 	create_player({
-		title: "{{ focus_item.title | escapejs }}",
+		title: "{{ focus_item.display_title | escapejs }}",
 		cover: "{{ focus_item.cover_url | default:item.cover.url | escapejs }}",
 		src: "{{ focus_item.media_url | escapejs }}",
-		album: "{{ item.title|escapejs }}",
+		album: "{{ item.display_title|escapejs }}",
 		artist: "{{ item.hosts|join:' / '|escapejs }}"
 	})
 	if (position) window.player._initSeek = position;

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-13 00:12-0400\n"
+"POT-Creation-Date: 2024-07-13 01:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,68 +27,68 @@ msgstr "簡體中文"
 msgid "Traditional Chinese"
 msgstr "繁體中文"
 
-#: catalog/book/models.py:97
+#: catalog/book/models.py:98
 msgid "subtitle"
 msgstr "副標題"
 
-#: catalog/book/models.py:100 catalog/movie/models.py:68
+#: catalog/book/models.py:101 catalog/movie/models.py:68
 #: catalog/performance/models.py:257 catalog/tv/models.py:137
 #: catalog/tv/models.py:292
 msgid "original title"
 msgstr "原名"
 
-#: catalog/book/models.py:103 catalog/book/models.py:259
+#: catalog/book/models.py:104 catalog/book/models.py:269
 msgid "author"
 msgstr "作者"
 
-#: catalog/book/models.py:110
+#: catalog/book/models.py:111
 msgid "translator"
 msgstr "譯者"
 
-#: catalog/book/models.py:117 catalog/common/models.py:299
+#: catalog/book/models.py:118 catalog/common/models.py:299
 #: catalog/common/models.py:316 catalog/common/models.py:329
 #: catalog/templates/edition.html:47 catalog/tv/models.py:372
 #: users/models/user.py:114
 msgid "language"
 msgstr "語言"
 
-#: catalog/book/models.py:125 catalog/templates/edition.html:26
+#: catalog/book/models.py:126 catalog/templates/edition.html:26
 msgid "publishing house"
 msgstr "出版社"
 
-#: catalog/book/models.py:128
+#: catalog/book/models.py:129
 msgid "publication year"
 msgstr "發行年份"
 
-#: catalog/book/models.py:134
+#: catalog/book/models.py:135
 msgid "publication month"
 msgstr "發行月份"
 
-#: catalog/book/models.py:140 catalog/templates/edition.html:52
+#: catalog/book/models.py:141 catalog/templates/edition.html:52
 msgid "binding"
 msgstr "裝訂"
 
-#: catalog/book/models.py:142
+#: catalog/book/models.py:143
 msgid "pages"
 msgstr "頁數"
 
-#: catalog/book/models.py:144 catalog/templates/edition.html:42
+#: catalog/book/models.py:145 catalog/templates/edition.html:42
 msgid "series"
 msgstr "叢書"
 
-#: catalog/book/models.py:146
+#: catalog/book/models.py:147
 msgid "contents"
 msgstr "目錄"
 
-#: catalog/book/models.py:147 catalog/templates/edition.html:57
+#: catalog/book/models.py:148 catalog/templates/edition.html:57
 msgid "price"
 msgstr "價格"
 
-#: catalog/book/models.py:148 catalog/templates/edition.html:31
+#: catalog/book/models.py:149 catalog/templates/edition.html:31
 msgid "imprint"
 msgstr "出品方"
 
-#: catalog/book/models.py:266 catalog/game/models.py:60
+#: catalog/book/models.py:276 catalog/game/models.py:60
 #: catalog/movie/models.py:71 catalog/music/models.py:87
 #: catalog/performance/models.py:115 catalog/performance/models.py:260
 #: catalog/tv/models.py:141 catalog/tv/models.py:295
@@ -680,8 +680,7 @@ msgstr "顯示更多"
 #: catalog/templates/_item_comments_by_episode.html:82
 #: catalog/templates/_item_reviews.html:47
 #: catalog/templates/podcast_episode_data.html:44
-#: social/templates/events.html:43 social/templates/feed_data.html:44
-#: social/templates/feed_events.html:133
+#: social/templates/events.html:43 social/templates/feed_events.html:133
 msgid "nothing more."
 msgstr "沒有更多內容了。"
 
@@ -2169,7 +2168,7 @@ msgstr "未知或其它"
 msgid "Simplified Chinese (Mainland)"
 msgstr "簡體中文(大陸)"
 
-#: common/models/lang.py:226 common/models/lang.py:232
+#: common/models/lang.py:226
 msgid "Traditional Chinese (Taiwan)"
 msgstr "正體中文(臺灣)"
 
@@ -2184,6 +2183,10 @@ msgstr "簡體中文(新加坡)"
 #: common/models/lang.py:231
 msgid "Simplified Chinese (Malaysia)"
 msgstr "簡體中文(馬來西亞)"
+
+#: common/models/lang.py:232
+msgid "Traditional Chinese (Macau)"
+msgstr "繁體中文(澳門)"
 
 #: common/models/lang.py:235
 msgid "Mandarin Chinese"
@@ -3779,41 +3782,6 @@ msgstr "聯邦實例返回了無效的賬號數據。"
 msgid "Invalid account data from Threads."
 msgstr "Threads返回了無效的賬號數據。"
 
-#: social/templates/activity/comment_child_item.html:12
-#: social/templates/feed_events.html:40
-msgid "play"
-msgstr "播放"
-
-#: social/templates/activity/comment_child_item.html:25
-msgid "comment"
-msgstr "寫短評"
-
-#: social/templates/activity/create_collection.html:16 takahe/utils.py:563
-msgid "created collection"
-msgstr "創建了收藏單"
-
-#: social/templates/activity/feature_collection.html:17
-msgid "set a target"
-msgstr "設置了目標"
-
-#: social/templates/activity/like_collection.html:17
-#, python-format
-msgid "liked  <a href=\"%(owner_url)s\">%(owner_name)s</a>'s collection"
-msgstr "讚了 <a href=\"%(owner_url)s\">%(owner_name)s</a> 的收藏單"
-
-#: social/templates/activity/mark_item.html:12
-#: social/templates/activity/mark_item.html:19
-#: social/templates/activity/review_item.html:12
-#: social/templates/activity/review_item.html:19
-#: social/templates/feed_events.html:51
-msgid "mark"
-msgstr "標記"
-
-#: social/templates/activity/review_item.html:35
-#, python-format
-msgid "wrote a review of %(item)s"
-msgstr "評論了 %(item)s"
-
 #: social/templates/event/boosted.html:3
 msgid "boosted your post"
 msgstr "轉播了你的帖文"
@@ -3986,18 +3954,26 @@ msgstr "僅書影音"
 msgid "Notifications"
 msgstr "通知"
 
-#: social/templates/feed_data.html:48 social/templates/feed_events.html:137
-#, python-format
-msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
-msgstr "搜索並標記一些書影音/播客/遊戲，<a href=\"%(import_url)s\">導入你的豆瓣、Letterboxd或Goodreads記錄</a>，去聯邦宇宙（長毛象）關注一些正在使用%(site_name)s的用戶，這裏就會顯示你和她們的近期動態。"
-
 #: social/templates/feed_events.html:23
 msgid "boosted"
 msgstr "轉播了"
 
+#: social/templates/feed_events.html:40
+msgid "play"
+msgstr "播放"
+
+#: social/templates/feed_events.html:51
+msgid "mark"
+msgstr "標記"
+
 #: social/templates/feed_events.html:70
 msgid "wrote a note"
 msgstr "寫了筆記"
+
+#: social/templates/feed_events.html:137
+#, python-format
+msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
+msgstr "搜索並標記一些書影音/播客/遊戲，<a href=\"%(import_url)s\">導入你的豆瓣、Letterboxd或Goodreads記錄</a>，去聯邦宇宙（長毛象）關注一些正在使用%(site_name)s的用戶，這裏就會顯示你和她們的近期動態。"
 
 #: social/templates/notification.html:29
 msgid "mention"
@@ -4034,6 +4010,10 @@ msgstr "頭像"
 #: takahe/models.py:459
 msgid "Header picture"
 msgstr "背景圖片"
+
+#: takahe/utils.py:563
+msgid "created collection"
+msgstr "創建了收藏單"
 
 #: users/models/task.py:17
 msgid "Pending"

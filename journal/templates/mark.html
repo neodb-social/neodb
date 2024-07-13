@@ -14,7 +14,7 @@
             aria-label="Close"
             class="close"
             _="on click trigger close_dialog" />
-      <strong>{% trans "Mark" %} - {{ item.title }}</strong>
+      <strong>{% trans "Mark" %} - {{ item.display_title }}</strong>
     </header>
     <div>
       <form method="post" action="{% url 'journal:mark' item.uuid %}">

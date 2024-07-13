@@ -42,7 +42,7 @@
       <ul>
       {% endif %}
       <li>
-        <a href="{{ i.url }}?skipcheck=1">{{ i.title }}</a>
+        <a href="{{ i.url }}?skipcheck=1">{{ i.display_title }}</a>
       </li>
       {% if forloop.last %}</ul>{% endif %}
   {% endfor %}
@@ -83,7 +83,7 @@
         <p class="tag-list" style="overflow: scroll; max-height: 20em;">
           {% for ep in item.child_items %}
             <span class="season-number" id="ci_{{ ep.uuid }}">
-              <a href="{% url 'catalog:edit' ep.url_path ep.uuid %}">{{ ep.episode_number|default:ep.title|default:"#" }}</a>
+              <a href="{% url 'catalog:edit' ep.url_path ep.uuid %}">{{ ep.episode_number|default:ep.display_title|default:"#" }}</a>
             </span>
           {% endfor %}
         </p>
@@ -226,7 +226,7 @@
           {% trans "This edition belongs to the following work" %}
           {% for i in item.works.all %}
             <li>
-              <a href="{{ i.url }}?skipcheck=1">{{ i.title }}</a>
+              <a href="{{ i.url }}?skipcheck=1">{{ i.display_title }}</a>
             </li>
           {% endfor %}
           <form method="post"

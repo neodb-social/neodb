@@ -56,7 +56,7 @@
       {% comment %} <span class="timestamp">{{ comment.created_time|date }}</span> {% endcomment %}
     </span>
     <p>
-      <a href="{{ comment.item.url }}">{{ comment.item.title }}</a>: {{ comment.html|safe }}
+      <a href="{{ comment.item.url }}">{{ comment.item.display_title }}</a>: {{ comment.html|safe }}
     </p>
   {% endfor %}
 </section>

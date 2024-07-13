@@ -26,7 +26,7 @@
     {% comment %} {% include '_people.html' with people=item.language role='' max=5 %} {% endcomment %}
     {% include '_people.html' with people=item.platform role='' max=5 %}
     {% if item.show %}
-      <span>{{ item.show.type.label }}: <a href="{{ item.show.url }}">{{ item.show.title }}</a></span>
+      <span>{{ item.show.type.label }}: <a href="{{ item.show.url }}">{{ item.show.display_title }}</a></span>
     {% endif %}
   </div>
 {% endblock brief %}

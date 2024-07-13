@@ -42,8 +42,8 @@
                        data-uuid="{{ item.uuid }}"
                        data-media="{{ item.media_url }}"
                        data-cover="{{ item.cover_url|default:item.parent_item.cover.url }}"
-                       data-title="{{ item.title }}"
-                       data-album="{{ item.parent_item.title }}"
+                       data-title="{{ item.display_title }}"
+                       data-album="{{ item.parent_item.display_title }}"
                        data-hosts="{{ item.parent_item.hosts|join:' / ' }}"
                        {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' item.uuid %}" {% endif %}
                        data-position="{{ piece.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
@@ -106,8 +106,10 @@
               <div class="embed-cover">
                 {% if piece and piece.classname == 'note' %}
                   {% if item %}
-                    <a href="{{ item.url }}" title="{{ item.title }}">
-                      <img src="{{ item.cover_image_url }}" title="{{ item.title }}" alt="cover">
+                    <a href="{{ item.url }}" title="{{ item.display_title }}">
+                      <img src="{{ item.cover_image_url }}"
+                           title="{{ item.display_title }}"
+                           alt="cover">
                     </a>
                   {% endif %}
                 {% endif %}

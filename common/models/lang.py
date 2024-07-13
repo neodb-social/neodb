@@ -229,7 +229,7 @@ ZH_LOCALE_SUBTAGS_PRIO = {
 ZH_LOCALE_SUBTAGS = {
     "zh-sg": _("Simplified Chinese (Singapore)"),
     "zh-my": _("Simplified Chinese (Malaysia)"),
-    "zh-mo": _("Traditional Chinese (Taiwan)"),
+    "zh-mo": _("Traditional Chinese (Macau)"),
 }
 ZH_LANGUAGE_SUBTAGS_PRIO = {
     "cmn": _("Mandarin Chinese"),

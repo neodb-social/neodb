@@ -116,20 +116,6 @@ def data(request):
     return render(request, "feed_events.html", {"feed_type": typ, "events": events})
 
 
-# @login_required
-# @require_http_methods(["GET"])
-# def data(request):
-#     return render(
-#         request,
-#         "feed_data.html",
-#         {
-#             "activities": ActivityManager(request.user.identity).get_timeline(
-#                 before_time=request.GET.get("last")
-#             )[:PAGE_SIZE],
-#         },
-#     )
-
-
 @require_http_methods(["GET"])
 @login_required
 def notification(request):

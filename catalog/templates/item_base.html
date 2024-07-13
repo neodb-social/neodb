@@ -46,7 +46,7 @@
       </div>
       <div id="item-cover" class="left">
         <img src="{{ item.cover_image_url|default:item.cover.url|relative_uri }}"
-             alt="{{ item.title }}">
+             alt="{{ item.display_title }}">
       </div>
       {% if request.user.is_authenticated and not mark.shelf_type %}
         <div id="item-primary-action" class="right mark">
@@ -209,7 +209,7 @@
           {% endif %}
           {% if item.parent_item %}
             <p>
-              {% trans 'part of' %} {{ item.parent_item.type.label }}: <span><a href="{{ item.parent_item.url }}"></span>{{ item.parent_item.title }}</a>
+              {% trans 'part of' %} {{ item.parent_item.type.label }}: <span><a href="{{ item.parent_item.url }}"></span>{{ item.parent_item.display_title }}</a>
             </p>
           {% endif %}
           {% if item.author or item.translator %}
