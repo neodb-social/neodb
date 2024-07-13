@@ -31,9 +31,7 @@ class DoubanDramaTestCase(TestCase):
         site = SiteManager.get_site_by_url(t_url)
         resource = site.get_resource_ready()
         item = site.get_item()
-        self.assertEqual(
-            item.display_title, "眠らない男・ナポレオン　―愛と栄光の涯（はて）に―"
-        )
+        self.assertEqual(item.display_title, "不眠之人·拿破仑")
         self.assertEqual(len(item.localized_title), 2)
         self.assertEqual(item.genre, ["音乐剧"])
         self.assertEqual(item.troupe, ["宝塚歌剧团"])
@@ -43,7 +41,7 @@ class DoubanDramaTestCase(TestCase):
         site = SiteManager.get_site_by_url(t_url)
         resource = site.get_resource_ready()
         item = site.get_item()
-        self.assertEqual(item.display_title, "相聲說垮鬼子們")
+        self.assertEqual(item.display_title, "相声说垮鬼子们")
         self.assertEqual(item.opening_date, "1997-05")
         self.assertEqual(item.location, ["臺北新舞臺"])
 

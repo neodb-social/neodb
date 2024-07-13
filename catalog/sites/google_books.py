@@ -41,8 +41,9 @@ class GoogleBooks(AbstractSite):
             b["volumeInfo"]["publisher"] if "publisher" in b["volumeInfo"] else None
         )
         language = (
-            b["volumeInfo"]["language"] if "language" in b["volumeInfo"] else None
+            [b["volumeInfo"]["language"]] if "language" in b["volumeInfo"] else []
         )
+
         pages = b["volumeInfo"]["pageCount"] if "pageCount" in b["volumeInfo"] else None
         if "mainCategory" in b["volumeInfo"]:
             other["分类"] = b["volumeInfo"]["mainCategory"]
@@ -81,7 +82,11 @@ class GoogleBooks(AbstractSite):
         raw_img, ext = BasicImageDownloader.download_image(img_url, None, headers={})
         data = {
             "title": title,
+            "localized_title": [{"lang": language, "text": title}],
             "subtitle": subtitle,
+            "localized_subtitle": (
+                [{"lang": language, "text": subtitle}] if subtitle else []
+            ),
             "orig_title": None,
             "author": authors,
             "translator": None,
@@ -92,7 +97,10 @@ class GoogleBooks(AbstractSite):
             "binding": None,
             "pages": pages,
             "isbn": isbn,
-            "brief": brief,
+            # "brief": brief,
+            "localized_description": (
+                [{"lang": language, "text": brief}] if brief else []
+            ),
             "contents": None,
             "other_info": other,
             "cover_image_url": img_url,

@@ -60,7 +60,7 @@ class BooksTW(AbstractSite):
             "//div/ul/li[starts-with(text(),'語言：')]/text()"
         )
         language = (
-            language_elem[0].strip().split("：")[1].strip() if language_elem else None  # type: ignore
+            [language_elem[0].strip().split("：")[1].strip()] if language_elem else []  # type: ignore
         )
 
         pub_house = content.xpath("string(//div/ul/li[contains(text(),'出版社：')])")
@@ -117,15 +117,12 @@ class BooksTW(AbstractSite):
             "string(//div[contains(@class,'cover_img')]//img[contains(@class,'cover')]/@src)"
         )
         img_url = re.sub(r"&[wh]=\d+", "", img_url) if img_url else None  # type: ignore
-        localized_title = [{"lang": "zh-tw", "text": title}]
-        if orig_title:
-            localized_title.append(
-                {"lang": detect_language(orig_title), "text": orig_title}
-            )
         data = {
             "title": title,
-            "localized_title": localized_title,
             "subtitle": subtitle,
+            "localized_title": [{"lang": "zh-tw", "text": title}],
+            "localized_subtitle": [{"lang": "zh-tw", "text": subtitle}],
+            "localized_description": [{"lang": "zh-tw", "text": brief}],
             "orig_title": orig_title,
             "author": authors,
             "translator": translators,

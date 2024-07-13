@@ -62,20 +62,26 @@ class WorkTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        self.hyperion_hardcover = Edition.objects.create(title="Hyperion")
+        self.hyperion_hardcover = Edition.objects.create(
+            localized_title=[{"lang": "en", "text": "Hyperion"}]
+        )
         self.hyperion_hardcover.pages = 481
         self.hyperion_hardcover.isbn = "9780385249492"
         self.hyperion_hardcover.save()
-        self.hyperion_print = Edition.objects.create(title="Hyperion")
+        self.hyperion_print = Edition.objects.create(
+            localized_title=[{"lang": "en", "text": "Hyperion"}]
+        )
         self.hyperion_print.pages = 500
         self.hyperion_print.isbn = "9780553283686"
         self.hyperion_print.save()
         self.hyperion_ebook = Edition(title="Hyperion")
         self.hyperion_ebook.asin = "B0043M6780"
         self.hyperion_ebook.save()
-        self.andymion_print = Edition.objects.create(title="Andymion", pages=42)
+        self.andymion_print = Edition.objects.create(
+            localized_title=[{"lang": "en", "text": "Andymion"}], pages=42
+        )
         # serie = Serie(title="Hyperion Cantos")
-        self.hyperion = Work(title="Hyperion")
+        self.hyperion = Work(localized_title=[{"lang": "en", "text": "Hyperion"}])
         self.hyperion.save()
 
     def test_work(self):
@@ -86,11 +92,9 @@ class WorkTestCase(TestCase):
     def test_merge(self):
         title1 = [{"lang": "zh", "text": "z"}]
         title2 = [{"lang": "en", "text": "e"}]
-        w1 = Work.objects.create(title="title1", localized_title=title1)
-        w2 = Work.objects.create(title="title2", localized_title=title2)
+        w1 = Work.objects.create(localized_title=title1)
+        w2 = Work.objects.create(localized_title=title2)
         w2.merge_to(w1)
-        self.assertEqual(w1.title, "title1")
-        self.assertEqual(w1.other_title, ["title2"])
         self.assertEqual(len(w1.localized_title), 2)
 
     def test_link(self):
@@ -99,7 +103,8 @@ class WorkTestCase(TestCase):
         self.assertTrue(self.hyperion_ebook.has_related_books())
         self.assertTrue(self.hyperion_print.has_works())
         self.assertEqual(
-            self.hyperion_print.works.first().title, self.hyperion_print.title
+            self.hyperion_print.works.first().display_title,
+            self.hyperion_print.display_title,
         )
         self.hyperion_print.unlink_from_all_works()
         self.assertFalse(self.hyperion_print.has_related_books())
@@ -162,7 +167,7 @@ class GoodreadsTestCase(TestCase):
         self.assertEqual(resource.id_value, "77566")
         self.assertNotEqual(resource.cover, "/media/item/default.svg")
         self.assertEqual(edition.isbn, "9780553283686")
-        self.assertEqual(edition.title, "Hyperion")
+        self.assertEqual(edition.display_title, "Hyperion")
 
         edition.delete()
         site = SiteManager.get_site_by_url(t_url)
@@ -186,14 +191,14 @@ class GoodreadsTestCase(TestCase):
         t_url = "https://www.goodreads.com/book/show/45064996-hyperion"
         site = SiteManager.get_site_by_url(t_url)
         site.get_resource_ready()
-        self.assertEqual(site.resource.item.title, "Hyperion")
+        self.assertEqual(site.resource.item.display_title, "Hyperion")
         self.assertEqual(site.resource.item.asin, "B004G60EHS")
 
     @use_local_response
     def test_work(self):
         url = "https://www.goodreads.com/work/editions/153313"
         p = SiteManager.get_site_by_url(url).get_resource_ready()
-        self.assertEqual(p.item.title, "1984")
+        self.assertEqual(p.item.display_title, "1984")
         url1 = "https://www.goodreads.com/book/show/3597767-rok-1984"
         url2 = "https://www.goodreads.com/book/show/40961427-1984"
         p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
@@ -233,7 +238,7 @@ class GoogleBooksTestCase(TestCase):
         self.assertEqual(site.resource.id_type, IdType.GoogleBooks)
         self.assertEqual(site.resource.id_value, "hV--zQEACAAJ")
         self.assertEqual(site.resource.item.isbn, "9781847498571")
-        self.assertEqual(site.resource.item.title, "1984 Nineteen Eighty-Four")
+        self.assertEqual(site.resource.item.display_title, "1984 Nineteen Eighty-Four")
 
 
 class BooksTWTestCase(TestCase):
@@ -271,7 +276,7 @@ class BooksTWTestCase(TestCase):
         self.assertEqual(site.resource.metadata.get("isbn"), "9786263152236")
         self.assertEqual(site.resource.metadata.get("author"), ["Tim Mackintosh-Smith"])
         self.assertEqual(site.resource.metadata.get("translator"), ["吳莉君"])
-        self.assertEqual(site.resource.metadata.get("language"), "繁體中文")
+        self.assertEqual(site.resource.metadata.get("language"), ["繁體中文"])
         self.assertEqual(site.resource.metadata.get("pub_house"), "臉譜")
         self.assertEqual(site.resource.metadata.get("pub_year"), 2023)
         self.assertEqual(site.resource.metadata.get("pub_month"), 2)
@@ -282,7 +287,7 @@ class BooksTWTestCase(TestCase):
         self.assertEqual(site.resource.id_value, "0010947886")
         self.assertEqual(site.resource.item.isbn, "9786263152236")
         self.assertEqual(
-            site.resource.item.title,
+            site.resource.item.display_title,
             "阿拉伯人三千年：從民族、部落、語言、文化、宗教到帝國，綜覽阿拉伯世界的崛起、衰落與再興",
         )
 
@@ -320,7 +325,7 @@ class DoubanBookTestCase(TestCase):
         self.assertEqual(site.resource.id_type, IdType.DoubanBook)
         self.assertEqual(site.resource.id_value, "35902899")
         self.assertEqual(site.resource.item.isbn, "9781847498571")
-        self.assertEqual(site.resource.item.title, "1984 Nineteen Eighty-Four")
+        self.assertEqual(site.resource.item.display_title, "1984 Nineteen Eighty-Four")
 
     @use_local_response
     def test_publisher(self):
@@ -342,13 +347,13 @@ class DoubanBookTestCase(TestCase):
         p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
         w1 = p1.item.works.all().first()
         w2 = p2.item.works.all().first()
-        self.assertEqual(w1.title, "黄金时代")
-        self.assertEqual(w2.title, "黄金时代")
+        self.assertEqual(w1.display_title, "黄金时代")
+        self.assertEqual(w2.display_title, "黄金时代")
         self.assertEqual(w1, w2)
-        editions = w1.editions.all().order_by("title")
-        self.assertEqual(editions.count(), 2)
-        self.assertEqual(editions[0].title, "Wang in Love and Bondage")
-        self.assertEqual(editions[1].title, "黄金时代")
+        editions = sorted(list(w1.editions.all()), key=lambda e: e.display_title)
+        self.assertEqual(len(editions), 2)
+        self.assertEqual(editions[0].display_title, "Wang in Love and Bondage")
+        self.assertEqual(editions[1].display_title, "黄金时代")
 
 
 class MultiBookSitesTestCase(TestCase):
@@ -388,16 +393,16 @@ class MultiBookSitesTestCase(TestCase):
         self.assertEqual(p4.item.id, p1.item.id)
         self.assertEqual(p4.item.works.all().count(), 2)
         self.assertEqual(p1.item.works.all().count(), 2)
-        w2e = w2.editions.all().order_by("title")
-        self.assertEqual(w2e.count(), 2)
-        self.assertEqual(w2e[0].title, "Wang in Love and Bondage")
-        self.assertEqual(w2e[1].title, "黄金时代")
-        w3e = w3.editions.all().order_by("title")
-        self.assertEqual(w3e.count(), 2)
-        self.assertEqual(w3e[0].title, "Golden Age: A Novel")
-        self.assertEqual(w3e[1].title, "黄金时代")
+        w2e = sorted(list(w2.editions.all()), key=lambda e: e.display_title)
+        self.assertEqual(len(w2e), 2)
+        self.assertEqual(w2e[0].display_title, "Wang in Love and Bondage")
+        self.assertEqual(w2e[1].display_title, "黄金时代")
+        w3e = sorted(list(w3.editions.all()), key=lambda e: e.display_title)
+        self.assertEqual(len(w3e), 2)
+        self.assertEqual(w3e[0].display_title, "Golden Age: A Novel")
+        self.assertEqual(w3e[1].display_title, "黄金时代")
         e = Edition.objects.get(primary_lookup_id_value=9781662601217)
-        self.assertEqual(e.title, "Golden Age: A Novel")
+        self.assertEqual(e.display_title, "Golden Age: A Novel")
 
     @use_local_response
     def test_works_merge(self):
@@ -428,16 +433,16 @@ class MultiBookSitesTestCase(TestCase):
         self.assertEqual(p4.item.id, p1.item.id)
         self.assertEqual(p4.item.works.all().count(), 1)
         self.assertEqual(p1.item.works.all().count(), 1)
-        w2e = w2.editions.all().order_by("title")
-        self.assertEqual(w2e.count(), 3)
-        self.assertEqual(w2e[0].title, "Golden Age: A Novel")
-        self.assertEqual(w2e[1].title, "Wang in Love and Bondage")
-        self.assertEqual(w2e[2].title, "黄金时代")
+        w2e = sorted(list(w2.editions.all()), key=lambda e: e.display_title)
+        self.assertEqual(len(w2e), 3)
+        self.assertEqual(w2e[0].display_title, "Golden Age: A Novel")
+        self.assertEqual(w2e[1].display_title, "Wang in Love and Bondage")
+        self.assertEqual(w2e[2].display_title, "黄金时代")
         w3e = w3.editions.all().order_by("title")
         self.assertEqual(w3e.count(), 0)
         e = Edition.objects.get(primary_lookup_id_value=9781662601217)
-        self.assertEqual(e.title, "Golden Age: A Novel")
+        self.assertEqual(e.display_title, "Golden Age: A Novel")
         w2e[1].delete()
         self.assertEqual(w2.editions.all().count(), 2)
-        w2e.delete()
+        w2.editions.all().delete()
         self.assertEqual(p1.item.works.all().count(), 0)

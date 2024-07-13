@@ -3,6 +3,7 @@ import logging
 from catalog.book.models import *
 from catalog.book.utils import *
 from catalog.common import *
+from common.models.lang import detect_language
 
 from .douban import *
 
@@ -51,7 +52,7 @@ class DoubanBook(AbstractSite):
         language_elem = content.xpath(
             "//div[@id='info']//span[text()='语言:']/following::text()"
         )
-        language = language_elem[0].strip() if language_elem else None
+        language = [language_elem[0].strip()] if language_elem else []
 
         pub_house_elem = content.xpath(
             "//div[@id='info']//span[text()='出版社:']/following::text()"
@@ -187,9 +188,13 @@ class DoubanBook(AbstractSite):
         )
         imprint = imprint_elem[0].strip() if imprint_elem else None
 
+        lang = detect_language(title + " " + (brief or ""))
         data = {
             "title": title,
             "subtitle": subtitle,
+            "localized_title": [{"lang": lang, "text": title}],
+            "localized_subtitle": [{"lang": lang, "text": subtitle}],
+            "localized_description": [{"lang": lang, "text": brief}],
             "orig_title": orig_title,
             "author": authors,
             "translator": translators,
@@ -221,7 +226,12 @@ class DoubanBook(AbstractSite):
                     "id_value": r[1] if r else None,
                     "title": data["title"],
                     "url": works_element[0],
-                    "content": {"metadata": {"title": data["title"]}},
+                    "content": {
+                        "metadata": {
+                            "title": data["title"],
+                            "localized_title": data["localized_title"],
+                        }
+                    },
                 }
             ]
 
@@ -255,5 +265,10 @@ class DoubanBook_Work(AbstractSite):
         if not title:
             raise ParseError(self, "title")
         book_urls = content.xpath('//a[@class="pl2"]/@href')
-        pd = ResourceContent(metadata={"title": title, "edition_urls": book_urls})
+        d = {
+            "title": title,
+            "localized_title": [{"lang": "zh-cn", "text": title}],
+            "edition_urls": book_urls,
+        }
+        pd = ResourceContent(metadata=d)
         return pd

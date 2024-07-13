@@ -302,10 +302,10 @@ class Edition(Item):
                 )
                 work.save()
         else:
-            work = Work.objects.create(title=self.title)
+            work = Work.objects.create(localized_title=self.localized_title)
             work.editions.add(self, target)
-            work.localized_title = self.localized_title
-            work.save()
+            # work.localized_title = self.localized_title
+            # work.save()
         return True
 
     def unlink_from_all_works(self):
@@ -362,7 +362,7 @@ class Work(Item):
         for edition in self.editions.all():
             to_item.editions.add(edition)
         self.editions.clear()
-        to_item.other_title = uniq(to_item.other_title + [self.title])  # type: ignore
+        to_item.language = uniq(to_item.language + self.language)  # type: ignore
         to_item.localized_title = uniq(to_item.localized_title + self.localized_title)
         to_item.save()
 

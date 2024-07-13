@@ -607,15 +607,10 @@ class Item(PolymorphicModel):
 
     @property
     def display_title(self) -> str:
-        return (
-            self.get_localized_title()
-            or self.title
-            or (
-                self.orig_title  # type:ignore
-                if hasattr(self, "orig_title")
-                else ""
-            )
-        ) or (self.localized_title[0]["text"] if self.localized_title else "")
+        # return title in current locale if possible, otherwise any title
+        return (self.get_localized_title() or self.title) or (
+            self.localized_title[0]["text"] if self.localized_title else ""
+        )
 
     @property
     def display_description(self) -> str:
