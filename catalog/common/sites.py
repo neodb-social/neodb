@@ -349,8 +349,12 @@ def crawl_related_resources_task(resource_pk):
             if not site and w.get("url"):
                 site = SiteManager.get_site_by_url(w["url"])
             if site:
-                site.get_resource_ready(ignore_existing_content=False, auto_link=True)
+                res = site.get_resource_ready(
+                    ignore_existing_content=False, auto_link=True
+                )
                 item = site.get_item()
+                if item and res and w in resource.prematched_resources:
+                    item.merge_data_from_external_resource(res)
             if item:
                 logger.info(f"crawled {w} {item}")
             else:

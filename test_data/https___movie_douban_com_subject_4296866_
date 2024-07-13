@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="ua-windows ua-webkit">
+<html lang="zh-CN" class="ua-mac ua-webkit">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="renderer" content="webkit">
@@ -11,28 +11,24 @@
     
     <meta name="baidu-site-verification" content="cZdR4xxR7RxmM4zE" />
     <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="Sun, 6 Mar 2005 01:00:00 GMT">
+    <meta http-equiv="Expires" content="Sun, 6 Mar 2006 01:00:00 GMT">
     
-    <link rel="apple-touch-icon" href="https://img1.doubanio.com/f/movie/d59b2715fdea4968a450ee5f6c95c7d7a2030065/pics/movie/apple-touch-icon.png">
-    <link href="https://img1.doubanio.com/f/shire/204847ecc7d679de915c283531d14f16cfbee65e/css/douban.css" rel="stylesheet" type="text/css">
-    <link href="https://img1.doubanio.com/f/shire/0b4cdb02dd620693709d9314196b617f17c2f9ea/css/separation/_all.css" rel="stylesheet" type="text/css">
-    <link href="https://img1.doubanio.com/f/movie/252bef058b97005c6a41e8f1b9f7b06b84bc71b3/css/movie/base/init.css" rel="stylesheet">
+    <link rel="apple-touch-icon" href="https://img1.doubanio.com/cuphead/movie-static/pics/apple-touch-icon.png">
+    <link href="https://img1.doubanio.com/f/vendors/e92483e5e4c9c60cc75cbd8b700a2fd5b5fdf7b0/css/douban.css" rel="stylesheet" type="text/css">
+    <link href="https://img1.doubanio.com/f/vendors/ee6598d46af0bc554cecec9bcbf525b9b0582cb0/css/separation/_all.css" rel="stylesheet" type="text/css">
+    <link href="https://img1.doubanio.com/cuphead/movie-static/base/init.15f4b.css" rel="stylesheet">
     <script type="text/javascript">var _head_start = new Date();</script>
-    <script type="text/javascript" src="https://img1.doubanio.com/f/movie/0495cb173e298c28593766009c7b0a953246c5b5/js/movie/lib/jquery.js"></script>
-    <script type="text/javascript" src="https://img1.doubanio.com/f/shire/4888ee2fda6812f70a064a51c93b84fde8e4a3c2/js/douban.js"></script>
-    <script type="text/javascript" src="https://img1.doubanio.com/f/shire/b0d3faaf7a432605add54908e39e17746824d6cc/js/separation/_all.js"></script>
+    <script type="text/javascript" src="https://img1.doubanio.com/f/vendors/0511abe9863c2ea7084efa7e24d1d86c5b3974f1/js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="https://img1.doubanio.com/f/vendors/e057439e70105417dffc6fab571688d52efeab23/js/douban.js"></script>
+    <script type="text/javascript" src="https://img1.doubanio.com/f/vendors/b0d3faaf7a432605add54908e39e17746824d6cc/js/separation/_all.js"></script>
     
     <meta name="keywords" content="神秘博士：逃跑新娘,Doctor Who: The Runaway Bride,神秘博士：逃跑新娘影评,剧情介绍,电影图片,预告片,影讯,在线购票,论坛">
     <meta name="description" content="神秘博士：逃跑新娘电影简介和剧情介绍,神秘博士：逃跑新娘影评、图片、预告片、影讯、论坛、在线购票">
     <meta name="mobile-agent" content="format=html5; url=https://m.douban.com/movie/subject/4296866/"/>
     <link rel="alternate" href="android-app://com.douban.movie/doubanmovie/subject/4296866/" />
     <link rel="stylesheet" href="https://img1.doubanio.com/dae/cdnlib/libs/LikeButton/1.0.5/style.min.css">
-    <script type="text/javascript" src="https://img1.doubanio.com/f/shire/2c0c1c6b83f9a457b0f38c38a32fc43a42ec9bad/js/do.js" data-cfg-autoload="false"></script>
-    <script type="text/javascript">
-      Do.add('dialog', {path: 'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js', type: 'js'});
-      Do.add('dialog-css', {path: 'https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css', type: 'css'});
-      Do.add('handlebarsjs', {path: 'https://img1.doubanio.com/f/movie/3d4f8e4a8918718256450eb6e57ec8e1f7a2e14b/js/movie/lib/handlebars.current.js', type: 'js'});
-    </script>
+    <link rel="stylesheet" href="https://img1.doubanio.com/f/vendors/e8a7261937da62636d22ca4c579efc4a4d759b1b/css/ui/dialog.css">
+    <link rel="stylesheet" href="https://img1.doubanio.com/cuphead/movie-static/common/show.7a78b.css">
     
   <script type='text/javascript'>
   var _vwo_code = (function() {
@@ -122,12 +118,12 @@
 ,
   "datePublished": "2006-12-25",
   "genre": ["\u5267\u60c5", "\u559c\u5267", "\u79d1\u5e7b", "\u5947\u5e7b", "\u5192\u9669"],
-  "duration": "PT1H0M",
+  "duration": "",
   "description": "失去了罗斯的博士正在心灰意冷，而正在举行婚礼的多娜却被突然传送到塔迪斯里。博士带坏脾气的多娜返回地球，却被一群外星机器人追杀，塔迪斯上演了一场公路飚车。后来博士发现多娜身上带有异常含量的Huon粒子，...",
   "@type": "Movie",
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingCount": "7209",
+    "ratingCount": "8205",
     "bestRating": "10",
     "worstRating": "2",
     "ratingValue": "9.0"
@@ -147,7 +143,6 @@
             <meta property="video:actor" content="凯瑟琳·塔特" />
             <meta property="video:actor" content="莎拉·帕里什" />
             <meta property="video:director" content="尤洛斯·林" />
-        <meta property="video:duration" content="3600" />
 
 
     <style type="text/css">
@@ -155,7 +150,7 @@
 </style>
     <style type="text/css">img { max-width: 100%; }</style>
     <script type="text/javascript"></script>
-    <link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/6d2cbdb0ce97468f.css">
+    <link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/7e286fbfb53d71ff.css">
 
     <link rel="shortcut icon" href="https://img1.doubanio.com/favicon.ico" type="image/x-icon">
 </head>
@@ -169,7 +164,7 @@
 
 
 
-    <link href="//img3.doubanio.com/dae/accounts/resources/3e96b44/shire/bundle.css" rel="stylesheet" type="text/css">
+    <link href="//img3.doubanio.com/dae/accounts/resources/78fadc7/shire/bundle.css" rel="stylesheet" type="text/css">
 
 
 
@@ -225,7 +220,7 @@
       <a href="https://read.douban.com&#47;?dcs=top-nav&amp;dcm=douban" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-read&quot;,&quot;uid&quot;:&quot;0&quot;}">阅读</a>
     </li>
     <li class="">
-      <a href="https://douban.fm&#47;?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-fm&quot;,&quot;uid&quot;:&quot;0&quot;}">FM</a>
+      <a href="https://fm.douban.com&#47;?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-fm&quot;,&quot;uid&quot;:&quot;0&quot;}">FM</a>
     </li>
     <li class="">
       <a href="https://time.douban.com&#47;?dt_time_source=douban-web_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-time&quot;,&quot;uid&quot;:&quot;0&quot;}">时间</a>
@@ -248,7 +243,7 @@
 
 
 
-    <script src="//img3.doubanio.com/dae/accounts/resources/3e96b44/shire/bundle.js" defer="defer"></script>
+    <script src="//img3.doubanio.com/dae/accounts/resources/78fadc7/shire/bundle.js" defer="defer"></script>
 
 
 
@@ -257,7 +252,7 @@
 
 
 
-    <link href="//img3.doubanio.com/dae/accounts/resources/3e96b44/movie/bundle.css" rel="stylesheet" type="text/css">
+    <link href="//img3.doubanio.com/dae/accounts/resources/78fadc7/movie/bundle.css" rel="stylesheet" type="text/css">
 
 
 
@@ -302,17 +297,17 @@
     <li    ><a href="https://movie.douban.com/review/best/"
      >影评</a>
     </li>
-    <li    ><a href="https://movie.douban.com/annual/2021?source=navigation"
-     >2021年度榜单</a>
+    <li    ><a href="https://movie.douban.com/annual/2023/?fullscreen=1&source=navigation"
+     >2023年度榜单</a>
     </li>
-    <li    ><a href="https://www.douban.com/standbyme/2021?fullscreen=true&hidenav=true&autorotate=false&source=movie_navigation"
+    <li    ><a href="https://c9.douban.com/app/standbyme-2023/?autorotate=false&fullscreen=true&hidenav=true&monitor_screenshot=true&source=web_navigation"
             target="_blank"
-     >2021书影音报告</a>
+     >2023年度报告</a>
     </li>
   </ul>
 </div>
 
-    <a href="https://movie.douban.com/annual/2021?source=movie_navigation" class="movieannual"></a>
+    <a href="https://movie.douban.com/annual/2023/?fullscreen=1&source=movie_navigation" class="movieannual"></a>
   </div>
 </div>
 
@@ -346,7 +341,7 @@
 
 
 
-    <script src="//img3.doubanio.com/dae/accounts/resources/3e96b44/movie/bundle.js" defer="defer"></script>
+    <script src="//img3.doubanio.com/dae/accounts/resources/78fadc7/movie/bundle.js" defer="defer"></script>
 
 
 
@@ -360,7 +355,6 @@
     <div id="content">
         
 
-    <div id="dale_movie_subject_top_icon"></div>
     <h1>
         <span property="v:itemreviewed">神秘博士：逃跑新娘 Doctor Who: The Runaway Bride</span>
             <span class="year">(2006)</span>
@@ -374,17 +368,13 @@
                 
     
 
-    
-
-
-
 
 
         <div class="indent clearfix">
             <div class="subjectwrap clearfix">
                 <div class="subject clearfix">
                     
-                        
+                    
 
 
 
@@ -398,20 +388,47 @@
 
 
 <div id="info">
-        <span ><span class='pl'>导演</span>: <span class='attrs'><a href="/celebrity/1290520/" rel="v:directedBy">尤洛斯·林</a></span></span><br/>
-        <span ><span class='pl'>编剧</span>: <span class='attrs'><a href="/celebrity/1045147/">拉塞尔·T·戴维斯</a></span></span><br/>
-        <span class="actor"><span class='pl'>主演</span>: <span class='attrs'><a href="/celebrity/1002671/" rel="v:starring">大卫·田纳特</a> / <a href="/celebrity/1044989/" rel="v:starring">凯瑟琳·塔特</a> / <a href="/celebrity/1127076/" rel="v:starring">莎拉·帕里什</a> / <a href="/subject_search?search_text=Don%20Gilet" rel="v:starring">Don Gilet</a> / <a href="/subject_search?search_text=Howard%20Attfield" rel="v:starring">Howard Attfield</a></span></span><br/>
+        <span><span class='pl'>导演</span>: <span class='attrs'><a href="https://www.douban.com/personage/27518798/" rel="v:directedBy">尤洛斯·林</a></span></span><br/>
+        <span><span class='pl'>编剧</span>: <span class='attrs'><a href="https://www.douban.com/personage/27250903/">拉塞尔·T·戴维斯</a></span></span><br/>
+        <span><span class='pl'>主演</span>: <span class='attrs'><a href="https://www.douban.com/personage/27208361/" rel="v:starring">大卫·田纳特</a> / <a href="https://www.douban.com/personage/27250745/" rel="v:starring">凯瑟琳·塔特</a> / <a href="https://www.douban.com/personage/27332922/" rel="v:starring">莎拉·帕里什</a> / <a href="/subject_search?search_text=Don%20Gilet" rel="v:starring">Don Gilet</a> / <a href="/subject_search?search_text=Howard%20Attfield" rel="v:starring">Howard Attfield</a></span></span><br/>
         <span class="pl">类型:</span> <span property="v:genre">剧情</span> / <span property="v:genre">喜剧</span> / <span property="v:genre">科幻</span> / <span property="v:genre">奇幻</span> / <span property="v:genre">冒险</span><br/>
         
         <span class="pl">制片国家/地区:</span> 英国<br/>
         <span class="pl">语言:</span> 英语<br/>
         <span class="pl">上映日期:</span> <span property="v:initialReleaseDate" content="2006-12-25">2006-12-25</span><br/>
-        <span class="pl">片长:</span> <span property="v:runtime" content="60">60分钟</span><br/>
+        <span class="pl">片长:</span> 约60min<br/>
         <span class="pl">又名:</span> 神秘博士：2006圣诞特别篇<br/>
         <span class="pl">IMDb:</span> tt0827573<br>
 
 </div>
+<script type="text/javascript">
+$(function(){
+    var limit = 5
+    $('#info .attrs').each(function() {
+        var $list = $(this).find('a')
+        var $attrs = $(this)
 
+        if($list.length > limit) {
+            $attrs.empty()
+            $list.each(function(idx) {
+                if (idx+1 === $list.length) {
+                    $('<span></span>').prepend($(this)).appendTo($attrs);
+                } else {
+                    $('<span> / </span>').prepend($(this)).appendTo($attrs);
+                }
+            })
+
+            $attrs.append('<a href="javascript:;" class="more-attrs" title="显示更多">更多...</a>')
+            $('.more-attrs').on('click', function() {
+                $(this).parent().find('span').show()
+                $(this).hide()
+            })
+
+            $attrs.find('span').slice(limit).hide()
+        }
+    })
+})
+</script>
 
 
 
@@ -419,7 +436,7 @@
                 
                     
 
-
+<link rel="stylesheet" href="https://img3.doubanio.com/cuphead/movie-static/download-output-image/index.7aaa3.css">
 <div id="interest_sectl">
     <div class="rating_wrap clearbox" rel="v:rating">
         <div class="clearfix">
@@ -427,11 +444,9 @@
                 豆瓣评分
             </div>
           <div class="output-btn-wrap rr" style="display:none">
-            <img src="https://img1.doubanio.com/f/movie/692e86756648f29457847c5cc5e161d6f6b8aaac/pics/movie/reference.png" />
+            <img src="https://img2.doubanio.com/cuphead/movie-static/pics/reference.png" />
             <a class="download-output-image" href="#">引用</a>
           </div>
-          
-          
         </div>
         
 
@@ -444,7 +459,7 @@
         <div class="ll bigstar bigstar45"></div>
         <div class="rating_sum">
                 <a href="comments" class="rating_people">
-                    <span property="v:votes">7209</span>人评价
+                    <span property="v:votes">8205</span>人评价
                 </a>
         </div>
     </div>
@@ -457,7 +472,7 @@
             5星
         </span>
         <div class="power" style="width:64px"></div>
-        <span class="rating_per">58.7%</span>
+        <span class="rating_per">59.8%</span>
         <br />
         </div>
         <div class="item">
@@ -465,8 +480,8 @@
         <span class="stars4 starstop" title="推荐">
             4星
         </span>
-        <div class="power" style="width:34px"></div>
-        <span class="rating_per">31.8%</span>
+        <div class="power" style="width:33px"></div>
+        <span class="rating_per">30.9%</span>
         <br />
         </div>
         <div class="item">
@@ -474,8 +489,8 @@
         <span class="stars3 starstop" title="还行">
             3星
         </span>
-        <div class="power" style="width:9px"></div>
-        <span class="rating_per">8.5%</span>
+        <div class="power" style="width:8px"></div>
+        <span class="rating_per">8.4%</span>
         <br />
         </div>
         <div class="item">
@@ -493,13 +508,14 @@
             1星
         </span>
         <div class="power" style="width:0px"></div>
-        <span class="rating_per">0.2%</span>
+        <span class="rating_per">0.3%</span>
         <br />
         </div>
 </div>
 
     </div>
 </div>
+<script src="https://img1.doubanio.com/cuphead/movie-static/download-output-image/index.18a2c.js"></script>
 
 
                 
@@ -523,22 +539,22 @@
             
     
     评价:
-    <span id="rating"> <span id="stars" data-solid="https://img1.doubanio.com/f/shire/5a2327c04c0c231bced131ddf3f4467eb80c1c86/pics/rating_icons/star_onmouseover.png" data-hollow="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" data-solid-2x="https://img1.doubanio.com/f/shire/7258904022439076d57303c3b06ad195bf1dc41a/pics/rating_icons/star_onmouseover@2x.png" data-hollow-2x="https://img1.doubanio.com/f/shire/95cc2fa733221bb8edd28ad56a7145a5ad33383e/pics/rating_icons/star_hollow_hover@2x.png">
+    <span id="rating"> <span id="stars" data-solid="https://img1.doubanio.com/f/vendors/5a2327c04c0c231bced131ddf3f4467eb80c1c86/pics/rating_icons/star_onmouseover.png" data-hollow="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" data-solid-2x="https://img1.doubanio.com/f/vendors/7258904022439076d57303c3b06ad195bf1dc41a/pics/rating_icons/star_onmouseover@2x.png" data-hollow-2x="https://img1.doubanio.com/f/vendors/95cc2fa733221bb8edd28ad56a7145a5ad33383e/pics/rating_icons/star_hollow_hover@2x.png">
 
             <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-4296866-1">
-            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star1" width="16" height="16"/>
+            <img src="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star1" width="16" height="16"/>
         </a>
             <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-4296866-2">
-            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star2" width="16" height="16"/>
+            <img src="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star2" width="16" height="16"/>
         </a>
             <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-4296866-3">
-            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star3" width="16" height="16"/>
+            <img src="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star3" width="16" height="16"/>
         </a>
             <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-4296866-4">
-            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star4" width="16" height="16"/>
+            <img src="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star4" width="16" height="16"/>
         </a>
             <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" name="pbtn-4296866-5">
-            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star5" width="16" height="16"/>
+            <img src="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star5" width="16" height="16"/>
         </a>
     </span><span id="rateword" class="pl"></span>
     <input id="n_rating" type="hidden" value=""  />
@@ -575,12 +591,12 @@
         
                 
                   <li> 
-    <img src="https://img1.doubanio.com/f/shire/cc03d0fcf32b7ce3af7b160a0b85e5e66b47cc42/pics/short-comment.gif" />&nbsp;
+    <img src="https://img9.doubanio.com/cuphead/movie-static/pics/short-comment.gif" />&nbsp;
         <a onclick="moreurl(this, {from:'mv_sbj_wr_cmnt_login'})" class="j a_show_login" href="https://www.douban.com/register?reason=review" rel="nofollow">写短评</a>
  </li>
                   <li> 
     
-    <img src="https://img1.doubanio.com/f/shire/5bbf02b7b5ec12b23e214a580b6f9e481108488c/pics/add-review.gif" />&nbsp;
+    <img src="https://img1.doubanio.com/cuphead/movie-static/pics/add-review.gif" />&nbsp;
         <a onclick="moreurl(this, {from:'mv_sbj_wr_rv_login'})" class="j a_show_login" href="https://www.douban.com/register?reason=review" rel="nofollow">写影评</a>
  </li>
                     <li> 
@@ -599,40 +615,10 @@
         分享到
     </a> &nbsp;&nbsp;
     </span>
-
-    <script>
-        if (!window.DoubanShareMenuList) {
-            window.DoubanShareMenuList = [];
-        }
-        var __cache_url = __cache_url || {};
-
-        (function(u){
-            if(__cache_url[u]) return;
-            __cache_url[u] = true;
-            window.DoubanShareIcons = 'https://img1.doubanio.com/f/shire/d15ffd71f3f10a7210448fec5a68eaec66e7f7d0/pics/ic_shares.png';
-
-            var initShareButton = function() {
-                $.ajax({url:u,dataType:'script',cache:true});
-            };
-
-            if (typeof Do == 'function' && 'ready' in Do) {
-                Do(
-                    'https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
-                    'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js',
-                    'https://img1.doubanio.com/f/movie/c4ab132ff4d3d64a83854c875ea79b8b541faf12/js/movie/lib/qrcode.min.js',
-                    initShareButton
-                );
-            } else if(typeof Douban == 'object' && 'loader' in Douban) {
-                Douban.loader.batch(
-                    'https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
-                    'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js',
-                    'https://img1.doubanio.com/f/movie/c4ab132ff4d3d64a83854c875ea79b8b541faf12/js/movie/lib/qrcode.min.js'
-                ).done(initShareButton);
-            }
-
-        })('https://img1.doubanio.com/f/movie/09f0f3e441f00f6d89e35b4c29ed1ad5b4f2d191/js/movie/lib/sharebutton.js');
-    </script>
-
+    <link rel="stylesheet" href="https://img1.doubanio.com/f/vendors/e8a7261937da62636d22ca4c579efc4a4d759b1b/css/ui/dialog.css">
+    <script src="https://img1.doubanio.com/f/vendors/f25ae221544f39046484a823776f3aa01769ee10/js/ui/dialog.js"></script>
+    <script src="https://img1.doubanio.com/f/vendors/b6e0770163b1da14217b0f1ca39189d47b95f51f/js/lib/sharebutton.js"></script>
+    <script src="https://img1.doubanio.com/cuphead/movie-static/libs/qrcode.min.js"></script>
 
   </li>
             
@@ -657,208 +643,6 @@
 
 
 
-    <style type="text/css">
-        
-.suggestions-list li { position: relative; left: 0; top: 0; margin-bottom: 7px; height: 35px }
-.suggestions-list li .user-thumb { display: inline-block; *display: inline; float: left; margin: 2px 5px 0 0; vertical-align: top }
-.suggestions-list li .user-thumb img { width: 25px; height: 25px }
-.suggestions-list li .user-name-info { display: inline-block; *display: inline; line-height: 1.4em }
-.suggestions-list li .user-name-info .user-profile-link { color: #333; font-weight: 800 }
-.suggestions-list li .user-name-info .user-profile-link:hover { color: #4b8dc5 }
-.suggestions-list li .user-name-info p { color: #999 }
-.suggestions-list li .user-name-info b { color: #4b8dc5; font-weight: normal; cursor: pointer }
-.suggestions-list li .user-name-info b:hover { text-decoration: underline }
-.suggestions-list li .dismiss { position: absolute }
-.suggestions-list li .dismiss { color: #aaa; margin: 0 0 0 10px; top: 0; right: 0 }
-.suggestions-list li .dismiss:hover { color: #333; text-decoration: none }
-
-
-.suggest-overlay { position: absolute; z-index: 99; width: auto; background: #fff; border: 1px solid #c5c7d2;
-    -moz-border-radius : 3px;
-    -webkit-border-radius : 3px;
-    border-radius: 3px
-}
-.suggest-overlay .bd { min-width: 220px; line-height: 1; background: #fafafa; color: #b3b3b3; padding: 5px;
-    -moz-border-radius : 3px;
-    -webkit-border-radius : 3px;
-    border-radius: 3px
-}
-.suggest-overlay ul { color: #999; padding: 3px 0; min-width: 214px }
-.suggest-overlay li { cursor: pointer; padding: 3px 7px }
-.suggest-overlay li b { font-weight: bold }
-.suggest-overlay li .username { color: #333 }
-.suggest-overlay img { margin-right: 5px; width: 20px; height: 20px; vertical-align: middle }
-.suggest-overlay .on { background: #e9f0f8 }
-
-.mentioned-highlighter { font: 14px/20px "Helvetica Neue",Helvetica,Arial,sans-serif; position: absolute; left: 4px; top: 4px; font-size: 14px; height: 60px; width: 98.5%; overflow: hidden; background: #fff; white-space: pre-wrap; word-wrap: break-word; color: transparent }
-.mentioned-highlighter b { font-weight: normal; background-color: #d2e1f3; color: transparent;
-  -moz-border-radius: 2px;
-  -webkit-border-radius: 2px;
-  border-radius: 2px
-}
-
-        .movie-share-dialog .bn-flat input {
-    font-size: 14px;
-}
-.movie-share-dialog {
-    z-index: 100;
-}
-.movie-share-dialog .form-ft-inner{
-    text-align: right;
-}
-.movie-share-dialog div.bd {
-    padding: 0;
-}
-
-.movie-share .form-bd .input-area {
-    position: relative;
-    margin: 15px;
-    height: 91px;
-    zoom: 1;
-}
-
-.movie-share-no-media .form-bd {
-    height: 140px;
-}
-
-.movie-share-dialog .share-text {
-    height: 85px;
-    position: absolute;
-    z-index: 9;
-    background: transparent;
-    font: 14px/18px "Helvetica Neue",Helvetica,Arial,sans-serif;
-    width: 98%;
-    -webkit-border-radius: 4px 4px 4px 4px;
-    border-radius: 4px 4px 4px 4px;
-}
-
-.movie-share-dialog .mentioned-highlighter {
-    width: 483px;
-    padding: 3px 4px 4px;
-    color: white;
-    position: absolute;
-    top:0;
-    left:0;
-    z-index: 0;
-}
-
-.movie-share-dialog .mentioned-highlighter code {
-    color: #D2E1F3;
-    background: #D2E1F3;
-    border-radius: 2px;
-    padding-right: 1px;
-    display: inline-block;
-    font: 14px/18px "Helvetica Neue",Helvetica,Arial,sans-serif;
-}
-
-
-.movie-share .form-ft {
-    background: #e9eef2;
-    height: 25px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-.movie-share .form-ft-inner {
-    height: 25px;
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
-.movie-share-dialog .dialog-only-text {
-    text-align: center;
-    font-size: 14px;
-    line-height: 1.5;
-    padding-top: 30px;
-    padding-bottom: 30px;
-    color: #0c7823;
-}
-
-.movie-share-dialog .ll {
-    float: left;
-    display: inline;
-}
-.movie-share-dialog .share-label {
-    width: auto;
-    display: inline;
-    float: none;
-}
-
-.movie-share-dialog .leading-label {
-    _vertical-align: -2px;
-}
-.movie-share-dialog .media {
-    float: left;
-    margin-right: 10px;
-    max-width: 100px;
-    max-height: 100px;
-    *width: 100px;
-}
-.movie-share-dialog .info-area{
-    overflow: hidden;
-    zoom: 1;
-    margin: 0 15px 15px;
-    height: 100px;
-}
-.movie-share-dialog .info-area strong{
-    font-weight: bold;
-}
-.movie-share-dialog .info-area p{
-    margin: 3px 0;
-    color: #999;
-}
-
-.movie-share-dialog #sync-setting {
-    _vertical-align: -5px;
-    margin-left: 10px;
-}
-
-.movie-share-dialog .info-area .server-error {
-    position: absolute;
-    bottom: 45px;
-    right: 15px;
-    color: red;
-}
-
-.movie-share-dialog .avail-num-indicator {
-    color: #aaa;
-    font-weight: 800;
-    padding-right: 3px;
-}
-
-.movie-share-dialog .bottom-setting {
-    width: 432px;
-}
-.movie-share-dialog .input-checkbox {
-    vertical-align: -2px;
-    _vertical-align: -1px;
-}
-
-.movie-share-dialog #sync-setting img {
-    _vertical-align: 2px;
-}
-
-
-
-.suggest-overlay {
-    z-index: 2000;
-}
-
-.movie-bar {
-    position: relative;
-    margin-top: 10px;
-}
-
-.movie-bar-fav {
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-
-    </style>
-    <script src="https://img1.doubanio.com/f/shire/e0d80c43c73e241e9f218387d74a3e800d31179f/js/lib/mustache.js" type="text/javascript"></script>
-    <script src="https://img1.doubanio.com/f/shire/3213351df629ca402ae8f0e1494b16b2011d8a73/js/lib/textarea-mention.js" type="text/javascript"></script>
-    <script src="https://img1.doubanio.com/f/movie/230795bbf6a9a7700cc6f395067493d5dcc572ad/js/movie/share.js" type="text/javascript"></script>
 
 <div class="rec-sec">
 <span class="rec">
@@ -871,7 +655,7 @@
                 <input type="hidden" name="target-id" value="4296866">
                 <input type="hidden" name="target-type" value="0">
                 <input type="hidden" name="title" value="神秘博士：逃跑新娘 Doctor Who: The Runaway Bride‎ (2006)">
-                <input type="hidden" name="desc" value="导演 尤洛斯·林 主演 大卫·田纳特 / 凯瑟琳·塔特 / 英国 / 9.0分(7209评价)">
+                <input type="hidden" name="desc" value="导演 尤洛斯·林 主演 大卫·田纳特 / 凯瑟琳·塔特 / 英国 / 9.0分(8205评价)">
                 <input type="hidden" name="redir" value=""/>
                 <div class="mentioned-highlighter"></div>
             </div>
@@ -879,7 +663,7 @@
             <div class="info-area">
                     <img class="media" src="https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2326413901.jpg" />
                 <strong>神秘博士：逃跑新娘 Doctor Who: The Runaway Bride‎ (2006)</strong>
-                <p>导演 尤洛斯·林 主演 大卫·田纳特 / 凯瑟琳·塔特 / 英国 / 9.0分(7209评价)</p>
+                <p>导演 尤洛斯·林 主演 大卫·田纳特 / 凯瑟琳·塔特 / 英国 / 9.0分(8205评价)</p>
                 <p class="error server-error">&nbsp;</p>
             </div>
         </div>
@@ -914,7 +698,7 @@
         <a href="/accounts/register?reason=recommend"  class="j a_show_login lnk-sharing" 
             share-id="4296866" 
             data-mode="plain" data-name="神秘博士：逃跑新娘 Doctor Who: The Runaway Bride‎ (2006)" 
-            data-type="movie" data-desc="导演 尤洛斯·林 主演 大卫·田纳特 / 凯瑟琳·塔特 / 英国 / 9.0分(7209评价)" 
+            data-type="movie" data-desc="导演 尤洛斯·林 主演 大卫·田纳特 / 凯瑟琳·塔特 / 英国 / 9.0分(8205评价)" 
             data-href="https://movie.douban.com/subject/4296866/" data-image="https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2326413901.jpg" 
             data-properties="{}" 
             data-redir="" data-text="" 
@@ -987,8 +771,7 @@
 
 
 
-
-
+<link rel="stylesheet" href="https://img3.doubanio.com/cuphead/movie-static/celebrity/celebrities_section.610da.css">
 
 <div id="celebrities" class="celebrities related-celebrities">
 
@@ -1007,19 +790,17 @@
   <ul class="celebrities-list from-subject __oneline">
         
     
-
-    
   
   <li class="celebrity">
     
 
-  <a href="https://movie.douban.com/celebrity/1290520/" title="尤洛斯·林 Euros Lyn" class="">
-      <div class="avatar" style="background-image: url(https://img9.doubanio.com/view/celebrity/raw/public/p1369404724.14.jpg)">
+  <a href="https://www.douban.com/personage/27518798/" title="尤洛斯·林 Euros Lyn" class="">
+      <div class="avatar" style="background-image: url(https://img9.doubanio.com/view/celebrity/m/public/p1369404724.14.jpg)">
     </div>
   </a>
 
     <div class="info">
-      <span class="name"><a href="https://movie.douban.com/celebrity/1290520/" title="尤洛斯·林 Euros Lyn" class="name">尤洛斯·林</a></span>
+      <span class="name"><a href="https://www.douban.com/personage/27518798/" title="尤洛斯·林 Euros Lyn" class="name">尤洛斯·林</a></span>
 
       <span class="role" title="导演">导演</span>
 
@@ -1029,19 +810,17 @@
 
         
     
-
-    
   
   <li class="celebrity">
     
 
-  <a href="https://movie.douban.com/celebrity/1002671/" title="大卫·田纳特 David Tennant" class="">
-      <div class="avatar" style="background-image: url(https://img1.doubanio.com/view/celebrity/raw/public/p26280.jpg)">
+  <a href="https://www.douban.com/personage/27208361/" title="大卫·田纳特 David Tennant" class="">
+      <div class="avatar" style="background-image: url(https://img1.doubanio.com/view/celebrity/m/public/p26280.jpg)">
     </div>
   </a>
 
     <div class="info">
-      <span class="name"><a href="https://movie.douban.com/celebrity/1002671/" title="大卫·田纳特 David Tennant" class="name">大卫·田纳特</a></span>
+      <span class="name"><a href="https://www.douban.com/personage/27208361/" title="大卫·田纳特 David Tennant" class="name">大卫·田纳特</a></span>
 
       <span class="role" title="演员">演员</span>
 
@@ -1051,19 +830,17 @@
 
         
     
-
-    
   
   <li class="celebrity">
     
 
-  <a href="https://movie.douban.com/celebrity/1044989/" title="凯瑟琳·塔特 Catherine Tate" class="">
-      <div class="avatar" style="background-image: url(https://img2.doubanio.com/view/celebrity/raw/public/p1533752100.53.jpg)">
+  <a href="https://www.douban.com/personage/27250745/" title="凯瑟琳·塔特 Catherine Tate" class="">
+      <div class="avatar" style="background-image: url(https://img9.doubanio.com/view/personage/m/public/9356ef369db547f516076ebb52e6ff26.jpg)">
     </div>
   </a>
 
     <div class="info">
-      <span class="name"><a href="https://movie.douban.com/celebrity/1044989/" title="凯瑟琳·塔特 Catherine Tate" class="name">凯瑟琳·塔特</a></span>
+      <span class="name"><a href="https://www.douban.com/personage/27250745/" title="凯瑟琳·塔特 Catherine Tate" class="name">凯瑟琳·塔特</a></span>
 
       <span class="role" title="演员">演员</span>
 
@@ -1073,19 +850,17 @@
 
         
     
-
-    
   
   <li class="celebrity">
     
 
-  <a href="https://movie.douban.com/celebrity/1127076/" title="莎拉·帕里什 Sarah Parish" class="">
-      <div class="avatar" style="background-image: url(https://img2.doubanio.com/view/celebrity/raw/public/p1555725928.12.jpg)">
+  <a href="https://www.douban.com/personage/27332922/" title="莎拉·帕里什 Sarah Parish" class="">
+      <div class="avatar" style="background-image: url(https://img3.doubanio.com/view/celebrity/m/public/p1555725928.12.jpg)">
     </div>
   </a>
 
     <div class="info">
-      <span class="name"><a href="https://movie.douban.com/celebrity/1127076/" title="莎拉·帕里什 Sarah Parish" class="name">莎拉·帕里什</a></span>
+      <span class="name"><a href="https://www.douban.com/personage/27332922/" title="莎拉·帕里什 Sarah Parish" class="name">莎拉·帕里什</a></span>
 
       <span class="role" title="演员">演员</span>
 
@@ -1095,19 +870,17 @@
 
         
     
-
-    
   
   <li class="celebrity">
     
 
-  <a href="https://movie.douban.com/celebrity/1045147/" title="拉塞尔·T·戴维斯 Russell T. Davies" class="">
-      <div class="avatar" style="background-image: url(https://img1.doubanio.com/view/celebrity/raw/public/p44428.jpg)">
+  <a href="https://www.douban.com/personage/27250903/" title="拉塞尔·T·戴维斯 Russell T. Davies" class="">
+      <div class="avatar" style="background-image: url(https://img1.doubanio.com/view/celebrity/m/public/p44428.jpg)">
     </div>
   </a>
 
     <div class="info">
-      <span class="name"><a href="https://movie.douban.com/celebrity/1045147/" title="拉塞尔·T·戴维斯 Russell T. Davies" class="name">拉塞尔·T·戴维斯</a></span>
+      <span class="name"><a href="https://www.douban.com/personage/27250903/" title="拉塞尔·T·戴维斯 Russell T. Davies" class="name">拉塞尔·T·戴维斯</a></span>
 
       <span class="role" title="编剧">编剧</span>
 
@@ -1117,19 +890,17 @@
 
         
     
-
-    
   
   <li class="celebrity">
     
 
-  <a href="https://movie.douban.com/celebrity/1284559/" title="Julie Gardner Julie Gardner" class="">
-      <div class="avatar" style="background-image: url(https://img1.doubanio.com/f/movie/8dd0c794499fe925ae2ae89ee30cd225750457b4/pics/movie/celebrity-default-medium.png)">
+  <a href="https://www.douban.com/personage/27512837/" title="朱莉·加德纳 Julie Gardner" class="">
+      <div class="avatar" style="background-image: url(https://img1.doubanio.com/f/vendors/8dd0c794499fe925ae2ae89ee30cd225750457b4/pics/personage-default-medium.png)">
     </div>
   </a>
 
     <div class="info">
-      <span class="name"><a href="https://movie.douban.com/celebrity/1284559/" title="Julie Gardner Julie Gardner" class="name">Julie Gardner</a></span>
+      <span class="name"><a href="https://www.douban.com/personage/27512837/" title="朱莉·加德纳 Julie Gardner" class="name">朱莉·加德纳</a></span>
 
       <span class="role" title="制片人">制片人</span>
 
@@ -1144,7 +915,7 @@
     
 
 
-<link rel="stylesheet" href="https://img1.doubanio.com/f/verify/fada435abd10ae2583d995730a9e06e6e20a9a05/entry_creator/dist/author_subject/style.css">
+<link rel="stylesheet" href="https://img1.doubanio.com/f/verify/a5bc0bc0aea4221d751bc4809fd4b0a1075ad25e/entry_creator/dist/author_subject/style.css">
 <div id="author_subject" class="author-wrapper">
     <div class="loading"></div>
 </div>
@@ -1156,8 +927,9 @@
       USER_ID: 'None'
     }
 </script>
-<script type="text/javascript" src="https://img1.doubanio.com/f/movie/61252f2f9b35f08b37f69d17dfe48310dd295347/js/movie/lib/react/15.4/bundle.js"></script>
-<script type="text/javascript" src="https://img1.doubanio.com/f/verify/82d2333c56fe1813ad6ee312f35a915941d906ae/entry_creator/dist/author_subject/index.js"></script>
+<script type="text/javascript" src="https://img1.doubanio.com/f/vendors/bd6325a12f40c34cbf2668aafafb4ccd60deab7e/vendors.js"></script>
+<script type="text/javascript" src="https://img1.doubanio.com/f/vendors/6242a400cfd25992da35ace060e58f160efc9c50/shared_rc.js"></script>
+<script type="text/javascript" src="https://img1.doubanio.com/f/verify/67e13c04cd5519da7657f708714ba1e7eab8d342/entry_creator/dist/author_subject/index.js"></script>
 
 
     
@@ -1165,8 +937,7 @@
 
 
 
-
-
+<link rel="stylesheet" href="https://img1.doubanio.com/cuphead/movie-static/subject/photos_section.45abd.css">
 
 
 
@@ -1182,7 +953,7 @@
               · · · · · ·
             <span class="pl">
             (
-                <a href="/video/create?subject_id=4296866">添加视频评论</a>&nbsp;|&nbsp;<a href="https://movie.douban.com/subject/4296866/all_photos">图片61</a>&nbsp;·&nbsp;<a href="https://movie.douban.com/subject/4296866/mupload">添加</a>
+                <a href="https://movie.douban.com/subject/4296866/all_photos">图片62</a>&nbsp;·&nbsp;<a href="https://movie.douban.com/subject/4296866/mupload">添加</a>
             )
             </span>
     </h2>
@@ -1190,19 +961,19 @@
 
         <ul class="related-pic-bd  ">
                 <li>
+                    <a href="https://movie.douban.com/photos/photo/1926824504/"><img src="https://img9.doubanio.com/view/photo/sqxs/public/p1926824504.jpg" alt="图片" /></a>
+                </li>
+                <li>
                     <a href="https://movie.douban.com/photos/photo/2306702505/"><img src="https://img9.doubanio.com/view/photo/sqxs/public/p2306702505.jpg" alt="图片" /></a>
                 </li>
                 <li>
-                    <a href="https://movie.douban.com/photos/photo/1926824504/"><img src="https://img9.doubanio.com/view/photo/sqxs/public/p1926824504.jpg" alt="图片" /></a>
+                    <a href="https://movie.douban.com/photos/photo/1926823222/"><img src="https://img3.doubanio.com/view/photo/sqxs/public/p1926823222.jpg" alt="图片" /></a>
                 </li>
                 <li>
                     <a href="https://movie.douban.com/photos/photo/2326415976/"><img src="https://img9.doubanio.com/view/photo/sqxs/public/p2326415976.jpg" alt="图片" /></a>
                 </li>
                 <li>
                     <a href="https://movie.douban.com/photos/photo/2306711306/"><img src="https://img9.doubanio.com/view/photo/sqxs/public/p2306711306.jpg" alt="图片" /></a>
-                </li>
-                <li>
-                    <a href="https://movie.douban.com/photos/photo/2306697105/"><img src="https://img9.doubanio.com/view/photo/sqxs/public/p2306697105.jpg" alt="图片" /></a>
                 </li>
         </ul>
     </div>
@@ -1233,7 +1004,7 @@
 
 
 
-
+<link rel="stylesheet" href="https://img9.doubanio.com/cuphead/movie-static/subject/recommendations.00756.css">
 
 
 
@@ -1257,6 +1028,7 @@
             </dt>
             <dd>
                 <a href="https://movie.douban.com/subject/4296852/?from=subject-page" class="" >神秘博士：圣诞入侵</a>
+                <span class="subject-rate">9.0</span>
             </dd>
         </dl>
         <dl class="">
@@ -1267,16 +1039,7 @@
             </dt>
             <dd>
                 <a href="https://movie.douban.com/subject/4296871/?from=subject-page" class="" >神秘博士：诅咒之旅</a>
-            </dd>
-        </dl>
-        <dl class="">
-            <dt>
-                <a href="https://movie.douban.com/subject/24901000/?from=subject-page" >
-                    <img src="https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2161440153.jpg" alt="神秘博士：博士之时" class="" />
-                </a>
-            </dt>
-            <dd>
-                <a href="https://movie.douban.com/subject/24901000/?from=subject-page" class="" >神秘博士：博士之时</a>
+                <span class="subject-rate">9.0</span>
             </dd>
         </dl>
         <dl class="">
@@ -1287,36 +1050,29 @@
             </dt>
             <dd>
                 <a href="https://movie.douban.com/subject/23338330/?from=subject-page" class="" >博士之日</a>
+                <span class="subject-rate">9.0</span>
             </dd>
         </dl>
         <dl class="">
             <dt>
-                <a href="https://movie.douban.com/subject/27064700/?from=subject-page" >
-                    <img src="https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2493956005.jpg" alt="曾有两次：《神秘博士》2017圣诞特别篇" class="" />
+                <a href="https://movie.douban.com/subject/24901000/?from=subject-page" >
+                    <img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2161440153.jpg" alt="神秘博士：博士之时" class="" />
                 </a>
             </dt>
             <dd>
-                <a href="https://movie.douban.com/subject/27064700/?from=subject-page" class="" >曾有两次：《神秘博士》2017...</a>
-            </dd>
-        </dl>
-        <dl class="">
-            <dt>
-                <a href="https://movie.douban.com/subject/26883072/?from=subject-page" >
-                    <img src="https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2458563478.jpg" alt="神秘博士归来" class="" />
-                </a>
-            </dt>
-            <dd>
-                <a href="https://movie.douban.com/subject/26883072/?from=subject-page" class="" >神秘博士归来</a>
+                <a href="https://movie.douban.com/subject/24901000/?from=subject-page" class="" >神秘博士：博士之时</a>
+                <span class="subject-rate">8.8</span>
             </dd>
         </dl>
         <dl class="">
             <dt>
                 <a href="https://movie.douban.com/subject/25778408/?from=subject-page" >
-                    <img src="https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2872105847.jpg" alt="伟大的侦探" class="" />
+                    <img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2872105847.jpg" alt="伟大的侦探" class="" />
                 </a>
             </dt>
             <dd>
                 <a href="https://movie.douban.com/subject/25778408/?from=subject-page" class="" >伟大的侦探</a>
+                <span class="subject-rate">8.5</span>
             </dd>
         </dl>
         <dl class="">
@@ -1327,6 +1083,7 @@
             </dt>
             <dd>
                 <a href="https://movie.douban.com/subject/25777719/?from=subject-page" class="" >五位(还嫌少)博士重启</a>
+                <span class="subject-rate">9.3</span>
             </dd>
         </dl>
         <dl class="">
@@ -1337,6 +1094,7 @@
             </dt>
             <dd>
                 <a href="https://movie.douban.com/subject/5500594/?from=subject-page" class="" >凯特秀之奶奶的圣诞颂歌</a>
+                <span class="subject-rate">8.9</span>
             </dd>
         </dl>
         <dl class="">
@@ -1347,6 +1105,29 @@
             </dt>
             <dd>
                 <a href="https://movie.douban.com/subject/26673954/?from=subject-page" class="" >雨神</a>
+                <span class="subject-rate">8.9</span>
+            </dd>
+        </dl>
+        <dl class="">
+            <dt>
+                <a href="https://movie.douban.com/subject/25779224/?from=subject-page" >
+                    <img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2867492317.jpg" alt="最终审判日" class="" />
+                </a>
+            </dt>
+            <dd>
+                <a href="https://movie.douban.com/subject/25779224/?from=subject-page" class="" >最终审判日</a>
+                <span class="subject-rate">8.0</span>
+            </dd>
+        </dl>
+        <dl class="">
+            <dt>
+                <a href="https://movie.douban.com/subject/25886497/?from=subject-page" >
+                    <img src="https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2875933428.jpg" alt="克拉拉和塔迪斯" class="" />
+                </a>
+            </dt>
+            <dd>
+                <a href="https://movie.douban.com/subject/25886497/?from=subject-page" class="" >克拉拉和塔迪斯</a>
+                <span class="subject-rate">8.8</span>
             </dd>
         </dl>
     </div>
@@ -1399,6 +1180,7 @@
 
 
     
+    <link rel="stylesheet" href="https://img1.doubanio.com/f/vendors/d63a579a99fd372b4398731a279a1382e6eac71e/subject-comments/comments-section.css">
 
     <div id="comments-section">
         <div class="mod-hd">
@@ -1414,7 +1196,7 @@
               · · · · · ·
             <span class="pl">
             (
-                <a href="https://movie.douban.com/subject/4296866/comments?status=P">全部 1565 条</a>
+                <a href="https://movie.douban.com/subject/4296866/comments?status=P">全部 1816 条</a>
             )
             </span>
     </h2>
@@ -1438,108 +1220,13 @@
     
 
         
-        <div class="comment-item " data-cid="296596176">
-            
-    
-    <div class="comment">
-        <h3>
-            <span class="comment-vote">
-                    <span class="votes vote-count">62</span>
-
-                    <input value="296596176" type="hidden"/>
-                    <a href="javascript:;" data-id="296596176"
-                        class="j a_show_login" 
-                        onclick="">有用</a>
-                    
-                <!-- 删除短评 -->
-            </span>
-            <span class="comment-info">
-                <a href="https://www.douban.com/people/doradora/" class="">抖啊抖</a>
-                    <span>看过</span>
-                    <span class="allstar40 rating" title="推荐"></span>
-                <span class="comment-time " title="2010-09-23 19:33:16">
-                    2010-09-23 19:33:16
-                </span>
-                <span class="comment-location"></span>
-            </span>
-        </h3>
-        <p class=" comment-content">
-            
-                <span class="short">哇顶这才刚丢了自个儿女友就搭上了别人媳妇儿Dr.你要是再这么乱搞外星男女关系哪天你穿越来文革中国迟早要被咱红卫兵消灭掉的到时候连Dalek都救不了你！！！</span>
-        </p>
-        <div class="comment-report" data-url="https://movie.douban.com/subject/4296866/?comment_id=296596176"></div>
-    </div>
-    <script>
-        (function(){
-            $("body").delegate(".comment-item", 'mouseenter mouseleave', function (e) {
-                switch (e.type) {
-                    case "mouseenter":
-                    $(this).find(".comment-report").css('visibility', 'visible');
-                    break;
-                    case "mouseleave":
-                    $(this).find(".comment-report").css('visibility', 'hidden');
-                    break;
-                }
-            });
-        })()
-    </script>
-
-        </div>
-        
-        <div class="comment-item " data-cid="1151766850">
-            
-    
-    <div class="comment">
-        <h3>
-            <span class="comment-vote">
-                    <span class="votes vote-count">8</span>
-
-                    <input value="1151766850" type="hidden"/>
-                    <a href="javascript:;" data-id="1151766850"
-                        class="j a_show_login" 
-                        onclick="">有用</a>
-                    
-                <!-- 删除短评 -->
-            </span>
-            <span class="comment-info">
-                <a href="https://www.douban.com/people/42860889/" class="">Max</a>
-                    <span>看过</span>
-                <span class="comment-time " title="2017-02-13 20:23:52">
-                    2017-02-13 20:23:52
-                </span>
-                <span class="comment-location"></span>
-            </span>
-        </h3>
-        <p class=" comment-content">
-            
-                <span class="short">Donna是最没眼缘，但也是帮助博士最多的女伴（从闯祸程度上来说），是唯一一位没爱上博士（Amy最开始还有点摇摆不定），也是唯一一位忘记博士的女伴。</span>
-        </p>
-        <div class="comment-report" data-url="https://movie.douban.com/subject/4296866/?comment_id=1151766850"></div>
-    </div>
-    <script>
-        (function(){
-            $("body").delegate(".comment-item", 'mouseenter mouseleave', function (e) {
-                switch (e.type) {
-                    case "mouseenter":
-                    $(this).find(".comment-report").css('visibility', 'visible');
-                    break;
-                    case "mouseleave":
-                    $(this).find(".comment-report").css('visibility', 'hidden');
-                    break;
-                }
-            });
-        })()
-    </script>
-
-        </div>
-        
         <div class="comment-item " data-cid="341164535">
             
     
     <div class="comment">
         <h3>
             <span class="comment-vote">
-                    <span class="votes vote-count">59</span>
+                    <span class="votes vote-count">72</span>
 
                     <input value="341164535" type="hidden"/>
                     <a href="javascript:;" data-id="341164535"
@@ -1581,13 +1268,61 @@
 
         </div>
         
+        <div class="comment-item " data-cid="296596176">
+            
+    
+    <div class="comment">
+        <h3>
+            <span class="comment-vote">
+                    <span class="votes vote-count">70</span>
+
+                    <input value="296596176" type="hidden"/>
+                    <a href="javascript:;" data-id="296596176"
+                        class="j a_show_login" 
+                        onclick="">有用</a>
+                    
+                <!-- 删除短评 -->
+            </span>
+            <span class="comment-info">
+                <a href="https://www.douban.com/people/doradora/" class="">抖啊抖</a>
+                    <span>看过</span>
+                    <span class="allstar40 rating" title="推荐"></span>
+                <span class="comment-time " title="2010-09-23 19:33:16">
+                    2010-09-23 19:33:16
+                </span>
+                <span class="comment-location"></span>
+            </span>
+        </h3>
+        <p class=" comment-content">
+            
+                <span class="short">哇顶这才刚丢了自个儿女友就搭上了别人媳妇儿Dr.你要是再这么乱搞外星男女关系哪天你穿越来文革中国迟早要被咱红卫兵消灭掉的到时候连Dalek都救不了你！！！</span>
+        </p>
+        <div class="comment-report" data-url="https://movie.douban.com/subject/4296866/?comment_id=296596176"></div>
+    </div>
+    <script>
+        (function(){
+            $("body").delegate(".comment-item", 'mouseenter mouseleave', function (e) {
+                switch (e.type) {
+                    case "mouseenter":
+                    $(this).find(".comment-report").css('visibility', 'visible');
+                    break;
+                    case "mouseleave":
+                    $(this).find(".comment-report").css('visibility', 'hidden');
+                    break;
+                }
+            });
+        })()
+    </script>
+
+        </div>
+        
         <div class="comment-item " data-cid="1149301761">
             
     
     <div class="comment">
         <h3>
             <span class="comment-vote">
-                    <span class="votes vote-count">50</span>
+                    <span class="votes vote-count">63</span>
 
                     <input value="1149301761" type="hidden"/>
                     <a href="javascript:;" data-id="1149301761"
@@ -1629,36 +1364,83 @@
 
         </div>
         
-        <div class="comment-item " data-cid="219695798">
+        <div class="comment-item " data-cid="1141365370">
             
     
     <div class="comment">
         <h3>
             <span class="comment-vote">
-                    <span class="votes vote-count">43</span>
+                    <span class="votes vote-count">46</span>
 
-                    <input value="219695798" type="hidden"/>
-                    <a href="javascript:;" data-id="219695798"
+                    <input value="1141365370" type="hidden"/>
+                    <a href="javascript:;" data-id="1141365370"
                         class="j a_show_login" 
                         onclick="">有用</a>
                     
                 <!-- 删除短评 -->
             </span>
             <span class="comment-info">
-                <a href="https://www.douban.com/people/dr_new/" class="">Newnew</a>
+                <a href="https://www.douban.com/people/144582539/" class="">柒二Dr.Tobe</a>
                     <span>看过</span>
-                    <span class="allstar50 rating" title="力荐"></span>
-                <span class="comment-time " title="2010-02-20 23:07:08">
-                    2010-02-20 23:07:08
+                    <span class="allstar40 rating" title="推荐"></span>
+                <span class="comment-time " title="2017-01-24 13:16:10">
+                    2017-01-24 13:16:10
                 </span>
                 <span class="comment-location"></span>
             </span>
         </h3>
         <p class=" comment-content">
             
-                <span class="short">这一集, 博士还沉浸在失去ROSE的悲痛之中...</span>
+                <span class="short">Donna的性格很可爱欸，该有这么一个人，在博士兴高采烈大喊大叫时扇他一巴掌而不是强吻（误。。）“你遇上了什么什么什么，啊magnificent，啊fantastic，啊brilliant，啊perfect，啊你打我干嘛？”哈哈哈</span>
         </p>
-        <div class="comment-report" data-url="https://movie.douban.com/subject/4296866/?comment_id=219695798"></div>
+        <div class="comment-report" data-url="https://movie.douban.com/subject/4296866/?comment_id=1141365370"></div>
+    </div>
+    <script>
+        (function(){
+            $("body").delegate(".comment-item", 'mouseenter mouseleave', function (e) {
+                switch (e.type) {
+                    case "mouseenter":
+                    $(this).find(".comment-report").css('visibility', 'visible');
+                    break;
+                    case "mouseleave":
+                    $(this).find(".comment-report").css('visibility', 'hidden');
+                    break;
+                }
+            });
+        })()
+    </script>
+
+        </div>
+        
+        <div class="comment-item " data-cid="1151766850">
+            
+    
+    <div class="comment">
+        <h3>
+            <span class="comment-vote">
+                    <span class="votes vote-count">10</span>
+
+                    <input value="1151766850" type="hidden"/>
+                    <a href="javascript:;" data-id="1151766850"
+                        class="j a_show_login" 
+                        onclick="">有用</a>
+                    
+                <!-- 删除短评 -->
+            </span>
+            <span class="comment-info">
+                <a href="https://www.douban.com/people/42860889/" class="">Max</a>
+                    <span>看过</span>
+                <span class="comment-time " title="2017-02-13 20:23:52">
+                    2017-02-13 20:23:52
+                </span>
+                <span class="comment-location"></span>
+            </span>
+        </h3>
+        <p class=" comment-content">
+            
+                <span class="short">Donna是最没眼缘，但也是帮助博士最多的女伴（从闯祸程度上来说），是唯一一位没爱上博士（Amy最开始还有点摇摆不定），也是唯一一位忘记博士的女伴。</span>
+        </p>
+        <div class="comment-report" data-url="https://movie.douban.com/subject/4296866/?comment_id=1151766850"></div>
     </div>
     <script>
         (function(){
@@ -1683,7 +1465,7 @@
                 
                     &gt; <a href="comments?sort=new_score&status=P" >
                         更多短评
-                            1565条
+                            1816条
                     </a>
         </div>
         <div id="new-comments" class="tab">
@@ -1693,7 +1475,7 @@
                 <a class="qa" href="/help/opinion#t2-q0" target="_blank">为什么被折叠？</a>
                 <a class="btn-unfold" href="#">有一些短评被折叠了</a>
                 <div class="qa-tip">
-                    评论被折叠，是因为发布这条评论的帐号行为异常。评论仍可以被展开阅读，对发布人的账号不造成其他影响。如果认为有问题，可以<a href="https://help.douban.com/help/ask?category=movie">联系</a>豆瓣电影。
+                    评论被折叠，是因为发布这条评论的账号行为异常。评论仍可以被展开阅读，对发布人的账号不造成其他影响。如果认为有问题，可以<a href="https://help.douban.com/help/ask?category=movie">联系</a>豆瓣电影。
                 </div>
             </div>
             <div class="fold-bd">
@@ -1717,8 +1499,35 @@
 
 
 
-            
-            
+            <script src="https://img1.doubanio.com/f/vendors/6eba6f43fb7592ab783e390f654c0d6a96b1598e/subject-comments/comments-section.js"></script>
+            <script>
+                $(function () {
+                    if (window.SUBJECT_COMMENTS_SECTION) {
+                        // tab handler
+                        SUBJECT_COMMENTS_SECTION.createTabHandler();
+                        // expand handler
+                        SUBJECT_COMMENTS_SECTION.createExpandHandler({
+                            root: document.getElementById('comments-section'),
+                        });
+                        // vote handler
+                        SUBJECT_COMMENTS_SECTION.createVoteHandler({
+                            api: '/j/comment/vote',
+                            root: document.getElementById('comments-section'),
+                            voteSelector: '.vote-comment',
+                            textSelector: '.vote-count',
+                            is_released: "true",
+                            alert_text: "该电影还未上映，不能投票噢",
+                            afterVote: function (elem) {
+                                var parentNode = elem.parentNode;
+                                var successElem = document.createElement('span');
+                                successElem.innerHTML = '已投票';
+                                parentNode.removeChild(elem);
+                                parentNode.appendChild(successElem);
+                            }
+                        });
+                    }
+                });
+            </script>
         </div>
     </div>
 
@@ -1728,7 +1537,7 @@
         
 
 
-<link rel="stylesheet" href="https://img9.doubanio.com/misc/mixed_static/6078555e83c38f2.css">
+<link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/18aea1f972f4151a.css">
 
     <section id="reviews-wrapper" class="reviews mod movie-content">
         <header>
@@ -1744,10 +1553,11 @@
                     <span class="pl">( <a href="reviews">全部 1 条</a> )</span>
             </h2>
         </header>
-
+        
+            
             <div class="review_filter">
-                            <a href="javascript:;;" class="cur" data-sort="">热门</a> &#047;
-                            <a href="javascript:;;" data-sort="time">最新</a> &#047;
+                            <a href="javascript:;;" class="cur" data-sort="">热门</a>
+                            <a href="javascript:;;" data-sort="time">最新</a>
                             <a href="javascript:;;" data-sort="follow">好友</a>
             </div>
             <script>
@@ -1801,7 +1611,7 @@
     
     <header class="main-hd">
         <a href="https://www.douban.com/people/55437542/" class="avator">
-            <img width="24" height="24" src="https://img9.doubanio.com/icon/u55437542-2.jpg">
+            <img width="24" height="24" src="https://img3.doubanio.com/icon/u55437542-2.jpg">
         </a>
 
         <a href="https://www.douban.com/people/55437542/" class="name">遥若离</a>
@@ -1834,13 +1644,13 @@
 
                 <div class="action">
                     <a href="javascript:;" class="action-btn up" data-rid="5985587" title="有用">
-                        <img src="https://img9.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
                         <span id="r-useful_count-5985587">
-                                30
+                                32
                         </span>
                     </a>
                     <a href="javascript:;" class="action-btn down" data-rid="5985587" title="没用">
-                        <img src="https://img9.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
                         <span id="r-useless_count-5985587">
                                 1
                         </span>
@@ -1858,11 +1668,34 @@
 
     
 
-    
-
-    <script type="text/javascript" src="https://img9.doubanio.com/misc/mixed_static/17dfbca9ee00936a.js"></script>
+    <!-- COLLECTED JS -->
     <!-- COLLECTED CSS -->
 </div>
+
+    <script type="text/javascript">
+        (function() {
+            if (window.__init_review_list) return;
+            __init_review_list = true;
+                window.is_released = true
+                window.txt_released = '该电影还未上映，不能投票噢'
+        })();
+        window.useful_icon = "https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png";
+        window.usefuled_icon = "https://img1.doubanio.com/f/zerkalo/635290bb14771c97270037be21ad50514d57acc3/pics/up-full.png";
+        window.useless_icon = "https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png";
+        window.uselessed_icon = "https://img1.doubanio.com/f/zerkalo/23cee7343568ca814238f5ef18bf8aadbe959df2/pics/down-full.png";
+    </script>
+
+    <link rel="stylesheet" href="https://img1.doubanio.com/f/zerkalo/3aeb281ab0e4f2c7050458684acfeb6838441de9/css/review/editor/ng/setting_standalone.css">
+    <script src="https://img1.doubanio.com/f/zerkalo/938cdbe2e223a3117cbbcb4929cae2001b402c20/js/review/editor/ng/manifest.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/296cd5fec472a78add5fee958c58d72f47d91586/js/review/editor/ng/vendor.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/c0095c35695e36603701c428b6679987211e3c9b/js/review/editor/ng/setting_standalone.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/8941af7854ddad9561648b706cdb49f3d1534ff3/js/review/editor/ng/render_gif.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/68b2d67ea75209236a6443ad45f370f1bca536ae/js/review/actions.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/7196bdec780f03785f55b06fda34999595057f65/js/review/unfold.js"></script>
+    <script src="https://img1.doubanio.com/f/vendors/f25ae221544f39046484a823776f3aa01769ee10/js/ui/dialog.js"></script>
+
+
+
 
 
 
@@ -1880,8 +1713,6 @@
                 </p>
     </section>
 <!-- COLLECTED JS -->
-
-
 
 
     <br/>
@@ -1924,16 +1755,6 @@
             </div>
 
 
-    <script type="text/javascript">
-        $(function(){if($.browser.msie && $.browser.version == 6.0){
-            var $info = $('#info'),
-                maxWidth = parseInt($info.css('max-width'));
-            if($info.width() > maxWidth) {
-                $info.width(maxWidth);
-            }
-        }});
-    </script>
-
 
             </div>
             <div class="aside">
@@ -1949,55 +1770,9 @@
 
 
 
-        
-
-
-
-
-
-
-    
-
-<script id="episode-tmpl" type="text/x-jsrender">
-<div id="tv-play-source" class="play-source">
-    <div class="cross">
-        <span style="color:#494949; font-size:16px">{{:cn}}</span>
-        <span style="cursor:pointer">✕</span>
-    </div>
-    <div class="episode-list">
-        {{for playlist}}
-            <a href="{{:play_link}}&episode={{:ep}}" target="_blank">{{:ep}}集</a>
-        {{/for}}
-     <div>
- </div>
-</script>
-
-<div class="gray_ad">
-    
-    <h2>
-        在哪儿看这部电影
-            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
-    </h2>
-
-    
-    <ul class="bs">
-                
-                <li>
-                        <a class="playBtn" data-cn="腾讯视频" data-impression-track="https://frodo.douban.com/rohirrim/video_tracking/impression?subject_id=4296866&amp;video_type=movie&amp;video_id=194655&amp;source=qq&amp;user_id=&amp;bid=T7N563o1UG0&amp;platform=pc&amp;location=vendor_subject" data-click-track="https://frodo.douban.com/rohirrim/video_tracking/click?subject_id=4296866&amp;video_type=movie&amp;video_id=194655&amp;source=qq&amp;user_id=&amp;bid=T7N563o1UG0&amp;platform=pc&amp;location=vendor_subject" href="https://www.douban.com/link2/?url=http%3A%2F%2Fv.qq.com%2Fcover%2Fz%2Fzoe295h4y257nsc%2Fd0012ht7y36.html%3Fptag%3Ddouban.tv&amp;subtype=1&amp;type=online-video" target="_blank">
-                            腾讯视频
-                        </a>
-                    <span class="buylink-price"><span>
-                        免费观看
-                    </span></span>
-                </li>
-
-    </ul>
-</div>
-
 
     <!-- douban ad begin -->
     <div id="dale_movie_subject_top_right"></div>
-    <div id="dale_movie_subject_top_middle"></div>
     <!-- douban ad end -->
 
     
@@ -2027,11 +1802,9 @@
 
 
 
-<!--tags-->
 
     <div id="dale_subject_right_guess_you_like"></div>
     <div id="dale_movie_subject_inner_middle"></div>
-    <div id="dale_movie_subject_download_middle"></div>
     
         
 
@@ -2066,7 +1839,7 @@
             
                 <li>
                     <a href="https://www.douban.com/doulist/423747/" target="_blank">Doctor Who</a>
-                    <span>(Vacuo S1E1)</span>
+                    <span>(Vacuo)</span>
                 </li>
             
                 <li>
@@ -2110,11 +1883,25 @@
     <ul class="">
             
             <li class="">
-                <a href="https://www.douban.com/people/liling52052/" class="others-interest-avatar">
-                    <img src="https://img2.doubanio.com/icon/u260593961-3.jpg" class="pil" alt="金真妮">
+                <a href="https://www.douban.com/people/90891486/" class="others-interest-avatar">
+                    <img src="https://img3.doubanio.com/icon/u90891486-2.jpg" class="pil" alt="姜饼人喝蛋奶酒">
                 </a>
                 <div class="others-interest-info">
-                    <a href="https://www.douban.com/people/liling52052/" class="">金真妮</a>
+                    <a href="https://www.douban.com/people/90891486/" class="">姜饼人喝蛋奶酒</a>
+                    <div class="">
+                        昨天
+                        看过
+                        <span class="allstar40" title="推荐"></span>
+                    </div>
+                </div>
+            </li>
+            
+            <li class="">
+                <a href="https://www.douban.com/people/273681310/" class="others-interest-avatar">
+                    <img src="https://img3.doubanio.com/icon/u273681310-2.jpg" class="pil" alt="伽利略略略">
+                </a>
+                <div class="others-interest-info">
+                    <a href="https://www.douban.com/people/273681310/" class="">伽利略略略</a>
                     <div class="">
                         昨天
                         看过
@@ -2124,29 +1911,15 @@
             </li>
             
             <li class="">
-                <a href="https://www.douban.com/people/264523469/" class="others-interest-avatar">
-                    <img src="https://img9.doubanio.com/icon/u264523469-5.jpg" class="pil" alt="扇沉三指">
+                <a href="https://www.douban.com/people/163375000/" class="others-interest-avatar">
+                    <img src="https://img2.doubanio.com/icon/u163375000-1.jpg" class="pil" alt="聪明马">
                 </a>
                 <div class="others-interest-info">
-                    <a href="https://www.douban.com/people/264523469/" class="">扇沉三指</a>
+                    <a href="https://www.douban.com/people/163375000/" class="">聪明马</a>
                     <div class="">
-                        昨天
-                        想看
-                        
-                    </div>
-                </div>
-            </li>
-            
-            <li class="">
-                <a href="https://www.douban.com/people/sher7437/" class="others-interest-avatar">
-                    <img src="https://img9.doubanio.com/icon/u221211502-15.jpg" class="pil" alt="anaphylaxis">
-                </a>
-                <div class="others-interest-info">
-                    <a href="https://www.douban.com/people/sher7437/" class="">anaphylaxis</a>
-                    <div class="">
-                        昨天
-                        想看
-                        
+                        7月11日
+                        看过
+                        <span class="allstar40" title="推荐"></span>
                     </div>
                 </div>
             </li>
@@ -2155,9 +1928,9 @@
     
     <div class="subject-others-interests-ft">
         
-            <a href="https://movie.douban.com/subject/4296866/comments?status=P">10002人看过</a>
+            <a href="https://movie.douban.com/subject/4296866/comments?status=P">11461人看过</a>
                 &nbsp;/&nbsp;
-            <a href="https://movie.douban.com/subject/4296866/comments?status=F">2817人想看</a>
+            <a href="https://movie.douban.com/subject/4296866/comments?status=F">3295人想看</a>
     </div>
 
 </div>
@@ -2228,7 +2001,7 @@
             <div class="footer-extra"></div>
         
 <span id="icp" class="fleft gray-link">
-    &copy; 2005－2022 douban.com, all rights reserved 北京豆网科技有限公司
+    &copy; 2005－2024 douban.com, all rights reserved 北京豆网科技有限公司
 </span>
 
 <a href="https://www.douban.com/hnypt/variformcyst.py" style="display: none;"></a>
@@ -2247,81 +2020,28 @@
     </div>
 
     </div>
-    <script type="text/javascript" src="https://img1.doubanio.com/misc/mixed_static/4773b4b00c451a2c.js"></script><script type="text/javascript">
-        if (!Do.ready) {
-            !function(){var t,e,n=document,r=window,i=window.__external_files_loaded=window.__external_files_loaded||{},o=window.__external_files_loading=window.__external_files_loading||{},a=function(t){return t.constructor===Array},s={autoLoad:!0,coreLib:["//img3.doubanio.com/js/jquery.min.js"],mods:{}},c=n.getElementsByTagName("script"),d=c[c.length-1],u=[],l=!1,f=[],h=function(t,e,r,a,s){var d=c[0];if(t){if(i[t])return o[t]=!1,void(a&&a(t,s));if(o[t])return void setTimeout(function(){h(t,e,r,a,s)},1);o[t]=!0;var u,l=e||t.toLowerCase().split(/\./).pop().replace(/[\?#].*/,"");if("js"===l?(u=n.createElement("script"),u.setAttribute("type","text/javascript"),u.setAttribute("src",t),u.setAttribute("async",!0)):"css"===l&&(u=n.createElement("link"),u.setAttribute("type","text/css"),u.setAttribute("rel","stylesheet"),u.setAttribute("href",t),i[t]=!0),u){if(r&&(u.charset=r),"css"===l)return d.parentNode.insertBefore(u,d),void(a&&a(t,s));u.onload=u.onreadystatechange=function(){this.readyState&&"loaded"!==this.readyState&&"complete"!==this.readyState||(i[this.getAttribute("src")]=!0,a&&a(this.getAttribute("src"),s),u.onload=u.onreadystatechange=null)},d.parentNode.insertBefore(u,d)}}},p=function(t){if(t&&a(t)){for(var e,n=0,r=[],i=s.mods,o=[],c={},d=function(t){var e,n,r=0;if(c[t])return o;if(c[t]=!0,i[t].requires){for(n=i[t].requires;"undefined"!=typeof(e=n[r++]);)i[e]?(d(e),o.push(e)):o.push(e);return o}return o};"undefined"!=typeof(e=t[n++]);)i[e]&&i[e].requires&&i[e].requires[0]&&(o=[],c={},r=r.concat(d(e))),r.push(e);return r}},y=function(){l=!0,u.length>0&&(e.apply(this,u),u=[])},m=function(){n.addEventListener?n.removeEventListener("DOMContentLoaded",m,!1):n.attachEvent&&n.detachEvent("onreadystatechange",m),y()},v=function(){if(!l){try{n.documentElement.doScroll("left")}catch(t){return r.setTimeout(v,1)}y()}},g=function(){if("complete"===n.readyState)return r.setTimeout(y,1);var t=!1;if(n.addEventListener)n.addEventListener("DOMContentLoaded",m,!1),r.addEventListener("load",y,!1);else if(n.attachEvent){n.attachEvent("onreadystatechange",m),r.attachEvent("onload",y);try{t=null===r.frameElement}catch(t){}document.documentElement.doScroll&&t&&v()}},E=function(t){t&&a(t)&&(this.queue=t,this.current=null)};E.prototype={_interval:10,start:function(){return this.current=this.next(),this.current?void this.run():void(this.end=!0)},run:function(){var t,e=this,n=this.current;return"function"==typeof n?(n(),void this.start()):void("string"==typeof n&&(s.mods[n]?(t=s.mods[n],h(t.path,t.type,t.charset,function(t){e.start()},e)):/\.js|\.css/i.test(n)?h(n,"","",function(t,e){e.start()},e):this.start()))},next:function(){return this.queue.shift()}},t=d.getAttribute("data-cfg-autoload"),"string"==typeof t&&(s.autoLoad="true"===t.toLowerCase()),t=d.getAttribute("data-cfg-corelib"),"string"==typeof t&&(s.coreLib=t.split(",")),e=function(){var t,e=[].slice.call(arguments);f.length>0&&(e=f.concat(e)),s.autoLoad&&(e=s.coreLib.concat(e)),t=new E(p(e)),t.start()},e.add=function(t,e){t&&e&&e.path&&(s.mods[t]=e)},e.delay=function(){var t=[].slice.call(arguments),n=t.shift();r.setTimeout(function(){e.apply(this,t)},n)},e.global=function(){var t=[].slice.call(arguments);f=f.concat(t)},e.ready=function(){var t=[].slice.call(arguments);return l?e.apply(this,t):void(u=u.concat(t))},e.css=function(t){var e=n.getElementById("do-inline-css");e||(e=n.createElement("style"),e.type="text/css",e.id="do-inline-css",n.getElementsByTagName("head")[0].appendChild(e)),e.styleSheet?e.styleSheet.cssText=e.styleSheet.cssText+t:e.appendChild(n.createTextNode(t))},s.autoLoad&&e(s.coreLib),e.define=e.add,e._config=s,e._mods=s.mods,this.Do=e,g()}();
-        }
-        function reportTrack(url) {
-          if (!url) { return false }
-          $.ajax({ url: url, dataType: 'text/html' })
-        }
-        Do.ready(
-            'https://img1.doubanio.com/f/movie/b2a06a0332fc1526f4caaf8c76c2717d24da408d/js/movie/lib/jsrender.min.js',
-            function(){
-                $(document).on('click', '.cross span', function(e) {
-                    var $this = $(this);
-                    var $dialog = $this.parents('#tv-play-source');
-                    $dialog.remove();
-                });
-                $('body').bind('click', function(e) {
-                    var $this = $(e.target),
-                        $source = $('.play-source');
-                    if (!$this.is('.playBtn') && !$this.parents('.play-source').length) {
-                        $source.remove();
-                    }
-                });
-                var sources = {};
-                sources[1] = [
-                            {play_link: "https://www.douban.com/link2/?url=http%3A%2F%2Fv.qq.com%2Fcover%2Fz%2Fzoe295h4y257nsc%2Fd0012ht7y36.html%3Fptag%3Ddouban.tv&amp;subtype=1&amp;type=online-video", ep: "1"},
-                ];
-                $('.playBtn').each(function(i, item) {
-                    // 曝光监测上报
-                    if (item) {
-                        reportTrack(item.dataset.impressionTrack);
-                    }
-                });
-                $('.playBtn').click(function(e){
-                    // 点击监测上报
-                    reportTrack(e.target.dataset.clickTrack);
-                    
-                    $('.play-source').remove();
+    <!-- COLLECTED JS -->
+        
+        
+    <link rel="stylesheet" type="text/css" href="https://img1.doubanio.com/f/vendors/e8a7261937da62636d22ca4c579efc4a4d759b1b/css/ui/dialog.css" />
+    <link rel="stylesheet" type="text/css" href="https://img1.doubanio.com/cuphead/movie-static/mod/login_pop.b2f60.css" />
+    <script type="text/javascript" src="https://img1.doubanio.com/f/vendors/f25ae221544f39046484a823776f3aa01769ee10/js/ui/dialog.js"></script>
+    <script type="text/javascript">
+        var HTTPS_DB = "https://www.douban.com"
+    </script>
+    <script type="text/javascript" src="https://img1.doubanio.com/cuphead/movie-static/mod/login_pop.7f2b9.js"></script>
 
-                    var height, width, tmpl, cn, source;
-                    var $dialog = $('#tv-play-source');
-                    var $this = $(this);
-                    source = $this.data('source');
-                    if(!source)return;
-                    cn = $this.data('cn');
-
-                    tmpl = $.templates('#episode-tmpl');
-                    $dialog = $(tmpl.render({playlist: sources[source], cn: cn}));
-
-                    $dialog.hide();
-                    $('body').append($dialog);
-                    width = $dialog.outerWidth();
-
-                    $dialog.css({
-                        marginLeft: -width / 2,
-                        top: $this.offset().top + $this.outerHeight()
-                    }).show();
-                });
-            });
-    </script><script type="text/javascript">
-        ;/*
- * jQuery hashchange event - v1.3 - 7/21/2010
- * http://benalman.com/projects/jquery-hashchange-plugin/
- * 
- * Copyright (c) 2010 "Cowboy" Ben Alman
- * Dual licensed under the MIT and GPL licenses.
- * http://benalman.com/about/license/
- */
-(function($,e,b){var c="hashchange",h=document,f,g=$.event.special,i=h.documentMode,d="on"+c in e&&(i===b||i>7);function a(j){j=j||location.href;return"#"+j.replace(/^[^#]*#?(.*)$/,"$1")}$.fn[c]=function(j){return j?this.bind(c,j):this.trigger(c)};$.fn[c].delay=50;g[c]=$.extend(g[c],{setup:function(){if(d){return false}$(f.start)},teardown:function(){if(d){return false}$(f.stop)}});f=(function(){var j={},p,m=a(),k=function(q){return q},l=k,o=k;j.start=function(){p||n()};j.stop=function(){p&&clearTimeout(p);p=b};function n(){var r=a(),q=o(m);if(r!==m){l(m=r,q);$(e).trigger(c)}else{if(q!==m){location.href=location.href.replace(/#.*/,"")+q}}p=setTimeout(n,$.fn[c].delay)}$.browser.msie&&!d&&(function(){var q,r;j.start=function(){if(!q){r=$.fn[c].src;r=r&&r+a();q=$('<iframe tabindex="-1" title="empty"/>').hide().one("load",function(){r||l(a());n()}).attr("src",r||"javascript:0").insertAfter("body")[0].contentWindow;h.onpropertychange=function(){try{if(event.propertyName==="title"){q.document.title=h.title}}catch(s){}}}};j.stop=k;o=function(){return a(q.location.href)};l=function(v,s){var u=q.document,t=$.fn[c].domain;if(v!==s){u.title=h.title;u.open();t&&u.write('<script>document.domain="'+t+'"<\/script>');u.close();q.location.hash=v}}})();return j})()})(jQuery,this);
-
-        Douban&&Douban.init_vote_comment&&(Douban.init_vote_comment=function(o){var t=$(o).prev().prev(),n=$(o).prev().val();$(o).click(function(){$.postJSON_withck("/j/comment/vote",{id:n},function(o){0===o.r&&o.count?t.text(o.count):1===o.r&&alert(o.msg)})})}),$(".vote-comment").hover(function(){$(".pop").hide(),$(this).next(".pop").show()},function(){$(".pop").hide()});
+    
+    <script src="https://img1.doubanio.com/f/vendors/f25ae221544f39046484a823776f3aa01769ee10/js/ui/dialog.js"></script>
+    <script src="https://img9.doubanio.com/cuphead/movie-static/libs/handlebars.js"></script>
+    <script src="https://img1.doubanio.com/f/vendors/55caa4decc5b4d78a5afa5d12f0b4bdfa7dcb6bb/js/lib/jquery.ba-hashchange.min.js"></script>
+    <script src="https://img9.doubanio.com/cuphead/movie-static/subject/comment_vote.9fc06.js"></script>
+    
+    <script>
         $(function(){
             var UA = navigator.userAgent.toLowerCase();
             isSafari = /safari/.test(UA)
-            $("#season").live('change', function(){
+            $("#season").on('change', function(){
                 var subjectId = $(this).val();
                 if (subjectId.length){
                     window.location = "/subject/" + subjectId + "/";
@@ -2355,19 +2075,6 @@
             })
         });
     </script>
-        
-        
-    <link rel="stylesheet" type="text/css" href="https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css" />
-    <link rel="stylesheet" type="text/css" href="https://img1.doubanio.com/f/movie/4aca95d66d37ec0712b3d19973b5d8feb75f2f05/css/movie/mod/reg_login_pop.css" />
-    <script type="text/javascript" src="https://img1.doubanio.com/f/shire/2c0c1c6b83f9a457b0f38c38a32fc43a42ec9bad/js/do.js" data-cfg-autoload="false"></script>
-    <script type="text/javascript" src="https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js"></script>
-    <script type="text/javascript">
-        var HTTPS_DB='https://www.douban.com';
-var account_pop={open:function(o,e){e?referrer="?referrer="+encodeURIComponent(e):referrer="?referrer="+window.location.href;var n="",i="",t=448;n="用户登录",i="https://accounts.douban.com/passport/login_popup?source=movie";var r=document.location.protocol+"//"+document.location.hostname,a=dui.Dialog({width:340,title:n,height:t,cls:"account_pop",isHideTitle:!0,modal:!0,content:"<iframe scrolling='no' frameborder='0' width='340' height='"+t+"' src='"+i+"' name='"+r+"'></iframe>"},!0),c=a.node;if(c.undelegate(),c.delegate(".dui-dialog-close","click",function(){var o=$("body");o.find("#login_msk").hide(),o.find(".account_pop").remove()}),$(window).width()<478){var d="";"reg"===o?d=HTTPS_DB+"/accounts/register"+referrer:"login"===o&&(d=HTTPS_DB+"/accounts/login"+referrer),window.location.href=d}else a.open();$(window).bind("message",function(o){"https://accounts.douban.com"===o.originalEvent.origin&&(c.find("iframe").css("height",o.originalEvent.data),c.height(o.originalEvent.data),a.update())})}};Douban&&Douban.init_show_login&&(Douban.init_show_login=function(o){var e=$(o);e.click(function(){var o=e.data("ref")||"";return account_pop.open("login",o),!1})}),Do(function(){$("body").delegate(".pop_register","click",function(o){o.preventDefault();var e=$(this).data("ref")||"";return account_pop.open("reg",e),!1}),$("body").delegate(".pop_login","click",function(o){o.preventDefault();var e=$(this).data("ref")||"";return account_pop.open("login",e),!1})});
-    </script>
-
-    
-    
     
     
 
@@ -2381,24 +2088,21 @@ var account_pop={open:function(o,e){e?referrer="?referrer="+encodeURIComponent(e
             existingNode = global.document.getElementsByTagName('script')[0],
             adSource = '//erebor.douban.com/',
             userId = '',
-            browserId = 'T7N563o1UG0',
+            browserId = 'hnXbmO4N0r8',
             criteria = '7:冒险|7:电视剧|7:CatherineTate|7:尤洛斯·林|7:科幻|7:大卫·田纳特|7:DavidTennant|7:BBC|7:莎拉·帕里什|7:神秘博士|7:凯瑟琳·塔特|7:剧情|7:2006|7:奇幻|7:DoctorWho|7:英剧|7:喜剧|7:英国|3:/subject/4296866/',
             preview = '',
             debug = false,
-            adSlots = ['dale_movie_subject_top_icon', 'dale_movie_subject_top_right', 'dale_movie_subject_top_middle', 'dale_movie_subject_inner_middle', 'dale_movie_subject_download_middle', 'dale_movie_subject_banner_after_intro', 'dale_subject_right_guess_you_like', 'dale_movie_subject_hovering_video'];
+            adSlots = ['dale_movie_subject_top_right', 'dale_movie_subject_inner_middle', 'dale_movie_subject_banner_after_intro', 'dale_subject_right_guess_you_like', 'dale_movie_subject_hovering_video'];
 
         global.DoubanAdRequest = {src: adSource, uid: userId, bid: browserId, crtr: criteria, prv: preview, debug: debug};
         global.DoubanAdSlots = (global.DoubanAdSlots || []).concat(adSlots);
 
         newNode.setAttribute('type', 'text/javascript');
-        newNode.setAttribute('src', '//img1.doubanio.com/MnJwNGlleS9mL2FkanMvY2M1OGQyNTQ2N2I2YmQzOTlmNTliMGJiMjI4MWRhZTlkNTNjYTFkZC9hZC5yZWxlYXNlLmpz');
+        newNode.setAttribute('src', '//img1.doubanio.com/bG90MDZqMy9mL2FkanMvYzhmZjE5MGNhYzNkN2UyMWJjMTI3NzJlYWNkOWVkODZhMmFjMzdhMi9hZC5yZWxlYXNlLmpz?company_token=kX69T8w1wyOE-dale');
         newNode.setAttribute('async', true);
         existingNode.parentNode.insertBefore(newNode, existingNode);
     })(this);
 </script>
-
-
-
 
 
 
@@ -2512,7 +2216,7 @@ for(var i = 0, l = accounts.length; i < l; i++) {
 
       
 
-    <!-- dae-web-movie--default-56774547f9-9smr5-->
+    <!-- dae-web-movie--default-b565db7dc-bv4q7-->
 
   <script>_SPLITTEST=''</script>
 </body>

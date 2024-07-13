@@ -5,6 +5,7 @@ import dateparser
 from catalog.common import *
 from catalog.models import *
 from catalog.music.utils import upc_to_gtin_13
+from common.models.lang import detect_language
 
 from .douban import DoubanDownloader
 
@@ -77,9 +78,19 @@ class DoubanMusic(AbstractSite):
 
         img_url_elem = content.xpath("//div[@id='mainpic']//img/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
-
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='又名:']/following-sibling::text()[1]"
+        )
+        other_title = other_elem[0].strip().split(" / ") if other_elem else []
+        lang = detect_language(f"{title} {brief}")
+        localized_title = [{"lang": lang, "text": title}]
+        localized_title += [
+            {"lang": detect_language(t), "text": t} for t in other_title
+        ]
         data = {
             "title": title,
+            "localized_title": localized_title,
+            "localized_description": [{"lang": lang, "text": brief}],
             "artist": artist,
             "genre": genre,
             "release_date": release_date,
@@ -91,11 +102,6 @@ class DoubanMusic(AbstractSite):
         }
         gtin = None
         isrc = None
-        other_elem = content.xpath(
-            "//div[@id='info']//span[text()='又名:']/following-sibling::text()[1]"
-        )
-        if other_elem:
-            data["other_title"] = other_elem[0].strip().split(" / ")
         other_elem = content.xpath(
             "//div[@id='info']//span[text()='专辑类型:']/following-sibling::text()[1]"
         )

@@ -91,6 +91,8 @@ class IMDB(AbstractSite):
                 d["primaryImage"].get("url") if d.get("primaryImage") else None
             ),
         }
+        data["localized_title"] = [{"lang": "en", "text": data["title"]}]
+        data["localized_description"] = [{"lang": "en", "text": data["brief"]}]
         if d.get("series"):
             episode_info = d["series"].get("episodeNumber")
             if episode_info:
@@ -133,14 +135,11 @@ class IMDB(AbstractSite):
         url = f"https://m.imdb.com{show_url}episodes/?season={season_id}"
         h = BasicDownloader(url).download().html()
         episodes = []
-        for e in h.xpath('//div[@id="eplist"]/div/a'):  # type: ignore
-            episode_number = e.xpath(
-                './span[contains(@class,"episode-list__title")]/text()'
-            )[0].strip()
-            episode_number = int(episode_number.split(".")[0])
-            episode_title = " ".join(
-                e.xpath('.//strong[@class="episode-list__title-text"]/text()')
-            ).strip()
+        for e in h.xpath('//article//a[@class="ipc-title-link-wrapper"]'):  # type: ignore
+            title = e.xpath('div[@class="ipc-title__text"]/text()')[0].split("∙", 1)
+            episode_id = title[0].strip()
+            episode_number = int(episode_id.split(".")[1][1:])
+            episode_title = title[1].strip()
             episode_url = e.xpath("./@href")[0]
             episode_url = "https://www.imdb.com" + episode_url
             episodes.append(

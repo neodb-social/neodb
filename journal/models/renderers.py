@@ -1,4 +1,5 @@
 import re
+from html import unescape
 from typing import cast
 
 import mistune
@@ -36,6 +37,13 @@ def convert_leading_space_in_md(body: str) -> str:
 
 def render_md(s: str) -> str:
     return cast(str, _markdown(s))
+
+
+_RE_HTML_TAG = re.compile(r"<[^>]*>")
+
+
+def html_to_text(h: str) -> str:
+    return unescape(_RE_HTML_TAG.sub(" ", h.replace("\r", "")))
 
 
 def _spolier(s: str) -> str:

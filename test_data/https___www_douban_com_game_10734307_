@@ -11,27 +11,89 @@
     
 
     
-<meta name="keywords" content="传送门2, Portal 2, PC, Mac, PS3, Xbox 360, Linux, 第一人称射击游戏, 益智游戏, 射击游戏, 动作游戏, Valve Corporation, Valve Corporation, Electronic Arts, 2011-04-19, 游戏, 视频，攻略，评测，图片，评分，讨论"/>
+<meta name="keywords" content="传送门2, Portal 2, PC, Mac, PS3, Xbox 360, Nintendo Switch, Linux, 第一人称射击游戏, 益智游戏, Valve Corporation, Valve Corporation, Electronic Arts, 2011-04-19, 游戏, 视频，攻略，评测，图片，评分，讨论"/>
 <meta name="description" content="Portal 2 传送门2的视频，攻略，评测，图片，评分，讨论, 帮助你判断是否好玩，发现更多相似好游戏及爱玩这些游戏的人"/>
 <meta name="mobile-agent" content="format=html5; url=https://m.douban.com/game/subject/10734307/"/>
-<script src="https://img1.doubanio.com/f/ilmen/643981b507e851701b0f8ef861a97a5442cde571/js/ilmen/lib/react16/react.production.min.js"></script>
-<script src="https://img1.doubanio.com/f/ilmen/922b1958f02a309130e631c909e4188c085f4c4b/js/ilmen/lib/react16/react-dom.production.min.js"></script>
 
-
+<script src="https://img1.doubanio.com/f/vendors/7b710436122e209e64be54f3302aaae246f21273/js/lib/head.js"></script>
+<script type="text/javascript" src="https://img1.doubanio.com/f/vendors/0511abe9863c2ea7084efa7e24d1d86c5b3974f1/js/jquery-1.10.2.min.js"></script>
 <script>
-    function set_cookie(t,e,o,n){var i,a,r=new Date;r.setTime(r.getTime()+24*(e||30)*60*60*1e3),i="; expires="+r.toGMTString();for(a in t)document.cookie=a+"="+t[a]+i+"; domain="+(o||"douban.com")+"; path="+(n||"/")}function get_cookie(t){var e,o,n=t+"=",i=document.cookie.split(";");for(e=0;e<i.length;e++){for(o=i[e];" "==o.charAt(0);)o=o.substring(1,o.length);if(0===o.indexOf(n))return o.substring(n.length,o.length).replace(/\"/g,"")}return null}window.Douban=window.Douban||{};var Do=function(){Do.actions.push([].slice.call(arguments))};Do.ready=function(){Do.actions.push([].slice.call(arguments))},Do.add=Do.define=function(t,e){Do.mods[t]=e},Do.global=function(){Do.global.mods=Array.prototype.concat(Do.global.mods,[].slice.call(arguments))},Do.global.mods=[],Do.mods={},Do.actions=[],Douban.init_show_login=function(t){Do("dialog",function(){var t="/j/misc/login_form";dui.Dialog({title:"登录",url:t,width:/device-mobile/i.test(document.documentElement.className)?.9*document.documentElement.offsetWidth:350,cache:!0,callback:function(t,e){e.node.addClass("dialog-login"),e.node.find("h2").css("display","none"),e.node.find(".hd h3").replaceWith(e.node.find(".bd h3")),e.node.find("form").css({border:"none",width:"auto",padding:"0"}),e.update()}}).open()})},Do(function(){function t(t,e){var o=["ref="+encodeURIComponent(location.pathname)];for(var n in e)e.hasOwnProperty(n)&&o.push(n+"="+e[n]);window._SPLITTEST&&o.push("splittest="+window._SPLITTEST),localStorage.setItem("report",(localStorage.getItem("report")||"")+"_moreurl_separator_"+o.join("&"))}!function(){"localStorage"in window||(window.localStorage=function(){var t=document;if(!t.documentElement.addBehavior)throw"don't support localstorage or userdata.";var e="_localstorage_ie",o=t.createElement("input");o.type="hidden";var n=function(n){return function(){t.body.appendChild(o),o.addBehavior("#default#userData");var i=new Date;i.setDate(i.getDate()+365),o.expires=i.toUTCString(),o.load(e);var a=n.apply(o,arguments);return t.body.removeChild(o),a}};return{getItem:n(function(t){return this.getAttribute(t)}),setItem:n(function(t,o){this.setAttribute(t,o),this.save(e)}),removeItem:n(function(t){this.removeAttribute(t),this.save(e)}),clear:n(function(){for(var t,o=this.XMLDocument.documentElement.attributes,n=0;t=o[n];n++)this.removeAttribute(t.name);this.save(e)})}}())}(),$(window).one("load",function(){var t=localStorage.getItem("report");if(t){t=t.split("_moreurl_separator_");var e=function(o){return""==o?void e(t.shift()):void $.get("undefined"==typeof _MOREURL_REQ?"/stat.html?"+o:_MOREURL_REQ+"?"+o,function(){return t.length?(e(t.shift()),void localStorage.setItem("report",t.join("_moreurl_separator_"))):void localStorage.removeItem("report")})};e(t.shift())}}),window.moreurl=t,$(document).click(function(e){var o=e.target,n=$(o).data("moreurl-dict");n&&t(o,n)}),$.ajax_withck=function(t){return"POST"==t.type&&(t.data=$.extend(t.data||{},{ck:get_cookie("ck")})),$.ajax(t)},$.postJSON_withck=function(t,e,o){return $.post_withck(t,e,o,"json")},$.post_withck=function(t,e,o,n){return $.isFunction(e)&&(n=o,o=e,e={}),$.ajax({type:"POST",url:t,data:$.extend(e,{ck:get_cookie("ck")}),success:o,dataType:n||"text"})},$("html").click(function(t){var e=$(t.target),o=e.attr("class");o&&$(o.match(/a_(\w+)/gi)).each($.proxy(function(e,o){var n=Douban[o.replace(/^a_/,"init_")];"function"==typeof n&&(t.preventDefault(),n.call(this,t))},e[0]))})});
-    ;(function() {
-        var USER_ID=0;
-window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},Ilmen.data={},Ilmen.user={id:USER_ID},Ilmen.requireLogin=function(n){Ilmen.user.id||(n.stopImmediatePropagation(),Douban.init_show_login())};
-    })();
-    Do.add('dialog', {path: 'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js', type: 'js', requires: ['https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css']});
-    Do.global('https://img1.doubanio.com/f/sns/b5793c2d7c298173d57ecf7d96708b5615336def/js/sns/fp/base.js', 'dialog');
+    jQuery.browser = {
+        msie: false,
+        version: 0
+    };
 </script>
-<script type="text/javascript" src="https://img1.doubanio.com/f/shire/0495cb173e298c28593766009c7b0a953246c5b5/js/jquery-1.8.3.js"></script>
-<link rel="stylesheet" href="https://img1.doubanio.com/f/shire/32336a6003aedfb3aed372bf3ae0b51c92d12316/css/core/_init_.css">
-<link rel="stylesheet" href="https://img1.doubanio.com/f/ilmen/034c879366382fa78a55c15406399d6977db7adf/css/ilmen/common.css">
-<link rel="stylesheet" href="https://img1.doubanio.com/f/ilmen/75ba35fadc87ea9d052896f99e9de067746f9788/css/ilmen/init.css">
-<link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/2a657298919de22d.css">
+<script type="text/javascript" src="https://img1.doubanio.com/f/vendors/e057439e70105417dffc6fab571688d52efeab23/js/douban.js"></script>
+<script type="text/javascript" src="https://img1.doubanio.com/f/vendors/43c21c5607ffe86759538789a60360c06532b4bf/js/do.js"></script>
+
+<link rel="stylesheet" href="https://img1.doubanio.com/f/vendors/e92483e5e4c9c60cc75cbd8b700a2fd5b5fdf7b0/css/douban.css">
+<link rel="stylesheet" href="https://img1.doubanio.com/f/vendors/b0ede7351ac7c845b4ce1178f9a786351f5f013e/css/separation/site_nav.css">
+<link rel="stylesheet" href="https://img3.doubanio.com/cuphead/ilmen-static/css/common.c2f43.css">
+<link rel="stylesheet" href="https://img1.doubanio.com/f/vendors/75ba35fadc87ea9d052896f99e9de067746f9788/css/core/large.css">
+
+<script defer>
+    Douban && Douban.init_show_login($('.a_show_login'));
+</script>
+
+<style type="text/css">
+#th-photos .video-mini{
+    width: 210px;
+    margin-left: 14px;
+    font-size: 12px;
+    position: relative;
+    z-index: 0;
+}
+#th-photos .video-mini a+span{
+    margin-left: 3px;
+    color: rgb(202, 202, 202);
+}
+#th-photos .video-mini:first-child{
+    margin-left: 0;
+}
+.video-mini img{
+    position: relative;
+    width: 210px;
+    height: 120px;
+}
+.video-mini .video {
+    margin-bottom: 8px;
+    position: relative;
+    display: block;
+}
+
+.video-mini .title {
+    position: relative;
+    display: inline;
+}
+
+.arc-mask{
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    left: 0;
+    z-index: 1;
+}
+.arc-mask:after{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 0;
+    height: 0;
+    border: 9px solid transparent;
+    border-left: 15px solid #fff;
+    border-right-width: 0;
+    content: ' ';
+    z-index: 2;
+    border-radius: 2px;
+}
+
+    .item-desc p { overflow: hidden; }
+</style>
 
     <link rel="shortcut icon" href="https://img1.doubanio.com/favicon.ico" type="image/x-icon">
 </head>
@@ -46,7 +108,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
 
 
-    <link href="//img3.doubanio.com/dae/accounts/resources/3e96b44/shire/bundle.css" rel="stylesheet" type="text/css">
+    <link href="//img3.doubanio.com/dae/accounts/resources/78fadc7/shire/bundle.css" rel="stylesheet" type="text/css">
 
 
 
@@ -102,7 +164,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
       <a href="https://read.douban.com&#47;?dcs=top-nav&amp;dcm=douban" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-read&quot;,&quot;uid&quot;:&quot;0&quot;}">阅读</a>
     </li>
     <li class="">
-      <a href="https://douban.fm&#47;?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-fm&quot;,&quot;uid&quot;:&quot;0&quot;}">FM</a>
+      <a href="https://fm.douban.com&#47;?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-fm&quot;,&quot;uid&quot;:&quot;0&quot;}">FM</a>
     </li>
     <li class="">
       <a href="https://time.douban.com&#47;?dt_time_source=douban-web_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-time&quot;,&quot;uid&quot;:&quot;0&quot;}">时间</a>
@@ -125,7 +187,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
 
 
-    <script src="//img3.doubanio.com/dae/accounts/resources/3e96b44/shire/bundle.js" defer="defer"></script>
+    <script src="//img3.doubanio.com/dae/accounts/resources/78fadc7/shire/bundle.js" defer="defer"></script>
 
 
 
@@ -135,7 +197,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
 
 
-    <link href="//img3.doubanio.com/dae/accounts/resources/3e96b44/sns/bundle.css" rel="stylesheet" type="text/css">
+    <link href="//img3.doubanio.com/dae/accounts/resources/78fadc7/sns/bundle.css" rel="stylesheet" type="text/css">
 
 
 
@@ -186,7 +248,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
 
 
-    <script src="//img3.doubanio.com/dae/accounts/resources/3e96b44/sns/bundle.js" defer="defer"></script>
+    <script src="//img3.doubanio.com/dae/accounts/resources/78fadc7/sns/bundle.js" defer="defer"></script>
 
 
 
@@ -209,7 +271,9 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         <div class="article">
                
     
-    
+
+<link rel="stylesheet" href="https://img2.doubanio.com/cuphead/ilmen-static/css/game/subject.6228e.css" />
+
 <div class="mod item-subject">
     <div class="item-subject-info">
         <div class="pic">
@@ -221,11 +285,11 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
             
 
 
+<link rel="stylesheet" href="https://img3.doubanio.com/cuphead/ilmen-static/css/mods/attributes.2f73f.css" />
 
 
 
-
-<dl class="game-attr">
+<dl class="thing-attr">
     <dt>类型:</dt>
     <dd>
         <a href="/game/explore" title="游戏">游戏</a>
@@ -233,10 +297,6 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     <a href="/game/explore?genres=32" title="第一人称射击">第一人称射击</a>
  / 
     <a href="/game/explore?genres=18" title="益智">益智</a>
- / 
-    <a href="/game/explore?genres=11" title="射击">射击</a>
- / 
-    <a href="/game/explore?genres=1" title="动作">动作</a>
 
     </dd>
         <dt>平台:</dt>
@@ -249,6 +309,8 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     <a href="/game/explore?platforms=35" title="PS3">PS3</a>
  / 
     <a href="/game/explore?platforms=20" title="Xbox 360">Xbox 360</a>
+ / 
+    <a href="/game/explore?platforms=158" title="Nintendo Switch">Nintendo Switch</a>
  / 
     <a href="/game/explore?platforms=152" title="Linux">Linux</a>
 
@@ -280,10 +342,10 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         <div class="rating_self clearfix" typeof="v:Rating">
             <strong class="ll rating_num" property="v:average"> 9.5 </strong>
             <span property="v:best" content="10.0"></span>
-            <div class="rating_right">
+            <div class="rating_right ">
                 <div class="ll bigstar50"></div>
                 <div class="rating_sum">
-                        <a href="collections" class="rating_people"><span property="v:votes">6932</span>人评价</a>
+                        <a href="comments" class="rating_people"><span property="v:votes">8788</span>人评价</a>
                 </div>
             </div>
         </div>
@@ -298,7 +360,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         
 <div class="power" style="width:64px"></div>
 
-        <span class="rating_per">81.3%</span>
+        <span class="rating_per">81.6%</span>
         <br>
         
         
@@ -309,7 +371,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         
 <div class="power" style="width:11px"></div>
 
-        <span class="rating_per">15.1%</span>
+        <span class="rating_per">14.8%</span>
         <br>
         
         
@@ -320,7 +382,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         
 <div class="power" style="width:2px"></div>
 
-        <span class="rating_per">3.0%</span>
+        <span class="rating_per">3.1%</span>
         <br>
         
         
@@ -348,12 +410,13 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
 </div>
 
-            
+            <link rel="stylesheet" href="https://img1.doubanio.com/f/vendors/6b0a0119cc58dd669e71b811c92ec423a70b8e28/css/core/rating_detail.css" />
     </div>
         
 
 
 
+<link rel="stylesheet" href="https://img1.doubanio.com/cuphead/ilmen-static/css/collection.8d610.css" />
 
 
 
@@ -387,17 +450,17 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     
     评价:
     <span id="rating">
-        <span id="stars" data-solid="https://img1.doubanio.com/f/shire/5a2327c04c0c231bced131ddf3f4467eb80c1c86/pics/rating_icons/star_onmouseover.png" data-hollow="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" data-solid-2x="https://img1.doubanio.com/f/shire/7258904022439076d57303c3b06ad195bf1dc41a/pics/rating_icons/star_onmouseover@2x.png" data-hollow-2x="https://img1.doubanio.com/f/shire/95cc2fa733221bb8edd28ad56a7145a5ad33383e/pics/rating_icons/star_hollow_hover@2x.png">
+        <span id="stars" data-solid="https://img1.doubanio.com/f/vendors/5a2327c04c0c231bced131ddf3f4467eb80c1c86/pics/rating_icons/star_onmouseover.png" data-hollow="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" data-solid-2x="https://img1.doubanio.com/f/vendors/7258904022439076d57303c3b06ad195bf1dc41a/pics/rating_icons/star_onmouseover@2x.png" data-hollow-2x="https://img1.doubanio.com/f/vendors/95cc2fa733221bb8edd28ad56a7145a5ad33383e/pics/rating_icons/star_hollow_hover@2x.png">
                 <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" data-id="10734307" data-rating="1">
-            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star1" height="16" width="16" /></a>
+            <img src="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star1" height="16" width="16" /></a>
                 <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" data-id="10734307" data-rating="2">
-            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star2" height="16" width="16" /></a>
+            <img src="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star2" height="16" width="16" /></a>
                 <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" data-id="10734307" data-rating="3">
-            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star3" height="16" width="16" /></a>
+            <img src="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star3" height="16" width="16" /></a>
                 <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" data-id="10734307" data-rating="4">
-            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star4" height="16" width="16" /></a>
+            <img src="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star4" height="16" width="16" /></a>
                 <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" data-id="10734307" data-rating="5">
-            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star5" height="16" width="16" /></a>
+            <img src="https://img1.doubanio.com/f/vendors/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star5" height="16" width="16" /></a>
         </span>
         <span id="rateword" class="pl"></span>
         <input id="n_rating" type="hidden" value="" />
@@ -464,7 +527,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         (function(u){
             if(__cache_url[u]) return;
             __cache_url[u] = true;
-            window.DoubanShareIcons = 'https://img1.doubanio.com/f/shire/d15ffd71f3f10a7210448fec5a68eaec66e7f7d0/pics/ic_shares.png';
+            window.DoubanShareIcons = 'https://img1.doubanio.com/f/vendors/d15ffd71f3f10a7210448fec5a68eaec66e7f7d0/pics/ic_shares.png';
 
             var initShareButton = function() {
                 $.ajax({url:u,dataType:'script',cache:true});
@@ -472,20 +535,20 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
             if (typeof Do == 'function' && 'ready' in Do) {
                 Do(
-                    'https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
-                    'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js',
-                    'https://img1.doubanio.com/f/ilmen/c4ab132ff4d3d64a83854c875ea79b8b541faf12/js/ilmen/lib/qrcode.min.js',
+                    'https://img1.doubanio.com/f/vendors/e8a7261937da62636d22ca4c579efc4a4d759b1b/css/ui/dialog.css',
+                    'https://img1.doubanio.com/f/vendors/f25ae221544f39046484a823776f3aa01769ee10/js/ui/dialog.js',
+                    'https://img1.doubanio.com/cuphead/ilmen-static/js/lib/qrcode.min.js',
                     initShareButton
                 );
             } else if(typeof Douban == 'object' && 'loader' in Douban) {
                 Douban.loader.batch(
-                    'https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
-                    'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js',
-                    'https://img1.doubanio.com/f/ilmen/c4ab132ff4d3d64a83854c875ea79b8b541faf12/js/ilmen/lib/qrcode.min.js'
+                    'https://img1.doubanio.com/f/vendors/e8a7261937da62636d22ca4c579efc4a4d759b1b/css/ui/dialog.css',
+                    'https://img1.doubanio.com/f/vendors/f25ae221544f39046484a823776f3aa01769ee10/js/ui/dialog.js',
+                    'https://img1.doubanio.com/cuphead/ilmen-static/js/lib/qrcode.min.js'
                 ).done(initShareButton);
             }
 
-        })('https://img1.doubanio.com/f/ilmen/6bcadc5e88dbc9e2efdc373d21f589013d60fd88/js/ilmen/lib/sharebutton.js');
+        })('https://img1.doubanio.com/f/vendors/b6e0770163b1da14217b0f1ca39189d47b95f51f/js/lib/sharebutton.js');
     </script>
 
 
@@ -523,7 +586,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 <div class="mod" id="th-photos">
     
     <h2>
-        传送门2 的游戏视频
+        传送门2的游戏视频
             &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
             <span class="pl">&nbsp;(
                 
@@ -535,11 +598,12 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         <div class="list">
             <ul>
                         <li class="video-mini">
-                            <a href="https://www.douban.com/game/10734307/video/985293/">
+                            <a class="video" href="https://www.douban.com/game/10734307/video/985293/">
                                 <div class="arc-mask"></div>
                                 <img src="https://i1.hdslb.com/bfs/archive/f917f9f27a1efddc74e7cf77efeb9e5fb7f53411.jpg">
                             </a>
-                            <a href="https://www.douban.com/game/10734307/video/985293/"> 联机实况【传送门2】黑桐谷歌&amp;Chimera君 P1 P2_哔哩哔哩 (゜-゜)つロ 干杯~-bilibili <span>试玩</span></a>
+                            <a lass="title" href="https://www.douban.com/game/10734307/video/985293/"><span> 联机实况【传送门2】黑桐谷歌&amp;Chimera君 P1 P2_哔哩哔哩 (゜-゜)つロ 干杯~-bilibili </span></a>
+                            <span>试玩</span>
                         </li>
             </ul>
         </div>
@@ -553,11 +617,11 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 <div class="mod" id="th-photos">
     
     <h2>
-        传送门2 的游戏图片
+        传送门2的游戏图片
             &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
             <span class="pl">&nbsp;(
                 
-                <a href="photos/" target="_self">全部82张</a>&nbsp;&middot;&nbsp;<a href="photos/upload" target="_self">添加图片</a>
+                <a href="photos/" target="_self">全部 119 张</a>&nbsp;&middot;&nbsp;<a href="photos/upload" target="_self">添加图片</a>
                 ) </span>
     </h2>
 
@@ -567,10 +631,10 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                 <li class="photos-upload">
                     <a href="https://www.douban.com/game/10734307/photos/upload">上传游戏截图</a>
                 </li>
-                        <li><a href="https://www.douban.com/game/10734307/photo/2642900120/"><img width="110" height="110" src="https://img1.doubanio.com/view/photo/albumicon/public/p2642900120.jpg"></a></li>
-                        <li><a href="https://www.douban.com/game/10734307/photo/2642900118/"><img width="110" height="110" src="https://img1.doubanio.com/view/photo/albumicon/public/p2642900118.jpg"></a></li>
-                        <li><a href="https://www.douban.com/game/10734307/photo/2642900104/"><img width="110" height="110" src="https://img9.doubanio.com/view/photo/albumicon/public/p2642900104.jpg"></a></li>
-                        <li><a href="https://www.douban.com/game/10734307/photo/2642900100/"><img width="110" height="110" src="https://img1.doubanio.com/view/photo/albumicon/public/p2642900100.jpg"></a></li>
+                        <li><a href="https://www.douban.com/game/10734307/photo/2907388774/"><img width="110" height="110" src="https://img9.doubanio.com/view/photo/albumicon/public/p2907388774.jpg"></a></li>
+                        <li><a href="https://www.douban.com/game/10734307/photo/2239498932/"><img width="110" height="110" src="https://img3.doubanio.com/view/photo/albumicon/public/p2239498932.jpg"></a></li>
+                        <li><a href="https://www.douban.com/game/10734307/photo/2239498697/"><img width="110" height="110" src="https://img3.doubanio.com/view/photo/albumicon/public/p2239498697.jpg"></a></li>
+                        <li><a href="https://www.douban.com/game/10734307/photo/2907623441/"><img width="110" height="110" src="https://img2.doubanio.com/view/photo/albumicon/public/p2907623441.jpg"></a></li>
             </ul>
         </div>
     </div>
@@ -600,8 +664,8 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         var maxHeight = 59;
         var $desc = $('.item-desc'),
         $text = $desc.find('p'),
-        tmpl_more = '<a href="javascript:;" class="action" data-action="expand">[展开]</a>',
-        tmpl_less = '<a href="javascript:;" class="action" data-action="contract">[收起]</a>';
+        tmpl_more = '<a href="javascript:;" class="action" data-action="expand">(展开)</a>',
+        tmpl_less = '<a href="javascript:;" class="action" data-action="contract">(收起)</a>';
         if ($text.height() > maxHeight) {
             $text.css('height', maxHeight)
                  .after(tmpl_more);
@@ -617,32 +681,31 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 </script>
 
 
-    <div class="mod item-notes" id="comments">
-        <div class="note-create">
-            <a href="javascript:;" class="btn-create js-post-note "><span>我来说两句</span></a>
-        </div>
-            
+        <div class="mod item-notes" id="comments">
+            <div class="note-create">
+                <a href="javascript:;" class="btn-create js-post-note "><span>我来说两句</span></a>
+            </div>
+                
     <h2>
-        传送门2 的短评
+        传送门2的短评
             &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
             <span class="pl">&nbsp;(
                 
-                    <a href="comments/" target="_self">全部2407条</a>
+                    <a href="comments/" target="_self">全部 3043 条</a>
                 ) </span>
     </h2>
 
-        <div class="bd">
-                
+            <div class="bd">
+                    
 
-
-
-
+<link rel="stylesheet" href="https://img1.doubanio.com/cuphead/ilmen-static/css/notes_list.66c7c.css" />
+<link rel="stylesheet" href="https://img1.doubanio.com/cuphead/ilmen-static/css/mods/note_list.1c80d.css" />
 
 
 <div class="tab-hd" data-url="/j/ilmen/thing/10734307/notes">
     <a href="https://www.douban.com/game/10734307/comments" data-id="score" class="is-active">热门</a>&nbsp;/&nbsp;
     <a href="https://www.douban.com/game/10734307/comments?sort=time" data-id="time">最新</a>&nbsp;/&nbsp;
-    <a href="https://www.douban.com/game/10734307/comments?sort=follow" data-id="follow" class="j a_show_login">我关注的</a>
+    <a href="https://www.douban.com/game/10734307/comments?sort=follow" data-id="follow" class="j a_show_login">友邻</a>
 </div>
 <div class="tab-bd">
     <div class="item-list notes-list is-active">
@@ -657,8 +720,8 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
 
 <span class="digg">
-<span>172</span>
-    <a href="https://www.douban.com/j/ilmen/thing/10734307/note/1704138/vote" data-id="1704138" data-num="172" title="有用">有用</a>
+<span>236</span>
+    <a href="###" class="j a_show_login" data-id="1704138" data-num="236" title="有用">有用</a>
 </span>
 
                 <div class="user-info">
@@ -676,19 +739,19 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                 </p>
             </div>
         </li>
-        <li class="comment-item" data-cid="2854018" data-url="https://www.douban.com/game/10734307/?comment_id=2854018">
-            <div class="info" data-id="2854018">
+        <li class="comment-item" data-cid="1699683" data-url="https://www.douban.com/game/10734307/?comment_id=1699683">
+            <div class="info" data-id="1699683">
                 
 
 
 <span class="digg">
-<span>30</span>
-    <a href="https://www.douban.com/j/ilmen/thing/10734307/note/2854018/vote" data-id="2854018" data-num="30" title="有用">有用</a>
+<span>54</span>
+    <a href="###" class="j a_show_login" data-id="1699683" data-num="54" title="有用">有用</a>
 </span>
 
                 <div class="user-info">
-                    <a href="https://www.douban.com/people/47277425/">不识字诗人</a>
-                    <span class="pubtime">1月4日</span>
+                    <a href="https://www.douban.com/people/RickAkira/">Labi</a>
+                    <span class="pubtime">2018年2月5日</span>
                     <span class="comment-location"></span>
                         
                             <span class="allstar50" title="力荐"></span>
@@ -697,23 +760,71 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                 </div>
                 <p>
                     
-                        <span class="short">真实地被一款游戏震撼。每个关卡都经典到不行。对啊，我只剩下短暂而可悲的一生了。</span>
+                        <span class="short">我的塑料兄弟情受到了来自旁白的挑战</span>
                 </p>
             </div>
         </li>
-        <li class="comment-item" data-cid="2129632" data-url="https://www.douban.com/game/10734307/?comment_id=2129632">
-            <div class="info" data-id="2129632">
+        <li class="comment-item" data-cid="1320606" data-url="https://www.douban.com/game/10734307/?comment_id=1320606">
+            <div class="info" data-id="1320606">
                 
 
 
 <span class="digg">
-<span>77</span>
-    <a href="https://www.douban.com/j/ilmen/thing/10734307/note/2129632/vote" data-id="2129632" data-num="77" title="有用">有用</a>
+<span>45</span>
+    <a href="###" class="j a_show_login" data-id="1320606" data-num="45" title="有用">有用</a>
 </span>
 
                 <div class="user-info">
-                    <a href="https://www.douban.com/people/186929751/">秋风里</a>
-                    <span class="pubtime">2020年1月7日</span>
+                    <a href="https://www.douban.com/people/bmnc/">东边有座山</a>
+                    <span class="pubtime">2015年12月6日</span>
+                    <span class="comment-location"></span>
+                        
+                            <span class="allstar50" title="力荐"></span>
+
+                </div>
+                <p>
+                    
+                        <span class="short">充满着神性的艺术品，或者简短一点地说，神作</span>
+                </p>
+            </div>
+        </li>
+        <li class="comment-item" data-cid="2389096" data-url="https://www.douban.com/game/10734307/?comment_id=2389096">
+            <div class="info" data-id="2389096">
+                
+
+
+<span class="digg">
+<span>32</span>
+    <a href="###" class="j a_show_login" data-id="2389096" data-num="32" title="有用">有用</a>
+</span>
+
+                <div class="user-info">
+                    <a href="https://www.douban.com/people/doubanjun/">豆友62396374</a>
+                    <span class="pubtime">2020年9月14日</span>
+                    <span class="comment-location"></span>
+                        
+                            <span class="allstar50" title="力荐"></span>
+
+                </div>
+                <p>
+                    
+                        <span class="short">这么多年过去了，你依旧独立山巅…无人超越</span>
+                </p>
+            </div>
+        </li>
+        <li class="comment-item" data-cid="1121021" data-url="https://www.douban.com/game/10734307/?comment_id=1121021">
+            <div class="info" data-id="1121021">
+                
+
+
+<span class="digg">
+<span>35</span>
+    <a href="###" class="j a_show_login" data-id="1121021" data-num="35" title="有用">有用</a>
+</span>
+
+                <div class="user-info">
+                    <a href="https://www.douban.com/people/Hermanita/">Tequila！</a>
+                    <span class="pubtime">2015年4月13日</span>
                     <span class="comment-location"></span>
                         
                             <span class="allstar50" title="力荐"></span>
@@ -722,59 +833,32 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                 </div>
                 <p>
                     
-                        <span class="short">神作，真的是神作，这他妈就是游戏中的《2001太空漫游》。游戏性，沉浸感和场景配乐设计上的美学都达到了极致，玩过《传送门2》，你再也不用玩任何一款单机了</span>
-                </p>
-            </div>
-        </li>
-        <li class="comment-item" data-cid="2719448" data-url="https://www.douban.com/game/10734307/?comment_id=2719448">
-            <div class="info" data-id="2719448">
-                
-
-
-<span class="digg">
-<span>26</span>
-    <a href="https://www.douban.com/j/ilmen/thing/10734307/note/2719448/vote" data-id="2719448" data-num="26" title="有用">有用</a>
-</span>
-
-                <div class="user-info">
-                    <a href="https://www.douban.com/people/170710696/">晚渝秋</a>
-                    <span class="pubtime">2021年8月23日</span>
-                    <span class="comment-location"></span>
-
-                </div>
-                <p>
-                    
-                        <span class="short">论脑洞方面，v社真乱杀</span>
-                </p>
-            </div>
-        </li>
-        <li class="comment-item" data-cid="2908051" data-url="https://www.douban.com/game/10734307/?comment_id=2908051">
-            <div class="info" data-id="2908051">
-                
-
-
-<span class="digg">
-<span>14</span>
-    <a href="https://www.douban.com/j/ilmen/thing/10734307/note/2908051/vote" data-id="2908051" data-num="14" title="有用">有用</a>
-</span>
-
-                <div class="user-info">
-                    <a href="https://www.douban.com/people/33995101/">基本上无害</a>
-                    <span class="pubtime">2月13日</span>
-                    <span class="comment-location"></span>
-                        
-                            <span class="allstar50" title="力荐"></span>
-
-                </div>
-                <p>
-                    
-                        <span class="short">我被GLaDOS大妈pua了，她真可爱</span>
+                        <span class="short">怎么说呢，机械音萌萌的，我记得最后结尾的地方电梯升起，然后有一大堆炮塔出现在眼前真心吓疯了，感觉可能是要灭口。然后一堆炮塔开始唱歌，萌萌萌！！！而且一堆炮塔里面有个超大的戴王冠的豹纹炮塔。那个是出现在过每一关刚出电梯的那个投影上过的！感觉超搞笑…</span>
                 </p>
             </div>
         </li>
 
     
 
+
+    <script>
+        $('.fold-comment').click(function (e) {
+            const id = $(this).data('id');
+            pop_win.load('//' + location.hostname + '/game/hide_reasons?id=' + id);
+            e.stopPropagation();
+        });
+
+        $('.unfold-comment').click(function (e) {
+            const id = $(this).data('id');
+            if (confirm('确定恢复此内容？')) {
+                $.post_withck("/j/ilmen/admin/unfold_comment", {comment_id: id}, function() {
+                    $(this).remove();
+                    location.reload();
+                });
+            }
+            e.stopPropagation();
+        });
+    </script>
 </ul>
 
 
@@ -783,22 +867,165 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     <div class="item-list notes-list"></div>
 </div>
 
-    <a class="notes-list-more" href="https://www.douban.com/game/10734307/comments">&gt; 全部2407条</a>
+    <a class="item-list notes-list-more" href="https://www.douban.com/game/10734307/comments">&gt; 全部3043条</a>
 
 
+<script>
+    Do(
+    'https://img9.doubanio.com/cuphead/ilmen-static/js/mods/note_list.45036.js',
+    'https://img1.doubanio.com/cuphead/ilmen-static/js/mods/digg.071a0.js',
+    function() {
+        $('.item-notes').delegate('.digg a', 'click', function(e) {
+            e.preventDefault()
+            if(window._USER_ABNORMAL) {
+                window.show_abnormal && window.show_abnormal()
+                return
+            }
+            Douban.init_digg.call(this)
+        }).delegate('.js-post-note', 'click', function(e) {
+            e.preventDefault()
+            var collectButton = $('.collection-section .collect-btn')
+            if (collectButton.length) {
+                collectButton.eq(0).trigger('click')
+            } else {
+                $('.collection-section .a_show_login').eq(0).trigger('click')
+            }
+        })
+    })
+</script>
 
-
+            </div>
         </div>
-    </div>
 
 
     
 
 
-    
 
 
-<link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/6078555e83c38f2.css">
+
+
+        <div id="recommendations" class="mod">
+            
+    <h2>
+        喜欢传送门2 Portal 2的人也喜欢
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+    </h2>
+
+            <div class="recommendations-bd ">
+                            <dl>
+                            <dt>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:1});" href="https://www.douban.com/game/26317250/?dcs=sim">
+                                    <img src="https://img3.doubanio.com/lpic/s29600382.jpg" alt="奇异人生 Life is Strange">
+                                </a>
+                            </dt>
+                            <dd>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:1});" href="https://www.douban.com/game/26317250/?dcs=sim">奇异人生 Life is Strange</a><br>
+                            </dd>
+                    </dl>
+                            <dl>
+                            <dt>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:2});" href="https://www.douban.com/game/10752616/?dcs=sim">
+                                    <img src="https://img1.doubanio.com/lpic/s26685879.jpg" alt="生化奇兵 BioShock">
+                                </a>
+                            </dt>
+                            <dd>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:2});" href="https://www.douban.com/game/10752616/?dcs=sim">生化奇兵 BioShock</a><br>
+                            </dd>
+                    </dl>
+                            <dl>
+                            <dt>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:3});" href="https://www.douban.com/game/11620741/?dcs=sim">
+                                    <img src="https://img1.doubanio.com/lpic/s28395460.jpg" alt="风之旅人 Journey">
+                                </a>
+                            </dt>
+                            <dd>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:3});" href="https://www.douban.com/game/11620741/?dcs=sim">风之旅人 Journey</a><br>
+                            </dd>
+                    </dl>
+                            <dl>
+                            <dt>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:4});" href="https://www.douban.com/game/25788206/?dcs=sim">
+                                    <img src="https://img3.doubanio.com/lpic/s29890883.jpg" alt="史丹利的寓言 The Stanley Parable">
+                                </a>
+                            </dt>
+                            <dd>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:4});" href="https://www.douban.com/game/25788206/?dcs=sim">史丹利的寓言 The Stanley Parable</a><br>
+                            </dd>
+                    </dl>
+                            <dl>
+                            <dt>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:5});" href="https://www.douban.com/game/26269051/?dcs=sim">
+                                    <img src="https://img9.doubanio.com/lpic/s28050996.jpg" alt="这是我的战争 This War of Mine">
+                                </a>
+                            </dt>
+                            <dd>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:5});" href="https://www.douban.com/game/26269051/?dcs=sim">这是我的战争 This War of Mine</a><br>
+                            </dd>
+                    </dl>
+                            <dl>
+                            <dt>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:6});" href="https://www.douban.com/game/26771824/?dcs=sim">
+                                    <img src="https://img1.doubanio.com/lpic/s29763990.jpg" alt="泰坦陨落2 Titanfall 2">
+                                </a>
+                            </dt>
+                            <dd>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:6});" href="https://www.douban.com/game/26771824/?dcs=sim">泰坦陨落2 Titanfall 2</a><br>
+                            </dd>
+                    </dl>
+                            <dl>
+                            <dt>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:7});" href="https://www.douban.com/game/26973112/?dcs=sim">
+                                    <img src="https://img2.doubanio.com/lpic/s29860731.jpg" alt="空洞骑士 Hollow Knight">
+                                </a>
+                            </dt>
+                            <dd>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:7});" href="https://www.douban.com/game/26973112/?dcs=sim">空洞骑士 Hollow Knight</a><br>
+                            </dd>
+                    </dl>
+                            <dl>
+                            <dt>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:8});" href="https://www.douban.com/game/21726040/?dcs=sim">
+                                    <img src="https://img2.doubanio.com/lpic/s25805601.jpg" alt="古墓丽影 Tomb Raider">
+                                </a>
+                            </dt>
+                            <dd>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:8});" href="https://www.douban.com/game/21726040/?dcs=sim">古墓丽影 Tomb Raider</a><br>
+                            </dd>
+                    </dl>
+                            <dl>
+                            <dt>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:9});" href="https://www.douban.com/game/26817154/?dcs=sim">
+                                    <img src="https://img2.doubanio.com/lpic/s28812901.jpg" alt="死亡搁浅 DEATH STRANDING">
+                                </a>
+                            </dt>
+                            <dd>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:9});" href="https://www.douban.com/game/26817154/?dcs=sim">死亡搁浅 DEATH STRANDING</a><br>
+                            </dd>
+                    </dl>
+                            <dl>
+                            <dt>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:10});" href="https://www.douban.com/game/10735285/?dcs=sim">
+                                    <img src="https://img3.doubanio.com/lpic/s28475473.jpg" alt="无主之地2 Borderlands 2">
+                                </a>
+                            </dt>
+                            <dd>
+                                <a onclick="moreurl(this, {thing_rec_from:'10734307', index:10});" href="https://www.douban.com/game/10735285/?dcs=sim">无主之地2 Borderlands 2</a><br>
+                            </dd>
+                    </dl>
+            </div>
+
+                <div class="fav-more">
+                    <a href="/game/explore?genres=32,18">更多此类游戏</a>
+                </div>
+        </div>
+
+
+
+        
+
+
+<link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/18aea1f972f4151a.css">
     <section class="reviews mod game-content">
         <header>
             <a href="new_review?rtype=G" rel="nofollow" class="btn-create rr">
@@ -827,7 +1054,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     
     <header class="main-hd">
         <a href="https://www.douban.com/people/140466959/" class="avator">
-            <img width="24" height="24" src="https://img2.doubanio.com/icon/u140466959-2.jpg">
+            <img width="24" height="24" src="https://img3.doubanio.com/icon/u140466959-2.jpg">
         </a>
 
         <a href="https://www.douban.com/people/140466959/" class="name">巨牙海民</a>
@@ -861,7 +1088,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                     <a href="javascript:;" class="action-btn up" data-rid="8391101" title="有用">
                         <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
                         <span id="r-useful_count-8391101">
-                                11
+                                13
                         </span>
                     </a>
                     <a href="javascript:;" class="action-btn down" data-rid="8391101" title="没用">
@@ -883,11 +1110,32 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
     
 
-    
-
-    <script type="text/javascript" src="https://img1.doubanio.com/misc/mixed_static/5a2ccc4318d75e65.js"></script>
+    <!-- COLLECTED JS -->
     <!-- COLLECTED CSS -->
 </div>
+
+    <script type="text/javascript">
+        (function() {
+            if (window.__init_review_list) return;
+            __init_review_list = true;
+        })();
+        window.useful_icon = "https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png";
+        window.usefuled_icon = "https://img1.doubanio.com/f/zerkalo/635290bb14771c97270037be21ad50514d57acc3/pics/up-full.png";
+        window.useless_icon = "https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png";
+        window.uselessed_icon = "https://img1.doubanio.com/f/zerkalo/23cee7343568ca814238f5ef18bf8aadbe959df2/pics/down-full.png";
+    </script>
+
+    <link rel="stylesheet" href="https://img1.doubanio.com/f/zerkalo/3aeb281ab0e4f2c7050458684acfeb6838441de9/css/review/editor/ng/setting_standalone.css">
+    <script src="https://img1.doubanio.com/f/zerkalo/938cdbe2e223a3117cbbcb4929cae2001b402c20/js/review/editor/ng/manifest.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/296cd5fec472a78add5fee958c58d72f47d91586/js/review/editor/ng/vendor.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/c0095c35695e36603701c428b6679987211e3c9b/js/review/editor/ng/setting_standalone.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/8941af7854ddad9561648b706cdb49f3d1534ff3/js/review/editor/ng/render_gif.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/68b2d67ea75209236a6443ad45f370f1bca536ae/js/review/actions.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/7196bdec780f03785f55b06fda34999595057f65/js/review/unfold.js"></script>
+    <script src="https://img1.doubanio.com/f/vendors/f25ae221544f39046484a823776f3aa01769ee10/js/ui/dialog.js"></script>
+
+
+
 
 
 
@@ -909,13 +1157,14 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
             <h2>
                     传送门2 Portal 2的文字 · · · · · ·
 
-                    <span class="pl">( <a href="reviews">全部 24 条</a> )</span>
+                    <span class="pl">( <a href="reviews">全部 26 条</a> )</span>
             </h2>
         </header>
-
+        
+            
             <div class="review_filter">
-                            <a href="javascript:;;" class="cur" data-sort="">热门</a> &#047;
-                            <a href="javascript:;;" data-sort="time">最新</a> &#047;
+                            <a href="javascript:;;" class="cur" data-sort="">热门</a>
+                            <a href="javascript:;;" data-sort="time">最新</a>
                             <a href="javascript:;;" data-sort="follow">好友</a>
             </div>
             <script>
@@ -1003,12 +1252,13 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                     <a href="javascript:;" class="action-btn up" data-rid="14191868" title="有用">
                         <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
                         <span id="r-useful_count-14191868">
-                                64
+                                69
                         </span>
                     </a>
                     <a href="javascript:;" class="action-btn down" data-rid="14191868" title="没用">
                         <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
                         <span id="r-useless_count-14191868">
+                                1
                         </span>
                     </a>
                     <a href="https://www.douban.com/review/14191868/#comments" class="reply ">32回应</a>
@@ -1062,7 +1312,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                     <a href="javascript:;" class="action-btn up" data-rid="7450626" title="有用">
                         <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
                         <span id="r-useful_count-7450626">
-                                36
+                                38
                         </span>
                     </a>
                     <a href="javascript:;" class="action-btn down" data-rid="7450626" title="没用">
@@ -1088,7 +1338,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     
     <header class="main-hd">
         <a href="https://www.douban.com/people/ST_Vegeta/" class="avator">
-            <img width="24" height="24" src="https://img2.doubanio.com/icon/u44186155-42.jpg">
+            <img width="24" height="24" src="https://img3.doubanio.com/icon/u44186155-42.jpg">
         </a>
 
         <a href="https://www.douban.com/people/ST_Vegeta/" class="name">小彼</a>
@@ -1122,7 +1372,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                     <a href="javascript:;" class="action-btn up" data-rid="7462714" title="有用">
                         <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
                         <span id="r-useful_count-7462714">
-                                26
+                                27
                         </span>
                     </a>
                     <a href="javascript:;" class="action-btn down" data-rid="7462714" title="没用">
@@ -1131,7 +1381,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                                 5
                         </span>
                     </a>
-                    <a href="https://www.douban.com/review/7462714/#comments" class="reply ">21回应</a>
+                    <a href="https://www.douban.com/review/7462714/#comments" class="reply ">22回应</a>
 
                     <a href="javascript:;;" class="fold hidden">收起</a>
                 </div>
@@ -1182,7 +1432,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                     <a href="javascript:;" class="action-btn up" data-rid="7586444" title="有用">
                         <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
                         <span id="r-useful_count-7586444">
-                                16
+                                20
                         </span>
                     </a>
                     <a href="javascript:;" class="action-btn down" data-rid="7586444" title="没用">
@@ -1241,7 +1491,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                     <a href="javascript:;" class="action-btn up" data-rid="10589423" title="有用">
                         <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
                         <span id="r-useful_count-10589423">
-                                10
+                                11
                         </span>
                     </a>
                     <a href="javascript:;" class="action-btn down" data-rid="10589423" title="没用">
@@ -1266,7 +1516,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     
     <header class="main-hd">
         <a href="https://www.douban.com/people/67069203/" class="avator">
-            <img width="24" height="24" src="https://img1.doubanio.com/icon/u67069203-7.jpg">
+            <img width="24" height="24" src="https://img3.doubanio.com/icon/u67069203-7.jpg">
         </a>
 
         <a href="https://www.douban.com/people/67069203/" class="name">vegue</a>
@@ -1300,7 +1550,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                     <a href="javascript:;" class="action-btn up" data-rid="7754627" title="有用">
                         <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
                         <span id="r-useful_count-7754627">
-                                8
+                                10
                         </span>
                     </a>
                     <a href="javascript:;" class="action-btn down" data-rid="7754627" title="没用">
@@ -1325,7 +1575,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     
     <header class="main-hd">
         <a href="https://www.douban.com/people/OIKK/" class="avator">
-            <img width="24" height="24" src="https://img9.doubanio.com/icon/u140213638-24.jpg">
+            <img width="24" height="24" src="https://img9.doubanio.com/icon/u140213638-25.jpg">
         </a>
 
         <a href="https://www.douban.com/people/OIKK/" class="name">嘉术2015</a>
@@ -1359,7 +1609,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                     <a href="javascript:;" class="action-btn up" data-rid="12295778" title="有用">
                         <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
                         <span id="r-useful_count-12295778">
-                                5
+                                7
                         </span>
                     </a>
                     <a href="javascript:;" class="action-btn down" data-rid="12295778" title="没用">
@@ -1377,6 +1627,65 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
             
     
+    <div data-cid="14048775">
+        <div class="main review-item" id="14048775">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/131852015/" class="avator">
+            <img width="24" height="24" src="https://img3.doubanio.com/icon/u131852015-3.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/131852015/" class="name">小坑坑</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2021-12-06" class="main-meta">2021-12-06 20:41:50</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/14048775/">朴素的游戏设计理念与浪漫主义的基调</a></h2>
+
+                <div id="review_14048775_short" class="review-short" data-rid="14048775">
+                    <div class="short-content">
+
+                        通关传送门系列确实是一次非常独特的美妙的游戏旅程，从一个速通视频入坑，想要趁着秋促看看传送门系列是否打折，却发现其实已在库中。早在起源引擎的csgo里摸爬滚打了很久，却是第一款真正让我有些晕3D的游戏，这大概是不停旋转、重力方向更迭的游戏画面惹的祸吧。尽管如此，...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-14048775-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_14048775_full" class="hidden">
+                    <div id="review_14048775_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="14048775" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-14048775">
+                                4
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="14048775" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-14048775">
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/14048775/#comments" class="reply ">0回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            
+    
     <div data-cid="12614247">
         <div class="main review-item" id="12614247">
 
@@ -1384,10 +1693,10 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     
     <header class="main-hd">
         <a href="https://www.douban.com/people/INABACAT/" class="avator">
-            <img width="24" height="24" src="https://img1.doubanio.com/icon/u213186874-39.jpg">
+            <img width="24" height="24" src="https://img2.doubanio.com/icon/u213186874-41.jpg">
         </a>
 
-        <a href="https://www.douban.com/people/INABACAT/" class="name">❤INABA❤</a>
+        <a href="https://www.douban.com/people/INABACAT/" class="name">🌸INABA🌸</a>
 
             <span class="allstar50 main-title-rating" title="力荐"></span>
 
@@ -1436,21 +1745,20 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
             
     
-    <div data-cid="9479170">
-        <div class="main review-item" id="9479170">
+    <div data-cid="12329284">
+        <div class="main review-item" id="12329284">
 
             
     
     <header class="main-hd">
-        <a href="https://www.douban.com/people/liuhaogua/" class="avator">
-            <img width="24" height="24" src="https://img1.doubanio.com/icon/u27293490-8.jpg">
+        <a href="https://www.douban.com/people/arthurshen0614/" class="avator">
+            <img width="24" height="24" src="https://img3.doubanio.com/icon/u130878201-2.jpg">
         </a>
 
-        <a href="https://www.douban.com/people/liuhaogua/" class="name">┟西﹎;瓜╃</a>
+        <a href="https://www.douban.com/people/arthurshen0614/" class="name">ASAP</a>
 
-            <span class="allstar40 main-title-rating" title="推荐"></span>
 
-        <span content="2018-07-01" class="main-meta">2018-07-01 16:24:37</span>
+        <span content="2020-03-02" class="main-meta">2020-03-02 00:14:38</span>
 
 
     </header>
@@ -1458,93 +1766,34 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
             <div class="main-bd">
 
-                <h2><a href="https://www.douban.com/review/9479170/">传送门：小游戏策划的笔记</a></h2>
+                <h2><a href="https://www.douban.com/review/12329284/">感动到汗毛竖起的神作</a></h2>
 
-                <div id="review_9479170_short" class="review-short" data-rid="9479170">
+                <div id="review_12329284_short" class="review-short" data-rid="12329284">
                     <div class="short-content">
 
-                        每次玩PORTAL2都会被3D晕到恶心，每通过三四关就要关电脑躺下来，隔段时间才能继续。但是这是一个“通关就能说明我聪明”的游戏，作为一个喜欢向别人炫耀智商的人怎么可能不被通关的成就感吸引呢.... 于是忍着恶心打到了最后，原以为就是一个解谜通关的冰冷游戏但是却被结尾的...
+                        Portal2通关！！！！ 这游戏真的绝了，通关之后的音乐和附加内容看的我鸡皮疙瘩都起来了，太牛逼了！10分满分，一个让人无比沉迷，且感动到（解不出谜题）想流泪的神作 当看到附加内容里Glados苏醒，说： It&#39;s been a long time. How have you been. I think we can put our di...
 
-                        &nbsp;(<a href="javascript:;" id="toggle-9479170-copy" class="unfold" title="展开">展开</a>)
+                        &nbsp;(<a href="javascript:;" id="toggle-12329284-copy" class="unfold" title="展开">展开</a>)
                     </div>
                 </div>
 
-                <div id="review_9479170_full" class="hidden">
-                    <div id="review_9479170_full_content" class="full-content"></div>
+                <div id="review_12329284_full" class="hidden">
+                    <div id="review_12329284_full_content" class="full-content"></div>
                 </div>
 
                 <div class="action">
-                    <a href="javascript:;" class="action-btn up" data-rid="9479170" title="有用">
+                    <a href="javascript:;" class="action-btn up" data-rid="12329284" title="有用">
                         <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
-                        <span id="r-useful_count-9479170">
-                                3
+                        <span id="r-useful_count-12329284">
+                                2
                         </span>
                     </a>
-                    <a href="javascript:;" class="action-btn down" data-rid="9479170" title="没用">
+                    <a href="javascript:;" class="action-btn down" data-rid="12329284" title="没用">
                         <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
-                        <span id="r-useless_count-9479170">
+                        <span id="r-useless_count-12329284">
                         </span>
                     </a>
-                    <a href="https://www.douban.com/review/9479170/#comments" class="reply ">0回应</a>
-
-                    <a href="javascript:;;" class="fold hidden">收起</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-            
-    
-    <div data-cid="14048775">
-        <div class="main review-item" id="14048775">
-
-            
-    
-    <header class="main-hd">
-        <a href="https://www.douban.com/people/131852015/" class="avator">
-            <img width="24" height="24" src="https://img2.doubanio.com/icon/u131852015-3.jpg">
-        </a>
-
-        <a href="https://www.douban.com/people/131852015/" class="name">小坑坑</a>
-
-            <span class="allstar50 main-title-rating" title="力荐"></span>
-
-        <span content="2021-12-06" class="main-meta">2021-12-06 20:41:50</span>
-
-
-    </header>
-
-
-            <div class="main-bd">
-
-                <h2><a href="https://www.douban.com/review/14048775/">朴素的游戏设计理念与浪漫主义的基调</a></h2>
-
-                <div id="review_14048775_short" class="review-short" data-rid="14048775">
-                    <div class="short-content">
-
-                        通关传送门系列确实是一次非常独特的美妙的游戏旅程，从一个速通视频入坑，想要趁着秋促看看传送门系列是否打折，却发现其实已在库中。早在起源引擎的csgo里摸爬滚打了很久，却是第一款真正让我有些晕3D的游戏，这大概是不停旋转、重力方向更迭的游戏画面惹的祸吧。尽管如此，...
-
-                        &nbsp;(<a href="javascript:;" id="toggle-14048775-copy" class="unfold" title="展开">展开</a>)
-                    </div>
-                </div>
-
-                <div id="review_14048775_full" class="hidden">
-                    <div id="review_14048775_full_content" class="full-content"></div>
-                </div>
-
-                <div class="action">
-                    <a href="javascript:;" class="action-btn up" data-rid="14048775" title="有用">
-                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
-                        <span id="r-useful_count-14048775">
-                                1
-                        </span>
-                    </a>
-                    <a href="javascript:;" class="action-btn down" data-rid="14048775" title="没用">
-                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
-                        <span id="r-useless_count-14048775">
-                        </span>
-                    </a>
-                    <a href="https://www.douban.com/review/14048775/#comments" class="reply ">0回应</a>
+                    <a href="https://www.douban.com/review/12329284/#comments" class="reply ">0回应</a>
 
                     <a href="javascript:;;" class="fold hidden">收起</a>
                 </div>
@@ -1554,14 +1803,35 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
 
 
-
-    
 
     
 
     <!-- COLLECTED JS -->
     <!-- COLLECTED CSS -->
 </div>
+
+    <script type="text/javascript">
+        (function() {
+            if (window.__init_review_list) return;
+            __init_review_list = true;
+        })();
+        window.useful_icon = "https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png";
+        window.usefuled_icon = "https://img1.doubanio.com/f/zerkalo/635290bb14771c97270037be21ad50514d57acc3/pics/up-full.png";
+        window.useless_icon = "https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png";
+        window.uselessed_icon = "https://img1.doubanio.com/f/zerkalo/23cee7343568ca814238f5ef18bf8aadbe959df2/pics/down-full.png";
+    </script>
+
+    <link rel="stylesheet" href="https://img1.doubanio.com/f/zerkalo/3aeb281ab0e4f2c7050458684acfeb6838441de9/css/review/editor/ng/setting_standalone.css">
+    <script src="https://img1.doubanio.com/f/zerkalo/938cdbe2e223a3117cbbcb4929cae2001b402c20/js/review/editor/ng/manifest.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/296cd5fec472a78add5fee958c58d72f47d91586/js/review/editor/ng/vendor.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/c0095c35695e36603701c428b6679987211e3c9b/js/review/editor/ng/setting_standalone.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/8941af7854ddad9561648b706cdb49f3d1534ff3/js/review/editor/ng/render_gif.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/68b2d67ea75209236a6443ad45f370f1bca536ae/js/review/actions.js"></script>
+    <script src="https://img1.doubanio.com/f/zerkalo/7196bdec780f03785f55b06fda34999595057f65/js/review/unfold.js"></script>
+    <script src="https://img1.doubanio.com/f/vendors/f25ae221544f39046484a823776f3aa01769ee10/js/ui/dialog.js"></script>
+
+
+
 
 
 
@@ -1574,13 +1844,11 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                     &gt;
                         <a href="reviews">
                             更多文字
-                                24篇
+                                26篇
                         </a>
                 </p>
     </section>
 <!-- COLLECTED JS -->
-
-
 
 
         </div>
@@ -1598,7 +1866,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
             existingNode = global.document.getElementsByTagName('script')[0],
             adSource = '//erebor.douban.com/',
             userId = '',
-            browserId = 'yVnXrKvJKRc',
+            browserId = '2gzpgCoH2ns',
             criteria = '3:/game/10734307/',
             preview = '',
             debug = false,
@@ -1608,14 +1876,11 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         global.DoubanAdSlots = (global.DoubanAdSlots || []).concat(adSlots);
 
         newNode.setAttribute('type', 'text/javascript');
-        newNode.setAttribute('src', '//img1.doubanio.com/MnJwNGlleS9mL2FkanMvY2M1OGQyNTQ2N2I2YmQzOTlmNTliMGJiMjI4MWRhZTlkNTNjYTFkZC9hZC5yZWxlYXNlLmpz');
+        newNode.setAttribute('src', '//img1.doubanio.com/bG90MDZqMy9mL2FkanMvYzhmZjE5MGNhYzNkN2UyMWJjMTI3NzJlYWNkOWVkODZhMmFjMzdhMi9hZC5yZWxlYXNlLmpz?company_token=kX69T8w1wyOE-dale');
         newNode.setAttribute('async', true);
         existingNode.parentNode.insertBefore(newNode, existingNode);
     })(this);
 </script>
-
-
-
 
 
 
@@ -1654,12 +1919,12 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
                 </li><li><a href="https://www.douban.com/doulist/40492058/">第九艺术之我见</a>
             <span class="pl">(吉他与枪)</span>
                 </li><li><a href="https://www.douban.com/doulist/38843183/">【最佳推荐】豆瓣网豆友爱玩的游戏  网友众选的热门游戏排行榜Top100</a>
-            <span class="pl">(作家簽名💋)</span>
+            <span class="pl">(签名书鉴别师)</span>
                 </li></ul>
                 </ul>
             </div>
         </div>
-        
+        <link rel="stylesheet" href="https://img2.doubanio.com/cuphead/ilmen-static/css/game/mods/doulists.f7e31.css" />
 
     <!-- douban ad begin -->
     <div id="dale_game_subject_top_right"></div>
@@ -1678,18 +1943,17 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
             
 
 
-
-
+<link rel="stylesheet" href="https://img1.doubanio.com/cuphead/ilmen-static/css/mods/others_interests.e852d.css" />
 <ul class="others-interests">
         
         <li>
-            <a href="https://www.douban.com/people/MaverickEthos/" class="others-interest-avatar">
-                <img src="https://img9.doubanio.com/icon/u245643268-14.jpg" alt="Geist">
+            <a href="https://www.douban.com/people/120114587/" class="others-interest-avatar">
+                <img width="48" height="48" src="https://img1.doubanio.com/icon/up120114587-10.jpg" alt="綠蟹塔">
             </a>
             <div class="others-interest-info">
-                <a href="https://www.douban.com/people/MaverickEthos/">Geist</a>
+                <a href="https://www.douban.com/people/120114587/">綠蟹塔</a>
                 <div>
-                    今天凌晨
+                    47分钟前
                     想玩
                     
                 </div>
@@ -1697,13 +1961,83 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         </li>
         
         <li>
-            <a href="https://www.douban.com/people/shaunyoung/" class="others-interest-avatar">
-                <img src="https://img2.doubanio.com/icon/u84259532-2.jpg" alt="Shaun">
+            <a href="https://www.douban.com/people/276355240/" class="others-interest-avatar">
+                <img width="48" height="48" src="https://img9.doubanio.com/icon/up276355240-4.jpg" alt="MARCHOY">
             </a>
             <div class="others-interest-info">
-                <a href="https://www.douban.com/people/shaunyoung/">Shaun</a>
+                <a href="https://www.douban.com/people/276355240/">MARCHOY</a>
                 <div>
-                    今天凌晨
+                    昨天
+                    在玩
+                    <span class="allstar40" title="推荐"></span>
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/278364980/" class="others-interest-avatar">
+                <img width="48" height="48" src="https://img9.doubanio.com/icon/up278364980-5.jpg" alt="电子星">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/278364980/">电子星</a>
+                <div>
+                    昨天
+                    玩过
+                    <span class="allstar40" title="推荐"></span>
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/237605111/" class="others-interest-avatar">
+                <img width="48" height="48" src="https://img2.doubanio.com/icon/up237605111-1.jpg" alt="一条友好的狗">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/237605111/">一条友好的狗</a>
+                <div>
+                    昨天
+                    玩过
+                    
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/ice_cold_sun/" class="others-interest-avatar">
+                <img width="48" height="48" src="https://img9.doubanio.com/icon/up1687385-106.jpg" alt="Noir">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/ice_cold_sun/">Noir</a>
+                <div>
+                    7月11日
+                    想玩
+                    
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/281839696/" class="others-interest-avatar">
+                <img width="48" height="48" src="https://img3.doubanio.com/icon/up281839696-2.jpg" alt="梦白TEL">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/281839696/">梦白TEL</a>
+                <div>
+                    7月11日
+                    玩过
+                    
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/267026860/" class="others-interest-avatar">
+                <img width="48" height="48" src="https://img3.doubanio.com/icon/up267026860-2.jpg" alt="monty">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/267026860/">monty</a>
+                <div>
+                    7月10日
                     玩过
                     <span class="allstar50" title="力荐"></span>
                 </div>
@@ -1711,83 +2045,13 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         </li>
         
         <li>
-            <a href="https://www.douban.com/people/173750844/" class="others-interest-avatar">
-                <img src="https://img2.doubanio.com/icon/u173750844-1.jpg" alt="不逢林">
+            <a href="https://www.douban.com/people/167585548/" class="others-interest-avatar">
+                <img width="48" height="48" src="https://img1.doubanio.com/icon/up167585548-20.jpg" alt="纪念品">
             </a>
             <div class="others-interest-info">
-                <a href="https://www.douban.com/people/173750844/">不逢林</a>
+                <a href="https://www.douban.com/people/167585548/">纪念品</a>
                 <div>
-                    今天凌晨
-                    玩过
-                    <span class="allstar50" title="力荐"></span>
-                </div>
-            </div>
-        </li>
-        
-        <li>
-            <a href="https://www.douban.com/people/72694107/" class="others-interest-avatar">
-                <img src="https://img1.doubanio.com/icon/u72694107-240.jpg" alt="Historia">
-            </a>
-            <div class="others-interest-info">
-                <a href="https://www.douban.com/people/72694107/">Historia</a>
-                <div>
-                    今天凌晨
-                    想玩
-                    
-                </div>
-            </div>
-        </li>
-        
-        <li>
-            <a href="https://www.douban.com/people/120710121/" class="others-interest-avatar">
-                <img src="https://img9.doubanio.com/icon/u120710121-15.jpg" alt="滑稽哥哥">
-            </a>
-            <div class="others-interest-info">
-                <a href="https://www.douban.com/people/120710121/">滑稽哥哥</a>
-                <div>
-                    昨天
-                    想玩
-                    
-                </div>
-            </div>
-        </li>
-        
-        <li>
-            <a href="https://www.douban.com/people/257120540/" class="others-interest-avatar">
-                <img src="https://img2.doubanio.com/icon/u257120540-1.jpg" alt="三点半村头集合">
-            </a>
-            <div class="others-interest-info">
-                <a href="https://www.douban.com/people/257120540/">三点半村头集合</a>
-                <div>
-                    昨天
-                    想玩
-                    
-                </div>
-            </div>
-        </li>
-        
-        <li>
-            <a href="https://www.douban.com/people/209971019/" class="others-interest-avatar">
-                <img src="https://img9.doubanio.com/icon/u209971019-4.jpg" alt="njh005">
-            </a>
-            <div class="others-interest-info">
-                <a href="https://www.douban.com/people/209971019/">njh005</a>
-                <div>
-                    昨天
-                    玩过
-                    <span class="allstar50" title="力荐"></span>
-                </div>
-            </div>
-        </li>
-        
-        <li>
-            <a href="https://www.douban.com/people/233543567/" class="others-interest-avatar">
-                <img src="https://img2.doubanio.com/icon/u233543567-2.jpg" alt="dreemurr">
-            </a>
-            <div class="others-interest-info">
-                <a href="https://www.douban.com/people/233543567/">dreemurr</a>
-                <div>
-                    昨天
+                    7月10日
                     玩过
                     <span class="allstar50" title="力荐"></span>
                 </div>
@@ -1795,10 +2059,11 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         </li>
 </ul>
 <div class="other-interests-statistics">
-    <a href="collections">7407人玩过</a>&nbsp;/&nbsp;
-    <a href="wishes">3368人想玩</a>
+    <a href="collections">9341人玩过</a>
     &nbsp;/&nbsp;
-    <a href="doings">517人在玩</a>
+    <a href="wishes">4457人想玩</a>
+    &nbsp;/&nbsp;
+    <a href="doings">724人在玩</a>
 </div>
 
         </div>
@@ -1812,7 +2077,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
             &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
             <span class="pl">&nbsp;(
                 
-                    <a href="https://www.douban.com/game/10734307/contributors" target="_self">全部14人</a>
+                    <a href="https://www.douban.com/game/10734307/contributors" target="_self">全部 18 人</a>
                 ) </span>
     </h2>
 
@@ -1830,7 +2095,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     <ul class="obu contributor-obu">
         <li>
             <a href="https://www.douban.com/people/44326877/">
-                <img class="contributor-img" src="https://img2.doubanio.com/icon/u44326877-2.jpg" alt="ilmen" title="ilmen">
+                <img class="contributor-img" src="https://img3.doubanio.com/icon/u44326877-2.jpg" alt="ilmen" title="ilmen">
             </a>
         </li>
     </ul>
@@ -1851,7 +2116,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
     <ul class="obu contributor-obu">
         <li>
             <a href="https://www.douban.com/people/TimmyH/">
-                <img class="contributor-img" src="https://img2.doubanio.com/icon/u41653519-13.jpg" alt="TimmyThePunk" title="TimmyThePunk">
+                <img class="contributor-img" src="https://img3.doubanio.com/icon/u41653519-13.jpg" alt="TimmyThePunk" title="TimmyThePunk">
             </a>
         </li>
     </ul>
@@ -1912,8 +2177,9 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
         &gt; <a href="distinct" title="重复条目投诉">重复条目投诉</a>
     </div>
     
-    <div class="mod mod-game-sidelink">
-        有好游戏要推荐？ &gt; <a href="/game/create" class="" title="创建游戏条目">创建游戏条目</a>
+    <div class="mod mod-game-sidelink pl">
+        有好游戏要推荐？
+        &gt; <a href="/game/create" class="" title="创建游戏条目">创建游戏条目</a>
     </div>
 
         </div>
@@ -1927,7 +2193,7 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 <div id="footer">
     
 <span id="icp" class="fleft gray-link">
-    &copy; 2005－2022 douban.com, all rights reserved 北京豆网科技有限公司
+    &copy; 2005－2024 douban.com, all rights reserved 北京豆网科技有限公司
 </span>
 
 <a href="https://www.douban.com/hnypt/variformcyst.py" style="display: none;"></a>
@@ -1947,9 +2213,15 @@ window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},
 
 </div>
 
-<script type="text/javascript" src="https://img1.doubanio.com/f/shire/df6a1d712d36db03e9bddb32cbd5fa080bfcddfc/js/core/do/_init_.js"></script>
+<script type="text/javascript">
+Do.add('dialog', {path: 'https://img1.doubanio.com/f/vendors/f25ae221544f39046484a823776f3aa01769ee10/js/ui/dialog.js', type: 'js', requires: ['https://img1.doubanio.com/f/vendors/e8a7261937da62636d22ca4c579efc4a4d759b1b/css/ui/dialog.css']});
+Do('dialog');
 
-<script type="text/javascript" src="https://img1.doubanio.com/misc/mixed_static/5d986ca1118259fe.js"></script>
+Do.add('collection', {path: 'https://img1.doubanio.com/cuphead/ilmen-static/js/collection.3adfb.js', type: 'js', requires: ['https://img1.doubanio.com/f/vendors/dae291ee0db6a4e4f43626fd91a554962c199246/js/core/new_rating.js', 'https://img1.doubanio.com/f/vendors/a87681e07859adf4a35daa64d6837d161231c9b7/js/lib/simple_promise.js']});
+Do('collection');
+
+      Do("https://img3.doubanio.com/cuphead/ilmen-static/js/mods/remove_collect.548a2.js")
+    </script>
 
     
     
@@ -2034,7 +2306,7 @@ if (window.addEventListener) {
 
 
 
-<!-- dae-web-ilmen--default-964696955-bhcpw-->
+<!-- dae-web-ilmen--default-67dc977c5b-dchd4-->
 
   <script>_SPLITTEST=''</script>
 </body>

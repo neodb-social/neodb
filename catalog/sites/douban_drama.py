@@ -6,6 +6,7 @@ from lxml import html
 
 from catalog.common import *
 from catalog.models import *
+from common.models.lang import detect_language
 
 from .douban import DoubanDownloader
 
@@ -64,6 +65,7 @@ class DoubanDramaVersion(AbstractSite):
             raise ParseError(self, "title")
         data = {
             "title": title,
+            "localized_title": [{"lang": "zh-cn", "text": title}],
             "director": [x.strip() for x in h.xpath(q.format("导演"))],
             "playwright": [x.strip() for x in h.xpath(q.format("编剧"))],
             # "actor": [x.strip() for x in h.xpath(q.format("主演"))],
@@ -238,6 +240,21 @@ class DoubanDrama(AbstractSite):
         )
         img_url_elem = h.xpath("//img[@itemprop='image']/@src")
         data["cover_image_url"] = img_url_elem[0].strip() if img_url_elem else None
+        data["localized_title"] = (
+            [{"lang": "zh-cn", "text": data["title"]}]
+            + (
+                [
+                    {
+                        "lang": detect_language(data["orig_title"]),
+                        "text": data["orig_title"],
+                    }
+                ]
+                if data["orig_title"]
+                else []
+            )
+            + [{"lang": detect_language(t), "text": t} for t in data["other_title"]]
+        )
+        data["localized_description"] = [{"lang": "zh-cn", "text": data["brief"]}]
 
         pd = ResourceContent(metadata=data)
         if pd.metadata["cover_image_url"]:

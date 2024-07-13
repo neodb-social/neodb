@@ -17,7 +17,6 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 
 """
 
-from os.path import exists
 from typing import TYPE_CHECKING
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -37,6 +36,7 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
+from catalog.common.models import SCRIPT_CHOICES
 
 from .utils import *
 
@@ -90,6 +90,7 @@ class Edition(Item):
         "pages",
         "price",
         "brief",
+        "localized_description",
         "contents",
     ]
     subtitle = jsondata.CharField(
@@ -113,7 +114,12 @@ class Edition(Item):
         default=list,
     )
     language = jsondata.CharField(
-        _("language"), null=True, blank=True, default=None, max_length=500
+        _("language"),
+        null=False,
+        blank=True,
+        default=None,
+        max_length=500,
+        choices=SCRIPT_CHOICES,
     )
     pub_house = jsondata.CharField(
         _("publishing house"), null=True, blank=False, default=None, max_length=500

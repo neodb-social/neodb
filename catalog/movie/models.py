@@ -13,6 +13,7 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
+from catalog.common.models import LanguageListField
 
 
 class MovieInSchema(ItemInSchema):
@@ -43,9 +44,10 @@ class Movie(Item):
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
 
     METADATA_COPY_LIST = [
-        "title",
+        # "title",
+        "localized_title",
         "orig_title",
-        "other_title",
+        # "other_title",
         "director",
         "playwright",
         "actor",
@@ -59,7 +61,8 @@ class Movie(Item):
         # "season_number",
         # "episodes",
         # "single_episode_length",
-        "brief",
+        "localized_description",
+        # "brief",
     ]
     orig_title = jsondata.CharField(
         verbose_name=_("original title"), blank=True, default="", max_length=500
@@ -141,17 +144,7 @@ class Movie(Item):
         blank=True,
         default=list,
     )
-    language = jsondata.ArrayField(
-        verbose_name=_("language"),
-        base_field=models.CharField(
-            blank=True,
-            default="",
-            max_length=100,
-        ),
-        null=True,
-        blank=True,
-        default=list,
-    )
+    language = LanguageListField()
     year = jsondata.IntegerField(verbose_name=_("year"), null=True, blank=True)
     duration = jsondata.CharField(
         verbose_name=_("length"), blank=True, default="", max_length=200

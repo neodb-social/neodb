@@ -11,13 +11,7 @@ from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
-
-
-def _lang(s: str) -> str:
-    try:
-        return detect(s)
-    except Exception:
-        return "en"
+from common.models.lang import detect_language
 
 
 @SiteManager.register
@@ -43,14 +37,13 @@ class BoardGameGeek(AbstractSite):
         item = items[0]
         title = self.query_str(item, "name[@type='primary']/@value")
         other_title = self.query_list(item, "name[@type='alternate']/@value")
-        zh_title = [
-            t for t in other_title if _lang(t) in ["zh", "jp", "ko", "zh-cn", "zh-tw"]
+        localized_title = [
+            {"lang": detect_language(t), "text": t} for t in [title] + other_title
         ]
-        if zh_title:
-            for z in zh_title:
-                other_title.remove(z)
-            other_title = zh_title + other_title
-
+        zh_title = [
+            t["text"] for t in localized_title if t["lang"] in ["zh", "zh-cn", "zh-tw"]
+        ]
+        title = zh_title[0] if zh_title else other_title[0]
         cover_image_url = self.query_str(item, "image/text()")
         brief = html.unescape(self.query_str(item, "description/text()"))
         year = self.query_str(item, "yearpublished/@value")
@@ -62,6 +55,8 @@ class BoardGameGeek(AbstractSite):
 
         pd = ResourceContent(
             metadata={
+                "localized_title": localized_title,
+                "localized_description": [{"lang": "en", "text": brief}],
                 "title": title,
                 "other_title": other_title,
                 "genre": category,

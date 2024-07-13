@@ -13,12 +13,16 @@ from django.db import connection, models
 from django.db.models import QuerySet, Value
 from django.template.defaultfilters import default
 from django.utils import timezone
+from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
 from catalog.common import jsondata
+from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, SCRIPT_CHOICES
+from common.models.lang import get_current_locales
+from common.models.misc import uniq
 
 from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
 
@@ -258,9 +262,16 @@ class BaseSchema(Schema):
     external_resources: list[ExternalResourceSchema] | None
 
 
+class LocalizedTitleSchema(Schema):
+    lang: str
+    text: str
+
+
 class ItemInSchema(Schema):
     title: str
     brief: str
+    localized_title: list[LocalizedTitleSchema] = []
+    localized_description: list[LocalizedTitleSchema] = []
     cover_image_url: str | None
     rating: float | None
     rating_count: int | None
@@ -268,6 +279,63 @@ class ItemInSchema(Schema):
 
 class ItemSchema(BaseSchema, ItemInSchema):
     pass
+
+
+def get_locale_choices_for_jsonform(choices):
+    """return list for jsonform schema"""
+    return [{"title": v, "value": k} for k, v in choices]
+
+
+LOCALE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(LOCALE_CHOICES)
+LANGUAGE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(LANGUAGE_CHOICES)
+
+LOCALIZED_TITLE_SCHEMA = {
+    "type": "list",
+    "items": {
+        "type": "dict",
+        "keys": {
+            "lang": {
+                "type": "string",
+                "title": _("language"),
+                "choices": LOCALE_CHOICES_JSONFORM,
+            },
+            "text": {"type": "string", "title": _("content")},
+        },
+        "required": ["lang", "s"],
+    },
+    "uniqueItems": True,
+}
+
+LOCALIZED_DESCRIPTION_SCHEMA = {
+    "type": "list",
+    "items": {
+        "type": "dict",
+        "keys": {
+            "lang": {
+                "type": "string",
+                "title": _("language"),
+                "choices": LOCALE_CHOICES_JSONFORM,
+            },
+            "text": {"type": "string", "title": _("content"), "widget": "textarea"},
+        },
+        "required": ["lang", "s"],
+    },
+    "uniqueItems": True,
+}
+
+
+def LanguageListField():
+    return jsondata.ArrayField(
+        verbose_name=_("language"),
+        base_field=models.CharField(blank=True, default="", max_length=100),
+        null=True,
+        blank=True,
+        default=list,
+        # schema={
+        #     "type": "list",
+        #     "items": {"type": "string", "choices": LANGUAGE_CHOICES_JSONFORM},
+        # },
+    )
 
 
 class Item(PolymorphicModel):
@@ -306,6 +374,22 @@ class Item(PolymorphicModel):
         on_delete=models.SET_NULL,
         default=None,
         related_name="merged_from_items",
+    )
+
+    localized_title = jsondata.JSONField(
+        verbose_name=_("title"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=LOCALIZED_TITLE_SCHEMA,
+    )
+
+    localized_description = jsondata.JSONField(
+        verbose_name=_("description"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=LOCALIZED_DESCRIPTION_SCHEMA,
     )
 
     class Meta:
@@ -494,12 +578,52 @@ class Item(PolymorphicModel):
     def class_name(self) -> str:
         return self.__class__.__name__.lower()
 
-    @property
-    def display_title(self) -> str:
-        return self.title
+    def get_localized_title(self) -> str | None:
+        if self.localized_title:
+            locales = get_current_locales()
+            for loc in locales:
+                v = next(
+                    filter(lambda t: t["lang"] == loc, self.localized_title), {}
+                ).get("text")
+                if v:
+                    return v
+
+    def get_localized_description(self) -> str | None:
+        if self.localized_description:
+            locales = get_current_locales()
+            for loc in locales:
+                v = next(
+                    filter(lambda t: t["lang"] == loc, self.localized_description), {}
+                ).get("text")
+                if v:
+                    return v
 
     @property
-    def display_description(self):
+    def display_title(self) -> str:
+        return (
+            self.get_localized_title()
+            or self.title
+            or (
+                self.orig_title  # type:ignore
+                if hasattr(self, "orig_title")
+                else ""
+            )
+        ) or (self.localized_title[0]["text"] if self.localized_title else "")
+
+    @property
+    def display_description(self) -> str:
+        return (
+            self.get_localized_description()
+            or self.brief
+            or (
+                self.localized_description[0]["text"]
+                if self.localized_description
+                else ""
+            )
+        )
+
+    @property
+    def brief_description(self):
         return self.brief[:155]
 
     @classmethod
@@ -547,7 +671,13 @@ class Item(PolymorphicModel):
     METADATA_COPY_LIST = [
         "title",
         "brief",
+        "localized_title",
+        "localized_description",
     ]  # list of metadata keys to copy from resource to item
+    METADATA_MERGE_LIST = [
+        "localized_title",
+        "localized_description",
+    ]
 
     @classmethod
     def copy_metadata(cls, metadata: dict[str, Any]) -> dict[str, Any]:
@@ -568,19 +698,26 @@ class Item(PolymorphicModel):
             else None
         )
 
+    def merge_data_from_external_resource(
+        self, p: "ExternalResource", ignore_existing_content: bool = False
+    ):
+        for k in self.METADATA_COPY_LIST:
+            v = p.metadata.get(k)
+            if v:
+                if not getattr(self, k) or ignore_existing_content:
+                    setattr(self, k, v)
+                elif k in self.METADATA_MERGE_LIST:
+                    setattr(self, k, uniq((v or []) + getattr(self, k, [])))
+        if p.cover and (not self.has_cover() or ignore_existing_content):
+            self.cover = p.cover
+
     def merge_data_from_external_resources(self, ignore_existing_content: bool = False):
         """Subclass may override this"""
         lookup_ids = []
         for p in self.external_resources.all():
             lookup_ids.append((p.id_type, p.id_value))
             lookup_ids += p.other_lookup_ids.items()
-            for k in self.METADATA_COPY_LIST:
-                if p.metadata.get(k) and (
-                    not getattr(self, k) or ignore_existing_content
-                ):
-                    setattr(self, k, p.metadata.get(k))
-            if p.cover and (not self.has_cover() or ignore_existing_content):
-                self.cover = p.cover
+            self.merge_data_from_external_resource(p, ignore_existing_content)
         self.update_lookup_ids(list(set(lookup_ids)))
 
     def update_linked_items_from_external_resource(self, resource: "ExternalResource"):

@@ -41,12 +41,14 @@ class Album(Item):
     douban_music = PrimaryLookupIdDescriptor(IdType.DoubanMusic)
     spotify_album = PrimaryLookupIdDescriptor(IdType.Spotify_Album)
     METADATA_COPY_LIST = [
-        "title",
-        "other_title",
+        # "title",
+        # "other_title",
+        "localized_title",
         "artist",
         "company",
         "track_list",
-        "brief",
+        # "brief",
+        "localized_description",
         "album_type",
         "media",
         "disc_count",

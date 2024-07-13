@@ -14,6 +14,7 @@ from catalog.common import (
     ItemType,
     jsondata,
 )
+from catalog.common.models import LanguageListField
 from catalog.common.utils import DEFAULT_ITEM_COVER
 
 
@@ -124,13 +125,7 @@ class Performance(Item):
         blank=False,
         default=list,
     )
-    language = jsondata.ArrayField(
-        verbose_name=_("language"),
-        base_field=models.CharField(blank=False, default="", max_length=200),
-        null=False,
-        blank=True,
-        default=list,
-    )
+    language = LanguageListField()
     director = jsondata.ArrayField(
         verbose_name=_("director"),
         base_field=models.CharField(blank=False, default="", max_length=500),
@@ -211,10 +206,12 @@ class Performance(Item):
         verbose_name=_("website"), max_length=1000, null=True, blank=True
     )
     METADATA_COPY_LIST = [
-        "title",
-        "brief",
+        # "title",
+        # "brief",
+        "localized_title",
+        "localized_description",
         "orig_title",
-        "other_title",
+        # "other_title",
         "genre",
         "language",
         "opening_date",
@@ -266,13 +263,7 @@ class PerformanceProduction(Item):
         blank=True,
         default=list,
     )
-    language = jsondata.ArrayField(
-        verbose_name=_("language"),
-        base_field=models.CharField(blank=False, default="", max_length=200),
-        null=False,
-        blank=True,
-        default=list,
-    )
+    language = LanguageListField()
     director = jsondata.ArrayField(
         verbose_name=_("director"),
         base_field=models.CharField(blank=False, default="", max_length=500),
@@ -353,10 +344,12 @@ class PerformanceProduction(Item):
         verbose_name=_("website"), max_length=1000, null=True, blank=True
     )
     METADATA_COPY_LIST = [
-        "title",
-        "brief",
+        "localized_title",
+        "localized_description",
+        # "title",
+        # "brief",
         "orig_title",
-        "other_title",
+        # "other_title",
         "language",
         "opening_date",
         "closing_date",
@@ -389,7 +382,9 @@ class PerformanceProduction(Item):
 
     @property
     def display_title(self):
-        return f"{self.show.title if self.show else '♢'} {self.title}"
+        return (
+            f"{self.show.display_title if self.show else '♢'} {super().display_title}"
+        )
 
     @property
     def cover_image_url(self) -> str | None:

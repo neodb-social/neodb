@@ -32,7 +32,7 @@ class Review(Content):
         return self.title
 
     @property
-    def display_description(self):
+    def brief_description(self):
         return self.plain_content[:155]
 
     @property

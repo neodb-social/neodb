@@ -6,6 +6,8 @@ from catalog.tv.models import *
 
 
 class JSONFieldTestCase(TestCase):
+    databases = "__all__"
+
     def test_legacy_data(self):
         o = TVShow()
         self.assertEqual(o.other_title, [])
@@ -18,6 +20,8 @@ class JSONFieldTestCase(TestCase):
 
 
 class TMDBTVTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id = "57243"
         t_url = "https://www.themoviedb.org/tv/57243-doctor-who"
@@ -43,13 +47,15 @@ class TMDBTVTestCase(TestCase):
         self.assertEqual(site.id_value, "57243")
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "神秘博士")
+        self.assertEqual(site.resource.metadata["title"], "Doctor Who")
         self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
         self.assertEqual(site.resource.item.__class__.__name__, "TVShow")
         self.assertEqual(site.resource.item.imdb, "tt0436992")
 
 
 class TMDBTVSeasonTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id = "57243-11"
         t_url = "https://www.themoviedb.org/tv/57243-doctor-who/season/11"
@@ -70,7 +76,7 @@ class TMDBTVSeasonTestCase(TestCase):
         self.assertEqual(site.id_value, "57243-4")
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "神秘博士 第 4 季")
+        self.assertEqual(site.resource.metadata["title"], "Doctor Who Series 4")
         self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
         self.assertEqual(site.resource.item.__class__.__name__, "TVSeason")
         self.assertEqual(site.resource.item.imdb, "tt1159991")
@@ -79,6 +85,8 @@ class TMDBTVSeasonTestCase(TestCase):
 
 
 class TMDBEpisodeTestCase(TestCase):
+    databases = "__all__"
+
     @use_local_response
     def test_scrape_tmdb(self):
         t_url = "https://www.themoviedb.org/tv/57243-doctor-who/season/4/episode/1"
@@ -87,7 +95,7 @@ class TMDBEpisodeTestCase(TestCase):
         self.assertEqual(site.id_value, "57243-4-1")
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "活宝搭档")
+        self.assertEqual(site.resource.metadata["title"], "Partners in Crime")
         self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
         self.assertEqual(site.resource.item.__class__.__name__, "TVEpisode")
         self.assertEqual(site.resource.item.imdb, "tt1159991")
@@ -98,6 +106,8 @@ class TMDBEpisodeTestCase(TestCase):
 
 
 class DoubanMovieTVTestCase(TestCase):
+    databases = "__all__"
+
     @use_local_response
     def test_scrape(self):
         url3 = "https://movie.douban.com/subject/3627919/"
@@ -122,6 +132,8 @@ class DoubanMovieTVTestCase(TestCase):
 
 
 class MultiTVSitesTestCase(TestCase):
+    databases = "__all__"
+
     @use_local_response
     def test_tvshows(self):
         url1 = "https://www.themoviedb.org/tv/57243-doctor-who"
@@ -170,6 +182,8 @@ class MultiTVSitesTestCase(TestCase):
 
 
 class MovieTVModelRecastTestCase(TestCase):
+    databases = "__all__"
+
     @use_local_response
     def test_recast(self):
         from catalog.models import Movie, TVShow
@@ -178,13 +192,15 @@ class MovieTVModelRecastTestCase(TestCase):
         p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
         tv = p2.item
         self.assertEqual(tv.class_name, "tvshow")
-        self.assertEqual(tv.title, "神秘博士")
+        self.assertEqual(tv.display_title, "Doctor Who")
         movie = tv.recast_to(Movie)
         self.assertEqual(movie.class_name, "movie")
-        self.assertEqual(movie.title, "神秘博士")
+        self.assertEqual(movie.display_title, "Doctor Who")
 
 
 class IMDBTestCase(TestCase):
+    databases = "__all__"
+
     @use_local_response
     def test_fetch_episodes(self):
         t_url = "https://movie.douban.com/subject/1920763/"
@@ -243,7 +259,7 @@ class IMDBTestCase(TestCase):
         self.assertEqual(site.id_value, "tt1159991")
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "活宝搭档")
+        self.assertEqual(site.resource.metadata["title"], "Partners in Crime")
         self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
         self.assertEqual(site.resource.item.__class__.__name__, "TVEpisode")
         self.assertEqual(site.resource.item.imdb, "tt1159991")

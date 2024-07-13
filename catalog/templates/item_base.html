@@ -30,7 +30,7 @@
       <div id="item-title" class="middle">
         {% if item.is_deleted %}[DELETED]{% endif %}
         {% if item.merged_to_item %}
-          [MERGED TO <a href="{{ item.merged_to_item.url }}">{{ item.merged_to_item.title }}</a>]
+          [MERGED TO <a href="{{ item.merged_to_item.url }}">{{ item.merged_to_item.display_title }}</a>]
         {% endif %}
         <h1>
           {{ item.display_title }}

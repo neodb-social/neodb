@@ -8,7 +8,11 @@
   }
 }
 // override django_jsonform/react-json-form styles
+.rjf-form-group-wrapper{
+  max-width: unset !important;
+}
 .rjf-form-wrapper {
+  max-width: unset !important;
   input[type="text"] {
     max-width: unset !important;
     margin-top: 0 !important;
@@ -33,15 +37,15 @@
   }
 
   .rjf-form-row-inner>div {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(0%, 1fr));
+    // display: grid !important;
+    // grid-template-columns: repeat(auto-fit, minmax(0%, 1fr));
 
     >label {
       margin-top: var(--pico-form-element-spacing-vertical);
     }
 
     >* {
-      width: max-content !important;
+      // width: max-content !important;
 
 
       button {

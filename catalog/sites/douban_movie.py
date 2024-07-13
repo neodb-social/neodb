@@ -4,6 +4,7 @@ import logging
 from catalog.common import *
 from catalog.movie.models import *
 from catalog.tv.models import *
+from common.models.lang import detect_language
 
 from .douban import *
 from .tmdb import TMDB_TV, TMDB_TVSeason, query_tmdb_tv_episode, search_tmdb_by_imdb_id
@@ -205,9 +206,18 @@ class DoubanMovie(AbstractSite):
         img_url_elem = content.xpath("//img[@rel='v:image']/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
 
+        titles = set(
+            [title]
+            + ([orig_title] if orig_title else [])
+            + (other_title if other_title else [])
+        )
+        localized_title = [{"lang": detect_language(t), "text": t} for t in titles]
+        localized_desc = [{"lang": detect_language(brief), "text": brief}]
         pd = ResourceContent(
             metadata={
                 "title": title,
+                "localized_title": localized_title,
+                "localized_description": localized_desc,
                 "orig_title": orig_title,
                 "other_title": other_title,
                 "imdb_code": imdb_code,

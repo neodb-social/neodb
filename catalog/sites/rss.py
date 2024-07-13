@@ -19,6 +19,8 @@ from catalog.common.downloaders import (
 )
 from catalog.models import *
 from catalog.podcast.models import PodcastEpisode
+from common.models.lang import detect_language
+from journal.models.renderers import html_to_text
 
 _logger = logging.getLogger(__name__)
 
@@ -86,11 +88,16 @@ class RSS(AbstractSite):
         feed = self.parse_feed_from_url(self.url)
         if not feed:
             raise ValueError(f"no feed avaialble in {self.url}")
+        title = feed["title"]
+        desc = html_to_text(feed["description"])
+        lang = detect_language(title + " " + desc)
         pd = ResourceContent(
             metadata={
-                "title": feed["title"],
-                "brief": bleach.clean(feed["description"], strip=True),
-                "hosts": (
+                "title": title,
+                "brief": desc,
+                "localized_title": [{"lang": lang, "text": title}],
+                "localized_description": [{"lang": lang, "text": desc}],
+                "host": (
                     [feed.get("itunes_author")] if feed.get("itunes_author") else []
                 ),
                 "official_site": feed.get("link"),

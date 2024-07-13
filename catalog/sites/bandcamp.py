@@ -8,6 +8,7 @@ import dns.resolver
 
 from catalog.common import *
 from catalog.models import *
+from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)
 
@@ -76,14 +77,19 @@ class Bandcamp(AbstractSite):
         duration = None
         company = None
         brief_nodes = content.xpath("//div[@class='tralbumData tralbum-about']/text()")
-        brief = "".join(brief_nodes) if brief_nodes else None  # type:ignore
+        brief = "".join(brief_nodes) if brief_nodes else ""  # type:ignore
         cover_url = self.query_str(content, "//div[@id='tralbumArt']/a/@href")
         bandcamp_page_data = json.loads(
             self.query_str(content, "//meta[@name='bc-page-properties']/@content")
         )
         bandcamp_album_id = bandcamp_page_data["item_id"]
-
+        localized_title = [{"lang": detect_language(title), "text": title}]
+        localized_desc = (
+            [{"lang": detect_language(brief), "text": brief}] if brief else []
+        )
         data = {
+            "localized_title": localized_title,
+            "localized_description": localized_desc,
             "title": title,
             "artist": artist,
             "genre": genre,

@@ -91,7 +91,7 @@ class PodcastRSSFeedTestCase(TestCase):
             metadata["official_site"], "http://www.bbc.co.uk/programmes/b006qykl"
         )
         self.assertEqual(metadata["genre"], ["History"])
-        self.assertEqual(metadata["hosts"], ["BBC Radio 4"])
+        self.assertEqual(metadata["host"], ["BBC Radio 4"])
         self.assertIsNotNone(site.get_item().recent_episodes[0].title)
         self.assertIsNotNone(site.get_item().recent_episodes[0].link)
         self.assertIsNotNone(site.get_item().recent_episodes[0].media_url)
@@ -108,7 +108,7 @@ class PodcastRSSFeedTestCase(TestCase):
             metadata["official_site"], "https://www.ximalaya.com/qita/51101122/"
         )
         self.assertEqual(metadata["genre"], ["人文国学"])
-        self.assertEqual(metadata["hosts"], ["看理想vistopia"])
+        self.assertEqual(metadata["host"], ["看理想vistopia"])
         self.assertIsNotNone(site.get_item().recent_episodes[0].title)
         self.assertIsNotNone(site.get_item().recent_episodes[0].link)
         self.assertIsNotNone(site.get_item().recent_episodes[0].media_url)
@@ -123,7 +123,7 @@ class PodcastRSSFeedTestCase(TestCase):
         self.assertEqual(metadata["title"], "跳岛FM")
         self.assertEqual(metadata["official_site"], "https://tiaodao.typlog.io/")
         self.assertEqual(metadata["genre"], ["Arts", "Books"])
-        self.assertEqual(metadata["hosts"], ["中信出版·大方"])
+        self.assertEqual(metadata["host"], ["中信出版·大方"])
         self.assertIsNotNone(site.get_item().recent_episodes[0].title)
         self.assertIsNotNone(site.get_item().recent_episodes[0].link)
         self.assertIsNotNone(site.get_item().recent_episodes[0].media_url)

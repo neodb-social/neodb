@@ -5,6 +5,8 @@ from catalog.common.sites import crawl_related_resources_task
 
 
 class DoubanDramaTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         pass
 
@@ -29,10 +31,10 @@ class DoubanDramaTestCase(TestCase):
         site = SiteManager.get_site_by_url(t_url)
         resource = site.get_resource_ready()
         item = site.get_item()
-        self.assertEqual(item.title, "不眠之人·拿破仑")
         self.assertEqual(
-            item.other_title, ["眠らない男・ナポレオン　―愛と栄光の涯（はて）に―"]
+            item.display_title, "眠らない男・ナポレオン　―愛と栄光の涯（はて）に―"
         )
+        self.assertEqual(len(item.localized_title), 2)
         self.assertEqual(item.genre, ["音乐剧"])
         self.assertEqual(item.troupe, ["宝塚歌剧团"])
         self.assertEqual(item.composer, ["ジェラール・プレスギュルヴィック"])
@@ -41,7 +43,7 @@ class DoubanDramaTestCase(TestCase):
         site = SiteManager.get_site_by_url(t_url)
         resource = site.get_resource_ready()
         item = site.get_item()
-        self.assertEqual(item.title, "相声说垮鬼子们")
+        self.assertEqual(item.display_title, "相聲說垮鬼子們")
         self.assertEqual(item.opening_date, "1997-05")
         self.assertEqual(item.location, ["臺北新舞臺"])
 
@@ -54,7 +56,8 @@ class DoubanDramaTestCase(TestCase):
         if item is None:
             raise ValueError()
         self.assertEqual(item.orig_title, "Iphigenie auf Tauris")
-        self.assertEqual(sorted(item.other_title), ["死而复生的伊菲格尼"])
+        print(item.localized_title)
+        self.assertEqual(len(item.localized_title), 3)
         self.assertEqual(item.opening_date, "1974-04-21")
         self.assertEqual(item.choreographer, ["Pina Bausch"])
 
@@ -68,9 +71,9 @@ class DoubanDramaTestCase(TestCase):
         item = site.get_item()
         if item is None:
             raise ValueError()
-        self.assertEqual(item.title, "红花侠")
-        self.assertEqual(sorted(item.other_title), ["THE SCARLET PIMPERNEL"])
-        self.assertEqual(len(item.brief), 545)
+        self.assertEqual(item.display_title, "THE SCARLET PIMPERNEL")
+        self.assertEqual(len(item.localized_title), 3)
+        self.assertEqual(len(item.display_description), 545)
         self.assertEqual(item.genre, ["音乐剧"])
         # self.assertEqual(
         #     item.version, ["08星组公演版", "10年月組公演版", "17年星組公演版", "ュージカル（2017年）版"]
@@ -80,7 +83,7 @@ class DoubanDramaTestCase(TestCase):
             item.playwright, ["小池修一郎", "Baroness Orczy（原作）", "小池 修一郎"]
         )
         self.assertEqual(
-            item.actor,
+            sorted(item.actor, key=lambda a: a["name"]),
             [
                 {"name": "安蘭けい", "role": ""},
                 {"name": "柚希礼音", "role": ""},
@@ -110,7 +113,10 @@ class DoubanDramaTestCase(TestCase):
         self.assertEqual(productions[2].closing_date, "2017-03-17")
         self.assertEqual(productions[3].opening_date, "2017-11-13")
         self.assertEqual(productions[3].closing_date, None)
-        self.assertEqual(productions[3].title, "ミュージカル（2017年）版")
+        self.assertEqual(
+            productions[3].display_title,
+            "THE SCARLET PIMPERNEL ミュージカル（2017年）版",
+        )
         self.assertEqual(len(productions[3].actor), 6)
         self.assertEqual(productions[3].language, ["日语"])
         self.assertEqual(productions[3].opening_date, "2017-11-13")

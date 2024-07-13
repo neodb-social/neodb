@@ -3,6 +3,7 @@ import logging
 from catalog.book.utils import detect_isbn_asin
 from catalog.common import *
 from catalog.models import *
+from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)
 
@@ -101,7 +102,14 @@ class Bangumi(AbstractSite):
             raw_img, ext = BasicImageDownloader.download_image(
                 img_url, None, headers={}
             )
+        titles = set(
+            [title] + (other_title or []) + ([orig_title] if orig_title else [])
+        )
+        localized_title = [{"lang": detect_language(t), "text": t} for t in titles]
+        localized_desc = [{"lang": detect_language(brief), "text": brief}]
         data = {
+            "localized_title": localized_title,
+            "localized_description": localized_desc,
             "preferred_model": model,
             "title": title,
             "orig_title": orig_title,

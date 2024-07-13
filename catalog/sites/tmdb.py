@@ -1,5 +1,13 @@
 """
 The Movie Database
+
+
+these language code from TMDB are not in currently iso-639-1
+{'iso_639_1': 'xx', 'english_name': 'No Language', 'name': 'No Language'}
+{'iso_639_1': 'sh', 'english_name': 'Serbo-Croatian', 'name': ''} - deprecated for several
+{'iso_639_1': 'mo', 'english_name': 'Moldavian', 'name': ''} - deprecated for ro-MD
+{'iso_639_1': 'cn', 'english_name': 'Cantonese', 'name': '粤语'} - faked for yue
+
 """
 
 import logging
@@ -10,13 +18,14 @@ from django.conf import settings
 from catalog.common import *
 from catalog.movie.models import *
 from catalog.tv.models import *
+from common.models.lang import PREFERRED_LANGUAGES
 
 from .douban import *
 
 _logger = logging.getLogger(__name__)
 
 
-def get_language_code():
+def _get_language_code():
     match settings.LANGUAGE_CODE:
         case "zh-hans":
             return "zh-CN"
@@ -26,14 +35,28 @@ def get_language_code():
             return "en-US"
 
 
+def _get_preferred_languages():
+    langs = {}
+    for l in PREFERRED_LANGUAGES:
+        if l == "zh":
+            langs.update({"zh-cn": "zh-CN", "zh-tw": "zh-TW", "zh-hk": "zh-HK"})
+        else:
+            langs[l] = l
+    return langs
+
+
+TMDB_DEFAULT_LANG = _get_language_code()
+TMDB_PREFERRED_LANGS = _get_preferred_languages()
+
+
 def search_tmdb_by_imdb_id(imdb_id):
-    tmdb_api_url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&external_source=imdb_id"
+    tmdb_api_url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&external_source=imdb_id"
     res_data = BasicDownloader(tmdb_api_url).download().json()
     return res_data
 
 
 def query_tmdb_tv_episode(tv, season, episode):
-    tmdb_api_url = f"https://api.themoviedb.org/3/tv/{tv}/season/{season}/episode/{episode}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids"
+    tmdb_api_url = f"https://api.themoviedb.org/3/tv/{tv}/season/{season}/episode/{episode}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&append_to_response=external_ids"
     res_data = BasicDownloader(tmdb_api_url).download().json()
     return res_data
 
@@ -58,61 +81,42 @@ class TMDB_Movie(AbstractSite):
         return f"https://www.themoviedb.org/movie/{id_value}"
 
     def scrape(self):
-        is_series = False
-        if is_series:
-            api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
-        else:
-            api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
-
-        res_data = BasicDownloader(api_url).download().json()
-
-        if is_series:
-            title = res_data["name"]
-            orig_title = res_data["original_name"]
-            year = (
-                int(res_data["first_air_date"].split("-")[0])
-                if res_data["first_air_date"]
-                else None
-            )
-            imdb_code = res_data["external_ids"]["imdb_id"]
-            showtime = (
-                [{"time": res_data["first_air_date"], "region": "首播日期"}]
-                if res_data["first_air_date"]
-                else None
-            )
-            duration = None
-        else:
-            title = res_data["title"]
-            orig_title = res_data["original_title"]
-            year = (
-                int(res_data["release_date"].split("-")[0])
-                if res_data["release_date"]
-                else None
-            )
-            showtime = (
-                [{"time": res_data["release_date"], "region": "发布日期"}]
-                if res_data["release_date"]
-                else None
-            )
-            imdb_code = res_data["imdb_id"]
-            # in minutes
-            duration = res_data["runtime"] if res_data["runtime"] else None
+        res_data = {}
+        localized_title = []
+        localized_desc = []
+        # GET api urls in all locales
+        # btw it seems no way to tell if TMDB does not have a certain translation
+        for lang, lang_param in reversed(TMDB_PREFERRED_LANGS.items()):
+            api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
+            res_data = BasicDownloader(api_url).download().json()
+            localized_title.append({"lang": lang, "text": res_data["title"]})
+            localized_desc.append({"lang": lang, "text": res_data["overview"]})
+        title = res_data["title"]
+        orig_title = res_data["original_title"]
+        year = (
+            int(res_data["release_date"].split("-")[0])
+            if res_data["release_date"]
+            else None
+        )
+        showtime = (
+            [{"time": res_data["release_date"], "region": "发布日期"}]
+            if res_data["release_date"]
+            else None
+        )
+        imdb_code = res_data["imdb_id"]
+        # in minutes
+        duration = res_data["runtime"] if res_data["runtime"] else None
 
         genre = [x["name"] for x in res_data["genres"]]
         language = list(map(lambda x: x["name"], res_data["spoken_languages"]))
         brief = res_data["overview"]
 
-        if is_series:
-            director = list(map(lambda x: x["name"], res_data["created_by"]))
-        else:
-            director = list(
-                map(
-                    lambda x: x["name"],
-                    filter(
-                        lambda c: c["job"] == "Director", res_data["credits"]["crew"]
-                    ),
-                )
+        director = list(
+            map(
+                lambda x: x["name"],
+                filter(lambda c: c["job"] == "Director", res_data["credits"]["crew"]),
             )
+        )
         playwright = list(
             map(
                 lambda x: x["name"],
@@ -128,19 +132,21 @@ class TMDB_Movie(AbstractSite):
         # other_info['Metacritic评分'] = res_data['metacriticRating']
         # other_info['奖项'] = res_data['awards']
         # other_info['TMDB_ID'] = id
-        if is_series:
-            other_info["Seasons"] = res_data["number_of_seasons"]
-            other_info["Episodes"] = res_data["number_of_episodes"]
+        # if is_series:
+        #     other_info["Seasons"] = res_data["number_of_seasons"]
+        #     other_info["Episodes"] = res_data["number_of_episodes"]
 
         # TODO: use GET /configuration to get base url
         img_url = (
             ("https://image.tmdb.org/t/p/original/" + res_data["poster_path"])
-            if res_data["poster_path"] is not None
+            if res_data.get("poster_path") is not None
             else None
         )
 
         pd = ResourceContent(
             metadata={
+                "localized_title": localized_title,
+                "localized_description": localized_desc,
                 "title": title,
                 "orig_title": orig_title,
                 "other_title": [],
@@ -192,62 +198,33 @@ class TMDB_TV(AbstractSite):
         return f"https://www.themoviedb.org/tv/{id_value}"
 
     def scrape(self):
-        is_series = True
-        if is_series:
-            api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
-        else:
-            api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
+        res_data = {}
+        localized_title = []
+        localized_desc = []
+        for lang, lang_param in reversed(TMDB_PREFERRED_LANGS.items()):
+            api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
+            res_data = BasicDownloader(api_url).download().json()
+            localized_title.append({"lang": lang, "text": res_data["name"]})
+            localized_desc.append({"lang": lang, "text": res_data["overview"]})
 
-        res_data = BasicDownloader(api_url).download().json()
-
-        if is_series:
-            title = res_data["name"]
-            orig_title = res_data["original_name"]
-            year = (
-                int(res_data["first_air_date"].split("-")[0])
-                if res_data["first_air_date"]
-                else None
-            )
-            imdb_code = res_data["external_ids"]["imdb_id"]
-            showtime = (
-                [{"time": res_data["first_air_date"], "region": "首播日期"}]
-                if res_data["first_air_date"]
-                else None
-            )
-            duration = None
-        else:
-            title = res_data["title"]
-            orig_title = res_data["original_title"]
-            year = (
-                int(res_data["release_date"].split("-")[0])
-                if res_data["release_date"]
-                else None
-            )
-            showtime = (
-                [{"time": res_data["release_date"], "region": "发布日期"}]
-                if res_data["release_date"]
-                else None
-            )
-            imdb_code = res_data["imdb_id"]
-            # in minutes
-            duration = res_data["runtime"] if res_data["runtime"] else None
-
+        title = res_data["name"]
+        orig_title = res_data["original_name"]
+        year = (
+            int(res_data["first_air_date"].split("-")[0])
+            if res_data["first_air_date"]
+            else None
+        )
+        imdb_code = res_data["external_ids"]["imdb_id"]
+        showtime = (
+            [{"time": res_data["first_air_date"], "region": "首播日期"}]
+            if res_data["first_air_date"]
+            else None
+        )
+        duration = None
         genre = [x["name"] for x in res_data["genres"]]
-
         language = list(map(lambda x: x["name"], res_data["spoken_languages"]))
         brief = res_data["overview"]
-
-        if is_series:
-            director = list(map(lambda x: x["name"], res_data["created_by"]))
-        else:
-            director = list(
-                map(
-                    lambda x: x["name"],
-                    filter(
-                        lambda c: c["job"] == "Director", res_data["credits"]["crew"]
-                    ),
-                )
-            )
+        director = list(map(lambda x: x["name"], res_data["created_by"]))
         playwright = list(
             map(
                 lambda x: x["name"],
@@ -256,24 +233,15 @@ class TMDB_TV(AbstractSite):
         )
         actor = list(map(lambda x: x["name"], res_data["credits"]["cast"]))
         area = []
-
         other_info = {}
-        # other_info['TMDB评分'] = res_data['vote_average']
-        # other_info['分级'] = res_data['contentRating']
-        # other_info['Metacritic评分'] = res_data['metacriticRating']
-        # other_info['奖项'] = res_data['awards']
-        # other_info['TMDB_ID'] = id
-        if is_series:
-            other_info["Seasons"] = res_data["number_of_seasons"]
-            other_info["Episodes"] = res_data["number_of_episodes"]
-
+        other_info["Seasons"] = res_data["number_of_seasons"]
+        other_info["Episodes"] = res_data["number_of_episodes"]
         # TODO: use GET /configuration to get base url
         img_url = (
             ("https://image.tmdb.org/t/p/original/" + res_data["poster_path"])
-            if res_data["poster_path"] is not None
+            if res_data.get("poster_path") is not None
             else None
         )
-
         season_links = list(
             map(
                 lambda s: {
@@ -288,6 +256,8 @@ class TMDB_TV(AbstractSite):
         )
         pd = ResourceContent(
             metadata={
+                "localized_title": localized_title,
+                "localized_description": localized_desc,
                 "title": title,
                 "orig_title": orig_title,
                 "other_title": [],
@@ -313,7 +283,6 @@ class TMDB_TV(AbstractSite):
         )
         if imdb_code:
             pd.lookup_ids[IdType.IMDB] = imdb_code
-
         if pd.metadata["cover_image_url"]:
             imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
             try:
@@ -357,22 +326,31 @@ class TMDB_TVSeason(AbstractSite):
         show_resource = site.get_resource_ready(auto_create=False, auto_link=False)
         if not show_resource:
             raise ValueError(f"TMDB: failed to get show for season {self.url}")
-        api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
-        d = BasicDownloader(api_url).download().json()
-        if not d.get("id"):
+
+        res_data = {}
+        localized_title = []
+        localized_desc = []
+        for lang, lang_param in reversed(TMDB_PREFERRED_LANGS.items()):
+            api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
+            res_data = BasicDownloader(api_url).download().json()
+            localized_title.append({"lang": lang, "text": res_data["name"]})
+            localized_desc.append({"lang": lang, "text": res_data["overview"]})
+        if not res_data.get("id"):
             raise ParseError(self, "id")
-        pd = ResourceContent(
-            metadata=_copy_dict(
-                d,
-                {
-                    "name": "title",
-                    "overview": "brief",
-                    "air_date": "air_date",
-                    "season_number": 0,
-                    "external_ids": [],
-                },
-            )
+        d = res_data
+        r = _copy_dict(
+            res_data,
+            {
+                "name": "title",
+                "overview": "brief",
+                "air_date": "air_date",
+                "season_number": 0,
+                "external_ids": [],
+            },
         )
+        r["localized_title"] = localized_title
+        r["localized_description"] = localized_desc
+        pd = ResourceContent(metadata=r)
         pd.metadata["title"] = (
             show_resource.metadata["title"] + " " + pd.metadata["title"]
         )
@@ -388,12 +366,12 @@ class TMDB_TVSeason(AbstractSite):
         pd.lookup_ids[IdType.IMDB] = d["external_ids"].get("imdb_id")
         pd.metadata["cover_image_url"] = (
             ("https://image.tmdb.org/t/p/original/" + d["poster_path"])
-            if d["poster_path"]
+            if d.get("poster_path")
             else None
         )
         pd.metadata["title"] = (
             pd.metadata["title"]
-            if pd.metadata["title"]
+            if pd.metadata.get("title")
             else f'Season {d["season_number"]}'
         )
         pd.metadata["episode_number_list"] = list(
@@ -429,7 +407,7 @@ class TMDB_TVSeason(AbstractSite):
             )
         else:
             ep = pd.metadata["episode_number_list"][0]
-            api_url2 = f"https://api.themoviedb.org/3/tv/{v[0]}/season/{v[1]}/episode/{ep}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
+            api_url2 = f"https://api.themoviedb.org/3/tv/{v[0]}/season/{v[1]}/episode/{ep}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&append_to_response=external_ids,credits"
             d2 = BasicDownloader(api_url2).download().json()
             if not d2.get("id"):
                 raise ParseError(self, "first episode id for season")
@@ -469,7 +447,7 @@ class TMDB_TVEpisode(AbstractSite):
         episode_id = v[2]
         site = TMDB_TV(TMDB_TV.id_to_url(show_id))
         show_resource = site.get_resource_ready(auto_create=False, auto_link=False)
-        api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}/episode/{episode_id}?api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&append_to_response=external_ids,credits"
+        api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}/episode/{episode_id}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&append_to_response=external_ids,credits"
         d = BasicDownloader(api_url).download().json()
         if not d.get("id"):
             raise ParseError(self, "id")

@@ -10,11 +10,18 @@ Scraping the website directly.
 
 import json
 import logging
+from threading import local
 
 import dateparser
 
 from catalog.common import *
 from catalog.models import *
+from common.models.lang import (
+    DEFAULT_CATALOG_LANGUAGE,
+    PREFERRED_LANGUAGES,
+    detect_language,
+)
+from common.models.misc import uniq
 
 from .douban import *
 
@@ -47,27 +54,58 @@ class AppleMusic(AbstractSite):
     def id_to_url(cls, id_value):
         return f"https://music.apple.com/album/{id_value}"
 
-    def get_localized_urls(self):
-        return [
-            f"https://music.apple.com/{locale}/album/{self.id_value}"
-            for locale in ["hk", "tw", "us", "sg", "jp", "cn", "gb", "ca", "fr"]
-        ]
+    def get_locales(self):
+        locales = {}
+        for l in PREFERRED_LANGUAGES:
+            match l:
+                case "zh":
+                    locales.update({"zh": ["cn", "tw", "hk", "sg"]})
+                case "en":
+                    locales.update({"en": ["us", "gb", "ca"]})
+                case "ja":
+                    locales.update({"ja": ["jp"]})
+                case "ko":
+                    locales.update({"ko": ["kr"]})
+                case "fr":
+                    locales.update({"fr": ["fr", "ca"]})
+        if not locales:
+            locales = {"en": ["us"]}
+        return locales
 
     def scrape(self):
-        content = None
-        # it's less than ideal to waterfall thru locales, a better solution
-        # would be change ExternalResource to store preferred locale,
-        # or to find an AppleMusic API to get available locales for an album
-        for url in self.get_localized_urls():
-            try:
-                content = BasicDownloader(url, headers=self.headers).download().html()
-                _logger.info(f"got localized content from {url}")
-                break
-            except Exception:
-                pass
-        if content is None:
+        matched_content = None
+        localized_title = []
+        localized_desc = []
+        for lang, locales in self.get_locales().items():
+            for loc in locales:  # waterfall thru all locales
+                url = f"https://music.apple.com/{loc}/album/{self.id_value}"
+                try:
+                    content = (
+                        BasicDownloader(url, headers=self.headers).download().html()
+                    )
+                    _logger.info(f"got localized content from {url}")
+                    elem = content.xpath(
+                        "//script[@id='serialized-server-data']/text()"
+                    )
+                    txt: str = elem[0]  # type:ignore
+                    page_data = json.loads(txt)[0]
+                    album_data = page_data["data"]["sections"][0]["items"][0]
+                    title = album_data["title"]
+                    brief = album_data.get("modalPresentationDescriptor", {}).get(
+                        "paragraphText", ""
+                    )
+                    l = detect_language(title + " " + brief)
+                    localized_title.append({"lang": l, "text": title})
+                    if brief:
+                        localized_desc.append({"lang": l, "text": brief})
+                    if lang == DEFAULT_CATALOG_LANGUAGE or not matched_content:
+                        matched_content = content
+                    break
+                except Exception:
+                    pass
+        if matched_content is None:
             raise ParseError(self, f"localized content for {self.url}")
-        elem = content.xpath("//script[@id='serialized-server-data']/text()")
+        elem = matched_content.xpath("//script[@id='serialized-server-data']/text()")
         txt: str = elem[0]  # type:ignore
         page_data = json.loads(txt)[0]
         album_data = page_data["data"]["sections"][0]["items"][0]
@@ -99,12 +137,14 @@ class AppleMusic(AbstractSite):
                 genre[0]
             ]  # apple treat "Music" as a genre. Thus, only the first genre is obtained.
 
-        images = content.xpath("//source[@type='image/jpeg']/@srcset")
+        images = matched_content.xpath("//source[@type='image/jpeg']/@srcset")
         image_elem: str = images[0] if images else ""  # type:ignore
         image_url = image_elem.split(" ")[0] if image_elem else None
 
         pd = ResourceContent(
             metadata={
+                "localized_title": uniq(localized_title),
+                "localized_description": uniq(localized_desc),
                 "title": title,
                 "brief": brief,
                 "artist": artist,

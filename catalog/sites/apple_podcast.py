@@ -26,11 +26,12 @@ class ApplePodcast(AbstractSite):
         resp = dl.download()
         r = resp.json()["results"][0]
         feed_url = r["feedUrl"]
+        title = r["trackName"]
         pd = ResourceContent(
             metadata={
-                "title": r["trackName"],
+                "title": title,
                 "feed_url": feed_url,
-                "hosts": [r["artistName"]],
+                "host": [r["artistName"]],
                 "genres": r["genres"],
                 "cover_image_url": r["artworkUrl600"],
             }

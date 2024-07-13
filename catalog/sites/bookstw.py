@@ -3,6 +3,7 @@ import logging
 from catalog.book.models import *
 from catalog.book.utils import *
 from catalog.common import *
+from common.models.lang import detect_language
 
 from .douban import *
 
@@ -40,7 +41,7 @@ class BooksTW(AbstractSite):
         if not title:
             raise ParseError(self, "title")
         subtitle = None
-        orig_title = content.xpath("string(//h1/following-sibling::h2)")
+        orig_title = str(content.xpath("string(//h1/following-sibling::h2)"))
 
         authors = content.xpath("string(//div/ul/li[contains(text(),'作者：')])")
         authors = authors.strip().split("：", 1)[1].split(",") if authors else []  # type: ignore
@@ -116,9 +117,14 @@ class BooksTW(AbstractSite):
             "string(//div[contains(@class,'cover_img')]//img[contains(@class,'cover')]/@src)"
         )
         img_url = re.sub(r"&[wh]=\d+", "", img_url) if img_url else None  # type: ignore
-
+        localized_title = [{"lang": "zh-tw", "text": title}]
+        if orig_title:
+            localized_title.append(
+                {"lang": detect_language(orig_title), "text": orig_title}
+            )
         data = {
             "title": title,
+            "localized_title": localized_title,
             "subtitle": subtitle,
             "orig_title": orig_title,
             "author": authors,

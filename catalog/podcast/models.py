@@ -15,6 +15,7 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
+from catalog.common.models import LanguageListField
 
 
 class PodcastInSchema(ItemInSchema):
@@ -44,6 +45,8 @@ class Podcast(Item):
         default=list,
     )
 
+    language = LanguageListField()
+
     hosts = jsondata.ArrayField(
         verbose_name=_("host"),
         base_field=models.CharField(blank=True, default="", max_length=200),
@@ -55,8 +58,11 @@ class Podcast(Item):
     )
 
     METADATA_COPY_LIST = [
-        "title",
-        "brief",
+        # "title",
+        # "brief",
+        "localized_title",
+        "localized_description",
+        "language",
         "hosts",
         "genre",
         "official_site",

@@ -257,7 +257,7 @@ class BlueskyAccount(SocialAccount):
             embed = models.AppBskyEmbedExternal.Main(
                 external=models.AppBskyEmbedExternal.External(
                     title=obj.display_title,
-                    description=obj.display_description,
+                    description=obj.brief_description,
                     uri=obj.absolute_url,
                 )
             )

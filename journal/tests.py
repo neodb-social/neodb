@@ -146,7 +146,7 @@ class TagTest(TestCase):
 
     def test_cleanup(self):
         self.assertEqual(Tag.cleanup_title("# "), "_")
-        self.assertEqual(Tag.deep_cleanup_title("# C "), "c")
+        self.assertEqual(Tag.deep_cleanup_title("# C "), "text")
 
     def test_user_tag(self):
         t1 = "tag 1"
@@ -183,7 +183,7 @@ class MarkTest(TestCase):
 
         mark = Mark(self.user1.identity, self.book1)
         self.assertEqual(mark.shelf_type, ShelfType.WISHLIST)
-        self.assertEqual(mark.shelf_label, "想读的书")
+        self.assertEqual(mark.shelf_label, "books to read")
         self.assertEqual(mark.comment_text, "a gentle comment")
         self.assertEqual(mark.rating_grade, 9)
         self.assertEqual(mark.visibility, 1)

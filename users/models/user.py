@@ -247,7 +247,7 @@ class User(AbstractUser):
                 try:
                     r = httpx.get(url)
                 except Exception as e:
-                    logger.error(
+                    logger.warning(
                         f"fetch icon failed: {identity} {url}",
                         extra={"exception": e},
                     )

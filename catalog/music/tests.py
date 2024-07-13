@@ -69,7 +69,7 @@ class DoubanMusicTestCase(TestCase):
         self.assertIsInstance(site.resource.item, Album)
         self.assertEqual(site.resource.item.barcode, "0077774644020")
         self.assertEqual(site.resource.item.genre, ["摇滚"])
-        self.assertEqual(site.resource.item.other_title, ["橡胶灵魂"])
+        self.assertEqual(len(site.resource.item.localized_title), 2)
 
 
 class MultiMusicSitesTestCase(TestCase):

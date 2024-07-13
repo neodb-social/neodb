@@ -509,7 +509,7 @@ class Content(Piece):
         raise NotImplementedError("subclass should override this")
 
     @property
-    def display_description(self) -> str:
+    def brief_description(self) -> str:
         raise NotImplementedError("subclass should override this")
 
     class Meta:

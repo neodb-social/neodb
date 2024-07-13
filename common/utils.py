@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from discord import SyncWebhook
 from django.conf import settings
+from django.conf.locale import LANG_INFO
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.signing import b62_decode, b62_encode
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict

@@ -27,10 +27,11 @@ class MastodonSiteCheck(BaseJob):
             try:
                 api_domain = site.api_domain or site.domain_name
                 domain, api_domain, v = detect_server_info(api_domain)
+                site.server_version = v
                 site.last_reachable_date = timezone.now()
                 site.detect_configurations()
             except Exception as e:
-                logger.error(
+                logger.warning(
                     f"Failed to detect server info for {site.domain_name}/{site.api_domain}",
                     extra={"exception": e},
                 )
@@ -40,12 +41,16 @@ class MastodonSiteCheck(BaseJob):
                 if timezone.now() > site.last_reachable_date + timedelta(
                     days=self.max_unreachable_days
                 ):
+                    logger.error(
+                        f"Failed to detect server info for {site.domain_name}/{site.api_domain} disabling it."
+                    )
                     site.disabled = True
                     count_disabled += 1
             finally:
                 site.save(
                     update_fields=[
                         "star_mode",
+                        "server_version",
                         "max_status_len",
                         "last_reachable_date",
                         "disabled",

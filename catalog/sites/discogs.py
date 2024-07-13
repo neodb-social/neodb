@@ -63,10 +63,11 @@ class DiscogsRelease(AbstractSite):
         pd = ResourceContent(
             metadata={
                 "title": title,
+                "localized_title": [{"lang": "en", "text": title}],
                 "artist": artist,
                 "genre": genre,
                 "track_list": "\n".join(track_list),
-                "release_date": None,  # only year provided by API
+                # "release_date": None,  # only year provided by API
                 "company": company,
                 "media": media,
                 "disc_count": disc_count,

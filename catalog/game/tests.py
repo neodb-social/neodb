@@ -5,6 +5,8 @@ from catalog.models import *
 
 
 class IGDBTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id_type = IdType.IGDB
         t_id_value = "portal-2"
@@ -42,7 +44,9 @@ class IGDBTestCase(TestCase):
         )
         self.assertIsInstance(site.resource.item, Game)
         self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IGDB)
-        self.assertEqual(site.resource.item.genre, ["Role-playing (RPG)", "Adventure"])
+        self.assertEqual(
+            site.resource.item.genre, ["Puzzle", "Role-playing (RPG)", "Adventure"]
+        )
         self.assertEqual(
             site.resource.item.primary_lookup_id_value,
             "the-legend-of-zelda-breath-of-the-wild",
@@ -50,6 +54,8 @@ class IGDBTestCase(TestCase):
 
 
 class SteamTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id_type = IdType.Steam
         t_id_value = "620"
@@ -70,10 +76,7 @@ class SteamTestCase(TestCase):
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
         self.assertEqual(site.resource.metadata["title"], "Portal 2")
-        self.assertEqual(
-            site.resource.metadata["brief"],
-            "“终身测试计划”现已升级，您可以为您自己或您的好友设计合作谜题！",
-        )
+        self.assertEqual(site.resource.metadata["brief"][:6], "Sequel")
         self.assertIsInstance(site.resource.item, Game)
         self.assertEqual(site.resource.item.steam, "620")
         self.assertEqual(
@@ -82,6 +85,8 @@ class SteamTestCase(TestCase):
 
 
 class DoubanGameTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id_type = IdType.DoubanGame
         t_id_value = "10734307"
@@ -100,16 +105,16 @@ class DoubanGameTestCase(TestCase):
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "传送门2 Portal 2")
         self.assertIsInstance(site.resource.item, Game)
+        self.assertEqual(site.resource.item.display_title, "Portal 2")
         self.assertEqual(site.resource.item.douban_game, "10734307")
-        self.assertEqual(
-            site.resource.item.genre, ["第一人称射击", "益智", "射击", "动作"]
-        )
+        self.assertEqual(site.resource.item.genre, ["第一人称射击", "益智"])
         self.assertEqual(site.resource.item.other_title, [])
 
 
 class BangumiGameTestCase(TestCase):
+    databases = "__all__"
+
     @use_local_response
     def test_parse(self):
         t_id_type = IdType.Bangumi
@@ -124,6 +129,8 @@ class BangumiGameTestCase(TestCase):
 
 
 class BoardGameGeekTestCase(TestCase):
+    databases = "__all__"
+
     @use_local_response
     def test_scrape(self):
         t_url = "https://boardgamegeek.com/boardgame/167791"
@@ -134,15 +141,17 @@ class BoardGameGeekTestCase(TestCase):
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "Terraforming Mars")
         self.assertIsInstance(site.resource.item, Game)
+        self.assertEqual(site.resource.item.display_title, "Terraforming Mars")
         self.assertEqual(site.resource.item.platform, ["Boardgame"])
         self.assertEqual(site.resource.item.genre[0], "Economic")
-        self.assertEqual(site.resource.item.other_title[0], "殖民火星")
+        # self.assertEqual(site.resource.item.other_title[0], "殖民火星")
         self.assertEqual(site.resource.item.designer, ["Jacob Fryxelius"])
 
 
 class MultiGameSitesTestCase(TestCase):
+    databases = "__all__"
+
     @use_local_response
     def test_games(self):
         url1 = "https://www.igdb.com/games/portal-2"

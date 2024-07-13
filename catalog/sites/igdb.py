@@ -129,6 +129,8 @@ class IGDB(AbstractSite):
                 steam_url = website["url"]
         pd = ResourceContent(
             metadata={
+                "localized_title": [{"lang": "en", "text": r["name"]}],
+                "localized_description": [{"lang": "en", "text": brief}],
                 "title": r["name"],
                 "other_title": [],
                 "developer": [developer] if developer else [],

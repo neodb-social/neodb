@@ -39,9 +39,11 @@ class Game(Item):
     douban_game = PrimaryLookupIdDescriptor(IdType.DoubanGame)
 
     METADATA_COPY_LIST = [
-        "title",
-        "brief",
-        "other_title",
+        # "title",
+        # "brief",
+        # "other_title",
+        "localized_title",
+        "localized_description",
         "designer",
         "artist",
         "developer",

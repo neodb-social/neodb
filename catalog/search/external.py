@@ -11,7 +11,7 @@ from lxml import html
 from catalog.common import *
 from catalog.models import *
 from catalog.sites.spotify import get_spotify_token
-from catalog.sites.tmdb import get_language_code
+from catalog.sites.tmdb import TMDB_DEFAULT_LANG
 
 SEARCH_PAGE_SIZE = 5  # not all apis support page size
 logger = logging.getLogger(__name__)
@@ -173,7 +173,7 @@ class TheMovieDatabase:
     @classmethod
     def search(cls, q, page=1):
         results = []
-        api_url = f"https://api.themoviedb.org/3/search/multi?query={quote_plus(q)}&page={page}&api_key={settings.TMDB_API3_KEY}&language={get_language_code()}&include_adult=true"
+        api_url = f"https://api.themoviedb.org/3/search/multi?query={quote_plus(q)}&page={page}&api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&include_adult=true"
         try:
             j = requests.get(api_url, timeout=2).json()
             if j.get("results"):

@@ -13,6 +13,7 @@ from django.conf import settings
 from catalog.common import *
 from catalog.models import *
 from catalog.music.utils import upc_to_gtin_13
+from common.models.lang import detect_language
 
 from .douban import *
 
@@ -83,10 +84,11 @@ class Spotify(AbstractSite):
         isrc = None
         if res_data["external_ids"].get("isrc"):
             isrc = res_data["external_ids"].get("isrc")
-
+        lang = detect_language(title)
         pd = ResourceContent(
             metadata={
                 "title": title,
+                "localized_title": [{"lang": lang, "text": title}],
                 "artist": artist,
                 "genre": genre,
                 "track_list": track_list,

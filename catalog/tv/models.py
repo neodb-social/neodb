@@ -47,6 +47,7 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
+from catalog.common.models import LANGUAGE_CHOICES_JSONFORM, LanguageListField
 
 
 class TVShowInSchema(ItemInSchema):
@@ -112,14 +113,16 @@ class TVShow(Item):
     )
 
     METADATA_COPY_LIST = [
-        "title",
+        # "title",
+        "localized_title",
         "season_count",
         "orig_title",
-        "other_title",
+        # "other_title",
         "director",
         "playwright",
         "actor",
-        "brief",
+        # "brief",
+        "localized_description",
         "genre",
         "showtime",
         "site",
@@ -210,17 +213,8 @@ class TVShow(Item):
         blank=True,
         default=list,
     )
-    language = jsondata.ArrayField(
-        verbose_name=_("language"),
-        base_field=models.CharField(
-            blank=True,
-            default="",
-            max_length=100,
-        ),
-        null=True,
-        blank=True,
-        default=list,
-    )
+    language = LanguageListField()
+
     year = jsondata.IntegerField(verbose_name=_("year"), null=True, blank=True)
     single_episode_length = jsondata.IntegerField(
         verbose_name=_("episode length"), null=True, blank=True
@@ -374,16 +368,16 @@ class TVSeason(Item):
         blank=True,
         default=list,
     )
-    language = jsondata.ArrayField(
+    language = jsondata.JSONField(
         verbose_name=_("language"),
-        base_field=models.CharField(
-            blank=True,
-            default="",
-            max_length=100,
-        ),
+        # base_field=models.CharField(blank=True, default="", max_length=100, choices=LANGUAGE_CHOICES ),
         null=True,
         blank=True,
         default=list,
+        schema={
+            "type": "list",
+            "items": {"type": "string", "choices": LANGUAGE_CHOICES_JSONFORM},
+        },
     )
     year = jsondata.IntegerField(verbose_name=_("year"), null=True, blank=True)
     single_episode_length = jsondata.IntegerField(
