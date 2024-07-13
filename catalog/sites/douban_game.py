@@ -5,6 +5,7 @@ import dateparser
 from catalog.common import *
 from catalog.models import *
 from common.models.lang import detect_language
+from common.models.misc import uniq
 
 from .douban import DoubanDownloader
 
@@ -89,7 +90,7 @@ class DoubanGame(AbstractSite):
         )
         img_url = img_url_elem[0].strip() if img_url_elem else None
 
-        titles = set([title] + other_title + ([orig_title] if orig_title else []))
+        titles = uniq([title] + other_title + ([orig_title] if orig_title else []))
         localized_title = [{"lang": detect_language(t), "text": t} for t in titles]
         localized_desc = [{"lang": detect_language(brief), "text": brief}]
 

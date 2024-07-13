@@ -241,7 +241,20 @@ ZH_LANGUAGE_SUBTAGS = {
     "hak": _("Hakka Chinese"),
 }
 
-ZH_LOCALE_SUBTAGS_PRIO.keys()
+
+def get_preferred_locales():
+    locales = []
+    for k in PREFERRED_LANGUAGES:
+        if k == "zh":
+            locales += list(ZH_LOCALE_SUBTAGS_PRIO.keys()) + list(
+                ZH_LOCALE_SUBTAGS.keys()
+            )
+        else:
+            locales.append(k)
+    return locales
+
+
+PREFERRED_LOCALES = get_preferred_locales()
 
 
 def get_base_lang_list():

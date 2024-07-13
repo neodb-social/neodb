@@ -3,13 +3,14 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Count, F
+from django.db.models import Count, F, Q
 from django.utils import timezone
 from loguru import logger
 
 from boofilsic.settings import MIN_MARKS_FOR_DISCOVER
 from catalog.models import *
 from common.models import BaseJob, JobManager
+from common.models.lang import PREFERRED_LOCALES
 from journal.models import (
     Collection,
     Comment,
@@ -33,12 +34,23 @@ class DiscoverGenerator(BaseJob):
     interval = timedelta(hours=1)
 
     def get_popular_marked_item_ids(self, category, days, exisiting_ids):
-        item_ids = [
-            m["item_id"]
-            for m in ShelfMember.objects.filter(q_item_in_category(category))
+        qs = (
+            ShelfMember.objects.filter(q_item_in_category(category))
             .filter(created_time__gt=timezone.now() - timedelta(days=days))
             .exclude(item_id__in=exisiting_ids)
-            .values("item_id")
+        )
+        if settings.FILTER_LANGUAGE_FOR_DISCOVER:
+            q = None
+            for loc in PREFERRED_LOCALES:
+                if q:
+                    q = q | Q(item__metadata__localized_title__contains=[{"lang": loc}])
+                else:
+                    q = Q(item__metadata__localized_title__contains=[{"lang": loc}])
+            if q:
+                qs = qs.filter(q)
+        item_ids = [
+            m["item_id"]
+            for m in qs.values("item_id")
             .annotate(num=Count("item_id"))
             .filter(num__gte=MIN_MARKS)
             .order_by("-num")[:MAX_ITEMS_PER_PERIOD]
