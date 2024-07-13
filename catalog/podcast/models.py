@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from ninja import Field
+from typing_extensions import deprecated
 
 from catalog.common import (
     BaseSchema,
@@ -20,8 +22,11 @@ from catalog.common.models import LanguageListField
 
 class PodcastInSchema(ItemInSchema):
     genre: list[str]
-    hosts: list[str]
+    host: list[str]
+    language: list[str]
     official_site: str | None = None
+    # hosts is deprecated
+    hosts: list[str] = Field(deprecated=True, alias="host")
 
 
 class PodcastSchema(PodcastInSchema, BaseSchema):
@@ -61,11 +66,11 @@ class Podcast(Item):
         # "title",
         # "brief",
         "localized_title",
-        "localized_description",
         "language",
         "hosts",
         "genre",
         "official_site",
+        "localized_description",
     ]
 
     @classmethod

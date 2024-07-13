@@ -270,11 +270,12 @@ class TVSeason(Item):
     )
 
     METADATA_COPY_LIST = [
-        "title",
+        # "title",
+        "localized_title",
         "season_number",
         "episode_count",
         "orig_title",
-        "other_title",
+        # "other_title",
         "director",
         "playwright",
         "actor",
@@ -286,7 +287,8 @@ class TVSeason(Item):
         "year",
         "duration",
         "single_episode_length",
-        "brief",
+        "localized_description",
+        # "brief",
     ]
     orig_title = jsondata.CharField(
         verbose_name=_("original title"), blank=True, default="", max_length=500

@@ -23,6 +23,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
+from ninja import Field
 
 from catalog.common import (
     BaseSchema,
@@ -36,18 +37,23 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
-from catalog.common.models import SCRIPT_CHOICES
+from catalog.common.models import (
+    LOCALE_CHOICES_JSONFORM,
+    SCRIPT_CHOICES,
+    LanguageListField,
+)
+from common.models.lang import get_current_locales
 from common.models.misc import uniq
 
 from .utils import *
 
 
 class EditionInSchema(ItemInSchema):
-    subtitle: str | None = None
+    subtitle: str | None = Field(default=None, alias="display_subtitle")
     orig_title: str | None = None
     author: list[str]
     translator: list[str]
-    language: str | None = None
+    language: list[str]
     pub_house: str | None = None
     pub_year: int | None = None
     pub_month: int | None = None
@@ -63,6 +69,45 @@ class EditionSchema(EditionInSchema, BaseSchema):
     pass
 
 
+EDITION_LOCALIZED_TITLE_SCHEMA = {
+    "type": "list",
+    "items": {
+        "type": "dict",
+        "keys": {
+            "lang": {
+                "type": "string",
+                "title": _("locale"),
+                "choices": LOCALE_CHOICES_JSONFORM,
+            },
+            "text": {"type": "string", "title": _("text content")},
+        },
+        "required": ["lang", "s"],
+    },
+    "minItems": 1,
+    "maxItems": 1,
+    # "uniqueItems": True,
+}
+
+EDITION_LOCALIZED_SUBTITLE_SCHEMA = {
+    "type": "list",
+    "items": {
+        "type": "dict",
+        "keys": {
+            "lang": {
+                "type": "string",
+                "title": _("locale"),
+                "choices": LOCALE_CHOICES_JSONFORM,
+            },
+            "text": {"type": "string", "title": _("text content")},
+        },
+        "required": ["lang", "s"],
+    },
+    "minItems": 0,
+    "maxItems": 1,
+    # "uniqueItems": True,
+}
+
+
 class Edition(Item):
     if TYPE_CHECKING:
         works: "models.ManyToManyField[Work, Edition]"
@@ -76,8 +121,10 @@ class Edition(Item):
     # goodreads = LookupIdDescriptor(IdType.Goodreads)
 
     METADATA_COPY_LIST = [
-        "title",
-        "subtitle",
+        "localized_title",
+        "localized_subtitle",
+        # "title",
+        # "subtitle",
         "author",
         "pub_house",
         "pub_year",
@@ -94,9 +141,18 @@ class Edition(Item):
         "localized_description",
         "contents",
     ]
-    subtitle = jsondata.CharField(
-        _("subtitle"), null=True, blank=True, default=None, max_length=500
+    # force Edition to have only one title
+    localized_title_schema = EDITION_LOCALIZED_TITLE_SCHEMA
+    localized_subtitle = jsondata.JSONField(
+        verbose_name=_("subtitle"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=EDITION_LOCALIZED_SUBTITLE_SCHEMA,
     )
+    # subtitle = jsondata.CharField(
+    #     _("subtitle"), null=True, blank=True, default=None, max_length=500
+    # )
     orig_title = jsondata.CharField(
         _("original title"), null=True, blank=True, default=None, max_length=500
     )
@@ -114,14 +170,7 @@ class Edition(Item):
         blank=True,
         default=list,
     )
-    language = jsondata.CharField(
-        _("language"),
-        null=False,
-        blank=True,
-        default=None,
-        max_length=500,
-        choices=SCRIPT_CHOICES,
-    )
+    language = LanguageListField()
     pub_house = jsondata.CharField(
         _("publishing house"), null=True, blank=False, default=None, max_length=500
     )
@@ -147,6 +196,13 @@ class Edition(Item):
     contents = jsondata.TextField(_("contents"), null=True, blank=True, default=None)
     price = jsondata.CharField(_("price"), null=True, blank=True, max_length=500)
     imprint = jsondata.CharField(_("imprint"), null=True, blank=True, max_length=500)
+
+    def get_localized_subtitle(self) -> str | None:
+        return self.localized_title[0]["text"] if self.localized_subtitle else None
+
+    @property
+    def display_subtitle(self) -> str | None:
+        return self.get_localized_subtitle()
 
     @property
     def isbn10(self):
@@ -265,6 +321,7 @@ class Work(Item):
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
     editions = models.ManyToManyField(Edition, related_name="works")
+    language = LanguageListField()
     author = jsondata.ArrayField(
         verbose_name=_("author"),
         base_field=models.CharField(max_length=500),
@@ -272,18 +329,18 @@ class Work(Item):
         blank=True,
         default=list,
     )
-    other_title = jsondata.ArrayField(
-        verbose_name=_("other title"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
-        blank=True,
-        default=list,
-    )
+    # other_title = jsondata.ArrayField(
+    #     verbose_name=_("other title"),
+    #     base_field=models.CharField(blank=True, default="", max_length=200),
+    #     null=True,
+    #     blank=True,
+    #     default=list,
+    # )
     METADATA_COPY_LIST = [
-        "title",
-        "other_title",
+        "localized_title",
         "author",
-        "brief",
+        "language",
+        "localized_description",
     ]
     # TODO: we have many duplicates due to 302
     # a lazy fix is to remove smaller DoubanBook_Work ids

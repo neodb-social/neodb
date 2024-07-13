@@ -44,10 +44,10 @@ class Movie(Item):
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
 
     METADATA_COPY_LIST = [
-        "title",
+        # "title",
+        # "other_title",
         "localized_title",
         "orig_title",
-        # "other_title",
         "director",
         "playwright",
         "actor",

@@ -1,4 +1,5 @@
 import pprint
+import re
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
@@ -51,20 +52,36 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Done."))
 
     def localize(self):
-        for i in tqdm(Item.objects.all()):
+        for i in tqdm(
+            Item.objects.filter(is_deleted=False, merged_to_item__isnull=True)
+        ):
             localized_title = [{"lang": detect_language(i.title), "text": i.title}]
-            if hasattr(i, "orig_title") and i.orig_title:  # type:ignore
-                localized_title += [
-                    {
-                        "lang": detect_language(i.orig_title),  # type:ignore
-                        "text": i.orig_title,  # type:ignore
-                    }
-                ]
-            if hasattr(i, "other_title") and i.other_title:  # type:ignore
-                for title in i.other_title:  # type:ignore
-                    localized_title += [{"lang": detect_language(title), "text": title}]
-            localized_desc = [{"lang": detect_language(i.brief), "text": i.brief}]
+            if i.__class__ != Edition:
+                if hasattr(i, "orig_title") and i.orig_title:  # type:ignore
+                    localized_title += [
+                        {
+                            "lang": detect_language(i.orig_title),  # type:ignore
+                            "text": i.orig_title,  # type:ignore
+                        }
+                    ]
+                if hasattr(i, "other_title") and i.other_title:  # type:ignore
+                    for title in i.other_title:  # type:ignore
+                        localized_title += [
+                            {"lang": detect_language(title), "text": title}
+                        ]
+            else:
+                # Edition has no other_title
+                subtitle = i.metadata.get("subtitle")
+                i.metadata["localized_subtitle"] = (
+                    [{"lang": detect_language(subtitle), "text": subtitle}]
+                    if subtitle
+                    else []
+                )
+                lang = i.metadata.get("language")
+                if isinstance(lang, str):
+                    i.metadata["language"] = [lang]
             i.localized_title = uniq(localized_title)
+            localized_desc = [{"lang": detect_language(i.brief), "text": i.brief}]
             i.localized_description = localized_desc
             i.save(update_fields=["metadata"])
 

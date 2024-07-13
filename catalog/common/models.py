@@ -268,13 +268,15 @@ class LocalizedTitleSchema(Schema):
 
 
 class ItemInSchema(Schema):
-    title: str
-    brief: str
+    title: str = Field(alias="display_title")
+    description: str = Field(default=None, alias="display_description")
     localized_title: list[LocalizedTitleSchema] = []
     localized_description: list[LocalizedTitleSchema] = []
     cover_image_url: str | None
     rating: float | None
     rating_count: int | None
+    # brief is deprecated
+    brief: str = Field(deprecated=True, alias="display_description")
 
 
 class ItemSchema(BaseSchema, ItemInSchema):
@@ -296,13 +298,14 @@ LOCALIZED_TITLE_SCHEMA = {
         "keys": {
             "lang": {
                 "type": "string",
-                "title": _("language"),
+                "title": _("locale"),
                 "choices": LOCALE_CHOICES_JSONFORM,
             },
-            "text": {"type": "string", "title": _("content")},
+            "text": {"type": "string", "title": _("text content")},
         },
         "required": ["lang", "s"],
     },
+    "minItems": 1,
     "uniqueItems": True,
 }
 
@@ -313,10 +316,14 @@ LOCALIZED_DESCRIPTION_SCHEMA = {
         "keys": {
             "lang": {
                 "type": "string",
-                "title": _("language"),
+                "title": _("locale"),
                 "choices": LOCALE_CHOICES_JSONFORM,
             },
-            "text": {"type": "string", "title": _("content"), "widget": "textarea"},
+            "text": {
+                "type": "string",
+                "title": _("text content"),
+                "widget": "textarea",
+            },
         },
         "required": ["lang", "s"],
     },
@@ -669,8 +676,8 @@ class Item(PolymorphicModel):
                 self.primary_lookup_id_value = v
 
     METADATA_COPY_LIST = [
-        "title",
-        "brief",
+        # "title",
+        # "brief",
         "localized_title",
         "localized_description",
     ]  # list of metadata keys to copy from resource to item

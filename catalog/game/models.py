@@ -43,7 +43,6 @@ class Game(Item):
         # "brief",
         # "other_title",
         "localized_title",
-        "localized_description",
         "designer",
         "artist",
         "developer",
@@ -53,6 +52,7 @@ class Game(Item):
         "genre",
         "platform",
         "official_site",
+        "localized_description",
     ]
 
     other_title = jsondata.ArrayField(

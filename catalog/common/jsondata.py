@@ -15,6 +15,7 @@ from django.db.models import DEFERRED, fields  # type:ignore
 from django.utils import dateparse, timezone
 from django.utils.encoding import force_bytes
 from django.utils.translation import gettext_lazy as _
+from django_jsonform.forms.fields import JSONFormField as DJANGO_JSONFormField
 
 # from django.db.models import JSONField as DJANGO_JSONField
 # from jsoneditor.fields.django3_jsonfield import JSONField as DJANGO_JSONField
@@ -22,6 +23,20 @@ from django.utils.translation import gettext_lazy as _
 from django_jsonform.models.fields import ArrayField as DJANGO_ArrayField
 from django_jsonform.models.fields import JSONField as DJANGO_JSONField
 from loguru import logger
+
+
+class Patched_DJANGO_JSONField(DJANGO_JSONField):
+    def formfield(self, **kwargs):
+        schema = getattr(self.model, self.attname + "_schema", self.schema)
+        return super().formfield(
+            **{
+                "form_class": DJANGO_JSONFormField,
+                "schema": schema,
+                "model_name": self.model.__name__,
+                "file_handler": self.file_handler,
+                **kwargs,
+            }
+        )
 
 
 def _get_crypter():
@@ -299,7 +314,7 @@ class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
         return []
 
 
-class JSONField(JSONFieldMixin, DJANGO_JSONField):
+class JSONField(JSONFieldMixin, Patched_DJANGO_JSONField):
     pass
 
 

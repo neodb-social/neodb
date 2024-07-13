@@ -16,10 +16,9 @@ from typesense.exceptions import ObjectNotFound
 from catalog.models import Item
 
 SEARCHABLE_ATTRIBUTES = [
-    "title",
+    "localized_title",
+    "localized_subtitle",
     "orig_title",
-    "other_title",
-    "subtitle",
     "artist",
     "author",
     "translator",
@@ -145,23 +144,29 @@ class Indexer:
             {"name": "author", "optional": True, "locale": "zh", "type": "string[]"},
             {"name": "orig_title", "optional": True, "locale": "zh", "type": "string"},
             {"name": "pub_house", "optional": True, "locale": "zh", "type": "string"},
-            {"name": "title", "optional": True, "locale": "zh", "type": "string"},
+            # {"name": "title", "optional": True, "locale": "zh", "type": "string"},
+            {
+                "name": "localized_title",
+                "optional": True,
+                "locale": "zh",
+                "type": "string[]",
+            },
+            # {"name": "subtitle", "optional": True, "locale": "zh", "type": "string"},
+            {
+                "name": "localized_subtitle",
+                "optional": True,
+                "locale": "zh",
+                "type": "string[]",
+            },
             {
                 "name": "translator",
                 "optional": True,
                 "locale": "zh",
                 "type": "string[]",
             },
-            {"name": "subtitle", "optional": True, "locale": "zh", "type": "string"},
             {"name": "artist", "optional": True, "locale": "zh", "type": "string[]"},
             {"name": "company", "optional": True, "locale": "zh", "type": "string[]"},
             {"name": "developer", "optional": True, "locale": "zh", "type": "string[]"},
-            {
-                "name": "other_title",
-                "optional": True,
-                "locale": "zh",
-                "type": "string[]",
-            },
             {"name": "publisher", "optional": True, "locale": "zh", "type": "string[]"},
             {"name": "actor", "optional": True, "locale": "zh", "type": "string[]"},
             {"name": "director", "optional": True, "locale": "zh", "type": "string[]"},
@@ -252,7 +257,8 @@ class Indexer:
                 model.indexable_fields.append(field.name)
             elif type in INDEXABLE_TIME_TYPES:
                 model.indexable_fields_time.append(field.name)
-            elif type in INDEXABLE_DICT_TYPES:
+            elif type in INDEXABLE_DICT_TYPES and field.name != "metadata":
+                # ignore metadata since it holds other fields
                 model.indexable_fields_dict.append(field.name)
             elif type in INDEXABLE_FLOAT_TYPES:
                 model.indexable_fields_float.append(field.name)
@@ -287,9 +293,8 @@ class Indexer:
         for field in obj.__class__.indexable_fields_float:
             item[field] = float(getattr(obj, field)) if getattr(obj, field) else None
         for field in obj.__class__.indexable_fields_dict:
-            d = getattr(obj, field)
-            if d.__class__ is dict:
-                item.update(d)
+            if field.startswith("localized_"):
+                item[field] = [t["text"] for t in getattr(obj, field, [])]
 
         item["id"] = obj.uuid
         item["category"] = obj.category.value
@@ -302,7 +307,6 @@ class Indexer:
         }
         # typesense requires primary key to be named 'id', type string
         item["rating_count"] = obj.rating_count
-
         return item
 
     @classmethod
