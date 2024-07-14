@@ -16,7 +16,7 @@
 {% endblock brief %}
 {% block full %}
   <div class="multi-fields">
-    {% include '_people.html' with people=item.other_title role='other title' max=2 %}
+    {% include '_people.html' with people=item.additional_title role='other title' max=2 %}
     {% include '_people.html' with people=item.playwright role='playwright' max=2 %}
     {% include '_people.html' with people=item.composer role='composer' max=2 %}
     {% include '_people.html' with people=item.choreographer role='choreographer' max=2 %}

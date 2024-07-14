@@ -8,7 +8,7 @@
 {% load thumb %}
 <!-- class specific details -->
 {% block details %}
-  <div>{% include '_people.html' with people=item.other_title role='other title' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.additional_title role='other title' max=5 %}</div>
   <div>{% include '_people.html' with people=item.author role='author' max=5 %}</div>
 {% endblock %}
 {% block left_sidebar %}

@@ -605,14 +605,19 @@ class Item(PolymorphicModel):
                 if v:
                     return v
 
-    @property
+    @cached_property
     def display_title(self) -> str:
         # return title in current locale if possible, otherwise any title
         return (self.get_localized_title() or self.title) or (
             self.localized_title[0]["text"] if self.localized_title else ""
         )
 
-    @property
+    @cached_property
+    def additional_title(self) -> list[str]:
+        title = self.display_title
+        return [t["text"] for t in self.localized_title if t["text"] != title]
+
+    @cached_property
     def display_description(self) -> str:
         return (
             self.get_localized_description()

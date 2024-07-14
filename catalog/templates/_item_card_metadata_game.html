@@ -6,7 +6,7 @@
     {% if item.rating %}
       <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
     {% endif %}
-    {% include '_people.html' with people=item.other_title role='other title' max=2 %}
+    {% include '_people.html' with people=item.additional_title role='other title' max=2 %}
     {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
   </div>
 {% endblock brief %}

@@ -52,9 +52,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Done."))
 
     def localize(self):
-        for i in tqdm(
-            Item.objects.filter(is_deleted=False, merged_to_item__isnull=True)
-        ):
+        c = Item.objects.all().count()
+        qs = Item.objects.filter(is_deleted=False, merged_to_item__isnull=True)
+        for i in tqdm(qs.iterator(), total=c):
             localized_title = [{"lang": detect_language(i.title), "text": i.title}]
             if i.__class__ != Edition:
                 if hasattr(i, "orig_title") and i.orig_title:  # type:ignore
@@ -78,7 +78,7 @@ class Command(BaseCommand):
                     else []
                 )
                 lang = i.metadata.get("language")
-                if isinstance(lang, str):
+                if isinstance(lang, str) and lang:
                     i.metadata["language"] = [lang]
             i.localized_title = uniq(localized_title)
             localized_desc = [{"lang": detect_language(i.brief), "text": i.brief}]

@@ -31,11 +31,6 @@
   </div>
 {% endblock brief %}
 {% block full %}
-  {% comment %} {% if item.actor %}
-        {% include '_people.html' with people=item.actor role='actor' max=2 %}
-        <br>
-  {% endif %} {% endcomment %}
-  {% include '_people.html' with people=item.other_title role='other title' max=2 %}
   <div>
     {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
   </div>

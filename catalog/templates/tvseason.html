@@ -20,7 +20,6 @@
       </div>
     {% endif %}
   {% endwith %}
-  <div>{% include '_people.html' with people=item.other_title role='other title' max=5 %}</div>
   <div>{% include '_people.html' with people=item.director role='director' max=5 %}</div>
   <div>{% include '_people.html' with people=item.playwright role='playwright' max=5 %}</div>
   <div>{% include '_people.html' with people=item.actor role='actor' max=5 %}</div>

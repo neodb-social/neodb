@@ -400,17 +400,24 @@ class TVSeason(Item):
 
     @property
     def display_title(self):
-        if self.season_number and not re.match(r"^.+第.+季$", self.title):
+        if self.season_number and self.parent_item:
             if self.parent_item and (
                 self.parent_item.season_count == 1 or not self.parent_item.season_count
             ):
-                return self.title
+                return self.parent_item.display_title
             else:
                 return _("{show_title} S{season_number}").format(
-                    show_title=self.title, season_number=self.season_number
+                    show_title=self.parent_item.display_title,
+                    season_number=self.season_number,
                 )
         else:
-            return self.title
+            return super().display_title
+
+    @property
+    def display_subtitle(self):
+        return (
+            super().display_title if self.season_number and self.parent_item else None
+        )
 
     def update_linked_items_from_external_resource(self, resource):
         for w in resource.required_resources:

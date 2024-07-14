@@ -42,11 +42,7 @@
       {% trans 'series' %}: {{ item.series }}
     {% endif %}
   </div>
-  <div>
-    {% if item.language %}
-      {% trans 'language' %}: {{ item.get_language_display }}
-    {% endif %}
-  </div>
+  <div>{% include '_people.html' with people=item.language role='language' max=10 %}</div>
   <div>
     {% if item.binding %}
       {% trans 'binding' %}: {{ item.binding }}

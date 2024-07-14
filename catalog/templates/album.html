@@ -9,7 +9,7 @@
 {% load duration %}
 <!-- class specific details -->
 {% block details %}
-  <div>{% include '_people.html' with people=item.other_title role='other title' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.additional_title role='other title' max=5 %}</div>
   <div>{% include '_people.html' with people=item.artist role='artist' max=5 %}</div>
   <div>{% include '_people.html' with people=item.company role='publisher' max=5 %}</div>
   <div>
