@@ -75,12 +75,7 @@ def _EditForm(item_model):
                         and self.instance.other_title
                     ):
                         for t in self.instance.other_title:
-                            titles.append(
-                                {
-                                    "lang": detect_language(t),
-                                    "text": self.instance.orig_title,
-                                }
-                            )
+                            titles.append({"lang": detect_language(t), "text": t})
                     if not titles:
                         titles = [
                             {"lang": DEFAULT_CATALOG_LANGUAGE, "text": "<no title>"}
