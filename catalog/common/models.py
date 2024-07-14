@@ -20,7 +20,12 @@ from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
 from catalog.common import jsondata
-from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, SCRIPT_CHOICES
+from common.models import (
+    LANGUAGE_CHOICES,
+    LOCALE_CHOICES,
+    PREFERRED_LOCALES,
+    SCRIPT_CHOICES,
+)
 from common.models.lang import get_current_locales
 from common.models.misc import uniq
 
@@ -597,7 +602,7 @@ class Item(PolymorphicModel):
 
     def get_localized_description(self) -> str | None:
         if self.localized_description:
-            locales = get_current_locales()
+            locales = get_current_locales() + PREFERRED_LOCALES
             for loc in locales:
                 v = next(
                     filter(lambda t: t["lang"] == loc, self.localized_description), {}
