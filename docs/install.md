@@ -36,7 +36,7 @@ Change essential options like `NEODB_SITE_DOMAIN` in `.env` before starting the 
 - `NEODB_SECRET_KEY` - encryption key of session data
 - `NEODB_DATA` is the path to store db/media/cache, it's `../data` by default, but can be any path that's writable
 - `NEODB_DEBUG` - set to `False` for production deployment
-- `NEODB_LANGUAGE` - default language when importing titles from 3rd party sites like TMDB and Steam, set it to one of `en` / `zh-hans` / `zh-hant`
+- `NEODB_PREFERRED_LANGUAGES` - preferred languages when importing titles from 3rd party sites like TMDB and Steam, comma-separated list of ISO-639-1 two-letter codes, 'en,zh' by default.
 
 Optionally, `robots.txt` and `logo.png` may be placed under `$NEODB_DATA/www-root/`.
 
