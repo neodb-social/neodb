@@ -241,7 +241,7 @@ ZH_LANGUAGE_SUBTAGS = {
     "hak": _("Hakka Chinese"),
 }
 RE_LOCALIZED_SEASON_NUMBERS = re.compile(
-    r"〇|一|二|三|四|五|六|七|八|九|零|十|\d|\s|\.|S|Season|#|第|季",
+    r"〇|一|二|三|四|五|六|七|八|九|零|十|\d|\s|\.|Season|Serie|S|#|第|季",
     flags=re.IGNORECASE,
 )
 
