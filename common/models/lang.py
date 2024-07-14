@@ -240,6 +240,10 @@ ZH_LANGUAGE_SUBTAGS = {
     "wuu": _("Wu Chinese"),
     "hak": _("Hakka Chinese"),
 }
+RE_LOCALIZED_SEASON_NUMBERS = re.compile(
+    r"〇|一|二|三|四|五|六|七|八|九|零|十|\d|\s|\.|S|Season|#|第|季",
+    flags=re.IGNORECASE,
+)
 
 
 def get_preferred_locales():
@@ -255,6 +259,23 @@ def get_preferred_locales():
 
 
 PREFERRED_LOCALES = get_preferred_locales()
+
+
+def localize_number(i: int) -> str:
+    lang = get_language().lower()
+    if lang == "zh" or lang.startswith("zh-"):
+        # TODO this works but can be much better
+        if i < 0 or i > 99:
+            return str(i)
+        s = "零一二三四五六七八九"
+        match i // 10:
+            case 0:
+                return s[i % 10]
+            case 1:
+                return "十" + s[i % 10]
+            case _:
+                return s[i // 10] + "十" + s[i % 10]
+    return str(i)
 
 
 def get_base_lang_list():

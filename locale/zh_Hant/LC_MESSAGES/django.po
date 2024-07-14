@@ -1370,7 +1370,7 @@ msgstr "單集長度"
 
 #: catalog/tv/models.py:409
 #, python-brace-format
-msgid "{show_title} S{season_number}"
+msgid "{show_title} Season {season_number}"
 msgstr "{show_title} 第{season_number}季"
 
 #: catalog/tv/models.py:461

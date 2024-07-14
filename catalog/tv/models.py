@@ -48,6 +48,7 @@ from catalog.common import (
     jsondata,
 )
 from catalog.common.models import LANGUAGE_CHOICES_JSONFORM, LanguageListField
+from common.models.lang import RE_LOCALIZED_SEASON_NUMBERS, localize_number
 
 
 class TVShowInSchema(ItemInSchema):
@@ -248,6 +249,9 @@ class TVShow(Item):
     def child_items(self):
         return self.all_seasons
 
+    def get_season_count(self):
+        return self.season_count or self.seasons.all().count()
+
 
 class TVSeason(Item):
     if TYPE_CHECKING:
@@ -398,26 +402,26 @@ class TVSeason(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
-    @property
+    @cached_property
     def display_title(self):
-        if self.season_number and self.parent_item:
-            if self.parent_item and (
-                self.parent_item.season_count == 1 or not self.parent_item.season_count
-            ):
+        """
+        returns season title for display:
+         - "Season Title" if it's not a bare "Season X"
+         - "Show Title" if it's the only season
+         - "Show Title Season X" with some localization
+        """
+        s = super().display_title
+        if RE_LOCALIZED_SEASON_NUMBERS.sub("", s) == "" and self.parent_item:
+            if self.parent_item.get_season_count() == 1:
                 return self.parent_item.display_title
-            else:
-                return _("{show_title} S{season_number}").format(
+            elif self.season_number:
+                return _("{show_title} Season {season_number}").format(
                     show_title=self.parent_item.display_title,
-                    season_number=self.season_number,
+                    season_number=localize_number(self.season_number),
                 )
-        else:
-            return super().display_title
-
-    @property
-    def display_subtitle(self):
-        return (
-            super().display_title if self.season_number and self.parent_item else None
-        )
+            else:
+                return f"{self.parent_item.display_title} {s}"
+        return s
 
     def update_linked_items_from_external_resource(self, resource):
         for w in resource.required_resources:

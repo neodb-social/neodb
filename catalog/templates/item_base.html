@@ -198,20 +198,20 @@
       </div>
       <div id="item-title-more" class="middle">
         <hgroup>
-          {% if item.display_subtitle %}<p>{{ item.display_subtitle }}</p>{% endif %}
-          {% if item.orig_title %}
-            <p>
-              {{ item.orig_title }}
-              <small>
-                {% if item.season_number %}Season {{ item.season_number }}{% endif %}
-              </small>
-            </p>
-          {% endif %}
-          {% if item.parent_item %}
-            <p>
+          <p>
+            {% if item.display_subtitle %}{{ item.display_subtitle }}{% endif %}
+            {% if item.orig_title and item.orig_title != item.display_title %}
+              <p>
+                {{ item.orig_title }}
+                <small>
+                  {% if item.season_number %}Season {{ item.season_number }}{% endif %}
+                </small>
+              </p>
+            {% endif %}
+            {% if item.parent_item %}
               {% trans 'part of' %} {{ item.parent_item.type.label }}: <span><a href="{{ item.parent_item.url }}"></span>{{ item.parent_item.display_title }}</a>
-            </p>
-          {% endif %}
+            {% endif %}
+          </p>
           {% if item.author or item.translator %}
             <p>
               <i>

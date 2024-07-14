@@ -592,7 +592,7 @@ class Item(PolymorphicModel):
 
     def get_localized_title(self) -> str | None:
         if self.localized_title:
-            locales = get_current_locales()
+            locales = get_current_locales() + PREFERRED_LOCALES
             for loc in locales:
                 v = next(
                     filter(lambda t: t["lang"] == loc, self.localized_title), {}
