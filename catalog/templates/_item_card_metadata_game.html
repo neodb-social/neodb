@@ -18,6 +18,6 @@
     {% include '_people.html' with people=item.publisher role='publisher' max=2 %}
   </div>
   <div>
-    {% if not hide_brief %}{{ item.brief | linebreaksbr }}{% endif %}
+    {% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}
   </div>
 {% endblock full %}

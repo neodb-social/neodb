@@ -128,8 +128,8 @@ class DiscoverGenerator(BaseJob):
                 ).count()
                 trends.append(
                     {
-                        "title": i.title,
-                        "description": i.brief,
+                        "title": i.display_title,
+                        "description": i.display_description,
                         "url": i.absolute_url,
                         "image": i.cover_image_url or "",
                         "provider_name": str(i.category.label),

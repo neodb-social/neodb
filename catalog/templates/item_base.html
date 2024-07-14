@@ -18,7 +18,7 @@
     <meta property="og:url" content="{{ item.absolute_url }}">
     {% if item.has_cover %}<meta property="og:image" content="{{ item.cover_image_url }}">{% endif %}
     <meta property="og:site_name" content="{{ site_name }}">
-    <meta property="og:description" content="{{ item.brief }}">
+    <meta property="og:description" content="{{ item.brief_description }}">
     {% if item.is_deleted or item.merged_to_item %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }} - {% trans item.category.label %} | {{ item.display_title }}</title>
     {% include "common_libs.html" %}
@@ -228,10 +228,10 @@
       <div id="item-detail" class="middle">
         <section id="item-content">
           <h5>{% trans 'overview' %}</h5>
-          {% if item.brief %}
-            <p class="tldr" _="on click toggle .tldr on me">{{ item.brief | linebreaksbr }}</p>
-          {% elif item.parent_item.brief %}
-            <p class="tldr" _="on click toggle .tldr on me">{{ item.parent_item.brief | linebreaksbr }}</p>
+          {% if item.display_description %}
+            <p class="tldr" _="on click toggle .tldr on me">{{ item.display_description | linebreaksbr }}</p>
+          {% elif item.parent_item.display_description %}
+            <p class="tldr" _="on click toggle .tldr on me">{{ item.parent_item.display_description | linebreaksbr }}</p>
           {% else %}
             <p class="empty">{% trans 'nothing so far.' %}</p>
           {% endif %}

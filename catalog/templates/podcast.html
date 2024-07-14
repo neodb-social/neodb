@@ -38,7 +38,7 @@
 window.podcastData = {
   "title": "{{ item.display_title | escapejs }}",
   "subtitle": "",
-  "description": "{{ item.brief | escapejs }}",
+  "description": "{{ item.display_description | escapejs }}",
   "cover": "{{ item.cover.url | escapejs }}",
   "feeds": [{"type": "audio", "format": "mp3", "url": "{{ item.feed_url | escapejs }}", "variant": "high"}]
 }

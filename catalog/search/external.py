@@ -36,7 +36,7 @@ class SearchResultItem:
         self.source_url = source_url
         self.display_title = title
         self.subtitle = subtitle
-        self.brief = brief
+        self.display_description = brief
         self.cover_image_url = cover_url
 
     @property

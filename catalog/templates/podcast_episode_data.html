@@ -32,7 +32,7 @@
       {{ ep.display_title }}
       <small style="color:lightgrey;">{{ ep.pub_date|date }}</small>
     </h6>
-    <small class="tldr-2 muted" _="on click toggle .tldr-2">{{ ep.brief | linebreaksbr }}</small>
+    <small class="tldr-2 muted" _="on click toggle .tldr-2">{{ ep.display_description | linebreaksbr }}</small>
   </p>
   {% if forloop.last %}
     <button class="outline"
