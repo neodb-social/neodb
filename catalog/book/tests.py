@@ -238,6 +238,10 @@ class GoogleBooksTestCase(TestCase):
         self.assertEqual(site.resource.id_type, IdType.GoogleBooks)
         self.assertEqual(site.resource.id_value, "hV--zQEACAAJ")
         self.assertEqual(site.resource.item.isbn, "9781847498571")
+        self.assertEqual(
+            site.resource.item.localized_title,
+            [{"lang": "en", "text": "1984 Nineteen Eighty-Four"}],
+        )
         self.assertEqual(site.resource.item.display_title, "1984 Nineteen Eighty-Four")
 
 
