@@ -837,11 +837,14 @@ class Takahe:
 
     @staticmethod
     def get_popular_posts(
-        days: int = 30, min_interaction: int = 1, exclude_identities: list[int] = []
+        days: int = 30,
+        min_interaction: int = 1,
+        exclude_identities: list[int] = [],
+        local_only=False,
     ):
         since = timezone.now() - timedelta(days=days)
         domains = Takahe.get_neodb_peers() + [settings.SITE_DOMAIN]
-        return (
+        qs = (
             Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
             .exclude(author_id__in=exclude_identities)
             .filter(
@@ -853,6 +856,9 @@ class Takahe:
             .filter(num_interactions__gte=min_interaction)
             .order_by("-num_interactions", "-published")
         )
+        if local_only:
+            qs = qs.filter(local=True)
+        return qs
 
     @staticmethod
     def get_recent_posts(author_pk: int, viewer_pk: int | None = None):

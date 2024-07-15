@@ -39,6 +39,8 @@ class DiscoverGenerator(BaseJob):
             .filter(created_time__gt=timezone.now() - timedelta(days=days))
             .exclude(item_id__in=exisiting_ids)
         )
+        if settings.FILTER_LOCAL_ONLY_FOR_DISCOVER:
+            qs = qs.filter(local=True)
         if settings.FILTER_LANGUAGE_FOR_DISCOVER:
             q = None
             for loc in PREFERRED_LOCALES:
@@ -58,10 +60,13 @@ class DiscoverGenerator(BaseJob):
         return item_ids
 
     def get_popular_commented_podcast_ids(self, days, exisiting_ids):
+        qs = Comment.objects.filter(q_item_in_category(ItemCategory.Podcast)).filter(
+            created_time__gt=timezone.now() - timedelta(days=days)
+        )
+        if settings.FILTER_LOCAL_ONLY_FOR_DISCOVER:
+            qs = qs.filter(local=True)
         return list(
-            Comment.objects.filter(q_item_in_category(ItemCategory.Podcast))
-            .filter(created_time__gt=timezone.now() - timedelta(days=days))
-            .annotate(p=F("item__podcastepisode__program"))
+            qs.annotate(p=F("item__podcastepisode__program"))
             .filter(p__isnull=False)
             .exclude(p__in=exisiting_ids)
             .values("p")
@@ -80,6 +85,7 @@ class DiscoverGenerator(BaseJob):
 
     def run(self):
         logger.info("Discover data update start.")
+        local = settings.FILTER_LOCAL_ONLY_FOR_DISCOVER
         gallery_categories = [
             ItemCategory.Book,
             ItemCategory.Movie,
@@ -143,42 +149,49 @@ class DiscoverGenerator(BaseJob):
                     }
                 )
         trends.sort(key=lambda x: int(x["history"][0]["accounts"]), reverse=True)
-        collection_ids = (
+
+        collections = (
             Collection.objects.filter(visibility=0)
             .annotate(num=Count("interactions"))
             .filter(num__gte=MIN_MARKS)
             .order_by("-edited_time")
-            .values_list("pk", flat=True)[:40]
         )
-        tags = TagManager.popular_tags(days=14)[:40]
+        if local:
+            collections = collections.filter(local=True)
+        collection_ids = collections.values_list("pk", flat=True)[:40]
+
+        tags = TagManager.popular_tags(days=14, local_only=local)[:40]
         excluding_identities = Takahe.get_no_discover_identities()
+
+        reviews = (
+            Review.objects.filter(visibility=0)
+            .exclude(owner_id__in=excluding_identities)
+            .order_by("-created_time")
+        )
+        if local:
+            reviews = reviews.filter(local=True)
         post_ids = (
             set(
                 Takahe.get_popular_posts(
-                    28, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities
+                    28, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
                 ).values_list("pk", flat=True)[:5]
             )
             | set(
                 Takahe.get_popular_posts(
-                    14, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities
+                    14, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
                 ).values_list("pk", flat=True)[:5]
             )
             | set(
                 Takahe.get_popular_posts(
-                    7, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities
+                    7, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
                 ).values_list("pk", flat=True)[:10]
             )
             | set(
-                Takahe.get_popular_posts(1, 0, excluding_identities).values_list(
+                Takahe.get_popular_posts(1, 0, excluding_identities, local).values_list(
                     "pk", flat=True
                 )[:3]
             )
-            | set(
-                Review.objects.filter(visibility=0)
-                .exclude(owner_id__in=excluding_identities)
-                .order_by("-created_time")
-                .values_list("posts", flat=True)[:5]
-            )
+            | set(reviews.values_list("posts", flat=True)[:5])
         )
         cache.set("public_gallery", gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)

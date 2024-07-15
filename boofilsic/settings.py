@@ -85,6 +85,8 @@ env = environ.FileAwareEnv(
     NEODB_MIN_MARKS_FOR_DISCOVER=(int, 1),
     # if True, only show title language with NEODB_PREFERRED_LANGUAGES
     NEODB_FILTER_LANGUAGE_FOR_DISCOVER=(bool, False),
+    # if True, only show items marked by local users rather than entire network
+    NEODB_FILTER_LOCAL_ONLY_FOR_DISCOVER=(bool, False),
     # Disable cron jobs, * for all
     NEODB_DISABLE_CRON_JOBS=(list, []),
     # federated search peers
@@ -218,6 +220,7 @@ DISABLE_DEFAULT_RELAY = env("NEODB_DISABLE_DEFAULT_RELAY", default=DEBUG)
 MIN_MARKS_FOR_DISCOVER = env("NEODB_MIN_MARKS_FOR_DISCOVER")
 
 FILTER_LANGUAGE_FOR_DISCOVER = env("NEODB_FILTER_LANGUAGE_FOR_DISCOVER")
+FILTER_LOCAL_ONLY_FOR_DISCOVER = env("NEODB_FILTER_LOCAL_ONLY_FOR_DISCOVER")
 
 MASTODON_ALLOWED_SITES = env("NEODB_LOGIN_MASTODON_WHITELIST")
 

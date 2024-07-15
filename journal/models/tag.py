@@ -146,17 +146,19 @@ class TagManager:
         return tags
 
     @staticmethod
-    def popular_tags(days: int = 30):
+    def popular_tags(days: int = 30, local_only: bool = False):
         t = timezone.now() - timedelta(days=days)
-        titles = (
+        tags = (
             TagMember.objects.filter(created_time__gt=t)
             .filter(parent__visibility=0)
             .annotate(title=F("parent__title"))
             .values("title")
             .annotate(total=Count("parent_id", distinct=True))
             .order_by("-total")
-            .values_list("title", flat=True)
         )
+        if local_only:
+            tags = tags.filter(local=True)
+        titles = tags.values_list("title", flat=True)
         return titles
 
     def get_item_tags(self, item: Item):
