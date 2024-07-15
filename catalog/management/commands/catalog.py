@@ -80,6 +80,8 @@ class Command(BaseCommand):
                 lang = i.metadata.get("language")
                 if isinstance(lang, str) and lang:
                     i.metadata["language"] = [lang]
+            if i.__class__ == Podcast and i.metadata.get("host", None) is None:
+                i.metadata["host"] = i.metadata.get("hosts", [])
             i.localized_title = uniq(localized_title)
             localized_desc = [{"lang": detect_language(i.brief), "text": i.brief}]
             i.localized_description = localized_desc

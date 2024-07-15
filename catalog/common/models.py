@@ -636,7 +636,7 @@ class Item(PolymorphicModel):
 
     @property
     def brief_description(self):
-        return self.display_description[:155]
+        return (self.display_description or "")[:155]
 
     @classmethod
     def get_by_url(cls, url_or_b62: str, resolve_merge=False) -> "Self | None":

@@ -137,7 +137,7 @@ class Edition(Item):
         "binding",
         "pages",
         "price",
-        "brief",
+        # "brief",
         "localized_description",
         "contents",
     ]

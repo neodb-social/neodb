@@ -165,6 +165,7 @@ class Indexer:
                 "type": "string[]",
             },
             {"name": "artist", "optional": True, "locale": "zh", "type": "string[]"},
+            {"name": "host", "optional": True, "locale": "zh", "type": "string[]"},
             {"name": "company", "optional": True, "locale": "zh", "type": "string[]"},
             {"name": "developer", "optional": True, "locale": "zh", "type": "string[]"},
             {"name": "publisher", "optional": True, "locale": "zh", "type": "string[]"},
