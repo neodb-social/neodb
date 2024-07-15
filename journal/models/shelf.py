@@ -1,6 +1,6 @@
 from datetime import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from django.conf import settings
 from django.db import connection, models
@@ -412,6 +412,12 @@ class ShelfMember(ListMember):
         if self.sibling_rating:
             data["object"]["relatedWith"].append(self.sibling_rating.ap_object)
         return data
+
+    def sync_to_timeline(self, update_mode: int = 0):
+        post = super().sync_to_timeline(update_mode)
+        if post and self.sibling_comment:
+            self.sibling_comment.link_post_id(post.id)
+        return post
 
     @cached_property
     def sibling_comment(self) -> "Comment | None":
