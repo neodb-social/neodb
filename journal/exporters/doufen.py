@@ -234,7 +234,7 @@ def export_marks_task(user):
             mark = mm.mark
             podcast = mark.item
             title = podcast.title
-            summary = ",".join(podcast.hosts or [])
+            summary = ",".join(podcast.host or [])
             tags = ",".join(mark.tags)
             world_rating = (podcast.rating / 2) if podcast.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")

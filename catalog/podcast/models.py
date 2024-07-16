@@ -52,7 +52,7 @@ class Podcast(Item):
 
     language = LanguageListField()
 
-    hosts = jsondata.ArrayField(
+    host = jsondata.ArrayField(
         verbose_name=_("host"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         default=list,
