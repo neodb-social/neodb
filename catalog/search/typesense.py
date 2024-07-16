@@ -356,7 +356,7 @@ class Indexer:
             "q": q,
             "page": page,
             "per_page": SEARCH_PAGE_SIZE,
-            "query_by": ",".join(["title", "other_title"] + SEARCHABLE_ATTRIBUTES),
+            "query_by": ",".join(SEARCHABLE_ATTRIBUTES),
             "filter_by": filters,
             # "facet_by": "category",
             "sort_by": "_text_match:desc,rating_count:desc",
