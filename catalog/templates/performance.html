@@ -8,7 +8,7 @@
 {% load thumb %}
 <!-- class specific details -->
 {% block details %}
-  <div>{% include '_people.html' with people=item.additional_title _role='other title' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.additional_title _role='' max=99 %}</div>
   <div>
     {% if item.opening_date %}
       {% trans "opening date" %}:

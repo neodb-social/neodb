@@ -15,7 +15,7 @@
       {% if item.closing_date %}~ <span>{{ item.closing_date }}</span>{% endif %}
     {% endif %}
   </div>
-  <div>{% include '_people.html' with people=item.additional_title _role='other title' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.additional_title _role='' max=99 %}</div>
   <div>{% include '_people.html' with people=item.genre role='genre' max=5 %}</div>
   <div>{% include '_people.html' with people=item.troupe role='troupe' max=5 %}</div>
   <div>{% include '_people.html' with people=item.location role='theater' max=5 %}</div>

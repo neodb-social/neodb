@@ -8,7 +8,7 @@
 {% load thumb %}
 <!-- class specific details -->
 {% block details %}
-  <div>{% include '_people.html' with people=item.additional_title role='other title' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.additional_title role='' max=99 %}</div>
   <div>{% include '_people.html' with people=item.director role='director' max=5 %}</div>
   <div>{% include '_people.html' with people=item.playwright role='playwright' max=5 %}</div>
   <div>{% include '_people.html' with people=item.actor role='actor' max=5 %}</div>

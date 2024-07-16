@@ -138,7 +138,7 @@ class PodcastRSSFeedTestCase(TestCase):
     #     metadata = site.resource.metadata
     #     self.assertEqual(metadata["title"], "大内密谈")
     #     self.assertEqual(metadata["genre"], ["other"])
-    #     self.assertEqual(metadata["hosts"], ["大内密谈"])
+    #     self.assertEqual(metadata["host"], ["大内密谈"])
     #     self.assertIsNotNone(site.get_item().recent_episodes[0].title)
     #     self.assertIsNotNone(site.get_item().recent_episodes[0].link)
     #     self.assertIsNotNone(site.get_item().recent_episodes[0].media_url)

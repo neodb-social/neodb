@@ -9,7 +9,7 @@
 <!-- class specific details -->
 {% block details %}
   <div class="tldr-2" _="on click toggle .tldr-2 on me">
-    {% include '_people.html' with people=item.additional_title _role='other title' max=99 %}
+    {% include '_people.html' with people=item.additional_title _role='' max=99 %}
   </div>
   <div>
     {% if item.release_date %}

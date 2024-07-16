@@ -67,7 +67,7 @@ class Podcast(Item):
         # "brief",
         "localized_title",
         "language",
-        "hosts",
+        "host",
         "genre",
         "official_site",
         "localized_description",
