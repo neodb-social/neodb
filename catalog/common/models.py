@@ -419,6 +419,14 @@ class Item(PolymorphicModel):
             ]
         ]
 
+    def can_soft_delete(self):
+        return (
+            not self.is_deleted
+            and not self.merged_to_item_id
+            and not self.merged_from_items.exists()
+            and not self.child_items.exists()
+        )
+
     def delete(
         self,
         using: Any = None,

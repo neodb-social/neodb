@@ -173,7 +173,7 @@ class Edition(Item):
     )
     language = LanguageListField()
     pub_house = jsondata.CharField(
-        _("publishing house"), null=True, blank=False, max_length=500
+        _("publishing house"), null=True, blank=True, max_length=500
     )
     pub_year = jsondata.IntegerField(
         _("publication year"),

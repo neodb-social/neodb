@@ -157,7 +157,7 @@
     {% endif %}
     {% if item.class_name == "tvseason" or item.class_name == "performanceproduction" %}
       <details>
-        <summary>{% trans "link to parent item" %}</summary>
+        <summary>{% trans "Link to parent item" %}</summary>
         <form method="post"
               action="{% url 'catalog:assign_parent' item.url_path item.uuid %}"
               onsubmit="return confirm('{% trans "Sure to link?" %}');">
@@ -173,7 +173,7 @@
     {% endif %}
     {% if item.class_name == "tvshow" %}
       <details>
-        <summary>{% trans "cleanup seasons" %}</summary>
+        <summary>{% trans "Cleanup seasons" %}</summary>
         <form method="post"
               action="{% url 'catalog:remove_unused_seasons' item.url_path item.uuid %}"
               onsubmit="return confirm('{% trans "This operation cannot be undone. Sure to delete?" %}');">
@@ -186,7 +186,7 @@
     {% endif %}
     {% if not item.journal_exists or request.user.is_staff %}
       <details>
-        <summary>{% trans 'merge' %}</summary>
+        <summary>{% trans 'Merge' %}</summary>
         <form method="post"
               action="{% url 'catalog:merge' item.url_path item.uuid %}">
           {% csrf_token %}
@@ -201,20 +201,13 @@
                  value="{% trans 'merge to another item' %}">
         </form>
       </details>
-      {% if item.child_items %}
-        <!-- contains child items -->
-      {% elif item.merged_from_items.all %}
-        <!-- merged from other items -->
-      {% else %}
+      {% if item.can_soft_delete %}
         <details>
           <summary>{% trans 'Delete' %}</summary>
           <form method="post"
                 action="{% url 'catalog:delete' item.url_path item.uuid %}">
             {% csrf_token %}
-            <input class="contrast"
-                   type="submit"
-                   {% if item.is_deleted or item.merged_to_item %}disabled{% endif %}
-                   value="{% trans 'delete' %}">
+            <input class="contrast" type="submit" value="{% trans 'delete' %}">
           </form>
         </details>
       {% endif %}

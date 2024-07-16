@@ -17,7 +17,7 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
-from catalog.common.models import LanguageListField
+from catalog.common.models import LIST_OF_ONE_PLUS_STR_SCHEMA, LanguageListField
 
 
 class PodcastInSchema(ItemInSchema):
@@ -52,10 +52,12 @@ class Podcast(Item):
 
     language = LanguageListField()
 
-    host = jsondata.ArrayField(
+    host = jsondata.JSONField(
         verbose_name=_("host"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
+        null=False,
+        blank=False,
         default=list,
+        schema=LIST_OF_ONE_PLUS_STR_SCHEMA,
     )
 
     official_site = jsondata.CharField(
@@ -96,6 +98,14 @@ class Podcast(Item):
     @property
     def child_items(self):
         return self.episodes.filter(is_deleted=False, merged_to_item=None)
+
+    def can_soft_delete(self):
+        # override can_soft_delete() and allow delete podcast with episodes
+        return (
+            not self.is_deleted
+            and not self.merged_to_item_id
+            and not self.merged_from_items.exists()
+        )
 
 
 class PodcastEpisode(Item):

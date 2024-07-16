@@ -119,7 +119,9 @@ def edit(request, item_path, item_uuid):
 def delete(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and item.journal_exists():
-        raise PermissionDenied(_("Insufficient permission"))
+        raise PermissionDenied(_("Item in use."))
+    if not item.can_soft_delete():
+        raise PermissionDenied(_("Item cannot be deleted."))
     if request.POST.get("sure", 0) != "1":
         return render(request, "catalog_delete.html", {"item": item})
     else:
