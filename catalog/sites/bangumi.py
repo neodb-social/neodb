@@ -91,7 +91,11 @@ class Bangumi(AbstractSite):
                 case "平台":
                     platform = [d["v"] for d in v] if type(v) == list else v
                 case "游戏类型":
-                    genre = v
+                    genre = (
+                        [i["v"] for i in v]
+                        if isinstance(v, list)
+                        else ([v] if isinstance(v, str) else [])
+                    )
                 case "官方网站" | "website":
                     site = v[0] if type(v) == list else v
 

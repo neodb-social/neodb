@@ -116,7 +116,7 @@ class DoubanGameTestCase(TestCase):
 class BangumiGameTestCase(TestCase):
     databases = "__all__"
 
-    @use_local_response
+    # @use_local_response
     def test_parse(self):
         t_id_type = IdType.Bangumi
         t_id_value = "15912"
@@ -127,6 +127,14 @@ class BangumiGameTestCase(TestCase):
         site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.url, t_url)
         self.assertEqual(site.id_value, t_id_value)
+        i = site.get_resource_ready().item
+        self.assertEqual(i.genre, ["PUZ"])
+        i = (
+            SiteManager.get_site_by_url("https://bgm.tv/subject/228086")
+            .get_resource_ready()
+            .item
+        )
+        self.assertEqual(i.genre, ["ADV", "Psychological Horror"])
 
 
 class BoardGameGeekTestCase(TestCase):
