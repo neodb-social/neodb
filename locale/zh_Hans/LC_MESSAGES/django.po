@@ -1482,7 +1482,7 @@ msgstr ""
 
 #: common/models/lang.py:33
 msgid "Tibetan"
-msgstr ""
+msgstr "藏语"
 
 #: common/models/lang.py:34
 msgid "Breton"
@@ -1530,7 +1530,7 @@ msgstr ""
 
 #: common/models/lang.py:45
 msgid "German"
-msgstr ""
+msgstr "德语"
 
 #: common/models/lang.py:46
 msgid "Divehi"
@@ -1566,7 +1566,7 @@ msgstr ""
 
 #: common/models/lang.py:54
 msgid "French"
-msgstr ""
+msgstr "法语"
 
 #: common/models/lang.py:55
 msgid "Frisian"
@@ -1666,7 +1666,7 @@ msgstr ""
 
 #: common/models/lang.py:79
 msgid "Italian"
-msgstr ""
+msgstr "意大利语"
 
 #: common/models/lang.py:80
 msgid "Javanese"
@@ -1674,7 +1674,7 @@ msgstr ""
 
 #: common/models/lang.py:81
 msgid "Japanese"
-msgstr ""
+msgstr "日语"
 
 #: common/models/lang.py:82
 msgid "Kalaallisut"
@@ -1722,7 +1722,7 @@ msgstr ""
 
 #: common/models/lang.py:93
 msgid "Korean"
-msgstr ""
+msgstr "韩语"
 
 #: common/models/lang.py:94
 msgid "Kuanyama"
@@ -1874,7 +1874,7 @@ msgstr ""
 
 #: common/models/lang.py:132
 msgid "Polish"
-msgstr ""
+msgstr "波兰语"
 
 #: common/models/lang.py:133
 msgid "Portuguese"
@@ -1898,7 +1898,7 @@ msgstr ""
 
 #: common/models/lang.py:138
 msgid "Russian"
-msgstr ""
+msgstr "俄语"
 
 #: common/models/lang.py:139
 msgid "Sango"
@@ -1946,7 +1946,7 @@ msgstr ""
 
 #: common/models/lang.py:150
 msgid "Spanish"
-msgstr ""
+msgstr "西班牙语"
 
 #: common/models/lang.py:151
 msgid "Albanian"
@@ -2038,11 +2038,11 @@ msgstr ""
 
 #: common/models/lang.py:173
 msgid "Ukrainian"
-msgstr ""
+msgstr "乌克兰语"
 
 #: common/models/lang.py:174
 msgid "Urdu"
-msgstr ""
+msgstr "乌尔都语"
 
 #: common/models/lang.py:175
 msgid "Uzbek"
@@ -2054,7 +2054,7 @@ msgstr ""
 
 #: common/models/lang.py:177
 msgid "Vietnamese"
-msgstr ""
+msgstr "越南语"
 
 #: common/models/lang.py:178
 msgid "Volapük"
@@ -2090,7 +2090,7 @@ msgstr ""
 
 #: common/models/lang.py:186
 msgid "Chinese"
-msgstr ""
+msgstr "中文"
 
 #: common/models/lang.py:187
 msgid "Pushto"
@@ -2102,7 +2102,7 @@ msgstr ""
 
 #: common/models/lang.py:189
 msgid "Arabic"
-msgstr ""
+msgstr "阿拉伯语"
 
 #: common/models/lang.py:190
 msgid "Bulgarian"
@@ -2118,7 +2118,7 @@ msgstr ""
 
 #: common/models/lang.py:193
 msgid "Persian"
-msgstr ""
+msgstr "波斯语"
 
 #: common/models/lang.py:194
 msgid "Hebrew"
@@ -2126,7 +2126,7 @@ msgstr ""
 
 #: common/models/lang.py:195
 msgid "Hindi"
-msgstr ""
+msgstr "印度语"
 
 #: common/models/lang.py:196
 msgid "Armenian"

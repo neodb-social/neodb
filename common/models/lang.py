@@ -303,6 +303,7 @@ def get_locale_choices():
         else:
             choices.append((k, v))
     choices += ZH_LOCALE_SUBTAGS.items()
+    choices.append(("zh", ISO_639_1["zh"]))
     return choices
 
 

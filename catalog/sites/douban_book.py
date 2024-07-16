@@ -1,13 +1,9 @@
-import logging
-
 from catalog.book.models import *
 from catalog.book.utils import *
 from catalog.common import *
 from common.models.lang import detect_language
 
 from .douban import *
-
-_logger = logging.getLogger(__name__)
 
 
 @SiteManager.register
