@@ -250,7 +250,7 @@ class Mark:
         else:
             # ignore most recent post if exists and create new one
             update_mode = 2
-            shelf = Shelf.objects.get(owner=self.owner, shelf_type=shelf_type)
+            shelf = self.owner.shelf_manager.get_shelf(shelf_type)
             d = {"parent": shelf, "visibility": visibility, "position": 0}
             if metadata:
                 d["metadata"] = metadata
