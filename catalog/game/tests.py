@@ -116,7 +116,7 @@ class DoubanGameTestCase(TestCase):
 class BangumiGameTestCase(TestCase):
     databases = "__all__"
 
-    # @use_local_response
+    @use_local_response
     def test_parse(self):
         t_id_type = IdType.Bangumi
         t_id_value = "15912"

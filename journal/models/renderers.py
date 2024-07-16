@@ -43,7 +43,11 @@ _RE_HTML_TAG = re.compile(r"<[^>]*>")
 
 
 def html_to_text(h: str) -> str:
-    return unescape(_RE_HTML_TAG.sub(" ", h.replace("\r", "")))
+    return unescape(
+        _RE_HTML_TAG.sub(
+            " ", h.replace("\r", "").replace("<br", "\n<br").replace("</p", "\n</p")
+        )
+    )
 
 
 def _spolier(s: str) -> str:

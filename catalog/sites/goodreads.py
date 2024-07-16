@@ -10,6 +10,7 @@ from catalog.book.models import Edition, Work
 from catalog.book.utils import detect_isbn_asin
 from catalog.common import *
 from common.models.lang import detect_language
+from journal.models.renderers import html_to_text
 
 _logger = logging.getLogger(__name__)
 
@@ -69,12 +70,12 @@ class Goodreads(AbstractSite):
             # Goodreads may return empty page template when internal service timeouts
             raise ParseError(self, "Book in __NEXT_DATA__ json")
         data["title"] = b["title"]
-        data["brief"] = b["description"]
-        lang = detect_language(b["title"] + " " + (b["description"] or ""))
+        data["brief"] = html_to_text(b["description"] or "").strip()
+        lang = detect_language(b["title"] + " " + data["brief"])
         data["localized_title"] = [{"lang": lang, "text": b["title"]}]
         data["localized_subtitle"] = []  # Goodreads does not support subtitle
         data["localized_description"] = (
-            [{"lang": lang, "text": b["description"]}] if b["description"] else []
+            [{"lang": lang, "text": data["brief"]}] if data["brief"] else []
         )
 
         if data["brief"]:
@@ -103,7 +104,7 @@ class Goodreads(AbstractSite):
             )
             data["pub_year"] = dt.year
             data["pub_month"] = dt.month
-        if b["details"].get("language"):
+        if b["details"].get("language", {}).get("name"):
             data["language"] = [b["details"].get("language").get("name")]
         data["cover_image_url"] = b["imageUrl"]
         w = next(filter(lambda x: x.get("details"), o["Work"]), None)
