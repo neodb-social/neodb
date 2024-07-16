@@ -79,8 +79,10 @@ class DiscoverGenerator(BaseJob):
     def cleanup_shows(self, items):
         seasons = [i for i in items if i.__class__ == TVSeason]
         for season in seasons:
-            if season.show in items:
-                items.remove(season.show)
+            if season.show:
+                items.remove(season)
+                if season.show not in items:
+                    items.append(season.show)
         return items
 
     def run(self):
