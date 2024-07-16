@@ -423,6 +423,16 @@ class TVSeason(Item):
                 return f"{self.parent_item.display_title} {s}"
         return s
 
+    @cached_property
+    def additional_title(self) -> list[str]:
+        title = self.display_title
+        return [
+            t["text"]
+            for t in self.localized_title
+            if t["text"] != title
+            and RE_LOCALIZED_SEASON_NUMBERS.sub("", t["text"]) != ""
+        ]
+
     def update_linked_items_from_external_resource(self, resource):
         for w in resource.required_resources:
             if w["model"] == "TVShow":

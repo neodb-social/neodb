@@ -8,6 +8,7 @@
 {% load thumb %}
 <!-- class specific details -->
 {% block details %}
+  <div>{% include '_people.html' with people=item.additional_title role='' max=99 %}</div>
   {% with item.all_seasons as seasons %}
     {% if seasons %}
       <div>
