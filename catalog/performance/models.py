@@ -109,7 +109,7 @@ class Performance(Item):
     category = ItemCategory.Performance
     url_path = "performance"
     orig_title = jsondata.CharField(
-        verbose_name=_("original name"), blank=True, default="", max_length=500
+        verbose_name=_("original name"), blank=True, max_length=500
     )
     other_title = jsondata.ArrayField(
         verbose_name=_("other title"),

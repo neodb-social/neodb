@@ -65,7 +65,7 @@ class Movie(Item):
         # "brief",
     ]
     orig_title = jsondata.CharField(
-        verbose_name=_("original title"), blank=True, default="", max_length=500
+        verbose_name=_("original title"), blank=True, max_length=500
     )
     other_title = jsondata.ArrayField(
         verbose_name=_("other title"),
@@ -130,9 +130,7 @@ class Movie(Item):
             },
         },
     )
-    site = jsondata.URLField(
-        verbose_name=_("website"), blank=True, default="", max_length=200
-    )
+    site = jsondata.URLField(verbose_name=_("website"), blank=True, max_length=200)
     area = jsondata.ArrayField(
         verbose_name=_("region"),
         base_field=models.CharField(
@@ -146,9 +144,7 @@ class Movie(Item):
     )
     language = LanguageListField()
     year = jsondata.IntegerField(verbose_name=_("year"), null=True, blank=True)
-    duration = jsondata.CharField(
-        verbose_name=_("length"), blank=True, default="", max_length=200
-    )
+    duration = jsondata.CharField(verbose_name=_("length"), blank=True, max_length=200)
     season_number = jsondata.IntegerField(
         null=True, blank=True
     )  # TODO remove after migration

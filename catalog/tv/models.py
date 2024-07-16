@@ -135,7 +135,7 @@ class TVShow(Item):
         "single_episode_length",
     ]
     orig_title = jsondata.CharField(
-        verbose_name=_("original title"), blank=True, default="", max_length=500
+        verbose_name=_("original title"), blank=True, max_length=500
     )
     other_title = jsondata.ArrayField(
         base_field=models.CharField(blank=True, default="", max_length=500),
@@ -200,9 +200,7 @@ class TVShow(Item):
             },
         },
     )
-    site = jsondata.URLField(
-        verbose_name=_("website"), blank=True, default="", max_length=200
-    )
+    site = jsondata.URLField(verbose_name=_("website"), blank=True, max_length=200)
     area = jsondata.ArrayField(
         verbose_name=_("region"),
         base_field=models.CharField(
@@ -224,7 +222,7 @@ class TVShow(Item):
         null=True, blank=True
     )  # TODO remove after migration
     duration = jsondata.CharField(
-        blank=True, default="", max_length=200
+        blank=True, max_length=200
     )  # TODO remove after migration
 
     @classmethod

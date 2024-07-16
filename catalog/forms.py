@@ -47,7 +47,7 @@ def _EditForm(item_model):
             # {'id': 547, 'primary_lookup_id_type': 'imdb', 'primary_lookup_id_value': 'tt0056923', 'cover': <ImageFieldFile: item/tmdb_movie/2024/01/12/10973d2b-1d20-4e37-8c3c-ecc89e671a80.jpg>, 'orig_title': 'Charade', 'other_title': [], 'director': ['Stanley Donen'], 'playwright': ['Peter Stone'], 'actor': ['Cary Grant', 'Audrey Hepburn', 'Walter Matthau', 'James Coburn', 'George Kennedy', 'Dominique Minot', 'Ned Glass', 'Jacques Marin', 'Paul Bonifas', 'Thomas Chelimsky', 'Marc Arian', 'Claudine Berg', 'Marcel Bernier', 'Albert Daumergue', 'Raoul Delfosse', 'Stanley Donen', 'Jean Gold', 'Chantal Goya', 'Clément Harari', 'Monte Landis', 'Bernard Musson', 'Antonio Passalia', 'Jacques Préboist', 'Peter Stone', 'Michel Thomass', 'Roger Trapp', 'Louis Viret'], 'genre': ['喜剧', '悬疑', '爱情'], 'showtime': [{'time': '1963-12-05', 'region': ''}], 'site': '', 'area': [], 'language': ['English', 'Français', 'Deutsch', 'Italiano'], 'year': 1963, 'duration': '', 'localized_title': [], 'localized_description': []}
 
         def migrate_initial(self):
-            if self.initial and self.instance:
+            if self.initial and self.instance and self.instance.pk:
                 if (
                     "localized_title" in self.Meta.fields
                     and not self.initial["localized_title"]

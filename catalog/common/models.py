@@ -308,7 +308,7 @@ LOCALIZED_TITLE_SCHEMA = {
             },
             "text": {"type": "string", "title": _("text content")},
         },
-        "required": ["lang", "s"],
+        "required": ["lang", "text"],
     },
     "minItems": 1,
     "uniqueItems": True,
@@ -330,8 +330,15 @@ LOCALIZED_DESCRIPTION_SCHEMA = {
                 "widget": "textarea",
             },
         },
-        "required": ["lang", "s"],
+        "required": ["lang", "text"],
     },
+    "uniqueItems": True,
+}
+
+LIST_OF_ONE_PLUS_STR_SCHEMA = {
+    "type": "list",
+    "items": {"type": "string", "required": True},
+    "minItems": 1,
     "uniqueItems": True,
 }
 

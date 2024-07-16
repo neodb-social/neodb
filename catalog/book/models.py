@@ -38,6 +38,7 @@ from catalog.common import (
     jsondata,
 )
 from catalog.common.models import (
+    LIST_OF_ONE_PLUS_STR_SCHEMA,
     LOCALE_CHOICES_JSONFORM,
     SCRIPT_CHOICES,
     LanguageListField,
@@ -81,7 +82,7 @@ EDITION_LOCALIZED_TITLE_SCHEMA = {
             },
             "text": {"type": "string", "title": _("text content")},
         },
-        "required": ["lang", "s"],
+        "required": ["lang", "text"],
     },
     "minItems": 1,
     "maxItems": 1,
@@ -100,7 +101,7 @@ EDITION_LOCALIZED_SUBTITLE_SCHEMA = {
             },
             "text": {"type": "string", "title": _("text content")},
         },
-        "required": ["lang", "s"],
+        "required": ["lang", "text"],
     },
     "minItems": 0,
     "maxItems": 1,
@@ -154,14 +155,14 @@ class Edition(Item):
     #     _("subtitle"), null=True, blank=True, default=None, max_length=500
     # )
     orig_title = jsondata.CharField(
-        _("original title"), null=True, blank=True, default=None, max_length=500
+        _("original title"), null=True, blank=True, max_length=500
     )
-    author = jsondata.ArrayField(
+    author = jsondata.JSONField(
         verbose_name=_("author"),
-        base_field=models.CharField(max_length=500),
         null=False,
         blank=False,
         default=list,
+        schema=LIST_OF_ONE_PLUS_STR_SCHEMA,
     )
     translator = jsondata.ArrayField(
         verbose_name=_("translator"),
@@ -172,7 +173,7 @@ class Edition(Item):
     )
     language = LanguageListField()
     pub_house = jsondata.CharField(
-        _("publishing house"), null=True, blank=False, default=None, max_length=500
+        _("publishing house"), null=True, blank=False, max_length=500
     )
     pub_year = jsondata.IntegerField(
         _("publication year"),
@@ -186,14 +187,10 @@ class Edition(Item):
         blank=True,
         validators=[MinValueValidator(1), MaxValueValidator(12)],
     )
-    binding = jsondata.CharField(
-        _("binding"), null=True, blank=True, default=None, max_length=500
-    )
+    binding = jsondata.CharField(_("binding"), null=True, blank=True, max_length=500)
     pages = jsondata.IntegerField(_("pages"), blank=True, default=None)
-    series = jsondata.CharField(
-        _("series"), null=True, blank=True, default=None, max_length=500
-    )
-    contents = jsondata.TextField(_("contents"), null=True, blank=True, default=None)
+    series = jsondata.CharField(_("series"), null=True, blank=True, max_length=500)
+    contents = jsondata.TextField(_("contents"), null=True, blank=True)
     price = jsondata.CharField(_("price"), null=True, blank=True, max_length=500)
     imprint = jsondata.CharField(_("imprint"), null=True, blank=True, max_length=500)
 

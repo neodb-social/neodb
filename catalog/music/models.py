@@ -16,6 +16,7 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
+from catalog.common.models import LIST_OF_ONE_PLUS_STR_SCHEMA
 
 
 class AlbumInSchema(ItemInSchema):
@@ -63,10 +64,12 @@ class Album(Item):
     duration = jsondata.IntegerField(
         _("length"), null=True, blank=True, help_text=_("milliseconds")
     )
-    artist = jsondata.ArrayField(
-        models.CharField(blank=True, default="", max_length=200),
+    artist = jsondata.JSONField(
         verbose_name=_("artist"),
+        null=False,
+        blank=False,
         default=list,
+        schema=LIST_OF_ONE_PLUS_STR_SCHEMA,
     )
     genre = jsondata.ArrayField(
         verbose_name=pgettext_lazy("music", "genre"),
@@ -82,7 +85,7 @@ class Album(Item):
         blank=True,
         default=list,
     )
-    track_list = jsondata.TextField(_("tracks"), blank=True, default="")
+    track_list = jsondata.TextField(_("tracks"), blank=True)
     other_title = jsondata.ArrayField(
         verbose_name=_("other title"),
         base_field=models.CharField(blank=True, default="", max_length=200),
@@ -90,11 +93,9 @@ class Album(Item):
         blank=True,
         default=list,
     )
-    album_type = jsondata.CharField(
-        _("album type"), blank=True, default="", max_length=500
-    )
-    media = jsondata.CharField(_("media type"), blank=True, default="", max_length=500)
-    bandcamp_album_id = jsondata.CharField(blank=True, default="", max_length=500)
+    album_type = jsondata.CharField(_("album type"), blank=True, max_length=500)
+    media = jsondata.CharField(_("media type"), blank=True, max_length=500)
+    bandcamp_album_id = jsondata.CharField(blank=True, max_length=500)
     disc_count = jsondata.IntegerField(
         _("number of discs"), blank=True, default="", max_length=500
     )
