@@ -188,7 +188,7 @@ services:
 
   neodb-worker:
     <<: *neodb-service
-    command: neodb-manage rqworker-pool --num-workers ${NEODB_RQ_WORKER_NUM:-4} --with-scheduler import export mastodon fetch crawl ap cron
+    command: neodb-manage rqworker --with-scheduler import export mastodon fetch crawl ap cron
     depends_on:
       migration:
         condition: service_completed_successfully

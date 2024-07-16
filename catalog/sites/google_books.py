@@ -40,7 +40,9 @@ class GoogleBooks(AbstractSite):
         pub_house = (
             b["volumeInfo"]["publisher"] if "publisher" in b["volumeInfo"] else None
         )
-        language = b["volumeInfo"]["language"] if "language" in b["volumeInfo"] else []
+        language = (
+            b["volumeInfo"]["language"].lower() if "language" in b["volumeInfo"] else []
+        )
 
         pages = b["volumeInfo"]["pageCount"] if "pageCount" in b["volumeInfo"] else None
         if "mainCategory" in b["volumeInfo"]:

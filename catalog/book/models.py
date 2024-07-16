@@ -198,7 +198,7 @@ class Edition(Item):
     imprint = jsondata.CharField(_("imprint"), null=True, blank=True, max_length=500)
 
     def get_localized_subtitle(self) -> str | None:
-        return self.localized_title[0]["text"] if self.localized_subtitle else None
+        return self.localized_subtitle[0]["text"] if self.localized_subtitle else None
 
     @property
     def display_subtitle(self) -> str | None:
