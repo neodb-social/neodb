@@ -73,7 +73,9 @@ class Goodreads(AbstractSite):
         lang = detect_language(b["title"] + " " + (b["description"] or ""))
         data["localized_title"] = [{"lang": lang, "text": b["title"]}]
         data["localized_subtitle"] = []  # Goodreads does not support subtitle
-        data["localized_description"] = [{"lang": lang, "text": b["description"]}]
+        data["localized_description"] = (
+            [{"lang": lang, "text": b["description"]}] if b["description"] else []
+        )
 
         if data["brief"]:
             data["brief"] = re.sub(

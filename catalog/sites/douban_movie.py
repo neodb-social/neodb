@@ -212,7 +212,9 @@ class DoubanMovie(AbstractSite):
             + (other_title if other_title else [])
         )
         localized_title = [{"lang": detect_language(t), "text": t} for t in titles]
-        localized_desc = [{"lang": detect_language(brief), "text": brief}]
+        localized_desc = (
+            [{"lang": detect_language(brief), "text": brief}] if brief else []
+        )
         pd = ResourceContent(
             metadata={
                 "title": title,

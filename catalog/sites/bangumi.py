@@ -106,7 +106,9 @@ class Bangumi(AbstractSite):
             [title] + (other_title or []) + ([orig_title] if orig_title else [])
         )
         localized_title = [{"lang": detect_language(t), "text": t} for t in titles]
-        localized_desc = [{"lang": detect_language(brief), "text": brief}]
+        localized_desc = (
+            [{"lang": detect_language(brief), "text": brief}] if brief else []
+        )
         data = {
             "localized_title": localized_title,
             "localized_description": localized_desc,

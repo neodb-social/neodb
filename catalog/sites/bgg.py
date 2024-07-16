@@ -56,7 +56,9 @@ class BoardGameGeek(AbstractSite):
         pd = ResourceContent(
             metadata={
                 "localized_title": localized_title,
-                "localized_description": [{"lang": "en", "text": brief}],
+                "localized_description": (
+                    [{"lang": "en", "text": brief}] if brief else []
+                ),
                 "title": title,
                 "other_title": other_title,
                 "genre": category,

@@ -88,7 +88,9 @@ class RSS(AbstractSite):
         feed = self.parse_feed_from_url(self.url)
         if not feed:
             raise ValueError(f"no feed avaialble in {self.url}")
-        title = feed["title"]
+        title = feed["title"].strip()
+        if not title:
+            raise ParseError(self, "title")
         desc = html_to_text(feed["description"])
         lang = detect_language(title + " " + desc)
         pd = ResourceContent(
@@ -96,7 +98,7 @@ class RSS(AbstractSite):
                 "title": title,
                 "brief": desc,
                 "localized_title": [{"lang": lang, "text": title}],
-                "localized_description": [{"lang": lang, "text": desc}],
+                "localized_description": [{"lang": lang, "text": desc}] if desc else [],
                 "host": (
                     [feed.get("itunes_author")] if feed.get("itunes_author") else []
                 ),

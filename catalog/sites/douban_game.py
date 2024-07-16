@@ -92,7 +92,9 @@ class DoubanGame(AbstractSite):
 
         titles = uniq([title] + other_title + ([orig_title] if orig_title else []))
         localized_title = [{"lang": detect_language(t), "text": t} for t in titles]
-        localized_desc = [{"lang": detect_language(brief), "text": brief}]
+        localized_desc = (
+            [{"lang": detect_language(brief), "text": brief}] if brief else []
+        )
 
         pd = ResourceContent(
             metadata={

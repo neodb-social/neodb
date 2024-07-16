@@ -90,7 +90,7 @@ class DoubanMusic(AbstractSite):
         data = {
             "title": title,
             "localized_title": localized_title,
-            "localized_description": [{"lang": lang, "text": brief}],
+            "localized_description": [{"lang": lang, "text": brief}] if brief else [],
             "artist": artist,
             "genre": genre,
             "release_date": release_date,
