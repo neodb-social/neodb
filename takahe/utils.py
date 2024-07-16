@@ -79,6 +79,7 @@ class Takahe:
                 user.email = handler
                 user.save()
         domain = Domain.objects.get(domain=settings.SITE_INFO["site_domain"])
+        # TODO add transaction protection here
         identity = Identity.objects.filter(username=u.username, local=True).first()
         if not identity:
             logger.info(f"Creating takahe identity {u}@{domain}")
@@ -91,6 +92,7 @@ class Takahe:
                 local=True,
                 discoverable=True,
             )
+        if not identity.private_key and not identity.public_key:
             identity.generate_keypair()
             identity.ensure_uris()
         if not user.identities.filter(pk=identity.pk).exists():
