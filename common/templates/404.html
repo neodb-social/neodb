@@ -17,7 +17,7 @@
     <main class="container">
       <article class="error">
         <header>
-          <h3>🤷🏻 {{ exception|default:"" }}</h3>
+          <h3>🤷🏻 {% trans "Something is missing" %}</h3>
         </header>
         {% blocktrans %}You may have visited an incorrect URL, or the content you are looking for has been deleted by the author.{% endblocktrans %}
         <br>
