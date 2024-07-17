@@ -74,14 +74,12 @@ class Goodreads(AbstractSite):
         lang = detect_language(b["title"] + " " + data["brief"])
         data["localized_title"] = [{"lang": lang, "text": b["title"]}]
         data["localized_subtitle"] = []  # Goodreads does not support subtitle
+        if data["brief"]:
+            data["brief"] = html_to_text(data["brief"])
         data["localized_description"] = (
             [{"lang": lang, "text": data["brief"]}] if data["brief"] else []
         )
-
-        if data["brief"]:
-            data["brief"] = re.sub(
-                r"<[^>]*>", "", data["brief"].replace("<br />", "\n")
-            )
+        data["author"] = [c["name"] for c in o["Contributor"] if c.get("name")]
         ids = {}
         t, n = detect_isbn_asin(b["details"].get("asin"))
         if t:
@@ -159,7 +157,7 @@ class Goodreads_Work(AbstractSite):
             metadata={
                 "title": title,
                 "localized_title": [{"lang": "en", "text": title}],
-                "author": author,
+                "author": [author] if author else [],
                 "first_published": first_published,
             }
         )

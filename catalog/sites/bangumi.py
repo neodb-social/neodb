@@ -75,7 +75,11 @@ class Bangumi(AbstractSite):
             v = i["value"]
             match k:
                 case "别名":
-                    other_title = [d["v"] for d in v] if type(v) == list else v
+                    other_title = (
+                        [d["v"] for d in v]
+                        if type(v) == list
+                        else ([v] if isinstance(v, str) else [])
+                    )
                 case "imdb_id":
                     imdb_code = v
                 case "isbn":
@@ -87,12 +91,20 @@ class Bangumi(AbstractSite):
                 case "导演":
                     director = v
                 case "作者":
-                    authors = [d["v"] for d in v] if type(v) == list else v
+                    authors = (
+                        [d["v"] for d in v]
+                        if type(v) == list
+                        else ([v] if isinstance(v, str) else [])
+                    )
                 case "平台":
-                    platform = [d["v"] for d in v] if type(v) == list else v
+                    platform = (
+                        [d["v"] for d in v]
+                        if type(v) == list
+                        else ([v] if isinstance(v, str) else [])
+                    )
                 case "游戏类型":
                     genre = (
-                        [i["v"] for i in v]
+                        [d["v"] for d in v]
                         if isinstance(v, list)
                         else ([v] if isinstance(v, str) else [])
                     )
