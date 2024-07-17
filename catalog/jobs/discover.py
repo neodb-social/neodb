@@ -165,7 +165,7 @@ class DiscoverGenerator(BaseJob):
         tags = TagManager.popular_tags(days=14, local_only=local)[:40]
         excluding_identities = Takahe.get_no_discover_identities()
 
-        if settings.NEODB_DISCOVER_SHOW_POPULAR_POSTS:
+        if settings.DISCOVER_SHOW_POPULAR_POSTS:
             reviews = (
                 Review.objects.filter(visibility=0)
                 .exclude(owner_id__in=excluding_identities)

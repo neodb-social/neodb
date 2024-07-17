@@ -753,6 +753,16 @@ class Identity(models.Model):
                 identity=target, subject_identity=self, type=type, **kwargs
             )
 
+    def local_icon_url(self):
+        if self.local:
+            return (
+                self.icon.url
+                if self.icon
+                else self.icon_uri or settings.SITE_INFO["user_icon"]
+            )
+        else:
+            return f"/proxy/identity_icon/{self.pk}/"
+
 
 class Follow(models.Model):
     """

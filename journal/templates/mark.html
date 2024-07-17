@@ -20,7 +20,10 @@
       <form method="post" action="{% url 'journal:mark' item.uuid %}">
         {% csrf_token %}
         {% if shelf_statuses %}
-          <input type="hidden" id="mark-status" name="status" value="{{ shelf_type }}">
+          <input type="hidden"
+                 id="mark-status"
+                 name="status"
+                 value="{{ shelf_type |default:'wishlist' }}">
           <div class="grid mark-line">
             <div>
               <div role="group">
