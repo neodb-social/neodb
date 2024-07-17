@@ -263,8 +263,13 @@ def discover(request):
         layout = request.user.preference.discover_layout
         identity = request.user.identity
         announcements = []
-        post_ids = cache.get("popular_posts", [])
-        popular_posts = Takahe.get_posts(post_ids).order_by("-published")
+        if settings.DISCOVER_SHOW_POPULAR_POSTS:
+            post_ids = cache.get("popular_posts", [])
+            popular_posts = Takahe.get_posts(post_ids).order_by("-published")
+        else:
+            popular_posts = Takahe.get_public_posts(settings.DISCOVER_SHOW_LOCAL_ONLY)[
+                :20
+            ]
     else:
         identity = None
         layout = []

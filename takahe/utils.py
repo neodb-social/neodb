@@ -838,6 +838,17 @@ class Takahe:
         )
 
     @staticmethod
+    def get_public_posts(local_only=False):
+        qs = (
+            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
+            .filter(visibility__in=[0, 4])
+            .order_by("-published")
+        )
+        if local_only:
+            qs = qs.filter(local=True)
+        return qs
+
+    @staticmethod
     def get_popular_posts(
         days: int = 30,
         min_interaction: int = 1,

@@ -87,9 +87,9 @@
               <li class="card">
                 <a href="{{ item.url }}" title="{{ item.display_title }}">
                   <img src="{{ item.cover|thumb:'normal' }}"
-                       alt="{{ item.display_title }}"
+                       alt="{{ item.title }}"
                        loading="lazy">
-                  <div class="card-title">{{ item.display_title }}</div>
+                  <div class="card-title">{{ item.title }}</div>
                 </a>
               </li>
             {% endfor %}

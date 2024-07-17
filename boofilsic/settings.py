@@ -84,9 +84,13 @@ env = environ.FileAwareEnv(
     # Number of marks required for an item to be included in discover
     NEODB_MIN_MARKS_FOR_DISCOVER=(int, 1),
     # if True, only show title language with NEODB_PREFERRED_LANGUAGES
-    NEODB_FILTER_LANGUAGE_FOR_DISCOVER=(bool, False),
+    NEODB_DISCOVER_FILTER_LANGUAGE=(bool, False),
     # if True, only show items marked by local users rather than entire network
-    NEODB_FILTER_LOCAL_ONLY_FOR_DISCOVER=(bool, False),
+    NEODB_DISCOVER_SHOW_LOCAL_ONLY=(bool, False),
+    # if True, show popular public posts instead of recent ones.
+    NEODB_DISCOVER_SHOW_POPULAR_POSTS=(bool, False),
+    # update popular items every X minutes.
+    NEODB_DISCOVER_UPDATE_INTERVAL=(int, 60),
     # Disable cron jobs, * for all
     NEODB_DISABLE_CRON_JOBS=(list, []),
     # federated search peers
@@ -219,8 +223,10 @@ DISABLE_DEFAULT_RELAY = env("NEODB_DISABLE_DEFAULT_RELAY", default=DEBUG)
 
 MIN_MARKS_FOR_DISCOVER = env("NEODB_MIN_MARKS_FOR_DISCOVER")
 
-FILTER_LANGUAGE_FOR_DISCOVER = env("NEODB_FILTER_LANGUAGE_FOR_DISCOVER")
-FILTER_LOCAL_ONLY_FOR_DISCOVER = env("NEODB_FILTER_LOCAL_ONLY_FOR_DISCOVER")
+DISCOVER_UPDATE_INTERVAL = env("NEODB_DISCOVER_UPDATE_INTERVAL")
+DISCOVER_FILTER_LANGUAGE = env("NEODB_DISCOVER_FILTER_LANGUAGE")
+DISCOVER_SHOW_LOCAL_ONLY = env("NEODB_DISCOVER_SHOW_LOCAL_ONLY")
+DISCOVER_SHOW_POPULAR_POSTS = env("NEODB_DISCOVER_SHOW_POPULAR_POSTS")
 
 MASTODON_ALLOWED_SITES = env("NEODB_LOGIN_MASTODON_WHITELIST")
 

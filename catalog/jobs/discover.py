@@ -31,7 +31,7 @@ DAYS_FOR_TRENDS = 3
 
 @JobManager.register
 class DiscoverGenerator(BaseJob):
-    interval = timedelta(hours=1)
+    interval = timedelta(minutes=settings.DISCOVER_UPDATE_INTERVAL)
 
     def get_popular_marked_item_ids(self, category, days, exisiting_ids):
         qs = (
@@ -39,9 +39,9 @@ class DiscoverGenerator(BaseJob):
             .filter(created_time__gt=timezone.now() - timedelta(days=days))
             .exclude(item_id__in=exisiting_ids)
         )
-        if settings.FILTER_LOCAL_ONLY_FOR_DISCOVER:
+        if settings.DISCOVER_SHOW_LOCAL_ONLY:
             qs = qs.filter(local=True)
-        if settings.FILTER_LANGUAGE_FOR_DISCOVER:
+        if settings.DISCOVER_FILTER_LANGUAGE:
             q = None
             for loc in PREFERRED_LOCALES:
                 if q:
@@ -63,7 +63,7 @@ class DiscoverGenerator(BaseJob):
         qs = Comment.objects.filter(q_item_in_category(ItemCategory.Podcast)).filter(
             created_time__gt=timezone.now() - timedelta(days=days)
         )
-        if settings.FILTER_LOCAL_ONLY_FOR_DISCOVER:
+        if settings.DISCOVER_SHOW_LOCAL_ONLY:
             qs = qs.filter(local=True)
         return list(
             qs.annotate(p=F("item__podcastepisode__program"))
@@ -87,7 +87,7 @@ class DiscoverGenerator(BaseJob):
 
     def run(self):
         logger.info("Discover data update start.")
-        local = settings.FILTER_LOCAL_ONLY_FOR_DISCOVER
+        local = settings.DISCOVER_SHOW_LOCAL_ONLY
         gallery_categories = [
             ItemCategory.Book,
             ItemCategory.Movie,
@@ -165,36 +165,39 @@ class DiscoverGenerator(BaseJob):
         tags = TagManager.popular_tags(days=14, local_only=local)[:40]
         excluding_identities = Takahe.get_no_discover_identities()
 
-        reviews = (
-            Review.objects.filter(visibility=0)
-            .exclude(owner_id__in=excluding_identities)
-            .order_by("-created_time")
-        )
-        if local:
-            reviews = reviews.filter(local=True)
-        post_ids = (
-            set(
-                Takahe.get_popular_posts(
-                    28, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
-                ).values_list("pk", flat=True)[:5]
+        if settings.NEODB_DISCOVER_SHOW_POPULAR_POSTS:
+            reviews = (
+                Review.objects.filter(visibility=0)
+                .exclude(owner_id__in=excluding_identities)
+                .order_by("-created_time")
             )
-            | set(
-                Takahe.get_popular_posts(
-                    14, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
-                ).values_list("pk", flat=True)[:5]
+            if local:
+                reviews = reviews.filter(local=True)
+            post_ids = (
+                set(
+                    Takahe.get_popular_posts(
+                        28, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
+                    ).values_list("pk", flat=True)[:5]
+                )
+                | set(
+                    Takahe.get_popular_posts(
+                        14, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
+                    ).values_list("pk", flat=True)[:5]
+                )
+                | set(
+                    Takahe.get_popular_posts(
+                        7, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
+                    ).values_list("pk", flat=True)[:10]
+                )
+                | set(
+                    Takahe.get_popular_posts(
+                        1, 0, excluding_identities, local
+                    ).values_list("pk", flat=True)[:3]
+                )
+                | set(reviews.values_list("posts", flat=True)[:5])
             )
-            | set(
-                Takahe.get_popular_posts(
-                    7, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
-                ).values_list("pk", flat=True)[:10]
-            )
-            | set(
-                Takahe.get_popular_posts(1, 0, excluding_identities, local).values_list(
-                    "pk", flat=True
-                )[:3]
-            )
-            | set(reviews.values_list("posts", flat=True)[:5])
-        )
+        else:
+            post_ids = []
         cache.set("public_gallery", gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
         cache.set("featured_collections", collection_ids, timeout=None)
