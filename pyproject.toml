@@ -9,7 +9,7 @@ dependencies = [
     "cachetools",
     "dateparser",
     "discord.py",
-    "django~=4.2.11",
+    "django<5.0",
     "django-anymail",
     "django-auditlog>=3.0.0",
     "django-bleach",
@@ -20,7 +20,7 @@ dependencies = [
     "django-jsonform",
     "django-maintenance-mode",
     "django-markdownx",
-    "django-ninja",
+    "django-ninja>=1.2.2",
     "django-oauth-toolkit==2.3.0",
     "django-polymorphic @ git+https://github.com/jazzband/django-polymorphic/@v4.0.0a",
     "django-redis",
@@ -68,7 +68,7 @@ dev-dependencies = [
     "django-stubs>=5.0.2",
     "djlint~=1.34.1",
     "isort~=5.13.2",
-    "lxml-stubs",
+    "lxml-stubs>=0.5.1",
     "pyright>=1.1.371",
     "ruff",
     "mkdocs-material>=9.5.25",
@@ -93,7 +93,7 @@ plugins = ["mypy_django_plugin.main"]
 django_settings_module = "boofilsic.settings"
 
 [tool.ruff]
-exclude = ["neodb-takahe/*", "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/importers", "**/sites", "legacy" ]
+exclude = ["neodb-takahe/*", "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/importers",  "legacy" ]
 lint.ignore = ["F401", "F403", "F405"]
 
 [tool.setuptools]

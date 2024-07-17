@@ -7,6 +7,7 @@
 #   all-features: false
 #   with-sources: false
 #   generate-hashes: false
+#   universal: false
 
 aiohttp==3.9.5
     # via discord-py
@@ -63,7 +64,7 @@ deepmerge==1.1.1
 discord-py==2.3.2
 distlib==0.3.8
     # via virtualenv
-django==4.2.13
+django==4.2.14
     # via django-anymail
     # via django-appconf
     # via django-auditlog
@@ -95,7 +96,7 @@ django-hijack==3.5.4
 django-jsonform==2.22.0
 django-maintenance-mode==0.21.1
 django-markdownx==4.0.7
-django-ninja==1.1.0
+django-ninja==1.2.2
 django-oauth-toolkit==2.3.0
 django-polymorphic @ git+https://github.com/jazzband/django-polymorphic/@1039f882b99f97bf657bd958c949ee6a3b00377a
 django-redis==5.4.0
