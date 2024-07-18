@@ -161,13 +161,7 @@ def external_search(request):
     dedupe_urls = cache.get(cache_key, [])
     items = [i for i in items if i.source_url not in dedupe_urls]
 
-    return render(
-        request,
-        "external_search_results.html",
-        {
-            "external_items": items,
-        },
-    )
+    return render(request, "external_search_results.html", {"external_items": items})
 
 
 @login_required

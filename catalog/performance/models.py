@@ -1,6 +1,7 @@
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from ninja import Schema
@@ -15,7 +16,6 @@ from catalog.common import (
     jsondata,
 )
 from catalog.common.models import LanguageListField
-from catalog.common.utils import DEFAULT_ITEM_COVER
 
 
 class CrewMemberSchema(Schema):
@@ -390,7 +390,7 @@ class PerformanceProduction(Item):
     def cover_image_url(self) -> str | None:
         return (
             self.cover.url  # type:ignore
-            if self.cover and self.cover != DEFAULT_ITEM_COVER
+            if self.cover and self.cover != settings.DEFAULT_ITEM_COVER
             else self.show.cover_image_url if self.show else None
         )
 

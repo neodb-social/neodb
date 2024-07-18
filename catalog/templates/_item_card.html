@@ -27,7 +27,8 @@
   <div class="item">
     <div class="cover">
       <a href="{{ item.url }}">
-        <img src="{{ item.cover_image_url|relative_uri }}" alt="cover" />
+        <img src="{{ item.cover_image_url|default:default_cover_url|relative_uri }}"
+             alt="cover" />
       </a>
     </div>
     <div>

@@ -518,6 +518,9 @@ STORAGES = {  # TODO: support S3
     },
 }
 
+DEFAULT_ITEM_COVER = "item/default.svg"
+SITE_INFO["default_cover_url"] = MEDIA_URL + DEFAULT_ITEM_COVER
+
 CSRF_TRUSTED_ORIGINS = [SITE_INFO["site_url"]]
 if DEBUG:
     CSRF_TRUSTED_ORIGINS += ["http://127.0.0.1:8000", "http://localhost:8000"]

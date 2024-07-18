@@ -79,7 +79,7 @@ def rating_star(value):
 @register.filter()
 @stringfilter
 def relative_uri(value: str) -> str:
-    return str(value).replace(settings.SITE_INFO["site_url"], "")
+    return str(value).replace(settings.SITE_INFO["site_url"], "") if value else value
 
 
 @register.filter

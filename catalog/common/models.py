@@ -29,7 +29,7 @@ from common.models import (
 from common.models.lang import get_current_locales
 from common.models.misc import uniq
 
-from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
+from .utils import item_cover_path, resource_cover_path
 
 if TYPE_CHECKING:
     from journal.models import Collection
@@ -382,7 +382,10 @@ class Item(PolymorphicModel):
     )
     metadata = models.JSONField(_("metadata"), blank=True, null=True, default=dict)
     cover = models.ImageField(
-        _("cover"), upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True
+        _("cover"),
+        upload_to=item_cover_path,
+        default=settings.DEFAULT_ITEM_COVER,
+        blank=True,
     )
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
@@ -715,13 +718,13 @@ class Item(PolymorphicModel):
         )
 
     def has_cover(self) -> bool:
-        return bool(self.cover) and self.cover != DEFAULT_ITEM_COVER
+        return bool(self.cover) and self.cover != settings.DEFAULT_ITEM_COVER
 
     @property
     def cover_image_url(self) -> str | None:
         return (
             f"{settings.SITE_INFO['site_url']}{self.cover.url}"  # type:ignore
-            if self.cover and self.cover != DEFAULT_ITEM_COVER
+            if self.cover and self.cover != settings.DEFAULT_ITEM_COVER
             else None
         )
 
@@ -825,7 +828,7 @@ class ExternalResource(models.Model):
         _("url to the resource"), blank=False, max_length=1000, unique=True
     )
     cover = models.ImageField(
-        upload_to=resource_cover_path, default=DEFAULT_ITEM_COVER, blank=True
+        upload_to=resource_cover_path, default=settings.DEFAULT_ITEM_COVER, blank=True
     )
     other_lookup_ids = models.JSONField(default=dict)
     metadata = models.JSONField(default=dict)

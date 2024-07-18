@@ -2,12 +2,13 @@ import re
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from catalog.collection.models import Collection as CatalogCollection
 from catalog.common import jsondata
-from catalog.common.utils import DEFAULT_ITEM_COVER, piece_cover_path
+from catalog.common.utils import piece_cover_path
 from catalog.models import Item
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -52,7 +53,7 @@ class Collection(List):
     title = models.CharField(_("title"), max_length=1000, default="")
     brief = models.TextField(_("description"), blank=True, default="")
     cover = models.ImageField(
-        upload_to=piece_cover_path, default=DEFAULT_ITEM_COVER, blank=True
+        upload_to=piece_cover_path, default=settings.DEFAULT_ITEM_COVER, blank=True
     )
     items = models.ManyToManyField(
         Item, through="CollectionMember", related_name="collections"

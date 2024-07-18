@@ -2,8 +2,6 @@ import uuid
 
 from django.utils import timezone
 
-DEFAULT_ITEM_COVER = "item/default.svg"
-
 
 def resource_cover_path(resource, filename):
     fn = (

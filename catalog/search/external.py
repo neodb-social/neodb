@@ -190,6 +190,8 @@ class TheMovieDatabase:
                             subtitle = f"{m.get('release_date', '')} {m.get('original_name', '')}"
                         cover = (
                             f"https://image.tmdb.org/t/p/w500/{m.get('poster_path')}"
+                            if m.get("poster_path")
+                            else None
                         )
                         results.append(
                             SearchResultItem(
