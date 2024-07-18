@@ -99,6 +99,7 @@ def search(request):
     keywords = request.GET.get("q", default="").strip()
     if re.match(r"^[@＠]", keywords):
         return query_identity(request, keywords.replace("＠", "@"))
+    keywords = re.sub(r"[^\w-]+", " ", keywords)
     category = request.GET.get("c", default="all").strip().lower()
     hide_category = False
     if category == "all" or not category:
