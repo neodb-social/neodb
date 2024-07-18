@@ -328,6 +328,12 @@ class DoubanImporter:
             else:
                 # logger.info(f"matched {url}")
                 print(".", end="", flush=True)
+        except DownloadError as e:
+            if e.response_type == RESPONSE_CENSORSHIP:
+                # avoid flood error log since there are too many
+                logger.warning(f"fetching error: {url}", extra={"exception": e})
+            else:
+                logger.error(f"fetching error: {url}", extra={"exception": e})
         except Exception as e:
             logger.error(f"fetching error: {url}", extra={"exception": e})
         if item is None:

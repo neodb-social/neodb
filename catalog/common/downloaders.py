@@ -107,6 +107,7 @@ class DownloadError(Exception):
     def __init__(self, downloader, msg=None):
         self.url = downloader.url
         self.logs = downloader.logs
+        self.response_type = downloader.response_type
         if downloader.response_type == RESPONSE_INVALID_CONTENT:
             error = "Invalid Response"
         elif downloader.response_type == RESPONSE_NETWORK_ERROR:
