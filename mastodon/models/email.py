@@ -40,7 +40,7 @@ class Email:
                 fail_silently=False,
             )
         except Exception as e:
-            logger.error(f"send email {email} failed", extra={"exception": e})
+            logger.error(f"send email to {email} failed: {e}", extra={"exception": e})
 
     @staticmethod
     def generate_login_email(email: str, action: str) -> tuple[str, str]:
