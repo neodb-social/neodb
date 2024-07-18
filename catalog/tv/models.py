@@ -409,7 +409,10 @@ class TVSeason(Item):
          - "Show Title Season X" with some localization
         """
         s = super().display_title
-        if RE_LOCALIZED_SEASON_NUMBERS.sub("", s) == "" and self.parent_item:
+        if self.parent_item and (
+            RE_LOCALIZED_SEASON_NUMBERS.sub("", s) == ""
+            or s == self.parent_item.display_title
+        ):
             if self.parent_item.get_season_count() == 1:
                 return self.parent_item.display_title
             elif self.season_number:
