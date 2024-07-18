@@ -48,6 +48,30 @@
                   {% endfor %}
                 </small>
               </label>
+              {% if not request.user.is_authenticated %}
+                <hr>
+                <p>The following settings may also be changed later in preferences.</p>
+                <label>
+                  <input name="pref_default_crosspost"
+                         type="checkbox"
+                         role="switch"
+                         value="1"
+                         checked />
+                  {% trans "Turn on crosspost to other social networks by default" %}
+                </label>
+                <label>
+                  <input name="pref_sync_info" type="checkbox" role="switch" value="1" checked />
+                  {% trans "Use display name, bio and avatar from the social network you authenticated with" %}
+                </label>
+                <label>
+                  <input name="pref_sync_graph"
+                         type="checkbox"
+                         role="switch"
+                         value="1"
+                         checked />
+                  {% trans "Add follow, mute and block list from the social network you authenticated with" %}
+                </label>
+              {% endif %}
             </fieldset>
             {% csrf_token %}
             <input type="submit" value="{% trans 'Confirm and save' %}">

@@ -98,7 +98,7 @@
                    type="email"
                    placeholder="{% trans 'Enter your email address' %}"
                    autocomplete="email" />
-            <input type='submit' value="{% trans 'Verify Email' %}" />
+            <input type='submit' value="{% trans 'Send verification code' %}" />
           </form>
           <form id="login-mastodon"
                 style="display:none"
@@ -135,7 +135,6 @@
             {% csrf_token %}
             <input name="method" value="threads" type="hidden" />
             <input type='submit' value="{% trans 'Authorize via Threads' %}" />
-            <small>{% trans "If you have already account here registered via a different way, you may login through there and link with your Threads account in account settings." %}</small>
           </form>
           <form id="login-bluesky"
                 style="display:none"
@@ -148,12 +147,12 @@
                    name="username"
                    autofocus
                    pattern="([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
-                   placeholder="{% trans 'Bluesky handle' %}"
+                   placeholder="{% trans 'ATProto handle' %}"
                    autocorrect="off"
                    autocapitalize="off"
                    autocomplete="off"
                    spellcheck="false" />
-            <small>{% trans "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email." %}</small>
+            <small>{% trans "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one." %}</small>
             <input required
                    type="password"
                    name="password"
@@ -164,7 +163,11 @@
                    spellcheck="false" />
             <small>{% blocktrans %}App password can be created on <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app</a>.{% endblocktrans %}</small>
             <input type='submit' value="{% trans 'Authorize via bsky.app' %}" />
-            <small>{% trans "If you have already account here registered via a different way, you may login through there and link with your Bluesky account in account settings." %}</small>
+          </form>
+          <form>
+            <div style="margin:0 1em;">
+              {% blocktrans %}Please choose one to register or login {{site_name}}. Have more than one of these identities? Don't worry, you may link them in account settings once logged in.{% endblocktrans %}
+            </div>
           </form>
         {% else %}
           <form>

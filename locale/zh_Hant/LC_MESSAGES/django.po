@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-17 01:04-0400\n"
+"POT-Creation-Date: 2024-07-18 11:45-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -374,17 +374,17 @@ msgid "FanFic"
 msgstr "網文"
 
 #: catalog/common/models.py:348 catalog/tv/models.py:376
-#: users/models/user.py:114
+#: users/models/user.py:115
 msgid "language"
 msgstr "語言"
 
-#: catalog/common/models.py:371 catalog/common/models.py:399
-#: journal/models/collection.py:52
+#: catalog/common/models.py:371 catalog/common/models.py:402
+#: journal/models/collection.py:53
 msgid "title"
 msgstr "標題"
 
-#: catalog/common/models.py:372 catalog/common/models.py:407
-#: journal/models/collection.py:53
+#: catalog/common/models.py:372 catalog/common/models.py:410
+#: journal/models/collection.py:54
 msgid "description"
 msgstr "描述"
 
@@ -404,27 +404,27 @@ msgstr "元數據"
 msgid "cover"
 msgstr "封面"
 
-#: catalog/common/models.py:796
+#: catalog/common/models.py:799
 msgid "source site"
 msgstr "來源站點"
 
-#: catalog/common/models.py:798
+#: catalog/common/models.py:801
 msgid "ID on source site"
 msgstr "來源站點標識"
 
-#: catalog/common/models.py:800
+#: catalog/common/models.py:803
 msgid "source url"
 msgstr "來源站點網址"
 
-#: catalog/common/models.py:816
+#: catalog/common/models.py:819
 msgid "IdType of the source site"
 msgstr "來源站點的主要標識類型"
 
-#: catalog/common/models.py:822
+#: catalog/common/models.py:825
 msgid "Primary Id on the source site"
 msgstr "來源站點的主要標識數據"
 
-#: catalog/common/models.py:825
+#: catalog/common/models.py:828
 msgid "url to the resource"
 msgstr "指向外部資源的網址"
 
@@ -629,7 +629,7 @@ msgstr "結束日期"
 msgid "host"
 msgstr "主播"
 
-#: catalog/search/views.py:54 catalog/search/views.py:178
+#: catalog/search/views.py:55 catalog/search/views.py:175
 msgid "Invalid URL"
 msgstr "無效網址"
 
@@ -887,15 +887,12 @@ msgid "merge to another item"
 msgstr "合併到另一條目"
 
 #: catalog/templates/_sidebar_edit.html:206
+#: catalog/templates/_sidebar_edit.html:210
 #: catalog/templates/catalog_delete.html:11
-#: journal/templates/collection.html:135 journal/templates/mark.html:162
+#: journal/templates/collection.html:135 journal/templates/mark.html:165
 #: journal/templates/piece_delete.html:9 journal/templates/piece_delete.html:33
 #: journal/templates/review.html:83
 msgid "Delete"
-msgstr "刪除"
-
-#: catalog/templates/_sidebar_edit.html:210
-msgid "delete"
 msgstr "刪除"
 
 #: catalog/templates/_sidebar_edit.html:218
@@ -1038,7 +1035,7 @@ msgstr "創建"
 #: catalog/templates/catalog_edit.html:50
 #: journal/templates/add_to_collection.html:35
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
-#: journal/templates/mark.html:147 journal/templates/note.html:39
+#: journal/templates/mark.html:150 journal/templates/note.html:39
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/account.html:37 users/templates/users/account.html:67
 #: users/templates/users/preferences.html:187
@@ -1116,7 +1113,7 @@ msgstr "熱門標籤"
 #: catalog/templates/item_review_list.html:50 common/templates/_sidebar.html:90
 #: common/templates/_sidebar_anonymous.html:43
 #: common/templates/_sidebar_anonymous.html:58
-#: journal/templates/collection_items.html:8 journal/templates/posts.html:49
+#: journal/templates/collection_items.html:8 journal/templates/posts.html:50
 #: journal/templates/profile.html:109 journal/templates/profile.html:151
 #: journal/templates/profile.html:187
 #: journal/templates/user_collection_list.html:51
@@ -1407,7 +1404,7 @@ msgstr "權限不足"
 
 #: catalog/views_edit.py:202 journal/views/collection.py:263
 #: journal/views/collection.py:330 journal/views/common.py:82
-#: journal/views/mark.py:141 journal/views/post.py:56 journal/views/post.py:70
+#: journal/views/mark.py:146 journal/views/post.py:56 journal/views/post.py:70
 #: journal/views/review.py:93 journal/views/review.py:96
 #: users/views/actions.py:168
 msgid "Invalid parameter"
@@ -2268,7 +2265,7 @@ msgstr "開發者"
 msgid "Source Code"
 msgstr "源代碼"
 
-#: common/templates/_footer.html:16 users/templates/users/login.html:192
+#: common/templates/_footer.html:16 users/templates/users/login.html:195
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "這是%(site_name)s的臨時鏡像，請儘可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站點</a>。"
@@ -2467,7 +2464,7 @@ msgid "Content (Markdown)"
 msgstr "內容 （Markdown格式）"
 
 #: journal/forms.py:21 journal/templates/comment.html:62
-#: journal/templates/mark.html:120 journal/views/note.py:26
+#: journal/templates/mark.html:123 journal/views/note.py:26
 msgid "Crosspost to timeline"
 msgstr "轉發到時間軸"
 
@@ -2500,7 +2497,7 @@ msgstr "關於 {item_title} 的評論"
 msgid "{username}'s podcast subscriptions"
 msgstr "{username} 的播客訂閱"
 
-#: journal/models/collection.py:27 journal/templates/add_to_collection.html:32
+#: journal/models/collection.py:28 journal/templates/add_to_collection.html:32
 #: journal/templates/collection_items.html:24
 #: journal/templates/collection_share.html:63
 #: journal/templates/wrapped_share.html:29
@@ -2511,7 +2508,7 @@ msgstr "備註"
 #: journal/templates/action_open_post.html:14
 #: journal/templates/action_open_post.html:16
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
-#: journal/templates/mark.html:93 journal/templates/tag_edit.html:42
+#: journal/templates/mark.html:96 journal/templates/tag_edit.html:42
 #: journal/templates/wrapped_share.html:43 users/templates/users/data.html:47
 #: users/templates/users/data.html:139
 #: users/templates/users/preferences.html:54
@@ -2520,7 +2517,7 @@ msgstr "公開"
 
 #: journal/models/common.py:38 journal/templates/action_open_post.html:10
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
-#: journal/templates/mark.html:100 journal/templates/wrapped_share.html:49
+#: journal/templates/mark.html:103 journal/templates/wrapped_share.html:49
 #: users/templates/users/data.html:55 users/templates/users/data.html:147
 #: users/templates/users/preferences.html:61
 msgid "Followers Only"
@@ -2528,7 +2525,7 @@ msgstr "僅關注者"
 
 #: journal/models/common.py:39 journal/templates/action_open_post.html:12
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
-#: journal/templates/mark.html:107 journal/templates/wrapped_share.html:55
+#: journal/templates/mark.html:110 journal/templates/wrapped_share.html:55
 #: users/templates/users/data.html:63 users/templates/users/data.html:155
 #: users/templates/users/preferences.html:68
 msgid "Mentioned Only"
@@ -3195,7 +3192,7 @@ msgstr "更新"
 msgid "Comment"
 msgstr "寫短評"
 
-#: journal/templates/comment.html:24 journal/templates/mark.html:71
+#: journal/templates/comment.html:24 journal/templates/mark.html:74
 msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
 msgstr "提示： 善用 &gt;!文字!&lt; 標記可隱藏劇透； 超過360字可能無法分享到聯邦宇宙實例時間軸。"
 
@@ -3207,20 +3204,20 @@ msgstr "分享播放位置"
 msgid "Mark"
 msgstr "標記"
 
-#: journal/templates/mark.html:48 journal/templates/mark.html:52
-#: journal/templates/mark.html:56
+#: journal/templates/mark.html:51 journal/templates/mark.html:55
+#: journal/templates/mark.html:59
 msgid "not rated"
 msgstr "未評分"
 
-#: journal/templates/mark.html:79
+#: journal/templates/mark.html:82
 msgid "add a tag and press Enter"
 msgstr "回車增加標籤"
 
-#: journal/templates/mark.html:135
+#: journal/templates/mark.html:138
 msgid "change mark date"
 msgstr "指定標記日期"
 
-#: journal/templates/mark.html:161
+#: journal/templates/mark.html:164
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr "確認刪除這條標記、短評和標籤？"
 
@@ -3488,7 +3485,7 @@ msgstr "找不到條目，請使用本站條目網址。"
 msgid "Login required"
 msgstr "登錄後訪問"
 
-#: journal/views/common.py:34 journal/views/mark.py:118
+#: journal/views/common.py:34 journal/views/mark.py:123
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "數據已保存但未能轉發到聯邦實例。"
 
@@ -3500,11 +3497,11 @@ msgstr "正在重定向到你的聯邦實例以重新認證。"
 msgid "List not found."
 msgstr "列表未找到"
 
-#: journal/views/mark.py:109
+#: journal/views/mark.py:114
 msgid "Content too long for your Fediverse instance."
 msgstr "內容過長，超出了你的聯邦實例的限制。"
 
-#: journal/views/mark.py:163 journal/views/note.py:98
+#: journal/views/mark.py:168 journal/views/note.py:98
 #: journal/views/review.py:30
 msgid "Content not found"
 msgstr "內容未找到"
@@ -4044,19 +4041,19 @@ msgstr "完成"
 msgid "Failed"
 msgstr "失敗"
 
-#: users/models/user.py:54
+#: users/models/user.py:55
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr "輸入用戶名，限英文字母數字下劃線，最多30個字符。"
 
-#: users/models/user.py:102
+#: users/models/user.py:103
 msgid "username"
 msgstr "用戶名"
 
-#: users/models/user.py:107
+#: users/models/user.py:108
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
 msgstr "必填，限英文字母數字下劃線，最多30個字符。"
 
-#: users/models/user.py:110
+#: users/models/user.py:111
 msgid "A user with that username already exists."
 msgstr "使用該用戶名的用戶已存在。"
 
@@ -4169,7 +4166,7 @@ msgstr "已驗證的ATProto身份"
 msgid "Bluesky Login ID"
 msgstr "Bluesky 登錄名"
 
-#: users/templates/users/account.html:202 users/templates/users/login.html:160
+#: users/templates/users/account.html:202 users/templates/users/login.html:159
 msgid "Bluesky app password"
 msgstr "Bluesky 應用密碼"
 
@@ -4181,7 +4178,7 @@ msgstr "關聯另一個ATProto身份"
 msgid "Link with an ATProto identity"
 msgstr "關聯ATProto身份"
 
-#: users/templates/users/account.html:209 users/templates/users/login.html:165
+#: users/templates/users/account.html:209 users/templates/users/login.html:164
 msgid "App password can be created on <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
 msgstr "應用密碼可在 <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a> 創建管理。"
 
@@ -4402,8 +4399,8 @@ msgid "Enter your email address"
 msgstr "輸入電子郵件地址"
 
 #: users/templates/users/login.html:101
-msgid "Verify Email"
-msgstr "驗證電子郵件"
+msgid "Send verification code"
+msgstr "發送驗證碼"
 
 #: users/templates/users/login.html:116
 msgid "Domain of your instance, e.g. mastodon.social"
@@ -4413,7 +4410,7 @@ msgstr "實例域名(不含@和@之前的部分)，如mastodon.social"
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
 msgstr "請輸入你的實例域名(不含@和@之前的部分)；如果你的聯邦賬號是<i>@neodb@mastodon.social</i>，只需要在此輸入<i>mastodon.social</i>。"
 
-#: users/templates/users/login.html:125 users/templates/users/login.html:175
+#: users/templates/users/login.html:125 users/templates/users/login.html:178
 msgid "Authorize via Fediverse instance"
 msgstr "去聯邦實例授權註冊或登錄"
 
@@ -4425,47 +4422,44 @@ msgstr "如果你還沒有或不便註冊<a href=\"https://joinmastodon.org/serv
 msgid "Authorize via Threads"
 msgstr "去Threads授權註冊或登錄"
 
-#: users/templates/users/login.html:138
-msgid "If you have already account here registered via a different way, you may login through there and link with your Threads account in account settings."
-msgstr "如果你已通過其它方式註冊過本站帳號，請用該方式登錄後再關聯Threads。"
+#: users/templates/users/login.html:150
+msgid "ATProto handle"
+msgstr "ATProto 用戶標識"
 
-#: users/templates/users/login.html:151
-msgid "Bluesky handle"
-msgstr "Bluesky用戶標識"
+#: users/templates/users/login.html:155
+msgid "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one."
+msgstr "請輸入你的ATProto用戶標識（例如neodb.bsky.social，不包含開頭的@），不要輸入電子郵件地址。如果你最近更改過標識，請使用最新的那一個。"
 
-#: users/templates/users/login.html:156
-msgid "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email."
-msgstr "請輸入你的ATProto用戶標識（例如neodb.bsky.social，不包含開頭的@），不要輸入電子郵件地址。"
-
-#: users/templates/users/login.html:166
+#: users/templates/users/login.html:165
 msgid "Authorize via bsky.app"
 msgstr "使用Bluesky賬號信息註冊或登錄"
 
-#: users/templates/users/login.html:167
-msgid "If you have already account here registered via a different way, you may login through there and link with your Bluesky account in account settings."
-msgstr "如果你已通過其它方式註冊過本站帳號，請用該方式登錄後再關聯Bluesky。"
+#: users/templates/users/login.html:169
+#, python-format
+msgid "Please choose one to register or login %(site_name)s. Have more than one of these identities? Don't worry, you may link them in account settings once logged in."
+msgstr "請選擇一種方式註冊或登錄 %(site_name)s。如果你有多個社交身份，登錄後可在賬號設置中添加綁定。"
 
-#: users/templates/users/login.html:182
+#: users/templates/users/login.html:185
 msgid "Valid invitation code, please login or register."
 msgstr "邀請鏈接有效，可註冊新用戶"
 
-#: users/templates/users/login.html:184
+#: users/templates/users/login.html:187
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr "本站目前爲邀請註冊，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
 
-#: users/templates/users/login.html:186
+#: users/templates/users/login.html:189
 msgid "Invitation code invalid or expired."
 msgstr "邀請鏈接無效，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
 
-#: users/templates/users/login.html:194
+#: users/templates/users/login.html:197
 msgid "Loading timed out, please check your network (VPN) settings."
 msgstr "部分模塊加載超時，請檢查網絡（翻牆）設置。"
 
-#: users/templates/users/login.html:200
+#: users/templates/users/login.html:203
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
 msgstr "繼續訪問或註冊視爲同意<a href=\"/pages/rules/\">站規</a>與<a href=\"/pages/terms/\">協議</a>，及使用cookie提供必要功能"
 
-#: users/templates/users/login.html:206
+#: users/templates/users/login.html:209
 msgid "Domain of your instance (excl. @)"
 msgstr "實例域名(不含@和@之前的部分)"
 
@@ -4518,7 +4512,7 @@ msgid "this method is less optimal, may generate duplicated posts and miss react
 msgstr "這種方式可能產生重複帖文，且其他人對新帖的回應、點贊不會被記錄"
 
 #: users/templates/users/preferences.html:123
-msgid "append tags when posting to timeline"
+msgid "Append tags when posting to timeline"
 msgstr "發佈標記到時間軸時追加標籤"
 
 #: users/templates/users/preferences.html:126
@@ -4690,11 +4684,23 @@ msgstr "你在%(site_name)s使用的用戶名"
 msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
 msgstr "2-30個字符，限英文字母數字下劃線，保存後不可更改"
 
-#: users/templates/users/register.html:53
+#: users/templates/users/register.html:60
+msgid "Turn on crosspost to other social networks by default"
+msgstr "發表時默認轉發到社交網絡時間軸"
+
+#: users/templates/users/register.html:64
+msgid "Use display name, bio and avatar from the social network you authenticated with"
+msgstr "自動同步用戶暱稱等基本信息"
+
+#: users/templates/users/register.html:72
+msgid "Add follow, mute and block list from the social network you authenticated with"
+msgstr "自動導入新增的關注、屏蔽和隱藏列表"
+
+#: users/templates/users/register.html:77
 msgid "Confirm and save"
 msgstr "確認並保存"
 
-#: users/templates/users/register.html:57 users/templates/users/welcome.html:27
+#: users/templates/users/register.html:81 users/templates/users/welcome.html:27
 msgid "Cut the sh*t and get me in!"
 msgstr ""
 
@@ -4749,19 +4755,19 @@ msgstr "此電子郵件地址已被使用"
 msgid "Registration is for invitation only"
 msgstr "本站僅限邀請註冊"
 
-#: users/views/account.py:168
+#: users/views/account.py:175
 msgid "Valid username required"
 msgstr "請輸入有效的用戶名"
 
-#: users/views/account.py:170
+#: users/views/account.py:177
 msgid "Username in use"
 msgstr "用戶名已被使用"
 
-#: users/views/account.py:238
+#: users/views/account.py:247
 msgid "Account is being deleted."
 msgstr "賬戶刪除進行中。"
 
-#: users/views/account.py:241
+#: users/views/account.py:250
 msgid "Account mismatch."
 msgstr "賬號信息不匹配。"
 

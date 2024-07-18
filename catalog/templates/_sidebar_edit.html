@@ -207,7 +207,7 @@
           <form method="post"
                 action="{% url 'catalog:delete' item.url_path item.uuid %}">
             {% csrf_token %}
-            <input class="contrast" type="submit" value="{% trans 'delete' %}">
+            <input class="contrast" type="submit" value="{% trans 'Delete' %}">
           </form>
         </details>
       {% endif %}

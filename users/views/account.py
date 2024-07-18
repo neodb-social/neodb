@@ -164,13 +164,22 @@ def register(request: AuthedHttpRequest):
         else:
             # new user to finalize registration process
             username = form.cleaned_data["username"]
+            pref = {
+                "mastodon_default_repost": request.POST.get("pref_default_crosspost")
+                is not None,
+                "mastodon_skip_userinfo": request.POST.get("pref_sync_info") is None,
+                "mastodon_skip_relationship": request.POST.get("pref_sync_graph")
+                is None,
+            }
             if not username:
                 error = _("Valid username required")
             elif User.objects.filter(username__iexact=username).exists():
                 error = _("Username in use")
             else:
                 # all good, create new user
-                new_user = User.register(username=username, account=verified_account)
+                new_user = User.register(
+                    username=username, account=verified_account, preference=pref
+                )
                 auth_login(request, new_user)
 
                 if not email_readonly and form.cleaned_data["email"]:

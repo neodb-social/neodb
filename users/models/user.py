@@ -26,6 +26,7 @@ from mastodon.models import (
     ThreadsAccount,
 )
 from takahe.utils import Takahe
+from users.models import preference
 
 if TYPE_CHECKING:
     from .apidentity import APIdentity
@@ -315,6 +316,7 @@ class User(AbstractUser):
         from .preference import Preference
 
         account = param.pop("account", None)
+        pref = param.pop("preference", {})
         with transaction.atomic():
             new_user = cls(**param)
             if not new_user.username:
@@ -323,7 +325,8 @@ class User(AbstractUser):
                 new_user.language = translation.get_language()
             new_user.set_unusable_password()
             new_user.save()
-            Preference.objects.create(user=new_user)
+            pref["user"] = new_user
+            Preference.objects.create(**pref)
             if account:
                 account.user = new_user
                 account.save()
