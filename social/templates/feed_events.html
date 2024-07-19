@@ -65,7 +65,7 @@
             <span>
               <a href="{{ post.author.url }}"
                  class="nickname"
-                 title="@{{ post.author.handle }}">{{ post.author.name }}</a>
+                 title="@{{ post.author.handle }}">{{ post.author.name|default:post.author.username }}</a>
               {% if piece and piece.classname == 'note' %}
                 {% trans "wrote a note" %}
               {% endif %}

@@ -1,0 +1,11 @@
+{% load i18n %}
+{% load duration %}
+{% blocktrans with item_url=event.item.url item_title=event.item.display_title %}
+boosted your note on <a href="{{ item_url }}">{{ item_title }}</a>
+{% endblocktrans %}
+{% if event.piece.progress_value %}
+  <span class="tag-list"><span><a>{{ event.piece.progress_display }}</a></span></span>
+{% endif %}
+<blockquote class="tldr" _="on click toggle .tldr on me">
+  {{ event.piece.html|safe }}
+</blockquote>

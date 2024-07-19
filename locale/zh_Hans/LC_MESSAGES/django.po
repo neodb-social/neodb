@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-18 11:45-0400\n"
+"POT-Creation-Date: 2024-07-18 22:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1362,12 +1362,12 @@ msgstr "地区或场合"
 msgid "episode length"
 msgstr "单集长度"
 
-#: catalog/tv/models.py:416
+#: catalog/tv/models.py:419
 #, python-brace-format
 msgid "{show_title} Season {season_number}"
 msgstr "{show_title} 第{season_number}季"
 
-#: catalog/tv/models.py:480
+#: catalog/tv/models.py:483
 #, python-brace-format
 msgid "{season_title} E{episode_number}"
 msgstr "{season_title} 第{episode_number}集"
@@ -3814,6 +3814,15 @@ msgstr ""
 "\n"
 "转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
 
+#: social/templates/event/boosted_note.html:3
+#, python-format
+msgid ""
+"\n"
+"boosted your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 作的笔记\n"
+
 #: social/templates/event/boosted_rating.html:3
 #, python-format
 msgid ""
@@ -3871,6 +3880,15 @@ msgstr ""
 "\n"
 "赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
 
+#: social/templates/event/liked_note.html:3
+#, python-format
+msgid ""
+"\n"
+"liked your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 作的笔记\n"
+
 #: social/templates/event/liked_rating.html:3
 #, python-format
 msgid ""
@@ -3919,6 +3937,15 @@ msgid ""
 msgstr ""
 "\n"
 "回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+
+#: social/templates/event/mentioned_note.html:3
+#, python-format
+msgid ""
+"\n"
+"replied to your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 作的笔记\n"
 
 #: social/templates/event/mentioned_rating.html:3
 #, python-format
