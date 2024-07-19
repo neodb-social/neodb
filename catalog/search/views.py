@@ -114,7 +114,7 @@ def search(request):
         except Exception:
             categories = visible_categories(request)
     tag = request.GET.get("tag", default="").strip()
-    tag = Tag.deep_cleanup_title(tag)
+    tag = Tag.deep_cleanup_title(tag, default="")
     p = request.GET.get("page", default="1")
     p = int(p) if p.isdigit() else 1
     if not (keywords or tag):

@@ -29,6 +29,7 @@ SEARCHABLE_ATTRIBUTES = [
     "pub_house",
     "company",
     "publisher",
+    "host",
     "isbn",
     "imdb",
     "barcode",
