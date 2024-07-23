@@ -40,10 +40,6 @@ class BoardGameGeek(AbstractSite):
         localized_title = [
             {"lang": detect_language(t), "text": t} for t in [title] + other_title
         ]
-        zh_title = [
-            t["text"] for t in localized_title if t["lang"] in ["zh", "zh-cn", "zh-tw"]
-        ]
-        title = zh_title[0] if zh_title else other_title[0]
         cover_image_url = self.query_str(item, "image/text()")
         brief = html.unescape(self.query_str(item, "description/text()"))
         year = self.query_str(item, "yearpublished/@value")
