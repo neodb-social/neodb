@@ -50,8 +50,6 @@ TMDB_PREFERRED_LANGS = _get_preferred_languages()
 
 
 def search_tmdb_by_imdb_id(imdb_id):
-    if not settings.TMDB_API3_KEY or settings.TMDB_API3_KEY == "TESTONLY":
-        return {}
     tmdb_api_url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&external_source=imdb_id"
     try:
         return BasicDownloader(tmdb_api_url).download().json()

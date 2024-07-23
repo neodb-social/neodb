@@ -1528,7 +1528,7 @@ msgstr ""
 
 #: common/models/lang.py:44
 msgid "Danish"
-msgstr ""
+msgstr "丹麦语"
 
 #: common/models/lang.py:45
 msgid "German"

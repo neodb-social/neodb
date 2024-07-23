@@ -425,6 +425,7 @@ SUPPORTED_UI_LANGUAGES = {
     "en": _("English"),
     "zh-hans": _("Simplified Chinese"),
     "zh-hant": _("Traditional Chinese"),
+    "da": _("Danish"),
 }
 
 LANGUAGES = SUPPORTED_UI_LANGUAGES.items()

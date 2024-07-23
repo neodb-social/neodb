@@ -4743,4 +4743,3 @@ msgstr "Filen er uploadet og vil blive importeret snart."
 #: users/views/data.py:202 users/views/data.py:242
 msgid "Invalid file."
 msgstr "Ugyldig fil."
-
