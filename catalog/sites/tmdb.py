@@ -37,11 +37,11 @@ def _get_language_code():
 
 def _get_preferred_languages():
     langs = {}
-    for l in PREFERRED_LANGUAGES:
-        if l == "zh":
+    for lang in PREFERRED_LANGUAGES:
+        if lang == "zh":
             langs.update({"zh-cn": "zh-CN", "zh-tw": "zh-TW", "zh-hk": "zh-HK"})
         else:
-            langs[l] = l
+            langs[lang] = lang
     return langs
 
 
@@ -50,9 +50,13 @@ TMDB_PREFERRED_LANGS = _get_preferred_languages()
 
 
 def search_tmdb_by_imdb_id(imdb_id):
+    if not settings.TMDB_API3_KEY or settings.TMDB_API3_KEY == "TESTONLY":
+        return {}
     tmdb_api_url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&external_source=imdb_id"
-    res_data = BasicDownloader(tmdb_api_url).download().json()
-    return res_data
+    try:
+        return BasicDownloader(tmdb_api_url).download().json()
+    except Exception:
+        return {}
 
 
 def query_tmdb_tv_episode(tv, season, episode):
@@ -126,7 +130,7 @@ class TMDB_Movie(AbstractSite):
         actor = list(map(lambda x: x["name"], res_data["credits"]["cast"]))
         area = []
 
-        other_info = {}
+        # other_info = {}
         # other_info['TMDB评分'] = res_data['vote_average']
         # other_info['分级'] = res_data['contentRating']
         # other_info['Metacritic评分'] = res_data['metacriticRating']
@@ -233,9 +237,9 @@ class TMDB_TV(AbstractSite):
         )
         actor = list(map(lambda x: x["name"], res_data["credits"]["cast"]))
         area = []
-        other_info = {}
-        other_info["Seasons"] = res_data["number_of_seasons"]
-        other_info["Episodes"] = res_data["number_of_episodes"]
+        # other_info = {}
+        # other_info["Seasons"] = res_data["number_of_seasons"]
+        # other_info["Episodes"] = res_data["number_of_episodes"]
         # TODO: use GET /configuration to get base url
         img_url = (
             ("https://image.tmdb.org/t/p/original/" + res_data["poster_path"])
@@ -446,7 +450,7 @@ class TMDB_TVEpisode(AbstractSite):
         season_id = v[1]
         episode_id = v[2]
         site = TMDB_TV(TMDB_TV.id_to_url(show_id))
-        show_resource = site.get_resource_ready(auto_create=False, auto_link=False)
+        site.get_resource_ready(auto_create=False, auto_link=False)
         api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}/episode/{episode_id}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&append_to_response=external_ids,credits"
         d = BasicDownloader(api_url).download().json()
         if not d.get("id"):

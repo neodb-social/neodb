@@ -32,11 +32,7 @@ class IMDB(AbstractSite):
         return "https://www.imdb.com/title/" + id_value + "/"
 
     def scrape(self):
-        res_data = {}
-        try:
-            res_data = search_tmdb_by_imdb_id(self.id_value)
-        except:
-            pass
+        res_data = search_tmdb_by_imdb_id(self.id_value)
 
         url = None
         pd = None
@@ -91,15 +87,15 @@ class IMDB(AbstractSite):
             "genre": (
                 [x["text"] for x in d["genres"]["genres"]] if d.get("genres") else []
             ),
-            "brief": (
-                d["plot"].get("plotText").get("plainText") if d.get("plot") else None
-            ),
+            "brief": d.get("plot", {}).get("plotText", {}).get("plainText", ""),
             "cover_image_url": (
                 d["primaryImage"].get("url") if d.get("primaryImage") else None
             ),
         }
         data["localized_title"] = [{"lang": "en", "text": data["title"]}]
-        data["localized_description"] = [{"lang": "en", "text": data["brief"]}]
+        data["localized_description"] = (
+            [{"lang": "en", "text": data["brief"]}] if data["brief"] else []
+        )
         if d.get("series"):
             episode_info = d["series"].get("episodeNumber")
             if episode_info:
