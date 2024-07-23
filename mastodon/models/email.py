@@ -46,7 +46,7 @@ class Email:
     def generate_login_email(email: str, action: str) -> tuple[str, str]:
         if action != "verify":
             account = EmailAccount.objects.filter(handle__iexact=email).first()
-            action = "register" if account and account.user else "login"
+            action = "login" if account and account.user else "register"
         s = {"e": email, "a": action}
         # v = TimestampSigner().sign_object(s)
         code = b62_encode(random.randint(pow(62, 4), pow(62, 5) - 1))
