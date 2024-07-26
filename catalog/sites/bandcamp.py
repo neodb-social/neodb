@@ -49,7 +49,7 @@ class Bandcamp(AbstractSite):
         return False
 
     def scrape(self):
-        content = BasicDownloader(self.url).download().html()
+        content = BasicDownloader2(self.url).download().html()
         try:
             title = self.query_str(content, "//h2[@class='trackTitle']/text()")
             artist = [

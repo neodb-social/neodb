@@ -24,6 +24,7 @@ __all__ = (  # noqa
     "use_local_response",
     "RetryDownloader",
     "BasicDownloader",
+    "BasicDownloader2",
     "CachedDownloader",
     "ProxiedDownloader",
     "BasicImageDownloader",

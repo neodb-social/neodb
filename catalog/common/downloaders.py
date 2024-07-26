@@ -8,6 +8,7 @@ from typing import Tuple, cast
 from urllib.parse import quote
 
 import filetype
+import httpx
 import requests
 from django.conf import settings
 from django.core.cache import cache
@@ -103,6 +104,14 @@ class DownloaderResponse(Response):
         return etree.fromstring(self.content, base_url=self.url)
 
 
+class DownloaderResponse2(httpx.Response):
+    def html(self):
+        return html.fromstring(self.content.decode("utf-8"))
+
+    def xml(self):
+        return etree.fromstring(self.content, base_url=str(self.url))
+
+
 class DownloadError(Exception):
     def __init__(self, downloader, msg=None):
         self.url = downloader.url
@@ -163,7 +172,9 @@ class BasicDownloader:
         else:
             return RESPONSE_INVALID_CONTENT
 
-    def _download(self, url) -> Tuple[DownloaderResponse | MockResponse | None, int]:
+    def _download(
+        self, url
+    ) -> Tuple[DownloaderResponse | DownloaderResponse2 | MockResponse | None, int]:
         try:
             if not _mock_mode:
                 resp = cast(
@@ -171,6 +182,54 @@ class BasicDownloader:
                     requests.get(url, headers=self.headers, timeout=self.get_timeout()),
                 )
                 resp.__class__ = DownloaderResponse
+                if settings.DOWNLOADER_SAVEDIR:
+                    try:
+                        with open(
+                            settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(url),
+                            "w",
+                            encoding="utf-8",
+                        ) as fp:
+                            fp.write(resp.text)
+                    except Exception:
+                        logger.warning("Save downloaded data failed.")
+            else:
+                resp = MockResponse(self.url)
+            response_type = self.validate_response(resp)
+            self.logs.append(
+                {"response_type": response_type, "url": url, "exception": None}
+            )
+            return resp, response_type
+        except RequestException as e:
+            self.logs.append(
+                {"response_type": RESPONSE_NETWORK_ERROR, "url": url, "exception": e}
+            )
+            return None, RESPONSE_NETWORK_ERROR
+
+    def download(self):
+        resp, self.response_type = self._download(self.url)
+        if self.response_type == RESPONSE_OK and resp:
+            return resp
+        else:
+            raise DownloadError(self)
+
+
+class BasicDownloader2(BasicDownloader):
+    def validate_response(self, response) -> int:
+        if response is None:
+            return RESPONSE_NETWORK_ERROR
+        elif response.status_code == 200:
+            return RESPONSE_OK
+        else:
+            return RESPONSE_INVALID_CONTENT
+
+    def _download(self, url):
+        try:
+            if not _mock_mode:
+                resp = cast(
+                    DownloaderResponse2,
+                    httpx.get(url, headers=self.headers, timeout=self.get_timeout()),
+                )
+                resp.__class__ = DownloaderResponse2
                 if settings.DOWNLOADER_SAVEDIR:
                     try:
                         with open(
