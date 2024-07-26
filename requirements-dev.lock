@@ -230,7 +230,7 @@ pygments==2.18.0
     # via mkdocs-material
 pymdown-extensions==10.8.1
     # via mkdocs-material
-pyright==1.1.371
+pyright==1.1.373
 python-dateutil==2.9.0.post0
     # via dateparser
     # via django-auditlog

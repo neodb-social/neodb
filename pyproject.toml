@@ -69,7 +69,7 @@ dev-dependencies = [
     "djlint~=1.34.1",
     "isort~=5.13.2",
     "lxml-stubs>=0.5.1",
-    "pyright>=1.1.371",
+    "pyright>=1.1.373",
     "ruff",
     "mkdocs-material>=9.5.25",
 ]
