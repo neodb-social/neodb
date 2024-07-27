@@ -119,15 +119,6 @@ class Goodreads(AbstractSite):
         pd = ResourceContent(metadata=data)
         pd.lookup_ids[IdType.ISBN] = ids.get(IdType.ISBN)
         pd.lookup_ids[IdType.ASIN] = ids.get(IdType.ASIN)
-        if data["cover_image_url"]:
-            imgdl = BasicImageDownloader(data["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.debug(
-                    f'failed to download cover for {self.url} from {data["cover_image_url"]}'
-                )
         return pd
 
 

@@ -37,7 +37,7 @@ class DoubanMovie(AbstractSite):
                 "\n", ""
             )  # strip \n bc multi-line string is not properly coded in json by douban
             d = json.loads(schema_data) if schema_data else {}
-        except Exception as e:
+        except Exception:
             d = {}
 
         try:
@@ -245,7 +245,6 @@ class DoubanMovie(AbstractSite):
             "TVSeason" if is_series or episodes or season else "Movie"
         )
 
-        tmdb_season_id = None
         if imdb_code:
             res_data = search_tmdb_by_imdb_id(imdb_code)
             has_movie = (
@@ -302,13 +301,4 @@ class DoubanMovie(AbstractSite):
                     ]
         # TODO parse sister seasons
         # pd.metadata['related_resources'] = []
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.debug(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
         return pd

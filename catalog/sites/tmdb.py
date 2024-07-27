@@ -172,15 +172,6 @@ class TMDB_Movie(AbstractSite):
         )
         if imdb_code:
             pd.lookup_ids[IdType.IMDB] = imdb_code
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.debug(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
         return pd
 
 
@@ -285,15 +276,6 @@ class TMDB_TV(AbstractSite):
         )
         if imdb_code:
             pd.lookup_ids[IdType.IMDB] = imdb_code
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.debug(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
         return pd
 
 
@@ -380,15 +362,6 @@ class TMDB_TVSeason(AbstractSite):
             map(lambda ep: ep["episode_number"], d["episodes"])
         )
         pd.metadata["episode_count"] = len(pd.metadata["episode_number_list"])
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.debug(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
 
         # use show's IMDB (for Season 1) or 1st episode's IMDB (if not Season 1) as this season's IMDB so that it can be compatible with TVSeason data from Douban
         if pd.lookup_ids.get(IdType.IMDB):
@@ -486,15 +459,6 @@ class TMDB_TVEpisode(AbstractSite):
             if pd.metadata["title"]
             else f'S{d["season_number"]} E{d["episode_number"]}'
         )
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.debug(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
 
         if pd.lookup_ids.get(IdType.IMDB):
             pd.lookup_ids[IdType.IMDB] = pd.lookup_ids[IdType.IMDB]

@@ -116,15 +116,6 @@ class IMDB(AbstractSite):
             data["title"] = re.sub(r"#(\d+).(\d+)", r"S\1E\2", data["title"][8:])
         pd = ResourceContent(metadata=data)
         pd.lookup_ids[IdType.IMDB] = self.id_value
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.debug(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
         return pd
 
     @staticmethod

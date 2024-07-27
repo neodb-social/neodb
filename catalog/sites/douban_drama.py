@@ -1,4 +1,3 @@
-import logging
 import re
 
 from django.core.cache import cache
@@ -9,8 +8,6 @@ from catalog.models import *
 from common.models.lang import detect_language
 
 from .douban import DoubanDownloader
-
-_logger = logging.getLogger(__name__)
 
 
 def _cache_key(url):
@@ -77,10 +74,10 @@ class DoubanDramaVersion(AbstractSite):
         }
         if data["opening_date"]:
             d = data["opening_date"].split("-")
-            l = len(d) if len(d) < 6 else 6
-            if l > 3:
+            dl = len(d) if len(d) < 6 else 6
+            if dl > 3:
                 data["opening_date"] = "-".join(d[:3])
-                data["closing_date"] = "-".join(d[0 : 6 - l] + d[3:l])
+                data["closing_date"] = "-".join(d[0 : 6 - dl] + d[3:dl])
         actor_elem = h.xpath(p + "//dt[text()='主演：']/following-sibling::dd[1]/a")
         data["actor"] = []
         for e in actor_elem:
@@ -101,15 +98,6 @@ class DoubanDramaVersion(AbstractSite):
                 "url": show_url,
             }
         ]
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.debug(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
         return pd
 
 
@@ -213,10 +201,10 @@ class DoubanDrama(AbstractSite):
         data["opening_date"] = date_elem[0] if date_elem else None
         if data["opening_date"]:
             d = data["opening_date"].split("-")
-            l = len(d) if len(d) < 6 else 6
-            if l > 3:
+            dl = len(d) if len(d) < 6 else 6
+            if dl > 3:
                 data["opening_date"] = "-".join(d[:3])
-                data["closing_date"] = "-".join(d[0 : 6 - l] + d[3:l])
+                data["closing_date"] = "-".join(d[0 : 6 - dl] + d[3:dl])
 
         data["location"] = [
             s.strip()
@@ -257,13 +245,4 @@ class DoubanDrama(AbstractSite):
         data["localized_description"] = [{"lang": "zh-cn", "text": data["brief"]}]
 
         pd = ResourceContent(metadata=data)
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.debug(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
         return pd

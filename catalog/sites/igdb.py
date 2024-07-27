@@ -152,13 +152,4 @@ class IGDB(AbstractSite):
             pd.lookup_ids[IdType.Steam] = SiteManager.get_site_cls_by_id_type(
                 IdType.Steam
             ).url_to_id(steam_url)
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                logger.debug(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
         return pd

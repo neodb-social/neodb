@@ -84,7 +84,7 @@ class RSS(AbstractSite):
 
     def scrape(self):
         if not self.url:
-            raise ValueError(f"no url avaialble in RSS site")
+            raise ValueError("no url avaialble in RSS site")
         feed = self.parse_feed_from_url(self.url)
         if not feed:
             raise ValueError(f"no feed avaialble in {self.url}")
@@ -108,17 +108,6 @@ class RSS(AbstractSite):
             }
         )
         pd.lookup_ids[IdType.RSS] = RSS.url_to_id(self.url)
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(
-                pd.metadata["cover_image_url"], feed.get("link") or self.url
-            )
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.warn(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
         return pd
 
     def scrape_additional_data(self):

@@ -56,8 +56,8 @@ class AppleMusic(AbstractSite):
 
     def get_locales(self):
         locales = {}
-        for l in PREFERRED_LANGUAGES:
-            match l:
+        for lang in PREFERRED_LANGUAGES:
+            match lang:
                 case "zh":
                     locales.update({"zh": ["cn", "tw", "hk", "sg"]})
                 case "en":
@@ -94,10 +94,10 @@ class AppleMusic(AbstractSite):
                     brief = album_data.get("modalPresentationDescriptor", {}).get(
                         "paragraphText", ""
                     )
-                    l = detect_language(title + " " + brief)
-                    localized_title.append({"lang": l, "text": title})
+                    tl = detect_language(title + " " + brief)
+                    localized_title.append({"lang": tl, "text": title})
                     if brief:
-                        localized_desc.append({"lang": l, "text": brief})
+                        localized_desc.append({"lang": tl, "text": brief})
                     if lang == DEFAULT_CATALOG_LANGUAGE or not matched_content:
                         matched_content = content
                     break
@@ -155,13 +155,4 @@ class AppleMusic(AbstractSite):
                 "cover_image_url": image_url,
             }
         )
-        if pd.metadata["cover_image_url"]:
-            imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
-            try:
-                pd.cover_image = imgdl.download().content
-                pd.cover_image_extention = imgdl.extention
-            except Exception:
-                _logger.debug(
-                    f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
-                )
         return pd

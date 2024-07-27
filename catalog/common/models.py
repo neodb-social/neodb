@@ -891,12 +891,24 @@ class ExternalResource(models.Model):
     def update_content(self, resource_content: "ResourceContent"):
         self.other_lookup_ids = resource_content.lookup_ids
         self.metadata = resource_content.metadata
+        if (
+            resource_content.metadata.get("cover_image_url")
+            and not resource_content.cover_image
+        ):
+            from .downloaders import BasicImageDownloader
+
+            (
+                resource_content.cover_image,
+                resource_content.cover_image_extention,
+            ) = BasicImageDownloader.download_image(
+                resource_content.metadata.get("cover_image_url"), self.url
+            )
         if resource_content.cover_image and resource_content.cover_image_extention:
             self.cover = SimpleUploadedFile(
                 "temp." + resource_content.cover_image_extention,
                 resource_content.cover_image,
             )
-        else:
+        elif resource_content.metadata.get("cover_image_path"):
             self.cover = resource_content.metadata.get("cover_image_path")
         self.scraped_time = timezone.now()
         self.save()

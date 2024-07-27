@@ -236,9 +236,6 @@ class DoubanBook(AbstractSite):
         if t:
             pd.lookup_ids[t] = n
         pd.lookup_ids[IdType.CUBN] = cubn
-        pd.cover_image, pd.cover_image_extention = BasicImageDownloader.download_image(
-            img_url, self.url
-        )
         return pd
 
 
