@@ -92,7 +92,8 @@ class TMDB_Movie(AbstractSite):
             api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
             res_data = BasicDownloader(api_url).download().json()
             localized_title.append({"lang": lang, "text": res_data["title"]})
-            localized_desc.append({"lang": lang, "text": res_data["overview"]})
+            if res_data.get("overview", "").strip():
+                localized_desc.append({"lang": lang, "text": res_data["overview"]})
         title = res_data["title"]
         orig_title = res_data["original_title"]
         year = (
@@ -198,7 +199,8 @@ class TMDB_TV(AbstractSite):
             api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
             res_data = BasicDownloader(api_url).download().json()
             localized_title.append({"lang": lang, "text": res_data["name"]})
-            localized_desc.append({"lang": lang, "text": res_data["overview"]})
+            if res_data.get("overview", "").strip():
+                localized_desc.append({"lang": lang, "text": res_data["overview"]})
 
         title = res_data["name"]
         orig_title = res_data["original_name"]
@@ -318,7 +320,8 @@ class TMDB_TVSeason(AbstractSite):
             api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
             res_data = BasicDownloader(api_url).download().json()
             localized_title.append({"lang": lang, "text": res_data["name"]})
-            localized_desc.append({"lang": lang, "text": res_data["overview"]})
+            if res_data.get("overview", "").strip():
+                localized_desc.append({"lang": lang, "text": res_data["overview"]})
         if not res_data.get("id"):
             raise ParseError(self, "id")
         d = res_data
