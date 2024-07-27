@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.db import models
+from django.template.defaultfilters import default
 from django.utils.translation import gettext_lazy as _
 
 from catalog.common import (
@@ -17,11 +18,25 @@ from catalog.common import (
 )
 
 
+class GameReleaseType(models.TextChoices):
+    # Unspecified = "", _("Unspecified")  # type:ignore[reportCallIssue]
+    GAME = "game", _("Main Game")  # type:ignore[reportCallIssue]
+    EXPANSION = "expansion", _("Expansion")  # type:ignore[reportCallIssue]
+    DLC = "dlc", _("Downloadable Content")  # type:ignore[reportCallIssue]
+    MOD = "mod", _("Mod")  # type:ignore[reportCallIssue]
+    BUNDLE = "bundle", _("Bundle")  # type:ignore[reportCallIssue]
+    REMASTER = "remaster", _("Remaster")  # type:ignore[reportCallIssue]
+    REMAKE = "remake", _("Remake")  # type:ignore[reportCallIssue]
+    SPECIAL = "special", _("Special Edition")  # type:ignore[reportCallIssue]
+    OTHER = "other", _("Other")  # type:ignore[reportCallIssue]
+
+
 class GameInSchema(ItemInSchema):
     genre: list[str]
     developer: list[str]
     publisher: list[str]
     platform: list[str]
+    release_type: str | None = None
     release_date: date | None = None
     official_site: str | None = None
 
@@ -49,6 +64,7 @@ class Game(Item):
         "publisher",
         "release_year",
         "release_date",
+        "release_type",
         "genre",
         "platform",
         "official_site",
@@ -106,6 +122,13 @@ class Game(Item):
         null=True,
         blank=True,
         help_text=_("YYYY-MM-DD"),
+    )
+
+    release_type = jsondata.CharField(
+        verbose_name=_("release type"),
+        max_length=100,
+        blank=True,
+        choices=GameReleaseType.choices,
     )
 
     genre = jsondata.ArrayField(

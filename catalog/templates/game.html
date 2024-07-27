@@ -12,6 +12,11 @@
     {% include '_people.html' with people=item.additional_title _role='' max=99 %}
   </div>
   <div>
+    {% if item.release_type %}
+      {% trans 'release type' %}: {{ item.get_release_type_display }}
+    {% endif %}
+  </div>
+  <div>
     {% if item.release_date %}
       {% trans 'release date' %}: {{ item.release_date }}
     {% elif item.release_year %}

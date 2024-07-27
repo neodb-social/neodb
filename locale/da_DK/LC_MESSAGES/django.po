@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: neodb-test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-18 22:49-0400\n"
+"POT-Creation-Date: 2024-07-27 00:37-0400\n"
 "PO-Revision-Date: 2024-07-22 18:39\n"
 "Last-Translator: \n"
 "Language-Team: Danish\n"
@@ -28,6 +28,10 @@ msgstr "Forenklet kinesisk"
 #: boofilsic/settings.py:427
 msgid "Traditional Chinese"
 msgstr "Traditionelt kinesisk"
+
+#: boofilsic/settings.py:428 common/models/lang.py:44
+msgid "Danish"
+msgstr "Dansk"
 
 #: catalog/book/models.py:80 catalog/book/models.py:99
 #: catalog/common/models.py:306 catalog/common/models.py:324
@@ -430,55 +434,95 @@ msgstr "Primært ID på kilde-sitet"
 msgid "url to the resource"
 msgstr "url til ressourcen"
 
-#: catalog/game/models.py:60 catalog/movie/models.py:71
+#: catalog/game/models.py:23
+msgid "Main Game"
+msgstr ""
+
+#: catalog/game/models.py:24
+msgid "Expansion"
+msgstr ""
+
+#: catalog/game/models.py:25
+msgid "Downloadable Content"
+msgstr ""
+
+#: catalog/game/models.py:26
+msgid "Mod"
+msgstr ""
+
+#: catalog/game/models.py:27
+msgid "Bundle"
+msgstr ""
+
+#: catalog/game/models.py:28
+msgid "Remaster"
+msgstr ""
+
+#: catalog/game/models.py:29
+msgid "Remake"
+msgstr ""
+
+#: catalog/game/models.py:30
+msgid "Special Edition"
+msgstr ""
+
+#: catalog/game/models.py:31
+msgid "Other"
+msgstr "andre"
+
+#: catalog/game/models.py:76 catalog/movie/models.py:71
 #: catalog/music/models.py:90 catalog/performance/models.py:115
 #: catalog/performance/models.py:260 catalog/tv/models.py:142
 #: catalog/tv/models.py:299
 msgid "other title"
 msgstr "anden titel"
 
-#: catalog/game/models.py:68
+#: catalog/game/models.py:84
 msgid "designer"
 msgstr "designer"
 
-#: catalog/game/models.py:76 catalog/music/models.py:68
+#: catalog/game/models.py:92 catalog/music/models.py:68
 msgid "artist"
 msgstr "kunstner"
 
-#: catalog/game/models.py:84
+#: catalog/game/models.py:100
 msgid "developer"
 msgstr "udvikler"
 
-#: catalog/game/models.py:92 catalog/music/models.py:83
+#: catalog/game/models.py:108 catalog/music/models.py:83
 msgid "publisher"
 msgstr "forlag"
 
-#: catalog/game/models.py:99
+#: catalog/game/models.py:115
 msgid "year of publication"
 msgstr "udgivelsesår"
 
-#: catalog/game/models.py:103 catalog/podcast/models.py:118
+#: catalog/game/models.py:119 catalog/podcast/models.py:118
 msgid "date of publication"
 msgstr "udgivelsesdato"
 
-#: catalog/game/models.py:108 catalog/music/models.py:62
+#: catalog/game/models.py:124 catalog/music/models.py:62
 #: catalog/tv/models.py:189
 msgid "YYYY-MM-DD"
 msgstr "ÅÅÅÅ-MM-DD"
 
-#: catalog/game/models.py:112 catalog/movie/models.py:99
+#: catalog/game/models.py:128 catalog/templates/game.html:16
+msgid "release type"
+msgstr ""
+
+#: catalog/game/models.py:135 catalog/movie/models.py:99
 #: catalog/performance/models.py:122 catalog/podcast/models.py:46
 #: catalog/tv/models.py:169 catalog/tv/models.py:327
 msgid "genre"
 msgstr "genre"
 
-#: catalog/game/models.py:120
+#: catalog/game/models.py:143
 msgid "platform"
 msgstr "platform"
 
-#: catalog/game/models.py:126 catalog/movie/models.py:133
+#: catalog/game/models.py:149 catalog/movie/models.py:133
 #: catalog/performance/models.py:206 catalog/performance/models.py:344
-#: catalog/podcast/models.py:64 catalog/templates/game.html:29
+#: catalog/podcast/models.py:64 catalog/templates/game.html:34
 #: catalog/templates/movie.html:58 catalog/templates/performance.html:33
 #: catalog/templates/performanceproduction.html:33
 #: catalog/templates/podcast.html:20 catalog/templates/tvseason.html:75
@@ -507,7 +551,7 @@ msgstr "skuespiller"
 
 #: catalog/movie/models.py:106 catalog/music/models.py:62
 #: catalog/templates/_item_card_metadata_album.html:16
-#: catalog/templates/album.html:17 catalog/templates/game.html:16
+#: catalog/templates/album.html:17 catalog/templates/game.html:21
 #: catalog/templates/movie.html:40 catalog/templates/tvseason.html:57
 #: catalog/templates/tvshow.html:52
 msgid "release date"
@@ -686,7 +730,7 @@ msgstr "vis mere"
 #: catalog/templates/_item_comments_by_episode.html:84
 #: catalog/templates/_item_reviews.html:47
 #: catalog/templates/podcast_episode_data.html:44
-#: social/templates/events.html:43 social/templates/feed_events.html:135
+#: social/templates/events.html:43 social/templates/feed_events.html:136
 msgid "nothing more."
 msgstr "ikke mere."
 
@@ -1159,7 +1203,7 @@ msgstr "Henter fra %(site_label)s"
 msgid "System busy, please try again in a minute."
 msgstr "System er optaget, prøv venligst igen om et øjeblik."
 
-#: catalog/templates/game.html:18
+#: catalog/templates/game.html:23
 msgid "release year"
 msgstr "udgivelsesår"
 
@@ -1527,10 +1571,6 @@ msgstr "Cree"
 #: common/models/lang.py:43
 msgid "Welsh"
 msgstr "Walisisk"
-
-#: common/models/lang.py:44
-msgid "Danish"
-msgstr "Dansk"
 
 #: common/models/lang.py:45
 msgid "German"
@@ -2385,7 +2425,8 @@ msgstr "vis alle"
 
 #: common/templates/_sidebar_anonymous.html:16
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "        <h3>Welcome 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
 "        <p>\n"
 "          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s is committed to creating a free, open, and interconnected space for collecting and reviewing books, movies, music, games, and podcasts. Here, you can document your collections and thoughts, discover new content, and connect with others.\n"
@@ -2403,7 +2444,8 @@ msgid "\n"
 "          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">Click here</a> to register or log in.\n"
 "        </p>\n"
 "        "
-msgstr "\n"
+msgstr ""
+"\n"
 "        <h3>Velkommen 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
 "        <p>\n"
 "          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s's mål er en gratis, åben, og sammenkoblet sted til samling og anmeldelse af bøger, film, musik, spil og podcasts. Her kan du dokumentere dine samlinger og tanker, opdage nyt indhold og skabe nye forbindelser til andre.\n"
@@ -3226,58 +3268,86 @@ msgid "Markdown format references"
 msgstr "Markdown format referencer"
 
 #: journal/templates/markdown.html:5
-msgid "\n"
+msgid ""
+"\n"
 "Title\n"
-"=====\n\n"
+"=====\n"
+"\n"
 "Subtitle\n"
-"--------\n\n"
-"  Paragraphs need to be separated by a blank line\n\n"
-"  Indentation at the beginning of the paragraph requires using a Unicode full-width space\n\n"
+"--------\n"
+"\n"
+"  Paragraphs need to be separated by a blank line\n"
+"\n"
+"  Indentation at the beginning of the paragraph requires using a Unicode full-width space\n"
+"\n"
 "[Link](https://zh.wikipedia.org/wiki/Markdown)\n"
 "**Bold**  *Italic* ==Highlight== ~~Strikethrough~~\n"
-"^Super^script ~Sub~script [拼(pīn)音(yīn)]\n\n"
-"Drag and drop an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n\n"
+"^Super^script ~Sub~script [拼(pīn)音(yīn)]\n"
+"\n"
+"Drag and drop an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n"
+"\n"
 "> Quote\n"
-">> Multi-level quote\n\n"
-"Inline >! spoiler warning !< (also in short comments)\n\n"
+">> Multi-level quote\n"
+"\n"
+"Inline >! spoiler warning !< (also in short comments)\n"
+"\n"
 ">! Multi-line\n"
-">! Spoiler\n\n"
-"---\n\n"
+">! Spoiler\n"
+"\n"
+"---\n"
+"\n"
 "- Bullet\n"
-"- Points\n\n"
+"- Points\n"
+"\n"
 "content in paragraph with footnote[^1] markup.\n"
-"[^1]: footnote explain\n\n"
+"[^1]: footnote explain\n"
+"\n"
 "```\n"
 "code\n"
-"```\n\n"
+"```\n"
+"\n"
 "Table Header  | Second Header\n"
 "------------- | -------------\n"
 "Content Cell  | Content Cell\n"
 "Content Cell  | Content Cell\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "Titel\n"
-"=====\n\n"
+"=====\n"
+"\n"
 "Undertitel\n"
-"--------\n\n"
-"  Afsnit skal separeres med en blank linje\n\n"
-"  Indrykning i begyndelsen af ​​afsnittet kræver brug af et Unicode-mellemrum i fuld bredde\n\n"
+"--------\n"
+"\n"
+"  Afsnit skal separeres med en blank linje\n"
+"\n"
+"  Indrykning i begyndelsen af ​​afsnittet kræver brug af et Unicode-mellemrum i fuld bredde\n"
+"\n"
 "[Link](https://zh.wikipedia.org/wiki/Markdown)\n"
 "**Fed**  *Kursiv* ==Fremhævet== ~~Gennemstregning~~\n"
-"^Hævet^skrift ~Sænket~skrift [拼(pīn)音(yīn)]\n\n"
-"Træk og slip et billede ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n\n"
+"^Hævet^skrift ~Sænket~skrift [拼(pīn)音(yīn)]\n"
+"\n"
+"Træk og slip et billede ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n"
+"\n"
 "> Citat\n"
-">> Citat i flere niveauer\n\n"
-"En >! indholdsadvarsel !< i indlæg (også i korte kommentarer)\n\n"
+">> Citat i flere niveauer\n"
+"\n"
+"En >! indholdsadvarsel !< i indlæg (også i korte kommentarer)\n"
+"\n"
 ">! Multi-linje\n"
-">! Spoiler\n\n"
-"---\n\n"
+">! Spoiler\n"
+"\n"
+"---\n"
+"\n"
 "- punktopstilling\n"
-"- punktopstilling\n\n"
+"- punktopstilling\n"
+"\n"
 "indhold i afsnit med fodnote[^1] markering.\n"
-"[^1]: fodnote\n\n"
+"[^1]: fodnote\n"
+"\n"
 "```\n"
 "kode\n"
-"```\n\n"
+"```\n"
+"\n"
 "Tabel hovedtekst  | Anden hovedtekst\n"
 "------------- | -------------\n"
 "Indhold Celle  | Indhold Celle\n"
@@ -3554,32 +3624,50 @@ msgid "Bluesky"
 msgstr "Bluesky"
 
 #: mastodon/models/email.py:55
-msgid "\n\n"
+msgid ""
+"\n"
+"\n"
 "If you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
-msgstr "\n\n"
+msgstr ""
+"\n"
+"\n"
 "Hvis du ikke ville registrere dig eller logge ind, bedes du venligst ignorere denne e-mail. Hvis du er bekymret om din kontosikkerhed, kan du skifte e-mailadressen tilnyttet din konto, eller kontakte os."
 
 #: mastodon/models/email.py:62
 #, python-brace-format
-msgid "Use this code to verify your email address {email}\n\n"
+msgid ""
+"Use this code to verify your email address {email}\n"
+"\n"
 "{code}"
-msgstr "Brug denne kode til at bekræfte din e-mailadresse {email}\n\n"
+msgstr ""
+"Brug denne kode til at bekræfte din e-mailadresse {email}\n"
+"\n"
 "{code}"
 
 #: mastodon/models/email.py:66
 #, python-brace-format
-msgid "Use this code to login as {email}\n\n"
+msgid ""
+"Use this code to login as {email}\n"
+"\n"
 "{code}"
-msgstr "Brug denne kode til at logge ind som {email}\n\n"
+msgstr ""
+"Brug denne kode til at logge ind som {email}\n"
+"\n"
 "{code}"
 
 #: mastodon/models/email.py:72
 #, python-brace-format
-msgid "There is no account registered with this email address yet: {email}\n\n"
-"If you already have an account with us, just login and add this email to you account.\n\n"
+msgid ""
+"There is no account registered with this email address yet: {email}\n"
+"\n"
+"If you already have an account with us, just login and add this email to you account.\n"
+"\n"
 "If you prefer to register a new account with this email, please use this verification code: {code}"
-msgstr "Der er ingen konto registreret med denne e-mailadresse endnu: {email}\n\n"
-"Hvis du allerede har en konto hos os, log ind og tilføj denne e-mail til din konto.\n\n"
+msgstr ""
+"Der er ingen konto registreret med denne e-mailadresse endnu: {email}\n"
+"\n"
+"Hvis du allerede har en konto hos os, log ind og tilføj denne e-mail til din konto.\n"
+"\n"
 "Hvis du foretrækker at registrere en ny konto med denne e-mail, skal du bruge denne bekræftelseskode: {code}"
 
 #: mastodon/models/mastodon.py:512
@@ -3745,44 +3833,56 @@ msgstr "boostede dit indlæg"
 
 #: social/templates/event/boosted_collection.html:2
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "boosted your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "boosted din samling <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/boosted_comment.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "boosted your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "boostede din kommentar på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_note.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "boosted your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "boostede din note på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_rating.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "boosted your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "boostede din bedømmelse på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_review.html:2
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "boosted your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "boostede din anmeldelse <a href=\"%(piece_url)s\">%(piece_title)s</a> på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_shelfmember.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "boosted your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "boostede din markering på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/follow_requested.html:3
@@ -3799,44 +3899,56 @@ msgstr "syntes om dit indlæg"
 
 #: social/templates/event/liked_collection.html:2
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "liked your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "syntes om din samling <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/liked_comment.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "liked your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "syntes om din kommentar på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_note.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "liked your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "syntes om din note på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_rating.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "liked your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "syntes om din bedømmelse på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_review.html:2
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "liked your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "syntes godt om din anmeldelse <a href=\"%(piece_url)s\">%(piece_title)s</a> på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_shelfmember.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "liked your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "syntes om din markering på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned.html:3
@@ -3845,44 +3957,56 @@ msgstr "har nævnt dig"
 
 #: social/templates/event/mentioned_collection.html:2
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "replied to your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "svarede på din samling <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/mentioned_comment.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "replied to your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "svarede på din kommentar om <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_note.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "replied to your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "svarede på din note på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_rating.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "replied to your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "svarede på din bedømmelse på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_review.html:2
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "replied to your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "svarede på din anmeldelse <a href=\"%(piece_url)s\">%(piece_title)s</a> på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_shelfmember.html:3
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "replied to your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "svarede på din markering på <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/feed.html:11 social/templates/feed.html:23
@@ -3906,19 +4030,19 @@ msgstr "Notifikationer"
 msgid "boosted"
 msgstr "boostet"
 
-#: social/templates/feed_events.html:40
+#: social/templates/feed_events.html:41
 msgid "play"
 msgstr "afspil"
 
-#: social/templates/feed_events.html:51
+#: social/templates/feed_events.html:52
 msgid "mark"
 msgstr "markering"
 
-#: social/templates/feed_events.html:70
+#: social/templates/feed_events.html:71
 msgid "wrote a note"
 msgstr "skrev en note"
 
-#: social/templates/feed_events.html:139
+#: social/templates/feed_events.html:140
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "Find og marker nogle bøger/film/podcasts/spil, <a href=\"%(import_url)s\">importer dine data</a> fra Goodreads/Letterboxd/Douban, følg andre %(site_name)s brugere i fødiverset, så deres seneste aktiviteter vises her."
@@ -4673,10 +4797,12 @@ msgstr "Velkommen"
 
 #: users/templates/users/welcome.html:22
 #, python-format
-msgid "\n"
+msgid ""
+"\n"
 "              %(site_name)s is flourishing because of collaborations and contributions from users like you. Please read our <a href=\"/pages/terms\">term of service</a>, and feel free to <a href=\"%(support_link)s\">contact us</a> if you have any question or feedback.\n"
 "        "
-msgstr "\n"
+msgstr ""
+"\n"
 "              %(site_name)s blomstrer på grund af samarbejde og bidrag fra brugere som dig. Læs venligst vores <a href=\"/pages/terms\">servicevilkår</a>, og <a href=\"%(support_link)s\">kontakt os</a> endelig hvis du har spørgsmål eller feedback.\n"
 "        "
 

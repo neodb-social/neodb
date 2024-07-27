@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-18 22:49-0400\n"
+"POT-Creation-Date: 2024-07-27 00:37-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,6 +26,10 @@ msgstr "簡體中文"
 #: boofilsic/settings.py:427
 msgid "Traditional Chinese"
 msgstr "繁體中文"
+
+#: boofilsic/settings.py:428 common/models/lang.py:44
+msgid "Danish"
+msgstr "丹麥語"
 
 #: catalog/book/models.py:80 catalog/book/models.py:99
 #: catalog/common/models.py:306 catalog/common/models.py:324
@@ -428,55 +432,95 @@ msgstr "來源站點的主要標識數據"
 msgid "url to the resource"
 msgstr "指向外部資源的網址"
 
-#: catalog/game/models.py:60 catalog/movie/models.py:71
+#: catalog/game/models.py:23
+msgid "Main Game"
+msgstr "遊戲"
+
+#: catalog/game/models.py:24
+msgid "Expansion"
+msgstr "資料片"
+
+#: catalog/game/models.py:25
+msgid "Downloadable Content"
+msgstr "可下載內容"
+
+#: catalog/game/models.py:26
+msgid "Mod"
+msgstr "模組"
+
+#: catalog/game/models.py:27
+msgid "Bundle"
+msgstr "合集"
+
+#: catalog/game/models.py:28
+msgid "Remaster"
+msgstr "復刻"
+
+#: catalog/game/models.py:29
+msgid "Remake"
+msgstr "重製"
+
+#: catalog/game/models.py:30
+msgid "Special Edition"
+msgstr "特別版"
+
+#: catalog/game/models.py:31
+msgid "Other"
+msgstr "其它"
+
+#: catalog/game/models.py:76 catalog/movie/models.py:71
 #: catalog/music/models.py:90 catalog/performance/models.py:115
 #: catalog/performance/models.py:260 catalog/tv/models.py:142
 #: catalog/tv/models.py:299
 msgid "other title"
 msgstr "其它標題"
 
-#: catalog/game/models.py:68
+#: catalog/game/models.py:84
 msgid "designer"
 msgstr "設計者"
 
-#: catalog/game/models.py:76 catalog/music/models.py:68
+#: catalog/game/models.py:92 catalog/music/models.py:68
 msgid "artist"
 msgstr "藝術家"
 
-#: catalog/game/models.py:84
+#: catalog/game/models.py:100
 msgid "developer"
 msgstr "開發者"
 
-#: catalog/game/models.py:92 catalog/music/models.py:83
+#: catalog/game/models.py:108 catalog/music/models.py:83
 msgid "publisher"
 msgstr "出版發行"
 
-#: catalog/game/models.py:99
+#: catalog/game/models.py:115
 msgid "year of publication"
 msgstr "發行年份"
 
-#: catalog/game/models.py:103 catalog/podcast/models.py:118
+#: catalog/game/models.py:119 catalog/podcast/models.py:118
 msgid "date of publication"
 msgstr "發行日期"
 
-#: catalog/game/models.py:108 catalog/music/models.py:62
+#: catalog/game/models.py:124 catalog/music/models.py:62
 #: catalog/tv/models.py:189
 msgid "YYYY-MM-DD"
-msgstr ""
+msgstr "YYYY-MM-DD"
 
-#: catalog/game/models.py:112 catalog/movie/models.py:99
+#: catalog/game/models.py:128 catalog/templates/game.html:16
+msgid "release type"
+msgstr "發佈類型"
+
+#: catalog/game/models.py:135 catalog/movie/models.py:99
 #: catalog/performance/models.py:122 catalog/podcast/models.py:46
 #: catalog/tv/models.py:169 catalog/tv/models.py:327
 msgid "genre"
 msgstr "類型"
 
-#: catalog/game/models.py:120
+#: catalog/game/models.py:143
 msgid "platform"
 msgstr "平臺"
 
-#: catalog/game/models.py:126 catalog/movie/models.py:133
+#: catalog/game/models.py:149 catalog/movie/models.py:133
 #: catalog/performance/models.py:206 catalog/performance/models.py:344
-#: catalog/podcast/models.py:64 catalog/templates/game.html:29
+#: catalog/podcast/models.py:64 catalog/templates/game.html:34
 #: catalog/templates/movie.html:58 catalog/templates/performance.html:33
 #: catalog/templates/performanceproduction.html:33
 #: catalog/templates/podcast.html:20 catalog/templates/tvseason.html:75
@@ -505,7 +549,7 @@ msgstr "演員"
 
 #: catalog/movie/models.py:106 catalog/music/models.py:62
 #: catalog/templates/_item_card_metadata_album.html:16
-#: catalog/templates/album.html:17 catalog/templates/game.html:16
+#: catalog/templates/album.html:17 catalog/templates/game.html:21
 #: catalog/templates/movie.html:40 catalog/templates/tvseason.html:57
 #: catalog/templates/tvshow.html:52
 msgid "release date"
@@ -684,7 +728,7 @@ msgstr "顯示更多"
 #: catalog/templates/_item_comments_by_episode.html:84
 #: catalog/templates/_item_reviews.html:47
 #: catalog/templates/podcast_episode_data.html:44
-#: social/templates/events.html:43 social/templates/feed_events.html:135
+#: social/templates/events.html:43 social/templates/feed_events.html:136
 msgid "nothing more."
 msgstr "沒有更多內容了。"
 
@@ -1157,7 +1201,7 @@ msgstr "正在從%(site_label)s獲取"
 msgid "System busy, please try again in a minute."
 msgstr "系統繁忙，請稍等幾秒鐘再搜索。"
 
-#: catalog/templates/game.html:18
+#: catalog/templates/game.html:23
 msgid "release year"
 msgstr "發行年份"
 
@@ -1525,10 +1569,6 @@ msgstr ""
 #: common/models/lang.py:43
 msgid "Welsh"
 msgstr ""
-
-#: common/models/lang.py:44
-msgid "Danish"
-msgstr "丹麥語"
 
 #: common/models/lang.py:45
 msgid "German"
@@ -3995,19 +4035,19 @@ msgstr "通知"
 msgid "boosted"
 msgstr "轉播了"
 
-#: social/templates/feed_events.html:40
+#: social/templates/feed_events.html:41
 msgid "play"
 msgstr "播放"
 
-#: social/templates/feed_events.html:51
+#: social/templates/feed_events.html:52
 msgid "mark"
 msgstr "標記"
 
-#: social/templates/feed_events.html:70
+#: social/templates/feed_events.html:71
 msgid "wrote a note"
 msgstr "寫了筆記"
 
-#: social/templates/feed_events.html:139
+#: social/templates/feed_events.html:140
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "搜索並標記一些書影音/播客/遊戲，<a href=\"%(import_url)s\">導入你的豆瓣、Letterboxd或Goodreads記錄</a>，去聯邦宇宙（長毛象）關注一些正在使用%(site_name)s的用戶，這裏就會顯示你和她們的近期動態。"
