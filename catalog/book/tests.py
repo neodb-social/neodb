@@ -167,7 +167,7 @@ class GoodreadsTestCase(TestCase):
         self.assertEqual(resource.id_value, "77566")
         self.assertNotEqual(resource.cover, "/media/item/default.svg")
         self.assertEqual(edition.isbn, "9780553283686")
-        self.assertEqual(edition.format, "papberback")
+        self.assertEqual(edition.format, "paperback")
         self.assertEqual(edition.display_title, "Hyperion")
 
         edition.delete()

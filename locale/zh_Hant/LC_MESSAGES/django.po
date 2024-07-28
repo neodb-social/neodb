@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-27 00:37-0400\n"
+"POT-Creation-Date: 2024-07-28 16:10-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,57 +41,91 @@ msgstr "區域語言"
 msgid "text content"
 msgstr "文本內容"
 
-#: catalog/book/models.py:148
+#: catalog/book/models.py:117
+msgid "Paperback"
+msgstr "平裝"
+
+#: catalog/book/models.py:118
+msgid "Hardcover"
+msgstr "精裝"
+
+#: catalog/book/models.py:119
+msgid "eBook"
+msgstr "電子說"
+
+#: catalog/book/models.py:120
+msgid "Audiobook"
+msgstr "有聲書"
+
+#: catalog/book/models.py:121
+msgid "GraphicNovel"
+msgstr "圖像小說"
+
+#: catalog/book/models.py:122
+msgid "Web Fiction"
+msgstr "網絡小說"
+
+#: catalog/book/models.py:123 catalog/game/models.py:31
+msgid "Other"
+msgstr "其它"
+
+#: catalog/book/models.py:159
 msgid "subtitle"
 msgstr "副標題"
 
-#: catalog/book/models.py:158 catalog/movie/models.py:68
+#: catalog/book/models.py:169 catalog/movie/models.py:68
 #: catalog/performance/models.py:257 catalog/tv/models.py:138
 #: catalog/tv/models.py:296
 msgid "original title"
 msgstr "原名"
 
-#: catalog/book/models.py:161 catalog/book/models.py:323
+#: catalog/book/models.py:172 catalog/book/models.py:340
 msgid "author"
 msgstr "作者"
 
-#: catalog/book/models.py:168
+#: catalog/book/models.py:179
 msgid "translator"
 msgstr "譯者"
 
-#: catalog/book/models.py:176 catalog/templates/edition.html:26
+#: catalog/book/models.py:186 catalog/templates/edition.html:27
+#, fuzzy
+#| msgid "books to read"
+msgid "book format"
+msgstr "想讀的書"
+
+#: catalog/book/models.py:193 catalog/templates/edition.html:33
 msgid "publishing house"
 msgstr "出版社"
 
-#: catalog/book/models.py:179
+#: catalog/book/models.py:196
 msgid "publication year"
 msgstr "發行年份"
 
-#: catalog/book/models.py:185
+#: catalog/book/models.py:202
 msgid "publication month"
 msgstr "發行月份"
 
-#: catalog/book/models.py:190 catalog/templates/edition.html:48
+#: catalog/book/models.py:207 catalog/templates/edition.html:55
 msgid "binding"
 msgstr "裝訂"
 
-#: catalog/book/models.py:191
+#: catalog/book/models.py:208
 msgid "pages"
 msgstr "頁數"
 
-#: catalog/book/models.py:192 catalog/templates/edition.html:42
+#: catalog/book/models.py:209 catalog/templates/edition.html:49
 msgid "series"
 msgstr "叢書"
 
-#: catalog/book/models.py:193
+#: catalog/book/models.py:210
 msgid "contents"
 msgstr "目錄"
 
-#: catalog/book/models.py:194 catalog/templates/edition.html:53
+#: catalog/book/models.py:211 catalog/templates/edition.html:60
 msgid "price"
 msgstr "價格"
 
-#: catalog/book/models.py:195 catalog/templates/edition.html:31
+#: catalog/book/models.py:212 catalog/templates/edition.html:38
 msgid "imprint"
 msgstr "出品方"
 
@@ -463,10 +497,6 @@ msgstr "重製"
 #: catalog/game/models.py:30
 msgid "Special Edition"
 msgstr "特別版"
-
-#: catalog/game/models.py:31
-msgid "Other"
-msgstr "其它"
 
 #: catalog/game/models.py:76 catalog/movie/models.py:71
 #: catalog/music/models.py:90 catalog/performance/models.py:115
@@ -1171,19 +1201,19 @@ msgstr "暫無內容。"
 msgid "Recent Posts"
 msgstr "近期帖文"
 
-#: catalog/templates/edition.html:36
+#: catalog/templates/edition.html:43
 msgid "publication date"
 msgstr "發行時間"
 
-#: catalog/templates/edition.html:58
+#: catalog/templates/edition.html:65
 msgid "number of pages"
 msgstr "頁數"
 
-#: catalog/templates/edition.html:90
+#: catalog/templates/edition.html:97
 msgid "other editions"
 msgstr "其它版本"
 
-#: catalog/templates/edition.html:110
+#: catalog/templates/edition.html:117
 msgid "Borrow or Buy"
 msgstr "借閱或購買"
 

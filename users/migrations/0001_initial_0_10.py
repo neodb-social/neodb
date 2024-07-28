@@ -564,6 +564,7 @@ class Migration(migrations.Migration):
                     ("en", "English"),
                     ("zh-hans", "Simplified Chinese"),
                     ("zh-hant", "Traditional Chinese"),
+                    ("da", "Danish"),
                 ],
                 default="en",
                 max_length=10,
