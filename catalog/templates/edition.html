@@ -22,6 +22,13 @@
   <div>{% include '_people.html' with people=item.author role='author' max=5 %}</div>
   <div>{% include '_people.html' with people=item.translator role='translator' max=5 %}</div>
   <div>
+    <div>
+      {% if item.format %}
+        {% trans 'book format' %}: {{ item.get_format_display }}
+      {% endif %}
+    </div>
+  </div>
+  <div>
     {% if item.pub_house %}
       {% trans 'publishing house' %}: {{ item.pub_house }}
     {% endif %}

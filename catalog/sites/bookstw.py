@@ -131,6 +131,7 @@ class BooksTW(AbstractSite):
             "pub_year": pub_year,
             "pub_month": pub_month,
             "binding": binding,
+            "format": binding_to_format(str(binding)) if binding else None,
             "price": price,
             "pages": pages,
             "isbn": isbn,

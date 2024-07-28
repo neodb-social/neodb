@@ -7,7 +7,7 @@ from django.utils.timezone import make_aware
 from lxml import html
 
 from catalog.book.models import Edition, Work
-from catalog.book.utils import detect_isbn_asin
+from catalog.book.utils import binding_to_format, detect_isbn_asin
 from catalog.common import *
 from common.models.lang import detect_language
 from journal.models.renderers import html_to_text
@@ -95,6 +95,7 @@ class Goodreads(AbstractSite):
                 ids[t] = n
         data["pages"] = b["details"].get("numPages")
         data["binding"] = b["details"].get("format")
+        data["format"] = binding_to_format(b["details"].get("format"))
         data["pub_house"] = b["details"].get("publisher")
         if b["details"].get("publicationTime"):
             dt = make_aware(

@@ -62,3 +62,23 @@ def detect_isbn_asin(s: str) -> tuple[IdType, str] | tuple[None, None]:
     if is_asin(n):
         return IdType.ASIN, n
     return None, None
+
+
+def binding_to_format(binding: str | None):
+    from .models import Edition
+
+    if not binding:
+        return None
+    if re.search(r"(Audio|Audible|音频)", binding, flags=re.IGNORECASE):
+        return Edition.BookFormat.AUDIOBOOK
+    if re.search(
+        r"(pub|ebook|e-book|kindle|electronic|电子)", binding, flags=re.IGNORECASE
+    ):
+        return Edition.BookFormat.HARDCOVER
+    if re.search(r"(web|网)", binding, flags=re.IGNORECASE):
+        return Edition.BookFormat.WEB
+    if re.search(r"(精|Hard)", binding, flags=re.IGNORECASE):
+        return Edition.BookFormat.HARDCOVER
+    if re.search(r"(平|Paper|Soft)", binding, flags=re.IGNORECASE):
+        return Edition.BookFormat.PAPERBACK
+    return None

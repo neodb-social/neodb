@@ -199,6 +199,7 @@ class DoubanBook(AbstractSite):
             "pub_year": pub_year,
             "pub_month": pub_month,
             "binding": binding,
+            "format": binding_to_format(binding),
             "price": price,
             "pages": pages,
             "isbn": isbn,

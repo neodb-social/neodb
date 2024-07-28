@@ -167,6 +167,7 @@ class GoodreadsTestCase(TestCase):
         self.assertEqual(resource.id_value, "77566")
         self.assertNotEqual(resource.cover, "/media/item/default.svg")
         self.assertEqual(edition.isbn, "9780553283686")
+        self.assertEqual(edition.format, "papberback")
         self.assertEqual(edition.display_title, "Hyperion")
 
         edition.delete()
@@ -290,6 +291,7 @@ class BooksTWTestCase(TestCase):
         self.assertEqual(site.resource.id_type, IdType.BooksTW)
         self.assertEqual(site.resource.id_value, "0010947886")
         self.assertEqual(site.resource.item.isbn, "9786263152236")
+        self.assertEqual(site.resource.item.format, "paperback")
         self.assertEqual(
             site.resource.item.display_title,
             "阿拉伯人三千年：從民族、部落、語言、文化、宗教到帝國，綜覽阿拉伯世界的崛起、衰落與再興",
@@ -329,6 +331,7 @@ class DoubanBookTestCase(TestCase):
         self.assertEqual(site.resource.id_type, IdType.DoubanBook)
         self.assertEqual(site.resource.id_value, "35902899")
         self.assertEqual(site.resource.item.isbn, "9781847498571")
+        self.assertEqual(site.resource.item.format, "paperback")
         self.assertEqual(site.resource.item.display_title, "1984 Nineteen Eighty-Four")
 
     @use_local_response

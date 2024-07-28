@@ -112,6 +112,16 @@ EDITION_LOCALIZED_SUBTITLE_SCHEMA = {
 class Edition(Item):
     if TYPE_CHECKING:
         works: "models.ManyToManyField[Work, Edition]"
+
+    class BookFormat(models.TextChoices):
+        PAPERBACK = "paperback", _("Paperback")
+        HARDCOVER = "hardcover", _("Hardcover")
+        EBOOK = "ebook", _("eBook")
+        AUDIOBOOK = "audiobook", _("Audiobook")
+        GRAPHICNOVEL = "graphicnovel", _("GraphicNovel")
+        WEB = "web", _("Web Fiction")
+        OTHER = "other", _("Other")
+
     category = ItemCategory.Book
     url_path = "book"
 
@@ -127,6 +137,7 @@ class Edition(Item):
         # "title",
         # "subtitle",
         "author",
+        "format",
         "pub_house",
         "pub_year",
         "pub_month",
@@ -170,6 +181,12 @@ class Edition(Item):
         null=True,
         blank=True,
         default=list,
+    )
+    format = jsondata.CharField(
+        _("book format"),
+        blank=True,
+        max_length=100,
+        choices=BookFormat.choices,
     )
     language = LanguageListField()
     pub_house = jsondata.CharField(
