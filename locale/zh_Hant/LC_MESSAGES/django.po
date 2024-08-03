@@ -709,7 +709,7 @@ msgstr "無效網址"
 
 #: catalog/templates/_fetch_failed.html:4
 msgid "Unable to fetch from the link, please check again. Some sites may require login for certain links, please manually create them here."
-msgstr "無法加載條目，請確認鏈接正確。部分網站可能刪除條目或隱藏條目爲僅登錄可見，歡迎在本站手工添加這些條目。"
+msgstr "無法加載條目，請確認連結正確。部分網站可能刪除條目或隱藏條目爲僅登入可見，歡迎在本站手工添加這些條目。"
 
 #: catalog/templates/_item_card_metadata_album.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
@@ -1031,7 +1031,7 @@ msgstr "提交"
 
 #: catalog/templates/_sidebar_edit.html:273
 msgid "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution."
-msgstr "本站由用戶共同維護，用戶可自主修改部分條目信息。當你不確定自己的修改是否得當或不能做出某種修改時，可在此處向管理員提出建議。管理員會認真考慮處理每一條建議，雖然不保證總是完全採納；建議也可能被社區其他用戶查看或討論。如果有與具體條目不相關的建議，請訪問討論區或聯繫我們的社交賬號。感謝你的支持和貢獻。"
+msgstr "本站由用戶共同維護，用戶可自主修改部分條目信息。當你不確定自己的修改是否得當或不能做出某種修改時，可在此處向管理員提出建議。管理員會認真考慮處理每一條建議，雖然不保證總是完全採納；建議也可能被社區其他用戶查看或討論。如果有與具體條目不相關的建議，請訪問討論區或聯繫我們的社交帳號。感謝你的支持和貢獻。"
 
 #: catalog/templates/_sidebar_search.html:5
 msgid "Not the result you are looking for?"
@@ -1245,7 +1245,7 @@ msgstr "標籤 · 短評 · 評論 · 收藏"
 
 #: catalog/templates/item_base.html:113
 msgid "Login or register to review or add this item to your collection."
-msgstr "登錄後可管理標記收藏"
+msgstr "登入後可管理標記收藏"
 
 #: catalog/templates/item_base.html:121
 msgid "Related Collections"
@@ -1383,7 +1383,7 @@ msgstr "系統會嘗試搜索其它網站的條目，點擊標題可添加到本
 
 #: catalog/templates/search_results.html:97
 msgid "If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter."
-msgstr "如果你在以下網站找到了相關條目，也可以把鏈接(如 <code>https://movie.douban.com/subject/1309046/</code> )輸入到搜索欄中提交保存到本站。"
+msgstr "如果你在以下網站找到了相關條目，也可以把連結(如 <code>https://movie.douban.com/subject/1309046/</code> )輸入到搜索欄中提交保存到本站。"
 
 #: catalog/templates/search_results.html:107
 #, python-format
@@ -1396,7 +1396,7 @@ msgstr "正在搜索站外條目"
 
 #: catalog/templates/search_results.html:124
 msgid "Logged in user may see search results from other sites."
-msgstr "登錄用戶可看到來自其它網站的搜索結果。"
+msgstr "登入用戶可看到來自其它網站的搜索結果。"
 
 #: catalog/templates/tvseason.html:15 catalog/templates/tvshow.html:21
 msgid "all seasons"
@@ -2291,11 +2291,11 @@ msgstr "您可能提交了無效的數據，或者相關內容已被作者刪除
 #: common/templates/400.html:24 common/templates/403.html:24
 #: common/templates/404.html:24
 msgid "If you believe this is our mistake, please contact us through the link at the bottom of the page."
-msgstr "如果您確信這是我們的錯誤，請通過頁面底部的鏈接聯繫我們。"
+msgstr "如果您確信這是我們的錯誤，請通過頁面底部的連結聯繫我們。"
 
 #: common/templates/403.html:22
 msgid "Author may require you to log in before accessing this content, or you do not have permission to view it."
-msgstr "作者可能希望您登錄後訪問，或者您沒有權限查看此內容。"
+msgstr "作者可能希望您登入後訪問，或者您沒有權限查看此內容。"
 
 #: common/templates/404.html:20
 msgid "Something is missing"
@@ -2311,7 +2311,7 @@ msgstr "發生了一個內部錯誤，如果這個錯誤多次出現，後臺會
 
 #: common/templates/500.html:24
 msgid "If you have an urgent situation or any questions, please contact us through the link at the bottom of the page."
-msgstr "如果您有緊急情況或任何疑問，請通過頁面底部的鏈接聯繫我們。"
+msgstr "如果您有緊急情況或任何疑問，請通過頁面底部的連結聯繫我們。"
 
 #: common/templates/_footer.html:6
 msgid "Rules"
@@ -2342,7 +2342,7 @@ msgstr "這是%(site_name)s的臨時鏡像，請儘可能使用<a href=\"%(site_
 
 #: common/templates/_header.html:17
 msgid "title, creator, ISBN, item url, @user, @user@instance"
-msgstr "標題、創作者、ISBN、站外條目鏈接、@用戶名、@用戶名@實例"
+msgstr "標題、創作者、ISBN、站外條目連結、@用戶名、@用戶名@實例"
 
 #: common/templates/_header.html:22
 msgid "Everything"
@@ -2377,11 +2377,11 @@ msgstr "數據"
 #: common/templates/_header.html:95 users/templates/users/preferences.html:11
 #: users/templates/users/preferences.html:21
 msgid "Preferences"
-msgstr "設置"
+msgstr "設定"
 
 #: common/templates/_header.html:98
 msgid "Account"
-msgstr "賬號"
+msgstr "帳號"
 
 #: common/templates/_header.html:101
 msgid "Logout"
@@ -2397,7 +2397,7 @@ msgstr "管理"
 
 #: common/templates/_header.html:113
 msgid "Sign up or Login"
-msgstr "註冊或登錄"
+msgstr "註冊或登入"
 
 #: common/templates/_header.html:127
 msgid "Open"
@@ -2479,16 +2479,16 @@ msgstr ""
 "  <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s 致力於提供一個涵蓋書籍、影視、音樂、遊戲、播客的自由開放互聯的收藏評論空間。 你可以在這裏記錄你的收藏和想法，以及發現新的內容和朋友。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登錄%(site_name)s的最佳方式通過聯邦宇宙（Fediverse，有時也被稱爲<em data-tooltip=\"除了最常見的長毛象，另外也有Pleroma、GoToSocial、Takahē、Catodon等聯邦宇宙實例服務\">長毛象</em>，一種分佈式社交網絡）實例賬號，如果你還沒有註冊過，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">選擇實例並註冊</a>。\n"
+"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登入%(site_name)s的最佳方式通過聯邦宇宙（Fediverse，有時也被稱爲<em data-tooltip=\"除了最常見的長毛象，另外也有Pleroma、GoToSocial、Takahē、Catodon等聯邦宇宙實例服務\">長毛象</em>，一種分佈式社交網絡）實例帳號，如果你還沒有註冊過，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">選擇實例並註冊</a>。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果還沒準備好註冊聯邦宇宙也沒問題，你可以在登錄頁面選擇電子郵件註冊，未來再連接到聯邦宇宙。\n"
+"  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果還沒準備好註冊聯邦宇宙也沒問題，你可以在登入頁面選擇電子郵件註冊，未來再連接到聯邦宇宙。\n"
 "</p>\n"
 "<p>\n"
 "  <i class=\"fa-solid fa-circle-question\"></i> &nbsp; 如果有任何問題或建議，歡迎通過<a href=\"https://mastodon.social/@neodb\">聯邦宇宙</a>或<a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>和我們聯繫。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">點擊這裏</a>註冊或登錄。\n"
+"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">點擊這裏</a>註冊或登入。\n"
 "</p>\n"
 "        "
 
@@ -2607,7 +2607,7 @@ msgstr "帖文未能發佈到Threads。"
 
 #: journal/models/common.py:402
 msgid "A recent post was not posted to Mastodon, please re-authorize."
-msgstr "帖文未能發佈到聯邦實例，請重新驗證登錄。"
+msgstr "帖文未能發佈到聯邦實例，請重新驗證登入。"
 
 #: journal/models/common.py:409
 msgid "A recent post was not posted to Mastodon."
@@ -3101,7 +3101,7 @@ msgstr "停止追蹤這個目標嗎？"
 
 #: journal/templates/_feature_stats.html:15
 msgid "set as target"
-msgstr "設置爲目標"
+msgstr "設定爲目標"
 
 #: journal/templates/_list_item.html:12
 msgid "Remove from collection"
@@ -3350,7 +3350,7 @@ msgstr ""
 "\n"
 "  段首縮進需使用中文全角空格\n"
 "\n"
-"[鏈接](https://zh.wikipedia.org/wiki/Markdown)\n"
+"[連結](https://zh.wikipedia.org/wiki/Markdown)\n"
 "**粗體**  *斜體* ==高亮== ~~刪除~~\n"
 "^上^標 ~下~標 [拼(pīn)音(yīn)]\n"
 "\n"
@@ -3432,7 +3432,7 @@ msgstr "添加回應"
 
 #: journal/templates/review.html:62
 msgid "The author has set it to be viewable only by logged-in users."
-msgstr "作者已設置僅限已登錄用戶查看"
+msgstr "作者已設定僅限已登入用戶查看"
 
 #: journal/templates/review_edit.html:33
 msgid "When saving, replace leading spaces with full-width spaces"
@@ -3553,7 +3553,7 @@ msgstr "找不到條目，請使用本站條目網址。"
 #: journal/views/collection.py:337 journal/views/collection.py:358
 #: journal/views/review.py:124
 msgid "Login required"
-msgstr "登錄後訪問"
+msgstr "登入後訪問"
 
 #: journal/views/common.py:34 journal/views/mark.py:123
 msgid "Data saved but unable to crosspost to Fediverse instance."
@@ -3607,7 +3607,7 @@ msgstr "{0} 的評論"
 
 #: journal/views/review.py:114 journal/views/review.py:122
 msgid "Link invalid"
-msgstr "鏈接無效"
+msgstr "連結無效"
 
 #: journal/views/review.py:135
 #, python-brace-format
@@ -3663,7 +3663,7 @@ msgid ""
 msgstr ""
 "\n"
 "\n"
-"如果你沒有打算用此電子郵件地址註冊或登錄本站，請忽略此郵件；如果你確信賬號存在安全風險，請更改註冊郵件地址或與我們聯繫。"
+"如果你沒有打算用此電子郵件地址註冊或登入本站，請忽略此郵件；如果你確信帳號存在安全風險，請更改註冊郵件地址或與我們聯繫。"
 
 #: mastodon/models/email.py:62
 #, python-brace-format
@@ -3685,7 +3685,7 @@ msgid ""
 "{code}"
 msgstr ""
 "你好，\n"
-"請輸入如下驗證碼登錄{email}賬號：\n"
+"請輸入如下驗證碼登入{email}帳號：\n"
 "\n"
 "{code}"
 
@@ -3699,11 +3699,11 @@ msgid ""
 "If you prefer to register a new account with this email, please use this verification code: {code}"
 msgstr ""
 "你好，\n"
-"本站沒有與{email}關聯的賬號。你希望註冊一個新賬號嗎？\n"
+"本站沒有與{email}關聯的帳號。你希望註冊一個新帳號嗎？\n"
 "\n"
-"如果你已註冊過本站或某個聯邦宇宙（長毛象）實例，不必重新註冊，只要用聯邦宇宙身份登錄本站，再關聯這個電子郵件地址，即可通過郵件登錄。\n"
+"如果你已註冊過本站或某個聯邦宇宙（長毛象）實例，不必重新註冊，只要用聯邦宇宙身份登入本站，再關聯這個電子郵件地址，即可通過郵件登入。\n"
 "\n"
-"如果你確認要使用電子郵件新註冊賬號，請輸入如下驗證碼： {code}"
+"如果你確認要使用電子郵件新註冊帳號，請輸入如下驗證碼： {code}"
 
 #: mastodon/models/mastodon.py:512
 msgid "site domain name"
@@ -3763,7 +3763,7 @@ msgstr "請輸入用戶名和密碼。"
 
 #: mastodon/views/bluesky.py:28
 msgid "Invalid account data from Bluesky."
-msgstr "Bluesky返回了無效的賬號數據。"
+msgstr "Bluesky返回了無效的帳號數據。"
 
 #: mastodon/views/common.py:30 mastodon/views/common.py:95
 msgid "Invalid user."
@@ -3775,26 +3775,26 @@ msgstr "註冊失敗"
 
 #: mastodon/views/common.py:46
 msgid "User already logged in."
-msgstr "用戶已經登錄了。"
+msgstr "用戶已經登入了。"
 
 #: mastodon/views/common.py:58
 #, python-brace-format
 msgid "Continue login as {handle}."
-msgstr "繼續以 {handle} 登錄。"
+msgstr "繼續以 {handle} 登入。"
 
 #: mastodon/views/common.py:64
 msgid "Unable to update login information"
-msgstr "無法更新登錄信息"
+msgstr "無法更新登入信息"
 
 #: mastodon/views/common.py:65
 #, python-brace-format
 msgid "Identity {handle} in use by a different user."
-msgstr "身份 {handle}  已被其它賬號使用。"
+msgstr "身份 {handle}  已被其它帳號使用。"
 
 #: mastodon/views/common.py:81
 #, python-brace-format
 msgid "Login information updated as {handle}."
-msgstr "登錄信息已更新爲{handle}。"
+msgstr "登入信息已更新爲{handle}。"
 
 #: mastodon/views/common.py:91 mastodon/views/common.py:95
 #: mastodon/views/common.py:101
@@ -3807,12 +3807,12 @@ msgstr "身份未找到"
 
 #: mastodon/views/common.py:102
 msgid "You cannot disconnect last login identity."
-msgstr "無法取消唯一的登錄用身份。"
+msgstr "無法取消唯一的登入用身份。"
 
 #: mastodon/views/common.py:108
 #, python-brace-format
 msgid "Login information about {handle} has been removed."
-msgstr "{handle} 的登錄信息已移除。"
+msgstr "{handle} 的登入信息已移除。"
 
 #: mastodon/views/email.py:19
 msgid "Invalid email address"
@@ -3856,11 +3856,11 @@ msgstr "聯邦實例返回了無效的認證令牌。"
 
 #: mastodon/views/mastodon.py:62
 msgid "Invalid account data from Fediverse instance."
-msgstr "聯邦實例返回了無效的賬號數據。"
+msgstr "聯邦實例返回了無效的帳號資料。"
 
 #: mastodon/views/threads.py:47
 msgid "Invalid account data from Threads."
-msgstr "Threads返回了無效的賬號數據。"
+msgstr "Threads返回了無效的帳號資料。"
 
 #: social/templates/event/boosted.html:3
 msgid "boosted your post"
@@ -4080,7 +4080,7 @@ msgstr "寫了筆記"
 #: social/templates/feed_events.html:140
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
-msgstr "搜索並標記一些書影音/播客/遊戲，<a href=\"%(import_url)s\">導入你的豆瓣、Letterboxd或Goodreads記錄</a>，去聯邦宇宙（長毛象）關注一些正在使用%(site_name)s的用戶，這裏就會顯示你和她們的近期動態。"
+msgstr "搜索並標記一些書影音/播客/遊戲，<a href=\"%(import_url)s\">匯入你的豆瓣、Letterboxd或Goodreads記錄</a>，去聯邦宇宙（長毛象）關注一些正在使用%(site_name)s的用戶，這裏就會顯示你和她們的近期動態。"
 
 #: social/templates/notification.html:29
 msgid "mention"
@@ -4156,7 +4156,7 @@ msgstr "使用該用戶名的用戶已存在。"
 
 #: users/templates/users/account.html:10
 msgid "Account Information"
-msgstr "賬號信息"
+msgstr "帳號信息"
 
 #: users/templates/users/account.html:19
 msgid "Display name, avatar and other information"
@@ -4177,11 +4177,11 @@ msgstr "電子郵件地址"
 #: users/templates/users/account.html:59 users/templates/users/register.html:39
 #, python-format
 msgid "Please click the confirmation link in the email sent to %(pending_email)s; if you haven't received it for more than a few minutes, please input and save again."
-msgstr "當前待確認的電子郵件地址爲%(pending_email)s，請查收郵件並點擊確認鏈接；如長時間未收到可重新輸入並保存。"
+msgstr "當前待確認的電子郵件地址爲%(pending_email)s，請查收郵件並點擊確認連結；如長時間未收到可重新輸入並保存。"
 
 #: users/templates/users/account.html:61 users/templates/users/register.html:42
 msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
-msgstr "推薦輸入電子郵件地址作爲備用登錄方式。"
+msgstr "推薦輸入電子郵件地址作爲備用登入方式。"
 
 #: users/templates/users/account.html:73 users/templates/users/login.html:63
 msgid "Fediverse (Mastodon)"
@@ -4211,11 +4211,11 @@ msgstr "如果你已經註冊過聯邦宇宙實例，請輸入實例域名"
 
 #: users/templates/users/account.html:108
 msgid "Go to target instance and authorize with the identity"
-msgstr "登錄實例並關聯"
+msgstr "登入實例並關聯"
 
 #: users/templates/users/account.html:113
 msgid "After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected."
-msgstr "替換關聯後可使用新的聯邦宇宙身份來登錄本站和控制數據可見性，已有的標記評論收藏單等數據不受影響。"
+msgstr "替換關聯後可使用新的聯邦宇宙身份來登入本站和控制數據可見性，已有的標記評論收藏單等數據不受影響。"
 
 #: users/templates/users/account.html:115
 msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
@@ -4225,7 +4225,7 @@ msgstr "關聯聯邦宇宙身份後可發現更多用戶，並使用本站完整
 #: users/templates/users/account.html:160
 #: users/templates/users/account.html:215
 msgid "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?"
-msgstr "取消關聯後將無法使用這個身份登錄本站，確認繼續嗎？"
+msgstr "取消關聯後將無法使用這個身份登入本站，確認繼續嗎？"
 
 #: users/templates/users/account.html:126
 msgid "Disconnect with this identity"
@@ -4237,15 +4237,15 @@ msgstr "Threads.net"
 
 #: users/templates/users/account.html:141
 msgid "Verified threads.net account"
-msgstr "已驗證的threads.net賬號"
+msgstr "已驗證的threads.net帳號"
 
 #: users/templates/users/account.html:154
 msgid "Link with a different threads.net account"
-msgstr "關聯另一個threads.net賬號"
+msgstr "關聯另一個threads.net帳號"
 
 #: users/templates/users/account.html:154
 msgid "Link with a threads.net account"
-msgstr "關聯一個threads.net賬號"
+msgstr "關聯一個threads.net帳號"
 
 #: users/templates/users/account.html:163
 msgid "Disconnect with Threads"
@@ -4261,7 +4261,7 @@ msgstr "已驗證的ATProto身份"
 
 #: users/templates/users/account.html:194
 msgid "Bluesky Login ID"
-msgstr "Bluesky 登錄名"
+msgstr "Bluesky 登入名"
 
 #: users/templates/users/account.html:202 users/templates/users/login.html:159
 msgid "Bluesky app password"
@@ -4293,15 +4293,15 @@ msgstr "自動同步用戶暱稱等基本信息"
 
 #: users/templates/users/account.html:247
 msgid "Sync follow, mute and block"
-msgstr "自動導入新增的關注、屏蔽和隱藏列表"
+msgstr "自動匯入新增的關注、屏蔽和隱藏列表"
 
 #: users/templates/users/account.html:250
 msgid "Save sync settings"
-msgstr "保存同步設置"
+msgstr "保存同步設定"
 
 #: users/templates/users/account.html:252
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
-msgstr "本站會按照以上設置每天自動導入你在聯邦宇宙實例等社交網絡中新增的關注、屏蔽和隱藏列表；如果你在聯邦宇宙實例中關注的用戶加入了本站，你會自動關注她；如果你在聯邦宇宙實例中取消了關注、屏蔽或隱藏，本站不會自動取消，但你可以手動移除。"
+msgstr "本站會按照以上設定每天自動匯入你在聯邦宇宙實例等社交網絡中新增的關注、屏蔽和隱藏列表；如果你在聯邦宇宙實例中關注的用戶加入了本站，你會自動關注她；如果你在聯邦宇宙實例中取消了關注、屏蔽或隱藏，本站不會自動取消，但你可以手動移除。"
 
 #: users/templates/users/account.html:259
 msgid "Click button below to start sync now."
@@ -4333,23 +4333,23 @@ msgstr "已屏蔽的用戶"
 
 #: users/templates/users/account.html:303
 msgid "Delete Account"
-msgstr "刪除賬號"
+msgstr "刪除帳號"
 
 #: users/templates/users/account.html:306
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
-msgstr "賬號數據一旦刪除後將無法恢復，確定繼續嗎？"
+msgstr "帳號數據一旦刪除後將無法恢復，確定繼續嗎？"
 
 #: users/templates/users/account.html:309
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
-msgstr "輸入完整的登錄用 <code>用戶名@實例名</code> 或 <code>電子郵件地址</code> 以確認刪除"
+msgstr "輸入完整的登入用 <code>用戶名@實例名</code> 或 <code>電子郵件地址</code> 以確認刪除"
 
 #: users/templates/users/account.html:319
 msgid "Once deleted, account data cannot be recovered."
-msgstr "賬號數據一旦刪除後將無法恢復"
+msgstr "帳號數據一旦刪除後將無法恢復"
 
 #: users/templates/users/account.html:321
 msgid "Importing in progress, can't delete now."
-msgstr "暫時無法刪除，因爲有導入任務正在進行"
+msgstr "暫時無法刪除，因爲有匯入任務正在進行"
 
 #: users/templates/users/account.html:324
 msgid "Permanently Delete"
@@ -4361,7 +4361,7 @@ msgstr "數據管理"
 
 #: users/templates/users/data.html:19
 msgid "Import Marks and Reviews from Douban"
-msgstr "導入豆瓣標記和評論"
+msgstr "匯入豆瓣標記和評論"
 
 #: users/templates/users/data.html:24
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
@@ -4369,7 +4369,7 @@ msgstr "在<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆
 
 #: users/templates/users/data.html:27 users/templates/users/data.html:185
 msgid "Import Method"
-msgstr "導入方式"
+msgstr "匯入方式"
 
 #: users/templates/users/data.html:30
 msgid "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete."
@@ -4377,52 +4377,52 @@ msgstr "自動合併：僅更新正向變化(未標->想讀->在讀->已讀)標�
 
 #: users/templates/users/data.html:34
 msgid "Overwrite: update all imported status."
-msgstr "強制覆蓋：覆蓋已存在的標記和評論，導入文件中未涉及的條目標記和評論不會被改動。"
+msgstr "強制覆蓋：覆蓋已存在的標記和評論，匯入文件中未涉及的條目標記和評論不會被改動。"
 
 #: users/templates/users/data.html:67
 msgid "Another import is in progress, starting a new import may cause issues, sure to import?"
-msgstr "短期重複上傳可能有無法預期的效果，確定現在上傳導入嗎？"
+msgstr "短期重複上傳可能有無法預期的效果，確定現在上傳匯入嗎？"
 
 #: users/templates/users/data.html:67
 msgid "Import in progress, please wait"
-msgstr "備份文件已上傳，請等待導入完成或刷新頁面查看最新進度"
+msgstr "備份文件已上傳，請等待匯入完成或刷新頁面查看最新進度"
 
 #: users/templates/users/data.html:67 users/templates/users/data.html:86
 #: users/templates/users/data.html:158 users/templates/users/data.html:201
 msgid "Import"
-msgstr "導入"
+msgstr "匯入"
 
 #: users/templates/users/data.html:76
 msgid "Import Shelf or List from Goodreads"
-msgstr "導入Goodreads書架或書單"
+msgstr "匯入Goodreads書架或書單"
 
 #: users/templates/users/data.html:80
 msgid "Link to Goodreads Profile / Shelf / List"
-msgstr "Goodreads個人主頁、書架或書單鏈接"
+msgstr "Goodreads個人主頁、書架或書單連結"
 
 #: users/templates/users/data.html:91
 msgid "want-to-read / currently-reading / read books and their reviews will be imported."
-msgstr "提交Goodreads用戶主頁鏈接將導入想讀、在讀、已讀列表，每本書的評論導入爲本站短評。"
+msgstr "提交Goodreads用戶主頁連結將匯入想讀、在讀、已讀列表，每本書的評論匯入爲本站短評。"
 
 #: users/templates/users/data.html:95
 msgid "Shelf will be imported as a new collection."
-msgstr "Goodreads書架將被導入爲收藏單，每本書的評論導入爲收藏單條目備註。"
+msgstr "Goodreads書架將被匯入爲收藏單，每本書的評論匯入爲收藏單條目備註。"
 
 #: users/templates/users/data.html:99
 msgid "List will be imported as a new collection."
-msgstr "Goodreads書單將被導入爲收藏單，每本書的評論導入爲收藏單條目備註。"
+msgstr "Goodreads書單將被匯入爲收藏單，每本書的評論匯入爲收藏單條目備註。"
 
 #: users/templates/users/data.html:110
 msgid "Import from Letterboxd"
-msgstr "導入Letterboxd標記"
+msgstr "匯入Letterboxd標記"
 
 #: users/templates/users/data.html:160
 msgid "Only forward changes(none->to-watch->watched) will be imported."
-msgstr "導入時僅更新正向變化(未標->想看->已看)標記；不足360字符的評論會作爲短評添加。"
+msgstr "匯入時僅更新正向變化(未標->想看->已看)標記；不足360字符的評論會作爲短評添加。"
 
 #: users/templates/users/data.html:163
 msgid "Last import started"
-msgstr "最近導入時間"
+msgstr "最近匯入時間"
 
 #: users/templates/users/data.html:164
 msgid "Status"
@@ -4430,11 +4430,11 @@ msgstr "狀態"
 
 #: users/templates/users/data.html:168
 msgid "Failed links, likely due to Letterboxd error, you may have to mark them manually"
-msgstr "導入失敗的鏈接（通常由於Letterboxd的信息錯誤，請手工添加標記）"
+msgstr "匯入失敗的連結（通常由於Letterboxd的信息錯誤，請手工添加標記）"
 
 #: users/templates/users/data.html:179
 msgid "Import Podcast Subscriptions"
-msgstr "導入播客訂閱列表 (OPML)"
+msgstr "匯入播客訂閱列表 (OPML)"
 
 #: users/templates/users/data.html:192
 msgid "Mark as listening"
@@ -4442,7 +4442,7 @@ msgstr "標記爲在聽"
 
 #: users/templates/users/data.html:196
 msgid "Import as a new collection"
-msgstr "導入爲新收藏單"
+msgstr "匯入爲新收藏單"
 
 #: users/templates/users/data.html:199
 msgid "Select OPML file"
@@ -4450,15 +4450,15 @@ msgstr "選擇OPML文件"
 
 #: users/templates/users/data.html:208
 msgid "Export Data"
-msgstr "導出數據"
+msgstr "匯出資料"
 
 #: users/templates/users/data.html:214
 msgid "Export in progress"
-msgstr "正在導出"
+msgstr "正在匯出"
 
 #: users/templates/users/data.html:214
 msgid "Export marks and reviews"
-msgstr "導出標記、短評和評論"
+msgstr "匯出標記、短評和評論"
 
 #: users/templates/users/data.html:216
 msgid "Download"
@@ -4470,12 +4470,12 @@ msgstr "查看年度小結"
 
 #: users/templates/users/fetch_identity_failed.html:4
 msgid "Unable to find the user, please check your spelling; or the server may be busy, please try again later."
-msgstr "無法找到用戶，請確認拼寫正確；也可能服務器正忙，請稍後再嘗試。"
+msgstr "無法找到用戶，請確認拼寫正確；也可能伺服器正忙，請稍後再嘗試。"
 
 #: users/templates/users/fetch_identity_pending.html:12
 #: users/templates/users/fetch_identity_pending.html:21
 msgid "Searching the fediverse"
-msgstr "正在搜索聯邦宇宙"
+msgstr "正在搜尋聯邦宇宙"
 
 #: users/templates/users/login.html:16 users/templates/users/register.html:8
 #: users/templates/users/welcome.html:8
@@ -4484,7 +4484,7 @@ msgstr "註冊"
 
 #: users/templates/users/login.html:16
 msgid "Login"
-msgstr "登錄"
+msgstr "登入"
 
 #: users/templates/users/login.html:51
 #: users/templates/users/verify_email.html:22
@@ -4505,19 +4505,19 @@ msgstr "實例域名(不含@和@之前的部分)，如mastodon.social"
 
 #: users/templates/users/login.html:122
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
-msgstr "請輸入你的實例域名(不含@和@之前的部分)；如果你的聯邦賬號是<i>@neodb@mastodon.social</i>，只需要在此輸入<i>mastodon.social</i>。"
+msgstr "請輸入你的實例域名(不含@和@之前的部分)；如果你的聯邦帳號是<i>@neodb@mastodon.social</i>，只需要在此輸入<i>mastodon.social</i>。"
 
 #: users/templates/users/login.html:125 users/templates/users/login.html:178
 msgid "Authorize via Fediverse instance"
-msgstr "去聯邦實例授權註冊或登錄"
+msgstr "去聯邦實例授權註冊或登入"
 
 #: users/templates/users/login.html:127
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
-msgstr "如果你還沒有或不便註冊<a href=\"https://joinmastodon.org/servers\" target=\"_blank\">聯邦實例</a>賬號，也可先通過電子郵件或其它平臺註冊登錄，未來再作關聯。"
+msgstr "如果你還沒有或不便註冊<a href=\"https://joinmastodon.org/servers\" target=\"_blank\">聯邦實例</a>帳號，也可先通過電子郵件或其它平臺註冊登入，未來再作關聯。"
 
 #: users/templates/users/login.html:137
 msgid "Authorize via Threads"
-msgstr "去Threads授權註冊或登錄"
+msgstr "去Threads授權註冊或登入"
 
 #: users/templates/users/login.html:150
 msgid "ATProto handle"
@@ -4529,28 +4529,28 @@ msgstr "請輸入你的ATProto用戶標識（例如neodb.bsky.social，不包含
 
 #: users/templates/users/login.html:165
 msgid "Authorize via bsky.app"
-msgstr "使用Bluesky賬號信息註冊或登錄"
+msgstr "使用Bluesky帳號資料註冊或登入"
 
 #: users/templates/users/login.html:169
 #, python-format
 msgid "Please choose one to register or login %(site_name)s. Have more than one of these identities? Don't worry, you may link them in account settings once logged in."
-msgstr "請選擇一種方式註冊或登錄 %(site_name)s。如果你有多個社交身份，登錄後可在賬號設置中添加綁定。"
+msgstr "請選擇一種方式註冊或登入 %(site_name)s。如果你有多個社交身份，登入後可在帳號設定中添加綁定。"
 
 #: users/templates/users/login.html:185
 msgid "Valid invitation code, please login or register."
-msgstr "邀請鏈接有效，可註冊新用戶"
+msgstr "邀請連結有效，可註冊新用戶"
 
 #: users/templates/users/login.html:187
 msgid "Please use invitation link to register a new account; existing user may login."
-msgstr "本站目前爲邀請註冊，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
+msgstr "本站目前爲邀請註冊，已有帳號可直接登入，新用戶請使用有效邀請連結註冊"
 
 #: users/templates/users/login.html:189
 msgid "Invitation code invalid or expired."
-msgstr "邀請鏈接無效，已有賬戶可直接登入，新用戶請使用有效邀請鏈接註冊"
+msgstr "邀請連結無效，已有賬戶可直接登入，新用戶請使用有效邀請連結註冊"
 
 #: users/templates/users/login.html:197
 msgid "Loading timed out, please check your network (VPN) settings."
-msgstr "部分模塊加載超時，請檢查網絡（翻牆）設置。"
+msgstr "部分模塊加載超時，請檢查網絡（翻牆）設定。"
 
 #: users/templates/users/login.html:203
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
@@ -4562,7 +4562,7 @@ msgstr "實例域名(不含@和@之前的部分)"
 
 #: users/templates/users/preferences.html:26
 msgid "Default view once logged in"
-msgstr "登錄後默認顯示"
+msgstr "登入後預設顯示"
 
 #: users/templates/users/preferences.html:38
 msgid "Activities"
@@ -4570,7 +4570,7 @@ msgstr "動態"
 
 #: users/templates/users/preferences.html:47
 msgid "Default visibility"
-msgstr "默認可見性"
+msgstr "預設可見性"
 
 #: users/templates/users/preferences.html:71
 msgid "Public status will be posted to fediverse"
@@ -4590,7 +4590,7 @@ msgstr "僅本站"
 
 #: users/templates/users/preferences.html:96
 msgid "Turn on crosspost to timeline by default"
-msgstr "發表時默認轉發到時間軸"
+msgstr "發表時預設轉發到時間軸"
 
 #: users/templates/users/preferences.html:104
 msgid "Method for crossposting to timeline"
@@ -4630,7 +4630,7 @@ msgstr "將這些類型的條目標記爲在讀/在看/在玩/...時，自動把
 
 #: users/templates/users/preferences.html:157
 msgid "Hide these categories in search results"
-msgstr "搜索時不顯示以下類型"
+msgstr "搜尋時不顯示以下類型"
 
 #: users/templates/users/preferences.html:175
 msgid "Profile visible to anonymous web visitors and search engines"
@@ -4638,7 +4638,7 @@ msgstr "匿名訪客和搜索引擎可以查看你的個人主頁"
 
 #: users/templates/users/preferences.html:176
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
-msgstr "此選項僅針對網頁訪客，如果不希望被聯邦網絡用戶看到請在發表時選擇僅關注者或本人"
+msgstr "此選項僅針對網頁訪客，如果不希望被聯邦網路用戶看到請在發表時選擇僅關注者或本人"
 
 #: users/templates/users/preferences.html:184
 msgid "Show your name on item page if you recently edited it"
@@ -4646,7 +4646,7 @@ msgstr "顯示你是某條目的最近編輯者"
 
 #: users/templates/users/preferences.html:193
 msgid "Settings for current device"
-msgstr "當前設備設置"
+msgstr "當前設備設定"
 
 #: users/templates/users/preferences.html:195
 msgid "theme"
@@ -4678,11 +4678,11 @@ msgstr "自定義樣式代碼"
 
 #: users/templates/users/preferences.html:228
 msgid "Settings for current device saved"
-msgstr "當前設備設置已保存"
+msgstr "當前設備設定已儲存"
 
 #: users/templates/users/preferences.html:234
 msgid "Additional Settings"
-msgstr "更多設置"
+msgstr "更多設定"
 
 #: users/templates/users/preferences.html:236
 msgid "View authorized applications"
@@ -4690,7 +4690,7 @@ msgstr "查看已授權的應用程序"
 
 #: users/templates/users/preferences.html:240
 msgid "Migrate account"
-msgstr "遷移賬號"
+msgstr "遷移帳號"
 
 #: users/templates/users/preferences.html:242
 msgid "Link an email so that you can migrate followers from other Fediverse instances."
@@ -4714,7 +4714,7 @@ msgstr "用戶資料"
 
 #: users/templates/users/profile_actions.html:39
 msgid "original home"
-msgstr "原始主頁"
+msgstr "原始首頁"
 
 #: users/templates/users/profile_actions.html:63
 msgid "accept follow request"
@@ -4779,23 +4779,23 @@ msgstr "你在%(site_name)s使用的用戶名"
 
 #: users/templates/users/register.html:26
 msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
-msgstr "2-30個字符，限英文字母數字下劃線，保存後不可更改"
+msgstr "2-30個字符，限英文字母數字下劃線，儲存後不可更改"
 
 #: users/templates/users/register.html:60
 msgid "Turn on crosspost to other social networks by default"
-msgstr "發表時默認轉發到社交網絡時間軸"
+msgstr "發表時預設轉發到社交網絡時間軸"
 
 #: users/templates/users/register.html:64
 msgid "Use display name, bio and avatar from the social network you authenticated with"
-msgstr "自動同步用戶暱稱等基本信息"
+msgstr "自動同步用戶暱稱等基本資訊"
 
 #: users/templates/users/register.html:72
 msgid "Add follow, mute and block list from the social network you authenticated with"
-msgstr "自動導入新增的關注、屏蔽和隱藏列表"
+msgstr "自動匯入新增的關注、屏蔽和隱藏列表"
 
 #: users/templates/users/register.html:77
 msgid "Confirm and save"
-msgstr "確認並保存"
+msgstr "確認並儲存"
 
 #: users/templates/users/register.html:81 users/templates/users/welcome.html:27
 msgid "Cut the sh*t and get me in!"
@@ -4803,11 +4803,11 @@ msgstr ""
 
 #: users/templates/users/relationship_list.html:17
 msgid "export"
-msgstr "導出"
+msgstr "匯出"
 
 #: users/templates/users/relationship_list.html:21
 msgid "You may download the list here."
-msgstr "此處可導出你在本站的關係列表。"
+msgstr "此處可匯出你在本站的關係列表。"
 
 #: users/templates/users/verify.html:21
 msgid "Please enter the verification code you received."
@@ -4824,7 +4824,7 @@ msgstr "驗證成功"
 
 #: users/templates/users/verify_email.html:27
 msgid "login again"
-msgstr "重新登錄"
+msgstr "重新登入"
 
 #: users/templates/users/welcome.html:20
 msgid "Welcome"
@@ -4838,7 +4838,7 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"%(site_name)s還在不斷完善中。 豐富的內容需要大家共同創造，試圖添加垃圾數據（如添加信息混亂或缺失的書籍、以推廣爲主要目的的評論）將會受到嚴肅處理。 本站爲非盈利站點，cookie和其它數據保管使用原則請參閱<a href=\"/pages/terms\">站內公告</a>。 本站提供API和導出功能，請妥善備份您的數據，使用過程中遇到的問題或者錯誤歡迎向<a href=\"%(support_link)s\">維護者</a>提出。感謝理解和支持！"
+"%(site_name)s還在不斷完善中。 豐富的內容需要大家共同創造，試圖添加垃圾資料（如添加信息混亂或缺失的書籍、以推廣爲主要目的的評論）將會受到嚴肅處理。 本站爲非盈利站點，cookie和其它資料保管使用原則請參閱<a href=\"/pages/terms\">站內公告</a>。 本站提供API和導出功能，請妥善備份您的數據，使用過程中遇到的問題或者錯誤歡迎向<a href=\"%(support_link)s\">維護者</a>提出。感謝理解和支持！"
 
 #: users/views/account.py:78
 msgid "This username is already in use."
@@ -4862,19 +4862,19 @@ msgstr "用戶名已被使用"
 
 #: users/views/account.py:247
 msgid "Account is being deleted."
-msgstr "賬戶刪除進行中。"
+msgstr "帳號刪除進行中。"
 
 #: users/views/account.py:250
 msgid "Account mismatch."
-msgstr "賬號信息不匹配。"
+msgstr "帳號資訊不符合。"
 
 #: users/views/data.py:128
 msgid "Generating exports."
-msgstr "正在生成導出文件。"
+msgstr "正在產生匯出檔案文件。"
 
 #: users/views/data.py:140
 msgid "Export file expired. Please export again."
-msgstr "導出文件已失效，請重新導出"
+msgstr "匯出文件已失效，請重新匯出"
 
 #: users/views/data.py:149
 msgid "Sync in progress."
@@ -4882,7 +4882,7 @@ msgstr "正在同步。"
 
 #: users/views/data.py:163
 msgid "Settings saved."
-msgstr "設置已保存"
+msgstr "設定已儲存"
 
 #: users/views/data.py:174
 msgid "Reset completed."
@@ -4890,7 +4890,7 @@ msgstr "重置已完成。"
 
 #: users/views/data.py:183
 msgid "Import in progress."
-msgstr "正在導出"
+msgstr "正在匯入"
 
 #: users/views/data.py:185
 msgid "Invalid URL."
@@ -4898,8 +4898,8 @@ msgstr "無效網址。"
 
 #: users/views/data.py:199 users/views/data.py:224 users/views/data.py:239
 msgid "File is uploaded and will be imported soon."
-msgstr "文件已上傳，等待後臺導入。"
+msgstr "檔案已上傳，等待後臺匯入。"
 
 #: users/views/data.py:202 users/views/data.py:242
 msgid "Invalid file."
-msgstr "無效文件。"
+msgstr "無效檔案。"
