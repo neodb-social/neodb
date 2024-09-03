@@ -10,6 +10,7 @@ Free instances hosted by volunteers are available:
  - [NeoDB.social](https://neodb.social) - the flagship instance
  - [NeoDB experimental](https://eggplant.place) - an instance running the edge version of NeoDB software, which may include more features and potential bugs
  - [NiceDB](https://nicedb.org) - the original instance, running a legacy version and with limited registration.
+ - [Eggplant.place](https://eggplant.place) - adventurous server running dev version, features English as main language
 
 While there is no mobile app for NeoDB yet, the web version functions well on mobile devices. You can also use [Mastodon compatible apps](https://joinmastodon.org/apps) to log in and utilize the microblogging features.
 
