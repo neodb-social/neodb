@@ -15,9 +15,11 @@ from .goodreads import Goodreads
 from .google_books import GoogleBooks
 from .igdb import IGDB
 from .imdb import IMDB
+from .qidian import Qidian
 from .rss import RSS
 from .spotify import Spotify
 from .steam import Steam
 from .tmdb import TMDB_Movie
+from .ypshuo import Ypshuo
 
 # from .apple_podcast import ApplePodcast

@@ -57,6 +57,8 @@ class SiteName(models.TextChoices):
     Discogs = "discogs", _("Discogs")  # type:ignore[reportCallIssue]
     AppleMusic = "apple_music", _("Apple Music")  # type:ignore[reportCallIssue]
     Fediverse = "fedi", _("Fediverse")  # type:ignore[reportCallIssue]
+    Qidian = "qidian", _("Qidian")  # type:ignore[reportCallIssue]
+    Ypshuo = "ypshuo", _("Ypshuo")  # type:ignore[reportCallIssue]
 
 
 class IdType(models.TextChoices):
@@ -118,6 +120,8 @@ class IdType(models.TextChoices):
     ApplePodcast = "apple_podcast", _("Apple Podcast")  # type:ignore[reportCallIssue]
     AppleMusic = "apple_music", _("Apple Music")  # type:ignore[reportCallIssue]
     Fediverse = "fedi", _("Fediverse")  # type:ignore[reportCallIssue]
+    Qidian = "qidian", _("Qidian")  # type:ignore[reportCallIssue]
+    Ypshuo = "ypshuo", _("Ypshuo")  # type:ignore[reportCallIssue]
 
 
 IdealIdTypes = [
