@@ -48,7 +48,7 @@ cryptography==42.0.8
 dateparser==1.2.0
 deepmerge==1.1.1
 discord-py==2.3.2
-django==4.2.14
+django==4.2.16
     # via django-anymail
     # via django-appconf
     # via django-auditlog

@@ -65,11 +65,11 @@ virtual = true
 dev-dependencies = [
     "pre-commit>=3.7.0",
     "black~=24.4.2",
-    "django-stubs>=5.0.2",
+    "django-stubs>=5.1.0",
     "djlint~=1.34.1",
     "isort~=5.13.2",
     "lxml-stubs>=0.5.1",
-    "pyright>=1.1.373",
+    "pyright>=1.1.384",
     "ruff",
     "mkdocs-material>=9.5.25",
 ]

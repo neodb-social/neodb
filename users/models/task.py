@@ -66,7 +66,7 @@ class Task(models.Model):
             task.state = cls.States.complete
             task.save(update_fields=["state"])
         except Exception as e:
-            logger.error(
+            logger.exception(
                 f"error running {cls.__name__}", extra={"exception": e, "task": task_id}
             )
             task.message = "Error occured."

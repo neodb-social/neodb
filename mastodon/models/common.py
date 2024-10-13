@@ -73,7 +73,9 @@ class SocialAccount(TypedModel):
 
     @property
     def platform(self) -> Platform:
-        return Platform(self.type.replace("mastodon.", "", 1).replace("account", "", 1))
+        return Platform(
+            str(self.type).replace("mastodon.", "", 1).replace("account", "", 1)
+        )
 
     def to_dict(self):
         # skip cached_property, datetime and other non-serializable fields

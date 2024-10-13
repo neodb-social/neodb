@@ -104,8 +104,8 @@ django-rq==2.10.2
 django-sass-processor==1.4.1
 django-simple-history==3.7.0
 django-slack==5.19.0
-django-stubs==5.0.2
-django-stubs-ext==5.0.2
+django-stubs==5.1.0
+django-stubs-ext==5.1.0
     # via django-stubs
 django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git@03921e05b39d07d143519a435259f66387a088bc
 django-tz-detect==0.5.0
@@ -230,7 +230,7 @@ pygments==2.18.0
     # via mkdocs-material
 pymdown-extensions==10.8.1
     # via mkdocs-material
-pyright==1.1.373
+pyright==1.1.384
 python-dateutil==2.9.0.post0
     # via dateparser
     # via django-auditlog
@@ -302,6 +302,7 @@ typing-extensions==4.12.1
     # via jwcrypto
     # via pydantic
     # via pydantic-core
+    # via pyright
 tzlocal==5.2
     # via dateparser
 urllib3==2.2.1
