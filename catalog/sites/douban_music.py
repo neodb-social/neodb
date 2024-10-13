@@ -20,6 +20,7 @@ class DoubanMusic(AbstractSite):
         r"\w+://music\.douban\.com/subject/(\d+)/{0,1}",
         r"\w+://m.douban.com/music/subject/(\d+)/{0,1}",
         r"\w+://www.douban.com/doubanapp/dispatch\?uri=/music/(\d+)/",
+        r"\w+://www.douban.com/doubanapp/dispatch/music/(\d+)",
     ]
     WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Album

@@ -25,7 +25,11 @@ class DoubanDramaVersion(AbstractSite):
 
     SITE_NAME = SiteName.Douban
     ID_TYPE = IdType.DoubanDramaVersion
-    URL_PATTERNS = [r"\w+://www.douban.com/location/drama/(\d+)/#(\d+)$"]
+    URL_PATTERNS = [
+        r"\w+://www.douban.com/location/drama/(\d+)/#(\d+)$",
+        r"\w+://www.douban.com/doubanapp/dispatch\?uri=/drama/(\d+)/",
+        r"\w+://www.douban.com/doubanapp/dispatch/drama/(\d+)",
+    ]
 
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = PerformanceProduction

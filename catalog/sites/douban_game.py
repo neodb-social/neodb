@@ -20,6 +20,7 @@ class DoubanGame(AbstractSite):
         r"\w+://www\.douban\.com/game/(\d+)/{0,1}",
         r"\w+://m.douban.com/game/subject/(\d+)/{0,1}",
         r"\w+://www.douban.com/doubanapp/dispatch\?uri=/game/(\d+)/",
+        r"\w+://www.douban.com/doubanapp/dispatch/game/(\d+)",
     ]
     WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Game

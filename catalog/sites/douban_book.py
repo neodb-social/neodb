@@ -14,6 +14,7 @@ class DoubanBook(AbstractSite):
         r"\w+://book\.douban\.com/subject/(\d+)/{0,1}",
         r"\w+://m.douban.com/book/subject/(\d+)/{0,1}",
         r"\w+://www.douban.com/doubanapp/dispatch\?uri=/book/(\d+)/",
+        r"\w+://www.douban.com/doubanapp/dispatch/book/(\d+)",
     ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Edition

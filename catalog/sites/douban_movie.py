@@ -20,6 +20,7 @@ class DoubanMovie(AbstractSite):
         r"\w+://movie\.douban\.com/subject/(\d+)/{0,1}",
         r"\w+://m.douban.com/movie/subject/(\d+)/{0,1}",
         r"\w+://www.douban.com/doubanapp/dispatch\?uri=/movie/(\d+)/",
+        r"\w+://www.douban.com/doubanapp/dispatch/movie/(\d+)",
     ]
     WIKI_PROPERTY_ID = "?"
     # no DEFAULT_MODEL as it may be either TV Season and Movie
