@@ -363,6 +363,52 @@ class DoubanBookTestCase(TestCase):
         self.assertEqual(editions[1].display_title, "黄金时代")
 
 
+class QidianTestCase(TestCase):
+    databases = "__all__"
+
+    def test_parse(self):
+        t_type = IdType.Qidian
+        t_id = "1010868264"
+        t_url = "https://www.qidian.com/book/1010868264/"
+        t_url2 = "https://book.qidian.com/info/1010868264/"
+        p1 = SiteManager.get_site_by_url(t_url)
+        p2 = SiteManager.get_site_by_url(t_url2)
+        self.assertEqual(p1.url, t_url2)
+        self.assertEqual(p1.ID_TYPE, t_type)
+        self.assertEqual(p1.id_value, t_id)
+        self.assertEqual(p2.url, t_url2)
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://book.qidian.com/info/1010868264/"
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(site.resource.site_name, SiteName.Qidian)
+        self.assertEqual(site.resource.id_type, IdType.Qidian)
+        self.assertEqual(site.resource.id_value, "1010868264")
+        self.assertEqual(site.resource.item.display_title, "诡秘之主")
+        self.assertEqual(site.resource.item.author[0], "爱潜水的乌贼")
+
+
+class YpshuoTestCase(TestCase):
+    databases = "__all__"
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://www.ypshuo.com/novel/1.html"
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(site.resource.site_name, SiteName.Ypshuo)
+        self.assertEqual(site.resource.id_type, IdType.Ypshuo)
+        self.assertEqual(site.resource.id_value, "1")
+        self.assertEqual(site.resource.item.display_title, "诡秘之主")
+        self.assertEqual(site.resource.item.author[0], "爱潜水的乌贼")
+
+
 class MultiBookSitesTestCase(TestCase):
     databases = "__all__"
 

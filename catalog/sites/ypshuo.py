@@ -1,4 +1,4 @@
-import logging
+import json
 
 from catalog.common import *
 from catalog.models import *
@@ -21,6 +21,11 @@ class Ypshuo(AbstractSite):
     def scrape(self):
         api_url = f"https://www.ypshuo.com/api/novel/getInfo?novelId={self.id_value}"
         o = BasicDownloader(api_url).download().json()
+        source = json.loads(o["data"]["source"])
+        lookup_ids = {}
+        for site in source:
+            if site["siteName"] == "起点中文网":
+                lookup_ids[IdType.Qidian] = site["bookId"]
         return ResourceContent(
             metadata={
                 "localized_title": [{"lang": "zh-cn", "text": o["data"]["novel_name"]}],
@@ -30,4 +35,5 @@ class Ypshuo(AbstractSite):
                 ],
                 "cover_image_url": o["data"]["novel_img"],
             },
+            lookup_ids=lookup_ids,
         )

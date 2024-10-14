@@ -17,7 +17,7 @@ class Qidian(AbstractSite):
 
     @classmethod
     def id_to_url(cls, id_value):
-        return f"https://book.qidian.com/info/{id_value}"
+        return f"https://book.qidian.com/info/{id_value}/"
 
     def scrape(self):
         content = ProxiedDownloader(self.url).download().html()
