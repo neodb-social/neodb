@@ -229,20 +229,32 @@ def post_toot2(
     return response
 
 
-def _get_redirect_uris(allow_multiple=True) -> str:
+def _get_redirect_uris(server_version: str) -> str:
+    allow_multiple_redir = not (
+        re.match(r".*(Pixelfed|Friendica).*", server_version or "")
+        or re.match(r"^0\..*", server_version or "")
+    )  # GoToSocial and a few don't support multiple redirect uris
     u = settings.SITE_INFO["site_url"] + "/account/login/oauth"
-    if not allow_multiple:
+    if not allow_multiple_redir:
         return u
     u2s = [f"https://{d}/account/login/oauth" for d in settings.ALTERNATIVE_DOMAINS]
     return "\n".join([u] + u2s)
 
 
-def create_app(domain_name, allow_multiple_redir):
+def _get_scopes(server_version: str) -> str:
+    return (
+        settings.MASTODON_LEGACY_CLIENT_SCOPE
+        if re.match(r".*(Pixelfed|Friendica).*", server_version or "")
+        else settings.MASTODON_CLIENT_SCOPE
+    )
+
+
+def create_app(domain_name, server_version):
     url = "https://" + domain_name + API_CREATE_APP
     payload = {
         "client_name": settings.SITE_INFO["site_name"],
-        "scopes": settings.MASTODON_CLIENT_SCOPE,
-        "redirect_uris": _get_redirect_uris(allow_multiple_redir),
+        "scopes": _get_scopes(server_version),
+        "redirect_uris": _get_redirect_uris(server_version),
         "website": settings.SITE_INFO["site_url"],
     }
     response = post(url, data=payload, headers={"User-Agent": USER_AGENT})
@@ -358,7 +370,7 @@ def verify_client(mast_app):
         "client_id": mast_app.client_id,
         "client_secret": mast_app.client_secret,
         "redirect_uri": "urn:ietf:wg:oauth:2.0:oob",
-        "scope": settings.MASTODON_CLIENT_SCOPE,
+        "scope": _get_scopes(mast_app.server_version),
         "grant_type": "client_credentials",
     }
     headers = {"User-Agent": USER_AGENT}
@@ -385,7 +397,7 @@ def obtain_token(site, code, request):
         "client_id": mast_app.client_id,
         "client_secret": mast_app.client_secret,
         "redirect_uri": redirect_uri,
-        "scope": settings.MASTODON_CLIENT_SCOPE,
+        "scope": _get_scopes(mast_app.server_version),
         "grant_type": "authorization_code",
         "code": code,
     }
@@ -431,7 +443,7 @@ def get_or_create_fediverse_application(login_domain):
         app = MastodonApplication.objects.filter(api_domain__iexact=domain).first()
     if app:
         if " Firefish " in app.server_version:
-            data = create_app(app.api_domain, True).json()
+            data = create_app(app.api_domain, app.server_version).json()
             app.app_id = data["id"]
             app.client_id = data["client_id"]
             app.client_secret = data["client_secret"]
@@ -455,11 +467,7 @@ def get_or_create_fediverse_application(login_domain):
         app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
         if app:
             return app
-    allow_multiple_redir = True
-    if "; Pixelfed" in server_version or server_version.startswith("0."):
-        # Pixelfed and GoToSocial don't support multiple redirect uris
-        allow_multiple_redir = False
-    response = create_app(api_domain, allow_multiple_redir)
+    response = create_app(api_domain, server_version)
     if response.status_code != 200:
         logger.error(
             f"Error creating app for {domain} on {api_domain}: {response.status_code}"
@@ -489,12 +497,7 @@ def get_or_create_fediverse_application(login_domain):
 
 def get_mastodon_login_url(app, login_domain, request):
     url = request.build_absolute_uri(reverse("mastodon:oauth"))
-    version = app.server_version or ""
-    scope = (
-        settings.MASTODON_LEGACY_CLIENT_SCOPE
-        if "Pixelfed" in version
-        else settings.MASTODON_CLIENT_SCOPE
-    )
+    scope = _get_scopes(app.server_version)
     return (
         "https://"
         + login_domain
