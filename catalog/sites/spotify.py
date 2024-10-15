@@ -41,7 +41,10 @@ class Spotify(AbstractSite):
 
     def scrape(self):
         api_url = f"https://api.spotify.com/v1/albums/{self.id_value}"
-        headers = {"Authorization": f"Bearer {get_spotify_token()}"}
+        headers = {
+            "Authorization": f"Bearer {get_spotify_token()}",
+            "User-Agent": settings.NEODB_USER_AGENT,
+        }
         res_data = BasicDownloader(api_url, headers=headers).download().json()
         artist = []
         for artist_dict in res_data["artists"]:

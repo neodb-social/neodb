@@ -1,6 +1,9 @@
 import logging
 import re
 
+from django.conf import settings
+
+from catalog.book.utils import isbn_10_to_13
 from catalog.common import *
 from catalog.models import *
 
@@ -25,6 +28,8 @@ class GoogleBooks(AbstractSite):
 
     def scrape(self):
         api_url = f"https://www.googleapis.com/books/v1/volumes/{self.id_value}"
+        if settings.GOOGLE_API_KEY:
+            api_url += f"?key={settings.GOOGLE_API_KEY}"
         b = BasicDownloader(api_url).download().json()
         other = {}
         title = b["volumeInfo"]["title"]
@@ -77,7 +82,7 @@ class GoogleBooks(AbstractSite):
                 isbn10 = iid["identifier"]
             if iid["type"] == "ISBN_13":
                 isbn13 = iid["identifier"]
-        isbn = isbn13  # if isbn13 is not None else isbn10
+        isbn = isbn13 if isbn13 is not None else isbn_10_to_13(isbn10)
 
         raw_img, ext = BasicImageDownloader.download_image(img_url, None, headers={})
         data = {

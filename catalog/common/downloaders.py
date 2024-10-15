@@ -22,6 +22,7 @@ RESPONSE_OK = 0  # response is ready for pasring
 RESPONSE_INVALID_CONTENT = -1  # content not valid but no need to retry
 RESPONSE_NETWORK_ERROR = -2  # network error, retry next proxied url
 RESPONSE_CENSORSHIP = -3  # censored, try sth special if possible
+RESPONSE_QUOTA_EXCEEDED = -4
 
 _mock_mode = False
 
@@ -123,6 +124,8 @@ class DownloadError(Exception):
             error = "Network Error"
         elif downloader.response_type == RESPONSE_CENSORSHIP:
             error = "Censored Content"
+        elif downloader.response_type == RESPONSE_QUOTA_EXCEEDED:
+            error = "API Quota Exceeded"
         else:
             error = "Unknown Error"
         self.message = (
@@ -169,6 +172,8 @@ class BasicDownloader:
             return RESPONSE_NETWORK_ERROR
         elif response.status_code == 200:
             return RESPONSE_OK
+        elif response.status_code == 429:
+            return RESPONSE_QUOTA_EXCEEDED
         else:
             return RESPONSE_INVALID_CONTENT
 
@@ -214,14 +219,6 @@ class BasicDownloader:
 
 
 class BasicDownloader2(BasicDownloader):
-    def validate_response(self, response) -> int:
-        if response is None:
-            return RESPONSE_NETWORK_ERROR
-        elif response.status_code == 200:
-            return RESPONSE_OK
-        else:
-            return RESPONSE_INVALID_CONTENT
-
     def _download(self, url):
         try:
             if not _mock_mode:
