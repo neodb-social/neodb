@@ -51,7 +51,7 @@ msgstr "精装"
 
 #: catalog/book/models.py:119
 msgid "eBook"
-msgstr "电子说"
+msgstr "电子书"
 
 #: catalog/book/models.py:120
 msgid "Audiobook"
