@@ -107,6 +107,7 @@ class DiscogsMaster(AbstractSite):
         pd = ResourceContent(
             metadata={
                 "title": title,
+                "localized_title": [{"lang": "en", "text": title}],
                 "artist": artist,
                 "genre": genre,
                 "track_list": "\n".join(track_list),
