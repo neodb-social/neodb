@@ -616,7 +616,10 @@ SENTRY_DSN = env("NEODB_SENTRY_DSN")
 if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import ignore_logger
     from sentry_sdk.integrations.loguru import LoguruIntegration
+
+    ignore_logger("podcastparser")
 
     sentry_env = sys.argv[0].split("/")[-1]
     if len(sys.argv) > 1 and sentry_env in ("manage.py", "django-admin"):
