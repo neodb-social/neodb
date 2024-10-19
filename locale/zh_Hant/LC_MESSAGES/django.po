@@ -199,6 +199,14 @@ msgstr "蘋果音樂"
 msgid "Fediverse"
 msgstr "聯邦宇宙"
 
+#: catalog/common/models.py:60 catalog/common/models.py:123
+msgid "Qidian"
+msgstr "起點"
+
+#: catalog/common/models.py:61 catalog/common/models.py:124
+msgid "Ypshuo"
+msgstr "閱評說"
+
 #: catalog/common/models.py:63
 msgid "WikiData"
 msgstr "維基數據"

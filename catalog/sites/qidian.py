@@ -48,6 +48,7 @@ class Qidian(AbstractSite):
             metadata={
                 "localized_title": [{"lang": "zh-cn", "text": title}],
                 "author": authors,
+                "format": Edition.BookFormat.WEB,
                 "localized_description": [{"lang": "zh-cn", "text": brief}],
                 "cover_image_url": img_url,
             }

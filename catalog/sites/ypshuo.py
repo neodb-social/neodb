@@ -30,6 +30,7 @@ class Ypshuo(AbstractSite):
             metadata={
                 "localized_title": [{"lang": "zh-cn", "text": o["data"]["novel_name"]}],
                 "author": [o["data"]["author_name"]],
+                "format": Edition.BookFormat.WEB,
                 "localized_description": [
                     {"lang": "zh-cn", "text": o["data"]["synopsis"]}
                 ],
