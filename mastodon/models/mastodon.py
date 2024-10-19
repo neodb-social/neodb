@@ -249,6 +249,10 @@ def _get_scopes(server_version: str) -> str:
     )
 
 
+def _force_recreate_app(server_version):
+    return re.match(r".+(Sharkey|Firefish).+", server_version or "")
+
+
 def create_app(domain_name, server_version):
     url = "https://" + domain_name + API_CREATE_APP
     payload = {
@@ -442,7 +446,8 @@ def get_or_create_fediverse_application(login_domain):
     if not app:
         app = MastodonApplication.objects.filter(api_domain__iexact=domain).first()
     if app:
-        if " Firefish " in app.server_version:
+        if _force_recreate_app(app.server_version):
+            logger.warning(f"Force recreate app for {login_domain}")
             data = create_app(app.api_domain, app.server_version).json()
             app.app_id = data["id"]
             app.client_id = data["client_id"]
