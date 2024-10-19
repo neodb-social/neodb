@@ -63,7 +63,7 @@ msgstr "圖像小說"
 
 #: catalog/book/models.py:122
 msgid "Web Fiction"
-msgstr "網絡小說"
+msgstr "網絡作品"
 
 #: catalog/book/models.py:123 catalog/game/models.py:31
 msgid "Other"
@@ -88,10 +88,8 @@ msgid "translator"
 msgstr "譯者"
 
 #: catalog/book/models.py:186 catalog/templates/edition.html:27
-#, fuzzy
-#| msgid "books to read"
 msgid "book format"
-msgstr "想讀的書"
+msgstr "格式"
 
 #: catalog/book/models.py:193 catalog/templates/edition.html:33
 msgid "publishing house"

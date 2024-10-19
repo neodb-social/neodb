@@ -118,7 +118,7 @@ class Edition(Item):
         HARDCOVER = "hardcover", _("Hardcover")
         EBOOK = "ebook", _("eBook")
         AUDIOBOOK = "audiobook", _("Audiobook")
-        GRAPHICNOVEL = "graphicnovel", _("GraphicNovel")
+        # GRAPHICNOVEL = "graphicnovel", _("GraphicNovel")
         WEB = "web", _("Web Fiction")
         OTHER = "other", _("Other")
 
