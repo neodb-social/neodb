@@ -14,6 +14,39 @@
   -webkit-box-orient: vertical;
 }
 
+.tldr-box {
+  input {
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+  }
+
+  p {
+    display: -webkit-box;
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  input:focus ~ label {
+    outline: -webkit-focus-ring-color auto 5px;
+  }
+
+  input:checked + p {
+    -webkit-line-clamp: unset;
+  }
+
+  input:checked ~ label,
+  p:not(.truncated) ~ label{
+    display: none;
+  }
+
+  label {
+    padding: 1px 4px
+  }
+}
+
+
 .longlist {
   max-height: 60vh;
   overflow-y: scroll;
