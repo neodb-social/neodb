@@ -64,17 +64,22 @@ def export_marks_task(user):
             mark = mm.mark
             movie = mark.item
             title = movie.title
-            summary = (
-                str(movie.year or "")
-                + " / "
-                + ",".join(movie.area or [])
-                + " / "
-                + ",".join(movie.genre or [])
-                + " / "
-                + ",".join(movie.director or [])
-                + " / "
-                + ",".join(movie.actor or [])
-            )
+            if movie.__class__ == TVEpisode:
+                summary = (
+                    f"S{movie.season.season_number:02d}E{movie.episode_number:02d}"
+                )
+            else:
+                summary = (
+                    str(movie.year or "")
+                    + " / "
+                    + ",".join(movie.area or [])
+                    + " / "
+                    + ",".join(movie.genre or [])
+                    + " / "
+                    + ",".join(movie.director or [])
+                    + " / "
+                    + ",".join(movie.actor or [])
+                )
             tags = ",".join(mark.tags)
             world_rating = (movie.rating / 2) if movie.rating else None
             timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
