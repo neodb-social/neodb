@@ -1,5 +1,5 @@
 ![Tests](https://img.shields.io/github/actions/workflow/status/neodb-social/neodb/tests.yml?style=for-the-badge&color=56AA54&label=tests)
-![Image](https://img.shields.io/github/actions/workflow/status/neodb-social/neodb/publish.yml?style=for-the-badge&color=56AA54&label=image)
+[![Translation](https://img.shields.io/weblate/progress/neodb?style=for-the-badge)](https://hosted.weblate.org/projects/neodb/neodb/)
 [![GitHub Release](https://img.shields.io/github/v/release/neodb-social/neodb?style=for-the-badge&color=3791E0&logoColor=fff)](https://github.com/neodb-social/neodb/releases)
 [![Docker Pulls](https://img.shields.io/docker/pulls/neodb/neodb?label=docker&color=3791E0&style=for-the-badge)](https://hub.docker.com/r/neodb/neodb)
 [![GitHub License](https://img.shields.io/github/license/neodb-social/neodb?color=E69A48&style=for-the-badge)](https://github.com/neodb-social/neodb/blob/main/LICENSE)
@@ -61,8 +61,10 @@ Follow us on [Fediverse](https://mastodon.social/@neodb) or join our [Discord co
   + NeoDB instances communicate with each other via an extended version of ActivityPub
   + NeoDB instances may share public rating and reviews with a default relay
   + implementation is based on [Takahē](https://jointakahe.org/) server
+- ATProto support
+  + NeoDB is not a PDS, but may publish posts to user feed
 - Other
-  + i18n: English, and Simp/Trad Chinese translation
+  + i18n: English, Danish and Simp/Trad Chinese available; contribution for more languages welcomed
 
 ## Host your own instance
 Please see [docs/install.md](docs/install.md)
@@ -70,6 +72,7 @@ Please see [docs/install.md](docs/install.md)
 ## Contribution
  - To build application with NeoDB API, documentation is available in [NeoDB API Developer Console](https://neodb.social/developer/)
  - To help develop NeoDB, please see [docs/development.md](docs/development.md) for some basics to start with
+ - To translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/neodb/)
 
 ## Sponsor
 If you like this project, please consider sponsoring
