@@ -67,6 +67,86 @@ Add alias to your shell for easier access
 alias neodb-manage='docker-compose --profile production run shell neodb-manage'
 ```
 
+## Run without Docker
+
+It's currently possible but quite cumbersome to run without Docker, hence not recommended. However it's possible to only use docker to run neodb server but reuse existing PostgresQL/Redis/Typesense servers with `compose.override.yml`, an example for reference:
+
+```
+services:
+  redis:
+    profiles: ['disabled']
+  typesense:
+    profiles: ['disabled']
+  neodb-db:
+    profiles: ['disabled']
+  takahe-db:
+    profiles: ['disabled']
+  migration:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  neodb-web:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+    healthcheck: !reset {}
+  neodb-web-api:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+    healthcheck: !reset {}
+  neodb-worker:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  neodb-worker-extra:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  takahe-web:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  takahe-stator:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  shell:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  root:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  dev-neodb-web:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  dev-neodb-worker:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  dev-takahe-web:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  dev-takahe-stator:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  dev-shell:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+  dev-root:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+```
+(`extra_hosts` is only needed if PostgresQL/Redis/Typesense is on your host server)
+
+
 ## Multiple instances on one server
 
 It's possible to run multiple clusters in one host server with docker compose, as long as `NEODB_SITE_DOMAIN`, `NEODB_PORT` and `NEODB_DATA` are different.
