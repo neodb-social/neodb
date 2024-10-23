@@ -20,10 +20,11 @@ You can [install and run your own instance of NeoDB](install.md). If you decide 
 All instances interact with each other in the Fediverse via ActivityPub, allowing you to follow users from other NeoDB instances or instances running other ActivityPub software, such as Mastodon.
 
 
-## API and Development
+## API, Development and Translation 
 
  - NeoDB offers [APIs to manage user collections](api.md), and [Mastodon client compatible API](https://docs.joinmastodon.org/client/) to manage user posts.
  - For those interested in developing for NeoDB, please refer to the [development](development.md) section for basic instructions to get started.
+ - To help translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/)
 
 
 ## Donation
