@@ -6,12 +6,13 @@ from discord import SyncWebhook
 from django.conf import settings
 from django.conf.locale import LANG_INFO
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.paginator import Paginator
 from django.core.signing import b62_decode, b62_encode
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from .config import PAGE_LINK_NUMBER
+from .config import ITEMS_PER_PAGE, ITEMS_PER_PAGE_OPTIONS, PAGE_LINK_NUMBER
 
 if TYPE_CHECKING:
     from users.models import APIdentity, User
@@ -109,6 +110,22 @@ def profile_identity_required(func):
         return func(request, user_name, *args, **kwargs)
 
     return wrapper
+
+
+class CustomPaginator(Paginator):
+    def __init__(self, object_list, request=None) -> None:
+        per_page = ITEMS_PER_PAGE
+        if request:
+            try:
+                if request.GET.get("per_page"):
+                    per_page = int(request.GET.get("per_page"))
+                elif request.COOKIES.get("per_page"):
+                    per_page = int(request.COOKIES.get("per_page"))
+            except ValueError:
+                pass
+            if per_page not in ITEMS_PER_PAGE_OPTIONS:
+                per_page = ITEMS_PER_PAGE
+        super().__init__(object_list, per_page)
 
 
 class PageLinksGenerator:

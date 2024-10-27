@@ -1,5 +1,6 @@
 # how many items are showed in one search result page
 ITEMS_PER_PAGE = 20
+ITEMS_PER_PAGE_OPTIONS = [20, 40, 80]
 
 # how many pages links in the pagination
 PAGE_LINK_NUMBER = 7

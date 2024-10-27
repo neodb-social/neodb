@@ -12,6 +12,7 @@ from django.views.decorators.http import require_http_methods
 from catalog.models import *
 from common.utils import (
     AuthedHttpRequest,
+    CustomPaginator,
     PageLinksGenerator,
     get_uuid_or_404,
     target_identity_required,
@@ -100,7 +101,7 @@ def render_list(
     if year:
         year = int(year)
         queryset = queryset.filter(created_time__year=year)
-    paginator = Paginator(queryset, PAGE_SIZE)  # type:ignore
+    paginator = CustomPaginator(queryset, request)  # type:ignore
     page_number = int(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)

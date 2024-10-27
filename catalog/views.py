@@ -10,7 +10,12 @@ from django.utils.translation import gettext as _
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 
-from common.utils import PageLinksGenerator, get_uuid_or_404, user_identity_required
+from common.utils import (
+    CustomPaginator,
+    PageLinksGenerator,
+    get_uuid_or_404,
+    user_identity_required,
+)
 from journal.models import (
     Collection,
     Comment,
@@ -30,8 +35,7 @@ from .models import *
 from .search.views import *
 from .views_edit import *
 
-NUM_REVIEWS_ON_ITEM_PAGE = 5
-NUM_REVIEWS_ON_LIST_PAGE = 20
+NUM_COMMENTS_ON_ITEM_PAGE = 10
 
 
 def retrieve_by_uuid(request, item_uid):
@@ -151,7 +155,7 @@ def mark_list(request, item_path, item_uuid, following_only=False):
         queryset = queryset.filter(q_piece_in_home_feed_of_user(request.user))
     else:
         queryset = queryset.filter(q_piece_visible_to_user(request.user))
-    paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)
+    paginator = CustomPaginator(queryset, request)
     page_number = request.GET.get("page", default=1)
     marks = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
@@ -171,7 +175,7 @@ def review_list(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     queryset = Review.objects.filter(item=item).order_by("-created_time")
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
-    paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)
+    paginator = CustomPaginator(queryset, request)
     page_number = request.GET.get("page", default=1)
     reviews = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
@@ -199,7 +203,7 @@ def comments(request, item_path, item_uuid):
         "_item_comments.html",
         {
             "item": item,
-            "comments": queryset[:11],
+            "comments": queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1],
         },
     )
 
@@ -223,7 +227,7 @@ def comments_by_episode(request, item_path, item_uuid):
         {
             "item": item,
             "episode_uuid": episode_uuid,
-            "comments": queryset[:11],
+            "comments": queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1],
         },
     )
 
@@ -241,7 +245,7 @@ def reviews(request, item_path, item_uuid):
         "_item_reviews.html",
         {
             "item": item,
-            "reviews": queryset[:11],
+            "reviews": queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1],
         },
     )
 

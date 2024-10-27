@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-19 19:51-0400\n"
+"POT-Creation-Date: 2024-10-27 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1117,8 +1117,8 @@ msgstr ""
 #: journal/templates/mark.html:150 journal/templates/note.html:39
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/account.html:37 users/templates/users/account.html:67
-#: users/templates/users/preferences.html:187
-#: users/templates/users/preferences.html:212
+#: users/templates/users/preferences.html:188
+#: users/templates/users/preferences.html:222
 msgid "Save"
 msgstr ""
 
@@ -1144,7 +1144,7 @@ msgstr ""
 msgid "This operation cannot be undone. Sure to merge?"
 msgstr ""
 
-#: catalog/templates/discover.html:18 users/templates/users/preferences.html:32
+#: catalog/templates/discover.html:18 users/templates/users/preferences.html:33
 msgid "Discover"
 msgstr ""
 
@@ -1451,11 +1451,11 @@ msgstr ""
 msgid "{season_title} E{episode_number}"
 msgstr ""
 
-#: catalog/views.py:51 catalog/views.py:74
+#: catalog/views.py:50 catalog/views.py:73
 msgid "Item not found"
 msgstr ""
 
-#: catalog/views.py:55 catalog/views.py:82
+#: catalog/views.py:54 catalog/views.py:81
 msgid "Item no longer exists"
 msgstr ""
 
@@ -1475,14 +1475,14 @@ msgstr ""
 #: journal/views/collection.py:234 journal/views/collection.py:246
 #: journal/views/collection.py:260 journal/views/collection.py:274
 #: journal/views/collection.py:277 journal/views/collection.py:301
-#: journal/views/common.py:135 journal/views/post.py:20
+#: journal/views/common.py:136 journal/views/post.py:20
 #: journal/views/post.py:42 journal/views/review.py:32
 #: journal/views/review.py:46
 msgid "Insufficient permission"
 msgstr ""
 
 #: catalog/views_edit.py:202 journal/views/collection.py:263
-#: journal/views/collection.py:330 journal/views/common.py:82
+#: journal/views/collection.py:330 journal/views/common.py:83
 #: journal/views/mark.py:146 journal/views/post.py:56 journal/views/post.py:70
 #: journal/views/review.py:93 journal/views/review.py:96
 #: users/views/actions.py:168
@@ -2366,7 +2366,7 @@ msgid "Feed"
 msgstr ""
 
 #: common/templates/_header.html:74 journal/templates/profile.html:11
-#: users/templates/users/preferences.html:44
+#: users/templates/users/preferences.html:45
 msgid "Home"
 msgstr ""
 
@@ -2380,7 +2380,7 @@ msgid "Data"
 msgstr ""
 
 #: common/templates/_header.html:95 users/templates/users/preferences.html:11
-#: users/templates/users/preferences.html:21
+#: users/templates/users/preferences.html:22
 msgid "Preferences"
 msgstr ""
 
@@ -2499,16 +2499,16 @@ msgstr ""
 msgid "following you"
 msgstr ""
 
-#: common/utils.py:62 common/utils.py:92 users/views/actions.py:34
+#: common/utils.py:63 common/utils.py:93 users/views/actions.py:34
 #: users/views/actions.py:120
 msgid "User not found"
 msgstr ""
 
-#: common/utils.py:66 common/utils.py:96 users/views/actions.py:123
+#: common/utils.py:67 common/utils.py:97 users/views/actions.py:123
 msgid "User no longer exists"
 msgstr ""
 
-#: common/utils.py:74 common/utils.py:104
+#: common/utils.py:75 common/utils.py:105
 msgid "Access denied"
 msgstr ""
 
@@ -2568,7 +2568,7 @@ msgstr ""
 #: journal/templates/mark.html:96 journal/templates/tag_edit.html:42
 #: journal/templates/wrapped_share.html:43 users/templates/users/data.html:47
 #: users/templates/users/data.html:139
-#: users/templates/users/preferences.html:54
+#: users/templates/users/preferences.html:55
 msgid "Public"
 msgstr ""
 
@@ -2576,7 +2576,7 @@ msgstr ""
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:103 journal/templates/wrapped_share.html:49
 #: users/templates/users/data.html:55 users/templates/users/data.html:147
-#: users/templates/users/preferences.html:61
+#: users/templates/users/preferences.html:62
 msgid "Followers Only"
 msgstr ""
 
@@ -2584,7 +2584,7 @@ msgstr ""
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
 #: journal/templates/mark.html:110 journal/templates/wrapped_share.html:55
 #: users/templates/users/data.html:63 users/templates/users/data.html:155
-#: users/templates/users/preferences.html:68
+#: users/templates/users/preferences.html:69
 msgid "Mentioned Only"
 msgstr ""
 
@@ -3497,15 +3497,15 @@ msgstr ""
 msgid "Login required"
 msgstr ""
 
-#: journal/views/common.py:34 journal/views/mark.py:123
+#: journal/views/common.py:35 journal/views/mark.py:123
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
 
-#: journal/views/common.py:36
+#: journal/views/common.py:37
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr ""
 
-#: journal/views/common.py:43
+#: journal/views/common.py:44
 msgid "List not found."
 msgstr ""
 
@@ -4449,139 +4449,143 @@ msgstr ""
 msgid "Domain of your instance (excl. @)"
 msgstr ""
 
-#: users/templates/users/preferences.html:26
+#: users/templates/users/preferences.html:27
 msgid "Default view once logged in"
 msgstr ""
 
-#: users/templates/users/preferences.html:38
+#: users/templates/users/preferences.html:39
 msgid "Activities"
 msgstr ""
 
-#: users/templates/users/preferences.html:47
+#: users/templates/users/preferences.html:48
 msgid "Default visibility"
 msgstr ""
 
-#: users/templates/users/preferences.html:71
+#: users/templates/users/preferences.html:72
 msgid "Public status will be posted to fediverse"
 msgstr ""
 
-#: users/templates/users/preferences.html:77
+#: users/templates/users/preferences.html:78
 msgid "in public timeline"
 msgstr ""
 
-#: users/templates/users/preferences.html:83
+#: users/templates/users/preferences.html:84
 msgid "unlisted and excluded from public timeline"
 msgstr ""
 
-#: users/templates/users/preferences.html:90
+#: users/templates/users/preferences.html:91
 msgid "local, this site only"
 msgstr ""
 
-#: users/templates/users/preferences.html:96
+#: users/templates/users/preferences.html:97
 msgid "Turn on crosspost to timeline by default"
 msgstr ""
 
-#: users/templates/users/preferences.html:104
+#: users/templates/users/preferences.html:105
 msgid "Method for crossposting to timeline"
 msgstr ""
 
-#: users/templates/users/preferences.html:111
+#: users/templates/users/preferences.html:112
 msgid "Boost if possible"
 msgstr ""
 
-#: users/templates/users/preferences.html:118
+#: users/templates/users/preferences.html:119
 msgid "Create a new post"
 msgstr ""
 
-#: users/templates/users/preferences.html:119
+#: users/templates/users/preferences.html:120
 msgid "this method is less optimal, may generate duplicated posts and miss reactions."
 msgstr ""
 
-#: users/templates/users/preferences.html:123
+#: users/templates/users/preferences.html:124
 msgid "Append tags when posting to timeline"
 msgstr ""
 
-#: users/templates/users/preferences.html:126
+#: users/templates/users/preferences.html:127
 msgid "e.g. #bookstodon"
 msgstr ""
 
-#: users/templates/users/preferences.html:131
+#: users/templates/users/preferences.html:132
 msgid "Language"
 msgstr ""
 
-#: users/templates/users/preferences.html:140
+#: users/templates/users/preferences.html:141
 msgid "Automatic bookmark for these categories"
 msgstr ""
 
-#: users/templates/users/preferences.html:153
+#: users/templates/users/preferences.html:154
 msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
 msgstr ""
 
-#: users/templates/users/preferences.html:157
+#: users/templates/users/preferences.html:158
 msgid "Hide these categories in search results"
 msgstr ""
 
-#: users/templates/users/preferences.html:175
+#: users/templates/users/preferences.html:176
 msgid "Profile visible to anonymous web visitors and search engines"
 msgstr ""
 
-#: users/templates/users/preferences.html:176
+#: users/templates/users/preferences.html:177
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
 msgstr ""
 
-#: users/templates/users/preferences.html:184
+#: users/templates/users/preferences.html:185
 msgid "Show your name on item page if you recently edited it"
 msgstr ""
 
-#: users/templates/users/preferences.html:193
+#: users/templates/users/preferences.html:194
 msgid "Settings for current device"
 msgstr ""
 
-#: users/templates/users/preferences.html:195
+#: users/templates/users/preferences.html:196
 msgid "theme"
 msgstr ""
 
-#: users/templates/users/preferences.html:198
+#: users/templates/users/preferences.html:199
 msgid "system"
 msgstr ""
 
-#: users/templates/users/preferences.html:200
+#: users/templates/users/preferences.html:201
 msgid "light"
 msgstr ""
 
-#: users/templates/users/preferences.html:202
+#: users/templates/users/preferences.html:203
 msgid "dark"
 msgstr ""
 
-#: users/templates/users/preferences.html:204
+#: users/templates/users/preferences.html:205
 msgid "Focus mode"
 msgstr ""
 
-#: users/templates/users/preferences.html:207
+#: users/templates/users/preferences.html:208
 msgid "hide reviews and ratings from other users"
 msgstr ""
 
-#: users/templates/users/preferences.html:209
+#: users/templates/users/preferences.html:210
+msgid "Number of items per page"
+msgstr ""
+
+#: users/templates/users/preferences.html:219
 msgid "Custom styles"
 msgstr ""
 
-#: users/templates/users/preferences.html:228
+#: users/templates/users/preferences.html:241
 msgid "Settings for current device saved"
 msgstr ""
 
-#: users/templates/users/preferences.html:234
+#: users/templates/users/preferences.html:247
 msgid "Additional Settings"
 msgstr ""
 
-#: users/templates/users/preferences.html:236
+#: users/templates/users/preferences.html:249
 msgid "View authorized applications"
 msgstr ""
 
-#: users/templates/users/preferences.html:240
+#: users/templates/users/preferences.html:253
 msgid "Migrate account"
 msgstr ""
 
-#: users/templates/users/preferences.html:242
+#: users/templates/users/preferences.html:255
 msgid "Link an email so that you can migrate followers from other Fediverse instances."
 msgstr ""
 
