@@ -52,6 +52,7 @@ dependencies = [
     "django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git",
     "atproto>=0.0.55",
     "discord-py>=2.4.0",
+    "libsass>=0.23.0",
 ]
 
 [tool.rye]

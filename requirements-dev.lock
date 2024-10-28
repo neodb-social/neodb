@@ -151,6 +151,7 @@ json5==0.9.25
 langdetect==1.0.9
 libipld==3.0.0
     # via atproto
+libsass==0.23.0
 listparser==0.20
 loguru==0.7.2
 lxml==5.3.0
