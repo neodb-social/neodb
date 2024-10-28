@@ -23,6 +23,7 @@ class DoubanDownloader(ProxiedDownloader):
             elif (
                 content.find("<title>页面不存在</title>") != -1
                 or content.find("呃... 你想访问的条目豆瓣不收录。") != -1
+                or content.find("根据相关法律法规，当前条目正在等待审核。") != -1
             ):  # re.search('不存在[^<]+</title>', content, re.MULTILINE):
                 return RESPONSE_CENSORSHIP
             else:
