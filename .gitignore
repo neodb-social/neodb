@@ -13,6 +13,9 @@ __pycache__/
 # VS Code configuration files
 .vscode/
 
+# Zed settings
+.zed
+
 # flake8
 tox.ini
 

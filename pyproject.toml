@@ -5,95 +5,123 @@ description = "🧩 self-hosted server tracking what you read/watch/listen/play,
 readme = "README.md"
 requires-python = ">= 3.12"
 dependencies = [
-    "blurhash-python",
-    "cachetools",
-    "dateparser",
-    "discord.py",
+    "blurhash-python>=1.2.2",
+    "cachetools>=5.5.0",
+    "dateparser>=1.2.0",
     "django<5.0",
-    "django-anymail",
+    "django-anymail>=12.0",
     "django-auditlog>=3.0.0",
-    "django-bleach",
+    "django-bleach>=3.1.0",
     "django-compressor",
     "django-cors-headers",
-    "django-environ",
-    "django-hijack>=3.5.4",
-    "django-jsonform",
+    "django-environ>=0.11.2",
+    "django-hijack>=3.7.0",
+    "django-jsonform>=2.23.1",
     "django-maintenance-mode",
-    "django-markdownx",
-    "django-ninja>=1.2.2",
-    "django-oauth-toolkit==2.3.0",
+    "django-markdownx>=4.0.7",
+    "django-ninja>=1.3.0",
     "django-polymorphic @ git+https://github.com/jazzband/django-polymorphic/@v4.0.0a",
-    "django-redis",
-    "django-rq",
-    "django-sass-processor",
-    "django-simple-history ",
-    "django-slack",
-    "django-tz-detect",
-    "django-user-messages",
-    "dnspython",
-    "easy-thumbnails",
-    "filetype",
-    "gunicorn",
-    "httpx",
-    "igdb-api-v4",
-    "langdetect",
-    "libsass",
-    "listparser",
-    "loguru",
-    "lxml",
-    "markdownify",
-    "mistune",
-    "openpyxl",
-    "podcastparser",
+    "django-redis>=5.4.0",
+    "django-rq>=2.10.2",
+    "django-sass-processor>=1.4.1",
+    "django-tz-detect>=0.5.0",
+    "django-user-messages>=1.1.0",
+    "dnspython>=2.7.0",
+    "easy-thumbnails>=2.10",
+    "filetype>=1.2.0",
+    "gunicorn>=23.0.0",
+    "httpx>=0.27.2",
+    "igdb-api-v4>=0.3.3",
+    "langdetect>=1.0.9",
+    "listparser>=0.20",
+    "loguru>=0.7.2",
+    "lxml>=5.3.0",
+    "markdownify>=0.13.1",
+    "mistune>=3.0.2",
+    "openpyxl>=3.1.5",
+    "podcastparser>=0.6.10",
     "psycopg2-binary",
-    "requests",
-    "rq",
-    "sentry-sdk",
-    "setproctitle",
-    "tqdm",
-    "typesense",
-    "urlman",
-    "validators",
+    "requests>=2.32.3",
+    "sentry-sdk>=2.17.0",
+    "setproctitle>=1.3.3",
+    "tqdm>=4.66.6",
+    "typesense>=0.21.0",
+    "urlman>=2.0.2",
+    "validators>=0.34.0",
     "deepmerge>=1.1.1",
     "django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git",
-    "atproto>=0.0.49",
+    "atproto>=0.0.55",
+    "discord-py>=2.4.0",
 ]
 
 [tool.rye]
 managed = true
 virtual = true
 dev-dependencies = [
-    "pre-commit>=3.7.0",
+    "pre-commit>=4.0.1",
     "black~=24.4.2",
     "django-stubs>=5.1.0",
-    "djlint~=1.34.1",
+    "djlint>=1.35.2",
     "isort~=5.13.2",
     "lxml-stubs>=0.5.1",
     "pyright>=1.1.384",
-    "ruff",
-    "mkdocs-material>=9.5.25",
+    "ruff>=0.7.1",
+    "mkdocs-material>=9.5.42",
 ]
 
 [tool.pyright]
-exclude = [ "media", ".venv", ".git", "playground", "catalog/*/tests.py", "journal/tests.py", "neodb", "**/migrations",  "**/sites/douban_*", "neodb-takahe" ]
+exclude = [
+    "media",
+    ".venv",
+    ".git",
+    "playground",
+    "catalog/*/tests.py",
+    "journal/tests.py",
+    "neodb",
+    "**/migrations",
+    "**/sites/douban_*",
+    "neodb-takahe",
+]
 reportIncompatibleVariableOverride = false
 
 [tool.djlint]
-ignore="T002,T003,H005,H006,H019,H020,H021,H023,H030,H031,D018"
-indent=2
+ignore = "T002,T003,H005,H006,H019,H020,H021,H023,H030,H031,D018"
+indent = 2
 
 [tool.isort]
 profile = "black"
 
 [tool.mypy]
-exclude = ['^neodb-takahe/', '^legacy/', '^media/', '^playground/', '^catalog/*/tests.py', '^journal/tests.py', '^neodb/', '.*migrations.*', '.*sites/douban_.*' ]
+exclude = [
+    '^neodb-takahe/',
+    '^legacy/',
+    '^media/',
+    '^playground/',
+    '^catalog/*/tests.py',
+    '^journal/tests.py',
+    '^neodb/',
+    '.*migrations.*',
+    '.*sites/douban_.*',
+]
 plugins = ["mypy_django_plugin.main"]
 
 [tool.django-stubs]
 django_settings_module = "boofilsic.settings"
 
 [tool.ruff]
-exclude = ["neodb-takahe/*", "media", ".venv", ".git", "playground", "**/tests.py", "neodb", "**/migrations", "**/commands", "**/importers",  "legacy" ]
+exclude = [
+    "neodb-takahe/*",
+    "media",
+    ".venv",
+    ".git",
+    "playground",
+    "**/tests.py",
+    "neodb",
+    "**/migrations",
+    "**/commands",
+    "**/importers",
+    "legacy",
+]
 lint.ignore = ["F401", "F403", "F405"]
 
 [tool.setuptools]

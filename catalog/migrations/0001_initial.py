@@ -3,7 +3,6 @@
 import uuid
 
 import django.db.models.deletion
-import simple_history.models
 from django.db import migrations, models
 
 import catalog.common.utils
@@ -100,76 +99,6 @@ class Migration(migrations.Migration):
                 ("created_time", models.DateTimeField(auto_now_add=True)),
                 ("edited_time", models.DateTimeField(auto_now=True)),
             ],
-        ),
-        migrations.CreateModel(
-            name="HistoricalItem",
-            fields=[
-                (
-                    "id",
-                    models.BigIntegerField(
-                        auto_created=True, blank=True, db_index=True, verbose_name="ID"
-                    ),
-                ),
-                (
-                    "uid",
-                    models.UUIDField(db_index=True, default=uuid.uuid4, editable=False),
-                ),
-                (
-                    "title",
-                    models.CharField(default="", max_length=1000, verbose_name="标题"),
-                ),
-                (
-                    "brief",
-                    models.TextField(blank=True, default="", verbose_name="简介"),
-                ),
-                (
-                    "primary_lookup_id_type",
-                    models.CharField(
-                        max_length=50, null=True, verbose_name="主要标识类型"
-                    ),
-                ),
-                (
-                    "primary_lookup_id_value",
-                    models.CharField(
-                        max_length=1000, null=True, verbose_name="主要标识数值"
-                    ),
-                ),
-                (
-                    "metadata",
-                    models.JSONField(
-                        blank=True, default=dict, null=True, verbose_name="其它信息"
-                    ),
-                ),
-                (
-                    "cover",
-                    models.TextField(
-                        blank=True,
-                        default="item/default.svg",
-                        max_length=100,
-                        verbose_name="封面",
-                    ),
-                ),
-                ("created_time", models.DateTimeField(blank=True, editable=False)),
-                ("edited_time", models.DateTimeField(blank=True, editable=False)),
-                ("is_deleted", models.BooleanField(db_index=True, default=False)),
-                ("history_id", models.AutoField(primary_key=True, serialize=False)),
-                ("history_date", models.DateTimeField(db_index=True)),
-                ("history_change_reason", models.CharField(max_length=100, null=True)),
-                (
-                    "history_type",
-                    models.CharField(
-                        choices=[("+", "Created"), ("~", "Changed"), ("-", "Deleted")],
-                        max_length=1,
-                    ),
-                ),
-            ],
-            options={
-                "verbose_name": "historical item",
-                "verbose_name_plural": "historical items",
-                "ordering": ("-history_date", "-history_id"),
-                "get_latest_by": ("history_date", "history_id"),
-            },
-            bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
         migrations.CreateModel(
             name="Item",

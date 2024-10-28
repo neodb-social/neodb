@@ -110,8 +110,6 @@ env = environ.FileAwareEnv(
     IGDB_API_CLIENT_SECRET=(str, ""),
     # Discord webhooks
     DISCORD_WEBHOOKS=(dict, {"user-report": None}),
-    # Slack API token, for sending exceptions to Slack, may deprecate in future
-    SLACK_API_TOKEN=(str, ""),
     THREADS_APP_ID=(str, ""),
     THREADS_APP_SECRET=(str, ""),
     NEODB_ENABLE_LOGIN_BLUESKY=(bool, False),
@@ -276,8 +274,6 @@ GOOGLE_API_KEY = env("GOOGLE_API_KEY")
 DISCOGS_API_KEY = env("DISCOGS_API_KEY")
 IGDB_CLIENT_ID = env("IGDB_API_CLIENT_ID")
 IGDB_CLIENT_SECRET = env("IGDB_API_CLIENT_SECRET")
-SLACK_TOKEN = env("SLACK_API_TOKEN")
-SLACK_CHANNEL = "alert"
 
 DOWNLOADER_PROXY_LIST = env("NEODB_DOWNLOADER_PROXY_LIST")
 DOWNLOADER_BACKUP_PROXY = env("NEODB_DOWNLOADER_BACKUP_PROXY", default="")  # type: ignore
@@ -412,15 +408,6 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("httpcore").setLevel(logging.WARNING)
 
-if SLACK_TOKEN:
-    INSTALLED_APPS += [
-        "django_slack",
-    ]
-    LOGGING["handlers"]["slack"] = {
-        "level": "ERROR",
-        "class": "django_slack.log.SlackExceptionHandler",
-    }
-    LOGGING["loggers"]["django"] = {"handlers": ["slack"], "level": "ERROR"}
 
 MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.models.render_md"
 
