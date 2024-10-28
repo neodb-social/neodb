@@ -16,12 +16,12 @@ _logger = logging.getLogger(__name__)
 
 def _get_preferred_languages():
     langs = {}
-    for l in PREFERRED_LANGUAGES:
-        if l == "zh":
+    for la in PREFERRED_LANGUAGES:
+        if la == "zh":
             langs.update({"zh-cn": "zh-CN", "zh-tw": "zh-TW"})
             # zh-HK data is not good
         else:
-            langs[l] = l
+            langs[la] = la
     return langs
 
 

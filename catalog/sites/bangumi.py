@@ -77,7 +77,7 @@ class Bangumi(AbstractSite):
                 case "别名":
                     other_title = (
                         [d["v"] for d in v]
-                        if type(v) == list
+                        if isinstance(v, list)
                         else ([v] if isinstance(v, str) else [])
                     )
                 case "imdb_id":
@@ -93,13 +93,13 @@ class Bangumi(AbstractSite):
                 case "作者":
                     authors = (
                         [d["v"] for d in v]
-                        if type(v) == list
+                        if isinstance(v, list)
                         else ([v] if isinstance(v, str) else [])
                     )
                 case "平台":
                     platform = (
                         [d["v"] for d in v]
-                        if type(v) == list
+                        if isinstance(v, list)
                         else ([v] if isinstance(v, str) else [])
                     )
                 case "游戏类型":
@@ -109,7 +109,7 @@ class Bangumi(AbstractSite):
                         else ([v] if isinstance(v, str) else [])
                     )
                 case "官方网站" | "website":
-                    site = v[0] if type(v) == list else v
+                    site = v[0] if isinstance(v, list) else v
 
         img_url = o["images"].get("large") or o["images"].get("common")
         raw_img = None
