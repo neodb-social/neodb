@@ -55,54 +55,12 @@ class Migration(migrations.Migration):
                     ("apple_podcast", "Apple Podcast"),
                     ("apple_music", "Apple Music"),
                     ("fedi", "Fediverse"),
+                    ("qidian", "Qidian"),
+                    ("ypshuo", "Ypshuo"),
                 ],
                 max_length=50,
                 verbose_name="IdType of the source site",
             ),
-        ),
-        migrations.AlterField(
-            model_name="item",
-            name="brief",
-            field=models.TextField(blank=True, default="", verbose_name="description"),
-        ),
-        migrations.AlterField(
-            model_name="item",
-            name="cover",
-            field=models.ImageField(
-                blank=True,
-                default="item/default.svg",
-                upload_to=catalog.common.utils.item_cover_path,
-                verbose_name="cover",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="item",
-            name="metadata",
-            field=models.JSONField(
-                blank=True, default=dict, null=True, verbose_name="metadata"
-            ),
-        ),
-        migrations.AlterField(
-            model_name="item",
-            name="primary_lookup_id_type",
-            field=models.CharField(
-                max_length=50, null=True, verbose_name="Primary ID Type"
-            ),
-        ),
-        migrations.AlterField(
-            model_name="item",
-            name="primary_lookup_id_value",
-            field=models.CharField(
-                help_text="automatically detected, usually no change necessary, left empty if unsure",
-                max_length=1000,
-                null=True,
-                verbose_name="Primary ID Value",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="item",
-            name="title",
-            field=models.CharField(default="", max_length=1000, verbose_name="title"),
         ),
         migrations.AlterField(
             model_name="itemlookupid",
@@ -148,10 +106,56 @@ class Migration(migrations.Migration):
                     ("apple_podcast", "Apple Podcast"),
                     ("apple_music", "Apple Music"),
                     ("fedi", "Fediverse"),
+                    ("qidian", "Qidian"),
+                    ("ypshuo", "Ypshuo"),
                 ],
                 max_length=50,
                 verbose_name="source site",
             ),
+        ),
+        migrations.AlterField(
+            model_name="item",
+            name="brief",
+            field=models.TextField(blank=True, default="", verbose_name="description"),
+        ),
+        migrations.AlterField(
+            model_name="item",
+            name="cover",
+            field=models.ImageField(
+                blank=True,
+                default="item/default.svg",
+                upload_to=catalog.common.utils.item_cover_path,
+                verbose_name="cover",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="item",
+            name="metadata",
+            field=models.JSONField(
+                blank=True, default=dict, null=True, verbose_name="metadata"
+            ),
+        ),
+        migrations.AlterField(
+            model_name="item",
+            name="primary_lookup_id_type",
+            field=models.CharField(
+                max_length=50, null=True, verbose_name="Primary ID Type"
+            ),
+        ),
+        migrations.AlterField(
+            model_name="item",
+            name="primary_lookup_id_value",
+            field=models.CharField(
+                help_text="automatically detected, usually no change necessary, left empty if unsure",
+                max_length=1000,
+                null=True,
+                verbose_name="Primary ID Value",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="item",
+            name="title",
+            field=models.CharField(default="", max_length=1000, verbose_name="title"),
         ),
         migrations.AlterField(
             model_name="itemlookupid",
