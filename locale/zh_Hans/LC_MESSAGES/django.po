@@ -1389,7 +1389,7 @@ msgstr "如果你在以下网站找到了相关条目，也可以把链接(如 <
 
 #: catalog/templates/search_results.html:107
 #, python-format
-msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on #dup\">click hereto show them.</a> "
+msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on #dup\">click here to show them.</a> "
 msgstr "已从结果中略去了来自同一作品或有相同标识号的%(dups)s个条目，<a _=\"on click toggle .unfold on #dup\">点击这里可重新显示</a>"
 
 #: catalog/templates/search_results.html:121

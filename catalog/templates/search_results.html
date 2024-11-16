@@ -104,7 +104,7 @@
             </div>
             {% if dup_items %}
               <p class="empty">
-                {% blocktrans with dups=dup_items|length %} {{ dups }} items are from the same work or have the same identifier, they are hidden from the search results, <a _="on click toggle .unfold on #dup">click hereto show them.</a> {% endblocktrans %}
+                {% blocktrans with dups=dup_items|length %} {{ dups }} items are from the same work or have the same identifier, they are hidden from the search results, <a _="on click toggle .unfold on #dup">click here to show them.</a> {% endblocktrans %}
               </p>
               <div class="item-card-list folded" id="dup">
                 {% for item in dup_items %}

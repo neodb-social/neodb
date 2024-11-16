@@ -1359,7 +1359,7 @@ msgstr "Hvis du har en URL fra et af disse websteder, så angiv venligst den ful
 
 #: catalog/templates/search_results.html:107
 #, python-format
-msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on #dup\">click hereto show them.</a> "
+msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on #dup\">click here to show them.</a> "
 msgstr " %(dups)s elementer er fra det samme værk eller har den samme identifikator, de er skjult fra søgeresultaterne, <a _=\"on click toggle .unfold on #dup\">klik her for at vise dem.</a> "
 
 #: catalog/templates/search_results.html:121

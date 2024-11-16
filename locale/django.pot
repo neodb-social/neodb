@@ -1392,7 +1392,7 @@ msgstr ""
 
 #: catalog/templates/search_results.html:107
 #, python-format
-msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on #dup\">click hereto show them.</a> "
+msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on #dup\">click here to show them.</a> "
 msgstr ""
 
 #: catalog/templates/search_results.html:121
