@@ -59,11 +59,11 @@
                   </small>
                 {% endif %}
               </h5>
-              <div class="calendar_view cards">
+              <ul class="calendar_view cards">
                 <p style="text-align: center;">
                   <i class="fa-solid fa-compact-disc fa-spin loading"></i>
                 </p>
-              </div>
+              </ul>
               <span class="calendar_data"
                     hx-get="{% url 'journal:user_calendar_data' identity.handle %}"
                     hx-trigger="load"
