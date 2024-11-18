@@ -381,7 +381,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 if toot_id:
                     self.metadata.pop("mastodon_url", None)
                     mastodon.delete_post(toot_id)
-            elif update_mode == 1:
+            elif update_mode == 2:
                 params.pop("update_id", None)
             return self.crosspost_to_mastodon(params)
         elif self.latest_post:
