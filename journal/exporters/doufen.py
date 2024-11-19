@@ -65,9 +65,8 @@ def export_marks_task(user):
             movie = mark.item
             title = movie.title
             if movie.__class__ == TVEpisode:
-                summary = (
-                    f"S{movie.season.season_number:02d}E{movie.episode_number:02d}"
-                )
+                season_number = movie.season.season_number if movie.season else 0
+                summary = f"S{season_number:02d}E{movie.episode_number:02d}"
             else:
                 summary = (
                     str(movie.year or "")
