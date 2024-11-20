@@ -89,7 +89,7 @@ class TVSeasonInSchema(ItemInSchema):
 
 
 class TVSeasonSchema(TVSeasonInSchema, BaseSchema):
-    pass
+    imdb: str | None = None
 
 
 class TVEpisodeSchema(ItemSchema):
