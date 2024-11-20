@@ -18,6 +18,7 @@
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ review.item.cover|thumb:'normal' }}">
     <meta property="og:site_name" content="{{ site_name }}">
+    <meta name="fediverse:creator" content="@{{ review.owner.full_handle }}">
     {% if not identity.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }} {% trans 'Review' %} - {{ review.title }}</title>
     {% include "common_libs.html" %}
