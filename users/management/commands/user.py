@@ -22,7 +22,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--integrity",
             action="store_true",
-            help="check and fix integrity for merged and deleted items",
+            help="check and fix integrity for missing data for user models",
         )
 
     def handle(self, *args, **options):
@@ -33,9 +33,18 @@ class Command(BaseCommand):
 
     def integrity(self):
         count = 0
-        for user in tqdm(User.objects.all()):
+        for user in tqdm(User.objects.filter(is_active=True)):
+            i = user.identity.takahe_identity
+            if i.public_key is None:
+                count += 1
+                if self.fix:
+                    i.generate_keypair()
+            if i.inbox_uri is None:
+                count += 1
+                if self.fix:
+                    i.ensure_uris()
             if not Preference.objects.filter(user=user).first():
                 if self.fix:
                     Preference.objects.create(user=user)
                 count += 1
-        print(f"{count} missed preferences")
+        print(f"{count} issues")

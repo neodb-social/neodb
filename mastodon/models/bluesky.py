@@ -153,7 +153,11 @@ class BlueskyAccount(SocialAccount):
     def refresh(self, save=True, did_check=True):
         if did_check:
             self.check_alive(save=save)
-        profile = self._client.me
+        try:
+            profile = self._client.me
+        except Exception:
+            logger.warning("Bluesky: client error.")
+            return False
         if not profile:
             logger.warning("Bluesky: client not logged in.")  # this should not happen
             return False
