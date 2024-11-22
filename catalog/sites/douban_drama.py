@@ -27,8 +27,6 @@ class DoubanDramaVersion(AbstractSite):
     ID_TYPE = IdType.DoubanDramaVersion
     URL_PATTERNS = [
         r"\w+://www.douban.com/location/drama/(\d+)/#(\d+)$",
-        r"\w+://www.douban.com/doubanapp/dispatch\?uri=/drama/(\d+)/",
-        r"\w+://www.douban.com/doubanapp/dispatch/drama/(\d+)",
     ]
 
     WIKI_PROPERTY_ID = "?"
@@ -112,6 +110,7 @@ class DoubanDrama(AbstractSite):
     URL_PATTERNS = [
         r"\w+://www.douban.com/location/drama/(\d+)/[^#]*$",
         r"\w+://www.douban.com/doubanapp/dispatch\?uri=/drama/(\d+)/",
+        r"\w+://www.douban.com/doubanapp/dispatch/drama/(\d+)",
     ]
     WIKI_PROPERTY_ID = "P6443"
     DEFAULT_MODEL = Performance
