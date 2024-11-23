@@ -64,8 +64,9 @@ class Album(Item):
     duration = jsondata.IntegerField(
         _("length"), null=True, blank=True, help_text=_("milliseconds")
     )
-    artist = jsondata.JSONField(
+    artist = jsondata.ArrayField(
         verbose_name=_("artist"),
+        base_field=models.CharField(blank=True, default="", max_length=100),
         null=False,
         blank=False,
         default=list,

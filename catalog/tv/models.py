@@ -372,9 +372,9 @@ class TVSeason(Item):
         blank=True,
         default=list,
     )
-    language = jsondata.JSONField(
+    language = jsondata.ArrayField(
         verbose_name=_("language"),
-        # base_field=models.CharField(blank=True, default="", max_length=100, choices=LANGUAGE_CHOICES ),
+        base_field=models.CharField(blank=True, default="", max_length=100),
         null=True,
         blank=True,
         default=list,

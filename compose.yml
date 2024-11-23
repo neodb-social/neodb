@@ -122,7 +122,7 @@ services:
       - ${NEODB_DATA:-../data}/redis:/data
 
   typesense:
-    image: typesense/typesense:0.25.2
+    image: typesense/typesense:${TYPESENSE_VERSION:-0.25.2}
     restart: "on-failure"
     # healthcheck:
     #   test: ['CMD', 'curl', '-vf', 'http://127.0.0.1:8108/health']
@@ -132,12 +132,12 @@ services:
       GLOG_minloglevel: 2
     volumes:
       - ${NEODB_DATA:-../data}/typesense:/data
-    command: '--data-dir /data --api-key=eggplant'
+    command: "--data-dir /data --api-key=eggplant"
 
   neodb-db:
-    image: postgres:14-alpine
+    image: postgres:${POSTGRES_VERSION:-14-alpine}
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'neodb']
+      test: ["CMD", "pg_isready", "-U", "neodb"]
     volumes:
       - ${NEODB_DATA:-../data}/neodb-db:/var/lib/postgresql/data
     environment:
@@ -146,9 +146,9 @@ services:
       - POSTGRES_PASSWORD=aubergine
 
   takahe-db:
-    image: postgres:14-alpine
+    image: postgres:${POSTGRES_VERSION:-14-alpine}
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'takahe']
+      test: ["CMD", "pg_isready", "-U", "takahe"]
     volumes:
       - ${NEODB_DATA:-../data}/takahe-db:/var/lib/postgresql/data
     environment:
@@ -174,7 +174,15 @@ services:
     <<: *neodb-service
     command: ${NEODB_VENV:-/neodb-venv}/bin/gunicorn boofilsic.wsgi -w ${NEODB_WEB_WORKER_NUM:-8} --preload --max-requests 2000 --timeout 60 -b 0.0.0.0:8000
     healthcheck:
-      test: ['CMD', 'wget', '-qO/tmp/test', '--header', 'X-Forwarded-Proto: https', 'http://127.0.0.1:8000/nodeinfo/2.0/']
+      test:
+        [
+          "CMD",
+          "wget",
+          "-qO/tmp/test",
+          "--header",
+          "X-Forwarded-Proto: https",
+          "http://127.0.0.1:8000/nodeinfo/2.0/",
+        ]
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -183,7 +191,15 @@ services:
     <<: *neodb-service
     command: ${NEODB_VENV:-/neodb-venv}/bin/gunicorn boofilsic.wsgi -w ${NEODB_API_WORKER_NUM:-4} --preload --max-requests 2000 --timeout 30 -b 0.0.0.0:8000
     healthcheck:
-      test: ['CMD', 'wget', '-qO/tmp/test', '--header', 'X-Forwarded-Proto: https', 'http://127.0.0.1:8000/nodeinfo/2.0/']
+      test:
+        [
+          "CMD",
+          "wget",
+          "-qO/tmp/test",
+          "--header",
+          "X-Forwarded-Proto: https",
+          "http://127.0.0.1:8000/nodeinfo/2.0/",
+        ]
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -206,7 +222,15 @@ services:
     <<: *neodb-service
     command: ${TAKAHE_VENV:-/takahe-venv}/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8} --max-requests 2000 --timeout 60 --preload -b 0.0.0.0:8000
     healthcheck:
-      test: ['CMD', 'wget', '-qO/tmp/test', '--header', 'X-Forwarded-Proto: https', 'http://127.0.0.1:8000/api/v1/instance']
+      test:
+        [
+          "CMD",
+          "wget",
+          "-qO/tmp/test",
+          "--header",
+          "X-Forwarded-Proto: https",
+          "http://127.0.0.1:8000/api/v1/instance",
+        ]
     depends_on:
       migration:
         condition: service_completed_successfully

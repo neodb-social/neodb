@@ -39,7 +39,7 @@
                data-position="{{ comment.metadata.position|default:0 }}"
                data-cover="{{ comment.item.cover_url|default:item.cover.url }}"
                class="episode"
-               data-hosts="{{ item.hosts|join:' / ' }}"
+               data-hosts="{{ item.host|join:' / ' }}"
                data-title="{{ comment.item.display_title }}"
                data-album="{{ item.display_title }}"
                {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' comment.item.uuid %}" {% endif %}

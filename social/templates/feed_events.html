@@ -45,7 +45,7 @@
                        data-cover="{{ item.cover_url|default:item.parent_item.cover.url }}"
                        data-title="{{ item.display_title }}"
                        data-album="{{ item.parent_item.display_title }}"
-                       data-hosts="{{ item.parent_item.hosts|join:' / ' }}"
+                       data-hosts="{{ item.parent_item.host|join:' / ' }}"
                        {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' item.uuid %}" {% endif %}
                        data-position="{{ piece.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
                   {% else %}

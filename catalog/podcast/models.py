@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from ninja import Field
-from typing_extensions import deprecated
 
 from catalog.common import (
     BaseSchema,
@@ -52,8 +51,9 @@ class Podcast(Item):
 
     language = LanguageListField()
 
-    host = jsondata.JSONField(
+    host = jsondata.ArrayField(
         verbose_name=_("host"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=False,
         blank=False,
         default=list,

@@ -108,7 +108,7 @@
                      data-cover="{{ item.cover_url|default:item.program.cover.url }}"
                      data-title="{{ item.display_title }}"
                      data-album="{{ item.program.display_title }}"
-                     data-hosts="{{ item.program.hosts|join:' / ' }}"
+                     data-hosts="{{ item.program.host|join:' / ' }}"
                      {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' item.uuid %}" {% endif %}
                      data-position="0"
                      href="{{ item.url }}"

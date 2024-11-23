@@ -8,10 +8,6 @@
     {% endif %}
     {% include '_people.html' with people=item.author role='author' max=2 %}
     {% include '_people.html' with people=item.translator role='translator' max=2 %}
-    {% include '_people.html' with people=item.director role='director' max=2 %}
-    {% include '_people.html' with people=item.hosts role='' max=2 %}
-    {% include '_people.html' with people=item.artist role='' max=2 %}
-    {% include '_people.html' with people=item.developer role='' max=2 %}
     {% if item.pub_house %}<span>{{ item.pub_house }}</span>{% endif %}
     {% if item.pub_year %}
       <span>

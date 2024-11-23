@@ -36,7 +36,7 @@ window.player = new Shikwasa.Player({
 		cover: "{{ focus_item.cover_url | default:item.cover.url | escapejs }}",
 		src: "{{ focus_item.media_url | escapejs }}",
 		album: "{{ item.display_title|escapejs }}",
-		artist: "{{ item.hosts|join:' / '|escapejs }}"
+		artist: "{{ item.host|join:' / '|escapejs }}"
 	}
 });
 if (position) window.player._initSeek = position;

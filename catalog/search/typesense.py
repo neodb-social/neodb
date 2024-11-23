@@ -297,6 +297,8 @@ class Indexer:
         for field in obj.__class__.indexable_fields_dict:
             if field.startswith("localized_"):
                 item[field] = [t["text"] for t in getattr(obj, field, [])]
+            elif field in ["actor", "crew"]:
+                item[field] = [t["name"] for t in getattr(obj, field, [])]
 
         item["id"] = obj.uuid
         item["category"] = obj.category.value

@@ -12,7 +12,7 @@
          data-uuid="{{ ep.uuid }}"
          data-title="{{ ep.display_title }}"
          data-album="{{ item.display_title }}"
-         data-hosts="{{ item.hosts|join:' / ' }}"
+         data-hosts="{{ item.host|join:' / ' }}"
          {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' ep.uuid %}" {% endif %}
          style="top:4px;
                 margin-right: 8px"></a>
