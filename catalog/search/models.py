@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from rq.job import Job
 
+from catalog.common.downloaders import RESPONSE_CENSORSHIP, DownloadError
 from catalog.common.sites import SiteManager
 
 from ..models import Item, TVSeason
@@ -156,6 +157,9 @@ def _fetch_task(url, is_refetch, user):
                 item_url = item.url
             else:
                 logger.error(f"fetch {url} failed")
+        except DownloadError as e:
+            if e.response_type != RESPONSE_CENSORSHIP:
+                logger.error(f"fetch {url} error", extra={"exception": e})
         except Exception as e:
-            logger.error(f"fetch {url} error", extra={"exception": e})
+            logger.error(f"parse {url} error", extra={"exception": e})
         return item_url
