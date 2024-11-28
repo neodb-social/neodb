@@ -88,7 +88,7 @@ def profile(request: AuthedHttpRequest, user_name):
         year = None
     else:
         today = datetime.date.today()
-        if today.month > 11:
+        if today.month >= 11:
             year = today.year
         elif today.month < 2:
             year = today.year - 1

@@ -352,7 +352,7 @@ class Indexer:
         f = []
         if categories:
             f.append(f"category:= [{','.join(categories)}]")
-        if tag:
+        if tag and tag != "_":
             f.append(f"tags:= '{tag}'")
         filters = " && ".join(f)
         options = {

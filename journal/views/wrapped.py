@@ -115,7 +115,7 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         img = base64.b64decode(request.POST.get("img", ""))
         comment = request.POST.get("comment", "")
-        visibility = VisibilityType(request.POST.get("visibility", 0))
+        visibility = VisibilityType(int(request.POST.get("visibility", 0)))
         user: User = request.user  # type: ignore
         identity = user.identity
         media = Takahe.upload_image(

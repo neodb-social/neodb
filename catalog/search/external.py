@@ -224,9 +224,9 @@ class Spotify:
             if j.get("albums"):
                 for a in j["albums"]["items"]:
                     title = a["name"]
-                    subtitle = a["release_date"]
-                    for artist in a["artists"]:
-                        subtitle += " " + artist["name"]
+                    subtitle = a.get("release_date", "")
+                    for artist in a.get("artists", []):
+                        subtitle += " " + artist.get("name", "")
                     url = a["external_urls"]["spotify"]
                     cover = a["images"][0]["url"] if a.get("images") else None
                     results.append(
