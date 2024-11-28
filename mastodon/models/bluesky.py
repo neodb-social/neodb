@@ -7,6 +7,7 @@ from atproto_client import models
 from atproto_client.exceptions import AtProtocolError
 from atproto_identity.did.resolver import DidResolver
 from atproto_identity.handle.resolver import HandleResolver
+from django.conf import settings
 from django.utils import timezone
 from loguru import logger
 
@@ -230,8 +231,9 @@ class BlueskyAccount(SocialAccount):
         self,
         content,
         reply_to_id=None,
-        obj: "Item | Content | None" = None,
+        obj: "Item | Content | EmbedObj | None" = None,
         rating=None,
+        images=[],
         **kwargs,
     ):
         from journal.models.renderers import render_rating
@@ -257,12 +259,27 @@ class BlueskyAccount(SocialAccount):
             else:
                 first = False
             richtext.text(t)
-        if obj:
+        if images:
+            refs = [self._client.upload_blob(image).blob for image in images]
+            embed_images = [
+                models.AppBskyEmbedImages.Image(alt="", image=r) for r in refs
+            ]
+            embed = models.AppBskyEmbedImages.Main(images=embed_images)
+        elif obj:
+            cover = getattr(obj, "cover", None)
+            blob = (
+                cover.read()
+                if cover and cover != settings.DEFAULT_ITEM_COVER
+                else getattr(obj, "image", None)
+            )
+            blob_ref = self._client.upload_blob(blob).blob if blob else None
+            # blob_ref = None
             embed = models.AppBskyEmbedExternal.Main(
                 external=models.AppBskyEmbedExternal.External(
                     title=obj.display_title,
                     description=obj.brief_description,
                     uri=obj.absolute_url,
+                    thumb=blob_ref,
                 )
             )
         else:
@@ -273,3 +290,11 @@ class BlueskyAccount(SocialAccount):
 
     def delete_post(self, post_uri):
         self._client.delete_post(post_uri)
+
+
+class EmbedObj:
+    def __init__(self, title, description, uri, image=None):
+        self.display_title = title
+        self.brief_description = description
+        self.absolute_url = uri
+        self.image = image

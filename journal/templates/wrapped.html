@@ -11,7 +11,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ identity.display_name }} - {{ year }} 年度统计</title>
+    <title>{{ site_name }} - {{ identity.display_name }} - {{ year }} {% trans "annual summary" %}</title>
     {% include "common_libs.html" %}
     {% comment %} <script src="{{ cdn_url }}/npm/rough-viz@2.0.5/dist/roughviz.umd.min.js"></script> {% endcomment %}
     <script src="{% static 'js/roughviz.umd.js' %}"></script>
@@ -35,20 +35,20 @@
       <div class="grid__main">
         <span class="action">
           <span>
-            <a onclick="restyle()" title="随机风格"><i class="fa-solid fa-shuffle"></i></a>
+            <a onclick="restyle()" title="{% trans 'another style' %}"><i class="fa-solid fa-shuffle"></i></a>
           </span>
           <span>
             <a hx-get="{% url 'journal:wrapped_share' year %}"
                hx-target="body"
                hx-swap="beforeend"
-               title="转发到时间轴"><i class="fa-solid fa-share-from-square"></i></a>
+               title="{% trans 'share' %}"><i class="fa-solid fa-share-from-square"></i></a>
           </span>
           <span>
             <a onclick="saveSvgAsPng($('#viz0').children('svg')[0], '{{ year }}-wrapped.png');"
-               title="下载图片"><i class="fa-solid fa-download"></i></a>
+               title="{% trans 'download' %}"><i class="fa-solid fa-download"></i></a>
           </span>
         </span>
-        <h5>{{ year }} 年度统计</h5>
+        <h5>{{ year }} {% trans "annual summary" %}</h5>
         <div id="viz0" style="max-width: 100%; aspect-ratio: 1 / 1;"></div>
         {{ by_cat|json_script:"cat-data" }}
         {{ monthly|json_script:"mon-data" }}

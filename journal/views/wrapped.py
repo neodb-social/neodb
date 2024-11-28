@@ -20,6 +20,7 @@ from catalog.models import (
 )
 from journal.models import Comment, ShelfType
 from journal.models.common import VisibilityType
+from mastodon.models.bluesky import EmbedObj
 from takahe.utils import Takahe
 from users.models import User
 
@@ -137,5 +138,9 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
                 pass
         elif post and user.mastodon:
             user.mastodon.boost_later(post.url)
+        if visibility == VisibilityType.Public and user.bluesky:
+            o = EmbedObj("🧩", "", user.absolute_url)
+            txt = comment.rstrip() + "\n\n##obj##"
+            user.bluesky.post(txt, obj=o, images=[img])
         messages.add_message(request, messages.INFO, _("Summary posted to timeline."))
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
