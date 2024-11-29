@@ -9,7 +9,9 @@
           {% if not hide_category %}<span class="category">[{{ item.category.label }}]</span>{% endif %}
           <span class="site-list">
             {% for res in item.external_resources.all %}
-              <a href="{{ res.url }}" class="{{ res.site_name }}">{{ res.site_label }}</a>
+              <a href="{{ res.url }}"
+                 class="{{ res.site_name }}"
+                 rel="noopener noreferrer">{{ res.site_label }}</a>
             {% endfor %}
           </span>
         </small>

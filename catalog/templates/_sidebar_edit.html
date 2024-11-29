@@ -50,7 +50,7 @@
     {% for res in item.external_resources.all %}
       <details>
         <summary>
-          {% trans 'External website' %}: <a href="{{ res.url }}">{{ res.site_label }}</a>
+          {% trans 'External website' %}: <a href="{{ res.url }}" rel="noopener noreferrer">{{ res.site_label }}</a>
         </summary>
         <div class="grid">
           <form method="post"

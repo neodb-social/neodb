@@ -100,7 +100,7 @@
               <a href="{{ b.url }}">{{ b.display_title }}</a>
               <small class="title_deco">{{ b.title_deco }}</small>
               {% comment %} {% for res in b.external_resources.all %}
-              <a href="{{ res.url }}">
+              <a href="{{ res.url }}" rel="noopener noreferrer">
                 <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
               </a>
               {% endfor %} {% endcomment %}
