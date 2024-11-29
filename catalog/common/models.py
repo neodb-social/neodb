@@ -278,7 +278,7 @@ class LocalizedTitleSchema(Schema):
 
 class ItemInSchema(Schema):
     title: str = Field(alias="display_title")
-    description: str = Field(default=None, alias="display_description")
+    description: str = Field(default="", alias="display_description")
     localized_title: list[LocalizedTitleSchema] = []
     localized_description: list[LocalizedTitleSchema] = []
     cover_image_url: str | None

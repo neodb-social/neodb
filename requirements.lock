@@ -9,19 +9,21 @@
 #   generate-hashes: false
 #   universal: false
 
-aiohttp==3.9.5
+aiohappyeyeballs==2.4.3
+    # via aiohttp
+aiohttp==3.11.8
     # via discord-py
 aiosignal==1.3.1
     # via aiohttp
 annotated-types==0.7.0
     # via pydantic
-anyio==4.4.0
+anyio==4.6.2.post1
     # via httpx
 asgiref==3.8.1
     # via django
     # via django-cors-headers
 atproto==0.0.55
-attrs==23.2.0
+attrs==24.2.0
     # via aiohttp
 beautifulsoup4==4.12.3
     # via markdownify
@@ -29,29 +31,30 @@ bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
 cachetools==5.5.0
-certifi==2024.6.2
+certifi==2024.8.30
     # via httpcore
     # via httpx
     # via requests
     # via sentry-sdk
-cffi==1.16.0
+cffi==1.17.1
     # via blurhash-python
     # via cryptography
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via requests
 click==8.1.7
     # via atproto
     # via rq
-cryptography==42.0.8
+cryptography==43.0.3
     # via atproto
 dateparser==1.2.0
-deepmerge==1.1.1
+deepmerge==2.0
 discord-py==2.4.0
 django==4.2.16
     # via django-anymail
     # via django-appconf
     # via django-auditlog
     # via django-bleach
+    # via django-compressor
     # via django-cors-headers
     # via django-hijack
     # via django-jsonform
@@ -67,8 +70,8 @@ django-appconf==1.0.6
     # via django-compressor
 django-auditlog==3.0.0
 django-bleach==3.1.0
-django-compressor==4.4
-django-cors-headers==4.3.1
+django-compressor==4.5.1
+django-cors-headers==4.6.0
 django-environ==0.11.2
 django-hijack==3.7.0
 django-jsonform==2.23.1
@@ -77,7 +80,7 @@ django-markdownx==4.0.7
 django-ninja==1.3.0
 django-polymorphic @ git+https://github.com/jazzband/django-polymorphic/@1039f882b99f97bf657bd958c949ee6a3b00377a
 django-redis==5.4.0
-django-rq==2.10.2
+django-rq==3.0.0
 django-sass-processor==1.4.1
 django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git@03921e05b39d07d143519a435259f66387a088bc
 django-tz-detect==0.5.0
@@ -85,20 +88,20 @@ django-user-messages==1.1.0
 dnspython==2.7.0
     # via atproto
 easy-thumbnails==2.10
-et-xmlfile==1.1.0
+et-xmlfile==2.0.0
     # via openpyxl
 filetype==1.2.0
-frozenlist==1.4.1
+frozenlist==1.5.0
     # via aiohttp
     # via aiosignal
 gunicorn==23.0.0
 h11==0.14.0
     # via httpcore
-httpcore==1.0.5
+httpcore==1.0.7
     # via httpx
 httpx==0.27.2
     # via atproto
-idna==3.7
+idna==3.10
     # via anyio
     # via httpx
     # via requests
@@ -111,57 +114,60 @@ libsass==0.23.0
 listparser==0.20
 loguru==0.7.2
 lxml==5.3.0
-markdown==3.6
+markdown==3.7
     # via django-markdownx
-markdownify==0.13.1
+markdownify==0.14.1
 mistune==3.0.2
-multidict==6.0.5
+multidict==6.1.0
     # via aiohttp
     # via yarl
 openpyxl==3.1.5
-packaging==24.0
+packaging==24.2
     # via gunicorn
-pillow==10.3.0
+pillow==11.0.0
     # via blurhash-python
     # via django-markdownx
     # via easy-thumbnails
 podcastparser==0.6.10
-protobuf==5.27.0
+propcache==0.2.0
+    # via aiohttp
+    # via yarl
+protobuf==5.29.0
     # via igdb-api-v4
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 pycparser==2.22
     # via cffi
-pydantic==2.7.3
+pydantic==2.10.2
     # via atproto
     # via django-ninja
-pydantic-core==2.18.4
+pydantic-core==2.27.1
     # via pydantic
 python-dateutil==2.9.0.post0
     # via dateparser
     # via django-auditlog
 python-fsutil==0.14.1
     # via django-maintenance-mode
-pytz==2024.1
+pytz==2024.2
     # via dateparser
     # via django-tz-detect
-rcssmin==1.1.1
+rcssmin==1.1.2
     # via django-compressor
-redis==5.0.4
+redis==5.2.0
     # via django-redis
     # via django-rq
     # via rq
-regex==2024.5.15
+regex==2024.11.6
     # via dateparser
 requests==2.32.3
     # via django-anymail
     # via igdb-api-v4
     # via typesense
-rjsmin==1.2.1
+rjsmin==1.2.2
     # via django-compressor
-rq==1.16.2
+rq==2.0.0
     # via django-rq
-sentry-sdk==2.17.0
-setproctitle==1.3.3
+sentry-sdk==2.19.0
+setproctitle==1.3.4
 six==1.16.0
     # via bleach
     # via blurhash-python
@@ -171,21 +177,21 @@ six==1.16.0
 sniffio==1.3.1
     # via anyio
     # via httpx
-soupsieve==2.5
+soupsieve==2.6
     # via beautifulsoup4
-sqlparse==0.5.0
+sqlparse==0.5.2
     # via django
 tinycss2==1.1.1
     # via bleach
-tqdm==4.66.6
+tqdm==4.67.1
 typesense==0.21.0
-typing-extensions==4.12.1
+typing-extensions==4.12.2
     # via atproto
     # via pydantic
     # via pydantic-core
 tzlocal==5.2
     # via dateparser
-urllib3==2.2.1
+urllib3==2.2.3
     # via django-anymail
     # via requests
     # via sentry-sdk
@@ -194,7 +200,7 @@ validators==0.34.0
 webencodings==0.5.1
     # via bleach
     # via tinycss2
-websockets==12.0
+websockets==13.1
     # via atproto
-yarl==1.9.4
+yarl==1.18.0
     # via aiohttp

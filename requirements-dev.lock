@@ -9,22 +9,24 @@
 #   generate-hashes: false
 #   universal: false
 
-aiohttp==3.9.5
+aiohappyeyeballs==2.4.3
+    # via aiohttp
+aiohttp==3.11.8
     # via discord-py
 aiosignal==1.3.1
     # via aiohttp
 annotated-types==0.7.0
     # via pydantic
-anyio==4.4.0
+anyio==4.6.2.post1
     # via httpx
 asgiref==3.8.1
     # via django
     # via django-cors-headers
     # via django-stubs
 atproto==0.0.55
-attrs==23.2.0
+attrs==24.2.0
     # via aiohttp
-babel==2.15.0
+babel==2.16.0
     # via mkdocs-material
 beautifulsoup4==4.12.3
     # via markdownify
@@ -33,17 +35,17 @@ bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
 cachetools==5.5.0
-certifi==2024.6.2
+certifi==2024.8.30
     # via httpcore
     # via httpx
     # via requests
     # via sentry-sdk
-cffi==1.16.0
+cffi==1.17.1
     # via blurhash-python
     # via cryptography
 cfgv==3.4.0
     # via pre-commit
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via requests
 click==8.1.7
     # via atproto
@@ -54,20 +56,21 @@ click==8.1.7
 colorama==0.4.6
     # via djlint
     # via mkdocs-material
-cryptography==42.0.8
+cryptography==43.0.3
     # via atproto
 cssbeautifier==1.15.1
     # via djlint
 dateparser==1.2.0
-deepmerge==1.1.1
+deepmerge==2.0
 discord-py==2.4.0
-distlib==0.3.8
+distlib==0.3.9
     # via virtualenv
-django==4.2.14
+django==4.2.16
     # via django-anymail
     # via django-appconf
     # via django-auditlog
     # via django-bleach
+    # via django-compressor
     # via django-cors-headers
     # via django-hijack
     # via django-jsonform
@@ -85,8 +88,8 @@ django-appconf==1.0.6
     # via django-compressor
 django-auditlog==3.0.0
 django-bleach==3.1.0
-django-compressor==4.4
-django-cors-headers==4.3.1
+django-compressor==4.5.1
+django-cors-headers==4.6.0
 django-environ==0.11.2
 django-hijack==3.7.0
 django-jsonform==2.23.1
@@ -95,27 +98,27 @@ django-markdownx==4.0.7
 django-ninja==1.3.0
 django-polymorphic @ git+https://github.com/jazzband/django-polymorphic/@1039f882b99f97bf657bd958c949ee6a3b00377a
 django-redis==5.4.0
-django-rq==2.10.2
+django-rq==3.0.0
 django-sass-processor==1.4.1
-django-stubs==5.1.0
-django-stubs-ext==5.1.0
+django-stubs==5.1.1
+django-stubs-ext==5.1.1
     # via django-stubs
 django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git@03921e05b39d07d143519a435259f66387a088bc
 django-tz-detect==0.5.0
 django-user-messages==1.1.0
-djlint==1.35.2
+djlint==1.36.3
 dnspython==2.7.0
     # via atproto
 easy-thumbnails==2.10
 editorconfig==0.12.4
     # via cssbeautifier
     # via jsbeautifier
-et-xmlfile==1.1.0
+et-xmlfile==2.0.0
     # via openpyxl
-filelock==3.14.0
+filelock==3.16.1
     # via virtualenv
 filetype==1.2.0
-frozenlist==1.4.1
+frozenlist==1.5.0
     # via aiohttp
     # via aiosignal
 ghp-import==2.1.0
@@ -123,17 +126,13 @@ ghp-import==2.1.0
 gunicorn==23.0.0
 h11==0.14.0
     # via httpcore
-html-tag-names==0.1.2
-    # via djlint
-html-void-elements==0.1.0
-    # via djlint
-httpcore==1.0.5
+httpcore==1.0.7
     # via httpx
 httpx==0.27.2
     # via atproto
-identify==2.5.36
+identify==2.6.3
     # via pre-commit
-idna==3.7
+idna==3.10
     # via anyio
     # via httpx
     # via requests
@@ -146,7 +145,7 @@ jinja2==3.1.4
 jsbeautifier==1.15.1
     # via cssbeautifier
     # via djlint
-json5==0.9.25
+json5==0.10.0
     # via djlint
 langdetect==1.0.9
 libipld==3.0.0
@@ -156,27 +155,27 @@ listparser==0.20
 loguru==0.7.2
 lxml==5.3.0
 lxml-stubs==0.5.1
-markdown==3.6
+markdown==3.7
     # via django-markdownx
     # via mkdocs
     # via mkdocs-material
     # via pymdown-extensions
-markdownify==0.13.1
-markupsafe==2.1.5
+markdownify==0.14.1
+markupsafe==3.0.2
     # via jinja2
     # via mkdocs
 mergedeep==1.3.4
     # via mkdocs
     # via mkdocs-get-deps
 mistune==3.0.2
-mkdocs==1.6.0
+mkdocs==1.6.1
     # via mkdocs-material
 mkdocs-get-deps==0.2.0
     # via mkdocs
-mkdocs-material==9.5.42
+mkdocs-material==9.5.46
 mkdocs-material-extensions==1.3.1
     # via mkdocs-material
-multidict==6.0.5
+multidict==6.1.0
     # via aiohttp
     # via yarl
 mypy-extensions==1.0.0
@@ -185,39 +184,42 @@ nodeenv==1.9.1
     # via pre-commit
     # via pyright
 openpyxl==3.1.5
-packaging==24.0
+packaging==24.2
     # via black
     # via gunicorn
     # via mkdocs
-paginate==0.5.6
+paginate==0.5.7
     # via mkdocs-material
 pathspec==0.12.1
     # via black
     # via djlint
     # via mkdocs
-pillow==10.3.0
+pillow==11.0.0
     # via blurhash-python
     # via django-markdownx
     # via easy-thumbnails
-platformdirs==4.2.2
+platformdirs==4.3.6
     # via black
     # via mkdocs-get-deps
     # via virtualenv
 podcastparser==0.6.10
 pre-commit==4.0.1
-protobuf==5.27.0
+propcache==0.2.0
+    # via aiohttp
+    # via yarl
+protobuf==5.29.0
     # via igdb-api-v4
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 pycparser==2.22
     # via cffi
-pydantic==2.7.3
+pydantic==2.10.2
     # via atproto
     # via django-ninja
-pydantic-core==2.18.4
+pydantic-core==2.27.1
     # via pydantic
 pygments==2.18.0
     # via mkdocs-material
-pymdown-extensions==10.8.1
+pymdown-extensions==10.12
     # via mkdocs-material
 pyright==1.1.389
 python-dateutil==2.9.0.post0
@@ -226,10 +228,10 @@ python-dateutil==2.9.0.post0
     # via ghp-import
 python-fsutil==0.14.1
     # via django-maintenance-mode
-pytz==2024.1
+pytz==2024.2
     # via dateparser
     # via django-tz-detect
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via djlint
     # via mkdocs
     # via mkdocs-get-deps
@@ -238,13 +240,13 @@ pyyaml==6.0.1
     # via pyyaml-env-tag
 pyyaml-env-tag==0.1
     # via mkdocs
-rcssmin==1.1.1
+rcssmin==1.1.2
     # via django-compressor
-redis==5.0.4
+redis==5.2.0
     # via django-redis
     # via django-rq
     # via rq
-regex==2023.12.25
+regex==2024.11.6
     # via dateparser
     # via djlint
     # via mkdocs-material
@@ -253,13 +255,13 @@ requests==2.32.3
     # via igdb-api-v4
     # via mkdocs-material
     # via typesense
-rjsmin==1.2.1
+rjsmin==1.2.2
     # via django-compressor
-rq==1.16.2
+rq==2.0.0
     # via django-rq
-ruff==0.7.1
-sentry-sdk==2.17.0
-setproctitle==1.3.3
+ruff==0.8.1
+sentry-sdk==2.19.0
+setproctitle==1.3.4
 six==1.16.0
     # via bleach
     # via blurhash-python
@@ -271,18 +273,18 @@ six==1.16.0
 sniffio==1.3.1
     # via anyio
     # via httpx
-soupsieve==2.5
+soupsieve==2.6
     # via beautifulsoup4
-sqlparse==0.5.0
+sqlparse==0.5.2
     # via django
 tinycss2==1.1.1
     # via bleach
-tqdm==4.66.6
+tqdm==4.67.1
     # via djlint
-types-pyyaml==6.0.12.20240311
+types-pyyaml==6.0.12.20240917
     # via django-stubs
 typesense==0.21.0
-typing-extensions==4.12.1
+typing-extensions==4.12.2
     # via atproto
     # via django-stubs
     # via django-stubs-ext
@@ -291,20 +293,20 @@ typing-extensions==4.12.1
     # via pyright
 tzlocal==5.2
     # via dateparser
-urllib3==2.2.1
+urllib3==2.2.3
     # via django-anymail
     # via requests
     # via sentry-sdk
 urlman==2.0.2
 validators==0.34.0
-virtualenv==20.26.2
+virtualenv==20.28.0
     # via pre-commit
-watchdog==4.0.1
+watchdog==6.0.0
     # via mkdocs
 webencodings==0.5.1
     # via bleach
     # via tinycss2
-websockets==12.0
+websockets==13.1
     # via atproto
-yarl==1.9.4
+yarl==1.18.0
     # via aiohttp
