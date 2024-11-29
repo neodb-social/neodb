@@ -12,7 +12,7 @@ the following sites are supported
 | BooksTW 博客來        | Book (Edition)                                                                                                                |                                                  |
 | Discogs               | Music (Album)                                                                                                                 |                                                  |
 | Douban 豆瓣           | Book (Edition, Work)<br>Music (Album)<br>Movie<br>TV (Show, Season, Episode)<br>Game<br>Performance (Performance, Production) | Yes, upload [doufen](https://doufen.org) archive |
-| Goodreads             | Book (Edition, Work)                                                                                                          | Yes, submit shelf link                           |
+| Goodreads             | Book (Edition, Work)                                                                                                          | Yes, submit profile or shelf link                |
 | Google Books          | Book (Edition)                                                                                                                |                                                  |
 | IGDB                  | Game                                                                                                                          |                                                  |
 | IMDB                  | Movie<br>TV (Show, Episode)                                                                                                   |                                                  |

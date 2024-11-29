@@ -25,13 +25,13 @@ NeoDB instances can be identified from user agent string (`NeoDB/x.x (+https://e
 
 NeoDB add additional fields to `Note` activity:
 
- - `relatedWith` is a list of NeoDB specific activities which are associated with this `Note`. For each activity, `id` and `href` are both unique links to that activity, `withRegardTo` links to the catalog item, `attributedTo` links to the user, `type` is one of:
-   - `Status`, its `status` can be one of: `complete`, `progress`, `wishlist` and `dropped`
-   - `Rating`, its `value` is rating grade (int, 1-10), `worst` is always 1, `best` is always 10
-   - `Comment`, its `content` is comment text
-   - `Review`, its `name` is review title, `content` is its body, `mediaType` is always `text/markdown` for now
-   - `Note`, its `content` is note text
- - `tag` is used to store list of NeoDB catalog items, which are related with this activity. `type` of NeoDB catalog item can be one of `Edition`, `Movie`, `TVShow`, `TVSeason`, `TVEpisode`, `Album`, `Game`, `Podcast`, `PodcastEpisode`, `Performance`, `PerformanceProduction`; href will be the link to that item.
+  - `relatedWith` is a list of NeoDB specific activities which are associated with this `Note`. For each activity, `id` and `href` are both unique links to that activity, `withRegardTo` links to the catalog item, `attributedTo` links to the user, `type` is one of:
+    - `Status`, its `status` can be one of: `complete`, `progress`, `wishlist` and `dropped`
+    - `Rating`, its `value` is rating grade (int, 1-10), `worst` is always 1, `best` is always 10
+    - `Comment`, its `content` is comment text
+    - `Review`, its `name` is review title, `content` is its body, `mediaType` is always `text/markdown` for now
+    - `Note`, its `content` is note text
+  - `tag` is used to store list of NeoDB catalog items, which are related with this activity. `type` of NeoDB catalog item can be one of `Edition`, `Movie`, `TVShow`, `TVSeason`, `TVEpisode`, `Album`, `Game`, `Podcast`, `PodcastEpisode`, `Performance`, `PerformanceProduction`; href will be the link to that item.
 
 Example:
 ```json
@@ -110,11 +110,11 @@ This is not ideal but a practical manner to pass along additional information be
 
 ### Relay
 
-NeoDB instances may share public rating and reviews with a default relay, which is currently `https://relay.neodb.net`. This relay is used to propagate public activities and catalog information between instances.
+NeoDB instances may share public rating and reviews with a default relay, which is currently `https://relay.neodb.net`. This relay is used to propagate public activities and catalog information between NeoDB instances.
 
-Owner of instances may choose to turn this off in the admin settings.
+Owner of each instance may choose to turn this off in their admin settings.
 
 
 ## ATProto
 
-NeoDB is not a PDS itself currently, but can interact with PDS to import user's social graph, and send status updates. So technically NeoDB does not do full federation in ATProto, but NeoDB will handle some side effect from federation, e.g. when user logging in via ATProto handle, NeoDB will resolve user's DID and store it, and will attempt further operation with the DID, and update user's handle if that's changed.
+NeoDB is not a PDS itself currently, but can interact with PDS to import user's social graph, and send status updates. So technically NeoDB does not do full federation in ATProto, but NeoDB will handle some side effect from federation, e.g. when user logging in via ATProto handle, NeoDB will resolve user's DID and store it, and will attempt further operation with the DID, and update user's handle if that's changed, and use the corresponding PDS for that handle; user may still have to login NeoDB again with their Bluesky app password, since the change of PDS may invalidates previous app password.
