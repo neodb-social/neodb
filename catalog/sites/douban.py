@@ -14,8 +14,7 @@ class DoubanDownloader(ProxiedDownloader):
             return RESPONSE_CENSORSHIP
         elif response.status_code == 200:
             content = response.content.decode("utf-8")
-            # if content.find("关于豆瓣") == -1: # douban bug causing incomplete page sometimes
-            if content.find("豆瓣评分") == -1:
+            if content.find("关于豆瓣") == -1 and content.find("豆瓣评分") == -1:
                 # if content.find('你的 IP 发出') == -1:
                 #     error = error + 'Content not authentic'  # response is garbage
                 # else:
