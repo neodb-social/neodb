@@ -111,3 +111,4 @@ Add a new site
     - Command: `neodb-manage python3 manage.py test [--keepdb]`.
     - See [this issue](https://github.com/neodb-social/neodb/issues/5) if `lxml.etree.ParserError` occurs on macOS.
  - add a site UI label style to `common/static/scss/_sitelabel.scss`
+ - update documentation in [sites.md](../sites.md)

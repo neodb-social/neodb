@@ -21,6 +21,7 @@ NeoDB has [various features](features.md), and you may image it as a mix of Mast
     - Bangumi
     - Board Game Geek
     - any RSS link to a podcast
+    - ...[full list](sites.md)
 
 
 ## Personal collections
