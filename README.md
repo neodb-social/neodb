@@ -11,7 +11,7 @@ _mark the things you love._
 
 [NeoDB.social](https://neodb.social) and [NiceDB](https://nicedb.org) are free instances hosted by volunteers. Your support is essential to keep these services free and open-sourced.
 
-Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky.app/profile/neodb.net) or join our [Discord community](https://discord.gg/QBHkrV8bxK) to share your ideas/questions/creations
+Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky.app/profile/neodb.net) or join our [Discord community](https://discord.gg/QBHkrV8bxK) to share your ideas/questions/creations.
 
 [![Mastodon](https://img.shields.io/mastodon/follow/106919732872456302?style=for-the-badge&logo=mastodon&logoColor=fff&label=%40neodb%40mastodon.social&color=6D75D2)](https://mastodon.social/@neodb)
 [![Discord](https://img.shields.io/discord/1041738638364528710?label=Discord&logo=discord&logoColor=fff&color=6D75D2&style=for-the-badge)](https://discord.gg/QBHkrV8bxK)
@@ -74,6 +74,4 @@ Please see [docs/install.md](docs/install.md)
  - To translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/neodb/)
 
 ## Sponsor
-If you like this project, please consider sponsoring
- - NeoDB on [ko-fi](https://ko-fi.com/neodb)
- - NiceDB on [Patreon](https://patreon.com/tertius).
+If you like this project, please consider donating to [NeoDB on ko-fi](https://ko-fi.com/neodb), or our friends at [NiceDB](https://patreon.com/tertius) without whom this project won't be possible.
