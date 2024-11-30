@@ -74,6 +74,39 @@
     <h5>contents</h5>
     <p class="tldr" _="on click toggle .tldr on me">{{ item.contents | linebreaksbr }}</p>
   {% endif %}
+  {% with related_books=item.sibling_items %}
+    {% if related_books.count > 0 %}
+      <section class="entity-sort shelf" id="sibling">
+        <span class="action">
+          <span>
+            <a _="on click set el to the next
+              <ul/>
+            then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+          </span>
+          <span>
+            <a _="on click set el to the next
+              <ul/>
+            then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+          </span>
+        </span>
+        <h5>{% trans 'other editions' %}</h5>
+        <ul class="cards">
+          {% for b in related_books %}
+            <li class="card">
+              <a href="{{ b.url }}" title="{{ b.display_title }} {{ b.title_deco }}">
+                <img src="{{ b.cover|thumb:'normal' }}"
+                     alt="{{ b.display_title }} {{ b.title_deco }}"
+                     loading="lazy">
+                <div>
+                  {{ b.display_title }} <small class="title_deco">{{ b.title_deco }}</small>
+                </div>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+  {% endwith %}
 {% endblock %}
 {% block left_sidebar %}
   <script>
@@ -90,26 +123,6 @@
     _sidebar_auto_collapse(mm);
   });
   </script>
-  {% with related_books=item.sibling_items %}
-    {% if related_books.count > 0 %}
-      <section>
-        <details class="auto-collapse" open>
-          <summary>{% trans 'other editions' %}</summary>
-          {% for b in related_books %}
-            <div>
-              <a href="{{ b.url }}">{{ b.display_title }}</a>
-              <small class="title_deco">{{ b.title_deco }}</small>
-              {% comment %} {% for res in b.external_resources.all %}
-              <a href="{{ res.url }}" rel="noopener noreferrer">
-                <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
-              </a>
-              {% endfor %} {% endcomment %}
-            </div>
-          {% endfor %}
-        </details>
-      </section>
-    {% endif %}
-  {% endwith %}
   {% if item.isbn %}
     <section>
       <details class="auto-collapse" open>

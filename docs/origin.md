@@ -13,4 +13,4 @@ As we’ve gained some [initial attraction](https://blog.joinmastodon.org/2021/1
 NeoDB is a fork of [NiceDB](https://github.com/doubaniux/boofilsic), our code is actively being developed and is open-sourced under the AGPL-v3 license. We highly welcome contributions in code, design, and localization.
 
 
-Please follow us on Fediverse([en](https://mastodon.online/@neodb)|[cn](https://mastodon.social/@neodb)) / [Twitter](https://x.com/NeoDBsocial) / [Bluesky](https://bsky.app/profile/neodb.bsky.social), and help spread the words. Thank you for the support!
+Please follow us on Fediverse([en](https://mastodon.online/@neodb)|[cn](https://mastodon.social/@neodb)) / [Bluesky](https://bsky.app/profile/neodb.net) / [Twitter](https://x.com/NeoDBsocial), and help spread the words. Thank you for the support!

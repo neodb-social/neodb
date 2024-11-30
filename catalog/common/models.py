@@ -1,7 +1,7 @@
 import re
 import uuid
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Iterable, Self, Type, cast
+from typing import TYPE_CHECKING, Any, Iterable, Self, Sequence, Type, cast
 
 from auditlog.context import disable_auditlog
 from auditlog.models import AuditlogHistoryField, LogEntry

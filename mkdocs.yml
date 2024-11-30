@@ -4,7 +4,7 @@ repo_url: http://github.com/neodb-social/neodb
 edit_uri: blob/main/docs/
 site_description: Mark the things you love.
 nav:
-  - About: 'index.md'
+  - Overview: 'index.md'
   - features.md
   - install.md
   - upgrade.md
@@ -29,12 +29,12 @@ extra:
   social:
     - icon: fontawesome/brands/mastodon
       link: https://mastodon.online/@neodb/
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/neodb.net
     - icon: fontawesome/brands/x-twitter
       link: https://twitter.com/NeoDBsocial
     - icon: fontawesome/brands/threads
       link: https://www.threads.net/@neodb.social
-    - icon: fontawesome/brands/bluesky
-      link: https://bsky.app/profile/neodb.bsky.social
     - icon: fontawesome/brands/discord
       link: https://discord.gg/QBHkrV8bxK
     - icon: fontawesome/brands/github
