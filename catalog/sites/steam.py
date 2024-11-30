@@ -6,7 +6,7 @@ from django.conf import settings
 
 from catalog.common import *
 from catalog.models import *
-from common.models.lang import PREFERRED_LANGUAGES
+from common.models.lang import SITE_PREFERRED_LANGUAGES
 from journal.models.renderers import html_to_text
 
 from .igdb import search_igdb_by_3p_url
@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__)
 
 def _get_preferred_languages():
     langs = {}
-    for la in PREFERRED_LANGUAGES:
+    for la in SITE_PREFERRED_LANGUAGES:
         if la == "zh":
             langs.update({"zh-cn": "zh-CN", "zh-tw": "zh-TW"})
             # zh-HK data is not good

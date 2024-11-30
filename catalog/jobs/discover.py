@@ -9,8 +9,7 @@ from loguru import logger
 
 from boofilsic.settings import MIN_MARKS_FOR_DISCOVER
 from catalog.models import *
-from common.models import BaseJob, JobManager
-from common.models.lang import PREFERRED_LOCALES
+from common.models import SITE_PREFERRED_LOCALES, BaseJob, JobManager
 from journal.models import (
     Collection,
     Comment,
@@ -43,7 +42,7 @@ class DiscoverGenerator(BaseJob):
             qs = qs.filter(local=True)
         if settings.DISCOVER_FILTER_LANGUAGE:
             q = None
-            for loc in PREFERRED_LOCALES:
+            for loc in SITE_PREFERRED_LOCALES:
                 if q:
                     q = q | Q(item__metadata__localized_title__contains=[{"lang": loc}])
                 else:

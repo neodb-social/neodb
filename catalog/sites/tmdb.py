@@ -18,7 +18,7 @@ from django.conf import settings
 from catalog.common import *
 from catalog.movie.models import *
 from catalog.tv.models import *
-from common.models.lang import PREFERRED_LANGUAGES
+from common.models.lang import SITE_PREFERRED_LANGUAGES
 
 from .douban import *
 
@@ -37,7 +37,7 @@ def _get_language_code():
 
 def _get_preferred_languages():
     langs = {}
-    for lang in PREFERRED_LANGUAGES:
+    for lang in SITE_PREFERRED_LANGUAGES:
         if lang == "zh":
             langs.update({"zh-cn": "zh-CN", "zh-tw": "zh-TW", "zh-hk": "zh-HK"})
         else:

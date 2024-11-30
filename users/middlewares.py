@@ -14,10 +14,11 @@ def activate_language_for_user(user, request=None):
             user_language = settings.LANGUAGE_CODE
         # if user_language in dict(settings.LANGUAGES).keys():
     translation.activate(user_language)
-    return translation.get_language()
+    if request:
+        request.LANGUAGE_CODE = translation.get_language()
 
 
 class LanguageMiddleware(LocaleMiddleware):
     def process_request(self, request):
         user = getattr(request, "user", None)
-        request.LANGUAGE_CODE = activate_language_for_user(user, request)
+        activate_language_for_user(user, request)

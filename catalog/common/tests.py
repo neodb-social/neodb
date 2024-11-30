@@ -1,6 +1,14 @@
 from django.test import TestCase
 
-from common.models import detect_language
+from common.models import (
+    LANGUAGE_CHOICES,
+    LOCALE_CHOICES,
+    SCRIPT_CHOICES,
+    SITE_DEFAULT_LANGUAGE,
+    SITE_PREFERRED_LANGUAGES,
+    SITE_PREFERRED_LOCALES,
+    detect_language,
+)
 
 
 class CommonTestCase(TestCase):
@@ -13,3 +21,7 @@ class CommonTestCase(TestCase):
         self.assertEqual(lang, "zh-cn")
         lang = detect_language("巫师3：狂猎 The Witcher 3: Wild Hunt")
         self.assertEqual(lang, "zh-cn")
+
+    def test_lang_list(self):
+        self.assertGreaterEqual(len(SITE_PREFERRED_LANGUAGES), 1)
+        self.assertGreaterEqual(len(SITE_PREFERRED_LOCALES), 1)

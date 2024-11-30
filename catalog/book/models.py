@@ -40,11 +40,9 @@ from catalog.common import (
 from catalog.common.models import (
     LIST_OF_ONE_PLUS_STR_SCHEMA,
     LOCALE_CHOICES_JSONFORM,
-    SCRIPT_CHOICES,
     LanguageListField,
 )
-from common.models.lang import get_current_locales
-from common.models.misc import uniq
+from common.models import uniq
 
 from .utils import *
 

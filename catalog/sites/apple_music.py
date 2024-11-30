@@ -17,8 +17,8 @@ import dateparser
 from catalog.common import *
 from catalog.models import *
 from common.models.lang import (
-    DEFAULT_CATALOG_LANGUAGE,
-    PREFERRED_LANGUAGES,
+    SITE_DEFAULT_LANGUAGE,
+    SITE_PREFERRED_LANGUAGES,
     detect_language,
 )
 from common.models.misc import uniq
@@ -56,7 +56,7 @@ class AppleMusic(AbstractSite):
 
     def get_locales(self):
         locales = {}
-        for lang in PREFERRED_LANGUAGES:
+        for lang in SITE_PREFERRED_LANGUAGES:
             match lang:
                 case "zh":
                     locales.update({"zh": ["cn", "tw", "hk", "sg"]})
@@ -98,7 +98,7 @@ class AppleMusic(AbstractSite):
                     localized_title.append({"lang": tl, "text": title})
                     if brief:
                         localized_desc.append({"lang": tl, "text": brief})
-                    if lang == DEFAULT_CATALOG_LANGUAGE or not matched_content:
+                    if lang == SITE_DEFAULT_LANGUAGE or not matched_content:
                         matched_content = content
                     break
                 except Exception:

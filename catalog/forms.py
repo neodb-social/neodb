@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
 from common.forms import PreviewImageInput
-from common.models import DEFAULT_CATALOG_LANGUAGE, detect_language, uniq
+from common.models import SITE_DEFAULT_LANGUAGE, detect_language, uniq
 
 CatalogForms = {}
 
@@ -77,9 +77,7 @@ def _EditForm(item_model):
                         for t in self.instance.other_title:
                             titles.append({"lang": detect_language(t), "text": t})
                     if not titles:
-                        titles = [
-                            {"lang": DEFAULT_CATALOG_LANGUAGE, "text": "<no title>"}
-                        ]
+                        titles = [{"lang": SITE_DEFAULT_LANGUAGE, "text": "<no title>"}]
                     self.initial["localized_title"] = uniq(titles)  # type:ignore
                 if (
                     "localized_description" in self.Meta.fields

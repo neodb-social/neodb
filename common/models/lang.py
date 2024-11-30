@@ -1,6 +1,23 @@
 """
-    language support utilities
+    Language support utilities
 
+    get site wide preferences:
+    SITE_DEFAULT_LANGUAGE
+    SITE_PREFERRED_LANGUAGES
+    SITE_PREFERRED_LOCALES
+
+    get available choices based on site wide preferences:
+    LANGUAGE_CHOICES
+    LOCALE_CHOICES
+    SCRIPT_CHOICES
+
+    based on user preferences:
+    get_current_locales()
+
+    detect language based on text:
+    detect_language()
+
+    refereneces:
     https://en.wikipedia.org/wiki/IETF_language_tag
 """
 
@@ -13,9 +30,11 @@ from django.utils.translation import gettext_lazy as _
 from langdetect import detect
 from loguru import logger
 
-PREFERRED_LANGUAGES: list[str] = settings.PREFERRED_LANGUAGES
-
-DEFAULT_CATALOG_LANGUAGE = PREFERRED_LANGUAGES[0] if PREFERRED_LANGUAGES else "en"
+FALLBACK_LANGUAGE = "en"
+SITE_PREFERRED_LANGUAGES: list[str] = settings.PREFERRED_LANGUAGES or [
+    FALLBACK_LANGUAGE
+]
+SITE_DEFAULT_LANGUAGE: str = SITE_PREFERRED_LANGUAGES[0]
 
 ISO_639_1 = {
     "aa": _("Afar"),
@@ -203,9 +222,8 @@ ISO_639_1 = {
     "ch": _("Chamorro"),
     "be": _("Belarusian"),
     "yo": _("Yoruba"),
-    "x": _("Unknown or Other"),
 }
-TOP_USED_LANG = [
+TOP_USED_LANGUAGES = [
     "en",
     "de",
     "es",
@@ -221,44 +239,11 @@ TOP_USED_LANG = [
     "ar",
     "bn",
 ]
-ZH_LOCALE_SUBTAGS_PRIO = {
-    "zh-cn": _("Simplified Chinese (Mainland)"),
-    "zh-tw": _("Traditional Chinese (Taiwan)"),
-    "zh-hk": _("Traditional Chinese (Hongkong)"),
-}
-ZH_LOCALE_SUBTAGS = {
-    "zh-sg": _("Simplified Chinese (Singapore)"),
-    "zh-my": _("Simplified Chinese (Malaysia)"),
-    "zh-mo": _("Traditional Chinese (Macau)"),
-}
-ZH_LANGUAGE_SUBTAGS_PRIO = {
-    "cmn": _("Mandarin Chinese"),
-    "yue": _("Yue Chinese"),
-}
-ZH_LANGUAGE_SUBTAGS = {
-    "nan": _("Min Nan Chinese"),
-    "wuu": _("Wu Chinese"),
-    "hak": _("Hakka Chinese"),
-}
+_UNKNOWN_LANGUAGE = ("x", _("Unknown or Other"))
 RE_LOCALIZED_SEASON_NUMBERS = re.compile(
     r"〇|一|二|三|四|五|六|七|八|九|零|十|\d|\s|\.|Season|Serie|S|#|第|季",
     flags=re.IGNORECASE,
 )
-
-
-def get_preferred_locales():
-    locales = []
-    for k in PREFERRED_LANGUAGES:
-        if k == "zh":
-            locales += list(ZH_LOCALE_SUBTAGS_PRIO.keys()) + list(
-                ZH_LOCALE_SUBTAGS.keys()
-            )
-        else:
-            locales.append(k)
-    return locales
-
-
-PREFERRED_LOCALES = get_preferred_locales()
 
 
 def localize_number(i: int) -> str:
@@ -278,9 +263,9 @@ def localize_number(i: int) -> str:
     return str(i)
 
 
-def get_base_lang_list():
+def _get_base_language_list() -> dict[str, str]:
     langs = {}
-    for k in PREFERRED_LANGUAGES + TOP_USED_LANG:
+    for k in SITE_PREFERRED_LANGUAGES + TOP_USED_LANGUAGES:
         if k not in langs:
             if k in ISO_639_1:
                 langs[k] = ISO_639_1[k]
@@ -292,50 +277,111 @@ def get_base_lang_list():
     return langs
 
 
-BASE_LANG_LIST: dict[str, Any] = get_base_lang_list()
+_BASE_LANGUAGE_LIST: dict[str, Any] = _get_base_language_list()
 
 
-def get_locale_choices():
+_LOCALE_SUBTAGS_PRIO = {
+    "zh": {
+        "zh-cn": _("Simplified Chinese (Mainland)"),
+        "zh-tw": _("Traditional Chinese (Taiwan)"),
+        "zh-hk": _("Traditional Chinese (Hongkong)"),
+    },
+    "pt": {
+        "pt": _("Portuguese"),
+    },
+}
+_LOCALE_SUBTAGS_ADD = {
+    "pt": {
+        "pt-br": _("Portuguese (Brazil)"),
+    },
+    "zh": {
+        "zh-sg": _("Simplified Chinese (Singapore)"),
+        "zh-my": _("Simplified Chinese (Malaysia)"),
+        "zh-mo": _("Traditional Chinese (Macau)"),
+    },
+}
+_LOCALE_SUBTAGS_FALLBACK = ["zh"]
+_LANGUAGE_SUBTAGS_PRIO = {
+    "zh": {
+        "cmn": _("Mandarin Chinese"),
+        "yue": _("Yue Chinese"),
+    }
+}
+_LANGUAGE_SUBTAGS_ADD = {
+    "nan": _("Min Nan Chinese"),
+    "wuu": _("Wu Chinese"),
+    "hak": _("Hakka Chinese"),
+}
+
+
+def get_preferred_locales() -> list[str]:
+    locales = []
+    for k in SITE_PREFERRED_LANGUAGES:
+        if k in _LOCALE_SUBTAGS_PRIO:
+            locales += list(_LOCALE_SUBTAGS_PRIO[k].keys()) + list(
+                _LOCALE_SUBTAGS_ADD[k].keys()
+            )
+        else:
+            locales.append(k)
+    return locales
+
+
+SITE_PREFERRED_LOCALES = get_preferred_locales()
+
+
+def _get_locale_choices() -> list[tuple[str, str]]:
     choices = []
-    for k, v in BASE_LANG_LIST.items():
-        if k == "zh":
-            choices += ZH_LOCALE_SUBTAGS_PRIO.items()
+    for k, v in _BASE_LANGUAGE_LIST.items():
+        if k in _LOCALE_SUBTAGS_PRIO:
+            choices += _LOCALE_SUBTAGS_PRIO[k].items()
         else:
             choices.append((k, v))
-    choices += ZH_LOCALE_SUBTAGS.items()
-    choices.append(("zh", ISO_639_1["zh"]))
+    for v in _LOCALE_SUBTAGS_ADD.values():
+        choices += v.items()
+    for k in _LOCALE_SUBTAGS_PRIO.keys():
+        p = (k, ISO_639_1[k])
+        if p not in choices:
+            choices.append(p)
+    choices.append(_UNKNOWN_LANGUAGE)
     return choices
 
 
-def get_script_choices():
-    return list(BASE_LANG_LIST.items())
+def _get_script_choices() -> list[tuple[str, str]]:
+    return list(_BASE_LANGUAGE_LIST.items()) + [_UNKNOWN_LANGUAGE]
 
 
-def get_language_choices():
+def _get_language_choices() -> list[tuple[str, str]]:
     choices = []
-    for k, v in BASE_LANG_LIST.items():
-        if k == "zh":
-            choices += ZH_LANGUAGE_SUBTAGS_PRIO.items()
+    for k, v in _BASE_LANGUAGE_LIST.items():
+        if k in _LANGUAGE_SUBTAGS_PRIO:
+            choices += _LANGUAGE_SUBTAGS_PRIO[k].items()
         else:
             choices.append((k, v))
-    choices += ZH_LANGUAGE_SUBTAGS.items()
+    choices += _LANGUAGE_SUBTAGS_ADD.items()
+    choices.append(_UNKNOWN_LANGUAGE)
     return choices
 
 
-LOCALE_CHOICES: list[tuple[str, Any]] = get_locale_choices()
-SCRIPT_CHOICES: list[tuple[str, Any]] = get_script_choices()
-LANGUAGE_CHOICES: list[tuple[str, Any]] = get_language_choices()
+LOCALE_CHOICES: list[tuple[str, str]] = _get_locale_choices()
+SCRIPT_CHOICES: list[tuple[str, str]] = _get_script_choices()
+LANGUAGE_CHOICES: list[tuple[str, str]] = _get_language_choices()
 
 
 def get_current_locales() -> list[str]:
     lang = get_language().lower()
     if lang == "zh-hans":
-        return ["zh-cn", "zh-sg", "zh-my", "zh-hk", "zh-tw", "zh-mo", "en"]
+        locales = ["zh-cn", "zh-sg", "zh-my", "zh-hk", "zh-tw", "zh-mo", "en"]
     elif lang == "zh-hant":
-        return ["zh-tw", "zh-hk", "zh-mo", "zh-cn", "zh-sg", "zh-my", "en"]
+        locales = ["zh-tw", "zh-hk", "zh-mo", "zh-cn", "zh-sg", "zh-my", "en"]
     else:
         lng = lang.split("-")
-        return ["en"] if lng[0] == "en" else [lng[0], "en"]
+        locales = ["en"] if lng[0] == "en" else [lng[0], "en"]
+    for locale in SITE_PREFERRED_LOCALES:
+        if locale not in locales:
+            locales.append(locale)
+    if FALLBACK_LANGUAGE not in locales:
+        locales.append(FALLBACK_LANGUAGE)
+    return locales
 
 
 _eng = re.compile(r"^[A-Z-a-z0-9]+$")
