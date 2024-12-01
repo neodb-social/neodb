@@ -14,7 +14,7 @@
 {% endblock %}
 {% block details %}
   <div>{% include '_people.html' with people=item.genre role='genre' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.host role='podcast host' max=5 %}</div>
+  <div>{% include '_people.html' with people=item.host role='host' max=5 %}</div>
   <div>
     {% if item.official_site %}
       {% trans 'website' %}: {{ item.official_site|urlizetrunc:24 }}
