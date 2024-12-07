@@ -15,6 +15,7 @@ class Bangumi(AbstractSite):
     URL_PATTERNS = [
         r"https://bgm\.tv/subject/(\d+)",
         r"https://bangumi\.tv/subject/(\d+)",
+        r"https://chii\.in/subject/(\d+)",
     ]
     WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = None
@@ -70,6 +71,8 @@ class Bangumi(AbstractSite):
         authors = None
         site = None
         director = None
+        pages = None
+        price = None
         for i in o.get("infobox", []):
             k = i["key"]
             v = i["value"]
@@ -82,7 +85,7 @@ class Bangumi(AbstractSite):
                     )
                 case "imdb_id":
                     imdb_code = v
-                case "isbn":
+                case "isbn" | "ISBN":
                     isbn_type, isbn = detect_isbn_asin(v)
                 case "语言":
                     language = v
@@ -110,6 +113,10 @@ class Bangumi(AbstractSite):
                     )
                 case "官方网站" | "website":
                     site = v[0] if isinstance(v, list) else v
+                case "页数":
+                    pages = v
+                case "价格":
+                    price = v
 
         img_url = o["images"].get("large") or o["images"].get("common")
         raw_img = None
@@ -152,6 +159,8 @@ class Bangumi(AbstractSite):
             "brief": brief,
             "cover_image_url": img_url,
             "release_date": dt,
+            "pages": pages,
+            "price": price,
         }
         lookup_ids = {}
         if isbn:
