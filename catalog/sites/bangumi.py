@@ -1,4 +1,5 @@
 import logging
+from collections import OrderedDict
 
 from catalog.book.utils import detect_isbn_asin
 from catalog.common import *
@@ -125,10 +126,14 @@ class Bangumi(AbstractSite):
             raw_img, ext = BasicImageDownloader.download_image(
                 img_url, None, headers={}
             )
-        titles = set(
+        titles = OrderedDict.fromkeys(
             [title] + (other_title or []) + ([orig_title] if orig_title else [])
         )
-        localized_title = [{"lang": detect_language(t), "text": t} for t in titles]
+        if o.get("name_cn"):
+            titles[o.get("name_cn")] = "zh-cn"
+        localized_title = [
+            {"lang": l or detect_language(t), "text": t} for t, l in titles.items()
+        ]
         localized_desc = (
             [{"lang": detect_language(brief), "text": brief}] if brief else []
         )
