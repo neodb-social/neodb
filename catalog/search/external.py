@@ -8,48 +8,14 @@ import requests
 from django.conf import settings
 from lxml import html
 
-from catalog.common import *
-from catalog.models import *
+from catalog.common import BasicDownloader, ItemCategory, SiteManager, SiteName
+from catalog.search.models import ExternalSearchResultItem
+from catalog.sites.igdb import IGDB as IGDB_Site
 from catalog.sites.spotify import get_spotify_token
 from catalog.sites.tmdb import TMDB_DEFAULT_LANG
 
 SEARCH_PAGE_SIZE = 5  # not all apis support page size
 logger = logging.getLogger(__name__)
-
-
-class SearchResultItem:
-    def __init__(
-        self, category, source_site, source_url, title, subtitle, brief, cover_url
-    ):
-        self.class_name = "base"
-        self.category = category
-        self.external_resources = {
-            "all": [
-                {
-                    "url": source_url,
-                    "site_name": source_site,
-                    "site_label": source_site,
-                }
-            ]
-        }
-        self.source_site = source_site
-        self.source_url = source_url
-        self.display_title = title
-        self.subtitle = subtitle
-        self.display_description = brief
-        self.cover_image_url = cover_url
-
-    @property
-    def verbose_category_name(self):
-        return self.category.label
-
-    @property
-    def url(self):
-        return f"/search?q={quote_plus(self.source_url)}"
-
-    @property
-    def scraped(self):
-        return False
 
 
 class Goodreads:
@@ -80,14 +46,14 @@ class Goodreads:
                     if res:
                         subtitle = f"{res.metadata.get('pub_year')} {', '.join(res.metadata.get('author', []))} {', '.join(res.metadata.get('translator', []))}"
                         results.append(
-                            SearchResultItem(
+                            ExternalSearchResultItem(
                                 ItemCategory.Book,
                                 SiteName.Goodreads,
                                 res.url,
                                 res.metadata["title"],
                                 subtitle,
-                                res.metadata.get("brief"),
-                                res.metadata.get("cover_image_url"),
+                                res.metadata.get("brief", ""),
+                                res.metadata.get("cover_image_url", ""),
                             )
                         )
             else:
@@ -95,15 +61,15 @@ class Goodreads:
                 books = h.xpath('//tr[@itemtype="http://schema.org/Book"]')
                 for c in books:  # type:ignore
                     el_cover = c.xpath('.//img[@class="bookCover"]/@src')
-                    cover = el_cover[0] if el_cover else None
+                    cover = el_cover[0] if el_cover else ""
                     el_title = c.xpath('.//a[@class="bookTitle"]//text()')
-                    title = "".join(el_title).strip() if el_title else None
+                    title = "".join(el_title).strip() if el_title else "Unkown Title"
                     el_url = c.xpath('.//a[@class="bookTitle"]/@href')
-                    url = "https://www.goodreads.com" + el_url[0] if el_url else None
+                    url = "https://www.goodreads.com" + el_url[0] if el_url else ""
                     el_authors = c.xpath('.//a[@class="authorName"]//text()')
-                    subtitle = ", ".join(el_authors) if el_authors else None
+                    subtitle = ", ".join(el_authors) if el_authors else ""
                     results.append(
-                        SearchResultItem(
+                        ExternalSearchResultItem(
                             ItemCategory.Book,
                             SiteName.Goodreads,
                             url,
@@ -149,10 +115,10 @@ class GoogleBooks:
                     cover = (
                         b["volumeInfo"]["imageLinks"]["thumbnail"]
                         if "imageLinks" in b["volumeInfo"]
-                        else None
+                        else ""
                     )
                     results.append(
-                        SearchResultItem(
+                        ExternalSearchResultItem(
                             category,
                             SiteName.GoogleBooks,
                             url,
@@ -191,10 +157,10 @@ class TheMovieDatabase:
                         cover = (
                             f"https://image.tmdb.org/t/p/w500/{m.get('poster_path')}"
                             if m.get("poster_path")
-                            else None
+                            else ""
                         )
                         results.append(
-                            SearchResultItem(
+                            ExternalSearchResultItem(
                                 cat,
                                 SiteName.TMDB,
                                 url,
@@ -228,9 +194,9 @@ class Spotify:
                     for artist in a.get("artists", []):
                         subtitle += " " + artist.get("name", "")
                     url = a["external_urls"]["spotify"]
-                    cover = a["images"][0]["url"] if a.get("images") else None
+                    cover = a["images"][0]["url"] if a.get("images") else ""
                     results.append(
-                        SearchResultItem(
+                        ExternalSearchResultItem(
                             ItemCategory.Music,
                             SiteName.Spotify,
                             url,
@@ -260,15 +226,15 @@ class Bandcamp:
             albums = h.xpath('//li[@class="searchresult data-search"]')
             for c in albums:  # type:ignore
                 el_cover = c.xpath('.//div[@class="art"]/img/@src')
-                cover = el_cover[0] if el_cover else None
+                cover = el_cover[0] if el_cover else ""
                 el_title = c.xpath('.//div[@class="heading"]//text()')
-                title = "".join(el_title).strip() if el_title else None
+                title = "".join(el_title).strip() if el_title else "Unknown Title"
                 el_url = c.xpath('..//div[@class="itemurl"]/a/@href')
-                url = el_url[0] if el_url else None
+                url = el_url[0] if el_url else ""
                 el_authors = c.xpath('.//div[@class="subhead"]//text()')
-                subtitle = ", ".join(el_authors) if el_authors else None
+                subtitle = ", ".join(el_authors) if el_authors else ""
                 results.append(
-                    SearchResultItem(
+                    ExternalSearchResultItem(
                         ItemCategory.Music,
                         SiteName.Bandcamp,
                         url,
@@ -295,7 +261,7 @@ class ApplePodcast:
             for p in r["results"][(page - 1) * SEARCH_PAGE_SIZE :]:
                 if p.get("feedUrl"):
                     results.append(
-                        SearchResultItem(
+                        ExternalSearchResultItem(
                             ItemCategory.Podcast,
                             SiteName.RSS,
                             p["feedUrl"],
@@ -312,6 +278,14 @@ class ApplePodcast:
                 "ApplePodcast search error", extra={"query": q, "exception": e}
             )
         return results
+
+
+class IGDB:
+    @classmethod
+    def search(cls, q, page=1):
+        return IGDB_Site.search(
+            q, limit=SEARCH_PAGE_SIZE, offset=page * SEARCH_PAGE_SIZE
+        )
 
 
 class Fediverse:
@@ -343,9 +317,9 @@ class Fediverse:
                     try:
                         cat = ItemCategory(item["category"])
                     except Exception:
-                        cat = ""
+                        cat = None
                     results.append(
-                        SearchResultItem(
+                        ExternalSearchResultItem(
                             cat,
                             host,
                             url,

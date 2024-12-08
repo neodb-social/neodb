@@ -1,5 +1,6 @@
 # pyright: reportFunctionMemberAccess=false
 import hashlib
+from urllib.parse import quote_plus
 
 import django_rq
 from auditlog.context import set_actor
@@ -10,6 +11,7 @@ from loguru import logger
 from rq.job import Job
 
 from catalog.common.downloaders import RESPONSE_CENSORSHIP, DownloadError
+from catalog.common.models import ItemCategory, SiteName
 from catalog.common.sites import SiteManager
 
 from ..models import Item, TVSeason
@@ -46,6 +48,48 @@ class DbIndexer:
     @classmethod
     def register_piece_model(cls, model):
         pass
+
+
+class ExternalSearchResultItem:
+    def __init__(
+        self,
+        category: ItemCategory | None,
+        source_site: SiteName,
+        source_url: str,
+        title: str,
+        subtitle: str,
+        brief: str,
+        cover_url: str,
+    ):
+        self.class_name = "base"
+        self.category = category
+        self.external_resources = {
+            "all": [
+                {
+                    "url": source_url,
+                    "site_name": source_site,
+                    "site_label": source_site,
+                }
+            ]
+        }
+        self.source_site = source_site
+        self.source_url = source_url
+        self.display_title = title
+        self.subtitle = subtitle
+        self.display_description = brief
+        self.cover_image_url = cover_url
+
+    @property
+    def verbose_category_name(self):
+        return self.category.label if self.category else ""
+
+    @property
+    def url(self):
+        return f"/search?q={quote_plus(self.source_url)}"
+
+    @property
+    def scraped(self):
+        return False
 
 
 # if settings.SEARCH_BACKEND == "MEILISEARCH":

@@ -6,6 +6,7 @@ use (e.g. "portal-2") as id, which is different from real id in IGDB API
 
 import datetime
 import json
+from urllib.parse import quote_plus
 
 import requests
 from django.conf import settings
@@ -15,6 +16,7 @@ from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
+from catalog.search.models import ExternalSearchResultItem
 
 _cache_key = "igdb_access_token"
 
@@ -76,6 +78,40 @@ class IGDB(AbstractSite):
                 ) as fp:
                     fp.write(json.dumps(r))
         return r
+
+    @classmethod
+    def search(cls, q, limit: int, offset: int = 0):
+        rs = cls.api_query(
+            "games",
+            f'fields name; search "{quote_plus(q)}"; limit {limit}; offset {offset};',
+        )
+        result = []
+        for r in rs:
+            subtitle = ""
+            if "first_release_date" in r:
+                subtitle = datetime.datetime.fromtimestamp(
+                    r["first_release_date"], datetime.timezone.utc
+                ).strftime("%Y-%m-%d ")
+            if "platforms" in r:
+                ps = sorted(r["platforms"], key=lambda p: p["id"])
+                subtitle += ",".join(
+                    [(p["name"] if p["id"] != 6 else "Windows") for p in ps]
+                )
+            brief = r["summary"] if "summary" in r else ""
+            brief += "\n\n" + r["storyline"] if "storyline" in r else ""
+            cover = "https:" + r["cover"]["url"] if r.get("cover") else ""
+            result.append(
+                ExternalSearchResultItem(
+                    ItemCategory.Game,
+                    SiteName.IGDB,
+                    r["url"],
+                    r["name"],
+                    subtitle,
+                    brief,
+                    cover,
+                )
+            )
+        return result
 
     def scrape(self):
         fields = "*, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name"
