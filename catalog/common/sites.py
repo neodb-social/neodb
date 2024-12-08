@@ -291,13 +291,17 @@ class SiteManager:
     @staticmethod
     def get_site_by_url(url: str) -> AbstractSite | None:
         if not url or not url_validate(
-            url, skip_ipv6_addr=True, skip_ipv4_addr=True, may_have_port=False
+            url,
+            skip_ipv6_addr=True,
+            skip_ipv4_addr=True,
+            may_have_port=False,
+            strict_query=False,
         ):
             return None
         cls = next(
             filter(lambda p: p.validate_url(url), SiteManager.registry.values()), None
         )
-        if cls is None and re.match(r"^https?://(spotify.link|t.co).+", url):
+        if cls is None and re.match(r"^https?://(spotify.link|t.co)/.+", url):
             try:
                 url2 = requests.head(url, allow_redirects=True, timeout=1).url
                 if url2 != url:
