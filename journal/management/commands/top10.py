@@ -19,7 +19,6 @@ class Command(BaseCommand):
 
     def handle(self, year: int, top: int, save: str, **options):  # type: ignore
         collector = APIdentity.objects.get(username=save, local=True) if save else None
-        year = 2023
         types = [
             [Edition],
             [Movie],
@@ -42,9 +41,8 @@ class Command(BaseCommand):
                 .annotate(c=Count("item"))
                 .order_by("-c")[:top]
             )
-            print(options)
-            items = [Item.objects.get(pk=i["item"]) for i in top10]
-            _ = [print(i.title, i.absolute_url) for i in items]
+            items = [(Item.objects.get(pk=i["item"]), i["c"]) for i in top10]
+            _ = [print(c, i.display_title, i.absolute_url) for i, c in items]
             if collector:
                 print(f"Saving to {collector}")
                 c, _ = Collection.objects.get_or_create(
