@@ -1,4 +1,5 @@
 from ..common.sites import SiteManager
+from .ao3 import ArchiveOfOurOwn
 from .apple_music import AppleMusic
 from .bandcamp import Bandcamp
 from .bangumi import Bangumi

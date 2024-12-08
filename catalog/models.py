@@ -38,7 +38,7 @@ from .tv.models import (
     TVShowSchema,
 )
 
-from .search.models import Indexer  # isort:skip
+from .search.models import Indexer, ExternalSearchResultItem  # isort:skip
 
 
 # class Exhibition(Item):

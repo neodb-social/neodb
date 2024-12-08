@@ -363,6 +363,37 @@ class DoubanBookTestCase(TestCase):
         self.assertEqual(editions[1].display_title, "黄金时代")
 
 
+class AO3TestCase(TestCase):
+    databases = "__all__"
+
+    def test_parse(self):
+        t_type = IdType.AO3
+        t_id = "2080878"
+        t_url = "https://archiveofourown.org/works/2080878"
+        t_url2 = "https://archiveofourown.org/works/2080878?test"
+        p1 = SiteManager.get_site_by_url(t_url)
+        p2 = SiteManager.get_site_by_url(t_url2)
+        self.assertEqual(p1.url, t_url)
+        self.assertEqual(p1.ID_TYPE, t_type)
+        self.assertEqual(p1.id_value, t_id)
+        self.assertEqual(p2.url, t_url)
+        self.assertEqual(p2.ID_TYPE, t_type)
+        self.assertEqual(p2.id_value, t_id)
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://archiveofourown.org/works/2080878"
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(site.resource.site_name, SiteName.AO3)
+        self.assertEqual(site.resource.id_type, IdType.AO3)
+        self.assertEqual(site.resource.id_value, "2080878")
+        self.assertEqual(site.resource.item.display_title, "I Am Groot")
+        self.assertEqual(site.resource.item.author[0], "sherlocksmyth")
+
+
 class QidianTestCase(TestCase):
     databases = "__all__"
 
