@@ -363,6 +363,8 @@ class ExternalSources:
         if c == "all" or c == "book":
             results.extend(GoogleBooks.search(q, page))
             results.extend(Goodreads.search(q, page))
+        if c == "all" or c == "game":
+            results.extend(IGDB.search(q, page))
         if c == "all" or c == "music":
             results.extend(Spotify.search(q, page))
             results.extend(Bandcamp.search(q, page))

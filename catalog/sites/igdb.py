@@ -83,7 +83,7 @@ class IGDB(AbstractSite):
     def search(cls, q, limit: int, offset: int = 0):
         rs = cls.api_query(
             "games",
-            f'fields name; search "{quote_plus(q)}"; limit {limit}; offset {offset};',
+            f'fields *, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name; search "{quote_plus(q)}"; limit {limit}; offset {offset};',
         )
         result = []
         for r in rs:
@@ -99,7 +99,11 @@ class IGDB(AbstractSite):
                 )
             brief = r["summary"] if "summary" in r else ""
             brief += "\n\n" + r["storyline"] if "storyline" in r else ""
-            cover = "https:" + r["cover"]["url"] if r.get("cover") else ""
+            cover = (
+                "https:" + r["cover"]["url"].replace("t_thumb", "t_cover_big")
+                if r.get("cover")
+                else ""
+            )
             result.append(
                 ExternalSearchResultItem(
                     ItemCategory.Game,
