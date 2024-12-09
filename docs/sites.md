@@ -6,6 +6,7 @@ the following sites are supported
 |                       | import link for media type                                                                                                    | import archive                                   |
 | ----------------------| ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 | Apple Music           | Music (Album)                                                                                                                 |                                                  |
+| Archive of Our Own    | Book (Edition)                                                                                                                |                                                  |
 | Bandcamp              | Music (Album)                                                                                                                 |                                                  |
 | Bangumi               | Book (Edition)<br>Music (Album)<br>Movie<br>TV (Season)<br>Game                                                               |                                                  |
 | Board Game Geek       | Game                                                                                                                          |                                                  |

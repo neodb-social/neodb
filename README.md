@@ -34,6 +34,7 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
     * IGDB
     * Bangumi
     * Board Game Geek
+    * Archive of Our Own
     * any RSS link to a podcast
 - Logged in users can manage their collections:
   + mark an item as wishlist/in progress/complete
