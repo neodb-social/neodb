@@ -231,7 +231,7 @@ class DateTimeField(JSONFieldMixin, fields.DateTimeField):
                 v = dateparse.parse_date(value)
                 if v is None:
                     raise ValueError(
-                        "DateTimeField: '{value}' has invalid datatime format"
+                        f"DateTimeField: '{value}' has invalid datatime format"
                     )
                 value = v
             if isinstance(value, date):
