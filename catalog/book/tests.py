@@ -409,6 +409,26 @@ class YpshuoTestCase(TestCase):
         self.assertEqual(site.resource.item.author[0], "爱潜水的乌贼")
 
 
+class BangumiTestCase(TestCase):
+    databases = "__all__"
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://bgm.tv/subject/342254"
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(site.resource.site_name, SiteName.Bangumi)
+        self.assertEqual(site.resource.id_type, IdType.Bangumi)
+        self.assertEqual(site.resource.id_value, "342254")
+        self.assertEqual(site.resource.item.localized_title[0]["text"], "蓦然回首")
+        self.assertEqual(site.resource.item.author[0], "藤本タツキ")
+        self.assertEqual(site.resource.item.isbn, "9784088827827")
+        self.assertEqual(site.resource.item.pages, "144")
+        self.assertEqual(site.resource.item.price, "￥484")
+
+
 class MultiBookSitesTestCase(TestCase):
     databases = "__all__"
 
