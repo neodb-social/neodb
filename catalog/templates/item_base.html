@@ -47,7 +47,7 @@
         </span>
       </div>
       <div id="item-cover" class="left">
-        <img src="{{ item.cover_image_url|default:item.cover.url|relative_uri }}"
+        <img src="{{ item.cover_image_url|default:item.cover.url|default:item.default_cover_image_url|relative_uri }}"
              alt="{{ item.display_title }}">
       </div>
       {% if request.user.is_authenticated and not mark.shelf_type %}

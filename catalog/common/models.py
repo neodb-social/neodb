@@ -727,6 +727,10 @@ class Item(PolymorphicModel):
             else None
         )
 
+    @property
+    def default_cover_image_url(self) -> str:
+        return f"{settings.SITE_INFO['site_url']}{settings.DEFAULT_ITEM_COVER}"
+
     def merge_data_from_external_resource(
         self, p: "ExternalResource", ignore_existing_content: bool = False
     ):
