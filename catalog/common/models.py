@@ -736,7 +736,7 @@ class Item(PolymorphicModel):
                 if not getattr(self, k) or ignore_existing_content:
                     setattr(self, k, v)
                 elif k in self.METADATA_MERGE_LIST:
-                    setattr(self, k, uniq((v or []) + getattr(self, k, [])))
+                    setattr(self, k, uniq(getattr(self, k, []) + (v or [])))
         if p.cover and (not self.has_cover() or ignore_existing_content):
             self.cover = p.cover
 
