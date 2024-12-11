@@ -24,8 +24,14 @@ class Ypshuo(AbstractSite):
         source = json.loads(o["data"]["source"])
         lookup_ids = {}
         for site in source:
-            if site["siteName"] == "起点中文网":
-                lookup_ids[IdType.Qidian] = site["bookId"]
+            match site["siteName"]:
+                case "起点中文网":
+                    lookup_ids[IdType.Qidian] = site["bookId"]
+                case "晋江文学城":
+                    lookup_ids[IdType.JJWXC] = site["bookPage"].rsplit("=", maxsplit=1)[
+                        -1
+                    ]
+
         return ResourceContent(
             metadata={
                 "localized_title": [{"lang": "zh-cn", "text": o["data"]["novel_name"]}],

@@ -53,6 +53,7 @@ class SiteName(models.TextChoices):
     Qidian = "qidian", _("Qidian")  # type:ignore[reportCallIssue]
     Ypshuo = "ypshuo", _("Ypshuo")  # type:ignore[reportCallIssue]
     AO3 = "ao3", _("Archive of Our Own")  # type:ignore[reportCallIssue]
+    JJWXC = "jjwxc", _("JinJiang")  # type:ignore[reportCallIssue]
 
 
 class IdType(models.TextChoices):
@@ -117,6 +118,7 @@ class IdType(models.TextChoices):
     Qidian = "qidian", _("Qidian")  # type:ignore[reportCallIssue]
     Ypshuo = "ypshuo", _("Ypshuo")  # type:ignore[reportCallIssue]
     AO3 = "ao3", _("Archive of Our Own")  # type:ignore[reportCallIssue]
+    JJWXC = "jjwxc", _("JinJiang")  # type:ignore[reportCallIssue]
 
 
 IdealIdTypes = [

@@ -16,6 +16,7 @@ from .goodreads import Goodreads
 from .google_books import GoogleBooks
 from .igdb import IGDB
 from .imdb import IMDB
+from .jjwxc import JJWXC
 from .qidian import Qidian
 from .rss import RSS
 from .spotify import Spotify

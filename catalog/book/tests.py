@@ -423,6 +423,25 @@ class QidianTestCase(TestCase):
         self.assertEqual(site.resource.item.author[0], "爱潜水的乌贼")
 
 
+class JinJiangTestCase(TestCase):
+    databases = "__all__"
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://www.jjwxc.net/onebook.php?novelid=5833245"
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(site.resource.site_name, SiteName.JJWXC)
+        self.assertEqual(site.resource.id_type, IdType.JJWXC)
+        self.assertEqual(site.resource.id_value, "5833245")
+        self.assertEqual(
+            site.resource.item.display_title, "穿进赛博游戏后干掉BOSS成功上位"
+        )
+        self.assertEqual(site.resource.item.author[0], "桉柏")
+
+
 class YpshuoTestCase(TestCase):
     databases = "__all__"
 

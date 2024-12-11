@@ -234,6 +234,7 @@ class Edition(Item):
             IdType.Goodreads,
             IdType.GoogleBooks,
             IdType.Qidian,
+            IdType.JJWXC,
         ]
         return [(i.value, i.label) for i in id_types]
 
