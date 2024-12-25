@@ -85,7 +85,7 @@ x-shared:
       DISCORD_WEBHOOKS:
       SLACK_API_TOKEN:
       SSL_ONLY:
-    restart: "on-failure"
+    restart: "unless-stopped"
     volumes:
       - ${NEODB_DATA:-../data}/neodb-media:/www/m
       - ${NEODB_DATA:-../data}/takahe-media:/www/media
