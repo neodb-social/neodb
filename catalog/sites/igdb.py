@@ -69,7 +69,11 @@ class IGDB(AbstractSite):
             r = BasicDownloader(key).download().json()
         else:
             _wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())
-            r = json.loads(_wrapper.api_request(p, q))  # type: ignore
+            try:
+                r = json.loads(_wrapper.api_request(p, q))  # type: ignore
+            except requests.HTTPError as e:
+                logger.error("IGDB API: {e}", extra={"exception": e})
+                return []
             if settings.DOWNLOADER_SAVEDIR:
                 with open(
                     settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(key),
@@ -119,7 +123,10 @@ class IGDB(AbstractSite):
 
     def scrape(self):
         fields = "*, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name"
-        r = self.api_query("games", f'fields {fields}; where url = "{self.url}";')[0]
+        r = self.api_query("games", f'fields {fields}; where url = "{self.url}";')
+        if not r:
+            raise ParseError(self, "no data")
+        r = r[0]
         brief = r["summary"] if "summary" in r else ""
         brief += "\n\n" + r["storyline"] if "storyline" in r else ""
         developer = None
