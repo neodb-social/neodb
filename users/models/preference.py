@@ -21,10 +21,10 @@ class Preference(models.Model):
     )
     export_status = models.JSONField(
         blank=True, null=True, encoder=DjangoJSONEncoder, default=dict
-    )
+    )  # deprecated
     import_status = models.JSONField(
         blank=True, null=True, encoder=DjangoJSONEncoder, default=dict
-    )
+    )  # deprecated
     # 0: public, 1: follower only, 2: private
     default_visibility = models.PositiveSmallIntegerField(null=False, default=0)
     # 0: public, 1: unlisted, 4: local

@@ -95,9 +95,10 @@ def data(request):
         "users/data.html",
         {
             "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
-            "import_status": request.user.preference.import_status,
+            "import_task": DoubanImporter.latest_task(request.user),
             "export_task": DoufenExporter.latest_task(request.user),
             "letterboxd_task": LetterboxdImporter.latest_task(request.user),
+            "goodreads_task": GoodreadsImporter.latest_task(request.user),
             "years": years,
         },
     )
@@ -109,7 +110,7 @@ def data_import_status(request):
         request,
         "users/data_import_status.html",
         {
-            "import_status": request.user.preference.import_status,
+            "import_task": DoubanImporter.latest_task(request.user),
         },
     )
 
@@ -185,7 +186,12 @@ def reset_visibility(request):
 def import_goodreads(request):
     if request.method == "POST":
         raw_url = request.POST.get("url")
-        if GoodreadsImporter.import_from_url(raw_url, request.user):
+        if GoodreadsImporter.validate_url(raw_url):
+            GoodreadsImporter.create(
+                request.user,
+                visibility=int(request.POST.get("visibility", 0)),
+                url=raw_url,
+            ).enqueue()
             messages.add_message(request, messages.INFO, _("Import in progress."))
         else:
             messages.add_message(request, messages.ERROR, _("Invalid URL."))
@@ -194,18 +200,29 @@ def import_goodreads(request):
 
 @login_required
 def import_douban(request):
-    if request.method == "POST":
-        importer = DoubanImporter(
-            request.user,
-            int(request.POST.get("visibility", 0)),
-            int(request.POST.get("import_mode", 0)),
-        )
-        if importer.import_from_file(request.FILES["file"]):
-            messages.add_message(
-                request, messages.INFO, _("File is uploaded and will be imported soon.")
-            )
-        else:
-            messages.add_message(request, messages.ERROR, _("Invalid file."))
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    f = (
+        settings.MEDIA_ROOT
+        + "/"
+        + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
+    )
+    os.makedirs(os.path.dirname(f), exist_ok=True)
+    with open(f, "wb+") as destination:
+        for chunk in request.FILES["file"].chunks():
+            destination.write(chunk)
+    if not DoubanImporter.validate_file(request.FILES["file"]):
+        messages.add_message(request, messages.ERROR, _("Invalid file."))
+        return redirect(reverse("users:data"))
+    DoubanImporter.create(
+        request.user,
+        visibility=int(request.POST.get("visibility", 0)),
+        mode=int(request.POST.get("import_mode", 0)),
+        file=f,
+    ).enqueue()
+    messages.add_message(
+        request, messages.INFO, _("File is uploaded and will be imported soon.")
+    )
     return redirect(reverse("users:data"))
 
 

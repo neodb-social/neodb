@@ -14,7 +14,9 @@ class Migration(migrations.Migration):
             name="type",
             field=models.CharField(
                 choices=[
+                    ("journal.doubanimporter", "douban importer"),
                     ("journal.doufenexporter", "doufen exporter"),
+                    ("journal.goodreadsimporter", "goodreads importer"),
                     ("journal.letterboxdimporter", "letterboxd importer"),
                 ],
                 db_index=True,

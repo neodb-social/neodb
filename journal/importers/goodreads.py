@@ -1,16 +1,14 @@
 import re
 from datetime import datetime
 
-import django_rq
-from auditlog.context import set_actor
 from django.utils import timezone
 from django.utils.timezone import make_aware
-from user_messages import api as msg
 
 from catalog.common import *
 from catalog.common.downloaders import *
 from catalog.models import *
 from journal.models import *
+from users.models import Task
 
 re_list = r"^https://www\.goodreads\.com/list/show/\d+"
 re_shelf = r"^https://www\.goodreads\.com/review/list/\d+[^\?]*\?shelf=[^&]+"
@@ -24,93 +22,104 @@ gr_rating = {
 }
 
 
-class GoodreadsImporter:
+class GoodreadsImporter(Task):
+    class Meta:
+        app_label = "journal"  # workaround bug in TypedModel
+
+    TaskQueue = "import"
+    DefaultMetadata = {
+        "total": 0,
+        "processed": 0,
+        "skipped": 0,
+        "imported": 0,
+        "failed": 0,
+        "visibility": 0,
+        "failed_urls": [],
+        "url": None,
+    }
+
     @classmethod
-    def import_from_url(cls, raw_url, user):
+    def validate_url(cls, raw_url):
         match_list = re.match(re_list, raw_url)
         match_shelf = re.match(re_shelf, raw_url)
         match_profile = re.match(re_profile, raw_url)
         if match_profile or match_shelf or match_list:
-            django_rq.get_queue("import").enqueue(
-                cls.import_from_url_task, raw_url, user
-            )
             return True
         else:
             return False
 
-    @classmethod
-    def import_from_url_task(cls, url, user):
+    def run(self):
+        url = self.metadata["url"]
+        user = self.user
         match_list = re.match(re_list, url)
         match_shelf = re.match(re_shelf, url)
         match_profile = re.match(re_profile, url)
         total = 0
         visibility = user.preference.default_visibility
-        with set_actor(user):
-            shelf = None
-            if match_shelf:
-                shelf = cls.parse_shelf(match_shelf[0], user)
-            elif match_list:
-                shelf = cls.parse_list(match_list[0], user)
-            if shelf:
-                if shelf["title"] and shelf["books"]:
-                    collection = Collection.objects.create(
-                        title=shelf["title"],
-                        brief=shelf["description"]
-                        + "\n\nImported from [Goodreads]("
-                        + url
-                        + ")",
-                        owner=user.identity,
-                    )
-                    for book in shelf["books"]:
-                        collection.append_item(book["book"], note=book["review"])
-                        total += 1
-                    collection.save()
-                msg.success(
-                    user,
-                    f'Imported {total} books from Goodreads as a Collection {shelf["title"]}.',
+        shelf = None
+        if match_shelf:
+            shelf = self.parse_shelf(match_shelf[0])
+        elif match_list:
+            shelf = self.parse_list(match_list[0])
+        if shelf:
+            if shelf["title"] and shelf["books"]:
+                collection = Collection.objects.create(
+                    title=shelf["title"],
+                    brief=shelf["description"]
+                    + "\n\nImported from [Goodreads]("
+                    + url
+                    + ")",
+                    owner=user.identity,
                 )
-            elif match_profile:
-                uid = match_profile[1]
-                shelves = {
-                    ShelfType.WISHLIST: f"https://www.goodreads.com/review/list/{uid}?shelf=to-read",
-                    ShelfType.PROGRESS: f"https://www.goodreads.com/review/list/{uid}?shelf=currently-reading",
-                    ShelfType.COMPLETE: f"https://www.goodreads.com/review/list/{uid}?shelf=read",
-                }
-                for shelf_type in shelves:
-                    shelf_url = shelves.get(shelf_type)
-                    shelf = cls.parse_shelf(shelf_url, user)
-                    for book in shelf["books"]:
-                        mark = Mark(user.identity, book["book"])
-                        if (
-                            (
-                                mark.shelf_type == shelf_type
-                                and mark.comment_text == book["review"]
-                            )
-                            or (
-                                mark.shelf_type == ShelfType.COMPLETE
-                                and shelf_type != ShelfType.COMPLETE
-                            )
-                            or (
-                                mark.shelf_type == ShelfType.PROGRESS
-                                and shelf_type == ShelfType.WISHLIST
-                            )
-                        ):
-                            print(
-                                f'Skip {shelf_type}/{book["book"]} bc it was marked {mark.shelf_type}'
-                            )
-                        else:
-                            mark.update(
-                                shelf_type,
-                                book["review"],
-                                book["rating"],
-                                visibility=visibility,
-                                created_time=book["last_updated"] or timezone.now(),
-                            )
-                        total += 1
-                msg.success(user, f"Imported {total} records from Goodreads profile.")
+                for book in shelf["books"]:
+                    collection.append_item(book["book"], note=book["review"])
+                    total += 1
+                collection.save()
+            self.message = f'Imported {total} books from Goodreads as a Collection {shelf["title"]}.'
+        elif match_profile:
+            uid = match_profile[1]
+            shelves = {
+                ShelfType.WISHLIST: f"https://www.goodreads.com/review/list/{uid}?shelf=to-read",
+                ShelfType.PROGRESS: f"https://www.goodreads.com/review/list/{uid}?shelf=currently-reading",
+                ShelfType.COMPLETE: f"https://www.goodreads.com/review/list/{uid}?shelf=read",
+            }
+            for shelf_type in shelves:
+                shelf_url = shelves.get(shelf_type)
+                shelf = self.parse_shelf(shelf_url)
+                for book in shelf["books"]:
+                    mark = Mark(user.identity, book["book"])
+                    if (
+                        (
+                            mark.shelf_type == shelf_type
+                            and mark.comment_text == book["review"]
+                        )
+                        or (
+                            mark.shelf_type == ShelfType.COMPLETE
+                            and shelf_type != ShelfType.COMPLETE
+                        )
+                        or (
+                            mark.shelf_type == ShelfType.PROGRESS
+                            and shelf_type == ShelfType.WISHLIST
+                        )
+                    ):
+                        print(
+                            f'Skip {shelf_type}/{book["book"]} bc it was marked {mark.shelf_type}'
+                        )
+                    else:
+                        mark.update(
+                            shelf_type,
+                            book["review"],
+                            book["rating"],
+                            visibility=visibility,
+                            created_time=book["last_updated"] or timezone.now(),
+                        )
+                    total += 1
+            self.message = f"Imported {total} records from Goodreads profile."
+        self.metadata["total"] = total
+        self.save()
 
     @classmethod
-    def get_book(cls, url, user):
+    def get_book(cls, url):
         site = SiteManager.get_site_by_url(url)
         if site:
             book = site.get_item()
@@ -121,7 +130,7 @@ class GoodreadsImporter:
             return book
 
     @classmethod
-    def parse_shelf(cls, url, user):
+    def parse_shelf(cls, url):
         # return {'title': 'abc', books: [{'book': obj, 'rating': 10, 'review': 'txt'}, ...]}
         title = ""
         books = []
@@ -194,7 +203,7 @@ class GoodreadsImporter:
                 except Exception:
                     print(f"Error loading/parsing review{url_review}, ignored")
                 try:
-                    book = cls.get_book(url_book, user)
+                    book = cls.get_book(url_book)
                     books.append(
                         {
                             "url": url_book,
@@ -216,7 +225,7 @@ class GoodreadsImporter:
         return {"title": title, "description": "", "books": books}
 
     @classmethod
-    def parse_list(cls, url, user):
+    def parse_list(cls, url):
         # return {'title': 'abc', books: [{'book': obj, 'rating': 10, 'review': 'txt'}, ...]}
         title = ""
         description = ""
@@ -237,7 +246,7 @@ class GoodreadsImporter:
             for link in links:  # type:ignore
                 url_book = "https://www.goodreads.com" + link
                 try:
-                    book = cls.get_book(url_book, user)
+                    book = cls.get_book(url_book)
                     books.append(
                         {
                             "url": url_book,

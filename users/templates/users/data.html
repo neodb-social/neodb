@@ -64,7 +64,7 @@
                 </label>
               </p>
               <input type="submit"
-                     {% if import_status.douban_pending %} onclick="return confirm('{% trans "Another import is in progress, starting a new import may cause issues, sure to import?" %}')" value="{% trans "Import in progress, please wait" %}" {% else %} value="{% trans 'Import' %}" {% endif %} />
+                     {% if import_task.status == "pending" %} onclick="return confirm('{% trans "Another import is in progress, starting a new import may cause issues, sure to import?" %}')" value="{% trans "Import in progress, please wait" %}" {% else %} value="{% trans 'Import' %}" {% endif %} />
             </form>
             <div hx-get="{% url 'users:import_status' %}"
                  hx-trigger="load delay:1s"
@@ -84,6 +84,15 @@
                        placeholder="https://www.goodreads.com/user/show/12345-janedoe"
                        required>
                 <input type="submit"  value="{% trans 'Import' %}" />
+                <small>
+                  {% if goodreads_task %}
+                    <br>
+                    {% trans 'Last import started' %}: {{ goodreads_task.created_time }}
+                    {% trans 'Status' %}: {{ goodreads_task.get_state_display }}。
+                    <br>
+                    {{ goodreads_task.message }}
+                  {% endif %}
+                </small>
               </div>
               <ul>
                 <li>

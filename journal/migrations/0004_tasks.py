@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("users", "0006_alter_task_type"),
         ("journal", "0003_note_progress"),
@@ -13,6 +12,26 @@ class Migration(migrations.Migration):
     operations = [
         migrations.CreateModel(
             name="DoufenExporter",
+            fields=[],
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
+            bases=("users.task",),
+        ),
+        migrations.CreateModel(
+            name="DoubanImporter",
+            fields=[],
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
+            bases=("users.task",),
+        ),
+        migrations.CreateModel(
+            name="GoodreadsImporter",
             fields=[],
             options={
                 "proxy": True,

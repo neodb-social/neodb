@@ -2,14 +2,11 @@ import os
 import re
 from datetime import datetime
 
-import django_rq
 import openpyxl
 import pytz
-from auditlog.context import set_actor
 from django.conf import settings
 from loguru import logger
 from markdownify import markdownify as md
-from user_messages import api as msg
 
 from catalog.common import *
 from catalog.common.downloaders import *
@@ -17,6 +14,7 @@ from catalog.models import *
 from catalog.sites.douban import DoubanDownloader
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import *
+from users.models import Task
 
 _tz_sh = pytz.timezone("Asia/Shanghai")
 
@@ -40,77 +38,22 @@ def _fetch_remote_image(url):
         return url
 
 
-class DoubanImporter:
-    total = 0
-    processed = 0
-    skipped = 0
-    imported = 0
-    failed = []
-    visibility = 0
-    mode = 0
-    file = ""
+class DoubanImporter(Task):
+    class Meta:
+        app_label = "journal"  # workaround bug in TypedModel
 
-    def __init__(self, user, visibility, mode):
-        self.user = user
-        self.visibility = visibility
-        self.mode = mode
-
-    def update_user_import_status(self, status):
-        self.user.preference.import_status["douban_pending"] = status
-        self.user.preference.import_status["douban_file"] = self.file
-        self.user.preference.import_status["douban_visibility"] = self.visibility
-        self.user.preference.import_status["douban_mode"] = self.mode
-        self.user.preference.import_status["douban_total"] = self.total
-        self.user.preference.import_status["douban_processed"] = self.processed
-        self.user.preference.import_status["douban_skipped"] = self.skipped
-        self.user.preference.import_status["douban_imported"] = self.imported
-        self.user.preference.import_status["douban_failed"] = self.failed
-        self.user.preference.save(update_fields=["import_status"])
-
-    @classmethod
-    def reset(cls, user):
-        user.preference.import_status["douban_pending"] = 0
-        user.preference.save(update_fields=["import_status"])
-
-    @classmethod
-    def redo(cls, user):
-        file = user.preference.import_status["douban_file"]
-        imp = cls(
-            user,
-            user.preference.import_status["douban_visibility"],
-            user.preference.import_status["douban_mode"],
-        )
-        imp.file = file
-        jid = f"Douban_{user.id}_{os.path.basename(file)}_redo"
-        django_rq.get_queue("import").enqueue(imp.import_from_file_task, job_id=jid)
-
-    def import_from_file(self, uploaded_file):
-        try:
-            wb = openpyxl.open(
-                uploaded_file, read_only=True, data_only=True, keep_links=False
-            )
-            wb.close()
-            file = (
-                settings.MEDIA_ROOT
-                + "/"
-                + GenerateDateUUIDMediaFilePath("x.xlsx", settings.SYNC_FILE_PATH_ROOT)
-            )
-            os.makedirs(os.path.dirname(file), exist_ok=True)
-            with open(file, "wb") as destination:
-                for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
-            self.file = file
-            self.update_user_import_status(2)
-            jid = f"Douban_{self.user.id}_{os.path.basename(self.file)}"
-            django_rq.get_queue("import").enqueue(
-                self.import_from_file_task, job_id=jid
-            )
-        except Exception as e:
-            logger.error(
-                f"unable to enqueue import {uploaded_file}", extra={"exception": e}
-            )
-            return False
-        return True
+    TaskQueue = "import"
+    DefaultMetadata = {
+        "total": 0,
+        "processed": 0,
+        "skipped": 0,
+        "imported": 0,
+        "failed": 0,
+        "mode": 0,
+        "visibility": 0,
+        "failed_urls": [],
+        "file": None,
+    }
 
     mark_sheet_config = {
         "想读": [ShelfType.WISHLIST],
@@ -135,13 +78,30 @@ class DoubanImporter:
         "剧评": [Performance],
         "游戏评论&攻略": [Game],
     }
+
+    @classmethod
+    def validate_file(cls, uploaded_file):
+        try:
+            wb = openpyxl.open(
+                uploaded_file, read_only=True, data_only=True, keep_links=False
+            )
+            sheets = cls.mark_sheet_config.keys() | cls.review_sheet_config.keys()
+            for name in sheets:
+                if name in wb:
+                    return True
+        except Exception as e:
+            logger.error(
+                f"unable to validate excel file {uploaded_file}", extra={"exception": e}
+            )
+        return False
+
     mark_data = {}
     review_data = {}
     entity_lookup = {}
 
     def load_sheets(self):
         """Load data into mark_data / review_data / entity_lookup"""
-        f = open(self.file, "rb")
+        f = open(self.metadata["file"], "rb")
         wb = openpyxl.load_workbook(f, read_only=True, data_only=True, keep_links=False)
         for data, config in [
             (self.mark_data, self.mark_sheet_config),
@@ -164,8 +124,9 @@ class DoubanImporter:
                     self.entity_lookup[k].append(v)
                 else:
                     self.entity_lookup[k] = [v]
-        self.total = sum(map(lambda a: len(a), self.mark_data.values()))
-        self.total += sum(map(lambda a: len(a), self.review_data.values()))
+        self.metadata["total"] = sum(map(lambda a: len(a), self.mark_data.values()))
+        self.metadata["total"] += sum(map(lambda a: len(a), self.review_data.values()))
+        self.save()
 
     def guess_entity_url(self, title, rating, timestamp):
         k = f"{title}|{rating}"
@@ -189,28 +150,20 @@ class DoubanImporter:
         #         if cells[0] == title and cells[5] == rating:
         #             return cells[3]
 
-    def import_from_file_task(self):
+    def run(self):
         logger.info(f"{self.user} import start")
-        msg.info(self.user, f"开始导入豆瓣标记和评论")
-        self.update_user_import_status(1)
-        with set_actor(self.user):
-            self.load_sheets()
-            logger.info(f"{self.user} sheet loaded, {self.total} lines total")
-            self.update_user_import_status(1)
-            for name, param in self.mark_sheet_config.items():
-                self.import_mark_sheet(self.mark_data[name], param[0], name)
-            for name, param in self.review_sheet_config.items():
-                self.import_review_sheet(self.review_data[name], name)
-        self.update_user_import_status(0)
-        msg.success(
-            self.user,
-            f"豆瓣标记和评论导入完成，共处理{self.total}篇，已存在{self.skipped}篇，新增{self.imported}篇。",
-        )
-        if len(self.failed):
-            msg.error(
-                self.user,
-                f'豆瓣评论导入时未能处理以下网址：\n{" , ".join(self.failed)}',
+        self.load_sheets()
+        logger.info(f"{self.user} sheet loaded, {self.metadata['total']} lines total")
+        for name, param in self.mark_sheet_config.items():
+            self.import_mark_sheet(self.mark_data[name], param[0], name)
+        for name, param in self.review_sheet_config.items():
+            self.import_review_sheet(self.review_data[name], name)
+        self.message = f"豆瓣标记和评论导入完成，共处理{self.metadata['total']}篇，已存在{self.metadata['skipped']}篇，新增{self.metadata['imported']}篇。"
+        if len(self.metadata["failed_urls"]) > 0:
+            self.message += (
+                f'导入时未能处理以下网址：\n{" , ".join(self.metadata["failed_urls"])}'
             )
+        self.save()
 
     def import_mark_sheet(self, worksheet, shelf_type, sheet_name):
         prefix = f"{self.user} {sheet_name}|"
@@ -234,7 +187,7 @@ class DoubanImporter:
             except Exception:
                 tags = []
             comment = cells[7] if len(cells) >= 8 else None
-            self.processed += 1
+            self.metadata["processed"] += 1
             try:
                 if type(time) == str:
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
@@ -243,10 +196,10 @@ class DoubanImporter:
                 time = None
             r = self.import_mark(url, shelf_type, comment, rating_grade, tags, time)
             if r == 1:
-                self.imported += 1
+                self.metadata["imported"] += 1
             elif r == 2:
-                self.skipped += 1
-            self.update_user_import_status(1)
+                self.metadata["skipped"] += 1
+            self.save()
 
     def import_mark(self, url, shelf_type, comment, rating_grade, tags, time):
         """
@@ -257,7 +210,7 @@ class DoubanImporter:
             logger.warning(f"{self.user} | match/fetch {url} failed")
             return
         mark = Mark(self.user.identity, item)
-        if self.mode == 0 and (
+        if self.metadata["mode"] == 0 and (
             mark.shelf_type == shelf_type
             or mark.shelf_type == ShelfType.COMPLETE
             or (
@@ -268,7 +221,12 @@ class DoubanImporter:
             print("-", end="", flush=True)
             return 2
         mark.update(
-            shelf_type, comment, rating_grade, tags, self.visibility, created_time=time
+            shelf_type,
+            comment,
+            rating_grade,
+            tags,
+            self.metadata["visibility"],
+            created_time=time,
         )
         print("+", end="", flush=True)
         return 1
@@ -289,7 +247,7 @@ class DoubanImporter:
             time = cells[3]
             rating = cells[4]
             content = cells[6]
-            self.processed += 1
+            self.metadata["processed"] += 1
             if time:
                 if type(time) == str:
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
@@ -304,12 +262,12 @@ class DoubanImporter:
                 entity_title, rating, title, review_url, content, time
             )
             if r == 1:
-                self.imported += 1
+                self.metadata["imported"] += 1
             elif r == 2:
-                self.skipped += 1
+                self.metadata["skipped"] += 1
             else:
-                self.failed.append(review_url)
-            self.update_user_import_status(1)
+                self.metadata["failed_urls"].append(review_url)
+            self.save()
 
     def get_item_by_url(self, url):
         item = None
@@ -337,7 +295,7 @@ class DoubanImporter:
         except Exception as e:
             logger.error(f"fetching error: {url}", extra={"exception": e})
         if item is None:
-            self.failed.append(str(url))
+            self.metadata["failed_urls"].append(str(url))
         return item
 
     def import_review(self, entity_title, rating, title, review_url, content, time):
@@ -367,7 +325,7 @@ class DoubanImporter:
             logger.warning(f"{prefix} match/fetch {url} failed")
             return
         if (
-            self.mode == 1
+            self.metadata["mode"] == 1
             and Review.objects.filter(owner=self.user.identity, item=item).exists()
         ):
             return 2
@@ -387,7 +345,7 @@ class DoubanImporter:
             "edited_time": time,
             "title": title,
             "body": content,
-            "visibility": self.visibility,
+            "visibility": self.metadata["visibility"],
         }
         try:
             Review.objects.update_or_create(

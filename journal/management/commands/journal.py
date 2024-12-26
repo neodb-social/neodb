@@ -26,16 +26,6 @@ class Command(BaseCommand):
             help="purge invalid data (visibility=99)",
         )
         parser.add_argument(
-            "--douban-import-redo",
-            action="store",
-            help="reimport for user id",
-        )
-        parser.add_argument(
-            "--douban-import-reset",
-            action="store",
-            help="reset for user id",
-        )
-        parser.add_argument(
             "--integrity",
             action="store_true",
             help="check and fix remaining journal for merged and deleted items",
@@ -65,15 +55,5 @@ class Command(BaseCommand):
                 for cls in pcls.__subclasses__():
                     self.stdout.write(f"Cleaning up {cls}...")
                     cls.objects.filter(visibility=99).delete()
-
-        if options["douban_import_redo"]:
-            user = User.objects.get(pk=options["douban_import_redo"])
-            self.stdout.write(f"Redo import for {user}...")
-            DoubanImporter.redo(user)
-
-        if options["douban_import_reset"]:
-            user = User.objects.get(pk=options["douban_import_reset"])
-            self.stdout.write(f"Reset import for {user}...")
-            DoubanImporter.reset(user)
 
         self.stdout.write(self.style.SUCCESS(f"Done."))
