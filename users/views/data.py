@@ -1,7 +1,6 @@
 import datetime
 import os
 
-import django_rq
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -13,13 +12,16 @@ from django.utils import translation
 from django.utils.translation import gettext as _
 
 from common.utils import GenerateDateUUIDMediaFilePath
-from journal.exporters.doufen import export_marks_task
-from journal.importers.douban import DoubanImporter
-from journal.importers.goodreads import GoodreadsImporter
-from journal.importers.letterboxd import LetterboxdImporter
-from journal.importers.opml import OPMLImporter
+from journal.exporters import DoufenExporter
+from journal.importers import (
+    DoubanImporter,
+    GoodreadsImporter,
+    LetterboxdImporter,
+    OPMLImporter,
+)
 from journal.models import ShelfType, reset_journal_visibility_for_user
 from social.models import reset_social_visibility_for_user
+from users.models import Task
 
 from .account import *
 
@@ -94,7 +96,7 @@ def data(request):
         {
             "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
             "import_status": request.user.preference.import_status,
-            "export_status": request.user.preference.export_status,
+            "export_task": DoufenExporter.latest_task(request.user),
             "letterboxd_task": LetterboxdImporter.latest_task(request.user),
             "years": years,
         },
@@ -122,14 +124,18 @@ def export_reviews(request):
 @login_required
 def export_marks(request):
     if request.method == "POST":
-        django_rq.get_queue("export").enqueue(export_marks_task, request.user)
-        request.user.preference.export_status["marks_pending"] = True
-        request.user.preference.save()
+        DoufenExporter.create(request.user).enqueue()
         messages.add_message(request, messages.INFO, _("Generating exports."))
         return redirect(reverse("users:data"))
     else:
+        task = DoufenExporter.latest_task(request.user)
+        if not task or task.state != Task.States.complete:
+            messages.add_message(
+                request, messages.ERROR, _("Export file not available.")
+            )
+            return redirect(reverse("users:data"))
         try:
-            with open(request.user.preference.export_status["marks_file"], "rb") as fh:
+            with open(task.metadata["file"], "rb") as fh:
                 response = HttpResponse(
                     fh.read(), content_type="application/vnd.ms-excel"
                 )
@@ -215,11 +221,11 @@ def import_letterboxd(request):
         with open(f, "wb+") as destination:
             for chunk in request.FILES["file"].chunks():
                 destination.write(chunk)
-        LetterboxdImporter.enqueue(
+        LetterboxdImporter.create(
             request.user,
             visibility=int(request.POST.get("visibility", 0)),
             file=f,
-        )
+        ).enqueue()
         messages.add_message(
             request, messages.INFO, _("File is uploaded and will be imported soon.")
         )

@@ -210,10 +210,16 @@
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              <input type="submit"
-                     {% if export_status.marks_pending %} value="{% trans 'Export in progress' %}" {% else %} value="{% trans 'Export marks and reviews' %}" {% endif %} />
-              {% if export_status.marks_file %}
-                <a href="{% url 'users:export_marks' %}" download>{% trans 'Download' %} {{ export_status.marks_date }}</a>
+              <input type="submit" value="{% trans 'Export marks and reviews' %}" />
+              {% if export_task %}
+                <br>
+                {% trans 'Last export' %}: {{ export_task.created_time }}
+                {% trans 'Status' %}: {{ export_task.get_state_display }}
+                <br>
+                {{ export_task.message }}
+                {% if letterboxd_task.metadata.file %}
+                  <a href="{% url 'users:export_marks' %}" download>{% trans 'Download' %}</a>
+                {% endif %}
               {% endif %}
             </form>
           </details>

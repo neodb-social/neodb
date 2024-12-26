@@ -18,8 +18,10 @@ _tz_sh = pytz.timezone("Asia/Shanghai")
 
 
 class LetterboxdImporter(Task):
+    class Meta:
+        app_label = "journal"  # workaround bug in TypedModel
+
     TaskQueue = "import"
-    TaskType = "import.letterboxd"
     DefaultMetadata = {
         "total": 0,
         "processed": 0,
@@ -30,9 +32,6 @@ class LetterboxdImporter(Task):
         "failed_urls": [],
         "file": None,
     }
-
-    class Meta:
-        proxy = True
 
     def get_item_by_url(self, url):
         try:

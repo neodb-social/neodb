@@ -9,12 +9,13 @@ from rq.job import Job
 
 
 class Command(BaseCommand):
-    help = "Show jobs in queue"
+    help = "Manage jobs in RQ"
 
     def add_arguments(self, parser):
         parser.add_argument("--retry", action="append")
         parser.add_argument("--delete", action="append")
         parser.add_argument("--list", action="store_true")
+        parser.add_argument("--prune", action="store_true")
 
     def handle(self, *args, **options):
         if options["retry"]:
@@ -30,7 +31,7 @@ class Command(BaseCommand):
                 job = Job.fetch(job_id, connection=django_rq.get_connection("fetch"))
                 job.delete()
                 self.stdout.write(self.style.SUCCESS(f"Deleted {job}"))
-        if options["list"]:
+        if options["list"] or options["prune"]:
             queues = settings.RQ_QUEUES.keys()
             for q in queues:
                 queue = django_rq.get_queue(q)
@@ -42,13 +43,39 @@ class Command(BaseCommand):
                     queue.failed_job_registry,
                     queue.canceled_job_registry,
                 ]:
+                    if options["prune"]:
+                        registry.cleanup()
                     for job_id in registry.get_job_ids():
                         try:
                             job = Job.fetch(
                                 job_id, connection=django_rq.get_connection(q)
                             )
-                            self.stdout.write(
-                                self.style.SUCCESS(f"{registry.key} {repr(job)}")
-                            )
+                            if (
+                                options["prune"]
+                                and q != "cron"
+                                and job.get_status()
+                                in [
+                                    "finished",
+                                    "failed",
+                                    "canceled",
+                                ]
+                            ):
+                                job.delete()
+                            if options["list"]:
+                                self.stdout.write(
+                                    registry.key.ljust(20)
+                                    + str(job.get_status()).ljust(10)
+                                    + job_id.ljust(40)
+                                    + (
+                                        job.enqueued_at.strftime("%Y-%m-%d %H:%M:%S")
+                                        if job.enqueued_at
+                                        else ""
+                                    )
+                                )
                         except Exception as e:
-                            print(f"Fetching {registry.key} {job_id} error: {e}")
+                            self.stdout.write(
+                                registry.key.ljust(20)
+                                + "error".ljust(10)
+                                + job_id.ljust(40)
+                                + str(e)
+                            )
