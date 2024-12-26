@@ -318,7 +318,9 @@
                          placeholder="Gargron@mastodon.social">
                   <small id="invalid-helper">{% trans "Once deleted, account data cannot be recovered." %}</small>
                   {% if import_status.douban_pending %}
-                    <input type="submit" value="{% trans "Importing in progress, can't delete now." %}" disabled />
+                    <input type="submit"
+                           value="{% trans "Importing in progress, can't delete now." %}"
+                           disabled />
                   {% else %}
                     <input type="submit"
                            value="{% trans 'Permanently Delete' %}"

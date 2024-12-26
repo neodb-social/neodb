@@ -23,7 +23,14 @@
             <fieldset>
               <label>
                 {% blocktrans %}Your username on {{ site_name }}{% endblocktrans %}
-                <input name="username" placeholder="{% trans "2-30 alphabets, numbers or underscore, can't be changed once saved" %}" value="{{ form.username.value|default:request.user.username|default:'' }}" required _="on input remove [@aria-invalid] end" {% if request.user.username and not form.username.errors %}aria-invalid="false" readonly{% endif %} {% if form.username.errors %}aria-invalid="true"{% endif %} pattern="^[a-zA-Z0-9_]{2,30}$" />
+                <input name="username"
+                       placeholder="{% trans "2-30 alphabets, numbers or underscore, can't be changed once saved" %}"
+                       value="{{ form.username.value|default:request.user.username|default:'' }}"
+                       required
+                       _="on input remove [@aria-invalid] end"
+                       {% if request.user.username and not form.username.errors %}aria-invalid="false" readonly{% endif %}
+                       {% if form.username.errors %}aria-invalid="true"{% endif %}
+                       pattern="^[a-zA-Z0-9_]{2,30}$" />
                 {% for error in form.username.errors %}<small>{{ error }}</small>{% endfor %}
               </label>
               <label>

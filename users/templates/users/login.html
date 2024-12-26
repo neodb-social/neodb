@@ -52,15 +52,21 @@
         {% elif allow_any_site %}
           <div role="group">
             {% if enable_email %}
-              <button class="platform outline" _="on click add .outline to .platform then remove .outline from me then hide
-                <form/>
-                then show #login-email" id="platform-email" title="{% trans "Email" %}">
+              <button class="platform outline"
+                {# djlint:off #}
+                _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-email"
+                {# djlint:on #}
+                id="platform-email"
+                title="{% trans 'Email' %}">
                 <i class="fa-solid fa-envelope"></i>
               </button>
             {% endif %}
-            <button class="platform outline" _="on click add .outline to .platform then remove .outline from me then hide
-              <form/>
-              then show #login-mastodon" id="platform-mastodon" title="{% trans "Fediverse (Mastodon)" %}">
+            <button class="platform outline"
+              {# djlint:off #}
+              _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-mastodon"
+              {# djlint:on #}
+              id="platform-mastodon"
+              title="{% trans "Fediverse (Mastodon)" %}">
               <svg xmlns="http://www.w3.org/2000/svg"
                    viewBox="64 163 873 873"
                    style="width: 1em;
@@ -71,16 +77,22 @@
               <!--<i class="fa-brands fa-mastodon"></i>-->
             </button>
             {% if enable_threads %}
-              <button class="platform outline" _="on click add .outline to .platform then remove .outline from me then hide
-                <form/>
-                then show #login-threads" id="platform-threads" title="{% trans "Threads" %}">
+              <button class="platform outline"
+                {# djlint:off #}
+                _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-threads"
+                {# djlint:on #}
+                id="platform-threads"
+                title="{% trans 'Threads' %}">
                 <i class="fa-brands fa-threads"></i>
               </button>
             {% endif %}
             {% if enable_bluesky %}
-              <button class="platform outline" _="on click add .outline to .platform then remove .outline from me then hide
-                <form/>
-                then show #login-bluesky" id="platform-bluesky" title="{% trans "Bluesky (ATProto)" %}">
+              <button class="platform outline"
+                {# djlint:off #}
+                _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-bluesky"
+                {# djlint:on #}
+                id="platform-bluesky"
+                title="{% trans 'Bluesky (ATProto)' %}">
                 <i class="fa-brands fa-bluesky" style="font-size:85%"></i>
               </button>
             {% endif %}

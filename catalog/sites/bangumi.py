@@ -132,7 +132,8 @@ class Bangumi(AbstractSite):
         if o.get("name_cn"):
             titles[o.get("name_cn")] = "zh-cn"
         localized_title = [
-            {"lang": l or detect_language(t), "text": t} for t, l in titles.items()
+            {"lang": lang or detect_language(t), "text": t}
+            for t, lang in titles.items()
         ]
         localized_desc = (
             [{"lang": detect_language(brief), "text": brief}] if brief else []

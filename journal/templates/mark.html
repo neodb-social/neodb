@@ -46,17 +46,11 @@
               </div>
             </div>
             <div>
-              <span class="rating-editor {% if shelf_type == 'wishlist' %}hidden{% endif %}" _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the
-                <div/>
-                in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the
-                <div/>
-                in me set star_input to the
-                <input/>
-                in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the
-                <div/>
-                in me set star_input to the
-                <input/>
-                in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' end">
+              <span class="rating-editor {% if shelf_type == 'wishlist' %}hidden{% endif %}"
+                {# djlint:off #}
+                _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the <div/> in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the <div/> in me set star_input to the <input/> in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the <div/> in me set star_input to the <input/> in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' end"
+                {# djlint:on #}
+                id="rating_editor">
                 {{ mark.rating_grade|rating_star }}
                 <input type="hidden"
                        name="rating_grade"
