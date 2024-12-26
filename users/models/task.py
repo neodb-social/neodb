@@ -6,6 +6,8 @@ from loguru import logger
 from typedmodels.models import TypedModel
 from user_messages import api as msg
 
+from users.middlewares import activate_language_for_user
+
 from .user import User
 
 
@@ -61,6 +63,7 @@ class Task(TypedModel):
             return
         task.state = cls.States.started
         task.save()
+        activate_language_for_user(task.user)
         with set_actor(task.user):
             try:
                 task.run()

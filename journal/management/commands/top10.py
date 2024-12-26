@@ -1,8 +1,11 @@
+from auditlog.context import set_actor
 from django.core.management.base import BaseCommand
 from django.db.models import Count, F, Q
+from django.utils.translation import gettext_lazy as t
 
 from catalog.models import *
 from journal.models import *
+from users.middlewares import activate_language_for_user
 from users.models import *
 from users.models import APIdentity
 
@@ -19,6 +22,8 @@ class Command(BaseCommand):
 
     def handle(self, year: int, top: int, save: str, **options):  # type: ignore
         collector = APIdentity.objects.get(username=save, local=True) if save else None
+        if collector:
+            activate_language_for_user(collector.user)
         types = [
             [Edition],
             [Movie],
@@ -31,7 +36,7 @@ class Command(BaseCommand):
         mapping = item_content_types()
         for typ in types:
             cids = [mapping[t] for t in typ]
-            title = f"{year}年标记最多的{typ[0].category.label}"
+            title = f"{year}年标记最多的{t(typ[0].category.label)}"
             print(title)
             top10 = list(
                 ShelfMember.objects.filter(
@@ -44,15 +49,16 @@ class Command(BaseCommand):
             items = [(Item.objects.get(pk=i["item"]), i["c"]) for i in top10]
             _ = [print(c, i.display_title, i.absolute_url) for i, c in items]
             if collector:
-                print(f"Saving to {collector}")
-                c, _ = Collection.objects.get_or_create(
-                    owner=collector,
-                    title=title,
-                    brief="*根据用户标记数统计*",
-                    defaults={"visibility": 2},
-                )
-                for i in items:
-                    c.append_item(i)
+                with set_actor(collector.user):
+                    print(f"Saving to {collector}")
+                    c, _ = Collection.objects.get_or_create(
+                        owner=collector,
+                        title=title,
+                        brief="*根据用户标记数统计*",
+                        defaults={"visibility": 2},
+                    )
+                    for i, cat in items:
+                        c.append_item(i)
 
         # top10 = list(
         #     Comment.objects.filter(
