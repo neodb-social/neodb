@@ -36,6 +36,7 @@ env = environ.FileAwareEnv(
     NEODB_SITE_LOGO=(str, "/s/img/logo.svg"),
     NEODB_SITE_ICON=(str, "/s/img/icon.png"),
     NEODB_USER_ICON=(str, "/s/img/avatar.svg"),
+    NEODB_SITE_COLOR=(str, "azure"),  # https://picocss.com/docs/colors
     NEODB_SITE_INTRO=(str, ""),
     NEODB_SITE_HEAD=(str, ""),
     NEODB_SITE_DESCRIPTION=(
@@ -205,6 +206,7 @@ SITE_INFO = {
     "site_logo": env("NEODB_SITE_LOGO"),
     "site_icon": env("NEODB_SITE_ICON"),
     "user_icon": env("NEODB_USER_ICON"),
+    "site_color": env("NEODB_SITE_COLOR"),
     "site_intro": env("NEODB_SITE_INTRO"),
     "site_description": env("NEODB_SITE_DESCRIPTION"),
     "site_head": env("NEODB_SITE_HEAD"),

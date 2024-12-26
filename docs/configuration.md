@@ -21,6 +21,7 @@ if you are doing debug or development:
  - `NEODB_SITE_LOGO`
  - `NEODB_SITE_ICON`
  - `NEODB_USER_ICON`
+ - `NEODB_SITE_COLOR` - one of [these color schemes](https://picocss.com/docs/colors)
  - `NEODB_SITE_INTRO`
  - `NEODB_SITE_HEAD`
  - `NEODB_SITE_DESCRIPTION`
