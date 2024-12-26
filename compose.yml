@@ -278,8 +278,8 @@ services:
 
   dev-neodb-worker:
     <<: *dev-neodb-service
-    command: neodb-manage rqworker-pool --num-workers 4 import export mastodon fetch crawl ap cron
-    # command: neodb-manage rqworker --with-scheduler import export mastodon fetch crawl ap cron
+    # command: neodb-manage rqworker-pool --num-workers 4 import export mastodon fetch crawl ap cron
+    command: neodb-manage rqworker --with-scheduler import export mastodon fetch crawl crawl ap cron
 
   dev-takahe-web:
     <<: *dev-neodb-service

@@ -23,11 +23,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--cancel",
+            "--cancel-all",
             action="store_true",
         )
         parser.add_argument(
-            "--schedule",
+            "--reschedule-all",
             action="store_true",
         )
         parser.add_argument(
@@ -35,21 +35,25 @@ class Command(BaseCommand):
             action="store_true",
         )
         parser.add_argument(
-            "--runonce",
+            "--run-once",
+            action="append",
+        )
+        parser.add_argument(
+            "--reschedule-now",
             action="append",
         )
 
     def handle(self, *args, **options):
-        if options["cancel"]:
+        if options["cancel_all"]:
             JobManager.cancel_all()
-        if options["schedule"]:
-            JobManager.cancel_all()  # cancel previously scheduled jobs if any
-            JobManager.schedule_all()
-        if options["runonce"]:
-            for job_id in options["runonce"]:
-                run = JobManager.run(job_id)
-                if not run:
-                    logger.error(f"job not found: {job_id}")
+        if options["reschedule_all"]:
+            JobManager.reschedule_all()
+        if options["reschedule_now"]:
+            for job_id in options["reschedule_now"]:
+                JobManager.get(job_id).reschedule(now=True)
+        if options["run_once"]:
+            for job_id in options["run_once"]:
+                JobManager.get(job_id)().run()
         if options["list"]:
             all_jobs = [j.__name__ for j in JobManager.registry]
             logger.info(f"{len(all_jobs)} available jobs: {' '.join(all_jobs)}")

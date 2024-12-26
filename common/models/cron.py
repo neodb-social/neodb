@@ -25,20 +25,26 @@ class BaseJob:
             pass
 
     @classmethod
-    def schedule(cls):
+    def schedule(cls, now=False):
         job_id = cls.__name__
+        i = timedelta(seconds=1) if now else cls.interval
         if cls.interval <= timedelta(0) or job_id in settings.DISABLE_CRON_JOBS:
-            logger.info(f"Skip scheduling job: {job_id}")
+            logger.info(f"Skip disabled job {job_id}")
             return
-        logger.info(f"Scheduling job: {job_id} in {cls.interval}")
+        logger.info(f"Scheduling job {job_id} in {i}")
         django_rq.get_queue("cron").enqueue_in(
-            cls.interval,
+            i,
             cls._run,
             job_id=job_id,
             result_ttl=-1,
             failure_ttl=-1,
             job_timeout=cls.interval.seconds - 5,
         )
+
+    @classmethod
+    def reschedule(cls, now: bool = False):
+        cls.cancel()
+        cls.schedule(now=now)
 
     @classmethod
     def _run(cls):
@@ -50,12 +56,24 @@ class BaseJob:
 
 
 class JobManager:
-    registry = set()
+    registry: set[type[BaseJob]] = set()
 
     @classmethod
     def register(cls, target):
         cls.registry.add(target)
         return target
+
+    @classmethod
+    def get(cls, job_id) -> type[BaseJob]:
+        for j in cls.registry:
+            if j.__name__ == job_id:
+                return j
+        raise KeyError(f"Job not found: {job_id}")
+
+    @classmethod
+    def get_scheduled_job_ids(cls):
+        registry = ScheduledJobRegistry(queue=django_rq.get_queue("cron"))
+        return registry.get_job_ids()
 
     @classmethod
     def schedule_all(cls):
@@ -66,20 +84,6 @@ class JobManager:
     def cancel_all(cls):
         for j in cls.registry:
             j.cancel()
-
-    @classmethod
-    def run(cls, job_id):
-        for j in cls.registry:
-            if j.__name__ == job_id:
-                logger.info(f"Run job: {job_id}")
-                j().run()
-                return True
-        return False
-
-    @classmethod
-    def get_scheduled_job_ids(cls):
-        registry = ScheduledJobRegistry(queue=django_rq.get_queue("cron"))
-        return registry.get_job_ids()
 
     @classmethod
     def reschedule_all(cls):
