@@ -226,7 +226,7 @@
                 {% trans 'Status' %}: {{ export_task.get_state_display }}
                 <br>
                 {{ export_task.message }}
-                {% if letterboxd_task.metadata.file %}
+                {% if export_task.metadata.file %}
                   <a href="{% url 'users:export_marks' %}" download>{% trans 'Download' %}</a>
                 {% endif %}
               {% endif %}
