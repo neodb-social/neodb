@@ -72,8 +72,6 @@ env = environ.FileAwareEnv(
     NEODB_EMAIL_URL=(str, ""),
     # EMAIL FROM
     NEODB_EMAIL_FROM=(str, "🧩 NeoDB <no-reply@neodb.social>"),
-    # ADMIN_USERS
-    NEODB_ADMIN_USERNAMES=(list, []),
     # List of available proxies for proxy downloader, in format of http://server1?url=__URL__,http://s2?url=__URL__,...
     NEODB_DOWNLOADER_PROXY_LIST=(list, []),
     # Timeout of downloader requests, in seconds
@@ -215,8 +213,6 @@ SITE_INFO = {
     # "cdn_url": "https://cdn.jsdelivr.net",
     # "cdn_url": "https://fastly.jsdelivr.net",
 }
-
-SETUP_ADMIN_USERNAMES = env("NEODB_ADMIN_USERNAMES")
 
 INVITE_ONLY = env("NEODB_INVITE_ONLY")
 

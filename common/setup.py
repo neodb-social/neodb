@@ -86,17 +86,6 @@ class Setup:
             defaults={"json": icon},
         )
 
-    def sync_admin_user(self):
-        users = User.objects.filter(username__in=settings.SETUP_ADMIN_USERNAMES)
-        for user in users:
-            if user.is_superuser:
-                logger.debug(f"User {user.username} is already admin")
-            else:
-                user.is_superuser = True
-                user.save(update_fields=["is_superuser"])
-                TakaheUser.objects.filter(email=f"@{user.username}").update(admin=True)
-                logger.info(f"Updated user {user.username} as admin")
-
     def sync_relay(self):
         relay = TakaheRelay.objects.filter(
             state__in=["new", "subscribing", "subscribed"],
@@ -130,9 +119,6 @@ class Setup:
 
         # Update site name if changed
         self.sync_site_config()
-
-        # Create/update admin user if configured in env
-        self.sync_admin_user()
 
         # Subscribe to default relay if enabled
         self.sync_relay()

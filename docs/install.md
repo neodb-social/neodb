@@ -81,24 +81,10 @@ You should see the same JSON response as above, and the site is now accessible t
 
 ## Register an account and make it admin
 
-If you have email sender properly configured, use this command to create an admin with a verified email (use any password as it won't be saved)
+Open `https://yourdomain.tld` in your browser and register an account, assuming username `admin`, run the following command to make it super user
 
 ```
-docker compose --profile production run --rm shell neodb-manage createsuperuser
-```
-
-Now open `https://yourdomain.tld` in your browser and register an account, assuming username `admin`
-
-add the following line to `.env` to make it an admin account:
-
-```
-NEODB_ADMIN_USERS=admin
-```
-
-now restart the cluster to make it effective:
-
-```bash
-docker compose --profile production up -d
+docker compose --profile production run --rm shell neodb-manage user --super admin
 ```
 
 Now your instance should be ready to serve. More tweaks are available, see [configuration](configuration.md) for options.
