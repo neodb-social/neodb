@@ -157,7 +157,6 @@ urlpatterns = [
         mark_list,
         name="mark_list",
     ),
-    path("search", search, name="search"),
     path("search/", search, name="search_legacy"),
     path("search/external", external_search, name="external_search"),
     path("fetch_refresh/<str:job_id>", fetch_refresh, name="fetch_refresh"),

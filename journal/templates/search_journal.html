@@ -1,0 +1,36 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load mastodon %}
+{% load duration %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="zh" class="classic-page nav-page-search">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ request.GET.q }} - {% trans 'Search Results' %}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include '_header.html' %}
+    <main>
+      <div class="grid__main">
+        {% include 'search_header.html' %}
+        <div class="item-card-list">
+          {% for item in items %}
+            {% include '_list_item.html' %}
+          {% empty %}
+            <p>{% trans "No items matching the search query." %}</p>
+          {% endfor %}
+        </div>
+      </div>
+      {% include "_pagination.html" %}
+      {% block sidebar %}
+        {% include "_sidebar.html" with show_profile=1 identity=user.identity %}
+      {% endblock %}
+    </main>
+    {% include '_footer.html' %}
+  </body>
+</html>

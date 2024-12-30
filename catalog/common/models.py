@@ -470,7 +470,7 @@ class Item(PolymorphicModel):
             res.save()
 
     def __str__(self):
-        return f"{self.__class__.__name__}|{self.pk}|{self.uuid} {self.primary_lookup_id_type}:{self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
+        return f"{self.__class__.__name__}|{self.pk}|{self.uuid} {self.primary_lookup_id_type}:{self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.display_title})"
 
     @classmethod
     def lookup_id_type_choices(cls):
@@ -567,6 +567,12 @@ class Item(PolymorphicModel):
             res.item = to_item
             res.save()
 
+    @property
+    def final_item(self) -> Self:
+        if self.merged_to_item:
+            return self.merged_to_item.final_item
+        return self
+
     def recast_to(self, model: "type[Any]") -> "Item":
         logger.warning(f"recast item {self} to {model}")
         if isinstance(self, model):
@@ -656,6 +662,12 @@ class Item(PolymorphicModel):
     @property
     def brief_description(self):
         return (str(self.display_description) or "")[:155]
+
+    def to_indexable_titles(self) -> list[str]:
+        titles = [t["text"] for t in self.localized_title if t]
+        if self.parent_item:
+            titles += self.parent_item.to_indexable_titles()
+        return list(set(titles))
 
     @classmethod
     def get_by_url(cls, url_or_b62: str, resolve_merge=False) -> "Self | None":

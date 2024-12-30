@@ -1,6 +1,6 @@
 import re
 from functools import cached_property
-from typing import override
+from typing import Any, override
 
 from deepmerge import always_merger
 from django.db import models
@@ -161,6 +161,7 @@ class Note(Content):
             p.sync_to_timeline()
             if owner.user.preference.mastodon_default_repost and owner.user.mastodon:
                 p.sync_to_social_accounts()
+            p.update_index()
         return p
 
     @cached_property
@@ -292,3 +293,11 @@ class Note(Content):
             case _:
                 v = []
         return v
+
+    def to_indexable_doc(self) -> dict[str, Any]:
+        return {
+            "item_id": [self.item.id],
+            "item_class": [self.item.__class__.__name__],
+            "item_title": self.item.to_indexable_titles(),
+            "content": [self.title or "", self.content],
+        }

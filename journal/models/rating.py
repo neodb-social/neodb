@@ -139,3 +139,7 @@ class Rating(Content):
     def get_item_rating(item: Item, owner: APIdentity) -> int | None:
         rating = Rating.objects.filter(owner=owner, item=item).first()
         return (rating.grade or None) if rating else None
+
+    def to_indexable_doc(self) -> dict[str, Any]:
+        # rating is not indexed individually but with shelfmember
+        return {}

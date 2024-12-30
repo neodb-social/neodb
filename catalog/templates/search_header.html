@@ -1,0 +1,80 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load mastodon %}
+{% load duration %}
+{% load thumb %}
+<hgroup>
+  <h5>“{{ request.GET.q }}”</h5>
+  <div class="search-category-picker">
+    {% visible_categories as cats %}
+    {% if request.GET.c and request.GET.c != 'all' %}
+      <a href="?q={{ request.GET.q }}&amp;c=all">{% trans "all" %}</a>
+    {% else %}
+      {% trans "all" %}
+    {% endif %}
+    {% if 'book' in cats %}
+      |
+      {% if request.GET.c != 'book' %}
+        <a href="?q={{ request.GET.q }}&amp;c=book">{% trans "books" %}</a>
+      {% else %}
+        {% trans "books" %}
+      {% endif %}
+    {% endif %}
+    {% if 'movie' in cats or 'tv' in cats %}
+      |
+      {% if request.GET.c != 'movietv' %}
+        <a href="?q={{ request.GET.q }}&amp;c=movietv">{% trans "movie & tv" %}</a>
+      {% else %}
+        {% trans "movie & tv" %}
+      {% endif %}
+    {% endif %}
+    {% if 'podcast' in cats %}
+      |
+      {% if request.GET.c != 'podcast' %}
+        <a href="?q={{ request.GET.q }}&amp;c=podcast">{% trans "podcasts" %}</a>
+      {% else %}
+        {% trans "podcasts" %}
+      {% endif %}
+    {% endif %}
+    {% if 'music' in cats %}
+      |
+      {% if request.GET.c != 'music' %}
+        <a href="?q={{ request.GET.q }}&amp;c=music">{% trans "music" %}</a>
+      {% else %}
+        {% trans "music" %}
+      {% endif %}
+    {% endif %}
+    {% if 'game' in cats %}
+      |
+      {% if request.GET.c != 'game' %}
+        <a href="?q={{ request.GET.q }}&amp;c=game">{% trans "games" %}</a>
+      {% else %}
+        {% trans "games" %}
+      {% endif %}
+    {% endif %}
+    {% if 'performance' in cats %}
+      |
+      {% if request.GET.c != 'performance' %}
+        <a href="?q={{ request.GET.q }}&amp;c=performance">{% trans "performances" %}</a>
+      {% else %}
+        {% trans "performances" %}
+      {% endif %}
+    {% endif %}
+    {% if user.is_authenticated %}
+      |
+      {% if request.GET.c != 'journal' %}
+        <a href="?q={{ request.GET.q }}&amp;c=journal">{% trans "your journal" %}</a>
+      {% else %}
+        {% trans "your journal" %}
+      {% endif %}
+      |
+      {% if request.GET.c != 'timeline' %}
+        <a href="?q={{ request.GET.q }}&amp;c=timeline">{% trans "your timeline" %}</a>
+      {% else %}
+        {% trans "your timeline" %}
+      {% endif %}
+    {% endif %}
+  </div>
+</hgroup>

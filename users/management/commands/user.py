@@ -47,7 +47,7 @@ class Command(BaseCommand):
             self.stdout.write(
                 user.username.ljust(20)
                 + str(user.date_joined.date()).ljust(12)
-                + str(user.last_login.date()).ljust(12)
+                + str(user.last_login.date() if user.last_login else "").ljust(12)
                 + str(list(user.social_accounts.all())),
             )
 

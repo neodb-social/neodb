@@ -250,6 +250,11 @@ class TVShow(Item):
     def get_season_count(self):
         return self.season_count or self.seasons.all().count()
 
+    def to_indexable_titles(self) -> list[str]:
+        titles = [t["text"] for t in self.localized_title if t]
+        titles += [self.orig_title] if self.orig_title else []
+        return list(set(titles))
+
 
 class TVSeason(Item):
     if TYPE_CHECKING:
@@ -433,6 +438,12 @@ class TVSeason(Item):
             if t["text"] != title
             and RE_LOCALIZED_SEASON_NUMBERS.sub("", t["text"]) != ""
         ]
+
+    def to_indexable_titles(self) -> list[str]:
+        titles = [t["text"] for t in self.localized_title if t]
+        titles += [self.orig_title] if self.orig_title else []
+        titles += self.parent_item.to_indexable_titles() if self.parent_item else []
+        return list(set(titles))
 
     def update_linked_items_from_external_resource(self, resource):
         for w in resource.required_resources:

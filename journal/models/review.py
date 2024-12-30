@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from functools import cached_property
+from typing import Any
 
 from django.conf import settings
 from django.db import models
@@ -163,4 +164,13 @@ class Review(Content):
         review.sync_to_timeline(update_mode)
         if share_to_mastodon:
             review.sync_to_social_accounts(update_mode)
+        review.update_index()
         return review
+
+    def to_indexable_doc(self) -> dict[str, Any]:
+        return {
+            "item_id": [self.item.id],
+            "item_class": [self.item.__class__.__name__],
+            "item_title": self.item.to_indexable_titles(),
+            "content": [self.title, self.body],
+        }

@@ -218,7 +218,7 @@ class Mark:
         if shelf_type is None:
             # take item off shelf
             if self.shelfmember:
-                Takahe.delete_posts(self.shelfmember.all_post_ids)
+                self.shelfmember.delete_from_timeline()
                 self.shelfmember.log_and_delete()
             if self.comment:
                 self.comment.delete()
@@ -281,6 +281,7 @@ class Mark:
         post = self.shelfmember.sync_to_timeline(update_mode)
         if share_to_mastodon:
             self.shelfmember.sync_to_social_accounts(update_mode)
+        self.shelfmember.update_index()
         # auto add bookmark
         if (
             post

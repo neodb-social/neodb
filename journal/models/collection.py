@@ -1,6 +1,6 @@
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.db import models
@@ -41,6 +41,9 @@ class CollectionMember(ListMember):
             "href": self.absolute_url,
         }
 
+    def to_indexable_doc(self) -> dict[str, Any]:
+        return {}
+
 
 class Collection(List):
     if TYPE_CHECKING:
@@ -64,6 +67,9 @@ class Collection(List):
     featured_by = models.ManyToManyField(
         to=APIdentity, related_name="featured_collections", through="FeaturedCollection"
     )
+
+    def __str__(self):
+        return f"Collection:{self.uuid}@{self.owner_id}:{self.title}"
 
     @property
     def html_content(self):
@@ -112,12 +118,49 @@ class Collection(List):
             self.catalog_item.cover = self.cover
             self.catalog_item.save()
         super().save(*args, **kwargs)
-        Takahe.post_collection(self)
+        self.sync_to_timeline()
+        self.update_index()
 
-    def delete(self, *args, **kwargs):
-        if self.local:
-            Takahe.delete_posts(self.all_post_ids)
-        return super().delete(*args, **kwargs)
+    def get_ap_data(self):
+        return {
+            "object": {
+                # "tag": [item.ap_object_ref for item in collection.items],
+                "relatedWith": [self.ap_object],
+            }
+        }
+
+    def sync_to_timeline(self, update_mode: int = 0):
+        existing_post = self.latest_post
+        owner: APIdentity = self.owner
+        user = owner.user
+        v = Takahe.visibility_n2t(self.visibility, user.preference.post_public_mode)
+        if existing_post and (update_mode == 1 or v != existing_post.visibility):
+            Takahe.delete_posts([existing_post.pk])
+            existing_post = None
+        data = self.get_ap_data()
+        # if existing_post and existing_post.type_data == data:
+        #     return existing_post
+        action = _("created collection")
+        item_link = self.absolute_url
+        prepend_content = f'{action} <a href="{item_link}">{self.title}</a><br>'
+        content = self.plain_content
+        if len(content) > 360:
+            content = content[:357] + "..."
+        post = Takahe.post(
+            self.owner.pk,
+            content,
+            v,
+            prepend_content,
+            "",
+            None,
+            False,
+            data,
+            existing_post.pk if existing_post else None,
+            self.created_time,
+        )
+        if post and post != existing_post:
+            self.link_post_id(post.pk)
+        return post
 
     @property
     def ap_object(self):
@@ -131,6 +174,24 @@ class Collection(List):
             "updated": self.edited_time.isoformat(),
             "attributedTo": self.owner.actor_uri,
             "href": self.absolute_url,
+        }
+
+    def to_indexable_doc(self) -> dict[str, Any]:
+        content = [self.title, self.brief]
+        item_id = []
+        item_title = []
+        item_class = set()
+        for m in self.members.all():
+            item_id.append(m.item.pk)
+            item_title += m.item.to_indexable_titles()
+            item_class |= {m.item.__class__.__name__}
+            if m.note:
+                content.append(m.note)
+        return {
+            "item_id": item_id,
+            "item_class": list(item_class),
+            "item_title": item_title,
+            "content": content,
         }
 
 

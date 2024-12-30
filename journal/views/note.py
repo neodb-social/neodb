@@ -112,4 +112,5 @@ def note_edit(request: AuthedHttpRequest, item_uuid: str, note_uuid: str = ""):
     note.sync_to_timeline(update_mode)
     if form.cleaned_data["share_to_mastodon"]:
         note.sync_to_social_accounts(update_mode)
+    note.update_index()
     return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))

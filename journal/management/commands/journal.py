@@ -1,17 +1,58 @@
+from argparse import RawTextHelpFormatter
+
 from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
+from tqdm import tqdm
 
 from catalog.models import Item
 from journal.importers.douban import DoubanImporter
 from journal.models import *
+from journal.models import JournalIndex, Piece
 from journal.models.common import Content
 from journal.models.itemlist import ListMember
+from takahe.models import Post
+from users.models import *
 from users.models import User
+
+_CONFIRM = "confirm deleting collection? [Y/N] "
+
+_HELP_TEXT = """
+intergrity:     check and fix remaining journal for merged and deleted items
+purge:          delete invalid data (visibility=99)
+idx-info:       show index information
+idx-init:       check and create index if not exists
+idx-destroy:    delete index
+idx-alt:        update index schema
+idx-delete:     delete docs in index
+idx-update:     reindex docs
+idx-search:     search docs in index
+"""
 
 
 class Command(BaseCommand):
     help = "journal app utilities"
 
+    def create_parser(self, *args, **kwargs):
+        parser = super(Command, self).create_parser(*args, **kwargs)
+        parser.formatter_class = RawTextHelpFormatter
+        return parser
+
     def add_arguments(self, parser):
+        parser.add_argument(
+            "action",
+            choices=[
+                "integrity",
+                "purge",
+                "idx-info",
+                "idx-init",
+                "idx-alt",
+                "idx-destroy",
+                "idx-update",
+                "idx-delete",
+                "idx-search",
+            ],
+            help=_HELP_TEXT,
+        )
         parser.add_argument(
             "--verbose",
             action="store_true",
@@ -21,14 +62,27 @@ class Command(BaseCommand):
             action="store_true",
         )
         parser.add_argument(
-            "--purge",
-            action="store_true",
-            help="purge invalid data (visibility=99)",
+            "--owner",
+            action="append",
         )
         parser.add_argument(
-            "--integrity",
+            "--query",
+        )
+        parser.add_argument(
+            "--batch-size",
+            default=1000,
+        )
+        parser.add_argument(
+            "--item-class",
+            action="append",
+        )
+        parser.add_argument(
+            "--piece-class",
+            action="append",
+        )
+        parser.add_argument(
+            "--yes",
             action="store_true",
-            help="check and fix remaining journal for merged and deleted items",
         )
 
     def integrity(self):
@@ -44,16 +98,128 @@ class Command(BaseCommand):
                 if self.fix:
                     update_journal_for_merged_item(i.url)
 
-    def handle(self, *args, **options):
-        self.verbose = options["verbose"]
-        self.fix = options["fix"]
-        if options["integrity"]:
-            self.integrity()
+    def batch_index(self, index, typ, qs):
+        c = 0
+        pg = Paginator(qs.order_by("id"), self.batch_size)
+        for p in tqdm(pg.page_range):
+            if typ == "post":
+                docs = index.posts_to_docs(pg.get_page(p).object_list)
+            else:
+                pieces = [
+                    p for p in pg.get_page(p).object_list if p.latest_post is None
+                ]
+                docs = index.pieces_to_docs(pieces)
+            c += len(docs)
+            index.replace_docs(docs)
+        self.stdout.write(self.style.SUCCESS(f"indexed {c} docs."))
 
-        if options["purge"]:
-            for pcls in [Content, ListMember]:
-                for cls in pcls.__subclasses__():
-                    self.stdout.write(f"Cleaning up {cls}...")
-                    cls.objects.filter(visibility=99).delete()
+    def handle(
+        self,
+        action,
+        yes,
+        query,
+        owner,
+        piece_class,
+        item_class,
+        verbose,
+        fix,
+        batch_size,
+        *args,
+        **kwargs,
+    ):
+        self.verbose = verbose
+        self.fix = fix
+        self.batch_size = batch_size
+        index = JournalIndex.instance()
 
-        self.stdout.write(self.style.SUCCESS(f"Done."))
+        if owner:
+            owners = list(
+                APIdentity.objects.filter(username__in=owner, local=True).values_list(
+                    "id", flat=True
+                )
+            )
+        else:
+            owners = []
+
+        match action:
+            case "integrity":
+                self.integrity()
+                self.stdout.write(self.style.SUCCESS(f"Done."))
+
+            case "purge":
+                for pcls in [Content, ListMember]:
+                    for cls in pcls.__subclasses__():
+                        self.stdout.write(f"Cleaning up {cls}...")
+                        cls.objects.filter(visibility=99).delete()
+                self.stdout.write(self.style.SUCCESS(f"Done."))
+
+            case "idx-destroy":
+                if yes or input(_CONFIRM).upper().startswith("Y"):
+                    index.delete_collection()
+                    self.stdout.write(self.style.SUCCESS("deleted."))
+
+            case "idx-alt":
+                index.update_schema()
+                self.stdout.write(self.style.SUCCESS("updated."))
+
+            case "idx-init":
+                index.initialize_collection()
+                self.stdout.write(self.style.SUCCESS("initialized."))
+
+            case "idx-info":
+                try:
+                    r = index.check()
+                    self.stdout.write(str(r))
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(str(e)))
+
+            case "idx-delete":
+                if owners:
+                    c = index.delete_by_owner(owners)
+                else:
+                    c = index.delete_all()
+                self.stdout.write(self.style.SUCCESS(f"deleted {c} documents."))
+
+            case "idx-update":
+                pieces = Piece.objects.all()
+                posts = Post.objects.filter(local=True).exclude(
+                    state__in=["deleted", "deleted_fanned_out"]
+                )
+                if owners:
+                    pieces = pieces.filter(owner_id__in=owners)
+                    posts = posts.filter(author_id__in=owners)
+                # index all posts
+                self.batch_index(index, "post", posts)
+                # index remaining pieces without posts
+                self.batch_index(index, "piece", pieces)
+                # posts = posts.exclude(type_data__object__has_key="relatedWith")
+                # docs = index.posts_to_docs(posts)
+                # c = len(docs)
+                # index.insert_docs(docs)
+                # self.stdout.write(self.style.SUCCESS(f"indexed {c} posts."))
+
+            case "idx-search":
+                r = index.search(
+                    "" if query == "-" else query,
+                    filter_by={
+                        "owner_id": owners,
+                        "piece_class": piece_class,
+                        "item_class": item_class,
+                    },
+                    page_size=100,
+                )
+                self.stdout.write(self.style.SUCCESS(str(r)))
+                self.stdout.write(f"{r.facet_by_item_class}")
+                self.stdout.write(f"{r.facet_by_piece_class}")
+                self.stdout.write(self.style.SUCCESS("matched posts:"))
+                for post in r:
+                    self.stdout.write(str(post))
+                self.stdout.write(self.style.SUCCESS("matched pieces:"))
+                for pc in r.pieces:
+                    self.stdout.write(str(pc))
+                self.stdout.write(self.style.SUCCESS("matched items:"))
+                for i in r.items:
+                    self.stdout.write(str(i))
+
+            case _:
+                self.stdout.write(self.style.ERROR("action not found."))

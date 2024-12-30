@@ -7,6 +7,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import Item
+from common.models import int_
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 from users.models import User
 
@@ -29,7 +30,7 @@ def add_to_collection(request: AuthedHttpRequest, item_uuid):
             },
         )
     else:
-        cid = int(request.POST.get("collection_id", default=0))
+        cid = int_(request.POST.get("collection_id"))
         if not cid:
             cid = Collection.objects.create(
                 owner=request.user.identity,
@@ -140,7 +141,7 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
             if user.mastodon:
                 user.mastodon.boost_later(collection.latest_post.url)
         else:
-            visibility = VisibilityType(request.POST.get("visibility", default=0))
+            visibility = VisibilityType(int_(request.POST.get("visibility")))
             link = (
                 collection.latest_post.url
                 if collection.latest_post
@@ -261,7 +262,7 @@ def collection_update_member_order(request: AuthedHttpRequest, collection_uuid):
     ids = request.POST.get("member_ids", "").strip()
     if not ids:
         raise BadRequest(_("Invalid parameter"))
-    ordered_member_ids = [int(i) for i in ids.split(",")]
+    ordered_member_ids = [int_(i) for i in ids.split(",")]
     collection.update_member_order(ordered_member_ids)
     return collection_retrieve_items(request, collection_uuid, True)
 

@@ -60,6 +60,7 @@ def update_journal_for_merged_item(
                 try:
                     p.item = new_item
                     p.save(update_fields=["item_id"])
+                    p.update_index()
                 except IntegrityError:
                     if delete_duplicated:
                         logger.warning(

@@ -52,7 +52,7 @@
       {% for tag in item.tags %}
         {% if forloop.counter <= 5 %}
           <span>
-            <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
+            <a href="{% url 'common:search' %}?tag={{ tag }}">{{ tag }}</a>
           </span>
         {% endif %}
       {% endfor %}

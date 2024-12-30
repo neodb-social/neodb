@@ -1,4 +1,5 @@
 import re
+from urllib.parse import quote
 
 import django_rq
 from django.conf import settings
@@ -6,12 +7,14 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import BadRequest
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from rq.job import Job
 
 from catalog.common.models import ItemCategory, SiteName
 from catalog.common.sites import AbstractSite, SiteManager
+from common.models import int_
 from common.utils import (
     HTTPResponseHXRedirect,
     PageLinksGenerator,
@@ -37,7 +40,7 @@ def fetch_refresh(request, job_id):
         else:
             return HTTPResponseHXRedirect(item_url)
     else:
-        retry = int(request.GET.get("retry", 0)) + 1
+        retry = int_(request.GET.get("retry", 0)) + 1
         if retry > 10:
             return render(request, "_fetch_failed.html")
         else:
@@ -97,10 +100,10 @@ def visible_categories(request):
 
 @user_identity_required
 def search(request):
+    category = request.GET.get("c", default="all").strip().lower()
     keywords = request.GET.get("q", default="").strip()
     if re.match(r"^[@＠]", keywords):
         return query_identity(request, keywords.replace("＠", "@"))
-    category = request.GET.get("c", default="all").strip().lower()
     hide_category = False
     if category == "all" or not category:
         category = None
@@ -115,8 +118,7 @@ def search(request):
             categories = visible_categories(request)
     tag = request.GET.get("tag", default="").strip()
     tag = Tag.deep_cleanup_title(tag, default="")
-    p = request.GET.get("page", default="1")
-    p = int(p) if p.isdigit() else 1
+    p = int_(request.GET.get("page", default="1"), 1)
     if not (keywords or tag):
         return render(
             request,
@@ -158,7 +160,7 @@ def external_search(request):
     if category == "all":
         category = None
     keywords = request.GET.get("q", default="").strip()
-    page_number = int(request.GET.get("page", default=1))
+    page_number = int_(request.GET.get("page"), 1)
     items = ExternalSources.search(category, keywords, page_number) if keywords else []
     cache_key = f"search_{category if category!='movietv' else 'movie,tv'}_{keywords}"
     dedupe_urls = cache.get(cache_key, [])

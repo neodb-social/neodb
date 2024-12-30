@@ -1,6 +1,6 @@
 from datetime import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Any, override
 
 from django.conf import settings
 from django.db import connection, models
@@ -419,6 +419,31 @@ class ShelfMember(ListMember):
             self.sibling_comment.link_post_id(post.id)
         return post
 
+    def to_indexable_doc(self) -> dict[str, Any]:
+        ids = [self.pk]
+        classes = [self.__class__.__name__]
+        content = []
+        rating = 0
+        if self.sibling_rating:
+            # ids.append(self.sibling_rating.pk)
+            classes.append("Rating")
+            rating = self.sibling_rating.grade
+        if self.sibling_comment:
+            # ids.append(self.sibling_comment.pk)
+            classes.append("Comment")
+            content = [self.sibling_comment.text]
+        return {
+            "piece_id": ids,
+            "piece_class": classes,
+            "item_id": [self.item.id],
+            "item_class": [self.item.__class__.__name__],
+            "item_title": self.item.to_indexable_titles(),
+            "shelf_type": self.shelf_type,
+            "rating": rating,
+            "tag": self.tags,
+            "content": content,
+        }
+
     @cached_property
     def sibling_comment(self) -> "Comment | None":
         from .comment import Comment
@@ -502,6 +527,9 @@ class Shelf(List):
 
     def __str__(self):
         return f"Shelf:{self.owner.username}:{self.shelf_type}"
+
+    def to_indexable_doc(self) -> dict[str, Any]:
+        return {}
 
 
 class ShelfLogEntry(models.Model):

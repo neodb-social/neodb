@@ -64,7 +64,7 @@ if you are doing debug or development:
 Add alias to your shell for easier access
 
 ```
-alias neodb-manage='docker-compose --profile production run shell neodb-manage'
+alias neodb-manage='docker-compose --profile production run --rm shell neodb-manage'
 ```
 
 Toggle user's active, staff and super user status

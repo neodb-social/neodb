@@ -6,6 +6,9 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from boofilsic import __version__
+from catalog.views import search as catalog_search
+from journal.views import search as journal_search
+from social.views import search as timeline_search
 from takahe.utils import Takahe
 
 from .api import api
@@ -22,6 +25,16 @@ def me(request):
     if not request.user.registration_complete:
         return redirect(reverse("users:register"))
     return redirect(request.user.identity.url)
+
+
+def search(request):
+    match request.GET.get("c", default="all").strip().lower():
+        case "journal":
+            return journal_search(request)
+        case "timeline":
+            return timeline_search(request)
+        case _:
+            return catalog_search(request)
 
 
 def home(request):

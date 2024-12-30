@@ -18,6 +18,7 @@ from catalog.models import (
     PodcastEpisode,
     item_content_types,
 )
+from common.utils import int_
 from journal.models import Comment, ShelfType
 from journal.models.common import VisibilityType
 from mastodon.models.bluesky import EmbedObj
@@ -116,7 +117,7 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         img = base64.b64decode(request.POST.get("img", ""))
         comment = request.POST.get("comment", "")
-        visibility = VisibilityType(int(request.POST.get("visibility", 0)))
+        visibility = VisibilityType(int_(request.POST.get("visibility")))
         user: User = request.user  # type: ignore
         identity = user.identity
         media = Takahe.upload_image(

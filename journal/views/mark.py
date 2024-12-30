@@ -192,6 +192,7 @@ def comment(request: AuthedHttpRequest, item_uuid):
         comment.sync_to_timeline(update_mode)
         if share_to_mastodon:
             comment.sync_to_social_accounts(update_mode)
+        comment.update_index()
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 

@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from common.config import *
+from common.models import int_
 from common.utils import (
     AuthedHttpRequest,
     HTTPResponseHXRedirect,
@@ -40,7 +41,7 @@ def fetch_refresh(request):
         i = APIdentity.get_by_handle(handle)
         return HTTPResponseHXRedirect(i.url)
     except Exception:
-        retry = int(request.GET.get("retry", 0)) + 1
+        retry = int_(request.GET.get("retry")) + 1
         if retry > 10:
             return render(request, "users/fetch_identity_failed.html")
         else:

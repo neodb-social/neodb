@@ -216,6 +216,12 @@ class Edition(Item):
     def display_subtitle(self) -> str | None:
         return self.get_localized_subtitle()
 
+    def to_indexable_titles(self) -> list[str]:
+        titles = [t["text"] for t in self.localized_title if t]
+        titles += [t["text"] for t in self.localized_subtitle if t]
+        titles += [self.orig_title] if self.orig_title else []
+        return list(set(titles))
+
     @property
     def isbn10(self):
         return isbn_13_to_10(self.isbn)

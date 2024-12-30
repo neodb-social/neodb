@@ -117,7 +117,7 @@ lxml==5.3.0
 markdown==3.7
     # via django-markdownx
 markdownify==0.14.1
-mistune==3.0.2
+mistune==3.1.0
 multidict==6.1.0
     # via aiohttp
     # via yarl

@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from .config import ITEMS_PER_PAGE, ITEMS_PER_PAGE_OPTIONS, PAGE_LINK_NUMBER
+from .models import int_
 
 if TYPE_CHECKING:
     from users.models import APIdentity, User
@@ -118,9 +119,9 @@ class CustomPaginator(Paginator):
         if request:
             try:
                 if request.GET.get("per_page"):
-                    per_page = int(request.GET.get("per_page"))
+                    per_page = int_(request.GET.get("per_page"))
                 elif request.COOKIES.get("per_page"):
-                    per_page = int(request.COOKIES.get("per_page"))
+                    per_page = int_(request.COOKIES.get("per_page"))
             except ValueError:
                 pass
             if per_page not in ITEMS_PER_PAGE_OPTIONS:
@@ -139,7 +140,7 @@ class PageLinksGenerator:
         self, current_page: int, total_pages: int, query: QueryDict | None = None
     ):
         length = PAGE_LINK_NUMBER
-        current_page = int(current_page)
+        current_page = int_(current_page)
         self.query_string = ""
         if query:
             q = query.copy()

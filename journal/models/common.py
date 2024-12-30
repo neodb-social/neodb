@@ -25,6 +25,7 @@ from takahe.utils import Takahe
 from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User
 
+from .index import JournalIndex
 from .mixins import UserOwnedObjectMixin
 
 if TYPE_CHECKING:
@@ -112,8 +113,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     def delete(self, *args, **kwargs):
         if self.local:
-            Takahe.delete_posts(self.all_post_ids)
+            self.delete_from_timeline()
             self.delete_crossposts()
+            self.delete_index()
         return super().delete(*args, **kwargs)
 
     @property
@@ -424,6 +426,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             }
         }
 
+    def delete_from_timeline(self):
+        Takahe.delete_posts(self.all_post_ids)
+
     def sync_to_timeline(self, update_mode: int = 0):
         """update_mode: 0 update if exists otherwise create; 1: delete if exists and create; 2: only create"""
         user = self.owner.user
@@ -451,6 +456,25 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         if post and post != existing_post:
             self.link_post_id(post.pk)
         return post
+
+    def update_index(self):
+        index = JournalIndex.instance()
+        doc = index.piece_to_doc(self)
+        if doc:
+            try:
+                index.delete_by_piece([self.pk])
+                index.replace_docs([doc])
+            except Exception as e:
+                logger.error(f"Indexing {self} error {e}")
+
+    def delete_index(self):
+        index = JournalIndex.instance()
+        index.delete_by_piece([self.pk])
+
+    def to_indexable_doc(self) -> dict[str, Any]:
+        raise NotImplementedError(
+            f"{self.__class__} should override this to make itself searchable"
+        )
 
 
 class PiecePost(models.Model):
@@ -530,3 +554,6 @@ class Debris(Content):
             item=c.item,
             remote_id=c.remote_id if hasattr(c, "remote_id") else None,
         )
+
+    def to_indexable_doc(self) -> dict[str, Any]:
+        return {}

@@ -52,7 +52,7 @@
         <div class="tag-list">
           {% for t in popular_tags %}
             <span>
-              <a href="{% url 'catalog:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
+              <a href="{% url 'common:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
             </span>
           {% empty %}
             <div class="empty">{% trans "nothing so far." %}</div>

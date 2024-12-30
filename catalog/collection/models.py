@@ -11,5 +11,9 @@ class Collection(Item):
     category = ItemCategory.Collection
 
     @property
+    def url(self):
+        return self.journal_item.url if self.journal_item else super().url
+
+    @property
     def owner_id(self):
         return self.journal_item.owner_id if self.journal_item else None

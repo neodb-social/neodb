@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import cached_property
+from typing import Any
 
 from django.conf import settings
 from django.db import models
@@ -146,4 +147,21 @@ class Comment(Content):
             "content": content,
             "summary": spoiler_text,
             "sensitive": bool(spoiler_text),
+        }
+
+    @cached_property
+    def sibling_shelfmember(self):
+        from .shelf import ShelfMember
+
+        return ShelfMember.objects.filter(owner=self.owner, item=self.item).first()
+
+    def to_indexable_doc(self) -> dict[str, Any]:
+        if self.sibling_shelfmember:
+            return {}
+        return {
+            "item_id": [self.item.id],
+            "item_class": [self.item.__class__.__name__],
+            "item_title": self.item.to_indexable_titles(),
+            "rating": self.rating_grade or 0,
+            "content": [self.text],
         }

@@ -68,57 +68,57 @@ class Takahe:
         if not u.username:
             logger.warning(f"User {u} has no username")
             return None
-        user = User.objects.filter(pk=u.pk).first()
-        handler = "@" + u.username
-        if not user:
-            logger.info(f"Creating takahe user {u}")
-            user = User.objects.create(pk=u.pk, email=handler, password=u.password)
-        else:
-            if user.email != handler:
-                logger.warning(f"Updating takahe user {u} email to {handler}")
-                user.email = handler
-                user.save()
-        domain = Domain.objects.get(domain=settings.SITE_INFO["site_domain"])
-        # TODO add transaction protection here
-        identity = Identity.objects.filter(username=u.username, local=True).first()
-        if not identity:
-            logger.info(f"Creating takahe identity {u}@{domain}")
-            identity = Identity.objects.create(
-                actor_uri=f"https://{domain.uri_domain}/@{u.username}@{domain.domain}/",
-                profile_uri=u.absolute_url,
-                username=u.username,
-                domain=domain,
-                name=u.username,
-                local=True,
-                discoverable=True,
-            )
-        if not identity.private_key and not identity.public_key:
-            identity.generate_keypair()
-            identity.ensure_uris()
-        if not user.identities.filter(pk=identity.pk).exists():
-            user.identities.add(identity)
-        apidentity = APIdentity.objects.filter(pk=identity.pk).first()
-        if not apidentity:
-            logger.info(f"Creating APIdentity for {identity}")
-            apidentity = APIdentity.objects.create(
-                user=u,
-                id=identity.pk,
-                local=True,
-                username=u.username,
-                domain_name=domain.domain,
-                deleted=identity.deleted,
-            )
-        elif apidentity.username != identity.username:
-            logger.warning(
-                f"Updating APIdentity {apidentity} username to {identity.username}"
-            )
-            apidentity.username = identity.username
-            apidentity.save()
-        if u.identity != apidentity:
-            logger.warning(f"Linking user {u} identity to {apidentity}")
-            u.identity = apidentity
-            u.save(update_fields=["identity"])
-        return apidentity
+        with transaction.atomic(using="takahe"):
+            user = User.objects.filter(pk=u.pk).first()
+            handler = "@" + u.username
+            if not user:
+                logger.info(f"Creating takahe user {u}")
+                user = User.objects.create(pk=u.pk, email=handler, password=u.password)
+            else:
+                if user.email != handler:
+                    logger.warning(f"Updating takahe user {u} email to {handler}")
+                    user.email = handler
+                    user.save()
+            domain = Domain.objects.get(domain=settings.SITE_INFO["site_domain"])
+            identity = Identity.objects.filter(username=u.username, local=True).first()
+            if not identity:
+                logger.info(f"Creating takahe identity {u}@{domain}")
+                identity = Identity.objects.create(
+                    actor_uri=f"https://{domain.uri_domain}/@{u.username}@{domain.domain}/",
+                    profile_uri=u.absolute_url,
+                    username=u.username,
+                    domain=domain,
+                    name=u.username,
+                    local=True,
+                    discoverable=True,
+                )
+            if not identity.private_key and not identity.public_key:
+                identity.generate_keypair()
+                identity.ensure_uris()
+            if not user.identities.filter(pk=identity.pk).exists():
+                user.identities.add(identity)
+            apidentity = APIdentity.objects.filter(pk=identity.pk).first()
+            if not apidentity:
+                logger.info(f"Creating APIdentity for {identity}")
+                apidentity = APIdentity.objects.create(
+                    user=u,
+                    id=identity.pk,
+                    local=True,
+                    username=u.username,
+                    domain_name=domain.domain,
+                    deleted=identity.deleted,
+                )
+            elif apidentity.username != identity.username:
+                logger.warning(
+                    f"Updating APIdentity {apidentity} username to {identity.username}"
+                )
+                apidentity.username = identity.username
+                apidentity.save()
+            if u.identity != apidentity:
+                logger.warning(f"Linking user {u} identity to {apidentity}")
+                u.identity = apidentity
+                u.save(update_fields=["identity"])
+            return apidentity
 
     @staticmethod
     def get_identity_by_handler(username: str, domain: str) -> Identity | None:
@@ -540,56 +540,6 @@ class Takahe:
                 return 2
             case _:
                 return 0
-
-    @staticmethod
-    def post_collection(collection: "Collection"):
-        existing_post = collection.latest_post
-        owner: APIdentity = collection.owner
-        user = owner.user
-        if not user:
-            raise ValueError(f"Cannot find user for collection {collection}")
-        visibility = Takahe.visibility_n2t(
-            collection.visibility, user.preference.post_public_mode
-        )
-        if existing_post and visibility != existing_post.visibility:
-            Takahe.delete_posts([existing_post.pk])
-            existing_post = None
-        data = {
-            "object": {
-                # "tag": [item.ap_object_ref for item in collection.items],
-                "relatedWith": [collection.ap_object],
-            }
-        }
-        if existing_post and existing_post.type_data == data:
-            return existing_post
-        action = _("created collection")
-        item_link = collection.absolute_url
-        prepend_content = f'{action} <a href="{item_link}">{collection.title}</a><br>'
-        content = collection.plain_content
-        if len(content) > 360:
-            content = content[:357] + "..."
-        data = {
-            "object": {
-                # "tag": [item.ap_object_ref for item in collection.items],
-                "relatedWith": [collection.ap_object],
-            }
-        }
-        post = Takahe.post(
-            collection.owner.pk,
-            content,
-            visibility,
-            prepend_content,
-            "",
-            None,
-            False,
-            data,
-            existing_post.pk if existing_post else None,
-            collection.created_time,
-        )
-        if not post:
-            return
-        collection.link_post_id(post.pk)
-        return post
 
     @staticmethod
     def interact_post(post_pk: int, identity_pk: int, type: str, flip=False):

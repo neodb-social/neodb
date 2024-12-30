@@ -125,19 +125,21 @@
   {% if forloop.last %}
     <div class="htmx-indicator"
          style="margin-left: 60px"
-         hx-get="{% url 'social:data' %}?last={{ event.pk }}&amp;typ={{ feed_type }}"
+         {% if request.GET.q %} hx-get="{% url 'social:data' %}?q={{ request.GET.q }}&amp;page={{ nextpage }}" {% else %} hx-get="{% url 'social:data' %}?last={{ event.pk }}&amp;typ={{ feed_type }}" {% endif %}
          hx-trigger="revealed"
          hx-swap="outerHTML">
       <i class="fa-solid fa-compact-disc fa-spin loading"></i>
     </div>
   {% endif %}
 {% empty %}
-  {% if request.GET.last %}
-    <div class="empty">{% trans 'nothing more.' %}</div>
-  {% else %}
-    <div class="empty">
+  <div class="empty">
+    {% if request.GET.last or request.GET.nextpage %}
+      {% trans 'nothing more.' %}
+    {% elif request.GET.q %}
+      {% trans 'no matching activities.' %}
+    {% else %}
       {% url 'users:data' as import_url %}
       {% blocktrans %}Find and mark some books/movies/podcasts/games, <a href="{{ import_url }}">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow {{ site_name }} users on the fediverse, so their recent activities and yours will show up here.{% endblocktrans %}
-    </div>
-  {% endif %}
+    {% endif %}
+  </div>
 {% endfor %}

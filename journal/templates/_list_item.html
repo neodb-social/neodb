@@ -15,7 +15,7 @@
           <i class="fa-solid fa-square-minus"></i>
         </a>
       </span>
-    {% elif request.user.is_authenticated %}
+    {% elif request.user.is_authenticated and item.class_name != 'collection' %}
       {% wish_item_action item as action %}
       <span>
         {% if not action.taken %}
@@ -56,7 +56,7 @@
                 {% for tag in mark.tags %}
                   {% if forloop.counter <= 5 %}
                     <span>
-                      <a href="{% url 'catalog:search' %}?tag={{ tag }}">{{ tag }}</a>
+                      <a href="{% url 'common:search' %}?tag={{ tag }}">{{ tag }}</a>
                     </span>
                   {% endif %}
                 {% endfor %}

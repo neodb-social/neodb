@@ -37,6 +37,9 @@ class TagMember(ListMember):
             "href": self.absolute_url,
         }
 
+    def to_indexable_doc(self):
+        return {}
+
 
 TagValidators = [RegexValidator(regex=r"\s+", inverse_match=True)]
 
@@ -82,6 +85,9 @@ class Tag(List):
                 Takahe.unpin_hashtag_for_user(self.owner.pk, old_title)
             if self.pinned:
                 Takahe.pin_hashtag_for_user(self.owner.pk, new_title)
+
+    def to_indexable_doc(self):
+        return {}
 
 
 class TagManager:

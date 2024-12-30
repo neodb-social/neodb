@@ -118,6 +118,7 @@ env = environ.FileAwareEnv(
     NEODB_SENTRY_DSN=(str, ""),
     NEODB_SENTRY_SAMPLE_RATE=(float, 0),
     NEODB_FANOUT_LIMIT_DAYS=(int, 9),
+    INDEX_ALIASES=(dict, {}),
 )
 
 # ====== End of user configuration variables ======
@@ -560,6 +561,8 @@ DJANGO_REDIS_IGNORE_EXCEPTIONS = not DEBUG
 RQ_SHOW_ADMIN_LINK = DEBUG
 
 SEARCH_INDEX_NEW_ONLY = False
+
+INDEX_ALIASES = env("INDEX_ALIASES")
 
 DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="/tmp")  # type: ignore
 

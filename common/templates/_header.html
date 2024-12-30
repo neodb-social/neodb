@@ -10,7 +10,7 @@
     </ul>
     <ul class="nav-search {% if request.GET.q %}unhide{% endif %}">
       <li>
-        <form role="search" method="get" action="{% url 'catalog:search' %}">
+        <form role="search" method="get" action="{% url 'common:search' %}">
           <input type="search"
                  name="q"
                  id="q"
@@ -19,7 +19,7 @@
                  value="{{ request.GET.q|default:'' }}" />
           <select name="c">
             {% visible_categories as cats %}
-            <option value="all">{% trans 'Everything' %}</option>
+            <option value="all">{% trans 'All Items' %}</option>
             {% if 'book' in cats %}
               <option {% if request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %}
                       value="book">{% trans 'Book' %}</option>
@@ -43,6 +43,12 @@
             {% if 'performance' in cats %}
               <option {% if request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
                       value="performance">{% trans 'Performance' %}</option>
+            {% endif %}
+            {% if request.user.is_authenticated %}
+              <option {% if request.GET.c == 'journal' or '/users/' in request.path %}selected{% endif %}
+                      value="journal">{% trans 'Journal' %}</option>
+              <option {% if request.GET.c == 'timeline' or '/timeline/' in request.path %}selected{% endif %}
+                      value="timeline">{% trans 'Posts' %}</option>
             {% endif %}
           </select>
           <input type="submit" value="&#xf002;" class="fa-solid" />

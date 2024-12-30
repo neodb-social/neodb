@@ -3,22 +3,17 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
-from catalog.models import *
-from journal.models import *
-from takahe.models import PostInteraction, TimelineEvent
+from catalog.models import Edition, Item, ItemCategory, PodcastEpisode
+from common.models.misc import int_
+from journal.models import JournalIndex, Piece, QueryParser, ShelfType
+from takahe.models import Post, PostInteraction, TimelineEvent
 from takahe.utils import Takahe
-
-from .models import *
+from users.models import APIdentity
 
 PAGE_SIZE = 10
 
 
-@require_http_methods(["GET"])
-@login_required
-def feed(request, typ=0):
-    if not request.user.registration_complete:
-        return redirect(reverse("users:register"))
-    user = request.user
+def _sidebar_context(user):
     podcast_ids = [
         p.item_id
         for p in user.shelf_manager.get_latest_members(
@@ -44,59 +39,97 @@ def feed(request, typ=0):
             )[:10]
         ]
     )
-    return render(
-        request,
-        "feed.html",
-        {
-            "feed_type": typ,
-            "recent_podcast_episodes": recent_podcast_episodes,
-            "books_in_progress": books_in_progress,
-            "tvshows_in_progress": tvshows_in_progress,
-        },
-    )
+    return {
+        "recent_podcast_episodes": recent_podcast_episodes,
+        "books_in_progress": books_in_progress,
+        "tvshows_in_progress": tvshows_in_progress,
+    }
+
+
+@require_http_methods(["GET"])
+@login_required
+def feed(request, typ=0):
+    if not request.user.registration_complete:
+        return redirect(reverse("users:register"))
+    user = request.user
+    data = _sidebar_context(user)
+    data["feed_type"] = typ
+    return render(request, "feed.html", data)
 
 
 def focus(request):
     return feed(request, typ=1)
 
 
+@require_http_methods(["GET"])
+@login_required
+def search(request):
+    if not request.user.registration_complete:
+        return redirect(reverse("users:register"))
+    user = request.user
+    data = _sidebar_context(user)
+    return render(request, "search_feed.html", data)
+
+
 @login_required
 @require_http_methods(["GET"])
 def data(request):
-    since_id = int(request.GET.get("last", 0))
-    typ = int(request.GET.get("typ", 0))
+    since_id = int_(request.GET.get("last", 0))
+    typ = int_(request.GET.get("typ", 0))
+    q = request.GET.get("q")
     identity_id = request.user.identity.pk
-    events = TimelineEvent.objects.filter(
-        identity_id=identity_id,
-        type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
-    )
-    match typ:
-        case 1:
-            events = events.filter(
-                subject_post__type_data__object__has_key="relatedWith"
+    page = int_(request.GET.get("page", 1))
+    if q:
+        q = QueryParser(request.GET.get("q", default=""))
+        index = JournalIndex.instance()
+        q.filter_by["owner_id"] = [identity_id]
+        q.filter_by["post_id"] = [">0"]
+        r = index.search(
+            q.q,
+            filter_by=q.filter_by,
+            query_by=q.query_by,
+            sort_by="created:desc",
+            page=page,
+            page_size=PAGE_SIZE,
+        )
+        events = [
+            SearchResultEvent(p)
+            for p in r.posts.select_related("author")
+            .prefetch_related("attachments")
+            .order_by("-id")
+        ]
+    else:
+        events = TimelineEvent.objects.filter(
+            identity_id=identity_id,
+            type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
+        )
+        match typ:
+            case 1:
+                events = events.filter(
+                    subject_post__type_data__object__has_key="relatedWith"
+                )
+            case _:  # default: no replies
+                events = events.filter(subject_post__in_reply_to__isnull=True)
+        if since_id:
+            events = events.filter(id__lt=since_id)
+        events = list(
+            events.select_related(
+                "subject_post",
+                "subject_post__author",
+                # "subject_post__author__domain",
+                "subject_identity",
+                # "subject_identity__domain",
+                "subject_post_interaction",
+                "subject_post_interaction__identity",
+                # "subject_post_interaction__identity__domain",
             )
-        case _:  # default: no replies
-            events = events.filter(subject_post__in_reply_to__isnull=True)
-    if since_id:
-        events = events.filter(id__lt=since_id)
-    events = list(
-        events.select_related(
-            "subject_post",
-            "subject_post__author",
-            # "subject_post__author__domain",
-            "subject_identity",
-            # "subject_identity__domain",
-            "subject_post_interaction",
-            "subject_post_interaction__identity",
-            # "subject_post_interaction__identity__domain",
+            .prefetch_related(
+                "subject_post__attachments",
+                # "subject_post__mentions",
+                # "subject_post__emojis",
+            )
+            .order_by("-id")[:PAGE_SIZE]
         )
-        .prefetch_related(
-            "subject_post__attachments",
-            # "subject_post__mentions",
-            # "subject_post__emojis",
-        )
-        .order_by("-id")[:PAGE_SIZE]
-    )
     interactions = PostInteraction.objects.filter(
         identity_id=identity_id,
         post_id__in=[event.subject_post_id for event in events],
@@ -105,15 +138,19 @@ def data(request):
     ).values_list("post_id", "type")
     for event in events:
         if event.subject_post_id:
-            event.subject_post.liked_by_current_user = (
+            event.subject_post.liked_by_current_user = (  # type: ignore
                 event.subject_post_id,
                 "like",
             ) in interactions
-        event.subject_post.boosted_by_current_user = (
-            event.subject_post_id,
-            "boost",
-        ) in interactions
-    return render(request, "feed_events.html", {"feed_type": typ, "events": events})
+            event.subject_post.boosted_by_current_user = (  # type: ignore
+                event.subject_post_id,
+                "boost",
+            ) in interactions
+    return render(
+        request,
+        "feed_events.html",
+        {"feed_type": typ, "events": events, "nextpage": page + 1},
+    )
 
 
 @require_http_methods(["GET"])
@@ -180,6 +217,16 @@ class NotificationEvent:
         if self.piece and self.template in ["liked", "boosted", "mentioned"]:
             cls = self.piece.__class__.__name__.lower()
             self.template += "_" + cls
+
+
+class SearchResultEvent:
+    def __init__(self, post: Post):
+        self.type = "post"
+        self.subject_post = post
+        self.subject_post_id = post.id
+        self.created = post.created
+        self.published = post.published
+        self.identity = post.author
 
 
 @login_required

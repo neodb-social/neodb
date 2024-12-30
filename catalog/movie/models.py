@@ -173,3 +173,8 @@ class Movie(Item):
             else:
                 return None, None
         return super().lookup_id_cleanup(lookup_id_type, lookup_id_value)
+
+    def to_indexable_titles(self) -> list[str]:
+        titles = [t["text"] for t in self.localized_title if t]
+        titles += [self.orig_title] if self.orig_title else []
+        return list(set(titles))

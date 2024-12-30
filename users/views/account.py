@@ -15,6 +15,7 @@ from loguru import logger
 
 from common.utils import AuthedHttpRequest
 from journal.models import remove_data_by_user
+from journal.models.index import JournalIndex
 from mastodon.models import Email, Mastodon
 from mastodon.models.common import Platform, SocialAccount
 from mastodon.models.email import EmailAccount
@@ -228,6 +229,8 @@ def clear_data_task(user_id):
         remove_data_by_user(user.identity)
     Takahe.delete_identity(user.identity.pk)
     user.clear()
+    index = JournalIndex(user)
+    index.delete_by_owner(user.identity.pk)
     logger.warning(f"User {user_str} data cleared.")
 
 

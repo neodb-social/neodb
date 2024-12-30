@@ -1,0 +1,16 @@
+{% extends "_item_card_metadata_base.html" %}
+{% load humanize %}
+{% load i18n %}
+{% block brief %}
+  <div class="multi-fields">
+    {% if item.rating %}
+      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
+    {% endif %}
+    {% include '_people.html' with people=item.host role='host' max=5 %}
+  </div>
+{% endblock brief %}
+{% block full %}
+  <div>
+    {% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}
+  </div>
+{% endblock full %}

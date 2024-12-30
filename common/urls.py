@@ -5,6 +5,7 @@ from .views import *
 app_name = "common"
 urlpatterns = [
     path("", home),
+    path("search", search, name="search"),
     path("home/", home, name="home"),
     path("me/", me, name="me"),
     path("nodeinfo/2.0/", nodeinfo2),
