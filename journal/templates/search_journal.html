@@ -22,7 +22,7 @@
           {% for item in items %}
             {% include '_list_item.html' %}
           {% empty %}
-            <p>{% trans "No items matching the search query." %}</p>
+            <p class="empty">{% trans "No items matching your search query." %}</p>
           {% endfor %}
         </div>
       </div>

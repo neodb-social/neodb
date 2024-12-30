@@ -310,7 +310,7 @@ class QueryParser:
     @classmethod
     def re(cls):
         return re.compile(
-            r"\b(?P<field>" + "|".join(cls.fields) + r"):(?P<value>[^ ]+)"
+            r"\b(?P<field>" + "|".join(cls.fields) + r"):(?P<value>[^ ]+)", re.I
         )
 
     def __init__(self, query: str):

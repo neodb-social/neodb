@@ -72,7 +72,7 @@ class IGDB(AbstractSite):
             try:
                 r = json.loads(_wrapper.api_request(p, q))  # type: ignore
             except requests.HTTPError as e:
-                logger.error("IGDB API: {e}", extra={"exception": e})
+                logger.error(f"IGDB API: {e}", extra={"exception": e})
                 return []
             if settings.DOWNLOADER_SAVEDIR:
                 with open(
