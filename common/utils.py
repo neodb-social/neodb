@@ -224,6 +224,8 @@ def discord_send(channel, content, **args) -> bool:
     dw = settings.DISCORD_WEBHOOKS.get(channel)
     if not dw:
         return False
+    if "thread_name" in args:
+        args["thread_name"] = args["thread_name"][:99]
     webhook = SyncWebhook.from_url(dw)
     webhook.send(content, **args)
     return True
