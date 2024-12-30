@@ -211,3 +211,6 @@ class FeaturedCollection(Piece):
     @cached_property
     def progress(self):
         return self.target.get_progress(self.owner)
+
+    def to_indexable_doc(self) -> dict[str, Any]:
+        return {}

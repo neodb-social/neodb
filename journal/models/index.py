@@ -212,9 +212,10 @@ class JournalIndex(Index):
         if piece.latest_post:
             # fk is not enforced, so post might be deleted
             doc["post_id"] = [piece.latest_post_id]
-            doc["viewer_id"] = list(
-                piece.latest_post.interactions.values_list("identity_id", flat=True)
-            )
+            # enable this in future when we support search other users
+            # doc["viewer_id"] = list(
+            #     piece.latest_post.interactions.values_list("identity_id", flat=True)
+            # )
         doc.update(d)
         return doc
 
@@ -238,11 +239,12 @@ class JournalIndex(Index):
                 "piece_class": ["Post"],
                 "content": [post.content],
                 "created": int(post.created.timestamp()),
-                "owner_id": post.author_id,
-                "viewer_id": list(
-                    post.interactions.values_list("identity_id", flat=True)
-                ),
                 "visibility": Takahe.visibility_t2n(post.visibility),
+                "owner_id": post.author_id,
+                # enable this in future when we support search other users
+                # "viewer_id": list(
+                #     post.interactions.values_list("identity_id", flat=True)
+                # ),
             }
         return doc
 

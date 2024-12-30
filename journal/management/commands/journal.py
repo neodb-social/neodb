@@ -1,14 +1,25 @@
 from argparse import RawTextHelpFormatter
+from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
+from django.db.models import Q
+from django.utils import timezone
 from tqdm import tqdm
 
 from catalog.models import Item
-from journal.models import Content, JournalIndex, Piece, update_journal_for_merged_item
+from journal.models import (
+    Collection,
+    Content,
+    JournalIndex,
+    Piece,
+    Review,
+    ShelfMember,
+    update_journal_for_merged_item,
+)
 from journal.models.itemlist import ListMember
 from takahe.models import Post
-from users.models import APIdentity
+from users.models import APIdentity, User
 
 _CONFIRM = "confirm deleting collection? [Y/N] "
 
@@ -20,7 +31,7 @@ idx-init:       check and create index if not exists
 idx-destroy:    delete index
 idx-alt:        update index schema
 idx-delete:     delete docs in index
-idx-update:     reindex docs
+idx-reindex:    reindex docs
 idx-search:     search docs in index
 """
 
@@ -43,7 +54,7 @@ class Command(BaseCommand):
                 "idx-init",
                 "idx-alt",
                 "idx-destroy",
-                "idx-update",
+                "idx-reindex",
                 "idx-delete",
                 "idx-search",
             ],
@@ -80,6 +91,11 @@ class Command(BaseCommand):
             "--yes",
             action="store_true",
         )
+        parser.add_argument(
+            "--fast",
+            action="store_true",
+            help="skip some inactive users and rare cases to speed up index",
+        )
 
     def integrity(self):
         self.stdout.write(f"Checking deleted items with remaining journals...")
@@ -105,6 +121,7 @@ class Command(BaseCommand):
         verbose,
         fix,
         batch_size,
+        fast,
         *args,
         **kwargs,
     ):
@@ -161,15 +178,26 @@ class Command(BaseCommand):
                     c = index.delete_all()
                 self.stdout.write(self.style.SUCCESS(f"deleted {c} documents."))
 
-            case "idx-update":
-                pieces = Piece.objects.all()
+            case "idx-reindex":
+                if fast and not owners:
+                    q = Q(social_accounts__type="mastodon.mastodonaccount") | Q(
+                        social_accounts__last_reachable__gt=timezone.now()
+                        - timedelta(days=365)
+                    )
+                    owners = list(
+                        User.objects.filter(is_active=True)
+                        .filter(q)
+                        .values_list("identity", flat=True)
+                    )
+                # index all posts first
                 posts = Post.objects.filter(local=True).exclude(
                     state__in=["deleted", "deleted_fanned_out"]
                 )
                 if owners:
-                    pieces = pieces.filter(owner_id__in=owners)
+                    self.stdout.write(
+                        self.style.SUCCESS(f"indexing for {len(owners)} users.")
+                    )
                     posts = posts.filter(author_id__in=owners)
-                # index all posts first
                 c = 0
                 pg = Paginator(posts.order_by("id"), self.batch_size)
                 for p in tqdm(pg.page_range):
@@ -178,15 +206,29 @@ class Command(BaseCommand):
                     index.replace_docs(docs)
                 self.stdout.write(self.style.SUCCESS(f"indexed {c} docs."))
                 # index remaining pieces without posts
-                c = 0
-                pg = Paginator(pieces.order_by("id"), self.batch_size)
-                for p in tqdm(pg.page_range):
-                    pieces = [
-                        p for p in pg.get_page(p).object_list if p.latest_post is None
+                for cls in (
+                    [
+                        ShelfMember,
+                        Review,
+                        Collection,
                     ]
-                    docs = index.pieces_to_docs(pieces)
-                    c += len(docs)
-                    index.replace_docs(docs)
+                    if fast
+                    else [Piece]
+                ):
+                    pieces = cls.objects.filter(local=True)
+                    if owners:
+                        pieces = pieces.filter(owner_id__in=owners)
+                    c = 0
+                    pg = Paginator(pieces.order_by("id"), self.batch_size)
+                    for p in tqdm(pg.page_range):
+                        pieces = [
+                            p
+                            for p in pg.get_page(p).object_list
+                            if p.latest_post is None
+                        ]
+                        docs = index.pieces_to_docs(pieces)
+                        c += len(docs)
+                        index.replace_docs(docs)
                 self.stdout.write(self.style.SUCCESS(f"indexed {c} docs."))
                 # posts = posts.exclude(type_data__object__has_key="relatedWith")
                 # docs = index.posts_to_docs(posts)
