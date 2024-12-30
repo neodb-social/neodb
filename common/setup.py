@@ -4,6 +4,7 @@ from loguru import logger
 
 from catalog.search.models import Indexer
 from common.models import JobManager
+from journal.models import JournalIndex
 from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
 from takahe.models import Identity as TakaheIdentity
@@ -127,6 +128,7 @@ class Setup:
 
         # Create search index if not exists
         Indexer.init()
+        JournalIndex.instance().initialize_collection()
 
         # Register cron jobs if not yet
         if settings.DISABLE_CRON_JOBS and "*" in settings.DISABLE_CRON_JOBS:

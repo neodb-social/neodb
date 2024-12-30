@@ -229,7 +229,7 @@ def clear_data_task(user_id):
         remove_data_by_user(user.identity)
     Takahe.delete_identity(user.identity.pk)
     user.clear()
-    index = JournalIndex(user)
+    index = JournalIndex.instance()
     index.delete_by_owner(user.identity.pk)
     logger.warning(f"User {user_str} data cleared.")
 
