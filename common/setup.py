@@ -109,20 +109,10 @@ class Setup:
                 )
 
     def run(self):
-        if settings.TESTING:
-            # Only do necessary initialization when testing
-            logger.info("Running minimal post-migration setup for testing...")
-            self.sync_site_config()
-            Indexer.init()
-            return
-
         logger.info("Running post-migration setup...")
 
         # Update site name if changed
         self.sync_site_config()
-
-        # Subscribe to default relay if enabled
-        self.sync_relay()
 
         # Create basic emoji if not exists
 
@@ -130,12 +120,20 @@ class Setup:
         Indexer.init()
         JournalIndex.instance().initialize_collection()
 
+        if settings.TESTING:
+            # Only do necessary initialization when testing
+            logger.info("Finished post-migration setup, skipped some for testing.")
+            return
+
         # Register cron jobs if not yet
         if settings.DISABLE_CRON_JOBS and "*" in settings.DISABLE_CRON_JOBS:
             logger.info("Cron jobs are disabled.")
             JobManager.cancel_all()
         else:
             JobManager.reschedule_all()
+
+        # Subscribe to default relay if enabled
+        self.sync_relay()
 
         logger.info("Finished post-migration setup.")
 
