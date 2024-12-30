@@ -78,7 +78,7 @@ def data(request):
     typ = int_(request.GET.get("typ", 0))
     q = request.GET.get("q")
     identity_id = request.user.identity.pk
-    page = int_(request.GET.get("page", 1))
+    page = int_(request.GET.get("lastpage")) + 1
     if q:
         q = QueryParser(request.GET.get("q", default=""))
         index = JournalIndex.instance()
@@ -149,7 +149,7 @@ def data(request):
     return render(
         request,
         "feed_events.html",
-        {"feed_type": typ, "events": events, "nextpage": page + 1},
+        {"feed_type": typ, "events": events, "page": page},
     )
 
 

@@ -14,6 +14,7 @@ from journal.models import (
     Review,
     ShelfMember,
 )
+from journal.models.index import JournalIndex
 from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
 
@@ -92,30 +93,61 @@ def _get_or_create_item(item_obj) -> Item | None:
 
 
 def post_created(pk, post_data):
-    return post_fetched(pk, post_data)
+    return _post_fetched(pk, True, post_data)
 
 
 def post_edited(pk, post_data):
-    return post_fetched(pk, post_data)
+    return _post_fetched(pk, True, post_data, False)
 
 
 def post_fetched(pk, post_data):
-    post = Post.objects.get(pk=pk)
+    return _post_fetched(pk, False, post_data, True)
+
+
+def _post_fetched(pk, local, post_data, create: bool | None = None):
+    post: Post = Post.objects.get(pk=pk)
     owner = Takahe.get_or_create_remote_apidentity(post.author)
-    activate_language_for_user(owner.user)
-    if not post.type_data and not post_data:
-        logger.warning(f"Post {post} has no type_data")
-        return
-    ap_objects = post_data or post.type_data.get("object", {})
-    items = _parse_items(ap_objects.get("tag"))
-    pieces = _parse_piece_objects(ap_objects.get("relatedWith"))
-    logger.info(f"Post {post} has items {items} and pieces {pieces}")
+    if local:
+        activate_language_for_user(owner.user)
+        reply_to = post.in_reply_to_post()
+        items = []
+        pieces = []
+        if post_data and "raw_content" in post_data:
+            # Local post, extract info for Note if possible
+            if (
+                reply_to
+                and reply_to.author_id == post.author_id
+                and reply_to.type_data
+                and "object" in reply_to.type_data
+                and "relatedWith" in reply_to.type_data["object"]
+            ):
+                items = _parse_items(reply_to.type_data["object"].get("tag", []))
+            elif (
+                not create
+                and post.type_data
+                and "object" in post.type_data
+                and "relatedWith" in post.type_data["object"]
+            ):
+                items = _parse_items(post.type_data["object"].get("tag", []))
+            pieces = [{"type": "Note", "content": post_data["raw_content"]}]
+        if not items or not pieces:
+            # Local post has no related items or usable pieces, update index and move on
+            JournalIndex.instance().replace_posts([post])
+            return
+    else:
+        if not post.type_data and not post_data:
+            logger.warning(f"Remote post {post} has no type_data")
+            return
+        ap_objects = post_data or post.type_data.get("object", {})
+        items = _parse_items(ap_objects.get("tag"))
+        pieces = _parse_piece_objects(ap_objects.get("relatedWith"))
     if len(items) == 0:
-        logger.warning(f"Post {post} has no remote items")
+        logger.warning(f"Post {post} has no items")
         return
     elif len(items) > 1:
-        logger.warning(f"Post {post} has more than one remote item")
+        logger.warning(f"Post {post} has more than one item")
         return
+    logger.info(f"Post {post} has items {items} and pieces {pieces}")
     item = _get_or_create_item(items[0])
     if not item:
         logger.warning(f"Post {post} has no local item matched or created")
@@ -128,7 +160,7 @@ def post_fetched(pk, post_data):
         cls.update_by_ap_object(owner, item, p, post)
 
 
-def post_deleted(pk, post_data):
+def post_deleted(pk, local, post_data):
     for piece in Piece.objects.filter(posts__id=pk):
         if piece.local and piece.__class__ != Note:
             # no delete other than Note, for backward compatibility, should reconsider later

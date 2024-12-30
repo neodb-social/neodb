@@ -157,8 +157,8 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.SUCCESS("deleted."))
 
             case "idx-alt":
-                index.update_schema()
-                self.stdout.write(self.style.SUCCESS("updated."))
+                # index.update_schema()
+                self.stdout.write(self.style.SUCCESS("not implemented."))
 
             case "idx-init":
                 index.initialize_collection()

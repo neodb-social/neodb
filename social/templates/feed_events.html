@@ -125,7 +125,7 @@
   {% if forloop.last %}
     <div class="htmx-indicator"
          style="margin-left: 60px"
-         {% if request.GET.q %} hx-get="{% url 'social:data' %}?q={{ request.GET.q }}&amp;page={{ nextpage }}" {% else %} hx-get="{% url 'social:data' %}?last={{ event.pk }}&amp;typ={{ feed_type }}" {% endif %}
+         {% if request.GET.q %} hx-get="{% url 'social:data' %}?q={{ request.GET.q }}&amp;lastpage={{ page }}" {% else %} hx-get="{% url 'social:data' %}?last={{ event.pk }}&amp;typ={{ feed_type }}" {% endif %}
          hx-trigger="revealed"
          hx-swap="outerHTML">
       <i class="fa-solid fa-compact-disc fa-spin loading"></i>
@@ -133,7 +133,7 @@
   {% endif %}
 {% empty %}
   <div class="empty">
-    {% if request.GET.last or request.GET.nextpage %}
+    {% if request.GET.last or page > 1 %}
       {% trans 'nothing more.' %}
     {% elif request.GET.q %}
       {% trans 'no matching activities.' %}

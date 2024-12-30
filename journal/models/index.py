@@ -137,12 +137,14 @@ class JournalIndex(Index):
                 "type": "string[]",
                 "locale": "zh",
                 "optional": True,
+                # "store": False,
             },
             {
                 "name": "content",
                 "type": "string[]",
                 "locale": "zh",
                 "optional": True,
+                # "store": False,
             },
             {
                 "name": "shelf_type",
@@ -263,6 +265,10 @@ class JournalIndex(Index):
 
     def delete_by_post(self, post_ids):
         return self.delete_docs("post_id", post_ids)
+
+    def replace_posts(self, posts: Iterable[Post]):
+        docs = self.posts_to_docs(posts)
+        self.replace_docs(docs)
 
     def replace_pieces(self, pieces: "Iterable[Piece] | QuerySet[Piece]"):
         if isinstance(pieces, QuerySet):

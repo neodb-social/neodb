@@ -118,8 +118,8 @@ class Index:
     def delete_collection(self):
         self.write_collection.delete()
 
-    def update_schema(self):
-        self.write_collection.update(self.get_schema())
+    def update_schema(self, schema: dict):
+        self.write_collection.update(schema)
 
     def initialize_collection(self, max_wait=5) -> bool:
         try:
