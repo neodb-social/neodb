@@ -44,7 +44,7 @@
               <option {% if request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
                       value="performance">{% trans 'Performance' %}</option>
             {% endif %}
-            {% if request.user.is_authenticated %}
+            {% if request.user.is_authenticated and request.user.is_superuser %}
               <option {% if request.GET.c == 'journal' or '/users/' in request.path %}selected{% endif %}
                       value="journal">{% trans 'Journal' %}</option>
               <option {% if request.GET.c == 'timeline' or '/timeline/' in request.path %}selected{% endif %}
