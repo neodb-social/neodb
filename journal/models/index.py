@@ -228,6 +228,8 @@ class JournalIndex(Index):
         pc = post.piece
         doc = {}
         if pc:
+            pc.latest_post = post
+            pc.latest_post_id = post.pk
             doc = cls.piece_to_doc(pc)
         if not doc:
             doc = {
@@ -245,7 +247,7 @@ class JournalIndex(Index):
         return doc
 
     @classmethod
-    def posts_to_docs(cls, posts: QuerySet[Post]) -> list[dict]:
+    def posts_to_docs(cls, posts: Iterable[Post]) -> list[dict]:
         return [cls.post_to_doc(p) for p in posts]
 
     def delete_all(self):

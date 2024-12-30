@@ -664,7 +664,7 @@ class Item(PolymorphicModel):
         return (str(self.display_description) or "")[:155]
 
     def to_indexable_titles(self) -> list[str]:
-        titles = [t["text"] for t in self.localized_title if t]
+        titles = [t["text"] for t in self.localized_title if t["text"]]
         if self.parent_item:
             titles += self.parent_item.to_indexable_titles()
         return list(set(titles))

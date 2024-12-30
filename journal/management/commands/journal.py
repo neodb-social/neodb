@@ -5,14 +5,10 @@ from django.core.paginator import Paginator
 from tqdm import tqdm
 
 from catalog.models import Item
-from journal.importers.douban import DoubanImporter
-from journal.models import *
-from journal.models import JournalIndex, Piece
-from journal.models.common import Content
+from journal.models import Content, JournalIndex, Piece, update_journal_for_merged_item
 from journal.models.itemlist import ListMember
 from takahe.models import Post
-from users.models import *
-from users.models import User
+from users.models import APIdentity
 
 _CONFIRM = "confirm deleting collection? [Y/N] "
 
@@ -98,21 +94,6 @@ class Command(BaseCommand):
                 if self.fix:
                     update_journal_for_merged_item(i.url)
 
-    def batch_index(self, index, typ, qs):
-        c = 0
-        pg = Paginator(qs.order_by("id"), self.batch_size)
-        for p in tqdm(pg.page_range):
-            if typ == "post":
-                docs = index.posts_to_docs(pg.get_page(p).object_list)
-            else:
-                pieces = [
-                    p for p in pg.get_page(p).object_list if p.latest_post is None
-                ]
-                docs = index.pieces_to_docs(pieces)
-            c += len(docs)
-            index.replace_docs(docs)
-        self.stdout.write(self.style.SUCCESS(f"indexed {c} docs."))
-
     def handle(
         self,
         action,
@@ -188,10 +169,25 @@ class Command(BaseCommand):
                 if owners:
                     pieces = pieces.filter(owner_id__in=owners)
                     posts = posts.filter(author_id__in=owners)
-                # index all posts
-                self.batch_index(index, "post", posts)
+                # index all posts first
+                c = 0
+                pg = Paginator(posts.order_by("id"), self.batch_size)
+                for p in tqdm(pg.page_range):
+                    docs = index.posts_to_docs(pg.get_page(p).object_list)
+                    c += len(docs)
+                    index.replace_docs(docs)
+                self.stdout.write(self.style.SUCCESS(f"indexed {c} docs."))
                 # index remaining pieces without posts
-                self.batch_index(index, "piece", pieces)
+                c = 0
+                pg = Paginator(pieces.order_by("id"), self.batch_size)
+                for p in tqdm(pg.page_range):
+                    pieces = [
+                        p for p in pg.get_page(p).object_list if p.latest_post is None
+                    ]
+                    docs = index.pieces_to_docs(pieces)
+                    c += len(docs)
+                    index.replace_docs(docs)
+                self.stdout.write(self.style.SUCCESS(f"indexed {c} docs."))
                 # posts = posts.exclude(type_data__object__has_key="relatedWith")
                 # docs = index.posts_to_docs(posts)
                 # c = len(docs)

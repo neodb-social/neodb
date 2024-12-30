@@ -251,7 +251,7 @@ class TVShow(Item):
         return self.season_count or self.seasons.all().count()
 
     def to_indexable_titles(self) -> list[str]:
-        titles = [t["text"] for t in self.localized_title if t]
+        titles = [t["text"] for t in self.localized_title if t["text"]]
         titles += [self.orig_title] if self.orig_title else []
         return list(set(titles))
 
@@ -440,7 +440,7 @@ class TVSeason(Item):
         ]
 
     def to_indexable_titles(self) -> list[str]:
-        titles = [t["text"] for t in self.localized_title if t]
+        titles = [t["text"] for t in self.localized_title if t["text"]]
         titles += [self.orig_title] if self.orig_title else []
         titles += self.parent_item.to_indexable_titles() if self.parent_item else []
         return list(set(titles))
