@@ -1,7 +1,13 @@
 {% load i18n %}
 {% load mastodon %}
 {% current_user_relationship identity as relationship %}
-{% if relationship.rejecting %}
+{% if relationship.unavailable %}
+  {% if relationship.status %}
+    <span class="tag-list">
+      <span><a>{{ relationship.status }}</a></span>
+    </span>
+  {% endif %}
+{% elif relationship.rejecting %}
   <span class="tag-list">
     <span><a title="{% trans "click to unblock" %}"
    hx-confirm="{% trans "are you sure to unblock?" %}"
