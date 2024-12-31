@@ -32,11 +32,12 @@
             var wrap_chart = _this;
 
             var end_date = new Date(settings.final_date);
-            end_date.setDate(end_date.getDate()+1);
-            var current_date = new Date();
             var start_date = new Date();
             start_date.setMonth(end_date.getMonth() - 12);
             end_year = end_date.getFullYear()
+            end_date.setDate(end_date.getDate()+1);
+            var current_date = new Date();
+
 
             var start_weekday = settings.start_monday === true?1:0;
             for (var i = 0; i < 7; i++) {
