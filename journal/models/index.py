@@ -1,9 +1,12 @@
 import re
+from datetime import datetime
 from functools import cached_property, reduce
 from typing import TYPE_CHECKING, Iterable
 
+from dateutil.relativedelta import relativedelta
 from django.db.models import QuerySet
 
+from catalog.common.models import item_categories
 from catalog.models import Item
 from common.models import Index, SearchResult, int_, uniq
 from takahe.models import Post
@@ -305,7 +308,7 @@ class JournalIndex(Index):
 
 
 class QueryParser:
-    fields = ["status", "rating", "tag", "category", "type"]
+    fields = ["status", "rating", "tag", "category", "type", "date"]
 
     @classmethod
     def re(cls):
@@ -326,7 +329,7 @@ class QueryParser:
 
         v = list(
             set(self.filters.get("status", "").split(","))
-            & {"wishlist", "progress", "complete"}
+            & {"wishlist", "progress", "complete", "dropped"}
         )
         if v:
             self.filter_by["shelf_type"] = v
@@ -349,8 +352,77 @@ class QueryParser:
         v = self.filters.get("rating", "").split("..")
         if len(v) == 2:
             v = map(int_, v)
-            self.filter_by["rating"] = ["..".join(map(str, v))]
+            if all([i >= 0 and i <= 10 for i in v]):
+                self.filter_by["rating"] = ["..".join(map(str, v))]
         elif len(v) == 1:
-            v = int_(v[0])
-            if v:
+            v = int_(v[0], -1)
+            if v >= 0 and v <= 10:
                 self.filter_by["rating"] = [v]
+
+        # v = self.filters.get("category", "").split(",")
+
+        v = self.filters.get("date", "").split("..")
+        if len(v) == 2:
+            start = self.start_date_to_int(v[0])
+            end = self.end_date_to_int(v[1])
+        elif len(v) == 1:
+            start, end = self.date_to_int_range(v[0])
+        else:
+            start, end = 0, 0
+        if start and end:
+            self.filter_by["created"] = [f"{start}..{end}"]
+
+        v = self.filters.get("category", "").split(",")
+        if v:
+            cats = {
+                c.value: [ic.__name__ for ic in cl]
+                for c, cl in item_categories().items()
+            }
+            v = list(set(v) & cats.keys())
+            v = reduce(lambda a, b: a + b, [cats[i] for i in v], [])
+            self.filter_by["item_class"] = v
+
+    def start_date_to_int(self, date: str) -> int:
+        try:
+            if re.match(r"\d{4}-\d{1,2}-\d{1,2}", date):
+                d = datetime.strptime(date, "%Y-%m-%d")
+            elif re.match(r"\d{4}-\d{1,2}", date):
+                d = datetime.strptime(date, "%Y-%m")
+            elif re.match(r"\d{4}", date):
+                d = datetime.strptime(date, "%Y")
+            else:
+                return 0
+            return int(d.timestamp())
+        except ValueError:
+            return 0
+
+    def end_date_to_int(self, date: str) -> int:
+        try:
+            if re.match(r"\d{4}-\d{1,2}-\d{1,2}", date):
+                d = datetime.strptime(date, "%Y-%m-%d") + relativedelta(days=1)
+            elif re.match(r"\d{4}-\d{1,2}", date):
+                d = datetime.strptime(date, "%Y-%m") + relativedelta(months=1)
+            elif re.match(r"\d{4}", date):
+                d = datetime.strptime(date, "%Y") + relativedelta(years=1)
+            else:
+                return 0
+            return int(d.timestamp()) - 1
+        except ValueError:
+            return 0
+
+    def date_to_int_range(self, date: str) -> tuple[int, int]:
+        try:
+            if re.match(r"\d{4}-\d{1,2}-\d{1,2}", date):
+                start = datetime.strptime(date, "%Y-%m-%d")
+                end = start + relativedelta(days=1)
+            elif re.match(r"\d{4}-\d{1,2}", date):
+                start = datetime.strptime(date, "%Y-%m")
+                end = start + relativedelta(months=1)
+            elif re.match(r"\d{4}", date):
+                start = datetime.strptime(date, "%Y")
+                end = start + relativedelta(years=1)
+            else:
+                return 0, 0
+            return int(start.timestamp()), int(end.timestamp()) - 1
+        except ValueError:
+            return 0, 0
