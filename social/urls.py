@@ -7,6 +7,7 @@ urlpatterns = [
     path("", feed, name="feed"),
     path("focus", focus, name="focus"),
     path("data", data, name="data"),
+    path("search_data", search_data, name="search_data"),
     path("notification", notification, name="notification"),
     path("events", events, name="events"),
 ]

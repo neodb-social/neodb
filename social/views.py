@@ -5,7 +5,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import Edition, Item, ItemCategory, PodcastEpisode
 from common.models.misc import int_
-from journal.models import JournalIndex, Piece, QueryParser, ShelfType
+from journal.models import JournalIndex, JournalQueryParser, Piece, ShelfType
 from takahe.models import Post, PostInteraction, TimelineEvent
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -46,6 +46,25 @@ def _sidebar_context(user):
     }
 
 
+def _add_interaction_to_events(events, identity_id):
+    interactions = PostInteraction.objects.filter(
+        identity_id=identity_id,
+        post_id__in=[event.subject_post_id for event in events],
+        type__in=["like", "boost"],
+        state__in=["new", "fanned_out"],
+    ).values_list("post_id", "type")
+    for event in events:
+        if event.subject_post_id:
+            event.subject_post.liked_by_current_user = (  # type: ignore
+                event.subject_post_id,
+                "like",
+            ) in interactions
+            event.subject_post.boosted_by_current_user = (  # type: ignore
+                event.subject_post_id,
+                "boost",
+            ) in interactions
+
+
 @require_http_methods(["GET"])
 @login_required
 def feed(request, typ=0):
@@ -73,83 +92,74 @@ def search(request):
 
 @login_required
 @require_http_methods(["GET"])
-def data(request):
-    since_id = int_(request.GET.get("last", 0))
-    typ = int_(request.GET.get("typ", 0))
-    q = request.GET.get("q")
+def search_data(request):
     identity_id = request.user.identity.pk
     page = int_(request.GET.get("lastpage")) + 1
+    q = JournalQueryParser(request.GET.get("q", default=""), page, page_size=PAGE_SIZE)
+    index = JournalIndex.instance()
+    q.filter("post_id", ">0")
+    q.filter("owner_id", identity_id)
+    q.sort(["created:desc"])
     if q:
-        q = QueryParser(request.GET.get("q", default=""))
-        index = JournalIndex.instance()
-        q.filter_by["owner_id"] = [identity_id]
-        q.filter_by["post_id"] = [">0"]
-        r = index.search(
-            q.q,
-            filter_by=q.filter_by,
-            query_by=q.query_by,
-            sort_by="created:desc",
-            page=page,
-            page_size=PAGE_SIZE,
-        )
+        r = index.search(q)
         events = [
             SearchResultEvent(p)
             for p in r.posts.select_related("author")
             .prefetch_related("attachments")
             .order_by("-id")
         ]
+        _add_interaction_to_events(events, identity_id)
     else:
-        events = TimelineEvent.objects.filter(
-            identity_id=identity_id,
-            type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
-        )
-        match typ:
-            case 1:
-                events = events.filter(
-                    subject_post__type_data__object__has_key="relatedWith"
-                )
-            case _:  # default: no replies
-                events = events.filter(subject_post__in_reply_to__isnull=True)
-        if since_id:
-            events = events.filter(id__lt=since_id)
-        events = list(
-            events.select_related(
-                "subject_post",
-                "subject_post__author",
-                # "subject_post__author__domain",
-                "subject_identity",
-                # "subject_identity__domain",
-                "subject_post_interaction",
-                "subject_post_interaction__identity",
-                # "subject_post_interaction__identity__domain",
-            )
-            .prefetch_related(
-                "subject_post__attachments",
-                # "subject_post__mentions",
-                # "subject_post__emojis",
-            )
-            .order_by("-id")[:PAGE_SIZE]
-        )
-    interactions = PostInteraction.objects.filter(
-        identity_id=identity_id,
-        post_id__in=[event.subject_post_id for event in events],
-        type__in=["like", "boost"],
-        state__in=["new", "fanned_out"],
-    ).values_list("post_id", "type")
-    for event in events:
-        if event.subject_post_id:
-            event.subject_post.liked_by_current_user = (  # type: ignore
-                event.subject_post_id,
-                "like",
-            ) in interactions
-            event.subject_post.boosted_by_current_user = (  # type: ignore
-                event.subject_post_id,
-                "boost",
-            ) in interactions
+        events = []
     return render(
         request,
         "feed_events.html",
-        {"feed_type": typ, "events": events, "page": page},
+        {"events": events, "page": page},
+    )
+
+
+@login_required
+@require_http_methods(["GET"])
+def data(request):
+    since_id = int_(request.GET.get("last", 0))
+    typ = int_(request.GET.get("typ", 0))
+    identity_id = request.user.identity.pk
+    events = TimelineEvent.objects.filter(
+        identity_id=identity_id,
+        type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
+    )
+    match typ:
+        case 1:
+            events = events.filter(
+                subject_post__type_data__object__has_key="relatedWith"
+            )
+        case _:  # default: no replies
+            events = events.filter(subject_post__in_reply_to__isnull=True)
+    if since_id:
+        events = events.filter(id__lt=since_id)
+    events = list(
+        events.select_related(
+            "subject_post",
+            "subject_post__author",
+            # "subject_post__author__domain",
+            "subject_identity",
+            # "subject_identity__domain",
+            "subject_post_interaction",
+            "subject_post_interaction__identity",
+            # "subject_post_interaction__identity__domain",
+        )
+        .prefetch_related(
+            "subject_post__attachments",
+            # "subject_post__mentions",
+            # "subject_post__emojis",
+        )
+        .order_by("-id")[:PAGE_SIZE]
+    )
+    _add_interaction_to_events(events, identity_id)
+    return render(
+        request,
+        "feed_events.html",
+        {"feed_type": typ, "events": events},
     )
 
 

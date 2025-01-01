@@ -8,7 +8,7 @@ def uniq(ls: list) -> list:
 
 def int_(x, default=0):
     return (
-        int(x)
-        if isinstance(x, str) and x.isdigit()
-        else (x if isinstance(x, int) else default)
+        x
+        if isinstance(x, int)
+        else (int(x) if (isinstance(x, str) and x.isdigit()) else default)
     )

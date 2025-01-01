@@ -1,3 +1,4 @@
+import re
 from functools import cached_property
 from time import sleep
 from typing import Iterable, Self, TypeVar
@@ -5,8 +6,96 @@ from typing import Iterable, Self, TypeVar
 import typesense
 from django.conf import settings
 from loguru import logger
+from ninja import Query
 from typesense.collection import Collection
 from typesense.exceptions import ObjectNotFound
+
+
+class QueryParser:
+    fields = ["sort"]
+    default_search_params = {
+        "q": "",
+        "filter_by": "",
+        "query_by": "",
+        "sort_by": "",
+        "per_page": 20,
+        "include_fields": "id",
+        "highlight_fields": "",
+    }  # https://typesense.org/docs/latest/api/search.html#search-parameters
+    max_pages = 100
+
+    @classmethod
+    def re(cls):
+        return re.compile(
+            r"\b(?P<field>" + "|".join(cls.fields) + r")\s*:(?P<value>[^ ]+)", re.I
+        )
+
+    def __init__(self, query: str, page: int = 1, page_size: int = 0):
+        """Parse fields from a query string, subclass should define and use these fields"""
+        self.raw_query = str(query) if query else ""
+        if self.fields:
+            r = self.re()
+            self.q = r.sub("", query).strip()
+            self.parsed_fields = {
+                m.group("field").strip().lower(): m.group("value").strip().lower()
+                for m in r.finditer(query)
+            }
+        else:
+            self.q = query.strip()
+            self.parsed_fields = {}
+        self.page = page
+        self.page_size = page_size
+        self.filter_by = {}
+        self.query_by = []
+        self.sort_by = []
+
+    def is_valid(self):
+        """Check if the parsed query is valid"""
+        print(self.page, self.max_pages, self.q, self.filter_by)
+        return (
+            self.page > 0
+            and self.page <= self.max_pages
+            and bool(self.q or self.filter_by)
+        )
+
+    def __bool__(self):
+        return self.is_valid()
+
+    def filter(self, field: str, value: list[int | str] | int | str):
+        """Override a specific filter"""
+        self.filter_by[field] = value if isinstance(value, list) else [value]
+
+    def sort(self, fields: list[str]):
+        """Override the default sort fields"""
+        self.sort_by = fields
+
+    def to_search_params(self) -> dict:
+        """Convert the parsed query to search parameters"""
+        params = self.default_search_params.copy()
+        params["q"] = self.q
+        params["page"] = (
+            self.page if self.page > 0 and self.page <= self.max_pages else 1
+        )
+        if self.page_size:
+            params["per_page"] = self.page_size
+        if self.filter_by:
+            filters = []
+            for field, values in self.filter_by.items():
+                if field == "_":
+                    filters += values
+                elif values:
+                    v = (
+                        f"[{','.join(map(str, values))}]"
+                        if len(values) > 1
+                        else str(values[0])
+                    )
+                    filters.append(f"{field}:{v}")
+            params["filter_by"] = " && ".join(filters)
+        if self.query_by:
+            params["query_by"] = ",".join(self.query_by)
+        if self.sort_by:
+            params["sort_by"] = ",".join(self.sort_by)
+        return params
 
 
 class SearchResult:
@@ -49,19 +138,10 @@ class SearchResult:
         return item in self.response["hits"]
 
 
-SearchResultClass = TypeVar("SearchResultClass", bound=SearchResult)
-
-
 class Index:
     name = ""  # must be set in subclass
     schema = {"fields": []}  # must be set in subclass
-    max_pages = 100
-    default_search_params = {
-        # "query_by": ...,
-        "per_page": 20,
-        "highlight_fields": "",
-        "include_fields": "id",
-    }
+    search_result_class = SearchResult
 
     _instance = None
     _client: typesense.Client
@@ -185,39 +265,13 @@ class Index:
 
     def search(
         self,
-        q: str,
-        page: int = 1,
-        page_size: int = 0,
-        query_by: list[str] = [],
-        sort_by: str = "",
-        filter_by: dict[str, list[str | int]] = {},
-        facet_by: list[str] = [],
-        result_class: type[SearchResultClass] = SearchResult,
-    ) -> SearchResultClass:
-        params = self.default_search_params.copy()
-        params["q"] = q
-        params["page"] = page if page > 0 and page <= self.max_pages else 1
-        if page_size:
-            params["per_page"] = page_size
-        filters = []
-        for field, values in filter_by.items():
-            if field == "_":
-                filters += values
-            elif values:
-                v = f"[{','.join(map(str, values))}]" if len(values) > 1 else values[0]
-                filters.append(f"{field}:{v}")
-        if filters:
-            params["filter_by"] = " && ".join(filters)
-        if facet_by:
-            params["facet_by"] = ",".join(facet_by)
-        if query_by:
-            params["query_by"] = ",".join(query_by)
-        if sort_by:
-            params["sort_by"] = sort_by
+        query: QueryParser,
+    ) -> SearchResult:
+        params = query.to_search_params()
         if settings.DEBUG:
             logger.debug(f"Typesense: search {self.name} {params}")
         r = self.read_collection.documents.search(params)
-        sr = result_class(self, r)
+        sr = self.search_result_class(self, r)
         if settings.DEBUG:
             logger.debug(f"Typesense: search result {sr}")
         return sr

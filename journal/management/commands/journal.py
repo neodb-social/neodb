@@ -17,6 +17,7 @@ from journal.models import (
     ShelfMember,
     update_journal_for_merged_item,
 )
+from journal.models.index import JournalQueryParser
 from journal.models.itemlist import ListMember
 from takahe.models import Post
 from users.models import APIdentity, User
@@ -237,15 +238,14 @@ class Command(BaseCommand):
                 # self.stdout.write(self.style.SUCCESS(f"indexed {c} posts."))
 
             case "idx-search":
-                r = index.search(
-                    "" if query == "-" else query,
-                    filter_by={
-                        "owner_id": owners,
-                        "piece_class": piece_class,
-                        "item_class": item_class,
-                    },
-                    page_size=100,
-                )
+                q = JournalQueryParser("" if query == "-" else query, page_size=100)
+                if owners:
+                    q.filter("owner_id", owners)
+                if item_class:
+                    q.filter("item_class", item_class)
+                if piece_class:
+                    q.filter("piece_class", piece_class)
+                r = index.search(q)
                 self.stdout.write(self.style.SUCCESS(str(r)))
                 self.stdout.write(f"{r.facet_by_item_class}")
                 self.stdout.write(f"{r.facet_by_piece_class}")

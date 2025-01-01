@@ -125,7 +125,7 @@
   {% if forloop.last %}
     <div class="htmx-indicator"
          style="margin-left: 60px"
-         {% if request.GET.q %} hx-get="{% url 'social:data' %}?q={{ request.GET.q }}&amp;lastpage={{ page }}" {% else %} hx-get="{% url 'social:data' %}?last={{ event.pk }}&amp;typ={{ feed_type }}" {% endif %}
+         {% if request.GET.q %} hx-get="{% url 'social:search_data' %}?q={{ request.GET.q }}&amp;lastpage={{ page }}" {% else %} hx-get="{% url 'social:data' %}?last={{ event.pk }}&amp;typ={{ feed_type }}" {% endif %}
          hx-trigger="revealed"
          hx-swap="outerHTML">
       <i class="fa-solid fa-compact-disc fa-spin loading"></i>

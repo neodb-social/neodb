@@ -8,7 +8,7 @@ from django.db.models import QuerySet
 
 from catalog.common.models import item_categories
 from catalog.models import Item
-from common.models import Index, SearchResult, int_, uniq
+from common.models import Index, QueryParser, SearchResult, int_, uniq
 from takahe.models import Post
 from takahe.utils import Takahe
 
@@ -26,6 +26,131 @@ def _get_item_ids(doc):
             "catalog_item_id", flat=True
         )
     )
+
+
+class JournalQueryParser(QueryParser):
+    fields = ["status", "rating", "tag", "category", "type", "date", "sort"]
+    status_values = {"wishlist", "progress", "complete", "dropped"}
+    type_values = {"shelfmember", "rating", "comment", "review", "collection", "note"}
+    sort_values = {"date": "created:desc", "rating": "rating:desc"}
+    default_search_params = {
+        "query_by": "content, item_title, tag",
+        "per_page": 20,
+        "highlight_fields": "",
+        "include_fields": "post_id, piece_id, item_id, owner_id, piece_class",
+        "facet_by": "item_class, piece_class",
+    }
+
+    def __init__(self, query: str, page: int = 1, page_size: int = 0):
+        super().__init__(query, page, page_size)
+
+        v = list(
+            set(self.parsed_fields.get("sort", "").split(",")) & self.sort_values.keys()
+        )
+        if v:
+            self.sort_by = [self.sort_values[v[0]]]
+
+        v = list(
+            set(self.parsed_fields.get("status", "").split(",")) & self.status_values
+        )
+        if v:
+            self.filter_by["shelf_type"] = v
+
+        v = list(
+            set(
+                self.parsed_fields.get("type", "")
+                .replace("mark", "shelfmember")
+                .split(",")
+            )
+            & self.type_values
+        )
+        if v:
+            self.filter_by["piece_class"] = v
+        # else:
+        #     # hide collection by default unless specified
+        #     self.filter_by["piece_class"] = ["!collection"]
+
+        v = [i for i in set(self.parsed_fields.get("tag", "").split(",")) if i]
+        if v:
+            self.filter_by["tag"] = v
+            self.query_by = ["content", "item_title"]
+
+        v = self.parsed_fields.get("rating", "").split("..")
+        if len(v) == 2:
+            v = list(map(int_, v))
+            if all([i >= 0 and i <= 10 for i in v]):
+                self.filter_by["rating"] = ["..".join(map(str, v))]
+        elif len(v) == 1:
+            v = int_(v[0], -1)
+            if v >= 0 and v <= 10:
+                self.filter_by["rating"] = [v]
+        # v = self.filters.get("category", "").split(",")
+
+        v = self.parsed_fields.get("date", "").split("..")
+        if len(v) == 2:
+            start = self.start_date_to_int(v[0])
+            end = self.end_date_to_int(v[1])
+        elif len(v) == 1:
+            start, end = self.date_to_int_range(v[0])
+        else:
+            start, end = 0, 0
+        if start and end:
+            self.filter_by["created"] = [f"{start}..{end}"]
+
+        v = [i for i in set(self.parsed_fields.get("category", "").split(",")) if i]
+        if v:
+            cats = {
+                c.value: [ic.__name__ for ic in cl]
+                for c, cl in item_categories().items()
+            }
+            v = list(set(v) & cats.keys())
+            v = reduce(lambda a, b: a + b, [cats[i] for i in v], [])
+            self.filter_by["item_class"] = v
+
+    def start_date_to_int(self, date: str) -> int:
+        try:
+            if re.match(r"\d{4}-\d{1,2}-\d{1,2}", date):
+                d = datetime.strptime(date, "%Y-%m-%d")
+            elif re.match(r"\d{4}-\d{1,2}", date):
+                d = datetime.strptime(date, "%Y-%m")
+            elif re.match(r"\d{4}", date):
+                d = datetime.strptime(date, "%Y")
+            else:
+                return 0
+            return int(d.timestamp())
+        except ValueError:
+            return 0
+
+    def end_date_to_int(self, date: str) -> int:
+        try:
+            if re.match(r"\d{4}-\d{1,2}-\d{1,2}", date):
+                d = datetime.strptime(date, "%Y-%m-%d") + relativedelta(days=1)
+            elif re.match(r"\d{4}-\d{1,2}", date):
+                d = datetime.strptime(date, "%Y-%m") + relativedelta(months=1)
+            elif re.match(r"\d{4}", date):
+                d = datetime.strptime(date, "%Y") + relativedelta(years=1)
+            else:
+                return 0
+            return int(d.timestamp()) - 1
+        except ValueError:
+            return 0
+
+    def date_to_int_range(self, date: str) -> tuple[int, int]:
+        try:
+            if re.match(r"\d{4}-\d{1,2}-\d{1,2}", date):
+                start = datetime.strptime(date, "%Y-%m-%d")
+                end = start + relativedelta(days=1)
+            elif re.match(r"\d{4}-\d{1,2}", date):
+                start = datetime.strptime(date, "%Y-%m")
+                end = start + relativedelta(months=1)
+            elif re.match(r"\d{4}", date):
+                start = datetime.strptime(date, "%Y")
+                end = start + relativedelta(years=1)
+            else:
+                return 0, 0
+            return int(start.timestamp()), int(end.timestamp()) - 1
+        except ValueError:
+            return 0, 0
 
 
 class JournalSearchResult(SearchResult):
@@ -188,14 +313,7 @@ class JournalIndex(Index):
             },
         ]
     }
-    default_search_params = {
-        "query_by": "content, item_title, tag",
-        "sort_by": "created:desc",
-        "per_page": 20,
-        "highlight_fields": "",
-        "include_fields": "post_id, piece_id, item_id, owner_id, piece_class",
-        "facet_by": "item_class, piece_class",
-    }
+    search_result_class = JournalSearchResult
 
     @classmethod
     def piece_to_doc(cls, piece: "Piece") -> dict:
@@ -285,144 +403,7 @@ class JournalIndex(Index):
 
     def search(
         self,
-        q: str,
-        page: int = 1,
-        page_size: int = 0,
-        query_by: list[str] = [],
-        sort_by: str = "",
-        filter_by: dict[str, list[str | int]] = {},
-        facet_by: list[str] = [],
-        result_class=JournalSearchResult,
+        query,
     ) -> JournalSearchResult:
-        r = super().search(
-            q=q,
-            page=page,
-            page_size=page_size,
-            query_by=query_by,
-            sort_by=sort_by,
-            filter_by=filter_by,
-            facet_by=facet_by,
-            result_class=result_class,
-        )
-        return r
-
-
-class QueryParser:
-    fields = ["status", "rating", "tag", "category", "type", "date"]
-
-    @classmethod
-    def re(cls):
-        return re.compile(
-            r"\b(?P<field>" + "|".join(cls.fields) + r"):(?P<value>[^ ]+)", re.I
-        )
-
-    def __init__(self, query: str):
-        self.query = str(query) if query else ""
-        r = self.re()
-        self.filters = {
-            m.group("field").strip().lower(): m.group("value").strip().lower()
-            for m in r.finditer(query)
-        }
-        self.q = r.sub("", query).strip()
-        self.filter_by = {}
-        self.query_by = ["content", "item_title", "tag"]
-
-        v = list(
-            set(self.filters.get("status", "").split(","))
-            & {"wishlist", "progress", "complete", "dropped"}
-        )
-        if v:
-            self.filter_by["shelf_type"] = v
-
-        v = list(
-            set(self.filters.get("type", "").replace("mark", "shelfmember").split(","))
-            & {"shelfmember", "rating", "comment", "review", "collection", "note"}
-        )
-        if v:
-            self.filter_by["piece_class"] = v
-        # else:
-        #     # hide collection by default unless specified
-        #     self.filter_by["piece_class"] = ["!collection"]
-
-        v = [i for i in set(self.filters.get("tag", "").split(",")) if i]
-        if v:
-            self.filter_by["tag"] = v
-            self.query_by.remove("tag")
-
-        v = self.filters.get("rating", "").split("..")
-        if len(v) == 2:
-            v = map(int_, v)
-            if all([i >= 0 and i <= 10 for i in v]):
-                self.filter_by["rating"] = ["..".join(map(str, v))]
-        elif len(v) == 1:
-            v = int_(v[0], -1)
-            if v >= 0 and v <= 10:
-                self.filter_by["rating"] = [v]
-
-        # v = self.filters.get("category", "").split(",")
-
-        v = self.filters.get("date", "").split("..")
-        if len(v) == 2:
-            start = self.start_date_to_int(v[0])
-            end = self.end_date_to_int(v[1])
-        elif len(v) == 1:
-            start, end = self.date_to_int_range(v[0])
-        else:
-            start, end = 0, 0
-        if start and end:
-            self.filter_by["created"] = [f"{start}..{end}"]
-
-        v = self.filters.get("category", "").split(",")
-        if v:
-            cats = {
-                c.value: [ic.__name__ for ic in cl]
-                for c, cl in item_categories().items()
-            }
-            v = list(set(v) & cats.keys())
-            v = reduce(lambda a, b: a + b, [cats[i] for i in v], [])
-            self.filter_by["item_class"] = v
-
-    def start_date_to_int(self, date: str) -> int:
-        try:
-            if re.match(r"\d{4}-\d{1,2}-\d{1,2}", date):
-                d = datetime.strptime(date, "%Y-%m-%d")
-            elif re.match(r"\d{4}-\d{1,2}", date):
-                d = datetime.strptime(date, "%Y-%m")
-            elif re.match(r"\d{4}", date):
-                d = datetime.strptime(date, "%Y")
-            else:
-                return 0
-            return int(d.timestamp())
-        except ValueError:
-            return 0
-
-    def end_date_to_int(self, date: str) -> int:
-        try:
-            if re.match(r"\d{4}-\d{1,2}-\d{1,2}", date):
-                d = datetime.strptime(date, "%Y-%m-%d") + relativedelta(days=1)
-            elif re.match(r"\d{4}-\d{1,2}", date):
-                d = datetime.strptime(date, "%Y-%m") + relativedelta(months=1)
-            elif re.match(r"\d{4}", date):
-                d = datetime.strptime(date, "%Y") + relativedelta(years=1)
-            else:
-                return 0
-            return int(d.timestamp()) - 1
-        except ValueError:
-            return 0
-
-    def date_to_int_range(self, date: str) -> tuple[int, int]:
-        try:
-            if re.match(r"\d{4}-\d{1,2}-\d{1,2}", date):
-                start = datetime.strptime(date, "%Y-%m-%d")
-                end = start + relativedelta(days=1)
-            elif re.match(r"\d{4}-\d{1,2}", date):
-                start = datetime.strptime(date, "%Y-%m")
-                end = start + relativedelta(months=1)
-            elif re.match(r"\d{4}", date):
-                start = datetime.strptime(date, "%Y")
-                end = start + relativedelta(years=1)
-            else:
-                return 0, 0
-            return int(start.timestamp()), int(end.timestamp()) - 1
-        except ValueError:
-            return 0, 0
+        r = super().search(query)
+        return r  # type:ignore
