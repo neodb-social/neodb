@@ -44,7 +44,7 @@
               <option {% if request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
                       value="performance">{% trans 'Performance' %}</option>
             {% endif %}
-            {% if request.user.is_authenticated and request.user.is_superuser %}
+            {% if request.user.is_authenticated %}
               <option {% if request.GET.c == 'journal' or '/users/' in request.path %}selected{% endif %}
                       value="journal">{% trans 'Journal' %}</option>
               <option {% if request.GET.c == 'timeline' or '/timeline/' in request.path %}selected{% endif %}
@@ -126,6 +126,19 @@
     </ul>
   </nav>
 </header>
+{% if request.user.is_authenticated %}
+  <script>
+function _search_cat_change(){
+  if (['journal', 'timeline'].includes($('.nav-search select').val())) {
+    $('#q').attr('placeholder', "{% trans 'title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02' %}");
+  } else {
+    $('#q').attr('placeholder', "{% trans 'title, creator, ISBN, item url, @user, @user@instance' %}");
+  }
+}
+$('.nav-search select').on('change', _search_cat_change);
+_search_cat_change();
+  </script>
+{% endif %}
 {% if messages %}
   <ul class="messages" style="text-align:center">
     {% for message in messages %}

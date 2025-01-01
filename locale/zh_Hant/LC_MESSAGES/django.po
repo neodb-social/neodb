@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-30 01:47-0500\n"
+"POT-Creation-Date: 2024-12-31 19:24-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -722,7 +722,6 @@ msgid "Unable to fetch from the link, please check again. Some sites may require
 msgstr "無法加載條目，請確認連結正確。部分網站可能刪除條目或隱藏條目爲僅登入可見，歡迎在本站手工添加這些條目。"
 
 #: catalog/templates/_item_card_metadata_album.html:7
-#: catalog/templates/_item_card_metadata_collection.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
 #: catalog/templates/_item_card_metadata_game.html:7
 #: catalog/templates/_item_card_metadata_movie.html:7
@@ -1396,6 +1395,7 @@ msgid "tag"
 msgstr "標籤"
 
 #: catalog/templates/search_results.html:33
+#: journal/templates/search_journal.html:25
 msgid "No items matching your search query."
 msgstr "無站內條目匹配。"
 
@@ -2366,7 +2366,7 @@ msgstr "源代碼"
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "這是%(site_name)s的臨時鏡像，請儘可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站點</a>。"
 
-#: common/templates/_header.html:17
+#: common/templates/_header.html:17 common/templates/_header.html:135
 msgid "title, creator, ISBN, item url, @user, @user@instance"
 msgstr "標題、創作者、ISBN、站外條目連結、@用戶名、@用戶名@實例"
 
@@ -2433,12 +2433,16 @@ msgstr "管理"
 msgid "Sign up or Login"
 msgstr "註冊或登入"
 
-#: common/templates/_header.html:134
+#: common/templates/_header.html:133
+msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
+msgstr "搜索你的評論或條目，可加過濾條件如 category:tv status:complete rating:8..10 date:2021-09-11..2022-02"
+
+#: common/templates/_header.html:147
 msgid "Open"
 msgstr "打開"
 
 #: common/templates/_sidebar.html:53
-#: users/templates/users/profile_actions.html:29
+#: users/templates/users/profile_actions.html:35
 msgid "approving followers manually"
 msgstr "已開啓關注審覈"
 
@@ -2534,17 +2538,25 @@ msgstr "錯誤"
 msgid "just now"
 msgstr "剛剛"
 
-#: common/templatetags/mastodon.py:42
+#: common/templatetags/mastodon.py:44
 msgid "mutual followed"
 msgstr "互相關注"
 
-#: common/templatetags/mastodon.py:44
+#: common/templatetags/mastodon.py:46
 msgid "followed"
 msgstr "已關注"
 
-#: common/templatetags/mastodon.py:47
+#: common/templatetags/mastodon.py:49
 msgid "following you"
 msgstr "關注了你"
+
+#: common/templatetags/mastodon.py:52
+msgid "you"
+msgstr ""
+
+#: common/templatetags/mastodon.py:55
+msgid "unavailable"
+msgstr ""
 
 #: common/utils.py:64 common/utils.py:94 users/views/actions.py:35
 #: users/views/actions.py:121
@@ -3479,10 +3491,6 @@ msgstr "保存時將行首空格替換爲全角"
 #: journal/templates/review_edit.html:42
 msgid "change review date"
 msgstr "指定評論日期"
-
-#: journal/templates/search_journal.html:25
-msgid "No items matching the search query."
-msgstr "無匹配條目。"
 
 #: journal/templates/tag_edit.html:32
 msgid "Pin"
@@ -4765,79 +4773,79 @@ msgstr "遷移帳號"
 msgid "Link an email so that you can migrate followers from other Fediverse instances."
 msgstr "關聯電子郵件後方可從其他實例遷入。"
 
-#: users/templates/users/profile_actions.html:6
+#: users/templates/users/profile_actions.html:12
 msgid "click to unblock"
 msgstr "點擊可取消屏蔽"
 
-#: users/templates/users/profile_actions.html:7
+#: users/templates/users/profile_actions.html:13
 msgid "are you sure to unblock?"
 msgstr "確定要取消對該用戶的屏蔽嗎？"
 
-#: users/templates/users/profile_actions.html:10
+#: users/templates/users/profile_actions.html:16
 msgid "blocked"
 msgstr "已屏蔽"
 
-#: users/templates/users/profile_actions.html:22
+#: users/templates/users/profile_actions.html:28
 msgid "user profile"
 msgstr "用戶資料"
 
-#: users/templates/users/profile_actions.html:39
+#: users/templates/users/profile_actions.html:45
 msgid "original home"
 msgstr "原始首頁"
 
-#: users/templates/users/profile_actions.html:63
+#: users/templates/users/profile_actions.html:69
 msgid "accept follow request"
 msgstr "接受關注請求"
 
-#: users/templates/users/profile_actions.html:65
+#: users/templates/users/profile_actions.html:71
 msgid "sure to accept follow request?"
 msgstr "確定接受關注請求嗎？"
 
-#: users/templates/users/profile_actions.html:73
+#: users/templates/users/profile_actions.html:79
 msgid "reject follow request"
 msgstr "拒絕關注請求"
 
-#: users/templates/users/profile_actions.html:75
+#: users/templates/users/profile_actions.html:81
 msgid "sure to reject follow request?"
 msgstr "確定拒絕關注請求嗎？"
 
-#: users/templates/users/profile_actions.html:85
+#: users/templates/users/profile_actions.html:91
 msgid "click to unfollow"
 msgstr "點擊可取消關注"
 
-#: users/templates/users/profile_actions.html:87
+#: users/templates/users/profile_actions.html:93
 msgid "sure to unfollow?"
 msgstr "確定取消關注該用戶嗎？"
 
-#: users/templates/users/profile_actions.html:96
+#: users/templates/users/profile_actions.html:102
 msgid "click to cancel follow request"
 msgstr "點擊可取消關注請求"
 
-#: users/templates/users/profile_actions.html:98
+#: users/templates/users/profile_actions.html:104
 msgid "sure to cancel follow request?"
 msgstr "確定取消關注請求嗎？"
 
-#: users/templates/users/profile_actions.html:107
+#: users/templates/users/profile_actions.html:113
 msgid "click to follow"
 msgstr "點擊可關注"
 
-#: users/templates/users/profile_actions.html:108
+#: users/templates/users/profile_actions.html:114
 msgid "sure to follow?"
 msgstr "確定關注該用戶嗎？"
 
-#: users/templates/users/profile_actions.html:118
+#: users/templates/users/profile_actions.html:124
 msgid "click to mute"
 msgstr "點擊可靜音"
 
-#: users/templates/users/profile_actions.html:127
+#: users/templates/users/profile_actions.html:133
 msgid "click to unmute"
 msgstr "點擊可取消靜音"
 
-#: users/templates/users/profile_actions.html:137
+#: users/templates/users/profile_actions.html:143
 msgid "click to block"
 msgstr "點擊可屏蔽"
 
-#: users/templates/users/profile_actions.html:138
+#: users/templates/users/profile_actions.html:144
 msgid "sure to block?"
 msgstr "確定屏蔽該用戶嗎？"
 
