@@ -51,7 +51,6 @@ class QueryParser:
 
     def is_valid(self):
         """Check if the parsed query is valid"""
-        print(self.page, self.max_pages, self.q, self.filter_by)
         return (
             self.page > 0
             and self.page <= self.max_pages

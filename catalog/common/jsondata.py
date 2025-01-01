@@ -313,7 +313,7 @@ class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
             if isinstance(value, list):
                 return value
             else:  # backward compatible with dirty legacy data
-                logger.error(f"ArrayField has irregular value: {self.name}: {value}")
+                # logger.error(f"ArrayField has irregular value: {self.name}: {value}")
                 return [value]
         return []
 

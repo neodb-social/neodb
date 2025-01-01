@@ -1,12 +1,19 @@
 # Federation
 
-## ActivityPub
+## Supported federation protocols and standards
 
-NeoDB's ActivityPub implementation is based on [Takahē](https://jointakahe.org), with some change to enable interchange of additional information between NeoDB instances.
+- [ActivityPub](https://www.w3.org/TR/activitypub/) (Server-to-Server)
+- [WebFinger](https://webfinger.net/)
+- [Http Signatures](https://datatracker.ietf.org/doc/html/draft-cavage-http-signatures)
+- [NodeInfo](https://nodeinfo.diaspora.software/)
 
-### NodeInfo
+## Supported FEPs
 
-NeoDB instances can be identified from user agent string (`NeoDB/x.x (+https://example.org)`) and its nodeinfo, e.g. https://neodb.social/nodeinfo/2.0/ :
+- [FEP-f1d5: NodeInfo in Fediverse Software](https://codeberg.org/fediverse/fep/src/branch/main/fep/f1d5/fep-f1d5.md)
+
+## NodeInfo
+
+NeoDB instances can be identified from user agent string (`NeoDB/x.x (+https://example.org)`) and `protocols` in its nodeinfo, e.g. https://neodb.social/nodeinfo/2.0/ :
 ```json
 {
   "version": "2.0",
@@ -20,6 +27,10 @@ NeoDB instances can be identified from user agent string (`NeoDB/x.x (+https://e
 }
 ```
 
+
+## ActivityPub
+
+NeoDB's ActivityPub implementation is based on [Takahē](https://jointakahe.org), with some change to enable interchange of additional information between NeoDB instances.
 
 ### Activity
 
