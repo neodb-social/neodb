@@ -15,15 +15,7 @@
         {% if item.pub_month %}- {{ item.pub_month }}{% endif %}
       </span>
     {% endif %}
-    {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
-    {% include '_people.html' with people=item.genre role='' max=2 %}
-    {% include '_people.html' with people=item.troupe role='' max=2 %}
-    {% include '_people.html' with people=item.location role='' max=2 %}
-    {% comment %} {% include '_people.html' with people=item.language role='' max=5 %} {% endcomment %}
-    {% include '_people.html' with people=item.platform role='' max=5 %}
-    {% if item.show %}
-      <span>{{ item.show.type.label }}: <a href="{{ item.show.url }}">{{ item.show.display_title }}</a></span>
-    {% endif %}
+    {% include '_people.html' with people=item.additional_title role='other title' max=2 %}
   </div>
 {% endblock brief %}
 {% block full %}
