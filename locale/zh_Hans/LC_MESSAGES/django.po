@@ -2517,7 +2517,7 @@ msgstr ""
 "  <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s 致力于提供一个涵盖书籍、影视、音乐、游戏、播客的自由开放互联的收藏评论空间。 你可以在这里记录你的收藏和想法，以及发现新的内容和朋友。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式通过联邦宇宙（Fediverse，有时也被称为<em data-tooltip=\"除了最常见的长毛象，另外也有Pleroma、GoToSocial、Takahē、Catodon等联邦宇宙实例服务\">长毛象</em>，一种分布式社交网络）实例账号，如果你还没有注册过，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。\n"
+"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式通过<em data-tooltip=\"除了最常见的长毛象，另外也有Pleroma、GoToSocial、Takahē、Firefish、Catodon等联邦宇宙实例服务\">联邦宇宙（Fediverse，一种分布式社交网络）</em>实例账号，如果你还没有注册过，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。\n"
 "</p>\n"
 "<p>\n"
 "  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果还没准备好注册联邦宇宙也没问题，你可以在登录页面选择电子邮件注册，未来再连接到联邦宇宙。\n"
@@ -4256,7 +4256,7 @@ msgstr "推荐输入电子邮件地址作为备用登录方式。"
 
 #: users/templates/users/account.html:73 users/templates/users/login.html:69
 msgid "Fediverse (Mastodon)"
-msgstr "联邦宇宙（有时也被称为长毛象）"
+msgstr "联邦宇宙（Mastodon API）"
 
 #: users/templates/users/account.html:79
 msgid "Verified Identity"

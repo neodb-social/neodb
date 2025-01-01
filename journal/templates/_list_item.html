@@ -46,7 +46,14 @@
         {% if mark.shelf %}
           <section>
             <div class="action">
+              {% include "action_open_post.html" with post=mark.shelfmember.latest_post %}
               <span class="timestamp">{{ mark.created_time|date }}</span>
+            </div>
+            <div>
+              {% comment %} <a href="{{mark.owner.url }}" title="@{{ mark.owner.handle }}">{{ mark.owner.display_name }}</a> {% endcomment %}
+              <span>{{ mark.status_label }}</span>
+              {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
+              <span>{{ mark.comment.html|safe }}</span>
             </div>
             <span class="tag-list">
               {% for tag in mark.tags %}
@@ -57,19 +64,15 @@
                 {% endif %}
               {% endfor %}
             </span>
-            <div>
-              {% comment %} <a href="{{mark.owner.url }}" title="@{{ mark.owner.handle }}">{{ mark.owner.display_name }}</a> {% endcomment %}
-              <span>{{ mark.status_label }}</span>
-              {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
-              <span>{{ mark.comment.html|safe }}</span>
-            </div>
+            {% if mark.comment.latest_post %}<div id="replies_{{ mark.comment.latest_post.pk }}"></div>{% endif %}
           </section>
         {% endif %}
         {% if mark.review %}
           <section>
-            <span class="action">
+            <div class="action">
+              {% include "action_open_post.html" with post=mark.review.latest_post %}
               <span class="timestamp">{{ mark.review.created_time|date }}</span>
-            </span>
+            </div>
             <div class="tldr">
               {% trans "Review" %}
               <span>
@@ -78,6 +81,7 @@
               -
               {{ mark.review.plain_content }}
             </div>
+            {% if mark.review.latest_post %}<div id="replies_{{ mark.review.latest_post.pk }}"></div>{% endif %}
           </section>
         {% endif %}
       {% endif %}

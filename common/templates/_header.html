@@ -44,12 +44,10 @@
               <option {% if request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
                       value="performance">{% trans 'Performance' %}</option>
             {% endif %}
-            {% if request.user.is_authenticated %}
-              <option {% if request.GET.c == 'journal' or '/users/' in request.path %}selected{% endif %}
-                      value="journal">{% trans 'Journal' %}</option>
-              <option {% if request.GET.c == 'timeline' or '/timeline/' in request.path %}selected{% endif %}
-                      value="timeline">{% trans 'Posts' %}</option>
-            {% endif %}
+            <option {% if request.GET.c == 'journal' %}selected{% endif %}
+                    value="journal">{% trans 'Journal' %}</option>
+            <option {% if request.GET.c == 'timeline' %}selected{% endif %}
+                    value="timeline">{% trans 'Posts' %}</option>
           </select>
           <input type="submit" value="&#xf002;" class="fa-solid" />
         </form>
