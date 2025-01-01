@@ -4,6 +4,9 @@
 {% load l10n %}
 {% load user_actions %}
 {% load duration %}
+{% if not mark %}
+  {% get_mark_for_item item as mark %}
+{% endif %}
 <article class="entity-sort item-card"
          {% if collection_edit %}data-member-id="{{ collection_member.id }}"{% endif %}>
   <span class="action">
@@ -16,9 +19,8 @@
         </a>
       </span>
     {% elif request.user.is_authenticated and item.class_name != 'collection' %}
-      {% wish_item_action item as action %}
       <span>
-        {% if not action.taken %}
+        {% if not mark.shelf_type %}
           <a title="{% trans "add mark" %}"
              hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist"
              hx-target="body"
@@ -41,28 +43,26 @@
   {% if mark or collection_edit or collection_member.note %}
     <footer>
       {% if mark %}
-        {% if mark.action_label %}
+        {% if mark.shelf %}
           <section>
             <div class="action">
               <span class="timestamp">{{ mark.created_time|date }}</span>
             </div>
+            <span class="tag-list">
+              {% for tag in mark.tags %}
+                {% if forloop.counter <= 5 %}
+                  <span>
+                    <a href="{% url 'common:search' %}?c=journal&amp;q=tag:{{ tag }}">{{ tag }}</a>
+                  </span>
+                {% endif %}
+              {% endfor %}
+            </span>
             <div>
               {% comment %} <a href="{{mark.owner.url }}" title="@{{ mark.owner.handle }}">{{ mark.owner.display_name }}</a> {% endcomment %}
-              <span>{{ mark.action_label }}</span>
+              <span>{{ mark.status_label }}</span>
               {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
+              <span>{{ mark.comment.html|safe }}</span>
             </div>
-            {% if mark.tags %}
-              <div class="tag-list">
-                {% for tag in mark.tags %}
-                  {% if forloop.counter <= 5 %}
-                    <span>
-                      <a href="{% url 'common:search' %}?tag={{ tag }}">{{ tag }}</a>
-                    </span>
-                  {% endif %}
-                {% endfor %}
-              </div>
-            {% endif %}
-            <div>{{ mark.comment.html|safe }}</div>
           </section>
         {% endif %}
         {% if mark.review %}

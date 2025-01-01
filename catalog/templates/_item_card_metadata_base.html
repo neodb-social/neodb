@@ -47,7 +47,7 @@
       </div>
     {% endblock full %}
   </div>
-  {% if show_tags %}
+  {% if not mark and not mark.shelf %}
     <div class="tag-list solo-hidden">
       {% for tag in item.tags %}
         {% if forloop.counter <= 5 %}
