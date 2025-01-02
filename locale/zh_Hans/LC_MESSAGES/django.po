@@ -5,9 +5,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: 2025-01-02 21:02+0000\n"
+"PO-Revision-Date: 2025-01-02 21:19+0000\n"
 "Last-Translator: Henri Dickson <neodb@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/neodb/neodb/zh_Hans/>\n"
@@ -1567,7 +1567,7 @@ msgstr ""
 
 #: common/models/lang.py:48
 msgid "Azerbaijani"
-msgstr ""
+msgstr "阿塞拜疆"
 
 #: common/models/lang.py:49
 msgid "Bashkir"
@@ -1591,19 +1591,19 @@ msgstr ""
 
 #: common/models/lang.py:54
 msgid "Catalan"
-msgstr ""
+msgstr "加泰罗尼亚"
 
 #: common/models/lang.py:55
 msgid "Czech"
-msgstr ""
+msgstr "捷克"
 
 #: common/models/lang.py:56
 msgid "Chechen"
-msgstr ""
+msgstr "车臣"
 
 #: common/models/lang.py:57
 msgid "Slavic"
-msgstr ""
+msgstr "斯拉夫"
 
 #: common/models/lang.py:58
 msgid "Chuvash"
