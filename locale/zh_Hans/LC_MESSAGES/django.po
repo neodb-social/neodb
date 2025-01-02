@@ -7,13 +7,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2025-01-02 21:02+0000\n"
+"Last-Translator: Henri Dickson <neodb@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/neodb/neodb/zh_Hans/>\n"
+"Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
@@ -787,7 +790,7 @@ msgstr "评论"
 
 #: catalog/templates/_item_user_mark_history.html:15
 msgid "no history."
-msgstr "暂无标记历史"
+msgstr "暂无标记历史。"
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "sure to clear mark history?"
@@ -845,7 +848,7 @@ msgstr "编辑选项"
 #: catalog/templates/catalog_merge.html:35
 #: catalog/templates/catalog_merge.html:63
 msgid "Item has been deleted."
-msgstr "条目已被删除"
+msgstr "条目已被删除。"
 
 #: catalog/templates/_sidebar_edit.html:26
 #: catalog/templates/catalog_delete.html:28
@@ -853,21 +856,21 @@ msgstr "条目已被删除"
 #: catalog/templates/catalog_merge.html:40
 #: catalog/templates/catalog_merge.html:68
 msgid "Item contains sub-items."
-msgstr "条目下已有子项"
+msgstr "条目下已有子项。"
 
 #: catalog/templates/_sidebar_edit.html:31
 #: catalog/templates/catalog_delete.html:33
 #: catalog/templates/catalog_merge.html:45
 #: catalog/templates/catalog_merge.html:73
 msgid "Item has been merged to another item."
-msgstr "条目已被合并到其他条目"
+msgstr "条目已被合并到其他条目。"
 
 #: catalog/templates/_sidebar_edit.html:36
 #: catalog/templates/catalog_delete.html:38
 #: catalog/templates/catalog_merge.html:50
 #: catalog/templates/catalog_merge.html:78
 msgid "Item has been marked by users."
-msgstr "条目已被用户标记过"
+msgstr "条目已被用户标记过。"
 
 #: catalog/templates/_sidebar_edit.html:41
 msgid "The following items are merged into this item"
@@ -1033,7 +1036,7 @@ msgstr "其它"
 
 #: catalog/templates/_sidebar_edit.html:271
 msgid "To suggest merging or association, please include the URL of the target item"
-msgstr "建议详情。如提议合并或关联，请包含目标条目网址。"
+msgstr "建议详情。如提议合并或关联，请包含目标条目网址"
 
 #: catalog/templates/_sidebar_edit.html:272
 msgid "submit"
@@ -1255,7 +1258,7 @@ msgstr "标签 · 短评 · 评论 · 收藏"
 
 #: catalog/templates/item_base.html:115
 msgid "Login or register to review or add this item to your collection."
-msgstr "登录后可管理标记收藏"
+msgstr "登录后可管理标记收藏。"
 
 #: catalog/templates/item_base.html:123
 msgid "Related Collections"
@@ -1263,7 +1266,7 @@ msgstr "相关收藏单"
 
 #: catalog/templates/item_base.html:138
 msgid "Unsupported item type."
-msgstr "此类数据尚未支持"
+msgstr "此类数据尚未支持。"
 
 #: catalog/templates/item_base.html:147
 msgid "Edit this item"
@@ -1401,7 +1404,7 @@ msgstr "无站内条目匹配。"
 
 #: catalog/templates/search_results.html:35
 msgid "System will search other websites and instances, click title of the item to save them locally. "
-msgstr "系统会尝试搜索其它网站的条目，点击标题可添加到本站。"
+msgstr "系统会尝试搜索其它网站的条目，点击标题可添加到本站。 "
 
 #: catalog/templates/search_results.html:39
 msgid "If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter."
@@ -2452,7 +2455,7 @@ msgstr "当前目标"
 
 #: common/templates/_sidebar.html:88
 msgid "Set a collection as target, its progress will show up here."
-msgstr "将自己或他人的收藏单设为目标，这里就会显示进度"
+msgstr "将自己或他人的收藏单设为目标，这里就会显示进度。"
 
 #: common/templates/_sidebar.html:101
 msgid "Recent podcast episodes"
@@ -3482,7 +3485,7 @@ msgstr "添加回应"
 
 #: journal/templates/review.html:63
 msgid "The author has set it to be viewable only by logged-in users."
-msgstr "作者已设置仅限已登录用户查看"
+msgstr "作者已设置仅限已登录用户查看。"
 
 #: journal/templates/review_edit.html:33
 msgid "When saving, replace leading spaces with full-width spaces"
@@ -3627,7 +3630,7 @@ msgstr "正在重定向到你的联邦实例以重新认证。"
 
 #: journal/views/common.py:44
 msgid "List not found."
-msgstr "列表未找到"
+msgstr "列表未找到。"
 
 #: journal/views/mark.py:114
 msgid "Content too long for your Fediverse instance."
