@@ -124,7 +124,7 @@ multidict==6.1.0
 openpyxl==3.1.5
 packaging==24.2
     # via gunicorn
-pillow==11.0.0
+pillow==11.1.0
     # via blurhash-python
     # via django-markdownx
     # via easy-thumbnails
