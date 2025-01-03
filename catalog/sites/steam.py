@@ -71,10 +71,10 @@ class Steam(AbstractSite):
             raise ParseError(self, "id")
         # merge data from IGDB, use localized Steam data if available
         d = {
-            "developer": en_data["developers"],
-            "publisher": en_data["publishers"],
-            "release_date": en_data["release_date"].get("date"),
-            "genre": [g["description"] for g in en_data["genres"]],
+            "developer": en_data.get("developers", []),
+            "publisher": en_data.get("publishers", []),
+            "release_date": en_data.get("release_date", {}).get("date"),
+            "genre": [g["description"] for g in en_data.get("genres", [])],
             "platform": ["PC"],
         }
         if en_data["release_date"].get("date"):
