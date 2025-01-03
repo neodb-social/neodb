@@ -5,7 +5,7 @@ from django.utils import timezone
 from loguru import logger
 
 from common.models import BaseJob, JobManager
-from mastodon.models import MastodonApplication, detect_server_info, verify_client
+from mastodon.models import MastodonApplication, detect_server_info
 
 
 @JobManager.register
@@ -18,6 +18,7 @@ class MastodonSiteCheck(BaseJob):
         count_checked = 0
         count_unreachable = 0
         count_disabled = 0
+        count_refreshed = 0
         q = Q(last_reachable_date__lte=timezone.now() - timedelta(days=1)) | Q(
             last_reachable_date__isnull=True
         )
@@ -56,17 +57,20 @@ class MastodonSiteCheck(BaseJob):
                         "disabled",
                     ]
                 )
-            # try:
-            #     if not verify_client(site):
-            #         logger.error(
-            #             f"Unable to verify client app for {site.api_domain}, consider deleting it."
-            #         )
-            #         # site.delete()
-            # except Exception as e:
-            #     logger.error(
-            #         f"Failed to verify client app for {site.api_domain}",
-            #         extra={"exception": e},
-            #     )
+            try:
+                if (
+                    site.server_version.startswith("4.")
+                    and "(compatible;" not in site.server_version
+                    and not site.verify()
+                ):
+                    # always verify token from Mastodon 4.x
+                    site.refresh()
+                    count_refreshed += 1
+            except Exception as e:
+                logger.error(
+                    f"Failed to verify/refresh client app for {site.api_domain}",
+                    extra={"exception": e},
+                )
         logger.info(
-            f"Mastodon Site Check finished, {count_checked} checked, {count_unreachable} unreachable, {count_disabled} disabled."
+            f"Mastodon Site Check finished, {count_checked} checked, {count_unreachable} unreachable, {count_disabled} disabled, {count_refreshed} refreshed."
         )
