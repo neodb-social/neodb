@@ -80,7 +80,6 @@ exclude = [
     "journal/tests.py",
     "neodb",
     "**/migrations",
-    "**/sites/douban_*",
     "neodb-takahe",
 ]
 reportIncompatibleVariableOverride = false

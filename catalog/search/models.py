@@ -79,6 +79,9 @@ class ExternalSearchResultItem:
         self.display_description = brief
         self.cover_image_url = cover_url
 
+    def __repr__(self):
+        return f"[{self.category}] {self.display_title} {self.url}"
+
     @property
     def verbose_category_name(self):
         return self.category.label if self.category else ""

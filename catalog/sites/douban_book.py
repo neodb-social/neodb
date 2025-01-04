@@ -3,7 +3,7 @@ from catalog.book.utils import *
 from catalog.common import *
 from common.models.lang import detect_language
 
-from .douban import *
+from .douban import RE_NUMBERS, RE_WHITESPACES, DoubanDownloader, DoubanSearcher
 
 
 @SiteManager.register
@@ -23,46 +23,51 @@ class DoubanBook(AbstractSite):
     def id_to_url(cls, id_value):
         return "https://book.douban.com/subject/" + id_value + "/"
 
+    @classmethod
+    def search(cls, q: str, p: int = 1):
+        return DoubanSearcher.search(ItemCategory.Book, "book", q, p)
+
     def scrape(self):
         content = DoubanDownloader(self.url).download().html()
 
-        isbn_elem = content.xpath(
-            "//div[@id='info']//span[text()='ISBN:']/following::text()"
+        isbn_elem = self.query_list(
+            content, "//div[@id='info']//span[text()='ISBN:']/following::text()"
         )
         isbn = isbn_elem[0].strip() if isbn_elem else None
 
-        title_elem = content.xpath("/html/body//h1/span/text()")
+        title_elem = self.query_list(content, "/html/body//h1/span/text()")
         title = (
             title_elem[0].strip() if title_elem else f"Unknown Title {self.id_value}"
         )
 
-        subtitle_elem = content.xpath(
-            "//div[@id='info']//span[text()='副标题:']/following::text()"
+        subtitle_elem = self.query_list(
+            content, "//div[@id='info']//span[text()='副标题:']/following::text()"
         )
         subtitle = subtitle_elem[0].strip()[:500] if subtitle_elem else None
 
-        orig_title_elem = content.xpath(
-            "//div[@id='info']//span[text()='原作名:']/following::text()"
+        orig_title_elem = self.query_list(
+            content, "//div[@id='info']//span[text()='原作名:']/following::text()"
         )
         orig_title = orig_title_elem[0].strip()[:500] if orig_title_elem else None
 
-        language_elem = content.xpath(
-            "//div[@id='info']//span[text()='语言:']/following::text()"
+        language_elem = self.query_list(
+            content, "//div[@id='info']//span[text()='语言:']/following::text()"
         )
         language = [language_elem[0].strip()] if language_elem else []
 
-        pub_house_elem = content.xpath(
-            "//div[@id='info']//span[text()='出版社:']/following::text()"
+        pub_house_elem = self.query_list(
+            content, "//div[@id='info']//span[text()='出版社:']/following::text()"
         )
         pub_house = pub_house_elem[0].strip() if pub_house_elem else None
         if not pub_house:
-            pub_house_elem = content.xpath(
-                "//div[@id='info']//span[text()='出版社:']/following-sibling::a/text()"
+            pub_house_elem = self.query_list(
+                content,
+                "//div[@id='info']//span[text()='出版社:']/following-sibling::a/text()",
             )
             pub_house = pub_house_elem[0].strip() if pub_house_elem else None
 
-        pub_date_elem = content.xpath(
-            "//div[@id='info']//span[text()='出版年:']/following::text()"
+        pub_date_elem = self.query_list(
+            content, "//div[@id='info']//span[text()='出版年:']/following::text()"
         )
         pub_date = pub_date_elem[0].strip() if pub_date_elem else ""
         year_month_day = RE_NUMBERS.findall(pub_date)
@@ -88,18 +93,18 @@ class DoubanBook(AbstractSite):
             else pub_month
         )
 
-        binding_elem = content.xpath(
-            "//div[@id='info']//span[text()='装帧:']/following::text()"
+        binding_elem = self.query_list(
+            content, "//div[@id='info']//span[text()='装帧:']/following::text()"
         )
         binding = binding_elem[0].strip() if binding_elem else None
 
-        price_elem = content.xpath(
-            "//div[@id='info']//span[text()='定价:']/following::text()"
+        price_elem = self.query_list(
+            content, "//div[@id='info']//span[text()='定价:']/following::text()"
         )
         price = price_elem[0].strip() if price_elem else None
 
-        pages_elem = content.xpath(
-            "//div[@id='info']//span[text()='页数:']/following::text()"
+        pages_elem = self.query_list(
+            content, "//div[@id='info']//span[text()='页数:']/following::text()"
         )
         pages = pages_elem[0].strip() if pages_elem else None
         if pages is not None:
@@ -109,15 +114,16 @@ class DoubanBook(AbstractSite):
             if pages and (pages > 999999 or pages < 1):
                 pages = None
 
-        brief_elem = content.xpath(
-            "//h2/span[text()='内容简介']/../following-sibling::div[1]//div[@class='intro'][not(ancestor::span[@class='short'])]/p/text()"
+        brief_elem = self.query_list(
+            content,
+            "//h2/span[text()='内容简介']/../following-sibling::div[1]//div[@class='intro'][not(ancestor::span[@class='short'])]/p/text()",
         )
         brief = "\n".join(p.strip() for p in brief_elem) if brief_elem else None
 
         contents = None
         try:
-            contents_elem = content.xpath(
-                "//h2/span[text()='目录']/../following-sibling::div[1]"
+            contents_elem = self.query_list(
+                content, "//h2/span[text()='目录']/../following-sibling::div[1]"
             )[0]
             # if next the id of next sibling contains `dir`, that would be the full contents
             if "dir" in contents_elem.getnext().xpath("@id")[0]:
@@ -129,24 +135,28 @@ class DoubanBook(AbstractSite):
                 )
             else:
                 contents = (
-                    "\n".join(p.strip() for p in contents_elem.xpath("text()"))
+                    "\n".join(
+                        p.strip() for p in self.query_list(contents_elem, "text()")
+                    )
                     if contents_elem is not None
                     else None
                 )
         except Exception:
             pass
 
-        img_url_elem = content.xpath("//*[@id='mainpic']/a/img/@src")
+        img_url_elem = self.query_list(content, "//*[@id='mainpic']/a/img/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
 
         # there are two html formats for authors and translators
-        authors_elem = content.xpath(
+        authors_elem = self.query_list(
+            content,
             """//div[@id='info']//span[text()='作者:']/following-sibling::br[1]/
-            preceding-sibling::a[preceding-sibling::span[text()='作者:']]/text()"""
+            preceding-sibling::a[preceding-sibling::span[text()='作者:']]/text()""",
         )
         if not authors_elem:
-            authors_elem = content.xpath(
-                """//div[@id='info']//span[text()=' 作者']/following-sibling::a/text()"""
+            authors_elem = self.query_list(
+                content,
+                """//div[@id='info']//span[text()=' 作者']/following-sibling::a/text()""",
             )
         if authors_elem:
             authors = []
@@ -155,13 +165,15 @@ class DoubanBook(AbstractSite):
         else:
             authors = None
 
-        translators_elem = content.xpath(
+        translators_elem = self.query_list(
+            content,
             """//div[@id='info']//span[text()='译者:']/following-sibling::br[1]/
-            preceding-sibling::a[preceding-sibling::span[text()='译者:']]/text()"""
+            preceding-sibling::a[preceding-sibling::span[text()='译者:']]/text()""",
         )
         if not translators_elem:
-            translators_elem = content.xpath(
-                """//div[@id='info']//span[text()=' 译者']/following-sibling::a/text()"""
+            translators_elem = self.query_list(
+                content,
+                """//div[@id='info']//span[text()=' 译者']/following-sibling::a/text()""",
             )
         if translators_elem:
             translators = []
@@ -170,18 +182,20 @@ class DoubanBook(AbstractSite):
         else:
             translators = None
 
-        cncode_elem = content.xpath(
-            "//div[@id='info']//span[text()='统一书号:']/following::text()"
+        cncode_elem = self.query_list(
+            content, "//div[@id='info']//span[text()='统一书号:']/following::text()"
         )
         cubn = cncode_elem[0].strip() if cncode_elem else None
 
-        series_elem = content.xpath(
-            "//div[@id='info']//span[text()='丛书:']/following-sibling::a[1]/text()"
+        series_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='丛书:']/following-sibling::a[1]/text()",
         )
         series = series_elem[0].strip() if series_elem else None
 
-        imprint_elem = content.xpath(
-            "//div[@id='info']//span[text()='出品方:']/following-sibling::a[1]/text()"
+        imprint_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='出品方:']/following-sibling::a[1]/text()",
         )
         imprint = imprint_elem[0].strip() if imprint_elem else None
 
@@ -212,8 +226,9 @@ class DoubanBook(AbstractSite):
             "cover_image_url": img_url,
         }
 
-        works_element = content.xpath(
-            '//h2/span[text()="这本书的其他版本"]/following-sibling::span[@class="pl"]/a/@href'
+        works_element = self.query_list(
+            content,
+            '//h2/span[text()="这本书的其他版本"]/following-sibling::span[@class="pl"]/a/@href',
         )
         if works_element:
             r = re.match(r"\w+://book.douban.com/works/(\d+)", works_element[0])
@@ -234,7 +249,7 @@ class DoubanBook(AbstractSite):
             ]
 
         pd = ResourceContent(metadata=data)
-        t, n = detect_isbn_asin(isbn)
+        t, n = detect_isbn_asin(isbn or "")
         if t:
             pd.lookup_ids[t] = n
         pd.lookup_ids[IdType.CUBN] = cubn
@@ -255,11 +270,11 @@ class DoubanBook_Work(AbstractSite):
 
     def scrape(self):
         content = DoubanDownloader(self.url).download().html()
-        title_elem = content.xpath("//h1/text()")
+        title_elem = self.query_list(content, "//h1/text()")
         title = title_elem[0].split("全部版本(")[0].strip() if title_elem else None
         if not title:
             raise ParseError(self, "title")
-        book_urls = content.xpath('//a[@class="pl2"]/@href')
+        book_urls = self.query_list(content, '//a[@class="pl2"]/@href')
         related_resources = []
         for url in book_urls:
             site = SiteManager.get_site_by_url(url)

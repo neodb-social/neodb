@@ -1,6 +1,8 @@
+import json
 import re
 
 from catalog.common import *
+from catalog.search.models import ExternalSearchResultItem
 
 RE_NUMBERS = re.compile(r"\d+\d*")
 RE_WHITESPACES = re.compile(r"\s+")
@@ -30,3 +32,35 @@ class DoubanDownloader(ProxiedDownloader):
                 return RESPONSE_OK
         else:
             return RESPONSE_INVALID_CONTENT
+
+
+class DoubanSearcher:
+    @classmethod
+    def search(cls, cat: ItemCategory, c: str, q: str, p: int = 1):
+        url = f"https://search.douban.com/{c}/subject_search?search_text={q}&start={15*(p-1)}"
+        content = DoubanDownloader(url).download().html()
+        j = json.loads(
+            content.xpath(
+                "//script[text()[contains(.,'window.__DATA__')]]/text()"
+            )[  # type:ignore
+                0
+            ]
+            .split("window.__DATA__ = ")[1]  # type:ignore
+            .split("};")[0]  # type:ignore
+            + "}"
+        )
+        results = [
+            ExternalSearchResultItem(
+                cat,
+                SiteName.Douban,
+                item["url"],
+                item["title"],
+                item["abstract"],
+                item["abstract_2"],
+                item["cover_url"],
+            )
+            for item in j["items"]
+            for item in j["items"]
+            if item.get("tpl_name") == "search_subject"
+        ]
+        return results

@@ -104,7 +104,7 @@ class AbstractSite:
         return content.xpath(query)[0].strip()
 
     @staticmethod
-    def query_list(content, query: str) -> list[str]:
+    def query_list(content, query: str) -> list:
         return list(content.xpath(query))
 
     @classmethod

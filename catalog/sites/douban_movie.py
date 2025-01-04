@@ -1,15 +1,16 @@
 import json
 import logging
 
+from loguru import logger
+
 from catalog.common import *
 from catalog.movie.models import *
 from catalog.tv.models import *
 from common.models.lang import detect_language
+from common.models.misc import int_
 
-from .douban import *
+from .douban import DoubanDownloader, DoubanSearcher
 from .tmdb import TMDB_TV, TMDB_TVSeason, query_tmdb_tv_episode, search_tmdb_by_imdb_id
-
-_logger = logging.getLogger(__name__)
 
 
 @SiteManager.register
@@ -29,11 +30,15 @@ class DoubanMovie(AbstractSite):
     def id_to_url(cls, id_value):
         return "https://movie.douban.com/subject/" + id_value + "/"
 
+    @classmethod
+    def search(cls, q: str, p: int = 1):
+        return DoubanSearcher.search(ItemCategory.Movie, "movie", q, p)
+
     def scrape(self):
         content = DoubanDownloader(self.url).download().html()
         try:
             schema_data = "".join(
-                content.xpath('//script[@type="application/ld+json"]/text()')
+                self.query_list(content, '//script[@type="application/ld+json"]/text()')
             ).replace(
                 "\n", ""
             )  # strip \n bc multi-line string is not properly coded in json by douban
@@ -42,13 +47,13 @@ class DoubanMovie(AbstractSite):
             d = {}
 
         try:
-            raw_title = content.xpath("//span[@property='v:itemreviewed']/text()")[
-                0
-            ].strip()
+            raw_title = self.query_list(
+                content, "//span[@property='v:itemreviewed']/text()"
+            )[0].strip()
         except IndexError:
             raise ParseError(self, "title")
 
-        orig_title = content.xpath("//img[@rel='v:image']/@alt")[0].strip()
+        orig_title = self.query_list(content, "//img[@rel='v:image']/@alt")[0].strip()
         title = raw_title.split(orig_title)[0].strip()
         # if has no chinese title
         if title == "":
@@ -58,40 +63,46 @@ class DoubanMovie(AbstractSite):
             orig_title = None
 
         # there are two html formats for authors and translators
-        other_title_elem = content.xpath(
-            "//div[@id='info']//span[text()='又名:']/following-sibling::text()[1]"
+        other_title_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='又名:']/following-sibling::text()[1]",
         )
         other_title = (
             other_title_elem[0].strip().split(" / ") if other_title_elem else None
         )
 
-        imdb_elem = content.xpath(
-            "//div[@id='info']//span[text()='IMDb链接:']/following-sibling::a[1]/text()"
+        imdb_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='IMDb链接:']/following-sibling::a[1]/text()",
         )
         if not imdb_elem:
-            imdb_elem = content.xpath(
-                "//div[@id='info']//span[text()='IMDb:']/following-sibling::text()[1]"
+            imdb_elem = self.query_list(
+                content,
+                "//div[@id='info']//span[text()='IMDb:']/following-sibling::text()[1]",
             )
         imdb_code = imdb_elem[0].strip() if imdb_elem else None
 
-        director_elem = content.xpath(
-            "//div[@id='info']//span[text()='导演']/following-sibling::span[1]/a/text()"
+        director_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='导演']/following-sibling::span[1]/a/text()",
         )
         director = director_elem if director_elem else None
 
-        playwright_elem = content.xpath(
-            "//div[@id='info']//span[text()='编剧']/following-sibling::span[1]/a/text()"
+        playwright_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='编剧']/following-sibling::span[1]/a/text()",
         )
         playwright = (
             list(map(lambda a: a[:200], playwright_elem)) if playwright_elem else None
         )
 
-        actor_elem = content.xpath(
-            "//div[@id='info']//span[text()='主演']/following-sibling::span[1]/a/text()"
+        actor_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='主演']/following-sibling::span[1]/a/text()",
         )
         actor = list(map(lambda a: a[:200], actor_elem)) if actor_elem else None
 
-        genre_elem = content.xpath("//span[@property='v:genre']/text()")
+        genre_elem = self.query_list(content, "//span[@property='v:genre']/text()")
         genre = []
         if genre_elem:
             for g in genre_elem:
@@ -102,7 +113,9 @@ class DoubanMovie(AbstractSite):
                     g = "惊悚"
                 genre.append(g)
 
-        showtime_elem = content.xpath("//span[@property='v:initialReleaseDate']/text()")
+        showtime_elem = self.query_list(
+            content, "//span[@property='v:initialReleaseDate']/text()"
+        )
         if showtime_elem:
             showtime = []
             for st in showtime_elem:
@@ -122,39 +135,39 @@ class DoubanMovie(AbstractSite):
         else:
             showtime = None
 
-        site_elem = content.xpath(
-            "//div[@id='info']//span[text()='官方网站:']/following-sibling::a[1]/@href"
+        site_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='官方网站:']/following-sibling::a[1]/@href",
         )
         site = site_elem[0].strip()[:200] if site_elem else None
         if site and not re.match(r"http.+", site):
             site = None
 
-        area_elem = content.xpath(
-            "//div[@id='info']//span[text()='制片国家/地区:']/following-sibling::text()[1]"
+        area_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='制片国家/地区:']/following-sibling::text()[1]",
         )
         if area_elem:
             area = [a.strip()[:100] for a in area_elem[0].split("/")]
         else:
             area = None
 
-        language_elem = content.xpath(
-            "//div[@id='info']//span[text()='语言:']/following-sibling::text()[1]"
+        language_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='语言:']/following-sibling::text()[1]",
         )
         if language_elem:
             language = [a.strip() for a in language_elem[0].split(" / ")]
         else:
             language = None
 
-        year_elem = content.xpath("//span[@class='year']/text()")
-        year = (
-            int(re.search(r"\d+", year_elem[0])[0])
-            if year_elem and re.search(r"\d+", year_elem[0])
-            else None
-        )
+        year_s = self.query_str(content, "//span[@class='year']/text()")
+        year_r = re.search(r"\d+", year_s) if year_s else None
+        year = int_(year_r[0]) if year_r else None
 
-        duration_elem = content.xpath("//span[@property='v:runtime']/text()")
-        other_duration_elem = content.xpath(
-            "//span[@property='v:runtime']/following-sibling::text()[1]"
+        duration_elem = self.query_list(content, "//span[@property='v:runtime']/text()")
+        other_duration_elem = self.query_list(
+            content, "//span[@property='v:runtime']/following-sibling::text()[1]"
         )
         if duration_elem:
             duration = duration_elem[0].strip()
@@ -164,19 +177,21 @@ class DoubanMovie(AbstractSite):
         else:
             duration = None
 
-        season_elem = content.xpath(
-            "//*[@id='season']/option[@selected='selected']/text()"
+        season_elem = self.query_list(
+            content, "//*[@id='season']/option[@selected='selected']/text()"
         )
         if not season_elem:
-            season_elem = content.xpath(
-                "//div[@id='info']//span[text()='季数:']/following-sibling::text()[1]"
+            season_elem = self.query_list(
+                content,
+                "//div[@id='info']//span[text()='季数:']/following-sibling::text()[1]",
             )
             season = int(season_elem[0].strip()) if season_elem else None
         else:
             season = int(season_elem[0].strip())
 
-        episodes_elem = content.xpath(
-            "//div[@id='info']//span[text()='集数:']/following-sibling::text()[1]"
+        episodes_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='集数:']/following-sibling::text()[1]",
         )
         episodes = (
             int(episodes_elem[0].strip())
@@ -184,8 +199,9 @@ class DoubanMovie(AbstractSite):
             else None
         )
 
-        single_episode_length_elem = content.xpath(
-            "//div[@id='info']//span[text()='单集片长:']/following-sibling::text()[1]"
+        single_episode_length_elem = self.query_list(
+            content,
+            "//div[@id='info']//span[text()='单集片长:']/following-sibling::text()[1]",
         )
         single_episode_length = (
             single_episode_length_elem[0].strip()[:100]
@@ -195,16 +211,16 @@ class DoubanMovie(AbstractSite):
 
         is_series = d.get("@type") == "TVSeries" or episodes is not None
 
-        brief_elem = content.xpath("//span[@class='all hidden']")
+        brief_elem = self.query_list(content, "//span[@class='all hidden']")
         if not brief_elem:
-            brief_elem = content.xpath("//span[@property='v:summary']")
+            brief_elem = self.query_list(content, "//span[@property='v:summary']")
         brief = (
             "\n".join([e.strip() for e in brief_elem[0].xpath("./text()")])
             if brief_elem
             else None
         )
 
-        img_url_elem = content.xpath("//img[@rel='v:image']/@src")
+        img_url_elem = self.query_list(content, "//img[@rel='v:image']/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
 
         titles = set(
@@ -261,26 +277,26 @@ class DoubanMovie(AbstractSite):
                     pd.metadata.get("season_number")
                     and pd.metadata.get("season_number") != 1
                 ):
-                    _logger.warn(f"{imdb_code} matched imdb tv show, force season 1")
+                    logger.warning(f"{imdb_code} matched imdb tv show, force season 1")
                     pd.metadata["season_number"] = 1
             elif pd.metadata["preferred_model"] == "TVSeason" and has_episode:
                 if res_data["tv_episode_results"][0]["episode_number"] != 1:
-                    _logger.warning(
+                    logger.warning(
                         f"Douban Movie {self.url} IMDB {imdb_code} mapping to non-first episode in a season"
                     )
                 elif res_data["tv_episode_results"][0]["season_number"] == 1:
-                    _logger.warning(
+                    logger.warning(
                         f"Douban Movie {self.url} IMDB {imdb_code} mapping to first season episode in a season"
                     )
             elif has_movie:
                 if pd.metadata["preferred_model"] != "Movie":
-                    _logger.warn(f"{imdb_code} matched imdb movie, force Movie")
+                    logger.warning(f"{imdb_code} matched imdb movie, force Movie")
                     pd.metadata["preferred_model"] = "Movie"
             elif has_tv or has_episode:
-                _logger.warn(f"{imdb_code} matched imdb tv/episode, force TVSeason")
+                logger.warning(f"{imdb_code} matched imdb tv/episode, force TVSeason")
                 pd.metadata["preferred_model"] = "TVSeason"
             else:
-                _logger.warn(f"{imdb_code} unknown to TMDB")
+                logger.warning(f"{imdb_code} unknown to TMDB")
 
             pd.lookup_ids[IdType.IMDB] = imdb_code
 

@@ -7,7 +7,7 @@ from catalog.common import *
 from catalog.models import *
 from common.models.lang import detect_language
 
-from .douban import DoubanDownloader
+from .douban import DoubanDownloader, DoubanSearcher
 
 
 def _cache_key(url):
@@ -45,6 +45,8 @@ class DoubanDramaVersion(AbstractSite):
         return f"https://www.douban.com/location/drama/{ids[0]}/#{ids[1]}"
 
     def scrape(self):
+        if not self.id_value or not self.url:
+            raise ParseError(self, "id_value or url")
         show_url = self.url.split("#")[0]
         show_id = self.id_value.split("-")[0]
         version_id = self.id_value.split("-")[1]
@@ -59,20 +61,20 @@ class DoubanDramaVersion(AbstractSite):
         p = "//div[@id='" + version_id + "']"
         q = p + "//dt[text()='{}：']/following-sibling::dd[1]/a/span/text()"
         q2 = p + "//dt[text()='{}：']/following-sibling::dd[1]/text()"
-        title = " ".join(h.xpath(p + "//h3/text()")).strip()
+        title = " ".join(self.query_list(h, p + "//h3/text()")).strip()
         if not title:
             raise ParseError(self, "title")
         data = {
             "title": title,
             "localized_title": [{"lang": "zh-cn", "text": title}],
-            "director": [x.strip() for x in h.xpath(q.format("导演"))],
-            "playwright": [x.strip() for x in h.xpath(q.format("编剧"))],
-            # "actor": [x.strip() for x in h.xpath(q.format("主演"))],
-            "composer": [x.strip() for x in h.xpath(q.format("作曲"))],
-            "language": [x.strip() for x in h.xpath(q2.format("语言"))],
-            "opening_date": " ".join(h.xpath(q2.format("演出日期"))).strip(),
-            "troupe": [x.strip() for x in h.xpath(q.format("演出团体"))],
-            "location": [x.strip() for x in h.xpath(q.format("演出剧院"))],
+            "director": [x.strip() for x in self.query_list(h, q.format("导演"))],
+            "playwright": [x.strip() for x in self.query_list(h, q.format("编剧"))],
+            # "actor": [x.strip() for x in self.query_list(h, q.format("主演"))],
+            "composer": [x.strip() for x in self.query_list(h, q.format("作曲"))],
+            "language": [x.strip() for x in self.query_list(h, q2.format("语言"))],
+            "opening_date": " ".join(self.query_list(h, q2.format("演出日期"))).strip(),
+            "troupe": [x.strip() for x in self.query_list(h, q.format("演出团体"))],
+            "location": [x.strip() for x in self.query_list(h, q.format("演出剧院"))],
         }
         if data["opening_date"]:
             d = data["opening_date"].split("-")
@@ -80,7 +82,9 @@ class DoubanDramaVersion(AbstractSite):
             if dl > 3:
                 data["opening_date"] = "-".join(d[:3])
                 data["closing_date"] = "-".join(d[0 : 6 - dl] + d[3:dl])
-        actor_elem = h.xpath(p + "//dt[text()='主演：']/following-sibling::dd[1]/a")
+        actor_elem = self.query_list(
+            h, p + "//dt[text()='主演：']/following-sibling::dd[1]/a"
+        )
         data["actor"] = []
         for e in actor_elem:
             n = "".join(e.xpath("span/text()")).strip()
@@ -88,7 +92,7 @@ class DoubanDramaVersion(AbstractSite):
             t = re.sub(r"^[\s\(饰]*(.+)\)[\s\/]*$", r"\1", t).strip()
             t = t if t != "/" else ""
             data["actor"].append({"name": n, "role": t})
-        img_url_elem = h.xpath("//img[@itemprop='image']/@src")
+        img_url_elem = self.query_list(h, "//img[@itemprop='image']/@src")
         data["cover_image_url"] = img_url_elem[0].strip() if img_url_elem else None
         pd = ResourceContent(metadata=data)
         pd.metadata["required_resources"] = [
@@ -128,78 +132,87 @@ class DoubanDrama(AbstractSite):
         h = html.fromstring(r)
         data = {}
 
-        title_elem = h.xpath("/html/body//h1/span/text()")
+        title_elem = self.query_list(h, "/html/body//h1/span/text()")
         if title_elem:
             data["title"] = title_elem[0].strip()
             data["orig_title"] = title_elem[1] if len(title_elem) > 1 else None
         else:
             raise ParseError(self, "title")
 
-        other_title_elem = h.xpath(
-            "//dl//dt[text()='又名：']/following::dd[@itemprop='name']/text()"
+        other_title_elem = self.query_list(
+            h, "//dl//dt[text()='又名：']/following::dd[@itemprop='name']/text()"
         )
         data["other_title"] = other_title_elem
 
-        plot_elem = h.xpath("//div[@class='pure-text']/div[@class='full']/text()")
+        plot_elem = self.query_list(
+            h, "//div[@class='pure-text']/div[@class='full']/text()"
+        )
         if len(plot_elem) == 0:
-            plot_elem = h.xpath(
-                "//div[@class='pure-text']/div[@class='abstract']/text()"
+            plot_elem = self.query_list(
+                h, "//div[@class='pure-text']/div[@class='abstract']/text()"
             )
         if len(plot_elem) == 0:
-            plot_elem = h.xpath("//div[@class='pure-text']/text()")
+            plot_elem = self.query_list(h, "//div[@class='pure-text']/text()")
         data["brief"] = "\n".join(plot_elem)
 
         data["genre"] = [
             s.strip()
-            for s in h.xpath(
-                "//div[@class='meta']//dl//dt[text()='类型：']/following-sibling::dd[@itemprop='genre']/text()"
+            for s in self.query_list(
+                h,
+                "//div[@class='meta']//dl//dt[text()='类型：']/following-sibling::dd[@itemprop='genre']/text()",
             )
         ]
         # data["version"] = [
         #     s.strip()
-        #     for s in h.xpath(
+        #     for s in self.query_list(h,
         #         "//dl//dt[text()='版本：']/following-sibling::dd[@class='titles']/a//text()"
         #     )
         # ]
         data["director"] = [
             s.strip()
-            for s in h.xpath(
-                "//div[@class='meta']/dl//dt[text()='导演：']/following-sibling::dd/a[@itemprop='director']//text()"
+            for s in self.query_list(
+                h,
+                "//div[@class='meta']/dl//dt[text()='导演：']/following-sibling::dd/a[@itemprop='director']//text()",
             )
         ]
         data["composer"] = [
             s.strip()
-            for s in h.xpath(
-                "//div[@class='meta']/dl//dt[text()='作曲：']/following-sibling::dd/a[@itemprop='musicBy']//text()"
+            for s in self.query_list(
+                h,
+                "//div[@class='meta']/dl//dt[text()='作曲：']/following-sibling::dd/a[@itemprop='musicBy']//text()",
             )
         ]
         data["choreographer"] = [
             s.strip()
-            for s in h.xpath(
-                "//div[@class='meta']/dl//dt[text()='编舞：']/following-sibling::dd/a[@itemprop='choreographer']//text()"
+            for s in self.query_list(
+                h,
+                "//div[@class='meta']/dl//dt[text()='编舞：']/following-sibling::dd/a[@itemprop='choreographer']//text()",
             )
         ]
         data["troupe"] = [
             s.strip()
-            for s in h.xpath(
-                "//div[@class='meta']/dl//dt[text()='演出团体：']/following-sibling::dd/a[@itemprop='performer']//text()"
+            for s in self.query_list(
+                h,
+                "//div[@class='meta']/dl//dt[text()='演出团体：']/following-sibling::dd/a[@itemprop='performer']//text()",
             )
         ]
         data["playwright"] = [
             s.strip()
-            for s in h.xpath(
-                "//div[@class='meta']/dl//dt[text()='编剧：']/following-sibling::dd/a[@itemprop='author']//text()"
+            for s in self.query_list(
+                h,
+                "//div[@class='meta']/dl//dt[text()='编剧：']/following-sibling::dd/a[@itemprop='author']//text()",
             )
         ]
         data["actor"] = [
             {"name": s.strip(), "role": ""}
-            for s in h.xpath(
-                "//div[@class='meta']/dl//dt[text()='主演：']/following-sibling::dd/a[@itemprop='actor']//text()"
+            for s in self.query_list(
+                h,
+                "//div[@class='meta']/dl//dt[text()='主演：']/following-sibling::dd/a[@itemprop='actor']//text()",
             )
         ]
 
-        date_elem = h.xpath(
-            "//div[@class='meta']//dl//dt[text()='演出日期：']/following::dd/text()"
+        date_elem = self.query_list(
+            h, "//div[@class='meta']//dl//dt[text()='演出日期：']/following::dd/text()"
         )
         data["opening_date"] = date_elem[0] if date_elem else None
         if data["opening_date"]:
@@ -211,12 +224,15 @@ class DoubanDrama(AbstractSite):
 
         data["location"] = [
             s.strip()
-            for s in h.xpath(
-                "//div[@class='meta']/dl//dt[text()='演出剧院：']/following-sibling::dd/a[@itemprop='location']//text()"
+            for s in self.query_list(
+                h,
+                "//div[@class='meta']/dl//dt[text()='演出剧院：']/following-sibling::dd/a[@itemprop='location']//text()",
             )
         ]
 
-        versions = h.xpath("//div[@id='versions']/div[@class='fluid-mods']/div/@id")
+        versions = self.query_list(
+            h, "//div[@id='versions']/div[@class='fluid-mods']/div/@id"
+        )
         data["related_resources"] = list(
             map(
                 lambda v: {
@@ -229,7 +245,7 @@ class DoubanDrama(AbstractSite):
                 versions,
             )
         )
-        img_url_elem = h.xpath("//img[@itemprop='image']/@src")
+        img_url_elem = self.query_list(h, "//img[@itemprop='image']/@src")
         data["cover_image_url"] = img_url_elem[0].strip() if img_url_elem else None
         data["localized_title"] = (
             [{"lang": "zh-cn", "text": data["title"]}]
