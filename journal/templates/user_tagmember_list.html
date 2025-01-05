@@ -17,7 +17,7 @@
     {% endif %}
     {% if identity.user == request.user %}
       <span>
-        <a hx-get="{% url 'journal:user_tag_edit' %}?tag={{ tag.title }}"
+        <a hx-get="{% url 'journal:user_tag_edit' %}?tag={{ tag.title|urlencode }}"
            hx-target="body"
            hx-swap="beforeend">
           <i class="fa-regular fa-pen-to-square"></i>

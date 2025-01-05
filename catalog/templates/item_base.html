@@ -191,7 +191,7 @@
           <div class="tag-list solo-hidden">
             {% for tag in item.tags %}
               <span>
-                <a href="{% url 'common:search' %}?tag={{ tag }}">{{ tag }}</a>
+                <a href="{% url 'common:search' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
               </span>
             {% endfor %}
           </div>
