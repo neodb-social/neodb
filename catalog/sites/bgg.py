@@ -10,6 +10,7 @@ from langdetect import detect
 from loguru import logger
 
 from catalog.common import *
+from catalog.game.models import GameReleaseType
 from catalog.models import *
 from common.models.lang import detect_language
 
@@ -29,12 +30,13 @@ class BoardGameGeek(AbstractSite):
         return "https://boardgamegeek.com/boardgame/" + id_value
 
     def scrape(self):
-        api_url = f"https://boardgamegeek.com/xmlapi2/thing?stats=1&type=boardgame&id={self.id_value}"
+        api_url = f"https://boardgamegeek.com/xmlapi2/thing?stats=1&type=boardgame,boardgameexpansion&id={self.id_value}"
         content = BasicDownloader(api_url).download().xml()
         items = list(content.xpath("/items/item"))  # type: ignore
         if not len(items):
             raise ParseError(scraper=self, field="id")
         item = items[0]
+        typ = self.query_str(item, "@type")
         title = self.query_str(item, "name[@type='primary']/@value")
         other_title = self.query_list(item, "name[@type='alternate']/@value")
         localized_title = [
@@ -63,6 +65,11 @@ class BoardGameGeek(AbstractSite):
                 "designer": designer,
                 "artist": artist,
                 "release_year": year,
+                "release_type": (
+                    GameReleaseType.EXPANSION
+                    if typ == "boardgameexpansion"
+                    else GameReleaseType.GAME
+                ),
                 "platform": ["Boardgame"],
                 "brief": brief,
                 # "official_site": official_site,

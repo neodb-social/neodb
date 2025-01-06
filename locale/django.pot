@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-30 01:47-0500\n"
+"POT-Creation-Date: 2024-12-31 19:24-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -725,7 +725,6 @@ msgid "Unable to fetch from the link, please check again. Some sites may require
 msgstr ""
 
 #: catalog/templates/_item_card_metadata_album.html:7
-#: catalog/templates/_item_card_metadata_collection.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
 #: catalog/templates/_item_card_metadata_game.html:7
 #: catalog/templates/_item_card_metadata_movie.html:7
@@ -1399,6 +1398,7 @@ msgid "tag"
 msgstr ""
 
 #: catalog/templates/search_results.html:33
+#: journal/templates/search_journal.html:25
 msgid "No items matching your search query."
 msgstr ""
 
@@ -2369,7 +2369,7 @@ msgstr ""
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr ""
 
-#: common/templates/_header.html:17
+#: common/templates/_header.html:17 common/templates/_header.html:135
 msgid "title, creator, ISBN, item url, @user, @user@instance"
 msgstr ""
 
@@ -2436,12 +2436,16 @@ msgstr ""
 msgid "Sign up or Login"
 msgstr ""
 
-#: common/templates/_header.html:134
+#: common/templates/_header.html:133
+msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
+msgstr ""
+
+#: common/templates/_header.html:147
 msgid "Open"
 msgstr ""
 
 #: common/templates/_sidebar.html:53
-#: users/templates/users/profile_actions.html:29
+#: users/templates/users/profile_actions.html:35
 msgid "approving followers manually"
 msgstr ""
 
@@ -2519,16 +2523,24 @@ msgstr ""
 msgid "just now"
 msgstr ""
 
-#: common/templatetags/mastodon.py:42
+#: common/templatetags/mastodon.py:44
 msgid "mutual followed"
 msgstr ""
 
-#: common/templatetags/mastodon.py:44
+#: common/templatetags/mastodon.py:46
 msgid "followed"
 msgstr ""
 
-#: common/templatetags/mastodon.py:47
+#: common/templatetags/mastodon.py:49
 msgid "following you"
+msgstr ""
+
+#: common/templatetags/mastodon.py:52
+msgid "you"
+msgstr ""
+
+#: common/templatetags/mastodon.py:55
+msgid "unavailable"
 msgstr ""
 
 #: common/utils.py:64 common/utils.py:94 users/views/actions.py:35
@@ -3418,10 +3430,6 @@ msgstr ""
 
 #: journal/templates/review_edit.html:42
 msgid "change review date"
-msgstr ""
-
-#: journal/templates/search_journal.html:25
-msgid "No items matching the search query."
 msgstr ""
 
 #: journal/templates/tag_edit.html:32
@@ -4652,79 +4660,79 @@ msgstr ""
 msgid "Link an email so that you can migrate followers from other Fediverse instances."
 msgstr ""
 
-#: users/templates/users/profile_actions.html:6
+#: users/templates/users/profile_actions.html:12
 msgid "click to unblock"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:7
+#: users/templates/users/profile_actions.html:13
 msgid "are you sure to unblock?"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:10
+#: users/templates/users/profile_actions.html:16
 msgid "blocked"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:22
+#: users/templates/users/profile_actions.html:28
 msgid "user profile"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:39
+#: users/templates/users/profile_actions.html:45
 msgid "original home"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:63
+#: users/templates/users/profile_actions.html:69
 msgid "accept follow request"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:65
+#: users/templates/users/profile_actions.html:71
 msgid "sure to accept follow request?"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:73
+#: users/templates/users/profile_actions.html:79
 msgid "reject follow request"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:75
+#: users/templates/users/profile_actions.html:81
 msgid "sure to reject follow request?"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:85
+#: users/templates/users/profile_actions.html:91
 msgid "click to unfollow"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:87
+#: users/templates/users/profile_actions.html:93
 msgid "sure to unfollow?"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:96
+#: users/templates/users/profile_actions.html:102
 msgid "click to cancel follow request"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:98
+#: users/templates/users/profile_actions.html:104
 msgid "sure to cancel follow request?"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:107
+#: users/templates/users/profile_actions.html:113
 msgid "click to follow"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:108
+#: users/templates/users/profile_actions.html:114
 msgid "sure to follow?"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:118
+#: users/templates/users/profile_actions.html:124
 msgid "click to mute"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:127
+#: users/templates/users/profile_actions.html:133
 msgid "click to unmute"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:137
+#: users/templates/users/profile_actions.html:143
 msgid "click to block"
 msgstr ""
 
-#: users/templates/users/profile_actions.html:138
+#: users/templates/users/profile_actions.html:144
 msgid "sure to block?"
 msgstr ""
 

@@ -78,7 +78,7 @@ class DoufenExporter(Task):
             for mm in marks:
                 mark = mm.mark
                 movie = mark.item
-                title = movie.title
+                title = movie.display_title
                 if movie.__class__ == TVEpisode:
                     season_number = movie.season.season_number if movie.season else 0
                     summary = f"S{season_number:02d}E{movie.episode_number:02d}"
@@ -128,7 +128,7 @@ class DoufenExporter(Task):
             for mm in marks:
                 mark = mm.mark
                 album = mark.item
-                title = album.title
+                title = album.display_title
                 summary = (
                     ",".join(album.artist)
                     + " / "
@@ -168,7 +168,7 @@ class DoufenExporter(Task):
             for mm in marks:
                 mark = mm.mark
                 book = mark.item
-                title = book.title
+                title = book.display_title
                 summary = (
                     ",".join(book.author or [])
                     + " / "
@@ -210,7 +210,7 @@ class DoufenExporter(Task):
             for mm in marks:
                 mark = mm.mark
                 game = mark.item
-                title = game.title
+                title = game.display_title
                 summary = (
                     ",".join(game.genre or [])
                     + " / "
@@ -256,7 +256,7 @@ class DoufenExporter(Task):
             for mm in marks:
                 mark = mm.mark
                 podcast = mark.item
-                title = podcast.title
+                title = podcast.display_title
                 summary = ",".join(podcast.host or [])
                 tags = ",".join(mark.tags)
                 world_rating = (podcast.rating / 2) if podcast.rating else None
@@ -307,7 +307,7 @@ class DoufenExporter(Task):
             ws.append(review_heading)
             for review in reviews:
                 title = review.title
-                target = "《" + review.item.title + "》"
+                target = "《" + review.item.display_title + "》"
                 url = review.absolute_url
                 timestamp = review.created_time.strftime("%Y-%m-%d %H:%M:%S")
                 my_rating = (

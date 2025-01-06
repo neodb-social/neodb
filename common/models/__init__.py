@@ -1,5 +1,5 @@
 from .cron import BaseJob, JobManager
-from .index import Index, SearchResult
+from .index import Index, QueryParser, SearchResult
 from .lang import (
     LANGUAGE_CHOICES,
     LOCALE_CHOICES,
@@ -26,5 +26,6 @@ __all__ = [
     "uniq",
     "int_",
     "Index",
+    "QueryParser",
     "SearchResult",
 ]

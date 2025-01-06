@@ -11,6 +11,7 @@ from markdownify import markdownify as md
 from catalog.common import *
 from catalog.common.downloaders import *
 from catalog.models import *
+from catalog.sites import DoubanBook, DoubanDrama, DoubanGame, DoubanMovie, DoubanMusic
 from catalog.sites.douban import DoubanDownloader
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import *
@@ -160,9 +161,7 @@ class DoubanImporter(Task):
             self.import_review_sheet(self.review_data[name], name)
         self.message = f"豆瓣标记和评论导入完成，共处理{self.metadata['total']}篇，已存在{self.metadata['skipped']}篇，新增{self.metadata['imported']}篇。"
         if len(self.metadata["failed_urls"]) > 0:
-            self.message += (
-                f'导入时未能处理以下网址：\n{" , ".join(self.metadata["failed_urls"])}'
-            )
+            self.message += f'导入时未能处理{len(self.metadata["failed_urls"])}个网址。'
         self.save()
 
     def import_mark_sheet(self, worksheet, shelf_type, sheet_name):
@@ -298,6 +297,17 @@ class DoubanImporter(Task):
             self.metadata["failed_urls"].append(str(url))
         return item
 
+    def is_douban_item_url(self, url):
+        for cls in [
+            DoubanBook,
+            DoubanDrama,
+            DoubanMovie,
+            DoubanMusic,
+            DoubanGame,
+        ]:
+            if cls.url_to_id(url):
+                return True
+
     def import_review(self, entity_title, rating, title, review_url, content, time):
         """
         Import one review: return 1: done / 2: skipped / None: failed
@@ -310,7 +320,7 @@ class DoubanImporter(Task):
                 h = DoubanDownloader(review_url).download().html()
                 urls = h.xpath("//header[@class='main-hd']/a/@href")
                 for u in urls:  # type:ignore
-                    if ".douban.com/subject/" in u:
+                    if self.is_douban_item_url(u):
                         url = u
                 if not url:
                     logger.warning(

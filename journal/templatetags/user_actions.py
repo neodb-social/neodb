@@ -1,21 +1,18 @@
 from django import template
 from django.urls import reverse
 
+from journal.models.mark import Mark
 from takahe.utils import Takahe
 
 register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def wish_item_action(context, item):
+def get_mark_for_item(context, item):
     user = context["request"].user
-    action = {}
-    if user and user.is_authenticated and item:
-        action = {
-            "taken": user.shelf_manager.locate_item(item) is not None,
-            "url": reverse("journal:wish", args=[item.uuid]),
-        }
-    return action
+    return (
+        Mark(user.identity, item) if user and user.is_authenticated and item else None
+    )
 
 
 @register.simple_tag(takes_context=True)

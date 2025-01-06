@@ -174,7 +174,7 @@
                   <br>
                   {{ letterboxd_task.message }}
                   {% if letterboxd_task.metadata.failed_urls %}
-                    {% trans 'Failed links, likely due to Letterboxd error, you may have to mark them manually' %}
+                    {% trans 'Failed links, likely due to Letterboxd error, you may have to mark them manually' %}:
                     <br>
                     <textarea readonly>{% for url in letterboxd_task.metadata.failed_urls %}{{url}}&#10;{% endfor %}</textarea>
                   {% endif %}

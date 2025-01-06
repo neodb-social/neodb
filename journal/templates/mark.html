@@ -47,123 +47,121 @@
             </div>
             <div>
               <span class="rating-editor {% if shelf_type == 'wishlist' %}hidden{% endif %}"
-                {# djlint:off #}
-                _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the <div/> in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the <div/> in me set star_input to the <input/> in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the <div/> in me set star_input to the <input/> in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' end"
-                {# djlint:on #}
-                id="rating_editor">
-                {{ mark.rating_grade|rating_star }}
-                <input type="hidden"
-                       name="rating_grade"
-                       id="id_rating"
-                       value="{{ mark.rating_grade | default:0 }}">
-              </span>
-            </div>
+                    _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the <div/> in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the <div/> in me set star_input to the <input/> in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the <div/> in me set star_input to the <input/> in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "not rated" %}' end"
+                    id="rating_editor">
+              {{ mark.rating_grade|rating_star }}
+              <input type="hidden"
+                     name="rating_grade"
+                     id="id_rating"
+                     value="{{ mark.rating_grade | default:0 }}">
+            </span>
           </div>
-        {% endif %}
+        </div>
+      {% endif %}
+      <div>
+        <fieldset>
+          <textarea name="text"
+                    rows="5"
+                    autofocus
+                    placeholder="{% trans "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors." %}"
+                    id="id_text">{{ mark.comment_text|default:"" }}</textarea>
+        </fieldset>
+      </div>
+      <div>
+        <div class="tag-input">
+          <input name="tags"
+                 type="text"
+                 placeholder="{% trans "add a tag and press Enter" %}"
+                 id="tags_input"
+                 data-initial-value="{{ tags }}">
+        </div>
+      </div>
+      <div class="grid" style="overflow-x:scroll;">
         <div>
           <fieldset>
-            <textarea name="text"
-                      rows="5"
-                      autofocus
-                      placeholder="{% trans "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors." %}"
-                      id="id_text">{{ mark.comment_text|default:"" }}</textarea>
+            <input type="radio"
+                   name="visibility"
+                   value="0"
+                   required
+                   id="id_visibility_0"
+                   {% if mark.visibility == 0 %}checked{% endif %}>
+            <label for="id_visibility_0">{% trans "Public" %}</label>
+            <input type="radio"
+                   name="visibility"
+                   value="1"
+                   required
+                   id="id_visibility_1"
+                   {% if mark.visibility == 1 %}checked{% endif %}>
+            <label for="id_visibility_1">{% trans "Followers Only" %}</label>
+            <input type="radio"
+                   name="visibility"
+                   value="2"
+                   required
+                   id="id_visibility_2"
+                   {% if mark.visibility == 2 %}checked{% endif %}>
+            <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
           </fieldset>
         </div>
         <div>
-          <div class="tag-input">
-            <input name="tags"
-                   type="text"
-                   placeholder="{% trans "add a tag and press Enter" %}"
-                   id="tags_input"
-                   data-initial-value="{{ tags }}">
-          </div>
+          <fieldset>
+            {% if request.user.mastodon or request.user.threads or request.user.bluesky %}
+              <label for="id_share_to_mastodon">
+                <input role="switch"
+                       type="checkbox"
+                       name="share_to_mastodon"
+                       id="id_share_to_mastodon"
+                       value="1"
+                       {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
+                {% trans "Crosspost to timeline" %}
+              </label>
+            {% endif %}
+          </fieldset>
         </div>
-        <div class="grid" style="overflow-x:scroll;">
-          <div>
-            <fieldset>
-              <input type="radio"
-                     name="visibility"
-                     value="0"
-                     required
-                     id="id_visibility_0"
-                     {% if mark.visibility == 0 %}checked{% endif %}>
-              <label for="id_visibility_0">{% trans "Public" %}</label>
-              <input type="radio"
-                     name="visibility"
-                     value="1"
-                     required
-                     id="id_visibility_1"
-                     {% if mark.visibility == 1 %}checked{% endif %}>
-              <label for="id_visibility_1">{% trans "Followers Only" %}</label>
-              <input type="radio"
-                     name="visibility"
-                     value="2"
-                     required
-                     id="id_visibility_2"
-                     {% if mark.visibility == 2 %}checked{% endif %}>
-              <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
-            </fieldset>
-          </div>
-          <div>
-            <fieldset>
-              {% if request.user.mastodon or request.user.threads or request.user.bluesky %}
-                <label for="id_share_to_mastodon">
-                  <input role="switch"
-                         type="checkbox"
-                         name="share_to_mastodon"
-                         id="id_share_to_mastodon"
-                         value="1"
-                         {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
-                  {% trans "Crosspost to timeline" %}
-                </label>
-              {% endif %}
-            </fieldset>
-          </div>
-        </div>
-        <div class="grid">
-          <div>
-            <div>
-              <input role="switch"
-                     _="on click toggle .invisible on #mark_date  "
-                     type="checkbox"
-                     name="mark_anotherday"
-                     value="1"
-                     id="mark_anotherday">
-              <label for="mark_anotherday">{% trans "change mark date" %}</label>
-              <input class="invisible"
-                     type="date"
-                     name="mark_date"
-                     id="mark_date"
-                     min="1900-01-01"
-                     max="{{ date_today }}"
-                     value="{{ date_today }}">
-            </div>
-          </div>
-          <div>
-            <fieldset>
-              <input type="submit" value="{% trans "Save" %}">
-            </fieldset>
-          </div>
-        </div>
-      </form>
-      <div>
-        {% if mark.id %}
-          <form id="mark_delete"
-                action="{% url 'journal:mark' mark.item.uuid %}"
-                method="post">
-            {% csrf_token %}
-            <input type="hidden" name="delete" value="1">
-            <a>
-              <button class="secondary"
-                      onclick="return confirm('{% trans "Sure to delete mark, comment and tags for this item?" %}')">
-                {% trans "Delete" %}
-              </button>
-            </a>
-          </form>
-        {% endif %}
       </div>
+      <div class="grid">
+        <div>
+          <div>
+            <input role="switch"
+                   _="on click toggle .invisible on #mark_date  "
+                   type="checkbox"
+                   name="mark_anotherday"
+                   value="1"
+                   id="mark_anotherday">
+            <label for="mark_anotherday">{% trans "change mark date" %}</label>
+            <input class="invisible"
+                   type="date"
+                   name="mark_date"
+                   id="mark_date"
+                   min="1900-01-01"
+                   max="{{ date_today }}"
+                   value="{{ date_today }}">
+          </div>
+        </div>
+        <div>
+          <fieldset>
+            <input type="submit" value="{% trans "Save" %}">
+          </fieldset>
+        </div>
+      </div>
+    </form>
+    <div>
+      {% if mark.id %}
+        <form id="mark_delete"
+              action="{% url 'journal:mark' mark.item.uuid %}"
+              method="post">
+          {% csrf_token %}
+          <input type="hidden" name="delete" value="1">
+          <a>
+            <button class="secondary"
+                    onclick="return confirm('{% trans "Sure to delete mark, comment and tags for this item?" %}')">
+              {% trans "Delete" %}
+            </button>
+          </a>
+        </form>
+      {% endif %}
     </div>
-  </article>
+  </div>
+</article>
 </dialog>
 <script>
   function inputTags(configs) {

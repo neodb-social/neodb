@@ -1,20 +1,22 @@
 <div class="pagination">
-  {% if pagination.has_prev %}
-    <a href="?{{ pagination.query_string }}page=1" class="s">&laquo;</a>
-    <a href="?{{ pagination.query_string }}page={{ pagination.previous_page }}"
-       class="prev">&lsaquo;</a>
-  {% endif %}
-  {% for page in pagination.page_range %}
-    {% if page == pagination.current_page %}
-      <a href="?{{ pagination.query_string }}page={{ page }}" class="current">{{ page }}</a>
-    {% else %}
-      <a href="?{{ pagination.query_string }}page={{ page }}">{{ page }}</a>
+  {% if pagination %}
+    {% if pagination.has_prev %}
+      <a href="?{{ pagination.query_string }}page=1" class="s">&laquo;</a>
+      <a href="?{{ pagination.query_string }}page={{ pagination.previous_page }}"
+         class="prev">&lsaquo;</a>
     {% endif %}
-  {% endfor %}
-  {% if pagination.has_next %}
-    <a href="?{{ pagination.query_string }}page={{ pagination.next_page }}"
-       class="next">&rsaquo;</a>
-    <a href="?{{ pagination.query_string }}page={{ pagination.last_page }}"
-       class="s">&raquo;</a>
+    {% for page in pagination.page_range %}
+      {% if page == pagination.current_page %}
+        <a href="?{{ pagination.query_string }}page={{ page }}" class="current">{{ page }}</a>
+      {% else %}
+        <a href="?{{ pagination.query_string }}page={{ page }}">{{ page }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+      <a href="?{{ pagination.query_string }}page={{ pagination.next_page }}"
+         class="next">&rsaquo;</a>
+      <a href="?{{ pagination.query_string }}page={{ pagination.last_page }}"
+         class="s">&raquo;</a>
+    {% endif %}
   {% endif %}
 </div>

@@ -53,170 +53,162 @@
           <div role="group">
             {% if enable_email %}
               <button class="platform outline"
-                {# djlint:off #}
-                _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-email"
-                {# djlint:on #}
-                id="platform-email"
-                title="{% trans 'Email' %}">
-                <i class="fa-solid fa-envelope"></i>
-              </button>
-            {% endif %}
-            <button class="platform outline"
-              {# djlint:off #}
-              _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-mastodon"
-              {# djlint:on #}
-              id="platform-mastodon"
-              title="{% trans "Fediverse (Mastodon)" %}">
-              <svg xmlns="http://www.w3.org/2000/svg"
-                   viewBox="64 163 873 873"
-                   style="width: 1em;
-                          color: var(--pico-color);
-                          padding-bottom: 0.2em">
-                <path d="M539 176q-32 0 -55 22t-25 55t20.5 58t56 27t58.5 -20.5t27 -56t-20.5 -59t-56.5 -26.5h-5zM452 271l-232 118q20 20 25 48l231 -118q-19 -20 -24 -48zM619 298q-13 25 -38 38l183 184q13 -25 39 -38zM477 320l-135 265l40 40l143 -280q-28 -5 -48 -25zM581 336 q-22 11 -46 10l-8 -1l21 132l56 9zM155 370q-32 0 -55 22.5t-25 55t20.5 58t56.5 27t59 -21t26.5 -56t-21 -58.5t-55.5 -27h-6zM245 438q1 9 1 18q-1 19 -10 35l132 21l26 -50zM470 474l-26 51l311 49q-1 -8 -1 -17q1 -19 10 -36zM842 480q-32 1 -55 23t-24.5 55t21 58 t56 27t58.5 -20.5t27 -56.5t-20.5 -59t-56.5 -27h-6zM236 493q-13 25 -39 38l210 210l51 -25zM196 531q-21 11 -44 10l-9 -1l40 256q21 -10 45 -9l8 1zM560 553l48 311q21 -10 44 -9l10 1l-46 -294zM755 576l-118 60l8 56l135 -68q-20 -20 -25 -48zM781 625l-119 231 q28 5 48 25l119 -231q-28 -5 -48 -25zM306 654l-68 134q28 5 48 25l60 -119zM568 671l-281 143q19 20 24 48l265 -135zM513 771l-51 25l106 107q13 -25 39 -38zM222 795q-32 0 -55.5 22.5t-25 55t21 57.5t56 27t58.5 -20.5t27 -56t-20.5 -58.5t-56.5 -27h-5zM311 863 q2 9 1 18q-1 19 -9 35l256 41q-1 -9 -1 -18q1 -18 10 -35zM646 863q-32 0 -55 22.5t-24.5 55t20.5 58t56 27t59 -21t27 -56t-20.5 -58.5t-56.5 -27h-6z" />
-              </svg>
-              <!--<i class="fa-brands fa-mastodon"></i>-->
+                      _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-email"
+                      id="platform-email"
+                      title="{% trans 'Email' %}">
+              <i class="fa-solid fa-envelope"></i>
             </button>
-            {% if enable_threads %}
-              <button class="platform outline"
-                {# djlint:off #}
-                _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-threads"
-                {# djlint:on #}
-                id="platform-threads"
-                title="{% trans 'Threads' %}">
-                <i class="fa-brands fa-threads"></i>
-              </button>
-            {% endif %}
-            {% if enable_bluesky %}
-              <button class="platform outline"
-                {# djlint:off #}
+          {% endif %}
+          <button class="platform outline"
+                  _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-mastodon"
+                  id="platform-mastodon"
+                  title="{% trans "Fediverse (Mastodon)" %}">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               viewBox="64 163 873 873"
+               style="width: 1em;
+                      color: var(--pico-color);
+                      padding-bottom: 0.2em">
+            <path d="M539 176q-32 0 -55 22t-25 55t20.5 58t56 27t58.5 -20.5t27 -56t-20.5 -59t-56.5 -26.5h-5zM452 271l-232 118q20 20 25 48l231 -118q-19 -20 -24 -48zM619 298q-13 25 -38 38l183 184q13 -25 39 -38zM477 320l-135 265l40 40l143 -280q-28 -5 -48 -25zM581 336 q-22 11 -46 10l-8 -1l21 132l56 9zM155 370q-32 0 -55 22.5t-25 55t20.5 58t56.5 27t59 -21t26.5 -56t-21 -58.5t-55.5 -27h-6zM245 438q1 9 1 18q-1 19 -10 35l132 21l26 -50zM470 474l-26 51l311 49q-1 -8 -1 -17q1 -19 10 -36zM842 480q-32 1 -55 23t-24.5 55t21 58 t56 27t58.5 -20.5t27 -56.5t-20.5 -59t-56.5 -27h-6zM236 493q-13 25 -39 38l210 210l51 -25zM196 531q-21 11 -44 10l-9 -1l40 256q21 -10 45 -9l8 1zM560 553l48 311q21 -10 44 -9l10 1l-46 -294zM755 576l-118 60l8 56l135 -68q-20 -20 -25 -48zM781 625l-119 231 q28 5 48 25l119 -231q-28 -5 -48 -25zM306 654l-68 134q28 5 48 25l60 -119zM568 671l-281 143q19 20 24 48l265 -135zM513 771l-51 25l106 107q13 -25 39 -38zM222 795q-32 0 -55.5 22.5t-25 55t21 57.5t56 27t58.5 -20.5t27 -56t-20.5 -58.5t-56.5 -27h-5zM311 863 q2 9 1 18q-1 19 -9 35l256 41q-1 -9 -1 -18q1 -18 10 -35zM646 863q-32 0 -55 22.5t-24.5 55t20.5 58t56 27t59 -21t27 -56t-20.5 -58.5t-56.5 -27h-6z" />
+          </svg>
+          <!--<i class="fa-brands fa-mastodon"></i>-->
+        </button>
+        {% if enable_threads %}
+          <button class="platform outline"
+                  _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-threads"
+                  id="platform-threads"
+                  title="{% trans 'Threads' %}">
+          <i class="fa-brands fa-threads"></i>
+        </button>
+      {% endif %}
+      {% if enable_bluesky %}
+        <button class="platform outline"
                 _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-bluesky"
-                {# djlint:on #}
                 id="platform-bluesky"
                 title="{% trans 'Bluesky (ATProto)' %}">
-                <i class="fa-brands fa-bluesky" style="font-size:85%"></i>
-              </button>
-            {% endif %}
-          </div>
-          <form id="login-email"
-                style="display:none"
-                action="{% url 'mastodon:email_login' %}"
-                method="post"
-                onsubmit="return login(this);">
-            {% csrf_token %}
-            <input name="method" value="email" type="hidden" />
-            <input required
-                   name="email"
-                   id="email"
-                   type="email"
-                   placeholder="{% trans 'Enter your email address' %}"
-                   autocomplete="email" />
-            <input type='submit' value="{% trans 'Send verification code' %}" />
-          </form>
-          <form id="login-mastodon"
-                style="display:none"
-                action="{% url 'mastodon:login' %}"
-                method="post"
-                onsubmit="return login(this);">
-            {% csrf_token %}
-            <input name="method" value="mastodon" type="hidden" />
-            <input required
-                   type="text"
-                   name="domain"
-                   id="domain"
-                   autofocus
-                   pattern="(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,})"
-                   placeholder="{% trans 'Domain of your instance, e.g. mastodon.social' %}"
-                   autocorrect="off"
-                   autocapitalize="off"
-                   autocomplete="off"
-                   spellcheck="false" />
-            <small id="mastodon">
-              {% blocktrans %}Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>.{% endblocktrans %}
-            </small>
-            <br>
-            <input type='submit' value="{% trans 'Authorize via Fediverse instance' %}" />
-            <small>
-              {% blocktrans %}If you don't have a <a href="https://joinmastodon.org/servers" target="_blank">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings.{% endblocktrans %}
-            </small>
-          </form>
-          <form id="login-threads"
-                style="display:none"
-                action="{% url 'mastodon:threads_login' %}"
-                method="post"
-                onsubmit="return login(this);">
-            {% csrf_token %}
-            <input name="method" value="threads" type="hidden" />
-            <input type='submit' value="{% trans 'Authorize via Threads' %}" />
-          </form>
-          <form id="login-bluesky"
-                style="display:none"
-                action="{% url 'mastodon:bluesky_login' %}"
-                method="post"
-                onsubmit="return login(this);">
-            {% csrf_token %}
-            <input name="method" value="bluesky" type="hidden" />
-            <input required
-                   name="username"
-                   autofocus
-                   pattern="([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
-                   placeholder="{% trans 'ATProto handle' %}"
-                   autocorrect="off"
-                   autocapitalize="off"
-                   autocomplete="off"
-                   spellcheck="false" />
-            <small>{% trans "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one." %}</small>
-            <input required
-                   type="password"
-                   name="password"
-                   placeholder="{% trans 'Bluesky app password' %}"
-                   autocorrect="off"
-                   autocapitalize="off"
-                   autocomplete="off"
-                   spellcheck="false" />
-            <small>{% blocktrans %}App password can be created on <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app</a>.{% endblocktrans %}</small>
-            <input type='submit' value="{% trans 'Authorize via bsky.app' %}" />
-          </form>
-          <form>
-            <div style="margin:0 1em;">
-              {% blocktrans %}Please choose one to register or login {{site_name}}. Have more than one of these identities? Don't worry, you may link them in account settings once logged in.{% endblocktrans %}
-            </div>
-          </form>
-        {% else %}
-          <form>
-            <select name="domain">
-              {% for site in sites %}<option value="{{ site }}">@{{ site }}</option>{% endfor %}
-            </select>
-            <input type='submit'
-                   value="{% trans 'Authorize via Fediverse instance' %}"
-                   id="loginButton" />
-          </form>
-        {% endif %}
-        {% if invite_status %}
-          <small>
-            {% if invite_status == 1 %}
-              <i class="fa-solid fa-circle-check"></i> {% trans "Valid invitation code, please login or register." %}
-            {% elif invite_status == -1 %}
-              <i class="fa-solid fa-person-circle-question"></i> {% trans "Please use invitation link to register a new account; existing user may login." %}
-            {% elif invite_status == -2 %}
-              <i class="fa-solid fa-circle-xmark"></i> {% trans "Invitation code invalid or expired." %}
-            {% endif %}
-          </small>
-        {% endif %}
-        <small class="hide_unless_alter_domain">
-          <br>
-          {% blocktrans %}You are visiting an alternative domain for {{ site_name }}, please always use <a href="{{ site_url }}{{ request.get_full_path }}">original version</a> if possible.{% endblocktrans %}
-        </small>
-        <div class="delayed">{% trans "Loading timed out, please check your network (VPN) settings." %}</div>
-      </div>
-    </article>
-    <footer>
-      <br>
-      <small>
-        {% blocktrans %}Continue using this site implies consent to our <a href="/pages/rules/">rules</a> and <a href="/pages/terms/">terms</a>, including using cookies to provide necessary functionality.{% endblocktrans %}
-      </small>
-    </footer>
-    {{ sites|json_script:"sites-data" }}
-    <script>
+        <i class="fa-brands fa-bluesky" style="font-size:85%"></i>
+      </button>
+    {% endif %}
+  </div>
+  <form id="login-email"
+        style="display:none"
+        action="{% url 'mastodon:email_login' %}"
+        method="post"
+        onsubmit="return login(this);">
+    {% csrf_token %}
+    <input name="method" value="email" type="hidden" />
+    <input required
+           name="email"
+           id="email"
+           type="email"
+           placeholder="{% trans 'Enter your email address' %}"
+           autocomplete="email" />
+    <input type='submit' value="{% trans 'Send verification code' %}" />
+  </form>
+  <form id="login-mastodon"
+        style="display:none"
+        action="{% url 'mastodon:login' %}"
+        method="post"
+        onsubmit="return login(this);">
+    {% csrf_token %}
+    <input name="method" value="mastodon" type="hidden" />
+    <input required
+           type="text"
+           name="domain"
+           id="domain"
+           autofocus
+           pattern="(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,})"
+           placeholder="{% trans 'Domain of your instance, e.g. mastodon.social' %}"
+           autocorrect="off"
+           autocapitalize="off"
+           autocomplete="off"
+           spellcheck="false" />
+    <small id="mastodon">
+      {% blocktrans %}Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>.{% endblocktrans %}
+    </small>
+    <br>
+    <input type='submit' value="{% trans 'Authorize via Fediverse instance' %}" />
+    <small>
+      {% blocktrans %}If you don't have a <a href="https://joinmastodon.org/servers" target="_blank">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings.{% endblocktrans %}
+    </small>
+  </form>
+  <form id="login-threads"
+        style="display:none"
+        action="{% url 'mastodon:threads_login' %}"
+        method="post"
+        onsubmit="return login(this);">
+    {% csrf_token %}
+    <input name="method" value="threads" type="hidden" />
+    <input type='submit' value="{% trans 'Authorize via Threads' %}" />
+  </form>
+  <form id="login-bluesky"
+        style="display:none"
+        action="{% url 'mastodon:bluesky_login' %}"
+        method="post"
+        onsubmit="return login(this);">
+    {% csrf_token %}
+    <input name="method" value="bluesky" type="hidden" />
+    <input required
+           name="username"
+           autofocus
+           pattern="([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
+           placeholder="{% trans 'ATProto handle' %}"
+           autocorrect="off"
+           autocapitalize="off"
+           autocomplete="off"
+           spellcheck="false" />
+    <small>{% trans "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one." %}</small>
+    <input required
+           type="password"
+           name="password"
+           placeholder="{% trans 'Bluesky app password' %}"
+           autocorrect="off"
+           autocapitalize="off"
+           autocomplete="off"
+           spellcheck="false" />
+    <small>{% blocktrans %}App password can be created on <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app</a>.{% endblocktrans %}</small>
+    <input type='submit' value="{% trans 'Authorize via bsky.app' %}" />
+  </form>
+  <form>
+    <div style="margin:0 1em;">
+      {% blocktrans %}Please choose one to register or login {{site_name}}. Have more than one of these identities? Don't worry, you may link them in account settings once logged in.{% endblocktrans %}
+    </div>
+  </form>
+{% else %}
+  <form>
+    <select name="domain">
+      {% for site in sites %}<option value="{{ site }}">@{{ site }}</option>{% endfor %}
+    </select>
+    <input type='submit'
+           value="{% trans 'Authorize via Fediverse instance' %}"
+           id="loginButton" />
+  </form>
+{% endif %}
+{% if invite_status %}
+  <small>
+    {% if invite_status == 1 %}
+      <i class="fa-solid fa-circle-check"></i> {% trans "Valid invitation code, please login or register." %}
+    {% elif invite_status == -1 %}
+      <i class="fa-solid fa-person-circle-question"></i> {% trans "Please use invitation link to register a new account; existing user may login." %}
+    {% elif invite_status == -2 %}
+      <i class="fa-solid fa-circle-xmark"></i> {% trans "Invitation code invalid or expired." %}
+    {% endif %}
+  </small>
+{% endif %}
+<small class="hide_unless_alter_domain">
+  <br>
+  {% blocktrans %}You are visiting an alternative domain for {{ site_name }}, please always use <a href="{{ site_url }}{{ request.get_full_path }}">original version</a> if possible.{% endblocktrans %}
+</small>
+<div class="delayed">{% trans "Loading timed out, please check your network (VPN) settings." %}</div>
+</div>
+</article>
+<footer>
+  <br>
+  <small>
+    {% blocktrans %}Continue using this site implies consent to our <a href="/pages/rules/">rules</a> and <a href="/pages/terms/">terms</a>, including using cookies to provide necessary functionality.{% endblocktrans %}
+  </small>
+</footer>
+{{ sites|json_script:"sites-data" }}
+<script>
     const sites = JSON.parse(document.getElementById('sites-data').textContent);
     const autoCompleteJS = new autoComplete({ placeHolder: "{% trans 'Domain of your instance (excl. @)' %}",
       selector: "#domain",
@@ -271,6 +263,6 @@
         $('#login-' + method).show();
       }
     })
-    </script>
-  </body>
+</script>
+</body>
 </html>

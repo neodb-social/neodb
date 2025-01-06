@@ -16,7 +16,7 @@
       <strong>{% trans 'Edit' %} {{ tag.title }}</strong>
     </header>
     <div>
-      <form action="{% url 'journal:user_tag_edit' %}?tag={{ tag.title }}"
+      <form action="{% url 'journal:user_tag_edit' %}?tag={{ tag.title|urlencode }}"
             method="post">
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ tag.id }}">

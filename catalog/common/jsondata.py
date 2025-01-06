@@ -308,9 +308,13 @@ class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
     #     kwargs["help_text"] = _("comma separated list of values")
     #     super().__init__(*args, **kwargs)
 
-    def from_json(self, value):  # backward compatible with dirty legacy data
+    def from_json(self: "fields.Field", value):  # type:ignore
         if value:
-            return value if isinstance(value, list) else [value]
+            if isinstance(value, list):
+                return value
+            else:  # backward compatible with dirty legacy data
+                # logger.error(f"ArrayField has irregular value: {self.name}: {value}")
+                return [value]
         return []
 
 

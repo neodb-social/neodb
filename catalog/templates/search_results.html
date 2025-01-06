@@ -27,7 +27,7 @@
             {% endif %}
             <div class="item-card-list">
               {% for item in items %}
-                {% include '_list_item.html' with show_tags=1 %}
+                {% include '_list_item.html' %}
               {% empty %}
                 <p>
                   {% trans "No items matching your search query." %}
@@ -50,7 +50,7 @@
               </p>
               <div class="item-card-list folded" id="dup">
                 {% for item in dup_items %}
-                  {% include '_list_item.html' with show_tags=1 %}
+                  {% include '_list_item.html' %}
                 {% endfor %}
               </div>
             {% endif %}

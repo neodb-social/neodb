@@ -104,7 +104,7 @@ class AbstractSite:
         return content.xpath(query)[0].strip()
 
     @staticmethod
-    def query_list(content, query: str) -> list[str]:
+    def query_list(content, query: str) -> list:
         return list(content.xpath(query))
 
     @classmethod
@@ -163,7 +163,10 @@ class AbstractSite:
 
     @classmethod
     def match_or_create_item_for_resource(cls, resource):
-        previous_item = resource.item
+        try:
+            previous_item = resource.item
+        except Item.DoesNotExist:
+            previous_item = None
         resource.item = cls.match_existing_item_for_resource(resource) or previous_item
         if resource.item is None:
             model = resource.get_item_model(cls.DEFAULT_MODEL)

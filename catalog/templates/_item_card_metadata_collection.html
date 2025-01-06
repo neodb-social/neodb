@@ -1,13 +1,23 @@
 {% extends "_item_card_metadata_base.html" %}
 {% load humanize %}
+{% load collection %}
 {% load i18n %}
 {% block brief %}
-  <div class="multi-fields">
-    {% if item.rating %}
-      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
-    {% endif %}
-    {% include '_people.html' with people=item.host role='host' max=5 %}
-  </div>
+  {% with collection=item.journal_item %}
+    <div class="multi-fields">
+      <span>
+        <a href="{{ collection.owner.url }}">{{ collection.owner.display_name }}</a>
+        <span class="handler">@{{ collection.owner.handle }}</span>
+      </span>
+      <span>
+        {% for cat, count in collection.get_summary.items %}
+          {% if count %}
+            <span>{% prural_items count cat %}</span>&nbsp;&nbsp;
+          {% endif %}
+        {% endfor %}
+      </span>
+    </div>
+  {% endwith %}
 {% endblock brief %}
 {% block full %}
   <div>

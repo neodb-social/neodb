@@ -62,7 +62,7 @@
         {% trans "performances" %}
       {% endif %}
     {% endif %}
-    {% if user.is_authenticated and request.user.is_superuser %}
+    {% if user.is_authenticated %}
       |
       {% if request.GET.c != 'journal' %}
         <a href="?q={{ request.GET.q }}&amp;c=journal">{% trans "your journal" %}</a>

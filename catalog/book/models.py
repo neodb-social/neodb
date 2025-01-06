@@ -17,6 +17,7 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 
 """
 
+from functools import cached_property
 from typing import TYPE_CHECKING
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -141,6 +142,7 @@ class Edition(Item):
         "pub_month",
         "language",
         "orig_title",
+        "other_title",
         "translator",
         "series",
         "imprint",
@@ -165,6 +167,13 @@ class Edition(Item):
     # )
     orig_title = jsondata.CharField(
         _("original title"), null=True, blank=True, max_length=500
+    )
+    other_title = jsondata.ArrayField(
+        base_field=models.CharField(blank=True, default="", max_length=500),
+        verbose_name=_("other title"),
+        null=True,
+        blank=True,
+        default=list,
     )
     author = jsondata.JSONField(
         verbose_name=_("author"),
@@ -220,6 +229,7 @@ class Edition(Item):
         titles = [t["text"] for t in self.localized_title if t["text"]]
         titles += [t["text"] for t in self.localized_subtitle if t["text"]]
         titles += [self.orig_title] if self.orig_title else []
+        titles += [t for t in self.other_title if t]  # type: ignore
         return list(set(titles))
 
     @property
@@ -295,6 +305,13 @@ class Edition(Item):
             .exclude(merged_to_item__isnull=False)
             .order_by("-metadata__pub_year")
         )
+
+    @cached_property
+    def additional_title(self) -> list[str]:
+        title = self.display_title
+        return [
+            t["text"] for t in self.localized_title if t["text"] != title
+        ] + self.other_title  # type: ignore
 
     @property
     def title_deco(self):

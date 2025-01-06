@@ -7,9 +7,7 @@ from catalog.models import *
 from common.models.lang import detect_language
 from common.models.misc import uniq
 
-from .douban import DoubanDownloader
-
-_logger = logging.getLogger(__name__)
+from .douban import DoubanDownloader, DoubanSearcher
 
 
 @SiteManager.register
@@ -26,18 +24,18 @@ class DoubanGame(AbstractSite):
     DEFAULT_MODEL = Game
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://www.douban.com/game/" + id_value + "/"
 
     def scrape(self):
         content = DoubanDownloader(self.url).download().html()
 
-        elem = content.xpath("//div[@id='content']/h1/text()")
+        elem = self.query_list(content, "//div[@id='content']/h1/text()")
         title = elem[0].strip() if len(elem) else None
         if not title:
             raise ParseError(self, "title")
 
-        elem = content.xpath("//div[@id='comments']//h2/text()")
+        elem = self.query_list(content, "//div[@id='comments']//h2/text()")
         title2 = elem[0].strip() if len(elem) else ""
         if title2:
             sp = title2.strip().rsplit("的短评", 1)
@@ -48,46 +46,52 @@ class DoubanGame(AbstractSite):
         else:
             orig_title = ""
 
-        other_title_elem = content.xpath(
-            "//dl[@class='thing-attr']//dt[text()='别名:']/following-sibling::dd[1]/text()"
+        other_title_elem = self.query_list(
+            content,
+            "//dl[@class='thing-attr']//dt[text()='别名:']/following-sibling::dd[1]/text()",
         )
         other_title = (
             other_title_elem[0].strip().split(" / ") if other_title_elem else []
         )
 
-        developer_elem = content.xpath(
-            "//dl[@class='thing-attr']//dt[text()='开发商:']/following-sibling::dd[1]/text()"
+        developer_elem = self.query_list(
+            content,
+            "//dl[@class='thing-attr']//dt[text()='开发商:']/following-sibling::dd[1]/text()",
         )
         developer = developer_elem[0].strip().split(" / ") if developer_elem else None
 
-        publisher_elem = content.xpath(
-            "//dl[@class='thing-attr']//dt[text()='发行商:']/following-sibling::dd[1]/text()"
+        publisher_elem = self.query_list(
+            content,
+            "//dl[@class='thing-attr']//dt[text()='发行商:']/following-sibling::dd[1]/text()",
         )
         publisher = publisher_elem[0].strip().split(" / ") if publisher_elem else None
 
-        platform_elem = content.xpath(
-            "//dl[@class='thing-attr']//dt[text()='平台:']/following-sibling::dd[1]/a/text()"
+        platform_elem = self.query_list(
+            content,
+            "//dl[@class='thing-attr']//dt[text()='平台:']/following-sibling::dd[1]/a/text()",
         )
         platform = platform_elem if platform_elem else None
 
-        genre_elem = content.xpath(
-            "//dl[@class='thing-attr']//dt[text()='类型:']/following-sibling::dd[1]/a/text()"
+        genre_elem = self.query_list(
+            content,
+            "//dl[@class='thing-attr']//dt[text()='类型:']/following-sibling::dd[1]/a/text()",
         )
         genre = None
         if genre_elem:
             genre = [g for g in genre_elem if g != "游戏"]
 
-        date_elem = content.xpath(
-            "//dl[@class='thing-attr']//dt[text()='发行日期:']/following-sibling::dd[1]/text()"
+        date_elem = self.query_list(
+            content,
+            "//dl[@class='thing-attr']//dt[text()='发行日期:']/following-sibling::dd[1]/text()",
         )
         release_date = dateparser.parse(date_elem[0].strip()) if date_elem else None
         release_date = release_date.strftime("%Y-%m-%d") if release_date else None
 
-        brief_elem = content.xpath("//div[@class='mod item-desc']/p/text()")
+        brief_elem = self.query_list(content, "//div[@class='mod item-desc']/p/text()")
         brief = "\n".join(brief_elem) if brief_elem else ""
 
-        img_url_elem = content.xpath(
-            "//div[@class='item-subject-info']/div[@class='pic']//img/@src"
+        img_url_elem = self.query_list(
+            content, "//div[@class='item-subject-info']/div[@class='pic']//img/@src"
         )
         img_url = img_url_elem[0].strip() if img_url_elem else None
 

@@ -60,4 +60,6 @@ class TakaheStats(BaseJob):
         }
         cache.set("nodeinfo_usage", nodeinfo_usage, timeout=None)
         logger.debug(f"/nodeinfo/2.0/ {nodeinfo_usage}")
+        # disable /api/v1/instance/activity for now as it's slow
+        cache.set("instance_activity_stats", [], timeout=None)
         logger.info("Tahake stats updated.")

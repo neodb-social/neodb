@@ -2,6 +2,7 @@ import functools
 import uuid
 from typing import TYPE_CHECKING
 
+import django_rq
 from discord import SyncWebhook
 from django.conf import settings
 from django.conf.locale import LANG_INFO
@@ -221,11 +222,17 @@ def get_uuid_or_404(uuid_b62):
 
 
 def discord_send(channel, content, **args) -> bool:
-    dw = settings.DISCORD_WEBHOOKS.get(channel)
+    dw = settings.DISCORD_WEBHOOKS.get(channel) or settings.DISCORD_WEBHOOKS.get(
+        "default"
+    )
     if not dw:
         return False
     if "thread_name" in args:
         args["thread_name"] = args["thread_name"][:99]
+    django_rq.get_queue("fetch").enqueue(_discord_send, dw, content, **args)
+    return True
+
+
+def _discord_send(dw, content, **args):
     webhook = SyncWebhook.from_url(dw)
     webhook.send(content, **args)
-    return True

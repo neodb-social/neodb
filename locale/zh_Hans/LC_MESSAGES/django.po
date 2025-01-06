@@ -5,15 +5,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-30 01:47-0500\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
+"POT-Creation-Date: 2024-12-31 19:24-0500\n"
+"PO-Revision-Date: 2025-01-02 21:19+0000\n"
+"Last-Translator: Henri Dickson <neodb@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/neodb/neodb/zh_Hans/>\n"
+"Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
@@ -722,7 +725,6 @@ msgid "Unable to fetch from the link, please check again. Some sites may require
 msgstr "无法加载条目，请确认链接正确。部分网站可能删除条目或隐藏条目为仅登录可见，欢迎在本站手工添加这些条目。"
 
 #: catalog/templates/_item_card_metadata_album.html:7
-#: catalog/templates/_item_card_metadata_collection.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
 #: catalog/templates/_item_card_metadata_game.html:7
 #: catalog/templates/_item_card_metadata_movie.html:7
@@ -788,7 +790,7 @@ msgstr "评论"
 
 #: catalog/templates/_item_user_mark_history.html:15
 msgid "no history."
-msgstr "暂无标记历史"
+msgstr "暂无标记历史。"
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "sure to clear mark history?"
@@ -846,7 +848,7 @@ msgstr "编辑选项"
 #: catalog/templates/catalog_merge.html:35
 #: catalog/templates/catalog_merge.html:63
 msgid "Item has been deleted."
-msgstr "条目已被删除"
+msgstr "条目已被删除。"
 
 #: catalog/templates/_sidebar_edit.html:26
 #: catalog/templates/catalog_delete.html:28
@@ -854,21 +856,21 @@ msgstr "条目已被删除"
 #: catalog/templates/catalog_merge.html:40
 #: catalog/templates/catalog_merge.html:68
 msgid "Item contains sub-items."
-msgstr "条目下已有子项"
+msgstr "条目下已有子项。"
 
 #: catalog/templates/_sidebar_edit.html:31
 #: catalog/templates/catalog_delete.html:33
 #: catalog/templates/catalog_merge.html:45
 #: catalog/templates/catalog_merge.html:73
 msgid "Item has been merged to another item."
-msgstr "条目已被合并到其他条目"
+msgstr "条目已被合并到其他条目。"
 
 #: catalog/templates/_sidebar_edit.html:36
 #: catalog/templates/catalog_delete.html:38
 #: catalog/templates/catalog_merge.html:50
 #: catalog/templates/catalog_merge.html:78
 msgid "Item has been marked by users."
-msgstr "条目已被用户标记过"
+msgstr "条目已被用户标记过。"
 
 #: catalog/templates/_sidebar_edit.html:41
 msgid "The following items are merged into this item"
@@ -1034,7 +1036,7 @@ msgstr "其它"
 
 #: catalog/templates/_sidebar_edit.html:271
 msgid "To suggest merging or association, please include the URL of the target item"
-msgstr "建议详情。如提议合并或关联，请包含目标条目网址。"
+msgstr "建议详情。如提议合并或关联，请包含目标条目网址"
 
 #: catalog/templates/_sidebar_edit.html:272
 msgid "submit"
@@ -1256,7 +1258,7 @@ msgstr "标签 · 短评 · 评论 · 收藏"
 
 #: catalog/templates/item_base.html:115
 msgid "Login or register to review or add this item to your collection."
-msgstr "登录后可管理标记收藏"
+msgstr "登录后可管理标记收藏。"
 
 #: catalog/templates/item_base.html:123
 msgid "Related Collections"
@@ -1264,7 +1266,7 @@ msgstr "相关收藏单"
 
 #: catalog/templates/item_base.html:138
 msgid "Unsupported item type."
-msgstr "此类数据尚未支持"
+msgstr "此类数据尚未支持。"
 
 #: catalog/templates/item_base.html:147
 msgid "Edit this item"
@@ -1396,12 +1398,13 @@ msgid "tag"
 msgstr "标签"
 
 #: catalog/templates/search_results.html:33
+#: journal/templates/search_journal.html:25
 msgid "No items matching your search query."
 msgstr "无站内条目匹配。"
 
 #: catalog/templates/search_results.html:35
 msgid "System will search other websites and instances, click title of the item to save them locally. "
-msgstr "系统会尝试搜索其它网站的条目，点击标题可添加到本站。"
+msgstr "系统会尝试搜索其它网站的条目，点击标题可添加到本站。 "
 
 #: catalog/templates/search_results.html:39
 msgid "If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter."
@@ -1564,7 +1567,7 @@ msgstr ""
 
 #: common/models/lang.py:48
 msgid "Azerbaijani"
-msgstr ""
+msgstr "阿塞拜疆"
 
 #: common/models/lang.py:49
 msgid "Bashkir"
@@ -1588,19 +1591,19 @@ msgstr ""
 
 #: common/models/lang.py:54
 msgid "Catalan"
-msgstr ""
+msgstr "加泰罗尼亚"
 
 #: common/models/lang.py:55
 msgid "Czech"
-msgstr ""
+msgstr "捷克"
 
 #: common/models/lang.py:56
 msgid "Chechen"
-msgstr ""
+msgstr "车臣"
 
 #: common/models/lang.py:57
 msgid "Slavic"
-msgstr ""
+msgstr "斯拉夫"
 
 #: common/models/lang.py:58
 msgid "Chuvash"
@@ -2366,7 +2369,7 @@ msgstr "源代码"
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "这是%(site_name)s的临时镜像，请尽可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"
 
-#: common/templates/_header.html:17
+#: common/templates/_header.html:17 common/templates/_header.html:135
 msgid "title, creator, ISBN, item url, @user, @user@instance"
 msgstr "标题、创作者、ISBN、站外条目链接、@用户名、@用户名@实例"
 
@@ -2433,12 +2436,16 @@ msgstr "管理"
 msgid "Sign up or Login"
 msgstr "注册或登录"
 
-#: common/templates/_header.html:134
+#: common/templates/_header.html:133
+msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
+msgstr "搜索你的评论或条目，可加过滤条件如 category:tv status:complete rating:8..10 date:2021-09-11..2022-02"
+
+#: common/templates/_header.html:147
 msgid "Open"
 msgstr "打开"
 
 #: common/templates/_sidebar.html:53
-#: users/templates/users/profile_actions.html:29
+#: users/templates/users/profile_actions.html:35
 msgid "approving followers manually"
 msgstr "已开启关注审核"
 
@@ -2448,7 +2455,7 @@ msgstr "当前目标"
 
 #: common/templates/_sidebar.html:88
 msgid "Set a collection as target, its progress will show up here."
-msgstr "将自己或他人的收藏单设为目标，这里就会显示进度"
+msgstr "将自己或他人的收藏单设为目标，这里就会显示进度。"
 
 #: common/templates/_sidebar.html:101
 msgid "Recent podcast episodes"
@@ -2513,7 +2520,7 @@ msgstr ""
 "  <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s 致力于提供一个涵盖书籍、影视、音乐、游戏、播客的自由开放互联的收藏评论空间。 你可以在这里记录你的收藏和想法，以及发现新的内容和朋友。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式通过联邦宇宙（Fediverse，有时也被称为<em data-tooltip=\"除了最常见的长毛象，另外也有Pleroma、GoToSocial、Takahē、Catodon等联邦宇宙实例服务\">长毛象</em>，一种分布式社交网络）实例账号，如果你还没有注册过，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。\n"
+"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式通过<em data-tooltip=\"除了最常见的长毛象，另外也有Pleroma、GoToSocial、Takahē、Firefish、Catodon等联邦宇宙实例服务\">联邦宇宙（Fediverse，一种分布式社交网络）</em>实例账号，如果你还没有注册过，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。\n"
 "</p>\n"
 "<p>\n"
 "  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果还没准备好注册联邦宇宙也没问题，你可以在登录页面选择电子邮件注册，未来再连接到联邦宇宙。\n"
@@ -2534,17 +2541,25 @@ msgstr "错误"
 msgid "just now"
 msgstr "刚刚"
 
-#: common/templatetags/mastodon.py:42
+#: common/templatetags/mastodon.py:44
 msgid "mutual followed"
 msgstr "互相关注"
 
-#: common/templatetags/mastodon.py:44
+#: common/templatetags/mastodon.py:46
 msgid "followed"
 msgstr "已关注"
 
-#: common/templatetags/mastodon.py:47
+#: common/templatetags/mastodon.py:49
 msgid "following you"
 msgstr "关注了你"
+
+#: common/templatetags/mastodon.py:52
+msgid "you"
+msgstr ""
+
+#: common/templatetags/mastodon.py:55
+msgid "unavailable"
+msgstr ""
 
 #: common/utils.py:64 common/utils.py:94 users/views/actions.py:35
 #: users/views/actions.py:121
@@ -3470,7 +3485,7 @@ msgstr "添加回应"
 
 #: journal/templates/review.html:63
 msgid "The author has set it to be viewable only by logged-in users."
-msgstr "作者已设置仅限已登录用户查看"
+msgstr "作者已设置仅限已登录用户查看。"
 
 #: journal/templates/review_edit.html:33
 msgid "When saving, replace leading spaces with full-width spaces"
@@ -3479,10 +3494,6 @@ msgstr "保存时将行首空格替换为全角"
 #: journal/templates/review_edit.html:42
 msgid "change review date"
 msgstr "指定评论日期"
-
-#: journal/templates/search_journal.html:25
-msgid "No items matching the search query."
-msgstr "暂无匹配条目。"
 
 #: journal/templates/tag_edit.html:32
 msgid "Pin"
@@ -3619,7 +3630,7 @@ msgstr "正在重定向到你的联邦实例以重新认证。"
 
 #: journal/views/common.py:44
 msgid "List not found."
-msgstr "列表未找到"
+msgstr "列表未找到。"
 
 #: journal/views/mark.py:114
 msgid "Content too long for your Fediverse instance."
@@ -4248,7 +4259,7 @@ msgstr "推荐输入电子邮件地址作为备用登录方式。"
 
 #: users/templates/users/account.html:73 users/templates/users/login.html:69
 msgid "Fediverse (Mastodon)"
-msgstr "联邦宇宙（有时也被称为长毛象）"
+msgstr "联邦宇宙（Mastodon API）"
 
 #: users/templates/users/account.html:79
 msgid "Verified Identity"
@@ -4765,79 +4776,79 @@ msgstr "迁移账号"
 msgid "Link an email so that you can migrate followers from other Fediverse instances."
 msgstr "关联电子邮件后方可从其他实例迁入。"
 
-#: users/templates/users/profile_actions.html:6
+#: users/templates/users/profile_actions.html:12
 msgid "click to unblock"
 msgstr "点击可取消屏蔽"
 
-#: users/templates/users/profile_actions.html:7
+#: users/templates/users/profile_actions.html:13
 msgid "are you sure to unblock?"
 msgstr "确定要取消对该用户的屏蔽吗？"
 
-#: users/templates/users/profile_actions.html:10
+#: users/templates/users/profile_actions.html:16
 msgid "blocked"
 msgstr "已屏蔽"
 
-#: users/templates/users/profile_actions.html:22
+#: users/templates/users/profile_actions.html:28
 msgid "user profile"
 msgstr "用户资料"
 
-#: users/templates/users/profile_actions.html:39
+#: users/templates/users/profile_actions.html:45
 msgid "original home"
 msgstr "原始主页"
 
-#: users/templates/users/profile_actions.html:63
+#: users/templates/users/profile_actions.html:69
 msgid "accept follow request"
 msgstr "接受关注请求"
 
-#: users/templates/users/profile_actions.html:65
+#: users/templates/users/profile_actions.html:71
 msgid "sure to accept follow request?"
 msgstr "确定接受关注请求吗？"
 
-#: users/templates/users/profile_actions.html:73
+#: users/templates/users/profile_actions.html:79
 msgid "reject follow request"
 msgstr "拒绝关注请求"
 
-#: users/templates/users/profile_actions.html:75
+#: users/templates/users/profile_actions.html:81
 msgid "sure to reject follow request?"
 msgstr "确定拒绝关注请求吗？"
 
-#: users/templates/users/profile_actions.html:85
+#: users/templates/users/profile_actions.html:91
 msgid "click to unfollow"
 msgstr "点击可取消关注"
 
-#: users/templates/users/profile_actions.html:87
+#: users/templates/users/profile_actions.html:93
 msgid "sure to unfollow?"
 msgstr "确定取消关注该用户吗？"
 
-#: users/templates/users/profile_actions.html:96
+#: users/templates/users/profile_actions.html:102
 msgid "click to cancel follow request"
 msgstr "点击可取消关注请求"
 
-#: users/templates/users/profile_actions.html:98
+#: users/templates/users/profile_actions.html:104
 msgid "sure to cancel follow request?"
 msgstr "确定取消关注请求吗？"
 
-#: users/templates/users/profile_actions.html:107
+#: users/templates/users/profile_actions.html:113
 msgid "click to follow"
 msgstr "点击可关注"
 
-#: users/templates/users/profile_actions.html:108
+#: users/templates/users/profile_actions.html:114
 msgid "sure to follow?"
 msgstr "确定关注该用户吗？"
 
-#: users/templates/users/profile_actions.html:118
+#: users/templates/users/profile_actions.html:124
 msgid "click to mute"
 msgstr "点击可静音"
 
-#: users/templates/users/profile_actions.html:127
+#: users/templates/users/profile_actions.html:133
 msgid "click to unmute"
 msgstr "点击可取消静音"
 
-#: users/templates/users/profile_actions.html:137
+#: users/templates/users/profile_actions.html:143
 msgid "click to block"
 msgstr "点击可屏蔽"
 
-#: users/templates/users/profile_actions.html:138
+#: users/templates/users/profile_actions.html:144
 msgid "sure to block?"
 msgstr "确定屏蔽该用户吗？"
 

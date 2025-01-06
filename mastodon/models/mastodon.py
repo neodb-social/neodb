@@ -440,7 +440,7 @@ def get_toot_visibility(visibility, user) -> TootVisibilityEnum:
         return TootVisibilityEnum.UNLISTED
 
 
-def get_or_create_fediverse_application(login_domain):
+def get_or_create_fediverse_application(login_domain: str):
     domain = login_domain
     app = MastodonApplication.objects.filter(domain_name__iexact=domain).first()
     if not app:
@@ -555,6 +555,25 @@ class MastodonApplication(models.Model):
             j = response.json()
             if next(filter(lambda e: e["shortcode"] == "star_half", j), None):
                 self.star_mode = 1
+
+    def verify(self):
+        return verify_client(self)
+
+    def refresh(self):
+        response = create_app(self.api_domain, self.server_version)
+        if response.status_code != 200:
+            logger.error(
+                f"Error creating app for {self.domain_name} on {self.api_domain}: {response.status_code}"
+            )
+            return False
+        data = response.json()
+        self.app_id = data["id"]
+        self.client_id = data["client_id"]
+        self.client_secret = data["client_secret"]
+        self.vapid_key = data.get("vapid_key", "")
+        self.save()
+        logger.info(f"Refreshed {self.api_domain}")
+        return True
 
 
 class Mastodon:
