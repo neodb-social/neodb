@@ -347,6 +347,68 @@ class Fediverse:
         return results
 
 
+class Bangumi:
+    @classmethod
+    def search(cls, c, q, page=1):
+        results = []
+        bgm_type = {
+            "all": None,
+            "movietv": [6, 2],
+            "book": [1],
+            "game": [4],
+            "music": [3],
+        }
+        if c not in bgm_type:
+            return results
+        search_url = f"https://api.bgm.tv/v0/search/subjects?limit={SEARCH_PAGE_SIZE}&offset={(page-1)*SEARCH_PAGE_SIZE}"
+        try:
+            r = requests.post(
+                search_url,
+                headers={
+                    "User-Agent": "neodb-social/neodb (https://github.com/neodb-social/neodb)",
+                },
+                json={"keyword": q, "filter": {"type": bgm_type[c]}},
+                timeout=2,
+            ).json()
+            for s in r["data"]:
+                match s["type"]:
+                    case 1:
+                        if s["series"]:
+                            continue
+                        category = "book"
+                    case 2 | 6:
+                        is_season = s["platform"] in {
+                            "TV",
+                            "WEB",
+                            "电视剧",
+                            "欧美剧",
+                            "日剧",
+                            "华语剧",
+                            "综艺",
+                        }
+                        category = "tv" if is_season else "movie"
+                    case 3:
+                        category = "music"
+                    case 4:
+                        category = "game"
+                    case _:
+                        continue
+                results.append(
+                    ExternalSearchResultItem(
+                        ItemCategory(category),
+                        SiteName.Bangumi,
+                        f"https://bgm.tv/subject/{s['id']}",
+                        s["name_cn"] or s["name"],
+                        "",
+                        s["summary"],
+                        s["image"],
+                    )
+                )
+        except Exception as e:
+            logger.error("Bangumi search error", extra={"query": q, "exception": e})
+        return results
+
+
 class ExternalSources:
     @classmethod
     def search(cls, c, q, page=1):
@@ -358,6 +420,7 @@ class ExternalSources:
         )
         if c == "" or c is None:
             c = "all"
+        results.extend(Bangumi.search(c, q, page))
         if c == "all" or c == "movietv":
             results.extend(TheMovieDatabase.search(q, page))
         if c == "all" or c == "book":

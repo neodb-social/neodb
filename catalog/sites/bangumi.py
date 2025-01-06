@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from catalog.book.utils import detect_isbn_asin
 from catalog.common import *
+from catalog.game.models import GameReleaseType
 from catalog.models import *
 from common.models.lang import detect_language
 
@@ -27,32 +28,57 @@ class Bangumi(AbstractSite):
 
     def scrape(self):
         api_url = f"https://api.bgm.tv/v0/subjects/{self.id_value}"
-        o = BasicDownloader(api_url).download().json()
+        o = (
+            BasicDownloader(
+                api_url,
+                headers={
+                    "User-Agent": "neodb-social/neodb (https://github.com/neodb-social/neodb)",
+                },
+            )
+            .download()
+            .json()
+        )
         showtime = None
         pub_year = None
         pub_month = None
         year = None
         dt = o.get("date")
-        episodes = o.get("total_episodes", 0)
+        release_type = None
         match o["type"]:
             case 1:
+                if o["series"]:  # TODO Series
+                    model = "Series"
+                    raise ValueError("This Bangumi subject type is not implemented")
                 model = "Edition"
                 if dt:
                     d = dt.split("-")
                     pub_year = d[0]
                     pub_month = d[1]
             case 2 | 6:
-                is_series = episodes > 1
-                model = "TVSeason" if is_series else "Movie"
+                is_season = o["platform"] in {
+                    "TV",
+                    "WEB",
+                    "电视剧",
+                    "欧美剧",
+                    "日剧",
+                    "华语剧",
+                    "综艺",
+                }
+                model = "TVSeason" if is_season else "Movie"
                 if dt:
                     year = dt.split("-")[0]
                     showtime = [
-                        {"time": dt, "region": "首播日期" if is_series else "发布日期"}
+                        {"time": dt, "region": "首播日期" if is_season else "发布日期"}
                     ]
             case 3:
                 model = "Album"
             case 4:
                 model = "Game"
+                match o["platform"]:
+                    case "游戏":
+                        release_type = GameReleaseType.GAME
+                    case "扩展包":
+                        release_type = GameReleaseType.DLC
             case _:
                 raise ValueError(
                     f"Unknown type {o['type']} for bangumi subject {self.id_value}"
@@ -60,7 +86,7 @@ class Bangumi(AbstractSite):
         title = o.get("name_cn") or o.get("name")
         orig_title = o.get("name") if o.get("name") != title else None
         brief = o.get("summary")
-
+        episodes = o.get("total_episodes", 0)
         genre = None
         platform = None
         other_title = []
@@ -75,7 +101,7 @@ class Bangumi(AbstractSite):
         pages = None
         price = None
         for i in o.get("infobox", []):
-            k = i["key"]
+            k = i["key"].lower()
             v = i["value"]
             match k:
                 case "别名":
@@ -84,9 +110,14 @@ class Bangumi(AbstractSite):
                         if isinstance(v, list)
                         else ([v] if isinstance(v, str) else [])
                     )
+                case "话数":
+                    try:
+                        episodes = int(v)
+                    except ValueError:
+                        pass
                 case "imdb_id":
                     imdb_code = v
-                case "isbn" | "ISBN":
+                case "isbn":
                     isbn_type, isbn = detect_isbn_asin(v)
                 case "语言":
                     language = v
@@ -151,6 +182,7 @@ class Bangumi(AbstractSite):
             "director": director,
             "language": language,
             "platform": platform,
+            "release_type": release_type,
             "year": year,
             "showtime": showtime,
             "imdb_code": imdb_code,
