@@ -117,7 +117,7 @@ class DiscoverGenerator(BaseJob):
                 items = self.cleanup_shows(items)
             gallery_list.append(
                 {
-                    "name": "popular_" + category.value,
+                    "name": "trending_" + category.value,
                     "category": category,
                     "items": items,
                 }
@@ -202,6 +202,7 @@ class DiscoverGenerator(BaseJob):
         cache.set("featured_collections", collection_ids, timeout=None)
         cache.set("popular_tags", list(tags), timeout=None)
         cache.set("popular_posts", list(post_ids), timeout=None)
+        cache.set("trends_statuses", list(post_ids), timeout=None)
         logger.info(
             f"Discover data updated, excluded: {len(excluding_identities)}, trends: {len(trends)}, collections: {len(collection_ids)}, tags: {len(tags)}, posts: {len(post_ids)}."
         )
