@@ -26,6 +26,11 @@ All instances interact with each other in the Fediverse via ActivityPub, allowin
  - For those interested in developing for NeoDB, please refer to the [development](development.md) section for basic instructions to get started.
  - To help translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/)
 
+## Copyleft
+
+ - NeoDB software is licensed under AGPL, please check it if you plan to modify the code and provide a service. 
+ - If you are publishing an application or service utilizing NeoDB software or API, you may use "NeoDB" and its visual identity in your work, but please refrain from any usage that may imply the affiliation with NeoDB team. 
+ - We do appreciate you clearly mention the usage of NeoDB in your work, provide link to NeoDB software (neodb.net) and service provider (e.g. neodb.social), and guide your users to support them. 
 
 ## Donation
 
