@@ -78,6 +78,7 @@ class Bangumi(AbstractSite):
             case 2 | 6:
                 is_season = o["platform"] in {
                     "TV",
+                    "OVA",  # may be movie in other sites
                     "WEB",
                     "电视剧",
                     "欧美剧",

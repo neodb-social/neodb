@@ -375,6 +375,7 @@ class Bangumi:
                     case 2 | 6:
                         is_season = s["platform"] in {
                             "TV",
+                            "OVA",
                             "WEB",
                             "电视剧",
                             "欧美剧",
