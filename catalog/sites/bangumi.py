@@ -1,6 +1,8 @@
 import logging
 from collections import OrderedDict
 
+from django.conf import settings
+
 from catalog.book.utils import detect_isbn_asin
 from catalog.common import *
 from catalog.game.models import GameReleaseType
@@ -32,7 +34,7 @@ class Bangumi(AbstractSite):
             BasicDownloader(
                 api_url,
                 headers={
-                    "User-Agent": "neodb-social/neodb (https://github.com/neodb-social/neodb)",
+                    "User-Agent": settings.NEODB_USER_AGENT,
                 },
             )
             .download()
@@ -44,11 +46,30 @@ class Bangumi(AbstractSite):
         year = None
         dt = o.get("date")
         release_type = None
+        related_resources = []
         match o["type"]:
             case 1:
-                if o["series"]:  # TODO Series
-                    model = "Series"
-                    raise ValueError("This Bangumi subject type is not implemented")
+                if o["series"]:
+                    model = "Work"
+                    # model = "Series" TODO Series
+                    res = (
+                        BasicDownloader(
+                            f"https://api.bgm.tv/v0/subjects/{self.id_value}/subjects",
+                            headers={
+                                "User-Agent": settings.NEODB_USER_AGENT,
+                            },
+                        )
+                        .download()
+                        .json()
+                    )
+                    for s in res:
+                        if s["relation"] != "单行本":
+                            continue
+                        related_resources.append(
+                            {
+                                "url": Bangumi.id_to_url(s["id"]),
+                            }
+                        )
                 model = "Edition"
                 if dt:
                     d = dt.split("-")
@@ -199,6 +220,7 @@ class Bangumi(AbstractSite):
             "release_date": dt,
             "pages": pages,
             "price": price,
+            "related_resources": related_resources,
         }
         lookup_ids = {}
         if isbn:

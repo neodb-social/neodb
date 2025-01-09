@@ -364,17 +364,13 @@ class Bangumi:
         try:
             r = requests.post(
                 search_url,
-                headers={
-                    "User-Agent": "neodb-social/neodb (https://github.com/neodb-social/neodb)",
-                },
+                headers={"User-Agent": settings.NEODB_USER_AGENT},
                 json={"keyword": q, "filter": {"type": bgm_type[c]}},
                 timeout=2,
             ).json()
             for s in r["data"]:
                 match s["type"]:
                     case 1:
-                        if s["series"]:
-                            continue
                         category = "book"
                     case 2 | 6:
                         is_season = s["platform"] in {
