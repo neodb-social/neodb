@@ -93,7 +93,9 @@
                      alt="{{ b.display_title }} {{ b.title_deco }}"
                      loading="lazy">
                 <div>
-                  {{ b.display_title }} <small class="title_deco">{{ b.title_deco }}</small>
+                  <span>{{ b.display_title }}</span>
+                  <small class="title_deco"><span>{{ b.pub_house }}</span>
+                    <span>{{ b.pub_year }}</span></small>
                 </div>
               </a>
             </li>
