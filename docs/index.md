@@ -28,13 +28,13 @@ All instances interact with each other in the Fediverse via ActivityPub, allowin
 
 ## Copyleft
 
- - NeoDB software is licensed under AGPL, please check it if you plan to modify the code and provide a service. 
- - If you are publishing an application or service utilizing NeoDB software or API, you may use "NeoDB" and its visual identity in your work, but please refrain from any usage that may imply the affiliation with NeoDB team. 
- - We do appreciate you clearly mention the usage of NeoDB in your work, provide link to NeoDB software (neodb.net) and service provider (e.g. neodb.social), and guide your users to support them. 
+ - NeoDB software code is licensed under AGPL, please check it if you plan to provide a service with modified code.
+ - If you publish a work (e.g. application, website or service) utilizing NeoDB software or API, you may use "NeoDB" and its visual identity in your work, but please refrain from any usage that may imply the affiliation with NeoDB software and team.
+ - If you publish such work to serve others, we do appreciate you clearly mention the usage of NeoDB in your work, provide descriptions and links to NeoDB software (neodb.net) and service providers (e.g. neodb.social), and guide your users to support them directly.
 
 ## Donation
 
-If you appreciate this project, please consider sponsoring us. Your support is essential to keep these services free and open-source.
+If you appreciate this project, please help spread the words, and consider sponsoring the service providers. Your support is essential to keep these services free, open-sourced and stay committed to their mission. You may donate to the flagship instance, NeoDB.social, through the link below; or check the instance you use for their details about donations.
 
  [![Kofi](https://img.shields.io/badge/Ko--Fi-Donate-orange?label=Support%20this%20project%20on%20Ko-fi&style=for-the-badge&color=ff5f5f&logo=ko-fi)](https://ko-fi.com/neodb)
 
