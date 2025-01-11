@@ -6,4 +6,4 @@ class MastodonConfig(AppConfig):
 
     def ready(self):
         # register cron jobs
-        from mastodon.jobs import MastodonSiteCheck  # isort:skip
+        pass  # isort:skip

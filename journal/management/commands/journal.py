@@ -99,12 +99,12 @@ class Command(BaseCommand):
         )
 
     def integrity(self):
-        self.stdout.write(f"Checking deleted items with remaining journals...")
+        self.stdout.write("Checking deleted items with remaining journals...")
         for i in Item.objects.filter(is_deleted=True):
             if i.journal_exists():
                 self.stdout.write(f"! {i} : {i.absolute_url}?skipcheck=1")
 
-        self.stdout.write(f"Checking merged items with remaining journals...")
+        self.stdout.write("Checking merged items with remaining journals...")
         for i in Item.objects.filter(merged_to_item__isnull=False):
             if i.journal_exists():
                 self.stdout.write(f"! {i} : {i.absolute_url}?skipcheck=1")
@@ -143,14 +143,14 @@ class Command(BaseCommand):
         match action:
             case "integrity":
                 self.integrity()
-                self.stdout.write(self.style.SUCCESS(f"Done."))
+                self.stdout.write(self.style.SUCCESS("Done."))
 
             case "purge":
                 for pcls in [Content, ListMember]:
                     for cls in pcls.__subclasses__():
                         self.stdout.write(f"Cleaning up {cls}...")
                         cls.objects.filter(visibility=99).delete()
-                self.stdout.write(self.style.SUCCESS(f"Done."))
+                self.stdout.write(self.style.SUCCESS("Done."))
 
             case "idx-destroy":
                 if yes or input(_CONFIRM).upper().startswith("Y"):

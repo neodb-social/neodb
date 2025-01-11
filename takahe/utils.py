@@ -9,14 +9,11 @@ from django.core.files.images import ImageFile
 from django.core.signing import b62_encode
 from django.db.models import Count
 from django.utils import timezone
-from django.utils.translation import gettext as _
 from PIL import Image
-
+from loguru import logger
 from .models import *
 
 if TYPE_CHECKING:
-    from journal.models import Collection
-    from users.models import APIdentity
     from users.models import User as NeoUser
 
 

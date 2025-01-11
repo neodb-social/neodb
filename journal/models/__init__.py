@@ -33,6 +33,7 @@ from .utils import (
 __all__ = [
     "Collection",
     "CollectionMember",
+    "Content",
     "FeaturedCollection",
     "Comment",
     "JournalIndex",

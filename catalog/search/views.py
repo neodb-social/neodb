@@ -1,5 +1,4 @@
 import re
-from urllib.parse import quote
 
 import django_rq
 from django.conf import settings
@@ -7,7 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import BadRequest
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from rq.job import Job
@@ -162,7 +160,7 @@ def external_search(request):
     keywords = request.GET.get("q", default="").strip()
     page_number = int_(request.GET.get("page"), 1)
     items = ExternalSources.search(category, keywords, page_number) if keywords else []
-    cache_key = f"search_{category if category!='movietv' else 'movie,tv'}_{keywords}"
+    cache_key = f"search_{category if category != 'movietv' else 'movie,tv'}_{keywords}"
     dedupe_urls = cache.get(cache_key, [])
     items = [i for i in items if i.source_url not in dedupe_urls]
 

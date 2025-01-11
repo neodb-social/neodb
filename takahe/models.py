@@ -7,23 +7,21 @@ import ssl
 import time
 from datetime import date, timedelta
 from functools import cached_property, partial
-from typing import TYPE_CHECKING, Literal, Optional
-from urllib.parse import urlparse
+from typing import TYPE_CHECKING, Optional
 
 import httpx
 import urlman
 from cachetools import TTLCache, cached
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser
 from django.core.files.storage import FileSystemStorage
 from django.db import models, transaction
 from django.template.defaultfilters import linebreaks_filter
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from lxml import etree
 
 from .html import ContentRenderer, FediverseHtmlParser

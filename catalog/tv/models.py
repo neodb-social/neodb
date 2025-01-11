@@ -25,15 +25,12 @@ For now, we follow Douban convention, but keep an eye on it in case it breaks it
 
 """
 
-import re
 from functools import cached_property
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING
 
-from auditlog.diff import ForeignKey
 from auditlog.models import QuerySet
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from typing_extensions import override
 
 from catalog.common import (
     BaseSchema,

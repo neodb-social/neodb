@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import time
 from urllib.parse import quote_plus, urlparse
 
 import httpx
@@ -90,7 +89,7 @@ class GoogleBooks:
     @classmethod
     def search(cls, q, page=1):
         results = []
-        api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q={quote_plus(q)}&startIndex={SEARCH_PAGE_SIZE*(page-1)}&maxResults={SEARCH_PAGE_SIZE}&maxAllowedMaturityRating=MATURE"
+        api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q={quote_plus(q)}&startIndex={SEARCH_PAGE_SIZE * (page - 1)}&maxResults={SEARCH_PAGE_SIZE}&maxAllowedMaturityRating=MATURE"
         try:
             j = requests.get(api_url, timeout=2).json()
             if "items" in j:
@@ -183,7 +182,7 @@ class Spotify:
     @classmethod
     def search(cls, q, page=1):
         results = []
-        api_url = f"https://api.spotify.com/v1/search?q={q}&type=album&limit={SEARCH_PAGE_SIZE}&offset={page*SEARCH_PAGE_SIZE}"
+        api_url = f"https://api.spotify.com/v1/search?q={q}&type=album&limit={SEARCH_PAGE_SIZE}&offset={page * SEARCH_PAGE_SIZE}"
         try:
             headers = {"Authorization": f"Bearer {get_spotify_token()}"}
             j = requests.get(api_url, headers=headers, timeout=2).json()
@@ -255,7 +254,7 @@ class ApplePodcast:
     @classmethod
     def search(cls, q, page=1):
         results = []
-        search_url = f"https://itunes.apple.com/search?entity=podcast&limit={page*SEARCH_PAGE_SIZE}&term={quote_plus(q)}"
+        search_url = f"https://itunes.apple.com/search?entity=podcast&limit={page * SEARCH_PAGE_SIZE}&term={quote_plus(q)}"
         try:
             r = requests.get(search_url, timeout=2).json()
             for p in r["results"][(page - 1) * SEARCH_PAGE_SIZE :]:
@@ -291,7 +290,7 @@ class IGDB:
 class Fediverse:
     @staticmethod
     async def search_task(host, q, category=None):
-        api_url = f"https://{host}/api/catalog/search?query={quote_plus(q)}{'&category='+category if category else ''}"
+        api_url = f"https://{host}/api/catalog/search?query={quote_plus(q)}{'&category=' + category if category else ''}"
         async with httpx.AsyncClient() as client:
             results = []
             try:

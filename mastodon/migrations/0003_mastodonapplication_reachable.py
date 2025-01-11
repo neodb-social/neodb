@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mastodon", "0002_add_api_domain_server_version"),
     ]

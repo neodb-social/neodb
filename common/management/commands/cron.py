@@ -1,10 +1,7 @@
-import random
-from time import sleep
-
 from django.core.management.base import BaseCommand
 from loguru import logger
 
-from common.models import BaseJob, JobManager
+from common.models import JobManager
 
 # @JobManager.register
 # class DummyJob(BaseJob):

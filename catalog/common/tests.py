@@ -1,10 +1,6 @@
 from django.test import TestCase
 
 from common.models import (
-    LANGUAGE_CHOICES,
-    LOCALE_CHOICES,
-    SCRIPT_CHOICES,
-    SITE_DEFAULT_LANGUAGE,
     SITE_PREFERRED_LANGUAGES,
     SITE_PREFERRED_LOCALES,
     detect_language,

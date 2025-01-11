@@ -7,7 +7,6 @@ import bleach
 import podcastparser
 from django.conf import settings
 from django.core.cache import cache
-from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.utils.timezone import make_aware
 

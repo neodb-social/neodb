@@ -6,7 +6,6 @@ import users.models.preference
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("users", "0001_initial_0_10"),
     ]

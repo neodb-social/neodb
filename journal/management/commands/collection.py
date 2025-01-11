@@ -28,13 +28,13 @@ class Command(BaseCommand):
         if options["export"]:
             self.process_export(options["export"])
 
-        self.stderr.write(self.style.SUCCESS(f"Done."))
+        self.stderr.write(self.style.SUCCESS("Done."))
 
     def process_export(self, collection_uuid):
         try:
             collection = Collection.objects.get(uid=get_uuid_or_404(collection_uuid))
         except Collection.DoesNotExist:
-            self.stderr.write(self.style.ERROR(f"Collection not found."))
+            self.stderr.write(self.style.ERROR("Collection not found."))
             return
         self.stderr.write(self.style.SUCCESS(f"Exporting {collection}"))
         data = {

@@ -33,8 +33,6 @@ from catalog.common import (
     Item,
     ItemCategory,
     ItemInSchema,
-    ItemSchema,
-    ItemType,
     PrimaryLookupIdDescriptor,
     jsondata,
 )
@@ -286,7 +284,7 @@ class Edition(Item):
                         logger.warning(f"Unable to find work for {work_res}")
                 else:
                     logger.warning(
-                        f'Unable to find resource for {w["id_type"]}:{w["id_value"]}'
+                        f"Unable to find resource for {w['id_type']}:{w['id_value']}"
                     )
                     work = Work.objects.filter(
                         primary_lookup_id_type=w["id_type"],
@@ -431,7 +429,7 @@ class Work(Item):
                         logger.warning(f"Unable to find edition for {edition_res}")
                 else:
                     logger.warning(
-                        f'Unable to find resource for {e["id_type"]}:{e["id_value"]}'
+                        f"Unable to find resource for {e['id_type']}:{e['id_value']}"
                     )
                     edition = Edition.objects.filter(
                         primary_lookup_id_type=e["id_type"],

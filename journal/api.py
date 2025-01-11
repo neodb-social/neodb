@@ -14,7 +14,6 @@ from .models import (
     Review,
     ShelfType,
     Tag,
-    TagManager,
     q_item_in_category,
 )
 

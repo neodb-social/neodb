@@ -1,6 +1,6 @@
 from datetime import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.db import connection, models

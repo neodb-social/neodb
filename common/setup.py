@@ -9,9 +9,7 @@ from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
 from takahe.models import Identity as TakaheIdentity
 from takahe.models import Relay as TakaheRelay
-from takahe.models import User as TakaheUser
 from takahe.utils import Takahe
-from users.models import User
 
 
 class Setup:

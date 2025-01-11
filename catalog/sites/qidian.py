@@ -1,5 +1,3 @@
-import logging
-
 from catalog.common import *
 from catalog.models import *
 

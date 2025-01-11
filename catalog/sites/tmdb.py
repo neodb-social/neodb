@@ -242,9 +242,9 @@ class TMDB_TV(AbstractSite):
                 lambda s: {
                     "model": "TVSeason",
                     "id_type": IdType.TMDB_TVSeason,
-                    "id_value": f'{self.id_value}-{s["season_number"]}',
+                    "id_value": f"{self.id_value}-{s['season_number']}",
                     "title": s["name"],
-                    "url": f'{self.url}/season/{s["season_number"]}',
+                    "url": f"{self.url}/season/{s['season_number']}",
                 },
                 res_data["seasons"],
             )
@@ -359,7 +359,7 @@ class TMDB_TVSeason(AbstractSite):
         pd.metadata["title"] = (
             pd.metadata["title"]
             if pd.metadata.get("title")
-            else f'Season {d["season_number"]}'
+            else f"Season {d['season_number']}"
         )
         pd.metadata["episode_number_list"] = list(
             map(lambda ep: ep["episode_number"], d["episodes"])
@@ -460,7 +460,7 @@ class TMDB_TVEpisode(AbstractSite):
         pd.metadata["title"] = (
             pd.metadata["title"]
             if pd.metadata["title"]
-            else f'S{d["season_number"]} E{d["episode_number"]}'
+            else f"S{d['season_number']} E{d['episode_number']}"
         )
 
         if pd.lookup_ids.get(IdType.IMDB):

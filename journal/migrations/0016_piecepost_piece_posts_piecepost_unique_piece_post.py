@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("takahe", "0001_initial"),
         ("journal", "0015_use_identity_support_remote_piece"),

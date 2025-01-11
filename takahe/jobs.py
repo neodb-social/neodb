@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 from django.core.cache import cache
-from django.db.models import Count, Q
 from django.utils import timezone
 from loguru import logger
 

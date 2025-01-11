@@ -25,21 +25,21 @@ repos:
       - id: mixed-line-ending
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
+    rev: v0.9.1
     hooks:
       - id: ruff
-      # - id: ruff-format
+      - id: ruff-format
 
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ["--profile=black"]
+  # - repo: https://github.com/pycqa/isort
+  #   rev: 5.13.2
+  #   hooks:
+  #     - id: isort
+  #       args: ["--profile=black"]
 
-  - repo: https://github.com/psf/black
-    rev: 24.4.2
-    hooks:
-      - id: black
+  # - repo: https://github.com/psf/black
+  #   rev: 24.4.2
+  #   hooks:
+  #     - id: black
 
   - repo: https://github.com/Riverside-Healthcare/djLint
     rev: v1.36.4

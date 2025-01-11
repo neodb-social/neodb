@@ -1,6 +1,5 @@
 import types
 from datetime import timedelta
-from pprint import pprint
 from time import sleep
 
 import django_rq

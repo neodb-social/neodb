@@ -22,12 +22,10 @@ from journal.models import (
     Review,
     ShelfManager,
     ShelfMember,
-    ShelfType,
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
 from takahe.utils import Takahe
-from users.views import announcements
 
 from .forms import *
 from .models import *

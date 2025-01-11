@@ -60,13 +60,13 @@ managed = true
 virtual = true
 dev-dependencies = [
     "pre-commit>=4.0.1",
-    "black~=24.4.2",
+    # "black~=24.4.2",
     "django-stubs>=5.1.0",
     "djlint>=1.36.4",
-    "isort~=5.13.2",
+    # "isort~=5.13.2",
     "lxml-stubs>=0.5.1",
     "pyright>=1.1.389",
-    "ruff>=0.7.1",
+    "ruff>=0.9.1",
     "mkdocs-material>=9.5.42",
 ]
 
@@ -115,14 +115,9 @@ exclude = [
     ".venv",
     ".git",
     "playground",
-    "**/tests.py",
     "neodb",
-    "**/migrations",
-    "**/commands",
-    "**/importers",
-    "legacy",
 ]
-lint.ignore = ["F401", "F403", "F405"]
+lint.ignore = ["F403", "F405"]
 
 [tool.setuptools]
 py-modules = []

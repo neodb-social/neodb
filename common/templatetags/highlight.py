@@ -1,5 +1,3 @@
-import re
-
 from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
@@ -31,7 +29,7 @@ def highlight(text, search):
         m = None
         for w in words:
             if otext[i : i + len(w)] == w:
-                m = f"<mark>{text[i:i+len(w)]}</mark>"
+                m = f"<mark>{text[i : i + len(w)]}</mark>"
                 i += len(w)
                 break
         if not m:

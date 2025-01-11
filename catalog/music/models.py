@@ -6,12 +6,10 @@ from django.utils.translation import pgettext_lazy
 
 from catalog.common import (
     BaseSchema,
-    ExternalResource,
     IdType,
     Item,
     ItemCategory,
     ItemInSchema,
-    ItemSchema,
     ItemType,
     PrimaryLookupIdDescriptor,
     jsondata,

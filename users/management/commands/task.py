@@ -1,8 +1,4 @@
-import pprint
-
-from django.conf import settings
 from django.core.management.base import BaseCommand
-from httpx import delete
 from tqdm import tqdm
 
 from users.models import Task

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Callable, List, Optional, Tuple, Type
+from typing import List
 
 from django.core.cache import cache
 from django.http import HttpResponse

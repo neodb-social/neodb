@@ -2,13 +2,10 @@ import re
 from functools import cached_property
 from typing import Any, override
 
-from deepmerge import always_merger
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 
 from catalog.models import Item
-from takahe.utils import Takahe
 
 from .common import Content
 from .renderers import render_text

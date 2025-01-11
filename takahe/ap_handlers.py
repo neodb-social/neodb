@@ -63,7 +63,7 @@ def _parse_piece_objects(objects) -> list[dict[str, Any]]:
         if obj["type"] in _supported_ap_journal_types.keys():
             pieces.append(obj)
         else:
-            logger.warning(f'Unknown link type {obj["type"]}')
+            logger.warning(f"Unknown link type {obj['type']}")
     return pieces
 
 
@@ -155,7 +155,7 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
     for p in pieces:
         cls = _supported_ap_journal_types.get(p["type"])
         if not cls:
-            logger.warning(f'Unknown link type {p["type"]}')
+            logger.warning(f"Unknown link type {p['type']}")
             continue
         cls.update_by_ap_object(owner, item, p, post)
 

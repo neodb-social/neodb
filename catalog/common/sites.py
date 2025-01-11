@@ -10,7 +10,7 @@ ResourceContent persists as an ExternalResource which may link to an Item
 import json
 import re
 from dataclasses import dataclass, field
-from typing import Any, Callable, Type, TypeVar
+from typing import Type, TypeVar
 
 import django_rq
 import requests

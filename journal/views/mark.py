@@ -1,11 +1,10 @@
 from datetime import datetime
 
-from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext as _
@@ -15,8 +14,8 @@ from loguru import logger
 from catalog.models import *
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
-from ..models import Comment, Mark, ShelfManager, ShelfType, TagManager
-from .common import render_list, render_relogin, target_identity_required
+from ..models import Comment, Mark, ShelfManager, ShelfType
+from .common import render_list, render_relogin
 
 PAGE_SIZE = 10
 

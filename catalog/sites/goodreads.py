@@ -1,6 +1,5 @@
 import json
 import logging
-import re
 from datetime import datetime
 
 from django.utils.timezone import make_aware

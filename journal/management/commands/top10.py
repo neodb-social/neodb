@@ -1,6 +1,6 @@
 from auditlog.context import set_actor
 from django.core.management.base import BaseCommand
-from django.db.models import Count, F, Q
+from django.db.models import Count
 from django.utils.translation import gettext_lazy as t
 
 from catalog.models import *

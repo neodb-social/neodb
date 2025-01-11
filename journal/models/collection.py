@@ -105,8 +105,6 @@ class Collection(List):
         )
 
     def save(self, *args, **kwargs):
-        from takahe.utils import Takahe
-
         if getattr(self, "catalog_item", None) is None:
             self.catalog_item = CatalogCollection()
         if (

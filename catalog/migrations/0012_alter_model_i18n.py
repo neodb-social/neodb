@@ -6,7 +6,6 @@ import catalog.common.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("catalog", "0011_alter_externalresource_id_type_and_more"),
     ]

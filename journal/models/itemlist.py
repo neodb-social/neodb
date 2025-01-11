@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING
 
 import django.dispatch
 from django.db import models

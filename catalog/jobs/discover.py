@@ -7,7 +7,6 @@ from django.db.models import Count, F, Q
 from django.utils import timezone
 from loguru import logger
 
-from boofilsic.settings import MIN_MARKS_FOR_DISCOVER
 from catalog.models import *
 from common.models import SITE_PREFERRED_LOCALES, BaseJob, JobManager
 from journal.models import (
@@ -19,7 +18,6 @@ from journal.models import (
     q_item_in_category,
 )
 from takahe.utils import Takahe
-from users.models import APIdentity
 
 MAX_ITEMS_PER_PERIOD = 12
 MIN_MARKS = settings.MIN_MARKS_FOR_DISCOVER

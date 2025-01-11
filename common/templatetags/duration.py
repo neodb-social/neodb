@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime
 
 from django import template
 from django.conf import settings
@@ -48,16 +48,16 @@ def naturaldelta(v: datetime | None):
     if d < 60:
         return _("just now")
     if d < 3600:
-        return f"{d//60}m"
+        return f"{d // 60}m"
     if d < 86400:
-        return f"{d//3600}h"
+        return f"{d // 3600}h"
     if d < 86400 * 14:
-        return f"{d//86400}d"
+        return f"{d // 86400}d"
     if d < 86400 * 56:
-        return f"{d//86400//7}w"
+        return f"{d // 86400 // 7}w"
     if d < 86400 * 30 * 18:
-        return f"{d//86400//30}mo"
-    return f"{d//86400//365}yr"
+        return f"{d // 86400 // 30}mo"
+    return f"{d // 86400 // 365}yr"
 
 
 @register.filter(is_safe=True)

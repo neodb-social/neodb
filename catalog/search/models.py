@@ -6,7 +6,6 @@ import django_rq
 from auditlog.context import set_actor
 from django.conf import settings
 from django.core.cache import cache
-from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from rq.job import Job
 

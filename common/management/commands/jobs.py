@@ -1,9 +1,6 @@
-import pprint
-
 import django_rq
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from redis import Redis
 from rq import Queue
 from rq.job import Job
 

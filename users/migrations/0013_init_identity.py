@@ -3,7 +3,7 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.db import migrations, models, transaction
+from django.db import migrations
 from django.utils import timezone
 from loguru import logger
 from tqdm import tqdm
@@ -76,11 +76,11 @@ def init_identity(apps, schema_editor):
         raise ValueError("existing Takahe identities detected, aborting migration")
     if APIdentity.objects.exists():
         raise ValueError("existing APIdentity data detected, aborting migration")
-    logger.info(f"Creating takahe users/identities")
+    logger.info("Creating takahe users/identities")
     for user in tqdm(User.objects.all()):
         username = user.username
         handler = "@" + username
-        identity = APIdentity.objects.create(
+        APIdentity.objects.create(
             pk=user.pk,
             user=user,
             local=True,
