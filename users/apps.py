@@ -6,4 +6,4 @@ class UsersConfig(AppConfig):
 
     def ready(self):
         # register cron jobs
-        pass  # isort:skip
+        from users.jobs import MastodonUserSync  # noqa

@@ -9,6 +9,7 @@ class JournalConfig(AppConfig):
         # load key modules in proper order, make sure class inject and signal works as expected
         from catalog.models import Indexer
 
+        from . import api  # noqa
         from .models import Rating, Tag
 
         Indexer.register_list_model(Tag)
