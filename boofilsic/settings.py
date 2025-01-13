@@ -412,9 +412,12 @@ MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.models.render_md"
 
 SUPPORTED_UI_LANGUAGES = {
     "en": _("English"),
+    "da": _("Danish"),
+    "de": _("German"),
+    "fr": _("French"),
+    "it": _("Italian"),
     "zh-hans": _("Simplified Chinese"),
     "zh-hant": _("Traditional Chinese"),
-    "da": _("Danish"),
 }
 
 LANGUAGES = SUPPORTED_UI_LANGUAGES.items()
