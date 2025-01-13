@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: 2025-01-10 22:20+0000\n"
+"PO-Revision-Date: 2025-01-13 19:17+0000\n"
 "Last-Translator: Guérin <gu3rin@pm.me>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/neodb/neodb/fr/>\n"
 "Language: fr\n"
@@ -80,19 +80,19 @@ msgstr "titre original"
 
 #: catalog/book/models.py:170 catalog/book/models.py:347
 msgid "author"
-msgstr "auteur⋅ice"
+msgstr "écrit par"
 
 #: catalog/book/models.py:177
 msgid "translator"
-msgstr "traducteurice"
+msgstr "traduit par"
 
 #: catalog/book/models.py:184 catalog/templates/edition.html:27
 msgid "book format"
-msgstr "format de livre"
+msgstr "format"
 
 #: catalog/book/models.py:191 catalog/templates/edition.html:33
 msgid "publishing house"
-msgstr "maison d'édition"
+msgstr "édition"
 
 #: catalog/book/models.py:194
 msgid "publication year"
@@ -382,7 +382,7 @@ msgstr "Épisode de Podcast"
 #: catalog/common/models.py:177 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:51
 msgid "Performance"
-msgstr "Représentation"
+msgstr "Spectacle"
 
 #: catalog/common/models.py:150
 msgid "Production"
@@ -441,15 +441,15 @@ msgstr "description"
 
 #: catalog/common/models.py:375 catalog/forms.py:27
 msgid "Primary ID Type"
-msgstr "Type d'identifiant primaire"
+msgstr "Type de l'identifiant primaire"
 
 #: catalog/common/models.py:378 catalog/forms.py:32
 msgid "Primary ID Value"
-msgstr "Valeur d'identifiant primaire"
+msgstr "Valeur de l'identifiant primaire"
 
 #: catalog/common/models.py:384
 msgid "metadata"
-msgstr "métadonnée"
+msgstr "métadonnées"
 
 #: catalog/common/models.py:386
 msgid "cover"
@@ -520,7 +520,7 @@ msgstr "titre alternatif"
 
 #: catalog/game/models.py:84
 msgid "designer"
-msgstr "concepteurice"
+msgstr "conception"
 
 #: catalog/game/models.py:92 catalog/music/models.py:68
 msgid "artist"
@@ -576,19 +576,19 @@ msgstr "site internet"
 #: catalog/performance/models.py:268 catalog/tv/models.py:148
 #: catalog/tv/models.py:311
 msgid "director"
-msgstr "réalisateurice"
+msgstr "réalisation"
 
 #: catalog/movie/models.py:85 catalog/performance/models.py:137
 #: catalog/performance/models.py:275 catalog/tv/models.py:155
 #: catalog/tv/models.py:318
 msgid "playwright"
-msgstr "dramaturge"
+msgstr "scénario"
 
 #: catalog/movie/models.py:92 catalog/performance/models.py:165
 #: catalog/performance/models.py:303 catalog/tv/models.py:162
 #: catalog/tv/models.py:325
 msgid "actor"
-msgstr "acteurice"
+msgstr "casting"
 
 #: catalog/movie/models.py:106 catalog/music/models.py:62
 #: catalog/templates/_item_card_metadata_album.html:16
@@ -610,17 +610,17 @@ msgstr "requis"
 
 #: catalog/movie/models.py:123 catalog/tv/models.py:356
 msgid "region or event"
-msgstr "région ou évènement"
+msgstr "pays ou évènement"
 
 #: catalog/movie/models.py:125 catalog/tv/models.py:195
 #: catalog/tv/models.py:358
 msgid "Germany or Toronto International Film Festival"
-msgstr "Festival du Film International d'Allemagne ou de Toronto"
+msgstr "ex : \"Belgique\", ou \"Festival de Cannes\""
 
 #: catalog/movie/models.py:135 catalog/tv/models.py:205
 #: catalog/tv/models.py:370
 msgid "region"
-msgstr "région"
+msgstr "pays"
 
 #: catalog/movie/models.py:146 catalog/tv/models.py:217
 #: catalog/tv/models.py:391
@@ -676,15 +676,15 @@ msgstr "nom original"
 
 #: catalog/performance/models.py:144 catalog/performance/models.py:282
 msgid "original creator"
-msgstr "créateurice original⋅e"
+msgstr "une création originale de"
 
 #: catalog/performance/models.py:151 catalog/performance/models.py:289
 msgid "composer"
-msgstr "compositeurice"
+msgstr "composition musicale"
 
 #: catalog/performance/models.py:158 catalog/performance/models.py:296
 msgid "choreographer"
-msgstr "choréographe"
+msgstr "chorégraphe"
 
 #: catalog/performance/models.py:172 catalog/performance/models.py:310
 msgid "performer"
@@ -714,18 +714,18 @@ msgstr "date de la Dernière"
 
 #: catalog/podcast/models.py:55
 msgid "host"
-msgstr "présentateurice"
+msgstr "présenté par"
 
 #: catalog/search/views.py:58 catalog/search/views.py:177
 msgid "Invalid URL"
-msgstr "URL invalide"
+msgstr "URL incorrecte"
 
 #: catalog/templates/_fetch_failed.html:4
 msgid "Unable to fetch from the link, please check again. Some sites may require login for certain links, please manually create them here."
 msgstr ""
-"Récupération impossible à partir du lien, veuillez revérifier. Certains "
-"sites web peuvent exiger une connexion pour certains liens. Si nécessaire "
-"créez l'œuvre ici manuellement."
+"Récupération impossible à partir du lien, veuillez revérifier votre saisie. "
+"Certains sites web peuvent exiger une connexion pour certains liens. Si "
+"nécessaire créez l'œuvre ici manuellement."
 
 #: catalog/templates/_item_card_metadata_album.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
@@ -757,11 +757,11 @@ msgstr "tout"
 
 #: catalog/templates/_item_comments.html:25
 msgid "edit this item to fetch or add episode list here"
-msgstr "modifier cette œuvre pour récupérer ou ajouter une liste d'épisodes ici"
+msgstr "éditer cette œuvre pour récupérer ou ajouter une liste d'épisodes"
 
 #: catalog/templates/_item_comments.html:27
 msgid "hide this tooltip"
-msgstr "masquer cette infobulle"
+msgstr "masquer l'infobulle"
 
 #: catalog/templates/_item_comments.html:82
 #: catalog/templates/_item_comments_by_episode.html:80
@@ -797,19 +797,19 @@ msgstr "aucun historique."
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "sure to clear mark history?"
-msgstr "voulez-vous vraiment effacer l'historique de marquage ?"
+msgstr "voulez-vous vraiment effacer l'historique d'interaction ?"
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "clear mark history"
-msgstr "effacer l'historique de marquage"
+msgstr "effacer l'historique d'interaction"
 
 #: catalog/templates/_item_user_mark_history.html:25
 msgid "clear history will not remove current mark"
-msgstr "effacer l'historique ne retirera pas le marquage actuel"
+msgstr "effacer l'historique ne retirera pas l'interaction en cours"
 
 #: catalog/templates/_item_user_pieces.html:5
 msgid "my comment and tags"
-msgstr "mes commentaires et étiquettes"
+msgstr "mes commentaires & étiquettes"
 
 #: catalog/templates/_item_user_pieces.html:67
 msgid "my notes"
@@ -825,7 +825,7 @@ msgstr "ma collection"
 
 #: catalog/templates/_item_user_pieces.html:190
 msgid "mark history"
-msgstr "historique de marquage"
+msgstr "historique d'interaction"
 
 #: catalog/templates/_sidebar_edit.html:7
 msgid "edit"
@@ -851,7 +851,7 @@ msgstr "Option d'édition"
 #: catalog/templates/catalog_merge.html:35
 #: catalog/templates/catalog_merge.html:63
 msgid "Item has been deleted."
-msgstr "L'élément a été supprimé."
+msgstr "L'œuvre a été supprimée."
 
 #: catalog/templates/_sidebar_edit.html:26
 #: catalog/templates/catalog_delete.html:28
@@ -873,7 +873,7 @@ msgstr "L'œuvre a été fusionnée avec un autre."
 #: catalog/templates/catalog_merge.html:50
 #: catalog/templates/catalog_merge.html:78
 msgid "Item has been marked by users."
-msgstr "L'œuvre a été marquée par des membres."
+msgstr "Des membres ont interagi avec l'œuvre."
 
 #: catalog/templates/_sidebar_edit.html:41
 msgid "The following items are merged into this item"
@@ -921,17 +921,17 @@ msgstr "Tout récupérer"
 #: catalog/templates/_sidebar_edit.html:106
 msgid "Due to differences in how Douban, IMDB, and TMDB handle season data, a small number of TV shows and animations may not return correct results. Please manually verify and clean up after updating."
 msgstr ""
-"En raison de différences dans la manière dont Douban, IMDB & TMDB gèrent les "
+"En raison de différences dans la manière dont Douban, IMDb & TMDB gèrent les "
 "données liées aux saisons, un petit nombre de séries TV et d'animations "
-"peuvent retourner des résultats incorrects. Veillez à les vérifier et "
-"nettoyer manuellement après la mise à jour."
+"peuvent renvoyer des résultats incorrects. Veillez à les vérifier & nettoyer "
+"manuellement après la mise à jour."
 
 #: catalog/templates/_sidebar_edit.html:109
 msgid "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries."
 msgstr ""
-"Pour récupérer tous les épisodes, le nombre de saisons et les informations "
-"IMDb sont requises. Si compléter ces informations n'est pas pratique, vous "
-"pouvez aussi créer les sous-entrées manuellement."
+"Afin de récupérer tous les épisodes, les informations IMDb et le nombre de "
+"saisons sont requises. Si compléter ces informations n'est pas pratique, "
+"vous pouvez aussi créer les sous-entrées manuellement."
 
 #: catalog/templates/_sidebar_edit.html:115
 #: catalog/templates/_sidebar_edit.html:127
@@ -954,7 +954,7 @@ msgstr "Lien vers l'œuvre parente"
 
 #: catalog/templates/_sidebar_edit.html:163
 msgid "Sure to link?"
-msgstr "Confirmer l'association"
+msgstr "Confirmer l'association ?"
 
 #: catalog/templates/_sidebar_edit.html:170
 msgid "Update link"
@@ -971,7 +971,7 @@ msgstr "Cette opération ne peut être annulée. Confirmer la suppression ?"
 
 #: catalog/templates/_sidebar_edit.html:183
 msgid "remove seasons not marked"
-msgstr "retirer les saisons sans marquage"
+msgstr "retirer les saisons sans interaction"
 
 #: catalog/templates/_sidebar_edit.html:189
 #: catalog/templates/catalog_merge.html:11
@@ -1051,18 +1051,18 @@ msgstr "autre"
 #: catalog/templates/_sidebar_edit.html:271
 msgid "To suggest merging or association, please include the URL of the target item"
 msgstr ""
-"Afin de proposer des fusions ou associations, veuillez inclure l'URL de l"
-"'œuvre-cible"
+"Pour proposer des fusions ou associations, veuillez inclure l'URL de l'œuvre-"
+"cible"
 
 #: catalog/templates/_sidebar_edit.html:272
 msgid "submit"
-msgstr "soumettre"
+msgstr "valider"
 
 #: catalog/templates/_sidebar_edit.html:273
 msgid "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution."
 msgstr ""
 "En tant que membre de cette communauté, vous pouvez éditer certaines "
-"métadonnées des œuvre de ce site. Si vous n'avez pas l'assurance que ces "
+"métadonnées des œuvres de ce site. Si vous n'avez pas l'assurance que ces "
 "modifications sont adéquates, ou si vous ne parvenez pas à effectuer "
 "certains changements, vous pouvez les suggérer ici. La modération tiendra "
 "compte de toute proposition. Cependant, leur adoption n'est ni automatique, "
@@ -1105,7 +1105,7 @@ msgstr "Ajouter des jeux"
 
 #: catalog/templates/_sidebar_search.html:34
 msgid "Add performance or theater pieces"
-msgstr "Ajouter des représentations ou des pièces de théâtre"
+msgstr "Ajouter des spectacles ou des pièces de théâtre"
 
 #: catalog/templates/album.html:22
 msgid "duration"
@@ -1218,7 +1218,7 @@ msgstr "tout marquer comme lu"
 #: catalog/templates/discover.html:162
 #: common/templates/_sidebar_anonymous.html:51
 msgid "Popular Tags"
-msgstr "Étiquettes appréciées"
+msgstr "Étiquettes tendances"
 
 #: catalog/templates/discover.html:169 catalog/templates/item_base.html:239
 #: catalog/templates/item_mark_list.html:56
@@ -1279,7 +1279,7 @@ msgstr "sélectionnez une saison pour commenter"
 
 #: catalog/templates/item_base.html:104
 msgid "mark, comment and collect"
-msgstr "marquer, commenter et collectionner"
+msgstr "interagir, commenter & collectionner"
 
 #: catalog/templates/item_base.html:115
 msgid "Login or register to review or add this item to your collection."
@@ -1320,14 +1320,14 @@ msgstr "commentaires"
 #: catalog/templates/item_mark_list.html:24
 #: catalog/templates/item_review_list.html:20
 msgid "marks"
-msgstr "marque"
+msgstr "interactions"
 
 #: catalog/templates/item_base.html:265
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
 msgid "marks from who you follow"
-msgstr "marques des membres que vous suivez"
+msgstr "interactions des membres que vous suivez"
 
 #: catalog/templates/item_base.html:279
 #: catalog/templates/item_mark_list.html:27
@@ -1339,7 +1339,7 @@ msgstr "avis"
 #: journal/templates/user_mark_list.html:4
 #: journal/templates/user_mark_list.html:7
 msgid "Marks"
-msgstr "Marques"
+msgstr "Interactions"
 
 #: catalog/templates/item_review_list.html:12
 #: journal/templates/user_review_list.html:4
@@ -1403,7 +1403,7 @@ msgstr "jeux"
 #: catalog/templates/search_header.html:60
 #: catalog/templates/search_header.html:62
 msgid "performances"
-msgstr "représentations"
+msgstr "spectacles"
 
 #: catalog/templates/search_header.html:68
 #: catalog/templates/search_header.html:70
@@ -1432,23 +1432,23 @@ msgstr "Aucune œuvre ne correspond à votre requête."
 #: catalog/templates/search_results.html:35
 msgid "System will search other websites and instances, click title of the item to save them locally. "
 msgstr ""
-"Le système va chercher sur d'autres sites et serveurs. Cliquez sur le titre "
-"de l'œuvre pour l'enregistrer ici. "
+"Le système va chercher l'œuvre sur d'autres sites et serveurs. Cliquez sur "
+"son titre pour l'importer. "
 
 #: catalog/templates/search_results.html:39
 msgid "If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter."
 msgstr ""
-"Si vous avez l'adresse d'un de ces sites, veuillez saisir l'URL complète (ex "
-": <code>https://www.imdb.com/title/tt2513074/</code>) dans la barre de "
-"recherche avant d'appuyer sur Entrée."
+"Si vous avez l'adresse d'une œuvre sur l'un de ces sites, veuillez saisir "
+"l'URL complète (ex : <code>https://www.imdb.com/fr/title/tt0411008/</code>) "
+"dans la barre de recherche avant d'appuyer sur Entrée."
 
 #: catalog/templates/search_results.html:49
 #, python-format
 msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on #dup\">click here to show them.</a> "
 msgstr ""
 " les éléments %(dups)s font partie de la même œuvre ou possèdent le même "
-"identifiant et sont donc cachés des résultats <a _="
-"\"on click toggle .unfold on #dup\">cliquez ici pour les afficher.</a> "
+"identifiant et ont donc été retirés des résultats. <a _="
+"\"on click toggle .unfold on #dup\">Cliquez ici pour les afficher.</a> "
 
 #: catalog/templates/search_results.html:63
 msgid "Searching from other sites"
@@ -1482,7 +1482,7 @@ msgstr "Éditions"
 
 #: catalog/tv/models.py:176 catalog/tv/models.py:339
 msgid "show time"
-msgstr "heure de diffusion"
+msgstr "première diffusion"
 
 #: catalog/tv/models.py:188
 msgid "Date"
@@ -1490,7 +1490,7 @@ msgstr "Date"
 
 #: catalog/tv/models.py:193
 msgid "Region or Event"
-msgstr "Région ou Évènement"
+msgstr "Pays ou Évènement"
 
 #: catalog/tv/models.py:219 catalog/tv/models.py:393
 msgid "episode length"
@@ -1566,7 +1566,7 @@ msgstr "Impossible d'associer à une œuvre supprimée ou fusionnée"
 
 #: catalog/views_edit.py:330
 msgid "Cannot link items other than editions"
-msgstr "Impossible de lier des élémens autre que les éditions"
+msgstr "Impossible de lier des éléments autre que les éditions"
 
 #: common/models/lang.py:40
 msgid "Afar"
@@ -2351,8 +2351,8 @@ msgstr "Chinois Hakka"
 #: common/templates/400.html:22
 msgid "You may have submitted invalid data, or the content may have been deleted by the author."
 msgstr ""
-"Vous semblez avoir soumis une donnée incorrecte, ou alors le contenu a été "
-"supprimé par l'auteurice."
+"Vous semblez avoir soumis une donnée incorrecte. Il se peut également que ce "
+"contenu ait été supprimé par son auteurice."
 
 #: common/templates/400.html:24 common/templates/403.html:24
 #: common/templates/404.html:24
@@ -2364,8 +2364,9 @@ msgstr ""
 #: common/templates/403.html:22
 msgid "Author may require you to log in before accessing this content, or you do not have permission to view it."
 msgstr ""
-"L'auteurice peut requérir votre connexion avant d'accéder à ce contenu. Vous "
-"pouvez également ne pas avoir les autorisations nécessaire pour le consulter."
+"Il vous sera peut-être demandé de vous identifier avant d'accéder à ce "
+"contenu. Il se peut également que vous n'ayez pas les autorisations "
+"nécessaire pour le consulter."
 
 #: common/templates/404.html:20
 msgid "Something is missing"
@@ -2379,8 +2380,8 @@ msgstr ""
 #: common/templates/500.html:22
 msgid "An internal error occurred. If this error occurs repeatedly, it will be recorded and handled by a human."
 msgstr ""
-"Une erreur interne s'est produite. Si cette erreur est réccurente, elle sera "
-"enregistrée et traitée par une vraie personne."
+"Une erreur interne s'est produite. Si cette erreur apparait de manière "
+"réccurente, elle sera enregistrée et traitée par une vraie personne."
 
 #: common/templates/500.html:24
 msgid "If you have an urgent situation or any questions, please contact us through the link at the bottom of the page."
@@ -2404,7 +2405,7 @@ msgstr "Annonces"
 
 #: common/templates/_footer.html:9
 msgid "Developer"
-msgstr "Développeur"
+msgstr "Outils de dev"
 
 #: common/templates/_footer.html:13
 msgid "Source Code"
@@ -2500,7 +2501,7 @@ msgstr "Ouvert"
 #: common/templates/_sidebar.html:53
 #: users/templates/users/profile_actions.html:35
 msgid "approving followers manually"
-msgstr "valider manuellement les abonnements"
+msgstr "valider manuellement les demandes de suivi"
 
 #: common/templates/_sidebar.html:75
 msgid "Current Targets"
@@ -2509,7 +2510,7 @@ msgstr "Objectifs actuels"
 #: common/templates/_sidebar.html:88
 msgid "Set a collection as target, its progress will show up here."
 msgstr ""
-"Définissez une collection comme objectif, sa progression s'affichera ici."
+"Définissez une collection comme objectif et sa progression s'affichera ici."
 
 #: common/templates/_sidebar.html:101
 msgid "Recent podcast episodes"
@@ -2569,13 +2570,14 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"        <h3>Bienvenue ! 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
+"        <h3>Bienvenue !🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
 "        <p>\n"
 "          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s a "
-"pour objectif de créer un espace libre, ouvert et interconnecté pour "
-"collectionner et commenter des œuvres (livres, films, séries TV, musique, "
-"podcasts & jeux. Ici, vous pouvez consigner vos collections et avis, "
-"découvrir de nouvelles œuvres et interagir avec d'autres membres.\n"
+"pour objectif de créer un espace communautaire, libre, ouvert & décentralisé "
+"pour collectionner et commenter des œuvres (livres, films, séries TV, "
+"musique, podcasts & jeux. Ici, vous pouvez consigner vos œuvres & leur "
+"laisser une note ou un avis, en découvrir de nouvelles et interagir avec "
+"d'autres membres.\n"
 "        </p>\n"
 "        <p>\n"
 "          <i class=\"fa-solid fa-globe\"></i> &nbsp; La manière la plus "
@@ -2586,12 +2588,12 @@ msgstr ""
 "        </p>\n"
 "        <p>\n"
 "          <i class=\"fa-solid fa-envelope\"></i> &nbsp; Si vous ne souhaitez "
-"pas encore rejoindre le Fédivers, pas de souci ! Vous pouvez vous créer un "
-"compte ici avec votre adresse email. Vous pourrez même l'associer à un "
-"compte du Fédivers ultérieurement si vous le souhaitez.\n"
+"pas rejoindre le Fédivers, pas de souci ! Vous pouvez vous créer un compte "
+"ici avec votre adresse email. Vous pourrez même l'associer à un compte du "
+"Fédivers ultérieurement si vous changez d'avis.\n"
 "        </p>\n"
 "        <p>\n"
-"          <i class=\"fa-solid fa-circle-question\"></i> &nbsp; Si vous avez "
+"          <i class=\"fa-solid fa-circle-question\"></i> &nbsp;Si vous avez "
 "des questions ou suggestions, n'hésitez pas à nous contacter sur <a href="
 "\"https://mastodon.social/@neodb\">le Fédivers</a> ou <a href="
 "\"https://discord.gg/uprvcH8gqD\">Discord</a>.\n"
@@ -2654,7 +2656,7 @@ msgstr "Contenu (Markdown)"
 #: journal/forms.py:21 journal/templates/comment.html:62
 #: journal/templates/mark.html:117 journal/views/note.py:26
 msgid "Crosspost to timeline"
-msgstr "Repartager sur mon fil"
+msgstr "Repartager sur mon compte associé"
 
 #: journal/forms.py:25 journal/forms.py:45
 #: journal/templates/collection_share.html:24
@@ -2665,11 +2667,11 @@ msgstr "Visibilité"
 
 #: journal/forms.py:34
 msgid "creator only"
-msgstr "créateurice seulement"
+msgstr "propriétaire seulement"
 
 #: journal/forms.py:35
 msgid "creator and their mutuals"
-msgstr "créateurice & leurs suivis mutuels"
+msgstr "propriétaire & leurs suivis mutuels"
 
 #: journal/forms.py:52 journal/templates/collection.html:141
 msgid "Collaborative editing"
@@ -2725,17 +2727,15 @@ msgstr "Mentionné⋅es seulement"
 
 #: journal/models/common.py:370
 msgid "A recent post was not posted to Threads."
-msgstr "Une publication récente n'a pas été partagée sur Threads."
+msgstr "Échec de publication sur Threads."
 
 #: journal/models/common.py:404
 msgid "A recent post was not posted to Mastodon, please re-authorize."
-msgstr ""
-"Une publication récente n'a pas été partagée sur Mastodon. Veuillez "
-"réautoriser."
+msgstr "Échec de publication sur Mastodon. Veuillez réautoriser."
 
 #: journal/models/common.py:411
 msgid "A recent post was not posted to Mastodon."
-msgstr "Une publication récente n'a pas été partagée sur Mastodon."
+msgstr "Échec de publication sur Mastodon."
 
 #: journal/models/note.py:34
 msgid "Page"
@@ -2759,7 +2759,7 @@ msgstr "Piste"
 
 #: journal/models/note.py:41
 msgid "Cycle"
-msgstr "Cycle"
+msgstr "Répétition"
 
 #: journal/models/note.py:42
 msgid "Timestamp"
@@ -2892,7 +2892,7 @@ msgstr "lecture interrompue"
 
 #: journal/models/shelf.py:70
 msgid "books reviewed"
-msgstr "livres avec avis"
+msgstr "avis sur des livres"
 
 #: journal/models/shelf.py:72 journal/models/shelf.py:112
 #: journal/models/shelf.py:152 journal/models/shelf.py:192
@@ -2972,7 +2972,7 @@ msgstr "visionnage interrompu"
 
 #: journal/models/shelf.py:110
 msgid "movies reviewed"
-msgstr "films avec avis"
+msgstr "avis sur des films"
 
 #: journal/models/shelf.py:118
 msgid "TV shows to watch"
@@ -2992,7 +2992,7 @@ msgstr "séries TV abandonnées"
 
 #: journal/models/shelf.py:150
 msgid "TV shows reviewed"
-msgstr "séries TV avec avis"
+msgstr "avis sur des séries TV"
 
 #: journal/models/shelf.py:158
 msgid "albums to listen"
@@ -3005,7 +3005,7 @@ msgstr "envie de l'écouter"
 #: journal/models/shelf.py:160 journal/models/shelf.py:240
 #, python-brace-format
 msgid "wants to listen {item}"
-msgstr "envie d'écouter {item}"
+msgstr "a envie d'écouter {item}"
 
 #: journal/models/shelf.py:161 journal/models/shelf.py:241
 msgid "to listen"
@@ -3064,7 +3064,7 @@ msgstr "écoute interrompue"
 
 #: journal/models/shelf.py:190
 msgid "albums reviewed"
-msgstr "albums avec avis"
+msgstr "avis sur des albums"
 
 #: journal/models/shelf.py:198
 msgid "games to play"
@@ -3136,7 +3136,7 @@ msgstr "jeu interrompu"
 
 #: journal/models/shelf.py:230
 msgid "games reviewed"
-msgstr "jeux avec avis"
+msgstr "avis sur des jeux"
 
 #: journal/models/shelf.py:238
 msgid "podcasts to listen"
@@ -3156,11 +3156,11 @@ msgstr "podcasts abandonnés"
 
 #: journal/models/shelf.py:270
 msgid "podcasts reviewed"
-msgstr "podcasts avec avis"
+msgstr "avis sur des podcasts"
 
 #: journal/models/shelf.py:278
 msgid "performances to see"
-msgstr "représentations à voir"
+msgstr "spectacles à voir"
 
 #: journal/models/shelf.py:279
 msgid "want to see"
@@ -3177,7 +3177,7 @@ msgstr "à voir"
 
 #: journal/models/shelf.py:288
 msgid "performances saw"
-msgstr "représentations vues"
+msgstr "spectacles vus"
 
 #: journal/models/shelf.py:289
 msgid "finish seeing"
@@ -3194,7 +3194,7 @@ msgstr "vu"
 
 #: journal/models/shelf.py:296
 msgid "performances dropped"
-msgstr "représentations abandonnées"
+msgstr "spectacles abandonnés"
 
 #: journal/models/shelf.py:297
 msgid "stop seeing"
@@ -3211,11 +3211,11 @@ msgstr "visionnage interrompu"
 
 #: journal/models/shelf.py:304
 msgid "performances reviewed"
-msgstr "représentations avec avis"
+msgstr "avis sur des spectacles"
 
 #: journal/models/shelf.py:562
 msgid "removed mark"
-msgstr "marque retirée"
+msgstr "interaction effacée"
 
 #: journal/templates/_feature_stats.html:10
 msgid "stop tracking"
@@ -3235,11 +3235,11 @@ msgstr "Retirer de la collection"
 
 #: journal/templates/_list_item.html:22
 msgid "add mark"
-msgstr "marquer"
+msgstr "interagir"
 
 #: journal/templates/_list_item.html:30
 msgid "update mark"
-msgstr "mettre à jour la marque"
+msgstr "mettre à jour l'interaction"
 
 #: journal/templates/_list_item.html:75 journal/templates/review.html:14
 #: journal/templates/review.html:23 journal/templates/review.html:53
@@ -3262,12 +3262,12 @@ msgstr "évaluation"
 
 #: journal/templates/action_boost_post.html:10
 msgid "boost"
-msgstr "repartager"
+msgstr "relayer"
 
 #: journal/templates/action_delete_post.html:6
 msgid "Are you sure to delete this post and the mark or note related with it?"
 msgstr ""
-"Voulez-vous vraiment supprimer cette publication et la marque ou note "
+"Voulez-vous vraiment supprimer cette publication et l'interaction ou la note "
 "associée ?"
 
 #: journal/templates/action_delete_post.html:6
@@ -3376,12 +3376,12 @@ msgstr "Ajouter une œuvre à cette collection"
 
 #: journal/templates/collection_items.html:56
 msgid "Drag and drop to change the order order and click here to save"
-msgstr "Glissez-déposez pour changer l'ordre puis cliquez ici pour enregistrer"
+msgstr "Glissez-déposez pour changer l'ordre, puis cliquez ici pour enregistrer"
 
 #: journal/templates/collection_share.html:24
 msgid "for the sharing post only, not visibility of the collection"
 msgstr ""
-"concerne seulement le partage de la publication, pas la visibilité de la "
+"concerne seulement la visibilité de la publication partagée, non la "
 "collection"
 
 #: journal/templates/collection_update_item_note.html:5
@@ -3404,7 +3404,7 @@ msgstr "partager avec la position de lecture"
 
 #: journal/templates/mark.html:17
 msgid "Mark"
-msgstr "Marque"
+msgstr "Interaction"
 
 #: journal/templates/mark.html:51
 msgid "not rated"
@@ -3416,12 +3416,12 @@ msgstr "ajoutez une étiquette et validez avec Entrée"
 
 #: journal/templates/mark.html:132
 msgid "change mark date"
-msgstr "changer la date de marquage"
+msgstr "changer la date d'interaction"
 
 #: journal/templates/mark.html:158
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr ""
-"Voulez-vous supprimer la marque, le commentaire et les étiquettes de cette "
+"Voulez-vous supprimer les interactions, commentaires & étiquettes de cette "
 "œuvre ?"
 
 #: journal/templates/markdown.html:3
@@ -3523,7 +3523,7 @@ msgstr "Note"
 
 #: journal/templates/note.html:21
 msgid "Note with empty content will be deleted, sure to continue?"
-msgstr "Les notes vides seront supprimées, confirmer la suppression ?"
+msgstr "Les notes vides seront supprimées. Confirmer la suppression ?"
 
 #: journal/templates/piece_delete.html:22
 msgid "Are you sure to delete this entire content?"
@@ -3532,8 +3532,8 @@ msgstr "Voulez-vous supprimer l'intégralité de ce contenu ?"
 #: journal/templates/piece_delete.html:23
 msgid "By deleting it, you will also lose track of others' comments and feedbacks to your content."
 msgstr ""
-"En le supprimant, vous perdrez également toute trace des commentaires et "
-"retours d'autres membres sur votre contenu."
+"En supprimant ceci, vous perdrez également toute trace des commentaires et "
+"réponses d'autres membres sur votre contenu."
 
 #: journal/templates/piece_delete.html:24
 #: journal/templates/piece_delete.html:31
@@ -3547,7 +3547,7 @@ msgstr "calendrier"
 #: journal/templates/profile.html:54 journal/templates/wrapped.html:14
 #: journal/templates/wrapped.html:53
 msgid "annual summary"
-msgstr "résumé annuel"
+msgstr "Récap' annuel"
 
 #: journal/templates/profile.html:119 journal/views/collection.py:166
 msgid "collection"
@@ -3567,13 +3567,14 @@ msgstr "ajouter une réponse"
 
 #: journal/templates/review.html:63
 msgid "The author has set it to be viewable only by logged-in users."
-msgstr "L'auteurice a défini ce contenu comme réservé aux membres connectés."
+msgstr ""
+"Læ propriétaire a défini ce contenu comme réservé aux membres connectés."
 
 #: journal/templates/review_edit.html:33
 msgid "When saving, replace leading spaces with full-width spaces"
 msgstr ""
 "Au moment de l'enregistrement, remplacer les espaces en début de ligne par "
-"des espaces pleins"
+"des espaces de pleine largeur"
 
 #: journal/templates/review_edit.html:42
 msgid "change review date"
@@ -3591,8 +3592,8 @@ msgstr "Personnel"
 msgid "Personal tags are not included in public index. However, if you use this tag when marking an item publicly, it might still be visible to others."
 msgstr ""
 "Les étiquettes personnelles ne sont pas incluses dans le flux public. "
-"Cependant, si vous utilisez cette étiquette pour marquer publiquement une "
-"œuvre, elle est susceptible d'être visible par d'autres membres."
+"Cependant, si vous utilisez cette étiquette pour interagir publiquement avec "
+"une œuvre, elle est susceptible d'être visible par d'autres membres."
 
 #: journal/templates/tag_edit.html:55
 msgid "Delete this tag"
@@ -3605,11 +3606,11 @@ msgstr "Collections aimées"
 
 #: journal/templates/user_tag_list.html:19
 msgid "All Tags"
-msgstr "Toute les étiquettes"
+msgstr "Toutes les étiquettes"
 
 #: journal/templates/wrapped.html:40
 msgid "another style"
-msgstr "un autre style"
+msgstr "changer le style"
 
 #: journal/templates/wrapped.html:46
 msgid "share"
@@ -3621,7 +3622,7 @@ msgstr "télécharger"
 
 #: journal/templates/wrapped_share.html:16
 msgid "Share Annual Summary"
-msgstr "Partager le résumé annuel"
+msgstr "Partager le Récap' annuel"
 
 #: journal/templates/wrapped_share.html:31
 #, python-format
@@ -3674,8 +3675,8 @@ msgstr[1] "%(count)d podcasts"
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
-msgstr[0] "%(count)d représentation"
-msgstr[1] "%(count)d représentations"
+msgstr[0] "%(count)d spectacle"
+msgstr[1] "%(count)d spectacles"
 
 #: journal/templatetags/collection.py:92
 #, python-format
@@ -3700,9 +3701,7 @@ msgstr "a partagé la collection de {username}"
 
 #: journal/views/collection.py:225
 msgid "Unable to find the item, please use item url from this site."
-msgstr ""
-"Impossible de trouver l'œuvre. Veuillez utiliser l'URL vers l'œuvre de ce "
-"site."
+msgstr "Impossible de trouver l'œuvre. Veuillez saisir l'URL locale de l'œuvre."
 
 #: journal/views/collection.py:338 journal/views/collection.py:359
 #: journal/views/review.py:124
@@ -3712,8 +3711,8 @@ msgstr "Connexion requise"
 #: journal/views/common.py:35 journal/views/mark.py:123
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
-"Donnée sauvegardée, mais impossible de repartager sur votre instance du "
-"Fédivers."
+"Les données ont été sauvegardées mais elles n'ont pas pu être repartagées "
+"sur votre instance du Fédivers."
 
 #: journal/views/common.py:37
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
@@ -3792,7 +3791,7 @@ msgstr "Étiquette mise à jour."
 
 #: journal/views/wrapped.py:146
 msgid "Summary posted to timeline."
-msgstr "Résumé publié sur le fil d'actualités."
+msgstr "Récap' publié sur votre timeline."
 
 #: mastodon/models/common.py:14 users/templates/users/account.html:44
 #: users/templates/users/login.html:60
@@ -3835,7 +3834,7 @@ msgid ""
 "\n"
 "{code}"
 msgstr ""
-"Utilisez ce code pour vérifier votre adresse mail {email}\n"
+"Utilisez ce code pour vérifier votre adresse {email} :\n"
 "\n"
 "{code}"
 
@@ -3846,7 +3845,7 @@ msgid ""
 "\n"
 "{code}"
 msgstr ""
-"Utilisez ce code pour vous connecter avec l'adresse {email}\n"
+"Utilisez ce code pour vous connecter avec l'adresse {email} :\n"
 "\n"
 "{code}"
 
@@ -3864,7 +3863,7 @@ msgid ""
 "\n"
 "If you prefer to register a new account with this email, please use this verification code: {code}"
 msgstr ""
-"Aucun compte n'est enregistré avec l'adresse mail suivane : {email}\n"
+"Aucun compte n'est enregistré avec l'adresse mail suivante : {email}\n"
 "\n"
 "Si vous avez déjà un compte chez nous, connectez-vous et ajoutez cette "
 "adresse mail à votre compte.\n"
@@ -3886,7 +3885,7 @@ msgstr "type & version"
 
 #: mastodon/models/mastodon.py:523
 msgid "in-site app id"
-msgstr "identifiant de l'application sur site"
+msgstr "App ID du site"
 
 #: mastodon/models/mastodon.py:524
 msgid "client id"
@@ -3910,7 +3909,7 @@ msgstr "longueur maximale de la publication"
 
 #: mastodon/models/mastodon.py:624
 msgid "Boost"
-msgstr "Repartager"
+msgstr "Relayer"
 
 #: mastodon/models/mastodon.py:625
 msgid "New Post"
@@ -3926,7 +3925,7 @@ msgstr "Échec d'authentification"
 
 #: mastodon/views/bluesky.py:23
 msgid "Username and app password is required."
-msgstr "Identifiant et mot de passe requis."
+msgstr "Identifiant & mot de passe de l'app requis."
 
 #: mastodon/views/bluesky.py:28
 msgid "Invalid account data from Bluesky."
@@ -3956,7 +3955,7 @@ msgstr "Impossible de mettre à jour les informations de connexion"
 #: mastodon/views/common.py:65
 #, python-brace-format
 msgid "Identity {handle} in use by a different user."
-msgstr "L'idendité {handle} est déjà utilisée par un autre membre."
+msgstr "L'idendifiant {handle} est déjà utilisée par un autre membre."
 
 #: mastodon/views/common.py:81
 #, python-brace-format
@@ -3966,15 +3965,15 @@ msgstr "Information de connexion mises à jour en tant que {handle}."
 #: mastodon/views/common.py:91 mastodon/views/common.py:95
 #: mastodon/views/common.py:101
 msgid "Disconnect identity failed"
-msgstr "Échec de déconnexion de l'identité"
+msgstr "Échec de dissociation de l'identifiant"
 
 #: mastodon/views/common.py:91
 msgid "Identity not found."
-msgstr "Identité introuvable."
+msgstr "Identifiant introuvable."
 
 #: mastodon/views/common.py:102
 msgid "You cannot disconnect last login identity."
-msgstr "Vous ne pouvez pas déconnecter la dernière idendité de connexion."
+msgstr "Vous ne pouvez pas détacher le dernier identifiant utilisé."
 
 #: mastodon/views/common.py:108
 #, python-brace-format
@@ -4017,11 +4016,11 @@ msgstr "Données de cookie incorrectes."
 
 #: mastodon/views/mastodon.py:50
 msgid "Invalid instance domain"
-msgstr "Domaine de l'instance incorrect"
+msgstr "Adresse de l'instance incorrecte"
 
 #: mastodon/views/mastodon.py:55
 msgid "Invalid token from Fediverse instance."
-msgstr "Jeton de l'instance du Fédivers incorrect."
+msgstr "Token de l'instance du Fédivers incorrect."
 
 #: mastodon/views/mastodon.py:62
 msgid "Invalid account data from Fediverse instance."
@@ -4033,7 +4032,7 @@ msgstr "Données du compte Threads incorrectes."
 
 #: social/templates/event/boosted.html:3
 msgid "boosted your post"
-msgstr "a repartagé votre publication"
+msgstr "a relayé votre publication"
 
 #: social/templates/event/boosted_collection.html:2
 #, python-format
@@ -4042,7 +4041,7 @@ msgid ""
 "boosted your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"a repartagé votre collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"a relayé votre collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/boosted_comment.html:3
 #, python-format
@@ -4051,8 +4050,7 @@ msgid ""
 "boosted your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"a repartagé votre commentaire sur <a href=\"%(item_url)s\">%(item_title)s</a>"
-"\n"
+"a relayé votre commentaire sur <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_note.html:3
 #, python-format
@@ -4061,7 +4059,7 @@ msgid ""
 "boosted your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"a repartagé votre note sur <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"a relayé votre note sur <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_rating.html:3
 #, python-format
@@ -4070,7 +4068,7 @@ msgid ""
 "boosted your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"a repartagé votre évaluation de <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"a relayé votre évaluation de <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_review.html:2
 #, python-format
@@ -4079,8 +4077,8 @@ msgid ""
 "boosted your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"a repartagé votre avis sur <a href=\"%(piece_url)s\">%(piece_title)s</a> on "
-"<a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"a relayé votre avis sur <a href=\"%(piece_url)s\">%(piece_title)s</a> sur <a "
+"href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_shelfmember.html:3
 #, python-format
@@ -4089,7 +4087,7 @@ msgid ""
 "boosted your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"a repartagé votre marque sur <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"a relayé votre interaction avec <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/follow_requested.html:3
 msgid "requested to follow you"
@@ -4128,7 +4126,7 @@ msgid ""
 "liked your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"a aimé votre note sur <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"a aimé votre note à propos de <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_rating.html:3
 #, python-format
@@ -4156,7 +4154,7 @@ msgid ""
 "liked your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"a aimé votre marque sur <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"a aimé votre interaction avec <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned.html:3
 msgid "mentioned you"
@@ -4216,7 +4214,8 @@ msgid ""
 "replied to your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"a répondu à votre marque sur <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"a répondu à votre interaction avec <a href=\"%(item_url)s\""
+">%(item_title)s</a>\n"
 
 #: social/templates/feed.html:11 social/templates/feed.html:23
 #: social/templates/notification.html:23 social/templates/search_feed.html:11
@@ -4237,7 +4236,7 @@ msgstr "Notifications"
 
 #: social/templates/feed_events.html:23
 msgid "boosted"
-msgstr "repartagé"
+msgstr "relayé"
 
 #: social/templates/feed_events.html:41
 msgid "play"
@@ -4245,7 +4244,7 @@ msgstr "lancer"
 
 #: social/templates/feed_events.html:52
 msgid "mark"
-msgstr "marque"
+msgstr "interaction"
 
 #: social/templates/feed_events.html:71
 msgid "wrote a note"
@@ -4259,10 +4258,10 @@ msgstr "aucune activité correspondante."
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr ""
-"Trouvez & marquez des livres/films/podcats/jeux, <a href=\"%(import_url)s\""
-">importez vos données</a> depuis Goodreads/Letterboxd/Douban, et suivez "
-"d'autres membres de %(site_name)s sur le fédivers afin que leur activité (en "
-"plus de la votre) apparaisse ici."
+"Trouvez & interagissez avec des livres/films/podcats/jeux, <a href="
+"\"%(import_url)s\">importez vos données</a> depuis Goodreads/Letterboxd/..., "
+"et suivez d'autres membres de %(site_name)s sur le Fédivers afin que leur "
+"activité, et la votre, apparaissent ici."
 
 #: social/templates/notification.html:29
 msgid "mention"
@@ -4274,7 +4273,7 @@ msgstr "suivre"
 
 #: takahe/models.py:423
 msgid "Display Name"
-msgstr "Nom affiché"
+msgstr "Nom d'affichage"
 
 #: takahe/models.py:425
 msgid "Bio"
@@ -4341,14 +4340,14 @@ msgstr "Infos du compte"
 
 #: users/templates/users/account.html:19
 msgid "Display name, avatar and other information"
-msgstr "Nom affiché, avatar & autres informations"
+msgstr "Nom d'affichage, avatar & autres informations"
 
 #: users/templates/users/account.html:22
 msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
 msgstr ""
 "Mettre à jour les infos du profil ici désactivera la synchro automatique du "
-"nom affiché, de la bio et de l'avatar de votre instance du Fédivers. Voulez-"
-"vous poursuivre ?"
+"nom d'affichage, de la bio et de l'avatar de votre instance du Fédivers. "
+"Voulez-vous poursuivre ?"
 
 #: users/templates/users/account.html:25
 msgid "Username"
@@ -4363,8 +4362,8 @@ msgstr "Adresse mail"
 msgid "Please click the confirmation link in the email sent to %(pending_email)s; if you haven't received it for more than a few minutes, please input and save again."
 msgstr ""
 "Veuillez cliquer sur le lien de confirmation contenu dans l'email envoyé à "
-"%(pending_email)s. Si vous ne l'avez pas reçu après quelques minutes, "
-"veuillez saisir à nouveau votre adresse mail et enregistrer."
+"%(pending_email)s. Si vous ne l'avez pas reçu au bout de quelques minutes, "
+"veuillez saisir et enregister votre adresse mail à nouveau."
 
 #: users/templates/users/account.html:61 users/templates/users/register.html:49
 msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
@@ -4374,11 +4373,11 @@ msgstr ""
 
 #: users/templates/users/account.html:73 users/templates/users/login.html:69
 msgid "Fediverse (Mastodon)"
-msgstr "Fédivers (Mastodon, Akkoma...)"
+msgstr "Fédivers (API Mastodon)"
 
 #: users/templates/users/account.html:79
 msgid "Verified Identity"
-msgstr "Identité vérifiée"
+msgstr "Identification validée"
 
 #: users/templates/users/account.html:86 users/templates/users/account.html:148
 #: users/templates/users/account.html:186
@@ -4396,7 +4395,7 @@ msgstr ""
 #: users/templates/users/account.html:97
 msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
 msgstr ""
-"Pour associer ce compte NeoDB à une autre identité sur le Fédivers, veuillez "
+"Pour associer ce compte NeoDB à un autre identifiant Fédivers, veuillez "
 "entrer le nom de domaine de l'instance concernée."
 
 #: users/templates/users/account.html:99
@@ -4412,7 +4411,7 @@ msgstr "Aller sur l'instance cible pour valider l'autorisation"
 #: users/templates/users/account.html:113
 msgid "After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected."
 msgstr ""
-"Après avoir remplacé l'idendité sur le Fédivers associé à ce compte, vous "
+"Après avoir remplacé l'identifiant Fédivers associée à ce compte, vous "
 "pourrez utiliser cette nouvelle identité pour vous connecter et contrôler la "
 "visibilité de vos données. Les données existantes telles que les étiquettes, "
 "commentaires, et collections ne seront pas affectées."
@@ -4420,7 +4419,7 @@ msgstr ""
 #: users/templates/users/account.html:115
 msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
 msgstr ""
-"Une fois votre compte associé à une identité sur le Fédivers, vous pourrez "
+"Une fois votre compte associé à un identifiant Fédivers, vous pourrez "
 "découvrir plus de membres et aurez accès à l'ensemble des fonctionnalités de "
 "ce site."
 
@@ -4429,12 +4428,12 @@ msgstr ""
 #: users/templates/users/account.html:215
 msgid "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?"
 msgstr ""
-"Une fois votre compte détaché de votre identité sur le Fédiverse, vous ne "
-"serez plus en mesure de vous connecter avec celle-ci. Voulez-vous continuer ?"
+"Une fois votre compte détaché de votre identifiant Fédivers, vous ne serez "
+"plus en mesure de vous connecter avec celle-ci. Voulez-vous continuer ?"
 
 #: users/templates/users/account.html:126
 msgid "Disconnect with this identity"
-msgstr "Détacher cette identité"
+msgstr "Détacher cet identifiant"
 
 #: users/templates/users/account.html:135
 msgid "Threads.net"
@@ -4462,7 +4461,7 @@ msgstr "Bluesky (ATProto)"
 
 #: users/templates/users/account.html:179
 msgid "Verified ATProto identity"
-msgstr "Idendité ATProto (Bluesky) identifiée"
+msgstr "Idendifiant ATProto validé"
 
 #: users/templates/users/account.html:194
 msgid "Bluesky Login ID"
@@ -4474,11 +4473,11 @@ msgstr "Mot de passe d'application Bluesky"
 
 #: users/templates/users/account.html:208
 msgid "Link with a different ATProto identity"
-msgstr "Associer un autre identité ATProto (Bluesky)"
+msgstr "Associer un autre identifiant ATProto"
 
 #: users/templates/users/account.html:208
 msgid "Link with an ATProto identity"
-msgstr "Associer une identité ATProto (Bluesky)"
+msgstr "Associer un identifiant ATProto"
 
 #: users/templates/users/account.html:209 users/templates/users/login.html:176
 msgid "App password can be created on <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
@@ -4488,7 +4487,7 @@ msgstr ""
 
 #: users/templates/users/account.html:218
 msgid "Disconnect with ATProto identity"
-msgstr "Détacher l'identité ATProto (Bluesky)"
+msgstr "Détacher l'identifiant ATProto"
 
 #: users/templates/users/account.html:229
 msgid "Sync and import social account"
@@ -4496,7 +4495,7 @@ msgstr "Synchroniser & importer le compte"
 
 #: users/templates/users/account.html:239
 msgid "Sync display name, bio and avatar"
-msgstr "Synchroniser le nom affiché, la bio & l'avatar"
+msgstr "Synchroniser le nom d'affichage, la bio & l'avatar"
 
 #: users/templates/users/account.html:247
 msgid "Sync follow, mute and block"
@@ -4509,8 +4508,8 @@ msgstr "Enregistrer les paramètres de synchronisation"
 #: users/templates/users/account.html:252
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
 msgstr ""
-"Les abonnements, masquages & blocages de la nouvelle identité associée "
-"seront importés automatiquement. Vous pourrez les retirer manuellement."
+"Les abonnements, masquages & blocages du nouvel identifiant associé seront "
+"importés automatiquement. Vous pourrez les retirer manuellement."
 
 #: users/templates/users/account.html:259
 msgid "Click button below to start sync now."
@@ -4547,7 +4546,7 @@ msgstr "Supprimer mon compte"
 #: users/templates/users/account.html:306
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr ""
-"Une fois supprimé, les données d'un compte ne peuvent être récupérées. "
+"Une fois supprimées, les données d'un compte ne peuvent être récupérées. "
 "Voulez-vous continuer ?"
 
 #: users/templates/users/account.html:309
@@ -4574,7 +4573,7 @@ msgstr "Gestion des données"
 
 #: users/templates/users/data.html:19
 msgid "Import Marks and Reviews from Douban"
-msgstr "Importer les marques et avis depuis Douban"
+msgstr "Importer les interactions & avis depuis Douban"
 
 #: users/templates/users/data.html:24
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
@@ -4656,16 +4655,16 @@ msgstr ""
 #: users/templates/users/data.html:177
 msgid "Failed links, likely due to Letterboxd error, you may have to mark them manually"
 msgstr ""
-"Liens dont l'import a échoué, probablement à cause d'une erreur du côté de "
-"Letterboxd. Veuillez créer ces marques manuellement"
+"Échec d'import pour les liens suivants, probablement à cause d'une erreur du "
+"côté de Letterboxd. Veuillez créer ces interactions manuellement"
 
 #: users/templates/users/data.html:188
 msgid "Import Podcast Subscriptions"
-msgstr "Importer les podcasts que vous suivez"
+msgstr "Importer vos abonnements podcasts"
 
 #: users/templates/users/data.html:201
 msgid "Mark as listening"
-msgstr "Marquer comme \"écoute en cours\""
+msgstr "Écoute en cours"
 
 #: users/templates/users/data.html:205
 msgid "Import as a new collection"
@@ -4681,7 +4680,7 @@ msgstr "Exporter les données"
 
 #: users/templates/users/data.html:222
 msgid "Export marks and reviews"
-msgstr "Exporter les marques et avis"
+msgstr "Exporter les interactions & avis"
 
 #: users/templates/users/data.html:225
 msgid "Last export"
@@ -4693,17 +4692,19 @@ msgstr "Télécharger"
 
 #: users/templates/users/data.html:238
 msgid "View Annual Summary"
-msgstr "Voir le résumé annuel"
+msgstr "Voir le Récap' annuel"
 
 #: users/templates/users/data_import_status.html:11
 msgid "Failed links, you may have to mark them manually"
-msgstr "Liens dont l'import a échoué. Veuillez créer ces marques manuellement"
+msgstr ""
+"Échec d'import pour les liens suivant. Veuillez créer ces interactions "
+"manuellement"
 
 #: users/templates/users/fetch_identity_failed.html:4
 msgid "Unable to find the user, please check your spelling; or the server may be busy, please try again later."
 msgstr ""
-"Membre introuvable, vérifiez la saisie. Le serveur est peut-être occupé, "
-"réessayez plus tard."
+"Membre introuvable, pouvez-vous vérifier la saisie ? Il se peut également "
+"que le serveur soit occupé, dans ce cas vous pourrez réessayer plus tard."
 
 #: users/templates/users/fetch_identity_pending.html:12
 #: users/templates/users/fetch_identity_pending.html:21
@@ -4734,8 +4735,8 @@ msgstr "Adresse de votre instance, ex : piaille.fr"
 #: users/templates/users/login.html:134
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
 msgstr ""
-"Veuillez saisir l'adresse de votre instance. Ex : si votre identifiant est "
-"<i>@membre@piaille.fr</i>, ne saisissez que <i>piaille.fr</i>."
+"Veuillez saisir l'adresse de votre instance. Par ex : si votre identifiant "
+"est <i>@membre@piaille.fr</i>, ne saisissez que <i>piaille.fr</i>."
 
 #: users/templates/users/login.html:137 users/templates/users/login.html:190
 msgid "Authorize via Fediverse instance"
@@ -4772,13 +4773,13 @@ msgstr "Autoriser via bsky.app"
 #, python-format
 msgid "Please choose one to register or login %(site_name)s. Have more than one of these identities? Don't worry, you may link them in account settings once logged in."
 msgstr ""
-"Sélectionnez une identité pour vous inscrire ou vous connecter à %(site_name)"
-"s. Vous en avez plusieurs ? Pas de souci, vous pourrez en ajouter d'autres "
+"Sélectionnez un compte pour vous inscrire ou vous connecter à %(site_name)s. "
+"Vous en avez plusieurs ? Pas de souci, vous pourrez en ajouter d'autres "
 "ultérieurement, dans vos réglages de compte."
 
 #: users/templates/users/login.html:197
 msgid "Valid invitation code, please login or register."
-msgstr "Code d'invitation correct. Connectez ou inscrivez-vous."
+msgstr "Code d'invitation correct ! Vous pouvez vous inscrire."
 
 #: users/templates/users/login.html:199
 msgid "Please use invitation link to register a new account; existing user may login."
@@ -4800,7 +4801,7 @@ msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\"
 msgstr ""
 "L'utilisation de ce site implique l'acceptation du <a href=\"/pages/rules/\""
 ">règlement</a> et des <a href=\"/pages/terms/\">termes & conditions</a>, ce "
-"qui inclut l'usage de cookies nécessaires à son bon fonctionnement."
+"qui inclut l'usage des cookies nécessaires à son bon fonctionnement."
 
 #: users/templates/users/login.html:221
 msgid "Domain of your instance (excl. @)"
@@ -4824,27 +4825,27 @@ msgstr "Vos activités publiques seront partagées sur le Fédivers"
 
 #: users/templates/users/preferences.html:78
 msgid "in public timeline"
-msgstr "dans le fil public"
+msgstr "sur le fil public"
 
 #: users/templates/users/preferences.html:84
 msgid "unlisted and excluded from public timeline"
-msgstr "non-listé et exclu du fil public"
+msgstr "non-listé & exclu du fil public"
 
 #: users/templates/users/preferences.html:91
 msgid "local, this site only"
-msgstr "local, seulement sur ce site"
+msgstr "en local, seulement sur ce site"
 
 #: users/templates/users/preferences.html:97
 msgid "Turn on crosspost to timeline by default"
-msgstr "Repartager par défaut sur votre compte lié"
+msgstr "Repartager par défaut sur le compte associé"
 
 #: users/templates/users/preferences.html:105
 msgid "Method for crossposting to timeline"
-msgstr "Méthode de repartage sur votre compte lié"
+msgstr "Méthode de repartage sur le compte associé"
 
 #: users/templates/users/preferences.html:112
 msgid "Boost if possible"
-msgstr "Boost si possible"
+msgstr "Boost/RT si possible"
 
 #: users/templates/users/preferences.html:119
 msgid "Create a new post"
@@ -4858,7 +4859,7 @@ msgstr ""
 
 #: users/templates/users/preferences.html:124
 msgid "Append tags when posting to timeline"
-msgstr "Ajouter des étiquettes lors du repartage"
+msgstr "Ajouter des hashtags lors du repartage"
 
 #: users/templates/users/preferences.html:127
 msgid "e.g. #bookstodon"
@@ -4875,16 +4876,16 @@ msgstr "Ajouter automatiquement un marque-page pour ces catégories"
 #: users/templates/users/preferences.html:154
 msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
 msgstr ""
-"Quand vous commencez à lire/regarder/jouer à une œuvre de ces catégories, un "
-"marque-page sera automatiquement créé. Les marque-pages peuvent être "
-"consultés et gérés dans la plupart des <a href="
+"Quand vous commencez à lire/regarder/écouter/... une œuvre de ces "
+"catégories, un marque-page sera automatiquement créé. Les marque-pages "
+"peuvent être consultés et gérés dans la plupart des <a href="
 "\"https://joinmastodon.org/apps\" target=\"_blank\">applis compatibles avec "
 "Mastodon</a>. Vos réponses à ces marques-pages seront transformées en notes "
 "sur l'œuvre sur ce site."
 
 #: users/templates/users/preferences.html:158
 msgid "Hide these categories in search results"
-msgstr "Masquer ces catégories des résultats de recherche"
+msgstr "Masquer ces catégories dans les résultats de recherche"
 
 #: users/templates/users/preferences.html:176
 msgid "Profile visible to anonymous web visitors and search engines"
@@ -4894,7 +4895,7 @@ msgstr "Profil visible par les visiteurs anonymes et les moteurs de recherche"
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
 msgstr ""
 "cette option limite les visites via le site web seulement. Pour limiter la "
-"visibilité sur le Fédiverse, veuillez passer en \"Abonné⋅es seulement\" ou "
+"visibilité sur le Fédivers, veuillez passer en \"Abonné⋅es seulement\" ou "
 "\"Mentionné⋅es seulement\" lorsque vous publiez"
 
 #: users/templates/users/preferences.html:185
@@ -4924,11 +4925,11 @@ msgstr "sombre"
 
 #: users/templates/users/preferences.html:205
 msgid "Focus mode"
-msgstr "Mode concentration"
+msgstr "Mode Zen"
 
 #: users/templates/users/preferences.html:208
 msgid "hide reviews and ratings from other users"
-msgstr "Masquer les avis et évaluations des autres membres"
+msgstr "Masquer les avis & évaluations des autres membres"
 
 #: users/templates/users/preferences.html:210
 msgid "Number of items per page"
@@ -5054,14 +5055,14 @@ msgstr "Repartager par défaut sur vos autres réseaux sociaux"
 #: users/templates/users/register.html:71
 msgid "Use display name, bio and avatar from the social network you authenticated with"
 msgstr ""
-"Utiliser le nom affiché, la bio et l'avatar du réseau avec lequel vous vous "
-"êtes authentifié"
+"Utiliser le nom d'affichage, la bio & l'avatar du réseau social utilisé pour "
+"votre authentification"
 
 #: users/templates/users/register.html:79
 msgid "Add follow, mute and block list from the social network you authenticated with"
 msgstr ""
-"Importer les listes de suivi, masquage et blocage des réseaux avec lesquels "
-"vous êtes authentifiés"
+"Importer les listes de suivi, masquage & blocage du réseau social utilisé "
+"pour votre authentification"
 
 #: users/templates/users/register.html:84
 msgid "Confirm and save"
@@ -5108,10 +5109,11 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"              %(site_name)s peut grandir grâce à la collaboration et aux "
-"contributions de gens comme vous. Veuillez lire nos <a href=\"/pages/terms\""
-">termes & conditions</a>, et n'hésitez pas à <a href=\"%(support_link)s\""
-">nous contacter</a> si vous avez une question ou un retour à nous faire.\n"
+"              %(site_name)s grandit grâce à la collaboration et aux "
+"contributions de gens comme vous 🤗. Veuillez lire nos <a href="
+"\"/pages/terms\">termes & conditions</a>, et n'hésitez pas à <a href="
+"\"%(support_link)s\">nous contacter</a> si vous avez une question ou un "
+"retour à nous faire.\n"
 "        "
 
 #: users/views/account.py:79
@@ -5124,7 +5126,7 @@ msgstr "Cette adresse mail est déjà utilisée."
 
 #: users/views/account.py:106
 msgid "Registration is for invitation only"
-msgstr "L'inscription n'est possible que sur invitation"
+msgstr "Inscription sur invitation seulement"
 
 #: users/views/account.py:176
 msgid "Valid username required"

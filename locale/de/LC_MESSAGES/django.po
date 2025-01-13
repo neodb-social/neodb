@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: 2025-01-13 03:45+0000\n"
+"PO-Revision-Date: 2025-01-13 19:17+0000\n"
 "Last-Translator: KevGamesUltimate <dev.kevgamesultimate@van-mirika.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/neodb/neodb/de/>\n"
 "Language: de\n"
@@ -210,7 +210,7 @@ msgstr "Archive of Our Own"
 
 #: catalog/common/models.py:56 catalog/common/models.py:121
 msgid "JinJiang"
-msgstr ""
+msgstr "JinJiang"
 
 #: catalog/common/models.py:60
 msgid "WikiData"
@@ -234,7 +234,7 @@ msgstr "ISSN"
 
 #: catalog/common/models.py:65
 msgid "CUBN"
-msgstr ""
+msgstr "CUBN"
 
 #: catalog/common/models.py:66
 msgid "ISRC"
@@ -250,7 +250,7 @@ msgstr "RSS Feed URL"
 
 #: catalog/common/models.py:73
 msgid "TMDB TV Serie"
-msgstr "TMDB TV Serie"
+msgstr "TMDB Serie"
 
 #: catalog/common/models.py:74
 msgid "TMDB TV Season"
@@ -382,7 +382,7 @@ msgstr "Podcast Folge"
 #: catalog/common/models.py:177 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:51
 msgid "Performance"
-msgstr ""
+msgstr "Aufführung"
 
 #: catalog/common/models.py:150
 msgid "Production"
@@ -453,31 +453,31 @@ msgstr "Metadaten"
 
 #: catalog/common/models.py:386
 msgid "cover"
-msgstr ""
+msgstr "Cover"
 
 #: catalog/common/models.py:816
 msgid "source site"
-msgstr ""
+msgstr "Quellseite"
 
 #: catalog/common/models.py:818
 msgid "ID on source site"
-msgstr ""
+msgstr "ID der Quellseite"
 
 #: catalog/common/models.py:820
 msgid "source url"
-msgstr ""
+msgstr "Quell-URL"
 
 #: catalog/common/models.py:836
 msgid "IdType of the source site"
-msgstr ""
+msgstr "ID-Typ der Quellseite"
 
 #: catalog/common/models.py:842
 msgid "Primary Id on the source site"
-msgstr ""
+msgstr "primäre ID der Quellseite"
 
 #: catalog/common/models.py:845
 msgid "url to the resource"
-msgstr ""
+msgstr "URL der Ressource"
 
 #: catalog/game/models.py:23
 msgid "Main Game"
@@ -493,23 +493,23 @@ msgstr "Herunterladbare Inhalte"
 
 #: catalog/game/models.py:26
 msgid "Mod"
-msgstr ""
+msgstr "Mod"
 
 #: catalog/game/models.py:27
 msgid "Bundle"
-msgstr ""
+msgstr "Bundle"
 
 #: catalog/game/models.py:28
 msgid "Remaster"
-msgstr ""
+msgstr "Remaster"
 
 #: catalog/game/models.py:29
 msgid "Remake"
-msgstr ""
+msgstr "Remake"
 
 #: catalog/game/models.py:30
 msgid "Special Edition"
-msgstr ""
+msgstr "Special Edition"
 
 #: catalog/game/models.py:76 catalog/movie/models.py:71
 #: catalog/music/models.py:91 catalog/performance/models.py:115
@@ -532,7 +532,7 @@ msgstr "Entwickler/in"
 
 #: catalog/game/models.py:108 catalog/music/models.py:84
 msgid "publisher"
-msgstr ""
+msgstr "Publisher"
 
 #: catalog/game/models.py:115
 msgid "year of publication"
@@ -549,7 +549,7 @@ msgstr "JJJJ-MM-TT"
 
 #: catalog/game/models.py:128 catalog/templates/game.html:16
 msgid "release type"
-msgstr ""
+msgstr "Veröffentlichungs-Typ"
 
 #: catalog/game/models.py:135 catalog/movie/models.py:99
 #: catalog/performance/models.py:122 catalog/podcast/models.py:45
@@ -576,13 +576,13 @@ msgstr "Webseite"
 #: catalog/performance/models.py:268 catalog/tv/models.py:148
 #: catalog/tv/models.py:311
 msgid "director"
-msgstr ""
+msgstr "Regisseur/in"
 
 #: catalog/movie/models.py:85 catalog/performance/models.py:137
 #: catalog/performance/models.py:275 catalog/tv/models.py:155
 #: catalog/tv/models.py:318
 msgid "playwright"
-msgstr ""
+msgstr "Dramatiker"
 
 #: catalog/movie/models.py:92 catalog/performance/models.py:165
 #: catalog/performance/models.py:303 catalog/tv/models.py:162
@@ -644,7 +644,7 @@ msgstr "Genre"
 
 #: catalog/music/models.py:89
 msgid "tracks"
-msgstr ""
+msgstr "Lieder"
 
 #: catalog/music/models.py:97 catalog/templates/album.html:33
 msgid "album type"
@@ -676,11 +676,11 @@ msgstr "originaler Name"
 
 #: catalog/performance/models.py:144 catalog/performance/models.py:282
 msgid "original creator"
-msgstr ""
+msgstr "originaler Ersteller"
 
 #: catalog/performance/models.py:151 catalog/performance/models.py:289
 msgid "composer"
-msgstr ""
+msgstr "Komponist/in"
 
 #: catalog/performance/models.py:158 catalog/performance/models.py:296
 msgid "choreographer"
@@ -688,15 +688,15 @@ msgstr "Choreograph/in"
 
 #: catalog/performance/models.py:172 catalog/performance/models.py:310
 msgid "performer"
-msgstr ""
+msgstr "Künstler/in"
 
 #: catalog/performance/models.py:179 catalog/performance/models.py:317
 msgid "troupe"
-msgstr ""
+msgstr "Gruppe"
 
 #: catalog/performance/models.py:186 catalog/performance/models.py:324
 msgid "crew"
-msgstr ""
+msgstr "Besatzung"
 
 #: catalog/performance/models.py:193 catalog/performance/models.py:331
 msgid "theater"
@@ -710,22 +710,22 @@ msgstr "Eröffnungsdatum"
 
 #: catalog/performance/models.py:203 catalog/performance/models.py:341
 msgid "closing date"
-msgstr ""
+msgstr "Schließungsdatum"
 
 #: catalog/podcast/models.py:55
 msgid "host"
-msgstr ""
+msgstr "Gastgeber"
 
 #: catalog/search/views.py:58 catalog/search/views.py:177
 msgid "Invalid URL"
 msgstr "ungültige URL"
 
 #: catalog/templates/_fetch_failed.html:4
-#, fuzzy
 msgid "Unable to fetch from the link, please check again. Some sites may require login for certain links, please manually create them here."
 msgstr ""
 "Der Abruf des Links ist fehlgeschlagen, bitte versuche es nochmal. Einige "
-"Seiten benötigen für bestimmte Links eine Anmeldung."
+"Seiten benötigen für bestimmte Links eine Anmeldung. Erstelle Diese manuell "
+"hier."
 
 #: catalog/templates/_item_card_metadata_album.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
@@ -744,7 +744,7 @@ msgstr "Bewertungen"
 #: catalog/templates/_item_card_metadata_base.html:34
 #: catalog/templates/item_base.html:213
 msgid "part of"
-msgstr ""
+msgstr "Teil von"
 
 #: catalog/templates/_item_comments.html:10
 #: catalog/templates/_item_comments_by_episode.html:13
@@ -794,7 +794,7 @@ msgstr "Rezension"
 
 #: catalog/templates/_item_user_mark_history.html:15
 msgid "no history."
-msgstr ""
+msgstr "keine Geschichte."
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "sure to clear mark history?"
@@ -844,7 +844,7 @@ msgstr "zurück zum Artikel"
 
 #: catalog/templates/_sidebar_edit.html:18
 msgid "Edit Options"
-msgstr ""
+msgstr "bearbeite Optionen"
 
 #: catalog/templates/_sidebar_edit.html:21
 #: catalog/templates/catalog_delete.html:23
@@ -964,7 +964,7 @@ msgstr "Link aktualisieren"
 
 #: catalog/templates/_sidebar_edit.html:176
 msgid "Cleanup seasons"
-msgstr ""
+msgstr "Staffeln aufräumen"
 
 #: catalog/templates/_sidebar_edit.html:179
 #: catalog/templates/catalog_delete.html:44
@@ -1004,7 +1004,7 @@ msgstr "löschen"
 
 #: catalog/templates/_sidebar_edit.html:218
 msgid "Work"
-msgstr ""
+msgstr "Werk"
 
 #: catalog/templates/_sidebar_edit.html:219
 msgid "This edition belongs to the following work"
@@ -1122,7 +1122,7 @@ msgstr "Strichcode"
 
 #: catalog/templates/album.html:38
 msgid "album media"
-msgstr ""
+msgstr "Albuminhalt"
 
 #: catalog/templates/catalog_delete.html:18
 msgid "Are you sure to delete?"
@@ -1186,7 +1186,7 @@ msgstr ""
 
 #: catalog/templates/discover.html:18 users/templates/users/preferences.html:33
 msgid "Discover"
-msgstr ""
+msgstr "Entdecken"
 
 #: catalog/templates/discover.html:76
 #: journal/templates/user_collection_list.html:17
@@ -1240,7 +1240,7 @@ msgstr "Beliebte Tags"
 #: social/templates/events.html:45 users/templates/users/announcements.html:54
 #: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
-msgstr ""
+msgstr "bisher nichts."
 
 #: catalog/templates/discover.html:178 common/templates/_sidebar.html:212
 msgid "Recent Posts"
@@ -1286,7 +1286,7 @@ msgstr "Wähle zum Kommentieren eine der Staffeln aus"
 
 #: catalog/templates/item_base.html:104
 msgid "mark, comment and collect"
-msgstr ""
+msgstr "markieren, kommentieren und sammeln"
 
 #: catalog/templates/item_base.html:115
 msgid "Login or register to review or add this item to your collection."
@@ -1368,7 +1368,7 @@ msgstr "Folgen-Länge"
 
 #: catalog/templates/performance.html:40
 msgid "production"
-msgstr ""
+msgstr "Produktion"
 
 #: catalog/templates/podcast.html:25
 msgid "recent episodes"
@@ -1376,7 +1376,7 @@ msgstr "letzte Folgen"
 
 #: catalog/templates/podcast.html:34
 msgid "subscribe in apps"
-msgstr ""
+msgstr "in Apps abonnieren"
 
 #: catalog/templates/podcast_episode_data.html:28
 msgid "original website"
@@ -1718,11 +1718,11 @@ msgstr "Friesisch"
 
 #: common/models/lang.py:75
 msgid "Fulah"
-msgstr ""
+msgstr "Fulah"
 
 #: common/models/lang.py:76
 msgid "Gaelic"
-msgstr ""
+msgstr "Gälisch"
 
 #: common/models/lang.py:77
 msgid "Irish"
@@ -2446,7 +2446,7 @@ msgstr "Filme & Serien"
 
 #: common/templates/_header.html:49
 msgid "Journal"
-msgstr ""
+msgstr "Tagebuch"
 
 #: common/templates/_header.html:51
 msgid "Posts"
@@ -2458,12 +2458,12 @@ msgstr "Erkunden"
 
 #: common/templates/_header.html:77
 msgid "Feed"
-msgstr ""
+msgstr "Feed"
 
 #: common/templates/_header.html:80 journal/templates/profile.html:11
 #: users/templates/users/preferences.html:45
 msgid "Home"
-msgstr ""
+msgstr "Startseite"
 
 #: common/templates/_header.html:96 social/templates/notification.html:11
 #: social/templates/notification.html:24
@@ -3587,12 +3587,10 @@ msgid "change review date"
 msgstr "Rezensions-Datum ändern"
 
 #: journal/templates/tag_edit.html:32
-#, fuzzy
 msgid "Pin"
-msgstr "Pin"
+msgstr "PIN-Code"
 
 #: journal/templates/tag_edit.html:49
-#, fuzzy
 msgid "Personal"
 msgstr "Persönlich"
 
