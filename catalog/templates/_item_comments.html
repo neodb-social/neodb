@@ -7,7 +7,7 @@
 {% if item.class_name == "tvseason" and not request.GET.last %}
   {% if item.all_episodes %}
     <div class="season-picker">
-      <span class="season-number"><a class="current">{% trans "season" %}</a></span>
+      <span class="season-number"><a class="current">{% trans "this season" %}</a></span>
       {% for ep in item.all_episodes %}
         <span class="season-number" id="ci_{{ ep.uuid }}">
           <a hx-swap="innerHTML"
