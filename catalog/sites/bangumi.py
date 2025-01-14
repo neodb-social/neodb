@@ -87,6 +87,10 @@ class Bangumi(AbstractSite):
                     "综艺",
                 }
                 model = "TVSeason" if is_season else "Movie"
+                if "舞台剧" in [
+                    t["name"] for t in o["tags"]
+                ]:  # 只能这样判断舞台剧了，bangumi三次元分类太少
+                    model = "Performance"
                 if dt:
                     year = dt.split("-")[0]
                     showtime = [
@@ -117,11 +121,17 @@ class Bangumi(AbstractSite):
         isbn = None
         language = None
         pub_house = None
+        orig_creator = None
         authors = None
         site = None
         director = None
+        playwright = None
+        actor = None
         pages = None
         price = None
+        opening_date = None
+        closing_date = None
+        location = None
         for i in o.get("infobox", []):
             k = i["key"].lower()
             v = i["value"]
@@ -147,6 +157,18 @@ class Bangumi(AbstractSite):
                     pub_house = v
                 case "导演":
                     director = v
+                case "编剧" | "脚本":
+                    playwright = (
+                        [d["v"] for d in v]
+                        if isinstance(v, list)
+                        else ([v] if isinstance(v, str) else [])
+                    )
+                case "原作":
+                    orig_creator = (
+                        [d["v"] for d in v]
+                        if isinstance(v, list)
+                        else ([v] if isinstance(v, str) else [])
+                    )
                 case "作者":
                     authors = (
                         [d["v"] for d in v]
@@ -159,7 +181,7 @@ class Bangumi(AbstractSite):
                         if isinstance(v, list)
                         else ([v] if isinstance(v, str) else [])
                     )
-                case "游戏类型":
+                case "游戏类型" | "类型":
                     genre = (
                         [d["v"] for d in v]
                         if isinstance(v, list)
@@ -171,6 +193,21 @@ class Bangumi(AbstractSite):
                     pages = v
                 case "价格":
                     price = v
+                case "开始":
+                    opening_date = v
+                case "结束":
+                    closing_date = v
+                case "演出":
+                    if model == "Performance":
+                        director = v
+                case "主演":
+                    actor = (
+                        [{"name": d["v"], "role": None} for d in v]
+                        if isinstance(v, list)
+                        else ([{"name": v, "role": None}] if isinstance(v, str) else [])
+                    )
+                case "会场":
+                    location = v
 
         img_url = o["images"].get("large") or o["images"].get("common")
         raw_img = None
@@ -198,10 +235,13 @@ class Bangumi(AbstractSite):
             "title": title,
             "orig_title": orig_title,
             "other_title": other_title or None,
+            "orig_creator": orig_creator,
             "author": authors,
             "genre": genre,
             "translator": None,
             "director": director,
+            "playwright": playwright,
+            "actor": actor,
             "language": language,
             "platform": platform,
             "release_type": release_type,
@@ -221,6 +261,9 @@ class Bangumi(AbstractSite):
             "release_date": dt,
             "pages": pages,
             "price": price,
+            "opening_date": opening_date,
+            "closing_date": closing_date,
+            "location": location,
             "related_resources": related_resources,
         }
         lookup_ids = {}
