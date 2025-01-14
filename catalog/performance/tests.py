@@ -118,3 +118,54 @@ class DoubanDramaTestCase(TestCase):
         self.assertEqual(productions[3].language, ["日语"])
         self.assertEqual(productions[3].opening_date, "2017-11-13")
         self.assertEqual(productions[3].location, ["梅田芸術劇場メインホール"])
+
+
+class BangumiDramaTestCase(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        pass
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://bgm.tv/subject/224973"
+        site = SiteManager.get_site_by_url(t_url)
+        resource = site.get_resource_ready()
+        item = site.get_item()
+        self.assertEqual(item.display_title, "超级弹丸论破2舞台剧~再见了绝望学园~2017")
+        self.assertEqual(
+            sorted(item.actor, key=lambda a: a["name"]),
+            [
+                {"name": "伊藤萌々香", "role": None},
+                {"name": "横浜流星", "role": None},
+                {"name": "鈴木拡樹", "role": None},
+            ],
+        )
+        self.assertEqual(item.language, ["日语"])
+
+        t_url = "https://bgm.tv/subject/442025"
+        site = SiteManager.get_site_by_url(t_url)
+        resource = site.get_resource_ready()
+        item = site.get_item()
+        self.assertEqual(item.display_title, "LIVE STAGE「ぼっち・ざ・ろっく！」")
+        self.assertEqual(
+            item.orig_creator,
+            [
+                "はまじあき（芳文社「まんがタイムきららMAX」連載中）／TVアニメ「ぼっち・ざ・ろっく！」"
+            ],
+        )
+        self.assertEqual(item.opening_date, "2023-08-11")
+        self.assertEqual(item.closing_date, "2023-08-20")
+        self.assertEqual(item.genre, ["舞台演出"])
+        self.assertEqual(item.language, ["日本语"])
+        self.assertEqual(item.playwright, ["山崎彬"])
+        self.assertEqual(item.director, ["山崎彬"])
+        self.assertEqual(
+            sorted(item.actor, key=lambda a: a["name"]),
+            [
+                {"name": "大森未来衣", "role": None},
+                {"name": "大竹美希", "role": None},
+                {"name": "守乃まも", "role": None},
+                {"name": "小山内花凜", "role": None},
+            ],
+        )

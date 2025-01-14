@@ -122,7 +122,7 @@ class Bangumi(AbstractSite):
         language = None
         pub_house = None
         orig_creator = None
-        authors = None
+        authors = []
         site = None
         director = None
         playwright = None
@@ -164,13 +164,19 @@ class Bangumi(AbstractSite):
                         else ([v] if isinstance(v, str) else [])
                     )
                 case "原作":
-                    orig_creator = (
-                        [d["v"] for d in v]
-                        if isinstance(v, list)
-                        else ([v] if isinstance(v, str) else [])
-                    )
+                    match model:
+                        case "Edition":
+                            authors.append(v)
+                        case "Performance":
+                            orig_creator = (
+                                [d["v"] for d in v]
+                                if isinstance(v, list)
+                                else ([v] if isinstance(v, str) else [])
+                            )
+                case "作画":
+                    authors.append(v)
                 case "作者":
-                    authors = (
+                    authors.extend(
                         [d["v"] for d in v]
                         if isinstance(v, list)
                         else ([v] if isinstance(v, str) else [])
@@ -204,9 +210,13 @@ class Bangumi(AbstractSite):
                     actor = (
                         [{"name": d["v"], "role": None} for d in v]
                         if isinstance(v, list)
-                        else ([{"name": v, "role": None}] if isinstance(v, str) else [])
+                        else (
+                            [{"name": w, "role": None} for w in v.split("、")]
+                            if isinstance(v, str)
+                            else []
+                        )
                     )
-                case "会场":
+                case "会场" | "演出地点":
                     location = v
 
         img_url = o["images"].get("large") or o["images"].get("common")
