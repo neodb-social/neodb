@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: 2025-01-13 19:17+0000\n"
+"PO-Revision-Date: 2025-01-15 01:09+0000\n"
 "Last-Translator: KevGamesUltimate <dev.kevgamesultimate@van-mirika.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/neodb/neodb/de/>\n"
 "Language: de\n"
@@ -144,7 +144,7 @@ msgstr "Google Books"
 
 #: catalog/common/models.py:39
 msgid "BooksTW"
-msgstr ""
+msgstr "BooksTW"
 
 #: catalog/common/models.py:40 catalog/common/models.py:72
 #: catalog/templates/movie.html:51 catalog/templates/tvseason.html:68
@@ -254,11 +254,11 @@ msgstr "TMDB Serie"
 
 #: catalog/common/models.py:74
 msgid "TMDB TV Season"
-msgstr "TMDB TV Staffel"
+msgstr "TMDB Staffel"
 
 #: catalog/common/models.py:76
 msgid "TMDB TV Episode"
-msgstr "TMDB TV Folge"
+msgstr "TMDB Folge"
 
 #: catalog/common/models.py:78
 msgid "TMDB Movie"
@@ -266,39 +266,39 @@ msgstr "TMDB Film"
 
 #: catalog/common/models.py:81
 msgid "Goodreads Work"
-msgstr ""
+msgstr "Goodreads Werk"
 
 #: catalog/common/models.py:84
 msgid "Douban Book"
-msgstr ""
+msgstr "Douban Buch"
 
 #: catalog/common/models.py:86
 msgid "Douban Book Work"
-msgstr ""
+msgstr "Douban Buch Werk"
 
 #: catalog/common/models.py:88
 msgid "Douban Movie"
-msgstr ""
+msgstr "Douban Film"
 
 #: catalog/common/models.py:89
 msgid "Douban Music"
-msgstr ""
+msgstr "Douban Musik"
 
 #: catalog/common/models.py:90
 msgid "Douban Game"
-msgstr ""
+msgstr "Douban Spiel"
 
 #: catalog/common/models.py:91
 msgid "Douban Drama"
-msgstr ""
+msgstr "Douban Drama"
 
 #: catalog/common/models.py:93
 msgid "Douban Drama Version"
-msgstr ""
+msgstr "Douban Drama Version"
 
 #: catalog/common/models.py:95
 msgid "BooksTW Book"
-msgstr ""
+msgstr "BooksTW Buch"
 
 #: catalog/common/models.py:97
 msgid "Spotify Album"
@@ -314,7 +314,7 @@ msgstr "Discogs Veröffentlichung"
 
 #: catalog/common/models.py:103
 msgid "Discogs Master"
-msgstr ""
+msgstr "Discogs Master"
 
 #: catalog/common/models.py:105
 msgid "MusicBrainz ID"
@@ -322,11 +322,11 @@ msgstr "MusicBrainz ID"
 
 #: catalog/common/models.py:111
 msgid "IGDB Game"
-msgstr ""
+msgstr "IGDB Spiel"
 
 #: catalog/common/models.py:112
 msgid "BGG Boardgame"
-msgstr ""
+msgstr "BGG Brettspiel"
 
 #: catalog/common/models.py:113
 msgid "Steam Game"
@@ -334,31 +334,31 @@ msgstr "Steam Spiel"
 
 #: catalog/common/models.py:115
 msgid "Apple Podcast"
-msgstr ""
+msgstr "Apple Podcast"
 
 #: catalog/common/models.py:137 catalog/common/models.py:158
 #: catalog/common/models.py:171 common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:31
 msgid "Book"
-msgstr "Buch"
+msgstr "Bücher"
 
 #: catalog/common/models.py:138
 msgid "TV Serie"
-msgstr "TV Serie"
+msgstr "Serie"
 
 #: catalog/common/models.py:139 catalog/templates/_sidebar_edit.html:140
 msgid "TV Season"
-msgstr "TV Staffel"
+msgstr "Staffel"
 
 #: catalog/common/models.py:140
 msgid "TV Episode"
-msgstr "TV Folge"
+msgstr "Folge"
 
 #: catalog/common/models.py:141 catalog/common/models.py:159
 #: catalog/common/models.py:172 catalog/templates/_sidebar_edit.html:133
 #: journal/templates/_sidebar_user_mark_list.html:34
 msgid "Movie"
-msgstr "Film"
+msgstr "Filme"
 
 #: catalog/common/models.py:142
 msgid "Album"
@@ -372,7 +372,7 @@ msgstr "Spiel"
 
 #: catalog/common/models.py:144
 msgid "Podcast Program"
-msgstr ""
+msgstr "Podcast Programm"
 
 #: catalog/common/models.py:146
 msgid "Podcast Episode"
@@ -390,11 +390,11 @@ msgstr "Produktion"
 
 #: catalog/common/models.py:152
 msgid "Fanfic"
-msgstr ""
+msgstr "Fanfiction"
 
 #: catalog/common/models.py:153 catalog/common/models.py:166
 msgid "Exhibition"
-msgstr ""
+msgstr "Ausstellung"
 
 #: catalog/common/models.py:154 catalog/common/models.py:167
 #: journal/templates/collection.html:15 journal/templates/collection.html:25
@@ -406,7 +406,7 @@ msgstr "Sammlung"
 #: catalog/common/models.py:160 catalog/common/models.py:173
 #: journal/templates/_sidebar_user_mark_list.html:37
 msgid "TV"
-msgstr "TV"
+msgstr "Serien"
 
 #: catalog/common/models.py:161 catalog/common/models.py:174
 #: common/templates/_header.html:37
@@ -418,11 +418,11 @@ msgstr "Musik"
 #: catalog/templates/_sidebar_edit.html:152 common/templates/_header.html:33
 #: journal/templates/_sidebar_user_mark_list.html:41
 msgid "Podcast"
-msgstr "Podcast"
+msgstr "Podcasts"
 
 #: catalog/common/models.py:165
 msgid "FanFic"
-msgstr ""
+msgstr "Fanficiton"
 
 #: catalog/common/models.py:349 catalog/tv/models.py:381
 #: users/models/user.py:115
@@ -867,18 +867,18 @@ msgstr "Artikel enthält Unterartikel."
 #: catalog/templates/catalog_merge.html:45
 #: catalog/templates/catalog_merge.html:73
 msgid "Item has been merged to another item."
-msgstr "Artikel wurde mit einem anderen Artikel zusammengeführt."
+msgstr "Artikel wurde mit einem anderen Artikel zusammengefügt."
 
 #: catalog/templates/_sidebar_edit.html:36
 #: catalog/templates/catalog_delete.html:38
 #: catalog/templates/catalog_merge.html:50
 #: catalog/templates/catalog_merge.html:78
 msgid "Item has been marked by users."
-msgstr "Artikel wurde von Benutzern markiert."
+msgstr "Artikel wurde von Nutzern markiert."
 
 #: catalog/templates/_sidebar_edit.html:41
 msgid "The following items are merged into this item"
-msgstr "Folgende Artikel wurden in diesen Artikel zusammengeführt"
+msgstr "Folgende Artikel wurden in diesen Artikel zusammengefügt"
 
 #: catalog/templates/_sidebar_edit.html:53
 msgid "External website"
@@ -902,7 +902,7 @@ msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:72
 msgid "Remove link to site"
-msgstr "Link zur Seite entfernen"
+msgstr "Verknüpfung zur Seite entfernen"
 
 #: catalog/templates/_sidebar_edit.html:81
 msgid "Edit sub-items"
@@ -952,15 +952,15 @@ msgstr "Serie"
 
 #: catalog/templates/_sidebar_edit.html:160
 msgid "Link to parent item"
-msgstr "Link zum übergeordneten Artikel"
+msgstr "Verknüpfung zum übergeordneten Artikel"
 
 #: catalog/templates/_sidebar_edit.html:163
 msgid "Sure to link?"
-msgstr "Sicher, dass du das verlinken möchtest?"
+msgstr "Sicher, dass du das verknüpfen möchtest?"
 
 #: catalog/templates/_sidebar_edit.html:170
 msgid "Update link"
-msgstr "Link aktualisieren"
+msgstr "Verknüpfung aktualisieren"
 
 #: catalog/templates/_sidebar_edit.html:176
 msgid "Cleanup seasons"
@@ -1094,7 +1094,7 @@ msgstr "Film hinzufügen"
 
 #: catalog/templates/_sidebar_search.html:22
 msgid "Add tv series"
-msgstr "TV Serie hinzufügen"
+msgstr "Serie hinzufügen"
 
 #: catalog/templates/_sidebar_search.html:25
 msgid "Add podcasts"
@@ -1292,7 +1292,7 @@ msgstr "markieren, kommentieren und sammeln"
 msgid "Login or register to review or add this item to your collection."
 msgstr ""
 "Zum Bewerten, Kommentieren oder Hinzufügen des Artikels zu deiner Sammlung, "
-"musst du dich einloggen oder registrieren."
+"musst du dich anmelden oder registrieren."
 
 #: catalog/templates/item_base.html:123
 msgid "Related Collections"
@@ -1490,7 +1490,7 @@ msgstr "Versionen"
 
 #: catalog/tv/models.py:176 catalog/tv/models.py:339
 msgid "show time"
-msgstr ""
+msgstr "Erstausstrahlung"
 
 #: catalog/tv/models.py:188
 msgid "Date"
@@ -1502,7 +1502,7 @@ msgstr "Region oder Veranstaltung"
 
 #: catalog/tv/models.py:219 catalog/tv/models.py:393
 msgid "episode length"
-msgstr ""
+msgstr "Folgenlänge"
 
 #: catalog/tv/models.py:424
 #, python-brace-format
@@ -1554,7 +1554,7 @@ msgstr "Ungültige Parameter"
 
 #: catalog/views_edit.py:251
 msgid "TV Season with IMDB id and season number required."
-msgstr "TV Staffel mit IMDB-ID und Staffelnummer benötigt."
+msgstr "Staffel mit IMDB-ID und Staffelnummer benötigt."
 
 #: catalog/views_edit.py:256
 msgid "Updating episodes"
@@ -2326,7 +2326,7 @@ msgstr "traditionelles Chinesisch (Hongkong)"
 
 #: common/models/lang.py:295
 msgid "Portuguese (Brazil)"
-msgstr ""
+msgstr "Portugiesisch (brasilianisch)"
 
 #: common/models/lang.py:298
 msgid "Simplified Chinese (Singapore)"
@@ -2434,7 +2434,7 @@ msgstr ""
 
 #: common/templates/_header.html:17 common/templates/_header.html:135
 msgid "title, creator, ISBN, item url, @user, @user@instance"
-msgstr "Titel, Ersteller, ISBN, Artikel URL, @user, @user@instance"
+msgstr "Titel, Ersteller, ISBN, Artikel URL, @nutzer, @nutzer@instanz"
 
 #: common/templates/_header.html:22
 msgid "All Items"
@@ -2497,11 +2497,13 @@ msgstr "Verwalten"
 
 #: common/templates/_header.html:120
 msgid "Sign up or Login"
-msgstr "Registrieren oder Einloggen"
+msgstr "Registrieren oder Anmelden"
 
 #: common/templates/_header.html:133
 msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
 msgstr ""
+"Titel oder Inhalt  category:tv  status:complete  rating:8..10  "
+"date:2021-09-11..2022-02"
 
 #: common/templates/_header.html:147
 msgid "Open"
@@ -2613,7 +2615,7 @@ msgstr ""
 
 #: common/templates/common/error.html:11
 msgid "Error"
-msgstr ""
+msgstr "Fehler"
 
 #: common/templatetags/duration.py:49
 msgid "just now"
@@ -2633,7 +2635,7 @@ msgstr "folgt dir"
 
 #: common/templatetags/mastodon.py:52
 msgid "you"
-msgstr ""
+msgstr "Du"
 
 #: common/templatetags/mastodon.py:55
 msgid "unavailable"
@@ -2642,11 +2644,11 @@ msgstr "nicht verfügbar"
 #: common/utils.py:64 common/utils.py:94 users/views/actions.py:35
 #: users/views/actions.py:121
 msgid "User not found"
-msgstr "Nutzer nicht gefunden"
+msgstr "Benutzer nicht gefunden"
 
 #: common/utils.py:68 common/utils.py:98 users/views/actions.py:124
 msgid "User no longer exists"
-msgstr "Nutzer existiert nicht mehr"
+msgstr "Benutzer existiert nicht mehr"
 
 #: common/utils.py:76 common/utils.py:106
 msgid "Access denied"
@@ -2831,7 +2833,7 @@ msgstr "ABGEBROCHEN"
 
 #: journal/models/shelf.py:38
 msgid "books to read"
-msgstr "zu lesende Bücher"
+msgstr "Bücher, die ich lesen möchte:"
 
 #: journal/models/shelf.py:39
 msgid "want to read"
@@ -2840,45 +2842,45 @@ msgstr "möchte lesen"
 #: journal/models/shelf.py:40
 #, python-brace-format
 msgid "wants to read {item}"
-msgstr "möchte {item} lesen"
+msgstr "möchte demnächst {item} lesen"
 
 #: journal/models/shelf.py:41
 msgid "to read"
-msgstr "lesen"
+msgstr "zu lesen"
 
 #: journal/models/shelf.py:46
 msgid "books reading"
-msgstr "Bücher lesen"
+msgstr "Bücher, aktuell am Lesen:"
 
 #: journal/models/shelf.py:47
 msgid "start reading"
-msgstr "Lesen beginnen"
+msgstr "lesen anfangen"
 
 #: journal/models/shelf.py:48
 #, python-brace-format
 msgid "started reading {item}"
-msgstr "angefangen {item} zu lesen"
+msgstr "hat angefangen {item} zu lesen"
 
 #: journal/models/shelf.py:49
 msgid "reading"
-msgstr "lesen"
+msgstr "am lesen"
 
 #: journal/models/shelf.py:54
 msgid "books completed"
-msgstr "Bücher abgeschlossen"
+msgstr "Bücher gelesen:"
 
 #: journal/models/shelf.py:55
 msgid "finish reading"
-msgstr "fertig gelesen"
+msgstr "lesen abschließen"
 
 #: journal/models/shelf.py:56
 #, python-brace-format
 msgid "finished reading {item}"
-msgstr "{item} fertig gelesen"
+msgstr "hat {item} fertig gelesen"
 
 #: journal/models/shelf.py:57
 msgid "read"
-msgstr "lesen"
+msgstr "gelesen"
 
 #: journal/models/shelf.py:62
 msgid "books dropped"
@@ -2886,20 +2888,20 @@ msgstr "Bücher abgebrochen"
 
 #: journal/models/shelf.py:63
 msgid "stop reading"
-msgstr "lesen abbrechen"
+msgstr "lesen aufhören"
 
 #: journal/models/shelf.py:64
 #, python-brace-format
 msgid "stopped reading {item}"
-msgstr "aufgehört {item} zu lesen"
+msgstr "hat aufgehört {item} zu lesen"
 
 #: journal/models/shelf.py:65
 msgid "stopped reading"
-msgstr "aufgehört zu lesen"
+msgstr "lesen abbrechen"
 
 #: journal/models/shelf.py:70
 msgid "books reviewed"
-msgstr "Bücher rezensiert"
+msgstr "Bücher rezensiert:"
 
 #: journal/models/shelf.py:72 journal/models/shelf.py:112
 #: journal/models/shelf.py:152 journal/models/shelf.py:192
@@ -2907,58 +2909,58 @@ msgstr "Bücher rezensiert"
 #: journal/models/shelf.py:306
 #, python-brace-format
 msgid "wrote a review of {item}"
-msgstr "Hat eine Rezension über {item} verfasst"
+msgstr "hat eine Rezension über {item} verfasst"
 
 #: journal/models/shelf.py:78
 msgid "movies to watch"
-msgstr "Filme anzusehen"
+msgstr "Filme, die ich schauen möchte:"
 
 #: journal/models/shelf.py:79 journal/models/shelf.py:119
 msgid "want to watch"
-msgstr "möchte ansehen"
+msgstr "möchte anschauen"
 
 #: journal/models/shelf.py:80 journal/models/shelf.py:120
 #, python-brace-format
 msgid "wants to watch {item}"
-msgstr "möchte {item} ansehen"
+msgstr "möchte sich demnächst {item} anschauen"
 
 #: journal/models/shelf.py:81 journal/models/shelf.py:121
 msgid "to watch"
-msgstr "anzusehen"
+msgstr "zu schauen"
 
 #: journal/models/shelf.py:86
 msgid "movies watching"
-msgstr "schaut Filme"
+msgstr "Filme, aktuell am Schauen:"
 
 #: journal/models/shelf.py:87 journal/models/shelf.py:127
 msgid "start watching"
-msgstr "ansehen starten"
+msgstr "anschauen anfangen"
 
 #: journal/models/shelf.py:88 journal/models/shelf.py:128
 #, python-brace-format
 msgid "started watching {item}"
-msgstr "angefangen {item} zu sehen"
+msgstr "hat angefangen sich {item} anzuschauen"
 
 #: journal/models/shelf.py:89 journal/models/shelf.py:129
 msgid "watching"
-msgstr "ansehen"
+msgstr "am anschauen"
 
 #: journal/models/shelf.py:94
 msgid "movies watched"
-msgstr "Filme angesehen"
+msgstr "Filme angeschaut:"
 
 #: journal/models/shelf.py:95 journal/models/shelf.py:135
 msgid "finish watching"
-msgstr "fertig angesehen"
+msgstr "anschauen abschließen"
 
 #: journal/models/shelf.py:96 journal/models/shelf.py:136
 #, python-brace-format
 msgid "finished watching {item}"
-msgstr "{item} fertig angesehen"
+msgstr "hat sich {item} fertig angeschaut"
 
 #: journal/models/shelf.py:97 journal/models/shelf.py:137
 msgid "watched"
-msgstr "angesehen"
+msgstr "angeschaut"
 
 #: journal/models/shelf.py:102
 msgid "movies dropped"
@@ -2966,259 +2968,259 @@ msgstr "Filme abgebrochen"
 
 #: journal/models/shelf.py:103 journal/models/shelf.py:143
 msgid "stop watching"
-msgstr "ansehen abbrechen"
+msgstr "anschauen aufhören"
 
 #: journal/models/shelf.py:104 journal/models/shelf.py:144
 #, python-brace-format
 msgid "stopped watching {item}"
-msgstr "aufgehört {item} anzusehen"
+msgstr "hat aufgehört {item} zu schauen"
 
 #: journal/models/shelf.py:105 journal/models/shelf.py:145
 msgid "stopped watching"
-msgstr "aufgehört anzusehen"
+msgstr "schauen abbrechen"
 
 #: journal/models/shelf.py:110
 msgid "movies reviewed"
-msgstr ""
+msgstr "Filme rezensiert:"
 
 #: journal/models/shelf.py:118
 msgid "TV shows to watch"
-msgstr ""
+msgstr "Serien, die ich schauen möchte:"
 
 #: journal/models/shelf.py:126
 msgid "TV shows watching"
-msgstr ""
+msgstr "Serien, aktuell am Schauen:"
 
 #: journal/models/shelf.py:134
 msgid "TV shows watched"
-msgstr ""
+msgstr "Serien abgeschlossen:"
 
 #: journal/models/shelf.py:142
 msgid "TV shows dropped"
-msgstr ""
+msgstr "Serien abgebrochen"
 
 #: journal/models/shelf.py:150
 msgid "TV shows reviewed"
-msgstr ""
+msgstr "Serien rezensiert:"
 
 #: journal/models/shelf.py:158
 msgid "albums to listen"
-msgstr ""
+msgstr "Alben, die ich anhören möchte:"
 
 #: journal/models/shelf.py:159 journal/models/shelf.py:239
 msgid "want to listen"
-msgstr ""
+msgstr "möchte anhören"
 
 #: journal/models/shelf.py:160 journal/models/shelf.py:240
 #, python-brace-format
 msgid "wants to listen {item}"
-msgstr ""
+msgstr "möchte sich demnächst {item} anhören"
 
 #: journal/models/shelf.py:161 journal/models/shelf.py:241
 msgid "to listen"
-msgstr ""
+msgstr "zu hören"
 
 #: journal/models/shelf.py:166
 msgid "albums listening"
-msgstr ""
+msgstr "Alben, aktuell am Hören:"
 
 #: journal/models/shelf.py:167 journal/models/shelf.py:247
 msgid "start listening"
-msgstr ""
+msgstr "hören anfangen"
 
 #: journal/models/shelf.py:168 journal/models/shelf.py:248
 #, python-brace-format
 msgid "started listening {item}"
-msgstr ""
+msgstr "hat angefangen sich {item} anzuhören"
 
 #: journal/models/shelf.py:169 journal/models/shelf.py:249
 msgid "listening"
-msgstr ""
+msgstr "am anhören"
 
 #: journal/models/shelf.py:174
 msgid "albums listened"
-msgstr ""
+msgstr "Alben angehört:"
 
 #: journal/models/shelf.py:175 journal/models/shelf.py:255
 msgid "finish listening"
-msgstr ""
+msgstr "anhören abschließen"
 
 #: journal/models/shelf.py:176 journal/models/shelf.py:256
 #, python-brace-format
 msgid "finished listening {item}"
-msgstr ""
+msgstr "hat sich {item} fertig angehört"
 
 #: journal/models/shelf.py:177 journal/models/shelf.py:257
 msgid "listened"
-msgstr ""
+msgstr "gehört"
 
 #: journal/models/shelf.py:182
 msgid "albums dropped"
-msgstr ""
+msgstr "Alben abgebrochen"
 
 #: journal/models/shelf.py:183 journal/models/shelf.py:263
 msgid "stop listening"
-msgstr ""
+msgstr "anhören aufhören"
 
 #: journal/models/shelf.py:184 journal/models/shelf.py:264
 #, python-brace-format
 msgid "stopped listening {item}"
-msgstr ""
+msgstr "hat aufgehört {item} zu hören"
 
 #: journal/models/shelf.py:185 journal/models/shelf.py:265
 msgid "stopped listening"
-msgstr ""
+msgstr "hören abbrechen"
 
 #: journal/models/shelf.py:190
 msgid "albums reviewed"
-msgstr ""
+msgstr "Alben rezensiert:"
 
 #: journal/models/shelf.py:198
 msgid "games to play"
-msgstr ""
+msgstr "Spiele, die ich spielen möchte:"
 
 #: journal/models/shelf.py:199
 msgid "want to play"
-msgstr ""
+msgstr "möchte spielen"
 
 #: journal/models/shelf.py:200
 #, python-brace-format
 msgid "wants to play {item}"
-msgstr ""
+msgstr "möchte demnächst {item} spielen"
 
 #: journal/models/shelf.py:201
 msgid "to play"
-msgstr ""
+msgstr "zu spielen"
 
 #: journal/models/shelf.py:206
 msgid "games playing"
-msgstr ""
+msgstr "Spiele, aktuell am Spielen:"
 
 #: journal/models/shelf.py:207
 msgid "start playing"
-msgstr ""
+msgstr "spielen anfangen"
 
 #: journal/models/shelf.py:208
 #, python-brace-format
 msgid "started playing {item}"
-msgstr ""
+msgstr "hat angefangen {item} zu spielen"
 
 #: journal/models/shelf.py:209
 msgid "playing"
-msgstr ""
+msgstr "am spielen"
 
 #: journal/models/shelf.py:214
 msgid "games played"
-msgstr ""
+msgstr "Spiele gespielt:"
 
 #: journal/models/shelf.py:215
 msgid "finish playing"
-msgstr ""
+msgstr "spielen abschließen"
 
 #: journal/models/shelf.py:216
 #, python-brace-format
 msgid "finished playing {item}"
-msgstr ""
+msgstr "hat {item} fertig gespielt"
 
 #: journal/models/shelf.py:217
 msgid "played"
-msgstr ""
+msgstr "gespielt"
 
 #: journal/models/shelf.py:222
 msgid "games dropped"
-msgstr ""
+msgstr "Spiele abgebrochen"
 
 #: journal/models/shelf.py:223
 msgid "stop playing"
-msgstr ""
+msgstr "spielen aufhören"
 
 #: journal/models/shelf.py:224
 #, python-brace-format
 msgid "stopped playing {item}"
-msgstr ""
+msgstr "hat aufgehört {item} zu spielen"
 
 #: journal/models/shelf.py:225
 msgid "stopped playing"
-msgstr ""
+msgstr "spielen abbrechen"
 
 #: journal/models/shelf.py:230
 msgid "games reviewed"
-msgstr ""
+msgstr "Spiele rezensiert:"
 
 #: journal/models/shelf.py:238
 msgid "podcasts to listen"
-msgstr ""
+msgstr "Podcasts, die ich anhören möchte:"
 
 #: journal/models/shelf.py:246
 msgid "podcasts listening"
-msgstr ""
+msgstr "Podcasts, aktuell am Hören:"
 
 #: journal/models/shelf.py:254
 msgid "podcasts listened"
-msgstr ""
+msgstr "Podcasts angehört:"
 
 #: journal/models/shelf.py:262
 msgid "podcasts dropped"
-msgstr ""
+msgstr "Podcasts abgebrochen"
 
 #: journal/models/shelf.py:270
 msgid "podcasts reviewed"
-msgstr ""
+msgstr "Podcasts rezensiert:"
 
 #: journal/models/shelf.py:278
 msgid "performances to see"
-msgstr ""
+msgstr "Aufführungen, die ich ansehen möchte:"
 
 #: journal/models/shelf.py:279
 msgid "want to see"
-msgstr ""
+msgstr "möchte ansehen"
 
 #: journal/models/shelf.py:280
 #, python-brace-format
 msgid "wants to see {item}"
-msgstr ""
+msgstr "möchte sich demnächst {item} ansehen"
 
 #: journal/models/shelf.py:281
 msgid "to see"
-msgstr ""
+msgstr "zu sehen"
 
 #: journal/models/shelf.py:288
 msgid "performances saw"
-msgstr ""
+msgstr "Aufführungen angesehen:"
 
 #: journal/models/shelf.py:289
 msgid "finish seeing"
-msgstr ""
+msgstr "ansehen abschließen"
 
 #: journal/models/shelf.py:290
 #, python-brace-format
 msgid "finished seeing {item}"
-msgstr ""
+msgstr "hat sich {item} fertig angesehen"
 
 #: journal/models/shelf.py:291
 msgid "seen"
-msgstr ""
+msgstr "gesehen"
 
 #: journal/models/shelf.py:296
 msgid "performances dropped"
-msgstr ""
+msgstr "Aufführungen abgebrochen"
 
 #: journal/models/shelf.py:297
 msgid "stop seeing"
-msgstr ""
+msgstr "ansehen aufhören"
 
 #: journal/models/shelf.py:298
 #, python-brace-format
 msgid "stopped seeing {item}"
-msgstr ""
+msgstr "hat aufgehört {item} zu sehen"
 
 #: journal/models/shelf.py:299
 msgid "stopped seeing"
-msgstr ""
+msgstr "ansehen abbrechen"
 
 #: journal/models/shelf.py:304
 msgid "performances reviewed"
-msgstr ""
+msgstr "Aufführungen rezensiert:"
 
 #: journal/models/shelf.py:562
 msgid "removed mark"
@@ -3269,7 +3271,7 @@ msgstr "Bewertung"
 
 #: journal/templates/action_boost_post.html:10
 msgid "boost"
-msgstr "Boost"
+msgstr "teilen"
 
 #: journal/templates/action_delete_post.html:6
 msgid "Are you sure to delete this post and the mark or note related with it?"
@@ -3799,7 +3801,7 @@ msgstr "Tag aktuallisiert."
 
 #: journal/views/wrapped.py:146
 msgid "Summary posted to timeline."
-msgstr "Zusammenfassung geposted in der Timeline."
+msgstr "Zusammenfassung als Beitrag in der Timeline gesendet."
 
 #: mastodon/models/common.py:14 users/templates/users/account.html:44
 #: users/templates/users/login.html:60
@@ -3826,7 +3828,7 @@ msgid ""
 msgstr ""
 "\n"
 "\n"
-"Wenn du dich nicht registrieren oder einloggen wolltest, irgnoriere diese E-"
+"Wenn du dich nicht registrieren oder anmelden wolltest, ignoriere diese E-"
 "Mail einfach. Wenn du Bedenken über deine Konto-Sicherheit hast, ändere "
 "bitte die E-Mail Adresse welche mit deinem Konto verbunden ist oder "
 "kontaktiere uns."
@@ -3913,13 +3915,12 @@ msgid "0: unicode moon; 1: custom emoji"
 msgstr "0: unicode moon; 1: benutzerdefinierte emoji"
 
 #: mastodon/models/mastodon.py:531
-#, fuzzy
 msgid "max toot len"
-msgstr "max toot len"
+msgstr "maximale Beitrags-Länge"
 
 #: mastodon/models/mastodon.py:624
 msgid "Boost"
-msgstr "Boost"
+msgstr "teilen"
 
 #: mastodon/models/mastodon.py:625
 msgid "New Post"
@@ -4040,7 +4041,7 @@ msgstr "Ungültige Konto-Daten von Threads."
 
 #: social/templates/event/boosted.html:3
 msgid "boosted your post"
-msgstr "hat deinen Beitrag geboosted"
+msgstr "hat deinen Beitrag geteilt"
 
 #: social/templates/event/boosted_collection.html:2
 #, python-format
@@ -4049,7 +4050,7 @@ msgid ""
 "boosted your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"hat deine Sammlung <a href=\"%(piece_url)s\">%(piece_title)s</a> geboosted\n"
+"hat deine Sammlung <a href=\"%(piece_url)s\">%(piece_title)s</a> geteilt\n"
 
 #: social/templates/event/boosted_comment.html:3
 #, python-format
@@ -4059,7 +4060,7 @@ msgid ""
 msgstr ""
 "\n"
 "hat deinen Kommentar auf <a href=\"%(item_url)s\">%(item_title)s</a> "
-"geboostet\n"
+"geteilt\n"
 
 #: social/templates/event/boosted_note.html:3
 #, python-format
@@ -4068,7 +4069,7 @@ msgid ""
 "boosted your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"hat deine Notiz über <a href=\"%(item_url)s\">%(item_title)s</a> geboosted\n"
+"hat deine Notiz über <a href=\"%(item_url)s\">%(item_title)s</a> geteilt\n"
 
 #: social/templates/event/boosted_rating.html:3
 #, python-format
@@ -4078,7 +4079,7 @@ msgid ""
 msgstr ""
 "\n"
 "hat deine Bewertung über <a href=\"%(item_url)s\">%(item_title)s</a> "
-"geboosted\n"
+"geteilt\n"
 
 #: social/templates/event/boosted_review.html:2
 #, python-format
@@ -4088,7 +4089,7 @@ msgid ""
 msgstr ""
 "\n"
 "hat deine Rezension <a href=\"%(piece_url)s\">%(piece_title)s</a> über <a "
-"href=\"%(item_url)s\">%(item_title)s</a> geboosted\n"
+"href=\"%(item_url)s\">%(item_title)s</a> geteilt\n"
 
 #: social/templates/event/boosted_shelfmember.html:3
 #, python-format
@@ -4097,8 +4098,7 @@ msgid ""
 "boosted your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"hat deine Markierung an <a href=\"%(item_url)s\">%(item_title)s</a> "
-"geboosted\n"
+"hat deine Markierung an <a href=\"%(item_url)s\">%(item_title)s</a> geteilt\n"
 
 #: social/templates/event/follow_requested.html:3
 msgid "requested to follow you"
@@ -4253,7 +4253,7 @@ msgstr "Benachrichtigungen"
 
 #: social/templates/feed_events.html:23
 msgid "boosted"
-msgstr "geboostet"
+msgstr "geteilt"
 
 #: social/templates/feed_events.html:41
 msgid "play"
@@ -4302,7 +4302,7 @@ msgstr "manuell neue Follower annehmen/ablehnen"
 
 #: takahe/models.py:431
 msgid "Include profile and posts in discovery"
-msgstr "Profile und Beiträge auf der \"Erkunden\"-Seite anzeigen"
+msgstr "Profile und Beiträge auf der \"Entdecken\"-Seite anzeigen"
 
 #: takahe/models.py:434
 msgid "Include posts in search results"
@@ -4356,14 +4356,15 @@ msgstr "Konto Informationen"
 
 #: users/templates/users/account.html:19
 msgid "Display name, avatar and other information"
-msgstr "Anzeige-Name, Avatar und weitere Informationen"
+msgstr "Anzeige-Name, Profilbild und weitere Informationen"
 
 #: users/templates/users/account.html:22
 msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
 msgstr ""
 "Das Aktuallisieren deiner Konto-Informationen wird die automatische "
 "Synchronisation mit deinem Mastodon Konto ausschalten. Du kannst diese "
-"Informationen auch auf deinem Mastodon Konto abändern. Möchtest du dennoch "
+"Informationen auch auf deinem Mastodon Konto abändern und diese "
+"Informationen somit auf NeoDB synchronisiseren. Möchtest du dennoch "
 "fortfahren?"
 
 #: users/templates/users/account.html:25
@@ -4386,7 +4387,7 @@ msgstr ""
 msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
 msgstr ""
 "Eine E-Mail Adresse wird als Backup-Anmelde-Methode empfohlen, wenn du dich "
-"sonst über ein Fediverse-Konto einloggst"
+"sonst über ein Fediverse-Konto anmeldest"
 
 #: users/templates/users/account.html:73 users/templates/users/login.html:69
 msgid "Fediverse (Mastodon)"
@@ -4435,7 +4436,7 @@ msgstr ""
 #: users/templates/users/account.html:115
 msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
 msgstr ""
-"Einmal mit einem Fediverse-Konto verbunden, wirst du auf der \"Erkunden\"-"
+"Einmal mit einem Fediverse-Konto verbunden, wirst du auf der \"Entdecken\"-"
 "Seite viele neue Nutzer finden und den vollen Funktionsumfang nutzen können."
 
 #: users/templates/users/account.html:123
@@ -4443,12 +4444,12 @@ msgstr ""
 #: users/templates/users/account.html:215
 msgid "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?"
 msgstr ""
-"Sobald die Verbindung getrennt wurde, wirst du dich nicht länger mit diesem "
-"Konto anmelden können. Möchtest du fortfahren?"
+"Sobald die Verbindung getrennt wurde, wirst du dich nicht länger mit dieser "
+"Identität anmelden können. Möchtest du fortfahren?"
 
 #: users/templates/users/account.html:126
 msgid "Disconnect with this identity"
-msgstr "Verbindung zum Konto aufheben"
+msgstr "Verbindung zu dieser Identität aufheben"
 
 #: users/templates/users/account.html:135
 msgid "Threads.net"
@@ -4506,11 +4507,11 @@ msgstr "Verbindung zur ATProto Identität aufheben"
 
 #: users/templates/users/account.html:229
 msgid "Sync and import social account"
-msgstr "Synchronisiere und Importiere ein Social-Konto"
+msgstr "Synchronisiere und importiere ein Social-Konto"
 
 #: users/templates/users/account.html:239
 msgid "Sync display name, bio and avatar"
-msgstr "Synchronisiere Anzeige Name, \"Über mich\" und Profilbild"
+msgstr "Synchronisiere Anzeige-Name, \"Über mich\" und Profilbild"
 
 #: users/templates/users/account.html:247
 msgid "Sync follow, mute and block"
@@ -4739,7 +4740,7 @@ msgstr "Anmelden"
 #: users/templates/users/login.html:51
 #: users/templates/users/verify_email.html:22
 msgid "back to your home page."
-msgstr "Zurück zur Hauptseite."
+msgstr "Zurück zur Startseite."
 
 #: users/templates/users/login.html:111
 msgid "Enter your email address"
@@ -4767,8 +4768,8 @@ msgstr "Authorisiere über die Fediverse-Instanz"
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
 msgstr ""
 "Wenn du kein <a href=\"https://joinmastodon.org/servers\" target=\"_blank\""
-">Fediverse (Mastodon) Konto</a> hast, könntest du dir ein Konto erstellen. "
-"Oder du registrierst dich mit deiner E-Mail Adresse und verbindest dein "
+">Fediverse (Mastodon) Konto</a> hast, könntest du dir ein Konto erstellen, "
+"oder du registrierst dich mit deiner E-Mail Adresse und verbindest dein "
 "Konto später mit deinem Fediverse Konto."
 
 #: users/templates/users/login.html:149
@@ -4794,9 +4795,10 @@ msgstr "Authorisieren über bsky.app"
 #, python-format
 msgid "Please choose one to register or login %(site_name)s. Have more than one of these identities? Don't worry, you may link them in account settings once logged in."
 msgstr ""
-"Wähle einen aus, um dich bei %(site_name)s zu registrieren oder anzumelden. "
-"Wenn du einen oder mehrere Identitäten hast, mache dir keine Sorgen. Du "
-"kannst sie später mit deinem Konto verbinden, sobald du angemeldet bist."
+"Wähle eine Methode aus, wie du dich bei %(site_name)s registrieren oder "
+"anmelden möchtest. Wenn du einen oder mehrere Identitäten hast, mache dir "
+"keine Sorgen. Du kannst sie später mit deinem Konto verbinden, sobald du "
+"angemeldet bist."
 
 #: users/templates/users/login.html:197
 msgid "Valid invitation code, please login or register."
@@ -4807,7 +4809,7 @@ msgstr ""
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr ""
 "Bitte nutze einen Einladungs-Code um ein neues Konto zu registrieren. Wenn "
-"du bereits registriert bist, logge dich einfach ein."
+"du bereits registriert bist, kannst du dich einfach anmelden."
 
 #: users/templates/users/login.html:201
 msgid "Invitation code invalid or expired."
@@ -4869,7 +4871,7 @@ msgstr "Methode für Crossposts zur Timeline"
 
 #: users/templates/users/preferences.html:112
 msgid "Boost if possible"
-msgstr "Booste wenn möglich"
+msgstr "teilen wenn möglich"
 
 #: users/templates/users/preferences.html:119
 msgid "Create a new post"
@@ -4953,7 +4955,7 @@ msgstr "Fokus Modus"
 
 #: users/templates/users/preferences.html:208
 msgid "hide reviews and ratings from other users"
-msgstr "verstecke Rezensionen und Bewertungen anderer Benutzer"
+msgstr "verstecke Rezensionen und Bewertungen anderer Nutzer"
 
 #: users/templates/users/preferences.html:210
 msgid "Number of items per page"
@@ -5079,7 +5081,7 @@ msgstr "standartgemäß Crossposts zu anderen Social Media Netzwerken aktivieren
 #: users/templates/users/register.html:71
 msgid "Use display name, bio and avatar from the social network you authenticated with"
 msgstr ""
-"Nutze Anzeigename, \"über mich\" und Profilbild des Social Media Netzwerks "
+"Nutze Anzeigename, \"Über mich\" und Profilbild des Social Media Netzwerks "
 "mit dem du dich authentifiziert hast"
 
 #: users/templates/users/register.html:79
@@ -5178,7 +5180,7 @@ msgstr "Export-Datei nicht verfügbar."
 
 #: users/views/data.py:147
 msgid "Export file expired. Please export again."
-msgstr "Export Datei abgelaufen. Bitte erneut exportieren."
+msgstr "Export-Datei abgelaufen. Bitte erneut exportieren."
 
 #: users/views/data.py:156
 msgid "Sync in progress."
