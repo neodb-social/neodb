@@ -110,6 +110,10 @@ class APIdentity(models.Model):
             return f"{self.username}@{self.domain_name}"
 
     @property
+    def restricted(self):
+        return self.takahe_identity.restriction != 2
+
+    @property
     def following(self):
         return Takahe.get_following_ids(self.pk)
 
