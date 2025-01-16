@@ -279,6 +279,8 @@ class Domain(models.Model):
     # state = StateField(DomainStates)
     state = models.CharField(max_length=100, default="outdated")
     state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
 
     # nodeinfo 2.0 detail about the remote server
     nodeinfo = models.JSONField(null=True, blank=True)

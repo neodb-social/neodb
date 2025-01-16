@@ -670,7 +670,9 @@ class Takahe:
         return FediverseHtmlParser(linebreaks_filter(txt)).html
 
     @staticmethod
-    def update_state(obj: Post | PostInteraction | Relay | Identity, state: str):
+    def update_state(
+        obj: Post | PostInteraction | Relay | Identity | Domain, state: str
+    ):
         obj.state = state
         obj.state_changed = timezone.now()
         obj.state_next_attempt = None
