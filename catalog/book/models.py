@@ -261,6 +261,8 @@ class Edition(Item):
     def merge_to(self, to_item: "Edition | None"):  # type: ignore[reportIncompatibleMethodOverride]
         super().merge_to(to_item)
         if to_item:
+            if self.merge_title():
+                self.save()
             for work in self.works.all():
                 to_item.works.add(work)
         self.works.clear()
@@ -297,9 +299,12 @@ class Edition(Item):
         self, p: "ExternalResource", ignore_existing_content: bool = False
     ):
         super().merge_data_from_external_resource(p, ignore_existing_content)
-        # Edition should have only one title, so extra titles will be merged to other_title
+        self.merge_title()
+
+    def merge_title(self) -> bool:
+        # Edition should have only one title, so extra titles will be merged to other_title, return True if updated
         if len(self.localized_title) <= 1:
-            return
+            return False
         titles = self.localized_title
         self.localized_title = []
         for t in titles:
@@ -308,6 +313,7 @@ class Edition(Item):
                     self.localized_title = [t]
                 elif t["text"] not in self.other_title:
                     self.other_title += [t["text"]]  # type: ignore
+        return True
 
     @property
     def sibling_items(self):
