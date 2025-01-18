@@ -111,7 +111,7 @@ class APIdentity(models.Model):
 
     @property
     def restricted(self):
-        return self.takahe_identity.restriction != 2
+        return self.takahe_identity.restriction == 2
 
     @property
     def following(self):

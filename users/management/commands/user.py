@@ -107,7 +107,7 @@ class Command(BaseCommand):
             self.stdout.write("Checking remote identities")
             for i in tqdm(
                 Identity.objects.filter(
-                    public_key__isnull=True,
+                    # public_key__isnull=True,
                     local=False,
                     restriction=0,
                     state="connection_issue",
