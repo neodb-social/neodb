@@ -3,9 +3,8 @@ from django.core.management.base import BaseCommand
 from django.db.models import Count, F
 from tqdm import tqdm
 
-from catalog.book.tests import uniq
-from catalog.models import *
-from common.models.lang import detect_language
+from catalog.models import Edition, Item, Podcast, TVSeason, TVShow
+from common.models import detect_language, uniq
 
 
 class Command(BaseCommand):

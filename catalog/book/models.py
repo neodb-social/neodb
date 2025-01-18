@@ -293,6 +293,22 @@ class Edition(Item):
                 if work and work not in self.works.all():
                     self.works.add(work)
 
+    def merge_data_from_external_resource(
+        self, p: "ExternalResource", ignore_existing_content: bool = False
+    ):
+        super().merge_data_from_external_resource(p, ignore_existing_content)
+        # Edition should have only one title, so extra titles will be merged to other_title
+        if len(self.localized_title) <= 1:
+            return
+        titles = self.localized_title
+        self.localized_title = []
+        for t in titles:
+            if isinstance(t, dict) and t.get("text"):
+                if len(self.localized_title) == 0:
+                    self.localized_title = [t]
+                elif t["text"] not in self.other_title:
+                    self.other_title += [t["text"]]  # type: ignore
+
     @property
     def sibling_items(self):
         works = list(self.works.all())
