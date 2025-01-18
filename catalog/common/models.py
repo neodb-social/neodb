@@ -43,7 +43,7 @@ class SiteName(models.TextChoices):
     Steam = "steam", _("Steam")  # type:ignore[reportCallIssue]
     Bangumi = "bangumi", _("Bangumi")  # type:ignore[reportCallIssue]
     BGG = "bgg", _("BGG")  # type:ignore[reportCallIssue]
-    # ApplePodcast = "apple_podcast", _("Apple Podcast")  # type:ignore[reportCallIssue]
+    ApplePodcast = "apple_podcast", _("Apple Podcast")  # type:ignore[reportCallIssue]
     RSS = "rss", _("RSS")  # type:ignore[reportCallIssue]
     Discogs = "discogs", _("Discogs")  # type:ignore[reportCallIssue]
     AppleMusic = "apple_music", _("Apple Music")  # type:ignore[reportCallIssue]

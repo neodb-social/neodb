@@ -1,17 +1,17 @@
 import json
-import logging
 from datetime import datetime
+from urllib.parse import quote_plus
 
+import httpx
 from django.utils.timezone import make_aware
+from loguru import logger
 from lxml import html
 
-from catalog.book.models import Edition, Work
 from catalog.book.utils import binding_to_format, detect_isbn_asin
 from catalog.common import *
-from common.models.lang import detect_language
+from catalog.models import Edition, ExternalSearchResultItem, Work
+from common.models import detect_language
 from journal.models.renderers import html_to_text
-
-_logger = logging.getLogger(__name__)
 
 
 class GoodreadsDownloader(RetryDownloader):
@@ -120,6 +120,82 @@ class Goodreads(AbstractSite):
         pd.lookup_ids[IdType.ISBN] = ids.get(IdType.ISBN)
         pd.lookup_ids[IdType.ASIN] = ids.get(IdType.ASIN)
         return pd
+
+    @classmethod
+    async def search_task(
+        cls, q: str, page: int, category: str
+    ) -> list[ExternalSearchResultItem]:
+        if category not in ["all", "book"]:
+            return []
+        SEARCH_PAGE_SIZE = 5
+        p = (page - 1) * SEARCH_PAGE_SIZE // 20 + 1
+        offset = (page - 1) * SEARCH_PAGE_SIZE % 20
+        results = []
+        search_url = f"https://www.goodreads.com/search?page={p}&q={quote_plus(q)}"
+        async with httpx.AsyncClient() as client:
+            try:
+                r = await client.get(
+                    search_url,
+                    timeout=3,
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0) Gecko/20100101 Firefox/107.0",
+                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                        "Accept-Language": BasicDownloader.get_accept_language(),
+                        "Accept-Encoding": "gzip, deflate",
+                        "Connection": "keep-alive",
+                        "DNT": "1",
+                        "Upgrade-Insecure-Requests": "1",
+                        "Cache-Control": "no-cache",
+                    },
+                )
+                if r.url.path.startswith("/book/show/"):
+                    # Goodreads will 302 if only one result matches ISBN
+                    site = SiteManager.get_site_by_url(str(r.url))
+                    if site:
+                        res = site.get_resource_ready()
+                        if res:
+                            subtitle = f"{res.metadata.get('pub_year')} {', '.join(res.metadata.get('author', []))} {', '.join(res.metadata.get('translator', []))}"
+                            results.append(
+                                ExternalSearchResultItem(
+                                    ItemCategory.Book,
+                                    SiteName.Goodreads,
+                                    res.url,
+                                    res.metadata["title"],
+                                    subtitle,
+                                    res.metadata.get("brief", ""),
+                                    res.metadata.get("cover_image_url", ""),
+                                )
+                            )
+                else:
+                    h = html.fromstring(r.content.decode("utf-8"))
+                    books = h.xpath('//tr[@itemtype="http://schema.org/Book"]')
+                    for c in books:  # type:ignore
+                        el_cover = c.xpath('.//img[@class="bookCover"]/@src')
+                        cover = el_cover[0] if el_cover else ""
+                        el_title = c.xpath('.//a[@class="bookTitle"]//text()')
+                        title = (
+                            "".join(el_title).strip() if el_title else "Unkown Title"
+                        )
+                        el_url = c.xpath('.//a[@class="bookTitle"]/@href')
+                        url = "https://www.goodreads.com" + el_url[0] if el_url else ""
+                        el_authors = c.xpath('.//a[@class="authorName"]//text()')
+                        subtitle = ", ".join(el_authors) if el_authors else ""
+                        results.append(
+                            ExternalSearchResultItem(
+                                ItemCategory.Book,
+                                SiteName.Goodreads,
+                                url,
+                                title,
+                                subtitle,
+                                "",
+                                cover,
+                            )
+                        )
+            except Exception as e:
+                logger.error(
+                    "Goodreads search error", extra={"query": q, "exception": e}
+                )
+        return results[offset : offset + SEARCH_PAGE_SIZE]
 
 
 @SiteManager.register

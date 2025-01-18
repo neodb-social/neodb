@@ -12,8 +12,11 @@ these language code from TMDB are not in currently iso-639-1
 
 import logging
 import re
+from urllib.parse import quote_plus
 
+import httpx
 from django.conf import settings
+from loguru import logger
 
 from catalog.common import *
 from catalog.movie.models import *
@@ -174,6 +177,55 @@ class TMDB_Movie(AbstractSite):
         if imdb_code:
             pd.lookup_ids[IdType.IMDB] = imdb_code
         return pd
+
+    @classmethod
+    async def search_task(
+        cls, q: str, page: int, category: str
+    ) -> list[ExternalSearchResultItem]:
+        if category not in ["movietv", "all", "movie", "tv"]:
+            return []
+        SEARCH_PAGE_SIZE = 5 if category == "all" else 10
+        p = (page - 1) * SEARCH_PAGE_SIZE // 20 + 1
+        offset = (page - 1) * SEARCH_PAGE_SIZE % 20
+        results = []
+        api_url = f"https://api.themoviedb.org/3/search/multi?query={quote_plus(q)}&page={p}&api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&include_adult=true"
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(api_url, timeout=2)
+                j = response.json()
+                if j.get("results"):
+                    for m in j["results"]:
+                        if m["media_type"] in ["tv", "movie"]:
+                            url = f"https://www.themoviedb.org/{m['media_type']}/{m['id']}"
+                            if m["media_type"] == "tv":
+                                cat = ItemCategory.TV
+                                title = m["name"]
+                                subtitle = f"{m.get('first_air_date', '')} {m.get('original_name', '')}"
+                            else:
+                                cat = ItemCategory.Movie
+                                title = m["title"]
+                                subtitle = f"{m.get('release_date', '')} {m.get('original_name', '')}"
+                            cover = (
+                                f"https://image.tmdb.org/t/p/w500/{m.get('poster_path')}"
+                                if m.get("poster_path")
+                                else ""
+                            )
+                            results.append(
+                                ExternalSearchResultItem(
+                                    cat,
+                                    SiteName.TMDB,
+                                    url,
+                                    title,
+                                    subtitle,
+                                    m.get("overview"),
+                                    cover,
+                                )
+                            )
+                else:
+                    logger.warning(f"TMDB search '{q}' no results found.")
+            except Exception as e:
+                logger.error("TMDb search error", extra={"query": q, "exception": e})
+        return results[offset : offset + SEARCH_PAGE_SIZE]
 
 
 @SiteManager.register

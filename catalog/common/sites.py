@@ -14,6 +14,7 @@ from typing import Type, TypeVar
 
 import django_rq
 import requests
+from django.conf import settings
 from loguru import logger
 from validators import url as url_validate
 
@@ -90,6 +91,13 @@ class AbstractSite:
                     id_type=self.ID_TYPE, id_value=self.id_value, url=self.url
                 )
         return self.resource
+
+    # add this method to subclass to enable external search
+    # @classmethod
+    # async def search_task(
+    #     cls, query: str, page: int, category: str
+    # ) -> list[ExternalSearchResultItem]:
+    #     return []
 
     def scrape(self) -> ResourceContent:
         """subclass should implement this, return ResourceContent object"""
@@ -339,6 +347,17 @@ class SiteManager:
     @staticmethod
     def get_all_sites():
         return SiteManager.registry.values()
+
+    @staticmethod
+    def get_sites_for_search():
+        if settings.SEARCH_SITES == ["-"]:
+            return []
+        sites = [
+            cls for cls in SiteManager.get_all_sites() if hasattr(cls, "search_task")
+        ]
+        if settings.SEARCH_SITES == ["*"] or not settings.SEARCH_SITES:
+            return sites
+        return [s for s in sites if s.SITE_NAME.value in settings.SEARCH_SITES]
 
 
 def crawl_related_resources_task(resource_pk):

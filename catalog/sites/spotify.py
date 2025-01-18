@@ -6,8 +6,10 @@ import logging
 import time
 
 import dateparser
+import httpx
 import requests
 from django.conf import settings
+from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
@@ -106,6 +108,45 @@ class Spotify(AbstractSite):
         if isrc:
             pd.lookup_ids[IdType.ISRC] = isrc
         return pd
+
+    @classmethod
+    async def search_task(
+        cls, q: str, page: int, category: str
+    ) -> list[ExternalSearchResultItem]:
+        if category not in ["music", "all"]:
+            return []
+        SEARCH_PAGE_SIZE = 5
+        results = []
+        api_url = f"https://api.spotify.com/v1/search?q={q}&type=album&limit={SEARCH_PAGE_SIZE}&offset={page * SEARCH_PAGE_SIZE}"
+        async with httpx.AsyncClient() as client:
+            try:
+                headers = {"Authorization": f"Bearer {get_spotify_token()}"}
+                response = await client.get(api_url, headers=headers, timeout=2)
+                j = response.json()
+                if j.get("albums"):
+                    for a in j["albums"]["items"]:
+                        title = a["name"]
+                        subtitle = a.get("release_date", "")
+                        for artist in a.get("artists", []):
+                            subtitle += " " + artist.get("name", "")
+                        url = a["external_urls"]["spotify"]
+                        cover = a["images"][0]["url"] if a.get("images") else ""
+                        results.append(
+                            ExternalSearchResultItem(
+                                ItemCategory.Music,
+                                SiteName.Spotify,
+                                url,
+                                title,
+                                subtitle,
+                                "",
+                                cover,
+                            )
+                        )
+                else:
+                    logger.warning(f"Spotify search '{q}' no results found.")
+            except Exception as e:
+                logger.error("Spotify search error", extra={"query": q, "exception": e})
+        return results
 
 
 def get_spotify_token():

@@ -1,16 +1,28 @@
+import time
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db.models import Count, F
 from tqdm import tqdm
 
+from catalog.common.sites import SiteManager
 from catalog.models import Edition, Item, Podcast, TVSeason, TVShow
+from catalog.search.external import ExternalSources
 from common.models import detect_language, uniq
+from takahe.utils import Takahe
 
 
 class Command(BaseCommand):
     help = "catalog app utilities"
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            "--extsearch",
+        )
+        parser.add_argument(
+            "--category",
+            default="all",
+        )
         parser.add_argument(
             "--verbose",
             action="store_true",
@@ -44,7 +56,25 @@ class Command(BaseCommand):
             self.integrity()
         if options["localize"]:
             self.localize()
+        if options["extsearch"]:
+            self.external_search(options["extsearch"], options["category"])
         self.stdout.write(self.style.SUCCESS("Done."))
+
+    def external_search(self, q, cat):
+        sites = SiteManager.get_sites_for_search()
+        peers = Takahe.get_neodb_peers()
+        self.stdout.write(f"Searching {cat} '{q}' ...")
+        self.stdout.write(f"Peers: {peers}")
+        self.stdout.write(f"Sites: {sites}")
+        start_time = time.time()
+        results = ExternalSources.search(q, 1, cat)
+        for r in results:
+            self.stdout.write(f"{r}")
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"{time.time() - start_time} seconds, {len(results)} items."
+            )
+        )
 
     def localize(self):
         c = Item.objects.all().count()

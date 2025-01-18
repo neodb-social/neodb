@@ -5,6 +5,9 @@ import urllib.parse
 
 import dateparser
 import dns.resolver
+import httpx
+from loguru import logger
+from lxml import html
 
 from catalog.common import *
 from catalog.models import *
@@ -103,3 +106,45 @@ class Bandcamp(AbstractSite):
         }
         pd = ResourceContent(metadata=data)
         return pd
+
+    @classmethod
+    async def search_task(
+        cls, q: str, page: int, category: str
+    ) -> list[ExternalSearchResultItem]:
+        if category != "music":
+            return []
+        SEARCH_PAGE_SIZE = 5
+        p = (page - 1) * SEARCH_PAGE_SIZE // 18 + 1
+        offset = (page - 1) * SEARCH_PAGE_SIZE % 18
+        results = []
+        search_url = f"https://bandcamp.com/search?from=results&item_type=a&page={p}&q={urllib.parse.quote_plus(q)}"
+        async with httpx.AsyncClient() as client:
+            try:
+                r = await client.get(search_url, timeout=2)
+                h = html.fromstring(r.content.decode("utf-8"))
+                albums = h.xpath('//li[@class="searchresult data-search"]')
+                for c in albums:  # type:ignore
+                    el_cover = c.xpath('.//div[@class="art"]/img/@src')
+                    cover = el_cover[0] if el_cover else ""
+                    el_title = c.xpath('.//div[@class="heading"]//text()')
+                    title = "".join(el_title).strip() if el_title else "Unknown Title"
+                    el_url = c.xpath('..//div[@class="itemurl"]/a/@href')
+                    url = el_url[0] if el_url else ""
+                    el_authors = c.xpath('.//div[@class="subhead"]//text()')
+                    subtitle = ", ".join(el_authors) if el_authors else ""
+                    results.append(
+                        ExternalSearchResultItem(
+                            ItemCategory.Music,
+                            SiteName.Bandcamp,
+                            url,
+                            title,
+                            subtitle,
+                            "",
+                            cover,
+                        )
+                    )
+            except Exception as e:
+                logger.error(
+                    "Bandcamp search error", extra={"query": q, "exception": e}
+                )
+        return results[offset : offset + SEARCH_PAGE_SIZE]

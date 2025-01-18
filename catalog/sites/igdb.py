@@ -8,6 +8,7 @@ import datetime
 import json
 from urllib.parse import quote_plus
 
+import httpx
 import requests
 from django.conf import settings
 from django.core.cache import cache
@@ -82,44 +83,6 @@ class IGDB(AbstractSite):
                 ) as fp:
                     fp.write(json.dumps(r))
         return r
-
-    @classmethod
-    def search(cls, q, limit: int, offset: int = 0):
-        rs = cls.api_query(
-            "games",
-            f'fields *, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name; search "{quote_plus(q)}"; limit {limit}; offset {offset};',
-        )
-        result = []
-        for r in rs:
-            subtitle = ""
-            if "first_release_date" in r:
-                subtitle = datetime.datetime.fromtimestamp(
-                    r["first_release_date"], datetime.timezone.utc
-                ).strftime("%Y-%m-%d ")
-            if "platforms" in r:
-                ps = sorted(r["platforms"], key=lambda p: p["id"])
-                subtitle += ",".join(
-                    [(p["name"] if p["id"] != 6 else "Windows") for p in ps]
-                )
-            brief = r["summary"] if "summary" in r else ""
-            brief += "\n\n" + r["storyline"] if "storyline" in r else ""
-            cover = (
-                "https:" + r["cover"]["url"].replace("t_thumb", "t_cover_big")
-                if r.get("cover")
-                else ""
-            )
-            result.append(
-                ExternalSearchResultItem(
-                    ItemCategory.Game,
-                    SiteName.IGDB,
-                    r["url"],
-                    r["name"],
-                    subtitle,
-                    brief,
-                    cover,
-                )
-            )
-        return result
 
     def scrape(self):
         fields = "*, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name"
@@ -200,3 +163,55 @@ class IGDB(AbstractSite):
                 IdType.Steam
             ).url_to_id(steam_url)
         return pd
+
+    @classmethod
+    async def search_task(
+        cls, q: str, page: int, category: str
+    ) -> list[ExternalSearchResultItem]:
+        if category != "game":
+            return []
+        SEARCH_PAGE_SIZE = 5 if category == "all" else 10
+        limit = SEARCH_PAGE_SIZE
+        offset = (page - 1) * limit
+        q = f'fields *, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name; search "{quote_plus(q)}"; limit {limit}; offset {offset};'
+        _wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())
+        async with httpx.AsyncClient() as client:
+            try:
+                url = IGDBWrapper._build_url("games")
+                params = _wrapper._compose_request(q)
+                response = await client.post(url, **params)
+                rs = json.loads(response.content)
+            except requests.HTTPError as e:
+                logger.error(f"IGDB API: {e}", extra={"exception": e})
+                rs = []
+        result = []
+        for r in rs:
+            subtitle = ""
+            if "first_release_date" in r:
+                subtitle = datetime.datetime.fromtimestamp(
+                    r["first_release_date"], datetime.timezone.utc
+                ).strftime("%Y-%m-%d ")
+            if "platforms" in r:
+                ps = sorted(r["platforms"], key=lambda p: p["id"])
+                subtitle += ",".join(
+                    [(p["name"] if p["id"] != 6 else "Windows") for p in ps]
+                )
+            brief = r["summary"] if "summary" in r else ""
+            brief += "\n\n" + r["storyline"] if "storyline" in r else ""
+            cover = (
+                "https:" + r["cover"]["url"].replace("t_thumb", "t_cover_big")
+                if r.get("cover")
+                else ""
+            )
+            result.append(
+                ExternalSearchResultItem(
+                    ItemCategory.Game,
+                    SiteName.IGDB,
+                    r["url"],
+                    r["name"],
+                    subtitle,
+                    brief,
+                    cover,
+                )
+            )
+        return result
