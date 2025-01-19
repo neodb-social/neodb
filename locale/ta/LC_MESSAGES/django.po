@@ -6,727 +6,734 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
-"POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: 2025-01-19 21:17+0000\n"
-"Last-Translator: E C <weblate.delirium794@passmail.net>\n"
-"Language-Team: Italian <https://hosted.weblate.org/projects/neodb/neodb/it/>"
-"\n"
-"Language: it\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-13 22:19-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ta\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10-dev\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
-msgstr "Inglese"
+msgstr ""
 
-#: boofilsic/settings.py:415
-msgid "Simplified Chinese"
-msgstr "Cinese Semplificato"
-
-#: boofilsic/settings.py:416
-msgid "Traditional Chinese"
-msgstr "Cinese Tradizionale"
-
-#: boofilsic/settings.py:417 common/models/lang.py:63
+#: boofilsic/settings.py:415 common/models/lang.py:63
 msgid "Danish"
-msgstr "Danese"
+msgstr ""
 
-#: catalog/book/models.py:78 catalog/book/models.py:97
-#: catalog/common/models.py:307 catalog/common/models.py:325
+#: boofilsic/settings.py:416 common/models/lang.py:64
+msgid "German"
+msgstr ""
+
+#: boofilsic/settings.py:417 common/models/lang.py:73
+msgid "French"
+msgstr ""
+
+#: boofilsic/settings.py:418 common/models/lang.py:98
+msgid "Italian"
+msgstr ""
+
+#: boofilsic/settings.py:419
+msgid "Simplified Chinese"
+msgstr ""
+
+#: boofilsic/settings.py:420
+msgid "Traditional Chinese"
+msgstr ""
+
+#: catalog/book/models.py:77 catalog/book/models.py:96
+#: catalog/common/models.py:289 catalog/common/models.py:307
 msgid "locale"
-msgstr "locale"
+msgstr ""
 
-#: catalog/book/models.py:81 catalog/book/models.py:100
-#: catalog/common/models.py:310 catalog/common/models.py:330
+#: catalog/book/models.py:80 catalog/book/models.py:99
+#: catalog/common/models.py:292 catalog/common/models.py:312
 msgid "text content"
-msgstr "contenuto testuale"
+msgstr ""
+
+#: catalog/book/models.py:114
+msgid "Paperback"
+msgstr ""
 
 #: catalog/book/models.py:115
-msgid "Paperback"
-msgstr "Brossurato"
+msgid "Hardcover"
+msgstr ""
 
 #: catalog/book/models.py:116
-msgid "Hardcover"
-msgstr "Copertina rigida"
+msgid "eBook"
+msgstr ""
 
 #: catalog/book/models.py:117
-msgid "eBook"
-msgstr "Libro digitale"
-
-#: catalog/book/models.py:118
 msgid "Audiobook"
-msgstr "Audiolibro"
+msgstr ""
 
-#: catalog/book/models.py:120
+#: catalog/book/models.py:119
 msgid "Web Fiction"
-msgstr "Web Fiction"
+msgstr ""
 
-#: catalog/book/models.py:121 catalog/game/models.py:31
+#: catalog/book/models.py:120 catalog/game/models.py:28
 msgid "Other"
-msgstr "Altro"
+msgstr ""
 
 #: catalog/book/models.py:157
 msgid "subtitle"
-msgstr "sottotitolo"
+msgstr ""
 
-#: catalog/book/models.py:167 catalog/movie/models.py:68
-#: catalog/performance/models.py:257 catalog/tv/models.py:138
-#: catalog/tv/models.py:301
+#: catalog/book/models.py:167 catalog/movie/models.py:66
+#: catalog/performance/models.py:257 catalog/tv/models.py:135
+#: catalog/tv/models.py:298
 msgid "original title"
-msgstr "titolo originale"
+msgstr ""
 
-#: catalog/book/models.py:170 catalog/book/models.py:347
+#: catalog/book/models.py:171 catalog/game/models.py:73
+#: catalog/movie/models.py:69 catalog/music/models.py:89
+#: catalog/performance/models.py:115 catalog/performance/models.py:260
+#: catalog/tv/models.py:139 catalog/tv/models.py:301
+msgid "other title"
+msgstr ""
+
+#: catalog/book/models.py:177 catalog/book/models.py:362
 msgid "author"
-msgstr "autore"
+msgstr ""
 
-#: catalog/book/models.py:177
+#: catalog/book/models.py:184
 msgid "translator"
-msgstr "traduttore"
+msgstr ""
 
-#: catalog/book/models.py:184 catalog/templates/edition.html:27
+#: catalog/book/models.py:191 catalog/templates/edition.html:26
 msgid "book format"
-msgstr "formato del libro"
+msgstr ""
 
-#: catalog/book/models.py:191 catalog/templates/edition.html:33
+#: catalog/book/models.py:198 catalog/templates/edition.html:32
 msgid "publishing house"
-msgstr "casa editrice"
+msgstr ""
 
-#: catalog/book/models.py:194
+#: catalog/book/models.py:201
 msgid "publication year"
-msgstr "anno di pubblicazione"
+msgstr ""
 
-#: catalog/book/models.py:200
+#: catalog/book/models.py:207
 msgid "publication month"
-msgstr "mese di pubblicazione"
+msgstr ""
 
-#: catalog/book/models.py:205 catalog/templates/edition.html:55
+#: catalog/book/models.py:212 catalog/templates/edition.html:54
 msgid "binding"
-msgstr "rilegatura"
+msgstr ""
 
-#: catalog/book/models.py:206
+#: catalog/book/models.py:213
 msgid "pages"
-msgstr "pagine"
+msgstr ""
 
-#: catalog/book/models.py:207 catalog/templates/edition.html:49
+#: catalog/book/models.py:214 catalog/templates/edition.html:48
 msgid "series"
-msgstr "serie"
+msgstr ""
 
-#: catalog/book/models.py:208
+#: catalog/book/models.py:215
 msgid "contents"
-msgstr "contenuti"
+msgstr ""
 
-#: catalog/book/models.py:209 catalog/templates/edition.html:60
+#: catalog/book/models.py:216 catalog/templates/edition.html:59
 msgid "price"
-msgstr "prezzo"
+msgstr ""
 
-#: catalog/book/models.py:210 catalog/templates/edition.html:38
+#: catalog/book/models.py:217 catalog/templates/edition.html:37
 msgid "imprint"
-msgstr "stampa"
+msgstr ""
 
-#: catalog/common/models.py:35
+#: catalog/common/models.py:33
 msgid "Unknown"
-msgstr "Sconosciuto"
+msgstr ""
 
-#: catalog/common/models.py:36
+#: catalog/common/models.py:34
 msgid "Douban"
-msgstr "Douban"
+msgstr ""
 
-#: catalog/common/models.py:37 catalog/common/models.py:79
+#: catalog/common/models.py:35 catalog/common/models.py:75
 msgid "Goodreads"
-msgstr "Goodreads"
+msgstr ""
 
-#: catalog/common/models.py:38 catalog/common/models.py:83
+#: catalog/common/models.py:36 catalog/common/models.py:77
 msgid "Google Books"
-msgstr "Google Books"
+msgstr ""
 
-#: catalog/common/models.py:39
+#: catalog/common/models.py:37
 msgid "BooksTW"
-msgstr "BooksTW"
+msgstr ""
 
-#: catalog/common/models.py:40 catalog/common/models.py:72
+#: catalog/common/models.py:38 catalog/common/models.py:70
 #: catalog/templates/movie.html:51 catalog/templates/tvseason.html:68
 #: catalog/templates/tvshow.html:63
 msgid "IMDb"
-msgstr "IMDb"
+msgstr ""
+
+#: catalog/common/models.py:39
+msgid "TMDB"
+msgstr ""
+
+#: catalog/common/models.py:40 catalog/common/models.py:86
+msgid "Bandcamp"
+msgstr ""
 
 #: catalog/common/models.py:41
-msgid "TMDB"
-msgstr "TMDB"
+msgid "Spotify"
+msgstr ""
 
-#: catalog/common/models.py:42 catalog/common/models.py:96
-msgid "Bandcamp"
-msgstr "Bandcamp"
+#: catalog/common/models.py:42
+msgid "IGDB"
+msgstr ""
 
 #: catalog/common/models.py:43
-msgid "Spotify"
-msgstr "Spotify"
+msgid "Steam"
+msgstr ""
 
-#: catalog/common/models.py:44
-msgid "IGDB"
-msgstr "IGDB"
+#: catalog/common/models.py:44 catalog/common/models.py:100
+msgid "Bangumi"
+msgstr ""
 
 #: catalog/common/models.py:45
-msgid "Steam"
-msgstr "Steam"
-
-#: catalog/common/models.py:46 catalog/common/models.py:114
-msgid "Bangumi"
-msgstr "Bangumi"
+msgid "BGG"
+msgstr ""
 
 #: catalog/common/models.py:47
-msgid "BGG"
-msgstr "BGG"
-
-#: catalog/common/models.py:49
 msgid "RSS"
-msgstr "RSS"
+msgstr ""
 
-#: catalog/common/models.py:50
+#: catalog/common/models.py:48
 msgid "Discogs"
-msgstr "Discogs"
+msgstr ""
 
-#: catalog/common/models.py:51 catalog/common/models.py:116
+#: catalog/common/models.py:49 catalog/common/models.py:102
 msgid "Apple Music"
-msgstr "Apple Music"
+msgstr ""
 
-#: catalog/common/models.py:52 catalog/common/models.py:117
+#: catalog/common/models.py:50 catalog/common/models.py:103
 msgid "Fediverse"
-msgstr "Fediverso"
+msgstr ""
 
-#: catalog/common/models.py:53 catalog/common/models.py:118
+#: catalog/common/models.py:51 catalog/common/models.py:104
 msgid "Qidian"
-msgstr "Qidian"
+msgstr ""
 
-#: catalog/common/models.py:54 catalog/common/models.py:119
+#: catalog/common/models.py:52 catalog/common/models.py:105
 msgid "Ypshuo"
-msgstr "Ypshuo"
+msgstr ""
 
-#: catalog/common/models.py:55 catalog/common/models.py:120
+#: catalog/common/models.py:53 catalog/common/models.py:106
 msgid "Archive of Our Own"
-msgstr "Archive of Our Own"
+msgstr ""
 
-#: catalog/common/models.py:56 catalog/common/models.py:121
+#: catalog/common/models.py:54 catalog/common/models.py:107
 msgid "JinJiang"
-msgstr "JinJiang"
+msgstr ""
 
-#: catalog/common/models.py:60
+#: catalog/common/models.py:58
 msgid "WikiData"
-msgstr "WikiData"
+msgstr ""
+
+#: catalog/common/models.py:59
+msgid "ISBN10"
+msgstr ""
+
+#: catalog/common/models.py:60 catalog/templates/edition.html:19
+msgid "ISBN"
+msgstr ""
 
 #: catalog/common/models.py:61
-msgid "ISBN10"
-msgstr "ISBN10"
+msgid "ASIN"
+msgstr ""
 
-#: catalog/common/models.py:62 catalog/templates/edition.html:19
-msgid "ISBN"
-msgstr "ISBN"
+#: catalog/common/models.py:62
+msgid "ISSN"
+msgstr ""
 
 #: catalog/common/models.py:63
-msgid "ASIN"
-msgstr "ASIN"
+msgid "CUBN"
+msgstr ""
 
 #: catalog/common/models.py:64
-msgid "ISSN"
-msgstr "ISSN"
-
-#: catalog/common/models.py:65
-msgid "CUBN"
-msgstr "CUBN"
-
-#: catalog/common/models.py:66
 msgid "ISRC"
-msgstr "ISRC"
+msgstr ""
+
+#: catalog/common/models.py:67
+msgid "GTIN UPC EAN"
+msgstr ""
 
 #: catalog/common/models.py:69
-msgid "GTIN UPC EAN"
-msgstr "GTIN UPC EAN"
+msgid "RSS Feed URL"
+msgstr ""
 
 #: catalog/common/models.py:71
-msgid "RSS Feed URL"
-msgstr "URL del Feed RSS"
+msgid "TMDB TV Serie"
+msgstr ""
+
+#: catalog/common/models.py:72
+msgid "TMDB TV Season"
+msgstr ""
 
 #: catalog/common/models.py:73
-msgid "TMDB TV Serie"
-msgstr "Serie TV TMDB"
+msgid "TMDB TV Episode"
+msgstr ""
 
 #: catalog/common/models.py:74
-msgid "TMDB TV Season"
-msgstr "Stagione TV TMDB"
+msgid "TMDB Movie"
+msgstr ""
 
 #: catalog/common/models.py:76
-msgid "TMDB TV Episode"
-msgstr "Episodio TV TMDB"
+msgid "Goodreads Work"
+msgstr ""
 
 #: catalog/common/models.py:78
-msgid "TMDB Movie"
-msgstr "Film TMDB"
+msgid "Douban Book"
+msgstr ""
+
+#: catalog/common/models.py:79
+msgid "Douban Book Work"
+msgstr ""
+
+#: catalog/common/models.py:80
+msgid "Douban Movie"
+msgstr ""
 
 #: catalog/common/models.py:81
-msgid "Goodreads Work"
-msgstr "Lavoro Goodreads"
+msgid "Douban Music"
+msgstr ""
+
+#: catalog/common/models.py:82
+msgid "Douban Game"
+msgstr ""
+
+#: catalog/common/models.py:83
+msgid "Douban Drama"
+msgstr ""
 
 #: catalog/common/models.py:84
-msgid "Douban Book"
-msgstr "Libro Douban"
+msgid "Douban Drama Version"
+msgstr ""
 
-#: catalog/common/models.py:86
-msgid "Douban Book Work"
-msgstr "Libro Douban Lavoro"
+#: catalog/common/models.py:85
+msgid "BooksTW Book"
+msgstr ""
+
+#: catalog/common/models.py:87
+msgid "Spotify Album"
+msgstr ""
 
 #: catalog/common/models.py:88
-msgid "Douban Movie"
-msgstr "Film Douban"
+msgid "Spotify Podcast"
+msgstr ""
 
 #: catalog/common/models.py:89
-msgid "Douban Music"
-msgstr "Musica Douban"
+msgid "Discogs Release"
+msgstr ""
 
 #: catalog/common/models.py:90
-msgid "Douban Game"
-msgstr "Gioco Douban"
+msgid "Discogs Master"
+msgstr ""
 
 #: catalog/common/models.py:91
-msgid "Douban Drama"
-msgstr "Dramma Douban"
-
-#: catalog/common/models.py:93
-msgid "Douban Drama Version"
-msgstr "Versione drama su Douban"
-
-#: catalog/common/models.py:95
-msgid "BooksTW Book"
-msgstr "Libro BooksTW"
+msgid "MusicBrainz ID"
+msgstr ""
 
 #: catalog/common/models.py:97
-msgid "Spotify Album"
-msgstr "Album Spotify"
+msgid "IGDB Game"
+msgstr ""
 
 #: catalog/common/models.py:98
-msgid "Spotify Podcast"
-msgstr "Podcast Spotify"
-
-#: catalog/common/models.py:100
-msgid "Discogs Release"
-msgstr "Uscita Discogs"
-
-#: catalog/common/models.py:103
-msgid "Discogs Master"
-msgstr "Master Discogs"
-
-#: catalog/common/models.py:105
-msgid "MusicBrainz ID"
-msgstr "Identificativo MusicBrainz"
-
-#: catalog/common/models.py:111
-msgid "IGDB Game"
-msgstr "Gioco IGDB"
-
-#: catalog/common/models.py:112
 msgid "BGG Boardgame"
-msgstr "Gioco da tavolo BGG"
+msgstr ""
 
-#: catalog/common/models.py:113
+#: catalog/common/models.py:99
 msgid "Steam Game"
-msgstr "Gioco Steam"
+msgstr ""
 
-#: catalog/common/models.py:115
+#: catalog/common/models.py:101
 msgid "Apple Podcast"
-msgstr "Podcast Apple"
+msgstr ""
 
-#: catalog/common/models.py:137 catalog/common/models.py:158
-#: catalog/common/models.py:171 common/templates/_header.html:25
+#: catalog/common/models.py:123 catalog/common/models.py:140
+#: catalog/common/models.py:153 common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:31
 msgid "Book"
-msgstr "Libro"
+msgstr ""
 
-#: catalog/common/models.py:138
+#: catalog/common/models.py:124
 msgid "TV Serie"
-msgstr "Serie TV"
+msgstr ""
 
-#: catalog/common/models.py:139 catalog/templates/_sidebar_edit.html:140
+#: catalog/common/models.py:125 catalog/templates/_sidebar_edit.html:140
 msgid "TV Season"
-msgstr "Stagione TV"
+msgstr ""
 
-#: catalog/common/models.py:140
+#: catalog/common/models.py:126
 msgid "TV Episode"
-msgstr "Episodio TV"
+msgstr ""
 
-#: catalog/common/models.py:141 catalog/common/models.py:159
-#: catalog/common/models.py:172 catalog/templates/_sidebar_edit.html:133
+#: catalog/common/models.py:127 catalog/common/models.py:141
+#: catalog/common/models.py:154 catalog/templates/_sidebar_edit.html:133
 #: journal/templates/_sidebar_user_mark_list.html:34
 msgid "Movie"
-msgstr "Film"
+msgstr ""
 
-#: catalog/common/models.py:142
+#: catalog/common/models.py:128
 msgid "Album"
-msgstr "Album"
+msgstr ""
 
-#: catalog/common/models.py:143 catalog/common/models.py:162
-#: catalog/common/models.py:175 common/templates/_header.html:41
+#: catalog/common/models.py:129 catalog/common/models.py:144
+#: catalog/common/models.py:157 common/templates/_header.html:41
 #: journal/templates/_sidebar_user_mark_list.html:47
 msgid "Game"
-msgstr "Gioco"
+msgstr ""
 
-#: catalog/common/models.py:144
+#: catalog/common/models.py:130
 msgid "Podcast Program"
-msgstr "Programma Podcast"
+msgstr ""
 
-#: catalog/common/models.py:146
+#: catalog/common/models.py:131
 msgid "Podcast Episode"
-msgstr "Episodio Podcast"
+msgstr ""
 
-#: catalog/common/models.py:148 catalog/common/models.py:164
-#: catalog/common/models.py:177 common/templates/_header.html:45
+#: catalog/common/models.py:132 catalog/common/models.py:146
+#: catalog/common/models.py:159 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:51
 msgid "Performance"
-msgstr "Esibizione"
+msgstr ""
 
-#: catalog/common/models.py:150
+#: catalog/common/models.py:133
 msgid "Production"
-msgstr "Produzione"
+msgstr ""
 
-#: catalog/common/models.py:152
+#: catalog/common/models.py:134
 msgid "Fanfic"
-msgstr "Fanfiction"
+msgstr ""
 
-#: catalog/common/models.py:153 catalog/common/models.py:166
+#: catalog/common/models.py:135 catalog/common/models.py:148
 msgid "Exhibition"
-msgstr "Mostra"
+msgstr ""
 
-#: catalog/common/models.py:154 catalog/common/models.py:167
+#: catalog/common/models.py:136 catalog/common/models.py:149
 #: journal/templates/collection.html:15 journal/templates/collection.html:25
 #: journal/templates/collection_edit.html:9
 #: journal/templates/collection_share.html:12
 msgid "Collection"
-msgstr "Collezione"
+msgstr ""
 
-#: catalog/common/models.py:160 catalog/common/models.py:173
+#: catalog/common/models.py:142 catalog/common/models.py:155
 #: journal/templates/_sidebar_user_mark_list.html:37
 msgid "TV"
-msgstr "TV"
+msgstr ""
 
-#: catalog/common/models.py:161 catalog/common/models.py:174
+#: catalog/common/models.py:143 catalog/common/models.py:156
 #: common/templates/_header.html:37
 #: journal/templates/_sidebar_user_mark_list.html:44
 msgid "Music"
-msgstr "Musica"
+msgstr ""
 
-#: catalog/common/models.py:163 catalog/common/models.py:176
+#: catalog/common/models.py:145 catalog/common/models.py:158
 #: catalog/templates/_sidebar_edit.html:152 common/templates/_header.html:33
 #: journal/templates/_sidebar_user_mark_list.html:41
 msgid "Podcast"
-msgstr "Podcast"
+msgstr ""
 
-#: catalog/common/models.py:165
+#: catalog/common/models.py:147
 msgid "FanFic"
-msgstr "FanFiction"
+msgstr ""
 
-#: catalog/common/models.py:349 catalog/tv/models.py:381
-#: users/models/user.py:115
+#: catalog/common/models.py:331 catalog/tv/models.py:378
+#: users/models/user.py:113
 msgid "language"
-msgstr "lingua"
+msgstr ""
 
-#: catalog/common/models.py:372 catalog/common/models.py:403
+#: catalog/common/models.py:354 catalog/common/models.py:385
 #: journal/models/collection.py:56
 msgid "title"
-msgstr "titolo"
+msgstr ""
 
-#: catalog/common/models.py:373 catalog/common/models.py:411
+#: catalog/common/models.py:355 catalog/common/models.py:393
 #: journal/models/collection.py:57
 msgid "description"
-msgstr "descrizione"
+msgstr ""
 
-#: catalog/common/models.py:375 catalog/forms.py:27
+#: catalog/common/models.py:357 catalog/forms.py:27
 msgid "Primary ID Type"
-msgstr "Tipo d'identificativo primario"
+msgstr ""
 
-#: catalog/common/models.py:378 catalog/forms.py:32
+#: catalog/common/models.py:360 catalog/forms.py:32
 msgid "Primary ID Value"
-msgstr "Valore dell'ID primario"
+msgstr ""
 
-#: catalog/common/models.py:384
+#: catalog/common/models.py:366
 msgid "metadata"
-msgstr "metadati"
+msgstr ""
 
-#: catalog/common/models.py:386
+#: catalog/common/models.py:368
 msgid "cover"
-msgstr "copertina"
+msgstr ""
 
-#: catalog/common/models.py:816
+#: catalog/common/models.py:798
 msgid "source site"
-msgstr "sito d'origine"
+msgstr ""
+
+#: catalog/common/models.py:800
+msgid "ID on source site"
+msgstr ""
+
+#: catalog/common/models.py:802
+msgid "source url"
+msgstr ""
 
 #: catalog/common/models.py:818
-msgid "ID on source site"
-msgstr "ID sul sito sorgente"
-
-#: catalog/common/models.py:820
-msgid "source url"
-msgstr "URL della sorgente"
-
-#: catalog/common/models.py:836
 msgid "IdType of the source site"
-msgstr "IdType del sito sorgente"
+msgstr ""
 
-#: catalog/common/models.py:842
+#: catalog/common/models.py:824
 msgid "Primary Id on the source site"
-msgstr "Id Primario sul sito sorgente"
+msgstr ""
 
-#: catalog/common/models.py:845
+#: catalog/common/models.py:827
 msgid "url to the resource"
-msgstr "URL alla risorsa"
+msgstr ""
+
+#: catalog/game/models.py:20
+msgid "Main Game"
+msgstr ""
+
+#: catalog/game/models.py:21
+msgid "Expansion"
+msgstr ""
+
+#: catalog/game/models.py:22
+msgid "Downloadable Content"
+msgstr ""
 
 #: catalog/game/models.py:23
-msgid "Main Game"
-msgstr "Gioco base"
+msgid "Mod"
+msgstr ""
 
 #: catalog/game/models.py:24
-msgid "Expansion"
-msgstr "Espansione"
+msgid "Bundle"
+msgstr ""
 
 #: catalog/game/models.py:25
-msgid "Downloadable Content"
-msgstr "Contenuto Scaricabile"
+msgid "Remaster"
+msgstr ""
 
 #: catalog/game/models.py:26
-msgid "Mod"
-msgstr "Mod"
+msgid "Remake"
+msgstr ""
 
 #: catalog/game/models.py:27
-msgid "Bundle"
-msgstr "Pacchetto"
-
-#: catalog/game/models.py:28
-msgid "Remaster"
-msgstr "Rimasterizzazione"
-
-#: catalog/game/models.py:29
-msgid "Remake"
-msgstr "Remake"
-
-#: catalog/game/models.py:30
 msgid "Special Edition"
-msgstr "Edizione Speciale"
+msgstr ""
 
-#: catalog/game/models.py:76 catalog/movie/models.py:71
-#: catalog/music/models.py:91 catalog/performance/models.py:115
-#: catalog/performance/models.py:260 catalog/tv/models.py:142
-#: catalog/tv/models.py:304
-msgid "other title"
-msgstr "titolo alternativo"
-
-#: catalog/game/models.py:84
+#: catalog/game/models.py:81
 msgid "designer"
-msgstr "designer"
+msgstr ""
 
-#: catalog/game/models.py:92 catalog/music/models.py:68
+#: catalog/game/models.py:89 catalog/music/models.py:66
 msgid "artist"
-msgstr "artista"
+msgstr ""
 
-#: catalog/game/models.py:100
+#: catalog/game/models.py:97
 msgid "developer"
-msgstr "sviluppatore"
+msgstr ""
 
-#: catalog/game/models.py:108 catalog/music/models.py:84
+#: catalog/game/models.py:105 catalog/music/models.py:82
 msgid "publisher"
-msgstr "editore"
+msgstr ""
 
-#: catalog/game/models.py:115
+#: catalog/game/models.py:112
 msgid "year of publication"
-msgstr "anno di pubblicazione"
+msgstr ""
 
-#: catalog/game/models.py:119 catalog/podcast/models.py:118
+#: catalog/game/models.py:116 catalog/podcast/models.py:114
 msgid "date of publication"
-msgstr "data di pubblicazione"
+msgstr ""
 
-#: catalog/game/models.py:124 catalog/music/models.py:62
-#: catalog/tv/models.py:189
+#: catalog/game/models.py:121 catalog/music/models.py:60
+#: catalog/tv/models.py:186
 msgid "YYYY-MM-DD"
-msgstr "AAAA-MM-GG"
+msgstr ""
 
-#: catalog/game/models.py:128 catalog/templates/game.html:16
+#: catalog/game/models.py:125 catalog/templates/game.html:16
 msgid "release type"
-msgstr "tipo di rilascio"
+msgstr ""
 
-#: catalog/game/models.py:135 catalog/movie/models.py:99
-#: catalog/performance/models.py:122 catalog/podcast/models.py:45
-#: catalog/tv/models.py:169 catalog/tv/models.py:332
+#: catalog/game/models.py:132 catalog/movie/models.py:97
+#: catalog/performance/models.py:122 catalog/podcast/models.py:41
+#: catalog/tv/models.py:166 catalog/tv/models.py:329
 msgid "genre"
-msgstr "genere"
+msgstr ""
 
-#: catalog/game/models.py:143
+#: catalog/game/models.py:140
 msgid "platform"
-msgstr "piattaforma"
+msgstr ""
 
-#: catalog/game/models.py:149 catalog/movie/models.py:133
+#: catalog/game/models.py:146 catalog/movie/models.py:131
 #: catalog/performance/models.py:206 catalog/performance/models.py:344
-#: catalog/podcast/models.py:64 catalog/templates/game.html:34
+#: catalog/podcast/models.py:60 catalog/templates/game.html:34
 #: catalog/templates/movie.html:58 catalog/templates/performance.html:33
 #: catalog/templates/performanceproduction.html:33
 #: catalog/templates/podcast.html:20 catalog/templates/tvseason.html:75
-#: catalog/templates/tvshow.html:70 catalog/tv/models.py:203
-#: catalog/tv/models.py:367
+#: catalog/templates/tvshow.html:70 catalog/tv/models.py:200
+#: catalog/tv/models.py:364
 msgid "website"
-msgstr "sito internet"
+msgstr ""
 
-#: catalog/movie/models.py:78 catalog/performance/models.py:130
-#: catalog/performance/models.py:268 catalog/tv/models.py:148
-#: catalog/tv/models.py:311
+#: catalog/movie/models.py:76 catalog/performance/models.py:130
+#: catalog/performance/models.py:268 catalog/tv/models.py:145
+#: catalog/tv/models.py:308
 msgid "director"
-msgstr "Diretto da"
+msgstr ""
 
-#: catalog/movie/models.py:85 catalog/performance/models.py:137
-#: catalog/performance/models.py:275 catalog/tv/models.py:155
-#: catalog/tv/models.py:318
+#: catalog/movie/models.py:83 catalog/performance/models.py:137
+#: catalog/performance/models.py:275 catalog/tv/models.py:152
+#: catalog/tv/models.py:315
 msgid "playwright"
-msgstr "Scritto da"
+msgstr ""
 
-#: catalog/movie/models.py:92 catalog/performance/models.py:165
-#: catalog/performance/models.py:303 catalog/tv/models.py:162
-#: catalog/tv/models.py:325
+#: catalog/movie/models.py:90 catalog/performance/models.py:165
+#: catalog/performance/models.py:303 catalog/tv/models.py:159
+#: catalog/tv/models.py:322
 msgid "actor"
-msgstr "attore"
+msgstr ""
 
-#: catalog/movie/models.py:106 catalog/music/models.py:62
+#: catalog/movie/models.py:104 catalog/music/models.py:60
 #: catalog/templates/_item_card_metadata_album.html:16
 #: catalog/templates/album.html:17 catalog/templates/game.html:21
 #: catalog/templates/movie.html:40 catalog/templates/tvseason.html:57
 #: catalog/templates/tvshow.html:52
 msgid "release date"
-msgstr "data di uscita"
+msgstr ""
 
-#: catalog/movie/models.py:118 catalog/tv/models.py:351
+#: catalog/movie/models.py:116 catalog/tv/models.py:348
 #: journal/templates/_sidebar_user_mark_list.html:62
 msgid "date"
-msgstr "data"
+msgstr ""
 
-#: catalog/movie/models.py:119 catalog/performance/models.py:82
-#: catalog/tv/models.py:352
+#: catalog/movie/models.py:117 catalog/performance/models.py:82
+#: catalog/tv/models.py:349
 msgid "required"
-msgstr "richiesto"
+msgstr ""
 
-#: catalog/movie/models.py:123 catalog/tv/models.py:356
+#: catalog/movie/models.py:121 catalog/tv/models.py:353
 msgid "region or event"
-msgstr "regione o evento"
+msgstr ""
 
-#: catalog/movie/models.py:125 catalog/tv/models.py:195
-#: catalog/tv/models.py:358
+#: catalog/movie/models.py:123 catalog/tv/models.py:192
+#: catalog/tv/models.py:355
 msgid "Germany or Toronto International Film Festival"
-msgstr "Germania o Toronto International Film Festival"
+msgstr ""
 
-#: catalog/movie/models.py:135 catalog/tv/models.py:205
-#: catalog/tv/models.py:370
+#: catalog/movie/models.py:133 catalog/tv/models.py:202
+#: catalog/tv/models.py:367
 msgid "region"
-msgstr "Paese"
+msgstr ""
 
-#: catalog/movie/models.py:146 catalog/tv/models.py:217
-#: catalog/tv/models.py:391
+#: catalog/movie/models.py:144 catalog/tv/models.py:214
+#: catalog/tv/models.py:388
 msgid "year"
-msgstr "anno"
+msgstr ""
 
-#: catalog/movie/models.py:147 catalog/music/models.py:65
+#: catalog/movie/models.py:145 catalog/music/models.py:63
 #: catalog/templates/movie.html:20 catalog/templates/tvseason.html:52
 #: catalog/templates/tvshow.html:47
 msgid "length"
-msgstr "durata"
+msgstr ""
 
-#: catalog/music/models.py:65
+#: catalog/music/models.py:63
 msgid "milliseconds"
-msgstr "millisecondi"
+msgstr ""
 
-#: catalog/music/models.py:76
+#: catalog/music/models.py:74
 msgctxt "music"
 msgid "genre"
-msgstr "genere"
+msgstr ""
 
-#: catalog/music/models.py:89
+#: catalog/music/models.py:87
 msgid "tracks"
-msgstr "tracce"
+msgstr ""
 
-#: catalog/music/models.py:97 catalog/templates/album.html:33
+#: catalog/music/models.py:95 catalog/templates/album.html:33
 msgid "album type"
-msgstr "tipo d'album"
+msgstr ""
 
-#: catalog/music/models.py:98
+#: catalog/music/models.py:96
 msgid "media type"
-msgstr "tipo di supporto"
+msgstr ""
 
-#: catalog/music/models.py:101 catalog/templates/album.html:43
+#: catalog/music/models.py:99 catalog/templates/album.html:43
 msgid "number of discs"
-msgstr "numero di dischi"
+msgstr ""
 
 #: catalog/performance/models.py:66 catalog/performance/models.py:81
 msgid "name"
-msgstr "nome"
+msgstr ""
 
 #: catalog/performance/models.py:67 catalog/performance/models.py:86
 msgid "role"
-msgstr "ruolo"
+msgstr ""
 
 #: catalog/performance/models.py:87
 msgid "optional"
-msgstr "opzionale"
+msgstr ""
 
 #: catalog/performance/models.py:112
 msgid "original name"
-msgstr "nome originale"
+msgstr ""
 
 #: catalog/performance/models.py:144 catalog/performance/models.py:282
 msgid "original creator"
-msgstr "creatore originale"
+msgstr ""
 
 #: catalog/performance/models.py:151 catalog/performance/models.py:289
 msgid "composer"
-msgstr "compositore"
+msgstr ""
 
 #: catalog/performance/models.py:158 catalog/performance/models.py:296
 msgid "choreographer"
-msgstr "coreografo"
+msgstr ""
 
 #: catalog/performance/models.py:172 catalog/performance/models.py:310
 msgid "performer"
-msgstr "performer"
+msgstr ""
 
 #: catalog/performance/models.py:179 catalog/performance/models.py:317
 msgid "troupe"
-msgstr "troupe"
+msgstr ""
 
 #: catalog/performance/models.py:186 catalog/performance/models.py:324
 msgid "crew"
-msgstr "squadra"
+msgstr ""
 
 #: catalog/performance/models.py:193 catalog/performance/models.py:331
 msgid "theater"
-msgstr "teatro"
+msgstr ""
 
 #: catalog/performance/models.py:200 catalog/performance/models.py:338
 #: catalog/templates/performance.html:14
 #: catalog/templates/performanceproduction.html:13
 msgid "opening date"
-msgstr "data della première"
+msgstr ""
 
 #: catalog/performance/models.py:203 catalog/performance/models.py:341
 msgid "closing date"
-msgstr "data di chiusura"
+msgstr ""
 
-#: catalog/podcast/models.py:55
+#: catalog/podcast/models.py:51
 msgid "host"
-msgstr "presentatore"
+msgstr ""
 
-#: catalog/search/views.py:58 catalog/search/views.py:177
+#: catalog/search/views.py:56 catalog/search/views.py:175
 msgid "Invalid URL"
-msgstr "URL non valido"
+msgstr ""
 
 #: catalog/templates/_fetch_failed.html:4
 msgid "Unable to fetch from the link, please check again. Some sites may require login for certain links, please manually create them here."
 msgstr ""
-"Impossibile recuperare dal link, si prega di controllare ancora. Alcuni siti "
-"richiedono l'accesso per alcuni tipi di link. Se necessario è possibile "
-"crearli qui manualmente."
 
 #: catalog/templates/_item_card_metadata_album.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
@@ -740,37 +747,32 @@ msgstr ""
 #: catalog/templates/_item_card_metadata_work.html:7
 #: catalog/templates/item_base.html:164
 msgid "ratings"
-msgstr "valutazioni"
+msgstr ""
 
 #: catalog/templates/_item_card_metadata_base.html:34
 #: catalog/templates/item_base.html:213
 msgid "part of"
-msgstr "Parte della"
+msgstr ""
 
 #: catalog/templates/_item_comments.html:10
 #: catalog/templates/_item_comments_by_episode.html:13
-#: catalog/templates/search_header.html:13
-#: catalog/templates/search_header.html:15
-#: journal/templates/_sidebar_user_mark_list.html:55
-#: social/templates/notification.html:27
-msgid "all"
-msgstr "tutto"
+msgid "this season"
+msgstr ""
 
 #: catalog/templates/_item_comments.html:25
 msgid "edit this item to fetch or add episode list here"
 msgstr ""
-"modifica questo elemento per recuperare o aggiungere qui una lista di episodi"
 
 #: catalog/templates/_item_comments.html:27
 msgid "hide this tooltip"
-msgstr "nascondi questo suggerimento"
+msgstr ""
 
 #: catalog/templates/_item_comments.html:82
 #: catalog/templates/_item_comments_by_episode.html:80
 #: catalog/templates/_item_reviews.html:43 catalog/templates/item_base.html:241
 #: catalog/templates/podcast_episode_data.html:41
 msgid "show more"
-msgstr "mostra di più"
+msgstr ""
 
 #: catalog/templates/_item_comments.html:86
 #: catalog/templates/_item_comments_by_episode.html:84
@@ -778,12 +780,12 @@ msgstr "mostra di più"
 #: catalog/templates/podcast_episode_data.html:44
 #: social/templates/events.html:43 social/templates/feed_events.html:137
 msgid "nothing more."
-msgstr "nient'altro."
+msgstr ""
 
 #: catalog/templates/_item_comments_by_episode.html:35
 #: catalog/templates/podcast_episode_data.html:22
 msgid "comment this episode"
-msgstr "commenta questo episodio"
+msgstr ""
 
 #: catalog/templates/_item_reviews.html:26 journal/models/shelf.py:71
 #: journal/models/shelf.py:111 journal/models/shelf.py:151
@@ -791,61 +793,61 @@ msgstr "commenta questo episodio"
 #: journal/models/shelf.py:271 journal/models/shelf.py:305
 #: journal/templates/_sidebar_user_mark_list.html:26
 msgid "review"
-msgstr "recensisci"
+msgstr ""
 
 #: catalog/templates/_item_user_mark_history.html:15
 msgid "no history."
-msgstr "nessuna storia."
+msgstr ""
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "sure to clear mark history?"
-msgstr "vuoi veramente eliminare la cronologia dei segnati?"
+msgstr ""
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "clear mark history"
-msgstr "elimina cronologia dei segnati"
+msgstr ""
 
 #: catalog/templates/_item_user_mark_history.html:25
 msgid "clear history will not remove current mark"
-msgstr "l'eliminazione della cronologia non rimuoverà il contrassegno corrente"
+msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:5
 msgid "my comment and tags"
-msgstr "i miei commenti e tag"
+msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:67
 msgid "my notes"
-msgstr "le mie note"
+msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:118
 msgid "my review"
-msgstr "la mia recensione"
+msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:160
 msgid "my collection"
-msgstr "la mia collezione"
+msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:190
 msgid "mark history"
-msgstr "cronologia dei segnati"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:7
 msgid "edit"
-msgstr "modifica"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:11
 #: catalog/templates/catalog_history.html:9
 #: catalog/templates/catalog_history.html:57
 msgid "revision history"
-msgstr "cronologia delle revisioni"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:15
 msgid "back to item"
-msgstr "ritorna all'elemento"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:18
 msgid "Edit Options"
-msgstr "Modifica Opzioni"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:21
 #: catalog/templates/catalog_delete.html:23
@@ -853,7 +855,7 @@ msgstr "Modifica Opzioni"
 #: catalog/templates/catalog_merge.html:35
 #: catalog/templates/catalog_merge.html:63
 msgid "Item has been deleted."
-msgstr "L'elemento è stato cancellato."
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:26
 #: catalog/templates/catalog_delete.html:28
@@ -861,366 +863,344 @@ msgstr "L'elemento è stato cancellato."
 #: catalog/templates/catalog_merge.html:40
 #: catalog/templates/catalog_merge.html:68
 msgid "Item contains sub-items."
-msgstr "L'elemento contiene sotto-elementi."
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:31
 #: catalog/templates/catalog_delete.html:33
 #: catalog/templates/catalog_merge.html:45
 #: catalog/templates/catalog_merge.html:73
 msgid "Item has been merged to another item."
-msgstr "L'elemento è stato incorporato in un altro elemento."
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:36
 #: catalog/templates/catalog_delete.html:38
 #: catalog/templates/catalog_merge.html:50
 #: catalog/templates/catalog_merge.html:78
 msgid "Item has been marked by users."
-msgstr "L'elemento è stato segnato dagli utenti."
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:41
 msgid "The following items are merged into this item"
-msgstr "I seguenti elementi sono stati accorpati in questo elemento"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:53
 msgid "External website"
-msgstr "Sito internet esterno"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:58
 msgid "Existing metadata might get overwritten, sure to proceed?"
 msgstr ""
-"I metadati esistenti potrebbero essere sovrascritti, sicuro di voler "
-"procedere?"
 
 #: catalog/templates/_sidebar_edit.html:62
 msgid "Fetch again"
-msgstr "Recupera nuovamente"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:67
 msgid "You may not be able to undo this operation, sure to remove?"
 msgstr ""
-"Potresti non essere in grado di annullare questa operazione, sicuro di voler "
-"rimuovere?"
 
 #: catalog/templates/_sidebar_edit.html:72
 msgid "Remove link to site"
-msgstr "Rimuovi il link al sito"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:81
 msgid "Edit sub-items"
-msgstr "Modifica sotto-elementi"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:94
 msgid "create"
-msgstr "crea"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:100
 msgid "Fetch all episodes"
-msgstr "Recupera tutti gli episodi"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:105
 msgid "Fetch all"
-msgstr "Recupera tutto"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:106
 msgid "Due to differences in how Douban, IMDB, and TMDB handle season data, a small number of TV shows and animations may not return correct results. Please manually verify and clean up after updating."
 msgstr ""
-"A causa delle differenze dei modi nei quali Douban, IMDB e TMDB gestiscono i "
-"dati delle stagioni, un piccolo numero di prodotti animati e serie TV "
-"potrebbero contenere dati sbagliati. Si prega di verificare i dati "
-"manualmente e aggiornarli dopo averli corretti."
 
 #: catalog/templates/_sidebar_edit.html:109
 msgid "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries."
 msgstr ""
-"Per recuperare tutti gli episodi, sono richiesti i numeri delle stagioni e "
-"le informazioni IMDB. Se non conviene compilare i dati, puoi creare "
-"manualmente delle sotto-voci."
 
 #: catalog/templates/_sidebar_edit.html:115
 #: catalog/templates/_sidebar_edit.html:127
 #: catalog/templates/_sidebar_edit.html:146
 msgid "switch category"
-msgstr "cambia categoria"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:118
 msgid "Switching may remove some metadata. Sure to proceed?"
-msgstr "Cambiare potrebbe rimuovere alcuni metadati. Vuoi procedere?"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:121
 msgid "TV Show"
-msgstr "Show TV"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:160
 msgid "Link to parent item"
-msgstr "Collega ad elemento genitore"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:163
 msgid "Sure to link?"
-msgstr "Confermare il collegamento?"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:170
 msgid "Update link"
-msgstr "Aggiorna collegamento"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:176
 msgid "Cleanup seasons"
-msgstr "Riordina stagioni"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:179
 #: catalog/templates/catalog_delete.html:44
 msgid "This operation cannot be undone. Sure to delete?"
-msgstr "Questa operazione non può essere annullata. Confermi l'eliminazione?"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:183
 msgid "remove seasons not marked"
-msgstr "rimuovi le stagioni non contrassegnate"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:189
 #: catalog/templates/catalog_merge.html:11
 msgid "Merge"
-msgstr "Unisci"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:195
 msgid "URL of target item, or empty if undo merge"
-msgstr "URL dell'elemento di destinazione, o vuoto se si annulla accorpamento"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:201
 #: catalog/templates/_sidebar_edit.html:262
 msgid "merge to another item"
-msgstr "unisci ad un altro elemento"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:206
 #: catalog/templates/_sidebar_edit.html:210
 #: catalog/templates/catalog_delete.html:11
-#: journal/templates/collection.html:138 journal/templates/mark.html:159
+#: journal/templates/collection.html:138 journal/templates/mark.html:157
 #: journal/templates/piece_delete.html:9 journal/templates/piece_delete.html:33
 #: journal/templates/review.html:84
 msgid "Delete"
-msgstr "Elimina"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:218
 msgid "Work"
-msgstr "Lavoro"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:219
 msgid "This edition belongs to the following work"
-msgstr "Questa edizione appartiene al seguente lavoro"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:226
 msgid "Sure to unlink?"
-msgstr "Sicuro di voler scollegare?"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:232
 msgid "Unlink from work"
-msgstr "Scollega dal lavoro"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:238
 msgid "Link"
-msgstr "Collegamento"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:249
 msgid "Link to another edition from same work"
-msgstr "Collega ad un'altra edizione dallo stesso lavoro"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:256
 msgid "Suggest Edits"
-msgstr "Suggerisci Modifiche"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:261
 msgid "proposed action"
-msgstr "azione proposta"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:263
 msgid "link to another item"
-msgstr "collega ad un altro elemento"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:264
 msgid "change item category"
-msgstr "cambia categoria dell'elemento"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:265
 msgid "change item metadata"
-msgstr "cambia i metadati dell'elemento"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:266
 msgid "remove item"
-msgstr "rimuovi elemento"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:267
 msgid "other"
-msgstr "altro"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:271
 msgid "To suggest merging or association, please include the URL of the target item"
 msgstr ""
-"Per suggerire un accorpamento o associazione si prega di includere l'URL "
-"dell'oggetto di destinazione"
 
 #: catalog/templates/_sidebar_edit.html:272
 msgid "submit"
-msgstr "inoltra"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:273
 msgid "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution."
 msgstr ""
-"Come membro di questa community, puoi modificare alcuni metadati di elementi "
-"presenti in questo sito. Se non sei sicuro della correttezza delle tue "
-"modifiche o non sei in grado di effettuare un determinato tipo di modifica "
-"puoi proporre i tuoi suggerimenti qui. I moderatori valuteranno ogni "
-"suggerimento, ma non viene garantito in nessun modo che i tuoi suggerimenti "
-"verranno adottati per forza. I tuoi suggerimenti potranno essere discussi da "
-"altri utenti della community. Se hai suggerimenti che non sono legati in "
-"nessun modo ad un elemento specifico, contattaci direttamente. Grazie mille "
-"per il vostro supporto e contributo."
 
 #: catalog/templates/_sidebar_search.html:5
 msgid "Not the result you are looking for?"
-msgstr "Non è il risulltato che stavi cercando?"
+msgstr ""
 
 #: catalog/templates/_sidebar_search.html:13
 msgid "Or you may create items manually"
-msgstr "Oppure puoi creare elementi manualmente"
+msgstr ""
 
 #: catalog/templates/_sidebar_search.html:16
 msgid "Add books"
-msgstr "Aggiungi libri"
+msgstr ""
 
 #: catalog/templates/_sidebar_search.html:19
 msgid "Add movies"
-msgstr "Aggiungi film"
+msgstr ""
 
 #: catalog/templates/_sidebar_search.html:22
 msgid "Add tv series"
-msgstr "Aggiungi serie tv"
+msgstr ""
 
 #: catalog/templates/_sidebar_search.html:25
 msgid "Add podcasts"
-msgstr "Aggiungi podcast"
+msgstr ""
 
 #: catalog/templates/_sidebar_search.html:28
 msgid "Add albums"
-msgstr "Aggiungi album"
+msgstr ""
 
 #: catalog/templates/_sidebar_search.html:31
 msgid "Add games"
-msgstr "Aggiungi giochi"
+msgstr ""
 
 #: catalog/templates/_sidebar_search.html:34
 msgid "Add performance or theater pieces"
-msgstr "Aggiungi performance o spettacoli teatrali"
+msgstr ""
 
 #: catalog/templates/album.html:22
 msgid "duration"
-msgstr "durata"
+msgstr ""
 
 #: catalog/templates/album.html:28
 msgid "barcode"
-msgstr "codice a barre"
+msgstr ""
 
 #: catalog/templates/album.html:38
 msgid "album media"
-msgstr "copertina dell'album"
+msgstr ""
 
 #: catalog/templates/catalog_delete.html:18
 msgid "Are you sure to delete?"
-msgstr "Confermare eliminazione?"
+msgstr ""
 
 #: catalog/templates/catalog_delete.html:47
 #: catalog/templates/catalog_merge.html:91
 msgid "Yes"
-msgstr "Sì"
+msgstr ""
 
 #: catalog/templates/catalog_delete.html:48
 #: catalog/templates/catalog_merge.html:92
 msgid "No"
-msgstr "No"
+msgstr ""
 
 #: catalog/templates/catalog_edit.html:11 journal/templates/collection.html:135
 #: journal/templates/collection_edit.html:9
 #: journal/templates/collection_edit.html:25 journal/templates/review.html:81
 #: journal/templates/tag_edit.html:16
 msgid "Edit"
-msgstr "Modifica"
+msgstr ""
 
 #: catalog/templates/catalog_edit.html:13
 msgid "Create"
-msgstr "Crea"
+msgstr ""
 
 #: catalog/templates/catalog_edit.html:50
 #: journal/templates/add_to_collection.html:35
 #: journal/templates/collection_edit.html:38 journal/templates/comment.html:69
-#: journal/templates/mark.html:144 journal/templates/note.html:39
+#: journal/templates/mark.html:142 journal/templates/note.html:39
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/account.html:37 users/templates/users/account.html:67
 #: users/templates/users/preferences.html:188
 #: users/templates/users/preferences.html:222
 msgid "Save"
-msgstr "Salva"
+msgstr ""
 
 #: catalog/templates/catalog_edit.html:53
 #: journal/templates/collection_update_item_note.html:8
 #: journal/templates/piece_delete.html:37
 msgid "Cancel"
-msgstr "Cancella"
+msgstr ""
 
 #: catalog/templates/catalog_merge.html:21
 msgid "Are you sure to merge?"
-msgstr "Confermare l'accorpamento?"
+msgstr ""
 
 #: catalog/templates/catalog_merge.html:23
 msgid "Are you sure to cancel merge?"
-msgstr "Vuoi veramente annullare l'accorpamento?"
+msgstr ""
 
 #: catalog/templates/catalog_merge.html:26
 msgid "Are you sure to link?"
-msgstr "Confermare il collegamento?"
+msgstr ""
 
 #: catalog/templates/catalog_merge.html:85
 msgid "This operation cannot be undone. Sure to merge?"
-msgstr "Questa operazione non può essere annullata. Confermare accorpamento?"
+msgstr ""
 
 #: catalog/templates/discover.html:18 users/templates/users/preferences.html:33
 msgid "Discover"
-msgstr "Scopri"
+msgstr ""
 
 #: catalog/templates/discover.html:76
 #: journal/templates/user_collection_list.html:17
 #: journal/templates/user_collection_list.html:31
 msgid "Collections"
-msgstr "Collezioni"
+msgstr ""
 
 #: catalog/templates/discover.html:94 journal/templates/profile.html:179
 msgid "edit layout"
-msgstr "modifica impaginazione"
+msgstr ""
 
 #: catalog/templates/discover.html:97 journal/templates/profile.html:182
 msgid "save"
-msgstr "salva"
+msgstr ""
 
 #: catalog/templates/discover.html:108 journal/templates/profile.html:193
 msgid "cancel"
-msgstr "cancella"
+msgstr ""
 
 #: catalog/templates/discover.html:114 journal/templates/profile.html:199
 msgid "show"
-msgstr "mostra"
+msgstr ""
 
 #: catalog/templates/discover.html:115 journal/templates/profile.html:200
 msgid "hide"
-msgstr "nascondi"
+msgstr ""
 
 #: catalog/templates/discover.html:147 common/templates/_sidebar.html:14
 msgid "Unread Announcements"
-msgstr "Annunci non letti"
+msgstr ""
 
 #: catalog/templates/discover.html:153 common/templates/_sidebar.html:20
 msgid "mark all as read"
-msgstr "segna tutti come letti"
+msgstr ""
 
 #: catalog/templates/discover.html:162
 #: common/templates/_sidebar_anonymous.html:51
 msgid "Popular Tags"
-msgstr "Tag popolari"
+msgstr ""
 
 #: catalog/templates/discover.html:169 catalog/templates/item_base.html:239
 #: catalog/templates/item_mark_list.html:56
@@ -1235,296 +1215,291 @@ msgstr "Tag popolari"
 #: social/templates/events.html:45 users/templates/users/announcements.html:54
 #: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
-msgstr "finora nulla."
+msgstr ""
 
 #: catalog/templates/discover.html:178 common/templates/_sidebar.html:212
 msgid "Recent Posts"
-msgstr "Post Recenti"
+msgstr ""
 
-#: catalog/templates/edition.html:43
+#: catalog/templates/edition.html:42
 msgid "publication date"
-msgstr "data di pubblicazione"
+msgstr ""
 
-#: catalog/templates/edition.html:65
+#: catalog/templates/edition.html:64
 msgid "number of pages"
-msgstr "numero di pagine"
+msgstr ""
 
-#: catalog/templates/edition.html:88
+#: catalog/templates/edition.html:87
 msgid "other editions"
-msgstr "altre edizioni"
+msgstr ""
 
-#: catalog/templates/edition.html:125
+#: catalog/templates/edition.html:126
 msgid "Borrow or Buy"
-msgstr "Prendi in prestito oppure Acquista"
+msgstr ""
 
 #: catalog/templates/fetch_pending.html:12
 msgid "Search results"
-msgstr "Risultati della ricerca"
+msgstr ""
 
 #: catalog/templates/fetch_pending.html:21
 #, python-format
 msgid "Fetching from %(site_label)s"
-msgstr "Recuperando da %(site_label)s"
+msgstr ""
 
 #: catalog/templates/fetch_pending.html:28
 #: users/templates/users/fetch_identity_pending.html:28
 msgid "System busy, please try again in a minute."
-msgstr "Sistema occupato, si prega di riprovare fra un minuto."
+msgstr ""
 
 #: catalog/templates/game.html:23
 msgid "release year"
-msgstr "anno d'uscita"
+msgstr ""
 
 #: catalog/templates/item_base.html:67
 msgid "select one of the seasons to comment"
-msgstr "seleziona una delle stagioni per commentare"
+msgstr ""
 
 #: catalog/templates/item_base.html:104
 msgid "mark, comment and collect"
-msgstr "segna, commenta e colleziona"
+msgstr ""
 
 #: catalog/templates/item_base.html:115
 msgid "Login or register to review or add this item to your collection."
 msgstr ""
-"Accedi o registrati per recensire o aggiungere questo elemento alla tua "
-"collezione."
 
 #: catalog/templates/item_base.html:123
 msgid "Related Collections"
-msgstr "Collezioni Correlate"
+msgstr ""
 
 #: catalog/templates/item_base.html:138
 msgid "Unsupported item type."
-msgstr "Tipo d'elemento non supportato."
+msgstr ""
 
 #: catalog/templates/item_base.html:147
 msgid "Edit this item"
-msgstr "Modifica questo elemento"
+msgstr ""
 
 #: catalog/templates/item_base.html:151
 msgid "Last edited"
-msgstr "Modificato l'ultima volta"
+msgstr ""
 
 #: catalog/templates/item_base.html:188
 msgid "No enough ratings"
-msgstr "Valutazioni non sufficienti"
+msgstr ""
 
 #: catalog/templates/item_base.html:231
 msgid "overview"
-msgstr "panoramica"
+msgstr ""
 
 #: catalog/templates/item_base.html:261
 msgid "comments"
-msgstr "commenti"
+msgstr ""
 
 #: catalog/templates/item_base.html:264
 #: catalog/templates/item_mark_list.html:21
 #: catalog/templates/item_mark_list.html:24
 #: catalog/templates/item_review_list.html:20
 msgid "marks"
-msgstr "interazioni"
+msgstr ""
 
 #: catalog/templates/item_base.html:265
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
 msgid "marks from who you follow"
-msgstr "interazioni dei membri che segui tu"
+msgstr ""
 
 #: catalog/templates/item_base.html:279
 #: catalog/templates/item_mark_list.html:27
 #: catalog/templates/item_review_list.html:22
 msgid "reviews"
-msgstr "recensioni"
+msgstr ""
 
 #: catalog/templates/item_mark_list.html:12
 #: journal/templates/user_mark_list.html:4
 #: journal/templates/user_mark_list.html:7
 msgid "Marks"
-msgstr "Interazioni"
+msgstr ""
 
 #: catalog/templates/item_review_list.html:12
 #: journal/templates/user_review_list.html:4
 msgid "Reviews"
-msgstr "Recensioni"
+msgstr ""
 
 #: catalog/templates/movie.html:25
 msgid "number of Seasons"
-msgstr "numeri di Stagioni"
+msgstr ""
 
 #: catalog/templates/movie.html:30
 msgid "number of Episodes"
-msgstr "numero di Episodi"
+msgstr ""
 
 #: catalog/templates/movie.html:35 catalog/templates/tvseason.html:47
 #: catalog/templates/tvshow.html:42
 msgid "episode Length"
-msgstr "Durata dell'episodio"
+msgstr ""
 
 #: catalog/templates/performance.html:40
 msgid "production"
-msgstr "produzione"
+msgstr ""
 
 #: catalog/templates/podcast.html:25
 msgid "recent episodes"
-msgstr "episodi recenti"
+msgstr ""
 
 #: catalog/templates/podcast.html:34
 msgid "subscribe in apps"
-msgstr "abbonati nelle app"
+msgstr ""
 
 #: catalog/templates/podcast_episode_data.html:28
 msgid "original website"
-msgstr "sito internet ufficiale"
+msgstr ""
+
+#: catalog/templates/search_header.html:13
+#: catalog/templates/search_header.html:15
+#: journal/templates/_sidebar_user_mark_list.html:55
+#: social/templates/notification.html:27
+msgid "all"
+msgstr ""
 
 #: catalog/templates/search_header.html:20
 #: catalog/templates/search_header.html:22
 msgid "books"
-msgstr "libri"
+msgstr ""
 
 #: catalog/templates/search_header.html:28
 #: catalog/templates/search_header.html:30
 msgid "movie & tv"
-msgstr "film e tv"
+msgstr ""
 
 #: catalog/templates/search_header.html:36
 #: catalog/templates/search_header.html:38
 msgid "podcasts"
-msgstr "podcast"
+msgstr ""
 
 #: catalog/templates/search_header.html:44
 #: catalog/templates/search_header.html:46
 msgid "music"
-msgstr "musica"
+msgstr ""
 
 #: catalog/templates/search_header.html:52
 #: catalog/templates/search_header.html:54
 msgid "games"
-msgstr "giochi"
+msgstr ""
 
 #: catalog/templates/search_header.html:60
 #: catalog/templates/search_header.html:62
 msgid "performances"
-msgstr "spettacoli"
+msgstr ""
 
 #: catalog/templates/search_header.html:68
 #: catalog/templates/search_header.html:70
 msgid "your journal"
-msgstr "il tuo diario"
+msgstr ""
 
 #: catalog/templates/search_header.html:74
 #: catalog/templates/search_header.html:76
 msgid "your timeline"
-msgstr "la tua timeline"
+msgstr ""
 
 #: catalog/templates/search_results.html:13
 #: journal/templates/search_journal.html:13
 msgid "Search Results"
-msgstr "Risultati della ricerca"
+msgstr ""
 
 #: catalog/templates/search_results.html:26
 msgid "tag"
-msgstr "tag"
+msgstr ""
 
 #: catalog/templates/search_results.html:33
 #: journal/templates/search_journal.html:25
 msgid "No items matching your search query."
-msgstr "Nessun elemento corrisponde alla tua ricerca."
+msgstr ""
 
 #: catalog/templates/search_results.html:35
 msgid "System will search other websites and instances, click title of the item to save them locally. "
 msgstr ""
-"Il sistema cercherà altri siti internet e istanze, clicca il titolo "
-"dell'elemento per salvarli localmente. "
 
 #: catalog/templates/search_results.html:39
 msgid "If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter."
 msgstr ""
-"Se hai l'URL da uno di questi siti, si prega di inserire l'intero URL (es. "
-"<code>https://www.imdb.com/title/tt2513074/</code>) nella barra di ricerca e "
-"premere Invio."
 
 #: catalog/templates/search_results.html:49
 #, python-format
 msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on #dup\">click here to show them.</a> "
 msgstr ""
-" gli elementi%(dups)s fanno parte dello stesso lavoro o hanno lo stesso "
-"identificativo, sono nascosti dai risultati di ricerca, <a _="
-"\"on click toggle .unfold on #dup\">clicca qui per mostrarli.</a> "
 
 #: catalog/templates/search_results.html:63
 msgid "Searching from other sites"
-msgstr "Ricerca da altri siti"
+msgstr ""
 
 #: catalog/templates/search_results.html:66
 msgid "Logged in user may see search results from other sites."
 msgstr ""
-"L'utente che ha fatto l'accesso può vedere i risultati di ricerca da altri "
-"siti."
 
 #: catalog/templates/tvseason.html:15 catalog/templates/tvshow.html:21
 msgid "all seasons"
-msgstr "tutte le stagioni"
+msgstr ""
 
-#: catalog/templates/tvseason.html:32 catalog/tv/models.py:273
+#: catalog/templates/tvseason.html:32 catalog/tv/models.py:270
 msgid "season number"
-msgstr "stagione numero"
+msgstr ""
 
 #: catalog/templates/tvseason.html:37 catalog/templates/tvshow.html:32
-#: catalog/tv/models.py:110
+#: catalog/tv/models.py:107
 msgid "number of seasons"
-msgstr "numero delle stagioni"
+msgstr ""
 
 #: catalog/templates/tvseason.html:42 catalog/templates/tvshow.html:37
-#: catalog/tv/models.py:113 catalog/tv/models.py:276
+#: catalog/tv/models.py:110 catalog/tv/models.py:273
 msgid "number of episodes"
-msgstr "Numero di episodi"
+msgstr ""
 
 #: catalog/templates/work.html:17
 msgid "Editions"
-msgstr "Edizioni"
+msgstr ""
 
-#: catalog/tv/models.py:176 catalog/tv/models.py:339
+#: catalog/tv/models.py:173 catalog/tv/models.py:336
 msgid "show time"
-msgstr "prima trasmissione"
+msgstr ""
 
-#: catalog/tv/models.py:188
+#: catalog/tv/models.py:185
 msgid "Date"
-msgstr "Data"
+msgstr ""
 
-#: catalog/tv/models.py:193
+#: catalog/tv/models.py:190
 msgid "Region or Event"
-msgstr "Paese o Evento"
+msgstr ""
 
-#: catalog/tv/models.py:219 catalog/tv/models.py:393
+#: catalog/tv/models.py:216 catalog/tv/models.py:390
 msgid "episode length"
-msgstr "durata dell'episodio"
+msgstr ""
 
-#: catalog/tv/models.py:424
+#: catalog/tv/models.py:421
 #, python-brace-format
 msgid "{show_title} Season {season_number}"
-msgstr "{show_title} Stagione {season_number}"
+msgstr ""
 
-#: catalog/tv/models.py:494
+#: catalog/tv/models.py:491
 #, python-brace-format
 msgid "{season_title} E{episode_number}"
-msgstr "{season_title} Ep{episode_number}"
+msgstr ""
 
-#: catalog/views.py:55 catalog/views.py:78
+#: catalog/views.py:52 catalog/views.py:75
 msgid "Item not found"
-msgstr "Elemento non trovato"
+msgstr ""
 
-#: catalog/views.py:59 catalog/views.py:86
+#: catalog/views.py:56 catalog/views.py:83
 msgid "Item no longer exists"
-msgstr "L'elemento non esiste più"
+msgstr ""
 
 #: catalog/views_edit.py:122
 msgid "Item in use."
-msgstr "Elemento in uso."
+msgstr ""
 
 #: catalog/views_edit.py:124
 msgid "Item cannot be deleted."
-msgstr "L'elemento non può essere eliminato."
+msgstr ""
 
 #: catalog/views_edit.py:147 catalog/views_edit.py:199
 #: catalog/views_edit.py:275 catalog/views_edit.py:354
@@ -1533,1023 +1508,991 @@ msgstr "L'elemento non può essere eliminato."
 #: journal/views/collection.py:196 journal/views/collection.py:215
 #: journal/views/collection.py:235 journal/views/collection.py:247
 #: journal/views/collection.py:261 journal/views/collection.py:275
-#: journal/views/collection.py:278 journal/views/collection.py:302
-#: journal/views/common.py:136 journal/views/post.py:20
+#: journal/views/collection.py:278 journal/views/collection.py:306
+#: journal/views/common.py:135 journal/views/post.py:20
 #: journal/views/post.py:42 journal/views/review.py:32
 #: journal/views/review.py:46
 msgid "Insufficient permission"
-msgstr "Permessi insufficienti"
+msgstr ""
 
 #: catalog/views_edit.py:202 journal/views/collection.py:264
-#: journal/views/collection.py:331 journal/views/common.py:83
-#: journal/views/mark.py:146 journal/views/post.py:56 journal/views/post.py:70
+#: journal/views/collection.py:335 journal/views/common.py:82
+#: journal/views/mark.py:145 journal/views/post.py:56 journal/views/post.py:70
 #: journal/views/review.py:93 journal/views/review.py:96
 #: users/views/actions.py:169
 msgid "Invalid parameter"
-msgstr "Parametro non valido"
+msgstr ""
 
 #: catalog/views_edit.py:251
 msgid "TV Season with IMDB id and season number required."
-msgstr "Richiesta stagione TV con l'id IMDB e numero di stagione."
+msgstr ""
 
 #: catalog/views_edit.py:256
 msgid "Updating episodes"
-msgstr "Aggiornando episodi"
+msgstr ""
 
 #: catalog/views_edit.py:286
 msgid "Cannot be merged to an item already deleted or merged"
-msgstr "Non è possibile accorpare ad un elemento già eliminato o accorpato"
+msgstr ""
 
 #: catalog/views_edit.py:289
 msgid "Cannot merge items in different categories"
-msgstr "Impossibile accorpare elementi in categorie differenti"
+msgstr ""
 
 #: catalog/views_edit.py:328
 msgid "Cannot be linked to an item already deleted or merged"
-msgstr "Impossibile collegare ad un elemento già eliminato o accorpato"
+msgstr ""
 
 #: catalog/views_edit.py:330
 msgid "Cannot link items other than editions"
-msgstr "Impossibile collegare altri elementi all'infuori delle edizioni"
+msgstr ""
 
 #: common/models/lang.py:40
 msgid "Afar"
-msgstr "Afar"
+msgstr ""
 
 #: common/models/lang.py:41
 msgid "Afrikaans"
-msgstr "Afrikaans"
+msgstr ""
 
 #: common/models/lang.py:42
 msgid "Akan"
-msgstr "Akan"
+msgstr ""
 
 #: common/models/lang.py:43
 msgid "Aragonese"
-msgstr "Aragonese"
+msgstr ""
 
 #: common/models/lang.py:44
 msgid "Assamese"
-msgstr "Assamese"
+msgstr ""
 
 #: common/models/lang.py:45
 msgid "Avaric"
-msgstr "Avaro"
+msgstr ""
 
 #: common/models/lang.py:46
 msgid "Avestan"
-msgstr "Avestico"
+msgstr ""
 
 #: common/models/lang.py:47
 msgid "Aymara"
-msgstr "Aymara"
+msgstr ""
 
 #: common/models/lang.py:48
 msgid "Azerbaijani"
-msgstr "Azerbaigiano"
+msgstr ""
 
 #: common/models/lang.py:49
 msgid "Bashkir"
-msgstr "Baschiro"
+msgstr ""
 
 #: common/models/lang.py:50
 msgid "Bambara"
-msgstr "Bambara"
+msgstr ""
 
 #: common/models/lang.py:51
 msgid "Bislama"
-msgstr "Bislama"
+msgstr ""
 
 #: common/models/lang.py:52
 msgid "Tibetan"
-msgstr "Tibetano"
+msgstr ""
 
 #: common/models/lang.py:53
 msgid "Breton"
-msgstr "Bretone"
+msgstr ""
 
 #: common/models/lang.py:54
 msgid "Catalan"
-msgstr "Catalano"
+msgstr ""
 
 #: common/models/lang.py:55
 msgid "Czech"
-msgstr "Ceco"
+msgstr ""
 
 #: common/models/lang.py:56
 msgid "Chechen"
-msgstr "Ceceno"
+msgstr ""
 
 #: common/models/lang.py:57
 msgid "Slavic"
-msgstr "Slavo"
+msgstr ""
 
 #: common/models/lang.py:58
 msgid "Chuvash"
-msgstr "Ciuvascio"
+msgstr ""
 
 #: common/models/lang.py:59
 msgid "Cornish"
-msgstr "Cornico"
+msgstr ""
 
 #: common/models/lang.py:60
 msgid "Corsican"
-msgstr "Corso"
+msgstr ""
 
 #: common/models/lang.py:61
 msgid "Cree"
-msgstr "Cree"
+msgstr ""
 
 #: common/models/lang.py:62
 msgid "Welsh"
-msgstr "Gallese"
-
-#: common/models/lang.py:64
-msgid "German"
-msgstr "Tedesco"
+msgstr ""
 
 #: common/models/lang.py:65
 msgid "Divehi"
-msgstr "Maldiviano"
+msgstr ""
 
 #: common/models/lang.py:66
 msgid "Dzongkha"
-msgstr "Dzongkha"
+msgstr ""
 
 #: common/models/lang.py:67
 msgid "Esperanto"
-msgstr "Esperanto"
+msgstr ""
 
 #: common/models/lang.py:68
 msgid "Estonian"
-msgstr "Estone"
+msgstr ""
 
 #: common/models/lang.py:69
 msgid "Basque"
-msgstr "Basco"
+msgstr ""
 
 #: common/models/lang.py:70
 msgid "Faroese"
-msgstr "Faroense"
+msgstr ""
 
 #: common/models/lang.py:71
 msgid "Fijian"
-msgstr "Figiano"
+msgstr ""
 
 #: common/models/lang.py:72
 msgid "Finnish"
-msgstr "Finlandese"
-
-#: common/models/lang.py:73
-msgid "French"
-msgstr "Francese"
+msgstr ""
 
 #: common/models/lang.py:74
 msgid "Frisian"
-msgstr "Frisone"
+msgstr ""
 
 #: common/models/lang.py:75
 msgid "Fulah"
-msgstr "Fula"
+msgstr ""
 
 #: common/models/lang.py:76
 msgid "Gaelic"
-msgstr "Gaelico"
+msgstr ""
 
 #: common/models/lang.py:77
 msgid "Irish"
-msgstr "Irlandese"
+msgstr ""
 
 #: common/models/lang.py:78
 msgid "Galician"
-msgstr "Galiziano"
+msgstr ""
 
 #: common/models/lang.py:79
 msgid "Manx"
-msgstr "Mannese"
+msgstr ""
 
 #: common/models/lang.py:80
 msgid "Guarani"
-msgstr "Guaraní"
+msgstr ""
 
 #: common/models/lang.py:81
 msgid "Gujarati"
-msgstr "Gujarati"
+msgstr ""
 
 #: common/models/lang.py:82
 msgid "Haitian; Haitian Creole"
-msgstr "Haitiano; Creolo Haitiano"
+msgstr ""
 
 #: common/models/lang.py:83
 msgid "Hausa"
-msgstr "Hausa"
+msgstr ""
 
 #: common/models/lang.py:84
 msgid "Serbo-Croatian"
-msgstr "Serbo-Croato"
+msgstr ""
 
 #: common/models/lang.py:85
 msgid "Herero"
-msgstr "Herero"
+msgstr ""
 
 #: common/models/lang.py:86
 msgid "Hiri Motu"
-msgstr "Hiri Motu"
+msgstr ""
 
 #: common/models/lang.py:87
 msgid "Croatian"
-msgstr "Croato"
+msgstr ""
 
 #: common/models/lang.py:88
 msgid "Hungarian"
-msgstr "Ungherese"
+msgstr ""
 
 #: common/models/lang.py:89
 msgid "Igbo"
-msgstr "Igbo"
+msgstr ""
 
 #: common/models/lang.py:90
 msgid "Ido"
-msgstr "Ido"
+msgstr ""
 
 #: common/models/lang.py:91
 msgid "Yi"
-msgstr "Yi"
+msgstr ""
 
 #: common/models/lang.py:92
 msgid "Inuktitut"
-msgstr "Inuktitut"
+msgstr ""
 
 #: common/models/lang.py:93
 msgid "Interlingue"
-msgstr "Interlingue"
+msgstr ""
 
 #: common/models/lang.py:94
 msgid "Interlingua"
-msgstr "Interlingua"
+msgstr ""
 
 #: common/models/lang.py:95
 msgid "Indonesian"
-msgstr "Indonesiano"
+msgstr ""
 
 #: common/models/lang.py:96
 msgid "Inupiaq"
-msgstr "Inupiaq"
+msgstr ""
 
 #: common/models/lang.py:97
 msgid "Icelandic"
-msgstr "Islandese"
-
-#: common/models/lang.py:98
-msgid "Italian"
-msgstr "Italiano"
+msgstr ""
 
 #: common/models/lang.py:99
 msgid "Javanese"
-msgstr "Giavanese"
+msgstr ""
 
 #: common/models/lang.py:100
 msgid "Japanese"
-msgstr "Giapponese"
+msgstr ""
 
 #: common/models/lang.py:101
 msgid "Kalaallisut"
-msgstr "Groenlandese"
+msgstr ""
 
 #: common/models/lang.py:102
 msgid "Kannada"
-msgstr "Kannada"
+msgstr ""
 
 #: common/models/lang.py:103
 msgid "Kashmiri"
-msgstr "Kashmiri"
+msgstr ""
 
 #: common/models/lang.py:104
 msgid "Kanuri"
-msgstr "Kanuri"
+msgstr ""
 
 #: common/models/lang.py:105
 msgid "Kazakh"
-msgstr "Kazako"
+msgstr ""
 
 #: common/models/lang.py:106
 msgid "Khmer"
-msgstr "Khmer"
+msgstr ""
 
 #: common/models/lang.py:107
 msgid "Kikuyu"
-msgstr "Gikuyu"
+msgstr ""
 
 #: common/models/lang.py:108
 msgid "Kinyarwanda"
-msgstr "Kinyarwanda"
+msgstr ""
 
 #: common/models/lang.py:109
 msgid "Kirghiz"
-msgstr "Kirghiso"
+msgstr ""
 
 #: common/models/lang.py:110
 msgid "Komi"
-msgstr "Komi"
+msgstr ""
 
 #: common/models/lang.py:111
 msgid "Kongo"
-msgstr "Kikongo"
+msgstr ""
 
 #: common/models/lang.py:112
 msgid "Korean"
-msgstr "Coreano"
+msgstr ""
 
 #: common/models/lang.py:113
 msgid "Kuanyama"
-msgstr "Kwanyama"
+msgstr ""
 
 #: common/models/lang.py:114
 msgid "Kurdish"
-msgstr "Curdo"
+msgstr ""
 
 #: common/models/lang.py:115
 msgid "Lao"
-msgstr "Laotiano"
+msgstr ""
 
 #: common/models/lang.py:116
 msgid "Latin"
-msgstr "Latino"
+msgstr ""
 
 #: common/models/lang.py:117
 msgid "Latvian"
-msgstr "Lettone"
+msgstr ""
 
 #: common/models/lang.py:118
 msgid "Limburgish"
-msgstr "Limburghese"
+msgstr ""
 
 #: common/models/lang.py:119
 msgid "Lingala"
-msgstr "Lingala"
+msgstr ""
 
 #: common/models/lang.py:120
 msgid "Lithuanian"
-msgstr "Lituano"
+msgstr ""
 
 #: common/models/lang.py:121
 msgid "Letzeburgesch"
-msgstr "Lussemburghese"
+msgstr ""
 
 #: common/models/lang.py:122
 msgid "Luba-Katanga"
-msgstr "Luba-Katanga"
+msgstr ""
 
 #: common/models/lang.py:123
 msgid "Ganda"
-msgstr "Luganda"
+msgstr ""
 
 #: common/models/lang.py:124
 msgid "Marshall"
-msgstr "Marshallese"
+msgstr ""
 
 #: common/models/lang.py:125
 msgid "Malayalam"
-msgstr "Malayalam"
+msgstr ""
 
 #: common/models/lang.py:126
 msgid "Marathi"
-msgstr "Marathi"
+msgstr ""
 
 #: common/models/lang.py:127
 msgid "Malagasy"
-msgstr "Malagascio"
+msgstr ""
 
 #: common/models/lang.py:128
 msgid "Maltese"
-msgstr "Maltese"
+msgstr ""
 
 #: common/models/lang.py:129
 msgid "Moldavian"
-msgstr "Moldavo"
+msgstr ""
 
 #: common/models/lang.py:130
 msgid "Mongolian"
-msgstr "Mongolo"
+msgstr ""
 
 #: common/models/lang.py:131
 msgid "Maori"
-msgstr "Maori"
+msgstr ""
 
 #: common/models/lang.py:132
 msgid "Malay"
-msgstr "Malese"
+msgstr ""
 
 #: common/models/lang.py:133
 msgid "Burmese"
-msgstr "Birmano"
+msgstr ""
 
 #: common/models/lang.py:134
 msgid "Nauru"
-msgstr "Nauruano"
+msgstr ""
 
 #: common/models/lang.py:135
 msgid "Navajo"
-msgstr "Navajo"
+msgstr ""
 
 #: common/models/lang.py:136 common/models/lang.py:137
 msgid "Ndebele"
-msgstr "Ndebele"
+msgstr ""
 
 #: common/models/lang.py:138
 msgid "Ndonga"
-msgstr "Ndonga"
+msgstr ""
 
 #: common/models/lang.py:139
 msgid "Nepali"
-msgstr "Nepalese"
+msgstr ""
 
 #: common/models/lang.py:140
 msgid "Dutch"
-msgstr "Olandese"
+msgstr ""
 
 #: common/models/lang.py:141
 msgid "Norwegian Nynorsk"
-msgstr "Norvegese Nynorsk"
+msgstr ""
 
 #: common/models/lang.py:142
 msgid "Norwegian Bokmål"
-msgstr "Norvegese Bokmål"
+msgstr ""
 
 #: common/models/lang.py:143
 msgid "Norwegian"
-msgstr "Norvegese"
+msgstr ""
 
 #: common/models/lang.py:144
 msgid "Chichewa; Nyanja"
-msgstr "Chewa; Nyanja"
+msgstr ""
 
 #: common/models/lang.py:145
 msgid "Occitan"
-msgstr "Occitano"
+msgstr ""
 
 #: common/models/lang.py:146
 msgid "Ojibwa"
-msgstr "Ojibwe"
+msgstr ""
 
 #: common/models/lang.py:147
 msgid "Oriya"
-msgstr "Oriya"
+msgstr ""
 
 #: common/models/lang.py:148
 msgid "Oromo"
-msgstr "Oromo"
+msgstr ""
 
 #: common/models/lang.py:149
 msgid "Ossetian; Ossetic"
-msgstr "Osseto"
+msgstr ""
 
 #: common/models/lang.py:150
 msgid "Pali"
-msgstr "Pali"
+msgstr ""
 
 #: common/models/lang.py:151
 msgid "Polish"
-msgstr "Polacco"
+msgstr ""
 
 #: common/models/lang.py:152 common/models/lang.py:290
 msgid "Portuguese"
-msgstr "Portoghese"
+msgstr ""
 
 #: common/models/lang.py:153
 msgid "Quechua"
-msgstr "Quechua"
+msgstr ""
 
 #: common/models/lang.py:154
 msgid "Raeto-Romance"
-msgstr "Lingue retoromanze"
+msgstr ""
 
 #: common/models/lang.py:155
 msgid "Romanian"
-msgstr "Rumeno"
+msgstr ""
 
 #: common/models/lang.py:156
 msgid "Rundi"
-msgstr "Kirundi"
+msgstr ""
 
 #: common/models/lang.py:157
 msgid "Russian"
-msgstr "Russo"
+msgstr ""
 
 #: common/models/lang.py:158
 msgid "Sango"
-msgstr "Sango"
+msgstr ""
 
 #: common/models/lang.py:159
 msgid "Sanskrit"
-msgstr "Sanscrito"
+msgstr ""
 
 #: common/models/lang.py:160
 msgid "Sinhalese"
-msgstr "Singalese"
+msgstr ""
 
 #: common/models/lang.py:161
 msgid "Slovak"
-msgstr "Slovacco"
+msgstr ""
 
 #: common/models/lang.py:162
 msgid "Slovenian"
-msgstr "Sloveno"
+msgstr ""
 
 #: common/models/lang.py:163
 msgid "Northern Sami"
-msgstr "Sami Settentrionale"
+msgstr ""
 
 #: common/models/lang.py:164
 msgid "Samoan"
-msgstr "Samoano"
+msgstr ""
 
 #: common/models/lang.py:165
 msgid "Shona"
-msgstr "Shona"
+msgstr ""
 
 #: common/models/lang.py:166
 msgid "Sindhi"
-msgstr "Sindhi"
+msgstr ""
 
 #: common/models/lang.py:167
 msgid "Somali"
-msgstr "Somalo"
+msgstr ""
 
 #: common/models/lang.py:168
 msgid "Sotho"
-msgstr "Sotho"
+msgstr ""
 
 #: common/models/lang.py:169
 msgid "Spanish"
-msgstr "Spagnolo"
+msgstr ""
 
 #: common/models/lang.py:170
 msgid "Albanian"
-msgstr "Albanese"
+msgstr ""
 
 #: common/models/lang.py:171
 msgid "Sardinian"
-msgstr "Sardo"
+msgstr ""
 
 #: common/models/lang.py:172
 msgid "Serbian"
-msgstr "Serbo"
+msgstr ""
 
 #: common/models/lang.py:173
 msgid "Swati"
-msgstr "Swati"
+msgstr ""
 
 #: common/models/lang.py:174
 msgid "Sundanese"
-msgstr "Sundanese"
+msgstr ""
 
 #: common/models/lang.py:175
 msgid "Swahili"
-msgstr "Swahili"
+msgstr ""
 
 #: common/models/lang.py:176
 msgid "Swedish"
-msgstr "Svedese"
+msgstr ""
 
 #: common/models/lang.py:177
 msgid "Tahitian"
-msgstr "Tahitiano"
+msgstr ""
 
 #: common/models/lang.py:178
 msgid "Tamil"
-msgstr "Tamil"
+msgstr ""
 
 #: common/models/lang.py:179
 msgid "Tatar"
-msgstr "Tataro"
+msgstr ""
 
 #: common/models/lang.py:180
 msgid "Telugu"
-msgstr "Telugu"
+msgstr ""
 
 #: common/models/lang.py:181
 msgid "Tajik"
-msgstr "Tagico"
+msgstr ""
 
 #: common/models/lang.py:182
 msgid "Tagalog"
-msgstr "Tagalog"
+msgstr ""
 
 #: common/models/lang.py:183
 msgid "Thai"
-msgstr "Thailandese"
+msgstr ""
 
 #: common/models/lang.py:184
 msgid "Tigrinya"
-msgstr "Tigrino"
+msgstr ""
 
 #: common/models/lang.py:185
 msgid "Tonga"
-msgstr "Tonga"
+msgstr ""
 
 #: common/models/lang.py:186
 msgid "Tswana"
-msgstr "Tswana"
+msgstr ""
 
 #: common/models/lang.py:187
 msgid "Tsonga"
-msgstr "Tsonga"
+msgstr ""
 
 #: common/models/lang.py:188
 msgid "Turkmen"
-msgstr "Turkmeno"
+msgstr ""
 
 #: common/models/lang.py:189
 msgid "Turkish"
-msgstr "Turco"
+msgstr ""
 
 #: common/models/lang.py:190
 msgid "Twi"
-msgstr "Twi"
+msgstr ""
 
 #: common/models/lang.py:191
 msgid "Uighur"
-msgstr "Uiguro"
+msgstr ""
 
 #: common/models/lang.py:192
 msgid "Ukrainian"
-msgstr "Ucraino"
+msgstr ""
 
 #: common/models/lang.py:193
 msgid "Urdu"
-msgstr "Urdu"
+msgstr ""
 
 #: common/models/lang.py:194
 msgid "Uzbek"
-msgstr "Uzbeco"
+msgstr ""
 
 #: common/models/lang.py:195
 msgid "Venda"
-msgstr "Venda"
+msgstr ""
 
 #: common/models/lang.py:196
 msgid "Vietnamese"
-msgstr "Vietnamita"
+msgstr ""
 
 #: common/models/lang.py:197
 msgid "Volapük"
-msgstr "Volapük"
+msgstr ""
 
 #: common/models/lang.py:198
 msgid "Walloon"
-msgstr "Vallone"
+msgstr ""
 
 #: common/models/lang.py:199
 msgid "Wolof"
-msgstr "Wolof"
+msgstr ""
 
 #: common/models/lang.py:200
 msgid "Xhosa"
-msgstr "Xhosa"
+msgstr ""
 
 #: common/models/lang.py:201
 msgid "Yiddish"
-msgstr "Yiddish"
+msgstr ""
 
 #: common/models/lang.py:202
 msgid "Zhuang"
-msgstr "Zhuang"
+msgstr ""
 
 #: common/models/lang.py:203
 msgid "Zulu"
-msgstr "Zulu"
+msgstr ""
 
 #: common/models/lang.py:204
 msgid "Abkhazian"
-msgstr "Abcaso"
+msgstr ""
 
 #: common/models/lang.py:205
 msgid "Chinese"
-msgstr "Cinese"
+msgstr ""
 
 #: common/models/lang.py:206
 msgid "Pushto"
-msgstr "Pashtu"
+msgstr ""
 
 #: common/models/lang.py:207
 msgid "Amharic"
-msgstr "Amarico"
+msgstr ""
 
 #: common/models/lang.py:208
 msgid "Arabic"
-msgstr "Arabo"
+msgstr ""
 
 #: common/models/lang.py:209
 msgid "Bulgarian"
-msgstr "Bulgaro"
+msgstr ""
 
 #: common/models/lang.py:210
 msgid "Macedonian"
-msgstr "Macedone"
+msgstr ""
 
 #: common/models/lang.py:211
 msgid "Greek"
-msgstr "Greco"
+msgstr ""
 
 #: common/models/lang.py:212
 msgid "Persian"
-msgstr "Persiano"
+msgstr ""
 
 #: common/models/lang.py:213
 msgid "Hebrew"
-msgstr "Ebraico"
+msgstr ""
 
 #: common/models/lang.py:214
 msgid "Hindi"
-msgstr "Hindi"
+msgstr ""
 
 #: common/models/lang.py:215
 msgid "Armenian"
-msgstr "Armeno"
+msgstr ""
 
 #: common/models/lang.py:217
 msgid "Ewe"
-msgstr "Ewe"
+msgstr ""
 
 #: common/models/lang.py:218
 msgid "Georgian"
-msgstr "Georgiano"
+msgstr ""
 
 #: common/models/lang.py:219
 msgid "Punjabi"
-msgstr "Punjabi"
+msgstr ""
 
 #: common/models/lang.py:220
 msgid "Bengali"
-msgstr "Bengalese"
+msgstr ""
 
 #: common/models/lang.py:221
 msgid "Bosnian"
-msgstr "Bosniaco"
+msgstr ""
 
 #: common/models/lang.py:222
 msgid "Chamorro"
-msgstr "Ciamorro"
+msgstr ""
 
 #: common/models/lang.py:223
 msgid "Belarusian"
-msgstr "Bielorusso"
+msgstr ""
 
 #: common/models/lang.py:224
 msgid "Yoruba"
-msgstr "Yoruba"
+msgstr ""
 
 #: common/models/lang.py:242
 msgid "Unknown or Other"
-msgstr "Sconosciuto o Altro"
+msgstr ""
 
 #: common/models/lang.py:285
 msgid "Simplified Chinese (Mainland)"
-msgstr "Cinese Semplificato (Cina continentale)"
+msgstr ""
 
 #: common/models/lang.py:286
 msgid "Traditional Chinese (Taiwan)"
-msgstr "Cinese Tradizionale (Taiwan)"
+msgstr ""
 
 #: common/models/lang.py:287
 msgid "Traditional Chinese (Hongkong)"
-msgstr "Cinese Tradizionale (Hong Kong)"
+msgstr ""
 
 #: common/models/lang.py:295
 msgid "Portuguese (Brazil)"
-msgstr "Portoghese (Brasile)"
+msgstr ""
 
 #: common/models/lang.py:298
 msgid "Simplified Chinese (Singapore)"
-msgstr "Cinese Semplificato (Singapore)"
+msgstr ""
 
 #: common/models/lang.py:299
 msgid "Simplified Chinese (Malaysia)"
-msgstr "Cinese Semplificato (Malesia)"
+msgstr ""
 
 #: common/models/lang.py:300
 msgid "Traditional Chinese (Macau)"
-msgstr "Cinese Tradizionale (Macau)"
+msgstr ""
 
 #: common/models/lang.py:306
 msgid "Mandarin Chinese"
-msgstr "Cinese Mandarino"
+msgstr ""
 
 #: common/models/lang.py:307
 msgid "Yue Chinese"
-msgstr "Cinese Cantonese"
+msgstr ""
 
 #: common/models/lang.py:311
 msgid "Min Nan Chinese"
-msgstr "Cinese Minnan"
+msgstr ""
 
 #: common/models/lang.py:312
 msgid "Wu Chinese"
-msgstr "Cinese Wu"
+msgstr ""
 
 #: common/models/lang.py:313
 msgid "Hakka Chinese"
-msgstr "Cinese Hakka"
+msgstr ""
 
 #: common/templates/400.html:22
 msgid "You may have submitted invalid data, or the content may have been deleted by the author."
 msgstr ""
-"Potresti aver inserito dati non validi, oppure il contenuto potrebbe essere "
-"stato eliminato dall'autore."
 
 #: common/templates/400.html:24 common/templates/403.html:24
 #: common/templates/404.html:24
 msgid "If you believe this is our mistake, please contact us through the link at the bottom of the page."
 msgstr ""
-"Se credi che questo sia un nostro errore, contattaci tramite il link in "
-"fondo alla pagina."
 
 #: common/templates/403.html:22
 msgid "Author may require you to log in before accessing this content, or you do not have permission to view it."
 msgstr ""
-"L'autore potrebbe richiedere che tu faccia l'accesso prima di poter accedere "
-"a questo contenuto, oppure potresti non avere il permesso per poterlo "
-"visualizzare."
 
 #: common/templates/404.html:20
 msgid "Something is missing"
-msgstr "Manca qualcosa"
+msgstr ""
 
 #: common/templates/404.html:22
 msgid "You may have visited an incorrect URL, or the content you are looking for has been deleted by the author."
 msgstr ""
-"Potresti aver visitato un URL non corretto, oppure il contenuto che stai "
-"cercando è stato eliminato dall'autore."
 
 #: common/templates/500.html:22
 msgid "An internal error occurred. If this error occurs repeatedly, it will be recorded and handled by a human."
 msgstr ""
-"È stato prodotto un errore interno. Se questo errore accade ripetutamente, "
-"verrà registrato e gestito da un umano."
 
 #: common/templates/500.html:24
 msgid "If you have an urgent situation or any questions, please contact us through the link at the bottom of the page."
 msgstr ""
-"Se hai una questione urgente da risolvere o qualsiasi domanda, contattaci "
-"attraverso il link in fondo alla pagina."
 
 #: common/templates/_footer.html:6
 msgid "Rules"
-msgstr "Regole"
+msgstr ""
 
 #: common/templates/_footer.html:7
 msgid "Terms"
-msgstr "Termini"
+msgstr ""
 
 #: common/templates/_footer.html:8 common/templates/_sidebar_anonymous.html:40
 #: users/templates/users/announcements.html:11
 #: users/templates/users/announcements.html:41
 msgid "Announcements"
-msgstr "Annunci"
+msgstr ""
 
 #: common/templates/_footer.html:9
 msgid "Developer"
-msgstr "Sviluppatore"
+msgstr ""
 
 #: common/templates/_footer.html:13
 msgid "Source Code"
-msgstr "Codice Sorgente"
+msgstr ""
 
-#: common/templates/_footer.html:16 users/templates/users/login.html:207
+#: common/templates/_footer.html:16 users/templates/users/login.html:199
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr ""
-"Stai visitando un dominio alternativo per %(site_name)s, si prega di usare "
-"sempre <a href=\"%(site_url)s%(request.get_full_path)s\">versione originale</"
-"a> se possibile."
 
-#: common/templates/_header.html:17 common/templates/_header.html:135
+#: common/templates/_header.html:17 common/templates/_header.html:133
 msgid "title, creator, ISBN, item url, @user, @user@instance"
-msgstr "titolo, creatore, ISBN, URL dell'elemento, @utente. @utente@istanza"
+msgstr ""
 
 #: common/templates/_header.html:22
 msgid "All Items"
-msgstr "Tutti gli elementi"
+msgstr ""
 
 #: common/templates/_header.html:29
 msgid "Movie & TV"
-msgstr "Film e TV"
+msgstr ""
 
-#: common/templates/_header.html:49
+#: common/templates/_header.html:48
 msgid "Journal"
-msgstr "Diario"
+msgstr ""
 
-#: common/templates/_header.html:51
+#: common/templates/_header.html:50
 msgid "Posts"
-msgstr "Post"
+msgstr ""
 
-#: common/templates/_header.html:74
+#: common/templates/_header.html:72
 msgid "Explore"
-msgstr "Esplora"
+msgstr ""
 
-#: common/templates/_header.html:77
+#: common/templates/_header.html:75
 msgid "Feed"
-msgstr "Feed"
+msgstr ""
 
-#: common/templates/_header.html:80 journal/templates/profile.html:11
+#: common/templates/_header.html:78 journal/templates/profile.html:11
 #: users/templates/users/preferences.html:45
 msgid "Home"
-msgstr "Home"
+msgstr ""
 
-#: common/templates/_header.html:96 social/templates/notification.html:11
+#: common/templates/_header.html:94 social/templates/notification.html:11
 #: social/templates/notification.html:24
 msgid "Notification"
-msgstr "Notifica"
+msgstr ""
 
-#: common/templates/_header.html:99
+#: common/templates/_header.html:97
 msgid "Data"
-msgstr "Dati"
+msgstr ""
 
-#: common/templates/_header.html:102 users/templates/users/preferences.html:11
+#: common/templates/_header.html:100 users/templates/users/preferences.html:11
 #: users/templates/users/preferences.html:22
 msgid "Preferences"
-msgstr "Preferenze"
+msgstr ""
 
-#: common/templates/_header.html:105
+#: common/templates/_header.html:103
 msgid "Account"
-msgstr "Account"
+msgstr ""
 
-#: common/templates/_header.html:108
+#: common/templates/_header.html:106
 msgid "Logout"
-msgstr "Esci"
+msgstr ""
 
-#: common/templates/_header.html:112
+#: common/templates/_header.html:110
 msgid "Database"
-msgstr "Database"
+msgstr ""
 
-#: common/templates/_header.html:115
+#: common/templates/_header.html:113
 msgid "Manage"
-msgstr "Gestisci"
+msgstr ""
 
-#: common/templates/_header.html:120
+#: common/templates/_header.html:118
 msgid "Sign up or Login"
-msgstr "Iscriviti o Accedi"
+msgstr ""
 
-#: common/templates/_header.html:133
+#: common/templates/_header.html:131
 msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
 msgstr ""
-"titolo o contenuto  categoria:tv  status:completo  valutazione:8..10  "
-"data:2021-09-11..2022-02"
 
-#: common/templates/_header.html:147
+#: common/templates/_header.html:145
 msgid "Open"
-msgstr "Aperto"
+msgstr ""
 
 #: common/templates/_sidebar.html:53
 #: users/templates/users/profile_actions.html:35
 msgid "approving followers manually"
-msgstr "approvare i seguaci manualmente"
+msgstr ""
 
 #: common/templates/_sidebar.html:75
 msgid "Current Targets"
-msgstr "Obbiettivi in corso"
+msgstr ""
 
 #: common/templates/_sidebar.html:88
 msgid "Set a collection as target, its progress will show up here."
 msgstr ""
-"Imposta una collezione come obbiettivo, il suo progresso verrà visualizzato "
-"quassù."
 
 #: common/templates/_sidebar.html:101
 msgid "Recent podcast episodes"
-msgstr "Episodi podcast recenti"
+msgstr ""
 
 #: common/templates/_sidebar.html:136
 msgid "Currently reading"
-msgstr "Letture in corso"
+msgstr ""
 
 #: common/templates/_sidebar.html:159
 msgid "Currently watching"
-msgstr "Visioni in corso"
+msgstr ""
 
 #: common/templates/_sidebar.html:182 journal/templates/user_tag_list.html:12
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
-msgstr "Tag"
+msgstr ""
 
 #: common/templates/_sidebar.html:188 journal/templates/user_tag_list.html:26
 #: journal/templates/user_tagmember_list.html:10
 msgid "featured tag"
-msgstr "tag in evidenza"
+msgstr ""
 
 #: common/templates/_sidebar.html:191 journal/templates/user_tag_list.html:29
 #: journal/templates/user_tagmember_list.html:15
 msgid "personal tag"
-msgstr "tag personale"
+msgstr ""
 
 #: common/templates/_sidebar.html:198 journal/templates/user_tag_list.html:37
 msgid "no tags so far."
-msgstr "nessun tag fino ad ora."
+msgstr ""
 
 #: common/templates/_sidebar.html:202
 msgid "show all"
-msgstr "mostra tutto"
+msgstr ""
 
 #: common/templates/_sidebar_anonymous.html:16
 #, python-format
@@ -2573,330 +2516,294 @@ msgid ""
 "        </p>\n"
 "        "
 msgstr ""
-"\n"
-"        <h3>Benvenuti 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
-"        <p>\n"
-"          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s si "
-"impegna a creare uno spazio gratis, libero, aperto e interconnesso per "
-"collezionare e recensire libri, film, musica, giochi e podcast. Qui puoi "
-"documentare le tue collezioni e i tuoi pensieri, scoprire nuovi contenuti e "
-"connetterti con gli altri utenti.\n"
-"        </p>\n"
-"        <p>\n"
-"          <i class=\"fa-solid fa-globe\"></i> &nbsp; Il miglior modo di "
-"accedere a %(site_name)s è attraverso un account che fa parte di un'istanza "
-"del Fediverso (il social network decentralizzato che include Mastodon/"
-"Pleroma/etc). Se non ti sei ancora registrato puoi <a href="
-"\"https://joinmastodon.org/en/servers\" target=\"_blank\">scegliere "
-"un'istanza del Fediverso e iscriverti</a>.\n"
-"        </p>\n"
-"        <p>\n"
-"          <i class=\"fa-solid fa-envelope\"></i> &nbsp; Se non sei pronto ad "
-"unirti al Fediverso, va bene lo stesso. Puoi creare un account qui usando il "
-"tuo indirizzo email e collegare il profilo al Fediverso appena ti senti "
-"pronto.\n"
-"        </p>\n"
-"        <p>\n"
-"          <i class=\"fa-solid fa-circle-question\"></i> &nbsp; Se hai "
-"qualsiasi domanda o suggerimento, sentiti libero di contattarci tramite <a "
-"href=\"https://mastodon.social/@neodb\">Fediverso</a> oppure <a href="
-"\"https://discord.gg/uprvcH8gqD\">Discord</a>.\n"
-"        </p>\n"
-"        <p>\n"
-"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href="
-"\"%(login_url)s\">Clicca qui</a> per registrarti o fare l'accesso.\n"
-"        </p>\n"
-"        "
 
 #: common/templates/common/error.html:11
 msgid "Error"
-msgstr "Errore"
+msgstr ""
 
 #: common/templatetags/duration.py:49
 msgid "just now"
-msgstr "adesso"
+msgstr ""
 
 #: common/templatetags/mastodon.py:44
 msgid "mutual followed"
-msgstr "seguiti a vicenda"
+msgstr ""
 
 #: common/templatetags/mastodon.py:46
 msgid "followed"
-msgstr "seguiti"
+msgstr ""
 
 #: common/templatetags/mastodon.py:49
 msgid "following you"
-msgstr "ti seguono"
+msgstr ""
 
 #: common/templatetags/mastodon.py:52
 msgid "you"
-msgstr "tu"
+msgstr ""
 
 #: common/templatetags/mastodon.py:55
 msgid "unavailable"
-msgstr "non disponibile"
+msgstr ""
 
 #: common/utils.py:64 common/utils.py:94 users/views/actions.py:35
 #: users/views/actions.py:121
 msgid "User not found"
-msgstr "Utente non trovato"
+msgstr ""
 
 #: common/utils.py:68 common/utils.py:98 users/views/actions.py:124
 msgid "User no longer exists"
-msgstr "L'utente non esiste più"
+msgstr ""
 
 #: common/utils.py:76 common/utils.py:106
 msgid "Access denied"
-msgstr "Accesso negato"
+msgstr ""
 
 #: journal/forms.py:18 journal/forms.py:41
 msgid "Title"
-msgstr "Titolo"
+msgstr ""
 
 #: journal/forms.py:19 journal/forms.py:42
 msgid "Content (Markdown)"
-msgstr "Contenuto (Markdown)"
+msgstr ""
 
 #: journal/forms.py:21 journal/templates/comment.html:62
-#: journal/templates/mark.html:117 journal/views/note.py:26
+#: journal/templates/mark.html:115 journal/views/note.py:26
 msgid "Crosspost to timeline"
-msgstr "Ripubblica nella timeline"
+msgstr ""
 
 #: journal/forms.py:25 journal/forms.py:45
 #: journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:38
 #: users/templates/users/data.html:139
 msgid "Visibility"
-msgstr "Visibilità"
+msgstr ""
 
 #: journal/forms.py:34
 msgid "creator only"
-msgstr "solo creatore"
+msgstr ""
 
 #: journal/forms.py:35
 msgid "creator and their mutuals"
-msgstr "creatore e i suoi reciproci"
+msgstr ""
 
 #: journal/forms.py:52 journal/templates/collection.html:141
 msgid "Collaborative editing"
-msgstr "Modifica collaborativa"
+msgstr ""
 
 #: journal/importers/letterboxd.py:107
 #, python-brace-format
 msgid "a review of {item_title}"
-msgstr "una recensione di {item_title}"
+msgstr ""
 
 #: journal/importers/opml.py:36
 #, python-brace-format
 msgid "{username}'s podcast subscriptions"
-msgstr "Iscrizioni podcast di {username}"
+msgstr ""
 
 #: journal/models/collection.py:28 journal/templates/add_to_collection.html:32
 #: journal/templates/collection_items.html:24
 #: journal/templates/collection_share.html:63
 #: journal/templates/wrapped_share.html:29
 msgid "note"
-msgstr "nota"
+msgstr ""
 
-#: journal/models/collection.py:143
+#: journal/models/collection.py:141
 msgid "created collection"
-msgstr "collezione creata"
+msgstr ""
 
 #: journal/models/common.py:38 journal/templates/action_open_post.html:8
 #: journal/templates/action_open_post.html:14
 #: journal/templates/action_open_post.html:16
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
-#: journal/templates/mark.html:90 journal/templates/tag_edit.html:42
+#: journal/templates/mark.html:88 journal/templates/tag_edit.html:42
 #: journal/templates/wrapped_share.html:43 users/templates/users/data.html:47
 #: users/templates/users/data.html:148
 #: users/templates/users/preferences.html:55
 msgid "Public"
-msgstr "Pubblico"
+msgstr ""
 
 #: journal/models/common.py:39 journal/templates/action_open_post.html:10
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
-#: journal/templates/mark.html:97 journal/templates/wrapped_share.html:49
+#: journal/templates/mark.html:95 journal/templates/wrapped_share.html:49
 #: users/templates/users/data.html:55 users/templates/users/data.html:156
 #: users/templates/users/preferences.html:62
 msgid "Followers Only"
-msgstr "Solo Follower"
+msgstr ""
 
 #: journal/models/common.py:40 journal/templates/action_open_post.html:12
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
-#: journal/templates/mark.html:104 journal/templates/wrapped_share.html:55
+#: journal/templates/mark.html:102 journal/templates/wrapped_share.html:55
 #: users/templates/users/data.html:63 users/templates/users/data.html:164
 #: users/templates/users/preferences.html:69
 msgid "Mentioned Only"
-msgstr "Solo Menzionati"
+msgstr ""
 
 #: journal/models/common.py:370
 msgid "A recent post was not posted to Threads."
-msgstr "Un post recente non è stato pubblicato su Threads."
+msgstr ""
 
 #: journal/models/common.py:404
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
-"Un post recente non è stato pubblicato su Mastodon, si prega di re-"
-"autorizzare."
 
 #: journal/models/common.py:411
 msgid "A recent post was not posted to Mastodon."
-msgstr "Un post recente non è stato pubblicato su Mastodon."
+msgstr ""
 
-#: journal/models/note.py:34
+#: journal/models/note.py:31
 msgid "Page"
-msgstr "Pagina"
+msgstr ""
+
+#: journal/models/note.py:32
+msgid "Chapter"
+msgstr ""
 
 #: journal/models/note.py:35
-msgid "Chapter"
-msgstr "Capitolo"
+msgid "Part"
+msgstr ""
+
+#: journal/models/note.py:36
+msgid "Episode"
+msgstr ""
+
+#: journal/models/note.py:37
+msgid "Track"
+msgstr ""
 
 #: journal/models/note.py:38
-msgid "Part"
-msgstr "Parte"
+msgid "Cycle"
+msgstr ""
 
 #: journal/models/note.py:39
-msgid "Episode"
-msgstr "Episodio"
+msgid "Timestamp"
+msgstr ""
 
 #: journal/models/note.py:40
-msgid "Track"
-msgstr "Traccia"
-
-#: journal/models/note.py:41
-msgid "Cycle"
-msgstr "Ciclo"
-
-#: journal/models/note.py:42
-msgid "Timestamp"
-msgstr "Timbro temporale"
-
-#: journal/models/note.py:43
 msgid "Percentage"
-msgstr "Percentuale"
+msgstr ""
 
-#: journal/models/note.py:60
+#: journal/models/note.py:57
 #, python-brace-format
 msgid "Page {value}"
-msgstr "Pagina {value}"
+msgstr ""
+
+#: journal/models/note.py:58
+#, python-brace-format
+msgid "Chapter {value}"
+msgstr ""
 
 #: journal/models/note.py:61
 #, python-brace-format
-msgid "Chapter {value}"
-msgstr "Capitolo {value}"
+msgid "Part {value}"
+msgstr ""
+
+#: journal/models/note.py:62
+#, python-brace-format
+msgid "Episode {value}"
+msgstr ""
+
+#: journal/models/note.py:63
+#, python-brace-format
+msgid "Track {value}"
+msgstr ""
 
 #: journal/models/note.py:64
 #, python-brace-format
-msgid "Part {value}"
-msgstr "Parte {value}"
-
-#: journal/models/note.py:65
-#, python-brace-format
-msgid "Episode {value}"
-msgstr "Episodio {value}"
-
-#: journal/models/note.py:66
-#, python-brace-format
-msgid "Track {value}"
-msgstr "Traccia {value}"
-
-#: journal/models/note.py:67
-#, python-brace-format
 msgid "Cycle {value}"
-msgstr "Ciclo {value}"
+msgstr ""
 
 #: journal/models/renderers.py:104
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
-msgstr "riguardo {item_title}, potrebbe contenere spoiler o contenuto sensibile"
+msgstr ""
 
 #: journal/models/shelf.py:26
 msgid "WISHLIST"
-msgstr "LISTA DEI DESIDERI"
+msgstr ""
 
 #: journal/models/shelf.py:27
 msgid "PROGRESS"
-msgstr "PROGRESSO"
+msgstr ""
 
 #: journal/models/shelf.py:28
 msgid "COMPLETE"
-msgstr "COMPLETO"
+msgstr ""
 
 #: journal/models/shelf.py:29
 msgid "DROPPED"
-msgstr "ABBANDONATO"
+msgstr ""
 
 #: journal/models/shelf.py:38
 msgid "books to read"
-msgstr "libri da leggere"
+msgstr ""
 
 #: journal/models/shelf.py:39
 msgid "want to read"
-msgstr "voglio leggere"
+msgstr ""
 
 #: journal/models/shelf.py:40
 #, python-brace-format
 msgid "wants to read {item}"
-msgstr "vuole leggere {item}"
+msgstr ""
 
 #: journal/models/shelf.py:41
 msgid "to read"
-msgstr "da leggere"
+msgstr ""
 
 #: journal/models/shelf.py:46
 msgid "books reading"
-msgstr "letture in corso"
+msgstr ""
 
 #: journal/models/shelf.py:47
 msgid "start reading"
-msgstr "comincia a leggere"
+msgstr ""
 
 #: journal/models/shelf.py:48
 #, python-brace-format
 msgid "started reading {item}"
-msgstr "iniziato a leggere {item}"
+msgstr ""
 
 #: journal/models/shelf.py:49
 msgid "reading"
-msgstr "leggendo"
+msgstr ""
 
 #: journal/models/shelf.py:54
 msgid "books completed"
-msgstr "libri letti"
+msgstr ""
 
 #: journal/models/shelf.py:55
 msgid "finish reading"
-msgstr "finito di leggere"
+msgstr ""
 
 #: journal/models/shelf.py:56
 #, python-brace-format
 msgid "finished reading {item}"
-msgstr "finito di leggere {item}"
+msgstr ""
 
 #: journal/models/shelf.py:57
 msgid "read"
-msgstr "letto"
+msgstr ""
 
 #: journal/models/shelf.py:62
 msgid "books dropped"
-msgstr "libri abbandonati"
+msgstr ""
 
 #: journal/models/shelf.py:63
 msgid "stop reading"
-msgstr "smetti di leggere"
+msgstr ""
 
 #: journal/models/shelf.py:64
 #, python-brace-format
 msgid "stopped reading {item}"
-msgstr "smesso di leggere {item}"
+msgstr ""
 
 #: journal/models/shelf.py:65
 msgid "stopped reading"
-msgstr "smesso di leggere"
+msgstr ""
 
 #: journal/models/shelf.py:70
 msgid "books reviewed"
-msgstr "libri recensiti"
+msgstr ""
 
 #: journal/models/shelf.py:72 journal/models/shelf.py:112
 #: journal/models/shelf.py:152 journal/models/shelf.py:192
@@ -2904,529 +2811,525 @@ msgstr "libri recensiti"
 #: journal/models/shelf.py:306
 #, python-brace-format
 msgid "wrote a review of {item}"
-msgstr "ho scritto una recensione di {item}"
+msgstr ""
 
 #: journal/models/shelf.py:78
 msgid "movies to watch"
-msgstr "film da vedere"
+msgstr ""
 
 #: journal/models/shelf.py:79 journal/models/shelf.py:119
 msgid "want to watch"
-msgstr "voglio vedere"
+msgstr ""
 
 #: journal/models/shelf.py:80 journal/models/shelf.py:120
 #, python-brace-format
 msgid "wants to watch {item}"
-msgstr "vuole vedere {item}"
+msgstr ""
 
 #: journal/models/shelf.py:81 journal/models/shelf.py:121
 msgid "to watch"
-msgstr "da vedere"
+msgstr ""
 
 #: journal/models/shelf.py:86
 msgid "movies watching"
-msgstr "film in visione"
+msgstr ""
 
 #: journal/models/shelf.py:87 journal/models/shelf.py:127
 msgid "start watching"
-msgstr "inizia a guardare"
+msgstr ""
 
 #: journal/models/shelf.py:88 journal/models/shelf.py:128
 #, python-brace-format
 msgid "started watching {item}"
-msgstr "iniziato a vedere {item}"
+msgstr ""
 
 #: journal/models/shelf.py:89 journal/models/shelf.py:129
 msgid "watching"
-msgstr "vedendo"
+msgstr ""
 
 #: journal/models/shelf.py:94
 msgid "movies watched"
-msgstr "film visti"
+msgstr ""
 
 #: journal/models/shelf.py:95 journal/models/shelf.py:135
 msgid "finish watching"
-msgstr "finito di vedere"
+msgstr ""
 
 #: journal/models/shelf.py:96 journal/models/shelf.py:136
 #, python-brace-format
 msgid "finished watching {item}"
-msgstr "Ho finito di vedere {item}"
+msgstr ""
 
 #: journal/models/shelf.py:97 journal/models/shelf.py:137
 msgid "watched"
-msgstr "visto"
+msgstr ""
 
 #: journal/models/shelf.py:102
 msgid "movies dropped"
-msgstr "film non finiti"
+msgstr ""
 
 #: journal/models/shelf.py:103 journal/models/shelf.py:143
 msgid "stop watching"
-msgstr "smetti di guardare"
+msgstr ""
 
 #: journal/models/shelf.py:104 journal/models/shelf.py:144
 #, python-brace-format
 msgid "stopped watching {item}"
-msgstr "smesso di guardare {item}"
+msgstr ""
 
 #: journal/models/shelf.py:105 journal/models/shelf.py:145
 msgid "stopped watching"
-msgstr "smesso di guardare"
+msgstr ""
 
 #: journal/models/shelf.py:110
 msgid "movies reviewed"
-msgstr "film recensiti"
+msgstr ""
 
 #: journal/models/shelf.py:118
 msgid "TV shows to watch"
-msgstr "Show TV da vedere"
+msgstr ""
 
 #: journal/models/shelf.py:126
 msgid "TV shows watching"
-msgstr "Serie TV in visione"
+msgstr ""
 
 #: journal/models/shelf.py:134
 msgid "TV shows watched"
-msgstr "Serie TV viste"
+msgstr ""
 
 #: journal/models/shelf.py:142
 msgid "TV shows dropped"
-msgstr "Serie TV abbandonate"
+msgstr ""
 
 #: journal/models/shelf.py:150
 msgid "TV shows reviewed"
-msgstr "Serie TV recensite"
+msgstr ""
 
 #: journal/models/shelf.py:158
 msgid "albums to listen"
-msgstr "album da ascoltare"
+msgstr ""
 
 #: journal/models/shelf.py:159 journal/models/shelf.py:239
 msgid "want to listen"
-msgstr "vuole ascoltare"
+msgstr ""
 
 #: journal/models/shelf.py:160 journal/models/shelf.py:240
 #, python-brace-format
 msgid "wants to listen {item}"
-msgstr "vuole ascoltare {item}"
+msgstr ""
 
 #: journal/models/shelf.py:161 journal/models/shelf.py:241
 msgid "to listen"
-msgstr "da ascoltare"
+msgstr ""
 
 #: journal/models/shelf.py:166
 msgid "albums listening"
-msgstr "album in ascolto"
+msgstr ""
 
 #: journal/models/shelf.py:167 journal/models/shelf.py:247
 msgid "start listening"
-msgstr "iniziato ad ascoltare"
+msgstr ""
 
 #: journal/models/shelf.py:168 journal/models/shelf.py:248
 #, python-brace-format
 msgid "started listening {item}"
-msgstr "iniziato as ascoltare {item}"
+msgstr ""
 
 #: journal/models/shelf.py:169 journal/models/shelf.py:249
 msgid "listening"
-msgstr "ascoltando"
+msgstr ""
 
 #: journal/models/shelf.py:174
 msgid "albums listened"
-msgstr "album ascoltati"
+msgstr ""
 
 #: journal/models/shelf.py:175 journal/models/shelf.py:255
 msgid "finish listening"
-msgstr "finire di ascoltare"
+msgstr ""
 
 #: journal/models/shelf.py:176 journal/models/shelf.py:256
 #, python-brace-format
 msgid "finished listening {item}"
-msgstr "ha finito di ascoltare {item}"
+msgstr ""
 
 #: journal/models/shelf.py:177 journal/models/shelf.py:257
 msgid "listened"
-msgstr "ascoltato"
+msgstr ""
 
 #: journal/models/shelf.py:182
 msgid "albums dropped"
-msgstr "album abbandonati"
+msgstr ""
 
 #: journal/models/shelf.py:183 journal/models/shelf.py:263
 msgid "stop listening"
-msgstr "finisci di ascoltare"
+msgstr ""
 
 #: journal/models/shelf.py:184 journal/models/shelf.py:264
 #, python-brace-format
 msgid "stopped listening {item}"
-msgstr "finito di ascoltare {item}"
+msgstr ""
 
 #: journal/models/shelf.py:185 journal/models/shelf.py:265
 msgid "stopped listening"
-msgstr "finito di ascoltare"
+msgstr ""
 
 #: journal/models/shelf.py:190
 msgid "albums reviewed"
-msgstr "album recensiti"
+msgstr ""
 
 #: journal/models/shelf.py:198
 msgid "games to play"
-msgstr "giochi da giocare"
+msgstr ""
 
 #: journal/models/shelf.py:199
 msgid "want to play"
-msgstr "voler riprodurre"
+msgstr ""
 
 #: journal/models/shelf.py:200
 #, python-brace-format
 msgid "wants to play {item}"
-msgstr "vuole riprodurre {item}"
+msgstr ""
 
 #: journal/models/shelf.py:201
 msgid "to play"
-msgstr "riprodurre"
+msgstr ""
 
 #: journal/models/shelf.py:206
 msgid "games playing"
-msgstr "giochi in corso"
+msgstr ""
 
 #: journal/models/shelf.py:207
 msgid "start playing"
-msgstr "inizia a giocare"
+msgstr ""
 
 #: journal/models/shelf.py:208
 #, python-brace-format
 msgid "started playing {item}"
-msgstr "iniziato a giocare {item}"
+msgstr ""
 
 #: journal/models/shelf.py:209
 msgid "playing"
-msgstr "giocando"
+msgstr ""
 
 #: journal/models/shelf.py:214
 msgid "games played"
-msgstr "giochi giocati"
+msgstr ""
 
 #: journal/models/shelf.py:215
 msgid "finish playing"
-msgstr "finito di giocare"
+msgstr ""
 
 #: journal/models/shelf.py:216
 #, python-brace-format
 msgid "finished playing {item}"
-msgstr "finito di giocare {item}"
+msgstr ""
 
 #: journal/models/shelf.py:217
 msgid "played"
-msgstr "giocato"
+msgstr ""
 
 #: journal/models/shelf.py:222
 msgid "games dropped"
-msgstr "giochi abbandonati"
+msgstr ""
 
 #: journal/models/shelf.py:223
 msgid "stop playing"
-msgstr "finisci di giocare"
+msgstr ""
 
 #: journal/models/shelf.py:224
 #, python-brace-format
 msgid "stopped playing {item}"
-msgstr "finito di giocare {item}"
+msgstr ""
 
 #: journal/models/shelf.py:225
 msgid "stopped playing"
-msgstr "finito di giocare"
+msgstr ""
 
 #: journal/models/shelf.py:230
 msgid "games reviewed"
-msgstr "giochi recensiti"
+msgstr ""
 
 #: journal/models/shelf.py:238
 msgid "podcasts to listen"
-msgstr "podcast da ascoltare"
+msgstr ""
 
 #: journal/models/shelf.py:246
 msgid "podcasts listening"
-msgstr "podcast in ascolto"
+msgstr ""
 
 #: journal/models/shelf.py:254
 msgid "podcasts listened"
-msgstr "podcast ascoltati"
+msgstr ""
 
 #: journal/models/shelf.py:262
 msgid "podcasts dropped"
-msgstr "podcast abbandonati"
+msgstr ""
 
 #: journal/models/shelf.py:270
 msgid "podcasts reviewed"
-msgstr "podcast recensiti"
+msgstr ""
 
 #: journal/models/shelf.py:278
 msgid "performances to see"
-msgstr "esibizioni da vedere"
+msgstr ""
 
 #: journal/models/shelf.py:279
 msgid "want to see"
-msgstr "voler vedere"
+msgstr ""
 
 #: journal/models/shelf.py:280
 #, python-brace-format
 msgid "wants to see {item}"
-msgstr "vuole vedere {item}"
+msgstr ""
 
 #: journal/models/shelf.py:281
 msgid "to see"
-msgstr "da vedere"
+msgstr ""
 
 #: journal/models/shelf.py:288
 msgid "performances saw"
-msgstr "esibizioni viste"
+msgstr ""
 
 #: journal/models/shelf.py:289
 msgid "finish seeing"
-msgstr "finito di vedere"
+msgstr ""
 
 #: journal/models/shelf.py:290
 #, python-brace-format
 msgid "finished seeing {item}"
-msgstr "finito di vedere {item}"
+msgstr ""
 
 #: journal/models/shelf.py:291
 msgid "seen"
-msgstr "visto"
+msgstr ""
 
 #: journal/models/shelf.py:296
 msgid "performances dropped"
-msgstr "esibizioni abbandonate"
+msgstr ""
 
 #: journal/models/shelf.py:297
 msgid "stop seeing"
-msgstr "smetti di vedere"
+msgstr ""
 
 #: journal/models/shelf.py:298
 #, python-brace-format
 msgid "stopped seeing {item}"
-msgstr "smesso di vedere {item}"
+msgstr ""
 
 #: journal/models/shelf.py:299
 msgid "stopped seeing"
-msgstr "smesso di vedere"
+msgstr ""
 
 #: journal/models/shelf.py:304
 msgid "performances reviewed"
-msgstr "esibizioni recensite"
+msgstr ""
 
 #: journal/models/shelf.py:562
 msgid "removed mark"
-msgstr "rimosso segno"
+msgstr ""
 
 #: journal/templates/_feature_stats.html:10
 msgid "stop tracking"
-msgstr "smetti di tracciare"
+msgstr ""
 
 #: journal/templates/_feature_stats.html:11
 msgid "Stop tracking this target?"
-msgstr "Smettere di tracciare questo obiettivo?"
+msgstr ""
 
 #: journal/templates/_feature_stats.html:15
 msgid "set as target"
-msgstr "fissa come obiettivo"
+msgstr ""
 
-#: journal/templates/_list_item.html:12
+#: journal/templates/_list_item.html:15
 msgid "Remove from collection"
-msgstr "Rimuovi dalla collezione"
+msgstr ""
 
-#: journal/templates/_list_item.html:22
+#: journal/templates/_list_item.html:24
 msgid "add mark"
-msgstr "aggiungi segno"
+msgstr ""
 
-#: journal/templates/_list_item.html:30
+#: journal/templates/_list_item.html:32
 msgid "update mark"
-msgstr "aggiorna segno"
+msgstr ""
 
-#: journal/templates/_list_item.html:75 journal/templates/review.html:14
+#: journal/templates/_list_item.html:78 journal/templates/review.html:14
 #: journal/templates/review.html:23 journal/templates/review.html:53
 #: journal/templates/review_edit.html:10
 #: journal/templates/user_review_list.html:7
 msgid "Review"
-msgstr "Recensisci"
+msgstr ""
 
-#: journal/templates/_list_item.html:89
+#: journal/templates/_list_item.html:93
 msgid "Update note"
-msgstr "Aggiorna nota"
+msgstr ""
 
 #: journal/templates/_sidebar_user_mark_list.html:61
 msgid "sorting"
-msgstr "ordina"
+msgstr ""
 
 #: journal/templates/_sidebar_user_mark_list.html:63
 msgid "rating"
-msgstr "valutazione"
+msgstr ""
 
 #: journal/templates/action_boost_post.html:10
 msgid "boost"
-msgstr "ricondividi"
+msgstr ""
 
 #: journal/templates/action_delete_post.html:6
 msgid "Are you sure to delete this post and the mark or note related with it?"
 msgstr ""
-"Se sicuro di voler eliminare questo post e il segno o nota ad esso associati?"
 
 #: journal/templates/action_delete_post.html:6
 msgid "Are you sure to delete this reply?"
-msgstr "Vuoi veramente eliminare questa risposta?"
+msgstr ""
 
 #: journal/templates/action_delete_post.html:6
 msgid "Are you sure to delete this post?"
-msgstr "Vuoi veramente eliminare questo post?"
+msgstr ""
 
 #: journal/templates/action_like_post.html:10
 msgid "liked"
-msgstr "piaciuto"
+msgstr ""
 
 #: journal/templates/action_like_post.html:16
 msgid "like"
-msgstr "mi piace"
+msgstr ""
 
 #: journal/templates/action_reply_piece.html:3
 msgid "reply"
-msgstr "risposta"
+msgstr ""
 
 #: journal/templates/add_to_collection.html:12
 msgid "Add to collection"
-msgstr "Aggiungi alla collezione"
+msgstr ""
 
 #: journal/templates/add_to_collection.html:29
 #: journal/templates/collection_edit.html:27
 msgid "Create a new collection"
-msgstr "Crea una nuova collezione"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "JAN"
-msgstr "GEN"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "FEB"
-msgstr "FEB"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "MAR"
-msgstr "MAR"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "APR"
-msgstr "APR"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "MAY"
-msgstr "MAG"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "JUN"
-msgstr "GIU"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "JUL"
-msgstr "LUG"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "AUG"
-msgstr "AGO"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "SEP"
-msgstr "SET"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "OCT"
-msgstr "OTT"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "NOV"
-msgstr "NOV"
+msgstr ""
 
 #: journal/templates/calendar_data.html:8
 msgid "DEC"
-msgstr "DIC"
+msgstr ""
 
 #: journal/templates/collection.html:43
 #: journal/templates/collection_share.html:12
 #: journal/templates/collection_share.html:66
 #: journal/templates/wrapped_share.html:59
 msgid "Share"
-msgstr "Condividi"
+msgstr ""
 
 #: journal/templates/collection.html:130 journal/templates/review.html:76
 msgid "Reply"
-msgstr "Rispondi"
+msgstr ""
 
 #: journal/templates/collection.html:149
 msgid "Created date"
-msgstr "Data di creazione"
+msgstr ""
 
 #: journal/templates/collection_edit.html:32
 msgid "Title and Description"
-msgstr "Titolo e Descrizione"
+msgstr ""
 
 #: journal/templates/collection_edit.html:45
 msgid "Items"
-msgstr "Elementi"
+msgstr ""
 
 #: journal/templates/collection_items.html:28
 msgid "Add an item to this collection"
-msgstr "Aggiungi un elemento a questa collezione"
+msgstr ""
 
 #: journal/templates/collection_items.html:56
 msgid "Drag and drop to change the order order and click here to save"
-msgstr "Trascina e rilascia per cambiare l'ordine e clicca qui per salvare"
+msgstr ""
 
 #: journal/templates/collection_share.html:24
 msgid "for the sharing post only, not visibility of the collection"
-msgstr "riguarda solamente la visibilità del post, non quella della collezione"
+msgstr ""
 
 #: journal/templates/collection_update_item_note.html:5
 msgid "Update"
-msgstr "Aggiorna"
+msgstr ""
 
 #: journal/templates/comment.html:16
 msgid "Comment"
-msgstr "Commenta"
+msgstr ""
 
-#: journal/templates/comment.html:24 journal/templates/mark.html:68
+#: journal/templates/comment.html:24 journal/templates/mark.html:66
 msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
 msgstr ""
-"Suggerimenti: usa &gt;!text!&lt; per gli spoiler; alcune istanze potrebbero "
-"non essere in grado di mostrare post lunghi più di 360 caratteri."
 
 #: journal/templates/comment.html:75
 msgid "share with playback position"
-msgstr "condividi con la posizione di playback"
+msgstr ""
 
 #: journal/templates/mark.html:17
 msgid "Mark"
-msgstr "Interazione"
+msgstr ""
 
-#: journal/templates/mark.html:51
+#: journal/templates/mark.html:50
 msgid "not rated"
-msgstr "non valutato"
+msgstr ""
 
-#: journal/templates/mark.html:76
+#: journal/templates/mark.html:74
 msgid "add a tag and press Enter"
-msgstr "aggiungi un tag e premi Enter"
+msgstr ""
 
-#: journal/templates/mark.html:132
+#: journal/templates/mark.html:130
 msgid "change mark date"
-msgstr "cambia la data dell'interazione"
+msgstr ""
 
-#: journal/templates/mark.html:158
+#: journal/templates/mark.html:156
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr ""
-"Sicuro di voler eliminare le interazioni, commenti e tag per questo elemento?"
 
 #: journal/templates/markdown.html:3
 msgid "Markdown format references"
-msgstr "Esempi di formattazione Markdown"
+msgstr ""
 
 #: journal/templates/markdown.html:5
 msgid ""
@@ -3472,341 +3375,289 @@ msgid ""
 "Content Cell  | Content Cell\n"
 "Content Cell  | Content Cell\n"
 msgstr ""
-"\n"
-"Titolo\n"
-"=====\n"
-"\n"
-"Sottotitolo\n"
-"--------\n"
-"\n"
-"  I paragrafi devono essere separati da una linea vuota\n"
-"\n"
-"  L'indentazione all'inizio del paragrafo richiede l'uso di uno spazio "
-"Unicode a tutta larghezza.\n"
-"\n"
-"[Link](https://zh.wikipedia.org/wiki/Markdown)\n"
-"**Grassetto**  *Corsivo* ==Sottolineato== ~~Barrato~~\n"
-"^Super^script ~Sub~script [拼(pīn)音(yīn)]\n"
-"\n"
-"Trascina e rilascio un'immagine ![](https://upload.wikimedia.org/wikipedia/"
-"en/8/80/Wikipedia-logo-v2.svg)\n"
-"\n"
-"> Citazione\n"
-">> Citazione multi-livello\n"
-"\n"
-"In linea >! avviso spoiler !< (anche in commenti brevi)\n"
-"\n"
-">! Multi-linea\n"
-">! Spoiler\n"
-"\n"
-"---\n"
-"\n"
-"- Punti\n"
-"- Elenco\n"
-"\n"
-"contenuto del paragrafo con nota a piè di pagina[^1] markup.\n"
-"[^1]: spiegazione a piè di pagina\n"
-"\n"
-"```\n"
-"codice\n"
-"```\n"
-"\n"
-"Intestazione della tabella  | Seconda Intestazione\n"
-"------------- | -------------\n"
-"Cella del Contenuto  | Cella del Contenuto\n"
-"Cella del Contenuto  | Cella del Contenuto\n"
 
 #: journal/templates/note.html:16
 msgid "Note"
-msgstr "Nota"
+msgstr ""
 
 #: journal/templates/note.html:21
 msgid "Note with empty content will be deleted, sure to continue?"
-msgstr "Le note senza contenuti verranno eliminate, sicuro di voler proseguire?"
+msgstr ""
 
 #: journal/templates/piece_delete.html:22
 msgid "Are you sure to delete this entire content?"
-msgstr "Sei sicuro di voler eliminare tutto il contenuto?"
+msgstr ""
 
 #: journal/templates/piece_delete.html:23
 msgid "By deleting it, you will also lose track of others' comments and feedbacks to your content."
 msgstr ""
-"Eliminandolo perderai anche traccia dei commenti e delle interazioni degli "
-"altri sul tuo contenuto."
 
 #: journal/templates/piece_delete.html:24
 #: journal/templates/piece_delete.html:31
 msgid "Deletion cannot be undone, are you sure to continue?"
-msgstr "L'eliminazione non può essere annullata, sicuro di voler continuare?"
+msgstr ""
 
 #: journal/templates/profile.html:51
 msgid "calendar"
-msgstr "calendario"
+msgstr ""
 
 #: journal/templates/profile.html:54 journal/templates/wrapped.html:14
 #: journal/templates/wrapped.html:53
 msgid "annual summary"
-msgstr "sintesi annuale"
+msgstr ""
 
 #: journal/templates/profile.html:119 journal/views/collection.py:166
 msgid "collection"
-msgstr "collezione"
+msgstr ""
 
 #: journal/templates/profile.html:155
 msgid "liked collection"
-msgstr "collezione piaciuta"
+msgstr ""
 
 #: journal/templates/replies.html:53
 msgid "no replies so far."
-msgstr "nessuna risposta per adesso."
+msgstr ""
 
 #: journal/templates/replies.html:61
 msgid "add a reply"
-msgstr "aggiungi una risposta"
+msgstr ""
 
 #: journal/templates/review.html:63
 msgid "The author has set it to be viewable only by logged-in users."
 msgstr ""
-"L'autore ha impostato la visibilità solo per gli utenti che hanno fatto "
-"l'accesso."
 
 #: journal/templates/review_edit.html:33
 msgid "When saving, replace leading spaces with full-width spaces"
-msgstr "Mentre si salva, sostituire spazi iniziali con spazi a tutta larghezza"
+msgstr ""
 
 #: journal/templates/review_edit.html:42
 msgid "change review date"
-msgstr "cambia data della recensione"
+msgstr ""
 
 #: journal/templates/tag_edit.html:32
 msgid "Pin"
-msgstr "Pin"
+msgstr ""
 
 #: journal/templates/tag_edit.html:49
 msgid "Personal"
-msgstr "Personale"
+msgstr ""
 
 #: journal/templates/tag_edit.html:52
 msgid "Personal tags are not included in public index. However, if you use this tag when marking an item publicly, it might still be visible to others."
 msgstr ""
-"I tag personali non vengono inclusi nell'indice pubblico. Tuttavia, se usi "
-"questo tag quando segni pubblicamente un elemento, potrebbe essere ancora "
-"visibile agli altri."
 
 #: journal/templates/tag_edit.html:55
 msgid "Delete this tag"
-msgstr "Elimina questo tag"
+msgstr ""
 
 #: journal/templates/user_collection_list.html:15
 #: journal/templates/user_collection_list.html:29
 msgid "Liked Collections"
-msgstr "Collezioni piaciute"
+msgstr ""
 
 #: journal/templates/user_tag_list.html:19
 msgid "All Tags"
-msgstr "Tutti i tag"
+msgstr ""
 
 #: journal/templates/wrapped.html:40
 msgid "another style"
-msgstr "cambia stile"
+msgstr ""
 
 #: journal/templates/wrapped.html:46
 msgid "share"
-msgstr "condividi"
+msgstr ""
 
 #: journal/templates/wrapped.html:50
 msgid "download"
-msgstr "scarica"
+msgstr ""
 
 #: journal/templates/wrapped_share.html:16
 msgid "Share Annual Summary"
-msgstr "Condividi Sintesi Annuale"
+msgstr ""
 
 #: journal/templates/wrapped_share.html:31
 #, python-format
 msgid "#%(year)s_report"
-msgstr "#rapporto_%(year)s"
+msgstr ""
 
-#: journal/templatetags/collection.py:36
+#: journal/templatetags/collection.py:35
 #, python-format
 msgid "%(count)d book"
 msgid_plural "%(count)d books"
-msgstr[0] "%(count)d libro"
-msgstr[1] "%(count)d libri"
+msgstr[0] ""
+msgstr[1] ""
 
-#: journal/templatetags/collection.py:44
+#: journal/templatetags/collection.py:43
 #, python-format
 msgid "%(count)d movie"
 msgid_plural "%(count)d movies"
-msgstr[0] "%(count)d film"
-msgstr[1] "%(count)d film"
+msgstr[0] ""
+msgstr[1] ""
 
-#: journal/templatetags/collection.py:52
+#: journal/templatetags/collection.py:51
 #, python-format
 msgid "%(count)d tv show"
 msgid_plural "%(count)d tv shows"
-msgstr[0] "%(count)d serie tv"
-msgstr[1] "%(count)d serie tv"
+msgstr[0] ""
+msgstr[1] ""
 
-#: journal/templatetags/collection.py:60
+#: journal/templatetags/collection.py:59
 #, python-format
 msgid "%(count)d album"
 msgid_plural "%(count)d albums"
-msgstr[0] "%(count)d album"
-msgstr[1] "%(count)d album"
+msgstr[0] ""
+msgstr[1] ""
 
-#: journal/templatetags/collection.py:68
+#: journal/templatetags/collection.py:67
 #, python-format
 msgid "%(count)d game"
 msgid_plural "%(count)d games"
-msgstr[0] "%(count)d gioco"
-msgstr[1] "%(count)d giochi"
+msgstr[0] ""
+msgstr[1] ""
 
-#: journal/templatetags/collection.py:76
+#: journal/templatetags/collection.py:75
 #, python-format
 msgid "%(count)d podcast"
 msgid_plural "%(count)d podcasts"
-msgstr[0] "%(count)d podcast"
-msgstr[1] "%(count)d podcast"
+msgstr[0] ""
+msgstr[1] ""
 
-#: journal/templatetags/collection.py:84
+#: journal/templatetags/collection.py:83
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
-msgstr[0] "%(count)d esibizione"
-msgstr[1] "%(count)d esibizioni"
+msgstr[0] ""
+msgstr[1] ""
 
-#: journal/templatetags/collection.py:92
+#: journal/templatetags/collection.py:91
 #, python-format
 msgid "%(count)d item"
 msgid_plural "%(count)d items"
-msgstr[0] "%(count)d elemento"
-msgstr[1] "%(count)d elementi"
+msgstr[0] ""
+msgstr[1] ""
 
 #: journal/views/collection.py:37
 #, python-brace-format
 msgid "Collection by {0}"
-msgstr "Collezione di {0}"
+msgstr ""
 
 #: journal/views/collection.py:171
 msgid "shared my collection"
-msgstr "ha condiviso la mia collezione"
+msgstr ""
 
 #: journal/views/collection.py:174
 #, python-brace-format
 msgid "shared {username}'s collection"
-msgstr "condivisa la collezione di {username}"
+msgstr ""
 
 #: journal/views/collection.py:225
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
-"Impossibile trovare l'elemento, si prega di usare l'elemento URL da questo "
-"sito."
 
-#: journal/views/collection.py:338 journal/views/collection.py:359
+#: journal/views/collection.py:342 journal/views/collection.py:363
 #: journal/views/review.py:124
 msgid "Login required"
-msgstr "Richiesto l'accesso"
+msgstr ""
 
-#: journal/views/common.py:35 journal/views/mark.py:123
+#: journal/views/common.py:34 journal/views/mark.py:122
 msgid "Data saved but unable to crosspost to Fediverse instance."
-msgstr "Dati salvati ma impossibile pubblicare nell'istanza del Fediverso."
+msgstr ""
 
-#: journal/views/common.py:37
+#: journal/views/common.py:36
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
-msgstr "Reindirizzando alla tua istanza del Fediverso per la re-autenticazione."
+msgstr ""
 
-#: journal/views/common.py:44
+#: journal/views/common.py:43
 msgid "List not found."
-msgstr "Lista non trovata."
+msgstr ""
 
-#: journal/views/mark.py:114
+#: journal/views/mark.py:113
 msgid "Content too long for your Fediverse instance."
-msgstr "Contenuto troppo lungo per la tua istanza del Fediverso."
+msgstr ""
 
-#: journal/views/mark.py:168 journal/views/note.py:98
+#: journal/views/mark.py:167 journal/views/note.py:98
 #: journal/views/review.py:30
 msgid "Content not found"
-msgstr "Contenuto non trovato"
+msgstr ""
 
 #: journal/views/note.py:44
 msgid "Progress (optional)"
-msgstr "Progresso (opzionale)"
+msgstr ""
 
 #: journal/views/note.py:46
 msgid "Note Content"
-msgstr "Contenuto della nota"
+msgstr ""
 
 #: journal/views/note.py:48
 msgid "Content Warning (optional)"
-msgstr "Allerta sul contenuto (opzionale)"
+msgstr ""
 
 #: journal/views/note.py:66
 msgid "Progress Type (optional)"
-msgstr "Tipo di progresso (opzionale)"
+msgstr ""
 
 #: journal/views/note.py:106
 msgid "Invalid form data"
-msgstr "Formattazione dei dati non valida"
+msgstr ""
 
 #: journal/views/post.py:40
 msgid "Post not found"
-msgstr "Post non trovato"
+msgstr ""
 
 #: journal/views/review.py:112 journal/views/review.py:126
 #, python-brace-format
 msgid "Reviews by {0}"
-msgstr "Recensioni di {0}"
+msgstr ""
 
 #: journal/views/review.py:114 journal/views/review.py:122
 msgid "Link invalid"
-msgstr "Collegamento non valido"
+msgstr ""
 
 #: journal/views/review.py:135
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
-msgstr "{review_title} - una recensione su {item_title}"
+msgstr ""
 
 #: journal/views/tag.py:41 journal/views/tag.py:55
 msgid "Invalid tag"
-msgstr "Tag non valido"
+msgstr ""
 
 #: journal/views/tag.py:44
 msgid "Tag not found"
-msgstr "Tag non trovato"
+msgstr ""
 
 #: journal/views/tag.py:59
 msgid "Tag deleted."
-msgstr "Tag eliminato."
+msgstr ""
 
 #: journal/views/tag.py:69
 msgid "Duplicated tag."
-msgstr "Tag duplicato."
+msgstr ""
 
 #: journal/views/tag.py:76
 msgid "Tag updated."
-msgstr "Tag aggiornato."
+msgstr ""
 
 #: journal/views/wrapped.py:146
 msgid "Summary posted to timeline."
-msgstr "Recap pubblicato nella timeline."
+msgstr ""
 
-#: mastodon/models/common.py:14 users/templates/users/account.html:44
-#: users/templates/users/login.html:60
+#: mastodon/models/common.py:12 users/templates/users/account.html:44
+#: users/templates/users/login.html:58
 msgid "Email"
-msgstr "Email"
+msgstr ""
+
+#: mastodon/models/common.py:13
+msgid "Mastodon"
+msgstr ""
+
+#: mastodon/models/common.py:14 users/templates/users/login.html:79
+msgid "Threads"
+msgstr ""
 
 #: mastodon/models/common.py:15
-msgid "Mastodon"
-msgstr "Mastodon"
-
-#: mastodon/models/common.py:16 users/templates/users/login.html:85
-msgid "Threads"
-msgstr "Threads"
-
-#: mastodon/models/common.py:17
 msgid "Bluesky"
-msgstr "Bluesky"
+msgstr ""
 
 #: mastodon/models/email.py:55
 msgid ""
@@ -3814,15 +3665,10 @@ msgid ""
 "\n"
 "If you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
 msgstr ""
-"\n"
-"\n"
-"Se non era tua intenzione registrarti, ignora questa email. Se sei "
-"preoccupato per la sicurezza del tuo account, si consiglia di cambiare "
-"l'email associata al tuo account, oppure contattaci direttamente."
 
 #: mastodon/models/email.py:60 mastodon/models/email.py:65
 msgid "Verification Code"
-msgstr "Codice di verifica"
+msgstr ""
 
 #: mastodon/models/email.py:62
 #, python-brace-format
@@ -3831,9 +3677,6 @@ msgid ""
 "\n"
 "{code}"
 msgstr ""
-"Usa questo codice per verificare il tuo indirizzo email {email}\n"
-"\n"
-"{code}"
 
 #: mastodon/models/email.py:66
 #, python-brace-format
@@ -3842,14 +3685,11 @@ msgid ""
 "\n"
 "{code}"
 msgstr ""
-"Usa questo codice per effettuare il login come {email}\n"
-"\n"
-"{code}"
 
 #: mastodon/models/email.py:70 users/templates/users/login.html:16
 #: users/templates/users/register.html:8 users/templates/users/welcome.html:8
 msgid "Register"
-msgstr "Registrati"
+msgstr ""
 
 #: mastodon/models/email.py:72
 #, python-brace-format
@@ -3860,177 +3700,167 @@ msgid ""
 "\n"
 "If you prefer to register a new account with this email, please use this verification code: {code}"
 msgstr ""
-"Non c'è ancora nessun account registrato con questo indirizzo email: {email}"
-"\n"
-"\n"
-"Se hai già un account con noi, accedi semplicemente e aggiungi questa email "
-"al tuo account.\n"
-"\n"
-"Se preferisci registrare un nuovo account con questa email usa questo codice "
-"di verifica: {code}"
 
 #: mastodon/models/mastodon.py:520
 msgid "site domain name"
-msgstr "nome del dominio del sito"
+msgstr ""
 
 #: mastodon/models/mastodon.py:521
 msgid "domain for api call"
-msgstr "dominio per richiamare l'API"
+msgstr ""
 
 #: mastodon/models/mastodon.py:522
 msgid "type and verion"
-msgstr "tipo e versione"
+msgstr ""
 
 #: mastodon/models/mastodon.py:523
 msgid "in-site app id"
-msgstr "App ID del sito"
+msgstr ""
 
 #: mastodon/models/mastodon.py:524
 msgid "client id"
-msgstr "ID del client"
+msgstr ""
 
 #: mastodon/models/mastodon.py:525
 msgid "client secret"
-msgstr "segreto del client"
+msgstr ""
 
 #: mastodon/models/mastodon.py:526
 msgid "vapid key"
-msgstr "chiave vapid"
+msgstr ""
 
 #: mastodon/models/mastodon.py:528
 msgid "0: unicode moon; 1: custom emoji"
-msgstr "0: luna unicode; 1: emoji personalizzata"
+msgstr ""
 
 #: mastodon/models/mastodon.py:531
 msgid "max toot len"
-msgstr "lunghezza massima del toot"
+msgstr ""
 
-#: mastodon/models/mastodon.py:624
+#: mastodon/models/mastodon.py:643
 msgid "Boost"
-msgstr "Boost"
+msgstr ""
 
-#: mastodon/models/mastodon.py:625
+#: mastodon/models/mastodon.py:644
 msgid "New Post"
-msgstr "Nuovo Post"
+msgstr ""
 
-#: mastodon/views/bluesky.py:22 mastodon/views/bluesky.py:28
+#: mastodon/views/bluesky.py:19 mastodon/views/bluesky.py:25
 #: mastodon/views/common.py:30 mastodon/views/mastodon.py:37
 #: mastodon/views/mastodon.py:44 mastodon/views/mastodon.py:54
 #: mastodon/views/mastodon.py:61 mastodon/views/threads.py:41
 #: mastodon/views/threads.py:47 users/views/account.py:105
 msgid "Authentication failed"
-msgstr "Autenticazione fallita"
+msgstr ""
 
-#: mastodon/views/bluesky.py:23
+#: mastodon/views/bluesky.py:20
 msgid "Username and app password is required."
-msgstr "Nome utente e password dell'app richiesti."
+msgstr ""
 
-#: mastodon/views/bluesky.py:28
+#: mastodon/views/bluesky.py:25
 msgid "Invalid account data from Bluesky."
-msgstr "Informazioni dell'account Bluesky non valide."
+msgstr ""
 
 #: mastodon/views/common.py:30 mastodon/views/common.py:95
 msgid "Invalid user."
-msgstr "Utente non valido."
+msgstr ""
 
 #: mastodon/views/common.py:46
 msgid "Registration failed"
-msgstr "Registrazione fallita"
+msgstr ""
 
 #: mastodon/views/common.py:46
 msgid "User already logged in."
-msgstr "Utente già connesso."
+msgstr ""
 
 #: mastodon/views/common.py:58
 #, python-brace-format
 msgid "Continue login as {handle}."
-msgstr "Continua l'accesso come {handle}."
+msgstr ""
 
 #: mastodon/views/common.py:64
 msgid "Unable to update login information"
-msgstr "Impossibile aggiornare le informazioni d'accesso"
+msgstr ""
 
 #: mastodon/views/common.py:65
 #, python-brace-format
 msgid "Identity {handle} in use by a different user."
-msgstr "L'identificativo {handle} è già stato usato da un altro utente."
+msgstr ""
 
 #: mastodon/views/common.py:81
 #, python-brace-format
 msgid "Login information updated as {handle}."
-msgstr "Informazioni d'accesso aggiornate come {handle}."
+msgstr ""
 
 #: mastodon/views/common.py:91 mastodon/views/common.py:95
 #: mastodon/views/common.py:101
 msgid "Disconnect identity failed"
-msgstr "Disconnessione identità fallita"
+msgstr ""
 
 #: mastodon/views/common.py:91
 msgid "Identity not found."
-msgstr "Identità non trovata."
+msgstr ""
 
 #: mastodon/views/common.py:102
 msgid "You cannot disconnect last login identity."
-msgstr "Non puoi disconnettere l'ultima identità d'accesso."
+msgstr ""
 
 #: mastodon/views/common.py:108
 #, python-brace-format
 msgid "Login information about {handle} has been removed."
-msgstr "Le informazioni d'accesso di {handle} sono state rimosse."
+msgstr ""
 
 #: mastodon/views/email.py:19
 msgid "Invalid email address"
-msgstr "Indirizzo email non valido"
+msgstr ""
 
 #: mastodon/views/email.py:25
 msgid "Verification"
-msgstr "Verifica"
+msgstr ""
 
 #: mastodon/views/email.py:27 users/templates/users/verify.html:19
 msgid "Verification email is being sent, please check your inbox."
 msgstr ""
-"È stata inviata un'email di verifica, si prega di controllare la propria "
-"casella di posta in arrivo."
 
 #: mastodon/views/email.py:44 mastodon/views/email.py:53
 msgid "Invalid verification code"
-msgstr "Codice di verifica non valido"
+msgstr ""
 
 #: mastodon/views/mastodon.py:17
 msgid "Missing instance domain"
-msgstr "Dominio d'istanza mancante"
+msgstr ""
 
 #: mastodon/views/mastodon.py:26
 msgid "Error connecting to instance"
-msgstr "Errore durante la connessione all'istanza"
+msgstr ""
 
 #: mastodon/views/mastodon.py:38
 msgid "Invalid response from Fediverse instance."
-msgstr "Risposta non valida dall'istanza del fediverso."
+msgstr ""
 
 #: mastodon/views/mastodon.py:45
 msgid "Invalid cookie data."
-msgstr "Dati dei cookie non validi."
+msgstr ""
 
 #: mastodon/views/mastodon.py:50
 msgid "Invalid instance domain"
-msgstr "Dominio d'istanza non valido"
+msgstr ""
 
 #: mastodon/views/mastodon.py:55
 msgid "Invalid token from Fediverse instance."
-msgstr "Token non valido dall'istanza del Fediverso."
+msgstr ""
 
 #: mastodon/views/mastodon.py:62
 msgid "Invalid account data from Fediverse instance."
-msgstr "Dati account dell'istanza del Fediverso non validi."
+msgstr ""
 
 #: mastodon/views/threads.py:47
 msgid "Invalid account data from Threads."
-msgstr "Dati dell'account Threads non validi."
+msgstr ""
 
 #: social/templates/event/boosted.html:3
 msgid "boosted your post"
-msgstr "ha condiviso il tuo post"
+msgstr ""
 
 #: social/templates/event/boosted_collection.html:2
 #, python-format
@@ -4038,9 +3868,6 @@ msgid ""
 "\n"
 "boosted your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
-"\n"
-"ha condiviso la tua collezione <a href=\"%(piece_url)s\">%(piece_title)s</a>"
-"\n"
 
 #: social/templates/event/boosted_comment.html:3
 #, python-format
@@ -4048,8 +3875,6 @@ msgid ""
 "\n"
 "boosted your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha condiviso il tuo commento su <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_note.html:3
 #, python-format
@@ -4057,8 +3882,6 @@ msgid ""
 "\n"
 "boosted your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha condiviso la tua nota su <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_rating.html:3
 #, python-format
@@ -4066,9 +3889,6 @@ msgid ""
 "\n"
 "boosted your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha condiviso la tua valutazione su <a href=\"%(item_url)s\""
-">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_review.html:2
 #, python-format
@@ -4076,9 +3896,6 @@ msgid ""
 "\n"
 "boosted your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha condiviso la tua valutazione <a href=\"%(piece_url)s\">%(piece_title)s</"
-"a> su <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_shelfmember.html:3
 #, python-format
@@ -4086,21 +3903,18 @@ msgid ""
 "\n"
 "boosted your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha condiviso la tua interazione su <a href=\"%(item_url)s\""
-">%(item_title)s</a>\n"
 
 #: social/templates/event/follow_requested.html:3
 msgid "requested to follow you"
-msgstr "ha richiesto di seguirti"
+msgstr ""
 
 #: social/templates/event/followed.html:3
 msgid "followed you"
-msgstr "ti ha iniziato a seguire"
+msgstr ""
 
 #: social/templates/event/liked.html:3
 msgid "liked your post"
-msgstr "piace il tuo post"
+msgstr ""
 
 #: social/templates/event/liked_collection.html:2
 #, python-format
@@ -4108,9 +3922,6 @@ msgid ""
 "\n"
 "liked your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
-"\n"
-"ha apprezzato la tua collezione <a href=\"%(piece_url)s\">%(piece_title)s</a>"
-"\n"
 
 #: social/templates/event/liked_comment.html:3
 #, python-format
@@ -4118,9 +3929,6 @@ msgid ""
 "\n"
 "liked your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha apprezzato il tuo commento su <a href=\"%(item_url)s\">%(item_title)s</a>"
-"\n"
 
 #: social/templates/event/liked_note.html:3
 #, python-format
@@ -4128,8 +3936,6 @@ msgid ""
 "\n"
 "liked your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha apprezzato la tua nota su <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_rating.html:3
 #, python-format
@@ -4137,9 +3943,6 @@ msgid ""
 "\n"
 "liked your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha apprezzato la tua valutazione su <a href=\"%(item_url)s\""
-">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_review.html:2
 #, python-format
@@ -4147,9 +3950,6 @@ msgid ""
 "\n"
 "liked your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha apprezzato la tua recensione <a href=\"%(piece_url)s\">%(piece_title)s</"
-"a> su <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_shelfmember.html:3
 #, python-format
@@ -4157,13 +3957,10 @@ msgid ""
 "\n"
 "liked your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha apprezzato la tua interazione su <a href=\"%(item_url)s\""
-">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned.html:3
 msgid "mentioned you"
-msgstr "ti ha menzionato"
+msgstr ""
 
 #: social/templates/event/mentioned_collection.html:2
 #, python-format
@@ -4171,9 +3968,6 @@ msgid ""
 "\n"
 "replied to your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
-"\n"
-"ha risposto alla tua collezione <a href=\"%(piece_url)s\">%(piece_title)s</a>"
-"\n"
 
 #: social/templates/event/mentioned_comment.html:3
 #, python-format
@@ -4181,8 +3975,6 @@ msgid ""
 "\n"
 "replied to your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha risposto al tuo commento su <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_note.html:3
 #, python-format
@@ -4190,8 +3982,6 @@ msgid ""
 "\n"
 "replied to your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha risposto alla tua nota su <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_rating.html:3
 #, python-format
@@ -4199,9 +3989,6 @@ msgid ""
 "\n"
 "replied to your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha risposto alla tua valutazione su <a href=\"%(item_url)s\""
-">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_review.html:2
 #, python-format
@@ -4209,9 +3996,6 @@ msgid ""
 "\n"
 "replied to your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha risposto alla tua recensione <a href=\"%(piece_url)s\">%(piece_title)s</"
-"a> su <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_shelfmember.html:3
 #, python-format
@@ -4219,894 +4003,798 @@ msgid ""
 "\n"
 "replied to your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
-"\n"
-"ha risposto alla tua interazione su <a href=\"%(item_url)s\""
-">%(item_title)s</a>\n"
 
 #: social/templates/feed.html:11 social/templates/feed.html:23
 #: social/templates/notification.html:23 social/templates/search_feed.html:11
 msgid "Activities from those you follow"
-msgstr "Attività da chi segui"
+msgstr ""
 
 #: social/templates/feed.html:26 social/templates/feed.html:28
 msgid "All"
-msgstr "Tutto"
+msgstr ""
 
 #: social/templates/feed.html:26 social/templates/feed.html:28
 msgid "What they read/watch/..."
-msgstr "Cosa leggono/guardano/..."
+msgstr ""
 
 #: social/templates/feed.html:30
 msgid "Notifications"
-msgstr "Notifiche"
+msgstr ""
 
 #: social/templates/feed_events.html:23
 msgid "boosted"
-msgstr "ricondiviso"
+msgstr ""
 
 #: social/templates/feed_events.html:41
 msgid "play"
-msgstr "riproduci"
+msgstr ""
 
 #: social/templates/feed_events.html:52
 msgid "mark"
-msgstr "segna"
+msgstr ""
 
 #: social/templates/feed_events.html:71
 msgid "wrote a note"
-msgstr "ha scritto una nota"
+msgstr ""
 
 #: social/templates/feed_events.html:139
 msgid "no matching activities."
-msgstr "nessuna attività corrispondente."
+msgstr ""
 
 #: social/templates/feed_events.html:142
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr ""
-"Trova e segna alcuni libri/film/podcast/giochi, <a href=\"%(import_url)s\""
-">importa i tuoi dati</a> da Goodreads/Letterboxd/Douban, segui alcuni "
-"%(site_name)s utenti nel fediverso in modo che le loro attività recenti e le "
-"tue appaiano qui."
 
 #: social/templates/notification.html:29
 msgid "mention"
-msgstr "menzione"
+msgstr ""
 
 #: social/templates/notification.html:31
 msgid "follow"
-msgstr "segui"
+msgstr ""
+
+#: takahe/models.py:421
+msgid "Display Name"
+msgstr ""
 
 #: takahe/models.py:423
-msgid "Display Name"
-msgstr "Nome Visualizzato"
+msgid "Bio"
+msgstr ""
 
 #: takahe/models.py:425
-msgid "Bio"
-msgstr "Bio"
-
-#: takahe/models.py:427
 msgid "Manually approve new followers"
-msgstr "Approva manualmente i nuovi follower"
+msgstr ""
 
-#: takahe/models.py:431
+#: takahe/models.py:429
 msgid "Include profile and posts in discovery"
-msgstr "Autorizza la scoperta pubblica del profilo e dei post"
+msgstr ""
 
-#: takahe/models.py:434
+#: takahe/models.py:432
 msgid "Include posts in search results"
-msgstr "Includi i post nei risultati di ricerca"
+msgstr ""
 
-#: takahe/models.py:452
+#: takahe/models.py:450
 msgid "Profile picture"
-msgstr "Foto profilo"
+msgstr ""
 
-#: takahe/models.py:459
+#: takahe/models.py:457
 msgid "Header picture"
-msgstr "Foto di copertina"
+msgstr ""
 
 #: users/models/task.py:19
 msgid "Pending"
-msgstr "In attesa"
+msgstr ""
 
 #: users/models/task.py:20
 msgid "Started"
-msgstr "Iniziato"
+msgstr ""
 
 #: users/models/task.py:21
 msgid "Complete"
-msgstr "Completato"
+msgstr ""
 
 #: users/models/task.py:22
 msgid "Failed"
-msgstr "Fallito"
+msgstr ""
 
-#: users/models/user.py:55
+#: users/models/user.py:53
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr ""
-"Inserisci un nome utente valido. Questo valore può contenere solo lettere "
-"minuscole a-z e lettere maiuscole A-Z senza accenti, numeri, e_simboli."
 
-#: users/models/user.py:103
+#: users/models/user.py:101
 msgid "username"
-msgstr "nome utente"
+msgstr ""
 
-#: users/models/user.py:108
+#: users/models/user.py:106
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
-msgstr "Richiesto. 50 caratteri o meno. Lettere, numeri e solo _."
+msgstr ""
 
-#: users/models/user.py:111
+#: users/models/user.py:109
 msgid "A user with that username already exists."
-msgstr "Esiste già un utente con quel nome."
+msgstr ""
 
 #: users/templates/users/account.html:10
 msgid "Account Information"
-msgstr "Informazioni sull'account"
+msgstr ""
 
 #: users/templates/users/account.html:19
 msgid "Display name, avatar and other information"
-msgstr "Visualizza nome, avatar e altre informazioni"
+msgstr ""
 
 #: users/templates/users/account.html:22
 msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
 msgstr ""
-"Aggiornare le informazioni qui disabiliterà automaticamente la "
-"sincronizzazione del tuo nome visualizzato, bio e avatar dalla tua istanza "
-"Mastodon. Vuoi procedere?"
 
 #: users/templates/users/account.html:25
 msgid "Username"
-msgstr "Nome utente"
+msgstr ""
 
 #: users/templates/users/account.html:50 users/templates/users/register.html:37
 msgid "Email address"
-msgstr "Indirizzo email"
+msgstr ""
 
 #: users/templates/users/account.html:59 users/templates/users/register.html:46
 #, python-format
 msgid "Please click the confirmation link in the email sent to %(pending_email)s; if you haven't received it for more than a few minutes, please input and save again."
 msgstr ""
-"Si prega di cliccare il link di conferma nell'email inviata a "
-"%(pending_email)s; se dopo alcuni minuti non l'hai ancora ricevuta, "
-"inseriscila e salvala ancora."
 
 #: users/templates/users/account.html:61 users/templates/users/register.html:49
 msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
 msgstr ""
-"L'email è consigliata come metodo di backup per l'accesso se fai l'accesso "
-"attraverso un'istanza del Fediverso"
 
-#: users/templates/users/account.html:73 users/templates/users/login.html:69
+#: users/templates/users/account.html:73 users/templates/users/login.html:65
 msgid "Fediverse (Mastodon)"
-msgstr "Fediverso (Mastodon)"
+msgstr ""
 
 #: users/templates/users/account.html:79
 msgid "Verified Identity"
-msgstr "Identità Verificata"
+msgstr ""
 
 #: users/templates/users/account.html:86 users/templates/users/account.html:148
 #: users/templates/users/account.html:186
 #: users/templates/users/account.html:263
 msgid "Last updated"
-msgstr "Ultimo aggiornamento"
+msgstr ""
 
 #: users/templates/users/account.html:92
 msgid "If you have not yet registered with any Federated instance, you may <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an instance</a> and register."
 msgstr ""
-"Se non ti sei ancora registrato con un'istanza federata, puoi <a href="
-"\"https://joinmastodon.org/zh/servers\" target=\"_blank\">scegliere "
-"un'istanza</a> e registrarti."
 
 #: users/templates/users/account.html:97
 msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
 msgstr ""
-"Per associare con un'altra identità federata, si prega di inserire il nome "
-"del dominio dell'istanza nella quale si trova la nuova identità."
 
 #: users/templates/users/account.html:99
 msgid "If you have registered with a Federated instance, please enter the instance domain name."
 msgstr ""
-"Se ti sei registrato con un'istanza federata, si prega di inserire il nome "
-"del dominio dell'istanza."
 
 #: users/templates/users/account.html:108
 msgid "Go to target instance and authorize with the identity"
-msgstr "Vai all'istanza selezionata e autorizza con l'identità"
+msgstr ""
 
 #: users/templates/users/account.html:113
 msgid "After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected."
 msgstr ""
-"Dopo aver sostituito l'associazione, puoi usare la nuova identità del "
-"fediverso per effettuare l'accesso e controllare la visibilità dei dati. I "
-"dati esistenti tra i quali tag, commenti e collezioni, non verranno "
-"modificati."
 
 #: users/templates/users/account.html:115
 msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
 msgstr ""
-"Una volta associato con un'identità del Fediverso, potrai scoprire più "
-"utenti e usare l'interezza delle funzionalità di questo sito."
 
 #: users/templates/users/account.html:123
 #: users/templates/users/account.html:160
 #: users/templates/users/account.html:215
 msgid "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?"
 msgstr ""
-"Una volta disconnesso, non potrai più effettuare l'accesso con questa "
-"identità. Sei sicuro di voler procedere?"
 
 #: users/templates/users/account.html:126
 msgid "Disconnect with this identity"
-msgstr "Disconnetti con questa identità"
+msgstr ""
 
 #: users/templates/users/account.html:135
 msgid "Threads.net"
-msgstr "Threads.net"
+msgstr ""
 
 #: users/templates/users/account.html:141
 msgid "Verified threads.net account"
-msgstr "Account threads.net verificato"
+msgstr ""
 
 #: users/templates/users/account.html:154
 msgid "Link with a different threads.net account"
-msgstr "Associa ad un account threads.net diverso"
+msgstr ""
 
 #: users/templates/users/account.html:154
 msgid "Link with a threads.net account"
-msgstr "Associa ad un account threads.net"
+msgstr ""
 
 #: users/templates/users/account.html:163
 msgid "Disconnect with Threads"
-msgstr "Disconnetti con Threads"
+msgstr ""
 
-#: users/templates/users/account.html:173 users/templates/users/login.html:95
+#: users/templates/users/account.html:173 users/templates/users/login.html:87
 msgid "Bluesky (ATProto)"
-msgstr "Bluesky (ATProto)"
+msgstr ""
 
 #: users/templates/users/account.html:179
 msgid "Verified ATProto identity"
-msgstr "Identità ATProto verificata"
+msgstr ""
 
 #: users/templates/users/account.html:194
 msgid "Bluesky Login ID"
-msgstr "Login ID Bluesky"
+msgstr ""
 
-#: users/templates/users/account.html:202 users/templates/users/login.html:171
+#: users/templates/users/account.html:202 users/templates/users/login.html:163
 msgid "Bluesky app password"
-msgstr "Password dell'app Bluesky"
+msgstr ""
 
 #: users/templates/users/account.html:208
 msgid "Link with a different ATProto identity"
-msgstr "Associa ad un'identità ATProto diversa"
+msgstr ""
 
 #: users/templates/users/account.html:208
 msgid "Link with an ATProto identity"
-msgstr "Associa ad un'identità ATProto"
+msgstr ""
 
-#: users/templates/users/account.html:209 users/templates/users/login.html:176
+#: users/templates/users/account.html:209 users/templates/users/login.html:168
 msgid "App password can be created on <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
 msgstr ""
-"La password dell'app può essere creata su<a href="
-"\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
 
 #: users/templates/users/account.html:218
 msgid "Disconnect with ATProto identity"
-msgstr "Disconnetti con l'identità ATProto"
+msgstr ""
 
 #: users/templates/users/account.html:229
 msgid "Sync and import social account"
-msgstr "Sincronizza e importa l'account social"
+msgstr ""
 
 #: users/templates/users/account.html:239
 msgid "Sync display name, bio and avatar"
-msgstr "Sincronizza nome visualizzato, bio e avatar"
+msgstr ""
 
 #: users/templates/users/account.html:247
 msgid "Sync follow, mute and block"
-msgstr "Sincronizza seguiti, silenziati e bloccati"
+msgstr ""
 
 #: users/templates/users/account.html:250
 msgid "Save sync settings"
-msgstr "Salva le impostazioni di sincronizzazione"
+msgstr ""
 
 #: users/templates/users/account.html:252
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
 msgstr ""
-"I nuovi seguiti, silenziati e bloccati nell'identità associata potrebbero "
-"essere importati automaticamente; la rimozione deve essere fatta manualmente."
 
 #: users/templates/users/account.html:259
 msgid "Click button below to start sync now."
-msgstr "Clicca il bottone sottostante per iniziare la sincronizzazione adesso."
+msgstr ""
 
 #: users/templates/users/account.html:260
 msgid "Sync now"
-msgstr "Sincronizza adesso"
+msgstr ""
 
 #: users/templates/users/account.html:272
 msgid "Users you are following"
-msgstr "Utenti che stai seguendo"
+msgstr ""
 
 #: users/templates/users/account.html:278
 msgid "Users who follow you"
-msgstr "Utenti che ti seguono"
+msgstr ""
 
 #: users/templates/users/account.html:284
 msgid "Users who request to follow you"
-msgstr "Utenti che ti hanno chiesto di seguirti"
+msgstr ""
 
 #: users/templates/users/account.html:290
 msgid "Users you are muting"
-msgstr "Utenti che hai silenziato"
+msgstr ""
 
 #: users/templates/users/account.html:296
 msgid "Users you are blocking"
-msgstr "Utenti che hai bloccato"
+msgstr ""
 
 #: users/templates/users/account.html:303
 msgid "Delete Account"
-msgstr "Elimina Profilo"
+msgstr ""
 
 #: users/templates/users/account.html:306
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr ""
-"Una volta eliminato, i dati dell'account non potranno essere recuperati. "
-"Vuoi continuare?"
 
 #: users/templates/users/account.html:309
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr ""
-"Per confermare l'eliminazione inserire per intero "
-"<code>username@instance.social</code> o <code>email@domain.com</code>."
 
 #: users/templates/users/account.html:319
 msgid "Once deleted, account data cannot be recovered."
 msgstr ""
-"Una volta eliminati, i dati dell'account non potranno essere recuperati."
 
 #: users/templates/users/account.html:322
 msgid "Importing in progress, can't delete now."
-msgstr "Importazione in corso, impossibile eliminare adesso."
+msgstr ""
 
 #: users/templates/users/account.html:326
 msgid "Permanently Delete"
-msgstr "Eliminato Definitivamente"
+msgstr ""
 
 #: users/templates/users/data.html:10
 msgid "Data Management"
-msgstr "Gestione Dati"
+msgstr ""
 
 #: users/templates/users/data.html:19
 msgid "Import Marks and Reviews from Douban"
-msgstr "Importa Interazioni e Valutazioni da Douban"
+msgstr ""
 
 #: users/templates/users/data.html:24
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr ""
-"Seleziona<code>.xlsx</code>esportato da <a href=\"https://doufen.org\" "
-"target=\"_blank\" rel=\"noopener\">Doufen</a>"
 
 #: users/templates/users/data.html:27 users/templates/users/data.html:194
 msgid "Import Method"
-msgstr "Metodo d'importazione"
+msgstr ""
 
 #: users/templates/users/data.html:30
 msgid "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete."
 msgstr ""
-"Associa: aggiorna solamente quanto lo status cambia da wishlist a "
-"\"in corso\", o da \"in corso\" a completato."
 
 #: users/templates/users/data.html:34
 msgid "Overwrite: update all imported status."
-msgstr "Sovrascrivi: aggiorna tutti gli status importati."
+msgstr ""
 
 #: users/templates/users/data.html:67
 msgid "Another import is in progress, starting a new import may cause issues, sure to import?"
 msgstr ""
-"Un'altra importazione è in corso, avviare una nuova importazione potrebbe "
-"causare problemi, sicuro di voler importare?"
 
 #: users/templates/users/data.html:67
 msgid "Import in progress, please wait"
-msgstr "Importazione in corso, attendere prego"
+msgstr ""
 
 #: users/templates/users/data.html:67 users/templates/users/data.html:86
 #: users/templates/users/data.html:167 users/templates/users/data.html:210
 msgid "Import"
-msgstr "Importa"
+msgstr ""
 
 #: users/templates/users/data.html:76
 msgid "Import Shelf or List from Goodreads"
-msgstr "Importa Libreria o Lista da Goodreads"
+msgstr ""
 
 #: users/templates/users/data.html:80
 msgid "Link to Goodreads Profile / Shelf / List"
-msgstr "Associa al Profilo Goodreads / Libreria / Lista"
+msgstr ""
 
 #: users/templates/users/data.html:90 users/templates/users/data.html:172
 #: users/templates/users/data_import_status.html:2
 msgid "Last import started"
-msgstr "Ultima importazione iniziata"
+msgstr ""
 
 #: users/templates/users/data.html:91 users/templates/users/data.html:173
 #: users/templates/users/data.html:226
 #: users/templates/users/data_import_status.html:3
 msgid "Status"
-msgstr "Status"
+msgstr ""
 
 #: users/templates/users/data.html:100
 msgid "want-to-read / currently-reading / read books and their reviews will be imported."
 msgstr ""
-"voler leggere / in lettura / libri letti e le loro rispettive recensioni "
-"saranno importate."
 
 #: users/templates/users/data.html:104
 msgid "Shelf will be imported as a new collection."
-msgstr "Libreria sarà importata come una nuova collezione."
+msgstr ""
 
 #: users/templates/users/data.html:108
 msgid "List will be imported as a new collection."
-msgstr "Lista verrà importata come una nuova collezione."
+msgstr ""
 
 #: users/templates/users/data.html:119
 msgid "Import from Letterboxd"
-msgstr "Importa da Letterboxd"
+msgstr ""
 
 #: users/templates/users/data.html:169
 msgid "Only forward changes(none->to-watch->watched) will be imported."
-msgstr "Solo i cambi successivi(nessuno->da vedere->visto) saranno importati."
+msgstr ""
 
 #: users/templates/users/data.html:177
 msgid "Failed links, likely due to Letterboxd error, you may have to mark them manually"
 msgstr ""
-"Le associazioni non riuscite, probabilmente a causa di un errore di "
-"Letterboxd, dovresti poterle segnare manualmente"
 
 #: users/templates/users/data.html:188
 msgid "Import Podcast Subscriptions"
-msgstr "Importa Iscrizioni Podcast"
+msgstr ""
 
 #: users/templates/users/data.html:201
 msgid "Mark as listening"
-msgstr "Segna come \"in ascolto\""
+msgstr ""
 
 #: users/templates/users/data.html:205
 msgid "Import as a new collection"
-msgstr "Importa come una nuova collezione"
+msgstr ""
 
 #: users/templates/users/data.html:208
 msgid "Select OPML file"
-msgstr "Seleziona file OPML"
+msgstr ""
 
 #: users/templates/users/data.html:217
 msgid "Export Data"
-msgstr "Esporta Dati"
+msgstr ""
 
 #: users/templates/users/data.html:222
 msgid "Export marks and reviews"
-msgstr "Esporta interazioni e recensioni"
+msgstr ""
 
 #: users/templates/users/data.html:225
 msgid "Last export"
-msgstr "Ultime esportazioni"
+msgstr ""
 
 #: users/templates/users/data.html:230
 msgid "Download"
-msgstr "Scarica"
+msgstr ""
 
 #: users/templates/users/data.html:238
 msgid "View Annual Summary"
-msgstr "Visualizza Sintesi Annuale"
+msgstr ""
 
 #: users/templates/users/data_import_status.html:11
 msgid "Failed links, you may have to mark them manually"
-msgstr "Associazioni non riuscite, dovresti poterle segnare manualmente"
+msgstr ""
 
 #: users/templates/users/fetch_identity_failed.html:4
 msgid "Unable to find the user, please check your spelling; or the server may be busy, please try again later."
 msgstr ""
-"Impossibile trovare l'utente, si prega di controllare l'ortografia; oppure "
-"il server potrebbe essere occupato, si prega di riprovare successivamente."
 
 #: users/templates/users/fetch_identity_pending.html:12
 #: users/templates/users/fetch_identity_pending.html:21
 msgid "Searching the fediverse"
-msgstr "Cercando nel fediverso"
+msgstr ""
 
 #: users/templates/users/login.html:16
 msgid "Login"
-msgstr "Accesso"
+msgstr ""
 
 #: users/templates/users/login.html:51
 #: users/templates/users/verify_email.html:22
 msgid "back to your home page."
-msgstr "ritorna alla tua pagina iniziale."
+msgstr ""
 
-#: users/templates/users/login.html:111
+#: users/templates/users/login.html:103
 msgid "Enter your email address"
-msgstr "Inserisci il tuo indirizzo email"
+msgstr ""
 
-#: users/templates/users/login.html:113
+#: users/templates/users/login.html:105
 msgid "Send verification code"
-msgstr "Invia codice di verifica"
+msgstr ""
 
-#: users/templates/users/login.html:128
+#: users/templates/users/login.html:120
 msgid "Domain of your instance, e.g. mastodon.social"
-msgstr "Dominio della tua istanza, es: mastodon.social"
+msgstr ""
 
-#: users/templates/users/login.html:134
+#: users/templates/users/login.html:126
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
 msgstr ""
-"Si prega di inserire il dominio della tua istanza; es. se il tuo id è "
-"<i>@neodb@mastodon.social</i>, inserisci solamente <i>mastodon.social</i>."
 
-#: users/templates/users/login.html:137 users/templates/users/login.html:190
+#: users/templates/users/login.html:129 users/templates/users/login.html:182
 msgid "Authorize via Fediverse instance"
-msgstr "Autorizza attraverso l'istanza del Fediverso"
+msgstr ""
 
-#: users/templates/users/login.html:139
+#: users/templates/users/login.html:131
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
 msgstr ""
-"Se non hai ancora un <a href=\"https://joinmastodon.org/servers\" target="
-"\"_blank\">Account del Fediverso (Mastodon)</a> , dovresti registrarti o "
-"effettuare l'accesso con l'email prima, e poi associarla con il profilo del "
-"Fediverso (Mastodon) successivamente nelle impostazioni del profilo."
 
-#: users/templates/users/login.html:149
+#: users/templates/users/login.html:141
 msgid "Authorize via Threads"
-msgstr "Autorizza attraverso Threads"
+msgstr ""
 
-#: users/templates/users/login.html:162
+#: users/templates/users/login.html:154
 msgid "ATProto handle"
-msgstr "Nome utente ATProto"
+msgstr ""
 
-#: users/templates/users/login.html:167
+#: users/templates/users/login.html:159
 msgid "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one."
 msgstr ""
-"Si prega di inserire il proprio nome utente ATProto (es. neodb.bsky.social, "
-"senza la \"@\"), nonusare l'email. Se hai recentemente cambiato nome utente, "
-"usa quello più recente."
 
-#: users/templates/users/login.html:177
+#: users/templates/users/login.html:169
 msgid "Authorize via bsky.app"
-msgstr "Autorizza attraverso bsky.app"
+msgstr ""
 
-#: users/templates/users/login.html:181
+#: users/templates/users/login.html:173
 #, python-format
 msgid "Please choose one to register or login %(site_name)s. Have more than one of these identities? Don't worry, you may link them in account settings once logged in."
 msgstr ""
-"Si prega di usare uno per registrarsi o effettuare l'accesso %(site_name)s. "
-"Hai più di una di queste identità? Non preoccuparti, potrai associarle "
-"successivamente nelle impostazioni dell'account una volta effetuato "
-"l'accesso."
 
-#: users/templates/users/login.html:197
+#: users/templates/users/login.html:189
 msgid "Valid invitation code, please login or register."
 msgstr ""
-"Codice d'invito non valido, si prega di effettuare l'accesso oppure "
-"registrarsi."
 
-#: users/templates/users/login.html:199
+#: users/templates/users/login.html:191
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr ""
-"Si prega di usare il link d'invito per registrare un nuovo account; l'utente "
-"esistente può effettuare l'accesso."
+
+#: users/templates/users/login.html:193
+msgid "Invitation code invalid or expired."
+msgstr ""
 
 #: users/templates/users/login.html:201
-msgid "Invitation code invalid or expired."
-msgstr "Codice d'invito non valido o scaduto."
-
-#: users/templates/users/login.html:209
 msgid "Loading timed out, please check your network (VPN) settings."
 msgstr ""
-"Caricamento interrotto, si prega di controllare le impostazioni di rete "
-"(VPN)."
 
-#: users/templates/users/login.html:215
+#: users/templates/users/login.html:207
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
 msgstr ""
-"Continuare a usare questo sito sottointende il vostro consenso alle nostre "
-"<a href=\"/pages/rules/\">regole</a>e<a href=\"/pages/terms/\">termini</a>, "
-"incluso l'utilizzo di cookies per provvedere le funionalità necessarie al "
-"corretto funzionamento del sito."
 
-#: users/templates/users/login.html:221
+#: users/templates/users/login.html:213
 msgid "Domain of your instance (excl. @)"
-msgstr "Dominio della tua istanza (esclusa @)"
+msgstr ""
 
 #: users/templates/users/preferences.html:27
 msgid "Default view once logged in"
-msgstr "Visualizzazione di base una volta effettuato l'accesso"
+msgstr ""
 
 #: users/templates/users/preferences.html:39
 msgid "Activities"
-msgstr "Attività"
+msgstr ""
 
 #: users/templates/users/preferences.html:48
 msgid "Default visibility"
-msgstr "Visibilità predefinita"
+msgstr ""
 
 #: users/templates/users/preferences.html:72
 msgid "Public status will be posted to fediverse"
-msgstr "Gli status pubblici verranno pubblicati nel fediverso"
+msgstr ""
 
 #: users/templates/users/preferences.html:78
 msgid "in public timeline"
-msgstr "nella timeline pubblica"
+msgstr ""
 
 #: users/templates/users/preferences.html:84
 msgid "unlisted and excluded from public timeline"
-msgstr "non in lista ed escluso dalla timeline pubblica"
+msgstr ""
 
 #: users/templates/users/preferences.html:91
 msgid "local, this site only"
-msgstr "locale, solo questo sito"
+msgstr ""
 
 #: users/templates/users/preferences.html:97
 msgid "Turn on crosspost to timeline by default"
-msgstr "Abilita in maniera predefinita la condivisione sulla timeline"
+msgstr ""
 
 #: users/templates/users/preferences.html:105
 msgid "Method for crossposting to timeline"
-msgstr "Metodo per condividere sulla timeline"
+msgstr ""
 
 #: users/templates/users/preferences.html:112
 msgid "Boost if possible"
-msgstr "Ricondividi se possibile"
+msgstr ""
 
 #: users/templates/users/preferences.html:119
 msgid "Create a new post"
-msgstr "Crea un nuovo post"
+msgstr ""
 
 #: users/templates/users/preferences.html:120
 msgid "this method is less optimal, may generate duplicated posts and miss reactions."
 msgstr ""
-"questo metodo è meno ottimale, potrebbe generare post duplicati e mancare le "
-"reazioni."
 
 #: users/templates/users/preferences.html:124
 msgid "Append tags when posting to timeline"
-msgstr "Aggiunta di tag quando si pubblica nella timeline"
+msgstr ""
 
 #: users/templates/users/preferences.html:127
 msgid "e.g. #bookstodon"
-msgstr "es. #bookstodon"
+msgstr ""
 
 #: users/templates/users/preferences.html:132
 msgid "Language"
-msgstr "Lingua"
+msgstr ""
 
 #: users/templates/users/preferences.html:141
 msgid "Automatic bookmark for these categories"
-msgstr "Aggiungere automaticamente un segnalibro per queste categorie"
+msgstr ""
 
 #: users/templates/users/preferences.html:154
 msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
 msgstr ""
-"Quando si inizia a leggere/vedere/giocare/... un elemento facente parte di "
-"queste categorie, verrà creato automaticamente un segnalibro. I segnalibri "
-"possono essere visualizzati e gestiti nella maggior parte delle <a href="
-"\"https://joinmastodon.org/apps\" target=\"_blank\"> applicazioni "
-"compatibili con Mastodon</a>; le tue risposte a questi post diventeranno "
-"automaticamente note per l'elemento."
 
 #: users/templates/users/preferences.html:158
 msgid "Hide these categories in search results"
-msgstr "Nascondi queste categorie nei risultati di ricerca"
+msgstr ""
 
 #: users/templates/users/preferences.html:176
 msgid "Profile visible to anonymous web visitors and search engines"
-msgstr "Profilo visibile ai visitatori anonimi del web e ai motori di ricerca"
+msgstr ""
 
 #: users/templates/users/preferences.html:177
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
 msgstr ""
-"questa opzione limita solamente le visite del web; per limitare la "
-"visibilità nel fediverso, scegliere \"solo seguaci\" o \"solo menzionati\" "
-"solo mentre si pubblica"
 
 #: users/templates/users/preferences.html:185
 msgid "Show your name on item page if you recently edited it"
 msgstr ""
-"Mostra il tuo nome nella pagina dell'elemento se l'hai modificato di recente"
 
 #: users/templates/users/preferences.html:194
 msgid "Settings for current device"
-msgstr "Impostazioni del dispositivo attuale"
+msgstr ""
 
 #: users/templates/users/preferences.html:196
 msgid "theme"
-msgstr "tema"
+msgstr ""
 
 #: users/templates/users/preferences.html:199
 msgid "system"
-msgstr "sistema"
+msgstr ""
 
 #: users/templates/users/preferences.html:201
 msgid "light"
-msgstr "chiaro"
+msgstr ""
 
 #: users/templates/users/preferences.html:203
 msgid "dark"
-msgstr "scuro"
+msgstr ""
 
 #: users/templates/users/preferences.html:205
 msgid "Focus mode"
-msgstr "Modalità concentrazione"
+msgstr ""
 
 #: users/templates/users/preferences.html:208
 msgid "hide reviews and ratings from other users"
-msgstr "nascondi recensioni e valutazioni degli altri utenti"
+msgstr ""
 
 #: users/templates/users/preferences.html:210
 msgid "Number of items per page"
-msgstr "Numero di elementi per pagina"
+msgstr ""
 
 #: users/templates/users/preferences.html:219
 msgid "Custom styles"
-msgstr "Stili personalizzati"
+msgstr ""
 
 #: users/templates/users/preferences.html:241
 msgid "Settings for current device saved"
-msgstr "Impostazioni del dispositivo attuale salvate"
+msgstr ""
 
 #: users/templates/users/preferences.html:247
 msgid "Additional Settings"
-msgstr "Impostazioni Aggiuntive"
+msgstr ""
 
 #: users/templates/users/preferences.html:249
 msgid "View authorized applications"
-msgstr "Visualizza applicazioni autorizzate"
+msgstr ""
 
 #: users/templates/users/preferences.html:253
 msgid "Migrate account"
-msgstr "Migra account"
+msgstr ""
 
 #: users/templates/users/preferences.html:255
 msgid "Link an email so that you can migrate followers from other Fediverse instances."
 msgstr ""
-"Associa un'email in modo da poter trasferire i seguaci da altre istanze del "
-"Fediverso."
 
 #: users/templates/users/profile_actions.html:12
 msgid "click to unblock"
-msgstr "clicca per sbloccare"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:13
 msgid "are you sure to unblock?"
-msgstr "sei sicuro di voler sbloccare?"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:16
 msgid "blocked"
-msgstr "bloccato"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:28
 msgid "user profile"
-msgstr "profilo utente"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:45
 msgid "original home"
-msgstr "casa d'origine"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:69
 msgid "accept follow request"
-msgstr "accetta richiesta di seguire"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:71
 msgid "sure to accept follow request?"
-msgstr "sicuro di voler accettare la richiesta di follow?"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:79
 msgid "reject follow request"
-msgstr "rifiuta la richiesta di follow"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:81
 msgid "sure to reject follow request?"
-msgstr "sicuro di voler rifiutare la richiesta di follow?"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:91
 msgid "click to unfollow"
-msgstr "clicca per smettere di seguire"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:93
 msgid "sure to unfollow?"
-msgstr "sicuro di smettere di seguire?"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:102
 msgid "click to cancel follow request"
-msgstr "clicca per cancellare richiesta di follow"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:104
 msgid "sure to cancel follow request?"
-msgstr "sicuro di voler cancellare la richiesta di seguire?"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:113
 msgid "click to follow"
-msgstr "clicca per seguire"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:114
 msgid "sure to follow?"
-msgstr "sicuro di voler seguire?"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:124
 msgid "click to mute"
-msgstr "clicca per silenziare"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:133
 msgid "click to unmute"
-msgstr "clicca per de-silenziare"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:143
 msgid "click to block"
-msgstr "clicca per bloccare"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:144
 msgid "sure to block?"
-msgstr "sicuro di bloccare?"
+msgstr ""
 
 #: users/templates/users/register.html:25
 #, python-format
 msgid "Your username on %(site_name)s"
-msgstr "Il tuo nome utente su %(site_name)s"
+msgstr ""
 
 #: users/templates/users/register.html:27
 msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
 msgstr ""
-"da 2 a 30 caratteri, numeri o trattini in basso _, non possono essere "
-"cambiati una volta salvati"
 
 #: users/templates/users/register.html:67
 msgid "Turn on crosspost to other social networks by default"
-msgstr "Abilita in maniera predefinita la condivisione su altri social network"
+msgstr ""
 
 #: users/templates/users/register.html:71
 msgid "Use display name, bio and avatar from the social network you authenticated with"
 msgstr ""
-"Usa il nome visualizzato, bio e avatar del social network con il quale ti "
-"sei autenticato"
 
 #: users/templates/users/register.html:79
 msgid "Add follow, mute and block list from the social network you authenticated with"
 msgstr ""
-"Aggiungi seguiti, silenziati e lista bloccati dal social network con il "
-"quale ti sei autenticato"
 
 #: users/templates/users/register.html:84
 msgid "Confirm and save"
-msgstr "Conferma e salva"
+msgstr ""
 
 #: users/templates/users/register.html:88 users/templates/users/welcome.html:27
 msgid "Cut the sh*t and get me in!"
-msgstr "Basta con le ca**ate, fammi entrare!"
+msgstr ""
 
 #: users/templates/users/relationship_list.html:17
 msgid "export"
-msgstr "esporta"
+msgstr ""
 
 #: users/templates/users/relationship_list.html:21
 msgid "You may download the list here."
-msgstr "Puoi scaricare qui la lista."
+msgstr ""
 
 #: users/templates/users/verify.html:21
 msgid "Please enter the verification code you received."
-msgstr "Si prega di inserire il codice di verifica che hai ricevuto."
+msgstr ""
 
 #: users/templates/users/verify_email.html:8
 #: users/templates/users/verify_email.html:17
 msgid "Verify Your Email"
-msgstr "Verifica la tua email"
+msgstr ""
 
 #: users/templates/users/verify_email.html:20
 msgid "verified successfully."
-msgstr "verificato correttamente."
+msgstr ""
 
 #: users/templates/users/verify_email.html:27
 msgid "login again"
-msgstr "accedi di nuovo"
+msgstr ""
 
 #: users/templates/users/welcome.html:20
 msgid "Welcome"
-msgstr "Benvenuti"
+msgstr ""
 
 #: users/templates/users/welcome.html:22
 #, python-format
@@ -5115,78 +4803,71 @@ msgid ""
 "              %(site_name)s is flourishing because of collaborations and contributions from users like you. Please read our <a href=\"/pages/terms\">term of service</a>, and feel free to <a href=\"%(support_link)s\">contact us</a> if you have any question or feedback.\n"
 "        "
 msgstr ""
-"\n"
-"              %(site_name)s sta avendo successo grazie ai collaboratori e ai "
-"contributi effettuati da utenti come te. Leggi i nostri <a href="
-"\"/pages/terms\">termini di servizio</a>, e sentiti libero di <a href="
-"\"%(support_link)s\">contattarci</a> per qualsiasi domanda o per un feedback."
-"\n"
-"        "
 
 #: users/views/account.py:79
 msgid "This username is already in use."
-msgstr "Questo nome utente è già in uso."
+msgstr ""
 
 #: users/views/account.py:90
 msgid "This email address is already in use."
-msgstr "Questo indirizzo email è già in uso."
+msgstr ""
 
 #: users/views/account.py:106
 msgid "Registration is for invitation only"
-msgstr "La registrazione è soltanto per invito"
+msgstr ""
 
 #: users/views/account.py:176
 msgid "Valid username required"
-msgstr "Nome utente valido richiesto"
+msgstr ""
 
 #: users/views/account.py:178
 msgid "Username in use"
-msgstr "Nome utente in uso"
+msgstr ""
 
 #: users/views/account.py:250
 msgid "Account is being deleted."
-msgstr "L'account è in fase di eliminazione."
+msgstr ""
 
 #: users/views/account.py:253
 msgid "Account mismatch."
-msgstr "Le informazzioni del profilo non corrispondono."
+msgstr ""
 
 #: users/views/data.py:129
 msgid "Generating exports."
-msgstr "Generando esportazioni."
+msgstr ""
 
 #: users/views/data.py:135
 msgid "Export file not available."
-msgstr "File d'esportazione non disponibile."
+msgstr ""
 
 #: users/views/data.py:147
 msgid "Export file expired. Please export again."
-msgstr "File d'esportazione scaduto. Si prega di esportare nuovamente."
+msgstr ""
 
 #: users/views/data.py:156
 msgid "Sync in progress."
-msgstr "Sincronizzazione in corso."
+msgstr ""
 
 #: users/views/data.py:170
 msgid "Settings saved."
-msgstr "Impostazioni salvate."
+msgstr ""
 
 #: users/views/data.py:181
 msgid "Reset completed."
-msgstr "Reset completato."
+msgstr ""
 
 #: users/views/data.py:195
 msgid "Import in progress."
-msgstr "Importazione in corso."
+msgstr ""
 
 #: users/views/data.py:197
 msgid "Invalid URL."
-msgstr "URL non valido."
+msgstr ""
 
 #: users/views/data.py:215 users/views/data.py:265
 msgid "Invalid file."
-msgstr "File non valido."
+msgstr ""
 
 #: users/views/data.py:224 users/views/data.py:247 users/views/data.py:262
 msgid "File is uploaded and will be imported soon."
-msgstr "Il file è stato caricato e verrà importato a breve."
+msgstr ""
