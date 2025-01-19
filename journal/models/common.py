@@ -118,7 +118,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     @classmethod
     def from_db(cls, db, field_names, values):
         instance = super().from_db(db, field_names, values)
-        instance.previous_visibility = instance.visibility
+        if hasattr(instance, "visibility"):
+            instance.previous_visibility = instance.visibility
         return instance
 
     def save(self, *args, **kwargs):
@@ -126,9 +127,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         if self.local and self.post_when_save:
             visibility_changed = self.previous_visibility != self.visibility
             self.previous_visibility = self.visibility
-            self.sync_to_timeline(1 if visibility_changed else 0)
+            update_mode = 1 if visibility_changed else 0
+            self.sync_to_timeline(update_mode)
             if self.crosspost_when_save:
-                self.sync_to_social_accounts(0)
+                self.sync_to_social_accounts(update_mode)
         if self.index_when_save:
             self.update_index()
 
@@ -136,6 +138,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         if self.local:
             self.delete_from_timeline()
             self.delete_crossposts()
+        if self.local or self.index_when_save:
             self.delete_index()
         return super().delete(*args, **kwargs)
 
