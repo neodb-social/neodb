@@ -27,6 +27,9 @@ _separaters = {"–", "―", "−", "—", "-"}
 
 
 class Note(Content):
+    post_when_save = True
+    index_when_save = True
+
     class ProgressType(models.TextChoices):
         PAGE = "page", _("Page")
         CHAPTER = "chapter", _("Chapter")
@@ -150,16 +153,13 @@ class Note(Content):
 
     @override
     @classmethod
-    def update_by_ap_object(cls, owner, item, obj, post):
-        # new_piece = cls.get_by_post_id(post.id) is None
-        p = super().update_by_ap_object(owner, item, obj, post)
-        if p and p.local:
-            # if local piece is created from a post, update post type_data and fanout
-            p.sync_to_timeline()
-            if owner.user.preference.mastodon_default_repost and owner.user.mastodon:
-                p.sync_to_social_accounts()
-            p.update_index()
-        return p
+    def update_by_ap_object(cls, owner, item, obj, post, crosspost=None):
+        crosspost = (
+            owner.local
+            and owner.user.preference.mastodon_default_repost
+            and owner.user.mastodon is not None
+        )
+        return super().update_by_ap_object(owner, item, obj, post, crosspost)
 
     @cached_property
     def shelfmember(self) -> ShelfMember | None:

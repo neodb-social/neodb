@@ -49,6 +49,8 @@ class Collection(List):
     if TYPE_CHECKING:
         members: models.QuerySet[CollectionMember]
     url_path = "collection"
+    post_when_save = True
+    index_when_save = True
     MEMBER_CLASS = CollectionMember
     catalog_item = models.OneToOneField(
         CatalogCollection, on_delete=models.PROTECT, related_name="journal_item"
@@ -116,8 +118,6 @@ class Collection(List):
             self.catalog_item.cover = self.cover
             self.catalog_item.save()
         super().save(*args, **kwargs)
-        self.sync_to_timeline()
-        self.update_index()
 
     def get_ap_data(self):
         return {

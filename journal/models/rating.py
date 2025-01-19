@@ -39,7 +39,7 @@ class Rating(Content):
         }
 
     @classmethod
-    def update_by_ap_object(cls, owner, item, obj, post):
+    def update_by_ap_object(cls, owner, item, obj, post, crosspost=None):
         p = cls.objects.filter(owner=owner, item=item).first()
         if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
             return p  # incoming ap object is older than what we have, no update needed

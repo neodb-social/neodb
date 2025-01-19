@@ -98,19 +98,8 @@ def note_edit(request: AuthedHttpRequest, item_uuid: str, note_uuid: str = ""):
             raise Http404(_("Content not found"))
         note.delete()
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
-    if note:
-        orig_visibility = note.visibility
-    else:
-        orig_visibility = None
     if not form.is_valid():
         raise BadRequest(_("Invalid form data"))
+    form.instance.crosspost_when_save = form.cleaned_data["share_to_mastodon"]
     note = form.save()
-    delete_existing_post = (
-        orig_visibility is not None and orig_visibility != note.visibility
-    )
-    update_mode = 1 if delete_existing_post else 0
-    note.sync_to_timeline(update_mode)
-    if form.cleaned_data["share_to_mastodon"]:
-        note.sync_to_social_accounts(update_mode)
-    note.update_index()
     return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
