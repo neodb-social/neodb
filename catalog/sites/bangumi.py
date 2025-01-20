@@ -28,7 +28,9 @@ class Bangumi(AbstractSite):
     DEFAULT_MODEL = None
 
     @classmethod
-    def get_category(cls, o: dict[str,Any], fetch_resources: bool=False) -> tuple[ItemCategory, dict[str,Any]]:
+    def get_category(
+        cls, o: dict[str, Any], fetch_resources: bool = False
+    ) -> tuple[ItemCategory, dict[str, Any]]:
         dt = o.get("date")
         pub_year = None
         pub_month = None
@@ -36,11 +38,11 @@ class Bangumi(AbstractSite):
         release_type = None
         showtime = None
         year = None
-        related_resources= []
+        related_resources = []
         match o["type"]:
             case 1:
                 model = "Edition"
-                category=ItemCategory.Book
+                category = ItemCategory.Book
                 if o["series"] and fetch_resources:
                     # model = "Series" TODO
                     res = (
@@ -104,9 +106,16 @@ class Bangumi(AbstractSite):
                 raise ValueError(
                     f"Unknown type {o['type']} for bangumi subject {o["id"]}"
                 )
-        return category,{"preferred_model":model,
-            "related_resources":related_resources,
-                         "pub_year":pub_year,"pub_month":pub_month,"release_year":release_year,"release_type":release_type,"showtime":showtime,"year":year}
+        return category, {
+            "preferred_model": model,
+            "related_resources": related_resources,
+            "pub_year": pub_year,
+            "pub_month": pub_month,
+            "release_year": release_year,
+            "release_type": release_type,
+            "showtime": showtime,
+            "year": year,
+        }
 
     @classmethod
     def id_to_url(cls, id_value):
@@ -114,14 +123,14 @@ class Bangumi(AbstractSite):
 
     @classmethod
     async def search_task(
-        cls, q: str, page: int, category: str
+        cls, query: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
         results = []
         bgm_type = {
             "all": None,
-            "movietv": [ 2,6],
-            "movie": [2,6],
-            "tv": [2,6],
+            "movietv": [2, 6],
+            "movie": [2, 6],
+            "tv": [2, 6],
             "book": [1],
             "game": [4],
             "performance": [6],
@@ -129,19 +138,18 @@ class Bangumi(AbstractSite):
         }
         if category not in bgm_type:
             return results
-        SEARCH_PAGE_SIZE=5 # NEED USE SETTINGS INSTEAD
-        search_url = f"https://api.bgm.tv/v0/search/subjects?limit={SEARCH_PAGE_SIZE}&offset={(page-1)*SEARCH_PAGE_SIZE}"
+        search_url = f"https://api.bgm.tv/v0/search/subjects?limit={page_size}&offset={(page-1)*page_size}"
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.post(
-                search_url,
-                headers={"User-Agent": settings.NEODB_USER_AGENT},
-                json={"keyword": q, "filter": {"type": bgm_type[category]}},
-                timeout=2,
-            )
+                    search_url,
+                    headers={"User-Agent": settings.NEODB_USER_AGENT},
+                    json={"keyword": query, "filter": {"type": bgm_type[category]}},
+                    timeout=2,
+                )
                 r = response.json()
                 for s in r["data"]:
-                    cat,_=cls.get_category(s)
+                    cat, _ = cls.get_category(s)
                     results.append(
                         ExternalSearchResultItem(
                             category=cat,
@@ -149,13 +157,14 @@ class Bangumi(AbstractSite):
                             source_url=cls.id_to_url(s["id"]),
                             title=s["name"],
                             subtitle="",
-                            brief=s.get("summary",""),
+                            brief=s.get("summary", ""),
                             cover_url=s["images"].get("common"),
-
                         )
                     )
             except Exception as e:
-                logger.error("Bangumi search error", extra={"query": q, "exception": e})
+                logger.error(
+                    "Bangumi search error", extra={"query": query, "exception": e}
+                )
         return results
 
     def scrape(self):
@@ -170,7 +179,7 @@ class Bangumi(AbstractSite):
             .download()
             .json()
         )
-        category,data = self.get_category(o,True)
+        category, data = self.get_category(o, True)
         title = o.get("name_cn") or o.get("name")
         orig_title = o.get("name") if o.get("name") != title else None
         brief = o.get("summary")
@@ -300,36 +309,38 @@ class Bangumi(AbstractSite):
         localized_desc = (
             [{"lang": detect_language(brief), "text": brief}] if brief else []
         )
-        data.update( {
-            "localized_title": localized_title,
-            "localized_description": localized_desc,
-            "title": title,
-            "orig_title": orig_title,
-            "other_title": other_title or None,
-            "orig_creator": orig_creator,
-            "author": authors,
-            "genre": genre,
-            "translator": None,
-            "director": director,
-            "playwright": playwright,
-            "actor": actor,
-            "language": language,
-            "platform": platform,
-            "imdb_code": imdb_code,
-            "pub_house": pub_house,
-            "binding": None,
-            "episode_count": episodes or None,
-            "official_site": site,
-            "site": site,
-            "isbn": isbn,
-            "brief": brief,
-            "cover_image_url": img_url,
-            "pages": pages,
-            "price": price,
-            "opening_date": opening_date,
-            "closing_date": closing_date,
-            "location": location,
-        })
+        data.update(
+            {
+                "localized_title": localized_title,
+                "localized_description": localized_desc,
+                "title": title,
+                "orig_title": orig_title,
+                "other_title": other_title or None,
+                "orig_creator": orig_creator,
+                "author": authors,
+                "genre": genre,
+                "translator": None,
+                "director": director,
+                "playwright": playwright,
+                "actor": actor,
+                "language": language,
+                "platform": platform,
+                "imdb_code": imdb_code,
+                "pub_house": pub_house,
+                "binding": None,
+                "episode_count": episodes or None,
+                "official_site": site,
+                "site": site,
+                "isbn": isbn,
+                "brief": brief,
+                "cover_image_url": img_url,
+                "pages": pages,
+                "price": price,
+                "opening_date": opening_date,
+                "closing_date": closing_date,
+                "location": location,
+            }
+        )
         lookup_ids = {}
         if isbn:
             lookup_ids[isbn_type] = isbn
