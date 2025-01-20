@@ -8,12 +8,14 @@
   {% get_mark_for_item item as mark %}
 {% endif %}
 <article class="entity-sort item-card"
+         draggable="true"
          {% if collection_edit %}data-member-id="{{ collection_member.id }}"{% endif %}>
   <span class="action">
     {% if collection_edit %}
       <span>
         <a title="{% trans "Remove from collection" %}"
-           hx-target="#collection_items"
+           hx-target="closest article"
+           hx-swap="outerHTML"
            hx-post="{% url 'journal:collection_remove_item' collection.uuid item.uuid %}">
           <i class="fa-solid fa-square-minus"></i>
         </a>
@@ -86,7 +88,7 @@
         {% endif %}
       {% endif %}
       {% if collection_member %}
-        <div hx-swap="innerHTML" hx-target="this">
+        <div hx-swap="innerHTML" hx-target="this" class="item-note">
           {% if collection_edit %}
             <span class="action">
               <a title="{% trans "Update note" %}"

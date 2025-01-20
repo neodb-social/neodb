@@ -76,7 +76,7 @@ class List(Piece):
             raise ValueError("item is None")
         member = self.get_member_for_item(item)
         if member:
-            return member
+            return member, False
         ml = self.ordered_members
         p = {"parent": self}
         p.update(params)
@@ -88,7 +88,7 @@ class List(Piece):
             **p,
         )
         list_add.send(sender=self.__class__, instance=self, item=item, member=member)
-        return member
+        return member, True
 
     def remove_item(self, item):
         member = self.get_member_for_item(item)

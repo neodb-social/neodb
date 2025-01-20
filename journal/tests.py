@@ -21,7 +21,7 @@ class CollectionTest(TestCase):
         Collection.objects.create(title="test", owner=self.user.identity)
         collection = Collection.objects.get(title="test", owner=self.user.identity)
         self.assertEqual(collection.catalog_item.title, "test")
-        member1 = collection.append_item(self.book1)
+        member1, _ = collection.append_item(self.book1)
         self.assertIsNotNone(member1)
         member1.note = "my notes"
         member1.save()

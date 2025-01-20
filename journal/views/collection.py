@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -196,7 +196,6 @@ def collection_retrieve_items(
         raise PermissionDenied(_("Insufficient permission"))
     members = collection.ordered_members
     last_pos = int_(request.GET.get("last_pos"))
-    print("p", last_pos)
     if last_pos:
         last_member = int_(request.GET.get("last_member"))
         members = members.filter(position__gte=last_pos).exclude(id=last_member)
@@ -220,15 +219,29 @@ def collection_append_item(request: AuthedHttpRequest, collection_uuid):
         raise PermissionDenied(_("Insufficient permission"))
 
     url = request.POST.get("url", "")
-    note = request.POST.get("note")
+    note = request.POST.get("note", "")
     item = Item.get_by_url(url)
+    member = None
     if item:
-        collection.append_item(item, note=note)
-        collection.save()
-        msg = None
+        member, new = collection.append_item(item, note=note)
+        if new:
+            collection.save()
+            msg = None
+        else:
+            member = None
+            msg = _("The item is already in the collection.")
     else:
         msg = _("Unable to find the item, please use item url from this site.")
-    return collection_retrieve_items(request, collection_uuid, True, msg)
+    return render(
+        request,
+        "collection_items.html",
+        {
+            "collection": collection,
+            "members": [member] if member else [],
+            "collection_edit": True,
+            "msg": msg,
+        },
+    )
 
 
 @login_required
@@ -239,7 +252,7 @@ def collection_remove_item(request: AuthedHttpRequest, collection_uuid, item_uui
     if not collection.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     collection.remove_item(item)
-    return collection_retrieve_items(request, collection_uuid, True)
+    return HttpResponse("")
 
 
 @login_required
@@ -269,7 +282,16 @@ def collection_update_member_order(request: AuthedHttpRequest, collection_uuid):
         raise BadRequest(_("Invalid parameter"))
     ordered_member_ids = [int_(i) for i in ids.split(",")]
     collection.update_member_order(ordered_member_ids)
-    return collection_retrieve_items(request, collection_uuid, True)
+    return render(
+        request,
+        "collection_items.html",
+        {
+            "collection": collection,
+            "members": [],
+            "collection_edit": True,
+            "msg": _("Saved."),
+        },
+    )
 
 
 @login_required
@@ -281,21 +303,28 @@ def collection_update_item_note(request: AuthedHttpRequest, collection_uuid, ite
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
-    if request.method == "POST":
-        collection.update_item_metadata(
-            item, {"note": request.POST.get("note", default="")}
+    member = collection.get_member_for_item(item)
+    note = request.POST.get("note", default="")
+    cancel = request.GET.get("cancel")
+    if request.method == "POST" and member:
+        member.note = note  # type: ignore
+        member.save()
+        return render(
+            request,
+            "collection_update_item_note_ok.html",
+            {"collection": collection, "item": item, "collection_member": member},
         )
-        return collection_retrieve_items(request, collection_uuid, True)
+    elif cancel:
+        return render(
+            request,
+            "collection_update_item_note_ok.html",
+            {"collection": collection, "item": item, "collection_member": member},
+        )
     else:
-        member = collection.get_member_for_item(item)
         return render(
             request,
             "collection_update_item_note.html",
-            {
-                "collection": collection,
-                "item": item,
-                "note": member.note if member else None,  # type:ignore
-            },
+            {"collection": collection, "item": item, "collection_member": member},
         )
 
 

@@ -3,15 +3,17 @@
 {% load l10n %}
 {% for member in members %}
   {% include '_list_item.html' with item=member.item mark=None collection_member=member %}
+  {% if forloop.counter == 10 %}<div class="loader-mark"></div>{% endif %}
   {% if forloop.last %}
     <div hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?last_pos={{ member.position }}&amp;last_member={{ member.id }}&amp;edit={{ request.GET.edit }}"
-         hx-trigger="{% if request.GET.edit %}load{% else %}revealed{% endif %}"
-         hx-swap="outerHTML">
-      <i class="fa-solid fa-compact-disc fa-spin loading"></i>{{ member.position }}
+         hx-trigger="load delay:0.1s"
+         hx-swap="outerHTML"
+         class=".loader">
+      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
     </div>
   {% endif %}
 {% empty %}
-  {% if not request.GET.last_pos %}
+  {% if not request.GET.last_pos and not collection_edit %}
     {% trans "nothing so far." %}
   {% endif %}
 {% endfor %}
