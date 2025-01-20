@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <link rel="stylesheet"
-          href="{{ cdn_url }}/npm/swagger-ui-dist@5.13.0/swagger-ui.min.css">
+          href="{{ cdn_url }}/npm/swagger-ui-dist@5.18.2/swagger-ui.min.css">
     <title>{{ api.title }} Developer Console</title>
     {% include "common_libs.html" %}
     <style type="text/css">
@@ -27,6 +27,11 @@
     }
     #swagger-ui>div>div>.wrapper button.btn.execute {
       background-color: #4990e2;
+    }
+    button {
+      :first-letter {
+        text-transform: none;
+      }
     }
     </style>
   </head>

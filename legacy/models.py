@@ -1,5 +1,3 @@
-from os import link
-
 from django.db import models
 
 

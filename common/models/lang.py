@@ -1,24 +1,24 @@
 """
-    Language support utilities
+Language support utilities
 
-    get site wide preferences:
-    SITE_DEFAULT_LANGUAGE
-    SITE_PREFERRED_LANGUAGES
-    SITE_PREFERRED_LOCALES
+get site wide preferences:
+SITE_DEFAULT_LANGUAGE
+SITE_PREFERRED_LANGUAGES
+SITE_PREFERRED_LOCALES
 
-    get available choices based on site wide preferences:
-    LANGUAGE_CHOICES
-    LOCALE_CHOICES
-    SCRIPT_CHOICES
+get available choices based on site wide preferences:
+LANGUAGE_CHOICES
+LOCALE_CHOICES
+SCRIPT_CHOICES
 
-    based on user preferences:
-    get_current_locales()
+based on user preferences:
+get_current_locales()
 
-    detect language based on text:
-    detect_language()
+detect language based on text:
+detect_language()
 
-    refereneces:
-    https://en.wikipedia.org/wiki/IETF_language_tag
+refereneces:
+https://en.wikipedia.org/wiki/IETF_language_tag
 """
 
 import re

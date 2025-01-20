@@ -103,6 +103,7 @@ __all__ = [
     "CatalogCollection",
     "AvailableItemCategory",
     "ExternalResource",
+    "ExternalSearchResultItem",
     "IdType",
     "Item",
     "ItemCategory",

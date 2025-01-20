@@ -35,7 +35,7 @@ def _fetch_remote_image(url):
         # logger.info(f'remote image saved as {local_url}')
         return local_url
     except Exception as e:
-        logger.error(f"unable to fetch image", extra={"url": url, "exception": e})
+        logger.error("unable to fetch image", extra={"url": url, "exception": e})
         return url
 
 
@@ -140,7 +140,7 @@ class DoubanImporter(Task):
                     timestamp
                     - (
                         datetime.strptime(c[1], "%Y-%m-%d %H:%M:%S")
-                        if type(c[1]) == str
+                        if isinstance(c[1], str)
                         else c[1]
                     ).replace(tzinfo=_tz_sh)
                 )
@@ -161,7 +161,7 @@ class DoubanImporter(Task):
             self.import_review_sheet(self.review_data[name], name)
         self.message = f"豆瓣标记和评论导入完成，共处理{self.metadata['total']}篇，已存在{self.metadata['skipped']}篇，新增{self.metadata['imported']}篇。"
         if len(self.metadata["failed_urls"]) > 0:
-            self.message += f'导入时未能处理{len(self.metadata["failed_urls"])}个网址。'
+            self.message += f"导入时未能处理{len(self.metadata['failed_urls'])}个网址。"
         self.save()
 
     def import_mark_sheet(self, worksheet, shelf_type, sheet_name):
@@ -188,7 +188,7 @@ class DoubanImporter(Task):
             comment = cells[7] if len(cells) >= 8 else None
             self.metadata["processed"] += 1
             try:
-                if type(time) == str:
+                if isinstance(time, str):
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
                 time = time.replace(tzinfo=_tz_sh)
             except Exception:
@@ -248,7 +248,7 @@ class DoubanImporter(Task):
             content = cells[6]
             self.metadata["processed"] += 1
             if time:
-                if type(time) == str:
+                if isinstance(time, str):
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
                 time = time.replace(tzinfo=_tz_sh)
             else:
@@ -271,7 +271,7 @@ class DoubanImporter(Task):
     def get_item_by_url(self, url):
         item = None
         if not url:
-            logger.warning(f"URL empty")
+            logger.warning("URL empty")
             return None
         try:
             site = SiteManager.get_site_by_url(url)

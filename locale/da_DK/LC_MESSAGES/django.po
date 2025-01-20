@@ -1,16 +1,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: neodb-test\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2024-07-27 00:37-0400\n"
-"PO-Revision-Date: 2024-07-22 18:39\n"
-"Last-Translator: \n"
-"Language-Team: Danish\n"
+"PO-Revision-Date: 2025-01-11 18:57+0000\n"
+"Last-Translator: Daniel <uplinks.ray-43@icloud.com>\n"
+"Language-Team: Danish <https://hosted.weblate.org/projects/neodb/neodb/da/>\n"
 "Language: da_DK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.10-dev\n"
 "X-Crowdin-Project: neodb-test\n"
 "X-Crowdin-Project-ID: 696027\n"
 "X-Crowdin-Language: da\n"
@@ -36,7 +37,7 @@ msgstr "Dansk"
 #: catalog/book/models.py:80 catalog/book/models.py:99
 #: catalog/common/models.py:306 catalog/common/models.py:324
 msgid "locale"
-msgstr "locale"
+msgstr "sprogindstilling"
 
 #: catalog/book/models.py:83 catalog/book/models.py:102
 #: catalog/common/models.py:309 catalog/common/models.py:329
@@ -436,39 +437,39 @@ msgstr "url til ressourcen"
 
 #: catalog/game/models.py:23
 msgid "Main Game"
-msgstr ""
+msgstr "Hovedspil"
 
 #: catalog/game/models.py:24
 msgid "Expansion"
-msgstr ""
+msgstr "Udvidelse"
 
 #: catalog/game/models.py:25
 msgid "Downloadable Content"
-msgstr ""
+msgstr "DLC"
 
 #: catalog/game/models.py:26
 msgid "Mod"
-msgstr ""
+msgstr "Mod"
 
 #: catalog/game/models.py:27
 msgid "Bundle"
-msgstr ""
+msgstr "pakke"
 
 #: catalog/game/models.py:28
 msgid "Remaster"
-msgstr ""
+msgstr "Forbedret udgave"
 
 #: catalog/game/models.py:29
 msgid "Remake"
-msgstr ""
+msgstr "Nyfortolkning"
 
 #: catalog/game/models.py:30
 msgid "Special Edition"
-msgstr ""
+msgstr "Særlig udgave"
 
 #: catalog/game/models.py:31
 msgid "Other"
-msgstr "andre"
+msgstr "Anden udgivelse"
 
 #: catalog/game/models.py:76 catalog/movie/models.py:71
 #: catalog/music/models.py:90 catalog/performance/models.py:115
@@ -508,7 +509,7 @@ msgstr "ÅÅÅÅ-MM-DD"
 
 #: catalog/game/models.py:128 catalog/templates/game.html:16
 msgid "release type"
-msgstr ""
+msgstr "udgivelsestype"
 
 #: catalog/game/models.py:135 catalog/movie/models.py:99
 #: catalog/performance/models.py:122 catalog/podcast/models.py:46
@@ -647,7 +648,7 @@ msgstr "koreograf"
 
 #: catalog/performance/models.py:172 catalog/performance/models.py:310
 msgid "performer"
-msgstr "kunstner"
+msgstr "udøvende kunstner"
 
 #: catalog/performance/models.py:179 catalog/performance/models.py:317
 msgid "troupe"
@@ -655,7 +656,7 @@ msgstr "trup"
 
 #: catalog/performance/models.py:186 catalog/performance/models.py:324
 msgid "crew"
-msgstr "crew"
+msgstr "produktionshold"
 
 #: catalog/performance/models.py:193 catalog/performance/models.py:331
 msgid "theater"
@@ -991,7 +992,7 @@ msgstr "fjern element"
 
 #: catalog/templates/_sidebar_edit.html:267
 msgid "other"
-msgstr "andre"
+msgstr "øvrige"
 
 #: catalog/templates/_sidebar_edit.html:271
 msgid "To suggest merging or association, please include the URL of the target item"
@@ -2330,7 +2331,7 @@ msgstr "Udforsk"
 
 #: common/templates/_header.html:71
 msgid "Feed"
-msgstr "Feed"
+msgstr "Tidslinje"
 
 #: common/templates/_header.html:74 journal/templates/profile.html:11
 #: users/templates/users/preferences.html:44

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journal", "0018_shelflogentrypost_shelflogentry_posts_and_more"),
     ]

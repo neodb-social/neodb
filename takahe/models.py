@@ -7,23 +7,21 @@ import ssl
 import time
 from datetime import date, timedelta
 from functools import cached_property, partial
-from typing import TYPE_CHECKING, Literal, Optional
-from urllib.parse import urlparse
+from typing import TYPE_CHECKING, Optional
 
 import httpx
 import urlman
 from cachetools import TTLCache, cached
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser
 from django.core.files.storage import FileSystemStorage
 from django.db import models, transaction
 from django.template.defaultfilters import linebreaks_filter
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from lxml import etree
 
 from .html import ContentRenderer, FediverseHtmlParser
@@ -281,6 +279,8 @@ class Domain(models.Model):
     # state = StateField(DomainStates)
     state = models.CharField(max_length=100, default="outdated")
     state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
 
     # nodeinfo 2.0 detail about the remote server
     nodeinfo = models.JSONField(null=True, blank=True)
@@ -353,6 +353,24 @@ class Domain(models.Model):
 
     def __str__(self):
         return self.domain
+
+    def recursively_blocked(self) -> bool:
+        """
+        Checks for blocks on all right subsets of this domain, except the very
+        last part of the TLD.
+
+        Yes, I know this weirdly lets you block ".co.uk" or whatever, but
+        people can do that if they want I guess.
+        """
+        # Efficient short-circuit
+        if self.blocked:
+            return True
+        # Build domain list
+        domain_parts = [self.domain]
+        while "." in domain_parts[-1]:
+            domain_parts.append(domain_parts[-1].split(".", 1)[1])
+        # See if any of those are blocked
+        return Domain.objects.filter(domain__in=domain_parts, blocked=True).exists()
 
 
 def upload_store():

@@ -1,21 +1,28 @@
-import pprint
-import re
+import time
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db.models import Count, F
 from tqdm import tqdm
 
-from catalog.book.tests import uniq
-from catalog.models import *
-from common.models.lang import detect_language
-from journal.models import update_journal_for_merged_item
+from catalog.common.sites import SiteManager
+from catalog.models import Edition, Item, Podcast, TVSeason, TVShow
+from catalog.search.external import ExternalSources
+from common.models import detect_language, uniq
+from takahe.utils import Takahe
 
 
 class Command(BaseCommand):
     help = "catalog app utilities"
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            "--extsearch",
+        )
+        parser.add_argument(
+            "--category",
+            default="all",
+        )
         parser.add_argument(
             "--verbose",
             action="store_true",
@@ -49,7 +56,25 @@ class Command(BaseCommand):
             self.integrity()
         if options["localize"]:
             self.localize()
-        self.stdout.write(self.style.SUCCESS(f"Done."))
+        if options["extsearch"]:
+            self.external_search(options["extsearch"], options["category"])
+        self.stdout.write(self.style.SUCCESS("Done."))
+
+    def external_search(self, q, cat):
+        sites = SiteManager.get_sites_for_search()
+        peers = Takahe.get_neodb_peers()
+        self.stdout.write(f"Searching {cat} '{q}' ...")
+        self.stdout.write(f"Peers: {peers}")
+        self.stdout.write(f"Sites: {sites}")
+        start_time = time.time()
+        results = ExternalSources.search(q, 1, cat)
+        for r in results:
+            self.stdout.write(f"{r}")
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"{time.time() - start_time} seconds, {len(results)} items."
+            )
+        )
 
     def localize(self):
         c = Item.objects.all().count()
@@ -94,14 +119,14 @@ class Command(BaseCommand):
                 cls.objects.filter(is_deleted=True).delete()
 
     def integrity(self):
-        self.stdout.write(f"Checking circulated merge...")
+        self.stdout.write("Checking circulated merge...")
         for i in Item.objects.filter(merged_to_item=F("id")):
             self.stdout.write(f"! {i} : {i.absolute_url}?skipcheck=1")
             if self.fix:
                 i.merged_to_item = None
                 i.save()
 
-        self.stdout.write(f"Checking chained merge...")
+        self.stdout.write("Checking chained merge...")
         for i in (
             Item.objects.filter(merged_to_item__isnull=False)
             .annotate(n=Count("merged_from_items"))
@@ -113,14 +138,14 @@ class Command(BaseCommand):
                     j.merged_to_item = i.merged_to_item
                     j.save()
 
-        self.stdout.write(f"Checking deleted merge...")
+        self.stdout.write("Checking deleted merge...")
         for i in Item.objects.filter(merged_to_item__isnull=False, is_deleted=True):
             self.stdout.write(f"! {i} : {i.absolute_url}?skipcheck=1")
             if self.fix:
                 i.is_deleted = False
                 i.save()
 
-        self.stdout.write(f"Checking deleted item with external resources...")
+        self.stdout.write("Checking deleted item with external resources...")
         for i in (
             Item.objects.filter(is_deleted=True)
             .annotate(n=Count("external_resources"))
@@ -132,7 +157,7 @@ class Command(BaseCommand):
                     r.item = None
                     r.save()
 
-        self.stdout.write(f"Checking merged item with external resources...")
+        self.stdout.write("Checking merged item with external resources...")
         for i in (
             Item.objects.filter(merged_to_item__isnull=False)
             .annotate(n=Count("external_resources"))
@@ -145,7 +170,7 @@ class Command(BaseCommand):
                     r.save()
 
         tvshow_ct_id = ContentType.objects.get_for_model(TVShow).id
-        self.stdout.write(f"Checking TVShow merged to other class...")
+        self.stdout.write("Checking TVShow merged to other class...")
         for i in (
             TVShow.objects.filter(merged_to_item__isnull=False)
             .filter(merged_to_item__isnull=False)
@@ -161,7 +186,7 @@ class Command(BaseCommand):
                 if self.fix:
                     i.recast_to(i.merged_to_item.__class__)  # type:ignore
 
-        self.stdout.write(f"Checking TVSeason is child of other class...")
+        self.stdout.write("Checking TVSeason is child of other class...")
         for i in TVSeason.objects.filter(show__isnull=False).exclude(
             show__polymorphic_ctype_id=tvshow_ct_id
         ):
@@ -172,7 +197,7 @@ class Command(BaseCommand):
                 i.show = None
                 i.save()
 
-        self.stdout.write(f"Checking deleted item with child TV Season...")
+        self.stdout.write("Checking deleted item with child TV Season...")
         for i in TVSeason.objects.filter(show__is_deleted=True):
             if not i.show:
                 continue
@@ -181,7 +206,7 @@ class Command(BaseCommand):
                 i.show.is_deleted = False
                 i.show.save()
 
-        self.stdout.write(f"Checking merged item with child TV Season...")
+        self.stdout.write("Checking merged item with child TV Season...")
         for i in TVSeason.objects.filter(show__merged_to_item__isnull=False):
             if not i.show:
                 continue

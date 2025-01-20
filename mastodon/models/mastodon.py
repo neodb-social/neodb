@@ -903,8 +903,6 @@ class MastodonAccount(SocialAccount):
         obj: "Item | Content | None" = None,
         rating: int | None = None,
     ) -> dict:
-        from journal.models.renderers import render_rating
-
         v = get_toot_visibility(visibility, self.user)
         text = (
             content.replace("##rating##", self.rating_to_emoji(rating))

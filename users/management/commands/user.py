@@ -1,10 +1,10 @@
-from datetime import timedelta
-
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 from tqdm import tqdm
+import httpx
 
 from users.models import Preference, User
+from takahe.models import Identity, Domain
+from takahe.utils import Takahe
 
 
 class Command(BaseCommand):
@@ -18,6 +18,11 @@ class Command(BaseCommand):
             "--integrity",
             action="store_true",
             help="check and fix integrity for missing data for user models",
+        )
+        parser.add_argument(
+            "--remote",
+            action="store_true",
+            help="reset state for remote domains/users with previous connection issues",
         )
         parser.add_argument(
             "--super", action="store", nargs="*", help="list or toggle superuser"
@@ -35,6 +40,8 @@ class Command(BaseCommand):
             self.list(self.users)
         if options["integrity"]:
             self.integrity()
+        if options["remote"]:
+            self.check_remote()
         if options["super"] is not None:
             self.superuser(options["super"])
         if options["staff"] is not None:
@@ -53,6 +60,7 @@ class Command(BaseCommand):
 
     def integrity(self):
         count = 0
+        self.stdout.write("Checking local users")
         for user in tqdm(User.objects.filter(is_active=True)):
             i = user.identity.takahe_identity
             if i.public_key is None:
@@ -67,7 +75,60 @@ class Command(BaseCommand):
                 if self.fix:
                     Preference.objects.create(user=user)
                 count += 1
-        self.stdout.write(f"{count} issues")
+
+    def check_remote(self):
+        headers = {
+            "Accept": "application/json,application/activity+json,application/ld+json"
+        }
+        with httpx.Client(timeout=0.5) as client:
+            count = 0
+            self.stdout.write("Checking remote domains")
+            for d in tqdm(
+                Domain.objects.filter(
+                    local=False, blocked=False, state="connection_issue"
+                )
+            ):
+                try:
+                    response = client.get(
+                        f"https://{d.domain}/.well-known/nodeinfo",
+                        follow_redirects=True,
+                        headers=headers,
+                    )
+                    if response.status_code == 200 and "json" in response.headers.get(
+                        "content-type", ""
+                    ):
+                        count += 1
+                        if self.fix:
+                            Takahe.update_state(d, "outdated")
+                except Exception:
+                    pass
+            self.stdout.write(f"{count} issues")
+            count = 0
+            self.stdout.write("Checking remote identities")
+            for i in tqdm(
+                Identity.objects.filter(
+                    # public_key__isnull=True,
+                    local=False,
+                    restriction=0,
+                    state="connection_issue",
+                )
+            ):
+                try:
+                    response = client.request(
+                        "get",
+                        i.actor_uri,
+                        headers=headers,
+                        follow_redirects=True,
+                    )
+                    if (
+                        response.status_code == 200
+                        and "json" in response.headers.get("content-type", "")
+                        and "@context" in response.text
+                    ):
+                        Takahe.update_state(i, "outdated")
+                except Exception:
+                    pass
+            self.stdout.write(f"{count} issues")
 
     def superuser(self, v):
         if v == []:

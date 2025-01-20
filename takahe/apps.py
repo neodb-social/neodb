@@ -7,4 +7,4 @@ class TakaheConfig(AppConfig):
 
     def ready(self):
         # register cron jobs
-        from .jobs import TakaheStats  # isort:skip
+        from .jobs import TakaheStats  # noqa

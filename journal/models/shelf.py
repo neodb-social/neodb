@@ -1,6 +1,6 @@
 from datetime import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.db import connection, models
@@ -338,7 +338,9 @@ class ShelfMember(ListMember):
         }
 
     @classmethod
-    def update_by_ap_object(cls, owner: APIdentity, item: Item, obj: dict, post):
+    def update_by_ap_object(
+        cls, owner: APIdentity, item: Item, obj: dict, post, crosspost=None
+    ):
         p = cls.objects.filter(owner=owner, item=item).first()
         if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
             return p  # incoming ap object is older than what we have, no update needed

@@ -1,6 +1,4 @@
-import pprint
 from datetime import timedelta
-from time import sleep
 
 from loguru import logger
 
@@ -30,6 +28,6 @@ class PodcastUpdater(BaseJob):
                 site = RSS(p.feed_url)
                 site.scrape_additional_data()
                 c2 = p.episodes.count()
-                logger.info(f"updated {p}, {c2-c} new episodes.")
+                logger.info(f"updated {p}, {c2 - c} new episodes.")
                 count += c2 - c
         logger.info(f"Podcasts update finished, {count} new episodes total.")

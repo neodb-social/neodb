@@ -1,19 +1,32 @@
 from django.test import TestCase
 
-from catalog.book.models import *
 from catalog.book.utils import *
 from catalog.common import *
+from catalog.models import *
 
 
 class BookTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        hyperion = Edition.objects.create(title="Hyperion")
+        hyperion = Edition.objects.create(
+            title="Hyperion", localized_title=[{"lang": "en", "text": "Hyperion"}]
+        )
         hyperion.pages = 500
         hyperion.isbn = "9780553283686"
         hyperion.save()
         # hyperion.isbn10 = '0553283685'
+        self.hbla = ExternalResource.objects.create(
+            item=hyperion,
+            id_type=IdType.Goodreads,
+            id_value="77566",
+            metadata={
+                "localized_title": [
+                    {"lang": "en", "text": "Hyperion"},
+                    {"lang": "zh", "text": "海伯利安"},
+                ]
+            },
+        )
 
     def test_url(self):
         hyperion = Edition.objects.get(title="Hyperion")
@@ -56,6 +69,12 @@ class BookTestCase(TestCase):
         hyperion.isbn10 = "0575099437"
         self.assertEqual(hyperion.isbn, "9780575099432")
         self.assertEqual(hyperion.isbn10, "0575099437")
+
+    def test_merge_external_resources(self):
+        hyperion = Edition.objects.get(title="Hyperion")
+        hyperion.merge_data_from_external_resource(self.hbla)
+        self.assertEqual(hyperion.localized_title, [{"lang": "en", "text": "Hyperion"}])
+        self.assertEqual(hyperion.other_title, ["海伯利安"])
 
 
 class WorkTestCase(TestCase):

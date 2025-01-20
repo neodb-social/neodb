@@ -1,11 +1,33 @@
-import re
+from urllib.parse import quote_plus, urlparse
 
+import httpx
 from django.conf import settings
 from django.core.validators import URLValidator
 from loguru import logger
 
-from catalog.common import *
-from catalog.models import *
+from catalog.common import (
+    AbstractSite,
+    BasicImageDownloader,
+    CachedDownloader,
+    IdType,
+    ItemCategory,
+    ResourceContent,
+    SiteManager,
+    SiteName,
+)
+from catalog.models import (
+    Album,
+    Edition,
+    ExternalSearchResultItem,
+    Game,
+    Movie,
+    Performance,
+    PerformanceProduction,
+    Podcast,
+    TVEpisode,
+    TVSeason,
+    TVShow,
+)
 
 
 @SiteManager.register
@@ -101,3 +123,56 @@ class FediverseInstance(AbstractSite):
             lookup_ids=ids,
         )
         return d
+
+    @classmethod
+    async def peer_search_task(cls, host, q, page, category=None):
+        SEARCH_PAGE_SIZE = 5
+        p = (page - 1) * SEARCH_PAGE_SIZE // 20 + 1
+        offset = (page - 1) * SEARCH_PAGE_SIZE % 20
+        api_url = f"https://{host}/api/catalog/search?query={quote_plus(q)}&page={p}{'&category=' + category if category and category != 'all' else ''}"
+        async with httpx.AsyncClient() as client:
+            results = []
+            try:
+                response = await client.get(
+                    api_url,
+                    timeout=2,
+                )
+                r = response.json()
+            except Exception as e:
+                logger.error(
+                    f"Fediverse search {host} error",
+                    extra={"url": api_url, "query": q, "exception": e},
+                )
+                return []
+            if "data" in r:
+                for item in r["data"]:
+                    if any(
+                        urlparse(res["url"]).hostname in settings.SITE_DOMAINS
+                        for res in item.get("external_resources", [])
+                    ):
+                        continue
+                    url = f"https://{host}{item['url']}"  # FIXME update API and use abs urls
+                    try:
+                        cat = ItemCategory(item["category"])
+                    except Exception:
+                        cat = None
+                    results.append(
+                        ExternalSearchResultItem(
+                            cat,
+                            host,
+                            url,
+                            item["display_title"],
+                            "",
+                            item["brief"],
+                            item["cover_image_url"],
+                        )
+                    )
+        return results[offset : offset + SEARCH_PAGE_SIZE]
+
+    @classmethod
+    def search_tasks(cls, q: str, page: int = 1, category: str | None = None):
+        from takahe.utils import Takahe
+
+        peers = Takahe.get_neodb_peers()
+        c = category if category != "movietv" else "movie,tv"
+        return [cls.peer_search_task(host, q, page, c) for host in peers]

@@ -3,12 +3,10 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.common import (
     BaseSchema,
-    ExternalResource,
     IdType,
     Item,
     ItemCategory,
     ItemInSchema,
-    ItemSchema,
     ItemType,
     PrimaryLookupIdDescriptor,
     jsondata,

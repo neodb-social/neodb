@@ -89,6 +89,8 @@ When updating code, always update submodules:
 git pull
 git submodule update --init
 ```
+With newer git 2.15+, you main use `git pull --recurse-submodules` or `git config --global submodule.recurse true` to make it automatic.
+
 
 To save some typing, consider adding some aliases to `~/.profile`:
 ```

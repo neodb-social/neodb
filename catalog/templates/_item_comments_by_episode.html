@@ -10,7 +10,7 @@
       <span class="season-number">
         <a hx-swap="innerHTML"
            hx-get="{% url "catalog:comments" item.url_path item.uuid %}"
-           hx-target="#comments">{% trans "all" %}</a>
+           hx-target="#comments">{% trans "this season" %}</a>
       </span>
       {% for ep in item.all_episodes %}
         <span class="season-number" id="ci_{{ ep.uuid }}">

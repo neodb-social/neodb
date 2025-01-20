@@ -1,10 +1,6 @@
-from datetime import timedelta
-
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.urls import reverse
-from django.utils import timezone
-from loguru import logger
 
 from takahe.utils import Invite
 

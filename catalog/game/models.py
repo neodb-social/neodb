@@ -1,17 +1,14 @@
 from datetime import date
 
 from django.db import models
-from django.template.defaultfilters import default
 from django.utils.translation import gettext_lazy as _
 
 from catalog.common import (
     BaseSchema,
-    ExternalResource,
     IdType,
     Item,
     ItemCategory,
     ItemInSchema,
-    ItemSchema,
     ItemType,
     PrimaryLookupIdDescriptor,
     jsondata,

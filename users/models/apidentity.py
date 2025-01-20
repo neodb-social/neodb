@@ -2,7 +2,6 @@ from functools import cached_property
 
 from django.conf import settings
 from django.db import models
-from django.templatetags.static import static
 
 from mastodon.models.mastodon import MastodonAccount
 from takahe.utils import Takahe
@@ -109,6 +108,10 @@ class APIdentity(models.Model):
             return self.username
         else:
             return f"{self.username}@{self.domain_name}"
+
+    @property
+    def restricted(self):
+        return self.takahe_identity.restriction == 2
 
     @property
     def following(self):

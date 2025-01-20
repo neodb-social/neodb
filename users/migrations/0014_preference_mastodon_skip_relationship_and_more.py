@@ -14,7 +14,7 @@ def migrate_relationships(apps, schema_editor):
     # from takahe.models import Follow as TakaheFollow
     # from users.models import APIdentity, User
 
-    logger.info(f"Migrate local user relationship")
+    logger.info("Migrate local user relationship")
     for user in tqdm(User.objects.filter(is_active=True)):
         identity = APIdentity.objects.get(user=user)
         for target in user.local_following.all():
@@ -26,10 +26,10 @@ def migrate_relationships(apps, schema_editor):
         for target in user.local_muting.all():
             target_identity = APIdentity.objects.get(user=target)
             identity.mute(target_identity)
-    logger.info(f"Migrate sync user relationship")
+    logger.info("Migrate sync user relationship")
     for user in tqdm(User.objects.filter(is_active=True)):
         user.sync_relationship()
-    logger.info(f"Update relationship states")
+    logger.info("Update relationship states")
     TakaheBlock.objects.all().update(state="sent")
     TakaheFollow.objects.all().update(state="accepted")
 

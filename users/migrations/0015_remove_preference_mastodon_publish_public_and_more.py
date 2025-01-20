@@ -10,7 +10,6 @@ def migrate_public_mode(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("users", "0014_preference_mastodon_skip_relationship_and_more"),
     ]

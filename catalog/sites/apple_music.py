@@ -10,7 +10,6 @@ Scraping the website directly.
 
 import json
 import logging
-from threading import local
 
 import dateparser
 

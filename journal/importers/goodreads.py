@@ -75,7 +75,7 @@ class GoodreadsImporter(Task):
                     collection.append_item(book["book"], note=book["review"])
                     total += 1
                 collection.save()
-            self.message = f'Imported {total} books from Goodreads as a Collection {shelf["title"]}.'
+            self.message = f"Imported {total} books from Goodreads as a Collection {shelf['title']}."
         elif match_profile:
             uid = match_profile[1]
             shelves = {
@@ -103,7 +103,7 @@ class GoodreadsImporter(Task):
                         )
                     ):
                         print(
-                            f'Skip {shelf_type}/{book["book"]} bc it was marked {mark.shelf_type}'
+                            f"Skip {shelf_type}/{book['book']} bc it was marked {mark.shelf_type}"
                         )
                     else:
                         mark.update(

@@ -1,6 +1,5 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -23,12 +22,10 @@ from journal.models import (
     Review,
     ShelfManager,
     ShelfMember,
-    ShelfType,
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
 from takahe.utils import Takahe
-from users.views import announcements
 
 from .forms import *
 from .models import *
@@ -192,7 +189,10 @@ def review_list(request, item_path, item_uuid):
 
 def comments(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    ids = item.child_item_ids + [item.pk] + item.sibling_item_ids
+    if item.class_name == "tvseason":
+        ids = [item.pk]
+    else:
+        ids = item.child_item_ids + [item.pk] + item.sibling_item_ids
     queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
     before_time = request.GET.get("last")

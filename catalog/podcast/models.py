@@ -6,14 +6,10 @@ from ninja import Field
 
 from catalog.common import (
     BaseSchema,
-    ExternalResource,
     IdType,
     Item,
     ItemCategory,
     ItemInSchema,
-    ItemSchema,
-    ItemType,
-    PrimaryLookupIdDescriptor,
     jsondata,
 )
 from catalog.common.models import LIST_OF_ONE_PLUS_STR_SCHEMA, LanguageListField

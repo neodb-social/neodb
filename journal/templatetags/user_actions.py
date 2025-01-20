@@ -1,8 +1,6 @@
 from django import template
-from django.urls import reverse
 
 from journal.models.mark import Mark
-from takahe.utils import Takahe
 
 register = template.Library()
 

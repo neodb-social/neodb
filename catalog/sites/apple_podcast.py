@@ -1,16 +1,17 @@
-import logging
+from urllib.parse import quote_plus
+
+import httpx
+from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
 
 from .rss import RSS
 
-_logger = logging.getLogger(__name__)
-
 
 @SiteManager.register
 class ApplePodcast(AbstractSite):
-    # SITE_NAME = SiteName.ApplePodcast
+    SITE_NAME = SiteName.ApplePodcast
     ID_TYPE = IdType.ApplePodcast
     URL_PATTERNS = [r"https://[^.]+.apple.com/\w+/podcast/*[^/?]*/id(\d+)"]
     WIKI_PROPERTY_ID = "P5842"
@@ -38,3 +39,35 @@ class ApplePodcast(AbstractSite):
         )
         pd.lookup_ids[IdType.RSS] = RSS.url_to_id(feed_url)
         return pd
+
+    @classmethod
+    async def search_task(
+        cls, q: str, page: int, category: str
+    ) -> list[ExternalSearchResultItem]:
+        if category != "podcast":
+            return []
+        SEARCH_PAGE_SIZE = 5 if category == "all" else 10
+        results = []
+        search_url = f"https://itunes.apple.com/search?entity=podcast&limit={page * SEARCH_PAGE_SIZE}&term={quote_plus(q)}"
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(search_url, timeout=2)
+                r = response.json()
+                for p in r["results"][(page - 1) * SEARCH_PAGE_SIZE :]:
+                    if p.get("feedUrl"):
+                        results.append(
+                            ExternalSearchResultItem(
+                                ItemCategory.Podcast,
+                                SiteName.RSS,
+                                p["feedUrl"],
+                                p["trackName"],
+                                p["artistName"],
+                                "",
+                                p["artworkUrl600"],
+                            )
+                        )
+            except Exception as e:
+                logger.error(
+                    "ApplePodcast search error", extra={"query": q, "exception": e}
+                )
+        return results

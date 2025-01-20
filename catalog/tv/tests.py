@@ -128,7 +128,7 @@ class DoubanMovieTVTestCase(TestCase):
         url = "https://movie.douban.com/subject/35597581/"
         item = SiteManager.get_site_by_url(url).get_resource_ready().item
         # disable this test to make douban data less disrupted
-        # self.assertEqual(item.imdb, "tt21599650")
+        self.assertEqual(item.imdb, "tt21599650")
 
 
 class MultiTVSitesTestCase(TestCase):
@@ -186,7 +186,7 @@ class MovieTVModelRecastTestCase(TestCase):
 
     @use_local_response
     def test_recast(self):
-        from catalog.models import Movie, TVShow
+        from catalog.models import Movie
 
         url2 = "https://www.imdb.com/title/tt0436992/"
         p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
@@ -232,10 +232,10 @@ class IMDBTestCase(TestCase):
 
     @use_local_response
     def test_get_episode_list(self):
-        l = IMDB.get_episode_list("tt0436992", 4)
-        self.assertEqual(len(l), 14)
-        l = IMDB.get_episode_list("tt1205438", 4)
-        self.assertEqual(len(l), 14)
+        episodes = IMDB.get_episode_list("tt0436992", 4)
+        self.assertEqual(len(episodes), 14)
+        episodes = IMDB.get_episode_list("tt1205438", 4)
+        self.assertEqual(len(episodes), 14)
 
     @use_local_response
     def test_tvshow(self):

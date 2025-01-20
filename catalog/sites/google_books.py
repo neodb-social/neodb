@@ -1,7 +1,10 @@
 import logging
 import re
+from urllib.parse import quote_plus
 
+import httpx
 from django.conf import settings
+from loguru import logger
 
 from catalog.book.utils import isbn_10_to_13
 from catalog.common import *
@@ -116,3 +119,57 @@ class GoogleBooks(AbstractSite):
             cover_image_extention=ext,
             lookup_ids={IdType.ISBN: isbn13},
         )
+
+    @classmethod
+    async def search_task(
+        cls, q: str, page: int, category: str
+    ) -> list[ExternalSearchResultItem]:
+        if category not in ["all", "book"]:
+            return []
+        SEARCH_PAGE_SIZE = 5
+        results = []
+        api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q={quote_plus(q)}&startIndex={SEARCH_PAGE_SIZE * (page - 1)}&maxResults={SEARCH_PAGE_SIZE}&maxAllowedMaturityRating=MATURE"
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(api_url, timeout=2)
+                j = response.json()
+                if "items" in j:
+                    for b in j["items"]:
+                        if "title" not in b["volumeInfo"]:
+                            continue
+                        title = b["volumeInfo"]["title"]
+                        subtitle = ""
+                        if "publishedDate" in b["volumeInfo"]:
+                            subtitle += b["volumeInfo"]["publishedDate"] + " "
+                        if "authors" in b["volumeInfo"]:
+                            subtitle += ", ".join(b["volumeInfo"]["authors"])
+                        if "description" in b["volumeInfo"]:
+                            brief = b["volumeInfo"]["description"]
+                        elif "textSnippet" in b["volumeInfo"]:
+                            brief = b["volumeInfo"]["textSnippet"]["searchInfo"]
+                        else:
+                            brief = ""
+                        category = ItemCategory.Book
+                        # b['volumeInfo']['infoLink'].replace('http:', 'https:')
+                        url = "https://books.google.com/books?id=" + b["id"]
+                        cover = (
+                            b["volumeInfo"]["imageLinks"]["thumbnail"]
+                            if "imageLinks" in b["volumeInfo"]
+                            else ""
+                        )
+                        results.append(
+                            ExternalSearchResultItem(
+                                category,
+                                SiteName.GoogleBooks,
+                                url,
+                                title,
+                                subtitle,
+                                brief,
+                                cover,
+                            )
+                        )
+            except Exception as e:
+                logger.error(
+                    "GoogleBooks search error", extra={"query": q, "exception": e}
+                )
+        return results

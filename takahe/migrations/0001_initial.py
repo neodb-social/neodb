@@ -34,6 +34,11 @@ class Migration(migrations.Migration):
                 ),
                 ("state", models.CharField(default="outdated", max_length=100)),
                 ("state_changed", models.DateTimeField(auto_now_add=True)),
+                ("state_next_attempt", models.DateTimeField(blank=True, null=True)),
+                (
+                    "state_locked_until",
+                    models.DateTimeField(blank=True, db_index=True, null=True),
+                ),
                 ("nodeinfo", models.JSONField(blank=True, null=True)),
                 ("local", models.BooleanField()),
                 ("blocked", models.BooleanField(default=False)),

@@ -46,4 +46,4 @@ class Command(BaseCommand):
             resource = site.scrape()
             pprint.pp(resource.metadata)
             pprint.pp(resource.lookup_ids)
-        self.stdout.write(self.style.SUCCESS(f"Done."))
+        self.stdout.write(self.style.SUCCESS("Done."))

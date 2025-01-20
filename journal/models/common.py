@@ -106,15 +106,39 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     posts = models.ManyToManyField(
         "takahe.Post", related_name="pieces", through="PiecePost"
     )
+    previous_visibility: int | None = None
+    post_when_save: bool = False
+    crosspost_when_save: bool = False
+    index_when_save: bool = False
 
     @property
     def classname(self) -> str:
         return self.__class__.__name__.lower()
 
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        instance = super().from_db(db, field_names, values)
+        if hasattr(instance, "visibility"):
+            instance.previous_visibility = instance.visibility
+        return instance
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.local and self.post_when_save:
+            visibility_changed = self.previous_visibility != self.visibility
+            self.previous_visibility = self.visibility
+            update_mode = 1 if visibility_changed else 0
+            self.sync_to_timeline(update_mode)
+            if self.crosspost_when_save:
+                self.sync_to_social_accounts(update_mode)
+        if self.index_when_save:
+            self.update_index()
+
     def delete(self, *args, **kwargs):
         if self.local:
             self.delete_from_timeline()
             self.delete_crossposts()
+        if self.local or self.index_when_save:
             self.delete_index()
         return super().delete(*args, **kwargs)
 
@@ -169,6 +193,19 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 b62 = r[0]
         try:
             obj = cls.objects.get(uid=uuid.UUID(int=b62_decode(b62)))
+        except Exception:
+            obj = None
+        return obj
+
+    @classmethod
+    def get_by_url_and_owner(cls, url_or_b62, owner_id):
+        b62 = url_or_b62.strip().split("/")[-1]
+        if len(b62) not in [21, 22]:
+            r = re.search(r"[A-Za-z0-9]{21,22}", url_or_b62)
+            if r:
+                b62 = r[0]
+        try:
+            obj = cls.objects.get(uid=uuid.UUID(int=b62_decode(b62)), owner_id=owner_id)
         except Exception:
             obj = None
         return obj
@@ -236,7 +273,12 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @classmethod
     def update_by_ap_object(
-        cls, owner: APIdentity, item: Item, obj, post: "Post"
+        cls,
+        owner: APIdentity,
+        item: Item,
+        obj,
+        post: "Post",
+        crosspost: bool | None = False,
     ) -> Self | None:
         """
         Create or update a content piece with related AP message
@@ -257,6 +299,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             d["edited_time"] = edited
             for k, v in d.items():
                 setattr(p, k, v)
+            if crosspost is not None:
+                p.crosspost_when_save = crosspost
             p.save(update_fields=d.keys())
         else:
             # no previously linked piece, create a new one and link to post
@@ -275,7 +319,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             else:
                 d["created_time"] = datetime.fromisoformat(obj["published"])
                 d["edited_time"] = datetime.fromisoformat(obj["updated"])
-            p = cls.objects.create(**d)
+            p = cls(**d)
+            if crosspost is not None:
+                p.crosspost_when_save = crosspost
+            p.save()
             p.link_post_id(post.id)
         # subclass may have to add additional code to update type_data in local post
         return p

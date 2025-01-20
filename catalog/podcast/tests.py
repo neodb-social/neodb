@@ -62,7 +62,7 @@ class PodcastRSSFeedTestCase(TestCase):
         site = SiteManager.get_site_by_url(t_url)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        metadata = site.resource.metadata
+        # metadata = site.resource.metadata
         self.assertIsNotNone(site.get_item().cover.url)
         self.assertIsNotNone(site.get_item().recent_episodes[0].title)
         self.assertIsNotNone(site.get_item().recent_episodes[0].link)
@@ -74,7 +74,7 @@ class PodcastRSSFeedTestCase(TestCase):
         site = SiteManager.get_site_by_url(t_url)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        metadata = site.resource.metadata
+        # metadata = site.resource.metadata
         self.assertIsNotNone(site.get_item().recent_episodes[0].title)
         self.assertIsNotNone(site.get_item().recent_episodes[0].link)
         self.assertIsNotNone(site.get_item().recent_episodes[0].media_url)
