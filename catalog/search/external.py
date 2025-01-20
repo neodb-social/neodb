@@ -25,7 +25,7 @@ class ExternalSources:
         match category:
             case "all":
                 cache_key = f"search_{','.join(visible_categories)}_{query}"
-            case "movie":
+            case "movietv":
                 cache_key = f"search_movie,tv_{query}"
             case _:
                 cache_key = f"search_{category}_{query}"
