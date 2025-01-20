@@ -194,13 +194,18 @@ def collection_retrieve_items(
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
-    form = CollectionForm(instance=collection)
+    members = collection.ordered_members
+    last_pos = int_(request.GET.get("last_pos"))
+    print("p", last_pos)
+    if last_pos:
+        last_member = int_(request.GET.get("last_member"))
+        members = members.filter(position__gte=last_pos).exclude(id=last_member)
     return render(
         request,
         "collection_items.html",
         {
             "collection": collection,
-            "form": form,
+            "members": members[:20],
             "collection_edit": edit or request.GET.get("edit"),
             "msg": msg,
         },

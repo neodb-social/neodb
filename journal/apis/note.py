@@ -78,11 +78,11 @@ def add_note_for_item(request, item_uuid: str, n_in: NoteInSchema):
     response={200: NoteSchema, 401: Result, 403: Result, 404: Result},
     tags=["note"],
 )
-def update_note(request, tag_uuid: str, n_in: NoteInSchema):
+def update_note(request, note_uuid: str, n_in: NoteInSchema):
     """
     Update a note.
     """
-    note = Note.get_by_url_and_owner(tag_uuid, request.user.identity.pk)
+    note = Note.get_by_url_and_owner(note_uuid, request.user.identity.pk)
     if not note:
         return NOT_FOUND
     note.title = n_in.title
@@ -101,11 +101,11 @@ def update_note(request, tag_uuid: str, n_in: NoteInSchema):
     response={200: Result, 401: Result, 403: Result, 404: Result},
     tags=["note"],
 )
-def delete_note(request, tag_uuid: str):
+def delete_note(request, note_uuid: str):
     """
     Delete a note.
     """
-    note = Note.get_by_url_and_owner(tag_uuid, request.user.identity.pk)
+    note = Note.get_by_url_and_owner(note_uuid, request.user.identity.pk)
     if not note:
         return NOT_FOUND
     note.delete()

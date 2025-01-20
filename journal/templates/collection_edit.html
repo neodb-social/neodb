@@ -43,9 +43,57 @@
           <hr>
           <details open>
             <summary>{% trans "Items" %}</summary>
-            <div id="collection_items"
-                 hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1"
-                 hx-trigger="load"></div>
+            <section>
+              <div id="collection_items"
+                   hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1"
+                   hx-trigger="load"></div>
+            </section>
+            <form class="entity-form"
+                  hx-target="#collection_items"
+                  hx-post="{% url 'journal:collection_append_item' collection.uuid %}"
+                  method="post">
+              {% csrf_token %}
+              <input type="url"
+                     name="url"
+                     placeholder="{{ request.scheme }}://{{ request.get_host }}/item/abcd123"
+                     style="min-width:24rem"
+                     required>
+              <input type="text"
+                     name="comment"
+                     placeholder="{% trans 'note' %}"
+                     style="min-width:24rem">
+              <input class="button"
+                     type="submit"
+                     value="{% trans 'Add an item to this collection' %}">
+            </form>
+            <script>
+              $(function () {
+                sortable('.sortable', {
+                  forcePlaceholderSize: true,
+                  placeholderClass: 'entity-sort--placeholder',
+                  hoverClass: 'entity-sort--hover'
+                });
+              });
+              function update_member_order() {
+                var member_ids = [];
+                $('.sortable>.item-card').each(function () {
+                  member_ids.push($(this).data('member-id'));
+                });
+                $('#member_ids').val(member_ids.join(','));
+                return true;
+              }
+            </script>
+            <form class="entity-form"
+                  hx-target="#collection_items"
+                  hx-post="{% url 'journal:collection_update_member_order' collection.uuid %}"
+                  onsubmit="return update_member_order()"
+                  method="post">
+              {% csrf_token %}
+              <input type="hidden" name="member_ids" id="member_ids" required>
+              <input type="submit"
+                     class="secondary"
+                     value="{% trans "Drag and drop to change the order order and click here to save" %}">
+            </form>
           </details>
         {% endif %}
       </div>

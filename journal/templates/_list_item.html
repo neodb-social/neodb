@@ -86,7 +86,7 @@
         {% endif %}
       {% endif %}
       {% if collection_member %}
-        <p hx-target="this" hx-swap="innerHTML">
+        <div hx-swap="innerHTML" hx-target="this">
           {% if collection_edit %}
             <span class="action">
               <a title="{% trans "Update note" %}"
@@ -94,7 +94,8 @@
             </span>
           {% endif %}
           {% if collection_member.note %}{{ collection_member.note }}{% endif %}
-        </p>
+          &nbsp;
+        </div>
       {% endif %}
     </footer>
   {% endif %}

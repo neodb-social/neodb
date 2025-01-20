@@ -40,7 +40,7 @@ class List(Piece):
 
     @property
     def ordered_members(self):
-        return self.members.all().order_by("position")
+        return self.members.all().order_by("position", "item_id")
 
     @property
     def ordered_items(self):
@@ -104,7 +104,7 @@ class List(Piece):
                 i = ordered_member_ids.index(m.pk)
                 if m.position != i + 1:
                     m.position = i + 1
-                    m.save()
+                    m.save(update_fields=["position"])
             except ValueError:
                 pass
 
