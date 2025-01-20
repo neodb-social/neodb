@@ -180,13 +180,12 @@ class TMDB_Movie(AbstractSite):
 
     @classmethod
     async def search_task(
-        cls, q: str, page: int, category: str
+        cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
         if category not in ["movietv", "all", "movie", "tv"]:
             return []
-        SEARCH_PAGE_SIZE = 5 if category == "all" else 10
-        p = (page - 1) * SEARCH_PAGE_SIZE // 20 + 1
-        offset = (page - 1) * SEARCH_PAGE_SIZE % 20
+        p = (page - 1) * page_size // 20 + 1
+        offset = (page - 1) * page_size % 20
         results = []
         api_url = f"https://api.themoviedb.org/3/search/multi?query={quote_plus(q)}&page={p}&api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&include_adult=true"
         async with httpx.AsyncClient() as client:
@@ -225,7 +224,7 @@ class TMDB_Movie(AbstractSite):
                     logger.warning(f"TMDB search '{q}' no results found.")
             except Exception as e:
                 logger.error("TMDb search error", extra={"query": q, "exception": e})
-        return results[offset : offset + SEARCH_PAGE_SIZE]
+        return results[offset : offset + page_size]
 
 
 @SiteManager.register

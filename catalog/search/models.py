@@ -108,6 +108,7 @@ def query_index(keywords, categories=None, tag=None, page=1, prepare_external=Tr
         page < 1
         or page > 99
         or (not tag and isinstance(keywords, str) and len(keywords) < 2)
+        or len(keywords) > 100
     ):
         return [], 0, 0, []
     result = Indexer.search(keywords, page=page, categories=categories, tag=tag)

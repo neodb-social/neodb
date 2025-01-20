@@ -166,12 +166,11 @@ class IGDB(AbstractSite):
 
     @classmethod
     async def search_task(
-        cls, q: str, page: int, category: str
+        cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
         if category != "game":
             return []
-        SEARCH_PAGE_SIZE = 5 if category == "all" else 10
-        limit = SEARCH_PAGE_SIZE
+        limit = page_size
         offset = (page - 1) * limit
         q = f'fields *, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name; search "{quote_plus(q)}"; limit {limit}; offset {offset};'
         _wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())

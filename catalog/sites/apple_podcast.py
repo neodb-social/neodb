@@ -42,18 +42,17 @@ class ApplePodcast(AbstractSite):
 
     @classmethod
     async def search_task(
-        cls, q: str, page: int, category: str
+        cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
         if category != "podcast":
             return []
-        SEARCH_PAGE_SIZE = 5 if category == "all" else 10
         results = []
-        search_url = f"https://itunes.apple.com/search?entity=podcast&limit={page * SEARCH_PAGE_SIZE}&term={quote_plus(q)}"
+        search_url = f"https://itunes.apple.com/search?entity=podcast&limit={page * page_size}&term={quote_plus(q)}"
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(search_url, timeout=2)
                 r = response.json()
-                for p in r["results"][(page - 1) * SEARCH_PAGE_SIZE :]:
+                for p in r["results"][(page - 1) * page_size :]:
                     if p.get("feedUrl"):
                         results.append(
                             ExternalSearchResultItem(
