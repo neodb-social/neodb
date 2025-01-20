@@ -1,7 +1,6 @@
 from auditlog.context import set_actor
 from django.db import transaction
 from django.db.utils import IntegrityError
-from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from catalog.models import Item

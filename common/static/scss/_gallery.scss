@@ -120,3 +120,30 @@
     gap: var(--pico-spacing) !important;
   }
 }
+
+#sibling .cards{
+  a>div {
+    font-size: 80%;
+    word-wrap: break-word;
+    min-height: 2.5rem;
+    span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap; /* 确保每一行都显示省略号 */
+      width: 100%; /* 确保容器宽度 */
+    }
+  }
+}
+
+@media (min-width: 769px) {
+  #sibling .cards {
+    grid-auto-columns: calc(calc(100% / 4) - var(--pico-block-spacing-horizontal));
+  }
+}
+
+@media (min-width: 1281px) {
+  #sibling .cards {
+    grid-auto-columns: calc(calc(100% / 6) - var(--pico-block-spacing-horizontal));
+  }
+}

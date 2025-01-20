@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journal", "0016_piecepost_piece_posts_piecepost_unique_piece_post"),
     ]

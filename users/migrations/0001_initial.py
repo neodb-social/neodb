@@ -4,10 +4,7 @@ import django.contrib.auth.models
 import django.core.serializers.json
 import django.db.models.deletion
 import django.utils.timezone
-from django.conf import settings
 from django.db import migrations, models
-
-import users.models
 
 
 class Migration(migrations.Migration):

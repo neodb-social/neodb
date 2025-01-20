@@ -28,7 +28,7 @@ def current_user_relationship(context, target_identity: "APIdentity"):
         "rejecting": False,
         "status": "",
     }
-    if target_identity and current_identity:
+    if target_identity and current_identity and not target_identity.restricted:
         if current_identity != target_identity:
             if current_identity.is_blocking(
                 target_identity

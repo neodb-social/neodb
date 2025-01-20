@@ -6,7 +6,6 @@ import django_rq
 from auditlog.context import set_actor
 from django.conf import settings
 from django.core.cache import cache
-from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from rq.job import Job
 
@@ -80,7 +79,7 @@ class ExternalSearchResultItem:
         self.cover_image_url = cover_url
 
     def __repr__(self):
-        return f"[{self.category}] {self.display_title} {self.url}"
+        return f"[{self.category}] {self.display_title} {self.source_url}"
 
     @property
     def verbose_category_name(self):

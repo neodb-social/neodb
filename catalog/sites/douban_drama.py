@@ -7,7 +7,7 @@ from catalog.common import *
 from catalog.models import *
 from common.models.lang import detect_language
 
-from .douban import DoubanDownloader, DoubanSearcher
+from .douban import DoubanDownloader
 
 
 def _cache_key(url):

@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Optional, Tuple, Type
+from typing import Any, List
 
 from django.conf import settings
 from django.db.models import QuerySet
@@ -91,7 +91,10 @@ class PageNumberPagination(NinjaPageNumberPagination):
 
 api = NinjaAPI(
     auth=OAuthAccessTokenAuth(),
-    title=f'{settings.SITE_INFO["site_name"]} API',
+    title=f"{settings.SITE_INFO['site_name']} API",
     version="1.0.0",
     description=f"{settings.SITE_INFO['site_name']} API <hr/><a href='{settings.SITE_INFO['site_url']}'>Learn more</a>",
 )
+
+NOT_FOUND = 404, {"message": "Note not found"}
+OK = 200, {"message": "OK"}

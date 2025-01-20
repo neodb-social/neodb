@@ -1,12 +1,8 @@
 import pprint
-from datetime import timedelta
 from time import sleep
-from typing import TYPE_CHECKING
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
-from django.utils import timezone
 from tqdm import tqdm
 
 from catalog.models import Item

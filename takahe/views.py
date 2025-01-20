@@ -4,9 +4,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.sessions.backends.signed_cookies import SessionStore
 from django.http import HttpRequest
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.utils.http import http_date
-from loguru import logger
 
 from common.utils import user_identity_required
 

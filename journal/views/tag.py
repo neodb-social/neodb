@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods

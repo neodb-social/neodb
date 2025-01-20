@@ -75,4 +75,4 @@ Please see [docs/install.md](docs/install.md)
  - To translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/neodb/)
 
 ## Sponsor
-If you like this project, please consider donating to [NeoDB on ko-fi](https://ko-fi.com/neodb), or our friends at [NiceDB](https://patreon.com/tertius) without whom this project won't be possible.
+If you like this project, please consider donating to [NeoDB.social on ko-fi](https://ko-fi.com/neodb), or [Takahē](https://www.patreon.com/takahe) and [NiceDB](https://patreon.com/tertius) without whom this project won't be possible.

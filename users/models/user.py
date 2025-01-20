@@ -1,5 +1,4 @@
 import re
-from datetime import timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar
 
@@ -26,7 +25,6 @@ from mastodon.models import (
     ThreadsAccount,
 )
 from takahe.utils import Takahe
-from users.models import preference
 
 if TYPE_CHECKING:
     from .apidentity import APIdentity
@@ -171,7 +169,7 @@ class User(AbstractUser):
         return settings.SITE_INFO["site_url"] + self.url
 
     def __str__(self):
-        return f'{self.pk}:{self.username or "<missing>"}'
+        return f"{self.pk}:{self.username or '<missing>'}"
 
     @property
     def registration_complete(self):

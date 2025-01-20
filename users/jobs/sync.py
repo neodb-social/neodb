@@ -1,5 +1,4 @@
 from datetime import timedelta
-from enum import IntEnum
 
 from django.db.models import F
 from django.utils import timezone
@@ -20,7 +19,7 @@ class MastodonUserSync(BaseJob):
         if batches < 1:
             batches = 1
         batch = timezone.now().hour // self.interval_hours
-        logger.info(f"User accounts sync job starts batch {batch+1} of {batches}")
+        logger.info(f"User accounts sync job starts batch {batch + 1} of {batches}")
         qs = (
             User.objects.exclude(
                 preference__mastodon_skip_userinfo=True,

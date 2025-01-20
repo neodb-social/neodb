@@ -1,7 +1,5 @@
 import logging
-import re
 
-import dateparser
 from django.conf import settings
 
 from catalog.common import *

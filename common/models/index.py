@@ -1,12 +1,11 @@
 import re
 from functools import cached_property
 from time import sleep
-from typing import Iterable, Self, TypeVar
+from typing import Iterable, Self
 
 import typesense
 from django.conf import settings
 from loguru import logger
-from ninja import Query
 from typesense.collection import Collection
 from typesense.exceptions import ObjectNotFound
 

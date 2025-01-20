@@ -25,6 +25,8 @@ _RE_SPOILER_TAG = re.compile(r'<(div|span)\sclass="spoiler">.*</(div|span)>')
 
 class Review(Content):
     url_path = "review"
+    post_when_save = True
+    index_when_save = True
     title = models.CharField(max_length=500, blank=False, null=False)
     body = MarkdownxField()
 
@@ -64,7 +66,7 @@ class Review(Content):
         }
 
     @classmethod
-    def update_by_ap_object(cls, owner, item, obj, post):
+    def update_by_ap_object(cls, owner, item, obj, post, crosspost=None):
         p = cls.objects.filter(owner=owner, item=item).first()
         if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
             return p  # incoming ap object is older than what we have, no update needed
@@ -142,12 +144,10 @@ class Review(Content):
         share_to_mastodon: bool = False,
     ):
         review = Review.objects.filter(owner=owner, item=item).first()
-        delete_existing_post = False
         if review is not None:
             if title is None:
                 review.delete()
                 return
-            delete_existing_post = review.visibility != visibility
         defaults = {
             "title": title,
             "body": body,
@@ -157,14 +157,13 @@ class Review(Content):
             defaults["created_time"] = (
                 created_time if created_time < timezone.now() else timezone.now()
             )
-        review, created = cls.objects.update_or_create(
-            item=item, owner=owner, defaults=defaults
-        )
-        update_mode = 1 if delete_existing_post else 0
-        review.sync_to_timeline(update_mode)
-        if share_to_mastodon:
-            review.sync_to_social_accounts(update_mode)
-        review.update_index()
+        if not review:
+            review = Review(item=item, owner=owner, **defaults)
+        else:
+            for name, value in defaults.items():
+                setattr(review, name, value)
+        review.crosspost_when_save = share_to_mastodon
+        review.save()
         return review
 
     def to_indexable_doc(self) -> dict[str, Any]:

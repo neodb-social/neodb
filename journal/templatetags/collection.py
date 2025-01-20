@@ -1,5 +1,4 @@
 from django import template
-from django.template.defaultfilters import stringfilter
 from django.utils.translation import ngettext
 
 from journal.models import Collection

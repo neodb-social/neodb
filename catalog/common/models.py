@@ -1,19 +1,17 @@
 import re
 import uuid
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Iterable, Self, Sequence, Type, cast
+from typing import TYPE_CHECKING, Any, Self
 
 from auditlog.context import disable_auditlog
-from auditlog.models import AuditlogHistoryField, LogEntry
+from auditlog.models import LogEntry
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.signing import b62_decode, b62_encode
 from django.db import connection, models
-from django.db.models import QuerySet, Value
-from django.template.defaultfilters import default
+from django.db.models import QuerySet
 from django.utils import timezone
-from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from ninja import Field, Schema
@@ -45,7 +43,7 @@ class SiteName(models.TextChoices):
     Steam = "steam", _("Steam")  # type:ignore[reportCallIssue]
     Bangumi = "bangumi", _("Bangumi")  # type:ignore[reportCallIssue]
     BGG = "bgg", _("BGG")  # type:ignore[reportCallIssue]
-    # ApplePodcast = "apple_podcast", _("Apple Podcast")  # type:ignore[reportCallIssue]
+    ApplePodcast = "apple_podcast", _("Apple Podcast")  # type:ignore[reportCallIssue]
     RSS = "rss", _("RSS")  # type:ignore[reportCallIssue]
     Discogs = "discogs", _("Discogs")  # type:ignore[reportCallIssue]
     AppleMusic = "apple_music", _("Apple Music")  # type:ignore[reportCallIssue]
@@ -72,36 +70,24 @@ class IdType(models.TextChoices):
     IMDB = "imdb", _("IMDb")  # type:ignore[reportCallIssue]
     TMDB_TV = "tmdb_tv", _("TMDB TV Serie")  # type:ignore[reportCallIssue]
     TMDB_TVSeason = "tmdb_tvseason", _("TMDB TV Season")  # type:ignore[reportCallIssue]
-    TMDB_TVEpisode = "tmdb_tvepisode", _(
-        "TMDB TV Episode"
-    )  # type:ignore[reportCallIssue]
+    TMDB_TVEpisode = "tmdb_tvepisode", _("TMDB TV Episode")  # type:ignore[reportCallIssue]
     TMDB_Movie = "tmdb_movie", _("TMDB Movie")  # type:ignore[reportCallIssue]
     Goodreads = "goodreads", _("Goodreads")  # type:ignore[reportCallIssue]
-    Goodreads_Work = "goodreads_work", _(
-        "Goodreads Work"
-    )  # type:ignore[reportCallIssue]
+    Goodreads_Work = "goodreads_work", _("Goodreads Work")  # type:ignore[reportCallIssue]
     GoogleBooks = "googlebooks", _("Google Books")  # type:ignore[reportCallIssue]
     DoubanBook = "doubanbook", _("Douban Book")  # type:ignore[reportCallIssue]
-    DoubanBook_Work = "doubanbook_work", _(
-        "Douban Book Work"
-    )  # type:ignore[reportCallIssue]
+    DoubanBook_Work = "doubanbook_work", _("Douban Book Work")  # type:ignore[reportCallIssue]
     DoubanMovie = "doubanmovie", _("Douban Movie")  # type:ignore[reportCallIssue]
     DoubanMusic = "doubanmusic", _("Douban Music")  # type:ignore[reportCallIssue]
     DoubanGame = "doubangame", _("Douban Game")  # type:ignore[reportCallIssue]
     DoubanDrama = "doubandrama", _("Douban Drama")  # type:ignore[reportCallIssue]
-    DoubanDramaVersion = "doubandrama_version", _(
-        "Douban Drama Version"
-    )  # type:ignore[reportCallIssue]
+    DoubanDramaVersion = "doubandrama_version", _("Douban Drama Version")  # type:ignore[reportCallIssue]
     BooksTW = "bookstw", _("BooksTW Book")  # type:ignore[reportCallIssue]
     Bandcamp = "bandcamp", _("Bandcamp")  # type:ignore[reportCallIssue]
     Spotify_Album = "spotify_album", _("Spotify Album")  # type:ignore[reportCallIssue]
     Spotify_Show = "spotify_show", _("Spotify Podcast")  # type:ignore[reportCallIssue]
-    Discogs_Release = "discogs_release", _(
-        "Discogs Release"
-    )  # type:ignore[reportCallIssue]
-    Discogs_Master = "discogs_master", _(
-        "Discogs Master"
-    )  # type:ignore[reportCallIssue]
+    Discogs_Release = "discogs_release", _("Discogs Release")  # type:ignore[reportCallIssue]
+    Discogs_Master = "discogs_master", _("Discogs Master")  # type:ignore[reportCallIssue]
     MusicBrainz = "musicbrainz", _("MusicBrainz ID")  # type:ignore[reportCallIssue]
     # DoubanBook_Author = "doubanbook_author", _("Douban Book Author")  # type:ignore[reportCallIssue]
     # DoubanCelebrity = "doubanmovie_celebrity", _("Douban Movie Celebrity")  # type:ignore[reportCallIssue]
@@ -142,13 +128,9 @@ class ItemType(models.TextChoices):
     Album = "music", _("Album")  # type:ignore[reportCallIssue]
     Game = "game", _("Game")  # type:ignore[reportCallIssue]
     Podcast = "podcast", _("Podcast Program")  # type:ignore[reportCallIssue]
-    PodcastEpisode = "podcastepisode", _(
-        "Podcast Episode"
-    )  # type:ignore[reportCallIssue]
+    PodcastEpisode = "podcastepisode", _("Podcast Episode")  # type:ignore[reportCallIssue]
     Performance = "performance", _("Performance")  # type:ignore[reportCallIssue]
-    PerformanceProduction = "production", _(
-        "Production"
-    )  # type:ignore[reportCallIssue]
+    PerformanceProduction = "production", _("Production")  # type:ignore[reportCallIssue]
     FanFic = "fanfic", _("Fanfic")  # type:ignore[reportCallIssue]
     Exhibition = "exhibition", _("Exhibition")  # type:ignore[reportCallIssue]
     Collection = "collection", _("Collection")  # type:ignore[reportCallIssue]

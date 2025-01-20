@@ -1,8 +1,6 @@
-from django.core.signing import b62_decode, b62_encode
-from django.shortcuts import get_object_or_404, redirect, render
+from django.core.signing import b62_encode
+from django.shortcuts import get_object_or_404, redirect
 
-from catalog.collection.models import Collection
-from catalog.models import Item
 
 from .models import *
 

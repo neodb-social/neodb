@@ -1,5 +1,3 @@
-import logging
-
 import dateparser
 
 from catalog.common import *

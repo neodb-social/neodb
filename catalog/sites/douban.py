@@ -37,12 +37,10 @@ class DoubanDownloader(ProxiedDownloader):
 class DoubanSearcher:
     @classmethod
     def search(cls, cat: ItemCategory, c: str, q: str, p: int = 1):
-        url = f"https://search.douban.com/{c}/subject_search?search_text={q}&start={15*(p-1)}"
+        url = f"https://search.douban.com/{c}/subject_search?search_text={q}&start={15 * (p - 1)}"
         content = DoubanDownloader(url).download().html()
         j = json.loads(
-            content.xpath(
-                "//script[text()[contains(.,'window.__DATA__')]]/text()"
-            )[  # type:ignore
+            content.xpath("//script[text()[contains(.,'window.__DATA__')]]/text()")[  # type:ignore
                 0
             ]
             .split("window.__DATA__ = ")[1]  # type:ignore

@@ -24,19 +24,26 @@
 {% if site_color == 'azure' %}
   <link rel="stylesheet"
         href="{{ cdn_url }}/npm/@picocss/pico@2/css/pico.min.css" />
-  <style>
 {% else %}
-<link rel="stylesheet" href="{{ cdn_url }}/npm/@picocss/pico@2/css/pico.{{site_color}}.min.css" />
-<style>
+  <link rel="stylesheet"
+        href="{{ cdn_url }}/npm/@picocss/pico@2/css/pico.{{ site_color }}.min.css" />
 {% endif %}
+<style>
 :where(nav li)::before {
   float: none;
   content: " ";
 }
 </style>
-<link href="{% sass_src 'scss/neodb.scss' %}" rel="stylesheet" type="text/css" />
-<link href="{{ cdn_url }}/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" rel="stylesheet" type="text/css">
-<link rel="search" type="application/opensearchdescription+xml" title="{{ site_name }}" href="{% static 'opensearch.xml' %}">
+<link href="{% sass_src 'scss/neodb.scss' %}"
+      rel="stylesheet"
+      type="text/css" />
+<link href="{{ cdn_url }}/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css"
+      rel="stylesheet"
+      type="text/css">
+<link rel="search"
+      type="application/opensearchdescription+xml"
+      title="{{ site_name }}"
+      href="{% static 'opensearch.xml' %}">
 <script defer>
 (function(){
   const s = localStorage.getItem("user_style");
@@ -59,8 +66,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="{{ site_name }}">
 {% if request.META.HTTP_HOST == site_domain %}
-<style type="text/css">.hide_unless_alter_domain{display:none;}</style>
+  <style type="text/css">.hide_unless_alter_domain{display:none;}</style>
 {% else %}
-<meta name="robots" content="noindex">
+  <meta name="robots" content="noindex">
 {% endif %}
 {{ site_head|safe }}

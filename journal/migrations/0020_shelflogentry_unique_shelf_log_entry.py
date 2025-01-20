@@ -12,7 +12,6 @@ WHERE a.ctid < b.ctid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journal", "0019_alter_collection_edited_time_and_more"),
     ]

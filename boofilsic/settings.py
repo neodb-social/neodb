@@ -92,6 +92,8 @@ env = environ.FileAwareEnv(
     NEODB_DISCOVER_UPDATE_INTERVAL=(int, 60),
     # Disable cron jobs, * for all
     NEODB_DISABLE_CRON_JOBS=(list, []),
+    # search sites
+    NEODB_SEARCH_SITES=(list, []),
     # federated search peers
     NEODB_SEARCH_PEERS=(list, []),
     # INTEGRATED TAKAHE CONFIGURATION
@@ -282,6 +284,7 @@ DOWNLOADER_RETRIES = env("NEODB_DOWNLOADER_RETRIES")
 
 DISABLE_CRON_JOBS = env("NEODB_DISABLE_CRON_JOBS")
 SEARCH_PEERS = env("NEODB_SEARCH_PEERS")
+SEARCH_SITES = env("NEODB_SEARCH_SITES")
 
 FANOUT_LIMIT_DAYS = env("NEODB_FANOUT_LIMIT_DAYS")
 # ====== USER CONFIGUTRATION END ======
@@ -412,9 +415,12 @@ MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.models.render_md"
 
 SUPPORTED_UI_LANGUAGES = {
     "en": _("English"),
+    "da": _("Danish"),
+    "de": _("German"),
+    "fr": _("French"),
+    "it": _("Italian"),
     "zh-hans": _("Simplified Chinese"),
     "zh-hant": _("Traditional Chinese"),
-    "da": _("Danish"),
 }
 
 LANGUAGES = SUPPORTED_UI_LANGUAGES.items()

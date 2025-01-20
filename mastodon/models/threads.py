@@ -117,7 +117,7 @@ class Threads:
     def get_profile(
         token: str, user_id: str | None = None
     ) -> dict[str, str | int] | None:
-        url = f'https://graph.threads.net/v1.0/{user_id or "me"}?fields=id,username,threads_profile_picture_url,threads_biography&access_token={token}'
+        url = f"https://graph.threads.net/v1.0/{user_id or 'me'}?fields=id,username,threads_profile_picture_url,threads_biography&access_token={token}"
         try:
             response = get(url)
         except Exception as e:
@@ -239,7 +239,7 @@ class ThreadsAccount(SocialAccount):
             return False
         if self.handle != data["username"]:
             if self.handle:
-                logger.info(f'{self} handle changed to {data["username"]}')
+                logger.info(f"{self} handle changed to {data['username']}")
             self.handle = str(data["username"])
         self.account_data = data
         self.last_refresh = timezone.now()

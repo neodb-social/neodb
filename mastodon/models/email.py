@@ -57,17 +57,17 @@ class Email:
         site = settings.SITE_INFO["site_name"]
         match action:
             case "verify":
-                subject = f'{site} - {_("Verification Code")} - {code}'
+                subject = f"{site} - {_('Verification Code')} - {code}"
                 msg = _(
                     "Use this code to verify your email address {email}\n\n{code}"
                 ).format(email=email, code=code)
             case "login":
-                subject = f'{site} - {_("Verification Code")} - {code}'
+                subject = f"{site} - {_('Verification Code')} - {code}"
                 msg = _("Use this code to login as {email}\n\n{code}").format(
                     email=email, code=code
                 )
             case "register":
-                subject = f'{site} - {_("Register")}'
+                subject = f"{site} - {_('Register')}"
                 msg = _(
                     "There is no account registered with this email address yet: {email}\n\nIf you already have an account with us, just login and add this email to you account.\n\nIf you prefer to register a new account with this email, please use this verification code: {code}"
                 ).format(email=email, code=code)

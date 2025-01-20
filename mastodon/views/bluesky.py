@@ -1,12 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
-from django.shortcuts import redirect
-from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from common.views import render_error
-from mastodon.models import bluesky
 
 from ..models import Bluesky
 from .common import disconnect_identity, process_verified_account

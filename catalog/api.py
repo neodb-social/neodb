@@ -1,7 +1,9 @@
 from enum import Enum
-from typing import Any, Callable, List, Optional, Tuple, Type
+from typing import List
 
+from django.core.cache import cache
 from django.http import HttpResponse
+from django.utils import timezone
 from ninja import Schema
 
 from common.api import *
@@ -36,6 +38,11 @@ class SearchableItemCategory(Enum):
     Game = "game"
     Podcast = "podcast"
     Performance = "performance"
+
+
+class Gallery(Schema):
+    name: str
+    items: List[ItemSchema]
 
 
 @api.get(
@@ -94,6 +101,27 @@ def fetch_item(request, url: str):
     if get_fetch_lock(request.user, url):
         enqueue_fetch(url, False)
     return 202, {"message": "Fetch in progress"}
+
+
+@api.get(
+    "/catalog/gallery/",
+    response={200: list[Gallery]},
+    summary="Trending items in catalog",
+    auth=None,
+    tags=["catalog"],
+)
+def trending_items(request):
+    """
+    Returns a list of galleries, each gallery is a list of items
+    """
+    gallery_list = cache.get("public_gallery", [])
+
+    # rotate every 6 minutes
+    rot = timezone.now().minute // 6
+    for gallery in gallery_list:
+        i = rot * len(gallery["items"]) // 10
+        gallery["items"] = gallery["items"][i:] + gallery["items"][:i]
+    return 200, gallery_list
 
 
 def _get_item(cls, uuid, response):

@@ -7,8 +7,6 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from typedmodels.models import TypedModel
 
-from catalog.common import jsondata
-
 
 class Platform(models.TextChoices):
     EMAIL = "email", _("Email")

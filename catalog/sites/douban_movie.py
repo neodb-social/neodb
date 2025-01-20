@@ -1,5 +1,5 @@
 import json
-import logging
+import re
 
 from loguru import logger
 
@@ -10,7 +10,7 @@ from common.models.lang import detect_language
 from common.models.misc import int_
 
 from .douban import DoubanDownloader, DoubanSearcher
-from .tmdb import TMDB_TV, TMDB_TVSeason, query_tmdb_tv_episode, search_tmdb_by_imdb_id
+from .tmdb import TMDB_TV, search_tmdb_by_imdb_id
 
 
 @SiteManager.register

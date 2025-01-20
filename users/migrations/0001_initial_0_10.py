@@ -562,9 +562,12 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 choices=[
                     ("en", "English"),
+                    ("da", "Danish"),
+                    ("de", "German"),
+                    ("fr", "French"),
+                    ("it", "Italian"),
                     ("zh-hans", "Simplified Chinese"),
                     ("zh-hant", "Traditional Chinese"),
-                    ("da", "Danish"),
                 ],
                 default="en",
                 max_length=10,
