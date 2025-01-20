@@ -123,7 +123,7 @@ class Bangumi(AbstractSite):
 
     @classmethod
     async def search_task(
-        cls, query: str, page: int, category: str, page_size: int
+        cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
         results = []
         bgm_type = {
@@ -144,7 +144,7 @@ class Bangumi(AbstractSite):
                 response = await client.post(
                     search_url,
                     headers={"User-Agent": settings.NEODB_USER_AGENT},
-                    json={"keyword": query, "filter": {"type": bgm_type[category]}},
+                    json={"keyword": q, "filter": {"type": bgm_type[category]}},
                     timeout=2,
                 )
                 r = response.json()
@@ -162,9 +162,7 @@ class Bangumi(AbstractSite):
                         )
                     )
             except Exception as e:
-                logger.error(
-                    "Bangumi search error", extra={"query": query, "exception": e}
-                )
+                logger.error("Bangumi search error", extra={"query": q, "exception": e})
         return results
 
     def scrape(self):

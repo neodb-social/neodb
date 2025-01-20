@@ -10,7 +10,7 @@ ResourceContent persists as an ExternalResource which may link to an Item
 import json
 import re
 from dataclasses import dataclass, field
-from typing import Type, TypeVar
+from typing import TYPE_CHECKING, Type, TypeVar
 
 import django_rq
 import requests
@@ -19,6 +19,9 @@ from loguru import logger
 from validators import url as url_validate
 
 from .models import ExternalResource, IdealIdTypes, IdType, Item, SiteName
+
+if TYPE_CHECKING:
+    from ..search.models import ExternalSearchResultItem
 
 
 @dataclass
@@ -92,12 +95,12 @@ class AbstractSite:
                 )
         return self.resource
 
-    # add this method to subclass to enable external search
-    # @classmethod
-    # async def search_task(
-    #     cls, query: str, page: int, category: str, page_size:int
-    # ) -> list[ExternalSearchResultItem]:
-    #     return []
+    @classmethod
+    async def search_task(
+        cls, q: str, page: int, category: str, page_size: int
+    ) -> "list[ExternalSearchResultItem]":
+        # implement this method in subclass to enable external search
+        return []
 
     def scrape(self) -> ResourceContent:
         """subclass should implement this, return ResourceContent object"""
@@ -352,9 +355,7 @@ class SiteManager:
     def get_sites_for_search():
         if settings.SEARCH_SITES == ["-"]:
             return []
-        sites = [
-            cls for cls in SiteManager.get_all_sites() if hasattr(cls, "search_task")
-        ]
+        sites = SiteManager.get_all_sites()
         if settings.SEARCH_SITES == ["*"] or not settings.SEARCH_SITES:
             return sites
         return [s for s in sites if s.SITE_NAME.value in settings.SEARCH_SITES]
