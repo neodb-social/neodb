@@ -130,7 +130,7 @@ class BangumiDramaTestCase(TestCase):
     def test_scrape(self):
         t_url = "https://bgm.tv/subject/224973"
         site = SiteManager.get_site_by_url(t_url)
-        resource = site.get_resource_ready()
+        site.get_resource_ready()
         item = site.get_item()
         self.assertEqual(item.display_title, "超级弹丸论破2舞台剧~再见了绝望学园~2017")
         self.assertEqual(
@@ -145,7 +145,7 @@ class BangumiDramaTestCase(TestCase):
 
         t_url = "https://bgm.tv/subject/442025"
         site = SiteManager.get_site_by_url(t_url)
-        resource = site.get_resource_ready()
+        site.get_resource_ready()
         item = site.get_item()
         self.assertEqual(item.display_title, "LIVE STAGE「ぼっち・ざ・ろっく！」")
         self.assertEqual(

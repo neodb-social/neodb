@@ -1,10 +1,10 @@
 import logging
-from typing import Any
 from collections import OrderedDict
-from loguru import logger
-import httpx
+from typing import Any
 
+import httpx
 from django.conf import settings
+from loguru import logger
 
 from catalog.book.utils import detect_isbn_asin
 from catalog.common import *
@@ -104,7 +104,7 @@ class Bangumi(AbstractSite):
                         release_type = GameReleaseType.DLC
             case _:
                 raise ValueError(
-                    f"Unknown type {o['type']} for bangumi subject {o["id"]}"
+                    f"Unknown type {o['type']} for bangumi subject {o['id']}"
                 )
         return category, {
             "preferred_model": model,
@@ -138,7 +138,7 @@ class Bangumi(AbstractSite):
         }
         if category not in bgm_type:
             return results
-        search_url = f"https://api.bgm.tv/v0/search/subjects?limit={page_size}&offset={(page-1)*page_size}"
+        search_url = f"https://api.bgm.tv/v0/search/subjects?limit={page_size}&offset={(page - 1) * page_size}"
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.post(

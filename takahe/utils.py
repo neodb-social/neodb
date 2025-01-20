@@ -9,8 +9,9 @@ from django.core.files.images import ImageFile
 from django.core.signing import b62_encode
 from django.db.models import Count
 from django.utils import timezone
-from PIL import Image
 from loguru import logger
+from PIL import Image
+
 from .models import *
 
 if TYPE_CHECKING:

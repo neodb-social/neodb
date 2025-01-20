@@ -33,7 +33,6 @@ from .search import search
 from .tag import user_tag_edit, user_tag_list, user_tag_member_list
 from .wrapped import WrappedShareView, WrappedView
 
-
 __all__ = [
     "add_to_collection",
     "collection_add_featured",

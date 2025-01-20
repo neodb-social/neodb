@@ -1,10 +1,10 @@
+import httpx
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
-import httpx
 
-from users.models import Preference, User
-from takahe.models import Identity, Domain
+from takahe.models import Domain, Identity
 from takahe.utils import Takahe
+from users.models import Preference, User
 
 
 class Command(BaseCommand):
