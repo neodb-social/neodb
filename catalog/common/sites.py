@@ -95,7 +95,7 @@ class AbstractSite:
     # add this method to subclass to enable external search
     # @classmethod
     # async def search_task(
-    #     cls, query: str, page: int, category: str
+    #     cls, query: str, page: int, category: str, page_size:int
     # ) -> list[ExternalSearchResultItem]:
     #     return []
 

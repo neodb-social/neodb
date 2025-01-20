@@ -125,10 +125,9 @@ class FediverseInstance(AbstractSite):
         return d
 
     @classmethod
-    async def peer_search_task(cls, host, q, page, category=None):
-        SEARCH_PAGE_SIZE = 5
-        p = (page - 1) * SEARCH_PAGE_SIZE // 20 + 1
-        offset = (page - 1) * SEARCH_PAGE_SIZE % 20
+    async def peer_search_task(cls, host, q, page, category=None, page_size=5):
+        p = (page - 1) * page_size // 20 + 1
+        offset = (page - 1) * page_size % 20
         api_url = f"https://{host}/api/catalog/search?query={quote_plus(q)}&page={p}{'&category=' + category if category and category != 'all' else ''}"
         async with httpx.AsyncClient() as client:
             results = []
@@ -167,12 +166,14 @@ class FediverseInstance(AbstractSite):
                             item["cover_image_url"],
                         )
                     )
-        return results[offset : offset + SEARCH_PAGE_SIZE]
+        return results[offset : offset + page_size]
 
     @classmethod
-    def search_tasks(cls, q: str, page: int = 1, category: str | None = None):
+    def search_tasks(
+        cls, q: str, page: int = 1, category: str | None = None, page_size=5
+    ):
         from takahe.utils import Takahe
 
         peers = Takahe.get_neodb_peers()
         c = category if category != "movietv" else "movie,tv"
-        return [cls.peer_search_task(host, q, page, c) for host in peers]
+        return [cls.peer_search_task(host, q, page, c, page_size) for host in peers]

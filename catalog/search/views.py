@@ -3,7 +3,6 @@ import re
 import django_rq
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
 from django.core.exceptions import BadRequest
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
@@ -155,15 +154,15 @@ def search(request):
 @login_required
 def external_search(request):
     category = request.GET.get("c", default="all").strip().lower()
-    if category == "all":
-        category = None
     keywords = request.GET.get("q", default="").strip()
     page_number = int_(request.GET.get("page"), 1)
-    items = ExternalSources.search(keywords, page_number, category) if keywords else []
-    cache_key = f"search_{category if category != 'movietv' else 'movie,tv'}_{keywords}"
-    dedupe_urls = cache.get(cache_key, [])
-    items = [i for i in items if i.source_url not in dedupe_urls]
-
+    items = (
+        ExternalSources.search(
+            keywords, page_number, category, visible_categories(request)
+        )
+        if keywords
+        else []
+    )
     return render(request, "external_search_results.html", {"external_items": items})
 
 
