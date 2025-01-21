@@ -69,13 +69,6 @@
                      value="{% trans 'Add an item to this collection' %}">
             </form>
             <script>
-              $(function () {
-                sortable('.sortable', {
-                  forcePlaceholderSize: true,
-                  placeholderClass: 'entity-sort--placeholder',
-                  hoverClass: 'entity-sort--hover'
-                });
-              });
               function update_member_order() {
                 var member_ids = [];
                 $('.sortable>.item-card').each(function () {

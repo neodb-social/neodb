@@ -16,5 +16,14 @@
   {% if not request.GET.last_pos and not collection_edit %}
     {% trans "nothing so far." %}
   {% endif %}
+  {% if request.GET.edit %}
+    <script>
+  sortable('.sortable', {
+    forcePlaceholderSize: true,
+    placeholderClass: 'entity-sort--placeholder',
+    hoverClass: 'entity-sort--hover'
+  });
+    </script>
+  {% endif %}
 {% endfor %}
 {% if msg %}<script type="text/javascript">alert("{{ msg|escapejs }}");</script>{% endif %}
