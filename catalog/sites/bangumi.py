@@ -34,7 +34,7 @@ class Bangumi(AbstractSite):
         dt = o.get("date")
         pub_year = None
         pub_month = None
-        release_year = None
+        release_date = None
         release_type = None
         showtime = None
         year = None
@@ -102,6 +102,8 @@ class Bangumi(AbstractSite):
                         release_type = GameReleaseType.GAME
                     case "扩展包":
                         release_type = GameReleaseType.DLC
+                if dt:
+                    release_date = dt
             case _:
                 raise ValueError(
                     f"Unknown type {o['type']} for bangumi subject {o['id']}"
@@ -111,7 +113,7 @@ class Bangumi(AbstractSite):
             "related_resources": related_resources,
             "pub_year": pub_year,
             "pub_month": pub_month,
-            "release_year": release_year,
+            "release_date": release_date,
             "release_type": release_type,
             "showtime": showtime,
             "year": year,
@@ -276,15 +278,16 @@ class Bangumi(AbstractSite):
                     if category == ItemCategory.Performance:
                         director = v
                 case "主演":
-                    actor = (
-                        [{"name": d["v"], "role": None} for d in v]
-                        if isinstance(v, list)
-                        else (
-                            [{"name": w, "role": None} for w in v.split("、")]
-                            if isinstance(v, str)
-                            else []
+                    if category == ItemCategory.Performance:
+                        actor = (
+                            [{"name": d["v"], "role": None} for d in v]
+                            if isinstance(v, list)
+                            else (
+                                [{"name": w, "role": None} for w in v.split("、")]
+                                if isinstance(v, str)
+                                else []
+                            )
                         )
-                    )
                 case "会场" | "演出地点":
                     location = v
 
