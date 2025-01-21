@@ -1,59 +1,29 @@
 {% load thumb %}
 {% load i18n %}
 {% load l10n %}
-<div class="item-list sortable">
-  {% for member in collection.ordered_members %}
-    {% include '_list_item.html' with item=member.item mark=None collection_member=member %}
-  {% empty %}
+{% for member in members %}
+  {% include '_list_item.html' with item=member.item mark=None collection_member=member %}
+  {% if forloop.counter == 10 %}<div class="loader-mark"></div>{% endif %}
+  {% if forloop.last %}
+    <div hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?last_pos={{ member.position }}&amp;last_member={{ member.id }}&amp;edit={{ request.GET.edit }}"
+         hx-trigger="load delay:0.1s"
+         hx-swap="outerHTML"
+         class=".loader">
+      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+    </div>
+  {% endif %}
+{% empty %}
+  {% if not request.GET.last_pos and not collection_edit %}
     {% trans "nothing so far." %}
-  {% endfor %}
-</div>
-{% if collection_edit %}
-  <form class="entity-form"
-        hx-target="#collection_items"
-        hx-post="{% url 'journal:collection_append_item' collection.uuid %}"
-        method="post">
-    {% csrf_token %}
-    <input type="url"
-           name="url"
-           placeholder="{{ request.scheme }}://{{ request.get_host }}/item/abcd123"
-           style="min-width:24rem"
-           required>
-    <input type="text"
-           name="comment"
-           placeholder="{% trans 'note' %}"
-           style="min-width:24rem">
-    <input class="button"
-           type="submit"
-           value="{% trans 'Add an item to this collection' %}">
-  </form>
-  <script>
-    $(function () {
-      sortable('.sortable', {
-        forcePlaceholderSize: true,
-        placeholderClass: 'entity-sort--placeholder',
-        hoverClass: 'entity-sort--hover'
-      });
-    });
-    function update_member_order() {
-      var member_ids = [];
-      $('.sortable>.item-card').each(function () {
-        member_ids.push($(this).data('member-id'));
-      });
-      $('#member_ids').val(member_ids.join(','));
-      return true;
-    }
-  </script>
-  <form class="entity-form"
-        hx-target="#collection_items"
-        hx-post="{% url 'journal:collection_update_member_order' collection.uuid %}"
-        onsubmit="return update_member_order()"
-        method="post">
-    {% csrf_token %}
-    <input type="hidden" name="member_ids" id="member_ids" required>
-    <input type="submit"
-           class="secondary"
-           value="{% trans "Drag and drop to change the order order and click here to save" %}">
-  </form>
-{% endif %}
+  {% endif %}
+  {% if request.GET.edit %}
+    <script>
+  sortable('.sortable', {
+    forcePlaceholderSize: true,
+    placeholderClass: 'entity-sort--placeholder',
+    hoverClass: 'entity-sort--hover'
+  });
+    </script>
+  {% endif %}
+{% endfor %}
 {% if msg %}<script type="text/javascript">alert("{{ msg|escapejs }}");</script>{% endif %}

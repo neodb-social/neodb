@@ -1,7 +1,6 @@
 from django.core.signing import b62_encode
 from django.shortcuts import get_object_or_404, redirect
 
-
 from .models import *
 
 

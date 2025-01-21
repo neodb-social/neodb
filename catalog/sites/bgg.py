@@ -6,7 +6,6 @@ ref: https://boardgamegeek.com/wiki/page/BGG_XML_API2
 
 import html
 
-
 from catalog.common import *
 from catalog.game.models import GameReleaseType
 from catalog.models import *

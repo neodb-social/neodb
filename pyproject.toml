@@ -118,6 +118,7 @@ exclude = [
     "neodb",
 ]
 lint.ignore = ["F403", "F405"]
+lint.extend-select = ["I"]
 
 [tool.setuptools]
 py-modules = []

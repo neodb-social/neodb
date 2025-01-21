@@ -1,4 +1,3 @@
-import logging
 import re
 from urllib.parse import quote_plus
 
@@ -9,8 +8,6 @@ from loguru import logger
 from catalog.book.utils import isbn_10_to_13
 from catalog.common import *
 from catalog.models import *
-
-_logger = logging.getLogger(__name__)
 
 
 @SiteManager.register
@@ -122,13 +119,12 @@ class GoogleBooks(AbstractSite):
 
     @classmethod
     async def search_task(
-        cls, q: str, page: int, category: str
+        cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
         if category not in ["all", "book"]:
             return []
-        SEARCH_PAGE_SIZE = 5
         results = []
-        api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q={quote_plus(q)}&startIndex={SEARCH_PAGE_SIZE * (page - 1)}&maxResults={SEARCH_PAGE_SIZE}&maxAllowedMaturityRating=MATURE"
+        api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q={quote_plus(q)}&startIndex={page_size * (page - 1)}&maxResults={page_size}&maxAllowedMaturityRating=MATURE"
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(api_url, timeout=2)

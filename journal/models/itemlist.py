@@ -40,7 +40,7 @@ class List(Piece):
 
     @property
     def ordered_members(self):
-        return self.members.all().order_by("position")
+        return self.members.all().order_by("position", "item_id")
 
     @property
     def ordered_items(self):
@@ -76,7 +76,7 @@ class List(Piece):
             raise ValueError("item is None")
         member = self.get_member_for_item(item)
         if member:
-            return member
+            return member, False
         ml = self.ordered_members
         p = {"parent": self}
         p.update(params)
@@ -88,7 +88,7 @@ class List(Piece):
             **p,
         )
         list_add.send(sender=self.__class__, instance=self, item=item, member=member)
-        return member
+        return member, True
 
     def remove_item(self, item):
         member = self.get_member_for_item(item)
@@ -104,7 +104,7 @@ class List(Piece):
                 i = ordered_member_ids.index(m.pk)
                 if m.position != i + 1:
                     m.position = i + 1
-                    m.save()
+                    m.save(update_fields=["position"])
             except ValueError:
                 pass
 

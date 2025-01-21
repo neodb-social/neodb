@@ -111,13 +111,12 @@ class Spotify(AbstractSite):
 
     @classmethod
     async def search_task(
-        cls, q: str, page: int, category: str
+        cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
         if category not in ["music", "all"]:
             return []
-        SEARCH_PAGE_SIZE = 5
         results = []
-        api_url = f"https://api.spotify.com/v1/search?q={q}&type=album&limit={SEARCH_PAGE_SIZE}&offset={page * SEARCH_PAGE_SIZE}"
+        api_url = f"https://api.spotify.com/v1/search?q={q}&type=album&limit={page_size}&offset={page * page_size}"
         async with httpx.AsyncClient() as client:
             try:
                 headers = {"Authorization": f"Bearer {get_spotify_token()}"}

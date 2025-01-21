@@ -109,13 +109,12 @@ class Bandcamp(AbstractSite):
 
     @classmethod
     async def search_task(
-        cls, q: str, page: int, category: str
+        cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
         if category != "music":
             return []
-        SEARCH_PAGE_SIZE = 5
-        p = (page - 1) * SEARCH_PAGE_SIZE // 18 + 1
-        offset = (page - 1) * SEARCH_PAGE_SIZE % 18
+        p = (page - 1) * page_size // 18 + 1
+        offset = (page - 1) * page_size % 18
         results = []
         search_url = f"https://bandcamp.com/search?from=results&item_type=a&page={p}&q={urllib.parse.quote_plus(q)}"
         async with httpx.AsyncClient() as client:
@@ -147,4 +146,4 @@ class Bandcamp(AbstractSite):
                 logger.error(
                     "Bandcamp search error", extra={"query": q, "exception": e}
                 )
-        return results[offset : offset + SEARCH_PAGE_SIZE]
+        return results[offset : offset + page_size]

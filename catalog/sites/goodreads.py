@@ -123,13 +123,12 @@ class Goodreads(AbstractSite):
 
     @classmethod
     async def search_task(
-        cls, q: str, page: int, category: str
+        cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
         if category not in ["all", "book"]:
             return []
-        SEARCH_PAGE_SIZE = 5
-        p = (page - 1) * SEARCH_PAGE_SIZE // 20 + 1
-        offset = (page - 1) * SEARCH_PAGE_SIZE % 20
+        p = (page - 1) * page_size // 20 + 1
+        offset = (page - 1) * page_size % 20
         results = []
         search_url = f"https://www.goodreads.com/search?page={p}&q={quote_plus(q)}"
         async with httpx.AsyncClient() as client:
@@ -195,7 +194,7 @@ class Goodreads(AbstractSite):
                 logger.error(
                     "Goodreads search error", extra={"query": q, "exception": e}
                 )
-        return results[offset : offset + SEARCH_PAGE_SIZE]
+        return results[offset : offset + page_size]
 
 
 @SiteManager.register

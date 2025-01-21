@@ -13,7 +13,8 @@
     {% if collection_edit %}
       <span>
         <a title="{% trans "Remove from collection" %}"
-           hx-target="#collection_items"
+           hx-target="closest article"
+           hx-swap="outerHTML"
            hx-post="{% url 'journal:collection_remove_item' collection.uuid item.uuid %}">
           <i class="fa-solid fa-square-minus"></i>
         </a>
@@ -86,7 +87,7 @@
         {% endif %}
       {% endif %}
       {% if collection_member %}
-        <p hx-target="this" hx-swap="innerHTML">
+        <div hx-swap="innerHTML" hx-target="this" class="item-note">
           {% if collection_edit %}
             <span class="action">
               <a title="{% trans "Update note" %}"
@@ -94,7 +95,8 @@
             </span>
           {% endif %}
           {% if collection_member.note %}{{ collection_member.note }}{% endif %}
-        </p>
+          &nbsp;
+        </div>
       {% endif %}
     </footer>
   {% endif %}
