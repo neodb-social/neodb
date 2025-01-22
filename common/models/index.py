@@ -14,7 +14,6 @@ class QueryParser:
     fields = ["sort"]
     default_search_params = {
         "q": "",
-        "filter_by": "",
         "query_by": "",
         "sort_by": "",
         "per_page": 20,
@@ -45,6 +44,7 @@ class QueryParser:
         self.page = page
         self.page_size = page_size
         self.filter_by = {}
+        self.exclude_by = {}
         self.query_by = []
         self.sort_by = []
 
@@ -63,6 +63,10 @@ class QueryParser:
         """Override a specific filter"""
         self.filter_by[field] = value if isinstance(value, list) else [value]
 
+    def exclude(self, field: str, value: list[int] | list[str] | int | str):
+        """Exclude a specific filter"""
+        self.exclude_by[field] = value if isinstance(value, list) else [value]
+
     def sort(self, fields: list[str]):
         """Override the default sort fields"""
         self.sort_by = fields
@@ -76,8 +80,8 @@ class QueryParser:
         )
         if self.page_size:
             params["per_page"] = self.page_size
+        filters = []
         if self.filter_by:
-            filters = []
             for field, values in self.filter_by.items():
                 if field == "_":
                     filters += values
@@ -88,6 +92,16 @@ class QueryParser:
                         else str(values[0])
                     )
                     filters.append(f"{field}:{v}")
+        if self.exclude_by:
+            for field, values in self.exclude_by.items():
+                if values:
+                    v = (
+                        f"[{','.join(map(str, values))}]"
+                        if len(values) > 1
+                        else str(values[0])
+                    )
+                    filters.append(f"{field}:!={v}")
+        if filters:
             params["filter_by"] = " && ".join(filters)
         if self.query_by:
             params["query_by"] = ",".join(self.query_by)

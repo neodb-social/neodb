@@ -96,5 +96,6 @@ api = NinjaAPI(
     description=f"{settings.SITE_INFO['site_name']} API <hr/><a href='{settings.SITE_INFO['site_url']}'>Learn more</a>",
 )
 
-NOT_FOUND = 404, {"message": "Note not found"}
+NOT_FOUND = 404, {"message": "Not found"}
 OK = 200, {"message": "OK"}
+NO_DATA = {"data": [], "count": 0, "pages": 0}

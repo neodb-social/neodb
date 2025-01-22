@@ -39,6 +39,15 @@ if TYPE_CHECKING:
 #     class Meta:
 #         db_table = "django_session"
 
+DATETIME_MS_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+
+
+def format_ld_date(value: datetime.datetime) -> str:
+    # We chop the timestamp to be identical to the timestamps returned by
+    # Mastodon's API, because some clients like Toot! (for iOS) are especially
+    # picky about timestamp parsing.
+    return f"{value.strftime(DATETIME_MS_FORMAT)[:-4]}Z"
+
 
 class Snowflake:
     """
@@ -781,6 +790,55 @@ class Identity(models.Model):
         else:
             return f"/proxy/identity_icon/{self.pk}/"
 
+    def to_mastodon_json(self, source=False):
+        # from activities.models import Emoji, Post
+
+        # missing = StaticAbsoluteUrl("img/missing.png").absolute
+
+        # metadata_value_text = (
+        #     " ".join([m["value"] for m in self.metadata]) if self.metadata else ""
+        # )
+        # emojis = Emoji.emojis_from_content(
+        #     f"{self.name} {self.summary} {metadata_value_text}", self.domain
+        # )
+        renderer = ContentRenderer(local=False)
+        result = {
+            "id": str(self.pk),
+            "username": self.username or "",
+            "acct": self.username if source else self.handle,
+            "url": self.absolute_profile_uri() or "",
+            "display_name": self.name or "",
+            "note": self.summary or "",
+            "avatar": settings.SITE_INFO["site_url"] + self.local_icon_url(),
+            "avatar_static": settings.SITE_INFO["site_url"] + self.local_icon_url(),
+            "header": "",  # settings.SITE_INFO['site_url']+ header_image if header_image else missing,
+            "header_static": "",  # settings.SITE_INFO['site_url']+header_image if header_image else missing,
+            "locked": bool(self.manually_approves_followers),
+            "fields": (
+                [
+                    {
+                        "name": m["name"],
+                        "value": renderer.render_identity_data(m["value"], self),
+                        "verified_at": None,
+                    }
+                    for m in self.metadata
+                ]
+                if self.metadata
+                else []
+            ),
+            "emojis": [],  # [emoji.to_mastodon_json() for emoji in emojis],
+            "bot": self.actor_type.lower() in ["service", "application"],
+            "group": self.actor_type.lower() == "group",
+            "discoverable": self.discoverable,
+            "indexable": self.indexable,
+            "suspended": False,
+            "limited": False,
+            "created_at": format_ld_date(
+                self.created.replace(hour=0, minute=0, second=0, microsecond=0)
+            ),
+        }
+        return result
+
 
 class Follow(models.Model):
     """
@@ -1307,6 +1365,103 @@ class Post(models.Model):
     @property
     def safe_content_local(self):
         return ContentRenderer(local=True).render_post(self.content, self)
+
+    def _safe_content_note(self, *, local: bool = True):
+        return ContentRenderer(local=local).render_post(self.content, self)
+
+    def safe_content_remote(self):
+        """
+        Returns the content formatted for remote consumption
+        """
+        return self._safe_content_note(local=False)
+
+    @property
+    def stats_with_defaults(self):
+        """
+        Returns the stats dict with counts of likes/etc. in it
+        """
+        return {
+            "likes": self.stats.get("likes", 0) if self.stats else 0,
+            "boosts": self.stats.get("boosts", 0) if self.stats else 0,
+            "replies": self.stats.get("replies", 0) if self.stats else 0,
+        }
+
+    def to_mastodon_json(self, interactions=None, bookmarks=None, identity=None):
+        reply_parent = None
+        if self.in_reply_to:
+            # Load the PK and author.id explicitly to prevent a SELECT on the entire author Identity
+            reply_parent = (
+                Post.objects.filter(object_uri=self.in_reply_to)
+                .only("pk", "author_id")
+                .first()
+            )
+        visibility_mapping = {
+            self.Visibilities.public: "public",
+            self.Visibilities.unlisted: "unlisted",
+            self.Visibilities.followers: "private",
+            self.Visibilities.mentioned: "direct",
+            self.Visibilities.local_only: "public",
+        }
+        language = self.language
+        if self.language == "":
+            language = None
+        value = {
+            "id": str(self.pk),
+            "uri": self.object_uri,
+            "created_at": format_ld_date(self.published),
+            "account": self.author.to_mastodon_json(),
+            "content": self.safe_content_remote(),
+            "language": language,
+            "visibility": visibility_mapping[self.visibility],  # type: ignore
+            "sensitive": self.sensitive,
+            "spoiler_text": self.summary or "",
+            "media_attachments": [
+                # attachment.to_mastodon_json() for attachment in self.attachments.all()
+            ],
+            "mentions": [
+                mention.to_mastodon_mention_json() for mention in self.mentions.all()
+            ],
+            "tags": (
+                [
+                    {
+                        "name": tag,
+                        "url": f"https://{self.author.domain.uri_domain}/tags/{tag}/",
+                    }
+                    for tag in self.hashtags
+                ]
+                if self.hashtags
+                else []
+            ),
+            # Filter in the list comp rather than query because the common case is no emoji in the resultset
+            # When filter is on emojis like `emojis.usable()` it causes a query that is not cached by prefetch_related
+            "emojis": [
+                emoji.to_mastodon_json()
+                for emoji in self.emojis.all()
+                if emoji.is_usable
+            ],
+            "reblogs_count": self.stats_with_defaults["boosts"],
+            "favourites_count": self.stats_with_defaults["likes"],
+            "replies_count": self.stats_with_defaults["replies"],
+            "url": self.absolute_object_uri(),
+            "in_reply_to_id": str(reply_parent.pk) if reply_parent else None,
+            "in_reply_to_account_id": (
+                str(reply_parent.author_id) if reply_parent else None
+            ),
+            "reblog": None,
+            "poll": None,  # self.type_data.to_mastodon_json(self, identity) if isinstance(self.type_data, QuestionData) else None,
+            "card": None,
+            "text": self.safe_content_remote(),
+            "edited_at": format_ld_date(self.edited) if self.edited else None,
+        }
+        if isinstance(self.type_data, dict) and "object" in self.type_data:
+            value["ext_neodb"] = self.type_data["object"]
+        if interactions:
+            value["favourited"] = self.pk in interactions.get("like", [])
+            value["reblogged"] = self.pk in interactions.get("boost", [])
+            value["pinned"] = self.pk in interactions.get("pin", [])
+        if bookmarks:
+            value["bookmarked"] = self.pk in bookmarks
+        return value
 
 
 class FanOut(models.Model):
