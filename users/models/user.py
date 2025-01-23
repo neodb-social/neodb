@@ -171,6 +171,14 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.pk}:{self.username or '<missing>'}"
 
+    def get_roles(self):
+        roles = []
+        if self.is_staff:
+            roles.append("staff")
+        if self.is_superuser:
+            roles.append("admin")
+        return roles
+
     @property
     def registration_complete(self):
         return self.username is not None

@@ -9,6 +9,7 @@ from ninja.pagination import paginate
 from catalog.common.models import AvailableItemCategory, Item, ItemCategory, ItemSchema
 from common.api import PageNumberPagination, Result, api
 from journal.models.common import q_owned_piece_visible_to_user
+from journal.models.shelf import ShelfMember
 from users.models.apidentity import APIdentity
 
 from ..models import (
@@ -21,7 +22,7 @@ from ..models import (
 class MarkSchema(Schema):
     shelf_type: ShelfType
     visibility: int = Field(ge=0, le=2)
-
+    post_id: int | None = Field(alias="latest_post_id")
     item: ItemSchema
     created_time: datetime
     comment_text: str | None
@@ -40,9 +41,9 @@ class MarkInSchema(Schema):
 
 
 @api.get(
-    "/user/{username}/shelf/{type}",
-    response={200: List[MarkSchema], 401: Result, 403: Result},
-    tags=["mark"],
+    "/user/{handle}/shelf/{type}",
+    response={200: List[MarkSchema], 401: Result, 403: Result, 404: Result},
+    tags=["shelf"],
 )
 @paginate(PageNumberPagination)
 def list_marks_on_user_shelf(
@@ -57,13 +58,18 @@ def list_marks_on_user_shelf(
     Shelf's `type` should be one of `wishlist` / `progress` / `complete` / `dropped`;
     `category` is optional, marks for all categories will be returned if not specified.
     """
-    target = APIdentity.get_by_handle(handle)
+    try:
+        target = APIdentity.get_by_handle(handle)
+    except APIdentity.DoesNotExist:
+        return ShelfMember.objects.none()
     viewer = request.user.identity
     if target.is_blocking(viewer) or target.is_blocked_by(viewer):
-        return 403, {"message": "unavailable"}
+        return ShelfMember.objects.none()
     qv = q_owned_piece_visible_to_user(request.user, target)
     queryset = (
-        target.shelf_manager.get_latest_members(type, ItemCategory(category))
+        target.shelf_manager.get_latest_members(
+            type, ItemCategory(category) if category else None
+        )
         .filter(qv)
         .prefetch_related("item")
     )
@@ -73,7 +79,7 @@ def list_marks_on_user_shelf(
 @api.get(
     "/me/shelf/{type}",
     response={200: List[MarkSchema], 401: Result, 403: Result},
-    tags=["mark"],
+    tags=["shelf"],
 )
 @paginate(PageNumberPagination)
 def list_marks_on_shelf(
@@ -94,7 +100,7 @@ def list_marks_on_shelf(
 @api.get(
     "/me/shelf/item/{item_uuid}",
     response={200: MarkSchema, 302: Result, 401: Result, 403: Result, 404: Result},
-    tags=["mark"],
+    tags=["shelf"],
 )
 def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     """
@@ -115,7 +121,7 @@ def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
 @api.post(
     "/me/shelf/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
-    tags=["mark"],
+    tags=["shelf"],
 )
 def mark_item(request, item_uuid: str, mark: MarkInSchema):
     """
@@ -147,7 +153,7 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
 @api.delete(
     "/me/shelf/item/{item_uuid}",
     response={200: Result, 401: Result, 403: Result, 404: Result},
-    tags=["mark"],
+    tags=["shelf"],
 )
 def delete_mark(request, item_uuid: str):
     """

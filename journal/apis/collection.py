@@ -13,8 +13,8 @@ from ..models import Collection
 class CollectionSchema(Schema):
     uuid: str
     url: str
-
     visibility: int = Field(ge=0, le=2)
+    post_id: int | None = Field(alias="latest_post_id")
     created_time: datetime
     title: str
     brief: str

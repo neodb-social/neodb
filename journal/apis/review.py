@@ -16,8 +16,8 @@ from ..models import (
 
 class ReviewSchema(Schema):
     url: str
-
     visibility: int = Field(ge=0, le=2)
+    post_id: int | None = Field(alias="latest_post_id")
     item: ItemSchema
     created_time: datetime
     title: str

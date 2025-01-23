@@ -1,8 +1,12 @@
+from typing import Literal
+
+from django.conf import settings
 from ninja import Schema
 from ninja.schema import Field
 
-from common.api import *
-from mastodon.models.common import SocialAccount
+from common.api import NOT_FOUND, Result, api
+from mastodon.models import SocialAccount
+from users.models import APIdentity
 
 
 class ExternalAccountSchema(Schema):
@@ -18,6 +22,7 @@ class UserSchema(Schema):
     display_name: str
     avatar: str
     username: str
+    roles: list[Literal["admin", "staff"]]
 
 
 @api.get(
@@ -37,12 +42,13 @@ def me(request):
         "external_accounts": accts,
         "display_name": request.user.display_name,
         "avatar": request.user.avatar,
+        "roles": request.user.get_roles(),
     }
 
 
 @api.get(
     "/user/{handle}",
-    response={200: UserSchema, 401: Result, 403: Result},
+    response={200: UserSchema, 401: Result, 403: Result, 404: Result},
     tags=["user"],
 )
 def user(request, handle: str):
@@ -51,7 +57,10 @@ def user(request, handle: str):
 
     More detailed info can be fetched from Mastodon API
     """
-    target = APIdentity.get_by_handle(handle)
+    try:
+        target = APIdentity.get_by_handle(handle)
+    except APIdentity.DoesNotExist:
+        return NOT_FOUND
     viewer = request.user.identity
     if target.is_blocking(viewer) or target.is_blocked_by(viewer):
         return 403, {"message": "unavailable"}
@@ -62,4 +71,5 @@ def user(request, handle: str):
         "external_accounts": [],
         "display_name": target.display_name,
         "avatar": target.avatar,
+        "roles": target.user.get_roles() if target.local else [],
     }

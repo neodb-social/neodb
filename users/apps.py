@@ -5,7 +5,7 @@ class UsersConfig(AppConfig):
     name = "users"
 
     def ready(self):
-        from . import api  # noqa
+        from . import apis  # noqa
 
         # register cron jobs
         from users.jobs import MastodonUserSync  # noqa
