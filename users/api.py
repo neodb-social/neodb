@@ -38,3 +38,28 @@ def me(request):
         "display_name": request.user.display_name,
         "avatar": request.user.avatar,
     }
+
+
+@api.get(
+    "/user/{handle}",
+    response={200: UserSchema, 401: Result, 403: Result},
+    tags=["user"],
+)
+def user(request, handle: str):
+    """
+    Get user's basic info
+
+    More detailed info can be fetched from Mastodon API
+    """
+    target = APIdentity.get_by_handle(handle)
+    viewer = request.user.identity
+    if target.is_blocking(viewer) or target.is_blocked_by(viewer):
+        return 403, {"message": "unavailable"}
+    return 200, {
+        "username": target.handle,
+        "url": target.url,
+        "external_acct": None,
+        "external_accounts": [],
+        "display_name": target.display_name,
+        "avatar": target.avatar,
+    }

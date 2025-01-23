@@ -6,8 +6,10 @@ from django.utils import timezone
 from ninja import Field, Schema
 from ninja.pagination import paginate
 
-from catalog.common.models import AvailableItemCategory, Item, ItemSchema
+from catalog.common.models import AvailableItemCategory, Item, ItemCategory, ItemSchema
 from common.api import PageNumberPagination, Result, api
+from journal.models.common import q_owned_piece_visible_to_user
+from users.models.apidentity import APIdentity
 
 from ..models import (
     Mark,
@@ -38,6 +40,37 @@ class MarkInSchema(Schema):
 
 
 @api.get(
+    "/user/{username}/shelf/{type}",
+    response={200: List[MarkSchema], 401: Result, 403: Result},
+    tags=["mark"],
+)
+@paginate(PageNumberPagination)
+def list_marks_on_user_shelf(
+    request,
+    handle: str,
+    type: ShelfType,
+    category: AvailableItemCategory | None = None,
+):
+    """
+    Get holding marks on a specific user's shelf
+
+    Shelf's `type` should be one of `wishlist` / `progress` / `complete` / `dropped`;
+    `category` is optional, marks for all categories will be returned if not specified.
+    """
+    target = APIdentity.get_by_handle(handle)
+    viewer = request.user.identity
+    if target.is_blocking(viewer) or target.is_blocked_by(viewer):
+        return 403, {"message": "unavailable"}
+    qv = q_owned_piece_visible_to_user(request.user, target)
+    queryset = (
+        target.shelf_manager.get_latest_members(type, ItemCategory(category))
+        .filter(qv)
+        .prefetch_related("item")
+    )
+    return queryset
+
+
+@api.get(
     "/me/shelf/{type}",
     response={200: List[MarkSchema], 401: Result, 403: Result},
     tags=["mark"],
@@ -49,7 +82,7 @@ def list_marks_on_shelf(
     """
     Get holding marks on current user's shelf
 
-    Shelf's `type` should be one of `wishlist` / `progress` / `complete`;
+    Shelf's `type` should be one of `wishlist` / `progress` / `complete` / `dropped`;
     `category` is optional, marks for all categories will be returned if not specified.
     """
     queryset = request.user.shelf_manager.get_latest_members(
