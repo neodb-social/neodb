@@ -358,7 +358,8 @@ class SiteManager:
         sites = SiteManager.get_all_sites()
         if settings.SEARCH_SITES == ["*"] or not settings.SEARCH_SITES:
             return sites
-        return [s for s in sites if s.SITE_NAME.value in settings.SEARCH_SITES]
+        ss = {s.SITE_NAME.value: s for s in sites}
+        return [ss[s] for s in settings.SEARCH_SITES if s in ss]
 
 
 def crawl_related_resources_task(resource_pk):

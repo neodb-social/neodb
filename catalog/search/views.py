@@ -116,13 +116,14 @@ def search(request):
     tag = request.GET.get("tag", default="").strip()
     tag = Tag.deep_cleanup_title(tag, default="")
     p = int_(request.GET.get("page", default="1"), 1)
+    sites = [n.label for n in SiteName if n != SiteName.Unknown]
     if not (keywords or tag):
         return render(
             request,
             "search_results.html",
             {
                 "items": None,
-                "sites": SiteName.labels,
+                "sites": sites,
             },
         )
 
@@ -145,7 +146,7 @@ def search(request):
             "items": items,
             "dup_items": dup_items,
             "pagination": PageLinksGenerator(p, num_pages, request.GET),
-            "sites": SiteName.labels,
+            "sites": sites,
             "hide_category": hide_category,
         },
     )
