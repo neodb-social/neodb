@@ -241,7 +241,7 @@ TOP_USED_LANGUAGES = [
 ]
 _UNKNOWN_LANGUAGE = ("x", _("Unknown or Other"))
 RE_LOCALIZED_SEASON_NUMBERS = re.compile(
-    r"〇|一|二|三|四|五|六|七|八|九|零|十|\d|\s|\.|Season|Serie|S|#|第|季",
+    r"〇|一|二|三|四|五|六|七|八|九|零|十|\d|\s|\.|Season |Temporada |ª Temporada|Staffel |Saison |Stagione |Sæson |Temporada |Serie |S|#|第|季|シーズン|Сезон |시즌 ",
     flags=re.IGNORECASE,
 )
 
