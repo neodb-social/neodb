@@ -217,11 +217,9 @@
         <details>
           <summary>{% trans 'Work' %}</summary>
           {% trans "This edition belongs to the following work" %}
-          {% for i in item.works.all %}
-            <li>
-              <a href="{{ i.url }}?skipcheck=1">{{ i.display_title }}</a>
-            </li>
-          {% endfor %}
+          <li>
+            <a href="{{ item.related_work.url }}?skipcheck=1">{{ item.related_work.display_title }}</a>
+          </li>
           <form method="post"
                 onsubmit="return confirm('{% trans "Sure to unlink?" %}');"
                 action="{% url 'catalog:unlink_works' item.url_path item.uuid %}">
