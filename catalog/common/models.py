@@ -74,6 +74,7 @@ class IdType(models.TextChoices):
     TMDB_Movie = "tmdb_movie", _("TMDB Movie")  # type:ignore[reportCallIssue]
     Goodreads = "goodreads", _("Goodreads")  # type:ignore[reportCallIssue]
     Goodreads_Work = "goodreads_work", _("Goodreads Work")  # type:ignore[reportCallIssue]
+    Goodreads_Series = "goodreads_series", _("Goodreads Series")  # type:ignore[reportCallIssue]
     GoogleBooks = "googlebooks", _("Google Books")  # type:ignore[reportCallIssue]
     DoubanBook = "doubanbook", _("Douban Book")  # type:ignore[reportCallIssue]
     DoubanBook_Work = "doubanbook_work", _("Douban Book Work")  # type:ignore[reportCallIssue]

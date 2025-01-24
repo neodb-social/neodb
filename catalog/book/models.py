@@ -20,6 +20,8 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+from auditlog.models import QuerySet
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -109,7 +111,6 @@ EDITION_LOCALIZED_SUBTITLE_SCHEMA = {
 class Edition(Item):
     if TYPE_CHECKING:
         works: "models.ManyToManyField[Work, Edition]"
-
     class BookFormat(models.TextChoices):
         PAPERBACK = "paperback", _("Paperback")
         HARDCOVER = "hardcover", _("Hardcover")
@@ -294,6 +295,35 @@ class Edition(Item):
                     ).first()
                 if work and work not in self.works.all():
                     self.works.add(work)
+            if w.get("model") == "Series":
+                series_res = ExternalResource.objects.filter(
+                    id_type=w["id_type"], id_value=w["id_value"]
+                ).first()
+                if series_res:
+                    series = series_res.item
+                    if not series:
+                        logger.warning(f"Unable to find series for {series_res}")
+                else:
+                    logger.warning(
+                        f"Unable to find resource for {w['id_type']}:{w['id_value']}"
+                    )
+                    series = Series.objects.filter(
+                        primary_lookup_id_type=w["id_type"],
+                        primary_lookup_id_value=w["id_value"],
+                    ).first()
+                if series:
+                    if self.works.all().exists():
+                        logger.debug("WORK IS EXIST")
+                        for work in self.works.all():
+                            if series in work.series.all():
+                                continue
+                            work.series.add(series)
+                    else:
+                        logger.debug("WORK NOT EXIST")
+                        work = Work.objects.create(localized_title=self.localized_title)
+                        work.editions.add(self)
+                        work.series.add(series)
+                        work.save()
 
     def merge_data_from_external_resource(
         self, p: "ExternalResource", ignore_existing_content: bool = False
@@ -371,9 +401,9 @@ class Edition(Item):
 
     def has_works(self):
         return self.works.all().exists()
-
-
 class Work(Item):
+    if TYPE_CHECKING:
+        series: "models.ManyToManyField[Series, Work]"
     category = ItemCategory.Book
     url_path = "book/work"
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
@@ -460,12 +490,67 @@ class Work(Item):
                 if edition and edition not in self.editions.all():
                     self.editions.add(edition)
 
-
 class Series(Item):
+    works = models.ManyToManyField(Work, related_name="series")
     category = ItemCategory.Book
     url_path = "book/series"
-    # douban_serie = LookupIdDescriptor(IdType.DoubanBook_Serie)
-    # goodreads_serie = LookupIdDescriptor(IdType.Goodreads_Serie)
+    METADATA_COPY_LIST = [
+        "localized_title",
+        "localized_description",
+    ]
+    goodreads_serie = PrimaryLookupIdDescriptor(IdType.Goodreads_Series)
 
-    class Meta:
-        proxy = True
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.Goodreads_Series,
+        ]
+        return [(i.value, i.label) for i in id_types]
+
+    @cached_property
+    def all_works(self):
+        return (
+            self.works.all()
+            .filter(is_deleted=False, merged_to_item=None)
+        )
+
+    @property
+    def cover_image_url(self):
+        url = super().cover_image_url
+        if url:
+            return url
+        e = next(filter(lambda e: e.cover_image_url, self.works.all()), None)
+        return e.cover_image_url if e else None
+
+    def update_linked_items_from_external_resource(self, resource):
+        """add Work from resource.metadata['required_resources'] if not yet"""
+        links = resource.required_resources + resource.related_resources
+        for e in links:
+            if e.get("model") == "Edition":
+                edition_res = ExternalResource.objects.filter(
+                    id_type=e["id_type"], id_value=e["id_value"]
+                ).first()
+                if edition_res:
+                    edition = edition_res.item
+                    if not edition:
+                        logger.warning(f"Unable to find edition for {edition_res}")
+                else:
+                    logger.warning(
+                        f"Unable to find resource for {e['id_type']}:{e['id_value']}"
+                    )
+                    edition = Edition.objects.filter(
+                        primary_lookup_id_type=e["id_type"],
+                        primary_lookup_id_value=e["id_value"],
+                    ).first()
+                if not edition:
+                    return
+                if edition.works.all().exists():
+                    for work in edition.works.all():
+                        if work not in self.works.all():
+                            self.works.add(work)
+                        self.works.add(work)
+                else:
+                    work = Work.objects.create(localized_title=edition.localized_title)
+                    work.editions.add(edition)
+                    work.save()
+                    self.works.add(work)
