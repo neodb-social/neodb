@@ -38,13 +38,13 @@ class Bangumi(AbstractSite):
         release_type = None
         showtime = None
         year = None
+        required_resources = []
         related_resources = []
         match o["type"]:
             case 1:
-                model = "Edition"
                 category = ItemCategory.Book
-                if o["series"] and fetch_resources:
-                    # model = "Series" TODO
+                model = "Series" if o["series"] else "Edition"
+                if fetch_resources:
                     res = (
                         BasicDownloader(
                             f"https://api.bgm.tv/v0/subjects/{o['id']}/subjects",
@@ -57,13 +57,26 @@ class Bangumi(AbstractSite):
                     )
 
                     for s in res:
-                        if s["relation"] != "单行本":
-                            continue
-                        related_resources.append(
-                            {
-                                "url": cls.id_to_url(s["id"]),
-                            }
-                        )
+                        match s["relation"]:
+                            case "系列":
+                                required_resources.append(
+                                    {
+                                        "model": "Series",
+                    "id_type": IdType.Bangumi,
+                    "id_value": s["id"],
+                                        "url": cls.id_to_url(s["id"]),
+                                    }
+                                )
+                            case "单行本":
+                                related_resources.append(
+                                    {
+                                        "model": "Edition",
+                    "id_type": IdType.Bangumi,
+                    "id_value": s["id"],
+                                        "url": cls.id_to_url(s["id"]),
+                                    }
+                                )
+
                 if dt:
                     d = dt.split("-")
                     pub_year = d[0]
@@ -110,6 +123,7 @@ class Bangumi(AbstractSite):
                 )
         return category, {
             "preferred_model": model,
+            "required_resources": required_resources,
             "related_resources": related_resources,
             "pub_year": pub_year,
             "pub_month": pub_month,

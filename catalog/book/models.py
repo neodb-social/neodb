@@ -312,6 +312,32 @@ class Edition(Item):
                     self.save()
                 elif work.pk != self.related_work.pk:
                     work.merge_to(self.related_work)
+            if w.get("model") == "Series":
+                series_res = ExternalResource.objects.filter(
+                    id_type=w["id_type"], id_value=w["id_value"]
+                ).first()
+                if series_res:
+                    series = series_res.item
+                    if not series:
+                        logger.warning(f"Unable to find series for {series_res}")
+                else:
+                    logger.warning(
+                        f"Unable to find resource for {w['id_type']}:{w['id_value']}"
+                    )
+                    series = Series.objects.filter(
+                        primary_lookup_id_type=w["id_type"],
+                        primary_lookup_id_value=w["id_value"],
+                    ).first()
+                if series:
+                    if self.related_work:
+                        if series not in self.related_work.series.all():
+                            self.related_work.series.add(series)
+                    else:
+                        work = Work.objects.create(localized_title=self.localized_title)
+                        self.related_work = work
+                        self.save()
+                        work.series.add(series)
+                        work.save()
 
     def merge_data_from_external_resource(
         self, p: "ExternalResource", ignore_existing_content: bool = False
@@ -393,6 +419,7 @@ class Edition(Item):
 class Work(Item):
     if TYPE_CHECKING:
         related_editions: QuerySet[Edition]
+        series: "models.ManyToManyField[Series, Work]"
     category = ItemCategory.Book
     url_path = "book/work"
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
@@ -481,12 +508,65 @@ class Work(Item):
                     edition.related_work = self
                     edition.save()
 
-
 class Series(Item):
+    works = models.ManyToManyField(Work, related_name="series")
     category = ItemCategory.Book
     url_path = "book/series"
-    # douban_serie = LookupIdDescriptor(IdType.DoubanBook_Serie)
-    # goodreads_serie = LookupIdDescriptor(IdType.Goodreads_Serie)
+    METADATA_COPY_LIST = [
+        "localized_title",
+        "localized_description",
+    ]
+    goodreads_serie = PrimaryLookupIdDescriptor(IdType.Goodreads_Series)
 
-    class Meta:
-            proxy = True
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.Goodreads_Series,
+        ]
+        return [(i.value, i.label) for i in id_types]
+
+    @cached_property
+    def all_works(self):
+        return (
+            self.works.all()
+            .filter(is_deleted=False, merged_to_item=None)
+        )
+
+    @property
+    def cover_image_url(self):
+        url = super().cover_image_url
+        if url:
+            return url
+        e = next(filter(lambda e: e.cover_image_url, self.works.all()), None)
+        return e.cover_image_url if e else None
+
+    def update_linked_items_from_external_resource(self, resource):
+        """add Work from resource.metadata['required_resources'] if not yet"""
+        links = resource.required_resources + resource.related_resources
+        for e in links:
+            if e.get("model") == "Edition":
+                edition_res = ExternalResource.objects.filter(
+                    id_type=e["id_type"], id_value=e["id_value"]
+                ).first()
+                if edition_res:
+                    edition = edition_res.item
+                    if not edition:
+                        logger.warning(f"Unable to find edition for {edition_res}")
+                else:
+                    logger.warning(
+                        f"Unable to find resource for {e['id_type']}:{e['id_value']}"
+                    )
+                    edition = Edition.objects.filter(
+                        primary_lookup_id_type=e["id_type"],
+                        primary_lookup_id_value=e["id_value"],
+                    ).first()
+                if not edition:
+                    return
+                if edition.related_work:
+                    if edition.related_work not in self.works.all():
+                        self.works.add(edition.related_work)
+                else:
+                    work = Work.objects.create(localized_title=edition.localized_title)
+                    edition.related_work = work
+                    edition.save()
+                    self.works.add(work)
