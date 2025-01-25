@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.db import models
@@ -25,6 +26,18 @@ class PodcastInSchema(ItemInSchema):
 
 
 class PodcastSchema(PodcastInSchema, BaseSchema):
+    pass
+
+
+class PodcastEpisodeInSchema(ItemInSchema):
+    guid: str | None = None
+    pub_date: datetime | None = None
+    media_url: str | None = None
+    link: str | None = None
+    duration: int | None = None
+
+
+class PodcastEpisodeSchema(PodcastEpisodeInSchema, BaseSchema):
     pass
 
 

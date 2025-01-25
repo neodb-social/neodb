@@ -61,6 +61,7 @@ class TVShowInSchema(ItemInSchema):
     year: int | None = None
     site: str | None = None
     episode_count: int | None = None
+    season_uuids: list[str]
 
 
 class TVShowSchema(TVShowInSchema, BaseSchema):
@@ -243,6 +244,10 @@ class TVShow(Item):
     @property
     def child_items(self):
         return self.all_seasons
+
+    @property
+    def season_uuids(self):
+        return [x.uuid for x in self.all_seasons]
 
     def get_season_count(self):
         return self.season_count or self.seasons.all().count()

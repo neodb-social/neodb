@@ -25,6 +25,8 @@ from .models import (
     PerformanceProductionSchema,
     PerformanceSchema,
     Podcast,
+    PodcastEpisode,
+    PodcastEpisodeSchema,
     PodcastSchema,
     TVEpisode,
     TVEpisodeSchema,
@@ -34,6 +36,8 @@ from .models import (
     TVShowSchema,
 )
 from .search.models import enqueue_fetch, get_fetch_lock, query_index
+
+PAGE_SIZE = 20
 
 
 class SearchResult(Schema):
@@ -46,7 +50,14 @@ class SearchResult(Schema):
         | PodcastSchema
         | GameSchema
         | PerformanceSchema
+        | PodcastEpisodeSchema
     ]
+    pages: int
+    count: int
+
+
+class EpisodeList(Schema):
+    data: List[PodcastEpisodeSchema]
     pages: int
     count: int
 
@@ -219,6 +230,39 @@ def get_tv_episode(request, uuid: str, response: HttpResponse):
 )
 def get_podcast(request, uuid: str, response: HttpResponse):
     return _get_item(Podcast, uuid, response)
+
+
+@api.get(
+    "/podcast/episode/{uuid}",
+    response={200: PodcastEpisodeSchema, 302: RedirectedResult, 404: Result},
+    auth=None,
+    tags=["catalog"],
+)
+def get_podcast_episode(request, uuid: str, response: HttpResponse):
+    return _get_item(PodcastEpisode, uuid, response)
+
+
+@api.get(
+    "/podcast/{uuid}/episode/",
+    response={200: EpisodeList, 302: RedirectedResult, 404: Result},
+    auth=None,
+    tags=["catalog"],
+)
+def get_episodes_in_podcast(
+    request, uuid: str, response: HttpResponse, page: int = 1, guid: str | None = None
+):
+    podcast = _get_item(Podcast, uuid, response)
+    if not isinstance(podcast, Podcast):
+        return podcast
+    episodes = podcast.child_items.filter(is_deleted=False, merged_to_item=None)
+    if guid:
+        episodes = episodes.filter(guid=guid)
+    r = {
+        "data": list(episodes)[(page - 1) * PAGE_SIZE : page * PAGE_SIZE],
+        "pages": (episodes.count() + PAGE_SIZE - 1) // PAGE_SIZE,
+        "count": episodes.count(),
+    }
+    return r
 
 
 @api.get(

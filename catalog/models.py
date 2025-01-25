@@ -26,7 +26,13 @@ from .performance.models import (
     PerformanceProductionSchema,
     PerformanceSchema,
 )
-from .podcast.models import Podcast, PodcastEpisode, PodcastInSchema, PodcastSchema
+from .podcast.models import (
+    Podcast,
+    PodcastEpisode,
+    PodcastEpisodeSchema,
+    PodcastInSchema,
+    PodcastSchema,
+)
 from .tv.models import (
     TVEpisode,
     TVEpisodeSchema,
@@ -133,6 +139,7 @@ __all__ = [
     "PerformanceSchema",
     "Podcast",
     "PodcastEpisode",
+    "PodcastEpisodeSchema",
     "PodcastInSchema",
     "PodcastSchema",
     "TVEpisode",
