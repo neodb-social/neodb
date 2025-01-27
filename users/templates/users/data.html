@@ -219,7 +219,8 @@
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              <input type="submit" value="{% trans 'Export marks and reviews' %}" />
+              <input type="submit"
+                     value="{% trans 'Export marks and reviews in XLSX (Doufen format)' %}" />
               {% if export_task %}
                 <br>
                 {% trans 'Last export' %}: {{ export_task.created_time }}
@@ -228,6 +229,24 @@
                 {{ export_task.message }}
                 {% if export_task.metadata.file %}
                   <a href="{% url 'users:export_marks' %}" download>{% trans 'Download' %}</a>
+                {% endif %}
+              {% endif %}
+            </form>
+            <hr>
+            <form action="{% url 'users:export_csv' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="submit"
+                     value="{% trans 'Export marks, reviews and notes in CSV' %}" />
+              {% if csv_export_task %}
+                <br>
+                {% trans 'Last export' %}: {{ csv_export_task.created_time }}
+                {% trans 'Status' %}: {{ csv_export_task.get_state_display }}
+                <br>
+                {{ csv_export_task.message }}
+                {% if csv_export_task.metadata.file %}
+                  <a href="{% url 'users:export_csv' %}" download>{% trans 'Download' %}</a>
                 {% endif %}
               {% endif %}
             </form>
