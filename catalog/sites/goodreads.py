@@ -9,7 +9,7 @@ from lxml import html
 
 from catalog.book.utils import binding_to_format, detect_isbn_asin
 from catalog.common import *
-from catalog.models import Edition, ExternalSearchResultItem, Work,Series
+from catalog.models import Edition, ExternalSearchResultItem, Work, Series
 from common.models import detect_language
 from journal.models.renderers import html_to_text
 
@@ -115,14 +115,16 @@ class Goodreads(AbstractSite):
                     "title": w["details"]["originalTitle"],
                     "url": w["editions"]["webUrl"],
                 }
-            ]+[
-                {"model":"Series","id_type":IdType.Goodreads_Series,
-                                            "id_value":Goodreads_Series.url_to_id(s["webUrl"]),
-                                            "title":s["title"],
-                                            "url":s["webUrl"],
-                                            }
-                                            for s in o["Series"]
-                                            ]
+            ] + [
+                {
+                    "model": "Series",
+                    "id_type": IdType.Goodreads_Series,
+                    "id_value": Goodreads_Series.url_to_id(s["webUrl"]),
+                    "title": s["title"],
+                    "url": s["webUrl"],
+                }
+                for s in o["Series"]
+            ]
         pd = ResourceContent(metadata=data)
         pd.lookup_ids[IdType.ISBN] = ids.get(IdType.ISBN)
         pd.lookup_ids[IdType.ASIN] = ids.get(IdType.ASIN)
@@ -236,6 +238,7 @@ class Goodreads_Work(AbstractSite):
         )
         return pd
 
+
 @SiteManager.register
 class Goodreads_Series(AbstractSite):
     SITE_NAME = SiteName.Goodreads
@@ -254,25 +257,33 @@ class Goodreads_Series(AbstractSite):
         if not title:
             raise ParseError(self, "title")
         try:
-            description =self.query_str(content, '//*[@class="u-paddingBottomSmall"]/text()')
+            description = self.query_str(
+                content, '//*[@class="u-paddingBottomSmall"]/text()'
+            )
         except IndexError:
             description = None
         logger.debug(f"Title: {description}")
         related_editions = []
         for work in self.query_list(content, '//*[@class="listWithDividers__item"]'):
-            t = self.query_str(work, './/div/div/div[2]/a/span/text()')
-            url = self.query_str(work, './/div/div/div[1]/div/a/@href')
-            related_editions.append({
+            t = self.query_str(work, ".//div/div/div[2]/a/span/text()")
+            url = self.query_str(work, ".//div/div/div[1]/div/a/@href")
+            related_editions.append(
+                {
                     "model": "Edition",
                     "id_type": IdType.Goodreads,
-                    "id_value":Goodreads.url_to_id(url),
+                    "id_value": Goodreads.url_to_id(url),
                     "title": t,
                     "url": f"https://www.goodreads.com{url}",
-                })
+                }
+            )
         pd = ResourceContent(
             metadata={
                 "localized_title": [{"lang": detect_language(title), "text": title}],
-                "localized_description": [{"lang": detect_language(description), "text": description}] if description else [],
+                "localized_description": [
+                    {"lang": detect_language(description), "text": description}
+                ]
+                if description
+                else [],
                 "related_resources": related_editions,
             }
         )

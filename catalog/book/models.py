@@ -109,8 +109,10 @@ EDITION_LOCALIZED_SUBTITLE_SCHEMA = {
 
 
 class Edition(Item):
-    if TYPE_CHECKING:
-        works: "models.ManyToManyField[Work, Edition]"
+    works = models.ForeignKey(
+        "Work", null=True, on_delete=models.SET_NULL, related_name="editions"
+    )
+
     class BookFormat(models.TextChoices):
         PAPERBACK = "paperback", _("Paperback")
         HARDCOVER = "hardcover", _("Hardcover")
@@ -264,13 +266,21 @@ class Edition(Item):
         if to_item:
             if self.merge_title():
                 self.save()
-            for work in self.works.all():
-                to_item.works.add(work)
-        self.works.clear()
+            if not self.works:
+                return
+            if to_item.works:
+                for edition in self.works.editions.exclude(pk=self.pk).all():
+                    edition.works = to_item.works
+                    edition.save()
+            else:
+                to_item.works = self.works
+                to_item.save()
+                self.works = None
+                self.save()
 
     def delete(self, using=None, keep_parents=False, soft=True, *args, **kwargs):
         if soft:
-            self.works.clear()
+            self.works = None
         return super().delete(using, soft, keep_parents, *args, **kwargs)
 
     def update_linked_items_from_external_resource(self, resource):
@@ -293,8 +303,13 @@ class Edition(Item):
                         primary_lookup_id_type=w["id_type"],
                         primary_lookup_id_value=w["id_value"],
                     ).first()
-                if work and work not in self.works.all():
-                    self.works.add(work)
+                if not work:
+                    return
+                if not self.works:
+                    self.works = work
+                    self.save()
+                elif work.pk != self.works.pk:
+                    work.merge_to(self.works)
             if w.get("model") == "Series":
                 series_res = ExternalResource.objects.filter(
                     id_type=w["id_type"], id_value=w["id_value"]
@@ -312,16 +327,17 @@ class Edition(Item):
                         primary_lookup_id_value=w["id_value"],
                     ).first()
                 if series:
-                    if self.works.all().exists():
+                    if self.works:
                         logger.debug("WORK IS EXIST")
-                        for work in self.works.all():
-                            if series in work.series.all():
-                                continue
-                            work.series.add(series)
+                        if series in self.works.series.all():
+                            continue
+                        self.works.series.add(series)
+                        self.works.save()
                     else:
                         logger.debug("WORK NOT EXIST")
                         work = Work.objects.create(localized_title=self.localized_title)
-                        work.editions.add(self)
+                        self.works = work
+                        self.save()
                         work.series.add(series)
                         work.save()
 
@@ -347,9 +363,8 @@ class Edition(Item):
 
     @property
     def sibling_items(self):
-        works = list(self.works.all())
         return (
-            Edition.objects.filter(works__in=works)
+            Edition.objects.filter(works__in=[self.works])
             .exclude(pk=self.pk)
             .exclude(is_deleted=True)
             .exclude(merged_to_item__isnull=False)
@@ -369,46 +384,48 @@ class Edition(Item):
         return f"({' '.join(a)})" if a else ""
 
     def has_related_books(self):
-        works = list(self.works.all())
-        if not works:
+        if not self.works:
             return False
-        return Edition.objects.filter(works__in=works).exclude(pk=self.pk).exists()
+        return (
+            Edition.objects.filter(works__in=[self.works]).exclude(pk=self.pk).exists()
+        )
 
     def link_to_related_book(self, target: "Edition") -> bool:
         if target == self or target.is_deleted or target.merged_to_item:
             return False
-        if target.works.all().exists():
-            for work in target.works.all():
-                self.works.add(work)
-                work.localized_title = uniq(work.localized_title + self.localized_title)
-                work.save()
-        elif self.works.all().exists():
-            for work in self.works.all():
-                target.works.add(work)
-                work.localized_title = uniq(
-                    work.localized_title + target.localized_title
-                )
-                work.save()
+        if target.works:
+            self.works = target.works
+            target.works.localized_title = uniq(
+                target.works.localized_title + self.localized_title
+            )
+            target.works.save()
         else:
             work = Work.objects.create(localized_title=self.localized_title)
-            work.editions.add(self, target)
+            self.works = work
+            target.works = work
             # work.localized_title = self.localized_title
             # work.save()
         return True
 
+    @property
+    def parent_item(self):  # type:ignore
+        return self.works.series.first() if self.works else None
+
     def unlink_from_all_works(self):
-        self.works.clear()
+        self.works = None
 
     def has_works(self):
-        return self.works.all().exists()
+        return self.works is not None
+
+
 class Work(Item):
     if TYPE_CHECKING:
-        series: "models.ManyToManyField[Series, Work]"
+        series: models.ManyToManyField["Series", "Work"]
+        editions: QuerySet[Edition]
     category = ItemCategory.Book
     url_path = "book/work"
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
-    editions = models.ManyToManyField(Edition, related_name="works")
     language = LanguageListField()
     author = jsondata.ArrayField(
         verbose_name=_("author"),
@@ -448,15 +465,16 @@ class Work(Item):
         if not to_item:
             return
         for edition in self.editions.all():
-            to_item.editions.add(edition)
-        self.editions.clear()
+            edition.works = to_item
+            edition.save()
         to_item.language = uniq(to_item.language + self.language)  # type: ignore
         to_item.localized_title = uniq(to_item.localized_title + self.localized_title)
         to_item.save()
 
     def delete(self, using=None, keep_parents=False, soft=True, *args, **kwargs):
         if soft:
-            self.editions.clear()
+            for edition in self.editions.all():
+                edition.works = None
         return super().delete(using, keep_parents, soft, *args, **kwargs)
 
     @property
@@ -488,7 +506,8 @@ class Work(Item):
                         primary_lookup_id_value=e["id_value"],
                     ).first()
                 if edition and edition not in self.editions.all():
-                    self.editions.add(edition)
+                    edition.works = self
+
 
 class Series(Item):
     works = models.ManyToManyField(Work, related_name="series")
@@ -509,10 +528,7 @@ class Series(Item):
 
     @cached_property
     def all_works(self):
-        return (
-            self.works.all()
-            .filter(is_deleted=False, merged_to_item=None)
-        )
+        return [self.works]
 
     @property
     def cover_image_url(self):
@@ -544,13 +560,11 @@ class Series(Item):
                     ).first()
                 if not edition:
                     return
-                if edition.works.all().exists():
-                    for work in edition.works.all():
-                        if work not in self.works.all():
-                            self.works.add(work)
-                        self.works.add(work)
+                if edition.works:
+                    if edition.works not in self.works.all():
+                        self.works.add(edition.works)
                 else:
                     work = Work.objects.create(localized_title=edition.localized_title)
-                    work.editions.add(edition)
+                    edition.works = work
                     work.save()
                     self.works.add(work)
