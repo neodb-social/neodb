@@ -37,10 +37,20 @@ def merge_works(apps, schema_editor):
     for edition in Edition.objects.all():
         works = edition.works.all()
         if works.exists():
-            edition.related_work = works.first()
-            for work in works[1:]:
+            if edition.related_work is None:
+                related_work = works.first()
+                if related_work.merged_to_item is not None:
+                    related_work = related_work.merged_to_item
+                edition.related_work = related_work
+                edition.save()
+            for work in works:
+                if work.pk == edition.related_work.pk:
+                    continue
                 merge_to(work, edition.related_work)
-            edition.save()
+
+def process_pending_trigger_events(apps, schema_editor):
+    # Ensure all pending trigger events are processed
+    schema_editor.connection.cursor().execute("SET CONSTRAINTS ALL IMMEDIATE")
 
 class Migration(migrations.Migration):
     dependencies = [
@@ -58,5 +68,6 @@ class Migration(migrations.Migration):
                 to="catalog.work",
             ),
         ),
+        migrations.RunPython(process_pending_trigger_events),
         migrations.RunPython(merge_works),
     ]

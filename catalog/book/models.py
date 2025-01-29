@@ -454,7 +454,7 @@ class Work(Item):
         url = super().cover_image_url
         if url:
             return url
-        e = next(filter(lambda e: e.cover_image_url, self.editions.all()), None)
+        e = next(filter(lambda e: e.cover_image_url, self.related_editions.all()), None)
         return e.cover_image_url if e else None
 
     def update_linked_items_from_external_resource(self, resource):
