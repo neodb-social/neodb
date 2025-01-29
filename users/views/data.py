@@ -9,12 +9,10 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone, translation
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from common.utils import GenerateDateUUIDMediaFilePath
-from journal.exporters import DoufenExporter
-from journal.exporters.csv import CsvExporter
-from journal.exporters.ndjson import NdjsonExporter
+from journal.exporters import CsvExporter, DoufenExporter, NdjsonExporter
 from journal.importers import (
     DoubanImporter,
     GoodreadsImporter,
@@ -23,9 +21,10 @@ from journal.importers import (
 )
 from journal.models import ShelfType, reset_journal_visibility_for_user
 from social.models import reset_social_visibility_for_user
+from takahe.utils import Takahe
 from users.models import Task
 
-from .account import *
+from .account import clear_preference_cache
 
 
 @login_required

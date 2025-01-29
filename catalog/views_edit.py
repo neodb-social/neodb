@@ -289,6 +289,8 @@ def merge(request, item_path, item_uuid):
                 _("Cannot merge items in different categories")
                 + f" ({item.class_name} to {new_item.class_name})"
             )
+        if new_item == item:
+            raise BadRequest(_("Cannot merge an item to itself"))
         logger.warning(f"{request.user} merges {item} to {new_item}")
         item.merge_to(new_item)
         django_rq.get_queue("crawl").enqueue(
