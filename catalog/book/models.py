@@ -336,7 +336,7 @@ class Edition(Item):
     @property
     def sibling_items(self):
         return (
-            Edition.objects.filter(works__in=[self.related_work])
+            Edition.objects.filter(related_work__in=[self.related_work])
             .exclude(pk=self.pk)
             .exclude(is_deleted=True)
             .exclude(merged_to_item__isnull=False)
@@ -359,7 +359,7 @@ class Edition(Item):
         if not self.related_work:
             return False
         return (
-            Edition.objects.filter(works__in=[self.related_work]).exclude(pk=self.pk).exists()
+            Edition.objects.filter(related_work__in=[self.related_work]).exclude(pk=self.pk).exists()
         )
 
     def link_to_related_book(self, target: "Edition") -> bool:
@@ -384,6 +384,7 @@ class Edition(Item):
 
     def unlink_from_all_works(self):
         self.related_work = None
+        self.save()
 
     def has_works(self):
         return self.related_work is not None
