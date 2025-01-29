@@ -17,11 +17,18 @@
     <meta property="og:url" content="{{ identity.url }}">
     <meta property="og:image" content="{{ identity.avatar }}">
     <meta property="og:site_name" content="{{ site_name }}">
-    {% if not identity.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
-    <link rel="alternate"
-          type="application/rss+xml"
-          title="{{ site_name }} - @{{ identity.handle }} - Reviews"
-          href="{{ identity.url }}feed/reviews/">
+    {% if identity.local and identity.anonymous_viewable %}
+      <link rel="alternate"
+            type="application/rss+xml"
+            title="{{ site_name }} - @{{ identity.handle }} - Posts"
+            href="/@{{ identity.full_handle }}/rss/" />
+      <link rel="alternate"
+            type="application/rss+xml"
+            title="{{ site_name }} - @{{ identity.handle }} - Reviews"
+            href="{{ identity.url }}feed/reviews/">
+    {% else %}
+      <meta name="robots" content="noindex">
+    {% endif %}
     {% include "common_libs.html" %}
     <script src="{% static 'js/calendar_yearview_blocks.js' %}" defer></script>
     <link href="{% static 'css/calendar_yearview_blocks.css' %}"
@@ -222,7 +229,7 @@
       {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
     </main>
     {% include "_footer.html" %}
-    {% if identity.user and identity.user.mastodon %}
+    {% if identity.local and identity.user.mastodon %}
       <a href="{{ identity.user.mastodon.url }}" rel="me" style="display:none">Mastodon verification</a>
     {% endif %}
   </body>
