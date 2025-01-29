@@ -13,7 +13,11 @@ from catalog.common import (
     ItemInSchema,
     jsondata,
 )
-from catalog.common.models import LIST_OF_ONE_PLUS_STR_SCHEMA, LanguageListField
+from catalog.common.models import (
+    LIST_OF_ONE_PLUS_STR_SCHEMA,
+    ItemType,
+    LanguageListField,
+)
 
 
 class PodcastInSchema(ItemInSchema):
@@ -44,6 +48,8 @@ class PodcastEpisodeSchema(PodcastEpisodeInSchema, BaseSchema):
 class Podcast(Item):
     if TYPE_CHECKING:
         episodes: models.QuerySet["PodcastEpisode"]
+    type = ItemType.Podcast
+    schema = PodcastSchema
     category = ItemCategory.Podcast
     child_class = "PodcastEpisode"
     url_path = "podcast"
@@ -118,6 +124,8 @@ class Podcast(Item):
 
 
 class PodcastEpisode(Item):
+    schema = PodcastEpisodeSchema
+    type = ItemType.PodcastEpisode
     category = ItemCategory.Podcast
     url_path = "podcast/episode"
     # uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)

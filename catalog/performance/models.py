@@ -104,6 +104,7 @@ def _crew_by_role(crew):
 class Performance(Item):
     if TYPE_CHECKING:
         productions: models.QuerySet["PerformanceProduction"]
+    schema = PerformanceSchema
     type = ItemType.Performance
     child_class = "PerformanceProduction"
     category = ItemCategory.Performance
@@ -247,6 +248,7 @@ class Performance(Item):
 
 
 class PerformanceProduction(Item):
+    schema = PerformanceProductionSchema
     type = ItemType.PerformanceProduction
     category = ItemCategory.Performance
     url_path = "performance/production"

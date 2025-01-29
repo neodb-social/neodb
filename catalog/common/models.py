@@ -120,7 +120,7 @@ IdealIdTypes = [
 
 
 class ItemType(models.TextChoices):
-    Book = "book", _("Book")  # type:ignore[reportCallIssue]
+    Edition = "edition", _("Edition")  # type:ignore[reportCallIssue]
     TVShow = "tvshow", _("TV Serie")  # type:ignore[reportCallIssue]
     TVSeason = "tvseason", _("TV Season")  # type:ignore[reportCallIssue]
     TVEpisode = "tvepisode", _("TV Episode")  # type:ignore[reportCallIssue]
@@ -346,6 +346,7 @@ class Item(PolymorphicModel):
         collections: QuerySet["Collection"]
         merged_from_items: QuerySet["Item"]
         merged_to_item_id: int
+    schema = ItemSchema
     category: ItemCategory  # subclass must specify this
     url_path = "item"  # subclass must specify this
     child_class = None  # subclass may specify this to allow link to parent item
@@ -515,14 +516,18 @@ class Item(PolymorphicModel):
         return self.get_ap_object_type()
 
     @property
+    def ap_object(self):
+        return self.schema.from_orm(self).model_dump()
+
+    @property
     def ap_object_ref(self) -> dict[str, Any]:
         o = {
             "type": self.get_ap_object_type(),
             "href": self.absolute_url,
-            "name": self.title,
+            "name": self.display_title,
         }
         if self.has_cover():
-            o["image"] = self.cover_image_url
+            o["image"] = self.cover_image_url or ""
         return o
 
     def log_action(self, changes: dict[str, Any]):

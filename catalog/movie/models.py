@@ -35,6 +35,7 @@ class MovieSchema(MovieInSchema, BaseSchema):
 
 class Movie(Item):
     type = ItemType.Movie
+    schema = MovieSchema
     category = ItemCategory.Movie
     url_path = "movie"
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)

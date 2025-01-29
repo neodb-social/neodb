@@ -1,36 +1,24 @@
+import json
 import os
+import re
+import shutil
+import tempfile
 
 from django.conf import settings
-from openpyxl import Workbook
+from django.utils import timezone
 
-from catalog.models import IdType, ItemCategory, TVEpisode
+from catalog.common.downloaders import ProxiedImageDownloader
 from common.utils import GenerateDateUUIDMediaFilePath
-from journal.models import Review, ShelfType, q_item_in_category
+from journal.models import ShelfMember
+from journal.models.collection import Collection
+from journal.models.common import Content
+from journal.models.note import Note
+from journal.models.review import Review
+from journal.models.shelf import ShelfLogEntry
+from takahe.models import Post
 from users.models import Task
 
 
-def _get_source_url(item):
-    res = (
-        item.external_resources.all()
-        .filter(
-            id_type__in=[
-                IdType.DoubanBook,
-                IdType.DoubanMovie,
-                IdType.DoubanMusic,
-                IdType.DoubanGame,
-                IdType.DoubanDrama,
-            ]
-        )
-        .first()
-    )
-    if not res:
-        res = item.external_resources.all().first()
-    return res.url if res else ""
-
-
-# def export_marks_task(user):
-#     user.preference.export_status["marks_pending"] = True
-#     user.preference.save(update_fields=["export_status"])
 class NdjsonExporter(Task):
     class Meta:
         app_label = "journal"  # workaround bug in TypedModel
@@ -40,302 +28,149 @@ class NdjsonExporter(Task):
         "file": None,
         "total": 0,
     }
+    ref_items = []
+
+    @property
+    def filename(self) -> str:
+        d = self.created_time.strftime("%Y%m%d%H%M%S")
+        return f"neodb_{self.user.username}_{d}_ndjson"
+
+    def ref(self, item) -> str:
+        if item not in self.ref_items:
+            self.ref_items.append(item)
+        return item.absolute_url
+
+    def get_header(self):
+        return {
+            "server": settings.SITE_DOMAIN,
+            "neodb_version": settings.NEODB_VERSION,
+            "username": self.user.username,
+            "actor": self.user.identity.actor_uri,
+            "request_time": self.created_time.isoformat(),
+            "created_time": timezone.now().isoformat(),
+        }
 
     def run(self):
         user = self.user
+        temp_dir = tempfile.mkdtemp()
+        temp_folder_path = os.path.join(temp_dir, self.filename)
+        os.makedirs(temp_folder_path)
+        attachment_path = os.path.join(temp_folder_path, "attachments")
+        os.makedirs(attachment_path, exist_ok=True)
+
+        def _save_image(url):
+            if url.startswith("http"):
+                imgdl = ProxiedImageDownloader(url)
+                raw_img = imgdl.download().content
+                ext = imgdl.extention
+                file = GenerateDateUUIDMediaFilePath(f"x.{ext}", attachment_path)
+                with open(file, "wb") as binary_file:
+                    binary_file.write(raw_img)
+                return file
+            elif url.startswith("/"):
+                p = os.path.abspath(
+                    os.path.join(settings.MEDIA_ROOT, url[len(settings.MEDIA_URL) :])
+                )
+                if p.startswith(settings.MEDIA_ROOT):
+                    shutil.copy2(p, attachment_path)
+                return p
+            return url
+
+        filename = os.path.join(temp_folder_path, "journal.ndjson")
+        total = 0
+        with open(filename, "w") as f:
+            f.write(json.dumps(self.get_header()) + "\n")
+
+            for cls in list(Content.__subclasses__()):
+                pieces = cls.objects.filter(owner=user.identity)
+                for p in pieces:
+                    total += 1
+                    self.ref(p.item)
+                    o = {
+                        "type": p.__class__.__name__,
+                        "content": p.ap_object,
+                        "visibility": p.visibility,
+                        "metadata": p.metadata,
+                    }
+                    f.write(json.dumps(o, default=str) + "\n")
+                    if cls == Review:
+                        re.sub(
+                            r"(?<=!\[\]\()([^)]+)(?=\))",
+                            lambda x: _save_image(x[1]),
+                            p.body,  # type: ignore
+                        )
+                    elif cls == Note and p.latest_post:
+                        for a in p.latest_post.attachments.all():
+                            dest = os.path.join(
+                                attachment_path, os.path.basename(a.file.name)
+                            )
+                            shutil.copy2(a.file.path, dest)
+
+            collections = Collection.objects.filter(owner=user.identity)
+            for c in collections:
+                total += 1
+                o = {
+                    "type": "Collection",
+                    "content": c.ap_object,
+                    "visibility": c.visibility,
+                    "metadata": c.metadata,
+                    "items": [
+                        {"item": self.ref(m.item), "metadata": m.metadata}
+                        for m in c.ordered_members
+                    ],
+                }
+                f.write(json.dumps(o, default=str) + "\n")
+
+            marks = ShelfMember.objects.filter(owner=user.identity)
+            for m in marks:
+                total += 1
+                o = {
+                    "type": "ShelfMember",
+                    "item": self.ref(m.item),
+                    "status": m.shelf_type,
+                    "visibility": m.visibility,
+                    "metadata": m.metadata,
+                    "published": self.created_time.isoformat(),
+                }
+                f.write(json.dumps(o, default=str) + "\n")
+
+            logs = ShelfLogEntry.objects.filter(owner=user.identity)
+            for log in logs:
+                total += 1
+                o = {
+                    "type": "ShelfLog",
+                    "item": self.ref(log.item),
+                    "posts": list(log.all_post_ids()),
+                    "timestamp": log.created_time,
+                }
+                f.write(json.dumps(o, default=str) + "\n")
+
+            posts = Post.objects.filter(author_id=user.identity.pk).exclude(
+                type_data__has_key="object"
+            )
+
+            for p in posts:
+                total += 1
+                o = {"type": "post", "post": p.to_mastodon_json()}
+                for a in p.attachments.all():
+                    dest = os.path.join(attachment_path, os.path.basename(a.file.name))
+                    shutil.copy2(a.file.path, dest)
+                f.write(json.dumps(o, default=str) + "\n")
+
+        filename = os.path.join(temp_folder_path, "catalog.ndjson")
+        with open(filename, "w") as f:
+            f.write(json.dumps(self.get_header()) + "\n")
+            for item in self.ref_items:
+                f.write(json.dumps(item.ap_object, default=str) + "\n")
 
         filename = GenerateDateUUIDMediaFilePath(
-            "f.xlsx", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
+            "f.zip", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
         )
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
-        heading = [
-            "标题",
-            "简介",
-            "豆瓣评分",
-            "链接",
-            "创建时间",
-            "我的评分",
-            "标签",
-            "评论",
-            "NeoDB链接",
-            "其它ID",
-        ]
-        wb = Workbook()
-        # adding write_only=True will speed up but corrupt the xlsx and won't be importable
-        for status, label in [
-            (ShelfType.COMPLETE, "看过"),
-            (ShelfType.PROGRESS, "在看"),
-            (ShelfType.WISHLIST, "想看"),
-        ]:
-            ws = wb.create_sheet(title=label)
-            shelf = user.shelf_manager.get_shelf(status)
-            q = q_item_in_category(ItemCategory.Movie) | q_item_in_category(
-                ItemCategory.TV
-            )
-            marks = shelf.members.all().filter(q).order_by("created_time")
-            ws.append(heading)
-            for mm in marks:
-                mark = mm.mark
-                movie = mark.item
-                title = movie.display_title
-                if movie.__class__ == TVEpisode:
-                    season_number = movie.season.season_number if movie.season else 0
-                    summary = f"S{season_number:02d}E{movie.episode_number:02d}"
-                else:
-                    summary = (
-                        str(movie.year or "")
-                        + " / "
-                        + ",".join(movie.area or [])
-                        + " / "
-                        + ",".join(movie.genre or [])
-                        + " / "
-                        + ",".join(movie.director or [])
-                        + " / "
-                        + ",".join(movie.actor or [])
-                    )
-                tags = ",".join(mark.tags)
-                world_rating = (movie.rating / 2) if movie.rating else None
-                timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
-                my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
-                text = mark.comment_text
-                source_url = _get_source_url(movie)
-                url = movie.absolute_url
-                line = [
-                    title,
-                    summary,
-                    world_rating,
-                    source_url,
-                    timestamp,
-                    my_rating,
-                    tags,
-                    text,
-                    url,
-                    movie.imdb,
-                ]
-                ws.append(line)
+        shutil.make_archive(filename[:-4], "zip", temp_folder_path)
 
-        for status, label in [
-            (ShelfType.COMPLETE, "听过"),
-            (ShelfType.PROGRESS, "在听"),
-            (ShelfType.WISHLIST, "想听"),
-        ]:
-            ws = wb.create_sheet(title=label)
-            shelf = user.shelf_manager.get_shelf(status)
-            q = q_item_in_category(ItemCategory.Music)
-            marks = shelf.members.all().filter(q).order_by("created_time")
-            ws.append(heading)
-            for mm in marks:
-                mark = mm.mark
-                album = mark.item
-                title = album.display_title
-                summary = (
-                    ",".join(album.artist)
-                    + " / "
-                    + (album.release_date.strftime("%Y") if album.release_date else "")
-                )
-                tags = ",".join(mark.tags)
-                world_rating = (album.rating / 2) if album.rating else None
-                timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
-                my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
-                text = mark.comment_text
-                source_url = _get_source_url(album)
-                url = album.absolute_url
-                line = [
-                    title,
-                    summary,
-                    world_rating,
-                    source_url,
-                    timestamp,
-                    my_rating,
-                    tags,
-                    text,
-                    url,
-                    album.barcode,
-                ]
-                ws.append(line)
-
-        for status, label in [
-            (ShelfType.COMPLETE, "读过"),
-            (ShelfType.PROGRESS, "在读"),
-            (ShelfType.WISHLIST, "想读"),
-        ]:
-            ws = wb.create_sheet(title=label)
-            shelf = user.shelf_manager.get_shelf(status)
-            q = q_item_in_category(ItemCategory.Book)
-            marks = shelf.members.all().filter(q).order_by("created_time")
-            ws.append(heading)
-            for mm in marks:
-                mark = mm.mark
-                book = mark.item
-                title = book.display_title
-                summary = (
-                    ",".join(book.author or [])
-                    + " / "
-                    + str(book.pub_year or "")
-                    + " / "
-                    + (book.pub_house or "")
-                )
-                tags = ",".join(mark.tags)
-                world_rating = (book.rating / 2) if book.rating else None
-                timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
-                my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
-                text = mark.comment_text
-                source_url = _get_source_url(book)
-                url = book.absolute_url
-                line = [
-                    title,
-                    summary,
-                    world_rating,
-                    source_url,
-                    timestamp,
-                    my_rating,
-                    tags,
-                    text,
-                    url,
-                    book.isbn,
-                ]
-                ws.append(line)
-
-        for status, label in [
-            (ShelfType.COMPLETE, "玩过"),
-            (ShelfType.PROGRESS, "在玩"),
-            (ShelfType.WISHLIST, "想玩"),
-        ]:
-            ws = wb.create_sheet(title=label)
-            shelf = user.shelf_manager.get_shelf(status)
-            q = q_item_in_category(ItemCategory.Game)
-            marks = shelf.members.all().filter(q).order_by("created_time")
-            ws.append(heading)
-            for mm in marks:
-                mark = mm.mark
-                game = mark.item
-                title = game.display_title
-                summary = (
-                    ",".join(game.genre or [])
-                    + " / "
-                    + ",".join(game.platform or [])
-                    + " / "
-                    + (
-                        game.release_date.strftime("%Y-%m-%d")
-                        if game.release_date
-                        else ""
-                    )
-                )
-                tags = ",".join(mark.tags)
-                world_rating = (game.rating / 2) if game.rating else None
-                timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
-                my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
-                text = mark.comment_text
-                source_url = _get_source_url(game)
-                url = game.absolute_url
-                line = [
-                    title,
-                    summary,
-                    world_rating,
-                    source_url,
-                    timestamp,
-                    my_rating,
-                    tags,
-                    text,
-                    url,
-                    "",
-                ]
-                ws.append(line)
-
-        for status, label in [
-            (ShelfType.COMPLETE, "听过的播客"),
-            (ShelfType.PROGRESS, "在听的播客"),
-            (ShelfType.WISHLIST, "想听的播客"),
-        ]:
-            ws = wb.create_sheet(title=label)
-            shelf = user.shelf_manager.get_shelf(status)
-            q = q_item_in_category(ItemCategory.Podcast)
-            marks = shelf.members.all().filter(q).order_by("created_time")
-            ws.append(heading)
-            for mm in marks:
-                mark = mm.mark
-                podcast = mark.item
-                title = podcast.display_title
-                summary = ",".join(podcast.host or [])
-                tags = ",".join(mark.tags)
-                world_rating = (podcast.rating / 2) if podcast.rating else None
-                timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
-                my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
-                text = mark.comment_text
-                source_url = _get_source_url(podcast)
-                url = podcast.absolute_url
-                line = [
-                    title,
-                    summary,
-                    world_rating,
-                    source_url,
-                    timestamp,
-                    my_rating,
-                    tags,
-                    text,
-                    url,
-                    "",
-                ]
-                ws.append(line)
-
-        review_heading = [
-            "标题",
-            "评论对象",
-            "链接",
-            "创建时间",
-            "我的评分",
-            "类型",
-            "内容",
-            "评论对象原始链接",
-            "评论对象NeoDB链接",
-        ]
-        for category, label in [
-            (ItemCategory.Movie, "影评"),
-            (ItemCategory.Book, "书评"),
-            (ItemCategory.Music, "乐评"),
-            (ItemCategory.Game, "游戏评论"),
-            (ItemCategory.Podcast, "播客评论"),
-        ]:
-            ws = wb.create_sheet(title=label)
-            q = q_item_in_category(category)
-            reviews = (
-                Review.objects.filter(owner=user.identity)
-                .filter(q)
-                .order_by("created_time")
-            )
-            ws.append(review_heading)
-            for review in reviews:
-                title = review.title
-                target = "《" + review.item.display_title + "》"
-                url = review.absolute_url
-                timestamp = review.created_time.strftime("%Y-%m-%d %H:%M:%S")
-                my_rating = (
-                    None  # (mark.rating_grade / 2) if mark.rating_grade else None
-                )
-                content = review.body
-                target_source_url = _get_source_url(review.item)
-                target_url = review.item.absolute_url
-                line = [
-                    title,
-                    target,
-                    url,
-                    timestamp,
-                    my_rating,
-                    label,
-                    content,
-                    target_source_url,
-                    target_url,
-                ]
-                ws.append(line)
-
-        wb.save(filename=filename)
         self.metadata["file"] = filename
+        self.metadata["total"] = total
         self.message = "Export complete."
         self.save()
-        # user.preference.export_status["marks_pending"] = False
-        # user.preference.export_status["marks_file"] = filename
-        # user.preference.export_status["marks_date"] = datetime.now().strftime(
-        #     "%Y-%m-%d %H:%M"
-        # )
-        # user.preference.save(update_fields=["export_status"])

@@ -44,6 +44,7 @@ class GameSchema(GameInSchema, BaseSchema):
 
 class Game(Item):
     type = ItemType.Game
+    schema = GameSchema
     category = ItemCategory.Game
     url_path = "game"
     igdb = PrimaryLookupIdDescriptor(IdType.IGDB)

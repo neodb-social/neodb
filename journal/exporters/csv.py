@@ -87,6 +87,7 @@ class CsvExporter(Task):
         temp_dir = tempfile.mkdtemp()
         temp_folder_path = os.path.join(temp_dir, self.filename)
         os.makedirs(temp_folder_path)
+        total = 0
         for category in [
             ItemCategory.Movie,
             ItemCategory.TV,
@@ -107,6 +108,7 @@ class CsvExporter(Task):
                 writer = csv.writer(csvfile)
                 writer.writerow(_mark_heading)
                 for mark in marks:
+                    total += 1
                     item = mark.item
                     line = [
                         item.display_title,
@@ -128,6 +130,7 @@ class CsvExporter(Task):
                 writer = csv.writer(csvfile)
                 writer.writerow(_review_heading)
                 for review in reviews:
+                    total += 1
                     item = review.item
                     line = [
                         item.display_title,
@@ -147,6 +150,7 @@ class CsvExporter(Task):
                     .order_by("created_time")
                 )
                 for note in notes:
+                    total += 1
                     item = note.item
                     line = [
                         item.display_title,
@@ -166,5 +170,6 @@ class CsvExporter(Task):
             os.makedirs(os.path.dirname(filename))
         shutil.make_archive(filename[:-4], "zip", temp_folder_path)
         self.metadata["file"] = filename
+        self.metadata["total"] = total
         self.message = "Export complete."
         self.save()

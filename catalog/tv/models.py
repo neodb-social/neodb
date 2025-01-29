@@ -97,6 +97,7 @@ class TVEpisodeSchema(ItemSchema):
 class TVShow(Item):
     if TYPE_CHECKING:
         seasons: QuerySet["TVSeason"]
+    schema = TVShowSchema
     type = ItemType.TVShow
     child_class = "TVSeason"
     category = ItemCategory.TV
@@ -261,6 +262,7 @@ class TVShow(Item):
 class TVSeason(Item):
     if TYPE_CHECKING:
         episodes: models.QuerySet["TVEpisode"]
+    schema = TVSeasonSchema
     type = ItemType.TVSeason
     category = ItemCategory.TV
     url_path = "tv/season"
@@ -480,6 +482,8 @@ class TVSeason(Item):
 
 
 class TVEpisode(Item):
+    schema = TVEpisodeSchema
+    type = ItemType.TVEpisode
     category = ItemCategory.TV
     url_path = "tv/episode"
     season = models.ForeignKey(

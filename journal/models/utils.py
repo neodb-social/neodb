@@ -10,6 +10,7 @@ from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
 from .common import Content, Debris
 from .itemlist import ListMember
+from .note import Note
 from .rating import Rating
 from .review import Review
 from .shelf import ShelfLogEntry, ShelfMember
@@ -31,6 +32,7 @@ def remove_data_by_user(owner: APIdentity):
     Review.objects.filter(owner=owner).delete()
     TagMember.objects.filter(owner=owner).delete()
     Tag.objects.filter(owner=owner).delete()
+    Note.objects.filter(owner=owner).delete()
     CollectionMember.objects.filter(owner=owner).delete()
     Collection.objects.filter(owner=owner).delete()
     FeaturedCollection.objects.filter(owner=owner).delete()

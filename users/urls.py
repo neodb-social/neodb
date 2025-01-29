@@ -18,6 +18,7 @@ urlpatterns = [
     path("data/export/reviews", export_reviews, name="export_reviews"),
     path("data/export/marks", export_marks, name="export_marks"),
     path("data/export/csv", export_csv, name="export_csv"),
+    path("data/export/ndjson", export_ndjson, name="export_ndjson"),
     path("data/sync_mastodon", sync_mastodon, name="sync_mastodon"),
     path(
         "data/sync_mastodon_preference",

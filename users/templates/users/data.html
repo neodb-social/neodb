@@ -250,6 +250,23 @@
                 {% endif %}
               {% endif %}
             </form>
+            <hr>
+            <form action="{% url 'users:export_ndjson' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="submit" value="{% trans 'Export everything in NDJSON' %}" />
+              {% if ndjson_export_task %}
+                <br>
+                {% trans 'Last export' %}: {{ ndjson_export_task.created_time }}
+                {% trans 'Status' %}: {{ ndjson_export_task.get_state_display }}
+                <br>
+                {{ ndjson_export_task.message }}
+                {% if ndjson_export_task.metadata.file %}
+                  <a href="{% url 'users:export_ndjson' %}" download>{% trans 'Download' %}</a>
+                {% endif %}
+              {% endif %}
+            </form>
           </details>
         </article>
         <article>
