@@ -18,6 +18,7 @@ class BoardGameGeek(AbstractSite):
     ID_TYPE = IdType.BGG
     URL_PATTERNS = [
         r"^\w+://boardgamegeek\.com/boardgame/(\d+)",
+        r"^\w+://boardgamegeek\.com/boardgameexpansion/(\d+)",
     ]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Game
