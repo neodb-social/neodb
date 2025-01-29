@@ -131,7 +131,6 @@ class ItemType(models.TextChoices):
     PodcastEpisode = "podcastepisode", _("Podcast Episode")  # type:ignore[reportCallIssue]
     Performance = "performance", _("Performance")  # type:ignore[reportCallIssue]
     PerformanceProduction = "production", _("Production")  # type:ignore[reportCallIssue]
-    FanFic = "fanfic", _("Fanfic")  # type:ignore[reportCallIssue]
     Exhibition = "exhibition", _("Exhibition")  # type:ignore[reportCallIssue]
     Collection = "collection", _("Collection")  # type:ignore[reportCallIssue]
 
@@ -256,6 +255,7 @@ class LocalizedTitleSchema(Schema):
 
 
 class ItemInSchema(Schema):
+    type: str
     title: str = Field(alias="display_title")
     description: str = Field(default="", alias="display_description")
     localized_title: list[LocalizedTitleSchema] = []
@@ -346,6 +346,7 @@ class Item(PolymorphicModel):
         collections: QuerySet["Collection"]
         merged_from_items: QuerySet["Item"]
         merged_to_item_id: int
+    type: ItemType  # subclass must specify this
     schema = ItemSchema
     category: ItemCategory  # subclass must specify this
     url_path = "item"  # subclass must specify this

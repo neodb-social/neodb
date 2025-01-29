@@ -1,9 +1,14 @@
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.middleware.locale import LocaleMiddleware
 from django.utils import translation
 
+if TYPE_CHECKING:
+    from users.models import User
 
-def activate_language_for_user(user, request=None):
+
+def activate_language_for_user(user: "User | None", request=None):
     user_language = None
     if user and user.is_authenticated:
         user_language = getattr(user, "language", "")
