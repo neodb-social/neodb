@@ -62,7 +62,6 @@ def init_catalog_search_models():
     # skip indexing if the item type should never show up in search
     Indexer.update_model_indexable(Edition)
     # Indexer.update_model_indexable(Work)
-    Indexer.update_model_indexable(Series)
     Indexer.update_model_indexable(Movie)
     Indexer.update_model_indexable(TVShow)
     Indexer.update_model_indexable(TVSeason)

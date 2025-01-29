@@ -3,18 +3,6 @@
 from django.db import migrations, models
 import django.db.models.deletion
 
-
-def rename_legacy_editions(apps, schema_editor):
-    Edition = apps.get_model("catalog", "Edition")
-    Work = apps.get_model("catalog", "Work")
-    for edition in Edition.objects.all():
-        works = edition.works.all()
-        if works.exists():
-            for work in works:
-                edition.legacy_works.add(work)
-            edition.save()
-
-
 def merge_to(self, to_item: "Item | None"):
     if to_item is None:
         if self.merged_to_item is not None:
@@ -57,7 +45,7 @@ def process_pending_trigger_events(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("catalog", "0013_delete_series_alter_externalresource_id_type_and_more"),
+        ("catalog", "0012_alter_model_i18n"),
     ]
 
     operations = [
