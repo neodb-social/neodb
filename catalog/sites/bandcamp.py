@@ -142,6 +142,8 @@ class Bandcamp(AbstractSite):
                             cover,
                         )
                     )
+            except httpx.ReadTimeout:
+                logger.warning("Bandcamp search timeout", extra={"query": q})
             except Exception as e:
                 logger.error(
                     "Bandcamp search error", extra={"query": q, "exception": e}

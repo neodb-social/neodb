@@ -163,6 +163,8 @@ class Bangumi(AbstractSite):
                             cover_url=s["images"].get("common"),
                         )
                     )
+            except httpx.ReadTimeout:
+                logger.warning("Bangumi search timeout", extra={"query": q})
             except Exception as e:
                 logger.error("Bangumi search error", extra={"query": q, "exception": e})
         return results

@@ -143,6 +143,8 @@ class Spotify(AbstractSite):
                         )
                 else:
                     logger.warning(f"Spotify search '{q}' no results found.")
+            except httpx.ReadTimeout:
+                logger.warning("Spotify search timeout", extra={"query": q})
             except Exception as e:
                 logger.error("Spotify search error", extra={"query": q, "exception": e})
         return results

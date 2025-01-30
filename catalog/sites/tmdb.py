@@ -222,6 +222,8 @@ class TMDB_Movie(AbstractSite):
                             )
                 else:
                     logger.warning(f"TMDB search '{q}' no results found.")
+            except httpx.ReadTimeout:
+                logger.warning("TMDb search timeout", extra={"query": q})
             except Exception as e:
                 logger.error("TMDb search error", extra={"query": q, "exception": e})
         return results[offset : offset + page_size]

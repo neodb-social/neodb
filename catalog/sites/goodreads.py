@@ -190,6 +190,8 @@ class Goodreads(AbstractSite):
                                 cover,
                             )
                         )
+            except httpx.ReadTimeout:
+                logger.warning("Goodreads search timeout", extra={"query": q})
             except Exception as e:
                 logger.error(
                     "Goodreads search error", extra={"query": q, "exception": e}
