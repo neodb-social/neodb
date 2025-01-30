@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.validators import URLValidator
 from django.utils.timezone import make_aware
+from loguru import logger
 
 from catalog.common import *
 from catalog.common.downloaders import (
@@ -111,6 +112,9 @@ class RSS(AbstractSite):
 
     def scrape_additional_data(self):
         item = self.get_item()
+        if not item:
+            logger.error(f"item for RSS {self.url} not found")
+            return
         feed = self.parse_feed_from_url(self.url)
         if not feed:
             return

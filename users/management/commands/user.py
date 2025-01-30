@@ -139,6 +139,12 @@ class Command(BaseCommand):
                 u = User.objects.get(username=n, is_active=True)
                 u.is_superuser = not u.is_superuser
                 u.save()
+                tu = u.identity.takahe_identity.users.all().first()
+                if tu:
+                    tu.admin = u.is_superuser
+                    tu.save()
+                else:
+                    self.stdout.write(f"no takahe user for {u}")
                 self.stdout.write(f"update {u} superuser: {u.is_superuser}")
 
     def staff(self, v):
