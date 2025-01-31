@@ -3,15 +3,12 @@ NeoDB is an open-source software and global community platform [since 2021](orig
 This project is licensed under AGPLv3.
 
 
-## How to Join
+## How to use
 
-Free instances hosted by volunteers are available:
+Please [find a server](servers.md) to register with your email, Mastodon or Bluesky ID.
 
- - [NeoDB.social](https://neodb.social) - the flagship instance
- - [NeoDB experimental](https://eggplant.place) - an instance running the edge version of NeoDB software, which may include more features and potential bugs
- - [NiceDB](https://nicedb.org) - the original instance, running a legacy version and with limited registration.
+Besides the web version of your chosen server, you may also use [various apps](apps.md) to login and manage your collections.
 
-While there is no mobile app for NeoDB yet, the web version functions well on mobile devices. You can also use [Mastodon compatible apps](https://joinmastodon.org/apps) to log in and utilize the microblogging features.
 
 ## Host your own instance
 
@@ -26,11 +23,13 @@ All instances interact with each other in the Fediverse via ActivityPub, allowin
  - For those interested in developing for NeoDB, please refer to the [development](development.md) section for basic instructions to get started.
  - To help translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/)
 
+
 ## Copyleft
 
  - NeoDB software code is licensed under AGPL, please check it if you plan to provide a service with modified code.
  - If you publish a work (e.g. application, website or service) utilizing NeoDB software or API, you may use "NeoDB" and its visual identity in your work, but please refrain from any usage that may imply the affiliation with NeoDB software and team.
  - If you publish such work to serve others, we do appreciate you clearly mention the usage of NeoDB in your work, provide descriptions and links to NeoDB software (neodb.net) and service providers (e.g. neodb.social), and guide your users to support them directly.
+
 
 ## Donation
 

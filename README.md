@@ -9,7 +9,7 @@ _mark the things you love._
 
 [NeoDB](https://neodb.net) (fka boofilsic) is an open source project and free service to help users manage, share and discover collections, reviews and ratings for culture products (e.g. books, movies, music, podcasts, games and performances) in Fediverse.
 
-[NeoDB.social](https://neodb.social) and [NiceDB](https://nicedb.org) are free instances hosted by volunteers. Your support is essential to keep these services free and open-sourced.
+[NeoDB.social](https://neodb.social) is a free instance hosted by NeoDB developers, there are more [servers](https://neodb.net/servers/) and [apps](https://neodb.net/apps/) available. Your support is essential to keep them free and open-sourced.
 
 Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky.app/profile/neodb.net) or join our [Discord community](https://discord.gg/QBHkrV8bxK) to share your ideas/questions/creations.
 

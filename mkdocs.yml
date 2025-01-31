@@ -6,6 +6,8 @@ site_description: Mark the things you love.
 nav:
   - Overview: 'index.md'
   - features.md
+  - servers.md
+  - apps.md
   - install.md
   - upgrade.md
   - configuration.md
