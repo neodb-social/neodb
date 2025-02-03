@@ -255,7 +255,7 @@ class LocalizedTitleSchema(Schema):
 
 
 class ItemInSchema(Schema):
-    type: str
+    type: str = Field(alias="get_type")
     title: str = Field(alias="display_title")
     description: str = Field(default="", alias="display_description")
     localized_title: list[LocalizedTitleSchema] = []
@@ -346,7 +346,6 @@ class Item(PolymorphicModel):
         collections: QuerySet["Collection"]
         merged_from_items: QuerySet["Item"]
         merged_to_item_id: int
-    type: ItemType  # subclass must specify this
     schema = ItemSchema
     category: ItemCategory  # subclass must specify this
     url_path = "item"  # subclass must specify this
@@ -598,6 +597,9 @@ class Item(PolymorphicModel):
     @property
     def api_url(self):
         return f"/api{self.url}"
+
+    def get_type(self) -> str:
+        return self.__class__.__name__
 
     @property
     def class_name(self) -> str:

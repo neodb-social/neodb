@@ -431,6 +431,7 @@ class Takahe:
         edit_time: datetime.datetime | None = None,
         reply_to_pk: int | None = None,
         attachments: list | None = None,
+        language: str = "",
     ) -> Post | None:
         identity = Identity.objects.get(pk=author_pk)
         post = (
@@ -457,6 +458,7 @@ class Takahe:
                 published=post_time,
                 edited=edit_time,
                 attachments=attachments,
+                language=language,
             )
         else:
             post = Post.create_local(
@@ -472,6 +474,7 @@ class Takahe:
                 edited=edit_time,
                 reply_to=reply_to_post,
                 attachments=attachments,
+                language=language,
             )
             TimelineEvent.objects.get_or_create(
                 identity=identity,
@@ -693,8 +696,6 @@ class Takahe:
 
     @staticmethod
     def get_neodb_peers():
-        if settings.SEARCH_PEERS:  # '-' = disable federated search
-            return [] if settings.SEARCH_PEERS == ["-"] else settings.SEARCH_PEERS
         cache_key = "neodb_peers"
         peers = cache.get(cache_key, None)
         if peers is None:
@@ -704,6 +705,20 @@ class Takahe:
                     nodeinfo__metadata__nodeEnvironment="production",
                     local=False,
                     blocked=False,
+                ).values_list("pk", flat=True)
+            )
+            cache.set(cache_key, peers, timeout=1800)
+        return peers
+
+    @staticmethod
+    def get_blocked_peers():
+        cache_key = "blocked_peers"
+        peers = cache.get(cache_key, None)
+        if peers is None:
+            peers = list(
+                Domain.objects.filter(
+                    local=False,
+                    blocked=True,
                 ).values_list("pk", flat=True)
             )
             cache.set(cache_key, peers, timeout=1800)
@@ -810,8 +825,10 @@ class Takahe:
         exclude_identities: list[int] = [],
         local_only=False,
     ):
+        from catalog.sites.fedi import FediverseInstance
+
         since = timezone.now() - timedelta(days=days)
-        domains = Takahe.get_neodb_peers() + [settings.SITE_DOMAIN]
+        domains = FediverseInstance.get_peers_for_search() + [settings.SITE_DOMAIN]
         qs = (
             Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
             .exclude(author_id__in=exclude_identities)

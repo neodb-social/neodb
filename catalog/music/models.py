@@ -10,7 +10,6 @@ from catalog.common import (
     Item,
     ItemCategory,
     ItemInSchema,
-    ItemType,
     PrimaryLookupIdDescriptor,
     jsondata,
 )
@@ -34,7 +33,6 @@ class AlbumSchema(AlbumInSchema, BaseSchema):
 
 class Album(Item):
     schema = AlbumSchema
-    type = ItemType.Album
     url_path = "album"
     category = ItemCategory.Music
     barcode = PrimaryLookupIdDescriptor(IdType.GTIN)

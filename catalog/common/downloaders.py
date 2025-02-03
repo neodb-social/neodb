@@ -156,15 +156,16 @@ class BasicDownloader:
         "Cache-Control": "no-cache",
     }
 
-    def __init__(self, url, headers=None):
+    timeout = settings.DOWNLOADER_REQUEST_TIMEOUT
+
+    def __init__(self, url, headers: dict | None = None, timeout: float | None = None):
         self.url = url
         self.response_type = RESPONSE_OK
         self.logs = []
         if headers:
             self.headers = headers
-
-    def get_timeout(self):
-        return settings.DOWNLOADER_REQUEST_TIMEOUT
+        if timeout:
+            self.timeout = timeout
 
     def validate_response(self, response) -> int:
         if response is None:
@@ -183,7 +184,7 @@ class BasicDownloader:
             if not _mock_mode:
                 resp = cast(
                     DownloaderResponse,
-                    requests.get(url, headers=self.headers, timeout=self.get_timeout()),
+                    requests.get(url, headers=self.headers, timeout=self.timeout),
                 )
                 resp.__class__ = DownloaderResponse
                 if settings.DOWNLOADER_SAVEDIR:
@@ -223,7 +224,7 @@ class BasicDownloader2(BasicDownloader):
             if not _mock_mode:
                 resp = cast(
                     DownloaderResponse2,
-                    httpx.get(url, headers=self.headers, timeout=self.get_timeout()),
+                    httpx.get(url, headers=self.headers, timeout=self.timeout),
                 )
                 resp.__class__ = DownloaderResponse2
                 if settings.DOWNLOADER_SAVEDIR:

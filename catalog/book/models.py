@@ -39,7 +39,6 @@ from catalog.common import (
 from catalog.common.models import (
     LIST_OF_ONE_PLUS_STR_SCHEMA,
     LOCALE_CHOICES_JSONFORM,
-    ItemType,
     LanguageListField,
 )
 from common.models import uniq
@@ -121,7 +120,6 @@ class Edition(Item):
         OTHER = "other", _("Other")
 
     schema = EditionSchema
-    type = ItemType.Edition
     category = ItemCategory.Book
     url_path = "book"
 

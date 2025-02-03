@@ -1203,6 +1203,7 @@ class Post(models.Model):
         type_data: dict | None = None,
         published: datetime.datetime | None = None,
         edited: datetime.datetime | None = None,
+        language: str = "",
     ) -> "Post":
         with transaction.atomic():
             # Find mentions in this post
@@ -1233,6 +1234,7 @@ class Post(models.Model):
                 "visibility": visibility,
                 "hashtags": hashtags,
                 "in_reply_to": reply_to.object_uri if reply_to else None,
+                "language": language,
             }
             if edited:
                 post_obj["edited"] = edited
@@ -1281,6 +1283,7 @@ class Post(models.Model):
         type_data: dict | None = None,
         published: datetime.datetime | None = None,
         edited: datetime.datetime | None = None,
+        language: str | None = None,
     ):
         with transaction.atomic():
             # Strip all HTML and apply linebreaks filter
@@ -1301,6 +1304,8 @@ class Post(models.Model):
             self.emojis.set(Emoji.emojis_from_content(content, None))
             if attachments is not None:
                 self.attachments.set(attachments or [])  # type: ignore
+            if language is not None:
+                self.language = language
             if type_data:
                 self.type_data = type_data
             self.save()

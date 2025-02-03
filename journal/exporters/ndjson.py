@@ -7,7 +7,7 @@ import tempfile
 from django.conf import settings
 from django.utils import timezone
 
-from catalog.common.downloaders import ProxiedImageDownloader
+from catalog.common import ProxiedImageDownloader
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import ShelfMember
 from journal.models.collection import Collection

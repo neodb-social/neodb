@@ -126,6 +126,10 @@ class User(AbstractUser):
         ]
         indexes = [models.Index("is_active", name="index_user_is_active")]
 
+    @property
+    def macrolanguage(self) -> str:  # ISO 639 macrolanguage
+        return self.language.split("-")[0] if self.language else ""
+
     @cached_property
     def mastodon(self) -> "MastodonAccount | None":
         return MastodonAccount.objects.filter(user=self).first()

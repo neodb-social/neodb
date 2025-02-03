@@ -497,6 +497,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             "post_time": self.created_time,  # type:ignore subclass must have this
             "edit_time": self.edited_time,  # type:ignore subclass must have this
             "data": self.get_ap_data(),
+            "language": user.macrolanguage,
         }
         params.update(self.to_post_params())
         post = Takahe.post(**params)
