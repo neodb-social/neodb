@@ -142,19 +142,94 @@ def fetch_item(request, url: str):
     summary="Trending items in catalog",
     auth=None,
     tags=["catalog"],
+    deprecated=True,
 )
 def trending_items(request):
     """
-    Returns a list of galleries, each gallery is a list of items
+    Returns a list of galleries, each gallery is a list of items, deprecated, removing by May 1 2025
     """
     gallery_list = cache.get("public_gallery", [])
 
     # rotate every 6 minutes
     rot = timezone.now().minute // 6
     for gallery in gallery_list:
-        i = rot * len(gallery["items"]) // 10
-        gallery["items"] = gallery["items"][i:] + gallery["items"][:i]
+        items = cache.get(gallery["name"], [])
+        i = rot * len(items) // 10
+        gallery["items"] = items[i:] + items[:i]
     return 200, gallery_list
+
+
+def _get_trending(name):
+    rot = timezone.now().minute // 6
+    items = cache.get(name, [])
+    i = rot * len(items) // 10
+    return items[i:] + items[:i]
+
+
+@api.get(
+    "/catalog/trending/book/",
+    response={200: list[ItemSchema]},
+    summary="Trending books in catalog",
+    auth=None,
+    tags=["catalog"],
+)
+def trending_book(request):
+    return _get_trending("trending_book")
+
+
+@api.get(
+    "/catalog/trending/movie/",
+    response={200: list[ItemSchema]},
+    summary="Trending movies in catalog",
+    auth=None,
+    tags=["catalog"],
+)
+def trending_movie(request):
+    return _get_trending("trending_movie")
+
+
+@api.get(
+    "/catalog/trending/tv/",
+    response={200: list[ItemSchema]},
+    summary="Trending tv in catalog",
+    auth=None,
+    tags=["catalog"],
+)
+def trending_tv(request):
+    return _get_trending("trending_tv")
+
+
+@api.get(
+    "/catalog/trending/music/",
+    response={200: list[ItemSchema]},
+    summary="Trending music in catalog",
+    auth=None,
+    tags=["catalog"],
+)
+def trending_music(request):
+    return _get_trending("trending_music")
+
+
+@api.get(
+    "/catalog/trending/game/",
+    response={200: list[ItemSchema]},
+    summary="Trending games in catalog",
+    auth=None,
+    tags=["catalog"],
+)
+def trending_game(request):
+    return _get_trending("trending_game")
+
+
+@api.get(
+    "/catalog/trending/podcast/",
+    response={200: list[ItemSchema]},
+    summary="Trending podcasts in catalog",
+    auth=None,
+    tags=["catalog"],
+)
+def trending_podcast(request):
+    return _get_trending("trending_podcast")
 
 
 def _get_item(cls, uuid, response):

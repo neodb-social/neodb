@@ -1,7 +1,11 @@
 from datetime import datetime
 from typing import List
 
+from django.core.cache import cache
+from django.utils import timezone
+from django.views.decorators.cache import cache_page
 from ninja import Field, Schema
+from ninja.decorators import decorate_view
 from ninja.pagination import paginate
 
 from catalog.common.models import Item, ItemSchema
@@ -190,3 +194,20 @@ def collection_delete_item(request, collection_uuid: str, item_uuid: str):
         return 404, {"message": "Item not found"}
     c.remove_item(item)
     return 200, {"message": "OK"}
+
+
+@api.get(
+    "/catalog/trending/collection/",
+    response={200: list[CollectionSchema]},
+    summary="Trending collection in catalog",
+    auth=None,
+    tags=["catalog"],
+)
+@decorate_view(cache_page(600))
+def trending_collection(request):
+    rot = timezone.now().minute // 6
+    collection_ids = cache.get("featured_collections", [])
+    i = rot * len(collection_ids) // 10
+    collection_ids = collection_ids[i:] + collection_ids[:i]
+    featured_collections = Collection.objects.filter(pk__in=collection_ids)
+    return featured_collections
