@@ -68,14 +68,15 @@ def _parse_piece_objects(objects) -> list[dict[str, Any]]:
 
 
 def _get_or_create_item(item_obj) -> Item | None:
-    logger.debug(f"Fetching item by ap from {item_obj}")
     typ = item_obj["type"]
     url = item_obj["href"]
     if url.startswith(settings.SITE_INFO["site_url"]):
+        logger.debug(f"Matching local item from {item_obj}")
         item = Item.get_by_url(url, True)
         if not item:
             logger.warning(f"Item not found for {url}")
         return item
+    logger.debug(f"Fetching item by ap from {item_obj}")
     if typ in ["TVEpisode", "PodcastEpisode"]:
         # TODO support episode item
         # match and fetch parent item first

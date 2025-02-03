@@ -123,7 +123,12 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return instance
 
     def save(self, *args, **kwargs):
+        link_post_id = kwargs.pop("link_post_id", -1)
         super().save(*args, **kwargs)
+        if link_post_id is None:
+            self.clear_post_ids()
+        elif link_post_id != -1:
+            self.link_post_id(link_post_id)
         if self.local and self.post_when_save:
             visibility_changed = self.previous_visibility != self.visibility
             self.previous_visibility = self.visibility
@@ -322,8 +327,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             p = cls(**d)
             if crosspost is not None:
                 p.crosspost_when_save = crosspost
-            p.save()
-            p.link_post_id(post.id)
+            p.save(link_post_id=post.id)
         # subclass may have to add additional code to update type_data in local post
         return p
 
