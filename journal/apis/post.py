@@ -82,7 +82,7 @@ class Post(Schema):
     visibility: Literal["public", "unlisted", "private", "direct"]
     sensitive: bool
     spoiler_text: str
-    # media_attachments: list[MediaAttachment]
+    media_attachments: list[MediaAttachment]
     mentions: list[StatusMention]
     tags: list[StatusTag]
     emojis: list[CustomEmoji]
