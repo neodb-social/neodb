@@ -26,8 +26,11 @@ class PodcastUpdater(BaseJob):
                 logger.info(f"updating {p}")
                 c = p.episodes.count()
                 site = RSS(p.feed_url)
-                site.scrape_additional_data()
-                c2 = p.episodes.count()
-                logger.info(f"updated {p}, {c2 - c} new episodes.")
-                count += c2 - c
+                r = site.scrape_additional_data()
+                if r:
+                    c2 = p.episodes.count()
+                    logger.info(f"updated {p}, {c2 - c} new episodes.")
+                    count += c2 - c
+                else:
+                    logger.warning(f"failed to update {p}")
         logger.info(f"Podcasts update finished, {count} new episodes total.")

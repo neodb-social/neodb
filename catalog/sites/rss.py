@@ -111,13 +111,14 @@ class RSS(AbstractSite):
         return pd
 
     def scrape_additional_data(self):
-        item = self.get_item()
-        if not item:
-            logger.error(f"item for RSS {self.url} not found")
-            return
         feed = self.parse_feed_from_url(self.url)
         if not feed:
-            return
+            logger.warning(f"unable to parse RSS {self.url}")
+            return False
+        item = self.get_item()
+        if not item:
+            logger.warning(f"item for RSS {self.url} not found")
+            return False
         for episode in feed["episodes"]:
             PodcastEpisode.objects.get_or_create(
                 program=item,
@@ -139,3 +140,4 @@ class RSS(AbstractSite):
                     "link": episode.get("link"),
                 },
             )
+        return True

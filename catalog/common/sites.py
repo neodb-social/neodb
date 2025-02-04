@@ -107,8 +107,8 @@ class AbstractSite:
         data = ResourceContent()
         return data
 
-    def scrape_additional_data(self):
-        pass
+    def scrape_additional_data(self) -> bool:
+        return False
 
     @staticmethod
     def query_str(content, query: str) -> str:
