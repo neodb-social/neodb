@@ -327,6 +327,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             p = cls(**d)
             if crosspost is not None:
                 p.crosspost_when_save = crosspost
+            p.previous_visibility = visibility
             p.save(link_post_id=post.id)
         # subclass may have to add additional code to update type_data in local post
         return p
