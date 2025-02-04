@@ -192,7 +192,7 @@ class JournalSearchResult(SearchResult):
         return ps
 
     @cached_property
-    def posts(self):
+    def posts(self) -> QuerySet[Post]:
         if not self:
             return Post.objects.none()
         ids = reduce(

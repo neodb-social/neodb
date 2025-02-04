@@ -41,6 +41,7 @@ class PreferenceSchema(Schema):
 def me(request):
     accts = SocialAccount.objects.filter(user=request.user)
     return 200, {
+        # "id": str(request.user.identity.pk),
         "username": request.user.username,
         "url": settings.SITE_INFO["site_url"] + request.user.url,
         "external_acct": (
