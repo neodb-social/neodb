@@ -339,7 +339,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         if toot_id and user.mastodon:
             user.mastodon.delete_post(toot_id)
         post_id = metadata.get("bluesky_id")
-        if toot_id and user.bluesky:
+        if post_id and user.bluesky:
             user.bluesky.delete_post(post_id)
 
     def delete_crossposts(self):
