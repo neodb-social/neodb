@@ -5,8 +5,10 @@ from django.core.cache import cache
 from django.http import HttpResponse
 from django.utils import timezone
 from ninja import Schema
+from ninja.pagination import paginate
 
-from common.api import RedirectedResult, Result, api
+from catalog.common.models import Item, ItemSchema
+from common.api import PageNumberPagination, RedirectedResult, Result, api
 
 from .common import SiteManager
 from .models import (
@@ -16,8 +18,6 @@ from .models import (
     EditionSchema,
     Game,
     GameSchema,
-    Item,
-    ItemSchema,
     Movie,
     MovieSchema,
     Performance,
@@ -255,6 +255,21 @@ def _get_item(cls, uuid, response):
 )
 def get_book(request, uuid: str, response: HttpResponse):
     return _get_item(Edition, uuid, response)
+
+
+@api.get(
+    "/book/{uuid}/sibling/",
+    response={200: List[EditionSchema]},
+    auth=None,
+    tags=["catalog"],
+)
+@paginate(PageNumberPagination)
+def get_sibling_editions_for_book(request, uuid: str, response: HttpResponse):
+    i = _get_item(Edition, uuid, response)
+    print(i)
+    if not isinstance(i, Edition):
+        return Edition.objects.none()
+    return i.sibling_items
 
 
 @api.get(
