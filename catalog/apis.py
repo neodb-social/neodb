@@ -141,7 +141,7 @@ def fetch_item(request, url: str):
     response={200: list[Gallery]},
     summary="Trending items in catalog",
     auth=None,
-    tags=["catalog"],
+    tags=["trending"],
     deprecated=True,
 )
 def trending_items(request):
@@ -167,66 +167,66 @@ def _get_trending(name):
 
 
 @api.get(
-    "/catalog/trending/book/",
+    "/trending/book/",
     response={200: list[ItemSchema]},
     summary="Trending books in catalog",
     auth=None,
-    tags=["catalog"],
+    tags=["trending"],
 )
 def trending_book(request):
     return _get_trending("trending_book")
 
 
 @api.get(
-    "/catalog/trending/movie/",
+    "/trending/movie/",
     response={200: list[ItemSchema]},
     summary="Trending movies in catalog",
     auth=None,
-    tags=["catalog"],
+    tags=["trending"],
 )
 def trending_movie(request):
     return _get_trending("trending_movie")
 
 
 @api.get(
-    "/catalog/trending/tv/",
+    "/trending/tv/",
     response={200: list[ItemSchema]},
     summary="Trending tv in catalog",
     auth=None,
-    tags=["catalog"],
+    tags=["trending"],
 )
 def trending_tv(request):
     return _get_trending("trending_tv")
 
 
 @api.get(
-    "/catalog/trending/music/",
+    "/trending/music/",
     response={200: list[ItemSchema]},
     summary="Trending music in catalog",
     auth=None,
-    tags=["catalog"],
+    tags=["trending"],
 )
 def trending_music(request):
     return _get_trending("trending_music")
 
 
 @api.get(
-    "/catalog/trending/game/",
+    "/trending/game/",
     response={200: list[ItemSchema]},
     summary="Trending games in catalog",
     auth=None,
-    tags=["catalog"],
+    tags=["trending"],
 )
 def trending_game(request):
     return _get_trending("trending_game")
 
 
 @api.get(
-    "/catalog/trending/podcast/",
+    "/trending/podcast/",
     response={200: list[ItemSchema]},
     summary="Trending podcasts in catalog",
     auth=None,
-    tags=["catalog"],
+    tags=["trending"],
 )
 def trending_podcast(request):
     return _get_trending("trending_podcast")

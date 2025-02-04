@@ -1432,7 +1432,7 @@ class Post(models.Model):
             "sensitive": self.sensitive,
             "spoiler_text": self.summary or "",
             "media_attachments": [
-                # attachment.to_mastodon_json() for attachment in self.attachments.all()
+                attachment.to_mastodon_json() for attachment in self.attachments.all()
             ],
             "mentions": [
                 mention.to_mastodon_mention_json() for mention in self.mentions.all()
@@ -1646,6 +1646,36 @@ class PostAttachment(models.Model):
         if self.file:
             return self.file.name.rsplit("/", 1)[-1]
         return f"attachment ({self.mimetype})"
+
+    def to_mastodon_json(self):
+        type_ = "unknown"
+        if self.is_image():
+            type_ = "image"
+        elif self.is_video():
+            type_ = "video"
+        value = {
+            "id": str(self.pk),
+            "type": type_,
+            "url": self.full_url().absolute,
+            "preview_url": self.thumbnail_url().absolute,
+            "remote_url": None,
+            "meta": {
+                "focus": {
+                    "x": self.focal_x or 0,
+                    "y": self.focal_y or 0,
+                },
+            },
+            "description": self.name,
+            "blurhash": self.blurhash,
+        }
+        if self.width and self.height:
+            value["meta"]["original"] = {
+                "width": self.width,
+                "height": self.height,
+                "size": f"{self.width}x{self.height}",
+                "aspect": self.width / self.height,
+            }
+        return value
 
 
 class EmojiQuerySet(models.QuerySet):

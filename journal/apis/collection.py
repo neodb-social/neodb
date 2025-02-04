@@ -197,11 +197,11 @@ def collection_delete_item(request, collection_uuid: str, item_uuid: str):
 
 
 @api.get(
-    "/catalog/trending/collection/",
+    "/trending/collection/",
     response={200: list[CollectionSchema]},
-    summary="Trending collection in catalog",
+    summary="Trending collections",
     auth=None,
-    tags=["catalog"],
+    tags=["trending"],
 )
 @decorate_view(cache_page(600))
 def trending_collection(request):
