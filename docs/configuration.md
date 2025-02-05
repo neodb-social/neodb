@@ -39,8 +39,10 @@ if you are doing debug or development:
  	- `smtp+tls://<username>:<password>@<host>:<port>`
  	- `smtp+ssl://<username>:<password>@<host>:<port>`
  	- `anymail://<anymail_backend_name>?<anymail_args>`, to send email via email service providers, see [anymail doc](https://anymail.dev/)
- - `DISCORD_WEBHOOKS` - Discord channel to send notification about user submitted suggestion and changes, e.g. `suggest=https://discord.com/api/webhooks/123/abc,audit=https://discord.com/api/webhooks/123/def`. Both suggest and audit channels must be in forum mode.
 
+## Settings for administration
+ - `DISCORD_WEBHOOKS` - Discord channel to send notification about user submitted suggestion and changes, e.g. `suggest=https://discord.com/api/webhooks/123/abc,audit=https://discord.com/api/webhooks/123/def`. Both suggest and audit channels must be in forum mode.
+ - `NEODB_SENTRY_DSN` , `TAKAHE_SENTRY_DSN` - [Sentry](https://neodb.sentry.io/) DSN to log errors.
 
 ## Settings for Federation
 
@@ -49,6 +51,7 @@ if you are doing debug or development:
  - `NEODB_DISABLE_DEFAULT_RELAY` is set to `False` by default, the server will send and receive public posts from `relay.neodb.net`.
 
  	`relay.neodb.net` is [open sourced](https://github.com/neodb-social/neodb-relay) and operated by NeoDB developers, it works like most ActivityPub relays except it only relays between NeoDB instances, it helps public information like catalogs and trends flow between NeoDB instances. You may set it to `True` if you don't want to relay public posts with other NeoDB instances.
+
 
 ## Settings for external item sources
 
