@@ -115,7 +115,7 @@
               {% endif %}
             {% else %}
               <li>
-                <a href="{% url 'users:login' %}?next={{ request.path | urlencode }}">{% trans 'Sign up or Login' %}</a>
+                <a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans 'Sign up or Login' %}</a>
               </li>
             {% endif %}
           </ul>
