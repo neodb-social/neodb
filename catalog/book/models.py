@@ -271,7 +271,9 @@ class Edition(Item):
             if not self.related_work:
                 return
             if to_item.related_work:
-                for edition in self.related_work.related_editions.exclude(pk=self.pk).all():
+                for edition in self.related_work.related_editions.exclude(
+                    pk=self.pk
+                ).all():
                     edition.related_work = to_item.related_work
                     edition.save()
             else:
@@ -385,7 +387,9 @@ class Edition(Item):
         if not self.related_work:
             return False
         return (
-            Edition.objects.filter(related_work__in=[self.related_work]).exclude(pk=self.pk).exists()
+            Edition.objects.filter(related_work__in=[self.related_work])
+            .exclude(pk=self.pk)
+            .exists()
         )
 
     def link_to_related_book(self, target: "Edition") -> bool:
@@ -407,6 +411,10 @@ class Edition(Item):
             # work.localized_title = self.localized_title
             # work.save()
         return True
+
+    @property
+    def parent_item(self):  # type:ignore
+        return self.related_work.series.first() if self.related_work else None
 
     def unlink_from_all_works(self):
         self.related_work = None
@@ -508,6 +516,7 @@ class Work(Item):
                     edition.related_work = self
                     edition.save()
 
+
 class Series(Item):
     works = models.ManyToManyField(Work, related_name="series")
     category = ItemCategory.Book
@@ -527,10 +536,7 @@ class Series(Item):
 
     @cached_property
     def all_works(self):
-        return (
-            self.works.all()
-            .filter(is_deleted=False, merged_to_item=None)
-        )
+        return self.works.all().filter(is_deleted=False, merged_to_item=None)
 
     @property
     def cover_image_url(self):

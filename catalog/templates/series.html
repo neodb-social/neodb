@@ -6,22 +6,17 @@
 {% load mastodon %}
 {% load strip_scheme %}
 {% load thumb %}
-<!-- class specific details -->
 {% block details %}
   <div>{% include '_people.html' with people=item.additional_title role='' max=99 %}</div>
   <div>{% include '_people.html' with people=item.author role='author' max=5 %}</div>
 {% endblock %}
-{% block left_sidebar %}
-  <div _="init hide .item-mark-buttons then hide .item-mark-icon end">
-    <details open>
-      <summary>{% trans 'Series' %}</summary>
-      {% for w in item.works.all %}
-        <div>
-          <a href="{{ w.url }}">{{ w.display_title }}</a>
-        </div>
-      {% endfor %}
-    </details>
+{% block content %}
+  <div class="item-card-list">
+    {% for work in item.works.all %}
+      {% include '_list_item.html' with item=work.related_editions.first hide_parent=1 mark=0 %}
+    {% endfor %}
   </div>
 {% endblock %}
-<!-- class specific sidebar -->
 {% block sidebar %}{% endblock %}
+{% block cover %}{% endblock %}
+{% block metadata %}{% endblock %}

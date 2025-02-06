@@ -29,6 +29,11 @@
   }
 }
 
+.item-page:not(:has(.left)) main .middle {
+  margin: 4%;
+  width: 67%;
+}
+
 .item-page {
   main {
     // width: 100vw;
@@ -55,6 +60,7 @@
       margin-right: 0%;
     }
   }
+
 
   @media (max-width: 768px) {
     main {

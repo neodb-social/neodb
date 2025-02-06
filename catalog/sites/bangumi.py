@@ -62,8 +62,8 @@ class Bangumi(AbstractSite):
                                 required_resources.append(
                                     {
                                         "model": "Series",
-                    "id_type": IdType.Bangumi,
-                    "id_value": s["id"],
+                                        "id_type": IdType.Bangumi,
+                                        "id_value": s["id"],
                                         "url": cls.id_to_url(s["id"]),
                                     }
                                 )
@@ -71,8 +71,8 @@ class Bangumi(AbstractSite):
                                 related_resources.append(
                                     {
                                         "model": "Edition",
-                    "id_type": IdType.Bangumi,
-                    "id_value": s["id"],
+                                        "id_type": IdType.Bangumi,
+                                        "id_value": s["id"],
                                         "url": cls.id_to_url(s["id"]),
                                     }
                                 )

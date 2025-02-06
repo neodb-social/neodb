@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 
+
 def merge_to(self, to_item: "Item | None"):
     if to_item is None:
         if self.merged_to_item is not None:
@@ -30,7 +31,7 @@ def merge_to(self, to_item: "Item | None"):
 
 
 def merge_works(apps, schema_editor):
-    if getattr(settings, 'SKIP_WORK_MIGRATION', False):
+    if getattr(settings, "SKIP_WORK_MIGRATION", False):
         return
     Edition = apps.get_model("catalog", "Edition")
     Work = apps.get_model("catalog", "Work")
@@ -48,9 +49,11 @@ def merge_works(apps, schema_editor):
                     continue
                 merge_to(work, edition.related_work)
 
+
 def process_pending_trigger_events(apps, schema_editor):
     # Ensure all pending trigger events are processed
     schema_editor.connection.cursor().execute("SET CONSTRAINTS ALL IMMEDIATE")
+
 
 class Migration(migrations.Migration):
     dependencies = [

@@ -375,7 +375,9 @@ class DoubanBookTestCase(TestCase):
         self.assertEqual(w1.display_title, "黄金时代")
         self.assertEqual(w2.display_title, "黄金时代")
         self.assertEqual(w1, w2)
-        editions = sorted(list(w1.related_editions.all()), key=lambda e: e.display_title)
+        editions = sorted(
+            list(w1.related_editions.all()), key=lambda e: e.display_title
+        )
         self.assertEqual(len(editions), 2)
         self.assertEqual(editions[0].display_title, "Wang in Love and Bondage")
         self.assertEqual(editions[1].display_title, "黄金时代")
@@ -539,7 +541,7 @@ class MultiBookSitesTestCase(TestCase):
         self.assertEqual(w2e[1].display_title, "Wang in Love and Bondage")
         self.assertEqual(w2e[2].display_title, "黄金时代")
         w3e = sorted(list(w3.related_editions.all()), key=lambda e: e.display_title)
-        self.assertEqual(len(w3e), 0) # w3 is merged to w2
+        self.assertEqual(len(w3e), 0)  # w3 is merged to w2
         e = Edition.objects.get(primary_lookup_id_value=9781662601217)
         self.assertEqual(e.display_title, "Golden Age: A Novel")
 
