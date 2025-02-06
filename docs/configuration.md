@@ -42,7 +42,7 @@ if you are doing debug or development:
 
 ## Settings for administration
  - `DISCORD_WEBHOOKS` - Discord channel to send notification about user submitted suggestion and changes, e.g. `suggest=https://discord.com/api/webhooks/123/abc,audit=https://discord.com/api/webhooks/123/def`. Both suggest and audit channels must be in forum mode.
- - `NEODB_SENTRY_DSN` , `TAKAHE_SENTRY_DSN` - [Sentry](https://neodb.sentry.io/) DSN to log errors.
+ - `NEODB_SENTRY_DSN` , `TAKAHE_SENTRY_DSN` - [Sentry](https://sentry.io/) DSN to log errors.
 
 ## Settings for Federation
 

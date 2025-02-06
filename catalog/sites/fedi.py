@@ -74,6 +74,7 @@ class FediverseInstance(AbstractSite):
         from takahe.utils import Takahe
 
         val = URLValidator()
+        host = None
         try:
             val(url)
             u = cls.url_to_id(url)
@@ -85,7 +86,8 @@ class FediverseInstance(AbstractSite):
                 return False
             return cls.get_json_from_url(u) is not None
         except Exception as e:
-            logger.error(f"Fedi item url validation error: {url} {e}")
+            if host and host in Takahe.get_neodb_peers():
+                logger.error(f"Fedi item url validation error: {url} {e}")
             return False
 
     @classmethod
