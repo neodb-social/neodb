@@ -89,6 +89,7 @@ def error_403(request, exception=None):
 
 
 def error_404(request, exception=None):
+    request.session.pop("next_url", None)
     return render(request, "404.html", status=404, context={"exception": exception})
 
 

@@ -48,7 +48,7 @@
       </header>
       <div>
         {% if request.user.is_authenticated %}
-          <a href="{{ request.session.next_url | default:'/' }}" class="button">{% trans 'back to your home page.' %}</a>
+          <a href="{{ request.session.next_url | default:'/' }}" class="button">{% trans 'Continue' %}</a>
         {% elif allow_any_site %}
           <div role="group">
             {% if enable_email %}

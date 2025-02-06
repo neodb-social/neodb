@@ -22,6 +22,7 @@
         {% blocktrans %}You may have visited an incorrect URL, or the content you are looking for has been deleted by the author.{% endblocktrans %}
         <br>
         {% blocktrans %}If you believe this is our mistake, please contact us through the link at the bottom of the page.{% endblocktrans %}
+        <a href="{% url 'common:home' %}" class="button">{trans "Go to Home"}</a>
       </article>
     </main>
     {% include "_footer.html" %}

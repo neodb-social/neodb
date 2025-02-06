@@ -131,7 +131,7 @@ def register(request: AuthedHttpRequest):
             auth_login(request, new_user)
             return render(request, "users/welcome.html")
         else:
-            return redirect(reverse("common:home"))
+            return redirect(request.session.get("next_url", reverse("common:home")))
 
     # use verified email if presents for new account creation
     if verified_account and verified_account.platform == Platform.EMAIL:

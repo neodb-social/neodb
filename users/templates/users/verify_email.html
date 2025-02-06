@@ -17,14 +17,14 @@
         <h4>{% trans 'Verify Your Email' %}</h4>
         {% if success %}
           <p>
-            {{ request.user.email }} {% trans "verified successfully." %}
+            {{ request.user.email }} {% trans "Verified successfully." %}
             <br>
-            <a href="{% url 'common:home' %}">{% trans "back to your home page." %}</a>
+            <a href="{{ request.session.next_url | default:'/' }}" class="button">{% trans 'Continue' %}</a>
           </p>
         {% else %}
           <p>
             {{ error }}
-            <a href="{% url 'users:login' %}">{% trans "login again" %}</a>
+            <a href="{% url 'users:login' %}">{% trans "Login again" %}</a>
           </p>
         {% endif %}
       </article>

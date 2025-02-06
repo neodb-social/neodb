@@ -111,7 +111,7 @@
         {% else %}
           <section>
             <p class="empty">
-              <span><a href="{% url 'users:login' %}?next={{ request.path }}">
+              <span><a href="{% url 'users:login' %}?next={{ request.path | urlencode }}">
                 {% trans 'Login or register to review or add this item to your collection.' %}
               </a></span>
             </p>
