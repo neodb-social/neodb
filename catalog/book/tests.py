@@ -226,6 +226,18 @@ class GoodreadsTestCase(TestCase):
         w2 = p2.item.works.all().first()
         self.assertEqual(w1, w2)
 
+    @use_local_response
+    def test_series(self):
+        url = "https://www.goodreads.com/series/296697"
+        p = SiteManager.get_site_by_url(url).get_resource_ready()
+        self.assertEqual(p.item.display_title, "时代三部曲 Series")
+        url1 = "https://www.goodreads.com/book/show/59952545-golden-age"
+        url2 = "https://www.goodreads.com/book/show/17380719"
+        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        self.assertEqual(p.item.works.all().count(), 2)
+        self.assertEqual(p1.item.parent_item, p2.item.parent_item)
+
 
 class GoogleBooksTestCase(TestCase):
     databases = "__all__"
@@ -497,6 +509,24 @@ class BangumiTestCase(TestCase):
         self.assertEqual(site.resource.item.isbn, "9784088827827")
         self.assertEqual(site.resource.item.pages, "144")
         self.assertEqual(site.resource.item.price, "￥484")
+
+    @use_local_response
+    def test_series_scrape(self):
+        t_url = "https://bgm.tv/subject/37782"
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(site.resource.site_name, SiteName.Bangumi)
+        self.assertEqual(site.resource.id_type, IdType.Bangumi)
+        self.assertEqual(site.resource.id_value, "37782")
+        self.assertEqual(site.resource.item.localized_title[0]["text"], "来自新世界")
+        e1_url = "https://bgm.tv/subject/37783"
+        e2_url = "https://bgm.tv/subject/37784"
+        e1 = SiteManager.get_site_by_url(e1_url).get_resource_ready()
+        e2 = SiteManager.get_site_by_url(e2_url).get_resource_ready()
+        self.assertEqual(site.resource.item.works.all().count(), 2)
+        self.assertEqual(e1.item.parent_item, e2.item.parent_item)
 
 
 class MultiBookSitesTestCase(TestCase):

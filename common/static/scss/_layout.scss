@@ -29,12 +29,13 @@
   }
 }
 
-.item-page:not(:has(.left)) main .middle {
-  margin: 4%;
-  width: 67%;
-}
 
 .item-page {
+  main:not(:has(.left))  .middle {
+    margin: 4%;
+    width: 67%;
+  }
+
   main {
     // width: 100vw;
     padding: calc(1*var(--pico-spacing)) calc(3*var(--pico-spacing));
@@ -63,6 +64,14 @@
 
 
   @media (max-width: 768px) {
+     main:not(:has(.left)) .middle {
+      float: none;
+      clear: none;
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
     main {
       display: flex;
       flex-flow: column nowrap;
