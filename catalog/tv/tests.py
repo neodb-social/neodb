@@ -284,3 +284,24 @@ class IMDBTestCase(TestCase):
         self.assertEqual(site.resource.item.imdb, "tt10751820")
         self.assertEqual(site.resource.item.season_number, 2)
         self.assertEqual(site.resource.item.episode_number, 1)
+
+
+class BangumiTVTestCase(TestCase):
+    databases = "__all__"
+
+    @use_local_response
+    def test_scrape(self):
+        url1 = "https://bgm.tv/subject/7157"
+        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
+        self.assertEqual(p1.item.__class__.__name__, "TVSeason")
+        self.assertEqual(p1.item.orig_title, "ヨスガノソラ")
+        self.assertEqual(p1.item.site, "http://king-cr.jp/special/yosuganosora/")
+        self.assertEqual(p1.item.director, ["高橋丈夫"])
+
+        url2 = "https://bgm.tv/subject/253"
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        self.assertEqual(p2.item.__class__.__name__, "TVSeason")
+        self.assertEqual(p2.item.orig_title, "カウボーイビバップ")
+        self.assertEqual(p2.item.site, "http://www.cowboybebop.org/")
+        self.assertEqual(p2.item.director, ["渡辺信一郎"])
+        self.assertEqual(p2.item.episode_count, 26)

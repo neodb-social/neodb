@@ -265,7 +265,11 @@ class Bangumi(AbstractSite):
                         else ([v] if isinstance(v, str) else [])
                     )
                 case "官方网站" | "website":
-                    site = v[0] if isinstance(v, list) else v
+                    site = (
+                        v[0]["v"]
+                        if isinstance(v, list)
+                        else (v if isinstance(v, str) else None)
+                    )
                 case "页数":
                     pages = v
                 case "价格":
