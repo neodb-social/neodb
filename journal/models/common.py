@@ -6,6 +6,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Self
 
 import django_rq
+from atproto_client.request import exceptions
 
 # from deepmerge import always_merger
 from django.conf import settings
@@ -403,7 +404,22 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                     bluesky.delete_post(post_id)
                 except Exception as e:
                     logger.warning(f"Delete {bluesky} post {post_id} error {e}")
-        r = bluesky.post(**params)
+        r = None
+        try:
+            r = bluesky.post(**params)
+        except exceptions.BadRequestError:
+            messages.error(
+                bluesky.user,
+                _(
+                    "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
+                ),
+                meta={
+                    "url": settings.SITE_INFO["site_url"]
+                    + "/account/login?method=atproto"
+                },
+            )
+        except Exception as e:
+            logger.warning(f"Post to {bluesky} error {e}")
         if r:
             self.metadata.update({"bluesky_" + k: v for k, v in r.items()})
         return True
