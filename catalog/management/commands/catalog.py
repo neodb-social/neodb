@@ -1,15 +1,40 @@
+import json
 import time
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
 from django.db.models import Count, F
 from tqdm import tqdm
 
 from catalog.common.sites import SiteManager
-from catalog.models import Edition, Item, Podcast, TVSeason, TVShow
+from catalog.index import CatalogIndex, CatalogQueryParser
+from catalog.models import (
+    Edition,
+    Item,
+    Podcast,
+    TVSeason,
+    TVShow,
+)
 from catalog.search.external import ExternalSources
 from catalog.sites.fedi import FediverseInstance
 from common.models import detect_language, uniq
+
+_CONFIRM = "confirm deleting collection? [Y/N] "
+_HELP_TEXT = """
+intergrity:     check and fix integrity for merged and deleted items
+purge:          purge deleted items
+migrate:        run migration
+search:         search docs in index
+extsearch:      search external sites
+idx-info:       show index information
+idx-init:       check and create index if not exists
+idx-destroy:    delete index
+idx-alt:        update index schema
+idx-delete:     delete docs in index
+idx-reindex:    reindex docs
+idx-get:        dump one doc with --url
+"""
 
 
 class Command(BaseCommand):
@@ -17,7 +42,22 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--extsearch",
+            "action",
+            choices=[
+                "integrity",
+                "purge",
+                "migrate",
+                "search",
+                "extsearch",
+                "idx-info",
+                "idx-init",
+                "idx-alt",
+                "idx-destroy",
+                "idx-reindex",
+                "idx-delete",
+                "idx-get",
+            ],
+            help=_HELP_TEXT,
         )
         parser.add_argument(
             "--category",
@@ -32,53 +72,40 @@ class Command(BaseCommand):
             action="store_true",
         )
         parser.add_argument(
-            "--purge",
+            "--yes",
             action="store_true",
-            help="purge deleted items",
         )
         parser.add_argument(
-            "--localize",
-            action="store_true",
-            help="migrate localized title/description",
+            "--query",
         )
         parser.add_argument(
-            "--integrity",
-            action="store_true",
-            help="check and fix integrity for merged and deleted items",
+            "--url",
         )
         parser.add_argument(
-            "--migrate",
-            help="run migration",
+            "--batch-size",
+            default=1000,
+        )
+        parser.add_argument(
+            "--name",
+            help="name of migration",
         )
 
-    def handle(self, *args, **options):
-        self.verbose = options["verbose"]
-        self.fix = options["fix"]
-        if options["purge"]:
-            self.purge()
-        if options["integrity"]:
-            self.integrity()
-        if options["localize"]:
-            self.localize()
-        if options["extsearch"]:
-            self.external_search(options["extsearch"], options["category"])
-        if options["migrate"]:
-            match options["migrate"]:
-                case "merge_works":
-                    from catalog.common.migrations import merge_works_20250301
+    def migrate(self, m):
+        match m:
+            case "merge_works":
+                from catalog.common.migrations import merge_works_20250301
 
-                    merge_works_20250301()
-                case "fix_deleted_edition":
-                    from catalog.common.migrations import fix_20250208
+                merge_works_20250301()
+            case "fix_deleted_edition":
+                from catalog.common.migrations import fix_20250208
 
-                    fix_20250208()
-                case "fix_bangumi":
-                    from catalog.common.migrations import fix_bangumi_20250420
+                fix_20250208()
+            case "fix_bangumi":
+                from catalog.common.migrations import fix_bangumi_20250420
 
-                    fix_bangumi_20250420()
-                case _:
-                    self.stdout.write(self.style.ERROR("Unknown migration."))
-        self.stdout.write(self.style.SUCCESS("Done."))
+                fix_bangumi_20250420()
+            case _:
+                self.stdout.write(self.style.ERROR("Unknown migration."))
 
     def external_search(self, q, cat):
         sites = SiteManager.get_sites_for_search()
@@ -234,3 +261,84 @@ class Command(BaseCommand):
             if self.fix:
                 i.show = i.show.merged_to_item
                 i.save()
+
+    def handle(
+        self, action, query, yes, category, batch_size, url, name, *args, **options
+    ):
+        self.verbose = options["verbose"]
+        self.fix = options["fix"]
+        index = CatalogIndex.instance()
+        match action:
+            case "integrity":
+                self.integrity()
+
+            case "purge":
+                self.purge()
+
+            case "extsearch":
+                self.external_search(query, category)
+
+            case "idx-destroy":
+                if yes or input(_CONFIRM).upper().startswith("Y"):
+                    index.delete_collection()
+                    self.stdout.write(self.style.SUCCESS("deleted."))
+
+            case "idx-alt":
+                # index.update_schema()
+                self.stdout.write(self.style.SUCCESS("not implemented."))
+
+            case "idx-init":
+                index.initialize_collection()
+                self.stdout.write(self.style.SUCCESS("initialized."))
+
+            case "idx-info":
+                try:
+                    r = index.check()
+                    self.stdout.write(str(r))
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(str(e)))
+
+            case "idx-delete":
+                c = index.delete_all()
+                self.stdout.write(self.style.SUCCESS(f"deleted {c} documents."))
+
+            case "idx-reindex":
+                items = Item.objects.filter(
+                    is_deleted=False, merged_to_item_id__isnull=True
+                ).order_by("id")
+                c = 0
+                pg = Paginator(items, batch_size)
+                for p in tqdm(pg.page_range):
+                    docs = index.items_to_docs(pg.get_page(p).object_list)
+                    c += len(docs)
+                    index.replace_docs(docs)
+                self.stdout.write(self.style.SUCCESS(f"indexed {c} docs."))
+
+            case "idx-get":
+                item = Item.get_by_url(url)
+                if not item:
+                    self.stderr.write(self.style.ERROR("item not found."))
+                else:
+                    d = index.get_doc(item.pk)
+                    self.stdout.write(json.dumps(d, indent=2))
+
+            case "search":
+                q = CatalogQueryParser("" if query == "-" else query, page_size=100)
+                # if category:
+                #     q.filter("category", category)
+                r = index.search(q)
+                self.stdout.write(self.style.SUCCESS(str(r)))
+                self.stdout.write(f"{r.facet_by_item_class}")
+                for i in r:
+                    self.stdout.write(str(i))
+
+            case "migrate":
+                if not name:
+                    self.stdout.write(self.style.ERROR("name is required."))
+                    return
+                self.migrate(name)
+
+            case _:
+                self.stdout.write(self.style.ERROR("action not found."))
+
+        self.stdout.write(self.style.SUCCESS("Done."))

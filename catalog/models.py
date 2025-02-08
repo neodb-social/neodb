@@ -44,7 +44,7 @@ from .tv.models import (
 )
 
 from .search.models import Indexer, ExternalSearchResultItem  # isort:skip
-
+from .index import CatalogIndex, CatalogQueryParser, CatalogSearchResult
 
 # class Exhibition(Item):
 
@@ -151,4 +151,7 @@ __all__ = [
     "Indexer",
     "init_catalog_search_models",
     "init_catalog_audit_log",
+    "CatalogIndex",
+    "CatalogQueryParser",
+    "CatalogSearchResult",
 ]

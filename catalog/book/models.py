@@ -231,6 +231,29 @@ class Edition(Item):
         titles += [t for t in self.other_title if t]  # type: ignore
         return list(set(titles))
 
+    def to_indexable_people(self) -> list[str]:
+        return self.author + self.translator
+
+    def to_indexable_company(self) -> list[str]:
+        return ([self.pub_house] if self.pub_house else []) + (
+            [self.imprint] if self.imprint else []
+        )
+
+    def to_indexable_doc(self) -> dict[str, str | int | list[str]]:
+        d = super().to_indexable_doc()
+        ids = [str(self.isbn)] if self.isbn else []
+        if self.asin:
+            ids.append(str(self.asin))
+        if ids:
+            d["lookup_id"] = ids
+        if self.pub_year:
+            d["year"] = self.pub_year
+        if self.series:
+            d["extra_title"] = [self.series]
+        if self.format:
+            d["subtype"] = [self.format]
+        return d
+
     @property
     def isbn10(self):
         return isbn_13_to_10(self.isbn)

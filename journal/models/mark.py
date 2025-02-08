@@ -305,3 +305,15 @@ class Mark:
 
     def delete_all_logs(self):
         self.logs.delete()
+
+    @staticmethod
+    def get_mark_count_for_item(item: Item) -> int:
+        if item.get_type() in ["Podcast", "TVSeason"]:
+            return (
+                ShelfMember.objects.filter(item_id__in=item.child_item_ids + [item.pk])
+                .values("owner_id")
+                .distinct()
+                .count()
+            )
+        else:
+            return ShelfMember.objects.filter(item=item).count()

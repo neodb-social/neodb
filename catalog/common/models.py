@@ -18,6 +18,7 @@ from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
 from catalog.common import jsondata
+from catalog.index import CatalogIndex
 from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, get_current_locales, uniq
 
 from .utils import item_cover_path, resource_cover_path
@@ -669,6 +670,33 @@ class Item(PolymorphicModel):
             titles += self.parent_item.to_indexable_titles()
         return list(set(titles))
 
+    def to_indexable_people(self) -> list[str]:
+        return []
+
+    def to_indexable_company(self) -> list[str]:
+        return []
+
+    def to_indexable_doc(self) -> dict[str, str | int | list[str]]:
+        return {
+            "id": str(self.pk),
+            "item_id": self.pk,
+            "item_class": self.__class__.__name__,
+            "title": self.to_indexable_titles(),
+            "people": self.to_indexable_people(),
+            "company": self.to_indexable_company(),
+            "tag": self.tags,
+            "mark_count": self.mark_count,
+        }
+
+    def update_index(self):
+        index = CatalogIndex.instance()
+        index.replace_item(self)
+        # CatalogIndex.enqueue_replace_items([self.pk])
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.update_index()
+
     @classmethod
     def get_by_url(cls, url_or_b62: str, resolve_merge=False) -> "Self | None":
         b62 = url_or_b62.strip().split("/")[-1]
@@ -771,12 +799,15 @@ class Item(PolymorphicModel):
         """Subclass should override this"""
         pass
 
-    def skip_index(self):
-        return False
-
     @property
     def editable(self):
         return not self.is_deleted and self.merged_to_item is None
+
+    @property
+    def mark_count(self):
+        from journal.models import Mark
+
+        return Mark.get_mark_count_for_item(self)
 
     @cached_property
     def rating_info(self):

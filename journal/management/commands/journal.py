@@ -29,13 +29,13 @@ _HELP_TEXT = """
 intergrity:     check and fix remaining journal for merged and deleted items
 purge:          delete invalid data (visibility=99)
 export:         run export task
+search:         search docs in index
 idx-info:       show index information
 idx-init:       check and create index if not exists
 idx-destroy:    delete index
 idx-alt:        update index schema
 idx-delete:     delete docs in index
 idx-reindex:    reindex docs
-idx-search:     search docs in index
 """
 
 
@@ -60,7 +60,7 @@ class Command(BaseCommand):
                 "idx-destroy",
                 "idx-reindex",
                 "idx-delete",
-                "idx-search",
+                "search",
             ],
             help=_HELP_TEXT,
         )
@@ -255,7 +255,7 @@ class Command(BaseCommand):
                 # index.insert_docs(docs)
                 # self.stdout.write(self.style.SUCCESS(f"indexed {c} posts."))
 
-            case "idx-search":
+            case "search":
                 q = JournalQueryParser("" if query == "-" else query, page_size=100)
                 if owners:
                     q.filter("owner_id", owners)
