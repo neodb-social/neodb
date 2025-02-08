@@ -74,15 +74,15 @@ alias neodb-manage='docker-compose --profile production run --rm shell neodb-man
 Toggle user's active, staff and super user status
 
 ```
-neodb-manage user active <username>
-neodb-manage user staff <username>
-neodb-manage user super <username>
+neodb-manage user --active <username>
+neodb-manage user --staff <username>
+neodb-manage user --super <username>
 ```
 
 Create an invite link
 
 ```
-neo-manage invite --create
+neodb-manage invite --create
 ```
 
 Manage user tasks and cron jobs
