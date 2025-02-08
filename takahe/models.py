@@ -789,23 +789,23 @@ class Identity(models.Model):
         else:
             return f"/proxy/identity_icon/{self.pk}/"
 
-    def local_image_url(self) -> RelativeAbsoluteUrl | None:
+    def local_image_url(self) -> str | None:
         """
         Returns a background image for us, returning None if there isn't one
         """
         if self.image:
-            return AutoAbsoluteUrl(self.image.url)
+            return AutoAbsoluteUrl(self.image.url).absolute
         elif self.image_uri:
             return ProxyAbsoluteUrl(
                 f"/proxy/identity_image/{self.pk}/",
                 remote_url=self.image_uri,
-            )
+            ).absolute
         return None
 
     def to_mastodon_json(self, source=False):
         missing = StaticAbsoluteUrl("img/missing.png").absolute
         header_image = self.local_image_url() or missing
-        icon_image = self.local_icon_url()
+        icon_image = self.local_icon_url() or missing
         metadata_value_text = (
             " ".join([m["value"] for m in self.metadata]) if self.metadata else ""
         )
