@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
+from django.core.exceptions import DisallowedHost
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -81,6 +82,9 @@ def nodeinfo2(request):
 
 
 def error_400(request, exception=None):
+    if isinstance(exception, DisallowedHost):
+        url = settings.SITE_INFO["site_url"] + request.get_full_path()
+        return redirect(url, permanent=True)
     return render(request, "400.html", status=400, context={"exception": exception})
 
 
