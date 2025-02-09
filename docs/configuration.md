@@ -79,6 +79,13 @@ neodb-manage user --staff <username>
 neodb-manage user --super <username>
 ```
 
+create a super user; delete a user / remote identity (`takahe-stator` and `neodb-worker` containers must be running to complete the deletion)
+```
+neodb-manage createsuperuser
+neodb-manage user --delete username
+neodb-manage user --delete username@remote.instance
+```
+
 Create an invite link
 
 ```
@@ -104,7 +111,7 @@ neodb-manage crawl <url>  # crawl all recognizable links from a page
 ```
 
 
-## Run without Docker
+## Run PostgresQL/Redis/Typesense without Docker
 
 It's currently possible but quite cumbersome to run without Docker, hence not recommended. However it's possible to only use docker to run neodb server but reuse existing PostgresQL/Redis/Typesense servers with `compose.override.yml`, an example for reference:
 
