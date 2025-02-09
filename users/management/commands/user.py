@@ -1,3 +1,5 @@
+from time import sleep
+
 import httpx
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
@@ -5,6 +7,7 @@ from tqdm import tqdm
 from takahe.models import Domain, Identity
 from takahe.utils import Takahe
 from users.models import Preference, User
+from users.models.apidentity import APIdentity
 
 
 class Command(BaseCommand):
@@ -48,6 +51,9 @@ class Command(BaseCommand):
             self.staff(options["staff"])
         if options["active"]:
             self.set_active(options["active"])
+        if options["delete"]:
+            if input("Are you sure to delete? [Y/N] ").startswith("Y"):
+                self.delete(options["delete"])
 
     def list(self, users):
         for user in users:
@@ -164,3 +170,34 @@ class Command(BaseCommand):
             u.is_active = not u.is_active
             u.save()
             self.stdout.write(f"update {u} is_active: {u.is_active}")
+
+    def delete(self, v):
+        for n in v:
+            try:
+                apid = APIdentity.get_by_handle(n)
+                if apid.deleted:
+                    self.stdout.write(f"{apid} already deleted, try anyway")
+                apid.clear()
+                if apid.user:
+                    apid.user.clear()
+                Takahe.request_delete_identity(apid.pk)
+                count_down = 10
+                while count_down > 0:
+                    i = Identity.objects.filter(pk=apid.pk).first()
+                    if i and i.state != "deleted_fanned_out":
+                        self.stdout.write(f"waiting for takahe-stator...{count_down}")
+                        sleep(1)
+                    else:
+                        break
+                    count_down -= 1
+                if count_down == 0:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"Identity {apid} was deleted, but some data in takahe has not been fully processed yet, make sure takahe-stator is running and wait a bit."
+                        )
+                    )
+                else:
+                    self.stdout.write(f"Deleted identity {apid}")
+            except APIdentity.DoesNotExist:
+                self.stdout.write(f"identity {n} not found")
+                continue

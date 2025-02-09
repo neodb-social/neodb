@@ -1,6 +1,5 @@
 from urllib.parse import quote
 
-import django_rq
 from django import forms
 from django.conf import settings
 from django.contrib import auth, messages
@@ -11,11 +10,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 
 from common.utils import AuthedHttpRequest
-from journal.models import remove_data_by_user
-from journal.models.index import JournalIndex
 from mastodon.models import Email, Mastodon
 from mastodon.models.common import Platform, SocialAccount
 from mastodon.models.email import EmailAccount
@@ -222,33 +218,28 @@ def auth_logout(request):
     return logout_takahe(redirect("/"))
 
 
-def clear_data_task(user_id):
-    user = User.objects.get(pk=user_id)
-    user_str = str(user)
-    if user.identity:
-        remove_data_by_user(user.identity)
-    Takahe.delete_identity(user.identity.pk)
-    user.clear()
-    index = JournalIndex.instance()
-    index.delete_by_owner(user.identity.pk)
-    logger.warning(f"User {user_str} data cleared.")
-
-
+@require_http_methods(["POST"])
 @login_required
 def clear_data(request):
+    # for deletion initiated by local identity in neodb:
+    # 1. clear user data
+    # 2. neodb send DeleteIdentity to Takahe
+    # 3. takahe delete identity and send identity_deleted to neodb
+    # 4. identity_deleted clear user (if not yet) and identity data
+    # 5. log web user out
+    # for deletion initiated by remote/local identity in takahe:
+    # just 3 & 4
     if request.META.get("HTTP_AUTHORIZATION"):
         raise BadRequest("Only for web login")
-    if request.method == "POST":
-        v = request.POST.get("verification", "").strip()
-        if v:
-            for acct in request.user.social_accounts.all():
-                if acct.handle == v:
-                    django_rq.get_queue("mastodon").enqueue(
-                        clear_data_task, request.user.id
-                    )
-                    messages.add_message(
-                        request, messages.INFO, _("Account is being deleted.")
-                    )
-                    return auth_logout(request)
-        messages.add_message(request, messages.ERROR, _("Account mismatch."))
+    v = request.POST.get("verification", "").strip()
+    if v:
+        for acct in request.user.social_accounts.all():
+            if acct.handle == v:
+                request.user.clear()
+                Takahe.request_delete_identity(request.user.identity.pk)
+                messages.add_message(
+                    request, messages.INFO, _("Account is being deleted.")
+                )
+                return auth_logout(request)
+    messages.add_message(request, messages.ERROR, _("Account mismatch."))
     return redirect(reverse("users:data"))

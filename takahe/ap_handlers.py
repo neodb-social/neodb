@@ -222,6 +222,18 @@ def post_uninteracted(interaction_pk, interaction, post_pk, identity_pk):
     ).delete()
 
 
+def identity_deleted(pk):
+    apid = APIdentity.objects.filter(pk=pk).first()
+    if not apid:
+        logger.warning(f"APIdentity {apid} not found")
+        return
+
+    logger.warning(f"handle deleting identity {apid}")
+    if apid.user and apid.user.is_active:
+        apid.user.clear()  # for local identity, clear their user as well
+    apid.clear()
+
+
 def identity_fetched(pk):
     try:
         identity = Identity.objects.get(pk=pk)

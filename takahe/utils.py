@@ -125,16 +125,20 @@ class Takahe:
         ).first()
 
     @staticmethod
-    def delete_identity(identity_pk: int):
-        identity = Identity.objects.filter(pk=identity_pk).first()
-        if not identity:
-            logger.warning(f"Cannot find identity {identity_pk}")
-            return
-        logger.warning(f"Deleting identity {identity}")
-        identity.state = "deleted"
-        identity.deleted = timezone.now()
-        identity.state_next_attempt = timezone.now()
-        identity.save()
+    def request_delete_identity(identity_pk: int):
+        from journal.models import remove_data_by_identity
+        from users.models import APIdentity
+
+        i = Identity.objects.filter(pk=identity_pk).first()
+        if i:
+            InboxMessage.create_internal(
+                {"type": "DeleteIdentity", "actor": i.actor_uri}
+            )
+            logger.warning(f"Requested identity {i} deletion")
+        else:
+            logger.error(f"Identity {i} not found, force delete APIdentity")
+            apid = APIdentity.objects.get(pk=identity_pk)
+            remove_data_by_identity(apid)
 
     @staticmethod
     def create_internal_message(message: dict):
