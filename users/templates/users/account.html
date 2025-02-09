@@ -300,6 +300,27 @@
         {% if allow_any_site %}
           <article>
             <details>
+              <summary>{% trans 'Migrate Account' %}</summary>
+              <p>
+                {% if not user.email_account %}
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  {% trans "Linking an email to your account is highly recommended before migrating from another Fediverse instance." %}
+                {% endif %}
+                <div>
+                  <form action="/@{{ request.user.identity.handle }}/settings/migrate_in/">
+                    <button>{% trans "Migrate from anther instance to here" %}</button>
+                  </form>
+                </p>
+                <p>
+                  <form action="/@{{ request.user.identity.handle }}/settings/migrate_out/">
+                    <button>{% trans "Migrate to another instance" %}</button>
+                  </form>
+                </div>
+              </p>
+            </details>
+          </article>
+          <article>
+            <details>
               <summary>{% trans 'Delete Account' %}</summary>
               <form action="{% url 'users:clear_data' %}"
                     method="post"
