@@ -174,6 +174,7 @@ class Command(BaseCommand):
 
     def delete(self, v):
         for n in v:
+            identity_id = None
             try:
                 apid = APIdentity.get_by_handle(n)
                 if apid.deleted:
@@ -182,9 +183,21 @@ class Command(BaseCommand):
                 if apid.user:
                     apid.user.clear()
                 Takahe.request_delete_identity(apid.pk)
+                identity_id = apid.pk
+            except APIdentity.DoesNotExist:
+                s = n.split("@")
+                r = False
+                if len(s) == 2:
+                    identity = Takahe.get_identity_by_handler(s[0], s[1])
+                    if identity:
+                        r = Takahe.request_delete_identity(identity.pk)
+                        identity_id = identity.pk
+                if not r:
+                    self.stdout.write(self.style.ERROR(f"identity {n} not found"))
+            if identity_id:
                 count_down = 10
                 while count_down > 0:
-                    i = Identity.objects.filter(pk=apid.pk).first()
+                    i = Identity.objects.filter(pk=identity_id).first()
                     if i and i.state != "deleted_fanned_out":
                         self.stdout.write(f"waiting for takahe-stator...{count_down}")
                         sleep(1)
@@ -194,11 +207,8 @@ class Command(BaseCommand):
                 if count_down == 0:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"Identity {apid} was deleted, but some data in takahe has not been fully processed yet, make sure takahe-stator is running and wait a bit."
+                            f"Identity {n} was deleted, but some data in takahe has not been fully processed yet, make sure takahe-stator is running and wait a bit."
                         )
                     )
                 else:
-                    self.stdout.write(f"Deleted identity {apid}")
-            except APIdentity.DoesNotExist:
-                self.stdout.write(f"identity {n} not found")
-                continue
+                    self.stdout.write(f"Deleted identity {n}")
