@@ -29,38 +29,7 @@
       </div>
       {% include "_pagination.html" %}
       {% block sidebar %}
-        <aside class="grid__aside bottom">
-          <p>
-            {% trans 'Addtional filters may be added to query:' %}
-            <li>
-              <code>status:complete</code> - {% trans 'filter by status, one of wishlist/progress/complete/dropped' %}
-            </li>
-            <li>
-              <code>rating:6..8</code> - {% trans 'filter by rating range' %}
-            </li>
-            <li>
-              <code>rating:0</code> - {% trans 'filter unrated' %}
-            </li>
-            <li>
-              <code>tag:scifi</code> - {% trans 'filter by tag' %}
-            </li>
-            <li>
-              <code>category:tv</code> - {% trans 'filter by category, one of movie/tv/book/music/game/performance/podcast' %}
-            </li>
-            <li>
-              <code>type:note</code> - {% trans 'filter by type, one of mark/comment/review/collection/note' %}
-            </li>
-            <li>
-              <code>date:2021-9-11</code> - {% trans 'filter by date' %}
-            </li>
-            <li>
-              <code>date:2022-2</code> - {% trans 'filter by month' %}
-            </li>
-            <li>
-              <code>date:2022..2023</code> - {% trans 'filter by date range' %}
-            </li>
-          </p>
-        </aside>
+        {% include '_sidebar_search_journal.html' %}
       {% endblock %}
     </main>
     {% include '_footer.html' %}

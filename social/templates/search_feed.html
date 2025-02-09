@@ -29,7 +29,9 @@
         </div>
       </div>
     </div>
-    {% include "_sidebar.html" with show_progress=1 identity=request.user.identity %}
+    {% block sidebar %}
+      {% include '_sidebar_search_journal.html' %}
+    {% endblock %}
   </main>
   {% include "_footer.html" %}
 </body>

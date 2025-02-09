@@ -413,6 +413,7 @@ SUPPORTED_UI_LANGUAGES = {
     "de": _("German"),
     "fr": _("French"),
     "it": _("Italian"),
+    "pt": _("Portuguese"),
     "zh-hans": _("Simplified Chinese"),
     "zh-hant": _("Traditional Chinese"),
 }
