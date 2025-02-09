@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
                     ("journal.doufenexporter", "doufen exporter"),
                     ("journal.goodreadsimporter", "goodreads importer"),
                     ("journal.letterboxdimporter", "letterboxd importer"),
+                    ("journal.ndjsonexporter", "ndjson exporter"),
                 ],
                 db_index=True,
                 max_length=255,

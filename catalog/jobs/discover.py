@@ -111,6 +111,7 @@ class DiscoverGenerator(BaseJob):
                 )
                 item_ids = extra_ids + item_ids
             items = [Item.objects.get(pk=i) for i in item_ids]
+            items = [i for i in items if not i.is_deleted and not i.merged_to_item_id]
             if category == ItemCategory.TV:
                 items = self.cleanup_shows(items)
             key = "trending_" + category.value

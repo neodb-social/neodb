@@ -20,4 +20,14 @@ class Migration(migrations.Migration):
             },
             bases=("users.task",),
         ),
+        migrations.CreateModel(
+            name="NdjsonExporter",
+            fields=[],
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
+            bases=("users.task",),
+        ),
     ]
