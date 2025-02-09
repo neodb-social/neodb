@@ -850,6 +850,14 @@ class Identity(models.Model):
         }
         return result
 
+    def to_mastodon_mention_json(self):
+        return {
+            "id": str(self.pk),
+            "username": self.username or "",
+            "url": self.absolute_profile_uri() or "",
+            "acct": self.handle or "",
+        }
+
 
 class Follow(models.Model):
     """
