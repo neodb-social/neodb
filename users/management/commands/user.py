@@ -17,6 +17,7 @@ class Command(BaseCommand):
         parser.add_argument("--list", action="store_true", help="list all users")
         parser.add_argument("--verbose", action="store_true")
         parser.add_argument("--fix", action="store_true")
+        parser.add_argument("--delete", action="store", nargs="*", help="delete user")
         parser.add_argument(
             "--integrity",
             action="store_true",

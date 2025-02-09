@@ -1,5 +1,6 @@
 from urllib.parse import quote
 
+import django_rq
 from django import forms
 from django.conf import settings
 from django.contrib import auth, messages
@@ -218,25 +219,30 @@ def auth_logout(request):
     return logout_takahe(redirect("/"))
 
 
-@require_http_methods(["POST"])
-@login_required
-def clear_data(request):
-    # for deletion initiated by local identity in neodb:
+def initiate_user_deletion(user):
+    # for deletion initiated by local user in neodb:
     # 1. clear user data
     # 2. neodb send DeleteIdentity to Takahe
     # 3. takahe delete identity and send identity_deleted to neodb
     # 4. identity_deleted clear user (if not yet) and identity data
-    # 5. log web user out
     # for deletion initiated by remote/local identity in takahe:
     # just 3 & 4
+    user.clear()
+    r = Takahe.request_delete_identity(user.identity.pk)
+    if not r:
+        django_rq.get_queue("mastodon").enqueue(user.identity.clear)
+
+
+@require_http_methods(["POST"])
+@login_required
+def clear_data(request):
     if request.META.get("HTTP_AUTHORIZATION"):
         raise BadRequest("Only for web login")
     v = request.POST.get("verification", "").strip()
     if v:
         for acct in request.user.social_accounts.all():
             if acct.handle == v:
-                request.user.clear()
-                Takahe.request_delete_identity(request.user.identity.pk)
+                initiate_user_deletion(request.user)
                 messages.add_message(
                     request, messages.INFO, _("Account is being deleted.")
                 )
