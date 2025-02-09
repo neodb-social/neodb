@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 13:23-0500\n"
+"POT-Creation-Date: 2025-02-09 13:45-0500\n"
 "PO-Revision-Date: 2025-01-31 09:18+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hant/>\n"
@@ -4479,15 +4479,17 @@ msgstr "建議關聯電子郵件後再從其他實例遷入。"
 
 #: users/templates/users/account.html:311
 msgid "Migrate from anther instance to here"
-msgstr ""
-
-#: users/templates/users/account.html:311
-msgid "Migrate from anther instance to here"
 msgstr "從其他實例遷移到本站"
 
 #: users/templates/users/account.html:316
 msgid "Migrate to another instance"
 msgstr "從本站遷移到其他實例"
+
+#: users/templates/users/account.html:324
+#, fuzzy
+#| msgid "Migrate Account"
+msgid "Delete Account"
+msgstr "遷移帳號"
 
 #: users/templates/users/account.html:327
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
