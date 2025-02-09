@@ -120,3 +120,11 @@ def console(request):
         "openapi_json_url": reverse(f"{api.urls_namespace}:openapi-json"),
     }
     return render(request, "console.html", context)
+
+
+def signup(request, code: str | None = None):
+    if request.user.is_authenticated:
+        return redirect(reverse("common:home"))
+    if code:
+        return redirect(reverse("users:login") + "?invite=" + code)
+    return redirect(reverse("users:login"))
