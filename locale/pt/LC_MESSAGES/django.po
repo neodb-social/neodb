@@ -1,157 +1,158 @@
-# NeoDB Translation.
-# Copyright (C) 2024 NeoDB Developers
-# This file is distributed under the same license as the NeoDB package.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-01-13 22:19-0500\n"
-"PO-Revision-Date: 2025-01-31 09:18+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
-"Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
-"projects/neodb/neodb/zh_Hant/>\n"
-"Language: zh_Hant\n"
+"PO-Revision-Date: 2025-02-03 19:01+0000\n"
+"Last-Translator: Deleted User <noreply+104518@weblate.org>\n"
+"Language-Team: Portuguese <https://hosted.weblate.org/projects/neodb/neodb/"
+"pt/>\n"
+"Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
 "X-Generator: Weblate 5.10-dev\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
-msgstr "英語"
+msgstr "Inglês"
 
 #: boofilsic/settings.py:415 common/models/lang.py:63
 msgid "Danish"
-msgstr "丹麥語"
+msgstr "Dinamarquês"
 
 #: boofilsic/settings.py:416 common/models/lang.py:64
 msgid "German"
-msgstr "德語"
+msgstr "Alemão"
 
 #: boofilsic/settings.py:417 common/models/lang.py:73
 msgid "French"
-msgstr "法語"
+msgstr "Francês"
 
 #: boofilsic/settings.py:418 common/models/lang.py:98
 msgid "Italian"
-msgstr "意大利語"
+msgstr "Italiano"
 
 #: boofilsic/settings.py:419
 msgid "Simplified Chinese"
-msgstr "簡體中文"
+msgstr "Chinês Simplificado"
 
 #: boofilsic/settings.py:420
 msgid "Traditional Chinese"
-msgstr "繁體中文"
+msgstr "Chinês tradicional"
 
 #: catalog/book/models.py:77 catalog/book/models.py:96
 #: catalog/common/models.py:289 catalog/common/models.py:307
 msgid "locale"
-msgstr "區域語言"
+msgstr ""
 
 #: catalog/book/models.py:80 catalog/book/models.py:99
 #: catalog/common/models.py:292 catalog/common/models.py:312
 msgid "text content"
-msgstr "文本內容"
+msgstr ""
 
 #: catalog/book/models.py:114
 msgid "Paperback"
-msgstr "平裝"
+msgstr "Livro de bolso (Capa mole)"
 
 #: catalog/book/models.py:115
 msgid "Hardcover"
-msgstr "精裝"
+msgstr "Capa dura"
 
 #: catalog/book/models.py:116
 msgid "eBook"
-msgstr "電子書"
+msgstr "eBook"
 
 #: catalog/book/models.py:117
 msgid "Audiobook"
-msgstr "有聲書"
+msgstr "Audiobook"
 
 #: catalog/book/models.py:119
 msgid "Web Fiction"
-msgstr "網絡作品"
+msgstr "Ficção Web"
 
 #: catalog/book/models.py:120 catalog/game/models.py:28
 msgid "Other"
-msgstr "其它"
+msgstr "Outro"
 
 #: catalog/book/models.py:157
 msgid "subtitle"
-msgstr "副標題"
+msgstr "subtítulo"
 
 #: catalog/book/models.py:167 catalog/movie/models.py:66
 #: catalog/performance/models.py:257 catalog/tv/models.py:135
 #: catalog/tv/models.py:298
 msgid "original title"
-msgstr "原名"
+msgstr "título original"
 
 #: catalog/book/models.py:171 catalog/game/models.py:73
 #: catalog/movie/models.py:69 catalog/music/models.py:89
 #: catalog/performance/models.py:115 catalog/performance/models.py:260
 #: catalog/tv/models.py:139 catalog/tv/models.py:301
 msgid "other title"
-msgstr "其它標題"
+msgstr "outro título"
 
 #: catalog/book/models.py:177 catalog/book/models.py:362
 msgid "author"
-msgstr "作者"
+msgstr "autor"
 
 #: catalog/book/models.py:184
 msgid "translator"
-msgstr "譯者"
+msgstr ""
 
 #: catalog/book/models.py:191 catalog/templates/edition.html:26
 msgid "book format"
-msgstr "格式"
+msgstr "formato do livro"
 
 #: catalog/book/models.py:198 catalog/templates/edition.html:32
 msgid "publishing house"
-msgstr "出版社"
+msgstr "editora"
 
 #: catalog/book/models.py:201
 msgid "publication year"
-msgstr "發行年份"
+msgstr "ano de publicação"
 
 #: catalog/book/models.py:207
 msgid "publication month"
-msgstr "發行月份"
+msgstr "mês de publicação"
 
 #: catalog/book/models.py:212 catalog/templates/edition.html:54
 msgid "binding"
-msgstr "裝訂"
+msgstr ""
 
 #: catalog/book/models.py:213
 msgid "pages"
-msgstr "頁數"
+msgstr "páginas"
 
 #: catalog/book/models.py:214 catalog/templates/edition.html:48
 msgid "series"
-msgstr "叢書"
+msgstr "séries"
 
 #: catalog/book/models.py:215
 msgid "contents"
-msgstr "目錄"
+msgstr "conteúdos"
 
 #: catalog/book/models.py:216 catalog/templates/edition.html:59
 msgid "price"
-msgstr "價格"
+msgstr "preço"
 
 #: catalog/book/models.py:217 catalog/templates/edition.html:37
 msgid "imprint"
-msgstr "出品方"
+msgstr ""
 
 #: catalog/common/models.py:33
 msgid "Unknown"
-msgstr "未知"
+msgstr "Desconhecido"
 
 #: catalog/common/models.py:34
 msgid "Douban"
-msgstr "豆瓣"
+msgstr "Douban"
 
 #: catalog/common/models.py:35 catalog/common/models.py:75
 msgid "Goodreads"
@@ -159,11 +160,11 @@ msgstr "Goodreads"
 
 #: catalog/common/models.py:36 catalog/common/models.py:77
 msgid "Google Books"
-msgstr "谷歌圖書"
+msgstr "Google Books"
 
 #: catalog/common/models.py:37
 msgid "BooksTW"
-msgstr "博客來"
+msgstr "BooksTW"
 
 #: catalog/common/models.py:38 catalog/common/models.py:70
 #: catalog/templates/movie.html:51 catalog/templates/tvseason.html:68
@@ -209,31 +210,31 @@ msgstr "Discogs"
 
 #: catalog/common/models.py:49 catalog/common/models.py:102
 msgid "Apple Music"
-msgstr "蘋果音樂"
+msgstr "Apple Music"
 
 #: catalog/common/models.py:50 catalog/common/models.py:103
 msgid "Fediverse"
-msgstr "聯邦宇宙"
+msgstr "Fediverso"
 
 #: catalog/common/models.py:51 catalog/common/models.py:104
 msgid "Qidian"
-msgstr "起點"
+msgstr "Qidian"
 
 #: catalog/common/models.py:52 catalog/common/models.py:105
 msgid "Ypshuo"
-msgstr "閱評說"
+msgstr "Ypshuo"
 
 #: catalog/common/models.py:53 catalog/common/models.py:106
 msgid "Archive of Our Own"
-msgstr "AO3"
+msgstr ""
 
 #: catalog/common/models.py:54 catalog/common/models.py:107
 msgid "JinJiang"
-msgstr "晉江文學"
+msgstr "JinJiang"
 
 #: catalog/common/models.py:58
 msgid "WikiData"
-msgstr "維基數據"
+msgstr "WikiData"
 
 #: catalog/common/models.py:59
 msgid "ISBN10"
@@ -253,7 +254,7 @@ msgstr "ISSN"
 
 #: catalog/common/models.py:63
 msgid "CUBN"
-msgstr "統一書號"
+msgstr "CUBN"
 
 #: catalog/common/models.py:64
 msgid "ISRC"
@@ -261,317 +262,321 @@ msgstr "ISRC"
 
 #: catalog/common/models.py:67
 msgid "GTIN UPC EAN"
-msgstr "條形碼"
+msgstr "GTIN UPC EAN"
 
 #: catalog/common/models.py:69
 msgid "RSS Feed URL"
-msgstr "RSS網址"
+msgstr "URL do RSS Feed"
 
 #: catalog/common/models.py:71
 msgid "TMDB TV Serie"
-msgstr "TMDB電視劇集"
+msgstr ""
 
 #: catalog/common/models.py:72
 msgid "TMDB TV Season"
-msgstr "TMDB電視分季"
+msgstr ""
 
 #: catalog/common/models.py:73
 msgid "TMDB TV Episode"
-msgstr "TMDB電視單集"
+msgstr ""
 
 #: catalog/common/models.py:74
 msgid "TMDB Movie"
-msgstr "TMDB電影"
+msgstr ""
 
 #: catalog/common/models.py:76
 msgid "Goodreads Work"
-msgstr "Goodreads著作"
+msgstr ""
 
 #: catalog/common/models.py:78
 msgid "Douban Book"
-msgstr "豆瓣圖書"
+msgstr ""
 
 #: catalog/common/models.py:79
 msgid "Douban Book Work"
-msgstr "豆瓣圖書著作"
+msgstr ""
 
 #: catalog/common/models.py:80
 msgid "Douban Movie"
-msgstr "豆瓣電影"
+msgstr ""
 
 #: catalog/common/models.py:81
 msgid "Douban Music"
-msgstr "豆瓣音樂"
+msgstr ""
 
 #: catalog/common/models.py:82
 msgid "Douban Game"
-msgstr "豆瓣遊戲"
+msgstr ""
 
 #: catalog/common/models.py:83
 msgid "Douban Drama"
-msgstr "豆瓣舞臺劇"
+msgstr ""
 
 #: catalog/common/models.py:84
 msgid "Douban Drama Version"
-msgstr "豆瓣舞臺劇版本"
+msgstr ""
 
 #: catalog/common/models.py:85
 msgid "BooksTW Book"
-msgstr "博客來圖書"
+msgstr ""
 
 #: catalog/common/models.py:87
 msgid "Spotify Album"
-msgstr "Spotify專輯"
+msgstr ""
 
 #: catalog/common/models.py:88
 msgid "Spotify Podcast"
-msgstr "Spotify播客"
+msgstr "Spotify Podcast"
 
 #: catalog/common/models.py:89
 msgid "Discogs Release"
-msgstr "Discogs發行"
+msgstr ""
 
 #: catalog/common/models.py:90
 msgid "Discogs Master"
-msgstr "Discogs作品"
+msgstr ""
 
 #: catalog/common/models.py:91
 msgid "MusicBrainz ID"
-msgstr "MusicBrainz ID"
+msgstr "ID (identidade) MusicBrainz"
 
 #: catalog/common/models.py:97
 msgid "IGDB Game"
-msgstr "IGDB遊戲"
+msgstr ""
 
 #: catalog/common/models.py:98
 msgid "BGG Boardgame"
-msgstr "BGG桌遊"
+msgstr ""
 
 #: catalog/common/models.py:99
 msgid "Steam Game"
-msgstr "Steam遊戲"
+msgstr ""
 
 #: catalog/common/models.py:101
 msgid "Apple Podcast"
-msgstr "蘋果播客"
+msgstr "Apple Podcast"
 
 #: catalog/common/models.py:123 catalog/common/models.py:140
 #: catalog/common/models.py:153 common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:31
 msgid "Book"
-msgstr "圖書"
+msgstr "Livro"
 
 #: catalog/common/models.py:124
 msgid "TV Serie"
-msgstr "電視劇集"
+msgstr ""
 
 #: catalog/common/models.py:125 catalog/templates/_sidebar_edit.html:140
 msgid "TV Season"
-msgstr "電視分季"
+msgstr ""
 
 #: catalog/common/models.py:126
 msgid "TV Episode"
-msgstr "電視單集"
+msgstr ""
 
 #: catalog/common/models.py:127 catalog/common/models.py:141
 #: catalog/common/models.py:154 catalog/templates/_sidebar_edit.html:133
 #: journal/templates/_sidebar_user_mark_list.html:34
 msgid "Movie"
-msgstr "電影"
+msgstr "Filme"
 
 #: catalog/common/models.py:128
 msgid "Album"
-msgstr "專輯"
+msgstr "Álbum"
 
 #: catalog/common/models.py:129 catalog/common/models.py:144
 #: catalog/common/models.py:157 common/templates/_header.html:41
 #: journal/templates/_sidebar_user_mark_list.html:47
 msgid "Game"
-msgstr "遊戲"
+msgstr "Jogo"
 
 #: catalog/common/models.py:130
 msgid "Podcast Program"
-msgstr "播客節目"
+msgstr "Programa de Podcast"
 
 #: catalog/common/models.py:131
 msgid "Podcast Episode"
-msgstr "播客單集"
+msgstr "Episódio de Podcast"
 
 #: catalog/common/models.py:132 catalog/common/models.py:146
 #: catalog/common/models.py:159 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:51
 msgid "Performance"
-msgstr "演出"
+msgstr ""
 
 #: catalog/common/models.py:133
 msgid "Production"
-msgstr "上演"
+msgstr "Produção"
 
 #: catalog/common/models.py:134
 msgid "Fanfic"
-msgstr "網文"
+msgstr "Fanfic"
 
 #: catalog/common/models.py:135 catalog/common/models.py:148
 msgid "Exhibition"
-msgstr "展覽"
+msgstr ""
 
 #: catalog/common/models.py:136 catalog/common/models.py:149
 #: journal/templates/collection.html:15 journal/templates/collection.html:25
 #: journal/templates/collection_edit.html:9
 #: journal/templates/collection_share.html:12
 msgid "Collection"
-msgstr "收藏單"
+msgstr "Coleção"
 
 #: catalog/common/models.py:142 catalog/common/models.py:155
 #: journal/templates/_sidebar_user_mark_list.html:37
 msgid "TV"
-msgstr "劇集"
+msgstr "TV"
 
 #: catalog/common/models.py:143 catalog/common/models.py:156
 #: common/templates/_header.html:37
 #: journal/templates/_sidebar_user_mark_list.html:44
 msgid "Music"
-msgstr "音樂"
+msgstr "Música"
 
 #: catalog/common/models.py:145 catalog/common/models.py:158
 #: catalog/templates/_sidebar_edit.html:152 common/templates/_header.html:33
 #: journal/templates/_sidebar_user_mark_list.html:41
 msgid "Podcast"
-msgstr "播客"
+msgstr "Podcast"
 
 #: catalog/common/models.py:147
 msgid "FanFic"
-msgstr "網文"
+msgstr "FanFic"
 
 #: catalog/common/models.py:331 catalog/tv/models.py:378
 #: users/models/user.py:113
 msgid "language"
-msgstr "語言"
+msgstr "idioma"
 
 #: catalog/common/models.py:354 catalog/common/models.py:385
 #: journal/models/collection.py:56
 msgid "title"
-msgstr "標題"
+msgstr "título"
 
 #: catalog/common/models.py:355 catalog/common/models.py:393
 #: journal/models/collection.py:57
 msgid "description"
-msgstr "描述"
+msgstr "descrição"
 
 #: catalog/common/models.py:357 catalog/forms.py:27
+#, fuzzy
 msgid "Primary ID Type"
-msgstr "主要標識類型"
+msgstr "Tipo de ID (Identificação) primário"
 
 #: catalog/common/models.py:360 catalog/forms.py:32
+#, fuzzy
 msgid "Primary ID Value"
-msgstr "主要標識數據"
+msgstr "Valor de ID (Identificação) primário"
 
 #: catalog/common/models.py:366
+#, fuzzy
 msgid "metadata"
-msgstr "元數據"
+msgstr "metadados"
 
 #: catalog/common/models.py:368
 msgid "cover"
-msgstr "封面"
+msgstr "capa"
 
 #: catalog/common/models.py:798
 msgid "source site"
-msgstr "來源站點"
+msgstr ""
 
 #: catalog/common/models.py:800
 msgid "ID on source site"
-msgstr "來源站點標識"
+msgstr ""
 
 #: catalog/common/models.py:802
 msgid "source url"
-msgstr "來源站點網址"
+msgstr ""
 
 #: catalog/common/models.py:818
 msgid "IdType of the source site"
-msgstr "來源站點的主要標識類型"
+msgstr ""
 
 #: catalog/common/models.py:824
 msgid "Primary Id on the source site"
-msgstr "來源站點的主要標識數據"
+msgstr ""
 
 #: catalog/common/models.py:827
 msgid "url to the resource"
-msgstr "指向外部資源的網址"
+msgstr ""
 
 #: catalog/game/models.py:20
 msgid "Main Game"
-msgstr "遊戲"
+msgstr ""
 
 #: catalog/game/models.py:21
 msgid "Expansion"
-msgstr "資料片"
+msgstr ""
 
 #: catalog/game/models.py:22
 msgid "Downloadable Content"
-msgstr "可下載內容"
+msgstr "Conteúdo disponível para download"
 
 #: catalog/game/models.py:23
 msgid "Mod"
-msgstr "模組"
+msgstr ""
 
 #: catalog/game/models.py:24
 msgid "Bundle"
-msgstr "合集"
+msgstr ""
 
 #: catalog/game/models.py:25
+#, fuzzy
 msgid "Remaster"
-msgstr "復刻"
+msgstr "Remaster"
 
 #: catalog/game/models.py:26
 msgid "Remake"
-msgstr "重製"
+msgstr "Remake"
 
 #: catalog/game/models.py:27
 msgid "Special Edition"
-msgstr "特別版"
+msgstr "Edição especial"
 
 #: catalog/game/models.py:81
 msgid "designer"
-msgstr "設計者"
+msgstr ""
 
 #: catalog/game/models.py:89 catalog/music/models.py:66
 msgid "artist"
-msgstr "藝術家"
+msgstr "artista"
 
 #: catalog/game/models.py:97
 msgid "developer"
-msgstr "開發者"
+msgstr "programador/desenvolvedor"
 
 #: catalog/game/models.py:105 catalog/music/models.py:82
 msgid "publisher"
-msgstr "出版發行"
+msgstr ""
 
 #: catalog/game/models.py:112
 msgid "year of publication"
-msgstr "發行年份"
+msgstr "ano da publicação"
 
 #: catalog/game/models.py:116 catalog/podcast/models.py:114
 msgid "date of publication"
-msgstr "發行日期"
+msgstr "mês da publicação"
 
 #: catalog/game/models.py:121 catalog/music/models.py:60
 #: catalog/tv/models.py:186
 msgid "YYYY-MM-DD"
-msgstr "YYYY-MM-DD"
+msgstr "AAAA-MM-DD"
 
 #: catalog/game/models.py:125 catalog/templates/game.html:16
 msgid "release type"
-msgstr "發佈類型"
+msgstr ""
 
 #: catalog/game/models.py:132 catalog/movie/models.py:97
 #: catalog/performance/models.py:122 catalog/podcast/models.py:41
 #: catalog/tv/models.py:166 catalog/tv/models.py:329
 msgid "genre"
-msgstr "類型"
+msgstr "género"
 
 #: catalog/game/models.py:140
 msgid "platform"
-msgstr "平臺"
+msgstr "plataforma"
 
 #: catalog/game/models.py:146 catalog/movie/models.py:131
 #: catalog/performance/models.py:206 catalog/performance/models.py:344
@@ -582,25 +587,26 @@ msgstr "平臺"
 #: catalog/templates/tvshow.html:70 catalog/tv/models.py:200
 #: catalog/tv/models.py:364
 msgid "website"
-msgstr "網站"
+msgstr "website"
 
 #: catalog/movie/models.py:76 catalog/performance/models.py:130
 #: catalog/performance/models.py:268 catalog/tv/models.py:145
 #: catalog/tv/models.py:308
 msgid "director"
-msgstr "導演"
+msgstr "diretor"
 
 #: catalog/movie/models.py:83 catalog/performance/models.py:137
 #: catalog/performance/models.py:275 catalog/tv/models.py:152
 #: catalog/tv/models.py:315
+#, fuzzy
 msgid "playwright"
-msgstr "編劇"
+msgstr "escritor/dramaturgo"
 
 #: catalog/movie/models.py:90 catalog/performance/models.py:165
 #: catalog/performance/models.py:303 catalog/tv/models.py:159
 #: catalog/tv/models.py:322
 msgid "actor"
-msgstr "演員"
+msgstr "ator"
 
 #: catalog/movie/models.py:104 catalog/music/models.py:60
 #: catalog/templates/_item_card_metadata_album.html:16
@@ -608,133 +614,135 @@ msgstr "演員"
 #: catalog/templates/movie.html:40 catalog/templates/tvseason.html:57
 #: catalog/templates/tvshow.html:52
 msgid "release date"
-msgstr "發佈日期"
+msgstr "data de realização"
 
 #: catalog/movie/models.py:116 catalog/tv/models.py:348
 #: journal/templates/_sidebar_user_mark_list.html:62
 msgid "date"
-msgstr "日期"
+msgstr "data"
 
 #: catalog/movie/models.py:117 catalog/performance/models.py:82
 #: catalog/tv/models.py:349
 msgid "required"
-msgstr "必填"
+msgstr "obrigatório"
 
 #: catalog/movie/models.py:121 catalog/tv/models.py:353
 msgid "region or event"
-msgstr "地區或類型"
+msgstr ""
 
 #: catalog/movie/models.py:123 catalog/tv/models.py:192
 #: catalog/tv/models.py:355
 msgid "Germany or Toronto International Film Festival"
-msgstr "德國或多倫多國際電影節"
+msgstr ""
 
 #: catalog/movie/models.py:133 catalog/tv/models.py:202
 #: catalog/tv/models.py:367
 msgid "region"
-msgstr "地區"
+msgstr "região"
 
 #: catalog/movie/models.py:144 catalog/tv/models.py:214
 #: catalog/tv/models.py:388
 msgid "year"
-msgstr "年份"
+msgstr "ano"
 
 #: catalog/movie/models.py:145 catalog/music/models.py:63
 #: catalog/templates/movie.html:20 catalog/templates/tvseason.html:52
 #: catalog/templates/tvshow.html:47
+#, fuzzy
 msgid "length"
-msgstr "長度"
+msgstr "duração"
 
 #: catalog/music/models.py:63
 msgid "milliseconds"
-msgstr "微秒"
+msgstr "milésimos de segundo"
 
 #: catalog/music/models.py:74
 msgctxt "music"
 msgid "genre"
-msgstr "風格"
+msgstr "género"
 
 #: catalog/music/models.py:87
 msgid "tracks"
-msgstr "曲目"
+msgstr "faixas"
 
 #: catalog/music/models.py:95 catalog/templates/album.html:33
 msgid "album type"
-msgstr "專輯類型"
+msgstr "tipo de álbum"
 
 #: catalog/music/models.py:96
 msgid "media type"
-msgstr "介質類型"
+msgstr ""
 
 #: catalog/music/models.py:99 catalog/templates/album.html:43
 msgid "number of discs"
-msgstr "碟片數"
+msgstr "Número de discos"
 
 #: catalog/performance/models.py:66 catalog/performance/models.py:81
 msgid "name"
-msgstr "名字"
+msgstr "nome"
 
 #: catalog/performance/models.py:67 catalog/performance/models.py:86
+#, fuzzy
 msgid "role"
-msgstr "角色"
+msgstr "papel"
 
 #: catalog/performance/models.py:87
 msgid "optional"
-msgstr "可選"
+msgstr "opcional"
 
 #: catalog/performance/models.py:112
 msgid "original name"
-msgstr "原名"
+msgstr "nome original"
 
 #: catalog/performance/models.py:144 catalog/performance/models.py:282
 msgid "original creator"
-msgstr "原始創作者"
+msgstr "criador original"
 
 #: catalog/performance/models.py:151 catalog/performance/models.py:289
 msgid "composer"
-msgstr "作曲"
+msgstr "compositor"
 
 #: catalog/performance/models.py:158 catalog/performance/models.py:296
 msgid "choreographer"
-msgstr "編舞"
+msgstr "coreógrafo"
 
 #: catalog/performance/models.py:172 catalog/performance/models.py:310
 msgid "performer"
-msgstr "表演者"
+msgstr ""
 
 #: catalog/performance/models.py:179 catalog/performance/models.py:317
 msgid "troupe"
-msgstr "劇團"
+msgstr ""
 
 #: catalog/performance/models.py:186 catalog/performance/models.py:324
 msgid "crew"
-msgstr "工作人員"
+msgstr "grupo"
 
 #: catalog/performance/models.py:193 catalog/performance/models.py:331
 msgid "theater"
-msgstr "劇院"
+msgstr ""
 
 #: catalog/performance/models.py:200 catalog/performance/models.py:338
 #: catalog/templates/performance.html:14
 #: catalog/templates/performanceproduction.html:13
 msgid "opening date"
-msgstr "上演日期"
+msgstr "data de abertura"
 
 #: catalog/performance/models.py:203 catalog/performance/models.py:341
 msgid "closing date"
-msgstr "結束日期"
+msgstr "data de encerramento"
 
 #: catalog/podcast/models.py:51
 msgid "host"
-msgstr "主播"
+msgstr "apresentador(es)"
 
 #: catalog/search/views.py:56 catalog/search/views.py:175
 msgid "Invalid URL"
-msgstr "無效網址"
+msgstr "URL inválido"
 
 #: catalog/templates/_fetch_failed.html:4
 msgid "Unable to fetch from the link, please check again. Some sites may require login for certain links, please manually create them here."
-msgstr "無法加載條目，請確認連結正確。部分網站可能刪除條目或隱藏條目爲僅登入可見，歡迎在本站手工添加這些條目。"
+msgstr ""
 
 #: catalog/templates/_item_card_metadata_album.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
@@ -748,32 +756,32 @@ msgstr "無法加載條目，請確認連結正確。部分網站可能刪除條
 #: catalog/templates/_item_card_metadata_work.html:7
 #: catalog/templates/item_base.html:164
 msgid "ratings"
-msgstr "個評分"
+msgstr "avaliações"
 
 #: catalog/templates/_item_card_metadata_base.html:34
 #: catalog/templates/item_base.html:213
 msgid "part of"
-msgstr "所屬"
+msgstr ""
 
 #: catalog/templates/_item_comments.html:10
 #: catalog/templates/_item_comments_by_episode.html:13
 msgid "this season"
-msgstr "本季"
+msgstr "esta temporada"
 
 #: catalog/templates/_item_comments.html:25
 msgid "edit this item to fetch or add episode list here"
-msgstr "使用編輯功能批量獲取或手工添加單集子條目後可開啓分集短評"
+msgstr ""
 
 #: catalog/templates/_item_comments.html:27
 msgid "hide this tooltip"
-msgstr "不再提示"
+msgstr "Ocultar esta dica"
 
 #: catalog/templates/_item_comments.html:82
 #: catalog/templates/_item_comments_by_episode.html:80
 #: catalog/templates/_item_reviews.html:43 catalog/templates/item_base.html:241
 #: catalog/templates/podcast_episode_data.html:41
 msgid "show more"
-msgstr "顯示更多"
+msgstr "mostrar mais"
 
 #: catalog/templates/_item_comments.html:86
 #: catalog/templates/_item_comments_by_episode.html:84
@@ -781,12 +789,12 @@ msgstr "顯示更多"
 #: catalog/templates/podcast_episode_data.html:44
 #: social/templates/events.html:43 social/templates/feed_events.html:137
 msgid "nothing more."
-msgstr "沒有更多內容了。"
+msgstr "sem nada."
 
 #: catalog/templates/_item_comments_by_episode.html:35
 #: catalog/templates/podcast_episode_data.html:22
 msgid "comment this episode"
-msgstr "寫該集短評"
+msgstr "comente este episódio"
 
 #: catalog/templates/_item_reviews.html:26 journal/models/shelf.py:71
 #: journal/models/shelf.py:111 journal/models/shelf.py:151
@@ -794,61 +802,62 @@ msgstr "寫該集短評"
 #: journal/models/shelf.py:271 journal/models/shelf.py:305
 #: journal/templates/_sidebar_user_mark_list.html:26
 msgid "review"
-msgstr "評論"
+msgstr "crítica"
 
 #: catalog/templates/_item_user_mark_history.html:15
 msgid "no history."
-msgstr "暫無標記歷史"
+msgstr ""
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "sure to clear mark history?"
-msgstr "確定清除所有標記歷史嗎？"
+msgstr ""
 
 #: catalog/templates/_item_user_mark_history.html:23
+#, fuzzy
 msgid "clear mark history"
-msgstr "清除標記歷史"
+msgstr "limpar histórico da marcação"
 
 #: catalog/templates/_item_user_mark_history.html:25
 msgid "clear history will not remove current mark"
-msgstr "清除標記歷史不會刪除或改變現有標記"
+msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:5
 msgid "my comment and tags"
-msgstr "我的短評和標籤"
+msgstr "meu(s) comentário(s) e tags"
 
 #: catalog/templates/_item_user_pieces.html:67
 msgid "my notes"
-msgstr "我的筆記"
+msgstr "minhas notas"
 
 #: catalog/templates/_item_user_pieces.html:118
 msgid "my review"
-msgstr "我的評論"
+msgstr "minha crítica"
 
 #: catalog/templates/_item_user_pieces.html:160
 msgid "my collection"
-msgstr "我的收藏單"
+msgstr "minha coleção"
 
 #: catalog/templates/_item_user_pieces.html:190
 msgid "mark history"
-msgstr "標記歷史"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:7
 msgid "edit"
-msgstr "編輯"
+msgstr "editar"
 
 #: catalog/templates/_sidebar_edit.html:11
 #: catalog/templates/catalog_history.html:9
 #: catalog/templates/catalog_history.html:57
 msgid "revision history"
-msgstr "編輯歷史"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:15
 msgid "back to item"
-msgstr "回到條目"
+msgstr "voltar para o item"
 
 #: catalog/templates/_sidebar_edit.html:18
 msgid "Edit Options"
-msgstr "編輯選項"
+msgstr "Editar Opções"
 
 #: catalog/templates/_sidebar_edit.html:21
 #: catalog/templates/catalog_delete.html:23
@@ -856,7 +865,7 @@ msgstr "編輯選項"
 #: catalog/templates/catalog_merge.html:35
 #: catalog/templates/catalog_merge.html:63
 msgid "Item has been deleted."
-msgstr "條目已被刪除"
+msgstr "O item foi eliminado."
 
 #: catalog/templates/_sidebar_edit.html:26
 #: catalog/templates/catalog_delete.html:28
@@ -864,122 +873,132 @@ msgstr "條目已被刪除"
 #: catalog/templates/catalog_merge.html:40
 #: catalog/templates/catalog_merge.html:68
 msgid "Item contains sub-items."
-msgstr "條目下已有子項"
+msgstr "Item contém sub-itens."
 
 #: catalog/templates/_sidebar_edit.html:31
 #: catalog/templates/catalog_delete.html:33
 #: catalog/templates/catalog_merge.html:45
 #: catalog/templates/catalog_merge.html:73
 msgid "Item has been merged to another item."
-msgstr "條目已被合併到其他條目"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:36
 #: catalog/templates/catalog_delete.html:38
 #: catalog/templates/catalog_merge.html:50
 #: catalog/templates/catalog_merge.html:78
 msgid "Item has been marked by users."
-msgstr "條目已被用戶標記過"
+msgstr "O item foi marcado por utilizadores."
 
 #: catalog/templates/_sidebar_edit.html:41
 msgid "The following items are merged into this item"
-msgstr "以下條目被併入本條目"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:53
 msgid "External website"
-msgstr "外部網站"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:58
 msgid "Existing metadata might get overwritten, sure to proceed?"
-msgstr "現有信息可能會被覆蓋。確認重新獲取嗎？"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:62
 msgid "Fetch again"
-msgstr "重新獲取"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:67
 msgid "You may not be able to undo this operation, sure to remove?"
-msgstr "本操作不可撤銷。確認取消關聯嗎？"
+msgstr ""
+"É provável que não seja possível reverter esta operação. De certeza que quer "
+"remover?"
 
 #: catalog/templates/_sidebar_edit.html:72
 msgid "Remove link to site"
-msgstr "取消關聯"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:81
 msgid "Edit sub-items"
-msgstr "編輯下級條目"
+msgstr "Editar sub-itens"
 
 #: catalog/templates/_sidebar_edit.html:94
 msgid "create"
-msgstr "創建"
+msgstr "criar"
 
 #: catalog/templates/_sidebar_edit.html:100
 msgid "Fetch all episodes"
-msgstr "批量獲取單集條目"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:105
 msgid "Fetch all"
-msgstr "批量獲取"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:106
 msgid "Due to differences in how Douban, IMDB, and TMDB handle season data, a small number of TV shows and animations may not return correct results. Please manually verify and clean up after updating."
-msgstr "因豆瓣/IMDB/TMDB之間對分季處理的差異，少量劇集和動畫可能無法返回正確結果，更新後請手工確認和清理。"
+msgstr ""
+"Devido às diferenças na forma como o Douban, o IMDB e o TMDB tratam os dados "
+"das temporadas, um pequeno número de programas de televisão e animações "
+"podem não apresentar resultados corretos. Verifique manualmente e "
+"reconfigure após a sua atualização."
 
 #: catalog/templates/_sidebar_edit.html:109
 msgid "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries."
-msgstr "批量獲取單集子條目需要本季序號和IMDB信息，不便填寫也可以手工創建子條目。"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:115
 #: catalog/templates/_sidebar_edit.html:127
 #: catalog/templates/_sidebar_edit.html:146
 msgid "switch category"
-msgstr "切換分類"
+msgstr "trocar categoria"
 
 #: catalog/templates/_sidebar_edit.html:118
+#, fuzzy
 msgid "Switching may remove some metadata. Sure to proceed?"
-msgstr "切換分類可能移除部分數據字段，確認切換嗎？"
+msgstr ""
+"A troca poderá remover alguns metadados. Tem a certeza de que pretende "
+"avançar?"
 
 #: catalog/templates/_sidebar_edit.html:121
 msgid "TV Show"
-msgstr "電視劇集"
+msgstr "Programa de TV"
 
 #: catalog/templates/_sidebar_edit.html:160
 msgid "Link to parent item"
-msgstr "關聯到上一級條目"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:163
 msgid "Sure to link?"
-msgstr "確認關聯嗎？"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:170
 msgid "Update link"
-msgstr "更新關聯"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:176
 msgid "Cleanup seasons"
-msgstr "本劇所有季"
+msgstr "Limpar temporadas"
 
 #: catalog/templates/_sidebar_edit.html:179
 #: catalog/templates/catalog_delete.html:44
 msgid "This operation cannot be undone. Sure to delete?"
-msgstr "本操作不可撤銷。確認刪除嗎？"
+msgstr "Esta operação não pode ser revertida. Tem a certeza que quer apagar?"
 
 #: catalog/templates/_sidebar_edit.html:183
+#, fuzzy
 msgid "remove seasons not marked"
-msgstr "清理單季"
+msgstr "remover temporadas não marcadas"
 
 #: catalog/templates/_sidebar_edit.html:189
 #: catalog/templates/catalog_merge.html:11
 msgid "Merge"
-msgstr "合併"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:195
 msgid "URL of target item, or empty if undo merge"
-msgstr "目標條目URL，留空則取消現有合併"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:201
 #: catalog/templates/_sidebar_edit.html:262
 msgid "merge to another item"
-msgstr "合併到另一條目"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:206
 #: catalog/templates/_sidebar_edit.html:210
@@ -988,144 +1007,155 @@ msgstr "合併到另一條目"
 #: journal/templates/piece_delete.html:9 journal/templates/piece_delete.html:33
 #: journal/templates/review.html:84
 msgid "Delete"
-msgstr "刪除"
+msgstr "Apagar"
 
 #: catalog/templates/_sidebar_edit.html:218
 msgid "Work"
-msgstr "作品"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:219
+#, fuzzy
 msgid "This edition belongs to the following work"
-msgstr "這個圖書版本屬於以下作品"
+msgstr "Esta edição pertence à seguinte obra"
 
 #: catalog/templates/_sidebar_edit.html:226
 msgid "Sure to unlink?"
-msgstr "確認取消關聯嗎？"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:232
 msgid "Unlink from work"
-msgstr "取消關聯到上述著作"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:238
 msgid "Link"
-msgstr "關聯"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:249
 msgid "Link to another edition from same work"
-msgstr "關聯到同一著作的另一本書"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:256
 msgid "Suggest Edits"
-msgstr "修改建議"
+msgstr "Sugerir alterações"
 
 #: catalog/templates/_sidebar_edit.html:261
+#, fuzzy
 msgid "proposed action"
-msgstr "請選擇建議類型..."
+msgstr "acção proposta"
 
 #: catalog/templates/_sidebar_edit.html:263
 msgid "link to another item"
-msgstr "關聯到另一條目"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:264
 msgid "change item category"
-msgstr "更改條目類型"
+msgstr "alterar categoria do item"
 
 #: catalog/templates/_sidebar_edit.html:265
+#, fuzzy
 msgid "change item metadata"
-msgstr "更正條目信息"
+msgstr "alterar metadados do item"
 
 #: catalog/templates/_sidebar_edit.html:266
 msgid "remove item"
-msgstr "刪除條目"
+msgstr "remover item"
 
 #: catalog/templates/_sidebar_edit.html:267
 msgid "other"
-msgstr "其它"
+msgstr "outro"
 
 #: catalog/templates/_sidebar_edit.html:271
 msgid "To suggest merging or association, please include the URL of the target item"
-msgstr "建議詳情。如提議合併或關聯，請包含目標條目網址。"
+msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:272
 msgid "submit"
-msgstr "提交"
+msgstr "submeter"
 
 #: catalog/templates/_sidebar_edit.html:273
 msgid "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution."
-msgstr "本站由用戶共同維護，用戶可自主修改部分條目信息。當你不確定自己的修改是否得當或不能做出某種修改時，可在此處向管理員提出建議。管理員會認真考慮處理每一條建議，雖然不保證總是完全採納；建議也可能被社區其他用戶查看或討論。如果有與具體條目不相關的建議，請訪問討論區或聯繫我們的社交帳號。感謝你的支持和貢獻。"
+msgstr ""
+"Como utilizador desta comunidade, pode editar alguns metadados de itens "
+"neste site. Se não tiver a certeza de que as suas edições são adequadas ou "
+"se não conseguir efetuar uma determinada alteração, pode fazer sugestões "
+"aqui. Os moderadores terão em consideração cada sugestão, embora não haja "
+"garantias de que sejam sempre adoptadas na íntegra; as sugestões também "
+"podem ser vistas ou debatidas por outros utilizadores. Se tiver sugestões "
+"que não estejam relacionadas com um item específico, contacte-nos. Obrigado "
+"pelo seu apoio e contribuição."
 
 #: catalog/templates/_sidebar_search.html:5
 msgid "Not the result you are looking for?"
-msgstr "沒有想要的結果？"
+msgstr "Não é o resultado que procura?"
 
 #: catalog/templates/_sidebar_search.html:13
 msgid "Or you may create items manually"
-msgstr "當然也可以手工創建條目"
+msgstr "Ou poderá criar itens manualmente"
 
 #: catalog/templates/_sidebar_search.html:16
 msgid "Add books"
-msgstr "添加圖書"
+msgstr "Adicionar livros"
 
 #: catalog/templates/_sidebar_search.html:19
 msgid "Add movies"
-msgstr "添加電影"
+msgstr "Adicionar filmes"
 
 #: catalog/templates/_sidebar_search.html:22
 msgid "Add tv series"
-msgstr "添加電視劇集"
+msgstr "Adicionar séries de TV"
 
 #: catalog/templates/_sidebar_search.html:25
 msgid "Add podcasts"
-msgstr "添加播客"
+msgstr "Adicionar podcasts"
 
 #: catalog/templates/_sidebar_search.html:28
 msgid "Add albums"
-msgstr "添加音樂專輯"
+msgstr "Adicionar álbuns"
 
 #: catalog/templates/_sidebar_search.html:31
 msgid "Add games"
-msgstr "添加遊戲"
+msgstr "Adicionar jogos"
 
 #: catalog/templates/_sidebar_search.html:34
 msgid "Add performance or theater pieces"
-msgstr "添加戲劇演出"
+msgstr ""
 
 #: catalog/templates/album.html:22
 msgid "duration"
-msgstr "時長"
+msgstr "duração"
 
 #: catalog/templates/album.html:28
 msgid "barcode"
-msgstr "條形碼"
+msgstr "código de barras"
 
 #: catalog/templates/album.html:38
 msgid "album media"
-msgstr "專輯介質"
+msgstr ""
 
 #: catalog/templates/catalog_delete.html:18
 msgid "Are you sure to delete?"
-msgstr "確認刪除嗎？"
+msgstr "Tem a certeza que deseja apagar?"
 
 #: catalog/templates/catalog_delete.html:47
 #: catalog/templates/catalog_merge.html:91
 msgid "Yes"
-msgstr "是"
+msgstr "Sim"
 
 #: catalog/templates/catalog_delete.html:48
 #: catalog/templates/catalog_merge.html:92
 msgid "No"
-msgstr "否"
+msgstr "Não"
 
 #: catalog/templates/catalog_edit.html:11 journal/templates/collection.html:135
 #: journal/templates/collection_edit.html:9
 #: journal/templates/collection_edit.html:25 journal/templates/review.html:81
 #: journal/templates/tag_edit.html:16
 msgid "Edit"
-msgstr "編輯"
+msgstr "Editar"
 
 #: catalog/templates/catalog_edit.html:13
 msgid "Create"
-msgstr "創建"
+msgstr "Criar"
 
 #: catalog/templates/catalog_edit.html:50
 #: journal/templates/add_to_collection.html:35
@@ -1136,72 +1166,72 @@ msgstr "創建"
 #: users/templates/users/preferences.html:188
 #: users/templates/users/preferences.html:222
 msgid "Save"
-msgstr "保存"
+msgstr "Guardar"
 
 #: catalog/templates/catalog_edit.html:53
 #: journal/templates/collection_update_item_note.html:8
 #: journal/templates/piece_delete.html:37
 msgid "Cancel"
-msgstr "取消"
+msgstr "Cancelar"
 
 #: catalog/templates/catalog_merge.html:21
 msgid "Are you sure to merge?"
-msgstr "確定合併嗎？"
+msgstr ""
 
 #: catalog/templates/catalog_merge.html:23
 msgid "Are you sure to cancel merge?"
-msgstr "確定取消合併嗎？"
+msgstr ""
 
 #: catalog/templates/catalog_merge.html:26
 msgid "Are you sure to link?"
-msgstr "確定關聯嗎？"
+msgstr ""
 
 #: catalog/templates/catalog_merge.html:85
 msgid "This operation cannot be undone. Sure to merge?"
-msgstr "本操作不可撤銷。確認合併嗎？"
+msgstr ""
 
 #: catalog/templates/discover.html:18 users/templates/users/preferences.html:33
 msgid "Discover"
-msgstr "發現"
+msgstr "Descobrir"
 
 #: catalog/templates/discover.html:76
 #: journal/templates/user_collection_list.html:17
 #: journal/templates/user_collection_list.html:31
 msgid "Collections"
-msgstr "收藏單"
+msgstr "Coleções"
 
 #: catalog/templates/discover.html:94 journal/templates/profile.html:179
 msgid "edit layout"
-msgstr "編輯佈局"
+msgstr "editar disposição"
 
 #: catalog/templates/discover.html:97 journal/templates/profile.html:182
 msgid "save"
-msgstr "保存"
+msgstr "guardar"
 
 #: catalog/templates/discover.html:108 journal/templates/profile.html:193
 msgid "cancel"
-msgstr "取消"
+msgstr "cancelar"
 
 #: catalog/templates/discover.html:114 journal/templates/profile.html:199
 msgid "show"
-msgstr "顯示"
+msgstr "mostrar"
 
 #: catalog/templates/discover.html:115 journal/templates/profile.html:200
 msgid "hide"
-msgstr "隱藏"
+msgstr "ocultar"
 
 #: catalog/templates/discover.html:147 common/templates/_sidebar.html:14
 msgid "Unread Announcements"
-msgstr "未讀公告"
+msgstr "Anúncios não lidos"
 
 #: catalog/templates/discover.html:153 common/templates/_sidebar.html:20
 msgid "mark all as read"
-msgstr "全部標爲已讀"
+msgstr "Marcar tudo como lido"
 
 #: catalog/templates/discover.html:162
 #: common/templates/_sidebar_anonymous.html:51
 msgid "Popular Tags"
-msgstr "熱門標籤"
+msgstr "Tags em destaque"
 
 #: catalog/templates/discover.html:169 catalog/templates/item_base.html:239
 #: catalog/templates/item_mark_list.html:56
@@ -1216,294 +1246,306 @@ msgstr "熱門標籤"
 #: social/templates/events.html:45 users/templates/users/announcements.html:54
 #: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
-msgstr "暫無內容。"
+msgstr "Nada, para já."
 
 #: catalog/templates/discover.html:178 common/templates/_sidebar.html:212
 msgid "Recent Posts"
-msgstr "近期帖文"
+msgstr "Posts recentes"
 
 #: catalog/templates/edition.html:42
 msgid "publication date"
-msgstr "發行時間"
+msgstr "data de publicação"
 
 #: catalog/templates/edition.html:64
 msgid "number of pages"
-msgstr "頁數"
+msgstr "número de páginas"
 
 #: catalog/templates/edition.html:87
 msgid "other editions"
-msgstr "其它版本"
+msgstr "outras edições"
 
 #: catalog/templates/edition.html:126
 msgid "Borrow or Buy"
-msgstr "借閱或購買"
+msgstr ""
 
 #: catalog/templates/fetch_pending.html:12
 msgid "Search results"
-msgstr "搜索結果"
+msgstr "Procurar resultados"
 
 #: catalog/templates/fetch_pending.html:21
 #, python-format
 msgid "Fetching from %(site_label)s"
-msgstr "正在從%(site_label)s獲取"
+msgstr ""
 
 #: catalog/templates/fetch_pending.html:28
 #: users/templates/users/fetch_identity_pending.html:28
 msgid "System busy, please try again in a minute."
-msgstr "系統繁忙，請稍等幾秒鐘再搜索。"
+msgstr "Sistema sobrecarregado. Por favor, tente novamente dentro de um minuto."
 
 #: catalog/templates/game.html:23
 msgid "release year"
-msgstr "發行年份"
+msgstr "ano de realização"
 
 #: catalog/templates/item_base.html:67
 msgid "select one of the seasons to comment"
-msgstr "這是全劇條目，以下是可標記的單季"
+msgstr "Selecione uma das temporadas para comentar"
 
 #: catalog/templates/item_base.html:104
 msgid "mark, comment and collect"
-msgstr "標籤 · 短評 · 評論 · 收藏"
+msgstr "marcar, comentar e coleccionar"
 
 #: catalog/templates/item_base.html:115
 msgid "Login or register to review or add this item to your collection."
-msgstr "登入後可管理標記收藏"
+msgstr ""
+"Registe-se ou faça Login para escrever uma crítica ou adicionar este item à "
+"sua coleção."
 
 #: catalog/templates/item_base.html:123
 msgid "Related Collections"
-msgstr "相關收藏單"
+msgstr "Coleções relacionadas"
 
 #: catalog/templates/item_base.html:138
 msgid "Unsupported item type."
-msgstr "此類數據尚未支持"
+msgstr "Tipo de item não suportado."
 
 #: catalog/templates/item_base.html:147
 msgid "Edit this item"
-msgstr "編輯這個條目"
+msgstr "Editar este item"
 
 #: catalog/templates/item_base.html:151
 msgid "Last edited"
-msgstr "最近編輯"
+msgstr ""
 
 #: catalog/templates/item_base.html:188
 msgid "No enough ratings"
-msgstr "評分人數不足"
+msgstr "Sem críticas suficientes"
 
 #: catalog/templates/item_base.html:231
 msgid "overview"
-msgstr "簡介"
+msgstr "visão geral"
 
 #: catalog/templates/item_base.html:261
 msgid "comments"
-msgstr "短評"
+msgstr "comentários"
 
 #: catalog/templates/item_base.html:264
 #: catalog/templates/item_mark_list.html:21
 #: catalog/templates/item_mark_list.html:24
 #: catalog/templates/item_review_list.html:20
+#, fuzzy
 msgid "marks"
-msgstr "標記"
+msgstr "marcações"
 
 #: catalog/templates/item_base.html:265
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
+#, fuzzy
 msgid "marks from who you follow"
-msgstr "好友標記"
+msgstr "marcações das pessoas que segue"
 
 #: catalog/templates/item_base.html:279
 #: catalog/templates/item_mark_list.html:27
 #: catalog/templates/item_review_list.html:22
 msgid "reviews"
-msgstr "評論"
+msgstr "críticas"
 
 #: catalog/templates/item_mark_list.html:12
 #: journal/templates/user_mark_list.html:4
 #: journal/templates/user_mark_list.html:7
+#, fuzzy
 msgid "Marks"
-msgstr "標記"
+msgstr "Marcações"
 
 #: catalog/templates/item_review_list.html:12
 #: journal/templates/user_review_list.html:4
 msgid "Reviews"
-msgstr "評論"
+msgstr "Críticas"
 
 #: catalog/templates/movie.html:25
 msgid "number of Seasons"
-msgstr "季數"
+msgstr "número de Temporadas"
 
 #: catalog/templates/movie.html:30
 msgid "number of Episodes"
-msgstr "集數"
+msgstr "número de Episódios"
 
 #: catalog/templates/movie.html:35 catalog/templates/tvseason.html:47
 #: catalog/templates/tvshow.html:42
 msgid "episode Length"
-msgstr "單集時長"
+msgstr "Duração de episódio"
 
 #: catalog/templates/performance.html:40
 msgid "production"
-msgstr "上演"
+msgstr "produção"
 
 #: catalog/templates/podcast.html:25
 msgid "recent episodes"
-msgstr "近期節目"
+msgstr "episódios recentes"
 
 #: catalog/templates/podcast.html:34
 msgid "subscribe in apps"
-msgstr "用播客應用訂閱"
+msgstr ""
 
 #: catalog/templates/podcast_episode_data.html:28
 msgid "original website"
-msgstr "原始網站"
+msgstr "Website original"
 
 #: catalog/templates/search_header.html:13
 #: catalog/templates/search_header.html:15
 #: journal/templates/_sidebar_user_mark_list.html:55
 #: social/templates/notification.html:27
 msgid "all"
-msgstr "全部"
+msgstr "tudo"
 
 #: catalog/templates/search_header.html:20
 #: catalog/templates/search_header.html:22
 msgid "books"
-msgstr "書籍"
+msgstr "livros"
 
 #: catalog/templates/search_header.html:28
 #: catalog/templates/search_header.html:30
 msgid "movie & tv"
-msgstr "影視"
+msgstr "Filme e TV"
 
 #: catalog/templates/search_header.html:36
 #: catalog/templates/search_header.html:38
 msgid "podcasts"
-msgstr "播客"
+msgstr "podcasts"
 
 #: catalog/templates/search_header.html:44
 #: catalog/templates/search_header.html:46
 msgid "music"
-msgstr "音樂"
+msgstr "música"
 
 #: catalog/templates/search_header.html:52
 #: catalog/templates/search_header.html:54
 msgid "games"
-msgstr "遊戲"
+msgstr "jogos"
 
 #: catalog/templates/search_header.html:60
 #: catalog/templates/search_header.html:62
 msgid "performances"
-msgstr "演出"
+msgstr ""
 
 #: catalog/templates/search_header.html:68
 #: catalog/templates/search_header.html:70
 msgid "your journal"
-msgstr "你的記錄"
+msgstr ""
 
 #: catalog/templates/search_header.html:74
 #: catalog/templates/search_header.html:76
 msgid "your timeline"
-msgstr "你的貼文"
+msgstr "a sua cronologia"
 
 #: catalog/templates/search_results.html:13
 #: journal/templates/search_journal.html:13
 msgid "Search Results"
-msgstr "搜索結果"
+msgstr "Procurar resultados"
 
 #: catalog/templates/search_results.html:26
 msgid "tag"
-msgstr "標籤"
+msgstr "tag"
 
 #: catalog/templates/search_results.html:33
 #: journal/templates/search_journal.html:25
 msgid "No items matching your search query."
-msgstr "無站內條目匹配。"
+msgstr "Não foi encontrado nenhum item referente à sua pesquisa."
 
 #: catalog/templates/search_results.html:35
-#, fuzzy
 msgid "System will search other websites and instances, click title of the item to save them locally. "
-msgstr "系統會嘗試搜索其它網站的條目，點擊標題可添加到本站。 "
+msgstr ""
+"O sistema irá procurar noutros sites e instâncias. Clique no título do item "
+"para guardá-lo localmente. "
 
 #: catalog/templates/search_results.html:39
 msgid "If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter."
-msgstr "如果你在以下網站找到了相關條目，也可以把連結(如 <code>https://movie.douban.com/subject/1309046/</code> )輸入到搜索欄中提交保存到本站。"
+msgstr ""
+"Se tem um URL de algum destes sites, por favor, coloque o URL completo (p.e. "
+"<code>https://www.imdb.com/title/tt2513074/</code>) na caixa de pesquisa e "
+"clique Enter."
 
 #: catalog/templates/search_results.html:49
-#, fuzzy, python-format
+#, python-format
 msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on #dup\">click here to show them.</a> "
 msgstr ""
-" 已從結果中略去了來自同一作品或有相同標識號的%(dups)s個條目，<a _="
-"\"on click toggle .unfold on #dup\">點擊這裏可重新顯示</a> "
+" %(dups)s itens são da mesma obra ou pertencem à mesma pessoa. Estes itens "
+"estão ocultos dos resultados de pesquisa., <a _="
+"\"on click toggle .unfold on #dup\"> Clique aqui para vê-los.</a> "
 
 #: catalog/templates/search_results.html:63
 msgid "Searching from other sites"
-msgstr "正在搜索站外條目"
+msgstr "Procurar noutros sites"
 
 #: catalog/templates/search_results.html:66
 msgid "Logged in user may see search results from other sites."
-msgstr "登入用戶可看到來自其它網站的搜索結果。"
+msgstr ""
+"Utilizadores com início de sessão aberta poderão ver resultados de pesquisa "
+"de outros sites."
 
 #: catalog/templates/tvseason.html:15 catalog/templates/tvshow.html:21
 msgid "all seasons"
-msgstr "本劇所有季"
+msgstr "Todas as temporadas"
 
 #: catalog/templates/tvseason.html:32 catalog/tv/models.py:270
 msgid "season number"
-msgstr "本季序號"
+msgstr "Número da temporada"
 
 #: catalog/templates/tvseason.html:37 catalog/templates/tvshow.html:32
 #: catalog/tv/models.py:107
 msgid "number of seasons"
-msgstr "季數"
+msgstr "Número de temporadas"
 
 #: catalog/templates/tvseason.html:42 catalog/templates/tvshow.html:37
 #: catalog/tv/models.py:110 catalog/tv/models.py:273
 msgid "number of episodes"
-msgstr "集數"
+msgstr "número de episódios"
 
 #: catalog/templates/work.html:17
 msgid "Editions"
-msgstr "版本"
+msgstr "Edições"
 
 #: catalog/tv/models.py:173 catalog/tv/models.py:336
 msgid "show time"
-msgstr "上映時間"
+msgstr ""
 
 #: catalog/tv/models.py:185
 msgid "Date"
-msgstr "日期"
+msgstr "Data"
 
 #: catalog/tv/models.py:190
 msgid "Region or Event"
-msgstr "地區或場合"
+msgstr ""
 
 #: catalog/tv/models.py:216 catalog/tv/models.py:390
 msgid "episode length"
-msgstr "單集長度"
+msgstr "duração do episódio"
 
 #: catalog/tv/models.py:421
 #, python-brace-format
 msgid "{show_title} Season {season_number}"
-msgstr "{show_title} 第{season_number}季"
+msgstr "{show_title} Temporada {season_number}"
 
 #: catalog/tv/models.py:491
 #, python-brace-format
 msgid "{season_title} E{episode_number}"
-msgstr "{season_title} 第{episode_number}集"
+msgstr ""
 
 #: catalog/views.py:52 catalog/views.py:75
 msgid "Item not found"
-msgstr "條目不存在"
+msgstr "Item não encontrado"
 
 #: catalog/views.py:56 catalog/views.py:83
 msgid "Item no longer exists"
-msgstr "條目已不存在"
+msgstr "Este item já não existe"
 
 #: catalog/views_edit.py:122
 msgid "Item in use."
-msgstr "條目已被引用或標記。"
+msgstr "Item em uso."
 
 #: catalog/views_edit.py:124
 msgid "Item cannot be deleted."
-msgstr "條目不可被刪除。"
+msgstr "Este item não pode ser apagado."
 
 #: catalog/views_edit.py:147 catalog/views_edit.py:199
 #: catalog/views_edit.py:275 catalog/views_edit.py:354
@@ -1517,7 +1559,7 @@ msgstr "條目不可被刪除。"
 #: journal/views/post.py:42 journal/views/review.py:32
 #: journal/views/review.py:46
 msgid "Insufficient permission"
-msgstr "權限不足"
+msgstr ""
 
 #: catalog/views_edit.py:202 journal/views/collection.py:264
 #: journal/views/collection.py:335 journal/views/common.py:82
@@ -1525,978 +1567,996 @@ msgstr "權限不足"
 #: journal/views/review.py:93 journal/views/review.py:96
 #: users/views/actions.py:169
 msgid "Invalid parameter"
-msgstr "無效參數"
+msgstr "Parâmetro inválido"
 
 #: catalog/views_edit.py:251
 msgid "TV Season with IMDB id and season number required."
-msgstr "必須是電視劇分季，且包含IMDB id和分季序號。"
+msgstr ""
 
 #: catalog/views_edit.py:256
 msgid "Updating episodes"
-msgstr "正在更新單集列表"
+msgstr "A atualizar episódios"
 
 #: catalog/views_edit.py:286
 msgid "Cannot be merged to an item already deleted or merged"
-msgstr "無法合併到一個已經被合併或刪除的條目"
+msgstr ""
 
 #: catalog/views_edit.py:289
 msgid "Cannot merge items in different categories"
-msgstr "無法合併不同類型的條目"
+msgstr ""
 
 #: catalog/views_edit.py:328
 msgid "Cannot be linked to an item already deleted or merged"
-msgstr "無法關聯到一個已經被合併或刪除的條目"
+msgstr ""
 
 #: catalog/views_edit.py:330
 msgid "Cannot link items other than editions"
-msgstr "無法關聯到非圖書類的條目"
+msgstr ""
 
 #: common/models/lang.py:40
 msgid "Afar"
-msgstr ""
+msgstr "Afar"
 
 #: common/models/lang.py:41
 msgid "Afrikaans"
-msgstr ""
+msgstr "Afrikaans"
 
 #: common/models/lang.py:42
 msgid "Akan"
-msgstr ""
+msgstr "Akan"
 
 #: common/models/lang.py:43
 msgid "Aragonese"
-msgstr ""
+msgstr "Aragonês"
 
 #: common/models/lang.py:44
 msgid "Assamese"
-msgstr ""
+msgstr "Assamese"
 
 #: common/models/lang.py:45
 msgid "Avaric"
-msgstr ""
+msgstr "Avaric"
 
 #: common/models/lang.py:46
 msgid "Avestan"
-msgstr ""
+msgstr "Avestan"
 
 #: common/models/lang.py:47
 msgid "Aymara"
-msgstr ""
+msgstr "Aymara"
 
 #: common/models/lang.py:48
 msgid "Azerbaijani"
-msgstr ""
+msgstr "Azeri"
 
 #: common/models/lang.py:49
 msgid "Bashkir"
-msgstr ""
+msgstr "Bashkir"
 
 #: common/models/lang.py:50
 msgid "Bambara"
-msgstr ""
+msgstr "Bambara"
 
 #: common/models/lang.py:51
 msgid "Bislama"
-msgstr ""
+msgstr "Bislama"
 
 #: common/models/lang.py:52
 msgid "Tibetan"
-msgstr "藏語"
+msgstr "Tibetano"
 
 #: common/models/lang.py:53
 msgid "Breton"
-msgstr ""
+msgstr "Bretão"
 
 #: common/models/lang.py:54
 msgid "Catalan"
-msgstr ""
+msgstr "Catalão"
 
 #: common/models/lang.py:55
 msgid "Czech"
-msgstr ""
+msgstr "Checo"
 
 #: common/models/lang.py:56
 msgid "Chechen"
-msgstr ""
+msgstr "Checheno"
 
 #: common/models/lang.py:57
 msgid "Slavic"
-msgstr ""
+msgstr "Eslavo"
 
 #: common/models/lang.py:58
 msgid "Chuvash"
-msgstr ""
+msgstr "Chuvash"
 
 #: common/models/lang.py:59
 msgid "Cornish"
-msgstr ""
+msgstr "Cornish"
 
 #: common/models/lang.py:60
 msgid "Corsican"
-msgstr ""
+msgstr "Corsican"
 
 #: common/models/lang.py:61
 msgid "Cree"
-msgstr ""
+msgstr "Cree"
 
 #: common/models/lang.py:62
 msgid "Welsh"
-msgstr ""
+msgstr "Galês"
 
 #: common/models/lang.py:65
 msgid "Divehi"
-msgstr ""
+msgstr "Divehi"
 
 #: common/models/lang.py:66
 msgid "Dzongkha"
-msgstr ""
+msgstr "Dzongkha"
 
 #: common/models/lang.py:67
 msgid "Esperanto"
-msgstr ""
+msgstr "Esperanto"
 
 #: common/models/lang.py:68
 msgid "Estonian"
-msgstr ""
+msgstr "Estónio"
 
 #: common/models/lang.py:69
 msgid "Basque"
-msgstr ""
+msgstr "Basco"
 
 #: common/models/lang.py:70
 msgid "Faroese"
-msgstr ""
+msgstr "Feroês"
 
 #: common/models/lang.py:71
 msgid "Fijian"
-msgstr ""
+msgstr "Fijiano"
 
 #: common/models/lang.py:72
 msgid "Finnish"
-msgstr ""
+msgstr "Finlandês"
 
 #: common/models/lang.py:74
 msgid "Frisian"
-msgstr ""
+msgstr "Frísio"
 
 #: common/models/lang.py:75
 msgid "Fulah"
-msgstr ""
+msgstr "Fulah"
 
 #: common/models/lang.py:76
 msgid "Gaelic"
-msgstr ""
+msgstr "Gaélico"
 
 #: common/models/lang.py:77
 msgid "Irish"
-msgstr ""
+msgstr "Irlandês"
 
 #: common/models/lang.py:78
 msgid "Galician"
-msgstr ""
+msgstr "Galego"
 
 #: common/models/lang.py:79
 msgid "Manx"
-msgstr ""
+msgstr "Manx"
 
 #: common/models/lang.py:80
 msgid "Guarani"
-msgstr ""
+msgstr "Guarani"
 
 #: common/models/lang.py:81
 msgid "Gujarati"
-msgstr ""
+msgstr "Guzerate"
 
 #: common/models/lang.py:82
 msgid "Haitian; Haitian Creole"
-msgstr ""
+msgstr "Haitian; Haitian Creole"
 
 #: common/models/lang.py:83
 msgid "Hausa"
-msgstr ""
+msgstr "Hausa"
 
 #: common/models/lang.py:84
 msgid "Serbo-Croatian"
-msgstr ""
+msgstr "Servo-croata"
 
 #: common/models/lang.py:85
 msgid "Herero"
-msgstr ""
+msgstr "Herero"
 
 #: common/models/lang.py:86
 msgid "Hiri Motu"
-msgstr ""
+msgstr "Hiri Motu"
 
 #: common/models/lang.py:87
 msgid "Croatian"
-msgstr ""
+msgstr "Croata"
 
 #: common/models/lang.py:88
 msgid "Hungarian"
-msgstr ""
+msgstr "Húngaro"
 
 #: common/models/lang.py:89
 msgid "Igbo"
-msgstr ""
+msgstr "Igbo"
 
 #: common/models/lang.py:90
 msgid "Ido"
-msgstr ""
+msgstr "Ido"
 
 #: common/models/lang.py:91
 msgid "Yi"
-msgstr ""
+msgstr "Yi"
 
 #: common/models/lang.py:92
 msgid "Inuktitut"
-msgstr ""
+msgstr "Inuktitut"
 
 #: common/models/lang.py:93
+#, fuzzy
 msgid "Interlingue"
-msgstr ""
+msgstr "Interlingue"
 
 #: common/models/lang.py:94
+#, fuzzy
 msgid "Interlingua"
-msgstr ""
+msgstr "Interlingua"
 
 #: common/models/lang.py:95
 msgid "Indonesian"
-msgstr ""
+msgstr "Indonésio"
 
 #: common/models/lang.py:96
 msgid "Inupiaq"
-msgstr ""
+msgstr "Inupiaq"
 
 #: common/models/lang.py:97
 msgid "Icelandic"
-msgstr ""
+msgstr "Islandês"
 
 #: common/models/lang.py:99
 msgid "Javanese"
-msgstr ""
+msgstr "Javanês"
 
 #: common/models/lang.py:100
 msgid "Japanese"
-msgstr "日語"
+msgstr "Japonês"
 
 #: common/models/lang.py:101
 msgid "Kalaallisut"
-msgstr ""
+msgstr "Kalaallisut"
 
 #: common/models/lang.py:102
 msgid "Kannada"
-msgstr ""
+msgstr "Kannada"
 
 #: common/models/lang.py:103
 msgid "Kashmiri"
-msgstr ""
+msgstr "Kashmiri"
 
 #: common/models/lang.py:104
 msgid "Kanuri"
-msgstr ""
+msgstr "Kanuri"
 
 #: common/models/lang.py:105
 msgid "Kazakh"
-msgstr ""
+msgstr "Cazaque"
 
 #: common/models/lang.py:106
 msgid "Khmer"
-msgstr ""
+msgstr "Khmer"
 
 #: common/models/lang.py:107
 msgid "Kikuyu"
-msgstr ""
+msgstr "Kikuyu"
 
 #: common/models/lang.py:108
 msgid "Kinyarwanda"
-msgstr ""
+msgstr "Kinyarwanda"
 
 #: common/models/lang.py:109
 msgid "Kirghiz"
-msgstr ""
+msgstr "Quirguiz"
 
 #: common/models/lang.py:110
 msgid "Komi"
-msgstr ""
+msgstr "Komi"
 
 #: common/models/lang.py:111
 msgid "Kongo"
-msgstr ""
+msgstr "Kongo"
 
 #: common/models/lang.py:112
 msgid "Korean"
-msgstr "韓語"
+msgstr "Coreano"
 
 #: common/models/lang.py:113
 msgid "Kuanyama"
-msgstr ""
+msgstr "Kuanyama"
 
 #: common/models/lang.py:114
 msgid "Kurdish"
-msgstr ""
+msgstr "Curdo"
 
 #: common/models/lang.py:115
 msgid "Lao"
-msgstr ""
+msgstr "Lao"
 
 #: common/models/lang.py:116
 msgid "Latin"
-msgstr ""
+msgstr "Latim"
 
 #: common/models/lang.py:117
 msgid "Latvian"
-msgstr ""
+msgstr "Letão"
 
 #: common/models/lang.py:118
 msgid "Limburgish"
-msgstr ""
+msgstr "Limburguês"
 
 #: common/models/lang.py:119
 msgid "Lingala"
-msgstr ""
+msgstr "Lingala"
 
 #: common/models/lang.py:120
 msgid "Lithuanian"
-msgstr ""
+msgstr "Lituano"
 
 #: common/models/lang.py:121
 msgid "Letzeburgesch"
-msgstr ""
+msgstr "Letzeburgesch"
 
 #: common/models/lang.py:122
 msgid "Luba-Katanga"
-msgstr ""
+msgstr "Luba-Katanga"
 
 #: common/models/lang.py:123
 msgid "Ganda"
-msgstr ""
+msgstr "Ganda"
 
 #: common/models/lang.py:124
 msgid "Marshall"
-msgstr ""
+msgstr "Marshall"
 
 #: common/models/lang.py:125
 msgid "Malayalam"
-msgstr ""
+msgstr "Malayalam"
 
 #: common/models/lang.py:126
 msgid "Marathi"
-msgstr ""
+msgstr "Marata"
 
 #: common/models/lang.py:127
 msgid "Malagasy"
-msgstr ""
+msgstr "Malagasy"
 
 #: common/models/lang.py:128
 msgid "Maltese"
-msgstr ""
+msgstr "Maltês"
 
 #: common/models/lang.py:129
 msgid "Moldavian"
-msgstr ""
+msgstr "Moldavo"
 
 #: common/models/lang.py:130
 msgid "Mongolian"
-msgstr ""
+msgstr "Mongol"
 
 #: common/models/lang.py:131
 msgid "Maori"
-msgstr ""
+msgstr "Maori"
 
 #: common/models/lang.py:132
 msgid "Malay"
-msgstr ""
+msgstr "Malaio"
 
 #: common/models/lang.py:133
 msgid "Burmese"
-msgstr ""
+msgstr "Birmanês"
 
 #: common/models/lang.py:134
 msgid "Nauru"
-msgstr ""
+msgstr "Nauru"
 
 #: common/models/lang.py:135
 msgid "Navajo"
-msgstr ""
+msgstr "Navajo"
 
 #: common/models/lang.py:136 common/models/lang.py:137
 msgid "Ndebele"
-msgstr ""
+msgstr "Ndebele"
 
 #: common/models/lang.py:138
 msgid "Ndonga"
-msgstr ""
+msgstr "Ndonga"
 
 #: common/models/lang.py:139
 msgid "Nepali"
-msgstr ""
+msgstr "Nepalês"
 
 #: common/models/lang.py:140
 msgid "Dutch"
-msgstr ""
+msgstr "Neerlandês"
 
 #: common/models/lang.py:141
 msgid "Norwegian Nynorsk"
-msgstr ""
+msgstr "Norueguês Nynorsk"
 
 #: common/models/lang.py:142
 msgid "Norwegian Bokmål"
-msgstr ""
+msgstr "Norueguês Bokmål"
 
 #: common/models/lang.py:143
 msgid "Norwegian"
-msgstr ""
+msgstr "Norueguês"
 
 #: common/models/lang.py:144
 msgid "Chichewa; Nyanja"
-msgstr ""
+msgstr "Chichewa; Nyanja"
 
 #: common/models/lang.py:145
 msgid "Occitan"
-msgstr ""
+msgstr "Occitano"
 
 #: common/models/lang.py:146
 msgid "Ojibwa"
-msgstr ""
+msgstr "Ojibwa"
 
 #: common/models/lang.py:147
 msgid "Oriya"
-msgstr ""
+msgstr "Oriá"
 
 #: common/models/lang.py:148
 msgid "Oromo"
-msgstr ""
+msgstr "Oromo"
 
 #: common/models/lang.py:149
 msgid "Ossetian; Ossetic"
-msgstr ""
+msgstr "Ossetian; Ossetic"
 
 #: common/models/lang.py:150
 msgid "Pali"
-msgstr ""
+msgstr "Pali"
 
 #: common/models/lang.py:151
 msgid "Polish"
-msgstr "波蘭語"
+msgstr "Polaco"
 
 #: common/models/lang.py:152 common/models/lang.py:290
 msgid "Portuguese"
-msgstr ""
+msgstr "Português"
 
 #: common/models/lang.py:153
 msgid "Quechua"
-msgstr ""
+msgstr "Quechua"
 
 #: common/models/lang.py:154
 msgid "Raeto-Romance"
-msgstr ""
+msgstr "Raeto-Romance"
 
 #: common/models/lang.py:155
 msgid "Romanian"
-msgstr ""
+msgstr "Romeno"
 
 #: common/models/lang.py:156
 msgid "Rundi"
-msgstr ""
+msgstr "Rundi"
 
 #: common/models/lang.py:157
 msgid "Russian"
-msgstr "俄語"
+msgstr "Russo"
 
 #: common/models/lang.py:158
 msgid "Sango"
-msgstr ""
+msgstr "Sango"
 
 #: common/models/lang.py:159
 msgid "Sanskrit"
-msgstr ""
+msgstr "Sânscrito"
 
 #: common/models/lang.py:160
 msgid "Sinhalese"
-msgstr ""
+msgstr "Cingalês"
 
 #: common/models/lang.py:161
 msgid "Slovak"
-msgstr ""
+msgstr "Eslovaco"
 
 #: common/models/lang.py:162
 msgid "Slovenian"
-msgstr ""
+msgstr "Esloveno"
 
 #: common/models/lang.py:163
 msgid "Northern Sami"
-msgstr ""
+msgstr "Northern Sami"
 
 #: common/models/lang.py:164
 msgid "Samoan"
-msgstr ""
+msgstr "Samoano"
 
 #: common/models/lang.py:165
 msgid "Shona"
-msgstr ""
+msgstr "Shona"
 
 #: common/models/lang.py:166
 msgid "Sindhi"
-msgstr ""
+msgstr "Sindi"
 
 #: common/models/lang.py:167
 msgid "Somali"
-msgstr ""
+msgstr "Somali"
 
 #: common/models/lang.py:168
 msgid "Sotho"
-msgstr ""
+msgstr "Sotho"
 
 #: common/models/lang.py:169
 msgid "Spanish"
-msgstr "西班牙語"
+msgstr "Espanhol"
 
 #: common/models/lang.py:170
 msgid "Albanian"
-msgstr ""
+msgstr "Albanês"
 
 #: common/models/lang.py:171
 msgid "Sardinian"
-msgstr ""
+msgstr "Sardenho"
 
 #: common/models/lang.py:172
 msgid "Serbian"
-msgstr ""
+msgstr "Sérvio"
 
 #: common/models/lang.py:173
 msgid "Swati"
-msgstr ""
+msgstr "Swati"
 
 #: common/models/lang.py:174
 msgid "Sundanese"
-msgstr ""
+msgstr "Sudanês"
 
 #: common/models/lang.py:175
 msgid "Swahili"
-msgstr ""
+msgstr "Suaíli"
 
 #: common/models/lang.py:176
 msgid "Swedish"
-msgstr ""
+msgstr "Sueco"
 
 #: common/models/lang.py:177
 msgid "Tahitian"
-msgstr ""
+msgstr "Taitiano"
 
 #: common/models/lang.py:178
 msgid "Tamil"
-msgstr ""
+msgstr "Tamil"
 
 #: common/models/lang.py:179
 msgid "Tatar"
-msgstr ""
+msgstr "Tatar"
 
 #: common/models/lang.py:180
 msgid "Telugu"
-msgstr ""
+msgstr "Telugu"
 
 #: common/models/lang.py:181
 msgid "Tajik"
-msgstr ""
+msgstr "Tajik"
 
 #: common/models/lang.py:182
 msgid "Tagalog"
-msgstr ""
+msgstr "Tagalo"
 
 #: common/models/lang.py:183
 msgid "Thai"
-msgstr ""
+msgstr "Tailandês"
 
 #: common/models/lang.py:184
 msgid "Tigrinya"
-msgstr ""
+msgstr "Tigrínia"
 
 #: common/models/lang.py:185
 msgid "Tonga"
-msgstr ""
+msgstr "Tonga"
 
 #: common/models/lang.py:186
 msgid "Tswana"
-msgstr ""
+msgstr "Tsuana"
 
 #: common/models/lang.py:187
 msgid "Tsonga"
-msgstr ""
+msgstr "Tsonga"
 
 #: common/models/lang.py:188
+#, fuzzy
 msgid "Turkmen"
-msgstr ""
+msgstr "Turkmen"
 
 #: common/models/lang.py:189
 msgid "Turkish"
-msgstr ""
+msgstr "Turco"
 
 #: common/models/lang.py:190
 msgid "Twi"
-msgstr ""
+msgstr "Twi"
 
 #: common/models/lang.py:191
 msgid "Uighur"
-msgstr ""
+msgstr "Uigur"
 
 #: common/models/lang.py:192
 msgid "Ukrainian"
-msgstr "烏克蘭語"
+msgstr "Ucraniano"
 
 #: common/models/lang.py:193
 msgid "Urdu"
-msgstr "烏爾都語"
+msgstr "Urdu"
 
 #: common/models/lang.py:194
 msgid "Uzbek"
-msgstr ""
+msgstr "Uzbeque"
 
 #: common/models/lang.py:195
 msgid "Venda"
-msgstr ""
+msgstr "Venda"
 
 #: common/models/lang.py:196
 msgid "Vietnamese"
-msgstr "越南語"
+msgstr "Vietnamita"
 
 #: common/models/lang.py:197
 msgid "Volapük"
-msgstr ""
+msgstr "Volapük"
 
 #: common/models/lang.py:198
 msgid "Walloon"
-msgstr ""
+msgstr "Walloon"
 
 #: common/models/lang.py:199
 msgid "Wolof"
-msgstr ""
+msgstr "Wolof"
 
 #: common/models/lang.py:200
 msgid "Xhosa"
-msgstr ""
+msgstr "Xhosa"
 
 #: common/models/lang.py:201
 msgid "Yiddish"
-msgstr ""
+msgstr "Yiddish"
 
 #: common/models/lang.py:202
 msgid "Zhuang"
-msgstr ""
+msgstr "Zhuang"
 
 #: common/models/lang.py:203
 msgid "Zulu"
-msgstr ""
+msgstr "Zulu"
 
 #: common/models/lang.py:204
 msgid "Abkhazian"
-msgstr ""
+msgstr "Abcásio"
 
 #: common/models/lang.py:205
 msgid "Chinese"
-msgstr "中文"
+msgstr "Chinês"
 
 #: common/models/lang.py:206
 msgid "Pushto"
-msgstr ""
+msgstr "Pushto"
 
 #: common/models/lang.py:207
 msgid "Amharic"
-msgstr ""
+msgstr "Amárico"
 
 #: common/models/lang.py:208
 msgid "Arabic"
-msgstr "阿拉伯語"
+msgstr "Árabe"
 
 #: common/models/lang.py:209
 msgid "Bulgarian"
-msgstr ""
+msgstr "Búlgaro"
 
 #: common/models/lang.py:210
 msgid "Macedonian"
-msgstr ""
+msgstr "Macedónio"
 
 #: common/models/lang.py:211
 msgid "Greek"
-msgstr ""
+msgstr "Grego"
 
 #: common/models/lang.py:212
 msgid "Persian"
-msgstr "波斯語"
+msgstr "Persa"
 
 #: common/models/lang.py:213
 msgid "Hebrew"
-msgstr ""
+msgstr "Hebraico"
 
 #: common/models/lang.py:214
 msgid "Hindi"
-msgstr "印度語"
+msgstr "Hindi"
 
 #: common/models/lang.py:215
 msgid "Armenian"
-msgstr ""
+msgstr "Armenio"
 
 #: common/models/lang.py:217
 msgid "Ewe"
-msgstr ""
+msgstr "Ewe"
 
 #: common/models/lang.py:218
 msgid "Georgian"
-msgstr ""
+msgstr "Georgiano"
 
 #: common/models/lang.py:219
 msgid "Punjabi"
-msgstr ""
+msgstr "Punjabi"
 
 #: common/models/lang.py:220
 msgid "Bengali"
-msgstr ""
+msgstr "Bengali"
 
 #: common/models/lang.py:221
 msgid "Bosnian"
-msgstr ""
+msgstr "Bósnio"
 
 #: common/models/lang.py:222
 msgid "Chamorro"
-msgstr ""
+msgstr "Chamorro"
 
 #: common/models/lang.py:223
 msgid "Belarusian"
-msgstr ""
+msgstr "Bielorrusso"
 
 #: common/models/lang.py:224
 msgid "Yoruba"
-msgstr ""
+msgstr "Yoruba"
 
 #: common/models/lang.py:242
 msgid "Unknown or Other"
-msgstr "未知或其它"
+msgstr "Desconhecido ou Outro"
 
 #: common/models/lang.py:285
 msgid "Simplified Chinese (Mainland)"
-msgstr "簡體中文(大陸)"
+msgstr "Chinês Simplificado (Continental)"
 
 #: common/models/lang.py:286
 msgid "Traditional Chinese (Taiwan)"
-msgstr "正體中文(臺灣)"
+msgstr "Chinês Tradicional (Taiwan)"
 
 #: common/models/lang.py:287
 msgid "Traditional Chinese (Hongkong)"
-msgstr "繁體中文(香港)"
+msgstr "Chinês Tradicional (Hongkong)"
 
 #: common/models/lang.py:295
 msgid "Portuguese (Brazil)"
-msgstr ""
+msgstr "Português (Brasil)"
 
 #: common/models/lang.py:298
 msgid "Simplified Chinese (Singapore)"
-msgstr "簡體中文(新加坡)"
+msgstr "Chinês Simplificado (Singapura)"
 
 #: common/models/lang.py:299
 msgid "Simplified Chinese (Malaysia)"
-msgstr "簡體中文(馬來西亞)"
+msgstr "Chinês Simplificado (Malásia)"
 
 #: common/models/lang.py:300
 msgid "Traditional Chinese (Macau)"
-msgstr "繁體中文(澳門)"
+msgstr "Chinês Tradicional (Macau)"
 
 #: common/models/lang.py:306
 msgid "Mandarin Chinese"
-msgstr "普通話"
+msgstr "Mandarim Chinês"
 
 #: common/models/lang.py:307
 msgid "Yue Chinese"
-msgstr "粵語"
+msgstr "Yue Chinês"
 
 #: common/models/lang.py:311
 msgid "Min Nan Chinese"
-msgstr "閩南語"
+msgstr "Min Nan Chinês"
 
 #: common/models/lang.py:312
 msgid "Wu Chinese"
-msgstr "吳語"
+msgstr "Wu Chinês"
 
 #: common/models/lang.py:313
 msgid "Hakka Chinese"
-msgstr "客家話"
+msgstr "Hakka Chinês"
 
 #: common/templates/400.html:22
 msgid "You may have submitted invalid data, or the content may have been deleted by the author."
-msgstr "您可能提交了無效的數據，或者相關內容已被作者刪除。"
+msgstr ""
+"Pode ter inserido dados inválidos, ou o conteúdo em causa pode ter sido "
+"eliminado pelo autor em questão."
 
 #: common/templates/400.html:24 common/templates/403.html:24
 #: common/templates/404.html:24
 msgid "If you believe this is our mistake, please contact us through the link at the bottom of the page."
-msgstr "如果您確信這是我們的錯誤，請通過頁面底部的連結聯繫我們。"
+msgstr ""
+"Se acha que se trata de um erro nosso, por favor, contacte-nos através do "
+"link no final da página."
 
 #: common/templates/403.html:22
 msgid "Author may require you to log in before accessing this content, or you do not have permission to view it."
-msgstr "作者可能希望您登入後訪問，或者您沒有權限查看此內容。"
+msgstr ""
+"O autor requer que inicie sessão para aceder a este conteúdo, ou então não "
+"conseguirá visualizá-lo."
 
 #: common/templates/404.html:20
 msgid "Something is missing"
-msgstr "未找到所需內容"
+msgstr "Está algo em falta"
 
 #: common/templates/404.html:22
 msgid "You may have visited an incorrect URL, or the content you are looking for has been deleted by the author."
-msgstr "您可能訪問了錯誤的網址，或者相關內容已被作者刪除。"
+msgstr ""
+"Talvez tenha entrado num URL incorrecto, ou o conteúdo que procurava foi "
+"eliminado pelo autor."
 
 #: common/templates/500.html:22
 msgid "An internal error occurred. If this error occurs repeatedly, it will be recorded and handled by a human."
-msgstr "發生了一個內部錯誤，如果這個錯誤多次出現，後臺會記錄並會由人工處理。"
+msgstr ""
+"Ocorreu um erro interno. Se o erro persistir, será registado e tratado pelos "
+"responsáveis."
 
 #: common/templates/500.html:24
 msgid "If you have an urgent situation or any questions, please contact us through the link at the bottom of the page."
-msgstr "如果您有緊急情況或任何疑問，請通過頁面底部的連結聯繫我們。"
+msgstr ""
+"Se possui alguma questão ou situação/dúvida urgente, por favor, contacte-nos "
+"através do link no final da página."
 
 #: common/templates/_footer.html:6
 msgid "Rules"
-msgstr "站點規則"
+msgstr "Regras"
 
 #: common/templates/_footer.html:7
 msgid "Terms"
-msgstr "服務協議"
+msgstr "Termos"
 
 #: common/templates/_footer.html:8 common/templates/_sidebar_anonymous.html:40
 #: users/templates/users/announcements.html:11
 #: users/templates/users/announcements.html:41
 msgid "Announcements"
-msgstr "公告欄"
+msgstr "Anúncios"
 
 #: common/templates/_footer.html:9
 msgid "Developer"
-msgstr "開發者"
+msgstr "Programador/Desenvolvedor"
 
 #: common/templates/_footer.html:13
 msgid "Source Code"
-msgstr "源代碼"
+msgstr "Código Fonte"
 
 #: common/templates/_footer.html:16 users/templates/users/login.html:199
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
-msgstr "這是%(site_name)s的臨時鏡像，請儘可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站點</a>。"
+msgstr ""
+"Está a consultar um domínio/site alternativo a %(site_name)s. Por favor, use "
+"sempre a <a href=\"%(site_url)s%(request.get_full_path)s\">versão original</"
+"a> , se possível."
 
 #: common/templates/_header.html:17 common/templates/_header.html:133
 msgid "title, creator, ISBN, item url, @user, @user@instance"
-msgstr "標題、創作者、ISBN、站外條目連結、@用戶名、@用戶名@實例"
+msgstr "título, criador, ISBN, url do item, @utilizador, @utilizador@instância"
 
 #: common/templates/_header.html:22
 msgid "All Items"
-msgstr "所有條目"
+msgstr "Todos os itens"
 
 #: common/templates/_header.html:29
 msgid "Movie & TV"
-msgstr "影視"
+msgstr "Filme & TV"
 
 #: common/templates/_header.html:48
 msgid "Journal"
-msgstr "記錄"
+msgstr ""
 
 #: common/templates/_header.html:50
 msgid "Posts"
-msgstr "帖文"
+msgstr "Posts"
 
 #: common/templates/_header.html:72
 msgid "Explore"
-msgstr "發現"
+msgstr "Explorar"
 
 #: common/templates/_header.html:75
 msgid "Feed"
-msgstr "動態"
+msgstr "Feed"
 
 #: common/templates/_header.html:78 journal/templates/profile.html:11
 #: users/templates/users/preferences.html:45
 msgid "Home"
-msgstr "主頁"
+msgstr ""
 
 #: common/templates/_header.html:94 social/templates/notification.html:11
 #: social/templates/notification.html:24
 msgid "Notification"
-msgstr "通知"
+msgstr "Notificação"
 
 #: common/templates/_header.html:97
 msgid "Data"
-msgstr "數據"
+msgstr "Dados"
 
 #: common/templates/_header.html:100 users/templates/users/preferences.html:11
 #: users/templates/users/preferences.html:22
 msgid "Preferences"
-msgstr "設定"
+msgstr "Preferências"
 
 #: common/templates/_header.html:103
 msgid "Account"
-msgstr "帳號"
+msgstr "Conta"
 
 #: common/templates/_header.html:106
 msgid "Logout"
-msgstr "登出"
+msgstr "Logout"
 
 #: common/templates/_header.html:110
 msgid "Database"
-msgstr "數據庫"
+msgstr "Base de dados"
 
 #: common/templates/_header.html:113
 msgid "Manage"
-msgstr "管理"
+msgstr "Gerir"
 
 #: common/templates/_header.html:118
 msgid "Sign up or Login"
-msgstr "註冊或登入"
+msgstr "Registar-se ou iniciar sessão"
 
 #: common/templates/_header.html:131
 msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
-msgstr "搜索你的評論或條目，可加過濾條件如 category:tv status:complete rating:8..10 date:2021-09-11..2022-02"
+msgstr ""
 
 #: common/templates/_header.html:145
 msgid "Open"
-msgstr "打開"
+msgstr "Abrir"
 
 #: common/templates/_sidebar.html:53
 #: users/templates/users/profile_actions.html:35
 msgid "approving followers manually"
-msgstr "已開啓關注審覈"
+msgstr "Aprovar seguidores manualmente"
 
 #: common/templates/_sidebar.html:75
 msgid "Current Targets"
-msgstr "當前目標"
+msgstr ""
 
 #: common/templates/_sidebar.html:88
 msgid "Set a collection as target, its progress will show up here."
-msgstr "將自己或他人的收藏單設爲目標，這裏就會顯示進度"
+msgstr ""
 
 #: common/templates/_sidebar.html:101
 msgid "Recent podcast episodes"
-msgstr "近期播客節目"
+msgstr "Episódios de podcast recentes"
 
 #: common/templates/_sidebar.html:136
 msgid "Currently reading"
-msgstr "正在閱讀"
+msgstr "Atualmente a ler"
 
 #: common/templates/_sidebar.html:159
 msgid "Currently watching"
-msgstr "正在追看"
+msgstr "Atualmente a ver"
 
 #: common/templates/_sidebar.html:182 journal/templates/user_tag_list.html:12
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
-msgstr "標籤"
+msgstr "Tags"
 
 #: common/templates/_sidebar.html:188 journal/templates/user_tag_list.html:26
 #: journal/templates/user_tagmember_list.html:10
 msgid "featured tag"
-msgstr "置頂標籤"
+msgstr ""
 
 #: common/templates/_sidebar.html:191 journal/templates/user_tag_list.html:29
 #: journal/templates/user_tagmember_list.html:15
 msgid "personal tag"
-msgstr "個人標籤"
+msgstr "tag pessoal"
 
 #: common/templates/_sidebar.html:198 journal/templates/user_tag_list.html:37
 msgid "no tags so far."
-msgstr "暫無標籤。"
+msgstr "sem tags, para já."
 
 #: common/templates/_sidebar.html:202
 msgid "show all"
-msgstr "顯示全部"
+msgstr "mostrar tudo"
 
 #: common/templates/_sidebar_anonymous.html:16
 #, python-format
@@ -2521,43 +2581,58 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"<h3>歡迎 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
-"<p>\n"
-"  <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s 致力於提供一個涵蓋書籍、影視、音樂、遊戲、播客的自由開放互聯的收藏評論空間。 你可以在這裏記錄你的收藏和想法，以及發現新的內容和朋友。\n"
-"</p>\n"
-"<p>\n"
-"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登入%(site_name)s的最佳方式通過聯邦宇宙（Fediverse，有時也被稱爲<em data-tooltip=\"除了最常見的長毛象，另外也有Pleroma、GoToSocial、Takahē、Catodon等聯邦宇宙實例服務\">長毛象</em>，一種分佈式社交網絡）實例帳號，如果你還沒有註冊過，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">選擇實例並註冊</a>。\n"
-"</p>\n"
-"<p>\n"
-"  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果還沒準備好註冊聯邦宇宙也沒問題，你可以在登入頁面選擇電子郵件註冊，未來再連接到聯邦宇宙。\n"
-"</p>\n"
-"<p>\n"
-"  <i class=\"fa-solid fa-circle-question\"></i> &nbsp; 如果有任何問題或建議，歡迎通過<a href=\"https://mastodon.social/@neodb\">聯邦宇宙</a>或<a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>和我們聯繫。\n"
-"</p>\n"
-"<p>\n"
-"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">點擊這裏</a>註冊或登入。\n"
-"</p>\n"
+"        <h3>Bem-vindo 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s "
+"está empenhada em criar um espaço livre, aberto e interligado para "
+"colecionar e opinar sobre livros, filmes, música, jogos e podcasts. Aqui, "
+"pode documentar as suas coleções e pensamentos, descobrir novos conteúdos e "
+"estabelecer ligações com outros utilizadores.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-globe\"></i> &nbsp; A melhor maneira de "
+"iniciar sessão é %(site_name)s através de uma conta numa instância do "
+"Fediverso (como Mastodon/Pleroma/etc). Se ainda não se registou, pode <a "
+"href=\"https://joinmastodon.org/en/servers\" target=\"_blank\"> escolher uma "
+"instância no Fediverso e registar-se</a>.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-envelope\"></i> &nbsp; Se ainda não se "
+"sente preparado para aderir ao Fediverso, não se preocupe! Pode criar uma "
+"conta aqui, usando um endereço de email e, mais tarde, conectar-se com o "
+"Fediverso.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-circle-question\"></i> &nbsp;  Se tem "
+"dúvidas ou sugestões, não hesite em contactar-nos através do <a href="
+"\"https://mastodon.social/@neodb\">Fediverso</a> ou <a href="
+"\"https://discord.gg/uprvcH8gqD\">Discord</a>.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href="
+"\"%(login_url)s\">Clique aqui</a> para se registar ou iniciar sessão.\n"
+"        </p>\n"
 "        "
 
 #: common/templates/common/error.html:11
 msgid "Error"
-msgstr "錯誤"
+msgstr "Erro"
 
 #: common/templatetags/duration.py:49
 msgid "just now"
-msgstr "剛剛"
+msgstr "agora mesmo"
 
 #: common/templatetags/mastodon.py:44
 msgid "mutual followed"
-msgstr "互相關注"
+msgstr ""
 
 #: common/templatetags/mastodon.py:46
 msgid "followed"
-msgstr "已關注"
+msgstr "seguido"
 
 #: common/templatetags/mastodon.py:49
 msgid "following you"
-msgstr "關注了你"
+msgstr "segue-o"
 
 #: common/templatetags/mastodon.py:52
 msgid "you"
@@ -2565,73 +2640,74 @@ msgstr ""
 
 #: common/templatetags/mastodon.py:55
 msgid "unavailable"
-msgstr ""
+msgstr "Indisponível"
 
 #: common/utils.py:64 common/utils.py:94 users/views/actions.py:35
 #: users/views/actions.py:121
 msgid "User not found"
-msgstr "用戶不存在"
+msgstr "Utilizador não encontrado"
 
 #: common/utils.py:68 common/utils.py:98 users/views/actions.py:124
 msgid "User no longer exists"
-msgstr "用戶不存在了"
+msgstr "Este utilizador já não existe"
 
 #: common/utils.py:76 common/utils.py:106
 msgid "Access denied"
-msgstr "訪問被拒絕"
+msgstr "Acesso negado"
 
 #: journal/forms.py:18 journal/forms.py:41
 msgid "Title"
-msgstr "標題"
+msgstr "Título"
 
 #: journal/forms.py:19 journal/forms.py:42
+#, fuzzy
 msgid "Content (Markdown)"
-msgstr "內容 （Markdown格式）"
+msgstr "Conteúdo (Markdown)"
 
 #: journal/forms.py:21 journal/templates/comment.html:62
 #: journal/templates/mark.html:115 journal/views/note.py:26
 msgid "Crosspost to timeline"
-msgstr "轉發到時間軸"
+msgstr "Fazer crosspost para a cronologia"
 
 #: journal/forms.py:25 journal/forms.py:45
 #: journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:38
 #: users/templates/users/data.html:139
 msgid "Visibility"
-msgstr "可見性"
+msgstr "Visibilidade"
 
 #: journal/forms.py:34
 msgid "creator only"
-msgstr "僅創建者"
+msgstr "só o criador"
 
 #: journal/forms.py:35
 msgid "creator and their mutuals"
-msgstr "創建者和他們的互相關注"
+msgstr ""
 
 #: journal/forms.py:52 journal/templates/collection.html:141
 msgid "Collaborative editing"
-msgstr "協作編輯"
+msgstr "Editar em grupo/colaboração"
 
 #: journal/importers/letterboxd.py:107
 #, python-brace-format
 msgid "a review of {item_title}"
-msgstr "關於 {item_title} 的評論"
+msgstr "uma crítica de {item_title}"
 
 #: journal/importers/opml.py:36
 #, python-brace-format
 msgid "{username}'s podcast subscriptions"
-msgstr "{username} 的播客訂閱"
+msgstr "Subscrições de podcasts de {username}'"
 
 #: journal/models/collection.py:28 journal/templates/add_to_collection.html:32
 #: journal/templates/collection_items.html:24
 #: journal/templates/collection_share.html:63
 #: journal/templates/wrapped_share.html:29
 msgid "note"
-msgstr "備註"
+msgstr "nota"
 
 #: journal/models/collection.py:141
 msgid "created collection"
-msgstr "創建了收藏單"
+msgstr "coleção criada"
 
 #: journal/models/common.py:38 journal/templates/action_open_post.html:8
 #: journal/templates/action_open_post.html:14
@@ -2642,7 +2718,7 @@ msgstr "創建了收藏單"
 #: users/templates/users/data.html:148
 #: users/templates/users/preferences.html:55
 msgid "Public"
-msgstr "公開"
+msgstr "Público"
 
 #: journal/models/common.py:39 journal/templates/action_open_post.html:10
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
@@ -2650,7 +2726,7 @@ msgstr "公開"
 #: users/templates/users/data.html:55 users/templates/users/data.html:156
 #: users/templates/users/preferences.html:62
 msgid "Followers Only"
-msgstr "僅關注者"
+msgstr "Apenas seguidores"
 
 #: journal/models/common.py:40 journal/templates/action_open_post.html:12
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
@@ -2658,94 +2734,98 @@ msgstr "僅關注者"
 #: users/templates/users/data.html:63 users/templates/users/data.html:164
 #: users/templates/users/preferences.html:69
 msgid "Mentioned Only"
-msgstr "自己和提到的人"
+msgstr "Apenas mencionado"
 
 #: journal/models/common.py:370
 msgid "A recent post was not posted to Threads."
-msgstr "帖文未能發佈到Threads。"
+msgstr "Um post recente não foi publicado no Threads."
 
 #: journal/models/common.py:404
 msgid "A recent post was not posted to Mastodon, please re-authorize."
-msgstr "帖文未能發佈到聯邦實例，請重新驗證登入。"
+msgstr ""
+"Um post recente não foi publicado no Mastodon. Por favor, volte a autorizar."
 
 #: journal/models/common.py:411
 msgid "A recent post was not posted to Mastodon."
-msgstr "帖文未能發佈到聯邦實例。"
+msgstr "Um post recente não foi publicado no Mastodon."
 
 #: journal/models/note.py:31
 msgid "Page"
-msgstr "頁碼"
+msgstr "Página"
 
 #: journal/models/note.py:32
 msgid "Chapter"
-msgstr "章節"
+msgstr "Capítulo"
 
 #: journal/models/note.py:35
 msgid "Part"
-msgstr "分部"
+msgstr "Parte"
 
 #: journal/models/note.py:36
 msgid "Episode"
-msgstr "單集"
+msgstr "Episódio"
 
 #: journal/models/note.py:37
 msgid "Track"
-msgstr "曲目"
+msgstr "Faixa"
 
 #: journal/models/note.py:38
 msgid "Cycle"
-msgstr "周目"
+msgstr ""
 
 #: journal/models/note.py:39
 msgid "Timestamp"
-msgstr "時間戳"
+msgstr "Timestamp"
 
 #: journal/models/note.py:40
 msgid "Percentage"
-msgstr "百分比"
+msgstr "Percentagem"
 
 #: journal/models/note.py:57
 #, python-brace-format
 msgid "Page {value}"
-msgstr "第{value}頁"
+msgstr "Página {value}"
 
 #: journal/models/note.py:58
 #, python-brace-format
 msgid "Chapter {value}"
-msgstr "第{value}章"
+msgstr "Capítulo {value}"
 
 #: journal/models/note.py:61
 #, python-brace-format
 msgid "Part {value}"
-msgstr "第{value}部"
+msgstr "Parte {value}"
 
 #: journal/models/note.py:62
 #, python-brace-format
 msgid "Episode {value}"
-msgstr "第{value}集"
+msgstr "Episódio {value}"
 
 #: journal/models/note.py:63
 #, python-brace-format
 msgid "Track {value}"
-msgstr "第{value}首"
+msgstr "Faixa {value}"
 
 #: journal/models/note.py:64
 #, python-brace-format
 msgid "Cycle {value}"
-msgstr "{value}周目"
+msgstr ""
 
 #: journal/models/renderers.py:104
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
-msgstr "關於 {item_title}，可能包含劇透或敏感內容"
+msgstr ""
+"Relativamente a {item_title}, pode conter spoilers e conteúdo inapropriado"
 
 #: journal/models/shelf.py:26
+#, fuzzy
 msgid "WISHLIST"
-msgstr ""
+msgstr "LISTA DE DESEJOS"
 
 #: journal/models/shelf.py:27
+#, fuzzy
 msgid "PROGRESS"
-msgstr ""
+msgstr "PROGRESSO"
 
 #: journal/models/shelf.py:28
 msgid "COMPLETE"
@@ -2753,79 +2833,79 @@ msgstr ""
 
 #: journal/models/shelf.py:29
 msgid "DROPPED"
-msgstr ""
+msgstr "LANÇADO"
 
 #: journal/models/shelf.py:38
 msgid "books to read"
-msgstr "想讀的書"
+msgstr ""
 
 #: journal/models/shelf.py:39
 msgid "want to read"
-msgstr "想讀"
+msgstr ""
 
 #: journal/models/shelf.py:40
 #, python-brace-format
 msgid "wants to read {item}"
-msgstr "想讀 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:41
 msgid "to read"
-msgstr "想讀"
+msgstr ""
 
 #: journal/models/shelf.py:46
 msgid "books reading"
-msgstr "正在讀的書"
+msgstr ""
 
 #: journal/models/shelf.py:47
 msgid "start reading"
-msgstr "在讀"
+msgstr ""
 
 #: journal/models/shelf.py:48
 #, python-brace-format
 msgid "started reading {item}"
-msgstr "在讀 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:49
 msgid "reading"
-msgstr "在讀"
+msgstr "a ler"
 
 #: journal/models/shelf.py:54
 msgid "books completed"
-msgstr "讀過的書"
+msgstr ""
 
 #: journal/models/shelf.py:55
 msgid "finish reading"
-msgstr "讀過"
+msgstr ""
 
 #: journal/models/shelf.py:56
 #, python-brace-format
 msgid "finished reading {item}"
-msgstr "讀過 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:57
 msgid "read"
-msgstr "已讀"
+msgstr ""
 
 #: journal/models/shelf.py:62
 msgid "books dropped"
-msgstr "不再讀的書"
+msgstr ""
 
 #: journal/models/shelf.py:63
 msgid "stop reading"
-msgstr "不讀了"
+msgstr ""
 
 #: journal/models/shelf.py:64
 #, python-brace-format
 msgid "stopped reading {item}"
-msgstr "不再讀 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:65
 msgid "stopped reading"
-msgstr "不讀了"
+msgstr ""
 
 #: journal/models/shelf.py:70
 msgid "books reviewed"
-msgstr "評論過的書"
+msgstr ""
 
 #: journal/models/shelf.py:72 journal/models/shelf.py:112
 #: journal/models/shelf.py:152 journal/models/shelf.py:192
@@ -2833,525 +2913,533 @@ msgstr "評論過的書"
 #: journal/models/shelf.py:306
 #, python-brace-format
 msgid "wrote a review of {item}"
-msgstr "寫了關於 {item} 的評論"
+msgstr ""
 
 #: journal/models/shelf.py:78
 msgid "movies to watch"
-msgstr "想看的電影"
+msgstr ""
 
 #: journal/models/shelf.py:79 journal/models/shelf.py:119
 msgid "want to watch"
-msgstr "想看"
+msgstr ""
 
 #: journal/models/shelf.py:80 journal/models/shelf.py:120
 #, python-brace-format
 msgid "wants to watch {item}"
-msgstr "想看 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:81 journal/models/shelf.py:121
 msgid "to watch"
-msgstr "想看"
+msgstr ""
 
 #: journal/models/shelf.py:86
 msgid "movies watching"
-msgstr "正在看的電影"
+msgstr ""
 
 #: journal/models/shelf.py:87 journal/models/shelf.py:127
 msgid "start watching"
-msgstr "在看"
+msgstr ""
 
 #: journal/models/shelf.py:88 journal/models/shelf.py:128
 #, python-brace-format
 msgid "started watching {item}"
-msgstr "在看 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:89 journal/models/shelf.py:129
 msgid "watching"
-msgstr "在看"
+msgstr ""
 
 #: journal/models/shelf.py:94
 msgid "movies watched"
-msgstr "看過的電影"
+msgstr ""
 
 #: journal/models/shelf.py:95 journal/models/shelf.py:135
 msgid "finish watching"
-msgstr "看過"
+msgstr ""
 
 #: journal/models/shelf.py:96 journal/models/shelf.py:136
 #, python-brace-format
 msgid "finished watching {item}"
-msgstr "看過 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:97 journal/models/shelf.py:137
 msgid "watched"
-msgstr "看過"
+msgstr ""
 
 #: journal/models/shelf.py:102
 msgid "movies dropped"
-msgstr "不再看的電影"
+msgstr ""
 
 #: journal/models/shelf.py:103 journal/models/shelf.py:143
 msgid "stop watching"
-msgstr "不看了"
+msgstr ""
 
 #: journal/models/shelf.py:104 journal/models/shelf.py:144
 #, python-brace-format
 msgid "stopped watching {item}"
-msgstr "不再看 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:105 journal/models/shelf.py:145
 msgid "stopped watching"
-msgstr "不看了"
+msgstr ""
 
 #: journal/models/shelf.py:110
 msgid "movies reviewed"
-msgstr "評論過的電影"
+msgstr ""
 
 #: journal/models/shelf.py:118
 msgid "TV shows to watch"
-msgstr "想看的劇集"
+msgstr ""
 
 #: journal/models/shelf.py:126
 msgid "TV shows watching"
-msgstr "正在看的劇集"
+msgstr ""
 
 #: journal/models/shelf.py:134
 msgid "TV shows watched"
-msgstr "看過的劇集"
+msgstr ""
 
 #: journal/models/shelf.py:142
 msgid "TV shows dropped"
-msgstr "不再看的劇集"
+msgstr ""
 
 #: journal/models/shelf.py:150
 msgid "TV shows reviewed"
-msgstr "評論過的劇集"
+msgstr ""
 
 #: journal/models/shelf.py:158
 msgid "albums to listen"
-msgstr "想聽的專輯"
+msgstr ""
 
 #: journal/models/shelf.py:159 journal/models/shelf.py:239
 msgid "want to listen"
-msgstr "想聽"
+msgstr ""
 
 #: journal/models/shelf.py:160 journal/models/shelf.py:240
 #, python-brace-format
 msgid "wants to listen {item}"
-msgstr "想聽 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:161 journal/models/shelf.py:241
 msgid "to listen"
-msgstr "想聽"
+msgstr ""
 
 #: journal/models/shelf.py:166
 msgid "albums listening"
-msgstr "正在聽的專輯"
+msgstr ""
 
 #: journal/models/shelf.py:167 journal/models/shelf.py:247
 msgid "start listening"
-msgstr "在聽"
+msgstr ""
 
 #: journal/models/shelf.py:168 journal/models/shelf.py:248
 #, python-brace-format
 msgid "started listening {item}"
-msgstr "在聽 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:169 journal/models/shelf.py:249
 msgid "listening"
-msgstr "在聽"
+msgstr ""
 
 #: journal/models/shelf.py:174
 msgid "albums listened"
-msgstr "聽過的專輯"
+msgstr ""
 
 #: journal/models/shelf.py:175 journal/models/shelf.py:255
 msgid "finish listening"
-msgstr "聽過"
+msgstr ""
 
 #: journal/models/shelf.py:176 journal/models/shelf.py:256
 #, python-brace-format
 msgid "finished listening {item}"
-msgstr "聽過 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:177 journal/models/shelf.py:257
 msgid "listened"
-msgstr "聽過"
+msgstr ""
 
 #: journal/models/shelf.py:182
 msgid "albums dropped"
-msgstr "不再聽的專輯"
+msgstr ""
 
 #: journal/models/shelf.py:183 journal/models/shelf.py:263
 msgid "stop listening"
-msgstr "不聽了"
+msgstr ""
 
 #: journal/models/shelf.py:184 journal/models/shelf.py:264
 #, python-brace-format
 msgid "stopped listening {item}"
-msgstr "不聽了 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:185 journal/models/shelf.py:265
 msgid "stopped listening"
-msgstr "不聽了"
+msgstr ""
 
 #: journal/models/shelf.py:190
 msgid "albums reviewed"
-msgstr "評論過的專輯"
+msgstr ""
 
 #: journal/models/shelf.py:198
 msgid "games to play"
-msgstr "想玩的遊戲"
+msgstr ""
 
 #: journal/models/shelf.py:199
 msgid "want to play"
-msgstr "想玩"
+msgstr ""
 
 #: journal/models/shelf.py:200
 #, python-brace-format
 msgid "wants to play {item}"
-msgstr "想玩 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:201
 msgid "to play"
-msgstr "想玩"
+msgstr ""
 
 #: journal/models/shelf.py:206
 msgid "games playing"
-msgstr "正在玩的遊戲"
+msgstr ""
 
 #: journal/models/shelf.py:207
 msgid "start playing"
-msgstr "在玩"
+msgstr ""
 
 #: journal/models/shelf.py:208
 #, python-brace-format
 msgid "started playing {item}"
-msgstr "在玩 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:209
 msgid "playing"
-msgstr "在玩"
+msgstr ""
 
 #: journal/models/shelf.py:214
 msgid "games played"
-msgstr "玩過的遊戲"
+msgstr ""
 
 #: journal/models/shelf.py:215
 msgid "finish playing"
-msgstr "玩過"
+msgstr ""
 
 #: journal/models/shelf.py:216
 #, python-brace-format
 msgid "finished playing {item}"
-msgstr "玩過 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:217
 msgid "played"
-msgstr "玩過"
+msgstr ""
 
 #: journal/models/shelf.py:222
 msgid "games dropped"
-msgstr "不再玩的遊戲"
+msgstr ""
 
 #: journal/models/shelf.py:223
 msgid "stop playing"
-msgstr "不玩了"
+msgstr ""
 
 #: journal/models/shelf.py:224
 #, python-brace-format
 msgid "stopped playing {item}"
-msgstr "不再玩 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:225
 msgid "stopped playing"
-msgstr "不玩了"
+msgstr ""
 
 #: journal/models/shelf.py:230
 msgid "games reviewed"
-msgstr "評論過的遊戲"
+msgstr ""
 
 #: journal/models/shelf.py:238
 msgid "podcasts to listen"
-msgstr "想聽的播客"
+msgstr ""
 
 #: journal/models/shelf.py:246
 msgid "podcasts listening"
-msgstr "正在聽的播客"
+msgstr ""
 
 #: journal/models/shelf.py:254
 msgid "podcasts listened"
-msgstr "聽過的播客"
+msgstr ""
 
 #: journal/models/shelf.py:262
 msgid "podcasts dropped"
-msgstr "不再聽的播客"
+msgstr ""
 
 #: journal/models/shelf.py:270
 msgid "podcasts reviewed"
-msgstr "評論過的播客"
+msgstr ""
 
 #: journal/models/shelf.py:278
 msgid "performances to see"
-msgstr "想看的演出"
+msgstr ""
 
 #: journal/models/shelf.py:279
 msgid "want to see"
-msgstr "想看"
+msgstr ""
 
 #: journal/models/shelf.py:280
 #, python-brace-format
 msgid "wants to see {item}"
-msgstr "想看 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:281
 msgid "to see"
-msgstr "想看"
+msgstr ""
 
 #: journal/models/shelf.py:288
 msgid "performances saw"
-msgstr "看過的演出"
+msgstr ""
 
 #: journal/models/shelf.py:289
 msgid "finish seeing"
-msgstr "看過"
+msgstr ""
 
 #: journal/models/shelf.py:290
 #, python-brace-format
 msgid "finished seeing {item}"
-msgstr "看過 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:291
 msgid "seen"
-msgstr "看過"
+msgstr ""
 
 #: journal/models/shelf.py:296
 msgid "performances dropped"
-msgstr "不再看的演出"
+msgstr ""
 
 #: journal/models/shelf.py:297
 msgid "stop seeing"
-msgstr "不看了"
+msgstr ""
 
 #: journal/models/shelf.py:298
 #, python-brace-format
 msgid "stopped seeing {item}"
-msgstr "不再看 {item}"
+msgstr ""
 
 #: journal/models/shelf.py:299
 msgid "stopped seeing"
-msgstr "不看了"
+msgstr ""
 
 #: journal/models/shelf.py:304
 msgid "performances reviewed"
-msgstr "評論過的演出"
+msgstr ""
 
 #: journal/models/shelf.py:562
+#, fuzzy
 msgid "removed mark"
-msgstr "移除標記"
+msgstr "marcação removida"
 
 #: journal/templates/_feature_stats.html:10
 msgid "stop tracking"
-msgstr "停止追蹤目標"
+msgstr ""
 
 #: journal/templates/_feature_stats.html:11
 msgid "Stop tracking this target?"
-msgstr "停止追蹤這個目標嗎？"
+msgstr ""
 
 #: journal/templates/_feature_stats.html:15
+#, fuzzy
 msgid "set as target"
-msgstr "設定爲目標"
+msgstr "definir como alvo"
 
 #: journal/templates/_list_item.html:15
 msgid "Remove from collection"
-msgstr "從收藏單中移除"
+msgstr "Remover da coleção"
 
 #: journal/templates/_list_item.html:24
 msgid "add mark"
-msgstr "添加標記"
+msgstr "Adicionar marcação"
 
 #: journal/templates/_list_item.html:32
 msgid "update mark"
-msgstr "更新標記"
+msgstr "Atualizar marcação"
 
 #: journal/templates/_list_item.html:78 journal/templates/review.html:14
 #: journal/templates/review.html:23 journal/templates/review.html:53
 #: journal/templates/review_edit.html:10
 #: journal/templates/user_review_list.html:7
 msgid "Review"
-msgstr "評論"
+msgstr "Crítica"
 
 #: journal/templates/_list_item.html:93
 msgid "Update note"
-msgstr "修改備註"
+msgstr "Atualizar nota"
 
 #: journal/templates/_sidebar_user_mark_list.html:61
 msgid "sorting"
-msgstr "排序"
+msgstr "ordenação"
 
 #: journal/templates/_sidebar_user_mark_list.html:63
 msgid "rating"
-msgstr "評分"
+msgstr "avaliação"
 
 #: journal/templates/action_boost_post.html:10
 msgid "boost"
-msgstr "轉播"
+msgstr "boost"
 
 #: journal/templates/action_delete_post.html:6
 msgid "Are you sure to delete this post and the mark or note related with it?"
-msgstr "確認刪除這則帖文及其對應的標記/筆記/評論嗎？"
+msgstr ""
+"Tem a certeza que pretende apagar este post, bem como a marcação e a nota "
+"relacionada?"
 
 #: journal/templates/action_delete_post.html:6
 msgid "Are you sure to delete this reply?"
-msgstr "確認刪除這則回應嗎？"
+msgstr "Tem a certeza que quer apagar esta resposta?"
 
 #: journal/templates/action_delete_post.html:6
 msgid "Are you sure to delete this post?"
-msgstr "確認刪除這則帖文嗎？"
+msgstr "Tem a certeza que pretende apagar este post?"
 
 #: journal/templates/action_like_post.html:10
 msgid "liked"
-msgstr "已喜歡"
+msgstr ""
 
 #: journal/templates/action_like_post.html:16
 msgid "like"
-msgstr "喜歡"
+msgstr "gosto"
 
 #: journal/templates/action_reply_piece.html:3
 msgid "reply"
-msgstr "回應"
+msgstr "responder"
 
 #: journal/templates/add_to_collection.html:12
 msgid "Add to collection"
-msgstr "添加到收藏單"
+msgstr "Adicionar à coleção"
 
 #: journal/templates/add_to_collection.html:29
 #: journal/templates/collection_edit.html:27
 msgid "Create a new collection"
-msgstr "創建新收藏單"
+msgstr "Criar nova coleção"
 
 #: journal/templates/calendar_data.html:8
 msgid "JAN"
-msgstr "一月"
+msgstr "JAN"
 
 #: journal/templates/calendar_data.html:8
 msgid "FEB"
-msgstr "二月"
+msgstr "FEV"
 
 #: journal/templates/calendar_data.html:8
 msgid "MAR"
-msgstr "三月"
+msgstr "MAR"
 
 #: journal/templates/calendar_data.html:8
 msgid "APR"
-msgstr "四月"
+msgstr "ABR"
 
 #: journal/templates/calendar_data.html:8
 msgid "MAY"
-msgstr "五月"
+msgstr "MAI"
 
 #: journal/templates/calendar_data.html:8
 msgid "JUN"
-msgstr "六月"
+msgstr "JUN"
 
 #: journal/templates/calendar_data.html:8
 msgid "JUL"
-msgstr "七月"
+msgstr "JUL"
 
 #: journal/templates/calendar_data.html:8
 msgid "AUG"
-msgstr "八月"
+msgstr "AGO"
 
 #: journal/templates/calendar_data.html:8
 msgid "SEP"
-msgstr "九月"
+msgstr "SET"
 
 #: journal/templates/calendar_data.html:8
 msgid "OCT"
-msgstr "十月"
+msgstr "OUT"
 
 #: journal/templates/calendar_data.html:8
 msgid "NOV"
-msgstr "十一月"
+msgstr "NOV"
 
 #: journal/templates/calendar_data.html:8
 msgid "DEC"
-msgstr "十二月"
+msgstr "DEZ"
 
 #: journal/templates/collection.html:43
 #: journal/templates/collection_share.html:12
 #: journal/templates/collection_share.html:66
 #: journal/templates/wrapped_share.html:59
 msgid "Share"
-msgstr "分享"
+msgstr "Partilhar"
 
 #: journal/templates/collection.html:130 journal/templates/review.html:76
 msgid "Reply"
-msgstr "回應"
+msgstr "Responder"
 
 #: journal/templates/collection.html:149
 msgid "Created date"
-msgstr "創建日期"
+msgstr "Data criada"
 
 #: journal/templates/collection_edit.html:32
 msgid "Title and Description"
-msgstr "標題和描述"
+msgstr "Título e Descrição"
 
 #: journal/templates/collection_edit.html:45
 msgid "Items"
-msgstr "條目"
+msgstr "Items"
 
 #: journal/templates/collection_items.html:28
 msgid "Add an item to this collection"
-msgstr "添加站內條目到收藏夾"
+msgstr "Adicionar um item a esta coleção"
 
 #: journal/templates/collection_items.html:56
 msgid "Drag and drop to change the order order and click here to save"
-msgstr "拖拽修改條目順序後點擊這裏保存"
+msgstr "Arraste e largue para mudar a ordem e clique aqui para guardar"
 
 #: journal/templates/collection_share.html:24
 msgid "for the sharing post only, not visibility of the collection"
-msgstr "分享帖文的可見性，不同於收藏單本身的權限"
+msgstr "apenas ao partilhar o post, não visível na colecção"
 
 #: journal/templates/collection_update_item_note.html:5
 msgid "Update"
-msgstr "更新"
+msgstr "Atualizar"
 
 #: journal/templates/comment.html:16
 msgid "Comment"
-msgstr "寫短評"
+msgstr ""
 
 #: journal/templates/comment.html:24 journal/templates/mark.html:66
 msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
-msgstr "提示： 善用 &gt;!文字!&lt; 標記可隱藏劇透； 超過360字可能無法分享到聯邦宇宙實例時間軸。"
+msgstr ""
+"Dicas: utilize &gt;!text!&lt; para spoilers; algumas instâncias podem não "
+"conseguir mostrar posts com mais de 360 caracteres."
 
 #: journal/templates/comment.html:75
 msgid "share with playback position"
-msgstr "分享播放位置"
+msgstr "partilhar com a posição de reprodução"
 
 #: journal/templates/mark.html:17
 msgid "Mark"
-msgstr "標記"
+msgstr ""
 
 #: journal/templates/mark.html:50
 msgid "not rated"
-msgstr "未評分"
+msgstr "sem avaliação"
 
 #: journal/templates/mark.html:74
 msgid "add a tag and press Enter"
-msgstr "回車增加標籤"
+msgstr "Adicione uma tag e clique Enter"
 
 #: journal/templates/mark.html:130
+#, fuzzy
 msgid "change mark date"
-msgstr "指定標記日期"
+msgstr "Alterar data da marcação"
 
 #: journal/templates/mark.html:156
 msgid "Sure to delete mark, comment and tags for this item?"
-msgstr "確認刪除這條標記、短評和標籤？"
+msgstr ""
+"Tem a certeza que pretende eliminar marcação, comentário e tags deste item?"
 
 #: journal/templates/markdown.html:3
 msgid "Markdown format references"
-msgstr "Markdown語法參考"
+msgstr "Referências ao formato Markdown"
 
 #: journal/templates/markdown.html:5
 msgid ""
@@ -3397,322 +3485,293 @@ msgid ""
 "Content Cell  | Content Cell\n"
 "Content Cell  | Content Cell\n"
 msgstr ""
-"\n"
-"標題\n"
-"====\n"
-"\n"
-"副標題\n"
-"------\n"
-"\n"
-"  新起段落需隔開一空行\n"
-"\n"
-"  段首縮進需使用中文全角空格\n"
-"\n"
-"[連結](https://zh.wikipedia.org/wiki/Markdown)\n"
-"**粗體**  *斜體* ==高亮== ~~刪除~~\n"
-"^上^標 ~下~標 [拼(pīn)音(yīn)]\n"
-"\n"
-"> 引用\n"
-"> 文本\n"
-">> 多級引用\n"
-"\n"
-"行內 >! 劇透預警 !< （在短評中也可使用）\n"
-"\n"
-">! 多行\n"
-">! 劇透\n"
-"\n"
-"引用外部圖片 ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n"
-"\n"
-"上傳圖片可拖拽圖片文件到編輯框，或從剪貼板粘貼\n"
-"\n"
-"---\n"
-"\n"
-"- Bullet\n"
-"- Points\n"
-"\n"
-"content in paragraph with footnote[^1] markup.\n"
-"[^1]: footnote explain\n"
-"\n"
-"```\n"
-"code\n"
-"```\n"
-"\n"
-"Table Header  | Second Header\n"
-"------------- | -------------\n"
-"Content Cell  | Content Cell\n"
-"Content Cell  | Content Cell\n"
-"\n"
 
 #: journal/templates/note.html:16
 msgid "Note"
-msgstr "筆記"
+msgstr "Nota"
 
 #: journal/templates/note.html:21
 msgid "Note with empty content will be deleted, sure to continue?"
-msgstr "無內容的筆記會被刪除，確定繼續嗎？"
+msgstr "Nota sem conteúdo será eliminada. Quer continuar?"
 
 #: journal/templates/piece_delete.html:22
 msgid "Are you sure to delete this entire content?"
-msgstr "確認刪除這則內容嗎？"
+msgstr "Tem a certeza que quer apagar todo este conteúdo?"
 
 #: journal/templates/piece_delete.html:23
 msgid "By deleting it, you will also lose track of others' comments and feedbacks to your content."
-msgstr "刪除後你將無法追溯其他用戶對此內容曾經作出的回應和互動。"
+msgstr ""
+"Ao eliminá-lo, perderá o acesso aos comentários e feedbacks de outros "
+"utilizadores ao seu conteúdo."
 
 #: journal/templates/piece_delete.html:24
 #: journal/templates/piece_delete.html:31
 msgid "Deletion cannot be undone, are you sure to continue?"
-msgstr "刪除不可撤銷。確認繼續嗎？"
+msgstr "A eliminação não pode ser revertida. Tem a certeza que quer continuar?"
 
 #: journal/templates/profile.html:51
 msgid "calendar"
-msgstr "日曆"
+msgstr "calendário"
 
 #: journal/templates/profile.html:54 journal/templates/wrapped.html:14
 #: journal/templates/wrapped.html:53
 msgid "annual summary"
-msgstr "年度小結"
+msgstr "sumário anual"
 
 #: journal/templates/profile.html:119 journal/views/collection.py:166
 msgid "collection"
-msgstr "收藏單"
+msgstr "coleção"
 
 #: journal/templates/profile.html:155
 msgid "liked collection"
-msgstr "喜歡的收藏單"
+msgstr ""
 
 #: journal/templates/replies.html:53
 msgid "no replies so far."
-msgstr "暫無回應。"
+msgstr "Sem respostas, para já."
 
 #: journal/templates/replies.html:61
 msgid "add a reply"
-msgstr "添加回應"
+msgstr "Adicionar uma resposta"
 
 #: journal/templates/review.html:63
 msgid "The author has set it to be viewable only by logged-in users."
-msgstr "作者已設定僅限已登入用戶查看"
+msgstr ""
+"O autor definiu o conteúdo a visualizar apenas para utilizadores com sessão "
+"iniciada."
 
 #: journal/templates/review_edit.html:33
+#, fuzzy
 msgid "When saving, replace leading spaces with full-width spaces"
-msgstr "保存時將行首空格替換爲全角"
+msgstr "Ao guardar, substituir espaços principais com espaços de largura total"
 
 #: journal/templates/review_edit.html:42
 msgid "change review date"
-msgstr "指定評論日期"
+msgstr "alterar data da crítica"
 
 #: journal/templates/tag_edit.html:32
 msgid "Pin"
-msgstr "置頂"
+msgstr "Afixar"
 
 #: journal/templates/tag_edit.html:49
 msgid "Personal"
-msgstr "個人"
+msgstr "Pessoal"
 
 #: journal/templates/tag_edit.html:52
+#, fuzzy
 msgid "Personal tags are not included in public index. However, if you use this tag when marking an item publicly, it might still be visible to others."
-msgstr "個人標籤不被包括在條目的公共索引中，但如果公開標記一個條目時使用這個標籤仍會被別人看到。"
+msgstr ""
+"As tags pessoais não são incluídas no index público. No entanto, se usar "
+"esta tag para marcar um item público, é possível que fique visível para "
+"outros utilizadores."
 
 #: journal/templates/tag_edit.html:55
 msgid "Delete this tag"
-msgstr "刪除這個標籤"
+msgstr "Apagar esta tag"
 
 #: journal/templates/user_collection_list.html:15
 #: journal/templates/user_collection_list.html:29
 msgid "Liked Collections"
-msgstr "喜歡的收藏單"
+msgstr ""
 
 #: journal/templates/user_tag_list.html:19
 msgid "All Tags"
-msgstr "全部標籤"
+msgstr "Todas as Tags"
 
 #: journal/templates/wrapped.html:40
 msgid "another style"
-msgstr "另一種風格"
+msgstr ""
 
 #: journal/templates/wrapped.html:46
 msgid "share"
-msgstr "分享"
+msgstr "partilhar"
 
 #: journal/templates/wrapped.html:50
 msgid "download"
-msgstr "下載"
+msgstr "download"
 
 #: journal/templates/wrapped_share.html:16
 msgid "Share Annual Summary"
-msgstr "分享年度小結"
+msgstr "Partilhar sumário anual"
 
 #: journal/templates/wrapped_share.html:31
 #, python-format
 msgid "#%(year)s_report"
-msgstr "#我的#%(year)s書影音"
+msgstr ""
 
 #: journal/templatetags/collection.py:35
 #, python-format
 msgid "%(count)d book"
 msgid_plural "%(count)d books"
-msgstr[0] "%(count)d 本書"
-msgstr[1] "%(count)d 本書"
+msgstr[0] "%(count)d livro"
+msgstr[1] "%(count)d livros"
 
 #: journal/templatetags/collection.py:43
 #, python-format
 msgid "%(count)d movie"
 msgid_plural "%(count)d movies"
-msgstr[0] "%(count)d 部電影"
-msgstr[1] "%(count)d 部電影"
+msgstr[0] "%(count)d filme"
+msgstr[1] "%(count)d filmes"
 
 #: journal/templatetags/collection.py:51
 #, python-format
 msgid "%(count)d tv show"
 msgid_plural "%(count)d tv shows"
-msgstr[0] "%(count)d 部電視劇"
-msgstr[1] "%(count)d 部電視劇"
+msgstr[0] "%(count)d programa de tv"
+msgstr[1] "%(count)d programas de tv"
 
 #: journal/templatetags/collection.py:59
 #, python-format
 msgid "%(count)d album"
 msgid_plural "%(count)d albums"
-msgstr[0] "%(count)d 張專輯"
-msgstr[1] "%(count)d 張專輯"
+msgstr[0] "%(count)d álbum"
+msgstr[1] "%(count)d álbuns"
 
 #: journal/templatetags/collection.py:67
 #, python-format
 msgid "%(count)d game"
 msgid_plural "%(count)d games"
-msgstr[0] "%(count)d 個遊戲"
-msgstr[1] "%(count)d 個遊戲"
+msgstr[0] "%(count)d jogo"
+msgstr[1] "%(count)d jogos"
 
 #: journal/templatetags/collection.py:75
 #, python-format
 msgid "%(count)d podcast"
 msgid_plural "%(count)d podcasts"
-msgstr[0] "%(count)d 個播客"
-msgstr[1] "%(count)d 個播客"
+msgstr[0] "%(count)d podcast"
+msgstr[1] "%(count)d podcasts"
 
 #: journal/templatetags/collection.py:83
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
-msgstr[0] "%(count)d 場演出"
-msgstr[1] "%(count)d 場演出"
+msgstr[0] ""
+msgstr[1] ""
 
 #: journal/templatetags/collection.py:91
 #, python-format
 msgid "%(count)d item"
 msgid_plural "%(count)d items"
-msgstr[0] "%(count)d 個條目"
-msgstr[1] "%(count)d 個條目"
+msgstr[0] "%(count)d item"
+msgstr[1] "%(count)d itens"
 
 #: journal/views/collection.py:37
 #, python-brace-format
 msgid "Collection by {0}"
-msgstr "{0} 的收藏單"
+msgstr ""
 
 #: journal/views/collection.py:171
 msgid "shared my collection"
-msgstr "分享我的收藏單"
+msgstr ""
 
 #: journal/views/collection.py:174
 #, python-brace-format
 msgid "shared {username}'s collection"
-msgstr "分享 {username} 的收藏單"
+msgstr ""
 
 #: journal/views/collection.py:225
 msgid "Unable to find the item, please use item url from this site."
-msgstr "找不到條目，請使用本站條目網址。"
+msgstr ""
+"Não foi possível encontrar o item. Por favor, insira um item de url deste "
+"site."
 
 #: journal/views/collection.py:342 journal/views/collection.py:363
 #: journal/views/review.py:124
 msgid "Login required"
-msgstr "登入後訪問"
+msgstr "Requer iniciar sessão"
 
 #: journal/views/common.py:34 journal/views/mark.py:122
 msgid "Data saved but unable to crosspost to Fediverse instance."
-msgstr "數據已保存但未能轉發到聯邦實例。"
+msgstr ""
+"Dados guardados, porém, não é possível fazer crosspost para a instância do "
+"Fediverso."
 
 #: journal/views/common.py:36
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
-msgstr "正在重定向到你的聯邦實例以重新認證。"
+msgstr ""
+"Está a ser redirecionado para a sua instância do Fediverso de modo a fazer "
+"novamente a sua autenticação."
 
 #: journal/views/common.py:43
 msgid "List not found."
-msgstr "列表未找到"
+msgstr "Lista não encontrada."
 
 #: journal/views/mark.py:113
 msgid "Content too long for your Fediverse instance."
-msgstr "內容過長，超出了你的聯邦實例的限制。"
+msgstr "Conteúdo demasiado longo para a sua instância do Fediverso."
 
 #: journal/views/mark.py:167 journal/views/note.py:98
 #: journal/views/review.py:30
 msgid "Content not found"
-msgstr "內容未找到"
+msgstr "Conteúdo não encontrado"
 
 #: journal/views/note.py:44
 msgid "Progress (optional)"
-msgstr "進度（選填）"
+msgstr "Progresso (opcional)"
 
 #: journal/views/note.py:46
 msgid "Note Content"
-msgstr "筆記內容"
+msgstr "Conteúdo da nota"
 
 #: journal/views/note.py:48
+#, fuzzy
 msgid "Content Warning (optional)"
-msgstr "劇透或敏感內容提示（選填）"
+msgstr "Alertar conteúdo (opcional)"
 
 #: journal/views/note.py:66
 msgid "Progress Type (optional)"
-msgstr "進度類型（選填）"
+msgstr "Tipo de progresso (opcional)"
 
 #: journal/views/note.py:106
 msgid "Invalid form data"
-msgstr "無效表單信息。"
+msgstr ""
 
 #: journal/views/post.py:40
 msgid "Post not found"
-msgstr "帖文未找到"
+msgstr "Post não encontrado"
 
 #: journal/views/review.py:112 journal/views/review.py:126
 #, python-brace-format
 msgid "Reviews by {0}"
-msgstr "{0} 的評論"
+msgstr ""
 
 #: journal/views/review.py:114 journal/views/review.py:122
 msgid "Link invalid"
-msgstr "連結無效"
+msgstr "Link inválido"
 
 #: journal/views/review.py:135
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
-msgstr "{review_title} - 關於 {item_title} 的評論"
+msgstr ""
 
 #: journal/views/tag.py:41 journal/views/tag.py:55
 msgid "Invalid tag"
-msgstr "無效標籤"
+msgstr "Tag inválida"
 
 #: journal/views/tag.py:44
 msgid "Tag not found"
-msgstr "標籤不存在"
+msgstr "Tag não encontrada"
 
 #: journal/views/tag.py:59
 msgid "Tag deleted."
-msgstr "標籤已刪除"
+msgstr "Tag apagada."
 
 #: journal/views/tag.py:69
 msgid "Duplicated tag."
-msgstr "重複標籤"
+msgstr "Tag duplicada."
 
 #: journal/views/tag.py:76
 msgid "Tag updated."
-msgstr "標籤已更新"
+msgstr "Tag atualizada."
 
 #: journal/views/wrapped.py:146
 msgid "Summary posted to timeline."
-msgstr "總結已發佈到時間軸"
+msgstr "Sumário publicado na timeline."
 
 #: mastodon/models/common.py:12 users/templates/users/account.html:44
 #: users/templates/users/login.html:58
 msgid "Email"
-msgstr "電子郵件"
+msgstr "Email"
 
 #: mastodon/models/common.py:13
 msgid "Mastodon"
@@ -3734,11 +3793,13 @@ msgid ""
 msgstr ""
 "\n"
 "\n"
-"如果你沒有打算用此電子郵件地址註冊或登入本站，請忽略此郵件；如果你確信帳號存在安全風險，請更改註冊郵件地址或與我們聯繫。"
+"Se não pretendia registar-se ou iniciar sessão, ignore este email. Se "
+"estiver preocupado com a segurança da sua conta, por favor altere o e-mail "
+"associado à sua conta ou contacte-nos."
 
 #: mastodon/models/email.py:60 mastodon/models/email.py:65
 msgid "Verification Code"
-msgstr "驗證碼"
+msgstr "Código de verificação"
 
 #: mastodon/models/email.py:62
 #, python-brace-format
@@ -3747,8 +3808,7 @@ msgid ""
 "\n"
 "{code}"
 msgstr ""
-"你好，\n"
-"請用以下代碼驗證你的電子郵件地址 {email}\n"
+"Utilize este código para verificar o seu endereço de email {email}\n"
 "\n"
 "{code}"
 
@@ -3759,15 +3819,14 @@ msgid ""
 "\n"
 "{code}"
 msgstr ""
-"你好，\n"
-"請輸入如下驗證碼登入{email}帳號：\n"
+"Use este código para iniciar sessão como {email}\n"
 "\n"
 "{code}"
 
 #: mastodon/models/email.py:70 users/templates/users/login.html:16
 #: users/templates/users/register.html:8 users/templates/users/welcome.html:8
 msgid "Register"
-msgstr "註冊"
+msgstr "Registar"
 
 #: mastodon/models/email.py:72
 #, python-brace-format
@@ -3778,40 +3837,40 @@ msgid ""
 "\n"
 "If you prefer to register a new account with this email, please use this verification code: {code}"
 msgstr ""
-"你好，\n"
-"本站沒有與{email}關聯的帳號。你希望註冊一個新帳號嗎？\n"
+"Não existe ainda nenhuma conta com este endereço de email: {email}\n"
 "\n"
-"如果你已註冊過本站或某個聯邦宇宙（長毛象）實例，不必重新註冊，只要用聯邦宇宙身份登入本站，再關聯這個電子郵件地址，即可通過郵件登入。\n"
+"Se já tem conta connosco, inicie sessão e adicione este email à sua conta.\n"
 "\n"
-"如果你確認要使用電子郵件新註冊帳號，請輸入如下驗證碼： {code}"
+"Se preferir criar uma nova conta com este email, por favor use o seguinte "
+"código de verificação: {code}"
 
 #: mastodon/models/mastodon.py:520
 msgid "site domain name"
-msgstr "站點域名"
+msgstr "nome do domínio do site"
 
 #: mastodon/models/mastodon.py:521
 msgid "domain for api call"
-msgstr "站點API域名"
+msgstr ""
 
 #: mastodon/models/mastodon.py:522
 msgid "type and verion"
-msgstr "站點類型和版本"
+msgstr ""
 
 #: mastodon/models/mastodon.py:523
 msgid "in-site app id"
-msgstr "實例應用id"
+msgstr ""
 
 #: mastodon/models/mastodon.py:524
 msgid "client id"
-msgstr "實例應用Client ID"
+msgstr ""
 
 #: mastodon/models/mastodon.py:525
 msgid "client secret"
-msgstr "實例應用Client Secret"
+msgstr ""
 
 #: mastodon/models/mastodon.py:526
 msgid "vapid key"
-msgstr "實例應用VAPID Key"
+msgstr ""
 
 #: mastodon/models/mastodon.py:528
 msgid "0: unicode moon; 1: custom emoji"
@@ -3819,15 +3878,15 @@ msgstr ""
 
 #: mastodon/models/mastodon.py:531
 msgid "max toot len"
-msgstr "帖文長度限制"
+msgstr ""
 
 #: mastodon/models/mastodon.py:643
 msgid "Boost"
-msgstr "轉播"
+msgstr "Boost"
 
 #: mastodon/models/mastodon.py:644
 msgid "New Post"
-msgstr "新帖文"
+msgstr "Novo Post"
 
 #: mastodon/views/bluesky.py:19 mastodon/views/bluesky.py:25
 #: mastodon/views/common.py:30 mastodon/views/mastodon.py:37
@@ -3835,116 +3894,117 @@ msgstr "新帖文"
 #: mastodon/views/mastodon.py:61 mastodon/views/threads.py:41
 #: mastodon/views/threads.py:47 users/views/account.py:105
 msgid "Authentication failed"
-msgstr "認證失敗"
+msgstr "A autenticação falhou"
 
 #: mastodon/views/bluesky.py:20
 msgid "Username and app password is required."
-msgstr "請輸入用戶名和密碼。"
+msgstr "É necessário nome de utilizador e password da app."
 
 #: mastodon/views/bluesky.py:25
 msgid "Invalid account data from Bluesky."
-msgstr "Bluesky返回了無效的帳號數據。"
+msgstr "Dados de conta Bluesky inválidos."
 
 #: mastodon/views/common.py:30 mastodon/views/common.py:95
 msgid "Invalid user."
-msgstr "無效用戶。"
+msgstr "Utilizador inválido."
 
 #: mastodon/views/common.py:46
 msgid "Registration failed"
-msgstr "註冊失敗"
+msgstr "Falha ao registar-se"
 
 #: mastodon/views/common.py:46
 msgid "User already logged in."
-msgstr "用戶已經登入了。"
+msgstr "O utilizador já se encontra com sessão iniciada."
 
 #: mastodon/views/common.py:58
 #, python-brace-format
 msgid "Continue login as {handle}."
-msgstr "繼續以 {handle} 登入。"
+msgstr "Continuar início de sessão como {handle}."
 
 #: mastodon/views/common.py:64
 msgid "Unable to update login information"
-msgstr "無法更新登入信息"
+msgstr "Não é possível atualizar as informações de início de sessão"
 
 #: mastodon/views/common.py:65
 #, python-brace-format
 msgid "Identity {handle} in use by a different user."
-msgstr "身份 {handle}  已被其它帳號使用。"
+msgstr "A identidade {handle} está a ser usada por um diferente utilizador."
 
 #: mastodon/views/common.py:81
 #, python-brace-format
 msgid "Login information updated as {handle}."
-msgstr "登入信息已更新爲{handle}。"
+msgstr "Informação do Login foi atualizada como {handle}."
 
 #: mastodon/views/common.py:91 mastodon/views/common.py:95
 #: mastodon/views/common.py:101
 msgid "Disconnect identity failed"
-msgstr "未能取消身份關聯"
+msgstr "Falhou ao desconectar-se da identidade"
 
 #: mastodon/views/common.py:91
 msgid "Identity not found."
-msgstr "身份未找到"
+msgstr "Identidade não encontrada."
 
 #: mastodon/views/common.py:102
 msgid "You cannot disconnect last login identity."
-msgstr "無法取消唯一的登入用身份。"
+msgstr "Não é possível desconectar a última identidade de início de sessão."
 
 #: mastodon/views/common.py:108
 #, python-brace-format
 msgid "Login information about {handle} has been removed."
-msgstr "{handle} 的登入信息已移除。"
+msgstr "As informações de início de sessão sobre {handle} foram removidas."
 
 #: mastodon/views/email.py:19
 msgid "Invalid email address"
-msgstr "無效的電子郵件地址"
+msgstr "Endereço de email inválido"
 
 #: mastodon/views/email.py:25
 msgid "Verification"
-msgstr "驗證"
+msgstr "Verificação"
 
 #: mastodon/views/email.py:27 users/templates/users/verify.html:19
 msgid "Verification email is being sent, please check your inbox."
-msgstr "驗證郵件已發送，請查閱收件箱。"
+msgstr ""
+"Está a ser enviado um email de verificação. Por favor, verifique a sua inbox."
 
 #: mastodon/views/email.py:44 mastodon/views/email.py:53
 msgid "Invalid verification code"
-msgstr "驗證碼無效或已過期"
+msgstr "Código de verificação inválido"
 
 #: mastodon/views/mastodon.py:17
 msgid "Missing instance domain"
-msgstr "未指定實例域名"
+msgstr "Falta o domínio da instância"
 
 #: mastodon/views/mastodon.py:26
 msgid "Error connecting to instance"
-msgstr "無法連接實例"
+msgstr "Erro ao conectar-se com a instância"
 
 #: mastodon/views/mastodon.py:38
 msgid "Invalid response from Fediverse instance."
-msgstr "聯邦實例返回信息無效"
+msgstr "Resposta inválida da instância do Fediverso."
 
 #: mastodon/views/mastodon.py:45
 msgid "Invalid cookie data."
-msgstr "無效cookie信息。"
+msgstr "Dados de cookie inválidas."
 
 #: mastodon/views/mastodon.py:50
 msgid "Invalid instance domain"
-msgstr "實例域名無效"
+msgstr "Domínio de instância inválido"
 
 #: mastodon/views/mastodon.py:55
 msgid "Invalid token from Fediverse instance."
-msgstr "聯邦實例返回了無效的認證令牌。"
+msgstr "Token inválido da sua instância do Fediverso."
 
 #: mastodon/views/mastodon.py:62
 msgid "Invalid account data from Fediverse instance."
-msgstr "聯邦實例返回了無效的帳號資料。"
+msgstr "Dados de conta de instância do Fediverso inválidos."
 
 #: mastodon/views/threads.py:47
 msgid "Invalid account data from Threads."
-msgstr "Threads返回了無效的帳號資料。"
+msgstr "Dados de conta do Threads inválidos."
 
 #: social/templates/event/boosted.html:3
 msgid "boosted your post"
-msgstr "轉播了你的帖文"
+msgstr "Deu boost ao seu post"
 
 #: social/templates/event/boosted_collection.html:2
 #, python-format
@@ -3953,7 +4013,7 @@ msgid ""
 "boosted your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"轉播了你的收藏單 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"deu boost à sua coleção <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/boosted_comment.html:3
 #, python-format
@@ -3962,7 +4022,8 @@ msgid ""
 "boosted your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"轉播了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的短評\n"
+"deu boost ao seu comentário em/no <a href=\"%(item_url)s\">%(item_title)s</a>"
+"\n"
 
 #: social/templates/event/boosted_note.html:3
 #, python-format
@@ -3971,7 +4032,7 @@ msgid ""
 "boosted your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"轉播了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 作的筆記\n"
+"deu boost à sua nota em/no <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_rating.html:3
 #, python-format
@@ -3980,7 +4041,7 @@ msgid ""
 "boosted your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"轉播了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
+"deu boost à sua avaliação em/no <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_review.html:2
 #, python-format
@@ -3989,7 +4050,8 @@ msgid ""
 "boosted your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"轉播了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的評論 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"deu boost à sua crítica <a href=\"%(piece_url)s\">%(piece_title)s</a> em/"
+"no<a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_shelfmember.html:3
 #, python-format
@@ -3998,19 +4060,19 @@ msgid ""
 "boosted your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"轉播了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的標記\n"
+"deu boost à sua marcação em/no <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/follow_requested.html:3
 msgid "requested to follow you"
-msgstr "請求關注你"
+msgstr "pediu para o seguir"
 
 #: social/templates/event/followed.html:3
 msgid "followed you"
-msgstr "關注了你"
+msgstr "seguiu-te"
 
 #: social/templates/event/liked.html:3
 msgid "liked your post"
-msgstr "讚了你的帖文"
+msgstr "gostou do seu post"
 
 #: social/templates/event/liked_collection.html:2
 #, python-format
@@ -4019,7 +4081,7 @@ msgid ""
 "liked your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"讚了你的收藏單 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"gostou da sua coleção <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/liked_comment.html:3
 #, python-format
@@ -4028,7 +4090,7 @@ msgid ""
 "liked your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"讚了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的短評\n"
+"gostou do seu comentário em/no <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_note.html:3
 #, python-format
@@ -4037,7 +4099,7 @@ msgid ""
 "liked your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"讚了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 作的筆記\n"
+"gostou da sua nota em/no <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_rating.html:3
 #, python-format
@@ -4046,7 +4108,7 @@ msgid ""
 "liked your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"讚了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
+"gostou da sua avaliação em/no <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_review.html:2
 #, python-format
@@ -4055,7 +4117,8 @@ msgid ""
 "liked your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"讚了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的評論 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"gostou da sua crítica <a href=\"%(piece_url)s\">%(piece_title)s</a> em/no <a "
+"href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_shelfmember.html:3
 #, python-format
@@ -4064,11 +4127,11 @@ msgid ""
 "liked your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"讚了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的標記\n"
+"gostou da sua marcação em/no <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned.html:3
 msgid "mentioned you"
-msgstr "提到了你"
+msgstr "mencionou-o"
 
 #: social/templates/event/mentioned_collection.html:2
 #, python-format
@@ -4077,7 +4140,7 @@ msgid ""
 "replied to your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"回應了你的收藏單 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"respondeu à sua coleção <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/mentioned_comment.html:3
 #, python-format
@@ -4086,7 +4149,8 @@ msgid ""
 "replied to your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"回應了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的短評\n"
+"respondeu ao seu comentário em/no <a href=\"%(item_url)s\">%(item_title)s</a>"
+"\n"
 
 #: social/templates/event/mentioned_note.html:3
 #, python-format
@@ -4095,7 +4159,7 @@ msgid ""
 "replied to your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"回應了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 作的筆記\n"
+"respondeu à sua nota em/no <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_rating.html:3
 #, python-format
@@ -4104,7 +4168,7 @@ msgid ""
 "replied to your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"回應了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
+"respondeu à sua avaliação em/no <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_review.html:2
 #, python-format
@@ -4113,7 +4177,8 @@ msgid ""
 "replied to your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"回應了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的評論 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"respondeu à sua crítica <a href=\"%(piece_url)s\">%(piece_title)s</a> em/no "
+"<a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_shelfmember.html:3
 #, python-format
@@ -4122,194 +4187,225 @@ msgid ""
 "replied to your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"回應了你對 <a href=\"%(item_url)s\">%(item_title)s</a> 的標記\n"
+"respondeu à sua marcação em/no <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/feed.html:11 social/templates/feed.html:23
 #: social/templates/notification.html:23 social/templates/search_feed.html:11
 msgid "Activities from those you follow"
-msgstr "好友動態"
+msgstr "Atividades das pessoas que segue"
 
 #: social/templates/feed.html:26 social/templates/feed.html:28
 msgid "All"
-msgstr "全部"
+msgstr "Tudo"
 
 #: social/templates/feed.html:26 social/templates/feed.html:28
 msgid "What they read/watch/..."
-msgstr "僅書影音"
+msgstr "O que andam a ler/ver/..."
 
 #: social/templates/feed.html:30
 msgid "Notifications"
-msgstr "通知"
+msgstr "Notificações"
 
 #: social/templates/feed_events.html:23
 msgid "boosted"
-msgstr "轉播了"
+msgstr ""
 
 #: social/templates/feed_events.html:41
 msgid "play"
-msgstr "播放"
+msgstr "reproduzir"
 
 #: social/templates/feed_events.html:52
 msgid "mark"
-msgstr "標記"
+msgstr ""
 
 #: social/templates/feed_events.html:71
 msgid "wrote a note"
-msgstr "寫了筆記"
+msgstr "escreveu uma nota"
 
 #: social/templates/feed_events.html:139
 msgid "no matching activities."
-msgstr "無匹配動態。"
+msgstr ""
 
 #: social/templates/feed_events.html:142
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
-msgstr "搜索並標記一些書影音/播客/遊戲，<a href=\"%(import_url)s\">匯入你的豆瓣、Letterboxd或Goodreads記錄</a>，去聯邦宇宙（長毛象）關注一些正在使用%(site_name)s的用戶，這裏就會顯示你和她們的近期動態。"
+msgstr ""
+"Encontre e marque livros/filmes/podcasts/jogos, <a href=\"%(import_url)s\""
+">importe os seus dados</a> do Goodreads/Letterboxd/Douban, siga %(site_name)"
+"s utilizadores no fediverso, para a que a sua atividade e as deles apareçam "
+"aqui."
 
 #: social/templates/notification.html:29
 msgid "mention"
-msgstr "提及"
+msgstr "mencionar"
 
 #: social/templates/notification.html:31
 msgid "follow"
-msgstr "關注"
+msgstr "seguir"
 
 #: takahe/models.py:421
 msgid "Display Name"
-msgstr "暱稱"
+msgstr "Nome de apresentação"
 
 #: takahe/models.py:423
 msgid "Bio"
-msgstr "簡介"
+msgstr "Bio"
 
 #: takahe/models.py:425
 msgid "Manually approve new followers"
-msgstr "手工審覈關注者"
+msgstr "Aprovar novos seguidores manualmente"
 
 #: takahe/models.py:429
+#, fuzzy
 msgid "Include profile and posts in discovery"
-msgstr "允許個人資料和帖文包含在發現中"
+msgstr "Incluir perfil e posts no descobrir/explorar"
 
 #: takahe/models.py:432
 msgid "Include posts in search results"
-msgstr "允許個人帖文包含在搜索結果中"
+msgstr "Incluir posts nos resultados de pesquisa"
 
 #: takahe/models.py:450
 msgid "Profile picture"
-msgstr "頭像"
+msgstr "Foto de perfil"
 
 #: takahe/models.py:457
 msgid "Header picture"
-msgstr "背景圖片"
+msgstr "Foto de cabeçalho"
 
 #: users/models/task.py:19
 msgid "Pending"
-msgstr "等待"
+msgstr "Pendente"
 
 #: users/models/task.py:20
 msgid "Started"
-msgstr "已開始"
+msgstr "Iniciado"
 
 #: users/models/task.py:21
 msgid "Complete"
-msgstr "完成"
+msgstr "Completar"
 
 #: users/models/task.py:22
 msgid "Failed"
-msgstr "失敗"
+msgstr "Falhou"
 
 #: users/models/user.py:53
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
-msgstr "輸入用戶名，限英文字母數字下劃線，最多30個字符。"
+msgstr ""
+"Introduza um nome de utilizador válido. Apenas pode conter letras minúsculas "
+"a-z e maiúsculas A-Z não acentuadas, números e _ caracteres."
 
 #: users/models/user.py:101
 msgid "username"
-msgstr "用戶名"
+msgstr "nome de utilizador"
 
 #: users/models/user.py:106
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
-msgstr "必填，限英文字母數字下劃線，最多30個字符。"
+msgstr "Necessário. 50 caracteres ou menos. Letras, digitos e _ apenas."
 
 #: users/models/user.py:109
 msgid "A user with that username already exists."
-msgstr "使用該用戶名的用戶已存在。"
+msgstr "Já existe um utilizador com esse nome de utilizador."
 
 #: users/templates/users/account.html:10
 msgid "Account Information"
-msgstr "帳號信息"
+msgstr "Informação da conta"
 
 #: users/templates/users/account.html:19
 msgid "Display name, avatar and other information"
-msgstr "暱稱、頭像與其它個人信息"
+msgstr "Nome a apresentar, avatar e outras informações"
 
 #: users/templates/users/account.html:22
 msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
-msgstr "在這裏更新個人資料會停止從關聯實例自動同步暱稱等個人信息，確定繼續嗎？"
+msgstr ""
+"Ao atualizar as informações de perfil aqui, irá desativar a sincronização "
+"automática do nome a apresentar, bio e avatar da sua instância de Mastodon. "
+"Pretende avançar?"
 
 #: users/templates/users/account.html:25
 msgid "Username"
-msgstr "用戶名"
+msgstr "Nome de utilizador"
 
 #: users/templates/users/account.html:50 users/templates/users/register.html:37
 msgid "Email address"
-msgstr "電子郵件地址"
+msgstr "Endereço de Email"
 
 #: users/templates/users/account.html:59 users/templates/users/register.html:46
 #, python-format
 msgid "Please click the confirmation link in the email sent to %(pending_email)s; if you haven't received it for more than a few minutes, please input and save again."
-msgstr "當前待確認的電子郵件地址爲%(pending_email)s，請查收郵件並點擊確認連結；如長時間未收到可重新輸入並保存。"
+msgstr ""
+"Por favor, clique no link de confirmação do email enviado para "
+"%(pending_email)s ; se não tiver recebido nada dentro de alguns minutos, "
+"introduza novamente e guarde-o."
 
 #: users/templates/users/account.html:61 users/templates/users/register.html:49
 msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
-msgstr "推薦輸入電子郵件地址作爲備用登入方式。"
+msgstr ""
+"O email é recomendado como método de backup referente ao início de sessão, "
+"se iniciar sessão através de uma instância do Fediverso"
 
 #: users/templates/users/account.html:73 users/templates/users/login.html:65
 msgid "Fediverse (Mastodon)"
-msgstr "聯邦宇宙（有時也被稱爲長毛象）"
+msgstr "Fediverso (Mastodon)"
 
 #: users/templates/users/account.html:79
 msgid "Verified Identity"
-msgstr "已驗證的身份"
+msgstr "Identidade verificada"
 
 #: users/templates/users/account.html:86 users/templates/users/account.html:148
 #: users/templates/users/account.html:186
 #: users/templates/users/account.html:263
 msgid "Last updated"
-msgstr "最近更新"
+msgstr ""
 
 #: users/templates/users/account.html:92
 msgid "If you have not yet registered with any Federated instance, you may <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an instance</a> and register."
-msgstr "如果你還沒有在任何<em data-tooltip=\"聯邦宇宙(Fediverse 有時也被稱爲長毛象)是一種分佈式社交網絡\">聯邦宇宙</em>實例註冊過，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">選擇實例並註冊</a>。"
+msgstr ""
+"Se ainda não se registou em nenhuma instância federada, pode sempre <a href="
+"\"https://joinmastodon.org/zh/servers\" target=\"_blank\">escolher uma "
+"instância</a> e registar-se."
 
 #: users/templates/users/account.html:97
 msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
-msgstr "如需關聯到另一個聯邦宇宙社交身份，請輸入新身份所在的實例域名"
+msgstr ""
+"Para se associar a outra identidade/conta federada, por favor, insira o nome "
+"do domínio da instância onde está localizada a sua nova identidade/conta."
 
 #: users/templates/users/account.html:99
 msgid "If you have registered with a Federated instance, please enter the instance domain name."
-msgstr "如果你已經註冊過聯邦宇宙實例，請輸入實例域名"
+msgstr ""
+"Se resgistou-se através de uma instância do Fediverso, por favor, insira o "
+"nome do domínio da instância."
 
 #: users/templates/users/account.html:108
+#, fuzzy
 msgid "Go to target instance and authorize with the identity"
-msgstr "登入實例並關聯"
+msgstr ""
+"Dirija-se à sua instância principal e autorize com a sua identidade/conta"
 
 #: users/templates/users/account.html:113
 msgid "After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected."
-msgstr "替換關聯後可使用新的聯邦宇宙身份來登入本站和控制數據可見性，已有的標記評論收藏單等數據不受影響。"
+msgstr ""
+"Após a alteração de associação de conta, deve utilizar a sua nova identidade "
+"do Fediverso para iniciar sessão e controlar a visibilidade dos seus dados. "
+"Os dados existentes como tags, comentários e colecções não serão afectados."
 
 #: users/templates/users/account.html:115
 msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
-msgstr "關聯聯邦宇宙身份後可發現更多用戶，並使用本站完整功能。"
+msgstr ""
+"Quando associar-se à sua identidade do Fediverso, poderá descobrir mais "
+"utilizadores e usar, por completo, todas as funcionalidades do site."
 
 #: users/templates/users/account.html:123
 #: users/templates/users/account.html:160
 #: users/templates/users/account.html:215
 msgid "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?"
-msgstr "取消關聯後將無法使用這個身份登入本站，確認繼續嗎？"
+msgstr ""
+"Uma vez desconectado, não será possível iniciar sessão novamente com esta "
+"identidade. Tem a certeza que pretende continuar?"
 
 #: users/templates/users/account.html:126
 msgid "Disconnect with this identity"
-msgstr "取消關聯"
+msgstr "Desconectar com esta identidade"
 
 #: users/templates/users/account.html:135
 msgid "Threads.net"
@@ -4317,19 +4413,19 @@ msgstr "Threads.net"
 
 #: users/templates/users/account.html:141
 msgid "Verified threads.net account"
-msgstr "已驗證的threads.net帳號"
+msgstr "Conta de Threads.net verificada"
 
 #: users/templates/users/account.html:154
 msgid "Link with a different threads.net account"
-msgstr "關聯另一個threads.net帳號"
+msgstr "Conectar-se com uma conta diferente do threads.net"
 
 #: users/templates/users/account.html:154
 msgid "Link with a threads.net account"
-msgstr "關聯一個threads.net帳號"
+msgstr "Conectar com uma conta threads.net"
 
 #: users/templates/users/account.html:163
 msgid "Disconnect with Threads"
-msgstr "取消關聯"
+msgstr "Desconectar com o Threads"
 
 #: users/templates/users/account.html:173 users/templates/users/login.html:87
 msgid "Bluesky (ATProto)"
@@ -4337,551 +4433,606 @@ msgstr "Bluesky (ATProto)"
 
 #: users/templates/users/account.html:179
 msgid "Verified ATProto identity"
-msgstr "已驗證的ATProto身份"
+msgstr "Identidade ATProto verificada"
 
 #: users/templates/users/account.html:194
 msgid "Bluesky Login ID"
-msgstr "Bluesky 登入名"
+msgstr "Iniciar sessão com ID de Bluesky"
 
 #: users/templates/users/account.html:202 users/templates/users/login.html:163
 msgid "Bluesky app password"
-msgstr "Bluesky 應用密碼"
+msgstr "Password da Bluesky app"
 
 #: users/templates/users/account.html:208
 msgid "Link with a different ATProto identity"
-msgstr "關聯另一個ATProto身份"
+msgstr "Conectar-se com uma diferente identidade de ATProto"
 
 #: users/templates/users/account.html:208
 msgid "Link with an ATProto identity"
-msgstr "關聯ATProto身份"
+msgstr "Conectar-se com uma identidade ATProto"
 
 #: users/templates/users/account.html:209 users/templates/users/login.html:168
 msgid "App password can be created on <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
-msgstr "應用密碼可在 <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a> 創建管理。"
+msgstr ""
+"A password da app pode ser criada em <a href="
+"\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
 
 #: users/templates/users/account.html:218
 msgid "Disconnect with ATProto identity"
-msgstr "取消關聯"
+msgstr "Desconectar-se com identidade ATProto"
 
 #: users/templates/users/account.html:229
 msgid "Sync and import social account"
-msgstr "同步第三方社交網絡上的個人信息和社交數據"
+msgstr "Sincronizar e importar conta de uma rede social"
 
 #: users/templates/users/account.html:239
 msgid "Sync display name, bio and avatar"
-msgstr "自動同步用戶暱稱等基本信息"
+msgstr "Sincronizar nome de apresentação, bio e avatar"
 
 #: users/templates/users/account.html:247
 msgid "Sync follow, mute and block"
-msgstr "自動匯入新增的關注、屏蔽和隱藏列表"
+msgstr "Sincronizar seguidores, silenciados e bloqueados"
 
 #: users/templates/users/account.html:250
 msgid "Save sync settings"
-msgstr "保存同步設定"
+msgstr "Guardar definições de sincronização"
 
 #: users/templates/users/account.html:252
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
-msgstr "本站會按照以上設定每天自動匯入你在聯邦宇宙實例等社交網絡中新增的關注、屏蔽和隱藏列表；如果你在聯邦宇宙實例中關注的用戶加入了本站，你會自動關注她；如果你在聯邦宇宙實例中取消了關注、屏蔽或隱藏，本站不會自動取消，但你可以手動移除。"
+msgstr ""
+"As novas pessoas que segue, silenciados e bloqueados na identidade/conta "
+"associada, podem ser importadas automaticamente; a remoção tem de ser feita "
+"manualmente."
 
 #: users/templates/users/account.html:259
 msgid "Click button below to start sync now."
-msgstr "如果希望立即開始同步，可以點擊下方按鈕。"
+msgstr "Clique no botão debaixo para iniciar a sincronização."
 
 #: users/templates/users/account.html:260
 msgid "Sync now"
-msgstr "立即同步"
+msgstr "Sincronizar agora"
 
 #: users/templates/users/account.html:272
 msgid "Users you are following"
-msgstr "正在關注的用戶"
+msgstr "Utilizadores que está a seguir"
 
 #: users/templates/users/account.html:278
 msgid "Users who follow you"
-msgstr "關注了你的用戶"
+msgstr "Utilizadores que o seguem"
 
 #: users/templates/users/account.html:284
 msgid "Users who request to follow you"
-msgstr "請求關注你的用戶"
+msgstr "Utilizadores que pedem para o seguir"
 
 #: users/templates/users/account.html:290
 msgid "Users you are muting"
-msgstr "已隱藏的用戶"
+msgstr "Utilizadores silenciados"
 
 #: users/templates/users/account.html:296
 msgid "Users you are blocking"
-msgstr "已屏蔽的用戶"
+msgstr "Utilizadores bloqueados"
 
 #: users/templates/users/account.html:303
 msgid "Delete Account"
-msgstr "刪除帳號"
+msgstr "Apagar conta"
 
 #: users/templates/users/account.html:306
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
-msgstr "帳號數據一旦刪除後將無法恢復，確定繼續嗎？"
+msgstr "Após eliminada, a sua conta não pode ser recuperada. Deseja prosseguir?"
 
 #: users/templates/users/account.html:309
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
-msgstr "輸入完整的登入用 <code>用戶名@實例名</code> 或 <code>電子郵件地址</code> 以確認刪除"
+msgstr ""
+"Insira o nome de utilizador completo <code>username@instance.social</code> "
+"ou <code>email@domain.com</code> para confirmar a sua eliminação."
 
 #: users/templates/users/account.html:319
 msgid "Once deleted, account data cannot be recovered."
-msgstr "帳號數據一旦刪除後將無法恢復"
+msgstr "Após eliminada, a conta não pode ser recuperada."
 
 #: users/templates/users/account.html:322
 msgid "Importing in progress, can't delete now."
-msgstr "暫時無法刪除，因爲有匯入任務正在進行"
+msgstr "Importação em progresso. Neste momento não pode ser apagada."
 
 #: users/templates/users/account.html:326
 msgid "Permanently Delete"
-msgstr "永久刪除"
+msgstr "Eliminar de forma permanente"
 
 #: users/templates/users/data.html:10
+#, fuzzy
 msgid "Data Management"
-msgstr "數據管理"
+msgstr "Gerir dados"
 
 #: users/templates/users/data.html:19
 msgid "Import Marks and Reviews from Douban"
-msgstr "匯入豆瓣標記和評論"
+msgstr "Importar Marcações e Críticas de Douban"
 
 #: users/templates/users/data.html:24
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
-msgstr "在<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆墳)</a>導出時勾選<mark>書影音遊劇</mark>和<mark>評論</mark>。<br>選擇從豆伴(豆墳)導出的<code>.xlsx</code>文件"
+msgstr ""
+"Selecionar<code>.xlsx</code> exportado de <a href=\"https://doufen.org\" "
+"target=\"_blank\" rel=\"noopener\">Doufen</a>"
 
 #: users/templates/users/data.html:27 users/templates/users/data.html:194
 msgid "Import Method"
-msgstr "匯入方式"
+msgstr "Método de importação"
 
 #: users/templates/users/data.html:30
 msgid "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete."
-msgstr "自動合併：僅更新正向變化(未標->想讀->在讀->已讀)標記，不更新其它標記和現有評論（推薦）"
+msgstr ""
 
 #: users/templates/users/data.html:34
 msgid "Overwrite: update all imported status."
-msgstr "強制覆蓋：覆蓋已存在的標記和評論，匯入文件中未涉及的條目標記和評論不會被改動。"
+msgstr ""
 
 #: users/templates/users/data.html:67
 msgid "Another import is in progress, starting a new import may cause issues, sure to import?"
-msgstr "短期重複上傳可能有無法預期的效果，確定現在上傳匯入嗎？"
+msgstr ""
+"Tem uma importação em progresso. Realizar uma nova importação poderá causar "
+"erros. Tem a certeza que deseja continuar?"
 
 #: users/templates/users/data.html:67
 msgid "Import in progress, please wait"
-msgstr "備份文件已上傳，請等待匯入完成或刷新頁面查看最新進度"
+msgstr "Importação em progresso, por favor espere"
 
 #: users/templates/users/data.html:67 users/templates/users/data.html:86
 #: users/templates/users/data.html:167 users/templates/users/data.html:210
 msgid "Import"
-msgstr "匯入"
+msgstr "Importar"
 
 #: users/templates/users/data.html:76
 msgid "Import Shelf or List from Goodreads"
-msgstr "匯入Goodreads書架或書單"
+msgstr "Importar Lista ou Shelf do Goodreads"
 
 #: users/templates/users/data.html:80
 msgid "Link to Goodreads Profile / Shelf / List"
-msgstr "Goodreads個人主頁、書架或書單連結"
+msgstr ""
 
 #: users/templates/users/data.html:90 users/templates/users/data.html:172
 #: users/templates/users/data_import_status.html:2
 msgid "Last import started"
-msgstr "最近匯入時間"
+msgstr "A última importação já começou"
 
 #: users/templates/users/data.html:91 users/templates/users/data.html:173
 #: users/templates/users/data.html:226
 #: users/templates/users/data_import_status.html:3
 msgid "Status"
-msgstr "狀態"
+msgstr ""
 
 #: users/templates/users/data.html:100
 msgid "want-to-read / currently-reading / read books and their reviews will be imported."
-msgstr "提交Goodreads用戶主頁連結將匯入想讀、在讀、已讀列表，每本書的評論匯入爲本站短評。"
+msgstr ""
 
 #: users/templates/users/data.html:104
 msgid "Shelf will be imported as a new collection."
-msgstr "Goodreads書架將被匯入爲收藏單，每本書的評論匯入爲收藏單條目備註。"
+msgstr "Shelf será importado como nova coleção."
 
 #: users/templates/users/data.html:108
 msgid "List will be imported as a new collection."
-msgstr "Goodreads書單將被匯入爲收藏單，每本書的評論匯入爲收藏單條目備註。"
+msgstr ""
 
 #: users/templates/users/data.html:119
 msgid "Import from Letterboxd"
-msgstr "匯入Letterboxd標記"
+msgstr "Importar do Letterboxd"
 
 #: users/templates/users/data.html:169
 msgid "Only forward changes(none->to-watch->watched) will be imported."
-msgstr "匯入時僅更新正向變化(未標->想看->已看)標記；不足360字符的評論會作爲短評添加。"
+msgstr ""
 
 #: users/templates/users/data.html:177
 msgid "Failed links, likely due to Letterboxd error, you may have to mark them manually"
-msgstr "匯入失敗的連結（通常由於Letterboxd的信息錯誤，請手工添加標記）"
+msgstr ""
+"Links indisponíveis, provavelmente devido a um erro do Letterboxd. É "
+"provável que tenha de as marcar manualmente"
 
 #: users/templates/users/data.html:188
 msgid "Import Podcast Subscriptions"
-msgstr "匯入播客訂閱列表 (OPML)"
+msgstr "Importar subscrições de Podcast(s)"
 
 #: users/templates/users/data.html:201
 msgid "Mark as listening"
-msgstr "標記爲在聽"
+msgstr "Marcar como estando a ouvir"
 
 #: users/templates/users/data.html:205
 msgid "Import as a new collection"
-msgstr "匯入爲新收藏單"
+msgstr "Importar como nova coleção"
 
 #: users/templates/users/data.html:208
 msgid "Select OPML file"
-msgstr "選擇OPML文件"
+msgstr "Selecionar ficheiro OPML"
 
 #: users/templates/users/data.html:217
+#, fuzzy
 msgid "Export Data"
-msgstr "匯出資料"
+msgstr "Exportar Dados"
 
 #: users/templates/users/data.html:222
 msgid "Export marks and reviews"
-msgstr "匯出標記、短評和評論"
+msgstr "Exportar marcações e críticas"
 
 #: users/templates/users/data.html:225
 msgid "Last export"
-msgstr "最近匯出"
+msgstr "Última exportação"
 
 #: users/templates/users/data.html:230
 msgid "Download"
-msgstr "下載"
+msgstr "Download"
 
 #: users/templates/users/data.html:238
 msgid "View Annual Summary"
-msgstr "查看年度小結"
+msgstr "Ver sumário anual"
 
 #: users/templates/users/data_import_status.html:11
 msgid "Failed links, you may have to mark them manually"
-msgstr "匯入失敗的連結（請手工添加標記）"
+msgstr "Links indisponíveis. Terá de realizar as marcações manualmente"
 
 #: users/templates/users/fetch_identity_failed.html:4
 msgid "Unable to find the user, please check your spelling; or the server may be busy, please try again later."
-msgstr "無法找到用戶，請確認拼寫正確；也可能伺服器正忙，請稍後再嘗試。"
+msgstr ""
+"Não foi possível encontrar utilizador. Por favor, verifique se escreveu de "
+"maneira correta; existe também a possibilidade do servidor estar "
+"sobrecarregado. Por favor, tente novamente mais tarde."
 
 #: users/templates/users/fetch_identity_pending.html:12
 #: users/templates/users/fetch_identity_pending.html:21
 msgid "Searching the fediverse"
-msgstr "正在搜尋聯邦宇宙"
+msgstr "Procurar no fediverso"
 
 #: users/templates/users/login.html:16
 msgid "Login"
-msgstr "登入"
+msgstr "Login"
 
 #: users/templates/users/login.html:51
 #: users/templates/users/verify_email.html:22
 msgid "back to your home page."
-msgstr "返回首頁"
+msgstr "voltar à página inicial."
 
 #: users/templates/users/login.html:103
 msgid "Enter your email address"
-msgstr "輸入電子郵件地址"
+msgstr "Insira o seu email"
 
 #: users/templates/users/login.html:105
 msgid "Send verification code"
-msgstr "發送驗證碼"
+msgstr "Enviar código de verificação"
 
 #: users/templates/users/login.html:120
 msgid "Domain of your instance, e.g. mastodon.social"
-msgstr "實例域名(不含@和@之前的部分)，如mastodon.social"
+msgstr "Domínio da sua instância, p.e. mastodon.social"
 
 #: users/templates/users/login.html:126
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
-msgstr "請輸入你的實例域名(不含@和@之前的部分)；如果你的聯邦帳號是<i>@neodb@mastodon.social</i>，只需要在此輸入<i>mastodon.social</i>。"
+msgstr ""
+"Por favor, insira o domínio da sua instância; p.e. se o seu id é "
+"<i>@neodb@mastodon.social</i>, apenas necessita de colocar "
+"<i>mastodon.social</i>."
 
 #: users/templates/users/login.html:129 users/templates/users/login.html:182
 msgid "Authorize via Fediverse instance"
-msgstr "去聯邦實例授權註冊或登入"
+msgstr "Autorizar via instância do Fediverso"
 
 #: users/templates/users/login.html:131
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
-msgstr "如果你還沒有或不便註冊<a href=\"https://joinmastodon.org/servers\" target=\"_blank\">聯邦實例</a>帳號，也可先通過電子郵件或其它平臺註冊登入，未來再作關聯。"
+msgstr ""
+"Se ainda não possui uma conta no <a href=\"https://joinmastodon.org/servers\""
+" target=\"_blank\">Fediverso (Mastodon) </a> , pode registar-se ou iniciar "
+"sessão com Email e, mais tarde, conectar-se com o Fediverso (Mastodon) nas "
+"definições da sua conta."
 
 #: users/templates/users/login.html:141
 msgid "Authorize via Threads"
-msgstr "去Threads授權註冊或登入"
+msgstr "Autorizar via Threads"
 
 #: users/templates/users/login.html:154
 msgid "ATProto handle"
-msgstr "ATProto 用戶標識"
+msgstr "handle do ATProto"
 
 #: users/templates/users/login.html:159
 msgid "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one."
-msgstr "請輸入你的ATProto用戶標識（例如neodb.bsky.social，不包含開頭的@），不要輸入電子郵件地址。如果你最近更改過標識，請使用最新的那一個。"
+msgstr ""
+"Insira o seu handle de ATProto (por exemplo, neodb.bsky.social, sem o @ "
+"inicial). Não utilize um endereço de email. Se alterou recentemente o seu "
+"handle, use o mais recente."
 
 #: users/templates/users/login.html:169
 msgid "Authorize via bsky.app"
-msgstr "使用Bluesky帳號資料註冊或登入"
+msgstr "Autorizar via bsky.app"
 
 #: users/templates/users/login.html:173
 #, python-format
 msgid "Please choose one to register or login %(site_name)s. Have more than one of these identities? Don't worry, you may link them in account settings once logged in."
-msgstr "請選擇一種方式註冊或登入 %(site_name)s。如果你有多個社交身份，登入後可在帳號設定中添加綁定。"
+msgstr ""
+"Por favor, escolha uma destas opções para se registar ou iniciar sessão "
+"%(site_name)s. Tem mais do que uma destas identidades/contas? Não se "
+"preocupe, pode vincular uma destas suas identidades/contas nas definições da "
+"sua conta, quando iniciar sessão."
 
 #: users/templates/users/login.html:189
 msgid "Valid invitation code, please login or register."
-msgstr "邀請連結有效，可註冊新用戶"
+msgstr "Código de convite válido. Por favor, registe-se ou inicie sessão."
 
 #: users/templates/users/login.html:191
 msgid "Please use invitation link to register a new account; existing user may login."
-msgstr "本站目前爲邀請註冊，已有帳號可直接登入，新用戶請使用有效邀請連結註冊"
+msgstr ""
+"Por favor, utilize o link de convite para registar uma nova conta; "
+"utilizadores já inscritos podem iniciar sessão."
 
 #: users/templates/users/login.html:193
 msgid "Invitation code invalid or expired."
-msgstr "邀請連結無效，已有賬戶可直接登入，新用戶請使用有效邀請連結註冊"
+msgstr "Código do convite inválido ou expirou."
 
 #: users/templates/users/login.html:201
 msgid "Loading timed out, please check your network (VPN) settings."
-msgstr "部分模塊加載超時，請檢查網絡（翻牆）設定。"
+msgstr ""
+"O tempo de carregar expirou, por favor verifique a sua ligação à internet."
 
 #: users/templates/users/login.html:207
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
-msgstr "繼續訪問或註冊視爲同意<a href=\"/pages/rules/\">站規</a>與<a href=\"/pages/terms/\">協議</a>，及使用cookie提供必要功能"
+msgstr ""
+"Ao continuar a usar este site implica que aceita as nossas <a href="
+"\"/pages/rules/\">regras</a> e <a href=\"/pages/terms/\">termos</a>, "
+"incluindo o uso de cookies para fornecer funcionalidades necessárias."
 
 #: users/templates/users/login.html:213
 msgid "Domain of your instance (excl. @)"
-msgstr "實例域名(不含@和@之前的部分)"
+msgstr "Domínio da sua instância (excl. @)"
 
 #: users/templates/users/preferences.html:27
 msgid "Default view once logged in"
-msgstr "登入後預設顯示"
+msgstr "Visão padrão quando inicio sessão"
 
 #: users/templates/users/preferences.html:39
 msgid "Activities"
-msgstr "動態"
+msgstr "Atividades"
 
 #: users/templates/users/preferences.html:48
 msgid "Default visibility"
-msgstr "預設可見性"
+msgstr "Visão padrão"
 
 #: users/templates/users/preferences.html:72
 msgid "Public status will be posted to fediverse"
-msgstr "可見性選擇「公開」時以如下方式發佈到聯邦網絡"
+msgstr ""
 
 #: users/templates/users/preferences.html:78
 msgid "in public timeline"
-msgstr "公共時間軸"
+msgstr "na cronologia pública"
 
 #: users/templates/users/preferences.html:84
 msgid "unlisted and excluded from public timeline"
-msgstr "悄悄公開，不出現在公共時間軸"
+msgstr "não listadas e excluídas da cronologia publica"
 
 #: users/templates/users/preferences.html:91
 msgid "local, this site only"
-msgstr "僅本站"
+msgstr ""
 
 #: users/templates/users/preferences.html:97
 msgid "Turn on crosspost to timeline by default"
-msgstr "發表時預設轉發到時間軸"
+msgstr "Por padrão, ativar o crosspost para a cronologia"
 
 #: users/templates/users/preferences.html:105
 msgid "Method for crossposting to timeline"
-msgstr "轉發到時間軸的方式"
+msgstr "Método de crosspost para a cronologia"
 
 #: users/templates/users/preferences.html:112
 msgid "Boost if possible"
-msgstr "儘可能轉播原文"
+msgstr "Boost, se possível"
 
 #: users/templates/users/preferences.html:119
 msgid "Create a new post"
-msgstr "另發新帖文"
+msgstr "Criar novo post"
 
 #: users/templates/users/preferences.html:120
 msgid "this method is less optimal, may generate duplicated posts and miss reactions."
-msgstr "這種方式可能產生重複帖文，且其他人對新帖的回應、點贊不會被記錄"
+msgstr ""
+"Este método é menos prático e poderá provocar posts duplicados e falhas nas "
+"reações."
 
 #: users/templates/users/preferences.html:124
 msgid "Append tags when posting to timeline"
-msgstr "發佈標記到時間軸時追加標籤"
+msgstr "Anexar tags quando faço uma publicação para a cronologia"
 
 #: users/templates/users/preferences.html:127
 msgid "e.g. #bookstodon"
-msgstr "例如 #書影音"
+msgstr "p.e. #bookstodon"
 
 #: users/templates/users/preferences.html:132
 msgid "Language"
-msgstr "語言"
+msgstr "Idioma"
 
 #: users/templates/users/preferences.html:141
 msgid "Automatic bookmark for these categories"
-msgstr "以下類型自動加入書籤"
+msgstr ""
 
 #: users/templates/users/preferences.html:154
+#, fuzzy
 msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
-msgstr "將這些類型的條目標記爲在讀/在看/在玩/...時，自動把相應帖文添加爲書籤。這些書籤帖文可使用<a href=\"https://joinmastodon.org/apps\" target=\"_blank\">應用程序</a>查看和管理，你對這些帖文的回覆會自動成爲該條目的筆記。"
+msgstr ""
+"Quando começar a ler/ver/jogar/... um item destas categorias, será criado "
+"automaticamente um bookmark. Os bookmarks podem ser vistos e geridos na "
+"maioria das aplicações compatíveis com o <a href="
+"\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon </a>; As suas "
+"respostas a estas mensagens tornar-se-ão automaticamente notas para o item."
 
 #: users/templates/users/preferences.html:158
 msgid "Hide these categories in search results"
-msgstr "搜尋時不顯示以下類型"
+msgstr "Ocultar estas categorias dos resultados de pesquisa"
 
 #: users/templates/users/preferences.html:176
 msgid "Profile visible to anonymous web visitors and search engines"
-msgstr "匿名訪客和搜索引擎可以查看你的個人主頁"
+msgstr ""
+"O perfil está visível para todos os visitantes anónimos e motores de pesquisa"
 
 #: users/templates/users/preferences.html:177
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
-msgstr "此選項僅針對網頁訪客，如果不希望被聯邦網路用戶看到請在發表時選擇僅關注者或本人"
+msgstr ""
 
 #: users/templates/users/preferences.html:185
 msgid "Show your name on item page if you recently edited it"
-msgstr "顯示你是某條目的最近編輯者"
+msgstr "Mostrar o seu nome na página do item se o tiver editado recentemente"
 
 #: users/templates/users/preferences.html:194
 msgid "Settings for current device"
-msgstr "當前設備設定"
+msgstr "Definições do dispositivo atual"
 
 #: users/templates/users/preferences.html:196
 msgid "theme"
-msgstr "主題"
+msgstr "tema"
 
 #: users/templates/users/preferences.html:199
 msgid "system"
-msgstr "系統"
+msgstr "sistema"
 
 #: users/templates/users/preferences.html:201
 msgid "light"
-msgstr "明亮"
+msgstr "claro"
 
 #: users/templates/users/preferences.html:203
 msgid "dark"
-msgstr "暗色"
+msgstr "escuro"
 
 #: users/templates/users/preferences.html:205
 msgid "Focus mode"
-msgstr "專注模式"
+msgstr ""
 
 #: users/templates/users/preferences.html:208
 msgid "hide reviews and ratings from other users"
-msgstr "啓用專注模式後搜索和條目頁面將不再顯示來自他人的評價和打分"
+msgstr "Esconder críticas e avaliações de outros utilizadores"
 
 #: users/templates/users/preferences.html:210
 msgid "Number of items per page"
-msgstr "每頁條目數"
+msgstr "Número de itens por página"
 
 #: users/templates/users/preferences.html:219
 msgid "Custom styles"
-msgstr "自定義樣式代碼"
+msgstr "Personalizar estilo(s)"
 
 #: users/templates/users/preferences.html:241
 msgid "Settings for current device saved"
-msgstr "當前設備設定已儲存"
+msgstr "Definições do dispositivo atual guardadas"
 
 #: users/templates/users/preferences.html:247
 msgid "Additional Settings"
-msgstr "更多設定"
+msgstr "Definições adicionais"
 
 #: users/templates/users/preferences.html:249
 msgid "View authorized applications"
-msgstr "查看已授權的應用程序"
+msgstr "Ver aplicações autorizadas"
 
 #: users/templates/users/preferences.html:253
 msgid "Migrate account"
-msgstr "遷移帳號"
+msgstr "Migrar conta"
 
 #: users/templates/users/preferences.html:255
 msgid "Link an email so that you can migrate followers from other Fediverse instances."
-msgstr "關聯電子郵件後方可從其他實例遷入。"
+msgstr ""
+"Vincular um email para que possa migrar seguidores de outras instâncias do "
+"Fediverso."
 
 #: users/templates/users/profile_actions.html:12
 msgid "click to unblock"
-msgstr "點擊可取消屏蔽"
+msgstr "Clique para desbloquear"
 
 #: users/templates/users/profile_actions.html:13
 msgid "are you sure to unblock?"
-msgstr "確定要取消對該用戶的屏蔽嗎？"
+msgstr "Tem a certeza que quer desbloquear?"
 
 #: users/templates/users/profile_actions.html:16
 msgid "blocked"
-msgstr "已屏蔽"
+msgstr "bloqueado"
 
 #: users/templates/users/profile_actions.html:28
 msgid "user profile"
-msgstr "用戶資料"
+msgstr "Perfil do utilizador"
 
 #: users/templates/users/profile_actions.html:45
 msgid "original home"
-msgstr "原始首頁"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:69
 msgid "accept follow request"
-msgstr "接受關注請求"
+msgstr "Aceitar o pedido para o seguir"
 
 #: users/templates/users/profile_actions.html:71
 msgid "sure to accept follow request?"
-msgstr "確定接受關注請求嗎？"
+msgstr "Tem a certeza que quer aceitar este pedido para o seguir?"
 
 #: users/templates/users/profile_actions.html:79
 msgid "reject follow request"
-msgstr "拒絕關注請求"
+msgstr "Recusar pedidos para seguir-me"
 
 #: users/templates/users/profile_actions.html:81
 msgid "sure to reject follow request?"
-msgstr "確定拒絕關注請求嗎？"
+msgstr "Tem a certeza que pretende recusar o pedido para o seguir?"
 
 #: users/templates/users/profile_actions.html:91
 msgid "click to unfollow"
-msgstr "點擊可取消關注"
+msgstr "Clique para deixar de seguir"
 
 #: users/templates/users/profile_actions.html:93
 msgid "sure to unfollow?"
-msgstr "確定取消關注該用戶嗎？"
+msgstr "Tem a certeza que quer deixar de seguir?"
 
 #: users/templates/users/profile_actions.html:102
 msgid "click to cancel follow request"
-msgstr "點擊可取消關注請求"
+msgstr "Clique para cancelar o pedido para seguir"
 
 #: users/templates/users/profile_actions.html:104
 msgid "sure to cancel follow request?"
-msgstr "確定取消關注請求嗎？"
+msgstr "Tem a certeza que quer cancelar o pedido para seguir?"
 
 #: users/templates/users/profile_actions.html:113
 msgid "click to follow"
-msgstr "點擊可關注"
+msgstr "Clique para seguir"
 
 #: users/templates/users/profile_actions.html:114
 msgid "sure to follow?"
-msgstr "確定關注該用戶嗎？"
+msgstr "De certeza que pretende seguir?"
 
 #: users/templates/users/profile_actions.html:124
 msgid "click to mute"
-msgstr "點擊可靜音"
+msgstr "Clique para silenciar"
 
 #: users/templates/users/profile_actions.html:133
 msgid "click to unmute"
-msgstr "點擊可取消靜音"
+msgstr ""
 
 #: users/templates/users/profile_actions.html:143
 msgid "click to block"
-msgstr "點擊可屏蔽"
+msgstr "Clique para bloquear"
 
 #: users/templates/users/profile_actions.html:144
 msgid "sure to block?"
-msgstr "確定屏蔽該用戶嗎？"
+msgstr "Tem a certeza que quer bloquear?"
 
 #: users/templates/users/register.html:25
 #, python-format
 msgid "Your username on %(site_name)s"
-msgstr "你在%(site_name)s使用的用戶名"
+msgstr "O seu nome de utilizador em %(site_name)s"
 
 #: users/templates/users/register.html:27
 msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
-msgstr "2-30個字符，限英文字母數字下劃線，儲存後不可更改"
+msgstr ""
+"2-30 letras, números ou underscore ( _ ). Não poderá alterar após ser "
+"guardado"
 
 #: users/templates/users/register.html:67
 msgid "Turn on crosspost to other social networks by default"
-msgstr "發表時預設轉發到社交網絡時間軸"
+msgstr "Por padrão, ativar crosspost para outras redes sociais"
 
 #: users/templates/users/register.html:71
 msgid "Use display name, bio and avatar from the social network you authenticated with"
-msgstr "自動同步用戶暱稱等基本資訊"
+msgstr ""
+"Utilizar o nome a apresentar, bio e avatar da rede social com a qual se "
+"autenticou"
 
 #: users/templates/users/register.html:79
 msgid "Add follow, mute and block list from the social network you authenticated with"
-msgstr "自動匯入新增的關注、屏蔽和隱藏列表"
+msgstr ""
+"Adicionar lista de pessoas que segue, silenciados e bloqueados da rede "
+"social com a qual se autenticou"
 
 #: users/templates/users/register.html:84
 msgid "Confirm and save"
-msgstr "確認並儲存"
+msgstr "Confirmar e guardar"
 
 #: users/templates/users/register.html:88 users/templates/users/welcome.html:27
 msgid "Cut the sh*t and get me in!"
@@ -4889,114 +5040,112 @@ msgstr ""
 
 #: users/templates/users/relationship_list.html:17
 msgid "export"
-msgstr "匯出"
+msgstr "exportar"
 
 #: users/templates/users/relationship_list.html:21
 msgid "You may download the list here."
-msgstr "此處可匯出你在本站的關係列表。"
+msgstr "Pode descarregar a lista aqui."
 
 #: users/templates/users/verify.html:21
 msgid "Please enter the verification code you received."
-msgstr "請輸入收到的驗證碼。"
+msgstr "Por favor, insira o código de verificação recebido."
 
 #: users/templates/users/verify_email.html:8
 #: users/templates/users/verify_email.html:17
 msgid "Verify Your Email"
-msgstr "驗證電子郵件"
+msgstr "Verifique o seu Email"
 
 #: users/templates/users/verify_email.html:20
 msgid "verified successfully."
-msgstr "驗證成功"
+msgstr "A verificação foi realizada com sucesso."
 
 #: users/templates/users/verify_email.html:27
 msgid "login again"
-msgstr "重新登入"
+msgstr "Faça login novamente"
 
 #: users/templates/users/welcome.html:20
 msgid "Welcome"
-msgstr "歡迎"
+msgstr "Bem-vindo"
 
 #: users/templates/users/welcome.html:22
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "              %(site_name)s is flourishing because of collaborations and contributions from users like you. Please read our <a href=\"/pages/terms\">term of service</a>, and feel free to <a href=\"%(support_link)s\">contact us</a> if you have any question or feedback.\n"
 "        "
 msgstr ""
 "\n"
-"              %(site_name)s還在不斷完善中。 "
-"豐富的內容需要大家共同創造，試圖添加垃圾資料（如添加信息混亂或缺失的書籍、以"
-"推廣爲主要目的的評論）將會受到嚴肅處理。 本站爲非盈利站點，"
-"cookie和其它資料保管使用原則請參閱<a href=\"/pages/terms\">站內公告</a>。 "
-"本站提供API和導出功能，請妥善備份您的數據，"
-"使用過程中遇到的問題或者錯誤歡迎向<a href=\"%(support_link)s\""
-">維護者</a>提出。感謝理解和支持！\n"
+"              %(site_name)s está a crescer e a florescer graças a "
+"colaborações e contribuições de utilizadores como tu. Por favor, leia os "
+"nossos <a href=\"/pages/terms\">Termos de serviço</a> e não hesite em <a "
+"href=\"%(support_link)s\">contactar-nos</a> se tiver alguma questão ou "
+"feedback.\n"
 "        "
 
 #: users/views/account.py:79
 msgid "This username is already in use."
-msgstr "用戶名已被使用"
+msgstr "Este nome de utilizador já está a ser usado."
 
 #: users/views/account.py:90
 msgid "This email address is already in use."
-msgstr "此電子郵件地址已被使用"
+msgstr "Este email já se encontra a ser usado."
 
 #: users/views/account.py:106
 msgid "Registration is for invitation only"
-msgstr "本站僅限邀請註冊"
+msgstr "O registo/inscrição está apenas disponível através de convite"
 
 #: users/views/account.py:176
 msgid "Valid username required"
-msgstr "請輸入有效的用戶名"
+msgstr "Requer um nome de utilizador válido"
 
 #: users/views/account.py:178
 msgid "Username in use"
-msgstr "用戶名已被使用"
+msgstr "Este nome de utilizador encontra-se a ser usado"
 
 #: users/views/account.py:250
 msgid "Account is being deleted."
-msgstr "帳號刪除進行中。"
+msgstr "A conta está a ser apagada."
 
 #: users/views/account.py:253
 msgid "Account mismatch."
-msgstr "帳號資訊不符合。"
+msgstr "Conta incompatível."
 
 #: users/views/data.py:129
 msgid "Generating exports."
-msgstr "正在產生匯出檔案文件。"
+msgstr "A gerar exportações."
 
 #: users/views/data.py:135
 msgid "Export file not available."
-msgstr "匯出檔案不可用"
+msgstr "O ficheiro de exportação não se encontra disponível."
 
 #: users/views/data.py:147
 msgid "Export file expired. Please export again."
-msgstr "匯出文件已失效，請重新匯出"
+msgstr "O ficheiro de exportação expirou. Por favor, tente novamente."
 
 #: users/views/data.py:156
 msgid "Sync in progress."
-msgstr "正在同步。"
+msgstr "Sincronização em progresso."
 
 #: users/views/data.py:170
 msgid "Settings saved."
-msgstr "設定已儲存"
+msgstr "Definições guardadas."
 
 #: users/views/data.py:181
 msgid "Reset completed."
-msgstr "重置已完成。"
+msgstr ""
 
 #: users/views/data.py:195
 msgid "Import in progress."
-msgstr "正在匯入"
+msgstr "Importação em progresso."
 
 #: users/views/data.py:197
 msgid "Invalid URL."
-msgstr "無效網址。"
+msgstr "URL inválido."
 
 #: users/views/data.py:215 users/views/data.py:265
 msgid "Invalid file."
-msgstr "無效檔案。"
+msgstr "Ficheiro inválido."
 
 #: users/views/data.py:224 users/views/data.py:247 users/views/data.py:262
 msgid "File is uploaded and will be imported soon."
-msgstr "檔案已上傳，等待後臺匯入。"
+msgstr "O ficheiro foi carregado e a importação começará em breve."

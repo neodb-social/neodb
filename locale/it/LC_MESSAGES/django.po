@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: 2025-01-19 21:17+0000\n"
+"PO-Revision-Date: 2025-02-09 05:20+0000\n"
 "Last-Translator: E C <weblate.delirium794@passmail.net>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/neodb/neodb/it/>"
 "\n"
@@ -81,11 +81,11 @@ msgstr "titolo originale"
 
 #: catalog/book/models.py:170 catalog/book/models.py:347
 msgid "author"
-msgstr "autore"
+msgstr "Autore"
 
 #: catalog/book/models.py:177
 msgid "translator"
-msgstr "traduttore"
+msgstr "Tradotto da"
 
 #: catalog/book/models.py:184 catalog/templates/edition.html:27
 msgid "book format"
@@ -93,7 +93,7 @@ msgstr "formato del libro"
 
 #: catalog/book/models.py:191 catalog/templates/edition.html:33
 msgid "publishing house"
-msgstr "casa editrice"
+msgstr "Casa editrice"
 
 #: catalog/book/models.py:194
 msgid "publication year"
@@ -105,7 +105,7 @@ msgstr "mese di pubblicazione"
 
 #: catalog/book/models.py:205 catalog/templates/edition.html:55
 msgid "binding"
-msgstr "rilegatura"
+msgstr "Formato"
 
 #: catalog/book/models.py:206
 msgid "pages"
@@ -113,7 +113,7 @@ msgstr "pagine"
 
 #: catalog/book/models.py:207 catalog/templates/edition.html:49
 msgid "series"
-msgstr "serie"
+msgstr "Serie"
 
 #: catalog/book/models.py:208
 msgid "contents"
@@ -121,11 +121,11 @@ msgstr "contenuti"
 
 #: catalog/book/models.py:209 catalog/templates/edition.html:60
 msgid "price"
-msgstr "prezzo"
+msgstr "Prezzo"
 
 #: catalog/book/models.py:210 catalog/templates/edition.html:38
 msgid "imprint"
-msgstr "stampa"
+msgstr "Stampa"
 
 #: catalog/common/models.py:35
 msgid "Unknown"
@@ -341,7 +341,7 @@ msgstr "Podcast Apple"
 #: catalog/common/models.py:171 common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:31
 msgid "Book"
-msgstr "Libro"
+msgstr "Libri"
 
 #: catalog/common/models.py:138
 msgid "TV Serie"
@@ -369,7 +369,7 @@ msgstr "Album"
 #: catalog/common/models.py:175 common/templates/_header.html:41
 #: journal/templates/_sidebar_user_mark_list.html:47
 msgid "Game"
-msgstr "Gioco"
+msgstr "Giochi"
 
 #: catalog/common/models.py:144
 msgid "Podcast Program"
@@ -428,7 +428,7 @@ msgstr "FanFiction"
 #: catalog/common/models.py:349 catalog/tv/models.py:381
 #: users/models/user.py:115
 msgid "language"
-msgstr "lingua"
+msgstr "Lingua"
 
 #: catalog/common/models.py:372 catalog/common/models.py:403
 #: journal/models/collection.py:56
@@ -529,11 +529,11 @@ msgstr "artista"
 
 #: catalog/game/models.py:100
 msgid "developer"
-msgstr "sviluppatore"
+msgstr "Sviluppatore"
 
 #: catalog/game/models.py:108 catalog/music/models.py:84
 msgid "publisher"
-msgstr "editore"
+msgstr "Editore"
 
 #: catalog/game/models.py:115
 msgid "year of publication"
@@ -541,7 +541,7 @@ msgstr "anno di pubblicazione"
 
 #: catalog/game/models.py:119 catalog/podcast/models.py:118
 msgid "date of publication"
-msgstr "data di pubblicazione"
+msgstr "Data di pubblicazione"
 
 #: catalog/game/models.py:124 catalog/music/models.py:62
 #: catalog/tv/models.py:189
@@ -556,11 +556,11 @@ msgstr "tipo di rilascio"
 #: catalog/performance/models.py:122 catalog/podcast/models.py:45
 #: catalog/tv/models.py:169 catalog/tv/models.py:332
 msgid "genre"
-msgstr "genere"
+msgstr "Genere"
 
 #: catalog/game/models.py:143
 msgid "platform"
-msgstr "piattaforma"
+msgstr "Piattaforma"
 
 #: catalog/game/models.py:149 catalog/movie/models.py:133
 #: catalog/performance/models.py:206 catalog/performance/models.py:344
@@ -571,7 +571,7 @@ msgstr "piattaforma"
 #: catalog/templates/tvshow.html:70 catalog/tv/models.py:203
 #: catalog/tv/models.py:367
 msgid "website"
-msgstr "sito internet"
+msgstr "Sito internet"
 
 #: catalog/movie/models.py:78 catalog/performance/models.py:130
 #: catalog/performance/models.py:268 catalog/tv/models.py:148
@@ -589,7 +589,7 @@ msgstr "Scritto da"
 #: catalog/performance/models.py:303 catalog/tv/models.py:162
 #: catalog/tv/models.py:325
 msgid "actor"
-msgstr "attore"
+msgstr "Cast"
 
 #: catalog/movie/models.py:106 catalog/music/models.py:62
 #: catalog/templates/_item_card_metadata_album.html:16
@@ -597,7 +597,7 @@ msgstr "attore"
 #: catalog/templates/movie.html:40 catalog/templates/tvseason.html:57
 #: catalog/templates/tvshow.html:52
 msgid "release date"
-msgstr "data di uscita"
+msgstr "Data di uscita"
 
 #: catalog/movie/models.py:118 catalog/tv/models.py:351
 #: journal/templates/_sidebar_user_mark_list.html:62
@@ -632,7 +632,7 @@ msgstr "anno"
 #: catalog/templates/movie.html:20 catalog/templates/tvseason.html:52
 #: catalog/templates/tvshow.html:47
 msgid "length"
-msgstr "durata"
+msgstr "Durata"
 
 #: catalog/music/models.py:65
 msgid "milliseconds"
@@ -641,7 +641,7 @@ msgstr "millisecondi"
 #: catalog/music/models.py:76
 msgctxt "music"
 msgid "genre"
-msgstr "genere"
+msgstr "Genere"
 
 #: catalog/music/models.py:89
 msgid "tracks"
@@ -799,11 +799,11 @@ msgstr "nessuna storia."
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "sure to clear mark history?"
-msgstr "vuoi veramente eliminare la cronologia dei segnati?"
+msgstr "Vuoi veramente eliminare la cronologia delle interazioni?"
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "clear mark history"
-msgstr "elimina cronologia dei segnati"
+msgstr "Elimina cronologia delle interazioni"
 
 #: catalog/templates/_item_user_mark_history.html:25
 msgid "clear history will not remove current mark"
@@ -811,23 +811,23 @@ msgstr "l'eliminazione della cronologia non rimuoverà il contrassegno corrente"
 
 #: catalog/templates/_item_user_pieces.html:5
 msgid "my comment and tags"
-msgstr "i miei commenti e tag"
+msgstr "I miei commenti e tag"
 
 #: catalog/templates/_item_user_pieces.html:67
 msgid "my notes"
-msgstr "le mie note"
+msgstr "Le mie note"
 
 #: catalog/templates/_item_user_pieces.html:118
 msgid "my review"
-msgstr "la mia recensione"
+msgstr "La mia recensione"
 
 #: catalog/templates/_item_user_pieces.html:160
 msgid "my collection"
-msgstr "la mia collezione"
+msgstr "La mia collezione"
 
 #: catalog/templates/_item_user_pieces.html:190
 msgid "mark history"
-msgstr "cronologia dei segnati"
+msgstr "Cronologia delle interazioni"
 
 #: catalog/templates/_sidebar_edit.html:7
 msgid "edit"
@@ -1191,15 +1191,15 @@ msgstr "Collezioni"
 
 #: catalog/templates/discover.html:94 journal/templates/profile.html:179
 msgid "edit layout"
-msgstr "modifica impaginazione"
+msgstr "Modifica impaginazione"
 
 #: catalog/templates/discover.html:97 journal/templates/profile.html:182
 msgid "save"
-msgstr "salva"
+msgstr "Salva"
 
 #: catalog/templates/discover.html:108 journal/templates/profile.html:193
 msgid "cancel"
-msgstr "cancella"
+msgstr "Cancella"
 
 #: catalog/templates/discover.html:114 journal/templates/profile.html:199
 msgid "show"
@@ -1247,11 +1247,11 @@ msgstr "data di pubblicazione"
 
 #: catalog/templates/edition.html:65
 msgid "number of pages"
-msgstr "numero di pagine"
+msgstr "Numero di pagine"
 
 #: catalog/templates/edition.html:88
 msgid "other editions"
-msgstr "altre edizioni"
+msgstr "Altre edizioni"
 
 #: catalog/templates/edition.html:125
 msgid "Borrow or Buy"
@@ -1281,7 +1281,7 @@ msgstr "seleziona una delle stagioni per commentare"
 
 #: catalog/templates/item_base.html:104
 msgid "mark, comment and collect"
-msgstr "segna, commenta e colleziona"
+msgstr "Segna, commenta e colleziona"
 
 #: catalog/templates/item_base.html:115
 msgid "Login or register to review or add this item to your collection."
@@ -1307,35 +1307,35 @@ msgstr "Modificato l'ultima volta"
 
 #: catalog/templates/item_base.html:188
 msgid "No enough ratings"
-msgstr "Valutazioni non sufficienti"
+msgstr "Non ci sono abbastanza valutazioni"
 
 #: catalog/templates/item_base.html:231
 msgid "overview"
-msgstr "panoramica"
+msgstr "Sinossi"
 
 #: catalog/templates/item_base.html:261
 msgid "comments"
-msgstr "commenti"
+msgstr "Commenti"
 
 #: catalog/templates/item_base.html:264
 #: catalog/templates/item_mark_list.html:21
 #: catalog/templates/item_mark_list.html:24
 #: catalog/templates/item_review_list.html:20
 msgid "marks"
-msgstr "interazioni"
+msgstr "Interazioni"
 
 #: catalog/templates/item_base.html:265
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
 msgid "marks from who you follow"
-msgstr "interazioni dei membri che segui tu"
+msgstr "Interazioni degli utenti che segui tu"
 
 #: catalog/templates/item_base.html:279
 #: catalog/templates/item_mark_list.html:27
 #: catalog/templates/item_review_list.html:22
 msgid "reviews"
-msgstr "recensioni"
+msgstr "Recensioni"
 
 #: catalog/templates/item_mark_list.html:12
 #: journal/templates/user_mark_list.html:4
@@ -1468,7 +1468,7 @@ msgstr "tutte le stagioni"
 
 #: catalog/templates/tvseason.html:32 catalog/tv/models.py:273
 msgid "season number"
-msgstr "stagione numero"
+msgstr "Stagione numero"
 
 #: catalog/templates/tvseason.html:37 catalog/templates/tvshow.html:32
 #: catalog/tv/models.py:110
@@ -2513,8 +2513,8 @@ msgstr "Obbiettivi in corso"
 #: common/templates/_sidebar.html:88
 msgid "Set a collection as target, its progress will show up here."
 msgstr ""
-"Imposta una collezione come obbiettivo, il suo progresso verrà visualizzato "
-"quassù."
+"Imposta come obbiettivo una collezione e i tuoi progressi verranno "
+"visualizzati quassù."
 
 #: common/templates/_sidebar.html:101
 msgid "Recent podcast episodes"
@@ -2828,7 +2828,7 @@ msgstr "ABBANDONATO"
 
 #: journal/models/shelf.py:38
 msgid "books to read"
-msgstr "libri da leggere"
+msgstr "Libri da leggere"
 
 #: journal/models/shelf.py:39
 msgid "want to read"
@@ -2845,7 +2845,7 @@ msgstr "da leggere"
 
 #: journal/models/shelf.py:46
 msgid "books reading"
-msgstr "letture in corso"
+msgstr "Letture in corso"
 
 #: journal/models/shelf.py:47
 msgid "start reading"
@@ -2862,7 +2862,7 @@ msgstr "leggendo"
 
 #: journal/models/shelf.py:54
 msgid "books completed"
-msgstr "libri letti"
+msgstr "Libri letti"
 
 #: journal/models/shelf.py:55
 msgid "finish reading"
@@ -2896,7 +2896,7 @@ msgstr "smesso di leggere"
 
 #: journal/models/shelf.py:70
 msgid "books reviewed"
-msgstr "libri recensiti"
+msgstr "Libri recensiti"
 
 #: journal/models/shelf.py:72 journal/models/shelf.py:112
 #: journal/models/shelf.py:152 journal/models/shelf.py:192
@@ -2908,7 +2908,7 @@ msgstr "ho scritto una recensione di {item}"
 
 #: journal/models/shelf.py:78
 msgid "movies to watch"
-msgstr "film da vedere"
+msgstr "Film da vedere"
 
 #: journal/models/shelf.py:79 journal/models/shelf.py:119
 msgid "want to watch"
@@ -2917,36 +2917,36 @@ msgstr "voglio vedere"
 #: journal/models/shelf.py:80 journal/models/shelf.py:120
 #, python-brace-format
 msgid "wants to watch {item}"
-msgstr "vuole vedere {item}"
+msgstr "Voglio vedere {item}"
 
 #: journal/models/shelf.py:81 journal/models/shelf.py:121
 msgid "to watch"
-msgstr "da vedere"
+msgstr "Da vedere"
 
 #: journal/models/shelf.py:86
 msgid "movies watching"
-msgstr "film in visione"
+msgstr "Film in visione"
 
 #: journal/models/shelf.py:87 journal/models/shelf.py:127
 msgid "start watching"
-msgstr "inizia a guardare"
+msgstr "Inizia a vedere"
 
 #: journal/models/shelf.py:88 journal/models/shelf.py:128
 #, python-brace-format
 msgid "started watching {item}"
-msgstr "iniziato a vedere {item}"
+msgstr "Ho iniziato a vedere {item}"
 
 #: journal/models/shelf.py:89 journal/models/shelf.py:129
 msgid "watching"
-msgstr "vedendo"
+msgstr "In visione"
 
 #: journal/models/shelf.py:94
 msgid "movies watched"
-msgstr "film visti"
+msgstr "Film visti"
 
 #: journal/models/shelf.py:95 journal/models/shelf.py:135
 msgid "finish watching"
-msgstr "finito di vedere"
+msgstr "ha finito di vedere"
 
 #: journal/models/shelf.py:96 journal/models/shelf.py:136
 #, python-brace-format
@@ -2955,7 +2955,7 @@ msgstr "Ho finito di vedere {item}"
 
 #: journal/models/shelf.py:97 journal/models/shelf.py:137
 msgid "watched"
-msgstr "visto"
+msgstr "Visto"
 
 #: journal/models/shelf.py:102
 msgid "movies dropped"
@@ -2963,24 +2963,24 @@ msgstr "film non finiti"
 
 #: journal/models/shelf.py:103 journal/models/shelf.py:143
 msgid "stop watching"
-msgstr "smetti di guardare"
+msgstr "Smetti di vedere"
 
 #: journal/models/shelf.py:104 journal/models/shelf.py:144
 #, python-brace-format
 msgid "stopped watching {item}"
-msgstr "smesso di guardare {item}"
+msgstr "Ho smesso di vedere {item}"
 
 #: journal/models/shelf.py:105 journal/models/shelf.py:145
 msgid "stopped watching"
-msgstr "smesso di guardare"
+msgstr "Smesso di vedere"
 
 #: journal/models/shelf.py:110
 msgid "movies reviewed"
-msgstr "film recensiti"
+msgstr "Film recensiti"
 
 #: journal/models/shelf.py:118
 msgid "TV shows to watch"
-msgstr "Show TV da vedere"
+msgstr "Serie TV da vedere"
 
 #: journal/models/shelf.py:126
 msgid "TV shows watching"
@@ -3000,7 +3000,7 @@ msgstr "Serie TV recensite"
 
 #: journal/models/shelf.py:158
 msgid "albums to listen"
-msgstr "album da ascoltare"
+msgstr "Album da ascoltare"
 
 #: journal/models/shelf.py:159 journal/models/shelf.py:239
 msgid "want to listen"
@@ -3017,7 +3017,7 @@ msgstr "da ascoltare"
 
 #: journal/models/shelf.py:166
 msgid "albums listening"
-msgstr "album in ascolto"
+msgstr "Album in ascolto"
 
 #: journal/models/shelf.py:167 journal/models/shelf.py:247
 msgid "start listening"
@@ -3034,7 +3034,7 @@ msgstr "ascoltando"
 
 #: journal/models/shelf.py:174
 msgid "albums listened"
-msgstr "album ascoltati"
+msgstr "Album ascoltati"
 
 #: journal/models/shelf.py:175 journal/models/shelf.py:255
 msgid "finish listening"
@@ -3068,11 +3068,11 @@ msgstr "finito di ascoltare"
 
 #: journal/models/shelf.py:190
 msgid "albums reviewed"
-msgstr "album recensiti"
+msgstr "Album recensiti"
 
 #: journal/models/shelf.py:198
 msgid "games to play"
-msgstr "giochi da giocare"
+msgstr "Giochi da giocare"
 
 #: journal/models/shelf.py:199
 msgid "want to play"
@@ -3085,11 +3085,11 @@ msgstr "vuole riprodurre {item}"
 
 #: journal/models/shelf.py:201
 msgid "to play"
-msgstr "riprodurre"
+msgstr "Da giocare"
 
 #: journal/models/shelf.py:206
 msgid "games playing"
-msgstr "giochi in corso"
+msgstr "Giochi giocati"
 
 #: journal/models/shelf.py:207
 msgid "start playing"
@@ -3102,15 +3102,15 @@ msgstr "iniziato a giocare {item}"
 
 #: journal/models/shelf.py:209
 msgid "playing"
-msgstr "giocando"
+msgstr "Giocando"
 
 #: journal/models/shelf.py:214
 msgid "games played"
-msgstr "giochi giocati"
+msgstr "Giochi giocati"
 
 #: journal/models/shelf.py:215
 msgid "finish playing"
-msgstr "finito di giocare"
+msgstr "Smesso di giocare"
 
 #: journal/models/shelf.py:216
 #, python-brace-format
@@ -3119,7 +3119,7 @@ msgstr "finito di giocare {item}"
 
 #: journal/models/shelf.py:217
 msgid "played"
-msgstr "giocato"
+msgstr "Giocato"
 
 #: journal/models/shelf.py:222
 msgid "games dropped"
@@ -3136,23 +3136,23 @@ msgstr "finito di giocare {item}"
 
 #: journal/models/shelf.py:225
 msgid "stopped playing"
-msgstr "finito di giocare"
+msgstr "Smesso di giocare"
 
 #: journal/models/shelf.py:230
 msgid "games reviewed"
-msgstr "giochi recensiti"
+msgstr "Giochi recensiti"
 
 #: journal/models/shelf.py:238
 msgid "podcasts to listen"
-msgstr "podcast da ascoltare"
+msgstr "Podcast da ascoltare"
 
 #: journal/models/shelf.py:246
 msgid "podcasts listening"
-msgstr "podcast in ascolto"
+msgstr "Podcast in ascolto"
 
 #: journal/models/shelf.py:254
 msgid "podcasts listened"
-msgstr "podcast ascoltati"
+msgstr "Podcast ascoltati"
 
 #: journal/models/shelf.py:262
 msgid "podcasts dropped"
@@ -3160,11 +3160,11 @@ msgstr "podcast abbandonati"
 
 #: journal/models/shelf.py:270
 msgid "podcasts reviewed"
-msgstr "podcast recensiti"
+msgstr "Podcast recensiti"
 
 #: journal/models/shelf.py:278
 msgid "performances to see"
-msgstr "esibizioni da vedere"
+msgstr "Esibizioni da vedere"
 
 #: journal/models/shelf.py:279
 msgid "want to see"
@@ -3173,7 +3173,7 @@ msgstr "voler vedere"
 #: journal/models/shelf.py:280
 #, python-brace-format
 msgid "wants to see {item}"
-msgstr "vuole vedere {item}"
+msgstr "Voglio vedere {item}"
 
 #: journal/models/shelf.py:281
 msgid "to see"
@@ -3181,7 +3181,7 @@ msgstr "da vedere"
 
 #: journal/models/shelf.py:288
 msgid "performances saw"
-msgstr "esibizioni viste"
+msgstr "Esibizioni viste"
 
 #: journal/models/shelf.py:289
 msgid "finish seeing"
@@ -3194,7 +3194,7 @@ msgstr "finito di vedere {item}"
 
 #: journal/models/shelf.py:291
 msgid "seen"
-msgstr "visto"
+msgstr "Visto"
 
 #: journal/models/shelf.py:296
 msgid "performances dropped"
@@ -3207,15 +3207,15 @@ msgstr "smetti di vedere"
 #: journal/models/shelf.py:298
 #, python-brace-format
 msgid "stopped seeing {item}"
-msgstr "smesso di vedere {item}"
+msgstr "Ho smesso di vedere {item}"
 
 #: journal/models/shelf.py:299
 msgid "stopped seeing"
-msgstr "smesso di vedere"
+msgstr "Smesso di vedere"
 
 #: journal/models/shelf.py:304
 msgid "performances reviewed"
-msgstr "esibizioni recensite"
+msgstr "Esibizioni recensite"
 
 #: journal/models/shelf.py:562
 msgid "removed mark"
@@ -3413,11 +3413,11 @@ msgstr "non valutato"
 
 #: journal/templates/mark.html:76
 msgid "add a tag and press Enter"
-msgstr "aggiungi un tag e premi Enter"
+msgstr "Aggiungi un tag e premi \"Invio\""
 
 #: journal/templates/mark.html:132
 msgid "change mark date"
-msgstr "cambia la data dell'interazione"
+msgstr "Cambia la data dell'interazione"
 
 #: journal/templates/mark.html:158
 msgid "Sure to delete mark, comment and tags for this item?"
@@ -3541,7 +3541,7 @@ msgstr "L'eliminazione non può essere annullata, sicuro di voler continuare?"
 
 #: journal/templates/profile.html:51
 msgid "calendar"
-msgstr "calendario"
+msgstr "Calendario"
 
 #: journal/templates/profile.html:54 journal/templates/wrapped.html:14
 #: journal/templates/wrapped.html:53
@@ -3550,11 +3550,11 @@ msgstr "sintesi annuale"
 
 #: journal/templates/profile.html:119 journal/views/collection.py:166
 msgid "collection"
-msgstr "collezione"
+msgstr "Collezione"
 
 #: journal/templates/profile.html:155
 msgid "liked collection"
-msgstr "collezione piaciuta"
+msgstr "Collezione piaciuta"
 
 #: journal/templates/replies.html:53
 msgid "no replies so far."
@@ -3576,7 +3576,7 @@ msgstr "Mentre si salva, sostituire spazi iniziali con spazi a tutta larghezza"
 
 #: journal/templates/review_edit.html:42
 msgid "change review date"
-msgstr "cambia data della recensione"
+msgstr "Cambia data della recensione"
 
 #: journal/templates/tag_edit.html:32
 msgid "Pin"
@@ -5026,7 +5026,7 @@ msgstr "clicca per seguire"
 
 #: users/templates/users/profile_actions.html:114
 msgid "sure to follow?"
-msgstr "sicuro di voler seguire?"
+msgstr "Sicuro di voler seguire l'utente?"
 
 #: users/templates/users/profile_actions.html:124
 msgid "click to mute"

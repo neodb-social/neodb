@@ -5,11 +5,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-01-13 22:19-0500\n"
-"PO-Revision-Date: 2025-01-02 21:19+0000\n"
-"Last-Translator: Henri Dickson <neodb@users.noreply.hosted.weblate.org>\n"
-"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
+"PO-Revision-Date: 2025-01-31 09:18+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/neodb/neodb/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1425,9 +1426,11 @@ msgid "If you have URL from one of these sites, please put the full URL (e.g. <c
 msgstr "如果你在以下网站找到了相关条目，也可以把链接(如 <code>https://movie.douban.com/subject/1309046/</code> )输入到搜索栏中提交保存到本站。"
 
 #: catalog/templates/search_results.html:49
-#, python-format
+#, fuzzy, python-format
 msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on #dup\">click here to show them.</a> "
-msgstr "已从结果中略去了来自同一作品或有相同标识号的%(dups)s个条目，<a _=\"on click toggle .unfold on #dup\">点击这里可重新显示</a>"
+msgstr ""
+" 已从结果中略去了来自同一作品或有相同标识号的%(dups)s个条目，<a _="
+"\"on click toggle .unfold on #dup\">点击这里可重新显示</a> "
 
 #: catalog/templates/search_results.html:63
 msgid "Searching from other sites"
@@ -4913,14 +4916,21 @@ msgid "Welcome"
 msgstr "欢迎"
 
 #: users/templates/users/welcome.html:22
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "\n"
 "              %(site_name)s is flourishing because of collaborations and contributions from users like you. Please read our <a href=\"/pages/terms\">term of service</a>, and feel free to <a href=\"%(support_link)s\">contact us</a> if you have any question or feedback.\n"
 "        "
 msgstr ""
 "\n"
-"%(site_name)s还在不断完善中。 丰富的内容需要大家共同创造，试图添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严肃处理。 本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href=\"/pages/terms\">站内公告</a>。 本站提供API和导出功能，请妥善备份您的数据，使用过程中遇到的问题或者错误欢迎向<a href=\"%(support_link)s\">维护者</a>提出。感谢理解和支持！"
+"              %(site_name)s还在不断完善中。 "
+"丰富的内容需要大家共同创造，试图添加垃圾数据（如添加信息混乱或缺失的书籍、以"
+"推广为主要目的的评论）将会受到严肃处理。 本站为非盈利站点，"
+"cookie和其它数据保管使用原则请参阅<a href=\"/pages/terms\">站内公告</a>。 "
+"本站提供API和导出功能，请妥善备份您的数据，"
+"使用过程中遇到的问题或者错误欢迎向<a href=\"%(support_link)s\""
+">维护者</a>提出。感谢理解和支持！\n"
+"        "
 
 #: users/views/account.py:79
 msgid "This username is already in use."
