@@ -6,9 +6,21 @@
 {% load mastodon %}
 {% load strip_scheme %}
 {% load thumb %}
-{% block details %}
-  <div>{% include '_people.html' with people=item.additional_title role='' max=99 %}</div>
-  <div>{% include '_people.html' with people=item.author role='author' max=5 %}</div>
+{% block title_more %}
+  {% if request.user.is_authenticated %}
+    <div class="item-edit">
+      <span class="action inline">
+        <a href="{% url 'catalog:edit' item.url_path item.uuid %}"
+           title="{% trans 'Edit this item' %}"><i class="fa-regular fa-pen-to-square"></i></a>
+      </span>
+      {% if item.last_editor and item.last_editor.preference.show_last_edit %}
+        <span>
+          {% trans 'Last edited' %}:
+          <a href="{{ item.last_editor.url }}">{{ item.last_editor.display_name | default:"" }}</a>
+        </span>
+      {% endif %}
+    </div>
+  {% endif %}
 {% endblock %}
 {% block content %}
   <div class="item-card-list">

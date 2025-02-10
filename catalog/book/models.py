@@ -18,7 +18,7 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 """
 
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from auditlog.models import QuerySet
 
@@ -416,6 +416,15 @@ class Edition(Item):
     def parent_item(self):  # type:ignore
         return self.related_work.series.first() if self.related_work else None
 
+    def set_parent_item(self, value: Optional["Series"]):  # type:ignore
+        if self.related_work:
+            self.related_work.set_parent_item(value)
+        elif value:
+            work = Work.objects.create(localized_title=self.localized_title)
+            self.related_work = work
+            self.related_work.series.add(value)
+            self.save()
+
     def unlink_from_all_works(self):
         self.related_work = None
         self.save()
@@ -492,6 +501,12 @@ class Work(Item):
         e = next(filter(lambda e: e.cover_image_url, self.related_editions.all()), None)
         return e.cover_image_url if e else None
 
+    def set_parent_item(self, value: Optional["Series"]):  # type:ignore
+        if value:
+            self.series.add(value)
+        else:
+            self.series.clear()
+
     def update_linked_items_from_external_resource(self, resource):
         """add Edition from resource.metadata['required_resources'] if not yet"""
         links = resource.required_resources + resource.related_resources
@@ -520,23 +535,28 @@ class Work(Item):
 class Series(Item):
     works = models.ManyToManyField(Work, related_name="series")
     category = ItemCategory.Book
+    child_class = "Work"
     url_path = "book/series"
     METADATA_COPY_LIST = [
         "localized_title",
         "localized_description",
     ]
-    goodreads_serie = PrimaryLookupIdDescriptor(IdType.Goodreads_Series)
 
     @classmethod
     def lookup_id_type_choices(cls):
         id_types = [
             IdType.Goodreads_Series,
+            IdType.Bangumi,
         ]
         return [(i.value, i.label) for i in id_types]
 
     @cached_property
     def all_works(self):
         return self.works.all().filter(is_deleted=False, merged_to_item=None)
+
+    @property
+    def child_items(self):
+        return self.all_works
 
     @property
     def cover_image_url(self):
