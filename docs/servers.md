@@ -11,6 +11,8 @@
 
  - [ReviewDB](https://reviewdb.app) - admin: `@shlee@aus.social`
  - [MinReol](https://minreol.dk) - admin: `@pmakholm@norrebro.space`
+ - [CasDB](https://db.casually.cat/) - admin: `@casuallynoted@casually.cat`
+ - [KevGa-NeoDB](https://neodb.kevga.com) - admin: `@@Lorker@mastodon.kevga.de`
 
 If you are also hosting a public instance of NeoDB, please let us know so we can add it to the list above.
 
