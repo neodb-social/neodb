@@ -416,15 +416,6 @@ class Edition(Item):
     def parent_item(self):  # type:ignore
         return self.related_work.series.first() if self.related_work else None
 
-    def set_parent_item(self, value: Optional["Series"]):  # type:ignore
-        if self.related_work:
-            self.related_work.set_parent_item(value)
-        elif value:
-            work = Work.objects.create(localized_title=self.localized_title)
-            self.related_work = work
-            self.related_work.series.add(value)
-            self.save()
-
     def unlink_from_all_works(self):
         self.related_work = None
         self.save()
