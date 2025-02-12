@@ -7,8 +7,9 @@
 {% load thumb %}
 {% load user_actions %}
 {% load duration %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="zh" class="item-page">
+<html lang="{{ LANGUAGE_CODE }}" class="item-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -113,7 +114,7 @@
         {% else %}
           <section>
             <p class="empty">
-              <span><a href="{% url 'users:login' %}?next={{ request.path }}">
+              <span><a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">
                 {% trans 'Login or register to review or add this item to your collection.' %}
               </a></span>
             </p>

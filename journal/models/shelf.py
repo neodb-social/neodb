@@ -341,6 +341,8 @@ class ShelfMember(ListMember):
     def update_by_ap_object(
         cls, owner: APIdentity, item: Item, obj: dict, post, crosspost=None
     ):
+        if post.local:  # ignore local user updating their post via Mastodon API
+            return
         p = cls.objects.filter(owner=owner, item=item).first()
         if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
             return p  # incoming ap object is older than what we have, no update needed
@@ -709,7 +711,7 @@ class ShelfManager:
                 [timezone_offset, shelf_id, int(max_visiblity)],
             ),
             (
-                "SELECT to_char(DATE(journal_comment.created_time::timestamp AT TIME ZONE %s), 'YYYY-MM-DD') AS dat, django_content_type.model typ, COUNT(1) count FROM journal_comment, catalog_item, django_content_type WHERE journal_comment.owner_id = %s AND journal_comment.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND journal_comment.created_time >= NOW() - INTERVAL '366 days' AND journal_comment.visibility <= %s GROUP BY item_id, dat, typ;",
+                "SELECT to_char(DATE(journal_comment.created_time::timestamp AT TIME ZONE %s), 'YYYY-MM-DD') AS dat, django_content_type.model typ, COUNT(1) count FROM journal_comment, catalog_item, django_content_type WHERE journal_comment.owner_id = %s AND journal_comment.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND journal_comment.created_time >= NOW() - INTERVAL '366 days' AND journal_comment.visibility <= %s AND django_content_type.model in ('tvepisode', 'podcastepisode') GROUP BY item_id, dat, typ;",
                 [timezone_offset, self.owner.id, int(max_visiblity)],
             ),
         ]

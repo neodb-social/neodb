@@ -1,4 +1,5 @@
 import datetime
+from urllib.parse import quote_plus
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -25,7 +26,10 @@ def profile(request: AuthedHttpRequest, user_name):
         return render(
             request,
             "users/home_anonymous.html",
-            {"identity": target, "redir": f"/account/login?next={target.url}"},
+            {
+                "identity": target,
+                "redir": f"/account/login?next={quote_plus(target.url)}",
+            },
         )
 
     if (target.local and user_name != target.handle) or (

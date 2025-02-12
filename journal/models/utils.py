@@ -4,12 +4,14 @@ from django.db.utils import IntegrityError
 from loguru import logger
 
 from catalog.models import Item
+from journal.models.index import JournalIndex
 from users.models import APIdentity, User
 
 from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
 from .common import Content, Debris
 from .itemlist import ListMember
+from .note import Note
 from .rating import Rating
 from .review import Review
 from .shelf import ShelfLogEntry, ShelfMember
@@ -23,7 +25,7 @@ def reset_journal_visibility_for_user(owner: APIdentity, visibility: int):
     Review.objects.filter(owner=owner).update(visibility=visibility)
 
 
-def remove_data_by_user(owner: APIdentity):
+def remove_data_by_identity(owner: APIdentity):
     ShelfMember.objects.filter(owner=owner).delete()
     ShelfLogEntry.objects.filter(owner=owner).delete()
     Comment.objects.filter(owner=owner).delete()
@@ -31,9 +33,13 @@ def remove_data_by_user(owner: APIdentity):
     Review.objects.filter(owner=owner).delete()
     TagMember.objects.filter(owner=owner).delete()
     Tag.objects.filter(owner=owner).delete()
+    Note.objects.filter(owner=owner).delete()
     CollectionMember.objects.filter(owner=owner).delete()
     Collection.objects.filter(owner=owner).delete()
     FeaturedCollection.objects.filter(owner=owner).delete()
+    index = JournalIndex.instance()
+    index.delete_by_owner(owner.pk)
+    logger.info(f"removed journal data by {owner}")
 
 
 def update_journal_for_merged_item_task(editing_user_id: int, legacy_item_uuid: str):

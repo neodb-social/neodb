@@ -40,7 +40,6 @@ from catalog.common import (
     ItemCategory,
     ItemInSchema,
     ItemSchema,
-    ItemType,
     PrimaryLookupIdDescriptor,
     jsondata,
 )
@@ -61,6 +60,7 @@ class TVShowInSchema(ItemInSchema):
     year: int | None = None
     site: str | None = None
     episode_count: int | None = None
+    season_uuids: list[str]
 
 
 class TVShowSchema(TVShowInSchema, BaseSchema):
@@ -96,7 +96,7 @@ class TVEpisodeSchema(ItemSchema):
 class TVShow(Item):
     if TYPE_CHECKING:
         seasons: QuerySet["TVSeason"]
-    type = ItemType.TVShow
+    schema = TVShowSchema
     child_class = "TVSeason"
     category = ItemCategory.TV
     url_path = "tv"
@@ -244,6 +244,10 @@ class TVShow(Item):
     def child_items(self):
         return self.all_seasons
 
+    @property
+    def season_uuids(self):
+        return [x.uuid for x in self.all_seasons]
+
     def get_season_count(self):
         return self.season_count or self.seasons.all().count()
 
@@ -256,7 +260,7 @@ class TVShow(Item):
 class TVSeason(Item):
     if TYPE_CHECKING:
         episodes: models.QuerySet["TVEpisode"]
-    type = ItemType.TVSeason
+    schema = TVSeasonSchema
     category = ItemCategory.TV
     url_path = "tv/season"
     child_class = "TVEpisode"
@@ -475,6 +479,7 @@ class TVSeason(Item):
 
 
 class TVEpisode(Item):
+    schema = TVEpisodeSchema
     category = ItemCategory.TV
     url_path = "tv/episode"
     season = models.ForeignKey(

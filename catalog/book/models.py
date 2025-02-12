@@ -124,6 +124,7 @@ class Edition(Item):
         WEB = "web", _("Web Fiction")
         OTHER = "other", _("Other")
 
+    schema = EditionSchema
     category = ItemCategory.Book
     url_path = "book"
 

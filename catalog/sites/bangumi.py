@@ -163,20 +163,23 @@ class Bangumi(AbstractSite):
                     json={"keyword": q, "filter": {"type": bgm_type[category]}},
                     timeout=2,
                 )
-                r = response.json()
-                for s in r["data"]:
-                    cat, _ = cls.get_category(s)
-                    results.append(
-                        ExternalSearchResultItem(
-                            category=cat,
-                            source_site=cls.SITE_NAME,
-                            source_url=cls.id_to_url(s["id"]),
-                            title=s["name"],
-                            subtitle="",
-                            brief=s.get("summary", ""),
-                            cover_url=s["images"].get("common"),
+                if response.status_code == 200:
+                    r = response.json()
+                    for s in r["data"]:
+                        cat, _ = cls.get_category(s)
+                        results.append(
+                            ExternalSearchResultItem(
+                                category=cat,
+                                source_site=cls.SITE_NAME,
+                                source_url=cls.id_to_url(s["id"]),
+                                title=s["name"],
+                                subtitle="",
+                                brief=s.get("summary", ""),
+                                cover_url=s["images"].get("common"),
+                            )
                         )
-                    )
+            except httpx.ReadTimeout:
+                logger.warning("Bangumi search timeout", extra={"query": q})
             except Exception as e:
                 logger.error("Bangumi search error", extra={"query": q, "exception": e})
         return results
@@ -279,7 +282,11 @@ class Bangumi(AbstractSite):
                         else ([v] if isinstance(v, str) else [])
                     )
                 case "官方网站" | "website":
-                    site = v[0] if isinstance(v, list) else v
+                    site = (
+                        v[0]["v"]
+                        if isinstance(v, list)
+                        else (v if isinstance(v, str) else None)
+                    )
                 case "页数":
                     pages = v
                 case "价格":

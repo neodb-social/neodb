@@ -24,7 +24,7 @@ from .shelf import Shelf, ShelfLogEntry, ShelfManager, ShelfMember, ShelfType
 from .tag import Tag, TagManager, TagMember
 from .utils import (
     journal_exists_for_item,
-    remove_data_by_user,
+    remove_data_by_identity,
     reset_journal_visibility_for_user,
     update_journal_for_merged_item,
     update_journal_for_merged_item_task,
@@ -63,7 +63,7 @@ __all__ = [
     "TagManager",
     "TagMember",
     "journal_exists_for_item",
-    "remove_data_by_user",
+    "remove_data_by_identity",
     "reset_journal_visibility_for_user",
     "update_journal_for_merged_item",
     "update_journal_for_merged_item_task",

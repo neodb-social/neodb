@@ -12,7 +12,6 @@ from catalog.common import (
     Item,
     ItemCategory,
     ItemSchema,
-    ItemType,
     jsondata,
 )
 from catalog.common.models import LanguageListField
@@ -104,7 +103,7 @@ def _crew_by_role(crew):
 class Performance(Item):
     if TYPE_CHECKING:
         productions: models.QuerySet["PerformanceProduction"]
-    type = ItemType.Performance
+    schema = PerformanceSchema
     child_class = "PerformanceProduction"
     category = ItemCategory.Performance
     url_path = "performance"
@@ -247,7 +246,7 @@ class Performance(Item):
 
 
 class PerformanceProduction(Item):
-    type = ItemType.PerformanceProduction
+    schema = PerformanceProductionSchema
     category = ItemCategory.Performance
     url_path = "performance/production"
     show = models.ForeignKey(

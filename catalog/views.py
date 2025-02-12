@@ -258,8 +258,9 @@ def discover(request):
     # rotate every 6 minutes
     rot = timezone.now().minute // 6
     for gallery in gallery_list:
-        i = rot * len(gallery["items"]) // 10
-        gallery["items"] = gallery["items"][i:] + gallery["items"][:i]
+        items = cache.get(gallery["name"], [])
+        i = rot * len(items) // 10
+        gallery["items"] = items[i:] + items[:i]
 
     if request.user.is_authenticated:
         if not request.user.registration_complete:

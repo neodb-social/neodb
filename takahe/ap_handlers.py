@@ -68,14 +68,15 @@ def _parse_piece_objects(objects) -> list[dict[str, Any]]:
 
 
 def _get_or_create_item(item_obj) -> Item | None:
-    logger.debug(f"Fetching item by ap from {item_obj}")
     typ = item_obj["type"]
     url = item_obj["href"]
     if url.startswith(settings.SITE_INFO["site_url"]):
+        logger.debug(f"Matching local item from {item_obj}")
         item = Item.get_by_url(url, True)
         if not item:
             logger.warning(f"Item not found for {url}")
         return item
+    logger.debug(f"Fetching item by ap from {item_obj}")
     if typ in ["TVEpisode", "PodcastEpisode"]:
         # TODO support episode item
         # match and fetch parent item first
@@ -219,6 +220,18 @@ def post_uninteracted(interaction_pk, interaction, post_pk, identity_pk):
         identity_id=identity_pk,
         interaction_type=interaction,
     ).delete()
+
+
+def identity_deleted(pk):
+    apid = APIdentity.objects.filter(pk=pk).first()
+    if not apid:
+        logger.warning(f"APIdentity {apid} not found")
+        return
+
+    logger.warning(f"handle deleting identity {apid}")
+    if apid.user and apid.user.is_active:
+        apid.user.clear()  # for local identity, clear their user as well
+    apid.clear()
 
 
 def identity_fetched(pk):

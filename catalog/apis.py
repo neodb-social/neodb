@@ -5,8 +5,10 @@ from django.core.cache import cache
 from django.http import HttpResponse
 from django.utils import timezone
 from ninja import Schema
+from ninja.pagination import paginate
 
-from common.api import RedirectedResult, Result, api
+from catalog.common.models import Item, ItemSchema
+from common.api import PageNumberPagination, RedirectedResult, Result, api
 
 from .common import SiteManager
 from .models import (
@@ -16,8 +18,6 @@ from .models import (
     EditionSchema,
     Game,
     GameSchema,
-    Item,
-    ItemSchema,
     Movie,
     MovieSchema,
     Performance,
@@ -25,6 +25,8 @@ from .models import (
     PerformanceProductionSchema,
     PerformanceSchema,
     Podcast,
+    PodcastEpisode,
+    PodcastEpisodeSchema,
     PodcastSchema,
     TVEpisode,
     TVEpisodeSchema,
@@ -34,6 +36,8 @@ from .models import (
     TVShowSchema,
 )
 from .search.models import enqueue_fetch, get_fetch_lock, query_index
+
+PAGE_SIZE = 20
 
 
 class SearchResult(Schema):
@@ -46,7 +50,14 @@ class SearchResult(Schema):
         | PodcastSchema
         | GameSchema
         | PerformanceSchema
+        | PodcastEpisodeSchema
     ]
+    pages: int
+    count: int
+
+
+class EpisodeList(Schema):
+    data: List[PodcastEpisodeSchema]
     pages: int
     count: int
 
@@ -130,20 +141,95 @@ def fetch_item(request, url: str):
     response={200: list[Gallery]},
     summary="Trending items in catalog",
     auth=None,
-    tags=["catalog"],
+    tags=["trending"],
+    deprecated=True,
 )
 def trending_items(request):
     """
-    Returns a list of galleries, each gallery is a list of items
+    Returns a list of galleries, each gallery is a list of items, deprecated, removing by May 1 2025
     """
     gallery_list = cache.get("public_gallery", [])
 
     # rotate every 6 minutes
     rot = timezone.now().minute // 6
     for gallery in gallery_list:
-        i = rot * len(gallery["items"]) // 10
-        gallery["items"] = gallery["items"][i:] + gallery["items"][:i]
+        items = cache.get(gallery["name"], [])
+        i = rot * len(items) // 10
+        gallery["items"] = items[i:] + items[:i]
     return 200, gallery_list
+
+
+def _get_trending(name):
+    rot = timezone.now().minute // 6
+    items = cache.get(name, [])
+    i = rot * len(items) // 10
+    return items[i:] + items[:i]
+
+
+@api.get(
+    "/trending/book/",
+    response={200: list[ItemSchema]},
+    summary="Trending books in catalog",
+    auth=None,
+    tags=["trending"],
+)
+def trending_book(request):
+    return _get_trending("trending_book")
+
+
+@api.get(
+    "/trending/movie/",
+    response={200: list[ItemSchema]},
+    summary="Trending movies in catalog",
+    auth=None,
+    tags=["trending"],
+)
+def trending_movie(request):
+    return _get_trending("trending_movie")
+
+
+@api.get(
+    "/trending/tv/",
+    response={200: list[ItemSchema]},
+    summary="Trending tv in catalog",
+    auth=None,
+    tags=["trending"],
+)
+def trending_tv(request):
+    return _get_trending("trending_tv")
+
+
+@api.get(
+    "/trending/music/",
+    response={200: list[ItemSchema]},
+    summary="Trending music in catalog",
+    auth=None,
+    tags=["trending"],
+)
+def trending_music(request):
+    return _get_trending("trending_music")
+
+
+@api.get(
+    "/trending/game/",
+    response={200: list[ItemSchema]},
+    summary="Trending games in catalog",
+    auth=None,
+    tags=["trending"],
+)
+def trending_game(request):
+    return _get_trending("trending_game")
+
+
+@api.get(
+    "/trending/podcast/",
+    response={200: list[ItemSchema]},
+    summary="Trending podcasts in catalog",
+    auth=None,
+    tags=["trending"],
+)
+def trending_podcast(request):
+    return _get_trending("trending_podcast")
 
 
 def _get_item(cls, uuid, response):
@@ -169,6 +255,21 @@ def _get_item(cls, uuid, response):
 )
 def get_book(request, uuid: str, response: HttpResponse):
     return _get_item(Edition, uuid, response)
+
+
+@api.get(
+    "/book/{uuid}/sibling/",
+    response={200: List[EditionSchema]},
+    auth=None,
+    tags=["catalog"],
+)
+@paginate(PageNumberPagination)
+def get_sibling_editions_for_book(request, uuid: str, response: HttpResponse):
+    i = _get_item(Edition, uuid, response)
+    print(i)
+    if not isinstance(i, Edition):
+        return Edition.objects.none()
+    return i.sibling_items
 
 
 @api.get(
@@ -219,6 +320,39 @@ def get_tv_episode(request, uuid: str, response: HttpResponse):
 )
 def get_podcast(request, uuid: str, response: HttpResponse):
     return _get_item(Podcast, uuid, response)
+
+
+@api.get(
+    "/podcast/episode/{uuid}",
+    response={200: PodcastEpisodeSchema, 302: RedirectedResult, 404: Result},
+    auth=None,
+    tags=["catalog"],
+)
+def get_podcast_episode(request, uuid: str, response: HttpResponse):
+    return _get_item(PodcastEpisode, uuid, response)
+
+
+@api.get(
+    "/podcast/{uuid}/episode/",
+    response={200: EpisodeList, 302: RedirectedResult, 404: Result},
+    auth=None,
+    tags=["catalog"],
+)
+def get_episodes_in_podcast(
+    request, uuid: str, response: HttpResponse, page: int = 1, guid: str | None = None
+):
+    podcast = _get_item(Podcast, uuid, response)
+    if not isinstance(podcast, Podcast):
+        return podcast
+    episodes = podcast.child_items.filter(is_deleted=False, merged_to_item=None)
+    if guid:
+        episodes = episodes.filter(guid=guid)
+    r = {
+        "data": list(episodes)[(page - 1) * PAGE_SIZE : page * PAGE_SIZE],
+        "pages": (episodes.count() + PAGE_SIZE - 1) // PAGE_SIZE,
+        "count": episodes.count(),
+    }
+    return r
 
 
 @api.get(

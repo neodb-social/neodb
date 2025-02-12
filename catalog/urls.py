@@ -1,4 +1,5 @@
 from django.urls import path, re_path
+from django.views.generic import RedirectView
 
 from .models import *
 from .views import *
@@ -157,7 +158,7 @@ urlpatterns = [
         mark_list,
         name="mark_list",
     ),
-    path("search/", search, name="search_legacy"),
+    path("search/", RedirectView.as_view(url="/search", query_string=True)),
     path("search/external", external_search, name="external_search"),
     path("fetch_refresh/<str:job_id>", fetch_refresh, name="fetch_refresh"),
     path("refetch", refetch, name="refetch"),

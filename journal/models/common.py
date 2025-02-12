@@ -6,6 +6,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Self
 
 import django_rq
+from atproto_client.request import exceptions
 
 # from deepmerge import always_merger
 from django.conf import settings
@@ -123,7 +124,12 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return instance
 
     def save(self, *args, **kwargs):
+        link_post_id = kwargs.pop("link_post_id", -1)
         super().save(*args, **kwargs)
+        if link_post_id is None:
+            self.clear_post_ids()
+        elif link_post_id != -1:
+            self.link_post_id(link_post_id)
         if self.local and self.post_when_save:
             visibility_changed = self.previous_visibility != self.visibility
             self.previous_visibility = self.visibility
@@ -322,8 +328,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             p = cls(**d)
             if crosspost is not None:
                 p.crosspost_when_save = crosspost
-            p.save()
-            p.link_post_id(post.id)
+            p.previous_visibility = visibility
+            p.save(link_post_id=post.id)
         # subclass may have to add additional code to update type_data in local post
         return p
 
@@ -334,7 +340,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         if toot_id and user.mastodon:
             user.mastodon.delete_post(toot_id)
         post_id = metadata.get("bluesky_id")
-        if toot_id and user.bluesky:
+        if post_id and user.bluesky:
             user.bluesky.delete_post(post_id)
 
     def delete_crossposts(self):
@@ -398,7 +404,22 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                     bluesky.delete_post(post_id)
                 except Exception as e:
                     logger.warning(f"Delete {bluesky} post {post_id} error {e}")
-        r = bluesky.post(**params)
+        r = None
+        try:
+            r = bluesky.post(**params)
+        except exceptions.BadRequestError:
+            messages.error(
+                bluesky.user,
+                _(
+                    "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
+                ),
+                meta={
+                    "url": settings.SITE_INFO["site_url"]
+                    + "/account/login?method=atproto"
+                },
+            )
+        except Exception as e:
+            logger.warning(f"Post to {bluesky} error {e}")
         if r:
             self.metadata.update({"bluesky_" + k: v for k, v in r.items()})
         return True
@@ -497,6 +518,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             "post_time": self.created_time,  # type:ignore subclass must have this
             "edit_time": self.edited_time,  # type:ignore subclass must have this
             "data": self.get_ap_data(),
+            "language": user.macrolanguage,
         }
         params.update(self.to_post_params())
         post = Takahe.post(**params)

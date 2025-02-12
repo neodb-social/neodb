@@ -111,11 +111,15 @@ neodb-manage test
 
 Update translations:
 ```
-django-admin makemessages --no-wrap --no-obsolete -i .venv neodb-takahe -a
+django-admin makemessages --no-wrap --no-obsolete -i .venv -i neodb-takahe --keep-pot -l zh_Hans -l zh_Hant
+
 # edit .po files, run the following to make sure edits are correct
-django-admin makemessages --no-wrap --no-obsolete -i .venv -i neodb-takahe -a
+
+django-admin makemessages --no-wrap --no-obsolete -i .venv -i neodb-takahe --keep-pot -l zh_Hans -l zh_Hant
 django-admin compilemessages -i .venv -i neodb-takahe
 ```
+
+
 
 Development in Docker Compose
 -----------------------------

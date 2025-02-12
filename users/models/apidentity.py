@@ -2,6 +2,8 @@ from functools import cached_property
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
+from loguru import logger
 
 from mastodon.models.mastodon import MastodonAccount
 from takahe.utils import Takahe
@@ -288,3 +290,12 @@ class APIdentity(models.Model):
         from journal.models import TagManager
 
         return TagManager(self)
+
+    def clear(self):
+        """delete data for this identity"""
+        from journal.models import remove_data_by_identity
+
+        remove_data_by_identity(self)
+        self.deleted = timezone.now()
+        self.save()
+        logger.warning(f"Identity {self} cleared.")

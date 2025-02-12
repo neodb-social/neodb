@@ -5,8 +5,9 @@
 {% load mastodon %}
 {% load duration %}
 {% load thumb %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="zh" class="classic-page nav-page-search">
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page nav-page-search">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +29,7 @@
       </div>
       {% include "_pagination.html" %}
       {% block sidebar %}
-        {% include "_sidebar.html" with show_profile=1 identity=user.identity %}
+        {% include '_sidebar_search_journal.html' %}
       {% endblock %}
     </main>
     {% include '_footer.html' %}

@@ -25,6 +25,13 @@ class UserSchema(Schema):
     roles: list[Literal["admin", "staff"]]
 
 
+class PreferenceSchema(Schema):
+    default_crosspost: bool = Field(alias="mastodon_default_repost")
+    default_visibility: int
+    hidden_categories: list[str]
+    language: str = Field(alias="user.language")
+
+
 @api.get(
     "/me",
     response={200: UserSchema, 401: Result},
@@ -34,6 +41,7 @@ class UserSchema(Schema):
 def me(request):
     accts = SocialAccount.objects.filter(user=request.user)
     return 200, {
+        # "id": str(request.user.identity.pk),
         "username": request.user.username,
         "url": settings.SITE_INFO["site_url"] + request.user.url,
         "external_acct": (
@@ -44,6 +52,16 @@ def me(request):
         "avatar": request.user.avatar,
         "roles": request.user.get_roles(),
     }
+
+
+@api.get(
+    "/me/preference",
+    response={200: PreferenceSchema, 401: Result},
+    summary="Get current user's preference",
+    tags=["user"],
+)
+def preference(request):
+    return 200, request.user.preference
 
 
 @api.get(

@@ -3,8 +3,9 @@
 {% load l10n %}
 {% load mastodon %}
 {% load thumb %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="zh" class="feed-page nav-page-feed">
+<html lang="{{ LANGUAGE_CODE }}" class="feed-page nav-page-feed">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +29,9 @@
         </div>
       </div>
     </div>
-    {% include "_sidebar.html" with show_progress=1 identity=request.user.identity %}
+    {% block sidebar %}
+      {% include '_sidebar_search_journal.html' %}
+    {% endblock %}
   </main>
   {% include "_footer.html" %}
 </body>

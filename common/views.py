@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
+from django.core.exceptions import DisallowedHost
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -81,6 +82,9 @@ def nodeinfo2(request):
 
 
 def error_400(request, exception=None):
+    if isinstance(exception, DisallowedHost):
+        url = settings.SITE_INFO["site_url"] + request.get_full_path()
+        return redirect(url, permanent=True)
     return render(request, "400.html", status=400, context={"exception": exception})
 
 
@@ -89,6 +93,7 @@ def error_403(request, exception=None):
 
 
 def error_404(request, exception=None):
+    request.session.pop("next_url", None)
     return render(request, "404.html", status=404, context={"exception": exception})
 
 
@@ -115,3 +120,11 @@ def console(request):
         "openapi_json_url": reverse(f"{api.urls_namespace}:openapi-json"),
     }
     return render(request, "console.html", context)
+
+
+def signup(request, code: str | None = None):
+    if request.user.is_authenticated:
+        return redirect(reverse("common:home"))
+    if code:
+        return redirect(reverse("users:login") + "?invite=" + code)
+    return redirect(reverse("users:login"))

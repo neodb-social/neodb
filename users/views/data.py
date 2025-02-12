@@ -8,11 +8,11 @@ from django.db.models import Min
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils import translation
+from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
 from common.utils import GenerateDateUUIDMediaFilePath
-from journal.exporters import DoufenExporter
+from journal.exporters import CsvExporter, DoufenExporter, NdjsonExporter
 from journal.importers import (
     DoubanImporter,
     GoodreadsImporter,
@@ -21,9 +21,10 @@ from journal.importers import (
 )
 from journal.models import ShelfType, reset_journal_visibility_for_user
 from social.models import reset_social_visibility_for_user
+from takahe.utils import Takahe
 from users.models import Task
 
-from .account import *
+from .account import clear_preference_cache
 
 
 @login_required
@@ -97,6 +98,8 @@ def data(request):
             "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
             "import_task": DoubanImporter.latest_task(request.user),
             "export_task": DoufenExporter.latest_task(request.user),
+            "csv_export_task": CsvExporter.latest_task(request.user),
+            "ndjson_export_task": NdjsonExporter.latest_task(request.user),
             "letterboxd_task": LetterboxdImporter.latest_task(request.user),
             "goodreads_task": GoodreadsImporter.latest_task(request.user),
             "years": years,
@@ -147,6 +150,70 @@ def export_marks(request):
                 request, messages.ERROR, _("Export file expired. Please export again.")
             )
             return redirect(reverse("users:data"))
+
+
+@login_required
+def export_csv(request):
+    if request.method == "POST":
+        task = CsvExporter.latest_task(request.user)
+        if (
+            task
+            and task.state not in [Task.States.complete, Task.States.failed]
+            and task.created_time > (timezone.now() - datetime.timedelta(hours=1))
+        ):
+            messages.add_message(
+                request, messages.INFO, _("Recent export still in progress.")
+            )
+            return redirect(reverse("users:data"))
+        CsvExporter.create(request.user).enqueue()
+        messages.add_message(request, messages.INFO, _("Generating exports."))
+        return redirect(reverse("users:data"))
+    else:
+        task = CsvExporter.latest_task(request.user)
+        if not task or task.state != Task.States.complete:
+            messages.add_message(
+                request, messages.ERROR, _("Export file not available.")
+            )
+            return redirect(reverse("users:data"))
+        response = HttpResponse()
+        response["X-Accel-Redirect"] = (
+            settings.MEDIA_URL + task.metadata["file"][len(settings.MEDIA_ROOT) :]
+        )
+        response["Content-Type"] = "application/zip"
+        response["Content-Disposition"] = f'attachment; filename="{task.filename}.zip"'
+        return response
+
+
+@login_required
+def export_ndjson(request):
+    if request.method == "POST":
+        task = NdjsonExporter.latest_task(request.user)
+        if (
+            task
+            and task.state not in [Task.States.complete, Task.States.failed]
+            and task.created_time > (timezone.now() - datetime.timedelta(hours=1))
+        ):
+            messages.add_message(
+                request, messages.INFO, _("Recent export still in progress.")
+            )
+            return redirect(reverse("users:data"))
+        NdjsonExporter.create(request.user).enqueue()
+        messages.add_message(request, messages.INFO, _("Generating exports."))
+        return redirect(reverse("users:data"))
+    else:
+        task = NdjsonExporter.latest_task(request.user)
+        if not task or task.state != Task.States.complete:
+            messages.add_message(
+                request, messages.ERROR, _("Export file not available.")
+            )
+            return redirect(reverse("users:data"))
+        response = HttpResponse()
+        response["X-Accel-Redirect"] = (
+            settings.MEDIA_URL + task.metadata["file"][len(settings.MEDIA_ROOT) :]
+        )
+        response["Content-Type"] = "application/zip"
+        response["Content-Disposition"] = f'attachment; filename="{task.filename}.zip"'
+        return response
 
 
 @login_required

@@ -2,8 +2,9 @@
 {% load i18n %}
 {% load mastodon %}
 {% load thumb %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="zh" class="classic-page">
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -219,7 +220,8 @@
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              <input type="submit" value="{% trans 'Export marks and reviews' %}" />
+              <input type="submit"
+                     value="{% trans 'Export marks and reviews in XLSX (Doufen format)' %}" />
               {% if export_task %}
                 <br>
                 {% trans 'Last export' %}: {{ export_task.created_time }}
@@ -228,6 +230,41 @@
                 {{ export_task.message }}
                 {% if export_task.metadata.file %}
                   <a href="{% url 'users:export_marks' %}" download>{% trans 'Download' %}</a>
+                {% endif %}
+              {% endif %}
+            </form>
+            <hr>
+            <form action="{% url 'users:export_csv' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="submit"
+                     value="{% trans 'Export marks, reviews and notes in CSV' %}" />
+              {% if csv_export_task %}
+                <br>
+                {% trans 'Last export' %}: {{ csv_export_task.created_time }}
+                {% trans 'Status' %}: {{ csv_export_task.get_state_display }}
+                <br>
+                {{ csv_export_task.message }}
+                {% if csv_export_task.metadata.file %}
+                  <a href="{% url 'users:export_csv' %}" download>{% trans 'Download' %}</a>
+                {% endif %}
+              {% endif %}
+            </form>
+            <hr>
+            <form action="{% url 'users:export_ndjson' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="submit" value="{% trans 'Export everything in NDJSON' %}" />
+              {% if ndjson_export_task %}
+                <br>
+                {% trans 'Last export' %}: {{ ndjson_export_task.created_time }}
+                {% trans 'Status' %}: {{ ndjson_export_task.get_state_display }}
+                <br>
+                {{ ndjson_export_task.message }}
+                {% if ndjson_export_task.metadata.file %}
+                  <a href="{% url 'users:export_ndjson' %}" download>{% trans 'Download' %}</a>
                 {% endif %}
               {% endif %}
             </form>

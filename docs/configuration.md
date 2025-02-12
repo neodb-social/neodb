@@ -39,8 +39,10 @@ if you are doing debug or development:
  	- `smtp+tls://<username>:<password>@<host>:<port>`
  	- `smtp+ssl://<username>:<password>@<host>:<port>`
  	- `anymail://<anymail_backend_name>?<anymail_args>`, to send email via email service providers, see [anymail doc](https://anymail.dev/)
- - `DISCORD_WEBHOOKS` - Discord channel to send notification about user submitted suggestion and changes, e.g. `suggest=https://discord.com/api/webhooks/123/abc,audit=https://discord.com/api/webhooks/123/def`. Both suggest and audit channels must be in forum mode.
 
+## Settings for administration
+ - `DISCORD_WEBHOOKS` - Discord channel to send notification about user submitted suggestion and changes, e.g. `suggest=https://discord.com/api/webhooks/123/abc,audit=https://discord.com/api/webhooks/123/def`. Both suggest and audit channels must be in forum mode.
+ - `NEODB_SENTRY_DSN` , `TAKAHE_SENTRY_DSN` - [Sentry](https://sentry.io/) DSN to log errors.
 
 ## Settings for Federation
 
@@ -49,6 +51,7 @@ if you are doing debug or development:
  - `NEODB_DISABLE_DEFAULT_RELAY` is set to `False` by default, the server will send and receive public posts from `relay.neodb.net`.
 
  	`relay.neodb.net` is [open sourced](https://github.com/neodb-social/neodb-relay) and operated by NeoDB developers, it works like most ActivityPub relays except it only relays between NeoDB instances, it helps public information like catalogs and trends flow between NeoDB instances. You may set it to `True` if you don't want to relay public posts with other NeoDB instances.
+
 
 ## Settings for external item sources
 
@@ -71,15 +74,22 @@ alias neodb-manage='docker-compose --profile production run --rm shell neodb-man
 Toggle user's active, staff and super user status
 
 ```
-neodb-manage user active <username>
-neodb-manage user staff <username>
-neodb-manage user super <username>
+neodb-manage user --active <username>
+neodb-manage user --staff <username>
+neodb-manage user --super <username>
+```
+
+create a super user; delete a user / remote identity (`takahe-stator` and `neodb-worker` containers must be running to complete the deletion)
+```
+neodb-manage createsuperuser
+neodb-manage user --delete username
+neodb-manage user --delete username@remote.instance
 ```
 
 Create an invite link
 
 ```
-neo-manage invite --create
+neodb-manage invite --create
 ```
 
 Manage user tasks and cron jobs
@@ -101,7 +111,7 @@ neodb-manage crawl <url>  # crawl all recognizable links from a page
 ```
 
 
-## Run without Docker
+## Run PostgresQL/Redis/Typesense without Docker
 
 It's currently possible but quite cumbersome to run without Docker, hence not recommended. However it's possible to only use docker to run neodb server but reuse existing PostgresQL/Redis/Typesense servers with `compose.override.yml`, an example for reference:
 

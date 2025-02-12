@@ -111,15 +111,18 @@ class DiscoverGenerator(BaseJob):
                 )
                 item_ids = extra_ids + item_ids
             items = [Item.objects.get(pk=i) for i in item_ids]
+            items = [i for i in items if not i.is_deleted and not i.merged_to_item_id]
             if category == ItemCategory.TV:
                 items = self.cleanup_shows(items)
+            key = "trending_" + category.value
             gallery_list.append(
                 {
-                    "name": "trending_" + category.value,
+                    "name": key,
                     "category": category,
-                    "items": items,
                 }
             )
+            cache.set(key, items, timeout=None)
+
             item_ids = self.get_popular_marked_item_ids(category, DAYS_FOR_TRENDS, [])[
                 :5
             ]
@@ -147,6 +150,7 @@ class DiscoverGenerator(BaseJob):
                         ],
                     }
                 )
+
         trends.sort(key=lambda x: int(x["history"][0]["accounts"]), reverse=True)
 
         collections = (
