@@ -9,9 +9,9 @@ Scraping the website directly.
 """
 
 import json
-import logging
 
 import dateparser
+from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
@@ -23,8 +23,6 @@ from common.models.lang import (
 from common.models.misc import uniq
 
 from .douban import *
-
-_logger = logging.getLogger(__name__)
 
 
 @SiteManager.register
@@ -82,7 +80,7 @@ class AppleMusic(AbstractSite):
                     content = (
                         BasicDownloader(url, headers=self.headers).download().html()
                     )
-                    _logger.info(f"got localized content from {url}")
+                    logger.info(f"got localized content from {url}")
                     elem = content.xpath(
                         "//script[@id='serialized-server-data']/text()"
                     )

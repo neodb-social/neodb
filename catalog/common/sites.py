@@ -10,11 +10,13 @@ ResourceContent persists as an ExternalResource which may link to an Item
 import json
 import re
 from dataclasses import dataclass, field
+from hashlib import md5
 from typing import TYPE_CHECKING, Type, TypeVar
 
 import django_rq
 import requests
 from django.conf import settings
+from django.core.cache import cache
 from loguru import logger
 from validators import url as url_validate
 
@@ -303,6 +305,22 @@ class SiteManager:
             raise ValueError(f"Site for {typ} not found")
 
     @staticmethod
+    def get_redirected_url(url: str) -> str:
+        k = "_redir_" + md5(url.encode()).hexdigest()
+        u = cache.get(k, default=None)
+        if u == "":
+            return url
+        elif u:
+            return u
+        try:
+            u = requests.head(url, allow_redirects=True, timeout=1).url
+        except requests.RequestException:
+            logger.warning(f"HEAD timeout: {url}")
+            u = url
+        cache.set(k, u if u != url else "", 3600)
+        return u
+
+    @staticmethod
     def get_site_by_url(url: str) -> AbstractSite | None:
         if not url or not url_validate(
             url,
@@ -312,25 +330,29 @@ class SiteManager:
             strict_query=False,
         ):
             return None
+        u = SiteManager.get_redirected_url(url)
         cls = next(
-            filter(lambda p: p.validate_url(url), SiteManager.registry.values()), None
+            filter(lambda p: p.validate_url(u), SiteManager.registry.values()), None
         )
-        if cls is None and re.match(r"^https?://(spotify.link|t.co)/.+", url):
-            try:
-                url2 = requests.head(url, allow_redirects=True, timeout=1).url
-                if url2 != url:
-                    cls = next(
-                        filter(
-                            lambda p: p.validate_url(url2),
-                            SiteManager.registry.values(),
-                        ),
-                        None,
-                    )
-                    if cls:
-                        url = url2
-            except Exception:
-                pass
+        if cls is None and u != url:
+            cls = next(
+                filter(
+                    lambda p: p.validate_url(url),
+                    SiteManager.registry.values(),
+                ),
+                None,
+            )
+            if cls:
+                u = url
         if cls is None:
+            cls = next(
+                filter(
+                    lambda p: p.validate_url_fallback(u),
+                    SiteManager.registry.values(),
+                ),
+                None,
+            )
+        if cls is None and u != url:
             cls = next(
                 filter(
                     lambda p: p.validate_url_fallback(url),
@@ -338,7 +360,9 @@ class SiteManager:
                 ),
                 None,
             )
-        return cls(url) if cls else None
+            if cls:
+                u = url
+        return cls(u) if cls else None
 
     @staticmethod
     def get_site_by_id(id_type: IdType | str, id_value: str) -> AbstractSite | None:

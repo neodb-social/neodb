@@ -66,7 +66,7 @@ class MockResponse:
         try:
             self.content = Path(fn).read_bytes()
             self.status_code = 200
-            logger.debug(f"use local response for {url} from {fn}")
+            # logger.debug(f"use local response for {url} from {fn}")
         except Exception:
             self.content = b"Error: response file not found"
             self.status_code = 404
