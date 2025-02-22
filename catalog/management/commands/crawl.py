@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 
 from django.core.management.base import BaseCommand
 from loguru import logger
+from lxml import html
 
 from catalog.common import *
 
@@ -27,7 +28,10 @@ class Command(BaseCommand):
             url = queue.pop(0)
             history.append(url)
             logger.info(f"Navigating {url}")
-            content = ProxiedDownloader(url).download().html()
+            try:
+                content = ProxiedDownloader(url).download().html()
+            except Exception:
+                content = html.fromstring("<html />")
             urls = content.xpath("//a/@href")
             for _u in urls:  # type:ignore
                 u = urljoin(url, _u)
