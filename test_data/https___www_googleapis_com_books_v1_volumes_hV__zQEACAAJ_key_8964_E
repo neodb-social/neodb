@@ -1,0 +1,80 @@
+{
+  "kind": "books#volume",
+  "id": "hV--zQEACAAJ",
+  "etag": "9e1D4OyyGmU",
+  "selfLink": "https://www.googleapis.com/books/v1/volumes/hV--zQEACAAJ",
+  "volumeInfo": {
+    "title": "1984 Nineteen Eighty-Four",
+    "subtitle": "New Annotated Edition from the Author of Animal Farm",
+    "authors": [
+      "George. Orwell"
+    ],
+    "publisher": "Alma Classics",
+    "publishedDate": "2021-01-07",
+    "description": "In 1984, London is a grim city in the totalitarian state of Oceania where Big Brother is always watching you and the Thought Police can practically read your mind. Winston Smith is a man in grave danger for the simple reason that his memory still functions. Drawn into a forbidden love affair, Winston finds the courage to join a secret revolutionary organization called The Brotherhood, dedicated to the destruction of the Party. Together with his beloved Julia, he hazards his life in a deadly match against the powers that be.Lionel Trilling said of Orwell's masterpiece \" 1984 is a profound, terrifying, and wholly fascinating book. It is a fantasy of the political future, and like any such fantasy, serves its author as a magnifying device for an examination of the present.\" Though the year 1984 now exists in the past, Orwell's novel remains an urgent call for the individual willing to speak truth to power.\"",
+    "industryIdentifiers": [
+      {
+        "type": "ISBN_10",
+        "identifier": "1847498574"
+      },
+      {
+        "type": "ISBN_13",
+        "identifier": "9781847498571"
+      }
+    ],
+    "readingModes": {
+      "text": false,
+      "image": false
+    },
+    "pageCount": 283,
+    "printedPageCount": 283,
+    "dimensions": {
+      "height": "19.90 cm",
+      "width": "13.10 cm",
+      "thickness": "2.20 cm"
+    },
+    "printType": "BOOK",
+    "categories": [
+      "Fiction / General",
+      "Fiction / Classics",
+      "Fiction / Literary",
+      "Fiction / Dystopian"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "preview-1.0.0",
+    "panelizationSummary": {
+      "containsEpubBubbles": false,
+      "containsImageBubbles": false
+    },
+    "imageLinks": {
+      "smallThumbnail": "http://books.google.com/books/content?id=hV--zQEACAAJ&printsec=frontcover&img=1&zoom=5&imgtk=AFLRE71rG2gupVl5iShQ_tWzZOjjkMPO8F0ulE49c0OqwP0yueVuCMbTez34n7I-jGYQAuQMMnedDyz88THNNh2i5B86Zq4l6n2bM4WorOFjtQ1iSnrrx2QRsdi4-rTVBipXfq8OiKBC&source=gbs_api",
+      "thumbnail": "http://books.google.com/books/content?id=hV--zQEACAAJ&printsec=frontcover&img=1&zoom=1&imgtk=AFLRE73L1GhdQ3fapYb_60j7J-5YQ4EDIi0uB8LU0NFNn65fFdSBTTSVsQ-U8RwhpQynrLW8YotLXYdNTg6rPg8FWXdl_AiFY2009Ye4tkaO7Xwn62IJwTcTNdhYAqNKg0_W_WEZB6sc&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=hV--zQEACAAJ&hl=&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=hV--zQEACAAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://play.google.com/store/books/details?id=hV--zQEACAAJ"
+  },
+  "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+  },
+  "accessInfo": {
+    "country": "US",
+    "viewability": "NO_PAGES",
+    "embeddable": false,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+      "isAvailable": false
+    },
+    "pdf": {
+      "isAvailable": false
+    },
+    "webReaderLink": "http://play.google.com/books/reader?id=hV--zQEACAAJ&hl=&source=gbs_api",
+    "accessViewStatus": "NONE",
+    "quoteSharingAllowed": false
+  }
+}

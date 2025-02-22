@@ -25,7 +25,6 @@ urlpatterns = [
         sync_mastodon_preference,
         name="sync_mastodon_preference",
     ),
-    path("data/reset_visibility", reset_visibility, name="reset_visibility"),
     path("data/clear_data", clear_data, name="clear_data"),
     path("preferences", preferences, name="preferences"),
     path("logout", logout, name="logout"),

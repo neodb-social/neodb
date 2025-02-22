@@ -300,12 +300,6 @@ class User(AbstractUser):
         return Takahe.get_announcements_for_user(self)
 
     @property
-    def activity_manager(self):
-        if not self.identity:
-            raise ValueError("User has no identity")
-        return self.identity.activity_manager
-
-    @property
     def shelf_manager(self):
         if not self.identity:
             raise ValueError("User has no identity")

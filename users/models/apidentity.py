@@ -274,12 +274,6 @@ class APIdentity(models.Model):
             raise cls.DoesNotExist(f"Identity handle invalid {handler}")
 
     @cached_property
-    def activity_manager(self):
-        from social.models import ActivityManager
-
-        return ActivityManager(self)
-
-    @cached_property
     def shelf_manager(self):
         from journal.models import ShelfManager
 

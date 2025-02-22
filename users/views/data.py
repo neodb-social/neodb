@@ -19,8 +19,7 @@ from journal.importers import (
     LetterboxdImporter,
     OPMLImporter,
 )
-from journal.models import ShelfType, reset_journal_visibility_for_user
-from social.models import reset_social_visibility_for_user
+from journal.models import ShelfType
 from takahe.utils import Takahe
 from users.models import Task
 
@@ -236,17 +235,6 @@ def sync_mastodon_preference(request):
         request.user.preference.save()
         messages.add_message(request, messages.INFO, _("Settings saved."))
     return redirect(reverse("users:info"))
-
-
-@login_required
-def reset_visibility(request):
-    if request.method == "POST":
-        visibility = int(request.POST.get("visibility"))
-        visibility = visibility if visibility >= 0 and visibility <= 2 else 0
-        reset_journal_visibility_for_user(request.user.identity, visibility)
-        reset_social_visibility_for_user(request.user.identity, visibility)
-        messages.add_message(request, messages.INFO, _("Reset completed."))
-    return redirect(reverse("users:data"))
 
 
 @login_required
