@@ -132,9 +132,8 @@ def list_posts_for_item(request, item_uuid: str, type: str | None = None):
     types = [t for t in (type or "").split(",") if t in PostTypes]
     q = "type:" + ",".join(types or ["comment", "review"])
     query = JournalQueryParser(q)
+    query.filter_by_viewer(request.user.identity)
     query.filter("item_id", item.pk)
-    query.filter("visibility", 0)
-    query.exclude("owner_id", request.user.identity.ignoring)
     r = JournalIndex.instance().search(query)
     result = {
         "data": [

@@ -282,8 +282,11 @@ class Index:
         params = query.to_search_params()
         if settings.DEBUG:
             logger.debug(f"Typesense: search {self.name} {params}")
-        r = self.read_collection.documents.search(params)
-        sr = self.search_result_class(self, r)
+        # use multi_search as typesense limits query size for normal search
+        r = self._client.multi_search.perform(
+            {"searches": [params]}, {"collection": self.read_collection.name}
+        )
+        sr = self.search_result_class(self, r["results"][0])
         if settings.DEBUG:
             logger.debug(f"Typesense: search result {sr}")
         return sr

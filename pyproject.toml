@@ -77,7 +77,6 @@ exclude = [
     ".git",
     "playground",
     "catalog/*/tests.py",
-    "journal/tests.py",
     "neodb",
     "**/migrations",
     "neodb-takahe",

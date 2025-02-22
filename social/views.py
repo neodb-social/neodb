@@ -96,10 +96,10 @@ def search_data(request):
     identity_id = request.user.identity.pk
     page = int_(request.GET.get("lastpage")) + 1
     q = JournalQueryParser(request.GET.get("q", default=""), page, page_size=PAGE_SIZE)
-    index = JournalIndex.instance()
+    q.filter_by_owner(request.user.identity)
     q.filter("post_id", ">0")
-    q.filter("owner_id", identity_id)
     q.sort(["created:desc"])
+    index = JournalIndex.instance()
     if q:
         r = index.search(q)
         events = [

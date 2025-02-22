@@ -11,6 +11,7 @@ from catalog.models import Item
 from common.models import Index, QueryParser, SearchResult, int_, uniq
 from takahe.models import Post
 from takahe.utils import Takahe
+from users.models.apidentity import APIdentity
 
 if TYPE_CHECKING:
     from journal.models import Piece
@@ -151,6 +152,14 @@ class JournalQueryParser(QueryParser):
             return int(start.timestamp()), int(end.timestamp()) - 1
         except ValueError:
             return 0, 0
+
+    def filter_by_owner(self, owner: APIdentity):
+        self.filter("owner_id", owner.pk)
+
+    def filter_by_viewer(self, viewer: APIdentity):
+        self.filter("visibility", 0)
+        self.exclude("owner_id", viewer.ignoring)
+        # TODO support non-public posts
 
 
 class JournalSearchResult(SearchResult):

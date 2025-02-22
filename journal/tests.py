@@ -2,7 +2,7 @@ import time
 
 from django.test import TestCase
 
-from catalog.models import *
+from catalog.models import Edition
 from journal.models.common import Debris
 from users.models import User
 
@@ -23,7 +23,7 @@ class CollectionTest(TestCase):
         self.assertEqual(collection.catalog_item.title, "test")
         member1, _ = collection.append_item(self.book1)
         self.assertIsNotNone(member1)
-        member1.note = "my notes"
+        member1.note = "my notes"  # type: ignore
         member1.save()
         collection.append_item(self.book2, note="test")
         self.assertEqual(list(collection.ordered_items), [self.book1, self.book2])
@@ -32,18 +32,18 @@ class CollectionTest(TestCase):
         collection.move_up_item(self.book2)
         self.assertEqual(list(collection.ordered_items), [self.book2, self.book1])
         members = collection.ordered_members
-        collection.update_member_order([members[1].id, members[0].id])
+        collection.update_member_order([members[1].pk, members[0].pk])
         self.assertEqual(list(collection.ordered_items), [self.book1, self.book2])
         member1 = collection.get_member_for_item(self.book1)
         self.assertIsNotNone(member1)
         if member1 is None:
             return
-        self.assertEqual(member1.note, "my notes")
+        self.assertEqual(member1.note, "my notes")  # type: ignore
         member2 = collection.get_member_for_item(self.book2)
         self.assertIsNotNone(member2)
         if member2 is None:
             return
-        self.assertEqual(member2.note, "test")
+        self.assertEqual(member2.note, "test")  # type: ignore
 
 
 class ShelfTest(TestCase):
@@ -299,3 +299,24 @@ class NoteTest(TestCase):
         self.assertEqual(c, "test ")
         self.assertEqual(t, Note.ProgressType.CHAPTER)
         self.assertEqual(v, "2")
+
+
+class SearchTest(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.book1 = Edition.objects.create(title="Hyperion")
+        self.book2 = Edition.objects.create(title="Andymion")
+        self.user1 = User.register(email="x@y.com", username="userx")
+        self.index = JournalIndex.instance()
+        self.index.delete_by_owner([self.user1.identity.pk])
+
+    def test_post(self):
+        mark = Mark(self.user1.identity, self.book1)
+        mark.update(ShelfType.WISHLIST, "a gentle comment", 9, ["Sci-Fi", "fic"], 0)
+        mark = Mark(self.user1.identity, self.book2)
+        mark.update(ShelfType.WISHLIST, "a gentle comment", None, ["nonfic"], 1)
+        q = JournalQueryParser("gentle")
+        q.filter_by_owner(self.user1.identity)
+        r = self.index.search(q)
+        self.assertEqual(r.total, 2)
