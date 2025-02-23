@@ -28,7 +28,6 @@ For now, we follow Douban convention, but keep an eye on it in case it breaks it
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from auditlog.models import QuerySet
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -95,7 +94,7 @@ class TVEpisodeSchema(ItemSchema):
 
 class TVShow(Item):
     if TYPE_CHECKING:
-        seasons: QuerySet["TVSeason"]
+        seasons: models.QuerySet["TVSeason"]
     schema = TVShowSchema
     child_class = "TVSeason"
     category = ItemCategory.TV
