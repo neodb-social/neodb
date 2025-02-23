@@ -15,6 +15,7 @@ from catalog.common import (
     SiteManager,
     SiteName,
 )
+from catalog.common.downloaders import DownloadError
 from catalog.models import (
     Album,
     Edition,
@@ -85,6 +86,10 @@ class FediverseInstance(AbstractSite):
             if host in Takahe.get_blocked_peers():
                 return False
             return cls.get_json_from_url(u) is not None
+        except DownloadError:
+            if host and host in Takahe.get_neodb_peers():
+                logger.warning(f"Fedi item url download error: {url}")
+            return False
         except Exception as e:
             if host and host in Takahe.get_neodb_peers():
                 logger.error(f"Fedi item url validation error: {url} {e}")
