@@ -64,6 +64,7 @@ def add_note_for_item(request, item_uuid: str, n_in: NoteInSchema):
         return 404, {"message": "Item not found"}
     note = Note()
     note.item = item
+    note.owner = request.user.identity
     note.title = n_in.title
     note.content = n_in.content
     note.sensitive = n_in.sensitive
