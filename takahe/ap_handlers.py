@@ -106,7 +106,15 @@ def post_fetched(pk, post_data):
 
 
 def _post_fetched(pk, local, post_data, create: bool | None = None):
-    post: Post = Post.objects.get(pk=pk)
+    try:
+        post: Post = Post.objects.get(pk=pk)
+    except Post.DoesNotExist:
+        sleep(2)
+        try:
+            post: Post = Post.objects.get(pk=pk)
+        except Post.DoesNotExist:
+            logger.error(f"Fetched post {pk} not found")
+            return
     owner = Takahe.get_or_create_remote_apidentity(post.author)
     if local:
         activate_language_for_user(owner.user)
@@ -242,13 +250,13 @@ def identity_fetched(pk):
         try:
             identity = Identity.objects.get(pk=pk)
         except Identity.DoesNotExist:
-            logger.warning(f"Fetched identity {pk} not found")
+            logger.error(f"Fetched identity {pk} not found")
             return
     if identity.username and identity.domain:
         apid = Takahe.get_or_create_remote_apidentity(identity)
         if apid:
-            logger.debug(f"Identity {identity} synced")
+            logger.debug(f"Fetched identity {identity} synced")
         else:
-            logger.warning(f"Identity {identity} not synced")
+            logger.error(f"Fetched identity {identity} not synced")
     else:
-        logger.warning(f"Identity {identity} has no username or domain")
+        logger.error(f"Fetched identity {identity} has no username or domain")
