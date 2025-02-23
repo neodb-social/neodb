@@ -1,0 +1,67 @@
+{
+  "version": "1.0",
+  "servers": [
+    {
+      "host": "neodb.social",
+      "description": "Flagship instance, managed by NeoDB developers.",
+      "label": [
+        "flagship"
+      ],
+      "language": [
+        "zh",
+        "en"
+      ]
+    },
+    {
+      "name": "NeoDB experimental",
+      "host": "eggplant.place",
+      "description": "Instance running development version of NeoDB software, which may have newer features and occationally bugs, managed by NeoDB developers.",
+      "label": [
+        "beta"
+      ],
+      "language": [
+        "en"
+      ]
+    },
+    {
+      "name": "ReviewDB",
+      "host": "neodb.social",
+      "admin": [
+        "@shlee@aus.social"
+      ],
+      "language": [
+        "en"
+      ]
+    },
+    {
+      "name": "Minreol",
+      "host": "minreol.dk",
+      "admin": [
+        "@pmakholm@norrebro.space"
+      ],
+      "language": [
+        "da"
+      ]
+    },
+    {
+      "name": "CasDB",
+      "host": "db.casually.cat",
+      "admin": [
+        "@casuallynoted@casually.cat"
+      ],
+      "language": [
+        "en"
+      ]
+    },
+    {
+      "name": "KevGa-NeoDB",
+      "host": "neodb.kevga.de",
+      "admin": [
+        "@lorker@mastodon.kevga.de"
+      ],
+      "language": [
+        "de"
+      ]
+    }
+  ]
+}
