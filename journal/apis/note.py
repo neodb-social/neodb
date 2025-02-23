@@ -52,7 +52,7 @@ def list_notes_for_item(request, item_uuid):
 
 @api.post(
     "/me/note/item/{item_uuid}/",
-    response={200: Result, 401: Result, 403: Result, 404: Result},
+    response={200: NoteSchema, 401: Result, 403: Result, 404: Result},
     tags=["note"],
 )
 def add_note_for_item(request, item_uuid: str, n_in: NoteInSchema):
@@ -73,7 +73,7 @@ def add_note_for_item(request, item_uuid: str, n_in: NoteInSchema):
     note.visibility = n_in.visibility
     note.crosspost_when_save = n_in.post_to_fediverse
     note.save()
-    return 200, {"message": "OK"}
+    return note
 
 
 @api.put(
