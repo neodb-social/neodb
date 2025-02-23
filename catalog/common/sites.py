@@ -84,6 +84,9 @@ class AbstractSite:
         self.url = self.id_to_url(self.id_value) if self.id_value else None
         self.resource = None
 
+    def clear_cache(self):
+        self.resource = None
+
     def get_resource(self) -> ExternalResource:
         if not self.resource:
             self.resource = ExternalResource.objects.filter(url=self.url).first()

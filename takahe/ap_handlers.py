@@ -86,10 +86,15 @@ def _get_or_create_item(item_obj) -> Item | None:
     if not site:
         logger.warning(f"Site not found for {url}")
         return None
-    site.get_resource_ready()
+    try:
+        site.get_resource_ready()
+    except Exception:
+        # occationally race condition happens and resource is fetched by another process,
+        # so we clear cache to retry matching the resource
+        site.clear_cache()
     item = site.get_item()
     if not item:
-        logger.warning(f"Item not fetched for {url}")
+        logger.error(f"Item not fetched for {url}")
     return item
 
 
