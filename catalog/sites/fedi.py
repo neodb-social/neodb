@@ -1,3 +1,4 @@
+import re
 from urllib.parse import quote_plus, urlparse
 
 import httpx
@@ -68,7 +69,9 @@ class FediverseInstance(AbstractSite):
     @classmethod
     def url_to_id(cls, url: str):
         u = url.split("://", 1)[1].split("?", 1)[0].split("/", 1)
-        return "https://" + u[0].lower() + "/" + u[1]
+        return "https://" + u[0].lower() + "/" + re.sub("^api/", "", u[1])
+        # return "https://" + u[0].lower() + "/" + u[1]
+        # FIXME re.sub(...) should be removed after all peers in network upgrade to 0.11.4.9+
 
     @classmethod
     def validate_url_fallback(cls, url: str):

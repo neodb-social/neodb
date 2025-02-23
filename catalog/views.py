@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.db.models import Count
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -82,7 +82,7 @@ def retrieve(request, item_path, item_uuid):
     if not skipcheck and item.is_deleted:
         raise Http404(_("Item no longer exists"))
     if request.headers.get("Accept", "").endswith("json"):
-        return redirect(item.api_url)
+        return JsonResponse(item.ap_object)
     focus_item = None
     if request.GET.get("focus"):
         focus_item = get_object_or_404(

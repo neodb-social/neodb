@@ -261,6 +261,7 @@ class AbstractSite:
             p.save()
             if p.item:
                 p.item.merge_data_from_external_resources(ignore_existing_content)
+                p.item.ap_object  # validate
                 p.item.save()
                 self.scrape_additional_data()
         if auto_link:

@@ -266,7 +266,6 @@ def get_book(request, uuid: str, response: HttpResponse):
 @paginate(PageNumberPagination)
 def get_sibling_editions_for_book(request, uuid: str, response: HttpResponse):
     i = _get_item(Edition, uuid, response)
-    print(i)
     if not isinstance(i, Edition):
         return Edition.objects.none()
     return i.sibling_items
