@@ -14,7 +14,7 @@ class NoteSchema(Schema):
     uuid: str
     post_id: int | None = Field(alias="latest_post_id")
     item: ItemSchema
-    title: str
+    title: str | None
     content: str
     sensitive: bool = False
     progress_type: Note.ProgressType | None = None
