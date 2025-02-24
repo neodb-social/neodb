@@ -111,15 +111,17 @@ def post_fetched(pk, post_data):
 
 
 def _post_fetched(pk, local, post_data, create: bool | None = None):
-    try:
-        post: Post = Post.objects.get(pk=pk)
-    except Post.DoesNotExist:
-        sleep(2)
+    retry = 1
+    while True:
         try:
             post: Post = Post.objects.get(pk=pk)
+            break
         except Post.DoesNotExist:
-            logger.error(f"Fetched post {pk} not found")
-            return
+            if retry > 5:
+                logger.error(f"Fetched post {pk} not found")
+                return
+            sleep(retry)
+            retry += 1
     owner = Takahe.get_or_create_remote_apidentity(post.author)
     if local:
         activate_language_for_user(owner.user)
@@ -248,15 +250,17 @@ def identity_deleted(pk):
 
 
 def identity_fetched(pk):
-    try:
-        identity = Identity.objects.get(pk=pk)
-    except Identity.DoesNotExist:
-        sleep(2)
+    retry = 1
+    while True:
         try:
             identity = Identity.objects.get(pk=pk)
+            break
         except Identity.DoesNotExist:
-            logger.error(f"Fetched identity {pk} not found")
-            return
+            if retry > 5:
+                logger.error(f"Fetched identity {pk} not found")
+                return
+            sleep(retry)
+            retry += 1
     if identity.username and identity.domain:
         apid = Takahe.get_or_create_remote_apidentity(identity)
         if apid:
