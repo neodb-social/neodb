@@ -161,11 +161,13 @@ def recast(request, item_path, item_uuid):
         if item.external_resources.filter(id_type=IdType.DoubanMovie).exists():
             cls = "tvseason"
             douban_movie_to_tvseason = True
-    model = (
-        TVShow
-        if cls == "tvshow"
-        else (Movie if cls == "movie" else (TVSeason if cls == "tvseason" else None))
-    )
+    model_mapping = {
+        "tvshow": TVShow,
+        "movie": Movie,
+        "tvseason": TVSeason,
+        "series": Series,
+    }
+    model = model_mapping.get(cls, None)
     if not model:
         raise BadRequest("Invalid target type")
     if isinstance(item, model):

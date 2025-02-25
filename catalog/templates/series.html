@@ -1,0 +1,34 @@
+{% extends "item_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load mastodon %}
+{% load strip_scheme %}
+{% load thumb %}
+{% block title_more %}
+  {% if request.user.is_authenticated %}
+    <div class="item-edit">
+      <span class="action inline">
+        <a href="{% url 'catalog:edit' item.url_path item.uuid %}"
+           title="{% trans 'Edit this item' %}"><i class="fa-regular fa-pen-to-square"></i></a>
+      </span>
+      {% if item.last_editor and item.last_editor.preference.show_last_edit %}
+        <span>
+          {% trans 'Last edited' %}:
+          <a href="{{ item.last_editor.url }}">{{ item.last_editor.display_name | default:"" }}</a>
+        </span>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}
+{% block content %}
+  <div class="item-card-list">
+    {% for work in item.works.all %}
+      {% include '_list_item.html' with item=work.related_editions.first hide_parent=1 mark=0 %}
+    {% endfor %}
+  </div>
+{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block cover %}{% endblock %}
+{% block metadata %}{% endblock %}

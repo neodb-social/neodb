@@ -141,6 +141,19 @@
           </form>
         </details>
       {% endif %}
+    {% elif item.class_name == "tvseason" %}
+      {% if not item.parent_item or request.user.is_staff %}
+        <details>
+          <summary>{% trans 'switch category' %}</summary>
+          <form method="post"
+                action="{% url 'catalog:recast' item.url_path item.uuid %}"
+                onsubmit="return confirm('Switching may remove some metadata. Sure to proceed?');">
+            {% csrf_token %}
+            <input type="hidden" value="movie" name="class">
+            <input class="contrast" type="submit" value="➡ {% trans 'Movie' %}">
+          </form>
+        </details>
+      {% endif %}
     {% elif item.class_name == "album" %}
       <details>
         <summary>{% trans 'switch category' %}</summary>
@@ -152,10 +165,23 @@
           <input class="contrast" type="submit" value="➡ {% trans 'Podcast' %}">
         </form>
       </details>
+    {% elif item.class_name == "edition" %}
+      {% if not item.related_work %}
+        <details>
+          <summary>{% trans 'switch category' %}</summary>
+          <form method="post"
+                action="{% url 'catalog:recast' item.url_path item.uuid %}"
+                onsubmit="return confirm('Switching may remove some metadata. Sure to proceed?');">
+            {% csrf_token %}
+            <input type="hidden" value="series" name="class">
+            <input class="contrast" type="submit" value="➡ {% trans 'Series' %}">
+          </form>
+        </details>
+      {% endif %}
     {% else %}
       <!-- no switch possible -->
     {% endif %}
-    {% if item.class_name == "tvseason" or item.class_name == "performanceproduction" %}
+    {% if item.class_name == "tvseason" or item.class_name == "performanceproduction" or item.class_name == "work" %}
       <details>
         <summary>{% trans "Link to parent item" %}</summary>
         <form method="post"
@@ -217,11 +243,9 @@
         <details>
           <summary>{% trans 'Work' %}</summary>
           {% trans "This edition belongs to the following work" %}
-          {% for i in item.works.all %}
-            <li>
-              <a href="{{ i.url }}?skipcheck=1">{{ i.display_title }}</a>
-            </li>
-          {% endfor %}
+          <li>
+            <a href="{{ item.related_work.url }}?skipcheck=1">{{ item.related_work.display_title }}</a>
+          </li>
           <form method="post"
                 onsubmit="return confirm('{% trans "Sure to unlink?" %}');"
                 action="{% url 'catalog:unlink_works' item.url_path item.uuid %}">

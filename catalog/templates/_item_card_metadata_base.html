@@ -30,8 +30,8 @@
         {% if item.season_number %}Season {{ item.season_number }}{% endif %}
       </span>
     {% endif %}
-    {% if item.parent_item %}
-      <span>{% trans "part of" %} {{ item.parent_item.type.label }}: <a href="{{ item.parent_item.url }}">{{ item.parent_item.display_title }}</a></span>
+    {% if not hide_parent and item.parent_item %}
+      <span>{% trans "part of" %} {{ hide_parent }}{{ item.parent_item.type.label }}: <a href="{{ item.parent_item.url }}">{{ item.parent_item.display_title }}</a></span>
     {% endif %}
   </small>
 </hgroup>

@@ -122,6 +122,7 @@ env = environ.FileAwareEnv(
     NEODB_SENTRY_SAMPLE_RATE=(float, 0),
     NEODB_FANOUT_LIMIT_DAYS=(int, 9),
     INDEX_ALIASES=(dict, {}),
+    SKIP_WORK_MIGRATION=(bool, False),
 )
 
 # ====== End of user configuration variables ======
@@ -636,3 +637,5 @@ if SENTRY_DSN:
         send_default_pii=True,
         traces_sample_rate=env("NEODB_SENTRY_SAMPLE_RATE"),  # type:ignore
     )
+
+SKIP_WORK_MIGRATION = env("SKIP_WORK_MIGRATION")

@@ -126,8 +126,8 @@ def query_index(keywords, categories=None, tag=None, page=1, prepare_external=Tr
             if hasattr(i, "isbn")
             else ([i.imdb_code] if hasattr(i, "imdb_code") else [])
         )
-        if hasattr(i, "works"):
-            my_key += [i[0] for i in i.works.all().values_list("id")]
+        if hasattr(i, "related_works"):
+            my_key += [i.related_work.id]
         if len(my_key):
             sl = len(keys) + len(my_key)
             keys.update(my_key)
@@ -208,5 +208,5 @@ def _fetch_task(url, is_refetch, user):
             if e.response_type != RESPONSE_CENSORSHIP:
                 logger.error(f"fetch {url} error", extra={"exception": e})
         except Exception as e:
-            logger.error(f"parse {url} error", extra={"exception": e})
+            logger.error(f"parse {url} error {e}", extra={"exception": e})
         return item_url

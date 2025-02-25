@@ -15,7 +15,7 @@
   <div _="init hide .item-mark-buttons then hide .item-mark-icon end">
     <details open>
       <summary>{% trans 'Editions' %}</summary>
-      {% for b in item.editions.all %}
+      {% for b in item.related_editions.all %}
         <div>
           <a href="{{ b.url }}">{{ b.display_title }}</a>
           <small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
