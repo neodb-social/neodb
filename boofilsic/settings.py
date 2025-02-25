@@ -390,11 +390,16 @@ LOGGING = {
     "disable_existing_loggers": False,
     "handlers": {
         "console": {"class": "logging.StreamHandler"},
+        "null": {"class": "logging.NullHandler"},
     },
     "loggers": {
         "": {
             "handlers": ["console"],
             "level": LOG_LEVEL,
+        },
+        "django.security.DisallowedHost": {
+            "handlers": ["null"],
+            "propagate": False,
         },
     },
 }
