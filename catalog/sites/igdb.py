@@ -72,7 +72,7 @@ class IGDB(AbstractSite):
             _wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())
             try:
                 r = json.loads(_wrapper.api_request(p, q))  # type: ignore
-            except requests.HTTPError as e:
+            except httpx.HTTPError as e:
                 logger.error(f"IGDB API: {e}", extra={"exception": e})
                 return []
             if settings.DOWNLOADER_SAVEDIR:
@@ -175,14 +175,15 @@ class IGDB(AbstractSite):
         q = f'fields *, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name; search "{quote_plus(q)}"; limit {limit}; offset {offset};'
         _wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())
         async with httpx.AsyncClient() as client:
+            rs = []
             try:
                 url = IGDBWrapper._build_url("games")
                 params = _wrapper._compose_request(q)
                 response = await client.post(url, **params)
-                rs = json.loads(response.content)
-            except requests.HTTPError as e:
+                if response.status_code == 200:
+                    rs = json.loads(response.content)
+            except httpx.HTTPError as e:
                 logger.error(f"IGDB API: {e}", extra={"exception": e})
-                rs = []
         result = []
         for r in rs:
             subtitle = ""
