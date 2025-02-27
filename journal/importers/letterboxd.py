@@ -1,6 +1,8 @@
 import csv
 import tempfile
 import zipfile
+from datetime import timedelta
+from random import randint
 
 import pytz
 from django.utils.dateparse import parse_datetime
@@ -96,6 +98,7 @@ class LetterboxdImporter(Task):
         }
         dt = parse_datetime(date + shelf_time_offset[shelf_type])
         if dt:
+            dt += timedelta(seconds=randint(0, 3599))
             dt = dt.replace(tzinfo=_tz_sh)
         rating_grade = round(float(rating) * 2) if rating else None
         comment = None
