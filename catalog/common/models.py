@@ -263,6 +263,7 @@ class ItemInSchema(Schema):
     cover_image_url: str | None
     rating: float | None
     rating_count: int | None
+    rating_distribution: dict[str, int] | None
     # brief is deprecated
     brief: str = Field(deprecated=True, alias="display_description")
 
@@ -768,25 +769,25 @@ class Item(PolymorphicModel):
     def editable(self):
         return not self.is_deleted and self.merged_to_item is None
 
-    @property
+    @cached_property
     def rating(self):
         from journal.models import Rating
 
         return Rating.get_rating_for_item(self)
 
-    @property
+    @cached_property
     def rating_count(self):
         from journal.models import Rating
 
         return Rating.get_rating_count_for_item(self)
 
-    @property
-    def rating_dist(self):
+    @cached_property
+    def rating_distribution(self):
         from journal.models import Rating
 
         return Rating.get_rating_distribution_for_item(self)
 
-    @property
+    @cached_property
     def tags(self):
         from journal.models import TagManager
 

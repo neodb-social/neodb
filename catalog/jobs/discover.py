@@ -121,6 +121,10 @@ class DiscoverGenerator(BaseJob):
                     "category": category,
                 }
             )
+            for i in items:
+                i.rating
+                i.rating_count
+                i.rating_distribution
             cache.set(key, items, timeout=None)
 
             item_ids = self.get_popular_marked_item_ids(category, DAYS_FOR_TRENDS, [])[
