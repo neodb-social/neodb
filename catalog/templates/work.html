@@ -12,7 +12,7 @@
   <div>{% include '_people.html' with people=item.author role='author' max=5 %}</div>
 {% endblock %}
 {% block left_sidebar %}
-  <div _="init hide .item-mark-buttons then hide .item-mark-icon end">
+  <div>
     <details open>
       <summary>{% trans 'Editions' %}</summary>
       {% for b in item.editions.all %}
