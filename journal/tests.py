@@ -153,9 +153,10 @@ class TagTest(TestCase):
         t2 = "tag 2"
         t3 = "tag 3"
         TagManager.tag_item_for_owner(self.user2.identity, self.book1, [t1, t3])
-        self.assertEqual(self.book1.tags, [t1, t3])
+        # self.book1.tags is precached when self.book1 was created (and indexed)
+        self.assertEqual(TagManager.indexable_tags_for_item(self.book1), [t1, t3])
         TagManager.tag_item_for_owner(self.user2.identity, self.book1, [t2, t3])
-        self.assertEqual(self.book1.tags, [t2, t3])
+        self.assertEqual(TagManager.indexable_tags_for_item(self.book1), [t2, t3])
         m = Mark(self.user2.identity, self.book1)
         self.assertEqual(m.tags, [t2, t3])
 

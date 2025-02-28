@@ -122,6 +122,7 @@ class DiscoverGenerator(BaseJob):
                 }
             )
             for i in items:
+                i.tags
                 i.rating
                 i.rating_count
                 i.rating_distribution

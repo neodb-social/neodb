@@ -263,7 +263,8 @@ class ItemInSchema(Schema):
     cover_image_url: str | None
     rating: float | None
     rating_count: int | None
-    rating_distribution: dict[str, int] | None
+    rating_distribution: list[int] | None
+    tags: list[str] | None
     # brief is deprecated
     brief: str = Field(deprecated=True, alias="display_description")
 
