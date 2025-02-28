@@ -317,7 +317,7 @@ class SiteManager:
         elif u:
             return u
         try:
-            u = requests.head(url, allow_redirects=True, timeout=1).url
+            u = requests.head(url, allow_redirects=True, timeout=2).url
         except requests.RequestException:
             logger.warning(f"HEAD timeout: {url}")
             u = url
@@ -325,7 +325,24 @@ class SiteManager:
         return u
 
     @staticmethod
-    def get_site_by_url(url: str) -> AbstractSite | None:
+    def get_class_by_url(url: str) -> Type[AbstractSite] | None:
+        return next(
+            filter(lambda p: p.validate_url(url), SiteManager.registry.values()), None
+        )
+
+    @staticmethod
+    def get_fallback_class_by_url(url: str) -> Type[AbstractSite] | None:
+        return next(
+            filter(
+                lambda p: p.validate_url_fallback(url), SiteManager.registry.values()
+            ),
+            None,
+        )
+
+    @staticmethod
+    def get_site_by_url(
+        url: str, detect_redirection: bool = True
+    ) -> AbstractSite | None:
         if not url or not url_validate(
             url,
             skip_ipv6_addr=True,
@@ -334,36 +351,16 @@ class SiteManager:
             strict_query=False,
         ):
             return None
-        u = SiteManager.get_redirected_url(url)
-        cls = next(
-            filter(lambda p: p.validate_url(u), SiteManager.registry.values()), None
-        )
+        u = SiteManager.get_redirected_url(url) if detect_redirection else url
+        cls = SiteManager.get_class_by_url(u)
         if cls is None and u != url:
-            cls = next(
-                filter(
-                    lambda p: p.validate_url(url),
-                    SiteManager.registry.values(),
-                ),
-                None,
-            )
+            cls = SiteManager.get_fallback_class_by_url(url)
             if cls:
                 u = url
         if cls is None:
-            cls = next(
-                filter(
-                    lambda p: p.validate_url_fallback(u),
-                    SiteManager.registry.values(),
-                ),
-                None,
-            )
+            cls = SiteManager.get_class_by_url(u)
         if cls is None and u != url:
-            cls = next(
-                filter(
-                    lambda p: p.validate_url_fallback(url),
-                    SiteManager.registry.values(),
-                ),
-                None,
-            )
+            cls = SiteManager.get_fallback_class_by_url(url)
             if cls:
                 u = url
         return cls(u) if cls else None
