@@ -613,8 +613,9 @@ DEACTIVATE_AFTER_UNREACHABLE_DAYS = 365
 
 DEFAULT_RELAY_SERVER = "https://relay.neodb.net/inbox"
 
-SENTRY_DSN: str = env("NEODB_SENTRY_DSN")  # type:ignore
-if SENTRY_DSN:
+_SENTRY_DSN: str = env("NEODB_SENTRY_DSN")  # type:ignore
+if _SENTRY_DSN:
+    _SENTRY_SAMPLE_RATE: float = env("NEODB_SENTRY_SAMPLE_RATE")  # type:ignore
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import ignore_logger
@@ -626,13 +627,13 @@ if SENTRY_DSN:
     if len(sys.argv) > 1 and sentry_env in ("manage.py", "django-admin"):
         sentry_env = sys.argv[1]
     sentry_sdk.init(
-        dsn=SENTRY_DSN,
+        dsn=_SENTRY_DSN,
         environment=sentry_env or "unknown",
         integrations=[
             DjangoIntegration(),
-            LoguruIntegration(event_format="{name}:{function}:{line} - {message}"),
+            LoguruIntegration(event_format="{name}:{function}:{line} - {message}"),  # type:ignore
         ],
         release=NEODB_VERSION,
         send_default_pii=True,
-        traces_sample_rate=env("NEODB_SENTRY_SAMPLE_RATE"),  # type:ignore
+        traces_sample_rate=_SENTRY_SAMPLE_RATE,
     )

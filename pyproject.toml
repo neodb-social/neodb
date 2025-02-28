@@ -60,10 +60,8 @@ managed = true
 virtual = true
 dev-dependencies = [
     "pre-commit>=4.0.1",
-    # "black~=24.4.2",
     "django-stubs>=5.1.2",
     "djlint>=1.36.4",
-    # "isort~=5.13.2",
     "lxml-stubs>=0.5.1",
     "pyright>=1.1.393",
     "ruff>=0.9.1",
@@ -77,7 +75,6 @@ exclude = [
     ".git",
     "playground",
     "catalog/*/tests.py",
-    "neodb",
     "**/migrations",
     "neodb-takahe",
 ]
@@ -97,10 +94,7 @@ exclude = [
     '^media/',
     '^playground/',
     '^catalog/*/tests.py',
-    '^journal/tests.py',
-    '^neodb/',
     '.*migrations.*',
-    '.*sites/douban_.*',
 ]
 plugins = ["mypy_django_plugin.main"]
 
@@ -114,7 +108,6 @@ exclude = [
     ".venv",
     ".git",
     "playground",
-    "neodb",
 ]
 lint.ignore = ["F403", "F405"]
 lint.extend-select = ["I"]
