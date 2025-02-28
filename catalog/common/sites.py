@@ -309,13 +309,15 @@ class SiteManager:
             raise ValueError(f"Site for {typ} not found")
 
     @staticmethod
-    def get_redirected_url(url: str) -> str:
+    def get_redirected_url(url: str, allow_head: bool = True) -> str:
         k = "_redir_" + md5(url.encode()).hexdigest()
         u = cache.get(k, default=None)
         if u == "":
             return url
         elif u:
             return u
+        elif not allow_head:
+            return url
         try:
             u = requests.head(url, allow_redirects=True, timeout=2).url
         except requests.RequestException:
@@ -351,7 +353,7 @@ class SiteManager:
             strict_query=False,
         ):
             return None
-        u = SiteManager.get_redirected_url(url) if detect_redirection else url
+        u = SiteManager.get_redirected_url(url, allow_head=detect_redirection)
         cls = SiteManager.get_class_by_url(u)
         if cls is None and u != url:
             cls = SiteManager.get_fallback_class_by_url(url)

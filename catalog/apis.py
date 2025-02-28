@@ -125,7 +125,7 @@ def fetch_item(request, url: str):
     Some site may take ~90 seconds to fetch.
     If not getting the item after 120 seconds, please stop and consider the URL is not available.
     """
-    site = SiteManager.get_site_by_url(url)
+    site = SiteManager.get_site_by_url(url, detect_redirection=False)
     if not site:
         return 404, {"message": "URL not supported"}
     item = site.get_item()
