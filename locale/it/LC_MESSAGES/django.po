@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: 2025-02-09 05:20+0000\n"
+"PO-Revision-Date: 2025-02-16 21:38+0000\n"
 "Last-Translator: E C <weblate.delirium794@passmail.net>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/neodb/neodb/it/>"
 "\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.10\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
@@ -1464,7 +1464,7 @@ msgstr ""
 
 #: catalog/templates/tvseason.html:15 catalog/templates/tvshow.html:21
 msgid "all seasons"
-msgstr "tutte le stagioni"
+msgstr "Tutte le stagioni"
 
 #: catalog/templates/tvseason.html:32 catalog/tv/models.py:273
 msgid "season number"
@@ -1473,7 +1473,7 @@ msgstr "Stagione numero"
 #: catalog/templates/tvseason.html:37 catalog/templates/tvshow.html:32
 #: catalog/tv/models.py:110
 msgid "number of seasons"
-msgstr "numero delle stagioni"
+msgstr "Numero delle stagioni"
 
 #: catalog/templates/tvseason.html:42 catalog/templates/tvshow.html:37
 #: catalog/tv/models.py:113 catalog/tv/models.py:276
@@ -2460,7 +2460,7 @@ msgstr "Home"
 #: common/templates/_header.html:96 social/templates/notification.html:11
 #: social/templates/notification.html:24
 msgid "Notification"
-msgstr "Notifica"
+msgstr "Notifiche"
 
 #: common/templates/_header.html:99
 msgid "Data"
@@ -4912,7 +4912,7 @@ msgstr ""
 
 #: users/templates/users/preferences.html:194
 msgid "Settings for current device"
-msgstr "Impostazioni del dispositivo attuale"
+msgstr "Impostazioni del dispositivo in uso"
 
 #: users/templates/users/preferences.html:196
 msgid "theme"
@@ -4948,11 +4948,11 @@ msgstr "Stili personalizzati"
 
 #: users/templates/users/preferences.html:241
 msgid "Settings for current device saved"
-msgstr "Impostazioni del dispositivo attuale salvate"
+msgstr "Impostazioni del dispositivo in uso salvate"
 
 #: users/templates/users/preferences.html:247
 msgid "Additional Settings"
-msgstr "Impostazioni Aggiuntive"
+msgstr "Impostazioni aggiuntive"
 
 #: users/templates/users/preferences.html:249
 msgid "View authorized applications"

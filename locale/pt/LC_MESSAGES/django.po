@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-01-13 22:19-0500\n"
-"PO-Revision-Date: 2025-02-03 19:01+0000\n"
-"Last-Translator: Deleted User <noreply+104518@weblate.org>\n"
+"PO-Revision-Date: 2025-02-13 21:02+0000\n"
+"Last-Translator: Deleted User <noreply+105415@weblate.org>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/neodb/neodb/"
 "pt/>\n"
 "Language: pt\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.10-rc\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
@@ -557,7 +557,7 @@ msgstr "ano da publicação"
 
 #: catalog/game/models.py:116 catalog/podcast/models.py:114
 msgid "date of publication"
-msgstr "mês da publicação"
+msgstr "data de publicação"
 
 #: catalog/game/models.py:121 catalog/music/models.py:60
 #: catalog/tv/models.py:186
@@ -2525,7 +2525,7 @@ msgstr ""
 
 #: common/templates/_sidebar.html:101
 msgid "Recent podcast episodes"
-msgstr "Episódios de podcast recentes"
+msgstr "Episódios recentes de podcast"
 
 #: common/templates/_sidebar.html:136
 msgid "Currently reading"
