@@ -85,6 +85,7 @@ x-shared:
       IGDB_API_CLIENT_SECRET:
       DISCORD_WEBHOOKS:
       SSL_ONLY:
+      SKIP_MIGRATIONS:
     restart: "unless-stopped"
     volumes:
       - ${NEODB_DATA:-../data}/neodb-media:/www/m
