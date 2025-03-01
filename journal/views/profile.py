@@ -2,6 +2,7 @@ import datetime
 from urllib.parse import quote_plus
 
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
@@ -17,9 +18,11 @@ from ..forms import *
 from ..models import *
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "HEAD"])
 @profile_identity_required
 def profile(request: AuthedHttpRequest, user_name):
+    if request.method == "HEAD":
+        return HttpResponse()
     target = request.target_identity
     anonymous = not request.user.is_authenticated
     if anonymous and (not target.local or not target.anonymous_viewable):

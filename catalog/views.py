@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.db.models import Count
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -44,7 +44,7 @@ def retrieve_redirect(request, item_path, item_uuid):
     return redirect(f"/{item_path}/{item_uuid}", permanent=True)
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "HEAD"])
 @xframe_options_exempt
 def embed(request, item_path, item_uuid):
     item = Item.get_by_url(item_uuid)
@@ -59,6 +59,8 @@ def embed(request, item_path, item_uuid):
         focus_item = get_object_or_404(
             Item, uid=get_uuid_or_404(request.GET.get("focus"))
         )
+    if request.method == "HEAD":
+        return HttpResponse()
     return render(
         request,
         "embed_" + item.class_name + ".html",
@@ -81,6 +83,8 @@ def retrieve(request, item_path, item_uuid):
         return redirect(item.merged_to_item.url)
     if not skipcheck and item.is_deleted:
         raise Http404(_("Item no longer exists"))
+    if request.method == "HEAD":
+        return HttpResponse()
     if request.headers.get("Accept", "").endswith("json"):
         return JsonResponse(item.ap_object)
     focus_item = None
