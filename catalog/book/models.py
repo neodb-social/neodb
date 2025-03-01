@@ -20,7 +20,6 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from auditlog.models import QuerySet
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -396,7 +395,7 @@ class Edition(Item):
 
 class Work(Item):
     if TYPE_CHECKING:
-        related_editions: QuerySet[Edition]
+        related_editions: models.QuerySet[Edition]
     category = ItemCategory.Book
     url_path = "book/work"
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
