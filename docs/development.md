@@ -119,7 +119,10 @@ django-admin makemessages --no-wrap --no-obsolete -i .venv -i neodb-takahe --kee
 django-admin compilemessages -i .venv -i neodb-takahe
 ```
 
-
+Preview documentation:
+```
+python -m mkdocs serve
+```
 
 Development in Docker Compose
 -----------------------------
