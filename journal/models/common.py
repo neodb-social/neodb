@@ -119,7 +119,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     @classmethod
     def from_db(cls, db, field_names, values):
         instance = super().from_db(db, field_names, values)
-        if hasattr(instance, "visibility"):
+        if "visibility" in field_names:
+            # avoid hasattr(instance, "visibility") which may cause RecursionError
             instance.previous_visibility = instance.visibility
         return instance
 
