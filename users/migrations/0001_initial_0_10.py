@@ -566,6 +566,7 @@ class Migration(migrations.Migration):
                     ("de", "German"),
                     ("fr", "French"),
                     ("it", "Italian"),
+                    ("pt", "Portuguese"),
                     ("zh-hans", "Simplified Chinese"),
                     ("zh-hant", "Traditional Chinese"),
                 ],
