@@ -395,7 +395,8 @@ class Work(Item):
     url_path = "book/work"
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
-    editions = models.ManyToManyField(Edition, related_name="+")
+    # TODO change related_name to '+' in future release
+    editions = models.ManyToManyField(Edition, related_name="works")
     language = LanguageListField()
     author = jsondata.ArrayField(
         verbose_name=_("author"),
