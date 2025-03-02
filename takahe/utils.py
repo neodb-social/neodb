@@ -145,7 +145,7 @@ class Takahe:
     def fetch_remote_identity(handler: str) -> int | None:
         d = handler.split("@")[-1]
         domain = Domain.objects.filter(domain=d).first()
-        if domain and domain.recursively_blocked:
+        if domain and domain.recursively_blocked():
             return
         InboxMessage.create_internal({"type": "FetchIdentity", "handle": handler})
 

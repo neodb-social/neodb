@@ -227,7 +227,11 @@ class APIdentity(models.Model):
             username__iexact=username, domain_name__iexact=domain, deleted__isnull=True
         ).first()
         if i:
-            return i
+            if Takahe.get_identity_by_handler(username, domain):
+                return i
+            else:
+                logger.error(f"Identity {i} not found in Takahe.")
+                return None
         if domain != settings.SITE_DOMAIN:
             identity = Takahe.get_identity_by_handler(username, domain)
             if identity:
