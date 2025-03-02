@@ -108,10 +108,7 @@ EDITION_LOCALIZED_SUBTITLE_SCHEMA = {
 
 class Edition(Item):
     if TYPE_CHECKING:
-        works: "models.ManyToManyField[Work, Edition]"
-    related_work = models.ForeignKey(
-        "Work", null=True, on_delete=models.SET_NULL, related_name="related_editions"
-    )
+        work: None  # this is to prevent accidental use of work property since it's not the work this edition belongs to
 
     class BookFormat(models.TextChoices):
         PAPERBACK = "paperback", _("Paperback")
@@ -262,29 +259,38 @@ class Edition(Item):
             return detect_isbn_asin(lookup_id_value)
         return super().lookup_id_cleanup(lookup_id_type, lookup_id_value)
 
+    def get_work(self) -> "Work | None":
+        return Work.objects.filter(editions=self).first()
+
+    def set_work(self, work: "Work | None"):
+        w = self.get_work()
+        if w == work:
+            return
+        self.log_action({"work": [str(w), str(work)]})
+        if w:
+            w.editions.remove(self)
+        if work:
+            work.editions.add(self)
+
     def merge_to(self, to_item: "Edition | None"):  # type: ignore[reportIncompatibleMethodOverride]
         super().merge_to(to_item)
         if to_item:
             if self.merge_title():
                 self.save()
-            if not self.related_work:
-                return
-            if to_item.related_work:
-                for edition in self.related_work.related_editions.exclude(
-                    pk=self.pk
-                ).all():
-                    edition.related_work = to_item.related_work
-                    edition.save()
+            to_work = to_item.get_work()
+            if to_work:
+                self.set_work(to_work)
+                # for edition in work.editions.all():
+                #     edition.set_work(to_work)
             else:
-                to_item.related_work = self.related_work
-                to_item.save()
-                self.related_work = None
-                self.save()
+                work = self.get_work()
+                if work:
+                    to_item.set_work(work)
 
-    def delete(self, using=None, keep_parents=False, soft=True, *args, **kwargs):
-        if soft:
-            self.related_work = None
-        return super().delete(using, keep_parents, soft, *args, **kwargs)
+    def delete(self, *args, **kwargs):
+        if kwargs.get("soft", True):
+            self.set_work(None)
+        return super().delete(*args, **kwargs)
 
     def update_linked_items_from_external_resource(self, resource):
         """add Work from resource.metadata['work'] if not yet"""
@@ -306,13 +312,19 @@ class Edition(Item):
                         primary_lookup_id_type=w["id_type"],
                         primary_lookup_id_value=w["id_value"],
                     ).first()
-                if not work:
-                    return
-                if not self.related_work:
-                    self.related_work = work
-                    self.save()
-                elif work.pk != self.related_work.pk:
-                    work.merge_to(self.related_work)
+                if work:
+                    w = self.get_work()
+                    if w:
+                        if w != work:
+                            w.log_action(
+                                {"!link_and_merge": [str(self), str(resource)]}
+                            )
+                            logger.info(
+                                f"Merging {work} to {w} when fetching from {resource}"
+                            )
+                            work.merge_to(w)
+                    else:
+                        self.set_work(work)
 
     def merge_data_from_external_resource(
         self, p: "ExternalResource", ignore_existing_content: bool = False
@@ -336,9 +348,11 @@ class Edition(Item):
 
     @property
     def sibling_items(self):
+        work = self.get_work()
+        if not work:
+            return Edition.objects.none()
         return (
-            Edition.objects.filter(related_work__in=[self.related_work])
-            .exclude(pk=self.pk)
+            work.editions.exclude(pk=self.pk)
             .exclude(is_deleted=True)
             .exclude(merged_to_item__isnull=False)
             .order_by("-metadata__pub_year")
@@ -356,51 +370,32 @@ class Edition(Item):
         a = [str(i) for i in [self.pub_house, self.pub_year] if i]
         return f"({' '.join(a)})" if a else ""
 
-    def has_related_books(self):
-        if not self.related_work:
-            return False
-        return (
-            Edition.objects.filter(related_work__in=[self.related_work])
-            .exclude(pk=self.pk)
-            .exists()
-        )
-
     def link_to_related_book(self, target: "Edition") -> bool:
         if target == self or target.is_deleted or target.merged_to_item:
             return False
-        if target.related_work:
-            self.related_work = target.related_work
-            self.save()
-            target.related_work.localized_title = uniq(
-                target.related_work.localized_title + self.localized_title
+        to_work = target.get_work()
+        if to_work:
+            self.set_work(to_work)
+            to_work.localized_title = uniq(
+                to_work.localized_title + self.localized_title
             )
-            target.related_work.save()
+            to_work.save()
         else:
-            work = Work.objects.create(localized_title=self.localized_title)
-            self.related_work = work
-            self.save()
-            target.related_work = work
-            target.save()
-            # work.localized_title = self.localized_title
-            # work.save()
+            work = self.get_work()
+            if not work:
+                titles = uniq(self.localized_title + target.localized_title)
+                work = Work.objects.create(localized_title=titles)
+                self.set_work(work)
+            target.set_work(work)
         return True
-
-    def unlink_from_all_works(self):
-        self.related_work = None
-        self.save()
-
-    def has_works(self):
-        return self.related_work is not None
 
 
 class Work(Item):
-    if TYPE_CHECKING:
-        related_editions: models.QuerySet[Edition]
     category = ItemCategory.Book
     url_path = "book/work"
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
-    editions = models.ManyToManyField(Edition, related_name="works")
+    editions = models.ManyToManyField(Edition, related_name="+")
     language = LanguageListField()
     author = jsondata.ArrayField(
         verbose_name=_("author"),
@@ -415,9 +410,6 @@ class Work(Item):
         "language",
         "localized_description",
     ]
-    # TODO: we have many duplicates due to 302
-    # a lazy fix is to remove smaller DoubanBook_Work ids
-    # but ideally deal with 302 in scrape().
 
     @classmethod
     def lookup_id_type_choices(cls):
@@ -432,25 +424,24 @@ class Work(Item):
         super().merge_to(to_item)
         if not to_item:
             return
-        for edition in self.related_editions.all():
-            edition.related_work = to_item
-            edition.save()
+        for edition in self.editions.all():
+            edition.set_work(to_item)
         to_item.language = uniq(to_item.language + self.language)  # type: ignore
         to_item.localized_title = uniq(to_item.localized_title + self.localized_title)
         to_item.save()
 
-    def delete(self, using=None, keep_parents=False, soft=True, *args, **kwargs):
-        if soft:
-            for edition in self.related_editions.all():
-                edition.related_work = None
-        return super().delete(using, keep_parents, soft, *args, **kwargs)
+    def delete(self, *args, **kwargs):
+        if kwargs.get("soft", True):
+            for edition in self.editions.all():
+                edition.set_work(None)
+        return super().delete(*args, **kwargs)
 
     @property
     def cover_image_url(self):
         url = super().cover_image_url
         if url:
             return url
-        e = next(filter(lambda e: e.cover_image_url, self.related_editions.all()), None)
+        e = next(filter(lambda e: e.cover_image_url, self.editions.all()), None)
         return e.cover_image_url if e else None
 
     def update_linked_items_from_external_resource(self, resource):
@@ -473,9 +464,8 @@ class Work(Item):
                         primary_lookup_id_type=e["id_type"],
                         primary_lookup_id_value=e["id_value"],
                     ).first()
-                if edition and edition not in self.related_editions.all():
-                    edition.related_work = self
-                    edition.save()
+                if edition:
+                    edition.set_work(self)
 
 
 class Series(Item):

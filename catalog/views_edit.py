@@ -354,7 +354,7 @@ def unlink_works(request, item_path, item_uuid):
     item = get_object_or_404(Edition, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied(_("Insufficient permission"))
-    item.unlink_from_all_works()
+    item.set_parent_item(None)
     discord_send(
         "audit",
         f"{item.absolute_url}?skipcheck=1\nby [@{request.user.username}]({request.user.absolute_url})",

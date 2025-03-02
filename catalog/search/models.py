@@ -126,8 +126,10 @@ def query_index(keywords, categories=None, tag=None, page=1, prepare_external=Tr
             if hasattr(i, "isbn")
             else ([i.imdb_code] if hasattr(i, "imdb_code") else [])
         )
-        if hasattr(i, "related_works"):
-            my_key += [i.related_work.id]
+        if hasattr(i, "get_work"):
+            work = i.get_work()
+            if work:
+                my_key += [work.id]
         if len(my_key):
             sl = len(keys) + len(my_key)
             keys.update(my_key)

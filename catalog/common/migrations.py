@@ -1,10 +1,6 @@
-from typing import TYPE_CHECKING
-
-from django.db import connection, transaction
+from django.db import connection, models
 from loguru import logger
-
-if TYPE_CHECKING:
-    from catalog.models import Item
+from tqdm import tqdm
 
 
 def fix_20250208():
@@ -21,52 +17,49 @@ def fix_20250208():
     logger.warning("Fix complete.")
 
 
-def _merge_to(self, to_item: "Item | None"):
-    if to_item is None:
-        if self.merged_to_item is not None:
-            self.merged_to_item = None
-            self.save()
-        return
-    if to_item.pk == self.pk:
-        return
-    if to_item.merged_to_item is not None:
-        return
-    if not isinstance(to_item, self.__class__):
-        raise ValueError("cannot merge to item in a different model")
-    self.merged_to_item = to_item
-    self.save()
-    for res in self.external_resources.all():
-        res.item = to_item
-        res.save()
-    for edition in self.editions.all():
-        edition.related_work = to_item
-        edition.save()
-    to_item.save()
-
-
-def merge_works_20250301(Edition):
-    # Work = apps.get_model("catalog", "Work")
-    with transaction.atomic():
-        for edition in Edition.objects.all():
-            works = edition.works.all()
-            if not works.exists():
-                continue
-            if edition.related_work is None:
-                related_work = works.first()
-                while related_work.merged_to_item is not None:
-                    related_work = related_work.merged_to_item
-                try:
-                    edition.related_work = related_work
-                    edition.save()
-                except Exception as e:
-                    # do not know why, some work's class will be Item and cause error
-                    logger.warning(
-                        f"Error setting related_work for {edition} to {related_work}: {e}"
+def merge_works_20250301(Edition, Work):
+    logger.warning("Start merging works...")
+    editions = Edition.objects.annotate(n=models.Count("works")).filter(n__gt=1)
+    primary_work = []
+    merge_map = {}
+    for edition in tqdm(editions):
+        w = Work.objects.filter(
+            editions=edition, is_deleted=False, merged_to_item__isnull=True
+        ).first()
+        if w is None:
+            logger.error(f"No active work found for {edition}")
+            continue
+        merge_to_id = w.pk
+        if merge_to_id in merge_map:
+            merge_to_id = merge_map[merge_to_id]
+        elif merge_to_id not in primary_work:
+            primary_work.append(merge_to_id)
+        for work in Work.objects.filter(editions=edition).exclude(pk=w.pk):
+            if work.pk in merge_map:
+                if merge_map[work.pk] != merge_to_id:
+                    logger.error(
+                        f"{Work.objects.get(pk=merge_to_id)} and {Work.objects.get(pk=merge_map[work.pk])} might need to be merged manually."
                     )
-                    continue
-            for work in works:
-                if work.pk == edition.related_work.pk:
-                    continue
-                while work.merged_to_item is not None:
-                    work = work.merged_to_item
-                _merge_to(work, edition.related_work)
+            elif work.pk in primary_work:
+                logger.error(
+                    f"{Work.objects.get(pk=merge_to_id)} and {work} might need to be merged manually."
+                )
+            else:
+                merge_map[work.pk] = merge_to_id
+
+    logger.warning(
+        f"{len(primary_work)} primay work total, and {len(merge_map)} merges will be processed."
+    )
+    for k, v in tqdm(merge_map.items()):
+        from_work = Work.objects.get(pk=k)
+        to_work = Work.objects.get(pk=v)
+        # print(from_work, '->', to_work)
+        from_work.merge_to(to_work)
+
+    logger.warning("Applying unique index...")
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS catalog_work_editions_work_id_uniq ON catalog_work_editions (edition_id);
+            """)
+
+    logger.warning("Merging works completed.")

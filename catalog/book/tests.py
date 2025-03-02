@@ -118,9 +118,9 @@ class WorkTestCase(TestCase):
         self.hyperion.save()
 
     def test_work(self):
-        self.assertFalse(self.hyperion_print.has_related_books())
-        self.hyperion.related_editions.add(self.hyperion_print)
-        self.assertFalse(self.hyperion_print.has_related_books())
+        self.assertFalse(self.hyperion_print.sibling_items.exists())
+        self.hyperion.editions.add(self.hyperion_print)
+        self.assertFalse(self.hyperion_print.sibling_items.exists())
 
     def test_merge(self):
         title1 = [{"lang": "zh", "text": "z"}]
@@ -132,31 +132,29 @@ class WorkTestCase(TestCase):
 
     def test_link(self):
         self.hyperion_print.link_to_related_book(self.hyperion_ebook)
-        self.assertTrue(self.hyperion_print.has_related_books())
-        self.assertTrue(self.hyperion_ebook.has_related_books())
-        self.assertTrue(self.hyperion_print.has_works())
+        self.assertTrue(self.hyperion_print.sibling_items.exists())
+        self.assertTrue(self.hyperion_ebook.sibling_items.exists())
+        self.assertIsNotNone(self.hyperion_print.get_work())
         self.assertEqual(
-            self.hyperion_print.related_work.display_title,
+            self.hyperion_print.get_work().display_title,
             self.hyperion_print.display_title,
         )
-        self.hyperion_print.unlink_from_all_works()
-        self.assertFalse(self.hyperion_print.has_related_books())
-        self.assertFalse(self.hyperion_ebook.has_related_books())
+        self.hyperion_print.set_work(None)
+        self.assertFalse(self.hyperion_print.sibling_items.exists())
+        self.assertFalse(self.hyperion_ebook.sibling_items.exists())
         self.hyperion_print.link_to_related_book(self.hyperion_ebook)
-        self.assertTrue(self.hyperion_print.has_related_books())
-        self.assertTrue(self.hyperion_ebook.has_related_books())
-        self.hyperion_ebook.unlink_from_all_works()
-        self.assertFalse(self.hyperion_print.has_related_books())
-        self.assertFalse(self.hyperion_ebook.has_related_books())
+        self.assertTrue(self.hyperion_print.sibling_items.exists())
+        self.assertTrue(self.hyperion_ebook.sibling_items.exists())
+        self.hyperion_ebook.set_work(None)
+        self.assertFalse(self.hyperion_print.sibling_items.exists())
+        self.assertFalse(self.hyperion_ebook.sibling_items.exists())
 
     def test_link3(self):
         self.hyperion_print.link_to_related_book(self.hyperion_ebook)
         self.hyperion_ebook.link_to_related_book(self.hyperion_hardcover)
         self.hyperion_print.link_to_related_book(self.hyperion_hardcover)
-        self.assertTrue(self.hyperion_print.has_works())
-        self.assertEqual(
-            self.hyperion_ebook.related_work.related_editions.all().count(), 3
-        )
+        self.assertIsNotNone(self.hyperion_print.get_work())
+        self.assertEqual(self.hyperion_ebook.get_work().editions.all().count(), 3)
 
 
 class GoodreadsTestCase(TestCase):
@@ -237,8 +235,8 @@ class GoodreadsTestCase(TestCase):
         url2 = "https://www.goodreads.com/book/show/40961427-1984"
         p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
         p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
-        w1 = p1.item.works.all().first()
-        w2 = p2.item.works.all().first()
+        w1 = p1.item.get_work()
+        w2 = p2.item.get_work()
         self.assertEqual(w1, w2)
 
 
@@ -385,14 +383,12 @@ class DoubanBookTestCase(TestCase):
         url2 = "https://book.douban.com/subject/2037260/"
         p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
         p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
-        w1 = p1.item.related_work
-        w2 = p2.item.related_work
+        w1 = p1.item.get_work()
+        w2 = p2.item.get_work()
         self.assertEqual(w1.display_title, "黄金时代")
         self.assertEqual(w2.display_title, "黄金时代")
         self.assertEqual(w1, w2)
-        editions = sorted(
-            list(w1.related_editions.all()), key=lambda e: e.display_title
-        )
+        editions = sorted(list(w1.editions.all()), key=lambda e: e.display_title)
         self.assertEqual(len(editions), 2)
         self.assertEqual(editions[0].display_title, "Wang in Love and Bondage")
         self.assertEqual(editions[1].display_title, "黄金时代")
@@ -539,23 +535,24 @@ class MultiBookSitesTestCase(TestCase):
         p1 = SiteManager.get_site_by_url(
             url1
         ).get_resource_ready()  # lxml bug may break this
-        w1 = p1.item.related_work
+        w1 = p1.item.get_work()
         p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
-        w2 = p2.item.related_work
+        w2 = p2.item.get_work()
         self.assertEqual(w1, w2)
         self.assertNotEqual(w1, None)
         p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
-        w3 = p3.item.related_work
+        w3 = p3.item.get_work()
         self.assertNotEqual(w3, w2)
         p4 = SiteManager.get_site_by_url(url4).get_resource_ready()
         self.assertEqual(p4.item.id, p1.item.id)
-        self.assertEqual(p4.item.related_work, p1.item.related_work)
-        w2e = sorted(list(w2.related_editions.all()), key=lambda e: e.display_title)
+        w4 = p4.item.get_work()
+        self.assertEqual(w4, p1.item.get_work())
+        w2e = sorted(list(w2.editions.all()), key=lambda e: e.display_title)
         self.assertEqual(len(w2e), 3)
         self.assertEqual(w2e[0].display_title, "Golden Age: A Novel")
         self.assertEqual(w2e[1].display_title, "Wang in Love and Bondage")
         self.assertEqual(w2e[2].display_title, "黄金时代")
-        w3e = sorted(list(w3.related_editions.all()), key=lambda e: e.display_title)
+        w3e = sorted(list(w3.editions.all()), key=lambda e: e.display_title)
         self.assertEqual(len(w3e), 0)  # w3 is merged to w2
         e = Edition.objects.get(primary_lookup_id_value=9781662601217)
         self.assertEqual(e.display_title, "Golden Age: A Novel")
@@ -570,35 +567,35 @@ class MultiBookSitesTestCase(TestCase):
         p1 = SiteManager.get_site_by_url(
             url1
         ).get_resource_ready()  # lxml bug may break this
-        w1 = p1.item.related_work
+        w1 = p1.item.get_work()
         p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
-        w2 = p2.item.related_work
+        w2 = p2.item.get_work()
         self.assertEqual(w1, w2)
         self.assertNotEqual(w1, None)
         p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
-        w3 = p3.item.related_work
+        w3 = p3.item.get_work()
         self.assertNotEqual(w3, w2)
         self.assertEqual(w2.external_resources.all().count(), 1)
         self.assertEqual(w3.external_resources.all().count(), 1)
         w3.merge_to(w2)
         self.assertEqual(w2.external_resources.all().count(), 2)
         self.assertEqual(w3.external_resources.all().count(), 0)
-        self.assertEqual(w2.related_editions.all().count(), 3)
-        self.assertEqual(w3.related_editions.all().count(), 0)
+        self.assertEqual(w2.editions.all().count(), 3)
+        self.assertEqual(w3.editions.all().count(), 0)
         p4 = SiteManager.get_site_by_url(url4).get_resource_ready()
         self.assertEqual(p4.item.id, p1.item.id)
-        self.assertNotEqual(p1.item.related_work, None)
-        self.assertNotEqual(p4.item.related_work, None)
-        w2e = sorted(list(w2.related_editions.all()), key=lambda e: e.display_title)
+        self.assertIsNotNone(p1.item.get_work())
+        self.assertIsNotNone(p4.item.get_work())
+        w2e = sorted(list(w2.editions.all()), key=lambda e: e.display_title)
         self.assertEqual(len(w2e), 3)
         self.assertEqual(w2e[0].display_title, "Golden Age: A Novel")
         self.assertEqual(w2e[1].display_title, "Wang in Love and Bondage")
         self.assertEqual(w2e[2].display_title, "黄金时代")
-        w3e = w3.related_editions.all().order_by("title")
+        w3e = w3.editions.all().order_by("title")
         self.assertEqual(w3e.count(), 0)
         e = Edition.objects.get(primary_lookup_id_value=9781662601217)
         self.assertEqual(e.display_title, "Golden Age: A Novel")
         w2e[1].delete()
-        self.assertEqual(w2.related_editions.all().count(), 2)
-        w2.related_editions.all().delete()
-        self.assertEqual(p1.item.works.all().count(), 0)
+        self.assertEqual(w2.editions.all().count(), 2)
+        w2.editions.all().delete()
+        self.assertEqual(p1.item.get_work(), None)

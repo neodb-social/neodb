@@ -213,62 +213,64 @@
       {% endif %}
     {% endif %}
     {% if item.class_name == 'edition' %}
-      {% if item.has_works %}
-        <details>
-          <summary>{% trans 'Work' %}</summary>
-          {% trans "This edition belongs to the following work" %}
-          <li>
-            <a href="{{ item.related_work.url }}?skipcheck=1">{{ item.related_work.display_title }}</a>
-          </li>
-          <form method="post"
-                onsubmit="return confirm('{% trans "Sure to unlink?" %}');"
-                action="{% url 'catalog:unlink_works' item.url_path item.uuid %}">
-            {% csrf_token %}
-            <input class="contrast"
-                   type="submit"
-                   {% if not request.user.is_staff %}disabled{% endif %}
-                   value="{% trans 'Unlink from work' %}">
-          </form>
-        </details>
-      {% endif %}
-      {% if not item.has_works %}
-        <details>
-          <summary>{% trans 'Link' %}</summary>
-          <form method="post"
-                action="{% url 'catalog:link_edition' item.url_path item.uuid %}">
-            {% csrf_token %}
-            <input type="url"
-              name="target_item_url"
-              placeholder="{{ site_url }}/book/1234/
-              {% if item.is_deleted and not item.merged_to_item %}disabled{% endif %}
-              value="">
+      {% with item.get_work as work %}
+        {% if work %}
+          <details>
+            <summary>{% trans 'Work' %}</summary>
+            {% trans "This edition belongs to the following work" %}
+            <li>
+              <a href="{{ work.url }}">{{ work.display_title }}</a>
+            </li>
+            <form method="post"
+                  onsubmit="return confirm('{% trans "Sure to unlink?" %}');"
+                  action="{% url 'catalog:unlink_works' item.url_path item.uuid %}">
+              {% csrf_token %}
+              <input class="contrast"
+                     type="submit"
+                     {% if not request.user.is_staff %}disabled{% endif %}
+                     value="{% trans 'Unlink from work' %}">
+            </form>
+          </details>
+        {% endif %}
+        {% if not work or request.user.is_staff %}
+          <details>
+            <summary>{% trans 'Link' %}</summary>
+            <form method="post"
+                  action="{% url 'catalog:link_edition' item.url_path item.uuid %}">
+              {% csrf_token %}
+              <input type="url"
+                     name="target_item_url"
+                     placeholder="{{ site_url }}/book/1234"
+                     {% if item.is_deleted and not item.merged_to_item %}disabled{% endif %}
+                     value="">
               <input class="contrast"
                      type="submit"
                      value="{% trans 'Link to another edition from same work' %}">
             </form>
           </details>
         {% endif %}
-      {% endif %}
+      {% endwith %}
     {% endif %}
-    <details>
-      <summary>{% trans 'Suggest Edits' %}</summary>
-      <form method="post"
-            action="{% url 'catalog:suggest' item.url_path item.uuid %}">
-        {% csrf_token %}
-        <select name="action" aria-label="Select action..." required>
-          <option selected disabled value="">{% trans "proposed action" %}</option>
-          <option value="merge">{% trans "merge to another item" %}</option>
-          <option value="link">{% trans "link to another item" %}</option>
-          <option value="type">{% trans "change item category" %}</option>
-          <option value="metadata">{% trans "change item metadata" %}</option>
-          <option value="delete">{% trans "remove item" %}</option>
-          <option value="other">{% trans "other" %}</option>
-        </select>
-        <textarea name="detail"
-                  required
-                  placeholder="{% trans "To suggest merging or association, please include the URL of the target item" %}"></textarea>
-        <input type="submit" value="{% trans 'submit' %}">
-        <small>{% trans "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution." %}</small>
-      </form>
-    </details>
   {% endif %}
+  <details>
+    <summary>{% trans 'Suggest Edits' %}</summary>
+    <form method="post"
+          action="{% url 'catalog:suggest' item.url_path item.uuid %}">
+      {% csrf_token %}
+      <select name="action" aria-label="Select action..." required>
+        <option selected disabled value="">{% trans "proposed action" %}</option>
+        <option value="merge">{% trans "merge to another item" %}</option>
+        <option value="link">{% trans "link to another item" %}</option>
+        <option value="type">{% trans "change item category" %}</option>
+        <option value="metadata">{% trans "change item metadata" %}</option>
+        <option value="delete">{% trans "remove item" %}</option>
+        <option value="other">{% trans "other" %}</option>
+      </select>
+      <textarea name="detail"
+                required
+                placeholder="{% trans "To suggest merging or association, please include the URL of the target item" %}"></textarea>
+      <input type="submit" value="{% trans 'submit' %}">
+      <small>{% trans "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution." %}</small>
+    </form>
+  </details>
+{% endif %}
