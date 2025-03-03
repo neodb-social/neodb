@@ -447,6 +447,9 @@ LANGUAGE_CODE, PREFERRED_LANGUAGES = _init_language_settings(
     env("NEODB_PREFERRED_LANGUAGES")
 )
 
+if TESTING:  # force en if testing
+    LANGUAGE_CODE = "en"
+
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 
 TIME_ZONE = env("NEODB_TIMEZONE", default="Asia/Shanghai")  # type: ignore
