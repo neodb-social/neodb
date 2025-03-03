@@ -333,7 +333,8 @@ class CsvImporter(Task):
                 success = import_function(row)
                 self.progress(success)
 
-    def validate_file(self, filename: str) -> bool:
+    @classmethod
+    def validate_file(cls, filename: str) -> bool:
         """Validate that the given file is a valid CSV export ZIP file.
 
         Args:

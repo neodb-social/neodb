@@ -15,6 +15,7 @@ urlpatterns = [
     path("data/import/douban", import_douban, name="import_douban"),
     path("data/import/letterboxd", import_letterboxd, name="import_letterboxd"),
     path("data/import/opml", import_opml, name="import_opml"),
+    path("data/import/csv", import_csv, name="import_csv"),
     path("data/export/reviews", export_reviews, name="export_reviews"),
     path("data/export/marks", export_marks, name="export_marks"),
     path("data/export/csv", export_csv, name="export_csv"),

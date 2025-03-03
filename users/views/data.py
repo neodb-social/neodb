@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.exporters import CsvExporter, DoufenExporter, NdjsonExporter
 from journal.importers import (
+    CsvImporter,
     DoubanImporter,
     GoodreadsImporter,
     LetterboxdImporter,
@@ -98,6 +99,7 @@ def data(request):
             "import_task": DoubanImporter.latest_task(request.user),
             "export_task": DoufenExporter.latest_task(request.user),
             "csv_export_task": CsvExporter.latest_task(request.user),
+            "csv_import_task": CsvImporter.latest_task(request.user),
             "ndjson_export_task": NdjsonExporter.latest_task(request.user),
             "letterboxd_task": LetterboxdImporter.latest_task(request.user),
             "goodreads_task": GoodreadsImporter.latest_task(request.user),
@@ -318,4 +320,30 @@ def import_opml(request):
             )
         else:
             messages.add_message(request, messages.ERROR, _("Invalid file."))
+    return redirect(reverse("users:data"))
+
+
+@login_required
+def import_csv(request):
+    if request.method == "POST":
+        f = (
+            settings.MEDIA_ROOT
+            + "/"
+            + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
+        )
+        os.makedirs(os.path.dirname(f), exist_ok=True)
+        with open(f, "wb+") as destination:
+            for chunk in request.FILES["file"].chunks():
+                destination.write(chunk)
+        if not CsvImporter.validate_file(f):
+            messages.add_message(request, messages.ERROR, _("Invalid file."))
+            return redirect(reverse("users:data"))
+        CsvImporter.create(
+            request.user,
+            visibility=int(request.POST.get("visibility", 0)),
+            file=f,
+        ).enqueue()
+        messages.add_message(
+            request, messages.INFO, _("File is uploaded and will be imported soon.")
+        )
     return redirect(reverse("users:data"))
