@@ -28,6 +28,8 @@ attrs==25.1.0
     # via aiohttp
 babel==2.17.0
     # via mkdocs-material
+backrefs==5.8
+    # via mkdocs-material
 beautifulsoup4==4.13.3
     # via markdownify
 bleach==5.0.1
@@ -54,7 +56,7 @@ click==8.1.8
 colorama==0.4.6
     # via djlint
     # via mkdocs-material
-cryptography==44.0.1
+cryptography==44.0.2
     # via atproto
 cssbeautifier==1.15.4
     # via djlint
@@ -169,7 +171,7 @@ mkdocs==1.6.1
     # via mkdocs-material
 mkdocs-get-deps==0.2.0
     # via mkdocs
-mkdocs-material==9.6.5
+mkdocs-material==9.6.7
 mkdocs-material-extensions==1.3.1
     # via mkdocs-material
 multidict==6.1.0
@@ -213,7 +215,7 @@ pygments==2.19.1
     # via mkdocs-material
 pymdown-extensions==10.14.3
     # via mkdocs-material
-pyright==1.1.395
+pyright==1.1.396
 python-dateutil==2.9.0.post0
     # via dateparser
     # via django-auditlog
@@ -241,7 +243,6 @@ redis==5.2.1
 regex==2024.11.6
     # via dateparser
     # via djlint
-    # via mkdocs-material
 requests==2.32.3
     # via django-anymail
     # via igdb-api-v4
@@ -251,7 +252,7 @@ rjsmin==1.2.2
     # via django-compressor
 rq==2.1.0
     # via django-rq
-ruff==0.9.8
+ruff==0.9.9
 sentry-sdk==2.22.0
 setproctitle==1.3.5
 six==1.17.0

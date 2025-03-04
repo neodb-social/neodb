@@ -12,9 +12,19 @@ from django.utils.translation import gettext as _
 from loguru import logger
 
 from catalog.common.sites import SiteManager
-from catalog.models import Edition, IdType, Item, ItemCategory
+from catalog.models import Edition, IdType, Item, ItemCategory, SiteName
 from journal.models import Mark, Note, Review, ShelfType
 from users.models import Task
+
+_PREFERRED_SITES = [
+    SiteName.Fediverse,
+    SiteName.RSS,
+    SiteName.TMDB,
+    SiteName.IMDB,
+    SiteName.GoogleBooks,
+    SiteName.Goodreads,
+    SiteName.IGDB,
+]
 
 
 class CsvImporter(Task):
@@ -49,18 +59,39 @@ class CsvImporter(Task):
         site_url = settings.SITE_INFO["site_url"] + "/"
 
         links = links_str.strip().split()
+        # look for local items first
         for link in links:
             if link.startswith("/") or link.startswith(site_url):
                 item = Item.get_by_url(link)
                 if item:
                     return item
-        for link in links:
-            site = SiteManager.get_site_by_url(link)
-            if site:
+
+        sites = [SiteManager.get_site_by_url(link) for link in links]
+        sites = [site for site in sites if site]
+        sites.sort(
+            key=lambda x: _PREFERRED_SITES.index(x.SITE_NAME)
+            if x.SITE_NAME in _PREFERRED_SITES
+            else 99
+        )
+
+        # look for external items that already matched
+        for site in sites:
+            logger.debug(f"matching {site.url}")
+            item = site.get_item()
+            if item:
+                return item
+
+        # fetch external item if possible
+        for site in sites:
+            try:
+                logger.debug(f"fetching {site.url}")
                 site.get_resource_ready()
                 item = site.get_item()
                 if item:
                     return item
+            except Exception as e:
+                logger.error(f"Error fetching item: {e}")
+
         # Try using the info string
         if info_str:
             info_dict = {}
@@ -304,8 +335,6 @@ class CsvImporter(Task):
             return True
         except Exception as e:
             logger.error(f"Error importing note: {e}")
-            if "failed_items" not in self.metadata:
-                self.metadata["failed_items"] = []
             self.metadata["failed_items"].append(
                 f"Error importing note for {row.get('title', '')}: {str(e)}"
             )
@@ -333,31 +362,10 @@ class CsvImporter(Task):
                 success = import_function(row)
                 self.progress(success)
 
-    @classmethod
-    def validate_file(cls, filename: str) -> bool:
-        """Validate that the given file is a valid CSV export ZIP file.
-
-        Args:
-            filename: Path to the file to validate
-
-        Returns:
-            bool: True if the file is valid, False otherwise
-        """
-        return os.path.exists(filename) and zipfile.is_zipfile(filename)
-
     def run(self) -> None:
         """Run the CSV import."""
-        # Ensure failed_items is initialized
-        if "failed_items" not in self.metadata:
-            self.metadata["failed_items"] = []
-
         filename = self.metadata["file"]
         logger.debug(f"Importing {filename}")
-
-        # Validate the file before processing
-        if not self.validate_file(filename):
-            self.save()
-            return
 
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:

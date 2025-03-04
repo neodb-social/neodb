@@ -19,6 +19,7 @@ from journal.importers import (
     GoodreadsImporter,
     LetterboxdImporter,
     OPMLImporter,
+    get_neodb_importer,
 )
 from journal.models import ShelfType
 from takahe.utils import Takahe
@@ -324,7 +325,7 @@ def import_opml(request):
 
 
 @login_required
-def import_csv(request):
+def import_neodb(request):
     if request.method == "POST":
         f = (
             settings.MEDIA_ROOT
@@ -335,10 +336,11 @@ def import_csv(request):
         with open(f, "wb+") as destination:
             for chunk in request.FILES["file"].chunks():
                 destination.write(chunk)
-        if not CsvImporter.validate_file(f):
+        importer = get_neodb_importer(f)
+        if not importer:
             messages.add_message(request, messages.ERROR, _("Invalid file."))
             return redirect(reverse("users:data"))
-        CsvImporter.create(
+        importer.create(
             request.user,
             visibility=int(request.POST.get("visibility", 0)),
             file=f,

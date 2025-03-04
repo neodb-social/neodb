@@ -17,6 +17,127 @@
       <div class="grid__main">
         <article>
           <details>
+            <summary>{% trans 'Export Data' %}</summary>
+            <form action="{% url 'users:export_csv' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="submit"
+                     value="{% trans 'Export marks, reviews and notes in CSV' %}" />
+              {% if csv_export_task %}
+                <br>
+                {% trans 'Last export' %}: {{ csv_export_task.created_time }}
+                {% trans 'Status' %}: {{ csv_export_task.get_state_display }}
+                <br>
+                {{ csv_export_task.message }}
+                {% if csv_export_task.metadata.file %}
+                  <a href="{% url 'users:export_csv' %}" download>{% trans 'Download' %}</a>
+                {% endif %}
+              {% endif %}
+            </form>
+            <hr>
+            <form action="{% url 'users:export_ndjson' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="submit" value="{% trans 'Export everything in NDJSON' %}" />
+              {% if ndjson_export_task %}
+                <br>
+                {% trans 'Last export' %}: {{ ndjson_export_task.created_time }}
+                {% trans 'Status' %}: {{ ndjson_export_task.get_state_display }}
+                <br>
+                {{ ndjson_export_task.message }}
+                {% if ndjson_export_task.metadata.file %}
+                  <a href="{% url 'users:export_ndjson' %}" download>{% trans 'Download' %}</a>
+                {% endif %}
+              {% endif %}
+            </form>
+            <hr>
+            <form action="{% url 'users:export_marks' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="submit"
+                     class="secondary"
+                     value="{% trans 'Export marks and reviews in XLSX (Doufen format)' %}" />
+              <small>exporting to this format will be deprecated soon.</small>
+              {% if export_task %}
+                <br>
+                {% trans 'Last export' %}: {{ export_task.created_time }}
+                {% trans 'Status' %}: {{ export_task.get_state_display }}
+                <br>
+                {{ export_task.message }}
+                {% if export_task.metadata.file %}
+                  <a href="{% url 'users:export_marks' %}" download>{% trans 'Download' %}</a>
+                {% endif %}
+              {% endif %}
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Import Data' %}</summary>
+            <form action="{% url 'users:import_neodb' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <ul>
+                <li>
+                  {% trans 'Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB.' %}
+                </li>
+                <li>{% trans 'Existing marks and reviews with newer dates will be preserved.' %}</li>
+              </ul>
+              <br>
+              <input type="file" name="file" required accept=".zip">
+              <p>
+                {% trans 'Visibility' %}: <small><code>.csv</code> only</small>
+                <br>
+                <label for="csv_visibility_0">
+                  <input type="radio"
+                         name="visibility"
+                         value="0"
+                         required=""
+                         id="csv_visibility_0"
+                         checked>
+                  {% trans 'Public' %}
+                </label>
+                <label for="csv_visibility_1">
+                  <input type="radio"
+                         name="visibility"
+                         value="1"
+                         required=""
+                         id="csv_visibility_1">
+                  {% trans 'Followers Only' %}
+                </label>
+                <label for="csv_visibility_2">
+                  <input type="radio"
+                         name="visibility"
+                         value="2"
+                         required=""
+                         id="csv_visibility_2">
+                  {% trans 'Mentioned Only' %}
+                </label>
+              </p>
+              <input type="submit" value="{% trans 'Import' %}" />
+              <small>
+                {% if csv_import_task %}
+                  <br>
+                  {% trans 'Last import started' %}: {{ csv_import_task.created_time }}
+                  {% trans 'Status' %}: {{ csv_import_task.get_state_display }}。
+                  <br>
+                  {{ csv_import_task.message }}
+                  {% if csv_import_task.metadata.failed_items %}
+                    {% trans 'Failed items' %}:
+                    <br>
+                    <textarea readonly>{% for item in csv_import_task.metadata.failed_items %}{{item}}&#10;{% endfor %}</textarea>
+                  {% endif %}
+                {% endif %}
+              </small>
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
             <summary>{% trans 'Import Marks and Reviews from Douban' %}</summary>
             <form action="{% url 'users:import_douban' %}"
                   method="post"
@@ -210,123 +331,6 @@
                 <input type="file" name="file" id="excel" required accept=".opml,.xml">
                 <input type="submit"  value="{% trans 'Import' %}" />
               </div>
-            </form>
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans 'Import marks, reviews and notes from CSV' %}</summary>
-            <form action="{% url 'users:import_csv' %}"
-                  method="post"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <ul>
-                <li>{% trans 'Upload a ZIP file containing CSV files exported from NeoDB.' %}</li>
-                <li>{% trans 'Existing marks and reviews with newer dates will be preserved.' %}</li>
-              </ul>
-              <br>
-              <input type="file" name="file" required accept=".zip">
-              <p>
-                {% trans 'Visibility' %}:
-                <br>
-                <label for="csv_visibility_0">
-                  <input type="radio"
-                         name="visibility"
-                         value="0"
-                         required=""
-                         id="csv_visibility_0"
-                         checked>
-                  {% trans 'Public' %}
-                </label>
-                <label for="csv_visibility_1">
-                  <input type="radio"
-                         name="visibility"
-                         value="1"
-                         required=""
-                         id="csv_visibility_1">
-                  {% trans 'Followers Only' %}
-                </label>
-                <label for="csv_visibility_2">
-                  <input type="radio"
-                         name="visibility"
-                         value="2"
-                         required=""
-                         id="csv_visibility_2">
-                  {% trans 'Mentioned Only' %}
-                </label>
-              </p>
-              <input type="submit" value="{% trans 'Import' %}" />
-              <small>
-                {% if csv_import_task %}
-                  <br>
-                  {% trans 'Last import started' %}: {{ csv_import_task.created_time }}
-                  {% trans 'Status' %}: {{ csv_import_task.get_state_display }}。
-                  <br>
-                  {{ csv_import_task.message }}
-                  {% if csv_import_task.metadata.failed_items %}
-                    {% trans 'Failed items' %}:
-                    <br>
-                    <textarea readonly>{% for item in csv_import_task.metadata.failed_items %}{{item}}&#10;{% endfor %}</textarea>
-                  {% endif %}
-                {% endif %}
-              </small>
-            </form>
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans 'Export Data' %}</summary>
-            <form action="{% url 'users:export_marks' %}"
-                  method="post"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <input type="submit"
-                     value="{% trans 'Export marks and reviews in XLSX (Doufen format)' %}" />
-              {% if export_task %}
-                <br>
-                {% trans 'Last export' %}: {{ export_task.created_time }}
-                {% trans 'Status' %}: {{ export_task.get_state_display }}
-                <br>
-                {{ export_task.message }}
-                {% if export_task.metadata.file %}
-                  <a href="{% url 'users:export_marks' %}" download>{% trans 'Download' %}</a>
-                {% endif %}
-              {% endif %}
-            </form>
-            <hr>
-            <form action="{% url 'users:export_csv' %}"
-                  method="post"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <input type="submit"
-                     value="{% trans 'Export marks, reviews and notes in CSV' %}" />
-              {% if csv_export_task %}
-                <br>
-                {% trans 'Last export' %}: {{ csv_export_task.created_time }}
-                {% trans 'Status' %}: {{ csv_export_task.get_state_display }}
-                <br>
-                {{ csv_export_task.message }}
-                {% if csv_export_task.metadata.file %}
-                  <a href="{% url 'users:export_csv' %}" download>{% trans 'Download' %}</a>
-                {% endif %}
-              {% endif %}
-            </form>
-            <hr>
-            <form action="{% url 'users:export_ndjson' %}"
-                  method="post"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <input type="submit" value="{% trans 'Export everything in NDJSON' %}" />
-              {% if ndjson_export_task %}
-                <br>
-                {% trans 'Last export' %}: {{ ndjson_export_task.created_time }}
-                {% trans 'Status' %}: {{ ndjson_export_task.get_state_display }}
-                <br>
-                {{ ndjson_export_task.message }}
-                {% if ndjson_export_task.metadata.file %}
-                  <a href="{% url 'users:export_ndjson' %}" download>{% trans 'Download' %}</a>
-                {% endif %}
-              {% endif %}
             </form>
           </details>
         </article>

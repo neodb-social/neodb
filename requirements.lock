@@ -44,7 +44,7 @@ charset-normalizer==3.4.1
 click==8.1.8
     # via atproto
     # via rq
-cryptography==44.0.1
+cryptography==44.0.2
     # via atproto
 dateparser==1.2.1
 deepmerge==2.0
