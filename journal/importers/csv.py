@@ -164,8 +164,12 @@ class CsvImporter(Task):
 
         return status_map.get(status_str.lower(), ShelfType.WISHLIST)
 
-    def import_mark(self, row: Dict[str, str]) -> bool:
-        """Import a mark from a CSV row."""
+    def import_mark(self, row: Dict[str, str]) -> str:
+        """Import a mark from a CSV row.
+
+        Returns:
+            str: 'imported', 'skipped', or 'failed' indicating the import result
+        """
         try:
             item = self.get_item_by_info_and_links(
                 row.get("title", ""), row.get("info", ""), row.get("links", "")
@@ -176,7 +180,7 @@ class CsvImporter(Task):
                 self.metadata["failed_items"].append(
                     f"Could not find item: {row.get('links', '')}"
                 )
-                return False
+                return "failed"
 
             owner = self.user.identity
             mark = Mark(owner, item)
@@ -203,8 +207,7 @@ class CsvImporter(Task):
                 and mark.created_time >= created_time
             ):
                 # skip if existing mark is newer
-                self.metadata["skipped"] = self.metadata.get("skipped", 0) + 1
-                return True
+                return "skipped"
 
             # Update the mark
             mark.update(
@@ -215,16 +218,20 @@ class CsvImporter(Task):
                 created_time=created_time,
                 visibility=self.metadata.get("visibility", 0),
             )
-            return True
+            return "imported"
         except Exception as e:
             logger.error(f"Error importing mark: {e}")
             self.metadata["failed_items"].append(
                 f"Error importing mark for {row.get('title', '')}"
             )
-            return False
+            return "failed"
 
-    def import_review(self, row: Dict[str, str]) -> bool:
-        """Import a review from a CSV row."""
+    def import_review(self, row: Dict[str, str]) -> str:
+        """Import a review from a CSV row.
+
+        Returns:
+            str: 'imported', 'skipped', or 'failed' indicating the import result
+        """
         try:
             item = self.get_item_by_info_and_links(
                 row.get("title", ""), row.get("info", ""), row.get("links", "")
@@ -235,7 +242,7 @@ class CsvImporter(Task):
                 self.metadata["failed_items"].append(
                     f"Could not find item for review: {row.get('links', '')}"
                 )
-                return False
+                return "failed"
 
             owner = self.user.identity
             review_title = row.get("title", "")  # Second "title" field is review title
@@ -258,8 +265,7 @@ class CsvImporter(Task):
                 logger.debug(
                     f"Skipping review import for {item.display_title}: existing review is newer or same age"
                 )
-                self.metadata["skipped"] = self.metadata.get("skipped", 0) + 1
-                return True
+                return "skipped"
 
             # Create/update the review
             Review.update_item_review(
@@ -270,16 +276,20 @@ class CsvImporter(Task):
                 created_time=created_time,
                 visibility=self.metadata.get("visibility", 0),
             )
-            return True
+            return "imported"
         except Exception as e:
             logger.error(f"Error importing review: {e}")
             self.metadata["failed_items"].append(
                 f"Error importing review for {row.get('title', '')}: {str(e)}"
             )
-            return False
+            return "failed"
 
-    def import_note(self, row: Dict[str, str]) -> bool:
-        """Import a note from a CSV row."""
+    def import_note(self, row: Dict[str, str]) -> str:
+        """Import a note from a CSV row.
+
+        Returns:
+            str: 'imported', 'skipped', or 'failed' indicating the import result
+        """
         try:
             item = self.get_item_by_info_and_links(
                 row.get("title", ""), row.get("info", ""), row.get("links", "")
@@ -290,7 +300,7 @@ class CsvImporter(Task):
                 self.metadata["failed_items"].append(
                     f"Could not find item for note: {row.get('links', '')}"
                 )
-                return False
+                return "failed"
 
             owner = self.user.identity
             title = row.get("title", "")  # Second "title" field is note title
@@ -318,8 +328,7 @@ class CsvImporter(Task):
                     logger.debug(
                         f"Skipping note import for {item.display_title}: duplicate note found"
                     )
-                    self.metadata["skipped"] = self.metadata.get("skipped", 0) + 1
-                    return True
+                    return "skipped"
 
             # Create the note if no duplicate is found
             Note.objects.create(
@@ -332,25 +341,32 @@ class CsvImporter(Task):
                 created_time=created_time,
                 visibility=self.metadata.get("visibility", 0),
             )
-            return True
+            return "imported"
         except Exception as e:
             logger.error(f"Error importing note: {e}")
             self.metadata["failed_items"].append(
                 f"Error importing note for {row.get('title', '')}: {str(e)}"
             )
-            return False
+            return "failed"
 
-    def progress(self, success: bool) -> None:
-        """Update import progress."""
-        self.metadata["total"] += 1
+    def progress(self, result: str) -> None:
+        """Update import progress.
+
+        Args:
+            result: The import result ('imported', 'skipped', or 'failed')
+        """
         self.metadata["processed"] += 1
+        self.metadata[result] = self.metadata.get(result, 0) + 1
 
-        if success:
-            self.metadata["imported"] += 1
-        else:
-            self.metadata["failed"] += 1
-
-        self.message = f"{self.metadata['imported']} imported, {self.metadata['skipped']} skipped, {self.metadata['failed']} failed"
+        progress_percentage = round(
+            self.metadata["processed"] / self.metadata["total"] * 100
+        )
+        self.message = (
+            f"Progress: {progress_percentage}% - "
+            f"{self.metadata['imported']} imported, "
+            f"{self.metadata['skipped']} skipped, "
+            f"{self.metadata['failed']} failed"
+        )
         self.save(update_fields=["metadata", "message"])
 
     def process_csv_file(self, file_path: str, import_function) -> None:
@@ -359,8 +375,8 @@ class CsvImporter(Task):
         with open(file_path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                success = import_function(row)
-                self.progress(success)
+                result = import_function(row)
+                self.progress(result)
 
     def run(self) -> None:
         """Run the CSV import."""
@@ -372,7 +388,10 @@ class CsvImporter(Task):
                 logger.debug(f"Extracting {filename} to {tmpdirname}")
                 zipref.extractall(tmpdirname)
 
-                # Look for mark, review, and note CSV files
+                # Count total rows in all CSV files first
+                total_rows = 0
+                csv_files = []
+
                 for category in [
                     ItemCategory.Movie,
                     ItemCategory.TV,
@@ -382,20 +401,25 @@ class CsvImporter(Task):
                     ItemCategory.Podcast,
                     ItemCategory.Performance,
                 ]:
-                    # Import marks
-                    mark_file = os.path.join(tmpdirname, f"{category}_mark.csv")
-                    if os.path.exists(mark_file):
-                        self.process_csv_file(mark_file, self.import_mark)
+                    for file_type in ["mark", "review", "note"]:
+                        file_path = os.path.join(
+                            tmpdirname, f"{category}_{file_type}.csv"
+                        )
+                        if os.path.exists(file_path):
+                            with open(file_path, "r") as csvfile:
+                                row_count = sum(1 for _ in csv.DictReader(csvfile))
+                                total_rows += row_count
+                                csv_files.append((file_path, file_type))
 
-                    # Import reviews
-                    review_file = os.path.join(tmpdirname, f"{category}_review.csv")
-                    if os.path.exists(review_file):
-                        self.process_csv_file(review_file, self.import_review)
+                # Set the total count in metadata
+                self.metadata["total"] = total_rows
+                self.message = f"Found {total_rows} items to import"
+                self.save(update_fields=["metadata", "message"])
 
-                    # Import notes
-                    note_file = os.path.join(tmpdirname, f"{category}_note.csv")
-                    if os.path.exists(note_file):
-                        self.process_csv_file(note_file, self.import_note)
+                # Now process all files
+                for file_path, file_type in csv_files:
+                    import_function = getattr(self, f"import_{file_type}")
+                    self.process_csv_file(file_path, import_function)
 
         self.message = _("Import complete")
         if self.metadata.get("failed_items", []):
