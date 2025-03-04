@@ -57,16 +57,18 @@ class CsvImporter(Task):
             Item if found, None otherwise
         """
         site_url = settings.SITE_INFO["site_url"] + "/"
-
         links = links_str.strip().split()
         # look for local items first
         for link in links:
             if link.startswith("/") or link.startswith(site_url):
-                item = Item.get_by_url(link)
-                if item:
+                item = Item.get_by_url(link, resolve_merge=True)
+                if item and not item.is_deleted:
                     return item
 
-        sites = [SiteManager.get_site_by_url(link) for link in links]
+        sites = [
+            SiteManager.get_site_by_url(link, detect_redirection=False)
+            for link in links
+        ]
         sites = [site for site in sites if site]
         sites.sort(
             key=lambda x: _PREFERRED_SITES.index(x.SITE_NAME)
@@ -74,14 +76,24 @@ class CsvImporter(Task):
             else 99
         )
 
-        # look for external items that already matched
+        # match items without extra requests
         for site in sites:
-            logger.debug(f"matching {site.url}")
             item = site.get_item()
             if item:
                 return item
 
-        # fetch external item if possible
+        # match items after HEAD
+        sites = [
+            SiteManager.get_site_by_url(site.url) if site.url else site
+            for site in sites
+        ]
+        sites = [site for site in sites if site]
+        for site in sites:
+            item = site.get_item()
+            if item:
+                return item
+
+        # fetch from remote
         for site in sites:
             try:
                 logger.debug(f"fetching {site.url}")
@@ -385,7 +397,6 @@ class CsvImporter(Task):
 
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:
-                logger.debug(f"Extracting {filename} to {tmpdirname}")
                 zipref.extractall(tmpdirname)
 
                 # Count total rows in all CSV files first

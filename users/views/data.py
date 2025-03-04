@@ -121,6 +121,27 @@ def data_import_status(request):
 
 
 @login_required
+def user_task_status(request, task_name: str):
+    match task_name:
+        case "csv_import":
+            task_cls = CsvImporter
+        case "csv_export":
+            task_cls = CsvExporter
+        case "ndjson_export":
+            task_cls = NdjsonExporter
+        case "letterboxd":
+            task_cls = LetterboxdImporter
+        case "goodreads":
+            task_cls = GoodreadsImporter
+        case "douban":
+            task_cls = DoubanImporter
+        case _:
+            return redirect(reverse("users:data"))
+    task = task_cls.latest_task(request.user)
+    return render(request, "users/user_task_status.html", {"task": task})
+
+
+@login_required
 def export_reviews(request):
     if request.method != "POST":
         return redirect(reverse("users:data"))

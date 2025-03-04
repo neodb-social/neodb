@@ -121,11 +121,16 @@
               <input type="submit" value="{% trans 'Import' %}" />
               <small>
                 {% if csv_import_task %}
-                  <br>
                   {% trans 'Last import started' %}: {{ csv_import_task.created_time }}
-                  {% trans 'Status' %}: {{ csv_import_task.get_state_display }}。
-                  <br>
-                  {{ csv_import_task.message }}
+                  {% if csv_import_task.state == 0 or csv_import_task.state == 1 %}
+                    <div hx-get="{% url 'users:user_task_status' 'csv_import' %}"
+                         hx-target="this"
+                         hx-trigger="load delay:2s, every 10s"
+                         hx-swap="outerHTML"></div>
+                  {% else %}
+                    {% trans 'Status' %}: {{ csv_import_task.get_state_display }}。
+                    {{ csv_import_task.message }}
+                  {% endif %}
                   {% if csv_import_task.metadata.failed_items %}
                     {% trans 'Failed items' %}:
                     <br>
