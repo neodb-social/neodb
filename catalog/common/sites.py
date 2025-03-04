@@ -355,14 +355,12 @@ class SiteManager:
             return None
         u = SiteManager.get_redirected_url(url, allow_head=detect_redirection)
         cls = SiteManager.get_class_by_url(u)
-        if cls is None and u != url:
-            cls = SiteManager.get_fallback_class_by_url(url)
-            if cls:
-                u = url
         if cls is None:
-            cls = SiteManager.get_class_by_url(u)
+            cls = SiteManager.get_fallback_class_by_url(u)
         if cls is None and u != url:
-            cls = SiteManager.get_fallback_class_by_url(url)
+            cls = SiteManager.get_class_by_url(url)
+            if cls is None:
+                cls = SiteManager.get_fallback_class_by_url(url)
             if cls:
                 u = url
         return cls(u) if cls else None
