@@ -6,15 +6,20 @@ import tempfile
 
 from django.conf import settings
 from django.utils import timezone
+from loguru import logger
 
 from catalog.common import ProxiedImageDownloader
 from common.utils import GenerateDateUUIDMediaFilePath
-from journal.models import ShelfMember
-from journal.models.collection import Collection
-from journal.models.common import Content
-from journal.models.note import Note
-from journal.models.review import Review
-from journal.models.shelf import ShelfLogEntry
+from journal.models import (
+    Collection,
+    Content,
+    Note,
+    Review,
+    ShelfLogEntry,
+    ShelfMember,
+    Tag,
+    TagMember,
+)
 from takahe.models import Post
 from users.models import Task
 
@@ -72,7 +77,13 @@ class NdjsonExporter(Task):
                     os.path.join(settings.MEDIA_ROOT, url[len(settings.MEDIA_URL) :])
                 )
                 if p.startswith(settings.MEDIA_ROOT):
-                    shutil.copy2(p, attachment_path)
+                    try:
+                        shutil.copy2(p, attachment_path)
+                    except Exception as e:
+                        logger.error(
+                            f"error copying {p} to {attachment_path}",
+                            extra={"exception": e},
+                        )
                 return p
             return url
 
@@ -104,7 +115,13 @@ class NdjsonExporter(Task):
                             dest = os.path.join(
                                 attachment_path, os.path.basename(a.file.name)
                             )
-                            shutil.copy2(a.file.path, dest)
+                            try:
+                                shutil.copy2(a.file.path, dest)
+                            except Exception as e:
+                                logger.error(
+                                    f"error copying {a.file.path} to {dest}",
+                                    extra={"exception": e},
+                                )
 
             collections = Collection.objects.filter(owner=user.identity)
             for c in collections:
@@ -121,16 +138,35 @@ class NdjsonExporter(Task):
                 }
                 f.write(json.dumps(o, default=str) + "\n")
 
+            tags = Tag.objects.filter(owner=user.identity)
+            for t in tags:
+                total += 1
+                o = {
+                    "type": "Tag",
+                    "name": t.title,
+                    "visibility": t.visibility,
+                    "pinned": t.pinned,
+                }
+                f.write(json.dumps(o, default=str) + "\n")
+
+            tags = TagMember.objects.filter(owner=user.identity)
+            for t in tags:
+                total += 1
+                o = {
+                    "type": "TagMember",
+                    "content": t.ap_object,
+                    "visibility": t.visibility,
+                    "metadata": t.metadata,
+                }
+                f.write(json.dumps(o, default=str) + "\n")
             marks = ShelfMember.objects.filter(owner=user.identity)
             for m in marks:
                 total += 1
                 o = {
                     "type": "ShelfMember",
-                    "item": self.ref(m.item),
-                    "status": m.shelf_type,
+                    "content": m.ap_object,
                     "visibility": m.visibility,
                     "metadata": m.metadata,
-                    "published": self.created_time.isoformat(),
                 }
                 f.write(json.dumps(o, default=str) + "\n")
 
@@ -140,8 +176,9 @@ class NdjsonExporter(Task):
                 o = {
                     "type": "ShelfLog",
                     "item": self.ref(log.item),
+                    "status": log.shelf_type,
                     "posts": list(log.all_post_ids()),
-                    "timestamp": log.created_time,
+                    "timestamp": log.timestamp,
                 }
                 f.write(json.dumps(o, default=str) + "\n")
 
@@ -154,7 +191,13 @@ class NdjsonExporter(Task):
                 o = {"type": "post", "post": p.to_mastodon_json()}
                 for a in p.attachments.all():
                     dest = os.path.join(attachment_path, os.path.basename(a.file.name))
-                    shutil.copy2(a.file.path, dest)
+                    try:
+                        shutil.copy2(a.file.path, dest)
+                    except Exception as e:
+                        logger.error(
+                            f"error copying {a.file.path} to {dest}",
+                            extra={"exception": e},
+                        )
                 f.write(json.dumps(o, default=str) + "\n")
 
         filename = os.path.join(temp_folder_path, "catalog.ndjson")
