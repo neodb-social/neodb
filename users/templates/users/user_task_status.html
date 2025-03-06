@@ -1,19 +1,20 @@
 {% load i18n %}
-<div hx-get="{% url 'users:user_task_status' 'csv_import' %}"
-     {% if task.state == 0 or task.state == 1 %}hx-target="this" hx-trigger="every 30s"{% endif %}
+<div hx-target="this"
+     {% if task.state == 0 or task.state == 1 %} hx-get="{% url 'users:user_task_status' task.type %}" hx-trigger="intersect once, every 30s"{% endif %}
      hx-swap="outerHTML">
-  {% trans 'Status' %}: {{ task.get_state_display }}。
+  {% trans 'Requested' %}: {{ task.created_time }}
+  ({{ task.get_state_display }})
   {{ task.message }}
-  <br>
-  {% if task.metadata.total and task.metadata.processed %}
-    <div class="progress-container">
-      <progress value="{{ task.metadata.processed }}" max="{{ task.metadata.total }}"></progress>
-      <div class="progress-text">
-        {{ task.metadata.processed }} / {{ task.metadata.total }}
-        ({{ task.metadata.imported }} imported,
-        {{ task.metadata.skipped }} skipped,
-        {{ task.metadata.failed }} failed)
+  {% if task.state == 0 or task.state == 1 %}
+    {% if task.metadata.total and task.metadata.processed %}
+      <div>
+        <progress value="{{ task.metadata.processed }}" max="{{ task.metadata.total }}"></progress>
       </div>
-    </div>
+    {% endif %}
+  {% endif %}
+  {% if task.metadata.failed_items %}
+    {% trans 'Failed items' %}:
+    <br>
+    <textarea readonly>{% for item in task.metadata.failed_items %}{{item}}&#10;{% endfor %}</textarea>
   {% endif %}
 </div>

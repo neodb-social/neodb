@@ -48,7 +48,7 @@
                 <br>
                 {{ ndjson_export_task.message }}
                 {% if ndjson_export_task.metadata.file %}
-                  <a href="{% url 'users:export_ndjson' %}" download>{% trans 'Download' %}</a>
+                  <a href="{% url 'users:export_ndjson' %}" download><i class="fa fa-file-code"></i> {% trans 'Download' %}</a>
                 {% endif %}
               {% endif %}
             </form>
@@ -86,58 +86,148 @@
                   {% trans 'Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB.' %}
                 </li>
                 <li>{% trans 'Existing marks and reviews with newer dates will be preserved.' %}</li>
+                <li>
+                  {% trans 'Both CSV and NDJSON formats exported from NeoDB are supported. NDJSON format includes more data, like collections.' %}
+                </li>
               </ul>
               <br>
-              <input type="file" name="file" required accept=".zip">
-              <p>
-                {% trans 'Visibility' %}: <small><code>.csv</code> only</small>
-                <br>
-                <label for="csv_visibility_0">
-                  <input type="radio"
-                         name="visibility"
-                         value="0"
-                         required=""
-                         id="csv_visibility_0"
-                         checked>
-                  {% trans 'Public' %}
-                </label>
-                <label for="csv_visibility_1">
-                  <input type="radio"
-                         name="visibility"
-                         value="1"
-                         required=""
-                         id="csv_visibility_1">
-                  {% trans 'Followers Only' %}
-                </label>
-                <label for="csv_visibility_2">
-                  <input type="radio"
-                         name="visibility"
-                         value="2"
-                         required=""
-                         id="csv_visibility_2">
-                  {% trans 'Mentioned Only' %}
-                </label>
-              </p>
+              <input type="file" name="file" id="neodb_import_file" required accept=".zip">
+              <div id="detected_format_info"
+                   style="display: none;
+                          margin: 10px 0;
+                          padding: 8px 12px;
+                          border-radius: 4px;
+                          background-color: var(--card-background-color, #f8f9fa);
+                          border: 1px solid var(--card-border-color, #dee2e6)">
+                <i class="fa fa-info-circle"></i> {% trans 'Detected format' %}: <strong id="detected_format">-</strong>
+              </div>
+              <div id="visibility_settings" style="display: none;">
+                <p>
+                  {% trans 'Visibility' %}:
+                  <br>
+                  <label for="csv_visibility_0">
+                    <input type="radio"
+                           name="visibility"
+                           value="0"
+                           required=""
+                           id="csv_visibility_0"
+                           checked>
+                    {% trans 'Public' %}
+                  </label>
+                  <label for="csv_visibility_1">
+                    <input type="radio"
+                           name="visibility"
+                           value="1"
+                           required=""
+                           id="csv_visibility_1">
+                    {% trans 'Followers Only' %}
+                  </label>
+                  <label for="csv_visibility_2">
+                    <input type="radio"
+                           name="visibility"
+                           value="2"
+                           required=""
+                           id="csv_visibility_2">
+                    {% trans 'Mentioned Only' %}
+                  </label>
+                </p>
+              </div>
+              <input type="hidden" name="format_type" id="format_type" value="">
               <input type="submit" value="{% trans 'Import' %}" />
-              <small>
-                {% if csv_import_task %}
-                  {% trans 'Last import started' %}: {{ csv_import_task.created_time }}
-                  {% if csv_import_task.state == 0 or csv_import_task.state == 1 %}
-                    <div hx-get="{% url 'users:user_task_status' 'csv_import' %}"
-                         hx-target="this"
-                         hx-trigger="load delay:2s, every 10s"
-                         hx-swap="outerHTML"></div>
-                  {% else %}
-                    {% trans 'Status' %}: {{ csv_import_task.get_state_display }}。
-                    {{ csv_import_task.message }}
-                  {% endif %}
-                  {% if csv_import_task.metadata.failed_items %}
-                    {% trans 'Failed items' %}:
-                    <br>
-                    <textarea readonly>{% for item in csv_import_task.metadata.failed_items %}{{item}}&#10;{% endfor %}</textarea>
-                  {% endif %}
-                {% endif %}
-              </small>
+              <script src="{{ cdn_url }}/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const fileInput = document.getElementById('neodb_import_file');
+                  if (!fileInput) return;
+
+                  fileInput.addEventListener('change', async function(event) {
+                    const file = event.target.files[0];
+                    if (!file) {
+                      document.getElementById('detected_format_info').style.display = 'none';
+                      document.getElementById('visibility_settings').style.display = 'none';
+                      document.getElementById('format_type').value = '';
+                      return;
+                    }
+
+                    // Check if it's a zip file
+                    if (file.type !== 'application/zip' &&
+                        file.type !== 'application/x-zip-compressed' &&
+                        !file.name.toLowerCase().endsWith('.zip')) {
+                      document.getElementById('detected_format_info').style.display = 'none';
+                      document.getElementById('visibility_settings').style.display = 'none';
+                      document.getElementById('format_type').value = '';
+                      return;
+                    }
+
+                    // Update UI to show "Detecting format..." with a spinner
+                    document.getElementById('detected_format').innerHTML = '{% trans "Detecting format..." %} <i class="fa fa-spinner fa-spin"></i>';
+                    document.getElementById('detected_format_info').style.display = 'block';
+
+                    try {
+                      // Use JSZip to examine the actual contents of the ZIP file
+                      const zip = new JSZip();
+                      const zipContents = await zip.loadAsync(file);
+                      const fileNames = Object.keys(zipContents.files);
+
+                      // Check for specific files that indicate format type
+                      const hasNdjson = fileNames.some(name => name === 'journal.ndjson' || name === 'catalog.ndjson');
+                      const hasCsv = fileNames.some(name => name.endsWith('_mark.csv') ||
+                                                            name.endsWith('_review.csv') ||
+                                                            name.endsWith('_note.csv'));
+
+                      let format = '';
+                      let formatValue = '';
+
+                      if (hasNdjson) {
+                        format = 'NDJSON';
+                        formatValue = 'ndjson';
+                      } else if (hasCsv) {
+                        format = 'CSV';
+                        formatValue = 'csv';
+                      } else {
+                        // Unable to detect format from contents
+                        format = '{% trans "Unknown format" %}';
+                        formatValue = '';
+                      }
+
+                      // Update UI with detected format and appropriate icon
+                      let formatIcon = '';
+                      if (formatValue === 'ndjson') {
+                        formatIcon = '<i class="fa fa-file-code"></i> ';
+                      } else if (formatValue === 'csv') {
+                        formatIcon = '<i class="fa fa-file-csv"></i> ';
+                      } else {
+                        formatIcon = '<i class="fa fa-question-circle"></i> ';
+                      }
+
+                      document.getElementById('detected_format').innerHTML = formatIcon + format;
+                      document.getElementById('format_type').value = formatValue;
+
+                      // Show visibility settings only for NDJSON format
+                      if (formatValue === 'ndjson') {
+                        document.getElementById('visibility_settings').style.display = 'block';
+                      } else {
+                        document.getElementById('visibility_settings').style.display = 'none';
+                      }
+
+                    } catch (error) {
+                      console.error('Error examining ZIP file:', error);
+                      document.getElementById('detected_format').innerHTML = '<i class="fa fa-exclamation-triangle"></i> {% trans "Error detecting format" %}';
+                      document.getElementById('format_type').value = '';
+
+                      // Make the error more visible
+                      document.getElementById('detected_format_info').style.backgroundColor = 'var(--form-element-invalid-active-border-color, #d9534f)';
+                      document.getElementById('detected_format_info').style.color = 'white';
+
+                      // Hide visibility settings on error
+                      document.getElementById('visibility_settings').style.display = 'none';
+                    }
+                  });
+                });
+              </script>
+              {% if neodb_import_task %}
+                {% include "users/user_task_status.html" with task=neodb_import_task %}
+              {% endif %}
             </form>
           </details>
         </article>

@@ -18,6 +18,7 @@ from journal.importers import (
     DoubanImporter,
     GoodreadsImporter,
     LetterboxdImporter,
+    NdjsonImporter,
     OPMLImporter,
     get_neodb_importer,
 )
@@ -92,6 +93,20 @@ def data(request):
     start_date = queryset.aggregate(Min("created_time"))["created_time__min"]
     start_year = start_date.year if start_date else current_year
     years = reversed(range(start_year, current_year + 1))
+
+    # Import tasks - check for both CSV and NDJSON importers
+    csv_import_task = CsvImporter.latest_task(request.user)
+    ndjson_import_task = NdjsonImporter.latest_task(request.user)
+
+    # Use the most recent import task for display
+    if ndjson_import_task and (
+        not csv_import_task
+        or ndjson_import_task.created_time > csv_import_task.created_time
+    ):
+        neodb_import_task = ndjson_import_task
+    else:
+        neodb_import_task = csv_import_task
+
     return render(
         request,
         "users/data.html",
@@ -100,7 +115,7 @@ def data(request):
             "import_task": DoubanImporter.latest_task(request.user),
             "export_task": DoufenExporter.latest_task(request.user),
             "csv_export_task": CsvExporter.latest_task(request.user),
-            "csv_import_task": CsvImporter.latest_task(request.user),
+            "neodb_import_task": neodb_import_task,  # Use the most recent import task
             "ndjson_export_task": NdjsonExporter.latest_task(request.user),
             "letterboxd_task": LetterboxdImporter.latest_task(request.user),
             "goodreads_task": GoodreadsImporter.latest_task(request.user),
@@ -121,19 +136,21 @@ def data_import_status(request):
 
 
 @login_required
-def user_task_status(request, task_name: str):
-    match task_name:
-        case "csv_import":
+def user_task_status(request, task_type: str):
+    match task_type:
+        case "journal.csvimporter":
             task_cls = CsvImporter
-        case "csv_export":
+        case "journal.ndjsonimporter":
+            task_cls = NdjsonImporter
+        case "journal.csvexporter":
             task_cls = CsvExporter
-        case "ndjson_export":
+        case "journal.ndjsonexporter":
             task_cls = NdjsonExporter
-        case "letterboxd":
+        case "journal.letterboxdimporter":
             task_cls = LetterboxdImporter
-        case "goodreads":
+        case "journal.goodreadsimporter":
             task_cls = GoodreadsImporter
-        case "douban":
+        case "journal.doubanimporter":
             task_cls = DoubanImporter
         case _:
             return redirect(reverse("users:data"))
@@ -357,16 +374,49 @@ def import_neodb(request):
         with open(f, "wb+") as destination:
             for chunk in request.FILES["file"].chunks():
                 destination.write(chunk)
-        importer = get_neodb_importer(f)
+
+        # Get format type hint from frontend, if provided
+        format_type_hint = request.POST.get("format_type", "").lower()
+
+        # Import appropriate class based on format type or auto-detect
+        from journal.importers import CsvImporter, NdjsonImporter
+
+        if format_type_hint == "csv":
+            importer = CsvImporter
+            format_type = "CSV"
+        elif format_type_hint == "ndjson":
+            importer = NdjsonImporter
+            format_type = "NDJSON"
+        else:
+            # Fall back to auto-detection if no hint provided
+            importer = get_neodb_importer(f)
+            if importer == CsvImporter:
+                format_type = "CSV"
+            elif importer == NdjsonImporter:
+                format_type = "NDJSON"
+            else:
+                format_type = ""
+                importer = None  # Make sure importer is None if auto-detection fails
+
         if not importer:
-            messages.add_message(request, messages.ERROR, _("Invalid file."))
+            messages.add_message(
+                request,
+                messages.ERROR,
+                _(
+                    "Invalid file. Expected a ZIP containing either CSV or NDJSON files exported from NeoDB."
+                ),
+            )
             return redirect(reverse("users:data"))
+
         importer.create(
             request.user,
             visibility=int(request.POST.get("visibility", 0)),
             file=f,
         ).enqueue()
+
         messages.add_message(
-            request, messages.INFO, _("File is uploaded and will be imported soon.")
+            request,
+            messages.INFO,
+            _(f"{format_type} file is uploaded and will be imported soon."),
         )
     return redirect(reverse("users:data"))
