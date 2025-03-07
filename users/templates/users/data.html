@@ -10,6 +10,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans 'Data Management' %}</title>
     {% include "common_libs.html" %}
+    <script>
+    document.addEventListener('htmx:responseError', (event) => {
+      let response = event.detail.xhr.response;
+      let body = response ? response : `Request error: ${event.detail.xhr.statusText}`;
+      alert(body);
+    });
+    </script>
   </head>
   <body>
     {% include "_header.html" %}
@@ -17,80 +24,217 @@
       <div class="grid__main">
         <article>
           <details>
-            <summary>{% trans 'Export Data' %}</summary>
-            <form action="{% url 'users:export_csv' %}"
+            <summary>{% trans 'Import Marks and Reviews from Douban' %}</summary>
+            <form action="{% url 'users:import_douban' %}"
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
+              {% blocktrans %}Select <code>.xlsx</code> exported from <a href="https://doufen.org" target="_blank" rel="noopener">Doufen</a>{% endblocktrans %}
+              <input type="file" name="file" id="excel" required accept=".xlsx">
+              <fieldset>
+                <legend>{% trans "Import Method" %}</legend>
+                <label for="import_mode_0">
+                  <input id="import_mode_0" type="radio" name="import_mode" value="0" checked>
+                  {% trans "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete." %}
+                </label>
+                <label for="import_mode_1">
+                  <input id="import_mode_1" type="radio" name="import_mode" value="1">
+                  {% trans "Overwrite: update all imported status." %}
+                </label>
+              </fieldset>
+              <p>
+                {% trans 'Visibility' %}:
+                <br>
+                <label for="id_visibility_0">
+                  <input type="radio"
+                         name="visibility"
+                         value="0"
+                         required=""
+                         id="id_visibility_0"
+                         checked>
+                  {% trans 'Public' %}
+                </label>
+                <label for="id_visibility_1">
+                  <input type="radio"
+                         name="visibility"
+                         value="1"
+                         required=""
+                         id="id_visibility_1">
+                  {% trans 'Followers Only' %}
+                </label>
+                <label for="id_visibility_2">
+                  <input type="radio"
+                         name="visibility"
+                         value="2"
+                         required=""
+                         id="id_visibility_2">
+                  {% trans 'Mentioned Only' %}
+                </label>
+              </p>
               <input type="submit"
-                     value="{% trans 'Export marks, reviews and notes in CSV' %}" />
-              {% if csv_export_task %}
-                <br>
-                {% trans 'Last export' %}: {{ csv_export_task.created_time }}
-                {% trans 'Status' %}: {{ csv_export_task.get_state_display }}
-                <br>
-                {{ csv_export_task.message }}
-                {% if csv_export_task.metadata.file %}
-                  <a href="{% url 'users:export_csv' %}" download>{% trans 'Download' %}</a>
-                {% endif %}
-              {% endif %}
-            </form>
-            <hr>
-            <form action="{% url 'users:export_ndjson' %}"
-                  method="post"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <input type="submit" value="{% trans 'Export everything in NDJSON' %}" />
-              {% if ndjson_export_task %}
-                <br>
-                {% trans 'Last export' %}: {{ ndjson_export_task.created_time }}
-                {% trans 'Status' %}: {{ ndjson_export_task.get_state_display }}
-                <br>
-                {{ ndjson_export_task.message }}
-                {% if ndjson_export_task.metadata.file %}
-                  <a href="{% url 'users:export_ndjson' %}" download><i class="fa fa-file-code"></i> {% trans 'Download' %}</a>
-                {% endif %}
-              {% endif %}
-            </form>
-            <hr>
-            <form action="{% url 'users:export_marks' %}"
-                  method="post"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <input type="submit"
-                     class="secondary"
-                     value="{% trans 'Export marks and reviews in XLSX (Doufen format)' %}" />
-              <small>exporting to this format will be deprecated soon.</small>
-              {% if export_task %}
-                <br>
-                {% trans 'Last export' %}: {{ export_task.created_time }}
-                {% trans 'Status' %}: {{ export_task.get_state_display }}
-                <br>
-                {{ export_task.message }}
-                {% if export_task.metadata.file %}
-                  <a href="{% url 'users:export_marks' %}" download>{% trans 'Download' %}</a>
-                {% endif %}
-              {% endif %}
+                     {% if import_task.status == "pending" %} onclick="return confirm('{% trans "Another import is in progress, starting a new import may cause issues, sure to import?" %}')" value="{% trans "Import in progress, please wait" %}" {% else %} value="{% trans 'Import' %}" {% endif %} />
             </form>
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans 'Import Data' %}</summary>
-            <form action="{% url 'users:import_neodb' %}"
-                  method="post"
+            <summary>{% trans 'Import Shelf or List from Goodreads' %}</summary>
+            <form hx-post="{% url 'users:import_goodreads' %}">
+              {% csrf_token %}
+              <div>
+                {% trans 'Link to Goodreads Profile / Shelf / List' %}
+                <ul>
+                  <li>
+                    Profile <code>https://www.goodreads.com/user/show/12345-janedoe</code>
+                    <br>
+                    {% trans 'want-to-read / currently-reading / read books and their reviews will be imported.' %}
+                  </li>
+                  <li>
+                    Shelf <code>https://www.goodreads.com/review/list/12345-janedoe?shelf=name</code>
+                    <br>
+                    {% trans 'Shelf will be imported as a new collection.' %}
+                  </li>
+                  <li>
+                    List <code>https://www.goodreads.com/list/show/155086.Popular_Highlights</code>
+                    <br>
+                    {% trans 'List will be imported as a new collection.' %}
+                  </li>
+                  <li>
+                    <mark>Who Can View My Profile</mark> must be set as <mark>anyone</mark> prior to import.
+                  </li>
+                </ul>
+                <input type="url"
+                       name="url"
+                       value=""
+                       placeholder="https://www.goodreads.com/user/show/12345-janedoe"
+                       required>
+                <input type="submit"  value="{% trans 'Import' %}" />
+              </div>
+              {% include "users/user_task_status.html" with task=goodreads_task %}
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Import from Letterboxd' %}</summary>
+            <form hx-post="{% url 'users:import_letterboxd' %}"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <ul>
+                <li>
+                  In letterboxd.com,
+                  <a href="https://letterboxd.com/settings/data/"
+                     target="_blank"
+                     rel="noopener">click DATA in Settings</a>;
+                  or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA
+                </li>
+                <li>
+                  download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip.
+                </li>
+              </ul>
+              <br>
+              <input type="file" name="file" required accept=".zip">
+              <p>
+                {% trans 'Visibility' %}:
+                <br>
+                <label for="l_visibility_0">
+                  <input type="radio"
+                         name="visibility"
+                         value="0"
+                         required=""
+                         id="l_visibility_0"
+                         checked>
+                  {% trans 'Public' %}
+                </label>
+                <label for="l_visibility_1">
+                  <input type="radio"
+                         name="visibility"
+                         value="1"
+                         required=""
+                         id="l_visibility_1">
+                  {% trans 'Followers Only' %}
+                </label>
+                <label for="l_visibility_2">
+                  <input type="radio"
+                         name="visibility"
+                         value="2"
+                         required=""
+                         id="l_visibility_2">
+                  {% trans 'Mentioned Only' %}
+                </label>
+              </p>
+              <input type="submit" value="{% trans 'Import' %}" />
+              <small>{% trans 'Only forward changes(none->to-watch->watched) will be imported.' %}</small>
+              {% include "users/user_task_status.html" with task=letterboxd_task %}
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Import Podcast Subscriptions' %}</summary>
+            <form hx-post="{% url 'users:import_opml' %}" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div>
+                {% trans 'Import Method' %}：
+                <label for="opml_import_mode_0">
+                  <input id="opml_import_mode_0"
+                         type="radio"
+                         name="import_mode"
+                         value="0"
+                         checked>
+                  {% trans 'Mark as listening' %}
+                </label>
+                <label for="opml_import_mode_1">
+                  <input id="opml_import_mode_1" type="radio" name="import_mode" value="1">
+                  {% trans 'Import as a new collection' %}
+                </label>
+                {% trans 'Visibility' %}:
+                <label for="opml_visibility_0">
+                  <input type="radio"
+                         name="visibility"
+                         value="0"
+                         required=""
+                         id="opml_visibility_0"
+                         checked>
+                  {% trans 'Public' %}
+                </label>
+                <label for="opml_visibility_1">
+                  <input type="radio"
+                         name="visibility"
+                         value="1"
+                         required=""
+                         id="opml_visibility_1">
+                  {% trans 'Followers Only' %}
+                </label>
+                <label for="opml_visibility_2">
+                  <input type="radio"
+                         name="visibility"
+                         value="2"
+                         required=""
+                         id="opml_visibility_2">
+                  {% trans 'Mentioned Only' %}
+                </label>
+                <br>
+                {% trans 'Select OPML file' %}
+                <input type="file" name="file" required accept=".opml,.xml">
+                <input type="submit"  value="{% trans 'Import' %}" />
+              </div>
+              {% include "users/user_task_status.html" with task=opml_import_task %}
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Import NeoDB Archive' %}</summary>
+            <form hx-post="{% url 'users:import_neodb' %}"
                   enctype="multipart/form-data">
               {% csrf_token %}
               <ul>
                 <li>
                   {% trans 'Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB.' %}
                 </li>
-                <li>{% trans 'Existing marks and reviews with newer dates will be preserved.' %}</li>
-                <li>
-                  {% trans 'Both CSV and NDJSON formats exported from NeoDB are supported. NDJSON format includes more data, like collections.' %}
-                </li>
+                <li>{% trans 'Existing data may be overwritten.' %}</li>
               </ul>
-              <br>
               <input type="file" name="file" id="neodb_import_file" required accept=".zip">
               <div id="detected_format_info"
                    style="display: none;
@@ -132,8 +276,8 @@
                   </label>
                 </p>
               </div>
-              <input type="hidden" name="format_type" id="format_type" value="">
-              <input type="submit" value="{% trans 'Import' %}" />
+              <input type="hidden" name="format_type" id="format_type" value="" required>
+              <input type="submit" value="{% trans 'Import' %}" id="import_submit" />
               <script src="{{ cdn_url }}/npm/jszip@3.10.1/dist/jszip.min.js"></script>
               <script>
                 document.addEventListener('DOMContentLoaded', function() {
@@ -203,8 +347,7 @@
                       document.getElementById('detected_format').innerHTML = formatIcon + format;
                       document.getElementById('format_type').value = formatValue;
 
-                      // Show visibility settings only for NDJSON format
-                      if (formatValue === 'ndjson') {
+                      if (formatValue === 'csv') {
                         document.getElementById('visibility_settings').style.display = 'block';
                       } else {
                         document.getElementById('visibility_settings').style.display = 'none';
@@ -222,210 +365,53 @@
                       // Hide visibility settings on error
                       document.getElementById('visibility_settings').style.display = 'none';
                     }
+                    if (document.getElementById('format_type').value == '') {
+                      document.getElementById('import_submit').setAttribute('disabled', '')
+                    } else {
+                      document.getElementById('import_submit').removeAttribute('disabled', '')
+                    }
                   });
                 });
               </script>
-              {% if neodb_import_task %}
-                {% include "users/user_task_status.html" with task=neodb_import_task %}
-              {% endif %}
+              {% include "users/user_task_status.html" with task=neodb_import_task %}
             </form>
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans 'Import Marks and Reviews from Douban' %}</summary>
-            <form action="{% url 'users:import_douban' %}"
-                  method="post"
-                  enctype="multipart/form-data">
+            <summary>{% trans 'Export NeoDB Archive' %}</summary>
+            <form hx-post="{% url 'users:export_csv' %}" enctype="multipart/form-data">
               {% csrf_token %}
-              {% blocktrans %}Select <code>.xlsx</code> exported from <a href="https://doufen.org" target="_blank" rel="noopener">Doufen</a>{% endblocktrans %}
-              <input type="file" name="file" id="excel" required accept=".xlsx">
-              <fieldset>
-                <legend>{% trans "Import Method" %}</legend>
-                <label for="import_mode_0">
-                  <input id="import_mode_0" type="radio" name="import_mode" value="0" checked>
-                  {% trans "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete." %}
-                </label>
-                <label for="import_mode_1">
-                  <input id="import_mode_1" type="radio" name="import_mode" value="1">
-                  {% trans "Overwrite: update all imported status." %}
-                </label>
-              </fieldset>
-              <p>
-                {% trans 'Visibility' %}:
-                <br>
-                <label for="id_visibility_0">
-                  <input type="radio"
-                         name="visibility"
-                         value="0"
-                         required=""
-                         id="id_visibility_0"
-                         checked>
-                  {% trans 'Public' %}
-                </label>
-                <label for="id_visibility_1">
-                  <input type="radio"
-                         name="visibility"
-                         value="1"
-                         required=""
-                         id="id_visibility_1">
-                  {% trans 'Followers Only' %}
-                </label>
-                <label for="id_visibility_2">
-                  <input type="radio"
-                         name="visibility"
-                         value="2"
-                         required=""
-                         id="id_visibility_2">
-                  {% trans 'Mentioned Only' %}
-                </label>
-              </p>
               <input type="submit"
-                     {% if import_task.status == "pending" %} onclick="return confirm('{% trans "Another import is in progress, starting a new import may cause issues, sure to import?" %}')" value="{% trans "Import in progress, please wait" %}" {% else %} value="{% trans 'Import' %}" {% endif %} />
+                     value="{% trans 'Export marks, reviews and notes in CSV' %}" />
+              {% include "users/user_task_status.html" with task=csv_export_task %}
             </form>
-            <div hx-get="{% url 'users:import_status' %}"
-                 hx-trigger="load delay:1s"
-                 hx-swap="outerHTML"></div>
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans 'Import Shelf or List from Goodreads' %}</summary>
-            <form action="{% url 'users:import_goodreads' %}" method="post">
+            <hr>
+            <form hx-post="{% url 'users:export_ndjson' %}"
+                  enctype="multipart/form-data">
               {% csrf_token %}
-              <div>
-                {% trans 'Link to Goodreads Profile / Shelf / List' %}
-                <input type="url"
-                       name="url"
-                       value=""
-                       placeholder="https://www.goodreads.com/user/show/12345-janedoe"
-                       required>
-                <input type="submit"  value="{% trans 'Import' %}" />
-                <small>
-                  {% if goodreads_task %}
-                    <br>
-                    {% trans 'Last import started' %}: {{ goodreads_task.created_time }}
-                    {% trans 'Status' %}: {{ goodreads_task.get_state_display }}。
-                    <br>
-                    {{ goodreads_task.message }}
-                  {% endif %}
-                </small>
-              </div>
-              <ul>
-                <li>
-                  Profile <code>https://www.goodreads.com/user/show/12345-janedoe</code>
-                  {% trans 'want-to-read / currently-reading / read books and their reviews will be imported.' %}
-                </li>
-                <li>
-                  Shelf <code>https://www.goodreads.com/review/list/12345-janedoe?shelf=name</code>
-                  {% trans 'Shelf will be imported as a new collection.' %}
-                </li>
-                <li>
-                  List <code>https://www.goodreads.com/list/show/155086.Popular_Highlights</code>
-                  {% trans 'List will be imported as a new collection.' %}
-                </li>
-                <li>
-                  <mark>Who Can View My Profile</mark> must be set as <mark>anyone</mark> prior to import.
-                </li>
-              </ul>
+              <input type="submit" value="{% trans 'Export everything in NDJSON' %}" />
+              {% include "users/user_task_status.html" with task=ndjson_export_task %}
             </form>
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans 'Import from Letterboxd' %}</summary>
-            <form action="{% url 'users:import_letterboxd' %}"
+            <hr>
+            <form action="{% url 'users:export_marks' %}"
                   method="post"
                   enctype="multipart/form-data">
               {% csrf_token %}
-              <ul>
-                <li>
-                  In letterboxd.com,
-                  <a href="https://letterboxd.com/settings/data/"
-                     target="_blank"
-                     rel="noopener">click DATA in Settings</a>;
-                  or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA
-                </li>
-                <li>
-                  download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip.
-                </li>
-              </ul>
-              <br>
-              <input type="file" name="file" required accept=".zip">
-              <p>
-                {% trans 'Visibility' %}:
+              <b>exporting to this format will be deprecated soon, please use csv or ndjson format.</b>
+              <input type="submit"
+                     class="secondary"
+                     value="{% trans 'Export marks and reviews in XLSX (Doufen format)' %}" />
+              {% if export_task %}
                 <br>
-                <label for="l_visibility_0">
-                  <input type="radio"
-                         name="visibility"
-                         value="0"
-                         required=""
-                         id="l_visibility_0"
-                         checked>
-                  {% trans 'Public' %}
-                </label>
-                <label for="l_visibility_1">
-                  <input type="radio"
-                         name="visibility"
-                         value="1"
-                         required=""
-                         id="l_visibility_1">
-                  {% trans 'Followers Only' %}
-                </label>
-                <label for="l_visibility_2">
-                  <input type="radio"
-                         name="visibility"
-                         value="2"
-                         required=""
-                         id="l_visibility_2">
-                  {% trans 'Mentioned Only' %}
-                </label>
-              </p>
-              <input type="submit" value="{% trans 'Import' %}" />
-              <small>
-                {% trans 'Only forward changes(none->to-watch->watched) will be imported.' %}
-                {% if letterboxd_task %}
-                  <br>
-                  {% trans 'Last import started' %}: {{ letterboxd_task.created_time }}
-                  {% trans 'Status' %}: {{ letterboxd_task.get_state_display }}。
-                  <br>
-                  {{ letterboxd_task.message }}
-                  {% if letterboxd_task.metadata.failed_urls %}
-                    {% trans 'Failed links, likely due to Letterboxd error, you may have to mark them manually' %}:
-                    <br>
-                    <textarea readonly>{% for url in letterboxd_task.metadata.failed_urls %}{{url}}&#10;{% endfor %}</textarea>
-                  {% endif %}
+                {% trans 'Last export' %}: {{ export_task.created_time }}
+                {% trans 'Status' %}: {{ export_task.get_state_display }}
+                <br>
+                {{ export_task.message }}
+                {% if export_task.metadata.file %}
+                  <a href="{% url 'users:export_marks' %}" download>{% trans 'Download' %}</a>
                 {% endif %}
-              </small>
-            </form>
-          </details>
-        </article>
-        <article>
-          <details>
-            <summary>{% trans 'Import Podcast Subscriptions' %}</summary>
-            <form action="{% url 'users:import_opml' %}"
-                  method="post"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <div>
-                {% trans 'Import Method' %}：
-                <label for="opml_import_mode_0">
-                  <input id="opml_import_mode_0"
-                         type="radio"
-                         name="import_mode"
-                         value="0"
-                         checked>
-                  {% trans 'Mark as listening' %}
-                </label>
-                <label for="opml_import_mode_1">
-                  <input id="opml_import_mode_1" type="radio" name="import_mode" value="1">
-                  {% trans 'Import as a new collection' %}
-                </label>
-                <br>
-                {% trans 'Select OPML file' %}
-                <input type="file" name="file" id="excel" required accept=".opml,.xml">
-                <input type="submit"  value="{% trans 'Import' %}" />
-              </div>
+              {% endif %}
             </form>
           </details>
         </article>
@@ -441,25 +427,6 @@
             </div>
           </details>
         </article>
-        {% comment %}
-        <article>
-          <details>
-            <summary>{% trans 'Reset visibility for all marks' %}</summary>
-            <form action="{% url 'users:reset_visibility' %}" method="post">
-              {% csrf_token %}
-              <input type="submit"  value="{% trans 'Reset' %}" />
-              <div>
-                <input type="radio" name="visibility" id="visPublic" value="0" checked>
-                <label for="visPublic">{% trans 'Public' %}</label>
-                <input type="radio" name="visibility" id="visFollower" value="1">
-                <label for="visFollower">{% trans 'Followers Only' %}</label>
-                <input type="radio" name="visibility" id="visSelf" value="2">
-                <label for="visSelf">{% trans 'Mentioned Only' %}</label>
-              </div>
-            </form>
-          </details>
-        </article>
-        {% endcomment %}
       </div>
       {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
     </main>

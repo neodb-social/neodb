@@ -1,4 +1,5 @@
 import csv
+import os
 import tempfile
 import zipfile
 from datetime import timedelta
@@ -34,6 +35,13 @@ class LetterboxdImporter(Task):
         "failed_urls": [],
         "file": None,
     }
+
+    @classmethod
+    def validate_file(cls, uploaded_file):
+        try:
+            return zipfile.is_zipfile(uploaded_file)
+        except Exception:
+            return False
 
     def get_item_by_url(self, url):
         try:
@@ -121,7 +129,6 @@ class LetterboxdImporter(Task):
         self.progress(1)
 
     def progress(self, mark_state: int, url=None):
-        self.metadata["total"] += 1
         self.metadata["processed"] += 1
         match mark_state:
             case 1:
@@ -142,49 +149,56 @@ class LetterboxdImporter(Task):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 logger.debug(f"Extracting {filename} to {tmpdirname}")
                 zipref.extractall(tmpdirname)
-                with open(tmpdirname + "/reviews.csv") as f:
-                    reader = csv.DictReader(f, delimiter=",")
-                    for row in reader:
-                        uris.add(row["Letterboxd URI"])
-                        self.mark(
-                            row["Letterboxd URI"],
-                            ShelfType.COMPLETE,
-                            row["Watched Date"],
-                            row["Rating"],
-                            row["Review"],
-                            row["Tags"],
-                        )
-                with open(tmpdirname + "/ratings.csv") as f:
-                    reader = csv.DictReader(f, delimiter=",")
-                    for row in reader:
-                        if row["Letterboxd URI"] in uris:
-                            continue
-                        uris.add(row["Letterboxd URI"])
-                        self.mark(
-                            row["Letterboxd URI"],
-                            ShelfType.COMPLETE,
-                            row["Date"],
-                            row["Rating"],
-                        )
-                with open(tmpdirname + "/watched.csv") as f:
-                    reader = csv.DictReader(f, delimiter=",")
-                    for row in reader:
-                        if row["Letterboxd URI"] in uris:
-                            continue
-                        uris.add(row["Letterboxd URI"])
-                        self.mark(
-                            row["Letterboxd URI"],
-                            ShelfType.COMPLETE,
-                            row["Date"],
-                        )
-                with open(tmpdirname + "/watchlist.csv") as f:
-                    reader = csv.DictReader(f, delimiter=",")
-                    for row in reader:
-                        if row["Letterboxd URI"] in uris:
-                            continue
-                        uris.add(row["Letterboxd URI"])
-                        self.mark(
-                            row["Letterboxd URI"],
-                            ShelfType.WISHLIST,
-                            row["Date"],
-                        )
+                if os.path.exists(tmpdirname + "/reviews.csv"):
+                    with open(tmpdirname + "/reviews.csv") as f:
+                        reader = csv.DictReader(f, delimiter=",")
+                        for row in reader:
+                            uris.add(row["Letterboxd URI"])
+                            self.mark(
+                                row["Letterboxd URI"],
+                                ShelfType.COMPLETE,
+                                row["Watched Date"],
+                                row["Rating"],
+                                row["Review"],
+                                row["Tags"],
+                            )
+                if os.path.exists(tmpdirname + "/ratings.csv"):
+                    with open(tmpdirname + "/ratings.csv") as f:
+                        reader = csv.DictReader(f, delimiter=",")
+                        for row in reader:
+                            if row["Letterboxd URI"] in uris:
+                                continue
+                            uris.add(row["Letterboxd URI"])
+                            self.mark(
+                                row["Letterboxd URI"],
+                                ShelfType.COMPLETE,
+                                row["Date"],
+                                row["Rating"],
+                            )
+                if os.path.exists(tmpdirname + "/watched.csv"):
+                    with open(tmpdirname + "/watched.csv") as f:
+                        reader = csv.DictReader(f, delimiter=",")
+                        for row in reader:
+                            if row["Letterboxd URI"] in uris:
+                                continue
+                            uris.add(row["Letterboxd URI"])
+                            self.mark(
+                                row["Letterboxd URI"],
+                                ShelfType.COMPLETE,
+                                row["Date"],
+                            )
+                if os.path.exists(tmpdirname + "/watchlist.csv"):
+                    with open(tmpdirname + "/watchlist.csv") as f:
+                        reader = csv.DictReader(f, delimiter=",")
+                        for row in reader:
+                            if row["Letterboxd URI"] in uris:
+                                continue
+                            uris.add(row["Letterboxd URI"])
+                            self.mark(
+                                row["Letterboxd URI"],
+                                ShelfType.WISHLIST,
+                                row["Date"],
+                            )
+        self.metadata["total"] = self.metadata["processed"]
+        self.message = f"{self.metadata['imported']} imported, {self.metadata['skipped']} skipped, {self.metadata['failed']} failed"
+        self.save(update_fields=["metadata", "message"])

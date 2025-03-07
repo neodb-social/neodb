@@ -11,6 +11,9 @@ urlpatterns = [
     path("info", account_info, name="info"),
     path("profile", account_profile, name="profile"),
     path("task/<str:task_type>/status", user_task_status, name="user_task_status"),
+    path(
+        "task/<str:task_type>/download", user_task_download, name="user_task_download"
+    ),
     path("data/import/status", data_import_status, name="import_status"),
     path("data/import/goodreads", import_goodreads, name="import_goodreads"),
     path("data/import/douban", import_douban, name="import_douban"),

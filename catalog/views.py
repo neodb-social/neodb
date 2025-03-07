@@ -86,7 +86,7 @@ def retrieve(request, item_path, item_uuid):
     if request.method == "HEAD":
         return HttpResponse()
     if request.headers.get("Accept", "").endswith("json"):
-        return JsonResponse(item.ap_object)
+        return JsonResponse(item.ap_object, content_type="application/activity+json")
     focus_item = None
     if request.GET.get("focus"):
         focus_item = get_object_or_404(

@@ -9,7 +9,7 @@ from loguru import logger
 
 from catalog.models import Edition, IdType, Movie, TVEpisode, TVSeason, TVShow
 from journal.exporters import CsvExporter
-from journal.importers import CsvImporter, get_neodb_importer
+from journal.importers import CsvImporter
 from users.models import User
 
 from ..models import *
@@ -219,10 +219,9 @@ class CsvExportImportTest(TestCase):
                             f"Expected file {filename} with {expected_data_count} data rows, but file not found"
                         )
 
-        self.assertEqual(get_neodb_importer(export_path), CsvImporter)
         importer = CsvImporter.create(user=self.user2, file=export_path, visibility=2)
         importer.run()
-        self.assertEqual(importer.message, "Import complete")
+        self.assertEqual(importer.message, "11 items imported, 0 skipped, 0 failed.")
 
         # Verify imported data
 

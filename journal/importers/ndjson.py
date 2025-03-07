@@ -4,7 +4,6 @@ import tempfile
 import zipfile
 from typing import Any, Dict
 
-from django.utils.translation import gettext as _
 from loguru import logger
 
 from journal.models import (
@@ -25,6 +24,9 @@ from .base import BaseImporter
 
 class NdjsonImporter(BaseImporter):
     """Importer for NDJSON files exported from NeoDB."""
+
+    class Meta:
+        app_label = "journal"  # workaround bug in TypedModel
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -60,8 +62,8 @@ class NdjsonImporter(BaseImporter):
                 metadata = item_entry.get("metadata", {})
                 collection.append_item(item, metadata=metadata)
             return "imported"
-        except Exception as e:
-            logger.error(f"Error importing collection: {e}")
+        except Exception:
+            logger.exception("Error importing collection")
             return "failed"
 
     def import_shelf_member(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
@@ -86,8 +88,8 @@ class NdjsonImporter(BaseImporter):
                 created_time=published_dt,
             )
             return "imported"
-        except Exception as e:
-            logger.error(f"Error importing shelf member: {e}")
+        except Exception:
+            logger.exception("Error importing shelf member")
             return "failed"
 
     def import_shelf_log(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
@@ -110,8 +112,8 @@ class NdjsonImporter(BaseImporter):
             # return "imported" if created else "skipped"
             # count skip as success otherwise it may confuse user
             return "imported"
-        except Exception as e:
-            logger.error(f"Error importing shelf log: {e}")
+        except Exception:
+            logger.exception("Error importing shelf log")
             return "failed"
 
     def import_post(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
@@ -152,8 +154,8 @@ class NdjsonImporter(BaseImporter):
                 metadata=metadata,
             )
             return "imported"
-        except Exception as e:
-            logger.error(f"Error importing review: {e}")
+        except Exception:
+            logger.exception("Error importing review")
             return "failed"
 
     def import_note(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
@@ -185,8 +187,8 @@ class NdjsonImporter(BaseImporter):
                 metadata=data.get("metadata", {}),
             )
             return "imported"
-        except Exception as e:
-            logger.error(f"Error importing note: {e}")
+        except Exception:
+            logger.exception("Error importing note")
             return "failed"
 
     def import_comment(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
@@ -218,8 +220,8 @@ class NdjsonImporter(BaseImporter):
                 metadata=metadata,
             )
             return "imported"
-        except Exception as e:
-            logger.error(f"Error importing comment: {e}")
+        except Exception:
+            logger.exception("Error importing comment")
             return "failed"
 
     def import_rating(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
@@ -251,8 +253,8 @@ class NdjsonImporter(BaseImporter):
                 metadata=metadata,
             )
             return "imported"
-        except Exception as e:
-            logger.error(f"Error importing rating: {e}")
+        except Exception:
+            logger.exception("Error importing rating")
             return "failed"
 
     def import_tag(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
@@ -271,8 +273,8 @@ class NdjsonImporter(BaseImporter):
                 },
             )
             return "imported" if created else "skipped"
-        except Exception as e:
-            logger.error(f"Error importing tag member: {e}")
+        except Exception:
+            logger.exception("Error importing tag member")
             return "failed"
 
     def import_tag_member(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
@@ -309,8 +311,8 @@ class NdjsonImporter(BaseImporter):
                 },
             )
             return "imported" if created else "skipped"
-        except Exception as e:
-            logger.error(f"Error importing tag member: {e}")
+        except Exception:
+            logger.exception("Error importing tag member")
             return "failed"
 
     def process_journal(self, file_path: str) -> None:
@@ -348,6 +350,9 @@ class NdjsonImporter(BaseImporter):
                 journal[data_type].append(data)
 
         self.metadata["total"] = sum(len(items) for items in journal.values())
+        self.message = f"found {self.metadata['total']} records to import"
+        self.save(update_fields=["metadata", "message"])
+
         logger.debug(f"Processing {self.metadata['total']} entries")
         if lines_error:
             logger.error(f"Error processing journal.ndjson: {lines_error} lines")
@@ -369,8 +374,8 @@ class NdjsonImporter(BaseImporter):
                 for line in jsonfile:
                     try:
                         i = json.loads(line)
-                    except (json.JSONDecodeError, Exception) as e:
-                        logger.error(f"Error processing catalog item: {e}")
+                    except (json.JSONDecodeError, Exception):
+                        logger.exception("Error processing catalog item")
                         continue
                     u = i.get("id")
                     if not u:
@@ -381,8 +386,8 @@ class NdjsonImporter(BaseImporter):
                     self.items[u] = self.get_item_by_info_and_links("", "", links)
             logger.info(f"Loaded {item_count} items from catalog")
             self.metadata["catalog_processed"] = item_count
-        except Exception as e:
-            logger.error(f"Error parsing catalog file: {e}")
+        except Exception:
+            logger.exception("Error parsing catalog file")
 
     def parse_header(self, file_path: str) -> Dict[str, Any]:
         try:
@@ -392,8 +397,8 @@ class NdjsonImporter(BaseImporter):
                     header = json.loads(first_line)
                     if header.get("server"):
                         return header
-        except (json.JSONDecodeError, IOError) as e:
-            logger.error(f"Error parsing NDJSON header: {e}")
+        except (json.JSONDecodeError, IOError):
+            logger.exception("Error parsing header")
         return {}
 
     def run(self) -> None:
@@ -424,24 +429,5 @@ class NdjsonImporter(BaseImporter):
                 logger.debug(f"Importing journal.ndjson with {header}")
                 self.process_journal(journal_path)
 
-        source_info = self.metadata.get("journal_header", {})
-        source_summary = f" from {source_info.get('username', 'unknown')}@{source_info.get('server', 'unknown')} ver:{source_info.get('neodb_version', 'unknown')}."
-        self.message = _("Import complete") + source_summary
-
-        metadata_stats = self.metadata.get("metadata_stats", {})
-        partial_updates = metadata_stats.get("partial_updates", 0)
-        if partial_updates > 0:
-            self.message += f", {partial_updates} items with partial metadata updates"
-
-        ratings = metadata_stats.get("ratings_updated", 0)
-        comments = metadata_stats.get("comments_updated", 0)
-        tags = metadata_stats.get("tags_updated", 0)
-
-        if ratings > 0 or comments > 0 or tags > 0:
-            self.message += (
-                f" ({ratings} ratings, {comments} comments, {tags} tag sets)"
-            )
-
-        if self.metadata.get("failed_items", []):
-            self.message += f": {self.metadata['failed']} items failed ({len(self.metadata['failed_items'])} unique items)"
+        self.message = f"{self.metadata['imported']} items imported, {self.metadata['skipped']} skipped, {self.metadata['failed']} failed."
         self.save()

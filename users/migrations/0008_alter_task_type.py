@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
             name="type",
             field=models.CharField(
                 choices=[
+                    ("journal.baseimporter", "base importer"),
                     ("journal.csvexporter", "csv exporter"),
                     ("journal.csvimporter", "csv importer"),
                     ("journal.doubanimporter", "douban importer"),
@@ -21,6 +22,8 @@ class Migration(migrations.Migration):
                     ("journal.goodreadsimporter", "goodreads importer"),
                     ("journal.letterboxdimporter", "letterboxd importer"),
                     ("journal.ndjsonexporter", "ndjson exporter"),
+                    ("journal.ndjsonimporter", "ndjson importer"),
+                    ("journal.opmlimporter", "opml importer"),
                 ],
                 db_index=True,
                 max_length=255,

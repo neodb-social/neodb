@@ -4,6 +4,7 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import BadRequest
 from django.db.models import Min
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -20,7 +21,6 @@ from journal.importers import (
     LetterboxdImporter,
     NdjsonImporter,
     OPMLImporter,
-    get_neodb_importer,
 )
 from journal.models import ShelfType
 from takahe.utils import Takahe
@@ -97,7 +97,6 @@ def data(request):
     # Import tasks - check for both CSV and NDJSON importers
     csv_import_task = CsvImporter.latest_task(request.user)
     ndjson_import_task = NdjsonImporter.latest_task(request.user)
-
     # Use the most recent import task for display
     if ndjson_import_task and (
         not csv_import_task
@@ -119,6 +118,7 @@ def data(request):
             "ndjson_export_task": NdjsonExporter.latest_task(request.user),
             "letterboxd_task": LetterboxdImporter.latest_task(request.user),
             "goodreads_task": GoodreadsImporter.latest_task(request.user),
+            # "opml_task": OPMLImporter.latest_task(request.user),
             "years": years,
         },
     )
@@ -150,12 +150,36 @@ def user_task_status(request, task_type: str):
             task_cls = LetterboxdImporter
         case "journal.goodreadsimporter":
             task_cls = GoodreadsImporter
+        case "journal.opmlimporter":
+            task_cls = OPMLImporter
         case "journal.doubanimporter":
             task_cls = DoubanImporter
         case _:
             return redirect(reverse("users:data"))
     task = task_cls.latest_task(request.user)
     return render(request, "users/user_task_status.html", {"task": task})
+
+
+@login_required
+def user_task_download(request, task_type: str):
+    match task_type:
+        case "journal.csvexporter":
+            task_cls = CsvExporter
+        case "journal.ndjsonexporter":
+            task_cls = NdjsonExporter
+        case _:
+            return redirect(reverse("users:data"))
+    task = task_cls.latest_task(request.user)
+    if not task or task.state != Task.States.complete or not task.metadata.get("file"):
+        messages.add_message(request, messages.ERROR, _("Export file not available."))
+        return redirect(reverse("users:data"))
+    response = HttpResponse()
+    response["X-Accel-Redirect"] = (
+        settings.MEDIA_URL + task.metadata["file"][len(settings.MEDIA_ROOT) :]
+    )
+    response["Content-Type"] = "application/zip"
+    response["Content-Disposition"] = f'attachment; filename="{task.filename}.zip"'
+    return response
 
 
 @login_required
@@ -167,6 +191,7 @@ def export_reviews(request):
 
 @login_required
 def export_marks(request):
+    # TODO: deprecated
     if request.method == "POST":
         DoufenExporter.create(request.user).enqueue()
         messages.add_message(request, messages.INFO, _("Generating exports."))
@@ -206,22 +231,10 @@ def export_csv(request):
             )
             return redirect(reverse("users:data"))
         CsvExporter.create(request.user).enqueue()
-        messages.add_message(request, messages.INFO, _("Generating exports."))
-        return redirect(reverse("users:data"))
-    else:
-        task = CsvExporter.latest_task(request.user)
-        if not task or task.state != Task.States.complete:
-            messages.add_message(
-                request, messages.ERROR, _("Export file not available.")
-            )
-            return redirect(reverse("users:data"))
-        response = HttpResponse()
-        response["X-Accel-Redirect"] = (
-            settings.MEDIA_URL + task.metadata["file"][len(settings.MEDIA_ROOT) :]
+        return redirect(
+            reverse("users:user_task_status", args=("journal.csvexporter",))
         )
-        response["Content-Type"] = "application/zip"
-        response["Content-Disposition"] = f'attachment; filename="{task.filename}.zip"'
-        return response
+    return redirect(reverse("users:data"))
 
 
 @login_required
@@ -238,22 +251,10 @@ def export_ndjson(request):
             )
             return redirect(reverse("users:data"))
         NdjsonExporter.create(request.user).enqueue()
-        messages.add_message(request, messages.INFO, _("Generating exports."))
-        return redirect(reverse("users:data"))
-    else:
-        task = NdjsonExporter.latest_task(request.user)
-        if not task or task.state != Task.States.complete:
-            messages.add_message(
-                request, messages.ERROR, _("Export file not available.")
-            )
-            return redirect(reverse("users:data"))
-        response = HttpResponse()
-        response["X-Accel-Redirect"] = (
-            settings.MEDIA_URL + task.metadata["file"][len(settings.MEDIA_ROOT) :]
+        return redirect(
+            reverse("users:user_task_status", args=("journal.ndjsonexporter",))
         )
-        response["Content-Type"] = "application/zip"
-        response["Content-Disposition"] = f'attachment; filename="{task.filename}.zip"'
-        return response
+    return redirect(reverse("users:data"))
 
 
 @login_required
@@ -280,24 +281,26 @@ def sync_mastodon_preference(request):
 
 @login_required
 def import_goodreads(request):
-    if request.method == "POST":
-        raw_url = request.POST.get("url")
-        if GoodreadsImporter.validate_url(raw_url):
-            GoodreadsImporter.create(
-                request.user,
-                visibility=int(request.POST.get("visibility", 0)),
-                url=raw_url,
-            ).enqueue()
-            messages.add_message(request, messages.INFO, _("Import in progress."))
-        else:
-            messages.add_message(request, messages.ERROR, _("Invalid URL."))
-    return redirect(reverse("users:data"))
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    raw_url = request.POST.get("url")
+    if not GoodreadsImporter.validate_url(raw_url):
+        raise BadRequest(_("Invalid URL."))
+    task = GoodreadsImporter.create(
+        request.user,
+        visibility=int(request.POST.get("visibility", 0)),
+        url=raw_url,
+    )
+    task.enqueue()
+    return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
 @login_required
 def import_douban(request):
     if request.method != "POST":
         return redirect(reverse("users:data"))
+    if not DoubanImporter.validate_file(request.FILES["file"]):
+        raise BadRequest(_("Invalid file."))
     f = (
         settings.MEDIA_ROOT
         + "/"
@@ -307,64 +310,75 @@ def import_douban(request):
     with open(f, "wb+") as destination:
         for chunk in request.FILES["file"].chunks():
             destination.write(chunk)
-    if not DoubanImporter.validate_file(request.FILES["file"]):
-        messages.add_message(request, messages.ERROR, _("Invalid file."))
-        return redirect(reverse("users:data"))
-    DoubanImporter.create(
+    task = DoubanImporter.create(
         request.user,
         visibility=int(request.POST.get("visibility", 0)),
         mode=int(request.POST.get("import_mode", 0)),
         file=f,
-    ).enqueue()
-    messages.add_message(
-        request, messages.INFO, _("File is uploaded and will be imported soon.")
     )
-    return redirect(reverse("users:data"))
+    task.enqueue()
+    return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
 @login_required
 def import_letterboxd(request):
-    if request.method == "POST":
-        f = (
-            settings.MEDIA_ROOT
-            + "/"
-            + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
-        )
-        os.makedirs(os.path.dirname(f), exist_ok=True)
-        with open(f, "wb+") as destination:
-            for chunk in request.FILES["file"].chunks():
-                destination.write(chunk)
-        LetterboxdImporter.create(
-            request.user,
-            visibility=int(request.POST.get("visibility", 0)),
-            file=f,
-        ).enqueue()
-        messages.add_message(
-            request, messages.INFO, _("File is uploaded and will be imported soon.")
-        )
-    return redirect(reverse("users:data"))
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    if not LetterboxdImporter.validate_file(request.FILES["file"]):
+        raise BadRequest(_("Invalid file."))
+    f = (
+        settings.MEDIA_ROOT
+        + "/"
+        + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
+    )
+    os.makedirs(os.path.dirname(f), exist_ok=True)
+    with open(f, "wb+") as destination:
+        for chunk in request.FILES["file"].chunks():
+            destination.write(chunk)
+    task = LetterboxdImporter.create(
+        request.user,
+        visibility=int(request.POST.get("visibility", 0)),
+        file=f,
+    )
+    task.enqueue()
+    return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
 @login_required
 def import_opml(request):
-    if request.method == "POST":
-        importer = OPMLImporter(
-            request.user,
-            int(request.POST.get("visibility", 0)),
-            int(request.POST.get("import_mode", 0)),
-        )
-        if importer.import_from_file(request.FILES["file"]):
-            messages.add_message(
-                request, messages.INFO, _("File is uploaded and will be imported soon.")
-            )
-        else:
-            messages.add_message(request, messages.ERROR, _("Invalid file."))
-    return redirect(reverse("users:data"))
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    if not OPMLImporter.validate_file(request.FILES["file"]):
+        raise BadRequest(_("Invalid file."))
+    f = (
+        settings.MEDIA_ROOT
+        + "/"
+        + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
+    )
+    os.makedirs(os.path.dirname(f), exist_ok=True)
+    with open(f, "wb+") as destination:
+        for chunk in request.FILES["file"].chunks():
+            destination.write(chunk)
+    task = OPMLImporter.create(
+        request.user,
+        visibility=int(request.POST.get("visibility", 0)),
+        mode=int(request.POST.get("import_mode", 0)),
+        file=f,
+    )
+    task.enqueue()
+    return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
 @login_required
 def import_neodb(request):
     if request.method == "POST":
+        format_type_hint = request.POST.get("format_type", "").lower()
+        if format_type_hint == "csv":
+            importer = CsvImporter
+        elif format_type_hint == "ndjson":
+            importer = NdjsonImporter
+        else:
+            raise BadRequest("Invalid file.")
         f = (
             settings.MEDIA_ROOT
             + "/"
@@ -374,49 +388,11 @@ def import_neodb(request):
         with open(f, "wb+") as destination:
             for chunk in request.FILES["file"].chunks():
                 destination.write(chunk)
-
-        # Get format type hint from frontend, if provided
-        format_type_hint = request.POST.get("format_type", "").lower()
-
-        # Import appropriate class based on format type or auto-detect
-        from journal.importers import CsvImporter, NdjsonImporter
-
-        if format_type_hint == "csv":
-            importer = CsvImporter
-            format_type = "CSV"
-        elif format_type_hint == "ndjson":
-            importer = NdjsonImporter
-            format_type = "NDJSON"
-        else:
-            # Fall back to auto-detection if no hint provided
-            importer = get_neodb_importer(f)
-            if importer == CsvImporter:
-                format_type = "CSV"
-            elif importer == NdjsonImporter:
-                format_type = "NDJSON"
-            else:
-                format_type = ""
-                importer = None  # Make sure importer is None if auto-detection fails
-
-        if not importer:
-            messages.add_message(
-                request,
-                messages.ERROR,
-                _(
-                    "Invalid file. Expected a ZIP containing either CSV or NDJSON files exported from NeoDB."
-                ),
-            )
-            return redirect(reverse("users:data"))
-
-        importer.create(
+        task = importer.create(
             request.user,
             visibility=int(request.POST.get("visibility", 0)),
             file=f,
-        ).enqueue()
-
-        messages.add_message(
-            request,
-            messages.INFO,
-            _(f"{format_type} file is uploaded and will be imported soon."),
         )
+        task.enqueue()
+        return redirect(reverse("users:user_task_status", args=(task.type,)))
     return redirect(reverse("users:data"))

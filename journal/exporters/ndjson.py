@@ -215,5 +215,5 @@ class NdjsonExporter(Task):
 
         self.metadata["file"] = filename
         self.metadata["total"] = total
-        self.message = "Export complete."
+        self.message = f"{total} records exported."
         self.save()

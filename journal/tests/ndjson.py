@@ -18,7 +18,7 @@ from catalog.models import (
     TVShow,
 )
 from journal.exporters import NdjsonExporter
-from journal.importers import NdjsonImporter, get_neodb_importer
+from journal.importers import NdjsonImporter
 from users.models import User
 
 from ..models import *
@@ -363,12 +363,11 @@ class NdjsonExportImportTest(TestCase):
                     self.assertEqual(type_counts["ShelfLog"], logs.count())
 
         # Now import the export file into a different user account
-        self.assertEqual(get_neodb_importer(export_path), NdjsonImporter)
         importer = NdjsonImporter.create(
             user=self.user2, file=export_path, visibility=2
         )
         importer.run()
-        self.assertIn("Import complete", importer.message)
+        self.assertIn("61 items imported, 0 skipped, 0 failed.", importer.message)
 
         # Verify imported data
 

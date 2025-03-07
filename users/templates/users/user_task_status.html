@@ -1,20 +1,33 @@
 {% load i18n %}
-<div hx-target="this"
-     {% if task.state == 0 or task.state == 1 %} hx-get="{% url 'users:user_task_status' task.type %}" hx-trigger="intersect once, every 30s"{% endif %}
-     hx-swap="outerHTML">
-  {% trans 'Requested' %}: {{ task.created_time }}
-  ({{ task.get_state_display }})
-  {{ task.message }}
-  {% if task.state == 0 or task.state == 1 %}
-    {% if task.metadata.total and task.metadata.processed %}
-      <div>
-        <progress value="{{ task.metadata.processed }}" max="{{ task.metadata.total }}"></progress>
-      </div>
+{% if task %}
+  <div hx-target="this"
+       {% if task.state == 0 or task.state == 1 %} hx-get="{% url 'users:user_task_status' task.type %}" hx-trigger="every 30s"{% endif %}
+       hx-swap="outerHTML">
+    <div>
+      {% if task.state == 0 %}
+        <i class="fa-solid fa-spinner fa-spin"></i>
+      {% elif task.state == 1 %}
+        <i class="fa-solid fa-gear fa-spin"></i>
+      {% elif task.state == 3 %}
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      {% elif 'exporter' in task.type %}
+        <a href="{% url 'users:user_task_download' task.type %}" download><i class="fa fa-download"></i></a>
+      {% else %}
+        <i class="fa-solid fa-check"></i>
+      {% endif %}
+      {{ task.created_time }}
+      {{ task.message }}
+    </div>
+    {% if task.state == 0 or task.state == 1 %}
+      {% if task.metadata.total and task.metadata.processed %}
+        <div>
+          <progress value="{{ task.metadata.processed }}" max="{{ task.metadata.total }}"></progress>
+        </div>
+      {% endif %}
     {% endif %}
-  {% endif %}
-  {% if task.metadata.failed_items %}
-    {% trans 'Failed items' %}:
-    <br>
-    <textarea readonly>{% for item in task.metadata.failed_items %}{{item}}&#10;{% endfor %}</textarea>
-  {% endif %}
-</div>
+    {% if task.metadata.failed_items %}
+      {% trans 'Failed items' %}:
+      <textarea readonly>{% for item in task.metadata.failed_items %}{{item}}&#10;{% endfor %}</textarea>
+    {% endif %}
+  </div>
+{% endif %}

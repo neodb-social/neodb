@@ -5,7 +5,6 @@ import zipfile
 from typing import Dict
 
 from django.utils import timezone
-from django.utils.translation import gettext as _
 from loguru import logger
 
 from catalog.models import ItemCategory
@@ -15,6 +14,9 @@ from .base import BaseImporter
 
 
 class CsvImporter(BaseImporter):
+    class Meta:
+        app_label = "journal"  # workaround bug in TypedModel
+
     def import_mark(self, row: Dict[str, str]) -> str:
         """Import a mark from a CSV row.
 
@@ -249,7 +251,7 @@ class CsvImporter(BaseImporter):
 
                 # Set the total count in metadata
                 self.metadata["total"] = total_rows
-                self.message = f"Found {total_rows} items to import"
+                self.message = f"found {total_rows} records to import"
                 self.save(update_fields=["metadata", "message"])
 
                 # Now process all files
@@ -257,7 +259,5 @@ class CsvImporter(BaseImporter):
                     import_function = getattr(self, f"import_{file_type}")
                     self.process_csv_file(file_path, import_function)
 
-        self.message = _("Import complete")
-        if self.metadata.get("failed_items", []):
-            self.message += f": {self.metadata['failed']} items failed ({len(self.metadata['failed_items'])} unique items)"
+        self.message = f"{self.metadata['imported']} items imported, {self.metadata['skipped']} skipped, {self.metadata['failed']} failed."
         self.save()

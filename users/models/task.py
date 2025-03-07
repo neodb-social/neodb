@@ -82,7 +82,6 @@ class Task(TypedModel):
         task.refresh_from_db()
         task.state = cls.States.complete if ok else cls.States.failed
         task.save()
-        task.notify()
 
     def enqueue(self):
         return django_rq.get_queue(self.TaskQueue).enqueue(

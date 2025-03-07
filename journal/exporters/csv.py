@@ -171,5 +171,5 @@ class CsvExporter(Task):
         shutil.make_archive(filename[:-4], "zip", temp_folder_path)
         self.metadata["file"] = filename
         self.metadata["total"] = total
-        self.message = "Export complete."
+        self.message = f"{total} records exported."
         self.save()

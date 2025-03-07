@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import DisallowedHost
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
@@ -81,36 +81,41 @@ def nodeinfo2(request):
     )
 
 
-def _is_json_request(request) -> bool:
-    return request.headers.get("HTTP_ACCEPT", "").endswith("json")
+def _error_response(request, status: int, exception=None, default_message=""):
+    message = str(exception) if exception else default_message
+    if request.headers.get("HTTP_ACCEPT").endswith("json"):
+        return JsonResponse({"error": message}, status=status)
+    if (
+        request.headers.get("HTTP_HX_REQUEST") is not None
+        and request.headers.get("HTTP_HX_BOOSTED") is None
+    ):
+        return HttpResponse(message, status=status)
+    return render(
+        request,
+        f"{status}.html",
+        status=status,
+        context={"message": message, "exception": exception},
+    )
 
 
 def error_400(request, exception=None):
     if isinstance(exception, DisallowedHost):
         url = settings.SITE_INFO["site_url"] + request.get_full_path()
         return redirect(url, permanent=True)
-    if _is_json_request(request):
-        return JsonResponse({"error": "invalid request"}, status=400)
-    return render(request, "400.html", status=400, context={"exception": exception})
+    return _error_response(request, 400, exception, "invalid request")
 
 
 def error_403(request, exception=None):
-    if _is_json_request(request):
-        return JsonResponse({"error": "forbidden"}, status=403)
-    return render(request, "403.html", status=403, context={"exception": exception})
+    return _error_response(request, 403, exception, "forbidden")
 
 
 def error_404(request, exception=None):
-    if _is_json_request(request):
-        return JsonResponse({"error": "not found"}, status=404)
     request.session.pop("next_url", None)
-    return render(request, "404.html", status=404, context={"exception": exception})
+    return _error_response(request, 404, exception, "not found")
 
 
 def error_500(request, exception=None):
-    if _is_json_request(request):
-        return JsonResponse({"error": "something wrong"}, status=500)
-    return render(request, "500.html", status=500, context={"exception": exception})
+    return _error_response(request, 500, exception, "something wrong")
 
 
 def console(request):

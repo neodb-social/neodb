@@ -11,6 +11,16 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name="BaseImporter",
+            fields=[],
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
+            bases=("users.task",),
+        ),
+        migrations.CreateModel(
             name="CsvImporter",
             fields=[],
             options={
@@ -19,5 +29,25 @@ class Migration(migrations.Migration):
                 "constraints": [],
             },
             bases=("users.task",),
+        ),
+        migrations.CreateModel(
+            name="OPMLImporter",
+            fields=[],
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
+            bases=("users.task",),
+        ),
+        migrations.CreateModel(
+            name="NdjsonImporter",
+            fields=[],
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
+            bases=("journal.baseimporter",),
         ),
     ]

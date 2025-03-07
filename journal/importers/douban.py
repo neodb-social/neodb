@@ -154,6 +154,8 @@ class DoubanImporter(Task):
     def run(self):
         logger.info(f"{self.user} import start")
         self.load_sheets()
+        self.message = f"豆瓣标记和评论导入开始，共{self.metadata['total']}篇。"
+        self.save(update_fields=["message"])
         logger.info(f"{self.user} sheet loaded, {self.metadata['total']} lines total")
         for name, param in self.mark_sheet_config.items():
             self.import_mark_sheet(self.mark_data[name], param[0], name)
