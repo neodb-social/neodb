@@ -771,22 +771,22 @@ class Item(PolymorphicModel):
         return not self.is_deleted and self.merged_to_item is None
 
     @cached_property
-    def rating(self):
+    def rating_info(self):
         from journal.models import Rating
 
-        return Rating.get_rating_for_item(self)
+        return Rating.get_info_for_item(self)
+
+    @property
+    def rating(self):
+        return self.rating_info.get("average")
 
     @cached_property
     def rating_count(self):
-        from journal.models import Rating
-
-        return Rating.get_rating_count_for_item(self)
+        return self.rating_info.get("count")
 
     @cached_property
     def rating_distribution(self):
-        from journal.models import Rating
-
-        return Rating.get_rating_distribution_for_item(self)
+        return self.rating_info.get("distribution")
 
     @cached_property
     def tags(self):
