@@ -18,6 +18,7 @@ from journal.models import (
     Tag,
     TagMember,
 )
+from takahe.utils import Takahe
 
 from .base import BaseImporter
 
@@ -401,6 +402,47 @@ class NdjsonImporter(BaseImporter):
             logger.exception("Error parsing header")
         return {}
 
+    def process_actor(self, file_path: str) -> None:
+        """Process the actor.ndjson file to update user identity information."""
+        logger.debug(f"Processing actor data from {file_path}")
+        try:
+            with open(file_path, "r") as jsonfile:
+                next(jsonfile, None)
+                for line in jsonfile:
+                    try:
+                        data = json.loads(line)
+                    except json.JSONDecodeError:
+                        logger.error("Error parsing actor data line")
+                        continue
+
+                    if data.get("type") == "Identity":
+                        logger.debug("Found identity data in actor.ndjson")
+                        takahe_identity = self.user.identity.takahe_identity
+                        updated = False
+                        if (
+                            data.get("name")
+                            and data.get("name") != takahe_identity.name
+                        ):
+                            logger.debug(
+                                f"Updating identity name from {takahe_identity.name} to {data.get('name')}"
+                            )
+                            takahe_identity.name = data.get("name")
+                            updated = True
+                        if (
+                            data.get("summary")
+                            and data.get("summary") != takahe_identity.summary
+                        ):
+                            logger.debug("Updating identity summary")
+                            takahe_identity.summary = data.get("summary")
+                            updated = True
+                        if updated:
+                            takahe_identity.save()
+                            Takahe.update_state(takahe_identity, "edited")
+                            logger.info("Updated identity")
+                            return
+        except Exception as e:
+            logger.exception(f"Error processing actor file: {e}")
+
     def run(self) -> None:
         """Run the NDJSON import."""
         filename = self.metadata["file"]
@@ -409,6 +451,15 @@ class NdjsonImporter(BaseImporter):
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 zipref.extractall(tmpdirname)
+
+                # Process actor data first if available
+                actor_path = os.path.join(tmpdirname, "actor.ndjson")
+                if os.path.exists(actor_path):
+                    actor_header = self.parse_header(actor_path)
+                    logger.debug(f"Found actor.ndjson with {actor_header}")
+                    self.process_actor(actor_path)
+                else:
+                    logger.debug("No actor.ndjson file found in the archive")
 
                 catalog_path = os.path.join(tmpdirname, "catalog.ndjson")
                 if os.path.exists(catalog_path):

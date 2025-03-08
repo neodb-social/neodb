@@ -205,6 +205,7 @@ class BasicDownloader:
             )
             return resp, response_type
         except RequestException as e:
+            # logger.debug(f"RequestException: {e}")
             self.logs.append(
                 {"response_type": RESPONSE_NETWORK_ERROR, "url": url, "exception": e}
             )
@@ -340,16 +341,19 @@ class ImageDownloaderMixin:
     def validate_response(self, response):
         if response and response.status_code == 200:
             try:
-                raw_img = response.content
-                img = Image.open(BytesIO(raw_img))
-                img.load()  # corrupted image will trigger exception
-                content_type = response.headers.get("Content-Type")
+                content_type = response.headers["content-type"]
+                if content_type.startswith("image/svg+xml"):
+                    self.extention = "svg"
+                    return RESPONSE_OK
                 file_type = filetype.get_type(
                     mime=content_type.partition(";")[0].strip()
                 )
                 if file_type is None:
                     return RESPONSE_NETWORK_ERROR
                 self.extention = file_type.extension
+                raw_img = response.content
+                img = Image.open(BytesIO(raw_img))
+                img.load()  # corrupted image will trigger exception
                 return RESPONSE_OK
             except Exception:
                 return RESPONSE_NETWORK_ERROR

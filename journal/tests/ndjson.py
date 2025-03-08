@@ -105,7 +105,12 @@ class NdjsonExportImportTest(TestCase):
         )
 
     def test_ndjson_export_import(self):
-        # Create marks, reviews and notes for user1
+        # set name and summary for user1
+        identity1 = self.user1.identity
+        takahe_identity1 = identity1.takahe_identity
+        takahe_identity1.name = "Test User"
+        takahe_identity1.summary = "Test summary"
+        takahe_identity1.save()
 
         # Book marks with ratings and tags
         mark_book1 = Mark(self.user1.identity, self.book1)
@@ -289,6 +294,7 @@ class NdjsonExportImportTest(TestCase):
         export_path = exporter.metadata["file"]
         logger.debug(f"exported to {export_path}")
         self.assertTrue(os.path.exists(export_path))
+        self.assertEqual(exporter.metadata["total"], 61)
 
         # Validate the NDJSON export file structure
         with TemporaryDirectory() as extract_dir:
@@ -370,7 +376,12 @@ class NdjsonExportImportTest(TestCase):
         self.assertIn("61 items imported, 0 skipped, 0 failed.", importer.message)
 
         # Verify imported data
+        identity2 = self.user2.identity
+        takahe_identity2 = identity2.takahe_identity
 
+        # Check that name and summary were updated
+        self.assertEqual(takahe_identity2.name, "Test User")
+        self.assertEqual(takahe_identity2.summary, "Test summary")
         # Check marks
         mark_book1_imported = Mark(self.user2.identity, self.book1)
         self.assertEqual(mark_book1_imported.shelf_type, ShelfType.COMPLETE)

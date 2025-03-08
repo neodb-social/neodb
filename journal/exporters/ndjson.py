@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import tempfile
+import uuid
 
 from django.conf import settings
 from django.utils import timezone
@@ -65,13 +66,15 @@ class NdjsonExporter(Task):
 
         def _save_image(url):
             if url.startswith("http"):
-                imgdl = ProxiedImageDownloader(url)
-                raw_img = imgdl.download().content
-                ext = imgdl.extention
-                file = GenerateDateUUIDMediaFilePath(f"x.{ext}", attachment_path)
-                with open(file, "wb") as binary_file:
-                    binary_file.write(raw_img)
-                return file
+                try:
+                    raw_img, ext = ProxiedImageDownloader.download_image(url, "")
+                    if raw_img:
+                        file = "%s/%s.%s" % (attachment_path, uuid.uuid4(), ext)
+                        with open(file, "wb") as binary_file:
+                            binary_file.write(raw_img)
+                        return file
+                except Exception:
+                    logger.debug(f"error downloading {url}")
             elif url.startswith("/"):
                 p = os.path.abspath(
                     os.path.join(settings.MEDIA_ROOT, url[len(settings.MEDIA_URL) :])
@@ -79,11 +82,8 @@ class NdjsonExporter(Task):
                 if p.startswith(settings.MEDIA_ROOT):
                     try:
                         shutil.copy2(p, attachment_path)
-                    except Exception as e:
-                        logger.error(
-                            f"error copying {p} to {attachment_path}",
-                            extra={"exception": e},
-                        )
+                    except Exception:
+                        logger.error(f"error copying {p} to {attachment_path}")
                 return p
             return url
 
@@ -205,6 +205,25 @@ class NdjsonExporter(Task):
             f.write(json.dumps(self.get_header()) + "\n")
             for item in self.ref_items:
                 f.write(json.dumps(item.ap_object, default=str) + "\n")
+
+        # Export actor.ndjson with Takahe identity data
+        filename = os.path.join(temp_folder_path, "actor.ndjson")
+        with open(filename, "w") as f:
+            f.write(json.dumps(self.get_header()) + "\n")
+            takahe_identity = self.user.identity.takahe_identity
+            identity_data = {
+                "type": "Identity",
+                "username": takahe_identity.username,
+                "domain": takahe_identity.domain_id,
+                "actor_uri": takahe_identity.actor_uri,
+                "name": takahe_identity.name,
+                "summary": takahe_identity.summary,
+                "metadata": takahe_identity.metadata,
+                "private_key": takahe_identity.private_key,
+                "public_key": takahe_identity.public_key,
+                "public_key_id": takahe_identity.public_key_id,
+            }
+            f.write(json.dumps(identity_data, default=str) + "\n")
 
         filename = GenerateDateUUIDMediaFilePath(
             "f.zip", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
