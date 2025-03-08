@@ -65,23 +65,34 @@ class ShelfTest(TestCase):
         self.assertEqual(q1.members.all().count(), 0)
         self.assertEqual(q2.members.all().count(), 0)
         Mark(user.identity, book1).update(ShelfType.WISHLIST)
-        time.sleep(0.001)  # add a little delay to make sure the timestamp is different
         Mark(user.identity, book2).update(ShelfType.WISHLIST)
+        log = [ll.shelf_type for ll in shelf_manager.get_log_for_item(book1)]
+        self.assertEqual(log, ["wishlist"])
+        log = [ll.shelf_type for ll in shelf_manager.get_log_for_item(book2)]
+        self.assertEqual(log, ["wishlist"])
+        time.sleep(0.001)  # add a little delay to make sure the timestamp is different
+
+        Mark(user.identity, book1).update(ShelfType.WISHLIST)
+        log = [ll.shelf_type for ll in shelf_manager.get_log_for_item(book1)]
+        self.assertEqual(log, ["wishlist"])
         time.sleep(0.001)
+
         self.assertEqual(q1.members.all().count(), 2)
         Mark(user.identity, book1).update(ShelfType.PROGRESS)
-        time.sleep(0.001)
         self.assertEqual(q1.members.all().count(), 1)
         self.assertEqual(q2.members.all().count(), 1)
+        time.sleep(0.001)
+
         self.assertEqual(len(Mark(user.identity, book1).all_post_ids), 2)
-        log = shelf_manager.get_log_for_item(book1)
-        self.assertEqual(log.count(), 2)
+        log = [ll.shelf_type for ll in shelf_manager.get_log_for_item(book1)]
+
+        self.assertEqual(log, ["wishlist", "progress"])
         Mark(user.identity, book1).update(ShelfType.PROGRESS, metadata={"progress": 1})
         time.sleep(0.001)
         self.assertEqual(q1.members.all().count(), 1)
         self.assertEqual(q2.members.all().count(), 1)
-        log = shelf_manager.get_log_for_item(book1)
-        self.assertEqual(log.count(), 2)
+        log = [ll.shelf_type for ll in shelf_manager.get_log_for_item(book1)]
+        self.assertEqual(log, ["wishlist", "progress"])
         self.assertEqual(len(Mark(user.identity, book1).all_post_ids), 2)
 
         # theses tests are not relevant anymore, bc we don't use log to track metadata changes
@@ -127,7 +138,8 @@ class ShelfTest(TestCase):
 
         # test delete mark ->  one more log
         Mark(user.identity, book1).delete()
-        self.assertEqual(log.count(), 4)
+        log = [ll.shelf_type for ll in shelf_manager.get_log_for_item(book1)]
+        self.assertEqual(log, ["wishlist", "progress", "complete", None])
         deleted_mark = Mark(user.identity, book1)
         self.assertEqual(deleted_mark.shelf_type, None)
         self.assertEqual(deleted_mark.tags, [])

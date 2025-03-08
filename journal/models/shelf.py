@@ -7,6 +7,7 @@ from django.db import connection, models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
+from polymorphic.models import PolymorphicManager
 
 from catalog.models import Item, ItemCategory
 from takahe.utils import Takahe
@@ -310,6 +311,28 @@ _SHELF_LABELS = [
 # grammatically problematic, for translation only
 
 
+class ShelfMemberManager(PolymorphicManager):
+    def get_queryset(self):
+        from .comment import Comment
+        from .rating import Rating
+
+        rating_subquery = Rating.objects.filter(
+            owner_id=models.OuterRef("owner_id"), item_id=models.OuterRef("item_id")
+        ).values("grade")[:1]
+        comment_subquery = Comment.objects.filter(
+            owner_id=models.OuterRef("owner_id"), item_id=models.OuterRef("item_id")
+        ).values("text")[:1]
+        return (
+            super()
+            .get_queryset()
+            .annotate(
+                _rating_grade=models.Subquery(rating_subquery),
+                _comment_text=models.Subquery(comment_subquery),
+                _shelf_type=models.F("parent__shelf_type"),
+            )
+        )
+
+
 class ShelfMember(ListMember):
     if TYPE_CHECKING:
         parent: models.ForeignKey["ShelfMember", "Shelf"]
@@ -317,6 +340,8 @@ class ShelfMember(ListMember):
     parent = models.ForeignKey(
         "Shelf", related_name="members", on_delete=models.CASCADE
     )
+
+    objects = ShelfMemberManager()
 
     class Meta:
         unique_together = [["owner", "item"]]
@@ -448,6 +473,15 @@ class ShelfMember(ListMember):
             "content": content,
         }
 
+    def save(self, *args, **kwargs):
+        try:
+            del self._shelf_type  # type:ignore
+            del self._rating_grade  # type:ignore
+            del self._comment_text  # type:ignore
+        except AttributeError:
+            pass
+        return super().save(*args, **kwargs)
+
     @cached_property
     def sibling_comment(self) -> "Comment | None":
         from .comment import Comment
@@ -470,19 +504,28 @@ class ShelfMember(ListMember):
 
     @property
     def shelf_label(self) -> str | None:
-        return ShelfManager.get_label(self.parent.shelf_type, self.item.category)
+        return ShelfManager.get_label(self.shelf_type, self.item.category)
 
     @property
     def shelf_type(self):
-        return self.parent.shelf_type
+        try:
+            return getattr(self, "_shelf_type")
+        except AttributeError:
+            return self.parent.shelf_type
 
     @property
     def rating_grade(self):
-        return self.mark.rating_grade
+        try:
+            return getattr(self, "_rating_grade")
+        except AttributeError:
+            return self.mark.rating_grade
 
     @property
     def comment_text(self):
-        return self.mark.comment_text
+        try:
+            return getattr(self, "_comment_text")
+        except AttributeError:
+            return self.mark.comment_text
 
     @property
     def tags(self):

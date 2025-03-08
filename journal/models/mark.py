@@ -163,7 +163,7 @@ class Mark:
     log entries
     log entry will be created when item is added to shelf
     log entry will be created when item is moved to another shelf
-    log entry will be created when item is removed from shelf (TODO change this to DEFERRED shelf)
+    log entry will be created when item is removed from shelf
     timestamp of log entry will be updated whenever created_time of shelfmember is updated
     any log entry can be deleted by user arbitrarily
 
