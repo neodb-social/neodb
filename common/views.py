@@ -83,7 +83,7 @@ def nodeinfo2(request):
 
 def _error_response(request, status: int, exception=None, default_message=""):
     message = str(exception) if exception else default_message
-    if request.headers.get("HTTP_ACCEPT").endswith("json"):
+    if request.headers.get("HTTP_ACCEPT", "").endswith("json"):
         return JsonResponse({"error": message}, status=status)
     if (
         request.headers.get("HTTP_HX_REQUEST") is not None
