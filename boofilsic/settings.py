@@ -449,6 +449,7 @@ LANGUAGE_CODE, PREFERRED_LANGUAGES = _init_language_settings(
 
 if TESTING:  # force en if testing
     LANGUAGE_CODE = "en"
+    PREFERRED_LANGUAGES = ["en"]
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 
@@ -580,7 +581,7 @@ SEARCH_INDEX_NEW_ONLY = False
 
 INDEX_ALIASES = env("INDEX_ALIASES")
 
-DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="/tmp")  # type: ignore
+DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="")  # type: ignore
 
 DISABLE_MODEL_SIGNAL = False  # disable index and social feeds during importing/etc
 

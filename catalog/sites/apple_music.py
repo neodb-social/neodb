@@ -9,8 +9,9 @@ Scraping the website directly.
 """
 
 import json
+from datetime import timedelta
 
-import dateparser
+from django.utils.dateparse import parse_duration
 from loguru import logger
 
 from catalog.common import *
@@ -18,7 +19,6 @@ from catalog.models import *
 from common.models.lang import (
     SITE_DEFAULT_LANGUAGE,
     SITE_PREFERRED_LANGUAGES,
-    detect_language,
 )
 from common.models.misc import uniq
 
@@ -39,7 +39,6 @@ class AppleMusic(AbstractSite):
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0) Gecko/20100101 Firefox/107.0",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": BasicDownloader.get_accept_language(),
         "Accept-Encoding": "gzip, deflate",
         "Connection": "keep-alive",
         "DNT": "1",
@@ -70,80 +69,63 @@ class AppleMusic(AbstractSite):
         return locales
 
     def scrape(self):
-        matched_content = None
+        matched_schema_data = None
         localized_title = []
         localized_desc = []
         for lang, locales in self.get_locales().items():
             for loc in locales:  # waterfall thru all locales
                 url = f"https://music.apple.com/{loc}/album/{self.id_value}"
                 try:
+                    tl = f"{lang}-{loc}" if lang == "zh" else lang
+                    headers = {
+                        "Accept-Language": tl,
+                    }
+                    headers.update(self.headers)
                     content = (
                         BasicDownloader(url, headers=self.headers).download().html()
                     )
-                    logger.info(f"got localized content from {url}")
-                    elem = content.xpath(
-                        "//script[@id='serialized-server-data']/text()"
-                    )
-                    txt: str = elem[0]  # type:ignore
-                    page_data = json.loads(txt)[0]
-                    album_data = page_data["data"]["sections"][0]["items"][0]
-                    title = album_data["title"]
-                    brief = album_data.get("modalPresentationDescriptor", {}).get(
-                        "paragraphText", ""
-                    )
-                    tl = detect_language(title + " " + brief)
-                    localized_title.append({"lang": tl, "text": title})
-                    if brief:
-                        localized_desc.append({"lang": tl, "text": brief})
-                    if lang == SITE_DEFAULT_LANGUAGE or not matched_content:
-                        matched_content = content
+                    logger.debug(f"got localized content from {url}")
+                    txt: str = content.xpath(
+                        "//script[@id='schema:music-album']/text()"
+                    )[0]  # type:ignore
+                    schema_data = json.loads(txt)
+                    title = schema_data["name"]
+                    if title:
+                        localized_title.append({"lang": tl, "text": title})
+                    try:
+                        txt: str = content.xpath(
+                            "//script[@id='serialized-server-data']/text()"
+                        )[0]  # type:ignore
+                        server_data = json.loads(txt)
+                        brief = server_data[0]["data"]["sections"][0]["items"][0][
+                            "modalPresentationDescriptor"
+                        ]["paragraphText"]
+                        if brief:
+                            localized_desc.append({"lang": tl, "text": brief})
+                    except Exception:
+                        server_data = brief = None
+                    if lang == SITE_DEFAULT_LANGUAGE or not matched_schema_data:
+                        matched_schema_data = schema_data
                     break
                 except Exception:
                     pass
-        if matched_content is None:
+        if matched_schema_data is None:  # no schema data found
             raise ParseError(self, f"localized content for {self.url}")
-        elem = matched_content.xpath("//script[@id='serialized-server-data']/text()")
-        txt: str = elem[0]  # type:ignore
-        page_data = json.loads(txt)[0]
-        album_data = page_data["data"]["sections"][0]["items"][0]
-        title = album_data["title"]
-        brief = album_data.get("modalPresentationDescriptor")
-        brief = brief.get("paragraphText") if brief else None
-        artist_list = album_data["subtitleLinks"]
-        artist = [item["title"] for item in artist_list]
-
-        track_data = page_data["data"]["seoData"]
-        date_elem = track_data.get("musicReleaseDate")
-        release_datetime = dateparser.parse(date_elem.strip()) if date_elem else None
-        release_date = (
-            release_datetime.strftime("%Y-%m-%d") if release_datetime else None
+        artist = [a["name"] for a in matched_schema_data.get("byArtist", [])]
+        release_date = matched_schema_data.get("datePublished", None)
+        genre = matched_schema_data.get("genre", [])
+        image_url = matched_schema_data.get("image", None)
+        track_list = [t["name"] for t in matched_schema_data.get("tracks", [])]
+        duration = round(
+            sum(
+                (parse_duration(t["duration"]) or timedelta()).total_seconds() * 1000
+                for t in matched_schema_data.get("tracks", [])
+            )
         )
-
-        track_list = [
-            f"{i}. {track['attributes']['name']}"
-            for i, track in enumerate(track_data["ogSongs"], 1)
-        ]
-        duration_list = [
-            track["attributes"].get("durationInMillis", 0)
-            for track in track_data["ogSongs"]
-        ]
-        duration = int(sum(duration_list))
-        genre = track_data["schemaContent"].get("genre")
-        if genre:
-            genre = [
-                genre[0]
-            ]  # apple treat "Music" as a genre. Thus, only the first genre is obtained.
-
-        images = matched_content.xpath("//source[@type='image/jpeg']/@srcset")
-        image_elem: str = images[0] if images else ""  # type:ignore
-        image_url = image_elem.split(" ")[0] if image_elem else None
-
         pd = ResourceContent(
             metadata={
                 "localized_title": uniq(localized_title),
                 "localized_description": uniq(localized_desc),
-                "title": title,
-                "brief": brief,
                 "artist": artist,
                 "genre": genre,
                 "release_date": release_date,

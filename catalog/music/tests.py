@@ -6,6 +6,8 @@ from catalog.music.utils import *
 
 
 class BasicMusicTest(TestCase):
+    databases = "__all__"
+
     def test_gtin(self):
         self.assertIsNone(upc_to_gtin_13("018771208112X"))
         self.assertIsNone(upc_to_gtin_13("999018771208112"))
@@ -15,6 +17,8 @@ class BasicMusicTest(TestCase):
 
 
 class SpotifyTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id_type = IdType.Spotify_Album
         t_id_value = "65KwtzkJXw7oT819NFWmEP"
@@ -48,6 +52,8 @@ class SpotifyTestCase(TestCase):
 
 
 class DoubanMusicTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id_type = IdType.DoubanMusic
         t_id_value = "33551231"
@@ -74,6 +80,8 @@ class DoubanMusicTestCase(TestCase):
 
 
 class MultiMusicSitesTestCase(TestCase):
+    databases = "__all__"
+
     @use_local_response
     def test_albums(self):
         url1 = "https://music.douban.com/subject/33551231/"
@@ -92,6 +100,8 @@ class MultiMusicSitesTestCase(TestCase):
 
 
 class BandcampTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id_type = IdType.Bandcamp
         t_id_value = "intlanthem.bandcamp.com/album/in-these-times"
@@ -119,6 +129,8 @@ class BandcampTestCase(TestCase):
 
 
 class DiscogsReleaseTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id_type = IdType.Discogs_Release
         t_id_value = "25829341"
@@ -155,6 +167,8 @@ class DiscogsReleaseTestCase(TestCase):
 
 
 class DiscogsMasterTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id_type = IdType.Discogs_Master
         t_id_value = "469004"
@@ -182,6 +196,8 @@ class DiscogsMasterTestCase(TestCase):
 
 
 class AppleMusicTestCase(TestCase):
+    databases = "__all__"
+
     def test_parse(self):
         t_id_type = IdType.AppleMusic
         t_id_value = "1284391545"
@@ -201,8 +217,10 @@ class AppleMusicTestCase(TestCase):
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "Kids Only")
+        self.assertEqual(
+            site.resource.metadata["localized_title"][0]["text"], "Kids Only"
+        )
         self.assertEqual(site.resource.metadata["artist"], ["Leah Dou"])
         self.assertIsInstance(site.resource.item, Album)
-        self.assertEqual(site.resource.item.genre, ["Pop"])
-        self.assertEqual(site.resource.item.duration, 2371628)
+        self.assertEqual(site.resource.item.genre, ["Pop", "Music"])
+        self.assertEqual(site.resource.item.duration, 2368000)
