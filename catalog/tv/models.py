@@ -44,6 +44,7 @@ from catalog.common import (
 )
 from catalog.common.models import LANGUAGE_CHOICES_JSONFORM, LanguageListField
 from common.models.lang import RE_LOCALIZED_SEASON_NUMBERS, localize_number
+from common.models.misc import uniq
 
 
 class TVShowInSchema(ItemInSchema):
@@ -414,30 +415,35 @@ class TVSeason(Item):
          - "Show Title Season X" with some localization
         """
         s = super().display_title
-        if self.parent_item and (
-            RE_LOCALIZED_SEASON_NUMBERS.sub("", s) == ""
-            or s == self.parent_item.display_title
-        ):
-            if self.parent_item.get_season_count() == 1:
-                return self.parent_item.display_title
-            elif self.season_number:
-                return _("{show_title} Season {season_number}").format(
-                    show_title=self.parent_item.display_title,
-                    season_number=localize_number(self.season_number),
-                )
-            else:
-                return f"{self.parent_item.display_title} {s}"
+        if self.parent_item:
+            if (
+                RE_LOCALIZED_SEASON_NUMBERS.sub("", s) == ""
+                or s == self.parent_item.display_title
+            ):
+                if self.parent_item.get_season_count() == 1:
+                    return self.parent_item.display_title
+                elif self.season_number:
+                    return _("{show_title} Season {season_number}").format(
+                        show_title=self.parent_item.display_title,
+                        season_number=localize_number(self.season_number),
+                    )
+                else:
+                    return f"{self.parent_item.display_title} {s}"
+            elif self.parent_item.display_title not in s:
+                return f"{self.parent_item.display_title} ({s})"
         return s
 
     @cached_property
     def additional_title(self) -> list[str]:
         title = self.display_title
-        return [
-            t["text"]
-            for t in self.localized_title
-            if t["text"] != title
-            and RE_LOCALIZED_SEASON_NUMBERS.sub("", t["text"]) != ""
-        ]
+        return uniq(
+            [
+                t["text"]
+                for t in self.localized_title
+                if t["text"] != title
+                and RE_LOCALIZED_SEASON_NUMBERS.sub("", t["text"]) != ""
+            ]
+        )
 
     def to_indexable_titles(self) -> list[str]:
         titles = [t["text"] for t in self.localized_title if t["text"]]
