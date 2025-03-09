@@ -9,7 +9,7 @@
 #   generate-hashes: false
 #   universal: false
 
-aiohappyeyeballs==2.4.6
+aiohappyeyeballs==2.5.0
     # via aiohttp
 aiohttp==3.11.13
     # via discord-py
@@ -48,8 +48,8 @@ cryptography==44.0.2
     # via atproto
 dateparser==1.2.1
 deepmerge==2.0
-discord-py==2.5.0
-django==4.2.19
+discord-py==2.5.2
+django==4.2.20
     # via django-anymail
     # via django-appconf
     # via django-auditlog
@@ -116,7 +116,7 @@ loguru==0.7.3
 lxml==5.3.1
 markdown==3.7
     # via django-markdownx
-markdownify==1.0.0
+markdownify==1.1.0
 mistune==3.1.2
 multidict==6.1.0
     # via aiohttp
@@ -132,7 +132,7 @@ podcastparser==0.6.10
 propcache==0.3.0
     # via aiohttp
     # via yarl
-protobuf==5.29.3
+protobuf==6.30.0
     # via igdb-api-v4
 psycopg2-binary==2.9.10
 pycparser==2.22
@@ -190,7 +190,7 @@ typing-extensions==4.12.2
     # via beautifulsoup4
     # via pydantic
     # via pydantic-core
-tzlocal==5.3
+tzlocal==5.3.1
     # via dateparser
 urllib3==2.3.0
     # via django-anymail
