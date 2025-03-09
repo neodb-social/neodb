@@ -43,16 +43,17 @@ class LetterboxdImporter(Task):
         except Exception:
             return False
 
-    def get_item_by_url(self, url):
+    @classmethod
+    def get_item_by_url(cls, url):
         try:
             h = BasicDownloader(url).download().html()
-            tu = h.xpath("//a[@data-track-action='TMDb']/@href")
+            tu = h.xpath("//a[@data-track-action='TMDB']/@href")
             iu = h.xpath("//a[@data-track-action='IMDb']/@href")
             if not tu:
                 i = h.xpath('//span[@class="film-title-wrapper"]/a/@href')
                 u2 = "https://letterboxd.com" + i[0]  # type:ignore
                 h = BasicDownloader(u2).download().html()
-                tu = h.xpath("//a[@data-track-action='TMDb']/@href")
+                tu = h.xpath("//a[@data-track-action='TMDB']/@href")
                 iu = h.xpath("//a[@data-track-action='IMDb']/@href")
             if not tu:
                 logger.error(f"Unknown TMDB for {url}")
