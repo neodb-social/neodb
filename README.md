@@ -70,14 +70,14 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
 
 
 ## Host your own instance
-Please see [https://neodb.net/install/](installation guide).
+Please see [installation guide](https://neodb.net/install/).
 
 
 ## Contribution
  - To build application with NeoDB API, documentation is available in [NeoDB API Developer Console](https://neodb.social/developer/)
- - To help develop NeoDB, please see [https://neodb.net/development/](development guide) for some basics to start with
+ - To help develop NeoDB, please see [development guide](https://neodb.net/development/) for some basics to start with
  - To translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/neodb/)
- - Source code for [NeoDB official site](https://neodb.net) can be found [here](https://github.com/neodb-social/neodb-doc)
+ - Source code for [NeoDB documentation](https://neodb.net) can be found [here](https://github.com/neodb-social/neodb-doc)
 
 
 ## Sponsor
