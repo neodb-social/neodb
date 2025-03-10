@@ -1,7 +1,7 @@
 {% load i18n %}
 <aside class="grid__aside bottom">
-  <p>
-    {% trans 'Addtional filters may be added to query' %}
+  <details open>
+    <summary>{% trans 'Search filters' %}</summary>
     <li>
       <code>status:complete</code> - {% trans 'filter by one of these statuses' %}: <code>wishlist</code> / <code>progress</code> / <code>complete</code> / <code>dropped</code>
     </li>
@@ -29,5 +29,8 @@
     <li>
       <code>date:2022..2023</code> - {% trans 'filter by date range' %}
     </li>
-  </p>
+    <li>
+      <code>sort:date</code> - {% trans "sort by one of these fields" %}: <code>date</code> ({% trans "from new to old" %}) / <code>rating</code> ({% trans "from high to low" %})
+    </li>
+  </details>
 </aside>
