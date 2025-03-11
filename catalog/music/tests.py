@@ -38,6 +38,13 @@ class SpotifyTestCase(TestCase):
         # self.assertEqual(site.id_value, t_id_value2)
 
     @use_local_response
+    def test_scrape_web(self):
+        t_url = "https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP"
+        site = SiteManager.get_site_by_url(t_url)
+        r = site.scrape_web()
+        self.assertEqual(r.metadata["localized_title"][0]["text"], "The Race For Space")
+
+    @use_local_response
     def test_scrape(self):
         t_url = "https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP"
         site = SiteManager.get_site_by_url(t_url)

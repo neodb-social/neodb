@@ -62,6 +62,7 @@ jobs:
         NEODB_SITE_NAME: test
         NEODB_SITE_DOMAIN: test.domain
         NEODB_SECRET_KEY: test
+        SPOTIFY_API_KEY: TEST
       run: |
         python manage.py compilemessages -i .venv -l zh_Hans
         python manage.py test

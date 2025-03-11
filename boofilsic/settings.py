@@ -100,7 +100,7 @@ env = environ.FileAwareEnv(
     # INTEGRATED TAKAHE CONFIGURATION
     TAKAHE_DB_URL=(str, "postgres://takahe:takahepass@127.0.0.1:5432/takahe"),
     # Spotify - https://developer.spotify.com/
-    SPOTIFY_API_KEY=(str, "TESTONLY"),
+    SPOTIFY_API_KEY=(str, ""),  # Set to empty string to enable scraping without API key
     # The Movie Database (TMDB) - https://developer.themoviedb.org/
     TMDB_API_V3_KEY=(str, "TESTONLY"),
     # Google Books - https://developers.google.com/books/docs/v1/using - not used at the moment

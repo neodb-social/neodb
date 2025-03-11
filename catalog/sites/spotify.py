@@ -40,7 +40,34 @@ class Spotify(AbstractSite):
     def id_to_url(cls, id_value):
         return f"https://open.spotify.com/album/{id_value}"
 
+    def scrape_web(self):
+        content = BasicDownloader(self.url).download().html()
+        txt: str = content.xpath("//script[@type='application/ld+json']/text()")[0]  # type:ignore
+        schema_data = json.loads(txt)
+        title = schema_data["name"]
+        localized_title = [{"lang": detect_language(title), "text": title}]
+        localized_desc = []
+        release_date = schema_data.get("datePublished", None)
+        artist = []
+        genre = []
+        omebed_url = f"https://open.spotify.com/oembed?url={self.url}"
+        omebed_json = BasicDownloader(omebed_url).download().json()
+        image_url = omebed_json.get("thumbnail_url", None)
+        pd = ResourceContent(
+            metadata={
+                "localized_title": localized_title,
+                "localized_description": localized_desc,
+                "artist": artist,
+                "genre": genre,
+                "release_date": release_date,
+                "cover_image_url": image_url,
+            }
+        )
+        return pd
+
     def scrape(self):
+        if not settings.SPOTIFY_CREDENTIAL:
+            return self.scrape_web()
         api_url = f"https://api.spotify.com/v1/albums/{self.id_value}"
         headers = {
             "Authorization": f"Bearer {get_spotify_token()}",
@@ -113,6 +140,8 @@ class Spotify(AbstractSite):
     async def search_task(
         cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
+        if not settings.SPOTIFY_CREDENTIAL:
+            return []
         if category not in ["music", "all"]:
             return []
         results = []
