@@ -14,8 +14,11 @@ def activate_language_for_user(user: "User | None", request=None):
         user_language = getattr(user, "language", "")
     if not user_language:
         if request:
-            user_language = request.GET.get("lang")
-            if not user_language:
+            try:
+                user_language = translation.get_supported_language_variant(
+                    request.GET.get("lang")
+                )
+            except Exception:
                 user_language = translation.get_language_from_request(request)
         else:
             user_language = settings.LANGUAGE_CODE
