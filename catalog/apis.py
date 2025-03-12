@@ -111,7 +111,7 @@ def search_item(
 
 @api.get(
     "/catalog/fetch",
-    response={200: ItemSchema, 202: Result, 404: Result},
+    response={302: Result, 202: Result, 422: Result, 429: Result},
     summary="Fetch item from URL of a supported site",
     auth=None,
     tags=["catalog"],
@@ -120,19 +120,24 @@ def fetch_item(request, url: str):
     """
     Convert a URL from a supported site (e.g. https://m.imdb.com/title/tt2852400/) to an item.
 
+    If the URL is not supported by this server, HTTP 422 will be returned.
+    If the item is available in the catalog, HTTP 302 will be returned.
     If the item is not available in the catalog, HTTP 202 will be returned.
     Wait 15 seconds or longer, call with same input again, it may return the actual fetched item.
     Some site may take ~90 seconds to fetch.
     If not getting the item after 120 seconds, please stop and consider the URL is not available.
+    Frequent request may result with HTTP 429.
     """
     site = SiteManager.get_site_by_url(url, detect_redirection=False)
     if not site:
-        return 404, {"message": "URL not supported"}
+        return 422, {"message": "URL not supported"}
     item = site.get_item()
     if item:
-        return 200, item
+        return 302, {"message": "Item fetched", "url": item.api_url}
     if get_fetch_lock(request.user, url):
         enqueue_fetch(url, False)
+    else:
+        return 429, {"message": "Try again later"}
     return 202, {"message": "Fetch in progress"}
 
 
