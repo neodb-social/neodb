@@ -90,13 +90,17 @@ def profile_identity_required(func):
 
         try:
             target = APIdentity.get_by_handle(user_name, match_linked=True)
+            # this should trigger ObjectDoesNotExist if Takahe identity is not sync-ed
+            blocked = target.restricted
         except ObjectDoesNotExist:
             raise Http404(_("User not found"))
         target_user = target.user
         viewer = None
         if target_user and not target_user.is_active:
             raise Http404(_("User no longer exists"))
-        if request.user.is_authenticated:
+        if blocked:
+            raise PermissionDenied(_("Access denied"))
+        elif request.user.is_authenticated:
             try:
                 viewer = APIdentity.objects.get(user=request.user)
             except APIdentity.DoesNotExist:
