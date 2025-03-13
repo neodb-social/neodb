@@ -24,10 +24,9 @@
               {{ site_name }} is flourishing because of collaborations and contributions from users like you. Please read our <a href="/pages/rules">rules</a>, and feel free to <a href="{{ support_link }}">contact us</a> if you have any question or feedback.
         {% endblocktrans %}
         </p>
-        <form action="{{ request.session.next_url | default:'/' }}" method="post">
-          {% csrf_token %}
-          <input type="submit" value="{% trans 'Accept' %}">
-        </form>
+        <input type="submit"
+               value="{% trans 'Accept' %}"
+               onclick="location='{{ request.session.next_url | default:'/' }}'">
       </article>
     </div>
   </body>

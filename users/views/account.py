@@ -51,6 +51,7 @@ def login(request):
     )
 
 
+@require_http_methods(["POST"])
 @login_required
 def logout(request):
     return auth_logout(request)
@@ -216,7 +217,7 @@ def logout_takahe(response: HttpResponse):
 
 def auth_logout(request):
     auth.logout(request)
-    return logout_takahe(redirect("/"))
+    return logout_takahe(redirect(request.GET.get("next", "/")))
 
 
 def initiate_user_deletion(user):
