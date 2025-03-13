@@ -62,10 +62,7 @@ def list_marks_on_user_shelf(
         target = APIdentity.get_by_handle(handle)
     except APIdentity.DoesNotExist:
         return ShelfMember.objects.none()
-    viewer = request.user.identity
-    if target.is_blocking(viewer) or target.is_blocked_by(viewer):
-        return ShelfMember.objects.none()
-    qv = q_owned_piece_visible_to_user(request.user, target)
+    qv = q_owned_piece_visible_to_user(request.user, target, True)
     queryset = (
         target.shelf_manager.get_latest_members(
             type, ItemCategory(category) if category else None

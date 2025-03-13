@@ -41,7 +41,12 @@ class VisibilityType(models.IntegerChoices):
     Private = 2, _("Mentioned Only")  # type:ignore[reportCallIssue]
 
 
-def q_owned_piece_visible_to_user(viewing_user: User, owner: APIdentity):
+def q_owned_piece_visible_to_user(
+    viewing_user: User | None, owner: APIdentity, check_blocking: bool = False
+) -> Q:
+    """return a Q object to filter pieces that are visible to the viewing user"""
+    if check_blocking and owner.restricted:
+        return Q(pk__in=[])
     if not viewing_user or not viewing_user.is_authenticated:
         if owner.anonymous_viewable:
             return Q(owner=owner, visibility=0)
@@ -50,8 +55,8 @@ def q_owned_piece_visible_to_user(viewing_user: User, owner: APIdentity):
     viewer = viewing_user.identity
     if viewer == owner:
         return Q(owner=owner)
-    # elif viewer.is_blocked_by(owner):
-    #     return Q(pk__in=[])
+    elif check_blocking and viewer.is_blocked_by(owner):
+        return Q(pk__in=[])
     elif viewer.is_following(owner):
         return Q(owner=owner, visibility__in=[0, 1])
     else:

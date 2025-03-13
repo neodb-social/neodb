@@ -7,8 +7,9 @@ from django.db import connection, models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
-from polymorphic.models import PolymorphicManager
+from polymorphic.models import ContentType, PolymorphicManager
 
+from catalog.common.models import item_categories
 from catalog.models import Item, ItemCategory
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -742,6 +743,45 @@ class ShelfManager:
     @staticmethod
     def get_manager_for_user(owner: APIdentity):
         return ShelfManager(owner)
+
+    def get_stats(self, q: models.Q | None = None) -> dict:
+        from .review import Review
+
+        if not q:
+            q = models.Q(owner=self.owner)
+        qs = (
+            ShelfMember.objects.filter(q)
+            .values("parent__shelf_type", "item__polymorphic_ctype_id")
+            .annotate(num=models.Count("item"))
+        )
+        qs2 = (
+            Review.objects.filter(q)
+            .values("item__polymorphic_ctype_id")
+            .annotate(num=models.Count("item"))
+        )
+        stats = {
+            cat: {t: 0 for t in (ShelfType.values + ["reviewed"])}
+            for cat in ItemCategory.values
+        }
+        for cat, item_classes in item_categories().items():
+            ct_ids = [
+                ContentType.objects.get_for_model(item_cls).pk
+                for item_cls in item_classes
+            ]
+            for typ in ShelfType.values:
+                stats[cat][typ] = sum(
+                    [
+                        s["num"]
+                        for s in qs
+                        if s["item__polymorphic_ctype_id"] in ct_ids
+                        and s["parent__shelf_type"] == typ
+                    ],
+                    0,
+                )
+            stats[cat]["reviewed"] = sum(
+                [s["num"] for s in qs2 if s["item__polymorphic_ctype_id"] in ct_ids], 0
+            )
+        return stats
 
     def get_calendar_data(self, max_visiblity: int):
         shelf_id = self.get_shelf(ShelfType.COMPLETE).pk

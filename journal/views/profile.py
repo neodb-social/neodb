@@ -57,6 +57,7 @@ def profile(request: AuthedHttpRequest, user_name):
         ItemCategory.Game,
         ItemCategory.Performance,
     ]
+    stats = target.shelf_manager.get_stats()
     for category in visbile_categories:
         shelf_list[category] = {}
         for shelf_type in ShelfType:
@@ -69,7 +70,7 @@ def profile(request: AuthedHttpRequest, user_name):
                 ).filter(qv)
                 shelf_list[category][shelf_type] = {
                     "title": label,
-                    "count": members.count(),
+                    "count": stats[category][shelf_type],
                     "members": members[:10].prefetch_related("item"),
                 }
         reviews = (
@@ -79,7 +80,7 @@ def profile(request: AuthedHttpRequest, user_name):
         )
         shelf_list[category]["reviewed"] = {
             "title": target.shelf_manager.get_label("reviewed", category),
-            "count": reviews.count(),
+            "count": stats[category].get("reviewed", 0),
             "members": reviews[:10].prefetch_related("item"),
         }
     collections = Collection.objects.filter(qv).order_by("-created_time")
