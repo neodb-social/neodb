@@ -118,8 +118,8 @@ env = environ.FileAwareEnv(
     # LibreTranslate
     LT_API_URL=(str, ""),
     LT_API_KEY=(str, ""),
-    # Discord webhooks
-    DISCORD_WEBHOOKS=(dict, {"user-report": None}),
+    # Discord webhooks (default/report/audit/suggest)
+    DISCORD_WEBHOOKS=(dict, {}),
     THREADS_APP_ID=(str, ""),
     THREADS_APP_SECRET=(str, ""),
     NEODB_ENABLE_LOGIN_BLUESKY=(bool, False),

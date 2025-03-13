@@ -5,6 +5,7 @@ from django.conf import settings
 from loguru import logger
 
 from catalog.common import *
+from common.utils import discord_send
 from journal.models import (
     Comment,
     Note,
@@ -18,7 +19,7 @@ from journal.models.index import JournalIndex
 from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
 
-from .models import Identity, Post, TimelineEvent
+from .models import Identity, Post, Report, TimelineEvent
 from .utils import Takahe
 
 _supported_ap_catalog_item_types = [
@@ -269,3 +270,23 @@ def identity_fetched(pk):
             logger.error(f"Fetched identity {identity} not synced")
     else:
         logger.error(f"Fetched identity {identity} has no username or domain")
+
+
+def report_received(pk):
+    retry = 1
+    while True:
+        try:
+            report = Report.objects.get(pk=pk)
+            break
+        except Report.DoesNotExist:
+            if retry > 5:
+                logger.error(f"Report {pk} not found")
+                return
+            sleep(retry)
+            retry += 1
+    discord_send(
+        "report",
+        f"{report.complaint}\n\nabout post:{report.subject_post.absolute_object_uri}\n{report.subject_post.content}",
+        thread_name=f"[{report.type}] Report received about {report.subject_identity.username}",
+        username=f"@{report.source_identity.handle}",
+    )
