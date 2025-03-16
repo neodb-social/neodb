@@ -47,39 +47,52 @@ class LetterboxdImporter(Task):
     def get_item_by_url(cls, url):
         try:
             h = BasicDownloader(url).download().html()
+        except Exception:
+            logger.error(f"Unable to fetch {url}")
+            return None
+        tu = h.xpath("//a[@data-track-action='TMDB']/@href")
+        iu = h.xpath("//a[@data-track-action='IMDb']/@href")
+        if not tu:
+            i = h.xpath('//span[@class="film-title-wrapper"]/a/@href')
+            u2 = "https://letterboxd.com" + i[0]  # type:ignore
+            try:
+                h = BasicDownloader(u2).download().html()
+            except Exception:
+                logger.error(f"Unable to fetch {u2}")
+                return None
             tu = h.xpath("//a[@data-track-action='TMDB']/@href")
             iu = h.xpath("//a[@data-track-action='IMDb']/@href")
-            if not tu:
-                i = h.xpath('//span[@class="film-title-wrapper"]/a/@href')
-                u2 = "https://letterboxd.com" + i[0]  # type:ignore
-                h = BasicDownloader(u2).download().html()
-                tu = h.xpath("//a[@data-track-action='TMDB']/@href")
-                iu = h.xpath("//a[@data-track-action='IMDb']/@href")
-            if not tu:
-                logger.error(f"Unknown TMDB for {url}")
-                return None
-            site = SiteManager.get_site_by_url(tu[0])  # type:ignore
+        if not tu:
+            logger.error(f"Unknown TMDB for {url}")
+            return None
+        site = SiteManager.get_site_by_url(tu[0])  # type:ignore
+        if not site:
+            return None
+        if site.ID_TYPE == IdType.TMDB_TV:
+            site = SiteManager.get_site_by_url(f"{site.url}/season/1")
             if not site:
                 return None
-            if site.ID_TYPE == IdType.TMDB_TV:
-                site = SiteManager.get_site_by_url(f"{site.url}/season/1")
-                if not site:
-                    return None
+        try:
+            site.get_resource_ready()
+            return site.get_item()
+        except Exception:
+            logger.warning(f"Fetching {url}: TMDB {site.url} failed")
+            if not iu:
+                logger.warning(f"Fetching {url}: no IMDB, giving up")
+                return None
+            imdb_url = str(iu[0])  # type:ignore
+            logger.warning(
+                f"Fetching {url}: TMDB {site.url} failed, try IMDB {imdb_url}"
+            )
+            site = SiteManager.get_site_by_url(imdb_url)
+            if not site:
+                return None
             try:
                 site.get_resource_ready()
                 return site.get_item()
             except Exception:
-                imdb_url = str(iu[0])  # type:ignore
-                logger.warning(
-                    f"Fetching {url}: TMDB {site.url} failed, try IMDB {imdb_url}"
-                )
-                site = SiteManager.get_site_by_url(imdb_url)
-                if not site:
-                    return None
-                site.get_resource_ready()
-                return site.get_item()
-        except Exception as e:
-            logger.error(f"Fetching {url}: error {e}")
+                logger.warning(f"Fetching {url}: IMDB {imdb_url} failed")
+                return None
 
     def mark(self, url, shelf_type, date, rating=None, text=None, tags=None):
         item = self.get_item_by_url(url)
