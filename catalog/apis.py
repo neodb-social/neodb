@@ -111,12 +111,12 @@ def search_item(
 
 @api.get(
     "/catalog/fetch",
-    response={302: Result, 202: Result, 422: Result, 429: Result},
+    response={302: RedirectedResult, 202: Result, 422: Result, 429: Result},
     summary="Fetch item from URL of a supported site",
     auth=None,
     tags=["catalog"],
 )
-def fetch_item(request, url: str):
+def fetch_item(request, url: str, response: HttpResponse):
     """
     Convert a URL from a supported site (e.g. https://m.imdb.com/title/tt2852400/) to an item.
 
@@ -133,6 +133,7 @@ def fetch_item(request, url: str):
         return 422, {"message": "URL not supported"}
     item = site.get_item()
     if item:
+        response["Location"] = item.api_url
         return 302, {"message": "Item fetched", "url": item.api_url}
     if get_fetch_lock(request.user, url):
         enqueue_fetch(url, False)
