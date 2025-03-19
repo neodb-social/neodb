@@ -159,7 +159,9 @@ def register(request: AuthedHttpRequest):
                 and form.cleaned_data["email"] != current_email
             ):
                 Email.send_login_email(request, form.cleaned_data["email"], "verify")
-                return render(request, "users/verify.html")
+                return render(
+                    request, "users/verify.html", {"email": form.cleaned_data["email"]}
+                )
         else:
             # new user to finalize registration process
             username = form.cleaned_data["username"]

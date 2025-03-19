@@ -41,8 +41,10 @@ class Email:
                 recipient_list=[email],
                 fail_silently=False,
             )
+            cache.set(f"email_{email}", "sent", timeout=_code_ttl)
         except Exception as e:
             logger.error(f"send email to {email} failed: {e}")
+            cache.set(f"email_{email}", "failed", timeout=_code_ttl)
 
     @staticmethod
     def generate_login_email(email: str, action: str) -> tuple[str, str]:
@@ -77,9 +79,17 @@ class Email:
 
     @staticmethod
     def send_login_email(request: HttpRequest, email: str, action: str):
+        # state = cache.get(f"email_{email}")
+        # if state == "pending":
+        #     return
         request.session["pending_email"] = email
         subject, body = Email.generate_login_email(email, action)
+        cache.set(f"email_{email}", "pending", timeout=_code_ttl)
         django_rq.get_queue("mastodon").enqueue(Email._send, email, subject, body)
+
+    @staticmethod
+    def get_login_state(email: str) -> str:
+        return cache.get(f"email_{email}")
 
     @staticmethod
     def authenticate(request: HttpRequest, code: str) -> EmailAccount | None:

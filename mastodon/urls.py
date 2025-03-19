@@ -11,6 +11,7 @@ urlpatterns = [
     path("mastodon/disconnect", mastodon_disconnect, name="disconnect"),
     # Email
     path("email/login", email_login, name="email_login"),
+    path("email/state", email_login_state, name="email_login_state"),
     path("email/verify", email_verify, name="email_verify"),
     # Threads
     path("threads/login", threads_login, name="threads_login"),
