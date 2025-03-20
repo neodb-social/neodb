@@ -331,7 +331,7 @@ def link_edition(request, item_path, item_uuid):
     if item.class_name != "edition" or new_item.class_name != "edition":
         raise BadRequest(_("Cannot link items other than editions"))
     if request.POST.get("sure", 0) != "1":
-        new_item = Edition.get_by_url(request.POST.get("target_item_url"))  # type: ignore
+        new_item = Edition.get_by_url(request.POST.get("target_item_url"))
         return render(
             request,
             "catalog_merge.html",

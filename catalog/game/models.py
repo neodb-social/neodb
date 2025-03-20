@@ -15,16 +15,16 @@ from catalog.common import (
 
 
 class GameReleaseType(models.TextChoices):
-    # Unspecified = "", _("Unspecified")  # type:ignore[reportCallIssue]
-    GAME = "game", _("Main Game")  # type:ignore[reportCallIssue]
-    EXPANSION = "expansion", _("Expansion")  # type:ignore[reportCallIssue]
-    DLC = "dlc", _("Downloadable Content")  # type:ignore[reportCallIssue]
-    MOD = "mod", _("Mod")  # type:ignore[reportCallIssue]
-    BUNDLE = "bundle", _("Bundle")  # type:ignore[reportCallIssue]
-    REMASTER = "remaster", _("Remaster")  # type:ignore[reportCallIssue]
-    REMAKE = "remake", _("Remake")  # type:ignore[reportCallIssue]
-    SPECIAL = "special", _("Special Edition")  # type:ignore[reportCallIssue]
-    OTHER = "other", _("Other")  # type:ignore[reportCallIssue]
+    # Unspecified = "", _("Unspecified")
+    GAME = "game", _("Main Game")
+    EXPANSION = "expansion", _("Expansion")
+    DLC = "dlc", _("Downloadable Content")
+    MOD = "mod", _("Mod")
+    BUNDLE = "bundle", _("Bundle")
+    REMASTER = "remaster", _("Remaster")
+    REMAKE = "remake", _("Remake")
+    SPECIAL = "special", _("Special Edition")
+    OTHER = "other", _("Other")
 
 
 class GameInSchema(ItemInSchema):

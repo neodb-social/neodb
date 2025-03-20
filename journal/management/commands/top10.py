@@ -20,7 +20,7 @@ class Command(BaseCommand):
             "--top", default=10, type=int, help="save as collection for user"
         )
 
-    def handle(self, year: int, top: int, save: str, **options):  # type: ignore
+    def handle(self, year: int, top: int, save: str, **options):
         collector = APIdentity.objects.get(username=save, local=True) if save else None
         if collector:
             activate_language_for_user(collector.user)

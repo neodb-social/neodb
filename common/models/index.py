@@ -1,13 +1,19 @@
 import re
 from functools import cached_property
 from time import sleep
-from typing import Iterable, Self
+from typing import List, Self
 
-import typesense
 from django.conf import settings
 from loguru import logger
+from typesense.client import Client
 from typesense.collection import Collection
 from typesense.exceptions import ObjectNotFound
+from typesense.types.collection import (
+    CollectionCreateSchema,
+    CollectionSchema,
+    CollectionUpdateSchema,
+)
+from typesense.types.document import SearchResponse
 
 
 class QueryParser:
@@ -111,19 +117,20 @@ class QueryParser:
 
 
 class SearchResult:
-    def __init__(self, index: "Index", response: dict):
+    def __init__(self, index: "Index", response: SearchResponse):
         self.index = index
         self.response = response
-        self.page_size = response["request_params"]["per_page"]
+        self.request_params = response["request_params"]  # type: ignore
+        self.page_size = self.request_params["per_page"]
         self.total = response["found"]
         self.page = response["page"]
         self.pages = (self.total + self.page_size - 1) // self.page_size
 
     def __repr__(self):
-        return f"SearchResult(search '{self.response['request_params']['q']}', found {self.response['found']} out of {self.response['out_of']}, page {self.response['page']})"
+        return f"SearchResult(search '{self.request_params['q']}', found {self.response['found']} out of {self.response['out_of']}, page {self.response['page']})"
 
     def __str__(self):
-        return f"SearchResult(search '{self.response['request_params']['q']}', found {self.response['found']} out of {self.response['out_of']}, page {self.response['page']})"
+        return f"SearchResult(search '{self.request_params['q']}', found {self.response['found']} out of {self.response['out_of']}, page {self.response['page']})"
 
     def get_facet(self, field):
         f = next(
@@ -156,7 +163,7 @@ class Index:
     search_result_class = SearchResult
 
     _instance = None
-    _client: typesense.Client
+    _client: Client
 
     @classmethod
     def instance(cls) -> Self:
@@ -166,7 +173,7 @@ class Index:
 
     @classmethod
     def get_client(cls):
-        return typesense.Client(settings.TYPESENSE_CONNECTION)
+        return Client(settings.TYPESENSE_CONNECTION)
 
     def __init__(self, *args, **kwargs):
         self._client = self.get_client()
@@ -191,15 +198,15 @@ class Index:
         return self._get_collection(True)
 
     @classmethod
-    def get_schema(cls) -> dict:
+    def get_schema(cls) -> CollectionCreateSchema:
         cname = settings.INDEX_ALIASES.get(
             cls.name + "_write"
         ) or settings.INDEX_ALIASES.get(cls.name, cls.name)
         schema = {"name": cname}
         schema.update(cls.schema)
-        return schema
+        return schema  # type: ignore
 
-    def check(self) -> dict:
+    def check(self) -> CollectionSchema:
         if not self._client.operations.is_healthy():
             raise ValueError("Typesense: server not healthy")
         return self.read_collection.retrieve()
@@ -210,7 +217,7 @@ class Index:
     def delete_collection(self):
         self.write_collection.delete()
 
-    def update_schema(self, schema: dict):
+    def update_schema(self, schema: CollectionUpdateSchema):
         self.write_collection.update(schema)
 
     def initialize_collection(self, max_wait=5) -> bool:
@@ -240,7 +247,7 @@ class Index:
             logger.error(f"Typesense: server error {e}")
         return False
 
-    def replace_docs(self, docs: Iterable[dict]):
+    def replace_docs(self, docs: List[dict]):
         if not docs:
             return False
         rs = self.write_collection.documents.import_(docs, {"action": "upsert"})
@@ -251,7 +258,7 @@ class Index:
                 if settings.DEBUG:
                     logger.error(f"Typesense: {r}")
 
-    def insert_docs(self, docs: Iterable[dict]):
+    def insert_docs(self, docs: List[dict]):
         if not docs:
             return False
         rs = self.write_collection.documents.import_(docs)
@@ -268,8 +275,7 @@ class Index:
             if isinstance(values, list)
             else values
         )
-        q = {"filter_by": f"{field}:{v}"}
-        r = self.write_collection.documents.delete(q)
+        r = self.write_collection.documents.delete({"filter_by": f"{field}:{v}"})
         return (r or {}).get("num_deleted", 0)
 
     def patch_docs(self, partial_doc: dict, doc_filter: str):
@@ -284,7 +290,8 @@ class Index:
             logger.debug(f"Typesense: search {self.name} {params}")
         # use multi_search as typesense limits query size for normal search
         r = self._client.multi_search.perform(
-            {"searches": [params]}, {"collection": self.read_collection.name}
+            {"searches": [params]},  # type: ignore
+            {"collection": self.read_collection.name},  # type: ignore
         )
         sr = self.search_result_class(self, r["results"][0])
         if settings.DEBUG:

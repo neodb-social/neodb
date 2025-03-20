@@ -635,7 +635,7 @@ if _SENTRY_DSN:
         environment=sentry_env or "unknown",
         integrations=[
             DjangoIntegration(),
-            LoguruIntegration(event_format="{name}:{function}:{line} - {message}"),  # type:ignore
+            LoguruIntegration(event_format="{name}:{function}:{line} - {message}"),
         ],
         release=NEODB_VERSION,
         send_default_pii=True,

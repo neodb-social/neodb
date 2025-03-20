@@ -55,11 +55,11 @@ def _add_interaction_to_events(events, identity_id):
     ).values_list("post_id", "type")
     for event in events:
         if event.subject_post_id:
-            event.subject_post.liked_by_current_user = (  # type: ignore
+            event.subject_post.liked_by_current_user = (
                 event.subject_post_id,
                 "like",
             ) in interactions
-            event.subject_post.boosted_by_current_user = (  # type: ignore
+            event.subject_post.boosted_by_current_user = (
                 event.subject_post_id,
                 "boost",
             ) in interactions

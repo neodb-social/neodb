@@ -71,7 +71,7 @@ class IGDB(AbstractSite):
         else:
             _wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())
             try:
-                r = json.loads(_wrapper.api_request(p, q))  # type: ignore
+                r = json.loads(_wrapper.api_request(p, q))
             except httpx.HTTPError as e:
                 logger.error(f"IGDB API: {e}", extra={"exception": e})
                 return []
