@@ -145,3 +145,17 @@ class Game(Item):
             IdType.Bangumi,
         ]
         return [(i.value, i.label) for i in id_types]
+
+    def to_indexable_people(self) -> list[str]:
+        return (
+            (self.designer or [])
+            + (self.artist or [])
+            + (self.developer or [])
+            + (self.publisher or [])
+        )
+
+    @property
+    def year(self) -> int | None:
+        return self.release_year or (
+            self.release_date.year if self.release_date else None
+        )

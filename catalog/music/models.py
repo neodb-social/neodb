@@ -109,3 +109,6 @@ class Album(Item):
             IdType.Bangumi,
         ]
         return [(i.value, i.label) for i in id_types]
+
+    def to_indexable_people(self) -> list[str]:
+        return (self.artist or []) + (self.company or [])

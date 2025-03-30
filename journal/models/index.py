@@ -178,13 +178,7 @@ class JournalSearchResult(SearchResult):
                 [],
             )
         )
-        select = {f"id_{i}": f"id={i}" for i in ids}
-        order = [f"-id_{i}" for i in ids]
-        items = Item.objects.filter(pk__in=ids, is_deleted=False).extra(
-            select=select, order_by=order
-        )
-        items = [j for j in [i.final_item for i in items] if not j.is_deleted]
-        return items
+        return Item.get_final_items(Item.get_by_ids(ids))
 
     @cached_property
     def pieces(self):

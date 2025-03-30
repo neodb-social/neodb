@@ -161,3 +161,6 @@ class Movie(Item):
         titles = [t["text"] for t in self.localized_title if t["text"]]
         titles += [self.orig_title] if self.orig_title else []
         return list(set(titles))
+
+    def to_indexable_people(self) -> list[str]:
+        return (self.director or []) + (self.actor or []) + (self.playwright or [])

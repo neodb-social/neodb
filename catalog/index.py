@@ -105,11 +105,9 @@ class CatalogSearchResult(SearchResult):
         if not self:
             return []
         ids = [hit["document"]["item_id"] for hit in self.response["hits"]]
-        items = Item.objects.filter(pk__in=ids, is_deleted=False)
-        items = [j for j in [i.final_item for i in items] if not j.is_deleted]
-        return items
+        return Item.get_final_items(Item.get_by_ids(ids))
 
-    def __iter__(self):
+    def __iter__(self):  # type:ignore
         return iter(self.items)
 
     def __getitem__(self, key):
@@ -223,7 +221,7 @@ class CatalogIndex(Index):
         if docs:
             self.replace_docs(docs)
         if len(docs) < len(item_ids):
-            deletes = item_ids - [i.pk for i in items]
+            deletes = set(item_ids) - set([i.pk for i in items])
             self.delete_docs("item_id", deletes)
 
     def replace_item(self, item: "Item"):
@@ -267,6 +265,6 @@ class CatalogIndex(Index):
     def search(
         self,
         query,
-    ) -> CatalogSearchResult:  # type:ignore
+    ) -> CatalogSearchResult:
         r = super().search(query)
         return r  # type:ignore

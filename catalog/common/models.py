@@ -1,7 +1,7 @@
 import re
 import uuid
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any, Iterable, Self
 
 from auditlog.context import disable_auditlog
 from auditlog.models import LogEntry
@@ -677,7 +677,7 @@ class Item(PolymorphicModel):
         return []
 
     def to_indexable_doc(self) -> dict[str, str | int | list[str]]:
-        return {
+        doc = {
             "id": str(self.pk),
             "item_id": self.pk,
             "item_class": self.__class__.__name__,
@@ -687,6 +687,10 @@ class Item(PolymorphicModel):
             "tag": self.tags,
             "mark_count": self.mark_count,
         }
+        year = getattr(self, "year", None)
+        if year:
+            doc["year"] = year
+        return doc
 
     def update_index(self):
         index = CatalogIndex.instance()
@@ -725,6 +729,19 @@ class Item(PolymorphicModel):
             return cls.get_by_url(url_, True)
         er = ExternalResource.objects.filter(url=url_).first()
         return er.item if er else None
+
+    @classmethod
+    def get_by_ids(cls, ids: list[int]):
+        select = {f"id_{i}": f"id={i}" for i in ids}
+        order = [f"-id_{i}" for i in ids]
+        items = cls.objects.filter(pk__in=ids, is_deleted=False).extra(
+            select=select, order_by=order
+        )
+        return items
+
+    @classmethod
+    def get_final_items(cls, items: Iterable["Item"]) -> list["Item"]:
+        return [j for j in [i.final_item for i in items] if not j.is_deleted]
 
     # def get_lookup_id(self, id_type: str) -> str:
     #     prefix = id_type.strip().lower() + ':'

@@ -186,10 +186,10 @@ class Performance(Item):
         default=list,
         schema=LIST_OF_STR_SCHEMA,
     )
-    opening_date = jsondata.CharField(
+    opening_date = jsondata.DateField(
         verbose_name=_("opening date"), max_length=100, null=True, blank=True
     )
-    closing_date = jsondata.CharField(
+    closing_date = jsondata.DateField(
         verbose_name=_("closing date"), max_length=100, null=True, blank=True
     )
     official_site = jsondata.CharField(
@@ -239,6 +239,24 @@ class Performance(Item):
     @property
     def child_items(self):
         return self.all_productions
+
+    def to_indexable_titles(self) -> list[str]:
+        titles = [t["text"] for t in self.localized_title if t["text"]]
+        titles += [self.orig_title] if self.orig_title else []
+        return list(set(titles))
+
+    def to_indexable_people(self) -> list[str]:
+        return (
+            (self.orig_creator or [])
+            + (self.playwright or [])
+            + (self.director or [])
+            + (self.troupe or [])
+            + [a["name"] for a in (self.actor or [])]
+            + (self.performer or [])
+            + (self.composer or [])
+            + (self.choreographer or [])
+            + [a["name"] for a in (self.crew or [])]
+        )
 
 
 class PerformanceProduction(Item):
@@ -322,10 +340,10 @@ class PerformanceProduction(Item):
         default=list,
         schema=LIST_OF_STR_SCHEMA,
     )
-    opening_date = jsondata.CharField(
+    opening_date = jsondata.DateField(
         verbose_name=_("opening date"), max_length=100, null=True, blank=False
     )
-    closing_date = jsondata.CharField(
+    closing_date = jsondata.DateField(
         verbose_name=_("closing date"), max_length=100, null=True, blank=True
     )
     official_site = jsondata.CharField(
@@ -393,3 +411,21 @@ class PerformanceProduction(Item):
     @cached_property
     def crew_by_role(self):
         return _crew_by_role(self.crew)
+
+    def to_indexable_titles(self) -> list[str]:
+        titles = [t["text"] for t in self.localized_title if t["text"]]
+        titles += [self.orig_title] if self.orig_title else []
+        return list(set(titles))
+
+    def to_indexable_people(self) -> list[str]:
+        return (
+            (self.orig_creator or [])
+            + (self.playwright or [])
+            + (self.director or [])
+            + (self.troupe or [])
+            + [a["name"] for a in (self.actor or [])]
+            + (self.performer or [])
+            + (self.composer or [])
+            + (self.choreographer or [])
+            + [a["name"] for a in (self.crew or [])]
+        )

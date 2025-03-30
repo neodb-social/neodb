@@ -247,6 +247,9 @@ class TVShow(Item):
         titles += [self.orig_title] if self.orig_title else []
         return list(set(titles))
 
+    def to_indexable_people(self) -> list[str]:
+        return (self.director or []) + (self.actor or []) + (self.playwright or [])
+
 
 class TVSeason(Item):
     if TYPE_CHECKING:
@@ -432,6 +435,9 @@ class TVSeason(Item):
         titles += [self.orig_title] if self.orig_title else []
         titles += self.parent_item.to_indexable_titles() if self.parent_item else []
         return list(set(titles))
+
+    def to_indexable_people(self) -> list[str]:
+        return (self.director or []) + (self.actor or []) + (self.playwright or [])
 
     def update_linked_items_from_external_resource(self, resource):
         for w in resource.required_resources:

@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.checks import Error, Warning
 from loguru import logger
 
+from catalog.index import CatalogIndex
 from catalog.search.models import Indexer
 from common.models import JobManager
 from journal.models import JournalIndex
@@ -116,6 +117,7 @@ class Setup:
 
         # Create search index if not exists
         Indexer.init()
+        CatalogIndex.instance().initialize_collection()
         JournalIndex.instance().initialize_collection()
 
         if settings.TESTING:
