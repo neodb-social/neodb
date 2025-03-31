@@ -15,7 +15,7 @@ class OAuth2Backend(ModelBackend):
         self, request: HttpRequest | None, username=None, password=None, **kwargs
     ):
         """when username is provided, assume that token is newly obtained and valid"""
-        account: SocialAccount = kwargs.get("social_account", None)
+        account: SocialAccount | None = kwargs.get("social_account", None)
         if not account or not account.user:
             return None
         return account.user if self.user_can_authenticate(account.user) else None

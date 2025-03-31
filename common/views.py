@@ -21,6 +21,19 @@ def render_error(request: HttpRequest, title, message=""):
     )
 
 
+def opensearch(request):
+    return render(request, "common/opensearch.xml.tpl", content_type="text/xml")
+
+
+def manifest(request):
+    return render(request, "common/manifest.json.tpl", content_type="application/json")
+
+
+def share(request):
+    q = request.GET.get("url") or request.GET.get("text") or request.GET.get("title")
+    return redirect(reverse("common:search") + "?q=" + q) if q else home(request)
+
+
 @login_required
 def me(request):
     if not request.user.registration_complete:
