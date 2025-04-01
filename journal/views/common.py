@@ -94,7 +94,7 @@ def render_list(
         )
         queryset = queryset.alias(
             rating_grade=Subquery(rating.values("grade"))
-        ).order_by(F("rating_grade").desc(nulls_last=True))
+        ).order_by(F("rating_grade").desc(nulls_last=True), "id")
     else:
         queryset = queryset.order_by("-created_time")
     start_date = queryset.aggregate(Min("created_time"))["created_time__min"]
