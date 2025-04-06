@@ -14,6 +14,7 @@ from typesense.exceptions import ObjectNotFound
 from typesense.types.document import SearchParameters
 
 from catalog.models import Item
+from common.models import QueryParser
 
 SEARCHABLE_ATTRIBUTES = [
     "localized_title",
@@ -55,6 +56,29 @@ SEARCH_PAGE_SIZE = 20
 _PENDING_INDEX_KEY = "pending_index_ids"
 _PENDING_INDEX_QUEUE = "import"
 _PENDING_INDEX_JOB_ID = "pending_index_flush"
+
+class CatalogQueryParser(QueryParser):
+    fields = SEARCHABLE_ATTRIBUTES + FILTERABLE_ATTRIBUTES
+    default_search_params = {
+        "query_by": ",".join(SEARCHABLE_ATTRIBUTES),
+        "per_page": SEARCH_PAGE_SIZE,
+        "sort_by": "_text_match:desc,rating_count:desc",
+    }
+
+    def __init__(self, query:str, page: int = 1, page_size: int = 0):
+        super().__init__(query, page, page_size)
+        '''
+        this is primitive but also only a matter of naming convention for filters
+        can be easily altered by doing this case by case
+        '''
+        for attr in self.fields:
+            v = [i for i in set(self.parsed_fields.get(attr,"").split(",")) if i]
+            if v:
+                self.filter_by[attr] = v
+
+    def to_search_params(self) -> dict:
+        return super().to_search_params()
+
 
 
 def _update_index_task():
@@ -349,27 +373,34 @@ class Indexer:
 
     @classmethod
     def search(cls, q, page=1, categories=None, tag=None, sort=None):
-        f = []
-        if categories:
-            f.append(f"category:= [{','.join(categories)}]")
-        if tag and tag != "_":
-            f.append(f"tags:= '{tag}'")
-        filters = " && ".join(f)
-        options: SearchParameters = {
-            "q": q,
-            "page": page,
-            "per_page": SEARCH_PAGE_SIZE,
-            "query_by": ",".join(SEARCHABLE_ATTRIBUTES),
-            "filter_by": filters,
-            # "facet_by": "category",
-            "sort_by": "_text_match:desc,rating_count:desc",
-            # 'facetsDistribution': ['_class'],
-            # 'sort_by': None,
-        }
         results = types.SimpleNamespace()
         results.items = []
         results.count = 0
         results.num_pages = 1
+        # if there is a tag, simply filter the tag; ugly but optimal
+        if tag:
+            options: SearchParameters = {
+                "q": "*",
+                "page": page,
+                "per_page": SEARCH_PAGE_SIZE,
+                "query_by": ",".join(SEARCHABLE_ATTRIBUTES),
+                "filter_by": f"tags:= '{tag}'",
+                "sort_by": "_text_match:desc,rating_count:desc",
+            }
+        # no tag then we need to check
+        else:
+            parser = CatalogQueryParser(q, page)
+            if not parser:
+                return results
+            '''
+            fix this: catalog filtering is additive, so if additional fiters are set on categories it won't work as intended
+            fix this: needs data migration: author filtering is impossible in the upstream(origin) version due to 
+             the author schema for Editions being JSONField rather than ArrayField
+             not sure why
+            '''
+            if categories:
+                parser.filter_by["category"] = categories 
+            options: SearchParameters = parser.to_search_params()
 
         try:
             r = cls.instance().documents.search(options)
