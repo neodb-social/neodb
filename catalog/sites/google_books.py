@@ -149,7 +149,7 @@ class GoogleBooks(AbstractSite):
                         # b['volumeInfo']['infoLink'].replace('http:', 'https:')
                         url = "https://books.google.com/books?id=" + b["id"]
                         cover = (
-                            b["volumeInfo"]["imageLinks"]["thumbnail"]
+                            b["volumeInfo"]["imageLinks"]["thumbnail"].replace("http","https")
                             if "imageLinks" in b["volumeInfo"]
                             else ""
                         )
