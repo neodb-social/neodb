@@ -400,7 +400,7 @@ class Indexer:
             '''
             if categories:
                 parser.filter_by["category"] = categories 
-            options: SearchParameters = parser.to_search_params()
+            options: SearchParameters = SearchParameters(**parser.to_search_params())
 
         try:
             r = cls.instance().documents.search(options)
