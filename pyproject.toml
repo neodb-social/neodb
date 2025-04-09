@@ -22,7 +22,7 @@ dependencies = [
     "django-ninja>=1.3.0",
     "django-polymorphic @ git+https://github.com/jazzband/django-polymorphic/@v4.0.0a",
     "django-redis>=5.4.0",
-    "django-rq>=2.10.2",
+    "django-rq>=3.0.0",
     "django-sass-processor>=1.4.1",
     "django-tz-detect>=0.5.0",
     "django-user-messages>=1.1.0",
