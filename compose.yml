@@ -84,7 +84,6 @@ x-shared:
       IGDB_API_CLIENT_ID:
       IGDB_API_CLIENT_SECRET:
       DISCORD_WEBHOOKS:
-      SLACK_API_TOKEN:
       SSL_ONLY:
     restart: "unless-stopped"
     volumes:

@@ -142,7 +142,6 @@ class IGDB(AbstractSite):
                 "localized_title": [{"lang": "en", "text": r["name"]}],
                 "localized_description": [{"lang": "en", "text": brief}],
                 "title": r["name"],
-                "other_title": [],
                 "developer": [developer] if developer else [],
                 "publisher": [publisher] if publisher else [],
                 "release_date": release_date,

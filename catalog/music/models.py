@@ -13,11 +13,10 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
-from catalog.common.models import LIST_OF_ONE_PLUS_STR_SCHEMA
+from catalog.common.models import LIST_OF_ONE_PLUS_STR_SCHEMA, LIST_OF_STR_SCHEMA
 
 
 class AlbumInSchema(ItemInSchema):
-    other_title: list[str]
     genre: list[str]
     artist: list[str]
     company: list[str]
@@ -39,13 +38,10 @@ class Album(Item):
     douban_music = PrimaryLookupIdDescriptor(IdType.DoubanMusic)
     spotify_album = PrimaryLookupIdDescriptor(IdType.Spotify_Album)
     METADATA_COPY_LIST = [
-        # "title",
-        # "other_title",
         "localized_title",
         "artist",
         "company",
         "track_list",
-        # "brief",
         "localized_description",
         "album_type",
         "media",
@@ -61,9 +57,8 @@ class Album(Item):
     duration = jsondata.IntegerField(
         _("length"), null=True, blank=True, help_text=_("milliseconds")
     )
-    artist = jsondata.ArrayField(
+    artist = jsondata.JSONField(
         verbose_name=_("artist"),
-        base_field=models.CharField(blank=True, default="", max_length=100),
         null=False,
         blank=False,
         default=list,
@@ -76,21 +71,14 @@ class Album(Item):
         blank=True,
         default=list,
     )
-    company = jsondata.ArrayField(
-        models.CharField(blank=True, default="", max_length=500),
+    company = jsondata.JSONField(
         verbose_name=_("publisher"),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
     track_list = jsondata.TextField(_("tracks"), blank=True)
-    other_title = jsondata.ArrayField(
-        verbose_name=_("other title"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
-        blank=True,
-        default=list,
-    )
     album_type = jsondata.CharField(_("album type"), blank=True, max_length=500)
     media = jsondata.CharField(_("media type"), blank=True, max_length=500)
     bandcamp_album_id = jsondata.CharField(blank=True, max_length=500)

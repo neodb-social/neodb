@@ -5,20 +5,6 @@ from catalog.sites.imdb import IMDB
 from catalog.tv.models import *
 
 
-class JSONFieldTestCase(TestCase):
-    databases = "__all__"
-
-    def test_legacy_data(self):
-        o = TVShow()
-        self.assertEqual(o.other_title, [])
-        o.other_title = "test"
-        self.assertEqual(o.other_title, ["test"])
-        o.other_title = ["a", "b"]
-        self.assertEqual(o.other_title, ["a", "b"])
-        o.other_title = None
-        self.assertEqual(o.other_title, [])
-
-
 class TMDBTVTestCase(TestCase):
     databases = "__all__"
 

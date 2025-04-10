@@ -42,7 +42,11 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
-from catalog.common.models import LANGUAGE_CHOICES_JSONFORM, LanguageListField
+from catalog.common.models import (
+    LANGUAGE_CHOICES_JSONFORM,
+    LIST_OF_STR_SCHEMA,
+    LanguageListField,
+)
 from common.models.lang import RE_LOCALIZED_SEASON_NUMBERS, localize_number
 from common.models.misc import uniq
 
@@ -50,7 +54,6 @@ from common.models.misc import uniq
 class TVShowInSchema(ItemInSchema):
     season_count: int | None = None
     orig_title: str | None = None
-    other_title: list[str]
     director: list[str]
     playwright: list[str]
     actor: list[str]
@@ -72,7 +75,6 @@ class TVShowSchema(TVShowInSchema, BaseSchema):
 class TVSeasonInSchema(ItemInSchema):
     season_number: int | None = None
     orig_title: str | None = None
-    other_title: list[str]
     director: list[str]
     playwright: list[str]
     actor: list[str]
@@ -111,15 +113,12 @@ class TVShow(Item):
     )
 
     METADATA_COPY_LIST = [
-        # "title",
         "localized_title",
         "season_count",
         "orig_title",
-        # "other_title",
         "director",
         "playwright",
         "actor",
-        # "brief",
         "localized_description",
         "genre",
         "showtime",
@@ -134,33 +133,26 @@ class TVShow(Item):
     orig_title = jsondata.CharField(
         verbose_name=_("original title"), blank=True, max_length=500
     )
-    other_title = jsondata.ArrayField(
-        base_field=models.CharField(blank=True, default="", max_length=500),
-        verbose_name=_("other title"),
-        null=True,
-        blank=True,
-        default=list,
-    )
-    director = jsondata.ArrayField(
+    director = jsondata.JSONField(
         verbose_name=_("director"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    playwright = jsondata.ArrayField(
+    playwright = jsondata.JSONField(
         verbose_name=_("playwright"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    actor = jsondata.ArrayField(
+    actor = jsondata.JSONField(
         verbose_name=_("actor"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
     genre = jsondata.ArrayField(
         verbose_name=_("genre"),
@@ -278,12 +270,10 @@ class TVSeason(Item):
     )
 
     METADATA_COPY_LIST = [
-        # "title",
         "localized_title",
         "season_number",
         "episode_count",
         "orig_title",
-        # "other_title",
         "director",
         "playwright",
         "actor",
@@ -296,38 +286,30 @@ class TVSeason(Item):
         "duration",
         "single_episode_length",
         "localized_description",
-        # "brief",
     ]
     orig_title = jsondata.CharField(
         verbose_name=_("original title"), blank=True, default="", max_length=500
     )
-    other_title = jsondata.ArrayField(
-        verbose_name=_("other title"),
-        base_field=models.CharField(blank=True, default="", max_length=500),
-        null=True,
-        blank=True,
-        default=list,
-    )
-    director = jsondata.ArrayField(
+    director = jsondata.JSONField(
         verbose_name=_("director"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    playwright = jsondata.ArrayField(
+    playwright = jsondata.JSONField(
         verbose_name=_("playwright"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    actor = jsondata.ArrayField(
+    actor = jsondata.JSONField(
         verbose_name=_("actor"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
     genre = jsondata.ArrayField(
         verbose_name=_("genre"),

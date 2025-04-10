@@ -226,11 +226,11 @@ class Bangumi(AbstractSite):
                 case "isbn":
                     isbn_type, isbn = detect_isbn_asin(v)
                 case "语言":
-                    language = v
+                    language = v.split("、") if v else []
                 case "出版社":
-                    pub_house = v
+                    pub_house = v.split("、") if v else []
                 case "导演":
-                    director = v
+                    director = v.split("、") if v else []
                 case "编剧" | "脚本":
                     playwright = (
                         [d["v"] for d in v]

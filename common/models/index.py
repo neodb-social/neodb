@@ -1,7 +1,7 @@
 import re
 from functools import cached_property
 from time import sleep
-from typing import List, Self
+from typing import Iterable, List, Self
 
 from django.conf import settings
 from loguru import logger
@@ -269,10 +269,10 @@ class Index:
                 if settings.DEBUG:
                     logger.error(f"Typesense: {r}")
 
-    def delete_docs(self, field: str, values: list[int] | str) -> int:
+    def delete_docs(self, field: str, values: Iterable[int] | str) -> int:
         v: str = (
             ("[" + ",".join(map(str, values)) + "]")
-            if isinstance(values, list)
+            if isinstance(values, Iterable)
             else values
         )
         r = self.write_collection.documents.delete({"filter_by": f"{field}:{v}"})
@@ -280,6 +280,9 @@ class Index:
 
     def patch_docs(self, partial_doc: dict, doc_filter: str):
         self.write_collection.documents.update(partial_doc, {"filter_by": doc_filter})
+
+    def get_doc(self, doc_id):
+        return self.read_collection.documents[doc_id].retrieve()
 
     def search(
         self,

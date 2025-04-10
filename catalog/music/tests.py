@@ -55,7 +55,6 @@ class SpotifyTestCase(TestCase):
         self.assertIsInstance(site.resource.item, Album)
         self.assertEqual(site.resource.item.barcode, "3610159662676")
         self.assertEqual(site.resource.item.genre, [])
-        self.assertEqual(site.resource.item.other_title, [])
 
 
 class DoubanMusicTestCase(TestCase):
@@ -132,7 +131,6 @@ class BandcampTestCase(TestCase):
         self.assertEqual(site.resource.metadata["artist"], ["Makaya McCraven"])
         self.assertIsInstance(site.resource.item, Album)
         self.assertEqual(site.resource.item.genre, [])
-        self.assertEqual(site.resource.item.other_title, [])
 
 
 class DiscogsReleaseTestCase(TestCase):
@@ -170,7 +168,6 @@ class DiscogsReleaseTestCase(TestCase):
         self.assertIsInstance(site.resource.item, Album)
         self.assertEqual(site.resource.item.barcode, "0602445804689")
         self.assertEqual(site.resource.item.genre, ["Hip Hop"])
-        self.assertEqual(site.resource.item.other_title, [])
 
 
 class DiscogsMasterTestCase(TestCase):
@@ -199,7 +196,6 @@ class DiscogsMasterTestCase(TestCase):
         self.assertEqual(site.resource.metadata["artist"], ["The XX"])
         self.assertIsInstance(site.resource.item, Album)
         self.assertEqual(site.resource.item.genre, ["Electronic", "Rock", "Pop"])
-        self.assertEqual(site.resource.item.other_title, [])
 
 
 class AppleMusicTestCase(TestCase):

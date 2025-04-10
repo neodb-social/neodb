@@ -322,6 +322,12 @@ LOCALIZED_DESCRIPTION_SCHEMA = {
     "uniqueItems": True,
 }
 
+LIST_OF_STR_SCHEMA = {
+    "type": "list",
+    "items": {"type": "string", "required": True},
+    "uniqueItems": True,
+}
+
 LIST_OF_ONE_PLUS_STR_SCHEMA = {
     "type": "list",
     "items": {"type": "string", "required": True},

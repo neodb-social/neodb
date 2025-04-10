@@ -5,6 +5,20 @@ from catalog.common import *
 from catalog.models import *
 
 
+class ArrayFieldTestCase(TestCase):
+    databases = "__all__"
+
+    def test_legacy_data(self):
+        o = Edition()
+        self.assertEqual(o.other_title, [])
+        o.other_title = "test"
+        self.assertEqual(o.other_title, ["test"])
+        o.other_title = ["a", "b"]
+        self.assertEqual(o.other_title, ["a", "b"])
+        o.other_title = None
+        self.assertEqual(o.other_title, [])
+
+
 class BookTestCase(TestCase):
     databases = "__all__"
 

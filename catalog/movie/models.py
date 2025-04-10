@@ -10,12 +10,11 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
-from catalog.common.models import LanguageListField
+from catalog.common.models import LIST_OF_STR_SCHEMA, LanguageListField
 
 
 class MovieInSchema(ItemInSchema):
     orig_title: str | None = None
-    other_title: list[str]
     director: list[str]
     playwright: list[str]
     actor: list[str]
@@ -41,8 +40,6 @@ class Movie(Item):
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
 
     METADATA_COPY_LIST = [
-        # "title",
-        # "other_title",
         "localized_title",
         "orig_title",
         "director",
@@ -55,42 +52,31 @@ class Movie(Item):
         "language",
         "year",
         "duration",
-        # "season_number",
-        # "episodes",
-        # "single_episode_length",
         "localized_description",
-        # "brief",
     ]
     orig_title = jsondata.CharField(
         verbose_name=_("original title"), blank=True, max_length=500
     )
-    other_title = jsondata.ArrayField(
-        verbose_name=_("other title"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
-        blank=True,
-        default=list,
-    )
-    director = jsondata.ArrayField(
+    director = jsondata.JSONField(
         verbose_name=_("director"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    playwright = jsondata.ArrayField(
+    playwright = jsondata.JSONField(
         verbose_name=_("playwright"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    actor = jsondata.ArrayField(
+    actor = jsondata.JSONField(
         verbose_name=_("actor"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
     genre = jsondata.ArrayField(
         verbose_name=_("genre"),

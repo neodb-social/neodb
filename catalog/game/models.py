@@ -12,6 +12,7 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
+from catalog.common.models import LIST_OF_STR_SCHEMA
 
 
 class GameReleaseType(models.TextChoices):
@@ -50,9 +51,6 @@ class Game(Item):
     douban_game = PrimaryLookupIdDescriptor(IdType.DoubanGame)
 
     METADATA_COPY_LIST = [
-        # "title",
-        # "brief",
-        # "other_title",
         "localized_title",
         "designer",
         "artist",
@@ -67,44 +65,36 @@ class Game(Item):
         "localized_description",
     ]
 
-    other_title = jsondata.ArrayField(
-        base_field=models.CharField(blank=True, default="", max_length=500),
-        verbose_name=_("other title"),
-        null=True,
-        blank=True,
-        default=list,
-    )
-
-    designer = jsondata.ArrayField(
-        base_field=models.CharField(blank=True, default="", max_length=500),
+    designer = jsondata.JSONField(
         verbose_name=_("designer"),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
 
-    artist = jsondata.ArrayField(
-        base_field=models.CharField(blank=True, default="", max_length=500),
+    artist = jsondata.JSONField(
         verbose_name=_("artist"),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
 
-    developer = jsondata.ArrayField(
-        base_field=models.CharField(blank=True, default="", max_length=500),
+    developer = jsondata.JSONField(
         verbose_name=_("developer"),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
 
-    publisher = jsondata.ArrayField(
-        base_field=models.CharField(blank=True, default="", max_length=500),
+    publisher = jsondata.JSONField(
         verbose_name=_("publisher"),
-        null=True,
+        null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
 
     release_year = jsondata.IntegerField(

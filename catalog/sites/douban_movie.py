@@ -86,14 +86,14 @@ class DoubanMovie(AbstractSite):
             content,
             "//div[@id='info']//span[text()='导演']/following-sibling::span[1]/a/text()",
         )
-        director = director_elem if director_elem else None
+        director = director_elem
 
         playwright_elem = self.query_list(
             content,
             "//div[@id='info']//span[text()='编剧']/following-sibling::span[1]/a/text()",
         )
         playwright = (
-            list(map(lambda a: a[:200], playwright_elem)) if playwright_elem else None
+            list(map(lambda a: a[:200], playwright_elem)) if playwright_elem else []
         )
 
         actor_elem = self.query_list(

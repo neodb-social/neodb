@@ -110,7 +110,6 @@ class DoubanGameTestCase(TestCase):
         self.assertEqual(titles, ["Portal 2", "传送门2"])
         self.assertEqual(site.resource.item.douban_game, "10734307")
         self.assertEqual(site.resource.item.genre, ["第一人称射击", "益智"])
-        self.assertEqual(site.resource.item.other_title, [])
 
 
 class BangumiGameTestCase(TestCase):
@@ -158,7 +157,6 @@ class BoardGameGeekTestCase(TestCase):
         self.assertEqual(len(site.resource.item.localized_title), 16)
         self.assertEqual(site.resource.item.platform, ["Boardgame"])
         self.assertEqual(site.resource.item.genre[0], "Economic")
-        # self.assertEqual(site.resource.item.other_title[0], "殖民火星")
         self.assertEqual(site.resource.item.designer, ["Jacob Fryxelius"])
 
 

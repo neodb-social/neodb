@@ -388,13 +388,6 @@ class Work(Item):
         blank=True,
         default=list,
     )
-    # other_title = jsondata.ArrayField(
-    #     verbose_name=_("other title"),
-    #     base_field=models.CharField(blank=True, default="", max_length=200),
-    #     null=True,
-    #     blank=True,
-    #     default=list,
-    # )
     METADATA_COPY_LIST = [
         "localized_title",
         "author",

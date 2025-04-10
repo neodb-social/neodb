@@ -14,7 +14,7 @@ from catalog.common import (
     ItemSchema,
     jsondata,
 )
-from catalog.common.models import LanguageListField
+from catalog.common.models import LIST_OF_STR_SCHEMA, LanguageListField
 
 
 class CrewMemberSchema(Schema):
@@ -24,7 +24,6 @@ class CrewMemberSchema(Schema):
 
 class PerformanceSchema(ItemSchema):
     orig_title: str | None = None
-    other_title: list[str]
     genre: list[str]
     language: list[str]
     opening_date: str | None = None
@@ -42,7 +41,6 @@ class PerformanceSchema(ItemSchema):
 
 class PerformanceProductionSchema(ItemSchema):
     orig_title: str | None = None
-    other_title: list[str]
     language: list[str]
     opening_date: str | None = None
     closing_date: str | None = None
@@ -110,13 +108,6 @@ class Performance(Item):
     orig_title = jsondata.CharField(
         verbose_name=_("original name"), blank=True, max_length=500
     )
-    other_title = jsondata.ArrayField(
-        verbose_name=_("other title"),
-        base_field=models.CharField(blank=False, default="", max_length=200),
-        null=False,
-        blank=True,
-        default=list,
-    )
     genre = jsondata.ArrayField(
         verbose_name=_("genre"),
         base_field=models.CharField(blank=False, default="", max_length=200),
@@ -125,40 +116,40 @@ class Performance(Item):
         default=list,
     )
     language = LanguageListField()
-    director = jsondata.ArrayField(
+    director = jsondata.JSONField(
         verbose_name=_("director"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    playwright = jsondata.ArrayField(
+    playwright = jsondata.JSONField(
         verbose_name=_("playwright"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    orig_creator = jsondata.ArrayField(
+    orig_creator = jsondata.JSONField(
         verbose_name=_("original creator"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    composer = jsondata.ArrayField(
+    composer = jsondata.JSONField(
         verbose_name=_("composer"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    choreographer = jsondata.ArrayField(
+    choreographer = jsondata.JSONField(
         verbose_name=_("choreographer"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
     actor = jsondata.JSONField(
         verbose_name=_("actor"),
@@ -167,19 +158,19 @@ class Performance(Item):
         default=list,
         schema=_ACTOR_SCHEMA,
     )
-    performer = jsondata.ArrayField(
+    performer = jsondata.JSONField(
         verbose_name=_("performer"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    troupe = jsondata.ArrayField(
+    troupe = jsondata.JSONField(
         verbose_name=_("troupe"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
     crew = jsondata.JSONField(
         verbose_name=_("crew"),
@@ -188,29 +179,26 @@ class Performance(Item):
         default=list,
         schema=_CREW_SCHEMA,
     )
-    location = jsondata.ArrayField(
+    location = jsondata.JSONField(
         verbose_name=_("theater"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    opening_date = jsondata.CharField(
+    opening_date = jsondata.DateField(
         verbose_name=_("opening date"), max_length=100, null=True, blank=True
     )
-    closing_date = jsondata.CharField(
+    closing_date = jsondata.DateField(
         verbose_name=_("closing date"), max_length=100, null=True, blank=True
     )
     official_site = jsondata.CharField(
         verbose_name=_("website"), max_length=1000, null=True, blank=True
     )
     METADATA_COPY_LIST = [
-        # "title",
-        # "brief",
         "localized_title",
         "localized_description",
         "orig_title",
-        # "other_title",
         "genre",
         "language",
         "opening_date",
@@ -255,48 +243,41 @@ class PerformanceProduction(Item):
     orig_title = jsondata.CharField(
         verbose_name=_("original title"), blank=True, default="", max_length=500
     )
-    other_title = jsondata.ArrayField(
-        verbose_name=_("other title"),
-        base_field=models.CharField(blank=False, default="", max_length=200),
-        null=False,
-        blank=True,
-        default=list,
-    )
     language = LanguageListField()
-    director = jsondata.ArrayField(
+    director = jsondata.JSONField(
         verbose_name=_("director"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    playwright = jsondata.ArrayField(
+    playwright = jsondata.JSONField(
         verbose_name=_("playwright"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    orig_creator = jsondata.ArrayField(
+    orig_creator = jsondata.JSONField(
         verbose_name=_("original creator"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    composer = jsondata.ArrayField(
+    composer = jsondata.JSONField(
         verbose_name=_("composer"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    choreographer = jsondata.ArrayField(
+    choreographer = jsondata.JSONField(
         verbose_name=_("choreographer"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
     actor = jsondata.JSONField(
         verbose_name=_("actor"),
@@ -305,19 +286,19 @@ class PerformanceProduction(Item):
         default=list,
         schema=_ACTOR_SCHEMA,
     )
-    performer = jsondata.ArrayField(
+    performer = jsondata.JSONField(
         verbose_name=_("performer"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
-    troupe = jsondata.ArrayField(
+    troupe = jsondata.JSONField(
         verbose_name=_("troupe"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
     crew = jsondata.JSONField(
         verbose_name=_("crew"),
@@ -326,12 +307,12 @@ class PerformanceProduction(Item):
         default=list,
         schema=_CREW_SCHEMA,
     )
-    location = jsondata.ArrayField(
+    location = jsondata.JSONField(
         verbose_name=_("theater"),
-        base_field=models.CharField(blank=False, default="", max_length=500),
         null=False,
         blank=True,
         default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
     opening_date = jsondata.CharField(
         verbose_name=_("opening date"), max_length=100, null=True, blank=False
@@ -345,10 +326,7 @@ class PerformanceProduction(Item):
     METADATA_COPY_LIST = [
         "localized_title",
         "localized_description",
-        # "title",
-        # "brief",
         "orig_title",
-        # "other_title",
         "language",
         "opening_date",
         "closing_date",
