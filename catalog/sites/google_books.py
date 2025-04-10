@@ -152,7 +152,7 @@ class GoogleBooks(AbstractSite):
                             re.sub(
                                 r"^http://",
                                 "https://",
-                                b["volumeInfo"]["imageLinks"]["thumbnail"]
+                                b["volumeInfo"]["imageLinks"]["thumbnail"],
                             )
                             if "imageLinks" in b["volumeInfo"]
                             else ""
