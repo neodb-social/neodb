@@ -7,6 +7,7 @@ from .bangumi import Bangumi
 from .bgg import BoardGameGeek
 from .bibliotek_dk import BibliotekDK_Edition, BibliotekDK_Work
 from .bookstw import BooksTW
+from .bookwyrm import Bookwyrm
 from .discogs import DiscogsMaster, DiscogsRelease
 from .douban_book import DoubanBook
 from .douban_drama import DoubanDrama
