@@ -1,7 +1,8 @@
 {% load i18n %}
 {% load static %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,12 +21,12 @@
         <h4>{% trans "Welcome" %}</h4>
         <p>
           {% blocktrans %}
-              {{ site_name }} is flourishing because of collaborations and contributions from users like you. Please read our <a href="/pages/terms">term of service</a>, and feel free to <a href="{{ support_link }}">contact us</a> if you have any question or feedback.
+              {{ site_name }} is flourishing because of collaborations and contributions from users like you. Please read our <a href="/pages/rules">rules</a>, and feel free to <a href="{{ support_link }}">contact us</a> if you have any question or feedback.
         {% endblocktrans %}
         </p>
-        <form action="{{ request.session.next_url | default:'/' }}" method="get">
-          <input type="submit" value="{% trans 'Cut the sh*t and get me in!' %}">
-        </form>
+        <input type="submit"
+               value="{% trans 'Accept' %}"
+               onclick="location='{{ request.session.next_url | default:'/' }}'">
       </article>
     </div>
   </body>

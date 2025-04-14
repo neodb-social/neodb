@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from urllib import parse
 
 import environ
 from django.utils.translation import gettext_lazy as _
@@ -99,7 +100,7 @@ env = environ.FileAwareEnv(
     # INTEGRATED TAKAHE CONFIGURATION
     TAKAHE_DB_URL=(str, "postgres://takahe:takahepass@127.0.0.1:5432/takahe"),
     # Spotify - https://developer.spotify.com/
-    SPOTIFY_API_KEY=(str, "TESTONLY"),
+    SPOTIFY_API_KEY=(str, ""),  # Set to empty string to enable scraping without API key
     # The Movie Database (TMDB) - https://developer.themoviedb.org/
     TMDB_API_V3_KEY=(str, "TESTONLY"),
     # Google Books - https://developers.google.com/books/docs/v1/using - not used at the moment
@@ -126,7 +127,7 @@ env = environ.FileAwareEnv(
 # ====== End of user configuration variables ======
 
 SECRET_KEY = env("NEODB_SECRET_KEY")
-DEBUG = env("NEODB_DEBUG")
+DEBUG: bool = env("NEODB_DEBUG")  # type:ignore
 DATABASES = {
     "takahe": env.db_url("TAKAHE_DB_URL"),
     "default": env.db_url("NEODB_DB_URL"),
@@ -137,7 +138,7 @@ DATABASES["takahe"]["OPTIONS"] = {"client_encoding": "UTF8"}
 DATABASES["takahe"]["TEST"] = {"DEPENDENCIES": []}
 REDIS_URL = env("NEODB_REDIS_URL")
 CACHES = {"default": env.cache_url("NEODB_REDIS_URL")}
-_parsed_redis_url = env.url("NEODB_REDIS_URL")
+_parsed_redis_url: parse.ParseResult = env.url("NEODB_REDIS_URL")  # type:ignore
 RQ_QUEUES = {
     q: {
         "HOST": _parsed_redis_url.hostname,
@@ -148,7 +149,7 @@ RQ_QUEUES = {
     for q in ["mastodon", "export", "import", "fetch", "crawl", "ap", "cron"]
 }
 
-_parsed_search_url = env.url("NEODB_SEARCH_URL")
+_parsed_search_url: parse.ParseResult = env.url("NEODB_SEARCH_URL")  # type:ignore
 SEARCH_BACKEND = None
 TYPESENSE_CONNECTION = {}
 if _parsed_search_url.scheme == "typesense":
@@ -171,7 +172,7 @@ if _parsed_search_url.scheme == "typesense":
 #     MEILISEARCH_KEY =  _parsed_search_url.password
 
 DEFAULT_FROM_EMAIL = env("NEODB_EMAIL_FROM")
-_parsed_email_url = env.url("NEODB_EMAIL_URL")
+_parsed_email_url: parse.ParseResult = env.url("NEODB_EMAIL_URL")  # type:ignore
 if _parsed_email_url.scheme == "anymail":
     # "anymail://<anymail_backend_name>?<anymail_args>"
     # see https://anymail.dev/
@@ -198,12 +199,12 @@ THREADS_APP_SECRET = env("THREADS_APP_SECRET")
 ENABLE_LOGIN_BLUESKY = env("NEODB_ENABLE_LOGIN_BLUESKY")
 ENABLE_LOGIN_THREADS = env("NEODB_ENABLE_LOGIN_THREADS")
 
-SITE_DOMAIN = env("NEODB_SITE_DOMAIN").lower()
+SITE_DOMAIN: str = env("NEODB_SITE_DOMAIN").lower()  # type:ignore
 SITE_INFO = {
     "neodb_version": NEODB_VERSION,
     "site_name": env("NEODB_SITE_NAME"),
     "site_domain": SITE_DOMAIN,
-    "site_url": env("NEODB_SITE_URL", default="https://" + SITE_DOMAIN),
+    "site_url": env("NEODB_SITE_URL", default="https://" + SITE_DOMAIN),  # type:ignore
     "site_logo": env("NEODB_SITE_LOGO"),
     "site_icon": env("NEODB_SITE_ICON"),
     "user_icon": env("NEODB_USER_ICON"),
@@ -211,7 +212,7 @@ SITE_INFO = {
     "site_intro": env("NEODB_SITE_INTRO"),
     "site_description": env("NEODB_SITE_DESCRIPTION"),
     "site_head": env("NEODB_SITE_HEAD"),
-    "site_links": [{"title": k, "url": v} for k, v in env("NEODB_SITE_LINKS").items()],
+    "site_links": [{"title": k, "url": v} for k, v in env("NEODB_SITE_LINKS").items()],  # type:ignore
     "cdn_url": "https://cdn.jsdelivr.net" if DEBUG else "/jsdelivr",
     # "cdn_url": "https://cdn.jsdelivr.net",
     # "cdn_url": "https://fastly.jsdelivr.net",
@@ -221,7 +222,7 @@ INVITE_ONLY = env("NEODB_INVITE_ONLY")
 
 # By default, NeoDB will relay with relay.neodb.net so that public user ratings/etc can be shared across instances
 # If you are running a development server, set this to True to disable this behavior
-DISABLE_DEFAULT_RELAY = env("NEODB_DISABLE_DEFAULT_RELAY", default=DEBUG)
+DISABLE_DEFAULT_RELAY = env("NEODB_DISABLE_DEFAULT_RELAY", default=DEBUG)  # type:ignore
 
 MIN_MARKS_FOR_DISCOVER = env("NEODB_MIN_MARKS_FOR_DISCOVER")
 
@@ -230,17 +231,10 @@ DISCOVER_FILTER_LANGUAGE = env("NEODB_DISCOVER_FILTER_LANGUAGE")
 DISCOVER_SHOW_LOCAL_ONLY = env("NEODB_DISCOVER_SHOW_LOCAL_ONLY")
 DISCOVER_SHOW_POPULAR_POSTS = env("NEODB_DISCOVER_SHOW_POPULAR_POSTS")
 
-MASTODON_ALLOWED_SITES = env("NEODB_LOGIN_MASTODON_WHITELIST")
+MASTODON_ALLOWED_SITES: str = env("NEODB_LOGIN_MASTODON_WHITELIST")  # type:ignore
 
 # Allow user to login via any Mastodon/Pleroma sites
 MASTODON_ALLOW_ANY_SITE = len(MASTODON_ALLOWED_SITES) == 0
-
-ALTERNATIVE_DOMAINS = [d.lower() for d in env("NEODB_ALTERNATIVE_DOMAINS", default=[])]  # type: ignore
-
-SITE_DOMAINS = [SITE_DOMAIN] + ALTERNATIVE_DOMAINS
-
-# ALLOWED_HOSTS = SITE_DOMAINS + ["127.0.0.1"]
-ALLOWED_HOSTS = ["*"]
 
 ENABLE_LOCAL_ONLY = env("NEODB_ENABLE_LOCAL_ONLY")
 
@@ -282,7 +276,7 @@ DOWNLOADER_REQUEST_TIMEOUT = env("NEODB_DOWNLOADER_REQUEST_TIMEOUT")
 DOWNLOADER_CACHE_TIMEOUT = env("NEODB_DOWNLOADER_CACHE_TIMEOUT")
 DOWNLOADER_RETRIES = env("NEODB_DOWNLOADER_RETRIES")
 
-DISABLE_CRON_JOBS = env("NEODB_DISABLE_CRON_JOBS")
+DISABLE_CRON_JOBS: list[str] = env("NEODB_DISABLE_CRON_JOBS")  # type: ignore
 SEARCH_PEERS = env("NEODB_SEARCH_PEERS")
 SEARCH_SITES = env("NEODB_SEARCH_SITES")
 
@@ -339,7 +333,7 @@ INSTALLED_APPS += [
     "legacy.apps.LegacyConfig",
 ]
 
-for app in env("NEODB_EXTRA_APPS"):
+for app in env("NEODB_EXTRA_APPS"):  # type:ignore
     INSTALLED_APPS.append(app)
 
 MIDDLEWARE = [
@@ -396,11 +390,16 @@ LOGGING = {
     "disable_existing_loggers": False,
     "handlers": {
         "console": {"class": "logging.StreamHandler"},
+        "null": {"class": "logging.NullHandler"},
     },
     "loggers": {
         "": {
             "handlers": ["console"],
             "level": LOG_LEVEL,
+        },
+        "django.security.DisallowedHost": {
+            "handlers": ["null"],
+            "propagate": False,
         },
     },
 }
@@ -419,6 +418,7 @@ SUPPORTED_UI_LANGUAGES = {
     "de": _("German"),
     "fr": _("French"),
     "it": _("Italian"),
+    "pt": _("Portuguese"),
     "zh-hans": _("Simplified Chinese"),
     "zh-hant": _("Traditional Chinese"),
 }
@@ -447,6 +447,10 @@ LANGUAGE_CODE, PREFERRED_LANGUAGES = _init_language_settings(
     env("NEODB_PREFERRED_LANGUAGES")
 )
 
+if TESTING:  # force en if testing
+    LANGUAGE_CODE = "en"
+    PREFERRED_LANGUAGES = ["en"]
+
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 
 TIME_ZONE = env("NEODB_TIMEZONE", default="Asia/Shanghai")  # type: ignore
@@ -458,15 +462,22 @@ USE_L10N = True
 USE_TZ = True
 
 USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024
+
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+
 SSL_ONLY = env("SSL_ONLY")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_REDIRECT_EXEMPT = [r"^nodeinfo/"]
 SECURE_SSL_REDIRECT = SSL_ONLY
 SECURE_HSTS_PRELOAD = SSL_ONLY
 SECURE_HSTS_INCLUDE_SUBDOMAINS = SSL_ONLY
 SECURE_HSTS_SECONDS = 2592000 if SSL_ONLY else 0
+
+ALTERNATIVE_DOMAINS = [d.lower() for d in env("NEODB_ALTERNATIVE_DOMAINS", default=[])]  # type: ignore
+SITE_DOMAINS = [SITE_DOMAIN] + ALTERNATIVE_DOMAINS
+ALLOWED_HOSTS = SITE_DOMAINS + ["127.0.0.1"] if SSL_ONLY else ["*"]
 
 STATIC_URL = "/s/"
 STATIC_ROOT = env("NEODB_STATIC_ROOT", default=os.path.join(BASE_DIR, "static/"))  # type: ignore
@@ -570,7 +581,7 @@ SEARCH_INDEX_NEW_ONLY = False
 
 INDEX_ALIASES = env("INDEX_ALIASES")
 
-DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="/tmp")  # type: ignore
+DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="")  # type: ignore
 
 DISABLE_MODEL_SIGNAL = False  # disable index and social feeds during importing/etc
 
@@ -606,8 +617,9 @@ DEACTIVATE_AFTER_UNREACHABLE_DAYS = 365
 
 DEFAULT_RELAY_SERVER = "https://relay.neodb.net/inbox"
 
-SENTRY_DSN = env("NEODB_SENTRY_DSN")
-if SENTRY_DSN:
+_SENTRY_DSN: str = env("NEODB_SENTRY_DSN")  # type:ignore
+if _SENTRY_DSN:
+    _SENTRY_SAMPLE_RATE: float = env("NEODB_SENTRY_SAMPLE_RATE")  # type:ignore
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import ignore_logger
@@ -619,7 +631,7 @@ if SENTRY_DSN:
     if len(sys.argv) > 1 and sentry_env in ("manage.py", "django-admin"):
         sentry_env = sys.argv[1]
     sentry_sdk.init(
-        dsn=SENTRY_DSN,
+        dsn=_SENTRY_DSN,
         environment=sentry_env or "unknown",
         integrations=[
             DjangoIntegration(),
@@ -627,5 +639,5 @@ if SENTRY_DSN:
         ],
         release=NEODB_VERSION,
         send_default_pii=True,
-        traces_sample_rate=env("NEODB_SENTRY_SAMPLE_RATE"),
+        traces_sample_rate=_SENTRY_SAMPLE_RATE,
     )

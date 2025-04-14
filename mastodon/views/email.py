@@ -1,5 +1,5 @@
 from django.core.validators import EmailValidator
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
@@ -8,6 +8,18 @@ from common.views import render_error
 
 from ..models import Email
 from .common import process_verified_account
+
+
+@require_http_methods(["GET"])
+def email_login_state(request):
+    email = request.GET.get("email", "")
+    state = "error"
+    if email and "@" in email:
+        state = Email.get_login_state(email) or "error"
+    resp = HttpResponse(state)
+    if state != "pending":
+        resp.status_code = 286  # stop polling
+    return resp
 
 
 @require_http_methods(["POST"])
@@ -27,6 +39,7 @@ def email_login(request: HttpRequest):
                 "Verification email is being sent, please check your inbox."
             ),
             "action": "login",
+            "email": login_email,
         },
     )
 

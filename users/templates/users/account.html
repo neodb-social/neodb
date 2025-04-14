@@ -2,8 +2,9 @@
 {% load i18n %}
 {% load mastodon %}
 {% load thumb %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="zh" class="classic-page">
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +18,7 @@
         <article>
           <details>
             <summary>{% trans "Display name, avatar and other information" %}</summary>
-            <form action="{% url 'users:profile' %}?next={{ request.path }}"
+            <form action="{% url 'users:profile' %}"
                   method="post"
                   {% if request.user.mastodon and not request.user.preference.mastodon_skip_userinfo %}onsubmit="return confirm('{% trans "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?" %}')"{% endif %}
                   enctype="multipart/form-data">
@@ -42,8 +43,7 @@
           <article>
             <details>
               <summary>{% trans 'Email' %}</summary>
-              <form action="{% url 'users:register' %}?next={{ request.path }}"
-                    method="post">
+              <form action="{% url 'users:register' %}" method="post">
                 <input value="{{ request.user.username }}" type="hidden" name="username" />
                 <fieldset>
                   <label>
@@ -298,6 +298,27 @@
           </details>
         </article>
         {% if allow_any_site %}
+          <article>
+            <details>
+              <summary>{% trans 'Migrate Account' %}</summary>
+              <p>
+                {% if not user.email_account %}
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  {% trans "Linking an email to your account is highly recommended before migrating from another Fediverse instance." %}
+                {% endif %}
+                <div>
+                  <form action="/@{{ request.user.identity.handle }}/settings/migrate_in/">
+                    <button>{% trans "Migrate from anther instance to here" %}</button>
+                  </form>
+                </p>
+                <p>
+                  <form action="/@{{ request.user.identity.handle }}/settings/migrate_out/">
+                    <button>{% trans "Migrate to another instance" %}</button>
+                  </form>
+                </div>
+              </p>
+            </details>
+          </article>
           <article>
             <details>
               <summary>{% trans 'Delete Account' %}</summary>

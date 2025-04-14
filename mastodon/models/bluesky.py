@@ -246,11 +246,13 @@ class BlueskyAccount(SocialAccount):
                 reply_to = models.AppBskyFeedPost.ReplyRef(
                     parent=root_post_ref, root=root_post_ref
                 )
-        text = (
-            content.replace("##rating##", render_rating(rating))
-            .replace("##obj_link_if_plain##", "")
-            .split("##obj##")
+        txt = content.replace("##rating##", render_rating(rating)).replace(
+            "##obj_link_if_plain##", ""
         )
+        max_len = 280  # maxGraphemes of app.bsky.feed.post is 300, but just be safe
+        if len(txt) + len(obj.display_title if obj else "") > max_len:
+            txt = txt[: max_len - len(obj.display_title if obj else "")] + "……"
+        text = txt.split("##obj##")
         richtext = client_utils.TextBuilder()
         first = True
         for t in text:
@@ -272,8 +274,11 @@ class BlueskyAccount(SocialAccount):
                 if cover and cover != settings.DEFAULT_ITEM_COVER
                 else getattr(obj, "image", None)
             )
-            blob_ref = self._client.upload_blob(blob).blob if blob else None
-            # blob_ref = None
+            max_size = 1000000  # maxSize of app.bsky.embed.external
+            if blob and len(blob) <= max_size:
+                blob_ref = self._client.upload_blob(blob).blob
+            else:
+                blob_ref = None
             embed = models.AppBskyEmbedExternal.Main(
                 external=models.AppBskyEmbedExternal.External(
                     title=obj.display_title,

@@ -2,8 +2,9 @@
 {% load i18n %}
 {% load mastodon %}
 {% load thumb %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="zh" class="classic-page nav-page-discover">
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page nav-page-discover">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

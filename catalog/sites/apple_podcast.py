@@ -65,6 +65,8 @@ class ApplePodcast(AbstractSite):
                                 p["artworkUrl600"],
                             )
                         )
+            except httpx.ReadTimeout:
+                logger.warning("ApplePodcast search timeout", extra={"query": q})
             except Exception as e:
                 logger.error(
                     "ApplePodcast search error", extra={"query": q, "exception": e}

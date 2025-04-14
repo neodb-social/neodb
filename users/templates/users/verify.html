@@ -3,8 +3,9 @@
 {% load l10n %}
 {% load mastodon %}
 {% load thumb %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,7 +38,14 @@
                    autocorrect="off"
                    required
                    pattern="^[a-zA-Z0-9]{5}$" />
-            <small>{{ error }}</small>
+            {% if error %}
+              <small>{{ error }}</small>
+            {% elif email %}
+              <small hx-get="{% url 'mastodon:email_login_state' %}?email={{ email|urlencode }}"
+                     hx-trigger="every 5s">
+                <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+              </small>
+            {% endif %}
           </div>
           <input type="submit" value="Submit" />
           {% csrf_token %}

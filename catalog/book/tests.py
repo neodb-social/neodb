@@ -167,7 +167,8 @@ class GoodreadsTestCase(TestCase):
         t_url = "https://www.goodreads.com/book/show/77566.Hyperion"
         t_url2 = "https://www.goodreads.com/book/show/77566"
         isbn = "9780553283686"
-        site = SiteManager.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url, False)
+        self.assertIsNotNone(site)
         self.assertEqual(site.ready, False)
         self.assertEqual(site.url, t_url2)
         site.get_resource()

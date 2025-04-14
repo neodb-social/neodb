@@ -12,7 +12,7 @@ from django.core.files.base import ContentFile
 from django.db import models, transaction
 from django.db.models.functions import Lower
 from django.urls import reverse
-from django.utils import timezone, translation
+from django.utils import translation
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
@@ -126,6 +126,10 @@ class User(AbstractUser):
         ]
         indexes = [models.Index("is_active", name="index_user_is_active")]
 
+    @property
+    def macrolanguage(self) -> str:  # ISO 639 macrolanguage
+        return self.language.split("-")[0] if self.language else ""
+
     @cached_property
     def mastodon(self) -> "MastodonAccount | None":
         return MastodonAccount.objects.filter(user=self).first()
@@ -195,19 +199,15 @@ class User(AbstractUser):
         return p.edited_time if p else None
 
     def clear(self):
-        if not self.is_active:
-            return
         with transaction.atomic():
             accts = [str(a) for a in self.social_accounts.all()]
-            self.first_name = (";").join(accts)
+            if accts:
+                self.first_name = (";").join(accts)
             self.last_name = self.username
             self.is_active = False
-            # self.username = "~removed~" + str(self.pk)
-            # to get ready for federation, username has to be reserved
             self.save()
-            self.identity.deleted = timezone.now()
-            self.identity.save()
             self.social_accounts.all().delete()
+            logger.warning(f"User {self} cleared.")
 
     def sync_identity(self):
         """sync display name, bio, and avatar from available sources"""
@@ -298,12 +298,6 @@ class User(AbstractUser):
         from takahe.utils import Takahe
 
         return Takahe.get_announcements_for_user(self)
-
-    @property
-    def activity_manager(self):
-        if not self.identity:
-            raise ValueError("User has no identity")
-        return self.identity.activity_manager
 
     @property
     def shelf_manager(self):

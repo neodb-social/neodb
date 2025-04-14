@@ -7,8 +7,10 @@
 {% load thumb %}
 {% load user_actions %}
 {% load duration %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="zh" class="item-page">
+<html lang="{{ LANGUAGE_CODE }}"
+      class="item-page item-type-{{ item.get_type }}">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -63,12 +65,12 @@
               {% endif %}
             {% endfor %}
           </div>
-          <div class="tv-tip" style="display:none;">
+          <div class="tvshow-tip">
             {% trans 'select one of the seasons to comment' %}
             {% if item.class_name == 'tvshow' %}
               {% with item.all_seasons as seasons %}
                 {% if seasons %}
-                  <div _="init hide .item-mark-buttons then hide .item-mark-icon then show .tv-tip end">
+                  <div>
                     {% for s in seasons %}
                       <span class="season-number">
                         <a href="{{ s.url }}">{{ s.season_number|default:"#" }}</a>
@@ -111,7 +113,7 @@
         {% else %}
           <section>
             <p class="empty">
-              <span><a href="{% url 'users:login' %}?next={{ request.path }}">
+              <span><a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">
                 {% trans 'Login or register to review or add this item to your collection.' %}
               </a></span>
             </p>
@@ -166,20 +168,25 @@
               </div>
               <div data-placement="top">
                 <ul class="chart">
-                  <li data-tooltip="{{ item.rating_dist.0 }}%" data-placement="left">
-                    <span style="height:{{ item.rating_dist.0 }}%"></span>
+                  <li data-tooltip="{{ item.rating_distribution.0 }}%"
+                      data-placement="left">
+                    <span style="height:{{ item.rating_distribution.0 }}%"></span>
                   </li>
-                  <li data-tooltip="{{ item.rating_dist.1 }}%" data-placement="left">
-                    <span style="height:{{ item.rating_dist.1 }}%"></span>
+                  <li data-tooltip="{{ item.rating_distribution.1 }}%"
+                      data-placement="left">
+                    <span style="height:{{ item.rating_distribution.1 }}%"></span>
                   </li>
-                  <li data-tooltip="{{ item.rating_dist.2 }}%" data-placement="left">
-                    <span style="height:{{ item.rating_dist.2 }}%"></span>
+                  <li data-tooltip="{{ item.rating_distribution.2 }}%"
+                      data-placement="left">
+                    <span style="height:{{ item.rating_distribution.2 }}%"></span>
                   </li>
-                  <li data-tooltip="{{ item.rating_dist.3 }}%" data-placement="left">
-                    <span style="height:{{ item.rating_dist.3 }}%"></span>
+                  <li data-tooltip="{{ item.rating_distribution.3 }}%"
+                      data-placement="left">
+                    <span style="height:{{ item.rating_distribution.3 }}%"></span>
                   </li>
-                  <li data-tooltip="{{ item.rating_dist.4 }}%" data-placement="left">
-                    <span style="height:{{ item.rating_dist.4 }}%"></span>
+                  <li data-tooltip="{{ item.rating_distribution.4 }}%"
+                      data-placement="left">
+                    <span style="height:{{ item.rating_distribution.4 }}%"></span>
                   </li>
                 </ul>
               </div>

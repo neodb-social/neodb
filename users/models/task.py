@@ -1,3 +1,5 @@
+from typing import Self
+
 import django_rq
 from auditlog.context import set_actor
 from django.db import models
@@ -16,10 +18,10 @@ class Task(TypedModel):
     DefaultMetadata = {}
 
     class States(models.IntegerChoices):
-        pending = 0, _("Pending")  # type:ignore[reportCallIssue]
-        started = 1, _("Started")  # type:ignore[reportCallIssue]
-        complete = 2, _("Complete")  # type:ignore[reportCallIssue]
-        failed = 3, _("Failed")  # type:ignore[reportCallIssue]
+        pending = 0, _("Pending")
+        started = 1, _("Started")
+        complete = 2, _("Complete")
+        failed = 3, _("Failed")
 
     user = models.ForeignKey(User, models.CASCADE, null=False)
     # type = models.CharField(max_length=20, null=False)
@@ -46,14 +48,27 @@ class Task(TypedModel):
         return cls.objects.filter(user=user).order_by("-created_time").first()
 
     @classmethod
-    def create(cls, user: User, **kwargs) -> "Task":
+    def create(cls, user: User, **kwargs) -> Self:
         d = cls.DefaultMetadata.copy()
         d.update(kwargs)
         t = cls.objects.create(user=user, metadata=d)
         return t
 
+    def _run(self) -> bool:
+        activate_language_for_user(self.user)
+        with set_actor(self.user):
+            try:
+                self.run()
+                return True
+            except Exception as e:
+                logger.exception(
+                    f"error running {self.__class__}",
+                    extra={"exception": e, "task": self.pk},
+                )
+                return False
+
     @classmethod
-    def _run(cls, task_id: int):
+    def _execute(cls, task_id: int):
         task = cls.objects.get(pk=task_id)
         logger.info(f"running {task}")
         if task.state != cls.States.pending:
@@ -63,25 +78,14 @@ class Task(TypedModel):
             return
         task.state = cls.States.started
         task.save()
-        activate_language_for_user(task.user)
-        with set_actor(task.user):
-            try:
-                task.run()
-                ok = True
-            except Exception as e:
-                logger.exception(
-                    f"error running {cls.__name__}",
-                    extra={"exception": e, "task": task_id},
-                )
-                ok = False
-            task.refresh_from_db()
-            task.state = cls.States.complete if ok else cls.States.failed
-            task.save()
-            task.notify()
+        ok = task._run()
+        task.refresh_from_db()
+        task.state = cls.States.complete if ok else cls.States.failed
+        task.save()
 
     def enqueue(self):
         return django_rq.get_queue(self.TaskQueue).enqueue(
-            self._run, self.pk, job_id=self.job_id
+            self._execute, self.pk, job_id=self.job_id
         )
 
     def notify(self) -> None:

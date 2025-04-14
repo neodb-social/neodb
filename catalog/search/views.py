@@ -48,11 +48,7 @@ def fetch_refresh(request, job_id):
             )
 
 
-def fetch(request, url, is_refetch: bool = False, site: AbstractSite | None = None):
-    if not site:
-        site = SiteManager.get_site_by_url(url)
-        if not site:
-            raise BadRequest(_("Invalid URL"))
+def fetch(request, url, site: AbstractSite, is_refetch: bool = False):
     item = site.get_item()
     if item and not is_refetch:
         return redirect(item.url)
@@ -131,9 +127,10 @@ def search(request):
         host = keywords.split("://")[1].split("/")[0]
         if host in settings.SITE_DOMAINS:
             return redirect(keywords)
-        site = SiteManager.get_site_by_url(keywords)
+        # skip detecting redirection to avoid timeout
+        site = SiteManager.get_site_by_url(keywords, detect_redirection=False)
         if site:
-            return fetch(request, keywords, False, site)
+            return fetch(request, keywords, site, False)
         if request.GET.get("r"):
             return redirect(keywords)
 
@@ -173,4 +170,7 @@ def refetch(request):
     url = request.POST.get("url")
     if not url:
         raise BadRequest(_("Invalid URL"))
-    return fetch(request, url, True)
+    site = SiteManager.get_site_by_url(url, detect_redirection=False)
+    if not site:
+        raise BadRequest(_("Unsupported URL"))
+    return fetch(request, url, site, True)

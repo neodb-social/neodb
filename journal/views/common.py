@@ -8,7 +8,6 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
-from catalog.models import *
 from common.utils import (
     AuthedHttpRequest,
     CustomPaginator,
@@ -17,8 +16,17 @@ from common.utils import (
     target_identity_required,
 )
 
-from ..forms import *
-from ..models import *
+from ..models import (
+    Piece,
+    Rating,
+    Review,
+    ShelfManager,
+    ShelfType,
+    Tag,
+    TagMember,
+    q_item_in_category,
+    q_owned_piece_visible_to_user,
+)
 
 PAGE_SIZE = 10
 
@@ -86,7 +94,7 @@ def render_list(
         )
         queryset = queryset.alias(
             rating_grade=Subquery(rating.values("grade"))
-        ).order_by(F("rating_grade").desc(nulls_last=True))
+        ).order_by(F("rating_grade").desc(nulls_last=True), "id")
     else:
         queryset = queryset.order_by("-created_time")
     start_date = queryset.aggregate(Min("created_time"))["created_time__min"]
@@ -100,7 +108,7 @@ def render_list(
     if year:
         year = int(year)
         queryset = queryset.filter(created_time__year=year)
-    paginator = CustomPaginator(queryset, request)  # type:ignore
+    paginator = CustomPaginator(queryset, request)
     page_number = int(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)

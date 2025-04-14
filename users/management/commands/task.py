@@ -52,7 +52,7 @@ class Command(BaseCommand):
             for task in tqdm(tasks):
                 task.state = Task.States.pending
                 task.save(update_fields=["state"])
-                Task._run(task.pk)
+                Task._execute(task.pk)
         if options["requeue"]:
             for task in tqdm(tasks):
                 task.state = Task.States.pending

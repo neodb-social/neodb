@@ -119,6 +119,7 @@ class Edition(Item):
         WEB = "web", _("Web Fiction")
         OTHER = "other", _("Other")
 
+    schema = EditionSchema
     category = ItemCategory.Book
     url_path = "book"
 
@@ -270,7 +271,7 @@ class Edition(Item):
     def delete(self, using=None, keep_parents=False, soft=True, *args, **kwargs):
         if soft:
             self.works.clear()
-        return super().delete(using, soft, keep_parents, *args, **kwargs)
+        return super().delete(using, keep_parents, soft, *args, **kwargs)
 
     def update_linked_items_from_external_resource(self, resource):
         """add Work from resource.metadata['work'] if not yet"""

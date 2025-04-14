@@ -155,6 +155,7 @@ class Collection(List):
             data,
             existing_post.pk if existing_post else None,
             self.created_time,
+            language=owner.user.macrolanguage,
         )
         if post and post != existing_post:
             self.link_post_id(post.pk)

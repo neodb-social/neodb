@@ -1,3 +1,4 @@
+import re
 from urllib.parse import quote_plus, urlparse
 
 import httpx
@@ -15,6 +16,7 @@ from catalog.common import (
     SiteManager,
     SiteName,
 )
+from catalog.common.downloaders import DownloadError
 from catalog.models import (
     Album,
     Edition,
@@ -66,28 +68,47 @@ class FediverseInstance(AbstractSite):
 
     @classmethod
     def url_to_id(cls, url: str):
-        u = url.split("://", 1)[1].split("/", 1)
-        return "https://" + u[0].lower() + "/" + u[1]
+        u = url.split("://", 1)[1].split("?", 1)[0].split("/", 1)
+        return "https://" + u[0].lower() + "/" + re.sub("^api/", "", u[1])
+        # return "https://" + u[0].lower() + "/" + u[1]
+        # FIXME re.sub(...) should be removed after all peers in network upgrade to 0.11.4.9+
 
     @classmethod
     def validate_url_fallback(cls, url: str):
+        from takahe.utils import Takahe
+
         val = URLValidator()
+        host = None
         try:
             val(url)
-            if url.split("://", 1)[1].split("/", 1)[0].lower() in settings.SITE_DOMAINS:
+            u = cls.url_to_id(url)
+            host = u.split("://", 1)[1].split("/", 1)[0].lower()
+            if host in settings.SITE_DOMAINS:
                 # disallow local instance URLs
                 return False
-            return cls.get_json_from_url(url) is not None
-        except Exception:
+            if host in Takahe.get_blocked_peers():
+                return False
+            return cls.get_json_from_url(u) is not None
+        except DownloadError:
+            if host and host in Takahe.get_neodb_peers():
+                logger.warning(f"Fedi item url download error: {url}")
+            return False
+        except Exception as e:
+            if host and host in Takahe.get_neodb_peers():
+                logger.error(f"Fedi item url validation error: {url} {e}")
             return False
 
     @classmethod
     def get_json_from_url(cls, url):
-        j = CachedDownloader(url, headers=cls.request_header).download().json()
-        if j.get("type") not in cls.supported_types.keys():
+        j = (
+            CachedDownloader(url, headers=cls.request_header, timeout=2)
+            .download()
+            .json()
+        )
+        if not isinstance(j, dict) or j.get("type") not in cls.supported_types.keys():
             raise ValueError("Not a supported format or type")
         if j.get("id") != url:
-            logger.warning(f"ID mismatch: {j.get('id')} != {url}")
+            raise ValueError(f"ID mismatch: {j.get('id')} != {url}")
         return j
 
     def scrape(self):
@@ -169,11 +190,17 @@ class FediverseInstance(AbstractSite):
         return results[offset : offset + page_size]
 
     @classmethod
+    def get_peers_for_search(cls) -> list[str]:
+        from takahe.utils import Takahe
+
+        if settings.SEARCH_PEERS:  # '-' = disable federated search
+            return [] if settings.SEARCH_PEERS == ["-"] else settings.SEARCH_PEERS
+        return Takahe.get_neodb_peers()
+
+    @classmethod
     def search_tasks(
         cls, q: str, page: int = 1, category: str | None = None, page_size=5
     ):
-        from takahe.utils import Takahe
-
-        peers = Takahe.get_neodb_peers()
+        peers = cls.get_peers_for_search()
         c = category if category != "movietv" else "movie,tv"
         return [cls.peer_search_task(host, q, page, c, page_size) for host in peers]

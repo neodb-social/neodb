@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.validators import URLValidator
 from django.utils.timezone import make_aware
+from loguru import logger
 
 from catalog.common import *
 from catalog.common.downloaders import (
@@ -110,10 +111,14 @@ class RSS(AbstractSite):
         return pd
 
     def scrape_additional_data(self):
-        item = self.get_item()
         feed = self.parse_feed_from_url(self.url)
         if not feed:
-            return
+            logger.warning(f"unable to parse RSS {self.url}")
+            return False
+        item = self.get_item()
+        if not item:
+            logger.warning(f"item for RSS {self.url} not found")
+            return False
         for episode in feed["episodes"]:
             PodcastEpisode.objects.get_or_create(
                 program=item,
@@ -135,3 +140,4 @@ class RSS(AbstractSite):
                     "link": episode.get("link"),
                 },
             )
+        return True

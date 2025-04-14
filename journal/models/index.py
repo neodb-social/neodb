@@ -11,6 +11,7 @@ from catalog.models import Item
 from common.models import Index, QueryParser, SearchResult, int_, uniq
 from takahe.models import Post
 from takahe.utils import Takahe
+from users.models.apidentity import APIdentity
 
 if TYPE_CHECKING:
     from journal.models import Piece
@@ -152,6 +153,14 @@ class JournalQueryParser(QueryParser):
         except ValueError:
             return 0, 0
 
+    def filter_by_owner(self, owner: APIdentity):
+        self.filter("owner_id", owner.pk)
+
+    def filter_by_viewer(self, viewer: APIdentity):
+        self.filter("visibility", 0)
+        self.exclude("owner_id", viewer.ignoring)
+        # TODO support non-public posts
+
 
 class JournalSearchResult(SearchResult):
     @cached_property
@@ -169,7 +178,11 @@ class JournalSearchResult(SearchResult):
                 [],
             )
         )
-        items = Item.objects.filter(pk__in=ids, is_deleted=False)
+        select = {f"id_{i}": f"id={i}" for i in ids}
+        order = [f"-id_{i}" for i in ids]
+        items = Item.objects.filter(pk__in=ids, is_deleted=False).extra(
+            select=select, order_by=order
+        )
         items = [j for j in [i.final_item for i in items] if not j.is_deleted]
         return items
 
@@ -188,11 +201,13 @@ class JournalSearchResult(SearchResult):
             ],
             [],
         )
-        ps = Piece.objects.filter(pk__in=ids)
+        select = {f"id_{i}": f"id={i}" for i in ids}
+        order = [f"-id_{i}" for i in ids]
+        ps = Piece.objects.filter(pk__in=ids).extra(select=select, order_by=order)
         return ps
 
     @cached_property
-    def posts(self):
+    def posts(self) -> QuerySet[Post]:
         if not self:
             return Post.objects.none()
         ids = reduce(
@@ -217,7 +232,7 @@ class JournalSearchResult(SearchResult):
     def facet_by_piece_class(self):
         return self.get_facet("piece_class")
 
-    def __iter__(self):
+    def __iter__(self):  # type: ignore
         return iter(self.posts)
 
     def __getitem__(self, key):

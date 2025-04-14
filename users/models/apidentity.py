@@ -2,6 +2,8 @@ from functools import cached_property
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
+from loguru import logger
 
 from mastodon.models.mastodon import MastodonAccount
 from takahe.utils import Takahe
@@ -225,7 +227,11 @@ class APIdentity(models.Model):
             username__iexact=username, domain_name__iexact=domain, deleted__isnull=True
         ).first()
         if i:
-            return i
+            if Takahe.get_identity_by_handler(username, domain):
+                return i
+            else:
+                logger.error(f"Identity {i} not found in Takahe.")
+                return None
         if domain != settings.SITE_DOMAIN:
             identity = Takahe.get_identity_by_handler(username, domain)
             if identity:
@@ -272,12 +278,6 @@ class APIdentity(models.Model):
             raise cls.DoesNotExist(f"Identity handle invalid {handler}")
 
     @cached_property
-    def activity_manager(self):
-        from social.models import ActivityManager
-
-        return ActivityManager(self)
-
-    @cached_property
     def shelf_manager(self):
         from journal.models import ShelfManager
 
@@ -288,3 +288,12 @@ class APIdentity(models.Model):
         from journal.models import TagManager
 
         return TagManager(self)
+
+    def clear(self):
+        """delete data for this identity"""
+        from journal.models import remove_data_by_identity
+
+        remove_data_by_identity(self)
+        self.deleted = timezone.now()
+        self.save()
+        logger.warning(f"Identity {self} cleared.")

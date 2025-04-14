@@ -55,11 +55,11 @@ def _add_interaction_to_events(events, identity_id):
     ).values_list("post_id", "type")
     for event in events:
         if event.subject_post_id:
-            event.subject_post.liked_by_current_user = (  # type: ignore
+            event.subject_post.liked_by_current_user = (
                 event.subject_post_id,
                 "like",
             ) in interactions
-            event.subject_post.boosted_by_current_user = (  # type: ignore
+            event.subject_post.boosted_by_current_user = (
                 event.subject_post_id,
                 "boost",
             ) in interactions
@@ -96,10 +96,10 @@ def search_data(request):
     identity_id = request.user.identity.pk
     page = int_(request.GET.get("lastpage")) + 1
     q = JournalQueryParser(request.GET.get("q", default=""), page, page_size=PAGE_SIZE)
-    index = JournalIndex.instance()
+    q.filter_by_owner(request.user.identity)
     q.filter("post_id", ">0")
-    q.filter("owner_id", identity_id)
     q.sort(["created:desc"])
+    index = JournalIndex.instance()
     if q:
         r = index.search(q)
         events = [

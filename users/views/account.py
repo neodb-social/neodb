@@ -11,11 +11,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 
 from common.utils import AuthedHttpRequest
-from journal.models import remove_data_by_user
-from journal.models.index import JournalIndex
 from mastodon.models import Email, Mastodon
 from mastodon.models.common import Platform, SocialAccount
 from mastodon.models.email import EmailAccount
@@ -54,6 +51,7 @@ def login(request):
     )
 
 
+@require_http_methods(["POST"])
 @login_required
 def logout(request):
     return auth_logout(request)
@@ -131,7 +129,7 @@ def register(request: AuthedHttpRequest):
             auth_login(request, new_user)
             return render(request, "users/welcome.html")
         else:
-            return redirect(reverse("common:home"))
+            return redirect(request.session.get("next_url", reverse("common:home")))
 
     # use verified email if presents for new account creation
     if verified_account and verified_account.platform == Platform.EMAIL:
@@ -161,7 +159,9 @@ def register(request: AuthedHttpRequest):
                 and form.cleaned_data["email"] != current_email
             ):
                 Email.send_login_email(request, form.cleaned_data["email"], "verify")
-                return render(request, "users/verify.html")
+                return render(
+                    request, "users/verify.html", {"email": form.cleaned_data["email"]}
+                )
         else:
             # new user to finalize registration process
             username = form.cleaned_data["username"]
@@ -219,36 +219,36 @@ def logout_takahe(response: HttpResponse):
 
 def auth_logout(request):
     auth.logout(request)
-    return logout_takahe(redirect("/"))
+    return logout_takahe(redirect(request.GET.get("next", "/")))
 
 
-def clear_data_task(user_id):
-    user = User.objects.get(pk=user_id)
-    user_str = str(user)
-    if user.identity:
-        remove_data_by_user(user.identity)
-    Takahe.delete_identity(user.identity.pk)
+def initiate_user_deletion(user):
+    # for deletion initiated by local user in neodb:
+    # 1. clear user data
+    # 2. neodb send DeleteIdentity to Takahe
+    # 3. takahe delete identity and send identity_deleted to neodb
+    # 4. identity_deleted clear user (if not yet) and identity data
+    # for deletion initiated by remote/local identity in takahe:
+    # just 3 & 4
     user.clear()
-    index = JournalIndex.instance()
-    index.delete_by_owner(user.identity.pk)
-    logger.warning(f"User {user_str} data cleared.")
+    r = Takahe.request_delete_identity(user.identity.pk)
+    if not r:
+        django_rq.get_queue("mastodon").enqueue(user.identity.clear)
 
 
+@require_http_methods(["POST"])
 @login_required
 def clear_data(request):
     if request.META.get("HTTP_AUTHORIZATION"):
         raise BadRequest("Only for web login")
-    if request.method == "POST":
-        v = request.POST.get("verification", "").strip()
-        if v:
-            for acct in request.user.social_accounts.all():
-                if acct.handle == v:
-                    django_rq.get_queue("mastodon").enqueue(
-                        clear_data_task, request.user.id
-                    )
-                    messages.add_message(
-                        request, messages.INFO, _("Account is being deleted.")
-                    )
-                    return auth_logout(request)
-        messages.add_message(request, messages.ERROR, _("Account mismatch."))
+    v = request.POST.get("verification", "").strip()
+    if v:
+        for acct in request.user.social_accounts.all():
+            if acct.handle == v:
+                initiate_user_deletion(request.user)
+                messages.add_message(
+                    request, messages.INFO, _("Account is being deleted.")
+                )
+                return auth_logout(request)
+    messages.add_message(request, messages.ERROR, _("Account mismatch."))
     return redirect(reverse("users:data"))

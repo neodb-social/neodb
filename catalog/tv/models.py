@@ -28,7 +28,6 @@ For now, we follow Douban convention, but keep an eye on it in case it breaks it
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from auditlog.models import QuerySet
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -40,12 +39,12 @@ from catalog.common import (
     ItemCategory,
     ItemInSchema,
     ItemSchema,
-    ItemType,
     PrimaryLookupIdDescriptor,
     jsondata,
 )
 from catalog.common.models import LANGUAGE_CHOICES_JSONFORM, LanguageListField
 from common.models.lang import RE_LOCALIZED_SEASON_NUMBERS, localize_number
+from common.models.misc import uniq
 
 
 class TVShowInSchema(ItemInSchema):
@@ -61,6 +60,7 @@ class TVShowInSchema(ItemInSchema):
     year: int | None = None
     site: str | None = None
     episode_count: int | None = None
+    season_uuids: list[str]
 
 
 class TVShowSchema(TVShowInSchema, BaseSchema):
@@ -95,8 +95,8 @@ class TVEpisodeSchema(ItemSchema):
 
 class TVShow(Item):
     if TYPE_CHECKING:
-        seasons: QuerySet["TVSeason"]
-    type = ItemType.TVShow
+        seasons: models.QuerySet["TVSeason"]
+    schema = TVShowSchema
     child_class = "TVSeason"
     category = ItemCategory.TV
     url_path = "tv"
@@ -244,6 +244,10 @@ class TVShow(Item):
     def child_items(self):
         return self.all_seasons
 
+    @property
+    def season_uuids(self):
+        return [x.uuid for x in self.all_seasons]
+
     def get_season_count(self):
         return self.season_count or self.seasons.all().count()
 
@@ -256,7 +260,7 @@ class TVShow(Item):
 class TVSeason(Item):
     if TYPE_CHECKING:
         episodes: models.QuerySet["TVEpisode"]
-    type = ItemType.TVSeason
+    schema = TVSeasonSchema
     category = ItemCategory.TV
     url_path = "tv/season"
     child_class = "TVEpisode"
@@ -411,30 +415,35 @@ class TVSeason(Item):
          - "Show Title Season X" with some localization
         """
         s = super().display_title
-        if self.parent_item and (
-            RE_LOCALIZED_SEASON_NUMBERS.sub("", s) == ""
-            or s == self.parent_item.display_title
-        ):
-            if self.parent_item.get_season_count() == 1:
-                return self.parent_item.display_title
-            elif self.season_number:
-                return _("{show_title} Season {season_number}").format(
-                    show_title=self.parent_item.display_title,
-                    season_number=localize_number(self.season_number),
-                )
-            else:
-                return f"{self.parent_item.display_title} {s}"
+        if self.parent_item:
+            if (
+                RE_LOCALIZED_SEASON_NUMBERS.sub("", s) == ""
+                or s == self.parent_item.display_title
+            ):
+                if self.parent_item.get_season_count() == 1:
+                    return self.parent_item.display_title
+                elif self.season_number:
+                    return _("{show_title} Season {season_number}").format(
+                        show_title=self.parent_item.display_title,
+                        season_number=localize_number(self.season_number),
+                    )
+                else:
+                    return f"{self.parent_item.display_title} {s}"
+            elif self.parent_item.display_title not in s:
+                return f"{self.parent_item.display_title} ({s})"
         return s
 
     @cached_property
     def additional_title(self) -> list[str]:
         title = self.display_title
-        return [
-            t["text"]
-            for t in self.localized_title
-            if t["text"] != title
-            and RE_LOCALIZED_SEASON_NUMBERS.sub("", t["text"]) != ""
-        ]
+        return uniq(
+            [
+                t["text"]
+                for t in self.localized_title
+                if t["text"] != title
+                and RE_LOCALIZED_SEASON_NUMBERS.sub("", t["text"]) != ""
+            ]
+        )
 
     def to_indexable_titles(self) -> list[str]:
         titles = [t["text"] for t in self.localized_title if t["text"]]
@@ -475,6 +484,7 @@ class TVSeason(Item):
 
 
 class TVEpisode(Item):
+    schema = TVEpisodeSchema
     category = ItemCategory.TV
     url_path = "tv/episode"
     season = models.ForeignKey(

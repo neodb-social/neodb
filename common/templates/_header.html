@@ -103,7 +103,7 @@
                 <a href="{% url 'users:info' %}">{% trans 'Account' %}</a>
               </li>
               <li>
-                <a href="{% url 'users:logout' %}">{% trans 'Logout' %}</a>
+                <a href="#" onclick="$('#logout').submit()">{% trans 'Logout' %}</a>
               </li>
               {% if request.user.is_superuser %}
                 <li>
@@ -115,7 +115,7 @@
               {% endif %}
             {% else %}
               <li>
-                <a href="{% url 'users:login' %}?next={{ request.path }}">{% trans 'Sign up or Login' %}</a>
+                <a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans 'Sign up or Login' %}</a>
               </li>
             {% endif %}
           </ul>
@@ -149,3 +149,6 @@ _search_cat_change();
     {% endfor %}
   </ul>
 {% endif %}
+<form id="logout" action="{% url 'users:logout' %}" method="post">
+  {% csrf_token %}
+</form>

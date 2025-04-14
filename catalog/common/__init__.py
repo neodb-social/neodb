@@ -7,7 +7,6 @@ from .sites import *
 __all__ = (  # noqa
     "IdType",
     "SiteName",
-    "ItemType",
     "ItemCategory",
     "AvailableItemCategory",
     "Item",

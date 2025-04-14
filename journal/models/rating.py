@@ -5,14 +5,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Avg, Count
 
-from catalog.models import Item
+from catalog.models import Item, Performance, TVShow
 from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .common import Content
 
 MIN_RATING_COUNT = 5
-RATING_INCLUDES_CHILD_ITEMS = ["tvshow", "performance"]
+RATING_INCLUDES_CHILD_ITEMS = [TVShow, Performance]
 
 
 class Rating(Content):
@@ -40,6 +40,8 @@ class Rating(Content):
 
     @classmethod
     def update_by_ap_object(cls, owner, item, obj, post, crosspost=None):
+        if post.local:  # ignore local user updating their post via Mastodon API
+            return
         p = cls.objects.filter(owner=owner, item=item).first()
         if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
             return p  # incoming ap object is older than what we have, no update needed
@@ -71,10 +73,41 @@ class Rating(Content):
         p.link_post_id(post.id)
         return p
 
+    @classmethod
+    def get_info_for_item(cls, item: Item) -> dict:
+        stat = Rating.objects.filter(grade__isnull=False)
+        if item.__class__ in RATING_INCLUDES_CHILD_ITEMS:
+            stat = stat.filter(item_id__in=item.child_item_ids + [item.pk])
+        else:
+            stat = stat.filter(item=item)
+        stat = stat.values("grade").annotate(count=Count("grade"))
+        grades = [0] * 11
+        votes = 0
+        total = 0
+        for s in stat:
+            if s["grade"] and s["grade"] > 0 and s["grade"] < 11:
+                grades[s["grade"]] = s["count"]
+                total += s["count"] * s["grade"]
+                votes += s["count"]
+        if votes < MIN_RATING_COUNT:
+            return {"average": None, "count": votes, "distribution": [0] * 5}
+        else:
+            return {
+                "average": round(total / votes, 1),
+                "count": votes,
+                "distribution": [
+                    100 * (grades[1] + grades[2]) // votes,
+                    100 * (grades[3] + grades[4]) // votes,
+                    100 * (grades[5] + grades[6]) // votes,
+                    100 * (grades[7] + grades[8]) // votes,
+                    100 * (grades[9] + grades[10]) // votes,
+                ],
+            }
+
     @staticmethod
     def get_rating_for_item(item: Item) -> float | None:
         stat = Rating.objects.filter(grade__isnull=False)
-        if item.class_name in RATING_INCLUDES_CHILD_ITEMS:
+        if item.__class__ in RATING_INCLUDES_CHILD_ITEMS:
             stat = stat.filter(item_id__in=item.child_item_ids + [item.pk])
         else:
             stat = stat.filter(item=item)
@@ -84,7 +117,7 @@ class Rating(Content):
     @staticmethod
     def get_rating_count_for_item(item: Item) -> int:
         stat = Rating.objects.filter(grade__isnull=False)
-        if item.class_name in RATING_INCLUDES_CHILD_ITEMS:
+        if item.__class__ in RATING_INCLUDES_CHILD_ITEMS:
             stat = stat.filter(item_id__in=item.child_item_ids + [item.pk])
         else:
             stat = stat.filter(item=item)
@@ -94,7 +127,7 @@ class Rating(Content):
     @staticmethod
     def get_rating_distribution_for_item(item: Item):
         stat = Rating.objects.filter(grade__isnull=False)
-        if item.class_name in RATING_INCLUDES_CHILD_ITEMS:
+        if item.__class__ in RATING_INCLUDES_CHILD_ITEMS:
             stat = stat.filter(item_id__in=item.child_item_ids + [item.pk])
         else:
             stat = stat.filter(item=item)

@@ -3,7 +3,7 @@ name: Mirror to Codeberg
 on: [push, delete]
 
 jobs:
-  to_gitlab:
+  to_codeberg:
     if: github.repository_owner == 'neodb-social'
     runs-on: ubuntu-latest
     steps:

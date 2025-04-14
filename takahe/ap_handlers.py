@@ -68,14 +68,15 @@ def _parse_piece_objects(objects) -> list[dict[str, Any]]:
 
 
 def _get_or_create_item(item_obj) -> Item | None:
-    logger.debug(f"Fetching item by ap from {item_obj}")
     typ = item_obj["type"]
     url = item_obj["href"]
     if url.startswith(settings.SITE_INFO["site_url"]):
+        logger.debug(f"Matching local item from {item_obj}")
         item = Item.get_by_url(url, True)
         if not item:
             logger.warning(f"Item not found for {url}")
         return item
+    logger.debug(f"Fetching item by ap from {item_obj}")
     if typ in ["TVEpisode", "PodcastEpisode"]:
         # TODO support episode item
         # match and fetch parent item first
@@ -85,10 +86,15 @@ def _get_or_create_item(item_obj) -> Item | None:
     if not site:
         logger.warning(f"Site not found for {url}")
         return None
-    site.get_resource_ready()
+    try:
+        site.get_resource_ready()
+    except Exception:
+        # occationally race condition happens and resource is fetched by another process,
+        # so we clear cache to retry matching the resource
+        site.clear_cache()
     item = site.get_item()
     if not item:
-        logger.warning(f"Item not fetched for {url}")
+        logger.error(f"Item not fetched for {url}")
     return item
 
 
@@ -105,7 +111,17 @@ def post_fetched(pk, post_data):
 
 
 def _post_fetched(pk, local, post_data, create: bool | None = None):
-    post: Post = Post.objects.get(pk=pk)
+    retry = 1
+    while True:
+        try:
+            post: Post = Post.objects.get(pk=pk)
+            break
+        except Post.DoesNotExist:
+            if retry > 5:
+                logger.error(f"Fetched post {pk} not found")
+                return
+            sleep(retry)
+            retry += 1
     owner = Takahe.get_or_create_remote_apidentity(post.author)
     if local:
         activate_language_for_user(owner.user)
@@ -221,21 +237,35 @@ def post_uninteracted(interaction_pk, interaction, post_pk, identity_pk):
     ).delete()
 
 
+def identity_deleted(pk):
+    apid = APIdentity.objects.filter(pk=pk).first()
+    if not apid:
+        logger.warning(f"APIdentity {apid} not found")
+        return
+
+    logger.warning(f"handle deleting identity {apid}")
+    if apid.user and apid.user.is_active:
+        apid.user.clear()  # for local identity, clear their user as well
+    apid.clear()
+
+
 def identity_fetched(pk):
-    try:
-        identity = Identity.objects.get(pk=pk)
-    except Identity.DoesNotExist:
-        sleep(2)
+    retry = 1
+    while True:
         try:
             identity = Identity.objects.get(pk=pk)
+            break
         except Identity.DoesNotExist:
-            logger.warning(f"Fetched identity {pk} not found")
-            return
+            if retry > 5:
+                logger.error(f"Fetched identity {pk} not found")
+                return
+            sleep(retry)
+            retry += 1
     if identity.username and identity.domain:
         apid = Takahe.get_or_create_remote_apidentity(identity)
         if apid:
-            logger.debug(f"Identity {identity} synced")
+            logger.debug(f"Fetched identity {identity} synced")
         else:
-            logger.warning(f"Identity {identity} not synced")
+            logger.error(f"Fetched identity {identity} not synced")
     else:
-        logger.warning(f"Identity {identity} has no username or domain")
+        logger.error(f"Fetched identity {identity} has no username or domain")

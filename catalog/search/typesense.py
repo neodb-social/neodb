@@ -3,14 +3,15 @@ from datetime import timedelta
 from time import sleep
 
 import django_rq
-import typesense
 from django.conf import settings
 from django.db.models.signals import post_delete, post_save
 from django_redis import get_redis_connection
 from loguru import logger
 from rq.job import Job
+from typesense.client import Client
 from typesense.collection import Collection
 from typesense.exceptions import ObjectNotFound
+from typesense.types.document import SearchParameters
 
 from catalog.models import Item
 
@@ -120,10 +121,10 @@ class Indexer:
     @classmethod
     def instance(cls) -> Collection:
         if cls._instance is None:
-            cls._instance = typesense.Client(settings.TYPESENSE_CONNECTION).collections[
+            cls._instance = Client(settings.TYPESENSE_CONNECTION).collections[
                 settings.TYPESENSE_INDEX_NAME
             ]
-        return cls._instance  # type: ignore
+        return cls._instance
 
     @classmethod
     def config(cls):
@@ -188,7 +189,7 @@ class Indexer:
 
     @classmethod
     def check(cls):
-        client = typesense.Client(settings.TYPESENSE_CONNECTION)
+        client = Client(settings.TYPESENSE_CONNECTION)
         if not client.operations.is_healthy():
             raise ValueError("Typesense: server not healthy")
         idx = client.collections[settings.TYPESENSE_INDEX_NAME]
@@ -199,7 +200,7 @@ class Indexer:
     @classmethod
     def init(cls):
         try:
-            client = typesense.Client(settings.TYPESENSE_CONNECTION)
+            client = Client(settings.TYPESENSE_CONNECTION)
             wait = 5
             while not client.operations.is_healthy() and wait:
                 logger.warning("Typesense: server not healthy")
@@ -214,7 +215,7 @@ class Indexer:
                     )
                     return
                 except Exception:
-                    client.collections.create(cls.config())
+                    client.collections.create(cls.config())  # type: ignore
                     logger.info(
                         f"Typesense: index {settings.TYPESENSE_INDEX_NAME} created"
                     )
@@ -233,7 +234,7 @@ class Indexer:
     def update_settings(cls):
         idx = cls.instance()
         if idx:
-            idx.update(cls.config())
+            idx.update(cls.config())  # type: ignore
 
     @classmethod
     def get_stats(cls):
@@ -354,7 +355,7 @@ class Indexer:
         if tag and tag != "_":
             f.append(f"tags:= '{tag}'")
         filters = " && ".join(f)
-        options = {
+        options: SearchParameters = {
             "q": q,
             "page": page,
             "per_page": SEARCH_PAGE_SIZE,

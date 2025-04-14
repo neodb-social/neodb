@@ -50,6 +50,10 @@ def html_to_text(h: str) -> str:
     )
 
 
+def has_spoiler(s: str) -> bool:
+    return ">!" in s
+
+
 def _spolier(s: str) -> str:
     sl = s.split(">!", 1)
     if len(sl) == 1:

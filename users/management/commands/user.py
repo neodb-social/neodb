@@ -1,3 +1,5 @@
+from time import sleep
+
 import httpx
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
@@ -5,6 +7,7 @@ from tqdm import tqdm
 from takahe.models import Domain, Identity
 from takahe.utils import Takahe
 from users.models import Preference, User
+from users.models.apidentity import APIdentity
 
 
 class Command(BaseCommand):
@@ -14,6 +17,7 @@ class Command(BaseCommand):
         parser.add_argument("--list", action="store_true", help="list all users")
         parser.add_argument("--verbose", action="store_true")
         parser.add_argument("--fix", action="store_true")
+        parser.add_argument("--delete", action="store", nargs="*", help="delete user")
         parser.add_argument(
             "--integrity",
             action="store_true",
@@ -48,6 +52,9 @@ class Command(BaseCommand):
             self.staff(options["staff"])
         if options["active"]:
             self.set_active(options["active"])
+        if options["delete"]:
+            if input("Are you sure to delete? [Y/N] ").startswith("Y"):
+                self.delete(options["delete"])
 
     def list(self, users):
         for user in users:
@@ -139,6 +146,12 @@ class Command(BaseCommand):
                 u = User.objects.get(username=n, is_active=True)
                 u.is_superuser = not u.is_superuser
                 u.save()
+                tu = u.identity.takahe_identity.users.all().first()
+                if tu:
+                    tu.admin = u.is_superuser
+                    tu.save()
+                else:
+                    self.stdout.write(f"no takahe user for {u}")
                 self.stdout.write(f"update {u} superuser: {u.is_superuser}")
 
     def staff(self, v):
@@ -158,3 +171,44 @@ class Command(BaseCommand):
             u.is_active = not u.is_active
             u.save()
             self.stdout.write(f"update {u} is_active: {u.is_active}")
+
+    def delete(self, v):
+        for n in v:
+            identity_id = None
+            try:
+                apid = APIdentity.get_by_handle(n)
+                if apid.deleted:
+                    self.stdout.write(f"{apid} already deleted, try anyway")
+                apid.clear()
+                if apid.user:
+                    apid.user.clear()
+                Takahe.request_delete_identity(apid.pk)
+                identity_id = apid.pk
+            except APIdentity.DoesNotExist:
+                s = n.split("@")
+                r = False
+                if len(s) == 2:
+                    identity = Takahe.get_identity_by_handler(s[0], s[1])
+                    if identity:
+                        r = Takahe.request_delete_identity(identity.pk)
+                        identity_id = identity.pk
+                if not r:
+                    self.stdout.write(self.style.ERROR(f"identity {n} not found"))
+            if identity_id:
+                count_down = 10
+                while count_down > 0:
+                    i = Identity.objects.filter(pk=identity_id).first()
+                    if i and i.state != "deleted_fanned_out":
+                        self.stdout.write(f"waiting for takahe-stator...{count_down}")
+                        sleep(1)
+                    else:
+                        break
+                    count_down -= 1
+                if count_down == 0:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"Identity {n} was deleted, but some data in takahe has not been fully processed yet, make sure takahe-stator is running and wait a bit."
+                        )
+                    )
+                else:
+                    self.stdout.write(f"Deleted identity {n}")

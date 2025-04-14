@@ -55,7 +55,7 @@ class Tag(List):
 
     @staticmethod
     def cleanup_title(title, replace=True):
-        t = re.sub(r"\s+", " ", title.rstrip().lstrip("# "))
+        t = re.sub(r"\s+", " ", title.rstrip().lstrip("# "))[:100]
         return "_" if not t and replace else t
 
     @staticmethod

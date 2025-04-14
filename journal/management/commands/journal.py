@@ -8,6 +8,7 @@ from django.utils import timezone
 from tqdm import tqdm
 
 from catalog.models import Item
+from journal.exporters.ndjson import NdjsonExporter
 from journal.models import (
     Collection,
     Content,
@@ -27,6 +28,7 @@ _CONFIRM = "confirm deleting collection? [Y/N] "
 _HELP_TEXT = """
 intergrity:     check and fix remaining journal for merged and deleted items
 purge:          delete invalid data (visibility=99)
+export:         run export task
 idx-info:       show index information
 idx-init:       check and create index if not exists
 idx-destroy:    delete index
@@ -51,6 +53,7 @@ class Command(BaseCommand):
             choices=[
                 "integrity",
                 "purge",
+                "export",
                 "idx-info",
                 "idx-init",
                 "idx-alt",
@@ -111,6 +114,18 @@ class Command(BaseCommand):
                 if self.fix:
                     update_journal_for_merged_item(i.url)
 
+    def export(self, owner_ids):
+        users = User.objects.filter(identity__in=owner_ids)
+        for user in users:
+            task = NdjsonExporter.create(user=user)
+            self.stdout.write(f"exporting for {user} (task {task.pk})...")
+            ok = task._run()
+            if ok:
+                self.stdout.write(f"complete {task.metadata['file']}")
+            else:
+                self.stdout.write("failed")
+            task.delete()
+
     def handle(
         self,
         action,
@@ -151,6 +166,9 @@ class Command(BaseCommand):
                         self.stdout.write(f"Cleaning up {cls}...")
                         cls.objects.filter(visibility=99).delete()
                 self.stdout.write(self.style.SUCCESS("Done."))
+
+            case "export":
+                self.export(owners)
 
             case "idx-destroy":
                 if yes or input(_CONFIRM).upper().startswith("Y"):

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
-<ShortName>NeoDB</ShortName>
-<Description>输入关键字或站外条目链接，搜索NeoDB书影音游戏</Description>
-<InputEncoding>UTF-8</InputEncoding>
-<Image type="image/jpeg" width="64" height="64">https://neodb.social/static/img/logo-square.jpg</Image>
-<Url type="text/html" template="https://neodb.social/search/?q={searchTerms}"/>
-</OpenSearchDescription>

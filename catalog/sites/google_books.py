@@ -15,9 +15,9 @@ class GoogleBooks(AbstractSite):
     SITE_NAME = SiteName.GoogleBooks
     ID_TYPE = IdType.GoogleBooks
     URL_PATTERNS = [
-        r"https://books\.google\.co[^/]+/books\?id=([^&#]+)",
-        r"https://www\.google\.co[^/]+/books/edition/[^/]+/([^&#?]+)",
-        r"https://books\.google\.co[^/]+/books/about/[^?]+\?id=([^&#?]+)",
+        r"https://books\.google\.[^/]+/books\?id=([^&#]+)",
+        r"https://www\.google\.[^/]+/books/edition/[^/]+/([^&#?]+)",
+        r"https://books\.google\.[^/]+/books/about/[^?]+\?id=([^&#?]+)",
     ]
     WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Edition
@@ -149,7 +149,11 @@ class GoogleBooks(AbstractSite):
                         # b['volumeInfo']['infoLink'].replace('http:', 'https:')
                         url = "https://books.google.com/books?id=" + b["id"]
                         cover = (
-                            b["volumeInfo"]["imageLinks"]["thumbnail"]
+                            re.sub(
+                                r"^http://",
+                                "https://",
+                                b["volumeInfo"]["imageLinks"]["thumbnail"],
+                            )
                             if "imageLinks" in b["volumeInfo"]
                             else ""
                         )
@@ -164,6 +168,8 @@ class GoogleBooks(AbstractSite):
                                 cover,
                             )
                         )
+            except httpx.ReadTimeout:
+                logger.warning("GoogleBooks search timeout", extra={"query": q})
             except Exception as e:
                 logger.error(
                     "GoogleBooks search error", extra={"query": q, "exception": e}

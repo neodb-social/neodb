@@ -8,8 +8,8 @@ from tqdm import tqdm
 from catalog.common.sites import SiteManager
 from catalog.models import Edition, Item, Podcast, TVSeason, TVShow
 from catalog.search.external import ExternalSources
+from catalog.sites.fedi import FediverseInstance
 from common.models import detect_language, uniq
-from takahe.utils import Takahe
 
 
 class Command(BaseCommand):
@@ -62,7 +62,7 @@ class Command(BaseCommand):
 
     def external_search(self, q, cat):
         sites = SiteManager.get_sites_for_search()
-        peers = Takahe.get_neodb_peers()
+        peers = FediverseInstance.get_peers_for_search()
         self.stdout.write(f"Searching {cat} '{q}' ...")
         self.stdout.write(f"Peers: {peers}")
         self.stdout.write(f"Sites: {sites}")
@@ -184,7 +184,7 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f"! no season {i} : {i.absolute_url}?skipcheck=1")
                 if self.fix:
-                    i.recast_to(i.merged_to_item.__class__)  # type:ignore
+                    i.recast_to(i.merged_to_item.__class__)
 
         self.stdout.write("Checking TVSeason is child of other class...")
         for i in TVSeason.objects.filter(show__isnull=False).exclude(

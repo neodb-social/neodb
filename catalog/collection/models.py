@@ -12,7 +12,7 @@ class Collection(Item):
 
     @property
     def url(self):
-        return self.journal_item.url if self.journal_item else super().url
+        return self.journal_item.url if hasattr(self, "journal_item") else super().url
 
     @property
     def owner_id(self):

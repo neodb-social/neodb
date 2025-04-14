@@ -7,7 +7,9 @@ from django.db import connection, models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
+from polymorphic.models import ContentType, PolymorphicManager
 
+from catalog.common.models import item_categories
 from catalog.models import Item, ItemCategory
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -23,10 +25,10 @@ if TYPE_CHECKING:
 
 
 class ShelfType(models.TextChoices):
-    WISHLIST = "wishlist", _("WISHLIST")  # type:ignore[reportCallIssue]
-    PROGRESS = "progress", _("PROGRESS")  # type:ignore[reportCallIssue]
-    COMPLETE = "complete", _("COMPLETE")  # type:ignore[reportCallIssue]
-    DROPPED = "dropped", _("DROPPED")  # type:ignore[reportCallIssue]
+    WISHLIST = "wishlist", _("WISHLIST")
+    PROGRESS = "progress", _("PROGRESS")
+    COMPLETE = "complete", _("COMPLETE")
+    DROPPED = "dropped", _("DROPPED")
 
 
 _REVIEWED = "reviewed"
@@ -310,6 +312,28 @@ _SHELF_LABELS = [
 # grammatically problematic, for translation only
 
 
+class ShelfMemberManager(PolymorphicManager):
+    def get_queryset(self):
+        from .comment import Comment
+        from .rating import Rating
+
+        rating_subquery = Rating.objects.filter(
+            owner_id=models.OuterRef("owner_id"), item_id=models.OuterRef("item_id")
+        ).values("grade")[:1]
+        comment_subquery = Comment.objects.filter(
+            owner_id=models.OuterRef("owner_id"), item_id=models.OuterRef("item_id")
+        ).values("text")[:1]
+        return (
+            super()
+            .get_queryset()
+            .annotate(
+                _rating_grade=models.Subquery(rating_subquery),
+                _comment_text=models.Subquery(comment_subquery),
+                _shelf_type=models.F("parent__shelf_type"),
+            )
+        )
+
+
 class ShelfMember(ListMember):
     if TYPE_CHECKING:
         parent: models.ForeignKey["ShelfMember", "Shelf"]
@@ -317,6 +341,8 @@ class ShelfMember(ListMember):
     parent = models.ForeignKey(
         "Shelf", related_name="members", on_delete=models.CASCADE
     )
+
+    objects = ShelfMemberManager()
 
     class Meta:
         unique_together = [["owner", "item"]]
@@ -341,6 +367,8 @@ class ShelfMember(ListMember):
     def update_by_ap_object(
         cls, owner: APIdentity, item: Item, obj: dict, post, crosspost=None
     ):
+        if post.local:  # ignore local user updating their post via Mastodon API
+            return
         p = cls.objects.filter(owner=owner, item=item).first()
         if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
             return p  # incoming ap object is older than what we have, no update needed
@@ -446,6 +474,15 @@ class ShelfMember(ListMember):
             "content": content,
         }
 
+    def save(self, *args, **kwargs):
+        try:
+            del self._shelf_type  # type:ignore
+            del self._rating_grade  # type:ignore
+            del self._comment_text  # type:ignore
+        except AttributeError:
+            pass
+        return super().save(*args, **kwargs)
+
     @cached_property
     def sibling_comment(self) -> "Comment | None":
         from .comment import Comment
@@ -468,19 +505,28 @@ class ShelfMember(ListMember):
 
     @property
     def shelf_label(self) -> str | None:
-        return ShelfManager.get_label(self.parent.shelf_type, self.item.category)
+        return ShelfManager.get_label(self.shelf_type, self.item.category)
 
     @property
     def shelf_type(self):
-        return self.parent.shelf_type
+        try:
+            return getattr(self, "_shelf_type")
+        except AttributeError:
+            return self.parent.shelf_type
 
     @property
     def rating_grade(self):
-        return self.mark.rating_grade
+        try:
+            return getattr(self, "_rating_grade")
+        except AttributeError:
+            return self.mark.rating_grade
 
     @property
     def comment_text(self):
-        return self.mark.comment_text
+        try:
+            return getattr(self, "_comment_text")
+        except AttributeError:
+            return self.mark.comment_text
 
     @property
     def tags(self):
@@ -698,6 +744,45 @@ class ShelfManager:
     def get_manager_for_user(owner: APIdentity):
         return ShelfManager(owner)
 
+    def get_stats(self, q: models.Q | None = None) -> dict:
+        from .review import Review
+
+        if not q:
+            q = models.Q(owner=self.owner)
+        qs = (
+            ShelfMember.objects.filter(q)
+            .values("parent__shelf_type", "item__polymorphic_ctype_id")
+            .annotate(num=models.Count("item"))
+        )
+        qs2 = (
+            Review.objects.filter(q)
+            .values("item__polymorphic_ctype_id")
+            .annotate(num=models.Count("item"))
+        )
+        stats = {
+            cat: {t: 0 for t in (ShelfType.values + ["reviewed"])}
+            for cat in ItemCategory.values
+        }
+        for cat, item_classes in item_categories().items():
+            ct_ids = [
+                ContentType.objects.get_for_model(item_cls).pk
+                for item_cls in item_classes
+            ]
+            for typ in ShelfType.values:
+                stats[cat][typ] = sum(
+                    [
+                        s["num"]
+                        for s in qs
+                        if s["item__polymorphic_ctype_id"] in ct_ids
+                        and s["parent__shelf_type"] == typ
+                    ],
+                    0,
+                )
+            stats[cat]["reviewed"] = sum(
+                [s["num"] for s in qs2 if s["item__polymorphic_ctype_id"] in ct_ids], 0
+            )
+        return stats
+
     def get_calendar_data(self, max_visiblity: int):
         shelf_id = self.get_shelf(ShelfType.COMPLETE).pk
         timezone_offset = timezone.localtime(timezone.now()).strftime("%z")
@@ -709,7 +794,7 @@ class ShelfManager:
                 [timezone_offset, shelf_id, int(max_visiblity)],
             ),
             (
-                "SELECT to_char(DATE(journal_comment.created_time::timestamp AT TIME ZONE %s), 'YYYY-MM-DD') AS dat, django_content_type.model typ, COUNT(1) count FROM journal_comment, catalog_item, django_content_type WHERE journal_comment.owner_id = %s AND journal_comment.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND journal_comment.created_time >= NOW() - INTERVAL '366 days' AND journal_comment.visibility <= %s GROUP BY item_id, dat, typ;",
+                "SELECT to_char(DATE(journal_comment.created_time::timestamp AT TIME ZONE %s), 'YYYY-MM-DD') AS dat, django_content_type.model typ, COUNT(1) count FROM journal_comment, catalog_item, django_content_type WHERE journal_comment.owner_id = %s AND journal_comment.item_id = catalog_item.id AND django_content_type.id = catalog_item.polymorphic_ctype_id AND journal_comment.created_time >= NOW() - INTERVAL '366 days' AND journal_comment.visibility <= %s AND django_content_type.model in ('tvepisode', 'podcastepisode') GROUP BY item_id, dat, typ;",
                 [timezone_offset, self.owner.id, int(max_visiblity)],
             ),
         ]

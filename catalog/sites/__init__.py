@@ -5,6 +5,7 @@ from .apple_podcast import ApplePodcast
 from .bandcamp import Bandcamp
 from .bangumi import Bangumi
 from .bgg import BoardGameGeek
+from .bibliotek_dk import BibliotekDK_Edition, BibliotekDK_Work
 from .bookstw import BooksTW
 from .discogs import DiscogsMaster, DiscogsRelease
 from .douban_book import DoubanBook
@@ -32,6 +33,8 @@ __all__ = [
     "ApplePodcast",
     "Bandcamp",
     "Bangumi",
+    "BibliotekDK_Edition",
+    "BibliotekDK_Work",
     "BoardGameGeek",
     "BooksTW",
     "DiscogsMaster",

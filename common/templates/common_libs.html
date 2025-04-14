@@ -40,10 +40,11 @@
 <link href="{{ cdn_url }}/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css"
       rel="stylesheet"
       type="text/css">
+<link rel="manifest" href="{% url 'common:manifest' %}" />
 <link rel="search"
       type="application/opensearchdescription+xml"
       title="{{ site_name }}"
-      href="{% static 'opensearch.xml' %}">
+      href="{% url 'common:opensearch' %}">
 <script defer>
 (function(){
   const s = localStorage.getItem("user_style");

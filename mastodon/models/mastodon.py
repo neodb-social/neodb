@@ -312,7 +312,7 @@ def get_related_acct_list(site, token, api):
                 results.extend(
                     map(
                         lambda u: (
-                            (  # type: ignore
+                            (
                                 u["acct"]
                                 if u["acct"].find("@") != -1
                                 else u["acct"] + "@" + site

@@ -14,7 +14,8 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from journal.models.renderers import convert_leading_space_in_md, render_md
+from journal.models.renderers import convert_leading_space_in_md, has_spoiler, render_md
+from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
 
 from ..forms import *
@@ -105,7 +106,9 @@ MAX_ITEM_PER_TYPE = 10
 
 class ReviewFeed(Feed):
     def get_object(self, request, *args, **kwargs):
-        return APIdentity.get_by_handle(kwargs["username"], match_linked=True)
+        o = APIdentity.get_by_handle(kwargs["username"], match_linked=True)
+        activate_language_for_user(o.user)
+        return o
 
     def title(self, owner):
         return (
@@ -114,10 +117,10 @@ class ReviewFeed(Feed):
             else _("Link invalid")
         )
 
-    def link(self, owner):
+    def link(self, owner: APIdentity):
         return owner.url if owner else settings.SITE_INFO["site_url"]
 
-    def description(self, owner):
+    def description(self, owner: APIdentity):
         if not owner:
             return _("Link invalid")
         elif not owner.anonymous_viewable:
@@ -125,16 +128,19 @@ class ReviewFeed(Feed):
         else:
             return _("Reviews by {0}").format(owner.display_name)
 
-    def items(self, owner):
+    def items(self, owner: APIdentity):
         if owner is None or not owner.anonymous_viewable:
             return []
         reviews = Review.objects.filter(owner=owner, visibility=0)[:MAX_ITEM_PER_TYPE]
         return reviews
 
     def item_title(self, item: Review):
-        return _("{review_title} - a review of {item_title}").format(
+        s = _("{review_title} - a review of {item_title}").format(
             review_title=item.title, item_title=item.item.title
         )
+        if has_spoiler(item.body):
+            s += " (" + _("may contain spoiler or triggering content") + ")"
+        return s
 
     def item_description(self, item: Review):
         target_html = (

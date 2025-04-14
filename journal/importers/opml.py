@@ -1,43 +1,54 @@
-import django_rq
 import listparser
-from auditlog.context import set_actor
 from django.utils.translation import gettext as _
 from loguru import logger
-from user_messages import api as msg
 
 from catalog.common import *
 from catalog.common.downloaders import *
 from catalog.sites.rss import RSS
 from journal.models import *
+from users.models.task import Task
 
 
-class OPMLImporter:
-    def __init__(self, user, visibility, mode):
-        self.user = user
-        self.visibility = visibility
-        self.mode = mode
+class OPMLImporter(Task):
+    class Meta:
+        app_label = "journal"  # workaround bug in TypedModel
 
-    def parse_file(self, uploaded_file):
-        return listparser.parse(uploaded_file.read()).feeds
+    TaskQueue = "import"
+    DefaultMetadata = {
+        "total": 0,
+        "mode": 0,
+        "processed": 0,
+        "skipped": 0,
+        "imported": 0,
+        "failed": 0,
+        "visibility": 0,
+        "failed_urls": [],
+        "file": None,
+    }
 
-    def import_from_file(self, uploaded_file):
-        feeds = self.parse_file(uploaded_file)
-        if not feeds:
+    @classmethod
+    def validate_file(cls, f):
+        try:
+            return bool(listparser.parse(f.read()).feeds)
+        except Exception:
             return False
-        django_rq.get_queue("import").enqueue(self.import_from_file_task, feeds)
-        return True
 
-    def import_from_file_task(self, feeds):
-        logger.info(f"{self.user} import opml start")
-        skip = 0
-        collection = None
-        with set_actor(self.user):
-            if self.mode == 1:
+    def run(self):
+        with open(self.metadata["file"], "r") as f:
+            feeds = listparser.parse(f.read()).feeds
+            self.metadata["total"] = len(feeds)
+            self.message = f"Processing {self.metadata['total']} feeds."
+            self.save(update_fields=["metadata", "message"])
+
+            collection = None
+            if self.metadata["mode"] == 1:
                 title = _("{username}'s podcast subscriptions").format(
                     username=self.user.display_name
                 )
                 collection = Collection.objects.create(
-                    owner=self.user.identity, title=title
+                    owner=self.user.identity,
+                    title=title,
+                    visibility=self.metadata["visibility"],
                 )
             for feed in feeds:
                 logger.info(f"{self.user} import {feed.url}")
@@ -47,21 +58,26 @@ class OPMLImporter:
                     res = None
                 if not res or not res.item:
                     logger.warning(f"{self.user} feed error {feed.url}")
+                    self.metadata["failed"] += 1
                     continue
                 item = res.item
-                if self.mode == 0:
+                if self.metadata["mode"] == 0:
                     mark = Mark(self.user.identity, item)
                     if mark.shelfmember:
                         logger.info(f"{self.user} marked, skip {feed.url}")
-                        skip += 1
+                        self.metadata["skipped"] += 1
                     else:
+                        self.metadata["imported"] += 1
                         mark.update(
-                            ShelfType.PROGRESS, None, None, visibility=self.visibility
+                            ShelfType.PROGRESS,
+                            None,
+                            None,
+                            visibility=self.metadata["visibility"],
                         )
-                elif self.mode == 1 and collection:
+                elif self.metadata["mode"] == 1 and collection:
+                    self.metadata["imported"] += 1
                     collection.append_item(item)
-        logger.info(f"{self.user} import opml end")
-        msg.success(
-            self.user,
-            f"OPML import complete, {len(feeds)} feeds processed, {skip} exisiting feeds skipped.",
-        )
+                self.metadata["processed"] += 1
+                self.save(update_fields=["metadata"])
+        self.message = f"{self.metadata['imported']} feeds imported, {self.metadata['skipped']} skipped, {self.metadata['failed']} failed."
+        self.save(update_fields=["message"])

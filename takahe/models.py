@@ -16,7 +16,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
-from django.core.files.storage import FileSystemStorage
+from django.core.files.storage import Storage, storages
 from django.db import models, transaction
 from django.template.defaultfilters import linebreaks_filter
 from django.utils import timezone
@@ -382,10 +382,8 @@ class Domain(models.Model):
         return Domain.objects.filter(domain__in=domain_parts, blocked=True).exists()
 
 
-def upload_store():
-    return FileSystemStorage(
-        location=settings.TAKAHE_MEDIA_ROOT, base_url=settings.TAKAHE_MEDIA_URL
-    )
+def upload_store() -> Storage:
+    return storages["takahe"]
 
 
 def upload_namer(prefix, instance, filename):
@@ -785,22 +783,35 @@ class Identity(models.Model):
             return (
                 self.icon.url
                 if self.icon
-                else self.icon_uri or settings.SITE_INFO["user_icon"]
+                else self.icon_uri
+                or (settings.SITE_INFO["site_url"] + settings.SITE_INFO["user_icon"])
             )
         else:
             return f"/proxy/identity_icon/{self.pk}/"
 
+    def local_image_url(self) -> str | None:
+        """
+        Returns a background image for us, returning None if there isn't one
+        """
+        if self.image:
+            return AutoAbsoluteUrl(self.image.url).absolute
+        elif self.image_uri:
+            return ProxyAbsoluteUrl(
+                f"/proxy/identity_image/{self.pk}/",
+                remote_url=self.image_uri,
+            ).absolute
+        return None
+
     def to_mastodon_json(self, source=False):
-        # from activities.models import Emoji, Post
-
-        # missing = StaticAbsoluteUrl("img/missing.png").absolute
-
-        # metadata_value_text = (
-        #     " ".join([m["value"] for m in self.metadata]) if self.metadata else ""
-        # )
-        # emojis = Emoji.emojis_from_content(
-        #     f"{self.name} {self.summary} {metadata_value_text}", self.domain
-        # )
+        missing = StaticAbsoluteUrl("img/missing.png").absolute
+        header_image = self.local_image_url() or missing
+        icon_image = self.local_icon_url() or missing
+        metadata_value_text = (
+            " ".join([m["value"] for m in self.metadata]) if self.metadata else ""
+        )
+        emojis = Emoji.emojis_from_content(
+            f"{self.name} {self.summary} {metadata_value_text}", self.domain
+        )
         renderer = ContentRenderer(local=False)
         result = {
             "id": str(self.pk),
@@ -809,10 +820,10 @@ class Identity(models.Model):
             "url": self.absolute_profile_uri() or "",
             "display_name": self.name or "",
             "note": self.summary or "",
-            "avatar": settings.SITE_INFO["site_url"] + self.local_icon_url(),
-            "avatar_static": settings.SITE_INFO["site_url"] + self.local_icon_url(),
-            "header": "",  # settings.SITE_INFO['site_url']+ header_image if header_image else missing,
-            "header_static": "",  # settings.SITE_INFO['site_url']+header_image if header_image else missing,
+            "avatar": icon_image,
+            "avatar_static": icon_image,
+            "header": header_image,
+            "header_static": header_image,
             "locked": bool(self.manually_approves_followers),
             "fields": (
                 [
@@ -826,18 +837,26 @@ class Identity(models.Model):
                 if self.metadata
                 else []
             ),
-            "emojis": [],  # [emoji.to_mastodon_json() for emoji in emojis],
+            "emojis": [emoji.to_mastodon_json() for emoji in emojis],
             "bot": self.actor_type.lower() in ["service", "application"],
             "group": self.actor_type.lower() == "group",
             "discoverable": self.discoverable,
             "indexable": self.indexable,
-            "suspended": False,
-            "limited": False,
+            "suspended": self.restriction == Identity.Restriction.blocked,
+            "limited": self.restriction == Identity.Restriction.limited,
             "created_at": format_ld_date(
                 self.created.replace(hour=0, minute=0, second=0, microsecond=0)
             ),
         }
         return result
+
+    def to_mastodon_mention_json(self):
+        return {
+            "id": str(self.pk),
+            "username": self.username or "",
+            "url": self.absolute_profile_uri() or "",
+            "acct": self.handle or "",
+        }
 
 
 class Follow(models.Model):
@@ -1203,6 +1222,7 @@ class Post(models.Model):
         type_data: dict | None = None,
         published: datetime.datetime | None = None,
         edited: datetime.datetime | None = None,
+        language: str = "",
     ) -> "Post":
         with transaction.atomic():
             # Find mentions in this post
@@ -1233,6 +1253,7 @@ class Post(models.Model):
                 "visibility": visibility,
                 "hashtags": hashtags,
                 "in_reply_to": reply_to.object_uri if reply_to else None,
+                "language": language,
             }
             if edited:
                 post_obj["edited"] = edited
@@ -1281,6 +1302,7 @@ class Post(models.Model):
         type_data: dict | None = None,
         published: datetime.datetime | None = None,
         edited: datetime.datetime | None = None,
+        language: str | None = None,
     ):
         with transaction.atomic():
             # Strip all HTML and apply linebreaks filter
@@ -1301,6 +1323,8 @@ class Post(models.Model):
             self.emojis.set(Emoji.emojis_from_content(content, None))
             if attachments is not None:
                 self.attachments.set(attachments or [])  # type: ignore
+            if language is not None:
+                self.language = language
             if type_data:
                 self.type_data = type_data
             self.save()
@@ -1416,7 +1440,7 @@ class Post(models.Model):
             "sensitive": self.sensitive,
             "spoiler_text": self.summary or "",
             "media_attachments": [
-                # attachment.to_mastodon_json() for attachment in self.attachments.all()
+                attachment.to_mastodon_json() for attachment in self.attachments.all()
             ],
             "mentions": [
                 mention.to_mastodon_mention_json() for mention in self.mentions.all()
@@ -1631,6 +1655,36 @@ class PostAttachment(models.Model):
             return self.file.name.rsplit("/", 1)[-1]
         return f"attachment ({self.mimetype})"
 
+    def to_mastodon_json(self):
+        type_ = "unknown"
+        if self.is_image():
+            type_ = "image"
+        elif self.is_video():
+            type_ = "video"
+        value = {
+            "id": str(self.pk),
+            "type": type_,
+            "url": self.full_url().absolute,
+            "preview_url": self.thumbnail_url().absolute,
+            "remote_url": None,
+            "meta": {
+                "focus": {
+                    "x": self.focal_x or 0,
+                    "y": self.focal_y or 0,
+                },
+            },
+            "description": self.name,
+            "blurhash": self.blurhash,
+        }
+        if self.width and self.height:
+            value["meta"]["original"] = {
+                "width": self.width,
+                "height": self.height,
+                "size": f"{self.width}x{self.height}",
+                "aspect": self.width / self.height,
+            }
+        return value
+
 
 class EmojiQuerySet(models.QuerySet):
     def usable(self, domain: Domain | None = None):
@@ -1761,6 +1815,17 @@ class Emoji(models.Model):
                 f'<img src="{self.full_url().relative}" class="emoji" alt="Emoji {self.shortcode}">'
             )
         return self.fullcode
+
+    def to_mastodon_json(self):
+        url = self.full_url().absolute
+        data = {
+            "shortcode": self.shortcode,
+            "url": url,
+            "static_url": self.remote_url or url,
+            "visible_in_picker": self.public,
+            "category": self.category or "",
+        }
+        return data
 
 
 class HashtagQuerySet(models.QuerySet):

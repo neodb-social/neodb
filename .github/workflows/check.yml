@@ -3,22 +3,6 @@ name: code check
 on: [push, pull_request]
 
 jobs:
-  doc:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.12']
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-      - name: Run pre-commit
-        run: |
-          python -m pip install mkdocs-material
-          mkdocs build -s -d /tmp/neodb-docs
   lint:
     runs-on: ubuntu-latest
     strategy:

@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.http import HttpRequest, JsonResponse
+from django.core.exceptions import DisallowedHost
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
@@ -18,6 +19,19 @@ def render_error(request: HttpRequest, title, message=""):
     return render(
         request, "common/error.html", {"msg": title, "secondary_msg": message}
     )
+
+
+def opensearch(request):
+    return render(request, "common/opensearch.xml.tpl", content_type="text/xml")
+
+
+def manifest(request):
+    return render(request, "common/manifest.json.tpl", content_type="application/json")
+
+
+def share(request):
+    q = request.GET.get("url") or request.GET.get("text") or request.GET.get("title")
+    return redirect(reverse("common:search") + "?q=" + q) if q else home(request)
 
 
 @login_required
@@ -80,20 +94,41 @@ def nodeinfo2(request):
     )
 
 
+def _error_response(request, status: int, exception=None, default_message=""):
+    message = str(exception) if exception else default_message
+    if request.headers.get("HTTP_ACCEPT", "").endswith("json"):
+        return JsonResponse({"error": message}, status=status)
+    if (
+        request.headers.get("HTTP_HX_REQUEST") is not None
+        and request.headers.get("HTTP_HX_BOOSTED") is None
+    ):
+        return HttpResponse(message, status=status)
+    return render(
+        request,
+        f"{status}.html",
+        status=status,
+        context={"message": message, "exception": exception},
+    )
+
+
 def error_400(request, exception=None):
-    return render(request, "400.html", status=400, context={"exception": exception})
+    if isinstance(exception, DisallowedHost):
+        url = settings.SITE_INFO["site_url"] + request.get_full_path()
+        return redirect(url, permanent=True)
+    return _error_response(request, 400, exception, "invalid request")
 
 
 def error_403(request, exception=None):
-    return render(request, "403.html", status=403, context={"exception": exception})
+    return _error_response(request, 403, exception, "forbidden")
 
 
 def error_404(request, exception=None):
-    return render(request, "404.html", status=404, context={"exception": exception})
+    request.session.pop("next_url", None)
+    return _error_response(request, 404, exception, "not found")
 
 
 def error_500(request, exception=None):
-    return render(request, "500.html", status=500, context={"exception": exception})
+    return _error_response(request, 500, exception, "something wrong")
 
 
 def console(request):
@@ -115,3 +150,11 @@ def console(request):
         "openapi_json_url": reverse(f"{api.urls_namespace}:openapi-json"),
     }
     return render(request, "console.html", context)
+
+
+def signup(request, code: str | None = None):
+    if request.user.is_authenticated:
+        return redirect(reverse("common:home"))
+    if code:
+        return redirect(reverse("users:login") + "?invite=" + code)
+    return redirect(reverse("users:login"))

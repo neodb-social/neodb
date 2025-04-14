@@ -66,7 +66,7 @@ class MockResponse:
         try:
             self.content = Path(fn).read_bytes()
             self.status_code = 200
-            logger.debug(f"use local response for {url} from {fn}")
+            # logger.debug(f"use local response for {url} from {fn}")
         except Exception:
             self.content = b"Error: response file not found"
             self.status_code = 404
@@ -156,15 +156,16 @@ class BasicDownloader:
         "Cache-Control": "no-cache",
     }
 
-    def __init__(self, url, headers=None):
+    timeout = settings.DOWNLOADER_REQUEST_TIMEOUT
+
+    def __init__(self, url, headers: dict | None = None, timeout: float | None = None):
         self.url = url
         self.response_type = RESPONSE_OK
         self.logs = []
         if headers:
             self.headers = headers
-
-    def get_timeout(self):
-        return settings.DOWNLOADER_REQUEST_TIMEOUT
+        if timeout:
+            self.timeout = timeout
 
     def validate_response(self, response) -> int:
         if response is None:
@@ -183,7 +184,7 @@ class BasicDownloader:
             if not _mock_mode:
                 resp = cast(
                     DownloaderResponse,
-                    requests.get(url, headers=self.headers, timeout=self.get_timeout()),
+                    requests.get(url, headers=self.headers, timeout=self.timeout),
                 )
                 resp.__class__ = DownloaderResponse
                 if settings.DOWNLOADER_SAVEDIR:
@@ -204,6 +205,7 @@ class BasicDownloader:
             )
             return resp, response_type
         except RequestException as e:
+            # logger.debug(f"RequestException: {e}")
             self.logs.append(
                 {"response_type": RESPONSE_NETWORK_ERROR, "url": url, "exception": e}
             )
@@ -223,7 +225,7 @@ class BasicDownloader2(BasicDownloader):
             if not _mock_mode:
                 resp = cast(
                     DownloaderResponse2,
-                    httpx.get(url, headers=self.headers, timeout=self.get_timeout()),
+                    httpx.get(url, headers=self.headers, timeout=self.timeout),
                 )
                 resp.__class__ = DownloaderResponse2
                 if settings.DOWNLOADER_SAVEDIR:
@@ -339,16 +341,19 @@ class ImageDownloaderMixin:
     def validate_response(self, response):
         if response and response.status_code == 200:
             try:
-                raw_img = response.content
-                img = Image.open(BytesIO(raw_img))
-                img.load()  # corrupted image will trigger exception
-                content_type = response.headers.get("Content-Type")
+                content_type = response.headers["content-type"]
+                if content_type.startswith("image/svg+xml"):
+                    self.extention = "svg"
+                    return RESPONSE_OK
                 file_type = filetype.get_type(
                     mime=content_type.partition(";")[0].strip()
                 )
                 if file_type is None:
                     return RESPONSE_NETWORK_ERROR
                 self.extention = file_type.extension
+                raw_img = response.content
+                img = Image.open(BytesIO(raw_img))
+                img.load()  # corrupted image will trigger exception
                 return RESPONSE_OK
             except Exception:
                 return RESPONSE_NETWORK_ERROR

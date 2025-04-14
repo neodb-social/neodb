@@ -30,8 +30,8 @@ class Account(Schema):
     note: str
     avatar: str
     avatar_static: str
-    header: str | None = Field(...)
-    header_static: str | None = Field(...)
+    header: str
+    header_static: str
     locked: bool
     fields: list[AccountField]
     emojis: list[CustomEmoji]
@@ -47,7 +47,7 @@ class Account(Schema):
     # statuses_count: int | None
     # followers_count: int | None
     # following_count: int | None
-    source: dict | None = None
+    # source: dict | None = None
 
 
 class MediaAttachment(Schema):
@@ -82,7 +82,7 @@ class Post(Schema):
     visibility: Literal["public", "unlisted", "private", "direct"]
     sensitive: bool
     spoiler_text: str
-    # media_attachments: list[MediaAttachment]
+    media_attachments: list[MediaAttachment]
     mentions: list[StatusMention]
     tags: list[StatusTag]
     emojis: list[CustomEmoji]
@@ -132,9 +132,8 @@ def list_posts_for_item(request, item_uuid: str, type: str | None = None):
     types = [t for t in (type or "").split(",") if t in PostTypes]
     q = "type:" + ",".join(types or ["comment", "review"])
     query = JournalQueryParser(q)
+    query.filter_by_viewer(request.user.identity)
     query.filter("item_id", item.pk)
-    query.filter("visibility", 0)
-    query.exclude("owner_id", request.user.identity.ignoring)
     r = JournalIndex.instance().search(query)
     result = {
         "data": [

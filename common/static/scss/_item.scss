@@ -29,6 +29,10 @@
 
   }
 
+  .tvshow-tip {
+    display: none;
+  }
+
   span.season-number {
     line-height: 1.2em;
     display: inline-block;
@@ -205,5 +209,21 @@
     #item-cover img {
       max-width: 60vw;
     }
+  }
+}
+
+.item-type-TVShow {
+  .tvshow-tip {
+    display: unset;
+  }
+
+  .item-mark-buttons {
+    display: none;
+  }
+}
+
+.item-type-Work {
+  .item-mark-buttons {
+    display: none;
   }
 }

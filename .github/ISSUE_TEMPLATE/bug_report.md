@@ -7,32 +7,22 @@ assignees: alphatownsman
 
 ---
 
-**Describe the bug**
+**Description**
 A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Expected Behavior**
+What you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**Actual Behavior / Steps to Reproduce**
+What you expected happens instead.
+If applicable, add an unambiguous set of steps to reproduce this bug.
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
 
-**Additional context**
+**Possible Fix**
+Not obligatory, but suggest a fix or reason for the bug.
+
+
+**Additional Context / Screenshots / Server Info / Browser or App**
 Add any other context about the problem here.

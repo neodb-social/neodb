@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.db import models
@@ -12,7 +13,10 @@ from catalog.common import (
     ItemInSchema,
     jsondata,
 )
-from catalog.common.models import LIST_OF_ONE_PLUS_STR_SCHEMA, LanguageListField
+from catalog.common.models import (
+    LIST_OF_ONE_PLUS_STR_SCHEMA,
+    LanguageListField,
+)
 
 
 class PodcastInSchema(ItemInSchema):
@@ -28,9 +32,22 @@ class PodcastSchema(PodcastInSchema, BaseSchema):
     pass
 
 
+class PodcastEpisodeInSchema(ItemInSchema):
+    guid: str | None = None
+    pub_date: datetime | None = None
+    media_url: str | None = None
+    link: str | None = None
+    duration: int | None = None
+
+
+class PodcastEpisodeSchema(PodcastEpisodeInSchema, BaseSchema):
+    pass
+
+
 class Podcast(Item):
     if TYPE_CHECKING:
         episodes: models.QuerySet["PodcastEpisode"]
+    schema = PodcastSchema
     category = ItemCategory.Podcast
     child_class = "PodcastEpisode"
     url_path = "podcast"
@@ -105,6 +122,7 @@ class Podcast(Item):
 
 
 class PodcastEpisode(Item):
+    schema = PodcastEpisodeSchema
     category = ItemCategory.Podcast
     url_path = "podcast/episode"
     # uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)

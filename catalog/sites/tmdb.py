@@ -94,11 +94,20 @@ class TMDB_Movie(AbstractSite):
         for lang, lang_param in reversed(TMDB_PREFERRED_LANGS.items()):
             api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
             res_data = BasicDownloader(api_url).download().json()
+            if (
+                res_data["original_title"] == res_data["title"]
+                and res_data["original_language"].split("-")[0]
+                != lang_param.split("-")[0]
+            ):
+                continue
             localized_title.append({"lang": lang, "text": res_data["title"]})
             if res_data.get("overview", "").strip():
                 localized_desc.append({"lang": lang, "text": res_data["overview"]})
         title = res_data["title"]
         orig_title = res_data["original_title"]
+        orig_lang = res_data["original_language"]
+        if orig_title not in [t["text"] for t in localized_title]:
+            localized_title.append({"lang": orig_lang, "text": orig_title})
         year = (
             int(res_data["release_date"].split("-")[0])
             if res_data["release_date"]
@@ -155,6 +164,7 @@ class TMDB_Movie(AbstractSite):
                 "localized_description": localized_desc,
                 "title": title,
                 "orig_title": orig_title,
+                "orig_language": orig_lang,
                 "other_title": [],
                 "imdb_code": imdb_code,
                 "director": director,
@@ -222,6 +232,8 @@ class TMDB_Movie(AbstractSite):
                             )
                 else:
                     logger.warning(f"TMDB search '{q}' no results found.")
+            except httpx.ReadTimeout:
+                logger.warning("TMDb search timeout", extra={"query": q})
             except Exception as e:
                 logger.error("TMDb search error", extra={"query": q, "exception": e})
         return results[offset : offset + page_size]
@@ -249,12 +261,21 @@ class TMDB_TV(AbstractSite):
         for lang, lang_param in reversed(TMDB_PREFERRED_LANGS.items()):
             api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
             res_data = BasicDownloader(api_url).download().json()
+            if (
+                res_data["original_name"] == res_data["name"]
+                and res_data["original_language"].split("-")[0]
+                != lang_param.split("-")[0]
+            ):
+                continue
             localized_title.append({"lang": lang, "text": res_data["name"]})
             if res_data.get("overview", "").strip():
                 localized_desc.append({"lang": lang, "text": res_data["overview"]})
 
         title = res_data["name"]
         orig_title = res_data["original_name"]
+        orig_lang = res_data["original_language"]
+        if orig_title not in [t["text"] for t in localized_title]:
+            localized_title.append({"lang": orig_lang, "text": orig_title})
         year = (
             int(res_data["first_air_date"].split("-")[0])
             if res_data["first_air_date"]
@@ -306,6 +327,7 @@ class TMDB_TV(AbstractSite):
                 "localized_description": localized_desc,
                 "title": title,
                 "orig_title": orig_title,
+                "orig_language": orig_lang,
                 "other_title": [],
                 "imdb_code": imdb_code,
                 "director": director,
