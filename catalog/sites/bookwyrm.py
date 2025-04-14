@@ -25,12 +25,17 @@ class Bookwyrm(AbstractSite):
 
     @classmethod
     def validate_url_fallback(cls, url: str):
-        probe_url = "https://" + urlparse(url).hostname + "/nodeinfo/2.0"  # type: ignore
+        parsed = urlparse(url)
+        probe_url = "https://" + parsed.hostname + "/nodeinfo/2.0"  # type: ignore
         software = (
             CachedDownloader(probe_url).download().json().get("software").get("name")
         )
         if software == "bookwyrm":
-            return True
+            p = parsed.path
+            if re.compile("^/book/[0-9]+").match(p):
+                return True
+            else:
+                return False
         else:
             return False
 
