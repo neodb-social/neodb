@@ -38,6 +38,7 @@ __all__ = [
     "BibliotekDK_Work",
     "BoardGameGeek",
     "BooksTW",
+    "Bookwyrm",
     "DiscogsMaster",
     "DiscogsRelease",
     "DoubanBook",
