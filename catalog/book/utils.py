@@ -54,9 +54,9 @@ def detect_isbn_asin(s: str) -> tuple[IdType, str] | tuple[None, None]:
     if not s:
         return None, None
     n = re.sub(r"[^0-9A-Z]", "", s.upper())
-    if is_isbn_13(n):
+    if is_isbn_13(n) and check_digit_13(n[:-1]) == n[-1]:
         return IdType.ISBN, n
-    if is_isbn_10(n):
+    if is_isbn_10(n) and check_digit_10(n[:-1]) == n[-1]:
         v = isbn_10_to_13(n)
         return (IdType.ISBN, v) if v else (None, None)
     if is_asin(n):

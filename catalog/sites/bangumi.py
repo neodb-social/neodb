@@ -224,7 +224,9 @@ class Bangumi(AbstractSite):
                 case "imdb_id":
                     imdb_code = v
                 case "isbn":
-                    isbn_type, isbn = detect_isbn_asin(v)
+                    isbn_type, isbn = detect_isbn_asin(
+                        v[0]["v"] if isinstance(v, list) else v
+                    )
                 case "语言":
                     language = v
                 case "出版社":
