@@ -118,5 +118,6 @@ class Album(Item):
             IdType.Spotify_Album,
             IdType.Bandcamp,
             IdType.DoubanMusic,
+            IdType.Bangumi,
         ]
         return [(i.value, i.label) for i in id_types]

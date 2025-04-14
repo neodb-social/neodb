@@ -228,6 +228,15 @@ class Performance(Item):
         "official_site",
     ]
 
+
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.DoubanDrama,
+            IdType.Bangumi,
+        ]
+        return [(i.value, i.label) for i in id_types]
+
     @cached_property
     def all_productions(self):
         return (

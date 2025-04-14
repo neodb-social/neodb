@@ -228,7 +228,6 @@ class TVShow(Item):
             IdType.IMDB,
             IdType.TMDB_TV,
             IdType.DoubanMovie,
-            IdType.Bangumi,
         ]
         return [(i.value, i.label) for i in id_types]
 
@@ -403,6 +402,7 @@ class TVSeason(Item):
             IdType.IMDB,
             IdType.TMDB_TVSeason,
             IdType.DoubanMovie,
+            IdType.Bangumi,
         ]
         return [(i.value, i.label) for i in id_types]
 
