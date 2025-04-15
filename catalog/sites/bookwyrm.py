@@ -21,7 +21,12 @@ class Bookwyrm(AbstractSite):
 
     @classmethod
     def url_to_id(cls, url: str):
-        return "https://" + urlparse(url).hostname + "/book/" + re.search(r'/book/(\d+)', url).group(1)
+        return (
+            "https://"
+            + urlparse(url).hostname  # type: ignore
+            + "/book/"
+            + re.search(r"/book/(\d+)", url).group(1)  # type: ignore
+        )
         
     @classmethod
     def validate_url_fallback(cls, url: str):
