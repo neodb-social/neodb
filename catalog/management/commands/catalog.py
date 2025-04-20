@@ -46,6 +46,10 @@ class Command(BaseCommand):
             action="store_true",
             help="check and fix integrity for merged and deleted items",
         )
+        parser.add_argument(
+            "--migrate",
+            help="run migration",
+        )
 
     def handle(self, *args, **options):
         self.verbose = options["verbose"]
@@ -58,6 +62,18 @@ class Command(BaseCommand):
             self.localize()
         if options["extsearch"]:
             self.external_search(options["extsearch"], options["category"])
+        if options["migrate"]:
+            match options["migrate"]:
+                case "merge_works":
+                    from catalog.common.migrations import merge_works_20250301
+
+                    merge_works_20250301()
+                case "fix_deleted_edition":
+                    from catalog.common.migrations import fix_20250208
+
+                    fix_20250208()
+                case _:
+                    self.stdout.write(self.style.ERROR("Unknown migration."))
         self.stdout.write(self.style.SUCCESS("Done."))
 
     def external_search(self, q, cat):

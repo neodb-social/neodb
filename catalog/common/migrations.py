@@ -57,6 +57,10 @@ def merge_works_20250301():
         to_work = Work.objects.get(pk=v)
         # print(from_work, '->', to_work)
         from_work.merge_to(to_work)
+        for edition in from_work.editions.all():
+            # doing this as work.merge_to() may miss edition belonging to both from and to
+            from_work.editions.remove(edition)
+            to_work.editions.add(edition)
 
     logger.warning("Applying unique index...")
     with connection.cursor() as cursor:
