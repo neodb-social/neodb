@@ -186,10 +186,10 @@ class Performance(Item):
         default=list,
         schema=LIST_OF_STR_SCHEMA,
     )
-    opening_date = jsondata.DateField(
+    opening_date = jsondata.CharField(
         verbose_name=_("opening date"), max_length=100, null=True, blank=True
     )
-    closing_date = jsondata.DateField(
+    closing_date = jsondata.CharField(
         verbose_name=_("closing date"), max_length=100, null=True, blank=True
     )
     official_site = jsondata.CharField(

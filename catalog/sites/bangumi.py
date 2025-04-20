@@ -283,7 +283,7 @@ class Bangumi(AbstractSite):
                     closing_date = v
                 case "演出":
                     if category == ItemCategory.Performance:
-                        director = v
+                        director = v.split("、") if v else []
                 case "主演":
                     if category == ItemCategory.Performance:
                         actor = (
