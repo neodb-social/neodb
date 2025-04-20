@@ -62,7 +62,7 @@ class Bluesky:
             profile = client.login(handle, password)
             session_string = client.export_session_string()
         except Exception as e:
-            logger.debug(f"Bluesky login {handle} exception {e}")
+            logger.warning(f"Bluesky login {handle} exception {e}")
             return
         account = BlueskyAccount.objects.filter(
             uid=profile.did, domain=Bluesky._DOMAIN
@@ -156,8 +156,8 @@ class BlueskyAccount(SocialAccount):
             self.check_alive(save=save)
         try:
             profile = self._client.me
-        except Exception:
-            logger.warning("Bluesky: client error.")
+        except Exception as e:
+            logger.warning(f"Bluesky: client error {self.handle} {e}")
             return False
         if not profile:
             logger.warning("Bluesky: client not logged in.")  # this should not happen
@@ -175,6 +175,7 @@ class BlueskyAccount(SocialAccount):
         if save:
             self.save(
                 update_fields=[
+                    "access_data",
                     "account_data",
                     "last_reachable",
                 ]

@@ -216,7 +216,6 @@ class Performance(Item):
         "official_site",
     ]
 
-
     @classmethod
     def lookup_id_type_choices(cls):
         id_types = [

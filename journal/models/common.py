@@ -413,17 +413,22 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         r = None
         try:
             r = bluesky.post(**params)
-        except exceptions.BadRequestError:
-            messages.error(
-                bluesky.user,
-                _(
-                    "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
-                ),
-                meta={
-                    "url": settings.SITE_INFO["site_url"]
-                    + "/account/login?method=atproto"
-                },
-            )
+        except (exceptions.UnauthorizedError, exceptions.BadRequestError) as e:
+            if isinstance(e, exceptions.UnauthorizedError) or "ExpiredToken" in str(e):
+                # re-authorize if ATProto token is expired
+                messages.error(
+                    bluesky.user,
+                    _(
+                        "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
+                    ),
+                    meta={
+                        "url": settings.SITE_INFO["site_url"]
+                        + "/account/login?method=atproto"
+                    },
+                )
+                logger.warning(f"{self} post to {bluesky} failed with auth issue: {e}")
+            else:
+                logger.warning(f"{self} post to {bluesky} failed: {e}")
         except Exception as e:
             logger.warning(f"Post to {bluesky} error {e}")
         if r:

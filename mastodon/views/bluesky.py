@@ -11,7 +11,7 @@ from .common import disconnect_identity, process_verified_account
 
 @require_http_methods(["POST"])
 def bluesky_login(request: HttpRequest):
-    username = request.POST.get("username", "").strip()
+    username = request.POST.get("username", "").strip().lstrip("@")
     password = request.POST.get("password", "").strip()
     if not username or not password:
         return render_error(
