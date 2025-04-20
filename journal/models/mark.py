@@ -249,6 +249,7 @@ class Mark:
                 self.shelfmember.save()
         else:
             # ignore most recent post if exists and create new one
+            shelfmember_changed = True
             update_mode = 2
             shelf = self.owner.shelf_manager.get_shelf(shelf_type)
             d = {"parent": shelf, "visibility": visibility, "position": 0}
@@ -270,6 +271,9 @@ class Mark:
                     visibility,
                     self.shelfmember.created_time,
                 )
+                if self.comment and not shelfmember_changed:
+                    self.shelfmember.edited_time = self.comment.edited_time
+                    self.shelfmember.save(update_fields=["edited_time"])
         # create/update/detele rating if necessary
         if rating_grade is not None:
             if rating_grade != self.rating_grade or visibility != last_visibility:

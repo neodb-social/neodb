@@ -472,7 +472,7 @@ class Takahe:
                 visibility=visibility,
                 type_data=data,
                 published=post_time,
-                edited=edit_time,
+                edited=None,
                 reply_to=reply_to_post,
                 attachments=attachments,
                 language=language,
