@@ -17,7 +17,9 @@ def fix_20250208():
     logger.warning("Fix complete.")
 
 
-def merge_works_20250301(Edition, Work):
+def merge_works_20250301():
+    from catalog.models import Edition, Work
+
     logger.warning("Start merging works...")
     editions = Edition.objects.annotate(n=models.Count("works")).filter(n__gt=1)
     primary_work = []
