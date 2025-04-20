@@ -131,19 +131,23 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     def save(self, *args, **kwargs):
         link_post_id = kwargs.pop("link_post_id", -1)
+        post_when_save = kwargs.pop(
+            "post_when_save", self.local and self.post_when_save
+        )
+        index_when_save = kwargs.pop("index_when_save", self.index_when_save)
         super().save(*args, **kwargs)
         if link_post_id is None:
             self.clear_post_ids()
         elif link_post_id != -1:
             self.link_post_id(link_post_id)
-        if self.local and self.post_when_save:
+        if post_when_save:
             visibility_changed = self.previous_visibility != self.visibility
             self.previous_visibility = self.visibility
             update_mode = 1 if visibility_changed else 0
             self.sync_to_timeline(update_mode)
             if self.crosspost_when_save:
                 self.sync_to_social_accounts(update_mode)
-        if self.index_when_save:
+        if index_when_save:
             self.update_index()
 
     def delete(self, *args, **kwargs):
@@ -395,7 +399,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         self.sync_to_threads(params_for_platform(params, "threads"), update_mode)
         self.sync_to_bluesky(params_for_platform(params, "bluesky"), update_mode)
         if self.metadata != metadata:
-            self.save(update_fields=["metadata"])
+            # do not trigger sync or index again
+            self.save(
+                update_fields=["metadata"], post_when_save=False, index_when_save=False
+            )
 
     def sync_to_bluesky(self, params, update_mode):
         # skip non-public post as Bluesky does not support it
