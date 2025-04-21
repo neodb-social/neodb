@@ -29,5 +29,9 @@
       {% trans 'Failed items' %}:
       <textarea readonly>{% for item in task.metadata.failed_items %}{{item}}&#10;{% endfor %}</textarea>
     {% endif %}
+    {% if task.metadata.failed_urls %}
+      {% trans 'Failed links, you may have to mark them manually' %}:
+      <textarea readonly>{% for url in task.metadata.failed_urls %}{{url}}&#10;{% endfor %}</textarea>
+    {% endif %}
   </div>
 {% endif %}

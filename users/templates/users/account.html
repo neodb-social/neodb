@@ -338,9 +338,9 @@
                          aria-describedby="invalid-helper"
                          placeholder="Gargron@mastodon.social">
                   <small id="invalid-helper">{% trans "Once deleted, account data cannot be recovered." %}</small>
-                  {% if import_status.douban_pending %}
+                  {% if has_pending_tasks %}
                     <input type="submit"
-                           value="{% trans "Importing in progress, can't delete now." %}"
+                           value="{% trans "Task in progress, can't delete now." %}"
                            disabled />
                   {% else %}
                     <input type="submit"

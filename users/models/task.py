@@ -44,6 +44,10 @@ class Task(TypedModel):
         return self.job_id
 
     @classmethod
+    def pending_tasks(cls, user: User):
+        return cls.objects.filter(user=user, state__in=[0, 1])
+
+    @classmethod
     def latest_task(cls, user: User):
         return cls.objects.filter(user=user).order_by("-created_time").first()
 

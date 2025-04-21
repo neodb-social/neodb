@@ -125,17 +125,6 @@ def data(request):
 
 
 @login_required
-def data_import_status(request):
-    return render(
-        request,
-        "users/data_import_status.html",
-        {
-            "import_task": DoubanImporter.latest_task(request.user),
-        },
-    )
-
-
-@login_required
 def user_task_status(request, task_type: str):
     match task_type:
         case "journal.csvimporter":

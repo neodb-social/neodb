@@ -25,8 +25,7 @@
         <article>
           <details>
             <summary>{% trans 'Import Marks and Reviews from Douban' %}</summary>
-            <form action="{% url 'users:import_douban' %}"
-                  method="post"
+            <form hx-post="{% url 'users:import_douban' %}"
                   enctype="multipart/form-data">
               {% csrf_token %}
               {% blocktrans %}Select <code>.xlsx</code> exported from <a href="https://doufen.org" target="_blank" rel="noopener">Doufen</a>{% endblocktrans %}
@@ -73,6 +72,7 @@
               </p>
               <input type="submit"
                      {% if import_task.status == "pending" %} onclick="return confirm('{% trans "Another import is in progress, starting a new import may cause issues, sure to import?" %}')" value="{% trans "Import in progress, please wait" %}" {% else %} value="{% trans 'Import' %}" {% endif %} />
+              {% include "users/user_task_status.html" with task=import_task %}
             </form>
           </details>
         </article>

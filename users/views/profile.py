@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
+from users.models.task import Task
 
 
 class ProfileForm(forms.ModelForm):
@@ -32,6 +33,7 @@ def account_info(request):
             "summary": Takahe.html2txt(request.user.identity.summary),
         },
     )
+    has_pending_tasks = Task.pending_tasks(request.user).exists()
     return render(
         request,
         "users/account.html",
@@ -41,6 +43,7 @@ def account_info(request):
             "enable_threads": settings.ENABLE_LOGIN_THREADS,
             "enable_bluesky": settings.ENABLE_LOGIN_BLUESKY,
             "profile_form": profile_form,
+            "has_pending_tasks": has_pending_tasks,
         },
     )
 
