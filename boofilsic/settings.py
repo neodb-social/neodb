@@ -121,7 +121,10 @@ env = environ.FileAwareEnv(
     NEODB_SENTRY_DSN=(str, ""),
     NEODB_SENTRY_SAMPLE_RATE=(float, 0),
     NEODB_FANOUT_LIMIT_DAYS=(int, 9),
-    INDEX_ALIASES=(dict, {}),
+    INDEX_ALIASES=(
+        dict,
+        {"catalog": "catalog2"},
+    ),  # "catalog" was used in an earlier version of typesense index
     SKIP_MIGRATIONS=(list, []),
 )
 
