@@ -230,7 +230,7 @@ class Bangumi(AbstractSite):
                 case "语言":
                     language = v.split("、") if v else []
                 case "出版社":
-                    pub_house = v.split("、") if v else []
+                    pub_house = v
                 case "导演":
                     director = v.split("、") if v else []
                 case "编剧" | "脚本":
@@ -298,7 +298,7 @@ class Bangumi(AbstractSite):
                             )
                         )
                 case "会场" | "演出地点":
-                    location = v
+                    location = v.split("、") if v else []
 
         img_url = o["images"].get("large") or o["images"].get("common")
         raw_img = None
