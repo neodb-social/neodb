@@ -4,16 +4,21 @@ import django_rq
 from django.conf import settings
 from django.db import migrations
 
-from catalog.common.migrations import merge_works_20250301
+from catalog.common.migrations import fix_bangumi_20250420, merge_works_20250301
 
 
 def merge_works(apps, schema_editor):
     skips = getattr(settings, "SKIP_MIGRATIONS", [])
     if "merge_works" in skips:
         print("(Skipped)", end="")
-        return
-    django_rq.get_queue("cron").enqueue(merge_works_20250301)
-    print("(Queued)", end="")
+    else:
+        django_rq.get_queue("cron").enqueue(merge_works_20250301)
+        print("(Queued)", end="")
+    if "fix_bangumi" in skips:
+        print("(Skipped)", end="")
+    else:
+        django_rq.get_queue("cron").enqueue(fix_bangumi_20250420)
+        print("(Queued)", end="")
 
 
 class Migration(migrations.Migration):

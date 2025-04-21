@@ -72,6 +72,10 @@ class Command(BaseCommand):
                     from catalog.common.migrations import fix_20250208
 
                     fix_20250208()
+                case "fix_bangumi":
+                    from catalog.common.migrations import fix_bangumi_20250420
+
+                    fix_bangumi_20250420()
                 case _:
                     self.stdout.write(self.style.ERROR("Unknown migration."))
         self.stdout.write(self.style.SUCCESS("Done."))

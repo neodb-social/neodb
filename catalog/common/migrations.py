@@ -69,3 +69,25 @@ def merge_works_20250301():
             """)
 
     logger.warning("Merging works completed.")
+
+
+def fix_bangumi_20250420():
+    from catalog.models import Item
+
+    logger.warning("Scaning catalog for issues.")
+    fixed = 0
+    for i in Item.objects.all().iterator():
+        changed = False
+        for a in ["location", "director", "language"]:
+            v = getattr(i, a, None)
+            if isinstance(v, str):
+                setattr(i, a, v.split("、"))
+                changed = True
+        v = getattr(i, "pub_house", None)
+        if isinstance(v, list):
+            setattr(i, "pub_house", "/".join(v))
+            changed = True
+        if changed:
+            i.save(update_fields=["metadata"])
+            fixed += 1
+    logger.warning(f"{fixed} items fixed.")
