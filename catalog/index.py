@@ -157,6 +157,7 @@ class CatalogIndex(Index):
                 "name": "extra_title",
                 "locale": "zh",
                 "type": "string[]",
+                "optional": True,
             },
             {
                 "name": "people",
