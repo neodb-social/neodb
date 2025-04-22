@@ -38,7 +38,7 @@ def _cat_to_class(cat: str) -> list[str]:
 class CatalogQueryParser(QueryParser):
     fields = ["tag", "category", "type", "year", "language"]
     default_search_params = {
-        "query_by": "title, people, company, lookup_id",
+        "query_by": "title, people, company, lookup_id, extra_title",
         # "sort_by": "",
         "per_page": 20,
         "include_fields": "id, item_id",
@@ -86,11 +86,11 @@ class CatalogQueryParser(QueryParser):
             start = int_(v[0])
             end = int_(v[1])
             if start and end:
-                self.filter_by["year"] = [f"{start}..{end}"]
+                self.filter_by["date"] = [f"{start * 10000}..{end * 10000 + 9999}"]
         elif len(v) == 1:
             year = int_(v[0])
             if year:
-                self.filter_by["year"] = [f"{year}"]
+                self.filter_by["date"] = [f"{year * 10000}..{year * 10000 + 9999}"]
 
 
 class CatalogSearchResult(SearchResult):
@@ -104,7 +104,7 @@ class CatalogSearchResult(SearchResult):
 
         if not self:
             return []
-        ids = [hit["document"]["item_id"] for hit in self.response["hits"]]
+        ids = [int(hit["document"]["id"]) for hit in self.response["hits"]]
         return Item.get_final_items(Item.get_by_ids(ids))
 
     def __iter__(self):  # type:ignore
@@ -123,7 +123,7 @@ class CatalogIndex(Index):
         "fields": [
             {
                 "name": "item_id",
-                "type": "int64",
+                "type": "int64[]",
                 "sort": False,
             },
             {
@@ -132,8 +132,8 @@ class CatalogIndex(Index):
                 "facet": True,
             },
             {
-                "name": "year",
-                "type": "int32",
+                "name": "date",
+                "type": "int32[]",  # as YYYYMMDD, MM/DD can be 00
                 "facet": True,
                 "optional": True,
             },
@@ -208,7 +208,7 @@ class CatalogIndex(Index):
         return self.delete_docs("item_id", ">0")
 
     def delete(self, item_ids):
-        return self.delete_docs("item_id", item_ids)
+        return self.delete_docs("id", item_ids)
 
     def replace_items(self, item_ids):
         from catalog.models import Item

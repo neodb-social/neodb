@@ -110,5 +110,14 @@ class Album(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
-    def to_indexable_people(self) -> list[str]:
-        return (self.artist or []) + (self.company or [])
+    def to_indexable_doc(self):
+        d = super().to_indexable_doc()
+        d["people"] = self.artist or []
+        d["company"] = self.company or []
+        d["date"] = (
+            [int(self.release_date.strftime("%Y%m%d"))] if self.release_date else []
+        )
+        d["genre"] = self.genre or []  # type:ignore
+        d["subtype"] = [self.album_type] if self.album_type else []
+        d["subtype"] += [self.media] if self.media else []
+        return d

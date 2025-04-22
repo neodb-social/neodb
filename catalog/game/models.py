@@ -146,16 +146,14 @@ class Game(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
-    def to_indexable_people(self) -> list[str]:
-        return (
-            (self.designer or [])
-            + (self.artist or [])
-            + (self.developer or [])
-            + (self.publisher or [])
+    def to_indexable_doc(self):
+        d = super().to_indexable_doc()
+        d["people"] = (self.designer or []) + (self.artist or [])
+        d["company"] = (self.developer or []) + (self.publisher or [])
+        d["date"] = (
+            [int(self.release_date.strftime("%Y%m%d"))] if self.release_date else []
         )
-
-    @property
-    def year(self) -> int | None:
-        return self.release_year or (
-            self.release_date.year if self.release_date else None
-        )
+        d["genre"] = self.genre or []  # type:ignore
+        d["subtype"] = [self.release_type] if self.release_type else []
+        d["subtype"] += list(self.platform or [])  # type:ignore
+        return d

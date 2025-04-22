@@ -42,6 +42,7 @@ from catalog.common.models import (
     LanguageListField,
 )
 from common.models import uniq
+from common.models.misc import int_
 
 from .utils import *
 
@@ -231,27 +232,25 @@ class Edition(Item):
         titles += [t for t in self.other_title if t]  # type: ignore
         return list(set(titles))
 
-    def to_indexable_people(self) -> list[str]:
-        return self.author + self.translator
-
-    def to_indexable_company(self) -> list[str]:
-        return ([self.pub_house] if self.pub_house else []) + (
-            [self.imprint] if self.imprint else []
-        )
-
-    def to_indexable_doc(self) -> dict[str, str | int | list[str]]:
+    def to_indexable_doc(self):
         d = super().to_indexable_doc()
         ids = [str(self.isbn)] if self.isbn else []
         if self.asin:
             ids.append(str(self.asin))
         if ids:
             d["lookup_id"] = ids
-        if self.pub_year:
-            d["year"] = self.pub_year
         if self.series:
             d["extra_title"] = [self.series]
         if self.format:
             d["subtype"] = [self.format]
+        d["company"] = ([self.pub_house] if self.pub_house else []) + (
+            [self.imprint] if self.imprint else []
+        )
+        d["people"] = self.author + self.translator
+        dt = int_(self.pub_year) * 10000
+        if dt:
+            dt += int_(self.pub_month) * 100
+        d["date"] = [dt] if dt else []
         return d
 
     @property
@@ -490,6 +489,9 @@ class Work(Item):
                     ).first()
                 if edition:
                     edition.set_work(self)
+
+    def to_indexable_doc(self):
+        return {}  # no index for Work, for now
 
 
 class Series(Item):

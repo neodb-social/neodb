@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Iterable
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -103,6 +103,67 @@ class Rating(Content):
                     100 * (grades[9] + grades[10]) // votes,
                 ],
             }
+
+    @classmethod
+    def get_info_for_items(cls, items: Iterable[Item]) -> dict[int, dict]:
+        # Extract IDs and build mapping for parent items
+        item_ids = [item.pk for item in items]
+        item_to_parent = {}
+        all_item_ids = set(item_ids)
+
+        # Handle items with child items and build mapping
+        for item in items:
+            if item.__class__ in RATING_INCLUDES_CHILD_ITEMS:
+                for child_id in item.child_item_ids:
+                    item_to_parent[child_id] = item.pk
+                    all_item_ids.add(child_id)
+            item_to_parent[item.pk] = item.pk
+
+        # Get all ratings in a single query
+        stat = (
+            Rating.objects.filter(grade__isnull=False, item_id__in=all_item_ids)
+            .values("item_id", "grade")
+            .annotate(count=Count("grade"))
+        )
+
+        # Initialize counters
+        grades = {item_id: [0] * 11 for item_id in item_ids}
+        votes = {item_id: 0 for item_id in item_ids}
+        total = {item_id: 0 for item_id in item_ids}
+
+        # Process the ratings
+        for s in stat:
+            if s["grade"] and 0 < s["grade"] < 11:
+                parent_id = item_to_parent.get(s["item_id"])
+                if parent_id in grades:
+                    grades[parent_id][s["grade"]] += s["count"]
+                    total[parent_id] += s["count"] * s["grade"]
+                    votes[parent_id] += s["count"]
+
+        # Format results
+        result = {}
+        for item_id in item_ids:
+            count = votes[item_id]
+            if count < MIN_RATING_COUNT:
+                result[item_id] = {
+                    "average": None,
+                    "count": count,
+                    "distribution": [0] * 5,
+                }
+            else:
+                result[item_id] = {
+                    "average": round(total[item_id] / count, 1),
+                    "count": count,
+                    "distribution": [
+                        100 * (grades[item_id][1] + grades[item_id][2]) // count,
+                        100 * (grades[item_id][3] + grades[item_id][4]) // count,
+                        100 * (grades[item_id][5] + grades[item_id][6]) // count,
+                        100 * (grades[item_id][7] + grades[item_id][8]) // count,
+                        100 * (grades[item_id][9] + grades[item_id][10]) // count,
+                    ],
+                }
+
+        return result
 
     @staticmethod
     def get_rating_for_item(item: Item) -> float | None:

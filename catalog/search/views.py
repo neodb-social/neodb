@@ -22,7 +22,7 @@ from users.views import query_identity
 
 from ..models import *
 from .external import ExternalSources
-from .models import enqueue_fetch, get_fetch_lock, query_index
+from .models import enqueue_fetch, get_fetch_lock, query_index, query_index2
 
 
 def fetch_refresh(request, job_id):
@@ -134,8 +134,19 @@ def search(request):
         if request.GET.get("r"):
             return redirect(keywords)
 
-    keywords = re.sub(r"[^\w-]+", " ", keywords)
-    items, num_pages, __, dup_items = query_index(keywords, categories, tag, p)
+    if request.user.is_authenticated and request.user.test_enabled:
+        excl = (
+            request.user.preference.hidden_categories
+            if request.user.is_authenticated
+            else None
+        )
+        items, num_pages, __, dup_items = query_index2(
+            keywords, categories, tag, p, exclude_categories=excl
+        )
+        Item.update_rating_info_for_items(items)
+    else:
+        keywords = re.sub(r"[^\w-]+", " ", keywords)
+        items, num_pages, __, dup_items = query_index(keywords, categories, tag, p)
     return render(
         request,
         "search_results.html",

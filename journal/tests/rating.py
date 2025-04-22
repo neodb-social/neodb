@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from catalog.common.models import Item
-from catalog.models import Edition, IdType, Movie, TVEpisode, TVSeason, TVShow
+from catalog.models import Edition, Game, IdType, Movie, TVEpisode, TVSeason, TVShow
 from journal.models.rating import Rating
 from users.models import User
 
@@ -31,6 +31,16 @@ class RatingTest(TestCase):
             primary_lookup_id_value="tt1234567",
             director=["Test Director"],
             year=2020,
+        )
+
+        # Create a game (will have no ratings)
+        self.game = Game.objects.create(
+            localized_title=[{"lang": "en", "text": "Test Game"}],
+            primary_lookup_id_type=IdType.Steam,
+            primary_lookup_id_value="12345",
+            developer=["Test Developer"],
+            platform=["PC"],
+            release_year=2022,
         )
 
         # Create a TV show with a season and episode
@@ -199,3 +209,84 @@ class RatingTest(TestCase):
 
         # The average should consider all ratings (6 + 5*10 = 56, divided by 6 = 9.3)
         self.assertEqual(tvshow_info["average"], 9.3)
+
+    def test_get_info_for_items(self):
+        """Test getting rating info for multiple items at once."""
+        # Add ratings for the book
+        book_ratings = [7, 8, 9, 10, 8]
+        for i in range(5):
+            Rating.update_item_rating(
+                self.book, self.users[i].identity, book_ratings[i], visibility=1
+            )
+
+        # Add ratings for the movie
+        movie_ratings = [3, 4, 5, 6, 7]
+        for i in range(5):
+            Rating.update_item_rating(
+                self.movie, self.users[i].identity, movie_ratings[i], visibility=1
+            )
+
+        # Add ratings for TV show and its season (child item)
+        # TV show direct ratings
+        tvshow_ratings = [8, 9, 10]
+        for i in range(3):
+            Rating.update_item_rating(
+                self.tvshow, self.users[i].identity, tvshow_ratings[i], visibility=1
+            )
+
+        # TV season ratings (should be included in TV show's ratings)
+        tvseason_ratings = [7, 8, 9]
+        for i in range(3):
+            Rating.update_item_rating(
+                self.tvseason, self.users[i].identity, tvseason_ratings[i], visibility=1
+            )
+
+        # Get ratings for all items at once, including a game with no ratings
+        items = [self.book, self.movie, self.tvshow, self.tvseason, self.game]
+        ratings_info = Rating.get_info_for_items(items)
+
+        # Check that we got info for all five items
+        self.assertEqual(len(ratings_info), 5)
+        self.assertIn(self.book.pk, ratings_info)
+        self.assertIn(self.movie.pk, ratings_info)
+        self.assertIn(self.tvshow.pk, ratings_info)
+        self.assertIn(self.tvseason.pk, ratings_info)
+        self.assertIn(self.game.pk, ratings_info)
+
+        # Check book ratings
+        book_info = ratings_info[self.book.pk]
+        self.assertEqual(book_info["count"], 5)
+        self.assertEqual(
+            book_info["average"], round(sum(book_ratings) / len(book_ratings), 1)
+        )
+
+        # Check movie ratings
+        movie_info = ratings_info[self.movie.pk]
+        self.assertEqual(movie_info["count"], 5)
+        self.assertEqual(
+            movie_info["average"], round(sum(movie_ratings) / len(movie_ratings), 1)
+        )
+
+        # Check TV show ratings - should include both direct and child item ratings
+        tvshow_info = ratings_info[self.tvshow.pk]
+        # 3 direct ratings + 3 season ratings = 6 total
+        self.assertEqual(tvshow_info["count"], 6)
+
+        # Calculate expected average: (8+9+10+7+8+9)/6 = 8.5
+        combined_ratings = tvshow_ratings + tvseason_ratings
+        expected_avg = round(sum(combined_ratings) / len(combined_ratings), 1)
+        self.assertEqual(tvshow_info["average"], expected_avg)
+
+        # Check TV season ratings - should have None for average since count < MIN_RATING_COUNT (5)
+        tvseason_info = ratings_info[self.tvseason.pk]
+        self.assertEqual(tvseason_info["count"], 3)
+        self.assertIsNone(tvseason_info["average"])
+
+        # Check game ratings - should have zero count and None for average (no ratings)
+        game_info = ratings_info[self.game.pk]
+        self.assertEqual(game_info["count"], 0)
+        self.assertIsNone(game_info["average"])
+        self.assertEqual(game_info["distribution"], [0, 0, 0, 0, 0])
+
+        # Test with empty list
+        self.assertEqual(Rating.get_info_for_items([]), {})

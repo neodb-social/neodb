@@ -670,26 +670,15 @@ class Item(PolymorphicModel):
             titles += self.parent_item.to_indexable_titles()
         return list(set(titles))
 
-    def to_indexable_people(self) -> list[str]:
-        return []
-
-    def to_indexable_company(self) -> list[str]:
-        return []
-
-    def to_indexable_doc(self) -> dict[str, str | int | list[str]]:
+    def to_indexable_doc(self) -> dict[str, str | int | list[str] | list[int]]:
         doc = {
             "id": str(self.pk),
-            "item_id": self.pk,
+            "item_id": [self.pk],
             "item_class": self.__class__.__name__,
             "title": self.to_indexable_titles(),
-            "people": self.to_indexable_people(),
-            "company": self.to_indexable_company(),
             "tag": self.tags,
             "mark_count": self.mark_count,
         }
-        year = getattr(self, "year", None)
-        if year:
-            doc["year"] = year
         return doc
 
     def update_index(self):
@@ -742,6 +731,17 @@ class Item(PolymorphicModel):
     @classmethod
     def get_final_items(cls, items: Iterable["Item"]) -> list["Item"]:
         return [j for j in [i.final_item for i in items] if not j.is_deleted]
+
+    @classmethod
+    def update_rating_info_for_items(cls, items: list["Item"]) -> list["Item"]:
+        from journal.models import Rating
+
+        ratings = Rating.get_info_for_items(items)
+        for i in items:
+            r = ratings.get(i.pk)
+            if r:
+                i.rating_info = Rating.get_info_for_item(i)
+        return items
 
     # def get_lookup_id(self, id_type: str) -> str:
     #     prefix = id_type.strip().lower() + ':'

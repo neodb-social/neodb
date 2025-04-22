@@ -159,6 +159,10 @@ class User(AbstractUser):
         return self.identity.display_name
 
     @property
+    def test_enabled(self):
+        return settings.DEBUG or "!bazinga" in (self.identity.summary or "")
+
+    @property
     def avatar(self):
         return (
             self.identity.avatar if self.identity else settings.SITE_INFO["user_icon"]

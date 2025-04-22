@@ -120,6 +120,12 @@ class Podcast(Item):
             and not self.merged_from_items.exists()
         )
 
+    def to_indexable_doc(self):
+        d = super().to_indexable_doc()
+        d["people"] = self.host or []  # type:ignore
+        d["genre"] = self.genre or []  # type:ignore
+        return d
+
 
 class PodcastEpisode(Item):
     schema = PodcastEpisodeSchema
@@ -155,6 +161,9 @@ class PodcastEpisode(Item):
     @property
     def display_title(self) -> str:
         return f"{self.program.title} - {self.title}" if self.program else self.title
+
+    def to_indexable_doc(self):
+        return {}  # no index for PodcastEpisode, for now
 
     @property
     def cover_image_url(self) -> str | None:

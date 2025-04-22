@@ -12,6 +12,7 @@ from rq.job import Job
 from catalog.common.downloaders import RESPONSE_CENSORSHIP, DownloadError
 from catalog.common.models import ItemCategory, SiteName
 from catalog.common.sites import SiteManager
+from catalog.index import CatalogIndex, CatalogQueryParser
 
 from ..models import Item, TVSeason
 from .typesense import Indexer as TypeSenseIndexer
@@ -156,6 +157,70 @@ def query_index(keywords, categories=None, tag=None, page=1, prepare_external=Tr
         cache.set(cache_key, urls, timeout=300)
 
     return items, result.num_pages, result.count, duplicated_items
+
+
+def query_index2(
+    keywords,
+    categories=None,
+    tag=None,
+    page=1,
+    prepare_external=True,
+    exclude_categories=None,
+):
+    if (
+        page < 1
+        or page > 99
+        or (not tag and isinstance(keywords, str) and len(keywords) < 2)
+        or len(keywords) > 100
+    ):
+        return [], 0, 0, []
+    args = {}
+    if categories:
+        args["filter_categories"] = categories
+    if exclude_categories:
+        args["exclude_categories"] = exclude_categories
+    q = CatalogQueryParser(keywords, page, **args)
+    if not q:
+        return [], 0, 0, []
+    index = CatalogIndex.instance()
+    r = index.search(q)
+    keys = set()
+    items = []
+    duplicated_items = []
+    urls = []
+    for i in r.items:
+        key = getattr(i, "isbn", getattr(i, "imdb_code", None))
+        my_key = [key] if key else []
+        if hasattr(i, "get_work"):
+            work = i.get_work()  # type: ignore
+            if work:
+                my_key += [work.id]
+        if len(my_key):
+            sl = len(keys) + len(my_key)
+            keys.update(my_key)
+            # check and skip dup with same imdb or isbn or works id
+            if len(keys) < sl:
+                duplicated_items.append(i)
+            else:
+                items.append(i)
+        else:
+            items.append(i)
+        for res in i.external_resources.all():
+            urls.append(res.url)
+    # hide show if its season exists
+    seasons = [i for i in items if i.__class__ == TVSeason]
+    for season in seasons:
+        if season.show in items:
+            duplicated_items.append(season.show)
+            items.remove(season.show)
+
+    if prepare_external:
+        # store site url to avoid dups in external search
+        cache_key = f"search_{','.join(categories or [])}_{keywords}"
+        urls = list(set(cache.get(cache_key, []) + urls))
+        cache.set(cache_key, urls, timeout=300)
+
+    return items, r.pages, r.total, duplicated_items
 
 
 def get_fetch_lock(user, url):

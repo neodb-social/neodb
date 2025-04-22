@@ -17,3 +17,6 @@ class Collection(Item):
     @property
     def owner_id(self):
         return self.journal_item.owner_id if self.journal_item else None
+
+    def to_indexable_doc(self):
+        return {}

@@ -11,6 +11,7 @@ from catalog.common import (
     jsondata,
 )
 from catalog.common.models import LIST_OF_STR_SCHEMA, LanguageListField
+from common.models.misc import int_
 
 
 class MovieInSchema(ItemInSchema):
@@ -162,5 +163,12 @@ class Movie(Item):
         titles += [self.orig_title] if self.orig_title else []
         return list(set(titles))
 
-    def to_indexable_people(self) -> list[str]:
-        return (self.director or []) + (self.actor or []) + (self.playwright or [])
+    def to_indexable_doc(self):
+        d = super().to_indexable_doc()
+        d["people"] = (
+            (self.director or []) + (self.actor or []) + (self.playwright or [])
+        )
+        dt = int_(self.year) * 10000
+        d["date"] = [dt] if dt else []
+        d["genre"] = self.genre or []  # type:ignore
+        return d

@@ -269,7 +269,7 @@ class Index:
                 if settings.DEBUG:
                     logger.error(f"Typesense: {r}")
 
-    def delete_docs(self, field: str, values: Iterable[int] | str) -> int:
+    def delete_docs(self, field: str, values: Iterable[int | str] | str) -> int:
         v: str = (
             ("[" + ",".join(map(str, values)) + "]")
             if isinstance(values, Iterable)
@@ -281,8 +281,8 @@ class Index:
     def patch_docs(self, partial_doc: dict, doc_filter: str):
         self.write_collection.documents.update(partial_doc, {"filter_by": doc_filter})
 
-    def get_doc(self, doc_id):
-        return self.read_collection.documents[doc_id].retrieve()
+    def get_doc(self, doc_id: int | str):
+        return self.read_collection.documents[str(doc_id)].retrieve()
 
     def search(
         self,

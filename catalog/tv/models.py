@@ -48,7 +48,7 @@ from catalog.common.models import (
     LanguageListField,
 )
 from common.models.lang import RE_LOCALIZED_SEASON_NUMBERS, localize_number
-from common.models.misc import uniq
+from common.models.misc import int_, uniq
 
 
 class TVShowInSchema(ItemInSchema):
@@ -247,8 +247,15 @@ class TVShow(Item):
         titles += [self.orig_title] if self.orig_title else []
         return list(set(titles))
 
-    def to_indexable_people(self) -> list[str]:
-        return (self.director or []) + (self.actor or []) + (self.playwright or [])
+    def to_indexable_doc(self):
+        d = super().to_indexable_doc()
+        d["people"] = (
+            (self.director or []) + (self.actor or []) + (self.playwright or [])
+        )
+        dt = int_(self.year) * 10000
+        d["date"] = [dt] if dt else []
+        d["genre"] = self.genre or []  # type:ignore
+        return d
 
 
 class TVSeason(Item):
@@ -436,8 +443,15 @@ class TVSeason(Item):
         titles += self.parent_item.to_indexable_titles() if self.parent_item else []
         return list(set(titles))
 
-    def to_indexable_people(self) -> list[str]:
-        return (self.director or []) + (self.actor or []) + (self.playwright or [])
+    def to_indexable_doc(self):
+        d = super().to_indexable_doc()
+        d["people"] = (
+            (self.director or []) + (self.actor or []) + (self.playwright or [])
+        )
+        dt = int_(self.year) * 10000
+        d["date"] = [dt] if dt else []
+        d["genre"] = self.genre or []  # type: ignore
+        return d
 
     def update_linked_items_from_external_resource(self, resource):
         for w in resource.required_resources:
@@ -517,3 +531,6 @@ class TVEpisode(Item):
                 ).first()
                 if p and p.item:
                     self.season = p.item
+
+    def to_indexable_doc(self):
+        return {}  # no index for TVEpisode, for now

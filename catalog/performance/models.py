@@ -15,6 +15,7 @@ from catalog.common import (
     jsondata,
 )
 from catalog.common.models import LIST_OF_STR_SCHEMA, LanguageListField
+from common.models.misc import datetime_
 
 
 class CrewMemberSchema(Schema):
@@ -245,8 +246,9 @@ class Performance(Item):
         titles += [self.orig_title] if self.orig_title else []
         return list(set(titles))
 
-    def to_indexable_people(self) -> list[str]:
-        return (
+    def to_indexable_doc(self):
+        d = super().to_indexable_doc()
+        d["people"] = (
             (self.orig_creator or [])
             + (self.playwright or [])
             + (self.director or [])
@@ -257,6 +259,12 @@ class Performance(Item):
             + (self.choreographer or [])
             + [a["name"] for a in (self.crew or [])]
         )
+        d["company"] = self.troupe or []
+        dt = self.opening_date or self.closing_date or ""
+        dd = datetime_(dt)
+        d["date"] = [int(dd.strftime("%Y%m%d"))] if dd else []
+        d["genre"] = self.genre or []  # type:ignore
+        return d
 
 
 class PerformanceProduction(Item):
@@ -417,8 +425,9 @@ class PerformanceProduction(Item):
         titles += [self.orig_title] if self.orig_title else []
         return list(set(titles))
 
-    def to_indexable_people(self) -> list[str]:
-        return (
+    def to_indexable_doc(self):
+        d = super().to_indexable_doc()
+        d["people"] = (
             (self.orig_creator or [])
             + (self.playwright or [])
             + (self.director or [])
@@ -429,3 +438,9 @@ class PerformanceProduction(Item):
             + (self.choreographer or [])
             + [a["name"] for a in (self.crew or [])]
         )
+        d["company"] = self.troupe or []
+        dt = self.opening_date or self.closing_date or ""
+        dd = datetime_(dt)
+        d["date"] = [int(dd.strftime("%Y%m%d"))] if dd else []
+        d["genre"] = self.genre or []  # type:ignore
+        return d
