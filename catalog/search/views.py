@@ -143,7 +143,7 @@ def search(request):
         items, num_pages, __, dup_items = query_index2(
             keywords, categories, tag, p, exclude_categories=excl
         )
-        Item.update_rating_info_for_items(items)
+        Item.attach_rating_info_to_items(items)
     else:
         keywords = re.sub(r"[^\w-]+", " ", keywords)
         items, num_pages, __, dup_items = query_index(keywords, categories, tag, p)

@@ -117,7 +117,8 @@ class Rating(Content):
                 for child_id in item.child_item_ids:
                     item_to_parent[child_id] = item.pk
                     all_item_ids.add(child_id)
-            item_to_parent[item.pk] = item.pk
+            if item.pk not in item_to_parent:
+                item_to_parent[item.pk] = item.pk
 
         # Get all ratings in a single query
         stat = (
@@ -139,7 +140,10 @@ class Rating(Content):
                     grades[parent_id][s["grade"]] += s["count"]
                     total[parent_id] += s["count"] * s["grade"]
                     votes[parent_id] += s["count"]
-
+                if parent_id != s["item_id"] and s["item_id"] in grades:
+                    grades[s["item_id"]][s["grade"]] += s["count"]
+                    total[s["item_id"]] += s["count"] * s["grade"]
+                    votes[s["item_id"]] += s["count"]
         # Format results
         result = {}
         for item_id in item_ids:

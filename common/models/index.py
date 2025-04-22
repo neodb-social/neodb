@@ -248,6 +248,7 @@ class Index:
         return False
 
     def replace_docs(self, docs: List[dict]):
+        docs = [doc for doc in docs if doc]
         if not docs:
             return False
         rs = self.write_collection.documents.import_(docs, {"action": "upsert"})
@@ -255,7 +256,8 @@ class Index:
             e = r.get("error", None)
             if e:
                 logger.error(f"Typesense: {self.name} import error {e}")
-                if settings.DEBUG:
+                if settings.DEBUG or settings.TESTING:
+                    logger.error(f"Typesense: {docs}")
                     logger.error(f"Typesense: {r}")
 
     def insert_docs(self, docs: List[dict]):

@@ -139,14 +139,14 @@ class CatalogQueryParserTests(TestCase):
         parser = CatalogQueryParser("year:2010..2020", 1, 20)
 
         self.assertEqual(parser.q, "")
-        self.assertEqual(parser.filter_by.get("year"), ["2010..2020"])
+        self.assertEqual(parser.filter_by.get("date"), ["20100000..20209999"])
 
     def test_year_filtering_single(self):
         """Test single year filtering in CatalogQueryParser"""
         parser = CatalogQueryParser("year:2015", 1, 20)
 
         self.assertEqual(parser.q, "")
-        self.assertEqual(parser.filter_by.get("year"), ["2015"])
+        self.assertEqual(parser.filter_by.get("date"), ["20150000..20159999"])
 
     def test_exclude_categories(self):
         """Test exclude_categories parameter in CatalogQueryParser"""
@@ -187,7 +187,7 @@ class CatalogQueryParserTests(TestCase):
         self.assertEqual(params["per_page"], 10)
         self.assertIn("filter_by", params)
         self.assertIn("tag:scifi", params["filter_by"])
-        self.assertIn("year:2020..2022", params["filter_by"])
+        self.assertIn("date:20200000..20229999", params["filter_by"])
 
 
 class CatalogSearchTests(TestCase):

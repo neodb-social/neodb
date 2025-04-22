@@ -733,7 +733,7 @@ class Item(PolymorphicModel):
         return [j for j in [i.final_item for i in items] if not j.is_deleted]
 
     @classmethod
-    def update_rating_info_for_items(cls, items: list["Item"]) -> list["Item"]:
+    def attach_rating_info_to_items(cls, items: list["Item"]) -> list["Item"]:
         from journal.models import Rating
 
         ratings = Rating.get_info_for_items(items)
