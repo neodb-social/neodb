@@ -242,7 +242,7 @@ class Edition(Item):
         if self.series:
             d["extra_title"] = [self.series]
         if self.format:
-            d["subtype"] = [self.format]
+            d["format"] = [self.format]
         d["company"] = ([self.pub_house] if self.pub_house else []) + (
             [self.imprint] if self.imprint else []
         )

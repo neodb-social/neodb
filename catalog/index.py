@@ -39,7 +39,7 @@ class CatalogQueryParser(QueryParser):
     fields = [
         "tag",
         "category",
-        "type",
+        "format",
         "genre",
         "people",
         "company",
@@ -67,7 +67,7 @@ class CatalogQueryParser(QueryParser):
 
         super().__init__(query, page, page_size)
 
-        for field in ["tag", "type", "genre", "people", "company", "language"]:
+        for field in ["tag", "format", "genre", "people", "company", "language"]:
             v = [i for i in set(self.parsed_fields.get(field, "").split(",")) if i]
             if v:
                 self.filter_by[field] = v
@@ -212,7 +212,7 @@ class CatalogIndex(Index):
                 "optional": True,
             },
             {
-                "name": "subtype",
+                "name": "format",
                 "type": "string[]",
                 "facet": True,
                 "optional": True,
@@ -239,7 +239,7 @@ class CatalogIndex(Index):
         return [d for d in docs if d]
 
     def delete_all(self):
-        return self.delete_docs("item_id", ">0")
+        return self.delete_docs("id", "*")
 
     def delete(self, item_ids):
         return self.delete_docs("id", item_ids)

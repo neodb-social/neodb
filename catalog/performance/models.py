@@ -442,5 +442,4 @@ class PerformanceProduction(Item):
         dt = self.opening_date or self.closing_date or ""
         dd = datetime_(dt)
         d["date"] = [int(dd.strftime("%Y%m%d"))] if dd else []
-        d["genre"] = self.genre or []  # type:ignore
         return d

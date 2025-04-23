@@ -5,6 +5,7 @@ from typing import Iterable, List, Self
 
 from django.conf import settings
 from loguru import logger
+from requests import RequestException
 from typesense.client import Client
 from typesense.collection import Collection
 from typesense.exceptions import ObjectNotFound
@@ -122,21 +123,24 @@ class SearchResult:
     def __init__(self, index: "Index", response: SearchResponse):
         self.index = index
         self.response = response
-        self.request_params = response["request_params"]  # type: ignore
-        self.page_size = self.request_params["per_page"]
-        self.total = response["found"]
-        self.page = response["page"]
+        self.request_params = response.get("request_params", {})
+        self.page_size = self.request_params.get("per_page", 1)
+        self.total = response.get("found", 0)
+        self.page = response.get("page", 1)
+        self.code = response.get("code", 0)
+        self.error = response.get("error", None)
         self.pages = (self.total + self.page_size - 1) // self.page_size
 
     def __repr__(self):
-        return f"SearchResult(search '{self.request_params['q']}', found {self.response['found']} out of {self.response['out_of']}, page {self.response['page']})"
+        return f"SearchResult(search '{self.request_params.get('q', '')}', found {self.total} out of {self.response.get('out_of', -1)}, page {self.page})"
 
     def __str__(self):
-        return f"SearchResult(search '{self.request_params['q']}', found {self.response['found']} out of {self.response['out_of']}, page {self.response['page']})"
+        return f"SearchResult(search '{self.request_params.get('q', '')}', found {self.total} out of {self.response.get('out_of', -1)}, page {self.page})"
 
     def get_facet(self, field):
+        facets = self.response.get("facet_counts", [])
         f = next(
-            (f for f in self.response["facet_counts"] if f["field_name"] == field),
+            (f for f in facets if f["field_name"] == field),
             None,
         )
         if not f:
@@ -144,19 +148,19 @@ class SearchResult:
         return {v["value"]: v["count"] for v in f["counts"]}
 
     def __bool__(self):
-        return len(self.response["hits"]) > 0
+        return len(self.response.get("hits", [])) > 0
 
     def __len__(self):
-        return len(self.response["hits"])
+        return len(self.response.get("hits", []))
 
     def __iter__(self):
-        return iter(self.response["hits"])
+        return iter(self.response.get("hits", []))
 
     def __getitem__(self, key):
-        return self.response["hits"][key]
+        return self.response.get("hits", [])[key]
 
     def __contains__(self, item):
-        return item in self.response["hits"]
+        return item in self.response.get("hits", [])
 
 
 class Index:
@@ -295,12 +299,18 @@ class Index:
         params = query.to_search_params()
         if settings.DEBUG:
             logger.debug(f"Typesense: search {self.name} {params}")
-        # use multi_search as typesense limits query size for normal search
-        r = self._client.multi_search.perform(
-            {"searches": [params]},  # type: ignore
-            {"collection": self.read_collection.name},  # type: ignore
-        )
+        try:
+            # use multi_search as typesense limits query size for normal search
+            r = self._client.multi_search.perform(
+                {"searches": [params]},  # type: ignore
+                {"collection": self.read_collection.name},  # type: ignore
+            )
+        except RequestException as e:
+            logger.error(f"Typesense: search error {e}")
+            return self.search_result_class(self, {"error": str(e), "code": -1})  # type:ignore
         sr = self.search_result_class(self, r["results"][0])
-        if settings.DEBUG:
+        if sr.error:
+            logger.error(f"Typesense: search error {sr.error}")
+        elif settings.DEBUG:
             logger.debug(f"Typesense: search result {sr}")
         return sr
