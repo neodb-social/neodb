@@ -191,11 +191,12 @@ class CatalogQueryParserTests(TestCase):
 
     def test_type_filtering(self):
         """Test type filtering in CatalogQueryParser"""
-        parser = CatalogQueryParser("type:fiction,nonfiction", 1, 20)
+        parser = CatalogQueryParser("format:web,dvd", 1, 20)
 
         self.assertEqual(parser.q, "")
         self.assertEqual(
-            sorted(parser.filter_by.get("type", [])), sorted(["fiction", "nonfiction"])
+            sorted(parser.filter_by.get("format", [])),
+            sorted(["web", "dvd"]),
         )
 
     def test_genre_filtering(self):

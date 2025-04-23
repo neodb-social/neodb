@@ -263,14 +263,11 @@ class CatalogIndex(Index):
         if not item.pk:
             logger.error(f"Indexing {item} but no pk")
             return
-        try:
-            if item.is_deleted or item.merged_to_item_id:
-                self.delete_docs("item_id", item.pk)
-            else:
-                doc = item.to_indexable_doc()
-                self.replace_docs([doc])
-        except Exception as e:
-            logger.error(f"Indexing {item} error {e}")
+        if item.is_deleted or item.merged_to_item_id:
+            self.delete_docs("id", item.pk)
+        else:
+            doc = item.to_indexable_doc()
+            self.replace_docs([doc])
 
     @classmethod
     def enqueue_replace_items(cls, item_ids):

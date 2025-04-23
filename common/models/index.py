@@ -8,7 +8,7 @@ from loguru import logger
 from requests import RequestException
 from typesense.client import Client
 from typesense.collection import Collection
-from typesense.exceptions import ObjectNotFound
+from typesense.exceptions import ObjectNotFound, TypesenseClientError
 from typesense.types.collection import (
     CollectionCreateSchema,
     CollectionSchema,
@@ -250,14 +250,18 @@ class Index:
                 return True
             logger.error("Typesense: server unknown error")
         except Exception as e:
-            logger.error(f"Typesense: server error {e}")
+            logger.error(f"Typesense: initialization error {e}")
         return False
 
     def replace_docs(self, docs: List[dict]):
         docs = [doc for doc in docs if doc]
         if not docs:
             return False
-        rs = self.write_collection.documents.import_(docs, {"action": "upsert"})
+        try:
+            rs = self.write_collection.documents.import_(docs, {"action": "upsert"})
+        except (RequestException, TypesenseClientError) as e:
+            logger.error(f"Typesense: error {e}")
+            return
         for r in rs:
             e = r.get("error", None)
             if e:
@@ -269,7 +273,11 @@ class Index:
     def insert_docs(self, docs: List[dict]):
         if not docs:
             return False
-        rs = self.write_collection.documents.import_(docs)
+        try:
+            rs = self.write_collection.documents.import_(docs)
+        except (RequestException, TypesenseClientError) as e:
+            logger.error(f"Typesense: error {e}")
+            return
         for r in rs:
             e = r.get("error", None)
             if e:
@@ -283,11 +291,20 @@ class Index:
             if isinstance(values, Iterable)
             else values
         )
-        r = self.write_collection.documents.delete({"filter_by": f"{field}:{v}"})
+        try:
+            r = self.write_collection.documents.delete({"filter_by": f"{field}:{v}"})
+        except (RequestException, TypesenseClientError) as e:
+            logger.error(f"Typesense: error {e}")
+            return 0
         return (r or {}).get("num_deleted", 0)
 
     def patch_docs(self, partial_doc: dict, doc_filter: str):
-        self.write_collection.documents.update(partial_doc, {"filter_by": doc_filter})
+        try:
+            self.write_collection.documents.update(
+                partial_doc, {"filter_by": doc_filter}
+            )
+        except (RequestException, TypesenseClientError) as e:
+            logger.error(f"Typesense: error {e}")
 
     def get_doc(self, doc_id: int | str):
         return self.read_collection.documents[str(doc_id)].retrieve()
@@ -305,8 +322,8 @@ class Index:
                 {"searches": [params]},  # type: ignore
                 {"collection": self.read_collection.name},  # type: ignore
             )
-        except RequestException as e:
-            logger.error(f"Typesense: search error {e}")
+        except (RequestException, TypesenseClientError) as e:
+            logger.error(f"Typesense: error {e}")
             return self.search_result_class(self, {"error": str(e), "code": -1})  # type:ignore
         sr = self.search_result_class(self, r["results"][0])
         if sr.error:
