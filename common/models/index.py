@@ -31,7 +31,8 @@ class QueryParser:
     @classmethod
     def re(cls):
         return re.compile(
-            r"\b(?P<field>" + "|".join(cls.fields) + r")\s*:(?P<value>[^ ]+)", re.I
+            r"\b(?P<field>" + "|".join(cls.fields) + r')\s*:(?P<value>[^ "]+|"[^"]+")',
+            re.I,
         )
 
     def __init__(self, query: str, page: int = 1, page_size: int = 0):
@@ -41,8 +42,9 @@ class QueryParser:
             r = self.re()
             self.q = r.sub("", query).strip()
             self.parsed_fields = {
-                m.group("field").strip().lower(): m.group("value").strip().lower()
+                m.group("field").strip().lower(): m.group("value").strip('  "').lower()
                 for m in r.finditer(query)
+                if m.group("value").strip('  "')
             }
         else:
             self.q = query.strip()

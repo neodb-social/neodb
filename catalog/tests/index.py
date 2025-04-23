@@ -189,6 +189,44 @@ class CatalogQueryParserTests(TestCase):
         self.assertIn("tag:scifi", params["filter_by"])
         self.assertIn("date:20200000..20229999", params["filter_by"])
 
+    def test_type_filtering(self):
+        """Test type filtering in CatalogQueryParser"""
+        parser = CatalogQueryParser("type:fiction,nonfiction", 1, 20)
+
+        self.assertEqual(parser.q, "")
+        self.assertEqual(
+            sorted(parser.filter_by.get("type", [])), sorted(["fiction", "nonfiction"])
+        )
+
+    def test_genre_filtering(self):
+        """Test genre filtering in CatalogQueryParser"""
+        parser = CatalogQueryParser("genre:scifi,fantasy,drama", 1, 20)
+
+        self.assertEqual(parser.q, "")
+        self.assertEqual(
+            sorted(parser.filter_by.get("genre", [])),
+            sorted(["scifi", "fantasy", "drama"]),
+        )
+
+    def test_people_filtering(self):
+        """Test people filtering in CatalogQueryParser"""
+        parser = CatalogQueryParser("people:spielberg,lucas", 1, 20)
+
+        self.assertEqual(parser.q, "")
+        self.assertEqual(
+            sorted(parser.filter_by.get("people", [])), sorted(["spielberg", "lucas"])
+        )
+
+    def test_people_filtering_with_quotes(self):
+        """Test people filtering with quoted names in CatalogQueryParser"""
+        parser = CatalogQueryParser('people:"Steven Spielberg,George Lucas"', 1, 20)
+
+        self.assertEqual(parser.q, "")
+        self.assertEqual(
+            sorted(parser.filter_by.get("people", [])),
+            sorted(["steven spielberg", "george lucas"]),
+        )
+
 
 class CatalogSearchTests(TestCase):
     databases = "__all__"
@@ -201,6 +239,7 @@ class CatalogSearchTests(TestCase):
         self.book1.author = ["J.R.R. Tolkien"]
         self.book1.pub_year = 1954
         self.book1.pub_house = "Allen & Unwin"
+        self.book1.language = ["en"]  # type: ignore
         self.book1.save()
 
         self.book2 = Edition.objects.create(title="The Hobbit")
@@ -209,6 +248,7 @@ class CatalogSearchTests(TestCase):
         self.book2.author = ["J.R.R. Tolkien"]
         self.book2.pub_year = 1937
         self.book2.pub_house = "Allen & Unwin"
+        self.book2.language = ["en"]  # type: ignore
         self.book2.save()
 
         self.book3 = Edition.objects.create(title="Dune")
@@ -217,6 +257,7 @@ class CatalogSearchTests(TestCase):
         self.book3.author = ["Frank Herbert"]
         self.book3.pub_year = 1965
         self.book3.pub_house = "Chilton Books"
+        self.book3.language = ["en", "fr"]  # type: ignore
         self.book3.save()
 
         # Create movie test data
@@ -226,6 +267,7 @@ class CatalogSearchTests(TestCase):
         self.movie1.director = ["Francis Ford Coppola"]
         self.movie1.actor = ["Marlon Brando", "Al Pacino", "James Caan"]
         self.movie1.year = 1972
+        self.movie1.language = ["it"]  # type: ignore
         self.movie1.save()
 
         self.movie2 = Movie.objects.create(title="The Godfather: Part II")
@@ -234,14 +276,21 @@ class CatalogSearchTests(TestCase):
         self.movie2.director = ["Francis Ford Coppola"]
         self.movie2.actor = ["Al Pacino", "Robert De Niro", "Robert Duvall"]
         self.movie2.year = 1974
+        self.movie2.language = ["it", "en"]  # type: ignore
         self.movie2.save()
 
         self.movie3 = Movie.objects.create(title="Inception")
         self.movie3.localized_title = [{"lang": "en", "text": "Inception"}]
         self.movie3.imdb = "tt1375666"
         self.movie3.director = ["Christopher Nolan"]
-        self.movie3.actor = ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Ellen Page"]
+        self.movie3.actor = [
+            "Marlon Brando",
+            "Leonardo DiCaprio",
+            "Joseph Gordon-Levitt",
+            "Ellen Page",
+        ]
         self.movie3.year = 2010
+        self.movie3.language = ["en"]  # type: ignore
         self.movie3.save()
 
         # Index the items for searching
@@ -422,3 +471,159 @@ class CatalogSearchTests(TestCase):
 
         # Verify second page
         self.assertEqual(len(results.items), 2)
+
+    def test_search_by_people_director(self):
+        """Test searching catalog by director name using the people filter"""
+        # Create query parser for director search with people filter
+        parser = CatalogQueryParser('people:"Francis Ford Coppola"', 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify results
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 2)
+        self.assertIn(self.movie1.pk, found_items)
+        self.assertIn(self.movie2.pk, found_items)
+
+    def test_search_by_people_actor(self):
+        """Test searching catalog by actor name using the people filter"""
+        # Create query parser for actor search with people filter
+        parser = CatalogQueryParser('people:"Leonardo DiCaprio"', 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify results
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 1)
+        self.assertIn(self.movie3.pk, found_items)
+
+    def test_search_by_people_author(self):
+        """Test searching catalog by author name using the people filter"""
+        # Create query parser for author search with people filter
+        parser = CatalogQueryParser('people:"J.R.R. Tolkien"', 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify results
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 2)
+        self.assertIn(self.book1.pk, found_items)
+        self.assertIn(self.book2.pk, found_items)
+
+    def test_search_by_multiple_people(self):
+        """Test searching catalog by multiple people names"""
+        parser = CatalogQueryParser('people:"J.R.R. Tolkien,Frank Herbert"', 1, 20)
+        results = CatalogIndex.instance().search(parser)
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 3)
+        self.assertIn(self.book1.pk, found_items)
+        self.assertIn(self.book2.pk, found_items)
+        self.assertIn(self.book3.pk, found_items)
+
+        # FIXME: more than one people should be AND
+        # parser = CatalogQueryParser('people:"Coppola" people:"Marlon Brando"', 1, 20)
+        # results = CatalogIndex.instance().search(parser)
+        # found_items = [item.pk for item in results.items]
+        # self.assertEqual(len(found_items), 1)
+        # self.assertIn(self.movie1.pk, found_items)
+
+    def test_search_by_company_publisher(self):
+        """Test searching catalog by publishing house name"""
+        # Create query parser for publisher search
+        parser = CatalogQueryParser("Allen & Unwin", 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify results
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 2)
+        self.assertIn(self.book1.pk, found_items)
+        self.assertIn(self.book2.pk, found_items)
+
+    def test_search_by_company_filter(self):
+        """Test searching catalog by publishing house using company filter"""
+        # Create query parser for publisher search with company filter
+        parser = CatalogQueryParser('company:"Allen & Unwin"', 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify results
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 2)
+        self.assertIn(self.book1.pk, found_items)
+        self.assertIn(self.book2.pk, found_items)
+
+    def test_search_by_multiple_companies(self):
+        """Test searching catalog by multiple company names"""
+        # Create query parser for multiple companies search
+        parser = CatalogQueryParser('company:"Allen & Unwin,Chilton Books"', 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify results
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 3)
+        self.assertIn(self.book1.pk, found_items)
+        self.assertIn(self.book2.pk, found_items)
+        self.assertIn(self.book3.pk, found_items)
+
+    def test_search_by_language(self):
+        """Test searching catalog by language filter"""
+        # Create query parser for language search - English
+        parser = CatalogQueryParser("language:en", 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify results
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 5)
+        self.assertIn(self.book1.pk, found_items)
+        self.assertIn(self.book2.pk, found_items)
+        self.assertIn(self.book3.pk, found_items)
+        self.assertIn(self.movie2.pk, found_items)
+        self.assertIn(self.movie3.pk, found_items)
+
+        # Create query parser for language search - Italian
+        parser = CatalogQueryParser("language:it", 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify results
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 2)
+        self.assertIn(self.movie1.pk, found_items)
+        self.assertIn(self.movie2.pk, found_items)
+
+        # Create query parser for language search - French
+        parser = CatalogQueryParser("language:fr", 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify results
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 1)
+        self.assertIn(self.book3.pk, found_items)
+
+        # Create query parser for multiple languages search
+        parser = CatalogQueryParser("language:en,fr", 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify results - should return items with either language
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 5)
+        self.assertIn(self.book1.pk, found_items)
+        self.assertIn(self.book2.pk, found_items)
+        self.assertIn(self.book3.pk, found_items)
+        self.assertIn(self.movie2.pk, found_items)
+        self.assertIn(self.movie3.pk, found_items)

@@ -36,7 +36,16 @@ def _cat_to_class(cat: str) -> list[str]:
 
 
 class CatalogQueryParser(QueryParser):
-    fields = ["tag", "category", "type", "year", "language"]
+    fields = [
+        "tag",
+        "category",
+        "type",
+        "genre",
+        "people",
+        "company",
+        "year",
+        "language",
+    ]
     default_search_params = {
         "query_by": "title, people, company, lookup_id, extra_title",
         # "sort_by": "",
@@ -58,9 +67,10 @@ class CatalogQueryParser(QueryParser):
 
         super().__init__(query, page, page_size)
 
-        v = [i for i in set(self.parsed_fields.get("tag", "").split(",")) if i]
-        if v:
-            self.filter_by["tag"] = v
+        for field in ["tag", "type", "genre", "people", "company", "language"]:
+            v = [i for i in set(self.parsed_fields.get(field, "").split(",")) if i]
+            if v:
+                self.filter_by[field] = v
 
         v = [
             i for i in set(self.parsed_fields.get("category", "").split(",")) if i

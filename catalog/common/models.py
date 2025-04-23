@@ -678,6 +678,7 @@ class Item(PolymorphicModel):
             "title": self.to_indexable_titles(),
             "tag": self.tags,
             "mark_count": self.mark_count,
+            "language": getattr(self, "language", None) or [],
         }
         return doc
 
