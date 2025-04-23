@@ -307,12 +307,14 @@ class Command(BaseCommand):
                     is_deleted=False, merged_to_item_id__isnull=True
                 ).order_by("id")
                 c = 0
+                t = 0
                 pg = Paginator(items, batch_size)
                 for p in tqdm(pg.page_range):
                     docs = index.items_to_docs(pg.get_page(p).object_list)
-                    c += len(docs)
-                    index.replace_docs(docs)
-                self.stdout.write(self.style.SUCCESS(f"indexed {c} docs."))
+                    r = index.replace_docs(docs)
+                    t += len(docs)
+                    c += r
+                self.stdout.write(self.style.SUCCESS(f"indexed {c} of {t} docs."))
 
             case "idx-get":
                 item = Item.get_by_url(url)

@@ -48,7 +48,7 @@ class CatalogQueryParser(QueryParser):
     ]
     default_search_params = {
         "query_by": "title, people, company, lookup_id, extra_title",
-        # "sort_by": "",
+        "sort_by": "_text_match(bucket_size:20):desc,mark_count:desc",
         "per_page": 20,
         "include_fields": "id, item_id",
         "highlight_fields": "",
