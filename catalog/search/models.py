@@ -162,7 +162,6 @@ def query_index(keywords, categories=None, tag=None, page=1, prepare_external=Tr
 def query_index2(
     keywords,
     categories=None,
-    tag=None,
     page=1,
     prepare_external=True,
     exclude_categories=None,
@@ -170,10 +169,10 @@ def query_index2(
     if (
         page < 1
         or page > 99
-        or (not tag and isinstance(keywords, str) and len(keywords) < 2)
+        or (isinstance(keywords, str) and len(keywords) < 2)
         or len(keywords) > 100
     ):
-        return [], 0, 0, [], {}
+        return [], 0, 0, [], {}, keywords
     args = {}
     if categories:
         args["filter_categories"] = categories
@@ -181,7 +180,7 @@ def query_index2(
         args["exclude_categories"] = exclude_categories
     q = CatalogQueryParser(keywords, page, **args)
     if not q:
-        return [], 0, 0, [], {}
+        return [], 0, 0, [], {}, keywords
     index = CatalogIndex.instance()
     r = index.search(q)
     keys = set()
@@ -220,7 +219,7 @@ def query_index2(
         urls = list(set(cache.get(cache_key, []) + urls))
         cache.set(cache_key, urls, timeout=300)
 
-    return items, r.pages, r.total, duplicated_items, r.facet_by_category
+    return items, r.pages, r.total, duplicated_items, r.facet_by_category, q.q
 
 
 def get_fetch_lock(user, url):

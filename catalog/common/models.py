@@ -682,10 +682,12 @@ class Item(PolymorphicModel):
         }
         return doc
 
-    def update_index(self):
-        index = CatalogIndex.instance()
-        index.replace_item(self)
-        # CatalogIndex.enqueue_replace_items([self.pk])
+    def update_index(self, later: bool = False):
+        if later:
+            CatalogIndex.enqueue_replace_items([self.pk])
+        else:
+            index = CatalogIndex.instance()
+            index.replace_item(self)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

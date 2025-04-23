@@ -323,6 +323,8 @@ class Command(BaseCommand):
                 else:
                     d = index.get_doc(item.pk)
                     self.stdout.write(json.dumps(d, indent=2))
+                    d = item.to_indexable_doc()
+                    self.stdout.write(json.dumps(d, indent=2))
 
             case "search":
                 q = CatalogQueryParser("" if query == "-" else query, page_size=100)

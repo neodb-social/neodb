@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from rq.job import Job
@@ -135,18 +136,21 @@ def search(request):
             return redirect(keywords)
 
     if request.user.is_authenticated and request.user.test_enabled:
+        if tag:
+            redir = reverse("common:search") + f"?q=tag:{tag}"
+            return redirect(redir)
         excl = (
             request.user.preference.hidden_categories
             if request.user.is_authenticated
             else None
         )
-        items, num_pages, __, dup_items, by_cat = query_index2(
-            keywords, categories, tag, p, exclude_categories=excl
+        items, num_pages, __, dup_items, by_cat, q = query_index2(
+            keywords, categories, p, exclude_categories=excl
         )
         Item.attach_rating_info_to_items(items)
     else:
-        keywords = re.sub(r"[^\w-]+", " ", keywords)
-        items, num_pages, __, dup_items = query_index(keywords, categories, tag, p)
+        q = re.sub(r"[^\w-]+", " ", keywords)
+        items, num_pages, __, dup_items = query_index(q, categories, tag, p)
         by_cat = {}
     return render(
         request,
@@ -158,6 +162,7 @@ def search(request):
             "sites": sites,
             "hide_category": hide_category,
             "by_category": by_cat,
+            "q": q,
         },
     )
 

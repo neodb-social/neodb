@@ -57,7 +57,7 @@
             {% endif %}
             <div class="item-card-list">
               {% if request.GET.q and request.user.is_authenticated %}
-                <p hx-get="{% url 'catalog:external_search' %}?q={{ request.GET.q }}&amp;c={{ request.GET.c }}&amp;page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
+                <p hx-get="{% url 'catalog:external_search' %}?q={{ q }}&amp;c={{ request.GET.c }}&amp;page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
                    hx-trigger="load"
                    hx-swap="outerHTML">
                   <span><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>

@@ -171,3 +171,14 @@ class ListMember(Piece):
 
     def __str__(self):
         return f"{self.__class__.__name__}:{self.pk}[{self.parent}]:{self.item}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.item:
+            self.item.update_index(later=True)
+
+    def delete(self, *args, **kwargs):
+        r = super().delete(*args, **kwargs)
+        if self.item:
+            self.item.update_index(later=True)
+        return r
