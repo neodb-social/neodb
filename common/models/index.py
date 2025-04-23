@@ -40,14 +40,14 @@ class QueryParser:
         self.raw_query = str(query) if query else ""
         if self.fields:
             r = self.re()
-            self.q = r.sub("", query).strip()
+            self.q = r.sub("", self.raw_query).strip()
             self.parsed_fields = {
                 m.group("field").strip().lower(): m.group("value").strip('  "').lower()
-                for m in r.finditer(query)
+                for m in r.finditer(self.raw_query)
                 if m.group("value").strip('  "')
             }
         else:
-            self.q = query.strip()
+            self.q = self.raw_query.strip()
             self.parsed_fields = {}
         self.page = page
         self.page_size = page_size

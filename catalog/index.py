@@ -108,6 +108,30 @@ class CatalogSearchResult(SearchResult):
     def facet_by_item_class(self):
         return self.get_facet("item_class")
 
+    @property
+    def facet_by_category(self):
+        from catalog.common.models import ItemCategory, item_categories
+
+        item_class_facets = self.get_facet("item_class")
+
+        # Initialize with all categories set to 0
+        category_facets = {cat.value: 0 for cat in ItemCategory}
+
+        if item_class_facets:
+            # Map from class names to category values
+            class_to_cat = {}
+            for cat, classes in item_categories().items():
+                for cls in classes:
+                    class_to_cat[cls.__name__] = cat.value
+
+            # Group facet counts by category
+            for class_name, count in item_class_facets.items():
+                if class_name in class_to_cat:
+                    cat = class_to_cat[class_name]
+                    category_facets[cat] += count
+
+        return category_facets
+
     @cached_property
     def items(self):
         from catalog.models import Item

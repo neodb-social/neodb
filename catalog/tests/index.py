@@ -627,3 +627,35 @@ class CatalogSearchTests(TestCase):
         self.assertIn(self.book3.pk, found_items)
         self.assertIn(self.movie2.pk, found_items)
         self.assertIn(self.movie3.pk, found_items)
+
+    def test_facet_by_category_includes_all_categories(self):
+        """Test facet_by_category returns all categories even with 0 count"""
+        from catalog.common.models import ItemCategory
+
+        # Create query parser for language search - English
+        parser = CatalogQueryParser("language:en", 1, 20)
+
+        # Perform search
+        results = CatalogIndex.instance().search(parser)
+
+        # Verify search results
+        found_items = [item.pk for item in results.items]
+        self.assertEqual(len(found_items), 5)
+
+        # Get facet counts by category
+        category_facets = results.facet_by_category
+
+        # Verify all categories are present in facets
+        for category in ItemCategory:
+            self.assertIn(category.value, category_facets)
+
+        # Book and Movie categories should have non-zero counts
+        self.assertGreater(category_facets[ItemCategory.Book.value], 0)
+        self.assertGreater(category_facets[ItemCategory.Movie.value], 0)
+
+        # Other categories that don't have items in the test data should have zero counts
+        self.assertEqual(category_facets[ItemCategory.TV.value], 0)
+        self.assertEqual(category_facets[ItemCategory.Music.value], 0)
+        self.assertEqual(category_facets[ItemCategory.Game.value], 0)
+        self.assertEqual(category_facets[ItemCategory.Podcast.value], 0)
+        self.assertEqual(category_facets[ItemCategory.Performance.value], 0)

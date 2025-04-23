@@ -140,13 +140,14 @@ def search(request):
             if request.user.is_authenticated
             else None
         )
-        items, num_pages, __, dup_items = query_index2(
+        items, num_pages, __, dup_items, by_cat = query_index2(
             keywords, categories, tag, p, exclude_categories=excl
         )
         Item.attach_rating_info_to_items(items)
     else:
         keywords = re.sub(r"[^\w-]+", " ", keywords)
         items, num_pages, __, dup_items = query_index(keywords, categories, tag, p)
+        by_cat = {}
     return render(
         request,
         "search_results.html",
@@ -156,6 +157,7 @@ def search(request):
             "pagination": PageLinksGenerator(p, num_pages, request.GET),
             "sites": sites,
             "hide_category": hide_category,
+            "by_category": by_cat,
         },
     )
 

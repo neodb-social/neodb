@@ -329,6 +329,7 @@ class Command(BaseCommand):
                 r = index.search(q)
                 self.stdout.write(self.style.SUCCESS(str(r)))
                 self.stdout.write(f"{r.facet_by_item_class}")
+                self.stdout.write(f"{r.facet_by_category}")
                 for i in r:
                     self.stdout.write(str(i))
 

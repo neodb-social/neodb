@@ -21,6 +21,7 @@
       {% else %}
         {% trans "books" %}
       {% endif %}
+      {% if by_category.book %}<small>({{ by_category.book }})</small>{% endif %}
     {% endif %}
     {% if 'movie' in cats or 'tv' in cats %}
       |
@@ -28,6 +29,9 @@
         <a href="?q={{ request.GET.q }}&amp;c=movietv">{% trans "movie & tv" %}</a>
       {% else %}
         {% trans "movie & tv" %}
+      {% endif %}
+      {% if by_category.movie or by_category.tv %}
+        <small>({{ by_category.movie|default:0|add:by_category.tv|default:0 }})</small>
       {% endif %}
     {% endif %}
     {% if 'podcast' in cats %}
@@ -37,6 +41,7 @@
       {% else %}
         {% trans "podcasts" %}
       {% endif %}
+      {% if by_category.podcast %}<small>({{ by_category.podcast }})</small>{% endif %}
     {% endif %}
     {% if 'music' in cats %}
       |
@@ -45,6 +50,7 @@
       {% else %}
         {% trans "music" %}
       {% endif %}
+      {% if by_category.music %}<small>({{ by_category.music }})</small>{% endif %}
     {% endif %}
     {% if 'game' in cats %}
       |
@@ -53,6 +59,7 @@
       {% else %}
         {% trans "games" %}
       {% endif %}
+      {% if by_category.game %}<small>({{ by_category.game }})</small>{% endif %}
     {% endif %}
     {% if 'performance' in cats %}
       |
@@ -61,6 +68,7 @@
       {% else %}
         {% trans "performances" %}
       {% endif %}
+      {% if by_category.performance %}<small>({{ by_category.performance }})</small>{% endif %}
     {% endif %}
     {% if user.is_authenticated %}
       |
