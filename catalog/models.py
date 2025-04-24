@@ -1,6 +1,4 @@
 from auditlog.registry import auditlog
-from django.conf import settings
-from loguru import logger
 
 from .book.models import Edition, EditionInSchema, EditionSchema, Series, Work
 from .collection.models import Collection as CatalogCollection
@@ -43,7 +41,7 @@ from .tv.models import (
     TVShowSchema,
 )
 
-from .search.models import Indexer, ExternalSearchResultItem  # isort:skip
+from .search.models import ExternalSearchResultItem  # isort:skip
 from .index import CatalogIndex, CatalogQueryParser, CatalogSearchResult
 
 # class Exhibition(Item):
@@ -56,26 +54,6 @@ from .index import CatalogIndex, CatalogQueryParser, CatalogSearchResult
 
 #     class Meta:
 #         proxy = True
-
-
-def init_catalog_search_models():
-    if settings.DISABLE_MODEL_SIGNAL:
-        logger.warning(
-            "Catalog models are not being indexed with DISABLE_MODEL_SIGNAL configuration"
-        )
-        return
-    # skip indexing if the item type should never show up in search
-    Indexer.update_model_indexable(Edition)
-    # Indexer.update_model_indexable(Work)
-    Indexer.update_model_indexable(Movie)
-    Indexer.update_model_indexable(TVShow)
-    Indexer.update_model_indexable(TVSeason)
-    Indexer.update_model_indexable(Album)
-    Indexer.update_model_indexable(Game)
-    Indexer.update_model_indexable(Podcast)
-    Indexer.update_model_indexable(Performance)
-    # Indexer.update_model_indexable(PerformanceProduction)
-    # Indexer.update_model_indexable(CatalogCollection)
 
 
 def init_catalog_audit_log():
@@ -148,8 +126,6 @@ __all__ = [
     "TVShow",
     "TVShowInSchema",
     "TVShowSchema",
-    "Indexer",
-    "init_catalog_search_models",
     "init_catalog_audit_log",
     "CatalogIndex",
     "CatalogQueryParser",

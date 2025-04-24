@@ -23,7 +23,7 @@ from users.views import query_identity
 
 from ..models import *
 from .external import ExternalSources
-from .models import enqueue_fetch, get_fetch_lock, query_index, query_index2
+from .models import enqueue_fetch, get_fetch_lock, query_index
 
 
 def fetch_refresh(request, job_id):
@@ -135,23 +135,18 @@ def search(request):
         if request.GET.get("r"):
             return redirect(keywords)
 
-    if request.user.is_authenticated and request.user.test_enabled:
-        if tag:
-            redir = reverse("common:search") + f"?q=tag:{tag}"
-            return redirect(redir)
-        excl = (
-            request.user.preference.hidden_categories
-            if request.user.is_authenticated
-            else None
-        )
-        items, num_pages, __, dup_items, by_cat, q = query_index2(
-            keywords, categories, p, exclude_categories=excl
-        )
-        Item.attach_rating_info_to_items(items)
-    else:
-        q = re.sub(r"[^\w-]+", " ", keywords)
-        items, num_pages, __, dup_items = query_index(q, categories, tag, p)
-        by_cat = {}
+    if tag:
+        redir = reverse("common:search") + f"?q=tag:{tag}"
+        return redirect(redir)
+    excl = (
+        request.user.preference.hidden_categories
+        if request.user.is_authenticated
+        else None
+    )
+    items, num_pages, __, dup_items, by_cat, q = query_index(
+        keywords, categories, p, exclude_categories=excl
+    )
+    Item.attach_rating_info_to_items(items)
     return render(
         request,
         "search_results.html",

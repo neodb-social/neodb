@@ -100,11 +100,17 @@ def search_item(
     if not query:
         return 400, {"message": "Invalid query"}
     categories = category.value.split(",") if category else None
-    items, num_pages, count, _ = query_index(
+    exclude_categories = (
+        request.user.preference.hidden_categories
+        if not categories and request.user.is_authenticated
+        else None
+    )
+    items, num_pages, count, _, _, _ = query_index(
         query,
         page=page,
         categories=categories,
         prepare_external=False,
+        exclude_categories=exclude_categories,
     )
     return 200, {"data": items, "pages": num_pages, "count": count}
 

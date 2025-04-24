@@ -3,7 +3,6 @@ from django.core.checks import Error, Warning
 from loguru import logger
 
 from catalog.index import CatalogIndex
-from catalog.search.models import Indexer
 from common.models import JobManager
 from journal.models import JournalIndex
 from takahe.models import Config as TakaheConfig
@@ -116,7 +115,6 @@ class Setup:
         # Create basic emoji if not exists
 
         # Create search index if not exists
-        Indexer.init()
         CatalogIndex.instance().initialize_collection()
         JournalIndex.instance().initialize_collection()
 
@@ -166,16 +164,25 @@ class Setup:
                 )
             )
         # check indexer
-        try:
-            Indexer.check()
-        except Exception as e:
+        r = CatalogIndex.instance().initialize_collection()
+        if not r:
             errors.append(
                 Error(
-                    f"Error while connecting to search index server: {e}",
-                    hint='Check NEODB_SEARCH_URL in .env, and run "neodb-manage migration"',
+                    "Catalog index is not available",
+                    hint="Check NEODB_SEARCH_URL in .env, and run neodb-manage catalog idx-init",
                     id="neodb.E003",
                 )
             )
+        r = JournalIndex.instance().initialize_collection()
+        if not r:
+            errors.append(
+                Error(
+                    "Journal index is not available",
+                    hint="Check NEODB_SEARCH_URL in .env, and run neodb-manage journal idx-init",
+                    id="neodb.E003",
+                )
+            )
+
         # check takahe
         try:
             if not TakaheDomain.objects.filter(domain=domain).exists():

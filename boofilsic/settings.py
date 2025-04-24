@@ -587,8 +587,6 @@ INDEX_ALIASES = env("INDEX_ALIASES")
 
 DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="")  # type: ignore
 
-DISABLE_MODEL_SIGNAL = False  # disable index and social feeds during importing/etc
-
 # MAINTENANCE_MODE = False
 # MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
 # MAINTENANCE_MODE_IGNORE_SUPERUSER = True

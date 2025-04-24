@@ -174,11 +174,13 @@ class ListMember(Piece):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+        # trigger index update if mark count or tag changes
         if self.item:
             self.item.update_index(later=True)
 
     def delete(self, *args, **kwargs):
         r = super().delete(*args, **kwargs)
+        # trigger index update if mark count or tag changes
         if self.item:
             self.item.update_index(later=True)
         return r
