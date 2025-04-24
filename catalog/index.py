@@ -19,13 +19,14 @@ _PENDING_INDEX_JOB_ID = "pending_catalog_index_flush"
 
 
 def _update_catalog_index_task():
-    item_ids = get_redis_connection("default").spop(_PENDING_INDEX_KEY, 1000)
+    conn = get_redis_connection("default")
+    item_ids = conn.spop(_PENDING_INDEX_KEY, 1000)
     updated = 0
     index = CatalogIndex.instance()
     while item_ids:
-        index.replace_items(item_ids)
+        index.replace_items([int(i) for i in item_ids])
         updated += len(item_ids)
-        item_ids = get_redis_connection("default").spop(_PENDING_INDEX_KEY, 1000)
+        item_ids = conn.spop(_PENDING_INDEX_KEY, 1000)
     logger.info(f"Catalog index updated for {updated} items")
 
 
@@ -270,7 +271,7 @@ class CatalogIndex(Index):
             self.replace_docs([doc])
 
     @classmethod
-    def enqueue_replace_items(cls, item_ids):
+    def enqueue_replace_items(cls, item_ids: list[int]):
         if not item_ids:
             return
         get_redis_connection("default").sadd(_PENDING_INDEX_KEY, *item_ids)
