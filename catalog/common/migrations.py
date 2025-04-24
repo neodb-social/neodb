@@ -91,3 +91,30 @@ def fix_bangumi_20250420():
             i.save(update_fields=["metadata"])
             fixed += 1
     logger.warning(f"{fixed} items fixed.")
+
+
+def reindex_20250424():
+    from django.core.paginator import Paginator
+
+    from catalog.index import CatalogIndex
+    from catalog.models import Item
+
+    logger.warning("Checking index status.")
+    index = CatalogIndex.instance()
+    s = index.initialize_collection(max_wait=30)
+    if not s:
+        logger.error("Index is not ready, reindexing aborted.")
+        return
+    logger.warning("Reindexing started.")
+    items = Item.objects.filter(
+        is_deleted=False, merged_to_item_id__isnull=True
+    ).order_by("id")
+    c = 0
+    t = 0
+    pg = Paginator(items, 1000)
+    for p in tqdm(pg.page_range):
+        docs = index.items_to_docs(pg.get_page(p).object_list)
+        r = index.replace_docs(docs)
+        t += len(docs)
+        c += r
+    logger.warning(f"Reindexing complete: updated {c} of {t} docs.")
