@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from loguru import logger
 
+from common.models.lang import get_current_locales
 from common.utils import discord_send, get_uuid_or_404
 from journal.models import update_journal_for_merged_item_task
 
@@ -35,12 +36,14 @@ def create(request, item_model):
     form_cls = CatalogForms.get(item_model)
     if not form_cls:
         raise BadRequest("Invalid item type")
+    initial = {}
+    t = request.GET.get("title", "")
+    if t:
+        initial = {
+            "localized_title": [{"text": t, "lang": get_current_locales()[0]}],
+        }
     if request.method == "GET":
-        form = form_cls(
-            initial={
-                "title": request.GET.get("title", ""),
-            }
-        )
+        form = form_cls(initial=initial)
         return render(
             request,
             "catalog_edit.html",
