@@ -112,7 +112,7 @@ class PaginatedPostList(Schema):
     count: int
 
 
-PostTypes = {"mark", "comment", "review", "collection"}
+PostTypes = {"mark", "comment", "review", "collection", "note"}
 
 
 @api.get(
@@ -124,7 +124,7 @@ def list_posts_for_item(request, item_uuid: str, type: str | None = None):
     """
     Get posts for an item
 
-    `type` is optional, can be a comma separated list of "comment", "review", "collection", "mark"; default is "comment,review"
+    `type` is optional, can be a comma separated list of `comment`, `review`, `collection`, `note`, `mark`; default is `comment,review`
     """
     item = Item.get_by_url(item_uuid)
     if not item:
