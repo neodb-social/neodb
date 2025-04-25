@@ -72,11 +72,19 @@ def render_text(s: str) -> str:
     return _spolier(s).strip().replace("\n", "<br>")
 
 
+def render_title_as_hashtag(t: str) -> str:
+    t = re.sub(r"[^\w]", "_", t)
+    t = re.sub(r"__+", "_", t)
+    t = re.sub(r"^(_*\d)", r"t_\1", t)
+    return "#" + t
+
+
 def render_post_with_macro(txt: str, item: Item) -> str:
     if not txt:
         return ""
     return (
         txt.replace("[category]", str(ItemCategory(item.category).label))
+        .replace("#[title]", render_title_as_hashtag(item.display_title))
         .replace("[title]", item.display_title)
         .replace("[url]", item.absolute_url)
     )
