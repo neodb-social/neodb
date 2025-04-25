@@ -101,3 +101,13 @@
     </footer>
   {% endif %}
 </article>
+{% if item.dupe_to %}
+  <p class="empty">
+    {% blocktrans with dups=item.dupe_to|length %} {{ dups }} items are from the same work or have the same identifier, they are hidden from the search results, <a _="on click toggle .unfold on next .hidden_dupes">click here to show them.</a> {% endblocktrans %}
+  </p>
+  <div class="item-card-list folded hidden_dupes">
+    {% for item2 in item.dupe_to %}
+      {% include '_list_item.html' with item=item2 %}
+    {% endfor %}
+  </div>
+{% endif %}

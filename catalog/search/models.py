@@ -75,7 +75,7 @@ def query_index(
         or (isinstance(keywords, str) and len(keywords) < 2)
         or len(keywords) > 100
     ):
-        return [], 0, 0, [], {}, keywords
+        return [], 0, 0, {}, keywords
     args = {}
     if categories:
         args["filter_categories"] = categories
@@ -83,27 +83,32 @@ def query_index(
         args["exclude_categories"] = exclude_categories
     q = CatalogQueryParser(keywords, page, **args)
     if not q:
-        return [], 0, 0, [], {}, keywords
+        return [], 0, 0, {}, keywords
     index = CatalogIndex.instance()
     r = index.search(q)
-    keys = set()
+    keys = {}
     items = []
-    duplicated_items = []
     urls = []
+    # hide duplicated items by work_id/isbn/imdb
     for i in r.items:
         key = getattr(i, "isbn", getattr(i, "imdb_code", None))
-        my_key = [key] if key else []
+        my_key = {key: i} if key else {}
         if hasattr(i, "get_work"):
             work = i.get_work()  # type: ignore
             if work:
-                my_key += [work.id]
-        if len(my_key):
-            sl = len(keys) + len(my_key)
-            keys.update(my_key)
-            # check and skip dup with same imdb or isbn or works id
-            if len(keys) < sl:
-                duplicated_items.append(i)
+                my_key[work.id] = i
+        if my_key:
+            dup_by = None
+            for k in my_key:
+                if k in keys:
+                    dup_by = keys[k]
+                    break
+            if dup_by:
+                for k in my_key:
+                    keys[k] = dup_by
+                setattr(dup_by, "dupe_to", getattr(dup_by, "dupe_to", []) + [i])
             else:
+                keys.update(my_key)
                 items.append(i)
         else:
             items.append(i)
@@ -113,7 +118,7 @@ def query_index(
     seasons = [i for i in items if i.__class__ == TVSeason]
     for season in seasons:
         if season.show in items:
-            duplicated_items.append(season.show)
+            setattr(season, "dupe_to", getattr(season, "dupe_to", []) + [season.show])
             items.remove(season.show)
 
     if prepare_external:
@@ -122,7 +127,7 @@ def query_index(
         urls = list(set(cache.get(cache_key, []) + urls))
         cache.set(cache_key, urls, timeout=300)
 
-    return items, r.pages, r.total, duplicated_items, r.facet_by_category, q.q
+    return items, r.pages, r.total, r.facet_by_category, q.q
 
 
 def get_fetch_lock(user, url):

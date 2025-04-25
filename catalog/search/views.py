@@ -143,7 +143,7 @@ def search(request):
         if request.user.is_authenticated
         else None
     )
-    items, num_pages, __, dup_items, by_cat, q = query_index(
+    items, num_pages, __, by_cat, q = query_index(
         keywords, categories, p, exclude_categories=excl
     )
     Item.attach_rating_info_to_items(items)
@@ -152,7 +152,6 @@ def search(request):
         "search_results.html",
         {
             "items": items,
-            "dup_items": dup_items,
             "pagination": PageLinksGenerator(p, num_pages, request.GET),
             "sites": sites,
             "hide_category": hide_category,

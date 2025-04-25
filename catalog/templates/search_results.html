@@ -45,16 +45,6 @@
                 </p>
               {% endfor %}
             </div>
-            {% if dup_items %}
-              <p class="empty">
-                {% blocktrans with dups=dup_items|length %} {{ dups }} items are from the same work or have the same identifier, they are hidden from the search results, <a _="on click toggle .unfold on #dup">click here to show them.</a> {% endblocktrans %}
-              </p>
-              <div class="item-card-list folded" id="dup">
-                {% for item in dup_items %}
-                  {% include '_list_item.html' %}
-                {% endfor %}
-              </div>
-            {% endif %}
             <div class="item-card-list">
               {% if request.GET.q and request.user.is_authenticated %}
                 <p hx-get="{% url 'catalog:external_search' %}?q={{ q }}&amp;c={{ request.GET.c }}&amp;page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"

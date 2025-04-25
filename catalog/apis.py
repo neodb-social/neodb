@@ -105,7 +105,7 @@ def search_item(
         if not categories and request.user.is_authenticated
         else None
     )
-    items, num_pages, count, _, _, _ = query_index(
+    items, num_pages, count, _, _ = query_index(
         query,
         page=page,
         categories=categories,
