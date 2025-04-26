@@ -105,7 +105,7 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
         and collection.trackable
     )
     stats = {}
-    if featured_since:
+    if featured_since and collection.trackable:
         stats = collection.get_stats(request.user.identity)
         stats["wishlist_deg"] = (
             round(stats["wishlist"] / stats["total"] * 360) if stats["total"] else 0

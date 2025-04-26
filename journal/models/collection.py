@@ -87,8 +87,10 @@ class Collection(List):
 
     @property
     def trackable(self):
-        count = len(self.item_ids)
-        return count > 0 and (not self.is_dynamic or count <= 250)
+        if self.is_dynamic:
+            return len(self.item_ids) > 0
+        else:
+            return self.query_result and self.query_result.pages == 1
 
     @property
     def html_content(self):
@@ -154,7 +156,7 @@ class Collection(List):
     def get_summary(self):
         if self.is_dynamic:
             r = self.query_result
-            return r.facet_by_category if r else {}
+            return r.facet_by_category if r and self.trackable else {}
         else:
             return super().get_summary()
 

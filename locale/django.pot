@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-26 02:41-0400\n"
+"POT-Creation-Date: 2025-04-26 16:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -460,12 +460,12 @@ msgid "language"
 msgstr ""
 
 #: catalog/common/models.py:366 catalog/common/models.py:397
-#: journal/models/collection.py:58
+#: journal/models/collection.py:59
 msgid "title"
 msgstr ""
 
 #: catalog/common/models.py:367 catalog/common/models.py:405
-#: journal/models/collection.py:59
+#: journal/models/collection.py:60
 msgid "description"
 msgstr ""
 
@@ -485,27 +485,27 @@ msgstr ""
 msgid "cover"
 msgstr ""
 
-#: catalog/common/models.py:867
+#: catalog/common/models.py:856
 msgid "source site"
 msgstr ""
 
-#: catalog/common/models.py:869
+#: catalog/common/models.py:858
 msgid "ID on source site"
 msgstr ""
 
-#: catalog/common/models.py:871
+#: catalog/common/models.py:860
 msgid "source url"
 msgstr ""
 
-#: catalog/common/models.py:887
+#: catalog/common/models.py:876
 msgid "IdType of the source site"
 msgstr ""
 
-#: catalog/common/models.py:893
+#: catalog/common/models.py:882
 msgid "Primary Id on the source site"
 msgstr ""
 
-#: catalog/common/models.py:896
+#: catalog/common/models.py:885
 msgid "url to the resource"
 msgstr ""
 
@@ -739,11 +739,11 @@ msgstr ""
 msgid "host"
 msgstr ""
 
-#: catalog/search/views.py:184
+#: catalog/search/views.py:190
 msgid "Invalid URL"
 msgstr ""
 
-#: catalog/search/views.py:187
+#: catalog/search/views.py:193
 msgid "Unsupported URL"
 msgstr ""
 
@@ -785,15 +785,16 @@ msgstr ""
 
 #: catalog/templates/_item_comments.html:82
 #: catalog/templates/_item_comments_by_episode.html:80
-#: catalog/templates/_item_notes.html:61
+#: catalog/templates/_item_notes.html:68
 #: catalog/templates/_item_reviews.html:42 catalog/templates/item_base.html:248
 #: catalog/templates/podcast_episode_data.html:41
+#: journal/templates/collection_dynamic_items.html:14
 msgid "show more"
 msgstr ""
 
 #: catalog/templates/_item_comments.html:88
 #: catalog/templates/_item_comments_by_episode.html:84
-#: catalog/templates/_item_notes.html:67
+#: catalog/templates/_item_notes.html:76
 #: catalog/templates/_item_reviews.html:48
 #: catalog/templates/podcast_episode_data.html:44
 #: social/templates/events.html:43 social/templates/feed_events.html:137
@@ -809,11 +810,11 @@ msgstr ""
 msgid "comment this episode"
 msgstr ""
 
-#: catalog/templates/_item_notes.html:53 catalog/templates/_item_notes.html:61
+#: catalog/templates/_item_notes.html:55 catalog/templates/_item_notes.html:66
 msgid "more notes from them"
 msgstr ""
 
-#: catalog/templates/_item_notes.html:72
+#: catalog/templates/_item_notes.html:81
 msgid "take some note or quote"
 msgstr ""
 
@@ -1195,7 +1196,7 @@ msgid "Create"
 msgstr ""
 
 #: catalog/templates/catalog_edit.html:51
-#: journal/templates/add_to_collection.html:35
+#: journal/templates/add_to_collection.html:41
 #: journal/templates/collection_edit.html:39 journal/templates/comment.html:69
 #: journal/templates/mark.html:142 journal/templates/note.html:39
 #: journal/templates/review_edit.html:40 journal/templates/tag_edit.html:51
@@ -1275,6 +1276,7 @@ msgstr ""
 #: catalog/templates/item_review_list.html:51 common/templates/_sidebar.html:90
 #: common/templates/_sidebar_anonymous.html:43
 #: common/templates/_sidebar_anonymous.html:58
+#: journal/templates/collection_dynamic_items.html:19
 #: journal/templates/collection_items.html:17 journal/templates/posts.html:50
 #: journal/templates/profile.html:110 journal/templates/profile.html:148
 #: journal/templates/profile.html:180
@@ -1474,6 +1476,11 @@ msgstr ""
 msgid "your timeline"
 msgstr ""
 
+#: catalog/templates/search_header.html:96
+#: journal/templates/add_to_collection.html:16
+msgid "Save as dynamic collection"
+msgstr ""
+
 #: catalog/templates/search_results.html:14
 #: journal/templates/search_journal.html:14
 msgid "Search Results"
@@ -1570,20 +1577,20 @@ msgstr ""
 
 #: catalog/views_edit.py:150 catalog/views_edit.py:202
 #: catalog/views_edit.py:278 catalog/views_edit.py:359
-#: journal/views/collection.py:51 journal/views/collection.py:101
-#: journal/views/collection.py:113 journal/views/collection.py:130
-#: journal/views/collection.py:196 journal/views/collection.py:219
-#: journal/views/collection.py:253 journal/views/collection.py:265
-#: journal/views/collection.py:279 journal/views/collection.py:302
-#: journal/views/collection.py:305 journal/views/collection.py:340
-#: journal/views/common.py:143 journal/views/post.py:20
-#: journal/views/post.py:42 journal/views/review.py:33
+#: journal/views/collection.py:89 journal/views/collection.py:139
+#: journal/views/collection.py:151 journal/views/collection.py:168
+#: journal/views/collection.py:234 journal/views/collection.py:285
+#: journal/views/collection.py:320 journal/views/collection.py:332
+#: journal/views/collection.py:357 journal/views/collection.py:360
+#: journal/views/collection.py:397 journal/views/common.py:143
+#: journal/views/post.py:20 journal/views/post.py:42 journal/views/review.py:33
 #: journal/views/review.py:47
 msgid "Insufficient permission"
 msgstr ""
 
-#: catalog/views_edit.py:205 journal/views/collection.py:282
-#: journal/views/collection.py:369 journal/views/common.py:90
+#: catalog/views_edit.py:205 journal/views/collection.py:51
+#: journal/views/collection.py:76 journal/views/collection.py:337
+#: journal/views/collection.py:426 journal/views/common.py:90
 #: journal/views/mark.py:145 journal/views/post.py:56 journal/views/post.py:70
 #: journal/views/review.py:94 journal/views/review.py:97
 #: users/views/actions.py:169
@@ -2672,14 +2679,18 @@ msgstr ""
 msgid "{username}'s podcast subscriptions"
 msgstr ""
 
-#: journal/models/collection.py:28 journal/templates/add_to_collection.html:32
+#: journal/models/collection.py:29 journal/templates/add_to_collection.html:38
 #: journal/templates/collection_edit.html:66
 #: journal/templates/collection_share.html:63
 #: journal/templates/wrapped_share.html:29
 msgid "note"
 msgstr ""
 
-#: journal/models/collection.py:141
+#: journal/models/collection.py:74
+msgid "search query for dynamic collection"
+msgstr ""
+
+#: journal/models/collection.py:195
 msgid "created collection"
 msgstr ""
 
@@ -3336,11 +3347,11 @@ msgstr ""
 msgid "reply"
 msgstr ""
 
-#: journal/templates/add_to_collection.html:12
+#: journal/templates/add_to_collection.html:14
 msgid "Add to collection"
 msgstr ""
 
-#: journal/templates/add_to_collection.html:29
+#: journal/templates/add_to_collection.html:35
 #: journal/templates/collection_edit.html:28
 msgid "Create a new collection"
 msgstr ""
@@ -3404,7 +3415,11 @@ msgstr ""
 msgid "Reply"
 msgstr ""
 
-#: journal/templates/collection.html:151
+#: journal/templates/collection.html:152
+msgid "dynamic collection"
+msgstr ""
+
+#: journal/templates/collection.html:154
 msgid "Created date"
 msgstr ""
 
@@ -3543,7 +3558,7 @@ msgstr ""
 msgid "annual summary"
 msgstr ""
 
-#: journal/templates/profile.html:128 journal/views/collection.py:166
+#: journal/templates/profile.html:128 journal/views/collection.py:204
 msgid "collection"
 msgstr ""
 
@@ -3673,33 +3688,38 @@ msgid_plural "%(count)d items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/views/collection.py:37
+#: journal/views/collection.py:40 journal/views/collection.py:70
 #, python-brace-format
 msgid "Collection by {0}"
 msgstr ""
 
-#: journal/views/collection.py:171
+#: journal/views/collection.py:209
 msgid "shared my collection"
 msgstr ""
 
-#: journal/views/collection.py:174
+#: journal/views/collection.py:212
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr ""
 
-#: journal/views/collection.py:232
+#: journal/views/collection.py:287 journal/views/collection.py:322
+#: journal/views/collection.py:334 journal/views/collection.py:362
+msgid "Dynamic collection is not editable"
+msgstr ""
+
+#: journal/views/collection.py:299
 msgid "The item is already in the collection."
 msgstr ""
 
-#: journal/views/collection.py:234
+#: journal/views/collection.py:301
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
 
-#: journal/views/collection.py:292
+#: journal/views/collection.py:347
 msgid "Saved."
 msgstr ""
 
-#: journal/views/collection.py:376 journal/views/collection.py:397
+#: journal/views/collection.py:433 journal/views/collection.py:454
 #: journal/views/review.py:127
 msgid "Login required"
 msgstr ""
@@ -4602,23 +4622,23 @@ msgstr ""
 msgid "Export everything in NDJSON"
 msgstr ""
 
-#: users/templates/users/data.html:404
+#: users/templates/users/data.html:401
 msgid "Export marks and reviews in XLSX (Doufen format)"
 msgstr ""
 
-#: users/templates/users/data.html:407
+#: users/templates/users/data.html:404
 msgid "Last export"
 msgstr ""
 
-#: users/templates/users/data.html:408
+#: users/templates/users/data.html:405
 msgid "Status"
 msgstr ""
 
-#: users/templates/users/data.html:412
+#: users/templates/users/data.html:409
 msgid "Download"
 msgstr ""
 
-#: users/templates/users/data.html:420
+#: users/templates/users/data.html:418
 msgid "View Annual Summary"
 msgstr ""
 
