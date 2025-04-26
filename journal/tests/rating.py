@@ -290,3 +290,36 @@ class RatingTest(TestCase):
 
         # Test with empty list
         self.assertEqual(Rating.get_info_for_items([]), {})
+
+    def test_attach_to_items(self):
+        """Test attaching rating_info to a list of items."""
+        # Prepare ratings for book and movie
+        book_ratings = [5, 6, 7, 8, 9]
+        movie_ratings = [1, 2, 3, 4, 5]
+        for i, user in enumerate(self.users[:5]):
+            Rating.update_item_rating(
+                self.book, user.identity, book_ratings[i], visibility=1
+            )
+            Rating.update_item_rating(
+                self.movie, user.identity, movie_ratings[i], visibility=1
+            )
+
+        # Prepare items list including one with no ratings
+        items = [self.book, self.movie, self.game]
+        # Attach ratings to items
+        result = Rating.attach_to_items(items)
+        # Should return the same list object
+        self.assertIs(result, items)
+
+        # Get expected info mapping
+        expected_infos = Rating.get_info_for_items(items)
+        for item in items:
+            # Each item should have a rating_info attribute
+            self.assertTrue(hasattr(item, "rating_info"))
+            # rating_info should match expected info
+            self.assertEqual(item.rating_info, expected_infos.get(item.pk, {}))
+
+        # Test with empty list
+        empty_items = []
+        result_empty = Rating.attach_to_items(empty_items)
+        self.assertIs(result_empty, empty_items)

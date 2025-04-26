@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Iterable
+from typing import Any, Iterable, Sequence
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -214,7 +214,7 @@ class Rating(Content):
         return r
 
     @classmethod
-    def attach_to_items(cls, items: list[Item]) -> list[Item]:
+    def attach_to_items(cls, items: Sequence[Item]) -> Sequence[Item]:
         ratings = Rating.get_info_for_items(items)
         for i in items:
             i.rating_info = ratings.get(i.pk, {})

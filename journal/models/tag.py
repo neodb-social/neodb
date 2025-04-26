@@ -1,5 +1,6 @@
 import re
 from datetime import timedelta
+from functools import cached_property
 from typing import TYPE_CHECKING
 
 from django.core.validators import RegexValidator
@@ -21,7 +22,7 @@ class TagMember(ListMember):
     class Meta:
         unique_together = [["parent", "item"]]
 
-    @property
+    @cached_property
     def title(self):
         return self.parent.title
 

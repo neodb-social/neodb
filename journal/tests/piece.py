@@ -178,6 +178,8 @@ class MarkTest(TestCase):
 
     def setUp(self):
         self.book1 = Edition.objects.create(title="Hyperion")
+        self.book2 = Edition.objects.create(title="Endymion")
+        self.book3 = Edition.objects.create(title="Fall of Hyperion")
         self.user1 = User.register(email="a@b.com", username="user")
         pref = self.user1.preference
         pref.default_visibility = 2
@@ -219,6 +221,53 @@ class MarkTest(TestCase):
         )
         mark = Mark(self.user1.identity, self.book1)
         self.assertEqual(mark.tags, ["Sci-Fi", "fic"])
+
+    def test_attach_to_items(self):
+        # Create different marks for each book
+        mark1 = Mark(self.user1.identity, self.book1)
+        mark1.update(ShelfType.WISHLIST, "wishlist comment", 8, ["sci-fi", "book"], 1)
+
+        mark2 = Mark(self.user1.identity, self.book2)
+        mark2.update(ShelfType.PROGRESS, "progress comment", 9, ["fantasy"], 2)
+
+        review = Review.update_item_review(
+            self.book3, self.user1.identity, "Critic", "Review Content"
+        )
+        mark3 = Mark(self.user1.identity, self.book3)
+        mark3.update(ShelfType.COMPLETE, "complete comment", 10, ["space-opera"], 0)
+
+        # Call attach_to_items on all books
+        items = [self.book1, self.book2, self.book3]
+        Mark.attach_to_items(self.user1.identity, items)
+
+        # Verify each item has the correct mark attributes
+        for item in items:
+            # Each item should have the mark property with the correct attributes
+            self.assertTrue(hasattr(item, "mark"))
+
+            if item == self.book1:
+                self.assertEqual(item.mark.shelf_type, ShelfType.WISHLIST)
+                self.assertEqual(item.mark.comment_text, "wishlist comment")
+                self.assertEqual(item.mark.rating_grade, 8)
+                self.assertEqual(item.mark.tags, ["sci-fi", "book"])
+                self.assertEqual(item.mark.visibility, 1)
+                self.assertIsNone(item.mark.review)
+
+            elif item == self.book2:
+                self.assertEqual(item.mark.shelf_type, ShelfType.PROGRESS)
+                self.assertEqual(item.mark.comment_text, "progress comment")
+                self.assertEqual(item.mark.rating_grade, 9)
+                self.assertEqual(item.mark.tags, ["fantasy"])
+                self.assertEqual(item.mark.visibility, 2)
+                self.assertIsNone(item.mark.review)
+
+            elif item == self.book3:
+                self.assertEqual(item.mark.shelf_type, ShelfType.COMPLETE)
+                self.assertEqual(item.mark.comment_text, "complete comment")
+                self.assertEqual(item.mark.rating_grade, 10)
+                self.assertEqual(item.mark.tags, ["space-opera"])
+                self.assertEqual(item.mark.visibility, 0)
+                self.assertEqual(item.mark.review, review)
 
 
 class DebrisTest(TestCase):

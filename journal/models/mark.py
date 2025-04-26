@@ -1,6 +1,6 @@
 from datetime import datetime
 from functools import cached_property
-from typing import Any
+from typing import Any, Sequence
 
 from django.db.models import F
 from django.utils import timezone
@@ -156,7 +156,9 @@ class Mark:
         return Review.objects.filter(owner=self.owner, item=self.item).first()
 
     @classmethod
-    def attach_to_items(cls, owner: APIdentity, items: list[Item]):
+    def attach_to_items(
+        cls, owner: APIdentity, items: Sequence[Item]
+    ) -> Sequence[Item]:
         shelfmembers = {
             m.item.pk: m
             for m in ShelfMember.objects.filter(owner=owner, item__in=items)
@@ -181,6 +183,8 @@ class Mark:
             m.rating = ratings.get(i.pk)
             m.review = reviews.get(i.pk)
             m.tags = [t.title for t in tags if t.item == i]
+            i.mark = m
+        return items
 
     @property
     def logs(self):

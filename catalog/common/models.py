@@ -24,7 +24,7 @@ from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, get_current_locales,
 from .utils import item_cover_path, resource_cover_path
 
 if TYPE_CHECKING:
-    from journal.models import Collection
+    from journal.models import Collection, Mark
     from users.models import User
 
     from .sites import ResourceContent
@@ -357,6 +357,7 @@ class Item(PolymorphicModel):
         collections: QuerySet["Collection"]
         merged_from_items: QuerySet["Item"]
         merged_to_item_id: int
+        mark: "Mark"
     schema = ItemSchema
     category: ItemCategory  # subclass must specify this
     url_path = "item"  # subclass must specify this

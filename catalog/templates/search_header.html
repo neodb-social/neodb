@@ -88,12 +88,12 @@
       <div class="action">
         <span>
           <a href="#"
+             title="{% trans "Save as dynamic collection" %}"
              hx-get="{% url 'journal:save_as_dynamic_collection' %}?q={{ request.GET.q|urlencode }}"
              class="edit"
              hx-target="body"
              hx-swap="beforeend">
-            <i class="fa-solid fa-wand-magic-sparkles"
-               title="{% trans "Save as dynamic collection" %}"></i>
+            <i class="fa-solid fa-folder-plus"></i>
           </a>
         </span>
       </div>
