@@ -1,0 +1,20 @@
+{% load thumb %}
+{% load i18n %}
+{% load l10n %}
+{% for item in items %}
+  {% include '_list_item.html' with item=item mark=item.mark %}
+  {% if next_page %}
+    <div hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?page={{ next_page }}"
+         {% if next_page <= 10 %} hx-trigger="load delay:{{ next_page }}s" {% else %} hx-trigger="click" {% endif %}
+         hx-swap="outerHTML"
+         class=".loader">
+      {% if next_page <= 10 %}
+        <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+      {% else %}
+        <button class="outline">{% trans "show more" %}</button>
+      {% endif %}
+    </div>
+  {% endif %}
+{% empty %}
+  <div class="empty">{% trans "nothing so far." %}</div>
+{% endfor %}

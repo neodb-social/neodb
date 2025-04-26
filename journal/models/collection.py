@@ -140,7 +140,6 @@ class Collection(List):
         stats["percentage"] = (
             round(stats["complete"] * 100 / stats["total"]) if stats["total"] else 0
         )
-        print(stats)
         return stats
 
     def get_progress(self, viewer: APIdentity):
