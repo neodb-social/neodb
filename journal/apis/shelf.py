@@ -8,6 +8,7 @@ from ninja.pagination import paginate
 
 from catalog.common.models import AvailableItemCategory, Item, ItemCategory, ItemSchema
 from common.api import PageNumberPagination, Result, api
+from common.utils import get_uuid_or_404
 from journal.models.common import q_owned_piece_visible_to_user
 from journal.models.shelf import ShelfMember
 from users.models.apidentity import APIdentity
@@ -119,6 +120,31 @@ def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     if not shelfmember:
         return 404, {"message": "Mark not found"}
     return shelfmember
+
+
+@api.get(
+    "/me/shelf/items/{item_uuids}",
+    response={200: List[MarkSchema], 401: Result},
+    tags=["shelf"],
+)
+def get_marks_by_item_list(request, item_uuids: str, response: HttpResponse):
+    """
+    Get a list of holding mark on current user's shelf by a list of item uuids.
+
+    Input should be no more than 20, comma-separated.
+    Output has no guarenteed order, and may has less items than input,
+    as some items may be merged/deleted or not marked.
+    """
+    uuids = [get_uuid_or_404(uid) for uid in item_uuids.split(",")[:20]]
+    items = Item.objects.filter(
+        uid__in=uuids, is_deleted=False, merged_to_item__isnull=True
+    )
+    marks = [
+        m
+        for m in Mark.get_marks_by_items(request.user.identity, items).values()
+        if m.shelf_type
+    ]
+    return marks
 
 
 @api.post(
