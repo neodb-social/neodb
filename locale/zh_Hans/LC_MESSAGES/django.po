@@ -5,17 +5,19 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-26 23:54-0400\n"
-"PO-Revision-Date: 2025-03-01 01:20+0000\n"
+"Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
+"POT-Creation-Date: 2025-04-26 02:41-0400\n"
+"PO-Revision-Date: 2025-04-26 18:49+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Last-Translator: 猫猫 <overflowcat@gmail.com>\n"
-"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/neodb/neodb/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.10.3-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: boofilsic/settings.py:420 common/models/lang.py:216
 msgid "English"
@@ -1098,8 +1100,9 @@ msgid "filter by people (director, author, actor)"
 msgstr "按照人物筛选（如导演、作者、艺术家）"
 
 #: catalog/templates/_sidebar_search.html:16
+#, fuzzy
 msgid "filter by company (publisher, troupe) "
-msgstr "按照团体或公司筛选（如出版社、剧团）"
+msgstr "按照团体或公司筛选（如出版社、剧团） "
 
 #: catalog/templates/_sidebar_search.html:19
 msgid "filter by specific year"
