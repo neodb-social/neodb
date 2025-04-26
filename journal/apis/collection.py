@@ -24,6 +24,7 @@ class CollectionSchema(Schema):
     brief: str
     cover: str
     html_content: str
+    is_dynamic: bool
 
 
 class CollectionInSchema(Schema):
@@ -147,7 +148,12 @@ def collection_list_items(request, collection_uuid: str):
         return 404, {"message": "Collection not found"}
     if c.owner != request.user.identity:
         return 403, {"message": "Not owner"}
-    return c.ordered_members
+    if c.is_dynamic:
+        items = c.query_result.items if c.query_result else []
+        members = [{"item": i, "note": ""} for i in items]
+        return members
+    else:
+        return c.ordered_members
 
 
 @api.post(
@@ -166,6 +172,8 @@ def collection_add_item(
         return 404, {"message": "Collection not found"}
     if c.owner != request.user.identity:
         return 403, {"message": "Not owner"}
+    if c.is_dynamic:
+        return 403, {"message": "Item list of dynamic collection cannot be updated"}
     if not collection_item.item_uuid:
         return 404, {"message": "Item not found"}
     item = Item.get_by_url(collection_item.item_uuid)
@@ -189,6 +197,8 @@ def collection_delete_item(request, collection_uuid: str, item_uuid: str):
         return 404, {"message": "Collection not found"}
     if c.owner != request.user.identity:
         return 403, {"message": "Not owner"}
+    if c.is_dynamic:
+        return 403, {"message": "Item list of dynamic collection cannot be updated"}
     item = Item.get_by_url(item_uuid)
     if not item:
         return 404, {"message": "Item not found"}
