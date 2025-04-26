@@ -292,6 +292,16 @@
             </div>
           </div>
         </section>
+        <section class="solo-hidden">
+          <h5>{% trans 'notes' %}</h5>
+          <div>
+            <div hx-get="{% url 'catalog:notes' item.url_path item.uuid %}"
+                 hx-trigger="intersect once"
+                 hx-swap="outerHTML">
+              <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+            </div>
+          </div>
+        </section>
       </div>
       <div id="item-more" class="middle">
         <!-- test more content -->

@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.db.models import Count
+from django.db.models import Count, F, Window
+from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -19,6 +20,7 @@ from journal.models import (
     Collection,
     Comment,
     Mark,
+    Note,
     Review,
     ShelfManager,
     ShelfMember,
@@ -250,6 +252,42 @@ def reviews(request, item_path, item_uuid):
         {
             "item": item,
             "reviews": queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1],
+        },
+    )
+
+
+def notes(request, item_path, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    ids = item.child_item_ids + [item.pk] + item.sibling_item_ids
+    queryset = Note.objects.filter(item_id__in=ids).order_by("-created_time")
+    queryset = queryset.filter(q_piece_visible_to_user(request.user))
+    from_note = request.GET.get("from", "")
+    if from_note:
+        note = get_object_or_404(Note, uid=get_uuid_or_404(from_note))
+        queryset = queryset.filter(owner=note.owner)
+        queryset = queryset.exclude(pk=note.pk)
+    else:
+        queryset = queryset.annotate(
+            row_number=Window(
+                expression=RowNumber(),
+                partition_by=[F("owner_id")],
+                order_by=F("created_time").desc(),
+            ),
+            rows=Window(
+                expression=Count("owner_id"),
+                partition_by=[F("owner_id")],
+            ),
+        ).filter(row_number=1)
+    before_time = request.GET.get("last")
+    if before_time:
+        queryset = queryset.filter(created_time__lte=before_time)
+    return render(
+        request,
+        "_item_notes.html",
+        {
+            "item": item,
+            "from_note": from_note,
+            "notes": queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1],
         },
     )
 

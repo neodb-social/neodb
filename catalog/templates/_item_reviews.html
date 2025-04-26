@@ -23,7 +23,6 @@
       </span>
       <span class="action inline">
         <span class="timestamp">{{ review.created_time|date }}</span>
-        <span class="timestamp">{% trans "review" %}</span>
       </span>
       {% if review.item != item %}
         <a href="{{ review.item.url }}">{{ review.item.display_title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
@@ -44,5 +43,11 @@
     </a>
   {% endif %}
 {% empty %}
-  <div class="empty">{% trans 'nothing more.' %}</div>
+  <div class="empty">
+    {% if not request.user.is_authenticated %}
+      {% trans 'nothing more.' %}
+    {% else %}
+      <a href="{% url 'journal:review_create' item.uuid %}">{% trans 'write a review' %}</a>
+    {% endif %}
+  </div>
 {% endfor %}

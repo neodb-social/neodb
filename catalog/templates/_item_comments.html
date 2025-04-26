@@ -83,5 +83,14 @@
     </a>
   {% endif %}
 {% empty %}
-  <div class="empty">{% trans 'nothing more.' %}</div>
+  <div class="empty">
+    {% if not request.user.is_authenticated %}
+      {% trans 'nothing more.' %}
+    {% else %}
+      <a href="#"
+         hx-get="{% url 'journal:mark' item.uuid %}"
+         hx-target="body"
+         hx-swap="beforeend">{% trans 'add a comment' %}</a>
+    {% endif %}
+  </div>
 {% endfor %}

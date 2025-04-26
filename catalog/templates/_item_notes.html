@@ -1,0 +1,84 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load mastodon %}
+{% load duration %}
+{% load user_actions %}
+{% for note in notes %}
+  {% if forloop.counter <= 10 %}
+    <section>
+      <span class="action">
+        {% if note.latest_post %}
+          {% include "action_reply_piece.html" with post=note.latest_post piece=note href=note.url %}
+          {% include "action_like_post.html" with post=note.latest_post %}
+          {% include "action_boost_post.html" with post=note.latest_post %}
+          {% include "action_open_post.html" with post=note.latest_post %}
+        {% endif %}
+      </span>
+      <span>
+        <a href="{{ note.owner.url }}"
+           class="nickname"
+           title="@{{ note.owner.handle }}">{{ note.owner.display_name }}</a>
+      </span>
+      <span class="action inline">
+        <span class="timestamp">{{ note.created_time|date }}</span>
+        {% if note.progress_value %}<span class="tag-list"><span><a>{{ note.progress_display }}</a></span></span>{% endif %}
+        <span class="timestamp"></span>
+      </span>
+      {% if note.item != item %}
+        <a href="{{ note.item.url }}">{{ note.item.display_title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
+      {% endif %}
+      <div {% if note.sensitive %}class="spoiler tldr" _="on click toggle .revealed .tldr on me"{% else %}class="tldr" _="on click toggle .tldr on me"{% endif %}>
+        {% if note.title %}<strong>{{ note.title|default:'' }}</strong> -{% endif %}
+        {{ note.content|linebreaksbr }}
+        <div class="attachments">
+          {% for attachment in note.attachments %}
+            {% if attachment.type == 'image' %}
+              <a href="#img_{{ note.uuid }}_{{ loop.index }}">
+                <img src="{{ attachment.preview_url }}"
+                     alt="image attachment"
+                     class="preview">
+              </a>
+              <a href="#" class="lightbox" id="img_{{ note.uuid }}_{{ loop.index }}">
+                <span style="background-image: url('{{ attachment.url }}')"></span>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% if note.rows and note.rows > 1 %}
+        <a hx-get="{% url 'catalog:notes' note.item.url_path note.item.uuid %}?from={{ note.uuid }}"
+           hx-trigger="click"
+           hx-target="#more_notes_{{ note.owner_id }}"
+           hx-swap="outerHTML"
+           _="on click remove me">
+          <button class="outline">{% trans "more notes from them" %}</button>
+        </a>
+      {% endif %}
+    </section>
+    <div id="more_notes_{{ note.owner_id }}"></div>
+  {% else %}
+    <a hx-get="{% url 'catalog:notes' note.item.url_path note.item.uuid %}?last={{ note.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}&from={{ from_note|default:'' }}"
+       hx-trigger="click"
+       hx-swap="outerHTML">
+      <button class="outline">
+        {% if from_note %}
+          {% trans "more notes from them" %}
+        {% else %}
+          {% trans "show more" %}
+        {% endif %}
+      </button>
+    </a>
+  {% endif %}
+{% empty %}
+  <div class="empty">
+    {% if not request.user.is_authenticated %}
+      {% trans 'nothing more.' %}
+    {% else %}
+      <a href="#"
+         hx-get="{% url 'journal:note' item.uuid %}"
+         hx-target="body"
+         hx-swap="beforeend">{% trans 'take some note or quote' %}</a>
+    {% endif %}
+  </div>
+{% endfor %}
