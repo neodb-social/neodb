@@ -16,6 +16,7 @@ from common.models import int_
 from common.utils import (
     HTTPResponseHXRedirect,
     PageLinksGenerator,
+    get_page_size_from_request,
     user_identity_required,
 )
 from journal.models import Tag
@@ -143,8 +144,9 @@ def search(request):
         if request.user.is_authenticated
         else None
     )
+    per_page = get_page_size_from_request(request)
     items, num_pages, __, by_cat, q = query_index(
-        keywords, categories, p, exclude_categories=excl
+        keywords, categories, p, exclude_categories=excl, per_page=per_page
     )
     Item.attach_rating_info_to_items(items)
     return render(

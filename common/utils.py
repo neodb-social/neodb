@@ -117,19 +117,24 @@ def profile_identity_required(func):
     return wrapper
 
 
+def get_page_size_from_request(request) -> int:
+    per_page = ITEMS_PER_PAGE
+    if request:
+        try:
+            if request.GET.get("per_page"):
+                per_page = int_(request.GET.get("per_page"))
+            elif request.COOKIES.get("per_page"):
+                per_page = int_(request.COOKIES.get("per_page"))
+        except ValueError:
+            pass
+        if per_page not in ITEMS_PER_PAGE_OPTIONS:
+            per_page = ITEMS_PER_PAGE
+    return per_page
+
+
 class CustomPaginator(Paginator):
     def __init__(self, object_list, request=None) -> None:
-        per_page = ITEMS_PER_PAGE
-        if request:
-            try:
-                if request.GET.get("per_page"):
-                    per_page = int_(request.GET.get("per_page"))
-                elif request.COOKIES.get("per_page"):
-                    per_page = int_(request.COOKIES.get("per_page"))
-            except ValueError:
-                pass
-            if per_page not in ITEMS_PER_PAGE_OPTIONS:
-                per_page = ITEMS_PER_PAGE
+        per_page = get_page_size_from_request(request)
         super().__init__(object_list, per_page)
 
 

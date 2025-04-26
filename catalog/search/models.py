@@ -68,6 +68,7 @@ def query_index(
     page=1,
     prepare_external=True,
     exclude_categories=None,
+    per_page: int = 0,
 ):
     if (
         page < 1
@@ -81,6 +82,8 @@ def query_index(
         args["filter_categories"] = categories
     if exclude_categories:
         args["exclude_categories"] = exclude_categories
+    if per_page:
+        args["page_size"] = per_page
     q = CatalogQueryParser(keywords, page, **args)
     if not q:
         return [], 0, 0, {}, keywords

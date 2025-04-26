@@ -68,11 +68,20 @@ class CatalogQueryParser(QueryParser):
 
         super().__init__(query, page, page_size)
 
+        # each page will be sorted by relevance, then popularity within page
+        if page_size:
+            self.sort_by = [
+                f"_text_match(bucket_size:{page_size}):desc",
+                "mark_count:desc",
+            ]
+
+        # parse filters from query string
         for field in ["tag", "format", "genre", "people", "company", "language"]:
             v = [i for i in set(self.parsed_fields.get(field, "").split(",")) if i]
             if v:
                 self.filter_by[field] = v
 
+        # parse categories from query string or search option
         v = [
             i for i in set(self.parsed_fields.get("category", "").split(",")) if i
         ] or filter_categories
@@ -92,6 +101,7 @@ class CatalogQueryParser(QueryParser):
             )
             self.exclude("item_class", cs)
 
+        # parse date filter from query string
         v = self.parsed_fields.get("year", "").split("..")
         if len(v) == 2:
             start = int_(v[0])
