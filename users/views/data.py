@@ -288,7 +288,7 @@ def import_goodreads(request):
 def import_douban(request):
     if request.method != "POST":
         return redirect(reverse("users:data"))
-    if not DoubanImporter.validate_file(request.FILES["file"]):
+    if not DoubanImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     f = (
         settings.MEDIA_ROOT
@@ -313,7 +313,7 @@ def import_douban(request):
 def import_letterboxd(request):
     if request.method != "POST":
         return redirect(reverse("users:data"))
-    if not LetterboxdImporter.validate_file(request.FILES["file"]):
+    if not LetterboxdImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     f = (
         settings.MEDIA_ROOT
@@ -337,7 +337,7 @@ def import_letterboxd(request):
 def import_opml(request):
     if request.method != "POST":
         return redirect(reverse("users:data"))
-    if not OPMLImporter.validate_file(request.FILES["file"]):
+    if not OPMLImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     f = (
         settings.MEDIA_ROOT
@@ -361,7 +361,11 @@ def import_opml(request):
 @login_required
 def import_neodb(request):
     if request.method == "POST":
-        format_type_hint = request.POST.get("format_type", "").lower()
+        format_type_hint = (
+            request.POST.get("format_type", "").lower()
+            if request.FILES.get("file")
+            else ""
+        )
         if format_type_hint == "csv":
             importer = CsvImporter
         elif format_type_hint == "ndjson":

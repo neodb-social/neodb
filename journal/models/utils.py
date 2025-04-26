@@ -59,13 +59,18 @@ def update_journal_for_merged_item(
         logger.error("update_journal_for_merged_item: unable to find merged_to_item")
         return
     delete_q = []
-    for cls in list(Content.__subclasses__()) + list(ListMember.__subclasses__()):
+    for cls in (
+        list(Content.__subclasses__())
+        + list(ListMember.__subclasses__())
+        + [ShelfLogEntry]
+    ):
         for p in cls.objects.filter(item=legacy_item):
             with transaction.atomic():
                 try:
                     p.item = new_item
                     p.save(update_fields=["item_id"])
-                    p.update_index()
+                    if isinstance(p, (Content, ListMember)):
+                        p.update_index()
                 except IntegrityError:
                     if delete_duplicated:
                         logger.warning(
