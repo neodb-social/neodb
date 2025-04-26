@@ -249,7 +249,7 @@ class MarkTest(TestCase):
                 self.assertEqual(item.mark.shelf_type, ShelfType.WISHLIST)
                 self.assertEqual(item.mark.comment_text, "wishlist comment")
                 self.assertEqual(item.mark.rating_grade, 8)
-                self.assertEqual(item.mark.tags, ["sci-fi", "book"])
+                self.assertEqual(sorted(item.mark.tags), sorted(["sci-fi", "book"]))
                 self.assertEqual(item.mark.visibility, 1)
                 self.assertIsNone(item.mark.review)
 
