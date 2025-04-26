@@ -65,7 +65,7 @@ def save_as_dynamic_collection(request: AuthedHttpRequest):
     else:
         cid = int_(request.POST.get("collection_id"))
         if not cid:
-            Collection.objects.create(
+            collection = Collection.objects.create(
                 owner=request.user.identity,
                 title=_("Collection by {0}").format(request.user.display_name),
                 query=query,
@@ -76,7 +76,7 @@ def save_as_dynamic_collection(request: AuthedHttpRequest):
                 raise BadRequest(_("Invalid parameter"))
             collection.query = query
             collection.save()
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+        return HttpResponseRedirect(collection.url)
 
 
 def collection_retrieve_redirect(request: AuthedHttpRequest, collection_uuid):

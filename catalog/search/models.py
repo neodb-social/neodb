@@ -94,7 +94,7 @@ def query_index(
     urls = []
     # hide duplicated items by work_id/isbn/imdb
     for i in r.items:
-        key = getattr(i, "isbn", getattr(i, "imdb_code", None))
+        key = getattr(i, "isbn", getattr(i, "imdb_code", getattr(i, "barcode", None)))
         my_key = {key: i} if key else {}
         if hasattr(i, "get_work"):
             work = i.get_work()  # type: ignore
