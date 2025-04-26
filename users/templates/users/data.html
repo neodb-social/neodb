@@ -393,15 +393,12 @@
               <input type="submit" value="{% trans 'Export everything in NDJSON' %}" />
               {% include "users/user_task_status.html" with task=ndjson_export_task %}
             </form>
+            <!--
             <hr>
-            <form action="{% url 'users:export_marks' %}"
-                  method="post"
-                  enctype="multipart/form-data">
+            <form action="{% url 'users:export_marks' %}" method="post" enctype="multipart/form-data">
               {% csrf_token %}
               <b>exporting to this format will be deprecated soon, please use csv or ndjson format.</b>
-              <input type="submit"
-                     class="secondary"
-                     value="{% trans 'Export marks and reviews in XLSX (Doufen format)' %}" />
+              <input type="submit" class="secondary" value="{% trans 'Export marks and reviews in XLSX (Doufen format)' %}" />
               {% if export_task %}
                 <br>
                 {% trans 'Last export' %}: {{ export_task.created_time }}
@@ -413,6 +410,7 @@
                 {% endif %}
               {% endif %}
             </form>
+            -->
           </details>
         </article>
         <article>
