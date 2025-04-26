@@ -8,7 +8,7 @@ from hashlib import sha256
 from cryptography.fernet import Fernet, MultiFernet
 from django.conf import settings
 from django.core.exceptions import FieldError
-from django.db.models import DEFERRED, fields  # type:ignore
+from django.db.models import DEFERRED, fields
 from django.utils import dateparse, timezone
 from django.utils.encoding import force_bytes
 from django_jsonform.forms.fields import JSONFormField as DJANGO_JSONFormField

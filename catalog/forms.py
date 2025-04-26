@@ -76,7 +76,7 @@ def _EditForm(item_model):
                             titles.append({"lang": detect_language(t), "text": t})
                     if not titles:
                         titles = [{"lang": SITE_DEFAULT_LANGUAGE, "text": "<no title>"}]
-                    self.initial["localized_title"] = uniq(titles)  # type:ignore
+                    self.initial["localized_title"] = uniq(titles)
                 if (
                     "localized_description" in self.Meta.fields
                     and not self.initial["localized_description"]
@@ -91,7 +91,7 @@ def _EditForm(item_model):
                             "lang": self.initial["localized_title"][0]["lang"],
                             "text": "",
                         }
-                    self.initial["localized_description"] = [d]  # type:ignore
+                    self.initial["localized_description"] = [d]
                 # if (
                 #     "language" in self.Meta.fields
                 #     and self.initial["language"]

@@ -24,6 +24,8 @@ from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, get_current_locales,
 from .utils import item_cover_path, resource_cover_path
 
 if TYPE_CHECKING:
+    from django_stubs_ext import StrOrPromise
+
     from journal.models import Collection, Mark
     from users.models import User
 
@@ -937,7 +939,7 @@ class ExternalResource(models.Model):
             return SiteName.Unknown
 
     @property
-    def site_label(self) -> str:
+    def site_label(self) -> "StrOrPromise":
         if self.id_type == IdType.Fediverse:
             from takahe.utils import Takahe
 
