@@ -3,7 +3,6 @@ from .collection import (
     collection_add_featured,
     collection_append_item,
     collection_edit,
-    collection_move_item,
     collection_remove_featured,
     collection_remove_item,
     collection_retrieve,
@@ -12,6 +11,7 @@ from .collection import (
     collection_share,
     collection_update_item_note,
     collection_update_member_order,
+    save_as_dynamic_collection,
     user_collection_list,
     user_liked_collection_list,
 )
@@ -35,10 +35,10 @@ from .wrapped import WrappedShareView, WrappedView
 
 __all__ = [
     "add_to_collection",
+    "save_as_dynamic_collection",
     "collection_add_featured",
     "collection_append_item",
     "collection_edit",
-    "collection_move_item",
     "collection_remove_featured",
     "collection_remove_item",
     "collection_retrieve",

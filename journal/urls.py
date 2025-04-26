@@ -34,6 +34,11 @@ urlpatterns = [
     path(
         "add_to_collection/<str:item_uuid>", add_to_collection, name="add_to_collection"
     ),
+    path(
+        "save_as_dynamic_collection",
+        save_as_dynamic_collection,
+        name="save_as_dynamic_collection",
+    ),
     path("review/<str:review_uuid>", review_retrieve, name="review_retrieve"),
     path("review/create/<str:item_uuid>/", review_edit, name="review_create"),
     path(

@@ -61,7 +61,7 @@ class List(Piece):
     def get_member_for_item(self, item):
         return self.members.filter(item=item).first()
 
-    def get_summary(self):
+    def get_summary(self) -> dict[str, int]:
         summary = {k: 0 for k in ItemCategory.values}
         for c in self.recent_items:
             summary[c.category] += 1

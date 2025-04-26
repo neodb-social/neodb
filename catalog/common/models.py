@@ -735,17 +735,6 @@ class Item(PolymorphicModel):
     def get_final_items(cls, items: Iterable["Item"]) -> list["Item"]:
         return [j for j in [i.final_item for i in items] if not j.is_deleted]
 
-    @classmethod
-    def attach_rating_info_to_items(cls, items: list["Item"]) -> list["Item"]:
-        from journal.models import Rating
-
-        ratings = Rating.get_info_for_items(items)
-        for i in items:
-            r = ratings.get(i.pk)
-            if r:
-                i.rating_info = Rating.get_info_for_item(i)
-        return items
-
     # def get_lookup_id(self, id_type: str) -> str:
     #     prefix = id_type.strip().lower() + ':'
     #     return next((x[len(prefix):] for x in self.lookup_ids if x.startswith(prefix)), None)

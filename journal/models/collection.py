@@ -10,6 +10,7 @@ from catalog.collection.models import Collection as CatalogCollection
 from catalog.common import jsondata
 from catalog.common.utils import piece_cover_path
 from catalog.models import Item
+from journal.models.index import JournalIndex, JournalQueryParser
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -69,9 +70,25 @@ class Collection(List):
     featured_by = models.ManyToManyField(
         to=APIdentity, related_name="featured_collections", through="FeaturedCollection"
     )
+    query = models.CharField(
+        _("search query for dynamic collection"),
+        max_length=1000,
+        blank=True,
+        default=None,
+        null=True,
+    )
 
     def __str__(self):
         return f"Collection:{self.uuid}@{self.owner_id}:{self.title}"
+
+    @property
+    def is_dynamic(self):
+        return self.query is not None
+
+    @property
+    def trackable(self):
+        count = len(self.item_ids)
+        return count > 0 and (not self.is_dynamic or count <= 250)
 
     @property
     def html_content(self):
@@ -87,24 +104,60 @@ class Collection(List):
         f = FeaturedCollection.objects.filter(target=self, owner=owner).first()
         return f.created_time if f else None
 
-    def get_stats(self, owner: APIdentity):
-        items = list(self.members.all().values_list("item_id", flat=True))
+    def get_query(self, viewer, **kwargs):
+        if not self.is_dynamic:
+            return None
+        q = JournalQueryParser(self.query, **kwargs)
+        q.filter_by_owner_viewer(self.owner, viewer)
+        q.filter("item_id", ">0")
+        return q
+
+    @cached_property
+    def query_result(self):
+        if self.is_dynamic:
+            q = self.get_query(self.owner, page_size=250)
+            if q:
+                index = JournalIndex.instance()
+                return index.search(q)
+        return None
+
+    def get_item_ids(self):
+        if self.is_dynamic:
+            r = self.query_result
+            return [i.pk for i in r.items] if r else []
+        else:
+            return list(self.members.all().values_list("item_id", flat=True))
+
+    @cached_property
+    def item_ids(self):
+        return self.get_item_ids()
+
+    def get_stats(self, viewer: APIdentity):
+        items = self.item_ids
         stats = {"total": len(items)}
-        for st, shelf in owner.shelf_manager.shelf_list.items():
+        for st, shelf in viewer.shelf_manager.shelf_list.items():
             stats[st] = shelf.members.all().filter(item_id__in=items).count()
         stats["percentage"] = (
             round(stats["complete"] * 100 / stats["total"]) if stats["total"] else 0
         )
+        print(stats)
         return stats
 
-    def get_progress(self, owner: APIdentity):
-        items = list(self.members.all().values_list("item_id", flat=True))
+    def get_progress(self, viewer: APIdentity):
+        items = self.item_ids
         if len(items) == 0:
             return 0
-        shelf = owner.shelf_manager.shelf_list["complete"]
+        shelf = viewer.shelf_manager.shelf_list["complete"]
         return round(
             shelf.members.all().filter(item_id__in=items).count() * 100 / len(items)
         )
+
+    def get_summary(self):
+        if self.is_dynamic:
+            r = self.query_result
+            return r.facet_by_category if r else {}
+        else:
+            return super().get_summary()
 
     def save(self, *args, **kwargs):
         if getattr(self, "catalog_item", None) is None:

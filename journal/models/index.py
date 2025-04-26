@@ -161,12 +161,23 @@ class JournalQueryParser(QueryParser):
         self.exclude("owner_id", viewer.ignoring)
         # TODO support non-public posts
 
+    def filter_by_owner_viewer(self, owner: APIdentity, viewer: APIdentity | None):
+        self.filter("owner_id", owner.pk)
+        if not viewer:
+            self.filter("visibility", 0)
+        elif viewer == owner:
+            pass
+        elif viewer.is_following(owner):
+            self.filter("visibility", [0, 1])
+        else:
+            self.filter("visibility", 0)
+
 
 class JournalSearchResult(SearchResult):
     @cached_property
     def items(self):
         if not self:
-            return Item.objects.none()
+            return []
         ids = uniq(
             reduce(
                 lambda a, b: a + b,

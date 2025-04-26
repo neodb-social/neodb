@@ -9,6 +9,8 @@ from ninja.pagination import paginate
 
 from catalog.common.models import Item, ItemSchema
 from common.api import PageNumberPagination, RedirectedResult, Result, api
+from journal.models.mark import Mark
+from journal.models.rating import Rating
 
 from .common import SiteManager
 from .models import (
@@ -112,6 +114,9 @@ def search_item(
         prepare_external=False,
         exclude_categories=exclude_categories,
     )
+    Rating.attach_to_items(items)
+    if request.user.is_authenticated:
+        Mark.attach_to_items(request.user.identity, items)
     return 200, {"data": items, "pages": num_pages, "count": count}
 
 

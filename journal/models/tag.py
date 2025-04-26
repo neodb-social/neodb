@@ -22,6 +22,10 @@ class TagMember(ListMember):
         unique_together = [["parent", "item"]]
 
     @property
+    def title(self):
+        return self.parent.title
+
+    @property
     def ap_object(self):
         return {
             "id": self.absolute_url,

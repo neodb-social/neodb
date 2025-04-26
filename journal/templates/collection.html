@@ -147,6 +147,9 @@
             {% if collection.latest_post %}
               {% include "action_open_post.html" with post=collection.latest_post %}
             {% endif %}
+            {% if collection.is_dynamic %}
+              <span><a>{% trans "dynamic collection" %}</a></span>
+            {% endif %}
             <span><a>{% trans "Created date" %}: {{ collection.created_time|date }}</a></span>
           </span>
         </section>

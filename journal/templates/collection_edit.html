@@ -29,7 +29,7 @@
           {% endif %}
         </h4>
         <hr>
-        <details {% if not collection %}open{% endif %}>
+        <details {% if not collection or collection.is_dynamic %}open{% endif %}>
           <summary>{% trans "Title and Description" %}</summary>
           <form class="entity-form markdown-content"
                 method="post"
@@ -40,7 +40,7 @@
           </form>
           {{ form.media }}
         </details>
-        {% if collection %}
+        {% if collection and not collection.is_dynamic %}
           <hr>
           <details open>
             <summary>{% trans "Items" %}</summary>

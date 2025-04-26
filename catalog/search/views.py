@@ -20,6 +20,8 @@ from common.utils import (
     user_identity_required,
 )
 from journal.models import Tag
+from journal.models.mark import Mark
+from journal.models.rating import Rating
 from users.views import query_identity
 
 from ..models import *
@@ -148,7 +150,9 @@ def search(request):
     items, num_pages, __, by_cat, q = query_index(
         keywords, categories, p, exclude_categories=excl, per_page=per_page
     )
-    Item.attach_rating_info_to_items(items)
+    Rating.attach_to_items(items)
+    if request.user.is_authenticated:
+        Mark.attach_to_items(request.user.identity, items)
     return render(
         request,
         "search_results.html",

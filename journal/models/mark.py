@@ -2,10 +2,12 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any
 
+from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Item
+from journal.models.tag import TagMember
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -35,7 +37,7 @@ class Mark:
     def id(self) -> int | None:
         return self.shelfmember.pk if self.shelfmember else None
 
-    @cached_property
+    @property
     def shelf(self) -> Shelf | None:
         return self.shelfmember.parent if self.shelfmember else None
 
@@ -133,9 +135,9 @@ class Mark:
     def rating(self):
         return Rating.objects.filter(owner=self.owner, item=self.item).first()
 
-    @cached_property
+    @property
     def rating_grade(self) -> int | None:
-        return Rating.get_item_rating(self.item, self.owner)
+        return self.rating.grade if self.rating else None
 
     @cached_property
     def comment(self) -> Comment | None:
@@ -152,6 +154,33 @@ class Mark:
     @cached_property
     def review(self) -> Review | None:
         return Review.objects.filter(owner=self.owner, item=self.item).first()
+
+    @classmethod
+    def attach_to_items(cls, owner: APIdentity, items: list[Item]):
+        shelfmembers = {
+            m.item.pk: m
+            for m in ShelfMember.objects.filter(owner=owner, item__in=items)
+        }
+        comments = {
+            c.item.pk: c for c in Comment.objects.filter(owner=owner, item__in=items)
+        }
+        ratings = {
+            r.item.pk: r for r in Rating.objects.filter(owner=owner, item__in=items)
+        }
+        reviews = {
+            r.item.pk: r for r in Review.objects.filter(owner=owner, item__in=items)
+        }
+        tags = TagMember.objects.filter(parent__owner=owner, item__in=items).annotate(
+            title=F("parent__title")
+        )
+        # TODO notes
+        for i in items:
+            m = Mark(owner, i)
+            m.shelfmember = shelfmembers.get(i.pk)
+            m.comment = comments.get(i.pk)
+            m.rating = ratings.get(i.pk)
+            m.review = reviews.get(i.pk)
+            m.tags = [t.title for t in tags if t.item == i]
 
     @property
     def logs(self):
@@ -277,10 +306,9 @@ class Mark:
         # create/update/detele rating if necessary
         if rating_grade is not None:
             if rating_grade != self.rating_grade or visibility != last_visibility:
-                Rating.update_item_rating(
+                self.rating = Rating.update_item_rating(
                     self.item, self.owner, rating_grade, visibility
                 )
-                self.rating_grade = rating_grade
         # publish a new or updated ActivityPub post
         post = self.shelfmember.sync_to_timeline(update_mode)
         if share_to_mastodon:

@@ -84,5 +84,19 @@
         {% trans "your timeline" %}
       {% endif %}
     {% endif %}
+    {% if request.GET.c == 'journal' %}
+      <div class="action">
+        <span>
+          <a href="#"
+             hx-get="{% url 'journal:save_as_dynamic_collection' %}?q={{ request.GET.q|urlencode }}"
+             class="edit"
+             hx-target="body"
+             hx-swap="beforeend">
+            <i class="fa-solid fa-wand-magic-sparkles"
+               title="{% trans "Save as dynamic collection" %}"></i>
+          </a>
+        </span>
+      </div>
+    {% endif %}
   </div>
 </hgroup>

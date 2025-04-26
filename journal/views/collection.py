@@ -20,11 +20,14 @@ from .common import render_relogin, target_identity_required
 def add_to_collection(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if request.method == "GET":
-        collections = Collection.objects.filter(owner=request.user.identity)
+        collections = Collection.objects.filter(
+            owner=request.user.identity, query__isnull=True
+        )
         return render(
             request,
             "add_to_collection.html",
             {
+                "smart": False,
                 "item": item,
                 "collections": collections,
             },
@@ -38,6 +41,41 @@ def add_to_collection(request: AuthedHttpRequest, item_uuid):
             ).pk
         collection = Collection.objects.get(owner=request.user.identity, id=cid)
         collection.append_item(item, note=request.POST.get("note"))
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+
+
+@login_required
+def save_as_dynamic_collection(request: AuthedHttpRequest):
+    query = request.GET.get("q", "").strip()
+    if not query:
+        raise BadRequest(_("Invalid parameter"))
+    if request.method == "GET":
+        collections = Collection.objects.filter(
+            owner=request.user.identity, query__isnull=False
+        )
+        return render(
+            request,
+            "add_to_collection.html",
+            {
+                "smart": True,
+                "query": query,
+                "collections": collections,
+            },
+        )
+    else:
+        cid = int_(request.POST.get("collection_id"))
+        if not cid:
+            Collection.objects.create(
+                owner=request.user.identity,
+                title=_("Collection by {0}").format(request.user.display_name),
+                query=query,
+            )
+        else:
+            collection = Collection.objects.get(owner=request.user.identity, id=cid)
+            if collection.query is None:
+                raise BadRequest(_("Invalid parameter"))
+            collection.query = query
+            collection.save()
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 
@@ -64,7 +102,7 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
         request.user.is_authenticated
         and (following or request.user.identity == collection.owner)
         and not featured_since
-        and collection.members.all().exists()
+        and collection.trackable
     )
     stats = {}
     if featured_since:
@@ -194,21 +232,49 @@ def collection_retrieve_items(
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
-    members = collection.ordered_members
-    last_pos = int_(request.GET.get("last_pos"))
-    if last_pos:
-        last_member = int_(request.GET.get("last_member"))
-        members = members.filter(position__gte=last_pos).exclude(id=last_member)
-    return render(
-        request,
-        "collection_items.html",
-        {
-            "collection": collection,
-            "members": members[:20],
-            "collection_edit": edit or request.GET.get("edit"),
-            "msg": msg,
-        },
-    )
+    if collection.is_dynamic:
+        page = int_(request.GET.get("page"), 1)
+        viewer = request.user.identity if request.user.is_authenticated else None
+        q = collection.get_query(viewer, page=page)
+        if q:
+            index = JournalIndex.instance()
+            r = index.search(q)
+            items = r.items
+            Rating.attach_to_items(items)
+            if request.user.is_authenticated:
+                Mark.attach_to_items(request.user.identity, items)
+
+            return render(
+                request,
+                "collection_dynamic_items.html",
+                {
+                    "collection": collection,
+                    "items": r.items,
+                    "next_page": page + 1 if page < r.pages else None,
+                },
+            )
+        else:
+            return render(
+                request,
+                "collection_dynamic_items.html",
+                {"items": [], "next_page": None},
+            )
+    else:
+        members = collection.ordered_members
+        last_pos = int_(request.GET.get("last_pos"))
+        if last_pos:
+            last_member = int_(request.GET.get("last_member"))
+            members = members.filter(position__gte=last_pos).exclude(id=last_member)
+        return render(
+            request,
+            "collection_items.html",
+            {
+                "collection": collection,
+                "members": members[:20],
+                "collection_edit": edit or request.GET.get("edit"),
+                "msg": msg,
+            },
+        )
 
 
 @login_required
@@ -217,7 +283,8 @@ def collection_append_item(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
-
+    if collection.is_dynamic:
+        raise BadRequest(_("Dynamic collection is not editable"))
     url = request.POST.get("url", "")
     note = request.POST.get("note", "")
     item = Item.get_by_url(url)
@@ -251,24 +318,10 @@ def collection_remove_item(request: AuthedHttpRequest, collection_uuid, item_uui
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
+    if collection.is_dynamic:
+        raise BadRequest(_("Dynamic collection is not editable"))
     collection.remove_item(item)
     return HttpResponse("")
-
-
-@login_required
-@require_http_methods(["POST"])
-def collection_move_item(
-    request: AuthedHttpRequest, direction, collection_uuid, item_uuid
-):
-    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
-    if not collection.is_editable_by(request.user):
-        raise PermissionDenied(_("Insufficient permission"))
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if direction == "up":
-        collection.move_up_item(item)
-    else:
-        collection.move_down_item(item)
-    return collection_retrieve_items(request, collection_uuid, True)
 
 
 @login_required
@@ -277,6 +330,8 @@ def collection_update_member_order(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
+    if collection.is_dynamic:
+        raise BadRequest(_("Dynamic collection is not editable"))
     ids = request.POST.get("member_ids", "").strip()
     if not ids:
         raise BadRequest(_("Invalid parameter"))
@@ -303,6 +358,8 @@ def collection_update_item_note(request: AuthedHttpRequest, collection_uuid, ite
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not collection.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
+    if collection.is_dynamic:
+        raise BadRequest(_("Dynamic collection is not editable"))
     member = collection.get_member_for_item(item)
     note = request.POST.get("note", default="")
     cancel = request.GET.get("cancel")

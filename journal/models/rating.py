@@ -213,6 +213,15 @@ class Rating(Content):
         ]
         return r
 
+    @classmethod
+    def attach_to_items(cls, items: list[Item]) -> list[Item]:
+        ratings = Rating.get_info_for_items(items)
+        for i in items:
+            r = ratings.get(i.pk)
+            if r:
+                i.rating_info = Rating.get_info_for_item(i)
+        return items
+
     @staticmethod
     def update_item_rating(
         item: Item,

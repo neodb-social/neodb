@@ -112,6 +112,8 @@ class Album(Item):
 
     def to_indexable_doc(self):
         d = super().to_indexable_doc()
+        if self.barcode:
+            d["lookup_id"] = [str(self.barcode)]
         d["people"] = self.artist or []
         d["company"] = self.company or []
         d["date"] = (
