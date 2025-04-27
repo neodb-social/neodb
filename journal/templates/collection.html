@@ -12,20 +12,21 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title"
-          content="{% trans 'Collection' %} - {{ collection.title }}">
+    <meta property="og:title" content="{{ collection.title }}">
     <meta property="og:description" content="{{ collection.description }}">
     <meta property="og:type" content="article">
     <meta property="og:article:author"
           content="{{ collection.owner.display_name }}">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:url" content="{{ collection.absolute_url }}">
     <meta property="og:image" content="{{ collection.cover|thumb:'normal' }}">
-    <meta property="og:site_name" content="{{ site_name }}">
+    <meta property="og:site_name"
+          content="{{ site_name }} {% trans 'Collection' %}">
     <meta name="fediverse:creator"
           content="@{{ collection.owner.full_handle }}">
+    <meta rel="canonical" content="{{ collection.absolute_url }}">
     <meta name="lastmodified" content="{{ collection.edited_time | date:'r' }}" />
     {% if not collection.owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
-    <title>{{ site_name }} - {% trans 'Collection' %} - {{ collection.title }}</title>
+    <title>{{ site_name }} {% trans 'Collection' %} | {{ collection.title }}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
