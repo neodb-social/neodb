@@ -248,12 +248,11 @@ def collection_retrieve_items(
         # Attach mark from viewer
         if request.user.is_authenticated:
             Mark.attach_to_items(request.user.identity, items, request.user)
-        collection_members = [{"item": i} for i in items]
+        collection_members = [{"item": i, "parent": collection} for i in items]
         # Attach comments from owner as collection note if viewer is not owner
         if (
             not request.user.is_authenticated
             or request.user.identity != collection.owner
-            or 1
         ):
             q = q_owned_piece_visible_to_user(request.user, collection.owner)
             comments = {

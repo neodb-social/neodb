@@ -92,7 +92,12 @@ article.item-card {
 
   section {
     margin-top: calc(var(--pico-spacing) / 2);
-    margin-bottom: 0;
+    margin-bottom: calc(var(--pico-spacing) / 2);
+  }
+
+  section.item-note+section {
+    padding-top: calc(var(--pico-spacing) / 2);
+    border-top: var(--pico-border-width) dashed var(--pico-card-border-color)
   }
 }
 

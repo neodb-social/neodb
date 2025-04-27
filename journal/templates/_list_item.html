@@ -43,19 +43,30 @@
   {% include "_item_card.html" with item=item %}
   {% if mark or collection_member %}
     <footer>
-      {% if collection_member %}
-        <section>
-          <div hx-swap="innerHTML" hx-target="this" class="item-note">
+      {% if collection_edit or collection_member.note %}
+        <section class="item-note">
+          <div hx-swap="innerHTML" hx-target="this">
             {% if collection_edit %}
               <span class="action">
                 <a title="{% trans "Update note" %}"
                    hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"><i class="fa-regular fa-pen-to-square"></i></a>
               </span>
             {% endif %}
-            {% if collection_member.note %}{{ collection_member.note }}{% endif %}
+            {% if collection_member.note %}
+              <span class="action inline">
+                <span class="timestamp">
+                  {% if not request.user.is_authenticated or collection_member.parent.owner != request.user.identity %}
+                    <a href="{{ collection_member.parent.owner.url }}"
+                       title="@{{ collection_member.parent.owner.handle }}">{{ collection_member.parent.owner.display_name }}</a>:
+                  {% endif %}
+                </span>
+              </span>
+              {{ collection_member.note }}
+            {% endif %}
           </div>
         </section>
-      {% elif mark %}
+      {% endif %}
+      {% if not collection_edit %}
         {% if mark.shelf %}
           <section>
             <div class="action">{% include "action_open_post.html" with post=mark.shelfmember.latest_post %}</div>
