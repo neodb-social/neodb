@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -126,6 +126,38 @@ class Podcast(Item):
         d["genre"] = self.genre or []  # type:ignore
         return d
 
+    def to_schema_org(self):
+        """Generate Schema.org structured data for podcast."""
+        data: dict[str, Any] = {
+            "@context": "https://schema.org",
+            "@type": "PodcastSeries",
+            "name": self.display_title,
+            "url": self.absolute_url,
+        }
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.has_cover():
+            data["image"] = self.cover_image_url
+
+        if self.feed_url:
+            data["webFeed"] = self.feed_url
+
+        if self.genre:
+            data["genre"] = self.genre
+
+        if self.host:
+            data["author"] = [
+                {"@type": "Person", "name": person}
+                for person in self.host  # type:ignore
+            ]
+
+        if self.official_site:
+            data["sameAs"] = self.official_site
+
+        return data
+
 
 class PodcastEpisode(Item):
     schema = PodcastEpisodeSchema
@@ -164,6 +196,49 @@ class PodcastEpisode(Item):
 
     def to_indexable_doc(self):
         return {}  # no index for PodcastEpisode, for now
+
+    def to_schema_org(self):
+        """Generate Schema.org structured data for podcast episode."""
+        data = {
+            "@context": "https://schema.org",
+            "@type": "PodcastEpisode",
+            "name": self.title,
+            "url": self.absolute_url,
+            "episodeNumber": self.guid,
+        }
+
+        if self.program:
+            data["partOfSeries"] = {
+                "@type": "PodcastSeries",
+                "name": self.program.display_title,
+                "url": self.program.absolute_url,
+            }
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.cover_image_url:
+            data["image"] = self.cover_image_url
+
+        if self.pub_date:
+            data["datePublished"] = self.pub_date.isoformat()
+
+        if self.media_url:
+            data["associatedMedia"] = {
+                "@type": "MediaObject",
+                "contentUrl": self.media_url,
+            }
+
+        if self.duration:
+            hours = self.duration // 3600
+            minutes = (self.duration % 3600) // 60
+            seconds = self.duration % 60
+            data["duration"] = f"PT{hours}H{minutes}M{seconds}S"
+
+        if self.link:
+            data["sameAs"] = self.link
+
+        return data
 
     @property
     def cover_image_url(self) -> str | None:

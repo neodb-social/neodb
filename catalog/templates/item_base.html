@@ -33,6 +33,7 @@
     <title>{{ site_name }} - {% trans item.category.label %} | {{ item.display_title }}</title>
     {% include "common_libs.html" %}
     {% block head %}{% endblock %}
+    <script type="application/ld+json">{{ item.to_schema_org_json | safe }}</script>
   </head>
   <body>
     {% include "_header.html" %}

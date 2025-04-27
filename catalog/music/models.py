@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -123,3 +124,49 @@ class Album(Item):
         d["format"] = [self.album_type] if self.album_type else []
         d["format"] += [self.media] if self.media else []
         return d
+
+    def to_schema_org(self):
+        """Generate Schema.org structured data for music album."""
+        data: dict[str, Any] = {
+            "@context": "https://schema.org",
+            "@type": "MusicAlbum",
+            "name": self.display_title,
+            "url": self.absolute_url,
+        }
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.has_cover():
+            data["image"] = self.cover_image_url
+
+        if self.artist:
+            data["byArtist"] = [
+                {"@type": "MusicGroup", "name": person} for person in self.artist
+            ]
+
+        if self.genre:
+            data["genre"] = self.genre
+
+        if self.track_list:
+            # Simplified track list as text
+            data["numTracks"] = len(self.track_list.split("\n"))
+
+        if self.company and len(self.company) > 0:
+            data["publisher"] = {"@type": "Organization", "name": self.company[0]}
+
+        if self.release_date:
+            data["datePublished"] = self.release_date.isoformat()
+
+        if self.duration:
+            # Convert milliseconds to ISO8601 duration format
+            seconds = self.duration // 1000
+            hours = seconds // 3600
+            minutes = (seconds % 3600) // 60
+            seconds = seconds % 60
+            data["duration"] = f"PT{hours}H{minutes}M{seconds}S"
+
+        if self.barcode:
+            data["gtin13"] = self.barcode
+
+        return data

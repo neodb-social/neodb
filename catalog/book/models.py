@@ -18,7 +18,7 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 """
 
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -391,6 +391,49 @@ class Edition(Item):
     def title_deco(self):
         a = [str(i) for i in [self.pub_house, self.pub_year] if i]
         return f"({' '.join(a)})" if a else ""
+
+    def to_schema_org(self):
+        """Generate Schema.org structured data for book edition."""
+        data: dict[str, Any] = {
+            "@context": "https://schema.org",
+            "@type": "Book",
+            "name": self.display_title,
+            "url": self.absolute_url,
+        }
+
+        if self.orig_title and self.orig_title != self.display_title:
+            data["alternateName"] = self.orig_title
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.has_cover():
+            data["image"] = self.cover_image_url
+
+        if self.author:
+            data["author"] = [
+                {"@type": "Person", "name": person} for person in self.author
+            ]
+
+        if self.isbn:
+            data["isbn"] = str(self.isbn)
+
+        if self.pub_house:
+            data["publisher"] = {"@type": "Organization", "name": self.pub_house}
+
+        if self.pub_year:
+            pub_date = str(self.pub_year)
+            if self.pub_month:
+                pub_date += f"-{self.pub_month:02d}"
+            data["datePublished"] = pub_date
+
+        if self.language:
+            data["inLanguage"] = self.language[0]  # type: ignore
+
+        if self.pages:
+            data["numberOfPages"] = int_(self.pages)
+
+        return data
 
     def link_to_related_book(self, target: "Edition") -> bool:
         if target == self or target.is_deleted or target.merged_to_item:

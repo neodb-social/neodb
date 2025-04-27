@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -157,3 +158,46 @@ class Game(Item):
         d["format"] = [self.release_type] if self.release_type else []
         d["format"] += list(self.platform or [])  # type:ignore
         return d
+
+    def to_schema_org(self):
+        """Generate Schema.org structured data for game."""
+        data: dict[str, Any] = {
+            "@context": "https://schema.org",
+            "@type": "VideoGame",
+            "name": self.display_title,
+            "url": self.absolute_url,
+        }
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.has_cover():
+            data["image"] = self.cover_image_url
+
+        if self.genre:
+            data["genre"] = self.genre
+
+        if self.platform:
+            data["gamePlatform"] = self.platform
+
+        if self.developer:
+            data["author"] = [
+                {"@type": "Organization", "name": developer}
+                for developer in self.developer
+            ]
+
+        if self.publisher:
+            data["publisher"] = [
+                {"@type": "Organization", "name": publisher}
+                for publisher in self.publisher
+            ]
+
+        if self.release_date:
+            data["datePublished"] = self.release_date.isoformat()
+        elif self.release_year:
+            data["datePublished"] = str(self.release_year)
+
+        if self.official_site:
+            data["sameAs"] = self.official_site
+
+        return data

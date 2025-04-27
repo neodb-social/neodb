@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.db import models
@@ -266,6 +266,50 @@ class Performance(Item):
         d["genre"] = self.genre or []  # type:ignore
         return d
 
+    def to_schema_org(self):
+        """Generate Schema.org structured data for performance."""
+        data: dict[str, Any] = {
+            "@context": "https://schema.org",
+            "@type": "CreativeWork",
+            "name": self.display_title,
+            "url": self.absolute_url,
+        }
+
+        if self.orig_title and self.orig_title != self.display_title:
+            data["alternateName"] = self.orig_title
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.has_cover():
+            data["image"] = self.cover_image_url
+
+        if self.genre:
+            data["genre"] = self.genre
+
+        if self.language:
+            data["inLanguage"] = self.language[0]  # type:ignore
+
+        if self.playwright:
+            data["author"] = [
+                {"@type": "Person", "name": person} for person in self.playwright
+            ]
+
+        if self.director:
+            data["director"] = [
+                {"@type": "Person", "name": person} for person in self.director
+            ]
+
+        if self.composer:
+            data["composer"] = [
+                {"@type": "Person", "name": person} for person in self.composer
+            ]
+
+        if self.official_site:
+            data["sameAs"] = self.official_site
+
+        return data
+
 
 class PerformanceProduction(Item):
     schema = PerformanceProductionSchema
@@ -443,3 +487,59 @@ class PerformanceProduction(Item):
         dd = datetime_(dt)
         d["date"] = [int(dd.strftime("%Y%m%d"))] if dd else []
         return d
+
+    def to_schema_org(self):
+        """Generate Schema.org structured data for performance production."""
+        data: dict[str, Any] = {
+            "@context": "https://schema.org",
+            "@type": "TheaterEvent",
+            "name": self.display_title,
+            "url": self.absolute_url,
+        }
+
+        if self.orig_title and self.orig_title != self.display_title:
+            data["alternateName"] = self.orig_title
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.has_cover():
+            data["image"] = self.cover_image_url
+
+        if self.opening_date:
+            data["startDate"] = self.opening_date
+
+        if self.closing_date:
+            data["endDate"] = self.closing_date
+
+        if self.location and len(self.location) > 0:
+            data["location"] = {
+                "@type": "PerformingArtsTheater",
+                "name": self.location[0],
+            }
+
+        if self.language:
+            data["inLanguage"] = self.language[0]  # type:ignore
+
+        if self.troupe and len(self.troupe) > 0:
+            data["performer"] = {"@type": "TheaterGroup", "name": self.troupe[0]}
+
+        if self.director:
+            data["director"] = [
+                {"@type": "Person", "name": person} for person in self.director
+            ]
+
+        if self.actor:
+            data["actor"] = [
+                {
+                    "@type": "Person",
+                    "name": person["name"],
+                    **({"characterName": person["role"]} if person.get("role") else {}),
+                }
+                for person in self.actor
+            ]
+
+        if self.official_site:
+            data["sameAs"] = self.official_site
+
+        return data

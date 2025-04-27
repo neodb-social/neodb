@@ -26,7 +26,7 @@ For now, we follow Douban convention, but keep an eye on it in case it breaks it
 """
 
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -257,6 +257,77 @@ class TVShow(Item):
         d["genre"] = self.genre or []  # type:ignore
         return d
 
+    def to_schema_org(self):
+        """Generate Schema.org structured data for TV show."""
+        data: dict[str, Any] = {
+            "@context": "https://schema.org",
+            "@type": "TVSeries",
+            "name": self.display_title,
+            "url": self.absolute_url,
+        }
+
+        if self.orig_title and self.orig_title != self.display_title:
+            data["alternateName"] = self.orig_title
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.has_cover():
+            data["image"] = self.cover_image_url
+
+        if self.genre:
+            data["genre"] = self.genre
+
+        if self.language:
+            data["inLanguage"] = self.language[0]  # type:ignore
+
+        if self.actor:
+            data["actor"] = [
+                {"@type": "Person", "name": person} for person in self.actor
+            ]
+
+        if self.director:
+            data["director"] = [
+                {"@type": "Person", "name": person} for person in self.director
+            ]
+
+        if self.playwright:
+            data["creator"] = [
+                {"@type": "Person", "name": person} for person in self.playwright
+            ]
+
+        if self.year:
+            data["datePublished"] = str(self.year)
+
+        if self.season_count:
+            data["numberOfSeasons"] = self.season_count
+
+        if self.episode_count:
+            data["numberOfEpisodes"] = self.episode_count
+
+        if self.single_episode_length:
+            data["timeRequired"] = f"PT{self.single_episode_length}M"
+
+        if self.site:
+            data["sameAs"] = self.site
+
+        if self.imdb:
+            data["sameAs"] = f"https://www.imdb.com/title/{self.imdb}/"
+
+        if self.all_seasons:
+            data["containsSeason"] = [
+                {
+                    "@type": "TVSeason",
+                    "seasonNumber": season.season_number,
+                    "name": season.display_title,
+                    "url": season.absolute_url,
+                }
+                for season in self.all_seasons
+                if season.season_number
+            ]
+
+        return data
+
 
 class TVSeason(Item):
     if TYPE_CHECKING:
@@ -453,6 +524,78 @@ class TVSeason(Item):
         d["genre"] = self.genre or []  # type: ignore
         return d
 
+    def to_schema_org(self):
+        """Generate Schema.org structured data for TV season."""
+        data = {
+            "@context": "https://schema.org",
+            "@type": "TVSeason",
+            "name": self.display_title,
+            "url": self.absolute_url,
+        }
+
+        if self.orig_title and self.orig_title != self.display_title:
+            data["alternateName"] = self.orig_title
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.has_cover():
+            data["image"] = self.cover_image_url
+
+        if self.season_number is not None:
+            data["seasonNumber"] = self.season_number
+
+        if self.episode_count:
+            data["numberOfEpisodes"] = self.episode_count
+
+        if self.show:
+            data["partOfSeries"] = {
+                "@type": "TVSeries",
+                "name": self.show.display_title,
+                "url": self.show.absolute_url,
+            }
+
+        if self.genre:
+            data["genre"] = self.genre
+
+        if self.language:
+            data["inLanguage"] = self.language[0]  # type:ignore
+
+        if self.actor:
+            data["actor"] = [
+                {"@type": "Person", "name": person} for person in self.actor
+            ]
+
+        if self.director:
+            data["director"] = [
+                {"@type": "Person", "name": person} for person in self.director
+            ]
+
+        if self.playwright:
+            data["creator"] = [
+                {"@type": "Person", "name": person} for person in self.playwright
+            ]
+
+        if self.year:
+            data["datePublished"] = str(self.year)
+
+        if self.single_episode_length:
+            data["timeRequired"] = f"PT{self.single_episode_length}M"
+
+        if self.all_episodes:
+            data["episode"] = [
+                {
+                    "@type": "TVEpisode",
+                    "episodeNumber": episode.episode_number,
+                    "name": episode.display_title,
+                    "url": episode.absolute_url,
+                }
+                for episode in self.all_episodes
+                if episode.episode_number
+            ]
+
+        return data
+
     def update_linked_items_from_external_resource(self, resource):
         for w in resource.required_resources:
             if w["model"] == "TVShow":
@@ -534,3 +677,46 @@ class TVEpisode(Item):
 
     def to_indexable_doc(self):
         return {}  # no index for TVEpisode, for now
+
+    def to_schema_org(self):
+        """Generate Schema.org structured data for TV episode."""
+        data = {
+            "@context": "https://schema.org",
+            "@type": "TVEpisode",
+            "name": self.title,
+            "url": self.absolute_url,
+        }
+
+        if self.season:
+            data["partOfSeason"] = {
+                "@type": "TVSeason",
+                "name": self.season.display_title,
+                "url": self.season.absolute_url,
+            }
+
+            if self.season.show:
+                data["partOfSeries"] = {
+                    "@type": "TVSeries",
+                    "name": self.season.show.display_title,
+                    "url": self.season.show.absolute_url,
+                }
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.has_cover():
+            data["image"] = self.cover_image_url
+
+        if self.episode_number is not None:
+            data["episodeNumber"] = self.episode_number
+
+        if self.season_number is not None:
+            data["partOfSeason"] = {
+                "@type": "TVSeason",
+                "seasonNumber": self.season_number,
+            }
+
+        if self.imdb:
+            data["sameAs"] = f"https://www.imdb.com/title/{self.imdb}/"
+
+        return data

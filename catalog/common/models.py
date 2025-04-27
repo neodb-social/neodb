@@ -1,3 +1,4 @@
+import json
 import re
 import uuid
 from functools import cached_property
@@ -777,7 +778,7 @@ class Item(PolymorphicModel):
     def cover_image_url(self) -> str | None:
         return (
             f"{settings.SITE_INFO['site_url']}{self.cover.url}"  # type:ignore
-            if self.cover and self.cover != settings.DEFAULT_ITEM_COVER
+            if self.has_cover()
             else None
         )
 
@@ -849,6 +850,31 @@ class Item(PolymorphicModel):
         from journal.models import journal_exists_for_item
 
         return journal_exists_for_item(self)
+
+    def to_schema_org(self):
+        """
+        Generate Schema.org structured data for this item.
+        Base implementation that should be overridden by subclasses.
+        Returns a dictionary representing schema.org JSON-LD data.
+        """
+        data: dict[str, Any] = {
+            "@context": "https://schema.org",
+            "@type": "Thing",
+            "name": self.display_title,
+            "url": self.absolute_url,
+        }
+
+        if self.display_description:
+            data["description"] = self.display_description
+
+        if self.has_cover():
+            data["image"] = self.cover_image_url
+
+        return data
+
+    def to_schema_org_json(self):
+        data = self.to_schema_org()
+        return json.dumps(data, ensure_ascii=False, indent=2)
 
 
 class ItemLookupId(models.Model):
