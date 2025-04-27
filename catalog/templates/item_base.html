@@ -21,6 +21,14 @@
     {% if item.has_cover %}<meta property="og:image" content="{{ item.cover_image_url }}">{% endif %}
     <meta property="og:site_name" content="{{ site_name }}">
     <meta property="og:description" content="{{ item.brief_description }}">
+    <meta rel="canonical" content="{{ item.absolute_url }}">
+    {% all_languages as languages %}
+    {% for lang in languages %}
+      <link rel="alternate"
+            hreflang="{{ lang.0 }}"
+            href="{{ item.absolute_url }}?lang={{ lang.0 }}" />
+    {% endfor %}
+    <meta name="lastmodified" content="{{ item.edited_time | date:'r' }}" />
     {% if item.is_deleted or item.merged_to_item %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }} - {% trans item.category.label %} | {{ item.display_title }}</title>
     {% include "common_libs.html" %}

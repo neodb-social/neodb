@@ -332,7 +332,7 @@ def discover(request):
         featured_collections = []
 
     popular_tags = cache.get("popular_tags", [])
-
+    updated = cache.get("trends_updated", timezone.now())
     return render(
         request,
         "discover.html",
@@ -344,5 +344,6 @@ def discover(request):
             "popular_tags": popular_tags,
             "popular_posts": popular_posts,
             "layout": layout,
+            "updated": updated,
         },
     )

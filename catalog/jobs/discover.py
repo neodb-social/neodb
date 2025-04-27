@@ -210,6 +210,7 @@ class DiscoverGenerator(BaseJob):
         cache.set("popular_tags", list(tags), timeout=None)
         cache.set("popular_posts", list(post_ids), timeout=None)
         cache.set("trends_statuses", list(post_ids), timeout=None)
+        cache.set("trends_updated", timezone.now(), timeout=None)
         logger.info(
             f"Discover data updated, excluded: {len(excluding_identities)}, trends: {len(trends)}, collections: {len(collection_ids)}, tags: {len(tags)}, posts: {len(post_ids)}."
         )

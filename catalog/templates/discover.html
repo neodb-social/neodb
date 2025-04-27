@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load mastodon %}
 {% load thumb %}
+{% load duration %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" class="classic-page nav-page-discover">
@@ -16,30 +17,64 @@
     <meta property="og:url" content="{{ site_url }}">
     <meta property="og:image" content="{{ site_logo }}">
     <meta property="og:site_name" content="{{ site_name }}">
+    <meta rel="canonical" content="{{ site_url }}/discover/">
+    {% all_languages as languages %}
+    {% for lang in languages %}
+      <link rel="alternate"
+            hreflang="{{ lang.0 }}"
+            href="{{ site_url }}/discover/?lang={{ lang.0 }}" />
+    {% endfor %}
+    <meta name="lastmodified" content="{{ updated | date:'r' }}" />
     <title>{{ site_name }} - {% trans 'Discover' %}</title>
     {% include "common_libs.html" %}
     <script src="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
     <link href="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/style.min.css"
-          rel="stylesheet"></link>
-  <script src="{% static 'js/podcast.js' %}"></script>
-</head>
-<body>
-  {% include "_header.html" %}
-  <script>
+          rel="stylesheet" />
+    <script src="{% static 'js/podcast.js' %}"></script>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <script>
     function _scroll_left(el){
       el.scrollBy(0-el.offsetWidth, 0);
     }
     function _scroll_right(el){
       el.scrollBy(el.offsetWidth, 0);
     }
-  </script>
-  <main>
-    <div class="grid__main">
-      <div class="sortable">
-        {% for gallery in gallery_list %}
+    </script>
+    <main>
+      <div class="grid__main">
+        <div class="sortable">
+          {% for gallery in gallery_list %}
+            <section class="entity-sort shelf"
+                     id="{{ gallery.name }}"
+                     {% if not gallery.items %}style="display:none;"{% endif %}>
+              <span class="action">
+                <span>
+                  <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+                </span>
+                <span>
+                  <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+                </span>
+              </span>
+              <h5>{{ gallery.category.label }}</h5>
+              <ul class="cards">
+                {% for item in gallery.items %}
+                  <li class="card">
+                    <a href="{{ item.url }}" title="{{ item.display_title }}">
+                      <img src="{{ item.cover|thumb:'normal' }}"
+                           alt="{{ item.display_title }}"
+                           loading="lazy">
+                      <div class="card-title">{{ item.display_title }}</div>
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </section>
+          {% endfor %}
           <section class="entity-sort shelf"
-                   id="{{ gallery.name }}"
-                   {% if not gallery.items %}style="display:none;"{% endif %}>
+                   id="featured_collections"
+                   {% if not featured_collections %}style="display:none;"{% endif %}>
             <span class="action">
               <span>
                 <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
@@ -48,83 +83,57 @@
                 <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
               </span>
             </span>
-            <h5>{{ gallery.category.label }}</h5>
+            <h5>{% trans "Collections" %}</h5>
             <ul class="cards">
-              {% for item in gallery.items %}
+              {% for item in featured_collections %}
                 <li class="card">
                   <a href="{{ item.url }}" title="{{ item.display_title }}">
                     <img src="{{ item.cover|thumb:'normal' }}"
-                         alt="{{ item.display_title }}"
+                         alt="{{ item.title }}"
                          loading="lazy">
-                    <div class="card-title">{{ item.display_title }}</div>
+                    <div class="card-title">{{ item.title }}</div>
                   </a>
                 </li>
               {% endfor %}
             </ul>
           </section>
-        {% endfor %}
-        <section class="entity-sort shelf"
-                 id="featured_collections"
-                 {% if not featured_collections %}style="display:none;"{% endif %}>
-          <span class="action">
-            <span>
-              <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-            </span>
-            <span>
-              <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-            </span>
-          </span>
-          <h5>{% trans "Collections" %}</h5>
-          <ul class="cards">
-            {% for item in featured_collections %}
-              <li class="card">
-                <a href="{{ item.url }}" title="{{ item.display_title }}">
-                  <img src="{{ item.cover|thumb:'normal' }}"
-                       alt="{{ item.title }}"
-                       loading="lazy">
-                  <div class="card-title">{{ item.title }}</div>
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        </section>
-      </div>
-      {% if request.user.is_authenticated %}
-        <div class="entity-sort-control">
-          <div class="entity-sort-control__button" id="sortEditButton">
-            <span class="entity-sort-control__text" id="sortEditText">{% trans 'edit layout' %}</span>
-            <span class="entity-sort-control__text"
-                  id="sortSaveText"
-                  style="display: none">{% trans 'save' %}</span>
-            <span class="icon-edit" id="sortEditIcon">
-              <i class="fa-solid fa-pencil"></i>
-            </span>
-            <span class="icon-save" id="sortSaveIcon" style="display: none;">
-              <i class="fa-regular fa-floppy-disk"></i>
-            </span>
+        </div>
+        {% if request.user.is_authenticated %}
+          <div class="entity-sort-control">
+            <div class="entity-sort-control__button" id="sortEditButton">
+              <span class="entity-sort-control__text" id="sortEditText">{% trans 'edit layout' %}</span>
+              <span class="entity-sort-control__text"
+                    id="sortSaveText"
+                    style="display: none">{% trans 'save' %}</span>
+              <span class="icon-edit" id="sortEditIcon">
+                <i class="fa-solid fa-pencil"></i>
+              </span>
+              <span class="icon-save" id="sortSaveIcon" style="display: none;">
+                <i class="fa-regular fa-floppy-disk"></i>
+              </span>
+            </div>
+            <div class="entity-sort-control__button"
+                 id="sortExitButton"
+                 style="display: none">
+              <span class="entity-sort-control__text">{% trans 'cancel' %}</span>
+            </div>
           </div>
-          <div class="entity-sort-control__button"
-               id="sortExitButton"
+          <div class="entity-sort-control__button entity-sort-control__button--float-right"
+               id="toggleDisplayButtonTemplate"
                style="display: none">
-            <span class="entity-sort-control__text">{% trans 'cancel' %}</span>
+            <span class="showText" style="display: none;">{% trans 'show' %}</span>
+            <span class="hideText" style="display: none;">{% trans 'hide' %}</span>
           </div>
-        </div>
-        <div class="entity-sort-control__button entity-sort-control__button--float-right"
-             id="toggleDisplayButtonTemplate"
-             style="display: none">
-          <span class="showText" style="display: none;">{% trans 'show' %}</span>
-          <span class="hideText" style="display: none;">{% trans 'hide' %}</span>
-        </div>
-        <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
-          {% csrf_token %}
-          <input type="hidden" name="name" value="discover">
-          <input type="hidden" name="layout">
-        </form>
-        <script src="{{ cdn_url }}/npm/html5sortable@0.13.3/dist/html5sortable.min.js"
-                crossorigin="anonymous"></script>
-        <script src="{% static 'js/sort_layout.js' %}"></script>
-        {{ layout|json_script:"layout-data" }}
-        <script>
+          <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
+            {% csrf_token %}
+            <input type="hidden" name="name" value="discover">
+            <input type="hidden" name="layout">
+          </form>
+          <script src="{{ cdn_url }}/npm/html5sortable@0.13.3/dist/html5sortable.min.js"
+                  crossorigin="anonymous"></script>
+          <script src="{% static 'js/sort_layout.js' %}"></script>
+          {{ layout|json_script:"layout-data" }}
+          <script>
         const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
                       // initialize sort element visibility and order
         initialLayoutData.forEach(elem => {
@@ -136,56 +145,56 @@
           // order
           $('#' + elem.id).appendTo('.sortable');
         });
-        </script>
-      {% endif %}
-    </div>
-    {% if request.user.is_authenticated %}
-      <aside class="grid__aside sidebar">
-        {% if request.user.unread_announcements %}
-          <section class="announcement">
+          </script>
+        {% endif %}
+      </div>
+      {% if request.user.is_authenticated %}
+        <aside class="grid__aside sidebar">
+          {% if request.user.unread_announcements %}
+            <section class="announcement">
+              <article>
+                <details id="section-announcements" class="auto-keep-collapse" open>
+                  <summary>{% trans "Unread Announcements" %}</summary>
+                  {% for ann in request.user.unread_announcements %}<div>{{ ann.html }}</div>{% endfor %}
+                  <form action="{% url 'users:mark_announcements_read' %}" method="post">
+                    {% csrf_token %}
+                    <input type="submit"
+                           class="secondary outline"
+                           value="{% trans 'mark all as read' %}">
+                  </form>
+                </details>
+              </article>
+            </section>
+          {% endif %}
+          <section>
             <article>
-              <details id="section-announcements" class="auto-keep-collapse" open>
-                <summary>{% trans "Unread Announcements" %}</summary>
-                {% for ann in request.user.unread_announcements %}<div>{{ ann.html }}</div>{% endfor %}
-                <form action="{% url 'users:mark_announcements_read' %}" method="post">
-                  {% csrf_token %}
-                  <input type="submit"
-                         class="secondary outline"
-                         value="{% trans 'mark all as read' %}">
-                </form>
+              <details id="section-popular-tags" class="auto-keep-collapse">
+                <summary>{% trans 'Popular Tags' %}</summary>
+                <div class="tag-list">
+                  {% for t in popular_tags %}
+                    <span>
+                      <a href="{% url 'common:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
+                    </span>
+                  {% empty %}
+                    <div class="empty">{% trans "nothing so far." %}</div>
+                  {% endfor %}
+                </div>
               </details>
             </article>
           </section>
-        {% endif %}
-        <section>
-          <article>
-            <details id="section-popular-tags" class="auto-keep-collapse">
-              <summary>{% trans 'Popular Tags' %}</summary>
-              <div class="tag-list">
-                {% for t in popular_tags %}
-                  <span>
-                    <a href="{% url 'common:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
-                  </span>
-                {% empty %}
-                  <div class="empty">{% trans "nothing so far." %}</div>
-                {% endfor %}
-              </div>
-            </details>
-          </article>
-        </section>
-        <section>
-          <article>
-            <details id="section-popular-posts" class="auto-keep-collapse" open>
-              <summary>{% trans 'Recent Posts' %}</summary>
-              <div style="font-size:80%">{% include "posts.html" with posts=popular_posts %}</div>
-            </details>
-          </article>
-        </section>
-      </aside>
-    {% else %}
-      {% include "_sidebar_anonymous.html" %}
-    {% endif %}
-  </main>
-  {% include "_footer.html" %}
-</body>
+          <section>
+            <article>
+              <details id="section-popular-posts" class="auto-keep-collapse" open>
+                <summary>{% trans 'Recent Posts' %}</summary>
+                <div style="font-size:80%">{% include "posts.html" with posts=popular_posts %}</div>
+              </details>
+            </article>
+          </section>
+        </aside>
+      {% else %}
+        {% include "_sidebar_anonymous.html" %}
+      {% endif %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
 </html>

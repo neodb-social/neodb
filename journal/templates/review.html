@@ -12,7 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="CCBot" content="nofollow">
     <meta property="og:title"
-          content="{{ site_name }} {% trans 'Review' %} - {{ review.title }} ({{ review.item.display_title }})">
+          content="{% trans 'Review' %} - {{ review.title }} ({{ review.item.display_title }})">
     <meta property="og:type" content="article">
     <meta property="og:article:author"
           content="{{ review.owner.display_name }}">
@@ -20,8 +20,9 @@
     <meta property="og:image" content="{{ review.item.cover|thumb:'normal' }}">
     <meta property="og:site_name" content="{{ site_name }}">
     <meta name="fediverse:creator" content="@{{ review.owner.full_handle }}">
-    {% if not identity.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
-    <title>{{ site_name }} {% trans 'Review' %} - {{ review.title }}</title>
+    <meta name="lastmodified" content="{{ review.edited_time | date:'r' }}" />
+    {% if not review.owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
+    <title>{{ site_name }} - {% trans 'Review' %} - {{ review.title }}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
