@@ -152,7 +152,7 @@ def search(request):
     )
     Rating.attach_to_items(items)
     if request.user.is_authenticated:
-        Mark.attach_to_items(request.user.identity, items)
+        Mark.attach_to_items(request.user.identity, items, request.user)
     return render(
         request,
         "search_results.html",

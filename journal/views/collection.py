@@ -236,29 +236,41 @@ def collection_retrieve_items(
         page = int_(request.GET.get("page"), 1)
         viewer = request.user.identity if request.user.is_authenticated else None
         q = collection.get_query(viewer, page=page)
-        if q:
-            index = JournalIndex.instance()
-            r = index.search(q)
-            items = r.items
-            Rating.attach_to_items(items)
-            if request.user.is_authenticated:
-                Mark.attach_to_items(request.user.identity, items)
-
+        if not q:
             return render(
                 request,
                 "collection_dynamic_items.html",
-                {
-                    "collection": collection,
-                    "items": r.items,
-                    "next_page": page + 1 if page < r.pages else None,
-                },
+                {"collection_members": [], "next_page": None},
             )
-        else:
-            return render(
-                request,
-                "collection_dynamic_items.html",
-                {"items": [], "next_page": None},
-            )
+        r = JournalIndex.instance().search(q)
+        items = r.items
+        Rating.attach_to_items(items)
+        # Attach mark from viewer
+        if request.user.is_authenticated:
+            Mark.attach_to_items(request.user.identity, items, request.user)
+        collection_members = [{"item": i} for i in items]
+        # Attach comments from owner as collection note if viewer is not owner
+        if (
+            not request.user.is_authenticated
+            or request.user.identity != collection.owner
+            or 1
+        ):
+            q = q_owned_piece_visible_to_user(request.user, collection.owner)
+            comments = {
+                c.item.pk: c.text
+                for c in Comment.objects.filter(item__in=items).filter(q)
+            }
+            for m in collection_members:
+                m["note"] = comments.get(m["item"].pk, "")
+        return render(
+            request,
+            "collection_dynamic_items.html",
+            {
+                "collection": collection,
+                "collection_members": collection_members,
+                "next_page": page + 1 if page < r.pages else None,
+            },
+        )
     else:
         members = collection.ordered_members
         last_pos = int_(request.GET.get("last_pos"))

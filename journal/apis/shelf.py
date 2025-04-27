@@ -139,12 +139,8 @@ def get_marks_by_item_list(request, item_uuids: str, response: HttpResponse):
     items = Item.objects.filter(
         uid__in=uuids, is_deleted=False, merged_to_item__isnull=True
     )
-    marks = [
-        m
-        for m in Mark.get_marks_by_items(request.user.identity, items).values()
-        if m.shelf_type
-    ]
-    return marks
+    marks = Mark.get_marks_by_items(request.user.identity, items, request.user)
+    return [m for m in marks.values() if m.shelf_type]
 
 
 @api.post(

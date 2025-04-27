@@ -238,7 +238,7 @@ class MarkTest(TestCase):
 
         # Call attach_to_items on all books
         items = [self.book1, self.book2, self.book3]
-        Mark.attach_to_items(self.user1.identity, items)
+        Mark.attach_to_items(self.user1.identity, items, self.user1)
 
         # Verify each item has the correct mark attributes
         for item in items:
@@ -260,6 +260,28 @@ class MarkTest(TestCase):
                 self.assertEqual(item.mark.tags, ["fantasy"])
                 self.assertEqual(item.mark.visibility, 2)
                 self.assertIsNone(item.mark.review)
+
+            elif item == self.book3:
+                self.assertEqual(item.mark.shelf_type, ShelfType.COMPLETE)
+                self.assertEqual(item.mark.comment_text, "complete comment")
+                self.assertEqual(item.mark.rating_grade, 10)
+                self.assertEqual(item.mark.tags, ["space-opera"])
+                self.assertEqual(item.mark.visibility, 0)
+                self.assertEqual(item.mark.review, review)
+
+        Mark.attach_to_items(self.user1.identity, items, None)
+
+        # Verify each item has the correct mark attributes
+        for item in items:
+            # Each item should have the mark property with the correct attributes
+            self.assertTrue(hasattr(item, "mark"))
+
+            if item == self.book1:
+                self.assertEqual(item.mark.shelf_type, None)
+                self.assertEqual(sorted(item.mark.tags), sorted([]))
+
+            elif item == self.book2:
+                self.assertEqual(item.mark.shelf_type, None)
 
             elif item == self.book3:
                 self.assertEqual(item.mark.shelf_type, ShelfType.COMPLETE)

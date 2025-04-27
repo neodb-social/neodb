@@ -41,21 +41,50 @@
     {% endif %}
   </span>
   {% include "_item_card.html" with item=item %}
-  {% if mark or collection_edit or collection_member.note %}
+  {% if mark or collection_member %}
     <footer>
-      {% if mark %}
+      {% if collection_member %}
+        <section>
+          <div hx-swap="innerHTML" hx-target="this" class="item-note">
+            {% if collection_edit %}
+              <span class="action">
+                <a title="{% trans "Update note" %}"
+                   hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"><i class="fa-regular fa-pen-to-square"></i></a>
+              </span>
+            {% endif %}
+            {% if collection_member.note %}{{ collection_member.note }}{% endif %}
+          </div>
+        </section>
+      {% elif mark %}
         {% if mark.shelf %}
           <section>
-            <div class="action">
-              {% include "action_open_post.html" with post=mark.shelfmember.latest_post %}
-              <span class="timestamp">{{ mark.created_time|date }}</span>
-            </div>
-            <div>
+            <div class="action">{% include "action_open_post.html" with post=mark.shelfmember.latest_post %}</div>
+            <span class="action inline">
+              <span class="timestamp">{{ mark.created_time|date }} {{ mark.status_label }}</span>
               {% comment %} <a href="{{mark.owner.url }}" title="@{{ mark.owner.handle }}">{{ mark.owner.display_name }}</a> {% endcomment %}
-              <span>{{ mark.status_label }}</span>
               {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
               <span>{{ mark.comment.html|safe }}</span>
-            </div>
+            </span>
+            {% if mark.comment.latest_post %}<div id="replies_{{ mark.comment.latest_post.pk }}"></div>{% endif %}
+          </section>
+        {% endif %}
+        {% if mark.review %}
+          <section>
+            <div class="action">{% include "action_open_post.html" with post=mark.review.latest_post %}</div>
+            <span class="action inline">
+              <span class="timestamp">{{ mark.review.created_time|date }} {% trans "Review" %}</span>
+              <span>
+                <a href="{% url 'journal:review_retrieve' mark.review.uuid %}"
+                   class="normal">{{ mark.review.title }}</a>
+              </span>
+              -
+              <span>{{ mark.review.plain_content }}</span>
+            </span>
+            {% if mark.review.latest_post %}<div id="replies_{{ mark.review.latest_post.pk }}"></div>{% endif %}
+          </section>
+        {% endif %}
+        {% if mark.tags %}
+          <section>
             <span class="tag-list">
               {% for tag in mark.tags %}
                 {% if forloop.counter <= 5 %}
@@ -65,49 +94,21 @@
                 {% endif %}
               {% endfor %}
             </span>
-            {% if mark.comment.latest_post %}<div id="replies_{{ mark.comment.latest_post.pk }}"></div>{% endif %}
           </section>
         {% endif %}
-        {% if mark.review %}
-          <section>
-            <div class="action">
-              {% include "action_open_post.html" with post=mark.review.latest_post %}
-              <span class="timestamp">{{ mark.review.created_time|date }}</span>
-            </div>
-            <div class="tldr">
-              {% trans "Review" %}
-              <span>
-                <a href="{% url 'journal:review_retrieve' mark.review.uuid %}">{{ mark.review.title }}</a>
-              </span>
-              -
-              {{ mark.review.plain_content }}
-            </div>
-            {% if mark.review.latest_post %}<div id="replies_{{ mark.review.latest_post.pk }}"></div>{% endif %}
-          </section>
-        {% endif %}
-      {% endif %}
-      {% if collection_member %}
-        <div hx-swap="innerHTML" hx-target="this" class="item-note">
-          {% if collection_edit %}
-            <span class="action">
-              <a title="{% trans "Update note" %}"
-                 hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"><i class="fa-regular fa-pen-to-square"></i></a>
-            </span>
-          {% endif %}
-          {% if collection_member.note %}{{ collection_member.note }}{% endif %}
-          &nbsp;
-        </div>
       {% endif %}
     </footer>
   {% endif %}
 </article>
 {% if item.dupe_to %}
-  <p class="empty">
-    {% blocktrans with dups=item.dupe_to|length %} {{ dups }} items are from the same work or have the same identifier, they are hidden from the search results, <a _="on click toggle .unfold on next .hidden_dupes">click here to show them.</a> {% endblocktrans %}
-  </p>
-  <div class="item-card-list folded hidden_dupes">
-    {% for item2 in item.dupe_to %}
-      {% include '_list_item.html' with item=item2 %}
-    {% endfor %}
-  </div>
+  <details>
+    <summary class="caveat">
+      {% blocktrans with dups=item.dupe_to|length %}{{ dups }} item(s) are from the same work or have the same identifier, click here to display:{% endblocktrans %}
+    </summary>
+    <div class="item-card-list">
+      {% for item2 in item.dupe_to %}
+        {% include '_list_item.html' with item=item2 mark=item2.mark %}
+      {% endfor %}
+    </div>
+  </details>
 {% endif %}

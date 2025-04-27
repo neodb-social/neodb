@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-26 16:09-0400\n"
+"POT-Creation-Date: 2025-04-26 23:57-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,12 +52,12 @@ msgid "Traditional Chinese"
 msgstr ""
 
 #: catalog/book/models.py:78 catalog/book/models.py:97
-#: catalog/common/models.py:294 catalog/common/models.py:312
+#: catalog/common/models.py:296 catalog/common/models.py:314
 msgid "locale"
 msgstr ""
 
 #: catalog/book/models.py:81 catalog/book/models.py:100
-#: catalog/common/models.py:297 catalog/common/models.py:317
+#: catalog/common/models.py:299 catalog/common/models.py:319
 msgid "text content"
 msgstr ""
 
@@ -147,365 +147,365 @@ msgstr ""
 msgid "imprint"
 msgstr ""
 
-#: catalog/common/models.py:34
+#: catalog/common/models.py:36
 msgid "Unknown"
 msgstr ""
 
-#: catalog/common/models.py:35
+#: catalog/common/models.py:37
 msgid "Douban"
 msgstr ""
 
-#: catalog/common/models.py:36 catalog/common/models.py:75
+#: catalog/common/models.py:38 catalog/common/models.py:77
 msgid "Goodreads"
 msgstr ""
 
-#: catalog/common/models.py:37 catalog/common/models.py:77
+#: catalog/common/models.py:39 catalog/common/models.py:79
 msgid "Google Books"
 msgstr ""
 
-#: catalog/common/models.py:38
+#: catalog/common/models.py:40
 msgid "BooksTW"
 msgstr ""
 
-#: catalog/common/models.py:39 catalog/common/models.py:86
-#: catalog/common/models.py:88
+#: catalog/common/models.py:41 catalog/common/models.py:88
+#: catalog/common/models.py:90
 msgid "Bibliotek.dk"
 msgstr ""
 
-#: catalog/common/models.py:40 catalog/common/models.py:87
+#: catalog/common/models.py:42 catalog/common/models.py:89
 msgid "eReolen.dk"
 msgstr ""
 
-#: catalog/common/models.py:41 catalog/common/models.py:70
+#: catalog/common/models.py:43 catalog/common/models.py:72
 #: catalog/templates/movie.html:51 catalog/templates/tvseason.html:68
 #: catalog/templates/tvshow.html:63
 msgid "IMDb"
 msgstr ""
 
-#: catalog/common/models.py:42
+#: catalog/common/models.py:44
 msgid "TMDB"
 msgstr ""
 
-#: catalog/common/models.py:43 catalog/common/models.py:89
+#: catalog/common/models.py:45 catalog/common/models.py:91
 msgid "Bandcamp"
 msgstr ""
 
-#: catalog/common/models.py:44
+#: catalog/common/models.py:46
 msgid "Spotify"
 msgstr ""
 
-#: catalog/common/models.py:45
+#: catalog/common/models.py:47
 msgid "IGDB"
 msgstr ""
 
-#: catalog/common/models.py:46
+#: catalog/common/models.py:48
 msgid "Steam"
 msgstr ""
 
-#: catalog/common/models.py:47 catalog/common/models.py:103
+#: catalog/common/models.py:49 catalog/common/models.py:105
 msgid "Bangumi"
 msgstr ""
 
-#: catalog/common/models.py:48
+#: catalog/common/models.py:50
 msgid "BGG"
 msgstr ""
 
-#: catalog/common/models.py:49 catalog/common/models.py:104
+#: catalog/common/models.py:51 catalog/common/models.py:106
 msgid "Apple Podcast"
 msgstr ""
 
-#: catalog/common/models.py:50
+#: catalog/common/models.py:52
 msgid "RSS"
 msgstr ""
 
-#: catalog/common/models.py:51
+#: catalog/common/models.py:53
 msgid "Discogs"
 msgstr ""
 
-#: catalog/common/models.py:52 catalog/common/models.py:105
+#: catalog/common/models.py:54 catalog/common/models.py:107
 msgid "Apple Music"
 msgstr ""
 
-#: catalog/common/models.py:53 catalog/common/models.py:106
+#: catalog/common/models.py:55 catalog/common/models.py:108
 msgid "Fediverse"
 msgstr ""
 
-#: catalog/common/models.py:54 catalog/common/models.py:107
+#: catalog/common/models.py:56 catalog/common/models.py:109
 msgid "Qidian"
 msgstr ""
 
-#: catalog/common/models.py:55 catalog/common/models.py:108
+#: catalog/common/models.py:57 catalog/common/models.py:110
 msgid "Ypshuo"
 msgstr ""
 
-#: catalog/common/models.py:56 catalog/common/models.py:109
+#: catalog/common/models.py:58 catalog/common/models.py:111
 msgid "Archive of Our Own"
 msgstr ""
 
-#: catalog/common/models.py:57 catalog/common/models.py:110
+#: catalog/common/models.py:59 catalog/common/models.py:112
 msgid "JinJiang"
 msgstr ""
 
-#: catalog/common/models.py:61
+#: catalog/common/models.py:63
 msgid "WikiData"
 msgstr ""
 
-#: catalog/common/models.py:62
+#: catalog/common/models.py:64
 msgid "ISBN10"
 msgstr ""
 
-#: catalog/common/models.py:63 catalog/templates/edition.html:19
+#: catalog/common/models.py:65 catalog/templates/edition.html:19
 msgid "ISBN"
 msgstr ""
 
-#: catalog/common/models.py:64
+#: catalog/common/models.py:66
 msgid "ASIN"
 msgstr ""
 
-#: catalog/common/models.py:65
+#: catalog/common/models.py:67
 msgid "ISSN"
 msgstr ""
 
-#: catalog/common/models.py:66
+#: catalog/common/models.py:68
 msgid "CUBN"
 msgstr ""
 
-#: catalog/common/models.py:67
+#: catalog/common/models.py:69
 msgid "ISRC"
 msgstr ""
 
-#: catalog/common/models.py:68
+#: catalog/common/models.py:70
 msgid "GTIN UPC EAN"
 msgstr ""
 
-#: catalog/common/models.py:69
+#: catalog/common/models.py:71
 msgid "RSS Feed URL"
 msgstr ""
 
-#: catalog/common/models.py:71
+#: catalog/common/models.py:73
 msgid "TMDB TV Serie"
 msgstr ""
 
-#: catalog/common/models.py:72
+#: catalog/common/models.py:74
 msgid "TMDB TV Season"
 msgstr ""
 
-#: catalog/common/models.py:73
+#: catalog/common/models.py:75
 msgid "TMDB TV Episode"
 msgstr ""
 
-#: catalog/common/models.py:74
+#: catalog/common/models.py:76
 msgid "TMDB Movie"
 msgstr ""
 
-#: catalog/common/models.py:76
+#: catalog/common/models.py:78
 msgid "Goodreads Work"
 msgstr ""
 
-#: catalog/common/models.py:78
+#: catalog/common/models.py:80
 msgid "Douban Book"
 msgstr ""
 
-#: catalog/common/models.py:79
+#: catalog/common/models.py:81
 msgid "Douban Book Work"
 msgstr ""
 
-#: catalog/common/models.py:80
+#: catalog/common/models.py:82
 msgid "Douban Movie"
 msgstr ""
 
-#: catalog/common/models.py:81
+#: catalog/common/models.py:83
 msgid "Douban Music"
 msgstr ""
 
-#: catalog/common/models.py:82
+#: catalog/common/models.py:84
 msgid "Douban Game"
 msgstr ""
 
-#: catalog/common/models.py:83
+#: catalog/common/models.py:85
 msgid "Douban Drama"
 msgstr ""
 
-#: catalog/common/models.py:84
+#: catalog/common/models.py:86
 msgid "Douban Drama Version"
 msgstr ""
 
-#: catalog/common/models.py:85
+#: catalog/common/models.py:87
 msgid "BooksTW Book"
 msgstr ""
 
-#: catalog/common/models.py:90
+#: catalog/common/models.py:92
 msgid "Spotify Album"
 msgstr ""
 
-#: catalog/common/models.py:91
+#: catalog/common/models.py:93
 msgid "Spotify Podcast"
 msgstr ""
 
-#: catalog/common/models.py:92
+#: catalog/common/models.py:94
 msgid "Discogs Release"
 msgstr ""
 
-#: catalog/common/models.py:93
+#: catalog/common/models.py:95
 msgid "Discogs Master"
 msgstr ""
 
-#: catalog/common/models.py:94
+#: catalog/common/models.py:96
 msgid "MusicBrainz ID"
 msgstr ""
 
-#: catalog/common/models.py:100
+#: catalog/common/models.py:102
 msgid "IGDB Game"
 msgstr ""
 
-#: catalog/common/models.py:101
+#: catalog/common/models.py:103
 msgid "BGG Boardgame"
 msgstr ""
 
-#: catalog/common/models.py:102
+#: catalog/common/models.py:104
 msgid "Steam Game"
 msgstr ""
 
-#: catalog/common/models.py:126
+#: catalog/common/models.py:128
 msgid "Edition"
 msgstr ""
 
-#: catalog/common/models.py:127
+#: catalog/common/models.py:129
 msgid "TV Serie"
 msgstr ""
 
-#: catalog/common/models.py:128 catalog/templates/_sidebar_edit.html:140
+#: catalog/common/models.py:130 catalog/templates/_sidebar_edit.html:140
 msgid "TV Season"
 msgstr ""
 
-#: catalog/common/models.py:129
+#: catalog/common/models.py:131
 msgid "TV Episode"
 msgstr ""
 
-#: catalog/common/models.py:130 catalog/common/models.py:143
-#: catalog/common/models.py:156 catalog/templates/_sidebar_edit.html:133
+#: catalog/common/models.py:132 catalog/common/models.py:145
+#: catalog/common/models.py:158 catalog/templates/_sidebar_edit.html:133
 #: journal/templates/_sidebar_user_mark_list.html:34
 msgid "Movie"
 msgstr ""
 
-#: catalog/common/models.py:131
+#: catalog/common/models.py:133
 msgid "Album"
 msgstr ""
 
-#: catalog/common/models.py:132 catalog/common/models.py:146
-#: catalog/common/models.py:159 common/templates/_header.html:41
+#: catalog/common/models.py:134 catalog/common/models.py:148
+#: catalog/common/models.py:161 common/templates/_header.html:41
 #: journal/templates/_sidebar_user_mark_list.html:47
 msgid "Game"
 msgstr ""
 
-#: catalog/common/models.py:133
+#: catalog/common/models.py:135
 msgid "Podcast Program"
 msgstr ""
 
-#: catalog/common/models.py:134
+#: catalog/common/models.py:136
 msgid "Podcast Episode"
 msgstr ""
 
-#: catalog/common/models.py:135 catalog/common/models.py:148
-#: catalog/common/models.py:161 common/templates/_header.html:45
+#: catalog/common/models.py:137 catalog/common/models.py:150
+#: catalog/common/models.py:163 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:51
 msgid "Performance"
 msgstr ""
 
-#: catalog/common/models.py:136
+#: catalog/common/models.py:138
 msgid "Production"
 msgstr ""
 
-#: catalog/common/models.py:137 catalog/common/models.py:150
+#: catalog/common/models.py:139 catalog/common/models.py:152
 msgid "Exhibition"
 msgstr ""
 
-#: catalog/common/models.py:138 catalog/common/models.py:151
+#: catalog/common/models.py:140 catalog/common/models.py:153
 #: journal/templates/collection.html:16 journal/templates/collection.html:26
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
 msgid "Collection"
 msgstr ""
 
-#: catalog/common/models.py:142 catalog/common/models.py:155
+#: catalog/common/models.py:144 catalog/common/models.py:157
 #: common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:31
 msgid "Book"
 msgstr ""
 
-#: catalog/common/models.py:144 catalog/common/models.py:157
+#: catalog/common/models.py:146 catalog/common/models.py:159
 #: journal/templates/_sidebar_user_mark_list.html:37
 msgid "TV"
 msgstr ""
 
-#: catalog/common/models.py:145 catalog/common/models.py:158
+#: catalog/common/models.py:147 catalog/common/models.py:160
 #: common/templates/_header.html:37
 #: journal/templates/_sidebar_user_mark_list.html:44
 msgid "Music"
 msgstr ""
 
-#: catalog/common/models.py:147 catalog/common/models.py:160
+#: catalog/common/models.py:149 catalog/common/models.py:162
 #: catalog/templates/_sidebar_edit.html:152 common/templates/_header.html:33
 #: journal/templates/_sidebar_user_mark_list.html:41
 msgid "Podcast"
 msgstr ""
 
-#: catalog/common/models.py:149
+#: catalog/common/models.py:151
 msgid "FanFic"
 msgstr ""
 
-#: catalog/common/models.py:342 catalog/tv/models.py:373
+#: catalog/common/models.py:344 catalog/tv/models.py:373
 #: users/models/user.py:113
 msgid "language"
 msgstr ""
 
-#: catalog/common/models.py:366 catalog/common/models.py:397
+#: catalog/common/models.py:369 catalog/common/models.py:400
 #: journal/models/collection.py:59
 msgid "title"
 msgstr ""
 
-#: catalog/common/models.py:367 catalog/common/models.py:405
+#: catalog/common/models.py:370 catalog/common/models.py:408
 #: journal/models/collection.py:60
 msgid "description"
 msgstr ""
 
-#: catalog/common/models.py:369 catalog/forms.py:27
+#: catalog/common/models.py:372 catalog/forms.py:27
 msgid "Primary ID Type"
 msgstr ""
 
-#: catalog/common/models.py:372 catalog/forms.py:32
+#: catalog/common/models.py:375 catalog/forms.py:32
 msgid "Primary ID Value"
 msgstr ""
 
-#: catalog/common/models.py:378
+#: catalog/common/models.py:381
 msgid "metadata"
 msgstr ""
 
-#: catalog/common/models.py:380
+#: catalog/common/models.py:383
 msgid "cover"
 msgstr ""
 
-#: catalog/common/models.py:856
+#: catalog/common/models.py:859
 msgid "source site"
 msgstr ""
 
-#: catalog/common/models.py:858
+#: catalog/common/models.py:861
 msgid "ID on source site"
 msgstr ""
 
-#: catalog/common/models.py:860
+#: catalog/common/models.py:863
 msgid "source url"
 msgstr ""
 
-#: catalog/common/models.py:876
+#: catalog/common/models.py:879
 msgid "IdType of the source site"
 msgstr ""
 
-#: catalog/common/models.py:882
+#: catalog/common/models.py:885
 msgid "Primary Id on the source site"
 msgstr ""
 
-#: catalog/common/models.py:885
+#: catalog/common/models.py:888
 msgid "url to the resource"
 msgstr ""
 
@@ -788,7 +788,7 @@ msgstr ""
 #: catalog/templates/_item_notes.html:68
 #: catalog/templates/_item_reviews.html:42 catalog/templates/item_base.html:248
 #: catalog/templates/podcast_episode_data.html:41
-#: journal/templates/collection_dynamic_items.html:14
+#: journal/templates/collection_dynamic_items.html:17
 msgid "show more"
 msgstr ""
 
@@ -1196,7 +1196,7 @@ msgid "Create"
 msgstr ""
 
 #: catalog/templates/catalog_edit.html:51
-#: journal/templates/add_to_collection.html:41
+#: journal/templates/add_to_collection.html:43
 #: journal/templates/collection_edit.html:39 journal/templates/comment.html:69
 #: journal/templates/mark.html:142 journal/templates/note.html:39
 #: journal/templates/review_edit.html:40 journal/templates/tag_edit.html:51
@@ -1276,7 +1276,7 @@ msgstr ""
 #: catalog/templates/item_review_list.html:51 common/templates/_sidebar.html:90
 #: common/templates/_sidebar_anonymous.html:43
 #: common/templates/_sidebar_anonymous.html:58
-#: journal/templates/collection_dynamic_items.html:19
+#: journal/templates/collection_dynamic_items.html:7
 #: journal/templates/collection_items.html:17 journal/templates/posts.html:50
 #: journal/templates/profile.html:110 journal/templates/profile.html:148
 #: journal/templates/profile.html:180
@@ -1305,6 +1305,10 @@ msgstr ""
 
 #: catalog/templates/edition.html:126
 msgid "Borrow or Buy"
+msgstr ""
+
+#: catalog/templates/external_search_results.html:10
+msgid "Some items were found from other websites and instances, click their title to save them locally."
 msgstr ""
 
 #: catalog/templates/fetch_pending.html:13
@@ -1476,8 +1480,8 @@ msgstr ""
 msgid "your timeline"
 msgstr ""
 
-#: catalog/templates/search_header.html:96
-#: journal/templates/add_to_collection.html:16
+#: catalog/templates/search_header.html:91
+#: journal/templates/add_to_collection.html:14
 msgid "Save as dynamic collection"
 msgstr ""
 
@@ -1495,19 +1499,15 @@ msgstr ""
 msgid "No items matching your search query."
 msgstr ""
 
-#: catalog/templates/search_results.html:36
-msgid "System will search other websites and instances, click title of the item to save them locally. "
-msgstr ""
-
-#: catalog/templates/search_results.html:40
+#: catalog/templates/search_results.html:35
 msgid "If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter."
 msgstr ""
 
-#: catalog/templates/search_results.html:54
+#: catalog/templates/search_results.html:49
 msgid "Searching from other sites"
 msgstr ""
 
-#: catalog/templates/search_results.html:57
+#: catalog/templates/search_results.html:52
 msgid "Logged in user may see search results from other sites."
 msgstr ""
 
@@ -1579,18 +1579,18 @@ msgstr ""
 #: catalog/views_edit.py:278 catalog/views_edit.py:359
 #: journal/views/collection.py:89 journal/views/collection.py:139
 #: journal/views/collection.py:151 journal/views/collection.py:168
-#: journal/views/collection.py:234 journal/views/collection.py:285
-#: journal/views/collection.py:320 journal/views/collection.py:332
-#: journal/views/collection.py:357 journal/views/collection.py:360
-#: journal/views/collection.py:397 journal/views/common.py:143
+#: journal/views/collection.py:234 journal/views/collection.py:297
+#: journal/views/collection.py:332 journal/views/collection.py:344
+#: journal/views/collection.py:369 journal/views/collection.py:372
+#: journal/views/collection.py:409 journal/views/common.py:143
 #: journal/views/post.py:20 journal/views/post.py:42 journal/views/review.py:33
 #: journal/views/review.py:47
 msgid "Insufficient permission"
 msgstr ""
 
 #: catalog/views_edit.py:205 journal/views/collection.py:51
-#: journal/views/collection.py:76 journal/views/collection.py:337
-#: journal/views/collection.py:426 journal/views/common.py:90
+#: journal/views/collection.py:76 journal/views/collection.py:349
+#: journal/views/collection.py:438 journal/views/common.py:90
 #: journal/views/mark.py:145 journal/views/post.py:56 journal/views/post.py:70
 #: journal/views/review.py:94 journal/views/review.py:97
 #: users/views/actions.py:169
@@ -2679,7 +2679,7 @@ msgstr ""
 msgid "{username}'s podcast subscriptions"
 msgstr ""
 
-#: journal/models/collection.py:29 journal/templates/add_to_collection.html:38
+#: journal/models/collection.py:29 journal/templates/add_to_collection.html:39
 #: journal/templates/collection_edit.html:66
 #: journal/templates/collection_share.html:63
 #: journal/templates/wrapped_share.html:29
@@ -2724,19 +2724,19 @@ msgstr ""
 msgid "Mentioned Only"
 msgstr ""
 
-#: journal/models/common.py:429
+#: journal/models/common.py:451
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr ""
 
-#: journal/models/common.py:456
+#: journal/models/common.py:478
 msgid "A recent post was not posted to Threads."
 msgstr ""
 
-#: journal/models/common.py:490
+#: journal/models/common.py:512
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
 
-#: journal/models/common.py:497
+#: journal/models/common.py:519
 msgid "A recent post was not posted to Mastodon."
 msgstr ""
 
@@ -3250,21 +3250,21 @@ msgstr ""
 msgid "update mark"
 msgstr ""
 
-#: journal/templates/_list_item.html:79 journal/templates/review.html:15
+#: journal/templates/_list_item.html:51
+#: journal/templates/collection_update_item_note_ok.html:3
+msgid "Update note"
+msgstr ""
+
+#: journal/templates/_list_item.html:76 journal/templates/review.html:15
 #: journal/templates/review.html:24 journal/templates/review.html:54
 #: journal/templates/review_edit.html:11
 #: journal/templates/user_review_list.html:7
 msgid "Review"
 msgstr ""
 
-#: journal/templates/_list_item.html:94
-#: journal/templates/collection_update_item_note_ok.html:3
-msgid "Update note"
-msgstr ""
-
 #: journal/templates/_list_item.html:107
 #, python-format
-msgid " %(dups)s items are from the same work or have the same identifier, they are hidden from the search results, <a _=\"on click toggle .unfold on next .hidden_dupes\">click here to show them.</a> "
+msgid "%(dups)s item(s) are from the same work or have the same identifier, click here to display:"
 msgstr ""
 
 #: journal/templates/_sidebar_search_journal.html:6
@@ -3347,7 +3347,7 @@ msgstr ""
 msgid "reply"
 msgstr ""
 
-#: journal/templates/add_to_collection.html:14
+#: journal/templates/add_to_collection.html:16
 msgid "Add to collection"
 msgstr ""
 
@@ -3702,24 +3702,24 @@ msgstr ""
 msgid "shared {username}'s collection"
 msgstr ""
 
-#: journal/views/collection.py:287 journal/views/collection.py:322
-#: journal/views/collection.py:334 journal/views/collection.py:362
+#: journal/views/collection.py:299 journal/views/collection.py:334
+#: journal/views/collection.py:346 journal/views/collection.py:374
 msgid "Dynamic collection is not editable"
 msgstr ""
 
-#: journal/views/collection.py:299
+#: journal/views/collection.py:311
 msgid "The item is already in the collection."
 msgstr ""
 
-#: journal/views/collection.py:301
+#: journal/views/collection.py:313
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
 
-#: journal/views/collection.py:347
+#: journal/views/collection.py:359
 msgid "Saved."
 msgstr ""
 
-#: journal/views/collection.py:433 journal/views/collection.py:454
+#: journal/views/collection.py:445 journal/views/collection.py:466
 #: journal/views/review.py:127
 msgid "Login required"
 msgstr ""

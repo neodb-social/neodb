@@ -63,6 +63,28 @@ def q_owned_piece_visible_to_user(
         return Q(owner=owner, visibility=0)
 
 
+def q_owned_parent_piece_visible_to_user(
+    viewing_user: User | None, owner: APIdentity, check_blocking: bool = False
+) -> Q:
+    """return a Q object to filter pieces that are visible to the viewing user"""
+    if check_blocking and owner.restricted:
+        return Q(pk__in=[])
+    if not viewing_user or not viewing_user.is_authenticated:
+        if owner.anonymous_viewable:
+            return Q(parent__owner=owner, visibility=0)
+        else:
+            return Q(pk__in=[])
+    viewer = viewing_user.identity
+    if viewer == owner:
+        return Q(parent__owner=owner)
+    elif check_blocking and viewer.is_blocked_by(owner):
+        return Q(pk__in=[])
+    elif viewer.is_following(owner):
+        return Q(parent__owner=owner, visibility__in=[0, 1])
+    else:
+        return Q(parent__owner=owner, visibility=0)
+
+
 def max_visiblity_to_user(viewing_user: User, owner: APIdentity):
     if not viewing_user or not viewing_user.is_authenticated:
         return 0

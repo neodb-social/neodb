@@ -7,9 +7,14 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Item
+from journal.models.common import (
+    q_owned_parent_piece_visible_to_user,
+    q_owned_piece_visible_to_user,
+)
 from journal.models.tag import TagMember
 from takahe.utils import Takahe
 from users.models import APIdentity
+from users.models.user import User
 
 from .comment import Comment
 from .note import Note
@@ -93,7 +98,7 @@ class Mark:
         )
 
     @cached_property
-    def notes(self):
+    def notes(self) -> Iterable[Note]:
         return Note.objects.filter(owner=self.owner, item=self.item).order_by(
             "-created_time"
         )
@@ -157,41 +162,43 @@ class Mark:
 
     @classmethod
     def get_marks_by_items(
-        cls, owner: APIdentity, items: Iterable[Item]
+        cls, owner: APIdentity, items: Iterable[Item], viewing_user: User | None
     ) -> dict[int, "Mark"]:
-        shelfmembers = {
-            m.item.pk: m
-            for m in ShelfMember.objects.filter(owner=owner, item__in=items)
-        }
-        comments = {
-            c.item.pk: c for c in Comment.objects.filter(owner=owner, item__in=items)
-        }
-        ratings = {
-            r.item.pk: r for r in Rating.objects.filter(owner=owner, item__in=items)
-        }
-        reviews = {
-            r.item.pk: r for r in Review.objects.filter(owner=owner, item__in=items)
-        }
-        tags = TagMember.objects.filter(parent__owner=owner, item__in=items).annotate(
-            title=F("parent__title")
-        )
-        # TODO notes
         marks = {}
         for i in items:
             m = Mark(owner, i)
-            m.shelfmember = shelfmembers.get(i.pk)
-            m.comment = comments.get(i.pk)
-            m.rating = ratings.get(i.pk)
-            m.review = reviews.get(i.pk)
-            m.tags = [t.title for t in tags if t.item == i]
+            m.rating = None
+            m.shelfmember = None
+            m.comment = None
+            m.review = None
+            m.tags = []
+            m.notes = []
             marks[i.pk] = m
+        q = q_owned_piece_visible_to_user(viewing_user, owner)
+        q2 = q_owned_parent_piece_visible_to_user(viewing_user, owner)
+        for m in ShelfMember.objects.filter(item__in=items).filter(q):
+            marks[m.item.pk].shelfmember = m
+        for c in Comment.objects.filter(item__in=items).filter(q):
+            marks[c.item.pk].comment = c
+        for g in Rating.objects.filter(item__in=items).filter(q):
+            marks[g.item.pk].rating = g
+        for r in Review.objects.filter(item__in=items).filter(q):
+            marks[r.item.pk].review = r
+        for n in Review.objects.filter(item__in=items).filter(q):
+            marks[n.item.pk].notes.append(n)
+        for t in (
+            TagMember.objects.filter(item__in=items)
+            .filter(q2)
+            .annotate(title=F("parent__title"))
+        ):
+            marks[t.item.pk].tags.append(t.title)
         return marks
 
     @classmethod
     def attach_to_items(
-        cls, owner: APIdentity, items: Sequence[Item]
+        cls, owner: APIdentity, items: Sequence[Item], viewing_user: User | None
     ) -> Sequence[Item]:
-        marks = Mark.get_marks_by_items(owner, items)
+        marks = Mark.get_marks_by_items(owner, items, viewing_user)
         for i in items:
             i.mark = marks.get(i.pk) or Mark(owner, i)
         return items

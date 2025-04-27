@@ -4,6 +4,15 @@
 {% load humanize %}
 {% load mastodon %}
 {% load thumb %}
-{% for item in external_items %}
-  <article class="item-card external">{% include "_item_card.html" with item=item %}</article>
-{% endfor %}
+<details open>
+  {% if external_items %}
+    <summary class="caveat">
+      {% trans "Some items were found from other websites and instances, click their title to save them locally." %}
+    </summary>
+  {% endif %}
+  {% for item in external_items %}
+    <div class="item-card-list">
+      <article class="item-card external">{% include "_item_card.html" with item=item %}</article>
+    {% endfor %}
+  </div>
+</details>

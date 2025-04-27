@@ -30,14 +30,10 @@
               {% for item in items %}
                 {% include '_list_item.html' %}
               {% empty %}
-                <p>
+                <p class="caveat">
                   {% trans "No items matching your search query." %}
-                  {% if request.user.is_authenticated %}
-                    {% trans "System will search other websites and instances, click title of the item to save them locally. " %}
-                  {% endif %}
-                </p>
-                <p>
                   {% blocktrans %}If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter.{% endblocktrans %}
+                  <br>
                   {% for site in sites %}
                     {% trans site %}
                     {% if not forloop.last %}/{% endif %}
@@ -45,18 +41,16 @@
                 </p>
               {% endfor %}
             </div>
-            <div class="item-card-list">
-              {% if request.GET.q and request.user.is_authenticated %}
-                <p hx-get="{% url 'catalog:external_search' %}?q={{ q }}&amp;c={{ request.GET.c }}&amp;page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
-                   hx-trigger="load"
-                   hx-swap="outerHTML">
-                  <span><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                  {% trans 'Searching from other sites' %}
-                </p>
-              {% else %}
-                {% trans "Logged in user may see search results from other sites." %}
-              {% endif %}
-            </div>
+            {% if request.GET.q and request.user.is_authenticated %}
+              <p hx-get="{% url 'catalog:external_search' %}?q={{ q }}&amp;c={{ request.GET.c }}&amp;page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
+                 hx-trigger="revealed"
+                 hx-swap="outerHTML">
+                <span><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
+                {% trans 'Searching from other sites' %}
+              </p>
+            {% else %}
+              {% trans "Logged in user may see search results from other sites." %}
+            {% endif %}
           </div>
           <div class="pagination">
             {% if pagination.has_prev %}

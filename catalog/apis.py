@@ -116,7 +116,7 @@ def search_item(
     )
     Rating.attach_to_items(items)
     if request.user.is_authenticated:
-        Mark.attach_to_items(request.user.identity, items)
+        Mark.attach_to_items(request.user.identity, items, request.user)
     return 200, {"data": items, "pages": num_pages, "count": count}
 
 
