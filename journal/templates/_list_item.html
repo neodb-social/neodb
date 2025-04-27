@@ -73,9 +73,9 @@
             <span class="action inline">
               <span class="timestamp">{{ mark.created_time|date }} {{ mark.status_label }}</span>
               {% comment %} <a href="{{mark.owner.url }}" title="@{{ mark.owner.handle }}">{{ mark.owner.display_name }}</a> {% endcomment %}
-              {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
-              <span>{{ mark.comment.html|safe }}</span>
             </span>
+            {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
+            <span>{{ mark.comment.html|safe }}</span>
             {% if mark.comment.latest_post %}<div id="replies_{{ mark.comment.latest_post.pk }}"></div>{% endif %}
           </section>
         {% endif %}
