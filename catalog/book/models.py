@@ -424,7 +424,7 @@ class Edition(Item):
         if self.pub_year:
             pub_date = str(self.pub_year)
             if self.pub_month:
-                pub_date += f"-{self.pub_month:02d}"
+                pub_date += "-" + str(self.pub_month)
             data["datePublished"] = pub_date
 
         if self.language:
