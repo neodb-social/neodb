@@ -1,3 +1,4 @@
+import json
 import re
 from datetime import datetime
 from functools import cached_property
@@ -175,3 +176,31 @@ class Review(Content):
             "item_title": self.item.to_indexable_titles(),
             "content": [self.title, self.body],
         }
+
+    def to_schema_org(self):
+        """Generate Schema.org structured data for review."""
+        data = {
+            "@context": "https://schema.org",
+            "@type": "Review",
+            "name": self.title,
+            "reviewBody": self.body,
+            "datePublished": self.created_time.isoformat(),
+            "dateModified": self.edited_time.isoformat(),
+            "url": self.absolute_url,
+            "author": {
+                "@type": "Person",
+                "name": self.owner.display_name,
+            },
+            "itemReviewed": self.item.to_schema_org(),
+        }
+        if hasattr(self, "rating_grade") and self.rating_grade:
+            data["reviewRating"] = {
+                "@type": "Rating",
+                "ratingValue": self.rating_grade,
+                "bestRating": 10,
+            }
+        return data
+
+    def to_schema_org_json(self):
+        data = self.to_schema_org()
+        return json.dumps(data, ensure_ascii=False, indent=2)

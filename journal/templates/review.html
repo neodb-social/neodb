@@ -21,6 +21,7 @@
     <meta property="og:site_name" content="{{ site_name }}">
     <meta name="fediverse:creator" content="@{{ review.owner.full_handle }}">
     <meta name="lastmodified" content="{{ review.edited_time | date:'r' }}" />
+    <script type="application/ld+json">{{ review.to_schema_org_json | safe }}</script>
     {% if not review.owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }} - {% trans 'Review' %} - {{ review.title }}</title>
     {% include "common_libs.html" %}
