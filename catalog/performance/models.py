@@ -270,7 +270,7 @@ class Performance(Item):
         """Generate Schema.org structured data for performance."""
         data: dict[str, Any] = {
             "@context": "https://schema.org",
-            "@type": "CreativeWork",
+            "@type": "Play",
             "name": self.display_title,
             "url": self.absolute_url,
         }
@@ -296,8 +296,8 @@ class Performance(Item):
             ]
 
         if self.director:
-            data["director"] = [
-                {"@type": "Person", "name": person} for person in self.director
+            data["creator"] = [
+                {"@type": "Person", "name": person} for person in self.orig_creator
             ]
 
         if self.composer:
@@ -534,7 +534,6 @@ class PerformanceProduction(Item):
                 {
                     "@type": "Person",
                     "name": person["name"],
-                    **({"characterName": person["role"]} if person.get("role") else {}),
                 }
                 for person in self.actor
             ]
