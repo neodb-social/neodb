@@ -6,7 +6,7 @@
 {% load collection %}
 {% load bleach_tags %}
 {% load duration %}
-<aside class="grid__aside sidebar">
+<aside class="grid__aside sidebar {% if bottom %}bottom{% endif %}">
   {% if request.user.unread_announcements %}
     <section class="announcement">
       <article>
@@ -23,7 +23,7 @@
       </article>
     </section>
   {% endif %}
-  {% if show_profile %}
+  {% if show_profile and identity %}
     <section class="profile">
       <article>
         <details class="auto-collapse" open>
@@ -174,7 +174,7 @@
       </article>
     </section>
   {% endif %}
-  {% if identity.user and top_tags is not None %}
+  {% if top_tags is not None %}
     <section>
       <article>
         <details {% if top_tags %}class="auto-collapse" open{% endif %}>

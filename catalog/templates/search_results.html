@@ -19,63 +19,39 @@
     <main>
       <div class="grid__main">
         <div>
-          <div>
-            {% if request.GET.q %}
-              {% include "search_header.html" %}
-            {% endif %}
-            {% if request.GET.tag %}
-              <h5>{% trans 'tag' %}: “{{ request.GET.tag }}”</h5>
-            {% endif %}
-            <div class="item-card-list">
-              {% for item in items %}
-                {% include '_list_item.html' %}
-              {% empty %}
-                <p class="caveat">
-                  {% trans "No items matching your search query." %}
-                  {% blocktrans %}If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter.{% endblocktrans %}
-                  <br>
-                  {% for site in sites %}
-                    {% trans site %}
-                    {% if not forloop.last %}/{% endif %}
-                  {% endfor %}
-                </p>
-              {% endfor %}
-            </div>
-            {% if request.GET.q and request.user.is_authenticated %}
-              <p hx-get="{% url 'catalog:external_search' %}?q={{ q }}&amp;c={{ request.GET.c }}&amp;page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
-                 hx-trigger="revealed"
-                 hx-swap="outerHTML">
-                <span><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                {% trans 'Searching from other sites' %}
+          {% if request.GET.q %}
+            {% include "search_header.html" %}
+          {% endif %}
+          {% if request.GET.tag %}
+            <h5>{% trans 'tag' %}: “{{ request.GET.tag }}”</h5>
+          {% endif %}
+          <div class="item-card-list">
+            {% for item in items %}
+              {% include '_list_item.html' %}
+            {% empty %}
+              <p class="caveat">
+                {% trans "No items matching your search query." %}
+                {% blocktrans %}If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter.{% endblocktrans %}
+                <br>
+                {% for site in sites %}
+                  {% trans site %}
+                  {% if not forloop.last %}/{% endif %}
+                {% endfor %}
               </p>
-            {% else %}
-              {% trans "Logged in user may see search results from other sites." %}
-            {% endif %}
-          </div>
-          <div class="pagination">
-            {% if pagination.has_prev %}
-              <a href="?page=1&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
-                 class="pagination__nav-link pagination__nav-link">&laquo;</a>
-              <a href="?page={{ pagination.previous_page }}&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
-                 class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
-            {% endif %}
-            {% for page in pagination.page_range %}
-              {% if page == pagination.current_page %}
-                <a href="?page={{ page }}&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
-                   class="pagination__page-link pagination__page-link--current">{{ page }}</a>
-              {% else %}
-                <a href="?page={{ page }}&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
-                   class="pagination__page-link">{{ page }}</a>
-              {% endif %}
             {% endfor %}
-            {% if pagination.has_next %}
-              <a href="?page={{ pagination.next_page }}&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
-                 class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
-              <a href="?page={{ pagination.last_page }}&amp;{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}"
-                 class="pagination__nav-link">&raquo;</a>
-            {% endif %}
           </div>
+          {% if request.GET.q and request.user.is_authenticated %}
+            <p hx-get="{% url 'catalog:external_search' %}?q={{ q }}&amp;c={{ request.GET.c }}&amp;page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}"
+               hx-trigger="revealed"
+               hx-swap="outerHTML">
+              <span><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
+              {% trans 'Searching from other sites' %}
+            </p>
+          {% else %}
+            {% trans "Logged in user may see search results from other sites." %}
+          {% endif %}
         </div>
+        {% include "_pagination.html" %}
       </div>
       <aside class="grid__aside bottom">
         {% include "_sidebar_search.html" %}

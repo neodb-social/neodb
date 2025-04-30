@@ -26,10 +26,10 @@
             <p class="empty">{% trans "No items matching your search query." %}</p>
           {% endfor %}
         </div>
+        {% include "_pagination.html" %}
       </div>
-      {% include "_pagination.html" %}
       {% block sidebar %}
-        {% include '_sidebar_search_journal.html' %}
+        {% include "_sidebar.html" with show_profile=1 identity=user.identity sidebar_template="_sidebar_search_journal.html" bottom=1 %}
       {% endblock %}
     </main>
     {% include '_footer.html' %}

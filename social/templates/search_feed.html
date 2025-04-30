@@ -30,7 +30,7 @@
       </div>
     </div>
     {% block sidebar %}
-      {% include '_sidebar_search_journal.html' %}
+      {% include "_sidebar.html" with show_profile=1 identity=user.identity sidebar_template="_sidebar_search_journal.html" bottom=1 %}
     {% endblock %}
   </main>
   {% include "_footer.html" %}
