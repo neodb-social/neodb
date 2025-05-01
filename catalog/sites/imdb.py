@@ -80,6 +80,7 @@ class IMDB(AbstractSite):
         if not src:
             raise ParseError(self, "__NEXT_DATA__ element")
         d = json.loads(src)["props"]["pageProps"]["aboveTheFoldData"]
+        print(d)
         data = {
             "title": d["titleText"]["text"],
             "year": d["releaseYear"]["year"] if d.get("releaseYear") else None,
@@ -88,7 +89,7 @@ class IMDB(AbstractSite):
             "genre": (
                 [x["text"] for x in d["genres"]["genres"]] if d.get("genres") else []
             ),
-            "brief": (d.get("plot") or {}).get("plotText", {}).get("plainText", ""),
+            "brief": ((d.get("plot") or {}).get("plotText") or {}).get("plainText", ""),
             "cover_image_url": (
                 d["primaryImage"].get("url") if d.get("primaryImage") else None
             ),
