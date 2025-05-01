@@ -286,13 +286,13 @@ class Takahe:
     @staticmethod
     def unfollow(source_pk: int, target_pk: int):
         Takahe.update_follow_state(source_pk, target_pk, [], "undone")
-        # InboxMessage.create_internal(
-        #     {
-        #         "type": "ClearTimeline",
-        #         "object": target_identity.pk,
-        #         "actor": self.identity.pk,
-        #     }
-        # )
+        InboxMessage.create_internal(
+            {
+                "type": "ClearTimeline",
+                "object": target_pk,
+                "actor": source_pk,
+            }
+        )
 
     @staticmethod
     def accept_follow_request(source_pk: int, target_pk: int):
@@ -353,6 +353,14 @@ class Takahe:
             if not is_mute:
                 Takahe.unfollow(source_pk, target_pk)
                 Takahe.reject_follow_request(target_pk, source_pk)
+                InboxMessage.create_internal(
+                    {
+                        "type": "ClearTimeline",
+                        "object": target_pk,
+                        "actor": source_pk,
+                        "fullErase": True,
+                    }
+                )
             return block
 
     @staticmethod
@@ -588,6 +596,9 @@ class Takahe:
     def reply_post(
         post_pk: int, identity_pk: int, content: str, visibility: Visibilities
     ):
+        post = Post.objects.filter(pk=post_pk).first()
+        if post and Takahe.get_is_blocking(post.author_id, identity_pk):
+            return
         return Takahe.post(identity_pk, content, visibility, reply_to_pk=post_pk)
 
     @staticmethod
