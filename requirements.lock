@@ -30,6 +30,11 @@ beautifulsoup4==4.13.4
 bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
+boto3==1.38.7
+    # via django-storages
+botocore==1.38.7
+    # via boto3
+    # via s3transfer
 cachetools==5.5.2
 certifi==2025.4.26
     # via httpcore
@@ -39,7 +44,7 @@ certifi==2025.4.26
 cffi==1.17.1
     # via blurhash-python
     # via cryptography
-charset-normalizer==3.4.1
+charset-normalizer==3.4.2
     # via requests
 click==8.1.8
     # via atproto
@@ -63,6 +68,7 @@ django==4.2.20
     # via django-polymorphic
     # via django-redis
     # via django-rq
+    # via django-storages
     # via django-tz-detect
     # via easy-thumbnails
 django-anymail==13.0
@@ -82,6 +88,7 @@ django-polymorphic @ git+https://github.com/jazzband/django-polymorphic/@1039f88
 django-redis==5.4.0
 django-rq==3.0.0
 django-sass-processor==1.4.1
+django-storages==1.14.6
 django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git@03921e05b39d07d143519a435259f66387a088bc
 django-tz-detect==0.5.0
 django-user-messages==1.1.0
@@ -107,6 +114,9 @@ idna==3.10
     # via requests
     # via yarl
 igdb-api-v4==0.3.3
+jmespath==1.0.1
+    # via boto3
+    # via botocore
 langdetect==1.0.9
 libipld==3.0.1
     # via atproto
@@ -137,12 +147,13 @@ protobuf==6.30.2
 psycopg2-binary==2.9.10
 pycparser==2.22
     # via cffi
-pydantic==2.11.3
+pydantic==2.11.4
     # via atproto
     # via django-ninja
-pydantic-core==2.33.1
+pydantic-core==2.33.2
     # via pydantic
 python-dateutil==2.9.0.post0
+    # via botocore
     # via dateparser
     # via django-auditlog
 python-fsutil==0.15.0
@@ -152,7 +163,7 @@ pytz==2025.2
     # via django-tz-detect
 rcssmin==1.1.2
     # via django-compressor
-redis==5.2.1
+redis==6.0.0
     # via django-redis
     # via django-rq
     # via rq
@@ -166,8 +177,10 @@ rjsmin==1.2.2
     # via django-compressor
 rq==2.3.2
     # via django-rq
+s3transfer==0.12.0
+    # via boto3
 sentry-sdk==2.27.0
-setproctitle==1.3.5
+setproctitle==1.3.6
 six==1.17.0
     # via bleach
     # via blurhash-python
@@ -196,11 +209,12 @@ typing-inspection==0.4.0
 tzlocal==5.3.1
     # via dateparser
 urllib3==2.4.0
+    # via botocore
     # via django-anymail
     # via requests
     # via sentry-sdk
 urlman==2.0.2
-validators==0.34.0
+validators==0.35.0
 webencodings==0.5.1
     # via bleach
     # via tinycss2

@@ -4,6 +4,7 @@ import sys
 from urllib import parse
 
 import environ
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
 from boofilsic import __version__
@@ -507,27 +508,52 @@ SILENCED_SYSTEM_CHECKS = [
 
 TAKAHE_SESSION_COOKIE_NAME = "sessionid"
 
-MEDIA_URL = "/m/"
-MEDIA_ROOT = env("NEODB_MEDIA_ROOT", default=os.path.join(BASE_DIR, "media"))  # type: ignore
+
+MEDIA_BACKEND: str = env("MEDIA_BACKEND", default="local://")  # type: ignore
+
+MEDIA_ROOT: str = env("NEODB_MEDIA_ROOT", default=os.path.join(BASE_DIR, "media"))  # type: ignore
+MEDIA_URL: str = env("NEODB_MEDIA_URL", default="/m/")  # type: ignore
 
 TAKAHE_MEDIA_URL = env("TAKAHE_MEDIA_URL", default="/media/")  # type: ignore
 TAKAHE_MEDIA_ROOT = env("TAKAHE_MEDIA_ROOT", default="media")  # type: ignore
 
-STORAGES = {  # TODO: support S3
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
+STORAGES = {
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
     },
-    "takahe": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-        "OPTIONS": {
-            "location": TAKAHE_MEDIA_ROOT,
-            "base_url": TAKAHE_MEDIA_URL,
-        },
-    },
 }
+
+if MEDIA_BACKEND and MEDIA_BACKEND.startswith("s3"):
+    _parsed_media_backend: parse.ParseResult = env.url("MEDIA_BACKEND")  # type:ignore
+    AWS_STORAGE_BUCKET_NAME = (_parsed_media_backend.path or "").lstrip("/")
+    AWS_QUERYSTRING_AUTH = False
+    AWS_DEFAULT_ACL = "public-read"
+    if _parsed_media_backend.username is not None:
+        AWS_ACCESS_KEY_ID = _parsed_media_backend.username
+        AWS_SECRET_ACCESS_KEY = parse.unquote(_parsed_media_backend.password or "")
+    if _parsed_media_backend.hostname:
+        if _parsed_media_backend.scheme == "s3-insecure":
+            s3_default_port = 80
+            s3_scheme = "http"
+        else:
+            s3_default_port = 443
+            s3_scheme = "https"
+        port = _parsed_media_backend.port or s3_default_port
+        AWS_S3_ENDPOINT_URL = f"{s3_scheme}://{_parsed_media_backend.hostname}:{port}"
+    if MEDIA_URL:
+        _media_url_parsed = parse.urlparse(MEDIA_URL)
+        AWS_S3_CUSTOM_DOMAIN = (
+            _media_url_parsed.hostname or ""
+        ) + _media_url_parsed.path.rstrip("/")
+    STORAGES["default"] = STORAGES["takahe"] = {"BACKEND": "common.utils.S3Storage"}
+elif MEDIA_BACKEND and not MEDIA_BACKEND.startswith("local"):
+    raise ImproperlyConfigured(f"MEDIA_BACKEND {MEDIA_BACKEND} is not supported ")
+else:  # local
+    STORAGES["default"] = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
+    STORAGES["takahe"] = {  # type:ignore
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {"location": TAKAHE_MEDIA_ROOT, "base_url": TAKAHE_MEDIA_URL},
+    }
 
 DEFAULT_ITEM_COVER = "item/default.svg"
 SITE_INFO["default_cover_url"] = MEDIA_URL + DEFAULT_ITEM_COVER

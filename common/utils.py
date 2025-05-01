@@ -11,12 +11,26 @@ from django.core.signing import b62_decode
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from storages.backends.s3boto3 import S3Boto3Storage
 
 from .config import ITEMS_PER_PAGE, ITEMS_PER_PAGE_OPTIONS, PAGE_LINK_NUMBER
 from .models import int_
 
 if TYPE_CHECKING:
     from users.models import APIdentity, User
+
+
+class S3Storage(S3Boto3Storage):
+    """
+    Custom override backend that makes webp files store correctly
+    """
+
+    def get_object_parameters(self, name: str):
+        params = super().get_object_parameters(name)
+        if name.endswith(".webp"):
+            params["ContentDisposition"] = "inline"
+            params["ContentType"] = "image/webp"
+        return params
 
 
 class AuthedHttpRequest(HttpRequest):
