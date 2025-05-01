@@ -22,7 +22,7 @@ from common.models import detect_language, uniq
 
 _CONFIRM = "confirm deleting collection? [Y/N] "
 _HELP_TEXT = """
-intergrity:     check and fix integrity for merged and deleted items
+integrity:      check and fix integrity for merged and deleted items
 purge:          purge deleted items
 migrate:        run migration
 search:         search docs in index
@@ -166,6 +166,37 @@ class Command(BaseCommand):
                 cls.objects.filter(is_deleted=True).delete()
 
     def integrity(self):
+        qs = Item.objects.all()
+        total = qs.count()
+        self.stdout.write("Checking duplicated/empty title/desc...")
+        issues = 0
+        issues2 = 0
+        for i in tqdm(qs.iterator(), total=total):
+            changed = False
+            for f in ["localized_title", "localized_description"]:
+                o = getattr(i, f, [])
+                n = []
+                for x in o:
+                    v = x.get("text")
+                    if v and x not in n:
+                        n.append({"lang": str(x.get("lang", "x")), "text": str(v)})
+                if n != o:
+                    changed = True
+                    setattr(i, f, n)
+            if changed:
+                issues += 1
+                if self.fix:
+                    i.save()
+            try:
+                vv = i.ap_object
+                if not vv:
+                    continue
+            except Exception:
+                issues2 += 1
+                self.stdout.write(f"! {i}")
+        self.stdout.write(f"{issues} title issues found in {total} items.")
+        self.stdout.write(f"{issues2} schema issues found in {total} items.")
+
         self.stdout.write("Checking circulated merge...")
         for i in Item.objects.filter(merged_to_item=F("id")):
             self.stdout.write(f"! {i} : {i.absolute_url}?skipcheck=1")
