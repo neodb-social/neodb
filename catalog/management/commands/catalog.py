@@ -170,7 +170,7 @@ class Command(BaseCommand):
         total = qs.count()
         self.stdout.write("Checking duplicated/empty title/desc...")
         issues = 0
-        issues2 = 0
+        urls = []
         for i in tqdm(qs.iterator(), total=total):
             changed = False
             for f in ["localized_title", "localized_description"]:
@@ -192,10 +192,12 @@ class Command(BaseCommand):
                 if not vv:
                     continue
             except Exception:
-                issues2 += 1
+                urls.append(i.absolute_url)
                 self.stdout.write(f"! {i}")
         self.stdout.write(f"{issues} title issues found in {total} items.")
-        self.stdout.write(f"{issues2} schema issues found in {total} items.")
+        self.stdout.write(f"{len(urls)} schema issues found in {total} items.")
+        for i in urls:
+            self.stdout.write(f"! {i}/edit")
 
         self.stdout.write("Checking circulated merge...")
         for i in Item.objects.filter(merged_to_item=F("id")):

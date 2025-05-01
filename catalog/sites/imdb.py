@@ -80,7 +80,6 @@ class IMDB(AbstractSite):
         if not src:
             raise ParseError(self, "__NEXT_DATA__ element")
         d = json.loads(src)["props"]["pageProps"]["aboveTheFoldData"]
-        print(d)
         data = {
             "title": d["titleText"]["text"],
             "year": d["releaseYear"]["year"] if d.get("releaseYear") else None,
