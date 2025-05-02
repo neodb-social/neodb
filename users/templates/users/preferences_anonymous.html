@@ -1,0 +1,25 @@
+{% load static %}
+{% load i18n %}
+{% load mastodon %}
+{% load duration %}
+{% load thumb %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>{{ site_name }} - {% trans "Preferences" %}</title>
+    {% include "common_libs.html" %}
+    <script src="{{ cdn_url }}/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">{% include "users/_pref_device.html" with open=1 %}</div>
+      {% include "_sidebar_anonymous.html" %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

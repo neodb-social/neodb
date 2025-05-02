@@ -29,8 +29,9 @@ from users.models import Task
 from .account import clear_preference_cache
 
 
-@login_required
 def preferences(request):
+    if not request.user.is_authenticated:
+        return render(request, "users/preferences_anonymous.html")
     if not request.user.registration_complete:
         return redirect(reverse("users:register"))
     preference = request.user.preference

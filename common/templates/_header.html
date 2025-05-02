@@ -117,6 +117,9 @@
               <li>
                 <a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans 'Sign up or Login' %}</a>
               </li>
+              <li>
+                <a href="{% url 'users:preferences' %}">{% trans 'Preferences' %}</a>
+              </li>
             {% endif %}
           </ul>
         </details>

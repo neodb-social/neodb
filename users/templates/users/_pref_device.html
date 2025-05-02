@@ -1,0 +1,54 @@
+{% load i18n %}
+<article>
+  <details {% if open %}open{% endif %}>
+    <summary>{% trans 'Settings for current device' %}</summary>
+    <form onsubmit="return false;">
+      <h6>{% trans "theme" %}</h6>
+      <p>
+        <input type="radio" name="theme_color" id="theme_auto" value="">
+        <label for="theme_auto">{% trans "system" %}</label>
+        <input type="radio" name="theme_color" id="theme_light" value="light">
+        <label for="theme_light">{% trans "light" %}</label>
+        <input type="radio" name="theme_color" id="theme_dark" value="dark">
+        <label for="theme_dark">{% trans "dark" %}</label>
+      </p>
+      <h6>{% trans "Focus mode" %}</h6>
+      <p>
+        <input type="checkbox" id="solo_mode">
+        <label for="solo_mode">{% trans "hide reviews and ratings from other users" %}</label>
+      </p>
+      <h6>{% trans "Number of items per page" %}</h6>
+      <p>
+        <input type="radio" name="per_page" id="20_per_page" value="20">
+        <label for="20_per_page">20</label>
+        <input type="radio" name="per_page" id="40_per_page" value="40">
+        <label for="40_per_page">40</label>
+        <input type="radio" name="per_page" id="80_per_page" value="80">
+        <label for="80_per_page">80</label>
+      </p>
+      <h6>{% trans "Custom styles" %}</h6>
+      <textarea id="user_style"></textarea>
+      <br>
+      <input type="button" onclick="save_local();" value="{% trans "Save" %}">
+    </form>
+  </details>
+  <script>
+    var _c=$('html').attr('data-theme')||"";
+    if (_c=="light") $('input[id=theme_light]').prop('checked', true);
+    if (_c=="dark") $('input[id=theme_dark]').prop('checked', true);
+    if (!_c) $('input[id=theme_auto]').prop('checked', true);
+    $("#user_style").val(localStorage.getItem("user_style")||"");
+    $("#solo_mode").prop("checked", localStorage.getItem("solo_mode")=="1");
+    var _p=Cookies.get('per_page') || 20;
+    $('#'+_p+'_per_page').prop('checked', true);
+    function save_local() {
+      var _c=$('input[name=theme_color]:checked').val();
+      $('html').attr('data-theme', _c||"");
+      localStorage.setItem("theme_color", _c);
+      localStorage.setItem("user_style", $("#user_style").val());
+      localStorage.setItem("solo_mode", $("#solo_mode").prop("checked")?"1":"0");
+      Cookies.set('per_page', $('input[name=per_page]:checked').val(), {expires: 120, sameSite: 'Lax'});
+      alert("{% trans 'Settings for current device saved' %}");
+    }
+  </script>
+</article>
