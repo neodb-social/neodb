@@ -9,13 +9,15 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} {% trans "Post" %} | {{ post.author.display_name }}</title>
+    <title>{{ site_name }} {% trans "Post" %} | {{ owner.display_name }}</title>
     <meta property="og:title" content="{{ post.summary | default:'Post' }}">
     <meta property="og:site_name" content="{{ site_name }}">
     <meta property="og:type" content="article">
-    <meta property="og:article:author"
-          content="{{ post.author.name | default:owner.full_handle }}">
+    <meta property="og:article:author" content="{{ owner.display_name }}">
     {% if post.item.has_cover %}<meta property="og:image" content="{{ post.item.cover|thumb:'normal' }}">{% endif %}
+    <meta property="og:description"
+          content="{{ post.summary|default:post.content_plain_text|slice:':300' }}" />
+    <meta name="fediverse:creator" content="@{{ owner.full_handle }}">
     {% include "common_libs.html" %}
     <script src="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
     <link href="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/style.min.css"

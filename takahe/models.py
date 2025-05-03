@@ -1424,6 +1424,10 @@ class Post(models.Model):
     def safe_content_local(self):
         return ContentRenderer(local=True).render_post(self.content, self)
 
+    @property
+    def content_plain_text(self):
+        return FediverseHtmlParser(self.content).plain_text
+
     def _safe_content_note(self, *, local: bool = True):
         return ContentRenderer(local=local).render_post(self.content, self)
 

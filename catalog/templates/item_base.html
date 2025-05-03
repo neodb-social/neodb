@@ -21,7 +21,8 @@
     {% if item.has_cover %}<meta property="og:image" content="{{ item.cover_image_url }}">{% endif %}
     <meta property="og:site_name"
           content="{{ site_name }} {% trans item.category.label %}">
-    <meta property="og:description" content="{{ item.brief_description }}">
+    <meta property="og:description"
+          content="{{ item.brief_description|slice:':300' }}">
     <meta rel="canonical" content="{{ item.absolute_url }}">
     {% all_languages as languages %}
     {% for lang in languages %}
