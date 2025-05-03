@@ -39,7 +39,6 @@ class JournalQueryParser(QueryParser):
         "per_page": 20,
         "highlight_fields": "",
         "include_fields": "post_id, piece_id, item_id, owner_id, piece_class",
-        "facet_by": "item_class, piece_class",
     }
 
     def __init__(self, query: str, page: int = 1, page_size: int = 0):

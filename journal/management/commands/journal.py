@@ -257,6 +257,7 @@ class Command(BaseCommand):
 
             case "search":
                 q = JournalQueryParser("" if query == "-" else query, page_size=100)
+                q.facet_by = ["item_class", "piece_class"]
                 if owners:
                     q.filter("owner_id", owners)
                 if item_class:

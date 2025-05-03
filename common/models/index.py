@@ -56,6 +56,7 @@ class QueryParser:
         self.exclude_by = {}
         self.query_by = []
         self.sort_by = []
+        self.facet_by = []
 
     def is_valid(self):
         """Check if the parsed query is valid"""
@@ -116,6 +117,8 @@ class QueryParser:
             params["query_by"] = ",".join(self.query_by)
         if self.sort_by:
             params["sort_by"] = ",".join(self.sort_by)
+        if self.facet_by:
+            params["facet_by"] = ",".join(self.facet_by)
         return params
 
 

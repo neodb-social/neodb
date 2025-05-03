@@ -112,6 +112,7 @@ class Collection(List):
         q = JournalQueryParser(self.query, **kwargs)
         q.filter_by_owner_viewer(self.owner, viewer)
         q.filter("item_id", ">0")
+        q.facet_by = ["item_class"]
         return q
 
     @cached_property
