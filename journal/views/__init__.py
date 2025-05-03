@@ -26,6 +26,7 @@ from .post import (
     post_replies,
     post_reply,
     post_unlike,
+    post_view,
 )
 from .profile import profile, user_calendar_data
 from .review import ReviewFeed, review_edit, review_retrieve, user_review_list
@@ -58,6 +59,7 @@ __all__ = [
     "note_edit",
     "piece_replies",
     "post_boost",
+    "post_view",
     "post_delete",
     "post_like",
     "post_replies",

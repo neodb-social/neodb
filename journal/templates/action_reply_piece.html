@@ -1,12 +1,11 @@
 {% load i18n %}
-<span>
+<span {% if href or not request.user.is_authenticated %}hx-disable{% endif %}>
   <a title="{% trans "reply" %}"
-     {% if href %} href="{{ href }}" {% else %} {% if not request.user.is_authenticated %}hx-disable{% endif %}
+     {% if href %}href="{{ href }}"{% endif %}
      hx-get="{% url 'journal:piece_replies' piece.uuid %}"
      hx-swap="outerHTML"
      hx-trigger="click once"
-     hx-target="#replies_{{ post.pk }}"
-     {% endif %}>
+     hx-target="#replies_{{ post.pk }}">
     <i class="fa-solid fa-reply"></i>
     {% if post.stats.replies %}<span>{{ post.stats.replies }}</span>{% endif %}
   </a>

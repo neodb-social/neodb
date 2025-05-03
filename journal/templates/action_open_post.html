@@ -2,7 +2,8 @@
 <span>
   <a target="_blank"
      rel="noopener"
-     href="{{ post.object_uri }}"
+     href-removing="{{ post.object_uri }}"
+     href="{% url 'journal:post_view' post.pk %}"
      onclick="navigator.share({url:'{{ post.object_uri|escapejs }}'});event.preventDefault();">
     {% if post.visibility == 1 %}
       <i class="fa-solid fa-lock-open" title="{% trans "Public" %}"></i>

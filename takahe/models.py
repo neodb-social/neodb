@@ -1196,6 +1196,10 @@ class Post(models.Model):
             .first()
         )
 
+    @cached_property
+    def in_reply_to_post_(self):
+        return self.in_reply_to_post()
+
     def add_to_timeline(self, owner: Identity):
         """
         Creates a TimelineEvent for this post on owner's timeline

@@ -1,6 +1,7 @@
 {% load i18n %}
-<span>
-  <a hx-get="{% url 'journal:post_replies' post.pk %}"
+<span {% if href or not request.user.is_authenticated %}hx-disable{% endif %}>
+  <a title="{% trans "reply" %}"
+     hx-get="{% url 'journal:post_replies' post.pk %}"
      hx-swap="outerHTML"
      hx-trigger="click once"
      hx-target="#replies_{{ post.pk }}">

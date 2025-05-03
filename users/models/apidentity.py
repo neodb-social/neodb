@@ -1,4 +1,5 @@
 from functools import cached_property
+from typing import Self
 
 from django.conf import settings
 from django.db import models
@@ -42,6 +43,14 @@ class APIdentity(models.Model):
     @cached_property
     def takahe_identity(self):
         return Takahe.get_identity(self.pk)
+
+    @classmethod
+    def by_takahe_identity(cls, identity) -> Self | None:
+        if not identity:
+            return None
+        return cls.objects.filter(
+            pk=identity.pk,
+        ).first()
 
     @property
     def is_active(self):
