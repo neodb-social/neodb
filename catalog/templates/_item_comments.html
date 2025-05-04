@@ -32,6 +32,9 @@
   {% if forloop.counter <= 10 %}
     <section>
       <span class="action">
+        {% if comment.latest_post %}
+          {% include "action_post_timestamp.html" with post=comment.latest_post %}
+        {% endif %}
         {% if comment.item.class_name == "podcastepisode" %}
           <span>
             <a href="{{ comment.item_url }}"
@@ -50,6 +53,16 @@
           {% include "action_reply_piece.html" with post=comment.latest_post piece=comment %}
           {% include "action_like_post.html" with post=comment.latest_post %}
           {% include "action_boost_post.html" with post=comment.latest_post %}
+          {% if request.user.is_authenticated and translate_enabled %}
+            <span>
+              <a title="{% trans "translate" %}"
+                 hx-post="{% url 'journal:comment_translate' comment.uuid %}"
+                 hx-trigger="click once"
+                 hx-target="#comment_{{ comment.uuid }}_content">
+                <i class="fa-solid fa-language"></i>
+              </a>
+            </span>
+          {% endif %}
           {% include "action_open_post.html" with post=comment.latest_post %}
         {% endif %}
       </span>
@@ -59,10 +72,7 @@
            title="@{{ comment.owner.handle }}">{{ comment.owner.display_name }}</a>
       </span>
       <span class="action inline">
-        <span class="timestamp">
-          {{ comment.created_time|date }}
-          {{ comment.mark.action_label }}
-        </span>
+        <span class="timestamp">{{ comment.mark.action_label }}</span>
       </span>
       {% if comment.item != item %}
         <a href="{{ comment.item_url }}">{{ comment.item.display_title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
@@ -71,7 +81,7 @@
         <span>
           {% if comment.rating_grade %}{{ comment.rating_grade|rating_star }}{% endif %}
         </span>
-        {{ comment.html|safe }}
+        <span id="comment_{{ comment.uuid }}_content">{{ comment.html|safe }}</span>
       </div>
       {% if comment.latest_post %}<div id="replies_{{ comment.latest_post.pk }}"></div>{% endif %}
     </section>

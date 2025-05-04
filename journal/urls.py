@@ -21,12 +21,18 @@ urlpatterns = [
     path("wish/<str:item_uuid>", wish, name="wish"),
     path("mark/<str:item_uuid>", mark, name="mark"),
     path("comment/<str:item_uuid>", comment, name="comment"),
+    path(
+        "comment/translate/<str:comment_uuid>",
+        comment_translate,
+        name="comment_translate",
+    ),
     path("item/<str:item_uuid>/note", note_edit, name="note"),
     path("item/<str:item_uuid>/note/<str:note_uuid>", note_edit, name="note"),
     path("piece/<str:piece_uuid>/replies", piece_replies, name="piece_replies"),
     path(
         "@<str:username>@<str:domain>/posts/<int:post_pk>/", post_view, name="post_view"
     ),
+    path("post/<int:post_id>/translate", post_translate, name="post_translate"),
     path("post/<int:post_id>/replies", post_replies, name="post_replies"),
     path("post/<int:post_id>/delete", post_delete, name="post_delete"),
     path("post/<int:post_id>/reply", post_reply, name="post_reply"),
@@ -43,6 +49,9 @@ urlpatterns = [
         name="save_as_dynamic_collection",
     ),
     path("review/<str:review_uuid>", review_retrieve, name="review_retrieve"),
+    path(
+        "review/translate/<str:review_uuid>", review_translate, name="review_translate"
+    ),
     path("review/create/<str:item_uuid>/", review_edit, name="review_create"),
     path(
         "review/edit/<str:item_uuid>/<str:review_uuid>", review_edit, name="review_edit"

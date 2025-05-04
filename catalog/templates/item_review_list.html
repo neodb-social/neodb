@@ -26,12 +26,12 @@
           <section>
             <div class="action">
               {% if review.latest_post %}
+                {% include "action_post_timestamp.html" with post=review.latest_post %}
                 {% include "action_reply_piece.html" with post=review.latest_post piece=review href=review.url %}
                 {% include "action_like_post.html" with post=review.latest_post %}
                 {% include "action_boost_post.html" with post=review.latest_post %}
                 {% include "action_open_post.html" with post=review.latest_post %}
               {% endif %}
-              <span class="timestamp">{{ review.created_time|date }}</span>
             </div>
             <div>
               {% if review.rating_grade %}{{ review.rating_grade|rating_star }}{% endif %}

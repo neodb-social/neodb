@@ -12,6 +12,7 @@ from django.views.decorators.http import require_http_methods
 from loguru import logger
 
 from catalog.models import *
+from common.models.lang import translate
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
 from ..models import Comment, Mark, ShelfManager, ShelfType
@@ -193,6 +194,25 @@ def comment(request: AuthedHttpRequest, item_uuid):
             comment.sync_to_social_accounts(update_mode)
         comment.update_index()
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+
+
+@require_http_methods(["POST"])
+@login_required
+def comment_translate(request, comment_uuid: str):
+    comment = Comment.get_by_url(comment_uuid)
+    if comment is None:
+        raise Http404(_("Content not found"))
+    if not comment.is_visible_to(request.user):
+        raise PermissionDenied(_("Insufficient permission"))
+    text = comment.html
+    if comment.latest_post:
+        lang = comment.latest_post.language
+    elif comment.owner.local:
+        lang = comment.owner.user.language
+    else:
+        lang = None
+    text = translate(text, request.user.language, lang)
+    return HttpResponse(text)
 
 
 def user_mark_list(request: AuthedHttpRequest, user_name, shelf_type, item_category):

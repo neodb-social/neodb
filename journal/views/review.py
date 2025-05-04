@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.syndication.views import Feed
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -13,8 +13,13 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
+from common.models.lang import translate
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from journal.models.renderers import convert_leading_space_in_md, has_spoiler, render_md
+from journal.models.renderers import (
+    convert_leading_space_in_md,
+    has_spoiler,
+    render_md,
+)
 from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
 
@@ -32,6 +37,28 @@ def review_retrieve(request, review_uuid):
     if not piece.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     return render(request, "review.html", {"review": piece})
+
+
+@require_http_methods(["POST"])
+@login_required
+def review_translate(request, review_uuid: str):
+    review = Review.get_by_url(review_uuid)
+    if review is None:
+        raise Http404(_("Content not found"))
+    if not review.is_visible_to(request.user):
+        raise PermissionDenied(_("Insufficient permission"))
+    text = review.html_content
+    if review.latest_post:
+        lang = review.latest_post.language
+    elif review.owner.local:
+        lang = review.owner.user.language
+    else:
+        lang = None
+    text = translate(text, request.user.language, lang)
+    title = translate(review.title, request.user.language, lang)
+    return HttpResponse(
+        f'<span hx-swap-oob="true" id="review_{review.uuid}_title">{title}</span><div>{text}</div>'
+    )
 
 
 @login_required

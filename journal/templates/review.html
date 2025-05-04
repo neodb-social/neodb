@@ -41,8 +41,18 @@
                     {% include "action_like_post.html" with post=review.latest_post %}
                     {% include "action_boost_post.html" with post=review.latest_post %}
                   {% endif %}
+                  {% if request.user.is_authenticated and translate_enabled %}
+                    <span>
+                      <a title="{% trans "translate" %}"
+                         hx-post="{% url 'journal:review_translate' review.uuid %}"
+                         hx-trigger="click once"
+                         hx-target="#review_{{ review.uuid }}_content">
+                        <i class="fa-solid fa-language"></i>
+                      </a>
+                    </span>
+                  {% endif %}
                 </div>
-                {{ review.title }}
+                <span id="review_{{ review.uuid }}_title">{{ review.title }}</span>
               </h3>
             </hgroup>
             <div class="owner-info">
@@ -60,7 +70,7 @@
               </div>
             </div>
           </header>
-          <div class="markdown-content">
+          <div id="review_{{ review.uuid }}_content" class="markdown-content">
             {% if request.user.is_authenticated or review.owner.anonymous_viewable %}
               {{ review.html_content | safe }}
             {% else %}

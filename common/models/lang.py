@@ -21,10 +21,14 @@ refereneces:
 https://en.wikipedia.org/wiki/IETF_language_tag
 """
 
+import hashlib
 import re
 from typing import Any
 
+import deepl
+import httpx
 from django.conf import settings
+from django.core.cache import cache
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 from langdetect import detect
@@ -414,3 +418,59 @@ def detect_language(s: str) -> str:
 
 def migrate_languages(languages: list[str]) -> list[str]:
     return []
+
+
+def _lt_detect_language(text) -> str | None:
+    d = {"q": text}
+    if settings.LT_API_KEY:
+        d["api_key"] = settings.LT_API_KEY
+    r = httpx.post(settings.LT_API_URL + "/detect", data=d, timeout=5).json()
+    if isinstance(r, list) and r:
+        return r[0]["language"]
+
+
+def _lt_translate(text, src, dst) -> str | None:
+    d = {"q": text, "format": "html", "source": src, "target": dst}
+    if settings.LT_API_KEY:
+        d["api_key"] = settings.LT_API_KEY
+    r = httpx.post(settings.LT_API_URL + "/translate", data=d, timeout=5).json()
+    return r.get("translatedText", text)
+
+
+def translate(
+    message: str,
+    lang: str,
+    src: str | None,
+) -> str:
+    cache_key = f"trans_{lang}_{hashlib.sha1(message.encode()).hexdigest()}"
+    r = cache.get(cache_key)
+    if r is not None:
+        return r
+    if settings.LT_API_URL:
+        try:
+            # if not src:
+            src = _lt_detect_language(message)
+            src = src.split("-")[0] if src else None
+            lang = lang.split("-")[0]
+            if src == lang or not src:
+                logger.debug(f"content is already in {src}")
+                r = message
+            else:
+                r = _lt_translate(message, src, lang) or message
+        except httpx.HTTPError as e:
+            logger.error(f"LT API error: {e}")
+    if settings.DEEPL_API_KEY:
+        match lang:
+            case "en":
+                lang = "EN-US"
+        deepl_client = deepl.DeepLClient(settings.DEEPL_API_KEY)
+        try:
+            j = deepl_client.translate_text(
+                message, target_lang=lang, tag_handling="html"
+            )
+            r = j[0].text if isinstance(j, list) else j.text
+        except deepl.exceptions.DeepLException as e:
+            logger.error(f"DeepL API error: {e}")
+    if r is not None:
+        cache.set(cache_key, r, timeout=60 * 60 * 24)
+    return r or message

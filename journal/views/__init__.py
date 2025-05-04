@@ -16,7 +16,7 @@ from .collection import (
     user_liked_collection_list,
 )
 from .common import piece_delete
-from .mark import comment, mark, mark_log, user_mark_list, wish
+from .mark import comment, comment_translate, mark, mark_log, user_mark_list, wish
 from .note import note_edit
 from .post import (
     piece_replies,
@@ -25,11 +25,18 @@ from .post import (
     post_like,
     post_replies,
     post_reply,
+    post_translate,
     post_unlike,
     post_view,
 )
 from .profile import profile, user_calendar_data
-from .review import ReviewFeed, review_edit, review_retrieve, user_review_list
+from .review import (
+    ReviewFeed,
+    review_edit,
+    review_retrieve,
+    review_translate,
+    user_review_list,
+)
 from .search import search
 from .tag import user_tag_edit, user_tag_list, user_tag_member_list
 from .wrapped import WrappedShareView, WrappedView
@@ -52,12 +59,14 @@ __all__ = [
     "user_liked_collection_list",
     "piece_delete",
     "comment",
+    "comment_translate",
     "mark",
     "mark_log",
     "user_mark_list",
     "wish",
     "note_edit",
     "piece_replies",
+    "post_translate",
     "post_boost",
     "post_view",
     "post_delete",
@@ -70,6 +79,7 @@ __all__ = [
     "ReviewFeed",
     "review_edit",
     "review_retrieve",
+    "review_translate",
     "user_review_list",
     "search",
     "user_tag_edit",

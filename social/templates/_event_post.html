@@ -69,6 +69,9 @@
           {% include "action_reply_post.html" %}
           {% include "action_like_post.html" %}
           {% include "action_boost_post.html" %}
+          {% if request.user.is_authenticated and translate_enabled %}
+            {% include "action_translate_post.html" %}
+          {% endif %}
           {% include "action_open_post.html" %}
         </span>
         <span>
@@ -100,17 +103,19 @@
                 {% endif %}
               {% endfor %}
             </div>
-            {% if piece and piece.classname == 'note' %}
-              <blockquote class="tldr"
-                          _="on click toggle .tldr on me"
-                          style="margin:0;
-                                 padding-top:0;
-                                 padding-bottom:0">
+            <div id="content_{{ post.pk }}" class="content">
+              {% if piece and piece.classname == 'note' %}
+                <blockquote class="tldr"
+                            _="on click toggle .tldr on me"
+                            style="margin:0;
+                                   padding-top:0;
+                                   padding-bottom:0">
+                  {{ post.content|bleach:"a,p,span,br,div,img"|default:"" }}
+                </blockquote>
+              {% else %}
                 {{ post.content|bleach:"a,p,span,br,div,img"|default:"" }}
-              </blockquote>
-            {% else %}
-              {{ post.content|bleach:"a,p,span,br,div,img"|default:"" }}
-            {% endif %}
+              {% endif %}
+            </div>
           </div>
           <div class="embed-cover">
             {% if piece and piece.classname == 'note' %}

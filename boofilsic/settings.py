@@ -111,6 +111,11 @@ env = environ.FileAwareEnv(
     # IGDB - https://api-docs.igdb.com/
     IGDB_API_CLIENT_ID=(str, "TESTONLY"),
     IGDB_API_CLIENT_SECRET=(str, ""),
+    # DeepL
+    DEEPL_API_KEY=(str, ""),
+    # LibreTranslate
+    LT_API_URL=(str, ""),
+    LT_API_KEY=(str, ""),
     # Discord webhooks
     DISCORD_WEBHOOKS=(dict, {"user-report": None}),
     THREADS_APP_ID=(str, ""),
@@ -274,6 +279,11 @@ GOOGLE_API_KEY = env("GOOGLE_API_KEY")
 DISCOGS_API_KEY = env("DISCOGS_API_KEY")
 IGDB_CLIENT_ID = env("IGDB_API_CLIENT_ID")
 IGDB_CLIENT_SECRET = env("IGDB_API_CLIENT_SECRET")
+DEEPL_API_KEY = env("DEEPL_API_KEY")
+LT_API_URL = env("LT_API_URL").rstrip("/")  # type:ignore
+LT_API_KEY = env("LT_API_KEY")
+
+SITE_INFO["translate_enabled"] = bool(DEEPL_API_KEY) or bool(LT_API_URL)
 
 DOWNLOADER_PROXY_LIST = env("NEODB_DOWNLOADER_PROXY_LIST")
 DOWNLOADER_BACKUP_PROXY = env("NEODB_DOWNLOADER_BACKUP_PROXY", default="")  # type: ignore

@@ -1,12 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.models.lang import translate
 from common.utils import AuthedHttpRequest, get_uuid_or_404
+from journal.models.renderers import bleach_post_content
 from takahe.models import Post
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -122,6 +124,21 @@ def post_like(request: AuthedHttpRequest, post_id: int):
 def post_unlike(request: AuthedHttpRequest, post_id: int):
     Takahe.unlike_post(post_id, request.user.identity.pk)
     return render(request, "action_like_post.html", {"post": Takahe.get_post(post_id)})
+
+
+@require_http_methods(["POST"])
+@login_required
+def post_translate(request, post_id: int):
+    post: Post = get_object_or_404(Post, pk=post_id)
+    if post.state in ["deleted", "deleted_fanned_out"]:
+        raise Http404("Post not available")
+    viewer = request.user.identity if request.user.is_authenticated else None
+    owner = APIdentity.by_takahe_identity(post.author)
+    if not owner or _can_view_post(post, owner, viewer) != 1:
+        raise PermissionDenied(_("Insufficient permission"))
+    text = bleach_post_content(post.content)
+    text = translate(text, request.user.language, post.language)
+    return HttpResponse(text)
 
 
 @require_http_methods(["GET"])

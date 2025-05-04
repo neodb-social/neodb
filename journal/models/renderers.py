@@ -3,6 +3,7 @@ from html import unescape
 from typing import cast
 
 import mistune
+import nh3
 from django.conf import settings
 from django.utils.html import escape
 from django.utils.translation import gettext as _
@@ -118,3 +119,10 @@ def render_spoiler_text(text, item):
         return spoiler_text, text.replace(">!", "").replace("!<", "")
     else:
         return None, text or ""
+
+
+_post_allowed_tags = set(["a", "p", "span", "br", "div", "img"])
+
+
+def bleach_post_content(text):
+    return nh3.clean(text, tags=_post_allowed_tags)

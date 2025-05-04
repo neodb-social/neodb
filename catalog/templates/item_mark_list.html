@@ -31,13 +31,25 @@
           {% with member.mark as mark %}
             <section>
               <div class="action">
+                {% if mark.shelfmember.latest_post %}
+                  {% include "action_post_timestamp.html" with post=mark.shelfmember.latest_post %}
+                {% endif %}
                 {% if mark.comment.latest_post %}
                   {% include "action_reply_piece.html" with post=mark.comment.latest_post piece=mark.comment %}
                   {% include "action_like_post.html" with post=mark.comment.latest_post %}
                   {% include "action_boost_post.html" with post=mark.comment.latest_post %}
                 {% endif %}
+                {% if mark.comment and request.user.is_authenticated and translate_enabled %}
+                  <span>
+                    <a title="{% trans "translate" %}"
+                       hx-post="{% url 'journal:comment_translate' mark.comment.uuid %}"
+                       hx-trigger="click once"
+                       hx-target="#comment_{{ mark.comment.uuid }}_content">
+                      <i class="fa-solid fa-language"></i>
+                    </a>
+                  </span>
+                {% endif %}
                 {% include "action_open_post.html" with post=mark.shelfmember.latest_post %}
-                <span class="timestamp">{{ mark.created_time|date }}</span>
               </div>
               <div>
                 <a href="{{ mark.owner.url }}" title="@{{ mark.owner.handle }}">{{ mark.owner.display_name }}</a>
@@ -48,7 +60,7 @@
               </div>
               <div>
                 {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
-                {{ mark.comment.html|safe }}
+                <span id="comment_{{ mark.comment.uuid }}_content">{{ mark.comment.html|safe }}</span>
               </div>
               {% if mark.comment.latest_post %}<div id="replies_{{ mark.comment.latest_post.pk }}"></div>{% endif %}
             </section>

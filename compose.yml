@@ -86,6 +86,9 @@ x-shared:
       DISCOGS_API_KEY:
       IGDB_API_CLIENT_ID:
       IGDB_API_CLIENT_SECRET:
+      DEEPL_API_KEY:
+      LT_API_URL:
+      LT_API_KEY:
       DISCORD_WEBHOOKS:
       SSL_ONLY:
       SKIP_MIGRATIONS:

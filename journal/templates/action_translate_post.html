@@ -1,0 +1,9 @@
+{% load i18n %}
+<span>
+  <a title="{% trans "translate" %}"
+     hx-post="{% url 'journal:post_translate' post.pk %}"
+     hx-trigger="click once"
+     hx-target="#content_{{ post.pk }}">
+    <i class="fa-solid fa-language"></i>
+  </a>
+</span>
