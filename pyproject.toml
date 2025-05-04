@@ -22,7 +22,7 @@ dependencies = [
     "django-ninja>=1.3.0",
     "django-polymorphic @ git+https://github.com/jazzband/django-polymorphic/@v4.0.0a",
     "django-redis>=5.4.0",
-    "django-rq>=3.0.0",
+    "django-rq==3.0.0",
     "django-sass-processor>=1.4.1",
     "django-storages[boto3]>=1.14.2",
     "django-tz-detect>=0.5.0",
@@ -55,7 +55,7 @@ dependencies = [
     "discord-py>=2.4.0",
     "libsass>=0.23.0",
     "django-storages>=1.14.5",
-    "urllib3<2.4.0",
+    "certifi==2025.1.31",
 ]
 
 [tool.rye]

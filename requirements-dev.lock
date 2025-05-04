@@ -31,13 +31,13 @@ beautifulsoup4==4.13.4
 bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
-boto3==1.38.7
+boto3==1.38.8
     # via django-storages
-botocore==1.38.7
+botocore==1.38.8
     # via boto3
     # via s3transfer
 cachetools==5.5.2
-certifi==2025.4.26
+certifi==2025.1.31
     # via httpcore
     # via httpx
     # via requests
@@ -55,7 +55,7 @@ click==8.1.8
     # via rq
 colorama==0.4.6
     # via djlint
-cryptography==44.0.2
+cryptography==44.0.3
     # via atproto
 cssbeautifier==1.15.4
     # via djlint
@@ -259,7 +259,7 @@ typing-inspection==0.4.0
     # via pydantic
 tzlocal==5.3.1
     # via dateparser
-urllib3==2.3.0
+urllib3==2.4.0
     # via botocore
     # via django-anymail
     # via requests
