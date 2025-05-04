@@ -330,7 +330,11 @@ def discover(request):
     else:
         featured_collections = []
 
-    popular_tags = cache.get("popular_tags", [])
+    if settings.DISCOVER_SHOW_POPULAR_TAGS:
+        popular_tags = cache.get("popular_tags", [])
+    else:
+        popular_tags = None
+
     updated = cache.get("trends_updated", timezone.now())
     return render(
         request,

@@ -89,6 +89,8 @@ env = environ.FileAwareEnv(
     NEODB_DISCOVER_SHOW_LOCAL_ONLY=(bool, False),
     # if True, show popular public posts instead of recent ones.
     NEODB_DISCOVER_SHOW_POPULAR_POSTS=(bool, False),
+    # if True, show popular public tags
+    NEODB_DISCOVER_SHOW_POPULAR_TAGS=(bool, False),
     # update popular items every X minutes.
     NEODB_DISCOVER_UPDATE_INTERVAL=(int, 60),
     # Disable cron jobs, * for all
@@ -234,6 +236,7 @@ DISCOVER_UPDATE_INTERVAL = env("NEODB_DISCOVER_UPDATE_INTERVAL")
 DISCOVER_FILTER_LANGUAGE = env("NEODB_DISCOVER_FILTER_LANGUAGE")
 DISCOVER_SHOW_LOCAL_ONLY = env("NEODB_DISCOVER_SHOW_LOCAL_ONLY")
 DISCOVER_SHOW_POPULAR_POSTS = env("NEODB_DISCOVER_SHOW_POPULAR_POSTS")
+DISCOVER_SHOW_POPULAR_TAGS = env("NEODB_DISCOVER_SHOW_POPULAR_TAGS")
 
 MASTODON_ALLOWED_SITES: str = env("NEODB_LOGIN_MASTODON_WHITELIST")  # type:ignore
 

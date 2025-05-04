@@ -166,22 +166,24 @@
               </article>
             </section>
           {% endif %}
-          <section>
-            <article>
-              <details id="section-popular-tags" class="auto-keep-collapse">
-                <summary>{% trans 'Popular Tags' %}</summary>
-                <div class="tag-list">
-                  {% for t in popular_tags %}
-                    <span>
-                      <a href="{% url 'common:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
-                    </span>
-                  {% empty %}
-                    <div class="empty">{% trans "nothing so far." %}</div>
-                  {% endfor %}
-                </div>
-              </details>
-            </article>
-          </section>
+          {% if popular_tags %}
+            <section>
+              <article>
+                <details id="section-popular-tags" class="auto-keep-collapse">
+                  <summary>{% trans 'Popular Tags' %}</summary>
+                  <div class="tag-list">
+                    {% for t in popular_tags %}
+                      <span>
+                        <a href="{% url 'common:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
+                      </span>
+                    {% empty %}
+                      <div class="empty">{% trans "nothing so far." %}</div>
+                    {% endfor %}
+                  </div>
+                </details>
+              </article>
+            </section>
+          {% endif %}
           <section>
             <article>
               <details id="section-popular-posts" class="auto-keep-collapse" open>
