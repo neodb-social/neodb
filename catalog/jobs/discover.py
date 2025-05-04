@@ -8,6 +8,7 @@ from django.utils import timezone
 from loguru import logger
 
 from catalog.models import *
+from catalog.sites.fedi import FediverseInstance
 from common.models import SITE_PREFERRED_LOCALES, BaseJob, JobManager
 from journal.models import (
     Collection,
@@ -17,7 +18,8 @@ from journal.models import (
     TagManager,
     q_item_in_category,
 )
-from takahe.utils import Takahe
+from takahe.models import Identity
+from takahe.utils import Post
 
 MAX_ITEMS_PER_PERIOD = 12
 MIN_MARKS = settings.MIN_MARKS_FOR_DISCOVER
@@ -29,6 +31,36 @@ DAYS_FOR_TRENDS = 3
 @JobManager.register
 class DiscoverGenerator(BaseJob):
     interval = timedelta(minutes=settings.DISCOVER_UPDATE_INTERVAL)
+
+    def get_no_discover_identities(self):
+        return list(
+            Identity.objects.exclude(discoverable=False).values_list("pk", flat=True)
+        )
+
+    def get_popular_posts(
+        self,
+        days: int = 30,
+        min_interaction: int = 1,
+        local_only=False,
+    ):
+        since = timezone.now() - timedelta(days=days)
+        domains = FediverseInstance.get_peers_for_search() + [settings.SITE_DOMAIN]
+        qs = (
+            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
+            .filter(author__restriction=0)
+            .exclude(author__discoverable=False)
+            .filter(
+                author__domain__in=domains,
+                visibility__in=[0, 1, 4],
+                published__gte=since,
+            )
+            .annotate(num_interactions=Count("interactions"))
+            .filter(num_interactions__gte=min_interaction)
+            .order_by("-num_interactions", "-published")
+        )
+        if local_only:
+            qs = qs.filter(local=True)
+        return qs
 
     def get_popular_marked_item_ids(self, category, days, exisiting_ids):
         qs = (
@@ -169,7 +201,7 @@ class DiscoverGenerator(BaseJob):
         collection_ids = collections.values_list("pk", flat=True)[:40]
 
         tags = TagManager.popular_tags(days=14, local_only=local)[:40]
-        excluding_identities = Takahe.get_no_discover_identities()
+        excluding_identities = self.get_no_discover_identities()
 
         if settings.DISCOVER_SHOW_POPULAR_POSTS:
             reviews = (
@@ -181,24 +213,22 @@ class DiscoverGenerator(BaseJob):
                 reviews = reviews.filter(local=True)
             post_ids = (
                 set(
-                    Takahe.get_popular_posts(
-                        28, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
+                    self.get_popular_posts(
+                        28, settings.MIN_MARKS_FOR_DISCOVER, local
                     ).values_list("pk", flat=True)[:5]
                 )
                 | set(
-                    Takahe.get_popular_posts(
-                        14, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
+                    self.get_popular_posts(
+                        14, settings.MIN_MARKS_FOR_DISCOVER, local
                     ).values_list("pk", flat=True)[:5]
                 )
                 | set(
-                    Takahe.get_popular_posts(
-                        7, settings.MIN_MARKS_FOR_DISCOVER, excluding_identities, local
+                    self.get_popular_posts(
+                        7, settings.MIN_MARKS_FOR_DISCOVER, local
                     ).values_list("pk", flat=True)[:10]
                 )
                 | set(
-                    Takahe.get_popular_posts(
-                        1, 0, excluding_identities, local
-                    ).values_list("pk", flat=True)[:3]
+                    self.get_popular_posts(1, 0, local).values_list("pk", flat=True)[:3]
                 )
                 | set(reviews.values_list("posts", flat=True)[:5])
             )

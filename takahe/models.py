@@ -944,15 +944,43 @@ class PostQuerySet(models.QuerySet):
             return query.filter(in_reply_to__isnull=True)
         return query
 
+    def not_restricted(self, include_limited: bool = False):
+        if include_limited:
+            return self.exclude(author__restriction=Identity.Restriction.blocked)
+        else:
+            return self.filter(author__restriction=Identity.Restriction.none)
+
+    def not_blocked_by(self, identity: Identity | None, include_muted: bool = False):
+        if identity is None:
+            return self
+        params = {
+            "source_id": identity.pk,
+            "state__in": ["new", "sent", "awaiting_expiry"],
+        }
+        if include_muted:
+            params["mute"] = False
+        rejecting_ids = list(
+            Block.objects.filter(**params).values_list("target", flat=True)
+        ) + list(
+            Block.objects.filter(
+                target_id=identity.pk,
+                mute=False,
+                state__in=["new", "sent", "awaiting_expiry"],
+            ).values_list("source", flat=True)
+        )
+        return self.exclude(author_id__in=rejecting_ids)
+
     def visible_to(
         self,
         identity: Identity | None,
         include_replies: bool = False,
         include_muted: bool = False,
+        include_limited: bool = False,
     ):
+        query = self.not_restricted(include_limited=include_limited)
         if identity is None:
-            return self.unlisted(include_replies=include_replies)
-        query = self.filter(
+            return query.unlisted(include_replies=include_replies)
+        query = query.filter(
             models.Q(
                 visibility__in=[
                     Post.Visibilities.public,
@@ -972,22 +1000,7 @@ class PostQuerySet(models.QuerySet):
         if not include_replies:
             query = query.filter(in_reply_to__isnull=True)
         if identity:
-            params = {
-                "source_id": identity.pk,
-                "state__in": ["new", "sent", "awaiting_expiry"],
-            }
-            if include_muted:
-                params["mute"] = False
-            rejecting_ids = list(
-                Block.objects.filter(**params).values_list("target", flat=True)
-            ) + list(
-                Block.objects.filter(
-                    target_id=identity.pk,
-                    mute=False,
-                    state__in=["new", "sent", "awaiting_expiry"],
-                ).values_list("source", flat=True)
-            )
-            query = query.exclude(author_id__in=rejecting_ids)
+            query = query.not_blocked_by(identity, include_muted=include_muted)
         return query
 
     # def tagged_with(self, hashtag: str | Hashtag):

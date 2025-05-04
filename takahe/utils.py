@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.files.images import ImageFile
 from django.core.signing import b62_encode
-from django.db.models import Count
 from django.utils import timezone
 from loguru import logger
 from PIL import Image
@@ -669,12 +668,9 @@ class Takahe:
             .filter(in_reply_to__in=post_uris)
             .order_by("published")
         )
-        if identity:
-            child_queryset = child_queryset.visible_to(
-                identity=identity, include_replies=True
-            )
-        else:
-            child_queryset = child_queryset.unlisted(include_replies=True)
+        child_queryset = child_queryset.visible_to(
+            identity=identity, include_replies=True
+        )
         return child_queryset
 
     @staticmethod
@@ -814,48 +810,16 @@ class Takahe:
         )
 
     @staticmethod
-    def get_no_discover_identities():
-        return list(
-            Identity.objects.filter(discoverable=False).values_list("pk", flat=True)
-        )
-
-    @staticmethod
     def get_public_posts(local_only=False):
         qs = (
             Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
             .filter(visibility__in=[0, 4])
+            .filter(in_reply_to__isnull=True)
             .order_by("-published")
         )
         if local_only:
             qs = qs.filter(local=True)
-        return qs
-
-    @staticmethod
-    def get_popular_posts(
-        days: int = 30,
-        min_interaction: int = 1,
-        exclude_identities: list[int] = [],
-        local_only=False,
-    ):
-        from catalog.sites.fedi import FediverseInstance
-
-        since = timezone.now() - timedelta(days=days)
-        domains = FediverseInstance.get_peers_for_search() + [settings.SITE_DOMAIN]
-        qs = (
-            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
-            .exclude(author_id__in=exclude_identities)
-            .filter(
-                author__domain__in=domains,
-                visibility__in=[0, 1, 4],
-                published__gte=since,
-            )
-            .annotate(num_interactions=Count("interactions"))
-            .filter(num_interactions__gte=min_interaction)
-            .order_by("-num_interactions", "-published")
-        )
-        if local_only:
-            qs = qs.filter(local=True)
-        return qs
+        return qs.prefetch_related("attachments", "author")
 
     @staticmethod
     def get_recent_posts(author_pk: int, viewer_pk: int | None = None):

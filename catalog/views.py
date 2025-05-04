@@ -315,7 +315,7 @@ def discover(request):
             popular_posts = Takahe.get_posts(post_ids).order_by("-published")
         else:
             popular_posts = Takahe.get_public_posts(settings.DISCOVER_SHOW_LOCAL_ONLY)
-        popular_posts = popular_posts.visible_to(identity.takahe_identity)[:20]  # type: ignore
+        popular_posts = popular_posts.not_blocked_by(identity.takahe_identity)[:20]  # type: ignore
     else:
         identity = None
         layout = []
