@@ -15,6 +15,33 @@ from ..forms import *
 from ..models import *
 
 
+def _can_view_post(post: Post, owner: APIdentity, viewer: APIdentity | None) -> int:
+    if owner.deleted:
+        return -2
+    if owner.restricted and owner != viewer:
+        return -2
+    if not viewer:
+        if post.visibility in [0, 1, 4]:
+            if not post.local:
+                return 0
+            if not owner.anonymous_viewable:
+                return -1
+            return 1
+        else:
+            return -1
+    if owner == viewer:
+        return 1
+    if viewer.is_blocking(owner) or owner.is_blocking(viewer):
+        return -1
+    if post.visibility in [0, 1, 4]:
+        return 1
+    if post.mentions.filter(pk=viewer.pk).exists():
+        return 1
+    if post.visibility == 2 and viewer.is_following(owner):
+        return 1
+    return -1
+
+
 @login_required
 def piece_replies(request: AuthedHttpRequest, piece_uuid: str):
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
@@ -26,9 +53,15 @@ def piece_replies(request: AuthedHttpRequest, piece_uuid: str):
     )
 
 
-@login_required
 def post_replies(request: AuthedHttpRequest, post_id: int):
-    replies = Takahe.get_replies_for_posts([post_id], request.user.identity.pk)
+    post: Post = get_object_or_404(Post, pk=post_id)
+    if post.state in ["deleted", "deleted_fanned_out"]:
+        raise Http404("Post not available")
+    viewer = request.user.identity if request.user.is_authenticated else None
+    owner = APIdentity.by_takahe_identity(post.author)
+    if not owner or _can_view_post(post, owner, viewer) < 0:
+        raise PermissionDenied(_("Insufficient permission"))
+    replies = Takahe.get_replies_for_posts([post_id], viewer.pk if viewer else None)
     return render(
         request, "replies.html", {"post": Takahe.get_post(post_id), "replies": replies}
     )
@@ -91,54 +124,29 @@ def post_unlike(request: AuthedHttpRequest, post_id: int):
     return render(request, "action_like_post.html", {"post": Takahe.get_post(post_id)})
 
 
-def _can_view_post(
-    post: Post, owner: APIdentity | None, viewer: APIdentity | None
-) -> int:
-    if not owner:
-        if post.local:
-            return -2
-        else:
-            return 0
-    if owner.deleted:
-        return -2
-    if owner.restricted and owner != viewer:
-        return -2
-    if not viewer:
-        if post.visibility in [0, 1, 4]:
-            if not post.local:
-                return 0
-            if not owner.anonymous_viewable:
-                return -1
-            return 1
-        else:
-            return -1
-    if owner == viewer:
-        return 1
-    if viewer.is_blocking(owner) or owner.is_blocking(viewer):
-        return -1
-    if post.visibility in [0, 1, 4]:
-        return 1
-    if post.mentions.filter(pk=viewer.pk).exists():
-        return 1
-    if post.visibility == 2 and viewer.is_following(owner):
-        return 1
-    return -1
-
-
 @require_http_methods(["GET"])
-def post_view(request, post_pk: int):
+def post_view(request, username: str, domain: str, post_pk: int):
+    if request.headers.get("HTTP_ACCEPT", "").endswith("json"):
+        raise BadRequest("JSON not supported yet")
     post: Post = get_object_or_404(Post, pk=post_pk)
     if post.state in ["deleted", "deleted_fanned_out"]:
         raise Http404("Post not available")
-    if request.headers.get("HTTP_ACCEPT", "").endswith("json"):
-        return redirect(post.url)
     viewer = request.user.identity if request.user.is_authenticated else None
     owner = APIdentity.by_takahe_identity(post.author)
+    if not owner:
+        if not post.local:  # identity for remote post hasn't been sync to APIdentity
+            return redirect(post.url)
+        raise Http404("Post not available")
+    if owner.username != username or owner.domain_name != domain:
+        raise Http404("Post not available")
     match _can_view_post(post, owner, viewer):
         case 1:
             return render(request, "single_post.html", {"post": post, "owner": owner})
         case 0:
-            return redirect(post.url)
+            if post.local:
+                raise BadRequest("JSON not supported yet")
+            else:
+                return redirect(post.url)
         case -1:
             raise PermissionDenied()
         case _:

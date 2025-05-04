@@ -7,6 +7,10 @@
     {% for post in replies %}
       <div class="post">
         <span class="action">
+          {% include "action_post_timestamp.html" %}
+          <span class="timestamp">
+            {% if post.edited %}<i class="fa-solid fa-pencil"></i>{% endif %}
+          </span>
           {% if post.author_id == request.user.identity.pk %}
             {% include "action_delete_post.html" %}
           {% endif %}
@@ -19,18 +23,6 @@
           <a href="{{ post.author.url }}"
              class="nickname"
              title="@{{ post.author.handle }}">{{ post.author.name|default:post.author.username }}</a>
-        </span>
-        <span class="action inline">
-          <span class="timestamp">
-            {% if post.edited %}
-              {{ post.edited | date }}
-              <i class="fa-solid fa-pencil"></i>
-            {% elif post.published %}
-              {{ post.published | date }}
-            {% else %}
-              {{ post.created | date }}
-            {% endif %}
-          </span>
         </span>
         {% if post.summary %}
           <details>
@@ -53,7 +45,7 @@
       <div class="empty">{% trans 'no replies so far.' %}</div>
     {% endfor %}
   {% endwith %}
-  {% if post %}
+  {% if post and request.user.is_authenticated %}
     <form class="reply"
           role="group"
           hx-post="{% url 'journal:post_reply' post.pk %}"
