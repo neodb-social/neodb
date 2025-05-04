@@ -26,7 +26,9 @@
         {% trans 'replying to' %}
         {% comment %}do not show replying to detail in case viewer has no access to it{% endcomment %}
         <a class="nickname"
-           href="{% url 'journal:post_view' post.in_reply_to_post_.author.username post.in_reply_to_post_.author.domain post.in_reply_to_post_.pk %}"> #{{ post.in_reply_to_post_.pk }} </a>
+           href="{% url 'journal:post_view' post.in_reply_to_post_.author.username post.in_reply_to_post_.author.domain_id post.in_reply_to_post_.pk %}">
+          @{{ post.in_reply_to_post_.author.username }}@{{ post.in_reply_to_post_.author.domain_id }}
+        </a>
       </div>
     {% endif %}
     <div style="display:flex;">

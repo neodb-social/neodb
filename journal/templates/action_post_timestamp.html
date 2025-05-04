@@ -2,7 +2,7 @@
 {% load duration %}
 <span>
   <a title="{% trans 'view post' %}"
-     href="{% url 'journal:post_view' post.author.username post.author.domain post.pk %}">
+     href="{% url 'journal:post_view' post.author.username post.author.domain_id post.pk %}">
     {{ post.edited|default:post.published|naturaldelta }}
   </a>
 </span>
