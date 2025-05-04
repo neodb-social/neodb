@@ -259,7 +259,7 @@ typing-inspection==0.4.0
     # via pydantic
 tzlocal==5.3.1
     # via dateparser
-urllib3==2.4.0
+urllib3==2.3.0
     # via botocore
     # via django-anymail
     # via requests

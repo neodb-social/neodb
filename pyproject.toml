@@ -55,6 +55,7 @@ dependencies = [
     "discord-py>=2.4.0",
     "libsass>=0.23.0",
     "django-storages>=1.14.5",
+    "urllib3<2.4.0",
 ]
 
 [tool.rye]
