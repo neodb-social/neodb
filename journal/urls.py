@@ -33,6 +33,7 @@ urlpatterns = [
         "@<str:username>@<str:domain>/posts/<int:post_pk>/", post_view, name="post_view"
     ),
     path("post/<int:post_id>/translate", post_translate, name="post_translate"),
+    path("post/<int:post_id>/flag", post_flag, name="post_flag"),
     path("post/<int:post_id>/replies", post_replies, name="post_replies"),
     path("post/<int:post_id>/delete", post_delete, name="post_delete"),
     path("post/<int:post_id>/reply", post_reply, name="post_reply"),

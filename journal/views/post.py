@@ -141,6 +141,21 @@ def post_translate(request, post_id: int):
     return HttpResponse(text)
 
 
+@require_http_methods(["POST"])
+@login_required
+def post_flag(request, post_id: int):
+    post: Post = get_object_or_404(Post, pk=post_id)
+    if post.state in ["deleted", "deleted_fanned_out"]:
+        raise Http404("Post not available")
+    viewer = request.user.identity if request.user.is_authenticated else None
+    owner = APIdentity.by_takahe_identity(post.author)
+    if not owner or _can_view_post(post, owner, viewer) != 1:
+        raise PermissionDenied(_("Insufficient permission"))
+    reason = request.headers.get("HX-Prompt", "").strip()
+    Takahe.report_post(post, request.user.identity.pk, reason)
+    return HttpResponse("<script>alert('Report received.')</script>")
+
+
 @require_http_methods(["GET"])
 def post_view(request, username: str, domain: str, post_pk: int):
     if request.headers.get("HTTP_ACCEPT", "").endswith("json"):

@@ -904,3 +904,16 @@ class Takahe:
     @staticmethod
     def bookmark(post_pk: int, identity_pk: int):
         Bookmark.objects.get_or_create(post_id=post_pk, identity_id=identity_pk)
+
+    @staticmethod
+    def report_post(post: Post, reporter_pk: int, reason: str):
+        src = Identity.objects.get(pk=reporter_pk)
+        Report.objects.create(
+            subject_identity=post.author,
+            subject_post=post,
+            source_identity=src,
+            source_domain=src.domain,
+            type="other",
+            complaint=reason,
+            forward=not post.local,
+        )

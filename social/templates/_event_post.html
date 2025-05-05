@@ -69,8 +69,11 @@
           {% include "action_reply_post.html" %}
           {% include "action_like_post.html" %}
           {% include "action_boost_post.html" %}
-          {% if request.user.is_authenticated and translate_enabled %}
+          {% if translate_enabled and request.user.is_authenticated %}
             {% include "action_translate_post.html" %}
+          {% endif %}
+          {% if show_flag and request.user.is_authenticated %}
+            {% include "action_flag_post.html" %}
           {% endif %}
           {% include "action_open_post.html" %}
         </span>

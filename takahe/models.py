@@ -2559,3 +2559,66 @@ class Bookmark(models.Model):
     )
 
     created = models.DateTimeField(auto_now_add=True)
+
+
+class Report(models.Model):
+    class Meta:
+        db_table = "users_report"
+
+    id = models.BigIntegerField(primary_key=True, default=Snowflake.generate_report)
+
+    # state = StateField(ReportStates)
+    state = models.CharField(max_length=100, default="new")
+    state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
+
+    subject_identity = models.ForeignKey(
+        "takahe.Identity",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="reports",
+    )
+    subject_post = models.ForeignKey(
+        "takahe.Post",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="reports",
+    )
+
+    source_identity = models.ForeignKey(
+        "takahe.Identity",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="filed_reports",
+    )
+    source_domain = models.ForeignKey(
+        "takahe.Domain",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="filed_reports",
+    )
+
+    moderator = models.ForeignKey(
+        "takahe.Identity",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="moderated_reports",
+    )
+
+    type = models.CharField(max_length=100, default="other")
+    complaint = models.TextField()
+    forward = models.BooleanField(default=False)
+    valid = models.BooleanField(null=True)
+
+    seen = models.DateTimeField(blank=True, null=True)
+    resolved = models.DateTimeField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)

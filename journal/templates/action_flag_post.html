@@ -1,0 +1,11 @@
+{% load i18n %}
+<span>
+  <a title="{% trans "flag" %}"
+     hx-post="{% url 'journal:post_flag' post.pk %}"
+     hx-trigger="click"
+     hx-prompt="{% trans 'Reason to flag this post.' %}"
+     hx-target="body"
+     hx-swap="beforeend">
+    <i class="fa-regular fa-flag"></i>
+  </a>
+</span>

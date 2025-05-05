@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-05 00:27-0400\n"
+"POT-Creation-Date: 2025-05-05 17:38-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1591,7 +1591,7 @@ msgstr ""
 #: journal/views/collection.py:368 journal/views/collection.py:371
 #: journal/views/collection.py:408 journal/views/common.py:143
 #: journal/views/mark.py:206 journal/views/post.py:51 journal/views/post.py:65
-#: journal/views/post.py:79 journal/views/post.py:138
+#: journal/views/post.py:79 journal/views/post.py:138 journal/views/post.py:153
 #: journal/views/review.py:38 journal/views/review.py:49
 #: journal/views/review.py:74
 msgid "Insufficient permission"
@@ -3349,6 +3349,14 @@ msgstr ""
 msgid "Are you sure to delete this post?"
 msgstr ""
 
+#: journal/templates/action_flag_post.html:3
+msgid "flag"
+msgstr ""
+
+#: journal/templates/action_flag_post.html:6
+msgid "Reason to flag this post."
+msgstr ""
+
 #: journal/templates/action_like_post.html:10
 msgid "liked"
 msgstr ""
@@ -4062,7 +4070,7 @@ msgstr ""
 msgid "mark"
 msgstr ""
 
-#: social/templates/_event_post.html:83
+#: social/templates/_event_post.html:86
 msgid "wrote a note"
 msgstr ""
 
