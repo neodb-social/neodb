@@ -145,6 +145,7 @@ def console(request):
         )
         token = Takahe.refresh_token(app, request.user.identity.pk, request.user.pk)
     context = {
+        "version": settings.NEODB_VERSION,
         "api": api,
         "token": token,
         "openapi_json_url": reverse(f"{api.urls_namespace}:openapi-json"),

@@ -39,14 +39,17 @@
     {% include "_header.html" %}
     <main class="container">
       <h3>Developer Console</h3>
-      <p>
-        <li class="empty">
+      <ul>
+        <li>
+          {{ site_name }} is running <a href="https://neodb.net">NeoDB</a> {{ version }}.
+        </li>
+        <li>
           By using our APIs, you agree to our <a href="/pages/terms">Terms of Service</a>.
         </li>
-        <li class="empty">
+        <li>
           In additional to APIs below, {{ site_name }} also supports a subset of <a href="https://docs.joinmastodon.org/client/intro/">Mastodon APIs</a>.
         </li>
-      </p>
+      </ul>
       <details {% if token %}open{% endif %}>
         <summary>
           <a>Test Access Token</a>
