@@ -228,6 +228,8 @@ SITE_INFO = {
     "cdn_url": "https://cdn.jsdelivr.net" if DEBUG else "/jsdelivr",
     # "cdn_url": "https://cdn.jsdelivr.net",
     # "cdn_url": "https://fastly.jsdelivr.net",
+    "enable_login_email": ENABLE_LOGIN_EMAIL,
+    "enable_login_atproto": ENABLE_LOGIN_BLUESKY,
 }
 
 INVITE_ONLY = env("NEODB_INVITE_ONLY")
