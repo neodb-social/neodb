@@ -130,7 +130,7 @@
                    hx-swap="outerHTML"
                    hx-trigger="click once"
                    hx-target="#replies_{{ collection.latest_post.pk }}">
-                  {{ collection.latest_post.stats.replies | default:'' }}
+                  <span class="metrics">{{ collection.latest_post.stats.replies | default:'' }}</span>
                   {% trans "Reply" %}
                 </a>
               </span>

@@ -53,6 +53,12 @@
     style.innerHTML = ".solo-hidden {display: none;}";
     document.head.appendChild(style);
   }
+  const demetrication = localStorage.getItem("demetrication")=="1";
+  if (demetrication) {
+    const style2 = document.createElement("style");
+    style2.innerHTML = ".metrics {display: none;}";
+    document.head.appendChild(style2);
+  }
   $('html').attr('data-theme', localStorage.getItem("theme_color")||null)
 })();
 </script>

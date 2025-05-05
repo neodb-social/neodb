@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-05 00:00-0400\n"
+"POT-Creation-Date: 2025-05-05 00:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1207,7 +1207,7 @@ msgstr ""
 #: journal/templates/collection_edit.html:39 journal/templates/comment.html:69
 #: journal/templates/mark.html:142 journal/templates/note.html:39
 #: journal/templates/review_edit.html:40 journal/templates/tag_edit.html:51
-#: users/templates/users/_pref_device.html:32
+#: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
 #: users/templates/users/preferences.html:189
 msgid "Save"
@@ -4339,14 +4339,22 @@ msgid "hide reviews and ratings from other users"
 msgstr ""
 
 #: users/templates/users/_pref_device.html:20
+msgid "Demetrication"
+msgstr ""
+
+#: users/templates/users/_pref_device.html:23
+msgid "hide number of likes, boosts and replies"
+msgstr ""
+
+#: users/templates/users/_pref_device.html:25
 msgid "Number of items per page"
 msgstr ""
 
-#: users/templates/users/_pref_device.html:29
+#: users/templates/users/_pref_device.html:34
 msgid "Custom styles"
 msgstr ""
 
-#: users/templates/users/_pref_device.html:51
+#: users/templates/users/_pref_device.html:58
 msgid "Settings for current device saved"
 msgstr ""
 

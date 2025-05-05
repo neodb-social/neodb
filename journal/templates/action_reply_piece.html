@@ -7,6 +7,6 @@
      hx-trigger="click once"
      hx-target="#replies_{{ post.pk }}">
     <i class="fa-solid fa-reply"></i>
-    {% if post.stats.replies %}<span>{{ post.stats.replies }}</span>{% endif %}
+    {% if post.stats.replies %}<span class="metrics">{{ post.stats.replies }}</span>{% endif %}
   </a>
 </span>

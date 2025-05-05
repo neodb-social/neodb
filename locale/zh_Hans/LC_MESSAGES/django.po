@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 23:54-0400\n"
+"POT-Creation-Date: 2025-05-05 00:27-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1206,7 +1206,7 @@ msgstr "创建"
 #: journal/templates/collection_edit.html:39 journal/templates/comment.html:69
 #: journal/templates/mark.html:142 journal/templates/note.html:39
 #: journal/templates/review_edit.html:40 journal/templates/tag_edit.html:51
-#: users/templates/users/_pref_device.html:32
+#: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
 #: users/templates/users/preferences.html:189
 msgid "Save"
@@ -4457,14 +4457,22 @@ msgid "hide reviews and ratings from other users"
 msgstr "启用专注模式后搜索和条目页面将不再显示来自他人的评价和打分"
 
 #: users/templates/users/_pref_device.html:20
+msgid "Demetrication"
+msgstr "去度量化"
+
+#: users/templates/users/_pref_device.html:23
+msgid "hide number of likes, boosts and replies"
+msgstr "不再显示点赞、转播和回复的具体数量"
+
+#: users/templates/users/_pref_device.html:25
 msgid "Number of items per page"
 msgstr "每页条目数"
 
-#: users/templates/users/_pref_device.html:29
+#: users/templates/users/_pref_device.html:34
 msgid "Custom styles"
 msgstr "自定义样式代码"
 
-#: users/templates/users/_pref_device.html:51
+#: users/templates/users/_pref_device.html:58
 msgid "Settings for current device saved"
 msgstr "当前设备设置已保存"
 

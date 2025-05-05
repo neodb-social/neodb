@@ -17,6 +17,11 @@
         <input type="checkbox" id="solo_mode">
         <label for="solo_mode">{% trans "hide reviews and ratings from other users" %}</label>
       </p>
+      <h6>{% trans "Demetrication" %}</h6>
+      <p>
+        <input type="checkbox" id="demetrication">
+        <label for="demetrication">{% trans "hide number of likes, boosts and replies" %}</label>
+      </p>
       <h6>{% trans "Number of items per page" %}</h6>
       <p>
         <input type="radio" name="per_page" id="20_per_page" value="20">
@@ -39,6 +44,7 @@
     if (!_c) $('input[id=theme_auto]').prop('checked', true);
     $("#user_style").val(localStorage.getItem("user_style")||"");
     $("#solo_mode").prop("checked", localStorage.getItem("solo_mode")=="1");
+    $("#demetrication").prop("checked", localStorage.getItem("demetrication")=="1");
     var _p=Cookies.get('per_page') || 20;
     $('#'+_p+'_per_page').prop('checked', true);
     function save_local() {
@@ -47,6 +53,7 @@
       localStorage.setItem("theme_color", _c);
       localStorage.setItem("user_style", $("#user_style").val());
       localStorage.setItem("solo_mode", $("#solo_mode").prop("checked")?"1":"0");
+      localStorage.setItem("demetrication", $("#demetrication").prop("checked")?"1":"0");
       Cookies.set('per_page', $('input[name=per_page]:checked').val(), {expires: 120, sameSite: 'Lax'});
       alert("{% trans 'Settings for current device saved' %}");
     }
