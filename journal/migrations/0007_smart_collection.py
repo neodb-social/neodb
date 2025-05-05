@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 default=None,
                 max_length=1000,
                 null=True,
-                verbose_name="search query for smart collection",
+                verbose_name="search query for dynamic collection",
             ),
         ),
     ]
