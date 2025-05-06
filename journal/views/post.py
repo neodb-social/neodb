@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpResponse
@@ -142,7 +143,7 @@ def post_translate(request, post_id: int):
 
 
 @require_http_methods(["GET"])
-def post_view(request, username: str, domain: str, post_pk: int):
+def post_view(request, handle: str, post_pk: int):
     if request.headers.get("HTTP_ACCEPT", "").endswith("json"):
         raise BadRequest("JSON not supported yet")
     post: Post = get_object_or_404(Post, pk=post_pk)
@@ -154,6 +155,12 @@ def post_view(request, username: str, domain: str, post_pk: int):
         if not post.local:  # identity for remote post hasn't been sync to APIdentity
             return redirect(post.url)
         raise Http404("Post not available")
+    h = handle.split("@", 2)
+    username = h[0]
+    if len(h) == 1:
+        domain = settings.SITE_DOMAIN
+    else:
+        domain = h[1]
     if owner.username != username or owner.domain_name != domain:
         raise Http404("Post not available")
     match _can_view_post(post, owner, viewer):
