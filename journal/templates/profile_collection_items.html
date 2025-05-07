@@ -1,33 +1,31 @@
 {% load thumb %}
 {% load i18n %}
 {% load l10n %}
-{% if total %}
-  <span class="action">
-    <span>
-      <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-    </span>
-    <span>
-      <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-    </span>
+<span class="action">
+  <span>
+    <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
   </span>
-  <h5>
-    {{ collection.title }}
-    <small>
-      <a href="{{ collection.url }}">{{ total }}</a>
-    </small>
-  </h5>
-  <ul class="cards">
-    {% for item in items %}
-      <li class="card">
-        <a href="{{ item.url }}" title="{{ item.display_title }}">
-          <img src="{{ item.cover|thumb:'normal' }}"
-               alt="{{ item.display_title }}"
-               loading="lazy">
-          <div>{{ item.display_title }}</div>
-        </a>
-      </li>
-    {% empty %}
-      <div _"init hide closest .shelf end">{% trans "nothing so far." %}</div>
-    {% endfor %}
-  </ul>
-{% endif %}
+  <span>
+    <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+  </span>
+</span>
+<h5>
+  {{ collection.title }}
+  <small>
+    <a href="{{ collection.url }}">{{ total }}</a>
+  </small>
+</h5>
+<ul class="cards">
+  {% for item in items %}
+    <li class="card">
+      <a href="{{ item.url }}" title="{{ item.display_title }}">
+        <img src="{{ item.cover|thumb:'normal' }}"
+             alt="{{ item.display_title }}"
+             loading="lazy">
+        <div>{{ item.display_title }}</div>
+      </a>
+    </li>
+  {% empty %}
+    <div _="init log 1 then hide closest .shelf">{% trans "nothing so far." %}</div>
+  {% endfor %}
+</ul>

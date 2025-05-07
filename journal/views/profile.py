@@ -64,7 +64,7 @@ def profile(request: AuthedHttpRequest, user_name):
             if shelf_type == ShelfType.DROPPED:
                 continue
             label = target.shelf_manager.get_label(shelf_type, category)
-            if label is not None:
+            if label:
                 members = target.shelf_manager.get_latest_members(
                     shelf_type, category
                 ).filter(qv)
