@@ -109,6 +109,10 @@ def profile(request: AuthedHttpRequest, user_name):
         recent_posts = None
     else:
         recent_posts = Takahe.get_recent_posts(target.pk, request.user.identity.pk)[:10]
+    pinned_collections = Collection.objects.filter(
+        interactions__interaction_type="pin", interactions__identity=target
+    ).filter(qv)
+    print(pinned_collections.query)
     return render(
         request,
         "profile.html",
@@ -121,6 +125,7 @@ def profile(request: AuthedHttpRequest, user_name):
             "shelf_list": shelf_list,
             "collections": collections[:10],
             "collections_count": collections.count(),
+            "pinned_collections": pinned_collections[:10],
             "liked_collections": liked_collections[:10],
             "liked_collections_count": liked_collections.count(),
             "layout": target.preference.profile_layout,

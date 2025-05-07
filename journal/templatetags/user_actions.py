@@ -49,8 +49,6 @@ def boosted_post(context, post):
 
 @register.simple_tag(takes_context=True)
 def pinned_post(context, post):
-    if post.boosted_by_current_user is not None:
-        return post.boosted_by_current_user
     user = context["request"].user
     return (
         user

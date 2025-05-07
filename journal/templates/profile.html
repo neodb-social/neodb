@@ -79,6 +79,17 @@
                     style="display:none"></span>
             </section>
           {% endif %}
+          {% for collection in pinned_collections %}
+            <section class="entity-sort shelf"
+                     hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?profile=1"
+                     hx-trigger="load"
+                     id="collection_{{ collection.uuid }}">
+              <h5>
+                {{ collection.title }}
+                <small><i class="fa-solid fa-compact-disc fa-spin loading"></i></small>
+              </h5>
+            </section>
+          {% endfor %}
           {% for category, category_shelves in shelf_list.items %}
             {% for shelf_type, shelf in category_shelves.items %}
               <section class="entity-sort shelf"
