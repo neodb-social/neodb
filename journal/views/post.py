@@ -115,6 +115,16 @@ def post_boost(request: AuthedHttpRequest, post_id: int):
 
 @require_http_methods(["POST"])
 @login_required
+def post_pin(request: AuthedHttpRequest, post_id: int):
+    post = Takahe.get_post(post_id)
+    if not post or post.author_id != request.user.identity.pk:
+        raise BadRequest(_("Invalid parameter"))
+    Takahe.pin_post(post_id, request.user.identity.pk)
+    return render(request, "action_pin_post.html", {"post": post})
+
+
+@require_http_methods(["POST"])
+@login_required
 def post_like(request: AuthedHttpRequest, post_id: int):
     Takahe.like_post(post_id, request.user.identity.pk)
     return render(request, "action_like_post.html", {"post": Takahe.get_post(post_id)})

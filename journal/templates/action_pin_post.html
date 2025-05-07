@@ -1,0 +1,12 @@
+{% load i18n %}
+{% load user_actions %}
+{% if post and request.user.identity.pk == post.author_id %}
+  {% pinned_post post as pinned %}
+  <span hx-target="this" hx-swap="outerHTML">
+    <a hx-post="{% url 'journal:post_pin' post.pk %}"
+       {% if pinned %}class="activated"{% else %}hx-confirm="{% trans 'Would you like to pin this to your profile?' %}"{% endif %}
+       title="{% trans "pin" %}">
+      <i class="fa-solid fa-thumbtack"></i>
+    </a>
+  </span>
+{% endif %}

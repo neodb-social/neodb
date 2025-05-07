@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-05 17:38-0400\n"
+"POT-Creation-Date: 2025-05-06 20:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -786,7 +786,7 @@ msgstr ""
 #: catalog/templates/_item_comments.html:58
 #: catalog/templates/item_mark_list.html:44
 #: journal/templates/action_translate_post.html:3
-#: journal/templates/review.html:46
+#: journal/templates/review.html:49
 msgid "translate"
 msgstr ""
 
@@ -1017,9 +1017,9 @@ msgstr ""
 #: catalog/templates/_sidebar_edit.html:206
 #: catalog/templates/_sidebar_edit.html:210
 #: catalog/templates/catalog_delete.html:12
-#: journal/templates/collection.html:143 journal/templates/mark.html:157
+#: journal/templates/collection.html:146 journal/templates/mark.html:157
 #: journal/templates/piece_delete.html:10
-#: journal/templates/piece_delete.html:34 journal/templates/review.html:99
+#: journal/templates/piece_delete.html:34 journal/templates/review.html:102
 msgid "Delete"
 msgstr ""
 
@@ -1191,9 +1191,9 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: catalog/templates/catalog_edit.html:12 journal/templates/collection.html:140
+#: catalog/templates/catalog_edit.html:12 journal/templates/collection.html:143
 #: journal/templates/collection_edit.html:10
-#: journal/templates/collection_edit.html:26 journal/templates/review.html:96
+#: journal/templates/collection_edit.html:26 journal/templates/review.html:99
 #: journal/templates/tag_edit.html:16
 msgid "Edit"
 msgstr ""
@@ -1590,8 +1590,8 @@ msgstr ""
 #: journal/views/collection.py:331 journal/views/collection.py:343
 #: journal/views/collection.py:368 journal/views/collection.py:371
 #: journal/views/collection.py:408 journal/views/common.py:143
-#: journal/views/mark.py:206 journal/views/post.py:51 journal/views/post.py:65
-#: journal/views/post.py:79 journal/views/post.py:138 journal/views/post.py:153
+#: journal/views/mark.py:206 journal/views/post.py:52 journal/views/post.py:66
+#: journal/views/post.py:80 journal/views/post.py:149 journal/views/post.py:164
 #: journal/views/review.py:38 journal/views/review.py:49
 #: journal/views/review.py:74
 msgid "Insufficient permission"
@@ -1600,9 +1600,9 @@ msgstr ""
 #: catalog/views_edit.py:205 journal/views/collection.py:51
 #: journal/views/collection.py:76 journal/views/collection.py:348
 #: journal/views/collection.py:437 journal/views/common.py:90
-#: journal/views/mark.py:146 journal/views/post.py:93 journal/views/post.py:107
-#: journal/views/review.py:121 journal/views/review.py:124
-#: users/views/actions.py:169
+#: journal/views/mark.py:146 journal/views/post.py:94 journal/views/post.py:108
+#: journal/views/post.py:121 journal/views/review.py:121
+#: journal/views/review.py:124 users/views/actions.py:169
 msgid "Invalid parameter"
 msgstr ""
 
@@ -2679,7 +2679,7 @@ msgstr ""
 msgid "creator and their mutuals"
 msgstr ""
 
-#: journal/forms.py:52 journal/templates/collection.html:146
+#: journal/forms.py:52 journal/templates/collection.html:149
 msgid "Collaborative editing"
 msgstr ""
 
@@ -3270,7 +3270,7 @@ msgid "Update note"
 msgstr ""
 
 #: journal/templates/_list_item.html:87 journal/templates/review.html:22
-#: journal/templates/review.html:28 journal/templates/review.html:68
+#: journal/templates/review.html:28 journal/templates/review.html:71
 #: journal/templates/review_edit.html:11
 #: journal/templates/user_review_list.html:7
 msgid "Review"
@@ -3365,6 +3365,14 @@ msgstr ""
 msgid "like"
 msgstr ""
 
+#: journal/templates/action_pin_post.html:8
+msgid "Would you like to pin this to your profile?"
+msgstr ""
+
+#: journal/templates/action_pin_post.html:9
+msgid "pin"
+msgstr ""
+
 #: journal/templates/action_post_timestamp.html:4
 msgid "view post"
 msgstr ""
@@ -3431,22 +3439,22 @@ msgstr ""
 msgid "DEC"
 msgstr ""
 
-#: journal/templates/collection.html:47
+#: journal/templates/collection.html:53
 #: journal/templates/collection_share.html:12
 #: journal/templates/collection_share.html:66
 #: journal/templates/wrapped_share.html:59
 msgid "Share"
 msgstr ""
 
-#: journal/templates/collection.html:135 journal/templates/review.html:91
+#: journal/templates/collection.html:138 journal/templates/review.html:94
 msgid "Reply"
 msgstr ""
 
-#: journal/templates/collection.html:155
+#: journal/templates/collection.html:158
 msgid "dynamic collection"
 msgstr ""
 
-#: journal/templates/collection.html:157
+#: journal/templates/collection.html:160
 msgid "Created date"
 msgstr ""
 
@@ -3601,7 +3609,7 @@ msgstr ""
 msgid "add a reply"
 msgstr ""
 
-#: journal/templates/review.html:78
+#: journal/templates/review.html:81
 msgid "The author has set it to be viewable only by logged-in users."
 msgstr ""
 
@@ -3792,7 +3800,7 @@ msgstr ""
 msgid "Invalid form data"
 msgstr ""
 
-#: journal/views/post.py:77
+#: journal/views/post.py:78
 msgid "Post not found"
 msgstr ""
 
@@ -4070,7 +4078,7 @@ msgstr ""
 msgid "mark"
 msgstr ""
 
-#: social/templates/_event_post.html:86
+#: social/templates/_event_post.html:89
 msgid "wrote a note"
 msgstr ""
 

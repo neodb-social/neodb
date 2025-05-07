@@ -569,7 +569,7 @@ class Takahe:
             identity_id=identity_pk,
             post=post,
         )
-        if flip and not created:
+        if flip and not created and interaction.state != "undone_fanned_out":
             Takahe.update_state(interaction, "undone")
         elif interaction.state not in ["new", "fanned_out"]:
             Takahe.update_state(interaction, "new")
@@ -603,6 +603,10 @@ class Takahe:
     @staticmethod
     def boost_post(post_pk: int, identity_pk: int):
         return Takahe.interact_post(post_pk, identity_pk, "boost", flip=True)
+
+    @staticmethod
+    def pin_post(post_pk: int, identity_pk: int):
+        return Takahe.interact_post(post_pk, identity_pk, "pin", flip=True)
 
     @staticmethod
     def post_boosted_by(post_pk: int, identity_pk: int) -> bool:

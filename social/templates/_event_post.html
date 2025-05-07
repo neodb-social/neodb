@@ -66,6 +66,9 @@
               {% endif %}
             </span>
           {% endif %}
+          {% if show_pin and request.user.is_authenticated %}
+            {% include "action_pin_post.html" %}
+          {% endif %}
           {% include "action_reply_post.html" %}
           {% include "action_like_post.html" %}
           {% include "action_boost_post.html" %}

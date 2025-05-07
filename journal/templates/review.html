@@ -38,6 +38,9 @@
               <h3>
                 <div class="action">
                   {% if review.latest_post %}
+                    {% if request.user.is_authenticated %}
+                      {% include "action_pin_post.html" with post=review.latest_post %}
+                    {% endif %}
                     {% include "action_like_post.html" with post=review.latest_post %}
                     {% include "action_boost_post.html" with post=review.latest_post %}
                   {% endif %}

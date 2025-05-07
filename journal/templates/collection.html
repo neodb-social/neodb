@@ -39,17 +39,20 @@
               <div class="action">
                 {% if request.user.is_authenticated %}
                   <span>{% include '_feature_stats.html' with featured=featured_since %}</span>
-                  <span>
-                    <a href="#"
-                       hx-get="{% url 'journal:collection_share' collection.uuid %}"
-                       hx-target="body"
-                       hx-swap="beforeend"
-                       title="{% trans "Share" %}"><i class="fa-solid fa-share-nodes"></i></a>
-                  </span>
+                  {% include "action_pin_post.html" with post=collection.latest_post %}
                 {% endif %}
                 {% if collection.latest_post %}
                   {% include "action_like_post.html" with post=collection.latest_post %}
                   {% include "action_boost_post.html" with post=collection.latest_post %}
+                  {% if request.user.is_authenticated %}
+                    <span>
+                      <a href="#"
+                         hx-get="{% url 'journal:collection_share' collection.uuid %}"
+                         hx-target="body"
+                         hx-swap="beforeend"
+                         title="{% trans "Share" %}"><i class="fa-solid fa-share-nodes"></i></a>
+                    </span>
+                  {% endif %}
                 {% endif %}
               </div>
               {{ collection.title }}
