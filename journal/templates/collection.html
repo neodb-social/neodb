@@ -154,7 +154,13 @@
               {% include "action_open_post.html" with post=collection.latest_post %}
             {% endif %}
             {% if collection.is_dynamic %}
-              <span><a>{% trans "dynamic collection" %}</a></span>
+              <span>
+                {% if request.user.is_authenticated and collection.owner == request.user.identity %}
+                  <a href="{% url 'common:search' %}?c=journal&amp;q={{ collection.query|urlencode }}">{% trans "Edit query of this dynamic collection" %}</a>
+                {% else %}
+                  <a>{% trans "Dynamic Collection" %}</a>
+                {% endif %}
+              </span>
             {% endif %}
             <span><a>{% trans "Created date" %}: {{ collection.created_time|date }}</a></span>
           </span>

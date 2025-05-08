@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 23:09-0400\n"
+"POT-Creation-Date: 2025-05-08 14:11-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -3504,11 +3504,15 @@ msgstr "分享"
 msgid "Reply"
 msgstr "回应"
 
-#: journal/templates/collection.html:158
-msgid "dynamic collection"
+#: journal/templates/collection.html:160
+msgid "Edit query of this dynamic collection"
+msgstr "编辑动态收藏单的查询条件"
+
+#: journal/templates/collection.html:162
+msgid "Dynamic Collection"
 msgstr "动态收藏单"
 
-#: journal/templates/collection.html:160
+#: journal/templates/collection.html:166
 msgid "Created date"
 msgstr "创建日期"
 
