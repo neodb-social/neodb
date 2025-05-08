@@ -1162,4 +1162,86 @@ class Migration(migrations.Migration):
                 "db_table": "users_bookmark",
             },
         ),
+        migrations.CreateModel(
+            name="Report",
+            fields=[
+                (
+                    "id",
+                    models.BigIntegerField(
+                        default=takahe.models.Snowflake.generate_report,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("state", models.CharField(default="new", max_length=100)),
+                ("state_changed", models.DateTimeField(auto_now_add=True)),
+                ("state_next_attempt", models.DateTimeField(blank=True, null=True)),
+                (
+                    "state_locked_until",
+                    models.DateTimeField(blank=True, db_index=True, null=True),
+                ),
+                ("type", models.CharField(default="other", max_length=100)),
+                ("complaint", models.TextField()),
+                ("forward", models.BooleanField(default=False)),
+                ("valid", models.BooleanField(null=True)),
+                ("seen", models.DateTimeField(blank=True, null=True)),
+                ("resolved", models.DateTimeField(blank=True, null=True)),
+                ("notes", models.TextField(blank=True, null=True)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                (
+                    "moderator",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="moderated_reports",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "source_domain",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="filed_reports",
+                        to="takahe.domain",
+                    ),
+                ),
+                (
+                    "source_identity",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="filed_reports",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "subject_identity",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reports",
+                        to="takahe.identity",
+                    ),
+                ),
+                (
+                    "subject_post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="reports",
+                        to="takahe.post",
+                    ),
+                ),
+            ],
+            options={
+                "db_table": "users_report",
+            },
+        ),
     ]

@@ -286,7 +286,7 @@ def report_received(pk):
             retry += 1
     discord_send(
         "report",
-        f"{report.complaint}\n\nabout post:{report.subject_post.absolute_object_uri}\n{report.subject_post.content}",
+        f"{report.complaint}\n\nabout post:{report.subject_post.absolute_object_uri()}\n{report.subject_post.content}",
         thread_name=f"[{report.type}] Report received about {report.subject_identity.username}",
         username=f"@{report.source_identity.handle}",
     )

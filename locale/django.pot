@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 20:51-0400\n"
+"POT-Creation-Date: 2025-05-07 23:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,36 +18,36 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: boofilsic/settings.py:436 common/models/lang.py:220
+#: boofilsic/settings.py:438 common/models/lang.py:220
 msgid "English"
 msgstr ""
 
-#: boofilsic/settings.py:437 common/models/lang.py:67
+#: boofilsic/settings.py:439 common/models/lang.py:67
 msgid "Danish"
 msgstr ""
 
-#: boofilsic/settings.py:438 common/models/lang.py:68
+#: boofilsic/settings.py:440 common/models/lang.py:68
 msgid "German"
 msgstr ""
 
-#: boofilsic/settings.py:439 common/models/lang.py:77
+#: boofilsic/settings.py:441 common/models/lang.py:77
 msgid "French"
 msgstr ""
 
-#: boofilsic/settings.py:440 common/models/lang.py:102
+#: boofilsic/settings.py:442 common/models/lang.py:102
 msgid "Italian"
 msgstr ""
 
-#: boofilsic/settings.py:441 common/models/lang.py:156
+#: boofilsic/settings.py:443 common/models/lang.py:156
 #: common/models/lang.py:294
 msgid "Portuguese"
 msgstr ""
 
-#: boofilsic/settings.py:442
+#: boofilsic/settings.py:444
 msgid "Simplified Chinese"
 msgstr ""
 
-#: boofilsic/settings.py:443
+#: boofilsic/settings.py:445
 msgid "Traditional Chinese"
 msgstr ""
 
@@ -374,7 +374,7 @@ msgstr ""
 msgid "TV Serie"
 msgstr ""
 
-#: catalog/common/models.py:131 catalog/templates/_sidebar_edit.html:140
+#: catalog/common/models.py:131 catalog/templates/_sidebar_edit.html:145
 msgid "TV Season"
 msgstr ""
 
@@ -383,7 +383,7 @@ msgid "TV Episode"
 msgstr ""
 
 #: catalog/common/models.py:133 catalog/common/models.py:146
-#: catalog/common/models.py:159 catalog/templates/_sidebar_edit.html:133
+#: catalog/common/models.py:159 catalog/templates/_sidebar_edit.html:138
 #: journal/templates/_sidebar_user_mark_list.html:34
 msgid "Movie"
 msgstr ""
@@ -445,7 +445,7 @@ msgid "Music"
 msgstr ""
 
 #: catalog/common/models.py:150 catalog/common/models.py:163
-#: catalog/templates/_sidebar_edit.html:152 common/templates/_header.html:33
+#: catalog/templates/_sidebar_edit.html:157 common/templates/_header.html:33
 #: journal/templates/_sidebar_user_mark_list.html:41
 msgid "Podcast"
 msgstr ""
@@ -459,12 +459,12 @@ msgstr ""
 msgid "language"
 msgstr ""
 
-#: catalog/common/models.py:370 catalog/common/models.py:401
+#: catalog/common/models.py:370 catalog/common/models.py:402
 #: journal/models/collection.py:59
 msgid "title"
 msgstr ""
 
-#: catalog/common/models.py:371 catalog/common/models.py:409
+#: catalog/common/models.py:371 catalog/common/models.py:410
 #: journal/models/collection.py:60
 msgid "description"
 msgstr ""
@@ -485,27 +485,27 @@ msgstr ""
 msgid "cover"
 msgstr ""
 
-#: catalog/common/models.py:885
+#: catalog/common/models.py:886
 msgid "source site"
 msgstr ""
 
-#: catalog/common/models.py:887
+#: catalog/common/models.py:888
 msgid "ID on source site"
 msgstr ""
 
-#: catalog/common/models.py:889
+#: catalog/common/models.py:890
 msgid "source url"
 msgstr ""
 
-#: catalog/common/models.py:905
+#: catalog/common/models.py:906
 msgid "IdType of the source site"
 msgstr ""
 
-#: catalog/common/models.py:911
+#: catalog/common/models.py:912
 msgid "Primary Id on the source site"
 msgstr ""
 
-#: catalog/common/models.py:914
+#: catalog/common/models.py:915
 msgid "url to the resource"
 msgstr ""
 
@@ -747,6 +747,16 @@ msgstr ""
 msgid "Unsupported URL"
 msgstr ""
 
+#: catalog/search/views.py:201 catalog/templates/_sidebar_edit.html:21
+#: catalog/views_edit.py:90 catalog/views_edit.py:105 catalog/views_edit.py:129
+#: catalog/views_edit.py:167 catalog/views_edit.py:226
+#: catalog/views_edit.py:230 catalog/views_edit.py:248
+#: catalog/views_edit.py:294 catalog/views_edit.py:309
+#: catalog/views_edit.py:347 catalog/views_edit.py:357
+#: catalog/views_edit.py:383
+msgid "Editing this item is restricted."
+msgstr ""
+
 #: catalog/templates/_fetch_failed.html:4
 msgid "Unable to fetch from the link, please check again. Some sites may require login for certain links, please manually create them here."
 msgstr ""
@@ -761,12 +771,12 @@ msgstr ""
 #: catalog/templates/_item_card_metadata_tvseason.html:7
 #: catalog/templates/_item_card_metadata_tvshow.html:7
 #: catalog/templates/_item_card_metadata_work.html:7
-#: catalog/templates/item_base.html:177
+#: catalog/templates/item_base.html:181
 msgid "ratings"
 msgstr ""
 
 #: catalog/templates/_item_card_metadata_base.html:34
-#: catalog/templates/item_base.html:231
+#: catalog/templates/item_base.html:235
 msgid "part of"
 msgstr ""
 
@@ -793,7 +803,7 @@ msgstr ""
 #: catalog/templates/_item_comments.html:92
 #: catalog/templates/_item_comments_by_episode.html:80
 #: catalog/templates/_item_notes.html:68
-#: catalog/templates/_item_reviews.html:42 catalog/templates/item_base.html:259
+#: catalog/templates/_item_reviews.html:42 catalog/templates/item_base.html:263
 #: catalog/templates/podcast_episode_data.html:41
 #: journal/templates/collection_dynamic_items.html:17
 msgid "show more"
@@ -883,139 +893,125 @@ msgstr ""
 msgid "Edit Options"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:21
-#: catalog/templates/catalog_delete.html:24
-#: catalog/templates/catalog_edit.html:38
-#: catalog/templates/catalog_merge.html:36
-#: catalog/templates/catalog_merge.html:64
-msgid "Item has been deleted."
-msgstr ""
-
 #: catalog/templates/_sidebar_edit.html:26
-#: catalog/templates/catalog_delete.html:29
-#: catalog/templates/catalog_edit.html:41
-#: catalog/templates/catalog_merge.html:41
-#: catalog/templates/catalog_merge.html:69
-msgid "Item contains sub-items."
+msgid "This item has been deleted."
 msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:31
-#: catalog/templates/catalog_delete.html:34
-#: catalog/templates/catalog_merge.html:46
-#: catalog/templates/catalog_merge.html:74
-msgid "Item has been merged to another item."
+msgid "This item contains sub-items."
 msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:36
-#: catalog/templates/catalog_delete.html:39
-#: catalog/templates/catalog_merge.html:51
-#: catalog/templates/catalog_merge.html:79
-msgid "Item has been marked by users."
+msgid "This item has been merged to another item."
 msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:41
+msgid "This item has been marked by users."
+msgstr ""
+
+#: catalog/templates/_sidebar_edit.html:46
 msgid "The following items are merged into this item"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:53
+#: catalog/templates/_sidebar_edit.html:58
 msgid "External website"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:58
+#: catalog/templates/_sidebar_edit.html:63
 msgid "Existing metadata might get overwritten, sure to proceed?"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:62
+#: catalog/templates/_sidebar_edit.html:67
 msgid "Fetch again"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:67
+#: catalog/templates/_sidebar_edit.html:72
 msgid "You may not be able to undo this operation, sure to remove?"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:72
+#: catalog/templates/_sidebar_edit.html:77
 msgid "Remove link to site"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:81
+#: catalog/templates/_sidebar_edit.html:86
 msgid "Edit sub-items"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:94
+#: catalog/templates/_sidebar_edit.html:99
 msgid "create"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:100
+#: catalog/templates/_sidebar_edit.html:105
 msgid "Fetch all episodes"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:105
+#: catalog/templates/_sidebar_edit.html:110
 msgid "Fetch all"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:106
+#: catalog/templates/_sidebar_edit.html:111
 msgid "Due to differences in how Douban, IMDB, and TMDB handle season data, a small number of TV shows and animations may not return correct results. Please manually verify and clean up after updating."
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:109
+#: catalog/templates/_sidebar_edit.html:114
 msgid "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries."
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:115
-#: catalog/templates/_sidebar_edit.html:127
-#: catalog/templates/_sidebar_edit.html:146
+#: catalog/templates/_sidebar_edit.html:120
+#: catalog/templates/_sidebar_edit.html:132
+#: catalog/templates/_sidebar_edit.html:151
 msgid "switch category"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:118
+#: catalog/templates/_sidebar_edit.html:123
 msgid "Switching may remove some metadata. Sure to proceed?"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:121
+#: catalog/templates/_sidebar_edit.html:126
 msgid "TV Show"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:160
+#: catalog/templates/_sidebar_edit.html:165
 msgid "Link to parent item"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:163
+#: catalog/templates/_sidebar_edit.html:168
 msgid "Sure to link?"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:170
+#: catalog/templates/_sidebar_edit.html:175
 msgid "Update link"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:176
+#: catalog/templates/_sidebar_edit.html:181
 msgid "Cleanup seasons"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:179
+#: catalog/templates/_sidebar_edit.html:184
 #: catalog/templates/catalog_delete.html:45
 msgid "This operation cannot be undone. Sure to delete?"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:183
+#: catalog/templates/_sidebar_edit.html:188
 msgid "remove seasons not marked"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:189
+#: catalog/templates/_sidebar_edit.html:194
 #: catalog/templates/catalog_merge.html:12
 msgid "Merge"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:195
+#: catalog/templates/_sidebar_edit.html:200
 msgid "URL of target item, or empty if undo merge"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:201
-#: catalog/templates/_sidebar_edit.html:262
+#: catalog/templates/_sidebar_edit.html:206
+#: catalog/templates/_sidebar_edit.html:286
 msgid "merge to another item"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:206
-#: catalog/templates/_sidebar_edit.html:210
+#: catalog/templates/_sidebar_edit.html:211
+#: catalog/templates/_sidebar_edit.html:215
 #: catalog/templates/catalog_delete.html:12
 #: journal/templates/collection.html:146 journal/templates/mark.html:157
 #: journal/templates/piece_delete.html:10
@@ -1023,67 +1019,76 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:219
+#: catalog/templates/_sidebar_edit.html:224
 msgid "Work"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:220
+#: catalog/templates/_sidebar_edit.html:225
 msgid "This edition belongs to the following work"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:225
+#: catalog/templates/_sidebar_edit.html:230
 msgid "Sure to unlink?"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:231
+#: catalog/templates/_sidebar_edit.html:236
 msgid "Unlink from work"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:237
+#: catalog/templates/_sidebar_edit.html:242
 msgid "Link"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:248
+#: catalog/templates/_sidebar_edit.html:253
 msgid "Link to another edition from same work"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:256
+#: catalog/templates/_sidebar_edit.html:262
+msgid "Restriction"
+msgstr ""
+
+#: catalog/templates/_sidebar_edit.html:275
+#: journal/templates/collection_update_item_note.html:4
+msgid "Update"
+msgstr ""
+
+#: catalog/templates/_sidebar_edit.html:280
 msgid "Suggest Edits"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:261
+#: catalog/templates/_sidebar_edit.html:285
 msgid "proposed action"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:263
+#: catalog/templates/_sidebar_edit.html:287
 msgid "link to another item"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:264
+#: catalog/templates/_sidebar_edit.html:288
 msgid "change item category"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:265
+#: catalog/templates/_sidebar_edit.html:289
 msgid "change item metadata"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:266
+#: catalog/templates/_sidebar_edit.html:290
 msgid "remove item"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:267
+#: catalog/templates/_sidebar_edit.html:291
 msgid "other"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:271
+#: catalog/templates/_sidebar_edit.html:295
 msgid "To suggest merging or association, please include the URL of the target item"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:272
+#: catalog/templates/_sidebar_edit.html:296
 msgid "submit"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:273
+#: catalog/templates/_sidebar_edit.html:297
 msgid "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution."
 msgstr ""
 
@@ -1181,6 +1186,32 @@ msgstr ""
 msgid "Are you sure to delete?"
 msgstr ""
 
+#: catalog/templates/catalog_delete.html:24
+#: catalog/templates/catalog_edit.html:38
+#: catalog/templates/catalog_merge.html:36
+#: catalog/templates/catalog_merge.html:64
+msgid "Item has been deleted."
+msgstr ""
+
+#: catalog/templates/catalog_delete.html:29
+#: catalog/templates/catalog_edit.html:41
+#: catalog/templates/catalog_merge.html:41
+#: catalog/templates/catalog_merge.html:69
+msgid "Item contains sub-items."
+msgstr ""
+
+#: catalog/templates/catalog_delete.html:34
+#: catalog/templates/catalog_merge.html:46
+#: catalog/templates/catalog_merge.html:74
+msgid "Item has been merged to another item."
+msgstr ""
+
+#: catalog/templates/catalog_delete.html:39
+#: catalog/templates/catalog_merge.html:51
+#: catalog/templates/catalog_merge.html:79
+msgid "Item has been marked by users."
+msgstr ""
+
 #: catalog/templates/catalog_delete.html:48
 #: catalog/templates/catalog_merge.html:92
 msgid "Yes"
@@ -1245,23 +1276,23 @@ msgstr ""
 msgid "Collections"
 msgstr ""
 
-#: catalog/templates/discover.html:104 journal/templates/profile.html:191
+#: catalog/templates/discover.html:104 journal/templates/profile.html:202
 msgid "edit layout"
 msgstr ""
 
-#: catalog/templates/discover.html:107 journal/templates/profile.html:194
+#: catalog/templates/discover.html:107 journal/templates/profile.html:205
 msgid "save"
 msgstr ""
 
-#: catalog/templates/discover.html:118 journal/templates/profile.html:205
+#: catalog/templates/discover.html:118 journal/templates/profile.html:216
 msgid "cancel"
 msgstr ""
 
-#: catalog/templates/discover.html:124 journal/templates/profile.html:211
+#: catalog/templates/discover.html:124 journal/templates/profile.html:222
 msgid "show"
 msgstr ""
 
-#: catalog/templates/discover.html:125 journal/templates/profile.html:212
+#: catalog/templates/discover.html:125 journal/templates/profile.html:223
 msgid "hide"
 msgstr ""
 
@@ -1278,15 +1309,16 @@ msgstr ""
 msgid "Popular Tags"
 msgstr ""
 
-#: catalog/templates/discover.html:180 catalog/templates/item_base.html:257
+#: catalog/templates/discover.html:180 catalog/templates/item_base.html:261
 #: catalog/templates/item_mark_list.html:69
 #: catalog/templates/item_review_list.html:51 common/templates/_sidebar.html:90
 #: common/templates/_sidebar_anonymous.html:46
 #: common/templates/_sidebar_anonymous.html:62
 #: journal/templates/collection_dynamic_items.html:7
 #: journal/templates/collection_items.html:17 journal/templates/posts.html:8
-#: journal/templates/profile.html:113 journal/templates/profile.html:151
-#: journal/templates/profile.html:183
+#: journal/templates/profile.html:124 journal/templates/profile.html:162
+#: journal/templates/profile.html:194
+#: journal/templates/profile_collection_items.html:29
 #: journal/templates/user_collection_list.html:52
 #: journal/templates/user_item_list_base.html:26
 #: social/templates/events.html:45 users/templates/users/announcements.html:55
@@ -1356,47 +1388,47 @@ msgstr ""
 msgid "Unsupported item type."
 msgstr ""
 
-#: catalog/templates/item_base.html:160
+#: catalog/templates/item_base.html:161
 msgid "Edit this item"
 msgstr ""
 
-#: catalog/templates/item_base.html:164
+#: catalog/templates/item_base.html:168
 msgid "Last edited"
 msgstr ""
 
-#: catalog/templates/item_base.html:206
+#: catalog/templates/item_base.html:210
 msgid "No enough ratings"
 msgstr ""
 
-#: catalog/templates/item_base.html:249
+#: catalog/templates/item_base.html:253
 msgid "overview"
 msgstr ""
 
-#: catalog/templates/item_base.html:279
+#: catalog/templates/item_base.html:283
 msgid "comments"
 msgstr ""
 
-#: catalog/templates/item_base.html:282
+#: catalog/templates/item_base.html:286
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
 msgid "marks"
 msgstr ""
 
-#: catalog/templates/item_base.html:283
+#: catalog/templates/item_base.html:287
 #: catalog/templates/item_mark_list.html:23
 #: catalog/templates/item_mark_list.html:26
 #: catalog/templates/item_review_list.html:22
 msgid "marks from who you follow"
 msgstr ""
 
-#: catalog/templates/item_base.html:297
+#: catalog/templates/item_base.html:301
 #: catalog/templates/item_mark_list.html:28
 #: catalog/templates/item_review_list.html:23
 msgid "reviews"
 msgstr ""
 
-#: catalog/templates/item_base.html:307
+#: catalog/templates/item_base.html:311
 msgid "notes"
 msgstr ""
 
@@ -1574,63 +1606,65 @@ msgstr ""
 msgid "Item no longer exists"
 msgstr ""
 
-#: catalog/views_edit.py:125
+#: catalog/views_edit.py:131
 msgid "Item in use."
 msgstr ""
 
-#: catalog/views_edit.py:127
+#: catalog/views_edit.py:133
 msgid "Item cannot be deleted."
 msgstr ""
 
-#: catalog/views_edit.py:150 catalog/views_edit.py:202
-#: catalog/views_edit.py:278 catalog/views_edit.py:359
-#: journal/views/collection.py:89 journal/views/collection.py:139
-#: journal/views/collection.py:151 journal/views/collection.py:168
-#: journal/views/collection.py:234 journal/views/collection.py:296
-#: journal/views/collection.py:331 journal/views/collection.py:343
-#: journal/views/collection.py:368 journal/views/collection.py:371
-#: journal/views/collection.py:408 journal/views/common.py:143
-#: journal/views/mark.py:206 journal/views/post.py:52 journal/views/post.py:66
-#: journal/views/post.py:80 journal/views/post.py:149 journal/views/post.py:164
+#: catalog/views_edit.py:156 catalog/views_edit.py:210
+#: catalog/views_edit.py:296 catalog/views_edit.py:385
+#: catalog/views_edit.py:417 journal/views/collection.py:89
+#: journal/views/collection.py:139 journal/views/collection.py:151
+#: journal/views/collection.py:168 journal/views/collection.py:235
+#: journal/views/collection.py:317 journal/views/collection.py:352
+#: journal/views/collection.py:364 journal/views/collection.py:389
+#: journal/views/collection.py:392 journal/views/collection.py:429
+#: journal/views/common.py:143 journal/views/mark.py:206
+#: journal/views/post.py:52 journal/views/post.py:66 journal/views/post.py:80
+#: journal/views/post.py:149 journal/views/post.py:164
 #: journal/views/review.py:38 journal/views/review.py:49
 #: journal/views/review.py:74
 msgid "Insufficient permission"
 msgstr ""
 
-#: catalog/views_edit.py:205 journal/views/collection.py:51
-#: journal/views/collection.py:76 journal/views/collection.py:348
-#: journal/views/collection.py:437 journal/views/common.py:90
-#: journal/views/mark.py:146 journal/views/post.py:94 journal/views/post.py:108
-#: journal/views/post.py:121 journal/views/review.py:121
-#: journal/views/review.py:124 users/views/actions.py:169
+#: catalog/views_edit.py:213 catalog/views_edit.py:216
+#: journal/views/collection.py:51 journal/views/collection.py:76
+#: journal/views/collection.py:369 journal/views/collection.py:458
+#: journal/views/common.py:90 journal/views/mark.py:146
+#: journal/views/post.py:94 journal/views/post.py:108 journal/views/post.py:121
+#: journal/views/review.py:121 journal/views/review.py:124
+#: users/views/actions.py:169
 msgid "Invalid parameter"
 msgstr ""
 
-#: catalog/views_edit.py:254
+#: catalog/views_edit.py:270
 msgid "TV Season with IMDB id and season number required."
 msgstr ""
 
-#: catalog/views_edit.py:259
+#: catalog/views_edit.py:275
 msgid "Updating episodes"
 msgstr ""
 
-#: catalog/views_edit.py:289
+#: catalog/views_edit.py:307
 msgid "Cannot be merged to an item already deleted or merged"
 msgstr ""
 
-#: catalog/views_edit.py:292
+#: catalog/views_edit.py:312
 msgid "Cannot merge items in different categories"
 msgstr ""
 
-#: catalog/views_edit.py:296
+#: catalog/views_edit.py:316
 msgid "Cannot merge an item to itself"
 msgstr ""
 
-#: catalog/views_edit.py:333
+#: catalog/views_edit.py:355
 msgid "Cannot be linked to an item already deleted or merged"
 msgstr ""
 
-#: catalog/views_edit.py:335
+#: catalog/views_edit.py:359
 msgid "Cannot link items other than editions"
 msgstr ""
 
@@ -3365,11 +3399,11 @@ msgstr ""
 msgid "like"
 msgstr ""
 
-#: journal/templates/action_pin_post.html:8
+#: journal/templates/action_pin_post.html:7
 msgid "Would you like to pin this to your profile?"
 msgstr ""
 
-#: journal/templates/action_pin_post.html:9
+#: journal/templates/action_pin_post.html:8
 msgid "pin"
 msgstr ""
 
@@ -3476,10 +3510,6 @@ msgstr ""
 
 #: journal/templates/collection_share.html:24
 msgid "for the sharing post only, not visibility of the collection"
-msgstr ""
-
-#: journal/templates/collection_update_item_note.html:4
-msgid "Update"
 msgstr ""
 
 #: journal/templates/comment.html:16
@@ -3593,11 +3623,11 @@ msgstr ""
 msgid "annual summary"
 msgstr ""
 
-#: journal/templates/profile.html:131 journal/views/collection.py:204
+#: journal/templates/profile.html:142 journal/views/collection.py:204
 msgid "collection"
 msgstr ""
 
-#: journal/templates/profile.html:167
+#: journal/templates/profile.html:178
 msgid "liked collection"
 msgstr ""
 
@@ -3737,24 +3767,24 @@ msgstr ""
 msgid "shared {username}'s collection"
 msgstr ""
 
-#: journal/views/collection.py:298 journal/views/collection.py:333
-#: journal/views/collection.py:345 journal/views/collection.py:373
+#: journal/views/collection.py:319 journal/views/collection.py:354
+#: journal/views/collection.py:366 journal/views/collection.py:394
 msgid "Dynamic collection is not editable"
 msgstr ""
 
-#: journal/views/collection.py:310
+#: journal/views/collection.py:331
 msgid "The item is already in the collection."
 msgstr ""
 
-#: journal/views/collection.py:312
+#: journal/views/collection.py:333
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
 
-#: journal/views/collection.py:358
+#: journal/views/collection.py:379
 msgid "Saved."
 msgstr ""
 
-#: journal/views/collection.py:444 journal/views/collection.py:465
+#: journal/views/collection.py:465 journal/views/collection.py:486
 #: journal/views/review.py:154
 msgid "Login required"
 msgstr ""

@@ -16,24 +16,29 @@
     </span>
   </div>
   <h5>{% trans "Edit Options" %}</h5>
+  {% if item.is_protected %}
+    <p>
+      <i class="fa-solid fa-circle-exclamation"></i> {% trans "Editing this item is restricted." %}
+    </p>
+  {% endif %}
   {% if item.is_deleted %}
     <p>
-      <i class="fa-solid fa-circle-xmark"></i> {% trans "Item has been deleted." %}
+      <i class="fa-solid fa-circle-xmark"></i> {% trans "This item has been deleted." %}
     </p>
   {% endif %}
   {% if item.child_items %}
     <p>
-      <i class="fa-solid fa-circle-exclamation"></i> {% trans "Item contains sub-items." %}
+      <i class="fa-solid fa-circle-exclamation"></i> {% trans "This item contains sub-items." %}
     </p>
   {% endif %}
   {% if item.merged_to_item %}
     <p>
-      <i class="fa-solid fa-circle-xmark"></i> {% trans "Item has been merged to another item." %}
+      <i class="fa-solid fa-circle-xmark"></i> {% trans "This item has been merged to another item." %}
     </p>
   {% endif %}
   {% if item.journal_exists %}
     <p>
-      <i class="fa-solid fa-circle-exclamation"></i> {% trans "Item has been marked by users." %}
+      <i class="fa-solid fa-circle-exclamation"></i> {% trans "This item has been marked by users." %}
     </p>
   {% endif %}
   {% for i in item.merged_from_items.all %}
@@ -251,6 +256,25 @@
         {% endif %}
       {% endwith %}
     {% endif %}
+  {% endif %}
+  {% if request.user.is_staff %}
+    <details>
+      <summary>{% trans "Restriction" %}</summary>
+      <form method="post"
+            action="{% url 'catalog:protect' item.url_path item.uuid %}">
+        {% csrf_token %}
+        <label for="protected">
+          <input type="checkbox"
+                 {% if item.is_protected %}checked{% endif %}
+                 name="protected"
+                 id="protected"
+                 value="1">
+          Editing this item is restricted.
+        </label>
+        <br>
+        <input class="contrast" type="submit" value="{% trans 'Update' %}">
+      </form>
+    </details>
   {% endif %}
   <details>
     <summary>{% trans 'Suggest Edits' %}</summary>

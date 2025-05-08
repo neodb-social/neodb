@@ -3,7 +3,7 @@ import re
 import django_rq
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -191,4 +191,12 @@ def refetch(request):
     site = SiteManager.get_site_by_url(url, detect_redirection=False)
     if not site:
         raise BadRequest(_("Unsupported URL"))
+    resource = ExternalResource.objects.filter(url=url).first()
+    if (
+        resource
+        and resource.item
+        and resource.item.is_protected
+        and not request.user.is_staff
+    ):
+        raise PermissionDenied(_("Editing this item is restricted."))
     return fetch(request, url, site, True)

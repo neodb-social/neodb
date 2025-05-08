@@ -156,8 +156,12 @@
           {% if request.user.is_authenticated %}
             <div class="item-edit">
               <span class="action inline">
-                <a href="{% url 'catalog:edit' item.url_path item.uuid %}"
-                   title="{% trans 'Edit this item' %}"><i class="fa-regular fa-pen-to-square"></i></a>
+                {% if not item.is_protected or request.user.is_staff %}
+                  <a href="{% url 'catalog:edit' item.url_path item.uuid %}"
+                     title="{% trans 'Edit this item' %}"><i class="fa-regular fa-pen-to-square"></i></a>
+                {% else %}
+                  <a><i class="fa-solid fa-lock"></i></a>
+                {% endif %}
               </span>
               {% if item.last_editor and item.last_editor.preference.show_last_edit %}
                 <span>

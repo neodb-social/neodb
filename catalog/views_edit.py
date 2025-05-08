@@ -86,6 +86,8 @@ def history(request, item_path, item_uuid):
 def edit(request, item_path, item_uuid):
     if request.method == "GET":
         item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+        if item.is_protected and not request.user.is_staff:
+            raise PermissionDenied(_("Editing this item is restricted."))
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(instance=item)
         if (
@@ -99,6 +101,8 @@ def edit(request, item_path, item_uuid):
         return render(request, "catalog_edit.html", {"form": form, "item": item})
     else:
         item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+        if item.is_protected and not request.user.is_staff:
+            raise PermissionDenied(_("Editing this item is restricted."))
         form_cls = CatalogForms[item.__class__.__name__]
         form = form_cls(request.POST, request.FILES, instance=item)
         if (
@@ -121,6 +125,8 @@ def edit(request, item_path, item_uuid):
 @login_required
 def delete(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if item.is_protected and not request.user.is_staff:
+        raise PermissionDenied(_("Editing this item is restricted."))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied(_("Item in use."))
     if not item.can_soft_delete():
@@ -157,6 +163,8 @@ def undelete(request, item_path, item_uuid):
 @login_required
 def recast(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if item.is_protected and not request.user.is_staff:
+        raise PermissionDenied(_("Editing this item is restricted."))
     cls = request.POST.get("class")
     # TODO move some of the logic to model
     douban_movie_to_tvseason = False
@@ -204,6 +212,8 @@ def unlink(request):
     if not res_id:
         raise BadRequest(_("Invalid parameter"))
     resource = get_object_or_404(ExternalResource, id=res_id)
+    if not resource.item:
+        raise BadRequest(_("Invalid parameter"))
     resource.unlink_from_item()
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
@@ -212,8 +222,12 @@ def unlink(request):
 @login_required
 def assign_parent(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if item.is_protected and not request.user.is_staff:
+        raise PermissionDenied(_("Editing this item is restricted."))
     parent_item = Item.get_by_url(request.POST.get("parent_item_url"))
     if parent_item:
+        if parent_item.is_protected and not request.user.is_staff:
+            raise PermissionDenied(_("Editing this item is restricted."))
         if parent_item.is_deleted or parent_item.merged_to_item_id:
             raise BadRequest("Can't assign parent to a deleted or redirected item")
         if parent_item.child_class != item.__class__.__name__:
@@ -230,6 +244,8 @@ def assign_parent(request, item_path, item_uuid):
 @login_required
 def remove_unused_seasons(request, item_path, item_uuid):
     item = get_object_or_404(TVShow, uid=get_uuid_or_404(item_uuid))
+    if item.is_protected and not request.user.is_staff:
+        raise PermissionDenied(_("Editing this item is restricted."))
     sl = list(item.seasons.all())
     for s in sl:
         if not s.journal_exists():
@@ -274,6 +290,8 @@ def fetch_episodes_for_season_task(item_uuid, user):
 @login_required
 def merge(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if item.is_protected and not request.user.is_staff:
+        raise PermissionDenied(_("Editing this item is restricted."))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied(_("Insufficient permission"))
     if request.POST.get("sure", 0) != "1":
@@ -287,6 +305,8 @@ def merge(request, item_path, item_uuid):
         new_item = Item.get_by_url(request.POST.get("target_item_url"))
         if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
             raise BadRequest(_("Cannot be merged to an item already deleted or merged"))
+        if new_item.is_protected and not request.user.is_staff:
+            raise PermissionDenied(_("Editing this item is restricted."))
         if new_item.class_name != item.class_name:
             raise BadRequest(
                 _("Cannot merge items in different categories")
@@ -323,6 +343,8 @@ def merge(request, item_path, item_uuid):
 @login_required
 def link_edition(request, item_path, item_uuid):
     item = get_object_or_404(Edition, uid=get_uuid_or_404(item_uuid))
+    if item.is_protected and not request.user.is_staff:
+        raise PermissionDenied(_("Editing this item is restricted."))
     new_item = Edition.get_by_url(request.POST.get("target_item_url"))
     if (
         not new_item
@@ -331,6 +353,8 @@ def link_edition(request, item_path, item_uuid):
         or item == new_item
     ):
         raise BadRequest(_("Cannot be linked to an item already deleted or merged"))
+    if new_item.is_protected and not request.user.is_staff:
+        raise PermissionDenied(_("Editing this item is restricted."))
     if item.class_name != "edition" or new_item.class_name != "edition":
         raise BadRequest(_("Cannot link items other than editions"))
     if request.POST.get("sure", 0) != "1":
@@ -355,6 +379,8 @@ def link_edition(request, item_path, item_uuid):
 @login_required
 def unlink_works(request, item_path, item_uuid):
     item = get_object_or_404(Edition, uid=get_uuid_or_404(item_uuid))
+    if item.is_protected and not request.user.is_staff:
+        raise PermissionDenied(_("Editing this item is restricted."))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied(_("Insufficient permission"))
     item.set_parent_item(None)
@@ -380,4 +406,15 @@ def suggest(request, item_path, item_uuid):
         username=f"@{request.user.username}",
     ):
         raise Http404("Discord webhook not configured")
+    return redirect(item.url)
+
+
+@require_http_methods(["POST"])
+@login_required
+def protect(request, item_path, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not request.user.is_staff:
+        raise PermissionDenied(_("Insufficient permission"))
+    item.is_protected = bool(request.POST.get("protected"))
+    item.save()
     return redirect(item.url)

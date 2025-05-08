@@ -388,6 +388,7 @@ class Item(PolymorphicModel):
     )
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
+    is_protected = models.BooleanField(null=True)
     is_deleted = models.BooleanField(default=False, db_index=True)
     merged_to_item = models.ForeignKey(
         "Item",
