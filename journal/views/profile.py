@@ -112,7 +112,6 @@ def profile(request: AuthedHttpRequest, user_name):
     pinned_collections = Collection.objects.filter(
         interactions__interaction_type="pin", interactions__identity=target
     ).filter(qv)
-    print(pinned_collections.query)
     return render(
         request,
         "profile.html",
