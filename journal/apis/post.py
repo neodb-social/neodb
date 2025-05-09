@@ -3,7 +3,7 @@ from typing import List, Literal, Union
 from ninja import Field, Schema
 
 from catalog.common.models import Item
-from common.api import NOT_FOUND, Result, api
+from common.api import INVALID_PAGE, NOT_FOUND, Result, api
 from journal.models.index import JournalIndex, JournalQueryParser
 
 
@@ -117,21 +117,25 @@ PostTypes = {"mark", "comment", "review", "collection", "note"}
 
 @api.get(
     "/item/{item_uuid}/posts/",
-    response={200: PaginatedPostList, 401: Result, 404: Result},
+    response={200: PaginatedPostList, 400: Result, 401: Result, 404: Result},
     tags=["catalog"],
 )
-def list_posts_for_item(request, item_uuid: str, type: str | None = None):
+def list_posts_for_item(
+    request, item_uuid: str, type: str | None = None, page: int = 1
+):
     """
     Get posts for an item
 
     `type` is optional, can be a comma separated list of `comment`, `review`, `collection`, `note`, `mark`; default is `comment,review`
     """
+    if page < 1 or page > 99:
+        return INVALID_PAGE
     item = Item.get_by_url(item_uuid)
     if not item:
         return NOT_FOUND
     types = [t for t in (type or "").split(",") if t in PostTypes]
     q = "type:" + ",".join(types or ["comment", "review"])
-    query = JournalQueryParser(q)
+    query = JournalQueryParser(q, page)
     query.filter_by_viewer(request.user.identity)
     query.filter("item_id", item.pk)
     r = JournalIndex.instance().search(query)

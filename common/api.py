@@ -99,3 +99,4 @@ api = NinjaAPI(
 NOT_FOUND = 404, {"message": "Not found"}
 OK = 200, {"message": "OK"}
 NO_DATA = {"data": [], "count": 0, "pages": 0}
+INVALID_PAGE = 400, {"message": "Invalid page number"}
