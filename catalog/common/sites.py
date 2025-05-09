@@ -11,7 +11,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from hashlib import md5
-from typing import TYPE_CHECKING, Type, TypeVar
+from typing import Type, TypeVar
 
 import django_rq
 import requests
@@ -21,9 +21,6 @@ from loguru import logger
 from validators import url as url_validate
 
 from .models import ExternalResource, IdealIdTypes, IdType, Item, SiteName
-
-if TYPE_CHECKING:
-    from ..search.models import ExternalSearchResultItem
 
 
 @dataclass
@@ -100,12 +97,12 @@ class AbstractSite:
                 )
         return self.resource
 
-    @classmethod
-    async def search_task(
-        cls, q: str, page: int, category: str, page_size: int
-    ) -> "list[ExternalSearchResultItem]":
-        # implement this method in subclass to enable external search
-        return []
+    # @classmethod
+    # async def search_task(
+    #     cls, q: str, page: int, category: str, page_size: int
+    # ) -> "list[ExternalSearchResultItem]":
+    #     # implement this method in subclass to enable external search
+    #     return []
 
     def scrape(self) -> ResourceContent:
         """subclass should implement this, return ResourceContent object"""
@@ -382,8 +379,8 @@ class SiteManager:
             return []
         sites = SiteManager.get_all_sites()
         if settings.SEARCH_SITES == ["*"] or not settings.SEARCH_SITES:
-            return sites
-        ss = {s.SITE_NAME.value: s for s in sites}
+            return [s for s in sites if hasattr(s, "search_task")]
+        ss = {s.SITE_NAME.value: s for s in sites if hasattr(s, "search_task")}
         return [ss[s] for s in settings.SEARCH_SITES if s in ss]
 
 
