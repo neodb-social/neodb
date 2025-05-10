@@ -66,8 +66,9 @@
               {% endif %}
             </span>
           {% endif %}
-          {% if show_pin and request.user.is_authenticated %}
+          {% if show_all_actions and request.user.is_authenticated and post.author_id == request.user.identity.pk %}
             {% include "action_pin_post.html" %}
+            {% include "action_delete_post.html" %}
           {% endif %}
           {% include "action_reply_post.html" %}
           {% include "action_like_post.html" %}
@@ -75,7 +76,7 @@
           {% if translate_enabled and request.user.is_authenticated %}
             {% include "action_translate_post.html" %}
           {% endif %}
-          {% if show_flag and request.user.is_authenticated %}
+          {% if show_all_actions and request.user.is_authenticated %}
             {% include "action_flag_post.html" %}
           {% endif %}
           {% include "action_open_post.html" %}

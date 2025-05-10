@@ -1,8 +1,9 @@
 {% load i18n %}
 <span>
   <a hx-post="{% url 'journal:post_delete' post.pk %}"
-     hx-swap="outerHTML"
-     hx-trigger="click once"
+     hx-target="closest .post"
+     hx-swap="outerHTML swap:1s"
+     hx-trigger="click"
      {% if post.piece %} hx-confirm="‼️ {% trans "Are you sure to delete this post and the mark or note related with it?" %}" {% elif parent_post %} hx-confirm="{% trans "Are you sure to delete this reply?" %}" {% else %} hx-confirm="{% trans "Are you sure to delete this post?" %}" {% endif %}
      hx-target="#replies_{{ parent_post.pk }}">
     {% if post.piece %}
