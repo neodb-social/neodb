@@ -157,6 +157,9 @@ urlpatterns = [
         r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/$", profile, name="user_profile"
     ),
     re_path(
+        r"^groups/(?P<user_name>[~A-Za-z0-9_\-.@]+)/$", group, name="group_profile"
+    ),
+    re_path(
         r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/calendar_data$",
         user_calendar_data,
         name="user_calendar_data",

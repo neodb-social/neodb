@@ -3,7 +3,7 @@ from urllib.parse import quote_plus
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
@@ -20,10 +20,35 @@ from ..models import *
 
 @require_http_methods(["GET", "HEAD"])
 @profile_identity_required
-def profile(request: AuthedHttpRequest, user_name):
+def group(request: AuthedHttpRequest, user_name):
+    target = request.target_identity
+    if not target.is_group:
+        return redirect("journal:user_profile", user_name=user_name)
     if request.method == "HEAD":
         return HttpResponse()
+    viewer_pk = request.user.identity.pk if request.user.is_authenticated else None
+    boosts = Takahe.get_events(target.pk, ["boost"], False)
+    recent_posts = Takahe.get_recent_posts(target.pk, viewer_pk)[:10]
+    return render(
+        request,
+        "group.html",
+        {
+            "user": target.user,
+            "identity": target,
+            "events": boosts[:20],
+            "recent_posts": recent_posts,
+        },
+    )
+
+
+@require_http_methods(["GET", "HEAD"])
+@profile_identity_required
+def profile(request: AuthedHttpRequest, user_name):
     target = request.target_identity
+    if target.is_group:
+        return redirect("journal:group_profile", user_name=user_name)
+    if request.method == "HEAD":
+        return HttpResponse()
     anonymous = not request.user.is_authenticated
     if anonymous and (not target.local or not target.anonymous_viewable):
         return render(

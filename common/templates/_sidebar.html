@@ -59,6 +59,15 @@
               {% include 'users/profile_actions.html' %}
             {% endif %}
           </span>
+          {% if identity.is_group %}
+            <div class="tag-list">
+              <span><a>{% trans "Group" %}</a></span>
+            </div>
+          {% elif identity.is_bot %}
+            <div class="tag-list">
+              <span><a>{% trans "Bot" %}</a></span>
+            </div>
+          {% endif %}
           <div>
             {{ identity.summary|bleach:"a,p,span,br"|default:"" }}
             <br>

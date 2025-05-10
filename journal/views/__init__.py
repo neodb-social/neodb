@@ -31,7 +31,7 @@ from .post import (
     post_unlike,
     post_view,
 )
-from .profile import profile, user_calendar_data
+from .profile import group, profile, user_calendar_data
 from .review import (
     ReviewFeed,
     review_edit,
@@ -78,6 +78,7 @@ __all__ = [
     "post_replies",
     "post_reply",
     "post_unlike",
+    "group",
     "profile",
     "user_calendar_data",
     "ReviewFeed",

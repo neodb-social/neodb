@@ -790,8 +790,8 @@ class Takahe:
             a.seen.add(user)
 
     @staticmethod
-    def get_events(identity_id: int, types: list[str]):
-        return (
+    def get_events(identity_id: int, types: list[str], excl_self: bool = True):
+        qs = (
             TimelineEvent.objects.select_related(
                 "subject_post",
                 "subject_post__author",
@@ -809,9 +809,11 @@ class Takahe:
             )
             .filter(identity=identity_id)
             .filter(type__in=types)
-            .exclude(subject_identity_id=identity_id)
             .order_by("-created")
         )
+        if excl_self:
+            qs = qs.exclude(subject_identity_id=identity_id)
+        return qs
 
     @staticmethod
     def get_public_posts(local_only=False):

@@ -59,6 +59,14 @@ class APIdentity(models.Model):
         )
 
     @property
+    def is_group(self):
+        return self.takahe_identity.actor_type == "group"
+
+    @property
+    def is_bot(self):
+        return self.takahe_identity.actor_type in ["application", "service"]
+
+    @property
     def name(self):
         return self.takahe_identity.name
 
