@@ -14,7 +14,9 @@
       <strong>{% trans "Compose" %}</strong>
     </header>
     <div>
-      <form method="post" action="{% url 'journal:post_compose' %}">
+      <form method="post"
+            action="{% url 'journal:post_compose' %}"
+            enctype="multipart/form-data">
         {% csrf_token %}
         <div>
           <fieldset>
@@ -29,6 +31,7 @@
             <textarea name="content"
                       rows="5"
                       autofocus
+                      required
                       placeholder="{% trans "Content" %}"
                       id="id_content"></textarea>
           </fieldset>
@@ -76,7 +79,113 @@
             </fieldset>
           </div>
         </div>
+        <div>
+          <button type="button"
+                  id="add-image-btn"
+                  class="secondary"
+                  _="on click call addImageField()"
+                  {% if image_count >= 4 %}disabled{% endif %}>
+            <i class="fa-regular fa-image"></i> {% trans "Add image" %}
+          </button>
+        </div>
+        <div id="image-attachments">
+          <!-- Image attachment fields will be added here dynamically -->
+        </div>
       </form>
     </div>
   </article>
 </dialog>
+<script>
+  let imageCount = 0;
+
+  function addImageField() {
+    if (imageCount >= 4) {
+      return; // Maximum 4 images
+    }
+
+    const index = imageCount;
+    const attachmentsDiv = document.getElementById('image-attachments');
+
+    const imageDiv = document.createElement('div');
+    imageDiv.className = 'image-attachment';
+    imageDiv.id = `image-attachment-${index}`;
+
+    const containerDiv = document.createElement('div');
+    containerDiv.style.display = 'flex';
+    containerDiv.style.alignItems = 'center';
+    containerDiv.style.gap = '0.5em';
+
+    const fileLabel = document.createElement('label');
+    fileLabel.htmlFor = `image_${index}`;
+    fileLabel.innerHTML = '<i class="fa-regular fa-image"></i>';
+    fileLabel.title = '{% trans "Select image" %}';
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.name = `image_${index}`;
+    fileInput.id = `image_${index}`;
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+
+    const fileNameDisplay = document.createElement('span');
+    fileNameDisplay.id = `filename_${index}`;
+    fileNameDisplay.textContent = '{% trans "No file selected" %}';
+    fileNameDisplay.style.flex = '1';
+    fileNameDisplay.style.overflow = 'hidden';
+    fileNameDisplay.style.textOverflow = 'ellipsis';
+    fileNameDisplay.style.whiteSpace = 'nowrap';
+
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        fileNameDisplay.textContent = this.files[0].name;
+      } else {
+        fileNameDisplay.textContent = '{% trans "No file selected" %}';
+      }
+    });
+
+    const altTextInput = document.createElement('input');
+    altTextInput.type = 'text';
+    altTextInput.name = `image_alt_${index}`;
+    altTextInput.id = `image_alt_${index}`;
+    altTextInput.placeholder = '{% trans "Alt text" %}';
+    altTextInput.style.flex = '2';
+    altTextInput.style.marginBottom = '0';
+
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.className = 'secondary small';
+    removeButton.innerHTML = '<i class="fa-solid fa-times"></i>';
+    removeButton.title = '{% trans "Remove" %}';
+    removeButton.style.marginBottom = '0';
+    removeButton.addEventListener('click', function() {
+      removeImageField(index);
+    });
+
+    containerDiv.appendChild(fileLabel);
+    containerDiv.appendChild(fileInput);
+    containerDiv.appendChild(fileNameDisplay);
+    containerDiv.appendChild(altTextInput);
+    containerDiv.appendChild(removeButton);
+
+    imageDiv.appendChild(containerDiv);
+    attachmentsDiv.appendChild(imageDiv);
+
+    imageCount++;
+
+    if (imageCount >= 4) {
+      document.getElementById('add-image-btn').disabled = true;
+    }
+  }
+
+  function removeImageField(index) {
+    const imageDiv = document.getElementById(`image-attachment-${index}`);
+    if (imageDiv) {
+      imageDiv.remove();
+      imageCount--;
+
+      if (imageCount < 4) {
+        document.getElementById('add-image-btn').disabled = false;
+      }
+    }
+  }
+</script>

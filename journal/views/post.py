@@ -5,6 +5,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
+from loguru import logger
 
 from common.models.lang import LOCALE_CHOICES, translate
 from common.utils import AuthedHttpRequest, get_uuid_or_404
@@ -177,8 +178,10 @@ def post_compose(request: AuthedHttpRequest):
                 "visibility": request.user.preference.default_visibility,
                 "languages": LOCALE_CHOICES,
                 "user_language": request.user.language,
+                "image_count": 0,
             },
         )
+
     content = request.POST.get("content", "").strip()
     subject = request.POST.get("subject", "").strip()
     language = request.POST.get("language", request.user.language)
@@ -188,6 +191,28 @@ def post_compose(request: AuthedHttpRequest):
 
     if not content:
         raise BadRequest(_("Content cannot be empty."))
+    if language == "x":
+        language = ""
+
+    attachments = []
+    for i in range(4):  # Maximum 4 images
+        image_file = request.FILES.get(f"image_{i}")
+        if image_file:
+            alt_text = request.POST.get(f"image_alt_{i}", "")
+            if not image_file.name or not image_file.content_type:
+                continue
+            try:
+                attachment = Takahe.upload_image(
+                    request.user.identity.pk,
+                    image_file.name,
+                    image_file.read(),
+                    image_file.content_type,
+                    description=alt_text,
+                )
+                attachments.append(attachment)
+            except Exception as e:
+                logger.error(f"Failed to upload image: {e}")
+                # Continue with the post even if image upload fails
 
     # Use subject as summary and set sensitive if subject is not empty
     Takahe.post(
@@ -197,6 +222,7 @@ def post_compose(request: AuthedHttpRequest):
         summary=subject if subject else None,
         sensitive=bool(subject),
         language=language,
+        attachments=attachments if attachments else None,
     )
     return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
