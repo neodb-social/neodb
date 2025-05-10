@@ -21,6 +21,7 @@ from .note import note_edit
 from .post import (
     piece_replies,
     post_boost,
+    post_compose,
     post_delete,
     post_flag,
     post_like,
@@ -78,6 +79,7 @@ __all__ = [
     "post_replies",
     "post_reply",
     "post_unlike",
+    "post_compose",
     "group",
     "profile",
     "user_calendar_data",

@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
-from common.models.lang import translate
+from common.models.lang import LOCALE_CHOICES, translate
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 from journal.models.renderers import bleach_post_content
 from takahe.models import Post
@@ -161,6 +161,44 @@ def post_flag(request, post_id: int):
     reason = request.headers.get("HX-Prompt", "").strip()
     Takahe.report_post(post, request.user.identity.pk, reason)
     return HttpResponse("<script>alert('Report received.')</script>")
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def post_compose(request: AuthedHttpRequest):
+    """
+    Show the post compose form and handle form submission.
+    """
+    if request.method == "GET":
+        return render(
+            request,
+            "post_compose.html",
+            {
+                "visibility": request.user.preference.default_visibility,
+                "languages": LOCALE_CHOICES,
+                "user_language": request.user.language,
+            },
+        )
+    content = request.POST.get("content", "").strip()
+    subject = request.POST.get("subject", "").strip()
+    language = request.POST.get("language", request.user.language)
+    visibility = Takahe.visibility_n2t(
+        int(request.POST.get("visibility", 0)), request.user.preference.post_public_mode
+    )
+
+    if not content:
+        raise BadRequest(_("Content cannot be empty."))
+
+    # Use subject as summary and set sensitive if subject is not empty
+    Takahe.post(
+        request.user.identity.pk,
+        content,
+        visibility,
+        summary=subject if subject else None,
+        sensitive=bool(subject),
+        language=language,
+    )
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 
 @require_http_methods(["GET"])

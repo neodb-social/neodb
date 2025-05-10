@@ -1,0 +1,82 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load mastodon %}
+<dialog open
+        class="mark-editor"
+        _="on close_dialog add .closing then wait for animationend then remove me">
+  <article>
+    <header>
+      <link to="#"
+            aria-label="Close"
+            class="close"
+            _="on click trigger close_dialog" />
+      <strong>{% trans "Compose" %}</strong>
+    </header>
+    <div>
+      <form method="post" action="{% url 'journal:post_compose' %}">
+        {% csrf_token %}
+        <div>
+          <fieldset>
+            <input type="text"
+                   name="subject"
+                   placeholder="{% trans "Subject (optional)" %}"
+                   id="id_subject">
+          </fieldset>
+        </div>
+        <div>
+          <fieldset>
+            <textarea name="content"
+                      rows="5"
+                      autofocus
+                      placeholder="{% trans "Content" %}"
+                      id="id_content"></textarea>
+          </fieldset>
+        </div>
+        <div class="grid">
+          <div>
+            <select name="language" id="id_language">
+              {% for lang_code, lang_name in languages %}
+                <option value="{{ lang_code }}"
+                        {% if user_language == lang_code %}selected{% endif %}>{{ lang_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <fieldset style="margin-top:0.6em">
+              <input type="radio"
+                     name="visibility"
+                     value="0"
+                     required
+                     {% if visibility == 0 %}checked{% endif %}
+                     id="id_visibility_0"
+                     checked>
+              <label for="id_visibility_0">{% trans "Public" %}</label>
+              <input type="radio"
+                     name="visibility"
+                     value="1"
+                     required
+                     {% if visibility == 1 %}checked{% endif %}
+                     id="id_visibility_1">
+              <label for="id_visibility_1">{% trans "Followers Only" %}</label>
+              <input type="radio"
+                     name="visibility"
+                     value="2"
+                     required
+                     {% if visibility == 2 %}checked{% endif %}
+                     id="id_visibility_2">
+              <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
+            </fieldset>
+          </div>
+        </div>
+        <div>
+          <div>
+            <fieldset>
+              <input type="submit" value="{% trans "Publish" %}">
+            </fieldset>
+          </div>
+        </div>
+      </form>
+    </div>
+  </article>
+</dialog>

@@ -218,7 +218,15 @@
     <section>
       <article>
         <details class="auto-collapse" open>
-          <summary>{% trans 'Recent Posts' %}</summary>
+          <summary>
+            {% trans 'Recent Posts' %}
+            {% if me %}
+              <small><a title="{% trans "Compose" %}"
+   hx-get="{% url 'journal:post_compose' %}"
+   hx-target="body"
+   hx-swap="beforeend"><i class="fa-regular fa-pen-to-square"></i></a></small>
+            {% endif %}
+          </summary>
           <div style="font-size:80%">{% include "posts.html" with posts=recent_posts %}</div>
         </details>
       </article>

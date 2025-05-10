@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-08 14:11-0400\n"
+"POT-Creation-Date: 2025-05-10 19:19-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -454,7 +454,7 @@ msgid "FanFic"
 msgstr "网文"
 
 #: catalog/common/models.py:345 catalog/tv/models.py:444
-#: users/models/user.py:113
+#: users/models/user.py:127
 msgid "language"
 msgstr "语言"
 
@@ -1275,23 +1275,23 @@ msgstr "发现"
 msgid "Collections"
 msgstr "收藏单"
 
-#: catalog/templates/discover.html:104 journal/templates/profile.html:202
+#: catalog/templates/discover.html:104 journal/templates/profile.html:197
 msgid "edit layout"
 msgstr "编辑布局"
 
-#: catalog/templates/discover.html:107 journal/templates/profile.html:205
+#: catalog/templates/discover.html:107 journal/templates/profile.html:200
 msgid "save"
 msgstr "保存"
 
-#: catalog/templates/discover.html:118 journal/templates/profile.html:216
+#: catalog/templates/discover.html:118 journal/templates/profile.html:211
 msgid "cancel"
 msgstr "取消"
 
-#: catalog/templates/discover.html:124 journal/templates/profile.html:222
+#: catalog/templates/discover.html:124 journal/templates/profile.html:217
 msgid "show"
 msgstr "显示"
 
-#: catalog/templates/discover.html:125 journal/templates/profile.html:223
+#: catalog/templates/discover.html:125 journal/templates/profile.html:218
 msgid "hide"
 msgstr "隐藏"
 
@@ -1310,13 +1310,14 @@ msgstr "热门标签"
 
 #: catalog/templates/discover.html:180 catalog/templates/item_base.html:261
 #: catalog/templates/item_mark_list.html:69
-#: catalog/templates/item_review_list.html:51 common/templates/_sidebar.html:90
+#: catalog/templates/item_review_list.html:51
+#: common/templates/_sidebar.html:100
 #: common/templates/_sidebar_anonymous.html:46
 #: common/templates/_sidebar_anonymous.html:62
 #: journal/templates/collection_dynamic_items.html:7
 #: journal/templates/collection_items.html:17 journal/templates/posts.html:8
-#: journal/templates/profile.html:124 journal/templates/profile.html:162
-#: journal/templates/profile.html:194
+#: journal/templates/profile.html:119 journal/templates/profile.html:157
+#: journal/templates/profile.html:189
 #: journal/templates/profile_collection_items.html:29
 #: journal/templates/user_collection_list.html:52
 #: journal/templates/user_item_list_base.html:26
@@ -1325,7 +1326,7 @@ msgstr "热门标签"
 msgid "nothing so far."
 msgstr "暂无内容。"
 
-#: catalog/templates/discover.html:190 common/templates/_sidebar.html:212
+#: catalog/templates/discover.html:190 common/templates/_sidebar.html:223
 msgid "Recent Posts"
 msgstr "近期帖文"
 
@@ -1474,7 +1475,7 @@ msgstr "原始网站"
 #: catalog/templates/search_header.html:13
 #: catalog/templates/search_header.html:15
 #: journal/templates/_sidebar_user_mark_list.html:55
-#: social/templates/notification.html:28
+#: social/templates/notification.html:35
 msgid "all"
 msgstr "全部"
 
@@ -1622,8 +1623,8 @@ msgstr "条目不可被删除。"
 #: journal/views/collection.py:364 journal/views/collection.py:389
 #: journal/views/collection.py:392 journal/views/collection.py:429
 #: journal/views/common.py:143 journal/views/mark.py:206
-#: journal/views/post.py:52 journal/views/post.py:66 journal/views/post.py:80
-#: journal/views/post.py:149 journal/views/post.py:164
+#: journal/views/post.py:51 journal/views/post.py:65 journal/views/post.py:79
+#: journal/views/post.py:145 journal/views/post.py:160
 #: journal/views/review.py:38 journal/views/review.py:49
 #: journal/views/review.py:74
 msgid "Insufficient permission"
@@ -1633,7 +1634,7 @@ msgstr "权限不足"
 #: journal/views/collection.py:51 journal/views/collection.py:76
 #: journal/views/collection.py:369 journal/views/collection.py:458
 #: journal/views/common.py:90 journal/views/mark.py:146
-#: journal/views/post.py:94 journal/views/post.py:108 journal/views/post.py:121
+#: journal/views/post.py:90 journal/views/post.py:104 journal/views/post.py:117
 #: journal/views/review.py:121 journal/views/review.py:124
 #: users/views/actions.py:169
 msgid "Invalid parameter"
@@ -2525,7 +2526,7 @@ msgid "Home"
 msgstr "主页"
 
 #: common/templates/_header.html:94 social/templates/notification.html:12
-#: social/templates/notification.html:25
+#: social/templates/notification.html:32
 msgid "Notification"
 msgstr "通知"
 
@@ -2568,53 +2569,67 @@ msgstr "搜索你的评论或条目，可加过滤条件如 category:tv status:c
 msgid "Open"
 msgstr "打开"
 
-#: common/templates/_sidebar.html:53
+#: common/templates/_sidebar.html:54
 #: users/templates/users/profile_actions.html:35
 msgid "approving followers manually"
 msgstr "已开启关注审核"
 
-#: common/templates/_sidebar.html:75
+#: common/templates/_sidebar.html:66 journal/templates/group.html:12
+#: journal/templates/group.html:18
+msgid "Group"
+msgstr "群组"
+
+#: common/templates/_sidebar.html:70
+msgid "Bot"
+msgstr "机器人"
+
+#: common/templates/_sidebar.html:85
 msgid "Current Targets"
 msgstr "当前目标"
 
-#: common/templates/_sidebar.html:88
+#: common/templates/_sidebar.html:98
 msgid "Set a collection as target, its progress will show up here."
 msgstr "将自己或他人的收藏单设为目标，这里就会显示进度。"
 
-#: common/templates/_sidebar.html:101
+#: common/templates/_sidebar.html:111
 msgid "Recent podcast episodes"
 msgstr "近期播客节目"
 
-#: common/templates/_sidebar.html:136
+#: common/templates/_sidebar.html:146
 msgid "Currently reading"
 msgstr "正在阅读"
 
-#: common/templates/_sidebar.html:159
+#: common/templates/_sidebar.html:169
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:182 journal/templates/user_tag_list.html:13
+#: common/templates/_sidebar.html:192 journal/templates/user_tag_list.html:13
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
 msgstr "标签"
 
-#: common/templates/_sidebar.html:188 journal/templates/user_tag_list.html:27
+#: common/templates/_sidebar.html:198 journal/templates/user_tag_list.html:27
 #: journal/templates/user_tagmember_list.html:10
 msgid "featured tag"
 msgstr "置顶标签"
 
-#: common/templates/_sidebar.html:191 journal/templates/user_tag_list.html:30
+#: common/templates/_sidebar.html:201 journal/templates/user_tag_list.html:30
 #: journal/templates/user_tagmember_list.html:15
 msgid "personal tag"
 msgstr "个人标签"
 
-#: common/templates/_sidebar.html:198 journal/templates/user_tag_list.html:38
+#: common/templates/_sidebar.html:208 journal/templates/user_tag_list.html:38
 msgid "no tags so far."
 msgstr "暂无标签。"
 
-#: common/templates/_sidebar.html:202
+#: common/templates/_sidebar.html:212
 msgid "show all"
 msgstr "显示全部"
+
+#: common/templates/_sidebar.html:225 journal/templates/post_compose.html:14
+#: social/templates/feed.html:26 social/templates/notification.html:26
+msgid "Compose"
+msgstr "撰写"
 
 #: common/templates/_sidebar_anonymous.html:16
 #, python-format
@@ -2766,28 +2781,30 @@ msgstr "创建了收藏单"
 #: journal/templates/action_open_post.html:13
 #: journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
-#: journal/templates/mark.html:88 journal/templates/tag_edit.html:42
-#: journal/templates/wrapped_share.html:43 users/templates/users/data.html:54
-#: users/templates/users/data.html:147 users/templates/users/data.html:199
-#: users/templates/users/data.html:259
+#: journal/templates/mark.html:88 journal/templates/post_compose.html:54
+#: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
+#: users/templates/users/data.html:54 users/templates/users/data.html:147
+#: users/templates/users/data.html:199 users/templates/users/data.html:259
 #: users/templates/users/preferences.html:56
 msgid "Public"
 msgstr "公开"
 
 #: journal/models/common.py:40 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
-#: journal/templates/mark.html:95 journal/templates/wrapped_share.html:49
-#: users/templates/users/data.html:62 users/templates/users/data.html:155
-#: users/templates/users/data.html:207 users/templates/users/data.html:267
+#: journal/templates/mark.html:95 journal/templates/post_compose.html:61
+#: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
+#: users/templates/users/data.html:155 users/templates/users/data.html:207
+#: users/templates/users/data.html:267
 #: users/templates/users/preferences.html:63
 msgid "Followers Only"
 msgstr "仅关注者"
 
 #: journal/models/common.py:41 journal/templates/action_open_post.html:11
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
-#: journal/templates/mark.html:102 journal/templates/wrapped_share.html:55
-#: users/templates/users/data.html:70 users/templates/users/data.html:163
-#: users/templates/users/data.html:215 users/templates/users/data.html:275
+#: journal/templates/mark.html:102 journal/templates/post_compose.html:68
+#: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
+#: users/templates/users/data.html:163 users/templates/users/data.html:215
+#: users/templates/users/data.html:275
 #: users/templates/users/preferences.html:70
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
@@ -3391,15 +3408,15 @@ msgstr "评分"
 msgid "boost"
 msgstr "转播"
 
-#: journal/templates/action_delete_post.html:6
+#: journal/templates/action_delete_post.html:7
 msgid "Are you sure to delete this post and the mark or note related with it?"
 msgstr "确认删除这则帖文及其对应的标记/笔记/评论吗？"
 
-#: journal/templates/action_delete_post.html:6
+#: journal/templates/action_delete_post.html:7
 msgid "Are you sure to delete this reply?"
 msgstr "确认删除这则回应吗？"
 
-#: journal/templates/action_delete_post.html:6
+#: journal/templates/action_delete_post.html:7
 msgid "Are you sure to delete this post?"
 msgstr "确认删除这则帖文吗？"
 
@@ -3548,6 +3565,10 @@ msgstr "提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字�
 msgid "share with playback position"
 msgstr "分享播放位置"
 
+#: journal/templates/group.html:38
+msgid "no posts."
+msgstr ""
+
 #: journal/templates/mark.html:17
 msgid "Mark"
 msgstr "标记"
@@ -3683,28 +3704,40 @@ msgstr "删除后你将无法追溯其他用户对此内容曾经作出的回应
 msgid "Deletion cannot be undone, are you sure to continue?"
 msgstr "删除不可撤销。确认继续吗？"
 
-#: journal/templates/profile.html:63
+#: journal/templates/post_compose.html:23
+msgid "Subject (optional)"
+msgstr "主题（选填）"
+
+#: journal/templates/post_compose.html:32
+msgid "Content"
+msgstr "内容"
+
+#: journal/templates/post_compose.html:75
+msgid "Publish"
+msgstr "发布"
+
+#: journal/templates/profile.html:58
 msgid "calendar"
 msgstr "日历"
 
-#: journal/templates/profile.html:66 journal/templates/wrapped.html:15
+#: journal/templates/profile.html:61 journal/templates/wrapped.html:15
 #: journal/templates/wrapped.html:54
 msgid "annual summary"
 msgstr "年度小结"
 
-#: journal/templates/profile.html:142 journal/views/collection.py:204
+#: journal/templates/profile.html:137 journal/views/collection.py:204
 msgid "collection"
 msgstr "收藏单"
 
-#: journal/templates/profile.html:178
+#: journal/templates/profile.html:173
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/replies.html:45
+#: journal/templates/replies.html:61
 msgid "no replies so far."
 msgstr "暂无回应。"
 
-#: journal/templates/replies.html:53
+#: journal/templates/replies.html:69
 msgid "add a reply"
 msgstr "添加回应"
 
@@ -3899,9 +3932,13 @@ msgstr "进度类型（选填）"
 msgid "Invalid form data"
 msgstr "无效表单信息。"
 
-#: journal/views/post.py:78
+#: journal/views/post.py:77
 msgid "Post not found"
 msgstr "帖文未找到"
+
+#: journal/views/post.py:190
+msgid "Content cannot be empty."
+msgstr "内容不可为空。"
 
 #: journal/views/review.py:142 journal/views/review.py:156
 #, python-brace-format
@@ -4194,7 +4231,7 @@ msgstr "播放"
 msgid "mark"
 msgstr "标记"
 
-#: social/templates/_event_post.html:89
+#: social/templates/_event_post.html:90
 msgid "wrote a note"
 msgstr "写了笔记"
 
@@ -4380,20 +4417,20 @@ msgstr ""
 "\n"
 "回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
-#: social/templates/feed.html:12 social/templates/feed.html:24
-#: social/templates/notification.html:24 social/templates/search_feed.html:12
+#: social/templates/feed.html:12 social/templates/feed.html:31
+#: social/templates/notification.html:31 social/templates/search_feed.html:12
 msgid "Activities from those you follow"
 msgstr "好友动态"
 
-#: social/templates/feed.html:27 social/templates/feed.html:29
+#: social/templates/feed.html:34 social/templates/feed.html:36
 msgid "All"
 msgstr "全部"
 
-#: social/templates/feed.html:27 social/templates/feed.html:29
+#: social/templates/feed.html:34 social/templates/feed.html:36
 msgid "What they read/watch/..."
 msgstr "仅书影音"
 
-#: social/templates/feed.html:31
+#: social/templates/feed.html:38
 msgid "Notifications"
 msgstr "通知"
 
@@ -4406,11 +4443,11 @@ msgstr "没有符合条件的动态。"
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\">导入你的豆瓣、Letterboxd或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用%(site_name)s的用户，这里就会显示你和她们的近期动态。"
 
-#: social/templates/notification.html:30
+#: social/templates/notification.html:37
 msgid "mention"
 msgstr "提及"
 
-#: social/templates/notification.html:32
+#: social/templates/notification.html:39
 msgid "follow"
 msgstr "关注"
 
@@ -4462,19 +4499,19 @@ msgstr "完成"
 msgid "Failed"
 msgstr "失败"
 
-#: users/models/user.py:53
+#: users/models/user.py:67
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr "输入用户名，限英文字母数字下划线，最多30个字符。"
 
-#: users/models/user.py:101
+#: users/models/user.py:115
 msgid "username"
 msgstr "用户名"
 
-#: users/models/user.py:106
+#: users/models/user.py:120
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
 msgstr "必填，限英文字母数字下划线，最多30个字符。"
 
-#: users/models/user.py:109
+#: users/models/user.py:123
 msgid "A user with that username already exists."
 msgstr "使用该用户名的用户已存在。"
 

@@ -21,27 +21,34 @@
   <main>
     <div class="grid__main">
       <h5>
-        <a href="{% url 'social:feed' %}">{% trans 'Activities from those you follow' %}</a>
-        | {% trans 'Notification' %}
-        <small>
-          <a class="{% if not request.GET.type %}secondary{% endif %}"
-             href="{% url 'social:notification' %}">{% trans 'all' %}</a> |
-          <a class="{% if request.GET.type == 'mention' %}secondary{% endif %}"
-             href="{% url 'social:notification' %}?type=mention">{% trans 'mention' %}</a> |
-          <a class="{% if request.GET.type == 'follow' %}secondary{% endif %}"
-             href="{% url 'social:notification' %}?type=follow">{% trans 'follow' %}</a>
-        </small>
-      </h5>
-      <div class="notifications">
-        <div hx-get="{% url 'social:events' %}?type={{ request.GET.type }}"
-             hx-trigger="intersect once delay:0.1s"
-             hx-swap="outerHTML">
-          <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+        <span class="action">
+          <span>
+            <a title="{% trans "Compose" %}"
+               hx-get="{% url 'journal:post_compose' %}"
+               hx-target="body"
+               hx-swap="beforeend"><i class="fa-regular fa-pen-to-square">
+            </i></a></span></span>
+            <a href="{% url 'social:feed' %}">{% trans 'Activities from those you follow' %}</a>
+            | {% trans 'Notification' %}
+            <small>
+              <a class="{% if not request.GET.type %}secondary{% endif %}"
+                 href="{% url 'social:notification' %}">{% trans 'all' %}</a> |
+              <a class="{% if request.GET.type == 'mention' %}secondary{% endif %}"
+                 href="{% url 'social:notification' %}?type=mention">{% trans 'mention' %}</a> |
+              <a class="{% if request.GET.type == 'follow' %}secondary{% endif %}"
+                 href="{% url 'social:notification' %}?type=follow">{% trans 'follow' %}</a>
+            </small>
+          </h5>
+          <div class="notifications">
+            <div hx-get="{% url 'social:events' %}?type={{ request.GET.type }}"
+                 hx-trigger="intersect once delay:0.1s"
+                 hx-swap="outerHTML">
+              <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
-  </main>
-  {% include "_footer.html" %}
-</body>
-</html>
+        {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
+      </main>
+      {% include "_footer.html" %}
+    </body>
+  </html>

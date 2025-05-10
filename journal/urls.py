@@ -39,6 +39,7 @@ urlpatterns = [
     path("post/<int:post_id>/pin", post_pin, name="post_pin"),
     path("post/<int:post_id>/like", post_like, name="post_like"),
     path("post/<int:post_id>/unlike", post_unlike, name="post_unlike"),
+    path("post/compose", post_compose, name="post_compose"),
     path("mark_log/<str:item_uuid>/<int:log_id>", mark_log, name="mark_log"),
     path(
         "add_to_collection/<str:item_uuid>", add_to_collection, name="add_to_collection"

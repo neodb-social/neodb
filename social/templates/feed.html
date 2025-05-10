@@ -21,26 +21,33 @@
   <main>
     <div class="grid__main">
       <h5>
-        <span class="large-only">{% trans 'Activities from those you follow' %}</span>
-        <small>
-          {% if feed_type == 1 %}
-            <a href="{% url 'social:feed' %}">{% trans "All" %}</a> | {% trans "What they read/watch/..." %}
-          {% else %}
-            {% trans "All" %} | <a href="{% url 'social:focus' %}">{% trans "What they read/watch/..." %}</a>
-          {% endif %}
-          | <a href="{% url 'social:notification' %}">{% trans "Notifications" %}</a>
-        </small>
-      </h5>
-      <div class="feed">
-        <div hx-get="{% url 'social:data' %}?typ={{ feed_type }}"
-             hx-trigger="intersect once delay:0.1s"
-             hx-swap="outerHTML">
-          <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+        <span class="action">
+          <span>
+            <a title="{% trans "Compose" %}"
+               hx-get="{% url 'journal:post_compose' %}"
+               hx-target="body"
+               hx-swap="beforeend"><i class="fa-regular fa-pen-to-square">
+            </i></a></span></span>
+            <span class="large-only">{% trans 'Activities from those you follow' %}</span>
+            <small>
+              {% if feed_type == 1 %}
+                <a href="{% url 'social:feed' %}">{% trans "All" %}</a> | {% trans "What they read/watch/..." %}
+              {% else %}
+                {% trans "All" %} | <a href="{% url 'social:focus' %}">{% trans "What they read/watch/..." %}</a>
+              {% endif %}
+              | <a href="{% url 'social:notification' %}">{% trans "Notifications" %}</a>
+            </small>
+          </h5>
+          <div class="feed">
+            <div hx-get="{% url 'social:data' %}?typ={{ feed_type }}"
+                 hx-trigger="intersect once delay:0.1s"
+                 hx-swap="outerHTML">
+              <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    {% include "_sidebar.html" with show_progress=1 identity=request.user.identity %}
-  </main>
-  {% include "_footer.html" %}
-</body>
-</html>
+        {% include "_sidebar.html" with show_progress=1 identity=request.user.identity %}
+      </main>
+      {% include "_footer.html" %}
+    </body>
+  </html>
