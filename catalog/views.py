@@ -315,6 +315,14 @@ def discover(request):
             popular_posts = Takahe.get_posts(post_ids).order_by("-published")
         else:
             popular_posts = Takahe.get_public_posts(settings.DISCOVER_SHOW_LOCAL_ONLY)
+            # Limit to no more than 3 posts per author
+            popular_posts = popular_posts.annotate(
+                author_row=Window(
+                    expression=RowNumber(),
+                    partition_by="author_id",
+                    order_by="-published",
+                )
+            ).filter(author_row__lte=3)
         popular_posts = popular_posts.not_blocked_by(identity.takahe_identity)[:20]  # type: ignore
     else:
         identity = None
