@@ -20,8 +20,7 @@
     <meta property="og:url" content="{{ identity.url }}">
     <meta property="og:image" content="{{ identity.avatar }}">
     <meta property="og:site_name" content="{{ site_name }}">
-    <meta name="fediverse:creator"
-          content="@{{ collection.owner.full_handle }}">
+    <meta name="fediverse:creator" content="@{{ identity.full_handle }}">
     {% if identity.local and identity.anonymous_viewable %}
       <link rel="alternate"
             type="application/rss+xml"
@@ -41,11 +40,7 @@
           rel="stylesheet" />
   </head>
   <body>
-    {% if request.user == identity.user %}
-      {% include "_header.html" %}
-    {% else %}
-      {% include "_header.html" %}
-    {% endif %}
+    {% include "_header.html" %}
     <main>
       <div class="grid__main">
         <div class="sortable">
@@ -232,14 +227,14 @@
         {% endif %}
         {{ layout|json_script:"layout-data" }}
         <script>
-        const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
-        initialLayoutData.forEach(elem => {
-          $('#' + elem.id).data('visibility', elem.visibility);
-          if (!elem.visibility) {
-            $('#' + elem.id).hide();
-          }
-          $('#' + elem.id).appendTo('.sortable');
-        });
+          const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
+          initialLayoutData.forEach(elem => {
+            $('#' + elem.id).data('visibility', elem.visibility);
+            if (!elem.visibility) {
+              $('#' + elem.id).hide();
+            }
+            $('#' + elem.id).appendTo('.sortable');
+          });
         </script>
       </div>
       {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
