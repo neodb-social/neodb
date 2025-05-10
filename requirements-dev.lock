@@ -31,9 +31,9 @@ beautifulsoup4==4.13.4
 bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
-boto3==1.38.8
+boto3==1.38.13
     # via django-storages
-botocore==1.38.8
+botocore==1.38.13
     # via boto3
     # via s3transfer
 cachetools==5.5.2
@@ -65,7 +65,7 @@ deepmerge==2.0
 discord-py==2.5.2
 distlib==0.3.9
     # via virtualenv
-django==4.2.20
+django==4.2.21
     # via django-anymail
     # via django-appconf
     # via django-auditlog
@@ -92,7 +92,7 @@ django-bleach==3.1.0
 django-compressor==4.5.1
 django-cors-headers==4.7.0
 django-environ==0.12.0
-django-hijack==3.7.1
+django-hijack==3.7.2
 django-jsonform==2.23.2
 django-maintenance-mode==0.22.0
 django-markdownx==4.0.9
@@ -174,7 +174,7 @@ pillow==11.2.1
     # via blurhash-python
     # via django-markdownx
     # via easy-thumbnails
-platformdirs==4.3.7
+platformdirs==4.3.8
     # via virtualenv
 podcastparser==0.6.10
 pre-commit==4.2.0
@@ -222,7 +222,7 @@ rjsmin==1.2.2
     # via django-compressor
 rq==2.3.2
     # via django-rq
-ruff==0.11.8
+ruff==0.11.9
 s3transfer==0.12.0
     # via boto3
 sentry-sdk==2.27.0
@@ -269,7 +269,7 @@ urllib3==2.4.0
     # via sentry-sdk
 urlman==2.0.2
 validators==0.35.0
-virtualenv==20.30.0
+virtualenv==20.31.2
     # via pre-commit
 webencodings==0.5.1
     # via bleach
