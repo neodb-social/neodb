@@ -32,13 +32,29 @@
         {% else %}
           {{ post.safe_content_local }}
         {% endif %}
-        {% for attachment in post.attachments.all %}
-          <a href="{{ attachment.full_url.relative }}" class="download">
-            <div>
-              <i class="fa-solid fa-download"></i> {{ attachment.file_display_name }}
-            </div>
-          </a>
-        {% endfor %}
+        <div class="attachments">
+          {% for attachment in post.attachments.all %}
+            {% if attachment.is_image %}
+              <a href="#img_{{ post.pk }}_{{ loop.index }}">
+                <img src="{{ attachment.thumbnail_url.relative }}"
+                     alt="image attachment"
+                     class="preview">
+              </a>
+              <a href="#" class="lightbox" id="img_{{ post.pk }}_{{ loop.index }}">
+                <span style="background-image: url('{{ attachment.full_url.relative }}')"></span>
+              </a>
+            {% endif %}
+          {% endfor %}
+          {% for attachment in post.attachments.all %}
+            {% if not attachment.is_image %}
+              <a href="{{ attachment.full_url.relative }}" class="download">
+                <div>
+                  <i class="fa-solid fa-download"></i> {{ attachment.file_display_name }}
+                </div>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
         <div id="replies_{{ post.pk }}"></div>
       </div>
     {% empty %}
