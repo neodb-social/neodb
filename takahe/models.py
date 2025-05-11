@@ -2156,7 +2156,7 @@ class Block(models.Model):
         try:
             if require_active:
                 return cls.objects.filter(
-                    status__in=["new", "sent", "awaiting_expiry"]
+                    state__in=["new", "sent", "awaiting_expiry"]
                 ).get(source=source, target=target, mute=mute)
             else:
                 return cls.objects.get(source=source, target=target, mute=mute)
