@@ -11,7 +11,7 @@ urlpatterns = [
     path("site/manifest.json", manifest, name="manifest"),
     path("site/opensearch.xml", opensearch, name="opensearch"),
     path("me/", me, name="me"),
-    path("nodeinfo/2.0/", nodeinfo2),
+    path("nodeinfo/<str:version>/", nodeinfo2),
     path("developer/", console, name="developer"),
     path("auth/signup/", signup, name="signup"),
     path("auth/signup/<str:code>/", signup, name="signup"),

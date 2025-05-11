@@ -17,7 +17,7 @@
     <main class="container">
       <article class="error">
         <header>
-          <h3>🙅🏻 {{ exception|default:"" }}</h3>
+          <h3>🙅🏻 {{ message|default:"" }}</h3>
         </header>
         {% blocktrans %}Author may require you to log in before accessing this content, or you do not have permission to view it.{% endblocktrans %}
         <br>

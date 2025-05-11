@@ -70,16 +70,24 @@ def ap_redirect(request, uri):
     return redirect(request.get_full_path().replace("/~neodb~/", "/"))
 
 
-def nodeinfo2(request):
+def nodeinfo2(request, version: str):
+    if version not in ["2.0", "2.1", "2.2"]:
+        return _error_response(
+            request, 400, default_message="NodeInfo version not supported"
+        )
     usage = cache.get("nodeinfo_usage", default={})
     return JsonResponse(
         {
-            "version": "2.0",
+            "version": version,
             "software": {
                 "name": "neodb",
                 "version": __version__,
                 "repository": "https://github.com/neodb-social/neodb",
                 "homepage": "https://neodb.net/",
+            },
+            "instance": {
+                "name": settings.SITE_INFO["site_name"],
+                "description": settings.SITE_INFO["site_description"],
             },
             "protocols": ["activitypub", "neodb"],
             "openRegistrations": not settings.INVITE_ONLY,
