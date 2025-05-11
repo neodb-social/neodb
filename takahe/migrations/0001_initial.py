@@ -913,6 +913,11 @@ class Migration(migrations.Migration):
                 ("note", models.TextField(blank=True, null=True)),
                 ("state", models.CharField(default="unrequested", max_length=100)),
                 ("state_changed", models.DateTimeField(auto_now_add=True)),
+                ("state_next_attempt", models.DateTimeField(blank=True, null=True)),
+                (
+                    "state_locked_until",
+                    models.DateTimeField(blank=True, db_index=True, null=True),
+                ),
                 ("created", models.DateTimeField(auto_now_add=True)),
                 ("updated", models.DateTimeField(auto_now=True)),
                 (

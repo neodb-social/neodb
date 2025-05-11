@@ -259,8 +259,7 @@ class Takahe:
             and (not from_states or follow.state in from_states)
             and follow.state != to_state
         ):
-            follow.state = to_state
-            follow.save()
+            Takahe.update_state(follow, to_state)
         return follow
 
     @staticmethod
@@ -268,8 +267,9 @@ class Takahe:
         try:
             follow = Follow.objects.get(source_id=source_pk, target_id=target_pk)
             if follow.state != "accepted":
-                follow.state = "accepted" if force_accept else "unrequested"
-                follow.save()
+                Takahe.update_state(
+                    follow, "accepted" if force_accept else "unrequested"
+                )
         except Follow.DoesNotExist:
             source = Identity.objects.get(pk=source_pk)
             follow = Follow.objects.create(
@@ -691,7 +691,7 @@ class Takahe:
 
     @staticmethod
     def update_state(
-        obj: Post | PostInteraction | Relay | Identity | Domain, state: str
+        obj: Post | PostInteraction | Relay | Identity | Domain | Follow, state: str
     ):
         obj.state = state
         obj.state_changed = timezone.now()

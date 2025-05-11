@@ -890,6 +890,8 @@ class Follow(models.Model):
     # state = StateField(FollowStates)
     state = models.CharField(max_length=100, default="unrequested")
     state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
