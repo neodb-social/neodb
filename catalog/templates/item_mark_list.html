@@ -36,8 +36,10 @@
                 {% endif %}
                 {% if mark.comment.latest_post %}
                   {% include "action_reply_piece.html" with post=mark.comment.latest_post piece=mark.comment %}
-                  {% include "action_like_post.html" with post=mark.comment.latest_post %}
-                  {% include "action_boost_post.html" with post=mark.comment.latest_post %}
+                {% endif %}
+                {% if mark.shelfmember.latest_post %}
+                  {% include "action_like_post.html" with post=mark.shelfmember.latest_post %}
+                  {% include "action_boost_post.html" with post=mark.shelfmember.latest_post %}
                 {% endif %}
                 {% if mark.comment and request.user.is_authenticated and translate_enabled %}
                   <span>

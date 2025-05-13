@@ -40,6 +40,21 @@ class APIdentity(models.Model):
     def __str__(self):
         return f"{self.pk}:{self.username}@{self.domain_name}"
 
+    @classmethod
+    def from_takahe(cls, t):
+        if not t:
+            return None
+        i = cls.objects.get_or_create(
+            pk=t.pk,
+            defaults={
+                "username": t.username,
+                "domain_name": t.domain_id,
+                "local": t.local,
+                "deleted": t.deleted,
+            },
+        )[0]
+        return i
+
     @cached_property
     def takahe_identity(self):
         return Takahe.get_identity(self.pk)

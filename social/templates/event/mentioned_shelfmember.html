@@ -9,4 +9,4 @@ replied to your mark on <a href="{{ item_url }}">{{ item_title }}</a>
   </span>
   {{ event.piece.mark.comment.html|safe }}
 </blockquote>
-{% include "event/_post.html" with post=event.reply %}
+{% include "_event_post.html" with post=event.reply %}

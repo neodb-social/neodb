@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load duration %}
-<span>
+<span class="post_timestamp">
   <a title="{% trans 'view post' %}"
      href="{% url 'journal:post_view' post.author.handle post.pk %}">
     {{ post.edited|default:post.published|naturaldelta }}

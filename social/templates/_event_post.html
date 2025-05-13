@@ -21,16 +21,6 @@
         {% trans 'boosted' %}
       </div>
     {% endif %}
-    {% if post.in_reply_to_post_ %}
-      <div class="replied">
-        {% trans 'replying to' %}
-        {% comment %}do not show replying to detail in case viewer has no access to it{% endcomment %}
-        <a class="nickname"
-           href="{% url 'journal:post_view' post.in_reply_to_post_.author.handle post.in_reply_to_post_.pk %}">
-          @{{ post.in_reply_to_post_.author.username }}@{{ post.in_reply_to_post_.author.domain_id }}
-        </a>
-      </div>
-    {% endif %}
     <div style="display:flex;">
       <div>
         <div class="avatar" style="margin:0.6em 0.6em 0.6em 0;">
@@ -43,45 +33,47 @@
       <div style="flex-grow:1;">
         <span class="action">
           {% include "action_post_timestamp.html" %}
-          {% if item and item.class_name != 'tvepisode' %}
-            <span>
-              {% if item.class_name == 'podcastepisode' %}
-                <a title="{% trans "play" %}"
-                   class="episode"
-                   data-uuid="{{ item.uuid }}"
-                   data-media="{{ item.media_url }}"
-                   data-cover="{{ item.cover_url|default:item.parent_item.cover.url }}"
-                   data-title="{{ item.display_title }}"
-                   data-album="{{ item.parent_item.display_title }}"
-                   data-hosts="{{ item.parent_item.host|join:' / ' }}"
-                   {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' item.uuid %}" {% endif %}
-                   data-position="{{ piece.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
-              {% else %}
-                <a title="{% trans "mark" %}"
-                   hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist"
-                   hx-target="body"
-                   hx-swap="beforeend">
-                  <i class="fa-regular fa-bookmark"></i>
-                </a>
-              {% endif %}
-            </span>
+          {% if not hide_actions %}
+            {% if item and item.class_name != 'tvepisode' %}
+              <span>
+                {% if item.class_name == 'podcastepisode' %}
+                  <a title="{% trans "play" %}"
+                     class="episode"
+                     data-uuid="{{ item.uuid }}"
+                     data-media="{{ item.media_url }}"
+                     data-cover="{{ item.cover_url|default:item.parent_item.cover.url }}"
+                     data-title="{{ item.display_title }}"
+                     data-album="{{ item.parent_item.display_title }}"
+                     data-hosts="{{ item.parent_item.host|join:' / ' }}"
+                     {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' item.uuid %}" {% endif %}
+                     data-position="{{ piece.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
+                {% else %}
+                  <a title="{% trans "mark" %}"
+                     hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist"
+                     hx-target="body"
+                     hx-swap="beforeend">
+                    <i class="fa-regular fa-bookmark"></i>
+                  </a>
+                {% endif %}
+              </span>
+            {% endif %}
+            {% if show_all_actions and request.user.is_authenticated and post.author_id == request.user.identity.pk %}
+              {% include "action_pin_post.html" %}
+              {% include "action_delete_post.html" %}
+            {% endif %}
+            {% include "action_reply_post.html" %}
+            {% include "action_like_post.html" %}
+            {% include "action_boost_post.html" %}
+            {% if translate_enabled and request.user.is_authenticated %}
+              {% include "action_translate_post.html" %}
+            {% endif %}
+            {% if show_all_actions and request.user.is_authenticated %}
+              {% include "action_flag_post.html" %}
+            {% endif %}
+            {% include "action_open_post.html" %}
           {% endif %}
-          {% if show_all_actions and request.user.is_authenticated and post.author_id == request.user.identity.pk %}
-            {% include "action_pin_post.html" %}
-            {% include "action_delete_post.html" %}
-          {% endif %}
-          {% include "action_reply_post.html" %}
-          {% include "action_like_post.html" %}
-          {% include "action_boost_post.html" %}
-          {% if translate_enabled and request.user.is_authenticated %}
-            {% include "action_translate_post.html" %}
-          {% endif %}
-          {% if show_all_actions and request.user.is_authenticated %}
-            {% include "action_flag_post.html" %}
-          {% endif %}
-          {% include "action_open_post.html" %}
         </span>
-        <span>
+        <span class="post_author">
           <a href="{{ post.author.url }}"
              class="nickname"
              title="@{{ post.author.handle }}">{{ post.author.name|default:post.author.username }}</a>
@@ -89,6 +81,17 @@
             {% trans "wrote a note" %}
           {% endif %}
         </span>
+        {% if post.in_reply_to_post_ %}
+          <span class="replied">
+            {% trans 'replying to' %}
+            {% comment %}do not show replying to detail in case viewer has no access to it{% endcomment %}
+            <a class="nickname"
+               title="@{{ post.in_reply_to_post_.author.handle }}"
+               href="{% url 'journal:post_view' post.in_reply_to_post_.author.handle post.in_reply_to_post_.pk %}">
+              {{ post.in_reply_to_post_.author.name | default:post.in_reply_to_post_.author.handle }}
+            </a>
+          </span>
+        {% endif %}
         {% if item and piece.classname != 'note' %}
           <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article>
         {% endif %}

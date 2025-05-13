@@ -211,11 +211,7 @@ class NotificationEvent:
         self.type = tle.type
         self.template = tle.type
         self.created = tle.created
-        self.identity = (
-            APIdentity.objects.filter(pk=tle.subject_identity.pk).first()
-            if tle.subject_identity
-            else None
-        )
+        self.identity = APIdentity.from_takahe(tle.subject_identity)
         self.post = tle.subject_post
         if self.type == "mentioned":
             # for reply, self.post is the original post
@@ -227,6 +223,7 @@ class NotificationEvent:
         if self.piece and self.template in ["liked", "boosted", "mentioned"]:
             cls = self.piece.__class__.__name__.lower()
             self.template += "_" + cls
+        print(self.type, self.template, tle.subject_identity)
 
 
 class SearchResultEvent:

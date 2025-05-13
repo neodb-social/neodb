@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load bleach_tags %}
 {% trans 'mentioned you' %}
-<blockquote class="tldr" _="on click toggle .tldr on me">
-  {{ event.post.content|bleach:"a,p,span,br,div,img"|default:"" }}
+<blockquote class="reply_to_post">
+  {% include "_event_post.html" with post=event.post hide_actions=1 %}
 </blockquote>
-{% include "event/_post.html" with post=event.reply %}
+{% include "_event_post.html" with post=event.reply %}

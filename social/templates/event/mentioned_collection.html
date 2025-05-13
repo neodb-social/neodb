@@ -2,4 +2,4 @@
 {% blocktrans with piece_url=event.piece.url piece_title=event.piece.title %}
 replied to your collection <a href="{{ piece_url }}">{{ piece_title }}</a>
 {% endblocktrans %}
-{% include "event/_post.html" with post=event.reply %}
+{% include "_event_post.html" with post=event.reply %}
