@@ -42,6 +42,8 @@ class JournalQueryParser(QueryParser):
     }
 
     def __init__(self, query: str, page: int = 1, page_size: int = 0):
+        from journal.models import Tag
+
         super().__init__(query, page, page_size)
 
         v = list(
@@ -70,7 +72,11 @@ class JournalQueryParser(QueryParser):
         #     # hide collection by default unless specified
         #     self.filter_by["piece_class"] = ["!collection"]
 
-        v = [i for i in set(self.parsed_fields.get("tag", "").split(",")) if i]
+        v = [
+            Tag.deep_cleanup_title(i, replacement="_")
+            for i in set(self.parsed_fields.get("tag", "").split(","))
+            if i
+        ]
         if v:
             self.filter_by["tag"] = v
             self.query_by = ["content", "item_title"]

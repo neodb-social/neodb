@@ -64,9 +64,12 @@ class Tag(List):
         return "_" if not t and replace else t
 
     @staticmethod
-    def deep_cleanup_title(title, default="_"):
+    def deep_cleanup_title(title, default="_", replacement=" "):
         """Remove all non-word characters, only for public index purpose"""
-        return re.sub(r"\W+", " ", title).rstrip().lstrip("# ").lower()[:100] or default
+        return (
+            re.sub(r"\W+", replacement, title).rstrip().strip("# ").lower()[:100]
+            or default
+        )
 
     def update(
         self, title: str, visibility: int | None = None, pinned: bool | None = None

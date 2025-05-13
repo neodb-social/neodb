@@ -223,7 +223,6 @@ class NotificationEvent:
         if self.piece and self.template in ["liked", "boosted", "mentioned"]:
             cls = self.piece.__class__.__name__.lower()
             self.template += "_" + cls
-        print(self.type, self.template, tle.subject_identity)
 
 
 class SearchResultEvent:

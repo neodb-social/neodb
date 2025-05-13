@@ -450,6 +450,8 @@ class ShelfMember(ListMember):
         return post
 
     def to_indexable_doc(self) -> dict[str, Any]:
+        from .tag import Tag
+
         ids = [self.pk]
         classes = [self.__class__.__name__]
         content = []
@@ -470,7 +472,7 @@ class ShelfMember(ListMember):
             "item_title": self.item.to_indexable_titles(),
             "shelf_type": self.shelf_type,
             "rating": rating,
-            "tag": self.tags,
+            "tag": [Tag.deep_cleanup_title(t, replacement="_") for t in self.tags],
             "content": content,
         }
 
