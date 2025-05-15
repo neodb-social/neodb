@@ -260,3 +260,24 @@ def post_view(request, handle: str, post_pk: int):
             raise PermissionDenied()
         case _:
             raise Http404("Post not available")
+
+
+@require_http_methods(["POST"])
+@login_required
+def post_vote(request: AuthedHttpRequest, post_id: int):
+    choices = request.POST.getlist("choices")
+    if not choices:
+        raise BadRequest(_("Invalid choices"))
+    post = Takahe.get_post(post_id)
+    if not post or post.type != "Question":
+        raise BadRequest(_("Invalid post"))
+    owner = APIdentity.by_takahe_identity(post.author)
+    if not owner:
+        raise Http404("Post not available")
+    if not _can_view_post(post, owner, request.user.identity) > 0:
+        raise PermissionDenied(_("Insufficient permission"))
+    try:
+        Takahe.vote_post(post, request.user.identity.pk, choices)
+    except ValueError as e:
+        raise BadRequest(str(e))
+    return render(request, "post_question.html", {"post": post})

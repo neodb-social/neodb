@@ -1435,6 +1435,29 @@ class Post(models.Model):
         if save:
             self.save()
 
+    def calculate_type_data(self, save=True):
+        """
+        Recalculate type_data (used mostly for poll votes)
+        """
+
+        if self.local and self.type == "Question":
+            self.type_data["voter_count"] = (
+                self.interactions.filter(
+                    type=PostInteraction.Types.vote,
+                )
+                .values("identity")
+                .distinct()
+                .count()
+            )
+
+            for option in self.type_data["options"]:
+                option["votes"] = self.interactions.filter(
+                    type=PostInteraction.Types.vote,
+                    value=option["name"],
+                ).count()
+        if save:
+            self.save()
+
     @property
     def safe_content_local(self):
         return ContentRenderer(local=True).render_post(self.content, self)

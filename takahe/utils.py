@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.core.files.images import ImageFile
 from django.core.signing import b62_encode
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from loguru import logger
 from PIL import Image
 
@@ -923,3 +924,48 @@ class Takahe:
             complaint=reason,
             forward=not post.local,
         )
+
+    @staticmethod
+    def get_poll_info(post, identity_pk: int):
+        voted = post.interactions.filter(
+            identity_id=identity_pk, type="vote", state__in=["new", "fanned_out"]
+        ).values_list("value", flat=True)
+        try:
+            end_time = parse_datetime(post.type_data.get("end_time"))
+        except ValueError:
+            end_time = None
+        info = post.type_data.copy()
+        info["end_time"] = end_time
+        info["ended"] = timezone.now() > end_time if end_time else True
+        info["voted"] = post.author_id == identity_pk or voted.exists()
+        for v in info["options"]:
+            v["chosen"] = v["name"] in voted
+        return info
+
+    @staticmethod
+    def vote_post(post, identity_pk, choices):
+        try:
+            end_time = parse_datetime(post.type_data.get("end_time"))
+        except ValueError:
+            end_time = None
+        if end_time and timezone.now() > end_time:
+            raise ValueError("Poll has ended")
+        if post.author_id == identity_pk:
+            raise ValueError("Cannot vote on your own poll")
+        if post.interactions.filter(identity_id=identity_pk, type="vote").exists():
+            raise ValueError("Already voted")
+        options = [o["name"] for o in post.type_data["options"]]
+        for choice in choices:
+            if choice not in options:
+                raise ValueError(f"Invalid choice: {choice}")
+        identity = Identity.objects.get(pk=identity_pk)
+        for choice in set(choices):
+            vote = PostInteraction.objects.create(
+                identity_id=identity_pk,
+                post=post,
+                type=PostInteraction.Types.vote,
+                value=choice,
+            )
+            vote.object_uri = f"{identity.actor_uri}#votes/{vote.id}"
+            vote.save()
+        post.calculate_type_data()

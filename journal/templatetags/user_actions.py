@@ -1,6 +1,7 @@
 from django import template
 
 from journal.models.mark import Mark
+from takahe.utils import Takahe
 
 register = template.Library()
 
@@ -57,3 +58,11 @@ def pinned_post(context, post):
             identity_id=user.identity.pk, type="pin", state__in=["new", "fanned_out"]
         ).exists()
     )
+
+
+@register.simple_tag(takes_context=True)
+def post_vote_info(context, post):
+    user = context["request"].user
+    if not user or not user.is_authenticated or not post or post.type != "Question":
+        return {}
+    return Takahe.get_poll_info(post, user.identity.pk)

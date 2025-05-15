@@ -19,3 +19,16 @@
     }
   }
 }
+
+.votes {
+  border: 1px solid var(--pico-secondary-background);
+  background-color: var(--pico-secondary-background);
+  color: var(--pico-primary-inverse);
+  border-radius: calc(var(--pico-spacing)/4);
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  min-width: 3em;
+  text-align: center;
+  display: block;
+  float: right;
+}

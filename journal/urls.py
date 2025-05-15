@@ -31,6 +31,7 @@ urlpatterns = [
     path("piece/<str:piece_uuid>/replies", piece_replies, name="piece_replies"),
     path("@<str:handle>/posts/<int:post_pk>/", post_view, name="post_view"),
     path("post/<int:post_id>/translate", post_translate, name="post_translate"),
+    path("post/<int:post_id>/vote", post_vote, name="post_vote"),
     path("post/<int:post_id>/flag", post_flag, name="post_flag"),
     path("post/<int:post_id>/replies", post_replies, name="post_replies"),
     path("post/<int:post_id>/delete", post_delete, name="post_delete"),

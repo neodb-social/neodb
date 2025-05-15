@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-10 19:21-0400\n"
+"POT-Creation-Date: 2025-05-15 10:15-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -794,7 +794,7 @@ msgid "hide this tooltip"
 msgstr ""
 
 #: catalog/templates/_item_comments.html:58
-#: catalog/templates/item_mark_list.html:44
+#: catalog/templates/item_mark_list.html:46
 #: journal/templates/action_translate_post.html:3
 #: journal/templates/review.html:49
 msgid "translate"
@@ -1310,7 +1310,7 @@ msgid "Popular Tags"
 msgstr ""
 
 #: catalog/templates/discover.html:180 catalog/templates/item_base.html:261
-#: catalog/templates/item_mark_list.html:69
+#: catalog/templates/item_mark_list.html:71
 #: catalog/templates/item_review_list.html:51
 #: common/templates/_sidebar.html:100
 #: common/templates/_sidebar_anonymous.html:46
@@ -1476,7 +1476,7 @@ msgstr ""
 #: catalog/templates/search_header.html:13
 #: catalog/templates/search_header.html:15
 #: journal/templates/_sidebar_user_mark_list.html:55
-#: social/templates/notification.html:35
+#: social/templates/notification.html:43
 msgid "all"
 msgstr ""
 
@@ -1624,10 +1624,10 @@ msgstr ""
 #: journal/views/collection.py:364 journal/views/collection.py:389
 #: journal/views/collection.py:392 journal/views/collection.py:429
 #: journal/views/common.py:143 journal/views/mark.py:206
-#: journal/views/post.py:51 journal/views/post.py:65 journal/views/post.py:79
-#: journal/views/post.py:145 journal/views/post.py:160
-#: journal/views/review.py:38 journal/views/review.py:49
-#: journal/views/review.py:74
+#: journal/views/post.py:52 journal/views/post.py:66 journal/views/post.py:80
+#: journal/views/post.py:146 journal/views/post.py:161
+#: journal/views/post.py:278 journal/views/review.py:38
+#: journal/views/review.py:49 journal/views/review.py:74
 msgid "Insufficient permission"
 msgstr ""
 
@@ -1635,7 +1635,7 @@ msgstr ""
 #: journal/views/collection.py:51 journal/views/collection.py:76
 #: journal/views/collection.py:369 journal/views/collection.py:458
 #: journal/views/common.py:90 journal/views/mark.py:146
-#: journal/views/post.py:90 journal/views/post.py:104 journal/views/post.py:117
+#: journal/views/post.py:91 journal/views/post.py:105 journal/views/post.py:118
 #: journal/views/review.py:121 journal/views/review.py:124
 #: users/views/actions.py:169
 msgid "Invalid parameter"
@@ -2527,7 +2527,7 @@ msgid "Home"
 msgstr ""
 
 #: common/templates/_header.html:94 social/templates/notification.html:12
-#: social/templates/notification.html:32
+#: social/templates/notification.html:40
 msgid "Notification"
 msgstr ""
 
@@ -2628,7 +2628,7 @@ msgid "show all"
 msgstr ""
 
 #: common/templates/_sidebar.html:225 journal/templates/post_compose.html:14
-#: social/templates/feed.html:26 social/templates/notification.html:26
+#: social/templates/feed.html:26 social/templates/notification.html:34
 msgid "Compose"
 msgstr ""
 
@@ -2761,7 +2761,7 @@ msgstr ""
 #: journal/templates/action_open_post.html:13
 #: journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
-#: journal/templates/mark.html:88 journal/templates/post_compose.html:54
+#: journal/templates/mark.html:88 journal/templates/post_compose.html:57
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:147
 #: users/templates/users/data.html:199 users/templates/users/data.html:259
@@ -2771,7 +2771,7 @@ msgstr ""
 
 #: journal/models/common.py:40 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
-#: journal/templates/mark.html:95 journal/templates/post_compose.html:61
+#: journal/templates/mark.html:95 journal/templates/post_compose.html:64
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
 #: users/templates/users/data.html:155 users/templates/users/data.html:207
 #: users/templates/users/data.html:267
@@ -2781,7 +2781,7 @@ msgstr ""
 
 #: journal/models/common.py:41 journal/templates/action_open_post.html:11
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
-#: journal/templates/mark.html:102 journal/templates/post_compose.html:68
+#: journal/templates/mark.html:102 journal/templates/post_compose.html:71
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
 #: users/templates/users/data.html:163 users/templates/users/data.html:215
 #: users/templates/users/data.html:275
@@ -3287,7 +3287,7 @@ msgstr ""
 msgid "performances reviewed"
 msgstr ""
 
-#: journal/models/shelf.py:610
+#: journal/models/shelf.py:612
 msgid "removed mark"
 msgstr ""
 
@@ -3639,16 +3639,37 @@ msgstr ""
 msgid "Deletion cannot be undone, are you sure to continue?"
 msgstr ""
 
-#: journal/templates/post_compose.html:23
+#: journal/templates/post_compose.html:25
 msgid "Subject (optional)"
 msgstr ""
 
-#: journal/templates/post_compose.html:32
+#: journal/templates/post_compose.html:35
 msgid "Content"
 msgstr ""
 
-#: journal/templates/post_compose.html:75
+#: journal/templates/post_compose.html:78
 msgid "Publish"
+msgstr ""
+
+#: journal/templates/post_compose.html:88
+msgid "Add image"
+msgstr ""
+
+#: journal/templates/post_compose.html:121
+msgid "Select image"
+msgstr ""
+
+#: journal/templates/post_compose.html:132
+#: journal/templates/post_compose.html:142
+msgid "No file selected"
+msgstr ""
+
+#: journal/templates/post_compose.html:150
+msgid "Alt text"
+msgstr ""
+
+#: journal/templates/post_compose.html:158
+msgid "Remove"
 msgstr ""
 
 #: journal/templates/profile.html:58
@@ -3867,12 +3888,20 @@ msgstr ""
 msgid "Invalid form data"
 msgstr ""
 
-#: journal/views/post.py:77
+#: journal/views/post.py:78
 msgid "Post not found"
 msgstr ""
 
-#: journal/views/post.py:190
+#: journal/views/post.py:193
 msgid "Content cannot be empty."
+msgstr ""
+
+#: journal/views/post.py:270
+msgid "Invalid choices"
+msgstr ""
+
+#: journal/views/post.py:273
+msgid "Invalid post"
 msgstr ""
 
 #: journal/views/review.py:142 journal/views/review.py:156
@@ -4137,20 +4166,20 @@ msgstr ""
 msgid "boosted"
 msgstr ""
 
-#: social/templates/_event_post.html:26
-msgid "replying to"
-msgstr ""
-
-#: social/templates/_event_post.html:50
+#: social/templates/_event_post.html:40
 msgid "play"
 msgstr ""
 
-#: social/templates/_event_post.html:61
+#: social/templates/_event_post.html:51
 msgid "mark"
 msgstr ""
 
-#: social/templates/_event_post.html:90
+#: social/templates/_event_post.html:81
 msgid "wrote a note"
+msgstr ""
+
+#: social/templates/_event_post.html:86
+msgid "replying to"
 msgstr ""
 
 #: social/templates/event/boosted.html:3
@@ -4300,7 +4329,7 @@ msgid ""
 msgstr ""
 
 #: social/templates/feed.html:12 social/templates/feed.html:31
-#: social/templates/notification.html:31 social/templates/search_feed.html:12
+#: social/templates/notification.html:39 social/templates/search_feed.html:12
 msgid "Activities from those you follow"
 msgstr ""
 
@@ -4325,12 +4354,25 @@ msgstr ""
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr ""
 
-#: social/templates/notification.html:37
+#: social/templates/notification.html:45
 msgid "mention"
 msgstr ""
 
-#: social/templates/notification.html:39
+#: social/templates/notification.html:47
 msgid "follow"
+msgstr ""
+
+#: social/templates/post_question.html:18
+msgid "Poll has ended."
+msgstr ""
+
+#: social/templates/post_question.html:20
+msgid "Submit"
+msgstr ""
+
+#: social/templates/post_question.html:23
+#, python-format
+msgid "Poll ending at %(end_time)s"
 msgstr ""
 
 #: social/templates/single_post.html:12

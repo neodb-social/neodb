@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-10 19:19-0400\n"
+"POT-Creation-Date: 2025-05-15 10:12-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -793,7 +793,7 @@ msgid "hide this tooltip"
 msgstr "不再提示"
 
 #: catalog/templates/_item_comments.html:58
-#: catalog/templates/item_mark_list.html:44
+#: catalog/templates/item_mark_list.html:46
 #: journal/templates/action_translate_post.html:3
 #: journal/templates/review.html:49
 msgid "translate"
@@ -1309,7 +1309,7 @@ msgid "Popular Tags"
 msgstr "热门标签"
 
 #: catalog/templates/discover.html:180 catalog/templates/item_base.html:261
-#: catalog/templates/item_mark_list.html:69
+#: catalog/templates/item_mark_list.html:71
 #: catalog/templates/item_review_list.html:51
 #: common/templates/_sidebar.html:100
 #: common/templates/_sidebar_anonymous.html:46
@@ -1475,7 +1475,7 @@ msgstr "原始网站"
 #: catalog/templates/search_header.html:13
 #: catalog/templates/search_header.html:15
 #: journal/templates/_sidebar_user_mark_list.html:55
-#: social/templates/notification.html:35
+#: social/templates/notification.html:43
 msgid "all"
 msgstr "全部"
 
@@ -1623,10 +1623,10 @@ msgstr "条目不可被删除。"
 #: journal/views/collection.py:364 journal/views/collection.py:389
 #: journal/views/collection.py:392 journal/views/collection.py:429
 #: journal/views/common.py:143 journal/views/mark.py:206
-#: journal/views/post.py:51 journal/views/post.py:65 journal/views/post.py:79
-#: journal/views/post.py:145 journal/views/post.py:160
-#: journal/views/review.py:38 journal/views/review.py:49
-#: journal/views/review.py:74
+#: journal/views/post.py:52 journal/views/post.py:66 journal/views/post.py:80
+#: journal/views/post.py:146 journal/views/post.py:161
+#: journal/views/post.py:278 journal/views/review.py:38
+#: journal/views/review.py:49 journal/views/review.py:74
 msgid "Insufficient permission"
 msgstr "权限不足"
 
@@ -1634,7 +1634,7 @@ msgstr "权限不足"
 #: journal/views/collection.py:51 journal/views/collection.py:76
 #: journal/views/collection.py:369 journal/views/collection.py:458
 #: journal/views/common.py:90 journal/views/mark.py:146
-#: journal/views/post.py:90 journal/views/post.py:104 journal/views/post.py:117
+#: journal/views/post.py:91 journal/views/post.py:105 journal/views/post.py:118
 #: journal/views/review.py:121 journal/views/review.py:124
 #: users/views/actions.py:169
 msgid "Invalid parameter"
@@ -2526,7 +2526,7 @@ msgid "Home"
 msgstr "主页"
 
 #: common/templates/_header.html:94 social/templates/notification.html:12
-#: social/templates/notification.html:32
+#: social/templates/notification.html:40
 msgid "Notification"
 msgstr "通知"
 
@@ -2627,7 +2627,7 @@ msgid "show all"
 msgstr "显示全部"
 
 #: common/templates/_sidebar.html:225 journal/templates/post_compose.html:14
-#: social/templates/feed.html:26 social/templates/notification.html:26
+#: social/templates/feed.html:26 social/templates/notification.html:34
 msgid "Compose"
 msgstr "撰写"
 
@@ -2781,7 +2781,7 @@ msgstr "创建了收藏单"
 #: journal/templates/action_open_post.html:13
 #: journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
-#: journal/templates/mark.html:88 journal/templates/post_compose.html:54
+#: journal/templates/mark.html:88 journal/templates/post_compose.html:57
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:147
 #: users/templates/users/data.html:199 users/templates/users/data.html:259
@@ -2791,7 +2791,7 @@ msgstr "公开"
 
 #: journal/models/common.py:40 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
-#: journal/templates/mark.html:95 journal/templates/post_compose.html:61
+#: journal/templates/mark.html:95 journal/templates/post_compose.html:64
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
 #: users/templates/users/data.html:155 users/templates/users/data.html:207
 #: users/templates/users/data.html:267
@@ -2801,7 +2801,7 @@ msgstr "仅关注者"
 
 #: journal/models/common.py:41 journal/templates/action_open_post.html:11
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
-#: journal/templates/mark.html:102 journal/templates/post_compose.html:68
+#: journal/templates/mark.html:102 journal/templates/post_compose.html:71
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
 #: users/templates/users/data.html:163 users/templates/users/data.html:215
 #: users/templates/users/data.html:275
@@ -3307,7 +3307,7 @@ msgstr "不看了"
 msgid "performances reviewed"
 msgstr "评论过的演出"
 
-#: journal/models/shelf.py:610
+#: journal/models/shelf.py:612
 msgid "removed mark"
 msgstr "移除标记"
 
@@ -3704,17 +3704,38 @@ msgstr "删除后你将无法追溯其他用户对此内容曾经作出的回应
 msgid "Deletion cannot be undone, are you sure to continue?"
 msgstr "删除不可撤销。确认继续吗？"
 
-#: journal/templates/post_compose.html:23
+#: journal/templates/post_compose.html:25
 msgid "Subject (optional)"
 msgstr "主题（选填）"
 
-#: journal/templates/post_compose.html:32
+#: journal/templates/post_compose.html:35
 msgid "Content"
 msgstr "内容"
 
-#: journal/templates/post_compose.html:75
+#: journal/templates/post_compose.html:78
 msgid "Publish"
 msgstr "发布"
+
+#: journal/templates/post_compose.html:88
+msgid "Add image"
+msgstr "添加图片"
+
+#: journal/templates/post_compose.html:121
+msgid "Select image"
+msgstr "选择图片"
+
+#: journal/templates/post_compose.html:132
+#: journal/templates/post_compose.html:142
+msgid "No file selected"
+msgstr "未选择文件"
+
+#: journal/templates/post_compose.html:150
+msgid "Alt text"
+msgstr "替代文本"
+
+#: journal/templates/post_compose.html:158
+msgid "Remove"
+msgstr "移除"
 
 #: journal/templates/profile.html:58
 msgid "calendar"
@@ -3932,13 +3953,21 @@ msgstr "进度类型（选填）"
 msgid "Invalid form data"
 msgstr "无效表单信息。"
 
-#: journal/views/post.py:77
+#: journal/views/post.py:78
 msgid "Post not found"
 msgstr "帖文未找到"
 
-#: journal/views/post.py:190
+#: journal/views/post.py:193
 msgid "Content cannot be empty."
 msgstr "内容不可为空。"
+
+#: journal/views/post.py:270
+msgid "Invalid choices"
+msgstr "无效选择"
+
+#: journal/views/post.py:273
+msgid "Invalid post"
+msgstr "无效帖文"
 
 #: journal/views/review.py:142 journal/views/review.py:156
 #, python-brace-format
@@ -4219,21 +4248,21 @@ msgstr "Threads返回了无效的账号数据。"
 msgid "boosted"
 msgstr "转播了"
 
-#: social/templates/_event_post.html:26
-msgid "replying to"
-msgstr "回应"
-
-#: social/templates/_event_post.html:50
+#: social/templates/_event_post.html:40
 msgid "play"
 msgstr "播放"
 
-#: social/templates/_event_post.html:61
+#: social/templates/_event_post.html:51
 msgid "mark"
 msgstr "标记"
 
-#: social/templates/_event_post.html:90
+#: social/templates/_event_post.html:81
 msgid "wrote a note"
 msgstr "写了笔记"
+
+#: social/templates/_event_post.html:86
+msgid "replying to"
+msgstr "回应"
 
 #: social/templates/event/boosted.html:3
 msgid "boosted your post"
@@ -4418,7 +4447,7 @@ msgstr ""
 "回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
 #: social/templates/feed.html:12 social/templates/feed.html:31
-#: social/templates/notification.html:31 social/templates/search_feed.html:12
+#: social/templates/notification.html:39 social/templates/search_feed.html:12
 msgid "Activities from those you follow"
 msgstr "好友动态"
 
@@ -4443,13 +4472,26 @@ msgstr "没有符合条件的动态。"
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\">导入你的豆瓣、Letterboxd或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用%(site_name)s的用户，这里就会显示你和她们的近期动态。"
 
-#: social/templates/notification.html:37
+#: social/templates/notification.html:45
 msgid "mention"
 msgstr "提及"
 
-#: social/templates/notification.html:39
+#: social/templates/notification.html:47
 msgid "follow"
 msgstr "关注"
+
+#: social/templates/post_question.html:18
+msgid "Poll has ended."
+msgstr "投票已结束。"
+
+#: social/templates/post_question.html:20
+msgid "Submit"
+msgstr "提交"
+
+#: social/templates/post_question.html:23
+#, python-format
+msgid "Poll ending at %(end_time)s"
+msgstr "投票将于%(end_time)s结束"
 
 #: social/templates/single_post.html:12
 msgid "Post"

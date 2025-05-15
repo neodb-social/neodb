@@ -1,0 +1,28 @@
+{% load user_actions %}
+{% load i18n %}
+{% post_vote_info post as info %}
+<form hx-post="{% url 'journal:post_vote' post.pk %}">
+  <fieldset>
+    {% for option in info.options %}
+      {% if info.voted or info.ended %}<span class="votes">{{ option.votes|default:'0' }}</span>{% endif %}
+      <label>
+        <input name="choices"
+               {% if info.mode == 'oneOf' %}type="radio"{% elif info.mode == 'anyOf' %}type="checkbox"{% else %}type="hidden" disabled{% endif %}
+               {% if option.chosen %}checked{% endif %}
+               {% if info.ended or info.voted %}disabled{% endif %}
+               value="{{ option.name }}" />
+        {{ option.name }}
+      </label>
+    {% endfor %}
+    {% if info.ended %}
+      <p class="empty">{% trans "Poll has ended." %}</p>
+    {% elif not info.voted %}
+      <input type="submit" class="outline" value="{% trans "Submit" %}" />
+      <small>
+        {% with info.end_time as end_time %}
+          {% blocktrans %}Poll ending at {{ end_time }}{% endblocktrans %}
+        {% endwith %}
+      </small>
+    {% endif %}
+  </fieldset>
+</form>
