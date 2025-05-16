@@ -133,10 +133,11 @@ class IGDB(AbstractSite):
         steam_url = None
         official_site = None
         for website in websites:
-            if website["category"] == 1:
-                official_site = website["url"]
-            elif website["category"] == 13:
-                steam_url = website["url"]
+            match website.get("category"):
+                case 1:
+                    official_site = website["url"]
+                case 13:
+                    steam_url = website["url"]
         pd = ResourceContent(
             metadata={
                 "localized_title": [{"lang": "en", "text": r["name"]}],
