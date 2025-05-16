@@ -338,7 +338,7 @@ class ContentRenderer:
         parser = FediverseHtmlParser(
             html,
             mentions=post.mentions.all(),
-            uri_domain=(None if self.local else post.author.domain.uri_domain),
+            uri_domain=(None if self.local else post.author.uri_domain),
             find_hashtags=True,
             find_emojis=self.local,
             emoji_domain=post.author.domain,
@@ -353,7 +353,7 @@ class ContentRenderer:
             return ""
         parser = FediverseHtmlParser(
             html,
-            uri_domain=(None if self.local else identity.domain.uri_domain),
+            uri_domain=(None if self.local else identity.uri_domain),
             find_hashtags=True,
             find_emojis=self.local,
             emoji_domain=identity.domain,
@@ -368,7 +368,7 @@ class ContentRenderer:
             return ""
         parser = FediverseHtmlParser(
             html,
-            uri_domain=(None if self.local else identity.domain.uri_domain),
+            uri_domain=(None if self.local else identity.uri_domain),
             find_hashtags=False,
             find_emojis=self.local,
             emoji_domain=identity.domain,

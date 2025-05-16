@@ -561,6 +561,14 @@ class Identity(models.Model):
         return f"{self.username}@(unknown server)"
 
     @property
+    def uri_domain(self):
+        return self.domain.uri_domain if self.domain else self.actor_domain
+
+    @property
+    def actor_domain(self):
+        return self.actor_uri.split("://")[1].split("/")[0].lower()
+
+    @property
     def url(self):
         return (
             f"/users/{self.username}/"
