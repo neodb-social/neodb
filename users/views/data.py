@@ -49,6 +49,7 @@ def preferences(request):
         )
         preference.classic_homepage = int(request.POST.get("classic_homepage"))
         preference.hidden_categories = request.POST.getlist("hidden_categories")
+        preference.auto_bookmark_cats = request.POST.getlist("auto_bookmark_cats")
         preference.post_public_mode = int(request.POST.get("post_public_mode"))
         preference.show_last_edit = bool(request.POST.get("show_last_edit"))
         preference.mastodon_repost_mode = int(
