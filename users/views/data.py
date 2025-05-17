@@ -64,6 +64,7 @@ def preferences(request):
                 "post_public_mode",
                 "classic_homepage",
                 "mastodon_append_tag",
+                "auto_bookmark_cats",
                 "mastodon_repost_mode",
                 "mastodon_default_repost",
                 "show_last_edit",
