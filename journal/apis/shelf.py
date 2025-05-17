@@ -161,7 +161,7 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     if not item or item.is_deleted or item.merged_to_item:
         return 404, {"message": "Item not found"}
     if mark.created_time and mark.created_time >= timezone.now():
-        mark.created_time = None
+        mark.created_time = timezone.now()
     m = Mark(request.user.identity, item)
     m.update(
         mark.shelf_type,

@@ -94,7 +94,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
                     dt.replace(tzinfo=timezone.get_current_timezone()) if dt else None
                 )
                 if mark_date and mark_date >= timezone.now():
-                    mark_date = None
+                    mark_date = timezone.now()
             try:
                 mark.update(
                     status,
