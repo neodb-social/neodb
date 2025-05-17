@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 
 from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
@@ -62,3 +63,22 @@ def account_profile(request):
                 u.preference.mastodon_skip_userinfo = True
                 u.preference.save(update_fields=["mastodon_skip_userinfo"])
     return HttpResponseRedirect(reverse("users:info"))
+
+
+@require_http_methods(["POST"])
+@login_required
+def account_relations(request, typ: str):
+    match typ:
+        case "follow":
+            ids = request.user.identity.following_identities.all
+        case "follower":
+            ids = request.user.identity.follower_identities.all
+        case "follow_request":
+            ids = request.user.identity.requested_follower_identities.all
+        case "mute":
+            ids = request.user.identity.muting_identities.all
+        case "block":
+            ids = request.user.identity.blocking_identities.all
+        case _:
+            ids = []
+    return render(request, "users/relationship_list.html", {"id": typ, "list": ids})

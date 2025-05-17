@@ -10,6 +10,7 @@ urlpatterns = [
     path("data", data, name="data"),
     path("info", account_info, name="info"),
     path("profile", account_profile, name="profile"),
+    path("relations/<str:typ>/", account_relations, name="relations"),
     path("task/<str:task_type>/status", user_task_status, name="user_task_status"),
     path(
         "task/<str:task_type>/download", user_task_download, name="user_task_download"

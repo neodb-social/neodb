@@ -270,31 +270,46 @@
         <article>
           <details>
             <summary>{% trans 'Users you are following' %}</summary>
-            {% include 'users/relationship_list.html' with id="follow" list=request.user.identity.following_identities.all %}
+            <div hx-post="{% url 'users:relations' 'follow' %}"
+                 hx-trigger="intersect once">
+              <i class="fa-solid fa-gear fa-spin"></i>
+            </div>
           </details>
         </article>
         <article>
           <details>
             <summary>{% trans 'Users who follow you' %}</summary>
-            {% include 'users/relationship_list.html' with id="follower" list=request.user.identity.follower_identities.all %}
+            <div hx-post="{% url 'users:relations' 'follower' %}"
+                 hx-trigger="intersect once">
+              <i class="fa-solid fa-gear fa-spin"></i>
+            </div>
           </details>
         </article>
         <article>
           <details>
             <summary>{% trans 'Users who request to follow you' %}</summary>
-            {% include 'users/relationship_list.html' with id="follow_request" list=request.user.identity.requested_follower_identities.all %}
+            <div hx-post="{% url 'users:relations' 'follow_request' %}"
+                 hx-trigger="intersect once">
+              <i class="fa-solid fa-gear fa-spin"></i>
+            </div>
           </details>
         </article>
         <article>
           <details>
             <summary>{% trans 'Users you are muting' %}</summary>
-            {% include 'users/relationship_list.html' with id="mute" list=request.user.identity.muting_identities.all %}
+            <div hx-post="{% url 'users:relations' 'mute' %}"
+                 hx-trigger="intersect once">
+              <i class="fa-solid fa-gear fa-spin"></i>
+            </div>
           </details>
         </article>
         <article>
           <details>
             <summary>{% trans 'Users you are blocking' %}</summary>
-            {% include 'users/relationship_list.html' with id="block" list=request.user.identity.blocking_identities.all %}
+            <div hx-post="{% url 'users:relations' 'block' %}"
+                 hx-trigger="intersect once">
+              <i class="fa-solid fa-gear fa-spin"></i>
+            </div>
           </details>
         </article>
         {% if allow_any_site %}
