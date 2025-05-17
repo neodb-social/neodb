@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-15 10:12-0400\n"
+"POT-Creation-Date: 2025-05-17 13:59-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1300,6 +1300,7 @@ msgid "Unread Announcements"
 msgstr "未读公告"
 
 #: catalog/templates/discover.html:163 common/templates/_sidebar.html:20
+#: social/templates/notification.html:74
 msgid "mark all as read"
 msgstr "全部标为已读"
 
@@ -1475,7 +1476,8 @@ msgstr "原始网站"
 #: catalog/templates/search_header.html:13
 #: catalog/templates/search_header.html:15
 #: journal/templates/_sidebar_user_mark_list.html:55
-#: social/templates/notification.html:43
+#: social/templates/feed.html:49 social/templates/feed.html:51
+#: social/templates/notification.html:63
 msgid "all"
 msgstr "全部"
 
@@ -1598,11 +1600,11 @@ msgstr "{show_title} 第{season_number}季"
 msgid "{season_title} E{episode_number}"
 msgstr "{season_title} 第{episode_number}集"
 
-#: catalog/views.py:54 catalog/views.py:79
+#: catalog/views.py:53 catalog/views.py:78
 msgid "Item not found"
 msgstr "条目不存在"
 
-#: catalog/views.py:58 catalog/views.py:87
+#: catalog/views.py:57 catalog/views.py:86
 msgid "Item no longer exists"
 msgstr "条目已不存在"
 
@@ -1622,7 +1624,7 @@ msgstr "条目不可被删除。"
 #: journal/views/collection.py:317 journal/views/collection.py:352
 #: journal/views/collection.py:364 journal/views/collection.py:389
 #: journal/views/collection.py:392 journal/views/collection.py:429
-#: journal/views/common.py:143 journal/views/mark.py:206
+#: journal/views/common.py:144 journal/views/mark.py:206
 #: journal/views/post.py:52 journal/views/post.py:66 journal/views/post.py:80
 #: journal/views/post.py:146 journal/views/post.py:161
 #: journal/views/post.py:278 journal/views/review.py:38
@@ -1633,7 +1635,7 @@ msgstr "权限不足"
 #: catalog/views_edit.py:213 catalog/views_edit.py:216
 #: journal/views/collection.py:51 journal/views/collection.py:76
 #: journal/views/collection.py:369 journal/views/collection.py:458
-#: journal/views/common.py:90 journal/views/mark.py:146
+#: journal/views/common.py:91 journal/views/mark.py:146
 #: journal/views/post.py:91 journal/views/post.py:105 journal/views/post.py:118
 #: journal/views/review.py:121 journal/views/review.py:124
 #: users/views/actions.py:169
@@ -2526,7 +2528,7 @@ msgid "Home"
 msgstr "主页"
 
 #: common/templates/_header.html:94 social/templates/notification.html:12
-#: social/templates/notification.html:40
+#: social/templates/notification.html:60
 msgid "Notification"
 msgstr "通知"
 
@@ -3912,15 +3914,15 @@ msgstr "已保存"
 msgid "Login required"
 msgstr "登录后访问"
 
-#: journal/views/common.py:42 journal/views/mark.py:123
+#: journal/views/common.py:43 journal/views/mark.py:123
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "数据已保存但未能转发到联邦实例。"
 
-#: journal/views/common.py:44
+#: journal/views/common.py:45
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr "正在重定向到你的联邦实例以重新认证。"
 
-#: journal/views/common.py:51
+#: journal/views/common.py:52
 msgid "List not found."
 msgstr "列表未找到。"
 
@@ -4446,22 +4448,18 @@ msgstr ""
 "\n"
 "回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
-#: social/templates/feed.html:12 social/templates/feed.html:31
-#: social/templates/notification.html:39 social/templates/search_feed.html:12
+#: social/templates/feed.html:12 social/templates/feed.html:46
+#: social/templates/search_feed.html:12
 msgid "Activities from those you follow"
 msgstr "好友动态"
 
-#: social/templates/feed.html:34 social/templates/feed.html:36
-msgid "All"
-msgstr "全部"
-
-#: social/templates/feed.html:34 social/templates/feed.html:36
-msgid "What they read/watch/..."
-msgstr "仅书影音"
-
-#: social/templates/feed.html:38
+#: social/templates/feed.html:34 social/templates/notification.html:42
 msgid "Notifications"
 msgstr "通知"
+
+#: social/templates/feed.html:49 social/templates/feed.html:51
+msgid "what they read/watch/..."
+msgstr "仅书影音"
 
 #: social/templates/feed_events.html:26
 msgid "no matching activities."
@@ -4472,11 +4470,11 @@ msgstr "没有符合条件的动态。"
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\">导入你的豆瓣、Letterboxd或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用%(site_name)s的用户，这里就会显示你和她们的近期动态。"
 
-#: social/templates/notification.html:45
+#: social/templates/notification.html:65
 msgid "mention"
 msgstr "提及"
 
-#: social/templates/notification.html:47
+#: social/templates/notification.html:67
 msgid "follow"
 msgstr "关注"
 
@@ -4766,59 +4764,59 @@ msgstr "立即同步"
 msgid "Users you are following"
 msgstr "正在关注的用户"
 
-#: users/templates/users/account.html:278
+#: users/templates/users/account.html:281
 msgid "Users who follow you"
 msgstr "关注了你的用户"
 
-#: users/templates/users/account.html:284
+#: users/templates/users/account.html:290
 msgid "Users who request to follow you"
 msgstr "请求关注你的用户"
 
-#: users/templates/users/account.html:290
+#: users/templates/users/account.html:299
 msgid "Users you are muting"
 msgstr "已隐藏的用户"
 
-#: users/templates/users/account.html:296
+#: users/templates/users/account.html:308
 msgid "Users you are blocking"
 msgstr "已屏蔽的用户"
 
-#: users/templates/users/account.html:303
+#: users/templates/users/account.html:318
 msgid "Migrate Account"
 msgstr "迁移账号"
 
-#: users/templates/users/account.html:307
+#: users/templates/users/account.html:322
 msgid "Linking an email to your account is highly recommended before migrating from another Fediverse instance."
 msgstr "建议关联电子邮件后再从其他实例迁入。"
 
-#: users/templates/users/account.html:311
+#: users/templates/users/account.html:326
 msgid "Migrate from anther instance to here"
 msgstr "从其他实例迁移到本站"
 
-#: users/templates/users/account.html:316
+#: users/templates/users/account.html:331
 msgid "Migrate to another instance"
 msgstr "从本站迁移到其他实例"
 
-#: users/templates/users/account.html:324
+#: users/templates/users/account.html:339
 msgid "Delete Account"
 msgstr "删除账号"
 
-#: users/templates/users/account.html:327
+#: users/templates/users/account.html:342
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "账号数据一旦删除后将无法恢复，确定继续吗？"
 
-#: users/templates/users/account.html:330
+#: users/templates/users/account.html:345
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr "输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除"
 
-#: users/templates/users/account.html:340
+#: users/templates/users/account.html:355
 msgid "Once deleted, account data cannot be recovered."
 msgstr "账号数据一旦删除后将无法恢复"
 
-#: users/templates/users/account.html:343
+#: users/templates/users/account.html:358
 msgid "Task in progress, can't delete now."
 msgstr "暂时无法删除，因为有导入或导出任务正在进行"
 
-#: users/templates/users/account.html:347
+#: users/templates/users/account.html:362
 msgid "Permanently Delete"
 msgstr "永久删除"
 
@@ -5328,34 +5326,34 @@ msgstr "账户删除进行中。"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:164 users/views/data.py:193
+#: users/views/data.py:162 users/views/data.py:191
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:187
+#: users/views/data.py:185
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:205
+#: users/views/data.py:203
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:220 users/views/data.py:240
+#: users/views/data.py:218 users/views/data.py:238
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:254
+#: users/views/data.py:252
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:268
+#: users/views/data.py:266
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:278
+#: users/views/data.py:276
 msgid "Invalid URL."
 msgstr "无效网址。"
 
-#: users/views/data.py:293 users/views/data.py:318 users/views/data.py:342
+#: users/views/data.py:291 users/views/data.py:316 users/views/data.py:340
 msgid "Invalid file."
 msgstr "无效文件。"

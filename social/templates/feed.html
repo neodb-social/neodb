@@ -43,12 +43,12 @@
               </a>
             </span>
           </span>
-          <span class="large-only">{% trans 'Activities from those you follow' %}</span>
+          <span class="large-only">{% trans 'Activities from those you follow' %}&nbsp;&nbsp;</span>
           <small>
             {% if feed_type == 1 %}
-              <a href="{% url 'social:feed' %}">{% trans "All" %}</a> | {% trans "What they read/watch/..." %}
+              <a href="{% url 'social:feed' %}">{% trans "all" %}</a> | {% trans "what they read/watch/..." %}
             {% else %}
-              {% trans "All" %} | <a href="{% url 'social:focus' %}">{% trans "What they read/watch/..." %}</a>
+              {% trans "all" %} | <a href="{% url 'social:focus' %}">{% trans "what they read/watch/..." %}</a>
             {% endif %}
           </small>
         </h5>
@@ -60,7 +60,7 @@
           </div>
         </div>
       </div>
-      {% include "_sidebar.html" with show_progress=1 identity=request.user.identity %}
+      {% include "_sidebar.html" with show_profile=1 show_progress=1 identity=request.user.identity %}
     </main>
     {% include "_footer.html" %}
   </body>

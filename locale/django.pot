@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-15 10:15-0400\n"
+"POT-Creation-Date: 2025-05-17 13:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1301,6 +1301,7 @@ msgid "Unread Announcements"
 msgstr ""
 
 #: catalog/templates/discover.html:163 common/templates/_sidebar.html:20
+#: social/templates/notification.html:74
 msgid "mark all as read"
 msgstr ""
 
@@ -1476,7 +1477,8 @@ msgstr ""
 #: catalog/templates/search_header.html:13
 #: catalog/templates/search_header.html:15
 #: journal/templates/_sidebar_user_mark_list.html:55
-#: social/templates/notification.html:43
+#: social/templates/feed.html:49 social/templates/feed.html:51
+#: social/templates/notification.html:63
 msgid "all"
 msgstr ""
 
@@ -1599,11 +1601,11 @@ msgstr ""
 msgid "{season_title} E{episode_number}"
 msgstr ""
 
-#: catalog/views.py:54 catalog/views.py:79
+#: catalog/views.py:53 catalog/views.py:78
 msgid "Item not found"
 msgstr ""
 
-#: catalog/views.py:58 catalog/views.py:87
+#: catalog/views.py:57 catalog/views.py:86
 msgid "Item no longer exists"
 msgstr ""
 
@@ -1623,7 +1625,7 @@ msgstr ""
 #: journal/views/collection.py:317 journal/views/collection.py:352
 #: journal/views/collection.py:364 journal/views/collection.py:389
 #: journal/views/collection.py:392 journal/views/collection.py:429
-#: journal/views/common.py:143 journal/views/mark.py:206
+#: journal/views/common.py:144 journal/views/mark.py:206
 #: journal/views/post.py:52 journal/views/post.py:66 journal/views/post.py:80
 #: journal/views/post.py:146 journal/views/post.py:161
 #: journal/views/post.py:278 journal/views/review.py:38
@@ -1634,7 +1636,7 @@ msgstr ""
 #: catalog/views_edit.py:213 catalog/views_edit.py:216
 #: journal/views/collection.py:51 journal/views/collection.py:76
 #: journal/views/collection.py:369 journal/views/collection.py:458
-#: journal/views/common.py:90 journal/views/mark.py:146
+#: journal/views/common.py:91 journal/views/mark.py:146
 #: journal/views/post.py:91 journal/views/post.py:105 journal/views/post.py:118
 #: journal/views/review.py:121 journal/views/review.py:124
 #: users/views/actions.py:169
@@ -2527,7 +2529,7 @@ msgid "Home"
 msgstr ""
 
 #: common/templates/_header.html:94 social/templates/notification.html:12
-#: social/templates/notification.html:40
+#: social/templates/notification.html:60
 msgid "Notification"
 msgstr ""
 
@@ -3847,15 +3849,15 @@ msgstr ""
 msgid "Login required"
 msgstr ""
 
-#: journal/views/common.py:42 journal/views/mark.py:123
+#: journal/views/common.py:43 journal/views/mark.py:123
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
 
-#: journal/views/common.py:44
+#: journal/views/common.py:45
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr ""
 
-#: journal/views/common.py:51
+#: journal/views/common.py:52
 msgid "List not found."
 msgstr ""
 
@@ -4328,21 +4330,17 @@ msgid ""
 "replied to your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 
-#: social/templates/feed.html:12 social/templates/feed.html:31
-#: social/templates/notification.html:39 social/templates/search_feed.html:12
+#: social/templates/feed.html:12 social/templates/feed.html:46
+#: social/templates/search_feed.html:12
 msgid "Activities from those you follow"
 msgstr ""
 
-#: social/templates/feed.html:34 social/templates/feed.html:36
-msgid "All"
-msgstr ""
-
-#: social/templates/feed.html:34 social/templates/feed.html:36
-msgid "What they read/watch/..."
-msgstr ""
-
-#: social/templates/feed.html:38
+#: social/templates/feed.html:34 social/templates/notification.html:42
 msgid "Notifications"
+msgstr ""
+
+#: social/templates/feed.html:49 social/templates/feed.html:51
+msgid "what they read/watch/..."
 msgstr ""
 
 #: social/templates/feed_events.html:26
@@ -4354,11 +4352,11 @@ msgstr ""
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr ""
 
-#: social/templates/notification.html:45
+#: social/templates/notification.html:65
 msgid "mention"
 msgstr ""
 
-#: social/templates/notification.html:47
+#: social/templates/notification.html:67
 msgid "follow"
 msgstr ""
 
@@ -4648,59 +4646,59 @@ msgstr ""
 msgid "Users you are following"
 msgstr ""
 
-#: users/templates/users/account.html:278
+#: users/templates/users/account.html:281
 msgid "Users who follow you"
 msgstr ""
 
-#: users/templates/users/account.html:284
+#: users/templates/users/account.html:290
 msgid "Users who request to follow you"
 msgstr ""
 
-#: users/templates/users/account.html:290
+#: users/templates/users/account.html:299
 msgid "Users you are muting"
 msgstr ""
 
-#: users/templates/users/account.html:296
+#: users/templates/users/account.html:308
 msgid "Users you are blocking"
 msgstr ""
 
-#: users/templates/users/account.html:303
+#: users/templates/users/account.html:318
 msgid "Migrate Account"
 msgstr ""
 
-#: users/templates/users/account.html:307
+#: users/templates/users/account.html:322
 msgid "Linking an email to your account is highly recommended before migrating from another Fediverse instance."
 msgstr ""
 
-#: users/templates/users/account.html:311
+#: users/templates/users/account.html:326
 msgid "Migrate from anther instance to here"
 msgstr ""
 
-#: users/templates/users/account.html:316
+#: users/templates/users/account.html:331
 msgid "Migrate to another instance"
 msgstr ""
 
-#: users/templates/users/account.html:324
+#: users/templates/users/account.html:339
 msgid "Delete Account"
 msgstr ""
 
-#: users/templates/users/account.html:327
+#: users/templates/users/account.html:342
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr ""
 
-#: users/templates/users/account.html:330
+#: users/templates/users/account.html:345
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr ""
 
-#: users/templates/users/account.html:340
+#: users/templates/users/account.html:355
 msgid "Once deleted, account data cannot be recovered."
 msgstr ""
 
-#: users/templates/users/account.html:343
+#: users/templates/users/account.html:358
 msgid "Task in progress, can't delete now."
 msgstr ""
 
-#: users/templates/users/account.html:347
+#: users/templates/users/account.html:362
 msgid "Permanently Delete"
 msgstr ""
 
@@ -5207,34 +5205,34 @@ msgstr ""
 msgid "Account mismatch."
 msgstr ""
 
-#: users/views/data.py:164 users/views/data.py:193
+#: users/views/data.py:162 users/views/data.py:191
 msgid "Export file not available."
 msgstr ""
 
-#: users/views/data.py:187
+#: users/views/data.py:185
 msgid "Generating exports."
 msgstr ""
 
-#: users/views/data.py:205
+#: users/views/data.py:203
 msgid "Export file expired. Please export again."
 msgstr ""
 
-#: users/views/data.py:220 users/views/data.py:240
+#: users/views/data.py:218 users/views/data.py:238
 msgid "Recent export still in progress."
 msgstr ""
 
-#: users/views/data.py:254
+#: users/views/data.py:252
 msgid "Sync in progress."
 msgstr ""
 
-#: users/views/data.py:268
+#: users/views/data.py:266
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:278
+#: users/views/data.py:276
 msgid "Invalid URL."
 msgstr ""
 
-#: users/views/data.py:293 users/views/data.py:318 users/views/data.py:342
+#: users/views/data.py:291 users/views/data.py:316 users/views/data.py:340
 msgid "Invalid file."
 msgstr ""

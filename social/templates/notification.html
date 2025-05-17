@@ -53,10 +53,11 @@
           </span>
           <small>
             <a href="{% url 'social:feed' %}">
-              <i class="fa-solid fa-circle-left"></i>&nbsp;&nbsp;
+              <i class="fa-solid fa-circle-left"></i>
             </a>
           </small>
-          {% trans 'Notification' %}
+          &nbsp;&nbsp;
+          <span class="large-only">{% trans 'Notification' %}&nbsp;&nbsp;</span>
           <small>
             <a class="{% if not request.GET.type %}secondary{% endif %}"
                href="{% url 'social:notification' %}">{% trans 'all' %}</a> |
@@ -82,7 +83,7 @@
           </div>
         </div>
       </div>
-      {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
+      {% include "_sidebar.html" with show_profile=1 show_progress=1 identity=request.user.identity %}
     </main>
     {% include "_footer.html" %}
   </body>
