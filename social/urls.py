@@ -9,5 +9,6 @@ urlpatterns = [
     path("data", data, name="data"),
     path("search_data", search_data, name="search_data"),
     path("notification", notification, name="notification"),
+    path("dismiss_notification", dismiss_notification, name="dismiss_notification"),
     path("events", events, name="events"),
 ]

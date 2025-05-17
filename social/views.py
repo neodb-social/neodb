@@ -11,6 +11,13 @@ from takahe.utils import Takahe
 from users.models import APIdentity
 
 PAGE_SIZE = 10
+_all_notification_types = [
+    "liked",
+    "boosted",
+    "mentioned",
+    "followed",
+    "follow_requested",
+]
 
 
 def _sidebar_context(user):
@@ -39,7 +46,13 @@ def _sidebar_context(user):
             )[:10]
         ]
     )
+    unread = (
+        Takahe.get_events(user.identity.pk, _all_notification_types)
+        .filter(dismissed=False)
+        .count()
+    )
     return {
+        "unread": unread,
         "recent_podcast_episodes": recent_podcast_episodes,
         "books_in_progress": books_in_progress,
         "tvshows_in_progress": tvshows_in_progress,
@@ -168,41 +181,16 @@ def data(request):
 def notification(request):
     if not request.user.registration_complete:
         return redirect(reverse("users:register"))
-    user = request.user
-    podcast_ids = [
-        p.item_id
-        for p in user.shelf_manager.get_latest_members(
-            ShelfType.PROGRESS, ItemCategory.Podcast
-        )
-    ]
-    recent_podcast_episodes = PodcastEpisode.objects.filter(
-        program_id__in=podcast_ids
-    ).order_by("-pub_date")[:10]
-    books_in_progress = Edition.objects.filter(
-        id__in=[
-            p.item_id
-            for p in user.shelf_manager.get_latest_members(
-                ShelfType.PROGRESS, ItemCategory.Book
-            )[:10]
-        ]
+    return render(request, "notification.html", _sidebar_context(request.user))
+
+
+@require_http_methods(["POST"])
+@login_required
+def dismiss_notification(request):
+    Takahe.get_events(request.user.identity.pk, _all_notification_types).update(
+        dismissed=True
     )
-    tvshows_in_progress = Item.objects.filter(
-        id__in=[
-            p.item_id
-            for p in user.shelf_manager.get_latest_members(
-                ShelfType.PROGRESS, ItemCategory.TV
-            )[:10]
-        ]
-    )
-    return render(
-        request,
-        "notification.html",
-        {
-            "recent_podcast_episodes": recent_podcast_episodes,
-            "books_in_progress": books_in_progress,
-            "tvshows_in_progress": tvshows_in_progress,
-        },
-    )
+    return redirect(request.META.get("HTTP_REFERER", reverse("social:notification")))
 
 
 class NotificationEvent:
@@ -213,6 +201,7 @@ class NotificationEvent:
         self.created = tle.created
         self.identity = APIdentity.from_takahe(tle.subject_identity)
         self.post = tle.subject_post
+        self.dismissed = tle.dismissed
         if self.type == "mentioned":
             # for reply, self.post is the original post
             self.reply = self.post
@@ -244,7 +233,7 @@ def events(request):
         case "mention":
             types = ["mentioned"]
         case _:
-            types = ["liked", "boosted", "mentioned", "followed", "follow_requested"]
+            types = _all_notification_types
     es = Takahe.get_events(request.user.identity.pk, types)
     last = request.GET.get("last")
     if last:

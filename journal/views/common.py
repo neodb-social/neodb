@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.models.misc import int_
 from common.utils import (
     AuthedHttpRequest,
     CustomPaginator,
@@ -109,7 +110,7 @@ def render_list(
         year = int(year)
         queryset = queryset.filter(created_time__year=year)
     paginator = CustomPaginator(queryset, request)
-    page_number = int(request.GET.get("page", default=1))
+    page_number = int_(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
     shelf_labels = (
