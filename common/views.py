@@ -36,8 +36,6 @@ def share(request):
 
 @login_required
 def me(request):
-    if not request.user.registration_complete:
-        return redirect(reverse("users:register"))
     return redirect(request.user.identity.url)
 
 
@@ -53,8 +51,6 @@ def search(request):
 
 def home(request):
     if request.user.is_authenticated:
-        if not request.user.registration_complete:
-            return redirect(reverse("users:register"))
         home = request.user.preference.classic_homepage
         if home == 1:
             return redirect(request.user.url)

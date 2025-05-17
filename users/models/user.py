@@ -202,10 +202,6 @@ class User(AbstractUser):
         return roles
 
     @property
-    def registration_complete(self):
-        return self.username is not None
-
-    @property
     def last_usage(self):
         from journal.models import ShelfMember
 

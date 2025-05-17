@@ -81,8 +81,6 @@ def _add_interaction_to_events(events, identity_id):
 @require_http_methods(["GET"])
 @login_required
 def feed(request, typ=0):
-    if not request.user.registration_complete:
-        return redirect(reverse("users:register"))
     user = request.user
     data = _sidebar_context(user)
     data["feed_type"] = typ
@@ -96,8 +94,6 @@ def focus(request):
 @require_http_methods(["GET"])
 @login_required
 def search(request):
-    if not request.user.registration_complete:
-        return redirect(reverse("users:register"))
     user = request.user
     data = _sidebar_context(user)
     return render(request, "search_feed.html", data)
@@ -179,8 +175,6 @@ def data(request):
 @require_http_methods(["GET"])
 @login_required
 def notification(request):
-    if not request.user.registration_complete:
-        return redirect(reverse("users:register"))
     return render(request, "notification.html", _sidebar_context(request.user))
 
 

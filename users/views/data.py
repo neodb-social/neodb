@@ -32,8 +32,6 @@ from .account import clear_preference_cache
 def preferences(request):
     if not request.user.is_authenticated:
         return render(request, "users/preferences_anonymous.html")
-    if not request.user.registration_complete:
-        return redirect(reverse("users:register"))
     preference = request.user.preference
     identity = request.user.identity
     if request.method == "POST":
@@ -87,8 +85,6 @@ def preferences(request):
 
 @login_required
 def data(request):
-    if not request.user.registration_complete:
-        return redirect(reverse("users:register"))
     current_year = datetime.date.today().year
     queryset = request.user.identity.shelf_manager.get_shelf(
         ShelfType.COMPLETE

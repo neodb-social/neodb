@@ -4,7 +4,6 @@ from django.db.models import Count, F, Window
 from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -305,8 +304,6 @@ def discover(request):
         gallery["items"] = items[i:] + items[:i]
 
     if request.user.is_authenticated:
-        if not request.user.registration_complete:
-            return redirect(reverse("users:register"))
         layout = request.user.preference.discover_layout
         identity = request.user.identity
         announcements = []
