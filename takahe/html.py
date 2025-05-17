@@ -35,7 +35,7 @@ class FediverseHtmlParser(HTMLParser):
     ]
 
     MENTION_REGEX = re.compile(
-        r"(^|[^\w\d\-_/])@([\w\d\-_]+(?:@[\w\d\-_\.]+[\w\d\-_]+)?)"
+        r"(^|[^\w\d\-_/])@([\w\d\-_.]+(?:@[\w\d\-_\.]+[\w\d\-_]+)?)"
     )
 
     HASHTAG_REGEX = re.compile(r"\B#([\w()]+\b)(?!;)")
