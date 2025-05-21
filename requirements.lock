@@ -55,7 +55,7 @@ dateparser==1.2.1
 deepl==1.22.0
 deepmerge==2.0
 discord-py==2.5.2
-django==4.2.21
+django==5.2.1
     # via django-anymail
     # via django-appconf
     # via django-auditlog
@@ -85,7 +85,7 @@ django-jsonform==2.23.2
 django-maintenance-mode==0.22.0
 django-markdownx==4.0.9
 django-ninja==1.4.1
-django-polymorphic==4.0.0
+django-polymorphic==4.1.0
 django-redis==5.4.0
 django-rq==3.0.0
 django-sass-processor==1.4.1
