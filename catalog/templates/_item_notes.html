@@ -6,7 +6,7 @@
 {% load user_actions %}
 {% for note in notes %}
   {% if forloop.counter <= 10 %}
-    <section>
+    <section class="note">
       <span class="action">
         {% if note.latest_post %}
           {% include "action_reply_piece.html" with post=note.latest_post piece=note href=note.url %}
@@ -26,9 +26,9 @@
         <span class="timestamp"></span>
       </span>
       {% if note.item != item %}
-        <a href="{{ note.item.url }}">{{ note.item.display_title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
+        <a href="{{ note.item.url }}">{{ note.item.display_title }}</a><small class="title_deco">{{ note.item.title_deco }}</small>
       {% endif %}
-      <div {% if note.sensitive %}class="spoiler tldr" _="on click toggle .revealed .tldr on me"{% else %}class="tldr" _="on click toggle .tldr on me"{% endif %}>
+      <blockquote {% if note.sensitive %}class="spoiler tldr" _="on click toggle .revealed .tldr on me"{% else %}class="tldr" _="on click toggle .tldr on me"{% endif %}>
         {% if note.title %}<strong>{{ note.title|default:'' }}</strong> -{% endif %}
         {{ note.content|linebreaksbr }}
         <div class="attachments">
@@ -45,7 +45,7 @@
             {% endif %}
           {% endfor %}
         </div>
-      </div>
+      </blockquote>
       {% if note.rows and note.rows > 1 %}
         <a hx-get="{% url 'catalog:notes' note.item.url_path note.item.uuid %}?from={{ note.uuid }}"
            hx-trigger="click"
