@@ -479,8 +479,6 @@ TIME_ZONE = env("NEODB_TIMEZONE", default="Asia/Shanghai")  # type: ignore
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 USE_X_FORWARDED_HOST = True

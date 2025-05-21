@@ -258,10 +258,5 @@ class PodcastEpisode(Item):
         return []
 
     class Meta:
-        index_together = [
-            [
-                "program",
-                "pub_date",
-            ]
-        ]
+        indexes = [models.Index(fields=["program", "pub_date"])]
         unique_together = [["program", "guid"]]

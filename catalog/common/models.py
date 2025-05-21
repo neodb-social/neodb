@@ -415,11 +415,8 @@ class Item(PolymorphicModel):
     )
 
     class Meta:
-        index_together = [
-            [
-                "primary_lookup_id_type",
-                "primary_lookup_id_value",
-            ]
+        indexes = [
+            models.Index(fields=["primary_lookup_id_type", "primary_lookup_id_value"])
         ]
 
     def can_soft_delete(self):
