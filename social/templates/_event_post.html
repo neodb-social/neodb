@@ -88,7 +88,11 @@
             <a class="nickname"
                title="@{{ post.in_reply_to_post_.author.handle }}"
                href="{% url 'journal:post_view' post.in_reply_to_post_.author.handle post.in_reply_to_post_.pk %}">
-              {{ post.in_reply_to_post_.author.name | default:post.in_reply_to_post_.author.handle }}
+              {% if request.user.is_authenticated and request.user.identity.pk == post.in_reply_to_post_.author_id %}
+                {% trans "you" %}
+              {% else %}
+                {{ post.in_reply_to_post_.author.name | default:post.in_reply_to_post_.author.handle }}
+              {% endif %}
             </a>
           </span>
         {% endif %}
