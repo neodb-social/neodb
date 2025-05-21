@@ -16,7 +16,7 @@
         <span class="time">
           <span>{{ event.created|naturaldelta }}</span>
         </span>
-        <div {% if event.dismissed %}class="dismissed"{% endif %}>
+        <div {% if event.seen %}class="seen"{% endif %}>
           <span>
             <a href="{{ event.identity.url }}"
                class="nickname"

@@ -48,7 +48,7 @@ def _sidebar_context(user):
     )
     unread = (
         Takahe.get_events(user.identity.pk, _all_notification_types)
-        .filter(dismissed=False)
+        .filter(seen=False)
         .count()
     )
     return {
@@ -182,7 +182,7 @@ def notification(request):
 @login_required
 def dismiss_notification(request):
     Takahe.get_events(request.user.identity.pk, _all_notification_types).update(
-        dismissed=True
+        seen=True
     )
     return redirect(request.META.get("HTTP_REFERER", reverse("social:notification")))
 
@@ -195,7 +195,7 @@ class NotificationEvent:
         self.created = tle.created
         self.identity = APIdentity.from_takahe(tle.subject_identity)
         self.post = tle.subject_post
-        self.dismissed = tle.dismissed
+        self.seen = tle.seen
         if self.type == "mentioned":
             # for reply, self.post is the original post
             self.reply = self.post
