@@ -463,6 +463,8 @@ def translate(
         match lang:
             case "en":
                 lang = "EN-US"
+            case "pt":
+                lang = "PT-BR"
         deepl_client = deepl.DeepLClient(settings.DEEPL_API_KEY)
         try:
             j = deepl_client.translate_text(
