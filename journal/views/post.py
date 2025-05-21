@@ -51,8 +51,15 @@ def piece_replies(request: AuthedHttpRequest, piece_uuid: str):
     if not piece.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     replies = piece.get_replies(request.user.identity)
+    reply_prepend = ""
+    if piece.latest_post:
+        reply_prepend = piece.latest_post.reply_prepend(
+            request.user.identity.takahe_identity
+        )
     return render(
-        request, "replies.html", {"post": piece.latest_post, "replies": replies}
+        request,
+        "replies.html",
+        {"post": piece.latest_post, "replies": replies, "reply_prepend": reply_prepend},
     )
 
 
@@ -65,8 +72,15 @@ def post_replies(request: AuthedHttpRequest, post_id: int):
     if not owner or _can_view_post(post, owner, viewer) < 0:
         raise PermissionDenied(_("Insufficient permission"))
     replies = Takahe.get_replies_for_posts([post_id], viewer.pk if viewer else None)
+    reply_prepend = post.reply_prepend(request.user.identity.takahe_identity)
     return render(
-        request, "replies.html", {"post": Takahe.get_post(post_id), "replies": replies}
+        request,
+        "replies.html",
+        {
+            "post": Takahe.get_post(post_id),
+            "replies": replies,
+            "reply_prepend": reply_prepend,
+        },
     )
 
 
@@ -91,8 +105,14 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
         raise BadRequest(_("Invalid parameter"))
     Takahe.reply_post(post_id, request.user.identity.pk, content, visibility)
     replies = Takahe.get_replies_for_posts([post_id], request.user.identity.pk)
+    post = Takahe.get_post(post_id)
+    reply_prepend = ""
+    if post:
+        reply_prepend = post.reply_prepend(request.user.identity.takahe_identity)
     return render(
-        request, "replies.html", {"post": Takahe.get_post(post_id), "replies": replies}
+        request,
+        "replies.html",
+        {"post": post, "replies": replies, "reply_prepend": reply_prepend},
     )
 
 

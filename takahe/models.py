@@ -1223,6 +1223,12 @@ class Post(models.Model):
     def in_reply_to_post_(self):
         return self.in_reply_to_post()
 
+    def reply_prepend(self, exclude_handle: Identity | None = None) -> str:
+        m = set([self.author] + list(self.mentions.all()))
+        if exclude_handle:
+            m.discard(exclude_handle)
+        return "".join(["@" + i.handle + " " for i in m])
+
     def add_to_timeline(self, owner: Identity):
         """
         Creates a TimelineEvent for this post on owner's timeline
