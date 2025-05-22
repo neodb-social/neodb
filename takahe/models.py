@@ -1351,7 +1351,6 @@ class Post(models.Model):
         raw_append_content: str,
         summary: str | None = None,
         sensitive: bool | None = None,
-        visibility: int = Visibilities.public,
         attachments: list | None = None,
         attachment_attributes: list | None = None,
         type_data: dict | None = None,
@@ -1372,7 +1371,6 @@ class Post(models.Model):
             )
             self.summary = summary or None
             self.sensitive = bool(summary) if sensitive is None else sensitive
-            self.visibility = visibility
             self.edited = edited or timezone.now()
             self.mentions.set(self.mentions_from_content(content, self.author))
             self.emojis.set(Emoji.emojis_from_content(content, None))
@@ -1526,7 +1524,7 @@ class Post(models.Model):
             "account": self.author.to_mastodon_json(),
             "content": self.safe_content_remote(),
             "language": language,
-            "visibility": visibility_mapping[self.visibility],  # type: ignore
+            "visibility": visibility_mapping[self.visibility],
             "sensitive": self.sensitive,
             "spoiler_text": self.summary or "",
             "media_attachments": [

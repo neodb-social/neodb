@@ -462,7 +462,6 @@ class Takahe:
                 append_content,
                 summary,
                 sensitive,
-                visibility=visibility,
                 type_data=data,
                 published=post_time,
                 edited=edit_time,
