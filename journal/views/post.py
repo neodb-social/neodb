@@ -72,7 +72,7 @@ def post_replies(request: AuthedHttpRequest, post_id: int):
     if not owner or _can_view_post(post, owner, viewer) < 0:
         raise PermissionDenied(_("Insufficient permission"))
     replies = Takahe.get_replies_for_posts([post_id], viewer.pk if viewer else None)
-    reply_prepend = post.reply_prepend(request.user.identity.takahe_identity)
+    reply_prepend = post.reply_prepend(viewer.takahe_identity) if viewer else ""
     return render(
         request,
         "replies.html",

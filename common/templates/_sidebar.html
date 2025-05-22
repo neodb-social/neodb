@@ -26,7 +26,7 @@
   {% if show_profile and identity %}
     <section class="profile">
       <article>
-        <details class="auto-collapse" open>
+        <details {% if not collapse_profile %}class="auto-collapse" open{% endif %}>
           <summary>
             <div>
               <div class="avatar">
