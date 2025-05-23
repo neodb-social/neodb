@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from typing import List
 
 from django.http import HttpResponse
@@ -25,7 +25,7 @@ class MarkSchema(Schema):
     visibility: int = Field(ge=0, le=2)
     post_id: int | None = Field(alias="latest_post_id")
     item: ItemSchema
-    created_time: datetime
+    created_time: datetime.datetime
     comment_text: str | None
     rating_grade: int | None = Field(ge=1, le=10)
     tags: list[str]
@@ -37,14 +37,14 @@ class MarkInSchema(Schema):
     comment_text: str = ""
     rating_grade: int = Field(0, ge=0, le=10)
     tags: list[str] = []
-    created_time: datetime | None = None
+    created_time: datetime.datetime | None = None
     post_to_fediverse: bool = False
 
 
 class MarkLogSchema(Schema):
     shelf_type: ShelfType | None
     # item: ItemSchema
-    timestamp: datetime
+    timestamp: datetime.datetime
 
 
 @api.get(
@@ -160,8 +160,13 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     item = Item.get_by_url(item_uuid)
     if not item or item.is_deleted or item.merged_to_item:
         return 404, {"message": "Item not found"}
-    if mark.created_time and mark.created_time >= timezone.now():
-        mark.created_time = timezone.now()
+    if mark.created_time:
+        if mark.created_time.tzinfo is None:
+            mark.created_time = timezone.make_aware(
+                mark.created_time, datetime.timezone.utc
+            )
+        if mark.created_time > timezone.now():
+            mark.created_time = timezone.now()
     m = Mark(request.user.identity, item)
     m.update(
         mark.shelf_type,
