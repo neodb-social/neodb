@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from catalog.models import *
 from common.forms import PreviewImageInput
 from common.models import SITE_DEFAULT_LANGUAGE, detect_language, uniq
+from common.models.lang import normalize_languages
 
 CatalogForms = {}
 
@@ -105,6 +106,8 @@ def _EditForm(item_model):
             )
             data["primary_lookup_id_type"] = t
             data["primary_lookup_id_value"] = v
+            if "language" in data:
+                data["language"] = normalize_languages(data["language"])
             return data
 
     return EditForm

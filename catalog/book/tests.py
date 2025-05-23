@@ -327,6 +327,7 @@ class BooksTWTestCase(TestCase):
             site.resource.item.display_title,
             "阿拉伯人三千年：從民族、部落、語言、文化、宗教到帝國，綜覽阿拉伯世界的崛起、衰落與再興",
         )
+        self.assertEqual(site.resource.item.language, ["zh-tw"])
 
 
 class DoubanBookTestCase(TestCase):

@@ -19,7 +19,7 @@
   <div>{% include '_people.html' with people=item.genre role='genre' max=5 %}</div>
   <div>{% include '_people.html' with people=item.troupe role='troupe' max=5 %}</div>
   <div>{% include '_people.html' with people=item.location role='theater' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.language role='language' max=5 %}</div>
+  <div>{% include '_language_list.html' with list=item.language max=5 %}</div>
   <div>{% include '_people.html' with people=item.orig_creator role='orginal creator' max=5 %}</div>
   <div>{% include '_people.html' with people=item.director role='director' max=5 %}</div>
   <div>{% include '_people.html' with people=item.playwright role='playwright' max=5 %}</div>

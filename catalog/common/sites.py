@@ -20,6 +20,8 @@ from django.core.cache import cache
 from loguru import logger
 from validators import url as url_validate
 
+from common.models.lang import normalize_languages
+
 from .models import ExternalResource, IdealIdTypes, IdType, Item, SiteName
 
 
@@ -261,7 +263,9 @@ class AbstractSite:
             p.save()
             if p.item:
                 p.item.merge_data_from_external_resources(ignore_existing_content)
-                p.item.ap_object  # validate
+                p.item.ap_object  # validate schema and throw exception if invalid
+                if hasattr(p.item, "language"):  # normalize language list
+                    p.item.language = normalize_languages(p.item.language)
                 p.item.save()
                 self.scrape_additional_data()
         if auto_link:

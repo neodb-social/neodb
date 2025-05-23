@@ -115,7 +115,7 @@ class DoubanDramaTestCase(TestCase):
             "THE SCARLET PIMPERNEL ミュージカル（2017年）版",
         )
         self.assertEqual(len(productions[3].actor), 6)
-        self.assertEqual(productions[3].language, ["日语"])
+        self.assertEqual(productions[3].language, ["ja"])
         self.assertEqual(productions[3].opening_date, "2017-11-13")
         self.assertEqual(productions[3].location, ["梅田芸術劇場メインホール"])
 
@@ -141,7 +141,7 @@ class BangumiDramaTestCase(TestCase):
                 {"name": "鈴木拡樹", "role": None},
             ],
         )
-        self.assertEqual(item.language, ["日语"])
+        self.assertEqual(item.language, ["ja"])
 
         t_url = "https://bgm.tv/subject/442025"
         site = SiteManager.get_site_by_url(t_url)
@@ -157,7 +157,7 @@ class BangumiDramaTestCase(TestCase):
         self.assertEqual(item.opening_date, "2023-08-11")
         self.assertEqual(item.closing_date, "2023-08-20")
         self.assertEqual(item.genre, ["舞台演出"])
-        self.assertEqual(item.language, ["日本语"])
+        self.assertEqual(item.language, ["ja"])
         self.assertEqual(item.playwright, ["山崎彬"])
         self.assertEqual(item.director, ["山崎彬"])
         self.assertEqual(

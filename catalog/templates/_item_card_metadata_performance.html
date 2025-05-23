@@ -16,7 +16,7 @@
 {% block full %}
   <div class="multi-fields">
     {% include '_people.html' with people=item.additional_title role='other title' max=2 %}
-    {% include '_people.html' with people=item.language role='language' max=5 %}
+    {% include '_language_list.html' with list=item.language max=5 %}
     {% include '_people.html' with people=item.troupe role='troupe' max=2 %}
     {% include '_people.html' with people=item.location role='theater' max=2 %}
     {% include '_people.html' with people=item.director role='director' max=2 %}

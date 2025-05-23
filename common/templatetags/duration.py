@@ -8,6 +8,11 @@ from django.utils.translation import gettext as _
 
 from catalog.common.models import item_categories
 from catalog.search.views import visible_categories as _visible_categories
+from common.models.lang import (
+    LANGUAGE_CODES,
+    LOCALE_CODES,
+    SCRIPT_CODES,
+)
 
 register = template.Library()
 
@@ -85,3 +90,13 @@ def relative_uri(value: str) -> str:
 @register.filter
 def make_range(number):
     return range(1, number + 1)
+
+
+@register.filter
+def code_to_lang(code):
+    return _(
+        LANGUAGE_CODES.get(code)
+        or SCRIPT_CODES.get(code)
+        or LOCALE_CODES.get(code)
+        or "unknown"
+    )

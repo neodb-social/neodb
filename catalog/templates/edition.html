@@ -48,7 +48,7 @@
       {% trans 'series' %}: {{ item.series }}
     {% endif %}
   </div>
-  <div>{% include '_people.html' with people=item.language role='language' max=10 %}</div>
+  <div>{% include '_language_list.html' with list=item.language max=10 %}</div>
   <div>
     {% if item.binding %}
       {% trans 'binding' %}: {{ item.binding }}

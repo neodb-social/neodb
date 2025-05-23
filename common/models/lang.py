@@ -29,6 +29,7 @@ import deepl
 import httpx
 from django.conf import settings
 from django.core.cache import cache
+from django.utils import translation
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 from langdetect import detect
@@ -369,6 +370,9 @@ def _get_language_choices() -> list[tuple[str, str]]:
 LOCALE_CHOICES: list[tuple[str, str]] = _get_locale_choices()
 SCRIPT_CHOICES: list[tuple[str, str]] = _get_script_choices()
 LANGUAGE_CHOICES: list[tuple[str, str]] = _get_language_choices()
+LANGUAGE_CODES = {k: v for k, v in LANGUAGE_CHOICES}
+SCRIPT_CODES = {k: v for k, v in SCRIPT_CHOICES}
+LOCALE_CODES = {k: v for k, v in LOCALE_CHOICES}
 
 
 def get_current_locales() -> list[str]:
@@ -418,6 +422,148 @@ def detect_language(s: str) -> str:
 
 def migrate_languages(languages: list[str]) -> list[str]:
     return []
+
+
+def _build_language_aliases() -> dict[str, str]:
+    """
+    Build a mapping of language name aliases to their ISO 639-1 code.
+    """
+
+    aliases = {}
+
+    # mapping from Django's translation system
+    available_languages = settings.SUPPORTED_UI_LANGUAGES.keys()
+    current_language = translation.get_language()
+    for lang_code in available_languages:
+        with translation.override(lang_code):
+            for code, name in ISO_639_1.items():
+                name_str = str(name).lower()
+                if name_str and name_str != code:
+                    aliases[name_str] = code
+    if current_language:
+        translation.activate(current_language)
+
+    # common ISO 639-2 three-letter codes for major languages
+    iso_639_2_codes = {
+        "eng": "en",
+        "fra": "fr",
+        "deu": "de",
+        "spa": "es",
+        "ita": "it",
+        "por": "pt",
+        "rus": "ru",
+        "jpn": "ja",
+        "zho": "zh",
+        "kor": "ko",
+        "ara": "ar",
+        "hin": "hi",
+        "ben": "bn",
+        "nld": "nl",
+        "swe": "sv",
+        "tur": "tr",
+        "pol": "pl",
+        "vie": "vi",
+        "tha": "th",
+        "chn": "zh",
+    }
+    aliases.update(iso_639_2_codes)
+
+    # custom aliases
+    custom_aliases = {
+        "english": "en",
+        "英语": "en",
+        "英文": "en",
+        "chinese": "zh",
+        "中文": "zh",
+        "汉语": "zh",
+        "漢語": "zh",
+        "中國語": "zh",
+        "中国语": "zh",
+        "chinese, simplified": "zh-cn",
+        "chinese, traditional": "zh-tw",
+        "simplified chinese": "zh-cn",
+        "traditional chinese": "zh-tw",
+        "简体中文": "zh-cn",
+        "簡體中文": "zh-cn",
+        "繁体中文": "zh-tw",
+        "繁體中文": "zh-tw",
+        "简中": "zh-cn",
+        "簡中": "zh-cn",
+        "繁中": "zh-tw",
+        "japanese": "ja",
+        "日语": "ja",
+        "日語": "ja",
+        "日本語": "ja",
+        "日本语": "ja",
+        "日文": "ja",
+        "korean": "ko",
+        "韩语": "ko",
+        "韩文": "ko",
+        "french": "fr",
+        "法语": "fr",
+        "法文": "fr",
+        "german": "de",
+        "德语": "de",
+        "德文": "de",
+        "spanish": "es",
+        "西班牙语": "es",
+        "西语": "es",
+        "russian": "ru",
+        "俄语": "ru",
+        "俄文": "ru",
+        "italian": "it",
+        "意大利语": "it",
+        "意语": "it",
+        "portuguese": "pt",
+        "葡萄牙语": "pt",
+        "葡语": "pt",
+        "arabic": "ar",
+        "العربية": "ar",
+        "hindi": "hi",
+        "हिन्दी": "hi",
+        "bengali": "bn",
+        "বাংলা": "bn",
+        "dutch": "nl",
+        "nederlands": "nl",
+        "荷兰语": "nl",
+        "swedish": "sv",
+        "svenska": "sv",
+        "瑞典语": "sv",
+        "turkish": "tr",
+        "türkçe": "tr",
+        "土耳其语": "tr",
+        "polish": "pl",
+        "polski": "pl",
+        "波兰语": "pl",
+        "vietnamese": "vi",
+        "tiếng việt": "vi",
+        "越南语": "vi",
+        "thai": "th",
+        "ไทย": "th",
+        "泰语": "th",
+        "未知": "x",
+    }
+    aliases.update(custom_aliases)
+    return aliases
+
+
+_language_aliases = _build_language_aliases()
+# _valid_language_codes = {
+#     code.lower() for code, _ in LOCALE_CHOICES + SCRIPT_CHOICES + LANGUAGE_CHOICES
+# }
+
+
+def normalize_languages(languages: list[str]) -> list[str]:
+    normalized = []
+    for lang in languages or []:
+        if not lang or not isinstance(lang, str) or not lang.strip():
+            continue
+        ll = lang.strip().lower().replace("_", "-")
+        if ll in _language_aliases:
+            normalized.append(_language_aliases[ll])
+        else:
+            normalized.append(ll)
+    return list(dict.fromkeys(normalized))
 
 
 def _lt_detect_language(text) -> str | None:

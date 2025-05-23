@@ -7,7 +7,7 @@
       <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
     {% endif %}
     {% include '_people.html' with people=item.genre role='genre' max=2 %}
-    {% include '_people.html' with people=item.language role='language' max=5 %}
+    {% include '_language_list.html' with list=item.language max=5 %}
     {% include '_people.html' with people=item.troupe role='troupe' max=2 %}
     {% include '_people.html' with people=item.location role='theater' max=2 %}
     {% include '_people.html' with people=item.director role='director' max=2 %}
