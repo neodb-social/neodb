@@ -683,6 +683,7 @@ if _SENTRY_DSN:
         release=NEODB_VERSION,
         send_default_pii=True,
         traces_sample_rate=_SENTRY_SAMPLE_RATE,
+        _experiments={"enable_logs": True},
     )
 
 SKIP_MIGRATIONS = env("SKIP_MIGRATIONS")

@@ -118,3 +118,21 @@ def reindex_20250424():
         t += len(docs)
         c += r
     logger.warning(f"Reindexing complete: updated {c} of {t} docs.")
+
+
+def normalize_language_20250524():
+    from catalog.models import Item
+    from common.models.lang import normalize_languages
+
+    logger.warning("normalize_language start")
+    c = Item.objects.all().count()
+    u = 0
+    for i in tqdm(Item.objects.all().iterator(), total=c):
+        lang = getattr(i, "language", None)
+        if lang:
+            lang2 = normalize_languages(lang)
+            if lang2 != lang:
+                setattr(i, "language", lang2)
+                i.save(update_fields=["metadata"])
+                u += 1
+    logger.warning(f"normalize_language finished. {u} of {c} items updated.")
