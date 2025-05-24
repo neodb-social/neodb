@@ -195,7 +195,7 @@ class Edition(Item):
         max_length=100,
         choices=BookFormat.choices,
     )
-    language = LanguageListField()
+    language = LanguageListField(script=True)
     pub_house = jsondata.CharField(
         _("publishing house"), null=True, blank=True, max_length=500
     )
@@ -462,7 +462,7 @@ class Work(Item):
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
     # TODO change related_name to '+' in future release
     editions = models.ManyToManyField(Edition, related_name="works")
-    language = LanguageListField()
+    language = LanguageListField(script=True)
     author = jsondata.ArrayField(
         verbose_name=_("author"),
         base_field=models.CharField(max_length=500),

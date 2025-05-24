@@ -21,6 +21,7 @@ from polymorphic.models import PolymorphicModel
 from catalog.common import jsondata
 from catalog.index import CatalogIndex
 from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, get_current_locales, uniq
+from common.models.lang import SCRIPT_CHOICES
 
 from .utils import item_cover_path, resource_cover_path
 
@@ -279,13 +280,16 @@ class ItemSchema(BaseSchema, ItemInSchema):
     pass
 
 
-def get_locale_choices_for_jsonform(choices):
+def get_locale_choices_for_jsonform(choices, const=False):
     """return list for jsonform schema"""
-    return [{"title": v, "value": k} for k, v in choices]
+    return [{"title": v, "const" if const else "value": k} for k, v in choices]
 
 
 LOCALE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(LOCALE_CHOICES)
-LANGUAGE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(LANGUAGE_CHOICES)
+LANGUAGE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(
+    LANGUAGE_CHOICES, const=True
+)
+SCRIPT_CHOICES_JSONFORM = get_locale_choices_for_jsonform(SCRIPT_CHOICES, const=True)
 
 LOCALIZED_TITLE_SCHEMA = {
     "type": "list",
@@ -340,17 +344,23 @@ LIST_OF_ONE_PLUS_STR_SCHEMA = {
 }
 
 
-def LanguageListField():
+def LanguageListField(script=False):
     return jsondata.ArrayField(
         verbose_name=_("language"),
         base_field=models.CharField(blank=True, default="", max_length=100),
         null=True,
         blank=True,
         default=list,
-        # schema={
-        #     "type": "list",
-        #     "items": {"type": "string", "choices": LANGUAGE_CHOICES_JSONFORM},
-        # },
+        schema={
+            "type": "array",
+            "items": {
+                "oneOf": (
+                    SCRIPT_CHOICES_JSONFORM if script else LANGUAGE_CHOICES_JSONFORM
+                )
+                + [{"title": "Other", "type": "string"}]
+            },
+            "uniqueItems": True,
+        },
     )
 
 

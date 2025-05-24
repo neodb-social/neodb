@@ -7,12 +7,15 @@
     }
   }
 }
+
 // override django_jsonform/react-json-form styles
-.rjf-form-group-wrapper{
+.rjf-form-group-wrapper {
   max-width: unset !important;
 }
+
 .rjf-form-wrapper {
   max-width: unset !important;
+
   input[type="text"] {
     max-width: unset !important;
     margin-top: 0 !important;
@@ -54,6 +57,30 @@
         margin-bottom: 0 !important;
       }
 
+    }
+  }
+}
+
+.rjf-oneof-group {
+  display: flex;
+
+  .rjf-oneof-selector {
+    padding-right: unset;
+
+    .rjf-oneof-selector-input {
+      margin-bottom: unset;
+    }
+  }
+
+  .rjf-form-row {
+    padding: 0;
+
+    label {
+      display: none;
+    }
+
+    .rjf-input-group {
+      width: 100%;
     }
   }
 }

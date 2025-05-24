@@ -43,7 +43,6 @@ from catalog.common import (
     jsondata,
 )
 from catalog.common.models import (
-    LANGUAGE_CHOICES_JSONFORM,
     LIST_OF_STR_SCHEMA,
     LanguageListField,
 )
@@ -440,17 +439,7 @@ class TVSeason(Item):
         blank=True,
         default=list,
     )
-    language = jsondata.ArrayField(
-        verbose_name=_("language"),
-        base_field=models.CharField(blank=True, default="", max_length=100),
-        null=True,
-        blank=True,
-        default=list,
-        schema={
-            "type": "list",
-            "items": {"type": "string", "choices": LANGUAGE_CHOICES_JSONFORM},
-        },
-    )
+    language = LanguageListField()
     year = jsondata.IntegerField(verbose_name=_("year"), null=True, blank=True)
     single_episode_length = jsondata.IntegerField(
         verbose_name=_("episode length"), null=True, blank=True

@@ -98,5 +98,5 @@ def code_to_lang(code):
         LANGUAGE_CODES.get(code)
         or SCRIPT_CODES.get(code)
         or LOCALE_CODES.get(code)
-        or "unknown"
+        or code
     )

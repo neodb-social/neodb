@@ -16,7 +16,7 @@ dependencies = [
     "django-cors-headers",
     "django-environ>=0.11.2",
     "django-hijack>=3.7.0",
-    "django-jsonform>=2.23.1",
+    "django-jsonform @ git+https://github.com/alphatownsman/django-jsonform",
     "django-maintenance-mode",
     "django-markdownx>=4.0.7",
     "django-ninja>=1.3.0",
