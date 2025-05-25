@@ -45,9 +45,9 @@ PAGE_SIZE = 20
 class SearchResult(Schema):
     data: List[
         EditionSchema
-        | MovieSchema
         | TVShowSchema
         | TVSeasonSchema
+        | MovieSchema
         | AlbumSchema
         | PodcastSchema
         | GameSchema
