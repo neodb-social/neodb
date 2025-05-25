@@ -1,6 +1,9 @@
+import logging
+
 from django.db import connection, models
-from loguru import logger
 from tqdm import tqdm
+
+logger = logging.getLogger(__name__)
 
 
 def fix_20250208():

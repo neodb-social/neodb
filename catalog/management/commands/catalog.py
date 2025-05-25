@@ -104,6 +104,10 @@ class Command(BaseCommand):
                 from catalog.common.migrations import fix_bangumi_20250420
 
                 fix_bangumi_20250420()
+            case "normalize_language":
+                from catalog.common.migrations import normalize_language_20250524
+
+                normalize_language_20250524()
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
