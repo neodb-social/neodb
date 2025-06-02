@@ -3,10 +3,10 @@ from .collection import (
     collection_add_featured,
     collection_append_item,
     collection_edit,
+    collection_edit_items,
     collection_remove_featured,
     collection_remove_item,
     collection_retrieve,
-    collection_retrieve_items,
     collection_retrieve_redirect,
     collection_share,
     collection_update_item_note,
@@ -33,7 +33,7 @@ from .post import (
     post_view,
     post_vote,
 )
-from .profile import group, profile, user_calendar_data
+from .profile import group, profile, profile_items, user_calendar_data
 from .review import (
     ReviewFeed,
     review_edit,
@@ -51,10 +51,10 @@ __all__ = [
     "collection_add_featured",
     "collection_append_item",
     "collection_edit",
+    "collection_edit_items",
     "collection_remove_featured",
     "collection_remove_item",
     "collection_retrieve",
-    "collection_retrieve_items",
     "collection_retrieve_redirect",
     "collection_share",
     "collection_update_item_note",
@@ -84,6 +84,7 @@ __all__ = [
     "post_vote",
     "group",
     "profile",
+    "profile_items",
     "user_calendar_data",
     "ReviewFeed",
     "review_edit",

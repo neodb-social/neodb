@@ -2,13 +2,16 @@ import datetime
 from urllib.parse import quote_plus
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
 from common.utils import (
     AuthedHttpRequest,
+    get_uuid_or_404,
     profile_identity_required,
     target_identity_required,
 )
@@ -170,5 +173,36 @@ def user_calendar_data(request, user_name):
         "calendar_data.html",
         {
             "calendar_data": calendar_data,
+        },
+    )
+
+
+def profile_items(request: AuthedHttpRequest):
+    collection_uuid = request.GET.get("collection")
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
+    if not collection.is_visible_to(request.user):
+        raise PermissionDenied(_("Insufficient permission"))
+
+    items = []
+    total = 0
+    if collection.is_dynamic:
+        viewer = request.user.identity if request.user.is_authenticated else None
+        q = collection.get_query(viewer, page=1)
+        if q:
+            r = JournalIndex.instance().search(q)
+            items = r.items
+            total = r.total
+    else:
+        items = collection.ordered_items[:20]
+        total = collection.members.count()
+
+    return render(
+        request,
+        "profile_items.html",
+        {
+            "title": collection.title,
+            "url": collection.url,
+            "items": items,
+            "total": total,
         },
     )

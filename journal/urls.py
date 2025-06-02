@@ -81,8 +81,13 @@ urlpatterns = [
     ),
     path(
         "collection/<str:collection_uuid>/items",
-        collection_retrieve_items,
-        name="collection_retrieve_items",
+        collection_edit_items,
+        name="collection_edit_items",
+    ),
+    path(
+        "profile/items",
+        profile_items,
+        name="profile_items",
     ),
     path(
         "collection/<str:collection_uuid>/append_item",

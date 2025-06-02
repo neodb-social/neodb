@@ -2,28 +2,26 @@
 {% load i18n %}
 {% load l10n %}
 {% for member in members %}
-  {% include '_list_item.html' with item=member.item mark=None collection_member=member %}
-  {% if forloop.counter == 10 %}<div class="loader-mark"></div>{% endif %}
-  {% if forloop.last %}
-    <div hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?last_pos={{ member.position }}&amp;last_member={{ member.id }}&amp;edit={{ request.GET.edit }}"
+  {% include '_list_item.html' with item=member.item mark=item.mark collection_member=member %}
+  {% if forloop.last and not pagination %}
+    <div hx-get="{% url 'journal:collection_edit_items' collection.uuid %}?last_pos={{ member.position }}&amp;last_member={{ member.id }}"
          hx-trigger="load delay:0.1s"
          hx-swap="outerHTML"
          class=".loader">
       <i class="fa-solid fa-compact-disc fa-spin loading"></i>
     </div>
   {% endif %}
-{% empty %}
-  {% if not request.GET.last_pos and not collection_edit %}
-    {% trans "nothing so far." %}
-  {% endif %}
-  {% if request.GET.edit %}
-    <script>
-  sortable('.sortable', {
-    forcePlaceholderSize: true,
-    placeholderClass: 'entity-sort--placeholder',
-    hoverClass: 'entity-sort--hover'
-  });
-    </script>
-  {% endif %}
 {% endfor %}
-{% if msg %}<script type="text/javascript">alert("{{ msg|escapejs }}");</script>{% endif %}
+{% if pagination %}
+  {% include "_pagination.html" %}
+{% endif %}
+{% if collection_edit %}
+  <script>
+    sortable('.sortable', {
+      forcePlaceholderSize: true,
+      placeholderClass: 'entity-sort--placeholder',
+      hoverClass: 'entity-sort--hover'
+    });
+  </script>
+{% endif %}
+{% if msg %}<script>alert("{{ msg|escapejs }}");</script>{% endif %}

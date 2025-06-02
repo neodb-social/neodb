@@ -118,12 +118,7 @@
           {% endif %}
         {% endcomment %}
         <section>
-          <div id="collection_items"
-               class="item-list sortable"
-               hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}"
-               hx-trigger="load">
-            <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-          </div>
+          {% include "collection_items.html" %}
         </section>
         <section>
           {% if request.user.is_authenticated %}

@@ -8,7 +8,12 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import Item
 from common.models import int_
-from common.utils import AuthedHttpRequest, get_uuid_or_404
+from common.utils import (
+    AuthedHttpRequest,
+    PageLinksGenerator,
+    get_page_size_from_request,
+    get_uuid_or_404,
+)
 from users.models import User
 
 from ..forms import *
@@ -87,6 +92,14 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
+    page_number = int_(request.GET.get("page"), 1)
+    per_page = get_page_size_from_request(request)
+    viewer = request.user.identity if request.user.is_authenticated else None
+    comment_as_note = viewer != collection.owner
+    members, pages = collection.get_members_by_page(
+        page_number, per_page, viewer, comment_as_note
+    )
+    pagination = PageLinksGenerator(page_number, pages, request.GET)
     follower_count = collection.likes.all().count()
     following = (
         Like.user_liked_piece(request.user.identity, collection)
@@ -121,6 +134,8 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
         "collection.html",
         {
             "collection": collection,
+            "members": members,
+            "pagination": pagination,
             "follower_count": follower_count,
             "following": following,
             "stats": stats,
@@ -226,87 +241,27 @@ def share_collection(
         return False
 
 
-def collection_retrieve_items(
-    request: AuthedHttpRequest, collection_uuid, edit=False, msg=None
-):
+def collection_edit_items(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
-    for_profile = bool(request.GET.get("profile"))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     if collection.is_dynamic:
-        page = int_(request.GET.get("page"), 1)
-        viewer = request.user.identity if request.user.is_authenticated else None
-        q = collection.get_query(viewer, page=page)
-        collection_members = []
-        items = []
-        pages = 0
-        total = 0
-        if q:
-            r = JournalIndex.instance().search(q)
-            items = r.items
-            pages = r.pages
-            total = r.total
-        if items and not for_profile:
-            Rating.attach_to_items(items)
-            # Attach mark from viewer
-            if request.user.is_authenticated:
-                Mark.attach_to_items(request.user.identity, items, request.user)
-            collection_members = [{"item": i, "parent": collection} for i in items]
-            # Attach comments from owner as collection note if viewer is not owner
-            if (
-                not request.user.is_authenticated
-                or request.user.identity != collection.owner
-            ):
-                q = q_owned_piece_visible_to_user(request.user, collection.owner)
-                comments = {
-                    c.item.pk: c.text
-                    for c in Comment.objects.filter(item__in=items).filter(q)
-                }
-                for m in collection_members:
-                    m["note"] = comments.get(m["item"].pk, "")
-        if for_profile:
-            return render(
-                request,
-                "profile_collection_items.html",
-                {"collection": collection, "items": items, "total": total},
-            )
-        else:
-            return render(
-                request,
-                "collection_dynamic_items.html",
-                {
-                    "collection": collection,
-                    "collection_members": collection_members,
-                    "next_page": page + 1 if page < pages else None,
-                },
-            )
+        members = []
     else:
-        if for_profile:
-            return render(
-                request,
-                "profile_collection_items.html",
-                {
-                    "collection": collection,
-                    "items": collection.ordered_items[:20],
-                    "total": collection.members.count(),
-                },
-            )
-        else:
-            members = collection.ordered_members
-            last_pos = int_(request.GET.get("last_pos"))
-            if last_pos:
-                last_member = int_(request.GET.get("last_member"))
-                members = members.filter(position__gte=last_pos).exclude(id=last_member)
-            return render(
-                request,
-                "collection_items.html",
-                {
-                    "collection": collection,
-                    "members": members[:20],
-                    "collection_edit": edit or request.GET.get("edit"),
-                    "msg": msg,
-                },
-            )
+        members = collection.ordered_members
+        last_pos = int_(request.GET.get("last_pos"))
+        if last_pos:
+            last_member = int_(request.GET.get("last_member"))
+            members = members.filter(position__gte=last_pos).exclude(id=last_member)
+    return render(
+        request,
+        "collection_items.html",
+        {
+            "collection": collection,
+            "members": members[:20],
+            "collection_edit": True,
+        },
+    )
 
 
 @login_required

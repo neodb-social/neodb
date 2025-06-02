@@ -41,7 +41,7 @@
     {% endif %}
   </span>
   {% include "_item_card.html" with item=item %}
-  {% if mark or collection_member %}
+  {% if collection_edit or collection_member.note or mark.shelf or mark.review or mark.tags %}
     <footer>
       {% if collection_edit or collection_member.note %}
         <section class="item-note">
@@ -61,8 +61,8 @@
                   {% endif %}
                 </span>
               </span>
-              {{ collection_member.note }}
             {% endif %}
+            {{ collection_member.note|default:'&nbsp;' }}
           </div>
         </section>
       {% endif %}

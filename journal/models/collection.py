@@ -3,6 +3,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -134,6 +135,49 @@ class Collection(List):
     @cached_property
     def item_ids(self):
         return self.get_item_ids()
+
+    def get_members_by_page(
+        self,
+        page_number: int,
+        page_size: int = 20,
+        viewer: APIdentity | None = None,
+        comment_as_note: bool = False,
+    ):
+        from .comment import Comment
+        from .common import q_owned_piece_visible_to_user
+        from .mark import Mark
+        from .rating import Rating
+
+        if self.is_dynamic:
+            # Dynamic collections: use existing search-based pagination
+            q = self.get_query(viewer, page=page_number)
+            members = []
+            pages = 0
+            if q:
+                r = JournalIndex.instance().search(q)
+                items = r.items
+                pages = r.pages
+                Rating.attach_to_items(items)
+                if viewer:
+                    Mark.attach_to_items(viewer, items, viewer.user)
+                members = [{"item": i, "parent": self} for i in items]
+                if comment_as_note:
+                    # Attach comments from owner as collection note if viewer is not owner
+                    q = q_owned_piece_visible_to_user(
+                        viewer.user if viewer else None, self.owner
+                    )
+                    comments = {
+                        c.item.pk: c.text
+                        for c in Comment.objects.filter(item__in=items).filter(q)
+                    }
+                    for m in members:
+                        m["note"] = comments.get(m["item"].pk, "")
+        else:
+            all_members = self.ordered_members
+            p = Paginator(all_members, page_size)
+            members = p.get_page(page_number)
+            pages = p.num_pages
+        return members, pages
 
     def get_stats(self, viewer: APIdentity):
         items = self.item_ids

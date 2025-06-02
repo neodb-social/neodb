@@ -47,7 +47,7 @@
             <section>
               <div id="collection_items"
                    class="sortable"
-                   hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1"
+                   hx-get="{% url 'journal:collection_edit_items' collection.uuid %}?edit=1"
                    hx-trigger="load"></div>
             </section>
             <form class="entity-form"
