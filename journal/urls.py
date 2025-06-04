@@ -85,9 +85,24 @@ urlpatterns = [
         name="collection_edit_items",
     ),
     path(
-        "profile/items",
-        profile_items,
-        name="profile_items",
+        "profile/collection_items",
+        profile_collection_items,
+        name="profile_collection_items",
+    ),
+    path(
+        "<str:user_name>/profile/created_collections",
+        profile_created_collections,
+        name="profile_created_collections",
+    ),
+    path(
+        "<str:user_name>/profile/liked_collections",
+        profile_liked_collections,
+        name="profile_liked_collections",
+    ),
+    path(
+        "<str:user_name>/shelf/<str:category>/<str:shelf_type>/items",
+        profile_shelf_items,
+        name="profile_shelf_items",
     ),
     path(
         "collection/<str:collection_uuid>/append_item",
@@ -129,7 +144,7 @@ urlpatterns = [
         name="user_mark_list",
     ),
     re_path(
-        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/reviews/(?P<item_category>"
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/reviewed/(?P<item_category>"
         + _get_all_categories()
         + ")/$",
         user_review_list,

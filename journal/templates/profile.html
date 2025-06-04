@@ -43,7 +43,8 @@
     {% include "_header.html" %}
     <main>
       <div class="grid__main">
-        <div class="sortable">
+        <div class="sortable"></div>
+        <div style="display:none;">
           {% if request.user.is_authenticated %}
             <section class="entity-sort shelf" id="calendar_grid">
               <span class="action">
@@ -69,126 +70,84 @@
               </ul>
               <span class="calendar_data"
                     hx-get="{% url 'journal:user_calendar_data' identity.handle %}"
-                    hx-trigger="load"
+                    hx-trigger="intersect once queue:last"
                     hx-swap="innerHTML"
                     style="display:none"></span>
             </section>
           {% endif %}
           {% for collection in pinned_collections %}
-            <section class="entity-sort shelf"
-                     hx-get="{% url 'journal:profile_items' %}?collection={{ collection.uuid }}"
-                     hx-trigger="load"
-                     id="collection_{{ collection.uuid }}">
-              <h5>
-                {{ collection.title }}
-                <small><i class="fa-solid fa-compact-disc fa-spin loading"></i></small>
-              </h5>
+            <section class="entity-sort shelf"   id="collection_{{ collection.uuid }}">
+              <div hx-swap="outerHTML"
+                   hx-get="{% url 'journal:profile_collection_items' %}?collection={{ collection.uuid }}"
+                   hx-trigger="intersect once queue:last">
+                <h5>{{ collection.title }}</h5>
+                <ul class="cards">
+                  <li class="card">
+                    <a>
+                      <img src="{{ default_cover_url }}" alt="" loading="lazy">
+                      <div>
+                        <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                      </div>
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </section>
           {% endfor %}
           {% for category, category_shelves in shelf_list.items %}
             {% for shelf_type, shelf in category_shelves.items %}
-              <section class="entity-sort shelf"
-                       id="{{ category }}_{{ shelf_type }}"
-                       {% if not shelf.count %}style="display:none;"{% endif %}>
-                <span class="action">
-                  <span>
-                    <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-                  </span>
-                  <span>
-                    <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-                  </span>
-                </span>
-                <h5>
-                  {{ shelf.title }}
-                  <small>
-                    <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' identity.handle category %}{% else %}{% url 'journal:user_mark_list' identity.handle shelf_type category %}{% endif %}">{{ shelf.count }}</a>
-                  </small>
-                </h5>
-                <ul class="cards">
-                  {% for member in shelf.members %}
+              <section class="entity-sort shelf" id="{{ category }}_{{ shelf_type }}">
+                <div hx-swap="outerHTML"
+                     hx-get="{% url 'journal:profile_shelf_items' identity.handle category shelf_type %}"
+                     hx-trigger="intersect once queue:last">
+                  <h5>{{ shelf.title }}</h5>
+                  <ul class="cards">
                     <li class="card">
-                      <a href="{% if shelf_type == 'reviewed' %}{{ member.url }}{% else %}{{ member.item.url }}{% endif %}"
-                         title="{{ member.item.display_title }}">
-                        <img src="{{ member.item.cover|thumb:'normal' }}"
-                             alt="{{ member.item.display_title }}"
-                             loading="lazy">
-                        <div>{{ member.item.display_title }}</div>
+                      <a>
+                        <img src="{{ default_cover_url }}" alt="" loading="lazy">
+                        <div>
+                          <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                        </div>
                       </a>
                     </li>
-                  {% empty %}
-                    <div>{% trans "nothing so far." %}</div>
-                  {% endfor %}
-                </ul>
+                  </ul>
+                </div>
               </section>
             {% endfor %}
           {% endfor %}
-          <section class="entity-sort shelf"
-                   id="collection_created"
-                   {% if not collections_count %}style="display:none;"{% endif %}>
-            <span class="action">
-              <span>
-                <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-              </span>
-              <span>
-                <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-              </span>
-            </span>
-            <h5>
-              {% trans 'collection' %}
-              <small>
-                <a href="{% url 'journal:user_collection_list' identity.handle %}">{{ collections_count }}</a>
-                {% if identity.user == request.user %}
-                  <a href="{% url 'journal:collection_create' %}">
-                    <i class="fa-regular fa-square-plus"></i>
-                  </a>
-                {% endif %}
-              </small>
-            </h5>
-            <ul class="cards">
-              {% for collection in collections %}
+          <section class="entity-sort shelf" id="collection_created">
+            <div hx-swap="outerHTML"
+                 hx-get="{% url 'journal:profile_created_collections' identity.handle %}"
+                 hx-trigger="intersect once queue:last">
+              <h5>{% trans 'collection' %}</h5>
+              <ul class="cards">
                 <li class="card">
-                  <a href="{{ collection.url }}" title="{{ collection.title }}">
-                    <img src="{{ collection.cover|thumb:'normal' }}"
-                         alt="{{ collection.title }}">
-                    <div>{{ collection.title }}</div>
+                  <a>
+                    <img src="{{ default_cover_url }}" alt="" loading="lazy">
+                    <div>
+                      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                    </div>
                   </a>
                 </li>
-              {% empty %}
-                <div>{% trans "nothing so far." %}</div>
-              {% endfor %}
-            </ul>
+              </ul>
+            </div>
           </section>
-          <section class="entity-sort shelf"
-                   id="collection_marked"
-                   {% if not liked_collections_count %}style="display:none;"{% endif %}>
-            <span class="action">
-              <span>
-                <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-              </span>
-              <span>
-                <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-              </span>
-            </span>
-            <h5>
-              {% trans 'liked collection' %}
-              <small>
-                <a href="{% url 'journal:user_liked_collection_list' identity.handle %}">{{ liked_collections_count }}</a>
-              </small>
-            </h5>
-            <ul class="cards">
-              {% for collection in liked_collections %}
+          <section class="entity-sort shelf" id="collection_marked">
+            <div hx-swap="outerHTML"
+                 hx-get="{% url 'journal:profile_liked_collections' identity.handle %}"
+                 hx-trigger="intersect once queue:last">
+              <h5>{% trans 'liked collection' %}</h5>
+              <ul class="cards">
                 <li class="card">
-                  <a href="{{ collection.url }}" title="{{ collection.title }}">
-                    <img src="{{ collection.cover|thumb:'normal' }}"
-                         alt="{{ collection.title }}"
-                         loading="lazy">
-                    <div>{{ collection.title }}</div>
+                  <a>
+                    <img src="{{ default_cover_url }}" alt="" loading="lazy">
+                    <div>
+                      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                    </div>
                   </a>
                 </li>
-              {% empty %}
-                <div>{% trans "nothing so far." %}</div>
-              {% endfor %}
-            </ul>
+              </ul>
+            </div>
           </section>
         </div>
         {% if identity.user == request.user %}

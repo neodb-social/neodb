@@ -13,6 +13,11 @@
   {{ title }}
   <small>
     <a href="{{ url }}">{{ total }}</a>
+    {% if show_create_button %}
+      <a href="{% url 'journal:collection_create' %}">
+        <i class="fa-regular fa-square-plus"></i>
+      </a>
+    {% endif %}
   </small>
 </h5>
 <ul class="cards">
@@ -26,6 +31,6 @@
       </a>
     </li>
   {% empty %}
-    <div _="init log 1 then hide closest .shelf">{% trans "nothing so far." %}</div>
+    <div _="init hide closest .shelf">{% trans "nothing so far." %}</div>
   {% endfor %}
 </ul>

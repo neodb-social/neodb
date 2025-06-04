@@ -33,7 +33,15 @@ from .post import (
     post_view,
     post_vote,
 )
-from .profile import group, profile, profile_items, user_calendar_data
+from .profile import (
+    group,
+    profile,
+    profile_collection_items,
+    profile_created_collections,
+    profile_liked_collections,
+    profile_shelf_items,
+    user_calendar_data,
+)
 from .review import (
     ReviewFeed,
     review_edit,
@@ -84,7 +92,10 @@ __all__ = [
     "post_vote",
     "group",
     "profile",
-    "profile_items",
+    "profile_collection_items",
+    "profile_created_collections",
+    "profile_liked_collections",
+    "profile_shelf_items",
     "user_calendar_data",
     "ReviewFeed",
     "review_edit",

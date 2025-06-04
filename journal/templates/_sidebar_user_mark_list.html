@@ -22,8 +22,6 @@
             <option {% if typ in request.path %}selected{% endif %} value="{{ typ }}">{{ label }}</option>
           {% endif %}
         {% endfor %}
-        <option {% if '/reviews/' in request.path %}selected{% endif %}
-                value="reviews">{% trans "review" %}</option>
       </select>
       <select name="category" id="category" onchange="filter()">
         {% visible_categories as cats %}

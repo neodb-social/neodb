@@ -3,7 +3,7 @@ from urllib.parse import quote_plus
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
@@ -93,32 +93,24 @@ def profile(request: AuthedHttpRequest, user_name):
                 continue
             label = target.shelf_manager.get_label(shelf_type, category)
             if label:
-                members = target.shelf_manager.get_latest_members(
-                    shelf_type, category
-                ).filter(qv)
                 shelf_list[category][shelf_type] = {
                     "title": label,
                     "count": stats[category][shelf_type],
-                    "members": members[:10].prefetch_related("item"),
                 }
-        reviews = (
-            Review.objects.filter(q_item_in_category(category))
-            .filter(qv)
-            .order_by("-created_time")
-        )
-        shelf_list[category]["reviewed"] = {
-            "title": target.shelf_manager.get_label("reviewed", category),
-            "count": stats[category].get("reviewed", 0),
-            "members": reviews[:10].prefetch_related("item"),
-        }
-    collections = Collection.objects.filter(qv).order_by("-created_time")
-    liked_collections = Collection.objects.filter(
+        reviewed_label = target.shelf_manager.get_label("reviewed", category)
+        if reviewed_label:
+            shelf_list[category]["reviewed"] = {
+                "title": reviewed_label,
+                "count": stats[category].get("reviewed", 0),
+            }
+    collections_count = Collection.objects.filter(qv).count()
+    liked_collections_queryset = Collection.objects.filter(
         interactions__identity=target,
         interactions__interaction_type="like",
         interactions__target_type="Collection",
     ).order_by("-edited_time")
     if not me:
-        liked_collections = liked_collections.filter(
+        liked_collections_queryset = liked_collections_queryset.filter(
             q_piece_visible_to_user(request.user)
         )
         year = None
@@ -130,6 +122,7 @@ def profile(request: AuthedHttpRequest, user_name):
             year = today.year - 1
         else:
             year = None
+    liked_collections_count = liked_collections_queryset.count()
     top_tags = target.tag_manager.get_tags(public_only=not me, pinned_only=True)[:10]
     if not top_tags.exists():
         top_tags = target.tag_manager.get_tags(public_only=not me)[:10]
@@ -150,11 +143,9 @@ def profile(request: AuthedHttpRequest, user_name):
             "top_tags": top_tags,
             "recent_posts": recent_posts,
             "shelf_list": shelf_list,
-            "collections": collections[:10],
-            "collections_count": collections.count(),
+            "collections_count": collections_count,
             "pinned_collections": pinned_collections[:10],
-            "liked_collections": liked_collections[:10],
-            "liked_collections_count": liked_collections.count(),
+            "liked_collections_count": liked_collections_count,
             "layout": target.preference.profile_layout,
             "year": year,
         },
@@ -177,7 +168,9 @@ def user_calendar_data(request, user_name):
     )
 
 
-def profile_items(request: AuthedHttpRequest):
+@require_http_methods(["GET", "HEAD"])
+@profile_identity_required
+def profile_collection_items(request: AuthedHttpRequest):
     collection_uuid = request.GET.get("collection")
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
@@ -202,6 +195,137 @@ def profile_items(request: AuthedHttpRequest):
         {
             "title": collection.title,
             "url": collection.url,
+            "items": items,
+            "total": total,
+        },
+    )
+
+
+@require_http_methods(["GET", "HEAD"])
+@profile_identity_required
+def profile_created_collections(request: AuthedHttpRequest, user_name):
+    """
+    Display created collections for a user profile page.
+    """
+    target = request.target_identity
+    if not request.user.is_authenticated and not target.anonymous_viewable:
+        raise PermissionDenied(_("Login required"))
+
+    # Get visibility filter
+    qv = q_owned_piece_visible_to_user(request.user, target)
+
+    # Get collections
+    collections = Collection.objects.filter(qv).order_by("-created_time")[:20]
+    total = Collection.objects.filter(qv).count()
+
+    return render(
+        request,
+        "profile_items.html",
+        {
+            "title": _("collection"),
+            "url": f"{target.url}collections/",
+            "items": collections,
+            "total": total,
+            "show_create_button": target.user == request.user,
+        },
+    )
+
+
+@require_http_methods(["GET", "HEAD"])
+@profile_identity_required
+def profile_liked_collections(request: AuthedHttpRequest, user_name):
+    """
+    Display liked collections for a user profile page.
+    """
+    target = request.target_identity
+    if not request.user.is_authenticated and not target.anonymous_viewable:
+        raise PermissionDenied(_("Login required"))
+
+    me = target.local and target.user == request.user
+
+    # Get liked collections
+    liked_collections = Collection.objects.filter(
+        interactions__identity=target,
+        interactions__interaction_type="like",
+        interactions__target_type="Collection",
+    ).order_by("-edited_time")
+
+    if not me:
+        liked_collections = liked_collections.filter(
+            q_piece_visible_to_user(request.user)
+        )
+
+    collections = liked_collections[:20]
+    total = liked_collections.count()
+
+    return render(
+        request,
+        "profile_items.html",
+        {
+            "title": _("liked collection"),
+            "url": f"{target.url}like/collections/",
+            "items": collections,
+            "total": total,
+        },
+    )
+
+
+@require_http_methods(["GET", "HEAD"])
+@profile_identity_required
+def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_type):
+    """
+    Display shelf items for a specific category and shelf type on profile pages.
+    """
+    target = request.target_identity
+    if not request.user.is_authenticated and not target.anonymous_viewable:
+        raise PermissionDenied(_("Login required"))
+
+    # Validate category
+    try:
+        item_category = ItemCategory(category)
+    except ValueError:
+        raise Http404(_("Invalid category"))
+
+    # Validate shelf_type
+    if shelf_type not in ShelfType.values and shelf_type != "reviewed":
+        raise Http404(_("Invalid shelf type"))
+
+    # Get visibility filter
+    qv = q_owned_piece_visible_to_user(request.user, target)
+
+    # Get shelf label and URL
+    if shelf_type == "reviewed":
+        label = target.shelf_manager.get_label("reviewed", item_category)
+        url = f"{target.url}reviewed/{category}/"
+        # Get reviews for this category
+        items_queryset = (
+            Review.objects.filter(q_item_in_category(item_category))
+            .filter(qv)
+            .order_by("-created_time")
+        )
+        items = [review.item for review in items_queryset[:20]]
+        total = items_queryset.count()
+    else:
+        # Regular shelf type
+        shelf_type_enum = ShelfType(shelf_type)
+        label = target.shelf_manager.get_label(shelf_type_enum, item_category)
+        url = f"{target.url}{shelf_type}/{category}/"
+        # Get shelf members for this category and type
+        members_queryset = target.shelf_manager.get_latest_members(
+            shelf_type_enum, item_category
+        ).filter(qv)
+        items = [member.item for member in members_queryset[:20]]
+        total = members_queryset.count()
+
+    if not label:
+        raise Http404(_("Shelf not found"))
+
+    return render(
+        request,
+        "profile_items.html",
+        {
+            "title": label,
+            "url": url,
             "items": items,
             "total": total,
         },
