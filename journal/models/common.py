@@ -537,7 +537,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def delete_from_timeline(self):
         Takahe.delete_posts(self.all_post_ids)
 
-    def sync_to_timeline(self, update_mode: int = 0):
+    def sync_to_timeline(self, update_mode: int = 0, application_id: int | None = None):
         """update_mode: 0 update if exists otherwise create; 1: delete if exists and create; 2: only create"""
         user = self.owner.user
         v = Takahe.visibility_n2t(self.visibility, user.preference.post_public_mode)
@@ -559,6 +559,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             "edit_time": self.edited_time,  # type:ignore subclass must have this
             "data": self.get_ap_data(),
             "language": user.macrolanguage,
+            "application_id": application_id,
         }
         params.update(self.to_post_params())
         post = Takahe.post(**params)

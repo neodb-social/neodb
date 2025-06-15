@@ -441,6 +441,7 @@ class Takahe:
         reply_to_pk: int | None = None,
         attachments: list | None = None,
         language: str = "",
+        application_id: int | None = None,
     ) -> Post | None:
         identity = Identity.objects.get(pk=author_pk)
         post = (
@@ -483,6 +484,7 @@ class Takahe:
                 reply_to=reply_to_post,
                 attachments=attachments,
                 language=language,
+                application_id=application_id,
             )
             TimelineEvent.objects.get_or_create(
                 identity=identity,

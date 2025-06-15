@@ -1083,6 +1083,15 @@ class Post(models.Model):
         related_name="posts",
     )
 
+    # The application used to create this post (if created via API)
+    application = models.ForeignKey(
+        "takahe.Application",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="posts",
+    )
+
     # The state the post is in
     # state = StateField(PostStates)
     state = models.CharField(max_length=100, default="new")
@@ -1278,6 +1287,7 @@ class Post(models.Model):
         published: datetime.datetime | None = None,
         edited: datetime.datetime | None = None,
         language: str = "",
+        application_id=None,
     ) -> "Post":
         with transaction.atomic():
             # Find mentions in this post
@@ -1310,6 +1320,8 @@ class Post(models.Model):
                 "in_reply_to": reply_to.object_uri if reply_to else None,
                 "language": language,
             }
+            if application_id:
+                post_obj["application_id"] = application_id
             if edited:
                 post_obj["edited"] = edited
             if published:

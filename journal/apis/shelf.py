@@ -176,6 +176,7 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
         mark.visibility,
         created_time=mark.created_time,
         share_to_mastodon=mark.post_to_fediverse,
+        application_id=getattr(request, "application_id", None),
     )
     return 200, {"message": "OK"}
 

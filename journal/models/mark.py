@@ -254,6 +254,7 @@ class Mark:
         metadata: dict[str, Any] | None = None,
         created_time: datetime | None = None,
         share_to_mastodon: bool = False,
+        application_id: int | None = None,
     ):
         """change shelf, comment or rating"""
         if created_time and created_time >= timezone.now():
@@ -331,7 +332,9 @@ class Mark:
                     self.item, self.owner, rating_grade, visibility
                 )
         # publish a new or updated ActivityPub post
-        post = self.shelfmember.sync_to_timeline(update_mode)
+        post = self.shelfmember.sync_to_timeline(
+            update_mode, application_id=application_id
+        )
         if share_to_mastodon:
             self.shelfmember.sync_to_social_accounts(update_mode)
         self.shelfmember.update_index()

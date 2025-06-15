@@ -29,7 +29,9 @@ def wish(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     mark = Mark(request.user.identity, item)
     if not mark.shelf_type:
-        mark.update(ShelfType.WISHLIST)
+        mark.update(
+            ShelfType.WISHLIST, application_id=getattr(request, "application_id", None)
+        )
     if request.GET.get("back"):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     return HttpResponse(_checkmark)
@@ -104,6 +106,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
                     visibility,
                     share_to_mastodon=share_to_mastodon,
                     created_time=mark_date,
+                    application_id=getattr(request, "application_id", None),
                 )
             except PermissionDenied:
                 logger.warning(f"post to mastodon error 401 {request.user}")

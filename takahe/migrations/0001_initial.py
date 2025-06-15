@@ -403,6 +403,16 @@ class Migration(migrations.Migration):
                         blank=True, related_name="posts_to", to="takahe.identity"
                     ),
                 ),
+                (
+                    "application",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="posts",
+                        to="takahe.application",
+                    ),
+                ),
             ],
             options={
                 "db_table": "activities_post",
