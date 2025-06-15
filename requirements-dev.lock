@@ -11,7 +11,7 @@
 
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.6
+aiohttp==3.12.13
     # via discord-py
 aiosignal==1.3.2
     # via aiohttp
@@ -31,9 +31,9 @@ beautifulsoup4==4.13.4
 bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
-boto3==1.38.27
+boto3==1.38.36
     # via django-storages
-botocore==1.38.27
+botocore==1.38.36
     # via boto3
     # via s3transfer
 cachetools==6.0.0
@@ -55,7 +55,7 @@ click==8.2.1
     # via rq
 colorama==0.4.6
     # via djlint
-cryptography==45.0.3
+cryptography==45.0.4
     # via atproto
 cssbeautifier==1.15.4
     # via djlint
@@ -65,7 +65,7 @@ deepmerge==2.0
 discord-py==2.5.2
 distlib==0.3.9
     # via virtualenv
-django==4.2.21
+django==4.2.23
     # via django-anymail
     # via django-appconf
     # via django-auditlog
@@ -96,7 +96,7 @@ django-hijack==3.7.2
 django-jsonform @ git+https://github.com/alphatownsman/django-jsonform@1bd8dd9510d309dceef842e1aed7aaf6c1b68ff9
 django-maintenance-mode==0.22.0
 django-markdownx==4.0.9
-django-ninja==1.4.2
+django-ninja==1.4.3
 django-polymorphic==4.0.0
 django-redis==5.4.0
 django-rq==3.0.0
@@ -112,7 +112,7 @@ djlint==1.36.4
 dnspython==2.7.0
     # via atproto
 easy-thumbnails==2.10
-editorconfig==0.17.0
+editorconfig==0.17.1
     # via cssbeautifier
     # via jsbeautifier
 et-xmlfile==2.0.0
@@ -120,7 +120,7 @@ et-xmlfile==2.0.0
 filelock==3.18.0
     # via virtualenv
 filetype==1.2.0
-frozenlist==1.6.0
+frozenlist==1.7.0
     # via aiohttp
     # via aiosignal
 gunicorn==23.0.0
@@ -178,7 +178,7 @@ platformdirs==4.3.8
     # via virtualenv
 podcastparser==0.6.10
 pre-commit==4.2.0
-propcache==0.3.1
+propcache==0.3.2
     # via aiohttp
     # via yarl
 protobuf==6.31.1
@@ -186,12 +186,12 @@ protobuf==6.31.1
 psycopg2-binary==2.9.10
 pycparser==2.22
     # via cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via atproto
     # via django-ninja
 pydantic-core==2.33.2
     # via pydantic
-pyright==1.1.400
+pyright==1.1.402
 python-dateutil==2.9.0.post0
     # via botocore
     # via dateparser
@@ -213,19 +213,19 @@ redis==6.2.0
 regex==2024.11.6
     # via dateparser
     # via djlint
-requests==2.32.3
+requests==2.32.4
     # via deepl
     # via django-anymail
     # via igdb-api-v4
     # via typesense
 rjsmin==1.2.2
     # via django-compressor
-rq==2.3.3
+rq==2.4.0
     # via django-rq
-ruff==0.11.12
+ruff==0.11.13
 s3transfer==0.13.0
     # via boto3
-sentry-sdk==2.29.1
+sentry-sdk==2.30.0
 setproctitle==1.3.6
 six==1.17.0
     # via bleach
@@ -248,7 +248,7 @@ tqdm==4.67.1
 types-pyyaml==6.0.12.20250516
     # via django-stubs
 typesense==1.1.1
-typing-extensions==4.13.2
+typing-extensions==4.14.0
     # via anyio
     # via atproto
     # via beautifulsoup4
@@ -276,5 +276,5 @@ webencodings==0.5.1
     # via tinycss2
 websockets==13.1
     # via atproto
-yarl==1.20.0
+yarl==1.20.1
     # via aiohttp
