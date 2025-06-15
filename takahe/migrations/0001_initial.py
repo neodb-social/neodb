@@ -303,6 +303,31 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name="Application",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("client_id", models.CharField(max_length=500)),
+                ("client_secret", models.CharField(max_length=500)),
+                ("redirect_uris", models.TextField()),
+                ("scopes", models.TextField()),
+                ("name", models.CharField(max_length=500)),
+                ("website", models.CharField(blank=True, max_length=500, null=True)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                "db_table": "api_application",
+            },
+        ),
+        migrations.CreateModel(
             name="Post",
             fields=[
                 (
@@ -1001,31 +1026,6 @@ class Migration(migrations.Migration):
             options={
                 "db_table": "core_config",
                 "unique_together": {("key", "user", "identity", "domain")},
-            },
-        ),
-        migrations.CreateModel(
-            name="Application",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("client_id", models.CharField(max_length=500)),
-                ("client_secret", models.CharField(max_length=500)),
-                ("redirect_uris", models.TextField()),
-                ("scopes", models.TextField()),
-                ("name", models.CharField(max_length=500)),
-                ("website", models.CharField(blank=True, max_length=500, null=True)),
-                ("created", models.DateTimeField(auto_now_add=True)),
-                ("updated", models.DateTimeField(auto_now=True)),
-            ],
-            options={
-                "db_table": "api_application",
             },
         ),
         migrations.CreateModel(
