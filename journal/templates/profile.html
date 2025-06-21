@@ -76,9 +76,9 @@
             </section>
           {% endif %}
           {% for collection in pinned_collections %}
-            <section class="entity-sort shelf"   id="collection_{{ collection.uuid }}">
+            <section class="entity-sort shelf" id="collection_{{ collection.uuid }}">
               <div hx-swap="outerHTML"
-                   hx-get="{% url 'journal:profile_collection_items' %}?collection={{ collection.uuid }}"
+                   hx-get="{% url 'journal:profile_collection_items' collection.uuid %}"
                    hx-trigger="intersect once queue:last">
                 <h5>{{ collection.title }}</h5>
                 <ul class="cards">

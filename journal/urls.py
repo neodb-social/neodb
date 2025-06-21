@@ -80,12 +80,12 @@ urlpatterns = [
         name="collection_share",
     ),
     path(
-        "collection/<str:collection_uuid>/items",
+        "collection/<str:collection_uuid>/edit_items",
         collection_edit_items,
         name="collection_edit_items",
     ),
     path(
-        "profile/collection_items",
+        "collection/<str:collection_uuid>/profile_items",
         profile_collection_items,
         name="profile_collection_items",
     ),

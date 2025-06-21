@@ -168,10 +168,8 @@ def user_calendar_data(request, user_name):
     )
 
 
-@require_http_methods(["GET", "HEAD"])
-@profile_identity_required
-def profile_collection_items(request: AuthedHttpRequest):
-    collection_uuid = request.GET.get("collection")
+@require_http_methods(["GET"])
+def profile_collection_items(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
