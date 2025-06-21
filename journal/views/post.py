@@ -241,7 +241,7 @@ def post_compose(request: AuthedHttpRequest):
         visibility,
         summary=subject if subject else None,
         sensitive=bool(subject),
-        language=language,
+        language=language or "",
         attachments=attachments if attachments else None,
     )
     return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
