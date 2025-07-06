@@ -130,8 +130,10 @@ class IMDB(AbstractSite):
         url = f"https://m.imdb.com{show_url}episodes/?season={season_id}"
         h = BasicDownloader(url).download().html()
         episodes = []
-        for e in h.xpath('//article//a[@class="ipc-title-link-wrapper"]'):  # type: ignore
-            title = e.xpath('div[@class="ipc-title__text"]/text()')[0].split("∙", 1)
+        for e in h.xpath("//article//a[contains(@class,'ipc-title-link-wrapper')]"):  # type: ignore
+            title = e.xpath("div[contains(@class,'ipc-title__text')]/text()")[0].split(
+                "∙", 1
+            )
             episode_id = title[0].strip()
             episode_number = int(episode_id.split(".")[1][1:])
             episode_title = title[1].strip()
