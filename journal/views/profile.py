@@ -135,15 +135,19 @@ def profile(request: AuthedHttpRequest, user_name):
         recent_posts = None
     else:
         recent_posts = Takahe.get_recent_posts(target.pk, request.user.identity.pk)[:10]
-    pinned_collections = Collection.objects.filter(
-        interactions__interaction_type="pin", interactions__identity=target
-    ).filter(qv)[:10]
     default_layout.append({"id": "collection_created", "visibility": True})
     default_layout.append({"id": "collection_marked", "visibility": True})
-    for collection in pinned_collections:
-        default_layout.insert(
-            0, {"id": "collection_" + collection.uuid, "visibility": True}
+    pinned_collections = (
+        Collection.objects.filter(
+            interactions__interaction_type="pin", interactions__identity=target
         )
+        .order_by("-interactions__created_time")
+        .filter(qv)[:10]
+    )
+    default_layout[0:0] = [
+        {"id": f"collection_{collection.uuid}", "visibility": True}
+        for collection in pinned_collections
+    ]
     layout = target.preference.profile_layout or default_layout
     return render(
         request,
@@ -156,7 +160,7 @@ def profile(request: AuthedHttpRequest, user_name):
             "recent_posts": recent_posts,
             "shelf_list": shelf_list,
             "collections_count": collections_count,
-            "pinned_collections": pinned_collections[:10],
+            "pinned_collections": pinned_collections,
             "liked_collections_count": liked_collections_count,
             "layout": layout,
             "year": year,
