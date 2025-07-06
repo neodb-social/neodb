@@ -31,6 +31,7 @@ bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
 boto3==1.39.3
+    # via django-anymail
     # via django-storages
 botocore==1.39.3
     # via boto3
@@ -51,6 +52,7 @@ click==8.2.1
     # via rq
 cryptography==45.0.5
     # via atproto
+    # via django-anymail
 dateparser==1.2.2
 deepl==1.22.0
 deepmerge==2.0

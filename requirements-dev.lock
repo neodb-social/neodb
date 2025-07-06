@@ -31,6 +31,7 @@ bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
 boto3==1.39.3
+    # via django-anymail
     # via django-storages
 botocore==1.39.3
     # via boto3
@@ -56,6 +57,7 @@ colorama==0.4.6
     # via djlint
 cryptography==45.0.5
     # via atproto
+    # via django-anymail
 cssbeautifier==1.15.4
     # via djlint
 dateparser==1.2.2
