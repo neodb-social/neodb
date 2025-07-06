@@ -190,9 +190,11 @@ if _parsed_email_url.scheme == "anymail":
     # see https://anymail.dev/
     from urllib import parse
 
-    EMAIL_BACKEND = _parsed_email_url.hostname
+    EMAIL_BACKEND = f"anymail.backends.{_parsed_email_url.hostname}.EmailBackend"
     ANYMAIL = dict(parse.parse_qsl(_parsed_email_url.query))
     ENABLE_LOGIN_EMAIL = True
+    if DEBUG:
+        ANYMAIL["DEBUG_API_REQUESTS"] = True  # type:ignore
 elif DEBUG and _parsed_email_url.scheme == "console":
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
     ENABLE_LOGIN_EMAIL = True
