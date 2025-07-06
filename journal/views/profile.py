@@ -75,6 +75,7 @@ def profile(request: AuthedHttpRequest, user_name):
     me = target.local and target.user == request.user
 
     qv = q_owned_piece_visible_to_user(request.user, target)
+    default_layout = [{"id": "calendar_grid", "visibility": True}]
     shelf_list = {}
     visbile_categories = [
         ItemCategory.Book,
@@ -91,6 +92,9 @@ def profile(request: AuthedHttpRequest, user_name):
         for shelf_type in ShelfType:
             if shelf_type == ShelfType.DROPPED:
                 continue
+            default_layout.append(
+                {"id": f"{category}_{shelf_type}", "visibility": True}
+            )
             label = target.shelf_manager.get_label(shelf_type, category)
             if label:
                 shelf_list[category][shelf_type] = {
@@ -99,6 +103,7 @@ def profile(request: AuthedHttpRequest, user_name):
                 }
         reviewed_label = target.shelf_manager.get_label("reviewed", category)
         if reviewed_label:
+            default_layout.append({"id": f"{category}_reviewed", "visibility": True})
             shelf_list[category]["reviewed"] = {
                 "title": reviewed_label,
                 "count": stats[category].get("reviewed", 0),
@@ -132,7 +137,14 @@ def profile(request: AuthedHttpRequest, user_name):
         recent_posts = Takahe.get_recent_posts(target.pk, request.user.identity.pk)[:10]
     pinned_collections = Collection.objects.filter(
         interactions__interaction_type="pin", interactions__identity=target
-    ).filter(qv)
+    ).filter(qv)[:10]
+    default_layout.append({"id": "collection_created", "visibility": True})
+    default_layout.append({"id": "collection_marked", "visibility": True})
+    for collection in pinned_collections:
+        default_layout.insert(
+            0, {"id": "collection_" + collection.uuid, "visibility": True}
+        )
+    layout = target.preference.profile_layout or default_layout
     return render(
         request,
         "profile.html",
@@ -146,7 +158,7 @@ def profile(request: AuthedHttpRequest, user_name):
             "collections_count": collections_count,
             "pinned_collections": pinned_collections[:10],
             "liked_collections_count": liked_collections_count,
-            "layout": target.preference.profile_layout,
+            "layout": layout,
             "year": year,
         },
     )
