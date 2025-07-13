@@ -11,7 +11,7 @@
 
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.13
+aiohttp==3.12.14
     # via discord-py
 aiosignal==1.4.0
     # via aiohttp
@@ -19,7 +19,7 @@ annotated-types==0.7.0
     # via pydantic
 anyio==4.9.0
     # via httpx
-asgiref==3.9.0
+asgiref==3.9.1
     # via django
     # via django-cors-headers
 atproto==0.0.61
@@ -30,10 +30,10 @@ beautifulsoup4==4.13.4
 bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
-boto3==1.39.3
+boto3==1.39.4
     # via django-anymail
     # via django-storages
-botocore==1.39.3
+botocore==1.39.4
     # via boto3
     # via s3transfer
 cachetools==6.1.0
@@ -93,14 +93,14 @@ django-bleach==3.1.0
 django-compressor==4.5.1
 django-cors-headers==4.7.0
 django-environ==0.12.0
-django-hijack==3.7.2
+django-hijack==3.7.3
 django-jsonform @ git+https://github.com/alphatownsman/django-jsonform@1bd8dd9510d309dceef842e1aed7aaf6c1b68ff9
 django-maintenance-mode==0.22.0
 django-markdownx==4.0.9
 django-ninja==1.4.3
 django-polymorphic==4.0.0
 django-redis==5.4.0
-django-rq @ git+https://github.com/rq/django-rq@38143405218e0387ca2f4fc2cd48a0d0e7382370
+django-rq @ git+https://github.com/rq/django-rq@429933202673712ba55d6ad49672b73bece04dfc
 django-sass-processor==1.4.2
 django-storages==1.14.6
 django-stubs==5.2.1
@@ -192,7 +192,7 @@ pydantic==2.11.7
     # via django-ninja
 pydantic-core==2.33.2
     # via pydantic
-pyright==1.1.402
+pyright==1.1.403
 python-dateutil==2.9.0.post0
     # via botocore
     # via dateparser
@@ -223,7 +223,7 @@ rjsmin==1.2.2
     # via django-compressor
 rq==2.4.0
     # via django-rq
-ruff==0.12.2
+ruff==0.12.3
 s3transfer==0.13.0
     # via boto3
 sentry-sdk==2.32.0

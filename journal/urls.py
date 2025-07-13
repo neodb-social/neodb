@@ -90,17 +90,17 @@ urlpatterns = [
         name="profile_collection_items",
     ),
     path(
-        "<str:user_name>/profile/created_collections",
+        "users/<str:user_name>/profile/created_collections",
         profile_created_collections,
         name="profile_created_collections",
     ),
     path(
-        "<str:user_name>/profile/liked_collections",
+        "users/<str:user_name>/profile/liked_collections",
         profile_liked_collections,
         name="profile_liked_collections",
     ),
     path(
-        "<str:user_name>/shelf/<str:category>/<str:shelf_type>/items",
+        "users/<str:user_name>/profile/<str:category>/<str:shelf_type>/items",
         profile_shelf_items,
         name="profile_shelf_items",
     ),
