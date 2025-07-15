@@ -164,8 +164,347 @@
                 </label>
               </p>
               <input type="submit" value="{% trans 'Import' %}" />
-              <small>{% trans 'Only forward changes(none->to-watch->watched) will be imported.' %}</small>
-              {% include "users/user_task_status.html" with task=letterboxd_task %}
+              <small>
+                {% trans 'Only forward changes(none->to-watch->watched) will be imported.' %}
+                {% if letterboxd_task %}
+                  <br>
+                  {% trans 'Last import started' %}: {{ letterboxd_task.created_time }}
+                  {% trans 'Status' %}: {{ letterboxd_task.get_state_display }}。
+                  <br>
+                  {{ letterboxd_task.message }}
+                  {% if letterboxd_task.metadata.failed_urls %}
+                    {% trans 'Failed links, likely due to Letterboxd error, you may have to mark them manually' %}:
+                    <br>
+                    <textarea readonly>{% for url in letterboxd_task.metadata.failed_urls %}{{url}}&#10;{% endfor %}</textarea>
+                  {% endif %}
+                {% endif %}
+              </small>
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Import from Steam Wishlist / Library (owned games only)' %}</summary>
+            <!-- For disabling form entries -->
+            <script src="{{ cdn_url }}/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
+            <form action="{% url 'users:import_steam' %}" method="post">
+              {% csrf_token %}
+              <!-- Steam API Key Section -->
+              <div class="form-section">
+                <b>{% trans 'Steam API Key' %}</b>
+                <small class="form-hint">
+                  <a href="https://steamcommunity.com/dev/apikey"
+                     target="_blank"
+                     rel="noopener noreferrer">{% trans 'Get it here' %}</a>
+                </small>
+                <input type="text"
+                       name="steam_apikey"
+                       placeholder="1A23B456C7890D9AS9D734BI3IB12943"
+                       required>
+              </div>
+              <!-- Steam User ID Section -->
+              <div class="form-section">
+                <b>{% trans 'Steam User ID' %}</b>
+                <small class="form-hint">
+                  {% trans 'Find as "Steam ID: ..." in ' %}
+                  <a href="https://store.steampowered.com/account/"
+                     target="_blank"
+                     rel="noopener noreferrer">{% trans 'Account Details' %}</a>
+                </small>
+                <input type="text" name="steam_id" placeholder="0123456789101112" required>
+              </div>
+              <hr>
+              <!-- Source Filter -->
+              <div class="form-section" x-data="{ fetch_owned: true }">
+                <b>{% trans 'Sources to import from' %}</b>
+                <label class="checkbox-group">
+                  <input type="checkbox"
+                         name="fetch_wishlist"
+                         x-model="fetch_wishlist"
+                         checked>
+                  {% trans 'Fetch wishlist' %}
+                </label>
+                <label class="checkbox-group">
+                  <input type="checkbox" name="fetch_owned" x-model="fetch_owned" checked>
+                  {% trans 'Fetch owned games' %}
+                  <div style="margin-left: 1.5rem;">
+                    <label x-bind:aria-disabled="!fetch_owned.toString()">
+                      <input type="radio"
+                             name="owned_filter"
+                             value="all_free"
+                             x-bind:disabled="!fetch_owned">
+                      {% trans 'Fetch all free games' %}
+                    </label>
+                    <label x-bind:aria-disabled="!fetch_owned.toString()">
+                      <input type="radio"
+                             name="owned_filter"
+                             value="played_free"
+                             checked
+                             x-bind:disabled="!fetch_owned">
+                      {% trans 'Fetch played free games' %}
+                    </label>
+                    <label x-bind:aria-disabled="!fetch_owned.toString()">
+                      <input type="radio"
+                             name="owned_filter"
+                             value="no_free"
+                             x-bind:disabled="!fetch_owned">
+                      {% trans 'Fetch no free games' %}
+                    </label>
+                  </div>
+                </label>
+              </div>
+              <!-- Status Filter -->
+              <div class="form-section">
+                <b>{% trans 'Import games with these estimated status' %}</b>
+                <div class="checkbox-group grid">
+                  <label>
+                    <input type="checkbox" name="import_playing" checked>
+                    {% trans 'Playing' %}
+                  </label>
+                  <label>
+                    <input type="checkbox" name="import_played" checked>
+                    {% trans 'Played' %}
+                  </label>
+                  <label>
+                    <input type="checkbox" name="import_wishlist" checked>
+                    {% trans 'To play' %}
+                  </label>
+                  <label>
+                    <input type="checkbox" name="import_dropped" checked>
+                    {% trans 'Dropped' %}
+                  </label>
+                </div>
+              </div>
+              <!-- Ignored Games -->
+              <div class="form-section">
+                <b>{% trans 'Ignored Games' %}</b>
+                <small>{% trans 'input comma-separated Steam AppIDs' %}</small>
+                <input type="text" name="ignored_appids" placeholder="12345,67890,54321">
+              </div>
+              <hr>
+              <!-- Reverse Override -->
+              <div class="form-section">
+                <b>{% trans 'Override' %}</b>
+                <label class="checkbox-group">
+                  <input type="checkbox" role="switch" name="shelf_type_reversion">
+                  {% trans 'Allow reverse override of status (e.g. playing -> want to, or played -> playing)' %}
+                </label>
+              </div>
+              <hr>
+              <!-- Mark Date -->
+              <div class="form-section">
+                <b>{% trans 'Mark Date' %}</b>
+                <div class="radio-group" x-data="{mark_date: 'steam_timestamp'}">
+                  <label>
+                    <input type="radio"
+                           name="mark_date"
+                           x-model="mark_date"
+                           value="current_time">
+                    {% trans 'Current time (not recommended)' %}
+                  </label>
+                  <label>
+                    <input type="radio"
+                           name="mark_date"
+                           x-model="mark_date"
+                           value="steam_timestamp"
+                           checked>
+                    {% trans 'Using timestamp from Steam' %}
+                    <input name="timezone"
+                           placeholder="Asia/Shanghai"
+                           x-bind:disabled="mark_date !== 'steam_timestamp'"
+                           required>
+                    <small>
+                      {% trans 'Input the most often timezone that you play games in this library, for us to convert the local time stored by Steam.' %}
+                      <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
+                         target="_blank"
+                         rel="noopener noreferrer">{% trans 'reference' %}</a>
+                    </small>
+                  </label>
+                </div>
+              </div>
+              <hr>
+              <!-- Visibility -->
+              <div class="form-section">
+                <b>{% trans 'Visibility' %}</b>
+                <div class="radio-group">
+                  <label>
+                    <input type="radio" name="visibility" value="0" checked>
+                    {% trans 'Public' %}
+                  </label>
+                  <label>
+                    <input type="radio" name="visibility" value="1">
+                    {% trans 'Followers Only' %}
+                  </label>
+                  <label>
+                    <input type="radio" name="visibility" value="2">
+                    {% trans 'Mentioned Only' %}
+                  </label>
+                </div>
+              </div>
+              <button type="submit" class="submit-button">{% trans 'Import' %}</button>
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans 'Import from Steam Wishlist / Library (owned games only)' %}</summary>
+            <!-- For disabling form entries -->
+            <script src="{{ cdn_url }}/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
+            <form action="{% url 'users:import_steam' %}" method="post">
+              {% csrf_token %}
+              <!-- Steam API Key Section -->
+              <div class="form-section">
+                <b>{% trans 'Steam API Key' %}</b>
+                <small class="form-hint">
+                  <a href="https://steamcommunity.com/dev/apikey"
+                     target="_blank"
+                     rel="noopener noreferrer">{% trans 'Get it here' %}</a>
+                </small>
+                <input type="text"
+                       name="steam_apikey"
+                       placeholder="1A23B456C7890D9AS9D734BI3IB12943"
+                       required>
+              </div>
+              <!-- Steam User ID Section -->
+              <div class="form-section">
+                <b>{% trans 'Steam User ID' %}</b>
+                <small class="form-hint">
+                  {% trans 'Find as "Steam ID: ..." in ' %}
+                  <a href="https://store.steampowered.com/account/"
+                     target="_blank"
+                     rel="noopener noreferrer">{% trans 'Account Details' %}</a>
+                </small>
+                <input type="text" name="steam_id" placeholder="0123456789101112" required>
+              </div>
+              <hr>
+              <!-- Source Filter -->
+              <div class="form-section" x-data="{ fetch_owned: true }">
+                <b>{% trans 'Sources to import from' %}</b>
+                <label class="checkbox-group">
+                  <input type="checkbox"
+                         name="fetch_wishlist"
+                         x-model="fetch_wishlist"
+                         checked>
+                  {% trans 'Fetch wishlist' %}
+                </label>
+                <label class="checkbox-group">
+                  <input type="checkbox" name="fetch_owned" x-model="fetch_owned" checked>
+                  {% trans 'Fetch owned games' %}
+                  <div style="margin-left: 1.5rem;">
+                    <label x-bind:aria-disabled="!fetch_owned.toString()">
+                      <input type="radio"
+                             name="owned_filter"
+                             value="all_free"
+                             x-bind:disabled="!fetch_owned">
+                      {% trans 'Fetch all free games' %}
+                    </label>
+                    <label x-bind:aria-disabled="!fetch_owned.toString()">
+                      <input type="radio"
+                             name="owned_filter"
+                             value="played_free"
+                             checked
+                             x-bind:disabled="!fetch_owned">
+                      {% trans 'Fetch played free games' %}
+                    </label>
+                    <label x-bind:aria-disabled="!fetch_owned.toString()">
+                      <input type="radio"
+                             name="owned_filter"
+                             value="no_free"
+                             x-bind:disabled="!fetch_owned">
+                      {% trans 'Fetch no free games' %}
+                    </label>
+                  </div>
+                </label>
+              </div>
+              <!-- Status Filter -->
+              <div class="form-section">
+                <b>{% trans 'Import games with these estimated status' %}</b>
+                <div class="checkbox-group grid">
+                  <label>
+                    <input type="checkbox" name="import_playing" checked>
+                    {% trans 'Playing' %}
+                  </label>
+                  <label>
+                    <input type="checkbox" name="import_played" checked>
+                    {% trans 'Played' %}
+                  </label>
+                  <label>
+                    <input type="checkbox" name="import_wishlist" checked>
+                    {% trans 'To play' %}
+                  </label>
+                  <label>
+                    <input type="checkbox" name="import_dropped" checked>
+                    {% trans 'Dropped' %}
+                  </label>
+                </div>
+              </div>
+              <!-- Ignored Games -->
+              <div class="form-section">
+                <b>{% trans 'Ignored Games' %}</b>
+                <small>{% trans 'input comma-separated Steam AppIDs' %}</small>
+                <input type="text" name="ignored_appids" placeholder="12345,67890,54321">
+              </div>
+              <hr>
+              <!-- Reverse Override -->
+              <div class="form-section">
+                <b>{% trans 'Override' %}</b>
+                <label class="checkbox-group">
+                  <input type="checkbox" role="switch" name="shelf_type_reversion">
+                  {% trans 'Allow reverse override of status (e.g. playing -> want to, or played -> playing)' %}
+                </label>
+              </div>
+              <hr>
+              <!-- Mark Date -->
+              <div class="form-section">
+                <b>{% trans 'Mark Date' %}</b>
+                <div class="radio-group" x-data="{mark_date: 'steam_timestamp'}">
+                  <label>
+                    <input type="radio"
+                           name="mark_date"
+                           x-model="mark_date"
+                           value="current_time">
+                    {% trans 'Current time (not recommended)' %}
+                  </label>
+                  <label>
+                    <input type="radio"
+                           name="mark_date"
+                           x-model="mark_date"
+                           value="steam_timestamp"
+                           checked>
+                    {% trans 'Using timestamp from Steam' %}
+                    <input name="timezone"
+                           placeholder="Asia/Shanghai"
+                           x-bind:disabled="mark_date !== 'steam_timestamp'"
+                           required>
+                    <small>
+                      {% trans 'Input the most often timezone that you play games in this library, for us to convert the local time stored by Steam.' %}
+                      <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
+                         target="_blank"
+                         rel="noopener noreferrer">{% trans 'reference' %}</a>
+                    </small>
+                  </label>
+                </div>
+              </div>
+              <hr>
+              <!-- Visibility -->
+              <div class="form-section">
+                <b>{% trans 'Visibility' %}</b>
+                <div class="radio-group">
+                  <label>
+                    <input type="radio" name="visibility" value="0" checked>
+                    {% trans 'Public' %}
+                  </label>
+                  <label>
+                    <input type="radio" name="visibility" value="1">
+                    {% trans 'Followers Only' %}
+                  </label>
+                  <label>
+                    <input type="radio" name="visibility" value="2">
+                    {% trans 'Mentioned Only' %}
+                  </label>
+                </div>
+              </div>
+              <button type="submit" class="submit-button">{% trans 'Import' %}</button>
             </form>
           </details>
         </article>

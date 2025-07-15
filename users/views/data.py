@@ -1,6 +1,8 @@
 import datetime
 import os
 
+import pytz
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -21,6 +23,7 @@ from journal.importers import (
     LetterboxdImporter,
     NdjsonImporter,
     OPMLImporter,
+    SteamImporter,
 )
 from journal.models import ShelfType
 from takahe.utils import Takahe
@@ -387,4 +390,73 @@ def import_neodb(request):
         )
         task.enqueue()
         return redirect(reverse("users:user_task_status", args=(task.type,)))
+    return redirect(reverse("users:data"))
+
+
+@login_required
+def import_steam(request):
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+
+    steam_apikey = request.POST.get("steam_apikey")
+    steam_id = request.POST.get("steam_id")
+
+    try:
+        if not SteamImporter.validate_apikey(steam_apikey):
+            messages.add_message(
+                request, messages.ERROR, _(f"Invalid API key: {steam_apikey}.")
+            )
+            return redirect(reverse("users:data"))
+        if not SteamImporter.validate_userid(steam_apikey, steam_id):
+            messages.add_message(request, messages.ERROR, _("Invalid steam id."))
+            return redirect(reverse("users:data"))
+    except requests.RequestException as e:
+        messages.add_message(
+            request, messages.ERROR, _(f"Network error validating apikey / userid: {e}")
+        )
+        return redirect(reverse("users:data"))
+
+    fetch_wishlist = bool(request.POST.get("fetch_wishlist", True))
+    fetch_owned = bool(request.POST.get("fetch_owned", True))
+
+    if not (fetch_wishlist or fetch_owned):
+        messages.add_message(request, messages.ERROR, _("Nothing to fetch."))
+        return redirect(reverse("users:data"))
+
+    ignored_appids = str(request.POST.get("ignored_appids")).strip(",")
+    shelf_filter = []
+    if fetch_owned:
+        if request.POST.get("import_playing"):
+            shelf_filter.append(ShelfType.PROGRESS)
+        if request.POST.get("import_played"):
+            shelf_filter.append(ShelfType.COMPLETE)
+        if request.POST.get("import_wishlist"):
+            shelf_filter.append(ShelfType.WISHLIST)
+        if request.POST.get("import_dropped"):
+            shelf_filter.append(ShelfType.DROPPED)
+
+    tz_str = request.POST.get("timezone")
+    try:
+        pytz.timezone(tz_str)
+    except pytz.UnknownTimeZoneError:
+        messages.add_message(request, messages.ERROR, _(f"Unknown timezone: {tz_str}"))
+        return redirect(reverse("users:data"))
+
+    SteamImporter.create(
+        user=request.user,
+        shelf_type_reversion=bool(request.POST.get("shelf_type_reversion")),
+        fetch_wishlist=fetch_wishlist,
+        fetch_owned=fetch_owned,
+        last_play_to_ctime=bool(request.POST.get("mark_date") != "current_time"),
+        owned_filter=request.POST.get("owned_filter", "played_free"),
+        shelf_filter=shelf_filter,
+        ignored_appids=ignored_appids,
+        steam_tz=tz_str,
+        visibility=int(
+            request.POST.get("visibility", request.user.preference.default_visibility)
+        ),
+        steam_apikey=steam_apikey,
+        steam_id=steam_id,
+    ).enqueue()
+    messages.add_message(request, messages.INFO, _("Import in progress."))
     return redirect(reverse("users:data"))
