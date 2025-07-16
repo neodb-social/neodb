@@ -1,10 +1,10 @@
-import logging
 from datetime import datetime, timedelta
 from typing import Iterable, List, Optional, TypedDict
 
 import pytz
 import requests
 from django.utils import timezone
+from loguru import logger
 from requests import HTTPError
 
 from catalog.common.downloaders import DownloadError
@@ -13,9 +13,8 @@ from catalog.common.sites import SiteManager
 from journal.models.common import VisibilityType
 from journal.models.mark import Mark
 from journal.models.shelf import ShelfType
-from users.models import Task
 
-logger = logging.getLogger(__name__)
+from .base import BaseImporter
 
 # with reference to
 # - https://developer.valvesoftware.com/wiki/Steam_Web_API
@@ -24,7 +23,6 @@ logger = logging.getLogger(__name__)
 # Get played (owned) games from IPlayerService.GetOwnedGames
 # Get wishlist games from IWishlistService/GetWishlist
 # TODO: asynchronous item loading
-# TODO: log: use logging, loguru, or auditlog?
 
 STEAM_API_BASE_URL = "https://api.steampowered.com"
 
@@ -48,16 +46,21 @@ class InvalidSteamIDException(Exception):
     """
 
 
-class SteamImporter(Task):
+class SteamImporter(BaseImporter):
+    class Meta:
+        app_label = "journal"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     class MetaData(TypedDict):
         total: int
         skipped: int
         processed: int
         failed: int
         imported: int
+        failed_items: List[str]
         visibility: VisibilityType
-        failed_sources: List[str]
-        failed_appids: List[str]
         steam_apikey: str
         steam_id: str
         config: dict
@@ -69,19 +72,18 @@ class SteamImporter(Task):
         "processed": 0,
         "failed": 0,
         "imported": 0,
-        "visibility": VisibilityType.Private,
-        "failed_appids": [],
-        "failed_sources": [],
+        "failed_items": [],
+        "visibility": VisibilityType.Public,
         "steam_apikey": "",
         "steam_id": "",
         "config": {
             "wishlist": {
                 "enable": False,
-                "res_json": None,
+                "file": None,
             },
             "library": {
                 "enable": False,
-                "res_json": None,
+                "file": None,
                 "include_played_free_games": False,
                 "include_free_sub": False,
                 "playing_thresh": 0,  # in hours
@@ -95,6 +97,12 @@ class SteamImporter(Task):
     }
     metadata: MetaData
 
+    def failfast(self, message: str) -> None:
+        logger.error(message)
+        self.message += message
+        self.state = self.States.failed
+        self.save()
+
     def run(self):
         """
         Run task: fetch wishlist and/or owned games and import marks
@@ -105,14 +113,10 @@ class SteamImporter(Task):
         try:
             self.validate(self.metadata["steam_apikey"], self.metadata["steam_id"])
         except (InvalidSteamAPIKeyException, InvalidSteamIDException) as e:
-            self.message = str(e)
-            self.state = self.States.failed
-            self.save()
-        except Exception as e:
-            logger.debug(f"Unknown exception when validating api key / user id: {e}")
-            self.state = self.States.failed
-            self.message = f"Unknown exception when validating api key / user id: {e}"
-            self.save()
+            self.failfast(str(e))
+            return
+        except Exception:
+            self.failfast("Unknown exception when validating api key / user id: {e}")
             return
         logger.debug("Steam API key and ID validated successfully")
 
@@ -128,8 +132,7 @@ class SteamImporter(Task):
                     self.fetch_library(**self.metadata["config"]["library"])
                 )
         except HTTPError as e:
-            self.message = f"HTTP error when fetching data: {e}"
-            self.state = self.States.failed
+            self.failfast(f"HTTP error when fetching data: {e}")
             return
         logger.debug(f"{len(raw_marks)} raw marks fetched")
 
@@ -150,8 +153,7 @@ class SteamImporter(Task):
                 )
             )
         except Exception as e:
-            self.message = f"Exception when filtering marks: {e}"
-            self.state = self.States.failed
+            self.failfast(f"Exception when filtering: {e}")
             return
 
         # Update stat & messages
@@ -162,14 +164,11 @@ class SteamImporter(Task):
         try:
             self.import_marks(raw_marks)
         except Exception as e:
-            self.message = f"Exception when importing marks: {e}"
-            self.state = self.States.failed
+            self.failfast(f"Unrecoverable exception when importing marks: {e}")
+            self.metadata["failed"] += (
+                self.metadata["total"] - self.metadata["processed"]
+            )
             return
-
-        self.message = f"""
-        Steam importing complete, total: {self.metadata["total"]}, processed: {self.metadata["processed"]}, imported: {self.metadata["imported"]}, failed: {self.metadata["failed"]}, skipped: {self.metadata["skipped"]}
-        """
-        self.save()
 
     def import_marks(self, raw_marks: Iterable[RawGameMark]):
         """
@@ -183,9 +182,8 @@ class SteamImporter(Task):
             item = self.get_item_by_id(raw_mark["app_id"])
             if item is None:
                 logger.error(f"Failed to get item for {raw_mark}")
-                self.metadata["failed"] += 1
-                self.metadata["processed"] += 1
-                self.metadata["failed_appids"].append(raw_mark["raw_entry"]["appid"])
+                self.progress("failed")
+                self.metadata["failed_items"].append(raw_mark["raw_entry"]["appid"])
                 continue
             logger.debug(f"Item fetched: {item}")
 
@@ -204,7 +202,7 @@ class SteamImporter(Task):
                 )
             ):
                 logger.info(f"Game {mark.item.title} is already marked, skipping.")
-                self.metadata["skipped"] += 1
+                self.progress("skipped")
             else:
                 mark.update(
                     shelf_type=raw_mark["shelf_type"],
@@ -216,10 +214,9 @@ class SteamImporter(Task):
                     ),
                 )
                 logger.debug(f"Mark updated: {mark}")
-                self.metadata["imported"] += 1
+                self.progress("imported")
 
-            self.metadata["processed"] += 1
-
+    # Not using get_item_by_id for less overhead
     def get_item_by_id(
         self, app_id: str, id_type: IdType = IdType.Steam
     ) -> Item | None:
@@ -245,7 +242,7 @@ class SteamImporter(Task):
 
     def fetch_library(
         self,
-        res_json: Optional[dict] = None,
+        file: Optional[dict] = None,
         include_played_free_games: bool = False,
         include_free_sub: bool = False,
         playing_thresh: int = 0,  # in days,
@@ -253,7 +250,7 @@ class SteamImporter(Task):
         last_play_to_ctime: bool = True,  # use last played time as created time
         **kwargs: dict,
     ) -> List[RawGameMark]:
-        if res_json is None:
+        if file is None:
             url = f"{STEAM_API_BASE_URL}/IPlayerService/GetOwnedGames/v1/"
             params = {
                 "key": self.metadata["steam_apikey"],
@@ -265,12 +262,12 @@ class SteamImporter(Task):
                 "language": "en",  # appinfo not used, can be anything
                 "include_extended_appinfo": False,
             }
-            res = requests.get(url, params)
+            res = requests.get(url, params, timeout=1)
             res.raise_for_status()
-            res_json = res.json()
+            file = res.json()
 
         results = []
-        for entry in res_json["response"]["games"]:  # type: ignore
+        for entry in file["response"]["games"]:  # type: ignore
             rtime_last_played = datetime.fromtimestamp(entry["rtime_last_played"])
             playtime_forever = entry["playtime_forever"]
             app_id = str(entry["appid"])
@@ -298,19 +295,19 @@ class SteamImporter(Task):
 
         return results
 
-    def fetch_wishlist(self, res_json: Optional[dict], **kwargs) -> List[RawGameMark]:
-        if res_json is None:
+    def fetch_wishlist(self, file: Optional[dict], **kwargs) -> List[RawGameMark]:
+        if file is None:
             url = f"{STEAM_API_BASE_URL}/IWishlistService/GetWishlist/v1/"
             params = {
                 "key": self.metadata["steam_apikey"],
                 "steamid": self.metadata["steam_id"],
             }
-            res = requests.get(url, params)
+            res = requests.get(url, params, timeout=1)
             res.raise_for_status()
-            res_json = res.json()
+            file = res.json()
 
         results: List[RawGameMark] = []
-        for entry in res_json["response"]["items"]:  # type: ignore
+        for entry in file["response"]["items"]:  # type: ignore
             created_time = datetime.fromtimestamp(entry["date_added"])
             results.append(
                 RawGameMark(
@@ -352,12 +349,15 @@ class SteamImporter(Task):
         url = f"{STEAM_API_BASE_URL}/IPlayerService/GetSteamLevel/v1/"
         params = {
             "key": steam_apikey,
-            "steamids": steam_id,
+            "steamid": steam_id,
         }
         resp = requests.get(url, params)
         if resp.status_code == [401, 403]:
-            logger.error("Invalid / no API key")
+            logger.error(f"Response: {resp.status_code}")
+            logger.debug(f"Full response: {resp}")
             raise InvalidSteamAPIKeyException(f"Invalid / no API key: {steam_apikey}")
         if resp.status_code == 400:
+            logger.error(f"Response: {resp.status_code}")
+            logger.debug(f"Full response: {resp}")
             raise InvalidSteamIDException(f"Invalid steam ID: {steam_id}")
         resp.raise_for_status()

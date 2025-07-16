@@ -401,7 +401,6 @@ SHELFTYPE_MAP = dict(zip(ShelfType.values, [member for member in ShelfType]))
 def import_steam(request):
     if request.method != "POST":
         return redirect(reverse("users:data"))
-    print(request.POST)
 
     # core metadatas
     metadata = SteamImporter.DefaultMetadata.copy()
@@ -454,24 +453,6 @@ def import_steam(request):
         }
     )
 
-    print(metadata)
-    SteamImporter.create(user=request.user, **metadata).enqueue()
-
-    # SteamImporter.create(
-    #     user=request.user,
-    #     shelf_type_reversion=bool(request.POST.get("shelf_type_reversion")),
-    #     fetch_wishlist=fetch_wishlist,
-    #     fetch_owned=fetch_owned,
-    #     last_play_to_ctime=bool(request.POST.get("mark_date") != "current_time"),
-    #     owned_filter=request.POST.get("owned_filter", "played_free"),
-    #     shelf_filter=shelf_types,
-    #     ignored_appids=ignored_appids,
-    #     steam_tz=tz_str,
-    #     visibility=int(
-    #         request.POST.get("visibility", request.user.preference.default_visibility)
-    #     ),
-    #     steam_apikey=steam_apikey,
-    #     steam_id=steam_id,
-    # ).enqueue()
-    messages.add_message(request, messages.INFO, _("Import in progress."))
-    return redirect(reverse("users:data"))
+    task = SteamImporter.create(user=request.user, **metadata)
+    task.enqueue()
+    return redirect(reverse("users:user_task_status", args=(task.type,)))
