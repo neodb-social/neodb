@@ -1,8 +1,6 @@
 import datetime
 import os
 
-import pytz
-import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -120,6 +118,7 @@ def data(request):
             "ndjson_export_task": NdjsonExporter.latest_task(request.user),
             "letterboxd_task": LetterboxdImporter.latest_task(request.user),
             "goodreads_task": GoodreadsImporter.latest_task(request.user),
+            "steam_task": SteamImporter.latest_task(request.user),
             # "opml_task": OPMLImporter.latest_task(request.user),
             "years": years,
         },
@@ -145,6 +144,8 @@ def user_task_status(request, task_type: str):
             task_cls = OPMLImporter
         case "journal.doubanimporter":
             task_cls = DoubanImporter
+        case "journal.steamimporter":
+            task_cls = SteamImporter
         case _:
             return redirect(reverse("users:data"))
     task = task_cls.latest_task(request.user)
@@ -393,70 +394,84 @@ def import_neodb(request):
     return redirect(reverse("users:data"))
 
 
+SHELFTYPE_MAP = dict(zip(ShelfType.values, [member for member in ShelfType]))
+
+
 @login_required
 def import_steam(request):
     if request.method != "POST":
         return redirect(reverse("users:data"))
+    print(request.POST)
 
-    steam_apikey = request.POST.get("steam_apikey")
-    steam_id = request.POST.get("steam_id")
+    # core metadatas
+    metadata = SteamImporter.DefaultMetadata.copy()
+    metadata.update(
+        {
+            "steam_apikey": request.POST.get("steam_apikey", "").strip(),
+            "steam_id": request.POST.get("steam_id", "").strip(),
+            "visibility": int(request.POST.get("visibility", 0)),  # type: ignore
+        }
+    )
 
-    try:
-        if not SteamImporter.validate_apikey(steam_apikey):
-            messages.add_message(
-                request, messages.ERROR, _(f"Invalid API key: {steam_apikey}.")
-            )
-            return redirect(reverse("users:data"))
-        if not SteamImporter.validate_userid(steam_apikey, steam_id):
-            messages.add_message(request, messages.ERROR, _("Invalid steam id."))
-            return redirect(reverse("users:data"))
-    except requests.RequestException as e:
-        messages.add_message(
-            request, messages.ERROR, _(f"Network error validating apikey / userid: {e}")
+    # config source
+    source = request.POST.getlist("source[]")
+    if "library" in source:
+        metadata["config"]["library"].update(
+            {
+                "enable": True,
+                "include_played_free_games": bool(
+                    request.POST.get("free_filter", "played") != "no"
+                ),
+                "include_free_sub": bool(
+                    request.POST.get("free_filter", "played") == "all"
+                ),
+                "playing_thresh": int(request.POST.get("playing_thresh", 2)),
+                "finish_thresh": int(request.POST.get("finish_thresh", 14)),
+                "last_play_to_ctime": bool(
+                    request.POST.get("mark_date_source", "steam_timestamp")
+                    == "steam_timestamp"
+                ),
+            }
         )
-        return redirect(reverse("users:data"))
+    if "wishlist" in source:
+        metadata["config"]["wishlist"].update({"enable": True})
 
-    fetch_wishlist = bool(request.POST.get("fetch_wishlist", True))
-    fetch_owned = bool(request.POST.get("fetch_owned", True))
+    # misc config
+    metadata["config"].update(
+        {
+            "appid_blacklist": (str(request.POST.get("ignored_appids")))
+            .strip()
+            .replace(" ", "")
+            .split(","),
+            "shelf_type_whitelist": [
+                SHELFTYPE_MAP[e]
+                for e in request.POST.getlist("shelf_filters[]")
+                if e in SHELFTYPE_MAP
+            ],
+            "allow_shelf_type_reversion": bool(
+                request.POST.get("allow_shelf_type_reversion", "off") == "on"
+            ),
+        }
+    )
 
-    if not (fetch_wishlist or fetch_owned):
-        messages.add_message(request, messages.ERROR, _("Nothing to fetch."))
-        return redirect(reverse("users:data"))
+    print(metadata)
+    SteamImporter.create(user=request.user, **metadata).enqueue()
 
-    ignored_appids = str(request.POST.get("ignored_appids")).strip(",")
-    shelf_filter = []
-    if fetch_owned:
-        if request.POST.get("import_playing"):
-            shelf_filter.append(ShelfType.PROGRESS)
-        if request.POST.get("import_played"):
-            shelf_filter.append(ShelfType.COMPLETE)
-        if request.POST.get("import_wishlist"):
-            shelf_filter.append(ShelfType.WISHLIST)
-        if request.POST.get("import_dropped"):
-            shelf_filter.append(ShelfType.DROPPED)
-
-    tz_str = request.POST.get("timezone")
-    try:
-        pytz.timezone(tz_str)
-    except pytz.UnknownTimeZoneError:
-        messages.add_message(request, messages.ERROR, _(f"Unknown timezone: {tz_str}"))
-        return redirect(reverse("users:data"))
-
-    SteamImporter.create(
-        user=request.user,
-        shelf_type_reversion=bool(request.POST.get("shelf_type_reversion")),
-        fetch_wishlist=fetch_wishlist,
-        fetch_owned=fetch_owned,
-        last_play_to_ctime=bool(request.POST.get("mark_date") != "current_time"),
-        owned_filter=request.POST.get("owned_filter", "played_free"),
-        shelf_filter=shelf_filter,
-        ignored_appids=ignored_appids,
-        steam_tz=tz_str,
-        visibility=int(
-            request.POST.get("visibility", request.user.preference.default_visibility)
-        ),
-        steam_apikey=steam_apikey,
-        steam_id=steam_id,
-    ).enqueue()
+    # SteamImporter.create(
+    #     user=request.user,
+    #     shelf_type_reversion=bool(request.POST.get("shelf_type_reversion")),
+    #     fetch_wishlist=fetch_wishlist,
+    #     fetch_owned=fetch_owned,
+    #     last_play_to_ctime=bool(request.POST.get("mark_date") != "current_time"),
+    #     owned_filter=request.POST.get("owned_filter", "played_free"),
+    #     shelf_filter=shelf_types,
+    #     ignored_appids=ignored_appids,
+    #     steam_tz=tz_str,
+    #     visibility=int(
+    #         request.POST.get("visibility", request.user.preference.default_visibility)
+    #     ),
+    #     steam_apikey=steam_apikey,
+    #     steam_id=steam_id,
+    # ).enqueue()
     messages.add_message(request, messages.INFO, _("Import in progress."))
     return redirect(reverse("users:data"))

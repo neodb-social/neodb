@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Iterable, List, TypedDict
+from typing import Iterable, List, Optional, TypedDict
 
 import pytz
 import requests
@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 # Get played (owned) games from IPlayerService.GetOwnedGames
 # Get wishlist games from IWishlistService/GetWishlist
 # TODO: asynchronous item loading
-# TODO: implement get_time_to_beat with igdb
 # TODO: log: use logging, loguru, or auditlog?
 
 STEAM_API_BASE_URL = "https://api.steampowered.com"
@@ -37,41 +36,34 @@ class RawGameMark(TypedDict):
     raw_entry: dict
 
 
+class InvalidSteamAPIKeyException(Exception):
+    """
+    Exception raised when the provided Steam API key is invalid.
+    """
+
+
+class InvalidSteamIDException(Exception):
+    """
+    Exception raised when the provided Steam ID is invalid.
+    """
+
+
 class SteamImporter(Task):
     class MetaData(TypedDict):
-        shelf_type_reversion: bool  # allow cases like PROGRESS to WISHLIST
-        fetch_wishlist: bool
-        fetch_owned: bool
-        last_play_to_ctime: bool  # False: use current time
-        shelf_filter: List[ShelfType]
-        owned_filter: str
-        ignored_appids: List[str]
-        steam_tz: str
         total: int
         skipped: int
         processed: int
         failed: int
         imported: int
         visibility: VisibilityType
+        failed_sources: List[str]
         failed_appids: List[str]
         steam_apikey: str
         steam_id: str
+        config: dict
 
     TaskQueue = "import"
     DefaultMetadata: MetaData = {
-        "shelf_type_reversion": False,
-        "fetch_wishlist": True,
-        "fetch_owned": True,
-        "last_play_to_ctime": True,
-        "shelf_filter": [
-            ShelfType.COMPLETE,
-            ShelfType.DROPPED,
-            ShelfType.PROGRESS,
-            ShelfType.WISHLIST,
-        ],
-        "owned_filter": "played_free",
-        "ignored_appids": [],
-        "steam_tz": "UTC",
         "total": 0,
         "skipped": 0,
         "processed": 0,
@@ -79,8 +71,27 @@ class SteamImporter(Task):
         "imported": 0,
         "visibility": VisibilityType.Private,
         "failed_appids": [],
+        "failed_sources": [],
         "steam_apikey": "",
         "steam_id": "",
+        "config": {
+            "wishlist": {
+                "enable": False,
+                "res_json": None,
+            },
+            "library": {
+                "enable": False,
+                "res_json": None,
+                "include_played_free_games": False,
+                "include_free_sub": False,
+                "playing_thresh": 0,  # in hours
+                "finish_thresh": 0,  # in days
+                "last_play_to_ctime": True,  # use last played time as created time
+            },
+            "allow_shelf_type_reversion": False,
+            "shelf_type_whitelist": [],
+            "appid_blacklist": [],
+        },
     }
     metadata: MetaData
 
@@ -90,24 +101,71 @@ class SteamImporter(Task):
         """
         logger.debug("Start importing")
 
-        fetched_raw_marks: List[RawGameMark] = []
-        if self.metadata["fetch_wishlist"]:
-            fetched_raw_marks.extend(self.get_wishlist_games())
-        if self.metadata["fetch_owned"]:
-            fetched_raw_marks.extend(self.get_owned_games())
-        # filter out by shelftype and appid
-        fetched_raw_marks = [
-            raw_mark
-            for raw_mark in fetched_raw_marks
-            if (
-                raw_mark["shelf_type"] in self.metadata["shelf_filter"]
-                and raw_mark["app_id"] not in self.metadata["ignored_appids"]
-            )
-        ]
-        self.metadata["total"] = len(fetched_raw_marks)
-        logger.debug(f"{self.metadata['total']} raw marks fetched: {fetched_raw_marks}")
+        # Validation of apikey and userid
+        try:
+            self.validate(self.metadata["steam_apikey"], self.metadata["steam_id"])
+        except (InvalidSteamAPIKeyException, InvalidSteamIDException) as e:
+            self.message = str(e)
+            self.state = self.States.failed
+            self.save()
+        except Exception as e:
+            logger.debug(f"Unknown exception when validating api key / user id: {e}")
+            self.state = self.States.failed
+            self.message = f"Unknown exception when validating api key / user id: {e}"
+            self.save()
+            return
+        logger.debug("Steam API key and ID validated successfully")
 
-        self.import_marks(fetched_raw_marks)
+        # Fetch and parse
+        raw_marks: List[RawGameMark] = []
+        try:
+            if self.metadata["config"]["wishlist"]["enable"]:
+                raw_marks.extend(
+                    self.fetch_wishlist(**self.metadata["config"]["wishlist"])
+                )
+            if self.metadata["config"]["library"]["enable"]:
+                raw_marks.extend(
+                    self.fetch_library(**self.metadata["config"]["library"])
+                )
+        except HTTPError as e:
+            self.message = f"HTTP error when fetching data: {e}"
+            self.state = self.States.failed
+            return
+        logger.debug(f"{len(raw_marks)} raw marks fetched")
+
+        # Filter
+        try:
+            raw_marks = list(
+                filter(
+                    lambda raw_mark: raw_mark["shelf_type"]
+                    in self.metadata["config"]["shelf_type_whitelist"],
+                    raw_marks,
+                )
+            )
+            raw_marks = list(
+                filter(
+                    lambda raw_mark: raw_mark["app_id"]
+                    not in self.metadata["config"]["appid_blacklist"],
+                    raw_marks,
+                )
+            )
+        except Exception as e:
+            self.message = f"Exception when filtering marks: {e}"
+            self.state = self.States.failed
+            return
+
+        # Update stat & messages
+        self.metadata["total"] = len(raw_marks)
+        logger.debug(f"{self.metadata['total']} raw marks after filter")
+
+        # Start importing
+        try:
+            self.import_marks(raw_marks)
+        except Exception as e:
+            self.message = f"Exception when importing marks: {e}"
+            self.state = self.States.failed
+            return
+
         self.message = f"""
         Steam importing complete, total: {self.metadata["total"]}, processed: {self.metadata["processed"]}, imported: {self.metadata["imported"]}, failed: {self.metadata["failed"]}, skipped: {self.metadata["skipped"]}
         """
@@ -135,9 +193,8 @@ class SteamImporter(Task):
             logger.debug(f"Mark fetched: {mark}")
 
             if (
-                not self.metadata[
-                    "shelf_type_reversion"
-                ]  # if reversion is not allowed, then skip marked entry with reversion
+                not self.metadata["config"]["allow_shelf_type_reversion"]
+                # if reversion is not allowed, then skip marked entry with reversion
                 and (
                     mark.shelf_type == ShelfType.COMPLETE
                     or (
@@ -153,87 +210,15 @@ class SteamImporter(Task):
                     shelf_type=raw_mark["shelf_type"],
                     visibility=self.metadata["visibility"],
                     created_time=raw_mark["created_time"].replace(
-                        tzinfo=pytz.timezone(self.metadata["steam_tz"])
+                        tzinfo=pytz.timezone(
+                            timezone.get_current_timezone_name()
+                        )  # use estimated tz from django
                     ),
                 )
                 logger.debug(f"Mark updated: {mark}")
                 self.metadata["imported"] += 1
 
             self.metadata["processed"] += 1
-
-    # NOTE: undocumented api used
-    def get_wishlist_games(self) -> Iterable[RawGameMark]:
-        """
-        From IWishlistService/GetWishlist, fetch wishlist of `steam_id` in self.metadata, and convert to RawGameMarks
-
-        :return: Parsed list of raw game marked
-        """
-        url = f"{STEAM_API_BASE_URL}/IWishlistService/GetWishlist/v1/"
-        params = {
-            "key": self.metadata["steam_apikey"],
-            "steamid": self.metadata["steam_id"],
-        }
-
-        res = requests.get(url, params)
-        if res.status_code != 200:
-            logger.error("Network error when getting wishlist.")
-
-        for entry in res.json()["response"]["items"]:
-            created_time = datetime.fromtimestamp(entry["date_added"])
-            yield {
-                "app_id": str(entry["appid"]),
-                "shelf_type": ShelfType.WISHLIST,
-                "created_time": created_time,
-                "raw_entry": entry,
-            }
-
-    def get_owned_games(
-        self, estimate_shelf_type: bool = True
-    ) -> Iterable[RawGameMark]:
-        """
-        From IPlayerService.GetOwnedGames, fetch owned games of `steam_id` in self.metadata, and convert to RawGameMarks
-
-        :return: Parsed list of raw game marked
-        """
-        url = f"{STEAM_API_BASE_URL}/IPlayerService/GetOwnedGames/v1/"
-        params = {
-            "key": self.metadata["steam_apikey"],
-            "steamid": str(self.metadata["steam_id"]),
-            "include_appinfo": False,
-            "include_played_free_games": self.metadata["owned_filter"] != "no_free",
-            "appids_filter": [],
-            "include_free_sub": self.metadata["owned_filter"] == "all_free",
-            "language": "en",  # appinfo not used, so this is no use
-            "include_extended_appinfo": False,
-        }
-
-        res = requests.get(url, params)
-        if res.status_code != 200:
-            logger.error("Network error when getting owned games.")
-
-        for entry in res.json()["response"]["games"]:
-            rtime_last_played = datetime.fromtimestamp(entry["rtime_last_played"])
-            playtime_forever = entry["playtime_forever"]
-            app_id = str(entry["appid"])
-            if estimate_shelf_type:
-                shelf_type = SteamImporter.estimate_shelf_type(
-                    playtime_forever, rtime_last_played, app_id
-                )
-            else:
-                shelf_type = ShelfType.COMPLETE
-            # FIX: consider such case:
-            # the game is purchased and never played, so rtime is 0, and we have no wishlist
-            created_time = (
-                rtime_last_played
-                if self.metadata["last_play_to_ctime"]
-                else timezone.now()
-            )
-            yield {
-                "app_id": app_id,
-                "shelf_type": shelf_type,
-                "created_time": created_time,
-                "raw_entry": entry,
-            }
 
     def get_item_by_id(
         self, app_id: str, id_type: IdType = IdType.Steam
@@ -245,7 +230,7 @@ class SteamImporter(Task):
         if item:
             return item
 
-        logger.debug(f"Fetching game {app_id} from steam")
+        logger.debug(f"Scraping steam game {app_id}")
         try:
             site.get_resource_ready()
             item = site.get_item()
@@ -258,21 +243,103 @@ class SteamImporter(Task):
             item = None
         return item
 
+    def fetch_library(
+        self,
+        res_json: Optional[dict] = None,
+        include_played_free_games: bool = False,
+        include_free_sub: bool = False,
+        playing_thresh: int = 0,  # in days,
+        finish_thresh: int = 0,  # in hours
+        last_play_to_ctime: bool = True,  # use last played time as created time
+        **kwargs: dict,
+    ) -> List[RawGameMark]:
+        if res_json is None:
+            url = f"{STEAM_API_BASE_URL}/IPlayerService/GetOwnedGames/v1/"
+            params = {
+                "key": self.metadata["steam_apikey"],
+                "steamid": self.metadata["steam_id"],
+                "include_appinfo": False,
+                "include_played_free_games": include_played_free_games,
+                "appids_filter": [],
+                "include_free_sub": include_free_sub,
+                "language": "en",  # appinfo not used, can be anything
+                "include_extended_appinfo": False,
+            }
+            res = requests.get(url, params)
+            res.raise_for_status()
+            res_json = res.json()
+
+        results = []
+        for entry in res_json["response"]["games"]:  # type: ignore
+            rtime_last_played = datetime.fromtimestamp(entry["rtime_last_played"])
+            playtime_forever = entry["playtime_forever"]
+            app_id = str(entry["appid"])
+            shelf_type = self.estimate_shelf_type(
+                playtime_forever,
+                rtime_last_played,
+                app_id,
+                playing_thresh,
+                finish_thresh,
+            )
+            created_time = (
+                timezone.now()  # use current time as created_time for games purchased but never played, rtime is 0
+                if (not last_play_to_ctime)
+                or rtime_last_played == datetime.fromtimestamp(0)
+                else rtime_last_played
+            )
+            results.append(
+                RawGameMark(
+                    app_id=app_id,
+                    shelf_type=shelf_type,
+                    created_time=created_time,
+                    raw_entry=entry,
+                )
+            )
+
+        return results
+
+    def fetch_wishlist(self, res_json: Optional[dict], **kwargs) -> List[RawGameMark]:
+        if res_json is None:
+            url = f"{STEAM_API_BASE_URL}/IWishlistService/GetWishlist/v1/"
+            params = {
+                "key": self.metadata["steam_apikey"],
+                "steamid": self.metadata["steam_id"],
+            }
+            res = requests.get(url, params)
+            res.raise_for_status()
+            res_json = res.json()
+
+        results: List[RawGameMark] = []
+        for entry in res_json["response"]["items"]:  # type: ignore
+            created_time = datetime.fromtimestamp(entry["date_added"])
+            results.append(
+                RawGameMark(
+                    app_id=str(entry["appid"]),
+                    shelf_type=ShelfType.WISHLIST,
+                    created_time=created_time,
+                    raw_entry=entry,
+                )
+            )
+
+        return results
+
     @classmethod
     def estimate_shelf_type(
-        cls, playtime_forever: int, last_played: datetime, app_id: str
+        cls,
+        playtime_forever: int,
+        last_played: datetime,
+        app_id: str,
+        playing_thresh: int,
+        finish_thresh: int,
     ):
-        played_long_enough = (
-            playtime_forever / SteamImporter.get_how_long_to_beat(app_id) > 0.75
-        )
+        played_long_enough = playtime_forever > finish_thresh * 60
         never_played = playtime_forever == 0 and last_played == datetime.fromtimestamp(
             0
         )
-        playing = datetime.now() - last_played < timedelta(weeks=2)
-        # ever played in 2 weeks
+        playing = datetime.now() - last_played < timedelta(days=playing_thresh)
 
         if never_played:
-            return ShelfType.WISHLIST  # we all have games purchased and never played...
+            return ShelfType.WISHLIST
         elif playing:
             return ShelfType.PROGRESS
         elif played_long_enough:
@@ -281,52 +348,16 @@ class SteamImporter(Task):
             return ShelfType.DROPPED
 
     @classmethod
-    def validate_apikey(cls, steam_apikey: str) -> bool:
-        logger.debug(f"Validating api key: {steam_apikey}")
-        url = f"{STEAM_API_BASE_URL}/ISteamWebAPIUtil/GetSupportedAPIList/v1/"
-        params = {
-            "key": steam_apikey,
-        }
-        try:
-            interfaces = requests.get(url, params).json()["apilist"]["interfaces"]
-            method_names = [
-                method["name"]
-                for interface in interfaces
-                for method in interface["methods"]
-            ]
-            # logger.debug(f"Methods available: {method_names}")
-            return "GetOwnedGames" in method_names
-        except HTTPError as e:
-            if e.response.status_code in [401, 403]:
-                logger.error("Invalid apikey")
-                return False
-            else:
-                raise e
-
-    @classmethod
-    def validate_userid(cls, steam_apikey: str, steam_id: str) -> bool:
-        logger.debug(f"Validating steam_id: {steam_id}")
-        url = f"{STEAM_API_BASE_URL}/ISteamUser/GetPlayerSummaries/v2/"
+    def validate(cls, steam_apikey: str, steam_id: str) -> None:
+        url = f"{STEAM_API_BASE_URL}/IPlayerService/GetSteamLevel/v1/"
         params = {
             "key": steam_apikey,
             "steamids": steam_id,
         }
-        try:
-            players = requests.get(url, params).json()["response"]["players"]
-            return players != []
-        except HTTPError as e:
-            if e.response.status_code == [401, 403]:
-                logger.error("Invalid apikey")
-                return False
-            else:
-                raise e
-
-    # TODO: Implement get_how_long_to_beat:
-    # Such data are available in HowLongToBeat.com and igdb, however
-    # 1. time_to_beat can be considered a potential metadata of Game item,
-    # 2. though sites are primarily used to scrape data, it seems better to extend them as api interface
-    # 3. if 1 happens, the time to beat data shall be fetched from Game item, instead of this method
-    @classmethod
-    def get_how_long_to_beat(cls, steamid: str) -> int:
-        return 20
-        ...
+        resp = requests.get(url, params)
+        if resp.status_code == [401, 403]:
+            logger.error("Invalid / no API key")
+            raise InvalidSteamAPIKeyException(f"Invalid / no API key: {steam_apikey}")
+        if resp.status_code == 400:
+            raise InvalidSteamIDException(f"Invalid steam ID: {steam_id}")
+        resp.raise_for_status()
