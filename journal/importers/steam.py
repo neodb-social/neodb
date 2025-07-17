@@ -3,6 +3,7 @@ from typing import Iterable, List, Optional, TypedDict
 
 import pytz
 import requests
+from django.conf import settings
 from django.utils import timezone
 from loguru import logger
 from requests import HTTPError
@@ -74,7 +75,7 @@ class SteamImporter(BaseImporter):
         "imported": 0,
         "failed_items": [],
         "visibility": VisibilityType.Public,
-        "steam_apikey": "",
+        "steam_apikey": settings.STEAM_API_KEY or "",
         "steam_id": "",
         "config": {
             "wishlist": {
@@ -112,7 +113,12 @@ class SteamImporter(BaseImporter):
         # Validation of apikey and userid
         try:
             self.validate(self.metadata["steam_apikey"], self.metadata["steam_id"])
-        except (InvalidSteamAPIKeyException, InvalidSteamIDException) as e:
+        except InvalidSteamAPIKeyException:
+            self.failfast(
+                "Ask the site admin to set a valid STEAM_API_KEY to allow import from Steam"
+            )
+            return
+        except InvalidSteamIDException as e:
             self.failfast(str(e))
             return
         except Exception:
@@ -347,15 +353,19 @@ class SteamImporter(BaseImporter):
     @classmethod
     def validate(cls, steam_apikey: str, steam_id: str) -> None:
         url = f"{STEAM_API_BASE_URL}/IPlayerService/GetSteamLevel/v1/"
+        if steam_apikey == "":
+            logger.error(
+                "Configure STEAM_API_KEY in environment to allow steam importer"
+            )
         params = {
             "key": steam_apikey,
             "steamid": steam_id,
         }
         resp = requests.get(url, params)
         if resp.status_code == [401, 403]:
-            logger.error(f"Response: {resp.status_code}")
+            logger.error(f"Response when validating Steam API Key: {resp.status_code}")
             logger.debug(f"Full response: {resp}")
-            raise InvalidSteamAPIKeyException(f"Invalid / no API key: {steam_apikey}")
+            raise InvalidSteamAPIKeyException(f"Invalid steam API key: {steam_apikey}")
         if resp.status_code == 400:
             logger.error(f"Response: {resp.status_code}")
             logger.debug(f"Full response: {resp}")

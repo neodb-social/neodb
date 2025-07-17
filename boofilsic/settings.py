@@ -108,6 +108,8 @@ env = environ.FileAwareEnv(
     TMDB_API_V3_KEY=(str, "TESTONLY"),
     # Google Books - https://developers.google.com/books/docs/v1/using - not used at the moment
     GOOGLE_API_KEY=(str, ""),
+    # Steam API Key - https://steamcommunity.com/dev - for steam importer
+    STEAM_API_KEY=(str, ""),
     # Discogs - personal access token from https://www.discogs.com/settings/developers
     DISCOGS_API_KEY=(str, "TESTONLY"),
     # IGDB - https://api-docs.igdb.com/
@@ -283,6 +285,7 @@ SPOTIFY_CREDENTIAL = env("SPOTIFY_API_KEY")
 TMDB_API3_KEY = env("TMDB_API_V3_KEY")
 # TMDB_API4_KEY = env('TMDB_API_V4_KEY')
 GOOGLE_API_KEY = env("GOOGLE_API_KEY")
+STEAM_API_KEY = env("STEAM_API_KEY")
 DISCOGS_API_KEY = env("DISCOGS_API_KEY")
 IGDB_CLIENT_ID = env("IGDB_API_CLIENT_ID")
 IGDB_CLIENT_SECRET = env("IGDB_API_CLIENT_SECRET")

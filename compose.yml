@@ -85,6 +85,7 @@ x-shared:
       SPOTIFY_API_KEY:
       TMDB_API_V3_KEY:
       GOOGLE_API_KEY:
+      STEAM_API_KEY:
       DISCOGS_API_KEY:
       IGDB_API_CLIENT_ID:
       IGDB_API_CLIENT_SECRET:

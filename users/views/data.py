@@ -406,7 +406,6 @@ def import_steam(request):
     metadata = SteamImporter.DefaultMetadata.copy()
     metadata.update(
         {
-            "steam_apikey": request.POST.get("steam_apikey", "").strip(),
             "steam_id": request.POST.get("steam_id", "").strip(),
             "visibility": int(request.POST.get("visibility", 0)),  # type: ignore
         }
