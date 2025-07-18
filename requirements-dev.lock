@@ -19,6 +19,9 @@ annotated-types==0.7.0
     # via pydantic
 anyio==4.9.0
     # via httpx
+    # via mcp
+    # via sse-starlette
+    # via starlette
 asgiref==3.9.1
     # via django
     # via django-cors-headers
@@ -30,10 +33,10 @@ beautifulsoup4==4.13.4
 bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
-boto3==1.39.4
+boto3==1.39.8
     # via django-anymail
     # via django-storages
-botocore==1.39.4
+botocore==1.39.8
     # via boto3
     # via s3transfer
 cachetools==6.1.0
@@ -53,6 +56,8 @@ click==8.2.1
     # via atproto
     # via djlint
     # via rq
+    # via typer
+    # via uvicorn
 colorama==0.4.6
     # via djlint
 cryptography==45.0.5
@@ -64,7 +69,7 @@ dateparser==1.2.2
 deepl==1.22.0
 deepmerge==2.0
 discord-py==2.5.2
-distlib==0.3.9
+distlib==0.4.0
     # via virtualenv
 django==4.2.23
     # via django-anymail
@@ -97,14 +102,15 @@ django-hijack==3.7.3
 django-jsonform @ git+https://github.com/alphatownsman/django-jsonform@1bd8dd9510d309dceef842e1aed7aaf6c1b68ff9
 django-maintenance-mode==0.22.0
 django-markdownx==4.0.9
+django-mcp==0.3.1
 django-ninja==1.4.3
 django-polymorphic==4.0.0
 django-redis==5.4.0
-django-rq @ git+https://github.com/rq/django-rq@429933202673712ba55d6ad49672b73bece04dfc
+django-rq @ git+https://github.com/rq/django-rq@b1e6e87d0f6da4dcc29ec5745fb4a3665bde10ad
 django-sass-processor==1.4.2
 django-storages==1.14.6
-django-stubs==5.2.1
-django-stubs-ext==5.2.1
+django-stubs==5.2.2
+django-stubs-ext==5.2.2
     # via django-stubs
 django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git@03921e05b39d07d143519a435259f66387a088bc
 django-tz-detect==0.5.0
@@ -127,10 +133,14 @@ frozenlist==1.7.0
 gunicorn==23.0.0
 h11==0.16.0
     # via httpcore
+    # via uvicorn
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via atproto
+    # via mcp
+httpx-sse==0.4.1
+    # via mcp
 identify==2.6.12
     # via pre-commit
 idna==3.10
@@ -157,12 +167,18 @@ lxml==6.0.0
 lxml-stubs==0.5.1
 markdown==3.8.2
     # via django-markdownx
+markdown-it-py==3.0.0
+    # via rich
 markdownify==1.1.0
+mcp==1.9.4
+    # via django-mcp
+mdurl==0.1.2
+    # via markdown-it-py
 mistune==3.1.3
 multidict==6.6.3
     # via aiohttp
     # via yarl
-nh3==0.2.21
+nh3==0.3.0
 nodeenv==1.9.1
     # via pre-commit
     # via pyright
@@ -190,15 +206,26 @@ pycparser==2.22
 pydantic==2.11.7
     # via atproto
     # via django-ninja
+    # via mcp
+    # via pydantic-settings
 pydantic-core==2.33.2
     # via pydantic
+pydantic-settings==2.10.1
+    # via mcp
+pygments==2.19.2
+    # via rich
 pyright==1.1.403
 python-dateutil==2.9.0.post0
     # via botocore
     # via dateparser
     # via django-auditlog
+python-dotenv==1.1.1
+    # via mcp
+    # via pydantic-settings
 python-fsutil==0.15.0
     # via django-maintenance-mode
+python-multipart==0.0.20
+    # via mcp
 pytz==2025.2
     # via dateparser
     # via django-tz-detect
@@ -219,15 +246,19 @@ requests==2.32.4
     # via django-anymail
     # via igdb-api-v4
     # via typesense
+rich==14.0.0
+    # via typer
 rjsmin==1.2.2
     # via django-compressor
 rq==2.4.0
     # via django-rq
-ruff==0.12.3
+ruff==0.12.4
 s3transfer==0.13.0
     # via boto3
-sentry-sdk==2.32.0
+sentry-sdk==2.33.0
 setproctitle==1.3.6
+shellingham==1.5.4
+    # via typer
 six==1.17.0
     # via bleach
     # via blurhash-python
@@ -242,10 +273,16 @@ soupsieve==2.7
     # via beautifulsoup4
 sqlparse==0.5.3
     # via django
+sse-starlette==2.4.1
+    # via mcp
+starlette==0.47.1
+    # via mcp
 tinycss2==1.1.1
     # via bleach
 tqdm==4.67.1
     # via djlint
+typer==0.16.0
+    # via mcp
 types-pyyaml==6.0.12.20250516
     # via django-stubs
 typesense==1.1.1
@@ -259,9 +296,12 @@ typing-extensions==4.14.1
     # via pydantic
     # via pydantic-core
     # via pyright
+    # via starlette
+    # via typer
     # via typing-inspection
 typing-inspection==0.4.1
     # via pydantic
+    # via pydantic-settings
 tzlocal==5.3.1
     # via dateparser
 urllib3==2.5.0
@@ -270,6 +310,8 @@ urllib3==2.5.0
     # via requests
     # via sentry-sdk
 urlman==2.0.2
+uvicorn==0.35.0
+    # via mcp
 validators==0.35.0
 virtualenv==20.31.2
     # via pre-commit

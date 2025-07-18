@@ -2560,6 +2560,7 @@ class Token(models.Model):
         db_table = "api_token"
 
     identity_id: int | None
+    application_id: int | None
     application = models.ForeignKey(
         "takahe.Application",
         on_delete=models.CASCADE,

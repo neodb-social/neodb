@@ -157,6 +157,94 @@ def console(request):
     return render(request, "console.html", context)
 
 
+def oauth_protected_resource(request):
+    """Return OAuth 2.0 Resource Server Metadata."""
+    base_url = "" if settings.DEBUG else settings.SITE_INFO["site_url"].rstrip("/")
+    if not base_url:
+        scheme = "https" if request.is_secure() else "http"
+        base_url = f"{scheme}://{request.get_host()}"
+    metadata = {
+        "resource": base_url,
+        "authorization_endpoint": f"{base_url}/oauth/authorize",
+        "token_endpoint": f"{base_url}/oauth/token",
+        "revocation_endpoint": f"{base_url}/oauth/revoke",
+        "token_types_supported": ["bearer"],
+        "scopes_supported": ["read", "write"],
+        "resource_server": {
+            "name": settings.SITE_INFO.get("site_name", "NeoDB"),
+            "description": settings.SITE_INFO.get("site_description", ""),
+            "version": settings.NEODB_VERSION,
+        },
+        "api_version": "1.0.0",
+        "api_base_url": f"{base_url}/api",
+        "token_endpoint_auth_methods_supported": [
+            "client_secret_basic",
+            "client_secret_post",
+        ],
+        "grant_types_supported": ["authorization_code", "client_credentials"],
+        "response_types_supported": ["code"],
+        "service_documentation": f"{base_url}/developer/",
+        # "contact": settings.SITE_INFO.get("admin_email", ""),
+    }
+    return JsonResponse(metadata)
+
+
+def oauth_authorization_server(request):
+    """Return OAuth 2.0 Authorization Server Metadata (RFC 8414)."""
+    base_url = "" if settings.DEBUG else settings.SITE_INFO["site_url"].rstrip("/")
+    if not base_url:
+        scheme = "https" if request.is_secure() else "http"
+        base_url = f"{scheme}://{request.get_host()}"
+
+    metadata = {
+        # Required fields
+        "issuer": base_url,
+        "authorization_endpoint": f"{base_url}/oauth/authorize",
+        "token_endpoint": f"{base_url}/oauth/token",
+        # Supported grant types
+        "grant_types_supported": ["authorization_code", "client_credentials"],
+        # Supported response types
+        "response_types_supported": ["code"],
+        # Supported scopes
+        "scopes_supported": ["read", "write"],
+        # Token endpoint authentication methods
+        "token_endpoint_auth_methods_supported": [
+            "client_secret_basic",
+            "client_secret_post",
+        ],
+        # Additional endpoints
+        "revocation_endpoint": f"{base_url}/oauth/revoke",
+        # Server capabilities
+        "code_challenge_methods_supported": ["plain", "S256"],
+        # Response modes
+        "response_modes_supported": ["query", "fragment"],
+        # Service documentation
+        "service_documentation": f"{base_url}/developer/",
+        # Server information
+        "op_policy_uri": f"{base_url}/about/",
+        # Additional metadata
+        "ui_locales_supported": ["en"],
+        # Claim types supported
+        "claim_types_supported": ["normal"],
+        # Claims supported (basic user info)
+        "claims_supported": ["sub", "username", "display_name", "avatar", "url"],
+        # Authorization server features
+        "request_parameter_supported": False,
+        "request_uri_parameter_supported": False,
+        "require_request_uri_registration": False,
+        "registration_endpoint": f"{base_url}/api/v1/apps",
+        "introspection_endpoint": f"{base_url}/api/token",
+        "userinfo_endpoint": f"{base_url}/api/me",
+        # JWKS - not used since we don't use JWT tokens
+        "jwks_uri": None,
+        # Additional server info
+        "software_id": "neodb",
+        "software_version": settings.NEODB_VERSION,
+    }
+
+    return JsonResponse(metadata)
+
+
 def signup(request, code: str | None = None):
     if request.user.is_authenticated:
         return redirect(reverse("common:home"))

@@ -15,5 +15,7 @@ urlpatterns = [
     path("developer/", console, name="developer"),
     path("auth/signup/", signup, name="signup"),
     path("auth/signup/<str:code>/", signup, name="signup"),
-    re_path("^~neodb~(?P<uri>.+)", ap_redirect),
+    re_path(r"^\.well-known/oauth-protected-resource", oauth_protected_resource),
+    re_path(r"^\.well-known/oauth-authorization-server", oauth_authorization_server),
+    re_path(r"^~neodb~(?P<uri>.+)", ap_redirect),
 ]

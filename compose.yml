@@ -214,6 +214,21 @@ services:
       migration:
         condition: service_completed_successfully
 
+  neodb-mcp:
+    <<: *neodb-service
+    command: ${NEODB_VENV:-/neodb-venv}/bin/uvicorn boofilsic.asgi:app --host 0.0.0.0 --port 8000 --workers ${NEODB_MCP_WORKER_NUM:-2} --env-file misc/mcp.env
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "-qO/tmp/test",
+          "http://127.0.0.1:8000/mcp/",
+        ]
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+
   neodb-worker:
     <<: *neodb-service
     command: neodb-manage rqworker-pool --num-workers ${NEODB_RQ_WORKER_NUM:-4} import export mastodon fetch crawl ap cron
@@ -260,12 +275,15 @@ services:
     environment:
       NEODB_WEB_SERVER: neodb-web:8000
       NEODB_API_SERVER: neodb-web-api:8000
+      NEODB_MCP_SERVER: neodb-mcp:8000
       TAKAHE_WEB_SERVER: takahe-web:8000
       NGINX_CONF: /neodb/misc/nginx.conf.d/neodb.conf
     depends_on:
       takahe-web:
         condition: service_started
       neodb-web:
+        condition: service_started
+      neodb-mcp:
         condition: service_started
     ports:
       - "${NEODB_PORT:-8000}:8000"
@@ -286,6 +304,11 @@ services:
     command: neodb-manage runserver 0.0.0.0:8000
     stop_signal: SIGINT
 
+  dev-neodb-mcp:
+    <<: *dev-neodb-service
+    command: ${NEODB_VENV:-/neodb-venv}/bin/uvicorn boofilsic.asgi:app --host 0.0.0.0 --port 8000 --reload --env-file misc/mcp.env
+    stop_signal: SIGINT
+
   dev-neodb-worker:
     <<: *dev-neodb-service
     # command: neodb-manage rqworker-pool --num-workers 4 import export mastodon fetch crawl ap cron
@@ -304,15 +327,18 @@ services:
   dev-nginx:
     <<: *dev-neodb-service
     user: "root:root"
-    command: nginx-start
+    command: /neodb/misc/bin/nginx-start
     environment:
       NEODB_WEB_SERVER: dev-neodb-web:8000
+      NEODB_MCP_SERVER: dev-neodb-mcp:8000
       TAKAHE_WEB_SERVER: dev-takahe-web:8000
       NGINX_CONF: /neodb/misc/nginx.conf.d/neodb-dev.conf
     depends_on:
       dev-takahe-web:
         condition: service_started
       dev-neodb-web:
+        condition: service_started
+      dev-neodb-mcp:
         condition: service_started
     ports:
       - "${NEODB_PORT:-8000}:8000"

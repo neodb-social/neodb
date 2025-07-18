@@ -58,6 +58,7 @@ dependencies = [
     "certifi==2025.1.31",
     "deepl>=1.22.0",
     "nh3>=0.2.21",
+    "django-mcp>=0.1.0",
 ]
 
 [tool.rye]

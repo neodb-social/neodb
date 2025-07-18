@@ -9,6 +9,10 @@ from mastodon.models import SocialAccount
 from users.models import APIdentity
 
 
+class TokenSchema(Schema):
+    active: bool
+
+
 class ExternalAccountSchema(Schema):
     platform: str
     handle: str
@@ -30,6 +34,16 @@ class PreferenceSchema(Schema):
     default_visibility: int
     hidden_categories: list[str]
     language: str = Field(alias="user.language")
+
+
+@api.get(
+    "/token",
+    response={200: TokenSchema},
+    summary="Get token info",
+    tags=["user"],
+)
+def token(request):
+    return 200, {"active": request.auth is not None}
 
 
 @api.get(

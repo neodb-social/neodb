@@ -4,6 +4,7 @@ import sys
 from urllib import parse
 
 import environ
+from corsheaders.defaults import default_headers
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
@@ -644,11 +645,8 @@ DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="")  # type: ignor
 
 NINJA_PAGINATION_PER_PAGE = 20
 
-# https://github.com/adamchainz/django-cors-headers#configuration
-# CORS_ALLOWED_ORIGINS = []
-# CORS_ALLOWED_ORIGIN_REGEXES = []
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_URLS_REGEX = r"^/(api|nodeinfo)/.*$"
+CORS_URLS_REGEX = r"^/(api|nodeinfo|\.well-known)/.*$"
 CORS_ALLOW_METHODS = (
     "DELETE",
     "GET",
@@ -657,6 +655,7 @@ CORS_ALLOW_METHODS = (
     "POST",
     # "PUT",
 )
+CORS_ALLOW_HEADERS = (*default_headers, "mcp-protocol-version")
 
 DEACTIVATE_AFTER_UNREACHABLE_DAYS = 365
 
@@ -689,3 +688,9 @@ if _SENTRY_DSN:
     )
 
 SKIP_MIGRATIONS = env("SKIP_MIGRATIONS")
+
+if os.environ.get("MCP"):
+    INSTALLED_APPS += ["django_mcp"]
+    MCP_SERVER_TITLE = SITE_INFO.get("site_name", "NeoDB")
+    MCP_SERVER_VERSION = NEODB_VERSION
+    MCP_SERVER_INSTRUCTIONS = "This neodb server maintains a catalog of book, movie, tv, music, game, podcast and performance, and helps user manage their collections and what they read/watch/listen/play."

@@ -1,4 +1,4 @@
 #!/bin/sh
 chown app:app /www/media /www/m
-envsubst '${NEODB_WEB_SERVER} ${NEODB_API_SERVER} ${TAKAHE_WEB_SERVER}' < $NGINX_CONF > /etc/nginx/conf.d/neodb.conf
+envsubst '${NEODB_WEB_SERVER} ${NEODB_API_SERVER} ${NEODB_MCP_SERVER} ${TAKAHE_WEB_SERVER}' < $NGINX_CONF > /etc/nginx/conf.d/neodb.conf
 exec nginx -g 'daemon off;'
