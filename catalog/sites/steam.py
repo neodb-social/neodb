@@ -42,6 +42,8 @@ class Steam(AbstractSite):
         api_url = (
             f"https://store.steampowered.com/api/appdetails?appids={self.id_value}"
         )
+        if settings.STEAM_API_KEY:
+            api_url += f"&key={settings.STEAM_API_KEY}"
         headers = {
             "User-Agent": settings.NEODB_USER_AGENT,
             "Accept": "application/json",
@@ -58,14 +60,17 @@ class Steam(AbstractSite):
         localized_desc = []
         for lang in STEAM_PREFERRED_LANGS.keys():
             data = self.download(lang).get(self.id_value, {}).get("data", {})
+            name = data.get("name")
+            if not name:
+                continue
             if lang == "en":
                 en_data = data
-            localized_title.append({"lang": lang, "text": data["name"]})
+            localized_title.append({"lang": lang, "text": name})
             desc = html_to_text(data["detailed_description"])
             localized_desc.append({"lang": lang, "text": desc})
         if not en_data:
             en_data = self.download("en")
-        if not en_data:
+        if not en_data or not en_data.get("name"):
             raise ParseError(self, "id")
         # merge data from IGDB, use localized Steam data if available
         d = {
