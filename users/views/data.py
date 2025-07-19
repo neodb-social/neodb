@@ -394,9 +394,6 @@ def import_neodb(request):
     return redirect(reverse("users:data"))
 
 
-SHELFTYPE_MAP = dict(zip(ShelfType.values, [member for member in ShelfType]))
-
-
 @login_required
 def import_steam(request):
     if request.method != "POST":
@@ -442,9 +439,9 @@ def import_steam(request):
             .replace(" ", "")
             .split(","),
             "shelf_type_whitelist": [
-                SHELFTYPE_MAP[e]
+                ShelfType(e)
                 for e in request.POST.getlist("shelf_filters[]")
-                if e in SHELFTYPE_MAP
+                if e in ShelfType.values
             ],
             "allow_shelf_type_reversion": bool(
                 request.POST.get("allow_shelf_type_reversion", "off") == "on"
