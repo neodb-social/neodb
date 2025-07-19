@@ -380,6 +380,11 @@ class Edition(Item):
             .order_by("-metadata__pub_year")
         )
 
+    def set_parent_item(self, value):
+        if value and not isinstance(value, Work):
+            raise TypeError(f"Expected Work instance, got {type(value).__name__}")
+        self.set_work(value)
+
     @cached_property
     def additional_title(self) -> list[str]:
         title = self.display_title

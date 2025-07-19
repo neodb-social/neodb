@@ -156,6 +156,25 @@ class WorkTestCase(TestCase):
         self.assertIsNotNone(self.hyperion_print.get_work())
         self.assertEqual(self.hyperion_ebook.get_work().editions.all().count(), 3)
 
+    def test_set_parent_item(self):
+        # Test setting parent_item (work) for edition
+        work = Work.objects.create(
+            localized_title=[{"lang": "en", "text": "Test Work"}]
+        )
+
+        # Edition should have no work initially
+        self.assertIsNone(self.hyperion_print.get_work())
+
+        # Set parent_item should link edition to work
+        self.hyperion_print.set_parent_item(work)
+        self.assertEqual(self.hyperion_print.get_work(), work)
+        self.assertIn(self.hyperion_print, work.editions.all())
+
+        # Set parent_item to None should unlink edition from work
+        self.hyperion_print.set_parent_item(None)
+        self.assertIsNone(self.hyperion_print.get_work())
+        self.assertNotIn(self.hyperion_print, work.editions.all())
+
 
 class GoodreadsTestCase(TestCase):
     databases = "__all__"
