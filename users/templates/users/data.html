@@ -171,10 +171,10 @@
         </article>
         <article>
           <details>
-            <summary>{% trans 'Import from Steam Wishlist / Library (owned games only)' %}</summary>
+            <summary>{% trans 'Import from Steam Wishlist / Library' %}</summary>
             <!-- For disabling form entries -->
             <script src="{{ cdn_url }}/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
-            <form action="{% url 'users:import_steam' %}" method="post">
+            <form hx-post="{% url 'users:import_steam' %}">
               {% csrf_token %}
               <!-- Steam User ID Section -->
               <div class="form-section">
@@ -198,7 +198,7 @@
                          value="wishlist"
                          x-model="source"
                          checked>
-                  {% trans 'Steam wishlist' %}
+                  {% trans 'Steam Wishlist' %}
                 </label>
                 <label class="checkbox-group">
                   <input type="checkbox"
@@ -206,7 +206,7 @@
                          value="library"
                          x-model="source"
                          checked>
-                  {% trans 'Owned games (Your library)' %}
+                  {% trans 'Steam Library (owned games)' %}
                   <div style="margin-left: 1.5rem;">
                     <label x-bind:aria-disabled="!source.includes('library')">
                       <input type="radio"
@@ -259,21 +259,19 @@
                     <input type="checkbox"
                            name="shelf_filters[]"
                            value="wishlist"
-                           data-tooltip="{% trans 'In wishlist / purchased but never played' %}"
-                           checked>
+                           data-tooltip="{% trans 'In wishlist / purchased but never played' %}">
                     {% trans 'To play' %}
                   </label>
                   <label>
                     <input type="checkbox"
                            name="shelf_filters[]"
                            value="dropped"
-                           data-tooltip="{% trans 'Not launched in playing threshold & play time < finished threshold' %}"
-                           checked>
+                           data-tooltip="{% trans 'Not launched in playing threshold & play time < finished threshold' %}">
                     {% trans 'Dropped' %}
                   </label>
                 </div>
                 <b>{% trans 'Playing threshold' %}</b>
-                <small>In days. Ever launched in these days to be consided playing</small>
+                <small>In days, launched in recent X days to be consided playing</small>
                 <input type="number" name="playing_thresh" value="12">
                 <b>{% trans 'Finished threshold' %}</b>
                 <small>In hours. Played for more than these hours to be consided finished</small>
@@ -295,35 +293,25 @@
                 </label>
               </div>
               <hr>
+              {% comment %}
               <!-- Mark Date -->
               <div class="form-section">
                 <b>{% trans 'Mark Date' %}</b>
                 <div class="radio-group" x-data="{mark_date_source: 'steam_timestamp'}">
                   <label>
-                    <input type="radio"
-                           name="mark_date_source"
-                           x-model="mark_date_source"
-                           value="current_time">
+                    <input type="radio" name="mark_date_source" x-model="mark_date_source" value="current_time">
                     {% trans 'Now' %}
                     <br>
                     <small>{% trans '(not recommended, as even games you finished YEARS AGO will be marked played TODAY)' %}</small>
                   </label>
                   <label>
-                    <input type="radio"
-                           name="mark_date_source"
-                           x-model="mark_date_source"
-                           value="steam_timestamp"
-                           checked>
+                    <input type="radio" name="mark_date_source" x-model="mark_date_source" value="steam_timestamp" checked>
                     {% trans 'Estimate from your Steam game time data' %}
-                    {% comment %} <input name="timezone" placeholder="Asia/Shanghai" x-bind:disabled="mark_date !== 'steam_timestamp'" required>
-                    <small>
-                      {% trans 'Input the most often timezone that you play games in this library, for us to convert the local time stored by Steam.' %}
-                      <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones" target="_blank" rel="noopener noreferrer">{% trans 'reference' %}</a>
-                    </small> {% endcomment %}
                   </label>
                 </div>
               </div>
               <hr>
+              {% endcomment %}
               <!-- Visibility -->
               <div class="form-section">
                 <b>{% trans 'Visibility' %}</b>
@@ -343,6 +331,7 @@
                 </div>
               </div>
               <button type="submit" class="submit-button">{% trans 'Import' %}</button>
+              {% include "users/user_task_status.html" with task=steam_task %}
             </form>
           </details>
         </article>

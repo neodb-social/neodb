@@ -122,7 +122,7 @@ class SteamImporter(BaseImporter):
             self.failfast(str(e))
             return
         except Exception:
-            self.failfast("Unknown exception when validating api key / user id: {e}")
+            self.failfast("Unknown exception when validating api key / user id")
             return
         logger.debug("Steam API key and ID validated successfully")
 
@@ -238,7 +238,7 @@ class SteamImporter(BaseImporter):
             site.get_resource_ready()
             item = site.get_item()
         except DownloadError as e:
-            logger.error(f"Fail to fetch {e.url}")
+            logger.error(f"Failed to fetch {e.url}")
             item = None
         except Exception as e:
             logger.error(f"Unexcepted error when getting item from appid {app_id}")
@@ -353,10 +353,11 @@ class SteamImporter(BaseImporter):
     @classmethod
     def validate(cls, steam_apikey: str, steam_id: str) -> None:
         url = f"{STEAM_API_BASE_URL}/IPlayerService/GetSteamLevel/v1/"
-        if steam_apikey == "":
+        if not steam_apikey:
             logger.error(
                 "Configure STEAM_API_KEY in environment to allow steam importer"
             )
+            raise InvalidSteamAPIKeyException("Missing steam API key")
         params = {
             "key": steam_apikey,
             "steamid": steam_id,
@@ -365,7 +366,7 @@ class SteamImporter(BaseImporter):
         if resp.status_code == [401, 403]:
             logger.error(f"Response when validating Steam API Key: {resp.status_code}")
             logger.debug(f"Full response: {resp}")
-            raise InvalidSteamAPIKeyException(f"Invalid steam API key: {steam_apikey}")
+            raise InvalidSteamAPIKeyException("Invalid steam API key")
         if resp.status_code == 400:
             logger.error(f"Response: {resp.status_code}")
             logger.debug(f"Full response: {resp}")
