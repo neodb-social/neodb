@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
                     ("journal.ndjsonexporter", "ndjson exporter"),
                     ("journal.ndjsonimporter", "ndjson importer"),
                     ("journal.opmlimporter", "opml importer"),
+                    ("journal.steamimporter", "steam importer"),
                 ],
                 db_index=True,
                 max_length=255,
