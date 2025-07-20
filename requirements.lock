@@ -209,7 +209,7 @@ rich==14.0.0
     # via typer
 rjsmin==1.2.2
     # via django-compressor
-rq==2.4.0
+rq==2.4.1
     # via django-rq
 s3transfer==0.13.1
     # via boto3
@@ -231,7 +231,7 @@ sqlparse==0.5.3
     # via django
 sse-starlette==2.4.1
     # via mcp
-starlette==0.47.1
+starlette==0.47.2
     # via mcp
 tinycss2==1.1.1
     # via bleach

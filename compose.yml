@@ -216,7 +216,7 @@ services:
 
   neodb-mcp:
     <<: *neodb-service
-    command: ${NEODB_VENV:-/neodb-venv}/bin/uvicorn boofilsic.asgi:app --host 0.0.0.0 --port 8000 --workers ${NEODB_MCP_WORKER_NUM:-2} --env-file misc/mcp.env
+    command: ${NEODB_VENV:-/neodb-venv}/bin/uvicorn boofilsic.asgi:app --host 0.0.0.0 --port 8000 --env-file misc/mcp.env
     healthcheck:
       test:
         [
