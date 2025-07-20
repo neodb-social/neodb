@@ -738,8 +738,10 @@ class Item(PolymorphicModel):
     def get_by_ids(cls, ids: list[int]):
         select = {f"id_{i}": f"id={i}" for i in ids}
         order = [f"-id_{i}" for i in ids]
-        items = cls.objects.filter(pk__in=ids, is_deleted=False).extra(
-            select=select, order_by=order
+        items = (
+            cls.objects.filter(pk__in=ids, is_deleted=False)
+            .prefetch_related("external_resources")
+            .extra(select=select, order_by=order)
         )
         return items
 

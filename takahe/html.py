@@ -122,7 +122,7 @@ class FediverseHtmlParser(HTMLParser):
             self.text_output += "\n\n"
         elif tag == "a":
             if self._pending_a:
-                href = self._pending_a["attrs"].get("href")
+                href = self._pending_a["attrs"].get("href", "#")
                 content = self._pending_a["content"].strip()
                 has_ellipsis = "ellipsis" in self._pending_a["attrs"].get("class", "")
                 # Is it a mention?
