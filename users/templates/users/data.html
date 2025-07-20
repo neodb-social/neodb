@@ -190,7 +190,8 @@
               </div>
               <hr>
               <!-- Source Filter -->
-              <div class="form-section" x-data="{ fetch_owned: true }">
+              <div class="form-section"
+                   x-data="{ fetch_owned: true, source: ['wishlist', 'library'] }">
                 <b>{% trans 'Sources' %}</b>
                 <label class="checkbox-group">
                   <input type="checkbox"

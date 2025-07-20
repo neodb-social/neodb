@@ -422,10 +422,7 @@ def import_steam(request):
                 ),
                 "playing_thresh": int(request.POST.get("playing_thresh", 2)),
                 "finish_thresh": int(request.POST.get("finish_thresh", 14)),
-                "last_play_to_ctime": bool(
-                    request.POST.get("mark_date_source", "steam_timestamp")
-                    == "steam_timestamp"
-                ),
+                "last_play_to_ctime": True,  # option disabled, always true
             }
         )
     if "wishlist" in source:
