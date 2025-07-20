@@ -108,7 +108,7 @@ def _search_catalog(request, query: str, category: str | None = None) -> list:
 
 
 @mcp.tool()
-async def add_item_note(
+async def add_note(
     context: Context,
     item_url: str,
     content: str,
@@ -139,13 +139,13 @@ async def add_item_note(
         return {"error": "User not authenticated"}
     if not content.strip():
         return {"error": "Note content cannot be empty"}
-    return await _add_item_note(
+    return await _add_note(
         user, item_url, content, title, progress_type, progress_value, visibility
     )
 
 
 @sync_to_async
-def _add_item_note(
+def _add_note(
     user,
     item_url: str,
     content: str,
@@ -208,7 +208,7 @@ def _add_item_note(
 
 
 @mcp.tool()
-async def mark_item_on_shelf(
+async def mark_item(
     context: Context,
     item_url: str,
     shelf_type: str,
@@ -238,13 +238,13 @@ async def mark_item_on_shelf(
     user = request.scope.get("user")
     if not user:
         return {"error": "User not authenticated"}
-    return await _mark_item_on_shelf(
+    return await _mark_item(
         user, item_url, shelf_type, comment, rating, tags, visibility
     )
 
 
 @sync_to_async
-def _mark_item_on_shelf(
+def _mark_item(
     user,
     item_url: str,
     shelf_type: str,
