@@ -185,8 +185,8 @@ class Migration(migrations.Migration):
                     models.CharField(blank=True, max_length=500, null=True),
                 ),
                 ("outbox_uri", models.CharField(blank=True, max_length=500, null=True)),
-                ("icon_uri", models.CharField(blank=True, max_length=500, null=True)),
-                ("image_uri", models.CharField(blank=True, max_length=500, null=True)),
+                ("icon_uri", models.CharField(blank=True, max_length=5000, null=True)),
+                ("image_uri", models.CharField(blank=True, max_length=5000, null=True)),
                 (
                     "followers_uri",
                     models.CharField(blank=True, max_length=500, null=True),
