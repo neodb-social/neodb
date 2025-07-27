@@ -131,10 +131,9 @@ def profile(request: AuthedHttpRequest, user_name):
     top_tags = target.tag_manager.get_tags(public_only=not me, pinned_only=True)[:10]
     if not top_tags.exists():
         top_tags = target.tag_manager.get_tags(public_only=not me)[:10]
-    if anonymous:
-        recent_posts = None
-    else:
-        recent_posts = Takahe.get_recent_posts(target.pk, request.user.identity.pk)[:10]
+    recent_posts = Takahe.get_recent_posts(
+        target.pk, None if anonymous else request.user.identity.pk
+    )[:10]
     default_layout.append({"id": "collection_created", "visibility": True})
     default_layout.append({"id": "collection_marked", "visibility": True})
     pinned_collections = (

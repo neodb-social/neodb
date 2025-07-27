@@ -74,6 +74,7 @@ def target_identity_required(func):
 
         try:
             target = APIdentity.get_by_handle(user_name)
+            restricted = target.restricted
         except APIdentity.DoesNotExist:
             raise Http404(_("User not found"))
         target_user = target.user
@@ -86,8 +87,18 @@ def target_identity_required(func):
             except APIdentity.DoesNotExist:
                 return HttpResponseRedirect("/account/register")
             if request.user != target_user:
+                if restricted and not viewer.is_following(target):
+                    raise PermissionDenied(_("Access denied"))
                 if target.is_blocking(viewer) or target.is_blocked_by(viewer):
                     raise PermissionDenied(_("Access denied"))
+        elif restricted:
+            # anonymous can't view restricted identity
+            raise PermissionDenied(_("Access denied"))
+        elif not target.local:
+            # anonymous can't view non local identity
+            raise PermissionDenied(_("Login required"))
+        elif not target.anonymous_viewable:
+            raise PermissionDenied(_("Login required"))
         else:
             viewer = None
         request.target_identity = target
@@ -105,16 +116,14 @@ def profile_identity_required(func):
         try:
             target = APIdentity.get_by_handle(user_name, match_linked=True)
             # this should trigger ObjectDoesNotExist if Takahe identity is not sync-ed
-            blocked = target.restricted
+            restricted = target.restricted
         except ObjectDoesNotExist:
             raise Http404(_("User not found"))
         target_user = target.user
         viewer = None
         if target_user and not target_user.is_active:
             raise Http404(_("User no longer exists"))
-        if blocked:
-            raise PermissionDenied(_("Access denied"))
-        elif request.user.is_authenticated:
+        if request.user.is_authenticated:
             try:
                 viewer = APIdentity.objects.get(user=request.user)
             except APIdentity.DoesNotExist:
@@ -124,6 +133,8 @@ def profile_identity_required(func):
                     raise PermissionDenied(_("Access denied"))
         else:
             viewer = None
+        if restricted and (not viewer or not viewer.is_following(target)):
+            raise PermissionDenied(_("Access denied"))
         request.target_identity = target
         request.identity = viewer
         return func(request, user_name, *args, **kwargs)

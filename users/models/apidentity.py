@@ -145,6 +145,7 @@ class APIdentity(models.Model):
 
     @property
     def restricted(self):
+        """a restricted identity can only be viewed and interacted with by themself their followers"""
         return self.takahe_identity.restriction == 2
 
     @property

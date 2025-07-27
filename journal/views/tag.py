@@ -16,7 +16,6 @@ from .common import render_list, target_identity_required
 PAGE_SIZE = 10
 
 
-@login_required
 @target_identity_required
 def user_tag_list(request, user_name):
     target: APIdentity = request.target_identity

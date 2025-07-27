@@ -59,7 +59,6 @@ def render_list_not_found(request):
     )
 
 
-@login_required
 @target_identity_required
 def render_list(
     request: AuthedHttpRequest,
@@ -72,7 +71,7 @@ def render_list(
     sort="time",
 ):
     target = request.target_identity
-    viewer = request.user.identity
+    viewer = request.identity  # type: ignore
     tag = None
     sort = request.GET.get("sort")
     year = request.GET.get("year")

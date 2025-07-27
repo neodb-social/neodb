@@ -18,21 +18,7 @@
           content="{{ identity.display_name }} - @{{ identity.handle }}">
     <meta property="og:type" content="profile">
     <meta property="og:url" content="{{ identity.url }}">
-    <meta property="og:image" content="{{ identity.avatar }}">
-    <meta property="og:site_name" content="{{ site_name }}">
-    <meta name="fediverse:creator" content="@{{ identity.full_handle }}">
-    {% if identity.local and identity.anonymous_viewable %}
-      <link rel="alternate"
-            type="application/rss+xml"
-            title="{{ site_name }} - @{{ identity.handle }} - Posts"
-            href="/@{{ identity.full_handle }}/rss/" />
-      <link rel="alternate"
-            type="application/rss+xml"
-            title="{{ site_name }} - @{{ identity.handle }} - Reviews"
-            href="{{ identity.url }}feed/reviews/">
-    {% else %}
-      <meta name="robots" content="noindex">
-    {% endif %}
+    {% include "profile_common.html" %}
     {% include "common_libs.html" %}
     <script src="{% static 'js/calendar_yearview_blocks.js' %}" defer></script>
     <link href="{% static 'css/calendar_yearview_blocks.css' %}"

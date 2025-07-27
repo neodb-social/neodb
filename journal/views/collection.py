@@ -416,8 +416,6 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
 @target_identity_required
 def user_collection_list(request: AuthedHttpRequest, user_name):
     target = request.target_identity
-    if not request.user.is_authenticated and not target.anonymous_viewable:
-        raise PermissionDenied(_("Login required"))
     collections = (
         Collection.objects.filter(owner=target)
         .filter(q_owned_piece_visible_to_user(request.user, target))
@@ -437,8 +435,6 @@ def user_collection_list(request: AuthedHttpRequest, user_name):
 @target_identity_required
 def user_liked_collection_list(request: AuthedHttpRequest, user_name):
     target = request.target_identity
-    if not request.user.is_authenticated and not target.anonymous_viewable:
-        raise PermissionDenied(_("Login required"))
     collections = Collection.objects.filter(
         interactions__identity=target,
         interactions__interaction_type="like",
