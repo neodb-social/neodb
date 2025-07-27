@@ -3,4 +3,4 @@
   <a title="{% trans "Update note" %}"
      hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}"><i class="fa-regular fa-pen-to-square"></i></a>
 </span>
-{{ collection_member.note|default:"&nbsp;" }}
+{{ collection_member.note|default:"&nbsp;"|linebreaksbr }}

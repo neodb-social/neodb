@@ -1,6 +1,6 @@
 {% load i18n %}
 <form hx-post="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}">
-  <input name="note" value="{{ collection_member.note|default:'' }}">
+  <textarea name="note" placeholder="{% trans 'note' %}">{{ collection_member.note|default:'' }}</textarea>
   <input type="submit" style="width:unset;" value="{% trans "Update" %}">
   <button style="width:unset"
           hx-get="{% url 'journal:collection_update_item_note' collection.uuid item.uuid %}?cancel=1"

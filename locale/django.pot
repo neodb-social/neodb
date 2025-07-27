@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-26 23:31-0400\n"
+"POT-Creation-Date: 2025-07-27 18:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,36 +18,36 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: boofilsic/settings.py:443 common/models/lang.py:221
+#: boofilsic/settings.py:444 common/models/lang.py:221
 msgid "English"
 msgstr ""
 
-#: boofilsic/settings.py:444 common/models/lang.py:68
+#: boofilsic/settings.py:445 common/models/lang.py:68
 msgid "Danish"
 msgstr ""
 
-#: boofilsic/settings.py:445 common/models/lang.py:69
+#: boofilsic/settings.py:446 common/models/lang.py:69
 msgid "German"
 msgstr ""
 
-#: boofilsic/settings.py:446 common/models/lang.py:78
+#: boofilsic/settings.py:447 common/models/lang.py:78
 msgid "French"
 msgstr ""
 
-#: boofilsic/settings.py:447 common/models/lang.py:103
+#: boofilsic/settings.py:448 common/models/lang.py:103
 msgid "Italian"
 msgstr ""
 
-#: boofilsic/settings.py:448 common/models/lang.py:157
+#: boofilsic/settings.py:449 common/models/lang.py:157
 #: common/models/lang.py:295
 msgid "Portuguese"
 msgstr ""
 
-#: boofilsic/settings.py:449
+#: boofilsic/settings.py:450
 msgid "Simplified Chinese"
 msgstr ""
 
-#: boofilsic/settings.py:450
+#: boofilsic/settings.py:451
 msgid "Traditional Chinese"
 msgstr ""
 
@@ -99,7 +99,7 @@ msgstr ""
 msgid "other title"
 msgstr ""
 
-#: catalog/book/models.py:179 catalog/book/models.py:467
+#: catalog/book/models.py:179 catalog/book/models.py:472
 msgid "author"
 msgstr ""
 
@@ -485,27 +485,27 @@ msgstr ""
 msgid "cover"
 msgstr ""
 
-#: catalog/common/models.py:893
+#: catalog/common/models.py:895
 msgid "source site"
 msgstr ""
 
-#: catalog/common/models.py:895
+#: catalog/common/models.py:897
 msgid "ID on source site"
 msgstr ""
 
-#: catalog/common/models.py:897
+#: catalog/common/models.py:899
 msgid "source url"
 msgstr ""
 
-#: catalog/common/models.py:913
+#: catalog/common/models.py:915
 msgid "IdType of the source site"
 msgstr ""
 
-#: catalog/common/models.py:919
+#: catalog/common/models.py:921
 msgid "Primary Id on the source site"
 msgstr ""
 
-#: catalog/common/models.py:922
+#: catalog/common/models.py:924
 msgid "url to the resource"
 msgstr ""
 
@@ -1012,7 +1012,7 @@ msgstr ""
 #: catalog/templates/_sidebar_edit.html:211
 #: catalog/templates/_sidebar_edit.html:215
 #: catalog/templates/catalog_delete.html:12
-#: journal/templates/collection.html:141 journal/templates/mark.html:157
+#: journal/templates/collection.html:146 journal/templates/mark.html:157
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34 journal/templates/review.html:102
 msgid "Delete"
@@ -1275,23 +1275,23 @@ msgstr ""
 msgid "Collections"
 msgstr ""
 
-#: catalog/templates/discover.html:104 journal/templates/profile.html:166
+#: catalog/templates/discover.html:104 journal/templates/profile.html:152
 msgid "edit layout"
 msgstr ""
 
-#: catalog/templates/discover.html:107 journal/templates/profile.html:169
+#: catalog/templates/discover.html:107 journal/templates/profile.html:155
 msgid "save"
 msgstr ""
 
-#: catalog/templates/discover.html:118 journal/templates/profile.html:180
+#: catalog/templates/discover.html:118 journal/templates/profile.html:166
 msgid "cancel"
 msgstr ""
 
-#: catalog/templates/discover.html:124 journal/templates/profile.html:186
+#: catalog/templates/discover.html:124 journal/templates/profile.html:172
 msgid "show"
 msgstr ""
 
-#: catalog/templates/discover.html:125 journal/templates/profile.html:187
+#: catalog/templates/discover.html:125 journal/templates/profile.html:173
 msgid "hide"
 msgstr ""
 
@@ -1317,7 +1317,7 @@ msgstr ""
 #: common/templates/_sidebar_anonymous.html:62 journal/templates/posts.html:8
 #: journal/templates/profile_items.html:34
 #: journal/templates/user_collection_list.html:52
-#: journal/templates/user_item_list_base.html:26
+#: journal/templates/user_item_list_base.html:27
 #: social/templates/events.html:45 users/templates/users/announcements.html:55
 #: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
@@ -1620,10 +1620,10 @@ msgstr ""
 #: journal/views/collection.py:272 journal/views/collection.py:307
 #: journal/views/collection.py:319 journal/views/collection.py:344
 #: journal/views/collection.py:347 journal/views/collection.py:384
-#: journal/views/common.py:144 journal/views/mark.py:209
+#: journal/views/common.py:143 journal/views/mark.py:209
 #: journal/views/post.py:52 journal/views/post.py:73 journal/views/post.py:94
 #: journal/views/post.py:166 journal/views/post.py:181
-#: journal/views/post.py:298 journal/views/profile.py:191
+#: journal/views/post.py:298 journal/views/profile.py:190
 #: journal/views/review.py:38 journal/views/review.py:49
 #: journal/views/review.py:74
 msgid "Insufficient permission"
@@ -1632,7 +1632,7 @@ msgstr ""
 #: catalog/views_edit.py:213 catalog/views_edit.py:216
 #: journal/views/collection.py:56 journal/views/collection.py:81
 #: journal/views/collection.py:324 journal/views/collection.py:413
-#: journal/views/common.py:91 journal/views/mark.py:149
+#: journal/views/common.py:90 journal/views/mark.py:149
 #: journal/views/post.py:105 journal/views/post.py:125
 #: journal/views/post.py:138 journal/views/review.py:121
 #: journal/views/review.py:124 users/views/actions.py:169
@@ -2603,17 +2603,17 @@ msgstr ""
 msgid "Tags"
 msgstr ""
 
-#: common/templates/_sidebar.html:198 journal/templates/user_tag_list.html:27
+#: common/templates/_sidebar.html:198 journal/templates/user_tag_list.html:28
 #: journal/templates/user_tagmember_list.html:10
 msgid "featured tag"
 msgstr ""
 
-#: common/templates/_sidebar.html:201 journal/templates/user_tag_list.html:30
+#: common/templates/_sidebar.html:201 journal/templates/user_tag_list.html:31
 #: journal/templates/user_tagmember_list.html:15
 msgid "personal tag"
 msgstr ""
 
-#: common/templates/_sidebar.html:208 journal/templates/user_tag_list.html:38
+#: common/templates/_sidebar.html:208 journal/templates/user_tag_list.html:39
 msgid "no tags so far."
 msgstr ""
 
@@ -2680,17 +2680,24 @@ msgstr ""
 msgid "unavailable"
 msgstr ""
 
-#: common/utils.py:78 common/utils.py:110 users/views/actions.py:35
+#: common/utils.py:79 common/utils.py:121 users/views/actions.py:35
 #: users/views/actions.py:121
 msgid "User not found"
 msgstr ""
 
-#: common/utils.py:82 common/utils.py:114 users/views/actions.py:124
+#: common/utils.py:83 common/utils.py:125 users/views/actions.py:124
 msgid "User no longer exists"
 msgstr ""
 
-#: common/utils.py:90 common/utils.py:116 common/utils.py:124
+#: common/utils.py:91 common/utils.py:93 common/utils.py:96 common/utils.py:133
+#: common/utils.py:137
 msgid "Access denied"
+msgstr ""
+
+#: common/utils.py:99 common/utils.py:101 journal/views/profile.py:225
+#: journal/views/profile.py:255 journal/views/profile.py:294
+#: journal/views/review.py:154
+msgid "Login required"
 msgstr ""
 
 #: journal/forms.py:18 journal/forms.py:41
@@ -2722,7 +2729,7 @@ msgstr ""
 msgid "creator and their mutuals"
 msgstr ""
 
-#: journal/forms.py:52 journal/templates/collection.html:144
+#: journal/forms.py:52 journal/templates/collection.html:149
 msgid "Collaborative editing"
 msgstr ""
 
@@ -3499,15 +3506,11 @@ msgstr ""
 msgid "Reply"
 msgstr ""
 
-#: journal/templates/collection.html:155
-msgid "Edit query of this dynamic collection"
+#: journal/templates/collection.html:142
+msgid "Edit query"
 msgstr ""
 
 #: journal/templates/collection.html:157
-msgid "Dynamic Collection"
-msgstr ""
-
-#: journal/templates/collection.html:161
 msgid "Created date"
 msgstr ""
 
@@ -3670,21 +3673,21 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: journal/templates/profile.html:59
+#: journal/templates/profile.html:45
 msgid "calendar"
 msgstr ""
 
-#: journal/templates/profile.html:62 journal/templates/wrapped.html:15
+#: journal/templates/profile.html:48 journal/templates/wrapped.html:15
 #: journal/templates/wrapped.html:54
 msgid "annual summary"
 msgstr ""
 
-#: journal/templates/profile.html:121 journal/views/collection.py:219
-#: journal/views/profile.py:239
+#: journal/templates/profile.html:107 journal/views/collection.py:219
+#: journal/views/profile.py:238
 msgid "collection"
 msgstr ""
 
-#: journal/templates/profile.html:138 journal/views/profile.py:279
+#: journal/templates/profile.html:124 journal/views/profile.py:278
 msgid "liked collection"
 msgstr ""
 
@@ -3729,7 +3732,7 @@ msgstr ""
 msgid "Liked Collections"
 msgstr ""
 
-#: journal/templates/user_tag_list.html:20
+#: journal/templates/user_tag_list.html:21
 msgid "All Tags"
 msgstr ""
 
@@ -3841,12 +3844,6 @@ msgstr ""
 msgid "Saved."
 msgstr ""
 
-#: journal/views/collection.py:420 journal/views/collection.py:441
-#: journal/views/profile.py:226 journal/views/profile.py:256
-#: journal/views/profile.py:295 journal/views/review.py:154
-msgid "Login required"
-msgstr ""
-
 #: journal/views/common.py:43 journal/views/mark.py:126
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
@@ -3904,15 +3901,15 @@ msgstr ""
 msgid "Invalid post"
 msgstr ""
 
-#: journal/views/profile.py:301
+#: journal/views/profile.py:300
 msgid "Invalid category"
 msgstr ""
 
-#: journal/views/profile.py:305
+#: journal/views/profile.py:304
 msgid "Invalid shelf type"
 msgstr ""
 
-#: journal/views/profile.py:335
+#: journal/views/profile.py:334
 msgid "Shelf not found"
 msgstr ""
 
@@ -3934,23 +3931,23 @@ msgstr ""
 msgid "may contain spoiler or triggering content"
 msgstr ""
 
-#: journal/views/tag.py:41 journal/views/tag.py:55
+#: journal/views/tag.py:40 journal/views/tag.py:54
 msgid "Invalid tag"
 msgstr ""
 
-#: journal/views/tag.py:44
+#: journal/views/tag.py:43
 msgid "Tag not found"
 msgstr ""
 
-#: journal/views/tag.py:59
+#: journal/views/tag.py:58
 msgid "Tag deleted."
 msgstr ""
 
-#: journal/views/tag.py:69
+#: journal/views/tag.py:68
 msgid "Duplicated tag."
 msgstr ""
 
-#: journal/views/tag.py:76
+#: journal/views/tag.py:75
 msgid "Tag updated."
 msgstr ""
 

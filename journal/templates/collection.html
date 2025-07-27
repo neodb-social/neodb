@@ -136,6 +136,11 @@
                 <span>
                   <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans 'Edit' %}</a>
                 </span>
+                {% if collection.is_dynamic %}
+                  <span>
+                    <a href="{% url 'common:search' %}?c=journal&amp;q={{ collection.query|urlencode }}">{% trans "Edit query" %}</a>
+                  </span>
+                {% endif %}
                 <span>
                   <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans 'Delete' %}</a>
                 </span>
@@ -147,15 +152,6 @@
           <span class="action inline">
             {% if collection.latest_post %}
               {% include "action_open_post.html" with post=collection.latest_post %}
-            {% endif %}
-            {% if collection.is_dynamic %}
-              <span>
-                {% if request.user.is_authenticated and collection.owner == request.user.identity %}
-                  <a href="{% url 'common:search' %}?c=journal&amp;q={{ collection.query|urlencode }}">{% trans "Edit query of this dynamic collection" %}</a>
-                {% else %}
-                  <a>{% trans "Dynamic Collection" %}</a>
-                {% endif %}
-              </span>
             {% endif %}
             <span><a>{% trans "Created date" %}: {{ collection.created_time|date }}</a></span>
           </span>

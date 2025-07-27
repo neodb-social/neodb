@@ -53,16 +53,16 @@
               </span>
             {% endif %}
             {% if collection_member.note %}
-              <span class="action inline">
-                <span class="timestamp">
-                  {% if not request.user.is_authenticated or collection_member.parent.owner != request.user.identity %}
+              {% if not request.user.is_authenticated or collection_member.parent.owner != request.user.identity %}
+                <span class="action inline">
+                  <span class="timestamp">
                     <a href="{{ collection_member.parent.owner.url }}"
                        title="@{{ collection_member.parent.owner.handle }}">{{ collection_member.parent.owner.display_name }}</a>:
-                  {% endif %}
+                  </span>
                 </span>
-              </span>
+              {% endif %}
             {% endif %}
-            {{ collection_member.note|default:'&nbsp;' }}
+            {{ collection_member.note|default:'&nbsp;'|linebreaksbr }}
           </div>
         </section>
       {% endif %}
