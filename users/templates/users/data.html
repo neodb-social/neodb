@@ -180,10 +180,9 @@
               <div class="form-section">
                 <b>{% trans 'Steam User ID' %}</b>
                 <small class="form-hint">
-                  {% trans 'Find as "Steam ID: ..." in ' %}
                   <a href="https://store.steampowered.com/account/"
                      target="_blank"
-                     rel="noopener noreferrer">{% trans 'Account Details' %}</a>
+                     rel="noopener noreferrer">{% trans 'Available in Steam Account Details' %}</a>
                 </small>
                 <input type="text" name="steam_id" placeholder="0123456789101112" required>
                 {% trans "To import from Steam, your account profile must be visible to public" %}
@@ -192,7 +191,7 @@
               <!-- Source Filter -->
               <div class="form-section"
                    x-data="{ fetch_owned: true, source: ['wishlist', 'library'] }">
-                <b>{% trans 'Sources' %}</b>
+                <b>{% trans 'Import Sources' %}</b>
                 <label class="checkbox-group">
                   <input type="checkbox"
                          name="source[]"
@@ -238,7 +237,7 @@
               <!-- Status Filter -->
               <div class="form-section">
                 <b>{% trans 'Status filter' %}</b>
-                <small>Import marks with these estimated status, details in tooltips</small>
+                <small>{% trans "import marks with these estimated status" %}</small>
                 <div class="checkbox-group grid">
                   <label>
                     <input type="checkbox"
@@ -260,7 +259,7 @@
                     <input type="checkbox"
                            name="shelf_filters[]"
                            value="wishlist"
-                           data-tooltip="{% trans 'In wishlist / purchased but never played' %}">
+                           data-tooltip="{% trans 'Games in wishlist; or purchased in library but never played, mark date will be set as today' %}">
                     {% trans 'To play' %}
                   </label>
                   <label>
@@ -268,14 +267,14 @@
                            name="shelf_filters[]"
                            value="dropped"
                            data-tooltip="{% trans 'Not launched in playing threshold & play time < finished threshold' %}">
-                    {% trans 'Dropped' %}
+                    {% trans 'No longer playing' %}
                   </label>
                 </div>
                 <b>{% trans 'Playing threshold' %}</b>
-                <small>In days, launched in recent X days to be consided playing</small>
+                <small>{% trans "in days, launched in recent X days to be consided playing" %}</small>
                 <input type="number" name="playing_thresh" value="12">
                 <b>{% trans 'Finished threshold' %}</b>
-                <small>In hours. Played for more than these hours to be consided finished</small>
+                <small>{% trans "in hours, played for more than these hours to be consided finished" %}</small>
                 <input type="number" name="finish_thresh" value="2">
               </div>
               <!-- Ignored Games -->
@@ -287,7 +286,7 @@
               <hr>
               <!-- Reverse Override -->
               <div class="form-section">
-                <b>{% trans 'Override' %}</b>
+                <b>{% trans 'Override mark status' %}</b>
                 <label class="checkbox-group">
                   <input type="checkbox" role="switch" name="allow_shelf_type_reversion">
                   {% trans 'Allow reverse override of status (e.g. playing -> want to, or played -> playing)' %}
