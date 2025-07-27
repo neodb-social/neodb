@@ -182,7 +182,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @property
     def uuid(self):
-        return b62_encode(self.uid.int)
+        return b62_encode(self.uid.int).zfill(22)
 
     @property
     def url(self):
