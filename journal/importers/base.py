@@ -150,10 +150,10 @@ class BaseImporter(Task):
         return None
 
     def parse_tags(self, tags_str: str) -> List[str]:
-        """Parse space-separated tags string into a list of tags."""
+        """Parse pipe-separated tags string into a list of tags."""
         if not tags_str:
             return []
-        return [tag.strip() for tag in tags_str.split() if tag.strip()]
+        return [tag.strip() for tag in tags_str.split("|") if tag.strip()]
 
     def parse_info(self, info_str: str) -> Dict[str, str]:
         """Parse info string into a dictionary."""

@@ -118,7 +118,7 @@ class CsvExporter(Task):
                         mark.shelf_type,
                         mark.rating_grade,
                         mark.comment_text,
-                        " ".join(mark.tags),
+                        "|".join(mark.tags),
                     ]
                     writer.writerow(line)
             reviews = (

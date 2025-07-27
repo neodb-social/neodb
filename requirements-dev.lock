@@ -273,7 +273,7 @@ soupsieve==2.7
     # via beautifulsoup4
 sqlparse==0.5.3
     # via django
-sse-starlette==3.0.0
+sse-starlette==3.0.2
     # via mcp
 starlette==0.47.2
     # via mcp

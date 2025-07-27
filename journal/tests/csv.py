@@ -84,20 +84,24 @@ class CsvExportImportTest(TestCase):
             ShelfType.COMPLETE,
             "Great sci-fi classic",
             10,
-            ["sci-fi", "favorite", "space"],
+            ["science fiction", "favorite book", "space opera"],
             1,
             created_time=self.dt,
         )
 
         mark_book2 = Mark(self.user1.identity, self.book2)
         mark_book2.update(
-            ShelfType.PROGRESS, "Reading it now", None, ["sci-fi", "desert"], 1
+            ShelfType.PROGRESS,
+            "Reading it now",
+            None,
+            ["science fiction", "desert planet"],
+            1,
         )
 
         # Movie marks with ratings
         mark_movie1 = Mark(self.user1.identity, self.movie1)
         mark_movie1.update(
-            ShelfType.COMPLETE, "Mind-bending", 8, ["mindbender", "scifi"], 1
+            ShelfType.COMPLETE, "Mind-bending", 8, ["mind bender", "science fiction"], 1
         )
 
         mark_movie2 = Mark(self.user1.identity, self.movie2)
@@ -105,7 +109,9 @@ class CsvExportImportTest(TestCase):
 
         # TV show mark
         mark_tvshow = Mark(self.user1.identity, self.tvshow)
-        mark_tvshow.update(ShelfType.WISHLIST, "Heard it's good", None, ["drama"], 1)
+        mark_tvshow.update(
+            ShelfType.WISHLIST, "Heard it's good", None, ["crime drama"], 1
+        )
 
         # TV episode marks
         mark_episode1 = Mark(self.user1.identity, self.tvepisode1)
@@ -233,20 +239,25 @@ class CsvExportImportTest(TestCase):
         self.assertEqual(mark_book1_imported.visibility, 2)
         self.assertEqual(mark_book1_imported.created_time, self.dt)
         self.assertEqual(
-            set(mark_book1_imported.tags), set(["sci-fi", "favorite", "space"])
+            set(mark_book1_imported.tags),
+            set(["science fiction", "favorite book", "space opera"]),
         )
 
         mark_book2_imported = Mark(self.user2.identity, self.book2)
         self.assertEqual(mark_book2_imported.shelf_type, ShelfType.PROGRESS)
         self.assertEqual(mark_book2_imported.comment_text, "Reading it now")
         self.assertIsNone(mark_book2_imported.rating_grade)
-        self.assertEqual(set(mark_book2_imported.tags), set(["sci-fi", "desert"]))
+        self.assertEqual(
+            set(mark_book2_imported.tags), set(["science fiction", "desert planet"])
+        )
 
         mark_movie1_imported = Mark(self.user2.identity, self.movie1)
         self.assertEqual(mark_movie1_imported.shelf_type, ShelfType.COMPLETE)
         self.assertEqual(mark_movie1_imported.comment_text, "Mind-bending")
         self.assertEqual(mark_movie1_imported.rating_grade, 8)
-        self.assertEqual(set(mark_movie1_imported.tags), set(["mindbender", "scifi"]))
+        self.assertEqual(
+            set(mark_movie1_imported.tags), set(["mind bender", "science fiction"])
+        )
 
         mark_episode1_imported = Mark(self.user2.identity, self.tvepisode1)
         self.assertEqual(mark_episode1_imported.shelf_type, ShelfType.COMPLETE)
