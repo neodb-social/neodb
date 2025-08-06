@@ -273,10 +273,20 @@ class SteamImporter(BaseImporter):
             file = res.json()
 
         results = []
-        for entry in file["response"]["games"]:  # type: ignore
-            rtime_last_played = datetime.fromtimestamp(entry["rtime_last_played"])
-            playtime_forever = entry["playtime_forever"]
-            app_id = str(entry["appid"])
+        # Handle case where Steam API returns empty response or missing games
+        response = (file or {}).get("response", {})
+        games = response.get("games", [])
+
+        if not games:
+            logger.debug("No games found in Steam library response")
+            return results
+
+        for entry in games:
+            rtime_last_played = datetime.fromtimestamp(
+                entry.get("rtime_last_played", 0)
+            )
+            playtime_forever = entry.get("playtime_forever", 0)
+            app_id = str(entry.get("appid", ""))
             shelf_type = self.estimate_shelf_type(
                 playtime_forever,
                 rtime_last_played,
@@ -313,7 +323,15 @@ class SteamImporter(BaseImporter):
             file = res.json()
 
         results: List[RawGameMark] = []
-        for entry in file["response"]["items"]:  # type: ignore
+        # Handle case where Steam API returns empty response or missing items
+        response = (file or {}).get("response", {})
+        items = response.get("items", [])
+
+        if not items:
+            logger.debug("No items found in Steam wishlist response")
+            return results
+
+        for entry in items:
             created_time = datetime.fromtimestamp(entry["date_added"])
             results.append(
                 RawGameMark(
