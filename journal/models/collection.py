@@ -11,6 +11,7 @@ from catalog.collection.models import Collection as CatalogCollection
 from catalog.common import jsondata
 from catalog.common.utils import piece_cover_path
 from catalog.models import Item
+from common.utils import get_file_absolute_url
 from journal.models.index import JournalIndex, JournalQueryParser
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -81,6 +82,10 @@ class Collection(List):
 
     def __str__(self):
         return f"Collection:{self.uuid}@{self.owner_id}:{self.title}"
+
+    @property
+    def cover_image_url(self) -> str | None:
+        return get_file_absolute_url(self.cover)
 
     @property
     def is_dynamic(self):

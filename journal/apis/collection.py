@@ -22,7 +22,8 @@ class CollectionSchema(Schema):
     created_time: datetime
     title: str
     brief: str
-    cover: str
+    cover_image_url: str | None
+    cover: str = Field(deprecated=True)
     html_content: str
     is_dynamic: bool
 

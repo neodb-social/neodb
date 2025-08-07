@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
 from django.core.signing import b62_decode
+from django.db.models import FileField
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -48,6 +49,15 @@ class HTTPResponseHXRedirect(HttpResponseRedirect):
         self["HX-Redirect"] = self["Location"]
 
     status_code = 200
+
+
+def get_file_absolute_url(cover: FileField) -> str | None:
+    if not bool(cover) or cover == settings.DEFAULT_ITEM_COVER:
+        return None
+    url = cover.url  # type:ignore
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
+    return f"{settings.SITE_INFO['site_url']}{url}"
 
 
 def user_identity_required(func):  # TODO make this a middleware
