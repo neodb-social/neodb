@@ -1,7 +1,6 @@
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
-from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from ninja import Schema
@@ -443,12 +442,8 @@ class PerformanceProduction(Item):
 
     @property
     def cover_image_url(self) -> str | None:
-        return (
-            self.cover.url  # type:ignore
-            if self.cover and self.cover != settings.DEFAULT_ITEM_COVER
-            else self.show.cover_image_url
-            if self.show
-            else None
+        return super().cover_image_url or (
+            self.show.cover_image_url if self.show else None
         )
 
     def update_linked_items_from_external_resource(self, resource: ExternalResource):

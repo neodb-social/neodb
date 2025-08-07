@@ -22,6 +22,7 @@ from catalog.common import jsondata
 from catalog.index import CatalogIndex
 from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, get_current_locales, uniq
 from common.models.lang import SCRIPT_CHOICES
+from common.utils import get_file_absolute_url
 
 from .utils import item_cover_path, resource_cover_path
 
@@ -786,11 +787,7 @@ class Item(PolymorphicModel):
 
     @property
     def cover_image_url(self) -> str | None:
-        return (
-            f"{settings.SITE_INFO['site_url']}{self.cover.url}"  # type:ignore
-            if self.has_cover()
-            else None
-        )
+        return get_file_absolute_url(self.cover)  # type: ignore
 
     @property
     def default_cover_image_url(self) -> str:
