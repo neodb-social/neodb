@@ -3,19 +3,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django_redis.client import DefaultClient
 
-from catalog.book.tests import *
 from catalog.common.models import ItemCategory
-from catalog.game.tests import *
 from catalog.index import (
     CatalogIndex,
     CatalogQueryParser,
     _cat_to_class,
 )
-from catalog.movie.tests import *
-from catalog.music.tests import *
-from catalog.performance.tests import *
-from catalog.podcast.tests import *
-from catalog.tv.tests import *
+from catalog.models import Edition, Item, Movie
 
 
 @pytest.mark.django_db(databases="__all__")

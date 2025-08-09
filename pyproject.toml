@@ -82,7 +82,6 @@ exclude = [
     ".venv",
     ".git",
     "playground",
-    "catalog/*/tests.py",
     "tests",
     "neodb-takahe",
 ]

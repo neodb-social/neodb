@@ -6,7 +6,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  django:
+  pytest:
     runs-on: ubuntu-latest
     services:
       redis:
