@@ -59,6 +59,7 @@ dependencies = [
     "deepl>=1.22.0",
     "nh3>=0.2.21",
     "django-mcp>=0.1.0",
+    "pytest-django>=4.11.1",
 ]
 
 [tool.rye]
@@ -82,6 +83,7 @@ exclude = [
     ".git",
     "playground",
     "catalog/*/tests.py",
+    "tests",
     "neodb-takahe",
 ]
 reportIncompatibleVariableOverride = false
@@ -121,3 +123,8 @@ lint.extend-select = ["I"]
 
 [tool.setuptools]
 py-modules = []
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "boofilsic.settings"
+python_files = ["tests/*.py"]
+testpaths = ["tests" ]

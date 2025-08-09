@@ -1,0 +1,170 @@
+import pytest
+
+from catalog.common import *
+from catalog.models import *
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestIGDB:
+    def test_parse(self):
+        t_id_type = IdType.IGDB
+        t_id_value = "portal-2"
+        t_url = "https://www.igdb.com/games/portal-2"
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
+        assert site is not None
+        assert site.validate_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
+        assert site.url == t_url
+        assert site.id_value == t_id_value
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://www.igdb.com/games/portal-2"
+        site = SiteManager.get_site_by_url(t_url)
+        assert not site.ready
+        site.get_resource_ready()
+        assert site.ready
+        assert site.resource.metadata["title"] == "Portal 2"
+        assert isinstance(site.resource.item, Game)
+        assert site.resource.item.steam == "620"
+        assert site.resource.item.genre == [
+            "Shooter",
+            "Platform",
+            "Puzzle",
+            "Adventure",
+        ]
+
+    @use_local_response
+    def test_scrape_non_steam(self):
+        t_url = "https://www.igdb.com/games/the-legend-of-zelda-breath-of-the-wild"
+        site = SiteManager.get_site_by_url(t_url)
+        assert not site.ready
+        site.get_resource_ready()
+        assert site.ready
+        assert (
+            site.resource.metadata["title"] == "The Legend of Zelda: Breath of the Wild"
+        )
+        assert isinstance(site.resource.item, Game)
+        assert site.resource.item.primary_lookup_id_type == IdType.IGDB
+        assert site.resource.item.genre == ["Puzzle", "Role-playing (RPG)", "Adventure"]
+        assert (
+            site.resource.item.primary_lookup_id_value
+            == "the-legend-of-zelda-breath-of-the-wild"
+        )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSteam:
+    def test_parse(self):
+        t_id_type = IdType.Steam
+        t_id_value = "620"
+        t_url = "https://store.steampowered.com/app/620/Portal_2/"
+        t_url2 = "https://store.steampowered.com/app/620"
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
+        assert site is not None
+        assert site.validate_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
+        assert site.url == t_url2
+        assert site.id_value == t_id_value
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://store.steampowered.com/app/620/Portal_2/"
+        site = SiteManager.get_site_by_url(t_url)
+        assert not site.ready
+        site.get_resource_ready()
+        assert site.ready
+        assert site.resource.metadata["title"] == "Portal 2"
+        assert site.resource.metadata["brief"][:6] == "Sequel"
+        assert isinstance(site.resource.item, Game)
+        assert site.resource.item.steam == "620"
+        assert site.resource.item.genre == [
+            "Shooter",
+            "Platform",
+            "Puzzle",
+            "Adventure",
+        ]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestDoubanGame:
+    def test_parse(self):
+        t_id_type = IdType.DoubanGame
+        t_id_value = "10734307"
+        t_url = "https://www.douban.com/game/10734307/"
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
+        assert site is not None
+        assert site.validate_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
+        assert site.url == t_url
+        assert site.id_value == t_id_value
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://www.douban.com/game/10734307/"
+        site = SiteManager.get_site_by_url(t_url)
+        assert not site.ready
+        site.get_resource_ready()
+        assert site.ready
+        assert isinstance(site.resource.item, Game)
+        titles = sorted([t["text"] for t in site.resource.item.localized_title])
+        assert titles == ["Portal 2", "传送门2"]
+        assert site.resource.item.douban_game == "10734307"
+        assert site.resource.item.genre == ["第一人称射击", "益智"]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestBangumiGame:
+    @use_local_response
+    def test_parse(self):
+        t_id_type = IdType.Bangumi
+        t_id_value = "15912"
+        t_url = "https://bgm.tv/subject/15912"
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
+        assert site is not None
+        assert site.validate_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
+        assert site.url == t_url
+        assert site.id_value == t_id_value
+        i = site.get_resource_ready().item
+        assert i.genre == ["PUZ"]
+        i = (
+            SiteManager.get_site_by_url("https://bgm.tv/subject/228086")
+            .get_resource_ready()
+            .item
+        )
+        assert i.genre == ["ADV", "Psychological Horror"]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestBoardGameGeek:
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://boardgamegeek.com/boardgame/167791"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.ID_TYPE == IdType.BGG
+        assert site.id_value == "167791"
+        assert not site.ready
+        site.get_resource_ready()
+        assert site.ready
+        assert isinstance(site.resource.item, Game)
+
+        # TODO this fails occasionally bc languagedetect flips coin
+        # assert site.resource.item.display_title == "Terraforming Mars"
+
+        assert len(site.resource.item.localized_title) == 16
+        assert site.resource.item.platform == ["Boardgame"]
+        assert site.resource.item.genre[0] == "Economic"
+        assert site.resource.item.designer == ["Jacob Fryxelius"]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMultiGameSites:
+    @use_local_response
+    def test_games(self):
+        url1 = "https://www.igdb.com/games/portal-2"
+        url2 = "https://store.steampowered.com/app/620/Portal_2/"
+        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        assert p1.item.id == p2.item.id

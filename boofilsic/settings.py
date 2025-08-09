@@ -18,7 +18,9 @@ try:
 except Exception:
     NEODB_VERSION = __version__ + "-unknown"
 
-TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
+TESTING = sys.argv[0].endswith("pytest") or (
+    len(sys.argv) > 1 and sys.argv[1] == "test"
+)
 
 # Parse configuration from:
 # - environment variables
@@ -630,7 +632,10 @@ RQ_SHOW_ADMIN_LINK = DEBUG
 
 SEARCH_INDEX_NEW_ONLY = False
 
-INDEX_ALIASES = env("INDEX_ALIASES")
+INDEX_ALIASES: dict = env("INDEX_ALIASES")  # type:ignore
+if TESTING:
+    for k, v in INDEX_ALIASES.items():
+        INDEX_ALIASES[k] = v + "_test"
 
 DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="")  # type: ignore
 

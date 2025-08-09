@@ -127,6 +127,8 @@ idna==3.10
     # via requests
     # via yarl
 igdb-api-v4==0.3.3
+iniconfig==2.1.0
+    # via pytest
 jmespath==1.0.1
     # via boto3
     # via botocore
@@ -154,10 +156,13 @@ nh3==0.3.0
 openpyxl==3.1.5
 packaging==25.0
     # via gunicorn
+    # via pytest
 pillow==11.3.0
     # via blurhash-python
     # via django-markdownx
     # via easy-thumbnails
+pluggy==1.6.0
+    # via pytest
 podcastparser==0.6.10
 propcache==0.3.2
     # via aiohttp
@@ -177,7 +182,11 @@ pydantic-core==2.33.2
 pydantic-settings==2.10.1
     # via mcp
 pygments==2.19.2
+    # via pytest
     # via rich
+pytest==8.4.1
+    # via pytest-django
+pytest-django==4.11.1
 python-dateutil==2.9.0.post0
     # via botocore
     # via dateparser

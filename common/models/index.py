@@ -329,6 +329,9 @@ class Index:
             return 0
         return (r or {}).get("num_deleted", 0)
 
+    def delete_all(self):
+        raise NotImplementedError("Index.delete_all() must be implemented in subclass")
+
     def patch_docs(self, partial_doc: dict, doc_filter: str):
         try:
             self.write_collection.documents.update(
