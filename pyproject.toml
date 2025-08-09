@@ -3,7 +3,7 @@ name = "neodb"
 version = "0.11"
 description = "🧩 self-hosted server tracking what you read/watch/listen/play, powering a global distributed community federating via ActivityPub."
 readme = "README.md"
-requires-python = ">= 3.12"
+requires-python = ">= 3.13"
 dependencies = [
     "blurhash-python>=1.2.2",
     "cachetools>=5.5.0",

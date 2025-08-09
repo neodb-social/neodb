@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.12-slim AS build
+FROM python:3.13-slim AS build
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
@@ -24,7 +24,7 @@ RUN python -m venv /takahe-venv
 RUN --mount=type=cache,sharing=locked,target=/root/.cache /takahe-venv/bin/python3 -m pip install --upgrade -r requirements.lock
 
 # runtime stage
-FROM python:3.12-slim AS runtime
+FROM python:3.13-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 

@@ -28,6 +28,8 @@ asgiref==3.9.1
 atproto==0.0.61
 attrs==25.3.0
     # via aiohttp
+audioop-lts==0.2.2
+    # via discord-py
 beautifulsoup4==4.13.4
     # via markdownify
 bleach==5.0.1
@@ -296,8 +298,6 @@ types-pyyaml==6.0.12.20250809
     # via django-stubs
 typesense==1.1.1
 typing-extensions==4.14.1
-    # via aiosignal
-    # via anyio
     # via atproto
     # via beautifulsoup4
     # via django-stubs
@@ -305,7 +305,6 @@ typing-extensions==4.14.1
     # via pydantic
     # via pydantic-core
     # via pyright
-    # via starlette
     # via typer
     # via typing-inspection
 typing-inspection==0.4.1
