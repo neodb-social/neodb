@@ -634,8 +634,7 @@ SEARCH_INDEX_NEW_ONLY = False
 
 INDEX_ALIASES: dict = env("INDEX_ALIASES")  # type:ignore
 if TESTING:
-    for k, v in INDEX_ALIASES.items():
-        INDEX_ALIASES[k] = v + "_test"
+    INDEX_ALIASES = {k: v + "_test" for k, v in INDEX_ALIASES.items()}
 
 DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="")  # type: ignore
 
