@@ -33,10 +33,10 @@ beautifulsoup4==4.13.4
 bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
-boto3==1.40.4
+boto3==1.40.6
     # via django-anymail
     # via django-storages
-botocore==1.40.4
+botocore==1.40.6
     # via boto3
     # via s3transfer
 cachetools==6.1.0
@@ -50,7 +50,7 @@ cffi==1.17.1
     # via cryptography
 cfgv==3.4.0
     # via pre-commit
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via requests
 click==8.2.1
     # via atproto
@@ -243,7 +243,7 @@ pyyaml==6.0.2
     # via pre-commit
 rcssmin==1.1.2
     # via django-compressor
-redis==6.3.0
+redis==6.4.0
     # via django-redis
     # via django-rq
     # via rq
@@ -261,7 +261,7 @@ rjsmin==1.2.2
     # via django-compressor
 rq==2.4.1
     # via django-rq
-ruff==0.12.7
+ruff==0.12.8
 s3transfer==0.13.1
     # via boto3
 sentry-sdk==2.34.1
@@ -292,7 +292,7 @@ tqdm==4.67.1
     # via djlint
 typer==0.16.0
     # via mcp
-types-pyyaml==6.0.12.20250516
+types-pyyaml==6.0.12.20250809
     # via django-stubs
 typesense==1.1.1
 typing-extensions==4.14.1

@@ -33,10 +33,10 @@ beautifulsoup4==4.13.4
 bleach==5.0.1
     # via django-bleach
 blurhash-python==1.2.2
-boto3==1.40.4
+boto3==1.40.6
     # via django-anymail
     # via django-storages
-botocore==1.40.4
+botocore==1.40.6
     # via boto3
     # via s3transfer
 cachetools==6.1.0
@@ -48,7 +48,7 @@ certifi==2025.1.31
 cffi==1.17.1
     # via blurhash-python
     # via cryptography
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via requests
 click==8.2.1
     # via atproto
@@ -127,8 +127,6 @@ idna==3.10
     # via requests
     # via yarl
 igdb-api-v4==0.3.3
-iniconfig==2.1.0
-    # via pytest
 jmespath==1.0.1
     # via boto3
     # via botocore
@@ -156,13 +154,10 @@ nh3==0.3.0
 openpyxl==3.1.5
 packaging==25.0
     # via gunicorn
-    # via pytest
 pillow==11.3.0
     # via blurhash-python
     # via django-markdownx
     # via easy-thumbnails
-pluggy==1.6.0
-    # via pytest
 podcastparser==0.6.10
 propcache==0.3.2
     # via aiohttp
@@ -182,11 +177,7 @@ pydantic-core==2.33.2
 pydantic-settings==2.10.1
     # via mcp
 pygments==2.19.2
-    # via pytest
     # via rich
-pytest==8.4.1
-    # via pytest-django
-pytest-django==4.11.1
 python-dateutil==2.9.0.post0
     # via botocore
     # via dateparser
@@ -203,7 +194,7 @@ pytz==2025.2
     # via django-tz-detect
 rcssmin==1.1.2
     # via django-compressor
-redis==6.3.0
+redis==6.4.0
     # via django-redis
     # via django-rq
     # via rq

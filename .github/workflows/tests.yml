@@ -30,7 +30,7 @@ jobs:
         ports:
           - 15432:5432
       typesense:
-        image: typesense/typesense:28.0
+        image: typesense/typesense:29.0
         env:
           TYPESENSE_API_KEY: testpass
           TYPESENSE_DATA_DIR: /data
@@ -51,7 +51,7 @@ jobs:
         cache: pip
     - name: Install Dependencies
       run: |
-        pip install -r requirements.lock
+        pip install -r requirements-dev.lock
         sudo apt install -y gettext
     - name: Run Tests
       env:
@@ -65,4 +65,4 @@ jobs:
         SPOTIFY_API_KEY: TEST
       run: |
         python manage.py compilemessages -i .venv -l zh_Hans
-        python manage.py test
+        pytest
