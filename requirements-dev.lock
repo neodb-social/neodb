@@ -73,7 +73,7 @@ deepmerge==2.0
 discord-py==2.5.2
 distlib==0.4.0
     # via virtualenv
-django==4.2.23
+django==5.2.5
     # via django-anymail
     # via django-appconf
     # via django-auditlog
@@ -106,7 +106,7 @@ django-maintenance-mode==0.22.0
 django-markdownx==4.0.9
 django-mcp==0.3.1
 django-ninja==1.4.3
-django-polymorphic==4.0.0
+django-polymorphic==4.1.0
 django-redis==5.4.0
 django-rq==3.1
 django-sass-processor==1.4.2
@@ -143,7 +143,7 @@ httpx==0.28.1
     # via mcp
 httpx-sse==0.4.1
     # via mcp
-identify==2.6.12
+identify==2.6.13
     # via pre-commit
 idna==3.10
     # via anyio
@@ -173,7 +173,7 @@ markdown==3.8.2
     # via django-markdownx
 markdown-it-py==3.0.0
     # via rich
-markdownify==1.1.0
+markdownify==1.2.0
 mcp==1.9.4
     # via django-mcp
 mdurl==0.1.2
@@ -201,7 +201,7 @@ platformdirs==4.3.8
 pluggy==1.6.0
     # via pytest
 podcastparser==0.6.10
-pre-commit==4.2.0
+pre-commit==4.3.0
 propcache==0.3.2
     # via aiohttp
     # via yarl
