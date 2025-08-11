@@ -66,5 +66,5 @@ jobs:
         NEODB_SECRET_KEY: test
         SPOTIFY_API_KEY: TEST
       run: |
-        python manage.py compilemessages -i .venv -l zh_Hans
-        pytest
+        uv run manage.py compilemessages -i .venv -l zh_Hans
+        uv run pytest

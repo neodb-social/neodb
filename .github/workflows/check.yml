@@ -41,4 +41,4 @@ jobs:
           uv sync
       - name: Run pyright
         run: |
-          python -m pyright
+          uv run pyright
