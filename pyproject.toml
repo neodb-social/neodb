@@ -82,7 +82,6 @@ exclude = [
     ".venv",
     ".git",
     "playground",
-    "tests",
     "neodb-takahe",
 ]
 reportIncompatibleVariableOverride = false
@@ -101,7 +100,6 @@ exclude = [
     '^legacy/',
     '^media/',
     '^playground/',
-    '^catalog/*/tests.py',
     '.*migrations.*',
 ]
 plugins = ["mypy_django_plugin.main"]

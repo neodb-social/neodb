@@ -60,69 +60,103 @@ class TestPodcastRSSFeed:
     def test_scrape_anchor(self):
         t_url = "https://anchor.fm/s/64d6bbe0/podcast/rss"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         site.get_resource_ready()
         assert site.ready
         # metadata = site.resource.metadata
-        assert site.get_item().cover.url is not None
-        assert site.get_item().recent_episodes[0].title is not None
-        assert site.get_item().recent_episodes[0].link is not None
-        assert site.get_item().recent_episodes[0].media_url is not None
+        item = site.get_item()
+        assert item is not None
+        assert isinstance(item, Podcast)
+        assert item.cover is not None
+        assert item.cover.url is not None  # type: ignore
+        assert item.recent_episodes is not None
+        assert len(item.recent_episodes) > 0
+        assert item.recent_episodes[0].title is not None
+        assert item.recent_episodes[0].link is not None
+        assert item.recent_episodes[0].media_url is not None
 
     @use_local_response
     def test_scrape_digforfire(self):
         t_url = "https://www.digforfire.net/digforfire_radio_feed.xml"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         site.get_resource_ready()
         assert site.ready
         # metadata = site.resource.metadata
-        assert site.get_item().recent_episodes[0].title is not None
-        assert site.get_item().recent_episodes[0].link is not None
-        assert site.get_item().recent_episodes[0].media_url is not None
+        item = site.get_item()
+        assert item is not None
+        assert isinstance(item, Podcast)
+        assert item.recent_episodes is not None
+        assert len(item.recent_episodes) > 0
+        assert item.recent_episodes[0].title is not None
+        assert item.recent_episodes[0].link is not None
+        assert item.recent_episodes[0].media_url is not None
 
     @use_local_response
     def test_scrape_bbc(self):
         t_url = "https://podcasts.files.bbci.co.uk/b006qykl.rss"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         metadata = site.resource.metadata
         assert metadata["title"] == "In Our Time"
         assert metadata["official_site"] == "http://www.bbc.co.uk/programmes/b006qykl"
         assert metadata["genre"] == ["History"]
         assert metadata["host"] == ["BBC Radio 4"]
-        assert site.get_item().recent_episodes[0].title is not None
-        assert site.get_item().recent_episodes[0].link is not None
-        assert site.get_item().recent_episodes[0].media_url is not None
+        item = site.get_item()
+        assert item is not None
+        assert isinstance(item, Podcast)
+        assert item.recent_episodes is not None
+        assert len(item.recent_episodes) > 0
+        assert item.recent_episodes[0].title is not None
+        assert item.recent_episodes[0].link is not None
+        assert item.recent_episodes[0].media_url is not None
 
     @use_local_response
     def test_scrape_rsshub(self):
         t_url = "https://rsshub.app/ximalaya/album/51101122/0/shownote"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         metadata = site.resource.metadata
         assert metadata["title"] == "梁文道 · 八分"
         assert metadata["official_site"] == "https://www.ximalaya.com/qita/51101122/"
         assert metadata["genre"] == ["人文国学"]
         assert metadata["host"] == ["看理想vistopia"]
-        assert site.get_item().recent_episodes[0].title is not None
-        assert site.get_item().recent_episodes[0].link is not None
-        assert site.get_item().recent_episodes[0].media_url is not None
+        item = site.get_item()
+        assert item is not None
+        assert isinstance(item, Podcast)
+        assert item.recent_episodes is not None
+        assert len(item.recent_episodes) > 0
+        assert item.recent_episodes[0].title is not None
+        assert item.recent_episodes[0].link is not None
+        assert item.recent_episodes[0].media_url is not None
 
     @use_local_response
     def test_scrape_typlog(self):
         t_url = "https://tiaodao.typlog.io/feed.xml"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         metadata = site.resource.metadata
         assert metadata["title"] == "跳岛FM"
         assert metadata["official_site"] == "https://tiaodao.typlog.io/"
         assert metadata["genre"] == ["Arts", "Books"]
         assert metadata["host"] == ["中信出版·大方"]
-        assert site.get_item().recent_episodes[0].title is not None
-        assert site.get_item().recent_episodes[0].link is not None
-        assert site.get_item().recent_episodes[0].media_url is not None
+        item = site.get_item()
+        assert item is not None
+        assert isinstance(item, Podcast)
+        assert item.recent_episodes is not None
+        assert len(item.recent_episodes) > 0
+        assert item.recent_episodes[0].title is not None
+        assert item.recent_episodes[0].link is not None
+        assert item.recent_episodes[0].media_url is not None
 
     # @use_local_response
     # def test_scrape_lizhi(self):

@@ -14,6 +14,7 @@ class TestBooksTW:
         p1 = SiteManager.get_site_by_url(t_url)
         p2 = SiteManager.get_site_by_url(t_url2)
         assert p1 is not None
+        assert p2 is not None
         assert p1.url == t_url2
         assert p1.ID_TYPE == t_type
         assert p1.id_value == t_id
@@ -27,6 +28,7 @@ class TestBooksTW:
         assert site.ready is False
         site.get_resource_ready()
         assert site.ready is True
+        assert site.resource is not None
         assert (
             site.resource.metadata.get("title")
             == "阿拉伯人三千年：從民族、部落、語言、文化、宗教到帝國，綜覽阿拉伯世界的崛起、衰落與再興"
@@ -47,6 +49,7 @@ class TestBooksTW:
         assert site.resource.metadata.get("price") == "1050 NTD"
         assert site.resource.id_type == IdType.BooksTW
         assert site.resource.id_value == "0010947886"
+        assert site.resource.item is not None
         assert site.resource.item.isbn == "9786263152236"
         assert site.resource.item.format == "paperback"
         assert (
@@ -65,6 +68,8 @@ class TestDoubanBook:
         t_url2 = "https://book.douban.com/subject/35902899/"
         p1 = SiteManager.get_site_by_url(t_url)
         p2 = SiteManager.get_site_by_url(t_url2)
+        assert p1 is not None
+        assert p2 is not None
         assert p1.url == t_url2
         assert p1.ID_TYPE == t_type
         assert p1.id_value == t_id
@@ -74,14 +79,17 @@ class TestDoubanBook:
     def test_scrape(self):
         t_url = "https://book.douban.com/subject/35902899/"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.ready is False
         site.get_resource_ready()
         assert site.ready is True
+        assert site.resource is not None
         assert site.resource.site_name == SiteName.Douban
         assert site.resource.metadata.get("title") == "1984 Nineteen Eighty-Four"
         assert site.resource.metadata.get("isbn") == "9781847498571"
         assert site.resource.id_type == IdType.DoubanBook
         assert site.resource.id_value == "35902899"
+        assert site.resource.item is not None
         assert site.resource.item.isbn == "9781847498571"
         assert site.resource.item.format == "paperback"
         assert site.resource.item.display_title == "1984 Nineteen Eighty-Four"
@@ -90,19 +98,31 @@ class TestDoubanBook:
     def test_publisher(self):
         t_url = "https://book.douban.com/subject/35902899/"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         res = site.get_resource_ready()
+        assert res is not None
         assert res.metadata.get("pub_house") == "Alma Classics"
         t_url = "https://book.douban.com/subject/1089243/"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         res = site.get_resource_ready()
+        assert res is not None
         assert res.metadata.get("pub_house") == "花城出版社"
 
     @use_local_response
     def test_work(self):
         url1 = "https://book.douban.com/subject/1089243/"
         url2 = "https://book.douban.com/subject/2037260/"
-        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
-        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        site1 = SiteManager.get_site_by_url(url1)
+        assert site1 is not None
+        p1 = site1.get_resource_ready()
+        assert p1 is not None
+        assert p1.item is not None
+        site2 = SiteManager.get_site_by_url(url2)
+        assert site2 is not None
+        p2 = site2.get_resource_ready()
+        assert p2 is not None
+        assert p2.item is not None
         w1 = p1.item.get_work()
         w2 = p2.item.get_work()
         assert w1.display_title == "黄金时代"
@@ -123,6 +143,8 @@ class TestAO3:
         t_url2 = "https://archiveofourown.org/works/2080878?test"
         p1 = SiteManager.get_site_by_url(t_url)
         p2 = SiteManager.get_site_by_url(t_url2)
+        assert p1 is not None
+        assert p2 is not None
         assert p1.url == t_url
         assert p1.ID_TYPE == t_type
         assert p1.id_value == t_id
@@ -134,12 +156,15 @@ class TestAO3:
     def test_scrape(self):
         t_url = "https://archiveofourown.org/works/2080878"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.ready is False
         site.get_resource_ready()
         assert site.ready is True
+        assert site.resource is not None
         assert site.resource.site_name == SiteName.AO3
         assert site.resource.id_type == IdType.AO3
         assert site.resource.id_value == "2080878"
+        assert site.resource.item is not None
         assert site.resource.item.display_title == "I Am Groot"
         assert site.resource.item.author[0] == "sherlocksmyth"
 
@@ -153,6 +178,8 @@ class TestQidian:
         t_url2 = "https://book.qidian.com/info/1010868264/"
         p1 = SiteManager.get_site_by_url(t_url)
         p2 = SiteManager.get_site_by_url(t_url2)
+        assert p1 is not None
+        assert p2 is not None
         assert p1.url == t_url2
         assert p1.ID_TYPE == t_type
         assert p1.id_value == t_id
@@ -162,11 +189,14 @@ class TestQidian:
     def test_scrape(self):
         t_url = "https://book.qidian.com/info/1010868264/"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.ready is False
         site.get_resource_ready()
         assert site.ready is True
+        assert site.resource is not None
         assert site.resource.site_name == SiteName.Qidian
         assert site.resource.id_type == IdType.Qidian
         assert site.resource.id_value == "1010868264"
+        assert site.resource.item is not None
         assert site.resource.item.display_title == "诡秘之主"
         assert site.resource.item.author[0] == "爱潜水的乌贼"

@@ -14,6 +14,7 @@ class TestIGDB:
         assert site is not None
         assert site.validate_url(t_url)
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.url == t_url
         assert site.id_value == t_id_value
 
@@ -21,10 +22,13 @@ class TestIGDB:
     def test_scrape(self):
         t_url = "https://www.igdb.com/games/portal-2"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         assert site.resource.metadata["title"] == "Portal 2"
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.steam == "620"
         assert site.resource.item.genre == [
@@ -38,12 +42,15 @@ class TestIGDB:
     def test_scrape_non_steam(self):
         t_url = "https://www.igdb.com/games/the-legend-of-zelda-breath-of-the-wild"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         assert (
             site.resource.metadata["title"] == "The Legend of Zelda: Breath of the Wild"
         )
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.primary_lookup_id_type == IdType.IGDB
         assert site.resource.item.genre == ["Puzzle", "Role-playing (RPG)", "Adventure"]
@@ -64,6 +71,7 @@ class TestSteam:
         assert site is not None
         assert site.validate_url(t_url)
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.url == t_url2
         assert site.id_value == t_id_value
 
@@ -71,11 +79,14 @@ class TestSteam:
     def test_scrape(self):
         t_url = "https://store.steampowered.com/app/620/Portal_2/"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         assert site.resource.metadata["title"] == "Portal 2"
         assert site.resource.metadata["brief"][:6] == "Sequel"
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.steam == "620"
         assert site.resource.item.genre == [
@@ -96,6 +107,7 @@ class TestDoubanGame:
         assert site is not None
         assert site.validate_url(t_url)
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.url == t_url
         assert site.id_value == t_id_value
 
@@ -103,9 +115,12 @@ class TestDoubanGame:
     def test_scrape(self):
         t_url = "https://www.douban.com/game/10734307/"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Game)
         titles = sorted([t["text"] for t in site.resource.item.localized_title])
         assert titles == ["Portal 2", "传送门2"]
@@ -124,15 +139,20 @@ class TestBangumiGame:
         assert site is not None
         assert site.validate_url(t_url)
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.url == t_url
         assert site.id_value == t_id_value
-        i = site.get_resource_ready().item
+        resource = site.get_resource_ready()
+        assert resource is not None
+        assert resource.item is not None
+        i = resource.item
         assert i.genre == ["PUZ"]
-        i = (
-            SiteManager.get_site_by_url("https://bgm.tv/subject/228086")
-            .get_resource_ready()
-            .item
-        )
+        site2 = SiteManager.get_site_by_url("https://bgm.tv/subject/228086")
+        assert site2 is not None
+        resource2 = site2.get_resource_ready()
+        assert resource2 is not None
+        assert resource2.item is not None
+        i = resource2.item
         assert i.genre == ["ADV", "Psychological Horror"]
 
 
@@ -148,6 +168,8 @@ class TestBoardGameGeek:
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Game)
 
         # TODO this fails occasionally bc languagedetect flips coin
@@ -155,7 +177,7 @@ class TestBoardGameGeek:
 
         assert len(site.resource.item.localized_title) == 16
         assert site.resource.item.platform == ["Boardgame"]
-        assert site.resource.item.genre[0] == "Economic"
+        assert site.resource.item.genre[0] == "Economic"  # type: ignore
         assert site.resource.item.designer == ["Jacob Fryxelius"]
 
 
@@ -165,6 +187,14 @@ class TestMultiGameSites:
     def test_games(self):
         url1 = "https://www.igdb.com/games/portal-2"
         url2 = "https://store.steampowered.com/app/620/Portal_2/"
-        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
-        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        site1 = SiteManager.get_site_by_url(url1)
+        assert site1 is not None
+        p1 = site1.get_resource_ready()
+        assert p1 is not None
+        assert p1.item is not None
+        site2 = SiteManager.get_site_by_url(url2)
+        assert site2 is not None
+        p2 = site2.get_resource_ready()
+        assert p2 is not None
+        assert p2.item is not None
         assert p1.item.id == p2.item.id

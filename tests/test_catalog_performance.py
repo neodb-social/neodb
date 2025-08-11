@@ -2,6 +2,7 @@ import pytest
 
 from catalog.common import *
 from catalog.common.sites import crawl_related_resources_task
+from catalog.performance.models import Performance
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -29,8 +30,12 @@ class TestDoubanDrama:
     def test_scrape(self):
         t_url = "https://www.douban.com/location/drama/25883969/"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         resource = site.get_resource_ready()
+        assert resource is not None
         item = site.get_item()
+        assert item is not None
+        assert isinstance(item, Performance)
         assert item.display_title == "不眠之人·拿破仑"
         assert len(item.localized_title) == 2
         assert item.genre == ["音乐剧"]
@@ -39,8 +44,12 @@ class TestDoubanDrama:
 
         t_url = "https://www.douban.com/location/drama/20270776/"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         resource = site.get_resource_ready()
+        assert resource is not None
         item = site.get_item()
+        assert item is not None
+        assert isinstance(item, Performance)
         assert item.display_title == "相声说垮鬼子们"
         assert item.opening_date == "1997-05"
         assert item.location == ["臺北新舞臺"]
@@ -53,6 +62,7 @@ class TestDoubanDrama:
         item = site.get_item()
         if item is None:
             raise ValueError()
+        assert isinstance(item, Performance)
         assert item.orig_title == "Iphigenie auf Tauris"
         assert len(item.localized_title) == 3
         assert item.opening_date == "1974-04-21"
@@ -60,14 +70,17 @@ class TestDoubanDrama:
 
         t_url = "https://www.douban.com/location/drama/24849279/"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         resource = site.get_resource_ready()
+        assert resource is not None
         assert site.ready
         assert resource.metadata["title"] == "红花侠"
         assert resource.metadata["orig_title"] == "スカーレットピンパーネル"
         item = site.get_item()
         if item is None:
             raise ValueError()
+        assert isinstance(item, Performance)
         assert item.display_title == "THE SCARLET PIMPERNEL"
         assert len(item.localized_title) == 3
         assert len(item.display_description) == 545
@@ -87,7 +100,7 @@ class TestDoubanDrama:
             {"name": "龍真咲", "role": ""},
         ]
         assert len(resource.related_resources) == 4
-        crawl_related_resources_task(resource.id)  # force the async job to run now
+        crawl_related_resources_task(resource.pk)  # force the async job to run now
         productions = sorted(list(item.productions.all()), key=lambda p: p.opening_date)
         assert len(productions) == 4
         assert productions[3].actor == [
@@ -124,8 +137,11 @@ class TestBangumiDrama:
     def test_scrape(self):
         t_url = "https://bgm.tv/subject/224973"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         site.get_resource_ready()
         item = site.get_item()
+        assert item is not None
+        assert isinstance(item, Performance)
         assert item.display_title == "超级弹丸论破2舞台剧~再见了绝望学园~2017"
         assert sorted(item.actor, key=lambda a: a["name"]) == [
             {"name": "伊藤萌々香", "role": None},
@@ -136,8 +152,11 @@ class TestBangumiDrama:
 
         t_url = "https://bgm.tv/subject/442025"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         site.get_resource_ready()
         item = site.get_item()
+        assert item is not None
+        assert isinstance(item, Performance)
         assert item.display_title == "LIVE STAGE「ぼっち・ざ・ろっく！」"
         assert item.orig_creator == [
             "はまじあき（芳文社「まんがタイムきららMAX」連載中）／TVアニメ「ぼっち・ざ・ろっく！」"

@@ -131,11 +131,9 @@ class TestWork:
         self.hyperion_print.link_to_related_book(self.hyperion_ebook)
         assert self.hyperion_print.sibling_items.exists()
         assert self.hyperion_ebook.sibling_items.exists()
-        assert self.hyperion_print.get_work() is not None
-        assert (
-            self.hyperion_print.get_work().display_title
-            == self.hyperion_print.display_title
-        )
+        work = self.hyperion_print.get_work()
+        assert work is not None
+        assert work.display_title == self.hyperion_print.display_title
         self.hyperion_print.set_work(None)
         assert not self.hyperion_print.sibling_items.exists()
         assert not self.hyperion_ebook.sibling_items.exists()
@@ -151,7 +149,9 @@ class TestWork:
         self.hyperion_ebook.link_to_related_book(self.hyperion_hardcover)
         self.hyperion_print.link_to_related_book(self.hyperion_hardcover)
         assert self.hyperion_print.get_work() is not None
-        assert self.hyperion_ebook.get_work().editions.all().count() == 3
+        work = self.hyperion_ebook.get_work()
+        assert work is not None
+        assert work.editions.all().count() == 3
 
     def test_set_parent_item(self):
         work = Work.objects.create(
@@ -178,7 +178,9 @@ class TestGoodreads:
         t_url2 = "https://www.goodreads.com/book/show/77566"
         p1 = SiteManager.get_site_cls_by_id_type(t_type)
         p2 = SiteManager.get_site_by_url(t_url)
+        assert p1 is not None
         assert p1.id_to_url(t_id) == t_url2
+        assert p2 is not None
         assert p2.url_to_id(t_url) == t_id
 
     @use_local_response
@@ -205,6 +207,7 @@ class TestGoodreads:
             primary_lookup_id_type=IdType.ISBN, primary_lookup_id_value=isbn
         )
         resource = edition.external_resources.all().first()
+        assert resource is not None
         assert resource.id_type == IdType.Goodreads
         assert resource.id_value == "77566"
         assert resource.cover != "/media/item/default.svg"
@@ -214,6 +217,7 @@ class TestGoodreads:
 
         edition.delete()
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.ready is False
         assert site.url == t_url2
         site.get_resource()
@@ -224,26 +228,45 @@ class TestGoodreads:
         site = SiteManager.get_site_by_url(
             "https://www.goodreads.com/book/show/13079982-fahrenheit-451"
         )
+        assert site is not None
         site.get_resource_ready()
-        assert "<br" not in site.resource.metadata.get("brief")
+        assert site.resource is not None
+        brief = site.resource.metadata.get("brief")
+        assert brief is not None
+        assert "<br" not in brief
 
     @use_local_response
     def test_asin(self):
         t_url = "https://www.goodreads.com/book/show/45064996-hyperion"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         site.get_resource_ready()
+        assert site.resource is not None
+        assert site.resource.item is not None
         assert site.resource.item.display_title == "Hyperion"
         assert site.resource.item.asin == "B004G60EHS"
 
     @use_local_response
     def test_work(self):
         url = "https://www.goodreads.com/work/editions/153313"
-        p = SiteManager.get_site_by_url(url).get_resource_ready()
+        site = SiteManager.get_site_by_url(url)
+        assert site is not None
+        p = site.get_resource_ready()
+        assert p is not None
+        assert p.item is not None
         assert p.item.display_title == "1984"
         url1 = "https://www.goodreads.com/book/show/3597767-rok-1984"
         url2 = "https://www.goodreads.com/book/show/40961427-1984"
-        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
-        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        site1 = SiteManager.get_site_by_url(url1)
+        assert site1 is not None
+        p1 = site1.get_resource_ready()
+        assert p1 is not None
+        assert p1.item is not None
+        site2 = SiteManager.get_site_by_url(url2)
+        assert site2 is not None
+        p2 = site2.get_resource_ready()
+        assert p2 is not None
+        assert p2.item is not None
         w1 = p1.item.get_work()
         w2 = p2.item.get_work()
         assert w1 == w2
@@ -262,19 +285,23 @@ class TestGoogleBooks:
         assert p1.url == t_url2
         assert p1.ID_TYPE == t_type
         assert p1.id_value == t_id
+        assert p2 is not None
         assert p2.url == t_url2
 
     @use_local_response
     def test_scrape(self):
         t_url = "https://books.google.com.bn/books?id=hV--zQEACAAJ"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.ready is False
         site.get_resource_ready()
         assert site.ready is True
+        assert site.resource is not None
         assert site.resource.metadata.get("title") == "1984 Nineteen Eighty-Four"
         assert site.resource.metadata.get("isbn") == "9781847498571"
         assert site.resource.id_type == IdType.GoogleBooks
         assert site.resource.id_value == "hV--zQEACAAJ"
+        assert site.resource.item is not None
         assert site.resource.item.isbn == "9781847498571"
         assert site.resource.item.localized_title == [
             {"lang": "en", "text": "1984 Nineteen Eighty-Four"}

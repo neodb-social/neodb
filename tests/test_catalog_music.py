@@ -3,6 +3,7 @@ import pytest
 from catalog.common import *
 from catalog.models import *
 from catalog.music.utils import *
+from catalog.sites.spotify import Spotify
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -25,6 +26,7 @@ class TestSpotify:
         assert site is not None
         assert site.validate_url(t_url)
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.url == t_url
         assert site.id_value == t_id_value
 
@@ -39,17 +41,24 @@ class TestSpotify:
     def test_scrape_web(self):
         t_url = "https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert hasattr(site, "scrape_web")
+        assert isinstance(site, Spotify)
         r = site.scrape_web()
+        assert r is not None
         assert r.metadata["localized_title"][0]["text"] == "The Race For Space"
 
     @use_local_response
     def test_scrape(self):
         t_url = "https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         assert site.resource.metadata["title"] == "The Race For Space"
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.barcode == "3610159662676"
         assert site.resource.item.genre == []
@@ -65,6 +74,7 @@ class TestDoubanMusic:
         assert site is not None
         assert site.validate_url(t_url)
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.url == t_url
         assert site.id_value == t_id_value
 
@@ -72,10 +82,13 @@ class TestDoubanMusic:
     def test_scrape(self):
         t_url = "https://music.douban.com/subject/1401362/"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         assert site.resource.metadata["title"] == "Rubber Soul"
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.barcode == "0077774644020"
         assert site.resource.item.genre == ["摇滚"]
@@ -88,16 +101,32 @@ class TestMultiMusicSites:
     def test_albums(self):
         url1 = "https://music.douban.com/subject/33551231/"
         url2 = "https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP"
-        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
-        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        site1 = SiteManager.get_site_by_url(url1)
+        assert site1 is not None
+        p1 = site1.get_resource_ready()
+        assert p1 is not None
+        assert p1.item is not None
+        site2 = SiteManager.get_site_by_url(url2)
+        assert site2 is not None
+        p2 = site2.get_resource_ready()
+        assert p2 is not None
+        assert p2.item is not None
         assert p1.item.id == p2.item.id
 
     @use_local_response
     def test_albums_discogs(self):
         url1 = "https://www.discogs.com/release/13574140"
         url2 = "https://open.spotify.com/album/0I8vpSE1bSmysN2PhmHoQg"
-        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
-        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        site1 = SiteManager.get_site_by_url(url1)
+        assert site1 is not None
+        p1 = site1.get_resource_ready()
+        assert p1 is not None
+        assert p1.item is not None
+        site2 = SiteManager.get_site_by_url(url2)
+        assert site2 is not None
+        p2 = site2.get_resource_ready()
+        assert p2 is not None
+        assert p2.item is not None
         assert p1.item.id == p2.item.id
 
 
@@ -112,6 +141,7 @@ class TestBandcamp:
         assert site is not None
         assert site.validate_url(t_url)
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.url == t_url2
         assert site.id_value == t_id_value
 
@@ -119,11 +149,14 @@ class TestBandcamp:
     def test_scrape(self):
         t_url = "https://intlanthem.bandcamp.com/album/in-these-times?from=hpbcw"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         assert site.resource.metadata["title"] == "In These Times"
         assert site.resource.metadata["artist"] == ["Makaya McCraven"]
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.genre == []
 
@@ -141,10 +174,13 @@ class TestDiscogsRelease:
         assert site is not None
         assert site.validate_url(t_url)
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.url == t_url_2
         site = SiteManager.get_site_by_url(t_url_3)
+        assert site is not None
         assert site.url == t_url_2
         site = SiteManager.get_site_by_url(t_url_4)
+        assert site is not None
         assert site.url == t_url_2
         assert site.id_value == t_id_value
         site = SiteManager.get_site_by_url(t_url_2)
@@ -154,11 +190,14 @@ class TestDiscogsRelease:
     def test_scrape(self):
         t_url = "https://www.discogs.com/release/25829341-JID-The-Never-Story"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         assert site.resource.metadata["title"] == "The Never Story"
         assert site.resource.metadata["artist"] == ["J.I.D"]
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.barcode == "0602445804689"
         assert site.resource.item.genre == ["Hip Hop"]
@@ -175,6 +214,7 @@ class TestDiscogsMaster:
         assert site is not None
         assert site.validate_url(t_url)
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.url == t_url_2
         assert site.id_value == t_id_value
 
@@ -182,11 +222,14 @@ class TestDiscogsMaster:
     def test_scrape(self):
         t_url = "https://www.discogs.com/master/469004-The-XX-Coexist"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         assert site.resource.metadata["title"] == "Coexist"
         assert site.resource.metadata["artist"] == ["The XX"]
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.genre == ["Electronic", "Rock", "Pop"]
 
@@ -202,6 +245,7 @@ class TestAppleMusic:
         assert site is not None
         assert site.validate_url(t_url)
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert site.url == t_url_2
         assert site.id_value == t_id_value
 
@@ -209,11 +253,14 @@ class TestAppleMusic:
     def test_scrape(self):
         t_url = "https://music.apple.com/us/album/kids-only/1284391545"
         site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
         assert not site.ready
         site.get_resource_ready()
         assert site.ready
+        assert site.resource is not None
         assert site.resource.metadata["localized_title"][0]["text"] == "Kids Only"
         assert site.resource.metadata["artist"] == ["Leah Dou"]
+        assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.genre == ["Pop", "Music"]
         assert site.resource.item.duration == 2368000
