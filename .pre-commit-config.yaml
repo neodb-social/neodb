@@ -30,7 +30,7 @@ repos:
       - id: uv-lock
       - id: pip-compile
         name: requirements.lock
-        files: ^pyproject\.toml$
+        files: ^(pyproject\.toml|uv\.lock)$
         args: [pyproject.toml, --no-annotate, --no-header, -q, -o, requirements.lock]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
