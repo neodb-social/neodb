@@ -61,10 +61,7 @@ dependencies = [
     "django-mcp>=0.1.0",
 ]
 
-[tool.rye]
-managed = true
-virtual = true
-lock-with-sources = false
+[tool.uv]
 dev-dependencies = [
     "pre-commit>=4.0.1",
     "django-stubs>=5.1.2",

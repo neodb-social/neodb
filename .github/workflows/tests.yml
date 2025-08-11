@@ -49,9 +49,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
     - name: Install Dependencies
       run: |
-        pip install -r requirements-dev.lock
+        uv sync
         sudo apt install -y gettext
     - name: Run Tests
       env:
