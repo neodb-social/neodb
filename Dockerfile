@@ -6,6 +6,8 @@ ENV PYTHONUNBUFFERED=1
 RUN --mount=type=cache,sharing=locked,target=/var/cache/apt apt-get update \
     && apt-get install -y --no-install-recommends build-essential libpq-dev python3-venv git
 
+COPY --from=ghcr.io/astral-sh/uv:0.8.8 /uv /uvx /bin/
+
 COPY . /neodb
 
 RUN echo `cd /neodb && git rev-parse --short HEAD`-`cd /neodb/neodb-takahe && git rev-parse --short HEAD`-`date -u +%Y%m%d%H%M%S` > /neodb/build_version
@@ -14,14 +16,16 @@ RUN rm -rf /neodb/.git /neodb/neodb-takahe/.git
 RUN mv /neodb/neodb-takahe /takahe
 
 WORKDIR /neodb
-RUN python -m venv /neodb-venv
+RUN uv venv /neodb-venv
+ENV VIRTUAL_ENV=/neodb-venv
 RUN find misc/wheels-cache -type f | xargs -n 1 /neodb-venv/bin/python3 -m pip install || echo incompatible wheel ignored
 RUN rm -rf misc/wheels-cache
-RUN --mount=type=cache,sharing=locked,target=/root/.cache /neodb-venv/bin/python3 -m pip install --upgrade -r requirements.lock
+RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active --no-dev
 
 WORKDIR /takahe
-RUN python -m venv /takahe-venv
-RUN --mount=type=cache,sharing=locked,target=/root/.cache /takahe-venv/bin/python3 -m pip install --upgrade -r requirements.lock
+RUN uv venv /takahe-venv
+ENV VIRTUAL_ENV=/takahe-venv
+RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active --no-dev
 
 # runtime stage
 FROM python:3.13-slim AS runtime
