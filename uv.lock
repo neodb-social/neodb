@@ -727,8 +727,12 @@ wheels = [
 
 [[package]]
 name = "django-typed-models"
-version = "0.14.0"
-source = { git = "https://github.com/alphatownsman/django-typed-models.git#03921e05b39d07d143519a435259f66387a088bc" }
+version = "0.15.0b4"
+source = { git = "https://github.com/alphatownsman/django-typed-models.git#ea2801c9bd6109629b2574a78e84901d496dcbae" }
+dependencies = [
+    { name = "django-stubs-ext" },
+    { name = "typing-extensions" },
+]
 
 [[package]]
 name = "django-tz-detect"
