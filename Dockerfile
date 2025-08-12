@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 RUN --mount=type=cache,sharing=locked,target=/var/cache/apt apt-get update \
-    && apt-get install -y --no-install-recommends build-essential libpq-dev python3-venv git
+    && apt-get install -y --no-install-recommends build-essential libpq-dev git
 
 COPY --from=ghcr.io/astral-sh/uv:0.8.8 /uv /uvx /bin/
 
@@ -18,7 +18,7 @@ RUN mv /neodb/neodb-takahe /takahe
 WORKDIR /neodb
 RUN uv venv /neodb-venv
 ENV VIRTUAL_ENV=/neodb-venv
-RUN find misc/wheels-cache -type f | xargs -n 1 /neodb-venv/bin/python3 -m pip install || echo incompatible wheel ignored
+RUN find misc/wheels-cache -type f | xargs -n 1 uv pip install --python /neodb-venv/bin/python || echo incompatible wheel ignored
 RUN rm -rf misc/wheels-cache
 RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active --no-dev
 
