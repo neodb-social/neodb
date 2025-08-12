@@ -1,0 +1,31 @@
+name: Tag Submodule
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  tag_submodule:
+    name: Tag submodule
+    if: github.repository_owner == 'neodb-social'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@users.noreply.github.com"
+
+      - name: Push tag to submodule
+        env:
+          TAG_NAME: neodb-${{ github.ref_name }}
+        run: |
+          cd neodb-takahe
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
