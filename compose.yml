@@ -97,6 +97,7 @@ x-shared:
       SKIP_MIGRATIONS:
       INDEX_ALIASES:
       TAKAHE_REMOTE_PRUNE_HORIZON:
+      NEODB_HIDDEN_CATEGORIES:
     restart: "unless-stopped"
     volumes:
       - ${NEODB_DATA:-../data}/neodb-media:/www/m
