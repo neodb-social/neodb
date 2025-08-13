@@ -88,7 +88,7 @@ def visible_categories(request):
             not in (
                 request.user.preference.hidden_categories
                 if request.user.is_authenticated
-                else []
+                else settings.HIDDEN_CATEGORIES
             )
         ]
         request.session["p_categories"] = vc
