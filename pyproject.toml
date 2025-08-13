@@ -119,6 +119,6 @@ lint.extend-select = ["I"]
 py-modules = []
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "boofilsic.settings"
+DJANGO_SETTINGS_MODULE = "tests.settings"
 python_files = ["tests/*.py"]
 testpaths = ["tests" ]

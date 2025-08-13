@@ -635,8 +635,6 @@ RQ_SHOW_ADMIN_LINK = DEBUG
 SEARCH_INDEX_NEW_ONLY = False
 
 INDEX_ALIASES: dict = env("INDEX_ALIASES")  # type:ignore
-if TESTING:
-    INDEX_ALIASES = {k: v + "_test" for k, v in INDEX_ALIASES.items()}
 
 DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="")  # type: ignore
 

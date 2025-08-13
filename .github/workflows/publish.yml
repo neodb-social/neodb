@@ -56,6 +56,8 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: neodb/neodb
+          build-args: |
+            dev=1
           tags: |
             type=edge,branch=main
 
