@@ -591,7 +591,7 @@ class PiecePost(models.Model):
     post_id: int
     piece = models.ForeignKey(Piece, on_delete=models.CASCADE)
     post = models.ForeignKey(
-        "takahe.Post", db_constraint=False, db_index=True, on_delete=models.CASCADE
+        "takahe.Post", db_constraint=False, db_index=True, on_delete=models.DO_NOTHING
     )
 
     class Meta:

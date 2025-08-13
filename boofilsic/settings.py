@@ -139,6 +139,7 @@ env = environ.FileAwareEnv(
         {"catalog": "catalog2"},
     ),  # "catalog" was used in an earlier version of typesense index
     SKIP_MIGRATIONS=(list, []),
+    TAKAHE_REMOTE_PRUNE_HORIZON=(int, 92),
 )
 
 # ====== End of user configuration variables ======
@@ -695,6 +696,7 @@ if _SENTRY_DSN:
     )
 
 SKIP_MIGRATIONS = env("SKIP_MIGRATIONS")
+REMOTE_PRUNE_HORIZON = env("TAKAHE_REMOTE_PRUNE_HORIZON")
 
 if os.environ.get("MCP"):
     INSTALLED_APPS += ["django_mcp"]
