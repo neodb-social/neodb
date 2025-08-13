@@ -565,7 +565,7 @@ class Migration(migrations.Migration):
                     "post",
                     models.ForeignKey(
                         db_constraint=False,
-                        on_delete=django.db.models.deletion.CASCADE,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
                         to="takahe.post",
                     ),
                 ),
@@ -602,7 +602,7 @@ class Migration(migrations.Migration):
                     "post",
                     models.ForeignKey(
                         db_constraint=False,
-                        on_delete=django.db.models.deletion.CASCADE,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
                         to="takahe.post",
                     ),
                 ),
