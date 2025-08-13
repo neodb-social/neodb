@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import Exists, OuterRef, Q
 from django.utils import timezone
+from tqdm import tqdm
 
 from takahe.models import Domain, Post
 from takahe.utils import Takahe
@@ -40,22 +41,22 @@ class Command(BaseCommand):
         locs = Domain.objects.filter(local=True).values_list("pk", flat=True)
         remote_peers = Takahe.get_neodb_peers()
         all_nodes = remote_peers + list(locs)
+        self.stdout.write(f"Prune up to {number} posts older than {horizon} days.")
         if verbose:
-            self.stdout.write(
-                f"Find posts up to {number} posts older than {horizon} days..."
-            )
             self.stdout.write("Excluding ones that are local...")
             self.stdout.write("Excluding ones that has replies...")
             self.stdout.write("Excluding ones that are replies to local posts...")
             self.stdout.write(f"Excluding ones from: {' '.join(remote_peers)} ...")
-        else:
             self.stdout.write("Finding posts...", ending="")
         num = number
         c = 1
+        t = tqdm(total=number)
         while c > 0 and num > 0:
             n = min(num, 1000)
             c = self.run_once(n, dry_run, verbose, horizon, all_nodes)
+            t.update(c)
             num -= c
+        t.close()
         sys.exit(1 if c > 0 else 0)
         # exit 1 if more to delete so the job may retry to delete more
 
@@ -99,21 +100,22 @@ class Command(BaseCommand):
             .order_by("?")[:number]
         )
         post_ids = list(posts.values_list("pk", flat=True))
-        self.stdout.write(self.style.SUCCESS(f"Found {len(post_ids)} posts"))
+        if verbose:
+            self.stdout.write(self.style.SUCCESS(f"Found {len(post_ids)} posts"))
 
         if verbose:
             for p in posts:
-                self.stdout.write(
-                    f"{p.pk} {p.author} {p.object_uri} {p.in_reply_to} {p.content}"
-                )
+                self.stdout.write(f"{p.pk} {p.author} {p.object_uri} {p.content}")
 
         if not post_ids or dry_run:
             return 0
 
-        self.stdout.write("Deleting...", ending="")
+        if verbose:
+            self.stdout.write("Deleting...", ending="")
         _, deleted = Post.objects.filter(pk__in=post_ids).delete()
 
-        self.stdout.write("Done.")
-        for model, model_deleted in deleted.items():
-            self.stdout.write(self.style.SUCCESS(f"  - {model}: {model_deleted}"))
+        if verbose:
+            self.stdout.write(self.style.SUCCESS("Done."))
+            for model, model_deleted in deleted.items():
+                self.stdout.write(f"  - {model}: {model_deleted}")
         return len(post_ids)
