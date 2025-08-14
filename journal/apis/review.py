@@ -16,6 +16,7 @@ from ..models import (
 
 class ReviewSchema(Schema):
     url: str
+    api_url: str
     visibility: int = Field(ge=0, le=2)
     post_id: int | None = Field(alias="latest_post_id")
     item: ItemSchema
@@ -113,3 +114,24 @@ def delete_review(request, item_uuid: str):
         return 404, {"message": "Item not found"}
     Review.update_item_review(item, request.user.identity, None, None)
     return 200, {"message": "OK"}
+
+
+@api.get(
+    "/review/{review_uuid}",
+    response={200: ReviewSchema, 401: Result, 403: Result, 404: Result},
+    tags=["review"],
+    auth=None,
+)
+def get_any_review(request, review_uuid: str):
+    """
+    Get a review by its uuid with permission checks.
+
+    Returns the review if it is visible to the requesting user based on
+    its visibility and the relationship to the owner; otherwise 403.
+    """
+    r = Review.get_by_url(review_uuid)
+    if not r:
+        return 404, {"message": "Review not found"}
+    if not r.is_visible_to(request.user):
+        return 403, {"message": "Permission denied"}
+    return r

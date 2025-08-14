@@ -17,6 +17,7 @@ from ..models import Collection
 class CollectionSchema(Schema):
     uuid: str
     url: str
+    api_url: str
     visibility: int = Field(ge=0, le=2)
     post_id: int | None = Field(alias="latest_post_id")
     created_time: datetime
@@ -50,7 +51,7 @@ class CollectionItemInSchema(Schema):
     tags=["collection"],
 )
 @paginate(PageNumberPagination)
-def list_collections(request):
+def list_user_collections(request):
     """
     Get collections created by current user
     """
@@ -63,7 +64,7 @@ def list_collections(request):
     response={200: CollectionSchema, 401: Result, 403: Result, 404: Result},
     tags=["collection"],
 )
-def get_collection(request, collection_uuid: str):
+def get_user_collection(request, collection_uuid: str):
     """
     Get collections by its uuid
     """
@@ -73,6 +74,48 @@ def get_collection(request, collection_uuid: str):
     if c.owner != request.user.identity:
         return 403, {"message": "Not owner"}
     return c
+
+
+@api.get(
+    "/collection/{collection_uuid}",
+    response={200: CollectionSchema, 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+    auth=None,
+)
+def get_collection(request, collection_uuid: str):
+    """
+    Get details of a collection
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if not c.is_visible_to(request.user):
+        return 403, {"message": "Permission denied"}
+    return c
+
+
+@api.get(
+    "/collection/{collection_uuid}/item/",
+    response={200: List[CollectionItemSchema], 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+    auth=None,
+)
+@paginate(PageNumberPagination)
+def collection_list_items(request, collection_uuid: str):
+    """
+    Get items in a collection collections
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if not c.is_visible_to(request.user):
+        return 403, {"message": "Permission denied"}
+    if c.is_dynamic:
+        items = c.query_result.items if c.query_result else []
+        members = [{"item": i, "note": ""} for i in items]
+        return members
+    else:
+        return c.ordered_members
 
 
 @api.post(
@@ -140,7 +183,7 @@ def delete_collection(request, collection_uuid: str):
     tags=["collection"],
 )
 @paginate(PageNumberPagination)
-def collection_list_items(request, collection_uuid: str):
+def user_collection_list_items(request, collection_uuid: str):
     """
     Get items in a collection collections
     """

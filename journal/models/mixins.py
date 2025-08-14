@@ -25,15 +25,15 @@ class UserOwnedObjectMixin:
 
     def is_visible_to(
         self: "Piece",  # type: ignore
-        viewing_user: "User",
+        viewing_user: "User | None",
     ) -> bool:
         owner = self.owner
         if not owner or not owner.is_active:
             return False
         if owner.user == viewing_user:
             return True
-        if not viewing_user.is_authenticated:
-            return self.visibility == 0
+        if not viewing_user or not viewing_user.is_authenticated:
+            return self.visibility == 0 and owner.anonymous_viewable
         viewer = viewing_user.identity
         if not viewer:
             return False
