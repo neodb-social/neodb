@@ -57,6 +57,9 @@ jobs:
         sudo apt install -y gettext
     - name: Run Tests
       env:
+        NEODB_SECRET_KEY: test
+        NEODB_SITE_NAME: test
+        NEODB_SITE_DOMAIN: example.org
         NEODB_DB_URL: postgres://testuser:testpass@127.0.0.1/test_neodb
         TAKAHE_DB_URL: postgres://testuser:testpass@127.0.0.1/test_neodb_takahe
         NEODB_REDIS_URL: redis://127.0.0.1:6379/0

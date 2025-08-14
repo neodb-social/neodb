@@ -5,15 +5,21 @@ Uses the Wikidata REST API: https://www.wikidata.org/wiki/Wikidata:REST_API
 """
 
 import json
+from urllib.parse import quote
 
 import httpx
 from django.conf import settings
 from loguru import logger
 
-from catalog.book.models import *
-from catalog.common import *
-from catalog.movie.models import Movie
-from catalog.tv.models import TVEpisode, TVSeason, TVShow
+from catalog.common import (
+    AbstractSite,
+    IdType,
+    ParseError,
+    ResourceContent,
+    SiteManager,
+    SiteName,
+)
+from catalog.models import Movie, TVEpisode, TVSeason, TVShow, Work
 from common.models.lang import SITE_PREFERRED_LANGUAGES
 
 
@@ -100,10 +106,10 @@ class WikiData(AbstractSite):
         api_url = f"https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{entity_id}"
 
         try:
-            client = self._get_api_client()
-            response = client.get(api_url)
-            response.raise_for_status()
-            return response.json()
+            with self._get_api_client() as client:
+                response = client.get(api_url)
+                response.raise_for_status()
+                return response.json()
         except httpx.HTTPError as e:
             logger.error(f"HTTP error fetching Wikidata entity {entity_id}: {e}")
             return None
@@ -195,7 +201,6 @@ class WikiData(AbstractSite):
         # Check if P31 (instance of) exists
         if claims_key in entity_data and p31_key in entity_data[claims_key]:
             claims = entity_data[claims_key][p31_key]
-            print(claims)
             # Extract all instance of values
             for claim in claims:
                 # Handle different API formats (v0 vs v1)
@@ -228,7 +233,6 @@ class WikiData(AbstractSite):
             or WikidataTypes.NOVEL in instance_of_values
             or WikidataTypes.MEDIA_FRANCHISE in instance_of_values
         ):
-            # Media franchises are typically treated as Works (books) in our system
             return Work
         elif WikidataTypes.HUMAN in instance_of_values:
             # Human entities are not supported in our system yet
@@ -276,9 +280,7 @@ class WikiData(AbstractSite):
         # For Commons images, we need to construct the URL from the filename
         # Format: https://commons.wikimedia.org/wiki/Special:FilePath/{filename}?width=1000
         # This special URL will redirect to the actual image with the specified width
-        return (
-            f"https://commons.wikimedia.org/wiki/Special:FilePath/{filename}?width=1000"
-        )
+        return f"https://commons.wikimedia.org/wiki/Special:FilePath/{quote(filename)}?width=1000"
 
     def scrape(self) -> ResourceContent:
         """Scrape data from Wikidata API"""
