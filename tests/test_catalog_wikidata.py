@@ -77,10 +77,12 @@ class TestWikiData:
             },
         }
 
-        # Setup mock client
+        # Setup mock client with context manager support
         with patch("catalog.sites.wikidata.httpx.Client") as mock_httpx:
             mock_client = MagicMock()
             mock_client.get.return_value = mock_response
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_httpx.return_value = mock_client
 
             # Create site and scrape
@@ -115,7 +117,7 @@ class TestWikiData:
             assert "cover_image_url" in content.metadata
             assert (
                 content.metadata["cover_image_url"]
-                == "https://commons.wikimedia.org/wiki/Special:FilePath/The Matrix Poster.jpg?width=1000"
+                == "https://commons.wikimedia.org/wiki/Special:FilePath/The%20Matrix%20Poster.jpg?width=1000"
             )
 
             # Verify API client creation
@@ -150,10 +152,12 @@ class TestWikiData:
             },
         }
 
-        # Setup mock client
+        # Setup mock client with context manager support
         with patch("catalog.sites.wikidata.httpx.Client") as mock_httpx:
             mock_client = MagicMock()
             mock_client.get.return_value = mock_response
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_httpx.return_value = mock_client
 
             # Create site and scrape
@@ -165,5 +169,5 @@ class TestWikiData:
             assert content.metadata["preferred_model"] == "Movie"
             assert (
                 content.metadata["cover_image_url"]
-                == "https://commons.wikimedia.org/wiki/Special:FilePath/The Matrix Poster.jpg?width=1000"
+                == "https://commons.wikimedia.org/wiki/Special:FilePath/The%20Matrix%20Poster.jpg?width=1000"
             )

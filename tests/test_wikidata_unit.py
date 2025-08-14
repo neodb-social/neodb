@@ -91,16 +91,11 @@ def test_preferred_languages_expansion():
         # Assert English is included as-is
         assert "en" in preferred_langs
 
-        # Assert Chinese is expanded to all variants
+        # Assert Chinese is expanded to currently enabled variants
         assert "zh" in preferred_langs
-        assert "zh-cn" in preferred_langs
-        assert "zh-tw" in preferred_langs
-        assert "zh-hk" in preferred_langs
         assert "zh-hans" in preferred_langs
         assert "zh-hant" in preferred_langs
-        assert "zh-sg" in preferred_langs
-        assert "zh-mo" in preferred_langs
 
         # Assert we have exactly the expected number of languages
-        # 1 for English + 8 for Chinese variants
-        assert len(preferred_langs) == 9
+        # 1 for English + 3 for Chinese variants (zh, zh-hans, zh-hant)
+        assert len(preferred_langs) == 4

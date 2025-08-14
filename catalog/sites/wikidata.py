@@ -19,7 +19,17 @@ from catalog.common import (
     SiteManager,
     SiteName,
 )
-from catalog.models import Movie, TVEpisode, TVSeason, TVShow, Work
+from catalog.models import (
+    Game,
+    Movie,
+    Performance,
+    Podcast,
+    PodcastEpisode,
+    TVEpisode,
+    TVSeason,
+    TVShow,
+    Work,
+)
 from common.models.lang import SITE_PREFERRED_LANGUAGES
 
 
@@ -34,6 +44,13 @@ class WikidataTypes:
     TV_SEASON = "Q3464665"  # Television season
     TV_EPISODE = "Q21191270"  # Television episode
     MEDIA_FRANCHISE = "Q134556"  # Media franchise/series
+    VIDEO_GAME = "Q7889"  # Video game
+    PODCAST_SHOW = "Q24634210"  # Podcast show/series
+    PODCAST_EPISODE = "Q61855877"  # Podcast episode
+    PLAY = "Q25379"  # Theatrical play
+    MUSICAL = "Q2743"  # Musical
+    OPERA = "Q1344"  # Opera
+    PERFORMING_ARTS_PRODUCTION = "Q43099500"  # Performing arts production
 
 
 def _get_preferred_languages():
@@ -228,6 +245,19 @@ class WikiData(AbstractSite):
             return TVSeason
         elif WikidataTypes.TV_EPISODE in instance_of_values:
             return TVEpisode
+        elif WikidataTypes.VIDEO_GAME in instance_of_values:
+            return Game
+        elif WikidataTypes.PODCAST_SHOW in instance_of_values:
+            return Podcast
+        elif WikidataTypes.PODCAST_EPISODE in instance_of_values:
+            return PodcastEpisode
+        elif (
+            WikidataTypes.PLAY in instance_of_values
+            or WikidataTypes.MUSICAL in instance_of_values
+            or WikidataTypes.OPERA in instance_of_values
+            or WikidataTypes.PERFORMING_ARTS_PRODUCTION in instance_of_values
+        ):
+            return Performance
         elif (
             WikidataTypes.LITERARY_WORK in instance_of_values
             or WikidataTypes.NOVEL in instance_of_values
@@ -310,7 +340,6 @@ class WikiData(AbstractSite):
             ],
             "localized_description": descriptions,
             "wikidata_entity_type": entity_data.get("type", "item"),
-            "external_url": self.url,
         }
 
         # Add cover image URL if available
