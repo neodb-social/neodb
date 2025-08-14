@@ -60,6 +60,7 @@ class SiteName(models.TextChoices):
     Ypshuo = "ypshuo", _("Ypshuo")
     AO3 = "ao3", _("Archive of Our Own")
     JJWXC = "jjwxc", _("JinJiang")
+    WikiData = "wikidata", _("WikiData")
 
 
 class IdType(models.TextChoices):

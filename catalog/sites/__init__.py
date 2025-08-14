@@ -24,6 +24,7 @@ from .rss import RSS
 from .spotify import Spotify
 from .steam import Steam
 from .tmdb import TMDB_Movie
+from .wikidata import WikiData
 from .ypshuo import Ypshuo
 
 __all__ = [
@@ -55,6 +56,7 @@ __all__ = [
     "Spotify",
     "Steam",
     "TMDB_Movie",
+    "WikiData",
     "Ypshuo",
     # "ApplePodcast",
 ]

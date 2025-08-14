@@ -61,10 +61,6 @@ jobs:
         TAKAHE_DB_URL: postgres://testuser:testpass@127.0.0.1/test_neodb_takahe
         NEODB_REDIS_URL: redis://127.0.0.1:6379/0
         NEODB_SEARCH_URL: typesense://testuser:testpass@127.0.0.1:8108/cat
-        NEODB_SITE_NAME: test
-        NEODB_SITE_DOMAIN: test.domain
-        NEODB_SECRET_KEY: test
-        SPOTIFY_API_KEY: TEST
       run: |
         uv run manage.py compilemessages -i .venv -l zh_Hans
         uv run pytest
