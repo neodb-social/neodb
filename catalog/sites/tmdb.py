@@ -183,8 +183,13 @@ class TMDB_Movie(AbstractSite):
                 "cover_image_url": img_url,
             }
         )
+        # Add external IDs to lookup_ids
         if imdb_code:
             pd.lookup_ids[IdType.IMDB] = imdb_code
+
+        # Extract Wikidata ID if available in external_ids
+        if "external_ids" in res_data and res_data["external_ids"].get("wikidata_id"):
+            pd.lookup_ids[IdType.WikiData] = res_data["external_ids"]["wikidata_id"]
         return pd
 
     @classmethod
@@ -347,8 +352,14 @@ class TMDB_TV(AbstractSite):
                 "related_resources": season_links,  # FIXME crawling them for now, but many douban tv season data may have wrong imdb links
             }
         )
+        # Add external IDs to lookup_ids
         if imdb_code:
             pd.lookup_ids[IdType.IMDB] = imdb_code
+
+        # Extract Wikidata ID if available in external_ids
+        if "external_ids" in res_data and res_data["external_ids"].get("wikidata_id"):
+            pd.lookup_ids[IdType.WikiData] = res_data["external_ids"]["wikidata_id"]
+
         return pd
 
 
@@ -421,7 +432,13 @@ class TMDB_TVSeason(AbstractSite):
                 "url": f"https://www.themoviedb.org/tv/{show_id}",
             }
         ]
-        pd.lookup_ids[IdType.IMDB] = d["external_ids"].get("imdb_id")
+        # Add external IDs to lookup_ids
+        if d["external_ids"].get("imdb_id"):
+            pd.lookup_ids[IdType.IMDB] = d["external_ids"].get("imdb_id")
+
+        # Extract Wikidata ID if available
+        if d["external_ids"].get("wikidata_id"):
+            pd.lookup_ids[IdType.WikiData] = d["external_ids"].get("wikidata_id")
         pd.metadata["cover_image_url"] = (
             ("https://image.tmdb.org/t/p/original/" + d["poster_path"])
             if d.get("poster_path")
@@ -460,7 +477,13 @@ class TMDB_TVSeason(AbstractSite):
             d2 = BasicDownloader(api_url2).download().json()
             if not d2.get("id"):
                 raise ParseError(self, "first episode id for season")
-            pd.lookup_ids[IdType.IMDB] = d2["external_ids"].get("imdb_id")
+            # Add external IDs to lookup_ids
+            if d2["external_ids"].get("imdb_id"):
+                pd.lookup_ids[IdType.IMDB] = d2["external_ids"].get("imdb_id")
+
+            # Extract Wikidata ID if available
+            if d2["external_ids"].get("wikidata_id"):
+                pd.lookup_ids[IdType.WikiData] = d2["external_ids"].get("wikidata_id")
         return pd
 
 
@@ -522,7 +545,13 @@ class TMDB_TVEpisode(AbstractSite):
                 "url": f"https://www.themoviedb.org/tv/{show_id}/season/{season_id}",
             }
         ]
-        pd.lookup_ids[IdType.IMDB] = d["external_ids"].get("imdb_id")
+        # Add external IDs to lookup_ids
+        if d["external_ids"].get("imdb_id"):
+            pd.lookup_ids[IdType.IMDB] = d["external_ids"].get("imdb_id")
+
+        # Extract Wikidata ID if available
+        if d["external_ids"].get("wikidata_id"):
+            pd.lookup_ids[IdType.WikiData] = d["external_ids"].get("wikidata_id")
         pd.metadata["cover_image_url"] = (
             ("https://image.tmdb.org/t/p/original/" + d["poster_path"])
             if d.get("poster_path")
@@ -534,6 +563,5 @@ class TMDB_TVEpisode(AbstractSite):
             else f"S{d['season_number']} E{d['episode_number']}"
         )
 
-        if pd.lookup_ids.get(IdType.IMDB):
-            pd.lookup_ids[IdType.IMDB] = pd.lookup_ids[IdType.IMDB]
+        # This redundant code is removed
         return pd

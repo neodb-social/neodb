@@ -187,6 +187,7 @@ class TestMultiGameSites:
     def test_games(self):
         url1 = "https://www.igdb.com/games/portal-2"
         url2 = "https://store.steampowered.com/app/620/Portal_2/"
+        url3 = "https://www.wikidata.org/wiki/Q279446"
         site1 = SiteManager.get_site_by_url(url1)
         assert site1 is not None
         p1 = site1.get_resource_ready()
@@ -198,3 +199,8 @@ class TestMultiGameSites:
         assert p2 is not None
         assert p2.item is not None
         assert p1.item.id == p2.item.id
+        site3 = SiteManager.get_site_by_url(url3)
+        assert site3 is not None
+        p3 = site3.get_resource_ready()
+        assert p3 is not None
+        assert p3.item == p2.item

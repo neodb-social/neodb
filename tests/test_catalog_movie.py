@@ -121,6 +121,7 @@ class TestMultiMovieSites:
         url1 = "https://www.themoviedb.org/movie/27205-inception"
         url2 = "https://movie.douban.com/subject/3541415/"
         url3 = "https://www.imdb.com/title/tt1375666/"
+        url4 = "https://www.wikidata.org/wiki/Q25188"
         site1 = SiteManager.get_site_by_url(url1)
         assert site1 is not None
         p1 = site1.get_resource_ready()
@@ -138,3 +139,8 @@ class TestMultiMovieSites:
         assert p3.item is not None
         assert p1.item.id == p2.item.id
         assert p2.item.id == p3.item.id
+        site4 = SiteManager.get_site_by_url(url4)
+        assert site4 is not None
+        p4 = site4.get_resource_ready()
+        assert p4 is not None
+        assert p4.item == p3.item

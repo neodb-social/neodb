@@ -1,8 +1,9 @@
 import pytest
 
-from catalog.common import *
+from catalog.common import SiteManager, use_local_response
+from catalog.models import IdType
 from catalog.sites.imdb import IMDB
-from catalog.tv.models import *
+from catalog.tv.models import TVShow
 
 
 @pytest.mark.django_db(databases="__all__")
