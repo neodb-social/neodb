@@ -10,6 +10,7 @@ urlpatterns = [
     path("site/share", share, name="share"),
     path("site/manifest.json", manifest, name="manifest"),
     path("site/opensearch.xml", opensearch, name="opensearch"),
+    path("about/", about, name="about"),
     path("me/", me, name="me"),
     path("nodeinfo/<str:version>/", nodeinfo2),
     path("developer/", console, name="developer"),

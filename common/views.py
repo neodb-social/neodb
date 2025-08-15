@@ -10,7 +10,9 @@ from boofilsic import __version__
 from catalog.views import search as catalog_search
 from journal.views import search as journal_search
 from social.views import search as timeline_search
+from takahe.models import Domain
 from takahe.utils import Takahe
+from users.models.user import User
 
 from .api import api
 
@@ -243,6 +245,27 @@ def oauth_authorization_server(request):
     }
 
     return JsonResponse(metadata)
+
+
+def about(request):
+    context = {
+        "neodb_version": settings.NEODB_VERSION,
+    }
+    context["catalog_stats"] = cache.get("catalog_stats") or []
+    context["instance_info_stats"] = cache.get("instance_info_stats") or {}
+    context["invite_only"] = settings.INVITE_ONLY
+    context["admin_users"] = User.objects.filter(is_superuser=True, is_active=True)
+    context["staff_users"] = User.objects.filter(
+        is_staff=True, is_superuser=False, is_active=True
+    )
+    peers = []
+    for peer in Takahe.get_neodb_peers():
+        d = Domain.objects.filter(domain=peer).first()
+        if d:
+            name = (d.nodeinfo or {}).get("metadata", {}).get("nodeName", peer)
+            peers.append({"name": name, "url": f"https://{peer}"})
+    context["neodb_peers"] = peers
+    return render(request, "common/about.html", context)
 
 
 def signup(request, code: str | None = None):

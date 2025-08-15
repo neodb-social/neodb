@@ -1,0 +1,138 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load mastodon %}
+{% load thumb %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% translate "About" %} - {{ site_name }}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container">
+      <article class="about" style="max-width:60em;margin:auto">
+        <section>
+          <h1>{{ site_name }}</h1>
+          <div class="instance-info">
+            <p>{{ site_description }}</p>
+            {% if site_intro %}
+              <div hx-get="{{ site_intro }}" hx-trigger="load" hx-swap="outerHTML">
+                <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+              </div>
+            {% endif %}
+            <dl>
+              <dt>{% translate "Instance Name" %}</dt>
+              <dd>
+                {{ site_name }}
+              </dd>
+              <dt>{% translate "Domain" %}</dt>
+              <dd>
+                {{ site_domain }}
+              </dd>
+              <dt>{% translate "Version" %}</dt>
+              <dd>
+                <a href="https://neodb.net" target="_blank" rel="noopener">{{ neodb_version }}</a>
+              </dd>
+              <dt>{% translate "Registration" %}</dt>
+              <dd>
+                {% if invite_only %}
+                  {% translate "Invite Only" %}
+                {% else %}
+                  {% translate "Open Registration" %}
+                {% endif %}
+              </dd>
+            </dl>
+          </div>
+        </section>
+        <section>
+          <h2>{% translate "Statistics" %}</h2>
+          <div class="stats">
+            {% if catalog_stats %}
+              <dl>
+                {% for category in catalog_stats %}
+                  <dt>{% translate category.label %}</dt>
+                  <dd>
+                    {{ category.count|default:"0"|localize }}
+                  </dd>
+                {% endfor %}
+                {% if instance_info_stats %}
+                  <dt>{% translate "Users" %}</dt>
+                  <dd>
+                    {{ instance_info_stats.user_count|default:"0"|localize }}
+                  </dd>
+                  <dt>{% translate "Statuses" %}</dt>
+                  <dd>
+                    {{ instance_info_stats.status_count|default:"0"|localize }}
+                  </dd>
+                  <dt>{% translate "Known Fediverse Instances" %}</dt>
+                  <dd>
+                    {{ instance_info_stats.domain_count|default:"0"|localize }}
+                  </dd>
+                {% endif %}
+                {% if neodb_peers %}
+                  <dt>{% translate "Known NeoDB Instances" %}</dt>
+                  <dd>
+                    {% for peer in neodb_peers %}
+                      <a href="{{ peer.url }}" target="_blank">{{ peer.name }}</a>
+                      <br>
+                    {% endfor %}
+                  </dd>
+                {% endif %}
+              </dl>
+            {% else %}
+              <p>{% translate "Statistics are being calculated. Please check back in a few minutes." %}</p>
+            {% endif %}
+          </div>
+        </section>
+        {% if staff_users or admin_users %}
+          <section>
+            {% if admin_users %}
+              <div class="user-list admin-users">
+                <h2>{% translate "Administrators" %}</h2>
+                <ul>
+                  {% for user in admin_users %}
+                    <li>
+                      <a href="{{ user.url }}" class="user-link">
+                        <img src="{{ user.avatar }}"
+                             alt="{{ user.username }}"
+                             class="avatar"
+                             width="32"
+                             height="32">
+                        <span class="username">{{ user.display_name|default:user.username }}</span>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+            {% if staff_users %}
+              <div class="user-list staff-users">
+                <h2>{% translate "Moderators" %}</h2>
+                <ul>
+                  {% for user in staff_users %}
+                    <li>
+                      <a href="{{ user.url }}" class="user-link">
+                        <img src="{{ user.avatar }}"
+                             alt="{{ user.username }}"
+                             class="avatar"
+                             width="32"
+                             height="32">
+                        <span class="username">{{ user.display_name|default:user.username }}</span>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          </section>
+        {% endif %}
+      </article>
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>
