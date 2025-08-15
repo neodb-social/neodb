@@ -48,6 +48,7 @@ class AbstractSite:
     ID_TYPE: IdType | None = None
     WIKI_PROPERTY_ID: str | None = "P0undefined0"
     DEFAULT_MODEL: Type[Item] | None = None
+    MATCHABLE_MODELS: list[Type[Item]] = []
     URL_PATTERNS = [r"\w+://undefined/(\d+)"]
 
     @classmethod
@@ -140,6 +141,15 @@ class AbstractSite:
                 matched_resource = ExternalResource.objects.filter(url=url).first()
                 if matched_resource and matched_resource.item:
                     return matched_resource.item
+            else:
+                t = resource_link.get("id_type")
+                v = resource_link.get("id_value")
+                if t and v:
+                    matched_resource = ExternalResource.objects.filter(
+                        id_type=t, id_value=v
+                    ).first()
+                    if matched_resource and matched_resource.item:
+                        return matched_resource.item
         model = resource.get_item_model(cls.DEFAULT_MODEL)
         if not model:
             return None

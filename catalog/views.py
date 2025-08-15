@@ -6,6 +6,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -292,32 +293,21 @@ def notes(request, item_path, item_uuid):
     )
 
 
+@cache_page(3600 * 24)
 @require_http_methods(["GET", "HEAD"])
-def wikipedia_pages(request, item_path, item_uuid):
+def wikipedia_pages(request, item_path, item_uuid, wikidata_id):
     """HTMX endpoint to display Wikipedia pages for a WikiData entity"""
-    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-
-    # Find the WikiData resource associated with this item
-    wikidata_resource = None
-    for resource in item.external_resources.all():
-        if resource.id_type == "wikidata":
-            wikidata_resource = resource
-            break
-
-    if not wikidata_resource:
-        return render(
-            request, "_wikipedia_pages.html", {"item": item, "wikipedia_pages": None}
-        )
-
-    # Get Wikipedia pages using the WikiData ID
-    wiki_pages = WikiData.get_wikipedia_pages_for_id(wikidata_resource.id_value)
-
+    wikidata = get_object_or_404(
+        ExternalResource, id_value=wikidata_id, id_type=IdType.WikiData
+    )
+    site = WikiData(id_value=wikidata.id_value)
+    wiki_pages = site.get_wikipedia_pages()
     return render(
         request,
         "_wikipedia_pages.html",
         {
-            "item": item,
-            "wikidata_url": wikidata_resource.url,
+            "item": wikidata.item,
+            "wikidata_url": wikidata.url,
             "wikipedia_pages": wiki_pages,
         },
     )

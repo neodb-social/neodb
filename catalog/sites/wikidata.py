@@ -101,7 +101,6 @@ class WikidataProperties:
     P953 = "P953"  # full work available at URL
     P1113 = "P1113"  # number of episodes
     P1476 = "P1476"  # title
-    P1733 = "P1733"  # Steam application ID
     P1809 = "P1809"  # choreographer
     P2047 = "P2047"  # duration
     P2408 = "P2408"  # set in period
@@ -113,18 +112,62 @@ class WikidataProperties:
     P5028 = "P5028"  # sound designer
     P5029 = "P5029"  # costume designer
     P5030 = "P5030"  # lighting designer
-    P5794 = "P5794"  # IGDB game ID
-    P5831 = "P5831"  # Spotify show ID
-    P5842 = "P5842"  # Apple Podcasts podcast ID
 
     # External identifiers
     P123 = "P123"  # publisher
+    P212 = "P212"  # ISBN-13
     P345 = "P345"  # IMDb ID
+    P436 = "P436"  # MusicBrainz release group ID
+    P675 = "P675"  # Google Books ID
+    P957 = "P957"  # ISBN-10
     P1712 = "P1712"  # Metacritic ID
+    P1733 = "P1733"  # Steam application ID
+    P1954 = "P1954"  # Discogs master ID
     P2002 = "P2002"  # Twitter username
     P2003 = "P2003"  # Instagram username
     P2013 = "P2013"  # Facebook ID
+    P2206 = "P2206"  # Discogs release ID
+    P2339 = "P2339"  # BoardGameGeek ID
     P2397 = "P2397"  # YouTube channel ID
+    P2969 = "P2969"  # Goodreads edition ID
+    P4529 = "P4529"  # Douban film ID
+    P4947 = "P4947"  # TMDb movie ID
+    P4983 = "P4983"  # TMDb TV series ID
+    P5732 = "P5732"  # Bangumi subject ID
+    P5794 = "P5794"  # IGDB game ID
+    P5831 = "P5831"  # Spotify show ID
+    P5842 = "P5842"  # Apple Podcasts podcast ID
+    P6442 = "P6442"  # Douban book version/edition ID
+    P6443 = "P6443"  # Douban drama ID
+    P6444 = "P6444"  # Douban game ID
+    P8383 = "P8383"  # Goodreads work ID
+    P8419 = "P8419"  # Archive of Our Own tag
+    P10319 = "P10319"  # Douban book works ID
+
+    IdTypeMapping = {
+        "P345": IdType.IMDB,
+        "P4529": IdType.DoubanMovie,
+        "P6444": IdType.DoubanGame,
+        "P6443": IdType.DoubanDrama,
+        "P6442": IdType.DoubanBook,  # Douban book version/edition ID
+        "P10319": IdType.DoubanBook_Work,  # Douban book works ID
+        "P1733": IdType.Steam,
+        "P5794": IdType.IGDB,
+        "P2339": IdType.BGG,
+        "P5732": IdType.Bangumi,
+        "P212": IdType.ISBN,  # ISBN-13
+        "P957": IdType.ISBN10,  # ISBN-10
+        "P2969": IdType.Goodreads,  # Goodreads edition ID
+        "P8383": IdType.Goodreads_Work,  # Goodreads work ID
+        "P675": IdType.GoogleBooks,
+        "P4947": IdType.TMDB_Movie,  # TMDb movie ID
+        "P4983": IdType.TMDB_TV,  # TMDb TV series ID
+        "P1954": IdType.Discogs_Master,  # Discogs master ID
+        "P2206": IdType.Discogs_Release,  # Discogs release ID
+        "P436": IdType.MusicBrainz,  # MusicBrainz release group ID
+        # "P5842": IdType.ApplePodcasts,
+        "P5831": IdType.Spotify_Album,
+    }
 
 
 def _get_preferred_languages():
@@ -538,9 +581,25 @@ class WikiData(AbstractSite):
         elif model == Work:
             self._extract_work_metadata(entity_data, data)
 
-        # Extract common external identifiers
-        self._extract_external_ids(entity_data, data)
-
+        resources = self._extract_external_ids(entity_data)
+        prematched_resources = []
+        for res in resources:
+            try:
+                site_cls = SiteManager.get_site_cls_by_id_type(res["id_type"])
+                if (
+                    model == site_cls.DEFAULT_MODEL
+                    or model in site_cls.MATCHABLE_MODELS
+                ):
+                    prematched_resources.append(res)
+                else:
+                    logger.error(
+                        f"Skipping {res['id_type']}:{res['id_value']} for {self.id_value} as it does not match the {model}"
+                    )
+            except Exception as e:
+                logger.error(
+                    f"Error processing {res['id_type']} for {self.id_value}: {e}"
+                )
+        data.metadata["prematched_resources"] = prematched_resources
         return data
 
     def _extract_game_metadata(self, entity_data, data):
@@ -578,15 +637,6 @@ class WikiData(AbstractSite):
         # data.metadata["influenced_by"] = self._extract_string_list(entity_data, WikidataProperties.P2860)
         # data.metadata["based_on"] = self._extract_string_list(entity_data, WikidataProperties.P144)
         # data.metadata["part_of_series"] = self._extract_property_value(entity_data, WikidataProperties.P179)
-
-        # Extract external IDs
-        steam_id = self._extract_property_value(entity_data, WikidataProperties.P1733)
-        if steam_id:
-            data.lookup_ids["steam"] = steam_id["content"]
-
-        igdb_id = self._extract_property_value(entity_data, WikidataProperties.P5794)
-        if igdb_id:
-            data.lookup_ids["igdb"] = igdb_id["content"]
 
     def _extract_podcast_metadata(self, entity_data, data):
         """Extract Podcast-specific metadata"""
@@ -839,7 +889,7 @@ class WikiData(AbstractSite):
                 "props": "sitelinks",
             }
 
-            response = httpx.get(api_url, params=params, timeout=5)
+            response = httpx.get(api_url, params=params, timeout=2)
             data = response.json()
 
             if "entities" not in data or entity_id not in data["entities"]:
@@ -867,32 +917,14 @@ class WikiData(AbstractSite):
             logger.error(f"Error fetching Wikipedia pages for {entity_id}: {e}")
             return {}
 
-    @classmethod
-    def get_wikipedia_pages_for_id(cls, wikidata_id):
-        """Class method to get Wikipedia pages for a Wikidata ID without creating an instance"""
-        site = cls(id_value=wikidata_id)
-        return site.get_wikipedia_pages()
-
-    def _extract_external_ids(self, entity_data, data):
+    def _extract_external_ids(self, entity_data):
         """Extract common external identifiers to lookup_ids"""
-        # IMDb ID (for movies, TV shows, etc.)
-        imdb_id = self._extract_property_value(entity_data, WikidataProperties.P345)
-        if imdb_id and data.metadata.get("preferred_model") in [
-            "Movie",
-            "TVShow",
-            "TVSeason",
-            "TVEpisode",
-        ]:
-            data.lookup_ids["imdb"] = imdb_id["content"]
-
-        # Extract Wikipedia links
-        wiki_pages = self.get_wikipedia_pages(entity_data)
-        if wiki_pages:
-            data.metadata["wikipedia_pages"] = wiki_pages
-
-        # Additional external IDs (as comments - these don't have IdType in NeoDB yet)
-        # metacritic_id = self._extract_property_value(entity_data, WikidataProperties.P1712)
-        # twitter_username = self._extract_property_value(entity_data, WikidataProperties.P2002)
-        # instagram_username = self._extract_property_value(entity_data, WikidataProperties.P2003)
-        # facebook_id = self._extract_property_value(entity_data, WikidataProperties.P2013)
-        # youtube_channel_id = self._extract_property_value(entity_data, WikidataProperties.P2397)
+        resources = []
+        for property_id, id_type in WikidataProperties.IdTypeMapping.items():
+            value = self._extract_property_value(entity_data, property_id)
+            if value:
+                # Handle both v0 and v1 API formats
+                if isinstance(value, dict):
+                    value = value.get("content") or value.get("text")
+                resources.append({"id_type": id_type, "id_value": value})
+        return resources

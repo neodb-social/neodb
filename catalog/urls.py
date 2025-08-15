@@ -26,21 +26,21 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/embed$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/embed$",
         embed,
         name="embed",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})$",
         retrieve,
         name="retrieve",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/$",
         retrieve_redirect,
         name="retrieve_redirect",
     ),
@@ -49,7 +49,7 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/history$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/history$",
         history,
         name="history",
     ),
@@ -63,119 +63,119 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/delete$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/delete$",
         delete,
         name="delete",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/assign_parent$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/assign_parent$",
         assign_parent,
         name="assign_parent",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/remove_unused_seasons$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/remove_unused_seasons$",
         remove_unused_seasons,
         name="remove_unused_seasons",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/fetch_tvepisodes$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/fetch_tvepisodes$",
         fetch_tvepisodes,
         name="fetch_tvepisodes",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/suggest$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/suggest$",
         suggest,
         name="suggest",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/protect$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/protect$",
         protect,
         name="protect",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/merge$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/merge$",
         merge,
         name="merge",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/link_edition$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/link_edition$",
         link_edition,
         name="link_edition",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/unlink_works$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/unlink_works$",
         unlink_works,
         name="unlink_works",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/recast$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/recast$",
         recast,
         name="recast",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/comments_by_episode$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/comments_by_episode$",
         comments_by_episode,
         name="comments_by_episode",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/comments$",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/comments$",
         comments,
         name="comments",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/reviews",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/reviews",
         reviews,
         name="reviews",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/notes",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/notes",
         notes,
         name="notes",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/wikipedia_pages",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/wikidata/(?P<wikidata_id>\w+)/",
         wikipedia_pages,
         name="wikipedia_pages",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/review_list",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/review_list",
         review_list,
         name="review_list",
     ),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
-        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/marks(?:/(?P<following_only>\\w+))?",
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/marks(?:/(?P<following_only>\w+))?",
         mark_list,
         name="mark_list",
     ),

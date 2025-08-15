@@ -56,7 +56,7 @@
             {% if res.site_name == 'wikidata' %}
               <a href="{{ res.url }}"
                  class="{{ res.site_name }}"
-                 hx-get="{% url 'catalog:wikipedia_pages' item.url_path item.uuid %}"
+                 hx-get="{% url 'catalog:wikipedia_pages' item.url_path item.uuid res.id_value %}"
                  hx-target="body"
                  hx-swap="beforeend"
                  rel="noopener noreferrer">{{ res.site_label }}</a>

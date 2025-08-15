@@ -14,9 +14,6 @@ _logger = logging.getLogger(__name__)
 @SiteManager.register
 class IMDB(AbstractSite):
     """
-    IMDb site manager
-
-    IMDB ids map to Movie, TVShow or TVEpisode
     IMDB
     """
 
@@ -27,6 +24,7 @@ class IMDB(AbstractSite):
         r"\w+://m.imdb.com/title/(tt\d+)",
     ]
     WIKI_PROPERTY_ID = "?"
+    MATCHABLE_MODELS = [Movie, TVShow, TVEpisode]
 
     @classmethod
     def id_to_url(cls, id_value):

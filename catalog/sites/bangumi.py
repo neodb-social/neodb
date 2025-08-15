@@ -25,7 +25,7 @@ class Bangumi(AbstractSite):
         r"https://chii\.in/subject/(\d+)",
     ]
     WIKI_PROPERTY_ID = ""
-    DEFAULT_MODEL = None
+    MATCHABLE_MODELS = [Performance, TVSeason, Movie, Edition, Album, Game]
 
     @classmethod
     def get_category(

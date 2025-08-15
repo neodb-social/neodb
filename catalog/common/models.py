@@ -125,6 +125,7 @@ IdealIdTypes = [
     IdType.MusicBrainz,
     IdType.RSS,
     IdType.IMDB,
+    IdType.WikiData,
 ]
 
 

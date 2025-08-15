@@ -24,7 +24,7 @@ class DoubanMovie(AbstractSite):
         r"\w+://www.douban.com/doubanapp/dispatch/movie/(\d+)",
     ]
     WIKI_PROPERTY_ID = "?"
-    # no DEFAULT_MODEL as it may be either TV Season and Movie
+    MATCHABLE_MODELS = [Movie, TVSeason]
 
     @classmethod
     def id_to_url(cls, id_value):
