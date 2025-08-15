@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 
+from catalog.sites.wikidata import WikiData
 from common.utils import (
     CustomPaginator,
     PageLinksGenerator,
@@ -292,6 +293,36 @@ def notes(request, item_path, item_uuid):
 
 
 @require_http_methods(["GET", "HEAD"])
+def wikipedia_pages(request, item_path, item_uuid):
+    """HTMX endpoint to display Wikipedia pages for a WikiData entity"""
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+
+    # Find the WikiData resource associated with this item
+    wikidata_resource = None
+    for resource in item.external_resources.all():
+        if resource.id_type == "wikidata":
+            wikidata_resource = resource
+            break
+
+    if not wikidata_resource:
+        return render(
+            request, "_wikipedia_pages.html", {"item": item, "wikipedia_pages": None}
+        )
+
+    # Get Wikipedia pages using the WikiData ID
+    wiki_pages = WikiData.get_wikipedia_pages_for_id(wikidata_resource.id_value)
+
+    return render(
+        request,
+        "_wikipedia_pages.html",
+        {
+            "item": item,
+            "wikidata_url": wikidata_resource.url,
+            "wikipedia_pages": wiki_pages,
+        },
+    )
+
+
 def discover(request):
     cache_key = "public_gallery"
     gallery_list = cache.get(cache_key, [])

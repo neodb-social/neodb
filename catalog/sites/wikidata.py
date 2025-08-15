@@ -6,6 +6,7 @@ Uses the Wikidata REST API: https://www.wikidata.org/wiki/Wikidata:REST_API
 
 from urllib.parse import quote
 
+import httpx
 from loguru import logger
 
 from catalog.common import (
@@ -812,6 +813,66 @@ class WikiData(AbstractSite):
         # data.metadata["based_on"] = self._extract_string_list(entity_data, WikidataProperties.P144)
         # data.metadata["part_of_series"] = self._extract_property_value(entity_data, WikidataProperties.P179)
 
+    def get_wikipedia_pages(self, entity_data=None):
+        """Fetch all Wikipedia pages for this Wikidata entity
+
+        Returns a dictionary of language codes to Wikipedia page URLs.
+
+        Example: {
+            "en": "https://en.wikipedia.org/wiki/The_Matrix",
+            "zh": "https://zh.wikipedia.org/wiki/黑客帝国",
+            ...
+        }
+        """
+        if not entity_data and not self.id_value:
+            return {}
+
+        entity_id = self.id_value
+
+        try:
+            # Use Wikidata API to get all sitelinks (Wikipedia pages)
+            api_url = "https://www.wikidata.org/w/api.php"
+            params = {
+                "action": "wbgetentities",
+                "format": "json",
+                "ids": entity_id,
+                "props": "sitelinks",
+            }
+
+            response = httpx.get(api_url, params=params, timeout=5)
+            data = response.json()
+
+            if "entities" not in data or entity_id not in data["entities"]:
+                logger.warning(f"No entity data found for {entity_id}")
+                return {}
+
+            entity = data["entities"][entity_id]
+            if "sitelinks" not in entity:
+                logger.warning(f"No sitelinks found for {entity_id}")
+                return {}
+
+            # Extract Wikipedia pages
+            wiki_pages = {}
+            for site_key, site_data in entity["sitelinks"].items():
+                # Only include Wikipedia links (skip other projects like Wiktionary)
+                if site_key.endswith("wiki") and not site_key.startswith("commons"):
+                    lang_code = site_key.replace("wiki", "")
+                    title = site_data["title"]
+                    url = f"https://{lang_code}.wikipedia.org/wiki/{quote(title.replace(' ', '_'))}"
+                    wiki_pages[lang_code] = {"url": url, "title": title}
+
+            return wiki_pages
+
+        except Exception as e:
+            logger.error(f"Error fetching Wikipedia pages for {entity_id}: {e}")
+            return {}
+
+    @classmethod
+    def get_wikipedia_pages_for_id(cls, wikidata_id):
+        """Class method to get Wikipedia pages for a Wikidata ID without creating an instance"""
+        site = cls(id_value=wikidata_id)
+        return site.get_wikipedia_pages()
+
     def _extract_external_ids(self, entity_data, data):
         """Extract common external identifiers to lookup_ids"""
         # IMDb ID (for movies, TV shows, etc.)
@@ -823,6 +884,11 @@ class WikiData(AbstractSite):
             "TVEpisode",
         ]:
             data.lookup_ids["imdb"] = imdb_id["content"]
+
+        # Extract Wikipedia links
+        wiki_pages = self.get_wikipedia_pages(entity_data)
+        if wiki_pages:
+            data.metadata["wikipedia_pages"] = wiki_pages
 
         # Additional external IDs (as comments - these don't have IdType in NeoDB yet)
         # metacritic_id = self._extract_property_value(entity_data, WikidataProperties.P1712)

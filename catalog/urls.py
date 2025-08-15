@@ -161,6 +161,13 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/wikipedia_pages",
+        wikipedia_pages,
+        name="wikipedia_pages",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
         + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/review_list",
         review_list,
         name="review_list",

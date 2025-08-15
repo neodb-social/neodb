@@ -53,9 +53,18 @@
         </h1>
         <span class="site-list">
           {% for res in item.external_resources.all %}
-            <a href="{{ res.url }}"
-               class="{{ res.site_name }}"
-               rel="noopener noreferrer">{{ res.site_label }}</a>
+            {% if res.site_name == 'wikidata' %}
+              <a href="{{ res.url }}"
+                 class="{{ res.site_name }}"
+                 hx-get="{% url 'catalog:wikipedia_pages' item.url_path item.uuid %}"
+                 hx-target="body"
+                 hx-swap="beforeend"
+                 rel="noopener noreferrer">{{ res.site_label }}</a>
+            {% else %}
+              <a href="{{ res.url }}"
+                 class="{{ res.site_name }}"
+                 rel="noopener noreferrer">{{ res.site_label }}</a>
+            {% endif %}
           {% endfor %}
         </span>
       </div>
