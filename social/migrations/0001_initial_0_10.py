@@ -4,8 +4,6 @@ import django.db.models.deletion
 import django.utils.timezone
 from django.db import migrations, models
 
-import journal.models.mixins
-
 
 class Migration(migrations.Migration):
     """
@@ -26,7 +24,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("users", "0001_initial_0_10"),
-        ("journal", "0001_initial_0_10"),
     ]
 
     operations = [
@@ -63,12 +60,13 @@ class Migration(migrations.Migration):
                         db_index=True, default=django.utils.timezone.now
                     ),
                 ),
-                (
-                    "action_object",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="journal.piece"
-                    ),
-                ),
+                # removed for migration merge
+                # (
+                #     "action_object",
+                #     models.ForeignKey(
+                #         on_delete=django.db.models.deletion.CASCADE, to="journal.piece"
+                #     ),
+                # ),
                 (
                     "owner",
                     models.ForeignKey(
@@ -80,6 +78,7 @@ class Migration(migrations.Migration):
             options={
                 "index_together": {("owner", "created_time")},
             },
-            bases=(models.Model, journal.models.mixins.UserOwnedObjectMixin),
+            # removed for migration merge
+            # bases=(models.Model, journal.models.mixins.UserOwnedObjectMixin),
         ),
     ]

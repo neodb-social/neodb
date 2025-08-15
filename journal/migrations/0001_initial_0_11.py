@@ -27,13 +27,10 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("catalog", "0001_initial_0_10"),
         ("contenttypes", "0002_remove_content_type_name"),
         ("takahe", "0001_initial"),
-        ("users", "0001_initial_0_10"),
-        ("users", "0006_alter_task_type"),
-        ("users", "0007_alter_task_type"),
-        ("users", "0008_alter_task_type"),
+        ("catalog", "0001_initial_0_11"),
+        ("users", "0001_initial_0_11"),
     ]
 
     operations = [
