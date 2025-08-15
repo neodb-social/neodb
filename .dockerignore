@@ -1,4 +1,5 @@
 .DS_Store
+.data
 .env
 .venv
 .vscode
@@ -14,8 +15,10 @@ __pycache__
 /media
 /static
 /test_data
+/tests
 /neodb
 /neodb-takahe/docs
 /neodb-takahe/docker
 /neodb-takahe/static-collected
 /neodb-takahe/takahe/local_settings.py
+/neodb-takahe/tests
