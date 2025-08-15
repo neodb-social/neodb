@@ -1,9 +1,8 @@
-import logging
+from time import sleep
 
 from django.db import connection, models
+from loguru import logger
 from tqdm import tqdm
-
-logger = logging.getLogger(__name__)
 
 
 def fix_20250208():
@@ -139,3 +138,68 @@ def normalize_language_20250524():
                 i.save(update_fields=["metadata"])
                 u += 1
     logger.warning(f"normalize_language finished. {u} of {c} items updated.")
+
+
+def link_tmdb_wikidata_20250815(limit=None):
+    """
+    Scan all TMDB Movie and TVShow resources, refetch them, and link to WikiData resources if available.
+
+    This function:
+    1. Finds all ExternalResources with TMDB Movie and TVShow ID types
+    2. Refetches each TMDB resource to ensure we have the latest data
+    3. If the TMDB resource has a WikiData ID, fetches the corresponding WikiData resource
+    4. Links both resources to the same Item
+    """
+    from catalog.common import IdType, SiteManager
+    from catalog.common.models import ExternalResource
+    from catalog.sites.wikidata import WikiData
+
+    logger.warning("Starting TMDB-WikiData linking process")
+    tmdb_resources = ExternalResource.objects.filter(
+        id_type__in=[IdType.TMDB_Movie, IdType.TMDB_TV]
+    )
+    if limit:
+        tmdb_resources = tmdb_resources[:limit]
+    count_total = tmdb_resources.count()
+    count_with_wikidata = 0
+    count_errors = 0
+    logger.warning(f"Found {count_total} TMDB resources to process")
+    for resource in tqdm(tmdb_resources, total=count_total):
+        try:
+            site_cls = SiteManager.get_site_cls_by_id_type(resource.id_type)
+            if not site_cls:
+                logger.error(f"Could not find site class for {resource.id_type}")
+                count_errors += 1
+                continue
+            site = site_cls(resource.url)
+            try:
+                resource_content = site.scrape()
+            except Exception as e:
+                logger.error(f"Failed to scrape {resource.url}: {e}")
+                count_errors += 1
+                continue
+            wikidata_id = resource_content.lookup_ids.get(IdType.WikiData)
+            if not wikidata_id:
+                continue
+            resource.update_content(resource_content)
+            count_with_wikidata += 1
+            wiki_site = WikiData(id_value=wikidata_id)
+            try:
+                wiki_site.get_resource_ready()
+                logger.success(f"Linked WikiData {wiki_site} to {site}")
+            except Exception as e:
+                logger.error(f"Failed to process WikiData {wikidata_id}: {e}")
+                count_errors += 1
+            sleep(0.5)
+        except Exception as e:
+            logger.error(f"Error processing resource {resource}: {e}")
+            count_errors += 1
+    logger.warning("TMDB-WikiData linking process completed:")
+    logger.warning(f"  Total TMDB resources processed: {count_total}")
+    logger.warning(f"  TMDB resources with WikiData IDs: {count_with_wikidata}")
+    logger.warning(f"  Errors encountered: {count_errors}")
+    return {
+        "total": count_total,
+        "with_wikidata": count_with_wikidata,
+        "errors": count_errors,
+    }

@@ -303,7 +303,7 @@ class SiteManager:
         return target
 
     @staticmethod
-    def get_site_cls_by_id_type(typ: str) -> AbstractSite:
+    def get_site_cls_by_id_type(typ: str) -> type[AbstractSite]:
         if typ in SiteManager.registry:
             return SiteManager.registry[typ]
         else:

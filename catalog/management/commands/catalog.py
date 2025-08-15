@@ -27,6 +27,7 @@ purge:          purge deleted items
 migrate:        run migration
 search:         search docs in index
 extsearch:      search external sites
+link-wikidata:  link TMDB resources to WikiData resources
 idx-info:       show index information
 idx-init:       check and create index if not exists
 idx-destroy:    delete index
@@ -49,6 +50,7 @@ class Command(BaseCommand):
                 "migrate",
                 "search",
                 "extsearch",
+                "link-wikidata",
                 "idx-info",
                 "idx-init",
                 "idx-alt",
@@ -77,6 +79,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--query",
+            help="Search query",
         )
         parser.add_argument(
             "--url",
@@ -108,6 +111,10 @@ class Command(BaseCommand):
                 from catalog.common.migrations import normalize_language_20250524
 
                 normalize_language_20250524()
+            case "link_tmdb_wikidata":
+                from catalog.common.migrations import link_tmdb_wikidata_20250815
+
+                link_tmdb_wikidata_20250815()
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
@@ -124,6 +131,40 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f"{time.time() - start_time} seconds, {len(results)} items."
+            )
+        )
+
+    def link_wikidata(self, limit=None):
+        """Link TMDB resources to WikiData resources"""
+        from catalog.common.migrations import link_tmdb_wikidata_20250815
+
+        self.stdout.write("Starting TMDB-WikiData linking process...")
+        start_time = time.time()
+
+        # Convert limit to int if provided
+        if limit and limit.isdigit():
+            limit = int(limit)
+        else:
+            limit = None
+
+        # Run the linking process
+        results = link_tmdb_wikidata_20250815(limit)
+
+        # Output results
+        self.stdout.write(
+            self.style.SUCCESS("TMDB-WikiData linking process completed:")
+        )
+        self.stdout.write(f"  Total TMDB resources processed: {results['total']}")
+        self.stdout.write(
+            f"  TMDB resources with WikiData IDs: {results['with_wikidata']}"
+        )
+        self.stdout.write(
+            f"  Successfully linked WikiData resources: {results['linked']}"
+        )
+        self.stdout.write(f"  Errors encountered: {results['errors']}")
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Process completed in {time.time() - start_time:.2f} seconds."
             )
         )
 
@@ -314,6 +355,9 @@ class Command(BaseCommand):
 
             case "extsearch":
                 self.external_search(query, category)
+
+            case "link-wikidata":
+                self.link_wikidata()
 
             case "idx-destroy":
                 if yes or input(_CONFIRM).upper().startswith("Y"):
