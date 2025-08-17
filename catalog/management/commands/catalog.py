@@ -158,9 +158,6 @@ class Command(BaseCommand):
         self.stdout.write(
             f"  TMDB resources with WikiData IDs: {results['with_wikidata']}"
         )
-        self.stdout.write(
-            f"  Successfully linked WikiData resources: {results['linked']}"
-        )
         self.stdout.write(f"  Errors encountered: {results['errors']}")
         self.stdout.write(
             self.style.SUCCESS(
