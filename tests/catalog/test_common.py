@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.common import SiteManager, use_local_response
-from catalog.models import IdType, SiteName
+from catalog.models import Edition, IdType, SiteName, Work
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -50,6 +50,7 @@ class TestBooksTW:
         assert site.resource.id_type == IdType.BooksTW
         assert site.resource.id_value == "0010947886"
         assert site.resource.item is not None
+        assert isinstance(site.resource.item, Edition)
         assert site.resource.item.isbn == "9786263152236"
         assert site.resource.item.format == "paperback"
         assert (
@@ -81,6 +82,7 @@ class TestDoubanBook:
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None
         assert site.ready is False
+        assert site.get_item() is None
         site.get_resource_ready()
         assert site.ready is True
         assert site.resource is not None
@@ -90,7 +92,9 @@ class TestDoubanBook:
         assert site.resource.id_type == IdType.DoubanBook
         assert site.resource.id_value == "35902899"
         assert site.resource.item is not None
+        assert isinstance(site.resource.item, Edition)
         assert site.resource.item.isbn == "9781847498571"
+        assert isinstance(site.resource.item, Edition)
         assert site.resource.item.format == "paperback"
         assert site.resource.item.display_title == "1984 Nineteen Eighty-Four"
 
@@ -122,9 +126,13 @@ class TestDoubanBook:
         assert site2 is not None
         p2 = site2.get_resource_ready()
         assert p2 is not None
-        assert p2.item is not None
+        assert isinstance(p1.item, Edition)
         w1 = p1.item.get_work()
+        assert isinstance(p2.item, Edition)
+        assert p1.item != p2.item
         w2 = p2.item.get_work()
+        assert isinstance(w1, Work)
+        assert isinstance(w2, Work)
         assert w1.display_title == "黄金时代"
         assert w2.display_title == "黄金时代"
         assert w1 == w2
@@ -166,6 +174,8 @@ class TestAO3:
         assert site.resource.id_value == "2080878"
         assert site.resource.item is not None
         assert site.resource.item.display_title == "I Am Groot"
+        assert isinstance(site.resource.item, Edition)
+        assert isinstance(site.resource.item, Edition)
         assert site.resource.item.author[0] == "sherlocksmyth"
 
 
@@ -199,4 +209,5 @@ class TestQidian:
         assert site.resource.id_value == "1010868264"
         assert site.resource.item is not None
         assert site.resource.item.display_title == "诡秘之主"
+        assert isinstance(site.resource.item, Edition)
         assert site.resource.item.author[0] == "爱潜水的乌贼"

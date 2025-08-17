@@ -32,7 +32,6 @@ class IMDB(AbstractSite):
 
     def scrape(self):
         res_data = search_tmdb_by_imdb_id(self.id_value)
-
         url = None
         pd = None
         if (
@@ -167,7 +166,7 @@ class IMDB(AbstractSite):
                     site = SiteManager.get_site_by_url(e["url"])
                     if site:
                         res = site.get_resource_ready()
-                        if res and res.item:
+                        if res and res.item and isinstance(res.item, TVEpisode):
                             episode = res.item
                             episode.set_parent_item(season)
                             episode.season_number = season.season_number

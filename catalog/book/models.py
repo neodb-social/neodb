@@ -294,7 +294,7 @@ class Edition(Item):
         if work:
             work.editions.add(self)
 
-    def merge_to(self, to_item: "Edition | None"):  # type: ignore[reportIncompatibleMethodOverride]
+    def merge_to(self, to_item):
         super().merge_to(to_item)
         if to_item:
             if self.merge_title():
@@ -314,45 +314,24 @@ class Edition(Item):
             self.set_work(None)
         return super().delete(*args, **kwargs)
 
-    def update_linked_items_from_external_resource(self, resource):
-        """add Work from resource.metadata['work'] if not yet"""
-        links = resource.required_resources + resource.related_resources
-        for w in links:
-            if w.get("model") == "Work":
-                work_res = ExternalResource.objects.filter(
-                    id_type=w["id_type"], id_value=w["id_value"]
-                ).first()
-                if work_res:
-                    work = work_res.item
-                    if not work:
-                        logger.warning(f"Unable to find work for {work_res}")
-                else:
-                    logger.warning(
-                        f"Unable to find resource for {w['id_type']}:{w['id_value']}"
-                    )
-                    work = Work.objects.filter(
-                        primary_lookup_id_type=w["id_type"],
-                        primary_lookup_id_value=w["id_value"],
-                    ).first()
-                if work:
-                    w = self.get_work()
-                    if w:
-                        if w != work:
-                            w.log_action(
-                                {"!link_and_merge": [str(self), str(resource)]}
-                            )
-                            logger.info(
-                                f"Merging {work} to {w} when fetching from {resource}"
-                            )
-                            work.merge_to(w)
-                    else:
-                        self.set_work(work)
+    def process_fetched_item(self, fetched, link_type):
+        if link_type == ExternalResource.LinkType.PARENT and isinstance(fetched, Work):
+            w = self.get_work()
+            if w:
+                if w == fetched:
+                    return False
+                w.log_action({"!merge_on_fetch": [str(self), str(fetched)]})
+                logger.info(f"Merging {fetched} to {w} when fetched {self}.")
+                fetched.merge_to(w)
+            else:
+                self.set_work(fetched)
+            return True
+        return False
 
-    def merge_data_from_external_resource(
-        self, p: "ExternalResource", ignore_existing_content: bool = False
-    ):
-        super().merge_data_from_external_resource(p, ignore_existing_content)
-        self.merge_title()
+    def normalize_metadata(self, override_resources=[]):
+        r = super().normalize_metadata(override_resources)
+        r |= self.merge_title()
+        return r
 
     def merge_title(self) -> bool:
         # Edition should have only one title, so extra titles will be merged to other_title, return True if updated
@@ -491,13 +470,13 @@ class Work(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
-    def merge_to(self, to_item: "Work | None"):  # type: ignore[reportIncompatibleMethodOverride]
+    def merge_to(self, to_item):
         super().merge_to(to_item)
         if not to_item:
             return
         for edition in self.editions.all():
             edition.set_work(to_item)
-        to_item.language = uniq(to_item.language + self.language)  # type: ignore
+        to_item.language = uniq(to_item.language + self.language)
         to_item.localized_title = uniq(to_item.localized_title + self.localized_title)
         to_item.save()
 
@@ -514,29 +493,6 @@ class Work(Item):
             return url
         e = next(filter(lambda e: e.cover_image_url, self.editions.all()), None)
         return e.cover_image_url if e else None
-
-    def update_linked_items_from_external_resource(self, resource):
-        """add Edition from resource.metadata['required_resources'] if not yet"""
-        links = resource.required_resources + resource.related_resources
-        for e in links:
-            if e.get("model") == "Edition":
-                edition_res = ExternalResource.objects.filter(
-                    id_type=e["id_type"], id_value=e["id_value"]
-                ).first()
-                if edition_res:
-                    edition = edition_res.item
-                    if not edition:
-                        logger.warning(f"Unable to find edition for {edition_res}")
-                else:
-                    logger.warning(
-                        f"Unable to find resource for {e['id_type']}:{e['id_value']}"
-                    )
-                    edition = Edition.objects.filter(
-                        primary_lookup_id_type=e["id_type"],
-                        primary_lookup_id_value=e["id_value"],
-                    ).first()
-                if edition:
-                    edition.set_work(self)
 
     def to_indexable_doc(self):
         return {}  # no index for Work, for now

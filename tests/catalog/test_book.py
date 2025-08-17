@@ -185,9 +185,6 @@ class TestGoodreads:
 
     @use_local_response
     def test_scrape_g(self):
-        from django.conf import settings
-
-        print(settings.DATABASES.values())
         t_url = "https://www.goodreads.com/book/show/77566.Hyperion"
         t_url2 = "https://www.goodreads.com/book/show/77566"
         isbn = "9780553283686"
@@ -242,12 +239,14 @@ class TestGoodreads:
         assert site is not None
         site.get_resource_ready()
         assert site.resource is not None
-        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Edition)
+        print(site.resource.id_type, site.resource.id_value)
+        print(site.resource.other_lookup_ids)
         assert site.resource.item.display_title == "Hyperion"
         assert site.resource.item.asin == "B004G60EHS"
 
     @use_local_response
-    def test_work(self):
+    def test_work_g(self):
         url = "https://www.goodreads.com/work/editions/153313"
         site = SiteManager.get_site_by_url(url)
         assert site is not None
@@ -267,7 +266,9 @@ class TestGoodreads:
         p2 = site2.get_resource_ready()
         assert p2 is not None
         assert p2.item is not None
+        assert isinstance(p1.item, Edition)
         w1 = p1.item.get_work()
+        assert isinstance(p2.item, Edition)
         w2 = p2.item.get_work()
         assert w1 == w2
 
@@ -302,6 +303,7 @@ class TestGoogleBooks:
         assert site.resource.id_type == IdType.GoogleBooks
         assert site.resource.id_value == "hV--zQEACAAJ"
         assert site.resource.item is not None
+        assert isinstance(site.resource.item, Edition)
         assert site.resource.item.isbn == "9781847498571"
         assert site.resource.item.localized_title == [
             {"lang": "en", "text": "1984 Nineteen Eighty-Four"}

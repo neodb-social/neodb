@@ -42,6 +42,7 @@ class WikidataTypes:
     TV_SERIES = "Q5398426"  # Television series
     TV_SEASON = "Q3464665"  # Television season
     TV_EPISODE = "Q21191270"  # Television episode
+    TV_SPECIAL = "Q1261214"
     MEDIA_FRANCHISE = "Q134556"  # Media franchise/series
     VIDEO_GAME = "Q7889"  # Video game
     PODCAST_SHOW = "Q24634210"  # Podcast show/series
@@ -447,7 +448,11 @@ class WikiData(AbstractSite):
         elif WikidataTypes.TV_SEASON in instance_of_values:
             return TVSeason
         elif WikidataTypes.TV_EPISODE in instance_of_values:
-            return TVEpisode
+            if WikidataTypes.TV_SPECIAL in instance_of_values:
+                # Treat special episodes as Movie, align with Douban & IMDb
+                return Movie
+            else:
+                return TVEpisode
         elif WikidataTypes.VIDEO_GAME in instance_of_values:
             return Game
         elif WikidataTypes.PODCAST_SHOW in instance_of_values:
@@ -591,6 +596,7 @@ class WikiData(AbstractSite):
                     or model in site_cls.MATCHABLE_MODELS
                 ):
                     prematched_resources.append(res)
+                    data.lookup_ids[res["id_type"]] = res["id_value"]
                 else:
                     logger.error(
                         f"Skipping {res['id_type']}:{res['id_value']} for {self.id_value} as it does not match the {model}"
@@ -599,7 +605,7 @@ class WikiData(AbstractSite):
                 logger.error(
                     f"Error processing {res['id_type']} for {self.id_value}: {e}"
                 )
-        data.metadata["prematched_resources"] = prematched_resources
+        # data.metadata["prematched_resources"] = prematched_resources
         return data
 
     def _extract_game_metadata(self, entity_data, data):

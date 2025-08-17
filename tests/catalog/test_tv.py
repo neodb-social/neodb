@@ -1,9 +1,8 @@
 import pytest
 
 from catalog.common import SiteManager, use_local_response
-from catalog.models import IdType
+from catalog.models import IdType, Movie, TVEpisode, TVSeason, TVShow
 from catalog.sites.imdb import IMDB
-from catalog.tv.models import TVShow
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -38,7 +37,7 @@ class TestTMDBTV:
         assert site.ready
         assert site.resource is not None
         assert site.resource.metadata["title"] == "Doctor Who"
-        assert site.resource.item is not None
+        assert isinstance(site.resource.item, TVShow)
         assert site.resource.item.primary_lookup_id_type == IdType.IMDB
         assert site.resource.item.__class__.__name__ == "TVShow"
         assert site.resource.item.imdb == "tt0436992"
@@ -70,7 +69,7 @@ class TestTMDBTVSeason:
         assert site.ready
         assert site.resource is not None
         assert site.resource.metadata["title"] == "Doctor Who Series 4"
-        assert site.resource.item is not None
+        assert isinstance(site.resource.item, TVSeason)
         assert site.resource.item.primary_lookup_id_type == IdType.IMDB
         assert site.resource.item.__class__.__name__ == "TVSeason"
         assert site.resource.item.imdb == "tt1159991"
@@ -91,9 +90,8 @@ class TestTMDBEpisode:
         assert site.ready
         assert site.resource is not None
         assert site.resource.metadata["title"] == "Partners in Crime"
-        assert site.resource.item is not None
+        assert isinstance(site.resource.item, TVEpisode)
         assert site.resource.item.primary_lookup_id_type == IdType.IMDB
-        assert site.resource.item.__class__.__name__ == "TVEpisode"
         assert site.resource.item.imdb == "tt1159991"
         assert site.resource.item.season is not None
         assert site.resource.item.season.imdb == "tt1159991"
@@ -110,8 +108,7 @@ class TestDoubanMovieTV:
         assert site3 is not None
         p3 = site3.get_resource_ready()
         assert p3 is not None
-        assert p3.item is not None
-        assert p3.item.__class__.__name__ == "TVSeason"
+        assert isinstance(p3.item, TVSeason)
         assert p3.item.show is not None
         assert p3.item.show.imdb == "tt0436992"
 
@@ -133,10 +130,9 @@ class TestDoubanMovieTV:
         assert site is not None
         resource = site.get_resource_ready()
         assert resource is not None
-        assert resource.item is not None
-        item = resource.item
         # disable this test to make douban data less disrupted
-        assert item.imdb == "tt21599650"
+        assert isinstance(resource.item, TVSeason)
+        assert resource.item.imdb == "tt21599650"
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -157,7 +153,7 @@ class TestMultiTVSites:
         assert p1.item is not None
         assert p2 is not None
         assert p2.item is not None
-        assert p1.item.id == p2.item.id
+        assert p1.item == p2.item
         # assert p2.item.id == p3.item.id
 
     @use_local_response
@@ -180,10 +176,13 @@ class TestMultiTVSites:
         assert p2.item is not None
         assert p3 is not None
         assert p3.item is not None
+        assert isinstance(p1.item, TVSeason)
+        assert isinstance(p2.item, TVSeason)
+        assert isinstance(p3.item, TVEpisode)
         assert p1.item.imdb == p2.item.imdb
         assert p2.item.imdb == p3.item.imdb
-        assert p1.item.id == p2.item.id
-        assert p2.item.id != p3.item.id
+        assert p1.item == p2.item
+        assert p2.item != p3.item
 
     @use_local_response
     def test_miniseries(self):
@@ -199,42 +198,62 @@ class TestMultiTVSites:
         assert p1.item is not None
         assert p3 is not None
         assert p3.item is not None
-        assert p3.item.__class__.__name__ == "TVSeason"
+        assert isinstance(p3.item, TVSeason)
         assert p3.item.show is not None
         assert p1.item == p3.item.show
 
     @use_local_response
     def test_tvspecial(self):
+        """test how imdb / tmdb / douban handle tv special episodes"""
+        # a movie in tmdb, linked to imdb episode below
         url1 = "https://www.themoviedb.org/movie/282758-doctor-who-the-runaway-bride"
+        # an episode in imdb (season=unknown), tmdb claims it's both a movie and a tv episode
         url2 = "https://www.imdb.com/title/tt0827573/"
+        # a movie in douban, linked to imdb episode
         url3 = "https://movie.douban.com/subject/4296866/"
+        # an episode in tmdb (season=0), linked to same imdb above
+        url4 = "https://www.themoviedb.org/tv/57243-doctor-who/season/0/episode/4"
+        # wikibase tv episode / tv special, linked to imdb, douban and tmdb movie
+        url5 = "https://www.wikidata.org/wiki/Q2082426"
         site1 = SiteManager.get_site_by_url(url1)
         site2 = SiteManager.get_site_by_url(url2)
         site3 = SiteManager.get_site_by_url(url3)
+        site4 = SiteManager.get_site_by_url(url4)
+        site5 = SiteManager.get_site_by_url(url5)
         assert site1 is not None
         assert site2 is not None
         assert site3 is not None
+        assert site4 is not None
+        assert site5 is not None
         p1 = site1.get_resource_ready()
         p2 = site2.get_resource_ready()
         p3 = site3.get_resource_ready()
+        p4 = site4.get_resource_ready()
+        p5 = site5.get_resource_ready()
         assert p1 is not None
-        assert p1.item is not None
         assert p2 is not None
-        assert p2.item is not None
         assert p3 is not None
-        assert p3.item is not None
+        assert p4 is not None
+        assert p5 is not None
+        assert isinstance(p1.item, Movie)
+        assert isinstance(p2.item, Movie)
+        assert isinstance(p3.item, Movie)
+        assert isinstance(p4.item, TVEpisode)
+        assert isinstance(p5.item, Movie)
         assert p1.item.imdb == p2.item.imdb
         assert p2.item.imdb == p3.item.imdb
-        assert p1.item.id == p2.item.id
-        assert p2.item.id == p3.item.id
+        assert p1.item.imdb == p4.item.imdb
+        assert p1.item.imdb == p5.item.imdb
+        assert p1.item == p2.item
+        assert p1.item == p3.item
+        assert p1.item != p4.item
+        assert p1.item == p5.item
 
 
 @pytest.mark.django_db(databases="__all__")
 class TestMovieTVModelRecast:
     @use_local_response
     def test_recast(self):
-        from catalog.models import Movie
-
         url2 = "https://www.imdb.com/title/tt0436992/"
         site2 = SiteManager.get_site_by_url(url2)
         assert site2 is not None
@@ -260,7 +279,7 @@ class TestIMDB:
         assert resource is not None
         assert resource.item is not None
         season = resource.item
-        assert season is not None
+        assert isinstance(season, TVSeason)
         assert season.season_number is None
         IMDB.fetch_episodes_for_season(season)
         # no episodes fetch bc no season number
@@ -303,9 +322,8 @@ class TestIMDB:
         assert site.ready
         assert site.resource is not None
         assert site.resource.metadata["title"] == "Li Shi Na Xie Shi"
-        assert site.resource.item is not None
+        assert isinstance(site.resource.item, TVShow)
         assert site.resource.item.primary_lookup_id_type == IdType.IMDB
-        assert site.resource.item.__class__.__name__ == "TVShow"
         assert site.resource.item.year == 2018
         assert site.resource.item.imdb == "tt10751754"
 
@@ -322,7 +340,7 @@ class TestIMDB:
         assert site.resource.metadata["title"] == "Partners in Crime"
         assert site.resource.item is not None
         assert site.resource.item.primary_lookup_id_type == IdType.IMDB
-        assert site.resource.item.__class__.__name__ == "TVEpisode"
+        assert isinstance(site.resource.item, TVEpisode)
         assert site.resource.item.imdb == "tt1159991"
         assert site.resource.item.season_number == 4
         assert site.resource.item.episode_number == 1
@@ -344,7 +362,7 @@ class TestIMDB:
         assert site.resource.metadata["title"] == "Cong tou kai shi"
         assert site.resource.item is not None
         assert site.resource.item.primary_lookup_id_type == IdType.IMDB
-        assert site.resource.item.__class__.__name__ == "TVEpisode"
+        assert isinstance(site.resource.item, TVEpisode)
         assert site.resource.item.imdb == "tt10751820"
         assert site.resource.item.season_number == 2
         assert site.resource.item.episode_number == 1
@@ -360,7 +378,7 @@ class TestBangumiTV:
         p1 = site1.get_resource_ready()
         assert p1 is not None
         assert p1.item is not None
-        assert p1.item.__class__.__name__ == "TVSeason"
+        assert isinstance(p1.item, TVSeason)
         assert p1.item.orig_title == "ヨスガノソラ"
         assert p1.item.site == "http://king-cr.jp/special/yosuganosora/"
         assert p1.item.director == ["高橋丈夫"]
@@ -370,8 +388,7 @@ class TestBangumiTV:
         assert site2 is not None
         p2 = site2.get_resource_ready()
         assert p2 is not None
-        assert p2.item is not None
-        assert p2.item.__class__.__name__ == "TVSeason"
+        assert isinstance(p2.item, TVSeason)
         assert p2.item.orig_title == "カウボーイビバップ"
         assert p2.item.site == "http://www.cowboybebop.org/"
         assert p2.item.director == ["渡辺信一郎"]

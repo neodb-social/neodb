@@ -17,6 +17,7 @@ from catalog.common import (
     SiteName,
 )
 from catalog.common.downloaders import DownloadError
+from catalog.common.scrapers import ParseError
 from catalog.models import (
     Album,
     Edition,
@@ -45,17 +46,17 @@ class FediverseInstance(AbstractSite):
         "barcode": IdType.GTIN,
     }
     supported_types = {
-        "Book": Edition,
-        "Edition": Edition,
-        "Movie": Movie,
-        "TVShow": TVShow,
-        "TVSeason": TVSeason,
-        "TVEpisode": TVEpisode,
-        "Album": Album,
-        "Game": Game,
-        "Podcast": Podcast,
-        "Performance": Performance,
-        "PerformanceProduction": PerformanceProduction,
+        "book": Edition,
+        "edition": Edition,
+        "movie": Movie,
+        "tvshow": TVShow,
+        "tvseason": TVSeason,
+        "tvepisode": TVEpisode,
+        "album": Album,
+        "game": Game,
+        "podcast": Podcast,
+        "performance": Performance,
+        "performanceproduction": PerformanceProduction,
     }
     request_header = {
         "User-Agent": settings.NEODB_USER_AGENT,
@@ -105,7 +106,10 @@ class FediverseInstance(AbstractSite):
             .download()
             .json()
         )
-        if not isinstance(j, dict) or j.get("type") not in cls.supported_types.keys():
+        if (
+            not isinstance(j, dict)
+            or j.get("type", "").lower() not in cls.supported_types.keys()
+        ):
             raise ValueError("Not a supported format or type")
         if j.get("id") != url:
             raise ValueError(f"ID mismatch: {j.get('id')} != {url}")
@@ -120,23 +124,36 @@ class FediverseInstance(AbstractSite):
             else (None, None)
         )
         ids = {}
-        data["preferred_model"] = data.get("type")
+        data["preferred_model"] = data.get("type", "")
         data["prematched_resources"] = []
+        model_cls = self.supported_types.get(data["preferred_model"])
+        if not model_cls:
+            raise ParseError(self, "preferred_model")
         for ext in data.get("external_resources", []):
-            site = SiteManager.get_site_by_url(ext.get("url"))
-            if site and site.ID_TYPE != self.ID_TYPE:
-                ids[site.ID_TYPE] = site.id_value
-                data["prematched_resources"].append(
-                    {
-                        "model": data["preferred_model"],
-                        "id_type": site.ID_TYPE,
-                        "id_value": site.id_value,
-                        "url": site.url,
-                    }
-                )
-        # for k, v in self.id_type_mapping.items():
-        #     if data.get(k):
-        #         ids[v] = data.get(k)
+            u = ext.get("url")
+            site = SiteManager.get_site_by_url(u)
+            if not site:
+                logger.error(f"FediverseInstance: {self.url} unsupported url {u}")
+                continue
+            if site.ID_TYPE == IdType.Fediverse:
+                # TODO add support to link across instances
+                continue
+            if not site.check_model_compatibility(model_cls):
+                logger.error(f"FediverseInstance: {self.url} incompatible url {u}")
+                continue
+            ids[site.ID_TYPE] = site.id_value
+            # data["prematched_resources"].append(
+            #     {
+            #         "model": data["preferred_model"],
+            #         "id_type": site.ID_TYPE,
+            #         "id_value": site.id_value,
+            #         "url": site.url,
+            #     }
+            # )
+        for k, v in self.id_type_mapping.items():
+            d = data.get(k)
+            if d:
+                ids[v] = d
         d = ResourceContent(
             metadata=data,
             cover_image=raw_img,

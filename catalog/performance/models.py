@@ -446,14 +446,15 @@ class PerformanceProduction(Item):
             self.show.cover_image_url if self.show else None
         )
 
-    def update_linked_items_from_external_resource(self, resource: ExternalResource):
-        for r in resource.required_resources:
-            if r["model"] == "Performance":
-                res = ExternalResource.objects.filter(
-                    id_type=r["id_type"], id_value=r["id_value"]
-                ).first()
-                if res and res.item:
-                    self.show = res.item
+    def process_fetched_item(self, fetched, link_type):
+        if (
+            link_type == ExternalResource.LinkType.PARENT
+            and isinstance(fetched, Performance)
+            and self.show != fetched
+        ):
+            self.show = fetched
+            return True
+        return False
 
     @cached_property
     def crew_by_role(self):

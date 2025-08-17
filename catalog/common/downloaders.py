@@ -47,8 +47,8 @@ def get_mock_mode():
 
 def get_mock_file(url):
     fn = url.replace("***REMOVED***", "1234")  # Thank you, Github Action -_-!
+    fn = re.sub(r"key=[*A-Za-z0-9_\-]+", "key_8964", fn)
     fn = re.sub(r"[^\w]", "_", fn)
-    fn = re.sub(r"_key_[*A-Za-z0-9]+", "_key_8964", fn)
     if len(fn) > 255:
         fn = fn[:255]
     return fn
@@ -70,7 +70,8 @@ class MockResponse:
         except Exception:
             self.content = b"Error: response file not found"
             self.status_code = 404
-            logger.debug(f"local response not found for {url} at {fn}")
+            if ".jpg" not in self.url:
+                logger.warning(f"local response not found for {url} at {fn}")
 
     @property
     def text(self):
@@ -89,9 +90,7 @@ class MockResponse:
 
     @property
     def headers(self):
-        return {
-            "Content-Type": "image/jpeg" if self.url.endswith("jpg") else "text/html"
-        }
+        return {"Content-Type": "image/jpeg" if ".jpg" in self.url else "text/html"}
 
 
 class DownloaderResponse(Response):

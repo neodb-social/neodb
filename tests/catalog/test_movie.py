@@ -1,6 +1,7 @@
 import pytest
 
 from catalog.common import *
+from catalog.movie.models import Movie
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -30,6 +31,7 @@ class TestDoubanMovie:
         assert site.resource.item is not None
         assert site.resource.item.primary_lookup_id_type == IdType.IMDB
         assert site.resource.item.__class__.__name__ == "Movie"
+        assert isinstance(site.resource.item, Movie)
         assert site.resource.item.imdb == "tt1375666"
 
 
@@ -64,6 +66,7 @@ class TestTMDBMovie:
         assert site.resource.item is not None
         assert site.resource.item.primary_lookup_id_type == IdType.IMDB
         assert site.resource.item.__class__.__name__ == "Movie"
+        assert isinstance(site.resource.item, Movie)
         assert site.resource.item.imdb == "tt2513074"
 
 
@@ -95,6 +98,7 @@ class TestIMDBMovie:
         assert site.resource.metadata["title"] == "Inception"
         assert site.resource.item is not None
         assert site.resource.item.primary_lookup_id_type == IdType.IMDB
+        assert isinstance(site.resource.item, Movie)
         assert site.resource.item.imdb == "tt1375666"
 
 
@@ -111,6 +115,7 @@ class TestBangumiMovie:
         assert site.resource.item is not None
         assert site.resource.item.display_title == "GHOST IN THE SHELL"
         assert site.resource.item.primary_lookup_id_type == IdType.IMDB
+        assert isinstance(site.resource.item, Movie)
         assert site.resource.item.imdb == "tt0113568"
 
 
@@ -137,8 +142,11 @@ class TestMultiMovieSites:
         p3 = site3.get_resource_ready()
         assert p3 is not None
         assert p3.item is not None
-        assert p1.item.id == p2.item.id
-        assert p2.item.id == p3.item.id
+        assert isinstance(p1.item, Movie)
+        assert isinstance(p2.item, Movie)
+        assert isinstance(p3.item, Movie)
+        assert p1.item == p2.item
+        assert p2.item == p3.item
         site4 = SiteManager.get_site_by_url(url4)
         assert site4 is not None
         p4 = site4.get_resource_ready()

@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.common import *
-from catalog.models import *
+from catalog.models import Album
 from catalog.music.utils import *
 from catalog.sites.spotify import Spotify
 
@@ -111,7 +111,9 @@ class TestMultiMusicSites:
         p2 = site2.get_resource_ready()
         assert p2 is not None
         assert p2.item is not None
-        assert p1.item.id == p2.item.id
+        assert isinstance(p1.item, Album)
+        assert isinstance(p2.item, Album)
+        assert p1.item == p2.item
 
     @use_local_response
     def test_albums_discogs(self):
@@ -127,7 +129,9 @@ class TestMultiMusicSites:
         p2 = site2.get_resource_ready()
         assert p2 is not None
         assert p2.item is not None
-        assert p1.item.id == p2.item.id
+        assert isinstance(p1.item, Album)
+        assert isinstance(p2.item, Album)
+        assert p1.item == p2.item
 
 
 @pytest.mark.django_db(databases="__all__")

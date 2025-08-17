@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.common import *
-from catalog.models import *
+from catalog.models import Game
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -28,7 +28,8 @@ class TestIGDB:
         assert site.ready
         assert site.resource is not None
         assert site.resource.metadata["title"] == "Portal 2"
-        assert site.resource.item is not None
+        print(site.resource.other_lookup_ids)
+        print(site.resource.metadata)
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.steam == "620"
         assert site.resource.item.genre == [
@@ -146,6 +147,7 @@ class TestBangumiGame:
         assert resource is not None
         assert resource.item is not None
         i = resource.item
+        assert isinstance(i, Game)
         assert i.genre == ["PUZ"]
         site2 = SiteManager.get_site_by_url("https://bgm.tv/subject/228086")
         assert site2 is not None
@@ -153,6 +155,7 @@ class TestBangumiGame:
         assert resource2 is not None
         assert resource2.item is not None
         i = resource2.item
+        assert isinstance(i, Game)
         assert i.genre == ["ADV", "Psychological Horror"]
 
 
@@ -176,6 +179,7 @@ class TestBoardGameGeek:
         # assert site.resource.item.display_title == "Terraforming Mars"
 
         assert len(site.resource.item.localized_title) == 16
+        assert isinstance(site.resource.item, Game)
         assert site.resource.item.platform == ["Boardgame"]
         assert site.resource.item.genre[0] == "Economic"  # type: ignore
         assert site.resource.item.designer == ["Jacob Fryxelius"]
@@ -198,7 +202,9 @@ class TestMultiGameSites:
         p2 = site2.get_resource_ready()
         assert p2 is not None
         assert p2.item is not None
-        assert p1.item.id == p2.item.id
+        assert isinstance(p1.item, Game)
+        assert isinstance(p2.item, Game)
+        assert p1.item == p2.item
         site3 = SiteManager.get_site_by_url(url3)
         assert site3 is not None
         p3 = site3.get_resource_ready()

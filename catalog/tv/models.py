@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Any
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from loguru import logger
 
 from catalog.common import (
     BaseSchema,
@@ -585,14 +586,15 @@ class TVSeason(Item):
 
         return data
 
-    def update_linked_items_from_external_resource(self, resource):
-        for w in resource.required_resources:
-            if w["model"] == "TVShow":
-                p = ExternalResource.objects.filter(
-                    id_type=w["id_type"], id_value=w["id_value"]
-                ).first()
-                if p and p.item:
-                    self.show = p.item
+    def process_fetched_item(self, fetched, link_type):
+        if (
+            link_type == ExternalResource.LinkType.PARENT
+            and isinstance(fetched, TVShow)
+            and self.show != fetched
+        ):
+            self.show = fetched
+            return True
+        return False
 
     def all_seasons(self):
         return self.show.all_seasons if self.show else []
@@ -655,14 +657,16 @@ class TVEpisode(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
-    def update_linked_items_from_external_resource(self, resource: ExternalResource):
-        for w in resource.required_resources:
-            if w["model"] == "TVSeason":
-                p = ExternalResource.objects.filter(
-                    id_type=w["id_type"], id_value=w["id_value"]
-                ).first()
-                if p and p.item:
-                    self.season = p.item
+    def process_fetched_item(self, fetched, link_type):
+        logger.debug(f"updating linked items for TVEpisode {self} from {fetched}")
+        if (
+            link_type == ExternalResource.LinkType.PARENT
+            and isinstance(fetched, TVSeason)
+            and self.season != fetched
+        ):
+            self.season = fetched
+            return True
+        return False
 
     def to_indexable_doc(self):
         return {}  # no index for TVEpisode, for now

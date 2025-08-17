@@ -647,10 +647,9 @@ class TestWikiData:
         # assert "Q471839" in content.metadata["genre"]  # Science fiction film
         # assert "Q188473" in content.metadata["genre"]  # Action film
         # assert "Q1860" in content.metadata["language"]  # English
-        prematch = content.metadata["prematched_resources"]
-        assert {"id_type": IdType.IMDB, "id_value": "tt0133093"} in prematch
-        assert {"id_type": IdType.TMDB_Movie, "id_value": "603"} in prematch
-        assert {"id_type": IdType.DoubanMovie, "id_value": "1291843"} in prematch
+        assert content.lookup_ids.get(IdType.IMDB) == "tt0133093"
+        assert content.lookup_ids.get(IdType.TMDB_Movie) == "603"
+        assert content.lookup_ids.get(IdType.DoubanMovie) == "1291843"
 
     @use_local_response
     def test_v1_api_format(self):
@@ -675,9 +674,8 @@ class TestWikiData:
         # assert "Q13361286" in content.metadata["platform"]  # PlayStation 4
         # assert "Q1422746" in content.metadata["genre"]  # Action RPG
         assert content.metadata["official_site"] == "https://www.cyberpunk.net"
-        prematch = content.metadata["prematched_resources"]
-        assert {"id_type": IdType.Steam, "id_value": "1091500"} in prematch
-        assert {"id_type": IdType.DoubanGame, "id_value": "25931998"} in prematch
+        assert content.lookup_ids.get(IdType.Steam) == "1091500"
+        assert content.lookup_ids.get(IdType.DoubanGame) == "25931998"
 
     @use_local_response
     def test_scrape_performance(self):

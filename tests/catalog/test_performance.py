@@ -1,7 +1,6 @@
 import pytest
 
-from catalog.common import *
-from catalog.common.sites import crawl_related_resources_task
+from catalog.common import IdType, SiteManager, use_local_response
 from catalog.performance.models import Performance
 
 
@@ -27,12 +26,15 @@ class TestDoubanDrama:
         assert p1.url_to_id(t_url2) == t_id
 
     @use_local_response
-    def test_scrape(self):
+    def test_scrape1(self):
         t_url = "https://www.douban.com/location/drama/25883969/"
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None
         resource = site.get_resource_ready()
         assert resource is not None
+        assert isinstance(resource.item, Performance)
+        assert len(resource.item.localized_title) == 2
+        assert resource.item.display_title == "不眠之人·拿破仑"
         item = site.get_item()
         assert item is not None
         assert isinstance(item, Performance)
@@ -68,6 +70,8 @@ class TestDoubanDrama:
         assert item.opening_date == "1974-04-21"
         assert item.choreographer == ["Pina Bausch"]
 
+    @use_local_response
+    def test_scrape_productions(self):
         t_url = "https://www.douban.com/location/drama/24849279/"
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None
@@ -77,9 +81,7 @@ class TestDoubanDrama:
         assert site.ready
         assert resource.metadata["title"] == "红花侠"
         assert resource.metadata["orig_title"] == "スカーレットピンパーネル"
-        item = site.get_item()
-        if item is None:
-            raise ValueError()
+        item = resource.item
         assert isinstance(item, Performance)
         assert item.display_title == "THE SCARLET PIMPERNEL"
         assert len(item.localized_title) == 3
@@ -100,7 +102,9 @@ class TestDoubanDrama:
             {"name": "龍真咲", "role": ""},
         ]
         assert len(resource.related_resources) == 4
-        crawl_related_resources_task(resource.pk)  # force the async job to run now
+        SiteManager.fetch_related_resources_task(
+            resource.pk
+        )  # force the async job to run now
         productions = sorted(list(item.productions.all()), key=lambda p: p.opening_date)
         assert len(productions) == 4
         assert productions[3].actor == [

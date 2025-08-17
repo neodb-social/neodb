@@ -20,9 +20,9 @@ from django.core.cache import cache
 from loguru import logger
 from validators import url as url_validate
 
-from common.models.lang import normalize_languages
+from common.models.misc import uniq
 
-from .models import ExternalResource, IdealIdTypes, IdType, Item, SiteName
+from .models import ExternalResource, IdType, Item, SiteName
 
 
 @dataclass
@@ -52,6 +52,15 @@ class AbstractSite:
     URL_PATTERNS = [r"\w+://undefined/(\d+)"]
 
     @classmethod
+    def check_model_compatibility(cls, model: Type[Item]) -> bool:
+        """
+        Check if the model is compatible with this site.
+        """
+        return model in cls.MATCHABLE_MODELS or (
+            cls.DEFAULT_MODEL is not None and issubclass(model, cls.DEFAULT_MODEL)
+        )
+
+    @classmethod
     def validate_url(cls, url: str):
         u = next(
             iter([re.match(p, url) for p in cls.URL_PATTERNS if re.match(p, url)]),
@@ -74,6 +83,10 @@ class AbstractSite:
             None,
         )
         return u[1] if u else None
+
+    def to_id_str(self) -> str | None:
+        if self.ID_TYPE and self.id_value:
+            return f"{self.ID_TYPE}:{self.id_value}"
 
     def __str__(self):
         return f"<{self.__class__.__name__}: {self.url}>"
@@ -123,93 +136,7 @@ class AbstractSite:
     def query_list(content, query: str) -> list:
         return list(content.xpath(query))
 
-    @classmethod
-    def match_existing_item_for_resource(
-        cls, resource: ExternalResource
-    ) -> Item | None:
-        """
-        try match an existing Item for a given ExternalResource
-
-        order of matching:
-        1. look for other ExternalResource by url in prematched_resources, if found, return the item
-        2. look for Item by primary_lookup_id_type and primary_lookup_id_value
-
-        """
-        for resource_link in resource.prematched_resources:
-            url = resource_link.get("url")
-            if url:
-                matched_resource = ExternalResource.objects.filter(url=url).first()
-                if matched_resource and matched_resource.item:
-                    return matched_resource.item
-            else:
-                t = resource_link.get("id_type")
-                v = resource_link.get("id_value")
-                if t and v:
-                    matched_resource = ExternalResource.objects.filter(
-                        id_type=t, id_value=v
-                    ).first()
-                    if matched_resource and matched_resource.item:
-                        return matched_resource.item
-        model = resource.get_item_model(cls.DEFAULT_MODEL)
-        if not model:
-            return None
-        ids = resource.get_lookup_ids(cls.DEFAULT_MODEL)
-        for t, v in ids:
-            matched = None
-            # matched = model.objects.filter(
-            #     primary_lookup_id_type=t,
-            #     primary_lookup_id_value=v,
-            #     title=resource.metadata["title"],
-            # ).first()
-            # if matched is None and resource.id_type not in [
-            #     IdType.DoubanMusic,  # DoubanMusic has many dirty data with same UPC
-            #     # IdType.Goodreads,  # previous scraper generated some dirty data
-            # ]:
-            matched = model.objects.filter(
-                primary_lookup_id_type=t, primary_lookup_id_value=v
-            ).first()
-            if matched is None:
-                matched = model.objects.filter(
-                    primary_lookup_id_type=resource.id_type,
-                    primary_lookup_id_value=resource.id_value,
-                ).first()
-            if matched and matched.merged_to_item:
-                matched = matched.merged_to_item
-            if (
-                matched
-                and matched.primary_lookup_id_type not in IdealIdTypes
-                and t in IdealIdTypes
-            ):
-                matched.primary_lookup_id_type = t
-                matched.primary_lookup_id_value = v
-                matched.save()
-            if matched:
-                return matched
-
-    @classmethod
-    def match_or_create_item_for_resource(cls, resource):
-        try:
-            previous_item = resource.item
-        except Item.DoesNotExist:
-            previous_item = None
-        resource.item = cls.match_existing_item_for_resource(resource) or previous_item
-        if resource.item is None:
-            model = resource.get_item_model(cls.DEFAULT_MODEL)
-            if not model:
-                return None
-            t, v = model.get_best_lookup_id(resource.get_all_lookup_ids())
-            obj = model.copy_metadata(resource.metadata)
-            obj["primary_lookup_id_type"] = t
-            obj["primary_lookup_id_value"] = v
-            resource.item = model.objects.create(**obj)
-        if previous_item != resource.item:
-            if previous_item:
-                previous_item.log_action({"unmatch": [str(resource), ""]})
-            resource.item.log_action({"!match": ["", str(resource)]})
-            resource.save(update_fields=["item"])
-        return resource.item
-
-    def get_item(self):
+    def get_item(self, ignore_existing_content: bool = False):
         p = self.get_resource()
         if not p:
             # raise ValueError(f'resource not available for {self.url}')
@@ -217,7 +144,8 @@ class AbstractSite:
         if not p.ready:
             # raise ValueError(f'resource not ready for {self.url}')
             return None
-        return self.match_or_create_item_for_resource(p)
+        p.match_and_link_item(self.DEFAULT_MODEL, ignore_existing_content)
+        return p.item
 
     @property
     def ready(self):
@@ -267,34 +195,20 @@ class AbstractSite:
         if not p.ready:
             logger.error(f"unable to get resource {self.url} ready")
             return None
-        if auto_create:  # and (p.item is None or p.item.is_deleted):
-            self.get_item()
         if auto_save:
             p.save()
-            if p.item:
-                p.item.merge_data_from_external_resources(ignore_existing_content)
-                p.item.ap_object  # validate schema and throw exception if invalid
-                if hasattr(p.item, "language"):  # normalize language list
-                    p.item.language = normalize_languages(p.item.language)
-                p.item.save()
-                self.scrape_additional_data()
+        if auto_create:
+            self.get_item(ignore_existing_content)
+        if auto_save and p.item:
+            self.scrape_additional_data()
         if auto_link:
-            for linked_resource in p.required_resources:
-                linked_url = linked_resource.get("url")
-                if linked_url:
-                    linked_site = SiteManager.get_site_by_url(linked_url)
-                    if linked_site:
-                        linked_site.get_resource_ready(
-                            auto_link=False,
-                            preloaded_content=linked_resource.get("content"),
-                        )
-                    else:
-                        logger.error(f"unable to get site for {linked_url}")
-            if p.related_resources or p.prematched_resources:
-                django_rq.get_queue("crawl").enqueue(crawl_related_resources_task, p.pk)
-            if p.item:
-                p.item.update_linked_items_from_external_resource(p)
-                p.item.save()
+            SiteManager.fetch_linked_resources(
+                p, p.required_resources, ExternalResource.LinkType.PARENT
+            )
+            if p.related_resources or p.other_lookup_ids or p.prematched_resources:
+                django_rq.get_queue("crawl").enqueue(
+                    SiteManager.fetch_related_resources_task, p.pk
+                )
         return p
 
 
@@ -311,6 +225,10 @@ class SiteManager:
             raise ValueError(f"Site for {id_type} already exists")
         SiteManager.registry[id_type] = target
         return target
+
+    @staticmethod
+    def has_id_type(typ: str) -> bool:
+        return typ in SiteManager.registry
 
     @staticmethod
     def get_site_cls_by_id_type(typ: str) -> type[AbstractSite]:
@@ -353,8 +271,21 @@ class SiteManager:
         )
 
     @staticmethod
+    def get_site_by_url_or_id(
+        url_or_id: str, detect_redirection: bool = True, detect_fallback: bool = True
+    ) -> AbstractSite | None:
+        if "://" not in url_or_id:
+            i = url_or_id.split(":", 1)
+            if len(i) == 2 and i[0] and i[1]:
+                return SiteManager.get_site_by_id(i[0], i[1])
+        else:
+            return SiteManager.get_site_by_url(
+                url_or_id, detect_redirection, detect_fallback
+            )
+
+    @staticmethod
     def get_site_by_url(
-        url: str, detect_redirection: bool = True
+        url: str, detect_redirection: bool = True, detect_fallback: bool = True
     ) -> AbstractSite | None:
         if not url or not url_validate(
             url,
@@ -366,11 +297,11 @@ class SiteManager:
             return None
         u = SiteManager.get_redirected_url(url, allow_head=detect_redirection)
         cls = SiteManager.get_class_by_url(u)
-        if cls is None:
+        if cls is None and detect_fallback:
             cls = SiteManager.get_fallback_class_by_url(u)
         if cls is None and u != url:
             cls = SiteManager.get_class_by_url(url)
-            if cls is None:
+            if cls is None and detect_fallback:
                 cls = SiteManager.get_fallback_class_by_url(url)
             if cls:
                 u = url
@@ -397,31 +328,88 @@ class SiteManager:
         ss = {s.SITE_NAME.value: s for s in sites if hasattr(s, "search_task")}
         return [ss[s] for s in settings.SEARCH_SITES if s in ss]
 
-
-def crawl_related_resources_task(resource_pk):
-    resource = ExternalResource.objects.filter(pk=resource_pk).first()
-    if not resource:
-        logger.warning(f"crawl resource not found {resource_pk}")
-        return
-    links = (resource.related_resources or []) + (resource.prematched_resources or [])
-    for w in links:
-        try:
-            item = None
-            site = None
-            if w.get("id_value") and w.get("id_type"):
-                site = SiteManager.get_site_by_id(w["id_type"], w["id_value"])
-            if not site and w.get("url"):
-                site = SiteManager.get_site_by_url(w["url"])
-            if site:
-                res = site.get_resource_ready(
-                    ignore_existing_content=False, auto_link=True
+    @classmethod
+    def fetch_linked_resources(cls, resource, linked_resources, link_type):
+        processed = False
+        for linked_resource in linked_resources:
+            linked_site = None
+            if "url" in linked_resource:
+                linked_site = SiteManager.get_site_by_url(linked_resource["url"])
+            elif (
+                "id_type" in linked_resource
+                and linked_resource.get("id_value")
+                and linked_resource.get("id_type") in SiteManager.registry
+            ):
+                linked_site = SiteManager.get_site_by_id(
+                    linked_resource["id_type"], linked_resource["id_value"]
                 )
-                item = site.get_item()
-                if item and res and w in resource.prematched_resources:
-                    item.merge_data_from_external_resource(res)
-            if item:
-                logger.info(f"crawled {w} {item}")
             else:
-                logger.warning(f"crawl {w} failed")
-        except Exception as e:
-            logger.warning(f"crawl {w} error {e}")
+                continue
+            if linked_site:
+                try:
+                    fetched = linked_site.get_resource_ready(
+                        auto_link=False,
+                        preloaded_content=linked_resource.get("content"),
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"error fetching {linked_resource} from {linked_site}: {e}"
+                    )
+                    continue
+                logger.success(f"fetched {resource}'s {link_type}: {fetched}")
+                if fetched:
+                    match link_type:
+                        case ExternalResource.LinkType.PARENT:
+                            processed |= resource.process_fetched_resource(
+                                fetched, ExternalResource.LinkType.PARENT
+                            )
+                            if (
+                                fetched.process_fetched_resource(
+                                    resource, ExternalResource.LinkType.CHILD
+                                )
+                                and fetched.item
+                            ):
+                                fetched.item.save()
+                        case ExternalResource.LinkType.CHILD:
+                            processed |= resource.process_fetched_resource(
+                                fetched, ExternalResource.LinkType.CHILD
+                            )
+                            if (
+                                fetched.process_fetched_resource(
+                                    resource, ExternalResource.LinkType.PARENT
+                                )
+                                and fetched.item
+                            ):
+                                fetched.item.save()
+                        case ExternalResource.LinkType.PREMATCHED:
+                            processed |= resource.process_fetched_resource(
+                                fetched, ExternalResource.LinkType.PREMATCHED
+                            )
+                        case _:
+                            logger.error(f"unknown link type {link_type}")
+            else:
+                logger.error(f"unable to get site for {linked_resource}")
+        if resource.item and processed:
+            resource.item.save()
+
+    @staticmethod
+    def fetch_related_resources_task(requester_resource_pk):
+        resource = ExternalResource.objects.filter(pk=requester_resource_pk).first()
+        if not resource:
+            logger.error(f"requester resource not found {requester_resource_pk}")
+            return
+        links = uniq(
+            [
+                {"id_type": t, "id_value": v}
+                for t, v in (resource.other_lookup_ids or {}).items()
+            ]
+            + (resource.prematched_resources or [])
+        )
+        if links:
+            SiteManager.fetch_linked_resources(
+                resource, links, ExternalResource.LinkType.PREMATCHED
+            )
+        if resource.related_resources:
+            SiteManager.fetch_linked_resources(
+                resource, resource.related_resources, ExternalResource.LinkType.CHILD
+            )

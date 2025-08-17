@@ -1,6 +1,7 @@
 import json
 import re
 import uuid
+from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Iterable, Self
 
@@ -11,7 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.signing import b62_decode, b62_encode
 from django.db import connection, models
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
@@ -21,7 +22,7 @@ from polymorphic.models import PolymorphicModel
 from catalog.common import jsondata
 from catalog.index import CatalogIndex
 from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, get_current_locales, uniq
-from common.models.lang import SCRIPT_CHOICES
+from common.models.lang import SCRIPT_CHOICES, normalize_languages
 from common.utils import get_file_absolute_url
 
 from .utils import item_cover_path, resource_cover_path
@@ -63,7 +64,7 @@ class SiteName(models.TextChoices):
     WikiData = "wikidata", _("WikiData")
 
 
-class IdType(models.TextChoices):
+class IdType(models.TextChoices):  # values must be in lowercase
     WikiData = "wikidata", _("WikiData")
     ISBN10 = "isbn10", _("ISBN10")
     ISBN = "isbn", _("ISBN")  # ISBN 13
@@ -125,6 +126,7 @@ IdealIdTypes = [
     IdType.MusicBrainz,
     IdType.RSS,
     IdType.IMDB,
+    IdType.Steam,
     IdType.WikiData,
 ]
 
@@ -493,14 +495,6 @@ class Item(PolymorphicModel):
             return None, None
         return lookup_id_type, lookup_id_value.strip()
 
-    @classmethod
-    def get_best_lookup_id(cls, lookup_ids: dict[str, str]) -> tuple[str, str]:
-        """get best available lookup id, ideally commonly used"""
-        for t in IdealIdTypes:
-            if lookup_ids.get(t):
-                return t, lookup_ids[t]
-        return list(lookup_ids.items())[0]
-
     @property
     def parent_item(self):
         return None
@@ -513,7 +507,7 @@ class Item(PolymorphicModel):
     def child_item_ids(self) -> list[int]:
         return list(self.child_items.values_list("id", flat=True))
 
-    def set_parent_item(self, value: "Item | None"):
+    def set_parent_item(self, value: Self | None):
         # raise ValueError("cannot set parent item")
         pass
 
@@ -561,7 +555,7 @@ class Item(PolymorphicModel):
             self, action=LogEntry.Action.UPDATE, changes=changes
         )
 
-    def merge_to(self, to_item: "Item | None"):
+    def merge_to(self, to_item: Self | None):
         if to_item is None:
             if self.merged_to_item is not None:
                 self.merged_to_item = None
@@ -571,6 +565,8 @@ class Item(PolymorphicModel):
             raise ValueError("cannot merge to self")
         if to_item.merged_to_item is not None:
             raise ValueError("cannot merge to item which is merged to another item")
+        if to_item.is_deleted and not self.is_deleted:
+            raise ValueError("cannot merge to item which is deleted")
         if not isinstance(to_item, self.__class__):
             raise ValueError("cannot merge to item in a different model")
         self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
@@ -579,6 +575,8 @@ class Item(PolymorphicModel):
         for res in self.external_resources.all():
             res.item = to_item
             res.save()
+        if to_item.normalize_metadata():
+            to_item.save()
 
     @property
     def final_item(self) -> Self:
@@ -586,7 +584,7 @@ class Item(PolymorphicModel):
             return self.merged_to_item.final_item
         return self
 
-    def recast_to(self, model: "type[Any]") -> "Item":
+    def recast_to(self, model: "type[Item]") -> "Item":
         logger.warning(f"recast item {self} to {model}")
         if isinstance(self, model):
             return self
@@ -709,7 +707,7 @@ class Item(PolymorphicModel):
         self.update_index()
 
     @classmethod
-    def get_by_url(cls, url_or_b62: str, resolve_merge=False) -> "Self | None":
+    def get_by_url(cls, url_or_b62: str, resolve_merge=False) -> Self | None:
         b62 = url_or_b62.strip().split("/")[-1]
         if len(b62) not in [21, 22]:
             r = re.search(r"[A-Za-z0-9]{21,22}", url_or_b62)
@@ -730,12 +728,12 @@ class Item(PolymorphicModel):
         return item
 
     @classmethod
-    def get_by_remote_url(cls, url: str) -> "Self | None":
+    def get_by_remote_url(cls, url: str) -> "Item | None":
         url_ = url.replace("/~neodb~/", "/")
         if url_.startswith(settings.SITE_INFO["site_url"]):
             return cls.get_by_url(url_, True)
-        er = ExternalResource.objects.filter(url=url_).first()
-        return er.item if er else None
+        r = ExternalResource.objects.filter(url=url_).first()
+        return r.item if r else None
 
     @classmethod
     def get_by_ids(cls, ids: list[int]):
@@ -752,19 +750,6 @@ class Item(PolymorphicModel):
     def get_final_items(cls, items: Iterable["Item"]) -> list["Item"]:
         return [j for j in [i.final_item for i in items] if not j.is_deleted]
 
-    # def get_lookup_id(self, id_type: str) -> str:
-    #     prefix = id_type.strip().lower() + ':'
-    #     return next((x[len(prefix):] for x in self.lookup_ids if x.startswith(prefix)), None)
-
-    def update_lookup_ids(self, lookup_ids: list[tuple[str, str]]):
-        for t, v in lookup_ids:
-            if t in IdealIdTypes and self.primary_lookup_id_type not in IdealIdTypes:
-                self.primary_lookup_id_type = t
-                self.primary_lookup_id_value = v
-                return
-            if t == self.primary_lookup_id_type:
-                self.primary_lookup_id_value = v
-
     METADATA_COPY_LIST = [
         # "title",
         # "brief",
@@ -778,11 +763,13 @@ class Item(PolymorphicModel):
 
     @classmethod
     def copy_metadata(cls, metadata: dict[str, Any]) -> dict[str, Any]:
-        return dict(
-            (k, v)
+        d = {
+            k: v
             for k, v in metadata.items()
             if k in cls.METADATA_COPY_LIST and v is not None
-        )
+        }
+        d = {k: uniq(v) if k in cls.METADATA_MERGE_LIST else v for k, v in d.items()}
+        return d
 
     def has_cover(self) -> bool:
         return bool(self.cover) and self.cover != settings.DEFAULT_ITEM_COVER
@@ -795,9 +782,63 @@ class Item(PolymorphicModel):
     def default_cover_image_url(self) -> str:
         return f"{settings.SITE_INFO['site_url']}{settings.DEFAULT_ITEM_COVER}"
 
+    @classmethod
+    def create_from_external_resource(cls, p: "ExternalResource") -> Self:
+        logger.debug(f"creating new item from {p}")
+        obj = cls.copy_metadata(p.metadata)
+        item = cls(**obj)
+        item.normalize_metadata([p])
+        item.save()
+        item.ap_object  # validate schema
+        return item
+
+    def _update_primary_lookup_id(self, override_resources=[]) -> bool:
+        """
+        Update primary_lookup_id from external resources
+        """
+        lookup_ids = {}
+        r = None
+        resources = override_resources or self.external_resources.all()
+        for res in resources:
+            r = res
+            lookup_ids.update(res.other_lookup_ids or {})
+            lookup_ids[res.id_type] = res.id_value
+        if not lookup_ids:
+            logger.warning(f"Item {self}: no available lookup_ids")
+            return False
+        pid = (None, None)
+        for t in IdealIdTypes:
+            if t in lookup_ids and lookup_ids[t]:
+                pid = (t, lookup_ids[t])
+                break
+        if r and pid == (None, None):
+            pid = (r.id_type, r.id_value)
+        if (
+            self.primary_lookup_id_type,
+            self.primary_lookup_id_value,
+        ) != pid and pid != (None, None):
+            self.primary_lookup_id_type = pid[0]
+            self.primary_lookup_id_value = pid[1]
+            return True
+        return False
+
+    def _normalize_languages(self):
+        if hasattr(self, "language"):  # normalize language list
+            language = normalize_languages(self.language)
+            if self.language != language:
+                self.language = language
+                return True
+        return False
+
+    def normalize_metadata(self, override_resources=[]) -> bool:
+        r = self._update_primary_lookup_id(override_resources)
+        r |= self._normalize_languages()
+        return r
+
     def merge_data_from_external_resource(
         self, p: "ExternalResource", ignore_existing_content: bool = False
     ):
+        logger.debug(f"merging data from {p} to {self}")
         for k in self.METADATA_COPY_LIST:
             v = p.metadata.get(k)
             if v:
@@ -807,19 +848,15 @@ class Item(PolymorphicModel):
                     setattr(self, k, uniq(getattr(self, k, []) + (v or [])))
         if p.cover and (not self.has_cover() or ignore_existing_content):
             self.cover = p.cover
+        self.normalize_metadata()
+        self.save()
+        self.ap_object  # validate schema
 
-    def merge_data_from_external_resources(self, ignore_existing_content: bool = False):
+    def process_fetched_item(
+        self, fetched: Self, link_type: "ExternalResource.LinkType"
+    ) -> bool:
         """Subclass may override this"""
-        lookup_ids = []
-        for p in self.external_resources.all():
-            lookup_ids.append((p.id_type, p.id_value))
-            lookup_ids += p.other_lookup_ids.items()
-            self.merge_data_from_external_resource(p, ignore_existing_content)
-        self.update_lookup_ids(list(set(lookup_ids)))
-
-    def update_linked_items_from_external_resource(self, resource: "ExternalResource"):
-        """Subclass should override this"""
-        pass
+        return False
 
     @property
     def editable(self):
@@ -931,6 +968,11 @@ class ExternalResource(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
 
+    class LinkType(Enum):
+        PREMATCHED = "prematch"
+        CHILD = "child"
+        PARENT = "parent"
+
     required_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
     )  # type: ignore
@@ -944,13 +986,101 @@ class ExternalResource(models.Model):
     prematched_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
     )  # type: ignore
-    """links to help match an existing Item from this resource"""
+    """links to help match an existing Item from this resource, *to be deprecated* """
 
     class Meta:
         unique_together = [["id_type", "id_value"]]
 
     def __str__(self):
         return f"{self.pk}:{self.id_type}:{self.id_value or ''} ({self.url})"
+
+    def _match_existing_item(self, model: type[Item]) -> Item | None:
+        """
+        try match an existing Item in the following order:
+        - id_type/id_value matches item's primary type/value (should be deprecated)
+        - any other_lookup_ids matches item's primary type/value (should be deprecated)
+        - id_type/id_value matches item's resources's any other_lookup_ids
+        - any other_lookup_ids matches item's resources's type/value
+        - any other_lookup_ids matches item's resources's any other_lookup_ids
+        """
+        logger.debug(f"matching {model} item for {self}")
+        ct = item_content_types().get(model)
+        if not ct:
+            logger.error(f"Unknown item model {model}")
+            return None
+        items = model.objects.filter(is_deleted=False, merged_to_item__isnull=True)
+        resources = ExternalResource.objects.filter(
+            item_id__isnull=False, item__polymorphic_ctype_id=ct
+        )
+
+        item = items.filter(
+            primary_lookup_id_type=self.id_type, primary_lookup_id_value=self.id_value
+        ).first()
+        if item:
+            return item
+
+        if self.other_lookup_ids:
+            query = Q()
+            for t, v in self.other_lookup_ids.items():
+                if not v:
+                    continue
+                query |= Q(primary_lookup_id_type=t, primary_lookup_id_value=v)
+            if query != Q():
+                item = items.filter(query).first()
+                if item:
+                    return item
+
+        d = {f"other_lookup_ids__{self.id_type}": self.id_value}
+        res = resources.filter(**d).first()
+        if res:
+            return res.item
+
+        if self.other_lookup_ids:
+            query = Q()
+            for t, v in self.other_lookup_ids.items():
+                if not v:
+                    continue
+                query |= Q(id_type=t, id_value=v)
+            if query != Q():
+                res = resources.filter(query).first()
+                if res:
+                    return res.item
+
+            query = Q()
+            for t, v in self.other_lookup_ids.items():
+                if not v:
+                    continue
+                d = {f"other_lookup_ids__{t}": v}
+                query |= Q(**d)
+            if query != Q():
+                res = resources.filter(query).first()
+                if res:
+                    return res.item
+
+    def match_and_link_item(
+        self, default_model: type[Item] | None, ignore_existing_content: bool
+    ) -> bool:
+        """find an existing Item for this resource or create a new one, then link to it"""
+        created = False
+        try:
+            previous_item: Item | None = self.item
+        except Item.DoesNotExist:
+            logger.error(f"PolymorphicModel Item {self.item_id} error fk from {self}")  # type: ignore
+            previous_item = None
+        model = self.get_item_model(default_model)
+        self.item = self._match_existing_item(model=model) or previous_item
+        if self.item is None:
+            self.item = model.create_from_external_resource(self)
+            self.save(update_fields=["item"])
+            created = True
+        elif previous_item != self.item:
+            self.save(update_fields=["item"])
+            self.item.merge_data_from_external_resource(self, ignore_existing_content)
+        if previous_item != self.item:
+            if previous_item:
+                previous_item.log_action({"!unmatch": [str(self), ""]})
+            self.item.log_action({"!match": ["", str(self)]})
+        return created
 
     def unlink_from_item(self):
         if not self.item:
@@ -1018,17 +1148,6 @@ class ExternalResource(models.Model):
         d = {k: v for k, v in d.items() if bool(v)}
         return d
 
-    def get_lookup_ids(
-        self, default_model: type[Item] | None = None
-    ) -> list[tuple[str, str]]:
-        lookup_ids = self.get_all_lookup_ids()
-        model = self.get_item_model(default_model)
-        bt, bv = model.get_best_lookup_id(lookup_ids)
-        ids = [(t, v) for t, v in lookup_ids.items() if t and v and t != bt]
-        if bt and bv:
-            ids = [(bt, bv)] + ids
-        return ids
-
     def get_item_model(self, default_model: type[Item] | None) -> type[Item]:
         model = self.metadata.get("preferred_model")
         if model:
@@ -1047,6 +1166,12 @@ class ExternalResource(models.Model):
         if not default_model:
             raise ValueError("no default preferred model specified")
         return default_model
+
+    def process_fetched_resource(self, fetched: Self, link_type: LinkType):
+        if self.item and fetched.item:
+            return self.item.process_fetched_item(fetched.item, link_type)
+        else:
+            return False
 
 
 _CONTENT_TYPE_LIST = None
