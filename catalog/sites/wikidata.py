@@ -52,6 +52,12 @@ class WikidataTypes:
     MUSICAL = "Q2743"  # Musical
     OPERA = "Q1344"  # Opera
     PERFORMING_ARTS_PRODUCTION = "Q43099500"  # Performing arts production
+    # Anime and manga types
+    ANIMATED_FILM = "Q202866"  # Animated film
+    ANIME_FILM = "Q20650540"  # Anime film
+    ANIME_TV_SERIES = "Q63952888"  # Anime television series
+    ANIME_TV_PROGRAM = "Q11086742"  # Anime television program
+    MANGA_SERIES = "Q21198342"  # Manga series
 
 
 # Wikidata Properties for metadata extraction
@@ -440,10 +446,23 @@ class WikiData(AbstractSite):
                     ) and "id" in datavalue.get("value", {}):
                         instance_of_values.append(datavalue["value"]["id"])
 
+        # If no matching model is found and entity has no instance of values
+        if not instance_of_values:
+            raise ParseError(
+                self, f"Entity {self.id_value} has no 'instance of' (P31) properties"
+            )
+
         # Determine model based on instance of values
-        if WikidataTypes.FILM in instance_of_values:
+        if (
+            WikidataTypes.FILM in instance_of_values
+            or WikidataTypes.ANIME_FILM in instance_of_values
+        ):
             return Movie
-        elif WikidataTypes.TV_SERIES in instance_of_values:
+        elif (
+            WikidataTypes.TV_SERIES in instance_of_values
+            or WikidataTypes.ANIME_TV_SERIES in instance_of_values
+            or WikidataTypes.ANIME_TV_PROGRAM in instance_of_values
+        ):
             return TVShow
         elif WikidataTypes.TV_SEASON in instance_of_values:
             return TVSeason
@@ -471,6 +490,7 @@ class WikiData(AbstractSite):
             WikidataTypes.LITERARY_WORK in instance_of_values
             or WikidataTypes.NOVEL in instance_of_values
             or WikidataTypes.MEDIA_FRANCHISE in instance_of_values
+            or WikidataTypes.MANGA_SERIES in instance_of_values
         ):
             return Work
         elif WikidataTypes.HUMAN in instance_of_values:
@@ -478,12 +498,6 @@ class WikiData(AbstractSite):
             raise ParseError(
                 self,
                 f"Entity {self.id_value} is a person (Q5). Person entities are not supported.",
-            )
-
-        # If no matching model is found and entity has no instance of values
-        if not instance_of_values:
-            raise ParseError(
-                self, f"Entity {self.id_value} has no 'instance of' (P31) properties"
             )
 
         # If has instance of values but none match our supported types
