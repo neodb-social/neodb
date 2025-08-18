@@ -5,7 +5,7 @@
 {% load thumb %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}">
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page nav-page-discover">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,22 +14,13 @@
   </head>
   <body>
     {% include "_header.html" %}
-    <main class="container">
-      <article class="about" style="max-width:60em;margin:auto">
+    <main>
+      <div class="grid__main">
         <section>
           <h1>{{ site_name }}</h1>
           <div class="instance-info">
             <p>{{ site_description }}</p>
-            {% if site_intro %}
-              <div hx-get="{{ site_intro }}" hx-trigger="load" hx-swap="outerHTML">
-                <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-              </div>
-            {% endif %}
             <dl>
-              <dt>{% translate "Instance Name" %}</dt>
-              <dd>
-                {{ site_name }}
-              </dd>
               <dt>{% translate "Instance Domain" %}</dt>
               <dd>
                 {{ site_domain }}
@@ -78,7 +69,8 @@
                   <dt>{% translate "Known NeoDB Instances" %}</dt>
                   <dd>
                     {% for peer in neodb_peers %}
-                      <a href="{{ peer.url }}" target="_blank">{{ peer.name }}</a>
+                      <a href="https://{{ peer.domain }}" target="_blank">{{ peer.name }}</a>
+                      <small style="color:var(--pico-muted-color);">{{ peer.domain }}</small>
                       <br>
                     {% endfor %}
                   </dd>
@@ -131,7 +123,8 @@
             {% endif %}
           </section>
         {% endif %}
-      </article>
+      </div>
+      {% include "_sidebar_anonymous.html" %}
     </main>
     {% include "_footer.html" %}
   </body>

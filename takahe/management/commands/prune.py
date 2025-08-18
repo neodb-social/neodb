@@ -39,7 +39,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("Pruning has been disabled"))
             sys.exit(0)
         locs = Domain.objects.filter(local=True).values_list("pk", flat=True)
-        remote_peers = Takahe.get_neodb_peers()
+        remote_peers = Takahe.get_neodb_peers(active_only=False)
         all_nodes = remote_peers + list(locs)
         self.stdout.write(f"Prune up to {number} posts older than {horizon} days.")
         if verbose:

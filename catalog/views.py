@@ -86,10 +86,10 @@ def retrieve(request, item_path, item_uuid):
         return redirect(item.merged_to_item.url)
     if not skipcheck and item.is_deleted:
         raise Http404(_("Item no longer exists"))
-    if request.method == "HEAD":
-        return HttpResponse()
     if request.headers.get("Accept", "").endswith("json"):
         return JsonResponse(item.ap_object, content_type="application/activity+json")
+    if request.method == "HEAD":
+        return HttpResponse()
     focus_item = None
     if request.GET.get("focus"):
         focus_item = get_object_or_404(

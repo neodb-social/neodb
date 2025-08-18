@@ -709,20 +709,23 @@ class Takahe:
         )
 
     @staticmethod
-    def get_neodb_peers():
+    def get_neodb_peers(active_only=True):
         cache_key = "neodb_peers"
-        peers = cache.get(cache_key, None)
-        if peers is None:
-            peers = list(
-                Domain.objects.filter(
-                    nodeinfo__protocols__contains="neodb",
-                    nodeinfo__metadata__nodeEnvironment="production",
-                    local=False,
-                    blocked=False,
-                ).values_list("pk", flat=True)
+        if active_only:
+            cache_key += "_active"
+        r = cache.get(cache_key, None)
+        if r is None:
+            peers = Domain.objects.filter(
+                nodeinfo__protocols__contains="neodb",
+                nodeinfo__metadata__nodeEnvironment="production",
+                local=False,
+                blocked=False,
             )
-            cache.set(cache_key, peers, timeout=1800)
-        return peers
+            if active_only:
+                peers = peers.exclude(state="connection_issue")
+            r = list(peers.values_list("pk", flat=True))
+            cache.set(cache_key, r, timeout=1800)
+        return r
 
     @staticmethod
     def get_blocked_peers():

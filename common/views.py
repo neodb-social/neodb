@@ -263,7 +263,7 @@ def about(request):
         d = Domain.objects.filter(domain=peer).first()
         if d:
             name = (d.nodeinfo or {}).get("metadata", {}).get("nodeName", peer)
-            peers.append({"name": name, "url": f"https://{peer}"})
+            peers.append({"name": name, "domain": peer})
     context["neodb_peers"] = peers
     return render(request, "common/about.html", context)
 
