@@ -126,7 +126,7 @@ class FediverseInstance(AbstractSite):
         ids = {}
         data["preferred_model"] = data.get("type", "")
         data["prematched_resources"] = []
-        model_cls = self.supported_types.get(data["preferred_model"])
+        model_cls = self.supported_types.get(data["preferred_model"].lower())
         if not model_cls:
             raise ParseError(self, "preferred_model")
         for ext in data.get("external_resources", []):
