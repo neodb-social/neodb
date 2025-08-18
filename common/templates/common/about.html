@@ -30,11 +30,11 @@
               <dd>
                 {{ site_name }}
               </dd>
-              <dt>{% translate "Domain" %}</dt>
+              <dt>{% translate "Instance Domain" %}</dt>
               <dd>
                 {{ site_domain }}
               </dd>
-              <dt>{% translate "Version" %}</dt>
+              <dt>{% translate "Software Version" %}</dt>
               <dd>
                 <a href="https://neodb.net" target="_blank" rel="noopener">{{ neodb_version }}</a>
               </dd>
@@ -93,7 +93,7 @@
           <section>
             {% if admin_users %}
               <div class="user-list admin-users">
-                <h2>{% translate "Administrators" %}</h2>
+                <h2>{% translate "Site Administrators" %}</h2>
                 <ul>
                   {% for user in admin_users %}
                     <li>
@@ -112,7 +112,7 @@
             {% endif %}
             {% if staff_users %}
               <div class="user-list staff-users">
-                <h2>{% translate "Moderators" %}</h2>
+                <h2>{% translate "Catalog Moderators" %}</h2>
                 <ul>
                   {% for user in staff_users %}
                     <li>

@@ -37,6 +37,7 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
     * Bangumi
     * Board Game Geek
     * Archive of Our Own
+    * WikiData
     * any RSS link to a podcast
 - Logged in users can manage their collections:
   + mark an item as wishlist/in progress/complete
@@ -49,6 +50,7 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
     * Goodreads reading list
     * Letterboxd watch list
     * Douban archive (via [Doufen](https://doufen.org/))
+    * Steam Library
 - Social features:
   + view home feed with friends' activities
     * every activity can be set as viewable to self/follower-only/public
