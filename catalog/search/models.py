@@ -9,10 +9,15 @@ from django.core.cache import cache
 from loguru import logger
 from rq.job import Job
 
-from catalog.common.downloaders import RESPONSE_CENSORSHIP, DownloadError
-from catalog.common.models import ItemCategory, SiteName
-from catalog.common.sites import SiteManager
+from catalog.common import (
+    RESPONSE_CENSORSHIP,
+    DownloadError,
+    SiteManager,
+)
 from catalog.index import CatalogIndex, CatalogQueryParser
+from catalog.models import ItemCategory, SiteName
+from takahe.search import search_by_ap_url
+from users.models import User
 
 from ..models import TVSeason
 
@@ -161,24 +166,31 @@ def enqueue_fetch(url, is_refetch, user=None):
     except Exception:
         in_progress = False
     if not in_progress:
+        u = user.pk if user and user.is_authenticated else None
         django_rq.get_queue("fetch").enqueue(
-            _fetch_task, url, is_refetch, user, job_id=job_id
+            _fetch_task, url, is_refetch, u, job_id=job_id
         )
     return job_id
 
 
-def _fetch_task(url, is_refetch, user):
-    item_url = "-"
-    with set_actor(user if user and user.is_authenticated else None):
+def _fetch_task(url: str, is_refetch: bool, user_pk: int | None):
+    user = User.objects.get(pk=user_pk) if user_pk else None
+    with set_actor(user):
         try:
             site = SiteManager.get_site_by_url(url)
             if not site:
-                return None
-            site.get_resource_ready(ignore_existing_content=is_refetch)
-            item = site.get_item()
+                fetcher = user.identity if user and user.is_authenticated else None
+                item_url = search_by_ap_url(url, fetcher)
+                if item_url:
+                    logger.info(f"fetched {url} {item_url}")
+                    return item_url
+                logger.warning(f"Site not found for {url}")
+                return "-"
+            res = site.get_resource_ready(ignore_existing_content=is_refetch)
+            item = res.item if res else None
             if item:
                 logger.info(f"fetched {url} {item.url} {item}")
-                item_url = item.url
+                return item.url
             else:
                 logger.error(f"fetch {url} failed")
         except DownloadError as e:
@@ -186,4 +198,4 @@ def _fetch_task(url, is_refetch, user):
                 logger.error(f"fetch {url} error", extra={"exception": e})
         except Exception as e:
             logger.error(f"parse {url} error {e}", extra={"exception": e})
-        return item_url
+        return "-"

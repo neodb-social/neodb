@@ -136,7 +136,7 @@ class AbstractSite:
     def query_list(content, query: str) -> list:
         return list(content.xpath(query))
 
-    def get_item(self, ignore_existing_content: bool = False):
+    def get_item(self, ignore_existing_content: bool = False, allow_rematch=True):
         p = self.get_resource()
         if not p:
             # raise ValueError(f'resource not available for {self.url}')
@@ -144,7 +144,8 @@ class AbstractSite:
         if not p.ready:
             # raise ValueError(f'resource not ready for {self.url}')
             return None
-        p.match_and_link_item(self.DEFAULT_MODEL, ignore_existing_content)
+        if allow_rematch:
+            p.match_and_link_item(self.DEFAULT_MODEL, ignore_existing_content)
         return p.item
 
     @property

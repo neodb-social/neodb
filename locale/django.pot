@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-17 20:15-0400\n"
+"POT-Creation-Date: 2025-08-18 23:23-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,36 +18,36 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: boofilsic/settings.py:448 common/models/lang.py:221
+#: boofilsic/settings.py:447 common/models/lang.py:221
 msgid "English"
 msgstr ""
 
-#: boofilsic/settings.py:449 common/models/lang.py:68
+#: boofilsic/settings.py:448 common/models/lang.py:68
 msgid "Danish"
 msgstr ""
 
-#: boofilsic/settings.py:450 common/models/lang.py:69
+#: boofilsic/settings.py:449 common/models/lang.py:69
 msgid "German"
 msgstr ""
 
-#: boofilsic/settings.py:451 common/models/lang.py:78
+#: boofilsic/settings.py:450 common/models/lang.py:78
 msgid "French"
 msgstr ""
 
-#: boofilsic/settings.py:452 common/models/lang.py:103
+#: boofilsic/settings.py:451 common/models/lang.py:103
 msgid "Italian"
 msgstr ""
 
-#: boofilsic/settings.py:453 common/models/lang.py:157
+#: boofilsic/settings.py:452 common/models/lang.py:157
 #: common/models/lang.py:295
 msgid "Portuguese"
 msgstr ""
 
-#: boofilsic/settings.py:454
+#: boofilsic/settings.py:453
 msgid "Simplified Chinese"
 msgstr ""
 
-#: boofilsic/settings.py:455
+#: boofilsic/settings.py:454
 msgid "Traditional Chinese"
 msgstr ""
 
@@ -739,15 +739,19 @@ msgstr ""
 msgid "host"
 msgstr ""
 
-#: catalog/search/views.py:190
-msgid "Invalid URL"
+#: catalog/search/views.py:72
+msgid "the internet"
 msgstr ""
 
 #: catalog/search/views.py:193
+msgid "Invalid URL"
+msgstr ""
+
+#: catalog/search/views.py:196
 msgid "Unsupported URL"
 msgstr ""
 
-#: catalog/search/views.py:201 catalog/templates/_sidebar_edit.html:21
+#: catalog/search/views.py:204 catalog/templates/_sidebar_edit.html:21
 #: catalog/views_edit.py:90 catalog/views_edit.py:105 catalog/views_edit.py:129
 #: catalog/views_edit.py:167 catalog/views_edit.py:226
 #: catalog/views_edit.py:230 catalog/views_edit.py:248
@@ -2480,21 +2484,15 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-#: common/templates/_footer.html:9 common/templates/_sidebar_anonymous.html:43
-#: users/templates/users/announcements.html:12
-#: users/templates/users/announcements.html:42
-msgid "Announcements"
-msgstr ""
-
-#: common/templates/_footer.html:10
+#: common/templates/_footer.html:9
 msgid "Developer"
 msgstr ""
 
-#: common/templates/_footer.html:14
+#: common/templates/_footer.html:13
 msgid "Source Code"
 msgstr ""
 
-#: common/templates/_footer.html:17 users/templates/users/login.html:200
+#: common/templates/_footer.html:16 users/templates/users/login.html:200
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr ""
@@ -2664,59 +2662,61 @@ msgid ""
 "        "
 msgstr ""
 
-#: common/templates/common/about.html:29
-msgid "Instance Name"
+#: common/templates/_sidebar_anonymous.html:43
+#: users/templates/users/announcements.html:12
+#: users/templates/users/announcements.html:42
+msgid "Announcements"
 msgstr ""
 
-#: common/templates/common/about.html:33
+#: common/templates/common/about.html:24
 msgid "Instance Domain"
 msgstr ""
 
-#: common/templates/common/about.html:37
+#: common/templates/common/about.html:28
 msgid "Software Version"
 msgstr ""
 
-#: common/templates/common/about.html:41
+#: common/templates/common/about.html:32
 msgid "Registration"
 msgstr ""
 
-#: common/templates/common/about.html:44
+#: common/templates/common/about.html:35
 msgid "Invite Only"
 msgstr ""
 
-#: common/templates/common/about.html:46
+#: common/templates/common/about.html:37
 msgid "Open Registration"
 msgstr ""
 
-#: common/templates/common/about.html:53
+#: common/templates/common/about.html:44
 msgid "Statistics"
 msgstr ""
 
-#: common/templates/common/about.html:64
+#: common/templates/common/about.html:55
 msgid "Users"
 msgstr ""
 
-#: common/templates/common/about.html:68
+#: common/templates/common/about.html:59
 msgid "Statuses"
 msgstr ""
 
-#: common/templates/common/about.html:72
+#: common/templates/common/about.html:63
 msgid "Known Fediverse Instances"
 msgstr ""
 
-#: common/templates/common/about.html:78
+#: common/templates/common/about.html:69
 msgid "Known NeoDB Instances"
 msgstr ""
 
-#: common/templates/common/about.html:88
+#: common/templates/common/about.html:80
 msgid "Statistics are being calculated. Please check back in a few minutes."
 msgstr ""
 
-#: common/templates/common/about.html:96
+#: common/templates/common/about.html:88
 msgid "Site Administrators"
 msgstr ""
 
-#: common/templates/common/about.html:115
+#: common/templates/common/about.html:107
 msgid "Catalog Moderators"
 msgstr ""
 

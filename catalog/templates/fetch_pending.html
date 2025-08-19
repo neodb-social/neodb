@@ -19,7 +19,7 @@
       <div class="grid__main">
         <article>
           {% if job_id %}
-            <h5>{% blocktrans with site_label=site.SITE_NAME.label %}Fetching from {{ site_label }}{% endblocktrans %}</h5>
+            <h5>{% blocktrans with site_label=source %}Fetching from {{ site_label }}{% endblocktrans %}</h5>
             <div hx-get="{% url 'catalog:fetch_refresh' job_id %}"
                  hx-trigger="load delay:2s"
                  hx-swap="outerHTML">

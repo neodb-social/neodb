@@ -52,8 +52,8 @@ def fetch_refresh(request, job_id):
             )
 
 
-def fetch(request, url, site: AbstractSite, is_refetch: bool = False):
-    item = site.get_item()
+def fetch(request, url, site: AbstractSite | None, is_refetch: bool = False):
+    item = site.get_item(allow_rematch=False) if site else None
     if item and not is_refetch:
         return redirect(item.url)
     if item and is_refetch:
@@ -69,7 +69,7 @@ def fetch(request, url, site: AbstractSite, is_refetch: bool = False):
         request,
         "fetch_pending.html",
         {
-            "site": site,
+            "source": site.SITE_NAME.label if site else _("the internet"),
             "sites": SiteName.labels,
             "job_id": job_id,
         },
@@ -132,11 +132,14 @@ def search(request):
         if host in settings.SITE_DOMAINS:
             return redirect(keywords)
         # skip detecting redirection to avoid timeout
-        site = SiteManager.get_site_by_url(keywords, detect_redirection=False)
+        site = SiteManager.get_site_by_url(
+            keywords, detect_redirection=False, detect_fallback=False
+        )
         if site:
             return fetch(request, keywords, site, False)
         if request.GET.get("r"):
             return redirect(keywords)
+        return fetch(request, keywords, None, False)
 
     if tag:
         redir = reverse("common:search") + f"?q=tag:{tag}"

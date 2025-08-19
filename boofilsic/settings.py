@@ -24,10 +24,9 @@ TESTING = sys.argv[0].endswith("pytest") or (
 
 # Parse configuration from:
 # - environment variables
-# - neodb.env file in project root directory
 # - /etc/neodb.env
-environ.Env.read_env("/etc/neodb.env")
-environ.Env.read_env(os.path.join(BASE_DIR, "neodb.env"))
+if os.path.exists("/etc/neodb.env"):
+    environ.Env.read_env("/etc/neodb.env")
 
 # ====== List of user configuration variables ======
 env = environ.FileAwareEnv(

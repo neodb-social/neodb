@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-17 20:09-0400\n"
+"POT-Creation-Date: 2025-08-18 23:23-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -17,36 +17,36 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 5.12-dev\n"
 
-#: boofilsic/settings.py:448 common/models/lang.py:221
+#: boofilsic/settings.py:447 common/models/lang.py:221
 msgid "English"
 msgstr "英语"
 
-#: boofilsic/settings.py:449 common/models/lang.py:68
+#: boofilsic/settings.py:448 common/models/lang.py:68
 msgid "Danish"
 msgstr "丹麦语"
 
-#: boofilsic/settings.py:450 common/models/lang.py:69
+#: boofilsic/settings.py:449 common/models/lang.py:69
 msgid "German"
 msgstr "德语"
 
-#: boofilsic/settings.py:451 common/models/lang.py:78
+#: boofilsic/settings.py:450 common/models/lang.py:78
 msgid "French"
 msgstr "法语"
 
-#: boofilsic/settings.py:452 common/models/lang.py:103
+#: boofilsic/settings.py:451 common/models/lang.py:103
 msgid "Italian"
 msgstr "意大利语"
 
-#: boofilsic/settings.py:453 common/models/lang.py:157
+#: boofilsic/settings.py:452 common/models/lang.py:157
 #: common/models/lang.py:295
 msgid "Portuguese"
 msgstr "葡萄牙语"
 
-#: boofilsic/settings.py:454
+#: boofilsic/settings.py:453
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
-#: boofilsic/settings.py:455
+#: boofilsic/settings.py:454
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
@@ -738,15 +738,19 @@ msgstr "结束日期"
 msgid "host"
 msgstr "主播"
 
-#: catalog/search/views.py:190
+#: catalog/search/views.py:72
+msgid "the internet"
+msgstr "互联网"
+
+#: catalog/search/views.py:193
 msgid "Invalid URL"
 msgstr "无效网址"
 
-#: catalog/search/views.py:193
+#: catalog/search/views.py:196
 msgid "Unsupported URL"
 msgstr "尚未支持的网址"
 
-#: catalog/search/views.py:201 catalog/templates/_sidebar_edit.html:21
+#: catalog/search/views.py:204 catalog/templates/_sidebar_edit.html:21
 #: catalog/views_edit.py:90 catalog/views_edit.py:105 catalog/views_edit.py:129
 #: catalog/views_edit.py:167 catalog/views_edit.py:226
 #: catalog/views_edit.py:230 catalog/views_edit.py:248
@@ -2479,21 +2483,15 @@ msgstr "服务协议"
 msgid "About"
 msgstr ""
 
-#: common/templates/_footer.html:9 common/templates/_sidebar_anonymous.html:43
-#: users/templates/users/announcements.html:12
-#: users/templates/users/announcements.html:42
-msgid "Announcements"
-msgstr "公告栏"
-
-#: common/templates/_footer.html:10
+#: common/templates/_footer.html:9
 msgid "Developer"
 msgstr "开发者"
 
-#: common/templates/_footer.html:14
+#: common/templates/_footer.html:13
 msgid "Source Code"
 msgstr "源代码"
 
-#: common/templates/_footer.html:17 users/templates/users/login.html:200
+#: common/templates/_footer.html:16 users/templates/users/login.html:200
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "这是%(site_name)s的临时镜像，请尽可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"
@@ -2684,59 +2682,61 @@ msgstr ""
 "</p>\n"
 "        "
 
-#: common/templates/common/about.html:29
-msgid "Instance Name"
-msgstr "实例名称"
+#: common/templates/_sidebar_anonymous.html:43
+#: users/templates/users/announcements.html:12
+#: users/templates/users/announcements.html:42
+msgid "Announcements"
+msgstr "公告栏"
 
-#: common/templates/common/about.html:33
+#: common/templates/common/about.html:24
 msgid "Instance Domain"
 msgstr "实例域名"
 
-#: common/templates/common/about.html:37
+#: common/templates/common/about.html:28
 msgid "Software Version"
 msgstr "软件版本"
 
-#: common/templates/common/about.html:41
+#: common/templates/common/about.html:32
 msgid "Registration"
 msgstr "注册"
 
-#: common/templates/common/about.html:44
+#: common/templates/common/about.html:35
 msgid "Invite Only"
 msgstr "仅限邀请"
 
-#: common/templates/common/about.html:46
+#: common/templates/common/about.html:37
 msgid "Open Registration"
 msgstr "开放注册"
 
-#: common/templates/common/about.html:53
+#: common/templates/common/about.html:44
 msgid "Statistics"
 msgstr "统计"
 
-#: common/templates/common/about.html:64
+#: common/templates/common/about.html:55
 msgid "Users"
 msgstr "用户"
 
-#: common/templates/common/about.html:68
+#: common/templates/common/about.html:59
 msgid "Statuses"
 msgstr "状态"
 
-#: common/templates/common/about.html:72
+#: common/templates/common/about.html:63
 msgid "Known Fediverse Instances"
 msgstr "已连接到联邦实例"
 
-#: common/templates/common/about.html:78
+#: common/templates/common/about.html:69
 msgid "Known NeoDB Instances"
 msgstr "已连接到NeoDB联邦实例"
 
-#: common/templates/common/about.html:88
+#: common/templates/common/about.html:80
 msgid "Statistics are being calculated. Please check back in a few minutes."
 msgstr "统计信息仍在加载，请稍候。"
 
-#: common/templates/common/about.html:96
+#: common/templates/common/about.html:88
 msgid "Site Administrators"
 msgstr "实例管理员"
 
-#: common/templates/common/about.html:115
+#: common/templates/common/about.html:107
 msgid "Catalog Moderators"
 msgstr "条目管理员"
 

@@ -35,15 +35,18 @@ class Bandcamp(AbstractSite):
             return False
         parsed_url = urllib.parse.urlparse(url)
         hostname = parsed_url.netloc
+        resolver = dns.resolver.Resolver()
+        resolver.timeout = 1
+        resolver.lifetime = 1
         try:
-            answers = dns.resolver.query(hostname, "CNAME")
+            answers = resolver.query(hostname, "CNAME")
             for rdata in answers:
                 if str(rdata.target) == "dom.bandcamp.com.":  # type:ignore
                     return True
         except Exception:
             pass
         try:
-            answers = dns.resolver.query(hostname, "A")
+            answers = resolver.query(hostname, "A")
             for rdata in answers:
                 if str(rdata.address) == "35.241.62.186":  # type:ignore
                     return True
