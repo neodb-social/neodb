@@ -9,6 +9,7 @@ from auditlog.context import disable_auditlog
 from auditlog.models import LogEntry
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.indexes import GinIndex
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.signing import b62_decode, b62_encode
 from django.db import connection, models
@@ -990,6 +991,9 @@ class ExternalResource(models.Model):
 
     class Meta:
         unique_together = [["id_type", "id_value"]]
+        indexes = [
+            GinIndex(fields=["other_lookup_ids"], name="catalog_extres_lookup_ids_gin")
+        ]
 
     def __str__(self):
         return f"{self.pk}:{self.id_type}:{self.id_value or ''} ({self.url})"
