@@ -1104,7 +1104,10 @@ class WikiData(AbstractSite):
             return wiki_pages
 
         except Exception as e:
-            logger.error(f"Error fetching Wikipedia pages for {entity_id}: {e}")
+            logger.error(
+                "Error fetching Wikipedia pages",
+                extra={"QID": entity_id, "exception": e},
+            )
             return {}
 
     def _extract_external_ids(self, entity_data):

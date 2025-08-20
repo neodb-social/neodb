@@ -722,7 +722,9 @@ class Item(PolymorphicModel):
                     item = item.merged_to_item
                     resolve_cnt -= 1
                 if resolve_cnt == 0:
-                    logger.error(f"resolve merge loop for {item}")
+                    logger.error(
+                        "resolve merge loop error for item", extra={"item": item}
+                    )
                     item = None
         except Exception:
             item = None

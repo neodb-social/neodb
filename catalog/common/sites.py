@@ -194,7 +194,7 @@ class AbstractSite:
             if resource_content:
                 p.update_content(resource_content)
         if not p.ready:
-            logger.error(f"unable to get resource {self.url} ready")
+            logger.error("unable to ready resource {p.id_type}", extra={"resource": p})
             return None
         if auto_save:
             p.save()
@@ -354,7 +354,13 @@ class SiteManager:
                     )
                 except Exception as e:
                     logger.error(
-                        f"error fetching {linked_resource} from {linked_site}: {e}"
+                        f"error fetching from {linked_site.ID_TYPE}",
+                        extra={
+                            "resource": resource,
+                            "linked_resource": linked_resource,
+                            "linked_site": linked_site,
+                            "exception": e,
+                        },
                     )
                     continue
                 logger.success(f"fetched {resource}'s {link_type}: {fetched}")
@@ -389,7 +395,13 @@ class SiteManager:
                         case _:
                             logger.error(f"unknown link type {link_type}")
             else:
-                logger.error(f"unable to get site for {linked_resource}")
+                logger.error(
+                    "unable to get site for linked resource",
+                    extra={
+                        "resource": resource,
+                        "linked_resource": linked_resource,
+                    },
+                )
         if resource.item and processed:
             resource.item.save()
 
@@ -397,7 +409,9 @@ class SiteManager:
     def fetch_related_resources_task(requester_resource_pk):
         resource = ExternalResource.objects.filter(pk=requester_resource_pk).first()
         if not resource:
-            logger.error(f"requester resource not found {requester_resource_pk}")
+            logger.error(
+                "requester resource not found", extra={"pk": requester_resource_pk}
+            )
             return
         links = uniq(
             [
