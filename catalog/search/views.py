@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from rq.job import Job
 
-from catalog.common.models import ItemCategory, SiteName
+from catalog.common.models import ItemCategory, SiteName, default_visible_categories
 from catalog.common.sites import AbstractSite, SiteManager
 from common.models import int_
 from common.utils import (
@@ -77,19 +77,14 @@ def fetch(request, url, site: AbstractSite | None, is_refetch: bool = False):
 
 
 def visible_categories(request):
-    if not hasattr(request, "user"):
-        return []
+    if not request or not hasattr(request, "user") or not request.user.is_authenticated:
+        return default_visible_categories()
     vc = request.session.get("p_categories", None)
     if vc is None:
         vc = [
             x
             for x in item_categories()
-            if x.value
-            not in (
-                request.user.preference.hidden_categories
-                if request.user.is_authenticated
-                else settings.HIDDEN_CATEGORIES
-            )
+            if x.value not in request.user.preference.hidden_categories
         ]
         request.session["p_categories"] = vc
     return vc

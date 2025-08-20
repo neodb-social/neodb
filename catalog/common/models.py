@@ -1195,6 +1195,7 @@ def item_content_types() -> dict[type[Item], int]:
 
 
 _CATEGORY_LIST = None
+_VISIBLE_CATEGORIES = None
 
 
 def item_categories() -> dict[ItemCategory, list[type[Item]]]:
@@ -1208,3 +1209,12 @@ def item_categories() -> dict[ItemCategory, list[type[Item]]]:
             else:
                 _CATEGORY_LIST[c].append(cls)
     return _CATEGORY_LIST
+
+
+def default_visible_categories() -> list[ItemCategory]:
+    global _VISIBLE_CATEGORIES
+    if _VISIBLE_CATEGORIES is None:
+        _VISIBLE_CATEGORIES = [
+            x for x in item_categories() if x.value not in settings.HIDDEN_CATEGORIES
+        ]
+    return _VISIBLE_CATEGORIES
