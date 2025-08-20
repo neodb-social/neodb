@@ -52,7 +52,7 @@
           </small>
         </h1>
         <span class="site-list">
-          {% for res in item.external_resources.all %}
+          {% for res in item.display_resources %}
             {% if res.site_name == 'wikidata' %}
               <a href="{{ res.url }}"
                  class="{{ res.site_name }}"

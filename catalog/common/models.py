@@ -497,7 +497,7 @@ class Item(PolymorphicModel):
         return lookup_id_type, lookup_id_value.strip()
 
     @property
-    def parent_item(self):
+    def parent_item(self) -> Self | None:
         return None
 
     @property
@@ -651,6 +651,17 @@ class Item(PolymorphicModel):
                     return v
 
     @cached_property
+    def display_resources(self) -> "list[ExternalResource]":
+        resources = list(self.external_resources.all())
+        types = {res.id_type for res in resources}
+        if IdType.WikiData in types or not self.parent_item:
+            return resources
+        wd = self.parent_item.external_resources.filter(id_type=IdType.WikiData).first()
+        if wd:
+            resources.append(wd)
+        return resources
+
+    @cached_property
     def display_title(self) -> str:
         # return title in current locale if possible, otherwise any title
         return (self.get_localized_title() or self.title) or (
@@ -660,7 +671,7 @@ class Item(PolymorphicModel):
     @cached_property
     def additional_title(self) -> list[str]:
         title = self.display_title
-        return [t["text"] for t in self.localized_title if t["text"] != title]
+        return uniq([t["text"] for t in self.localized_title if t["text"] != title])
 
     @cached_property
     def display_description(self) -> str:

@@ -359,6 +359,11 @@ class Edition(Item):
             .order_by("-metadata__pub_year")
         )
 
+    @property
+    def parent_item(self) -> "Work | None":
+        """Get the parent Work item of this Edition."""
+        return self.get_work()
+
     def set_parent_item(self, value):
         if value and not isinstance(value, Work):
             raise TypeError(f"Expected Work instance, got {type(value).__name__}")

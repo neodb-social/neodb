@@ -184,7 +184,7 @@ class PodcastEpisode(Item):
     ]
 
     @property
-    def parent_item(self) -> Podcast | None:  # type:ignore
+    def parent_item(self) -> Podcast | None:
         return self.program
 
     def set_parent_item(self, value: Podcast | None):  # type:ignore

@@ -604,7 +604,7 @@ class TVSeason(Item):
         return self.episodes.all().order_by("episode_number")
 
     @property
-    def parent_item(self) -> TVShow | None:  # type:ignore
+    def parent_item(self) -> TVShow | None:
         return self.show
 
     def set_parent_item(self, value: TVShow | None):  # type:ignore
@@ -643,7 +643,7 @@ class TVEpisode(Item):
         )
 
     @property
-    def parent_item(self) -> TVSeason | None:  # type:ignore
+    def parent_item(self) -> TVSeason | None:
         return self.season
 
     def set_parent_item(self, value: TVSeason | None):  # type:ignore

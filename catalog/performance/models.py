@@ -421,7 +421,7 @@ class PerformanceProduction(Item):
     ]
 
     @property
-    def parent_item(self) -> Performance | None:  # type:ignore
+    def parent_item(self) -> Performance | None:
         return self.show
 
     def set_parent_item(self, value: Performance | None):  # type:ignore
