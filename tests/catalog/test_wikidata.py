@@ -14,25 +14,32 @@ from catalog.models import IdType
 from catalog.movie.models import Movie
 from catalog.performance.models import Performance
 from catalog.podcast.models import Podcast, PodcastEpisode
-from catalog.sites.wikidata import WikiData, WikidataTypes
+from catalog.sites.wikidata import WikiData, WikidataProperties, WikidataTypes
 from catalog.tv.models import TVEpisode, TVSeason, TVShow
 
 
-def test_determine_entity_type_movie():
-    """Test model detection for a movie entity"""
-    # Mock entity data with movie instance of
+# Helper functions for testing entity type mapping
+def assert_entity_type_mapping(entity_id, entity_type_id, expected_model):
+    """Helper function to test Wikidata entity type mapping
+
+    Args:
+        entity_id: The Wikidata entity ID (e.g., Q184843)
+        entity_type_id: The Wikidata type ID to test (e.g., WikidataTypes.FILM)
+        expected_model: The expected NeoDB model class (e.g., Movie)
+    """
+    # Create mock entity data
     entity_data = {
-        "id": "Q184843",
+        "id": entity_id,
         "claims": {
-            "P31": [
+            WikidataProperties.P31: [
                 {
                     "mainsnak": {
                         "snaktype": "value",
-                        "property": "P31",
+                        "property": WikidataProperties.P31,
                         "datatype": "wikibase-item",
                         "datavalue": {
                             "value": {
-                                "id": WikidataTypes.FILM,
+                                "id": entity_type_id,
                                 "type": "wikibase-entityid",
                             },
                             "type": "wikibase-entityid",
@@ -43,27 +50,236 @@ def test_determine_entity_type_movie():
         },
     }
 
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q184843")
+    # Initialize WikiData and test
+    wiki_site = WikiData(url=f"https://www.wikidata.org/wiki/{entity_id}")
     model = wiki_site._determine_entity_type(entity_data)
 
+    # Assert the expected model
+    assert model == expected_model
+
+
+def assert_entity_with_multiple_types(entity_id, entity_type_ids, expected_model):
+    """Helper function to test Wikidata entity with multiple types
+
+    Args:
+        entity_id: The Wikidata entity ID (e.g., Q53235)
+        entity_type_ids: List of Wikidata type IDs (e.g., [WikidataTypes.TV_EPISODE, WikidataTypes.TV_SPECIAL])
+        expected_model: The expected NeoDB model class (e.g., Movie)
+    """
+    # Create mock entity data with multiple types
+    claims = []
+    for type_id in entity_type_ids:
+        claims.append(
+            {
+                "mainsnak": {
+                    "snaktype": "value",
+                    "property": WikidataProperties.P31,
+                    "datatype": "wikibase-item",
+                    "datavalue": {
+                        "value": {
+                            "id": type_id,
+                            "type": "wikibase-entityid",
+                        },
+                        "type": "wikibase-entityid",
+                    },
+                }
+            }
+        )
+
+    entity_data = {
+        "id": entity_id,
+        "claims": {WikidataProperties.P31: claims},
+    }
+
+    # Initialize WikiData and test
+    wiki_site = WikiData(url=f"https://www.wikidata.org/wiki/{entity_id}")
+    model = wiki_site._determine_entity_type(entity_data)
+
+    # Assert the expected model
+    assert model == expected_model
+
+
+def create_parent_type_entity(entity_id, instance_type_id, parent_type_id):
+    """Create an entity with a direct parent type
+
+    Args:
+        entity_id: The entity ID
+        instance_type_id: The instance type ID
+        parent_type_id: The parent type ID
+
+    Returns:
+        Entity data dictionary with both instance and parent types
+    """
+    return {
+        "id": entity_id,
+        "claims": {
+            WikidataProperties.P31: [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": WikidataProperties.P31,
+                        "datatype": "wikibase-item",
+                        "datavalue": {
+                            "value": {
+                                "id": instance_type_id,
+                                "type": "wikibase-entityid",
+                            },
+                            "type": "wikibase-entityid",
+                        },
+                    }
+                }
+            ],
+            WikidataProperties.P279: [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": WikidataProperties.P279,
+                        "datatype": "wikibase-item",
+                        "datavalue": {
+                            "value": {
+                                "id": parent_type_id,
+                                "type": "wikibase-entityid",
+                            },
+                            "type": "wikibase-entityid",
+                        },
+                    }
+                }
+            ],
+        },
+    }
+
+
+def create_v1_api_entity(entity_id, type_ids):
+    """Create an entity with v1 API format
+
+    Args:
+        entity_id: The entity ID
+        type_ids: List of type IDs or single type ID
+
+    Returns:
+        Entity data dictionary in v1 API format
+    """
+    if isinstance(type_ids, str):
+        type_ids = [type_ids]
+
+    statements = []
+    for type_id in type_ids:
+        statements.append({"value": {"id": type_id}})
+
+    return {"id": entity_id, "statements": {WikidataProperties.P31: statements}}
+
+
+# Group 1: Basic entity type detection tests
+def test_basic_entity_type_detection():
+    """Test model detection for common entity types using the helper function"""
+    # Movie tests
+    assert_entity_type_mapping("Q184843", WikidataTypes.FILM, Movie)
+    assert_entity_type_mapping("Q226730", WikidataTypes.SILENT_FILM, Movie)
+    assert_entity_type_mapping("Q506240", WikidataTypes.TV_FILM, Movie)
+    assert_entity_type_mapping("Q220898", WikidataTypes.OVA, Movie)
+    assert_entity_type_mapping("Q24862", WikidataTypes.SHORT_FILM, Movie)
+    assert_entity_type_mapping("Q18011172", WikidataTypes.FILM_PROJECT, Movie)
+
+    # Book/Work tests
+    assert_entity_type_mapping("Q721", WikidataTypes.LITERARY_WORK, Work)
+    assert_entity_type_mapping("Q722", WikidataTypes.NOVEL, Work)
+    assert_entity_type_mapping("Q45340", WikidataTypes.MEDIA_FRANCHISE, Work)
+
+    # TV show tests
+    assert_entity_type_mapping("Q1079", WikidataTypes.TV_SERIES, TVShow)
+    assert_entity_type_mapping("Q15416", WikidataTypes.TV_PROGRAM, TVShow)
+    assert_entity_type_mapping("Q117467246", WikidataTypes.ANIMATED_TV_SERIES, TVShow)
+    assert_entity_type_mapping("Q581714", WikidataTypes.ANIMATED_SERIES, TVShow)
+    assert_entity_type_mapping("Q1259759", WikidataTypes.TV_MINISERIES, TVShow)
+    assert_entity_type_mapping("Q113687694", WikidataTypes.OVA_SERIES, TVShow)
+    assert_entity_type_mapping("Q113671041", WikidataTypes.ONA_SERIES, TVShow)
+
+    # TV seasons and episodes
+    assert_entity_type_mapping("Q25361", WikidataTypes.TV_SEASON, TVSeason)
+    assert_entity_type_mapping("Q53234", WikidataTypes.TV_EPISODE, TVEpisode)
+
+    # Game test
+    assert_entity_type_mapping("Q7889", WikidataTypes.VIDEO_GAME, Game)
+
+    # Podcast tests
+    assert_entity_type_mapping("Q24634210", WikidataTypes.PODCAST_SHOW, Podcast)
+    assert_entity_type_mapping(
+        "Q61855877", WikidataTypes.PODCAST_EPISODE, PodcastEpisode
+    )
+
+    # Performance tests
+    assert_entity_type_mapping("Q25379", WikidataTypes.PLAY, Performance)
+    assert_entity_type_mapping("Q2743", WikidataTypes.MUSICAL, Performance)
+    assert_entity_type_mapping("Q1344", WikidataTypes.OPERA, Performance)
+
+
+# Group 2: Multiple entity type tests
+def test_multiple_entity_types():
+    """Test entities with multiple types and priority rules"""
+    # TV_SPECIAL has priority over TV_EPISODE
+    assert_entity_with_multiple_types(
+        "Q53235", [WikidataTypes.TV_EPISODE, WikidataTypes.TV_SPECIAL], Movie
+    )
+
+    # TV_SERIES should have priority over TV_PROGRAM by first match
+    assert_entity_with_multiple_types(
+        "Q53236", [WikidataTypes.TV_PROGRAM, WikidataTypes.TV_SERIES], TVShow
+    )
+
+
+# Group 3: Parent type lookup tests
+def test_parent_type_lookup():
+    """Test model detection using parent type lookup"""
+    # Test direct parent type lookup
+    entity_data = create_parent_type_entity(
+        "Q999999",
+        "Q12345",  # Unknown instance type
+        WikidataTypes.FILM,  # Known parent type (Film)
+    )
+
+    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q999999")
+    model = wiki_site._determine_entity_type(entity_data)
+
+    # Should identify as Movie from parent type
     assert model == Movie
 
-
-def test_determine_entity_type_book():
-    """Test model detection for a book entity"""
-    # Mock entity data with book instance of
-    entity_data = {
-        "id": "Q721",
+    # Test instance parent type lookup via API
+    entity_with_unknown_type = {
+        "id": "Q999998",
         "claims": {
-            "P31": [
+            WikidataProperties.P31: [
                 {
                     "mainsnak": {
                         "snaktype": "value",
-                        "property": "P31",
+                        "property": WikidataProperties.P31,
                         "datatype": "wikibase-item",
                         "datavalue": {
                             "value": {
-                                "id": WikidataTypes.LITERARY_WORK,
+                                "id": "Q12346",  # Unknown instance type
+                                "type": "wikibase-entityid",
+                            },
+                            "type": "wikibase-entityid",
+                        },
+                    }
+                }
+            ]
+            # No P279 here - will need API lookup
+        },
+    }
+
+    # Mock the API call to get Q12346's data
+    instance_parent_entity = {
+        "id": "Q12346",
+        "claims": {
+            WikidataProperties.P279: [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": WikidataProperties.P279,
+                        "datatype": "wikibase-item",
+                        "datavalue": {
+                            "value": {
+                                "id": WikidataTypes.TV_SERIES,  # Parent is TV series
                                 "type": "wikibase-entityid",
                             },
                             "type": "wikibase-entityid",
@@ -74,27 +290,72 @@ def test_determine_entity_type_book():
         },
     }
 
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q721")
-    model = wiki_site._determine_entity_type(entity_data)
+    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q999998")
 
-    assert model == Work
+    # Mock the API call
+    with patch.object(
+        wiki_site, "_fetch_entity_by_id", return_value=instance_parent_entity
+    ):
+        model = wiki_site._determine_entity_type(entity_with_unknown_type)
+        # Should identify as TVShow from instance's parent type
+        assert model == TVShow
 
 
-def test_determine_entity_type_novel():
-    """Test model detection for a novel entity"""
-    # Mock entity data with novel instance of
+def test_recursive_parent_type_lookup():
+    """Test model detection using recursive parent type lookup"""
+    # This tests a deeper inheritance hierarchy requiring multiple API calls
     entity_data = {
-        "id": "Q721",
+        "id": "Q999997",
         "claims": {
-            "P31": [
+            WikidataProperties.P31: [
                 {
                     "mainsnak": {
                         "snaktype": "value",
-                        "property": "P31",
+                        "property": WikidataProperties.P31,
                         "datatype": "wikibase-item",
                         "datavalue": {
                             "value": {
-                                "id": WikidataTypes.NOVEL,
+                                "id": "Q12347",  # Unknown instance type
+                                "type": "wikibase-entityid",
+                            },
+                            "type": "wikibase-entityid",
+                        },
+                    }
+                }
+            ],
+            WikidataProperties.P279: [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": WikidataProperties.P279,
+                        "datatype": "wikibase-item",
+                        "datavalue": {
+                            "value": {
+                                "id": "Q54321",  # Another unknown type
+                                "type": "wikibase-entityid",
+                            },
+                            "type": "wikibase-entityid",
+                        },
+                    }
+                }
+            ],
+        },
+    }
+
+    # Setup a chain of parent types
+    # Q12347 -> Q98765 -> Q54321 -> PODCAST_SHOW
+    mock_entity_Q12347 = {
+        "id": "Q12347",
+        "claims": {
+            WikidataProperties.P279: [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": WikidataProperties.P279,
+                        "datatype": "wikibase-item",
+                        "datavalue": {
+                            "value": {
+                                "id": "Q98765",
                                 "type": "wikibase-entityid",
                             },
                             "type": "wikibase-entityid",
@@ -105,27 +366,18 @@ def test_determine_entity_type_novel():
         },
     }
 
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q721")
-    model = wiki_site._determine_entity_type(entity_data)
-
-    assert model == Work
-
-
-def test_determine_entity_type_media_franchise():
-    """Test model detection for a media franchise entity"""
-    # Mock entity data with media franchise instance of
-    entity_data = {
-        "id": "Q45340",
+    mock_entity_Q98765 = {
+        "id": "Q98765",
         "claims": {
-            "P31": [
+            WikidataProperties.P279: [
                 {
                     "mainsnak": {
                         "snaktype": "value",
-                        "property": "P31",
+                        "property": WikidataProperties.P279,
                         "datatype": "wikibase-item",
                         "datavalue": {
                             "value": {
-                                "id": WikidataTypes.MEDIA_FRANCHISE,
+                                "id": "Q54321",
                                 "type": "wikibase-entityid",
                             },
                             "type": "wikibase-entityid",
@@ -136,147 +388,14 @@ def test_determine_entity_type_media_franchise():
         },
     }
 
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q45340")
-    model = wiki_site._determine_entity_type(entity_data)
-
-    assert model == Work
-
-
-def test_determine_entity_type_tv_series():
-    """Test model detection for a TV series entity"""
-    # Mock entity data with TV series instance of
-    entity_data = {
-        "id": "Q1079",
+    mock_entity_Q54321 = {
+        "id": "Q54321",
         "claims": {
-            "P31": [
+            WikidataProperties.P279: [
                 {
                     "mainsnak": {
                         "snaktype": "value",
-                        "property": "P31",
-                        "datatype": "wikibase-item",
-                        "datavalue": {
-                            "value": {
-                                "id": WikidataTypes.TV_SERIES,
-                                "type": "wikibase-entityid",
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    }
-                }
-            ]
-        },
-    }
-
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q1079")
-    model = wiki_site._determine_entity_type(entity_data)
-
-    assert model == TVShow
-
-
-def test_determine_entity_type_tv_season():
-    """Test model detection for a TV season entity"""
-    # Mock entity data with TV season instance of
-    entity_data = {
-        "id": "Q25361",
-        "claims": {
-            "P31": [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datatype": "wikibase-item",
-                        "datavalue": {
-                            "value": {
-                                "id": WikidataTypes.TV_SEASON,
-                                "type": "wikibase-entityid",
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    }
-                }
-            ]
-        },
-    }
-
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q25361")
-    model = wiki_site._determine_entity_type(entity_data)
-
-    assert model == TVSeason
-
-
-def test_determine_entity_type_tv_episode():
-    """Test model detection for a TV episode entity"""
-    # Mock entity data with TV episode instance of
-    entity_data = {
-        "id": "Q53234",
-        "claims": {
-            "P31": [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datatype": "wikibase-item",
-                        "datavalue": {
-                            "value": {
-                                "id": WikidataTypes.TV_EPISODE,
-                                "type": "wikibase-entityid",
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    }
-                }
-            ]
-        },
-    }
-
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q53234")
-    model = wiki_site._determine_entity_type(entity_data)
-
-    assert model == TVEpisode
-
-
-def test_determine_entity_type_game():
-    """Test model detection for a video game entity"""
-    # Mock entity data with video game instance of
-    entity_data = {
-        "id": "Q7889",
-        "claims": {
-            "P31": [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datatype": "wikibase-item",
-                        "datavalue": {
-                            "value": {
-                                "id": WikidataTypes.VIDEO_GAME,
-                                "type": "wikibase-entityid",
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    }
-                }
-            ]
-        },
-    }
-
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q7889")
-    model = wiki_site._determine_entity_type(entity_data)
-
-    assert model == Game
-
-
-def test_determine_entity_type_podcast():
-    """Test model detection for a podcast show entity"""
-    # Mock entity data with podcast show instance of
-    entity_data = {
-        "id": "Q24634210",
-        "claims": {
-            "P31": [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
+                        "property": WikidataProperties.P279,
                         "datatype": "wikibase-item",
                         "datavalue": {
                             "value": {
@@ -291,147 +410,72 @@ def test_determine_entity_type_podcast():
         },
     }
 
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q24634210")
+    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q999997")
+
+    # Mock the API calls - return different entity data based on the ID requested
+    def mock_fetch_entity_by_id(entity_id):
+        if entity_id == "Q12347":
+            return mock_entity_Q12347
+        elif entity_id == "Q98765":
+            return mock_entity_Q98765
+        elif entity_id == "Q54321":
+            return mock_entity_Q54321
+        return None
+
+    # Apply the mock
+    with patch.object(
+        wiki_site, "_fetch_entity_by_id", side_effect=mock_fetch_entity_by_id
+    ):
+        model = wiki_site._determine_entity_type(entity_data)
+
+        # Should identify as Podcast from recursive parent lookup
+        assert model == Podcast
+
+
+# Group 4: V1 API format tests
+def test_v1_api_entity_types():
+    """Test extraction of entity types with v1 API format"""
+    # Test v1 API format extraction
+    entity_data = create_v1_api_entity("Q999999", ["Q12345", "Q67890"])
+    entity_data["statements"][WikidataProperties.P279] = [
+        {"value": {"id": WikidataTypes.TV_SERIES}}
+    ]
+
+    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q999999")
+    instance_types = wiki_site._extract_entity_types(
+        entity_data, WikidataProperties.P31
+    )
+    parent_types = wiki_site._extract_entity_types(entity_data, WikidataProperties.P279)
     model = wiki_site._determine_entity_type(entity_data)
 
-    assert model == Podcast
+    assert instance_types == ["Q12345", "Q67890"]
+    assert parent_types == [WikidataTypes.TV_SERIES]
+    assert model == TVShow  # Should identify as TVShow from parent type
 
 
-def test_determine_entity_type_podcast_episode():
-    """Test model detection for a podcast episode entity"""
-    # Mock entity data with podcast episode instance of
-    entity_data = {
-        "id": "Q61855877",
-        "claims": {
-            "P31": [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datatype": "wikibase-item",
-                        "datavalue": {
-                            "value": {
-                                "id": WikidataTypes.PODCAST_EPISODE,
-                                "type": "wikibase-entityid",
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    }
-                }
-            ]
-        },
-    }
+def test_determine_entity_type_v1_api_format():
+    """Test model detection with v1 API format"""
+    # Test direct v1 API format model detection
+    entity_data = create_v1_api_entity("Q184843", WikidataTypes.FILM)
 
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q61855877")
+    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q184843")
     model = wiki_site._determine_entity_type(entity_data)
 
-    assert model == PodcastEpisode
+    assert model == Movie
 
 
-def test_determine_entity_type_play():
-    """Test model detection for a theatrical play entity"""
-    # Mock entity data with play instance of
-    entity_data = {
-        "id": "Q25379",
-        "claims": {
-            "P31": [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datatype": "wikibase-item",
-                        "datavalue": {
-                            "value": {
-                                "id": WikidataTypes.PLAY,
-                                "type": "wikibase-entityid",
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    }
-                }
-            ]
-        },
-    }
-
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q25379")
-    model = wiki_site._determine_entity_type(entity_data)
-
-    assert model == Performance
-
-
-def test_determine_entity_type_musical():
-    """Test model detection for a musical entity"""
-    # Mock entity data with musical instance of
-    entity_data = {
-        "id": "Q2743",
-        "claims": {
-            "P31": [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datatype": "wikibase-item",
-                        "datavalue": {
-                            "value": {
-                                "id": WikidataTypes.MUSICAL,
-                                "type": "wikibase-entityid",
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    }
-                }
-            ]
-        },
-    }
-
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q2743")
-    model = wiki_site._determine_entity_type(entity_data)
-
-    assert model == Performance
-
-
-def test_determine_entity_type_opera():
-    """Test model detection for an opera entity"""
-    # Mock entity data with opera instance of
-    entity_data = {
-        "id": "Q1344",
-        "claims": {
-            "P31": [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datatype": "wikibase-item",
-                        "datavalue": {
-                            "value": {
-                                "id": WikidataTypes.OPERA,
-                                "type": "wikibase-entityid",
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    }
-                }
-            ]
-        },
-    }
-
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q1344")
-    model = wiki_site._determine_entity_type(entity_data)
-
-    assert model == Performance
-
-
-def test_determine_entity_type_person():
-    """Test that person entities raise ParseError"""
-    # Mock entity data with human instance of
-    entity_data = {
+# Group 5: Edge case and error tests
+def test_edge_cases_and_errors():
+    """Test edge cases and error handling"""
+    # Test person entity - should raise ParseError
+    person_entity = {
         "id": "Q42",
         "claims": {
-            "P31": [
+            WikidataProperties.P31: [
                 {
                     "mainsnak": {
                         "snaktype": "value",
-                        "property": "P31",
+                        "property": WikidataProperties.P31,
                         "datatype": "wikibase-item",
                         "datavalue": {
                             "value": {
@@ -447,33 +491,23 @@ def test_determine_entity_type_person():
     }
 
     wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q42")
-
     with pytest.raises(ParseError):
-        wiki_site._determine_entity_type(entity_data)
+        wiki_site._determine_entity_type(person_entity)
 
-
-def test_determine_entity_type_no_instance_of():
-    """Test that entities with no instance of raise ParseError"""
-    # Mock entity data with no instance of properties
-    entity_data = {"id": "Q12345", "claims": {}}
-
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q12345")
-
+    # Test entity with no instance of properties
+    empty_entity = {"id": "Q12345", "claims": {}}
     with pytest.raises(ParseError):
-        wiki_site._determine_entity_type(entity_data)
+        wiki_site._determine_entity_type(empty_entity)
 
-
-def test_determine_entity_type_unsupported():
-    """Test that unsupported entity types raise ParseError"""
-    # Mock entity data with unsupported instance of
-    entity_data = {
+    # Test unsupported entity type
+    unsupported_entity = {
         "id": "Q123456",
         "claims": {
-            "P31": [
+            WikidataProperties.P31: [
                 {
                     "mainsnak": {
                         "snaktype": "value",
-                        "property": "P31",
+                        "property": WikidataProperties.P31,
                         "datatype": "wikibase-item",
                         "datavalue": {
                             "value": {"id": "Q123", "type": "wikibase-entityid"},
@@ -485,118 +519,147 @@ def test_determine_entity_type_unsupported():
         },
     }
 
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q123456")
-
     with pytest.raises(ParseError):
-        wiki_site._determine_entity_type(entity_data)
+        wiki_site._determine_entity_type(unsupported_entity)
 
 
-def test_determine_entity_type_v1_api_format():
-    """Test model detection with v1 API format"""
-    # Mock entity data with v1 API format
+# Group 6: Helper method tests
+def test_extract_entity_types():
+    """Test extraction of entity types from properties"""
     entity_data = {
-        "id": "Q184843",
-        "statements": {
-            "P31": [
+        "id": "Q999999",
+        "claims": {
+            WikidataProperties.P31: [
                 {
-                    "value": {"id": WikidataTypes.FILM},
-                }
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": WikidataProperties.P31,
+                        "datatype": "wikibase-item",
+                        "datavalue": {
+                            "value": {
+                                "id": "Q12345",
+                                "type": "wikibase-entityid",
+                            },
+                            "type": "wikibase-entityid",
+                        },
+                    }
+                },
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": WikidataProperties.P31,
+                        "datatype": "wikibase-item",
+                        "datavalue": {
+                            "value": {
+                                "id": "Q67890",
+                                "type": "wikibase-entityid",
+                            },
+                            "type": "wikibase-entityid",
+                        },
+                    }
+                },
             ]
         },
     }
 
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q184843")
-    model = wiki_site._determine_entity_type(entity_data)
+    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q999999")
+    types = wiki_site._extract_entity_types(entity_data, WikidataProperties.P31)
 
-    assert model == Movie
+    assert types == ["Q12345", "Q67890"]
 
 
 def test_preferred_model_in_metadata():
+    """Test preferred model is included in metadata"""
     wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q184843")
     content = wiki_site.scrape()
     assert "preferred_model" in content.metadata
     assert content.metadata["preferred_model"] == "Movie"
 
 
-@patch(
-    "catalog.sites.wikidata.WIKIDATA_PREFERRED_LANGS",
-    ["en", "zh", "zh-cn", "zh-tw"],
-)
-def test_extract_labels_preferred_only():
-    """Test that _extract_labels only includes labels in preferred languages"""
-    # Mock entity data with labels in multiple languages
-    entity_data = {
-        "labels": {
-            "en": {"value": "Douglas Adams", "language": "en"},
-            "zh": {"value": "道格拉斯·亚当斯", "language": "zh"},
-            "zh-cn": {"value": "道格拉斯·亚当斯", "language": "zh-cn"},
-            "zh-tw": {"value": "道格拉斯·亞當斯", "language": "zh-tw"},
-            "de": {"value": "Douglas Adams", "language": "de"},
-            "fr": {"value": "Douglas Adams", "language": "fr"},
-            "es": {"value": "Douglas Adams", "language": "es"},
-            "ja": {"value": "ダグラス・アダムズ", "language": "ja"},
+# Group 7: Language handling tests
+def test_language_handling():
+    """Test language handling in labels and descriptions extraction"""
+    # Test preferred labels extraction
+    with patch(
+        "catalog.sites.wikidata.WIKIDATA_PREFERRED_LANGS",
+        ["en", "zh", "zh-cn", "zh-tw"],
+    ):
+        # Mock entity data with labels in multiple languages
+        entity_data = {
+            "labels": {
+                "en": {"value": "Douglas Adams", "language": "en"},
+                "zh": {"value": "道格拉斯·亚当斯", "language": "zh"},
+                "zh-cn": {"value": "道格拉斯·亚当斯", "language": "zh-cn"},
+                "zh-tw": {"value": "道格拉斯·亞當斯", "language": "zh-tw"},
+                "de": {"value": "Douglas Adams", "language": "de"},
+                "fr": {"value": "Douglas Adams", "language": "fr"},
+                "es": {"value": "Douglas Adams", "language": "es"},
+                "ja": {"value": "ダグラス・アダムズ", "language": "ja"},
+            }
         }
-    }
 
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q42")
-    labels = wiki_site._extract_labels(entity_data)
+        wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q42")
+        labels = wiki_site._extract_labels(entity_data)
 
-    # Verify that only preferred labels are included
-    assert "en" in labels
-    assert "zh" in labels
-    assert "zh-cn" in labels
-    assert "zh-tw" in labels
-    assert "de" not in labels
-    assert "fr" not in labels
-    assert labels["en"] == "Douglas Adams"
-    assert labels["zh"] == "道格拉斯·亚当斯"
-    assert labels["zh-cn"] == "道格拉斯·亚当斯"
-    assert labels["zh-tw"] == "道格拉斯·亞當斯"
+        # Verify that only preferred labels are included
+        assert "en" in labels
+        assert "zh" in labels
+        assert "zh-cn" in labels
+        assert "zh-tw" in labels
+        assert "de" not in labels
+        assert "fr" not in labels
+        assert labels["en"] == "Douglas Adams"
+        assert labels["zh"] == "道格拉斯·亚当斯"
+        assert labels["zh-cn"] == "道格拉斯·亚当斯"
+        assert labels["zh-tw"] == "道格拉斯·亞當斯"
 
-
-@patch(
-    "catalog.sites.wikidata.WIKIDATA_PREFERRED_LANGS",
-    ["en", "zh", "zh-cn", "zh-tw"],
-)
-def test_extract_descriptions_preferred_only():
-    """Test that _extract_descriptions only includes descriptions in preferred languages"""
-    # Mock entity data with descriptions in multiple languages
-    entity_data = {
-        "descriptions": {
-            "en": {"value": "English writer and humorist", "language": "en"},
-            "zh": {"value": "英国作家", "language": "zh"},
-            "zh-cn": {"value": "英国作家", "language": "zh-cn"},
-            "zh-tw": {"value": "英國作家", "language": "zh-tw"},
-            "de": {"value": "britischer Science-Fiction-Autor", "language": "de"},
-            "fr": {"value": "écrivain de science-fiction", "language": "fr"},
+    # Test preferred descriptions extraction
+    with patch(
+        "catalog.sites.wikidata.WIKIDATA_PREFERRED_LANGS",
+        ["en", "zh", "zh-cn", "zh-tw"],
+    ):
+        # Mock entity data with descriptions in multiple languages
+        entity_data = {
+            "descriptions": {
+                "en": {"value": "English writer and humorist", "language": "en"},
+                "zh": {"value": "英国作家", "language": "zh"},
+                "zh-cn": {"value": "英国作家", "language": "zh-cn"},
+                "zh-tw": {"value": "英國作家", "language": "zh-tw"},
+                "de": {"value": "britischer Science-Fiction-Autor", "language": "de"},
+                "fr": {"value": "écrivain de science-fiction", "language": "fr"},
+            }
         }
-    }
 
-    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q42")
-    descriptions = wiki_site._extract_descriptions(entity_data)
+        wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q42")
+        descriptions = wiki_site._extract_descriptions(entity_data)
 
-    # Verify that only preferred language descriptions are included
-    assert len(descriptions) == 4
-    assert any(
-        d["lang"] == "en" and d["text"] == "English writer and humorist"
-        for d in descriptions
-    )
-    assert any(d["lang"] == "zh" and d["text"] == "英国作家" for d in descriptions)
-    assert any(d["lang"] == "zh-cn" and d["text"] == "英国作家" for d in descriptions)
-    assert any(d["lang"] == "zh-tw" and d["text"] == "英國作家" for d in descriptions)
-    assert not any(d["lang"] == "de" for d in descriptions)
-    assert not any(d["lang"] == "fr" for d in descriptions)
+        # Verify that only preferred language descriptions are included
+        assert len(descriptions) == 4
+        assert any(
+            d["lang"] == "en" and d["text"] == "English writer and humorist"
+            for d in descriptions
+        )
+        assert any(d["lang"] == "zh" and d["text"] == "英国作家" for d in descriptions)
+        assert any(
+            d["lang"] == "zh-cn" and d["text"] == "英国作家" for d in descriptions
+        )
+        assert any(
+            d["lang"] == "zh-tw" and d["text"] == "英國作家" for d in descriptions
+        )
+        assert not any(d["lang"] == "de" for d in descriptions)
+        assert not any(d["lang"] == "fr" for d in descriptions)
 
 
-@patch("catalog.sites.wikidata.SITE_PREFERRED_LANGUAGES", ["en", "zh"])
 def test_preferred_languages_expansion():
-    from catalog.sites.wikidata import _get_preferred_languages
+    """Test language expansion for preferred languages"""
+    with patch("catalog.sites.wikidata.SITE_PREFERRED_LANGUAGES", ["en", "zh"]):
+        from catalog.sites.wikidata import _get_preferred_languages
 
-    preferred_langs = _get_preferred_languages()
-    assert "en" in preferred_langs
-    assert "zh" in preferred_langs
-    assert "zh-hans" in preferred_langs
-    assert "zh-hant" in preferred_langs
+        preferred_langs = _get_preferred_languages()
+        assert "en" in preferred_langs
+        assert "zh" in preferred_langs
+        assert "zh-hans" in preferred_langs
+        assert "zh-hant" in preferred_langs
 
 
 class TestWikiData:

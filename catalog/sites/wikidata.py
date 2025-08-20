@@ -37,12 +37,16 @@ class WikidataTypes:
     # Instance of (P31) values
     HUMAN = "Q5"  # Person
     FILM = "Q11424"  # Film/Movie
+    ANIME = "Q1107"  # too general, not mapping
     LITERARY_WORK = "Q7725634"  # Literary work (Book)
     NOVEL = "Q8261"  # Novel (specific type of book)
     TV_SERIES = "Q5398426"  # Television series
     TV_SEASON = "Q3464665"  # Television season
     TV_EPISODE = "Q21191270"  # Television episode
-    TV_SPECIAL = "Q1261214"
+    TV_SPECIAL = "Q1261214"  # Television special
+    TV_PROGRAM = "Q15416"  # Television program
+    TV_MINISERIES = "Q1259759"  # Miniseries/Limited series
+    TV_FILM = "Q506240"  # Television film/TV movie
     MEDIA_FRANCHISE = "Q134556"  # Media franchise/series
     VIDEO_GAME = "Q7889"  # Video game
     PODCAST_SHOW = "Q24634210"  # Podcast show/series
@@ -57,6 +61,14 @@ class WikidataTypes:
     ANIME_FILM = "Q20650540"  # Anime film
     ANIME_TV_SERIES = "Q63952888"  # Anime television series
     ANIME_TV_PROGRAM = "Q11086742"  # Anime television program
+    ANIMATED_SERIES = "Q581714"  # Animated series
+    ANIMATED_TV_SERIES = "Q117467246"  # Animated television series
+    OVA = "Q220898"  # Original Video Animation
+    OVA_SERIES = "Q113687694"  # Original Video Animation Series
+    ONA_SERIES = "Q113671041"  # Original Net Animation series
+    SILENT_FILM = "Q226730"  # Silent film
+    SHORT_FILM = "Q24862"  # Short film
+    FILM_PROJECT = "Q18011172"  # Film project (unpublished or unfinished film)
     MANGA_SERIES = "Q21198342"  # Manga series
 
 
@@ -66,6 +78,7 @@ class WikidataProperties:
     P18 = "P18"  # image
     P31 = "P31"  # instance of
     P154 = "P154"  # logo image
+    P279 = "P279"  # subclass of
     P2716 = "P2716"  # collage image
     P3383 = "P3383"  # film poster
 
@@ -171,7 +184,7 @@ class WikidataProperties:
         "P4983": IdType.TMDB_TV,  # TMDb TV series ID
         "P1954": IdType.Discogs_Master,  # Discogs master ID
         "P2206": IdType.Discogs_Release,  # Discogs release ID
-        "P436": IdType.MusicBrainz,  # MusicBrainz release group ID
+        # "P436": IdType.MusicBrainz,  # MusicBrainz release group ID
         # "P5842": IdType.ApplePodcasts,
         "P5831": IdType.Spotify_Album,
     }
@@ -223,6 +236,45 @@ class WikiData(AbstractSite):
         r"^\w+://www\.wikidata\.org/entity/(Q\d+)",  # Entity URLs in alternate format
     ]
 
+    # Map of Wikidata entity types to NeoDB models
+    TYPE_TO_MODEL_MAP = {
+        WikidataTypes.FILM: Movie,
+        WikidataTypes.ANIME_FILM: Movie,
+        WikidataTypes.ANIMATED_FILM: Movie,
+        WikidataTypes.SILENT_FILM: Movie,
+        WikidataTypes.TV_FILM: Movie,
+        WikidataTypes.OVA: Movie,
+        WikidataTypes.SHORT_FILM: Movie,
+        WikidataTypes.FILM_PROJECT: Movie,
+        WikidataTypes.TV_SPECIAL: Movie,  # Treat special episodes as Movie
+        WikidataTypes.TV_SERIES: TVShow,
+        WikidataTypes.ANIME_TV_SERIES: TVShow,
+        WikidataTypes.ANIME_TV_PROGRAM: TVShow,
+        WikidataTypes.TV_PROGRAM: TVShow,
+        WikidataTypes.ANIMATED_SERIES: TVShow,
+        WikidataTypes.ANIMATED_TV_SERIES: TVShow,
+        WikidataTypes.TV_MINISERIES: TVShow,
+        WikidataTypes.OVA_SERIES: TVShow,
+        WikidataTypes.ONA_SERIES: TVShow,
+        WikidataTypes.TV_SEASON: TVSeason,
+        WikidataTypes.TV_EPISODE: TVEpisode,
+        WikidataTypes.VIDEO_GAME: Game,
+        WikidataTypes.PODCAST_SHOW: Podcast,
+        WikidataTypes.PODCAST_EPISODE: PodcastEpisode,
+        WikidataTypes.PLAY: Performance,
+        WikidataTypes.MUSICAL: Performance,
+        WikidataTypes.OPERA: Performance,
+        WikidataTypes.PERFORMING_ARTS_PRODUCTION: Performance,
+        WikidataTypes.DRAMATIC_WORKS: Performance,
+        WikidataTypes.LITERARY_WORK: Work,
+        WikidataTypes.NOVEL: Work,
+        WikidataTypes.MEDIA_FRANCHISE: Work,
+        WikidataTypes.MANGA_SERIES: Work,
+    }
+
+    # Types that have priority over all others
+    PRIORITY_TYPES = [WikidataTypes.TV_SPECIAL]
+
     @classmethod
     def id_to_url(cls, id_value):
         """Convert a Wikidata ID to URL"""
@@ -233,10 +285,21 @@ class WikiData(AbstractSite):
         if not self.id_value or not self.id_value.startswith("Q"):
             logger.error(f"Invalid Wikidata ID: {self.id_value}")
             return None
-        entity_id = self.id_value
-        # Updated to v1 of the API
-        api_url = f"https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{entity_id}"
-        return BasicDownloader(api_url).download().json()
+        return self._fetch_entity_by_id(self.id_value)
+
+    def _fetch_entity_by_id(self, entity_id):
+        """Fetch entity data from Wikidata REST API for any entity ID"""
+        if not entity_id or not entity_id.startswith("Q"):
+            logger.error(f"Invalid Wikidata ID: {entity_id}")
+            return None
+
+        try:
+            # Updated to v1 of the API
+            api_url = f"https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{entity_id}"
+            return BasicDownloader(api_url).download().json()
+        except Exception as e:
+            logger.error(f"Failed to fetch entity data for {entity_id}: {e}")
+            return None
 
     def _extract_labels(self, entity_data):
         """Extract labels only in preferred languages"""
@@ -416,94 +479,196 @@ class WikiData(AbstractSite):
 
         return None
 
-    def _determine_entity_type(self, entity_data):
-        """Determine the type of entity and appropriate model based on 'instance of' properties"""
-        # Extract 'instance of' (P31) values
-        instance_of_values = []
+    def _extract_entity_types(self, entity_data, property_id):
+        """Extract entity types (instance of or subclass of) from a property"""
+        type_values = []
 
         # Get the appropriate key based on API version
         claims_key = "statements" if "statements" in entity_data else "claims"
-        p31_key = "P31"
 
-        # Check if P31 (instance of) exists
-        if claims_key in entity_data and p31_key in entity_data[claims_key]:
-            claims = entity_data[claims_key][p31_key]
-            # Extract all instance of values
+        # Check if the property exists
+        if claims_key in entity_data and property_id in entity_data[claims_key]:
+            claims = entity_data[claims_key][property_id]
+            # Extract all values
             for claim in claims:
                 # Handle different API formats (v0 vs v1)
                 if "value" in claim:
                     # v1 API format
                     if isinstance(claim["value"], dict):
                         if "id" in claim["value"]:
-                            instance_of_values.append(claim["value"]["id"])
+                            type_values.append(claim["value"]["id"])
                         elif "content" in claim["value"]:
-                            instance_of_values.append(claim["value"]["content"])
+                            type_values.append(claim["value"]["content"])
                 elif "mainsnak" in claim and "datavalue" in claim["mainsnak"]:
                     # v0 API format
                     datavalue = claim["mainsnak"]["datavalue"]
                     if isinstance(
                         datavalue.get("value"), dict
                     ) and "id" in datavalue.get("value", {}):
-                        instance_of_values.append(datavalue["value"]["id"])
+                        type_values.append(datavalue["value"]["id"])
 
-        # If no matching model is found and entity has no instance of values
+        return type_values
+
+    def _determine_model_from_entity_types(self, entity_types, entity_id):
+        """Map entity types to appropriate model using a mapping dictionary with prioritization
+
+        Special case: TV_SPECIAL takes precedence over other types when an entity has multiple types.
+        """
+        if not entity_types:
+            return None
+
+        # Check for human type (not supported)
+        if WikidataTypes.HUMAN in entity_types:
+            raise ParseError(
+                self,
+                f"Entity {entity_id} is a person (Q5). Person entities are not supported.",
+            )
+
+        # Check priority types first
+        for priority_type in self.PRIORITY_TYPES:
+            if (
+                priority_type in entity_types
+                and priority_type in self.TYPE_TO_MODEL_MAP
+            ):
+                return self.TYPE_TO_MODEL_MAP[priority_type]
+
+        # Look for any matching type
+        for entity_type in entity_types:
+            if entity_type in self.TYPE_TO_MODEL_MAP:
+                return self.TYPE_TO_MODEL_MAP[entity_type]
+
+        return None
+
+    def _fetch_parent_types(self, entity_data):
+        """Fetch the parent types (subclass of) values from entity data"""
+        return self._extract_entity_types(entity_data, WikidataProperties.P279)
+
+    def _fetch_parent_types_with_api(self, entity_types, max_depth=1, current_depth=0):
+        """Fetch parent types (subclass of) for given entity types using API calls
+
+        This makes API calls to Wikidata for each entity type to find their parent classes.
+        Supports recursive lookup up to max_depth levels.
+
+        Args:
+            entity_types: List of entity type IDs to look up
+            max_depth: Maximum recursion depth for parent lookup
+            current_depth: Current recursion depth (internal use)
+
+        Returns:
+            List of parent type IDs
+        """
+        if not entity_types or current_depth >= max_depth:
+            return []
+
+        parent_types = []
+        # Use a set to avoid duplicate API calls
+        processed_types = set()
+
+        for entity_type in entity_types:
+            if entity_type in processed_types:
+                continue
+
+            processed_types.add(entity_type)
+
+            # Fetch entity data for this type via API
+            type_entity_data = self._fetch_entity_by_id(entity_type)
+            if not type_entity_data:
+                continue
+
+            # Extract subclass of values
+            direct_parent_types = self._extract_entity_types(
+                type_entity_data, WikidataProperties.P279
+            )
+            parent_types.extend(direct_parent_types)
+
+            # Recursively fetch parent types of parent types if needed
+            if current_depth < max_depth - 1 and direct_parent_types:
+                recursive_parent_types = self._fetch_parent_types_with_api(
+                    direct_parent_types, max_depth, current_depth + 1
+                )
+                parent_types.extend(recursive_parent_types)
+
+        # Return unique parent types
+        return list(set(parent_types))
+
+    def _determine_entity_type(self, entity_data):
+        """Determine the type of entity and appropriate model based on properties
+
+        Uses a multi-level approach to determine the appropriate model:
+        1. Direct 'instance of' (P31) values
+        2. Direct 'subclass of' (P279) values from the entity
+        3. Parent types of instance classes via API lookup (when needed)
+        4. Recursive parent lookup up to a configurable depth
+        """
+        # Extract 'instance of' (P31) values
+        instance_of_values = self._extract_entity_types(
+            entity_data, WikidataProperties.P31
+        )
+
         if not instance_of_values:
             raise ParseError(
                 self, f"Entity {self.id_value} has no 'instance of' (P31) properties"
             )
 
-        # Determine model based on instance of values
-        if (
-            WikidataTypes.FILM in instance_of_values
-            or WikidataTypes.ANIME_FILM in instance_of_values
-        ):
-            return Movie
-        elif (
-            WikidataTypes.TV_SERIES in instance_of_values
-            or WikidataTypes.ANIME_TV_SERIES in instance_of_values
-            or WikidataTypes.ANIME_TV_PROGRAM in instance_of_values
-        ):
-            return TVShow
-        elif WikidataTypes.TV_SEASON in instance_of_values:
-            return TVSeason
-        elif WikidataTypes.TV_EPISODE in instance_of_values:
-            if WikidataTypes.TV_SPECIAL in instance_of_values:
-                # Treat special episodes as Movie, align with Douban & IMDb
-                return Movie
-            else:
-                return TVEpisode
-        elif WikidataTypes.VIDEO_GAME in instance_of_values:
-            return Game
-        elif WikidataTypes.PODCAST_SHOW in instance_of_values:
-            return Podcast
-        elif WikidataTypes.PODCAST_EPISODE in instance_of_values:
-            return PodcastEpisode
-        elif (
-            WikidataTypes.PLAY in instance_of_values
-            or WikidataTypes.MUSICAL in instance_of_values
-            or WikidataTypes.OPERA in instance_of_values
-            or WikidataTypes.PERFORMING_ARTS_PRODUCTION in instance_of_values
-            or WikidataTypes.DRAMATIC_WORKS in instance_of_values
-        ):
-            return Performance
-        elif (
-            WikidataTypes.LITERARY_WORK in instance_of_values
-            or WikidataTypes.NOVEL in instance_of_values
-            or WikidataTypes.MEDIA_FRANCHISE in instance_of_values
-            or WikidataTypes.MANGA_SERIES in instance_of_values
-        ):
-            return Work
-        elif WikidataTypes.HUMAN in instance_of_values:
-            # Human entities are not supported in our system yet
-            raise ParseError(
-                self,
-                f"Entity {self.id_value} is a person (Q5). Person entities are not supported.",
-            )
-
-        # If has instance of values but none match our supported types
-        logger.warning(
-            f"Unable to determine entity type for {self.id_value}. Instance values: {instance_of_values}"
+        # Try to determine model based on instance of values
+        model = self._determine_model_from_entity_types(
+            instance_of_values, self.id_value
         )
+        if model:
+            return model
+
+        # If no model found from instance_of, try to look up direct parent classes
+        direct_parent_types = self._fetch_parent_types(entity_data)
+        if direct_parent_types:
+            parent_model = self._determine_model_from_entity_types(
+                direct_parent_types, self.id_value
+            )
+            if parent_model:
+                logger.info(
+                    f"Determined model {parent_model.__name__} from direct parent type for {self.id_value}"
+                )
+                return parent_model
+
+        # If still no match, try to fetch parent types of instance classes via API
+        # This handles the case where an entity is an instance of a class that is a subclass of a known type
+        instance_parent_types = self._fetch_parent_types_with_api(
+            instance_of_values, max_depth=2
+        )
+        if instance_parent_types:
+            instance_parent_model = self._determine_model_from_entity_types(
+                instance_parent_types, self.id_value
+            )
+            if instance_parent_model:
+                logger.info(
+                    f"Determined model {instance_parent_model.__name__} from instance parent type "
+                    f"for {self.id_value}"
+                )
+                return instance_parent_model
+
+        # If we still don't have a match, try recursive parent lookup on direct parent types
+        if direct_parent_types:
+            recursive_parent_types = self._fetch_parent_types_with_api(
+                direct_parent_types, max_depth=2
+            )
+            if recursive_parent_types:
+                recursive_model = self._determine_model_from_entity_types(
+                    recursive_parent_types, self.id_value
+                )
+                if recursive_model:
+                    logger.info(
+                        f"Determined model {recursive_model.__name__} from recursive parent lookup "
+                        f"for {self.id_value}"
+                    )
+                    return recursive_model
+
+        # If we get here, we couldn't determine a model
+        logger.warning(
+            f"Could not determine entity type by parents for {self.id_value}."
+            f"\nInstance values: {instance_of_values}\nDirect parent types: {direct_parent_types}"
+            f"\nInstance parent types: {instance_parent_types if 'instance_parent_types' in locals() else []}"
+        )
+
+        # If no matching model is found
         raise ParseError(
             self,
             f"Entity {self.id_value} has unsupported type(s): {', '.join(instance_of_values)}",
@@ -613,7 +778,12 @@ class WikiData(AbstractSite):
                     data.lookup_ids[res["id_type"]] = res["id_value"]
                 else:
                     logger.error(
-                        f"Skipping {res['id_type']}:{res['id_value']} for {self.id_value} as it does not match the {model}"
+                        f"IdType {res['id_type']} does not match Model {model}, skipping",
+                        extra={
+                            "id_type": self.ID_TYPE,
+                            "id_value": self.id_value,
+                            "prematched": res,
+                        },
                     )
             except Exception as e:
                 logger.error(
