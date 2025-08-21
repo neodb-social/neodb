@@ -749,4 +749,6 @@ class TestWikiData:
         # assert "Q692" in content.metadata["playwright"]  # Shakespeare
         # assert "Q1860" in content.metadata["language"]  # English
         # assert "Q80930" in content.metadata["genre"]  # Tragedy
-        assert content.metadata["opening_date"] == "1602-00-00"
+        assert (
+            content.metadata["opening_date"] == "1602-01-01"
+        )  # convered from 1602-00-00

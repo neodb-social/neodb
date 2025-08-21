@@ -4,9 +4,8 @@ Wikidata API integration
 Uses the Wikidata REST API: https://www.wikidata.org/wiki/Wikidata:REST_API
 """
 
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
-import httpx
 from loguru import logger
 
 from catalog.common import (
@@ -1084,15 +1083,9 @@ class WikiData(AbstractSite):
 
         try:
             # Use Wikidata API to get all sitelinks (Wikipedia pages)
-            api_url = "https://www.wikidata.org/w/api.php"
-            params = {
-                "action": "wbgetentities",
-                "format": "json",
-                "ids": entity_id,
-                "props": "sitelinks",
-            }
+            api_url = f"https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=sitelinks&ids={entity_id}"
 
-            response = httpx.get(api_url, params=params, timeout=2)
+            response = BasicDownloader(api_url, timeout=2).download()
             data = response.json()
 
             if "entities" not in data or entity_id not in data["entities"]:
@@ -1171,13 +1164,8 @@ class WikiData(AbstractSite):
             LIMIT 1
             """
 
-            # Query Wikidata SPARQL endpoint
             api_url = "https://query.wikidata.org/sparql"
             params = {"query": sparql_query, "format": "json"}
-
-            # Build URL with parameters
-            from urllib.parse import urlencode
-
             full_url = f"{api_url}?{urlencode(params)}"
 
             response = BasicDownloader(full_url).download()
