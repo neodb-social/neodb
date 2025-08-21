@@ -665,7 +665,7 @@ class WikiData(AbstractSite):
         # If we still don't have a match, try recursive parent lookup on direct parent types
         if direct_parent_types:
             recursive_parent_types = self._fetch_parent_types_with_api(
-                direct_parent_types, max_depth=2
+                direct_parent_types, max_depth=3
             )
             if recursive_parent_types:
                 recursive_model = self._determine_model_from_entity_types(
@@ -678,17 +678,13 @@ class WikiData(AbstractSite):
                     )
                     return recursive_model
 
-        # If we get here, we couldn't determine a model
-        logger.warning(
-            f"Could not determine entity type by parents for {self.id_value}."
-            f"\nInstance values: {instance_of_values}\nDirect parent types: {direct_parent_types}"
-            f"\nInstance parent types: {instance_parent_types if 'instance_parent_types' in locals() else []}"
+        logger.error(
+            f"Entity has unsupported type(s): {', '.join(instance_of_values)}",
+            extra={"qid": self.id_value},
         )
-
-        # If no matching model is found
         raise ParseError(
             self,
-            f"Entity {self.id_value} has unsupported type(s): {', '.join(instance_of_values)}",
+            f"Entity has unsupported type(s): {', '.join(instance_of_values)}",
         )
 
     def _extract_cover_image(self, entity_data):

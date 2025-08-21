@@ -188,7 +188,9 @@ def link_tmdb_wikidata_20250815(limit=None):
                 wiki_site.get_resource_ready()
                 logger.success(f"Linked WikiData {wiki_site} to {site}")
             except Exception as e:
-                logger.error(f"Failed to process WikiData {wikidata_id}: {e}")
+                logger.error(
+                    f"Failed to process WikiData {e}", extra={"qid": wikidata_id}
+                )
                 count_errors += 1
             sleep(0.5)
         except Exception as e:
