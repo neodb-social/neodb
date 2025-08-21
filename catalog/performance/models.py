@@ -13,7 +13,7 @@ from catalog.common import (
     ItemSchema,
     jsondata,
 )
-from catalog.common.models import LIST_OF_STR_SCHEMA, LanguageListField
+from catalog.common.models import LIST_OF_STR_SCHEMA, ItemType, LanguageListField
 from common.models.misc import datetime_
 
 
@@ -102,6 +102,7 @@ class Performance(Item):
     if TYPE_CHECKING:
         productions: models.QuerySet["PerformanceProduction"]
     schema = PerformanceSchema
+    type = ItemType.Performance
     child_class = "PerformanceProduction"
     category = ItemCategory.Performance
     url_path = "performance"
@@ -313,6 +314,7 @@ class Performance(Item):
 class PerformanceProduction(Item):
     schema = PerformanceProductionSchema
     category = ItemCategory.Performance
+    type = ItemType.PerformanceProduction
     url_path = "performance/production"
     show = models.ForeignKey(
         Performance, null=True, on_delete=models.SET_NULL, related_name="productions"

@@ -12,7 +12,7 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
-from catalog.common.models import LIST_OF_STR_SCHEMA, LanguageListField
+from catalog.common.models import LIST_OF_STR_SCHEMA, ItemType, LanguageListField
 from common.models.misc import int_
 
 
@@ -37,6 +37,7 @@ class MovieSchema(MovieInSchema, BaseSchema):
 class Movie(Item):
     schema = MovieSchema
     category = ItemCategory.Movie
+    type = ItemType.Movie
     url_path = "movie"
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_movie = PrimaryLookupIdDescriptor(IdType.TMDB_Movie)

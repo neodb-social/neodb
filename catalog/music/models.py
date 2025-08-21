@@ -14,7 +14,11 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
-from catalog.common.models import LIST_OF_ONE_PLUS_STR_SCHEMA, LIST_OF_STR_SCHEMA
+from catalog.common.models import (
+    LIST_OF_ONE_PLUS_STR_SCHEMA,
+    LIST_OF_STR_SCHEMA,
+    ItemType,
+)
 
 
 class AlbumInSchema(ItemInSchema):
@@ -35,6 +39,7 @@ class Album(Item):
     schema = AlbumSchema
     url_path = "album"
     category = ItemCategory.Music
+    type = ItemType.Album
     barcode = PrimaryLookupIdDescriptor(IdType.GTIN)
     douban_music = PrimaryLookupIdDescriptor(IdType.DoubanMusic)
     spotify_album = PrimaryLookupIdDescriptor(IdType.Spotify_Album)

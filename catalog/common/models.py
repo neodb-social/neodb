@@ -134,6 +134,7 @@ IdealIdTypes = [
 
 class ItemType(models.TextChoices):
     Edition = "edition", _("Edition")
+    Work = "work", _("Work")
     TVShow = "tvshow", _("TV Serie")
     TVSeason = "tvseason", _("TV Season")
     TVEpisode = "tvepisode", _("TV Episode")
@@ -379,6 +380,7 @@ class Item(PolymorphicModel):
         mark: "Mark"
     schema = ItemSchema
     category: ItemCategory  # subclass must specify this
+    type: ItemType  # subclass must specify this
     url_path = "item"  # subclass must specify this
     child_class = None  # subclass may specify this to allow link to parent item
     parent_class = None  # subclass may specify this to allow create child item

@@ -13,7 +13,7 @@ from catalog.common import (
     PrimaryLookupIdDescriptor,
     jsondata,
 )
-from catalog.common.models import LIST_OF_STR_SCHEMA
+from catalog.common.models import LIST_OF_STR_SCHEMA, ItemType
 
 
 class GameReleaseType(models.TextChoices):
@@ -46,6 +46,7 @@ class GameSchema(GameInSchema, BaseSchema):
 class Game(Item):
     schema = GameSchema
     category = ItemCategory.Game
+    type = ItemType.Game
     url_path = "game"
     igdb = PrimaryLookupIdDescriptor(IdType.IGDB)
     steam = PrimaryLookupIdDescriptor(IdType.Steam)

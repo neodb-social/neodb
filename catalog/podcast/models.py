@@ -15,6 +15,7 @@ from catalog.common import (
 )
 from catalog.common.models import (
     LIST_OF_ONE_PLUS_STR_SCHEMA,
+    ItemType,
     LanguageListField,
 )
 
@@ -49,6 +50,7 @@ class Podcast(Item):
         episodes: models.QuerySet["PodcastEpisode"]
     schema = PodcastSchema
     category = ItemCategory.Podcast
+    type = ItemType.Podcast
     child_class = "PodcastEpisode"
     url_path = "podcast"
     # apple_podcast = PrimaryLookupIdDescriptor(IdType.ApplePodcast)
@@ -162,6 +164,7 @@ class Podcast(Item):
 class PodcastEpisode(Item):
     schema = PodcastEpisodeSchema
     category = ItemCategory.Podcast
+    type = ItemType.PodcastEpisode
     url_path = "podcast/episode"
     # uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     program = models.ForeignKey(Podcast, models.CASCADE, related_name="episodes")

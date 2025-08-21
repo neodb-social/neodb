@@ -45,6 +45,7 @@ from catalog.common import (
 )
 from catalog.common.models import (
     LIST_OF_STR_SCHEMA,
+    ItemType,
     LanguageListField,
 )
 from common.models.lang import RE_LOCALIZED_SEASON_NUMBERS, localize_number
@@ -101,6 +102,7 @@ class TVShow(Item):
     schema = TVShowSchema
     child_class = "TVSeason"
     category = ItemCategory.TV
+    type = ItemType.TVShow
     url_path = "tv"
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tv = PrimaryLookupIdDescriptor(IdType.TMDB_TV)
@@ -333,6 +335,7 @@ class TVSeason(Item):
     if TYPE_CHECKING:
         episodes: models.QuerySet["TVEpisode"]
     schema = TVSeasonSchema
+    type = ItemType.TVSeason
     category = ItemCategory.TV
     url_path = "tv/season"
     child_class = "TVEpisode"
@@ -622,6 +625,7 @@ class TVSeason(Item):
 class TVEpisode(Item):
     schema = TVEpisodeSchema
     category = ItemCategory.TV
+    type = ItemType.TVEpisode
     url_path = "tv/episode"
     season = models.ForeignKey(
         TVSeason, null=True, on_delete=models.SET_NULL, related_name="episodes"

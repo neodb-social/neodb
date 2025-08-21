@@ -39,6 +39,7 @@ from catalog.common import (
 from catalog.common.models import (
     LIST_OF_ONE_PLUS_STR_SCHEMA,
     LOCALE_CHOICES_JSONFORM,
+    ItemType,
     LanguageListField,
 )
 from common.models import uniq
@@ -122,6 +123,7 @@ class Edition(Item):
 
     schema = EditionSchema
     category = ItemCategory.Book
+    type = ItemType.Edition
     url_path = "book"
 
     isbn = PrimaryLookupIdDescriptor(IdType.ISBN)
@@ -446,6 +448,7 @@ class Edition(Item):
 
 class Work(Item):
     category = ItemCategory.Book
+    type = ItemType.Work
     url_path = "book/work"
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
