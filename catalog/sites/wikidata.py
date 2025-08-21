@@ -48,7 +48,14 @@ class WikidataTypes:
     TV_MINISERIES = "Q1259759"  # Miniseries/Limited series
     TV_FILM = "Q506240"  # Television film/TV movie
     MEDIA_FRANCHISE = "Q134556"  # Media franchise/series
+    GAME = "Q11410"
     VIDEO_GAME = "Q7889"  # Video game
+    VIDEO_GAME_MOD = "Q865493"
+    VIDEO_GAME_EXPANSION = "Q209163"
+    VIDEO_GAME_EXPANSION2 = "Q107466928"
+    VIDEO_GAME_DLC = "Q1066707"
+    BOARD_GAME = "Q131436"
+    TABLETOP_GAME = "Q3244175"
     PODCAST_SHOW = "Q24634210"  # Podcast show/series
     PODCAST_EPISODE = "Q61855877"  # Podcast episode
     DRAMATIC_WORKS = "Q116476516"  # Dramatic work
@@ -258,7 +265,14 @@ class WikiData(AbstractSite):
         WikidataTypes.ONA_SERIES: TVShow,
         WikidataTypes.TV_SEASON: TVSeason,
         WikidataTypes.TV_EPISODE: TVEpisode,
+        WikidataTypes.GAME: Game,
         WikidataTypes.VIDEO_GAME: Game,
+        WikidataTypes.VIDEO_GAME_MOD: Game,
+        WikidataTypes.VIDEO_GAME_EXPANSION: Game,
+        WikidataTypes.VIDEO_GAME_EXPANSION2: Game,
+        WikidataTypes.VIDEO_GAME_DLC: Game,
+        WikidataTypes.BOARD_GAME: Game,
+        WikidataTypes.TABLETOP_GAME: Game,
         WikidataTypes.PODCAST_SHOW: Podcast,
         WikidataTypes.PODCAST_EPISODE: PodcastEpisode,
         WikidataTypes.PLAY: Performance,
@@ -422,6 +436,9 @@ class WikiData(AbstractSite):
                     result.append(value["content"])
         return result
 
+    def _f_date(self, d: str) -> str:
+        return d.replace("-00", "-01")
+
     def _extract_date(self, entity_data, property_id):
         """Extract a date from property value"""
         value = self._extract_property_value(entity_data, property_id)
@@ -438,11 +455,11 @@ class WikiData(AbstractSite):
                 if time_str.startswith("+"):
                     time_str = time_str[1:]
                 if "T" in time_str:
-                    return time_str.split("T")[0]
-                return time_str
+                    return self._f_date(time_str.split("T")[0])
+                return self._f_date(time_str)
         elif isinstance(value, str):
             # Already a string date
-            return value
+            return self._f_date(value)
 
         return None
 
@@ -1105,7 +1122,7 @@ class WikiData(AbstractSite):
 
         except Exception as e:
             logger.error(
-                "Error fetching Wikipedia pages",
+                f"Error fetching Wikipedia pages: {e}",
                 extra={"QID": entity_id, "exception": e},
             )
             return {}
@@ -1121,3 +1138,66 @@ class WikiData(AbstractSite):
                     value = value.get("content") or value.get("text")
                 resources.append({"id_type": id_type, "id_value": value})
         return resources
+
+    @classmethod
+    def lookup_qid_by_external_id(cls, id_type: IdType, id_value: str) -> str | None:
+        """
+        Lookup Wikidata QID based on an external identifier.
+
+        Args:
+            id_type: The type of identifier (e.g., IdType.Steam, IdType.IMDB, etc.)
+            id_value: The value of the identifier
+
+        Returns:
+            The Wikidata QID (e.g., "Q12345") if found, None otherwise
+
+        Example:
+            qid = WikiData.lookup_qid_by_external_id(IdType.Steam, "730")
+            # Returns "Q17279" (Counter-Strike: Global Offensive)
+        """
+        # Find the Wikidata property ID for this ID type
+        property_id = None
+        for prop_id, mapped_type in WikidataProperties.IdTypeMapping.items():
+            if mapped_type == id_type:
+                property_id = prop_id
+                break
+
+        if not property_id:
+            logger.warning(f"No Wikidata property mapping found for {id_type}")
+            return None
+
+        try:
+            # Use SPARQL query to find entity with this external ID
+            sparql_query = f"""
+            SELECT ?item WHERE {{
+                ?item wdt:{property_id} "{id_value}".
+            }}
+            LIMIT 1
+            """
+
+            # Query Wikidata SPARQL endpoint
+            api_url = "https://query.wikidata.org/sparql"
+            params = {"query": sparql_query, "format": "json"}
+
+            # Build URL with parameters
+            from urllib.parse import urlencode
+
+            full_url = f"{api_url}?{urlencode(params)}"
+
+            response = BasicDownloader(full_url).download()
+            data = response.json()
+
+            # Extract QID from results
+            if data.get("results", {}).get("bindings"):
+                item_uri = data["results"]["bindings"][0]["item"]["value"]
+                # Extract QID from URI (e.g., "http://www.wikidata.org/entity/Q12345" -> "Q12345")
+                qid = item_uri.split("/")[-1]
+                logger.info(f"Found Wikidata QID {qid} for {id_type}:{id_value}")
+                return qid
+            else:
+                logger.info(f"No Wikidata entity found for {id_type}:{id_value}")
+                return None
+
+        except Exception as e:
+            logger.error(f"Failed to lookup Wikidata QID for {id_type}:{id_value}: {e}")
+            return None

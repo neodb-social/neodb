@@ -1,10 +1,13 @@
 import json
+import logging
+import sys
 import time
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
 from django.db.models import Count, F
+from loguru import logger
 from tqdm import tqdm
 
 from catalog.common.sites import SiteManager
@@ -27,14 +30,16 @@ purge:          purge deleted items
 migrate:        run migration
 search:         search docs in index
 extsearch:      search external sites
-link-wikidata:  link TMDB resources to WikiData resources
+wikidata-tmdb:  link TMDB resources to WikiData resources (using TMDB API)
+wikidata-link:  link external resources to WikiData (use --query for IdType)
+wikidata-find:  lookup Wikidata QID from URL and scrape (use --query for URL)
 idx-info:       show index information
 idx-init:       check and create index if not exists
 idx-destroy:    delete index
 idx-alt:        update index schema
 idx-delete:     delete docs in index
 idx-reindex:    reindex docs
-idx-get:        dump one doc with --url
+idx-get:        dump one doc (use --query for URL)
 """
 
 
@@ -50,7 +55,9 @@ class Command(BaseCommand):
                 "migrate",
                 "search",
                 "extsearch",
-                "link-wikidata",
+                "wikidata-tmdb",
+                "wikidata-link",
+                "wikidata-find",
                 "idx-info",
                 "idx-init",
                 "idx-alt",
@@ -79,10 +86,8 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--query",
+            "-q",
             help="Search query",
-        )
-        parser.add_argument(
-            "--url",
         )
         parser.add_argument(
             "--batch-size",
@@ -91,6 +96,30 @@ class Command(BaseCommand):
         parser.add_argument(
             "--name",
             help="name of migration",
+        )
+        parser.add_argument(
+            "--limit",
+            type=int,
+            help="limit number of items to process",
+        )
+        parser.add_argument(
+            "--start",
+            type=int,
+            help="starting pk for processing",
+        )
+        parser.add_argument(
+            "--log-level",
+            choices=[
+                "TRACE",
+                "DEBUG",
+                "INFO",
+                "SUCCESS",
+                "WARNING",
+                "ERROR",
+                "CRITICAL",
+            ],
+            default="INFO",
+            help="Set logging level (default: INFO)",
         )
 
     def migrate(self, m):
@@ -164,6 +193,152 @@ class Command(BaseCommand):
                 f"Process completed in {time.time() - start_time:.2f} seconds."
             )
         )
+
+    def wikidata_link(self, id_type_str, limit=None, start_pk=None):
+        """Link external resources to WikiData resources using lookup_qid_by_external_id"""
+        from catalog.common import IdType
+        from catalog.common.models import ExternalResource
+        from catalog.sites.wikidata import WikiData
+
+        types = [t.value for t in IdType]
+        if not id_type_str:
+            self.stdout.write(
+                self.style.ERROR("IdType is required. Use --query <IdType>")
+            )
+            self.stdout.write(f"Available IdTypes: {', '.join(types)}")
+            return
+        try:
+            id_type = IdType(id_type_str.lower())
+        except ValueError:
+            self.stdout.write(self.style.ERROR(f"Invalid IdType: {id_type_str}"))
+            self.stdout.write(f"Available IdTypes: {', '.join(types)}")
+            return
+
+        self.stdout.write(f"Starting WikiData linking for {id_type.label}...")
+        if start_pk:
+            self.stdout.write(f"Starting from pk >= {start_pk}")
+        start_time = time.time()
+
+        qs = (
+            ExternalResource.objects.filter(id_type=id_type, item__isnull=False)
+            .exclude(other_lookup_ids__has_key=IdType.WikiData.value)
+            .select_related("item")
+            .order_by("pk")
+        )
+        if start_pk:
+            qs = qs.filter(pk__gte=start_pk)
+        if limit:
+            qs = qs[:limit]
+        total = qs.count()
+        linked = 0
+        errors = 0
+
+        with tqdm(total=min(total, limit or total)) as pbar:
+            for resource in qs.iterator():
+                pbar.set_description(f"id:{resource.pk}")
+                qid = WikiData.lookup_qid_by_external_id(id_type, resource.id_value)
+                pbar.update(1)
+                time.sleep(0.5)
+                site = SiteManager.get_site_by_id(IdType.WikiData, qid) if qid else None
+                if site and site.get_resource_ready():
+                    linked += 1
+                # try:
+                #     if site and site.get_resource_ready():
+                #         linked += 1
+                # except Exception as e:
+                #     errors += 1
+                #     s = f"Error processing res:{resource.pk} {resource.url}: {e}"
+                #     self.stdout.write(self.style.ERROR(s))
+
+        self.stdout.write(self.style.SUCCESS("\nWikiData linking completed:"))
+        self.stdout.write(f"  Total {id_type.label} resources processed: {total}")
+        self.stdout.write(f"  Successfully linked to WikiData: {linked}")
+        self.stdout.write(f"  Errors encountered: {errors}")
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Process completed in {time.time() - start_time:.2f} seconds."
+            )
+        )
+
+    def wikidata_lookup(self, url):
+        """Lookup Wikidata QID from external site URL and scrape"""
+        from catalog.sites.wikidata import WikiData
+
+        if not url:
+            self.stdout.write(self.style.ERROR("URL is required. Use --query <URL>"))
+            return
+
+        self.stdout.write(f"Processing URL: {url}")
+
+        # Try to get site and extract ID
+        try:
+            site = SiteManager.get_site_by_url(url)
+            if not site:
+                self.stdout.write(
+                    self.style.ERROR(f"Could not identify site from URL: {url}")
+                )
+                return
+
+            id_type = site.ID_TYPE
+            id_value = site.id_value
+
+            self.stdout.write(f"Detected: {site.SITE_NAME} / {id_type} / {id_value}")
+
+            if not id_value or not id_type:
+                self.stdout.write(
+                    self.style.ERROR(f"Could not extract ID from URL: {url}")
+                )
+                return
+            # Lookup QID
+            qid = WikiData.lookup_qid_by_external_id(id_type, id_value)
+
+            if not qid:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"No Wikidata QID found for {id_type}:{id_value}"
+                    )
+                )
+                return
+
+            self.stdout.write(self.style.SUCCESS(f"Found Wikidata QID: {qid}"))
+
+            # Scrape Wikidata
+            wikidata_url = f"https://www.wikidata.org/wiki/{qid}"
+            self.stdout.write(f"Wikidata URL: {wikidata_url}")
+
+            wd_site = SiteManager.get_site_by_url(wikidata_url)
+            if wd_site:
+                self.stdout.write("\nScraping Wikidata entity...")
+                result = wd_site.scrape()
+
+                # Display results
+                self.stdout.write(self.style.SUCCESS("\n=== Scrape Results ==="))
+
+                if result.metadata:
+                    self.stdout.write("\nMetadata:")
+                    for key, value in result.metadata.items():
+                        if key not in ["localized_title", "localized_description"]:
+                            self.stdout.write(f"  {key}: {value}")
+
+                    # Display localized titles
+                    if "localized_title" in result.metadata:
+                        self.stdout.write("\nLocalized Titles:")
+                        for item in result.metadata["localized_title"]:
+                            self.stdout.write(f"  [{item['lang']}] {item['text']}")
+
+                    # Display localized descriptions
+                    if "localized_description" in result.metadata:
+                        self.stdout.write("\nLocalized Descriptions:")
+                        for item in result.metadata["localized_description"]:
+                            self.stdout.write(f"  [{item['lang']}] {item['text']}")
+
+                if result.lookup_ids:
+                    self.stdout.write("\nExternal IDs found:")
+                    for id_type, id_val in result.lookup_ids.items():
+                        self.stdout.write(f"  {id_type}: {id_val}")
+
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"Error: {e}"))
 
     def localize(self):
         c = Item.objects.all().count()
@@ -338,10 +513,26 @@ class Command(BaseCommand):
                 i.save()
 
     def handle(
-        self, action, query, yes, category, batch_size, url, name, *args, **options
+        self,
+        action,
+        query,
+        yes,
+        category,
+        batch_size,
+        name,
+        limit,
+        start,
+        *args,
+        **options,
     ):
         self.verbose = options["verbose"]
         self.fix = options["fix"]
+
+        log_level = options.get("log_level", "INFO")
+        logger.remove()
+        logger.add(sys.stderr, level=log_level)
+        logging.getLogger("rq").setLevel(logging.WARNING)
+
         index = CatalogIndex.instance()
         match action:
             case "integrity":
@@ -353,8 +544,14 @@ class Command(BaseCommand):
             case "extsearch":
                 self.external_search(query, category)
 
-            case "link-wikidata":
+            case "wikidata-tmdb":
                 self.link_wikidata()
+
+            case "wikidata-link":
+                self.wikidata_link(query, limit, start)
+
+            case "wikidata-find":
+                self.wikidata_lookup(query)
 
             case "idx-destroy":
                 if yes or input(_CONFIRM).upper().startswith("Y"):
@@ -395,7 +592,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f"indexed {c} of {t} docs."))
 
             case "idx-get":
-                item = Item.get_by_url(url)
+                item = Item.get_by_url(query)
                 if not item:
                     self.stderr.write(self.style.ERROR("item not found."))
                 else:
