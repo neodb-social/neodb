@@ -282,7 +282,7 @@ msgid "RSS Feed URL"
 msgstr "RSS网址"
 
 #: catalog/common/models.py:78
-msgid "TMDB TV Serie"
+msgid "TMDB TV Series"
 msgstr "TMDB电视剧集"
 
 #: catalog/common/models.py:79
@@ -370,7 +370,7 @@ msgid "Edition"
 msgstr "版本"
 
 #: catalog/common/models.py:136
-msgid "TV Serie"
+msgid "TV Series"
 msgstr "电视剧集"
 
 #: catalog/common/models.py:137 catalog/templates/_sidebar_edit.html:145

@@ -76,7 +76,7 @@ class IdType(models.TextChoices):  # values must be in lowercase
     GTIN = ("gtin", _("GTIN UPC EAN"))  # GTIN-13, ISBN is separate
     RSS = "rss", _("RSS Feed URL")
     IMDB = "imdb", _("IMDb")
-    TMDB_TV = "tmdb_tv", _("TMDB TV Serie")
+    TMDB_TV = "tmdb_tv", _("TMDB TV Series")
     TMDB_TVSeason = "tmdb_tvseason", _("TMDB TV Season")
     TMDB_TVEpisode = "tmdb_tvepisode", _("TMDB TV Episode")
     TMDB_Movie = "tmdb_movie", _("TMDB Movie")
@@ -135,7 +135,7 @@ IdealIdTypes = [
 class ItemType(models.TextChoices):
     Edition = "edition", _("Edition")
     Work = "work", _("Work")
-    TVShow = "tvshow", _("TV Serie")
+    TVShow = "tvshow", _("TV Series")
     TVSeason = "tvseason", _("TV Season")
     TVEpisode = "tvepisode", _("TV Episode")
     Movie = "movie", _("Movie")
