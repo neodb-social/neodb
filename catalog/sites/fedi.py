@@ -176,7 +176,7 @@ class FediverseInstance(AbstractSite):
                 )
                 r = response.json()
             except Exception as e:
-                logger.error(
+                logger.warning(
                     f"Fediverse search {host} error",
                     extra={"url": api_url, "query": q, "exception": e},
                 )
