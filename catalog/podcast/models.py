@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -129,19 +129,8 @@ class Podcast(Item):
         return d
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for podcast."""
-        data: dict[str, Any] = {
-            "@context": "https://schema.org",
-            "@type": "PodcastSeries",
-            "name": self.display_title,
-            "url": self.absolute_url,
-        }
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.has_cover():
-            data["image"] = self.cover_image_url
+        data = super().to_schema_org()
+        data["@type"] = "PodcastSeries"
 
         if self.feed_url:
             data["webFeed"] = self.feed_url
@@ -201,14 +190,8 @@ class PodcastEpisode(Item):
         return {}  # no index for PodcastEpisode, for now
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for podcast episode."""
-        data = {
-            "@context": "https://schema.org",
-            "@type": "PodcastEpisode",
-            "name": self.title,
-            "url": self.absolute_url,
-            "episodeNumber": self.guid,
-        }
+        data = super().to_schema_org()
+        data["@type"] = "PodcastEpisode"
 
         if self.program:
             data["partOfSeries"] = {
@@ -216,12 +199,6 @@ class PodcastEpisode(Item):
                 "name": self.program.display_title,
                 "url": self.program.absolute_url,
             }
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.cover_image_url:
-            data["image"] = self.cover_image_url
 
         if self.pub_date:
             data["datePublished"] = self.pub_date.isoformat()

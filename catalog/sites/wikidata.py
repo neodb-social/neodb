@@ -46,7 +46,8 @@ class WikidataTypes:
     TV_PROGRAM = "Q15416"  # Television program
     TV_MINISERIES = "Q1259759"  # Miniseries/Limited series
     TV_FILM = "Q506240"  # Television film/TV movie
-    MEDIA_FRANCHISE = "Q134556"  # Media franchise/series
+    MUSIC_SINGLE = "Q134556"
+    MEDIA_FRANCHISE = "Q196600"  # Media franchise/series
     GAME = "Q11410"
     VIDEO_GAME = "Q7889"  # Video game
     VIDEO_GAME_MOD = "Q865493"

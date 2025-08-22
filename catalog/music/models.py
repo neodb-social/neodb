@@ -1,5 +1,4 @@
 from datetime import date
-from typing import Any
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -131,19 +130,8 @@ class Album(Item):
         return d
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for music album."""
-        data: dict[str, Any] = {
-            "@context": "https://schema.org",
-            "@type": "MusicAlbum",
-            "name": self.display_title,
-            "url": self.absolute_url,
-        }
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.has_cover():
-            data["image"] = self.cover_image_url
+        data = super().to_schema_org()
+        data["@type"] = "MusicAlbum"
 
         if self.artist:
             data["byArtist"] = [

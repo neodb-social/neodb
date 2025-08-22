@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -267,22 +267,11 @@ class Performance(Item):
         return d
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for performance."""
-        data: dict[str, Any] = {
-            "@context": "https://schema.org",
-            "@type": "Play",
-            "name": self.display_title,
-            "url": self.absolute_url,
-        }
+        data = super().to_schema_org()
+        data["@type"] = "Play"
 
         if self.orig_title and self.orig_title != self.display_title:
             data["alternateName"] = self.orig_title
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.has_cover():
-            data["image"] = self.cover_image_url
 
         if self.genre:
             data["genre"] = self.genre
@@ -487,22 +476,11 @@ class PerformanceProduction(Item):
         return d
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for performance production."""
-        data: dict[str, Any] = {
-            "@context": "https://schema.org",
-            "@type": "TheaterEvent",
-            "name": self.display_title,
-            "url": self.absolute_url,
-        }
+        data = super().to_schema_org()
+        data["@type"] = "TheaterEvent"
 
         if self.orig_title and self.orig_title != self.display_title:
             data["alternateName"] = self.orig_title
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.has_cover():
-            data["image"] = self.cover_image_url
 
         if self.opening_date:
             data["startDate"] = self.opening_date

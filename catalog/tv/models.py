@@ -26,7 +26,7 @@ For now, we follow Douban convention, but keep an eye on it in case it breaks it
 """
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -260,22 +260,11 @@ class TVShow(Item):
         return d
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for TV show."""
-        data: dict[str, Any] = {
-            "@context": "https://schema.org",
-            "@type": "TVSeries",
-            "name": self.display_title,
-            "url": self.absolute_url,
-        }
+        data = super().to_schema_org()
+        data["@type"] = "TVSeries"
 
         if self.orig_title and self.orig_title != self.display_title:
             data["alternateName"] = self.orig_title
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.has_cover():
-            data["image"] = self.cover_image_url
 
         if self.genre:
             data["genre"] = self.genre
@@ -518,22 +507,11 @@ class TVSeason(Item):
         return d
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for TV season."""
-        data = {
-            "@context": "https://schema.org",
-            "@type": "TVSeason",
-            "name": self.display_title,
-            "url": self.absolute_url,
-        }
+        data = super().to_schema_org()
+        data["@type"] = "TVSeason"
 
         if self.orig_title and self.orig_title != self.display_title:
             data["alternateName"] = self.orig_title
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.has_cover():
-            data["image"] = self.cover_image_url
 
         if self.season_number is not None:
             data["seasonNumber"] = self.season_number
@@ -676,13 +654,8 @@ class TVEpisode(Item):
         return {}  # no index for TVEpisode, for now
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for TV episode."""
-        data = {
-            "@context": "https://schema.org",
-            "@type": "TVEpisode",
-            "name": self.title,
-            "url": self.absolute_url,
-        }
+        data = super().to_schema_org()
+        data["@type"] = "TVEpisode"
 
         if self.season:
             data["partOfSeason"] = {
@@ -697,12 +670,6 @@ class TVEpisode(Item):
                     "name": self.season.show.display_title,
                     "url": self.season.show.absolute_url,
                 }
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.has_cover():
-            data["image"] = self.cover_image_url
 
         if self.episode_number is not None:
             data["episodeNumber"] = self.episode_number

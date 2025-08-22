@@ -914,11 +914,6 @@ class Item(PolymorphicModel):
         return journal_exists_for_item(self)
 
     def to_schema_org(self):
-        """
-        Generate Schema.org structured data for this item.
-        Base implementation that should be overridden by subclasses.
-        Returns a dictionary representing schema.org JSON-LD data.
-        """
         data: dict[str, Any] = {
             "@context": "https://schema.org",
             "@type": "Thing",
@@ -931,6 +926,15 @@ class Item(PolymorphicModel):
 
         if self.has_cover():
             data["image"] = self.cover_image_url
+
+        if self.rating:
+            data["aggregateRating"] = {
+                "@type": "AggregateRating",
+                "ratingValue": self.rating,
+                "reviewCount": self.rating_count,
+                "worstRating": 1,
+                "bestRating": 10,
+            }
 
         return data
 

@@ -18,7 +18,7 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 """
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -384,22 +384,11 @@ class Edition(Item):
         return f"({' '.join(a)})" if a else ""
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for book edition."""
-        data: dict[str, Any] = {
-            "@context": "https://schema.org",
-            "@type": "Book",
-            "name": self.display_title,
-            "url": self.absolute_url,
-        }
+        data = super().to_schema_org()
+        data["@type"] = "Book"
 
         if self.orig_title and self.orig_title != self.display_title:
             data["alternateName"] = self.orig_title
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.has_cover():
-            data["image"] = self.cover_image_url
 
         if self.author:
             data["author"] = [
@@ -504,6 +493,11 @@ class Work(Item):
 
     def to_indexable_doc(self):
         return {}  # no index for Work, for now
+
+    def to_schema_org(self):
+        data = super().to_schema_org()
+        data["@type"] = "CreativeWork"
+        return data
 
 
 class Series(Item):

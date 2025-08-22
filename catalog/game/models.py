@@ -1,5 +1,4 @@
 from datetime import date
-from typing import Any
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -161,19 +160,8 @@ class Game(Item):
         return d
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for game."""
-        data: dict[str, Any] = {
-            "@context": "https://schema.org",
-            "@type": "VideoGame",
-            "name": self.display_title,
-            "url": self.absolute_url,
-        }
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.has_cover():
-            data["image"] = self.cover_image_url
+        data = super().to_schema_org()
+        data["@type"] = "VideoGame"
 
         if self.genre:
             data["genre"] = self.genre

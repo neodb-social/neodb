@@ -1,5 +1,3 @@
-from typing import Any
-
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -177,22 +175,11 @@ class Movie(Item):
         return d
 
     def to_schema_org(self):
-        """Generate Schema.org structured data for movie."""
-        data: dict[str, Any] = {
-            "@context": "https://schema.org",
-            "@type": "Movie",
-            "name": self.display_title,
-            "url": self.absolute_url,
-        }
+        data = super().to_schema_org()
+        data["@type"] = "Movie"
 
         if self.orig_title and self.orig_title != self.display_title:
             data["alternateName"] = self.orig_title
-
-        if self.display_description:
-            data["description"] = self.display_description
-
-        if self.has_cover():
-            data["image"] = self.cover_image_url
 
         if self.year:
             data["dateCreated"] = str(self.year)
