@@ -194,7 +194,7 @@ class AbstractSite:
             if resource_content:
                 p.update_content(resource_content)
         if not p.ready:
-            logger.error("unable to ready resource {p.id_type}", extra={"resource": p})
+            logger.error(f"unable to ready resource {p.id_type}", extra={"resource": p})
             return None
         if auto_save:
             p.save()

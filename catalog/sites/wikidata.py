@@ -294,26 +294,9 @@ class WikiData(AbstractSite):
         """Convert a Wikidata ID to URL"""
         return f"https://www.wikidata.org/wiki/{id_value}"
 
-    def _fetch_entity(self):
-        """Fetch entity data from Wikidata REST API"""
-        if not self.id_value or not self.id_value.startswith("Q"):
-            logger.error(f"Invalid Wikidata ID: {self.id_value}")
-            return None
-        return self._fetch_entity_by_id(self.id_value)
-
-    def _fetch_entity_by_id(self, entity_id):
-        """Fetch entity data from Wikidata REST API for any entity ID"""
-        if not entity_id or not entity_id.startswith("Q"):
-            logger.error(f"Invalid Wikidata ID: {entity_id}")
-            return None
-
-        try:
-            # Updated to v1 of the API
-            api_url = f"https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{entity_id}"
-            return BasicDownloader(api_url).download().json()
-        except Exception as e:
-            logger.error(f"Failed to fetch entity data for {entity_id}: {e}")
-            return None
+    def _fetch_entity_by_id(self, entity_id) -> dict:
+        api_url = f"https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{entity_id}"
+        return BasicDownloader(api_url).download().json()
 
     def _extract_labels(self, entity_data):
         """Extract labels only in preferred languages"""
@@ -714,11 +697,12 @@ class WikiData(AbstractSite):
         return f"https://commons.wikimedia.org/wiki/Special:FilePath/{quote(filename)}?width=1000"
 
     def scrape(self) -> ResourceContent:
-        """Scrape data from Wikidata API"""
-        entity_data = self._fetch_entity()
-        if not entity_data:
-            logger.error(f"Failed to fetch data for Wikidata entity {self.id_value}")
-            return ResourceContent()
+        if not self.id_value or not self.id_value.startswith("Q"):
+            raise ParseError(self, "QID")
+        entity_data = self._fetch_entity_by_id(self.id_value)
+
+        if not isinstance(entity_data, dict) or entity_data.get("id") != self.id_value:
+            raise ParseError(self, "json")
 
         # Extract labels (titles)
         labels = self._extract_labels(entity_data)
