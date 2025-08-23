@@ -37,7 +37,9 @@ class WikidataTypes:
     HUMAN = "Q5"  # Person
     FILM = "Q11424"  # Film/Movie
     ANIME = "Q1107"  # too general, not mapping
+    CREATIVE_WORK = "Q17537576"
     LITERARY_WORK = "Q7725634"  # Literary work (Book)
+    BOOK = "Q571"
     NOVEL = "Q8261"  # Novel (specific type of book)
     TV_SERIES = "Q5398426"  # Television series
     TV_SEASON = "Q3464665"  # Television season
@@ -56,6 +58,7 @@ class WikidataTypes:
     VIDEO_GAME_DLC = "Q1066707"
     BOARD_GAME = "Q131436"
     TABLETOP_GAME = "Q3244175"
+    GAME_EMULATOR = "Q1196126"
     PODCAST_SHOW = "Q24634210"  # Podcast show/series
     PODCAST_EPISODE = "Q61855877"  # Podcast episode
     DRAMATIC_WORKS = "Q116476516"  # Dramatic work
@@ -273,6 +276,7 @@ class WikiData(AbstractSite):
         WikidataTypes.VIDEO_GAME_DLC: Game,
         WikidataTypes.BOARD_GAME: Game,
         WikidataTypes.TABLETOP_GAME: Game,
+        WikidataTypes.GAME_EMULATOR: Game,
         WikidataTypes.PODCAST_SHOW: Podcast,
         WikidataTypes.PODCAST_EPISODE: PodcastEpisode,
         WikidataTypes.PLAY: Performance,
@@ -284,6 +288,8 @@ class WikiData(AbstractSite):
         WikidataTypes.NOVEL: Work,
         WikidataTypes.MEDIA_FRANCHISE: Work,
         WikidataTypes.MANGA_SERIES: Work,
+        WikidataTypes.BOOK: Work,
+        WikidataTypes.CREATIVE_WORK: Work,
     }
 
     # Types that have priority over all others
