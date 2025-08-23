@@ -53,8 +53,20 @@ class LetterboxdImporter(Task):
         tu = h.xpath("//a[@data-track-action='TMDB']/@href")
         iu = h.xpath("//a[@data-track-action='IMDb']/@href")
         if not tu:
-            i = h.xpath('//span[@class="film-title-wrapper"]/a/@href')
-            u2 = "https://letterboxd.com" + i[0]  # type:ignore
+            scripts = h.xpath('//script[@type="application/ld+json"]/text()')
+            if not scripts:
+                logger.error(f"Unknown TMDB for {url}")
+                return None
+            s: str = scripts[0]  # type:ignore
+            script_content = re.sub(r"/\*.*?\*/", "", s, flags=re.DOTALL).strip()
+            schema_data = json.loads(script_content)
+            if (
+                "itemReviewed" not in schema_data
+                or "sameAs" not in schema_data["itemReviewed"]
+            ):
+                logger.error(f"Unable to parse {url}")
+                return None
+            u2 = schema_data["itemReviewed"]["sameAs"]
             try:
                 h = BasicDownloader(u2).download().html()
             except Exception:

@@ -1,0 +1,1423 @@
+
+
+<!DOCTYPE html>
+
+<html id="html" lang="en" class="context-client-unknown no-mobile no-js">
+<head>
+	<meta charset="UTF-8" />
+	
+	
+			
+		
+	<meta name="viewport" content="width=1024" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta name="description" content="this is a comment." />
+	<meta property="og:type" content="letterboxd:review" />
+	
+	<meta property="og:url" content="https://letterboxd.com/neodb/film/the-internets-own-boy-the-story-of-aaron-swartz/" />
+	<meta property="og:title" content="A ★★★★★ review of The Internet&#039;s Own Boy: The Story of Aaron Swartz (2014)" />
+	<meta property="og:description" content="this is a comment." />
+	<meta property="og:image" content="https://a.ltrbxd.com/resized/sm/upload/16/2s/3v/u3/internets-own-boy-1200-1200-675-675-crop-000000.jpg?v=a2c0937392" /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="675" />
+	
+	<meta property="fb:app_id" content="173683136069040" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:site" content="@letterboxd"/>
+	<meta name="twitter:url" content="https://letterboxd.com/neodb/film/the-internets-own-boy-the-story-of-aaron-swartz/" />
+	<meta name="twitter:title" content="Review of ‘The Internet&#039;s Own Boy: The Story of Aaron Swartz’ (2014) ★★★★★" />
+	<meta name="twitter:description" content="this is a comment." />
+	<meta name="twitter:label1" content="Reviewed by" /><meta name="twitter:data1" content="neodb" />
+	<meta name="twitter:label2" content="Rating" /><meta name="twitter:data2" content="★★★★★" />
+	<meta name="twitter:image" content="https://a.ltrbxd.com/resized/sm/upload/16/2s/3v/u3/internets-own-boy-1200-1200-675-675-crop-000000.jpg?v=a2c0937392" />
+	
+	<meta name="application-name" content="Letterboxd" />
+	<meta name="theme-color" content="#14181C" />
+	<meta name="msapplication-TileColor" content="#445566" />
+	<meta name="apple-itunes-app" content="app-id=1054271011, affiliate-data=11l5KW, app-argument=https://letterboxd.com/neodb/film/the-internets-own-boy-the-story-of-aaron-swartz/" />
+	<meta name="mobile-web-app-capable" content="yes" />
+
+	<title>&lrm;‘The Internet&#039;s Own Boy: The Story of Aaron Swartz’ review by neodb &bull; Letterboxd</title>
+	<script>
+		
+		((r, n) => {
+			r.dataset.useragent = n.userAgent
+			r.dataset.platform = n.platform
+		})(document.documentElement, navigator)
+
+		var isMobile = false,
+			isMobileOptimised = true,
+			renderMobile = false,
+			useStaticFonts = false,
+			disableFrameProtection = false,
+			baseURL = '',
+			staticAssetBaseURL = 'https://s.ltrbxd.com/'.slice(0, -1),
+			successMessages = [],
+			errorMessages = [],
+			stickyMessages = [],
+			globals = {
+			autoAddFilm: false
+				, spinners: {
+					ajax_242d35: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif',
+					spinner_12_2C3641: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif',
+					spinner_14_20272f: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif',
+					spinner_16_161B21: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif'
+				}
+			},
+			supermodelCSRF = "",
+			gRecaptchaKey = '6Le3mMIUAAAAAEXbwZ7M1R5jEv0V5xbvj7bgXq2g',
+			geolocation = {
+				country: ""
+			},
+			person = {
+				username: ""
+				, loggedIn: false
+				
+				, showAds: true
+				, role: "guest"
+				, hasExtendedServiceFilters: false
+				, canBulkAddToLists: false
+				, canFilterOwned: false
+				, hasHqRole: false
+				, canHaveHqDashboard: false
+				, hasMemberStatistics: false
+				, blockedMembers: []
+				, showAdultContent: false
+				, validated: null
+				, trusted: false
+				, hasBlocked : function(member) { for (var i = 0; i !== person.blockedMembers.length; i++) {if (person.blockedMembers[i] === member) return true;} return false; }
+				, viewingTags: []
+				, hasMoreTags: true
+				, getCustomPoster : function(uid) { return null; }
+				, getCustomBackdrop : function(uid) { return null; }
+			},
+			disableAds = false,
+			analytic_params = {};
+		
+		
+supermodelCSRF = '5785c3bad3a354d242bd'; geolocation.country = 'US'; analytic_params['user_type'] = 'Visitor';
+
+	</script>
+	
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		window.gtag = window.gtag || function () {
+			dataLayer.push(arguments);
+		};
+		function ga() {}
+	</script>
+
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-D3ECBB4D7L"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		window.gtag = window.gtag || function () {
+			dataLayer.push(arguments);
+		};
+		gtag('js', new Date());
+	
+		analytic_params['template'] = '/object/viewing';
+		
+		
+				analytic_params['film_id'] = '7lcA';
+			
+
+		if (analytic_params.member_type) {
+			gtag('set', 'user_properties', { 
+				member_type: analytic_params.member_type,
+			});
+			delete analytic_params.member_type;
+		}
+		var config = {
+			...analytic_params,
+			'cookie_domain': 'letterboxd.com', 
+			'optimize_id': 'GTM-TB8HSDN', 
+		};
+		gtag('config', 'G-D3ECBB4D7L', config);
+	</script>
+
+
+	
+<script>
+function ASAP(callback) {
+	if (window.__ASAPPED) {
+		callback()
+		return
+	}
+	if (!window.__ASAP) {
+		window.__ASAP = []
+	}
+	window.__ASAP.push(callback)
+}
+</script>
+
+	<script>
+		
+
+		
+			
+		
+
+		
+
+		
+		
+			
+			  function setUseMobileSiteCookie(useMobile) {
+					const value = useMobile ? 'yes' : 'no'
+					const date = new Date()
+					const maxAge = 365 * 24 * 60 * 60
+					date.setTime(date.getTime() + maxAge * 1000)
+					const expires = '; expires=' + date.toUTCString()
+					const cookieValuePair = 'useMobileSite=' + value
+					document.cookie = cookieValuePair + expires + '; path=/; maxAge=' + maxAge
+
+					if (document.cookie.includes(cookieValuePair)) {
+						window.location.reload(true)
+					} else {
+						console.error('Failed to set useMobileSite cookie.')
+					}
+				}
+
+				/*
+				 * If ?fromApp=true, it's possible for user is already in the correct mode, so only try
+				 * reloading if that's the case. In fact, trying to reload the page regardless causes an 
+				 * infinite loop as the ?fromApp=true parameter is always present.
+				 */
+				const isMobileWidth = screen.width < 768
+				if (isMobileWidth && !document.cookie.includes('useMobileSite=yes')) {
+					setUseMobileSiteCookie(true)
+				} else if (!isMobileWidth && !document.cookie.includes('useMobileSite=no')) {
+					setUseMobileSiteCookie(false)
+				}
+			
+		
+	</script>
+	
+		<script type="text/javascript"> (function(data) { data.viewingable = data.viewingable || {}; data.viewingable.uid = 'film:174980'; data.viewingable.type = 'film'; data.viewingable.dataEndpoint = '/film/the-internets-own-boy-the-story-of-aaron-swartz/json/'; })(window.__BXD_DATA = window.__BXD_DATA || {}) </script>
+	
+
+	
+	
+
+
+
+
+
+	
+	
+	<script>
+		window.ramp = window.ramp || {};
+		window.ramp.que = window.ramp.que || [];
+		window.ramp.passiveMode = false; 
+		window.ramp.forcePath = '';
+		window.ramp.custom_tags = [
+			'crime', 
+			'documentary', 
+			'intl_false', 
+			'7lcA', 
+			'', 
+			''
+		];
+	</script>
+	<script src="//cdn.intergient.com/1024338/72804/ramp_config.js"></script>
+	<script>
+		window._pwGA4PageviewId = ''.concat(Date.now());
+		window.dataLayer = window.dataLayer || [];
+		window.gtag = window.gtag || function () { 
+			dataLayer.push(arguments);
+		};
+		gtag('js', new Date());
+		gtag('config', 'G-L0W7RDZXX3', { 'send_page_view': false });
+		gtag(
+			'event',
+			'ramp_js',
+			{
+				'send_to': 'G-L0W7RDZXX3',
+				'pageview_id': window._pwGA4PageviewId
+			}
+		);
+		
+		(function() {
+			const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+			window.isAndroid = new RegExp("android", "i").test(userAgent);
+			window.isIOS = new RegExp("iPad|iPhone|iPod", "i").test(userAgent) && !window.MSStream;
+			window.adsLocation = 'US';
+		})();
+	</script>
+
+
+
+	<link rel="manifest" href="/manifest.json" />
+	<link rel="author" type="text/plain" href="/humans.txt" />
+	<link rel="mask-icon" href="https://s.ltrbxd.com/static/img/letterboxd-decal-l-16px-DorUFlWn.svg" color="#445566" />
+	<link rel="shortcut icon" sizes="196x196" href="https://s.ltrbxd.com/static/img/touch-icon-192x192-lO1g3Ot4.png" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+	<link rel="shortcut icon" href="/favicon.ico" />
+	<link rel="search" type="application/opensearchdescription+xml" title="Letterboxd" href="/static/opensearch.xml" />
+	
+	
+	
+		<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/main-mSkPbRv-.js"></script>
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCTBTwm7.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B7pRgGH2.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/msN89aGx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/03U_i1H8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BS1SCFXx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DZEHBdoo.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BTU4rCft.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bk0wrAcb.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/bKpgursT.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BGVqBqED.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D4Yk99Ne.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/hzgQj22F.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3e4t58V.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CVweeg0j.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CswyOWBu.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/GVR8ng7U.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CF74jhiq.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D2nGpDRe.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/vCWiOUpe.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dw1UnyvJ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B2KKeOnX.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CBIOKi7U.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dp7EpKt6.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BLpqPwTf.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3Ay1Ke8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CkhgB9_0.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/qt9y7WI1.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BeurgYGG.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CUcMfv5U.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CbXmRM-a.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dxj-PiPC.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CdChsGGx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dtdj54rt.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BmmD0vNh.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DbkyL-rk.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCPv9W2X.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DOHxIiFh.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DPeCBLXW.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CMMPhZm8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bbh8MmKk.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/_RochNgE.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DcZ-q2nA.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B0bByq0p.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/AxRaG6ks.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/JpiB-byr.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B7heWqLv.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CjDr9vYv.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DKEljbTo.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DjY_e70e.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D2hgF3Cb.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DHOGRMit.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/SOgt3rgE.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CmnQIgNr.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C4nrOlm5.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CnLYH8eu.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CvYG4QK5.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCi0_APx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DZPCvrkM.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CJ69T0MI.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCY5mpUO.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B9fb8Bne.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C0D7dfi8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B4SrOr3T.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BhibFcxs.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CT9GZqhB.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/RTvrqW77.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/De1em2ph.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DLi3KjJp.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/7NKbxqjC.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CWXc20HZ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BmHO4yel.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/tBoXliqg.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dy-E0KiV.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D3y6LkFj.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B2TiESCm.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D0CRiLCf.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnElP6sD.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Ak46aDlv.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/_O9HB_fC.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/aczQZ_An.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/qjl1DJEE.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/iq6l9D7b.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BSlMRzXp.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/JjPLYPbJ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CkEEJX_R.js">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/base-modal-CxC5ySL0.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/production-masthead-CIwEuGkD.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/private-note-modal-g8bSgXPR.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/main-y6YmV2l6.css">
+		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+	
+	
+	
+	
+	
+	
+	
+	
+			
+		<script async type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/desktop-y68fsDn4.js"></script>
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/desktop-BeTDmlBK.css">
+		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+	
+		
+
+	
+
+
+
+
+
+	<script>
+	ASAP(function() {
+		if ( $.cookie("letterboxd.admin.signed.in") === person.username ) {
+			successMessages.push("You are signed in as " + person.username);
+			$(function(){$("#header, #content, body").css("background","#543");});
+		}
+	})
+	</script>
+	
+</head>
+
+<body class="view" data-owner="neodb">
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+var mainMenu = [];
+
+	mainMenu.push({
+		"id": 1,
+		"url": "/sign-in/", 
+		"name": "Sign in",
+		"cssClassCode": "sign-in-menu",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": true,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 2,
+		"url": "/create-account/", 
+		"name": "Create account",
+		"cssClassCode": "create-account-menu",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 3,
+		"url": "/", 
+		"name": "Home",
+		"cssClassCode": "person-home",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": true,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 4,
+		"url": "/activity/", 
+		"name": "Activity",
+		"cssClassCode": "main-nav-activity",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": true,
+		"showInMainNavForMobile": false,
+		"tooltip": "Activity",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 5,
+		"url": "/films/", 
+		"name": "Films",
+		"cssClassCode": "films-page main-nav-films",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 6,
+		"url": "/lists/", 
+		"name": "Lists",
+		"cssClassCode": "lists-page main-nav-lists",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 7,
+		"url": "/members/", 
+		"name": "Members",
+		"cssClassCode": "main-nav-people",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 8,
+		"url": "/journal/", 
+		"name": "Journal",
+		"cssClassCode": "main-nav-journal",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 9,
+		"url": "/search/", 
+		"name": "Search results",
+		"cssClassCode": "",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": true,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+</script>
+
+<header class="site-header js-hide-in-app" id="header">
+	<div class="site-header-bg"></div>
+	<section>
+		<h1 class="site-logo"><a href="/" class="logo replace">Letterboxd &mdash; Your life in film</a></h1>
+
+		<div class="react-component" data-component-class="globals.comps.NavComponent"></div>
+
+		
+
+
+	
+
+
+
+
+
+<form method="post" action="#" id="signin" class="signin signin-form js-header-signin-form js-signin" data-url="/user/login.do" data-recaptcha-action="signin" novalidate='novalidate' autocorrect='off' autocapitalize='off'>
+	<input type="hidden" name="__csrf" value="placeholder" />
+	<input type="hidden" name="authenticationCode" value="" />
+	<fieldset class="fieldset">
+		<div class="fields">
+			<div class="col">
+				<label for="username">Username</label>
+				<input type="email" name="username" id="username" class="field signin-field" tabindex="1" data-focus-control="signingIn" autocomplete='email' inputmode='email' value="" />
+			</div>
+			<div class="col">
+				<label for="password">Password</label>
+				<input type="password" name="password" id="password" class="field signin-field" tabindex="2" autocomplete='current-password' value="" />
+			</div>
+			<div class="signin-actions">
+				<label for="remember" class="option-label -checkbox -small">
+					<input type="checkbox" name="remember" id="remember" class="checkbox" tabindex="3" value="true" /><i class="substitute"></i>
+					<span class="focus">Remember<span class="mob-hide"> me</span></span>
+				</label>
+				<p class="reset" tabindex="5"><a class="reset-password-link" href="/user/request-password-reset" target="_top">Forgotten<span class="elongated"> username or password</span>?</a></p>
+			</div>
+			<div class="col buttons">
+				<div class="button-container"><input type="submit" value="Sign in" class="button -action button-green" tabindex="4" /><i></i></div>
+				<div class="close js-close-signin">&times;</div>
+			</div>
+		</div>
+	</fieldset>
+	<div id="signin-message" class="errormessage"></div>
+</form>
+
+
+		
+		
+			
+
+
+
+
+	<p class="show-when-logged-in">
+		<a href id="add-new-button" class="button -action button-action button-add" data-bs-toggle="modal" data-bs-target="#diary-entry-form-modal" data-diary-entry-form-options='{"mode": "search", "showViewingableSuggestion": true}'>Log</a>
+	</p>
+	<div class="add-menu-wrapper show-when-logged-in">
+		<a href="#" id="add-menu-button" class="button -action button-action button-add-menu">
+			<span class="toggle"></span>
+			<em>More...</em>
+		</a>
+		<ul id="add-menu">
+			<li><a href="/list/new/">Start a new list…</a></li>
+			<li><a href="#" class="js-add-all-films-on-page-to-list">Add all films to a list&hellip;</a></li>
+			<li><a href="#" class="js-add-all-films-on-page-to-watchlist" data-action="/watchlist/add-films/">Add all films to watchlist</a></li>
+		</ul>
+	</div>
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="diary-entry-form-modal" class="modal fade diary-entry-form-modal" attributesText="" tabindex="-1" role="dialog" aria-labelledby="diary-entry-form-modal-title" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="diary-entry-form-modal-title">
+					<span data-js-label-for="search">Add to your films…</span>
+					<span data-js-label-for="compose" hidden>I watched…</span>
+					<span data-js-label-for="edit" hidden>Edit diary entry</span>
+				</h5>
+
+				<button type="button" class="diary-entry-form-wizard-backtrigger" data-js-trigger="wizardback" aria-controls="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" aria-label="Return to search" disabled hidden>
+					<span class="label">Back</span>
+				</button>
+
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+				
+				<form method="post" action="/s/save-diary-entry" id="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" class="diary-entry-form js-diary-entry-form" data-js-target='diary-entry-form' data-diary-entry-form-options='{"id": "5062f9f5-04bc-4786-8069-b4e1019b3203"}' novalidate='novalidate' aria-live='polite'>
+					<input type="hidden" name="__csrf" value="placeholder" />
+					<input type="hidden" name="viewingId" value="" id="frm-viewing-id" />
+					<input type="hidden" name="viewingableUid" value="" id="frm-viewingable-uid" />
+
+					
+
+					<section class="diary-entry-form-wizard-step -search" data-js-wizard-step="search" role="group" aria-roledescription="step" aria-label="1 of 2">
+						<div class="body">
+							<div class="formrow">
+								<label class="_sr-only">Name of Film</label>
+								<input type="text" class="field-large field -reversed -large js-viewingable-type-input" data-url="/s/autocompletefilm" placeholder="Search for film…" />
+
+								<div class="viewingablesuggestion js-viewingablesuggestion" hidden>
+									<span class="label">Or add</span>
+									<button type="button" data-js-trigger="suggestion" class="trigger welltrigger"><span class="label js-label viewingablelabel"></span></button>
+								</div>
+							</div>
+						</div>
+					</section>
+					
+					<section class="diary-entry-form-wizard-step -compose fields-reversed" data-js-wizard-step="compose" role="group" aria-roledescription="step" aria-label="2 of 2" hidden>
+						<div class="header js-header">
+							
+						</div>
+
+						<aside class="figure">
+							<figure class="poster-list -p150 no-hover js-poster-preview">
+								<div class="poster no-poster">
+									<span class="frame"></span>
+								</div>
+							</figure>
+						</aside>
+
+						<div class="body">
+							<div class="formrow datefields">
+								<div class="fieldgroup -specifieddate">
+									<label for="frm-specify-date" class="option-label -checkbox -default -reversed js-specifiy-date">
+										<input type="checkbox" name="specifiedDate" id="frm-specify-date" class="checkbox " value="true" /><i class="substitute"></i>
+										<span id="frm-specify-date-label" class="label js-specify-date-label">Add to your&nbsp;diary?</span>
+									</label>
+									<div class="specifydatecta js-specify-date-cta" hidden>Watched on&nbsp;<button type="button" class="trigger welltrigger" data-js-trigger="datepicker"><span class="label"></span></button></div>
+								</div>
+
+								<div class="fieldgroup -rewatch js-fieldgroup-rewatch">
+									<label for="frm-rewatch" id="frm-rewatch-label" class="option-label -checkbox -default">
+										<input type="checkbox" name="rewatch" id="frm-rewatch" class="checkbox" value="true" /><i class="substitute"></i> 
+										I’ve watched this before
+									</label>
+								</div>
+								<input type="hidden" name="viewingDateStr" id="frm-viewing-date-string" value="" />
+							</div>
+
+							<div class="formrow reviewfields js-reviewfields -is-not-spoilersvisible">
+								<div class="inner">
+									<textarea name="review" id="frm-review" class="field reviewfield" placeholder="Add a review…"></textarea>
+
+									<div class="spoilers">
+										<label for="frm-spoilers" class="spoilercheckbox option-label -checkbox -default">
+											<input type="checkbox" name="containsSpoilers" id="frm-spoilers" class="checkbox" value="true" /><i class="substitute"></i>  
+											Contains spoilers
+										</label>
+
+										<div class="moderatornote form-note js-spoilers-locked-note" hidden>
+											<p>A moderator has locked spoilers for this review</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="formrow tagslikeratingfields">
+								<div class="fieldgroup -tags -has-topnote add-tags">
+									
+									
+
+
+
+
+
+
+
+
+		
+	
+
+<label for="frm-tags">Tags</label>
+<p class="form-note note -topnote">Press <kbd>Tab</kbd> to complete, <kbd>Enter</kbd> to create</p>
+<div class="autocomplete-tags">
+	<div id="tag-container">
+		<input type="text" id="frm-tags" class="tag-input-field field" name="tags" placeholder="eg. netflix" data-url="/s/autocompletetags" />
+	</div>
+	<div id="current-tags" class="js-autocomplete-current-tags">
+		
+	</div>
+</div>
+								</div>
+
+								<div class="fieldgroup -rating -has-topnote">
+									<label>Rating</label>
+									<p class="form-note note rating-text"></p>
+									<input id="frm-rating" name="rating" type="range" min="0" max="10" step="1" value="0"/>
+									<div class="rateit js-rateit" data-rateit-backingfld="#frm-rating" data-rateit-starwidth="13" data-rateit-starheight="26" data-rateit-resetable="true"></div>
+								</div>
+
+								<div class="fieldgroup -like">
+									<label class="option-label -like">
+										<input type="checkbox" name="liked" value="true" class="ajax-working like-checkbox"/><i class="substitute"></i> 
+										Like
+									</label>
+								</div>
+							</div>
+						</div>
+					</section>
+				</form>
+				
+            </div>
+
+
+			
+            <div class="modal-footer js-modal-footer" hidden>
+				<div class="diary-entry-form-controls" data-diary-entry-form-controls-for="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" hidden>
+					<div class="modal-action-group privacygroup show-for-pv">
+						<div class="privacycontrols js-privacycontrols" aria-hidden="true">
+							<label class="label" for="frm-privacy-policy"> 
+								Privacy mode
+								<span class="s icon-14 icon-tip" target="_blank" title="Control who sees the rating, review, tags and like for this entry" data-js-trigger="tooltip"><span class="icon"></span>(Help)</span>
+							</label>
+
+							<select name="privacyPolicyStr" id="frm-privacy-policy" class="select" hidden form='diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203'>
+								<option value="">Default</option>
+								
+									<option value="Anyone">Anyone (public)</option>
+								
+									<option value="Friends">Close Friends (selected by you)</option>
+								
+									<option value="You">You (private)</option>
+								
+									
+								
+							</select>
+
+							
+	<div class="privacy-policy-menu dropdown-wrapper js-privacy-policy-menu -pending">
+		<button id="privacy-policy-menu-trigger-23fea7aa-14b7-4244-a21c-40971c818f59" class="privacy-policy-menu-trigger -default dropdown-trigger" type="button" aria-label="Select privacy policy" aria-haspopup="listbox" aria-expanded="false" aria-controls="privacy-policy-menu-23fea7aa-14b7-4244-a21c-40971c818f59-dropdown">
+			<span class="label js-label">…</span>
+		</button>
+
+		<div id="privacy-policy-menu-23fea7aa-14b7-4244-a21c-40971c818f59-dropdown" class="dropdown-menu -legacy dropdown-listbox privacy-policy-menu-dropdown" aria-labelledby="privacy-policy-menu-trigger-23fea7aa-14b7-4244-a21c-40971c818f59" role="listbox">
+			<div class="header">
+				<h3 class="title js-menutitle"></h3>
+			</div>
+
+			<div class="dropdown-menulist">
+				
+					
+						<div role="none" class="menuitem -trigger -has-icon js-dropdown-child">
+							<button type="button" role="option" data-dismiss="dropdown" data-value="Anyone">
+								
+										<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8 .5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15Zm1.73 8.25H6.27c.07 1.53.36 2.93.8 3.96.4.9.8 1.29.93 1.29s.53-.38.92-1.3c.45-1.02.74-2.42.81-3.95Zm-4.96 0H2.05a6 6 0 0 0 3.79 4.85 12.7 12.7 0 0 1-1.07-4.85Zm9.18 0h-2.72a12.7 12.7 0 0 1-1.07 4.85 6 6 0 0 0 3.8-4.85ZM5.84 2.4l-.18.07a6 6 0 0 0-3.61 4.78h2.72A12.7 12.7 0 0 1 5.84 2.4ZM8 2c-.13 0-.53.38-.92 1.3a11.66 11.66 0 0 0-.81 3.95h3.46a11.66 11.66 0 0 0-.8-3.96c-.38-.85-.74-1.24-.9-1.28L8 2Zm2.16.4.01.02c.59 1.22.98 2.92 1.06 4.83h2.72a6 6 0 0 0-3.79-4.85Z"/></svg>
+									
+								<span class="label js-label">Anyone (public)</span>
+							</button>
+						</div>
+					
+				
+					
+						<div role="none" class="menuitem -trigger -has-icon js-dropdown-child">
+							<button type="button" role="option" data-dismiss="dropdown" data-value="Friends">
+								
+										<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8 .5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15ZM8 2a6 6 0 0 0-4.8 2.4 1.04 1.04 0 0 1 1.28.16l.63.63.64-.63a1.04 1.04 0 0 1 1.47 0c.4.4.4 1.06 0 1.47L5.34 7.9a.32.32 0 0 1-.45 0L3.01 6.03a1.04 1.04 0 0 1-.3-.87A5.98 5.98 0 0 0 8 14a6 6 0 0 0 5.29-8.84c.04.3-.06.63-.3.87L11.11 7.9a.32.32 0 0 1-.45 0L8.78 6.03a1.04 1.04 0 1 1 1.47-1.47l.64.63.63-.63a1.03 1.03 0 0 1 1.29-.15A6 6 0 0 0 8 2ZM5.7 9.92a3 3 0 0 0 4.52.1.75.75 0 0 1 1.1 1 4.49 4.49 0 0 1-6.78-.14.75.75 0 0 1 1.16-.96Z"/></svg>
+									
+								<span class="label js-label">Close Friends (selected by you)</span>
+							</button>
+						</div>
+					
+				
+					
+						<div role="none" class="menuitem -trigger -has-icon js-dropdown-child">
+							<button type="button" role="option" data-dismiss="dropdown" data-value="You">
+								
+										<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M7.95 1.25c2.35 0 4.25 1.9 4.25 4.25V6h.3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2V8c0-1.1.9-2 2-2h.2v-.5c0-2.35 1.9-4.25 4.25-4.25ZM12.5 7.5h-9A.5.5 0 0 0 3 8v6c0 .28.22.5.5.5h9a.5.5 0 0 0 .5-.5V8a.5.5 0 0 0-.5-.5ZM8 9.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Zm-.05-7A2.75 2.75 0 0 0 5.2 5.5V6h5.5v-.5a2.75 2.75 0 0 0-2.75-2.75Z"/></svg>
+									
+								<span class="label js-label">You (private)</span>
+							</button>
+						</div>
+					
+				
+					
+				
+
+				<div role="none" class="menuitem -divider">
+					<hr />
+				</div>
+
+				<div role="none" class="menuitem -trigger -has-icon -has-policy-icon js-dropdown-child">
+					<button type="button" role="option" data-dismiss="dropdown" data-value="" data-default="true">
+						<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M11.79 7a.7.7 0 0 1 .64.44l.3.77 1 .58.82-.12a.7.7 0 0 1 .7.34l.27.48a.7.7 0 0 1-.05.78l-.5.65v1.16l.51.65a.7.7 0 0 1 .06.78l-.28.48a.7.7 0 0 1-.7.34l-.8-.12-1.02.58-.3.77a.7.7 0 0 1-.64.44h-.58a.7.7 0 0 1-.65-.44l-.3-.77-1-.58-.82.12a.7.7 0 0 1-.7-.34l-.27-.48a.7.7 0 0 1 .05-.78l.51-.65v-1.16l-.52-.65a.7.7 0 0 1-.05-.78l.27-.48a.7.7 0 0 1 .7-.34l.81.12 1.03-.58.3-.77a.7.7 0 0 1 .64-.44h.57ZM6.55 8.9h.1L6.6 9c-.17.28-.25.62-.23.96l.02.17.03.14.04.13h-.3c-1.4.04-2.71.28-3.68.64-.4.14-.7.3-.9.44l-.08.07v.95h5.02A1.7 1.7 0 0 0 6.6 14H0v-2.67C0 10.05 3.02 8.9 6.55 8.9Zm4.95.22a2.37 2.37 0 1 0 0 4.75 2.37 2.37 0 0 0 0-4.74Zm0 1.5a.87.87 0 1 1 0 1.75.87.87 0 0 1 0-1.74ZM6.38 0c1.5 0 2.88 1.53 2.88 3.4 0 1.87-.79 4.1-2.8 4.1-1.9 0-2.81-2.29-2.81-4.15C3.65 1.48 4.87 0 6.38 0Zm0 1.5c-.61 0-1.23.76-1.23 1.85 0 1.5.66 2.65 1.3 2.65.73 0 1.3-1.03 1.3-2.6 0-1.05-.73-1.9-1.37-1.9Z"/></svg>
+						<span class="label js-label">Use account default<span class="labelsupplement js-labelsupplement" hidden></span></span>
+					</button>
+				</div>
+			</div>
+
+			<div class="dropdown-bodytext -note">
+				<p>
+					Your diary date (if set) and watched status for this film remain publicly visible.
+					Ratings on <em>Close Friends</em> and <em>You</em> entries don’t contribute to stats. 
+					Add members to your Close Friends from their profile.
+					Set your account default for Privacy mode in&nbsp;<a href="/settings/">Settings</a>.
+				</p>
+			</div>
+		</div>
+	</div>
+
+						</div>
+
+						<label for="privacy-policy-draft-5062f9f5-04bc-4786-8069-b4e1019b3203" class="option-label -checkbox -default -reversed drafttoggle">
+							<input id="privacy-policy-draft-5062f9f5-04bc-4786-8069-b4e1019b3203" class="checkbox" type="checkbox" role="switch" name="privacyPolicyDraft" value="true" form="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" /><i class="substitute"></i>
+							<span class="label">Draft</span>
+						</label>
+
+						<div class="draftnote js-privacydraftnote" aria-hidden="true">Draft entries don’t appear in your watched films or diary for others, and&nbsp;don’t contribute to your&nbsp;stats.</div>
+					</div>
+
+					<div class="modal-action-group formactions">
+						<button form="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" type="button" id="diary-entry-delete-button" class="button button-delete -destructive" data-js-trigger="delete" data-confirm="Are you sure you want to delete this entry? It will disappear from your profile, but remain in your account export bundle for 30&nbsp;days, in a folder of deleted&nbsp;items." disabled><span class="label">Delete</span></button>
+
+						<button form="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" type="submit" class="button -action button-action" data-js-trigger="submit" disabled><span class="label">Save</span></button>
+					</div>
+				
+				</div>
+			</div>
+			
+
+        </div>
+    </div>
+</div>
+	
+	<div style="display:none">
+		<div id="add-to-a-list"></div>
+		<div id="add-to-a-list-modal" data-data-url="/s/load-lists">
+			
+			<form method="post" action="/s/add-film-to-list" class="not-expanded modal-container -mini">
+				<input type="hidden" name="__csrf" value="placeholder" />
+				<input class="film-id" type="hidden" name="filmId"/>
+				<div class="header">
+					<h1 class="title-2">Add <span class="film-name"></span> to lists</h1>
+					<div id="js-modal-warning" class="text" style="display: none;"></div>
+					<div class="segmented-control js-list-type-toggle -stretched">
+						<div class="options">
+							<button class="option -selected" data-list-type="public">Public</button>
+							<button class="option" data-list-type="private">Private</button>
+						</div>
+					</div>
+				</div>
+				<div class="body js-add-to-list-body">
+					<div class="list-selection -selected js-list-selection" data-list-type="public">
+						<div class="actions">
+							<a href class="new js-new-list" data-private-list="false"><span class="plus"></span>New list…</a>
+							<div class="filter">
+								<input type="text" class="input js-list-filter" id="list-filter-public" autocomplete="off" placeholder="Type to search" /><label for="list-filter-public" class="trigger"></label>
+								<button class="clear js-list-filter-clear">Clear</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="list-selection js-list-selection" data-list-type="private">
+						<div class="actions">
+							<a href class="new js-new-list" data-private-list="true"><span class="plus"></span>New list…</a>
+							<div class="filter">
+								<input type="text" class="input js-list-filter" id="list-filter-private" autocomplete="off" placeholder="Type to search" /><label for="list-filter-private"  class="trigger"></label>
+								<button class="clear js-list-filter-clear">Clear</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="footer">
+					<div class="status">
+						<p class="js-selected-lists-state"></p>
+					</div>
+					<div class="actions">
+						<input type="submit" class="button -action button-action js-add-to-list-submit" value="Add" disabled />
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	
+	
+	<template id="privacy-policy-icon-anyone"><span class="policy-icon -privacy -anyone -default -is-not-default" data-policy-type="privacy" data-policy-code="anyone"><span class="frame tooltip" data-original-title="Reactions visible to anyone" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 .5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13ZM7 2a5 5 0 1 0 0 10A5 5 0 0 0 7 2Z"/><path d="M7 .75C8.45.75 9.63 3.55 9.63 7S8.45 13.25 7 13.25 4.37 10.45 4.37 7 5.55.75 7 .75Zm0 1.6-.03.03c-.14.17-.3.43-.44.78-.41.97-.66 2.35-.66 3.84 0 1.5.25 2.87.66 3.84.17.4.35.7.51.86L7 11.65l.03-.03c.12-.14.25-.35.37-.61l.07-.17c.41-.97.66-2.35.66-3.84 0-1.5-.25-2.87-.66-3.84-.14-.35-.3-.61-.44-.78L7 2.35Z"/><path d="M1.15 7.75h11.7v-1.5H1.15z"/></svg> </span> <span class="label _sr-only">Reactions visible to anyone</span> </span></template> <template id="privacy-policy-icon-friends"><span class="policy-icon -privacy -friends -default -is-not-default" data-policy-type="privacy" data-policy-code="friends"><span class="frame tooltip" data-original-title="Reactions visible to owner’s Close Friends" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 .5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13ZM5 9.07a.65.65 0 0 0-1 .83 3.9 3.9 0 0 0 5.89.13.65.65 0 0 0-.97-.87A2.6 2.6 0 0 1 5 9.07ZM5.78 4c-.26 0-.51.1-.7.28l-.58.6-.59-.6a.97.97 0 0 0-1.37 0 .97.97 0 0 0 0 1.38L4.29 7.4a.3.3 0 0 0 .42 0l1.75-1.75A.97.97 0 0 0 5.78 4Zm5 0c-.26 0-.51.1-.7.28l-.58.6-.59-.6a.97.97 0 0 0-1.37 0 .97.97 0 0 0 0 1.38L9.29 7.4a.3.3 0 0 0 .42 0l1.75-1.75A.97.97 0 0 0 10.78 4Z"/></svg> </span> <span class="label _sr-only">Reactions visible to owner’s Close Friends</span> </span></template> <template id="privacy-policy-icon-you"><span class="policy-icon -privacy -you -default -is-not-default" data-policy-type="privacy" data-policy-code="you"><span class="frame tooltip" data-original-title="Reactions only visible to you" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 1a3.5 3.5 0 0 1 3.5 3.5V5A1.5 1.5 0 0 1 12 6.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 11.5v-5A1.5 1.5 0 0 1 3.5 5v-.5A3.5 3.5 0 0 1 7 1zm0 7a1 1 0 1 0 0 2 1 1 0 1 0 0-2zm0-5.5a2 2 0 0 0-2 2V5h4v-.5a2 2 0 0 0-1.851-1.995L7 2.5z" fill-rule="evenodd"/></svg> </span> <span class="label _sr-only">Reactions only visible to you</span> </span></template> <template id="privacy-policy-icon-draft"><span class="policy-icon -privacy -draft -default -is-not-default" data-policy-type="privacy" data-policy-code="draft"><span class="frame tooltip" data-original-title="Draft entry" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M11.787.486s-.109-.322-.229-.387-.324-.129-.453-.084c-.409.052-.814.131-1.213.236L9.536.36 8.304 3.584 7.073 2.051c-.128-.118-.309-.156-.472-.098a5.71 5.71 0 0 0-1.126 1.072 6.27 6.27 0 0 0-.452.58l-.135.206-.279.452-.164.295C3.29 6.711 3.146 9.051 3.868 10.24l-1.761 2.664c-.197.329-.113.757.192.983.321.207.744.12.962-.197l.712-1.062 1.068-1.612c.122.01.244.01.366 0 1.665 0 4.061-1.524 5.438-4.041C11.591 5.672 11.989 4.19 12 2.68c-.012-.608-.09-1.598-.213-2.194z"/></svg> </span> <span class="label _sr-only">Draft entry</span> </span></template> <template id="share-policy-icon-anyone"><span class="policy-icon -share -anyone -circle" data-policy-type="share" data-policy-code="anyone"><span class="frame tooltip" data-original-title="Visible to anyone (with link)" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M4.385 5.061c.977-.976 2.559-.976 3.536 0l.985 1.041L7.849 7.16l-.018-.007-1.002-1.052c-.375-.372-.98-.372-1.355-.001l-.437.436c-.106.084-.201.18-.286.285L2.824 8.755a.94.94 0 0 0-.28.692.95.95 0 0 0 .282.687l.401.401a.99.99 0 0 0 1.359.006l.836-.847a3.52 3.52 0 0 0 1.385.816L5.68 11.651a2.5 2.5 0 0 1-1.771.737c-.665 0-1.302-.265-1.771-.736l-.407-.407c-.976-.977-.976-2.559 0-3.537zm5.706-3.451c.665 0 1.302.265 1.771.736l.407.407c.976.977.976 2.559 0 3.537L9.615 8.938c-.977.976-2.559.976-3.537-.001l-1.033-.995.415-.416.133-.15.15-.134.403-.405 1.024 1.059c.347.343.889.37 1.264.08l.09-.079 2.651-2.655c.153-.15.248-.347.274-.562l.007-.131a.95.95 0 0 0-.282-.687l-.401-.401a.99.99 0 0 0-1.359-.006l-.842.841c-.408-.39-.888-.663-1.395-.818L8.32 2.347a2.5 2.5 0 0 1 1.771-.737z"/></svg> </span> <span class="label _sr-only">Visible to anyone (with link)</span> </span></template> <template id="share-policy-icon-friends"><span class="policy-icon -share -friends -circle" data-policy-type="share" data-policy-code="friends"><span class="frame tooltip" data-original-title="Visible to the member’s friends (with link)" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill-rule="evenodd"><path d="M10.201 8.732l-.26-.004c1.167 0 1.885.199 2.624.493.431.172.773.378 1.009.595.289.267.426.556.426.834V12l-3.148-.001.001-1.685c0-.515-.188-1.066-.652-1.582zM9.941 3.2c.58 0 1.119.214 1.503.611.342.353.565.853.565 1.489 0 .689-.169 1.45-.545 1.992a1.78 1.78 0 0 1-1.522.815c-.645 0-1.15-.332-1.502-.845-.376-.55-.566-1.312-.566-1.992 0-.635.223-1.128.563-1.473.384-.389.923-.596 1.504-.596zM4.853 7.911c1.458 0 2.136.249 3.06.616.539.215.966.472 1.261.744.362.334.533.696.533 1.043V12H0v-1.686c0-.347.171-.709.533-1.043.294-.272.721-.529 1.261-.744.924-.368 1.601-.616 3.06-.616zm0-6.911c.724 0 1.398.268 1.878.763.427.441.706 1.066.706 1.861 0 .861-.212 1.812-.681 2.49-.426.615-1.052 1.019-1.903 1.019-.806 0-1.438-.414-1.877-1.057-.47-.688-.707-1.64-.707-2.49 0-.794.278-1.41.704-1.841C3.452 1.259 4.126 1 4.853 1z"/></svg> </span> <span class="label _sr-only">Visible to the member’s friends (with link)</span> </span></template> <template id="share-policy-icon-you"><span class="policy-icon -share -you -circle" data-policy-type="share" data-policy-code="you"><span class="frame tooltip" data-original-title="Only visible to you" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 1a3.5 3.5 0 0 1 3.5 3.5V5A1.5 1.5 0 0 1 12 6.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 11.5v-5A1.5 1.5 0 0 1 3.5 5v-.5A3.5 3.5 0 0 1 7 1zm0 7a1 1 0 1 0 0 2 1 1 0 1 0 0-2zm0-5.5a2 2 0 0 0-2 2V5h4v-.5a2 2 0 0 0-1.851-1.995L7 2.5z" fill-rule="evenodd"/></svg> </span> <span class="label _sr-only">Only visible to you</span> </span></template>
+		
+		
+		
+		<form id="search" class="js-search-form search-form" action="/search/" method="get" autocorrect="off">
+			<input autocomplete="false" name="hidden" type="text" style="display:none;" />
+			<fieldset>
+				<label for="search-q" class="hidden">Search:</label>
+				<input type="text" name="q" id="search-q" class="field -borderless" data-lpignore='true' inputmode='search' value="" />
+				<input type="submit" value="Search" class="action" />
+			</fieldset>
+		</form>
+		
+	</section>
+</header>
+
+
+
+
+
+
+<div id="content" class="site-body">
+	
+
+	
+		<div class="content-wrap">
+	
+
+
+
+
+<div class="cols-2">
+	<section class="section col-17 col-main overflow">
+		
+			<div class="col-4 gutter-right-1">
+				<section class="poster-list -p150 el col viewing-poster-container" data-owner="neodb" data-object-id="viewing:975644964" data-object-name="review"  >
+					<div class="react-component" data-component-class="globals.comps.LazyPoster" data-additional-css-classes="" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="150" data-image-height="225" data-item-name="The Internet&#039;s Own Boy: The Story of Aaron Swartz" data-item-slug="the-internets-own-boy-the-story-of-aaron-swartz" data-item-link="/film/the-internets-own-boy-the-story-of-aaron-swartz/" data-item-full-display-name="The Internet&#039;s Own Boy: The Story of Aaron Swartz (2014)" data-film-id="174980" data-postered-identifier='{"lid":"7lcA","uid":"film:174980","type":"film","typeName":"film"}' data-poster-url="/film/the-internets-own-boy-the-story-of-aaron-swartz/image-150/" data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-150-DtnLDE3k.png" data-has-default-poster="true" data-is-linked="true" data-target-link="/film/the-internets-own-boy-the-story-of-aaron-swartz/" data-target-link-target="" data-details-endpoint="/film/the-internets-own-boy-the-story-of-aaron-swartz/json/" data-cache-busting-key="a1e96df6" data-show-menu="true" data-hide-tooltip="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-150-DtnLDE3k.png" class="image" width="150" height="225" alt="The Internet&#039;s Own Boy: The Story of Aaron Swartz"/> <span class="frame"><span class="frame-title"></span></span> </div> </div>
+				</section>
+				
+				
+				
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/availability/?esiAllowUser=true&amp;esiAllowCountry=true" data-on-load="csi-availability">
+	
+</div>
+
+			</div>
+		
+
+		<section class="col-12 review js-review">
+			<section class="film-viewing-info-wrapper">
+				
+				
+				
+				
+						
+
+		
+	
+<header class="page-header overflow person-header">
+	
+			
+<div class="person-summary -inline">
+	<a class="avatar -a24" href="/neodb/" > <img src="https://s.ltrbxd.com/static/img/avatar48-DSi8lXxI.png" alt="neodb" width="24" height="24" /> </a>
+	<h1 class="title-4" itemscope itemtype="http://schema.org/Person">
+		<small class="context">Review by</small>
+		<a href="/neodb/" itemprop="sameAs" class="name"> <span itemprop="name">neodb</span> </a>
+	</h1>
+</div>
+				
+	
+	<div class="clear"></div>
+</header>
+					
+				
+				<header class="inline-production-masthead -film -guttered"> <span> <h2 class="name -primary prettify"><a href="/film/the-internets-own-boy-the-story-of-aaron-swartz/">The Internet's Own Boy: The Story of Aaron Swartz</a></h2><span class="releasedate"> <a href="/films/year/2014/">2014</a> </span> </span> </header>
+
+
+				<div class="content-reactions-strip -viewing -single"> <span class="rating rating-large rated-large-10"> ★★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </div>
+
+				<p class="view-date date-links">
+					Watched
+					
+							
+							
+							
+							
+							<a href="/neodb/films/diary/for/2025/08/07/">07</a>
+							<a href="/neodb/films/diary/for/2025/08/">Aug</a>
+							<a href="/neodb/films/diary/for/2025/">2025</a>
+						
+				</p>
+				<meta content="2025-08-07" />
+
+				
+			</section>
+
+			
+					<div class="review body-text -prose -hero -loose">
+						
+
+						
+
+						
+
+						
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="body-text -prose -reset -hero -loose"
+	
+	
+	
+>
+	
+			
+			<div class=""
+				
+			>
+				
+							<h3 class="hidden">
+								neodb’s review published on Letterboxd:
+							</h3>
+							
+									<div class="js-review-body"
+										
+											lang="fr"
+										
+										data-is-translatable="true"
+									>
+										<p>this is a comment.</p>
+									</div>
+								
+						
+			</div>
+		
+</div>
+
+					</div>
+					<div class="viewing-actions">
+						<div class="review-actions">
+							<p class="like-link-target react-component review-like" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"aEh4eZ","uid":"viewing:975644964","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/neodb/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="0" data-owner="neodb" > <span class="has-icon icon-16 icon-like"></span> </p>
+							
+
+
+
+<button hidden class="translation-button button -text" data-translation-control-for="aEh4eZ">
+	<span class="label js-label">Translate</span>
+</button>
+
+							
+
+
+
+<div hidden class="translation-disclaimer js-translation-disclaimer">
+	Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span>
+</div>
+						</div>
+						<span class="block-flag-wrapper show-on-hover hide-when-logged-out hide-for-owner" data-owner="neodb"> <a href="#" class="block-or-report-flag popmenu-link has-icon icon-16 icon-report tooltip" title="Block or Report" data-popmenu-id="report-member-neodb-review-975644964" data-popmenu-direction="e">Block or Report</a> <div id="report-member-neodb-review-975644964" class="popmenu block-or-report-popmenu" data-username="neodb" hidden> <ul> <li class="popmenu-textitem popmenu-close show-for-moderator"> <a href="/moderator/member/neodb/"><span class="link-text">Moderator dashboard</span></a> </li> <li class="popmenu-textitem js-block-triggers" data-owner="neodb"> <a href="#" data-confirm="Are you sure you want to block this member? Their past comments will be removed from your reviews and lists, you will be unsubscribed from all relevant comment notifications and you will both be prevented from replying to each other’s content." data-action="/neodb/block/" class="ajax-click-action link-block" data-js-trigger="block"><span class="link-text">Block this member</span></a> <a href="#" data-action="/neodb/unblock/" class="ajax-click-action link-blocked" data-js-trigger="unblock" hidden><span class="link-text">This member is blocked</span></a> </li> <li class="popmenu-textitem popmenu-close"> <span class="report-link has-icon icon-report" data-report-url="/ajax/viewing:975644964/report-form">Report this review</span> </li> </ul> </div> </span>
+					</div>
+				
+
+			<!-- Hide tags on redacted reviews, except for moderators -->
+				
+					<ul class="tags">
+						
+							
+								<li>
+									<a href="/neodb/tag/hacktivist/films/">hacktivist</a>
+								</li>
+							
+						
+					</ul>
+				
+			
+			
+			
+
+			
+
+			
+
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+
+			
+
+<script id="script-21100146-ed6f-47c5-942d-4baeab7db98e"> ((tag, target) => { let adsScript = null; let adsPlatforms = null; let adsLocations = null; let adsMode = ''; if (!disableAds && person.showAds) { let adUnit = document.createElement('div'); let kicker = [ '<div class="upgrade-kicker -alignleft -med_rect js-hide-in-app">', '<button type="button" class="modaltrigger" data-bs-toggle="modal" data-bs-target="#remove-ads-modal">', 'Remove Ads', '<svg aria-hidden="true" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><path d="m.5.5 6 6M6.5.5l-6 6" fill-rule="evenodd" stroke="#000"/></svg>', '</button>', '</div>' ].join(''); if ( adsScript && adsScript === 'bandsintown' && adsPlatforms && ((window.isIOS && adsPlatforms.indexOf("iOS") >= 0) || (window.isAndroid && adsPlatforms.indexOf("Android") >= 0)) && adsLocations && adsMode && ( (adsMode === 'include' && adsLocations.indexOf(window.adsLocation) >= 0) || (adsMode === 'exclude' && adsLocations.indexOf(window.adsLocation) == -1) ) ) { var opts = { artist: "", song: "", adunit_id: 100005950, div_id: "cf_async_21100146-ed6f-47c5-942d-4baeab7db98e" }; adUnit.id = opts.div_id; if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } var c=function(){cf.showAsyncAd(opts)};if(typeof window.cf !== 'undefined')c();else{cf_async=!0;var r=document.createElement("script"),s=document.getElementsByTagName("script")[0];r.async=!0;r.src="//srv.tunefindforfans.com/fruits/apricots.js";r.readyState?r.onreadystatechange=function(){if("loaded"==r.readyState||"complete"==r.readyState)r.onreadystatechange=null,c()}:r.onload=c;s.parentNode.insertBefore(r,s)}; } else { adUnit.id = 'pw-21100146-ed6f-47c5-942d-4baeab7db98e'; adUnit.className = 'pw-div -tile300x250 -alignleft -bottommargin'; adUnit.setAttribute('data-pw-' + (renderMobile ? 'mobi' : 'desk'), 'med_rect_btf'); if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } window.addEventListener('DOMContentLoaded', (event) => { adUnit.insertAdjacentHTML('afterend', kicker); window.ramp.que.push(function () { window.ramp.addTag('pw-21100146-ed6f-47c5-942d-4baeab7db98e'); }); }, { once: true }); } } tag.remove(); })(document.getElementById('script-21100146-ed6f-47c5-942d-4baeab7db98e')); </script>
+
+		</section>
+		
+		
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/viewing/975644964/comments-section/?esiAllowUser=true" data-on-load="">
+	
+</div>
+
+		
+
+		<div class="clear"></div>
+	</section>
+	<aside class="sidebar">
+
+		<div class="promopanelsurround hide-when-logged-in"> <section class="panel promopanel"> <p class="body-text"> <a href="/neodb/">neodb</a> is using Letterboxd to share film reviews and lists with friends. <a class="create-account-link" href="/create-account/">Join here.</a></p> </section> </div>
+
+		
+			
+				<section id="userpanel" class="actions-panel">
+					<ul class="js-actions-panel">
+						
+						
+
+
+
+
+
+
+
+<li class="csi js-csi " data-src="/csi/viewing/975644964/sidebar-user-actions/?esiAllowUser=true" data-on-load="">
+	
+</li>
+
+						
+						
+							
+							
+							<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/csi/sidebar-user-actions/share-link-CN0rA8Dg.js"></script> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CbXmRM-a.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dxj-PiPC.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DPQR6HIl.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CswyOWBu.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/GVR8ng7U.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CUcMfv5U.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CdChsGGx.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BOQU22RL.js"> <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script> <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script> <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script> <script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-D9s76qMh.js"></script> <script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/csi/sidebar-user-actions/share-link-legacy-C7XFtunM.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script> <li class="panel-sharing sharing-toggle js-actions-panel-sharing" data-js-owner-username="neodb"> <button class="trigger" type="button" aria-expanded="false" aria-controls="sharing-toggle-body-viewing-975644964"> Share this review </button> <div id="sharing-toggle-body-viewing-975644964" class="body"> <div class="urlgroup"> <input id="url-field-viewing-975644964" type="text" value="https://boxd.it/aEh4eZ" readonly spellcheck="false"> <button class="button clipboardtrigger has-icon" data-clipboard-target="#url-field-viewing-975644964" data-sharer-type="link" > <span class="label">Copy URL to Clipboard</span> <span class="icon"></span> </button> </div> <a class="shareitem -link -twitter" href="https://twitter.com/intent/tweet?text=A%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%20review%20of%20The%20Internet%27s%20Own%20Boy%3A%20The%20Story%20of%20Aaron%20Swartz%20%282014%29%20by%20neodb%20on%20%40letterboxd%3A%20https%3A%2F%2Fboxd.it%2FaEh4eZ" data-js-href-for-owner="https://twitter.com/intent/tweet?text=My%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%20review%20of%20The%20Internet%27s%20Own%20Boy%3A%20The%20Story%20of%20Aaron%20Swartz%20%282014%29%20on%20%40letterboxd%3A%20https%3A%2F%2Fboxd.it%2FaEh4eZ" rel="noreferrer" title="Tweet a link" data-sharer-type="twitter" > <span class="label">Tweet a link</span> <span class="icon"></span> </a> <a class="shareitem -link -facebook" href="https://www.facebook.com/dialog/feed?app_id=173683136069040&display=popup&link=https%3A%2F%2Fletterboxd.com%2Fneodb%2Ffilm%2Fthe-internets-own-boy-the-story-of-aaron-swartz%2F&redirect_uri=https://letterboxd.com/facebook-share" rel="noreferrer" title="Share to Facebook" data-sharer-type="facebook" > <span class="label">Share to Facebook</span> <span class="icon"></span> </a> </div> </li>
+						
+					</ul>
+				</section>
+			
+		
+		
+		
+		
+		
+		
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/friend-activity/?esiAllowUser=true" data-on-load="">
+	
+</div>
+
+		
+		
+		
+		
+		
+
+<script id="script-e675e9fb-fedc-4dd5-8ab2-f19414285780"> ((tag, target) => { let adsScript = null; let adsPlatforms = null; let adsLocations = null; let adsMode = ''; if (!disableAds && person.showAds) { let adUnit = document.createElement('div'); let kicker = [ '<div class="upgrade-kicker -skyscraper js-hide-in-app">', '<button type="button" class="modaltrigger" data-bs-toggle="modal" data-bs-target="#remove-ads-modal">', 'Remove Ads', '<svg aria-hidden="true" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><path d="m.5.5 6 6M6.5.5l-6 6" fill-rule="evenodd" stroke="#000"/></svg>', '</button>', '</div>' ].join(''); if ( adsScript && adsScript === 'bandsintown' && adsPlatforms && ((window.isIOS && adsPlatforms.indexOf("iOS") >= 0) || (window.isAndroid && adsPlatforms.indexOf("Android") >= 0)) && adsLocations && adsMode && ( (adsMode === 'include' && adsLocations.indexOf(window.adsLocation) >= 0) || (adsMode === 'exclude' && adsLocations.indexOf(window.adsLocation) == -1) ) ) { var opts = { artist: "", song: "", adunit_id: 100005950, div_id: "cf_async_e675e9fb-fedc-4dd5-8ab2-f19414285780" }; adUnit.id = opts.div_id; if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } var c=function(){cf.showAsyncAd(opts)};if(typeof window.cf !== 'undefined')c();else{cf_async=!0;var r=document.createElement("script"),s=document.getElementsByTagName("script")[0];r.async=!0;r.src="//srv.tunefindforfans.com/fruits/apricots.js";r.readyState?r.onreadystatechange=function(){if("loaded"==r.readyState||"complete"==r.readyState)r.onreadystatechange=null,c()}:r.onload=c;s.parentNode.insertBefore(r,s)}; } else { adUnit.id = 'pw-e675e9fb-fedc-4dd5-8ab2-f19414285780'; adUnit.className = 'pw-div'; adUnit.setAttribute('data-pw-' + (renderMobile ? 'mobi' : 'desk'), 'sky_btf'); if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } window.addEventListener('DOMContentLoaded', (event) => { adUnit.insertAdjacentHTML('afterend', kicker); window.ramp.que.push(function () { window.ramp.addTag('pw-e675e9fb-fedc-4dd5-8ab2-f19414285780'); }); }, { once: true }); } } tag.remove(); })(document.getElementById('script-e675e9fb-fedc-4dd5-8ab2-f19414285780')); </script>
+
+	</aside>
+</div>
+
+
+
+
+
+
+
+
+
+		</div> 
+
+		
+	
+	
+	</div> 
+	
+
+
+
+	<footer id="page-footer" class="page-footer js-page-footer js-hide-in-app">
+		<div class="content-wrap">
+			
+				<nav class="footer-nav js-footer-nav">
+					<ul>
+						<li><a href="/about/">About</a></li>
+						<li class="js-hide-in-app"><a href="/pro/">Pro</a></li>
+						<li><a href="/journal/">News</a></li>
+						
+						<li><a href="/apps/">Apps</a></li>
+						<li><a href="https://apple.co/3TfzHVG" target="_blank" rel="noopener noreferrer">Podcast</a></li>
+						<li><a href="/year-in-review/">Year in Review</a></li>
+						<li><a href="/gift-guide/">Gifts</a></li>
+						<li><a href="/welcome/">Help</a></li>
+						<li><a href="/legal/terms-of-use/">Terms</a></li>
+						<li><a href="/api-beta/">API</a></li>
+						<li><a href="/contact/">Contact</a></li>
+					</ul>
+				</nav>
+	
+
+			<div class="socials">
+				<nav class="social-service-list -inline">
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.instagram.com/letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on Instagram">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path d="M14.12.06c1.07.05 1.8.22 2.43.46.66.26 1.21.6 1.77 1.16.56.55.9 1.11 1.15 1.77.25.63.42 1.36.47 2.43.04.94.06 1.32.06 3.3v1.37c0 1.54 0 2.19-.03 2.77v.22l-.03.58a7.34 7.34 0 0 1-.47 2.43 4.9 4.9 0 0 1-1.15 1.77 4.9 4.9 0 0 1-1.77 1.16c-.64.24-1.36.41-2.43.46l-.61.03h-.23c-.5.02-1.06.03-2.21.03H9.2c-2 0-2.37-.02-3.32-.06a7.34 7.34 0 0 1-2.43-.46 4.9 4.9 0 0 1-1.77-1.16 4.9 4.9 0 0 1-1.16-1.77 7.34 7.34 0 0 1-.46-2.43l-.03-.61v-.2A60.9 60.9 0 0 1 0 11.5V8.75C0 7.7.01 7.17.03 6.7v-.2l.03-.61C.1 4.8.28 4.08.52 3.45a4.9 4.9 0 0 1 1.16-1.77A4.9 4.9 0 0 1 3.45.52 7.34 7.34 0 0 1 5.88.06l.61-.03h.2C7.12 0 7.6 0 8.5 0h2.74c1.62 0 2 .02 2.88.06ZM11.02 2H8.97c-1.7 0-2.05.02-2.92.06a5.4 5.4 0 0 0-1.82.33c-.45.18-.78.39-1.12.73-.34.34-.55.67-.73 1.12-.13.35-.3.86-.33 1.82C2.02 6.93 2 7.29 2 8.98v2.04c0 1.7.02 2.05.06 2.92.04.95.2 1.47.33 1.81.18.46.39.78.73 1.13.34.34.67.55 1.12.73.35.13.86.29 1.82.33.83.04 1.2.05 2.7.06h2.47c1.51 0 1.87-.02 2.71-.06a5.4 5.4 0 0 0 1.81-.33c.46-.18.78-.4 1.12-.73.35-.35.56-.67.73-1.13.14-.34.3-.86.34-1.8a49 49 0 0 0 .06-2.72V8.77a49 49 0 0 0-.06-2.71 5.4 5.4 0 0 0-.34-1.82 3.02 3.02 0 0 0-.73-1.12 3.02 3.02 0 0 0-1.12-.73 5.4 5.4 0 0 0-1.81-.33c-.88-.04-1.23-.06-2.93-.06ZM10 4.86a5.14 5.14 0 1 1 0 10.28 5.14 5.14 0 0 1 0-10.28ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/></svg>
+							<span class="label">Instagram</span>
+						</a>
+					</div>
+
+					
+						<div class="listitem -icononly">
+							<a class="trigger tooltip" href="https://www.threads.net/@letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on Threads">
+								<svg class="glyph" aria-hidden="true" role="presentation" xmlns="http://www.w3.org/2000/svg" width="16" height="18"><path fill-rule="nonzero" d="M8.1 0c2.8 0 4.9.9 6.3 2.6.7.9 1.3 1.9 1.6 3v.1l-1.6.4c-.3-1-.7-1.8-1.3-2.4-1.1-1.3-2.8-2-5-2-2.1 0-3.8.7-4.9 2-1 1.2-1.5 3-1.5 5.3s.5 4 1.5 5.3c1.1 1.3 2.8 2 5 2 1.9 0 3.2-.4 4.3-1.5 1-1 1.3-2.4.8-3.5-.2-.5-.6-1-1.1-1.2-.2 1-.5 1.7-1 2.3-.7.8-1.6 1.3-2.8 1.3-1 .1-1.8-.1-2.5-.6A2.8 2.8 0 0 1 4.5 11C4.5 9 6 7.8 8.2 7.6l2.3.1c-.1-.5-.3-.9-.6-1.2-.4-.4-1-.6-1.7-.7-.9 0-1.6.3-2 1H6L4.7 6a4 4 0 0 1 3.5-1.7c2.3 0 3.8 1.4 4 3.8v.2h.2v.1c1.2.5 2 1.3 2.4 2.3.8 1.7.5 3.8-1.1 5.4A7.4 7.4 0 0 1 8 18c-2.7 0-4.8-1-6.2-2.6A10 10 0 0 1 0 9c0-2.7.7-4.8 2-6.4C3.2 1 5.3 0 8 0ZM9 9.3h-.6c-1.4 0-2.1.7-2 1.5 0 .8.9 1.3 2 1.3.6 0 1-.2 1.4-.5.4-.4.7-1 .8-2v-.2A8 8 0 0 0 9 9.3h-.1Z"/></svg>
+								<span class="label">Threads</span>
+							</a>
+						</div>
+					
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://x.com/letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on X">
+							<svg class="glyph" aria-hidden="true" role="presentation" xmlns="http://www.w3.org/2000/svg" width="17" height="17"><path fill-rule="nonzero" d="m5.4 0 4 6 5-6h2.1l-.3.4-5.9 6.8 6.5 9.5.2.3h-5.3l-4.3-6.3L2 16.9 2 17H0l.3-.4 6.2-7.2L.3.4 0 0h5.3Zm-1 1.5H2.9l4.9 7 .6.9 4.3 6.1h1.6l-5-7.3-.7-.9-4-5.8Z"/></svg>
+							<span class="label">X</span>
+						</a>
+					</div>
+
+					
+						<div class="listitem -icononly">
+							<a class="trigger tooltip" href="https://bsky.app/profile/letterboxd.social" target="_blank" rel="noopener noreferrer" title="Letterboxd on Bluesky">
+								<svg class="glyph" aria-hidden="true" role="presentation" xmlns="http://www.w3.org/2000/svg" width="19" height="17"><path fill="#000" fill-rule="nonzero" d="M4.15 1.14C6.34 2.81 8.7 6.18 9.56 7.98c.87-1.8 3.23-5.17 5.42-6.84 1.58-1.2 4.14-2.12 4.14.83 0 .59-.33 4.95-.53 5.66-.68 2.46-3.17 3.1-5.38 2.71 3.87.67 4.85 2.87 2.73 5.07-4.04 4.18-5.8-1.05-6.26-2.39-.08-.25-.12-.36-.12-.26 0-.1-.04.01-.12.26-.45 1.34-2.22 6.57-6.25 2.39-2.13-2.2-1.14-4.4 2.72-5.07-2.2.38-4.7-.25-5.38-2.7C.33 6.91 0 2.55 0 1.96 0-.98 2.56-.05 4.15 1.14Z"/></svg>
+								<span class="label">Bluesky</span>
+							</a>
+						</div>
+					
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.facebook.com/letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on Facebook">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="19" height="19" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 0a9.5 9.5 0 0 0-1.48 18.89V12H5.6V9.25h2.42V7.41c0-2.38 1.41-3.7 3.58-3.7 1.04 0 2.13.19 2.13.19v2.33h-1.2c-1.18 0-1.54.74-1.54 1.49v1.53h2.63L13.2 12h-2.21v6.89A9.5 9.5 0 0 0 9.5 0Z"/></svg>
+							<span class="label">Facebook</span>
+						</a>
+					</div>
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.tiktok.com/@letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on TikTok">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="17" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M16.48 4.32a4.62 4.62 0 0 1-3.92-2.66A4.04 4.04 0 0 1 12.23 0H9.07v11.85c0 1.93-1.19 3.07-2.65 3.07a2.71 2.71 0 0 1-2.04-.9 2.57 2.57 0 0 1-.6-2.1 2.55 2.55 0 0 1 1.26-1.81 2.7 2.7 0 0 1 2.24-.21V6.77a5.92 5.92 0 0 0-4.08.86 5.7 5.7 0 0 0-2.15 2.55 5.53 5.53 0 0 0 1.26 6.16 5.86 5.86 0 0 0 6.33 1.23 5.78 5.78 0 0 0 2.6-2.08c.64-.94.98-2.03.98-3.15V5.96a7.74 7.74 0 0 0 4.25 1.25V4.32Z"/></svg>
+							<span class="label">TikTok</span>
+						</a>
+					</div>
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.youtube.com/letterboxdhq" target="_blank" rel="noopener noreferrer" title="Letterboxd on YouTube">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="23" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M11.74 0c.61 0 2.33.02 4.11.08l.54.02c1.7.06 3.35.18 4.1.38a2.87 2.87 0 0 1 2.03 2.02c.45 1.67.48 5.04.48 5.46v.08c0 .42-.03 3.8-.48 5.46a2.87 2.87 0 0 1-2.03 2.02c-.75.2-2.4.32-4.1.38l-.54.02c-1.78.07-3.5.08-4.11.08H11.26c-.62 0-2.33-.01-4.11-.08l-.54-.02c-1.7-.06-3.36-.18-4.1-.38A2.87 2.87 0 0 1 .48 13.5C.04 11.9 0 8.68 0 8.1v-.2c0-.58.04-3.79.48-5.4A2.87 2.87 0 0 1 2.5.48c.74-.2 2.4-.32 4.1-.38l.54-.02C8.93.02 10.65 0 11.26 0ZM9 4.57v6.86L15 8 9 4.57Z"/></svg>
+							<span class="label">YouTube</span>
+						</a>
+					</div>
+				</nav>
+			</div>
+			
+			<p class="copyright">
+				&copy; Letterboxd Limited. Made by <a href="/crew/" class="mute">fans</a> in Aotearoa New Zealand.
+				<span class="nobr"><a href="https://letterboxd.com/about/film-data/" class="mute">Film data</a> from <a href="https://www.themoviedb.org" class="mute">TMDB</a>. 
+				
+						<a href="#" class="mute mobile-site-switch" data-use-mobile-site="yes">Mobile&nbsp;site</a>.
+					
+	</span>
+				<span class="recap" style="display:none"><br/>This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="mute">privacy policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" class="mute">terms of service</a>&nbsp;apply.</span>
+			</p>
+		</div>
+	</footer>
+
+
+
+<script type="application/ld+json">
+/* <![CDATA[ */
+{"datePublished":"2025-08-08","@type":"Review","author":[{"@type":"Person","name":"neodb","sameAs":"https://letterboxd.com/neodb/"}],"publisher":{"@type":"Organization","name":"Letterboxd","sameAs":"https://letterboxd.com"},"description":"this is a comment.","reviewBody":"this is a comment.","itemReviewed":{"image":"https://a.ltrbxd.com/resized/film-poster/1/7/4/9/8/0/174980-the-internet-s-own-boy-the-story-of-aaron-swartz-0-230-0-345-crop.jpg?v=49c5360f1a","dateCreated":"2014-01-17","@type":"Movie","director":[{"@type":"Person","name":"Brian Knappenberger","sameAs":"/director/brian-knappenberger/"}],"name":"The Internet's Own Boy: The Story of Aaron Swartz","sameAs":"https://letterboxd.com/film/the-internets-own-boy-the-story-of-aaron-swartz/"},"@context":"http://schema.org","reviewRating":{"bestRating":5,"@type":"Rating","ratingValue":5,"worstRating":0},"url":"https://letterboxd.com/neodb/film/the-internets-own-boy-the-story-of-aaron-swartz/"}
+/* ]]> */
+</script>
+
+<script>
+
+	gtag('event', 'genre_view', {
+		genre: 'crime',
+		transport_type: 'beacon',
+	});
+
+	gtag('event', 'genre_view', {
+		genre: 'documentary',
+		transport_type: 'beacon',
+	});
+
+</script>
+	
+
+
+
+
+
+
+<div id="poster-picker-modal" class="modal fade content-media-picker-modal poster-picker-modal" tabindex="-1" role="dialog" aria-labelledby="poster-picker-modal-title" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="poster-picker-modal-title">Select your preferred <span class="js-image-type">poster</span></h5>
+                
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="poster-picker-d154adf9-14de-48f1-990a-78eff536eb1e" method="post" action="" novalidate="novalidate" data-poster-picker-options='{"id": "d154adf9-14de-48f1-990a-78eff536eb1e"}' data-js-target="poster-picker"></form>
+            </div>
+            <div class="modal-footer">
+                <div class="content-media-picker-note" hidden></div>
+                <div class="content-media-picker-controls poster-picker-controls" data-poster-picker-controls-for="poster-picker-d154adf9-14de-48f1-990a-78eff536eb1e"> <div class="modal-action-group -center"> <button form="poster-picker-d154adf9-14de-48f1-990a-78eff536eb1e" class="button -destructive" type="button" data-js-trigger="reset" disabled> <span class="label" data-js-label-for="film" >Reset <span class="js-image-type">poster</span></span> <span class="label" data-js-label-for="object" hidden>Reset for <span class="js-object-name">item</span></span> </button> <button form="poster-picker-d154adf9-14de-48f1-990a-78eff536eb1e" class="button -action" type="submit" data-js-trigger="submit" disabled> <span class="label" data-js-label-for="film" >Save<span class="mob-hide"> changes</span></span> <span class="label" data-js-label-for="object" hidden>Save<span class="mob-hide"> for <span class="js-object-name">item</span></span></span> </button> </div> <div class="objectonly js-objectonly" aria-hidden="true" hidden> <label for="poster-picker-frm-object-only" class="option-label -checkbox -medium -reversed"> <input type="checkbox" value="true" class="checkbox" id="poster-picker-frm-object-only" data-js-trigger="object-only" disabled /><i class="substitute"></i>This <span class="js-object-name">item</span> only </label> </div> </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+	
+
+
+
+
+
+
+<div id="backdrop-picker-modal" class="modal fade content-media-picker-modal backdrop-picker-modal" tabindex="-1" role="dialog" aria-labelledby="backdrop-picker-modal-title" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="backdrop-picker-modal-title">Select your preferred backdrop</a></h5>
+                
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="backdrop-picker-eea23fe8-cf85-4fcd-826e-bf96e2440cef" method="post" action="" novalidate="novalidate" data-backdrop-picker-options='{"id": "eea23fe8-cf85-4fcd-826e-bf96e2440cef"}' data-js-target="backdrop-picker"></form>
+            </div>
+            <div class="modal-footer">
+                <div class="content-media-picker-note" hidden></div>
+                <div class="content-media-picker-controls backdrop-picker-controls" data-backdrop-picker-controls-for="backdrop-picker-eea23fe8-cf85-4fcd-826e-bf96e2440cef"> <div class="modal-action-group -center"> <button form="backdrop-picker-eea23fe8-cf85-4fcd-826e-bf96e2440cef" class="button -destructive" type="button" data-js-trigger="reset" disabled> <span class="label" data-js-label-for="film" >Reset <span class="js-image-type">poster</span></span> <span class="label" data-js-label-for="object" hidden>Reset for <span class="js-object-name">item</span></span> </button> <button form="backdrop-picker-eea23fe8-cf85-4fcd-826e-bf96e2440cef" class="button -action" type="submit" data-js-trigger="submit" disabled> <span class="label" data-js-label-for="film" >Save<span class="mob-hide"> changes</span></span> <span class="label" data-js-label-for="object" hidden>Save<span class="mob-hide"> for <span class="js-object-name">item</span></span></span> </button> </div> <div class="objectonly js-objectonly" aria-hidden="true" hidden> <label for="backdrop-picker-frm-object-only" class="option-label -checkbox -medium -reversed"> <input type="checkbox" value="true" class="checkbox" id="backdrop-picker-frm-object-only" data-js-trigger="object-only" disabled /><i class="substitute"></i>This <span class="js-object-name">item</span> only </label> </div> </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+	
+	
+		<div id="remove-ads-modal" class="modal fade modal-upgrade-message" tabindex="-1" aria-labelledby="remove-ads-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="remove-ads-modal-title">Upgrade to remove&nbsp;ads</h5>
+                <button type="button" class="modal-close modal-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="body-text -hero">
+                    <p>Letterboxd is an independent service created by a small team, and we rely mostly on the support of our members to maintain our site and apps. Please consider upgrading to a <a href="/pro/">Pro account</a>—for less than a couple bucks a month, you’ll get cool additional features like all-time and annual stats pages (<a href="https://letterboxd.com/jack/stats/">example</a>), the ability to select (and filter by) your favorite streaming services, and no ads!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="/pro/" class="button -action button-action">Learn more about Pro</a>
+            </div>
+        </div>
+    </div>
+</div>
+		
+		
+		<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/partner-publishers-6V5fFKa_.js"></script>
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bbh8MmKk.js">
+		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+	
+		<script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+		<script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-D9s76qMh.js"></script>
+		<script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/partner-publishers-legacy-D4ViuE22.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+	
+	
+</body>
+</html>
+

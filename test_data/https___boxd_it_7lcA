@@ -1,0 +1,1584 @@
+
+
+<!DOCTYPE html>
+
+<html id="html" lang="en" class="context-client-unknown no-mobile no-js">
+<head>
+	<meta charset="UTF-8" />
+	
+	
+			
+		
+	<meta name="viewport" content="width=1024" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta name="description" content="Programming prodigy and information activist Aaron Swartz achieved groundbreaking work in social justice and political organizing. His passion for open access ensnared him in a legal nightmare that ended with the taking of his own life at the age of 26." />
+	<meta property="og:type" content="video.movie" />
+	
+	<meta property="og:url" content="https://letterboxd.com/film/the-internets-own-boy-the-story-of-aaron-swartz/" />
+	<meta property="og:title" content="The Internet&#039;s Own Boy: The Story of Aaron Swartz (2014)" />
+	<meta property="og:description" content="Programming prodigy and information activist Aaron Swartz achieved groundbreaking work in social justice and political organizing. His passion for open access ensnared him in a legal nightmare that ended with the taking of his own life at the age of 26." />
+	<meta property="og:image" content="https://a.ltrbxd.com/resized/sm/upload/16/2s/3v/u3/internets-own-boy-1200-1200-675-675-crop-000000.jpg?v=a2c0937392" /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="675" />
+	
+	<meta property="fb:app_id" content="173683136069040" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:site" content="@letterboxd"/><meta name="twitter:url" content="https://letterboxd.com/film/the-internets-own-boy-the-story-of-aaron-swartz/" />
+	<meta name="twitter:title" content="The Internet&#039;s Own Boy: The Story of Aaron Swartz (2014)" />
+	<meta name="twitter:description" content="Programming prodigy and information activist Aaron Swartz achieved groundbreaking work in social justice and political organizing. His passion for open access ensnared him in a legal nightmare that…" />
+	<meta name="twitter:label1" content="Directed by" /><meta name="twitter:data1" content="Brian Knappenberger" />
+	<meta name="twitter:label2" content="Average rating" /><meta name="twitter:data2" content="3.87 out of 5" />
+	<meta name="twitter:image" content="https://a.ltrbxd.com/resized/sm/upload/16/2s/3v/u3/internets-own-boy-1200-1200-675-675-crop-000000.jpg?v=a2c0937392" />
+	<meta name="application-name" content="Letterboxd" />
+	<meta name="theme-color" content="#14181C" />
+	<meta name="msapplication-TileColor" content="#445566" />
+	<meta name="apple-itunes-app" content="app-id=1054271011, affiliate-data=11l5KW, app-argument=https://letterboxd.com/film/the-internets-own-boy-the-story-of-aaron-swartz/" />
+	<meta name="mobile-web-app-capable" content="yes" />
+
+	<title>&lrm;The Internet&#039;s Own Boy: The Story of Aaron Swartz (2014) directed by Brian Knappenberger • Reviews, film + cast &bull; Letterboxd</title>
+	<script>
+		
+		((r, n) => {
+			r.dataset.useragent = n.userAgent
+			r.dataset.platform = n.platform
+		})(document.documentElement, navigator)
+
+		var isMobile = false,
+			isMobileOptimised = true,
+			renderMobile = false,
+			useStaticFonts = false,
+			disableFrameProtection = false,
+			baseURL = '',
+			staticAssetBaseURL = 'https://s.ltrbxd.com/'.slice(0, -1),
+			successMessages = [],
+			errorMessages = [],
+			stickyMessages = [],
+			globals = {
+			autoAddFilm: false
+				, spinners: {
+					ajax_242d35: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif',
+					spinner_12_2C3641: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif',
+					spinner_14_20272f: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif',
+					spinner_16_161B21: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif'
+				}
+			},
+			supermodelCSRF = "",
+			gRecaptchaKey = '6Le3mMIUAAAAAEXbwZ7M1R5jEv0V5xbvj7bgXq2g',
+			geolocation = {
+				country: ""
+			},
+			person = {
+				username: ""
+				, loggedIn: false
+				
+				, showAds: true
+				, role: "guest"
+				, hasExtendedServiceFilters: false
+				, canBulkAddToLists: false
+				, canFilterOwned: false
+				, hasHqRole: false
+				, canHaveHqDashboard: false
+				, hasMemberStatistics: false
+				, blockedMembers: []
+				, showAdultContent: false
+				, validated: null
+				, trusted: false
+				, hasBlocked : function(member) { for (var i = 0; i !== person.blockedMembers.length; i++) {if (person.blockedMembers[i] === member) return true;} return false; }
+				, viewingTags: []
+				, hasMoreTags: true
+				, getCustomPoster : function(uid) { return null; }
+				, getCustomBackdrop : function(uid) { return null; }
+			},
+			disableAds = false,
+			analytic_params = {};
+		
+		
+supermodelCSRF = '35a82301dd558084ae5d'; geolocation.country = 'US'; analytic_params['user_type'] = 'Visitor';
+
+	</script>
+	
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		window.gtag = window.gtag || function () {
+			dataLayer.push(arguments);
+		};
+		function ga() {}
+	</script>
+
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-D3ECBB4D7L"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		window.gtag = window.gtag || function () {
+			dataLayer.push(arguments);
+		};
+		gtag('js', new Date());
+	
+		analytic_params['template'] = '/object/film';
+		
+		
+				analytic_params['film_id'] = '7lcA';
+			
+
+		if (analytic_params.member_type) {
+			gtag('set', 'user_properties', { 
+				member_type: analytic_params.member_type,
+			});
+			delete analytic_params.member_type;
+		}
+		var config = {
+			...analytic_params,
+			'cookie_domain': 'letterboxd.com', 
+			'optimize_id': 'GTM-TB8HSDN', 
+		};
+		gtag('config', 'G-D3ECBB4D7L', config);
+	</script>
+
+
+	
+<script>
+function ASAP(callback) {
+	if (window.__ASAPPED) {
+		callback()
+		return
+	}
+	if (!window.__ASAP) {
+		window.__ASAP = []
+	}
+	window.__ASAP.push(callback)
+}
+</script>
+
+	<script>
+		
+
+		
+			
+		
+
+		
+
+		
+		
+			
+			  function setUseMobileSiteCookie(useMobile) {
+					const value = useMobile ? 'yes' : 'no'
+					const date = new Date()
+					const maxAge = 365 * 24 * 60 * 60
+					date.setTime(date.getTime() + maxAge * 1000)
+					const expires = '; expires=' + date.toUTCString()
+					const cookieValuePair = 'useMobileSite=' + value
+					document.cookie = cookieValuePair + expires + '; path=/; maxAge=' + maxAge
+
+					if (document.cookie.includes(cookieValuePair)) {
+						window.location.reload(true)
+					} else {
+						console.error('Failed to set useMobileSite cookie.')
+					}
+				}
+
+				/*
+				 * If ?fromApp=true, it's possible for user is already in the correct mode, so only try
+				 * reloading if that's the case. In fact, trying to reload the page regardless causes an 
+				 * infinite loop as the ?fromApp=true parameter is always present.
+				 */
+				const isMobileWidth = screen.width < 768
+				if (isMobileWidth && !document.cookie.includes('useMobileSite=yes')) {
+					setUseMobileSiteCookie(true)
+				} else if (!isMobileWidth && !document.cookie.includes('useMobileSite=no')) {
+					setUseMobileSiteCookie(false)
+				}
+			
+		
+	</script>
+	
+		<script type="text/javascript"> (function(data) { data.viewingable = data.viewingable || {}; data.viewingable.uid = 'film:174980'; data.viewingable.type = 'film'; data.viewingable.dataEndpoint = '/film/the-internets-own-boy-the-story-of-aaron-swartz/json/'; })(window.__BXD_DATA = window.__BXD_DATA || {}) </script>
+	
+
+	
+	
+
+
+
+
+
+	
+	
+	<script>
+		window.ramp = window.ramp || {};
+		window.ramp.que = window.ramp.que || [];
+		window.ramp.passiveMode = false; 
+		window.ramp.forcePath = '';
+		window.ramp.custom_tags = [
+			'crime', 
+			'documentary', 
+			'intl_false', 
+			'7lcA', 
+			'', 
+			''
+		];
+	</script>
+	<script src="//cdn.intergient.com/1024338/72804/ramp_config.js"></script>
+	<script>
+		window._pwGA4PageviewId = ''.concat(Date.now());
+		window.dataLayer = window.dataLayer || [];
+		window.gtag = window.gtag || function () { 
+			dataLayer.push(arguments);
+		};
+		gtag('js', new Date());
+		gtag('config', 'G-L0W7RDZXX3', { 'send_page_view': false });
+		gtag(
+			'event',
+			'ramp_js',
+			{
+				'send_to': 'G-L0W7RDZXX3',
+				'pageview_id': window._pwGA4PageviewId
+			}
+		);
+		
+		(function() {
+			const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+			window.isAndroid = new RegExp("android", "i").test(userAgent);
+			window.isIOS = new RegExp("iPad|iPhone|iPod", "i").test(userAgent) && !window.MSStream;
+			window.adsLocation = 'US';
+		})();
+	</script>
+
+
+
+	<link rel="manifest" href="/manifest.json" />
+	<link rel="author" type="text/plain" href="/humans.txt" />
+	<link rel="mask-icon" href="https://s.ltrbxd.com/static/img/letterboxd-decal-l-16px-DorUFlWn.svg" color="#445566" />
+	<link rel="shortcut icon" sizes="196x196" href="https://s.ltrbxd.com/static/img/touch-icon-192x192-lO1g3Ot4.png" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+	<link rel="shortcut icon" href="/favicon.ico" />
+	<link rel="search" type="application/opensearchdescription+xml" title="Letterboxd" href="/static/opensearch.xml" />
+	
+	
+	
+		<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/main-mSkPbRv-.js"></script>
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCTBTwm7.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B7pRgGH2.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/msN89aGx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/03U_i1H8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BS1SCFXx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DZEHBdoo.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BTU4rCft.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bk0wrAcb.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/bKpgursT.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BGVqBqED.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D4Yk99Ne.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/hzgQj22F.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3e4t58V.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CVweeg0j.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CswyOWBu.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/GVR8ng7U.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CF74jhiq.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D2nGpDRe.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/vCWiOUpe.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dw1UnyvJ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B2KKeOnX.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CBIOKi7U.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dp7EpKt6.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BLpqPwTf.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3Ay1Ke8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CkhgB9_0.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/qt9y7WI1.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BeurgYGG.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CUcMfv5U.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CbXmRM-a.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dxj-PiPC.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CdChsGGx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dtdj54rt.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BmmD0vNh.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DbkyL-rk.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCPv9W2X.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DOHxIiFh.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DPeCBLXW.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CMMPhZm8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bbh8MmKk.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/_RochNgE.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DcZ-q2nA.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B0bByq0p.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/AxRaG6ks.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/JpiB-byr.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B7heWqLv.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CjDr9vYv.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DKEljbTo.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DjY_e70e.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D2hgF3Cb.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DHOGRMit.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/SOgt3rgE.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CmnQIgNr.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C4nrOlm5.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CnLYH8eu.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CvYG4QK5.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCi0_APx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DZPCvrkM.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CJ69T0MI.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCY5mpUO.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B9fb8Bne.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C0D7dfi8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B4SrOr3T.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BhibFcxs.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CT9GZqhB.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/RTvrqW77.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/De1em2ph.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DLi3KjJp.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/7NKbxqjC.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CWXc20HZ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BmHO4yel.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/tBoXliqg.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dy-E0KiV.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D3y6LkFj.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B2TiESCm.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D0CRiLCf.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnElP6sD.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Ak46aDlv.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/_O9HB_fC.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/aczQZ_An.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/qjl1DJEE.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/iq6l9D7b.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BSlMRzXp.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/JjPLYPbJ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CkEEJX_R.js">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/base-modal-CxC5ySL0.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/production-masthead-CIwEuGkD.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/private-note-modal-g8bSgXPR.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/main-y6YmV2l6.css">
+		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+	
+	
+	
+	
+	
+	
+	
+	
+			
+		<script async type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/desktop-y68fsDn4.js"></script>
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/desktop-BeTDmlBK.css">
+		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+	
+		
+
+	
+
+
+
+
+
+	<script>
+	ASAP(function() {
+		if ( $.cookie("letterboxd.admin.signed.in") === person.username ) {
+			successMessages.push("You are signed in as " + person.username);
+			$(function(){$("#header, #content, body").css("background","#543");});
+		}
+	})
+	</script>
+	
+</head>
+
+<body class="film backdropped" data-type="film" data-tmdb-type="movie" data-tmdb-id="250658">
+	
+
+
+
+
+
+
+
+
+
+<div class="backdrop-container"> <div id="backdrop" class="backdrop-wrapper backdrop-fade-in " data-backdrop="https://a.ltrbxd.com/resized/sm/upload/16/2s/3v/u3/internets-own-boy-1200-1200-675-675-crop-000000.jpg?v=a2c0937392" data-support-custom="true" data-production-uid="film:174980" data-custom-backdrop-template-url="/ajax/backdrop/film/the-internets-own-boy-the-story-of-aaron-swartz/:backdropId/?v=2" data-backdrop-mobile="https://a.ltrbxd.com/resized/sm/upload/16/2s/3v/u3/internets-own-boy-960-960-540-540-crop-000000.jpg?v=a2c0937392" data-offset="80" > <div class="backdropimage js-backdrop-image" ></div> <div class="backdropmask js-backdrop-fade"></div> </div> </div>
+
+
+
+  <script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/screens/production-ClTR7Wyb.js"></script>
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DHOGRMit.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/JpiB-byr.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/bKpgursT.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3e4t58V.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dtdj54rt.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B7heWqLv.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/03U_i1H8.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BLpqPwTf.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dp7EpKt6.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CswyOWBu.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dw1UnyvJ.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BeurgYGG.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/GVR8ng7U.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D4Yk99Ne.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DcZ-q2nA.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCTBTwm7.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DKEljbTo.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DjY_e70e.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/SOgt3rgE.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BS1SCFXx.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DZEHBdoo.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BTU4rCft.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bk0wrAcb.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BGVqBqED.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/hzgQj22F.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CVweeg0j.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CF74jhiq.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D2nGpDRe.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/vCWiOUpe.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B2KKeOnX.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CBIOKi7U.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CjDr9vYv.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCPv9W2X.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CmnQIgNr.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C4nrOlm5.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B2TiESCm.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCi0_APx.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CvYG4QK5.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DkYqr_y6.js">
+  <link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/production-masthead-CIwEuGkD.css">
+  <link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/base-modal-CxC5ySL0.css">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+
+  <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-D9s76qMh.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/screens/production-legacy-DqT3Zg9L.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+
+
+  <script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/screens/film-DOGaHkcQ.js"></script>
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dp7EpKt6.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BLpqPwTf.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3Ay1Ke8.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/qt9y7WI1.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3e4t58V.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dtdj54rt.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bk0wrAcb.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CvYG4QK5.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Ce0l3abd.js">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+
+  <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-D9s76qMh.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/screens/film-legacy-4ahHvp0e.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+
+<script>
+ASAP(function() {
+
+
+})
+</script>
+
+
+
+
+
+<script>
+var mainMenu = [];
+
+	mainMenu.push({
+		"id": 1,
+		"url": "/sign-in/", 
+		"name": "Sign in",
+		"cssClassCode": "sign-in-menu",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": true,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 2,
+		"url": "/create-account/", 
+		"name": "Create account",
+		"cssClassCode": "create-account-menu",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 3,
+		"url": "/", 
+		"name": "Home",
+		"cssClassCode": "person-home",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": true,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 4,
+		"url": "/activity/", 
+		"name": "Activity",
+		"cssClassCode": "main-nav-activity",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": true,
+		"showInMainNavForMobile": false,
+		"tooltip": "Activity",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 5,
+		"url": "/films/", 
+		"name": "Films",
+		"cssClassCode": "films-page main-nav-films",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 6,
+		"url": "/lists/", 
+		"name": "Lists",
+		"cssClassCode": "lists-page main-nav-lists",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 7,
+		"url": "/members/", 
+		"name": "Members",
+		"cssClassCode": "main-nav-people",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 8,
+		"url": "/journal/", 
+		"name": "Journal",
+		"cssClassCode": "main-nav-journal",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 9,
+		"url": "/search/", 
+		"name": "Search results",
+		"cssClassCode": "",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": true,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+</script>
+
+<header class="site-header js-hide-in-app" id="header">
+	<div class="site-header-bg"></div>
+	<section>
+		<h1 class="site-logo"><a href="/" class="logo replace">Letterboxd &mdash; Your life in film</a></h1>
+
+		<div class="react-component" data-component-class="globals.comps.NavComponent"></div>
+
+		
+
+
+	
+
+
+
+
+
+<form method="post" action="#" id="signin" class="signin signin-form js-header-signin-form js-signin" data-url="/user/login.do" data-recaptcha-action="signin" novalidate='novalidate' autocorrect='off' autocapitalize='off'>
+	<input type="hidden" name="__csrf" value="placeholder" />
+	<input type="hidden" name="authenticationCode" value="" />
+	<fieldset class="fieldset">
+		<div class="fields">
+			<div class="col">
+				<label for="username">Username</label>
+				<input type="email" name="username" id="username" class="field signin-field" tabindex="1" data-focus-control="signingIn" autocomplete='email' inputmode='email' value="" />
+			</div>
+			<div class="col">
+				<label for="password">Password</label>
+				<input type="password" name="password" id="password" class="field signin-field" tabindex="2" autocomplete='current-password' value="" />
+			</div>
+			<div class="signin-actions">
+				<label for="remember" class="option-label -checkbox -small">
+					<input type="checkbox" name="remember" id="remember" class="checkbox" tabindex="3" value="true" /><i class="substitute"></i>
+					<span class="focus">Remember<span class="mob-hide"> me</span></span>
+				</label>
+				<p class="reset" tabindex="5"><a class="reset-password-link" href="/user/request-password-reset" target="_top">Forgotten<span class="elongated"> username or password</span>?</a></p>
+			</div>
+			<div class="col buttons">
+				<div class="button-container"><input type="submit" value="Sign in" class="button -action button-green" tabindex="4" /><i></i></div>
+				<div class="close js-close-signin">&times;</div>
+			</div>
+		</div>
+	</fieldset>
+	<div id="signin-message" class="errormessage"></div>
+</form>
+
+
+		
+		
+			
+
+
+
+
+	<p class="show-when-logged-in">
+		<a href id="add-new-button" class="button -action button-action button-add" data-bs-toggle="modal" data-bs-target="#diary-entry-form-modal" data-diary-entry-form-options='{"mode": "search", "showViewingableSuggestion": true}'>Log</a>
+	</p>
+	<div class="add-menu-wrapper show-when-logged-in">
+		<a href="#" id="add-menu-button" class="button -action button-action button-add-menu">
+			<span class="toggle"></span>
+			<em>More...</em>
+		</a>
+		<ul id="add-menu">
+			<li><a href="/list/new/">Start a new list…</a></li>
+			<li><a href="#" class="js-add-all-films-on-page-to-list">Add all films to a list&hellip;</a></li>
+			<li><a href="#" class="js-add-all-films-on-page-to-watchlist" data-action="/watchlist/add-films/">Add all films to watchlist</a></li>
+		</ul>
+	</div>
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="diary-entry-form-modal" class="modal fade diary-entry-form-modal" attributesText="" tabindex="-1" role="dialog" aria-labelledby="diary-entry-form-modal-title" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="diary-entry-form-modal-title">
+					<span data-js-label-for="search">Add to your films…</span>
+					<span data-js-label-for="compose" hidden>I watched…</span>
+					<span data-js-label-for="edit" hidden>Edit diary entry</span>
+				</h5>
+
+				<button type="button" class="diary-entry-form-wizard-backtrigger" data-js-trigger="wizardback" aria-controls="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" aria-label="Return to search" disabled hidden>
+					<span class="label">Back</span>
+				</button>
+
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+				
+				<form method="post" action="/s/save-diary-entry" id="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" class="diary-entry-form js-diary-entry-form" data-js-target='diary-entry-form' data-diary-entry-form-options='{"id": "5062f9f5-04bc-4786-8069-b4e1019b3203"}' novalidate='novalidate' aria-live='polite'>
+					<input type="hidden" name="__csrf" value="placeholder" />
+					<input type="hidden" name="viewingId" value="" id="frm-viewing-id" />
+					<input type="hidden" name="viewingableUid" value="" id="frm-viewingable-uid" />
+
+					
+
+					<section class="diary-entry-form-wizard-step -search" data-js-wizard-step="search" role="group" aria-roledescription="step" aria-label="1 of 2">
+						<div class="body">
+							<div class="formrow">
+								<label class="_sr-only">Name of Film</label>
+								<input type="text" class="field-large field -reversed -large js-viewingable-type-input" data-url="/s/autocompletefilm" placeholder="Search for film…" />
+
+								<div class="viewingablesuggestion js-viewingablesuggestion" hidden>
+									<span class="label">Or add</span>
+									<button type="button" data-js-trigger="suggestion" class="trigger welltrigger"><span class="label js-label viewingablelabel"></span></button>
+								</div>
+							</div>
+						</div>
+					</section>
+					
+					<section class="diary-entry-form-wizard-step -compose fields-reversed" data-js-wizard-step="compose" role="group" aria-roledescription="step" aria-label="2 of 2" hidden>
+						<div class="header js-header">
+							
+						</div>
+
+						<aside class="figure">
+							<figure class="poster-list -p150 no-hover js-poster-preview">
+								<div class="poster no-poster">
+									<span class="frame"></span>
+								</div>
+							</figure>
+						</aside>
+
+						<div class="body">
+							<div class="formrow datefields">
+								<div class="fieldgroup -specifieddate">
+									<label for="frm-specify-date" class="option-label -checkbox -default -reversed js-specifiy-date">
+										<input type="checkbox" name="specifiedDate" id="frm-specify-date" class="checkbox " value="true" /><i class="substitute"></i>
+										<span id="frm-specify-date-label" class="label js-specify-date-label">Add to your&nbsp;diary?</span>
+									</label>
+									<div class="specifydatecta js-specify-date-cta" hidden>Watched on&nbsp;<button type="button" class="trigger welltrigger" data-js-trigger="datepicker"><span class="label"></span></button></div>
+								</div>
+
+								<div class="fieldgroup -rewatch js-fieldgroup-rewatch">
+									<label for="frm-rewatch" id="frm-rewatch-label" class="option-label -checkbox -default">
+										<input type="checkbox" name="rewatch" id="frm-rewatch" class="checkbox" value="true" /><i class="substitute"></i> 
+										I’ve watched this before
+									</label>
+								</div>
+								<input type="hidden" name="viewingDateStr" id="frm-viewing-date-string" value="" />
+							</div>
+
+							<div class="formrow reviewfields js-reviewfields -is-not-spoilersvisible">
+								<div class="inner">
+									<textarea name="review" id="frm-review" class="field reviewfield" placeholder="Add a review…"></textarea>
+
+									<div class="spoilers">
+										<label for="frm-spoilers" class="spoilercheckbox option-label -checkbox -default">
+											<input type="checkbox" name="containsSpoilers" id="frm-spoilers" class="checkbox" value="true" /><i class="substitute"></i>  
+											Contains spoilers
+										</label>
+
+										<div class="moderatornote form-note js-spoilers-locked-note" hidden>
+											<p>A moderator has locked spoilers for this review</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="formrow tagslikeratingfields">
+								<div class="fieldgroup -tags -has-topnote add-tags">
+									
+									
+
+
+
+
+
+
+
+
+		
+	
+
+<label for="frm-tags">Tags</label>
+<p class="form-note note -topnote">Press <kbd>Tab</kbd> to complete, <kbd>Enter</kbd> to create</p>
+<div class="autocomplete-tags">
+	<div id="tag-container">
+		<input type="text" id="frm-tags" class="tag-input-field field" name="tags" placeholder="eg. netflix" data-url="/s/autocompletetags" />
+	</div>
+	<div id="current-tags" class="js-autocomplete-current-tags">
+		
+	</div>
+</div>
+								</div>
+
+								<div class="fieldgroup -rating -has-topnote">
+									<label>Rating</label>
+									<p class="form-note note rating-text"></p>
+									<input id="frm-rating" name="rating" type="range" min="0" max="10" step="1" value="0"/>
+									<div class="rateit js-rateit" data-rateit-backingfld="#frm-rating" data-rateit-starwidth="13" data-rateit-starheight="26" data-rateit-resetable="true"></div>
+								</div>
+
+								<div class="fieldgroup -like">
+									<label class="option-label -like">
+										<input type="checkbox" name="liked" value="true" class="ajax-working like-checkbox"/><i class="substitute"></i> 
+										Like
+									</label>
+								</div>
+							</div>
+						</div>
+					</section>
+				</form>
+				
+            </div>
+
+
+			
+            <div class="modal-footer js-modal-footer" hidden>
+				<div class="diary-entry-form-controls" data-diary-entry-form-controls-for="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" hidden>
+					<div class="modal-action-group privacygroup show-for-pv">
+						<div class="privacycontrols js-privacycontrols" aria-hidden="true">
+							<label class="label" for="frm-privacy-policy"> 
+								Privacy mode
+								<span class="s icon-14 icon-tip" target="_blank" title="Control who sees the rating, review, tags and like for this entry" data-js-trigger="tooltip"><span class="icon"></span>(Help)</span>
+							</label>
+
+							<select name="privacyPolicyStr" id="frm-privacy-policy" class="select" hidden form='diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203'>
+								<option value="">Default</option>
+								
+									<option value="Anyone">Anyone (public)</option>
+								
+									<option value="Friends">Close Friends (selected by you)</option>
+								
+									<option value="You">You (private)</option>
+								
+									
+								
+							</select>
+
+							
+	<div class="privacy-policy-menu dropdown-wrapper js-privacy-policy-menu -pending">
+		<button id="privacy-policy-menu-trigger-23fea7aa-14b7-4244-a21c-40971c818f59" class="privacy-policy-menu-trigger -default dropdown-trigger" type="button" aria-label="Select privacy policy" aria-haspopup="listbox" aria-expanded="false" aria-controls="privacy-policy-menu-23fea7aa-14b7-4244-a21c-40971c818f59-dropdown">
+			<span class="label js-label">…</span>
+		</button>
+
+		<div id="privacy-policy-menu-23fea7aa-14b7-4244-a21c-40971c818f59-dropdown" class="dropdown-menu -legacy dropdown-listbox privacy-policy-menu-dropdown" aria-labelledby="privacy-policy-menu-trigger-23fea7aa-14b7-4244-a21c-40971c818f59" role="listbox">
+			<div class="header">
+				<h3 class="title js-menutitle"></h3>
+			</div>
+
+			<div class="dropdown-menulist">
+				
+					
+						<div role="none" class="menuitem -trigger -has-icon js-dropdown-child">
+							<button type="button" role="option" data-dismiss="dropdown" data-value="Anyone">
+								
+										<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8 .5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15Zm1.73 8.25H6.27c.07 1.53.36 2.93.8 3.96.4.9.8 1.29.93 1.29s.53-.38.92-1.3c.45-1.02.74-2.42.81-3.95Zm-4.96 0H2.05a6 6 0 0 0 3.79 4.85 12.7 12.7 0 0 1-1.07-4.85Zm9.18 0h-2.72a12.7 12.7 0 0 1-1.07 4.85 6 6 0 0 0 3.8-4.85ZM5.84 2.4l-.18.07a6 6 0 0 0-3.61 4.78h2.72A12.7 12.7 0 0 1 5.84 2.4ZM8 2c-.13 0-.53.38-.92 1.3a11.66 11.66 0 0 0-.81 3.95h3.46a11.66 11.66 0 0 0-.8-3.96c-.38-.85-.74-1.24-.9-1.28L8 2Zm2.16.4.01.02c.59 1.22.98 2.92 1.06 4.83h2.72a6 6 0 0 0-3.79-4.85Z"/></svg>
+									
+								<span class="label js-label">Anyone (public)</span>
+							</button>
+						</div>
+					
+				
+					
+						<div role="none" class="menuitem -trigger -has-icon js-dropdown-child">
+							<button type="button" role="option" data-dismiss="dropdown" data-value="Friends">
+								
+										<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8 .5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15ZM8 2a6 6 0 0 0-4.8 2.4 1.04 1.04 0 0 1 1.28.16l.63.63.64-.63a1.04 1.04 0 0 1 1.47 0c.4.4.4 1.06 0 1.47L5.34 7.9a.32.32 0 0 1-.45 0L3.01 6.03a1.04 1.04 0 0 1-.3-.87A5.98 5.98 0 0 0 8 14a6 6 0 0 0 5.29-8.84c.04.3-.06.63-.3.87L11.11 7.9a.32.32 0 0 1-.45 0L8.78 6.03a1.04 1.04 0 1 1 1.47-1.47l.64.63.63-.63a1.03 1.03 0 0 1 1.29-.15A6 6 0 0 0 8 2ZM5.7 9.92a3 3 0 0 0 4.52.1.75.75 0 0 1 1.1 1 4.49 4.49 0 0 1-6.78-.14.75.75 0 0 1 1.16-.96Z"/></svg>
+									
+								<span class="label js-label">Close Friends (selected by you)</span>
+							</button>
+						</div>
+					
+				
+					
+						<div role="none" class="menuitem -trigger -has-icon js-dropdown-child">
+							<button type="button" role="option" data-dismiss="dropdown" data-value="You">
+								
+										<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M7.95 1.25c2.35 0 4.25 1.9 4.25 4.25V6h.3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2V8c0-1.1.9-2 2-2h.2v-.5c0-2.35 1.9-4.25 4.25-4.25ZM12.5 7.5h-9A.5.5 0 0 0 3 8v6c0 .28.22.5.5.5h9a.5.5 0 0 0 .5-.5V8a.5.5 0 0 0-.5-.5ZM8 9.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Zm-.05-7A2.75 2.75 0 0 0 5.2 5.5V6h5.5v-.5a2.75 2.75 0 0 0-2.75-2.75Z"/></svg>
+									
+								<span class="label js-label">You (private)</span>
+							</button>
+						</div>
+					
+				
+					
+				
+
+				<div role="none" class="menuitem -divider">
+					<hr />
+				</div>
+
+				<div role="none" class="menuitem -trigger -has-icon -has-policy-icon js-dropdown-child">
+					<button type="button" role="option" data-dismiss="dropdown" data-value="" data-default="true">
+						<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M11.79 7a.7.7 0 0 1 .64.44l.3.77 1 .58.82-.12a.7.7 0 0 1 .7.34l.27.48a.7.7 0 0 1-.05.78l-.5.65v1.16l.51.65a.7.7 0 0 1 .06.78l-.28.48a.7.7 0 0 1-.7.34l-.8-.12-1.02.58-.3.77a.7.7 0 0 1-.64.44h-.58a.7.7 0 0 1-.65-.44l-.3-.77-1-.58-.82.12a.7.7 0 0 1-.7-.34l-.27-.48a.7.7 0 0 1 .05-.78l.51-.65v-1.16l-.52-.65a.7.7 0 0 1-.05-.78l.27-.48a.7.7 0 0 1 .7-.34l.81.12 1.03-.58.3-.77a.7.7 0 0 1 .64-.44h.57ZM6.55 8.9h.1L6.6 9c-.17.28-.25.62-.23.96l.02.17.03.14.04.13h-.3c-1.4.04-2.71.28-3.68.64-.4.14-.7.3-.9.44l-.08.07v.95h5.02A1.7 1.7 0 0 0 6.6 14H0v-2.67C0 10.05 3.02 8.9 6.55 8.9Zm4.95.22a2.37 2.37 0 1 0 0 4.75 2.37 2.37 0 0 0 0-4.74Zm0 1.5a.87.87 0 1 1 0 1.75.87.87 0 0 1 0-1.74ZM6.38 0c1.5 0 2.88 1.53 2.88 3.4 0 1.87-.79 4.1-2.8 4.1-1.9 0-2.81-2.29-2.81-4.15C3.65 1.48 4.87 0 6.38 0Zm0 1.5c-.61 0-1.23.76-1.23 1.85 0 1.5.66 2.65 1.3 2.65.73 0 1.3-1.03 1.3-2.6 0-1.05-.73-1.9-1.37-1.9Z"/></svg>
+						<span class="label js-label">Use account default<span class="labelsupplement js-labelsupplement" hidden></span></span>
+					</button>
+				</div>
+			</div>
+
+			<div class="dropdown-bodytext -note">
+				<p>
+					Your diary date (if set) and watched status for this film remain publicly visible.
+					Ratings on <em>Close Friends</em> and <em>You</em> entries don’t contribute to stats. 
+					Add members to your Close Friends from their profile.
+					Set your account default for Privacy mode in&nbsp;<a href="/settings/">Settings</a>.
+				</p>
+			</div>
+		</div>
+	</div>
+
+						</div>
+
+						<label for="privacy-policy-draft-5062f9f5-04bc-4786-8069-b4e1019b3203" class="option-label -checkbox -default -reversed drafttoggle">
+							<input id="privacy-policy-draft-5062f9f5-04bc-4786-8069-b4e1019b3203" class="checkbox" type="checkbox" role="switch" name="privacyPolicyDraft" value="true" form="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" /><i class="substitute"></i>
+							<span class="label">Draft</span>
+						</label>
+
+						<div class="draftnote js-privacydraftnote" aria-hidden="true">Draft entries don’t appear in your watched films or diary for others, and&nbsp;don’t contribute to your&nbsp;stats.</div>
+					</div>
+
+					<div class="modal-action-group formactions">
+						<button form="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" type="button" id="diary-entry-delete-button" class="button button-delete -destructive" data-js-trigger="delete" data-confirm="Are you sure you want to delete this entry? It will disappear from your profile, but remain in your account export bundle for 30&nbsp;days, in a folder of deleted&nbsp;items." disabled><span class="label">Delete</span></button>
+
+						<button form="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" type="submit" class="button -action button-action" data-js-trigger="submit" disabled><span class="label">Save</span></button>
+					</div>
+				
+				</div>
+			</div>
+			
+
+        </div>
+    </div>
+</div>
+	
+	<div style="display:none">
+		<div id="add-to-a-list"></div>
+		<div id="add-to-a-list-modal" data-data-url="/s/load-lists">
+			
+			<form method="post" action="/s/add-film-to-list" class="not-expanded modal-container -mini">
+				<input type="hidden" name="__csrf" value="placeholder" />
+				<input class="film-id" type="hidden" name="filmId"/>
+				<div class="header">
+					<h1 class="title-2">Add <span class="film-name"></span> to lists</h1>
+					<div id="js-modal-warning" class="text" style="display: none;"></div>
+					<div class="segmented-control js-list-type-toggle -stretched">
+						<div class="options">
+							<button class="option -selected" data-list-type="public">Public</button>
+							<button class="option" data-list-type="private">Private</button>
+						</div>
+					</div>
+				</div>
+				<div class="body js-add-to-list-body">
+					<div class="list-selection -selected js-list-selection" data-list-type="public">
+						<div class="actions">
+							<a href class="new js-new-list" data-private-list="false"><span class="plus"></span>New list…</a>
+							<div class="filter">
+								<input type="text" class="input js-list-filter" id="list-filter-public" autocomplete="off" placeholder="Type to search" /><label for="list-filter-public" class="trigger"></label>
+								<button class="clear js-list-filter-clear">Clear</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="list-selection js-list-selection" data-list-type="private">
+						<div class="actions">
+							<a href class="new js-new-list" data-private-list="true"><span class="plus"></span>New list…</a>
+							<div class="filter">
+								<input type="text" class="input js-list-filter" id="list-filter-private" autocomplete="off" placeholder="Type to search" /><label for="list-filter-private"  class="trigger"></label>
+								<button class="clear js-list-filter-clear">Clear</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="footer">
+					<div class="status">
+						<p class="js-selected-lists-state"></p>
+					</div>
+					<div class="actions">
+						<input type="submit" class="button -action button-action js-add-to-list-submit" value="Add" disabled />
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	
+	
+	<template id="privacy-policy-icon-anyone"><span class="policy-icon -privacy -anyone -default -is-not-default" data-policy-type="privacy" data-policy-code="anyone"><span class="frame tooltip" data-original-title="Reactions visible to anyone" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 .5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13ZM7 2a5 5 0 1 0 0 10A5 5 0 0 0 7 2Z"/><path d="M7 .75C8.45.75 9.63 3.55 9.63 7S8.45 13.25 7 13.25 4.37 10.45 4.37 7 5.55.75 7 .75Zm0 1.6-.03.03c-.14.17-.3.43-.44.78-.41.97-.66 2.35-.66 3.84 0 1.5.25 2.87.66 3.84.17.4.35.7.51.86L7 11.65l.03-.03c.12-.14.25-.35.37-.61l.07-.17c.41-.97.66-2.35.66-3.84 0-1.5-.25-2.87-.66-3.84-.14-.35-.3-.61-.44-.78L7 2.35Z"/><path d="M1.15 7.75h11.7v-1.5H1.15z"/></svg> </span> <span class="label _sr-only">Reactions visible to anyone</span> </span></template> <template id="privacy-policy-icon-friends"><span class="policy-icon -privacy -friends -default -is-not-default" data-policy-type="privacy" data-policy-code="friends"><span class="frame tooltip" data-original-title="Reactions visible to owner’s Close Friends" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 .5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13ZM5 9.07a.65.65 0 0 0-1 .83 3.9 3.9 0 0 0 5.89.13.65.65 0 0 0-.97-.87A2.6 2.6 0 0 1 5 9.07ZM5.78 4c-.26 0-.51.1-.7.28l-.58.6-.59-.6a.97.97 0 0 0-1.37 0 .97.97 0 0 0 0 1.38L4.29 7.4a.3.3 0 0 0 .42 0l1.75-1.75A.97.97 0 0 0 5.78 4Zm5 0c-.26 0-.51.1-.7.28l-.58.6-.59-.6a.97.97 0 0 0-1.37 0 .97.97 0 0 0 0 1.38L9.29 7.4a.3.3 0 0 0 .42 0l1.75-1.75A.97.97 0 0 0 10.78 4Z"/></svg> </span> <span class="label _sr-only">Reactions visible to owner’s Close Friends</span> </span></template> <template id="privacy-policy-icon-you"><span class="policy-icon -privacy -you -default -is-not-default" data-policy-type="privacy" data-policy-code="you"><span class="frame tooltip" data-original-title="Reactions only visible to you" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 1a3.5 3.5 0 0 1 3.5 3.5V5A1.5 1.5 0 0 1 12 6.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 11.5v-5A1.5 1.5 0 0 1 3.5 5v-.5A3.5 3.5 0 0 1 7 1zm0 7a1 1 0 1 0 0 2 1 1 0 1 0 0-2zm0-5.5a2 2 0 0 0-2 2V5h4v-.5a2 2 0 0 0-1.851-1.995L7 2.5z" fill-rule="evenodd"/></svg> </span> <span class="label _sr-only">Reactions only visible to you</span> </span></template> <template id="privacy-policy-icon-draft"><span class="policy-icon -privacy -draft -default -is-not-default" data-policy-type="privacy" data-policy-code="draft"><span class="frame tooltip" data-original-title="Draft entry" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M11.787.486s-.109-.322-.229-.387-.324-.129-.453-.084c-.409.052-.814.131-1.213.236L9.536.36 8.304 3.584 7.073 2.051c-.128-.118-.309-.156-.472-.098a5.71 5.71 0 0 0-1.126 1.072 6.27 6.27 0 0 0-.452.58l-.135.206-.279.452-.164.295C3.29 6.711 3.146 9.051 3.868 10.24l-1.761 2.664c-.197.329-.113.757.192.983.321.207.744.12.962-.197l.712-1.062 1.068-1.612c.122.01.244.01.366 0 1.665 0 4.061-1.524 5.438-4.041C11.591 5.672 11.989 4.19 12 2.68c-.012-.608-.09-1.598-.213-2.194z"/></svg> </span> <span class="label _sr-only">Draft entry</span> </span></template> <template id="share-policy-icon-anyone"><span class="policy-icon -share -anyone -circle" data-policy-type="share" data-policy-code="anyone"><span class="frame tooltip" data-original-title="Visible to anyone (with link)" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M4.385 5.061c.977-.976 2.559-.976 3.536 0l.985 1.041L7.849 7.16l-.018-.007-1.002-1.052c-.375-.372-.98-.372-1.355-.001l-.437.436c-.106.084-.201.18-.286.285L2.824 8.755a.94.94 0 0 0-.28.692.95.95 0 0 0 .282.687l.401.401a.99.99 0 0 0 1.359.006l.836-.847a3.52 3.52 0 0 0 1.385.816L5.68 11.651a2.5 2.5 0 0 1-1.771.737c-.665 0-1.302-.265-1.771-.736l-.407-.407c-.976-.977-.976-2.559 0-3.537zm5.706-3.451c.665 0 1.302.265 1.771.736l.407.407c.976.977.976 2.559 0 3.537L9.615 8.938c-.977.976-2.559.976-3.537-.001l-1.033-.995.415-.416.133-.15.15-.134.403-.405 1.024 1.059c.347.343.889.37 1.264.08l.09-.079 2.651-2.655c.153-.15.248-.347.274-.562l.007-.131a.95.95 0 0 0-.282-.687l-.401-.401a.99.99 0 0 0-1.359-.006l-.842.841c-.408-.39-.888-.663-1.395-.818L8.32 2.347a2.5 2.5 0 0 1 1.771-.737z"/></svg> </span> <span class="label _sr-only">Visible to anyone (with link)</span> </span></template> <template id="share-policy-icon-friends"><span class="policy-icon -share -friends -circle" data-policy-type="share" data-policy-code="friends"><span class="frame tooltip" data-original-title="Visible to the member’s friends (with link)" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill-rule="evenodd"><path d="M10.201 8.732l-.26-.004c1.167 0 1.885.199 2.624.493.431.172.773.378 1.009.595.289.267.426.556.426.834V12l-3.148-.001.001-1.685c0-.515-.188-1.066-.652-1.582zM9.941 3.2c.58 0 1.119.214 1.503.611.342.353.565.853.565 1.489 0 .689-.169 1.45-.545 1.992a1.78 1.78 0 0 1-1.522.815c-.645 0-1.15-.332-1.502-.845-.376-.55-.566-1.312-.566-1.992 0-.635.223-1.128.563-1.473.384-.389.923-.596 1.504-.596zM4.853 7.911c1.458 0 2.136.249 3.06.616.539.215.966.472 1.261.744.362.334.533.696.533 1.043V12H0v-1.686c0-.347.171-.709.533-1.043.294-.272.721-.529 1.261-.744.924-.368 1.601-.616 3.06-.616zm0-6.911c.724 0 1.398.268 1.878.763.427.441.706 1.066.706 1.861 0 .861-.212 1.812-.681 2.49-.426.615-1.052 1.019-1.903 1.019-.806 0-1.438-.414-1.877-1.057-.47-.688-.707-1.64-.707-2.49 0-.794.278-1.41.704-1.841C3.452 1.259 4.126 1 4.853 1z"/></svg> </span> <span class="label _sr-only">Visible to the member’s friends (with link)</span> </span></template> <template id="share-policy-icon-you"><span class="policy-icon -share -you -circle" data-policy-type="share" data-policy-code="you"><span class="frame tooltip" data-original-title="Only visible to you" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 1a3.5 3.5 0 0 1 3.5 3.5V5A1.5 1.5 0 0 1 12 6.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 11.5v-5A1.5 1.5 0 0 1 3.5 5v-.5A3.5 3.5 0 0 1 7 1zm0 7a1 1 0 1 0 0 2 1 1 0 1 0 0-2zm0-5.5a2 2 0 0 0-2 2V5h4v-.5a2 2 0 0 0-1.851-1.995L7 2.5z" fill-rule="evenodd"/></svg> </span> <span class="label _sr-only">Only visible to you</span> </span></template>
+		
+		
+		
+		<form id="search" class="js-search-form search-form" action="/search/" method="get" autocorrect="off">
+			<input autocomplete="false" name="hidden" type="text" style="display:none;" />
+			<fieldset>
+				<label for="search-q" class="hidden">Search:</label>
+				<input type="text" name="q" id="search-q" class="field -borderless" data-lpignore='true' inputmode='search' value="" />
+				<input type="submit" value="Search" class="action" />
+			</fieldset>
+		</form>
+		
+	</section>
+</header>
+
+
+
+
+
+
+<div id="content" class="site-body -backdrop">
+	
+
+	
+		<div class="content-wrap">
+	
+
+
+
+<div class="modal modal-poster fade" id="poster-modal" tabindex="-1" aria-hidden="true"> <div class="modal-dialog modal-fullscreen"> <div class="modal-content"> <div class="modal-header"> <button type="button" class="modal-close -circle" data-bs-dismiss="modal" aria-label="Close"></button> </div> <div class="modal-body"> <div class="react-component" data-component-class="globals.comps.LazyPoster" data-additional-css-classes="" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="1000" data-image-height="1500" data-item-name="The Internet&#039;s Own Boy: The Story of Aaron Swartz" data-item-slug="the-internets-own-boy-the-story-of-aaron-swartz" data-item-link="/film/the-internets-own-boy-the-story-of-aaron-swartz/" data-item-full-display-name="The Internet&#039;s Own Boy: The Story of Aaron Swartz (2014)" data-film-id="174980" data-postered-identifier='{"lid":"7lcA","uid":"film:174980","type":"film","typeName":"film"}' data-poster-url="/film/the-internets-own-boy-the-story-of-aaron-swartz/image-150/" data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-1000-D9cprv0m.png" data-has-default-poster="true" data-target-link="/" data-target-link-target="" data-details-endpoint="/film/the-internets-own-boy-the-story-of-aaron-swartz/json/" data-cache-busting-key="a1e96df6" data-hide-tooltip="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-1000-D9cprv0m.png" class="image" width="1000" height="1500" alt="The Internet&#039;s Own Boy: The Story of Aaron Swartz"/> <span class="frame"><span class="frame-title"></span></span> </div> </div> </div> <div class="modal-footer"></div> </div> </div> </div>
+
+<div id="film-page-wrapper" class="cols-3 overflow">
+	
+		<div class="col-6 gutter-right-1 col-poster-large" id="js-poster-col">
+			<section class="poster-list -p230 -single no-hover el col">
+				<div class="react-component" data-component-class="globals.comps.LazyPoster" data-additional-css-classes="" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="230" data-image-height="345" data-item-name="The Internet&#039;s Own Boy: The Story of Aaron Swartz" data-item-slug="the-internets-own-boy-the-story-of-aaron-swartz" data-item-link="/film/the-internets-own-boy-the-story-of-aaron-swartz/" data-item-full-display-name="The Internet&#039;s Own Boy: The Story of Aaron Swartz (2014)" data-film-id="174980" data-postered-identifier='{"lid":"7lcA","uid":"film:174980","type":"film","typeName":"film"}' data-poster-url="/film/the-internets-own-boy-the-story-of-aaron-swartz/image-150/" data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-230-nQeuntFa.png" data-has-default-poster="true" data-target-link="/" data-target-link-target="" data-details-endpoint="/film/the-internets-own-boy-the-story-of-aaron-swartz/json/" data-cache-busting-key="a1e96df6" data-show-menu="true" data-hide-tooltip="true" data-open-poster-modal-on-click="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-230-nQeuntFa.png" class="image" width="230" height="345" alt="The Internet&#039;s Own Boy: The Story of Aaron Swartz"/> <span class="frame"><span class="frame-title"></span></span> </div> </div> <div class="csi js-serial-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/stats/" data-on-load=""> <div class="production-statistic-list -placeholder" aria-busy="true"> </div> </div>
+			</section>
+
+			
+
+
+
+
+
+
+
+
+
+
+
+<div class="csi js-csi js-hide-in-app" data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/availability/?esiAllowUser=true&amp;esiAllowCountry=true" data-on-load="csi-availability">
+	
+	<section class="watch-panel">
+		<div class="header">
+			<h3 class="title">Where to watch</h3>
+			
+
+
+
+
+
+		
+	
+
+
+	<p class="trailer-link js-watch-panel-trailer">
+		<a class="play track-event js-video-zoom" data-track-category="Trailer" href="//www.youtube.com/embed/o-PT1AZSdHQ?rel=0&amp;wmode=transparent">
+			<span class="name">Trailer</span>
+		</a>
+	</p>
+
+		</div>
+		<div id="watch">
+			<div class="other">
+				<span class="more">&nbsp;</span>
+				<a href="https://www.justwatch.com" target="_blank" rel="noopener noreferrer" class="jw-branding">JustWatch</a>
+			</div>
+		</div>
+	</section>
+
+</div>
+
+
+
+			
+
+<script id="script-5ffe138a-80d3-4288-9a2a-cc331f2e96aa"> ((tag, target) => { let adsScript = null; let adsPlatforms = null; let adsLocations = null; let adsMode = ''; if (!disableAds && person.showAds) { let adUnit = document.createElement('div'); let kicker = [ '<div class="upgrade-kicker -skyscraper js-hide-in-app">', '<button type="button" class="modaltrigger" data-bs-toggle="modal" data-bs-target="#remove-ads-modal">', 'Remove Ads', '<svg aria-hidden="true" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><path d="m.5.5 6 6M6.5.5l-6 6" fill-rule="evenodd" stroke="#000"/></svg>', '</button>', '</div>' ].join(''); if ( adsScript && adsScript === 'bandsintown' && adsPlatforms && ((window.isIOS && adsPlatforms.indexOf("iOS") >= 0) || (window.isAndroid && adsPlatforms.indexOf("Android") >= 0)) && adsLocations && adsMode && ( (adsMode === 'include' && adsLocations.indexOf(window.adsLocation) >= 0) || (adsMode === 'exclude' && adsLocations.indexOf(window.adsLocation) == -1) ) ) { var opts = { artist: "", song: "", adunit_id: 100005950, div_id: "cf_async_5ffe138a-80d3-4288-9a2a-cc331f2e96aa" }; adUnit.id = opts.div_id; if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } var c=function(){cf.showAsyncAd(opts)};if(typeof window.cf !== 'undefined')c();else{cf_async=!0;var r=document.createElement("script"),s=document.getElementsByTagName("script")[0];r.async=!0;r.src="//srv.tunefindforfans.com/fruits/apricots.js";r.readyState?r.onreadystatechange=function(){if("loaded"==r.readyState||"complete"==r.readyState)r.onreadystatechange=null,c()}:r.onload=c;s.parentNode.insertBefore(r,s)}; } else { adUnit.id = 'pw-5ffe138a-80d3-4288-9a2a-cc331f2e96aa'; adUnit.className = 'pw-div'; adUnit.setAttribute('data-pw-' + (renderMobile ? 'mobi' : 'desk'), 'sky_btf'); if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } window.addEventListener('DOMContentLoaded', (event) => { adUnit.insertAdjacentHTML('afterend', kicker); window.ramp.que.push(function () { window.ramp.addTag('pw-5ffe138a-80d3-4288-9a2a-cc331f2e96aa'); }); }, { once: true }); } } tag.remove(); })(document.getElementById('script-5ffe138a-80d3-4288-9a2a-cc331f2e96aa')); </script>
+
+		</div>
+	
+	<div class="col-17">
+		<section class="production-masthead -shadowed -productionscreen -film">
+			
+
+			<div class="details">			
+				
+<h1 class="headline-1 primaryname"><span class="name js-widont prettify">The Internet&#039;s Own Boy: The Story of Aaron Swartz</span></h1>
+
+
+        <div class="productioninfo">
+            <span class="releasedate"> <a href="/films/year/2014/">2014</a> </span>
+            
+            <p class="credits"> <span class="introduction">Directed by </span> <span class="creatorlist"> <a class="contributor" href="/director/brian-knappenberger/"><span class="prettify">Brian Knappenberger</span></a> </span> </p>
+        </div>
+    
+			</div>
+		</section>
+		
+		<section class="section col-10 col-main">
+			<section class="production-synopsis"><div class="review body-text -prose -hero prettify"> <h3 class="hidden">Synopsis</h3> <div class="truncate" data-truncate="450"> <p>Programming prodigy and information activist Aaron Swartz achieved groundbreaking work in social justice and political organizing. His passion for open access ensnared him in a legal nightmare that ended with the taking of his own life at the age of 26.</p> </div> </div> <script id="script-bd2a6574-5479-46b3-b3c0-295343febf9f"> ((tag, target) => { let adsScript = null; let adsPlatforms = null; let adsLocations = null; let adsMode = ''; if (!disableAds && person.showAds) { let adUnit = document.createElement('div'); let kicker = [ '<div class="upgrade-kicker -alignleft -med_rect js-hide-in-app">', '<button type="button" class="modaltrigger" data-bs-toggle="modal" data-bs-target="#remove-ads-modal">', 'Remove Ads', '<svg aria-hidden="true" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><path d="m.5.5 6 6M6.5.5l-6 6" fill-rule="evenodd" stroke="#000"/></svg>', '</button>', '</div>' ].join(''); if ( adsScript && adsScript === 'bandsintown' && adsPlatforms && ((window.isIOS && adsPlatforms.indexOf("iOS") >= 0) || (window.isAndroid && adsPlatforms.indexOf("Android") >= 0)) && adsLocations && adsMode && ( (adsMode === 'include' && adsLocations.indexOf(window.adsLocation) >= 0) || (adsMode === 'exclude' && adsLocations.indexOf(window.adsLocation) == -1) ) ) { var opts = { artist: "", song: "", adunit_id: 100005950, div_id: "cf_async_bd2a6574-5479-46b3-b3c0-295343febf9f" }; adUnit.id = opts.div_id; if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } var c=function(){cf.showAsyncAd(opts)};if(typeof window.cf !== 'undefined')c();else{cf_async=!0;var r=document.createElement("script"),s=document.getElementsByTagName("script")[0];r.async=!0;r.src="//srv.tunefindforfans.com/fruits/apricots.js";r.readyState?r.onreadystatechange=function(){if("loaded"==r.readyState||"complete"==r.readyState)r.onreadystatechange=null,c()}:r.onload=c;s.parentNode.insertBefore(r,s)}; } else { adUnit.id = 'pw-bd2a6574-5479-46b3-b3c0-295343febf9f'; adUnit.className = 'pw-div -tile300x250 -alignleft'; adUnit.setAttribute('data-pw-' + (renderMobile ? 'mobi' : 'desk'), 'med_rect_atf'); if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } window.addEventListener('DOMContentLoaded', (event) => { adUnit.insertAdjacentHTML('afterend', kicker); window.ramp.que.push(function () { window.ramp.addTag('pw-bd2a6574-5479-46b3-b3c0-295343febf9f'); }); }, { once: true }); } } tag.remove(); })(document.getElementById('script-bd2a6574-5479-46b3-b3c0-295343febf9f')); </script></section>
+
+			
+				<div id="tabbed-content" data-selected-tab=""> <header> <ul> <li><a href="/film/the-internets-own-boy-the-story-of-aaron-swartz/" data-id="cast">Cast</a></li> <li><a href="/film/the-internets-own-boy-the-story-of-aaron-swartz/crew/" id="crew" data-id="crew">Crew</a></li> <li><a href="/film/the-internets-own-boy-the-story-of-aaron-swartz/details/" data-id="details">Details</a></li> <li><a href="/film/the-internets-own-boy-the-story-of-aaron-swartz/genres/" data-id="genres">Genres</a></li> <li><a href="/film/the-internets-own-boy-the-story-of-aaron-swartz/releases/" data-id="releases">Releases</a></li> </ul> </header> <div id="tab-cast" class="tabbed-content-block"> <h3 class="hidden">Cast</h3> <div class="cast-list text-sluglist"> <p> <a title="Self" href="/actor/aaron-swartz-1/" class="text-slug tooltip">Aaron Swartz</a> <a title="Self" href="/actor/tim-berners-lee/" class="text-slug tooltip">Tim Berners-Lee</a> <a title="Self" href="/actor/cory-doctorow/" class="text-slug tooltip">Cory Doctorow</a> <a title="Self" href="/actor/peter-eckersley/" class="text-slug tooltip">Peter Eckersley</a> <a title="Self" href="/actor/lawrence-lessig/" class="text-slug tooltip">Lawrence Lessig</a> <a title="Self" href="/actor/brewster-kahle-1/" class="text-slug tooltip">Brewster Kahle</a> <a title="Self" href="/actor/cindy-cohn/" class="text-slug tooltip">Cindy Cohn</a> <a title="Self" href="/actor/zoe-lofgren/" class="text-slug tooltip">Zoe Lofgren</a> <a title="Self" href="/actor/gabriella-coleman/" class="text-slug tooltip">Gabriella Coleman</a> </p> </div> </div> <div id="tab-crew" class="tabbed-content-block column-block -crewroles"> <h3> <span class="crewrole -full">Director</span> <span class="crewrole -short" aria-hidden="true">Director</span> </h3> <div class="text-sluglist"> <p> <a href="/director/brian-knappenberger/" class="text-slug">Brian Knappenberger</a> </p> </div> <h3> <span class="crewrole -full">Producers</span> <span class="crewrole -short" aria-hidden="true">Producers</span> </h3> <div class="text-sluglist"> <p> <a href="/producer/brian-knappenberger/" class="text-slug">Brian Knappenberger</a> <a href="/producer/denise-gaberman/" class="text-slug">Denise Gaberman</a> <a href="/producer/suzanne-danziger/" class="text-slug">Suzanne Danziger</a> <a href="/producer/clementine-leger/" class="text-slug">Clementine Leger</a> <a href="/producer/jeffrey-kanjanapangka/" class="text-slug">Jeffrey Kanjanapangka</a> </p> </div> <h3> <span class="crewrole -full">Writer</span> <span class="crewrole -short" aria-hidden="true">Writer</span> </h3> <div class="text-sluglist"> <p> <a href="/writer/brian-knappenberger/" class="text-slug">Brian Knappenberger</a> </p> </div> <h3> <span class="crewrole -full">Editors</span> <span class="crewrole -short" aria-hidden="true">Editors</span> </h3> <div class="text-sluglist"> <p> <a href="/editor/bryan-storkel/" class="text-slug">Bryan Storkel</a> <a href="/editor/jason-decker/" class="text-slug">Jason Decker</a> <a href="/editor/brian-knappenberger/" class="text-slug">Brian Knappenberger</a> <a href="/editor/andy-robertson/" class="text-slug">Andy Robertson</a> <a href="/editor/michelle-witten/" class="text-slug">Michelle Witten</a> </p> </div> <h3> <span class="crewrole -full">Cinematography</span> <span class="crewrole -short" aria-hidden="true">Cinematography</span> </h3> <div class="text-sluglist"> <p> <a href="/cinematography/brian-knappenberger/" class="text-slug">Brian Knappenberger</a> <a href="/cinematography/scott-sinkler/" class="text-slug">Scott Sinkler</a> <a href="/cinematography/lincoln-else/" class="text-slug">Lincoln Else</a> </p> </div> <h3> <span class="crewrole -full">Executive Producers</span> <span class="crewrole -short" aria-hidden="true">Exec. Producers</span> </h3> <div class="text-sluglist"> <p> <a href="/executive-producer/brian-knappenberger/" class="text-slug">Brian Knappenberger</a> <a href="/executive-producer/mason-fink/" class="text-slug">Mason Fink</a> <a href="/executive-producer/charles-annenberg-weingarten/" class="text-slug">Charles Annenberg Weingarten</a> <a href="/executive-producer/greg-kidd/" class="text-slug">Greg Kidd</a> <a href="/executive-producer/zach-braff-2/" class="text-slug">Zach Braff</a> <a href="/executive-producer/aaron-greenspan/" class="text-slug">Aaron Greenspan</a> </p> </div> <h3> <span class="crewrole -full">Composer</span> <span class="crewrole -short" aria-hidden="true">Composer</span> </h3> <div class="text-sluglist"> <p> <a href="/composer/john-dragonetti/" class="text-slug">John Dragonetti</a> </p> </div> </div> <div id="tab-details" class="tabbed-content-block column-block"> <h3><span>Studios</span></h3> <div class="text-sluglist"> <p> <a href="/studio/filmbuff/" class="text-slug">FilmBuff</a> <a href="/studio/participant-1/" class="text-slug">Participant</a> <a href="/studio/luminant-media/" class="text-slug">Luminant Media</a> <a href="/studio/unjustus-films/" class="text-slug">Unjustus Films</a> </p> </div> <h3><span>Country</span></h3> <div class="text-sluglist"> <p> <a href="/films/country/usa/" class="text-slug"> USA </a> </p> </div> <h3><span>Language</span></h3> <div class="text-sluglist"> <p> <a href="/films/language/english/" class="text-slug">English</a> </p> </div> <h3><span>Alternative Titles</span></h3> <div class="text-indentedlist"> <p> Интернет-мальчик: История Аарона Шварца, O Menino da Internet: A História de Aaron Swartz, La historia de Aaron Swartz. El chico de Internet, Zázračné dítě internetu: příběh Aarona Swartze, Eeron Svartsin Hekayesi, The Internet&#039;s Own Boy - Die Geschichte des Aaron Swartz, Kampen for et demokratisk internett, 互联网之子, İnternetin Çocuğu: Aaron Swartz&#039;un Hikayesi, Дитя интернета: История Аарона Шварца, 互聯網之子, Свой парень Интернета: История Аарон Шварца, Internets underbarn, Tod eines Internet-Aktivisten - Die Aaron Schwartz-Story, The Internet&#039;s Own Boy: L&#039;histoire d&#039;Aaron Swartz, ילד הפלא של האינטרנט: סיפורו של אהרון שוורץ, Internettets vidunderdreng, Propiul băiat al Internetului: Povestea lui Aaron Swartz </p> </div> </div> <div id="tab-genres" class="tabbed-content-block column-block"> <h3><span>Genres</span></h3> <div class="text-sluglist capitalize"> <p> <a href="/films/genre/crime/" class="text-slug">Crime</a> <a href="/films/genre/documentary/" class="text-slug">Documentary</a> </p> </div> <h3><span>Themes</span></h3> <div class="text-sluglist capitalize"> <p> <a href="/films/theme/politics-and-human-rights/by/best-match/" class="text-slug">Politics and human rights</a> <a href="/films/mini-theme/documentary-propaganda-democracy-politician-patriot/by/best-match/" class="text-slug">Politics, propaganda, and political documentaries</a> <a href="/films/mini-theme/documentary-sad-fascinating-emotional-heartbreaking/by/best-match/" class="text-slug">Fascinating, emotional stories and documentaries</a> <a href="/films/mini-theme/politician-assassination-democracy-president-compelling/by/best-match/" class="text-slug">Riveting political and presidential drama</a> <a href="/films/mini-theme/racism-african-american-powerful-hatred-or-slavery/by/best-match/" class="text-slug">Racism and the powerful fight for justice</a> <a class="text-slug" href="/film/the-internets-own-boy-the-story-of-aaron-swartz/themes/">Show All&hellip;</a> </p> </div> </div> <div id="tab-releases" class="tabbed-content-block"> <section class="release-table-group"> <header class="header"> <h3 class="release-table-group-title _sr-only">Releases by Date</h3> <section class="smenu-wrapper"> <strong class="smenu-label">Sort by</strong> <div class="smenu"> <label>Date<i class="ir s icon"></i></label> <ul class="smenu-menu"> <li class="smenu-subselected"><span class="selected">Date</span></li> <li><a class="item js-switch-tabbed-nav" href="/film/the-internets-own-boy-the-story-of-aaron-swartz/releases/by/country/" data-id="releases-by-country" data-parent-id="releases">Country</a></li> </ul> </div> </section> </header> <h3 class="release-table-title">Theatrical</h3> <div class="release-table -bydate"> <div class="listitem"> <div class="cell"> <h5 class="date">27 Jun 2014</h5> </div> <div class="cell countries"> <ul class="release-country-list"> <li class="listitem"> <span class="release-country -has-no-link -has-certification -has-no-note"> <span class="flag -has-flag""><img src="https://s.ltrbxd.com/static/img/USA-DderVknp.svg" alt="Flag for the USA" loading="lazy" /></span> <span class="details"> <span class="name">USA</span><span class="release-certification-badge"><span class="label">NR</span></span> </span> </span> </li> </ul> </div> </div> <div class="listitem"> <div class="cell"> <h5 class="date">25 Jul 2014</h5> </div> <div class="cell countries"> <ul class="release-country-list"> <li class="listitem"> <span class="release-country -has-no-link -has-no-certification -has-no-note"> <span class="flag -has-flag""><img src="https://s.ltrbxd.com/static/img/NZL-D1osznMt.svg" alt="Flag for New Zealand" loading="lazy" /></span> <span class="details"> <span class="name tooltip" title="New Zealand International Film Festival">New Zealand</span> </span> </span> </li> </ul> </div> </div> <div class="listitem"> <div class="cell"> <h5 class="date">25 Aug 2014</h5> </div> <div class="cell countries"> <ul class="release-country-list"> <li class="listitem"> <span class="release-country -has-no-link -has-no-certification -has-no-note"> <span class="flag -has-flag""><img src="https://s.ltrbxd.com/static/img/GBR-uIseYsxi.svg" alt="Flag for the UK" loading="lazy" /></span> <span class="details"> <span class="name">UK</span> </span> </span> </li> </ul> </div> </div> <div class="listitem"> <div class="cell"> <h5 class="date">26 Sep 2014</h5> </div> <div class="cell countries"> <ul class="release-country-list"> <li class="listitem"> <span class="release-country -has-no-link -has-no-certification -has-no-note"> <span class="flag -has-flag""><img src="https://s.ltrbxd.com/static/img/BRA-CVQLSC8a.svg" alt="Flag for Brazil" loading="lazy" /></span> <span class="details"> <span class="name tooltip" title="Rio de Janeiro International Film Festival">Brazil</span> </span> </span> </li> </ul> </div> </div> <div class="listitem"> <div class="cell"> <h5 class="date">14 Oct 2014</h5> </div> <div class="cell countries"> <ul class="release-country-list"> <li class="listitem"> <span class="release-country -has-no-link -has-no-certification -has-no-note"> <span class="flag -has-flag""><img src="https://s.ltrbxd.com/static/img/SWE-B8nB988U.svg" alt="Flag for Sweden" loading="lazy" /></span> <span class="details"> <span class="name">Sweden</span> </span> </span> </li> </ul> </div> </div> </div> <h3 class="release-table-title">Digital</h3> <div class="release-table -bydate"> <div class="listitem"> <div class="cell"> <h5 class="date">29 Aug 2014</h5> </div> <div class="cell countries"> <ul class="release-country-list"> <li class="listitem"> <span class="release-country -has-no-link -has-certification -has-no-note"> <span class="flag -has-flag""><img src="https://s.ltrbxd.com/static/img/IRL-B2DYXYTd.svg" alt="Flag for Ireland" loading="lazy" /></span> <span class="details"> <span class="name">Ireland</span><span class="release-certification-badge"><span class="label">12</span></span> </span> </span> </li> </ul> </div> </div> </div> </section> </div> <div id="tab-releases-by-country" data-id="releases-by-country" data-parent-id="releases" class="tabbed-content-block"> <section class="release-table-group"> <header class="header"> <h3 class="release-table-group-title _sr-only">Releases by Country</h3> <section class="smenu-wrapper"> <strong class="smenu-label">Sort by</strong> <div class="smenu"> <label>Country<i class="ir s icon"></i></label> <ul class="smenu-menu"> <li><a class="item js-switch-tabbed-nav" href="/film/the-internets-own-boy-the-story-of-aaron-swartz/releases/" data-id="releases">Date</a></li> <li class="smenu-subselected"><span class="selected">Country</span></li> </ul> </div> </section> </header> <div class="release-table -bycountry"> <div class="listitem"> <div class="cell"> <h5 class="release-country -has-no-link -has-no-note"> <span class="flag -has-flag"><img src="https://s.ltrbxd.com/static/img/BRA-CVQLSC8a.svg" alt="Flag for Brazil" loading="lazy" /></span> <span class="details"><span class="name">Brazil</span></span> </h5> </div> <div class="cell details"> <div class="release-date-list"> <div class="listitem"> <h6 class="date">26 Sep 2014</h6> <ul class="releases"> <li class="listitem -has-no-certification -has-note"> <span class="type">Theatrical</span> <span class="release-note">Rio de Janeiro International Film&nbsp;Festival</span> </li> </ul> </div> </div> </div> </div> <div class="listitem"> <div class="cell"> <h5 class="release-country -has-no-link -has-no-note"> <span class="flag -has-flag"><img src="https://s.ltrbxd.com/static/img/IRL-B2DYXYTd.svg" alt="Flag for Ireland" loading="lazy" /></span> <span class="details"><span class="name">Ireland</span></span> </h5> </div> <div class="cell details"> <div class="release-date-list"> <div class="listitem"> <h6 class="date">29 Aug 2014</h6> <ul class="releases"> <li class="listitem -has-certification -has-no-note"> <span class="type">Digital</span><span class="release-certification-badge"><span class="label">12</span></span> </li> </ul> </div> </div> </div> </div> <div class="listitem"> <div class="cell"> <h5 class="release-country -has-no-link -has-no-note"> <span class="flag -has-flag"><img src="https://s.ltrbxd.com/static/img/NZL-D1osznMt.svg" alt="Flag for New Zealand" loading="lazy" /></span> <span class="details"><span class="name">New Zealand</span></span> </h5> </div> <div class="cell details"> <div class="release-date-list"> <div class="listitem"> <h6 class="date">25 Jul 2014</h6> <ul class="releases"> <li class="listitem -has-no-certification -has-note"> <span class="type">Theatrical</span> <span class="release-note">New Zealand International Film&nbsp;Festival</span> </li> </ul> </div> </div> </div> </div> <div class="listitem"> <div class="cell"> <h5 class="release-country -has-no-link -has-no-note"> <span class="flag -has-flag"><img src="https://s.ltrbxd.com/static/img/SWE-B8nB988U.svg" alt="Flag for Sweden" loading="lazy" /></span> <span class="details"><span class="name">Sweden</span></span> </h5> </div> <div class="cell details"> <div class="release-date-list"> <div class="listitem"> <h6 class="date">14 Oct 2014</h6> <ul class="releases"> <li class="listitem -has-no-certification -has-no-note"> <span class="type">Theatrical</span> </li> </ul> </div> </div> </div> </div> <div class="listitem"> <div class="cell"> <h5 class="release-country -has-no-link -has-no-note"> <span class="flag -has-flag"><img src="https://s.ltrbxd.com/static/img/GBR-uIseYsxi.svg" alt="Flag for the UK" loading="lazy" /></span> <span class="details"><span class="name">UK</span></span> </h5> </div> <div class="cell details"> <div class="release-date-list"> <div class="listitem"> <h6 class="date">25 Aug 2014</h6> <ul class="releases"> <li class="listitem -has-no-certification -has-no-note"> <span class="type">Theatrical</span> </li> </ul> </div> </div> </div> </div> <div class="listitem"> <div class="cell"> <h5 class="release-country -has-no-link -has-no-note"> <span class="flag -has-flag"><img src="https://s.ltrbxd.com/static/img/USA-DderVknp.svg" alt="Flag for the USA" loading="lazy" /></span> <span class="details"><span class="name">USA</span></span> </h5> </div> <div class="cell details"> <div class="release-date-list"> <div class="listitem"> <h6 class="date">27 Jun 2014</h6> <ul class="releases"> <li class="listitem -has-certification -has-no-note"> <span class="type">Theatrical</span><span class="release-certification-badge"><span class="label">NR</span></span> </li> </ul> </div> </div> </div> </div> </div> </section> </div> </div> <p class="text-link text-footer"> 105&nbsp;mins &nbsp; More at <a href="http://www.imdb.com/title/tt3268458/maindetails" class="micro-button track-event" data-track-action="IMDb" target="_blank" >IMDb</a> <a href="https://www.themoviedb.org/movie/250658/" class="micro-button track-event" data-track-action="TMDB" target="_blank" >TMDB</a> <span class="block-flag-wrapper show-on-hover hide-when-logged-out"> <a href="#" class="block-or-report-flag report-link has-icon icon-16 icon-report tooltip" title="Report this page" data-report-url="/ajax/film:174980/report-form">Report this page</a> </span> </p>
+			
+		</section>
+
+		<aside class="sidebar">
+			<section id="userpanel" class="actions-panel">
+				<ul class="js-actions-panel">
+					
+					
+
+
+
+
+
+
+
+<span class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/sidebar-user-actions/?esiAllowUser=true" data-on-load="sidebar-user-actions">
+	
+</span>
+
+					<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/csi/sidebar-user-actions/share-link-CN0rA8Dg.js"></script> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CbXmRM-a.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dxj-PiPC.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DPQR6HIl.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CswyOWBu.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/GVR8ng7U.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CUcMfv5U.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CdChsGGx.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BOQU22RL.js"> <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script> <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script> <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script> <script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-D9s76qMh.js"></script> <script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/csi/sidebar-user-actions/share-link-legacy-C7XFtunM.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script> <li class="panel-sharing sharing-toggle js-actions-panel-sharing"> <button class="trigger" type="button" aria-expanded="false" aria-controls="sharing-toggle-body-film-174980"> Share </button> <div id="sharing-toggle-body-film-174980" class="body"> <div class="urlgroup"> <input id="url-field-film-174980" type="text" value="https://boxd.it/7lcA" readonly spellcheck="false"> <button class="button clipboardtrigger has-icon" data-clipboard-target="#url-field-film-174980" data-sharer-type="link" > <span class="label">Copy URL to Clipboard</span> <span class="icon"></span> </button> </div> <a class="shareitem -link -twitter" href="https://twitter.com/intent/tweet?text=The%20Internet%27s%20Own%20Boy%3A%20The%20Story%20of%20Aaron%20Swartz%20%282014%29%20on%20%40letterboxd%3A%20https%3A%2F%2Fboxd.it%2F7lcA" rel="noreferrer" title="Tweet a link" data-sharer-type="twitter" > <span class="label">Tweet a link</span> <span class="icon"></span> </a> <a class="shareitem -link -facebook" href="https://www.facebook.com/dialog/feed?app_id=173683136069040&display=popup&link=https%3A%2F%2Fletterboxd.com%2Ffilm%2Fthe-internets-own-boy-the-story-of-aaron-swartz%2F&redirect_uri=https://letterboxd.com/facebook-share" rel="noreferrer" title="Share to Facebook" data-sharer-type="facebook" > <span class="label">Share to Facebook</span> <span class="icon"></span> </a> </div> </li>
+	 			</ul>
+			</section>
+
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/ratings-summary/" data-on-load="rating-histogram">
+	
+</div>
+
+		</aside>
+
+		
+
+		
+		
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/friend-activity/?esiAllowUser=true" data-on-load="">
+	
+</div>
+
+
+		
+
+		
+		
+		
+		
+		
+		
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/news/?esiAllowUser=true&amp;esiAllowCountry=true" data-on-load="production-news">
+	
+</div>
+
+
+		
+
+		<section class="film-recent-reviews -clear">
+			
+
+			
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/friend-reviews/?esiAllowUser=true" data-on-load="csi-friend-reviews">
+	
+</div>
+
+			
+			
+			
+
+	<section class="film-reviews section js-popular-reviews" data-url="/ajax/film/the-internets-own-boy-the-story-of-aaron-swartz/popular-reviews/" data-how-many="12">
+		
+		<h2 class="section-heading"><a href="/film/the-internets-own-boy-the-story-of-aaron-swartz/reviews/by/activity/">Popular reviews</a></h2>
+		<a href="/film/the-internets-own-boy-the-story-of-aaron-swartz/reviews/by/activity/" class="all-link">More</a>
+		<div class="viewing-list -marginblockstart js-viewing-list" data-listitem-mask-size="3">
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="103701684" data-person="tenzinsia"> <a class="avatar -a40" href="/tenzinsia/" > <img src="https://a.ltrbxd.com/resized/avatar/twitter/2/9/3/2/7/7/shard/blob-0-80-0-80-crop.png?v=6edd30b127" alt="1010" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/tenzinsia/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read 1010’s review"> Review by <span class="owner"><strong class="displayname">1010</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <a href="/tenzinsia/film/the-internets-own-boy-the-story-of-aaron-swartz/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">3</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:103701684/" data-is-translatable="true" > <p>Piracy is a victimless crime. </p><p><a href="https://youtu.be/9vz06QO3UkQ" rel="nofollow">link.</a></p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"18bds5","uid":"viewing:103701684","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/tenzinsia/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="104" data-owner="tenzinsia" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="18bds5"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="8520243" data-person="HTRidgway"> <a class="avatar -a40" href="/htridgway/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/8/4/2/0/3/shard/avtr-0-80-0-80-crop.jpg?v=2b4102a722" alt="Harry Ridgway" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/htridgway/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read Harry Ridgway’s review"> Review by <span class="owner"><strong class="displayname">Harry Ridgway</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-8"> ★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> <a href="/htridgway/film/the-internets-own-boy-the-story-of-aaron-swartz/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">2</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:8520243/" data-is-translatable="true" lang="en" > <div class="collapsed-text"> <p>My main objective while watching this documentary was to form an opinion, not be suckered into one by any endearing sentimentality or passionate talking heads. Lately I've become conscious of this, and have actually had to revaluate my stance on a few things after realizing my vulnerability to be swayed by an enthusiastic film or documentary. But...I think I may have been swayed once more, as <i>The Internet's Own Boy</i> is a tragic, important, inspirational and influential documentary that captivatingly outlines the American government's naivety regarding the internet. </p><p>The film's initial focal point is Aaron Swartz - the extraordinary child coding prodigy who expelled creative ideas at a rate that seemed unparalleled. Looking at his early life, it really is…</p> </div> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"5Lv2L","uid":"viewing:8520243","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/htridgway/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="77" data-owner="HTRidgway" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="5Lv2L"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="4462682" data-person="bengordon"> <a class="avatar -a40" href="/bengordon/" > <img src="https://a.ltrbxd.com/resized/avatar/twitter/3/5/2/9/3/shard/http___pbs.twimg.com_profile_images_1064265448924024832_W_BrDC23-0-80-0-80-crop.jpg?v=17a2d379fa" alt="Ben Gordon" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/bengordon/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read Ben Gordon’s review"> Review by <span class="owner"><strong class="displayname">Ben Gordon</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-8"> ★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:4462682/" data-is-translatable="true" lang="en" > <div class="collapsed-text"> <p>Aaron Swartz believed that he could change the world for the better - not through wealth or prestige, but through access. He set out to prove the limitations of bureaucracy on the internet, but was disproportionately punished for doing so. Before he was convicted of any real criminal behaviour, he took his own life. </p><p>This is a story imbued with tragedy, but the documentary is not without the brighter, more optimistic shades of Aaron Swartz's worldview. We see his developing inquiry from a very young age, as well as the effects of his personal relationships and subsequent political victories.</p><p>Swartz was made an example of by the United States government. This film also positions him as a representative figure, but…</p> </div> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"31ftr","uid":"viewing:4462682","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/bengordon/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="57" data-owner="bengordon" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="31ftr"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="235166144" data-person="RileyJohnston"> <a class="avatar -a40" href="/rileyjohnston/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/1/6/7/1/6/6/5/shard/avtr-0-80-0-80-crop.jpg?v=b6027f26dc" alt="FilmsInSight" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/rileyjohnston/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read FilmsInSight’s review"> Review by <span class="owner"><strong class="displayname">FilmsInSight</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-7"> ★★★½ </span> <a href="/rileyjohnston/film/the-internets-own-boy-the-story-of-aaron-swartz/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">2</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:235166144/" data-is-translatable="true" lang="en" > <div class="collapsed-text"> <blockquote><p><i>“Ultimately, knowledge belongs to all the people of the world… Aaron understood that”</i></p></blockquote><p>Aaron Swartz, a pioneer in for the developing days of the internet, a liberator of information in the wild networks of the world wide web, who ultimately became a martyr. The documentary examines Aaron Swartz’ life and how many of his avant-garde idealisms helped shape a new world. From an early age, he developed softwares, helped launch some of today’s most prevalent websites and some of the most successful internet activism that inspired and revolutionized movements — even helping put an end to the infamous and controversial SOPA (Stop Online Piracy Act) United States bill. We hear interesting perspectives about Aaron from his friends &amp; family, business partners…</p> </div> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"2z9kzf","uid":"viewing:235166144","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/rileyjohnston/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="32" data-owner="RileyJohnston" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="2z9kzf"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="181578207" data-person="LeonDeon"> <a class="avatar -a40" href="/leondeon/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/3/4/3/9/1/5/shard/avtr-0-80-0-80-crop.jpg?v=d352db2a9c" alt="LeonDeon🏳️‍⚧️" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/leondeon/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read LeonDeon🏳️‍⚧️’s review"> Review by <span class="owner"><strong class="displayname">LeonDeon🏳️‍⚧️</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-8"> ★★★★ </span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:181578207/" data-is-translatable="true" lang="en" > <p>I got extremely depressed watching this</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"1YSPRB","uid":"viewing:181578207","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/leondeon/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="25" data-owner="LeonDeon" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="1YSPRB"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="183735251" data-person="FUriarte02"> <a class="avatar -a40" href="/furiarte02/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/2/0/0/7/6/0/6/shard/avtr-0-80-0-80-crop.jpg?v=ec7ae88019" alt="Frankie" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/furiarte02/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read Frankie’s review"> Review by <span class="owner"><strong class="displayname">Frankie</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-7"> ★★★½ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:183735251/" data-is-translatable="true" lang="en" > <p>From a filmmaking perspective, it is nothing to special but the core and content of this documentary HAS to be seen by everyone. Aaron Swartz is someone we should all look at and learn about in school. Please give it a watch.</p><p>Its free on YouTube btw.</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"20lljV","uid":"viewing:183735251","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/furiarte02/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="23" data-owner="FUriarte02" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="20lljV"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="483226850" data-person="caseyaonso"> <a class="avatar -a40" href="/caseyaonso/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/7/4/0/7/7/0/5/shard/avtr-0-80-0-80-crop.jpg?v=4f8f397dc3" alt="casey" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/caseyaonso/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read casey’s review"> Review by <span class="owner"><strong class="displayname">casey</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:483226850/" data-is-translatable="true" lang="en" > <p>someone that smart and passionate divorcing themselves from money and status to serve the public the way he did is so rare… just heartwrenching knowing the incompetence and greed that led to him not being here anymore. there’s still so much to be done and isn’t it a testament to his legacy that watching this makes you want to figure out a way to be part of it.</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"5h1HMx","uid":"viewing:483226850","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/caseyaonso/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="18" data-owner="caseyaonso" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="5h1HMx"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="7419013" data-person="ohughes86"> <a class="avatar -a40" href="/ohughes86/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/9/9/0/2/shard/avtr-0-80-0-80-crop.jpg?v=d49df5b503" alt="Owen Hughes" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/ohughes86/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read Owen Hughes’s review"> Review by <span class="owner"><strong class="displayname">Owen Hughes</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-8"> ★★★★ </span> <a href="/ohughes86/film/the-internets-own-boy-the-story-of-aaron-swartz/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">1</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:7419013/" data-is-translatable="true" lang="en" > <div class="collapsed-text"> <p>I watched this documentary as part of <a href="http://letterboxd.com/ohughes86/list/bbc-storyville-ranked/" rel="nofollow">BBC's Storyville series</a>, which throws up some interesting choices from time to time (as well as its fair share of guff). I had never heard of Aaron Swartz before, despite apparently knowing of/using half of the websites he founded and the fact I've been a benefactor of his battle for freedoms of the internet. He founded Reddit and openlibrary.org amongst others, he was partially responsible for inventing RSS and Creative Commons, he was a child prodigy when it comes to coding, and a social and political activist. This documentary is about the 26 years of his life, from first learning to read, to his eventual suicide after being involved in an excessive, relentless…</p> </div> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"51if1","uid":"viewing:7419013","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/ohughes86/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="17" data-owner="ohughes86" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="51if1"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="149427591" data-person="30e"> <a class="avatar -a40" href="/30e/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/2/0/5/5/0/8/5/shard/avtr-0-80-0-80-crop.jpg?v=d417ff7a13" alt="30e" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/30e/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read 30e’s review"> Review by <span class="owner"><strong class="displayname">30e</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-10"> ★★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:149427591/" data-is-translatable="true" lang="en" > <p>Your own government would rather pour millions of their own dollars down the drain in an effort to "make an example" out of someone who believed that information should be free for anyone to access, than release their grip on the keys that they shouldn't even be holding. Your government and the corporations that lobby for its power do not care about your rights, they never have, and they never will. Every single person in power at MIT, the FBI, Secret Service, and the prosecution team behind Aaron Swartz's case is a murderer and they will never face any repercussions.</p><p>Support free culture. Spread all the information you can.</p><p>"He was the internet's own boy and the old world killed him."</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"1D7Pqn","uid":"viewing:149427591","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/30e/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="17" data-owner="30e" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="1D7Pqn"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="227023723" data-person="LeGhost"> <a class="avatar -a40" href="/leghost/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/3/2/1/3/9/4/1/shard/avtr-0-80-0-80-crop.jpg?v=923e8ee1ef" alt="Ghost" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/leghost/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read Ghost’s review"> Review by <span class="owner"><strong class="displayname">Ghost</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-8"> ★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:227023723/" data-is-translatable="true" lang="en" > <p>Really moving documentary about an internet genius who wanted to do good for the world and got pushed to suicide by the U.S. government. </p><p>Lots of law and copyright talk so if this isn't your thing you might find it boring. The only downside is that we don't have any interview with anyone from the opposing camp. Would have been interesting.</p><p>Made me really mad what they did to him it's really disgusting. </p><p>He was instrumental in saving the internet from the "old world" as they say so thank you and RIP Aaron.</p><p>The doc is free of charge legally on Youtube :<br /><a href="https://www.youtube.com/watch?v=9vz06QO3UkQ&amp;t=3583s" rel="nofollow">www.youtube.com/watch?v=9vz06QO3UkQ&amp;t=3583s</a></p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"2tDGpx","uid":"viewing:227023723","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/leghost/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="16" data-owner="LeGhost" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="2tDGpx"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="582586207" data-person="just2good"> <a class="avatar -a40" href="/just2good/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/1/2/6/8/4/8/5/shard/avtr-0-80-0-80-crop.jpg?v=001950bdce" alt="Sarah Genao (just2good)" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/just2good/film/the-internets-own-boy-the-story-of-aaron-swartz/1/" class="context" title="Read Sarah Genao (just2good)’s review"> Review by <span class="owner"><strong class="displayname">Sarah Genao (just2good)</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-7"> ★★★½ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> <a href="/just2good/film/the-internets-own-boy-the-story-of-aaron-swartz/1/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">2</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:582586207/" data-is-translatable="true" lang="en" > <p>This was one of my favorite docs years ago, and on rewatch I still love it, but I’m bumping it down a score since the talking head approach stands out as a sore spot more, and other moments come off cheesy and dated. Very important story. The film posits vague goals which whiff libertarian, I wish these goals were more defined, but perhaps that’s the leftist in me talking. The last 15 minutes still wreck me.</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"6mgIRh","uid":"viewing:582586207","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/just2good/film/the-internets-own-boy-the-story-of-aaron-swartz/1/likes/" data-format="count" data-count="14" data-owner="just2good" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="6mgIRh"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="15363211" data-person="jennyslate"> <a class="avatar -a40" href="/jennyslate/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/1/6/7/2/3/7/shard/avtr-0-80-0-80-crop.jpg?v=1f78b73d95" alt="Leticia Fernandes" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/jennyslate/film/the-internets-own-boy-the-story-of-aaron-swartz/" class="context" title="Read Leticia Fernandes’s review"> Review by <span class="owner"><strong class="displayname">Leticia Fernandes</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-6"> ★★★ </span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:15363211/" data-is-translatable="true" lang="en" > <p>It's sad to constantly see some of the smartest and kindest people being shut down</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"aoCJh","uid":"viewing:15363211","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/jennyslate/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="10" data-owner="jennyslate" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="aoCJh"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+		</div>
+	</section>
+
+			
+			
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/recent-reviews/" data-on-load="csi-recent-reviews">
+	
+</div>
+
+			
+			
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/own-reviews/?esiAllowUser=true" data-on-load="csi-own-reviews">
+	
+</div>
+
+			
+			
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/liked-reviews/?esiAllowUser=true" data-on-load="csi-liked-reviews">
+	
+</div>
+
+		</section>
+	
+
+		
+		
+		
+		
+		
+		
+			<section class="section related-films -clear">
+				<h2 class="section-heading"><a href="/film/the-internets-own-boy-the-story-of-aaron-swartz/similar/">Similar Films</a></h2>
+				<div class="all-link more-link">
+					<a href="/film/the-internets-own-boy-the-story-of-aaron-swartz/similar/">All</a>
+				</div>
+				<ul class="poster-list -p110 -horizontal -scaled104">
+					
+						<li class="posteritem">
+							<div class="react-component" data-component-class="globals.comps.LazyPoster" data-additional-css-classes="" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="110" data-image-height="165" data-item-name="Dear Zachary: A Letter to a Son About His Father" data-item-slug="dear-zachary-a-letter-to-a-son-about-his-father" data-item-link="/film/dear-zachary-a-letter-to-a-son-about-his-father/" data-item-full-display-name="Dear Zachary: A Letter to a Son About His Father (2008)" data-film-id="42260" data-postered-identifier='{"lid":"1LW8","uid":"film:42260","type":"film","typeName":"film"}' data-poster-url="/film/dear-zachary-a-letter-to-a-son-about-his-father/image-150/" data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" data-has-default-poster="true" data-is-linked="true" data-target-link="/film/dear-zachary-a-letter-to-a-son-about-his-father/" data-target-link-target="" data-details-endpoint="/film/dear-zachary-a-letter-to-a-son-about-his-father/json/" data-cache-busting-key="c890aa6c" data-show-menu="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" class="image" width="110" height="165" alt="Dear Zachary: A Letter to a Son About His Father"/> <span class="frame"><span class="frame-title"></span></span> </div> </div>
+						</li>
+					
+						<li class="posteritem">
+							<div class="react-component" data-component-class="globals.comps.LazyPoster" data-additional-css-classes="" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="110" data-image-height="165" data-item-name="Uncle Tom" data-item-slug="uncle-tom" data-item-link="/film/uncle-tom/" data-item-full-display-name="Uncle Tom (2020)" data-film-id="634644" data-postered-identifier='{"lid":"qCZW","uid":"film:634644","type":"film","typeName":"film"}' data-poster-url="/film/uncle-tom/image-150/" data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" data-has-default-poster="true" data-is-linked="true" data-target-link="/film/uncle-tom/" data-target-link-target="" data-details-endpoint="/film/uncle-tom/json/" data-cache-busting-key="409cb64d" data-show-menu="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" class="image" width="110" height="165" alt="Uncle Tom"/> <span class="frame"><span class="frame-title"></span></span> </div> </div>
+						</li>
+					
+						<li class="posteritem">
+							<div class="react-component" data-component-class="globals.comps.LazyPoster" data-additional-css-classes="" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="110" data-image-height="165" data-item-name="Citizenfour" data-item-slug="citizenfour" data-item-link="/film/citizenfour/" data-item-full-display-name="Citizenfour (2014)" data-film-id="220213" data-postered-identifier='{"lid":"9eSe","uid":"film:220213","type":"film","typeName":"film"}' data-poster-url="/film/citizenfour/image-150/" data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" data-has-default-poster="true" data-is-linked="true" data-target-link="/film/citizenfour/" data-target-link-target="" data-details-endpoint="/film/citizenfour/json/" data-cache-busting-key="2e567bb5" data-show-menu="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" class="image" width="110" height="165" alt="Citizenfour"/> <span class="frame"><span class="frame-title"></span></span> </div> </div>
+						</li>
+					
+						<li class="posteritem">
+							<div class="react-component" data-component-class="globals.comps.LazyPoster" data-additional-css-classes="" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="110" data-image-height="165" data-item-name="America: Freedom to Fascism" data-item-slug="america-freedom-to-fascism" data-item-link="/film/america-freedom-to-fascism/" data-item-full-display-name="America: Freedom to Fascism (2006)" data-film-id="44076" data-postered-identifier='{"lid":"1QF2","uid":"film:44076","type":"film","typeName":"film"}' data-poster-url="/film/america-freedom-to-fascism/image-150/" data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" data-has-default-poster="true" data-is-linked="true" data-target-link="/film/america-freedom-to-fascism/" data-target-link-target="" data-details-endpoint="/film/america-freedom-to-fascism/json/" data-cache-busting-key="dc540f6d" data-show-menu="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" class="image" width="110" height="165" alt="America: Freedom to Fascism"/> <span class="frame"><span class="frame-title"></span></span> </div> </div>
+						</li>
+					
+						<li class="posteritem">
+							<div class="react-component" data-component-class="globals.comps.LazyPoster" data-additional-css-classes="" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="110" data-image-height="165" data-item-name="Maxed Out" data-item-slug="maxed-out" data-item-link="/film/maxed-out/" data-item-full-display-name="Maxed Out (2006)" data-film-id="30092" data-postered-identifier='{"lid":"1ghy","uid":"film:30092","type":"film","typeName":"film"}' data-poster-url="/film/maxed-out/image-150/" data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" data-has-default-poster="true" data-is-linked="true" data-target-link="/film/maxed-out/" data-target-link-target="" data-details-endpoint="/film/maxed-out/json/" data-cache-busting-key="35e1b709" data-show-menu="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" class="image" width="110" height="165" alt="Maxed Out"/> <span class="frame"><span class="frame-title"></span></span> </div> </div>
+						</li>
+					
+						<li class="posteritem">
+							<div class="react-component" data-component-class="globals.comps.LazyPoster" data-additional-css-classes="" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="110" data-image-height="165" data-item-name="Capitalism: A Love Story" data-item-slug="capitalism-a-love-story" data-item-link="/film/capitalism-a-love-story/" data-item-full-display-name="Capitalism: A Love Story (2009)" data-film-id="38093" data-postered-identifier='{"lid":"1B62","uid":"film:38093","type":"film","typeName":"film"}' data-poster-url="/film/capitalism-a-love-story/image-150/" data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" data-has-default-poster="true" data-is-linked="true" data-target-link="/film/capitalism-a-love-story/" data-target-link-target="" data-details-endpoint="/film/capitalism-a-love-story/json/" data-cache-busting-key="c5ed2602" data-show-menu="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" class="image" width="110" height="165" alt="Capitalism: A Love Story"/> <span class="frame"><span class="frame-title"></span></span> </div> </div>
+						</li>
+					
+				</ul>
+				
+
+
+<div class="nanocrowd-attribution -is-not-stacked"> <span class="title">Powered by</span> <a href="https://nanocrowd.com" target="_blank" rel="noopener noreferrer"> <svg class="glyph" aria-hidden="true" role="presentation" viewBox="0 0 14 14" width="14" height="14" xmlns="http://www.w3.org/2000/svg"> <path class="matte" d="M1.5 1.5h11v11h-11z" fill-opacity="0" /> <path class="shape" d="M12 0a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h10ZM7.603 4.803c-.453 0-.885.1-1.293.3-.272.132-.542.463-.81.994V5H4v7h1.5l-.012-4.931c.309-.261.583-.4.904-.562.306-.155.598-.23.876-.23.287 0 .398-.002.693.114.295.116.465.935.496 1.21.033.293.05.61.05.952L8.5 12H10V8c0-.994-.223-1.823-.69-2.368-.473-.552-.885-.829-1.707-.829ZM10 2H4v1.4h6V2Z" /> </svg> <span class="label">Nanocrowd</span> </a> </div>
+			</section>
+		
+		
+		
+
+
+		
+		
+		
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/the-internets-own-boy-the-story-of-aaron-swartz/popular-lists/" data-on-load="csi-popular-lists">
+	
+</div>
+
+
+		
+		
+
+	</div>
+
+	<div class="clear"></div>
+</div>
+
+
+
+
+
+
+
+
+
+		</div> 
+
+		
+			
+		
+	
+	
+	</div> 
+	
+
+
+
+	<footer id="page-footer" class="page-footer js-page-footer js-hide-in-app">
+		<div class="content-wrap">
+			
+				<nav class="footer-nav js-footer-nav">
+					<ul>
+						<li><a href="/about/">About</a></li>
+						<li class="js-hide-in-app"><a href="/pro/">Pro</a></li>
+						<li><a href="/journal/">News</a></li>
+						
+						<li><a href="/apps/">Apps</a></li>
+						<li><a href="https://apple.co/3TfzHVG" target="_blank" rel="noopener noreferrer">Podcast</a></li>
+						<li><a href="/year-in-review/">Year in Review</a></li>
+						<li><a href="/gift-guide/">Gifts</a></li>
+						<li><a href="/welcome/">Help</a></li>
+						<li><a href="/legal/terms-of-use/">Terms</a></li>
+						<li><a href="/api-beta/">API</a></li>
+						<li><a href="/contact/">Contact</a></li>
+					</ul>
+				</nav>
+	
+
+			<div class="socials">
+				<nav class="social-service-list -inline">
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.instagram.com/letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on Instagram">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path d="M14.12.06c1.07.05 1.8.22 2.43.46.66.26 1.21.6 1.77 1.16.56.55.9 1.11 1.15 1.77.25.63.42 1.36.47 2.43.04.94.06 1.32.06 3.3v1.37c0 1.54 0 2.19-.03 2.77v.22l-.03.58a7.34 7.34 0 0 1-.47 2.43 4.9 4.9 0 0 1-1.15 1.77 4.9 4.9 0 0 1-1.77 1.16c-.64.24-1.36.41-2.43.46l-.61.03h-.23c-.5.02-1.06.03-2.21.03H9.2c-2 0-2.37-.02-3.32-.06a7.34 7.34 0 0 1-2.43-.46 4.9 4.9 0 0 1-1.77-1.16 4.9 4.9 0 0 1-1.16-1.77 7.34 7.34 0 0 1-.46-2.43l-.03-.61v-.2A60.9 60.9 0 0 1 0 11.5V8.75C0 7.7.01 7.17.03 6.7v-.2l.03-.61C.1 4.8.28 4.08.52 3.45a4.9 4.9 0 0 1 1.16-1.77A4.9 4.9 0 0 1 3.45.52 7.34 7.34 0 0 1 5.88.06l.61-.03h.2C7.12 0 7.6 0 8.5 0h2.74c1.62 0 2 .02 2.88.06ZM11.02 2H8.97c-1.7 0-2.05.02-2.92.06a5.4 5.4 0 0 0-1.82.33c-.45.18-.78.39-1.12.73-.34.34-.55.67-.73 1.12-.13.35-.3.86-.33 1.82C2.02 6.93 2 7.29 2 8.98v2.04c0 1.7.02 2.05.06 2.92.04.95.2 1.47.33 1.81.18.46.39.78.73 1.13.34.34.67.55 1.12.73.35.13.86.29 1.82.33.83.04 1.2.05 2.7.06h2.47c1.51 0 1.87-.02 2.71-.06a5.4 5.4 0 0 0 1.81-.33c.46-.18.78-.4 1.12-.73.35-.35.56-.67.73-1.13.14-.34.3-.86.34-1.8a49 49 0 0 0 .06-2.72V8.77a49 49 0 0 0-.06-2.71 5.4 5.4 0 0 0-.34-1.82 3.02 3.02 0 0 0-.73-1.12 3.02 3.02 0 0 0-1.12-.73 5.4 5.4 0 0 0-1.81-.33c-.88-.04-1.23-.06-2.93-.06ZM10 4.86a5.14 5.14 0 1 1 0 10.28 5.14 5.14 0 0 1 0-10.28ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/></svg>
+							<span class="label">Instagram</span>
+						</a>
+					</div>
+
+					
+						<div class="listitem -icononly">
+							<a class="trigger tooltip" href="https://www.threads.net/@letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on Threads">
+								<svg class="glyph" aria-hidden="true" role="presentation" xmlns="http://www.w3.org/2000/svg" width="16" height="18"><path fill-rule="nonzero" d="M8.1 0c2.8 0 4.9.9 6.3 2.6.7.9 1.3 1.9 1.6 3v.1l-1.6.4c-.3-1-.7-1.8-1.3-2.4-1.1-1.3-2.8-2-5-2-2.1 0-3.8.7-4.9 2-1 1.2-1.5 3-1.5 5.3s.5 4 1.5 5.3c1.1 1.3 2.8 2 5 2 1.9 0 3.2-.4 4.3-1.5 1-1 1.3-2.4.8-3.5-.2-.5-.6-1-1.1-1.2-.2 1-.5 1.7-1 2.3-.7.8-1.6 1.3-2.8 1.3-1 .1-1.8-.1-2.5-.6A2.8 2.8 0 0 1 4.5 11C4.5 9 6 7.8 8.2 7.6l2.3.1c-.1-.5-.3-.9-.6-1.2-.4-.4-1-.6-1.7-.7-.9 0-1.6.3-2 1H6L4.7 6a4 4 0 0 1 3.5-1.7c2.3 0 3.8 1.4 4 3.8v.2h.2v.1c1.2.5 2 1.3 2.4 2.3.8 1.7.5 3.8-1.1 5.4A7.4 7.4 0 0 1 8 18c-2.7 0-4.8-1-6.2-2.6A10 10 0 0 1 0 9c0-2.7.7-4.8 2-6.4C3.2 1 5.3 0 8 0ZM9 9.3h-.6c-1.4 0-2.1.7-2 1.5 0 .8.9 1.3 2 1.3.6 0 1-.2 1.4-.5.4-.4.7-1 .8-2v-.2A8 8 0 0 0 9 9.3h-.1Z"/></svg>
+								<span class="label">Threads</span>
+							</a>
+						</div>
+					
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://x.com/letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on X">
+							<svg class="glyph" aria-hidden="true" role="presentation" xmlns="http://www.w3.org/2000/svg" width="17" height="17"><path fill-rule="nonzero" d="m5.4 0 4 6 5-6h2.1l-.3.4-5.9 6.8 6.5 9.5.2.3h-5.3l-4.3-6.3L2 16.9 2 17H0l.3-.4 6.2-7.2L.3.4 0 0h5.3Zm-1 1.5H2.9l4.9 7 .6.9 4.3 6.1h1.6l-5-7.3-.7-.9-4-5.8Z"/></svg>
+							<span class="label">X</span>
+						</a>
+					</div>
+
+					
+						<div class="listitem -icononly">
+							<a class="trigger tooltip" href="https://bsky.app/profile/letterboxd.social" target="_blank" rel="noopener noreferrer" title="Letterboxd on Bluesky">
+								<svg class="glyph" aria-hidden="true" role="presentation" xmlns="http://www.w3.org/2000/svg" width="19" height="17"><path fill="#000" fill-rule="nonzero" d="M4.15 1.14C6.34 2.81 8.7 6.18 9.56 7.98c.87-1.8 3.23-5.17 5.42-6.84 1.58-1.2 4.14-2.12 4.14.83 0 .59-.33 4.95-.53 5.66-.68 2.46-3.17 3.1-5.38 2.71 3.87.67 4.85 2.87 2.73 5.07-4.04 4.18-5.8-1.05-6.26-2.39-.08-.25-.12-.36-.12-.26 0-.1-.04.01-.12.26-.45 1.34-2.22 6.57-6.25 2.39-2.13-2.2-1.14-4.4 2.72-5.07-2.2.38-4.7-.25-5.38-2.7C.33 6.91 0 2.55 0 1.96 0-.98 2.56-.05 4.15 1.14Z"/></svg>
+								<span class="label">Bluesky</span>
+							</a>
+						</div>
+					
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.facebook.com/letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on Facebook">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="19" height="19" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 0a9.5 9.5 0 0 0-1.48 18.89V12H5.6V9.25h2.42V7.41c0-2.38 1.41-3.7 3.58-3.7 1.04 0 2.13.19 2.13.19v2.33h-1.2c-1.18 0-1.54.74-1.54 1.49v1.53h2.63L13.2 12h-2.21v6.89A9.5 9.5 0 0 0 9.5 0Z"/></svg>
+							<span class="label">Facebook</span>
+						</a>
+					</div>
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.tiktok.com/@letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on TikTok">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="17" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M16.48 4.32a4.62 4.62 0 0 1-3.92-2.66A4.04 4.04 0 0 1 12.23 0H9.07v11.85c0 1.93-1.19 3.07-2.65 3.07a2.71 2.71 0 0 1-2.04-.9 2.57 2.57 0 0 1-.6-2.1 2.55 2.55 0 0 1 1.26-1.81 2.7 2.7 0 0 1 2.24-.21V6.77a5.92 5.92 0 0 0-4.08.86 5.7 5.7 0 0 0-2.15 2.55 5.53 5.53 0 0 0 1.26 6.16 5.86 5.86 0 0 0 6.33 1.23 5.78 5.78 0 0 0 2.6-2.08c.64-.94.98-2.03.98-3.15V5.96a7.74 7.74 0 0 0 4.25 1.25V4.32Z"/></svg>
+							<span class="label">TikTok</span>
+						</a>
+					</div>
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.youtube.com/letterboxdhq" target="_blank" rel="noopener noreferrer" title="Letterboxd on YouTube">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="23" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M11.74 0c.61 0 2.33.02 4.11.08l.54.02c1.7.06 3.35.18 4.1.38a2.87 2.87 0 0 1 2.03 2.02c.45 1.67.48 5.04.48 5.46v.08c0 .42-.03 3.8-.48 5.46a2.87 2.87 0 0 1-2.03 2.02c-.75.2-2.4.32-4.1.38l-.54.02c-1.78.07-3.5.08-4.11.08H11.26c-.62 0-2.33-.01-4.11-.08l-.54-.02c-1.7-.06-3.36-.18-4.1-.38A2.87 2.87 0 0 1 .48 13.5C.04 11.9 0 8.68 0 8.1v-.2c0-.58.04-3.79.48-5.4A2.87 2.87 0 0 1 2.5.48c.74-.2 2.4-.32 4.1-.38l.54-.02C8.93.02 10.65 0 11.26 0ZM9 4.57v6.86L15 8 9 4.57Z"/></svg>
+							<span class="label">YouTube</span>
+						</a>
+					</div>
+				</nav>
+			</div>
+			
+			<p class="copyright">
+				&copy; Letterboxd Limited. Made by <a href="/crew/" class="mute">fans</a> in Aotearoa New Zealand.
+				<span class="nobr"><a href="https://letterboxd.com/about/film-data/" class="mute">Film data</a> from <a href="https://www.themoviedb.org" class="mute">TMDB</a>. 
+				
+						<a href="#" class="mute mobile-site-switch" data-use-mobile-site="yes">Mobile&nbsp;site</a>.
+					
+	</span>
+				<span class="recap" style="display:none"><br/>This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="mute">privacy policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" class="mute">terms of service</a>&nbsp;apply.</span>
+			</p>
+		</div>
+	</footer>
+
+<script type="application/ld+json">
+/* <![CDATA[ */
+{"image":"https://a.ltrbxd.com/resized/film-poster/1/7/4/9/8/0/174980-the-internet-s-own-boy-the-story-of-aaron-swartz-0-230-0-345-crop.jpg?v=49c5360f1a","@type":"Movie","director":[{"@type":"Person","name":"Brian Knappenberger","sameAs":"/director/brian-knappenberger/"}],"dateModified":"2025-08-13","productionCompany":[{"@type":"Organization","name":"FilmBuff","sameAs":"/studio/filmbuff/"},{"@type":"Organization","name":"Participant","sameAs":"/studio/participant-1/"},{"@type":"Organization","name":"Luminant Media","sameAs":"/studio/luminant-media/"},{"@type":"Organization","name":"Unjustus Films","sameAs":"/studio/unjustus-films/"}],"releasedEvent":[{"@type":"PublicationEvent","startDate":"2014"}],"@context":"http://schema.org","url":"https://letterboxd.com/film/the-internets-own-boy-the-story-of-aaron-swartz/","actors":[{"@type":"Person","name":"Aaron Swartz","sameAs":"/actor/aaron-swartz-1/"},{"@type":"Person","name":"Tim Berners-Lee","sameAs":"/actor/tim-berners-lee/"},{"@type":"Person","name":"Cory Doctorow","sameAs":"/actor/cory-doctorow/"},{"@type":"Person","name":"Peter Eckersley","sameAs":"/actor/peter-eckersley/"},{"@type":"Person","name":"Lawrence Lessig","sameAs":"/actor/lawrence-lessig/"},{"@type":"Person","name":"Brewster Kahle","sameAs":"/actor/brewster-kahle-1/"},{"@type":"Person","name":"Cindy Cohn","sameAs":"/actor/cindy-cohn/"},{"@type":"Person","name":"Zoe Lofgren","sameAs":"/actor/zoe-lofgren/"},{"@type":"Person","name":"Gabriella Coleman","sameAs":"/actor/gabriella-coleman/"}],"dateCreated":"2014-01-17","name":"The Internet's Own Boy: The Story of Aaron Swartz","genre":["Crime","Documentary"],"@id":"https://letterboxd.com/film/the-internets-own-boy-the-story-of-aaron-swartz/","countryOfOrigin":[{"@type":"Country","name":"USA"}],"aggregateRating":{"bestRating":5,"reviewCount":932,"@type":"aggregateRating","ratingValue":3.87,"description":"The Letterboxd rating is a weighted average score for a movie based on all ratings cast to date by our members.","ratingCount":7831,"worstRating":0}}
+/* ]]> */
+</script>
+
+
+
+
+
+<script>
+
+	gtag('event', 'genre_view', {
+		genre: 'crime',
+		transport_type: 'beacon',
+	});
+
+	gtag('event', 'genre_view', {
+		genre: 'documentary',
+		transport_type: 'beacon',
+	});
+
+</script>
+	
+
+
+
+
+
+
+<div id="poster-picker-modal" class="modal fade content-media-picker-modal poster-picker-modal" tabindex="-1" role="dialog" aria-labelledby="poster-picker-modal-title" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="poster-picker-modal-title">Select your preferred <span class="js-image-type">poster</span></h5>
+                
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="poster-picker-86ced6e3-e495-4fe5-ba8b-70e1e99cb5bf" method="post" action="" novalidate="novalidate" data-poster-picker-options='{"id": "86ced6e3-e495-4fe5-ba8b-70e1e99cb5bf"}' data-js-target="poster-picker"></form>
+            </div>
+            <div class="modal-footer">
+                <div class="content-media-picker-note" hidden></div>
+                <div class="content-media-picker-controls poster-picker-controls" data-poster-picker-controls-for="poster-picker-86ced6e3-e495-4fe5-ba8b-70e1e99cb5bf"> <div class="modal-action-group -center"> <button form="poster-picker-86ced6e3-e495-4fe5-ba8b-70e1e99cb5bf" class="button -destructive" type="button" data-js-trigger="reset" disabled> <span class="label" data-js-label-for="film" >Reset <span class="js-image-type">poster</span></span> <span class="label" data-js-label-for="object" hidden>Reset for <span class="js-object-name">item</span></span> </button> <button form="poster-picker-86ced6e3-e495-4fe5-ba8b-70e1e99cb5bf" class="button -action" type="submit" data-js-trigger="submit" disabled> <span class="label" data-js-label-for="film" >Save<span class="mob-hide"> changes</span></span> <span class="label" data-js-label-for="object" hidden>Save<span class="mob-hide"> for <span class="js-object-name">item</span></span></span> </button> </div> <div class="objectonly js-objectonly" aria-hidden="true" hidden> <label for="poster-picker-frm-object-only" class="option-label -checkbox -medium -reversed"> <input type="checkbox" value="true" class="checkbox" id="poster-picker-frm-object-only" data-js-trigger="object-only" disabled /><i class="substitute"></i>This <span class="js-object-name">item</span> only </label> </div> </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+	
+
+
+
+
+
+
+<div id="backdrop-picker-modal" class="modal fade content-media-picker-modal backdrop-picker-modal" tabindex="-1" role="dialog" aria-labelledby="backdrop-picker-modal-title" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="backdrop-picker-modal-title">Select your preferred backdrop</a></h5>
+                
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="backdrop-picker-f8f661aa-89a5-4d0d-b49c-d1846c03faa8" method="post" action="" novalidate="novalidate" data-backdrop-picker-options='{"id": "f8f661aa-89a5-4d0d-b49c-d1846c03faa8"}' data-js-target="backdrop-picker"></form>
+            </div>
+            <div class="modal-footer">
+                <div class="content-media-picker-note" hidden></div>
+                <div class="content-media-picker-controls backdrop-picker-controls" data-backdrop-picker-controls-for="backdrop-picker-f8f661aa-89a5-4d0d-b49c-d1846c03faa8"> <div class="modal-action-group -center"> <button form="backdrop-picker-f8f661aa-89a5-4d0d-b49c-d1846c03faa8" class="button -destructive" type="button" data-js-trigger="reset" disabled> <span class="label" data-js-label-for="film" >Reset <span class="js-image-type">poster</span></span> <span class="label" data-js-label-for="object" hidden>Reset for <span class="js-object-name">item</span></span> </button> <button form="backdrop-picker-f8f661aa-89a5-4d0d-b49c-d1846c03faa8" class="button -action" type="submit" data-js-trigger="submit" disabled> <span class="label" data-js-label-for="film" >Save<span class="mob-hide"> changes</span></span> <span class="label" data-js-label-for="object" hidden>Save<span class="mob-hide"> for <span class="js-object-name">item</span></span></span> </button> </div> <div class="objectonly js-objectonly" aria-hidden="true" hidden> <label for="backdrop-picker-frm-object-only" class="option-label -checkbox -medium -reversed"> <input type="checkbox" value="true" class="checkbox" id="backdrop-picker-frm-object-only" data-js-trigger="object-only" disabled /><i class="substitute"></i>This <span class="js-object-name">item</span> only </label> </div> </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+	
+	
+		<div id="remove-ads-modal" class="modal fade modal-upgrade-message" tabindex="-1" aria-labelledby="remove-ads-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="remove-ads-modal-title">Upgrade to remove&nbsp;ads</h5>
+                <button type="button" class="modal-close modal-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="body-text -hero">
+                    <p>Letterboxd is an independent service created by a small team, and we rely mostly on the support of our members to maintain our site and apps. Please consider upgrading to a <a href="/pro/">Pro account</a>—for less than a couple bucks a month, you’ll get cool additional features like all-time and annual stats pages (<a href="https://letterboxd.com/jack/stats/">example</a>), the ability to select (and filter by) your favorite streaming services, and no ads!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="/pro/" class="button -action button-action">Learn more about Pro</a>
+            </div>
+        </div>
+    </div>
+</div>
+		
+		
+		<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/partner-publishers-6V5fFKa_.js"></script>
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bbh8MmKk.js">
+		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+	
+		<script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+		<script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-D9s76qMh.js"></script>
+		<script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/partner-publishers-legacy-D4ViuE22.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+	
+	
+</body>
+</html>
+
