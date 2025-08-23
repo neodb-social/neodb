@@ -153,6 +153,10 @@ class Command(BaseCommand):
                 from catalog.common.migrations import link_tmdb_wikidata_20250815
 
                 link_tmdb_wikidata_20250815()
+            case "fix_missing_cover":
+                from catalog.common.migrations import fix_missing_cover_20250821
+
+                fix_missing_cover_20250821()
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 

@@ -1,6 +1,8 @@
+from datetime import timedelta
 from time import sleep
 
 from django.db import connection, models
+from django.utils import timezone
 from loguru import logger
 from tqdm import tqdm
 
@@ -205,3 +207,27 @@ def link_tmdb_wikidata_20250815(limit=None):
         "with_wikidata": count_with_wikidata,
         "errors": count_errors,
     }
+
+
+def fix_missing_cover_20250821(days=0):
+    from catalog.models import Item, PodcastEpisode, item_content_types
+
+    updated = 0
+    ct = item_content_types()[PodcastEpisode]
+    items = Item.objects.filter(cover="item/default.svg").exclude(
+        polymorphic_ctype_id=ct
+    )
+    if days:
+        time_threshold = timezone.now() - timedelta(days=days)
+        items = items.filter(edited_time__gt=time_threshold)
+    for i in tqdm(items):
+        p = (
+            i.external_resources.exclude(cover="item/default.svg")
+            .exclude(cover__isnull=True)
+            .first()
+        )
+        if p and p.has_cover():
+            i.cover = p.cover
+            i.save()
+            updated += 1
+    logger.warning(f"{updated} items updated with missing covers")
