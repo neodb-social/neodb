@@ -803,6 +803,8 @@ class Item(PolymorphicModel):
         logger.debug(f"creating new item from {p}")
         obj = cls.copy_metadata(p.metadata)
         item = cls(**obj)
+        if p.has_cover():
+            item.cover = p.cover
         item.normalize_metadata([p])
         item.save()
         item.ap_object  # validate schema
@@ -1017,6 +1019,9 @@ class ExternalResource(models.Model):
     def __str__(self):
         return f"{self.pk}:{self.id_type}:{self.id_value or ''} ({self.url})"
 
+    def has_cover(self) -> bool:
+        return bool(self.cover) and self.cover != settings.DEFAULT_ITEM_COVER
+
     def _match_existing_item(self, model: type[Item]) -> Item | None:
         """
         try match an existing Item in the following order:
@@ -1092,12 +1097,14 @@ class ExternalResource(models.Model):
             previous_item = None
         model = self.get_item_model(default_model)
         self.item = self._match_existing_item(model=model) or previous_item
-        if self.item is None:
+        if self.item is None:  # matching to a new item
             self.item = model.create_from_external_resource(self)
             self.save(update_fields=["item"])
             created = True
-        elif previous_item != self.item:
+        elif previous_item != self.item:  # matching to another item
             self.save(update_fields=["item"])
+            self.item.merge_data_from_external_resource(self, ignore_existing_content)
+        elif ignore_existing_content:  # matching to same item but overwriting requested
             self.item.merge_data_from_external_resource(self, ignore_existing_content)
         if previous_item != self.item:
             if previous_item:

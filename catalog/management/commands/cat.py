@@ -33,12 +33,13 @@ class Command(BaseCommand):
             resource = site.get_resource_ready(ignore_existing_content=options["force"])
             if resource:
                 pprint.pp(resource.metadata)
+                pprint.pp(resource.cover)
             else:
                 self.stdout.write(self.style.ERROR(f"Unable to get resource for {url}"))
             item = site.get_item()
             if item:
-                pprint.pp(item.cover)
                 pprint.pp(item.metadata)
+                pprint.pp(item.cover)
                 pprint.pp(item.absolute_url)
             else:
                 self.stdout.write(self.style.ERROR(f"Unable to get item for {url}"))

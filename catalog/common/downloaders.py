@@ -90,7 +90,7 @@ class MockResponse:
 
     @property
     def headers(self):
-        return {"Content-Type": "image/jpeg" if ".jpg" in self.url else "text/html"}
+        return {"content-type": "image/jpeg" if ".jpg" in self.url else "text/html"}
 
 
 class DownloaderResponse(Response):
@@ -340,7 +340,7 @@ class ImageDownloaderMixin:
     def validate_response(self, response):
         if response and response.status_code == 200:
             try:
-                content_type = response.headers["content-type"]
+                content_type = response.headers.get("content-type", "")
                 if content_type.startswith("image/svg+xml"):
                     self.extention = "svg"
                     return RESPONSE_OK
@@ -348,13 +348,20 @@ class ImageDownloaderMixin:
                     mime=content_type.partition(";")[0].strip()
                 )
                 if file_type is None:
+                    logger.error(
+                        f"Unsupported image type: {content_type}",
+                        extra={"url": response.url},
+                    )
                     return RESPONSE_NETWORK_ERROR
                 self.extention = file_type.extension
                 raw_img = response.content
                 img = Image.open(BytesIO(raw_img))
                 img.load()  # corrupted image will trigger exception
                 return RESPONSE_OK
-            except Exception:
+            except Exception as e:
+                logger.error(
+                    f"Invalid downloaded image {e}", extra={"url": response.url}
+                )
                 return RESPONSE_NETWORK_ERROR
         if response and response.status_code >= 400 and response.status_code < 500:
             return RESPONSE_INVALID_CONTENT

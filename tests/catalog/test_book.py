@@ -231,6 +231,9 @@ class TestGoodreads:
         brief = site.resource.metadata.get("brief")
         assert brief is not None
         assert "<br" not in brief
+        assert site.resource.has_cover()
+        assert isinstance(site.resource.item, Edition)
+        assert site.resource.item.has_cover()
 
     @use_local_response
     def test_asin(self):
