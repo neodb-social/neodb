@@ -624,9 +624,6 @@ class WikiData(AbstractSite):
                 direct_parent_types, self.id_value
             )
             if parent_model:
-                logger.info(
-                    f"Determined model {parent_model.__name__} from direct parent type for {self.id_value}"
-                )
                 return parent_model
 
         # If still no match, try to fetch parent types of instance classes via API
@@ -639,10 +636,6 @@ class WikiData(AbstractSite):
                 instance_parent_types, self.id_value
             )
             if instance_parent_model:
-                logger.info(
-                    f"Determined model {instance_parent_model.__name__} from instance parent type "
-                    f"for {self.id_value}"
-                )
                 return instance_parent_model
 
         # If we still don't have a match, try recursive parent lookup on direct parent types
@@ -655,10 +648,6 @@ class WikiData(AbstractSite):
                     recursive_parent_types, self.id_value
                 )
                 if recursive_model:
-                    logger.info(
-                        f"Determined model {recursive_model.__name__} from recursive parent lookup "
-                        f"for {self.id_value}"
-                    )
                     return recursive_model
 
         logger.error(
@@ -1161,10 +1150,8 @@ class WikiData(AbstractSite):
                 item_uri = data["results"]["bindings"][0]["item"]["value"]
                 # Extract QID from URI (e.g., "http://www.wikidata.org/entity/Q12345" -> "Q12345")
                 qid = item_uri.split("/")[-1]
-                logger.info(f"Found Wikidata QID {qid} for {id_type}:{id_value}")
                 return qid
             else:
-                logger.info(f"No Wikidata entity found for {id_type}:{id_value}")
                 return None
 
         except Exception as e:

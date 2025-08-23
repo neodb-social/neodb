@@ -253,15 +253,13 @@ class Command(BaseCommand):
                 pbar.update(1)
                 time.sleep(0.5)
                 site = SiteManager.get_site_by_id(IdType.WikiData, qid) if qid else None
-                if site and site.get_resource_ready():
-                    linked += 1
-                # try:
-                #     if site and site.get_resource_ready():
-                #         linked += 1
-                # except Exception as e:
-                #     errors += 1
-                #     s = f"Error processing res:{resource.pk} {resource.url}: {e}"
-                #     self.stdout.write(self.style.ERROR(s))
+                try:
+                    if site and site.get_resource_ready():
+                        linked += 1
+                except Exception as e:
+                    errors += 1
+                    s = f"Error processing res:{resource.pk} {resource.url}: {e}"
+                    self.stdout.write(self.style.ERROR(s))
 
         self.stdout.write(self.style.SUCCESS("\nWikiData linking completed:"))
         self.stdout.write(f"  Total {id_type.label} resources processed: {total}")

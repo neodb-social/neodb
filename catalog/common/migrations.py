@@ -165,6 +165,7 @@ def link_tmdb_wikidata_20250815(limit=None):
     count_total = tmdb_resources.count()
     count_with_wikidata = 0
     count_errors = 0
+    count_success = 0
     logger.warning(f"Found {count_total} TMDB resources to process")
     for resource in tqdm(tmdb_resources, total=count_total):
         try:
@@ -188,7 +189,7 @@ def link_tmdb_wikidata_20250815(limit=None):
             wiki_site = WikiData(id_value=wikidata_id)
             try:
                 wiki_site.get_resource_ready()
-                logger.success(f"Linked WikiData {wiki_site} to {site}")
+                count_success += 1
             except Exception as e:
                 logger.error(
                     f"Failed to process WikiData {e}", extra={"qid": wikidata_id}
@@ -206,6 +207,7 @@ def link_tmdb_wikidata_20250815(limit=None):
         "total": count_total,
         "with_wikidata": count_with_wikidata,
         "errors": count_errors,
+        "success": count_success,
     }
 
 
@@ -230,4 +232,4 @@ def fix_missing_cover_20250821(days=0):
             i.cover = p.cover
             i.save()
             updated += 1
-    logger.warning(f"{updated} items updated with missing covers")
+    logger.success(f"{updated} items with missing covers has been fixed.")
