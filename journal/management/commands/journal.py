@@ -11,8 +11,10 @@ from catalog.models import Item
 from journal.exporters.ndjson import NdjsonExporter
 from journal.models import (
     Collection,
+    Comment,
     Content,
     JournalIndex,
+    Note,
     Piece,
     Review,
     ShelfMember,
@@ -36,6 +38,7 @@ idx-destroy:    delete index
 idx-alt:        update index schema
 idx-delete:     delete docs in index
 idx-reindex:    reindex docs
+idx-catchup:    update index for journal items edited in last X hours (use --hour)
 """
 
 
@@ -61,6 +64,7 @@ class Command(BaseCommand):
                 "idx-reindex",
                 "idx-delete",
                 "search",
+                "idx-catchup",
             ],
             help=_HELP_TEXT,
         )
@@ -100,6 +104,11 @@ class Command(BaseCommand):
             action="store_true",
             help="skip some inactive users and rare cases to speed up index",
         )
+        parser.add_argument(
+            "--hour",
+            type=int,
+            help="Number of hours to look back for edited items (used with idx-catchup)",
+        )
 
     def integrity(self):
         self.stdout.write("Checking deleted items with remaining journals...")
@@ -125,6 +134,33 @@ class Command(BaseCommand):
             else:
                 self.stdout.write("failed")
             task.delete()
+
+    def idx_catchup(self, hours):
+        if hours is None:
+            self.stdout.write(self.style.ERROR("--hour parameter is required"))
+            return
+        cutoff_time = timezone.now() - timedelta(hours=hours)
+        model_classes = [ShelfMember, Review, Comment, Collection, Note]
+        for model_cls in model_classes:
+            items = model_cls.objects.filter(edited_time__gte=cutoff_time).order_by(
+                "pk"
+            )
+            count = items.count()
+            self.stdout.write(
+                f"{count} {model_cls.__name__}(s) edited since {cutoff_time}"
+            )
+            with tqdm(total=count, desc=f"Updating {model_cls.__name__}") as pbar:
+                for item in items.iterator():
+                    try:
+                        item.update_index()
+                        pbar.set_description(f"Updated {model_cls.__name__}: {item.pk}")
+                    except Exception as e:
+                        self.stdout.write(
+                            self.style.ERROR(
+                                f"Error updating index for {model_cls.__name__} {item.pk}: {e}"
+                            )
+                        )
+                    pbar.update(1)
 
     def handle(
         self,
@@ -277,6 +313,10 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS("matched items:"))
                 for i in r.items:
                     self.stdout.write(str(i))
+
+            case "idx-catchup":
+                hour = kwargs.get("hour")
+                self.idx_catchup(hour)
 
             case _:
                 self.stdout.write(self.style.ERROR("action not found."))

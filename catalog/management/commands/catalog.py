@@ -2,11 +2,13 @@ import json
 import logging
 import sys
 import time
+from datetime import timedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
 from django.db.models import Count, F
+from django.utils import timezone
 from loguru import logger
 from tqdm import tqdm
 
@@ -40,6 +42,7 @@ idx-alt:        update index schema
 idx-delete:     delete docs in index
 idx-reindex:    reindex docs
 idx-get:        dump one doc (use --query for URL)
+idx-catchup:    update index for items edited in last X hours (use --hour)
 """
 
 
@@ -65,6 +68,7 @@ class Command(BaseCommand):
                 "idx-reindex",
                 "idx-delete",
                 "idx-get",
+                "idx-catchup",
             ],
             help=_HELP_TEXT,
         )
@@ -120,6 +124,11 @@ class Command(BaseCommand):
             ],
             default="INFO",
             help="Set logging level (default: INFO)",
+        )
+        parser.add_argument(
+            "--hour",
+            type=int,
+            help="Number of hours to look back for edited items (used with idx-catchup)",
         )
 
     def migrate(self, m):
@@ -339,6 +348,28 @@ class Command(BaseCommand):
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Error: {e}"))
+
+    def idx_catchup(self, hours):
+        """Update index for items edited in the last X hours"""
+        if hours is None:
+            self.stdout.write(self.style.ERROR("--hour parameter is required"))
+            return
+        cutoff_time = timezone.now() - timedelta(hours=hours)
+        items = Item.objects.filter(
+            edited_time__gte=cutoff_time, is_deleted=False, merged_to_item__isnull=True
+        ).order_by("pk")
+        total_count = items.count()
+        self.stdout.write(f"Found {total_count} items edited since: {cutoff_time}")
+        updated_count = 0
+        with tqdm(total=total_count, desc="Updating index") as pbar:
+            for item in items.iterator():
+                try:
+                    item.update_index()
+                    updated_count += 1
+                    pbar.set_description(f"Updated: {item.title[:30]}...")
+                except Exception as e:
+                    logger.error(f"Error updating index for item {item.pk}: {e}")
+                pbar.update(1)
 
     def localize(self):
         c = Item.objects.all().count()
@@ -617,6 +648,10 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.ERROR("name is required."))
                     return
                 self.migrate(name)
+
+            case "idx-catchup":
+                hour = options.get("hour")
+                self.idx_catchup(hour)
 
             case _:
                 self.stdout.write(self.style.ERROR("action not found."))
