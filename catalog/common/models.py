@@ -572,13 +572,29 @@ class Item(PolymorphicModel):
             raise ValueError("cannot merge to item which is deleted")
         if not isinstance(to_item, self.__class__):
             raise ValueError("cannot merge to item in a different model")
+        logger.debug(f"merging {self} to {to_item}")
         self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
         self.merged_to_item = to_item
         self.save()
         for res in self.external_resources.all():
             res.item = to_item
             res.save()
-        if to_item.normalize_metadata():
+        updated = False
+        for k in to_item.METADATA_COPY_LIST:
+            v = getattr(self, k)
+            if v:
+                if not getattr(to_item, k):
+                    setattr(to_item, k, v)
+                    updated = True
+                elif k in self.METADATA_MERGE_LIST:
+                    setattr(to_item, k, uniq(getattr(to_item, k, []) + (v or [])))
+                    updated = True
+        if self.has_cover() and not to_item.has_cover():
+            to_item.cover = self.cover
+            updated = True
+        updated |= to_item.normalize_metadata()
+        to_item.log_action({"!merged_from": [str(self.merged_to_item), str(to_item)]})
+        if updated:
             to_item.save()
 
     @property
@@ -837,6 +853,7 @@ class Item(PolymorphicModel):
         ) != pid and pid != (None, None):
             self.primary_lookup_id_type = pid[0]
             self.primary_lookup_id_value = pid[1]
+            logger.debug(f"Updated primary_lookup_id for {self} to {pid}")
             return True
         return False
 
@@ -1031,7 +1048,6 @@ class ExternalResource(models.Model):
         - any other_lookup_ids matches item's resources's type/value
         - any other_lookup_ids matches item's resources's any other_lookup_ids
         """
-        logger.debug(f"matching {model} item for {self}")
         ct = item_content_types().get(model)
         if not ct:
             logger.error(f"Unknown item model {model}")

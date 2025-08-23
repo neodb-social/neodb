@@ -363,7 +363,7 @@ class SiteManager:
                         },
                     )
                     continue
-                logger.success(f"fetched {resource}'s {link_type}: {fetched}")
+                logger.debug(f"fetched {resource}'s {link_type}: {fetched}")
                 if fetched:
                     match link_type:
                         case ExternalResource.LinkType.PARENT:
