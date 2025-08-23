@@ -56,8 +56,6 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: neodb/neodb
-          build-args: |
-            dev=1
           tags: |
             type=edge,branch=main
 
@@ -76,6 +74,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            dev=1
 
       - name: Send Discord notification complete
         uses: appleboy/discord-action@master
