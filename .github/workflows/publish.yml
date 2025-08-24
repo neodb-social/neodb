@@ -20,7 +20,7 @@ jobs:
   build_images:
     name: build image and push to Docker Hub
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.repository_owner == 'neodb-social' }}
-    runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-latest-arm' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -61,13 +61,10 @@ jobs:
           color: "#1857a4"
           message: Building development image ${{ github.ref_name }}-${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }} on ${{ matrix.platform }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Docker metadata
+      - name: Set up Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
