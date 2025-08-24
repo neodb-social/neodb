@@ -301,14 +301,22 @@ def wikipedia_pages(request, item_path, item_uuid, wikidata_id):
         ExternalResource, id_value=wikidata_id, id_type=IdType.WikiData
     )
     site = WikiData(id_value=wikidata.id_value)
+    preferred = []
+    additional = []
     wiki_pages = site.get_wikipedia_pages()
+    for p in wiki_pages:
+        if p["lang"].split("-")[0] in settings.PREFERRED_LANGUAGES:
+            preferred.append(p)
+        else:
+            additional.append(p)
+    print(f"Preferred: {len(preferred)}, Additional: {len(additional)}")
     return render(
         request,
         "_wikipedia_pages.html",
         {
             "item": wikidata.item,
             "wikidata_url": wikidata.url,
-            "wikipedia_pages": wiki_pages,
+            "wikipedia_pages": preferred + additional,
         },
     )
 

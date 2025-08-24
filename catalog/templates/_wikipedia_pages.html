@@ -11,10 +11,10 @@
     </header>
     <main>
       <ul class="wiki-list">
-        {% for lang_code, page_data in wikipedia_pages.items %}
+        {% for page_data in wikipedia_pages %}
           <li>
             <a href="{{ page_data.url }}" target="_blank" rel="noopener noreferrer">
-              <strong>{{ lang_code }}</strong>: {{ page_data.title }}
+              <strong>{{ page_data.lang }}</strong>: {{ page_data.title }}
             </a>
           </li>
         {% endfor %}

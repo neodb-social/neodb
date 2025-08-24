@@ -1081,14 +1081,14 @@ class WikiData(AbstractSite):
                 return {}
 
             # Extract Wikipedia pages
-            wiki_pages = {}
+            wiki_pages = []
             for site_key, site_data in entity["sitelinks"].items():
                 # Only include Wikipedia links (skip other projects like Wiktionary)
                 if site_key.endswith("wiki") and not site_key.startswith("commons"):
                     lang_code = site_key.replace("wiki", "")
                     title = site_data["title"]
                     url = f"https://{lang_code}.wikipedia.org/wiki/{quote(title.replace(' ', '_'))}"
-                    wiki_pages[lang_code] = {"url": url, "title": title}
+                    wiki_pages.append({"lang": lang_code, "url": url, "title": title})
 
             return wiki_pages
 
