@@ -247,6 +247,19 @@ class WikiData(AbstractSite):
         r"^\w+://www\.wikidata\.org/wiki/(Q\d+)",  # Entity URLs like Q12345
         r"^\w+://www\.wikidata\.org/entity/(Q\d+)",  # Entity URLs in alternate format
     ]
+    MATCHABLE_MODELS = [
+        Movie,
+        TVShow,
+        TVSeason,
+        TVEpisode,
+        Game,
+        Podcast,
+        PodcastEpisode,
+        Performance,
+        Work,
+        # Album,
+        # Edition,
+    ]
 
     # Map of Wikidata entity types to NeoDB models
     TYPE_TO_MODEL_MAP = {
