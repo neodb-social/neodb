@@ -41,6 +41,8 @@ class WikidataTypes:
     LITERARY_WORK = "Q7725634"  # Literary work (Book)
     BOOK = "Q571"
     NOVEL = "Q8261"  # Novel (specific type of book)
+    WRITTEN_WORK = "Q47461344"
+    EDITION = "Q3331189"  # version, edition or translation
     TV_SERIES = "Q5398426"  # Television series
     TV_SEASON = "Q3464665"  # Television season
     TV_EPISODE = "Q21191270"  # Television episode
@@ -290,6 +292,7 @@ class WikiData(AbstractSite):
         WikidataTypes.MANGA_SERIES: Work,
         WikidataTypes.BOOK: Work,
         WikidataTypes.CREATIVE_WORK: Work,
+        WikidataTypes.WRITTEN_WORK: Work,
     }
 
     # Types that have priority over all others
