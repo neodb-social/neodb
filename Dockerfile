@@ -2,6 +2,7 @@
 FROM python:3.13-slim AS build
 ARG dev
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV UV_COMPILE_BYTECODE=0
 ENV PYTHONUNBUFFERED=1
 
 RUN --mount=type=cache,sharing=locked,target=/var/cache/apt apt-get update \
@@ -21,12 +22,12 @@ RUN uv venv /neodb-venv
 ENV VIRTUAL_ENV=/neodb-venv
 RUN find misc/wheels-cache -type f | xargs -n 1 uv pip install --python /neodb-venv/bin/python || echo incompatible wheel ignored
 RUN rm -rf misc/wheels-cache
-RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active $(if [[ -z "$dev" ]]; then echo "--no-dev"; fi)
+RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
 
 WORKDIR /takahe
 RUN uv venv /takahe-venv
 ENV VIRTUAL_ENV=/takahe-venv
-RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active $(if [[ -z "$dev" ]]; then echo "--no-dev"; fi)
+RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
 
 # runtime stage
 FROM python:3.13-slim AS runtime
