@@ -1,5 +1,4 @@
 name: Development Image
-
 on:
   # pull_request:
   #   branches: ["*"]
@@ -21,7 +20,7 @@ jobs:
   build_images:
     name: build image and push to Docker Hub
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.repository_owner == 'neodb-social' }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-latest-arm' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
