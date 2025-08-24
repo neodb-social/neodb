@@ -28,7 +28,7 @@
   <link rel="stylesheet"
         href="{{ cdn_url }}/npm/@picocss/pico@2/css/pico.{{ site_color }}.min.css" />
 {% endif %}
-<link href="{% sass_src 'scss/neodb.scss' %}"
+<link href="{% sass_src 'scss/neodb.scss' %}{% if debug_enabled %}?r={% now "U" %}{% endif %}"
       rel="stylesheet"
       type="text/css" />
 <link href="{{ cdn_url }}/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css"
@@ -50,7 +50,8 @@
   const solo = localStorage.getItem("solo_mode")=="1";
   if (solo) {
     const style = document.createElement("style");
-    style.innerHTML = ".solo-hidden {display: none;}";
+    style.innerHTML = ".solo-hidden {display: none;}\n"
+                    + ".notification-dot {display: none !important;}\n";
     document.head.appendChild(style);
   }
   const demetrication = localStorage.getItem("demetrication")=="1";

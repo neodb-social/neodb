@@ -23,6 +23,37 @@ body {
 
       .nav-links a {
         color: var(--pico-secondary);
+        position: relative;
+      }
+
+      .notification-dot {
+        position: absolute;
+        width: 0.5em;
+        height: 0.5em;
+        background-color: var(--pico-primary) !important;
+        border-radius: 50%;
+        display: none;
+
+        &.has-unread {
+          display: block;
+        }
+      }
+
+      .nav-links .small-only .notification-dot {
+        top: 0;
+        right: 0.25em;
+        width: 0.4em;
+        height: 0.4em;
+      }
+
+      .nav-links .large-only .notification-dot {
+        top: 0.25em;
+        right: 0;
+      }
+
+      .nav-dropdown .notification-dot {
+        top: 1em;
+        right: 0.5em;
       }
 
       font-weight: bold;

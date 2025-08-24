@@ -2,4 +2,6 @@ from django.conf import settings
 
 
 def site_info(request):
-    return settings.SITE_INFO
+    context = settings.SITE_INFO
+    context["debug_enabled"] = settings.DEBUG
+    return context

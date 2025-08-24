@@ -11,4 +11,9 @@ urlpatterns = [
     path("notification", notification, name="notification"),
     path("dismiss_notification", dismiss_notification, name="dismiss_notification"),
     path("events", events, name="events"),
+    path(
+        "unread_notifications_status",
+        unread_notifications_status,
+        name="unread_notifications_status",
+    ),
 ]

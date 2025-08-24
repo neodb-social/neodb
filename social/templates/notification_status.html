@@ -1,0 +1,25 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dots = document.querySelectorAll('.notification-dot');
+        dots.forEach(dot => {
+            if ({{ has_unread|yesno:"true,false" }}) {
+                dot.classList.add('has-unread');
+            } else {
+                dot.classList.remove('has-unread');
+            }
+        });
+    });
+    // Also trigger immediately if DOM already loaded
+    if (document.readyState === 'loading') {
+        // DOM hasn't loaded yet
+    } else {
+        const dots = document.querySelectorAll('.notification-dot');
+        dots.forEach(dot => {
+            if ({{ has_unread|yesno:"true,false" }}) {
+                dot.classList.add('has-unread');
+            } else {
+                dot.classList.remove('has-unread');
+            }
+        });
+    }
+</script>

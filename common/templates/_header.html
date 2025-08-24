@@ -63,7 +63,10 @@
         <a class="nav-link-discover" href="{% url 'catalog:discover' %}"><i class="fa-solid fa-globe"></i></a>
       </li>
       <li class="small-only">
-        <a class="nav-link-feed" href="{% url 'social:feed' %}"><i class="fa-solid fa-users"></i></a>
+        <a class="nav-link-feed" href="{% url 'social:feed' %}">
+          <i class="fa-solid fa-users"></i>
+          <span class="notification-dot"></span>
+        </a>
       </li>
       <li class="small-only">
         <a class="nav-link-home" href="{% url 'common:me' %}"><i class="fa-solid fa-house-user"></i></a>
@@ -72,7 +75,10 @@
         <a class="nav-link-discover" href="{% url 'catalog:discover' %}">{% trans 'Explore' %}</a>
       </li>
       <li class="large-only">
-        <a class="nav-link-feed" href="{% url 'social:feed' %}">{% trans 'Feed' %}</a>
+        <a class="nav-link-feed" href="{% url 'social:feed' %}">
+          {% trans 'Feed' %}
+          <span class="notification-dot"></span>
+        </a>
       </li>
       <li class="large-only">
         <a class="nav-link-home" href="{% url 'common:me' %}">{% trans 'Home' %}</a>
@@ -92,6 +98,7 @@
             {% if request.user.is_authenticated %}
               <li>
                 <a href="{% url 'social:notification' %}">{% trans 'Notification' %}</a>
+                <span class="notification-dot"></span>
               </li>
               <li>
                 <a href="{% url 'users:data' %}">{% trans 'Data' %}</a>
@@ -139,6 +146,9 @@ function _search_cat_change(){
 $('.nav-search select').on('change', _search_cat_change);
 _search_cat_change();
   </script>
+  <div hx-get="{% url 'social:unread_notifications_status' %}"
+       hx-trigger="load"
+       hx-swap="innerHTML"></div>
 {% endif %}
 {% if messages %}
   <ul class="messages" style="text-align:center">

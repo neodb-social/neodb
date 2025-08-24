@@ -18,6 +18,10 @@ _all_notification_types = [
     "followed",
     "follow_requested",
 ]
+_urgent_notification_types = [
+    "mentioned",
+    "follow_requested",
+]
 
 
 def _sidebar_context(user):
@@ -238,3 +242,17 @@ def events(request):
         "events.html",
         {"events": nes},
     )
+
+
+@login_required
+@require_http_methods(["GET"])
+def unread_notifications_status(request):
+    if not request.user.is_authenticated:
+        has_unread = False
+    else:
+        has_unread = (
+            Takahe.get_events(request.user.identity.pk, _all_notification_types)
+            .filter(seen=False)
+            .exists()
+        )
+    return render(request, "notification_status.html", {"has_unread": has_unread})
