@@ -22,12 +22,12 @@ RUN uv venv /neodb-venv
 ENV VIRTUAL_ENV=/neodb-venv
 RUN find misc/wheels-cache -type f | xargs -n 1 uv pip install --python /neodb-venv/bin/python || echo incompatible wheel ignored
 RUN rm -rf misc/wheels-cache
-RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
+RUN uv sync --active $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
 
 WORKDIR /takahe
 RUN uv venv /takahe-venv
 ENV VIRTUAL_ENV=/takahe-venv
-RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
+RUN uv sync --active $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
 
 # runtime stage
 FROM python:3.13-slim AS runtime
