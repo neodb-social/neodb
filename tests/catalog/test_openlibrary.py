@@ -20,15 +20,16 @@ class TestOpenLibrary:
         assert p2.ID_TYPE == t_type
         assert p2.id_value == t_id
 
-    def test_parse_isbn_redirect(self):
-        # Test that ISBN URLs automatically redirect to book URLs via SiteManager
-        isbn = "9780980200447"
-        isbn_url = f"https://openlibrary.org/isbn/{isbn}"
-        site = SiteManager.get_site_by_url(isbn_url)
-        assert site is not None
-        assert site.ID_TYPE == IdType.OpenLibrary
-        assert site.id_value == "OL22853304M"
-        assert site.url == "https://openlibrary.org/books/OL22853304M"
+    # comment out as it times out too often
+    # def test_parse_isbn_redirect(self):
+    #     # Test that ISBN URLs automatically redirect to book URLs via SiteManager
+    #     isbn = "9780980200447"
+    #     isbn_url = f"https://openlibrary.org/isbn/{isbn}"
+    #     site = SiteManager.get_site_by_url(isbn_url)
+    #     assert site is not None
+    #     assert site.ID_TYPE == IdType.OpenLibrary
+    #     assert site.id_value == "OL22853304M"
+    #     assert site.url == "https://openlibrary.org/books/OL22853304M"
 
     @use_local_response
     def test_scrape_book(self):
