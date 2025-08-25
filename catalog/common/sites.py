@@ -202,10 +202,11 @@ class AbstractSite:
             self.get_item(ignore_existing_content)
         if auto_save and p.item:
             self.scrape_additional_data()
-        if auto_link:
+        if auto_save and p.required_resources:
             SiteManager.fetch_linked_resources(
                 p, p.required_resources, ExternalResource.LinkType.PARENT
             )
+        if auto_link:
             if p.related_resources or p.other_lookup_ids or p.prematched_resources:
                 django_rq.get_queue("crawl").enqueue(
                     SiteManager.fetch_related_resources_task, p.pk

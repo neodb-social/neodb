@@ -779,25 +779,30 @@ def test_extract_openlibrary_ids():
 
 
 def test_openlibrary_work_property_mapping():
-    """Test that P648 is correctly mapped to OpenLibrary_Work IdType"""
+    """Test that P648 is correctly mapped to OpenLibrary IdType (dynamic detection)"""
     # Verify the mapping exists in WikidataProperties
     assert "P648" in WikidataProperties.IdTypeMapping
-    assert WikidataProperties.IdTypeMapping["P648"] == IdType.OpenLibrary_Work
+    assert WikidataProperties.IdTypeMapping["P648"] == IdType.OpenLibrary
 
 
 def test_openlibrary_work_reverse_lookup():
-    """Test that we can find the correct Wikidata property for OpenLibrary_Work IdType"""
+    """Test that P648 maps to OpenLibrary and dynamic type detection works"""
+    from catalog.sites.openlibrary import OpenLibrary
     from catalog.sites.wikidata import WikidataProperties
 
-    # Find the property ID for OpenLibrary_Work
+    # Find the property ID for OpenLibrary (P648 maps to generic OpenLibrary)
     property_id = None
     for prop_id, mapped_type in WikidataProperties.IdTypeMapping.items():
-        if mapped_type == IdType.OpenLibrary_Work:
+        if mapped_type == IdType.OpenLibrary:
             property_id = prop_id
             break
 
     # Verify we found the correct property
     assert property_id == "P648"
 
+    # Verify that OpenLibrary.guess_id_type correctly identifies Work vs Edition
+    assert OpenLibrary.guess_id_type("OL8694710W") == IdType.OpenLibrary_Work
+    assert OpenLibrary.guess_id_type("OL7353617M") == IdType.OpenLibrary
+
     # This verifies that the lookup_qid_by_external_id method would work correctly
-    # for OpenLibrary_Work IDs (though we're not testing the actual API call here)
+    # for both OpenLibrary Edition and Work IDs

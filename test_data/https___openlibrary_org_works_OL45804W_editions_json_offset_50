@@ -1,0 +1,51 @@
+{
+    "links": {
+        "self": "/works/OL45804W/editions.json?offset=50",
+        "work": "/works/OL45804W"
+    },
+    "size": 2,
+    "entries": [
+        {
+            "type": {
+                "key": "/type/edition"
+            },
+            "title": "Page 2 Edition 1",
+            "publishers": ["Test Publisher"],
+            "publish_date": "2020",
+            "key": "/books/OL9999991M",
+            "authors": [
+                {
+                    "key": "/authors/OL34184A"
+                }
+            ],
+            "number_of_pages": 100,
+            "isbn_13": ["9999999999999"],
+            "languages": [
+                {
+                    "key": "/languages/eng"
+                }
+            ]
+        },
+        {
+            "type": {
+                "key": "/type/edition"
+            },
+            "title": "Page 2 Edition 2",
+            "publishers": ["Another Publisher"],
+            "publish_date": "2021",
+            "key": "/books/OL9999992M",
+            "authors": [
+                {
+                    "key": "/authors/OL34184A"
+                }
+            ],
+            "number_of_pages": 150,
+            "isbn_13": ["9999999999998"],
+            "languages": [
+                {
+                    "key": "/languages/eng"
+                }
+            ]
+        }
+    ]
+}

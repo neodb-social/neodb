@@ -553,17 +553,18 @@ _language_aliases = _build_language_aliases()
 # }
 
 
+def normalize_language(lang: str) -> str | None:
+    if not lang or not isinstance(lang, str):
+        return None
+    ll = lang.strip().lower().replace("_", "-")
+    if ll in _language_aliases:
+        return _language_aliases[ll]
+    return ll
+
+
 def normalize_languages(languages: list[str]) -> list[str]:
-    normalized = []
-    for lang in languages or []:
-        if not lang or not isinstance(lang, str) or not lang.strip():
-            continue
-        ll = lang.strip().lower().replace("_", "-")
-        if ll in _language_aliases:
-            normalized.append(_language_aliases[ll])
-        else:
-            normalized.append(ll)
-    return list(dict.fromkeys(normalized))
+    normalized = [normalize_language(ll) for ll in languages]
+    return list(dict.fromkeys([ll for ll in normalized if ll]))
 
 
 def _lt_detect_language(text) -> str | None:

@@ -8,6 +8,7 @@ from catalog.book.utils import detect_isbn_asin, isbn_10_to_13
 from catalog.common import *
 from catalog.models import *
 from common.models import detect_language
+from common.models.lang import normalize_language
 
 
 @SiteManager.register
@@ -34,109 +35,69 @@ class OpenLibrary(AbstractSite):
             return IdType.OpenLibrary_Work
 
     def scrape(self):
-        # Use the Books API to get book information
         # id_value should always be an OpenLibrary book ID (OL...M format)
-        api_url = f"https://openlibrary.org/api/books?bibkeys=OLID:{self.id_value}&jscmd=data&format=json"
-        bibkey = f"OLID:{self.id_value}"
-
+        api_url = f"https://openlibrary.org/books/{self.id_value}.json"
         response = BasicDownloader(api_url).download()
-        data_json = response.json()
-
-        if not data_json or bibkey not in data_json:
-            raise ParseError(self, f"No data found for {bibkey}")
-
-        book_data = data_json[bibkey]
-
-        # Extract basic information
+        book_data = response.json()
+        if not book_data:
+            raise ParseError(self, "no data returned")
         title = book_data.get("title", "")
         subtitle = book_data.get("subtitle")
-
-        # Authors
         authors = []
         if "authors" in book_data:
-            authors = [
-                author.get("name", "")
-                for author in book_data["authors"]
-                if author.get("name")
-            ]
-
-        # Publishers
+            for a in book_data["authors"]:
+                author_url = "https://openlibrary.org" + a["key"] + ".json"
+                author_json = BasicDownloader(author_url).download().json()
+                authors.append(author_json.get("name", ""))
         publishers = book_data.get("publishers", [])
-        pub_house = publishers[0].get("name") if publishers else None
-
-        # Publication date
+        pub_house = publishers[0] if publishers else None
         pub_year = None
         pub_month = None
         if "publish_date" in book_data:
             pub_date = book_data["publish_date"]
-            # Try to parse different date formats
             date_match = re.search(r"(\d{4})", pub_date)
             if date_match:
                 pub_year = int(date_match.group(1))
-            # Try to extract month (basic pattern)
             month_match = re.search(r"(\d{1,2})[/-](\d{4})", pub_date)
             if month_match:
                 pub_month = int(month_match.group(1))
-
-        # Number of pages
         pages = book_data.get("number_of_pages")
-
-        # Subjects (genres/topics)
-        subjects = book_data.get("subjects", [])
         other_info = {}
-        if subjects:
-            other_info["subjects"] = [
-                subj.get("name", "") for subj in subjects if subj.get("name")
-            ]
-
-        # Description
         brief = ""
         if "notes" in book_data and book_data["notes"]:
             brief = book_data["notes"]
         elif "description" in book_data:
             brief = book_data["description"]
+        if isinstance(brief, dict):
+            brief = brief.get("value", "")
+        img_url = f"https://covers.openlibrary.org/b/olid/{self.id_value}-L.jpg"
 
-        # Cover image
-        img_url = None
-        if "cover" in book_data:
-            img_url = (
-                book_data["cover"].get("large")
-                or book_data["cover"].get("medium")
-                or book_data["cover"].get("small")
-            )
-
-        # ISBNs
-        isbn_10 = None
-        isbn_13 = None
+        isbn_10 = book_data.get("isbn_10", [])
+        isbn_13 = book_data.get("isbn_13", [])
         lookup_ids = {}
-
-        if "identifiers" in book_data:
-            identifiers = book_data["identifiers"]
-            if "isbn_10" in identifiers:
-                isbn_10 = identifiers["isbn_10"][0] if identifiers["isbn_10"] else None
-            if "isbn_13" in identifiers:
-                isbn_13 = identifiers["isbn_13"][0] if identifiers["isbn_13"] else None
-
-        # Use ISBN 13 as primary, convert from ISBN 10 if needed
-        isbn = isbn_13
+        isbn = isbn_13[0] if isbn_13 else None
         if not isbn and isbn_10:
-            isbn = isbn_10_to_13(isbn_10)
+            isbn = isbn_10_to_13(isbn_10[0])
 
         if isbn:
             isbn_type, isbn_value = detect_isbn_asin(isbn)
             if isbn_type:
                 lookup_ids[isbn_type] = isbn_value
 
-        # Language detection
-        lang = detect_language(title + " " + (brief or ""))
         language = []
         if "languages" in book_data:
             language = [
                 lang_obj.get("key", "").replace("/languages/", "")
                 for lang_obj in book_data["languages"]
             ]
-
-        # Work information - OpenLibrary books are linked to works
+        lang = (
+            normalize_language(
+                language[0]
+                if len(language) > 0
+                else detect_language(title + " " + (brief or ""))
+            )
+            or "en"
+        )
         work_info = None
         if "works" in book_data and book_data["works"]:
             work = book_data["works"][0]
@@ -151,7 +112,6 @@ class OpenLibrary(AbstractSite):
                     "url": f"https://openlibrary.org{work_key}",
                 }
 
-        # Download cover image
         raw_img, ext = BasicImageDownloader.download_image(img_url, None, headers={})
 
         metadata = {
@@ -193,57 +153,33 @@ class OpenLibrary(AbstractSite):
     ) -> list[ExternalSearchResultItem]:
         if category not in ["all", "book"]:
             return []
-
         results = []
-        # OpenLibrary search API
-        search_url = f"https://openlibrary.org/search.json?q={quote_plus(q)}&limit={page_size}&offset={(page - 1) * page_size}"
-
+        search_url = f"https://openlibrary.org/search.json?q={quote_plus(q)}&limit={page_size}&offset={(page - 1) * page_size}&fields=key,title,author_name,first_publish_year,editions,editions.key,editions.title,editions,editions.language"
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(search_url, timeout=3)
                 data = response.json()
-
                 if "docs" in data:
-                    for book in data["docs"]:
-                        title = book.get("title", "Unknown Title")
-
-                        # Build subtitle with author and publication year
+                    for work in data["docs"]:
+                        title = work.get("title", "")
                         subtitle_parts = []
-                        if "author_name" in book:
-                            subtitle_parts.append(
-                                ", ".join(book["author_name"][:2])
-                            )  # Limit to first 2 authors
-                        if "first_publish_year" in book:
-                            subtitle_parts.append(str(book["first_publish_year"]))
+                        if "author_name" in work:
+                            subtitle_parts.append(", ".join(work["author_name"][:2]))
+                            if len(work["author_name"]) > 2:
+                                subtitle_parts.append("et al.")
+                        if "first_publish_year" in work:
+                            subtitle_parts.append(str(work["first_publish_year"]))
                         subtitle = " • ".join(subtitle_parts)
-
-                        # Get first available edition
-                        edition_key = None
-                        if "edition_key" in book and book["edition_key"]:
-                            edition_key = book["edition_key"][0]
-                        elif "key" in book:
-                            # This is a work key, we'll need to get editions
-                            edition_key = None
-
-                        # Prefer ISBN if available
-                        url = None
-                        if "isbn" in book and book["isbn"]:
-                            url = f"https://openlibrary.org/isbn/{book['isbn'][0]}"
-                        elif edition_key:
-                            url = f"https://openlibrary.org/books/{edition_key}"
-                        else:
-                            continue  # Skip if we can't construct a URL
-
-                        # Cover image
-                        cover_url = ""
-                        if "cover_i" in book:
-                            cover_url = f"https://covers.openlibrary.org/b/id/{book['cover_i']}-M.jpg"
-
-                        # Brief description
+                        editions = work.get("editions", {}).get("docs", [])
+                        if not editions:
+                            continue
+                        k = editions[0]["key"].split("/")[-1]
+                        title = editions[0].get("title", title)
+                        url = f"https://openlibrary.org/books/{k}"
+                        cover_url = f"https://covers.openlibrary.org/b/olid/{k}-M.jpg"
                         brief = ""
-                        if "subtitle" in book:
-                            brief = book["subtitle"]
-
+                        if "subtitle" in work:
+                            brief = work["subtitle"]
                         results.append(
                             ExternalSearchResultItem(
                                 ItemCategory.Book,
@@ -281,8 +217,68 @@ class OpenLibrary_Work(AbstractSite):
     def id_to_url(cls, id_value):
         return f"https://openlibrary.org/works/{id_value}"
 
+    def fetch_editions(self, max_pages=5):
+        """Fetch editions for this work from OpenLibrary editions API
+
+        Args:
+            max_pages: Maximum number of pages to fetch (default 5)
+
+        Returns:
+            List of edition resource dictionaries
+        """
+        editions = []
+        offset = 0
+        pages_fetched = 0
+
+        while pages_fetched < max_pages:
+            if offset == 0:
+                api_url = f"https://openlibrary.org/works/{self.id_value}/editions.json"
+            else:
+                api_url = f"https://openlibrary.org/works/{self.id_value}/editions.json?offset={offset}"
+
+            try:
+                response = BasicDownloader(api_url).download()
+                data = response.json()
+
+                if "entries" not in data:
+                    break
+
+                for edition in data["entries"]:
+                    edition_key = edition.get("key", "")
+                    if edition_key.startswith("/books/"):
+                        edition_id = edition_key.replace("/books/", "")
+                        edition_title = edition.get("title", "")
+
+                        # Create edition resource info
+                        edition_resource = {
+                            "model": "Edition",
+                            "id_type": IdType.OpenLibrary,
+                            "id_value": edition_id,
+                            "title": edition_title,
+                            "url": f"https://openlibrary.org{edition_key}",
+                        }
+                        editions.append(edition_resource)
+
+                # Check for next page
+                next_url = data.get("next")
+                if not next_url:
+                    break
+
+                # Extract offset from next URL
+                if "offset=" in next_url:
+                    offset = int(next_url.split("offset=")[1].split("&")[0])
+                else:
+                    break
+
+                pages_fetched += 1
+
+            except Exception as e:
+                logger.warning(f"Error fetching editions for {self.id_value}: {e}")
+                break
+
+        return editions
+
     def scrape(self):
-        # Get work information from OpenLibrary API
         api_url = f"https://openlibrary.org/works/{self.id_value}.json"
 
         response = BasicDownloader(api_url).download()
@@ -293,17 +289,15 @@ class OpenLibrary_Work(AbstractSite):
 
         title = work_data.get("title", "")
 
-        # Authors
         authors = []
         if "authors" in work_data:
             for author_ref in work_data["authors"]:
-                # Author references in works are like {"author": {"key": "/authors/OL23919A"}}
-                if "author" in author_ref and "key" in author_ref["author"]:
-                    # We could fetch author details, but for now just skip
-                    # For now, we'll skip fetching author names to keep it simple
-                    pass
+                author_url = (
+                    "https://openlibrary.org" + author_ref["author"]["key"] + ".json"
+                )
+                author_json = BasicDownloader(author_url).download().json()
+                authors.append(author_json.get("name", ""))
 
-        # Description
         description = ""
         if "description" in work_data:
             if isinstance(work_data["description"], dict):
@@ -311,19 +305,14 @@ class OpenLibrary_Work(AbstractSite):
             else:
                 description = str(work_data["description"])
 
-        # First published date
         first_published = None
         if "first_publish_date" in work_data:
             first_published = work_data["first_publish_date"]
 
-        # Subjects
-        subjects = work_data.get("subjects", [])
-
-        # Language detection
         lang = detect_language(title + " " + description)
 
-        # Find related editions (we could populate this, but it's complex)
-        related_resources = []
+        # Fetch related editions
+        related_resources = self.fetch_editions()
 
         metadata = {
             "title": title,
@@ -333,7 +322,6 @@ class OpenLibrary_Work(AbstractSite):
             "localized_description": [{"lang": lang, "text": description}]
             if description
             else [],
-            "subjects": subjects,
             "related_resources": related_resources,
         }
 
