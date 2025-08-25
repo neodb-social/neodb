@@ -8,6 +8,7 @@ from urllib.parse import quote, urlencode
 
 from loguru import logger
 
+from catalog.book.models import Edition
 from catalog.common import (
     AbstractSite,
     IdType,
@@ -28,6 +29,7 @@ from catalog.models import (
     TVShow,
     Work,
 )
+from catalog.sites.openlibrary import OpenLibrary
 from common.models.lang import SITE_PREFERRED_LANGUAGES
 
 
@@ -175,6 +177,7 @@ class WikidataProperties:
     P8383 = "P8383"  # Goodreads work ID
     P8419 = "P8419"  # Archive of Our Own tag
     P10319 = "P10319"  # Douban book works ID
+    P648 = "P648"  # Open Library ID
 
     IdTypeMapping = {
         "P345": IdType.IMDB,
@@ -192,6 +195,7 @@ class WikidataProperties:
         "P2969": IdType.Goodreads,  # Goodreads edition ID
         "P8383": IdType.Goodreads_Work,  # Goodreads work ID
         "P675": IdType.GoogleBooks,
+        "P648": IdType.OpenLibrary,  # Open Library, might be Edition/Work/Person, handled below
         "P4947": IdType.TMDB_Movie,  # TMDb movie ID
         "P4983": IdType.TMDB_TV,  # TMDb TV series ID
         "P1954": IdType.Discogs_Master,  # Discogs master ID
@@ -258,7 +262,7 @@ class WikiData(AbstractSite):
         Performance,
         Work,
         # Album,
-        # Edition,
+        Edition,
     ]
 
     # Map of Wikidata entity types to NeoDB models
@@ -306,6 +310,7 @@ class WikiData(AbstractSite):
         WikidataTypes.BOOK: Work,
         WikidataTypes.CREATIVE_WORK: Work,
         WikidataTypes.WRITTEN_WORK: Work,
+        WikidataTypes.EDITION: Edition,
     }
 
     # Types that have priority over all others
@@ -1121,6 +1126,8 @@ class WikiData(AbstractSite):
                 # Handle both v0 and v1 API formats
                 if isinstance(value, dict):
                     value = value.get("content") or value.get("text")
+                if id_type in [IdType.OpenLibrary, IdType.OpenLibrary_Work]:
+                    id_type = OpenLibrary.guess_id_type(value)
                 resources.append({"id_type": id_type, "id_value": value})
         return resources
 

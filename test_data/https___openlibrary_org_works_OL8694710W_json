@@ -1,0 +1,36 @@
+{
+  "type": {
+    "key": "/type/work"
+  },
+  "title": "Slow reading",
+  "authors": [
+    {
+      "author": {
+        "key": "/authors/OL2622287A"
+      },
+      "type": {
+        "key": "/type/author_role"
+      }
+    }
+  ],
+  "subjects": [
+    "Books and reading",
+    "Reading",
+    "Reading comprehension"
+  ],
+  "description": {
+    "type": "/type/text",
+    "value": "A practical guide to the art of slow reading, exploring how to harness the power of print in the digital age."
+  },
+  "first_publish_date": "2009",
+  "key": "/works/OL8694710W",
+  "revision": 2,
+  "created": {
+    "type": "/type/datetime",
+    "value": "2009-12-11T01:12:51.084799"
+  },
+  "last_modified": {
+    "type": "/type/datetime",
+    "value": "2022-12-14T04:29:50.847462"
+  }
+}

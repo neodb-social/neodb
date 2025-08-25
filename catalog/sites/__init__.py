@@ -19,6 +19,7 @@ from .google_books import GoogleBooks
 from .igdb import IGDB
 from .imdb import IMDB
 from .jjwxc import JJWXC
+from .openlibrary import OpenLibrary, OpenLibrary_Work
 from .qidian import Qidian
 from .rss import RSS
 from .spotify import Spotify
@@ -49,6 +50,8 @@ __all__ = [
     "Goodreads",
     "GoogleBooks",
     "IGDB",
+    "OpenLibrary",
+    "OpenLibrary_Work",
     "IMDB",
     "JJWXC",
     "Qidian",

@@ -1,0 +1,60 @@
+{
+  "OLID:OL22853304M": {
+    "publishers": [
+      {
+        "name": "Litwin Books"
+      }
+    ],
+    "identifiers": {
+      "isbn_13": [
+        "9780980200447"
+      ],
+      "isbn_10": [
+        "0980200440"
+      ],
+      "lccn": [
+        "2008054742"
+      ],
+      "openlibrary": [
+        "OL22853304M"
+      ]
+    },
+    "title": "Slow reading",
+    "subtitle": "harnessing the power of print in the digital age",
+    "url": "https://openlibrary.org/books/OL22853304M/Slow_reading",
+    "number_of_pages": 92,
+    "cover": {
+      "small": "https://covers.openlibrary.org/b/id/5546156-S.jpg",
+      "medium": "https://covers.openlibrary.org/b/id/5546156-M.jpg",
+      "large": "https://covers.openlibrary.org/b/id/5546156-L.jpg"
+    },
+    "publish_date": "2009",
+    "key": "/books/OL22853304M",
+    "authors": [
+      {
+        "url": "https://openlibrary.org/authors/OL2622287A/John_Miedema", 
+        "name": "John Miedema"
+      }
+    ],
+    "subjects": [
+      {
+        "name": "Books and reading",
+        "url": "https://openlibrary.org/subjects/books_and_reading"
+      },
+      {
+        "name": "Reading",
+        "url": "https://openlibrary.org/subjects/reading" 
+      },
+      {
+        "name": "Reading comprehension",
+        "url": "https://openlibrary.org/subjects/reading_comprehension"
+      }
+    ],
+    "works": [
+      {
+        "key": "/works/OL8694710W"
+      }
+    ],
+    "notes": "Includes bibliographical references (p. 83-92)."
+  }
+}

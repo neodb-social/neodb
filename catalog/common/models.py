@@ -63,6 +63,7 @@ class SiteName(models.TextChoices):
     AO3 = "ao3", _("Archive of Our Own")
     JJWXC = "jjwxc", _("JinJiang")
     WikiData = "wikidata", _("WikiData")
+    OpenLibrary = "openlibrary", _("Open Library")
 
 
 class IdType(models.TextChoices):  # values must be in lowercase
@@ -116,6 +117,8 @@ class IdType(models.TextChoices):  # values must be in lowercase
     Ypshuo = "ypshuo", _("Ypshuo")
     AO3 = "ao3", _("Archive of Our Own")
     JJWXC = "jjwxc", _("JinJiang")
+    OpenLibrary = "openlibrary", _("Open Library")
+    OpenLibrary_Work = "openlibrary_work", _("Open Library Work")
 
 
 IdealIdTypes = [

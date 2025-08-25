@@ -24,7 +24,8 @@
     background-color: #900;
   }
 
-  .qidian, .ypshuo {
+  .qidian,
+  .ypshuo {
     border: none;
     color: white;
     background-color: #9e252b;
@@ -154,6 +155,13 @@
     color: #3B3738;
     background-color: #E0E1E2;
     border: none;
+    font-weight: normal;
+  }
+
+  .openlibrary {
+    color: #111111;
+    background-color: #E1DCC5;
+    border-color: #D3CCB0;
     font-weight: normal;
   }
 }

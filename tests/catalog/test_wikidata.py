@@ -752,3 +752,52 @@ class TestWikiData:
         assert (
             content.metadata["opening_date"] == "1602-01-01"
         )  # convered from 1602-00-00
+
+
+def test_extract_openlibrary_ids():
+    """Test extraction of OpenLibrary work IDs from WikiData"""
+    # Create a WikiData site instance
+    site = WikiData(id_value="Q12345")
+
+    # Mock entity data with OpenLibrary work ID (P648)
+    entity_data = {"statements": {"P648": [{"value": "OL8694710W"}]}}
+
+    # Extract external IDs
+    resources = site._extract_external_ids(entity_data)
+
+    # Find OpenLibrary_Work in the extracted resources
+    openlibrary_work = None
+    for resource in resources:
+        if resource["id_type"] == IdType.OpenLibrary_Work:
+            openlibrary_work = resource
+            break
+
+    # Verify OpenLibrary work ID was extracted correctly
+    assert openlibrary_work is not None
+    assert openlibrary_work["id_value"] == "OL8694710W"
+    assert openlibrary_work["id_type"] == IdType.OpenLibrary_Work
+
+
+def test_openlibrary_work_property_mapping():
+    """Test that P648 is correctly mapped to OpenLibrary_Work IdType"""
+    # Verify the mapping exists in WikidataProperties
+    assert "P648" in WikidataProperties.IdTypeMapping
+    assert WikidataProperties.IdTypeMapping["P648"] == IdType.OpenLibrary_Work
+
+
+def test_openlibrary_work_reverse_lookup():
+    """Test that we can find the correct Wikidata property for OpenLibrary_Work IdType"""
+    from catalog.sites.wikidata import WikidataProperties
+
+    # Find the property ID for OpenLibrary_Work
+    property_id = None
+    for prop_id, mapped_type in WikidataProperties.IdTypeMapping.items():
+        if mapped_type == IdType.OpenLibrary_Work:
+            property_id = prop_id
+            break
+
+    # Verify we found the correct property
+    assert property_id == "P648"
+
+    # This verifies that the lookup_qid_by_external_id method would work correctly
+    # for OpenLibrary_Work IDs (though we're not testing the actual API call here)
