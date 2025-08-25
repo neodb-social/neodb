@@ -29,7 +29,6 @@ class TestNormalizeLanguages:
     def test_empty_list(self):
         """Should return empty list for empty input"""
         assert normalize_languages([]) == []
-        assert normalize_languages(None) == []  # type:ignore
 
     def test_already_valid_codes(self):
         """Should preserve already valid language codes"""

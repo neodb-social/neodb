@@ -154,7 +154,7 @@ class OpenLibrary(AbstractSite):
         if category not in ["all", "book"]:
             return []
         results = []
-        search_url = f"https://openlibrary.org/search.json?q={quote_plus(q)}&limit={page_size}&offset={(page - 1) * page_size}&fields=key,title,author_name,first_publish_year,editions,editions.key,editions.title,editions,editions.language"
+        search_url = f"https://openlibrary.org/search.json?q={quote_plus(q)}&limit={page_size}&offset={(page - 1) * page_size}&fields=key,title,author_name,first_publish_year,editions,editions.key,editions.title,editions.language"
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(search_url, timeout=3)
