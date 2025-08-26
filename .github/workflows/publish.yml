@@ -1,7 +1,7 @@
 name: Development Image
 on:
-  # pull_request:
-  #   branches: ["*"]
+  pull_request:
+    branches: ["*"]
   workflow_run:
     workflows: ["unit test"]
     branches:
@@ -17,9 +17,37 @@ env:
   REGISTRY_IMAGE: neodb/neodb
 
 jobs:
+  prepare_release:
+    name: Prepare and upload release information
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    outputs:
+      buildver: ${{ steps.version.outputs.buildver }}
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Check git version
+        id: version
+        run: |
+          echo "buildver=${{ github.ref_name }}-$(cd neodb-takahe; git rev-parse --short HEAD)-$(git rev-parse --short HEAD)-$(date -u +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+
+      - name: Send Discord notification
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          color: "#1857a4"
+          message: Building release image ${{ steps.version.outputs.buildver }}
+
+
   build_images:
     name: build image and push to Docker Hub
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.repository_owner == 'neodb-social' }}
+    needs:
+      - prepare_release
     runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
@@ -38,29 +66,6 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Check git version
-        id: version
-        run: |
-          echo "neodb=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          cd neodb-takahe
-          echo "takahe=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Overwrite version in code
-        env:
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          echo '__version__ = "'$REF_NAME'"' > boofilsic/__init__.py
-          echo '__version__ = "'$REF_NAME'"' > neodb-takahe/takahe/neodb.py
-
-      - name: Send Discord notification
-        if: github.repository_owner == 'neodb-social'
-        uses: appleboy/discord-action@master
-        with:
-          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#1857a4"
-          message: Building development image ${{ github.ref_name }}-${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }} on ${{ matrix.platform }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -70,10 +75,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           tags: |
-            type=edge,branch=main
+            type=edge,branch=${{ github.ref_name }}
 
       - name: Login to DockerHub
-        if: github.event_name != 'pull_request'
+        if: ${{ github.ref == 'refs/heads/main' && github.repository_owner == 'neodb-social' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -83,12 +88,14 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
+          push: ${{ github.ref == 'refs/heads/main' && github.repository_owner == 'neodb-social' }}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ env.REGISTRY_IMAGE }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
           build-args: |
             dev=1
+            buildver=${{ needs.prepare_release.outputs.buildver }}
 
       - name: Export digest
         run: |
@@ -104,17 +111,9 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      - name: Send Discord notification complete
-        if: github.repository_owner == 'neodb-social'
-        uses: appleboy/discord-action@master
-        with:
-          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#1857a4"
-          message: Built development image ${{ github.ref_name }}-${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }} on ${{ matrix.platform }}
-
   merge_and_push_images:
     runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'neodb-social' }}
     needs:
       - build_images
     steps:
@@ -159,4 +158,4 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#1857a4"
-          message: Merged development image ${{ github.ref_name }}
+          message: Finished development image ${{ needs.prepare_release.outputs.buildver }}

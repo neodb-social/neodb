@@ -2,6 +2,8 @@ name: Release Image
 
 on:
   push:
+    branches:
+      - '*'
     tags:
       - "[0-9]*"
 
@@ -17,6 +19,8 @@ jobs:
     name: Prepare and upload release information
     if: github.repository_owner == 'neodb-social'
     runs-on: ubuntu-latest
+    outputs:
+      buildver: ${{ steps.version.outputs.buildver }}
 
     steps:
       - name: Check out the repo
@@ -27,16 +31,7 @@ jobs:
       - name: Check git version
         id: version
         run: |
-          echo "neodb=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          cd neodb-takahe
-          echo "takahe=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Overwrite version in code
-        env:
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          echo '__version__ = "'$REF_NAME'"' > boofilsic/__init__.py
-          echo '__version__ = "'$REF_NAME'"' > neodb-takahe/takahe/neodb.py
+          echo "buildver=${{ github.ref_name }}-$(cd neodb-takahe; git rev-parse --short HEAD)-$(git rev-parse --short HEAD)-$(date -u +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
 
       - uses: svenstaro/upload-release-action@v2
         with:
@@ -65,7 +60,7 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#1857a4"
-          message: Building release image ${{ github.ref_name }}-${{ steps.version.outputs.neodb }}-${{ steps.version.outputs.takahe }}
+          message: Building release image ${{ steps.version.outputs.buildver }}
 
 
   build_images:
@@ -115,7 +110,7 @@ jobs:
           tags: ${{ env.REGISTRY_IMAGE }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
           build-args: |
-            dev=1
+            buildver=${{ needs.prepare_release.outputs.buildver }}
 
       - name: Export digest
         run: |
@@ -180,4 +175,4 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#1857a4"
-          message: Merged release image ${{ github.ref_name }}
+          message: Merged release image ${{ needs.prepare_release.outputs.buildver }}

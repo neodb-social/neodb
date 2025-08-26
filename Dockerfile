@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM python:3.13-slim AS build
 ARG dev
+ARG buildver="dev-unknown"
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV UV_COMPILE_BYTECODE=0
 ENV PYTHONUNBUFFERED=1
@@ -11,11 +12,12 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt apt-get update \
 COPY --from=ghcr.io/astral-sh/uv:0.8.8 /uv /uvx /bin/
 
 COPY . /neodb
-
-RUN echo `cd /neodb && git rev-parse --short HEAD`-`cd /neodb/neodb-takahe && git rev-parse --short HEAD`-`date -u +%Y%m%d%H%M%S` > /neodb/build_version
-RUN rm -rf /neodb/.git /neodb/neodb-takahe/.git
-
+# TODO: use --exclude once it's supported in stable syntax
 RUN mv /neodb/neodb-takahe /takahe
+
+RUN echo "${buildver}" > /etc/neodb_version
+RUN echo "__version__ = \"${buildver}\"" > /neodb/boofilsic/__init__.py
+RUN echo "__version__ = \"${buildver}\"" > /takahe/takahe/neodb.py
 
 WORKDIR /neodb
 RUN uv venv /neodb-venv
@@ -46,6 +48,7 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get install 
 RUN useradd -U app
 RUN rm -rf /var/lib/apt/lists/*
 
+COPY --from=build /etc/neodb_version /etc/neodb_version
 COPY --from=build /neodb /neodb
 WORKDIR /neodb
 COPY --from=build /neodb-venv /neodb-venv
