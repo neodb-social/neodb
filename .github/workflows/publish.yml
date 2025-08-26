@@ -1,7 +1,5 @@
 name: Development Image
 on:
-  # pull_request:
-  #   branches: ["*"]
   workflow_run:
     workflows: ["unit test"]
     branches:

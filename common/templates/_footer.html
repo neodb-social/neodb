@@ -7,10 +7,6 @@
     <!-- <a href="/pages/terms/">{% trans 'Terms' %}</a> -->
     <a href="{% url 'common:about' %}">{% trans 'About' %}</a>
     <a href="{% url 'common:developer' %}">{% trans 'Developer' %}</a>
-    <a title="{{ neodb_version }}"
-       target="_blank"
-       rel="noopener"
-       href="https://github.com/neodb-social">{% trans 'Source Code' %}</a>
   </div>
   <div class="hide_unless_alter_domain" style="padding-top: 1em;">
     {% blocktrans %}You are visiting an alternative domain for {{ site_name }}, please always use <a href="{{ site_url }}{{ request.get_full_path }}">original version</a> if possible.{% endblocktrans %}

@@ -62,6 +62,6 @@ repos:
     hooks:
       - id: pyright
         name: pyright
-        entry: python -m pyright
+        entry: uv run pyright
         language: system
         pass_filenames: false
