@@ -446,6 +446,7 @@ SUPPORTED_UI_LANGUAGES = {
     "fr": _("French"),
     "it": _("Italian"),
     "pt": _("Portuguese"),
+    "pt-br": _("Brazilian Portuguese"),
     "zh-hans": _("Simplified Chinese"),
     "zh-hant": _("Traditional Chinese"),
 }
