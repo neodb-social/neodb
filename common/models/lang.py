@@ -303,6 +303,8 @@ _LOCALE_SUBTAGS_ADD = {
         "zh-sg": _("Simplified Chinese (Singapore)"),
         "zh-my": _("Simplified Chinese (Malaysia)"),
         "zh-mo": _("Traditional Chinese (Macau)"),
+        "zh-hans": _("Simplified Chinese"),
+        "zh-hant": _("Traditional Chinese"),
     },
 }
 _LOCALE_SUBTAGS_FALLBACK = ["zh"]
@@ -381,6 +383,8 @@ def get_current_locales() -> list[str]:
         locales = ["zh-cn", "zh-sg", "zh-my", "zh-hk", "zh-tw", "zh-mo", "en"]
     elif lang == "zh-hant":
         locales = ["zh-tw", "zh-hk", "zh-mo", "zh-cn", "zh-sg", "zh-my", "en"]
+    elif lang == "pt-br":
+        locales = ["pt-br", "pt", "en"]
     else:
         lng = lang.split("-")
         locales = ["en"] if lng[0] == "en" else [lng[0], "en"]

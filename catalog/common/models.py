@@ -23,7 +23,7 @@ from polymorphic.models import PolymorphicModel
 from catalog.common import jsondata
 from catalog.index import CatalogIndex
 from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, get_current_locales, uniq
-from common.models.lang import SCRIPT_CHOICES, normalize_languages
+from common.models.lang import SCRIPT_CHOICES, normalize_language, normalize_languages
 from common.utils import get_file_absolute_url
 
 from .utils import item_cover_path, resource_cover_path
@@ -861,12 +861,29 @@ class Item(PolymorphicModel):
         return False
 
     def _normalize_languages(self):
+        changed = False
+        title = [
+            {normalize_language(x["lang"]) or "x": x["text"]}
+            for x in self.localized_title
+            if "lang" in x and "text" in x
+        ]
+        if self.localized_title != title:
+            self.localized_title = title
+            changed = True
+        description = [
+            {normalize_language(x["lang"]) or "x": x["text"]}
+            for x in self.localized_description
+            if "lang" in x and "text" in x
+        ]
+        if self.localized_description != description:
+            self.localized_description = description
+            changed = True
         if hasattr(self, "language"):  # normalize language list
             language = normalize_languages(self.language)
             if self.language != language:
                 self.language = language
-                return True
-        return False
+                changed = True
+        return changed
 
     def normalize_metadata(self, override_resources=[]) -> bool:
         r = self._update_primary_lookup_id(override_resources)
