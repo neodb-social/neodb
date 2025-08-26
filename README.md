@@ -20,7 +20,7 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
 
 
 ## Features
-- Manage a shared catalog of books/movies/tv shows/music album/games/podcasts/performances
+- manage a shared catalog of books/movies/tv shows/music album/games/podcasts/performances
   + search or create catalog items in each category
   + one click create item with links to 3rd party sites:
     * Goodreads
@@ -38,23 +38,26 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
     * Board Game Geek
     * Archive of Our Own
     * WikiData
+    * Open Library
     * any RSS link to a podcast
-- Logged in users can manage their collections:
-  + mark an item as wishlist/in progress/complete
-  + rate and write reviews for an item
+  + Search from some of sites above
+- logged in users can manage their collections:
+  + mark an item as wishlist/in progress/complete/dropped
+  + rate and write notes and reviews for an item
   + create tags for an item, either privately or publicly
-  + create and share list of items
+  + create and share a collection of items
   + tracking progress of a list (e.g. personal reading challenges)
-  + Import and export full user data archive
+  + import and export full user data archive
   + import list or archives from some 3rd party sites:
     * Goodreads reading list
     * Letterboxd watch list
     * Douban archive (via [Doufen](https://doufen.org/))
     * Steam Library
-- Social features:
+- social features:
   + view home feed with friends' activities
     * every activity can be set as viewable to self/follower-only/public
     * eligible items, e.g. podcasts and albums, are playable in feed
+  + micro-blogging: post status/photos and interact with them
   + login with other Fediverse identity and import social graph
     * supported servers: Mastodon/Pleroma/Firefish/GoToSocial/Pixelfed/friendica/Takahē
   + login with Bluesky / ATProto identity and import social graph
@@ -67,8 +70,15 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
   + implementation is based on [Takahē](https://jointakahe.org/) server
 - ATProto support
   + NeoDB is not a PDS, but may publish posts to user feed
-- Other
-  + i18n: English, Danish and Simp/Trad Chinese available; contribution for more languages welcomed
+- comprehensive API support
+  + Restful API with OpenAPI specification, see `/developer/` of your instance
+  + Mastodon-compatible API are available, most of Mastodon apps works out of box
+- other
+  + i18n: da, de, en, fr, it, pt and zh are available; contribution for more languages welcomed
+
+
+## Participate an existing instance
+See the list of [public servers](https://neodb.net/servers/) and [apps](https://neodb.net/apps/).
 
 
 ## Host your own instance

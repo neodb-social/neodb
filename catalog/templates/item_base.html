@@ -240,7 +240,7 @@
               </small>
             </p>
           {% endif %}
-          {% if item.parent_item and item.parent_item.type.value != 'work' %}
+          {% if item.parent_item and item.type.value != 'edition' %}
             {% trans 'part of' %} {{ item.parent_item.type.label }}: <span><a href="{{ item.parent_item.url }}"></span>{{ item.parent_item.display_title }}</a>
           {% endif %}
           {% if item.author or item.translator %}

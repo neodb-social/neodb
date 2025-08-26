@@ -84,7 +84,9 @@
             <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
           </span>
         </span>
-        <h5>{% trans 'other editions' %}</h5>
+        <h5>
+          {% trans 'other editions' %} <small>({{ related_books.count }})</small>
+        </h5>
         <ul class="cards">
           {% for b in related_books %}
             <li class="card">

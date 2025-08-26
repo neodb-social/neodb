@@ -30,7 +30,7 @@
         {% if item.season_number %}Season {{ item.season_number }}{% endif %}
       </span>
     {% endif %}
-    {% if item.parent_item %}
+    {% if item.parent_item and item.type.value != 'edition' %}
       <span>{% trans "part of" %} {{ item.parent_item.type.label }}: <a href="{{ item.parent_item.url }}">{{ item.parent_item.display_title }}</a></span>
     {% endif %}
   </small>
