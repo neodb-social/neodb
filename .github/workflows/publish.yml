@@ -1,7 +1,7 @@
 name: Development Image
 on:
-  pull_request:
-    branches: ["*"]
+  # pull_request:
+  #   branches: ["*"]
   workflow_run:
     workflows: ["unit test"]
     branches:
@@ -41,7 +41,7 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#1857a4"
-          message: Building release image ${{ steps.version.outputs.buildver }}
+          message: Building development image ${{ steps.version.outputs.buildver }}
 
 
   build_images:

@@ -12,11 +12,7 @@ from boofilsic import __version__
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-try:
-    with open(os.path.join(BASE_DIR, "build_version")) as f:
-        NEODB_VERSION = __version__ + "-" + f.read().strip()
-except Exception:
-    NEODB_VERSION = __version__ + "-unknown"
+NEODB_VERSION = __version__
 
 TESTING = sys.argv[0].endswith("pytest") or (
     len(sys.argv) > 1 and sys.argv[1] == "test"

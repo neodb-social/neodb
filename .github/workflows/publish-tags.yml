@@ -2,8 +2,6 @@ name: Release Image
 
 on:
   push:
-    branches:
-      - '*'
     tags:
       - "[0-9]*"
 
