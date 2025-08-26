@@ -826,6 +826,8 @@ class Takahe:
             Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
             .filter(visibility__in=[0, 4])
             .filter(in_reply_to__isnull=True)
+            .filter(author__restriction=0)
+            .exclude(author__discoverable=False)
             .order_by("-published")
         )
         if local_only:
