@@ -170,6 +170,10 @@ def register(request: AuthedHttpRequest):
             pref = {
                 "mastodon_default_repost": request.POST.get("pref_default_crosspost")
                 is not None,
+                "mastodon_boost_enabled": request.POST.get(
+                    "pref_mastodon_boost_enabled"
+                )
+                is not None,
                 "mastodon_skip_userinfo": request.POST.get("pref_sync_info") is None,
                 "mastodon_skip_relationship": request.POST.get("pref_sync_graph")
                 is None,

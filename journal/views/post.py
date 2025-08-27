@@ -125,7 +125,7 @@ def post_boost(request: AuthedHttpRequest, post_id: int):
         raise BadRequest(_("Invalid parameter"))
     boost = Takahe.boost_post(post_id, request.user.identity.pk)
     if boost and boost.state == "new":
-        if request.user.mastodon and request.user.preference.mastodon_repost_mode == 1:
+        if request.user.mastodon and request.user.preference.mastodon_boost_enabled:
             request.user.mastodon.boost_later(post.object_uri)
     return render(request, "action_boost_post.html", {"post": post})
 

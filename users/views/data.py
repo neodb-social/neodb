@@ -46,6 +46,9 @@ def preferences(request):
         preference.mastodon_default_repost = (
             int(request.POST.get("mastodon_default_repost", 0)) == 1
         )
+        preference.mastodon_boost_enabled = (
+            int(request.POST.get("mastodon_boost_enabled", 0)) == 1
+        )
         preference.classic_homepage = int(request.POST.get("classic_homepage"))
         preference.hidden_categories = request.POST.getlist("hidden_categories")
         preference.auto_bookmark_cats = request.POST.getlist("auto_bookmark_cats")
@@ -66,6 +69,7 @@ def preferences(request):
                 "auto_bookmark_cats",
                 "mastodon_repost_mode",
                 "mastodon_default_repost",
+                "mastodon_boost_enabled",
                 "show_last_edit",
                 "hidden_categories",
             ]

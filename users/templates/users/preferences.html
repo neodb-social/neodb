@@ -95,11 +95,20 @@
               {% if request.user.mastodon %}
                 <fieldset>
                   <label>
-                    {% trans "Turn on crosspost to timeline by default" %}
                     <input type="checkbox"
                            name="mastodon_default_repost"
                            value="1"
                            {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
+                    {% trans "Turn on crosspost to other social networks by default" %}
+                  </label>
+                </fieldset>
+                <fieldset>
+                  <label>
+                    <input type="checkbox"
+                           name="mastodon_boost_enabled"
+                           value="1"
+                           {% if request.user.preference.mastodon_boost_enabled %}checked{% endif %}>
+                    {% trans "If a Mastodon account is linked with this identity, boosting a post will also make the same post boosted with that Mastodon account." %}
                   </label>
                 </fieldset>
                 <fieldset>

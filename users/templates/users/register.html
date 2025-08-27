@@ -79,6 +79,14 @@
                          checked />
                   {% trans "Add follow, mute and block list from the social network you authenticated with" %}
                 </label>
+                <label>
+                  <input name="pref_mastodon_boost_enabled"
+                         type="checkbox"
+                         role="switch"
+                         value="1"
+                         checked />
+                  {% trans "If a Mastodon account is linked with this identity, boosting a post will also make the same post boosted with that Mastodon account." %}
+                </label>
               {% endif %}
             </fieldset>
             {% csrf_token %}
