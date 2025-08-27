@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 
 from common.views import render_error
 
+from ..forms import EmailLoginForm
 from ..models import Email
 from .common import process_verified_account
 
@@ -24,7 +25,10 @@ def email_login_state(request):
 
 @require_http_methods(["POST"])
 def email_login(request: HttpRequest):
-    login_email = request.POST.get("email", "")
+    form = EmailLoginForm(request.POST)
+    if not form.is_valid():
+        return render_error(request, _("Invalid captcha"))
+    login_email = form.cleaned_data["email"]
     try:
         EmailValidator()(login_email)
     except Exception:

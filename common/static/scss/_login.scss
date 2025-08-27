@@ -4,31 +4,37 @@
       text-align: center;
     }
   }
+
   input:invalid {
     background-image: var(--pico-icon-invalid);
-    padding-right: calc(var(--pico-form-element-spacing-horizontal) + 1.5rem)!important;
+    padding-right: calc(var(--pico-form-element-spacing-horizontal) + 1.5rem) !important;
     padding-left: var(--pico-form-element-spacing-horizontal);
-    padding-inline-start: var(--pico-form-element-spacing-horizontal)!important;
-    padding-inline-end: calc(var(--pico-form-element-spacing-horizontal) + 1.5rem)!important;
+    padding-inline-start: var(--pico-form-element-spacing-horizontal) !important;
+    padding-inline-end: calc(var(--pico-form-element-spacing-horizontal) + 1.5rem) !important;
     background-position: center right .75rem;
     background-size: 1rem auto;
     background-repeat: no-repeat;
   }
+
   mark {
     padding: 0;
   }
+
   :where(.autoComplete_wrapper)+small {
-  display: block;
+    display: block;
     width: 100%;
     color: var(--pico-muted-color);
   }
+
   .autoComplete_wrapper {
     position: relative;
   }
+
   .autoComplete_wrapper>input {
-    margin-bottom:0;
+    margin-bottom: 0;
   }
-  .autoComplete_wrapper > ul {
+
+  .autoComplete_wrapper>ul {
     position: absolute;
     max-height: 226px;
     overflow-y: scroll;
@@ -44,13 +50,15 @@
     z-index: 1000;
     outline: none;
   }
-  .autoComplete_wrapper > ul[hidden],
-  .autoComplete_wrapper > ul:empty {
+
+  .autoComplete_wrapper>ul[hidden],
+  .autoComplete_wrapper>ul:empty {
     display: block;
     opacity: 0;
     transform: scale(0);
   }
-  .autoComplete_wrapper > ul > li {
+
+  .autoComplete_wrapper>ul>li {
     margin: 0.3rem;
     padding: 0.3rem 0.5rem;
     list-style: none;
@@ -66,18 +74,18 @@
     transition: all 0.2s ease;
   }
 
-  .autoComplete_wrapper > ul > li::selection {
+  .autoComplete_wrapper>ul>li::selection {
     --color: rgba(#ffffff, 0);
     --background-color: rgba(#ffffff, 0);
   }
 
-  .autoComplete_wrapper > ul > li mark {
+  .autoComplete_wrapper>ul>li mark {
     background-color: transparent;
     --color: rgba(255, 122, 122, 1);
     font-weight: bold;
   }
 
-  .autoComplete_wrapper > ul > li mark::selection {
+  .autoComplete_wrapper>ul>li mark::selection {
     --color: rgba(#ffffff, 0);
     --background-color: rgba(#ffffff, 0);
   }
@@ -89,6 +97,23 @@
 
   .autoComplete_wrapper>ul>li[aria-selected="true"] {
     background-color: var(--pico-text-selection-color);
+  }
+
+  form {
+    .captcha {
+      margin-bottom: 1em;
+      margin-left: auto;
+      margin-right: auto;
+      height: 4em;
+      display: block;
+    }
+
+    .code-input {
+      font-family: monospace;
+      font-weight: bolder;
+      letter-spacing: 1em;
+      text-align: center;
+    }
   }
 
   article {

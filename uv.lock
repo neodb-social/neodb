@@ -658,6 +658,15 @@ wheels = [
 ]
 
 [[package]]
+name = "django-ranged-response"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/70/e3/9372fcdca8e9c3205e7979528ccd1a14354a9a24d38efff11c1846ff8bf1/django-ranged-response-0.2.0.tar.gz", hash = "sha256:f71fff352a37316b9bead717fc76e4ddd6c9b99c4680cdf4783b9755af1cf985", size = 3021, upload-time = "2017-07-18T09:20:27.603Z" }
+
+[[package]]
 name = "django-redis"
 version = "6.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -691,6 +700,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/22/5c/4247e8c01634770f8c88fb8cc96d656c560f50bc2379131fd613a3f11c69/django_sass_processor-1.4.2.tar.gz", hash = "sha256:59c1028b5a5bd0158a0ea92ac5d538e5d89eb547e910a45e334d9c7b3b814b18", size = 20175, upload-time = "2025-06-26T12:36:44.598Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/98/aa/21adbffc3ad330ea5971a3c7fa5c5c4e50142dd848659e9bb9c8c562d108/django_sass_processor-1.4.2-py3-none-any.whl", hash = "sha256:604b00b19f7bbccfb838f766a284257bad3bb4ec3012f0770a1415913783bacc", size = 20579, upload-time = "2025-06-26T12:36:43.306Z" },
+]
+
+[[package]]
+name = "django-simple-captcha"
+version = "0.6.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "django-ranged-response" },
+    { name = "pillow" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3a/d5/1dd445fc1a648045044b80be224ca6b2430ffd62dc139e45b2d1b0184cc4/django_simple_captcha-0.6.2.tar.gz", hash = "sha256:24db2bd1386c1833618465862e3518d310246d88f5e7f3bec23a5bda768ef834", size = 123994, upload-time = "2025-02-25T14:43:25.038Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d7/63/7485d3049c8479f2c77c87aa7557aea300289ad7ac95c9230759f6610c6f/django_simple_captcha-0.6.2-py2.py3-none-any.whl", hash = "sha256:f5b7eee6bfeba6c55b47f2f8414557d5609fc29c4758da2c91ba9a91d6ac349d", size = 93578, upload-time = "2025-02-25T14:43:23.548Z" },
 ]
 
 [[package]]
@@ -1294,6 +1317,7 @@ dependencies = [
     { name = "django-redis" },
     { name = "django-rq" },
     { name = "django-sass-processor" },
+    { name = "django-simple-captcha" },
     { name = "django-storages", extra = ["boto3"] },
     { name = "django-typed-models" },
     { name = "django-tz-detect" },
@@ -1362,6 +1386,7 @@ requires-dist = [
     { name = "django-redis" },
     { name = "django-rq", specifier = ">=3.1" },
     { name = "django-sass-processor", specifier = ">=1.4.1" },
+    { name = "django-simple-captcha", specifier = ">=0.6.2" },
     { name = "django-storages", specifier = ">=1.14.5" },
     { name = "django-storages", extras = ["boto3"], specifier = ">=1.14.2" },
     { name = "django-typed-models", git = "https://github.com/alphatownsman/django-typed-models.git" },

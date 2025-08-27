@@ -15,9 +15,9 @@ COPY . /neodb
 # TODO: use --exclude once it's supported in stable syntax
 RUN mv /neodb/neodb-takahe /takahe
 
-RUN echo "${buildver}" > /etc/neodb_version
-RUN echo "__version__ = \"${buildver}\"" > /neodb/boofilsic/__init__.py
-RUN echo "__version__ = \"${buildver}\"" > /takahe/takahe/neodb.py
+RUN echo "${buildver}" > /etc/neodb_version \
+ && echo "__version__ = \"${buildver}\"" > /neodb/boofilsic/__init__.py \
+ && echo "__version__ = \"${buildver}\"" > /takahe/takahe/neodb.py
 
 WORKDIR /neodb
 RUN uv venv /neodb-venv
@@ -40,30 +40,29 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get update \
     && apt-get install -y --no-install-recommends libpq-dev \
     busybox \
     nginx \
-    gettext-base
-RUN busybox --install
-
+    gettext-base \
+ && busybox --install \
+ && apt-get install -y --no-install-recommends postgresql-client redis-tools gettext \
+ && rm -rf /var/lib/apt/lists/* \
+ && useradd -U app && mkdir -p /www
 # postgresql and redis cli are not required, but install for development convenience
-RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get install -y --no-install-recommends postgresql-client redis-tools gettext
-RUN useradd -U app
-RUN rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /etc/neodb_version /etc/neodb_version
 COPY --from=build /neodb /neodb
-WORKDIR /neodb
-COPY --from=build /neodb-venv /neodb-venv
-RUN /neodb-venv/bin/django-admin compilemessages
-RUN NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py compilescss
-RUN NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py collectstatic --noinput
-
 COPY --from=build /takahe /takahe
-WORKDIR /takahe
+COPY --from=build /neodb-venv /neodb-venv
 COPY --from=build /takahe-venv /takahe-venv
+
+WORKDIR /neodb
+RUN /neodb-venv/bin/django-admin compilemessages \
+ && NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py compilescss \
+ && NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py collectstatic --noinput
+
+WORKDIR /takahe
 RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" /takahe-venv/bin/python3 manage.py collectstatic --noinput
 
 WORKDIR /neodb
 COPY misc/bin/* /bin/
-RUN mkdir -p /www
 
 USER app:app
 

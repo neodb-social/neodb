@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from common.utils import AuthedHttpRequest
+from mastodon.forms import EmailLoginForm
 from mastodon.models import Email, Mastodon
 from mastodon.models.common import Platform, SocialAccount
 from mastodon.models.email import EmailAccount
@@ -23,7 +24,6 @@ from ..models import User
 
 @require_http_methods(["GET"])
 def login(request):
-    """show login page"""
     selected_domain = request.GET.get("domain", default="")
     sites = Mastodon.get_sites()
     if request.GET.get("next"):
@@ -35,6 +35,7 @@ def login(request):
             request.session["invite"] = request.GET.get("invite")
         else:
             invite_status = -2
+    email_form = EmailLoginForm() if settings.ENABLE_LOGIN_EMAIL else None
     return render(
         request,
         "users/login.html",
@@ -46,6 +47,7 @@ def login(request):
             "enable_email": settings.ENABLE_LOGIN_EMAIL,
             "enable_threads": settings.ENABLE_LOGIN_THREADS,
             "enable_bluesky": settings.ENABLE_LOGIN_BLUESKY,
+            "email_form": email_form,
             "invite_status": invite_status,
         },
     )
