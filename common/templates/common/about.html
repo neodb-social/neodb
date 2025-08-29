@@ -37,6 +37,17 @@
                   {% translate "Open Registration" %}
                 {% endif %}
               </dd>
+              <dt>{% translate "Preferred Languages" %}</dt>
+              <dd>
+                {% if preferred_languages %}
+                  {% for lang in preferred_languages %}
+                    {{ lang }}
+                    {% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                {% else %}
+                  {% translate "Not Specified" %}
+                {% endif %}
+              </dd>
             </dl>
           </div>
         </section>

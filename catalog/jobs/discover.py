@@ -41,7 +41,7 @@ class DiscoverGenerator(BaseJob):
         self,
         days: int = 30,
         min_interaction: int = 1,
-        local_only=False,
+        local_only: bool = False,
     ):
         since = timezone.now() - timedelta(days=days)
         domains = FediverseInstance.get_peers_for_search() + [settings.SITE_DOMAIN]
@@ -60,6 +60,15 @@ class DiscoverGenerator(BaseJob):
         )
         if local_only:
             qs = qs.filter(local=True)
+        if settings.DISCOVER_FILTER_LANGUAGE and settings.PREFERRED_LANGUAGES:
+            q = None
+            for lang in settings.PREFERRED_LANGUAGES:
+                if q:
+                    q = q | Q(language__istartswith=lang)
+                else:
+                    q = Q(language__istartswith=lang)
+            if q:
+                qs = qs.filter(q)
         return qs
 
     def get_popular_marked_item_ids(self, category, days, exisiting_ids):

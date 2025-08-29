@@ -265,6 +265,7 @@ def about(request):
             name = (d.nodeinfo or {}).get("metadata", {}).get("nodeName", peer)
             peers.append({"name": name, "domain": peer})
     context["neodb_peers"] = peers
+    context["preferred_languages"] = settings.PREFERRED_LANGUAGES
     return render(request, "common/about.html", context)
 
 
