@@ -40,10 +40,7 @@
               <dt>{% translate "Preferred Languages" %}</dt>
               <dd>
                 {% if preferred_languages %}
-                  {% for lang in preferred_languages %}
-                    {{ lang }}
-                    {% if not forloop.last %},{% endif %}
-                  {% endfor %}
+                  {{ preferred_languages|join:", " }}
                 {% else %}
                   {% translate "Not Specified" %}
                 {% endif %}
