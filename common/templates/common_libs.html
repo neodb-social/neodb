@@ -17,10 +17,8 @@
     return this;
   };
 </script>
-<script src="{{ cdn_url }}/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
-<script src="{{ cdn_url }}/npm/hyperscript.org@0.9.13"></script>
-<!-- link rel="stylesheet"
-      href="{{ cdn_url }}/npm/@yohns/picocss@2.2.1/css/pico.{{site_color}}.min.css" /-->
+<script src="{{ cdn_url }}/npm/htmx.org@2.0.6/dist/htmx.min.js"></script>
+<script src="{{ cdn_url }}/npm/hyperscript.org@0.9.14"></script>
 {% if site_color == 'azure' %}
   <link rel="stylesheet"
         href="{{ cdn_url }}/npm/@picocss/pico@2/css/pico.min.css" />
@@ -31,7 +29,7 @@
 <link href="{% sass_src 'scss/neodb.scss' %}{% if debug_enabled %}?r={% now "U" %}{% endif %}"
       rel="stylesheet"
       type="text/css" />
-<link href="{{ cdn_url }}/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css"
+<link href="{{ cdn_url }}/npm/@fortawesome/fontawesome-free@7.0.1/css/all.min.css"
       rel="stylesheet"
       type="text/css">
 <link rel="manifest" href="{% url 'common:manifest' %}" />

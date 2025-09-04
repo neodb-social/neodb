@@ -54,22 +54,32 @@
       </li>
     </ul>
     <ul class="nav-links">
-      <li class="small-only" style="font-size: 120%; margin-top: 0.2em;">
+      <li class="small-only">
         <a class="nav-link-search"
            _="on click toggle .unhide on .nav-search then call #q.focus()"
-           href="#"><i class="fa-solid fa-magnifying-glass"></i></a>
+           href="#">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <i class="fa-solid fa-magnifying-glass-chart"></i>
+        </a>
       </li>
       <li class="small-only">
-        <a class="nav-link-discover" href="{% url 'catalog:discover' %}"><i class="fa-solid fa-globe"></i></a>
+        <a class="nav-link-discover" href="{% url 'catalog:discover' %}">
+          <i class="fa-regular fa-compass"></i>
+          <i class="fa-solid fa-compass"></i>
+        </a>
       </li>
       <li class="small-only">
         <a class="nav-link-feed" href="{% url 'social:feed' %}">
-          <i class="fa-solid fa-users"></i>
+          <i class="fa-regular fa-newspaper"></i>
+          <i class="fa-solid fa-newspaper"></i>
           <span class="notification-dot"></span>
         </a>
       </li>
       <li class="small-only">
-        <a class="nav-link-home" href="{% url 'common:me' %}"><i class="fa-solid fa-house-user"></i></a>
+        <a class="nav-link-home" href="{% url 'common:me' %}">
+          <i class="fa-regular fa-house"></i>
+          <i class="fa-solid fa-house"></i>
+        </a>
       </li>
       <li class="large-only">
         <a class="nav-link-discover" href="{% url 'catalog:discover' %}">{% trans 'Explore' %}</a>
