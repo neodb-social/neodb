@@ -8,6 +8,7 @@ from loguru import logger
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import isbn_10_to_13
+from catalog.search import *
 
 
 @SiteManager.register

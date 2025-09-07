@@ -3,9 +3,7 @@ from urllib.parse import quote_plus
 
 from django.core.cache import cache
 
-from catalog.common import SiteManager
 from catalog.models import ItemCategory, SiteName
-from catalog.sites.fedi import FediverseInstance
 
 
 class ExternalSearchResultItem:
@@ -62,6 +60,9 @@ class ExternalSources:
         category: str | None = None,
         visible_categories: list[ItemCategory] = [],
     ) -> list[ExternalSearchResultItem]:
+        from catalog.common import SiteManager
+        from catalog.sites import FediverseInstance
+
         if not query or page < 1 or page > 10 or not query or len(query) > 100:
             return []
         if category in ["", None]:

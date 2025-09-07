@@ -7,6 +7,7 @@ from loguru import logger
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import detect_isbn_asin, isbn_10_to_13
+from catalog.search import *
 from common.models import detect_language
 from common.models.lang import normalize_language
 

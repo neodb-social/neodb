@@ -26,7 +26,7 @@ class TestCatalogIndex:
         self.movie.save()
 
         # Setup mock for redis connection
-        self.redis_patcher = patch("catalog.index.get_redis_connection")
+        self.redis_patcher = patch("catalog.search.index.get_redis_connection")
         self.mock_redis = self.redis_patcher.start()
         self.mock_redis.return_value = MagicMock(spec=DefaultClient)
 

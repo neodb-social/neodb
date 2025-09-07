@@ -89,6 +89,70 @@ class IdType(models.TextChoices):  # values must be in lowercase
     OpenLibrary_Work = "openlibrary_work", _("Open Library Work")
 
 
+IdealIdTypes = [
+    IdType.ISBN,
+    IdType.CUBN,
+    IdType.ASIN,
+    IdType.GTIN,
+    IdType.ISRC,
+    IdType.MusicBrainz,
+    IdType.RSS,
+    IdType.IMDB,
+    IdType.Steam,
+    IdType.WikiData,
+]
+
+
+class ItemType(models.TextChoices):
+    Edition = "edition", _("Edition")
+    Work = "work", _("Work")
+    TVShow = "tvshow", _("TV Series")
+    TVSeason = "tvseason", _("TV Season")
+    TVEpisode = "tvepisode", _("TV Episode")
+    Movie = "movie", _("Movie")
+    Album = "music", _("Album")
+    Game = "game", _("Game")
+    Podcast = "podcast", _("Podcast Program")
+    PodcastEpisode = "podcastepisode", _("Podcast Episode")
+    Performance = "performance", _("Performance")
+    PerformanceProduction = "production", _("Production")
+    Exhibition = "exhibition", _("Exhibition")
+    Collection = "collection", _("Collection")
+    # Person = "person", _("Person")
+    # Organization = "organization", _("Organization")
+    # People = "people", _("Person / Organization")
+
+
+class ItemCategory(models.TextChoices):
+    Book = "book", _("Book")
+    Movie = "movie", _("Movie")
+    TV = "tv", _("TV")
+    Music = "music", _("Music")
+    Game = "game", _("Game")
+    Podcast = "podcast", _("Podcast")
+    Performance = "performance", _("Performance")
+    # FanFic = "fanfic", _("FanFic")
+    # Exhibition = "exhibition", _("Exhibition")
+    # People = "people", _("Person / Organization")
+    Collection = "collection", _("Collection")
+
+
+class AvailableItemCategory(models.TextChoices):
+    Book = "book", _("Book")
+    Movie = "movie", _("Movie")
+    TV = "tv", _("TV")
+    Music = "music", _("Music")
+    Game = "game", _("Game")
+    Podcast = "podcast", _("Podcast")
+    Performance = "performance", _("Performance")
+
+
+# class SubItemType(models.TextChoices):
+#     Season = "season", _("season")
+#     Episode = "episode", _("episode")
+#     Version = "production", _("production")
+
+
 class LocalizedLabelSchema(Schema):
     lang: str
     text: str

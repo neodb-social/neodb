@@ -1,26 +1,22 @@
 from auditlog.registry import auditlog
 
-from ..search import (
-    CatalogIndex,
-    CatalogQueryParser,
-    CatalogSearchResult,
-    ExternalSearchResultItem,
-)
 from .book import Edition, EditionInSchema, EditionSchema, Series, Work
 from .collection import Collection as CatalogCollection
-from .game import Game, GameInSchema, GameSchema
-from .item import (
+from .common import (
     AvailableItemCategory,
-    ExternalResource,
     IdealIdTypes,
     IdType,
-    Item,
     ItemCategory,
+    SiteName,
+)
+from .game import Game, GameInSchema, GameSchema
+from .item import (
+    ExternalResource,
+    Item,
     ItemInSchema,
     ItemSchema,
     LookupIdDescriptor,
     PrimaryLookupIdDescriptor,
-    SiteName,
     item_categories,
     item_content_types,
 )
@@ -100,7 +96,6 @@ __all__ = [
     "CatalogCollection",
     "AvailableItemCategory",
     "ExternalResource",
-    "ExternalSearchResultItem",
     "IdType",
     "IdealIdTypes",
     "Item",
@@ -141,8 +136,5 @@ __all__ = [
     "TVShow",
     "TVShowInSchema",
     "TVShowSchema",
-    "CatalogIndex",
-    "CatalogQueryParser",
-    "CatalogSearchResult",
     "init_catalog_audit_log",
 ]

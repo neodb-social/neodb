@@ -20,18 +20,20 @@ from loguru import logger
 from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
-from catalog.models.common import (
-    LOCALIZED_DESCRIPTION_SCHEMA,
-    LOCALIZED_LABEL_SCHEMA,
-    IdType,
-    LocalizedLabelSchema,
-    SiteName,
-)
-from catalog.search import CatalogIndex
 from common.models import get_current_locales, jsondata, uniq
 from common.models.lang import normalize_languages
 from common.utils import get_file_absolute_url
 
+from .common import (
+    LOCALIZED_DESCRIPTION_SCHEMA,
+    LOCALIZED_LABEL_SCHEMA,
+    IdealIdTypes,
+    IdType,
+    ItemCategory,
+    ItemType,
+    LocalizedLabelSchema,
+    SiteName,
+)
 from .utils import item_cover_path, resource_cover_path
 
 if TYPE_CHECKING:
@@ -41,70 +43,6 @@ if TYPE_CHECKING:
     from users.models import User
 
     from ..common import ResourceContent
-
-
-IdealIdTypes = [
-    IdType.ISBN,
-    IdType.CUBN,
-    IdType.ASIN,
-    IdType.GTIN,
-    IdType.ISRC,
-    IdType.MusicBrainz,
-    IdType.RSS,
-    IdType.IMDB,
-    IdType.Steam,
-    IdType.WikiData,
-]
-
-
-class ItemType(models.TextChoices):
-    Edition = "edition", _("Edition")
-    Work = "work", _("Work")
-    TVShow = "tvshow", _("TV Series")
-    TVSeason = "tvseason", _("TV Season")
-    TVEpisode = "tvepisode", _("TV Episode")
-    Movie = "movie", _("Movie")
-    Album = "music", _("Album")
-    Game = "game", _("Game")
-    Podcast = "podcast", _("Podcast Program")
-    PodcastEpisode = "podcastepisode", _("Podcast Episode")
-    Performance = "performance", _("Performance")
-    PerformanceProduction = "production", _("Production")
-    Exhibition = "exhibition", _("Exhibition")
-    Collection = "collection", _("Collection")
-    # Person = "person", _("Person")
-    # Organization = "organization", _("Organization")
-    # People = "people", _("Person / Organization")
-
-
-class ItemCategory(models.TextChoices):
-    Book = "book", _("Book")
-    Movie = "movie", _("Movie")
-    TV = "tv", _("TV")
-    Music = "music", _("Music")
-    Game = "game", _("Game")
-    Podcast = "podcast", _("Podcast")
-    Performance = "performance", _("Performance")
-    # FanFic = "fanfic", _("FanFic")
-    # Exhibition = "exhibition", _("Exhibition")
-    # People = "people", _("Person / Organization")
-    Collection = "collection", _("Collection")
-
-
-class AvailableItemCategory(models.TextChoices):
-    Book = "book", _("Book")
-    Movie = "movie", _("Movie")
-    TV = "tv", _("TV")
-    Music = "music", _("Music")
-    Game = "game", _("Game")
-    Podcast = "podcast", _("Podcast")
-    Performance = "performance", _("Performance")
-
-
-# class SubItemType(models.TextChoices):
-#     Season = "season", _("season")
-#     Episode = "episode", _("episode")
-#     Version = "production", _("production")
 
 
 class PrimaryLookupIdDescriptor(object):  # TODO make it mixin of Field
@@ -553,6 +491,8 @@ class Item(PolymorphicModel):
         return doc
 
     def update_index(self, later: bool = False):
+        from catalog.search import CatalogIndex
+
         if later:
             CatalogIndex.enqueue_replace_items([self.pk])
         else:

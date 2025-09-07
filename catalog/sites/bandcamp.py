@@ -11,6 +11,7 @@ from lxml import html
 
 from catalog.common import *
 from catalog.models import *
+from catalog.search import *
 from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)

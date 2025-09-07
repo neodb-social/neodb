@@ -5,6 +5,7 @@ from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
+from catalog.search import *
 
 from .rss import RSS
 
