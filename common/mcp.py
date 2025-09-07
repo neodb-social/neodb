@@ -82,7 +82,7 @@ async def search_catalog(
 
 @sync_to_async
 def _search_catalog(request, query: str, category: str | None = None) -> list:
-    from catalog.search.models import query_index
+    from catalog.search import query_index
     # from journal.models.mark import Mark
     # from journal.models.rating import Rating
 

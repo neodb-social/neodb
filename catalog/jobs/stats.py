@@ -4,7 +4,7 @@ from django.core.cache import cache
 from loguru import logger
 
 from catalog.models import item_categories
-from catalog.search.views import visible_categories
+from catalog.views import visible_categories
 from common.models import BaseJob, JobManager
 
 

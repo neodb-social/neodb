@@ -100,8 +100,8 @@ def fix_bangumi_20250420():
 def reindex_20250424():
     from django.core.paginator import Paginator
 
-    from catalog.index import CatalogIndex
     from catalog.models import Item
+    from catalog.search import CatalogIndex
 
     logger.warning("Checking index status.")
     index = CatalogIndex.instance()

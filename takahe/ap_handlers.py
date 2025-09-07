@@ -16,7 +16,7 @@ from journal.models import (
     Review,
     ShelfMember,
 )
-from journal.models.index import JournalIndex
+from journal.search import JournalIndex
 from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
 

@@ -4,6 +4,7 @@ from catalog.models import Edition
 from users.models import User
 
 from ..models import *
+from ..search import *
 
 
 class SearchTest(TestCase):

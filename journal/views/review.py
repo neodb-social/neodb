@@ -15,16 +15,16 @@ from django.views.decorators.http import require_http_methods
 from catalog.models import *
 from common.models.lang import translate
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from journal.models.renderers import (
-    convert_leading_space_in_md,
-    has_spoiler,
-    render_md,
-)
 from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
 
 from ..forms import *
 from ..models import *
+from ..models.renderers import (
+    convert_leading_space_in_md,
+    has_spoiler,
+    render_md,
+)
 from .common import render_list
 
 

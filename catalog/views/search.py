@@ -10,8 +10,6 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from rq.job import Job
 
-from catalog.common.sites import AbstractSite, SiteManager
-from catalog.models import ItemCategory, SiteName
 from common.models import int_
 from common.utils import (
     HTTPResponseHXRedirect,
@@ -24,9 +22,9 @@ from journal.models.mark import Mark
 from journal.models.rating import Rating
 from users.views import query_identity
 
-from ..models import *
-from .external import ExternalSources
-from .models import enqueue_fetch, get_fetch_lock, query_index
+from ..common.sites import AbstractSite, SiteManager
+from ..models import ExternalResource, ItemCategory, SiteName, item_categories
+from ..search import ExternalSources, enqueue_fetch, get_fetch_lock, query_index
 
 _VISIBLE_CATEGORIES = None
 

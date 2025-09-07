@@ -12,7 +12,6 @@ from .common import (
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
-from .index import JournalIndex, JournalQueryParser
 from .like import Like
 from .mark import Mark
 from .mixins import UserOwnedObjectMixin
@@ -36,7 +35,6 @@ __all__ = [
     "Content",
     "FeaturedCollection",
     "Comment",
-    "JournalIndex",
     "Piece",
     "PieceInteraction",
     "PiecePost",
@@ -50,7 +48,6 @@ __all__ = [
     "Like",
     "Mark",
     "Note",
-    "JournalQueryParser",
     "Rating",
     "render_md",
     "Review",

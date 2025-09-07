@@ -1,5 +1,4 @@
 from .cron import BaseJob, JobManager
-from .index import Index, QueryParser, SearchResult
 from .lang import (
     LANGUAGE_CHOICES,
     LOCALE_CHOICES,
@@ -25,7 +24,4 @@ __all__ = [
     "get_current_locales",
     "uniq",
     "int_",
-    "Index",
-    "QueryParser",
-    "SearchResult",
 ]

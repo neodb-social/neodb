@@ -25,7 +25,7 @@ from takahe.utils import Takahe
 from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User
 
-from .index import JournalIndex
+from ..search import JournalIndex
 from .mixins import UserOwnedObjectMixin
 
 if TYPE_CHECKING:

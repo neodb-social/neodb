@@ -1,5 +1,11 @@
 from auditlog.registry import auditlog
 
+from ..search import (
+    CatalogIndex,
+    CatalogQueryParser,
+    CatalogSearchResult,
+    ExternalSearchResultItem,
+)
 from .book import Edition, EditionInSchema, EditionSchema, Series, Work
 from .collection import Collection as CatalogCollection
 from .game import Game, GameInSchema, GameSchema
@@ -43,9 +49,6 @@ from .tv import (
     TVShowInSchema,
     TVShowSchema,
 )
-
-from ..search.models import ExternalSearchResultItem  # isort:skip
-from ..index import CatalogIndex, CatalogQueryParser, CatalogSearchResult
 
 # class Exhibition(Item):
 

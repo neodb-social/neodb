@@ -3,12 +3,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django_redis.client import DefaultClient
 
-from catalog.index import (
+from catalog.models import Edition, Item, ItemCategory, Movie
+from catalog.search.index import (
     CatalogIndex,
     CatalogQueryParser,
     _cat_to_class,
 )
-from catalog.models import Edition, Item, ItemCategory, Movie
 
 
 @pytest.mark.django_db(databases="__all__")

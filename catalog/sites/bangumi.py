@@ -10,7 +10,6 @@ from catalog.common import *
 from catalog.models import (
     Album,
     Edition,
-    ExternalSearchResultItem,
     Game,
     IdType,
     ItemCategory,
@@ -21,6 +20,7 @@ from catalog.models import (
 )
 from catalog.models.game import GameReleaseType
 from catalog.models.utils import detect_isbn_asin
+from catalog.search import ExternalSearchResultItem
 from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)

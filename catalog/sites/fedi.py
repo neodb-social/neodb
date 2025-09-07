@@ -20,7 +20,6 @@ from catalog.common.scrapers import ParseError
 from catalog.models import (
     Album,
     Edition,
-    ExternalSearchResultItem,
     Game,
     ItemCategory,
     Movie,
@@ -31,6 +30,7 @@ from catalog.models import (
     TVSeason,
     TVShow,
 )
+from catalog.search import ExternalSearchResultItem
 
 
 @SiteManager.register

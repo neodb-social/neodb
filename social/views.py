@@ -5,7 +5,8 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import Edition, Item, ItemCategory, PodcastEpisode
 from common.models.misc import int_
-from journal.models import JournalIndex, JournalQueryParser, Piece, ShelfType
+from journal.models import Piece, ShelfType
+from journal.search import JournalIndex, JournalQueryParser
 from takahe.models import Post, PostInteraction, TimelineEvent
 from takahe.utils import Takahe
 from users.models import APIdentity

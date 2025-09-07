@@ -13,7 +13,6 @@ from loguru import logger
 from tqdm import tqdm
 
 from catalog.common.sites import SiteManager
-from catalog.index import CatalogIndex, CatalogQueryParser
 from catalog.models import (
     Edition,
     Item,
@@ -21,6 +20,7 @@ from catalog.models import (
     TVSeason,
     TVShow,
 )
+from catalog.search import CatalogIndex, CatalogQueryParser
 from catalog.search.external import ExternalSources
 from catalog.sites.fedi import FediverseInstance
 from common.models import detect_language, uniq

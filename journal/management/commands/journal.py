@@ -13,15 +13,14 @@ from journal.models import (
     Collection,
     Comment,
     Content,
-    JournalIndex,
     Note,
     Piece,
     Review,
     ShelfMember,
     update_journal_for_merged_item,
 )
-from journal.models.index import JournalQueryParser
 from journal.models.itemlist import ListMember
+from journal.search import JournalIndex, JournalQueryParser
 from takahe.models import Post
 from users.models import APIdentity, User
 

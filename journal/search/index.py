@@ -7,7 +7,8 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import QuerySet
 
 from catalog.models import Item, item_categories
-from common.models import Index, QueryParser, SearchResult, int_, uniq
+from common.models import int_, uniq
+from common.search import Index, QueryParser, SearchResult
 from takahe.models import Post
 from takahe.utils import Takahe
 from users.models.apidentity import APIdentity

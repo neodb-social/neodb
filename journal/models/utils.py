@@ -4,7 +4,7 @@ from django.db.utils import IntegrityError
 from loguru import logger
 
 from catalog.models import Item
-from journal.models.index import JournalIndex
+from journal.search import JournalIndex
 from users.models import APIdentity, User
 
 from .collection import Collection, CollectionMember, FeaturedCollection

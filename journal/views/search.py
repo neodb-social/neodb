@@ -3,7 +3,8 @@ from django.shortcuts import render
 
 from common.models.misc import int_
 from common.utils import PageLinksGenerator
-from journal.models import JournalIndex, JournalQueryParser
+
+from ..search import JournalIndex, JournalQueryParser
 
 
 @login_required

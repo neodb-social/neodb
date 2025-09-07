@@ -1,7 +1,8 @@
 import pytest
 
 from catalog.models import Edition
-from journal.models import *
+from journal.models import Mark, ShelfType
+from journal.search import JournalIndex, JournalQueryParser
 from users.models import User
 
 

@@ -11,7 +11,7 @@ from catalog.models import CatalogCollection, Item
 from catalog.models.utils import piece_cover_path
 from common.models import jsondata
 from common.utils import get_file_absolute_url
-from journal.models.index import JournalIndex, JournalQueryParser
+from journal.search import JournalIndex, JournalQueryParser
 from takahe.utils import Takahe
 from users.models import APIdentity
 

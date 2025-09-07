@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.db.models import Count, F, Window
@@ -10,7 +11,6 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 
-from catalog.sites.wikidata import WikiData
 from common.utils import (
     CustomPaginator,
     PageLinksGenerator,
@@ -30,10 +30,8 @@ from journal.models import (
 )
 from takahe.utils import Takahe
 
-from .forms import *
-from .models import *
-from .search.views import *
-from .views_edit import *
+from ..models import ExternalResource, IdType, Item, Podcast, TVEpisode
+from ..sites import WikiData
 
 NUM_COMMENTS_ON_ITEM_PAGE = 10
 

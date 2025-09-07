@@ -19,6 +19,7 @@ from takahe.utils import Takahe
 
 from ..forms import *
 from ..models import *
+from ..search import JournalIndex
 
 
 @require_http_methods(["GET", "HEAD"])

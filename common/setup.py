@@ -2,9 +2,9 @@ from django.conf import settings
 from django.core.checks import Error, Warning
 from loguru import logger
 
-from catalog.index import CatalogIndex
+from catalog.search import CatalogIndex
 from common.models import JobManager
-from journal.models import JournalIndex
+from journal.search import JournalIndex
 from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
 from takahe.models import Identity as TakaheIdentity

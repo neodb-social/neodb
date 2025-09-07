@@ -38,7 +38,7 @@ from .models import (
     TVShow,
     TVShowSchema,
 )
-from .search.models import enqueue_fetch, get_fetch_lock, query_index
+from .search.utils import enqueue_fetch, get_fetch_lock, query_index
 
 PAGE_SIZE = 20
 

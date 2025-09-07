@@ -20,7 +20,6 @@ from loguru import logger
 from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
-from catalog.index import CatalogIndex
 from catalog.models.common import (
     LOCALIZED_DESCRIPTION_SCHEMA,
     LOCALIZED_LABEL_SCHEMA,
@@ -28,6 +27,7 @@ from catalog.models.common import (
     LocalizedLabelSchema,
     SiteName,
 )
+from catalog.search import CatalogIndex
 from common.models import get_current_locales, jsondata, uniq
 from common.models.lang import normalize_languages
 from common.utils import get_file_absolute_url

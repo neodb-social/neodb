@@ -4,7 +4,7 @@ from ninja import Field, Schema
 
 from catalog.models import Item
 from common.api import INVALID_PAGE, NOT_FOUND, Result, api
-from journal.models.index import JournalIndex, JournalQueryParser
+from journal.search import JournalIndex, JournalQueryParser
 
 
 class CustomEmoji(Schema):

@@ -1,11 +1,56 @@
 import asyncio
+from urllib.parse import quote_plus
 
 from django.core.cache import cache
 
 from catalog.common import SiteManager
-from catalog.models import ItemCategory
-from catalog.search.models import ExternalSearchResultItem
+from catalog.models import ItemCategory, SiteName
 from catalog.sites.fedi import FediverseInstance
+
+
+class ExternalSearchResultItem:
+    def __init__(
+        self,
+        category: ItemCategory | None,
+        source_site: SiteName,
+        source_url: str,
+        title: str,
+        subtitle: str,
+        brief: str,
+        cover_url: str,
+    ):
+        self.class_name = "base"
+        self.category = category
+        self.external_resources = {
+            "all": [
+                {
+                    "url": source_url,
+                    "site_name": source_site,
+                    "site_label": source_site,
+                }
+            ]
+        }
+        self.source_site = source_site
+        self.source_url = source_url
+        self.display_title = title
+        self.subtitle = subtitle
+        self.display_description = brief
+        self.cover_image_url = cover_url
+
+    def __repr__(self):
+        return f"[{self.category}] {self.display_title} {self.source_url}"
+
+    @property
+    def verbose_category_name(self):
+        return self.category.label if self.category else ""
+
+    @property
+    def url(self):
+        return f"/search?q={quote_plus(self.source_url)}"
+
+    @property
+    def scraped(self):
+        return False
 
 
 class ExternalSources:

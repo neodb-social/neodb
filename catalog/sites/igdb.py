@@ -17,7 +17,7 @@ from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
-from catalog.search.models import ExternalSearchResultItem
+from catalog.search import ExternalSearchResultItem
 
 _cache_key = "igdb_access_token"
 
