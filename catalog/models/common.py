@@ -140,7 +140,7 @@ class ItemType(models.TextChoices):
     Collection = "collection", _("Collection")
     # Person = "person", _("Person")
     # Organization = "organization", _("Organization")
-    # People = "people", _("Person / Organization")
+    People = "people", _("Person / Organization")
 
 
 class ItemCategory(models.TextChoices):
@@ -153,7 +153,7 @@ class ItemCategory(models.TextChoices):
     Performance = "performance", _("Performance")
     # FanFic = "fanfic", _("FanFic")
     # Exhibition = "exhibition", _("Exhibition")
-    # People = "people", _("Person / Organization")
+    People = "people", _("Person / Organization")
     Collection = "collection", _("Collection")
 
 
