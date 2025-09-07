@@ -22,6 +22,14 @@ from .item import (
 )
 from .movie import Movie, MovieInSchema, MovieSchema
 from .music import Album, AlbumInSchema, AlbumSchema
+from .people import (
+    ItemPeopleRelation,
+    People,
+    PeopleInSchema,
+    PeopleRole,
+    PeopleSchema,
+    PeopleType,
+)
 from .performance import (
     Performance,
     PerformanceProduction,
@@ -137,4 +145,10 @@ __all__ = [
     "TVShowInSchema",
     "TVShowSchema",
     "init_catalog_audit_log",
+    "People",
+    "PeopleInSchema",
+    "PeopleSchema",
+    "PeopleType",
+    "PeopleRole",
+    "ItemPeopleRelation",
 ]
