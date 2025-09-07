@@ -6,7 +6,7 @@ from django.utils import timezone
 from ninja import Field, Schema
 from ninja.pagination import paginate
 
-from catalog.common.models import AvailableItemCategory, Item, ItemCategory, ItemSchema
+from catalog.models import AvailableItemCategory, Item, ItemCategory, ItemSchema
 from common.api import PageNumberPagination, Result, api
 from common.utils import get_uuid_or_404
 from journal.models.common import q_owned_piece_visible_to_user

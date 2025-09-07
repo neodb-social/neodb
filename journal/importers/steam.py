@@ -9,8 +9,8 @@ from loguru import logger
 from requests import HTTPError
 
 from catalog.common.downloaders import DownloadError
-from catalog.common.models import IdType, Item
 from catalog.common.sites import SiteManager
+from catalog.models import IdType, Item
 from journal.models.common import VisibilityType
 from journal.models.mark import Mark
 from journal.models.shelf import ShelfType

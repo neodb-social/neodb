@@ -2,7 +2,7 @@ from typing import List, Literal, Union
 
 from ninja import Field, Schema
 
-from catalog.common.models import Item
+from catalog.models import Item
 from common.api import INVALID_PAGE, NOT_FOUND, Result, api
 from journal.models.index import JournalIndex, JournalQueryParser
 

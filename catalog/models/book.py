@@ -26,25 +26,25 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from ninja import Field
 
-from catalog.common import (
+from common.models import uniq
+from common.models.misc import int_
+
+from .common import (
+    LIST_OF_ONE_PLUS_STR_SCHEMA,
+    LOCALE_CHOICES_JSONFORM,
+    LanguageListField,
+    jsondata,
+)
+from .item import (
     BaseSchema,
     ExternalResource,
     IdType,
     Item,
     ItemCategory,
     ItemInSchema,
-    PrimaryLookupIdDescriptor,
-    jsondata,
-)
-from catalog.common.models import (
-    LIST_OF_ONE_PLUS_STR_SCHEMA,
-    LOCALE_CHOICES_JSONFORM,
     ItemType,
-    LanguageListField,
+    PrimaryLookupIdDescriptor,
 )
-from common.models import uniq
-from common.models.misc import int_
-
 from .utils import *
 
 
@@ -69,7 +69,7 @@ class EditionSchema(EditionInSchema, BaseSchema):
     pass
 
 
-EDITION_LOCALIZED_TITLE_SCHEMA = {
+EDITION_LOCALIZED_LABEL_SCHEMA = {
     "type": "list",
     "items": {
         "type": "dict",
@@ -156,7 +156,7 @@ class Edition(Item):
         "contents",
     ]
     # force Edition to have only one title
-    localized_title_schema = EDITION_LOCALIZED_TITLE_SCHEMA
+    LOCALIZED_LABEL_SCHEMA = EDITION_LOCALIZED_LABEL_SCHEMA
     localized_subtitle = jsondata.JSONField(
         verbose_name=_("subtitle"),
         null=False,
@@ -298,18 +298,19 @@ class Edition(Item):
 
     def merge_to(self, to_item):
         super().merge_to(to_item)
-        if to_item:
-            if self.merge_title():
-                self.save()
-            to_work = to_item.get_work()
-            if to_work:
-                self.set_work(to_work)
-                # for edition in work.editions.all():
-                #     edition.set_work(to_work)
-            else:
-                work = self.get_work()
-                if work:
-                    to_item.set_work(work)
+        if not to_item:
+            return
+        if self.merge_title():
+            self.save()
+        to_work = to_item.get_work()
+        if to_work:
+            self.set_work(to_work)
+            # for edition in work.editions.all():
+            #     edition.set_work(to_work)
+        else:
+            work = self.get_work()
+            if work:
+                to_item.set_work(work)
 
     def delete(self, *args, **kwargs):
         if kwargs.get("soft", True):

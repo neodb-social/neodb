@@ -7,7 +7,7 @@ from django.conf import settings
 from django.db import migrations, models
 from tqdm import tqdm
 
-from catalog.common import jsondata
+from common.models import jsondata
 
 
 def move_masto_email(apps, schema_editor):

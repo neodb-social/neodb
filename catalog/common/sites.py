@@ -22,7 +22,7 @@ from validators import url as url_validate
 
 from common.models.misc import uniq
 
-from .models import ExternalResource, IdType, Item, SiteName
+from ..models import ExternalResource, IdType, Item, SiteName
 
 
 @dataclass

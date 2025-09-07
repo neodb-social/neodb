@@ -149,7 +149,7 @@ class GoodreadsImporter(Task):
                 print(f"Shelf loading/parsing error {url_shelf}")
                 break
             cells = content.xpath("//tbody[@id='booksBody']/tr")
-            for cell in cells:  # type:ignore
+            for cell in cells:
                 url_book = (
                     "https://www.goodreads.com"
                     + cell.xpath(".//td[@class='field title']//a/@href")[0].strip()
@@ -182,12 +182,10 @@ class GoodreadsImporter(Task):
                     c2 = BasicDownloader(url_review).download().html()
                     review_elem = c2.xpath("//div[@itemprop='reviewBody']/text()")
                     review = (
-                        "\n".join(p.strip() for p in review_elem)  # type:ignore
-                        if review_elem
-                        else ""
+                        "\n".join(p.strip() for p in review_elem) if review_elem else ""
                     )
                     date_elem = c2.xpath("//div[@class='readingTimeline__text']/text()")
-                    for d in date_elem:  # type:ignore
+                    for d in date_elem:
                         date_matched = re.search(r"(\w+)\s+(\d+),\s+(\d+)", d)
                         if date_matched:
                             last_updated = make_aware(
@@ -243,7 +241,7 @@ class GoodreadsImporter(Task):
             description: str = desc_elem[0].strip()  # type:ignore
             print("List title: " + title)
             links = content.xpath('//a[@class="bookTitle"]/@href')
-            for link in links:  # type:ignore
+            for link in links:
                 url_book = "https://www.goodreads.com" + link
                 try:
                     book = cls.get_book(url_book)

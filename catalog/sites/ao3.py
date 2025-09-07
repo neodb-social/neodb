@@ -1,5 +1,11 @@
-from catalog.book.models import *
-from catalog.common import *
+from catalog.common import (
+    AbstractSite,
+    BasicDownloader,
+    ParseError,
+    ResourceContent,
+    SiteManager,
+)
+from catalog.models import Edition, IdType, SiteName
 
 
 @SiteManager.register

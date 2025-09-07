@@ -5,8 +5,7 @@ import tempfile
 
 from django.conf import settings
 
-from catalog.common.models import Item
-from catalog.models import ItemCategory
+from catalog.models import Item, ItemCategory
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import Note, Review, ShelfMember, q_item_in_category
 from users.models import Task

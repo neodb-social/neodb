@@ -7,9 +7,16 @@ from django.utils.timezone import make_aware
 from loguru import logger
 from lxml import html
 
-from catalog.book.utils import binding_to_format, detect_isbn_asin
 from catalog.common import *
-from catalog.models import Edition, ExternalSearchResultItem, Work
+from catalog.models import (
+    Edition,
+    ExternalSearchResultItem,
+    IdType,
+    ItemCategory,
+    SiteName,
+    Work,
+)
+from catalog.models.utils import binding_to_format, detect_isbn_asin
 from common.models import detect_language
 from journal.models.renderers import html_to_text
 

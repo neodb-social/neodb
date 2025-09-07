@@ -4,9 +4,9 @@ from urllib.parse import quote_plus
 import httpx
 from loguru import logger
 
-from catalog.book.utils import detect_isbn_asin, isbn_10_to_13
 from catalog.common import *
 from catalog.models import *
+from catalog.models.utils import detect_isbn_asin, isbn_10_to_13
 from common.models import detect_language
 from common.models.lang import normalize_language
 

@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING, Iterable
 from dateutil.relativedelta import relativedelta
 from django.db.models import QuerySet
 
-from catalog.common.models import item_categories
-from catalog.models import Item
+from catalog.models import Item, item_categories
 from common.models import Index, QueryParser, SearchResult, int_, uniq
 from takahe.models import Post
 from takahe.utils import Takahe

@@ -152,8 +152,8 @@ def link_tmdb_wikidata_20250815(limit=None):
     3. If the TMDB resource has a WikiData ID, fetches the corresponding WikiData resource
     4. Links both resources to the same Item
     """
-    from catalog.common import IdType, SiteManager
-    from catalog.common.models import ExternalResource
+    from catalog.common import SiteManager
+    from catalog.models import ExternalResource, IdType
     from catalog.sites.wikidata import WikiData
 
     logger.warning("Starting TMDB-WikiData linking process")

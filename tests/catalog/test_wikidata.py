@@ -6,16 +6,21 @@ from unittest.mock import patch
 
 import pytest
 
-from catalog.book.models import Work
 from catalog.common import ParseError
 from catalog.common.downloaders import use_local_response
-from catalog.game.models import Game
-from catalog.models import IdType
-from catalog.movie.models import Movie
-from catalog.performance.models import Performance
-from catalog.podcast.models import Podcast, PodcastEpisode
+from catalog.models import (
+    Game,
+    IdType,
+    Movie,
+    Performance,
+    Podcast,
+    PodcastEpisode,
+    TVEpisode,
+    TVSeason,
+    TVShow,
+    Work,
+)
 from catalog.sites.wikidata import WikiData, WikidataProperties, WikidataTypes
-from catalog.tv.models import TVEpisode, TVSeason, TVShow
 
 
 # Helper functions for testing entity type mapping

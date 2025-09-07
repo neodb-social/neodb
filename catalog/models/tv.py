@@ -32,7 +32,15 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
-from catalog.common import (
+from common.models.lang import RE_LOCALIZED_SEASON_NUMBERS, localize_number
+from common.models.misc import int_, uniq
+
+from .common import (
+    LIST_OF_STR_SCHEMA,
+    LanguageListField,
+    jsondata,
+)
+from .item import (
     BaseSchema,
     ExternalResource,
     IdType,
@@ -40,16 +48,9 @@ from catalog.common import (
     ItemCategory,
     ItemInSchema,
     ItemSchema,
-    PrimaryLookupIdDescriptor,
-    jsondata,
-)
-from catalog.common.models import (
-    LIST_OF_STR_SCHEMA,
     ItemType,
-    LanguageListField,
+    PrimaryLookupIdDescriptor,
 )
-from common.models.lang import RE_LOCALIZED_SEASON_NUMBERS, localize_number
-from common.models.misc import int_, uniq
 
 
 class TVShowInSchema(ItemInSchema):

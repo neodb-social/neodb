@@ -11,13 +11,13 @@ from django.conf import settings
 from django.utils import timezone
 from loguru import logger
 
-from catalog.common import jsondata
+from common.models import jsondata
 from takahe.utils import Takahe
 
 from .common import SocialAccount
 
 if typing.TYPE_CHECKING:
-    from catalog.common.models import Item
+    from catalog.models import Item
     from journal.models.common import Content
 
 

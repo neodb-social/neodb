@@ -31,7 +31,7 @@ def _update_catalog_index_task():
 
 
 def _cat_to_class(cat: str) -> list[str]:
-    from catalog.common.models import ItemCategory, item_categories
+    from catalog.models import ItemCategory, item_categories
 
     return [c.__name__ for c in item_categories().get(ItemCategory(cat), [])]
 
@@ -64,7 +64,7 @@ class CatalogQueryParser(QueryParser):
         filter_categories=[],
         exclude_categories=[],
     ):
-        from catalog.common.models import item_categories
+        from catalog.models import item_categories
 
         super().__init__(query, page, page_size)
 

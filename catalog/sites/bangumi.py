@@ -6,10 +6,21 @@ import httpx
 from django.conf import settings
 from loguru import logger
 
-from catalog.book.utils import detect_isbn_asin
 from catalog.common import *
-from catalog.game.models import GameReleaseType
-from catalog.models import *
+from catalog.models import (
+    Album,
+    Edition,
+    ExternalSearchResultItem,
+    Game,
+    IdType,
+    ItemCategory,
+    Movie,
+    Performance,
+    SiteName,
+    TVSeason,
+)
+from catalog.models.game import GameReleaseType
+from catalog.models.utils import detect_isbn_asin
 from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)

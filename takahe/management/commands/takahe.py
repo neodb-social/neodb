@@ -3,7 +3,6 @@ from loguru import logger
 from tqdm import tqdm
 
 from catalog.common import *
-from catalog.common.models import *
 from catalog.models import *
 from takahe.utils import *
 from users.models import User as NeoUser

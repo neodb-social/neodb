@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.common import *
-from catalog.movie.models import Movie
+from catalog.models import IdType, Movie
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -20,8 +20,7 @@ from loguru import logger
 from polymorphic.models import PolymorphicModel
 from user_messages import api as messages
 
-from catalog.common.models import Item, ItemCategory
-from catalog.models import item_categories, item_content_types
+from catalog.models import Item, ItemCategory, item_categories, item_content_types
 from takahe.utils import Takahe
 from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User

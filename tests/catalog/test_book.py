@@ -1,8 +1,8 @@
 import pytest
 
-from catalog.book.utils import detect_isbn_asin
 from catalog.common import SiteManager, use_local_response
 from catalog.models import Edition, ExternalResource, IdType, SiteName, Work
+from catalog.models.utils import detect_isbn_asin
 
 
 @pytest.mark.django_db(databases="__all__")

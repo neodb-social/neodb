@@ -41,14 +41,14 @@ class Bandcamp(AbstractSite):
         try:
             answers = resolver.query(hostname, "CNAME")
             for rdata in answers:
-                if str(rdata.target) == "dom.bandcamp.com.":  # type:ignore
+                if str(rdata.target) == "dom.bandcamp.com.":
                     return True
         except Exception:
             pass
         try:
             answers = resolver.query(hostname, "A")
             for rdata in answers:
-                if str(rdata.address) == "35.241.62.186":  # type:ignore
+                if str(rdata.address) == "35.241.62.186":
                     return True
         except Exception:
             pass

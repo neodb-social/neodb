@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from catalog.common import Item, ItemCategory
+from .item import Item, ItemCategory
 
 
 class Collection(Item):

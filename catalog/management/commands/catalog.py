@@ -209,8 +209,7 @@ class Command(BaseCommand):
 
     def wikidata_link(self, id_type_str, limit=None, start_pk=None):
         """Link external resources to WikiData resources using lookup_qid_by_external_id"""
-        from catalog.common import IdType
-        from catalog.common.models import ExternalResource
+        from catalog.models import ExternalResource, IdType
         from catalog.sites.wikidata import WikiData
 
         types = [t.value for t in IdType]

@@ -1,7 +1,6 @@
 import pytest
 
-from catalog.common.models import ItemCategory
-from catalog.models import Edition, Game, IdType, Movie, TVShow
+from catalog.models import Edition, Game, IdType, ItemCategory, Movie, TVShow
 from journal.models.common import q_owned_piece_visible_to_user
 from journal.models.review import Review
 from journal.models.shelf import ShelfManager, ShelfMember, ShelfType

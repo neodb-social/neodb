@@ -3,7 +3,7 @@ import asyncio
 from django.core.cache import cache
 
 from catalog.common import SiteManager
-from catalog.common.models import ItemCategory
+from catalog.models import ItemCategory
 from catalog.search.models import ExternalSearchResultItem
 from catalog.sites.fedi import FediverseInstance
 

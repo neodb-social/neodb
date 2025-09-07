@@ -17,8 +17,7 @@ from catalog.common.downloaders import (
     get_mock_file,
     get_mock_mode,
 )
-from catalog.models import *
-from catalog.podcast.models import PodcastEpisode
+from catalog.models import IdType, Podcast, PodcastEpisode, SiteName
 from common.models.lang import detect_language
 from journal.models.renderers import html_to_text
 

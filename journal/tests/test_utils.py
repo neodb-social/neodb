@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from catalog.book.models import Edition
+from catalog.models import Edition
 from journal.models.comment import Comment
 from journal.models.common import Debris
 from journal.models.mark import Mark

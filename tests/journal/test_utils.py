@@ -1,13 +1,17 @@
 import pytest
 
-from catalog.book.models import Edition
-from journal.models.comment import Comment
+from catalog.models import Edition
+from journal.models import (
+    Comment,
+    Mark,
+    Rating,
+    ShelfLogEntry,
+    ShelfMember,
+    ShelfType,
+    TagMember,
+    update_journal_for_merged_item,
+)
 from journal.models.common import Debris
-from journal.models.mark import Mark
-from journal.models.rating import Rating
-from journal.models.shelf import ShelfLogEntry, ShelfMember, ShelfType
-from journal.models.tag import TagMember
-from journal.models.utils import update_journal_for_merged_item
 from users.models import User
 
 

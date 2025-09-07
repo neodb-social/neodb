@@ -7,10 +7,9 @@ from django.core.paginator import Paginator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from catalog.collection.models import Collection as CatalogCollection
-from catalog.common import jsondata
-from catalog.common.utils import piece_cover_path
-from catalog.models import Item
+from catalog.models import CatalogCollection, Item
+from catalog.models.utils import piece_cover_path
+from common.models import jsondata
 from common.utils import get_file_absolute_url
 from journal.models.index import JournalIndex, JournalQueryParser
 from takahe.utils import Takahe

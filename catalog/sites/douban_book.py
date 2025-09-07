@@ -1,6 +1,6 @@
-from catalog.book.models import *
-from catalog.book.utils import *
 from catalog.common import *
+from catalog.models import *
+from catalog.models.utils import *
 from common.models.lang import detect_language
 
 from .douban import RE_NUMBERS, RE_WHITESPACES, DoubanDownloader, DoubanSearcher

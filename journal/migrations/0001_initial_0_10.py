@@ -8,7 +8,7 @@ import django.utils.timezone
 import markdownx.models
 from django.db import migrations, models
 
-import catalog.common.utils
+import catalog.models.utils
 import journal.models.mixins
 
 
@@ -189,7 +189,7 @@ class Migration(migrations.Migration):
                     models.ImageField(
                         blank=True,
                         default="item/default.svg",
-                        upload_to=catalog.common.utils.piece_cover_path,
+                        upload_to=catalog.models.utils.piece_cover_path,
                     ),
                 ),
                 ("collaborative", models.PositiveSmallIntegerField(default=0)),

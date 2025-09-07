@@ -6,7 +6,7 @@ from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from catalog.common.models import item_categories
+from catalog.models import item_categories
 from catalog.search.views import visible_categories as _visible_categories
 from common.models.lang import (
     LANGUAGE_CODES,

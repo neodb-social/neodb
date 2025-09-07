@@ -5,16 +5,21 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from ninja import Schema
 
-from catalog.common import (
+from common.models.misc import datetime_
+
+from .common import (
+    LIST_OF_STR_SCHEMA,
+    LanguageListField,
+    jsondata,
+)
+from .item import (
     ExternalResource,
     IdType,
     Item,
     ItemCategory,
     ItemSchema,
-    jsondata,
+    ItemType,
 )
-from catalog.common.models import LIST_OF_STR_SCHEMA, ItemType, LanguageListField
-from common.models.misc import datetime_
 
 
 class CrewMemberSchema(Schema):

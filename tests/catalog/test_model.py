@@ -1,8 +1,7 @@
 import pytest
 
-from catalog.book.models import Edition
-from catalog.common.jsondata import decrypt_str, encrypt_str
-from catalog.common.models import Item
+from catalog.models import Edition, Item
+from common.models.jsondata import decrypt_str, encrypt_str
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -1,8 +1,9 @@
 import json
 import re
 
-from catalog.common import *
-from catalog.search.models import ExternalSearchResultItem
+from ..common import *
+from ..models import ItemCategory, SiteName
+from ..search.models import ExternalSearchResultItem
 
 RE_NUMBERS = re.compile(r"\d+\d*")
 RE_WHITESPACES = re.compile(r"\s+")

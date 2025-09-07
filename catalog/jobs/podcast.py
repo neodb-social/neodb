@@ -2,8 +2,7 @@ from datetime import timedelta
 
 from loguru import logger
 
-from catalog.common.models import IdType
-from catalog.models import Podcast
+from catalog.models import IdType, Podcast
 from catalog.sites import RSS
 from common.models import BaseJob, JobManager
 

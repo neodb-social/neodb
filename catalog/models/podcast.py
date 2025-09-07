@@ -5,18 +5,18 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from ninja import Field
 
-from catalog.common import (
+from .common import (
+    LIST_OF_ONE_PLUS_STR_SCHEMA,
+    LanguageListField,
+    jsondata,
+)
+from .item import (
     BaseSchema,
     IdType,
     Item,
     ItemCategory,
     ItemInSchema,
-    jsondata,
-)
-from catalog.common.models import (
-    LIST_OF_ONE_PLUS_STR_SCHEMA,
     ItemType,
-    LanguageListField,
 )
 
 
@@ -114,8 +114,8 @@ class Podcast(Item):
     def child_items(self):
         return self.episodes.filter(is_deleted=False, merged_to_item=None)
 
-    def can_soft_delete(self):
-        # override can_soft_delete() and allow delete podcast with episodes
+    def is_deletable(self):
+        # override is_deletable() and allow delete podcast with episodes
         return (
             not self.is_deleted
             and not self.merged_to_item_id

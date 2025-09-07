@@ -152,7 +152,7 @@ class SearchResult:
 
     @property
     def facet_by_category(self) -> dict[str, int]:
-        from catalog.common.models import ItemCategory, item_categories
+        from catalog.models import ItemCategory, item_categories
 
         item_class_facets = self.get_facet("item_class")
 

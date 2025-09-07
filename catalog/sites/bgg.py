@@ -7,8 +7,8 @@ ref: https://boardgamegeek.com/wiki/page/BGG_XML_API2
 import html
 
 from catalog.common import *
-from catalog.game.models import GameReleaseType
 from catalog.models import *
+from catalog.models.game import GameReleaseType
 from common.models.lang import detect_language
 
 

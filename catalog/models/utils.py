@@ -1,6 +1,9 @@
 import re
+import uuid
 
-from ..common.models import IdType
+from django.utils import timezone
+
+from .common import IdType
 
 
 def check_digit_10(isbn):
@@ -65,7 +68,7 @@ def detect_isbn_asin(s: str) -> tuple[IdType, str] | tuple[None, None]:
 
 
 def binding_to_format(binding: str | None):
-    from .models import Edition
+    from .book import Edition
 
     if not binding:
         return None
@@ -82,3 +85,52 @@ def binding_to_format(binding: str | None):
     if re.search(r"(平|Paper|Soft)", binding, flags=re.IGNORECASE):
         return Edition.BookFormat.PAPERBACK
     return None
+
+
+def upc_to_gtin_13(upc: str):
+    """
+    Convert UPC-A to GTIN-13, return None if validation failed
+
+    may add or remove padding 0s from different source
+    """
+    s = upc.strip() if upc else ""
+    if not re.match(r"^\d+$", s):
+        return None
+    if len(s) < 13:
+        s = s.zfill(13)
+    elif len(s) > 13:
+        if re.match(r"^0+$", s[0 : len(s) - 13]):
+            s = s[len(s) - 13 :]
+        else:
+            return None
+    return s
+
+
+def resource_cover_path(resource, filename):
+    fn = (
+        timezone.now().strftime("%Y/%m/%d/")
+        + str(uuid.uuid4())
+        + "."
+        + filename.split(".")[-1]
+    )
+    return "item/" + resource.id_type + "/" + fn
+
+
+def item_cover_path(item, filename):
+    fn = (
+        timezone.now().strftime("%Y/%m/%d/")
+        + str(uuid.uuid4())
+        + "."
+        + filename.split(".")[-1]
+    )
+    return "item/" + item.category + "/" + fn
+
+
+def piece_cover_path(item, filename):
+    fn = (
+        timezone.now().strftime("%Y/%m/%d/")
+        + str(uuid.uuid4())
+        + "."
+        + filename.split(".")[-1]
+    )
+    return f"user/{item.owner_id or '_'}/{fn}"

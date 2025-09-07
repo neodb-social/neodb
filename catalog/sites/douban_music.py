@@ -2,7 +2,7 @@ import dateparser
 
 from catalog.common import *
 from catalog.models import *
-from catalog.music.utils import upc_to_gtin_13
+from catalog.models.utils import upc_to_gtin_13
 from common.models.lang import detect_language
 
 from .douban import DoubanDownloader, DoubanSearcher

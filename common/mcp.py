@@ -154,7 +154,7 @@ def _add_note(
     progress_value: str | None = None,
     visibility: int = 0,
 ) -> dict:
-    from catalog.common.models import Item
+    from catalog.models import Item
     from journal.models.note import Note
 
     try:
@@ -253,7 +253,7 @@ def _mark_item(
     tags: list[str] | None = None,
     visibility: int | None = None,
 ) -> dict:
-    from catalog.common.models import Item
+    from catalog.models import Item
     from journal.models.mark import Mark
     from journal.models.shelf import ShelfType
 

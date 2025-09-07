@@ -47,7 +47,7 @@
           {{ form.media }}
           {{ form }}
           <div class="grid">
-            {% if not item or item.editable or request.user.is_staff %}
+            {% if not item or item.is_editable or request.user.is_staff %}
               <input type="submit" value="{% trans 'Save' %}">
             {% endif %}
             <input type="reset"

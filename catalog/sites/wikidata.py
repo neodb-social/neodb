@@ -8,7 +8,6 @@ from urllib.parse import quote, urlencode
 
 from loguru import logger
 
-from catalog.book.models import Edition
 from catalog.common import (
     AbstractSite,
     IdType,
@@ -19,6 +18,7 @@ from catalog.common import (
 )
 from catalog.common.downloaders import BasicDownloader
 from catalog.models import (
+    Edition,
     Game,
     Movie,
     Performance,

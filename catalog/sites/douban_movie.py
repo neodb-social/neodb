@@ -4,8 +4,7 @@ import re
 from loguru import logger
 
 from catalog.common import *
-from catalog.movie.models import *
-from catalog.tv.models import *
+from catalog.models import *
 from common.models.lang import detect_language
 from common.models.misc import int_
 

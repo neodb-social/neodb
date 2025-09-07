@@ -4,7 +4,8 @@ from typing import Any
 from django.conf import settings
 from loguru import logger
 
-from catalog.common import *
+from catalog.common import SiteManager
+from catalog.models import Item
 from common.utils import discord_send
 from journal.models import (
     Comment,

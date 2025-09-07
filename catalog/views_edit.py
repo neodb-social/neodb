@@ -13,9 +13,8 @@ from common.models.lang import get_current_locales
 from common.utils import discord_send, get_uuid_or_404
 from journal.models import update_journal_for_merged_item_task
 
-from .common.models import ExternalResource, IdealIdTypes, IdType
 from .forms import *
-from .models import *
+from .models import ExternalResource, IdealIdTypes, IdType
 from .search.views import *
 from .sites.imdb import IMDB as IMDB
 
@@ -129,7 +128,7 @@ def delete(request, item_path, item_uuid):
         raise PermissionDenied(_("Editing this item is restricted."))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied(_("Item in use."))
-    if not item.can_soft_delete():
+    if not item.is_deletable():
         raise PermissionDenied(_("Item cannot be deleted."))
     if request.POST.get("sure", 0) != "1":
         return render(request, "catalog_delete.html", {"item": item})

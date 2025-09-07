@@ -8,8 +8,8 @@ from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from catalog.common import *
-from catalog.common.utils import resource_cover_path
 from catalog.models import *
+from catalog.models.utils import resource_cover_path
 
 _logger = logging.getLogger(__name__)
 

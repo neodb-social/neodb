@@ -9,8 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from polymorphic.models import ContentType, PolymorphicManager
 
-from catalog.common.models import item_categories
-from catalog.models import Item, ItemCategory
+from catalog.models import Item, ItemCategory, item_categories
 from takahe.utils import Takahe
 from users.models import APIdentity
 

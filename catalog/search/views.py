@@ -10,8 +10,8 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from rq.job import Job
 
-from catalog.common.models import ItemCategory, SiteName, default_visible_categories
 from catalog.common.sites import AbstractSite, SiteManager
+from catalog.models import ItemCategory, SiteName
 from common.models import int_
 from common.utils import (
     HTTPResponseHXRedirect,
@@ -27,6 +27,17 @@ from users.views import query_identity
 from ..models import *
 from .external import ExternalSources
 from .models import enqueue_fetch, get_fetch_lock, query_index
+
+_VISIBLE_CATEGORIES = None
+
+
+def default_visible_categories() -> list[ItemCategory]:
+    global _VISIBLE_CATEGORIES
+    if _VISIBLE_CATEGORIES is None:
+        _VISIBLE_CATEGORIES = [
+            x for x in item_categories() if x.value not in settings.HIDDEN_CATEGORIES
+        ]
+    return _VISIBLE_CATEGORIES
 
 
 def fetch_refresh(request, job_id):

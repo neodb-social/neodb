@@ -5,7 +5,7 @@ import uuid
 import django.db.models.deletion
 from django.db import connection, migrations, models
 
-import catalog.common.utils
+import catalog.models.utils
 
 # Functions from the following migrations need manual copying.
 # Move them and any dependencies into this file, then update the
@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
                     models.ImageField(
                         blank=True,
                         default="item/default.svg",
-                        upload_to=catalog.common.utils.item_cover_path,
+                        upload_to=catalog.models.utils.item_cover_path,
                         verbose_name="cover",
                     ),
                 ),
@@ -522,7 +522,7 @@ class Migration(migrations.Migration):
                     models.ImageField(
                         blank=True,
                         default="item/default.svg",
-                        upload_to=catalog.common.utils.resource_cover_path,
+                        upload_to=catalog.models.utils.resource_cover_path,
                     ),
                 ),
                 ("other_lookup_ids", models.JSONField(default=dict)),

@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.common import IdType, SiteManager, use_local_response
-from catalog.performance.models import Performance
+from catalog.models import Performance
 
 
 @pytest.mark.django_db(databases="__all__")

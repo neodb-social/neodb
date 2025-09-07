@@ -5,9 +5,9 @@ import httpx
 from django.conf import settings
 from loguru import logger
 
-from catalog.book.utils import isbn_10_to_13
 from catalog.common import *
 from catalog.models import *
+from catalog.models.utils import isbn_10_to_13
 
 
 @SiteManager.register

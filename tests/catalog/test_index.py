@@ -3,13 +3,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django_redis.client import DefaultClient
 
-from catalog.common.models import ItemCategory
 from catalog.index import (
     CatalogIndex,
     CatalogQueryParser,
     _cat_to_class,
 )
-from catalog.models import Edition, Item, Movie
+from catalog.models import Edition, Item, ItemCategory, Movie
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -625,7 +624,7 @@ class TestCatalogSearch:
 
     def test_facet_by_category_includes_all_categories(self):
         """Test facet_by_category returns all categories even with 0 count"""
-        from catalog.common.models import ItemCategory
+        from catalog.models import ItemCategory
 
         # Create query parser for language search - English
         parser = CatalogQueryParser("language:en", 1, 20)

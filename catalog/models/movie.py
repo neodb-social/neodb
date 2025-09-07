@@ -1,17 +1,22 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from catalog.common import (
+from common.models.misc import int_
+
+from .common import (
+    LIST_OF_STR_SCHEMA,
+    LanguageListField,
+    jsondata,
+)
+from .item import (
     BaseSchema,
     IdType,
     Item,
     ItemCategory,
     ItemInSchema,
+    ItemType,
     PrimaryLookupIdDescriptor,
-    jsondata,
 )
-from catalog.common.models import LIST_OF_STR_SCHEMA, ItemType, LanguageListField
-from common.models.misc import int_
 
 
 class MovieInSchema(ItemInSchema):

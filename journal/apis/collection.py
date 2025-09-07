@@ -8,7 +8,7 @@ from ninja import Field, Schema
 from ninja.decorators import decorate_view
 from ninja.pagination import paginate
 
-from catalog.common.models import Item, ItemSchema
+from catalog.models import Item, ItemSchema
 from common.api import PageNumberPagination, Result, api
 
 from ..models import Collection

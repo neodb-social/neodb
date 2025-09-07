@@ -2,7 +2,7 @@ import pytest
 
 from catalog.common import *
 from catalog.models import Album
-from catalog.music.utils import *
+from catalog.models.utils import *
 from catalog.sites.spotify import Spotify
 
 

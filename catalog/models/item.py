@@ -20,10 +20,16 @@ from loguru import logger
 from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
-from catalog.common import jsondata
 from catalog.index import CatalogIndex
-from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, get_current_locales, uniq
-from common.models.lang import SCRIPT_CHOICES, normalize_languages
+from catalog.models.common import (
+    LOCALIZED_DESCRIPTION_SCHEMA,
+    LOCALIZED_LABEL_SCHEMA,
+    IdType,
+    LocalizedLabelSchema,
+    SiteName,
+)
+from common.models import get_current_locales, jsondata, uniq
+from common.models.lang import normalize_languages
 from common.utils import get_file_absolute_url
 
 from .utils import item_cover_path, resource_cover_path
@@ -34,91 +40,7 @@ if TYPE_CHECKING:
     from journal.models import Collection, Mark
     from users.models import User
 
-    from .sites import ResourceContent
-
-
-class SiteName(models.TextChoices):
-    Unknown = "unknown", _("Unknown")
-    Douban = "douban", _("Douban")
-    Goodreads = "goodreads", _("Goodreads")
-    GoogleBooks = "googlebooks", _("Google Books")
-    BooksTW = "bookstw", _("BooksTW")
-    BibliotekDK = "bibliotekdk", _("Bibliotek.dk")
-    BibliotekDK_eReolen = "eReolen", _("eReolen.dk")
-    IMDB = "imdb", _("IMDb")
-    TMDB = "tmdb", _("TMDB")
-    Bandcamp = "bandcamp", _("Bandcamp")
-    Spotify = "spotify", _("Spotify")
-    IGDB = "igdb", _("IGDB")
-    Steam = "steam", _("Steam")
-    Bangumi = "bangumi", _("Bangumi")
-    BGG = "bgg", _("BGG")
-    ApplePodcast = "apple_podcast", _("Apple Podcast")
-    RSS = "rss", _("RSS")
-    Discogs = "discogs", _("Discogs")
-    AppleMusic = "apple_music", _("Apple Music")
-    Fediverse = "fedi", _("Fediverse")
-    Qidian = "qidian", _("Qidian")
-    Ypshuo = "ypshuo", _("Ypshuo")
-    AO3 = "ao3", _("Archive of Our Own")
-    JJWXC = "jjwxc", _("JinJiang")
-    WikiData = "wikidata", _("WikiData")
-    OpenLibrary = "openlibrary", _("Open Library")
-
-
-class IdType(models.TextChoices):  # values must be in lowercase
-    WikiData = "wikidata", _("WikiData")
-    ISBN10 = "isbn10", _("ISBN10")
-    ISBN = "isbn", _("ISBN")  # ISBN 13
-    ASIN = "asin", _("ASIN")
-    ISSN = "issn", _("ISSN")
-    CUBN = "cubn", _("CUBN")
-    ISRC = "isrc", _("ISRC")  # only for songs
-    GTIN = ("gtin", _("GTIN UPC EAN"))  # GTIN-13, ISBN is separate
-    RSS = "rss", _("RSS Feed URL")
-    IMDB = "imdb", _("IMDb")
-    TMDB_TV = "tmdb_tv", _("TMDB TV Series")
-    TMDB_TVSeason = "tmdb_tvseason", _("TMDB TV Season")
-    TMDB_TVEpisode = "tmdb_tvepisode", _("TMDB TV Episode")
-    TMDB_Movie = "tmdb_movie", _("TMDB Movie")
-    Goodreads = "goodreads", _("Goodreads")
-    Goodreads_Work = "goodreads_work", _("Goodreads Work")
-    GoogleBooks = "googlebooks", _("Google Books")
-    DoubanBook = "doubanbook", _("Douban Book")
-    DoubanBook_Work = "doubanbook_work", _("Douban Book Work")
-    DoubanMovie = "doubanmovie", _("Douban Movie")
-    DoubanMusic = "doubanmusic", _("Douban Music")
-    DoubanGame = "doubangame", _("Douban Game")
-    DoubanDrama = "doubandrama", _("Douban Drama")
-    DoubanDramaVersion = "doubandrama_version", _("Douban Drama Version")
-    BooksTW = "bookstw", _("BooksTW Book")
-    BibliotekDK_Edition = "bibliotekdk_edition", _("Bibliotek.dk")
-    BibliotekDK_eReolen = "bibliotekdk_ereolen", _("eReolen.dk")
-    BibliotekDK_Work = "bibliotekdk_work", _("Bibliotek.dk")
-    Bandcamp = "bandcamp", _("Bandcamp")
-    Spotify_Album = "spotify_album", _("Spotify Album")
-    Spotify_Show = "spotify_show", _("Spotify Podcast")
-    Discogs_Release = "discogs_release", _("Discogs Release")
-    Discogs_Master = "discogs_master", _("Discogs Master")
-    MusicBrainz = "musicbrainz", _("MusicBrainz ID")
-    # DoubanBook_Author = "doubanbook_author", _("Douban Book Author")
-    # DoubanCelebrity = "doubanmovie_celebrity", _("Douban Movie Celebrity")
-    # Goodreads_Author = "goodreads_author", _("Goodreads Author")
-    # Spotify_Artist = "spotify_artist", _("Spotify Artist")
-    # TMDB_Person = "tmdb_person", _("TMDB Person")
-    IGDB = "igdb", _("IGDB Game")
-    BGG = "bgg", _("BGG Boardgame")
-    Steam = "steam", _("Steam Game")
-    Bangumi = "bangumi", _("Bangumi")
-    ApplePodcast = "apple_podcast", _("Apple Podcast")
-    AppleMusic = "apple_music", _("Apple Music")
-    Fediverse = "fedi", _("Fediverse")
-    Qidian = "qidian", _("Qidian")
-    Ypshuo = "ypshuo", _("Ypshuo")
-    AO3 = "ao3", _("Archive of Our Own")
-    JJWXC = "jjwxc", _("JinJiang")
-    OpenLibrary = "openlibrary", _("Open Library")
-    OpenLibrary_Work = "openlibrary_work", _("Open Library Work")
+    from ..common import ResourceContent
 
 
 IdealIdTypes = [
@@ -150,6 +72,9 @@ class ItemType(models.TextChoices):
     PerformanceProduction = "production", _("Production")
     Exhibition = "exhibition", _("Exhibition")
     Collection = "collection", _("Collection")
+    # Person = "person", _("Person")
+    # Organization = "organization", _("Organization")
+    # People = "people", _("Person / Organization")
 
 
 class ItemCategory(models.TextChoices):
@@ -160,8 +85,9 @@ class ItemCategory(models.TextChoices):
     Game = "game", _("Game")
     Podcast = "podcast", _("Podcast")
     Performance = "performance", _("Performance")
-    FanFic = "fanfic", _("FanFic")
-    Exhibition = "exhibition", _("Exhibition")
+    # FanFic = "fanfic", _("FanFic")
+    # Exhibition = "exhibition", _("Exhibition")
+    # People = "people", _("Person / Organization")
     Collection = "collection", _("Collection")
 
 
@@ -179,19 +105,6 @@ class AvailableItemCategory(models.TextChoices):
 #     Season = "season", _("season")
 #     Episode = "episode", _("episode")
 #     Version = "production", _("production")
-
-
-# class CreditType(models.TextChoices):
-#     Author = 'author', _('author')
-#     Translater = 'translater', _('translater')
-#     Producer = 'producer', _('producer')
-#     Director = 'director', _('director')
-#     Actor = 'actor', _('actor')
-#     Playwright = 'playwright', _('playwright')
-#     VoiceActor = 'voiceactor', _('voiceactor')
-#     Host = 'host', _('host')
-#     Developer = 'developer', _('developer')
-#     Publisher = 'publisher', _('publisher')
 
 
 class PrimaryLookupIdDescriptor(object):  # TODO make it mixin of Field
@@ -266,17 +179,12 @@ class BaseSchema(Schema):
     external_resources: list[ExternalResourceSchema] | None
 
 
-class LocalizedTitleSchema(Schema):
-    lang: str
-    text: str
-
-
 class ItemInSchema(Schema):
     type: str = Field(alias="get_type")
     title: str = Field(alias="display_title")
     description: str = Field(default="", alias="display_description")
-    localized_title: list[LocalizedTitleSchema] = []
-    localized_description: list[LocalizedTitleSchema] = []
+    localized_title: list[LocalizedLabelSchema] = []
+    localized_description: list[LocalizedLabelSchema] = []
     cover_image_url: str | None
     rating: float | None
     rating_count: int | None
@@ -288,90 +196,6 @@ class ItemInSchema(Schema):
 
 class ItemSchema(BaseSchema, ItemInSchema):
     pass
-
-
-def get_locale_choices_for_jsonform(choices, const=False):
-    """return list for jsonform schema"""
-    return [{"title": v, "const" if const else "value": k} for k, v in choices]
-
-
-LOCALE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(LOCALE_CHOICES)
-LANGUAGE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(
-    LANGUAGE_CHOICES, const=True
-)
-SCRIPT_CHOICES_JSONFORM = get_locale_choices_for_jsonform(SCRIPT_CHOICES, const=True)
-
-LOCALIZED_TITLE_SCHEMA = {
-    "type": "list",
-    "items": {
-        "type": "dict",
-        "keys": {
-            "lang": {
-                "type": "string",
-                "title": _("locale"),
-                "choices": LOCALE_CHOICES_JSONFORM,
-            },
-            "text": {"type": "string", "title": _("text content")},
-        },
-        "required": ["lang", "text"],
-    },
-    "minItems": 1,
-    "uniqueItems": True,
-}
-
-LOCALIZED_DESCRIPTION_SCHEMA = {
-    "type": "list",
-    "items": {
-        "type": "dict",
-        "keys": {
-            "lang": {
-                "type": "string",
-                "title": _("locale"),
-                "choices": LOCALE_CHOICES_JSONFORM,
-            },
-            "text": {
-                "type": "string",
-                "title": _("text content"),
-                "widget": "textarea",
-            },
-        },
-        "required": ["lang", "text"],
-    },
-    "uniqueItems": True,
-}
-
-LIST_OF_STR_SCHEMA = {
-    "type": "list",
-    "items": {"type": "string", "required": True},
-    "uniqueItems": True,
-}
-
-LIST_OF_ONE_PLUS_STR_SCHEMA = {
-    "type": "list",
-    "items": {"type": "string", "required": True},
-    "minItems": 1,
-    "uniqueItems": True,
-}
-
-
-def LanguageListField(script=False):
-    return jsondata.ArrayField(
-        verbose_name=_("language"),
-        base_field=models.CharField(blank=True, default="", max_length=100),
-        null=True,
-        blank=True,
-        default=list,
-        schema={
-            "type": "array",
-            "items": {
-                "oneOf": (
-                    SCRIPT_CHOICES_JSONFORM if script else LANGUAGE_CHOICES_JSONFORM
-                )
-                + [{"title": "Other", "type": "string"}]
-            },
-            "uniqueItems": True,
-        },
-    )
 
 
 class Item(PolymorphicModel):
@@ -424,7 +248,7 @@ class Item(PolymorphicModel):
         null=False,
         blank=True,
         default=list,
-        schema=LOCALIZED_TITLE_SCHEMA,
+        schema=LOCALIZED_LABEL_SCHEMA,
     )
 
     localized_description = jsondata.JSONField(
@@ -440,7 +264,7 @@ class Item(PolymorphicModel):
             models.Index(fields=["primary_lookup_id_type", "primary_lookup_id_value"])
         ]
 
-    def can_soft_delete(self):
+    def is_deletable(self):
         return (
             not self.is_deleted
             and not self.merged_to_item_id
@@ -907,8 +731,7 @@ class Item(PolymorphicModel):
         """Subclass may override this"""
         return False
 
-    @property
-    def editable(self):
+    def is_editable(self):
         return not self.is_deleted and self.merged_to_item is None
 
     @property
@@ -1150,7 +973,7 @@ class ExternalResource(models.Model):
         self.save()
 
     def get_site(self):
-        from .sites import SiteManager
+        from ..common import SiteManager
 
         return SiteManager.get_site_cls_by_id_type(self.id_type)
 
@@ -1180,7 +1003,7 @@ class ExternalResource(models.Model):
             resource_content.metadata.get("cover_image_url")
             and not resource_content.cover_image
         ):
-            from .downloaders import BasicImageDownloader
+            from ..common import BasicImageDownloader
 
             (
                 resource_content.cover_image,
@@ -1249,7 +1072,6 @@ def item_content_types() -> dict[type[Item], int]:
 
 
 _CATEGORY_LIST = None
-_VISIBLE_CATEGORIES = None
 
 
 def item_categories() -> dict[ItemCategory, list[type[Item]]]:
@@ -1263,12 +1085,3 @@ def item_categories() -> dict[ItemCategory, list[type[Item]]]:
             else:
                 _CATEGORY_LIST[c].append(cls)
     return _CATEGORY_LIST
-
-
-def default_visible_categories() -> list[ItemCategory]:
-    global _VISIBLE_CATEGORIES
-    if _VISIBLE_CATEGORIES is None:
-        _VISIBLE_CATEGORIES = [
-            x for x in item_categories() if x.value not in settings.HIDDEN_CATEGORIES
-        ]
-    return _VISIBLE_CATEGORIES

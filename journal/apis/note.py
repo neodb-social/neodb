@@ -4,7 +4,7 @@ from typing import List
 from ninja import Field, Schema
 from ninja.pagination import paginate
 
-from catalog.common.models import Item, ItemSchema
+from catalog.models import Item, ItemSchema
 from common.api import NOT_FOUND, OK, PageNumberPagination, Result, api
 
 from ..models import Note

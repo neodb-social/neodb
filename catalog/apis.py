@@ -7,7 +7,6 @@ from django.utils import timezone
 from ninja import Schema
 from ninja.pagination import paginate
 
-from catalog.common.models import Item, ItemSchema
 from common.api import PageNumberPagination, RedirectedResult, Result, api
 from journal.models.mark import Mark
 from journal.models.rating import Rating
@@ -20,6 +19,8 @@ from .models import (
     EditionSchema,
     Game,
     GameSchema,
+    Item,
+    ItemSchema,
     Movie,
     MovieSchema,
     Performance,

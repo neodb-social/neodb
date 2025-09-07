@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.common import *
-from catalog.podcast.models import *
+from catalog.models import *
 
 # class TestApplePodcast:
 #     @pytest.fixture(autouse=True)

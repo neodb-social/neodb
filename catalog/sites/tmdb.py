@@ -19,8 +19,7 @@ from django.conf import settings
 from loguru import logger
 
 from catalog.common import *
-from catalog.movie.models import *
-from catalog.tv.models import *
+from catalog.models import *
 from common.models.lang import SITE_PREFERRED_LANGUAGES
 
 from .douban import *

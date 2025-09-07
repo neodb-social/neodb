@@ -1,12 +1,6 @@
-import logging
-
-from catalog.book.models import *
-from catalog.book.utils import *
 from catalog.common import *
-
-from .douban import *
-
-_logger = logging.getLogger(__name__)
+from catalog.models import *
+from catalog.models.utils import *
 
 
 @SiteManager.register

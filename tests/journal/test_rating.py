@@ -1,7 +1,15 @@
 import pytest
 
-from catalog.common.models import Item
-from catalog.models import Edition, Game, IdType, Movie, TVEpisode, TVSeason, TVShow
+from catalog.models import (
+    Edition,
+    Game,
+    IdType,
+    Item,
+    Movie,
+    TVEpisode,
+    TVSeason,
+    TVShow,
+)
 from journal.models.rating import Rating
 from users.models import User
 

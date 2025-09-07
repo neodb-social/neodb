@@ -5,7 +5,7 @@ from django.utils import timezone
 from ninja import Field, Schema
 from ninja.pagination import paginate
 
-from catalog.common.models import AvailableItemCategory, Item, ItemSchema
+from catalog.models import AvailableItemCategory, Item, ItemSchema
 from common.api import PageNumberPagination, Result, api
 
 from ..models import (

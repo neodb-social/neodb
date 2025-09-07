@@ -4,19 +4,19 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from catalog.common import (
+from .common import (
+    LIST_OF_ONE_PLUS_STR_SCHEMA,
+    LIST_OF_STR_SCHEMA,
+    jsondata,
+)
+from .item import (
     BaseSchema,
     IdType,
     Item,
     ItemCategory,
     ItemInSchema,
-    PrimaryLookupIdDescriptor,
-    jsondata,
-)
-from catalog.common.models import (
-    LIST_OF_ONE_PLUS_STR_SCHEMA,
-    LIST_OF_STR_SCHEMA,
     ItemType,
+    PrimaryLookupIdDescriptor,
 )
 
 
