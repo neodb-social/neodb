@@ -116,7 +116,7 @@ class FediverseInstance(AbstractSite):
             return None
         for ext in data.get("external_resources", []):
             u = ext.get("url")
-            if self.is_local_item_url(u):
+            if u and self.is_local_item_url(u):
                 i = Item.get_by_url(u, True)
                 if i and not i.is_deleted:
                     return i
