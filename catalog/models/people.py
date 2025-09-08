@@ -1,12 +1,9 @@
 import json
-import uuid
 from functools import cached_property
-from typing import Any, Self
+from typing import Any
 
-from django.core.signing import b62_decode
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from ninja import Field, Schema
 
 from common.models import get_current_locales, jsondata, uniq
@@ -97,7 +94,6 @@ class People(Item):
     #     help_text=_("Items this person/organization is associated with"),
     # )
 
-    # Metadata handling for merging
     METADATA_COPY_LIST = [
         "localized_name",
         "localized_description",
@@ -106,11 +102,6 @@ class People(Item):
         "localized_name",
         "localized_description",
     ]
-
-    def __str__(self):
-        return f"{self.__class__.__name__}|{self.pk}|{self.uuid} {self.primary_lookup_id_type}:{self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.display_name})"
-
-    # uuid, url, absolute_url, and api_url properties are inherited from Item
 
     @property
     def is_person(self) -> bool:
@@ -130,8 +121,6 @@ class People(Item):
                 if v:
                     return v
 
-    # get_localized_description is inherited from Item
-
     @cached_property
     def display_name(self) -> str:
         # return name in current locale if possible, otherwise any name
@@ -143,8 +132,6 @@ class People(Item):
     def additional_names(self) -> list[str]:
         name = self.display_name
         return uniq([t["text"] for t in self.localized_name if t["text"] != name])
-
-    # display_description, brief_description, has_cover, cover_image_url, and default_cover_image_url are inherited from Item
 
     def is_deletable(self):
         return (
@@ -174,31 +161,6 @@ class People(Item):
             return
         self.merge_relations(to_item)
 
-    @classmethod
-    def get_by_url(cls, url_or_b62: str, resolve_merge=False) -> Self | None:
-        import re
-
-        b62 = url_or_b62.strip().split("/")[-1]
-        if len(b62) not in [21, 22]:
-            r = re.search(r"[A-Za-z0-9]{21,22}", url_or_b62)
-            if r:
-                b62 = r[0]
-        try:
-            people = cls.objects.get(uid=uuid.UUID(int=b62_decode(b62)))
-            if resolve_merge:
-                resolve_cnt = 5
-                while people.merged_to_item and resolve_cnt > 0:
-                    people = people.merged_to_item
-                    resolve_cnt -= 1
-                if resolve_cnt == 0:
-                    logger.error(
-                        "resolve merge loop error for people", extra={"people": people}
-                    )
-                    people = None
-        except Exception:
-            people = None
-        return people
-
     def to_schema_org(self):
         data: dict[str, Any] = {
             "@context": "https://schema.org",
@@ -218,8 +180,6 @@ class People(Item):
     def to_schema_org_json(self):
         data = self.to_schema_org()
         return json.dumps(data, ensure_ascii=False, indent=2)
-
-    # ap_object is inherited from Item
 
     @property
     def ap_object_ref(self) -> dict[str, Any]:
