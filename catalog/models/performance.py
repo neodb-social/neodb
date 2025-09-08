@@ -20,6 +20,7 @@ from .item import (
     ItemSchema,
     ItemType,
 )
+from .people import PeopleRole
 
 
 class CrewMemberSchema(Schema):
@@ -111,6 +112,19 @@ class Performance(Item):
     child_class = "PerformanceProduction"
     category = ItemCategory.Performance
     url_path = "performance"
+
+    available_roles = [
+        PeopleRole.DIRECTOR,
+        PeopleRole.PLAYWRIGHT,
+        PeopleRole.ORIGINAL_CREATOR,
+        PeopleRole.COMPOSER,
+        PeopleRole.CHOREOGRAPHER,
+        PeopleRole.ACTOR,
+        PeopleRole.PERFORMER,
+        PeopleRole.TROUPE,
+        PeopleRole.CREW,
+        PeopleRole.PRODUCER,
+    ]
     orig_title = jsondata.CharField(
         verbose_name=_("original name"), blank=True, max_length=500
     )
@@ -310,6 +324,19 @@ class PerformanceProduction(Item):
     category = ItemCategory.Performance
     type = ItemType.PerformanceProduction
     url_path = "performance/production"
+
+    available_roles = [
+        PeopleRole.DIRECTOR,
+        PeopleRole.PLAYWRIGHT,
+        PeopleRole.ORIGINAL_CREATOR,
+        PeopleRole.COMPOSER,
+        PeopleRole.CHOREOGRAPHER,
+        PeopleRole.ACTOR,
+        PeopleRole.PERFORMER,
+        PeopleRole.TROUPE,
+        PeopleRole.CREW,
+        PeopleRole.PRODUCER,
+    ]
     show = models.ForeignKey(
         Performance, null=True, on_delete=models.SET_NULL, related_name="productions"
     )

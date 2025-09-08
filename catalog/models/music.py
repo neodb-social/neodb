@@ -18,6 +18,7 @@ from .item import (
     ItemType,
     PrimaryLookupIdDescriptor,
 )
+from .people import PeopleRole
 
 
 class AlbumInSchema(ItemInSchema):
@@ -39,6 +40,14 @@ class Album(Item):
     url_path = "album"
     category = ItemCategory.Music
     type = ItemType.Album
+
+    available_roles = [
+        PeopleRole.ARTIST,
+        PeopleRole.PERFORMER,
+        PeopleRole.COMPOSER,
+        PeopleRole.PRODUCER,
+        PeopleRole.RECORD_LABEL,
+    ]
     barcode = PrimaryLookupIdDescriptor(IdType.GTIN)
     douban_music = PrimaryLookupIdDescriptor(IdType.DoubanMusic)
     spotify_album = PrimaryLookupIdDescriptor(IdType.Spotify_Album)

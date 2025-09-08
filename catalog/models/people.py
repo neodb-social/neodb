@@ -28,6 +28,11 @@ class PeopleRole(models.TextChoices):
     ARTIST = "artist", _("Artist")
     VOICE_ACTOR = "voice_actor", _("Voice Actor")
     HOST = "host", _("Host")
+    PLAYWRIGHT = "playwright", _("Playwright")
+    DESIGNER = "designer", _("Designer")
+    CHOREOGRAPHER = "choreographer", _("Choreographer")
+    ORIGINAL_CREATOR = "original_creator", _("Original Creator")
+    PRODUCER = "producer", _("Producer")
 
     # Organization roles
     PUBLISHER = "publisher", _("Publisher")
@@ -36,6 +41,10 @@ class PeopleRole(models.TextChoices):
     RECORD_LABEL = "record_label", _("Record Label")
     DEVELOPER = "developer", _("Developer")
     STUDIO = "studio", _("Studio")
+    PUBLISHING_HOUSE = "publishing_house", _("Publishing House")
+    IMPRINT = "imprint", _("Imprint")
+    TROUPE = "troupe", _("Troupe")
+    CREW = "crew", _("Crew")
 
 
 class PeopleInSchema(Schema):
@@ -71,6 +80,9 @@ class People(Item):
     category = ItemCategory.People
     url_path = "people"
     type = ItemType.People
+
+    # People can have any role
+    available_roles = list(PeopleRole)
     item_relations: models.QuerySet["ItemPeopleRelation"]
     people_type = models.CharField(
         _("type"), max_length=20, choices=PeopleType.choices, default=PeopleType.PERSON
