@@ -17,6 +17,7 @@ from .item import (
     ItemType,
     PrimaryLookupIdDescriptor,
 )
+from .people import PeopleRole
 
 
 class GameReleaseType(models.TextChoices):
@@ -51,6 +52,14 @@ class Game(Item):
     category = ItemCategory.Game
     type = ItemType.Game
     url_path = "game"
+
+    available_roles = [
+        PeopleRole.DESIGNER,
+        PeopleRole.ARTIST,
+        PeopleRole.DEVELOPER,
+        PeopleRole.PUBLISHER,
+        PeopleRole.PRODUCER,
+    ]
     igdb = PrimaryLookupIdDescriptor(IdType.IGDB)
     steam = PrimaryLookupIdDescriptor(IdType.Steam)
     douban_game = PrimaryLookupIdDescriptor(IdType.DoubanGame)

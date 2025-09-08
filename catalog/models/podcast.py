@@ -19,6 +19,7 @@ from .item import (
     ItemInSchema,
     ItemType,
 )
+from .people import PeopleRole
 
 
 class PodcastInSchema(ItemInSchema):
@@ -54,6 +55,11 @@ class Podcast(Item):
     type = ItemType.Podcast
     child_class = "PodcastEpisode"
     url_path = "podcast"
+
+    available_roles = [
+        PeopleRole.HOST,
+        PeopleRole.PRODUCER,
+    ]
     # apple_podcast = PrimaryLookupIdDescriptor(IdType.ApplePodcast)
     # ximalaya = LookupIdDescriptor(IdType.Ximalaya)
     # xiaoyuzhou = LookupIdDescriptor(IdType.Xiaoyuzhou)
@@ -149,6 +155,11 @@ class PodcastEpisode(Item):
     category = ItemCategory.Podcast
     type = ItemType.PodcastEpisode
     url_path = "podcast/episode"
+
+    available_roles = [
+        PeopleRole.HOST,
+        PeopleRole.PRODUCER,
+    ]
     # uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     program = models.ForeignKey(Podcast, models.CASCADE, related_name="episodes")
     guid = models.CharField(null=True, max_length=1000)
