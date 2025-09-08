@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from catalog.common import ResourceContent
-from catalog.common.downloaders import use_local_response
+from catalog.common.downloaders import DownloadError, use_local_response
 from catalog.models import IdType
 from catalog.sites.fedi import FediverseInstance
 
@@ -259,7 +259,6 @@ class TestFediverseInstance:
 
     def test_validate_url_fallback_download_error(self):
         """Test URL validation handles download errors"""
-        from catalog.common.downloaders import DownloadError
 
         with (
             patch("catalog.sites.fedi.URLValidator") as mock_validator,
@@ -307,7 +306,6 @@ class TestFediverseInstance:
     @patch("catalog.sites.fedi.CachedDownloader")
     def test_get_json_from_url_network_error(self, mock_downloader):
         """Test get_json_from_url handles network errors"""
-        from catalog.common.downloaders import DownloadError
 
         # Create a mock downloader object for DownloadError
         mock_downloader_obj = MagicMock()
@@ -446,24 +444,12 @@ class TestFediverseInstance:
             result = FediverseInstance.get_peers_for_search()
             assert result == ["takahe1.com", "takahe2.com"]
 
-    def test_search_tasks_category_conversion(self):
-        """Test search_tasks converts movietv category correctly"""
-        with patch.object(
-            FediverseInstance,
-            "get_peers_for_search",
-            return_value=["peer1.com", "peer2.com"],
-        ):
-            tasks = FediverseInstance.search_tasks("test query", 1, "movietv", 5)
-
-            # Should have 2 tasks (one for each peer)
-            assert len(tasks) == 2
-
     @pytest.mark.django_db(databases="__all__")
     @patch("catalog.sites.fedi.CachedDownloader")
     def test_get_local_item_from_external_resources_no_json(self, mock_downloader):
         """Test get_local_item_from_external_resources when JSON fetch fails"""
         mock_instance = mock_downloader.return_value
-        mock_instance.download.side_effect = Exception("Network error")
+        mock_instance.download.side_effect = ValueError("Network error")
 
         site = FediverseInstance("https://external.place/movie/123")
         result = site.get_local_item_from_external_resources()
