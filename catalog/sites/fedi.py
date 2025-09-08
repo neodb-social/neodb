@@ -21,6 +21,7 @@ from catalog.models import (
     Album,
     Edition,
     Game,
+    Item,
     ItemCategory,
     Movie,
     Performance,
@@ -98,6 +99,27 @@ class FediverseInstance(AbstractSite):
             if host and host in Takahe.get_neodb_peers():
                 logger.error(f"Fedi item url validation error: {url} {e}")
             return False
+
+    @classmethod
+    def is_local_item_url(cls, url: str) -> bool:
+        """Check if the given URL belongs to a local item"""
+        host = url.split("://", 1)[1].split("/", 1)[0].lower()
+        return host in settings.SITE_DOMAINS
+
+    def get_local_item_from_external_resources(self) -> Item | None:
+        """if a local item is in the external_resources, return it"""
+        try:
+            data = self.get_json_from_url(self.url)
+        except Exception:
+            return None
+        if not isinstance(data, dict):
+            return None
+        for ext in data.get("external_resources", []):
+            u = ext.get("url")
+            if self.is_local_item_url(u):
+                i = Item.get_by_url(u, True)
+                if i and not i.is_deleted:
+                    return i
 
     @classmethod
     def get_json_from_url(cls, url):

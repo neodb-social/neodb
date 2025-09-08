@@ -1,11 +1,11 @@
 from time import sleep
 from typing import Any
 
-from django.conf import settings
 from loguru import logger
 
 from catalog.common import SiteManager
 from catalog.models import Item
+from catalog.sites.fedi import FediverseInstance
 from common.utils import discord_send
 from journal.models import (
     Comment,
@@ -72,8 +72,8 @@ def _parse_piece_objects(objects) -> list[dict[str, Any]]:
 def _get_or_create_item(item_obj) -> Item | None:
     typ = item_obj["type"]
     url = item_obj["href"]
-    if url.startswith(settings.SITE_INFO["site_url"]):
-        logger.debug(f"Matching local item from {item_obj}")
+    if FediverseInstance.is_local_item_url(url):
+        logger.debug(f"Matching local item {item_obj}")
         item = Item.get_by_url(url, True)
         if not item:
             logger.warning(f"Item not found for {url}")
@@ -88,6 +88,11 @@ def _get_or_create_item(item_obj) -> Item | None:
     if not site:
         logger.warning(f"Site not found for {url}")
         return None
+    if isinstance(site, FediverseInstance):
+        item = site.get_local_item_from_external_resources()
+        if item:
+            logger.debug(f"Found local item in {item_obj}")
+            return item
     try:
         site.get_resource_ready()
     except Exception:
