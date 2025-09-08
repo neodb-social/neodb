@@ -110,7 +110,7 @@ class FediverseInstance(AbstractSite):
         """if a local item is in the external_resources, return it"""
         try:
             data = self.get_json_from_url(self.url)
-        except Exception:
+        except (DownloadError, ValueError):
             return None
         if not isinstance(data, dict):
             return None
