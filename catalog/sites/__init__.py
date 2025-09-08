@@ -19,6 +19,7 @@ from .google_books import GoogleBooks
 from .igdb import IGDB
 from .imdb import IMDB
 from .jjwxc import JJWXC
+from .musicbrainz import MusicBrainzRelease, MusicBrainzReleaseGroup
 from .openlibrary import OpenLibrary, OpenLibrary_Work
 from .qidian import Qidian
 from .rss import RSS
@@ -61,5 +62,7 @@ __all__ = [
     "TMDB_Movie",
     "WikiData",
     "Ypshuo",
+    "MusicBrainzReleaseGroup",
+    "MusicBrainzRelease",
     # "ApplePodcast",
 ]

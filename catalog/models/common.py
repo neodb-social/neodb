@@ -32,6 +32,7 @@ class SiteName(models.TextChoices):
     JJWXC = "jjwxc", _("JinJiang")
     WikiData = "wikidata", _("WikiData")
     OpenLibrary = "openlibrary", _("Open Library")
+    MusicBrainz = "musicbrainz", _("MusicBrainz")
 
 
 class IdType(models.TextChoices):  # values must be in lowercase
@@ -68,7 +69,11 @@ class IdType(models.TextChoices):  # values must be in lowercase
     Spotify_Show = "spotify_show", _("Spotify Podcast")
     Discogs_Release = "discogs_release", _("Discogs Release")
     Discogs_Master = "discogs_master", _("Discogs Master")
-    MusicBrainz = "musicbrainz", _("MusicBrainz ID")
+    MusicBrainz_ReleaseGroup = (
+        "musicbrainz_releasegroup",
+        _("MusicBrainz Release Group"),
+    )
+    MusicBrainz_Release = "musicbrainz_release", _("MusicBrainz Release")
     # DoubanBook_Author = "doubanbook_author", _("Douban Book Author")
     # DoubanCelebrity = "doubanmovie_celebrity", _("Douban Movie Celebrity")
     # Goodreads_Author = "goodreads_author", _("Goodreads Author")
@@ -95,7 +100,7 @@ IdealIdTypes = [
     IdType.ASIN,
     IdType.GTIN,
     IdType.ISRC,
-    IdType.MusicBrainz,
+    IdType.MusicBrainz_Release,
     IdType.RSS,
     IdType.IMDB,
     IdType.Steam,
