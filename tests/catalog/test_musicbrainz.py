@@ -56,7 +56,7 @@ class TestMusicBrainzReleaseGroup:
             if site is not None:
                 assert not isinstance(site, MusicBrainzReleaseGroup)
 
-    # @use_local_response
+    @use_local_response
     def test_scrape_release_group(self):
         """Test scraping release-group data"""
         t_url = (
