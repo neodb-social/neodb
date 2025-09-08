@@ -100,7 +100,7 @@ IdealIdTypes = [
     IdType.ASIN,
     IdType.GTIN,
     IdType.ISRC,
-    IdType.MusicBrainz_Release,
+    IdType.MusicBrainz_ReleaseGroup,
     IdType.RSS,
     IdType.IMDB,
     IdType.Steam,

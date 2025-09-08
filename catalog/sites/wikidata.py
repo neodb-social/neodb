@@ -18,6 +18,7 @@ from catalog.common import (
 )
 from catalog.common.downloaders import BasicDownloader
 from catalog.models import (
+    Album,
     Edition,
     Game,
     Movie,
@@ -200,9 +201,10 @@ class WikidataProperties:
         "P4983": IdType.TMDB_TV,  # TMDb TV series ID
         "P1954": IdType.Discogs_Master,  # Discogs master ID
         "P2206": IdType.Discogs_Release,  # Discogs release ID
-        # "P436": IdType.MusicBrainz,  # MusicBrainz release group ID
+        "P436": IdType.MusicBrainz_ReleaseGroup,  # MusicBrainz release group ID
+        "P5813": IdType.MusicBrainz_Release,  # MusicBrainz release ID
         # "P5842": IdType.ApplePodcasts,
-        "P5831": IdType.Spotify_Album,
+        "P2205": IdType.Spotify_Album,
     }
 
 
@@ -261,7 +263,7 @@ class WikiData(AbstractSite):
         PodcastEpisode,
         Performance,
         Work,
-        # Album,
+        Album,
         Edition,
     ]
 
