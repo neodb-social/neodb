@@ -27,19 +27,28 @@ class BaseJob:
     @classmethod
     def schedule(cls, now=False):
         job_id = cls.__name__
-        i = timedelta(seconds=1) if now else cls.interval
+        i = timedelta(seconds=0) if now else cls.interval
         if cls.interval <= timedelta(0) or job_id in settings.DISABLE_CRON_JOBS:
             logger.info(f"Skip disabled job {job_id}")
             return
         logger.info(f"Scheduling job {job_id} in {i}")
-        django_rq.get_queue("cron").enqueue_in(
-            i,
-            cls._run,
-            job_id=job_id,
-            result_ttl=-1,
-            failure_ttl=-1,
-            job_timeout=cls.interval.seconds - 5,
-        )
+        if now:
+            django_rq.get_queue("cron").enqueue(
+                cls._run,
+                job_id=job_id,
+                result_ttl=-1,
+                failure_ttl=-1,
+                job_timeout=cls.interval.seconds - 5,
+            )
+        else:
+            django_rq.get_queue("cron").enqueue_in(
+                cls.interval,
+                cls._run,
+                job_id=job_id,
+                result_ttl=-1,
+                failure_ttl=-1,
+                job_timeout=cls.interval.seconds - 5,
+            )
 
     @classmethod
     def reschedule(cls, now: bool = False):
