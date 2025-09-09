@@ -2,6 +2,9 @@ name: unit test
 
 on:
   push:
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
   pull_request:
     branches: [ "main" ]
 

@@ -39,6 +39,7 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
     * Archive of Our Own
     * WikiData
     * Open Library
+    * Musicbrainz
     * any RSS link to a podcast
   + Search from some of sites above
 - logged in users can manage their collections:
