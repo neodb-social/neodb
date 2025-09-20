@@ -121,12 +121,18 @@ PostTypes = {"mark", "comment", "review", "collection", "note"}
     tags=["catalog"],
 )
 def list_posts_for_item(
-    request, item_uuid: str, type: str | None = None, page: int = 1
+    request,
+    item_uuid: str,
+    type: str | None = None,
+    page: int = 1,
+    sort: int | None = None,
 ):
     """
     Get posts for an item
 
     `type` is optional, can be a comma separated list of `comment`, `review`, `collection`, `note`, `mark`; default is `comment,review`
+
+    `sort` is optional, can be -1 for decscending sort by creation time or 1 for ascending sort; default is 1
     """
     if page < 1 or page > 99:
         return INVALID_PAGE
@@ -135,6 +141,8 @@ def list_posts_for_item(
         return NOT_FOUND
     types = [t for t in (type or "").split(",") if t in PostTypes]
     q = "type:" + ",".join(types or ["comment", "review"])
+    if sort == -1:
+        q += " sort:date"
     query = JournalQueryParser(q, page)
     query.filter_by_viewer(request.user.identity)
     query.filter("item_id", item.pk)
