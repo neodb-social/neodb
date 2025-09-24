@@ -168,6 +168,39 @@ class LetterboxdImporter(Task):
         self.message = f"{self.metadata['imported']} imported, {self.metadata['skipped']} skipped, {self.metadata['failed']} failed"
         self.save(update_fields=["metadata", "message"])
 
+    def import_list(self, fn):
+        with open(fn) as f:
+            reader = csv.DictReader(
+                f,
+                delimiter=",",
+                fieldnames=["pos", "name", "year", "url", "desc"],
+            )
+            line_no = 0
+            collection = None
+            for row in reader:
+                line_no += 1
+                if line_no == 1:
+                    if row["pos"] != "Letterboxd list export v7":
+                        logger.error(
+                            f"Unknown list format: {row['pos']}, skipping {fn}"
+                        )
+                        break
+                elif line_no == 3:
+                    collection = Collection.objects.create(
+                        title=row["name"] or "no name",
+                        brief=row["desc"] or "",
+                        owner=self.user.identity,
+                    )
+                elif line_no > 4 and collection:
+                    url = row["url"]
+                    item = self.get_item_by_url(url)
+                    if item:
+                        collection.append_item(item, note=row["desc"])
+                        self.progress(1)
+                    else:
+                        logger.error(f"Unable to get item for {url}")
+                        self.progress(-1, url)
+
     def run(self):
         uris = set()
         filename = self.metadata["file"]
@@ -225,6 +258,11 @@ class LetterboxdImporter(Task):
                                 ShelfType.WISHLIST,
                                 row["Date"],
                             )
+                if os.path.isdir(tmpdirname + "/lists"):
+                    for fn in os.listdir(tmpdirname + "/lists"):
+                        if not fn.endswith(".csv"):
+                            continue
+                        self.import_list(tmpdirname + "/lists/" + fn)
         self.metadata["total"] = self.metadata["processed"]
         self.message = f"{self.metadata['imported']} imported, {self.metadata['skipped']} skipped, {self.metadata['failed']} failed"
         self.save(update_fields=["metadata", "message"])

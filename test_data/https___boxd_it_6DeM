@@ -1,0 +1,1559 @@
+
+
+<!DOCTYPE html>
+
+<html id="html" lang="en" class="context-client-unknown no-mobile no-js">
+<head>
+	<meta charset="UTF-8" />
+	
+	
+			
+		
+	<meta name="viewport" content="width=1024" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta name="description" content="The adventures of Matt Farley as he spends a few weeks preparing for a big comedy show in Manchester, NH." />
+	<meta property="og:type" content="video.movie" />
+	
+	<meta property="og:url" content="https://letterboxd.com/film/local-legends/" />
+	<meta property="og:title" content="Local Legends (2013)" />
+	<meta property="og:description" content="The adventures of Matt Farley as he spends a few weeks preparing for a big comedy show in Manchester, NH." />
+	<meta property="og:image" content="https://a.ltrbxd.com/resized/sm/upload/r5/lw/fr/jf/kVYfUCy9FgK2QeNvLLcLOlq605D-1200-1200-675-675-crop-000000.jpg?v=05bf001034" /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="675" />
+	
+	<meta property="fb:app_id" content="173683136069040" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:site" content="@letterboxd"/><meta name="twitter:url" content="https://letterboxd.com/film/local-legends/" />
+	<meta name="twitter:title" content="Local Legends (2013)" />
+	<meta name="twitter:description" content="The adventures of Matt Farley as he spends a few weeks preparing for a big comedy show in Manchester, NH." />
+	<meta name="twitter:label1" content="Directed by" /><meta name="twitter:data1" content="Matt Farley" />
+	<meta name="twitter:label2" content="Average rating" /><meta name="twitter:data2" content="4.07 out of 5" />
+	<meta name="twitter:image" content="https://a.ltrbxd.com/resized/sm/upload/r5/lw/fr/jf/kVYfUCy9FgK2QeNvLLcLOlq605D-1200-1200-675-675-crop-000000.jpg?v=05bf001034" />
+	<meta name="application-name" content="Letterboxd" />
+	<meta name="theme-color" content="#14181C" />
+	<meta name="msapplication-TileColor" content="#445566" />
+	<meta name="apple-itunes-app" content="app-id=1054271011, affiliate-data=11l5KW, app-argument=https://letterboxd.com/film/local-legends/" />
+	<meta name="mobile-web-app-capable" content="yes" />
+
+	<title>&lrm;Local Legends (2013) directed by Matt Farley • Reviews, film + cast &bull; Letterboxd</title>
+	<script>
+		
+		((r, n) => {
+			r.dataset.useragent = n.userAgent
+			r.dataset.platform = n.platform
+		})(document.documentElement, navigator)
+
+		var isMobile = false,
+			isMobileOptimised = true,
+			renderMobile = false,
+			useStaticFonts = false,
+			disableFrameProtection = false,
+			baseURL = '',
+			staticAssetBaseURL = 'https://s.ltrbxd.com/'.slice(0, -1),
+			successMessages = [],
+			errorMessages = [],
+			stickyMessages = [],
+			globals = {
+			autoAddFilm: false
+				, spinners: {
+					ajax_242d35: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif',
+					spinner_12_2C3641: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif',
+					spinner_14_20272f: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif',
+					spinner_16_161B21: 'https://s.ltrbxd.com/static/img/spinner-dark-2x-BA9SNVrD.gif'
+				}
+			},
+			supermodelCSRF = "",
+			gRecaptchaKey = '6Le3mMIUAAAAAEXbwZ7M1R5jEv0V5xbvj7bgXq2g',
+			geolocation = {
+				country: ""
+			},
+			person = {
+				username: ""
+				, loggedIn: false
+				
+				, showAds: true
+				, role: "guest"
+				, hasExtendedServiceFilters: false
+				, canBulkAddToLists: false
+				, canFilterOwned: false
+				, hasHqRole: false
+				, canHaveHqDashboard: false
+				, hasMemberStatistics: false
+				, blockedMembers: []
+				, showAdultContent: false
+				, validated: null
+				, trusted: false
+				, hasBlocked : function(member) { for (var i = 0; i !== person.blockedMembers.length; i++) {if (person.blockedMembers[i] === member) return true;} return false; }
+				, viewingTags: []
+				, hasMoreTags: true
+				, getCustomPoster : function(uid) { return null; }
+				, getCustomBackdrop : function(uid) { return null; }
+			},
+			disableAds = false,
+			analytic_params = {};
+		
+		
+supermodelCSRF = '120ef667448c85886dc3'; geolocation.country = 'CH'; analytic_params['user_type'] = 'Visitor';
+
+	</script>
+	
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		window.gtag = window.gtag || function () {
+			dataLayer.push(arguments);
+		};
+		function ga() {}
+	</script>
+
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-D3ECBB4D7L"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		window.gtag = window.gtag || function () {
+			dataLayer.push(arguments);
+		};
+		gtag('js', new Date());
+	
+		analytic_params['template'] = '/object/film';
+		
+		
+				analytic_params['film_id'] = '6DeM';
+			
+
+		if (analytic_params.member_type) {
+			gtag('set', 'user_properties', { 
+				member_type: analytic_params.member_type,
+			});
+			delete analytic_params.member_type;
+		}
+		var config = {
+			...analytic_params,
+			'cookie_domain': 'letterboxd.com', 
+			'optimize_id': 'GTM-TB8HSDN', 
+		};
+		gtag('config', 'G-D3ECBB4D7L', config);
+	</script>
+
+
+	
+<script>
+function ASAP(callback) {
+	if (window.__ASAPPED) {
+		callback()
+		return
+	}
+	if (!window.__ASAP) {
+		window.__ASAP = []
+	}
+	window.__ASAP.push(callback)
+}
+</script>
+
+	<script>
+		
+
+		
+			
+		
+
+		
+
+		
+		
+			
+			  function setUseMobileSiteCookie(useMobile) {
+					const value = useMobile ? 'yes' : 'no'
+					const date = new Date()
+					const maxAge = 365 * 24 * 60 * 60
+					date.setTime(date.getTime() + maxAge * 1000)
+					const expires = '; expires=' + date.toUTCString()
+					const cookieValuePair = 'useMobileSite=' + value
+					document.cookie = cookieValuePair + expires + '; path=/; maxAge=' + maxAge
+
+					if (document.cookie.includes(cookieValuePair)) {
+						window.location.reload(true)
+					} else {
+						console.error('Failed to set useMobileSite cookie.')
+					}
+				}
+
+				/*
+				 * If ?fromApp=true, it's possible for user is already in the correct mode, so only try
+				 * reloading if that's the case. In fact, trying to reload the page regardless causes an 
+				 * infinite loop as the ?fromApp=true parameter is always present.
+				 */
+				const isMobileWidth = screen.width < 768
+				if (isMobileWidth && !document.cookie.includes('useMobileSite=yes')) {
+					setUseMobileSiteCookie(true)
+				} else if (!isMobileWidth && !document.cookie.includes('useMobileSite=no')) {
+					setUseMobileSiteCookie(false)
+				}
+			
+		
+	</script>
+	
+		<script type="text/javascript"> (function(data) { data.viewingable = data.viewingable || {}; data.viewingable.uid = 'film:158080'; data.viewingable.type = 'film'; data.viewingable.dataEndpoint = '/film/local-legends/json/'; })(window.__BXD_DATA = window.__BXD_DATA || {}) </script>
+	
+
+	
+	
+
+
+
+
+
+	
+	
+	<script>
+		window.ramp = window.ramp || {};
+		window.ramp.que = window.ramp.que || [];
+		window.ramp.passiveMode = false; 
+		window.ramp.forcePath = '';
+		window.ramp.custom_tags = [
+			'comedy', 
+			'music', 
+			'intl_false', 
+			'6DeM', 
+			'', 
+			''
+		];
+	</script>
+	<script src="//cdn.intergient.com/1024338/72804/ramp_config.js"></script>
+	<script>
+		window._pwGA4PageviewId = ''.concat(Date.now());
+		window.dataLayer = window.dataLayer || [];
+		window.gtag = window.gtag || function () { 
+			dataLayer.push(arguments);
+		};
+		gtag('js', new Date());
+		gtag('config', 'G-L0W7RDZXX3', { 'send_page_view': false });
+		gtag(
+			'event',
+			'ramp_js',
+			{
+				'send_to': 'G-L0W7RDZXX3',
+				'pageview_id': window._pwGA4PageviewId
+			}
+		);
+		
+		(function() {
+			const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+			window.isAndroid = new RegExp("android", "i").test(userAgent);
+			window.isIOS = new RegExp("iPad|iPhone|iPod", "i").test(userAgent) && !window.MSStream;
+			window.adsLocation = 'CH';
+		})();
+	</script>
+
+
+
+	<link rel="manifest" href="/manifest.json" />
+	<link rel="author" type="text/plain" href="/humans.txt" />
+	<link rel="mask-icon" href="https://s.ltrbxd.com/static/img/letterboxd-decal-l-16px-DorUFlWn.svg" color="#445566" />
+	<link rel="shortcut icon" sizes="196x196" href="https://s.ltrbxd.com/static/img/touch-icon-192x192-lO1g3Ot4.png" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+	<link rel="shortcut icon" href="/favicon.ico" />
+	<link rel="search" type="application/opensearchdescription+xml" title="Letterboxd" href="/static/opensearch.xml" />
+	
+	
+	
+  <script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/app-detection-CzTKtYyC.js"></script>
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+
+	
+		<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/main-DlVo1vV1.js"></script>
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCTBTwm7.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B7pRgGH2.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/msN89aGx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/03U_i1H8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DZEHBdoo.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BTU4rCft.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DOonzyH0.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/bKpgursT.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BGVqBqED.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D4Yk99Ne.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/hzgQj22F.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3e4t58V.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CVweeg0j.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CKHByedj.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dkdk7i3b.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dy3dRIkt.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CF74jhiq.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D2nGpDRe.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/vCWiOUpe.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dw1UnyvJ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B2KKeOnX.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B8BRvKfJ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dp7EpKt6.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BLpqPwTf.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3Ay1Ke8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CkhgB9_0.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/qt9y7WI1.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCZcJLg5.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CUcMfv5U.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CbXmRM-a.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dxj-PiPC.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D0Np9Co1.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dtdj54rt.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/MTNWZJ8c.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DbkyL-rk.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCPv9W2X.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DOHxIiFh.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DPeCBLXW.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CMMPhZm8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bbh8MmKk.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/_RochNgE.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DcZ-q2nA.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/-wkhcWO3.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DxtJGFC4.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/AxRaG6ks.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/JpiB-byr.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B7heWqLv.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CjDr9vYv.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DKEljbTo.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DjY_e70e.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D2hgF3Cb.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DHOGRMit.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/SOgt3rgE.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DferaUbf.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BmxsrX6Z.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CnLYH8eu.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CQluAL2z.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCi0_APx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DZPCvrkM.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BWai7PvB.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CqD8uq_c.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B9fb8Bne.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C0D7dfi8.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B4SrOr3T.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BhibFcxs.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B58NSZQH.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/RTvrqW77.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/De1em2ph.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DLi3KjJp.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/7NKbxqjC.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C7_IXB5o.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BmHO4yel.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BUACxlUn.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dy-E0KiV.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D3y6LkFj.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BwGYEUT4.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D0CRiLCf.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnElP6sD.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Ak46aDlv.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/_O9HB_fC.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/aczQZ_An.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/qjl1DJEE.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/iq6l9D7b.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCJAn0N6.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/JjPLYPbJ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CkEEJX_R.js">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/base-modal-D7ZjC2a_.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/production-masthead-DypvYxnf.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/private-note-modal-g8bSgXPR.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/main-syrsSl_1.css">
+		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+	
+	
+	
+	
+	
+	
+	
+	
+			
+		<script async type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/desktop-yYozq2ud.js"></script>
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/desktop-Ba33312l.css">
+		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+	
+		
+
+	
+
+
+
+
+
+	<script>
+	ASAP(function() {
+		if ( $.cookie("letterboxd.admin.signed.in") === person.username ) {
+			successMessages.push("You are signed in as " + person.username);
+			$(function(){$("#header, #content, body").css("background","#543");});
+		}
+	})
+	</script>
+	
+</head>
+
+<body class="film backdropped" data-type="film" data-tmdb-type="movie" data-tmdb-id="223578">
+	
+
+
+
+
+
+
+
+
+
+<div class="backdrop-container"> <div id="backdrop" class="backdrop-wrapper backdrop-fade-in " data-backdrop="https://a.ltrbxd.com/resized/sm/upload/r5/lw/fr/jf/kVYfUCy9FgK2QeNvLLcLOlq605D-1200-1200-675-675-crop-000000.jpg?v=05bf001034" data-support-custom="true" data-production-uid="film:158080" data-custom-backdrop-template-url="/ajax/backdrop/film/local-legends/:backdropId/?v=2" data-backdrop-mobile="https://a.ltrbxd.com/resized/sm/upload/r5/lw/fr/jf/kVYfUCy9FgK2QeNvLLcLOlq605D-960-960-540-540-crop-000000.jpg?v=05bf001034" data-offset="160" > <div class="backdropimage js-backdrop-image" ></div> <div class="backdropmask js-backdrop-fade"></div> </div> </div>
+
+
+
+  <script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/screens/production-BXCbogpo.js"></script>
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DHOGRMit.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/JpiB-byr.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/bKpgursT.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3e4t58V.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dtdj54rt.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B7heWqLv.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/03U_i1H8.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BLpqPwTf.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dp7EpKt6.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CKHByedj.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dw1UnyvJ.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCZcJLg5.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dkdk7i3b.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D4Yk99Ne.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DcZ-q2nA.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCTBTwm7.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DKEljbTo.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DjY_e70e.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/SOgt3rgE.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DZEHBdoo.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BTU4rCft.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DOonzyH0.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BGVqBqED.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/hzgQj22F.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CVweeg0j.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dy3dRIkt.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CF74jhiq.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D2nGpDRe.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/vCWiOUpe.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B2KKeOnX.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B8BRvKfJ.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CjDr9vYv.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCPv9W2X.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DferaUbf.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BmxsrX6Z.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BwGYEUT4.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCi0_APx.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CQluAL2z.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/sZO--wDB.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3Ay1Ke8.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/qt9y7WI1.js">
+  <link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/production-masthead-DypvYxnf.css">
+  <link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/base-modal-D7ZjC2a_.css">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+
+  <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-DR0632bf.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/screens/production-legacy-BF9t7mk_.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+
+
+  <script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/screens/film-DMwzYpV8.js"></script>
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Ce0l3abd.js">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+
+  <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-DR0632bf.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/screens/film-legacy-ca1rkqZ2.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+
+<script>
+ASAP(function() {
+
+
+})
+</script>
+
+
+
+
+
+<script>
+var mainMenu = [];
+
+	mainMenu.push({
+		"id": 1,
+		"url": "/sign-in/", 
+		"name": "Sign in",
+		"cssClassCode": "sign-in-menu",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": true,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 2,
+		"url": "/create-account/", 
+		"name": "Create account",
+		"cssClassCode": "create-account-menu",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 3,
+		"url": "/", 
+		"name": "Home",
+		"cssClassCode": "person-home",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": true,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 4,
+		"url": "/activity/", 
+		"name": "Activity",
+		"cssClassCode": "main-nav-activity",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": true,
+		"showInMainNavForMobile": false,
+		"tooltip": "Activity",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 5,
+		"url": "/films/", 
+		"name": "Films",
+		"cssClassCode": "films-page main-nav-films",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 6,
+		"url": "/lists/", 
+		"name": "Lists",
+		"cssClassCode": "lists-page main-nav-lists",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 7,
+		"url": "/members/", 
+		"name": "Members",
+		"cssClassCode": "main-nav-people",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 8,
+		"url": "/journal/", 
+		"name": "Journal",
+		"cssClassCode": "main-nav-journal",
+		"hideWhenSignedIn": false,
+		"hideWhenNotSignedIn": false,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+	mainMenu.push({
+		"id": 9,
+		"url": "/search/", 
+		"name": "Search results",
+		"cssClassCode": "",
+		"hideWhenSignedIn": true,
+		"hideWhenNotSignedIn": true,
+		"showInMainNavForMobile": false,
+		"tooltip": "",
+		"selected": false
+	});
+
+</script>
+
+<header class="site-header js-hide-in-app" id="header">
+	<div class="site-header-bg"></div>
+	<section>
+		<h1 class="site-logo"><a href="/" class="logo replace">Letterboxd &mdash; Your life in film</a></h1>
+
+		<div class="react-component" data-component-class="NavComponent"></div>
+
+		
+
+
+	
+
+
+
+
+
+<form method="post" action="#" id="signin" class="signin signin-form js-header-signin-form js-signin" data-url="/user/login.do" data-recaptcha-action="signin" novalidate='novalidate' autocorrect='off' autocapitalize='off'>
+	<input type="hidden" name="__csrf" value="placeholder" />
+	<input type="hidden" name="authenticationCode" value="" />
+	<fieldset class="fieldset">
+		<div class="fields">
+			<div class="col">
+				<label for="username">Username</label>
+				<input type="email" name="username" id="username" class="field signin-field" tabindex="1" data-focus-control="signingIn" autocomplete='email' inputmode='email' value="" />
+			</div>
+			<div class="col">
+				<label for="password">Password</label>
+				<input type="password" name="password" id="password" class="field signin-field" tabindex="2" autocomplete='current-password' value="" />
+			</div>
+			<div class="signin-actions">
+				<label for="remember" class="option-label -checkbox -small">
+					<input type="checkbox" name="remember" id="remember" class="checkbox" tabindex="3" value="true" /><i class="substitute"></i>
+					<span class="focus">Remember<span class="mob-hide"> me</span></span>
+				</label>
+				<p class="reset" tabindex="5"><a class="reset-password-link" href="/user/request-password-reset" target="_top">Forgotten<span class="elongated"> username or password</span>?</a></p>
+			</div>
+			<div class="col buttons">
+				<div class="button-container"><input type="submit" value="Sign in" class="button -action button-green" tabindex="4" /><i></i></div>
+				<div class="close js-close-signin">&times;</div>
+			</div>
+		</div>
+	</fieldset>
+	<div id="signin-message" class="errormessage"></div>
+</form>
+
+
+		
+		
+			
+
+
+
+
+	<p class="show-when-logged-in">
+		<a href id="add-new-button" class="button -action button-action button-add" data-bs-toggle="modal" data-bs-target="#diary-entry-form-modal" data-diary-entry-form-options='{"mode": "search", "showViewingableSuggestion": true}'>Log</a>
+	</p>
+	<div class="add-menu-wrapper show-when-logged-in">
+		<a href="#" id="add-menu-button" class="button -action button-action button-add-menu">
+			<span class="toggle"></span>
+			<em>More...</em>
+		</a>
+		<ul id="add-menu">
+			<li><a href="/list/new/">Start a new list…</a></li>
+			<li><a href="#" class="js-add-all-films-on-page-to-list">Add all films to a list&hellip;</a></li>
+			<li><a href="#" class="js-add-all-films-on-page-to-watchlist" data-action="/watchlist/add-films/">Add all films to watchlist</a></li>
+		</ul>
+	</div>
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="diary-entry-form-modal" class="modal fade diary-entry-form-modal" attributesText="" tabindex="-1" role="dialog" aria-labelledby="diary-entry-form-modal-title" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="diary-entry-form-modal-title">
+					<span data-js-label-for="search">Add to your films…</span>
+					<span data-js-label-for="compose" hidden>I watched…</span>
+					<span data-js-label-for="edit" hidden>Edit diary entry</span>
+				</h5>
+
+				<button type="button" class="diary-entry-form-wizard-backtrigger" data-js-trigger="wizardback" aria-controls="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" aria-label="Return to search" disabled hidden>
+					<span class="label">Back</span>
+				</button>
+
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+				
+				<form method="post" action="/s/save-diary-entry" id="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" class="diary-entry-form js-diary-entry-form" data-js-target='diary-entry-form' data-diary-entry-form-options='{"id": "965517d0-da1f-4fff-bc93-da056b724db8"}' novalidate='novalidate' aria-live='polite'>
+					<input type="hidden" name="__csrf" value="placeholder" />
+					<input type="hidden" name="viewingId" value="" id="frm-viewing-id" />
+					<input type="hidden" name="viewingableUid" value="" id="frm-viewingable-uid" />
+
+					
+
+					<section class="diary-entry-form-wizard-step -search" data-js-wizard-step="search" role="group" aria-roledescription="step" aria-label="1 of 2">
+						<div class="body">
+							<div class="formrow">
+								<label class="_sr-only">Name of Film</label>
+								<input type="text" class="field-large field -reversed -large js-viewingable-type-input" data-url="/s/autocompletefilm" placeholder="Search for film…" />
+
+								<div class="viewingablesuggestion js-viewingablesuggestion" hidden>
+									<span class="label">Or add</span>
+									<button type="button" data-js-trigger="suggestion" class="trigger welltrigger"><span class="label js-label viewingablelabel"></span></button>
+								</div>
+							</div>
+						</div>
+					</section>
+					
+					<section class="diary-entry-form-wizard-step -compose fields-reversed" data-js-wizard-step="compose" role="group" aria-roledescription="step" aria-label="2 of 2" hidden>
+						<div class="header js-header">
+							
+						</div>
+
+						<aside class="figure">
+							<figure class="poster-list -p150 no-hover js-poster-preview">
+								<div class="poster no-poster">
+									<span class="frame"></span>
+								</div>
+							</figure>
+						</aside>
+
+						<div class="body">
+							<div class="formrow datefields">
+								<div class="fieldgroup -specifieddate">
+									<label for="frm-specify-date" class="option-label -checkbox -default -reversed js-specifiy-date">
+										<input type="checkbox" name="specifiedDate" id="frm-specify-date" class="checkbox " value="true" /><i class="substitute"></i>
+										<span id="frm-specify-date-label" class="label js-specify-date-label">Add to your&nbsp;diary?</span>
+									</label>
+									<div class="specifydatecta js-specify-date-cta" hidden>Watched on&nbsp;<button type="button" class="trigger welltrigger" data-js-trigger="datepicker"><span class="label"></span></button></div>
+								</div>
+
+								<div class="fieldgroup -rewatch js-fieldgroup-rewatch">
+									<label for="frm-rewatch" id="frm-rewatch-label" class="option-label -checkbox -default">
+										<input type="checkbox" name="rewatch" id="frm-rewatch" class="checkbox" value="true" /><i class="substitute"></i> 
+										I’ve watched this before
+									</label>
+								</div>
+								<input type="hidden" name="viewingDateStr" id="frm-viewing-date-string" value="" />
+							</div>
+
+							<div class="formrow reviewfields js-reviewfields -is-not-spoilersvisible">
+								<div class="inner">
+									<textarea name="review" id="frm-review" class="field reviewfield" placeholder="Add a review…"></textarea>
+
+									<div class="spoilers">
+										<label for="frm-spoilers" class="spoilercheckbox option-label -checkbox -default">
+											<input type="checkbox" name="containsSpoilers" id="frm-spoilers" class="checkbox" value="true" /><i class="substitute"></i>  
+											Contains spoilers
+										</label>
+
+										<div class="moderatornote form-note js-spoilers-locked-note" hidden>
+											<p>A moderator has locked spoilers for this review</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="formrow tagslikeratingfields">
+								<div class="fieldgroup -tags -has-topnote add-tags">
+									
+									
+
+
+
+
+
+
+
+
+		
+	
+
+<label for="frm-tags">Tags</label>
+<p class="form-note note -topnote">Press <kbd>Tab</kbd> to complete, <kbd>Enter</kbd> to create</p>
+<div class="autocomplete-tags">
+	<div id="tag-container">
+		<input type="text" id="frm-tags" class="tag-input-field field" name="tags" placeholder="eg. netflix" data-url="/s/autocompletetags" />
+	</div>
+	<div id="current-tags" class="js-autocomplete-current-tags">
+		
+	</div>
+</div>
+								</div>
+
+								<div class="fieldgroup -rating -has-topnote">
+									<label>Rating</label>
+									<p class="form-note note rating-text"></p>
+									<input id="frm-rating" name="rating" type="range" min="0" max="10" step="1" value="0"/>
+									<div class="rateit js-rateit" data-rateit-backingfld="#frm-rating" data-rateit-starwidth="13" data-rateit-starheight="26" data-rateit-resetable="true"></div>
+								</div>
+
+								<div class="fieldgroup -like">
+									<label class="option-label -like">
+										<input type="checkbox" name="liked" value="true" class="ajax-working like-checkbox"/><i class="substitute"></i> 
+										Like
+									</label>
+								</div>
+							</div>
+						</div>
+					</section>
+				</form>
+				
+            </div>
+
+
+			
+            <div class="modal-footer js-modal-footer" hidden>
+				<div class="diary-entry-form-controls" data-diary-entry-form-controls-for="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" hidden>
+					<div class="modal-action-group privacygroup show-for-pv">
+						<div class="privacycontrols js-privacycontrols" aria-hidden="true">
+							<label class="label" for="frm-privacy-policy"> 
+								Privacy mode
+								<span class="s icon-14 icon-tip" target="_blank" title="Control who sees the rating, review, tags and like for this entry" data-js-trigger="tooltip"><span class="icon"></span>(Help)</span>
+							</label>
+
+							<select name="privacyPolicyStr" id="frm-privacy-policy" class="select" hidden form='diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8'>
+								<option value="">Default</option>
+								
+									<option value="Anyone">Anyone (public)</option>
+								
+									<option value="Friends">Close Friends (selected by you)</option>
+								
+									<option value="You">You (private)</option>
+								
+									
+								
+							</select>
+
+							
+	<div class="privacy-policy-menu dropdown-wrapper js-privacy-policy-menu -pending">
+		<button id="privacy-policy-menu-trigger-f7d1362e-ba2e-4f86-b59f-992d3d8dfa6e" class="privacy-policy-menu-trigger -default dropdown-trigger" type="button" aria-label="Select privacy policy" aria-haspopup="listbox" aria-expanded="false" aria-controls="privacy-policy-menu-f7d1362e-ba2e-4f86-b59f-992d3d8dfa6e-dropdown">
+			<span class="label js-label">…</span>
+		</button>
+
+		<div id="privacy-policy-menu-f7d1362e-ba2e-4f86-b59f-992d3d8dfa6e-dropdown" class="dropdown-menu -legacy dropdown-listbox privacy-policy-menu-dropdown" aria-labelledby="privacy-policy-menu-trigger-f7d1362e-ba2e-4f86-b59f-992d3d8dfa6e" role="listbox">
+			<div class="header">
+				<h3 class="title js-menutitle"></h3>
+			</div>
+
+			<div class="dropdown-menulist">
+				
+					
+						<div role="none" class="menuitem -trigger -has-icon js-dropdown-child">
+							<button type="button" role="option" data-dismiss="dropdown" data-value="Anyone">
+								
+										<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8 .5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15Zm1.73 8.25H6.27c.07 1.53.36 2.93.8 3.96.4.9.8 1.29.93 1.29s.53-.38.92-1.3c.45-1.02.74-2.42.81-3.95Zm-4.96 0H2.05a6 6 0 0 0 3.79 4.85 12.7 12.7 0 0 1-1.07-4.85Zm9.18 0h-2.72a12.7 12.7 0 0 1-1.07 4.85 6 6 0 0 0 3.8-4.85ZM5.84 2.4l-.18.07a6 6 0 0 0-3.61 4.78h2.72A12.7 12.7 0 0 1 5.84 2.4ZM8 2c-.13 0-.53.38-.92 1.3a11.66 11.66 0 0 0-.81 3.95h3.46a11.66 11.66 0 0 0-.8-3.96c-.38-.85-.74-1.24-.9-1.28L8 2Zm2.16.4.01.02c.59 1.22.98 2.92 1.06 4.83h2.72a6 6 0 0 0-3.79-4.85Z"/></svg>
+									
+								<span class="label js-label">Anyone (public)</span>
+							</button>
+						</div>
+					
+				
+					
+						<div role="none" class="menuitem -trigger -has-icon js-dropdown-child">
+							<button type="button" role="option" data-dismiss="dropdown" data-value="Friends">
+								
+										<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8 .5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15ZM8 2a6 6 0 0 0-4.8 2.4 1.04 1.04 0 0 1 1.28.16l.63.63.64-.63a1.04 1.04 0 0 1 1.47 0c.4.4.4 1.06 0 1.47L5.34 7.9a.32.32 0 0 1-.45 0L3.01 6.03a1.04 1.04 0 0 1-.3-.87A5.98 5.98 0 0 0 8 14a6 6 0 0 0 5.29-8.84c.04.3-.06.63-.3.87L11.11 7.9a.32.32 0 0 1-.45 0L8.78 6.03a1.04 1.04 0 1 1 1.47-1.47l.64.63.63-.63a1.03 1.03 0 0 1 1.29-.15A6 6 0 0 0 8 2ZM5.7 9.92a3 3 0 0 0 4.52.1.75.75 0 0 1 1.1 1 4.49 4.49 0 0 1-6.78-.14.75.75 0 0 1 1.16-.96Z"/></svg>
+									
+								<span class="label js-label">Close Friends (selected by you)</span>
+							</button>
+						</div>
+					
+				
+					
+						<div role="none" class="menuitem -trigger -has-icon js-dropdown-child">
+							<button type="button" role="option" data-dismiss="dropdown" data-value="You">
+								
+										<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M7.95 1.25c2.35 0 4.25 1.9 4.25 4.25V6h.3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2V8c0-1.1.9-2 2-2h.2v-.5c0-2.35 1.9-4.25 4.25-4.25ZM12.5 7.5h-9A.5.5 0 0 0 3 8v6c0 .28.22.5.5.5h9a.5.5 0 0 0 .5-.5V8a.5.5 0 0 0-.5-.5ZM8 9.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Zm-.05-7A2.75 2.75 0 0 0 5.2 5.5V6h5.5v-.5a2.75 2.75 0 0 0-2.75-2.75Z"/></svg>
+									
+								<span class="label js-label">You (private)</span>
+							</button>
+						</div>
+					
+				
+					
+				
+
+				<div role="none" class="menuitem -divider">
+					<hr />
+				</div>
+
+				<div role="none" class="menuitem -trigger -has-icon -has-policy-icon js-dropdown-child">
+					<button type="button" role="option" data-dismiss="dropdown" data-value="" data-default="true">
+						<svg class="glyph" role="presentation" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M11.79 7a.7.7 0 0 1 .64.44l.3.77 1 .58.82-.12a.7.7 0 0 1 .7.34l.27.48a.7.7 0 0 1-.05.78l-.5.65v1.16l.51.65a.7.7 0 0 1 .06.78l-.28.48a.7.7 0 0 1-.7.34l-.8-.12-1.02.58-.3.77a.7.7 0 0 1-.64.44h-.58a.7.7 0 0 1-.65-.44l-.3-.77-1-.58-.82.12a.7.7 0 0 1-.7-.34l-.27-.48a.7.7 0 0 1 .05-.78l.51-.65v-1.16l-.52-.65a.7.7 0 0 1-.05-.78l.27-.48a.7.7 0 0 1 .7-.34l.81.12 1.03-.58.3-.77a.7.7 0 0 1 .64-.44h.57ZM6.55 8.9h.1L6.6 9c-.17.28-.25.62-.23.96l.02.17.03.14.04.13h-.3c-1.4.04-2.71.28-3.68.64-.4.14-.7.3-.9.44l-.08.07v.95h5.02A1.7 1.7 0 0 0 6.6 14H0v-2.67C0 10.05 3.02 8.9 6.55 8.9Zm4.95.22a2.37 2.37 0 1 0 0 4.75 2.37 2.37 0 0 0 0-4.74Zm0 1.5a.87.87 0 1 1 0 1.75.87.87 0 0 1 0-1.74ZM6.38 0c1.5 0 2.88 1.53 2.88 3.4 0 1.87-.79 4.1-2.8 4.1-1.9 0-2.81-2.29-2.81-4.15C3.65 1.48 4.87 0 6.38 0Zm0 1.5c-.61 0-1.23.76-1.23 1.85 0 1.5.66 2.65 1.3 2.65.73 0 1.3-1.03 1.3-2.6 0-1.05-.73-1.9-1.37-1.9Z"/></svg>
+						<span class="label js-label">Use account default<span class="labelsupplement js-labelsupplement" hidden></span></span>
+					</button>
+				</div>
+			</div>
+
+			<div class="dropdown-bodytext -note">
+				<p>
+					Your diary date (if set) and watched status for this film remain publicly visible.
+					Ratings on <em>Close Friends</em> and <em>You</em> entries don’t contribute to stats. 
+					Add members to your Close Friends from their profile.
+					Set your account default for Privacy mode in&nbsp;<a href="/settings/">Settings</a>.
+				</p>
+			</div>
+		</div>
+	</div>
+
+						</div>
+
+						<label for="privacy-policy-draft-965517d0-da1f-4fff-bc93-da056b724db8" class="option-label -checkbox -default -reversed drafttoggle">
+							<input id="privacy-policy-draft-965517d0-da1f-4fff-bc93-da056b724db8" class="checkbox" type="checkbox" role="switch" name="privacyPolicyDraft" value="true" form="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" /><i class="substitute"></i>
+							<span class="label">Draft</span>
+						</label>
+
+						<div class="draftnote js-privacydraftnote" aria-hidden="true">Draft entries don’t appear in your watched films or diary for others, and&nbsp;don’t contribute to your&nbsp;stats.</div>
+					</div>
+
+					<div class="modal-action-group formactions">
+						<button form="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" type="button" id="diary-entry-delete-button" class="button button-delete -destructive" data-js-trigger="delete" data-confirm="Are you sure you want to delete this entry? It will disappear from your profile, but remain in your account export bundle for 30&nbsp;days, in a folder of deleted&nbsp;items." disabled><span class="label">Delete</span></button>
+
+						<button form="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" type="submit" class="button -action button-action" data-js-trigger="submit" disabled><span class="label">Save</span></button>
+					</div>
+				
+				</div>
+			</div>
+			
+
+        </div>
+    </div>
+</div>
+	
+	<div style="display:none">
+		<div id="add-to-a-list"></div>
+		<div id="add-to-a-list-modal" data-data-url="/s/load-lists">
+			
+			<form method="post" action="/s/add-film-to-list" class="not-expanded modal-container -mini">
+				<input type="hidden" name="__csrf" value="placeholder" />
+				<input class="film-id" type="hidden" name="filmId"/>
+				<div class="header">
+					<h1 class="title-2">Add <span class="film-name"></span> to lists</h1>
+					<div id="js-modal-warning" class="text" style="display: none;"></div>
+					<div class="segmented-control js-list-type-toggle -stretched">
+						<div class="options">
+							<button class="option -selected" data-list-type="public">Public</button>
+							<button class="option" data-list-type="private">Private</button>
+						</div>
+					</div>
+				</div>
+				<div class="body js-add-to-list-body">
+					<div class="list-selection -selected js-list-selection" data-list-type="public">
+						<div class="actions">
+							<a href class="new js-new-list" data-private-list="false"><span class="plus"></span>New list…</a>
+							<div class="filter">
+								<input type="text" class="input js-list-filter" id="list-filter-public" autocomplete="off" placeholder="Type to search" /><label for="list-filter-public" class="trigger"></label>
+								<button class="clear js-list-filter-clear">Clear</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="list-selection js-list-selection" data-list-type="private">
+						<div class="actions">
+							<a href class="new js-new-list" data-private-list="true"><span class="plus"></span>New list…</a>
+							<div class="filter">
+								<input type="text" class="input js-list-filter" id="list-filter-private" autocomplete="off" placeholder="Type to search" /><label for="list-filter-private"  class="trigger"></label>
+								<button class="clear js-list-filter-clear">Clear</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="footer">
+					<div class="status">
+						<p class="js-selected-lists-state"></p>
+					</div>
+					<div class="actions">
+						<input type="submit" class="button -action button-action js-add-to-list-submit" value="Add" disabled />
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	
+	
+	<template id="privacy-policy-icon-anyone"><span class="policy-icon -privacy -anyone -default -is-not-default" data-policy-type="privacy" data-policy-code="anyone"><span class="frame tooltip" data-original-title="Reactions visible to anyone" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 .5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13ZM7 2a5 5 0 1 0 0 10A5 5 0 0 0 7 2Z"/><path d="M7 .75C8.45.75 9.63 3.55 9.63 7S8.45 13.25 7 13.25 4.37 10.45 4.37 7 5.55.75 7 .75Zm0 1.6-.03.03c-.14.17-.3.43-.44.78-.41.97-.66 2.35-.66 3.84 0 1.5.25 2.87.66 3.84.17.4.35.7.51.86L7 11.65l.03-.03c.12-.14.25-.35.37-.61l.07-.17c.41-.97.66-2.35.66-3.84 0-1.5-.25-2.87-.66-3.84-.14-.35-.3-.61-.44-.78L7 2.35Z"/><path d="M1.15 7.75h11.7v-1.5H1.15z"/></svg> </span> <span class="label _sr-only">Reactions visible to anyone</span> </span></template> <template id="privacy-policy-icon-friends"><span class="policy-icon -privacy -friends -default -is-not-default" data-policy-type="privacy" data-policy-code="friends"><span class="frame tooltip" data-original-title="Reactions visible to owner’s Close Friends" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 .5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13ZM5 9.07a.65.65 0 0 0-1 .83 3.9 3.9 0 0 0 5.89.13.65.65 0 0 0-.97-.87A2.6 2.6 0 0 1 5 9.07ZM5.78 4c-.26 0-.51.1-.7.28l-.58.6-.59-.6a.97.97 0 0 0-1.37 0 .97.97 0 0 0 0 1.38L4.29 7.4a.3.3 0 0 0 .42 0l1.75-1.75A.97.97 0 0 0 5.78 4Zm5 0c-.26 0-.51.1-.7.28l-.58.6-.59-.6a.97.97 0 0 0-1.37 0 .97.97 0 0 0 0 1.38L9.29 7.4a.3.3 0 0 0 .42 0l1.75-1.75A.97.97 0 0 0 10.78 4Z"/></svg> </span> <span class="label _sr-only">Reactions visible to owner’s Close Friends</span> </span></template> <template id="privacy-policy-icon-you"><span class="policy-icon -privacy -you -default -is-not-default" data-policy-type="privacy" data-policy-code="you"><span class="frame tooltip" data-original-title="Reactions only visible to you" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 1a3.5 3.5 0 0 1 3.5 3.5V5A1.5 1.5 0 0 1 12 6.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 11.5v-5A1.5 1.5 0 0 1 3.5 5v-.5A3.5 3.5 0 0 1 7 1zm0 7a1 1 0 1 0 0 2 1 1 0 1 0 0-2zm0-5.5a2 2 0 0 0-2 2V5h4v-.5a2 2 0 0 0-1.851-1.995L7 2.5z" fill-rule="evenodd"/></svg> </span> <span class="label _sr-only">Reactions only visible to you</span> </span></template> <template id="privacy-policy-icon-draft"><span class="policy-icon -privacy -draft -default -is-not-default" data-policy-type="privacy" data-policy-code="draft"><span class="frame tooltip" data-original-title="Draft entry" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M11.787.486s-.109-.322-.229-.387-.324-.129-.453-.084c-.409.052-.814.131-1.213.236L9.536.36 8.304 3.584 7.073 2.051c-.128-.118-.309-.156-.472-.098a5.71 5.71 0 0 0-1.126 1.072 6.27 6.27 0 0 0-.452.58l-.135.206-.279.452-.164.295C3.29 6.711 3.146 9.051 3.868 10.24l-1.761 2.664c-.197.329-.113.757.192.983.321.207.744.12.962-.197l.712-1.062 1.068-1.612c.122.01.244.01.366 0 1.665 0 4.061-1.524 5.438-4.041C11.591 5.672 11.989 4.19 12 2.68c-.012-.608-.09-1.598-.213-2.194z"/></svg> </span> <span class="label _sr-only">Draft entry</span> </span></template> <template id="share-policy-icon-anyone"><span class="policy-icon -share -anyone -circle" data-policy-type="share" data-policy-code="anyone"><span class="frame tooltip" data-original-title="Visible to anyone (with link)" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M4.385 5.061c.977-.976 2.559-.976 3.536 0l.985 1.041L7.849 7.16l-.018-.007-1.002-1.052c-.375-.372-.98-.372-1.355-.001l-.437.436c-.106.084-.201.18-.286.285L2.824 8.755a.94.94 0 0 0-.28.692.95.95 0 0 0 .282.687l.401.401a.99.99 0 0 0 1.359.006l.836-.847a3.52 3.52 0 0 0 1.385.816L5.68 11.651a2.5 2.5 0 0 1-1.771.737c-.665 0-1.302-.265-1.771-.736l-.407-.407c-.976-.977-.976-2.559 0-3.537zm5.706-3.451c.665 0 1.302.265 1.771.736l.407.407c.976.977.976 2.559 0 3.537L9.615 8.938c-.977.976-2.559.976-3.537-.001l-1.033-.995.415-.416.133-.15.15-.134.403-.405 1.024 1.059c.347.343.889.37 1.264.08l.09-.079 2.651-2.655c.153-.15.248-.347.274-.562l.007-.131a.95.95 0 0 0-.282-.687l-.401-.401a.99.99 0 0 0-1.359-.006l-.842.841c-.408-.39-.888-.663-1.395-.818L8.32 2.347a2.5 2.5 0 0 1 1.771-.737z"/></svg> </span> <span class="label _sr-only">Visible to anyone (with link)</span> </span></template> <template id="share-policy-icon-friends"><span class="policy-icon -share -friends -circle" data-policy-type="share" data-policy-code="friends"><span class="frame tooltip" data-original-title="Visible to the member’s friends (with link)" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill-rule="evenodd"><path d="M10.201 8.732l-.26-.004c1.167 0 1.885.199 2.624.493.431.172.773.378 1.009.595.289.267.426.556.426.834V12l-3.148-.001.001-1.685c0-.515-.188-1.066-.652-1.582zM9.941 3.2c.58 0 1.119.214 1.503.611.342.353.565.853.565 1.489 0 .689-.169 1.45-.545 1.992a1.78 1.78 0 0 1-1.522.815c-.645 0-1.15-.332-1.502-.845-.376-.55-.566-1.312-.566-1.992 0-.635.223-1.128.563-1.473.384-.389.923-.596 1.504-.596zM4.853 7.911c1.458 0 2.136.249 3.06.616.539.215.966.472 1.261.744.362.334.533.696.533 1.043V12H0v-1.686c0-.347.171-.709.533-1.043.294-.272.721-.529 1.261-.744.924-.368 1.601-.616 3.06-.616zm0-6.911c.724 0 1.398.268 1.878.763.427.441.706 1.066.706 1.861 0 .861-.212 1.812-.681 2.49-.426.615-1.052 1.019-1.903 1.019-.806 0-1.438-.414-1.877-1.057-.47-.688-.707-1.64-.707-2.49 0-.794.278-1.41.704-1.841C3.452 1.259 4.126 1 4.853 1z"/></svg> </span> <span class="label _sr-only">Visible to the member’s friends (with link)</span> </span></template> <template id="share-policy-icon-you"><span class="policy-icon -share -you -circle" data-policy-type="share" data-policy-code="you"><span class="frame tooltip" data-original-title="Only visible to you" data-js-trigger="tooltip"> <svg class="glyph" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M7 1a3.5 3.5 0 0 1 3.5 3.5V5A1.5 1.5 0 0 1 12 6.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 11.5v-5A1.5 1.5 0 0 1 3.5 5v-.5A3.5 3.5 0 0 1 7 1zm0 7a1 1 0 1 0 0 2 1 1 0 1 0 0-2zm0-5.5a2 2 0 0 0-2 2V5h4v-.5a2 2 0 0 0-1.851-1.995L7 2.5z" fill-rule="evenodd"/></svg> </span> <span class="label _sr-only">Only visible to you</span> </span></template>
+		
+		
+		
+		<form id="search" class="js-search-form search-form" action="/search/" method="get" autocorrect="off">
+			<input autocomplete="false" name="hidden" type="text" style="display:none;" />
+			<fieldset>
+				<label for="search-q" class="hidden">Search:</label>
+				<input type="text" name="q" id="search-q" class="field -borderless" data-lpignore='true' inputmode='search' value="" />
+				<input type="submit" value="Search" class="action" />
+			</fieldset>
+		</form>
+		
+	</section>
+</header>
+
+
+
+
+
+
+<div id="content" class="site-body -backdrop">
+	
+
+	
+		<div class="content-wrap">
+	
+
+
+
+<div class="modal modal-poster fade" id="poster-modal" tabindex="-1" aria-hidden="true"> <div class="modal-dialog modal-fullscreen"> <div class="modal-content"> <div class="modal-header"> <button type="button" class="modal-close -circle" data-bs-dismiss="modal" aria-label="Close"></button> </div> <div class="modal-body"> <div class="react-component" data-component-class="LazyPoster" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="1000" data-image-height="1500" data-item-name="Local Legends (2013)" data-item-slug="local-legends" data-item-link="/film/local-legends/" data-item-full-display-name="Local Legends (2013)" data-film-id="158080" data-postered-identifier='{"lid":"6DeM","uid":"film:158080","type":"film","typeName":"film"}' data-poster-url="/film/local-legends/image-150/" data-resolvable-poster-path='{"postered":{"lid":"6DeM","uid":"film:158080","type":"film","typeName":"film"},"posteredBaseLink":"/film/local-legends/","isAdultThemed":false,"hasDefaultPoster":true,"cacheBustingKey":"2a8770e7"}' data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-1000-D9cprv0m.png" data-target-link="/" data-details-endpoint="/film/local-legends/json/" data-hide-tooltip="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-1000-D9cprv0m.png" class="image" width="1000" height="1500" alt="Local Legends"/> <span class="frame"><span class="frame-title"></span></span> </div> </div> </div> <div class="modal-footer"></div> </div> </div> </div>
+
+<div id="film-page-wrapper" class="cols-3 overflow">
+	
+		<div class="col-6 gutter-right-1 col-poster-large" id="js-poster-col">
+			<section class="poster-list -p230 -single no-hover el col">
+				<div class="react-component" data-component-class="LazyPoster" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="230" data-image-height="345" data-item-name="Local Legends (2013)" data-item-slug="local-legends" data-item-link="/film/local-legends/" data-item-full-display-name="Local Legends (2013)" data-film-id="158080" data-postered-identifier='{"lid":"6DeM","uid":"film:158080","type":"film","typeName":"film"}' data-poster-url="/film/local-legends/image-150/" data-resolvable-poster-path='{"postered":{"lid":"6DeM","uid":"film:158080","type":"film","typeName":"film"},"posteredBaseLink":"/film/local-legends/","isAdultThemed":false,"hasDefaultPoster":true,"cacheBustingKey":"2a8770e7"}' data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-230-nQeuntFa.png" data-target-link="/" data-details-endpoint="/film/local-legends/json/" data-show-menu="true" data-hide-tooltip="true" data-open-poster-modal-on-click="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-230-nQeuntFa.png" class="image" width="230" height="345" alt="Local Legends"/> <span class="frame"><span class="frame-title"></span></span> </div> </div> <div class="csi js-serial-csi " data-src="/csi/film/local-legends/stats/" data-on-load=""> <div class="production-statistic-list -placeholder" aria-busy="true"> </div> </div>
+			</section>
+
+			
+
+
+
+
+
+
+
+
+
+
+
+<div class="csi js-csi js-hide-in-app" data-src="/csi/film/local-legends/availability/?esiAllowUser=true&amp;esiAllowCountry=true" data-on-load="csi-availability">
+	
+	<section class="watch-panel">
+		<div class="header">
+			<h3 class="title">Where to watch</h3>
+			
+
+
+
+
+
+		
+	
+
+
+	<p class="trailer-link js-watch-panel-trailer">
+		<a class="play track-event js-video-zoom" data-track-category="Trailer" href="//www.youtube.com/embed/I5SEzfRDPsI?rel=0&amp;wmode=transparent">
+			<span class="name">Trailer</span>
+		</a>
+	</p>
+
+		</div>
+		<div id="watch">
+			<div class="other">
+				<span class="more">&nbsp;</span>
+				<a href="https://www.justwatch.com" target="_blank" rel="noopener noreferrer" class="jw-branding">JustWatch</a>
+			</div>
+		</div>
+	</section>
+
+</div>
+
+
+
+			
+
+<script id="script-8682689f-edb9-4fff-a10e-8f448d917b39"> ((tag, target) => { let adsScript = null; let adsPlatforms = null; let adsLocations = null; let adsMode = ''; if (!disableAds && person.showAds) { let adUnit = document.createElement('div'); let kicker = [ '<div class="upgrade-kicker -skyscraper js-hide-in-app">', '<button type="button" class="modaltrigger" data-bs-toggle="modal" data-bs-target="#remove-ads-modal">', 'Remove Ads', '<svg aria-hidden="true" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><path d="m.5.5 6 6M6.5.5l-6 6" fill-rule="evenodd" stroke="#000"/></svg>', '</button>', '</div>' ].join(''); if ( adsScript && adsScript === 'bandsintown' && adsPlatforms && ((window.isIOS && adsPlatforms.indexOf("iOS") >= 0) || (window.isAndroid && adsPlatforms.indexOf("Android") >= 0)) && adsLocations && adsMode && ( (adsMode === 'include' && adsLocations.indexOf(window.adsLocation) >= 0) || (adsMode === 'exclude' && adsLocations.indexOf(window.adsLocation) == -1) ) ) { var opts = { artist: "", song: "", adunit_id: 100005950, div_id: "cf_async_8682689f-edb9-4fff-a10e-8f448d917b39" }; adUnit.id = opts.div_id; if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } var c=function(){cf.showAsyncAd(opts)};if(typeof window.cf !== 'undefined')c();else{cf_async=!0;var r=document.createElement("script"),s=document.getElementsByTagName("script")[0];r.async=!0;r.src="//srv.tunefindforfans.com/fruits/apricots.js";r.readyState?r.onreadystatechange=function(){if("loaded"==r.readyState||"complete"==r.readyState)r.onreadystatechange=null,c()}:r.onload=c;s.parentNode.insertBefore(r,s)}; } else { adUnit.id = 'pw-8682689f-edb9-4fff-a10e-8f448d917b39'; adUnit.className = 'pw-div'; adUnit.setAttribute('data-pw-' + (renderMobile ? 'mobi' : 'desk'), 'sky_btf'); if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } adUnit.insertAdjacentHTML('afterend', kicker); window.ramp.que.push(function () { window.ramp.addTag('pw-8682689f-edb9-4fff-a10e-8f448d917b39'); }); } } tag.remove(); })(document.getElementById('script-8682689f-edb9-4fff-a10e-8f448d917b39')); </script>
+
+		</div>
+	
+	<div class="col-17">
+		<section class="production-masthead -shadowed -productionscreen -film">
+			
+
+			<div class="details">
+				
+<h1 class="headline-1 primaryname"><span class="name js-widont prettify">Local Legends</span></h1>
+
+
+        <div class="productioninfo">
+            <span class="releasedate"> <a href="/films/year/2013/">2013</a> </span>
+            
+            <p class="credits"> <span class="introduction">Directed by </span> <span class="creatorlist"> <a class="contributor" href="/director/matt-farley-1/"><span class="prettify">Matt Farley</span></a> </span> </p>
+        </div>
+    
+			</div>
+		</section>
+		
+		<section class="section col-10 col-main">
+			<section class="production-synopsis"><div class="review body-text -prose -hero prettify"> <h3 class="hidden">Synopsis</h3> <h4 class="tagline">This is the New Hampshire comedy scene.</h4> <div class="truncate" data-truncate="450"> <p>The adventures of Matt Farley as he spends a few weeks preparing for a big comedy show in Manchester, NH.</p> </div> </div> <script id="script-4c8c7db1-b0cd-4aba-b7a9-9f3b2c41aa79"> ((tag, target) => { let adsScript = null; let adsPlatforms = null; let adsLocations = null; let adsMode = ''; if (!disableAds && person.showAds) { let adUnit = document.createElement('div'); let kicker = [ '<div class="upgrade-kicker -alignleft -med_rect js-hide-in-app">', '<button type="button" class="modaltrigger" data-bs-toggle="modal" data-bs-target="#remove-ads-modal">', 'Remove Ads', '<svg aria-hidden="true" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><path d="m.5.5 6 6M6.5.5l-6 6" fill-rule="evenodd" stroke="#000"/></svg>', '</button>', '</div>' ].join(''); if ( adsScript && adsScript === 'bandsintown' && adsPlatforms && ((window.isIOS && adsPlatforms.indexOf("iOS") >= 0) || (window.isAndroid && adsPlatforms.indexOf("Android") >= 0)) && adsLocations && adsMode && ( (adsMode === 'include' && adsLocations.indexOf(window.adsLocation) >= 0) || (adsMode === 'exclude' && adsLocations.indexOf(window.adsLocation) == -1) ) ) { var opts = { artist: "", song: "", adunit_id: 100005950, div_id: "cf_async_4c8c7db1-b0cd-4aba-b7a9-9f3b2c41aa79" }; adUnit.id = opts.div_id; if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } var c=function(){cf.showAsyncAd(opts)};if(typeof window.cf !== 'undefined')c();else{cf_async=!0;var r=document.createElement("script"),s=document.getElementsByTagName("script")[0];r.async=!0;r.src="//srv.tunefindforfans.com/fruits/apricots.js";r.readyState?r.onreadystatechange=function(){if("loaded"==r.readyState||"complete"==r.readyState)r.onreadystatechange=null,c()}:r.onload=c;s.parentNode.insertBefore(r,s)}; } else { adUnit.id = 'pw-4c8c7db1-b0cd-4aba-b7a9-9f3b2c41aa79'; adUnit.className = 'pw-div -tile300x250 -alignleft'; adUnit.setAttribute('data-pw-' + (renderMobile ? 'mobi' : 'desk'), 'med_rect_atf'); if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } adUnit.insertAdjacentHTML('afterend', kicker); window.ramp.que.push(function () { window.ramp.addTag('pw-4c8c7db1-b0cd-4aba-b7a9-9f3b2c41aa79'); }); } } tag.remove(); })(document.getElementById('script-4c8c7db1-b0cd-4aba-b7a9-9f3b2c41aa79')); </script></section>
+
+			
+				<div id="tabbed-content" data-selected-tab=""> <header> <ul> <li><a href="/film/local-legends/" data-id="cast">Cast</a></li> <li><a href="/film/local-legends/crew/" id="crew" data-id="crew">Crew</a></li> <li><a href="/film/local-legends/details/" data-id="details">Details</a></li> <li><a href="/film/local-legends/genres/" data-id="genres">Genres</a></li> <li><a href="/film/local-legends/releases/" data-id="releases">Releases</a></li> </ul> </header> <div id="tab-cast" class="tabbed-content-block"> <h3 class="hidden">Cast</h3> <div class="cast-list text-sluglist"> <p> <a title="Matt Farley" href="/actor/matt-farley-1/" class="text-slug tooltip">Matt Farley</a> <a title="Genevieve" href="/actor/elizabeth-m-peterson/" class="text-slug tooltip">Elizabeth M. Peterson</a> <a title="Abby" href="/actor/sharon-scalzo/" class="text-slug tooltip">Sharon Scalzo</a> <a title="Tom Scalzo" href="/actor/tom-scalzo/" class="text-slug tooltip">Tom Scalzo</a> <a title="Soup" href="/actor/chris-peterson-4/" class="text-slug tooltip">Chris Peterson</a> <a title="Kevin McGee" href="/actor/kevin-mcgee/" class="text-slug tooltip">Kevin McGee</a> <a title="Charlie" href="/actor/charles-roxburgh/" class="text-slug tooltip">Charles Roxburgh</a> <a title="Matt&#039;s Fifth Cousin Twice Removed" href="/actor/brian-toomey/" class="text-slug tooltip">Brian Toomey</a> <a href="/actor/doug-brennan/" class="text-slug tooltip">Doug Brennan</a> <a href="/actor/chris-sleison/" class="text-slug tooltip">Chris Sleison</a> <a href="/actor/jon-noble-1/" class="text-slug tooltip">Jon Noble</a> <a href="/actor/josh-lynch/" class="text-slug tooltip">Josh Lynch</a> <a href="/actor/ryan-desmarais/" class="text-slug tooltip">Ryan Desmarais</a> <a href="/actor/janet-doell/" class="text-slug tooltip">Janet Doell</a> <a href="/actor/bruce-doell/" class="text-slug tooltip">Bruce Doell</a> <a href="/actor/dave-lifrieri/" class="text-slug tooltip">Dave Lifrieri</a> <a href="/actor/meg-welch/" class="text-slug tooltip">Meg Welch</a> <a href="/actor/jon-cross/" class="text-slug tooltip">Jon Cross</a> <a href="/actor/matt-d/" class="text-slug tooltip">Matt D.</a> <a href="/actor/casper-cadillac/" class="text-slug tooltip">Casper Cadillac</a> <a href="/actor/dori-cross/" class="text-slug tooltip">Dori Cross</a> <a href="/actor/jim-farley-1/" class="text-slug tooltip">Jim Farley</a> <a title="Millhouse&#039;s Mom" href="/actor/rachel-farley/" class="text-slug tooltip">Rachel Farley</a> <a title="Millhouse" href="/actor/ricky-mapleton/" class="text-slug tooltip">Ricky Mapleton</a> </p> </div> </div> <div id="tab-crew" class="tabbed-content-block column-block -crewroles"> <h3> <span class="crewrole -full">Director</span> <span class="crewrole -short" aria-hidden="true">Director</span> </h3> <div class="text-sluglist"> <p> <a href="/director/matt-farley-1/" class="text-slug">Matt Farley</a> </p> </div> <h3> <span class="crewrole -full">Writer</span> <span class="crewrole -short" aria-hidden="true">Writer</span> </h3> <div class="text-sluglist"> <p> <a href="/writer/matt-farley-1/" class="text-slug">Matt Farley</a> </p> </div> <h3> <span class="crewrole -full">Assistant Director</span> <span class="crewrole -short" aria-hidden="true">Asst. Director</span> </h3> <div class="text-sluglist"> <p> <a href="/assistant-director/elizabeth-m-peterson/" class="text-slug">Elizabeth M. Peterson</a> </p> </div> <h3> <span class="crewrole -full">Camera Operators</span> <span class="crewrole -short" aria-hidden="true">Camera Operators</span> </h3> <div class="text-sluglist"> <p> <a href="/camera-operator/bruce-doell/" class="text-slug">Bruce Doell</a> <a href="/camera-operator/kevin-mcgee/" class="text-slug">Kevin McGee</a> <a href="/camera-operator/ryan-desmarais/" class="text-slug">Ryan Desmarais</a> <a href="/camera-operator/jon-noble-1/" class="text-slug">Jon Noble</a> <a href="/camera-operator/amelia-shields/" class="text-slug">Amelia Shields</a> <a href="/camera-operator/casper-cadillac/" class="text-slug">Casper Cadillac</a> <a href="/camera-operator/tom-scalzo/" class="text-slug">Tom Scalzo</a> <a href="/camera-operator/jon-cross/" class="text-slug">Jon Cross</a> <a href="/camera-operator/chris-peterson-4/" class="text-slug">Chris Peterson</a> <a href="/camera-operator/janet-doell/" class="text-slug">Janet Doell</a> <a href="/camera-operator/elizabeth-m-peterson/" class="text-slug">Elizabeth M. Peterson</a> <a href="/camera-operator/ricky-mapleton/" class="text-slug">Ricky Mapleton</a> </p> </div> </div> <div id="tab-details" class="tabbed-content-block column-block"> <h3><span>Studio</span></h3> <div class="text-sluglist"> <p> <a href="/studio/motern-media/" class="text-slug">Motern Media</a> </p> </div> <h3><span>Country</span></h3> <div class="text-sluglist"> <p> <a href="/films/country/usa/" class="text-slug"> USA </a> </p> </div> <h3><span>Language</span></h3> <div class="text-sluglist"> <p> <a href="/films/language/english/" class="text-slug">English</a> </p> </div> </div> <div id="tab-genres" class="tabbed-content-block column-block"> <h3><span>Genres</span></h3> <div class="text-sluglist capitalize"> <p> <a href="/films/genre/comedy/" class="text-slug">Comedy</a> <a href="/films/genre/music/" class="text-slug">Music</a> </p> </div> </div> <div id="tab-releases" class="tabbed-content-block"> <section class="release-table-group"> <header class="header"> <h3 class="release-table-group-title _sr-only">Releases by Date</h3> <section class="smenu-wrapper"> <strong class="smenu-label">Sort by</strong> <div class="smenu"> <label>Date<i class="ir s icon"></i></label> <ul class="smenu-menu"> <li class="smenu-subselected"><span class="selected">Date</span></li> <li><a class="item js-switch-tabbed-nav" href="/film/local-legends/releases/by/country/" data-id="releases-by-country" data-parent-id="releases">Country</a></li> </ul> </div> </section> </header> <h3 class="release-table-title">Digital</h3> <div class="release-table -bydate"> <div class="listitem"> <div class="cell"> <h5 class="date">30 Jul 2013</h5> </div> <div class="cell countries"> <ul class="release-country-list"> <li class="listitem"> <span class="release-country -has-no-link -has-no-certification -has-no-note"> <span class="flag -has-flag""><img src="https://s.ltrbxd.com/static/img/USA-DderVknp.svg" alt="Flag for the USA" loading="lazy" /></span> <span class="details"> <span class="name">USA</span> </span> </span> </li> </ul> </div> </div> <div class="listitem"> <div class="cell"> <h5 class="date">25 Sep 2022</h5> </div> <div class="cell countries"> <ul class="release-country-list"> <li class="listitem"> <span class="release-country -has-no-link -has-no-certification -has-no-note"> <span class="flag -has-flag""><img src="https://s.ltrbxd.com/static/img/USA-DderVknp.svg" alt="Flag for the USA" loading="lazy" /></span> <span class="details"> <span class="name tooltip" title="Fantastic Fest">USA</span> </span> </span> </li> </ul> </div> </div> </div> </section> </div> <div id="tab-releases-by-country" data-id="releases-by-country" data-parent-id="releases" class="tabbed-content-block"> <section class="release-table-group"> <header class="header"> <h3 class="release-table-group-title _sr-only">Releases by Country</h3> <section class="smenu-wrapper"> <strong class="smenu-label">Sort by</strong> <div class="smenu"> <label>Country<i class="ir s icon"></i></label> <ul class="smenu-menu"> <li><a class="item js-switch-tabbed-nav" href="/film/local-legends/releases/" data-id="releases">Date</a></li> <li class="smenu-subselected"><span class="selected">Country</span></li> </ul> </div> </section> </header> <div class="release-table -bycountry"> <div class="listitem"> <div class="cell"> <h5 class="release-country -has-no-link -has-no-note"> <span class="flag -has-flag"><img src="https://s.ltrbxd.com/static/img/USA-DderVknp.svg" alt="Flag for the USA" loading="lazy" /></span> <span class="details"><span class="name">USA</span></span> </h5> </div> <div class="cell details"> <div class="release-date-list"> <div class="listitem"> <h6 class="date">30 Jul 2013</h6> <ul class="releases"> <li class="listitem -has-no-certification -has-no-note"> <span class="type">Digital</span> </li> </ul> </div> </div> <div class="release-date-list"> <div class="listitem"> <h6 class="date">25 Sep 2022</h6> <ul class="releases"> <li class="listitem -has-no-certification -has-note"> <span class="type">Digital</span> <span class="release-note">Fantastic&nbsp;Fest</span> </li> </ul> </div> </div> </div> </div> </div> </section> </div> </div> <p class="text-link text-footer"> 75&nbsp;mins &nbsp; More at <a href="http://www.imdb.com/title/tt3159106/maindetails" class="micro-button track-event" data-track-action="IMDb" target="_blank" >IMDb</a> <a href="https://www.themoviedb.org/movie/223578/" class="micro-button track-event" data-track-action="TMDB" target="_blank" >TMDB</a> <span class="block-flag-wrapper show-on-hover hide-when-logged-out"> <a href="#" class="block-or-report-flag report-link has-icon icon-16 icon-report tooltip" title="Report this page" data-report-url="/ajax/film:158080/report-form">Report this page</a> </span> </p>
+			
+		</section>
+
+		<aside class="sidebar">
+			<section id="userpanel" class="actions-panel">
+				<ul class="js-actions-panel">
+					
+					
+
+
+
+
+
+
+
+<span class="csi js-csi " data-src="/csi/film/local-legends/sidebar-user-actions/?esiAllowUser=true" data-on-load="sidebar-user-actions">
+	
+</span>
+
+					<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/csi/sidebar-user-actions/share-link-BRU2qmL1.js"></script> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CbXmRM-a.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dxj-PiPC.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DPQR6HIl.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CKHByedj.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dkdk7i3b.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CUcMfv5U.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D0Np9Co1.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CQaVauH8.js"> <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script> <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script> <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script> <script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-DR0632bf.js"></script> <script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/csi/sidebar-user-actions/share-link-legacy-BIQg3Qas.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script> <li class="panel-sharing sharing-toggle js-actions-panel-sharing"> <button class="trigger" type="button" aria-expanded="false" aria-controls="sharing-toggle-body-film-158080"> Share </button> <div id="sharing-toggle-body-film-158080" class="body"> <div class="urlgroup"> <input id="url-field-film-158080" type="text" value="https://boxd.it/6DeM" readonly spellcheck="false"> <button class="button clipboardtrigger has-icon" data-clipboard-target="#url-field-film-158080" data-sharer-type="link" > <span class="label">Copy URL to Clipboard</span> <span class="icon"></span> </button> </div> <a class="shareitem -link -twitter" href="https://twitter.com/intent/tweet?text=Local%20Legends%20%282013%29%20on%20%40letterboxd%3A%20https%3A%2F%2Fboxd.it%2F6DeM" rel="noreferrer" title="Tweet a link" data-sharer-type="twitter" > <span class="label">Tweet a link</span> <span class="icon"></span> </a> <a class="shareitem -link -facebook" href="https://www.facebook.com/dialog/feed?app_id=173683136069040&display=popup&link=https%3A%2F%2Fletterboxd.com%2Ffilm%2Flocal-legends%2F&redirect_uri=https://letterboxd.com/facebook-share" rel="noreferrer" title="Share to Facebook" data-sharer-type="facebook" > <span class="label">Share to Facebook</span> <span class="icon"></span> </a> </div> </li>
+	 			</ul>
+			</section>
+
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/local-legends/ratings-summary/" data-on-load="rating-histogram">
+	
+</div>
+
+		</aside>
+
+		
+
+		
+		
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/local-legends/friend-activity/?esiAllowUser=true" data-on-load="">
+	
+</div>
+
+
+		
+
+		
+		
+		
+		
+		
+		
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/local-legends/news/?esiAllowUser=true&amp;esiAllowCountry=true" data-on-load="production-news">
+	
+</div>
+
+
+		
+
+		<section class="film-recent-reviews -clear">
+			
+
+			
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/local-legends/friend-reviews/?esiAllowUser=true" data-on-load="csi-friend-reviews">
+	
+</div>
+
+			
+			
+			
+
+	<section class="film-reviews section js-popular-reviews" data-url="/ajax/film/local-legends/popular-reviews/" data-how-many="12">
+		
+		<h2 class="section-heading"><a href="/film/local-legends/reviews/by/activity/">Popular reviews</a></h2>
+		<a href="/film/local-legends/reviews/by/activity/" class="all-link">More</a>
+		<div class="viewing-list -marginblockstart js-viewing-list" data-listitem-mask-size="3">
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="98662460" data-person="Will_Sloan"> <a class="avatar -a40" href="/will_sloan/" > <img src="https://a.ltrbxd.com/resized/avatar/twitter/4/0/2/4/9/9/shard/http___pbs.twimg.com_profile_images_2903910849_ca2ea5fa86d6168dfee472b0060dc077-0-80-0-80-crop.jpg?v=fc65e1d109" alt="Will Sloan" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/will_sloan/film/local-legends/2/" class="context" title="Read Will Sloan’s review"> Review by <span class="owner"><strong class="displayname">Will Sloan</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-10"> ★★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> <a href="/will_sloan/film/local-legends/2/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">2</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:98662460/" data-is-translatable="true" lang="en" > <p>Can't stop watching this movie.</p><p>This came out the same year as another great movie about a struggling songwriter, the Coen Brothers’ <i>Inside Llewyn Davis</i>. At the end of that film, we realize that even if you have all the talent in the world, it takes luck to become Bob Dylan. The message of the Coens’ movie is: it’s okay to be a failure. It's a good message in a world that so harshly stigmatizes failure, but I like Farley’s message even better: even when society tells you you’re a failure, creativity has to be its own reward.</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"14LM81","uid":"viewing:98662460","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/will_sloan/film/local-legends/2/likes/" data-format="count" data-count="387" data-owner="Will_Sloan" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="14LM81"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="179380483" data-person="Will_Sloan"> <a class="avatar -a40" href="/will_sloan/" > <img src="https://a.ltrbxd.com/resized/avatar/twitter/4/0/2/4/9/9/shard/http___pbs.twimg.com_profile_images_2903910849_ca2ea5fa86d6168dfee472b0060dc077-0-80-0-80-crop.jpg?v=fc65e1d109" alt="Will Sloan" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/will_sloan/film/local-legends/3/" class="context" title="Read Will Sloan’s review"> Review by <span class="owner"><strong class="displayname">Will Sloan</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-10"> ★★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:179380483/" data-is-translatable="true" lang="en" > <p>"Sometimes people will ask me how I find the time to make so many songs and movies. The answer is I live cheaply in a tiny attic apartment and I have a job where they let me sleep. And if you have a job where they let you sleep most of the time, chances are it also involves wiping an old man's butt every couple of weeks."</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"1XoCzZ","uid":"viewing:179380483","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/will_sloan/film/local-legends/3/likes/" data-format="count" data-count="211" data-owner="Will_Sloan" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="1XoCzZ"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="650683105" data-person="thejoshl"> <a class="avatar -a40" href="/thejoshl/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/7/1/6/5/6/shard/avtr-0-80-0-80-crop.jpg?v=a052171a7a" alt="Josh Lewis" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/thejoshl/film/local-legends/" class="context" title="Read Josh Lewis’s review"> Review by <span class="owner"><strong class="displayname">Josh Lewis</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-10"> ★★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> <a href="/thejoshl/film/local-legends/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">5</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:650683105/" data-is-translatable="true" lang="en" > <p>This no-budget autobiographical rom-com about a Massachusetts singer-songwriter/comedian/filmmaker who writes thousands of goofy algorithm-tricking novelty songs and performs community stand-up comedy shows in his friends basement to a crowd of 10 people while his mom does laundry is one of the most heart-warming, funny and creatively inspiring films on art vs. commerce that I've ever seen. I too hate when girls trick me into going on a date with them under the false pretense of owning the entire Billy Joel discography on CD. Mr. Farley, if you end up searching your name and reading this, my podcast co-host and I would love to exchange vibe receptor notes and buy you a tall glass of coffee milk when you come to Toronto in September. If your cellphone number you put in the movie hasn't changed in 10 years we'll give you a call.</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"76lZZV","uid":"viewing:650683105","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/thejoshl/film/local-legends/likes/" data-format="count" data-count="196" data-owner="thejoshl" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="76lZZV"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="616154759" data-person="Will_Sloan"> <a class="avatar -a40" href="/will_sloan/" > <img src="https://a.ltrbxd.com/resized/avatar/twitter/4/0/2/4/9/9/shard/http___pbs.twimg.com_profile_images_2903910849_ca2ea5fa86d6168dfee472b0060dc077-0-80-0-80-crop.jpg?v=fc65e1d109" alt="Will Sloan" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/will_sloan/film/local-legends/6/" class="context" title="Read Will Sloan’s review"> Review by <span class="owner"><strong class="displayname">Will Sloan</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-10"> ★★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:616154759/" data-is-translatable="true" lang="en" > <p>Was last night's screening at Spectacle the first time this has ever been shown in front of an audience? <i>Don't Let the Riverbeast Get You</i> is an obvious group-watch fave, but there's something about this movie's direct-address structure, barer-than-bare-bones production, and subterranean distribution that has felt like direct one-to-one communication between the artist and each individual audience member. Seeing it publicly felt a bit like everyone letting each other in on their little secret.</p><p>I like that the title is plural, I think that's an evocative decision. Key insight from Farley at the Q&amp;A: he was interested in making a movie about creative people who lived somewhere, anywhere, besides New York.</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"6IZdZR","uid":"viewing:616154759","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/will_sloan/film/local-legends/6/likes/" data-format="count" data-count="185" data-owner="Will_Sloan" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="6IZdZR"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="422562016" data-person="Filipe_Furtado"> <a class="avatar -a40" href="/filipe_furtado/" > <img src="https://a.ltrbxd.com/resized/avatar/twitter/3/2/9/1/8/shard/http___a0.twimg.com_profile_images_150082058_b-0-80-0-80-crop.jpg?v=23c844b0db" alt="Filipe Furtado" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/filipe_furtado/film/local-legends/" class="context" title="Read Filipe Furtado’s review"> Review by <span class="owner"><strong class="displayname">Filipe Furtado</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-8"> ★★★★ </span> <a href="/filipe_furtado/film/local-legends/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">4</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:422562016/" data-is-translatable="true" lang="en" > <p>As someone who is driven mad by people who only listen to Billy Joel’s greatest hits collections, I feel extremely seen. Anyway, this is so funny and so touching. It just finds the right amount of intimate closeness for its self portrait. The kind of love movie only an amateur could possible made.</p><p>In a separate note, the Roku Youtube app started autoplay the Barbie trailer the moment it ended and particularly in the context of how much time this movie stays with Matt playing with Spotify system schemes, the juxtaposition felt even wilder.</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"4BYgPT","uid":"viewing:422562016","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/filipe_furtado/film/local-legends/likes/" data-format="count" data-count="112" data-owner="Filipe_Furtado" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="4BYgPT"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="665346901" data-person="JustinDecloux"> <a class="avatar -a40" href="/justindecloux/" > <img src="https://a.ltrbxd.com/resized/avatar/twitter/9/9/0/4/7/shard/http___pbs.twimg.com_profile_images_1211349930062823425_XgXElDlG-0-80-0-80-crop.jpg?v=a9f4332417" alt="Justin Decloux" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/justindecloux/film/local-legends/3/" class="context" title="Read Justin Decloux’s review"> Review by <span class="owner"><strong class="displayname">Justin Decloux</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-10"> ★★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:665346901/" data-is-translatable="true" lang="en" > <p>Why hasn't MUBI or CRITERION programmed this yet?</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"7ghhej","uid":"viewing:665346901","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/justindecloux/film/local-legends/3/likes/" data-format="count" data-count="86" data-owner="JustinDecloux" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="7ghhej"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="90298589" data-person="Will_Sloan"> <a class="avatar -a40" href="/will_sloan/" > <img src="https://a.ltrbxd.com/resized/avatar/twitter/4/0/2/4/9/9/shard/http___pbs.twimg.com_profile_images_2903910849_ca2ea5fa86d6168dfee472b0060dc077-0-80-0-80-crop.jpg?v=fc65e1d109" alt="Will Sloan" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/will_sloan/film/local-legends/1/" class="context" title="Read Will Sloan’s review"> Review by <span class="owner"><strong class="displayname">Will Sloan</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-9"> ★★★★½ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:90298589/" data-is-translatable="true" lang="en" > <p>"I'm going to go to the bathroom."<br />"Do you want me to pause it?"<br />"No. This movie's kinda ridiculous."</p><p>The story of a man who would rather have made a bunch of movies than have owned a bunch of used cars.</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"Z6PSz","uid":"viewing:90298589","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/will_sloan/film/local-legends/1/likes/" data-format="count" data-count="79" data-owner="Will_Sloan" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="Z6PSz"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="791350357" data-person="comrade_yui"> <a class="avatar -a40" href="/comrade_yui/" > <img src="https://a.ltrbxd.com/resized/avatar/twitter/8/3/3/9/9/5/shard/http___pbs.twimg.com_profile_images_1180839569819930625_6NgiJI5c-0-80-0-80-crop.jpg?v=00fc553d0f" alt="comrade_yui" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/comrade_yui/film/local-legends/" class="context" title="Read comrade_yui’s review"> Review by <span class="owner"><strong class="displayname">comrade_yui</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-10"> ★★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> <a href="/comrade_yui/film/local-legends/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">4</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:791350357/" data-is-translatable="true" lang="en" > <div class="collapsed-text"> <p>a film made by someone who is able to laugh at himself while also affirming the object of his humor, believing in art, settling for the meager commerce obtained, treating his process with the dedication and consistency worthy of a man's labor, using ironic juxtapositions not to disparage zero-budget cinema and its practitioners, but to share in the fun that naturally emerges in response to stress, making light of the absurdity involved in any great effort -- the magisterial cathedrals of lost ages were not made in a monolithic atmosphere of solemn conformity, the workers cracked jokes and talked about their love lives and scribbled their guttural signatures inside the arcane corners of hefty stone passageways that are still explored…</p> </div> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"8DyfMn","uid":"viewing:791350357","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/comrade_yui/film/local-legends/likes/" data-format="count" data-count="77" data-owner="comrade_yui" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="8DyfMn"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="65888100" data-person="eddie_a"> <a class="avatar -a40" href="/eddie_a/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/2/0/2/1/0/0/shard/avtr-0-80-0-80-crop.jpg?v=f3cba3c7ad" alt="eddie" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/eddie_a/film/local-legends/" class="context" title="Read eddie’s review"> Review by <span class="owner"><strong class="displayname">eddie</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-8"> ★★★★ </span> <a href="/eddie_a/film/local-legends/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">2</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:65888100/" data-is-translatable="true" lang="en" > <div class="collapsed-text"> <p><i>"he thinks that i've made several feature films and didn't know that film festivals exist. i know they exist, and i know that they're stupid. i know this because i have been rejected by dozens of them" </i> </p><p>somewhere between <i> JLG/JLG: Self Portrait in December, Stardust Memories </i> and the half-hour infomercials for compilation albums on late night cable is what appears to be Matt Farley's cumulative work. it can't be, however, because no one object can come close to representing the volume of work he puts out, as this film demonstrates. </p><p>there's a perfunctory plot, of Farley as himself, ever-so-slightly dipping his toes into the world of dating, while maintaining his record-setting rate of artistic output. it toes the line between…</p> </div> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"IAB2V","uid":"viewing:65888100","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/eddie_a/film/local-legends/likes/" data-format="count" data-count="74" data-owner="eddie_a" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="IAB2V"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="98988816" data-person="JustinDecloux"> <a class="avatar -a40" href="/justindecloux/" > <img src="https://a.ltrbxd.com/resized/avatar/twitter/9/9/0/4/7/shard/http___pbs.twimg.com_profile_images_1211349930062823425_XgXElDlG-0-80-0-80-crop.jpg?v=a9f4332417" alt="Justin Decloux" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/justindecloux/film/local-legends/2/" class="context" title="Read Justin Decloux’s review"> Review by <span class="owner"><strong class="displayname">Justin Decloux</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-10"> ★★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> <a href="/justindecloux/film/local-legends/2/#comments" class="inlineicon icon-16 -ignoreactionpseudo icon-comment"><span class="icon" role="presentation"></span><span class="label">5</span></a> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:98988816/" data-is-translatable="true" lang="en" > <p>Well, I watched it again. </p><p>Only gets better.</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"14Zt85","uid":"viewing:98988816","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/justindecloux/film/local-legends/2/likes/" data-format="count" data-count="68" data-owner="JustinDecloux" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="14Zt85"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="196935810" data-person="stephenage"> <a class="avatar -a40" href="/stephenage/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/1/4/6/1/6/9/6/shard/avtr-0-80-0-80-crop.jpg?v=b9ce5a3968" alt="Stephen Gillespie" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/stephenage/film/local-legends/" class="context" title="Read Stephen Gillespie’s review"> Review by <span class="owner"><strong class="displayname">Stephen Gillespie</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-8"> ★★★★ </span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:196935810/" data-is-translatable="true" lang="en" > <div class="collapsed-text"> <p>Self aware, fictionalised autobiographical works often fall prey to narcissism or overbearing irony. Local Legends is not this, it is beautifully self aware, and lightly self deprecating, while never feeling false or self obsessed. It is a film that is cleverly in conversation with itself but also charmingly authentic. It points towards the manufactured and uses it to portray the real, a charming blend and a wonderful film.</p><p>The core of this film is a deep conversation about art, and how to have that conversation. The want to cerate drives Farley, but creation must have a target. If we are putting things out into the world we want them to be received, enjoyed and used (appreciated, even). But then we…</p> </div> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"29he0l","uid":"viewing:196935810","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/stephenage/film/local-legends/likes/" data-format="count" data-count="63" data-owner="stephenage" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="29he0l"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+				<div class="listitem js-listitem"> <article class="production-viewing -viewing js-production-viewing" data-viewing-id="94930684" data-person="eric_peartree"> <a class="avatar -a40" href="/eric_peartree/" > <img src="https://a.ltrbxd.com/resized/avatar/upload/1/9/9/8/9/2/shard/avtr-0-80-0-80-crop.jpg?v=9e170660e1" alt="Eric" width="40" height="40" /> </a> <div class="body"> <div class="attribution-block -large"> <div class="body"> <span class="attribution-detail"> <a href="/eric_peartree/film/local-legends/" class="context" title="Read Eric’s review"> Review by <span class="owner"><strong class="displayname">Eric</strong></span> </a> </span> <span class="content-reactions-strip -viewing"> <span class="rating -green rated-10"> ★★★★★ </span> <span class="inlineicon icon-16 -ignoreactionpseudo icon-liked -hidelabel"><span class="icon" role="presentation"></span><span class="label">Liked</span></span> </span> </div> </div> <div class="js-review " > <div class="body-text -prose -reset js-review-body js-collapsible-text" data-full-text-url="/s/full-text/viewing:94930684/" data-is-translatable="true" lang="en" > <p>When a director puts his phone number in the movie so you call it and he picks up and you chat with him as you’re watching his film... 5 stars no matter what. Orson Welles could fucking never.</p> </div> <div class="viewing-actions"> <div class="review-actions"> <p class="like-link-target react-component" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"12fc4F","uid":"viewing:94930684","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/eric_peartree/film/local-legends/likes/" data-format="count" data-count="50" data-owner="eric_peartree" > <span class="has-icon icon-16 icon-like"></span> </p> <button hidden class="translation-button button -text" data-translation-control-for="12fc4F"> <span class="label js-label">Translate</span> </button> <div hidden class="translation-disclaimer js-translation-disclaimer"> Translated from <span class="js-language-name"></span> by <span class="js-translated-by"></span> </div> </div> </div> </div> </div> </article> </div>
+
+			
+		</div>
+	</section>
+
+			
+			
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/local-legends/recent-reviews/" data-on-load="csi-recent-reviews">
+	
+</div>
+
+			
+			
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/local-legends/own-reviews/?esiAllowUser=true" data-on-load="csi-own-reviews">
+	
+</div>
+
+			
+			
+			
+			
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/local-legends/liked-reviews/?esiAllowUser=true" data-on-load="csi-liked-reviews">
+	
+</div>
+
+		</section>
+	
+
+		
+		
+		
+			<section id="related" class="section related-films -clear">
+				
+				<h2 class="section-heading"><a href="/films/in/local-legends-collection/by/release-earliest/size/large/">Related Films</a></h2>
+				
+				<ul class="poster-list -p110 -horizontal -scaled104">
+					
+						<li class="posteritem">
+							<div class="react-component" data-component-class="LazyPoster" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="110" data-image-height="165" data-item-name="Local Legends: Bloodbath! (2024)" data-item-slug="local-legends-bloodbath" data-item-link="/film/local-legends-bloodbath/" data-item-full-display-name="Local Legends: Bloodbath! (2024)" data-film-id="1120950" data-postered-identifier='{"lid":"L26o","uid":"film:1120950","type":"film","typeName":"film"}' data-poster-url="/film/local-legends-bloodbath/image-150/" data-resolvable-poster-path='{"postered":{"lid":"L26o","uid":"film:1120950","type":"film","typeName":"film"},"posteredBaseLink":"/film/local-legends-bloodbath/","isAdultThemed":false,"hasDefaultPoster":true,"cacheBustingKey":"dcf925f0"}' data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" data-is-linked="true" data-target-link="/film/local-legends-bloodbath/" data-details-endpoint="/film/local-legends-bloodbath/json/" data-show-menu="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-110-BCr__jme.png" class="image" width="110" height="165" alt="Local Legends: Bloodbath!"/> <span class="frame"><span class="frame-title"></span></span> </div> </div>
+						</li>
+					
+				</ul>
+			</section>
+		
+		
+		
+		
+		
+		
+
+
+		
+		
+		
+
+
+
+
+
+
+
+<div class="csi js-csi " data-src="/csi/film/local-legends/popular-lists/" data-on-load="csi-popular-lists">
+	
+</div>
+
+
+		
+		
+
+	</div>
+
+	<div class="clear"></div>
+</div>
+
+
+
+
+
+
+
+
+
+		</div> 
+
+		
+			
+		
+	
+	
+	</div> 
+	
+
+
+
+	<footer id="page-footer" class="page-footer js-page-footer js-hide-in-app">
+		<div class="content-wrap">
+			
+				<nav class="footer-nav js-footer-nav">
+					<ul>
+						<li><a href="/about/">About</a></li>
+						<li class="js-hide-in-app"><a href="/pro/">Pro</a></li>
+						<li><a href="/journal/">News</a></li>
+						
+						<li><a href="/apps/">Apps</a></li>
+						<li><a href="https://apple.co/3TfzHVG" target="_blank" rel="noopener noreferrer">Podcast</a></li>
+						<li><a href="/year-in-review/">Year in Review</a></li>
+						<li><a href="/gift-guide/">Gifts</a></li>
+						<li><a href="/welcome/">Help</a></li>
+						<li><a href="/legal/terms-of-use/">Terms</a></li>
+						<li><a href="/api-beta/">API</a></li>
+						<li><a href="/contact/">Contact</a></li>
+					</ul>
+				</nav>
+	
+
+			<div class="socials">
+				<nav class="social-service-list -inline">
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.instagram.com/letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on Instagram">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path d="M14.12.06c1.07.05 1.8.22 2.43.46.66.26 1.21.6 1.77 1.16.56.55.9 1.11 1.15 1.77.25.63.42 1.36.47 2.43.04.94.06 1.32.06 3.3v1.37c0 1.54 0 2.19-.03 2.77v.22l-.03.58a7.34 7.34 0 0 1-.47 2.43 4.9 4.9 0 0 1-1.15 1.77 4.9 4.9 0 0 1-1.77 1.16c-.64.24-1.36.41-2.43.46l-.61.03h-.23c-.5.02-1.06.03-2.21.03H9.2c-2 0-2.37-.02-3.32-.06a7.34 7.34 0 0 1-2.43-.46 4.9 4.9 0 0 1-1.77-1.16 4.9 4.9 0 0 1-1.16-1.77 7.34 7.34 0 0 1-.46-2.43l-.03-.61v-.2A60.9 60.9 0 0 1 0 11.5V8.75C0 7.7.01 7.17.03 6.7v-.2l.03-.61C.1 4.8.28 4.08.52 3.45a4.9 4.9 0 0 1 1.16-1.77A4.9 4.9 0 0 1 3.45.52 7.34 7.34 0 0 1 5.88.06l.61-.03h.2C7.12 0 7.6 0 8.5 0h2.74c1.62 0 2 .02 2.88.06ZM11.02 2H8.97c-1.7 0-2.05.02-2.92.06a5.4 5.4 0 0 0-1.82.33c-.45.18-.78.39-1.12.73-.34.34-.55.67-.73 1.12-.13.35-.3.86-.33 1.82C2.02 6.93 2 7.29 2 8.98v2.04c0 1.7.02 2.05.06 2.92.04.95.2 1.47.33 1.81.18.46.39.78.73 1.13.34.34.67.55 1.12.73.35.13.86.29 1.82.33.83.04 1.2.05 2.7.06h2.47c1.51 0 1.87-.02 2.71-.06a5.4 5.4 0 0 0 1.81-.33c.46-.18.78-.4 1.12-.73.35-.35.56-.67.73-1.13.14-.34.3-.86.34-1.8a49 49 0 0 0 .06-2.72V8.77a49 49 0 0 0-.06-2.71 5.4 5.4 0 0 0-.34-1.82 3.02 3.02 0 0 0-.73-1.12 3.02 3.02 0 0 0-1.12-.73 5.4 5.4 0 0 0-1.81-.33c-.88-.04-1.23-.06-2.93-.06ZM10 4.86a5.14 5.14 0 1 1 0 10.28 5.14 5.14 0 0 1 0-10.28ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/></svg>
+							<span class="label">Instagram</span>
+						</a>
+					</div>
+
+					
+						<div class="listitem -icononly">
+							<a class="trigger tooltip" href="https://www.threads.net/@letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on Threads">
+								<svg class="glyph" aria-hidden="true" role="presentation" xmlns="http://www.w3.org/2000/svg" width="16" height="18"><path fill-rule="nonzero" d="M8.1 0c2.8 0 4.9.9 6.3 2.6.7.9 1.3 1.9 1.6 3v.1l-1.6.4c-.3-1-.7-1.8-1.3-2.4-1.1-1.3-2.8-2-5-2-2.1 0-3.8.7-4.9 2-1 1.2-1.5 3-1.5 5.3s.5 4 1.5 5.3c1.1 1.3 2.8 2 5 2 1.9 0 3.2-.4 4.3-1.5 1-1 1.3-2.4.8-3.5-.2-.5-.6-1-1.1-1.2-.2 1-.5 1.7-1 2.3-.7.8-1.6 1.3-2.8 1.3-1 .1-1.8-.1-2.5-.6A2.8 2.8 0 0 1 4.5 11C4.5 9 6 7.8 8.2 7.6l2.3.1c-.1-.5-.3-.9-.6-1.2-.4-.4-1-.6-1.7-.7-.9 0-1.6.3-2 1H6L4.7 6a4 4 0 0 1 3.5-1.7c2.3 0 3.8 1.4 4 3.8v.2h.2v.1c1.2.5 2 1.3 2.4 2.3.8 1.7.5 3.8-1.1 5.4A7.4 7.4 0 0 1 8 18c-2.7 0-4.8-1-6.2-2.6A10 10 0 0 1 0 9c0-2.7.7-4.8 2-6.4C3.2 1 5.3 0 8 0ZM9 9.3h-.6c-1.4 0-2.1.7-2 1.5 0 .8.9 1.3 2 1.3.6 0 1-.2 1.4-.5.4-.4.7-1 .8-2v-.2A8 8 0 0 0 9 9.3h-.1Z"/></svg>
+								<span class="label">Threads</span>
+							</a>
+						</div>
+					
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://x.com/letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on X">
+							<svg class="glyph" aria-hidden="true" role="presentation" xmlns="http://www.w3.org/2000/svg" width="17" height="17"><path fill-rule="nonzero" d="m5.4 0 4 6 5-6h2.1l-.3.4-5.9 6.8 6.5 9.5.2.3h-5.3l-4.3-6.3L2 16.9 2 17H0l.3-.4 6.2-7.2L.3.4 0 0h5.3Zm-1 1.5H2.9l4.9 7 .6.9 4.3 6.1h1.6l-5-7.3-.7-.9-4-5.8Z"/></svg>
+							<span class="label">X</span>
+						</a>
+					</div>
+
+					
+						<div class="listitem -icononly">
+							<a class="trigger tooltip" href="https://bsky.app/profile/letterboxd.social" target="_blank" rel="noopener noreferrer" title="Letterboxd on Bluesky">
+								<svg class="glyph" aria-hidden="true" role="presentation" xmlns="http://www.w3.org/2000/svg" width="19" height="17"><path fill="#000" fill-rule="nonzero" d="M4.15 1.14C6.34 2.81 8.7 6.18 9.56 7.98c.87-1.8 3.23-5.17 5.42-6.84 1.58-1.2 4.14-2.12 4.14.83 0 .59-.33 4.95-.53 5.66-.68 2.46-3.17 3.1-5.38 2.71 3.87.67 4.85 2.87 2.73 5.07-4.04 4.18-5.8-1.05-6.26-2.39-.08-.25-.12-.36-.12-.26 0-.1-.04.01-.12.26-.45 1.34-2.22 6.57-6.25 2.39-2.13-2.2-1.14-4.4 2.72-5.07-2.2.38-4.7-.25-5.38-2.7C.33 6.91 0 2.55 0 1.96 0-.98 2.56-.05 4.15 1.14Z"/></svg>
+								<span class="label">Bluesky</span>
+							</a>
+						</div>
+					
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.facebook.com/letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on Facebook">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="19" height="19" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 0a9.5 9.5 0 0 0-1.48 18.89V12H5.6V9.25h2.42V7.41c0-2.38 1.41-3.7 3.58-3.7 1.04 0 2.13.19 2.13.19v2.33h-1.2c-1.18 0-1.54.74-1.54 1.49v1.53h2.63L13.2 12h-2.21v6.89A9.5 9.5 0 0 0 9.5 0Z"/></svg>
+							<span class="label">Facebook</span>
+						</a>
+					</div>
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.tiktok.com/@letterboxd" target="_blank" rel="noopener noreferrer" title="Letterboxd on TikTok">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="17" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M16.48 4.32a4.62 4.62 0 0 1-3.92-2.66A4.04 4.04 0 0 1 12.23 0H9.07v11.85c0 1.93-1.19 3.07-2.65 3.07a2.71 2.71 0 0 1-2.04-.9 2.57 2.57 0 0 1-.6-2.1 2.55 2.55 0 0 1 1.26-1.81 2.7 2.7 0 0 1 2.24-.21V6.77a5.92 5.92 0 0 0-4.08.86 5.7 5.7 0 0 0-2.15 2.55 5.53 5.53 0 0 0 1.26 6.16 5.86 5.86 0 0 0 6.33 1.23 5.78 5.78 0 0 0 2.6-2.08c.64-.94.98-2.03.98-3.15V5.96a7.74 7.74 0 0 0 4.25 1.25V4.32Z"/></svg>
+							<span class="label">TikTok</span>
+						</a>
+					</div>
+
+					<div class="listitem -icononly">
+						<a class="trigger tooltip" href="https://www.youtube.com/letterboxdhq" target="_blank" rel="noopener noreferrer" title="Letterboxd on YouTube">
+							<svg class="glyph" aria-hidden="true" role="presentation" width="23" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M11.74 0c.61 0 2.33.02 4.11.08l.54.02c1.7.06 3.35.18 4.1.38a2.87 2.87 0 0 1 2.03 2.02c.45 1.67.48 5.04.48 5.46v.08c0 .42-.03 3.8-.48 5.46a2.87 2.87 0 0 1-2.03 2.02c-.75.2-2.4.32-4.1.38l-.54.02c-1.78.07-3.5.08-4.11.08H11.26c-.62 0-2.33-.01-4.11-.08l-.54-.02c-1.7-.06-3.36-.18-4.1-.38A2.87 2.87 0 0 1 .48 13.5C.04 11.9 0 8.68 0 8.1v-.2c0-.58.04-3.79.48-5.4A2.87 2.87 0 0 1 2.5.48c.74-.2 2.4-.32 4.1-.38l.54-.02C8.93.02 10.65 0 11.26 0ZM9 4.57v6.86L15 8 9 4.57Z"/></svg>
+							<span class="label">YouTube</span>
+						</a>
+					</div>
+				</nav>
+			</div>
+			
+			<p class="copyright">
+				&copy; Letterboxd Limited. Made by <a href="/crew/" class="mute">fans</a> in Aotearoa New Zealand.
+				<span class="nobr"><a href="https://letterboxd.com/about/film-data/" class="mute">Film data</a> from <a href="https://www.themoviedb.org" class="mute">TMDB</a>. 
+				
+						<a href="#" class="mute mobile-site-switch" data-use-mobile-site="yes">Mobile&nbsp;site</a>.
+					
+	</span>
+				<span class="recap" style="display:none"><br/>This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="mute">privacy policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" class="mute">terms of service</a>&nbsp;apply.</span>
+			</p>
+		</div>
+	</footer>
+
+<script type="application/ld+json">
+/* <![CDATA[ */
+{"image":"https://a.ltrbxd.com/resized/film-poster/1/5/8/0/8/0/158080-local-legends-0-230-0-345-crop.jpg?v=b58f244645","@type":"Movie","director":[{"@type":"Person","name":"Matt Farley","sameAs":"/director/matt-farley-1/"}],"dateModified":"2025-07-13","productionCompany":[{"@type":"Organization","name":"Motern Media","sameAs":"/studio/motern-media/"}],"releasedEvent":[{"@type":"PublicationEvent","startDate":"2013"}],"@context":"http://schema.org","url":"https://letterboxd.com/film/local-legends/","actors":[{"@type":"Person","name":"Matt Farley","sameAs":"/actor/matt-farley-1/"},{"@type":"Person","name":"Elizabeth M. Peterson","sameAs":"/actor/elizabeth-m-peterson/"},{"@type":"Person","name":"Sharon Scalzo","sameAs":"/actor/sharon-scalzo/"},{"@type":"Person","name":"Tom Scalzo","sameAs":"/actor/tom-scalzo/"},{"@type":"Person","name":"Chris Peterson","sameAs":"/actor/chris-peterson-4/"},{"@type":"Person","name":"Kevin McGee","sameAs":"/actor/kevin-mcgee/"},{"@type":"Person","name":"Charles Roxburgh","sameAs":"/actor/charles-roxburgh/"},{"@type":"Person","name":"Brian Toomey","sameAs":"/actor/brian-toomey/"},{"@type":"Person","name":"Doug Brennan","sameAs":"/actor/doug-brennan/"},{"@type":"Person","name":"Chris Sleison","sameAs":"/actor/chris-sleison/"},{"@type":"Person","name":"Jon Noble","sameAs":"/actor/jon-noble-1/"},{"@type":"Person","name":"Josh Lynch","sameAs":"/actor/josh-lynch/"},{"@type":"Person","name":"Ryan Desmarais","sameAs":"/actor/ryan-desmarais/"},{"@type":"Person","name":"Janet Doell","sameAs":"/actor/janet-doell/"},{"@type":"Person","name":"Bruce Doell","sameAs":"/actor/bruce-doell/"},{"@type":"Person","name":"Dave Lifrieri","sameAs":"/actor/dave-lifrieri/"},{"@type":"Person","name":"Meg Welch","sameAs":"/actor/meg-welch/"},{"@type":"Person","name":"Jon Cross","sameAs":"/actor/jon-cross/"},{"@type":"Person","name":"Matt D.","sameAs":"/actor/matt-d/"},{"@type":"Person","name":"Casper Cadillac","sameAs":"/actor/casper-cadillac/"},{"@type":"Person","name":"Dori Cross","sameAs":"/actor/dori-cross/"},{"@type":"Person","name":"Jim Farley","sameAs":"/actor/jim-farley-1/"},{"@type":"Person","name":"Rachel Farley","sameAs":"/actor/rachel-farley/"},{"@type":"Person","name":"Ricky Mapleton","sameAs":"/actor/ricky-mapleton/"}],"dateCreated":"2013-09-27","name":"Local Legends","genre":["Comedy","Music"],"@id":"https://letterboxd.com/film/local-legends/","countryOfOrigin":[{"@type":"Country","name":"USA"}],"aggregateRating":{"bestRating":5,"reviewCount":1101,"@type":"aggregateRating","ratingValue":4.07,"description":"The Letterboxd rating is a weighted average score for a movie based on all ratings cast to date by our members.","ratingCount":1700,"worstRating":0}}
+/* ]]> */
+</script>
+
+
+
+
+
+<script>
+
+	gtag('event', 'genre_view', {
+		genre: 'comedy',
+		transport_type: 'beacon',
+	});
+
+	gtag('event', 'genre_view', {
+		genre: 'music',
+		transport_type: 'beacon',
+	});
+
+</script>
+	
+
+
+
+
+
+
+<div id="poster-picker-modal" class="modal fade content-media-picker-modal poster-picker-modal" tabindex="-1" role="dialog" aria-labelledby="poster-picker-modal-title" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="poster-picker-modal-title">Select your preferred <span class="js-image-type">poster</span></h5>
+                
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="poster-picker-c19c0645-fc66-4c89-a138-409113e7768b" method="post" action="" novalidate="novalidate" data-poster-picker-options='{"id": "c19c0645-fc66-4c89-a138-409113e7768b"}' data-js-target="poster-picker"></form>
+            </div>
+            <div class="modal-footer">
+                <div class="content-media-picker-note" hidden></div>
+                <div class="content-media-picker-controls poster-picker-controls" data-poster-picker-controls-for="poster-picker-c19c0645-fc66-4c89-a138-409113e7768b"> <div class="modal-action-group -center"> <button form="poster-picker-c19c0645-fc66-4c89-a138-409113e7768b" class="button -destructive" type="button" data-js-trigger="reset" disabled> <span class="label" data-js-label-for="film" >Reset <span class="js-image-type">poster</span></span> <span class="label" data-js-label-for="object" hidden>Reset for <span class="js-object-name">item</span></span> </button> <button form="poster-picker-c19c0645-fc66-4c89-a138-409113e7768b" class="button -action" type="submit" data-js-trigger="submit" disabled> <span class="label" data-js-label-for="film" >Save<span class="mob-hide"> changes</span></span> <span class="label" data-js-label-for="object" hidden>Save<span class="mob-hide"> for <span class="js-object-name">item</span></span></span> </button> </div> <div class="objectonly js-objectonly" aria-hidden="true" hidden> <label for="poster-picker-frm-object-only" class="option-label -checkbox -medium -reversed"> <input type="checkbox" value="true" class="checkbox" id="poster-picker-frm-object-only" data-js-trigger="object-only" disabled /><i class="substitute"></i>This <span class="js-object-name">item</span> only </label> </div> </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+	
+
+
+
+
+
+
+<div id="backdrop-picker-modal" class="modal fade content-media-picker-modal backdrop-picker-modal" tabindex="-1" role="dialog" aria-labelledby="backdrop-picker-modal-title" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="backdrop-picker-modal-title">Select your preferred backdrop</a></h5>
+                
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="backdrop-picker-7a8e10b5-570a-4e3e-ac6d-430182c5ae31" method="post" action="" novalidate="novalidate" data-backdrop-picker-options='{"id": "7a8e10b5-570a-4e3e-ac6d-430182c5ae31"}' data-js-target="backdrop-picker"></form>
+            </div>
+            <div class="modal-footer">
+                <div class="content-media-picker-note" hidden></div>
+                <div class="content-media-picker-controls backdrop-picker-controls" data-backdrop-picker-controls-for="backdrop-picker-7a8e10b5-570a-4e3e-ac6d-430182c5ae31"> <div class="modal-action-group -center"> <button form="backdrop-picker-7a8e10b5-570a-4e3e-ac6d-430182c5ae31" class="button -destructive" type="button" data-js-trigger="reset" disabled> <span class="label" data-js-label-for="film" >Reset <span class="js-image-type">poster</span></span> <span class="label" data-js-label-for="object" hidden>Reset for <span class="js-object-name">item</span></span> </button> <button form="backdrop-picker-7a8e10b5-570a-4e3e-ac6d-430182c5ae31" class="button -action" type="submit" data-js-trigger="submit" disabled> <span class="label" data-js-label-for="film" >Save<span class="mob-hide"> changes</span></span> <span class="label" data-js-label-for="object" hidden>Save<span class="mob-hide"> for <span class="js-object-name">item</span></span></span> </button> </div> <div class="objectonly js-objectonly" aria-hidden="true" hidden> <label for="backdrop-picker-frm-object-only" class="option-label -checkbox -medium -reversed"> <input type="checkbox" value="true" class="checkbox" id="backdrop-picker-frm-object-only" data-js-trigger="object-only" disabled /><i class="substitute"></i>This <span class="js-object-name">item</span> only </label> </div> </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+	
+	
+		<div id="remove-ads-modal" class="modal fade modal-upgrade-message" tabindex="-1" aria-labelledby="remove-ads-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="remove-ads-modal-title">Upgrade to remove&nbsp;ads</h5>
+                <button type="button" class="modal-close modal-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="body-text -hero">
+                    <p>Letterboxd is an independent service created by a small team, and we rely mostly on the support of our members to maintain our site and apps. Please consider upgrading to a <a href="/pro/">Pro account</a>—for less than a couple bucks a month, you’ll get cool additional features like all-time and annual stats pages (<a href="https://letterboxd.com/jack/stats/">example</a>), the ability to select (and filter by) your favorite streaming services, and no ads!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="/pro/" class="button -action button-action">Learn more about Pro</a>
+            </div>
+        </div>
+    </div>
+</div>
+		
+		
+		<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/partner-publishers-6V5fFKa_.js"></script>
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bbh8MmKk.js">
+		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+	
+		<script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+		<script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-DR0632bf.js"></script>
+		<script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/partner-publishers-legacy-D4ViuE22.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+	
+	
+</body>
+</html>
+

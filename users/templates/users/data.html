@@ -122,14 +122,17 @@
               {% csrf_token %}
               <ul>
                 <li>
-                  In letterboxd.com,
+                  on letterboxd.com, click
                   <a href="https://letterboxd.com/settings/data/"
                      target="_blank"
-                     rel="noopener">click DATA in Settings</a>;
+                     rel="noopener">DATA in Settings</a>;
                   or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA
                 </li>
                 <li>
-                  download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip.
+                  download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip
+                </li>
+                <li>
+                  the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>
                 </li>
               </ul>
               <br>

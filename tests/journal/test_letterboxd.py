@@ -3,7 +3,7 @@ import pytest
 from catalog.common.downloaders import use_local_response
 from catalog.models import Movie
 from journal.importers import LetterboxdImporter
-from journal.models import Mark, ShelfType
+from journal.models import Collection, CollectionMember, Mark, ShelfType
 from users.models import User
 
 
@@ -16,7 +16,7 @@ class TestLetterboxdImporter:
 
     @use_local_response
     def test_letterboxd_import_process_complete_normally(self):
-        zip_path = "test_data/letterboxd-neodb-2025-08-08-02-36-utc.zip"
+        zip_path = "test_data/letterboxd-neodb-2025-09-23-06-48-utc.zip"
         assert LetterboxdImporter.validate_file(open(zip_path, "rb")), (
             "Unable to validate the provided export"
         )
@@ -36,3 +36,13 @@ class TestLetterboxdImporter:
         assert mark.rating_grade == 10
         assert mark.comment_text == "this is a comment."
         assert mark.tags == ["hacktivist"]
+
+        collection = Collection.objects.filter(
+            owner=self.identity, title="test list"
+        ).first()
+        assert collection is not None
+        members = collection.ordered_members
+        assert members.count() == 2
+        m = members[1]
+        assert isinstance(m, CollectionMember)
+        assert m.note == "spoiler\n\ntext"

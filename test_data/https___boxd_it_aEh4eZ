@@ -93,7 +93,7 @@
 			analytic_params = {};
 		
 		
-supermodelCSRF = '5785c3bad3a354d242bd'; geolocation.country = 'US'; analytic_params['user_type'] = 'Visitor';
+supermodelCSRF = '2ea5fb4bf27e9b98423c'; geolocation.country = 'CH'; analytic_params['user_type'] = 'Visitor';
 
 	</script>
 	
@@ -239,7 +239,7 @@ function ASAP(callback) {
 			const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 			window.isAndroid = new RegExp("android", "i").test(userAgent);
 			window.isIOS = new RegExp("iPad|iPhone|iPod", "i").test(userAgent) && !window.MSStream;
-			window.adsLocation = 'US';
+			window.adsLocation = 'CH';
 		})();
 	</script>
 
@@ -255,18 +255,24 @@ function ASAP(callback) {
 	
 	
 	
-		<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/main-mSkPbRv-.js"></script>
+  <script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/app-detection-CzTKtYyC.js"></script>
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+
+	
+		<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/main-DlVo1vV1.js"></script>
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCTBTwm7.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B7pRgGH2.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/msN89aGx.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/03U_i1H8.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BS1SCFXx.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DZEHBdoo.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BTU4rCft.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bk0wrAcb.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DOonzyH0.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/bKpgursT.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BGVqBqED.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D4Yk99Ne.js">
@@ -274,26 +280,27 @@ function ASAP(callback) {
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3e4t58V.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CVweeg0j.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CswyOWBu.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/GVR8ng7U.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CKHByedj.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dkdk7i3b.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dy3dRIkt.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CF74jhiq.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D2nGpDRe.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/vCWiOUpe.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dw1UnyvJ.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B2KKeOnX.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CBIOKi7U.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B8BRvKfJ.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dp7EpKt6.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BLpqPwTf.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C3Ay1Ke8.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CkhgB9_0.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/qt9y7WI1.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BeurgYGG.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCZcJLg5.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CUcMfv5U.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CbXmRM-a.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dxj-PiPC.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CdChsGGx.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D0Np9Co1.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dtdj54rt.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BmmD0vNh.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/MTNWZJ8c.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DbkyL-rk.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCPv9W2X.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DOHxIiFh.js">
@@ -302,7 +309,8 @@ function ASAP(callback) {
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Bbh8MmKk.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/_RochNgE.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DcZ-q2nA.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B0bByq0p.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/-wkhcWO3.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DxtJGFC4.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/AxRaG6ks.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/JpiB-byr.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B7heWqLv.js">
@@ -312,29 +320,29 @@ function ASAP(callback) {
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D2hgF3Cb.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DHOGRMit.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/SOgt3rgE.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CmnQIgNr.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C4nrOlm5.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DferaUbf.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BmxsrX6Z.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CnLYH8eu.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CvYG4QK5.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CQluAL2z.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCi0_APx.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DZPCvrkM.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CJ69T0MI.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CCY5mpUO.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BWai7PvB.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CqD8uq_c.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B9fb8Bne.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C0D7dfi8.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B4SrOr3T.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BhibFcxs.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CT9GZqhB.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B58NSZQH.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/RTvrqW77.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/De1em2ph.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DLi3KjJp.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/7NKbxqjC.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CWXc20HZ.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/C7_IXB5o.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BmHO4yel.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/tBoXliqg.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BUACxlUn.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dy-E0KiV.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D3y6LkFj.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B2TiESCm.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BwGYEUT4.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D0CRiLCf.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnElP6sD.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Ak46aDlv.js">
@@ -342,13 +350,13 @@ function ASAP(callback) {
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/aczQZ_An.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/qjl1DJEE.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/iq6l9D7b.js">
-		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BSlMRzXp.js">
+		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BCJAn0N6.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/JjPLYPbJ.js">
 		<link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CkEEJX_R.js">
-		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/base-modal-CxC5ySL0.css">
-		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/production-masthead-CIwEuGkD.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/base-modal-D7ZjC2a_.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/production-masthead-DypvYxnf.css">
 		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/private-note-modal-g8bSgXPR.css">
-		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/main-y6YmV2l6.css">
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/main-syrsSl_1.css">
 		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
 		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 	
@@ -360,8 +368,8 @@ function ASAP(callback) {
 	
 	
 			
-		<script async type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/desktop-y68fsDn4.js"></script>
-		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/desktop-BeTDmlBK.css">
+		<script async type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/desktop-yYozq2ud.js"></script>
+		<link rel="stylesheet" crossorigin href="https://s.ltrbxd.com/static/css/desktop-Ba33312l.css">
 		<script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
 		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 	
@@ -519,7 +527,7 @@ var mainMenu = [];
 	<section>
 		<h1 class="site-logo"><a href="/" class="logo replace">Letterboxd &mdash; Your life in film</a></h1>
 
-		<div class="react-component" data-component-class="globals.comps.NavComponent"></div>
+		<div class="react-component" data-component-class="NavComponent"></div>
 
 		
 
@@ -607,7 +615,7 @@ var mainMenu = [];
 					<span data-js-label-for="edit" hidden>Edit diary entry</span>
 				</h5>
 
-				<button type="button" class="diary-entry-form-wizard-backtrigger" data-js-trigger="wizardback" aria-controls="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" aria-label="Return to search" disabled hidden>
+				<button type="button" class="diary-entry-form-wizard-backtrigger" data-js-trigger="wizardback" aria-controls="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" aria-label="Return to search" disabled hidden>
 					<span class="label">Back</span>
 				</button>
 
@@ -615,7 +623,7 @@ var mainMenu = [];
             </div>
             <div class="modal-body">
 				
-				<form method="post" action="/s/save-diary-entry" id="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" class="diary-entry-form js-diary-entry-form" data-js-target='diary-entry-form' data-diary-entry-form-options='{"id": "5062f9f5-04bc-4786-8069-b4e1019b3203"}' novalidate='novalidate' aria-live='polite'>
+				<form method="post" action="/s/save-diary-entry" id="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" class="diary-entry-form js-diary-entry-form" data-js-target='diary-entry-form' data-diary-entry-form-options='{"id": "965517d0-da1f-4fff-bc93-da056b724db8"}' novalidate='novalidate' aria-live='polite'>
 					<input type="hidden" name="__csrf" value="placeholder" />
 					<input type="hidden" name="viewingId" value="" id="frm-viewing-id" />
 					<input type="hidden" name="viewingableUid" value="" id="frm-viewingable-uid" />
@@ -735,7 +743,7 @@ var mainMenu = [];
 
 			
             <div class="modal-footer js-modal-footer" hidden>
-				<div class="diary-entry-form-controls" data-diary-entry-form-controls-for="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" hidden>
+				<div class="diary-entry-form-controls" data-diary-entry-form-controls-for="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" hidden>
 					<div class="modal-action-group privacygroup show-for-pv">
 						<div class="privacycontrols js-privacycontrols" aria-hidden="true">
 							<label class="label" for="frm-privacy-policy"> 
@@ -743,7 +751,7 @@ var mainMenu = [];
 								<span class="s icon-14 icon-tip" target="_blank" title="Control who sees the rating, review, tags and like for this entry" data-js-trigger="tooltip"><span class="icon"></span>(Help)</span>
 							</label>
 
-							<select name="privacyPolicyStr" id="frm-privacy-policy" class="select" hidden form='diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203'>
+							<select name="privacyPolicyStr" id="frm-privacy-policy" class="select" hidden form='diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8'>
 								<option value="">Default</option>
 								
 									<option value="Anyone">Anyone (public)</option>
@@ -758,11 +766,11 @@ var mainMenu = [];
 
 							
 	<div class="privacy-policy-menu dropdown-wrapper js-privacy-policy-menu -pending">
-		<button id="privacy-policy-menu-trigger-23fea7aa-14b7-4244-a21c-40971c818f59" class="privacy-policy-menu-trigger -default dropdown-trigger" type="button" aria-label="Select privacy policy" aria-haspopup="listbox" aria-expanded="false" aria-controls="privacy-policy-menu-23fea7aa-14b7-4244-a21c-40971c818f59-dropdown">
+		<button id="privacy-policy-menu-trigger-f7d1362e-ba2e-4f86-b59f-992d3d8dfa6e" class="privacy-policy-menu-trigger -default dropdown-trigger" type="button" aria-label="Select privacy policy" aria-haspopup="listbox" aria-expanded="false" aria-controls="privacy-policy-menu-f7d1362e-ba2e-4f86-b59f-992d3d8dfa6e-dropdown">
 			<span class="label js-label">…</span>
 		</button>
 
-		<div id="privacy-policy-menu-23fea7aa-14b7-4244-a21c-40971c818f59-dropdown" class="dropdown-menu -legacy dropdown-listbox privacy-policy-menu-dropdown" aria-labelledby="privacy-policy-menu-trigger-23fea7aa-14b7-4244-a21c-40971c818f59" role="listbox">
+		<div id="privacy-policy-menu-f7d1362e-ba2e-4f86-b59f-992d3d8dfa6e-dropdown" class="dropdown-menu -legacy dropdown-listbox privacy-policy-menu-dropdown" aria-labelledby="privacy-policy-menu-trigger-f7d1362e-ba2e-4f86-b59f-992d3d8dfa6e" role="listbox">
 			<div class="header">
 				<h3 class="title js-menutitle"></h3>
 			</div>
@@ -830,8 +838,8 @@ var mainMenu = [];
 
 						</div>
 
-						<label for="privacy-policy-draft-5062f9f5-04bc-4786-8069-b4e1019b3203" class="option-label -checkbox -default -reversed drafttoggle">
-							<input id="privacy-policy-draft-5062f9f5-04bc-4786-8069-b4e1019b3203" class="checkbox" type="checkbox" role="switch" name="privacyPolicyDraft" value="true" form="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" /><i class="substitute"></i>
+						<label for="privacy-policy-draft-965517d0-da1f-4fff-bc93-da056b724db8" class="option-label -checkbox -default -reversed drafttoggle">
+							<input id="privacy-policy-draft-965517d0-da1f-4fff-bc93-da056b724db8" class="checkbox" type="checkbox" role="switch" name="privacyPolicyDraft" value="true" form="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" /><i class="substitute"></i>
 							<span class="label">Draft</span>
 						</label>
 
@@ -839,9 +847,9 @@ var mainMenu = [];
 					</div>
 
 					<div class="modal-action-group formactions">
-						<button form="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" type="button" id="diary-entry-delete-button" class="button button-delete -destructive" data-js-trigger="delete" data-confirm="Are you sure you want to delete this entry? It will disappear from your profile, but remain in your account export bundle for 30&nbsp;days, in a folder of deleted&nbsp;items." disabled><span class="label">Delete</span></button>
+						<button form="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" type="button" id="diary-entry-delete-button" class="button button-delete -destructive" data-js-trigger="delete" data-confirm="Are you sure you want to delete this entry? It will disappear from your profile, but remain in your account export bundle for 30&nbsp;days, in a folder of deleted&nbsp;items." disabled><span class="label">Delete</span></button>
 
-						<button form="diary-entry-form-5062f9f5-04bc-4786-8069-b4e1019b3203" type="submit" class="button -action button-action" data-js-trigger="submit" disabled><span class="label">Save</span></button>
+						<button form="diary-entry-form-965517d0-da1f-4fff-bc93-da056b724db8" type="submit" class="button -action button-action" data-js-trigger="submit" disabled><span class="label">Save</span></button>
 					</div>
 				
 				</div>
@@ -939,7 +947,7 @@ var mainMenu = [];
 		
 			<div class="col-4 gutter-right-1">
 				<section class="poster-list -p150 el col viewing-poster-container" data-owner="neodb" data-object-id="viewing:975644964" data-object-name="review"  >
-					<div class="react-component" data-component-class="globals.comps.LazyPoster" data-additional-css-classes="" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="150" data-image-height="225" data-item-name="The Internet&#039;s Own Boy: The Story of Aaron Swartz" data-item-slug="the-internets-own-boy-the-story-of-aaron-swartz" data-item-link="/film/the-internets-own-boy-the-story-of-aaron-swartz/" data-item-full-display-name="The Internet&#039;s Own Boy: The Story of Aaron Swartz (2014)" data-film-id="174980" data-postered-identifier='{"lid":"7lcA","uid":"film:174980","type":"film","typeName":"film"}' data-poster-url="/film/the-internets-own-boy-the-story-of-aaron-swartz/image-150/" data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-150-DtnLDE3k.png" data-has-default-poster="true" data-is-linked="true" data-target-link="/film/the-internets-own-boy-the-story-of-aaron-swartz/" data-target-link-target="" data-details-endpoint="/film/the-internets-own-boy-the-story-of-aaron-swartz/json/" data-cache-busting-key="a1e96df6" data-show-menu="true" data-hide-tooltip="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-150-DtnLDE3k.png" class="image" width="150" height="225" alt="The Internet&#039;s Own Boy: The Story of Aaron Swartz"/> <span class="frame"><span class="frame-title"></span></span> </div> </div>
+					<div class="react-component" data-component-class="LazyPoster" data-request-poster-metadata="true" data-likeable="true" data-watchable="true" data-rateable="true" data-image-width="150" data-image-height="225" data-item-name="The Internet&#039;s Own Boy: The Story of Aaron Swartz (2014)" data-item-slug="the-internets-own-boy-the-story-of-aaron-swartz" data-item-link="/film/the-internets-own-boy-the-story-of-aaron-swartz/" data-item-full-display-name="The Internet&#039;s Own Boy: The Story of Aaron Swartz (2014)" data-film-id="174980" data-postered-identifier='{"lid":"7lcA","uid":"film:174980","type":"film","typeName":"film"}' data-poster-url="/film/the-internets-own-boy-the-story-of-aaron-swartz/image-150/" data-resolvable-poster-path='{"postered":{"lid":"7lcA","uid":"film:174980","type":"film","typeName":"film"},"posteredBaseLink":"/film/the-internets-own-boy-the-story-of-aaron-swartz/","isAdultThemed":false,"hasDefaultPoster":true,"cacheBustingKey":"a1e96df6"}' data-empty-poster-src="https://s.ltrbxd.com/static/img/empty-poster-150-DtnLDE3k.png" data-is-linked="true" data-target-link="/film/the-internets-own-boy-the-story-of-aaron-swartz/" data-details-endpoint="/film/the-internets-own-boy-the-story-of-aaron-swartz/json/" data-show-menu="true" data-hide-tooltip="true" > <div class="poster film-poster"> <img src="https://s.ltrbxd.com/static/img/empty-poster-150-DtnLDE3k.png" class="image" width="150" height="225" alt="The Internet&#039;s Own Boy: The Story of Aaron Swartz"/> <span class="frame"><span class="frame-title"></span></span> </div> </div>
 				</section>
 				
 				
@@ -1067,7 +1075,7 @@ var mainMenu = [];
 					</div>
 					<div class="viewing-actions">
 						<div class="review-actions">
-							<p class="like-link-target react-component review-like" data-component-class="globals.comps.LikeComponent" data-likeable-identifier='{"lid":"aEh4eZ","uid":"viewing:975644964","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/neodb/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="0" data-owner="neodb" > <span class="has-icon icon-16 icon-like"></span> </p>
+							<p class="like-link-target react-component review-like" data-component-class="LikeComponent" data-likeable-identifier='{"lid":"aEh4eZ","uid":"viewing:975644964","type":"viewing","typeName":"review"}' data-likeable="true" data-element-type="p" data-likes-page="/neodb/film/the-internets-own-boy-the-story-of-aaron-swartz/likes/" data-format="count" data-count="0" data-owner="neodb" > <span class="has-icon icon-16 icon-like"></span> </p>
 							
 
 
@@ -1121,7 +1129,7 @@ var mainMenu = [];
 
 			
 
-<script id="script-21100146-ed6f-47c5-942d-4baeab7db98e"> ((tag, target) => { let adsScript = null; let adsPlatforms = null; let adsLocations = null; let adsMode = ''; if (!disableAds && person.showAds) { let adUnit = document.createElement('div'); let kicker = [ '<div class="upgrade-kicker -alignleft -med_rect js-hide-in-app">', '<button type="button" class="modaltrigger" data-bs-toggle="modal" data-bs-target="#remove-ads-modal">', 'Remove Ads', '<svg aria-hidden="true" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><path d="m.5.5 6 6M6.5.5l-6 6" fill-rule="evenodd" stroke="#000"/></svg>', '</button>', '</div>' ].join(''); if ( adsScript && adsScript === 'bandsintown' && adsPlatforms && ((window.isIOS && adsPlatforms.indexOf("iOS") >= 0) || (window.isAndroid && adsPlatforms.indexOf("Android") >= 0)) && adsLocations && adsMode && ( (adsMode === 'include' && adsLocations.indexOf(window.adsLocation) >= 0) || (adsMode === 'exclude' && adsLocations.indexOf(window.adsLocation) == -1) ) ) { var opts = { artist: "", song: "", adunit_id: 100005950, div_id: "cf_async_21100146-ed6f-47c5-942d-4baeab7db98e" }; adUnit.id = opts.div_id; if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } var c=function(){cf.showAsyncAd(opts)};if(typeof window.cf !== 'undefined')c();else{cf_async=!0;var r=document.createElement("script"),s=document.getElementsByTagName("script")[0];r.async=!0;r.src="//srv.tunefindforfans.com/fruits/apricots.js";r.readyState?r.onreadystatechange=function(){if("loaded"==r.readyState||"complete"==r.readyState)r.onreadystatechange=null,c()}:r.onload=c;s.parentNode.insertBefore(r,s)}; } else { adUnit.id = 'pw-21100146-ed6f-47c5-942d-4baeab7db98e'; adUnit.className = 'pw-div -tile300x250 -alignleft -bottommargin'; adUnit.setAttribute('data-pw-' + (renderMobile ? 'mobi' : 'desk'), 'med_rect_btf'); if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } window.addEventListener('DOMContentLoaded', (event) => { adUnit.insertAdjacentHTML('afterend', kicker); window.ramp.que.push(function () { window.ramp.addTag('pw-21100146-ed6f-47c5-942d-4baeab7db98e'); }); }, { once: true }); } } tag.remove(); })(document.getElementById('script-21100146-ed6f-47c5-942d-4baeab7db98e')); </script>
+<script id="script-ae1f4e12-4fe1-4ee5-8540-194f2e27603f"> ((tag, target) => { let adsScript = null; let adsPlatforms = null; let adsLocations = null; let adsMode = ''; if (!disableAds && person.showAds) { let adUnit = document.createElement('div'); let kicker = [ '<div class="upgrade-kicker -alignleft -med_rect js-hide-in-app">', '<button type="button" class="modaltrigger" data-bs-toggle="modal" data-bs-target="#remove-ads-modal">', 'Remove Ads', '<svg aria-hidden="true" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><path d="m.5.5 6 6M6.5.5l-6 6" fill-rule="evenodd" stroke="#000"/></svg>', '</button>', '</div>' ].join(''); if ( adsScript && adsScript === 'bandsintown' && adsPlatforms && ((window.isIOS && adsPlatforms.indexOf("iOS") >= 0) || (window.isAndroid && adsPlatforms.indexOf("Android") >= 0)) && adsLocations && adsMode && ( (adsMode === 'include' && adsLocations.indexOf(window.adsLocation) >= 0) || (adsMode === 'exclude' && adsLocations.indexOf(window.adsLocation) == -1) ) ) { var opts = { artist: "", song: "", adunit_id: 100005950, div_id: "cf_async_ae1f4e12-4fe1-4ee5-8540-194f2e27603f" }; adUnit.id = opts.div_id; if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } var c=function(){cf.showAsyncAd(opts)};if(typeof window.cf !== 'undefined')c();else{cf_async=!0;var r=document.createElement("script"),s=document.getElementsByTagName("script")[0];r.async=!0;r.src="//srv.tunefindforfans.com/fruits/apricots.js";r.readyState?r.onreadystatechange=function(){if("loaded"==r.readyState||"complete"==r.readyState)r.onreadystatechange=null,c()}:r.onload=c;s.parentNode.insertBefore(r,s)}; } else { adUnit.id = 'pw-ae1f4e12-4fe1-4ee5-8540-194f2e27603f'; adUnit.className = 'pw-div -tile300x250 -alignleft -bottommargin'; adUnit.setAttribute('data-pw-' + (renderMobile ? 'mobi' : 'desk'), 'med_rect_btf'); if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } adUnit.insertAdjacentHTML('afterend', kicker); window.ramp.que.push(function () { window.ramp.addTag('pw-ae1f4e12-4fe1-4ee5-8540-194f2e27603f'); }); } } tag.remove(); })(document.getElementById('script-ae1f4e12-4fe1-4ee5-8540-194f2e27603f')); </script>
 
 		</section>
 		
@@ -1168,7 +1176,7 @@ var mainMenu = [];
 						
 							
 							
-							<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/csi/sidebar-user-actions/share-link-CN0rA8Dg.js"></script> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CbXmRM-a.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dxj-PiPC.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DPQR6HIl.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CswyOWBu.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/GVR8ng7U.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CUcMfv5U.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CdChsGGx.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BOQU22RL.js"> <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script> <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script> <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script> <script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-D9s76qMh.js"></script> <script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/csi/sidebar-user-actions/share-link-legacy-C7XFtunM.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script> <li class="panel-sharing sharing-toggle js-actions-panel-sharing" data-js-owner-username="neodb"> <button class="trigger" type="button" aria-expanded="false" aria-controls="sharing-toggle-body-viewing-975644964"> Share this review </button> <div id="sharing-toggle-body-viewing-975644964" class="body"> <div class="urlgroup"> <input id="url-field-viewing-975644964" type="text" value="https://boxd.it/aEh4eZ" readonly spellcheck="false"> <button class="button clipboardtrigger has-icon" data-clipboard-target="#url-field-viewing-975644964" data-sharer-type="link" > <span class="label">Copy URL to Clipboard</span> <span class="icon"></span> </button> </div> <a class="shareitem -link -twitter" href="https://twitter.com/intent/tweet?text=A%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%20review%20of%20The%20Internet%27s%20Own%20Boy%3A%20The%20Story%20of%20Aaron%20Swartz%20%282014%29%20by%20neodb%20on%20%40letterboxd%3A%20https%3A%2F%2Fboxd.it%2FaEh4eZ" data-js-href-for-owner="https://twitter.com/intent/tweet?text=My%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%20review%20of%20The%20Internet%27s%20Own%20Boy%3A%20The%20Story%20of%20Aaron%20Swartz%20%282014%29%20on%20%40letterboxd%3A%20https%3A%2F%2Fboxd.it%2FaEh4eZ" rel="noreferrer" title="Tweet a link" data-sharer-type="twitter" > <span class="label">Tweet a link</span> <span class="icon"></span> </a> <a class="shareitem -link -facebook" href="https://www.facebook.com/dialog/feed?app_id=173683136069040&display=popup&link=https%3A%2F%2Fletterboxd.com%2Fneodb%2Ffilm%2Fthe-internets-own-boy-the-story-of-aaron-swartz%2F&redirect_uri=https://letterboxd.com/facebook-share" rel="noreferrer" title="Share to Facebook" data-sharer-type="facebook" > <span class="label">Share to Facebook</span> <span class="icon"></span> </a> </div> </li>
+							<script type="module" crossorigin src="https://s.ltrbxd.com/static/js/es/csi/sidebar-user-actions/share-link-BRU2qmL1.js"></script> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/B5Qt9EMX.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Duz0x7wZ.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CbXmRM-a.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/BnYMSV_K.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dxj-PiPC.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/DPQR6HIl.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D6-XlEtG.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CKHByedj.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/Dkdk7i3b.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CUcMfv5U.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/D0Np9Co1.js"> <link rel="modulepreload" crossorigin href="https://s.ltrbxd.com/static/js/es/chunks/CQaVauH8.js"> <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script> <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script> <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script> <script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-DR0632bf.js"></script> <script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/csi/sidebar-user-actions/share-link-legacy-BIQg3Qas.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script> <li class="panel-sharing sharing-toggle js-actions-panel-sharing" data-js-owner-username="neodb"> <button class="trigger" type="button" aria-expanded="false" aria-controls="sharing-toggle-body-viewing-975644964"> Share this review </button> <div id="sharing-toggle-body-viewing-975644964" class="body"> <div class="urlgroup"> <input id="url-field-viewing-975644964" type="text" value="https://boxd.it/aEh4eZ" readonly spellcheck="false"> <button class="button clipboardtrigger has-icon" data-clipboard-target="#url-field-viewing-975644964" data-sharer-type="link" > <span class="label">Copy URL to Clipboard</span> <span class="icon"></span> </button> </div> <a class="shareitem -link -twitter" href="https://twitter.com/intent/tweet?text=A%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%20review%20of%20The%20Internet%27s%20Own%20Boy%3A%20The%20Story%20of%20Aaron%20Swartz%20%282014%29%20by%20neodb%20on%20%40letterboxd%3A%20https%3A%2F%2Fboxd.it%2FaEh4eZ" data-js-href-for-owner="https://twitter.com/intent/tweet?text=My%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%20review%20of%20The%20Internet%27s%20Own%20Boy%3A%20The%20Story%20of%20Aaron%20Swartz%20%282014%29%20on%20%40letterboxd%3A%20https%3A%2F%2Fboxd.it%2FaEh4eZ" rel="noreferrer" title="Tweet a link" data-sharer-type="twitter" > <span class="label">Tweet a link</span> <span class="icon"></span> </a> <a class="shareitem -link -facebook" href="https://www.facebook.com/dialog/feed?app_id=173683136069040&display=popup&link=https%3A%2F%2Fletterboxd.com%2Fneodb%2Ffilm%2Fthe-internets-own-boy-the-story-of-aaron-swartz%2F&redirect_uri=https://letterboxd.com/facebook-share" rel="noreferrer" title="Share to Facebook" data-sharer-type="facebook" > <span class="label">Share to Facebook</span> <span class="icon"></span> </a> </div> </li>
 						
 					</ul>
 				</section>
@@ -1198,7 +1206,7 @@ var mainMenu = [];
 		
 		
 
-<script id="script-e675e9fb-fedc-4dd5-8ab2-f19414285780"> ((tag, target) => { let adsScript = null; let adsPlatforms = null; let adsLocations = null; let adsMode = ''; if (!disableAds && person.showAds) { let adUnit = document.createElement('div'); let kicker = [ '<div class="upgrade-kicker -skyscraper js-hide-in-app">', '<button type="button" class="modaltrigger" data-bs-toggle="modal" data-bs-target="#remove-ads-modal">', 'Remove Ads', '<svg aria-hidden="true" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><path d="m.5.5 6 6M6.5.5l-6 6" fill-rule="evenodd" stroke="#000"/></svg>', '</button>', '</div>' ].join(''); if ( adsScript && adsScript === 'bandsintown' && adsPlatforms && ((window.isIOS && adsPlatforms.indexOf("iOS") >= 0) || (window.isAndroid && adsPlatforms.indexOf("Android") >= 0)) && adsLocations && adsMode && ( (adsMode === 'include' && adsLocations.indexOf(window.adsLocation) >= 0) || (adsMode === 'exclude' && adsLocations.indexOf(window.adsLocation) == -1) ) ) { var opts = { artist: "", song: "", adunit_id: 100005950, div_id: "cf_async_e675e9fb-fedc-4dd5-8ab2-f19414285780" }; adUnit.id = opts.div_id; if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } var c=function(){cf.showAsyncAd(opts)};if(typeof window.cf !== 'undefined')c();else{cf_async=!0;var r=document.createElement("script"),s=document.getElementsByTagName("script")[0];r.async=!0;r.src="//srv.tunefindforfans.com/fruits/apricots.js";r.readyState?r.onreadystatechange=function(){if("loaded"==r.readyState||"complete"==r.readyState)r.onreadystatechange=null,c()}:r.onload=c;s.parentNode.insertBefore(r,s)}; } else { adUnit.id = 'pw-e675e9fb-fedc-4dd5-8ab2-f19414285780'; adUnit.className = 'pw-div'; adUnit.setAttribute('data-pw-' + (renderMobile ? 'mobi' : 'desk'), 'sky_btf'); if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } window.addEventListener('DOMContentLoaded', (event) => { adUnit.insertAdjacentHTML('afterend', kicker); window.ramp.que.push(function () { window.ramp.addTag('pw-e675e9fb-fedc-4dd5-8ab2-f19414285780'); }); }, { once: true }); } } tag.remove(); })(document.getElementById('script-e675e9fb-fedc-4dd5-8ab2-f19414285780')); </script>
+<script id="script-48f9358b-f227-46c0-9e12-b67b715878b1"> ((tag, target) => { let adsScript = null; let adsPlatforms = null; let adsLocations = null; let adsMode = ''; if (!disableAds && person.showAds) { let adUnit = document.createElement('div'); let kicker = [ '<div class="upgrade-kicker -skyscraper js-hide-in-app">', '<button type="button" class="modaltrigger" data-bs-toggle="modal" data-bs-target="#remove-ads-modal">', 'Remove Ads', '<svg aria-hidden="true" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><path d="m.5.5 6 6M6.5.5l-6 6" fill-rule="evenodd" stroke="#000"/></svg>', '</button>', '</div>' ].join(''); if ( adsScript && adsScript === 'bandsintown' && adsPlatforms && ((window.isIOS && adsPlatforms.indexOf("iOS") >= 0) || (window.isAndroid && adsPlatforms.indexOf("Android") >= 0)) && adsLocations && adsMode && ( (adsMode === 'include' && adsLocations.indexOf(window.adsLocation) >= 0) || (adsMode === 'exclude' && adsLocations.indexOf(window.adsLocation) == -1) ) ) { var opts = { artist: "", song: "", adunit_id: 100005950, div_id: "cf_async_48f9358b-f227-46c0-9e12-b67b715878b1" }; adUnit.id = opts.div_id; if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } var c=function(){cf.showAsyncAd(opts)};if(typeof window.cf !== 'undefined')c();else{cf_async=!0;var r=document.createElement("script"),s=document.getElementsByTagName("script")[0];r.async=!0;r.src="//srv.tunefindforfans.com/fruits/apricots.js";r.readyState?r.onreadystatechange=function(){if("loaded"==r.readyState||"complete"==r.readyState)r.onreadystatechange=null,c()}:r.onload=c;s.parentNode.insertBefore(r,s)}; } else { adUnit.id = 'pw-48f9358b-f227-46c0-9e12-b67b715878b1'; adUnit.className = 'pw-div'; adUnit.setAttribute('data-pw-' + (renderMobile ? 'mobi' : 'desk'), 'sky_btf'); if (target) { target.insertAdjacentElement('beforeend', adUnit); } else { tag.insertAdjacentElement('afterend', adUnit); } adUnit.insertAdjacentHTML('afterend', kicker); window.ramp.que.push(function () { window.ramp.addTag('pw-48f9358b-f227-46c0-9e12-b67b715878b1'); }); } } tag.remove(); })(document.getElementById('script-48f9358b-f227-46c0-9e12-b67b715878b1')); </script>
 
 	</aside>
 </div>
@@ -1348,11 +1356,11 @@ var mainMenu = [];
                 <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="poster-picker-d154adf9-14de-48f1-990a-78eff536eb1e" method="post" action="" novalidate="novalidate" data-poster-picker-options='{"id": "d154adf9-14de-48f1-990a-78eff536eb1e"}' data-js-target="poster-picker"></form>
+                <form id="poster-picker-60f02297-8b4c-48f1-b3c2-8560ae40400b" method="post" action="" novalidate="novalidate" data-poster-picker-options='{"id": "60f02297-8b4c-48f1-b3c2-8560ae40400b"}' data-js-target="poster-picker"></form>
             </div>
             <div class="modal-footer">
                 <div class="content-media-picker-note" hidden></div>
-                <div class="content-media-picker-controls poster-picker-controls" data-poster-picker-controls-for="poster-picker-d154adf9-14de-48f1-990a-78eff536eb1e"> <div class="modal-action-group -center"> <button form="poster-picker-d154adf9-14de-48f1-990a-78eff536eb1e" class="button -destructive" type="button" data-js-trigger="reset" disabled> <span class="label" data-js-label-for="film" >Reset <span class="js-image-type">poster</span></span> <span class="label" data-js-label-for="object" hidden>Reset for <span class="js-object-name">item</span></span> </button> <button form="poster-picker-d154adf9-14de-48f1-990a-78eff536eb1e" class="button -action" type="submit" data-js-trigger="submit" disabled> <span class="label" data-js-label-for="film" >Save<span class="mob-hide"> changes</span></span> <span class="label" data-js-label-for="object" hidden>Save<span class="mob-hide"> for <span class="js-object-name">item</span></span></span> </button> </div> <div class="objectonly js-objectonly" aria-hidden="true" hidden> <label for="poster-picker-frm-object-only" class="option-label -checkbox -medium -reversed"> <input type="checkbox" value="true" class="checkbox" id="poster-picker-frm-object-only" data-js-trigger="object-only" disabled /><i class="substitute"></i>This <span class="js-object-name">item</span> only </label> </div> </div>
+                <div class="content-media-picker-controls poster-picker-controls" data-poster-picker-controls-for="poster-picker-60f02297-8b4c-48f1-b3c2-8560ae40400b"> <div class="modal-action-group -center"> <button form="poster-picker-60f02297-8b4c-48f1-b3c2-8560ae40400b" class="button -destructive" type="button" data-js-trigger="reset" disabled> <span class="label" data-js-label-for="film" >Reset <span class="js-image-type">poster</span></span> <span class="label" data-js-label-for="object" hidden>Reset for <span class="js-object-name">item</span></span> </button> <button form="poster-picker-60f02297-8b4c-48f1-b3c2-8560ae40400b" class="button -action" type="submit" data-js-trigger="submit" disabled> <span class="label" data-js-label-for="film" >Save<span class="mob-hide"> changes</span></span> <span class="label" data-js-label-for="object" hidden>Save<span class="mob-hide"> for <span class="js-object-name">item</span></span></span> </button> </div> <div class="objectonly js-objectonly" aria-hidden="true" hidden> <label for="poster-picker-frm-object-only" class="option-label -checkbox -medium -reversed"> <input type="checkbox" value="true" class="checkbox" id="poster-picker-frm-object-only" data-js-trigger="object-only" disabled /><i class="substitute"></i>This <span class="js-object-name">item</span> only </label> </div> </div>
             </div>
         </div>
     </div>
@@ -1374,11 +1382,11 @@ var mainMenu = [];
                 <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="backdrop-picker-eea23fe8-cf85-4fcd-826e-bf96e2440cef" method="post" action="" novalidate="novalidate" data-backdrop-picker-options='{"id": "eea23fe8-cf85-4fcd-826e-bf96e2440cef"}' data-js-target="backdrop-picker"></form>
+                <form id="backdrop-picker-7227d987-3a16-4e11-87b3-38fff81fb4e4" method="post" action="" novalidate="novalidate" data-backdrop-picker-options='{"id": "7227d987-3a16-4e11-87b3-38fff81fb4e4"}' data-js-target="backdrop-picker"></form>
             </div>
             <div class="modal-footer">
                 <div class="content-media-picker-note" hidden></div>
-                <div class="content-media-picker-controls backdrop-picker-controls" data-backdrop-picker-controls-for="backdrop-picker-eea23fe8-cf85-4fcd-826e-bf96e2440cef"> <div class="modal-action-group -center"> <button form="backdrop-picker-eea23fe8-cf85-4fcd-826e-bf96e2440cef" class="button -destructive" type="button" data-js-trigger="reset" disabled> <span class="label" data-js-label-for="film" >Reset <span class="js-image-type">poster</span></span> <span class="label" data-js-label-for="object" hidden>Reset for <span class="js-object-name">item</span></span> </button> <button form="backdrop-picker-eea23fe8-cf85-4fcd-826e-bf96e2440cef" class="button -action" type="submit" data-js-trigger="submit" disabled> <span class="label" data-js-label-for="film" >Save<span class="mob-hide"> changes</span></span> <span class="label" data-js-label-for="object" hidden>Save<span class="mob-hide"> for <span class="js-object-name">item</span></span></span> </button> </div> <div class="objectonly js-objectonly" aria-hidden="true" hidden> <label for="backdrop-picker-frm-object-only" class="option-label -checkbox -medium -reversed"> <input type="checkbox" value="true" class="checkbox" id="backdrop-picker-frm-object-only" data-js-trigger="object-only" disabled /><i class="substitute"></i>This <span class="js-object-name">item</span> only </label> </div> </div>
+                <div class="content-media-picker-controls backdrop-picker-controls" data-backdrop-picker-controls-for="backdrop-picker-7227d987-3a16-4e11-87b3-38fff81fb4e4"> <div class="modal-action-group -center"> <button form="backdrop-picker-7227d987-3a16-4e11-87b3-38fff81fb4e4" class="button -destructive" type="button" data-js-trigger="reset" disabled> <span class="label" data-js-label-for="film" >Reset <span class="js-image-type">poster</span></span> <span class="label" data-js-label-for="object" hidden>Reset for <span class="js-object-name">item</span></span> </button> <button form="backdrop-picker-7227d987-3a16-4e11-87b3-38fff81fb4e4" class="button -action" type="submit" data-js-trigger="submit" disabled> <span class="label" data-js-label-for="film" >Save<span class="mob-hide"> changes</span></span> <span class="label" data-js-label-for="object" hidden>Save<span class="mob-hide"> for <span class="js-object-name">item</span></span></span> </button> </div> <div class="objectonly js-objectonly" aria-hidden="true" hidden> <label for="backdrop-picker-frm-object-only" class="option-label -checkbox -medium -reversed"> <input type="checkbox" value="true" class="checkbox" id="backdrop-picker-frm-object-only" data-js-trigger="object-only" disabled /><i class="substitute"></i>This <span class="js-object-name">item</span> only </label> </div> </div>
             </div>
         </div>
     </div>
@@ -1414,7 +1422,7 @@ var mainMenu = [];
 		<script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 	
 		<script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
-		<script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-D9s76qMh.js"></script>
+		<script nomodule crossorigin id="vite-legacy-polyfill" src="https://s.ltrbxd.com/static/js/iife/polyfills-legacy-DR0632bf.js"></script>
 		<script nomodule crossorigin id="vite-legacy-entry" data-src="https://s.ltrbxd.com/static/js/system/partner-publishers-legacy-D4ViuE22.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 	
 	
