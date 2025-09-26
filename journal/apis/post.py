@@ -138,6 +138,7 @@ def list_posts_for_item(
     query = JournalQueryParser(q, page)
     query.filter_by_viewer(request.user.identity)
     query.filter("item_id", item.pk)
+    query.sort(["created:desc"])
     r = JournalIndex.instance().search(query)
     result = {
         "data": [

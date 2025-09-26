@@ -229,8 +229,12 @@ class JournalSearchResult(SearchResult):
             ],
             [],
         )
-        ps = Post.objects.filter(pk__in=ids).exclude(
-            state__in=["deleted", "deleted_fanned_out"]
+        select = {f"id_{i}": f"id={i}" for i in ids}
+        order = [f"-id_{i}" for i in ids]
+        ps = (
+            Post.objects.filter(pk__in=ids)
+            .extra(select=select, order_by=order)
+            .exclude(state__in=["deleted", "deleted_fanned_out"])
         )
         return ps
 
