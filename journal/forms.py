@@ -31,8 +31,8 @@ class ReviewForm(forms.ModelForm):
 
 
 COLLABORATIVE_CHOICES = [
-    (0, _("creator only")),
-    (1, _("creator and their mutuals")),
+    (0, _("owner only")),
+    (1, _("owner and their local mutuals")),
 ]
 
 
