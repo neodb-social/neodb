@@ -123,3 +123,4 @@ py-modules = []
 DJANGO_SETTINGS_MODULE = "tests.settings"
 python_files = ["tests/*.py"]
 testpaths = ["tests" ]
+# addopts = "--disable-warnings"
