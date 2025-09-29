@@ -11,6 +11,16 @@
          {% if collection_edit %}data-member-id="{{ collection_member.id }}"{% endif %}>
   <span class="action">
     {% if collection_edit %}
+      <span onclick="event.preventDefault(); this.parentElement.parentElement.parentElement.insertBefore(this.parentElement.parentElement, this.parentElement.parentElement.parentElement.firstChild); return false;">
+        <a title="{% trans "Move to top" %}">
+          <i class="fa-solid fa-square-caret-up"></i>
+        </a>
+      </span>
+      <span onclick="event.preventDefault(); this.parentElement.parentElement.parentElement.appendChild(this.parentElement.parentElement); return false;">
+        <a title="{% trans "Move to bottom" %}">
+          <i class="fa-solid fa-square-caret-down"></i>
+        </a>
+      </span>
       <span>
         <a title="{% trans "Remove from collection" %}"
            hx-target="closest article"
