@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-04-26 23:57-0400\n"
-"PO-Revision-Date: 2025-08-25 21:00+0000\n"
+"PO-Revision-Date: 2025-09-26 11:01+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "neodb/neodb/pt_BR/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.13\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: boofilsic/settings.py:420 common/models/lang.py:216
 msgid "English"
@@ -859,7 +859,7 @@ msgstr "minha coleção"
 
 #: catalog/templates/_item_user_pieces.html:190
 msgid "mark history"
-msgstr "marcar no histórico"
+msgstr "histórico de marcações"
 
 #: catalog/templates/_sidebar_edit.html:7
 msgid "edit"
@@ -977,7 +977,7 @@ msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:121
 msgid "TV Show"
-msgstr "Programa de TV"
+msgstr "Séries"
 
 #: catalog/templates/_sidebar_edit.html:160
 msgid "Link to parent item"
@@ -1398,7 +1398,7 @@ msgstr "comentários"
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
 msgid "marks"
-msgstr "marcas"
+msgstr "marcações"
 
 #: catalog/templates/item_base.html:272
 #: catalog/templates/item_mark_list.html:23
@@ -1421,7 +1421,7 @@ msgstr "anotações"
 #: journal/templates/user_mark_list.html:4
 #: journal/templates/user_mark_list.html:7
 msgid "Marks"
-msgstr "Marcas"
+msgstr "Marcações"
 
 #: catalog/templates/item_review_list.html:13
 #: journal/templates/user_review_list.html:4
@@ -1846,7 +1846,7 @@ msgstr "Ido"
 
 #: common/models/lang.py:91
 msgid "Yi"
-msgstr ""
+msgstr "Yi"
 
 #: common/models/lang.py:92
 msgid "Inuktitut"
@@ -1866,7 +1866,7 @@ msgstr "Indonésio"
 
 #: common/models/lang.py:96
 msgid "Inupiaq"
-msgstr ""
+msgstr "Inupiate"
 
 #: common/models/lang.py:97
 msgid "Icelandic"
@@ -2254,7 +2254,7 @@ msgstr ""
 
 #: common/models/lang.py:196
 msgid "Vietnamese"
-msgstr ""
+msgstr "Vietnamita"
 
 #: common/models/lang.py:197
 msgid "Volapük"
@@ -2290,7 +2290,7 @@ msgstr ""
 
 #: common/models/lang.py:205
 msgid "Chinese"
-msgstr ""
+msgstr "Chinês"
 
 #: common/models/lang.py:206
 msgid "Pushto"
@@ -3034,23 +3034,23 @@ msgstr "filmes analisados"
 
 #: journal/models/shelf.py:120
 msgid "TV shows to watch"
-msgstr "Programas de TV para assistir"
+msgstr "Séries para assistir"
 
 #: journal/models/shelf.py:128
 msgid "TV shows watching"
-msgstr "Assistir programas de TV"
+msgstr "Assistindo Séries"
 
 #: journal/models/shelf.py:136
 msgid "TV shows watched"
-msgstr "Programas de TV assistidos"
+msgstr "Séries Assistidas"
 
 #: journal/models/shelf.py:144
 msgid "TV shows dropped"
-msgstr "Programas de TV descartados"
+msgstr "Séries Descartadas"
 
 #: journal/models/shelf.py:152
 msgid "TV shows reviewed"
-msgstr "Programas de TV analisados"
+msgstr "Séries Analisadas"
 
 #: journal/models/shelf.py:160
 msgid "albums to listen"
@@ -3293,11 +3293,11 @@ msgstr "Remover da coleção"
 
 #: journal/templates/_list_item.html:25
 msgid "add mark"
-msgstr "adicionar marca"
+msgstr "adicionar marcação"
 
 #: journal/templates/_list_item.html:33
 msgid "update mark"
-msgstr "atualizar marca"
+msgstr "atualizar marcação"
 
 #: journal/templates/_list_item.html:51
 #: journal/templates/collection_update_item_note_ok.html:3
@@ -3531,12 +3531,12 @@ msgstr "adicionar uma etiqueta e pressione Enter"
 
 #: journal/templates/mark.html:130
 msgid "change mark date"
-msgstr "alterar data da marca"
+msgstr "alterar data da marcação"
 
 #: journal/templates/mark.html:156
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr ""
-"Tem certeza que deseja excluir a marca, o comentário e as etiquetas deste "
+"Tem certeza que deseja excluir a marcação, o comentário e as etiquetas deste "
 "item?"
 
 #: journal/templates/markdown.html:3
@@ -3759,8 +3759,8 @@ msgstr[1] "%(count)d filmes"
 #, python-format
 msgid "%(count)d tv show"
 msgid_plural "%(count)d tv shows"
-msgstr[0] "%(count)d programa de tv"
-msgstr[1] "%(count)d programas de tv"
+msgstr[0] "%(count)d série"
+msgstr[1] "%(count)d séries"
 
 #: journal/templatetags/collection.py:59
 #, python-format

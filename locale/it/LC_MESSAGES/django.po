@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: 2025-02-16 21:38+0000\n"
-"Last-Translator: E C <weblate.delirium794@passmail.net>\n"
+"PO-Revision-Date: 2025-09-29 05:54+0000\n"
+"Last-Translator: Dizro <weblate.delirium794@passmail.net>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/neodb/neodb/it/>"
 "\n"
 "Language: it\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
@@ -2888,11 +2888,11 @@ msgstr "smetti di leggere"
 #: journal/models/shelf.py:64
 #, python-brace-format
 msgid "stopped reading {item}"
-msgstr "smesso di leggere {item}"
+msgstr "Ha smesso di leggere {item}"
 
 #: journal/models/shelf.py:65
 msgid "stopped reading"
-msgstr "smesso di leggere"
+msgstr "Ha smesso di leggere"
 
 #: journal/models/shelf.py:70
 msgid "books reviewed"
@@ -2951,7 +2951,7 @@ msgstr "ha finito di vedere"
 #: journal/models/shelf.py:96 journal/models/shelf.py:136
 #, python-brace-format
 msgid "finished watching {item}"
-msgstr "Ho finito di vedere {item}"
+msgstr "Ha finito di vedere {item}"
 
 #: journal/models/shelf.py:97 journal/models/shelf.py:137
 msgid "watched"
@@ -2968,11 +2968,11 @@ msgstr "Smetti di vedere"
 #: journal/models/shelf.py:104 journal/models/shelf.py:144
 #, python-brace-format
 msgid "stopped watching {item}"
-msgstr "Ho smesso di vedere {item}"
+msgstr "Ha smesso di vedere {item}"
 
 #: journal/models/shelf.py:105 journal/models/shelf.py:145
 msgid "stopped watching"
-msgstr "Smesso di vedere"
+msgstr "Ha smesso di vedere"
 
 #: journal/models/shelf.py:110
 msgid "movies reviewed"
@@ -3043,7 +3043,7 @@ msgstr "finire di ascoltare"
 #: journal/models/shelf.py:176 journal/models/shelf.py:256
 #, python-brace-format
 msgid "finished listening {item}"
-msgstr "ha finito di ascoltare {item}"
+msgstr "Ha finito di ascoltare {item}"
 
 #: journal/models/shelf.py:177 journal/models/shelf.py:257
 msgid "listened"
@@ -3110,12 +3110,12 @@ msgstr "Giochi giocati"
 
 #: journal/models/shelf.py:215
 msgid "finish playing"
-msgstr "Smesso di giocare"
+msgstr "Ha smesso di giocare"
 
 #: journal/models/shelf.py:216
 #, python-brace-format
 msgid "finished playing {item}"
-msgstr "finito di giocare {item}"
+msgstr "Ha finito di giocare {item}"
 
 #: journal/models/shelf.py:217
 msgid "played"
@@ -3136,7 +3136,7 @@ msgstr "finito di giocare {item}"
 
 #: journal/models/shelf.py:225
 msgid "stopped playing"
-msgstr "Smesso di giocare"
+msgstr "Ha smesso di giocare"
 
 #: journal/models/shelf.py:230
 msgid "games reviewed"
@@ -3190,7 +3190,7 @@ msgstr "finito di vedere"
 #: journal/models/shelf.py:290
 #, python-brace-format
 msgid "finished seeing {item}"
-msgstr "finito di vedere {item}"
+msgstr "Ha finito di vedere {item}"
 
 #: journal/models/shelf.py:291
 msgid "seen"
@@ -3207,11 +3207,11 @@ msgstr "smetti di vedere"
 #: journal/models/shelf.py:298
 #, python-brace-format
 msgid "stopped seeing {item}"
-msgstr "Ho smesso di vedere {item}"
+msgstr "Ha smesso di vedere {item}"
 
 #: journal/models/shelf.py:299
 msgid "stopped seeing"
-msgstr "Smesso di vedere"
+msgstr "Ha smesso di vedere"
 
 #: journal/models/shelf.py:304
 msgid "performances reviewed"
