@@ -45,6 +45,7 @@ class TestSearch:
         q.filter_by_owner(self.user1.identity)
         r = self.index.search(q)
         assert r.total == 1
+        assert r.posts[0].state == "new"
 
         # delete the other mark
         mark = Mark(self.user1.identity, self.book2)

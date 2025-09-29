@@ -175,12 +175,17 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
     if not item:
         logger.warning(f"Post {post} has no local item matched or created")
         return
+    remote_marks = []
     for p in pieces:
         cls = _supported_ap_journal_types.get(p["type"])
         if not cls:
             logger.warning(f"Unknown link type {p['type']}")
             continue
-        cls.update_by_ap_object(owner, item, p, post)
+        pc = cls.update_by_ap_object(owner, item, p, post)
+        if cls in [ShelfMember] and not local:
+            remote_marks.append(pc)
+    for mark in remote_marks:
+        mark.update_index()
 
 
 def post_deleted(pk, local, post_data):
@@ -191,6 +196,7 @@ def post_deleted(pk, local, post_data):
         # delete piece if the deleted post is the most recent one for the piece
         if piece.latest_post_id == pk:
             logger.debug(f"Deleting piece {piece}")
+            piece.delete_index()
             piece.delete()
         else:
             logger.debug(f"Matched piece {piece} has newer posts, not deleting")

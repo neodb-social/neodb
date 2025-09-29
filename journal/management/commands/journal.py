@@ -104,6 +104,11 @@ class Command(BaseCommand):
             help="skip some inactive users and rare cases to speed up index",
         )
         parser.add_argument(
+            "--remote",
+            action="store_true",
+            help="reindex remote pieces only, does not work with --owner",
+        )
+        parser.add_argument(
             "--hour",
             type=int,
             help="Number of hours to look back for edited items (used with idx-catchup)",
@@ -173,6 +178,7 @@ class Command(BaseCommand):
         fix,
         batch_size,
         fast,
+        remote,
         *args,
         **kwargs,
     ):
@@ -181,13 +187,17 @@ class Command(BaseCommand):
         self.batch_size = batch_size
         index = JournalIndex.instance()
 
-        if owner:
+        if owner and not remote:
             owners = list(
                 APIdentity.objects.filter(username__in=owner, local=True).values_list(
                     "id", flat=True
                 )
             )
         else:
+            if owner:
+                self.stdout.write(
+                    self.style.WARNING("--owner is ignored when --remote is set")
+                )
             owners = []
 
         match action:
@@ -243,22 +253,25 @@ class Command(BaseCommand):
                         .filter(q)
                         .values_list("identity", flat=True)
                     )
-                # index all posts first
-                posts = Post.objects.filter(local=True).exclude(
-                    state__in=["deleted", "deleted_fanned_out"]
-                )
-                if owners:
-                    self.stdout.write(
-                        self.style.SUCCESS(f"indexing for {len(owners)} users.")
+                if not remote:
+                    # index all posts first
+                    posts = Post.objects.filter(local=True).exclude(
+                        state__in=["deleted", "deleted_fanned_out"]
                     )
-                    posts = posts.filter(author_id__in=owners)
-                c = 0
-                pg = Paginator(posts.order_by("id"), self.batch_size)
-                for p in tqdm(pg.page_range):
-                    docs = index.posts_to_docs(pg.get_page(p).object_list)
-                    c += len(docs)
-                    index.replace_docs(docs)
-                self.stdout.write(self.style.SUCCESS(f"indexed {c} docs."))
+                    if owners:
+                        self.stdout.write(
+                            self.style.SUCCESS(
+                                f"indexing for {len(owners)} local users."
+                            )
+                        )
+                        posts = posts.filter(author_id__in=owners)
+                    c = 0
+                    pg = Paginator(posts.order_by("id"), self.batch_size)
+                    for p in tqdm(pg.page_range):
+                        docs = index.posts_to_docs(pg.get_page(p).object_list)
+                        c += len(docs)
+                        index.replace_docs(docs)
+                    self.stdout.write(self.style.SUCCESS(f"indexed {c} local posts."))
                 # index remaining pieces without posts
                 for cls in (
                     [
@@ -269,21 +282,21 @@ class Command(BaseCommand):
                     if fast
                     else [Piece]
                 ):
-                    pieces = cls.objects.filter(local=True)
+                    pieces = cls.objects.filter(local=not remote)
                     if owners:
                         pieces = pieces.filter(owner_id__in=owners)
                     c = 0
                     pg = Paginator(pieces.order_by("id"), self.batch_size)
                     for p in tqdm(pg.page_range):
-                        pieces = [
-                            p
-                            for p in pg.get_page(p).object_list
-                            if p.latest_post is None
-                        ]
+                        pieces = pg.get_page(p).object_list
+                        if not remote:
+                            pieces = [p for p in pieces if p.latest_post is None]
                         docs = index.pieces_to_docs(pieces)
                         c += len(docs)
                         index.replace_docs(docs)
-                self.stdout.write(self.style.SUCCESS(f"indexed {c} docs."))
+                    self.stdout.write(
+                        self.style.SUCCESS(f"indexed {c} {cls.__name__}.")
+                    )
                 # posts = posts.exclude(type_data__object__has_key="relatedWith")
                 # docs = index.posts_to_docs(posts)
                 # c = len(docs)
