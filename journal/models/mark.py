@@ -294,7 +294,19 @@ class Mark:
                 try:
                     log_entry.save(update_fields=["timestamp"])
                 except Exception:
-                    log_entry.delete()
+                    dup_log = (
+                        ShelfLogEntry.objects.filter(
+                            owner_id=log_entry.owner_id,
+                            shelf_type=log_entry.shelf_type,
+                            item_id=log_entry.item_id,
+                            timestamp=log_entry.timestamp,
+                        )
+                        .exclude(pk=log_entry.pk)
+                        .first()
+                    )
+                    if dup_log:
+                        log_entry.delete()
+                        log_entry = dup_log
                 shelfmember_changed = True
             if shelfmember_changed:
                 self.shelfmember.save()
@@ -310,7 +322,7 @@ class Mark:
             self.shelfmember, _ = ShelfMember.objects.update_or_create(
                 owner=self.owner, item=self.item, defaults=d
             )
-            self.shelfmember.ensure_log_entry()
+            log_entry = self.shelfmember.ensure_log_entry()
             self.shelfmember.clear_post_ids()
         # create/update/detele comment if necessary
         if comment_text is not None:
@@ -331,6 +343,14 @@ class Mark:
                 self.rating = Rating.update_item_rating(
                     self.item, self.owner, rating_grade, visibility
                 )
+        # store changed rating/comment if needed
+        if (
+            log_entry.rating_grade != self.rating_grade
+            or log_entry.comment_text != self.comment_text
+        ):
+            log_entry.rating_grade = self.rating_grade
+            log_entry.comment_text = self.comment_text
+            log_entry.save(update_fields=["metadata"])
         # publish a new or updated ActivityPub post
         post = self.shelfmember.sync_to_timeline(
             update_mode, application_id=application_id

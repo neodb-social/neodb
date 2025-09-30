@@ -1,5 +1,7 @@
 .mark-editor {
-  [type=checkbox], [type=radio] {
+
+  [type=checkbox],
+  [type=radio] {
     margin-inline-end: .1em;
   }
 }
@@ -20,6 +22,7 @@
 // make log list like a timeline list
 // source: https://dev.to/peterc/how-to-create-joined-bulletpoint-lists-with-css-bbc-news-style-1eem
 #log-list ul {
+  padding: 0;
 
   li {
     list-style: none;

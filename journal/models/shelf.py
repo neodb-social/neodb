@@ -10,6 +10,7 @@ from loguru import logger
 from polymorphic.models import ContentType, PolymorphicManager
 
 from catalog.models import Item, ItemCategory, item_categories
+from common.models import jsondata
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -582,15 +583,21 @@ class Shelf(List):
 
 
 class ShelfLogEntry(models.Model):
+    if TYPE_CHECKING:
+        owner_id: int
+        item_id: int
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     shelf_type = models.CharField(choices=ShelfType.choices, max_length=100, null=True)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
+    metadata = models.JSONField(default=dict)
     timestamp = models.DateTimeField()  # this may later be changed by user
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
     posts = models.ManyToManyField(
         "takahe.Post", related_name="log_entries", through="ShelfLogEntryPost"
     )
+    comment_text = jsondata.TextField(null=True, blank=True)
+    rating_grade = jsondata.IntegerField(null=True)
 
     class Meta:
         constraints = [

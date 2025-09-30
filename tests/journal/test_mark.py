@@ -70,10 +70,14 @@ class TestMarkWithPosts:
         assert mark.visibility == 1
 
         # Verify posts and logs
-        reading_logs = list(mark.logs)
-        assert len(reading_logs) == 2
-        assert [log.shelf_type for log in reading_logs] == ["wishlist", "progress"]
-
+        logs = list(mark.logs)
+        assert len(logs) == 2
+        assert [
+            (log.shelf_type, log.comment_text, log.rating_grade) for log in logs
+        ] == [
+            ("wishlist", "Want to read this book", None),
+            ("progress", "Started reading, looks interesting", None),
+        ]
         reading_all_posts = list(mark.all_post_ids)
         reading_current_posts = list(mark.current_post_ids)
         reading_latest_post_id = mark.latest_post_id
@@ -92,7 +96,7 @@ class TestMarkWithPosts:
         # Step 3: Mark as completed with final comment
         time.sleep(0.001)
         mark.update(
-            ShelfType.COMPLETE, "Finished reading, excellent book!", visibility=1
+            ShelfType.COMPLETE, "Finished reading, excellent book!", 8, visibility=1
         )
 
         # Refresh mark to get updated data
@@ -104,12 +108,14 @@ class TestMarkWithPosts:
         assert mark.visibility == 1
 
         # Verify final posts and logs
-        final_logs = list(mark.logs)
-        assert len(final_logs) == 3
-        assert [log.shelf_type for log in final_logs] == [
-            "wishlist",
-            "progress",
-            "complete",
+        logs = list(mark.logs)
+        assert len(logs) == 3
+        assert [
+            (log.shelf_type, log.comment_text, log.rating_grade) for log in logs
+        ] == [
+            ("wishlist", "Want to read this book", None),
+            ("progress", "Started reading, looks interesting", None),
+            ("complete", "Finished reading, excellent book!", 8),
         ]
 
         final_all_posts = list(mark.all_post_ids)
@@ -158,12 +164,14 @@ class TestMarkWithPosts:
         assert mark.visibility == 2
 
         # Verify final posts and logs
-        final_logs = list(mark.logs)
-        assert len(final_logs) == 3
-        assert [log.shelf_type for log in final_logs] == [
-            "wishlist",
-            "progress",
-            "complete",
+        logs = list(mark.logs)
+        assert len(logs) == 3
+        assert [
+            (log.shelf_type, log.comment_text, log.rating_grade) for log in logs
+        ] == [
+            ("wishlist", "Want to read this book", None),
+            ("progress", "Started reading, looks interesting", None),
+            ("complete", "Finished reading, excellent book!", 8),
         ]
 
         final2_all_posts = list(mark.all_post_ids)
@@ -207,16 +215,19 @@ class TestMarkWithPosts:
         # Verify reading state
         assert mark.shelf_type == ShelfType.PROGRESS
         assert mark.comment_text == "Started reading again"
+        assert mark.rating_grade == 8  # this is current behavior
         assert mark.visibility == 2
 
         # Verify posts and logs
-        reading_logs = list(mark.logs)
-        assert len(reading_logs) == 4
-        assert [log.shelf_type for log in reading_logs] == [
-            "wishlist",
-            "progress",
-            "complete",
-            "progress",
+        logs = list(mark.logs)
+        assert len(logs) == 4
+        assert [
+            (log.shelf_type, log.comment_text, log.rating_grade) for log in logs
+        ] == [
+            ("wishlist", "Want to read this book", None),
+            ("progress", "Started reading, looks interesting", None),
+            ("complete", "Finished reading, excellent book!", 8),
+            ("progress", "Started reading again", 8),
         ]
 
         reading_all_posts = list(mark.all_post_ids)

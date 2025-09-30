@@ -45,6 +45,8 @@ class MarkLogSchema(Schema):
     shelf_type: ShelfType | None
     # item: ItemSchema
     timestamp: datetime.datetime
+    comment_text: str | None
+    rating_grade: int | None = Field(ge=1, le=10)
 
 
 @api.get(
