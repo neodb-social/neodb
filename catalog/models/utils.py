@@ -28,7 +28,7 @@ def check_digit_13(isbn):
     return "0" if r == 10 else str(r)
 
 
-def isbn_10_to_13(isbn):
+def isbn_10_to_13(isbn) -> str | None:
     if not isbn or len(isbn) != 10:
         return None
     return "978" + isbn[:-1] + check_digit_13("978" + isbn[:-1])

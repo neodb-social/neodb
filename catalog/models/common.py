@@ -33,6 +33,7 @@ class SiteName(models.TextChoices):
     WikiData = "wikidata", _("WikiData")
     OpenLibrary = "openlibrary", _("Open Library")
     MusicBrainz = "musicbrainz", _("MusicBrainz")
+    WorldCat = "worldcat", _("WorldCat")
 
 
 class IdType(models.TextChoices):  # values must be in lowercase
@@ -44,6 +45,7 @@ class IdType(models.TextChoices):  # values must be in lowercase
     CUBN = "cubn", _("CUBN")
     ISRC = "isrc", _("ISRC")  # only for songs
     GTIN = ("gtin", _("GTIN UPC EAN"))  # GTIN-13, ISBN is separate
+    OCLC = "oclc", _("OCLC Number")
     RSS = "rss", _("RSS Feed URL")
     IMDB = "imdb", _("IMDb")
     TMDB_TV = "tmdb_tv", _("TMDB TV Series")
@@ -100,6 +102,7 @@ IdealIdTypes = [
     IdType.ASIN,
     IdType.GTIN,
     IdType.ISRC,
+    IdType.OCLC,
     IdType.MusicBrainz_ReleaseGroup,
     IdType.RSS,
     IdType.IMDB,

@@ -27,6 +27,7 @@ from .spotify import Spotify
 from .steam import Steam
 from .tmdb import TMDB_Movie
 from .wikidata import WikiData
+from .worldcat import WorldCat
 from .ypshuo import Ypshuo
 
 __all__ = [
@@ -61,6 +62,7 @@ __all__ = [
     "Steam",
     "TMDB_Movie",
     "WikiData",
+    "WorldCat",
     "Ypshuo",
     "MusicBrainzReleaseGroup",
     "MusicBrainzRelease",
