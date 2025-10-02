@@ -7,6 +7,7 @@ from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import detect_isbn_asin, isbn_10_to_13
 from common.models import detect_language
+from common.models.lang import normalize_language
 
 
 @SiteManager.register
@@ -14,6 +15,8 @@ class WorldCat(AbstractSite):
     SITE_NAME = SiteName.WorldCat
     ID_TYPE = IdType.OCLC
     URL_PATTERNS = [
+        r"https://search\.worldcat\.org/title/.+/oclc/(\d+)",
+        r"https://search\.worldcat\.org/oclc/(\d+)",
         r"https://search\.worldcat\.org/title/(\d+)",
         r"https://search\.worldcat\.org/[a-zA-Z]+/title/(\d+)",
         r"https://www\.worldcat\.org/title/(\d+)",
@@ -183,7 +186,9 @@ class WorldCat(AbstractSite):
 
         # Fallback to detection if not provided
         lang = (
-            in_language if in_language else detect_language(title + " " + description)
+            normalize_language(in_language)
+            if in_language
+            else detect_language(title + " " + description)
         )
 
         # Try to get cover image from Open Graph or other meta tags

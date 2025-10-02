@@ -69,6 +69,7 @@ class TestWorldCat:
 
         # Verify localized title
         assert metadata["localized_title"][0]["text"] == "Tigerlily's orchids : a novel"
+        assert metadata["localized_title"][0]["lang"] == "en"
 
         # Verify publication year
         assert metadata["pub_year"] == 2011

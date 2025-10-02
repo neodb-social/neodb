@@ -468,7 +468,7 @@ def _build_language_aliases() -> dict[str, str]:
         "pol": "pl",
         "vie": "vi",
         "tha": "th",
-        "chn": "zh",
+        "chi": "zh",
     }
     aliases.update(iso_639_2_codes)
 
