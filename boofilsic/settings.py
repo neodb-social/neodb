@@ -444,6 +444,7 @@ SUPPORTED_UI_LANGUAGES = {
     "en": _("English"),
     "da": _("Danish"),
     "de": _("German"),
+    "es": _("Spanish"),
     "fr": _("French"),
     "it": _("Italian"),
     "pt": _("Portuguese"),

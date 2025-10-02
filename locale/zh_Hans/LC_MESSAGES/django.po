@@ -271,7 +271,7 @@ msgstr "MusicBrainz"
 
 #: catalog/models/common.py:36
 msgid "WorldCat"
-msgstr ""
+msgstr "WorldCat"
 
 #: catalog/models/common.py:41
 msgid "ISBN10"
