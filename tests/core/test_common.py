@@ -44,7 +44,7 @@ class TestNormalizeLanguages:
             "zh",
         ]
         assert normalize_languages(["英语", "日语", "中文"]) == ["en", "ja", "zh"]
-        assert normalize_languages(["eng", "jpn", "chn"]) == ["en", "ja", "zh"]
+        assert normalize_languages(["eng", "jpn", "chi"]) == ["en", "ja", "zh"]
         assert normalize_languages(["simplified chinese", "traditional chinese"]) == [
             "zh-cn",
             "zh-tw",

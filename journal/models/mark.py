@@ -2,6 +2,7 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, Iterable, Sequence
 
+from django.db import IntegrityError
 from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -293,7 +294,7 @@ class Mark:
                 log_entry.timestamp = created_time
                 try:
                     log_entry.save(update_fields=["timestamp"])
-                except Exception:
+                except IntegrityError:
                     dup_log = (
                         ShelfLogEntry.objects.filter(
                             owner_id=log_entry.owner_id,
