@@ -229,7 +229,8 @@ class JournalSearchResult(SearchResult):
             ],
             [],
         )
-        select = {f"id_{i}": f"id={i}" for i in ids}
+        tbl = Post._meta.db_table
+        select = {f"id_{i}": f"{tbl}.id={i}" for i in ids}
         order = [f"-id_{i}" for i in ids]
         ps = (
             Post.objects.filter(pk__in=ids)
