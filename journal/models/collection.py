@@ -297,6 +297,10 @@ class Collection(List):
             "content": content,
         }
 
+    @cached_property
+    def display_title(self) -> str:
+        return self.title
+
 
 class FeaturedCollection(Piece):
     owner = models.ForeignKey(APIdentity, on_delete=models.CASCADE)
