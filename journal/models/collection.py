@@ -297,7 +297,7 @@ class Collection(List):
             "content": content,
         }
 
-    @cached_property
+    @property
     def display_title(self) -> str:
         return self.title
 
