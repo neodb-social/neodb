@@ -1,3 +1,3 @@
 # Federation
 
-see [doc](https://neodb.net/internals/federation.md) for FEP-67ff related information.
+see [doc](https://neodb.net/internals/federation) for FEP-67ff related information.
