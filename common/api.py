@@ -2,6 +2,7 @@ from typing import Any, List
 
 from django.conf import settings
 from django.db.models import QuerySet
+from django.http import HttpRequest
 from loguru import logger
 from ninja import NinjaAPI, Schema
 from ninja.pagination import PageNumberPagination as NinjaPageNumberPagination
@@ -81,9 +82,10 @@ class PageNumberPagination(NinjaPageNumberPagination):
         self,
         queryset: QuerySet,
         pagination: NinjaPageNumberPagination.Input,
+        request: HttpRequest,
         **params: Any,
     ):
-        val = super().paginate_queryset(queryset, pagination, **params)
+        val = super().paginate_queryset(queryset, pagination, request, **params)
         return {
             "data": val["items"],
             "count": val["count"],
