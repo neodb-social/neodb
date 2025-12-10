@@ -14,7 +14,7 @@ A few apps for NeoDB are being actively developed:
     - NeoComment by `@mohammadrafigh@fosstodon.org` - [Source Code](https://github.com/mohammadrafigh/NeoComment/)
     - NeoDB You by `@neodb_you@mastodon.social` - [IzzyOnDroid](https://apt.izzysoft.de/fdroid/index/apk/day.vitayuzu.neodb) / [Source Code](https://github.com/heddxh/NeoDB-You/)
 
-These apps are not affiliated with NeoDB, but they are being developed with the support of this community. If you are also developing an app for NeoDB, and wish to share that with the community, please [edit this file](https://github.com/neodb-social/neodb-doc/edit/main/docs/apps.md) and submit a pull request.
+These apps are not affiliated with NeoDB, but they are being developed with the support of this community. If you are also developing an app for NeoDB, and wish to share that with the community, please [edit this file](https://github.com/neodb-social/neodb/edit/main/docs/apps.md) and submit a pull request.
 
 
 ## Mastodon apps

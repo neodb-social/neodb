@@ -7,7 +7,7 @@ NeoDB is not a single website. To use it, you need to sign up on an instance, th
 
 {servers}
 
-JSON version of this list is also available [here](servers.json). If you are hosting a public instance of NeoDB and wish to share that with the community, please [edit this file](https://github.com/neodb-social/neodb-doc/edit/main/docs/servers.json) and submit a pull request.
+JSON version of this list is also available [here](servers.json). If you are hosting a public instance of NeoDB and wish to share that with the community, please [edit this file](https://github.com/neodb-social/neodb/edit/main/docs/servers.json) and submit a pull request.
 
 To host your own instance of NeoDB, see [installation guide](install.md).
 
