@@ -1,0 +1,56 @@
+site_name: 🧩 NeoDB
+site_url: https://neodb.net
+repo_url: http://github.com/neodb-social/neodb
+edit_uri: blob/main/docs/
+site_description: Mark the things you love.
+nav:
+  - Overview: 'index.md'
+  - features.md
+  - servers.md
+  - apps.md
+  - install.md
+  - upgrade.md
+  - configuration.md
+  - accounts.md
+  - troubleshooting.md
+  - development.md
+  - api.md
+  - origin.md
+theme:
+  logo: assets/logo.svg
+  name: material
+  font:
+    text: Lato
+  palette:
+    primary: custom
+    accent: custom
+  features:
+    # - navigation.tabs
+    # - navigation.footer
+  custom_dir: docs/templates
+extra:
+  social:
+    - icon: fontawesome/brands/mastodon
+      link: https://mastodon.online/@neodb/
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/neodb.net
+    - icon: fontawesome/brands/x-twitter
+      link: https://twitter.com/NeoDBsocial
+    - icon: fontawesome/brands/threads
+      link: https://www.threads.net/@neodb.social
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/QBHkrV8bxK
+    - icon: fontawesome/brands/github
+      link: http://github.com/neodb-social/neodb
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/u/neodb
+extra_css:
+  - stylesheets/extra.css
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+hooks:
+  - misc/docs/mkdocs_hook.py
