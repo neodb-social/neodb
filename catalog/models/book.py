@@ -45,6 +45,7 @@ from .item import (
     ItemType,
     PrimaryLookupIdDescriptor,
 )
+from .people import PeopleRole
 from .utils import *
 
 
@@ -125,6 +126,14 @@ class Edition(Item):
     category = ItemCategory.Book
     type = ItemType.Edition
     url_path = "book"
+
+    available_roles = [
+        PeopleRole.AUTHOR,
+        PeopleRole.TRANSLATOR,
+        PeopleRole.PUBLISHER,
+        PeopleRole.PUBLISHING_HOUSE,
+        PeopleRole.IMPRINT,
+    ]
 
     isbn = PrimaryLookupIdDescriptor(IdType.ISBN)
     asin = PrimaryLookupIdDescriptor(IdType.ASIN)
@@ -440,6 +449,11 @@ class Work(Item):
     category = ItemCategory.Book
     type = ItemType.Work
     url_path = "book/work"
+
+    available_roles = [
+        PeopleRole.AUTHOR,
+        PeopleRole.TRANSLATOR,
+    ]
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
     # TODO change related_name to '+' in future release
