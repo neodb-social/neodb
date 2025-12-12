@@ -3,16 +3,16 @@ NeoDB is an open-source software and global community platform [since 2021](orig
 This project is licensed under AGPLv3.
 
 
-## How to use
+## Join the community
 
 Please [find a server](servers.md) to register with your email, Mastodon or Bluesky ID.
 
-Besides the web version of your chosen server, you may also use [various apps](apps.md) to login and manage your collections.
+Besides the web version of your chosen server, you may also use [various apps](apps.md) to login, create new posts and manage your collections.
 
 
 ## Host your own instance
 
-You can [install and run your own instance of NeoDB](install.md). If you decide to share your server with the public, please inform us so that we can add it to the list above.
+You can [install and run your own instance of NeoDB](install.md). If you would like to share your server with the public, please let us know so that we can add it to the list above.
 
 All instances interact with each other in the Fediverse via ActivityPub, allowing you to follow users from other NeoDB instances or instances running other ActivityPub software, such as Mastodon.
 

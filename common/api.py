@@ -87,7 +87,7 @@ class PageNumberPagination(NinjaPageNumberPagination):
     ):
         val = super().paginate_queryset(queryset, pagination, request, **params)
         return {
-            "data": val["items"],
+            "data": val["data"],
             "count": val["count"],
             "pages": (val["count"] + self.page_size - 1) // self.page_size,
         }
