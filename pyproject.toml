@@ -55,7 +55,7 @@ dependencies = [
     "discord-py>=2.4.0",
     "libsass>=0.23.0",
     "django-storages>=1.14.5",
-    "certifi==2025.1.31",
+    "certifi==2025.11.12",
     "deepl>=1.22.0",
     "nh3>=0.2.21",
     "django-mcp>=0.1.0",
