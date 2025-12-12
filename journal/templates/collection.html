@@ -138,7 +138,7 @@
                 </span>
                 {% if collection.is_dynamic %}
                   <span>
-                    <a href="{% url 'common:search' %}?c=journal&amp;q={{ collection.query|urlencode }}">{% trans "Edit query" %}</a>
+                    <a href="{% url 'common:search' %}?c=journal&amp;q={{ collection.query|urlencode }}">{% trans "Query" %}</a>
                   </span>
                 {% endif %}
                 <span>

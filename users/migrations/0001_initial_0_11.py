@@ -547,6 +547,7 @@ class Migration(migrations.Migration):
                     ("en", "English"),
                     ("da", "Danish"),
                     ("de", "German"),
+                    ("es", "Spanish"),
                     ("fr", "French"),
                     ("it", "Italian"),
                     ("pt", "Portuguese"),
