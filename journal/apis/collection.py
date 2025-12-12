@@ -27,12 +27,14 @@ class CollectionSchema(Schema):
     cover: str = Field(deprecated=True)
     html_content: str
     is_dynamic: bool
+    query: str | None = None
 
 
 class CollectionInSchema(Schema):
     title: str
     brief: str
     visibility: int = Field(ge=0, le=2)
+    query: str | None = None
 
 
 class CollectionItemSchema(Schema):
@@ -129,11 +131,13 @@ def create_collection(request, c_in: CollectionInSchema):
 
     `title`, `brief` (markdown formatted) and `visibility` are required;
     """
+    q = (c_in.query or "").strip() or None
     c = Collection.objects.create(
         owner=request.user.identity,
         title=c_in.title,
         brief=c_in.brief,
         visibility=c_in.visibility,
+        query=q,
     )
     return c
 
@@ -152,9 +156,14 @@ def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
         return 404, {"message": "Collection not found"}
     if c.owner != request.user.identity:
         return 403, {"message": "Not owner"}
+    q = (c_in.query or "").strip() or None
+    is_dynamic = bool(q)
+    if c.is_dynamic != is_dynamic:
+        return 403, {"message": "Cannot change collection type"}
     c.title = c_in.title
     c.brief = c_in.brief
     c.visibility = c_in.visibility
+    c.query = q
     c.save()
     return c
 
