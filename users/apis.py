@@ -163,7 +163,7 @@ def user_calendar_data(request, handle: str):
         return 403, {"message": "unavailable"}
 
     # Determine visibility
-    max_visibility = 0  # Default specific public
+    max_visibility = 0  # Default visibility is public (0)
     if viewer:
         if viewer == target:
             max_visibility = 2
