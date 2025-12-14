@@ -147,6 +147,7 @@ def my_calendar_data(request):
 @api.get(
     "/user/{handle}/calendar_data",
     response={200: CalendarDataSchema, 401: Result, 403: Result, 404: Result},
+    summary="Get user's calendar data",
     tags=["user"],
 )
 def user_calendar_data(request, handle: str):
