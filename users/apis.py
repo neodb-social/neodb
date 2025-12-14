@@ -168,5 +168,4 @@ def user_calendar_data(request, handle: str):
             max_visibility = 2
         elif viewer.is_following(target):
             max_visibility = 1
-            
     return target.shelf_manager.get_calendar_data(max_visibility)
