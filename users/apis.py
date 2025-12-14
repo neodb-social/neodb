@@ -105,3 +105,41 @@ def user(request, handle: str):
         "avatar": target.avatar,
         "roles": target.user.get_roles() if target.local else [],
     }
+
+
+@api.get(
+    "/me/calendar_data",
+    response={200: dict},
+    summary="Get current user's calendar data",
+    tags=["user"],
+)
+def my_calendar_data(request):
+    return request.user.identity.shelf_manager.get_calendar_data(2)
+
+
+@api.get(
+    "/user/{handle}/calendar_data",
+    response={200: dict, 403: Result, 404: Result},
+    tags=["user"],
+)
+def user_calendar_data(request, handle: str):
+    try:
+        target = APIdentity.get_by_handle(handle)
+    except APIdentity.DoesNotExist:
+        return NOT_FOUND
+    
+    viewer = request.user.identity if request.user.is_authenticated else None
+    
+    # Check blocking status
+    if viewer and (target.is_blocking(viewer) or target.is_blocked_by(viewer)):
+        return 403, {"message": "unavailable"}
+
+    # Determine visibility
+    max_visibility = 0  # Default specific public
+    if viewer:
+        if viewer == target:
+            max_visibility = 2
+        elif viewer.is_following(target):
+            max_visibility = 1
+            
+    return target.shelf_manager.get_calendar_data(max_visibility)
