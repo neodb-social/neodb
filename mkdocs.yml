@@ -41,7 +41,9 @@ extra:
     - icon: fontawesome/brands/discord
       link: https://discord.gg/QBHkrV8bxK
     - icon: fontawesome/brands/github
-      link: http://github.com/neodb-social/neodb
+      link: https://github.com/neodb-social/neodb
+    - icon: fontawesome/brands/git-alt
+      link: https://codeberg.org/NeoDB/neodb
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/u/neodb
 extra_css:
