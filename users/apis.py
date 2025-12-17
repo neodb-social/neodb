@@ -3,6 +3,7 @@ from typing import Literal
 from django.conf import settings
 from ninja import Schema
 from ninja.schema import Field
+from pydantic import RootModel
 
 from common.api import NOT_FOUND, Result, api
 from mastodon.models import SocialAccount
@@ -34,6 +35,32 @@ class PreferenceSchema(Schema):
     default_visibility: int
     hidden_categories: list[str]
     language: str = Field(alias="user.language")
+
+
+CalendarItemType = Literal[
+    "book",
+    "movie",
+    "tv",
+    "music",
+    "game",
+    "podcast",
+    "performance",
+    "other",
+]
+
+
+class CalendarDaySchema(Schema):
+    items: list[CalendarItemType] = Field(
+        description="Unique item categories for the given date."
+    )
+
+
+class CalendarDataSchema(RootModel[dict[str, CalendarDaySchema]]):
+    """
+    Calendar heatmap data.
+
+    The top-level object is a mapping from date strings (YYYY-MM-DD) to daily data.
+    """
 
 
 @api.get(
@@ -105,3 +132,41 @@ def user(request, handle: str):
         "avatar": target.avatar,
         "roles": target.user.get_roles() if target.local else [],
     }
+
+
+@api.get(
+    "/me/calendar_data",
+    response={200: CalendarDataSchema, 401: Result},
+    summary="Get current user's calendar data",
+    tags=["user"],
+)
+def my_calendar_data(request):
+    return request.user.identity.shelf_manager.get_calendar_data(2)
+
+
+@api.get(
+    "/user/{handle}/calendar_data",
+    response={200: CalendarDataSchema, 401: Result, 403: Result, 404: Result},
+    summary="Get user's calendar data",
+    tags=["user"],
+)
+def user_calendar_data(request, handle: str):
+    try:
+        target = APIdentity.get_by_handle(handle)
+    except APIdentity.DoesNotExist:
+        return NOT_FOUND
+
+    viewer = request.user.identity if request.user.is_authenticated else None
+
+    # Check blocking status
+    if viewer and (target.is_blocking(viewer) or target.is_blocked_by(viewer)):
+        return 403, {"message": "unavailable"}
+
+    # Determine visibility
+    max_visibility = 0  # Default visibility is public (0)
+    if viewer:
+        if viewer == target:
+            max_visibility = 2
+        elif viewer.is_following(target):
+            max_visibility = 1
+    return target.shelf_manager.get_calendar_data(max_visibility)
