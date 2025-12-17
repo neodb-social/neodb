@@ -51,6 +51,7 @@ from .item import (
     ItemType,
     PrimaryLookupIdDescriptor,
 )
+from .people import PeopleRole
 
 
 class TVShowInSchema(ItemInSchema):
@@ -105,6 +106,15 @@ class TVShow(Item):
     category = ItemCategory.TV
     type = ItemType.TVShow
     url_path = "tv"
+
+    available_roles = [
+        PeopleRole.DIRECTOR,
+        PeopleRole.PLAYWRIGHT,
+        PeopleRole.ACTOR,
+        PeopleRole.PRODUCER,
+        PeopleRole.PRODUCTION_COMPANY,
+        PeopleRole.DISTRIBUTOR,
+    ]
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tv = PrimaryLookupIdDescriptor(IdType.TMDB_TV)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
@@ -329,6 +339,15 @@ class TVSeason(Item):
     category = ItemCategory.TV
     url_path = "tv/season"
     child_class = "TVEpisode"
+
+    available_roles = [
+        PeopleRole.DIRECTOR,
+        PeopleRole.PLAYWRIGHT,
+        PeopleRole.ACTOR,
+        PeopleRole.PRODUCER,
+        PeopleRole.PRODUCTION_COMPANY,
+        PeopleRole.DISTRIBUTOR,
+    ]
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tvseason = PrimaryLookupIdDescriptor(IdType.TMDB_TVSeason)
@@ -606,6 +625,13 @@ class TVEpisode(Item):
     category = ItemCategory.TV
     type = ItemType.TVEpisode
     url_path = "tv/episode"
+
+    available_roles = [
+        PeopleRole.DIRECTOR,
+        PeopleRole.PLAYWRIGHT,
+        PeopleRole.ACTOR,
+        PeopleRole.PRODUCER,
+    ]
     season = models.ForeignKey(
         TVSeason, null=True, on_delete=models.SET_NULL, related_name="episodes"
     )

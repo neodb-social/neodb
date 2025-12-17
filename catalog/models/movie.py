@@ -17,6 +17,7 @@ from .item import (
     ItemType,
     PrimaryLookupIdDescriptor,
 )
+from .people import PeopleRole
 
 
 class MovieInSchema(ItemInSchema):
@@ -42,6 +43,15 @@ class Movie(Item):
     category = ItemCategory.Movie
     type = ItemType.Movie
     url_path = "movie"
+
+    available_roles = [
+        PeopleRole.DIRECTOR,
+        PeopleRole.PLAYWRIGHT,
+        PeopleRole.ACTOR,
+        PeopleRole.PRODUCER,
+        PeopleRole.PRODUCTION_COMPANY,
+        PeopleRole.DISTRIBUTOR,
+    ]
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_movie = PrimaryLookupIdDescriptor(IdType.TMDB_Movie)
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
