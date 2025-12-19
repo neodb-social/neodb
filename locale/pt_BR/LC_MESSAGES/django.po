@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-04-26 23:57-0400\n"
-"PO-Revision-Date: 2025-09-26 11:01+0000\n"
+"PO-Revision-Date: 2025-12-16 09:00+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "neodb/neodb/pt_BR/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.15.1-dev\n"
 
 #: boofilsic/settings.py:420 common/models/lang.py:216
 msgid "English"
@@ -564,7 +564,7 @@ msgstr "ano de publicação"
 
 #: catalog/game/models.py:105 catalog/podcast/models.py:138
 msgid "date of publication"
-msgstr "data de publicação"
+msgstr "data da publicação"
 
 #: catalog/game/models.py:110 catalog/music/models.py:55
 #: catalog/tv/models.py:178
@@ -1966,15 +1966,15 @@ msgstr "Luxemburguês"
 
 #: common/models/lang.py:122
 msgid "Luba-Katanga"
-msgstr ""
+msgstr "Luba-Katanga"
 
 #: common/models/lang.py:123
 msgid "Ganda"
-msgstr ""
+msgstr "Ganda"
 
 #: common/models/lang.py:124
 msgid "Marshall"
-msgstr ""
+msgstr "Marshallês"
 
 #: common/models/lang.py:125
 msgid "Malayalam"
@@ -2014,19 +2014,19 @@ msgstr "Birmanês"
 
 #: common/models/lang.py:134
 msgid "Nauru"
-msgstr ""
+msgstr "Nauruano"
 
 #: common/models/lang.py:135
 msgid "Navajo"
-msgstr ""
+msgstr "Navajo"
 
 #: common/models/lang.py:136 common/models/lang.py:137
 msgid "Ndebele"
-msgstr ""
+msgstr "Andebele"
 
 #: common/models/lang.py:138
 msgid "Ndonga"
-msgstr ""
+msgstr "Xindonga"
 
 #: common/models/lang.py:139
 msgid "Nepali"
@@ -2050,31 +2050,31 @@ msgstr "Norueguês"
 
 #: common/models/lang.py:144
 msgid "Chichewa; Nyanja"
-msgstr ""
+msgstr "Cinianja ;Nianja"
 
 #: common/models/lang.py:145
 msgid "Occitan"
-msgstr ""
+msgstr "Occitana"
 
 #: common/models/lang.py:146
 msgid "Ojibwa"
-msgstr ""
+msgstr "Ojibwe"
 
 #: common/models/lang.py:147
 msgid "Oriya"
-msgstr ""
+msgstr "Oriá"
 
 #: common/models/lang.py:148
 msgid "Oromo"
-msgstr ""
+msgstr "Oromo"
 
 #: common/models/lang.py:149
 msgid "Ossetian; Ossetic"
-msgstr ""
+msgstr "Osseto"
 
 #: common/models/lang.py:150
 msgid "Pali"
-msgstr ""
+msgstr "Páli"
 
 #: common/models/lang.py:151
 msgid "Polish"
@@ -2082,11 +2082,11 @@ msgstr "Polonês"
 
 #: common/models/lang.py:153
 msgid "Quechua"
-msgstr ""
+msgstr "Quíchua"
 
 #: common/models/lang.py:154
 msgid "Raeto-Romance"
-msgstr ""
+msgstr "Romanche"
 
 #: common/models/lang.py:155
 msgid "Romanian"
@@ -2094,55 +2094,55 @@ msgstr "Romeno"
 
 #: common/models/lang.py:156
 msgid "Rundi"
-msgstr ""
+msgstr "Rundi"
 
 #: common/models/lang.py:157
 msgid "Russian"
-msgstr ""
+msgstr "Russo"
 
 #: common/models/lang.py:158
 msgid "Sango"
-msgstr ""
+msgstr "Sango"
 
 #: common/models/lang.py:159
 msgid "Sanskrit"
-msgstr ""
+msgstr "Sânscrito"
 
 #: common/models/lang.py:160
 msgid "Sinhalese"
-msgstr ""
+msgstr "Cingalês"
 
 #: common/models/lang.py:161
 msgid "Slovak"
-msgstr ""
+msgstr "Eslovaco"
 
 #: common/models/lang.py:162
 msgid "Slovenian"
-msgstr ""
+msgstr "Esloveno"
 
 #: common/models/lang.py:163
 msgid "Northern Sami"
-msgstr ""
+msgstr "Sámi Setentrional"
 
 #: common/models/lang.py:164
 msgid "Samoan"
-msgstr ""
+msgstr "Samoano"
 
 #: common/models/lang.py:165
 msgid "Shona"
-msgstr ""
+msgstr "Xona"
 
 #: common/models/lang.py:166
 msgid "Sindhi"
-msgstr ""
+msgstr "Sindi"
 
 #: common/models/lang.py:167
 msgid "Somali"
-msgstr ""
+msgstr "Somali"
 
 #: common/models/lang.py:168
 msgid "Sotho"
-msgstr ""
+msgstr "Sepedi"
 
 #: common/models/lang.py:169
 msgid "Spanish"
@@ -2154,75 +2154,75 @@ msgstr "Albanês"
 
 #: common/models/lang.py:171
 msgid "Sardinian"
-msgstr ""
+msgstr "Sardo"
 
 #: common/models/lang.py:172
 msgid "Serbian"
-msgstr ""
+msgstr "Sérvio"
 
 #: common/models/lang.py:173
 msgid "Swati"
-msgstr ""
+msgstr "Suázi"
 
 #: common/models/lang.py:174
 msgid "Sundanese"
-msgstr ""
+msgstr "Sundanês"
 
 #: common/models/lang.py:175
 msgid "Swahili"
-msgstr ""
+msgstr "Suaíli"
 
 #: common/models/lang.py:176
 msgid "Swedish"
-msgstr ""
+msgstr "Sueco"
 
 #: common/models/lang.py:177
 msgid "Tahitian"
-msgstr ""
+msgstr "Taitiano"
 
 #: common/models/lang.py:178
 msgid "Tamil"
-msgstr ""
+msgstr "Tâmil"
 
 #: common/models/lang.py:179
 msgid "Tatar"
-msgstr ""
+msgstr "Tártaros"
 
 #: common/models/lang.py:180
 msgid "Telugu"
-msgstr ""
+msgstr "Telugo"
 
 #: common/models/lang.py:181
 msgid "Tajik"
-msgstr ""
+msgstr "Tajiques"
 
 #: common/models/lang.py:182
 msgid "Tagalog"
-msgstr ""
+msgstr "Tagalo"
 
 #: common/models/lang.py:183
 msgid "Thai"
-msgstr ""
+msgstr "Tailandês"
 
 #: common/models/lang.py:184
 msgid "Tigrinya"
-msgstr ""
+msgstr "Tigrínia"
 
 #: common/models/lang.py:185
 msgid "Tonga"
-msgstr ""
+msgstr "Tonganês"
 
 #: common/models/lang.py:186
 msgid "Tswana"
-msgstr ""
+msgstr "Tswana"
 
 #: common/models/lang.py:187
 msgid "Tsonga"
-msgstr ""
+msgstr "Tsonga"
 
 #: common/models/lang.py:188
 msgid "Turkmen"
-msgstr ""
+msgstr "Turquemeno"
 
 #: common/models/lang.py:189
 msgid "Turkish"
@@ -2230,19 +2230,19 @@ msgstr "Turco"
 
 #: common/models/lang.py:190
 msgid "Twi"
-msgstr ""
+msgstr "Twi"
 
 #: common/models/lang.py:191
 msgid "Uighur"
-msgstr ""
+msgstr "Uigur"
 
 #: common/models/lang.py:192
 msgid "Ukrainian"
-msgstr ""
+msgstr "Ucraniano"
 
 #: common/models/lang.py:193
 msgid "Urdu"
-msgstr ""
+msgstr "Urdu"
 
 #: common/models/lang.py:194
 msgid "Uzbek"
@@ -2250,7 +2250,7 @@ msgstr "Uzbeque"
 
 #: common/models/lang.py:195
 msgid "Venda"
-msgstr ""
+msgstr "Venda"
 
 #: common/models/lang.py:196
 msgid "Vietnamese"
@@ -2258,35 +2258,35 @@ msgstr "Vietnamita"
 
 #: common/models/lang.py:197
 msgid "Volapük"
-msgstr ""
+msgstr "Volapük"
 
 #: common/models/lang.py:198
 msgid "Walloon"
-msgstr ""
+msgstr "Valão"
 
 #: common/models/lang.py:199
 msgid "Wolof"
-msgstr ""
+msgstr "Uolofe"
 
 #: common/models/lang.py:200
 msgid "Xhosa"
-msgstr ""
+msgstr "Xhosa"
 
 #: common/models/lang.py:201
 msgid "Yiddish"
-msgstr ""
+msgstr "Lídiche"
 
 #: common/models/lang.py:202
 msgid "Zhuang"
-msgstr ""
+msgstr "Xuém"
 
 #: common/models/lang.py:203
 msgid "Zulu"
-msgstr ""
+msgstr "Zulu"
 
 #: common/models/lang.py:204
 msgid "Abkhazian"
-msgstr ""
+msgstr "Abcázio"
 
 #: common/models/lang.py:205
 msgid "Chinese"
@@ -2294,11 +2294,11 @@ msgstr "Chinês"
 
 #: common/models/lang.py:206
 msgid "Pushto"
-msgstr ""
+msgstr "Pashto"
 
 #: common/models/lang.py:207
 msgid "Amharic"
-msgstr ""
+msgstr "Amárico"
 
 #: common/models/lang.py:208
 msgid "Arabic"
@@ -2325,7 +2325,6 @@ msgid "Hebrew"
 msgstr "Hebraico"
 
 #: common/models/lang.py:214
-#, fuzzy
 msgid "Hindi"
 msgstr "Hindi"
 
@@ -2335,7 +2334,7 @@ msgstr "Armênio"
 
 #: common/models/lang.py:217
 msgid "Ewe"
-msgstr ""
+msgstr "Ewe"
 
 #: common/models/lang.py:218
 msgid "Georgian"
@@ -2343,7 +2342,7 @@ msgstr "Georgiano"
 
 #: common/models/lang.py:219
 msgid "Punjabi"
-msgstr ""
+msgstr "Panjabi"
 
 #: common/models/lang.py:220
 msgid "Bengali"
@@ -2355,7 +2354,7 @@ msgstr "Bósnio"
 
 #: common/models/lang.py:222
 msgid "Chamorro"
-msgstr ""
+msgstr "Chamorro"
 
 #: common/models/lang.py:223
 msgid "Belarusian"
@@ -2363,7 +2362,7 @@ msgstr "Bielo-russo"
 
 #: common/models/lang.py:224
 msgid "Yoruba"
-msgstr ""
+msgstr "Iorubá"
 
 #: common/models/lang.py:242
 msgid "Unknown or Other"
@@ -2415,7 +2414,7 @@ msgstr "Wu chinês"
 
 #: common/models/lang.py:313
 msgid "Hakka Chinese"
-msgstr ""
+msgstr "Hacá"
 
 #: common/templates/400.html:23
 msgid "You may have submitted invalid data, or the content may have been deleted by the author."

@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-01-13 22:19-0500\n"
-"PO-Revision-Date: 2025-02-13 21:02+0000\n"
-"Last-Translator: Deleted User <noreply+105415@weblate.org>\n"
+"PO-Revision-Date: 2025-11-02 00:51+0000\n"
+"Last-Translator: AlecAlectoris <alektoris@duck.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/neodb/neodb/"
 "pt/>\n"
 "Language: pt\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.10-rc\n"
+"X-Generator: Weblate 5.14.1-dev\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
@@ -50,12 +50,12 @@ msgstr "Chinês tradicional"
 #: catalog/book/models.py:77 catalog/book/models.py:96
 #: catalog/common/models.py:289 catalog/common/models.py:307
 msgid "locale"
-msgstr ""
+msgstr "locale"
 
 #: catalog/book/models.py:80 catalog/book/models.py:99
 #: catalog/common/models.py:292 catalog/common/models.py:312
 msgid "text content"
-msgstr ""
+msgstr "conteúdo de texto"
 
 #: catalog/book/models.py:114
 msgid "Paperback"
@@ -67,11 +67,11 @@ msgstr "Capa dura"
 
 #: catalog/book/models.py:116
 msgid "eBook"
-msgstr "eBook"
+msgstr "e-book"
 
 #: catalog/book/models.py:117
 msgid "Audiobook"
-msgstr "Audiobook"
+msgstr "Audiolivro"
 
 #: catalog/book/models.py:119
 msgid "Web Fiction"
@@ -104,7 +104,7 @@ msgstr "autor"
 
 #: catalog/book/models.py:184
 msgid "translator"
-msgstr ""
+msgstr "tradutor"
 
 #: catalog/book/models.py:191 catalog/templates/edition.html:26
 msgid "book format"
@@ -124,7 +124,7 @@ msgstr "mês de publicação"
 
 #: catalog/book/models.py:212 catalog/templates/edition.html:54
 msgid "binding"
-msgstr ""
+msgstr "encadernação"
 
 #: catalog/book/models.py:213
 msgid "pages"
@@ -144,7 +144,7 @@ msgstr "preço"
 
 #: catalog/book/models.py:217 catalog/templates/edition.html:37
 msgid "imprint"
-msgstr ""
+msgstr "selo editorial"
 
 #: catalog/common/models.py:33
 msgid "Unknown"
@@ -160,7 +160,7 @@ msgstr "Goodreads"
 
 #: catalog/common/models.py:36 catalog/common/models.py:77
 msgid "Google Books"
-msgstr "Google Books"
+msgstr "Google Livros"
 
 #: catalog/common/models.py:37
 msgid "BooksTW"
@@ -226,7 +226,7 @@ msgstr "Ypshuo"
 
 #: catalog/common/models.py:53 catalog/common/models.py:106
 msgid "Archive of Our Own"
-msgstr ""
+msgstr "Archive of Our Own"
 
 #: catalog/common/models.py:54 catalog/common/models.py:107
 msgid "JinJiang"
@@ -274,55 +274,55 @@ msgstr ""
 
 #: catalog/common/models.py:72
 msgid "TMDB TV Season"
-msgstr ""
+msgstr "Temporada TMDB"
 
 #: catalog/common/models.py:73
 msgid "TMDB TV Episode"
-msgstr ""
+msgstr "Episódio TMDB"
 
 #: catalog/common/models.py:74
 msgid "TMDB Movie"
-msgstr ""
+msgstr "Filme TMDB"
 
 #: catalog/common/models.py:76
 msgid "Goodreads Work"
-msgstr ""
+msgstr "Obra Goodreads"
 
 #: catalog/common/models.py:78
 msgid "Douban Book"
-msgstr ""
+msgstr "Livro Douban"
 
 #: catalog/common/models.py:79
 msgid "Douban Book Work"
-msgstr ""
+msgstr "Obra Douban"
 
 #: catalog/common/models.py:80
 msgid "Douban Movie"
-msgstr ""
+msgstr "Filme Douban"
 
 #: catalog/common/models.py:81
 msgid "Douban Music"
-msgstr ""
+msgstr "Música Douban"
 
 #: catalog/common/models.py:82
 msgid "Douban Game"
-msgstr ""
+msgstr "Jogo Douban"
 
 #: catalog/common/models.py:83
 msgid "Douban Drama"
-msgstr ""
+msgstr "Drama Douban"
 
 #: catalog/common/models.py:84
 msgid "Douban Drama Version"
-msgstr ""
+msgstr "Versão Drama Douban"
 
 #: catalog/common/models.py:85
 msgid "BooksTW Book"
-msgstr ""
+msgstr "Livro BooksTW"
 
 #: catalog/common/models.py:87
 msgid "Spotify Album"
-msgstr ""
+msgstr "Álbum Spotify"
 
 #: catalog/common/models.py:88
 msgid "Spotify Podcast"
@@ -330,11 +330,11 @@ msgstr "Spotify Podcast"
 
 #: catalog/common/models.py:89
 msgid "Discogs Release"
-msgstr ""
+msgstr "Edição Discogs"
 
 #: catalog/common/models.py:90
 msgid "Discogs Master"
-msgstr ""
+msgstr "Edição Mestre Discogs"
 
 #: catalog/common/models.py:91
 msgid "MusicBrainz ID"
@@ -342,15 +342,15 @@ msgstr "ID (identidade) MusicBrainz"
 
 #: catalog/common/models.py:97
 msgid "IGDB Game"
-msgstr ""
+msgstr "Jogo IGDB"
 
 #: catalog/common/models.py:98
 msgid "BGG Boardgame"
-msgstr ""
+msgstr "Jogo de tabuleiro BGG"
 
 #: catalog/common/models.py:99
 msgid "Steam Game"
-msgstr ""
+msgstr "Jogo Steam"
 
 #: catalog/common/models.py:101
 msgid "Apple Podcast"
@@ -368,11 +368,11 @@ msgstr ""
 
 #: catalog/common/models.py:125 catalog/templates/_sidebar_edit.html:140
 msgid "TV Season"
-msgstr ""
+msgstr "Temporada"
 
 #: catalog/common/models.py:126
 msgid "TV Episode"
-msgstr ""
+msgstr "Episódio TV"
 
 #: catalog/common/models.py:127 catalog/common/models.py:141
 #: catalog/common/models.py:154 catalog/templates/_sidebar_edit.html:133
@@ -402,7 +402,7 @@ msgstr "Episódio de Podcast"
 #: catalog/common/models.py:159 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:51
 msgid "Performance"
-msgstr ""
+msgstr "Espetáculo"
 
 #: catalog/common/models.py:133
 msgid "Production"
@@ -414,7 +414,7 @@ msgstr "Fanfic"
 
 #: catalog/common/models.py:135 catalog/common/models.py:148
 msgid "Exhibition"
-msgstr ""
+msgstr "Exposição"
 
 #: catalog/common/models.py:136 catalog/common/models.py:149
 #: journal/templates/collection.html:15 journal/templates/collection.html:25
@@ -460,17 +460,14 @@ msgid "description"
 msgstr "descrição"
 
 #: catalog/common/models.py:357 catalog/forms.py:27
-#, fuzzy
 msgid "Primary ID Type"
-msgstr "Tipo de ID (Identificação) primário"
+msgstr "Tipo de Identificação primário"
 
 #: catalog/common/models.py:360 catalog/forms.py:32
-#, fuzzy
 msgid "Primary ID Value"
-msgstr "Valor de ID (Identificação) primário"
+msgstr "Valor de Identificação primário"
 
 #: catalog/common/models.py:366
-#, fuzzy
 msgid "metadata"
 msgstr "metadados"
 
@@ -480,35 +477,35 @@ msgstr "capa"
 
 #: catalog/common/models.py:798
 msgid "source site"
-msgstr ""
+msgstr "fonte"
 
 #: catalog/common/models.py:800
 msgid "ID on source site"
-msgstr ""
+msgstr "Identificação na fonte"
 
 #: catalog/common/models.py:802
 msgid "source url"
-msgstr ""
+msgstr "URL da fonte"
 
 #: catalog/common/models.py:818
 msgid "IdType of the source site"
-msgstr ""
+msgstr "IDType da fonte"
 
 #: catalog/common/models.py:824
 msgid "Primary Id on the source site"
-msgstr ""
+msgstr "Identificação primária na fonte"
 
 #: catalog/common/models.py:827
 msgid "url to the resource"
-msgstr ""
+msgstr "URL para o recurso"
 
 #: catalog/game/models.py:20
 msgid "Main Game"
-msgstr ""
+msgstr "Jogo Principal"
 
 #: catalog/game/models.py:21
 msgid "Expansion"
-msgstr ""
+msgstr "Expansão"
 
 #: catalog/game/models.py:22
 msgid "Downloadable Content"
@@ -516,16 +513,15 @@ msgstr "Conteúdo disponível para download"
 
 #: catalog/game/models.py:23
 msgid "Mod"
-msgstr ""
+msgstr "Mod"
 
 #: catalog/game/models.py:24
 msgid "Bundle"
-msgstr ""
+msgstr "Lote"
 
 #: catalog/game/models.py:25
-#, fuzzy
 msgid "Remaster"
-msgstr "Remaster"
+msgstr "Remasterização"
 
 #: catalog/game/models.py:26
 msgid "Remake"
@@ -537,7 +533,7 @@ msgstr "Edição especial"
 
 #: catalog/game/models.py:81
 msgid "designer"
-msgstr ""
+msgstr "Criador"
 
 #: catalog/game/models.py:89 catalog/music/models.py:66
 msgid "artist"
@@ -545,11 +541,11 @@ msgstr "artista"
 
 #: catalog/game/models.py:97
 msgid "developer"
-msgstr "programador/desenvolvedor"
+msgstr "desenvolvedora"
 
 #: catalog/game/models.py:105 catalog/music/models.py:82
 msgid "publisher"
-msgstr ""
+msgstr "publicadora"
 
 #: catalog/game/models.py:112
 msgid "year of publication"
@@ -566,7 +562,7 @@ msgstr "AAAA-MM-DD"
 
 #: catalog/game/models.py:125 catalog/templates/game.html:16
 msgid "release type"
-msgstr ""
+msgstr "tipo de edição"
 
 #: catalog/game/models.py:132 catalog/movie/models.py:97
 #: catalog/performance/models.py:122 catalog/podcast/models.py:41
@@ -598,9 +594,8 @@ msgstr "diretor"
 #: catalog/movie/models.py:83 catalog/performance/models.py:137
 #: catalog/performance/models.py:275 catalog/tv/models.py:152
 #: catalog/tv/models.py:315
-#, fuzzy
 msgid "playwright"
-msgstr "escritor/dramaturgo"
+msgstr "guionista"
 
 #: catalog/movie/models.py:90 catalog/performance/models.py:165
 #: catalog/performance/models.py:303 catalog/tv/models.py:159
@@ -614,7 +609,7 @@ msgstr "ator"
 #: catalog/templates/movie.html:40 catalog/templates/tvseason.html:57
 #: catalog/templates/tvshow.html:52
 msgid "release date"
-msgstr "data de realização"
+msgstr "data de lançamento"
 
 #: catalog/movie/models.py:116 catalog/tv/models.py:348
 #: journal/templates/_sidebar_user_mark_list.html:62
@@ -628,12 +623,12 @@ msgstr "obrigatório"
 
 #: catalog/movie/models.py:121 catalog/tv/models.py:353
 msgid "region or event"
-msgstr ""
+msgstr "região ou evento"
 
 #: catalog/movie/models.py:123 catalog/tv/models.py:192
 #: catalog/tv/models.py:355
 msgid "Germany or Toronto International Film Festival"
-msgstr ""
+msgstr "ex.: Alemanha ou Festival de Cannes"
 
 #: catalog/movie/models.py:133 catalog/tv/models.py:202
 #: catalog/tv/models.py:367
@@ -671,7 +666,7 @@ msgstr "tipo de álbum"
 
 #: catalog/music/models.py:96
 msgid "media type"
-msgstr ""
+msgstr "tipo de média"
 
 #: catalog/music/models.py:99 catalog/templates/album.html:43
 msgid "number of discs"
@@ -682,7 +677,6 @@ msgid "name"
 msgstr "nome"
 
 #: catalog/performance/models.py:67 catalog/performance/models.py:86
-#, fuzzy
 msgid "role"
 msgstr "papel"
 
@@ -708,11 +702,11 @@ msgstr "coreógrafo"
 
 #: catalog/performance/models.py:172 catalog/performance/models.py:310
 msgid "performer"
-msgstr ""
+msgstr "performista"
 
 #: catalog/performance/models.py:179 catalog/performance/models.py:317
 msgid "troupe"
-msgstr ""
+msgstr "companhia"
 
 #: catalog/performance/models.py:186 catalog/performance/models.py:324
 msgid "crew"
@@ -720,7 +714,7 @@ msgstr "grupo"
 
 #: catalog/performance/models.py:193 catalog/performance/models.py:331
 msgid "theater"
-msgstr ""
+msgstr "teatro"
 
 #: catalog/performance/models.py:200 catalog/performance/models.py:338
 #: catalog/templates/performance.html:14
@@ -743,6 +737,9 @@ msgstr "URL inválido"
 #: catalog/templates/_fetch_failed.html:4
 msgid "Unable to fetch from the link, please check again. Some sites may require login for certain links, please manually create them here."
 msgstr ""
+"Não foi possível obter informação pelo link, verifique novamente. Alguns "
+"sites podem exigir login para determinados links, por favor crie-os aqui "
+"manualmente."
 
 #: catalog/templates/_item_card_metadata_album.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
@@ -761,7 +758,7 @@ msgstr "avaliações"
 #: catalog/templates/_item_card_metadata_base.html:34
 #: catalog/templates/item_base.html:213
 msgid "part of"
-msgstr ""
+msgstr "parte de"
 
 #: catalog/templates/_item_comments.html:10
 #: catalog/templates/_item_comments_by_episode.html:13
@@ -770,7 +767,7 @@ msgstr "esta temporada"
 
 #: catalog/templates/_item_comments.html:25
 msgid "edit this item to fetch or add episode list here"
-msgstr ""
+msgstr "edita este artigo para obter ou adiciona lista de episódios aqui"
 
 #: catalog/templates/_item_comments.html:27
 msgid "hide this tooltip"
@@ -806,24 +803,23 @@ msgstr "crítica"
 
 #: catalog/templates/_item_user_mark_history.html:15
 msgid "no history."
-msgstr ""
+msgstr "sem histórico."
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "sure to clear mark history?"
-msgstr ""
+msgstr "tem a certeza que quer eliminar o histórico?"
 
 #: catalog/templates/_item_user_mark_history.html:23
-#, fuzzy
 msgid "clear mark history"
-msgstr "limpar histórico da marcação"
+msgstr "limpar histórico de marcação"
 
 #: catalog/templates/_item_user_mark_history.html:25
 msgid "clear history will not remove current mark"
-msgstr ""
+msgstr "eliminar o histórico não vai remover a marcação atual"
 
 #: catalog/templates/_item_user_pieces.html:5
 msgid "my comment and tags"
-msgstr "meu(s) comentário(s) e tags"
+msgstr "meus comentários e etiquetas"
 
 #: catalog/templates/_item_user_pieces.html:67
 msgid "my notes"
@@ -839,7 +835,7 @@ msgstr "minha coleção"
 
 #: catalog/templates/_item_user_pieces.html:190
 msgid "mark history"
-msgstr ""
+msgstr "histórico de marcações"
 
 #: catalog/templates/_sidebar_edit.html:7
 msgid "edit"
@@ -849,11 +845,11 @@ msgstr "editar"
 #: catalog/templates/catalog_history.html:9
 #: catalog/templates/catalog_history.html:57
 msgid "revision history"
-msgstr ""
+msgstr "histórico de resenhas"
 
 #: catalog/templates/_sidebar_edit.html:15
 msgid "back to item"
-msgstr "voltar para o item"
+msgstr "voltar para o artigo"
 
 #: catalog/templates/_sidebar_edit.html:18
 msgid "Edit Options"
@@ -895,15 +891,17 @@ msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:53
 msgid "External website"
-msgstr ""
+msgstr "Website externo"
 
 #: catalog/templates/_sidebar_edit.html:58
 msgid "Existing metadata might get overwritten, sure to proceed?"
 msgstr ""
+"Metadados existentes podem ser substituídos, tem a certeza que quer "
+"continuar?"
 
 #: catalog/templates/_sidebar_edit.html:62
 msgid "Fetch again"
-msgstr ""
+msgstr "Obter novamente"
 
 #: catalog/templates/_sidebar_edit.html:67
 msgid "You may not be able to undo this operation, sure to remove?"
@@ -913,7 +911,7 @@ msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:72
 msgid "Remove link to site"
-msgstr ""
+msgstr "Remover ligação para site"
 
 #: catalog/templates/_sidebar_edit.html:81
 msgid "Edit sub-items"
@@ -925,11 +923,11 @@ msgstr "criar"
 
 #: catalog/templates/_sidebar_edit.html:100
 msgid "Fetch all episodes"
-msgstr ""
+msgstr "Obter todos os episódios"
 
 #: catalog/templates/_sidebar_edit.html:105
 msgid "Fetch all"
-msgstr ""
+msgstr "Obter tudo"
 
 #: catalog/templates/_sidebar_edit.html:106
 msgid "Due to differences in how Douban, IMDB, and TMDB handle season data, a small number of TV shows and animations may not return correct results. Please manually verify and clean up after updating."
@@ -942,6 +940,9 @@ msgstr ""
 #: catalog/templates/_sidebar_edit.html:109
 msgid "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries."
 msgstr ""
+"Para obter todos os episódios, o número das temporadas e informação do IMDb "
+"são necessários. Se preencher isto é inconveniente, também pode criar sub-"
+"entradas manualmente."
 
 #: catalog/templates/_sidebar_edit.html:115
 #: catalog/templates/_sidebar_edit.html:127
@@ -966,11 +967,11 @@ msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:163
 msgid "Sure to link?"
-msgstr ""
+msgstr "Criar ligação?"
 
 #: catalog/templates/_sidebar_edit.html:170
 msgid "Update link"
-msgstr ""
+msgstr "Atualizar ligação"
 
 #: catalog/templates/_sidebar_edit.html:176
 msgid "Cleanup seasons"
@@ -982,7 +983,6 @@ msgid "This operation cannot be undone. Sure to delete?"
 msgstr "Esta operação não pode ser revertida. Tem a certeza que quer apagar?"
 
 #: catalog/templates/_sidebar_edit.html:183
-#, fuzzy
 msgid "remove seasons not marked"
 msgstr "remover temporadas não marcadas"
 
@@ -1011,10 +1011,9 @@ msgstr "Apagar"
 
 #: catalog/templates/_sidebar_edit.html:218
 msgid "Work"
-msgstr ""
+msgstr "Obra"
 
 #: catalog/templates/_sidebar_edit.html:219
-#, fuzzy
 msgid "This edition belongs to the following work"
 msgstr "Esta edição pertence à seguinte obra"
 
@@ -1039,9 +1038,8 @@ msgid "Suggest Edits"
 msgstr "Sugerir alterações"
 
 #: catalog/templates/_sidebar_edit.html:261
-#, fuzzy
 msgid "proposed action"
-msgstr "acção proposta"
+msgstr "ação proposta"
 
 #: catalog/templates/_sidebar_edit.html:263
 msgid "link to another item"
@@ -1052,9 +1050,8 @@ msgid "change item category"
 msgstr "alterar categoria do item"
 
 #: catalog/templates/_sidebar_edit.html:265
-#, fuzzy
 msgid "change item metadata"
-msgstr "alterar metadados do item"
+msgstr "alterar metadados do artigo"
 
 #: catalog/templates/_sidebar_edit.html:266
 msgid "remove item"
@@ -1118,7 +1115,7 @@ msgstr "Adicionar jogos"
 
 #: catalog/templates/_sidebar_search.html:34
 msgid "Add performance or theater pieces"
-msgstr ""
+msgstr "Adicionar espetáculos"
 
 #: catalog/templates/album.html:22
 msgid "duration"
@@ -1130,7 +1127,7 @@ msgstr "código de barras"
 
 #: catalog/templates/album.html:38
 msgid "album media"
-msgstr ""
+msgstr "média do álbum"
 
 #: catalog/templates/catalog_delete.html:18
 msgid "Are you sure to delete?"
@@ -1231,7 +1228,7 @@ msgstr "Marcar tudo como lido"
 #: catalog/templates/discover.html:162
 #: common/templates/_sidebar_anonymous.html:51
 msgid "Popular Tags"
-msgstr "Tags em destaque"
+msgstr "Etiquetas populares"
 
 #: catalog/templates/discover.html:169 catalog/templates/item_base.html:239
 #: catalog/templates/item_mark_list.html:56
@@ -1266,7 +1263,7 @@ msgstr "outras edições"
 
 #: catalog/templates/edition.html:126
 msgid "Borrow or Buy"
-msgstr ""
+msgstr "Requisitar ou comprar"
 
 #: catalog/templates/fetch_pending.html:12
 msgid "Search results"
@@ -1275,7 +1272,7 @@ msgstr "Procurar resultados"
 #: catalog/templates/fetch_pending.html:21
 #, python-format
 msgid "Fetching from %(site_label)s"
-msgstr ""
+msgstr "Obtendo de %(site_label)s"
 
 #: catalog/templates/fetch_pending.html:28
 #: users/templates/users/fetch_identity_pending.html:28
@@ -1314,7 +1311,7 @@ msgstr "Editar este item"
 
 #: catalog/templates/item_base.html:151
 msgid "Last edited"
-msgstr ""
+msgstr "Última edição"
 
 #: catalog/templates/item_base.html:188
 msgid "No enough ratings"
@@ -1385,7 +1382,7 @@ msgstr "episódios recentes"
 
 #: catalog/templates/podcast.html:34
 msgid "subscribe in apps"
-msgstr ""
+msgstr "subscrever em aplicações"
 
 #: catalog/templates/podcast_episode_data.html:28
 msgid "original website"
@@ -1426,12 +1423,12 @@ msgstr "jogos"
 #: catalog/templates/search_header.html:60
 #: catalog/templates/search_header.html:62
 msgid "performances"
-msgstr ""
+msgstr "espetáculos"
 
 #: catalog/templates/search_header.html:68
 #: catalog/templates/search_header.html:70
 msgid "your journal"
-msgstr ""
+msgstr "o teu diário"
 
 #: catalog/templates/search_header.html:74
 #: catalog/templates/search_header.html:76
@@ -1445,7 +1442,7 @@ msgstr "Procurar resultados"
 
 #: catalog/templates/search_results.html:26
 msgid "tag"
-msgstr "tag"
+msgstr "etiqueta"
 
 #: catalog/templates/search_results.html:33
 #: journal/templates/search_journal.html:25
@@ -1515,7 +1512,7 @@ msgstr "Data"
 
 #: catalog/tv/models.py:190
 msgid "Region or Event"
-msgstr ""
+msgstr "Região ou evento"
 
 #: catalog/tv/models.py:216 catalog/tv/models.py:390
 msgid "episode length"
@@ -1529,7 +1526,7 @@ msgstr "{show_title} Temporada {season_number}"
 #: catalog/tv/models.py:491
 #, python-brace-format
 msgid "{season_title} E{episode_number}"
-msgstr ""
+msgstr "{season_title} Ep.{episode_number}"
 
 #: catalog/views.py:52 catalog/views.py:75
 msgid "Item not found"
@@ -1794,14 +1791,12 @@ msgid "Inuktitut"
 msgstr "Inuktitut"
 
 #: common/models/lang.py:93
-#, fuzzy
 msgid "Interlingue"
-msgstr "Interlingue"
+msgstr "Interlíngua"
 
 #: common/models/lang.py:94
-#, fuzzy
 msgid "Interlingua"
-msgstr "Interlingua"
+msgstr "Interlíngua"
 
 #: common/models/lang.py:95
 msgid "Indonesian"
@@ -2033,7 +2028,7 @@ msgstr "Quechua"
 
 #: common/models/lang.py:154
 msgid "Raeto-Romance"
-msgstr "Raeto-Romance"
+msgstr "Reto-romano"
 
 #: common/models/lang.py:155
 msgid "Romanian"
@@ -2145,7 +2140,7 @@ msgstr "Tajik"
 
 #: common/models/lang.py:182
 msgid "Tagalog"
-msgstr "Tagalo"
+msgstr "Tagalog"
 
 #: common/models/lang.py:183
 msgid "Thai"
@@ -2168,9 +2163,8 @@ msgid "Tsonga"
 msgstr "Tsonga"
 
 #: common/models/lang.py:188
-#, fuzzy
 msgid "Turkmen"
-msgstr "Turkmen"
+msgstr "Turquemeno"
 
 #: common/models/lang.py:189
 msgid "Turkish"
@@ -2449,7 +2443,7 @@ msgstr "Filme & TV"
 
 #: common/templates/_header.html:48
 msgid "Journal"
-msgstr ""
+msgstr "Registo"
 
 #: common/templates/_header.html:50
 msgid "Posts"
@@ -2466,7 +2460,7 @@ msgstr "Feed"
 #: common/templates/_header.html:78 journal/templates/profile.html:11
 #: users/templates/users/preferences.html:45
 msgid "Home"
-msgstr ""
+msgstr "Início"
 
 #: common/templates/_header.html:94 social/templates/notification.html:11
 #: social/templates/notification.html:24
@@ -2488,7 +2482,7 @@ msgstr "Conta"
 
 #: common/templates/_header.html:106
 msgid "Logout"
-msgstr "Logout"
+msgstr "Desconectar"
 
 #: common/templates/_header.html:110
 msgid "Database"
@@ -2517,11 +2511,11 @@ msgstr "Aprovar seguidores manualmente"
 
 #: common/templates/_sidebar.html:75
 msgid "Current Targets"
-msgstr ""
+msgstr "Objetivos atuais"
 
 #: common/templates/_sidebar.html:88
 msgid "Set a collection as target, its progress will show up here."
-msgstr ""
+msgstr "Defina uma coleção como objetivo, o seu progresso aparecerá aqui."
 
 #: common/templates/_sidebar.html:101
 msgid "Recent podcast episodes"
@@ -2538,21 +2532,21 @@ msgstr "Atualmente a ver"
 #: common/templates/_sidebar.html:182 journal/templates/user_tag_list.html:12
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
-msgstr "Tags"
+msgstr "Etiquetas"
 
 #: common/templates/_sidebar.html:188 journal/templates/user_tag_list.html:26
 #: journal/templates/user_tagmember_list.html:10
 msgid "featured tag"
-msgstr ""
+msgstr "etiqueta em destaque"
 
 #: common/templates/_sidebar.html:191 journal/templates/user_tag_list.html:29
 #: journal/templates/user_tagmember_list.html:15
 msgid "personal tag"
-msgstr "tag pessoal"
+msgstr "etiqueta pessoal"
 
 #: common/templates/_sidebar.html:198 journal/templates/user_tag_list.html:37
 msgid "no tags so far."
-msgstr "sem tags, para já."
+msgstr "sem etiquetas, para já."
 
 #: common/templates/_sidebar.html:202
 msgid "show all"
@@ -2624,7 +2618,7 @@ msgstr "agora mesmo"
 
 #: common/templatetags/mastodon.py:44
 msgid "mutual followed"
-msgstr ""
+msgstr "seguem-se mutuamente"
 
 #: common/templatetags/mastodon.py:46
 msgid "followed"
@@ -2636,11 +2630,11 @@ msgstr "segue-o"
 
 #: common/templatetags/mastodon.py:52
 msgid "you"
-msgstr ""
+msgstr "Você"
 
 #: common/templatetags/mastodon.py:55
 msgid "unavailable"
-msgstr "Indisponível"
+msgstr "indisponível"
 
 #: common/utils.py:64 common/utils.py:94 users/views/actions.py:35
 #: users/views/actions.py:121
@@ -2660,7 +2654,6 @@ msgid "Title"
 msgstr "Título"
 
 #: journal/forms.py:19 journal/forms.py:42
-#, fuzzy
 msgid "Content (Markdown)"
 msgstr "Conteúdo (Markdown)"
 
@@ -2775,7 +2768,7 @@ msgstr ""
 
 #: journal/models/note.py:39
 msgid "Timestamp"
-msgstr "Timestamp"
+msgstr "Marca temporal"
 
 #: journal/models/note.py:40
 msgid "Percentage"
@@ -2818,52 +2811,50 @@ msgstr ""
 "Relativamente a {item_title}, pode conter spoilers e conteúdo inapropriado"
 
 #: journal/models/shelf.py:26
-#, fuzzy
 msgid "WISHLIST"
 msgstr "LISTA DE DESEJOS"
 
 #: journal/models/shelf.py:27
-#, fuzzy
 msgid "PROGRESS"
 msgstr "PROGRESSO"
 
 #: journal/models/shelf.py:28
 msgid "COMPLETE"
-msgstr ""
+msgstr "COMPLETO"
 
 #: journal/models/shelf.py:29
 msgid "DROPPED"
-msgstr "LANÇADO"
+msgstr "DEIXADO"
 
 #: journal/models/shelf.py:38
 msgid "books to read"
-msgstr ""
+msgstr "livros para ler"
 
 #: journal/models/shelf.py:39
 msgid "want to read"
-msgstr ""
+msgstr "quer ler"
 
 #: journal/models/shelf.py:40
 #, python-brace-format
 msgid "wants to read {item}"
-msgstr ""
+msgstr "quer ler {item}"
 
 #: journal/models/shelf.py:41
 msgid "to read"
-msgstr ""
+msgstr "para ler"
 
 #: journal/models/shelf.py:46
 msgid "books reading"
-msgstr ""
+msgstr "livros a ler"
 
 #: journal/models/shelf.py:47
 msgid "start reading"
-msgstr ""
+msgstr "começar a ler"
 
 #: journal/models/shelf.py:48
 #, python-brace-format
 msgid "started reading {item}"
-msgstr ""
+msgstr "começou a ler {item}"
 
 #: journal/models/shelf.py:49
 msgid "reading"
@@ -2871,41 +2862,41 @@ msgstr "a ler"
 
 #: journal/models/shelf.py:54
 msgid "books completed"
-msgstr ""
+msgstr "livros concluídos"
 
 #: journal/models/shelf.py:55
 msgid "finish reading"
-msgstr ""
+msgstr "terminar de ler"
 
 #: journal/models/shelf.py:56
 #, python-brace-format
 msgid "finished reading {item}"
-msgstr ""
+msgstr "acabou de ler {item}"
 
 #: journal/models/shelf.py:57
 msgid "read"
-msgstr ""
+msgstr "ler"
 
 #: journal/models/shelf.py:62
 msgid "books dropped"
-msgstr ""
+msgstr "livros deixados"
 
 #: journal/models/shelf.py:63
 msgid "stop reading"
-msgstr ""
+msgstr "parar de ler"
 
 #: journal/models/shelf.py:64
 #, python-brace-format
 msgid "stopped reading {item}"
-msgstr ""
+msgstr "parou de ler {item}"
 
 #: journal/models/shelf.py:65
 msgid "stopped reading"
-msgstr ""
+msgstr "parou de ler"
 
 #: journal/models/shelf.py:70
 msgid "books reviewed"
-msgstr ""
+msgstr "livros resenhados"
 
 #: journal/models/shelf.py:72 journal/models/shelf.py:112
 #: journal/models/shelf.py:152 journal/models/shelf.py:192
@@ -2913,336 +2904,334 @@ msgstr ""
 #: journal/models/shelf.py:306
 #, python-brace-format
 msgid "wrote a review of {item}"
-msgstr ""
+msgstr "escreveu uma resenha sobre {item}"
 
 #: journal/models/shelf.py:78
 msgid "movies to watch"
-msgstr ""
+msgstr "filmes para ver"
 
 #: journal/models/shelf.py:79 journal/models/shelf.py:119
 msgid "want to watch"
-msgstr ""
+msgstr "quero ver"
 
 #: journal/models/shelf.py:80 journal/models/shelf.py:120
 #, python-brace-format
 msgid "wants to watch {item}"
-msgstr ""
+msgstr "quer ver {item}"
 
 #: journal/models/shelf.py:81 journal/models/shelf.py:121
 msgid "to watch"
-msgstr ""
+msgstr "para ver"
 
 #: journal/models/shelf.py:86
 msgid "movies watching"
-msgstr ""
+msgstr "filmes a ver"
 
 #: journal/models/shelf.py:87 journal/models/shelf.py:127
 msgid "start watching"
-msgstr ""
+msgstr "começar a ver"
 
 #: journal/models/shelf.py:88 journal/models/shelf.py:128
 #, python-brace-format
 msgid "started watching {item}"
-msgstr ""
+msgstr "começou a ver {item}"
 
 #: journal/models/shelf.py:89 journal/models/shelf.py:129
 msgid "watching"
-msgstr ""
+msgstr "a ver"
 
 #: journal/models/shelf.py:94
 msgid "movies watched"
-msgstr ""
+msgstr "filmes vistos"
 
 #: journal/models/shelf.py:95 journal/models/shelf.py:135
 msgid "finish watching"
-msgstr ""
+msgstr "acabar de ver"
 
 #: journal/models/shelf.py:96 journal/models/shelf.py:136
 #, python-brace-format
 msgid "finished watching {item}"
-msgstr ""
+msgstr "acabou de ver {item}"
 
 #: journal/models/shelf.py:97 journal/models/shelf.py:137
 msgid "watched"
-msgstr ""
+msgstr "visto"
 
 #: journal/models/shelf.py:102
 msgid "movies dropped"
-msgstr ""
+msgstr "filmes deixados"
 
 #: journal/models/shelf.py:103 journal/models/shelf.py:143
 msgid "stop watching"
-msgstr ""
+msgstr "parar de ver"
 
 #: journal/models/shelf.py:104 journal/models/shelf.py:144
 #, python-brace-format
 msgid "stopped watching {item}"
-msgstr ""
+msgstr "parou de ver {item}"
 
 #: journal/models/shelf.py:105 journal/models/shelf.py:145
 msgid "stopped watching"
-msgstr ""
+msgstr "parou de ver"
 
 #: journal/models/shelf.py:110
 msgid "movies reviewed"
-msgstr ""
+msgstr "filmes resenhados"
 
 #: journal/models/shelf.py:118
 msgid "TV shows to watch"
-msgstr ""
+msgstr "programas para ver"
 
 #: journal/models/shelf.py:126
 msgid "TV shows watching"
-msgstr ""
+msgstr "programas a ver"
 
 #: journal/models/shelf.py:134
 msgid "TV shows watched"
-msgstr ""
+msgstr "programas vistos"
 
 #: journal/models/shelf.py:142
 msgid "TV shows dropped"
-msgstr ""
+msgstr "programas deixados"
 
 #: journal/models/shelf.py:150
 msgid "TV shows reviewed"
-msgstr ""
+msgstr "programas resenhados"
 
 #: journal/models/shelf.py:158
 msgid "albums to listen"
-msgstr ""
+msgstr "álbuns para ouvir"
 
 #: journal/models/shelf.py:159 journal/models/shelf.py:239
 msgid "want to listen"
-msgstr ""
+msgstr "quer ouvir"
 
 #: journal/models/shelf.py:160 journal/models/shelf.py:240
 #, python-brace-format
 msgid "wants to listen {item}"
-msgstr ""
+msgstr "quer ouvir {item}"
 
 #: journal/models/shelf.py:161 journal/models/shelf.py:241
 msgid "to listen"
-msgstr ""
+msgstr "para ouvir"
 
 #: journal/models/shelf.py:166
 msgid "albums listening"
-msgstr ""
+msgstr "álbuns a ouvir"
 
 #: journal/models/shelf.py:167 journal/models/shelf.py:247
 msgid "start listening"
-msgstr ""
+msgstr "começar a ouvir"
 
 #: journal/models/shelf.py:168 journal/models/shelf.py:248
 #, python-brace-format
 msgid "started listening {item}"
-msgstr ""
+msgstr "começou a ouvir {item}"
 
 #: journal/models/shelf.py:169 journal/models/shelf.py:249
 msgid "listening"
-msgstr ""
+msgstr "a ouvir"
 
 #: journal/models/shelf.py:174
 msgid "albums listened"
-msgstr ""
+msgstr "álbuns ouvidos"
 
 #: journal/models/shelf.py:175 journal/models/shelf.py:255
 msgid "finish listening"
-msgstr ""
+msgstr "acabou de ouvir"
 
 #: journal/models/shelf.py:176 journal/models/shelf.py:256
 #, python-brace-format
 msgid "finished listening {item}"
-msgstr ""
+msgstr "acabou de ouvir {item}"
 
 #: journal/models/shelf.py:177 journal/models/shelf.py:257
 msgid "listened"
-msgstr ""
+msgstr "ouvido"
 
 #: journal/models/shelf.py:182
 msgid "albums dropped"
-msgstr ""
+msgstr "álbuns deixados"
 
 #: journal/models/shelf.py:183 journal/models/shelf.py:263
 msgid "stop listening"
-msgstr ""
+msgstr "parar de ouvir"
 
 #: journal/models/shelf.py:184 journal/models/shelf.py:264
 #, python-brace-format
 msgid "stopped listening {item}"
-msgstr ""
+msgstr "parou de ouvir {item}"
 
 #: journal/models/shelf.py:185 journal/models/shelf.py:265
 msgid "stopped listening"
-msgstr ""
+msgstr "parou de ouvir"
 
 #: journal/models/shelf.py:190
 msgid "albums reviewed"
-msgstr ""
+msgstr "álbuns resenhados"
 
 #: journal/models/shelf.py:198
 msgid "games to play"
-msgstr ""
+msgstr "jogos para jogar"
 
 #: journal/models/shelf.py:199
 msgid "want to play"
-msgstr ""
+msgstr "quer jogar"
 
 #: journal/models/shelf.py:200
 #, python-brace-format
 msgid "wants to play {item}"
-msgstr ""
+msgstr "quer jogar {item}"
 
 #: journal/models/shelf.py:201
 msgid "to play"
-msgstr ""
+msgstr "para jogar"
 
 #: journal/models/shelf.py:206
 msgid "games playing"
-msgstr ""
+msgstr "jogos em curso"
 
 #: journal/models/shelf.py:207
 msgid "start playing"
-msgstr ""
+msgstr "começar a jogar"
 
 #: journal/models/shelf.py:208
 #, python-brace-format
 msgid "started playing {item}"
-msgstr ""
+msgstr "começou a jogar {item}"
 
 #: journal/models/shelf.py:209
 msgid "playing"
-msgstr ""
+msgstr "a jogar"
 
 #: journal/models/shelf.py:214
 msgid "games played"
-msgstr ""
+msgstr "jogos jogados"
 
 #: journal/models/shelf.py:215
 msgid "finish playing"
-msgstr ""
+msgstr "terminar o jogo"
 
 #: journal/models/shelf.py:216
 #, python-brace-format
 msgid "finished playing {item}"
-msgstr ""
+msgstr "terminou o jogo {item}"
 
 #: journal/models/shelf.py:217
 msgid "played"
-msgstr ""
+msgstr "jogado"
 
 #: journal/models/shelf.py:222
 msgid "games dropped"
-msgstr ""
+msgstr "jogos deixados"
 
 #: journal/models/shelf.py:223
 msgid "stop playing"
-msgstr ""
+msgstr "parar de jogar"
 
 #: journal/models/shelf.py:224
 #, python-brace-format
 msgid "stopped playing {item}"
-msgstr ""
+msgstr "parou de jogar {item}"
 
 #: journal/models/shelf.py:225
 msgid "stopped playing"
-msgstr ""
+msgstr "parou de jogar"
 
 #: journal/models/shelf.py:230
 msgid "games reviewed"
-msgstr ""
+msgstr "jogos resenhados"
 
 #: journal/models/shelf.py:238
 msgid "podcasts to listen"
-msgstr ""
+msgstr "podcasts para ouvir"
 
 #: journal/models/shelf.py:246
 msgid "podcasts listening"
-msgstr ""
+msgstr "podcasts a ouvir"
 
 #: journal/models/shelf.py:254
 msgid "podcasts listened"
-msgstr ""
+msgstr "podcasts ouvidos"
 
 #: journal/models/shelf.py:262
 msgid "podcasts dropped"
-msgstr ""
+msgstr "podcasts deixados"
 
 #: journal/models/shelf.py:270
 msgid "podcasts reviewed"
-msgstr ""
+msgstr "podcasts resenhados"
 
 #: journal/models/shelf.py:278
 msgid "performances to see"
-msgstr ""
+msgstr "espetáculos para ver"
 
 #: journal/models/shelf.py:279
 msgid "want to see"
-msgstr ""
+msgstr "quero assistir"
 
 #: journal/models/shelf.py:280
 #, python-brace-format
 msgid "wants to see {item}"
-msgstr ""
+msgstr "quer assistir {item}"
 
 #: journal/models/shelf.py:281
 msgid "to see"
-msgstr ""
+msgstr "para assistir"
 
 #: journal/models/shelf.py:288
 msgid "performances saw"
-msgstr ""
+msgstr "espetáculos assistidos"
 
 #: journal/models/shelf.py:289
 msgid "finish seeing"
-msgstr ""
+msgstr "terminar de assistir"
 
 #: journal/models/shelf.py:290
 #, python-brace-format
 msgid "finished seeing {item}"
-msgstr ""
+msgstr "acabou de assistir {item}"
 
 #: journal/models/shelf.py:291
 msgid "seen"
-msgstr ""
+msgstr "assistido"
 
 #: journal/models/shelf.py:296
 msgid "performances dropped"
-msgstr ""
+msgstr "espetáculo deixado"
 
 #: journal/models/shelf.py:297
 msgid "stop seeing"
-msgstr ""
+msgstr "parar de assistir"
 
 #: journal/models/shelf.py:298
 #, python-brace-format
 msgid "stopped seeing {item}"
-msgstr ""
+msgstr "parou de assistir {item}"
 
 #: journal/models/shelf.py:299
 msgid "stopped seeing"
-msgstr ""
+msgstr "parou de assistir"
 
 #: journal/models/shelf.py:304
 msgid "performances reviewed"
-msgstr ""
+msgstr "espetáculos resenhados"
 
 #: journal/models/shelf.py:562
-#, fuzzy
 msgid "removed mark"
 msgstr "marcação removida"
 
 #: journal/templates/_feature_stats.html:10
 msgid "stop tracking"
-msgstr ""
+msgstr "parar de monitorar"
 
 #: journal/templates/_feature_stats.html:11
 msgid "Stop tracking this target?"
-msgstr ""
+msgstr "Parar de monitorar este objectivo?"
 
 #: journal/templates/_feature_stats.html:15
-#, fuzzy
 msgid "set as target"
-msgstr "definir como alvo"
+msgstr "definir como objetivo"
 
 #: journal/templates/_list_item.html:15
 msgid "Remove from collection"
@@ -3261,7 +3250,7 @@ msgstr "Atualizar marcação"
 #: journal/templates/review_edit.html:10
 #: journal/templates/user_review_list.html:7
 msgid "Review"
-msgstr "Crítica"
+msgstr "Resenha"
 
 #: journal/templates/_list_item.html:93
 msgid "Update note"
@@ -3295,7 +3284,7 @@ msgstr "Tem a certeza que pretende apagar este post?"
 
 #: journal/templates/action_like_post.html:10
 msgid "liked"
-msgstr ""
+msgstr "gostei"
 
 #: journal/templates/action_like_post.html:16
 msgid "like"
@@ -3403,7 +3392,7 @@ msgstr "Atualizar"
 
 #: journal/templates/comment.html:16
 msgid "Comment"
-msgstr ""
+msgstr "Comentário"
 
 #: journal/templates/comment.html:24 journal/templates/mark.html:66
 msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
@@ -3417,7 +3406,7 @@ msgstr "partilhar com a posição de reprodução"
 
 #: journal/templates/mark.html:17
 msgid "Mark"
-msgstr ""
+msgstr "Marcação"
 
 #: journal/templates/mark.html:50
 msgid "not rated"
@@ -3425,17 +3414,17 @@ msgstr "sem avaliação"
 
 #: journal/templates/mark.html:74
 msgid "add a tag and press Enter"
-msgstr "Adicione uma tag e clique Enter"
+msgstr "adicione uma etiqueta e clique Enter"
 
 #: journal/templates/mark.html:130
-#, fuzzy
 msgid "change mark date"
-msgstr "Alterar data da marcação"
+msgstr "alterar data de marcação"
 
 #: journal/templates/mark.html:156
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr ""
-"Tem a certeza que pretende eliminar marcação, comentário e tags deste item?"
+"Tem a certeza que pretende eliminar marcação, comentário e etiquetas deste "
+"item?"
 
 #: journal/templates/markdown.html:3
 msgid "Markdown format references"
@@ -3524,7 +3513,7 @@ msgstr "coleção"
 
 #: journal/templates/profile.html:155
 msgid "liked collection"
-msgstr ""
+msgstr "coleção gostada"
 
 #: journal/templates/replies.html:53
 msgid "no replies so far."
@@ -3558,29 +3547,28 @@ msgid "Personal"
 msgstr "Pessoal"
 
 #: journal/templates/tag_edit.html:52
-#, fuzzy
 msgid "Personal tags are not included in public index. However, if you use this tag when marking an item publicly, it might still be visible to others."
 msgstr ""
-"As tags pessoais não são incluídas no index público. No entanto, se usar "
-"esta tag para marcar um item público, é possível que fique visível para "
-"outros utilizadores."
+"As etiquetas pessoais não são incluídas no índice público. No entanto, se "
+"usar esta etiqueta para marcar um artigo público, é possível que fique "
+"visível a outros utilizadores."
 
 #: journal/templates/tag_edit.html:55
 msgid "Delete this tag"
-msgstr "Apagar esta tag"
+msgstr "Eliminar esta etiqueta"
 
 #: journal/templates/user_collection_list.html:15
 #: journal/templates/user_collection_list.html:29
 msgid "Liked Collections"
-msgstr ""
+msgstr "Coleções gostadas"
 
 #: journal/templates/user_tag_list.html:19
 msgid "All Tags"
-msgstr "Todas as Tags"
+msgstr "Todas as Etiquetas"
 
 #: journal/templates/wrapped.html:40
 msgid "another style"
-msgstr ""
+msgstr "outro estilo"
 
 #: journal/templates/wrapped.html:46
 msgid "share"
@@ -3588,16 +3576,16 @@ msgstr "partilhar"
 
 #: journal/templates/wrapped.html:50
 msgid "download"
-msgstr "download"
+msgstr "transferir"
 
 #: journal/templates/wrapped_share.html:16
 msgid "Share Annual Summary"
-msgstr "Partilhar sumário anual"
+msgstr "Partilhar relatório anual"
 
 #: journal/templates/wrapped_share.html:31
 #, python-format
 msgid "#%(year)s_report"
-msgstr ""
+msgstr "#Relatório_%(year)s"
 
 #: journal/templatetags/collection.py:35
 #, python-format
@@ -3645,29 +3633,29 @@ msgstr[1] "%(count)d podcasts"
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)d espetáculo"
+msgstr[1] "%(count)d espetáculos"
 
 #: journal/templatetags/collection.py:91
 #, python-format
 msgid "%(count)d item"
 msgid_plural "%(count)d items"
-msgstr[0] "%(count)d item"
-msgstr[1] "%(count)d itens"
+msgstr[0] "%(count)d artigo"
+msgstr[1] "%(count)d artigos"
 
 #: journal/views/collection.py:37
 #, python-brace-format
 msgid "Collection by {0}"
-msgstr ""
+msgstr "Coleção de {0}"
 
 #: journal/views/collection.py:171
 msgid "shared my collection"
-msgstr ""
+msgstr "partilhou a minha coleção"
 
 #: journal/views/collection.py:174
 #, python-brace-format
 msgid "shared {username}'s collection"
-msgstr ""
+msgstr "partilhou a coleção de {username}"
 
 #: journal/views/collection.py:225
 msgid "Unable to find the item, please use item url from this site."
@@ -3714,9 +3702,8 @@ msgid "Note Content"
 msgstr "Conteúdo da nota"
 
 #: journal/views/note.py:48
-#, fuzzy
 msgid "Content Warning (optional)"
-msgstr "Alertar conteúdo (opcional)"
+msgstr "Aviso de Conteúdo (opcional)"
 
 #: journal/views/note.py:66
 msgid "Progress Type (optional)"
@@ -3733,7 +3720,7 @@ msgstr "Post não encontrado"
 #: journal/views/review.py:112 journal/views/review.py:126
 #, python-brace-format
 msgid "Reviews by {0}"
-msgstr ""
+msgstr "Resenhas de {0}"
 
 #: journal/views/review.py:114 journal/views/review.py:122
 msgid "Link invalid"
@@ -3746,23 +3733,23 @@ msgstr ""
 
 #: journal/views/tag.py:41 journal/views/tag.py:55
 msgid "Invalid tag"
-msgstr "Tag inválida"
+msgstr "Etiqueta inválida"
 
 #: journal/views/tag.py:44
 msgid "Tag not found"
-msgstr "Tag não encontrada"
+msgstr "Etiqueta não encontrada"
 
 #: journal/views/tag.py:59
 msgid "Tag deleted."
-msgstr "Tag apagada."
+msgstr "Etiqueta eliminada."
 
 #: journal/views/tag.py:69
 msgid "Duplicated tag."
-msgstr "Tag duplicada."
+msgstr "Etiqueta duplicada."
 
 #: journal/views/tag.py:76
 msgid "Tag updated."
-msgstr "Tag atualizada."
+msgstr "Etiqueta atualizada."
 
 #: journal/views/wrapped.py:146
 msgid "Summary posted to timeline."
@@ -3854,15 +3841,15 @@ msgstr ""
 
 #: mastodon/models/mastodon.py:522
 msgid "type and verion"
-msgstr ""
+msgstr "tipo e versão"
 
 #: mastodon/models/mastodon.py:523
 msgid "in-site app id"
-msgstr ""
+msgstr "id da aplicação no site"
 
 #: mastodon/models/mastodon.py:524
 msgid "client id"
-msgstr ""
+msgstr "id do cliente"
 
 #: mastodon/models/mastodon.py:525
 msgid "client secret"
@@ -4068,11 +4055,11 @@ msgstr "pediu para o seguir"
 
 #: social/templates/event/followed.html:3
 msgid "followed you"
-msgstr "seguiu-te"
+msgstr "seguiu-o"
 
 #: social/templates/event/liked.html:3
 msgid "liked your post"
-msgstr "gostou do seu post"
+msgstr "gostou da sua publicação"
 
 #: social/templates/event/liked_collection.html:2
 #, python-format
@@ -4216,7 +4203,7 @@ msgstr "reproduzir"
 
 #: social/templates/feed_events.html:52
 msgid "mark"
-msgstr ""
+msgstr "marcação"
 
 #: social/templates/feed_events.html:71
 msgid "wrote a note"
@@ -4224,7 +4211,7 @@ msgstr "escreveu uma nota"
 
 #: social/templates/feed_events.html:139
 msgid "no matching activities."
-msgstr ""
+msgstr "sem atividades correspondentes."
 
 #: social/templates/feed_events.html:142
 #, python-format
@@ -4256,9 +4243,8 @@ msgid "Manually approve new followers"
 msgstr "Aprovar novos seguidores manualmente"
 
 #: takahe/models.py:429
-#, fuzzy
 msgid "Include profile and posts in discovery"
-msgstr "Incluir perfil e posts no descobrir/explorar"
+msgstr "Incluir perfil e publicações em \"explorar\""
 
 #: takahe/models.py:432
 msgid "Include posts in search results"
@@ -4282,7 +4268,7 @@ msgstr "Iniciado"
 
 #: users/models/task.py:21
 msgid "Complete"
-msgstr "Completar"
+msgstr "Completo"
 
 #: users/models/task.py:22
 msgid "Failed"
@@ -4355,7 +4341,7 @@ msgstr "Identidade verificada"
 #: users/templates/users/account.html:186
 #: users/templates/users/account.html:263
 msgid "Last updated"
-msgstr ""
+msgstr "Última atualização"
 
 #: users/templates/users/account.html:92
 msgid "If you have not yet registered with any Federated instance, you may <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an instance</a> and register."
@@ -4377,17 +4363,16 @@ msgstr ""
 "nome do domínio da instância."
 
 #: users/templates/users/account.html:108
-#, fuzzy
 msgid "Go to target instance and authorize with the identity"
-msgstr ""
-"Dirija-se à sua instância principal e autorize com a sua identidade/conta"
+msgstr "Dirija-se à sua instância de destino para validar a autorização"
 
 #: users/templates/users/account.html:113
 msgid "After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected."
 msgstr ""
-"Após a alteração de associação de conta, deve utilizar a sua nova identidade "
+"Após a substituição da conta associada, deve utilizar a sua nova identidade "
 "do Fediverso para iniciar sessão e controlar a visibilidade dos seus dados. "
-"Os dados existentes como tags, comentários e colecções não serão afectados."
+"Os dados existentes como etiquetas, comentários e colecções não serão "
+"afetados."
 
 #: users/templates/users/account.html:115
 msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
@@ -4514,7 +4499,7 @@ msgstr "Utilizadores bloqueados"
 
 #: users/templates/users/account.html:303
 msgid "Delete Account"
-msgstr "Apagar conta"
+msgstr "Eliminar conta"
 
 #: users/templates/users/account.html:306
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
@@ -4539,9 +4524,8 @@ msgid "Permanently Delete"
 msgstr "Eliminar de forma permanente"
 
 #: users/templates/users/data.html:10
-#, fuzzy
 msgid "Data Management"
-msgstr "Gerir dados"
+msgstr "Gestão de Dados"
 
 #: users/templates/users/data.html:19
 msgid "Import Marks and Reviews from Douban"
@@ -4582,11 +4566,11 @@ msgstr "Importar"
 
 #: users/templates/users/data.html:76
 msgid "Import Shelf or List from Goodreads"
-msgstr "Importar Lista ou Shelf do Goodreads"
+msgstr "Importar Lista ou Prateleira do Goodreads"
 
 #: users/templates/users/data.html:80
 msgid "Link to Goodreads Profile / Shelf / List"
-msgstr ""
+msgstr "Ligação para Perfil / Prateleira / Lista do Goodreads"
 
 #: users/templates/users/data.html:90 users/templates/users/data.html:172
 #: users/templates/users/data_import_status.html:2
@@ -4597,7 +4581,7 @@ msgstr "A última importação já começou"
 #: users/templates/users/data.html:226
 #: users/templates/users/data_import_status.html:3
 msgid "Status"
-msgstr ""
+msgstr "Estado"
 
 #: users/templates/users/data.html:100
 msgid "want-to-read / currently-reading / read books and their reviews will be imported."
@@ -4609,7 +4593,7 @@ msgstr "Shelf será importado como nova coleção."
 
 #: users/templates/users/data.html:108
 msgid "List will be imported as a new collection."
-msgstr ""
+msgstr "Lista será importada como uma nova coleção."
 
 #: users/templates/users/data.html:119
 msgid "Import from Letterboxd"
@@ -4660,7 +4644,7 @@ msgstr "Download"
 
 #: users/templates/users/data.html:238
 msgid "View Annual Summary"
-msgstr "Ver sumário anual"
+msgstr "Ver Relatório Anual"
 
 #: users/templates/users/data_import_status.html:11
 msgid "Failed links, you may have to mark them manually"
@@ -4790,7 +4774,7 @@ msgstr "Visão padrão"
 
 #: users/templates/users/preferences.html:72
 msgid "Public status will be posted to fediverse"
-msgstr ""
+msgstr "Atividade pública será publicada no Fediverso"
 
 #: users/templates/users/preferences.html:78
 msgid "in public timeline"
@@ -4802,7 +4786,7 @@ msgstr "não listadas e excluídas da cronologia publica"
 
 #: users/templates/users/preferences.html:91
 msgid "local, this site only"
-msgstr ""
+msgstr "local, apenas este site"
 
 #: users/templates/users/preferences.html:97
 msgid "Turn on crosspost to timeline by default"
@@ -4828,11 +4812,11 @@ msgstr ""
 
 #: users/templates/users/preferences.html:124
 msgid "Append tags when posting to timeline"
-msgstr "Anexar tags quando faço uma publicação para a cronologia"
+msgstr "Anexar etiquetas quando faço uma publicação para a cronologia"
 
 #: users/templates/users/preferences.html:127
 msgid "e.g. #bookstodon"
-msgstr "p.e. #bookstodon"
+msgstr "ex.: #bookstodon"
 
 #: users/templates/users/preferences.html:132
 msgid "Language"
@@ -4840,17 +4824,16 @@ msgstr "Idioma"
 
 #: users/templates/users/preferences.html:141
 msgid "Automatic bookmark for these categories"
-msgstr ""
+msgstr "Marcador automático para estas categorias"
 
 #: users/templates/users/preferences.html:154
-#, fuzzy
 msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
 msgstr ""
 "Quando começar a ler/ver/jogar/... um item destas categorias, será criado "
 "automaticamente um bookmark. Os bookmarks podem ser vistos e geridos na "
-"maioria das aplicações compatíveis com o <a href="
-"\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon </a>; As suas "
-"respostas a estas mensagens tornar-se-ão automaticamente notas para o item."
+"maioria das <a href=\"https://joinmastodon.org/apps\" target=\"_blank\""
+">aplicações compatíveis com o Mastodon </a>; As suas respostas a estas "
+"mensagens tornar-se-ão automaticamente notas para o item."
 
 #: users/templates/users/preferences.html:158
 msgid "Hide these categories in search results"
@@ -4891,11 +4874,11 @@ msgstr "escuro"
 
 #: users/templates/users/preferences.html:205
 msgid "Focus mode"
-msgstr ""
+msgstr "Modo foco"
 
 #: users/templates/users/preferences.html:208
 msgid "hide reviews and ratings from other users"
-msgstr "Esconder críticas e avaliações de outros utilizadores"
+msgstr "Esconder resenhas e avaliações de outros utilizadores"
 
 #: users/templates/users/preferences.html:210
 msgid "Number of items per page"
@@ -4945,7 +4928,7 @@ msgstr "Perfil do utilizador"
 
 #: users/templates/users/profile_actions.html:45
 msgid "original home"
-msgstr ""
+msgstr "página inicial original"
 
 #: users/templates/users/profile_actions.html:69
 msgid "accept follow request"
@@ -4989,11 +4972,11 @@ msgstr "De certeza que pretende seguir?"
 
 #: users/templates/users/profile_actions.html:124
 msgid "click to mute"
-msgstr "Clique para silenciar"
+msgstr "clique para silenciar"
 
 #: users/templates/users/profile_actions.html:133
 msgid "click to unmute"
-msgstr ""
+msgstr "clique para desativar silenciar"
 
 #: users/templates/users/profile_actions.html:143
 msgid "click to block"
@@ -5092,7 +5075,7 @@ msgstr "Este email já se encontra a ser usado."
 
 #: users/views/account.py:106
 msgid "Registration is for invitation only"
-msgstr "O registo/inscrição está apenas disponível através de convite"
+msgstr "O registo está apenas disponível através de convite"
 
 #: users/views/account.py:176
 msgid "Valid username required"

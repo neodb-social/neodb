@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: 2025-09-29 05:54+0000\n"
+"PO-Revision-Date: 2025-10-08 17:41+0000\n"
 "Last-Translator: Dizro <weblate.delirium794@passmail.net>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/neodb/neodb/it/>"
 "\n"
@@ -2700,7 +2700,7 @@ msgstr "nota"
 
 #: journal/models/collection.py:143
 msgid "created collection"
-msgstr "collezione creata"
+msgstr "Collezione creata"
 
 #: journal/models/common.py:38 journal/templates/action_open_post.html:8
 #: journal/templates/action_open_post.html:14
@@ -3690,7 +3690,7 @@ msgstr "Collezione di {0}"
 
 #: journal/views/collection.py:171
 msgid "shared my collection"
-msgstr "ha condiviso la mia collezione"
+msgstr "Ha condiviso la mia collezione"
 
 #: journal/views/collection.py:174
 #, python-brace-format
