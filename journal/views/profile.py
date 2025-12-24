@@ -3,7 +3,7 @@ from urllib.parse import quote_plus
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
@@ -188,7 +188,8 @@ def user_calendar_data(request, user_name):
 def profile_collection_items(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
-        raise PermissionDenied(_("Insufficient permission"))
+        # raise PermissionDenied(_("Insufficient permission"))
+        return HttpResponse()
 
     items = []
     total = 0
@@ -223,7 +224,8 @@ def profile_created_collections(request: AuthedHttpRequest, user_name):
     """
     target = request.target_identity
     if not request.user.is_authenticated and not target.anonymous_viewable:
-        raise PermissionDenied(_("Login required"))
+        # raise PermissionDenied(_("Login required"))
+        return HttpResponse()
 
     # Get visibility filter
     qv = q_owned_piece_visible_to_user(request.user, target)
@@ -253,7 +255,8 @@ def profile_liked_collections(request: AuthedHttpRequest, user_name):
     """
     target = request.target_identity
     if not request.user.is_authenticated and not target.anonymous_viewable:
-        raise PermissionDenied(_("Login required"))
+        # raise PermissionDenied(_("Login required"))
+        return HttpResponse()
 
     me = target.local and target.user == request.user
 
@@ -298,11 +301,13 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
     try:
         item_category = ItemCategory(category)
     except ValueError:
-        raise Http404(_("Invalid category"))
+        # raise Http404(_("Invalid category"))
+        return HttpResponse()
 
     # Validate shelf_type
     if shelf_type not in ShelfType.values and shelf_type != "reviewed":
-        raise Http404(_("Invalid shelf type"))
+        # raise Http404(_("Invalid shelf type"))
+        return HttpResponse()
 
     # Get visibility filter
     qv = q_owned_piece_visible_to_user(request.user, target)
@@ -332,7 +337,8 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
         total = members_queryset.count()
 
     if not label:
-        raise Http404(_("Shelf not found"))
+        # raise Http404(_("Shelf not found"))
+        return HttpResponse()
 
     return render(
         request,
