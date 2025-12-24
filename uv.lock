@@ -657,14 +657,14 @@ wheels = [
 
 [[package]]
 name = "django-polymorphic"
-version = "4.5.0"
+version = "4.5.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/57/47/cb13ad870e02c9cad9078dad67c018efe3e35dc9f402bc5a0d6e3f05a002/django_polymorphic-4.5.0.tar.gz", hash = "sha256:81c6ee6fbbc2145248ae5f9a2c93a9a05056c347985442ab76a2f63eb9c3012b", size = 49780, upload-time = "2025-12-23T03:49:06.239Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a0/fa/63345191ac6e1e117ae9c989e57f70be33ab84160bb6632db30b894cb8f8/django_polymorphic-4.5.1.tar.gz", hash = "sha256:9c43fbd1975ff3f5ed0cecaef8da22e099a63780b8b5611c0dd403319222d638", size = 50326, upload-time = "2025-12-24T18:34:26.567Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/41/0e/a05e7b3c99c90504f9d0ec8f314103d25e5a08fec14c2abc8f5c638e7e51/django_polymorphic-4.5.0-py3-none-any.whl", hash = "sha256:5cf6d3e1f3e3747debd2d4b61ec7360070cf71a935b88e5b9d11acb8ec6acc60", size = 63866, upload-time = "2025-12-23T03:49:04.701Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/10/123ce0f64fdb2f3f4707ae022c4e47f51dbafe09ec30c68ce9a5a61e5d4f/django_polymorphic-4.5.1-py3-none-any.whl", hash = "sha256:e4c6845de64761e2c9c1e8253c1e58a70218874904caa85e2178c311298b8dbe", size = 64482, upload-time = "2025-12-24T18:34:24.98Z" },
 ]
 
 [[package]]
@@ -691,16 +691,16 @@ wheels = [
 
 [[package]]
 name = "django-rq"
-version = "3.2.1"
+version = "3.2.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "redis" },
     { name = "rq" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/da/53/13ba752d13f38600b4567cc6b45466d4d99d6b8e24a025f79f299a512cbc/django_rq-3.2.1.tar.gz", hash = "sha256:8e18ce57ae48b981361a2887f9cbc1fb3bd4686d3cd0fa5de5dd29915fd3939d", size = 39205, upload-time = "2025-11-24T12:12:34.723Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a1/8e/569d9456aba71746c4ae0f5884440825603bf551350a764801282a1f1f75/django_rq-3.2.2.tar.gz", hash = "sha256:2eaac4e05092895ec09b6da978e5ae9fafc917574934bb2db1bebf1b3395c049", size = 39243, upload-time = "2025-12-24T01:39:53.721Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/77/e1/c74a380907406146785131ccbe695b995161ba3ce899dbd8a54a7cd71d4b/django_rq-3.2.1-py3-none-any.whl", hash = "sha256:4cadf9077d829c015eb1101a91ccb51f78686cfa125a6d589ad58e61dd13fc44", size = 61841, upload-time = "2025-11-24T12:12:33.131Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/dc/c6c9b193b8d66b252206e77d6cfdf93724e48ebe5e86e6d70542de9064d5/django_rq-3.2.2-py3-none-any.whl", hash = "sha256:f3808d014a0943774b9425fd1f68366cef23945635b2cf333afcf97af7a3b67d", size = 61844, upload-time = "2025-12-24T01:39:52.225Z" },
 ]
 
 [[package]]

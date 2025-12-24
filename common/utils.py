@@ -124,7 +124,7 @@ def profile_identity_required(func):
         from users.models import APIdentity
 
         try:
-            target = APIdentity.get_by_handle(user_name, match_linked=True)
+            target = APIdentity.get_by_handle(user_name)
             # this should trigger ObjectDoesNotExist if Takahe identity is not sync-ed
             restricted = target.restricted
         except ObjectDoesNotExist:

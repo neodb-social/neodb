@@ -3,7 +3,7 @@ import mimetypes
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.syndication.views import Feed
-from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -132,8 +132,18 @@ MAX_ITEM_PER_TYPE = 10
 
 
 class ReviewFeed(Feed):
+    def __call__(self, request, *args, **kwargs):
+        # backward compatible with legacy url format
+        try:
+            linked_id = APIdentity.get_by_linked_handle(kwargs["username"])
+            return redirect(linked_id.url + "feed/reviews/", permanent=True)
+        except ObjectDoesNotExist:
+            return super().__call__(request, *args, **kwargs)
+
     def get_object(self, request, *args, **kwargs):
-        o = APIdentity.get_by_handle(kwargs["username"], match_linked=True)
+        o = APIdentity.get_by_handle(kwargs["username"])
+        if not o.local:
+            raise ObjectDoesNotExist(_("User not local"))
         activate_language_for_user(o.user)
         return o
 

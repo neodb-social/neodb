@@ -16,6 +16,7 @@ from common.utils import (
     target_identity_required,
 )
 from takahe.utils import Takahe
+from users.models import APIdentity
 
 from ..forms import *
 from ..models import *
@@ -53,6 +54,26 @@ def profile(request: AuthedHttpRequest, user_name):
         return redirect("journal:group_profile", user_name=user_name)
     if request.method == "HEAD":
         return HttpResponse()
+
+    # backward compatible with legacy url format /users/linked_handle@remote/
+    if not target.local and "@" in user_name and not user_name.startswith("@"):
+        try:
+            target = APIdentity.get_by_linked_handle(user_name)
+        except APIdentity.DoesNotExist:
+            pass
+
+    # profile url must be either /users/local_handle/ or /users/@handle@remote/
+    # if not, let's redirect it with meta in head
+    if (target.local and user_name != target.handle) or (
+        not target.local and user_name != f"@{target.handle}"
+    ):
+        return render(
+            request,
+            "users/home_anonymous.html",
+            {"identity": target, "redir": target.url},
+        )
+
+    # anonymous user should not see real content unless permitted by user
     anonymous = not request.user.is_authenticated
     if anonymous and (not target.local or not target.anonymous_viewable):
         return render(
@@ -62,15 +83,6 @@ def profile(request: AuthedHttpRequest, user_name):
                 "identity": target,
                 "redir": f"/account/login?next={quote_plus(target.url)}",
             },
-        )
-
-    if (target.local and user_name != target.handle) or (
-        not target.local and user_name != f"@{target.handle}"
-    ):
-        return render(
-            request,
-            "users/home_anonymous.html",
-            {"identity": target, "redir": target.url},
         )
 
     me = target.local and target.user == request.user

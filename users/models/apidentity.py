@@ -271,6 +271,28 @@ class APIdentity(models.Model):
                 return Takahe.get_or_create_remote_apidentity(identity)
 
     @classmethod
+    def get_by_linked_handle(cls, handler: str) -> "APIdentity":
+        """
+        Handler format
+        'id@site' - local identity with linked mastodon handle == 'id@site'
+        """
+        s = handler.split("@")
+        if len(s) == 2:
+            account = (
+                MastodonAccount.objects.select_related("user__identity")
+                .filter(handle__iexact=handler)
+                .first()
+            )
+            if not account or not account.user.identity:
+                raise cls.DoesNotExist(f"Could not resolve identity for {handler}")
+            i = account.user.identity
+            if i.deleted:
+                raise cls.DoesNotExist(f"Identity deleted {handler}")
+            return i
+        else:
+            raise cls.DoesNotExist(f"Identity handle invalid {handler}")
+
+    @classmethod
     def get_by_handle(cls, handler: str, match_linked=False) -> "APIdentity":
         """
         Handler format
@@ -291,11 +313,7 @@ class APIdentity(models.Model):
             )
         elif sl == 2:
             if match_linked:
-                i = MastodonAccount.objects.get(
-                    handle__iexact=handler,
-                ).user.identity
-                if i.deleted:
-                    raise cls.DoesNotExist(f"Identity deleted {handler}")
+                i = cls.get_by_linked_handle(handler)
                 return i
             else:
                 i = cls.get_remote(s[0], s[1])
