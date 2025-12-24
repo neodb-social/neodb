@@ -60,6 +60,16 @@
         </a>
       </span>
     {% endif %}
+    {% if not identity.locked or request.user.is_superuser or relationship.status %}
+      <span>
+        <a title="compose a message"
+           hx-get="{% url 'journal:post_compose' %}?reply_to={{ identity.full_handle }}&amp;visibility=2"
+           hx-target="body"
+           hx-swap="beforeend">
+          <i class="fa-regular fa-paper-plane"></i>
+        </a>
+      </span>
+    {% endif %}
     {% if not identity.locked or request.user.is_superuser or relationship.requested or relationship.status %}
       {% include "users/_profile_social_icons.html" %}
     {% endif %}

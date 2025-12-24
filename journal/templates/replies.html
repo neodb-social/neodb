@@ -66,10 +66,7 @@
           role="group"
           hx-post="{% url 'journal:post_reply' post.pk %}"
           hx-trigger="submit once">
-      <input name="content"
-             type="text"
-             placeholder="{% trans "add a reply" %}"
-             value="{{ reply_prepend }}" />
+      <input name="content" type="text" placeholder="{% trans "add a reply" %}" />
       <details class="dropdown">
         <summary>
           <i class="fa-solid fa-users-gear"></i>

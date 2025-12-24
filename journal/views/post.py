@@ -8,6 +8,7 @@ from django.views.decorators.http import require_http_methods
 from loguru import logger
 
 from common.models.lang import LOCALE_CHOICES, translate
+from common.models.misc import int_
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 from journal.models.renderers import bleach_post_content
 from takahe.models import Post
@@ -103,9 +104,13 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
     visibility = Takahe.Visibilities(int(request.POST.get("visibility", -1)))
     if not content:
         raise BadRequest(_("Invalid parameter"))
+    post = Takahe.get_post(post_id)
+    if post:
+        mentions_to_prepend = post.reply_prepend(request.user.identity.takahe_identity)
+        if mentions_to_prepend and not content.startswith(mentions_to_prepend):
+            content = mentions_to_prepend + content
     Takahe.reply_post(post_id, request.user.identity.pk, content, visibility)
     replies = Takahe.get_replies_for_posts([post_id], request.user.identity.pk)
-    post = Takahe.get_post(post_id)
     reply_prepend = ""
     if post:
         reply_prepend = post.reply_prepend(request.user.identity.takahe_identity)
@@ -190,12 +195,28 @@ def post_compose(request: AuthedHttpRequest):
     """
     Show the post compose form and handle form submission.
     """
+    reply_to = request.GET.get("reply_to", request.POST.get("reply_to", ""))
+    reply_to_name = ""
+    if reply_to:
+        try:
+            r = APIdentity.get_by_handle(reply_to)
+            if r.is_rejecting(request.user.identity):
+                raise APIdentity.DoesNotExist()
+            reply_to = r.full_handle
+            reply_to_name = r.display_name
+        except APIdentity.DoesNotExist:
+            reply_to = ""
+    visibility = int_(request.GET.get("visibility", request.POST.get("visibility")), -1)
+    if visibility not in [0, 1, 2]:
+        visibility = request.user.preference.post_public_mode
     if request.method == "GET":
         return render(
             request,
             "post_compose.html",
             {
-                "visibility": request.user.preference.default_visibility,
+                "reply_to": reply_to,
+                "reply_to_name": reply_to_name,
+                "visibility": visibility,
                 "languages": LOCALE_CHOICES,
                 "user_language": request.user.language,
                 "image_count": 0,
@@ -205,12 +226,13 @@ def post_compose(request: AuthedHttpRequest):
     content = request.POST.get("content", "").strip()
     subject = request.POST.get("subject", "").strip()
     language = request.POST.get("language", request.user.language)
-    visibility = Takahe.visibility_n2t(
-        int(request.POST.get("visibility", 0)), request.user.preference.post_public_mode
+    visibility2 = Takahe.visibility_n2t(
+        visibility, request.user.preference.post_public_mode
     )
-
     if not content:
         raise BadRequest(_("Content cannot be empty."))
+    if reply_to and f"@{reply_to}" not in content.split():
+        content = f"@{reply_to} {content}"
     if language == "x":
         language = ""
 
@@ -238,7 +260,7 @@ def post_compose(request: AuthedHttpRequest):
     Takahe.post(
         request.user.identity.pk,
         content,
-        visibility,
+        visibility2,
         summary=subject if subject else None,
         sensitive=bool(subject),
         language=language or "",

@@ -4,13 +4,13 @@
      {% if not post.local %}target="_blank" rel="noopener"{% endif %}
      onclick="navigator.share({url:'{{ post.object_uri|escapejs }}'});event.preventDefault();">
     {% if post.visibility == 1 %}
-      <i class="fa-solid fa-lock-open" title="{% trans "Public" %}"></i>
+      <i class="fa-solid fa-lock-open" title="{% trans "Quiet Public" %}"></i>
     {% elif post.visibility == 2 %}
       <i class="fa-solid fa-lock" title="{% trans "Followers Only" %}"></i>
     {% elif post.visibility == 3 %}
-      <i class="fa-solid fa-at" title="{% trans "Mentioned Only" %}"></i>
+      <i class="fa-solid fa-at" title="{% trans "Private Mention" %}"></i>
     {% elif post.visibility == 4 %}
-      <i class="fa-solid fa-igloo" title="{% trans "Public" %}"></i>
+      <i class="fa-solid fa-igloo" title="{% trans "Local Public" %}"></i>
     {% else %}
       <i class="fa-solid fa-globe" title="{% trans "Public" %}"></i>
     {% endif %}

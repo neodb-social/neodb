@@ -11,7 +11,13 @@
             aria-label="Close"
             class="close"
             _="on click trigger close_dialog" />
-      <strong>{% trans "Compose" %}</strong>
+      <strong>
+        {% if reply_to_name %}
+          {% blocktrans %} Note to {{ reply_to_name }} {% endblocktrans %}
+        {% else %}
+          {% trans "Compose" %}
+        {% endif %}
+      </strong>
     </header>
     <div>
       <form method="post"
@@ -32,7 +38,7 @@
                       rows="5"
                       autofocus
                       required
-                      placeholder="{% trans "Content" %}"
+                      placeholder="{% if reply_to %}@{{ reply_to }}{% else %}{% trans "Content" %}{% endif %}"
                       id="id_content"></textarea>
           </fieldset>
         </div>
@@ -79,6 +85,7 @@
             </fieldset>
           </div>
         </div>
+        <input type="hidden" name="reply_to" value="{{ reply_to | default:'' }}">
         <div>
           <button type="button"
                   id="add-image-btn"
