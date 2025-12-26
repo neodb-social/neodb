@@ -264,7 +264,7 @@ def discord_send(channel, content, **args) -> bool:
         return False
     if "thread_name" in args:
         args["thread_name"] = args["thread_name"][:99]
-    django_rq.get_queue("fetch").enqueue(_discord_send, dw, content, **args)
+    django_rq.get_queue("fetch").enqueue(_discord_send, dw, content[:1989], **args)
     return True
 
 
