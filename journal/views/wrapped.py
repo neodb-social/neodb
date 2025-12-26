@@ -142,6 +142,9 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
         if visibility == VisibilityType.Public and user.bluesky:
             o = EmbedObj("🧩", "", user.absolute_url)
             txt = comment.rstrip() + "\n\n##obj##"
-            user.bluesky.post(txt, obj=o, images=[img])
+            try:
+                user.bluesky.post(txt, obj=o, images=[img])
+            except Exception:
+                pass
         messages.add_message(request, messages.INFO, _("Summary posted to timeline."))
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
