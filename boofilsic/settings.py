@@ -660,7 +660,7 @@ CORS_ALLOW_METHODS = (
     "POST",
     # "PUT",
 )
-CORS_ALLOW_HEADERS = (*default_headers, "mcp-protocol-version")
+CORS_ALLOW_HEADERS = (*default_headers,)
 
 # CAPTCHA_2X_IMAGE = True
 CAPTCHA_FOREGROUND_COLOR = "#566078"
@@ -698,9 +698,3 @@ if _SENTRY_DSN:
 SKIP_MIGRATIONS = env("SKIP_MIGRATIONS")
 REMOTE_PRUNE_HORIZON = env("TAKAHE_REMOTE_PRUNE_HORIZON")
 HIDDEN_CATEGORIES = env("NEODB_HIDDEN_CATEGORIES")
-
-if os.environ.get("MCP"):
-    INSTALLED_APPS += ["django_mcp"]
-    MCP_SERVER_TITLE = SITE_INFO.get("site_name", "NeoDB")
-    MCP_SERVER_VERSION = NEODB_VERSION
-    MCP_SERVER_INSTRUCTIONS = "This neodb server maintains a catalog of book, movie, tv, music, game, podcast and performance, and helps user manage their collections and what they read/watch/listen/play."

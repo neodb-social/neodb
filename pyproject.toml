@@ -58,7 +58,6 @@ dependencies = [
     "certifi==2025.11.12",
     "deepl>=1.22.0",
     "nh3>=0.2.21",
-    "django-mcp>=0.1.0",
     "django-simple-captcha>=0.6.2",
 ]
 
