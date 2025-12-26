@@ -71,7 +71,7 @@ def render_list(
     sort="time",
 ):
     target = request.target_identity
-    viewer = request.identity  # type: ignore
+    viewer = request.identity
     tag = None
     sort = request.GET.get("sort")
     year = request.GET.get("year")

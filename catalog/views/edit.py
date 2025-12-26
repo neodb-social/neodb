@@ -44,23 +44,19 @@ def create(request, item_model):
     form_cls = CatalogForms.get(item_model)
     if not form_cls:
         raise BadRequest("Invalid item type")
-    initial = {}
-    t = request.GET.get("title", "")
-    if t:
-        initial = {
-            "localized_title": [{"text": t, "lang": get_current_locales()[0]}],
-        }
-    if request.method == "GET":
-        form = form_cls(initial=initial)
-        return render(
-            request,
-            "catalog_edit.html",
-            {
-                "form": form,
-            },
-        )
-    elif request.method == "POST":
+
+    if request.method == "POST":
         form = form_cls(request.POST, request.FILES)
+    else:
+        initial = {}
+        t = request.GET.get("title", "")
+        if t:
+            initial = {
+                "localized_title": [{"text": t, "lang": get_current_locales()[0]}],
+            }
+        form = form_cls(initial=initial)
+
+    if request.method == "POST":
         parent = None
         if request.GET.get("parent", ""):
             parent = get_object_or_404(
@@ -78,8 +74,14 @@ def create(request, item_model):
             return redirect(form.instance.url)
         else:
             raise BadRequest(_add_error_map_detail(form.errors))
-    else:
-        raise BadRequest("Invalid request method")
+
+    return render(
+        request,
+        "catalog_edit.html",
+        {
+            "form": form,
+        },
+    )
 
 
 @require_http_methods(["GET"])
@@ -92,41 +94,35 @@ def history(request, item_path, item_uuid):
 @require_http_methods(["GET", "POST"])
 @login_required
 def edit(request, item_path, item_uuid):
-    if request.method == "GET":
-        item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-        if item.is_protected and not request.user.is_staff:
-            raise PermissionDenied(_("Editing this item is restricted."))
-        form_cls = CatalogForms[item.__class__.__name__]
-        form = form_cls(instance=item)
-        if (
-            not request.user.is_staff
-            and item.external_resources.all().count() > 0
-            and item.primary_lookup_id_value
-            and item.primary_lookup_id_type in IdealIdTypes
-        ):
-            form.fields["primary_lookup_id_type"].disabled = True
-            form.fields["primary_lookup_id_value"].disabled = True
-        return render(request, "catalog_edit.html", {"form": form, "item": item})
-    else:
-        item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-        if item.is_protected and not request.user.is_staff:
-            raise PermissionDenied(_("Editing this item is restricted."))
-        form_cls = CatalogForms[item.__class__.__name__]
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if item.is_protected and not request.user.is_staff:
+        raise PermissionDenied(_("Editing this item is restricted."))
+
+    form_cls = CatalogForms[item.__class__.__name__]
+
+    if request.method == "POST":
         form = form_cls(request.POST, request.FILES, instance=item)
-        if (
-            not request.user.is_staff
-            and item.external_resources.all().count() > 0
-            and item.primary_lookup_id_value
-            and item.primary_lookup_id_type in IdealIdTypes
-        ):
-            form.fields["primary_lookup_id_type"].disabled = True
-            form.fields["primary_lookup_id_value"].disabled = True
+    else:
+        form = form_cls(instance=item)
+
+    if (
+        not request.user.is_staff
+        and item.external_resources.all().count() > 0
+        and item.primary_lookup_id_value
+        and item.primary_lookup_id_type in IdealIdTypes
+    ):
+        form.fields["primary_lookup_id_type"].disabled = True
+        form.fields["primary_lookup_id_value"].disabled = True
+
+    if request.method == "POST":
         if form.is_valid():
             form.instance.edited_time = timezone.now()
             form.instance.save()
             return redirect(form.instance.url)
         else:
             raise BadRequest(_add_error_map_detail(form.errors))
+
+    return render(request, "catalog_edit.html", {"form": form, "item": item})
 
 
 @require_http_methods(["POST"])

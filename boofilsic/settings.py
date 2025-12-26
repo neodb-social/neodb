@@ -373,6 +373,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
+    "common.middleware.IdentityMiddleware",
     # "django.middleware.locale.LocaleMiddleware",
     "users.middlewares.LanguageMiddleware",
     "tz_detect.middleware.TimezoneMiddleware",

@@ -14,9 +14,14 @@ from django.views.decorators.http import require_http_methods
 
 from common.utils import AuthedHttpRequest
 from mastodon.forms import EmailLoginForm
-from mastodon.models import Email, Mastodon
-from mastodon.models.common import Platform, SocialAccount
-from mastodon.models.email import EmailAccount
+from mastodon.models import (
+    Email,
+    EmailAccount,
+    Mastodon,
+    MastodonAccount,
+    Platform,
+    SocialAccount,
+)
 from takahe.utils import Takahe
 
 from ..models import User
@@ -91,6 +96,43 @@ class RegistrationForm(forms.ModelForm):
         return email
 
 
+def _handle_email_change(request, form):
+    current_email = (
+        request.user.email_account.handle if request.user.email_account else None
+    )
+    if form.cleaned_data["email"] and form.cleaned_data["email"] != current_email:
+        Email.send_login_email(request, form.cleaned_data["email"], "verify")
+        return render(
+            request, "users/verify.html", {"email": form.cleaned_data["email"]}
+        )
+    return None
+
+
+def _handle_new_user_registration(request, form, verified_account, email_readonly):
+    username = form.cleaned_data["username"]
+    pref = {
+        "mastodon_default_repost": request.POST.get("pref_default_crosspost")
+        is not None,
+        "mastodon_boost_enabled": request.POST.get("pref_mastodon_boost_enabled")
+        is not None,
+        "mastodon_skip_userinfo": request.POST.get("pref_sync_info") is None,
+        "mastodon_skip_relationship": request.POST.get("pref_sync_graph") is None,
+    }
+
+    # Form validation already checked for username existence
+    new_user = User.register(
+        username=username, account=verified_account, preference=pref
+    )
+    auth_login(request, new_user)
+
+    if not email_readonly and form.cleaned_data["email"]:
+        # if new user wants to link email too
+        request.session["new_user"] = 1
+        Email.send_login_email(request, form.cleaned_data["email"], "verify")
+        return render(request, "users/verify.html")
+    return render(request, "users/welcome.html")
+
+
 @require_http_methods(["GET", "POST"])
 def register(request: AuthedHttpRequest):
     """show registration page and process the submission from it"""
@@ -124,9 +166,10 @@ def register(request: AuthedHttpRequest):
     if not settings.MASTODON_ALLOW_ANY_SITE:
         if verified_account and verified_account.platform == Platform.MASTODON:
             # directly create a new user
+            mastodon_account: MastodonAccount = verified_account  # type: ignore
             new_user = User.register(
-                account=verified_account,
-                username=verified_account.username,  # type:ignore
+                account=mastodon_account,
+                username=mastodon_account.username,
             )
             auth_login(request, new_user)
             return render(request, "users/welcome.html")
@@ -139,64 +182,26 @@ def register(request: AuthedHttpRequest):
         email_readonly = True
     else:
         email_readonly = False
-    form = RegistrationForm(
-        data,
-        instance=(
-            User.objects.get(pk=request.user.pk)
-            if request.user.is_authenticated
-            else None
-        ),
+
+    instance = (
+        User.objects.get(pk=request.user.pk) if request.user.is_authenticated else None
     )
+    form = RegistrationForm(data, instance=instance)
 
     if request.method == "POST" and form.is_valid():
         if request.user.is_authenticated:
-            # logged in user to change email
-            current_email = (
-                request.user.email_account.handle
-                if request.user.email_account
-                else None
-            )
-            if (
-                form.cleaned_data["email"]
-                and form.cleaned_data["email"] != current_email
-            ):
-                Email.send_login_email(request, form.cleaned_data["email"], "verify")
-                return render(
-                    request, "users/verify.html", {"email": form.cleaned_data["email"]}
-                )
+            response = _handle_email_change(request, form)
+            if response:
+                return response
+            # If no email change, render register.html again.
         else:
             # new user to finalize registration process
-            username = form.cleaned_data["username"]
-            pref = {
-                "mastodon_default_repost": request.POST.get("pref_default_crosspost")
-                is not None,
-                "mastodon_boost_enabled": request.POST.get(
-                    "pref_mastodon_boost_enabled"
-                )
-                is not None,
-                "mastodon_skip_userinfo": request.POST.get("pref_sync_info") is None,
-                "mastodon_skip_relationship": request.POST.get("pref_sync_graph")
-                is None,
-            }
-            if not username:
+            if not form.cleaned_data.get("username"):
                 error = _("Valid username required")
-            elif User.objects.filter(username__iexact=username).exists():
-                error = _("Username in use")
             else:
-                # all good, create new user
-                new_user = User.register(
-                    username=username, account=verified_account, preference=pref
+                return _handle_new_user_registration(
+                    request, form, verified_account, email_readonly
                 )
-                auth_login(request, new_user)
-
-                if not email_readonly and form.cleaned_data["email"]:
-                    # if new user wants to link email too
-                    request.session["new_user"] = 1
-                    Email.send_login_email(
-                        request, form.cleaned_data["email"], "verify"
-                    )
-                    return render(request, "users/verify.html")
-                return render(request, "users/welcome.html")
 
     return render(
         request,

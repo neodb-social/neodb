@@ -245,41 +245,39 @@ class Mark:
         """latest post id for this user and item for its current status"""
         return self.shelfmember.latest_post_id if self.shelfmember else None
 
-    def update(
-        self,
-        shelf_type: ShelfType | None,
-        comment_text: str | None = None,
-        rating_grade: int | None = None,
-        tags: list[str] | None = None,
-        visibility: int | None = None,
-        metadata: dict[str, Any] | None = None,
-        created_time: datetime | None = None,
-        share_to_mastodon: bool = False,
-        application_id: int | None = None,
-    ):
-        """change shelf, comment or rating"""
-        if created_time and created_time >= timezone.now():
-            created_time = None
-        if visibility is None:
-            visibility = self.visibility
-        last_shelf_type = self.shelf_type
-        last_visibility = self.visibility if last_shelf_type else None
-        update_mode = 0
+    def _update_tags(self, tags: list[str] | None, visibility: int):
         if tags is not None:
             self.owner.tag_manager.tag_item(self.item, tags, visibility)
-        if shelf_type is None:
-            # take item off shelf
-            if self.shelfmember:
-                self.shelfmember.delete_from_timeline()
-                self.shelfmember.log_and_delete()
-            if self.comment:
-                self.comment.delete()
-            if self.rating:
-                self.rating.delete()
-            return
-        # create/update shelf member and shelf log if necessary
+
+    def _handle_shelf_removal(self):
+        # take item off shelf
+        if self.shelfmember:
+            self.shelfmember.delete_from_timeline()
+            self.shelfmember.log_and_delete()
+        if self.comment:
+            self.comment.delete()
+        if self.rating:
+            self.rating.delete()
+
+    def _update_shelf_member(
+        self,
+        shelf_type: ShelfType,
+        visibility: int,
+        metadata: dict[str, Any] | None,
+        created_time: datetime | None,
+        last_shelf_type: ShelfType | None,
+        last_visibility: int | None,
+    ) -> tuple[bool, int, ShelfLogEntry]:
+        """
+        Returns:
+            shelfmember_changed (bool)
+            update_mode (int): 0 (no post update), 1 (retract and repost), 2 (create new)
+            log_entry (ShelfLogEntry)
+        """
+        update_mode = 0
+        shelfmember_changed = False
+
         if self.shelfmember and last_shelf_type == shelf_type:
-            shelfmember_changed = False
             log_entry = self.shelfmember.ensure_log_entry()
             if metadata is not None and metadata != self.shelfmember.metadata:
                 self.shelfmember.metadata = metadata
@@ -325,7 +323,18 @@ class Mark:
             )
             log_entry = self.shelfmember.ensure_log_entry()
             self.shelfmember.clear_post_ids()
-        # create/update/detele comment if necessary
+
+        return shelfmember_changed, update_mode, log_entry
+
+    def _update_comment(
+        self,
+        comment_text: str | None,
+        visibility: int,
+        last_visibility: int | None,
+        shelfmember_changed: bool,
+    ):
+        shelfmember = self.shelfmember
+        assert shelfmember is not None
         if comment_text is not None:
             if comment_text != self.comment_text or visibility != last_visibility:
                 self.comment = Comment.comment_item(
@@ -333,18 +342,25 @@ class Mark:
                     self.owner,
                     comment_text,
                     visibility,
-                    self.shelfmember.created_time,
+                    shelfmember.created_time,
                 )
                 if self.comment and not shelfmember_changed:
-                    self.shelfmember.edited_time = self.comment.edited_time
-                    self.shelfmember.save(update_fields=["edited_time"])
-        # create/update/detele rating if necessary
+                    shelfmember.edited_time = self.comment.edited_time
+                    shelfmember.save(update_fields=["edited_time"])
+
+    def _update_rating(
+        self,
+        rating_grade: int | None,
+        visibility: int,
+        last_visibility: int | None,
+    ):
         if rating_grade is not None:
             if rating_grade != self.rating_grade or visibility != last_visibility:
                 self.rating = Rating.update_item_rating(
                     self.item, self.owner, rating_grade, visibility
                 )
-        # store changed rating/comment if needed
+
+    def _update_log_entry(self, log_entry: ShelfLogEntry):
         if (
             log_entry.rating_grade != self.rating_grade
             or log_entry.comment_text != self.comment_text
@@ -352,13 +368,21 @@ class Mark:
             log_entry.rating_grade = self.rating_grade
             log_entry.comment_text = self.comment_text
             log_entry.save(update_fields=["metadata"])
+
+    def _sync_timeline(
+        self,
+        update_mode: int,
+        share_to_mastodon: bool,
+        application_id: int | None,
+        shelf_type: ShelfType,
+    ):
         # publish a new or updated ActivityPub post
-        post = self.shelfmember.sync_to_timeline(
-            update_mode, application_id=application_id
-        )
+        shelfmember = self.shelfmember
+        assert shelfmember is not None
+        post = shelfmember.sync_to_timeline(update_mode, application_id=application_id)
         if share_to_mastodon:
-            self.shelfmember.sync_to_social_accounts(update_mode)
-        self.shelfmember.update_index()
+            shelfmember.sync_to_social_accounts(update_mode)
+        shelfmember.update_index()
         # auto add bookmark
         if (
             post
@@ -367,6 +391,48 @@ class Mark:
             in (self.owner.user.preference.auto_bookmark_cats or [])
         ):
             Takahe.bookmark(post.pk, self.owner.pk)
+
+    def update(
+        self,
+        shelf_type: ShelfType | None,
+        comment_text: str | None = None,
+        rating_grade: int | None = None,
+        tags: list[str] | None = None,
+        visibility: int | None = None,
+        metadata: dict[str, Any] | None = None,
+        created_time: datetime | None = None,
+        share_to_mastodon: bool = False,
+        application_id: int | None = None,
+    ):
+        """change shelf, comment or rating"""
+        if created_time and created_time >= timezone.now():
+            created_time = None
+        normalized_visibility = self.visibility if visibility is None else visibility
+        last_shelf_type = self.shelf_type
+        last_visibility = self.visibility if last_shelf_type else None
+
+        self._update_tags(tags, normalized_visibility)
+
+        if shelf_type is None:
+            self._handle_shelf_removal()
+            return
+
+        shelfmember_changed, update_mode, log_entry = self._update_shelf_member(
+            shelf_type,
+            normalized_visibility,
+            metadata,
+            created_time,
+            last_shelf_type,
+            last_visibility,
+        )
+
+        self._update_comment(
+            comment_text, normalized_visibility, last_visibility, shelfmember_changed
+        )
+        self._update_rating(rating_grade, normalized_visibility, last_visibility)
+        self._update_log_entry(log_entry)
+
+        self._sync_timeline(update_mode, share_to_mastodon, application_id, shelf_type)
 
     def delete(self, keep_tags=False):
         self.update(None, tags=None if keep_tags else [])

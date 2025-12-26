@@ -414,24 +414,32 @@ class Item(PolymorphicModel):
         return self.__class__.__name__.lower()
 
     def get_localized_title(self) -> str | None:
-        if self.localized_title:
-            locales = get_current_locales()
-            for loc in locales:
-                v = next(
-                    filter(lambda t: t["lang"] == loc, self.localized_title), {}
-                ).get("text")
-                if v:
-                    return v
+        if not self.localized_title:
+            return None
+        locales = get_current_locales()
+        title_map = {
+            t["lang"]: t["text"]
+            for t in self.localized_title
+            if "lang" in t and t.get("text")
+        }
+        for loc in locales:
+            if loc in title_map:
+                return title_map[loc]
+        return None
 
     def get_localized_description(self) -> str | None:
-        if self.localized_description:
-            locales = get_current_locales()
-            for loc in locales:
-                v = next(
-                    filter(lambda t: t["lang"] == loc, self.localized_description), {}
-                ).get("text")
-                if v:
-                    return v
+        if not self.localized_description:
+            return None
+        locales = get_current_locales()
+        desc_map = {
+            t["lang"]: t["text"]
+            for t in self.localized_description
+            if "lang" in t and t.get("text")
+        }
+        for loc in locales:
+            if loc in desc_map:
+                return desc_map[loc]
+        return None
 
     @cached_property
     def display_resources(self) -> "list[ExternalResource]":

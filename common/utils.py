@@ -40,6 +40,7 @@ class AuthedHttpRequest(HttpRequest):
     """
 
     user: "User"
+    identity: "APIdentity | None"
     target_identity: "APIdentity"
 
 
@@ -60,18 +61,11 @@ def get_file_absolute_url(cover: FieldFile) -> str | None:
     return f"{settings.SITE_INFO['site_url']}{url}"
 
 
-def user_identity_required(func):  # TODO make this a middleware
+def user_identity_required(func):
     @functools.wraps(func)
     def wrapper(request, *args, **kwargs):
-        from users.models import APIdentity
-
-        identity = None
-        if request.user.is_authenticated:
-            try:
-                identity = APIdentity.objects.get(user=request.user)
-            except APIdentity.DoesNotExist:
-                return HttpResponseRedirect("/account/register")
-        request.identity = identity
+        if request.user.is_authenticated and not request.identity:
+            return HttpResponseRedirect("/account/register")
         return func(request, *args, **kwargs)
 
     return wrapper
@@ -92,9 +86,8 @@ def target_identity_required(func):
         if target_user and not target_user.is_active:
             raise Http404(_("User no longer exists"))
         if request.user.is_authenticated:
-            try:
-                viewer = APIdentity.objects.get(user=request.user)
-            except APIdentity.DoesNotExist:
+            viewer = request.identity
+            if not viewer:
                 return HttpResponseRedirect("/account/register")
             if request.user != target_user:
                 if restricted and not viewer.is_following(target):
@@ -134,9 +127,8 @@ def profile_identity_required(func):
         if target_user and not target_user.is_active:
             raise Http404(_("User no longer exists"))
         if request.user.is_authenticated:
-            try:
-                viewer = APIdentity.objects.get(user=request.user)
-            except APIdentity.DoesNotExist:
+            viewer = request.identity
+            if not viewer:
                 return HttpResponseRedirect("/account/register")
             if request.user != target_user:
                 if target.is_blocking(viewer) or target.is_blocked_by(viewer):

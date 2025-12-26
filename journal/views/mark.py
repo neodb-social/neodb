@@ -6,7 +6,6 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
-from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from loguru import logger
@@ -15,6 +14,7 @@ from catalog.models import *
 from common.models.lang import translate
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
+from ..forms import MarkForm
 from ..models import Comment, Mark, ShelfManager, ShelfType
 from .common import render_list, render_relogin
 
@@ -65,70 +65,47 @@ def mark(request: AuthedHttpRequest, item_uuid):
             mark.delete()
             return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
         else:
-            visibility = int(request.POST.get("visibility", default=0))
-            rating_grade = request.POST.get("rating_grade", default=0)
-            rating_grade = int(rating_grade) if rating_grade else None
-            _status = request.POST.get("status", "wishlist")
-            try:
-                status = ShelfType(_status)
-            except Exception:
-                logger.error(f"unknown shelf: {_status}")
-                status = ShelfType.WISHLIST
-            text = request.POST.get("text")
-            tags = request.POST.get("tags")
-            tags = tags.split(",") if tags else []
-            share_to_mastodon = bool(
-                request.POST.get("share_to_mastodon", default=False)
-            )
-            mark_date = None
-            if request.POST.get("mark_anotherday"):
-                shelf_time_offset = {
-                    ShelfType.WISHLIST: " 20:00:00",
-                    ShelfType.PROGRESS: " 21:00:00",
-                    ShelfType.DROPPED: " 21:30:00",
-                    ShelfType.COMPLETE: " 22:00:00",
-                }
-                dt = parse_datetime(
-                    request.POST.get("mark_date", "")
-                    + shelf_time_offset.get(status, "")
-                )
-                mark_date = (
-                    dt.replace(tzinfo=timezone.get_current_timezone()) if dt else None
-                )
-                if mark_date and mark_date >= timezone.now():
-                    mark_date = timezone.now()
-            try:
-                mark.update(
-                    status,
-                    text,
-                    rating_grade,
-                    tags,
-                    visibility,
-                    share_to_mastodon=share_to_mastodon,
-                    created_time=mark_date,
-                    application_id=getattr(request, "application_id", None),
-                )
-            except PermissionDenied:
-                logger.warning(f"post to mastodon error 401 {request.user}")
-                return render_relogin(request)
-            except ValueError as e:
-                logger.warning(f"post to mastodon error {e} {request.user}")
-                err = (
-                    _("Content too long for your Fediverse instance.")
-                    if str(e) == "422"
-                    else str(e)
-                )
-                return render(
-                    request,
-                    "common/error.html",
-                    {
-                        "msg": _(
-                            "Data saved but unable to crosspost to Fediverse instance."
-                        ),
-                        "secondary_msg": err,
-                    },
-                )
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+            form = MarkForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                try:
+                    mark.update(
+                        data["status"],
+                        data["text"],
+                        data["rating_grade"],
+                        data["tags_list"],
+                        data["visibility"],
+                        share_to_mastodon=data["share_to_mastodon"],
+                        created_time=data["mark_date_parsed"],
+                        application_id=getattr(request, "application_id", None),
+                    )
+                except PermissionDenied:
+                    logger.warning(f"post to mastodon error 401 {request.user}")
+                    return render_relogin(request)
+                except ValueError as e:
+                    logger.warning(f"post to mastodon error {e} {request.user}")
+                    err = (
+                        _("Content too long for your Fediverse instance.")
+                        if str(e) == "422"
+                        else str(e)
+                    )
+                    return render(
+                        request,
+                        "common/error.html",
+                        {
+                            "msg": _(
+                                "Data saved but unable to crosspost to Fediverse instance."
+                            ),
+                            "secondary_msg": err,
+                        },
+                    )
+                return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+            else:
+                # In a real app we'd handle form errors better, but preserving existing behavior of falling through or erroring
+                # For now, let's just log and redirect or error if really invalid.
+                # The original code didn't strictly validate structure, just tried to cast things.
+                logger.warning(f"Mark form invalid: {form.errors}")
+                raise BadRequest(_("Invalid input"))
 
 
 @login_required
