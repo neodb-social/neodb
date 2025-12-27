@@ -43,7 +43,10 @@ class QueryParser:
             r = self.re()
             self.q = r.sub("", self.raw_query).strip()
             self.parsed_fields = {
-                m.group("field").strip().lower(): m.group("value").strip('  "').lower()
+                m.group("field").strip().lower(): m.group("value")
+                .replace("'\"|()", " ")
+                .strip()
+                .lower()
                 for m in r.finditer(self.raw_query)
                 if m.group("value").strip('  "')
             }
