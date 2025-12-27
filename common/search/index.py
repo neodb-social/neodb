@@ -19,7 +19,7 @@ from typesense.types.document import SearchResponse
 
 def _backtick(s: str | int) -> str:
     """Escape a string with backticks for Typesense filter syntax"""
-    return f"`{str(s).replace('`', '\\`')}`"
+    return str(s) if isinstance(s, int) else f"`{str(s).replace('`', '\\`')}`"
 
 
 class QueryParser:
@@ -330,11 +330,11 @@ class Index:
                 if settings.DEBUG:
                     logger.error(f"Typesense: {r}")
 
-    def delete_docs(self, field: str, values: Iterable[int | str] | str) -> int:
+    def delete_docs(self, field: str, values: Iterable[int | str] | int | str) -> int:
         v: str = (
-            ("[" + ",".join(map(str, values)) + "]")
-            if isinstance(values, Iterable)
-            else values
+            str(values)
+            if isinstance(values, (str, int))
+            else ("[" + ",".join(map(str, values)) + "]")
         )
         try:
             r = self.write_collection.documents.delete({"filter_by": f"{field}:{v}"})

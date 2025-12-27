@@ -15,7 +15,7 @@ class TestSearch:
         self.user1 = User.register(email="x@y.com", username="userx")
         self.user2 = User.register(email="a@b.com", username="usery")
         self.index = JournalIndex.instance()
-        self.index.delete_by_owner([self.user1.identity.pk])
+        self.index.delete_all()
 
     def test_search_post(self):
         # mark two books
