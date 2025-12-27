@@ -25,27 +25,16 @@ repos:
       - id: mixed-line-ending
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.15
+    rev: 0.9.18
     hooks:
       - id: uv-lock
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.8
+    rev: v0.14.10
     hooks:
       - id: ruff
         args: [ "--fix" ]
       - id: ruff-format
-
-  # - repo: https://github.com/pycqa/isort
-  #   rev: 5.13.2
-  #   hooks:
-  #     - id: isort
-  #       args: ["--profile=black"]
-
-  # - repo: https://github.com/psf/black
-  #   rev: 24.4.2
-  #   hooks:
-  #     - id: black
 
   - repo: https://github.com/Riverside-Healthcare/djLint
     rev: v1.36.4
