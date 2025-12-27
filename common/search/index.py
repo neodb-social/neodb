@@ -17,6 +17,11 @@ from typesense.types.collection import (
 from typesense.types.document import SearchResponse
 
 
+def _backtick(s) -> str:
+    """Escape a string with backticks for Typesense filter syntax"""
+    return f"`{str(s).replace('`', '\\`')}`"
+
+
 class QueryParser:
     fields = ["sort"]
     default_search_params = {
@@ -43,10 +48,7 @@ class QueryParser:
             r = self.re()
             self.q = r.sub("", self.raw_query).strip()
             self.parsed_fields = {
-                m.group("field").strip().lower(): m.group("value")
-                .replace("'\"|()", " ")
-                .strip()
-                .lower()
+                m.group("field").strip().lower(): m.group("value").strip('  "').lower()
                 for m in r.finditer(self.raw_query)
                 if m.group("value").strip('  "')
             }
@@ -100,18 +102,18 @@ class QueryParser:
                     filters += values
                 elif values:
                     v = (
-                        f"[{','.join(map(str, values))}]"
+                        f"[{','.join(map(_backtick, values))}]"
                         if len(values) > 1
-                        else str(values[0])
+                        else _backtick(values[0])
                     )
                     filters.append(f"{field}:{v}")
         if self.exclude_by:
             for field, values in self.exclude_by.items():
                 if values:
                     v = (
-                        f"[{','.join(map(str, values))}]"
+                        f"[{','.join(map(_backtick, values))}]"
                         if len(values) > 1
-                        else str(values[0])
+                        else _backtick(values[0])
                     )
                     filters.append(f"{field}:!={v}")
         if filters:
