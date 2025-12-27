@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from functools import cached_property, reduce
+from random import sample
 from typing import TYPE_CHECKING, Iterable
 
 from dateutil.relativedelta import relativedelta
@@ -163,9 +164,19 @@ class JournalQueryParser(QueryParser):
         self.filter("owner_id", owner.pk)
 
     def filter_by_viewer(self, viewer: APIdentity):
-        self.filter("visibility", 0)
-        self.exclude("owner_id", viewer.ignoring)
-        # TODO support non-public posts
+        filters = ["visibility:0", f"owner_id:{viewer.pk}"]
+        following = viewer.following
+        if following:
+            if len(following) > 420:
+                # randomly sample following to reduce query size
+                # TODO: more work to properly support large following list
+                following = sample(following, 420)
+            following_ids = ",".join(str(pk) for pk in following)
+            filters.append(f"(visibility:1 && owner_id:[{following_ids}])")
+        self.filter("_", f"({' || '.join(filters)})")
+        ignoring = viewer.ignoring
+        if ignoring:
+            self.exclude("owner_id", ignoring)
 
     def filter_by_owner_viewer(self, owner: APIdentity, viewer: APIdentity | None):
         self.filter("owner_id", owner.pk)

@@ -102,27 +102,21 @@ class QueryParser:
                 if field == "_":
                     filters += values
                 elif values:
+                    f = str if field in self.skip_backtick else _backtick
                     v = (
-                        f"[{','.join(map(_backtick, values))}]"
+                        f"[{','.join(map(f, values))}]"
                         if len(values) > 1
-                        else (
-                            str(values[0])
-                            if field in self.skip_backtick
-                            else _backtick(values[0])
-                        )
+                        else f(values[0])
                     )
                     filters.append(f"{field}:{v}")
         if self.exclude_by:
             for field, values in self.exclude_by.items():
                 if values:
+                    f = str if field in self.skip_backtick else _backtick
                     v = (
-                        f"[{','.join(map(_backtick, values))}]"
+                        f"[{','.join(map(f, values))}]"
                         if len(values) > 1
-                        else (
-                            str(values[0])
-                            if field in self.skip_backtick
-                            else _backtick(values[0])
-                        )
+                        else f(values[0])
                     )
                     filters.append(f"{field}:!={v}")
         if filters:
