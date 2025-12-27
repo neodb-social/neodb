@@ -180,7 +180,7 @@ class TestCatalogQueryParser:
         assert params["page"] == 2
         assert params["per_page"] == 10
         assert "filter_by" in params
-        assert "tag:scifi" in params["filter_by"]
+        assert "tag:`scifi`" in params["filter_by"]
         assert "date:20200000..20229999" in params["filter_by"]
 
     def test_type_filtering(self):

@@ -31,6 +31,7 @@ def _get_item_ids(doc):
 
 class JournalQueryParser(QueryParser):
     fields = ["status", "rating", "tag", "category", "type", "date", "sort"]
+    skip_backtick = ["rating", "created"]
     status_values = {"wishlist", "progress", "complete", "dropped"}
     type_values = {"shelfmember", "rating", "comment", "review", "collection", "note"}
     sort_values = {"date": "created:desc", "rating": "rating:desc"}

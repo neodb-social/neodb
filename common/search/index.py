@@ -17,7 +17,7 @@ from typesense.types.collection import (
 from typesense.types.document import SearchResponse
 
 
-def _backtick(s) -> str:
+def _backtick(s: str | int) -> str:
     """Escape a string with backticks for Typesense filter syntax"""
     return f"`{str(s).replace('`', '\\`')}`"
 
@@ -32,6 +32,7 @@ class QueryParser:
         "include_fields": "id",
         "highlight_fields": "",
     }  # https://typesense.org/docs/latest/api/search.html#search-parameters
+    skip_backtick = []  # filter fields that should not be backticked
     max_pages = 100
 
     @classmethod
@@ -104,7 +105,11 @@ class QueryParser:
                     v = (
                         f"[{','.join(map(_backtick, values))}]"
                         if len(values) > 1
-                        else _backtick(values[0])
+                        else (
+                            str(values[0])
+                            if field in self.skip_backtick
+                            else _backtick(values[0])
+                        )
                     )
                     filters.append(f"{field}:{v}")
         if self.exclude_by:
@@ -113,7 +118,11 @@ class QueryParser:
                     v = (
                         f"[{','.join(map(_backtick, values))}]"
                         if len(values) > 1
-                        else _backtick(values[0])
+                        else (
+                            str(values[0])
+                            if field in self.skip_backtick
+                            else _backtick(values[0])
+                        )
                     )
                     filters.append(f"{field}:!={v}")
         if filters:
