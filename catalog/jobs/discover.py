@@ -133,6 +133,7 @@ class DiscoverGenerator(BaseJob):
             ItemCategory.Game,
             ItemCategory.Music,
             ItemCategory.Podcast,
+            ItemCategory.Performance,
         ]
         gallery_list = []
         trends = []

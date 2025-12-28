@@ -250,6 +250,17 @@ def trending_podcast(request):
     return _get_trending("trending_podcast")
 
 
+@api.get(
+    "/trending/performance/",
+    response={200: list[ItemSchema]},
+    summary="Trending performances in catalog",
+    auth=None,
+    tags=["trending"],
+)
+def trending_performance(request):
+    return _get_trending("trending_performance")
+
+
 def _get_item(cls, uuid, response):
     item = Item.get_by_url(uuid)
     if not item:
