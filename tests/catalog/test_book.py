@@ -75,6 +75,21 @@ class TestBook:
         assert hyperion.localized_title == [{"lang": "en", "text": "Hyperion"}]
         assert hyperion.other_title == ["海伯利安"]
 
+    def test_get_localized_fields_pick_first_match(self):
+        edition = Edition.objects.create(
+            title="Fallback",
+            localized_title=[
+                {"lang": "en", "text": "First Title"},
+                {"lang": "en", "text": "Second Title"},
+            ],
+            localized_description=[
+                {"lang": "en", "text": "First Description"},
+                {"lang": "en", "text": "Second Description"},
+            ],
+        )
+        assert edition.get_localized_title() == "First Title"
+        assert edition.get_localized_description() == "First Description"
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestWork:
