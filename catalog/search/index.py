@@ -261,8 +261,8 @@ class CatalogIndex(Index):
     def enqueue_replace_items(cls, item_ids: list[int]):
         if not item_ids:
             return
-        get_redis_connection("default").sadd(_PENDING_INDEX_KEY, *item_ids)
         try:
+            get_redis_connection("default").sadd(_PENDING_INDEX_KEY, *item_ids)
             job = Job.fetch(
                 id=_PENDING_INDEX_JOB_ID,
                 connection=django_rq.get_connection(_PENDING_INDEX_QUEUE),

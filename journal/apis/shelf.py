@@ -1,6 +1,7 @@
 import datetime
 from typing import List
 
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.utils import timezone
 from ninja import Field, Schema
@@ -9,7 +10,7 @@ from ninja.pagination import paginate
 from catalog.models import AvailableItemCategory, Item, ItemCategory, ItemSchema
 from common.api import PageNumberPagination, Result, api
 from common.utils import get_uuid_or_404
-from journal.models.common import q_owned_piece_visible_to_user
+from journal.models.common import max_visiblity_to_user, q_owned_piece_visible_to_user
 from journal.models.shelf import ShelfMember
 from users.models.apidentity import APIdentity
 
@@ -17,6 +18,8 @@ from ..models import (
     Mark,
     ShelfType,
 )
+
+CALENDAR_CACHE_SECONDS = 6 * 60 * 60
 
 
 # Mark
@@ -47,6 +50,44 @@ class MarkLogSchema(Schema):
     timestamp: datetime.datetime
     comment_text: str | None
     rating_grade: int | None = Field(ge=1, le=10)
+
+
+class CalendarDaySchema(Schema):
+    items: list[str]
+
+
+@api.get(
+    "/user/{handle}/calendar",
+    response={200: dict[str, CalendarDaySchema], 401: Result, 403: Result, 404: Result},
+    tags=["shelf"],
+)
+def get_user_calendar_data(request, handle: str):
+    """
+    Get calendar data for a specific user.
+
+    Response is a dict keyed by YYYY-MM-DD with {"items": [category, ...]}.
+    Possible categories: book, movie, tv, music, game, podcast, performance, other.
+    Note: result of this api may be cached for a few hours.
+    """
+    try:
+        target = APIdentity.get_by_handle(handle)
+    except APIdentity.DoesNotExist:
+        return 404, {"message": "User not found"}
+
+    viewer = getattr(request.user, "identity", None)
+    if not viewer:
+        return 401, {"message": "Login required"}
+    if request.user != target.user:
+        if target.restricted or target.is_rejecting(viewer):
+            return 403, {"message": "Access denied"}
+    max_visibility = max_visiblity_to_user(request.user, target)
+    cache_key = f"user_calendar:{target.pk}:{max_visibility}"
+    calendar_data = cache.get_or_set(
+        cache_key,
+        lambda: target.shelf_manager.get_calendar_data(max_visibility),
+        timeout=CALENDAR_CACHE_SECONDS,
+    )
+    return calendar_data
 
 
 @api.get(
