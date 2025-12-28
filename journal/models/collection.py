@@ -178,9 +178,15 @@ class Collection(List):
                         m["note"] = comments.get(m["item"].pk, "")
         else:
             all_members = self.ordered_members
+            # .select_related("item") not working yet in django-polymorphic
             p = Paginator(all_members, page_size)
             members = p.get_page(page_number)
             pages = p.num_pages
+            items = [member.item for member in members]
+            if items:
+                Rating.attach_to_items(items)
+                if viewer:
+                    Mark.attach_to_items(viewer, items, viewer.user)
         return members, pages
 
     def get_stats(self, viewer: APIdentity):
