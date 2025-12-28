@@ -62,6 +62,7 @@ class EditionInSchema(ItemInSchema):
     pages: int | str | None = None
     series: str | None = None
     imprint: str | None = None
+    contents: str | None = None
 
 
 class EditionSchema(EditionInSchema, BaseSchema):
