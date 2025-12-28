@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List
 
 from django.core.cache import cache
+from django.db.models import Count
 from django.http import HttpResponse
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
@@ -12,7 +13,7 @@ from ninja.pagination import paginate
 from catalog.models import Item, ItemSchema
 from common.api import PageNumberPagination, RedirectedResult, Result, api
 
-from ..models import Collection, FeaturedCollection, ShelfType
+from ..models import Collection, FeaturedCollection, ShelfMember, ShelfType
 
 
 class CollectionSchema(Schema):
@@ -364,8 +365,15 @@ def get_featured_collection_stats(request, collection_uuid: str):
     items = c.item_ids
     stats = {"total": len(items)}
     for st in ShelfType:
-        shelf = request.user.identity.shelf_manager.shelf_list[st]
-        stats[st.value] = shelf.members.filter(item_id__in=items).count()
+        stats[st.value] = 0
+
+    shelf_counts = (
+        ShelfMember.objects.filter(owner=request.user.identity, item_id__in=items)
+        .values("parent__shelf_type")
+        .annotate(count=Count("id"))
+    )
+    for row in shelf_counts:
+        stats[row["parent__shelf_type"]] = row["count"]
     return stats
 
 
