@@ -4,7 +4,7 @@ from django.test import Client, override_settings
 from django.utils import timezone
 
 from catalog.models import Edition, Game, Movie
-from journal.models import Mark
+from journal.models import Collection, FeaturedCollection, Mark
 from journal.models.shelf import ShelfType
 from takahe.utils import Takahe
 from users.models import User
@@ -16,9 +16,12 @@ CACHE_SETTINGS = {
     }
 }
 STORAGES_SETTINGS = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    }
+    },
 }
 
 
@@ -85,3 +88,82 @@ def test_calendar_api_follower_view():
     assert "book" in items
     assert "movie" in items
     assert "game" not in items
+
+
+@pytest.mark.django_db(databases="__all__")
+@override_settings(STORAGES=STORAGES_SETTINGS)
+def test_collection_feature_toggle():
+    owner = User.register(email="owner@example.com", username="owneruser")
+    viewer = User.register(email="viewer@example.com", username="vieweruser")
+    collection = Collection.objects.create(
+        owner=owner.identity,
+        title="Featured Collection",
+        brief="",
+        visibility=0,
+    )
+    book = Edition.objects.create(title="Featured Book")
+    movie = Movie.objects.create(title="Featured Movie")
+    collection.append_item(book)
+    collection.append_item(movie)
+    Mark(viewer.identity, book).update(ShelfType.WISHLIST, visibility=0)
+    Mark(viewer.identity, movie).update(ShelfType.COMPLETE, visibility=0)
+
+    app = Takahe.get_or_create_app(
+        "Collection API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=viewer.identity.pk,
+    )
+    token = Takahe.refresh_token(app, viewer.identity.pk, viewer.pk)
+    client = Client()
+
+    response = client.post(
+        f"/api/me/collection/featured/{collection.uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+    assert FeaturedCollection.objects.filter(
+        owner=viewer.identity, target=collection
+    ).exists()
+
+    response = client.get(
+        "/api/me/collection/featured/",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert len(payload) == 1
+    assert payload[0]["uuid"] == collection.uuid
+
+    response = client.get(
+        f"/api/me/collection/featured/{collection.uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 302
+    assert response["Location"] == f"/api/collection/{collection.uuid}"
+
+    response = client.get(
+        f"/api/me/collection/featured/{collection.uuid}/stats",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+    stats = response.json()
+    assert stats["total"] == 2
+    assert stats["wishlist"] == 1
+    assert stats["complete"] == 1
+    assert stats["progress"] == 0
+    assert stats["dropped"] == 0
+
+    response = client.delete(
+        f"/api/me/collection/featured/{collection.uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+    assert not FeaturedCollection.objects.filter(
+        owner=viewer.identity, target=collection
+    ).exists()

@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List
 
 from django.core.cache import cache
+from django.http import HttpResponse
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
 from ninja import Field, Schema
@@ -9,9 +10,9 @@ from ninja.decorators import decorate_view
 from ninja.pagination import paginate
 
 from catalog.models import Item, ItemSchema
-from common.api import PageNumberPagination, Result, api
+from common.api import PageNumberPagination, RedirectedResult, Result, api
 
-from ..models import Collection
+from ..models import Collection, FeaturedCollection, ShelfType
 
 
 class CollectionSchema(Schema):
@@ -45,6 +46,14 @@ class CollectionItemSchema(Schema):
 class CollectionItemInSchema(Schema):
     item_uuid: str
     note: str
+
+
+class FeaturedCollectionStatsSchema(Schema):
+    wishlist: int
+    progress: int
+    complete: int
+    dropped: int
+    total: int
 
 
 @api.get(
@@ -257,6 +266,107 @@ def collection_delete_item(request, collection_uuid: str, item_uuid: str):
         return 404, {"message": "Item not found"}
     c.remove_item(item)
     return 200, {"message": "OK"}
+
+
+@api.post(
+    "/me/collection/featured/{collection_uuid}",
+    response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["featured collection"],
+)
+def collection_set_featured(request, collection_uuid: str):
+    """
+    Set a collection as featured for current user.
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if not c.is_visible_to(request.user):
+        return 403, {"message": "Permission denied"}
+    FeaturedCollection.objects.update_or_create(owner=request.user.identity, target=c)
+    return 200, {"message": "OK"}
+
+
+@api.delete(
+    "/me/collection/featured/{collection_uuid}",
+    response={200: Result, 401: Result, 403: Result, 404: Result},
+    tags=["featured collection"],
+)
+def collection_unset_featured(request, collection_uuid: str):
+    """
+    Unset a featured collection for current user.
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if not c.is_visible_to(request.user):
+        return 403, {"message": "Permission denied"}
+    FeaturedCollection.objects.filter(owner=request.user.identity, target=c).delete()
+    return 200, {"message": "OK"}
+
+
+@api.get(
+    "/me/collection/featured/",
+    response={200: list[CollectionSchema], 401: Result, 403: Result},
+    tags=["featured collection"],
+)
+def list_featured_collections(request):
+    """
+    List featured collections for current user.
+    """
+    return Collection.objects.filter(featured_by=request.user.identity)
+
+
+@api.get(
+    "/me/collection/featured/{collection_uuid}",
+    response={302: RedirectedResult, 401: Result, 403: Result, 404: Result},
+    tags=["featured collection"],
+)
+def get_featured_collection(request, collection_uuid: str, response: HttpResponse):
+    """
+    Redirect to featured collection details.
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if not FeaturedCollection.objects.filter(
+        owner=request.user.identity, target=c
+    ).exists():
+        return 404, {"message": "Collection not found"}
+    if not c.is_visible_to(request.user):
+        return 403, {"message": "Permission denied"}
+    response["Location"] = f"/api/collection/{c.uuid}"
+    return 302, {"message": "OK", "url": c.api_url}
+
+
+@api.get(
+    "/me/collection/featured/{collection_uuid}/stats",
+    response={
+        200: FeaturedCollectionStatsSchema,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
+    tags=["featured collection"],
+)
+def get_featured_collection_stats(request, collection_uuid: str):
+    """
+    Get featured collection stats for current user.
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return 404, {"message": "Collection not found"}
+    if not FeaturedCollection.objects.filter(
+        owner=request.user.identity, target=c
+    ).exists():
+        return 404, {"message": "Collection not found"}
+    if not c.is_visible_to(request.user):
+        return 403, {"message": "Permission denied"}
+    items = c.item_ids
+    stats = {"total": len(items)}
+    for st in ShelfType:
+        shelf = request.user.identity.shelf_manager.shelf_list[st]
+        stats[st.value] = shelf.members.filter(item_id__in=items).count()
+    return stats
 
 
 @api.get(
