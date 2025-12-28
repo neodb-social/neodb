@@ -182,8 +182,12 @@ class Collection(List):
             p = Paginator(all_members, page_size)
             members = p.get_page(page_number)
             pages = p.num_pages
-            items = [member.item for member in members]
+            item_ids = [m.item_id for m in members]
+            items = list(Item.objects.filter(pk__in=item_ids))
             if items:
+                items_map = {i.pk: i for i in items}
+                for member in members:
+                    member.item = items_map.get(member.item_id)
                 Rating.attach_to_items(items)
                 if viewer:
                     Mark.attach_to_items(viewer, items, viewer.user)

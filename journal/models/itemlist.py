@@ -149,6 +149,7 @@ class ListMember(Piece):
 
     if TYPE_CHECKING:
         parent: models.ForeignKey["ListMember", "List"]
+        item_id: int
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
         choices=VisibilityType.choices, default=0, null=False
