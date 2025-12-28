@@ -1,5 +1,6 @@
 from typing import List
 
+from django.core.cache import cache
 from ninja import Field, Schema
 from ninja.pagination import paginate
 
@@ -193,3 +194,16 @@ def tag_delete_item(request, tag_uuid: str, item_uuid: str):
         return 404, {"message": "Item not found"}
     tag.remove_item(item)
     return 200, {"message": "OK"}
+
+
+@api.get(
+    "/trending/tag/",
+    response={200: list[str]},
+    auth=None,
+    tags=["trending"],
+)
+def trending_tag(request):
+    """
+    Get popular tags site-wide
+    """
+    return cache.get("popular_tags", [])
