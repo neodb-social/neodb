@@ -12,6 +12,7 @@ from ninja.pagination import paginate
 
 from catalog.models import Item, ItemSchema
 from common.api import PageNumberPagination, RedirectedResult, Result, api
+from journal.models.common import q_piece_visible_to_user
 
 from ..models import Collection, FeaturedCollection, ShelfMember, ShelfType
 
@@ -267,6 +268,23 @@ def collection_delete_item(request, collection_uuid: str, item_uuid: str):
         return 404, {"message": "Item not found"}
     c.remove_item(item)
     return 200, {"message": "OK"}
+
+
+@api.get(
+    "/item/{item_uuid}/collection/",
+    response={200: List[CollectionSchema], 401: Result, 404: Result},
+    tags=["collection"],
+)
+@paginate(PageNumberPagination)
+def list_item_collections(request, item_uuid: str):
+    """
+    List collections containing the item
+    """
+    item = Item.get_by_url(item_uuid, resolve_merge=True)
+    if not item or item.is_deleted:
+        return 404, {"message": "Item not found"}
+    qv = q_piece_visible_to_user(request.user)
+    return Collection.objects.filter(items=item).filter(qv).order_by("-created_time")
 
 
 @api.post(

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.core.cache import cache
 from django.test import Client, override_settings
@@ -167,3 +169,53 @@ def test_collection_feature_toggle():
     assert not FeaturedCollection.objects.filter(
         owner=viewer.identity, target=collection
     ).exists()
+
+
+@pytest.mark.django_db(databases="__all__")
+@override_settings(CACHES=CACHE_SETTINGS, STORAGES=STORAGES_SETTINGS)
+def test_item_collections_visibility():
+    with (
+        patch("catalog.models.item.Item.update_index"),
+        patch("journal.models.collection.Collection.sync_to_timeline"),
+        patch("journal.models.collection.Collection.update_index"),
+    ):
+        owner = User.register(email="owner2@example.com", username="owneruser2")
+        viewer = User.register(email="viewer2@example.com", username="vieweruser2")
+        item = Edition.objects.create(title="Collections Item")
+        public = Collection.objects.create(
+            owner=owner.identity, title="Public Collection", brief="", visibility=0
+        )
+        follower_only = Collection.objects.create(
+            owner=owner.identity,
+            title="Follower Collection",
+            brief="",
+            visibility=1,
+        )
+        private = Collection.objects.create(
+            owner=owner.identity, title="Private Collection", brief="", visibility=2
+        )
+        public.append_item(item)
+        follower_only.append_item(item)
+        private.append_item(item)
+
+    viewer.identity.follow(owner.identity, True)
+    app = Takahe.get_or_create_app(
+        "Item Collection API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=viewer.identity.pk,
+    )
+    token = Takahe.refresh_token(app, viewer.identity.pk, viewer.pk)
+    client = Client()
+
+    response = client.get(
+        f"/api/item/{item.uuid}/collection/",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["count"] == 2
+    assert payload["pages"] == 1
+    uuids = {c["uuid"] for c in payload["data"]}
+    assert uuids == {public.uuid, follower_only.uuid}
