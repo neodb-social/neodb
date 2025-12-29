@@ -1,5 +1,6 @@
 import pytest
 import requests
+from django.test import Client
 
 from catalog.models import Edition
 from journal.models import Collection, Mark, Review, ShelfType
@@ -11,6 +12,14 @@ def test_post_review_collection_and_profile_pages(live_server):
     book = Edition.objects.create(title="Web Page Book")
     user = User.register(email="web@example.com", username="webuser")
     response = requests.get(f"{live_server.url}{user.identity.url}", timeout=5)
+    assert response.status_code == 200
+
+    authed_client = Client()
+    authed_client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    auth_cookies = {key: morsel.value for key, morsel in authed_client.cookies.items()}
+    response = requests.get(
+        f"{live_server.url}{user.identity.url}", cookies=auth_cookies, timeout=5
+    )
     assert response.status_code == 200
 
     Mark(user.identity, book).update(ShelfType.WISHLIST, "note", None, [], 0)

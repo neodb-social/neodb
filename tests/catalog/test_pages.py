@@ -56,3 +56,12 @@ def test_catalog_item_pages(live_server):
     for item in items:
         response = requests.get(f"{live_server.url}{item.url}", timeout=5)
         assert response.status_code == 200
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_catalog_discover_and_search_pages(live_server):
+    response = requests.get(f"{live_server.url}/discover/", timeout=5)
+    assert response.status_code == 200
+
+    response = requests.get(f"{live_server.url}/search?c=book", timeout=5)
+    assert response.status_code == 200
