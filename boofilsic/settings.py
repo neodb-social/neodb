@@ -14,9 +14,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 NEODB_VERSION = __version__
 
-TESTING = sys.argv[0].endswith("pytest") or (
-    len(sys.argv) > 1 and sys.argv[1] == "test"
-)
+TESTING = sys.argv[0].endswith(("pytest", "pytest/__main__.py"))
 
 # Parse configuration from:
 # - environment variables
