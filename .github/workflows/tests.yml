@@ -72,3 +72,10 @@ jobs:
         uv run manage.py compilemessages -i .venv -l zh_Hans
         uv run python -m coverage run -m pytest
         uv run python -m coverage report -m
+        uv run python -m coverage xml -o coverage.xml
+    - name: Comment coverage on PR
+      if: github.event_name == 'pull_request'
+      uses: orgoro/coverage@v3.2
+      with:
+        coverageFile: coverage.xml
+        token: ${{ secrets.GH_TOKEN_ORG_ACTION }}

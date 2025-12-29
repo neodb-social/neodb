@@ -1509,7 +1509,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "coverage", specifier = ">=7.6.0" },
+    { name = "coverage", specifier = ">=7.6.10" },
     { name = "django-stubs", specifier = ">=5.1.2" },
     { name = "djlint", specifier = ">=1.36.4" },
     { name = "lxml-stubs", specifier = ">=0.5.1" },

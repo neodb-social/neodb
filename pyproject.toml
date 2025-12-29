@@ -69,8 +69,8 @@ dev = [
     "lxml-stubs>=0.5.1",
     "pyright>=1.1.400",
     "ruff>=0.9.1",
-    "coverage>=7.6.0",
     "pytest-django>=4.11.1",
+    "coverage>=7.6.10",
     "mkdocs-material>=9.5.42",
 ]
 
@@ -124,3 +124,7 @@ DJANGO_SETTINGS_MODULE = "tests.settings"
 python_files = ["tests/*.py"]
 testpaths = ["tests" ]
 # addopts = "--disable-warnings"
+
+[tool.coverage.run]
+omit = ["tests/*"]
+branch = true
