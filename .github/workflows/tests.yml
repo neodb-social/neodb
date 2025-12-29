@@ -70,4 +70,5 @@ jobs:
         NEODB_SEARCH_URL: typesense://testuser:testpass@127.0.0.1:8108/cat
       run: |
         uv run manage.py compilemessages -i .venv -l zh_Hans
-        uv run pytest
+        uv run python -m coverage run -m pytest
+        uv run python -m coverage report -m

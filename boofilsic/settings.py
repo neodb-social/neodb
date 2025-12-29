@@ -543,7 +543,9 @@ TAKAHE_MEDIA_ROOT = env("TAKAHE_MEDIA_ROOT", default="media")  # type: ignore
 
 STORAGES = {
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        if TESTING
+        else "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
     },
 }
 

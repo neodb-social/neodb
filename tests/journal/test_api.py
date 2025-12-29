@@ -18,18 +18,10 @@ CACHE_SETTINGS = {
         "LOCATION": "calendar-api-tests",
     }
 }
-STORAGES_SETTINGS = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(CACHES=CACHE_SETTINGS, STORAGES=STORAGES_SETTINGS)
+@override_settings(CACHES=CACHE_SETTINGS)
 def test_calendar_api_returns_calendar_data():
     cache.clear()
     user = User.register(email="cal@example.com", username="caluser")
@@ -58,7 +50,7 @@ def test_calendar_api_returns_calendar_data():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(CACHES=CACHE_SETTINGS, STORAGES=STORAGES_SETTINGS)
+@override_settings(CACHES=CACHE_SETTINGS)
 def test_calendar_api_follower_view():
     cache.clear()
     owner = User.register(email="owner@example.com", username="owneruser")
@@ -94,7 +86,6 @@ def test_calendar_api_follower_view():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(STORAGES=STORAGES_SETTINGS)
 def test_collection_feature_toggle():
     owner = User.register(email="owner@example.com", username="owneruser")
     viewer = User.register(email="viewer@example.com", username="vieweruser")
@@ -173,7 +164,6 @@ def test_collection_feature_toggle():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(CACHES=CACHE_SETTINGS, STORAGES=STORAGES_SETTINGS)
 def test_item_collections_visibility():
     with (
         patch("catalog.models.item.Item.update_index"),
@@ -223,7 +213,6 @@ def test_item_collections_visibility():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(STORAGES=STORAGES_SETTINGS)
 def test_tag_api_lifecycle():
     user = User.register(email="tagger@example.com", username="tagger")
     item = Edition.objects.create(title="Tagged Book")
@@ -311,7 +300,6 @@ def test_tag_api_lifecycle():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(STORAGES=STORAGES_SETTINGS)
 def test_shelf_api_mark_and_lookup():
     user = User.register(email="shelf@example.com", username="shelfuser")
     marked = Edition.objects.create(title="Shelf Book")
@@ -366,7 +354,6 @@ def test_shelf_api_mark_and_lookup():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(STORAGES=STORAGES_SETTINGS)
 def test_collection_api_crud_and_items():
     user = User.register(email="collector@example.com", username="collector")
     item = Edition.objects.create(title="Collection Book")
@@ -491,7 +478,6 @@ def test_collection_api_crud_and_items():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(CACHES=CACHE_SETTINGS, STORAGES=STORAGES_SETTINGS)
 def test_collection_trending_endpoint():
     cache.clear()
     owner = User.register(email="trend@example.com", username="trenduser")
@@ -512,7 +498,6 @@ def test_collection_trending_endpoint():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(STORAGES=STORAGES_SETTINGS)
 def test_shelf_api_list_delete_and_logs():
     user = User.register(email="shelf-list@example.com", username="shelfuser2")
     item = Edition.objects.create(title="Shelf Log Book")
@@ -571,7 +556,6 @@ def test_shelf_api_list_delete_and_logs():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(STORAGES=STORAGES_SETTINGS)
 def test_note_api_crud():
     user = User.register(email="note@example.com", username="noteuser")
     item = Edition.objects.create(title="Note Book")
@@ -652,7 +636,6 @@ def test_note_api_crud():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(STORAGES=STORAGES_SETTINGS)
 def test_review_api_crud_and_public_fetch():
     user = User.register(email="review@example.com", username="reviewuser")
     item = Edition.objects.create(title="Review Book")
@@ -720,7 +703,6 @@ def test_review_api_crud_and_public_fetch():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(STORAGES=STORAGES_SETTINGS)
 def test_post_api_list_for_item():
     user = User.register(email="post@example.com", username="postuser")
     item = Edition.objects.create(title="Post Item")
