@@ -30,7 +30,7 @@
     <main>
       <div class="grid__main">
         <div class="sortable"></div>
-        <div style="display:none;">
+        <div class="unsorted" style="display:none;">
           {% if request.user.is_authenticated %}
             <section class="entity-sort shelf" id="calendar_grid">
               <span class="action">
@@ -144,6 +144,9 @@
               $('#' + elem.id).hide();
             }
             $('#' + elem.id).appendTo('.sortable');
+          });
+          $('.unsorted .entity-sort').each((i, elem) => {
+              $('.sortable').append(elem);
           });
         </script>
         {% if identity.user == request.user %}
