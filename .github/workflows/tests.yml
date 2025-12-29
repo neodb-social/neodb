@@ -8,9 +8,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-permissions:
-  pull-requests: write
-
 jobs:
   pytest:
     runs-on: ubuntu-latest
@@ -76,9 +73,11 @@ jobs:
         uv run python -m coverage run -m pytest
         uv run python -m coverage report
         uv run python -m coverage xml -o coverage.xml
-    - name: Comment coverage on PR
-      if: github.event_name == 'pull_request'
-      uses: orgoro/coverage@v3.2
-      with:
-        coverageFile: coverage.xml
-        token: ${{ secrets.GITHUB_TOKEN }}
+
+    # not working: https://github.com/orgoro/coverage/pull/281
+    # - name: Comment coverage on PR
+    #   if: github.event_name == 'pull_request'
+    #   uses: orgoro/coverage@v3.2
+    #   with:
+    #     coverageFile: coverage.xml
+    #     token: ${{ secrets.GITHUB_TOKEN }}
