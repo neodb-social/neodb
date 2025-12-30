@@ -206,7 +206,8 @@ class JournalSearchResult(SearchResult):
                 [],
             )
         )
-        return Item.get_final_items(Item.get_by_ids(ids))
+        items = Item.get_by_ids(ids).prefetch_related("external_resources")
+        return Item.get_final_items(items)
 
     @cached_property
     def pieces(self):

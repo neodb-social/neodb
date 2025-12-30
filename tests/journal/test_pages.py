@@ -52,3 +52,13 @@ def test_post_review_collection_and_profile_pages(live_server):
     collection.append_item(book)
     response = requests.get(f"{live_server.url}{collection.url}", timeout=5)
     assert response.status_code == 200
+
+    collection2 = Collection.objects.create(
+        owner=user.identity,
+        title="Dynamic Collection",
+        brief="",
+        visibility=0,
+        query="status:wishlist",
+    )
+    response = requests.get(f"{live_server.url}{collection2.url}", timeout=5)
+    assert response.status_code == 200

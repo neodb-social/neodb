@@ -183,7 +183,11 @@ class Collection(List):
             members = p.get_page(page_number)
             pages = p.num_pages
             item_ids = [m.item_id for m in members]
-            items = list(Item.objects.filter(pk__in=item_ids))
+            items = list(
+                Item.objects.filter(pk__in=item_ids).prefetch_related(
+                    "external_resources"
+                )
+            )
             if items:
                 items_map = {i.pk: i for i in items}
                 for member in members:

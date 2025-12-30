@@ -71,7 +71,7 @@ jobs:
       run: |
         uv run manage.py compilemessages -i .venv -l zh_Hans
         uv run python -m coverage run -m pytest
-        uv run python -m coverage report
+        uv run python -m coverage report -m
         uv run python -m coverage xml -o coverage.xml
 
     # not working: https://github.com/orgoro/coverage/pull/281
