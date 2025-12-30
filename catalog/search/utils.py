@@ -4,6 +4,7 @@ import django_rq
 from auditlog.context import set_actor
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import prefetch_related_objects
 from loguru import logger
 from rq.job import Job
 
@@ -15,7 +16,7 @@ from catalog.common import (
 from takahe.search import search_by_ap_url
 from users.models import User
 
-from ..models import TVSeason
+from ..models import Edition, TVSeason
 from .index import CatalogIndex, CatalogQueryParser
 
 
@@ -49,12 +50,16 @@ def query_index(
     keys = {}
     items = []
     urls = []
+    search_items = r.items
+    editions = [item for item in search_items if isinstance(item, Edition)]
+    if editions:
+        prefetch_related_objects(editions, "works")
     # hide duplicated items by work_id/isbn/imdb
-    for i in r.items:
+    for i in search_items:
         key = getattr(i, "isbn", getattr(i, "imdb_code", getattr(i, "barcode", None)))
         my_key = {key: i} if key else {}
-        if hasattr(i, "get_work"):
-            work = i.get_work()  # type: ignore
+        if isinstance(i, Edition):
+            work = i.works.first()  # type: ignore
             if work:
                 my_key[work.id] = i
         if my_key:

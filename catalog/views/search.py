@@ -158,6 +158,7 @@ def search(request):
         keywords, categories, p, exclude_categories=excl, per_page=per_page
     )
     Rating.attach_to_items(items)
+    Tag.attach_to_items(items)
     if request.user.is_authenticated:
         Mark.attach_to_items(request.user.identity, items, request.user)
     return render(

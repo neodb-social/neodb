@@ -1,7 +1,7 @@
 import re
 from datetime import timedelta
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 from django.core.validators import RegexValidator
 from django.db import models
@@ -93,6 +93,35 @@ class Tag(List):
 
     def to_indexable_doc(self):
         return {}
+
+    @classmethod
+    def attach_to_items(cls, items: Sequence[Item]) -> Sequence[Item]:
+        item_ids = [item.pk for item in items if item.pk]
+        tags_by_item: dict[int, list[str]] = {item_id: [] for item_id in item_ids}
+        if item_ids:
+            rows = (
+                TagMember.objects.filter(item_id__in=item_ids, parent__visibility=0)
+                .values("item_id", "parent__title")
+                .annotate(frequency=Count("parent__owner"))
+                .order_by("item_id", "-frequency")
+            )
+            for row in rows:
+                item_id = row["item_id"]
+                tag_list = tags_by_item.get(item_id)
+                if tag_list is None or len(tag_list) >= 20:
+                    continue
+                tag_list.append(row["parent__title"])
+        for item in items:
+            titles = tags_by_item.get(item.pk, [])
+            cleaned = sorted(
+                [
+                    t
+                    for t in set(Tag.deep_cleanup_title(title) for title in titles)
+                    if t and t != "_"
+                ]
+            )
+            item.tags = cleaned
+        return items
 
 
 class TagManager:

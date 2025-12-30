@@ -218,6 +218,23 @@ class TestRating:
         # The average should consider all ratings (6 + 5*10 = 56, divided by 6 = 9.3)
         assert tvshow_info["average"] == 9.3
 
+    def test_attach_to_items_sets_rating_info(self):
+        ratings = [6, 7, 8, 9, 10]
+        for i, user in enumerate(self.users[:5]):
+            Rating.update_item_rating(
+                self.book, user.identity, ratings[i], visibility=1
+            )
+
+        items = [self.book, self.game]
+        Rating.attach_to_items(items)
+
+        assert self.book.rating_info["count"] == 5
+        assert self.book.rating == 8.0
+        assert self.book.rating_distribution == [0, 0, 20, 40, 40]
+        assert self.game.rating_info["count"] == 0
+        assert self.game.rating is None
+        assert self.game.rating_count == 0
+
     def test_get_info_for_items(self):
         """Test getting rating info for multiple items at once."""
         # Add ratings for the book
