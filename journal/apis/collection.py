@@ -408,5 +408,7 @@ def trending_collection(request):
     collection_ids = cache.get("featured_collections", [])
     i = rot * len(collection_ids) // 10
     collection_ids = collection_ids[i:] + collection_ids[:i]
-    featured_collections = Collection.objects.filter(pk__in=collection_ids)
+    featured_collections = Collection.objects.filter(
+        pk__in=collection_ids
+    ).prefetch_related("post_relations")
     return featured_collections

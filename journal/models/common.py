@@ -127,6 +127,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     if TYPE_CHECKING:
         likes: models.QuerySet["Like"]
         metadata: models.JSONField[Any, Any]
+        post_relations: models.QuerySet["PiecePost"]
     url_path = "p"  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     local = models.BooleanField(default=True)
@@ -266,8 +267,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     @cached_property
     def latest_post_id(self):
         # post id is ordered by their created time
-        pp = PiecePost.objects.filter(piece=self).order_by("-post_id").first()
-        return pp.post_id if pp else None
+        return (
+            self.post_relations.order_by("-post_id")
+            .values_list("post_id", flat=True)
+            .first()
+        )
 
     @cached_property
     def latest_post(self) -> "Post | None":
@@ -276,9 +280,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @cached_property
     def all_post_ids(self):
-        post_ids = list(
-            PiecePost.objects.filter(piece=self).values_list("post_id", flat=True)
-        )
+        post_ids = list(self.post_relations.values_list("post_id", flat=True))
         return post_ids
 
     @property
@@ -588,7 +590,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
 class PiecePost(models.Model):
     post_id: int
-    piece = models.ForeignKey(Piece, on_delete=models.CASCADE)
+    piece = models.ForeignKey(
+        Piece, on_delete=models.CASCADE, related_name="post_relations"
+    )
     post = models.ForeignKey(
         "takahe.Post", db_constraint=False, db_index=True, on_delete=models.DO_NOTHING
     )
