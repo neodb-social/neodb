@@ -680,14 +680,14 @@ wheels = [
 
 [[package]]
 name = "django-polymorphic"
-version = "4.5.1"
+version = "4.5.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a0/fa/63345191ac6e1e117ae9c989e57f70be33ab84160bb6632db30b894cb8f8/django_polymorphic-4.5.1.tar.gz", hash = "sha256:9c43fbd1975ff3f5ed0cecaef8da22e099a63780b8b5611c0dd403319222d638", size = 50326, upload-time = "2025-12-24T18:34:26.567Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a4/3e/fc59daaaffb27dc5cbde391a65057b6391feb58ca64f133189700b3515e0/django_polymorphic-4.5.2.tar.gz", hash = "sha256:8fa7074dc455c7ff123e40196e74f1ff29862aead2b62484a618c52b3781b583", size = 50332, upload-time = "2026-01-01T19:35:59.944Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b6/10/123ce0f64fdb2f3f4707ae022c4e47f51dbafe09ec30c68ce9a5a61e5d4f/django_polymorphic-4.5.1-py3-none-any.whl", hash = "sha256:e4c6845de64761e2c9c1e8253c1e58a70218874904caa85e2178c311298b8dbe", size = 64482, upload-time = "2025-12-24T18:34:24.98Z" },
+    { url = "https://files.pythonhosted.org/packages/38/1a/0c5cc218eec87ba2cd49963173c3f51b228a72cd21e42d001a6cca57da0b/django_polymorphic-4.5.2-py3-none-any.whl", hash = "sha256:f836a120d4d813495f9428890d9e99910d20241ae6587072fcb9ab0a4dd66c7d", size = 64483, upload-time = "2026-01-01T19:35:58.405Z" },
 ]
 
 [[package]]
@@ -1085,11 +1085,11 @@ wheels = [
 
 [[package]]
 name = "json5"
-version = "0.12.1"
+version = "0.13.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/12/ae/929aee9619e9eba9015207a9d2c1c54db18311da7eb4dcf6d41ad6f0eb67/json5-0.12.1.tar.gz", hash = "sha256:b2743e77b3242f8d03c143dd975a6ec7c52e2f2afe76ed934e53503dd4ad4990", size = 52191, upload-time = "2025-08-12T19:47:42.583Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/77/e8/a3f261a66e4663f22700bc8a17c08cb83e91fbf086726e7a228398968981/json5-0.13.0.tar.gz", hash = "sha256:b1edf8d487721c0bf64d83c28e91280781f6e21f4a797d3261c7c828d4c165bf", size = 52441, upload-time = "2026-01-01T19:42:14.99Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/85/e2/05328bd2621be49a6fed9e3030b1e51a2d04537d3f816d211b9cc53c5262/json5-0.12.1-py3-none-any.whl", hash = "sha256:d9c9b3bc34a5f54d43c35e11ef7cb87d8bdd098c6ace87117a7b7e83e705c1d5", size = 36119, upload-time = "2025-08-12T19:47:41.131Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/9e/038522f50ceb7e74f1f991bf1b699f24b0c2bbe7c390dd36ad69f4582258/json5-0.13.0-py3-none-any.whl", hash = "sha256:9a08e1dd65f6a4d4c6fa82d216cf2477349ec2346a38fd70cc11d2557499fbcc", size = 36163, upload-time = "2026-01-01T19:42:13.962Z" },
 ]
 
 [[package]]
