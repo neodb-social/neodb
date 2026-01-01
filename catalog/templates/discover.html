@@ -188,7 +188,12 @@
             <article>
               <details id="section-popular-posts" class="auto-keep-collapse" open>
                 <summary>{% trans 'Recent Posts' %}</summary>
-                <div style="font-size:80%">{% include "posts.html" with posts=popular_posts %}</div>
+                <div style="font-size:80%"
+                     hx-get="{% url 'catalog:discover_popular_posts' %}"
+                     hx-trigger="load"
+                     hx-swap="innerHTML">
+                  <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                </div>
               </details>
             </article>
           </section>

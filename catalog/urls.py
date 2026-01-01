@@ -184,5 +184,10 @@ urlpatterns = [
     path("fetch_refresh/<str:job_id>", fetch_refresh, name="fetch_refresh"),
     path("refetch", refetch, name="refetch"),
     path("unlink", unlink, name="unlink"),
+    path(
+        "discover/popular-posts/",
+        discover_popular_posts,
+        name="discover_popular_posts",
+    ),
     path("discover/", discover, name="discover"),
 ]

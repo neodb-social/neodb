@@ -329,25 +329,10 @@ def discover(request):
         layout = request.user.preference.discover_layout
         identity = request.user.identity
         announcements = []
-        if settings.DISCOVER_SHOW_POPULAR_POSTS:
-            post_ids = cache.get("popular_posts", [])
-            popular_posts = Takahe.get_posts(post_ids).order_by("-published")
-        else:
-            popular_posts = Takahe.get_public_posts(settings.DISCOVER_SHOW_LOCAL_ONLY)
-            # Limit to no more than 3 posts per author
-            popular_posts = popular_posts.annotate(
-                author_row=Window(
-                    expression=RowNumber(),
-                    partition_by="author_id",
-                    order_by="-published",
-                )
-            ).filter(author_row__lte=3)
-        popular_posts = popular_posts.not_blocked_by(identity.takahe_identity)[:20]  # type: ignore
     else:
         identity = None
         layout = []
         announcements = Takahe.get_announcements()
-        popular_posts = []
 
     collection_ids = cache.get("featured_collections", [])
     if collection_ids:
@@ -372,8 +357,31 @@ def discover(request):
             "gallery_list": gallery_list,
             "featured_collections": featured_collections,
             "popular_tags": popular_tags,
-            "popular_posts": popular_posts,
             "layout": layout,
             "updated": updated,
         },
+    )
+
+
+@login_required
+@require_http_methods(["GET"])
+def discover_popular_posts(request):
+    if settings.DISCOVER_SHOW_POPULAR_POSTS:
+        post_ids = cache.get("popular_posts", [])
+        popular_posts = Takahe.get_posts(post_ids).order_by("-published")
+    else:
+        popular_posts = Takahe.get_public_posts(settings.DISCOVER_SHOW_LOCAL_ONLY)
+        # Limit to no more than 3 posts per author
+        popular_posts = popular_posts.annotate(
+            author_row=Window(
+                expression=RowNumber(),
+                partition_by="author_id",
+                order_by="-published",
+            )
+        ).filter(author_row__lte=3)
+    posts = popular_posts.not_blocked_by(request.user.identity.takahe_identity)[:20]  # type: ignore
+    return render(
+        request,
+        "_discover_popular_posts.html",
+        {"popular_posts": posts},
     )
