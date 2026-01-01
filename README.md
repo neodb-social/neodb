@@ -76,7 +76,7 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
   + Restful API with OpenAPI specification, see `/developer/` of your instance
   + Mastodon-compatible API are available, most of Mastodon apps works out of box
 - other
-  + i18n: da, de, en, fr, it, pt and zh are available; contribution for more languages welcomed
+  + i18n: da, de, en, es, fr, it, pt and zh are partially or fully available; contribution for more languages welcomed
 
 
 ## Participate an existing instance
@@ -92,6 +92,7 @@ Please see [installation guide](https://neodb.net/install/).
  - To help develop NeoDB, please see [development guide](https://neodb.net/development/) for some basics to start with
  - To translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/neodb/)
 - To contribute to NeoDB documentation, please submit a PR to the [docs/](docs/) directory.
+- Contributors may use any tools they prefer, but must review all code/text and sufficiently confident that the contribution is high enough quality before submitting a PR.
 
 
 ## Sponsor
