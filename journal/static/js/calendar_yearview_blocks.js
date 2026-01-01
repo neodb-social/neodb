@@ -142,7 +142,7 @@
             }
 
             // Trick
-            if (month_position[1].x - month_position[0].x < 40) {
+            if (month_position.length > 1 && month_position[1].x - month_position[0].x < 40) {
                 // Fix ugly graph by removing the first item
                 month_position.shift(0);
             }
