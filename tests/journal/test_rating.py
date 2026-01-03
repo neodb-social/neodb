@@ -346,3 +346,26 @@ class TestRating:
         empty_items = []
         result_empty = Rating.attach_to_items(empty_items)
         assert result_empty is empty_items
+
+    def test_rating_distribution_sums_to_100(self):
+        """Test that rating distribution always sums to 100% using Largest Remainder Method."""
+        # Use 7 ratings that would cause rounding errors with simple integer division
+        # Each bucket gets: 100/7 ≈ 14.28%, which doesn't divide evenly
+        ratings = [1, 3, 5, 7, 8, 9, 10]
+        # Distribution: 1-2: 1, 3-4: 1, 5-6: 1, 7-8: 2, 9-10: 2
+        # With simple //: [14, 14, 14, 28, 28] = 98 (wrong!)
+        # With Largest Remainder: [14, 14, 14, 29, 29] = 100 (correct!)
+
+        for i, user in enumerate(self.users[:7]):
+            Rating.update_item_rating(
+                self.book, user.identity, ratings[i], visibility=1
+            )
+
+        rating_info = Rating.get_info_for_item(self.book)
+        distribution = rating_info["distribution"]
+
+        # The key assertion: distribution must sum to exactly 100
+        assert sum(distribution) == 100
+
+        # Verify the expected distribution after applying Largest Remainder Method
+        assert distribution == [14, 14, 14, 29, 29]

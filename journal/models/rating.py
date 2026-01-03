@@ -15,6 +15,36 @@ MIN_RATING_COUNT = 5
 RATING_INCLUDES_CHILD_ITEMS = [TVShow, Performance]
 
 
+def _calculate_distribution(grades: list[int], total: int) -> list[int]:
+    """
+    Calculate percentage distribution using the Largest Remainder Method.
+    This ensures the percentages always sum to exactly 100.
+    """
+    if total == 0:
+        return [0] * 5
+
+    groups = [
+        grades[1] + grades[2],
+        grades[3] + grades[4],
+        grades[5] + grades[6],
+        grades[7] + grades[8],
+        grades[9] + grades[10],
+    ]
+
+    # Calculate exact percentages and floor values
+    exact = [100 * v / total for v in groups]
+    floors = [int(e) for e in exact]
+
+    # Distribute remaining percentage points to items with largest remainders
+    remainder = 100 - sum(floors)
+    remainders = [(exact[i] - floors[i], i) for i in range(5)]
+    remainders.sort(reverse=True)
+    for i in range(remainder):
+        floors[remainders[i][1]] += 1
+
+    return floors
+
+
 class Rating(Content):
     class Meta:
         unique_together = [["owner", "item"]]
@@ -95,13 +125,7 @@ class Rating(Content):
             return {
                 "average": round(total / votes, 1),
                 "count": votes,
-                "distribution": [
-                    100 * (grades[1] + grades[2]) // votes,
-                    100 * (grades[3] + grades[4]) // votes,
-                    100 * (grades[5] + grades[6]) // votes,
-                    100 * (grades[7] + grades[8]) // votes,
-                    100 * (grades[9] + grades[10]) // votes,
-                ],
+                "distribution": _calculate_distribution(grades, votes),
             }
 
     @classmethod
@@ -158,13 +182,7 @@ class Rating(Content):
                 result[item_id] = {
                     "average": round(total[item_id] / count, 1),
                     "count": count,
-                    "distribution": [
-                        100 * (grades[item_id][1] + grades[item_id][2]) // count,
-                        100 * (grades[item_id][3] + grades[item_id][4]) // count,
-                        100 * (grades[item_id][5] + grades[item_id][6]) // count,
-                        100 * (grades[item_id][7] + grades[item_id][8]) // count,
-                        100 * (grades[item_id][9] + grades[item_id][10]) // count,
-                    ],
+                    "distribution": _calculate_distribution(grades[item_id], count),
                 }
 
         return result
@@ -204,14 +222,7 @@ class Rating(Content):
             t += s["count"]
         if t < MIN_RATING_COUNT:
             return [0] * 5
-        r = [
-            100 * (g[1] + g[2]) // t,
-            100 * (g[3] + g[4]) // t,
-            100 * (g[5] + g[6]) // t,
-            100 * (g[7] + g[8]) // t,
-            100 * (g[9] + g[10]) // t,
-        ]
-        return r
+        return _calculate_distribution(g, t)
 
     @classmethod
     def attach_to_items(cls, items: Sequence[Item]) -> Sequence[Item]:
