@@ -32,7 +32,7 @@ class Command(BaseCommand):
         """Wipe all sessions that have no associated user."""
         sessions_to_delete = []
 
-        for session in Session.objects.all():
+        for session in Session.objects.iterator():
             data = session.get_decoded()
             if "_auth_user_id" not in data:
                 sessions_to_delete.append(session.pk)
@@ -57,7 +57,7 @@ class Command(BaseCommand):
         user_id = str(user.pk)
         sessions_to_delete = []
 
-        for session in Session.objects.all():
+        for session in Session.objects.iterator():
             data = session.get_decoded()
             if data.get("_auth_user_id") == user_id:
                 sessions_to_delete.append(session.pk)

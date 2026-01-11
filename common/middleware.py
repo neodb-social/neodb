@@ -17,6 +17,9 @@ class DummySession(dict):
     def set_expiry(self, _value):
         pass
 
+    def is_empty(self):
+        return True
+
 
 class APIAwareSessionMiddleware(SessionMiddleware):
     """
