@@ -189,7 +189,7 @@ class Goodreads(AbstractSite):
                             list[str], c.xpath('.//a[@class="bookTitle"]//text()')
                         )
                         title = (
-                            "".join(el_title).strip() if el_title else "Unkown Title"
+                            "".join(el_title).strip() if el_title else "Unknown Title"
                         )
                         el_url = cast(
                             list[str], c.xpath('.//a[@class="bookTitle"]/@href')
