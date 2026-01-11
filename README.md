@@ -88,11 +88,11 @@ Please see [installation guide](https://neodb.net/install/).
 
 
 ## Contribution
- - To build application with NeoDB API, documentation is available in [NeoDB API Developer Console](https://neodb.social/developer/)
- - To help develop NeoDB, please see [development guide](https://neodb.net/development/) for some basics to start with
- - To translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/neodb/)
+- To build application with NeoDB API, documentation is available in [NeoDB API Developer Console](https://neodb.social/developer/)
+- To help develop NeoDB, please see [development guide](https://neodb.net/development/) for some basics to start with
+- To translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/neodb/)
 - To contribute to NeoDB documentation, please submit a PR to the [docs/](docs/) directory.
-- Contributors may use any tools they prefer, but must review all code/text and be sufficiently confident that the contribution is of high enough quality before submitting a PR.
+- Contributors may use any tools they prefer, but must review all code/text and be sufficiently confident that the contribution is of high enough quality before submitting a PR. Once done so, please confirm that in PR description.
 
 
 ## Sponsor
