@@ -363,7 +363,7 @@ for app in env("NEODB_EXTRA_APPS"):  # type:ignore
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     # "silk.middleware.SilkyMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    "common.middleware.APIAwareSessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
