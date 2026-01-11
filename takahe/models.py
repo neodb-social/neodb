@@ -1439,6 +1439,8 @@ class Post(models.Model):
         """
         Recalculates our stats dict
         """
+        from .models import PostInteraction
+
         self.stats = {
             "likes": self.interactions.filter(
                 type=PostInteraction.Types.like,
@@ -1759,24 +1761,23 @@ class PostAttachment(models.Model):
             type_ = "image"
         elif self.is_video():
             type_ = "video"
-        meta: dict[str, object] = {
-            "focus": {
-                "x": self.focal_x or 0,
-                "y": self.focal_y or 0,
-            },
-        }
-        value: dict[str, object] = {
+        value = {
             "id": str(self.pk),
             "type": type_,
             "url": self.full_url().absolute,
             "preview_url": self.thumbnail_url().absolute,
             "remote_url": None,
-            "meta": meta,
+            "meta": {
+                "focus": {
+                    "x": self.focal_x or 0,
+                    "y": self.focal_y or 0,
+                },
+            },
             "description": self.name,
             "blurhash": self.blurhash,
         }
         if self.width and self.height:
-            meta["original"] = {
+            value["meta"]["original"] = {
                 "width": self.width,
                 "height": self.height,
                 "size": f"{self.width}x{self.height}",
@@ -2589,7 +2590,20 @@ class Token(models.Model):
     updated = models.DateTimeField(auto_now=True)
     revoked = models.DateTimeField(blank=True, null=True)
 
-    # push_subscription: "PushSubscription"
+
+class PushSubscription(models.Model):
+    class Meta:
+        db_table = "api_pushsubscription"
+
+    token = models.OneToOneField(
+        "takahe.Token",
+        on_delete=models.CASCADE,
+        related_name="push_subscription",
+    )
+    endpoint = models.CharField(max_length=500)
+    keys = models.JSONField(blank=True, null=True)
+    alerts = models.JSONField(blank=True, null=True)
+    policy = models.CharField(max_length=8, default="all")
 
 
 class Bookmark(models.Model):
