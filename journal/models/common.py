@@ -563,7 +563,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             "application_id": application_id,
         }
         params.update(self.to_post_params())
-        post = Takahe.post(**params)
+        post = Takahe.post(**params)  # ty: ignore[invalid-argument-type]
         if post and post != existing_post:
             self.link_post_id(post.pk)
         return post

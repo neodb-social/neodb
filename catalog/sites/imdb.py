@@ -76,23 +76,25 @@ class IMDB(AbstractSite):
         if not src:
             raise ParseError(self, "__NEXT_DATA__ element")
         d = json.loads(src)["props"]["pageProps"]["aboveTheFoldData"]
-        data = {
-            "title": d["titleText"]["text"],
+        title: str = d["titleText"]["text"]
+        is_series: bool = d["titleType"]["isSeries"]
+        is_episode: bool = d["titleType"]["isEpisode"]
+        brief: str = ((d.get("plot") or {}).get("plotText") or {}).get("plainText", "")
+        data: dict[str, object] = {
+            "title": title,
             "year": d["releaseYear"]["year"] if d.get("releaseYear") else None,
-            "is_series": d["titleType"]["isSeries"],
-            "is_episode": d["titleType"]["isEpisode"],
+            "is_series": is_series,
+            "is_episode": is_episode,
             "genre": (
                 [x["text"] for x in d["genres"]["genres"]] if d.get("genres") else []
             ),
-            "brief": ((d.get("plot") or {}).get("plotText") or {}).get("plainText", ""),
+            "brief": brief,
             "cover_image_url": (
                 d["primaryImage"].get("url") if d.get("primaryImage") else None
             ),
         }
-        data["localized_title"] = [{"lang": "en", "text": data["title"]}]
-        data["localized_description"] = (
-            [{"lang": "en", "text": data["brief"]}] if data["brief"] else []
-        )
+        data["localized_title"] = [{"lang": "en", "text": title}]
+        data["localized_description"] = [{"lang": "en", "text": brief}] if brief else []
         if d.get("series"):
             episode_info = d["series"].get("episodeNumber")
             if episode_info:
@@ -102,15 +104,12 @@ class IMDB(AbstractSite):
             if series:
                 data["show_imdb_id"] = series["id"]
         # TODO more data fields and localized title (in <url>releaseinfo/)
-        data["preferred_model"] = (
-            "TVEpisode"
-            if data["is_episode"]
-            else ("TVShow" if data["is_series"] else "Movie")
+        preferred_model = (
+            "TVEpisode" if is_episode else ("TVShow" if is_series else "Movie")
         )
-        if data["preferred_model"] == "TVEpisode" and data["title"].startswith(
-            "Episode #"
-        ):
-            data["title"] = re.sub(r"#(\d+).(\d+)", r"S\1E\2", data["title"][8:])
+        data["preferred_model"] = preferred_model
+        if preferred_model == "TVEpisode" and title.startswith("Episode #"):
+            data["title"] = re.sub(r"#(\d+).(\d+)", r"S\1E\2", title[8:])
         pd = ResourceContent(metadata=data)
         pd.lookup_ids[IdType.IMDB] = self.id_value
         return pd

@@ -94,6 +94,8 @@ class MockResponse:
 
 
 class DownloaderResponse(Response):
+    url: str
+
     def html(self):
         return html.fromstring(  # may throw exception unexpectedly due to OS bug, see https://github.com/neodb-social/neodb/issues/5
             self.content.decode("utf-8")

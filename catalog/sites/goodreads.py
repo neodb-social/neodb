@@ -1,11 +1,13 @@
 import json
 from datetime import datetime
+from typing import cast
 from urllib.parse import quote_plus
 
 import httpx
 from django.utils.timezone import make_aware
 from loguru import logger
 from lxml import html
+from lxml.html import HtmlElement
 
 from catalog.common import *
 from catalog.models import (
@@ -174,17 +176,28 @@ class Goodreads(AbstractSite):
                             )
                 else:
                     h = html.fromstring(r.content.decode("utf-8"))
-                    books = h.xpath('//tr[@itemtype="http://schema.org/Book"]')
-                    for c in books:  # type:ignore
-                        el_cover = c.xpath('.//img[@class="bookCover"]/@src')
+                    books = cast(
+                        list[HtmlElement],
+                        h.xpath('//tr[@itemtype="http://schema.org/Book"]'),
+                    )
+                    for c in books:
+                        el_cover = cast(
+                            list[str], c.xpath('.//img[@class="bookCover"]/@src')
+                        )
                         cover = el_cover[0] if el_cover else ""
-                        el_title = c.xpath('.//a[@class="bookTitle"]//text()')
+                        el_title = cast(
+                            list[str], c.xpath('.//a[@class="bookTitle"]//text()')
+                        )
                         title = (
                             "".join(el_title).strip() if el_title else "Unkown Title"
                         )
-                        el_url = c.xpath('.//a[@class="bookTitle"]/@href')
+                        el_url = cast(
+                            list[str], c.xpath('.//a[@class="bookTitle"]/@href')
+                        )
                         url = "https://www.goodreads.com" + el_url[0] if el_url else ""
-                        el_authors = c.xpath('.//a[@class="authorName"]//text()')
+                        el_authors = cast(
+                            list[str], c.xpath('.//a[@class="authorName"]//text()')
+                        )
                         subtitle = ", ".join(el_authors) if el_authors else ""
                         results.append(
                             ExternalSearchResultItem(

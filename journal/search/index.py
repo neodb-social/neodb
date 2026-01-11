@@ -436,7 +436,7 @@ class JournalIndex(Index):
 
     def replace_pieces(self, pieces: "Iterable[Piece] | QuerySet[Piece]"):
         if isinstance(pieces, QuerySet):
-            pids = pieces.values_list("pk", flat=True)
+            pids = list(pieces.values_list("pk", flat=True))  # ty: ignore[invalid-argument-type]
         else:
             pids = [p.pk for p in pieces]
         if not pids:

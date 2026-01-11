@@ -1,4 +1,5 @@
 import re
+from typing import cast
 from urllib.parse import urljoin
 
 from django.core.management.base import BaseCommand
@@ -32,8 +33,8 @@ class Command(BaseCommand):
                 content = ProxiedDownloader(url).download().html()
             except Exception:
                 content = html.fromstring("<html />")
-            urls = content.xpath("//a/@href")
-            for _u in urls:  # type:ignore
+            urls = cast(list[str], content.xpath("//a/@href"))
+            for _u in urls:
                 u = urljoin(url, _u)
                 if u not in history and u not in queue:
                     if len([p for p in item_patterns if re.match(p, u)]) > 0:

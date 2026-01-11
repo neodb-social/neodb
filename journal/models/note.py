@@ -113,18 +113,18 @@ class Note(Content):
     @override
     @classmethod
     def params_from_ap_object(cls, post, obj, piece):
-        params = {
+        content: str = obj.get("content", "").strip()
+        attachments: list[dict[str, object]] = []
+        params: dict[str, object] = {
             "title": obj.get("title", post.summary),
-            "content": obj.get("content", "").strip(),
+            "content": content,
             "sensitive": obj.get("sensitive", post.sensitive),
-            "attachments": [],
+            "attachments": attachments,
         }
         if post.local:
             # for local post, strip footer and detect progress from content
             # if not detected, keep default/original value by not including it in return val
-            params["content"], progress_type, progress_value = cls.strip_footer(
-                params["content"]
-            )
+            params["content"], progress_type, progress_value = cls.strip_footer(content)
             if progress_value is not None:
                 params["progress_type"] = progress_type
                 params["progress_value"] = progress_value
@@ -141,7 +141,7 @@ class Note(Content):
                     pass
         if post:
             for atta in post.attachments.all():
-                params["attachments"].append(
+                attachments.append(
                     {
                         "type": (atta.mimetype or "unknown").split("/")[0],
                         "mimetype": atta.mimetype,

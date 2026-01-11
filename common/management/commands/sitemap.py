@@ -1,3 +1,4 @@
+import os
 import shutil
 import tempfile
 
@@ -13,7 +14,8 @@ class Command(BaseCommand):
     help = "generate sitemap.txt"
 
     def handle(self, *args, **options):
-        temp = tempfile.mktemp(".txt")
+        fd, temp = tempfile.mkstemp(suffix=".txt")
+        os.close(fd)
         with open(temp, "w") as f:
             c = 50000
             for cl in [Collection, Review]:

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django_redis.client import DefaultClient
 
-from catalog.models import Edition, Item, ItemCategory, Movie
+from catalog.models import Edition, Item, Movie
 from catalog.search.index import (
     CatalogIndex,
     CatalogQueryParser,
@@ -43,11 +43,11 @@ class TestCatalogIndex:
 
     def test_cat_to_class(self):
         """Test _cat_to_class function converts category string to class names"""
-        book_classes = _cat_to_class(ItemCategory.Book.value)
+        book_classes = _cat_to_class("book")
         assert "Edition" in book_classes
         assert "Work" in book_classes
 
-        movie_classes = _cat_to_class(ItemCategory.Movie.value)
+        movie_classes = _cat_to_class("movie")
         assert "Movie" in movie_classes
 
     def test_items_to_docs(self):
@@ -644,12 +644,12 @@ class TestCatalogSearch:
             assert category.value in category_facets
 
         # Book and Movie categories should have non-zero counts
-        assert category_facets[ItemCategory.Book.value] > 0
-        assert category_facets[ItemCategory.Movie.value] > 0
+        assert category_facets["book"] > 0
+        assert category_facets["movie"] > 0
 
         # Other categories that don't have items in the test data should have zero counts
-        assert category_facets[ItemCategory.TV.value] == 0
-        assert category_facets[ItemCategory.Music.value] == 0
-        assert category_facets[ItemCategory.Game.value] == 0
-        assert category_facets[ItemCategory.Podcast.value] == 0
-        assert category_facets[ItemCategory.Performance.value] == 0
+        assert category_facets["tv"] == 0
+        assert category_facets["music"] == 0
+        assert category_facets["game"] == 0
+        assert category_facets["podcast"] == 0
+        assert category_facets["performance"] == 0

@@ -64,7 +64,8 @@ class DoubanDramaVersion(AbstractSite):
         title = " ".join(self.query_list(h, p + "//h3/text()")).strip()
         if not title:
             raise ParseError(self, "title")
-        data = {
+        opening_date = " ".join(self.query_list(h, q2.format("演出日期"))).strip()
+        data: dict[str, object] = {
             "title": title,
             "localized_title": [{"lang": "zh-cn", "text": title}],
             "director": [x.strip() for x in self.query_list(h, q.format("导演"))],
@@ -72,12 +73,12 @@ class DoubanDramaVersion(AbstractSite):
             # "actor": [x.strip() for x in self.query_list(h, q.format("主演"))],
             "composer": [x.strip() for x in self.query_list(h, q.format("作曲"))],
             "language": [x.strip() for x in self.query_list(h, q2.format("语言"))],
-            "opening_date": " ".join(self.query_list(h, q2.format("演出日期"))).strip(),
+            "opening_date": opening_date,
             "troupe": [x.strip() for x in self.query_list(h, q.format("演出团体"))],
             "location": [x.strip() for x in self.query_list(h, q.format("演出剧院"))],
         }
-        if data["opening_date"]:
-            d = data["opening_date"].split("-")
+        if opening_date:
+            d = opening_date.split("-")
             dl = len(d) if len(d) < 6 else 6
             if dl > 3:
                 data["opening_date"] = "-".join(d[:3])

@@ -102,22 +102,34 @@ class QueryParser:
                 if field == "_":
                     filters += values
                 elif values:
-                    f = str if field in self.skip_backtick else _backtick
-                    v = (
-                        f"[{','.join(map(f, values))}]"
-                        if len(values) > 1
-                        else f(values[0])
-                    )
+                    if field in self.skip_backtick:
+                        v = (
+                            f"[{','.join(str(x) for x in values)}]"
+                            if len(values) > 1
+                            else str(values[0])
+                        )
+                    else:
+                        v = (
+                            f"[{','.join(_backtick(x) for x in values)}]"
+                            if len(values) > 1
+                            else _backtick(values[0])
+                        )
                     filters.append(f"{field}:{v}")
         if self.exclude_by:
             for field, values in self.exclude_by.items():
                 if values:
-                    f = str if field in self.skip_backtick else _backtick
-                    v = (
-                        f"[{','.join(map(f, values))}]"
-                        if len(values) > 1
-                        else f(values[0])
-                    )
+                    if field in self.skip_backtick:
+                        v = (
+                            f"[{','.join(str(x) for x in values)}]"
+                            if len(values) > 1
+                            else str(values[0])
+                        )
+                    else:
+                        v = (
+                            f"[{','.join(_backtick(x) for x in values)}]"
+                            if len(values) > 1
+                            else _backtick(values[0])
+                        )
                     filters.append(f"{field}:!={v}")
         if filters:
             params["filter_by"] = " && ".join(filters)
@@ -216,11 +228,10 @@ class Index:
     def get_client(cls):
         return Client(settings.TYPESENSE_CONNECTION)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self._client = self.get_client()
 
     def _get_collection(self, for_write=False) -> Collection:
-        global _cached_collections
         collection_id = self.name + ("_write" if for_write else "_read")
         cname = settings.INDEX_ALIASES.get(collection_id) or settings.INDEX_ALIASES.get(
             self.name, self.name
@@ -328,7 +339,7 @@ class Index:
         v: str = (
             str(values)
             if isinstance(values, (str, int))
-            else ("[" + ",".join(map(str, values)) + "]")
+            else ("[" + ",".join(str(x) for x in values) + "]")
         )
         try:
             r = self.write_collection.documents.delete({"filter_by": f"{field}:{v}"})

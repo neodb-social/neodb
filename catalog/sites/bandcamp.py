@@ -2,12 +2,14 @@ import json
 import logging
 import re
 import urllib.parse
+from typing import cast
 
 import dateparser
 import dns.resolver
 import httpx
 from loguru import logger
 from lxml import html
+from lxml.html import HtmlElement
 
 from catalog.common import *
 from catalog.models import *
@@ -125,15 +127,24 @@ class Bandcamp(AbstractSite):
             try:
                 r = await client.get(search_url, timeout=2)
                 h = html.fromstring(r.content.decode("utf-8"))
-                albums = h.xpath('//li[@class="searchresult data-search"]')
-                for c in albums:  # type:ignore
-                    el_cover = c.xpath('.//div[@class="art"]/img/@src')
+                albums = cast(
+                    list[HtmlElement],
+                    h.xpath('//li[@class="searchresult data-search"]'),
+                )
+                for c in albums:
+                    el_cover = cast(list[str], c.xpath('.//div[@class="art"]/img/@src'))
                     cover = el_cover[0] if el_cover else ""
-                    el_title = c.xpath('.//div[@class="heading"]//text()')
+                    el_title = cast(
+                        list[str], c.xpath('.//div[@class="heading"]//text()')
+                    )
                     title = "".join(el_title).strip() if el_title else "Unknown Title"
-                    el_url = c.xpath('..//div[@class="itemurl"]/a/@href')
+                    el_url = cast(
+                        list[str], c.xpath('..//div[@class="itemurl"]/a/@href')
+                    )
                     url = el_url[0] if el_url else ""
-                    el_authors = c.xpath('.//div[@class="subhead"]//text()')
+                    el_authors = cast(
+                        list[str], c.xpath('.//div[@class="subhead"]//text()')
+                    )
                     subtitle = ", ".join(el_authors) if el_authors else ""
                     results.append(
                         ExternalSearchResultItem(

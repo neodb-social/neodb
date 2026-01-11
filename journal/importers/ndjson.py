@@ -2,7 +2,7 @@ import json
 import os
 import tempfile
 import zipfile
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 
 from loguru import logger
 
@@ -320,7 +320,9 @@ class NdjsonImporter(BaseImporter):
         """Process a NDJSON file and import all items."""
         logger.debug(f"Processing {file_path}")
         lines_error = 0
-        import_funcs = {
+        import_funcs: dict[
+            str, Callable[[Dict[str, Any]], BaseImporter.ImportResult]
+        ] = {
             "Tag": self.import_tag,
             "TagMember": self.import_tag_member,
             "Rating": self.import_rating,
@@ -332,7 +334,7 @@ class NdjsonImporter(BaseImporter):
             "ShelfLog": self.import_shelf_log,
             "Post": self.import_post,
         }
-        journal = {k: [] for k in import_funcs.keys()}
+        journal: dict[str, list[Dict[str, Any]]] = {k: [] for k in import_funcs.keys()}
         with open(file_path, "r") as jsonfile:
             # Skip header line
             next(jsonfile, None)

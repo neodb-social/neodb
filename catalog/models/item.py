@@ -215,8 +215,6 @@ class Item(PolymorphicModel):
         using: Any = None,
         keep_parents: bool = False,
         soft: bool = True,
-        *args: tuple[Any, ...],
-        **kwargs: dict[str, Any],
     ) -> tuple[int, dict[str, int]]:
         if soft:
             self.clear()
@@ -224,9 +222,7 @@ class Item(PolymorphicModel):
             self.save(using=using)
             return 0, {}
         else:
-            return super().delete(
-                using=using, keep_parents=keep_parents, *args, **kwargs
-            )
+            return super().delete(using=using, keep_parents=keep_parents)
 
     @cached_property
     def history(self):
