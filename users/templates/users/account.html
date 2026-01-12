@@ -312,6 +312,22 @@
             </div>
           </details>
         </article>
+        <article>
+          <details>
+            <summary>{% trans 'Log out everywhere' %}</summary>
+            <form action="{% url 'users:logout_everywhere' %}"
+                  method="post"
+                  onsubmit="return confirm('{% trans "This will log you out of all browsers and devices (including the current one), and revoke all API tokens. Continue?" %}');">
+              {% csrf_token %}
+              <p>
+                {% trans "If you notice any suspicious activity or have logged in on a shared computer, you can log out of all sessions and revoke all API tokens." %}
+              </p>
+              <input type="submit"
+                     value="{% trans 'Log out everywhere' %}"
+                     class="secondary" />
+            </form>
+          </details>
+        </article>
         {% if allow_any_site %}
           <article>
             <details>

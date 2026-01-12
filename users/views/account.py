@@ -1,3 +1,4 @@
+import secrets
 from urllib.parse import quote
 
 import django_rq
@@ -22,6 +23,7 @@ from mastodon.models import (
     Platform,
     SocialAccount,
 )
+from takahe.models import Token
 from takahe.utils import Takahe
 
 from ..models import User
@@ -263,3 +265,26 @@ def clear_data(request):
                 return auth_logout(request)
     messages.add_message(request, messages.ERROR, _("Account mismatch."))
     return redirect(reverse("users:data"))
+
+
+@require_http_methods(["POST"])
+@login_required
+def logout_everywhere(request):
+    """Log out all sessions and revoke all API tokens."""
+
+    if request.META.get("HTTP_AUTHORIZATION"):
+        raise BadRequest("Only for web login")
+
+    user = request.user
+
+    # Randomize password to invalidate all sessions (password field is unused in NeoDB)
+    user.set_password(secrets.token_urlsafe(32))
+    user.save(update_fields=["password"])
+    Takahe.sync_password(user)
+
+    # Revoke all API tokens
+    identity = getattr(user, "identity", None)
+    if identity:
+        Token.objects.filter(identity_id=identity.pk, revoked__isnull=True).delete()
+
+    return auth_logout(request)

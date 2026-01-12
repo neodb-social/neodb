@@ -32,6 +32,7 @@ urlpatterns = [
         name="sync_mastodon_preference",
     ),
     path("data/clear_data", clear_data, name="clear_data"),
+    path("data/logout_everywhere", logout_everywhere, name="logout_everywhere"),
     path("preferences", preferences, name="preferences"),
     path("logout", logout, name="logout"),
     path("layout", set_layout, name="set_layout"),
