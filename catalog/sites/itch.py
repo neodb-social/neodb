@@ -243,6 +243,37 @@ class Itch(AbstractSite):
         return platforms
 
     @classmethod
+    def _platforms_from_traits(cls, traits: Iterable[str]) -> list[str]:
+        trait_map = {
+            "p_windows": "Windows",
+            "p_osx": "macOS",
+            "p_linux": "Linux",
+            "p_android": "Android",
+            "p_ios": "iOS",
+            "p_html": "Web",
+            "p_web": "Web",
+        }
+        platforms = []
+        for trait in traits:
+            name = trait_map.get(trait)
+            if name:
+                platforms.append(name)
+        return platforms
+
+    @classmethod
+    def _fetch_api_game(cls, game_id: str) -> dict[str, Any] | None:
+        if not game_id or not game_id.startswith("games/"):
+            return None
+        numeric_id = game_id.split("/", 1)[1]
+        if not numeric_id.isdigit():
+            return None
+        api_url = f"https://api.itch.io/games/{numeric_id}"
+        try:
+            return BasicDownloader(api_url).download().json()
+        except Exception:
+            return None
+
+    @classmethod
     def _probe_itch_page(cls, url: str) -> dict[str, str | None]:
         info: dict[str, str | None] = {"game_id": None, "canonical_url": None}
         try:
@@ -334,9 +365,9 @@ class Itch(AbstractSite):
         if host == "itch.io" and parsed.path.startswith("/embed/"):
             canonical_url = self._extract_embed_target_url(content)
         else:
-            canonical_url = self._extract_canonical(content) or self._extract_any_game_url(
-                html_text
-            )
+        canonical_url = self._extract_canonical(content) or self._extract_any_game_url(
+            html_text
+        )
 
         json_ld_items = self._extract_json_ld(content)
         json_ld_game: dict[str, Any] | None = None
@@ -358,8 +389,6 @@ class Itch(AbstractSite):
             or self._extract_meta(content, "//title/text()")
         )
         title = title.strip() if title else None
-        if not title:
-            raise ParseError(self, "title")
 
         description = (
             (json_ld_game.get("description") if json_ld_game else None)
@@ -390,7 +419,12 @@ class Itch(AbstractSite):
                 or json_ld_game.get("operatingSystem")
             )
         platforms += self._extract_platforms_from_links(content)
-        platforms = _uniq(platforms)
+
+        author = []
+        if json_ld_game:
+            author = self._extract_people(
+                json_ld_game.get("author") or json_ld_game.get("creator")
+            )
 
         genre = []
         if json_ld_game and json_ld_game.get("genre"):
@@ -409,11 +443,43 @@ class Itch(AbstractSite):
 
         genre = _uniq(genre)
 
-        author = []
-        if json_ld_game:
-            author = self._extract_people(
-                json_ld_game.get("author") or json_ld_game.get("creator")
-            )
+        game_id = self._normalize_game_id(
+            self._extract_itch_path(content)
+            or self._extract_game_id_from_json_ld(json_ld_items)
+            or self._extract_game_id_from_text(html_text)
+        )
+        if not game_id:
+            raise ParseError(self, "itch:path")
+
+        api_data = self._fetch_api_game(game_id)
+        if api_data and isinstance(api_data, dict) and api_data.get("game"):
+            game = api_data.get("game") or {}
+            api_title = game.get("title")
+            api_desc = game.get("short_text")
+            if api_title:
+                title = api_title
+            if api_desc:
+                description = api_desc
+            user = game.get("user") or {}
+            display_name = user.get("display_name")
+            username = user.get("username")
+            author = _uniq([display_name or "", username or ""])
+            api_traits = game.get("traits") or []
+            if isinstance(api_traits, list):
+                platforms += self._platforms_from_traits(api_traits)
+            api_cover = game.get("cover_url") or game.get("still_cover_url")
+            if api_cover:
+                cover_url = api_cover
+            if not canonical_url and game.get("url"):
+                canonical_url = game.get("url")
+            if not release_date and game.get("published_at"):
+                dt = dateparser.parse(str(game.get("published_at")))
+                release_date = dt.strftime("%Y-%m-%d") if dt else None
+        else:
+            if not title:
+                raise ParseError(self, "title")
+
+        platforms = _uniq(platforms)
 
         localized_title = (
             [{"lang": detect_language(title), "text": title}] if title else []
@@ -440,12 +506,5 @@ class Itch(AbstractSite):
             }
         )
 
-        game_id = self._normalize_game_id(
-            self._extract_itch_path(content)
-            or self._extract_game_id_from_json_ld(json_ld_items)
-            or self._extract_game_id_from_text(html_text)
-        )
-        if not game_id:
-            raise ParseError(self, "itch:path")
         pd.lookup_ids[IdType.Itch] = game_id
         return pd
