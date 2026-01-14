@@ -5,8 +5,10 @@ from typing import Any, Iterable
 from urllib.parse import urlparse
 
 import dateparser
+from django.conf import settings
 
 from catalog.common import *
+from loguru import logger
 from catalog.models import *
 from common.models.lang import detect_language
 
@@ -268,10 +270,35 @@ class Itch(AbstractSite):
         if not numeric_id.isdigit():
             return None
         api_url = f"https://api.itch.io/games/{numeric_id}"
-        try:
-            return BasicDownloader(api_url).download().json()
-        except Exception:
-            return None
+        headers = {
+            "Accept": "application/json",
+            "User-Agent": settings.NEODB_USER_AGENT,
+        }
+        # NOTE: API access may require verification; keep code here for later enablement.
+        # logger.info("Itch API fetch", extra={"url": api_url})
+        # dl = BasicDownloader(api_url, headers=headers)
+        # resp, response_type = dl._download(api_url)
+        # if response_type != RESPONSE_OK or not resp:
+        #     status = getattr(resp, "status_code", None)
+        #     body = getattr(resp, "text", "") if resp else ""
+        #     logger.warning(
+        #         "Itch API request failed (status={status}, response_type={rtype}, url={url}, body={body})",
+        #         status=status,
+        #         rtype=response_type,
+        #         url=api_url,
+        #         body=(body[:200] if body else ""),
+        #     )
+        #     return None
+        # try:
+        #     return resp.json()
+        # except Exception:
+        #     body = getattr(resp, "text", "")
+        #     logger.warning(
+        #         "Itch API response not JSON",
+        #         extra={"url": api_url, "body": (body[:200] if body else "")},
+        #     )
+        #     return None
+        return None
 
     @classmethod
     def _probe_itch_page(cls, url: str) -> dict[str, str | None]:
