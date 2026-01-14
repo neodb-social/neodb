@@ -18,6 +18,7 @@ The following external sites are supported for importing catalog items.
 | Google Books | Book (Edition) | |
 | IGDB | Game | |
 | IMDB | Movie · TV (Show, Episode) | |
+| itch.io | Game | |
 | jjwxc 晋江文学城 | Book (Edition) | |
 | Letterboxd | *(link in archive is mapped to TMDB)* | Yes — upload exported archive |
 | MobyGames | Game | |
