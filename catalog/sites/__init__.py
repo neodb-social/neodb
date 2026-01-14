@@ -18,6 +18,7 @@ from .goodreads import Goodreads
 from .google_books import GoogleBooks
 from .igdb import IGDB
 from .imdb import IMDB
+from .itch import Itch
 from .jjwxc import JJWXC
 from .musicbrainz import MusicBrainzRelease, MusicBrainzReleaseGroup
 from .openlibrary import OpenLibrary, OpenLibrary_Work
@@ -55,6 +56,7 @@ __all__ = [
     "OpenLibrary",
     "OpenLibrary_Work",
     "IMDB",
+    "Itch",
     "JJWXC",
     "Qidian",
     "RSS",

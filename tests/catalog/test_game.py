@@ -99,6 +99,55 @@ class TestSteam:
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestItch:
+    def test_parse(self):
+        t_url = "https://william-rous.itch.io/type-help"
+        t_embed = "https://itch.io/embed/3268593"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.url == t_url
+        assert site.id_value == "william-rous.itch.io/type-help"
+
+        site3 = SiteManager.get_site_by_url(t_embed)
+        assert site3 is not None
+        assert site3.url == t_embed
+        assert site3.id_value == "embed/3268593"
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://william-rous.itch.io/type-help"
+        t_embed = "https://itch.io/embed/3268593"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert not site.ready
+        site.get_resource_ready()
+        assert site.ready
+        assert site.resource is not None
+        assert site.resource.metadata["title"] == "Type Help"
+        assert site.resource.id_value == "games/3268593"
+        assert site.resource.other_lookup_ids.get(IdType.Itch) == "games/3268593"
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Game)
+        assert site.resource.item.itch == "games/3268593"
+        assert site.resource.item.platform == ["Web"]
+        assert site.resource.item.display_description.startswith(
+            "The Unsolvable Mystery"
+        )
+        assert "A puzzle-mystery game inspired by Return of the Obra Dinn" in (
+            site.resource.item.display_description
+        )
+
+        embed_site = SiteManager.get_site_by_url(t_embed)
+        assert embed_site is not None
+        embed_res = embed_site.get_resource_ready()
+        assert embed_res is not None
+        assert embed_res.item is not None
+        assert embed_res.item.pk == site.resource.item.pk
+        assert embed_res.url == t_url
+        assert embed_res.id_value == "games/3268593"
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestDoubanGame:
     def test_parse(self):
         t_id_type = IdType.DoubanGame
