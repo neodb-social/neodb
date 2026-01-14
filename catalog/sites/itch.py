@@ -470,15 +470,22 @@ class Itch(AbstractSite):
                 json_ld_game.get("author") or json_ld_game.get("creator")
             )
 
+        genre = []
+        if json_ld_game and json_ld_game.get("genre"):
+            if isinstance(json_ld_game.get("genre"), list):
+                genre = [str(g) for g in json_ld_game.get("genre") if g]
+            elif isinstance(json_ld_game.get("genre"), str):
+                genre = [str(json_ld_game.get("genre"))]
+
         published_cell = self._extract_table_row(content, "Published")
-        if published_cell and not release_date:
+        if published_cell is not None and not release_date:
             published_title = self._extract_meta(published_cell, ".//abbr/@title")
             published_text = "".join(published_cell.xpath(".//text()")).strip()
             dt = dateparser.parse(published_title or published_text)
             release_date = dt.strftime("%Y-%m-%d") if dt else release_date
 
         authors_cell = self._extract_table_row(content, "Authors")
-        if authors_cell:
+        if authors_cell is not None:
             author_names = [
                 t.strip()
                 for t in authors_cell.xpath(".//a/text()")
@@ -488,7 +495,7 @@ class Itch(AbstractSite):
                 author = _uniq(author + author_names)
 
         genre_cell = self._extract_table_row(content, "Genre")
-        if genre_cell:
+        if genre_cell is not None:
             genre_names = [
                 t.strip()
                 for t in genre_cell.xpath(".//a/text()")
@@ -498,7 +505,7 @@ class Itch(AbstractSite):
                 genre = _uniq(genre + genre_names)
 
         tags_cell = self._extract_table_row(content, "Tags")
-        if tags_cell:
+        if tags_cell is not None:
             tag_names = [
                 t.strip()
                 for t in tags_cell.xpath(".//a/text()")
@@ -506,13 +513,6 @@ class Itch(AbstractSite):
             ]
             if tag_names:
                 genre = _uniq(genre + tag_names)
-
-        genre = []
-        if json_ld_game and json_ld_game.get("genre"):
-            if isinstance(json_ld_game.get("genre"), list):
-                genre = [str(g) for g in json_ld_game.get("genre") if g]
-            elif isinstance(json_ld_game.get("genre"), str):
-                genre = [str(json_ld_game.get("genre"))]
 
         keywords = self._extract_meta(content, "//meta[@name='keywords']/@content")
         if keywords:
