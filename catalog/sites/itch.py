@@ -95,7 +95,7 @@ class Itch(AbstractSite):
                 continue
             try:
                 data = json.loads(txt)
-            except Exception:
+            except json.JSONDecodeError:
                 continue
             if isinstance(data, list):
                 for item in data:
