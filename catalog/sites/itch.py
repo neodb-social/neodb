@@ -78,6 +78,10 @@ class Itch(AbstractSite):
         )
 
     @classmethod
+    def _extract_itch_path(cls, content) -> str | None:
+        return cls._extract_meta(content, "//meta[@name='itch:path']/@content")
+
+    @classmethod
     def _extract_json_ld(cls, content) -> list[dict[str, Any]]:
         results: list[dict[str, Any]] = []
         scripts = content.xpath("//script[@type='application/ld+json']/text()")
@@ -107,6 +111,7 @@ class Itch(AbstractSite):
         if not text:
             return None
         patterns = [
+            r'<meta[^>]+name=["\']itch:path["\'][^>]+content=["\']([^"\']+)["\']',
             r'data-game_id="(\d+)"',
             r'data-game-id="(\d+)"',
             r'"game_id"\s*:\s*(\d+)',
@@ -118,6 +123,30 @@ class Itch(AbstractSite):
             m = re.search(p, text)
             if m:
                 return m.group(1)
+        return None
+
+    @classmethod
+    def _normalize_game_id(cls, game_id: str | None) -> str | None:
+        if not game_id:
+            return None
+        gid = game_id.strip()
+        if re.fullmatch(r"\d+", gid):
+            return f"games/{gid}"
+        return gid
+
+    @classmethod
+    def _extract_any_game_url(cls, text: str) -> str | None:
+        if not text:
+            return None
+        m = re.search(r"https?://[a-z0-9\\-]+\\.itch\\.io/[a-z0-9\\-_]+", text)
+        if not m:
+            return None
+        u = m.group(0)
+        parsed = urlparse(u)
+        host = parsed.netloc.lower()
+        slug = parsed.path.strip("/").split("/")[0] if parsed.path else ""
+        if host and slug:
+            return f"https://{host}/{slug}"
         return None
 
     @classmethod
@@ -175,8 +204,11 @@ class Itch(AbstractSite):
             html_text = resp.text or ""
         except Exception:
             return info
-        info["canonical_url"] = cls._extract_canonical(content)
-        info["game_id"] = cls._extract_game_id_from_text(html_text)
+        info["canonical_url"] = cls._extract_canonical(content) or cls._extract_any_game_url(html_text)
+        info["game_id"] = cls._normalize_game_id(
+            cls._extract_itch_path(content)
+            or cls._extract_game_id_from_text(html_text)
+        )
         return info
 
     @classmethod
@@ -192,6 +224,45 @@ class Itch(AbstractSite):
             return True
         return bool(info.get("game_id"))
 
+    def get_resource_ready(
+        self,
+        auto_save=True,
+        auto_create=True,
+        auto_link=True,
+        preloaded_content=None,
+        ignore_existing_content=False,
+    ) -> ExternalResource | None:
+        if self.url:
+            parsed = urlparse(self.url)
+            host = parsed.netloc.lower()
+            if host == "itch.io" or not host.endswith(".itch.io"):
+                info = self._probe_itch_page(self.url)
+                canonical_url = info.get("canonical_url")
+                if canonical_url:
+                    canonical_site = SiteManager.get_site_by_url(
+                        canonical_url, detect_redirection=False, detect_fallback=False
+                    )
+                    if (
+                        canonical_site
+                        and canonical_site.ID_TYPE == self.ID_TYPE
+                        and canonical_site.id_value
+                        and canonical_site.id_value != self.id_value
+                    ):
+                        return canonical_site.get_resource_ready(
+                            auto_save=auto_save,
+                            auto_create=auto_create,
+                            auto_link=auto_link,
+                            preloaded_content=preloaded_content,
+                            ignore_existing_content=ignore_existing_content,
+                        )
+        return super().get_resource_ready(
+            auto_save=auto_save,
+            auto_create=auto_create,
+            auto_link=auto_link,
+            preloaded_content=preloaded_content,
+            ignore_existing_content=ignore_existing_content,
+        )
+
     def scrape(self):
         if not self.url:
             raise ParseError(self, "url")
@@ -200,7 +271,9 @@ class Itch(AbstractSite):
         content = resp.html()
         html_text = resp.text or ""
 
-        canonical_url = self._extract_canonical(content)
+        canonical_url = self._extract_canonical(content) or self._extract_any_game_url(
+            html_text
+        )
 
         json_ld_items = self._extract_json_ld(content)
         json_ld_game: dict[str, Any] | None = None
@@ -302,8 +375,10 @@ class Itch(AbstractSite):
             }
         )
 
-        game_id = self._extract_game_id_from_json_ld(json_ld_items) or self._extract_game_id_from_text(
-            html_text
+        game_id = self._normalize_game_id(
+            self._extract_itch_path(content)
+            or self._extract_game_id_from_json_ld(json_ld_items)
+            or self._extract_game_id_from_text(html_text)
         )
         if game_id:
             pd.lookup_ids[IdType.ItchGameId] = game_id
