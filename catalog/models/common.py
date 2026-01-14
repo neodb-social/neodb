@@ -86,7 +86,6 @@ class IdType(models.TextChoices):  # values must be in lowercase
     BGG = "bgg", _("BGG Boardgame")
     Steam = "steam", _("Steam Game")
     Itch = "itch", _("itch.io")
-    ItchGameId = "itch_game_id", _("itch.io Game ID")
     Bangumi = "bangumi", _("Bangumi")
     ApplePodcast = "apple_podcast", _("Apple Podcast")
     AppleMusic = "apple_music", _("Apple Music")
@@ -110,7 +109,7 @@ IdealIdTypes = [
     IdType.RSS,
     IdType.IMDB,
     IdType.Steam,
-    IdType.ItchGameId,
+    IdType.Itch,
     IdType.WikiData,
 ]
 

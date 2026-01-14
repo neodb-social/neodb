@@ -40,6 +40,12 @@ class Itch(AbstractSite):
 
     @classmethod
     def id_to_url(cls, id_value: str):
+        if id_value.startswith("games/"):
+            game_id = id_value.split("/", 1)[1]
+            return f"https://itch.io/game/{game_id}"
+        if id_value.startswith("embed/"):
+            embed_id = id_value.split("/", 1)[1]
+            return f"https://itch.io/embed/{embed_id}"
         return f"https://{id_value}"
 
     @classmethod
@@ -55,7 +61,9 @@ class Itch(AbstractSite):
         if host == "itch.io":
             parts = path.split("/")
             if len(parts) >= 2 and parts[0] in ("embed", "game"):
-                return f"{host}/{parts[0]}/{parts[1]}"
+                if parts[0] == "game":
+                    return f"games/{parts[1]}"
+                return f"{parts[0]}/{parts[1]}"
         slug = path.split("/")[0] if path else ""
         return f"{host}/{slug}" if slug else host
 
@@ -263,28 +271,30 @@ class Itch(AbstractSite):
         if self.url:
             parsed = urlparse(self.url)
             host = parsed.netloc.lower()
-            if host == "itch.io" or not host.endswith(".itch.io"):
-                info = self._probe_itch_page(self.url)
-                canonical_url = info.get("canonical_url")
-                if canonical_url:
-                    canonical_site = SiteManager.get_site_by_url(
-                        canonical_url, detect_redirection=False, detect_fallback=False
-                    )
-                    if (
-                        canonical_site
-                        and canonical_site.ID_TYPE == self.ID_TYPE
-                        and canonical_site.id_value
-                        and canonical_site.id_value != self.id_value
-                    ):
-                        return canonical_site.get_resource_ready(
-                            auto_save=auto_save,
-                            auto_create=auto_create,
-                            auto_link=auto_link,
-                            preloaded_content=preloaded_content,
-                            ignore_existing_content=ignore_existing_content,
-                        )
-                if host == "itch.io" and parsed.path.startswith("/embed/"):
+            info = self._probe_itch_page(self.url)
+            canonical_url = info.get("canonical_url")
+            game_id = info.get("game_id")
+            if host == "itch.io" and parsed.path.startswith("/embed/"):
+                if not canonical_url:
                     return None
+                canonical_site = SiteManager.get_site_by_url(
+                    canonical_url, detect_redirection=False, detect_fallback=False
+                )
+                if canonical_site and canonical_site.ID_TYPE == self.ID_TYPE:
+                    return canonical_site.get_resource_ready(
+                        auto_save=auto_save,
+                        auto_create=auto_create,
+                        auto_link=auto_link,
+                        preloaded_content=preloaded_content,
+                        ignore_existing_content=ignore_existing_content,
+                    )
+                return None
+            if canonical_url:
+                self.url = canonical_url
+            if game_id:
+                self.id_value = game_id
+            else:
+                return None
         return super().get_resource_ready(
             auto_save=auto_save,
             auto_create=auto_create,
@@ -415,10 +425,7 @@ class Itch(AbstractSite):
             or self._extract_game_id_from_json_ld(json_ld_items)
             or self._extract_game_id_from_text(html_text)
         )
-        if game_id:
-            pd.lookup_ids[IdType.ItchGameId] = game_id
-        if canonical_url:
-            canonical_id = self.url_to_id(canonical_url)
-            if canonical_id:
-                pd.lookup_ids[IdType.Itch] = canonical_id
+        if not game_id:
+            raise ParseError(self, "itch:path")
+        pd.lookup_ids[IdType.Itch] = game_id
         return pd

@@ -111,7 +111,7 @@ class TestItch:
         site3 = SiteManager.get_site_by_url(t_embed)
         assert site3 is not None
         assert site3.url == t_embed
-        assert site3.id_value == "itch.io/embed/3268593"
+        assert site3.id_value == "embed/3268593"
 
     @use_local_response
     def test_scrape(self):
@@ -124,14 +124,11 @@ class TestItch:
         assert site.ready
         assert site.resource is not None
         assert site.resource.metadata["title"] == "Type Help"
-        assert site.resource.other_lookup_ids.get(IdType.ItchGameId) == "games/3268593"
-        assert (
-            site.resource.other_lookup_ids.get(IdType.Itch)
-            == "william-rous.itch.io/type-help"
-        )
+        assert site.resource.id_value == "games/3268593"
+        assert site.resource.other_lookup_ids.get(IdType.Itch) == "games/3268593"
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Game)
-        assert site.resource.item.itch_game_id == "games/3268593"
+        assert site.resource.item.itch == "games/3268593"
         assert site.resource.item.platform == ["Windows"]
 
         embed_site = SiteManager.get_site_by_url(t_embed)
@@ -141,6 +138,7 @@ class TestItch:
         assert embed_res.item is not None
         assert embed_res.item.pk == site.resource.item.pk
         assert embed_res.url == t_url
+        assert embed_res.id_value == "games/3268593"
 
 
 @pytest.mark.django_db(databases="__all__")
