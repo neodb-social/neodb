@@ -142,7 +142,7 @@ class Itch(AbstractSite):
     def _extract_any_game_url(cls, text: str) -> str | None:
         if not text:
             return None
-        m = re.search(r"https?://[A-Za-z0-9\\-]+\\.itch\\.io/[^\\s\"'<>?#]+", text)
+        m = re.search(r"https?://[A-Za-z0-9-]+\.itch\.io/[^\s\"'<>?#]+", text)
         if not m:
             return None
         u = m.group(0)
