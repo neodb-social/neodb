@@ -130,6 +130,7 @@ class TestItch:
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.itch == "games/3268593"
         assert site.resource.item.platform == ["Windows"]
+        assert site.resource.item.display_description == "The Unsolvable Mystery"
 
         embed_site = SiteManager.get_site_by_url(t_embed)
         assert embed_site is not None
