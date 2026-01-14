@@ -33,7 +33,6 @@ class Itch(AbstractSite):
     URL_PATTERNS = [
         r"^https?://([a-z0-9\-]+\.itch\.io/[^/?#]+).*",
         r"^https?://itch\.io/embed/(\d+).*",
-        r"^https?://itch\.io/game/(\d+).*",
     ]
     WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Game
@@ -42,7 +41,7 @@ class Itch(AbstractSite):
     def id_to_url(cls, id_value: str):
         if id_value.startswith("games/"):
             game_id = id_value.split("/", 1)[1]
-            return f"https://itch.io/game/{game_id}"
+            return f"https://itch.io/embed/{game_id}"
         if id_value.startswith("embed/"):
             embed_id = id_value.split("/", 1)[1]
             return f"https://itch.io/embed/{embed_id}"
@@ -60,9 +59,7 @@ class Itch(AbstractSite):
             return f"{host}/{slug}" if slug else None
         if host == "itch.io":
             parts = path.split("/")
-            if len(parts) >= 2 and parts[0] in ("embed", "game"):
-                if parts[0] == "game":
-                    return f"games/{parts[1]}"
+            if len(parts) >= 2 and parts[0] == "embed":
                 return f"{parts[0]}/{parts[1]}"
         slug = path.split("/")[0] if path else ""
         return f"{host}/{slug}" if slug else host
@@ -125,7 +122,6 @@ class Itch(AbstractSite):
             r'"game_id"\s*:\s*(\d+)',
             r"game_id\s*=\s*(\d+)",
             r"itch\.io/embed/(\d+)",
-            r"itch\.io/game/(\d+)",
         ]
         for p in patterns:
             m = re.search(p, text)
