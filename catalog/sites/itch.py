@@ -6,11 +6,13 @@ from urllib.parse import urlparse
 
 import dateparser
 from django.conf import settings
+from lxml import etree
 
 from catalog.common import *
-from loguru import logger
 from catalog.models import *
 from common.models.lang import detect_language
+from journal.models.renderers import html_to_text
+from loguru import logger
 
 _logger = logging.getLogger(__name__)
 
@@ -257,6 +259,18 @@ class Itch(AbstractSite):
         return None
 
     @classmethod
+    def _parse_release_date(cls, text: str | None) -> str | None:
+        if not text:
+            return None
+        cleaned = text.strip()
+        if "@" in cleaned:
+            cleaned = cleaned.split("@", 1)[0].strip()
+        dt = dateparser.parse(cleaned, languages=["en"])
+        if not dt:
+            dt = dateparser.parse(cleaned)
+        return dt.strftime("%Y-%m-%d") if dt else None
+
+    @classmethod
     def _platforms_from_traits(cls, traits: Iterable[str]) -> list[str]:
         trait_map = {
             "p_windows": "Windows",
@@ -440,6 +454,22 @@ class Itch(AbstractSite):
             or self._extract_meta(content, "//meta[@name='description']/@content")
         )
         description = description.strip() if description else ""
+        desc_blocks = content.xpath(
+            "//div[contains(concat(' ', normalize-space(@class), ' '), ' formatted_description ')"
+            " and contains(concat(' ', normalize-space(@class), ' '), ' user_formatted ')]"
+        )
+        if desc_blocks:
+            try:
+                html_fragment = etree.tostring(
+                    desc_blocks[0], encoding="unicode", method="html"
+                )
+                body_text = html_to_text(html_fragment).strip()
+                if body_text:
+                    description = (
+                        description + "\n\n" + body_text if description else body_text
+                    )
+            except Exception:
+                pass
 
         cover_url = (
             (json_ld_game.get("image") if json_ld_game else None)
@@ -481,8 +511,11 @@ class Itch(AbstractSite):
         if published_cell is not None and not release_date:
             published_title = self._extract_meta(published_cell, ".//abbr/@title")
             published_text = "".join(published_cell.xpath(".//text()")).strip()
-            dt = dateparser.parse(published_title or published_text)
-            release_date = dt.strftime("%Y-%m-%d") if dt else release_date
+            release_date = (
+                self._parse_release_date(published_title)
+                or self._parse_release_date(published_text)
+                or release_date
+            )
 
         authors_cell = self._extract_table_row(content, "Authors")
         if authors_cell is not None:
