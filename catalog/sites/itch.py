@@ -1,20 +1,16 @@
 import json
-import logging
 import re
-from typing import Any, Iterable
+from typing import Any, Iterable, cast
 from urllib.parse import urlparse
 
 import dateparser
-from django.conf import settings
 from lxml import etree
+from lxml.html import HtmlElement
 
 from catalog.common import *
 from catalog.models import *
 from common.models.lang import detect_language
 from journal.models.renderers import html_to_text
-from loguru import logger
-
-_logger = logging.getLogger(__name__)
 
 
 def _uniq(values: Iterable[str]) -> list[str]:
@@ -174,8 +170,10 @@ class Itch(AbstractSite):
             except Exception:
                 continue
             norm = cls._normalize_embed_button_text(text)
-            if "itchio" in norm and "onitchio" in norm and (
-                "download" in norm or "play" in norm
+            if (
+                "itchio" in norm
+                and "onitchio" in norm
+                and ("download" in norm or "play" in norm)
             ):
                 href = a.get("href")
                 if href:
@@ -287,12 +285,11 @@ class Itch(AbstractSite):
         if host == "itch.io" and parsed.path.startswith("/embed/"):
             info["canonical_url"] = cls._extract_embed_target_url(content)
         else:
-            info["canonical_url"] = cls._extract_canonical(content) or cls._extract_any_game_url(
-                html_text
-            )
+            info["canonical_url"] = cls._extract_canonical(
+                content
+            ) or cls._extract_any_game_url(html_text)
         info["game_id"] = cls._normalize_game_id(
-            cls._extract_itch_path(content)
-            or cls._extract_game_id_from_text(html_text)
+            cls._extract_itch_path(content) or cls._extract_game_id_from_text(html_text)
         )
         return info, content, html_text
 
@@ -333,12 +330,12 @@ class Itch(AbstractSite):
         numeric_id = game_id.split("/", 1)[1]
         if not numeric_id.isdigit():
             return None
-        api_url = f"https://api.itch.io/games/{numeric_id}"
-        headers = {
-            "Accept": "application/json",
-            "User-Agent": settings.NEODB_USER_AGENT,
-        }
         # NOTE: API access may require verification; keep code here for later enablement.
+        # api_url = f"https://api.itch.io/games/{numeric_id}"
+        # headers = {
+        #     "Accept": "application/json",
+        #     "User-Agent": settings.NEODB_USER_AGENT,
+        # }
         # logger.info("Itch API fetch", extra={"url": api_url})
         # dl = BasicDownloader(api_url, headers=headers)
         # resp, response_type = dl._download(api_url)
@@ -443,9 +440,9 @@ class Itch(AbstractSite):
         if host == "itch.io" and parsed.path.startswith("/embed/"):
             canonical_url = self._extract_embed_target_url(content)
         else:
-            canonical_url = self._extract_canonical(content) or self._extract_any_game_url(
-                html_text
-            )
+            canonical_url = self._extract_canonical(
+                content
+            ) or self._extract_any_game_url(html_text)
 
         json_ld_items = self._extract_json_ld(content)
         json_ld_game: dict[str, Any] | None = None
@@ -475,13 +472,18 @@ class Itch(AbstractSite):
 
         description = (
             (json_ld_game.get("description") if json_ld_game else None)
-            or self._extract_meta(content, "//meta[@property='og:description']/@content")
+            or self._extract_meta(
+                content, "//meta[@property='og:description']/@content"
+            )
             or self._extract_meta(content, "//meta[@name='description']/@content")
         )
         description = description.strip() if description else ""
-        desc_blocks = content.xpath(
-            "//div[contains(concat(' ', normalize-space(@class), ' '), ' formatted_description ')"
-            " and contains(concat(' ', normalize-space(@class), ' '), ' user_formatted ')]"
+        desc_blocks = cast(
+            list[HtmlElement],
+            content.xpath(
+                "//div[contains(concat(' ', normalize-space(@class), ' '), ' formatted_description ')"
+                " and contains(concat(' ', normalize-space(@class), ' '), ' user_formatted ')]"
+            ),
         )
         if desc_blocks:
             try:
@@ -518,8 +520,7 @@ class Itch(AbstractSite):
         platforms = []
         if json_ld_game:
             platforms = self._extract_platforms(
-                json_ld_game.get("gamePlatform")
-                or json_ld_game.get("operatingSystem")
+                json_ld_game.get("gamePlatform") or json_ld_game.get("operatingSystem")
             )
         platforms += self._extract_platforms_from_links(content)
 
@@ -530,11 +531,12 @@ class Itch(AbstractSite):
             )
 
         genre = []
-        if json_ld_game and json_ld_game.get("genre"):
-            if isinstance(json_ld_game.get("genre"), list):
-                genre = [str(g) for g in json_ld_game.get("genre") if g]
-            elif isinstance(json_ld_game.get("genre"), str):
-                genre = [str(json_ld_game.get("genre"))]
+        if json_ld_game:
+            genre_val = json_ld_game.get("genre")
+            if isinstance(genre_val, list):
+                genre = [str(g) for g in genre_val if g]
+            elif isinstance(genre_val, str):
+                genre = [genre_val]
 
         published_cell = self._extract_table_row(content, "Published")
         if published_cell is not None and not release_date:
@@ -580,9 +582,14 @@ class Itch(AbstractSite):
         if keywords:
             genre.extend([k.strip() for k in keywords.split(",") if k.strip()])
 
-        tag_nodes = content.xpath("//a[contains(@class,'tag')]/text()")
+        tag_nodes = cast(
+            list[str],
+            content.xpath("//a[contains(@class,'tag')]/text()"),
+        )
         if tag_nodes:
-            genre.extend([t.strip() for t in tag_nodes if t.strip()])
+            genre.extend(
+                [t.strip() for t in tag_nodes if isinstance(t, str) and t.strip()]
+            )
 
         genre = _uniq(genre)
 
