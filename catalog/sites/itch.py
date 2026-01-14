@@ -150,7 +150,7 @@ class Itch(AbstractSite):
     def _extract_any_game_url(cls, text: str) -> str | None:
         if not text:
             return None
-        m = re.search(r"https?://[a-z0-9\\-]+\\.itch\\.io/[a-z0-9\\-_]+", text)
+        m = re.search(r"https?://[A-Za-z0-9\\-]+\\.itch\\.io/[^\\s\"'<>?#]+", text)
         if not m:
             return None
         u = m.group(0)
@@ -230,25 +230,35 @@ class Itch(AbstractSite):
 
     @classmethod
     def _extract_platforms_from_links(cls, content) -> list[str]:
-        platform_by_href = {
-            "https://itch.io/games/html5": "Web",
-            "https://itch.io/games/platform-windows": "Windows",
-            "https://itch.io/games/platform-osx": "macOS",
-            "https://itch.io/games/platform-linux": "Linux",
-            "https://itch.io/games/platform-android": "Android",
-            "https://itch.io/games/platform-ios": "iOS",
+        platform_by_path = {
+            "/games/html5": "Web",
+            "/games/platform-windows": "Windows",
+            "/games/platform-osx": "macOS",
+            "/games/platform-linux": "Linux",
+            "/games/platform-android": "Android",
+            "/games/platform-ios": "iOS",
         }
         hrefs = content.xpath("//a[@href]/@href")
-        hrefs = [h.rstrip("/") for h in hrefs if isinstance(h, str)]
+        paths = []
+        for href in hrefs:
+            if not isinstance(href, str):
+                continue
+            parsed = urlparse(href)
+            path = parsed.path.rstrip("/")
+            if path:
+                paths.append(path)
         platforms = []
-        for href, name in platform_by_href.items():
-            if href.rstrip("/") in hrefs:
+        for path, name in platform_by_path.items():
+            if path.rstrip("/") in paths:
                 platforms.append(name)
         return platforms
 
     @classmethod
     def _extract_table_row(cls, content, label: str):
-        rows = content.xpath("//table//tr")
+        rows = content.xpath(
+            "//div[contains(concat(' ', normalize-space(@class), ' '), ' game_info_panel_widget ')]"
+            "//table//tr"
+        )
         for row in rows:
             cells = row.xpath("./td")
             if len(cells) < 2:
@@ -257,6 +267,34 @@ class Itch(AbstractSite):
             if cell_label == label:
                 return cells[1]
         return None
+
+    @classmethod
+    def _download_page(cls, url: str):
+        try:
+            resp = BasicDownloader2(url, timeout=2).download()
+            return resp.html(), (resp.text or "")
+        except Exception:
+            return None, ""
+
+    @classmethod
+    def _probe_itch_page_with_content(cls, url: str):
+        info: dict[str, str | None] = {"game_id": None, "canonical_url": None}
+        content, html_text = cls._download_page(url)
+        if not content:
+            return info, None, ""
+        parsed = urlparse(url)
+        host = parsed.netloc.lower()
+        if host == "itch.io" and parsed.path.startswith("/embed/"):
+            info["canonical_url"] = cls._extract_embed_target_url(content)
+        else:
+            info["canonical_url"] = cls._extract_canonical(content) or cls._extract_any_game_url(
+                html_text
+            )
+        info["game_id"] = cls._normalize_game_id(
+            cls._extract_itch_path(content)
+            or cls._extract_game_id_from_text(html_text)
+        )
+        return info, content, html_text
 
     @classmethod
     def _parse_release_date(cls, text: str | None) -> str | None:
@@ -328,25 +366,7 @@ class Itch(AbstractSite):
 
     @classmethod
     def _probe_itch_page(cls, url: str) -> dict[str, str | None]:
-        info: dict[str, str | None] = {"game_id": None, "canonical_url": None}
-        try:
-            resp = BasicDownloader2(url, timeout=2).download()
-            content = resp.html()
-            html_text = resp.text or ""
-        except Exception:
-            return info
-        parsed = urlparse(url)
-        host = parsed.netloc.lower()
-        if host == "itch.io" and parsed.path.startswith("/embed/"):
-            info["canonical_url"] = cls._extract_embed_target_url(content)
-        else:
-            info["canonical_url"] = cls._extract_canonical(content) or cls._extract_any_game_url(
-                html_text
-            )
-        info["game_id"] = cls._normalize_game_id(
-            cls._extract_itch_path(content)
-            or cls._extract_game_id_from_text(html_text)
-        )
+        info, _, _ = cls._probe_itch_page_with_content(url)
         return info
 
     @classmethod
@@ -373,7 +393,9 @@ class Itch(AbstractSite):
         if self.url:
             parsed = urlparse(self.url)
             host = parsed.netloc.lower()
-            info = self._probe_itch_page(self.url)
+            info, content, html_text = self._probe_itch_page_with_content(self.url)
+            self._preloaded_content = content
+            self._preloaded_html_text = html_text
             canonical_url = info.get("canonical_url")
             game_id = info.get("game_id")
             if host == "itch.io" and parsed.path.startswith("/embed/"):
@@ -409,9 +431,12 @@ class Itch(AbstractSite):
         if not self.url:
             raise ParseError(self, "url")
 
-        resp = BasicDownloader2(self.url).download()
-        content = resp.html()
-        html_text = resp.text or ""
+        content = getattr(self, "_preloaded_content", None)
+        html_text = getattr(self, "_preloaded_html_text", "")
+        if not content:
+            resp = BasicDownloader2(self.url).download()
+            content = resp.html()
+            html_text = resp.text or ""
 
         parsed = urlparse(self.url)
         host = parsed.netloc.lower()
