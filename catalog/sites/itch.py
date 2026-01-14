@@ -274,7 +274,7 @@ class Itch(AbstractSite):
     def _probe_itch_page_with_content(cls, url: str):
         info: dict[str, str | None] = {"game_id": None, "canonical_url": None}
         content, html_text = cls._download_page(url)
-        if not content:
+        if content is None:
             return info, None, ""
         parsed = urlparse(url)
         host = parsed.netloc.lower()
@@ -426,7 +426,7 @@ class Itch(AbstractSite):
 
         content = getattr(self, "_preloaded_content", None)
         html_text = getattr(self, "_preloaded_html_text", "")
-        if not content:
+        if content is None:
             resp = BasicDownloader2(self.url).download()
             content = resp.html()
             html_text = resp.text or ""
