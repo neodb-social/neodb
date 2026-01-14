@@ -225,6 +225,24 @@ class Itch(AbstractSite):
         return []
 
     @classmethod
+    def _extract_platforms_from_links(cls, content) -> list[str]:
+        platform_by_href = {
+            "https://itch.io/games/html5": "Web",
+            "https://itch.io/games/platform-windows": "Windows",
+            "https://itch.io/games/platform-osx": "macOS",
+            "https://itch.io/games/platform-linux": "Linux",
+            "https://itch.io/games/platform-android": "Android",
+            "https://itch.io/games/platform-ios": "iOS",
+        }
+        hrefs = content.xpath("//a[@href]/@href")
+        hrefs = [h.rstrip("/") for h in hrefs if isinstance(h, str)]
+        platforms = []
+        for href, name in platform_by_href.items():
+            if href.rstrip("/") in hrefs:
+                platforms.append(name)
+        return platforms
+
+    @classmethod
     def _probe_itch_page(cls, url: str) -> dict[str, str | None]:
         info: dict[str, str | None] = {"game_id": None, "canonical_url": None}
         try:
@@ -371,6 +389,8 @@ class Itch(AbstractSite):
                 json_ld_game.get("gamePlatform")
                 or json_ld_game.get("operatingSystem")
             )
+        platforms += self._extract_platforms_from_links(content)
+        platforms = _uniq(platforms)
 
         genre = []
         if json_ld_game and json_ld_game.get("genre"):
