@@ -99,6 +99,52 @@ class TestSteam:
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestItch:
+    def test_parse(self):
+        t_url = "https://dev.itch.io/cool-game"
+        t_url2 = "https://dev.itch.io/cool-game/download"
+        t_embed = "https://itch.io/embed/123456"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.url == t_url
+        assert site.id_value == "dev.itch.io/cool-game"
+
+        site2 = SiteManager.get_site_by_url(t_url2)
+        assert site2 is not None
+        assert site2.url == t_url
+        assert site2.id_value == "dev.itch.io/cool-game"
+
+        site3 = SiteManager.get_site_by_url(t_embed)
+        assert site3 is not None
+        assert site3.url == t_embed
+        assert site3.id_value == "itch.io/embed/123456"
+
+    @use_local_response
+    def test_parse_custom_domain(self):
+        t_url = "https://coolgame.example.com/"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.id_value == "coolgame.example.com"
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://dev.itch.io/cool-game"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert not site.ready
+        site.get_resource_ready()
+        assert site.ready
+        assert site.resource is not None
+        assert site.resource.metadata["title"] == "Cool Game"
+        assert site.resource.other_lookup_ids.get(IdType.ItchGameId) == "123456"
+        assert site.resource.other_lookup_ids.get(IdType.Itch) == "dev.itch.io/cool-game"
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Game)
+        assert site.resource.item.itch_game_id == "123456"
+        assert site.resource.item.platform == ["Windows", "macOS"]
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestDoubanGame:
     def test_parse(self):
         t_id_type = IdType.DoubanGame
