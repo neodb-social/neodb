@@ -150,6 +150,27 @@ class Itch(AbstractSite):
         return None
 
     @classmethod
+    def _normalize_embed_button_text(cls, text: str) -> str:
+        return re.sub(r"[^a-z0-9]", "", text.lower())
+
+    @classmethod
+    def _extract_embed_target_url(cls, content) -> str | None:
+        anchors = content.xpath("//a[@href]")
+        for a in anchors:
+            try:
+                text = a.text_content() or ""
+            except Exception:
+                continue
+            norm = cls._normalize_embed_button_text(text)
+            if "itchio" in norm and "onitchio" in norm and (
+                "download" in norm or "play" in norm
+            ):
+                href = a.get("href")
+                if href:
+                    return href.strip()
+        return None
+
+    @classmethod
     def _extract_game_id_from_json_ld(cls, items: list[dict[str, Any]]) -> str | None:
         for item in items:
             for key in ("identifier", "url", "@id"):
@@ -204,7 +225,14 @@ class Itch(AbstractSite):
             html_text = resp.text or ""
         except Exception:
             return info
-        info["canonical_url"] = cls._extract_canonical(content) or cls._extract_any_game_url(html_text)
+        parsed = urlparse(url)
+        host = parsed.netloc.lower()
+        if host == "itch.io" and parsed.path.startswith("/embed/"):
+            info["canonical_url"] = cls._extract_embed_target_url(content)
+        else:
+            info["canonical_url"] = cls._extract_canonical(content) or cls._extract_any_game_url(
+                html_text
+            )
         info["game_id"] = cls._normalize_game_id(
             cls._extract_itch_path(content)
             or cls._extract_game_id_from_text(html_text)
@@ -255,6 +283,8 @@ class Itch(AbstractSite):
                             preloaded_content=preloaded_content,
                             ignore_existing_content=ignore_existing_content,
                         )
+                if host == "itch.io" and parsed.path.startswith("/embed/"):
+                    return None
         return super().get_resource_ready(
             auto_save=auto_save,
             auto_create=auto_create,
@@ -271,9 +301,14 @@ class Itch(AbstractSite):
         content = resp.html()
         html_text = resp.text or ""
 
-        canonical_url = self._extract_canonical(content) or self._extract_any_game_url(
-            html_text
-        )
+        parsed = urlparse(self.url)
+        host = parsed.netloc.lower()
+        if host == "itch.io" and parsed.path.startswith("/embed/"):
+            canonical_url = self._extract_embed_target_url(content)
+        else:
+            canonical_url = self._extract_canonical(content) or self._extract_any_game_url(
+                html_text
+            )
 
         json_ld_items = self._extract_json_ld(content)
         json_ld_game: dict[str, Any] | None = None
