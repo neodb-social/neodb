@@ -71,7 +71,7 @@ class Itch(AbstractSite):
             if val:
                 return val[0].strip()
         except Exception:
-            return None
+            pass
         return None
 
     @classmethod
