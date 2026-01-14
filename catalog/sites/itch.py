@@ -133,10 +133,10 @@ class Itch(AbstractSite):
     def _normalize_game_id(cls, game_id: str | None) -> str | None:
         if not game_id:
             return None
-        gid = game_id.strip()
-        if re.fullmatch(r"\d+", gid):
-            return f"games/{gid}"
-        return gid
+        stripped_game_id = game_id.strip()
+        if re.fullmatch(r"\d+", stripped_game_id):
+            return f"games/{stripped_game_id}"
+        return stripped_game_id
 
     @classmethod
     def _extract_any_game_url(cls, text: str) -> str | None:
