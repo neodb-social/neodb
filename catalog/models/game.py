@@ -53,6 +53,7 @@ class Game(Item):
     igdb = PrimaryLookupIdDescriptor(IdType.IGDB)
     steam = PrimaryLookupIdDescriptor(IdType.Steam)
     douban_game = PrimaryLookupIdDescriptor(IdType.DoubanGame)
+    itch_game_id = PrimaryLookupIdDescriptor(IdType.ItchGameId)
 
     METADATA_COPY_LIST = [
         "localized_title",
@@ -144,6 +145,7 @@ class Game(Item):
         id_types = [
             IdType.IGDB,
             IdType.Steam,
+            IdType.Itch,
             IdType.BGG,
             IdType.DoubanGame,
             IdType.Bangumi,

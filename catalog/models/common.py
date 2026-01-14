@@ -19,6 +19,7 @@ class SiteName(models.TextChoices):
     Spotify = "spotify", _("Spotify")
     IGDB = "igdb", _("IGDB")
     Steam = "steam", _("Steam")
+    Itch = "itch", _("itch.io")
     Bangumi = "bangumi", _("Bangumi")
     BGG = "bgg", _("BGG")
     ApplePodcast = "apple_podcast", _("Apple Podcast")
@@ -84,6 +85,8 @@ class IdType(models.TextChoices):  # values must be in lowercase
     IGDB = "igdb", _("IGDB Game")
     BGG = "bgg", _("BGG Boardgame")
     Steam = "steam", _("Steam Game")
+    Itch = "itch", _("itch.io")
+    ItchGameId = "itch_game_id", _("itch.io Game ID")
     Bangumi = "bangumi", _("Bangumi")
     ApplePodcast = "apple_podcast", _("Apple Podcast")
     AppleMusic = "apple_music", _("Apple Music")
@@ -107,6 +110,7 @@ IdealIdTypes = [
     IdType.RSS,
     IdType.IMDB,
     IdType.Steam,
+    IdType.ItchGameId,
     IdType.WikiData,
 ]
 
