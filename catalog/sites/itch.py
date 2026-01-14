@@ -470,6 +470,10 @@ class Itch(AbstractSite):
                     )
             except Exception:
                 pass
+        if description:
+            description = description.replace("\r\n", "\n").replace("\r", "\n")
+            description = re.sub(r"[ \t]+\n", "\n", description)
+            description = re.sub(r"\n{3,}", "\n\n", description).strip()
 
         cover_url = (
             (json_ld_game.get("image") if json_ld_game else None)
