@@ -365,9 +365,9 @@ class Itch(AbstractSite):
         if host == "itch.io" and parsed.path.startswith("/embed/"):
             canonical_url = self._extract_embed_target_url(content)
         else:
-        canonical_url = self._extract_canonical(content) or self._extract_any_game_url(
-            html_text
-        )
+            canonical_url = self._extract_canonical(content) or self._extract_any_game_url(
+                html_text
+            )
 
         json_ld_items = self._extract_json_ld(content)
         json_ld_game: dict[str, Any] | None = None
@@ -383,7 +383,12 @@ class Itch(AbstractSite):
                 break
 
         title = (
-            (json_ld_game.get("name") if json_ld_game else None)
+            self._extract_meta(
+                content,
+                "//div[@id='header' and contains(concat(' ', normalize-space(@class), ' '), ' header ')]"
+                "//h1[contains(concat(' ', normalize-space(@class), ' '), ' game_title ')]/text()",
+            )
+            or (json_ld_game.get("name") if json_ld_game else None)
             or self._extract_meta(content, "//meta[@property='og:title']/@content")
             or self._extract_meta(content, "//meta[@name='twitter:title']/@content")
             or self._extract_meta(content, "//title/text()")
