@@ -166,11 +166,7 @@ class Itch(AbstractSite):
             except Exception:
                 continue
             norm = cls._normalize_embed_button_text(text)
-            if (
-                "itchio" in norm
-                and "onitchio" in norm
-                and ("download" in norm or "play" in norm)
-            ):
+            if "itchio" in norm and ("download" in norm or "play" in norm):
                 href = a.get("href")
                 if href:
                     return href.strip()
