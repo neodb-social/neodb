@@ -70,8 +70,8 @@ class Itch(AbstractSite):
             val = content.xpath(xpath)
             if val:
                 return val[0].strip()
-        except Exception:
-            pass
+        except (etree.XPathError, AttributeError, TypeError, IndexError):
+            return None
         return None
 
     @classmethod
