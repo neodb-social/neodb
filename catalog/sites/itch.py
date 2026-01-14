@@ -245,6 +245,18 @@ class Itch(AbstractSite):
         return platforms
 
     @classmethod
+    def _extract_table_row(cls, content, label: str):
+        rows = content.xpath("//table//tr")
+        for row in rows:
+            cells = row.xpath("./td")
+            if len(cells) < 2:
+                continue
+            cell_label = "".join(cells[0].xpath(".//text()")).strip()
+            if cell_label == label:
+                return cells[1]
+        return None
+
+    @classmethod
     def _platforms_from_traits(cls, traits: Iterable[str]) -> list[str]:
         trait_map = {
             "p_windows": "Windows",
@@ -457,6 +469,43 @@ class Itch(AbstractSite):
             author = self._extract_people(
                 json_ld_game.get("author") or json_ld_game.get("creator")
             )
+
+        published_cell = self._extract_table_row(content, "Published")
+        if published_cell and not release_date:
+            published_title = self._extract_meta(published_cell, ".//abbr/@title")
+            published_text = "".join(published_cell.xpath(".//text()")).strip()
+            dt = dateparser.parse(published_title or published_text)
+            release_date = dt.strftime("%Y-%m-%d") if dt else release_date
+
+        authors_cell = self._extract_table_row(content, "Authors")
+        if authors_cell:
+            author_names = [
+                t.strip()
+                for t in authors_cell.xpath(".//a/text()")
+                if isinstance(t, str) and t.strip()
+            ]
+            if author_names:
+                author = _uniq(author + author_names)
+
+        genre_cell = self._extract_table_row(content, "Genre")
+        if genre_cell:
+            genre_names = [
+                t.strip()
+                for t in genre_cell.xpath(".//a/text()")
+                if isinstance(t, str) and t.strip()
+            ]
+            if genre_names:
+                genre = _uniq(genre + genre_names)
+
+        tags_cell = self._extract_table_row(content, "Tags")
+        if tags_cell:
+            tag_names = [
+                t.strip()
+                for t in tags_cell.xpath(".//a/text()")
+                if isinstance(t, str) and t.strip()
+            ]
+            if tag_names:
+                genre = _uniq(genre + tag_names)
 
         genre = []
         if json_ld_game and json_ld_game.get("genre"):
