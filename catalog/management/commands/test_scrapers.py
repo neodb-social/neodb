@@ -75,7 +75,7 @@ class Command(BaseCommand):
                 # Directly call the provider method
                 resp, resp_type = downloader._scrape_with_provider(provider)
 
-                if resp_type == 0:  # RESPONSE_OK
+                if resp_type == 0 and resp is not None:  # RESPONSE_OK
                     if test_string:
                         if test_string in resp.text:
                             self.stdout.write(self.style.SUCCESS("PASS"))

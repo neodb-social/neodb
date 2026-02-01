@@ -3,7 +3,7 @@ import re
 import time
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import Tuple, cast
+from typing import Tuple, Union, cast
 from urllib.parse import quote, urlencode
 
 import filetype
@@ -146,6 +146,12 @@ class DownloaderResponse2(httpx.Response):
         return etree.fromstring(self.content, base_url=str(self.url))
 
 
+# Type alias for all response types returned by downloaders
+ResponseType = Union[
+    DownloaderResponse, DownloaderResponse2, MockResponse, ScraperResponse
+]
+
+
 class DownloadError(Exception):
     def __init__(self, downloader, msg=None):
         self.url = downloader.url
@@ -245,12 +251,11 @@ class BasicDownloader:
             )
             return None, RESPONSE_NETWORK_ERROR
 
-    def download(self):
+    def download(self) -> ResponseType:
         resp, self.response_type = self._download(self.url)
         if self.response_type == RESPONSE_OK and resp:
             return resp
-        else:
-            raise DownloadError(self)
+        raise DownloadError(self)
 
 
 class BasicDownloader2(BasicDownloader):
@@ -286,12 +291,11 @@ class BasicDownloader2(BasicDownloader):
             )
             return None, RESPONSE_NETWORK_ERROR
 
-    def download(self):
+    def download(self) -> ResponseType:
         resp, self.response_type = self._download(self.url)
         if self.response_type == RESPONSE_OK and resp:
             return resp
-        else:
-            raise DownloadError(self)
+        raise DownloadError(self)
 
 
 class ProxiedDownloader(BasicDownloader):
@@ -454,9 +458,7 @@ class ScrapDownloader(BasicDownloader):
         super().__init__(url, headers, timeout)
         self.wait_for_selector = wait_for_selector
 
-    def _scrape_with_scrapfly(
-        self, api_key: str
-    ) -> Tuple[DownloaderResponse | None, int]:
+    def _scrape_with_scrapfly(self, api_key: str) -> Tuple[ResponseType | None, int]:
         """Scrape using Scrapfly API."""
         params = {
             "key": api_key,
@@ -523,7 +525,7 @@ class ScrapDownloader(BasicDownloader):
             )
             return None, RESPONSE_NETWORK_ERROR
 
-    def _scrape_with_decodo(self, token: str) -> Tuple[DownloaderResponse | None, int]:
+    def _scrape_with_decodo(self, token: str) -> Tuple[ResponseType | None, int]:
         """Scrape using Decodo Web Scraping API."""
         api_url = "https://scraper-api.decodo.com/v2/scrape"
         payload = {
@@ -596,9 +598,7 @@ class ScrapDownloader(BasicDownloader):
             )
             return None, RESPONSE_NETWORK_ERROR
 
-    def _scrape_with_scraperapi(
-        self, api_key: str
-    ) -> Tuple[DownloaderResponse | None, int]:
+    def _scrape_with_scraperapi(self, api_key: str) -> Tuple[ResponseType | None, int]:
         """Scrape using ScraperAPI."""
         params = {
             "api_key": api_key,
@@ -661,9 +661,7 @@ class ScrapDownloader(BasicDownloader):
             )
             return None, RESPONSE_NETWORK_ERROR
 
-    def _scrape_with_scrapingbee(
-        self, api_key: str
-    ) -> Tuple[DownloaderResponse | None, int]:
+    def _scrape_with_scrapingbee(self, api_key: str) -> Tuple[ResponseType | None, int]:
         """Scrape using ScrapingBee API."""
         params = {
             "api_key": api_key,
@@ -727,9 +725,7 @@ class ScrapDownloader(BasicDownloader):
             )
             return None, RESPONSE_NETWORK_ERROR
 
-    def _scrape_with_custom(
-        self, custom_url: str
-    ) -> Tuple[DownloaderResponse | None, int]:
+    def _scrape_with_custom(self, custom_url: str) -> Tuple[ResponseType | None, int]:
         """Scrape using custom URL template (backup provider)."""
         api_url = custom_url.replace("__URL__", quote(self.url, safe=""))
         if self.wait_for_selector:
@@ -777,9 +773,7 @@ class ScrapDownloader(BasicDownloader):
             )
             return None, RESPONSE_NETWORK_ERROR
 
-    def _scrape_with_provider(
-        self, provider: str
-    ) -> Tuple[DownloaderResponse | None, int]:
+    def _scrape_with_provider(self, provider: str) -> Tuple[ResponseType | None, int]:
         """Scrape using the specified provider."""
         logger.debug(f"Fetching {self.url} with {provider}...")
         if provider == "scrapfly":
@@ -832,7 +826,7 @@ class ScrapDownloader(BasicDownloader):
         """Get the backup provider (custom scraper)."""
         return "custom" if settings.DOWNLOADER_CUSTOMSCRAPER_URL else None
 
-    def download(self):
+    def download(self) -> ResponseType:
         """Download using configured scraping providers in order, with custom as backup."""
         # Fall back to BasicDownloader behavior when in mock mode or no providers configured
         if _mock_mode:
@@ -853,7 +847,7 @@ class ScrapDownloader(BasicDownloader):
         for provider in providers:
             resp, resp_type = self._scrape_with_provider(provider)
 
-            if resp_type == RESPONSE_OK:
+            if resp_type == RESPONSE_OK and resp is not None:
                 self.response_type = resp_type
                 return resp
             elif resp_type == RESPONSE_INVALID_CONTENT:
