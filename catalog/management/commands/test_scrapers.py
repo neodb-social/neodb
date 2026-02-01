@@ -3,7 +3,11 @@ import sys
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from catalog.common.downloaders import ScrapDownloader
+from catalog.common.downloaders import (
+    RESPONSE_OK,
+    RESPONSE_QUOTA_EXCEEDED,
+    ScrapDownloader,
+)
 
 
 class Command(BaseCommand):
@@ -75,7 +79,7 @@ class Command(BaseCommand):
                 # Directly call the provider method
                 resp, resp_type = downloader._scrape_with_provider(provider)
 
-                if resp_type == 0 and resp is not None:  # RESPONSE_OK
+                if resp_type == RESPONSE_OK and resp is not None:
                     if test_string:
                         if test_string in resp.text:
                             self.stdout.write(self.style.SUCCESS("PASS"))
@@ -90,7 +94,7 @@ class Command(BaseCommand):
                     else:
                         self.stdout.write(self.style.SUCCESS("PASS"))
                         results.append((provider, "PASS", None))
-                elif resp_type == -4:  # RESPONSE_QUOTA_EXCEEDED
+                elif resp_type == RESPONSE_QUOTA_EXCEEDED:
                     self.stdout.write(self.style.ERROR("FAIL (quota exceeded)"))
                     results.append((provider, "FAIL", "Quota exceeded"))
                 else:

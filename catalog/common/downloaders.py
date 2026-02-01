@@ -841,7 +841,6 @@ class ScrapDownloader(BasicDownloader):
 
         resp = None
         resp_type = None
-        last_try = False
 
         # Try each configured provider
         for provider in providers:
@@ -858,9 +857,9 @@ class ScrapDownloader(BasicDownloader):
                 break
             # Continue to next provider on network error or quota exceeded
 
-        # Try backup provider if main providers failed
+        # Try backup provider if main providers failed and not already tried
         backup = self.get_backup_provider()
-        if backup and not last_try:
+        if backup and backup not in providers:
             logger.debug(f"Trying backup provider: {backup}")
             resp, resp_type = self._scrape_with_provider(backup)
 
