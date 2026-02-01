@@ -85,22 +85,22 @@
                 {% trans 'Link to Goodreads Profile / Shelf / List' %}
                 <ul>
                   <li>
-                    Profile <code>https://www.goodreads.com/user/show/12345-janedoe</code>
+                    {% trans 'Profile' %} <code>https://www.goodreads.com/user/show/12345-janedoe</code>
                     <br>
                     {% trans 'want-to-read / currently-reading / read books and their reviews will be imported.' %}
                   </li>
                   <li>
-                    Shelf <code>https://www.goodreads.com/review/list/12345-janedoe?shelf=name</code>
+                    {% trans 'Shelf' %} <code>https://www.goodreads.com/review/list/12345-janedoe?shelf=name</code>
                     <br>
                     {% trans 'Shelf will be imported as a new collection.' %}
                   </li>
                   <li>
-                    List <code>https://www.goodreads.com/list/show/155086.Popular_Highlights</code>
+                    {% trans 'List' %} <code>https://www.goodreads.com/list/show/155086.Popular_Highlights</code>
                     <br>
                     {% trans 'List will be imported as a new collection.' %}
                   </li>
                   <li>
-                    <mark>Who Can View My Profile</mark> must be set as <mark>anyone</mark> prior to import.
+                    {% blocktrans %}<mark>Who Can View My Profile</mark> must be set as <mark>anyone</mark> prior to import.{% endblocktrans %}
                   </li>
                 </ul>
                 <input type="url"
@@ -122,17 +122,13 @@
               {% csrf_token %}
               <ul>
                 <li>
-                  on letterboxd.com, click
-                  <a href="https://letterboxd.com/settings/data/"
-                     target="_blank"
-                     rel="noopener">DATA in Settings</a>;
-                  or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA
+                  {% blocktrans %}on letterboxd.com, click <a href="https://letterboxd.com/settings/data/" target="_blank" rel="noopener">DATA in Settings</a>; or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA{% endblocktrans %}
                 </li>
                 <li>
-                  download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip
+                  {% blocktrans %}download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip{% endblocktrans %}
                 </li>
                 <li>
-                  the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>
+                  {% blocktrans %}the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>{% endblocktrans %}
                 </li>
               </ul>
               <br>

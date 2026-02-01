@@ -70,7 +70,7 @@
 {% endblock %}
 {% block content %}
   {% if item.contents %}
-    <h5>contents</h5>
+    <h5>{% trans 'contents' %}</h5>
     <p class="tldr" _="on click toggle .tldr on me">{{ item.contents | linebreaksbr }}</p>
   {% endif %}
   {% with related_books=item.sibling_items %}

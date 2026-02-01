@@ -46,7 +46,7 @@
   <body>
     <article>
       <header>
-        <img src="{{ site_logo }}" class="logo" alt="logo">
+        <img src="{{ site_logo }}" class="logo" alt="{% trans 'logo' %}">
       </header>
       <div>
         {% if request.user.is_authenticated %}
