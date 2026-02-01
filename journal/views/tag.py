@@ -7,6 +7,7 @@ from django.views.decorators.http import require_http_methods
 from user_messages import api as msg
 
 from catalog.models import *
+from common.validators import get_safe_referer_url
 from users.models import APIdentity
 
 from ..forms import *
@@ -52,7 +53,7 @@ def user_tag_edit(request):
         )
         if not tag or not tag_title:
             msg.error(request.user, _("Invalid tag"))
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+            return HttpResponseRedirect(get_safe_referer_url(request, "/"))
         if request.POST.get("delete"):
             tag.delete()
             msg.info(request.user, _("Tag deleted."))
@@ -66,7 +67,7 @@ def user_tag_edit(request):
             ).exists()
         ):
             msg.error(request.user, _("Duplicated tag."))
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+            return HttpResponseRedirect(get_safe_referer_url(request, "/"))
         tag.update(
             tag_title,
             int(request.POST.get("visibility", 0)),

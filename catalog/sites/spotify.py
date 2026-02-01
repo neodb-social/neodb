@@ -199,6 +199,7 @@ def invoke_spotify_token():
         "https://accounts.spotify.com/api/token",
         data={"grant_type": "client_credentials"},
         headers={"Authorization": f"Basic {settings.SPOTIFY_CREDENTIAL}"},
+        timeout=settings.DOWNLOADER_REQUEST_TIMEOUT,
     )
     data = r.json()
     if r.status_code == 401:
@@ -209,6 +210,7 @@ def invoke_spotify_token():
             "https://accounts.spotify.com/api/token",
             data={"grant_type": "client_credentials"},
             headers={"Authorization": f"Basic {settings.SPOTIFY_CREDENTIAL}"},
+            timeout=settings.DOWNLOADER_REQUEST_TIMEOUT,
         )
         data = r.json()
     elif r.status_code != 200:

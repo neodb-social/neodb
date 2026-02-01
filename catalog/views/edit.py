@@ -12,6 +12,7 @@ from loguru import logger
 
 from common.models.lang import get_current_locales
 from common.utils import discord_send, get_uuid_or_404
+from common.validators import get_safe_referer_url
 from journal.models import update_journal_for_merged_item_task
 
 from ..forms import CatalogForms
@@ -219,7 +220,7 @@ def unlink(request):
     if not resource.item:
         raise BadRequest(_("Invalid parameter"))
     resource.unlink_from_item()
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    return HttpResponseRedirect(get_safe_referer_url(request, "/"))
 
 
 @require_http_methods(["POST"])

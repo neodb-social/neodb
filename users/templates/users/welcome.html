@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load safe_redirect %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
@@ -26,8 +27,14 @@
         </p>
         <input type="submit"
                value="{% trans 'Accept' %}"
-               onclick="location='{{ request.session.next_url | default:'/' }}'">
+               id="accept-btn"
+               data-redirect-url="{{ request.session.next_url|safe_next_url:'/' }}">
       </article>
     </div>
+    <script>
+      document.getElementById('accept-btn').addEventListener('click', function() {
+        location = this.dataset.redirectUrl;
+      });
+    </script>
   </body>
 </html>

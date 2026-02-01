@@ -29,7 +29,8 @@ def _igdb_access_token():
         token = cache.get(_cache_key)
         if not token:
             j = requests.post(
-                f"https://id.twitch.tv/oauth2/token?client_id={settings.IGDB_CLIENT_ID}&client_secret={settings.IGDB_CLIENT_SECRET}&grant_type=client_credentials"
+                f"https://id.twitch.tv/oauth2/token?client_id={settings.IGDB_CLIENT_ID}&client_secret={settings.IGDB_CLIENT_SECRET}&grant_type=client_credentials",
+                timeout=settings.DOWNLOADER_REQUEST_TIMEOUT,
             ).json()
             token = j["access_token"]
             ttl = j["expires_in"] - 60

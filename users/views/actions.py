@@ -14,6 +14,7 @@ from common.utils import (
     HTTPResponseHXRedirect,
     target_identity_required,
 )
+from common.validators import get_safe_referer_url
 from takahe.utils import Takahe
 
 from ..models import APIdentity
@@ -173,7 +174,7 @@ def set_layout(request: AuthedHttpRequest):
 @require_http_methods(["POST"])
 def mark_announcements_read(request: AuthedHttpRequest):
     Takahe.mark_announcements_seen(request.user)
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+    return HttpResponseRedirect(get_safe_referer_url(request, "/"))
 
 
 def announcements(request):

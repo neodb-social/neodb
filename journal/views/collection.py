@@ -14,6 +14,7 @@ from common.utils import (
     get_page_size_from_request,
     get_uuid_or_404,
 )
+from common.validators import get_safe_referer_url
 from users.models import User
 
 from ..forms import *
@@ -46,7 +47,7 @@ def add_to_collection(request: AuthedHttpRequest, item_uuid):
             ).pk
         collection = Collection.objects.get(owner=request.user.identity, id=cid)
         collection.append_item(item, note=request.POST.get("note"))
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+        return HttpResponseRedirect(get_safe_referer_url(request, "/"))
 
 
 @login_required
@@ -155,7 +156,7 @@ def collection_add_featured(request: AuthedHttpRequest, collection_uuid):
     FeaturedCollection.objects.update_or_create(
         owner=request.user.identity, target=collection
     )
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+    return HttpResponseRedirect(get_safe_referer_url(request, "/"))
 
 
 @login_required
@@ -169,7 +170,7 @@ def collection_remove_featured(request: AuthedHttpRequest, collection_uuid):
     ).first()
     if fc:
         fc.delete()
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+    return HttpResponseRedirect(get_safe_referer_url(request, "/"))
 
 
 @login_required
@@ -202,7 +203,7 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
             ) or ""
             if not share_collection(collection, comment, user, visibility, link):
                 return render_relogin(request)
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+        return HttpResponseRedirect(get_safe_referer_url(request, "/"))
 
 
 def share_collection(

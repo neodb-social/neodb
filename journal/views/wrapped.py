@@ -19,6 +19,7 @@ from catalog.models import (
     item_content_types,
 )
 from common.utils import int_
+from common.validators import get_safe_referer_url
 from journal.models import Comment, ShelfType
 from journal.models.common import VisibilityType
 from mastodon.models.bluesky import EmbedObj
@@ -147,4 +148,4 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
             except Exception:
                 pass
         messages.add_message(request, messages.INFO, _("Summary posted to timeline."))
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+        return HttpResponseRedirect(get_safe_referer_url(request, "/"))

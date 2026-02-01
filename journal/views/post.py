@@ -10,6 +10,7 @@ from loguru import logger
 from common.models.lang import LOCALE_CHOICES, translate
 from common.models.misc import int_
 from common.utils import AuthedHttpRequest, get_uuid_or_404
+from common.validators import get_safe_referer_url
 from journal.models.renderers import bleach_post_content
 from takahe.models import Post
 from takahe.utils import Takahe
@@ -266,7 +267,7 @@ def post_compose(request: AuthedHttpRequest):
         language=language or "",
         attachments=attachments if attachments else None,
     )
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+    return HttpResponseRedirect(get_safe_referer_url(request, "/"))
 
 
 @require_http_methods(["GET"])
