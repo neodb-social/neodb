@@ -25,7 +25,7 @@
               {{ site_name }} is flourishing because of collaborations and contributions from users like you. Please read our <a href="/pages/rules">rules</a>, and feel free to <a href="{{ support_link }}">contact us</a> if you have any question or feedback.
         {% endblocktrans %}
         </p>
-        <input type="submit"
+        <input type="button"
                value="{% trans 'Accept' %}"
                id="accept-btn"
                data-redirect-url="{{ request.session.next_url|safe_next_url:'/' }}">
