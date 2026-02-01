@@ -15,6 +15,7 @@ __all__ = (  # noqa
     "BasicDownloader2",
     "CachedDownloader",
     "ProxiedDownloader",
+    "ScrapDownloader",
     "BasicImageDownloader",
     "ProxiedImageDownloader",
     "RESPONSE_OK",

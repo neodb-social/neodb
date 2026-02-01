@@ -4,7 +4,7 @@ import time
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import Tuple, cast
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 import filetype
 import httpx
@@ -103,6 +103,39 @@ class DownloaderResponse(Response):
 
     def xml(self):
         return etree.fromstring(self.content, base_url=self.url)
+
+
+class ScraperResponse:
+    """Response class for scraper API results, similar to MockResponse."""
+
+    def __init__(
+        self,
+        url: str,
+        content: bytes,
+        status_code: int = 200,
+        headers: dict | None = None,
+    ):
+        self.url = url
+        self.content = content
+        self.status_code = status_code
+        self._headers = headers or {"content-type": "text/html"}
+
+    @property
+    def text(self):
+        return self.content.decode("utf-8")
+
+    def json(self):
+        return json.load(StringIO(self.text))
+
+    def html(self):
+        return html.fromstring(self.content.decode("utf-8"))
+
+    def xml(self):
+        return etree.fromstring(self.content, base_url=self.url)
+
+    @property
+    def headers(self):
+        return self._headers
 
 
 class DownloaderResponse2(httpx.Response):
@@ -389,3 +422,456 @@ class BasicImageDownloader(ImageDownloaderMixin, BasicDownloader):
 
 class ProxiedImageDownloader(ImageDownloaderMixin, ProxiedDownloader):
     pass
+
+
+class ScrapDownloader(BasicDownloader):
+    """
+    Downloader that uses third-party scraping APIs with JavaScript rendering support.
+
+    Supported providers:
+      - scrapfly    : https://scrapfly.io
+      - decodo      : https://decodo.com
+      - scraperapi  : https://scraperapi.com
+      - scrapingbee : https://scrapingbee.com
+      - custom      : Custom URL template
+
+    Configuration (via Django settings):
+      DOWNLOADER_PROVIDERS         - Comma-separated list of providers to try in order
+      DOWNLOADER_SCRAPFLY_KEY      - Scrapfly API key
+      DOWNLOADER_DECODO_TOKEN      - Decodo Base64 Basic auth token
+      DOWNLOADER_SCRAPERAPI_KEY    - ScraperAPI key
+      DOWNLOADER_SCRAPINGBEE_KEY   - ScrapingBee API key
+      DOWNLOADER_CUSTOMSCRAPER_URL - Custom URL with __URL__ and __SELECTOR__ placeholders
+    """
+
+    def __init__(
+        self,
+        url,
+        headers: dict | None = None,
+        timeout: float | None = None,
+        wait_for_selector: str | None = None,
+    ):
+        super().__init__(url, headers, timeout)
+        self.wait_for_selector = wait_for_selector
+
+    def _scrape_with_scrapfly(
+        self, api_key: str
+    ) -> Tuple[DownloaderResponse | None, int]:
+        """Scrape using Scrapfly API."""
+        params = {
+            "key": api_key,
+            "url": self.url,
+            "render_js": "true",
+        }
+        if self.wait_for_selector:
+            params["wait_for_selector"] = self.wait_for_selector
+
+        api_url = f"https://api.scrapfly.io/scrape?{urlencode(params)}"
+
+        try:
+            response = requests.get(api_url, timeout=self.timeout)
+
+            if response.status_code == 200:
+                data = response.json()
+                content = data.get("result", {}).get("content", "")
+                resp = ScraperResponse(self.url, content.encode("utf-8"))
+
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_OK,
+                        "url": api_url,
+                        "provider": "scrapfly",
+                        "exception": None,
+                    }
+                )
+                return resp, RESPONSE_OK
+            elif response.status_code == 429:
+                reject_code = response.headers.get("X-Scrapfly-Reject-Code", "")
+                reject_desc = response.headers.get("X-Scrapfly-Reject-Description", "")
+                logger.warning(
+                    f"Scrapfly quota exceeded: {reject_code} - {reject_desc}"
+                )
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_QUOTA_EXCEEDED,
+                        "url": api_url,
+                        "provider": "scrapfly",
+                        "exception": f"{reject_code}: {reject_desc}",
+                    }
+                )
+                return None, RESPONSE_QUOTA_EXCEEDED
+            else:
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_NETWORK_ERROR,
+                        "url": api_url,
+                        "provider": "scrapfly",
+                        "exception": f"HTTP {response.status_code}",
+                    }
+                )
+                return None, RESPONSE_NETWORK_ERROR
+
+        except Exception as e:
+            logger.debug(f"Scrapfly error: {e}")
+            self.logs.append(
+                {
+                    "response_type": RESPONSE_NETWORK_ERROR,
+                    "url": api_url,
+                    "provider": "scrapfly",
+                    "exception": e,
+                }
+            )
+            return None, RESPONSE_NETWORK_ERROR
+
+    def _scrape_with_decodo(self, token: str) -> Tuple[DownloaderResponse | None, int]:
+        """Scrape using Decodo Web Scraping API."""
+        api_url = "https://scraper-api.decodo.com/v2/scrape"
+        payload = {
+            "target": "universal",
+            "url": self.url,
+            "headless": "html",
+        }
+
+        if self.wait_for_selector:
+            payload["browser_actions"] = [
+                {
+                    "type": "wait_for_element",
+                    "selector": {"type": "css", "value": self.wait_for_selector},
+                    "timeout_s": 30,
+                }
+            ]
+
+        headers = {"Authorization": f"Basic {token}"}
+
+        try:
+            response = requests.post(
+                api_url, json=payload, headers=headers, timeout=self.timeout
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                content = data.get("results", [{}])[0].get("content", "")
+                resp = ScraperResponse(self.url, content.encode("utf-8"))
+
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_OK,
+                        "url": api_url,
+                        "provider": "decodo",
+                        "exception": None,
+                    }
+                )
+                return resp, RESPONSE_OK
+            elif response.status_code == 429:
+                logger.warning("Decodo quota exceeded")
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_QUOTA_EXCEEDED,
+                        "url": api_url,
+                        "provider": "decodo",
+                        "exception": response.text,
+                    }
+                )
+                return None, RESPONSE_QUOTA_EXCEEDED
+            else:
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_NETWORK_ERROR,
+                        "url": api_url,
+                        "provider": "decodo",
+                        "exception": f"HTTP {response.status_code}",
+                    }
+                )
+                return None, RESPONSE_NETWORK_ERROR
+
+        except Exception as e:
+            logger.debug(f"Decodo error: {e}")
+            self.logs.append(
+                {
+                    "response_type": RESPONSE_NETWORK_ERROR,
+                    "url": api_url,
+                    "provider": "decodo",
+                    "exception": e,
+                }
+            )
+            return None, RESPONSE_NETWORK_ERROR
+
+    def _scrape_with_scraperapi(
+        self, api_key: str
+    ) -> Tuple[DownloaderResponse | None, int]:
+        """Scrape using ScraperAPI."""
+        params = {
+            "api_key": api_key,
+            "url": self.url,
+            "render": "true",
+        }
+        if self.wait_for_selector:
+            params["wait_for_selector"] = self.wait_for_selector
+
+        api_url = f"https://api.scraperapi.com?{urlencode(params)}"
+
+        try:
+            response = requests.get(api_url, timeout=self.timeout)
+
+            if response.status_code == 200:
+                resp = ScraperResponse(
+                    self.url, response.content, headers=dict(response.headers)
+                )
+
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_OK,
+                        "url": api_url,
+                        "provider": "scraperapi",
+                        "exception": None,
+                    }
+                )
+                return resp, RESPONSE_OK
+            elif response.status_code == 429:
+                logger.warning("ScraperAPI quota exceeded")
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_QUOTA_EXCEEDED,
+                        "url": api_url,
+                        "provider": "scraperapi",
+                        "exception": response.text,
+                    }
+                )
+                return None, RESPONSE_QUOTA_EXCEEDED
+            else:
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_NETWORK_ERROR,
+                        "url": api_url,
+                        "provider": "scraperapi",
+                        "exception": f"HTTP {response.status_code}",
+                    }
+                )
+                return None, RESPONSE_NETWORK_ERROR
+
+        except Exception as e:
+            logger.debug(f"ScraperAPI error: {e}")
+            self.logs.append(
+                {
+                    "response_type": RESPONSE_NETWORK_ERROR,
+                    "url": api_url,
+                    "provider": "scraperapi",
+                    "exception": e,
+                }
+            )
+            return None, RESPONSE_NETWORK_ERROR
+
+    def _scrape_with_scrapingbee(
+        self, api_key: str
+    ) -> Tuple[DownloaderResponse | None, int]:
+        """Scrape using ScrapingBee API."""
+        params = {
+            "api_key": api_key,
+            "url": self.url,
+            "render_js": "true",
+            "premium_proxy": "true",
+        }
+        if self.wait_for_selector:
+            params["wait_for"] = self.wait_for_selector
+
+        api_url = f"https://app.scrapingbee.com/api/v1/?{urlencode(params)}"
+
+        try:
+            response = requests.get(api_url, timeout=self.timeout)
+
+            if response.status_code == 200:
+                resp = ScraperResponse(
+                    self.url, response.content, headers=dict(response.headers)
+                )
+
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_OK,
+                        "url": api_url,
+                        "provider": "scrapingbee",
+                        "exception": None,
+                    }
+                )
+                return resp, RESPONSE_OK
+            elif response.status_code == 429:
+                logger.warning("ScrapingBee quota exceeded")
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_QUOTA_EXCEEDED,
+                        "url": api_url,
+                        "provider": "scrapingbee",
+                        "exception": response.text,
+                    }
+                )
+                return None, RESPONSE_QUOTA_EXCEEDED
+            else:
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_NETWORK_ERROR,
+                        "url": api_url,
+                        "provider": "scrapingbee",
+                        "exception": f"HTTP {response.status_code}",
+                    }
+                )
+                return None, RESPONSE_NETWORK_ERROR
+
+        except Exception as e:
+            logger.debug(f"ScrapingBee error: {e}")
+            self.logs.append(
+                {
+                    "response_type": RESPONSE_NETWORK_ERROR,
+                    "url": api_url,
+                    "provider": "scrapingbee",
+                    "exception": e,
+                }
+            )
+            return None, RESPONSE_NETWORK_ERROR
+
+    def _scrape_with_custom(
+        self, custom_url: str
+    ) -> Tuple[DownloaderResponse | None, int]:
+        """Scrape using custom URL template (backup provider)."""
+        api_url = custom_url.replace("__URL__", quote(self.url, safe=""))
+        if self.wait_for_selector:
+            api_url = api_url.replace(
+                "__SELECTOR__", quote(self.wait_for_selector, safe="")
+            )
+
+        try:
+            response = requests.get(api_url, timeout=self.timeout)
+
+            if response.status_code == 200:
+                resp = ScraperResponse(
+                    self.url, response.content, headers=dict(response.headers)
+                )
+
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_OK,
+                        "url": api_url,
+                        "provider": "custom",
+                        "exception": None,
+                    }
+                )
+                return resp, RESPONSE_OK
+            else:
+                self.logs.append(
+                    {
+                        "response_type": RESPONSE_NETWORK_ERROR,
+                        "url": api_url,
+                        "provider": "custom",
+                        "exception": f"HTTP {response.status_code}",
+                    }
+                )
+                return None, RESPONSE_NETWORK_ERROR
+
+        except Exception as e:
+            logger.debug(f"Custom provider error: {e}")
+            self.logs.append(
+                {
+                    "response_type": RESPONSE_NETWORK_ERROR,
+                    "url": api_url,
+                    "provider": "custom",
+                    "exception": e,
+                }
+            )
+            return None, RESPONSE_NETWORK_ERROR
+
+    def _scrape_with_provider(
+        self, provider: str
+    ) -> Tuple[DownloaderResponse | None, int]:
+        """Scrape using the specified provider."""
+        logger.debug(f"Fetching {self.url} with {provider}...")
+        if provider == "scrapfly":
+            api_key = settings.DOWNLOADER_SCRAPFLY_KEY
+            if not api_key:
+                logger.debug("DOWNLOADER_SCRAPFLY_KEY not configured")
+                return None, RESPONSE_NETWORK_ERROR
+            return self._scrape_with_scrapfly(api_key)
+
+        elif provider == "decodo":
+            token = settings.DOWNLOADER_DECODO_TOKEN
+            if not token:
+                logger.debug("DOWNLOADER_DECODO_TOKEN not configured")
+                return None, RESPONSE_NETWORK_ERROR
+            return self._scrape_with_decodo(token)
+
+        elif provider == "scraperapi":
+            api_key = settings.DOWNLOADER_SCRAPERAPI_KEY
+            if not api_key:
+                logger.debug("DOWNLOADER_SCRAPERAPI_KEY not configured")
+                return None, RESPONSE_NETWORK_ERROR
+            return self._scrape_with_scraperapi(api_key)
+
+        elif provider == "scrapingbee":
+            api_key = settings.DOWNLOADER_SCRAPINGBEE_KEY
+            if not api_key:
+                logger.debug("DOWNLOADER_SCRAPINGBEE_KEY not configured")
+                return None, RESPONSE_NETWORK_ERROR
+            return self._scrape_with_scrapingbee(api_key)
+
+        elif provider == "custom":
+            custom_url = settings.DOWNLOADER_CUSTOMSCRAPER_URL
+            if not custom_url:
+                logger.debug("DOWNLOADER_CUSTOMSCRAPER_URL not configured")
+                return None, RESPONSE_NETWORK_ERROR
+            return self._scrape_with_custom(custom_url)
+
+        else:
+            logger.error(f"Unknown provider: {provider}")
+            return None, RESPONSE_NETWORK_ERROR
+
+    def get_providers(self):
+        """Get list of providers to try, from settings."""
+        providers_str = settings.DOWNLOADER_PROVIDERS
+        if not providers_str:
+            return []
+        return [p.strip() for p in providers_str.split(",") if p.strip()]
+
+    def get_backup_provider(self):
+        """Get the backup provider (custom scraper)."""
+        return "custom" if settings.DOWNLOADER_CUSTOMSCRAPER_URL else None
+
+    def download(self):
+        """Download using configured scraping providers in order, with custom as backup."""
+        # Fall back to BasicDownloader behavior when in mock mode or no providers configured
+        if _mock_mode:
+            return super().download()
+
+        providers = self.get_providers()
+
+        if not providers:
+            # No scraping providers configured, fall back to basic download
+            logger.debug("No scraping providers configured, using basic download")
+            return super().download()
+
+        resp = None
+        resp_type = None
+        last_try = False
+
+        # Try each configured provider
+        for provider in providers:
+            resp, resp_type = self._scrape_with_provider(provider)
+
+            if resp_type == RESPONSE_OK:
+                self.response_type = resp_type
+                return resp
+            elif resp_type == RESPONSE_INVALID_CONTENT:
+                # Don't retry on invalid content
+                break
+            elif resp_type == RESPONSE_CENSORSHIP:
+                # Try backup provider for censored content
+                break
+            # Continue to next provider on network error or quota exceeded
+
+        # Try backup provider if main providers failed
+        backup = self.get_backup_provider()
+        if backup and not last_try:
+            logger.debug(f"Trying backup provider: {backup}")
+            resp, resp_type = self._scrape_with_provider(backup)
+
+        self.response_type = resp_type
+        if self.response_type == RESPONSE_OK and resp:
+            return resp
+        else:
+            raise DownloadError(self)

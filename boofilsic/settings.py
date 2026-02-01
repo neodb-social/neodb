@@ -72,6 +72,18 @@ env = environ.FileAwareEnv(
     NEODB_EMAIL_FROM=(str, "🧩 NeoDB <no-reply@neodb.social>"),
     # List of available proxies for proxy downloader, in format of http://server1?url=__URL__,http://s2?url=__URL__,...
     NEODB_DOWNLOADER_PROXY_LIST=(list, []),
+    # Comma-separated list of scraping providers to try in order
+    NEODB_DOWNLOADER_PROVIDERS=(str, ""),
+    # Scrapfly API key
+    NEODB_DOWNLOADER_SCRAPFLY_KEY=(str, ""),
+    # Decodo Base64 Basic auth token
+    NEODB_DOWNLOADER_DECODO_TOKEN=(str, ""),
+    # ScraperAPI key
+    NEODB_DOWNLOADER_SCRAPERAPI_KEY=(str, ""),
+    # ScrapingBee API key
+    NEODB_DOWNLOADER_SCRAPINGBEE_KEY=(str, ""),
+    # Custom scraper URL with __URL__ and __SELECTOR__ placeholders
+    NEODB_DOWNLOADER_CUSTOMSCRAPER_URL=(str, ""),
     # Timeout of downloader requests, in seconds
     NEODB_DOWNLOADER_REQUEST_TIMEOUT=(int, 90),
     # Timeout of downloader cache, in seconds
@@ -295,6 +307,12 @@ SITE_INFO["translate_enabled"] = bool(DEEPL_API_KEY) or bool(LT_API_URL)
 
 DOWNLOADER_PROXY_LIST = env("NEODB_DOWNLOADER_PROXY_LIST")
 DOWNLOADER_BACKUP_PROXY = env("NEODB_DOWNLOADER_BACKUP_PROXY", default="")  # type: ignore
+DOWNLOADER_PROVIDERS = env("NEODB_DOWNLOADER_PROVIDERS", default="")  # type: ignore
+DOWNLOADER_SCRAPFLY_KEY = env("NEODB_DOWNLOADER_SCRAPFLY_KEY", default="")  # type: ignore
+DOWNLOADER_DECODO_TOKEN = env("NEODB_DOWNLOADER_DECODO_TOKEN", default="")  # type: ignore
+DOWNLOADER_SCRAPERAPI_KEY = env("NEODB_DOWNLOADER_SCRAPERAPI_KEY", default="")  # type: ignore
+DOWNLOADER_SCRAPINGBEE_KEY = env("NEODB_DOWNLOADER_SCRAPINGBEE_KEY", default="")  # type: ignore
+DOWNLOADER_CUSTOMSCRAPER_URL = env("NEODB_DOWNLOADER_CUSTOMSCRAPER_URL", default="")  # type: ignore
 DOWNLOADER_REQUEST_TIMEOUT = env("NEODB_DOWNLOADER_REQUEST_TIMEOUT")
 DOWNLOADER_CACHE_TIMEOUT = env("NEODB_DOWNLOADER_CACHE_TIMEOUT")
 DOWNLOADER_RETRIES = env("NEODB_DOWNLOADER_RETRIES")

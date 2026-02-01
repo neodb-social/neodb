@@ -38,6 +38,14 @@
   <body>
     {% include "_header.html" %}
     <main class="container">
+      {% if show_debug_tools %}
+        <h3>Debug Tools</h3>
+        <ul>
+          <li>
+            <a href="{% url 'catalog:debug_scraper' %}">Scraper Debug Tool</a> - Test and debug site scrapers.
+          </li>
+        </ul>
+      {% endif %}
       <h3>Developer Console</h3>
       <ul>
         <li>

@@ -64,6 +64,18 @@ if you are doing debug or development:
 - `IGDB_API_CLIENT_ID`, `IGDB_API_CLIENT_SECRET` - IGDB [keys](https://api-docs.igdb.com/)
 - `NEODB_SEARCH_SITES` is empty by default, which means NeoDB will search all available sources. This can be set to a comma-separated list of site names (e.g. `goodreads,googlebooks,spotify,tmdb,igdb,bandcamp,apple_podcast`), so that NeoDB will only search those sites; or not search any of them if set to just `-`.
 
+## Settings for JavaScript-rendered scraping
+
+This might be required for sites requiring JavaScript execution. There's a cost associated with most of these providers which we are not affiliated with or endorsing.
+
+- `NEODB_DOWNLOADER_PROVIDERS` - comma-separated list of providers to try in order (e.g. `scrapfly,scraperapi`)
+- `NEODB_DOWNLOADER_SCRAPFLY_KEY` - [Scrapfly](https://scrapfly.io) API key
+- `NEODB_DOWNLOADER_DECODO_TOKEN` - [Decodo](https://decodo.com) base64 basic auth token
+- `NEODB_DOWNLOADER_SCRAPERAPI_KEY` - [ScraperAPI](https://scraperapi.com) API key
+- `NEODB_DOWNLOADER_SCRAPINGBEE_KEY` - [ScrapingBee](https://scrapingbee.com) API key
+- `NEODB_DOWNLOADER_CUSTOMSCRAPER_URL` - custom scraper URL template (used as backup), e.g. `http://your.scraper/scrape?url=__URL__&selector=__SELECTOR__`
+
+
 ## Translation
 set either of these will enable translation
 

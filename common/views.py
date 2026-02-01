@@ -150,11 +150,15 @@ def console(request):
             client_id="app-00000000000-dev",
         )
         token = Takahe.refresh_token(app, request.user.identity.pk, request.user.pk)
+    show_debug_tools = settings.DEBUG or (
+        request.user.is_authenticated and request.user.is_superuser
+    )
     context = {
         "version": settings.NEODB_VERSION,
         "api": api,
         "token": token,
         "openapi_json_url": reverse(f"{api.urls_namespace}:openapi-json"),
+        "show_debug_tools": show_debug_tools,
     }
     return render(request, "console.html", context)
 

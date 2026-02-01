@@ -3,6 +3,7 @@ from django.views.generic import RedirectView
 
 from .models import *
 from .views import *
+from .views_debug import scraper_debug_api, scraper_debug_page
 
 app_name = "catalog"
 
@@ -190,4 +191,7 @@ urlpatterns = [
         name="discover_popular_posts",
     ),
     path("discover/", discover, name="discover"),
+    # Debug views: DEBUG=True allows anyone, otherwise requires superuser
+    path("debug/scraper/", scraper_debug_page, name="debug_scraper"),
+    path("debug/scraper/api/", scraper_debug_api, name="debug_scrape_api"),
 ]

@@ -9,7 +9,15 @@ RE_NUMBERS = re.compile(r"\d+\d*")
 RE_WHITESPACES = re.compile(r"\s+")
 
 
-class DoubanDownloader(ProxiedDownloader):
+class DoubanDownloader(ScrapDownloader):
+    def __init__(
+        self,
+        url,
+        headers: dict | None = None,
+        timeout: float | None = None,
+    ):
+        super().__init__(url, headers, timeout, "#content")
+
     def validate_response(self, response) -> int:
         if response is None:
             return RESPONSE_NETWORK_ERROR

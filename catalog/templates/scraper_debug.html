@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalog Download Debugger</title>
+    <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #1a1a1a; --surface: #252525; --border: #333;
+      --text: #e0e0e0; --text-muted: #888; --accent: #4a9eff;
+      --success: #4ade80; --error: #f87171; --warning: #fbbf24;
+    }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; }
+    h1 { font-size: 1.5rem; margin-bottom: 20px; }
+    .container { display: grid; grid-template-columns: 420px 1fr; gap: 20px; max-width: 1600px; margin: 0 auto; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .panel h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 16px; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+    input, select { width: 100%; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 0.85rem; }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+    button { padding: 10px 20px; background: var(--accent); border: none; border-radius: 4px; color: white; font-size: 0.85rem; cursor: pointer; }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.secondary { background: transparent; border: 1px solid var(--border); }
+    .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .preset-btn { padding: 5px 10px; font-size: 0.7rem; background: var(--bg); border: 1px solid var(--border); }
+    .btn-row { display: flex; gap: 10px; }
+    .status { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; }
+    .status.success { background: rgba(74,222,128,0.15); color: var(--success); }
+    .status.error { background: rgba(248,113,113,0.15); color: var(--error); }
+    .status.pending { background: rgba(74,158,255,0.15); color: var(--accent); }
+    .status-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px; }
+    .tab { padding: 6px 14px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; }
+    .tab.active { background: var(--bg); color: var(--text); border-radius: 4px 4px 0 0; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .output { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 0.75rem; white-space: pre-wrap; word-break: break-all; max-height: 70vh; overflow: auto; }
+    .meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .meta-item { background: var(--bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border); }
+    .meta-item .lbl { font-size: 0.7rem; color: var(--text-muted); }
+    .meta-item .val { font-size: 0.8rem; font-family: monospace; word-break: break-all; margin-top: 2px; }
+    .cover-img { max-width: 150px; border-radius: 4px; margin-top: 10px; }
+    .mode-tabs { display: flex; gap: 0; margin-bottom: 16px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+    .mode-tab { flex: 1; padding: 10px; background: var(--bg); border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; text-align: center; }
+    .mode-tab.active { background: var(--accent); color: white; }
+    .mode-tab:hover:not(.active) { background: var(--surface); }
+    .mode-options { display: none; padding: 12px; background: var(--bg); border-radius: 4px; margin-bottom: 14px; }
+    .mode-options.active { display: block; }
+    .mode-desc { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; }
+    @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <h1>Catalog Download Debugger</h1>
+    <div class="container">
+      <div class="panel">
+        <h2>Configuration</h2>
+        <div class="form-group">
+          <label>URL to Test</label>
+          <input type="url"
+                 id="url"
+                 placeholder="https://book.douban.com/subject/35902899/"
+                 list="url-history"
+                 autocomplete="off">
+          <datalist id="url-history"></datalist>
+        </div>
+        <div class="history-actions"
+             id="history-actions"
+             style="display:none;
+                    margin-bottom: 14px">
+          <button class="preset-btn" onclick="clearHistory()">Clear History</button>
+        </div>
+        <h2>Test Mode</h2>
+        <div class="mode-tabs">
+          <button class="mode-tab active" onclick="setMode('site')">Site</button>
+          <button class="mode-tab" onclick="setMode('downloader')">Downloader</button>
+          <button class="mode-tab" onclick="setMode('provider')">Provider</button>
+        </div>
+        <!-- Mode 1: Site Logic -->
+        <div class="mode-options active" id="mode-site">
+          <div class="mode-desc">
+            Use the normal site scraper logic (same as <code>manage.py cat</code>).
+            Automatically detects the site and uses the appropriate parser.
+          </div>
+        </div>
+        <!-- Mode 2: Downloader -->
+        <div class="mode-options" id="mode-downloader">
+          <div class="mode-desc">Test different downloader types directly without site-specific parsing.</div>
+          <div class="form-group">
+            <label>Downloader Type</label>
+            <select id="downloader">
+              <option value="basic">BasicDownloader</option>
+              <option value="proxied">ProxiedDownloader</option>
+              <option value="scrap">ScrapDownloader</option>
+              <option value="retry">RetryDownloader</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Wait for Selector (ScrapDownloader only)</label>
+            <input type="text"
+                   id="selector-downloader"
+                   value="#content"
+                   placeholder="#content">
+          </div>
+        </div>
+        <!-- Mode 3: Provider -->
+        <div class="mode-options" id="mode-provider">
+          <div class="mode-desc">Test a specific scraping provider in ScrapDownloader directly.</div>
+          <div class="form-group">
+            <label>Scraping Provider</label>
+            <select id="provider">
+              <option value="scrapfly">Scrapfly</option>
+              <option value="decodo">Decodo</option>
+              <option value="scraperapi">ScraperAPI</option>
+              <option value="scrapingbee">ScrapingBee</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Wait for Selector</label>
+            <input type="text"
+                   id="selector-provider"
+                   value="#content"
+                   placeholder="#content">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Timeout (seconds)</label>
+          <input type="number" id="timeout" value="90">
+        </div>
+        <div class="btn-row">
+          <button onclick="runTest()" id="run-btn">Run Test</button>
+          <button class="secondary" onclick="clearResults()">Clear</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Results</h2>
+        <div class="status-bar">
+          <span class="status pending" id="status">Ready</span>
+          <span id="timing"></span>
+        </div>
+        <div class="tabs">
+          <button class="tab" onclick="switchTab('parsed')">Parsed</button>
+          <button class="tab active" onclick="switchTab('logs')">Logs</button>
+          <button class="tab" onclick="switchTab('raw')">Raw HTML</button>
+        </div>
+        <div class="tab-content" id="tab-parsed">
+          <div class="meta-grid" id="meta-grid"></div>
+          <div id="cover-container"></div>
+        </div>
+        <div class="tab-content active" id="tab-logs">
+          <div class="output" id="logs-output">Ready to test. Select a mode and click "Run Test".</div>
+        </div>
+        <div class="tab-content" id="tab-raw">
+          <div class="output" id="raw-output"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    let currentMode = 'site';
+    const HISTORY_KEY = 'scraper_debug_url_history';
+    const MAX_HISTORY = 20;
+
+    function getHistory() {
+      try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+      } catch { return []; }
+    }
+
+    function saveToHistory(url) {
+      if (!url) return;
+      let history = getHistory();
+      history = history.filter(u => u !== url);
+      history.unshift(url);
+      if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      updateHistoryUI();
+    }
+
+    function clearHistory() {
+      localStorage.removeItem(HISTORY_KEY);
+      updateHistoryUI();
+    }
+
+    function updateHistoryUI() {
+      const history = getHistory();
+      const datalist = document.getElementById('url-history');
+      const actionsEl = document.getElementById('history-actions');
+      datalist.innerHTML = history.map(url => `<option value="${url}">`).join('');
+      actionsEl.style.display = history.length > 0 ? 'block' : 'none';
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.mode-options').forEach(o => o.classList.remove('active'));
+      document.querySelector(`.mode-tab[onclick="setMode('${mode}')"]`).classList.add('active');
+      document.getElementById(`mode-${mode}`).classList.add('active');
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.tab[onclick="switchTab('${name}')"]`).classList.add('active');
+      document.getElementById(`tab-${name}`).classList.add('active');
+    }
+
+    function setStatus(text, type) {
+      const el = document.getElementById('status');
+      el.textContent = text;
+      el.className = `status ${type}`;
+    }
+
+    function clearResults() {
+      document.getElementById('raw-output').textContent = '';
+      document.getElementById('logs-output').textContent = 'Ready to test. Select a mode and click "Run Test".';
+      document.getElementById('meta-grid').innerHTML = '';
+      document.getElementById('cover-container').innerHTML = '';
+      document.getElementById('timing').textContent = '';
+      setStatus('Ready', 'pending');
+    }
+
+    async function runTest() {
+      const url = document.getElementById('url').value;
+      if (!url) { alert('Please enter a URL'); return; }
+
+      const btn = document.getElementById('run-btn');
+      btn.disabled = true;
+      btn.textContent = 'Running...';
+      setStatus('Testing...', 'pending');
+
+      document.getElementById('logs-output').textContent = `Starting ${currentMode} test for:\n${url}\n\nPlease wait...`;
+      document.getElementById('meta-grid').innerHTML = '';
+      document.getElementById('cover-container').innerHTML = '';
+
+      const payload = {
+        url: url,
+        mode: currentMode,
+        timeout: parseInt(document.getElementById('timeout').value) || 90
+      };
+
+      if (currentMode === 'downloader') {
+        payload.downloader = document.getElementById('downloader').value;
+        payload.selector = document.getElementById('selector-downloader').value;
+      } else if (currentMode === 'provider') {
+        payload.provider = document.getElementById('provider').value;
+        payload.selector = document.getElementById('selector-provider').value;
+      }
+
+      const startTime = Date.now();
+
+      try {
+        const resp = await fetch('{% url "catalog:debug_scrape_api" %}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+        document.getElementById('timing').textContent = elapsed + 's';
+
+        // Display logs
+        const logsText = (data.logs || []).join('\n');
+        if (data.error) {
+          document.getElementById('logs-output').textContent = `ERROR: ${data.error}\n\n${logsText}\n\n${data.traceback || ''}`;
+          setStatus('Error', 'error');
+          switchTab('logs');
+        } else {
+          document.getElementById('logs-output').textContent = logsText || '(no logs)';
+          setStatus('Success', 'success');
+
+          // Display raw HTML
+          document.getElementById('raw-output').textContent = data.html || '(no HTML content)';
+
+          // Display metadata
+          if (data.metadata && Object.keys(data.metadata).length > 0) {
+            const grid = document.getElementById('meta-grid');
+            grid.innerHTML = '';
+            for (const [k, v] of Object.entries(data.metadata)) {
+              if (k === 'cover_image_url' && v) {
+                document.getElementById('cover-container').innerHTML = `<img src="${v}" class="cover-img" onerror="this.style.display='none'">`;
+                continue;
+              }
+              const div = document.createElement('div');
+              div.className = 'meta-item';
+              const valStr = typeof v === 'object' ? JSON.stringify(v, null, 2) : String(v);
+              div.innerHTML = `<div class="lbl">${k}</div><div class="val">${valStr}</div>`;
+              grid.appendChild(div);
+            }
+            switchTab('parsed');
+          } else if (data.html) {
+            switchTab('raw');
+          }
+
+          // Save URL to history on successful test
+          saveToHistory(url);
+        }
+      } catch (e) {
+        setStatus('Error', 'error');
+        document.getElementById('logs-output').textContent = `Network error: ${e.toString()}`;
+        switchTab('logs');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Run Test';
+    }
+
+    // Initialize history on page load
+    updateHistoryUI();
+    </script>
+  </body>
+</html>
