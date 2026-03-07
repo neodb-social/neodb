@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-02-09 13:45-0500\n"
-"PO-Revision-Date: 2025-11-23 15:51+0000\n"
-"Last-Translator: Ernesto Wong García <ernestowg@proton.me>\n"
+"PO-Revision-Date: 2026-01-27 19:01+0000\n"
+"Last-Translator: facu32 <facunb87@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/neodb/neodb/es/>"
 "\n"
 "Language: es\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15-dev\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 #: boofilsic/settings.py:411 common/models/lang.py:216
 msgid "English"
@@ -2957,66 +2957,66 @@ msgstr "viendo"
 
 #: journal/models/shelf.py:134
 msgid "TV shows watched"
-msgstr ""
+msgstr "series de TV vistas"
 
 #: journal/models/shelf.py:142
 msgid "TV shows dropped"
-msgstr ""
+msgstr "series abandonadas"
 
 #: journal/models/shelf.py:150
 msgid "TV shows reviewed"
-msgstr ""
+msgstr "reseñas de series"
 
 #: journal/models/shelf.py:158
 msgid "albums to listen"
-msgstr ""
+msgstr "álbumes para escuchar"
 
 #: journal/models/shelf.py:159 journal/models/shelf.py:239
 msgid "want to listen"
-msgstr ""
+msgstr "quiero escuchar"
 
 #: journal/models/shelf.py:160 journal/models/shelf.py:240
 #, python-brace-format
 msgid "wants to listen {item}"
-msgstr ""
+msgstr "quiere escuchar {item}"
 
 #: journal/models/shelf.py:161 journal/models/shelf.py:241
 msgid "to listen"
-msgstr ""
+msgstr "escuchar"
 
 #: journal/models/shelf.py:166
 msgid "albums listening"
-msgstr ""
+msgstr "escuchando álbumes"
 
 #: journal/models/shelf.py:167 journal/models/shelf.py:247
 msgid "start listening"
-msgstr ""
+msgstr "empieza a escuchar"
 
 #: journal/models/shelf.py:168 journal/models/shelf.py:248
 #, python-brace-format
 msgid "started listening {item}"
-msgstr ""
+msgstr "comenzó a escuchar {item}"
 
 #: journal/models/shelf.py:169 journal/models/shelf.py:249
 msgid "listening"
-msgstr ""
+msgstr "escuchando"
 
 #: journal/models/shelf.py:174
 msgid "albums listened"
-msgstr ""
+msgstr "álbumes escuchados"
 
 #: journal/models/shelf.py:175 journal/models/shelf.py:255
 msgid "finish listening"
-msgstr ""
+msgstr "terminar de escuchar"
 
 #: journal/models/shelf.py:176 journal/models/shelf.py:256
 #, python-brace-format
 msgid "finished listening {item}"
-msgstr ""
+msgstr "terminó de escuchar {item}"
 
 #: journal/models/shelf.py:177 journal/models/shelf.py:257
 msgid "listened"
-msgstr ""
+msgstr "escuchado"
 
 #: journal/models/shelf.py:182
 msgid "albums dropped"
@@ -3024,92 +3024,92 @@ msgstr ""
 
 #: journal/models/shelf.py:183 journal/models/shelf.py:263
 msgid "stop listening"
-msgstr ""
+msgstr "deja de escuchar"
 
 #: journal/models/shelf.py:184 journal/models/shelf.py:264
 #, python-brace-format
 msgid "stopped listening {item}"
-msgstr ""
+msgstr "dejó de escuchar {item}"
 
 #: journal/models/shelf.py:185 journal/models/shelf.py:265
 msgid "stopped listening"
-msgstr ""
+msgstr "dejó de escuchar"
 
 #: journal/models/shelf.py:190
 msgid "albums reviewed"
-msgstr ""
+msgstr "álbumes reseñados"
 
 #: journal/models/shelf.py:198
 msgid "games to play"
-msgstr ""
+msgstr "juegos para jugar"
 
 #: journal/models/shelf.py:199
 msgid "want to play"
-msgstr ""
+msgstr "quiero jugar"
 
 #: journal/models/shelf.py:200
 #, python-brace-format
 msgid "wants to play {item}"
-msgstr ""
+msgstr "quiere jugar {item}"
 
 #: journal/models/shelf.py:201
 msgid "to play"
-msgstr ""
+msgstr "jugar"
 
 #: journal/models/shelf.py:206
 msgid "games playing"
-msgstr ""
+msgstr "jugando juegos"
 
 #: journal/models/shelf.py:207
 msgid "start playing"
-msgstr ""
+msgstr "empezar a jugar"
 
 #: journal/models/shelf.py:208
 #, python-brace-format
 msgid "started playing {item}"
-msgstr ""
+msgstr "comenzó a jugar {item}"
 
 #: journal/models/shelf.py:209
 msgid "playing"
-msgstr ""
+msgstr "jugando"
 
 #: journal/models/shelf.py:214
 msgid "games played"
-msgstr ""
+msgstr "juegos jugados"
 
 #: journal/models/shelf.py:215
 msgid "finish playing"
-msgstr ""
+msgstr "terminar de jugar"
 
 #: journal/models/shelf.py:216
 #, python-brace-format
 msgid "finished playing {item}"
-msgstr ""
+msgstr "terminó de jugar {item}"
 
 #: journal/models/shelf.py:217
 msgid "played"
-msgstr ""
+msgstr "jugado"
 
 #: journal/models/shelf.py:222
 msgid "games dropped"
-msgstr ""
+msgstr "juegos abandonados"
 
 #: journal/models/shelf.py:223
 msgid "stop playing"
-msgstr ""
+msgstr "deja de jugar"
 
 #: journal/models/shelf.py:224
 #, python-brace-format
 msgid "stopped playing {item}"
-msgstr ""
+msgstr "dejó de jugar {item}"
 
 #: journal/models/shelf.py:225
 msgid "stopped playing"
-msgstr ""
+msgstr "dejó de jugar"
 
 #: journal/models/shelf.py:230
 msgid "games reviewed"
-msgstr ""
+msgstr "juegos reseñados"
 
 #: journal/models/shelf.py:238
 msgid "podcasts to listen"

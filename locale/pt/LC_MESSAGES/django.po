@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-01-13 22:19-0500\n"
-"PO-Revision-Date: 2025-11-02 00:51+0000\n"
+"PO-Revision-Date: 2026-03-07 20:09+0000\n"
 "Last-Translator: AlecAlectoris <alektoris@duck.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/neodb/neodb/"
 "pt/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.14.1-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
@@ -50,7 +50,7 @@ msgstr "Chinês tradicional"
 #: catalog/book/models.py:77 catalog/book/models.py:96
 #: catalog/common/models.py:289 catalog/common/models.py:307
 msgid "locale"
-msgstr "locale"
+msgstr "localização"
 
 #: catalog/book/models.py:80 catalog/book/models.py:99
 #: catalog/common/models.py:292 catalog/common/models.py:312
@@ -326,7 +326,7 @@ msgstr "Álbum Spotify"
 
 #: catalog/common/models.py:88
 msgid "Spotify Podcast"
-msgstr "Spotify Podcast"
+msgstr "Podcast Spotify"
 
 #: catalog/common/models.py:89
 msgid "Discogs Release"
@@ -354,7 +354,7 @@ msgstr "Jogo Steam"
 
 #: catalog/common/models.py:101
 msgid "Apple Podcast"
-msgstr "Apple Podcast"
+msgstr "Podcast Apple"
 
 #: catalog/common/models.py:123 catalog/common/models.py:140
 #: catalog/common/models.py:153 common/templates/_header.html:25
@@ -485,11 +485,11 @@ msgstr "Identificação na fonte"
 
 #: catalog/common/models.py:802
 msgid "source url"
-msgstr "URL da fonte"
+msgstr "url da fonte"
 
 #: catalog/common/models.py:818
 msgid "IdType of the source site"
-msgstr "IDType da fonte"
+msgstr "IdType do site de origem"
 
 #: catalog/common/models.py:824
 msgid "Primary Id on the source site"
@@ -497,7 +497,7 @@ msgstr "Identificação primária na fonte"
 
 #: catalog/common/models.py:827
 msgid "url to the resource"
-msgstr "URL para o recurso"
+msgstr "url para o recurso"
 
 #: catalog/game/models.py:20
 msgid "Main Game"
@@ -524,6 +524,7 @@ msgid "Remaster"
 msgstr "Remasterização"
 
 #: catalog/game/models.py:26
+#, fuzzy
 msgid "Remake"
 msgstr "Remake"
 
@@ -1099,7 +1100,7 @@ msgstr "Adicionar filmes"
 
 #: catalog/templates/_sidebar_search.html:22
 msgid "Add tv series"
-msgstr "Adicionar séries de TV"
+msgstr "Adicionar séries de tv"
 
 #: catalog/templates/_sidebar_search.html:25
 msgid "Add podcasts"
@@ -1403,7 +1404,7 @@ msgstr "livros"
 #: catalog/templates/search_header.html:28
 #: catalog/templates/search_header.html:30
 msgid "movie & tv"
-msgstr "Filme e TV"
+msgstr "filme e tv"
 
 #: catalog/templates/search_header.html:36
 #: catalog/templates/search_header.html:38
@@ -1556,7 +1557,7 @@ msgstr "Este item não pode ser apagado."
 #: journal/views/post.py:42 journal/views/review.py:32
 #: journal/views/review.py:46
 msgid "Insufficient permission"
-msgstr ""
+msgstr "Permissões insuficientes"
 
 #: catalog/views_edit.py:202 journal/views/collection.py:264
 #: journal/views/collection.py:335 journal/views/common.py:82
@@ -1568,7 +1569,7 @@ msgstr "Parâmetro inválido"
 
 #: catalog/views_edit.py:251
 msgid "TV Season with IMDB id and season number required."
-msgstr ""
+msgstr "Temporada de TV com ID do IMDB e número de temporada necessária."
 
 #: catalog/views_edit.py:256
 msgid "Updating episodes"
@@ -2064,7 +2065,7 @@ msgstr "Esloveno"
 
 #: common/models/lang.py:163
 msgid "Northern Sami"
-msgstr "Northern Sami"
+msgstr "Sami do Norte"
 
 #: common/models/lang.py:164
 msgid "Samoan"
@@ -2454,6 +2455,7 @@ msgid "Explore"
 msgstr "Explorar"
 
 #: common/templates/_header.html:75
+#, fuzzy
 msgid "Feed"
 msgstr "Feed"
 
@@ -3021,7 +3023,7 @@ msgstr "álbuns a ouvir"
 
 #: journal/models/shelf.py:167 journal/models/shelf.py:247
 msgid "start listening"
-msgstr "começar a ouvir"
+msgstr "começou a ouvir"
 
 #: journal/models/shelf.py:168 journal/models/shelf.py:248
 #, python-brace-format
@@ -3711,7 +3713,7 @@ msgstr "Tipo de progresso (opcional)"
 
 #: journal/views/note.py:106
 msgid "Invalid form data"
-msgstr ""
+msgstr "Formato de dados inválido"
 
 #: journal/views/post.py:40
 msgid "Post not found"
