@@ -6,9 +6,9 @@ from typing import Iterable, List, Self, cast
 from django.conf import settings
 from loguru import logger
 from requests import RequestException
+from typesense.exceptions import ObjectNotFound, TypesenseClientError
 from typesense.sync.client import Client
 from typesense.sync.collection import Collection
-from typesense.exceptions import ObjectNotFound, TypesenseClientError
 from typesense.types.collection import (
     CollectionCreateSchema,
     CollectionSchema,
