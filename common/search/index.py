@@ -374,7 +374,10 @@ class Index:
             # use multi_search as typesense limits query size for normal search
             r = self._client.multi_search.perform(
                 cast(MultiSearchRequestSchema, {"searches": [params]}),
-                cast(MultiSearchCommonParameters, {"collection": self.read_collection.name}),
+                cast(
+                    MultiSearchCommonParameters,
+                    {"collection": self.read_collection.name},
+                ),
             )
         except (RequestException, TypesenseClientError) as e:
             logger.error(f"Typesense: error {e}")

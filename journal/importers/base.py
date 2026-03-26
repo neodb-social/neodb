@@ -91,9 +91,11 @@ class BaseImporter(Task):
         ]
         sites = [site for site in sites if site]
         sites.sort(
-            key=lambda x: _PREFERRED_SITES.index(x.SITE_NAME)
-            if x.SITE_NAME in _PREFERRED_SITES
-            else 99
+            key=lambda x: (
+                _PREFERRED_SITES.index(x.SITE_NAME)
+                if x.SITE_NAME in _PREFERRED_SITES
+                else 99
+            )
         )
 
         # match items without extra requests

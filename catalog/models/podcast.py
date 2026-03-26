@@ -140,8 +140,7 @@ class Podcast(Item):
 
         if self.host:
             data["author"] = [
-                {"@type": "Person", "name": person}
-                for person in self.host
+                {"@type": "Person", "name": person} for person in self.host
             ]
 
         if self.official_site:

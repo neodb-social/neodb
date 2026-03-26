@@ -578,8 +578,9 @@ class TestFediverseInstance:
                 "ID_TYPE": IdType.ISBN,
                 "id_value": "123",
                 "url": "https://example.com/book/123",
-                "check_model_compatibility": lambda self,
-                model_cls: False,  # Incompatible
+                "check_model_compatibility": lambda self, model_cls: (
+                    False
+                ),  # Incompatible
             },
         )()
         mock_site_manager.return_value = mock_book_site

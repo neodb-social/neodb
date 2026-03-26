@@ -34,10 +34,7 @@ class ArchiveOfOurOwn(AbstractSite):
         summary = content.xpath(
             "string(//div[@class='summary module']//blockquote[@class='userstuff'])"
         )
-        language = [
-            s.strip()
-            for s in content.xpath("//dd[@class='language']/text()")
-        ]
+        language = [s.strip() for s in content.xpath("//dd[@class='language']/text()")]
 
         published = content.xpath("string(//dd[@class='published']/text())")
         if published:
@@ -50,11 +47,7 @@ class ArchiveOfOurOwn(AbstractSite):
         data = {
             "localized_title": [{"lang": "en", "text": title.strip()}],
             "localized_description": (
-                [
-                    {"lang": "en", "text": summary.strip()}
-                ]
-                if summary
-                else []
+                [{"lang": "en", "text": summary.strip()}] if summary else []
             ),
             "author": authors,
             "language": language,

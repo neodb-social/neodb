@@ -21,19 +21,13 @@ class Qidian(AbstractSite):
         content = ProxiedDownloader(self.url).download().html()
         title_elem = content.xpath('//*[@id="bookName"]/text()')
         title = (
-            title_elem[0].strip()
-            if title_elem
-            else f"Unknown Title {self.id_value}"
+            title_elem[0].strip() if title_elem else f"Unknown Title {self.id_value}"
         )
 
         brief_elem = content.xpath(
             "/html/body/div[1]/div[5]/div[3]/div[1]/div/div[1]/div[1]/p/text()"
         )
-        brief = (
-            "\n".join(p.strip() for p in brief_elem)
-            if brief_elem
-            else None
-        )
+        brief = "\n".join(p.strip() for p in brief_elem) if brief_elem else None
 
         img_url = f"https://bookcover.yuewen.com/qdbimg/349573/{self.id_value}"
 

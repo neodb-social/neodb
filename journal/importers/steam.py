@@ -146,15 +146,19 @@ class SteamImporter(BaseImporter):
         try:
             raw_marks = list(
                 filter(
-                    lambda raw_mark: raw_mark["shelf_type"]
-                    in self.metadata["config"]["shelf_type_whitelist"],
+                    lambda raw_mark: (
+                        raw_mark["shelf_type"]
+                        in self.metadata["config"]["shelf_type_whitelist"]
+                    ),
                     raw_marks,
                 )
             )
             raw_marks = list(
                 filter(
-                    lambda raw_mark: raw_mark["app_id"]
-                    not in self.metadata["config"]["appid_blacklist"],
+                    lambda raw_mark: (
+                        raw_mark["app_id"]
+                        not in self.metadata["config"]["appid_blacklist"]
+                    ),
                     raw_marks,
                 )
             )
