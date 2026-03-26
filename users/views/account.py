@@ -170,7 +170,7 @@ def register(request: AuthedHttpRequest):
     if not settings.MASTODON_ALLOW_ANY_SITE:
         if verified_account and verified_account.platform == Platform.MASTODON:
             # directly create a new user
-            mastodon_account: MastodonAccount = verified_account  # type: ignore
+            mastodon_account: MastodonAccount = verified_account
             new_user = User.register(
                 account=mastodon_account,
                 username=mastodon_account.username,

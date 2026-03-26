@@ -379,7 +379,7 @@ def discover_popular_posts(request):
                 order_by="-published",
             )
         ).filter(author_row__lte=3)
-    posts = popular_posts.not_blocked_by(request.user.identity.takahe_identity)[:20]  # type: ignore
+    posts = popular_posts.not_blocked_by(request.user.identity.takahe_identity)[:20]
     return render(
         request,
         "_discover_popular_posts.html",

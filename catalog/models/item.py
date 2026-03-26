@@ -315,7 +315,7 @@ class Item(PolymorphicModel):
         return o
 
     def log_action(self, changes: dict[str, Any]):
-        LogEntry.objects.log_create(  # type: ignore
+        LogEntry.objects.log_create(
             self, action=LogEntry.Action.UPDATE, changes=changes
         )
 
@@ -571,7 +571,7 @@ class Item(PolymorphicModel):
 
     @property
     def cover_image_url(self) -> str | None:
-        return get_file_absolute_url(self.cover)  # type: ignore
+        return get_file_absolute_url(self.cover)
 
     @property
     def default_cover_image_url(self) -> str:
@@ -787,17 +787,17 @@ class ExternalResource(models.Model):
 
     required_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
-    )  # type: ignore
+    )
     """ links required to generate Item from this resource, e.g. parent TVShow of TVSeason """
 
     related_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
-    )  # type: ignore
+    )
     """links related to this resource which may be fetched later, e.g. sub TVSeason of TVShow"""
 
     prematched_resources = jsondata.ArrayField(
         models.CharField(), null=False, blank=False, default=list
-    )  # type: ignore
+    )
     """links to help match an existing Item from this resource, *to be deprecated* """
 
     class Meta:

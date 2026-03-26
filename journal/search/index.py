@@ -260,7 +260,7 @@ class JournalSearchResult(SearchResult):
     def facet_by_piece_class(self):
         return self.get_facet("piece_class")
 
-    def __iter__(self):  # type: ignore
+    def __iter__(self):
         return iter(self.posts)
 
     def __getitem__(self, key):

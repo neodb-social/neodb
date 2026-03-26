@@ -24,7 +24,7 @@ class UserOwnedObjectMixin:
         visibility: int
 
     def is_visible_to(
-        self: "Piece",  # type: ignore
+        self: "Piece",
         viewing_user: "User | None",
     ) -> bool:
         owner = self.owner
@@ -46,7 +46,7 @@ class UserOwnedObjectMixin:
         else:
             return True
 
-    def is_editable_by(self: "Piece", viewing_user: "User"):  # type: ignore
+    def is_editable_by(self: "Piece", viewing_user: "User"):
         return viewing_user.is_authenticated and (
             viewing_user.is_staff
             or viewing_user.is_superuser

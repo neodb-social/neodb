@@ -32,7 +32,7 @@ class TestCatalogItem:
         assert not edition1.has_cover()
         # no cover for this book as we excluded the file in test_data/
         site1.resource.metadata["language"] = ["cn"]
-        edition1.language = ["cn"]  # type: ignore
+        edition1.language = ["cn"]
         edition1.pages = None
         site1.resource.save()
         edition1.save()
@@ -50,5 +50,5 @@ class TestCatalogItem:
 
         edition2.merge_to(edition1)
         assert edition1.pages == 194
-        assert sorted(edition1.language) == ["cn"]  # type: ignore
+        assert sorted(edition1.language) == ["cn"]
         assert edition1.has_cover()

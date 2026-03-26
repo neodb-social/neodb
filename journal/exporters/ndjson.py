@@ -113,7 +113,7 @@ class NdjsonExporter(Task):
                     elif cls == Note and p.latest_post:
                         for a in p.latest_post.attachments.all():
                             dest = os.path.join(
-                                attachment_path, os.path.basename(a.file.name)
+                                attachment_path, os.path.basename(a.file.name or "")
                             )
                             try:
                                 shutil.copy2(a.file.path, dest)

@@ -24,6 +24,7 @@ from journal.importers import (
     SteamImporter,
 )
 from journal.models import ShelfType
+from journal.models.common import VisibilityType
 from takahe.utils import Takahe
 from users.models import Task
 
@@ -405,12 +406,8 @@ def import_steam(request):
 
     # core metadatas
     metadata = SteamImporter.DefaultMetadata.copy()
-    metadata.update(
-        {
-            "steam_id": request.POST.get("steam_id", "").strip(),
-            "visibility": int(request.POST.get("visibility", 0)),  # type: ignore
-        }
-    )
+    metadata["steam_id"] = request.POST.get("steam_id", "").strip()
+    metadata["visibility"] = VisibilityType(int(request.POST.get("visibility", 0)))
 
     # config source
     source = request.POST.getlist("source[]")

@@ -87,7 +87,7 @@ class AppleMusic(AbstractSite):
                     logger.debug(f"got localized content from {url}")
                     txt: str = content.xpath(
                         "//script[@id='schema:music-album']/text()"
-                    )[0]  # type:ignore
+                    )[0]
                     schema_data = json.loads(txt)
                     title = schema_data["name"]
                     if title:
@@ -95,7 +95,7 @@ class AppleMusic(AbstractSite):
                     try:
                         txt: str = content.xpath(
                             "//script[@id='serialized-server-data']/text()"
-                        )[0]  # type:ignore
+                        )[0]
                         server_data = json.loads(txt)
                         brief = server_data[0]["data"]["sections"][0]["items"][0][
                             "modalPresentationDescriptor"

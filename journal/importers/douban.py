@@ -321,7 +321,7 @@ class DoubanImporter(Task):
             try:
                 h = DoubanDownloader(review_url).download().html()
                 urls = h.xpath("//header[@class='main-hd']/a/@href")
-                for u in urls:  # type:ignore
+                for u in urls:
                     if self.is_douban_item_url(u):
                         url = u
                 if not url:

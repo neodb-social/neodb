@@ -23,7 +23,7 @@ class BooksTW(AbstractSite):
         isbn_elem = content.xpath(
             "//div[@class='bd']/ul/li[starts-with(text(),'ISBN：')]/text()"
         )
-        isbn = isbn_elem[0].strip().split("：", 1)[1].strip() if isbn_elem else None  # type: ignore
+        isbn = isbn_elem[0].strip().split("：", 1)[1].strip() if isbn_elem else None
 
         # isbn_elem = content.xpath(
         #     "//div[@class='bd']/ul/li[starts-with(text(),'EISBN')]/text()"
@@ -37,15 +37,15 @@ class BooksTW(AbstractSite):
         orig_title = str(content.xpath("string(//h1/following-sibling::h2)"))
 
         authors = content.xpath("string(//div/ul/li[contains(text(),'作者：')])")
-        authors = authors.strip().split("：", 1)[1].split(",") if authors else []  # type: ignore
+        authors = authors.strip().split("：", 1)[1].split(",") if authors else []
         if not authors:
             authors = [content.xpath("string(//div/ul/li[contains(.,'作者：')]/a)")]
-        authors = [s.strip() for s in authors]  # type: ignore
+        authors = [s.strip() for s in authors]
         # author_orig = content.xpath("string(//div/ul/li[contains(text(),'原文作者：')])")
 
         translators = content.xpath("string(//div/ul/li[contains(text(),'譯者：')])")
         translators = (
-            translators.strip().split("：", 1)[1].split(",") if translators else []  # type: ignore
+            translators.strip().split("：", 1)[1].split(",") if translators else []
         )
         translators = [s.strip() for s in translators]
 
@@ -53,12 +53,12 @@ class BooksTW(AbstractSite):
             "//div/ul/li[starts-with(text(),'語言：')]/text()"
         )
         language = (
-            [language_elem[0].strip().split("：")[1].strip()] if language_elem else []  # type: ignore
+            [language_elem[0].strip().split("：")[1].strip()] if language_elem else []
         )
 
         pub_house = content.xpath("string(//div/ul/li[contains(text(),'出版社：')])")
         pub_house = (
-            pub_house.strip().split("：", 1)[1].strip().split(" ", 1)[0]  # type: ignore
+            pub_house.strip().split("：", 1)[1].strip().split(" ", 1)[0]
             if pub_house
             else None
         )
@@ -67,7 +67,7 @@ class BooksTW(AbstractSite):
         pub_date = re.match(
             r"(\d+)/(\d+)/(\d+)\s*$",
             (
-                pub_date.strip().split("：", 1)[1].strip().split(" ", 1)[0]  # type: ignore
+                pub_date.strip().split("：", 1)[1].strip().split(" ", 1)[0]
                 if pub_date
                 else ""
             ),
@@ -80,7 +80,7 @@ class BooksTW(AbstractSite):
             pub_month = None
 
         spec = content.xpath("string(//div/ul/li[contains(text(),'規格：')])")
-        spec = spec.strip().split("：", 1)[1].strip().split("/") if spec else []  # type: ignore
+        spec = spec.strip().split("：", 1)[1].strip().split("/") if spec else []
         if len(spec) > 1:
             binding = spec[0].strip()
             pages = str(spec[1].strip()).split("頁")
@@ -93,7 +93,7 @@ class BooksTW(AbstractSite):
 
         price = content.xpath("string(//div/ul/li[contains(text(),'定價：')])")
         price = (
-            price.strip().split("：", 1)[1].split("元")[0].strip() + " NTD"  # type: ignore
+            price.strip().split("：", 1)[1].split("元")[0].strip() + " NTD"
             if price
             else None
         )
@@ -109,7 +109,7 @@ class BooksTW(AbstractSite):
         img_url = content.xpath(
             "string(//div[contains(@class,'cover_img')]//img[contains(@class,'cover')]/@src)"
         )
-        img_url = re.sub(r"&[wh]=\d+", "", img_url) if img_url else None  # type: ignore
+        img_url = re.sub(r"&[wh]=\d+", "", img_url) if img_url else None
         data = {
             "title": title,
             "subtitle": subtitle,

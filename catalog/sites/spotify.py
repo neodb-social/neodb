@@ -42,7 +42,7 @@ class Spotify(AbstractSite):
 
     def scrape_web(self):
         content = BasicDownloader(self.url).download().html()
-        txt: str = content.xpath("//script[@type='application/ld+json']/text()")[0]  # type:ignore
+        txt: str = content.xpath("//script[@type='application/ld+json']/text()")[0]
         schema_data = json.loads(txt)
         title = schema_data["name"]
         localized_title = [{"lang": detect_language(title), "text": title}]

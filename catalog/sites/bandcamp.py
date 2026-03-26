@@ -86,7 +86,7 @@ class Bandcamp(AbstractSite):
         duration = None
         company = None
         brief_nodes = content.xpath("//div[@class='tralbumData tralbum-about']/text()")
-        brief = "".join(brief_nodes) if brief_nodes else ""  # type:ignore
+        brief = "".join(brief_nodes) if brief_nodes else ""
         cover_url = self.query_str(content, "//div[@id='tralbumArt']/a/@href")
         bandcamp_page_data = json.loads(
             self.query_str(content, "//meta[@name='bc-page-properties']/@content")

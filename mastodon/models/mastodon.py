@@ -180,7 +180,7 @@ def post_toot2(
     base_url = "https://" + api_domain
     response = None
     url = base_url + API_PUBLISH_TOOT
-    payload = {
+    payload: dict[str, object] = {
         "status": content,
         "visibility": visibility,
     }

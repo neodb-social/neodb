@@ -30,7 +30,7 @@ class BoardGameGeek(AbstractSite):
     def scrape(self):
         api_url = f"https://boardgamegeek.com/xmlapi2/thing?stats=1&type=boardgame,boardgameexpansion&id={self.id_value}"
         content = BasicDownloader(api_url).download().xml()
-        items = list(content.xpath("/items/item"))  # type: ignore
+        items = list(content.xpath("/items/item"))
         if not len(items):
             raise ParseError(scraper=self, field="id")
         item = items[0]

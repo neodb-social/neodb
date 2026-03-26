@@ -1267,7 +1267,7 @@ class Post(models.Model):
 
         p = self.piece
         if p:
-            return p.item if hasattr(p, "item") else None  # type:ignore
+            return p.item if hasattr(p, "item") else None
         log = ShelfLogEntry.objects.filter(shelflogentrypost__post_id=self.pk).first()
         return log.item if log else None
 
@@ -1750,7 +1750,7 @@ class PostAttachment(models.Model):
         if self.remote_url:
             return self.remote_url.rsplit("/", 1)[-1]
         if self.file:
-            return self.file.name.rsplit("/", 1)[-1]
+            return (self.file.name or "").rsplit("/", 1)[-1]
         return f"attachment ({self.mimetype})"
 
     def to_mastodon_json(self):

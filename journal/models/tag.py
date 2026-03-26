@@ -17,7 +17,7 @@ from .itemlist import List, ListMember
 class TagMember(ListMember):
     if TYPE_CHECKING:
         parent: models.ForeignKey["TagMember", "Tag"]
-    parent = models.ForeignKey("Tag", related_name="members", on_delete=models.CASCADE)
+    parent = models.ForeignKey("Tag", related_name="members", on_delete=models.CASCADE)  # type: ignore
 
     class Meta:
         unique_together = [["parent", "item"]]

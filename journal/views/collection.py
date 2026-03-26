@@ -352,7 +352,7 @@ def collection_update_item_note(request: AuthedHttpRequest, collection_uuid, ite
     note = request.POST.get("note", default="")
     cancel = request.GET.get("cancel")
     if request.method == "POST" and member:
-        member.note = note  # type: ignore
+        member.note = note
         member.save()
         return render(
             request,

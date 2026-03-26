@@ -143,7 +143,7 @@ class GoodreadsImporter(Task):
                 if not title_elem:
                     print(f"Shelf parsing error {url_shelf}")
                     break
-                title = title_elem[0].strip()  # type:ignore
+                title = title_elem[0].strip()
                 print(f"Shelf title: {title}")
             except Exception:
                 print(f"Shelf loading/parsing error {url_shelf}")
@@ -216,7 +216,7 @@ class GoodreadsImporter(Task):
                     pass  # likely just download error
             next_elem = content.xpath("//a[@class='next_page']/@href")
             url_shelf = (
-                f"https://www.goodreads.com{next_elem[0].strip()}"  # type:ignore
+                f"https://www.goodreads.com{next_elem[0].strip()}"
                 if next_elem
                 else None
             )
@@ -236,9 +236,9 @@ class GoodreadsImporter(Task):
             if not title_elem:
                 print(f"List parsing error {url_shelf}")
                 break
-            title: str = title_elem[0].strip()  # type:ignore
+            title: str = title_elem[0].strip()
             desc_elem = content.xpath('//div[@class="mediumText"]/text()')
-            description: str = desc_elem[0].strip()  # type:ignore
+            description: str = desc_elem[0].strip()
             print("List title: " + title)
             links = content.xpath('//a[@class="bookTitle"]/@href')
             for link in links:
@@ -257,7 +257,7 @@ class GoodreadsImporter(Task):
                     pass  # likely just download error
             next_elem = content.xpath("//a[@class='next_page']/@href")
             url_shelf = (
-                f"https://www.goodreads.com{next_elem[0].strip()}"  # type:ignore
+                f"https://www.goodreads.com{next_elem[0].strip()}"
                 if next_elem
                 else None
             )

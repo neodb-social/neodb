@@ -257,7 +257,7 @@ class TVShow(Item):
         )
         dt = int_(self.year) * 10000
         d["date"] = [dt] if dt else []
-        d["genre"] = self.genre or []  # type:ignore
+        d["genre"] = self.genre or []
         return d
 
     def to_schema_org(self):
@@ -271,7 +271,7 @@ class TVShow(Item):
             data["genre"] = self.genre
 
         if self.language:
-            data["inLanguage"] = self.language[0]  # type:ignore
+            data["inLanguage"] = self.language[0]
 
         if self.actor:
             data["actor"] = [
@@ -504,7 +504,7 @@ class TVSeason(Item):
         )
         dt = int_(self.year) * 10000
         d["date"] = [dt] if dt else []
-        d["genre"] = self.genre or []  # type: ignore
+        d["genre"] = self.genre or []
         return d
 
     def to_schema_org(self):
@@ -531,7 +531,7 @@ class TVSeason(Item):
             data["genre"] = self.genre
 
         if self.language:
-            data["inLanguage"] = self.language[0]  # type:ignore
+            data["inLanguage"] = self.language[0]
 
         if self.actor:
             data["actor"] = [

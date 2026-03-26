@@ -59,7 +59,7 @@ def query_index(
         key = getattr(i, "isbn", getattr(i, "imdb_code", getattr(i, "barcode", None)))
         my_key = {key: i} if key else {}
         if isinstance(i, Edition):
-            work = i.works.first()  # type: ignore
+            work = i.works.first()
             if work:
                 my_key[work.id] = i
         if my_key:

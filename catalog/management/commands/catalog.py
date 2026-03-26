@@ -378,15 +378,15 @@ class Command(BaseCommand):
         for i in tqdm(qs.iterator(), total=c):
             localized_title = [{"lang": detect_language(i.title), "text": i.title}]
             if i.__class__ != Edition:
-                if hasattr(i, "orig_title") and i.orig_title:  # type:ignore
+                if hasattr(i, "orig_title") and i.orig_title:
                     localized_title += [
                         {
-                            "lang": detect_language(i.orig_title),  # type:ignore
-                            "text": i.orig_title,  # type:ignore
+                            "lang": detect_language(i.orig_title),
+                            "text": i.orig_title,
                         }
                     ]
-                if hasattr(i, "other_title") and i.other_title:  # type:ignore
-                    for title in i.other_title:  # type:ignore
+                if hasattr(i, "other_title") and i.other_title:
+                    for title in i.other_title:
                         localized_title += [
                             {"lang": detect_language(title), "text": title}
                         ]

@@ -241,7 +241,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="user",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     ("is_active", False),
                     ("mastodon_username__isnull", False),
                     ("email__isnull", False),

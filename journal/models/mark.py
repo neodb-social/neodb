@@ -318,11 +318,12 @@ class Mark:
             if metadata:
                 d["metadata"] = metadata
             d["created_time"] = created_time or timezone.now()
-            self.shelfmember, _ = ShelfMember.objects.update_or_create(
+            shelfmember, _ = ShelfMember.objects.update_or_create(
                 owner=self.owner, item=self.item, defaults=d
             )
-            log_entry = self.shelfmember.ensure_log_entry()
-            self.shelfmember.clear_post_ids()
+            self.shelfmember = shelfmember
+            log_entry = shelfmember.ensure_log_entry()
+            shelfmember.clear_post_ids()
 
         return shelfmember_changed, update_mode, log_entry
 

@@ -129,7 +129,7 @@ class CatalogSearchResult(SearchResult):
         ids = [int(hit["document"]["id"]) for hit in self.response["hits"]]
         return Item.get_final_items(Item.get_by_ids(ids))
 
-    def __iter__(self):  # type:ignore
+    def __iter__(self):
         return iter(self.items)
 
     def __getitem__(self, key):

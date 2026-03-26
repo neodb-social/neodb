@@ -161,7 +161,7 @@ def comment(request: AuthedHttpRequest, item_uuid):
                 if settings.DEBUG:
                     raise
                 position = None
-        d = {"text": text, "visibility": visibility}
+        d: dict[str, object] = {"text": text, "visibility": visibility}
         if position:
             d["metadata"] = {"position": position}
         delete_existing_post = comment is not None and comment.visibility != visibility

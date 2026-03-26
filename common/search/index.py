@@ -1,20 +1,21 @@
 import re
 from functools import cached_property
 from time import sleep
-from typing import Iterable, List, Self
+from typing import Iterable, List, Self, cast
 
 from django.conf import settings
 from loguru import logger
 from requests import RequestException
-from typesense.client import Client
-from typesense.collection import Collection
+from typesense.sync.client import Client
+from typesense.sync.collection import Collection
 from typesense.exceptions import ObjectNotFound, TypesenseClientError
 from typesense.types.collection import (
     CollectionCreateSchema,
     CollectionSchema,
     CollectionUpdateSchema,
 )
-from typesense.types.document import SearchResponse
+from typesense.types.document import MultiSearchCommonParameters, SearchResponse
+from typesense.types.multi_search import MultiSearchRequestSchema
 
 
 def _backtick(s: str | int) -> str:
@@ -372,8 +373,8 @@ class Index:
         try:
             # use multi_search as typesense limits query size for normal search
             r = self._client.multi_search.perform(
-                {"searches": [params]},  # type: ignore
-                {"collection": self.read_collection.name},  # type: ignore
+                cast(MultiSearchRequestSchema, {"searches": [params]}),
+                cast(MultiSearchCommonParameters, {"collection": self.read_collection.name}),
             )
         except (RequestException, TypesenseClientError) as e:
             logger.error(f"Typesense: error {e}")
