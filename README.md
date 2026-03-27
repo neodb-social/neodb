@@ -97,3 +97,6 @@ Please see [installation guide](https://neodb.net/install/).
 
 ## Sponsor
 If you like this project, please consider donating to [NeoDB.social on ko-fi](https://ko-fi.com/neodb), or [Takahē](https://www.patreon.com/takahe) and [NiceDB](https://patreon.com/tertius) without whom this project won't be possible.
+
+
+<!-- fix-issue-700: [Request] Import from trakt.tv -->
