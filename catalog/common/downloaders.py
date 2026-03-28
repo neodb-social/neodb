@@ -727,6 +727,8 @@ class ScrapDownloader(BasicDownloader):
 
     def _scrape_with_custom(self, custom_url: str) -> Tuple[ResponseType | None, int]:
         """Scrape using custom URL template (backup provider)."""
+        if not self.url.startswith(("http://", "https://")):
+            return None, RESPONSE_NETWORK_ERROR
         api_url = custom_url.replace("__URL__", quote(self.url, safe=""))
         if self.wait_for_selector:
             api_url = api_url.replace(

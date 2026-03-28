@@ -241,6 +241,8 @@ class SiteManager:
 
     @staticmethod
     def get_redirected_url(url: str, allow_head: bool = True) -> str:
+        if not url.startswith(("http://", "https://")):
+            return url
         k = "_redir_" + md5(url.encode()).hexdigest()
         u = cache.get(k, default=None)
         if u == "":
