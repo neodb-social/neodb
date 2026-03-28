@@ -145,10 +145,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -166,10 +162,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -187,10 +179,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -208,10 +196,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -229,10 +213,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -250,10 +230,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -283,10 +259,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -318,10 +290,6 @@ class Migration(migrations.Migration):
                     models.ManyToManyField(related_name="works", to="catalog.edition"),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -360,10 +328,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -391,10 +355,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -661,10 +621,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.CreateModel(
@@ -691,10 +647,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("catalog.item",),
         ),
         migrations.RenameIndex(

@@ -62,10 +62,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=(models.Model, journal.models.mixins.UserOwnedObjectMixin),
         ),
         migrations.CreateModel(
@@ -349,10 +345,6 @@ class Migration(migrations.Migration):
                 ),
                 ("edited_time", models.DateTimeField(auto_now=True)),
             ],
-            options={
-                "abstract": False,
-                "base_manager_name": "objects",
-            },
             bases=("journal.piece",),
         ),
         migrations.CreateModel(
@@ -592,7 +584,9 @@ class Migration(migrations.Migration):
                 (
                     "piece",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="journal.piece"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="post_relations",
+                        to="journal.piece",
                     ),
                 ),
                 (

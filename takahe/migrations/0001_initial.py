@@ -1259,4 +1259,33 @@ class Migration(migrations.Migration):
                 "db_table": "users_report",
             },
         ),
+        migrations.CreateModel(
+            name="PushSubscription",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("endpoint", models.CharField(max_length=500)),
+                ("keys", models.JSONField(blank=True, null=True)),
+                ("alerts", models.JSONField(blank=True, null=True)),
+                ("policy", models.CharField(default="all", max_length=8)),
+                (
+                    "token",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="push_subscription",
+                        to="takahe.token",
+                    ),
+                ),
+            ],
+            options={
+                "db_table": "api_pushsubscription",
+            },
+        ),
     ]
