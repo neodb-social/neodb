@@ -45,6 +45,8 @@ class FediverseHtmlParser(HTMLParser):
 
     EMOJI_REGEX = re.compile(r"\B:([a-zA-Z0-9(_)-]+):\B")
 
+    IMG_EMOJI_REGEX = re.compile(r"^:([a-zA-Z0-9(_)-]+):$")
+
     URL_REGEX = re.compile(
         r"""(\(*  # Match any opening parentheses.
         \b(?<![@.])(?:https?://(?:(?:\w+:)?\w+@)?)  # http://
@@ -115,6 +117,20 @@ class FediverseHtmlParser(HTMLParser):
         elif tag == "a":
             self.flush_data()
             self._pending_a = {"attrs": dict(attrs), "content": ""}
+        elif tag == "img":
+            alt = dict(attrs).get("alt") or ""
+            m = self.IMG_EMOJI_REGEX.match(alt.strip())
+            if m:
+                shortcode = m.group(1)
+                if self._pending_a:
+                    self._pending_a["content"] += f":{shortcode}:"
+                else:
+                    self.flush_data()
+                    if self.find_emojis:
+                        self.html_output += self.create_emoji(shortcode)
+                    else:
+                        self.html_output += html.escape(f":{shortcode}:")
+                    self.text_output += f":{shortcode}:"
         self._fresh_p = tag in self.REWRITE_TO_P
 
     def handle_endtag(self, tag: str) -> None:

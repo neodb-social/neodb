@@ -1,4 +1,3 @@
-{% load bleach_tags %}
 {% load static %}
 {% load i18n %}
 {% load l10n %}
@@ -120,10 +119,10 @@
             <div id="content_{{ post.pk }}" class="content">
               {% if piece and piece.classname == 'note' %}
                 <blockquote style="margin:0; padding-top:0; padding-bottom:0">
-                  {{ post.safe_content_local|bleach:"a,p,span,br,div,img"|default:"" }}
+                  {{ post.safe_content_local|default:"" }}
                 </blockquote>
               {% else %}
-                {{ post.safe_content_local|bleach:"a,p,span,br,div,img"|default:"" }}
+                {{ post.safe_content_local|default:"" }}
               {% endif %}
             </div>
             {% if post.type == 'Question' %}
