@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -57,7 +58,7 @@ def review_translate(request, review_uuid: str):
     text = translate(text, request.user.language, lang)
     title = translate(review.title, request.user.language, lang)
     return HttpResponse(
-        f'<span hx-swap-oob="true" id="review_{review.uuid}_title">{title}</span><div>{text}</div>'
+        f'<span hx-swap-oob="true" id="review_{review.uuid}_title">{escape(title)}</span><div>{text}</div>'
     )
 
 

@@ -1,4 +1,5 @@
 import functools
+import secrets
 import typing
 from datetime import timedelta
 from urllib.parse import quote
@@ -49,7 +50,9 @@ class Threads:
     @staticmethod
     def generate_auth_url(request: HttpRequest):
         redirect_url = request.build_absolute_uri(reverse("mastodon:threads_oauth"))
-        url = f"https://threads.net/oauth/authorize?client_id={settings.THREADS_APP_ID}&redirect_uri={redirect_url}&scope={Threads.SCOPE}&response_type=code"
+        state = secrets.token_urlsafe(32)
+        request.session["oauth_state"] = state
+        url = f"https://threads.net/oauth/authorize?client_id={settings.THREADS_APP_ID}&redirect_uri={redirect_url}&scope={Threads.SCOPE}&response_type=code&state={state}"
         return url
 
     @staticmethod

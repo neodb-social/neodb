@@ -1,8 +1,11 @@
 import html
 import re
 from html.parser import HTMLParser
+from urllib.parse import urlparse
 
 from django.utils.safestring import mark_safe
+
+_ALLOWED_SCHEMES = {"http", "https", "mailto"}
 
 
 class FediverseHtmlParser(HTMLParser):
@@ -165,6 +168,9 @@ class FediverseHtmlParser(HTMLParser):
 
         All return values from this function should be HTML-safe.
         """
+        scheme = urlparse(href).scheme.lower()
+        if scheme and scheme not in _ALLOWED_SCHEMES:
+            return html.escape(content)
         looks_like_link = bool(self.URL_REGEX.match(content))
         if looks_like_link:
             protocol, content = content.split("://", 1)

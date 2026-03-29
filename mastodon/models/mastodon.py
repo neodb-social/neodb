@@ -1,6 +1,7 @@
 import functools
 import random
 import re
+import secrets
 import string
 import typing
 from enum import StrEnum
@@ -503,6 +504,8 @@ def get_or_create_fediverse_application(login_domain: str):
 def get_mastodon_login_url(app, login_domain, request):
     url = request.build_absolute_uri(reverse("mastodon:oauth"))
     scope = _get_scopes(app.server_version)
+    state = secrets.token_urlsafe(32)
+    request.session["oauth_state"] = state
     return (
         "https://"
         + login_domain
@@ -513,6 +516,8 @@ def get_mastodon_login_url(app, login_domain, request):
         + "&redirect_uri="
         + url
         + "&response_type=code"
+        + "&state="
+        + state
     )
 
 
