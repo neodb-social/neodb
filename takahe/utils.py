@@ -940,7 +940,7 @@ class Takahe:
         ).values_list("value", flat=True)
         try:
             end_time = parse_datetime(post.type_data.get("end_time"))
-        except ValueError:
+        except (ValueError, TypeError):
             end_time = None
         info = post.type_data.copy()
         info["end_time"] = end_time
@@ -954,7 +954,7 @@ class Takahe:
     def vote_post(post, identity_pk, choices):
         try:
             end_time = parse_datetime(post.type_data.get("end_time"))
-        except ValueError:
+        except (ValueError, TypeError):
             end_time = None
         if end_time and timezone.now() > end_time:
             raise ValueError("Poll has ended")
