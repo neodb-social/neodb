@@ -634,6 +634,10 @@ class PieceInteraction(models.Model):
 
 
 class Content(Piece):
+    if TYPE_CHECKING:
+        owner_id: int
+        item_id: int
+
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
         choices=VisibilityType.choices, default=0, null=False

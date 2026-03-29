@@ -337,6 +337,9 @@ class ShelfMemberManager(PolymorphicManager):
 class ShelfMember(ListMember):
     if TYPE_CHECKING:
         parent: models.ForeignKey["ShelfMember", "Shelf"]
+        owner_id: int
+        item_id: int
+        _tags: list[str]
 
     parent = models.ForeignKey(  # type: ignore
         "Shelf", related_name="members", on_delete=models.CASCADE
