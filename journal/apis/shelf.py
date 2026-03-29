@@ -1,8 +1,9 @@
 import datetime
-from typing import List
+from typing import Any, List
 
 from django.core.cache import cache
-from django.http import HttpResponse
+from django.db.models import QuerySet
+from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from ninja import Field, Schema
 from ninja.pagination import paginate
@@ -11,7 +12,9 @@ from catalog.models import AvailableItemCategory, Item, ItemCategory, ItemSchema
 from common.api import PageNumberPagination, Result, api
 from common.utils import get_uuid_or_404
 from journal.models.common import max_visiblity_to_user, q_owned_piece_visible_to_user
+from journal.models.rating import Rating
 from journal.models.shelf import ShelfMember
+from journal.models.tag import Tag
 from users.models.apidentity import APIdentity
 
 from ..models import (
@@ -20,6 +23,35 @@ from ..models import (
 )
 
 CALENDAR_CACHE_SECONDS = 6 * 60 * 60
+
+
+def _prefetch_shelf_members(members: list[ShelfMember]):
+    """Batch-fetch related data for shelf members to avoid N+1 queries."""
+    if not members:
+        return
+    items = [m.item for m in members]
+    # Batch-fetch item-level data (public rating/tags for ItemSchema)
+    Rating.attach_to_items(items)
+    Tag.attach_to_items(items)
+    # Batch-fetch user's tags for MarkSchema.tags
+    owner = members[0].owner
+    item_ids = [m.item_id for m in members]
+    tags_by_item = owner.tag_manager.get_items_tags(item_ids)
+    for m in members:
+        m._tags = tags_by_item.get(m.item_id, [])
+
+
+class ShelfPageNumberPagination(PageNumberPagination):
+    def paginate_queryset(
+        self,
+        queryset: QuerySet,
+        pagination: PageNumberPagination.Input,
+        request: HttpRequest,
+        **params: Any,
+    ):
+        val = super().paginate_queryset(queryset, pagination, request, **params)
+        _prefetch_shelf_members(val["data"])
+        return val
 
 
 # Mark
@@ -95,7 +127,7 @@ def get_user_calendar_data(request, handle: str):
     response={200: List[MarkSchema], 401: Result, 403: Result, 404: Result},
     tags=["shelf"],
 )
-@paginate(PageNumberPagination)
+@paginate(ShelfPageNumberPagination)
 def list_marks_on_user_shelf(
     request,
     handle: str,
@@ -118,7 +150,8 @@ def list_marks_on_user_shelf(
             type, ItemCategory(category) if category else None
         )
         .filter(qv)
-        .prefetch_related("item")
+        .select_related("owner")
+        .prefetch_related("item", "item__external_resources")
     )
     return queryset
 
@@ -128,7 +161,7 @@ def list_marks_on_user_shelf(
     response={200: List[MarkSchema], 401: Result, 403: Result},
     tags=["shelf"],
 )
-@paginate(PageNumberPagination)
+@paginate(ShelfPageNumberPagination)
 def list_marks_on_shelf(
     request, type: ShelfType, category: AvailableItemCategory | None = None
 ):
@@ -138,9 +171,11 @@ def list_marks_on_shelf(
     Shelf's `type` should be one of `wishlist` / `progress` / `complete` / `dropped`;
     `category` is optional, marks for all categories will be returned if not specified.
     """
-    queryset = request.user.shelf_manager.get_latest_members(
-        type, category
-    ).prefetch_related("item")
+    queryset = (
+        request.user.shelf_manager.get_latest_members(type, category)
+        .select_related("owner")
+        .prefetch_related("item", "item__external_resources")
+    )
     return queryset
 
 

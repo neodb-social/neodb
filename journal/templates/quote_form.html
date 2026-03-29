@@ -1,0 +1,57 @@
+{% load i18n %}
+<div id="quote_{{ post.pk }}">
+  {% if submitted %}
+    <small style="color: var(--muted-color)">{% trans "Quoted." %}</small>
+  {% else %}
+    <form class="reply"
+          role="group"
+          hx-post="{% url 'journal:post_quote' post.pk %}"
+          hx-target="#quote_{{ post.pk }}"
+          hx-swap="innerHTML">
+      <input name="content" type="text" placeholder="{% trans "add a quote" %}" />
+      <details class="dropdown">
+        <summary>
+          <i class="fa-solid fa-users-gear"></i>
+        </summary>
+        <ul>
+          {% if 0 in allowed_visibilities or 1 in allowed_visibilities or 4 in allowed_visibilities %}
+            <li>
+              <label>
+                <input type="radio"
+                       name="visibility"
+                       value="{{ default_visibility }}"
+                       {% if post.visibility <= 1 or post.visibility == 4 %}checked{% endif %} />
+                <i class="fa-solid fa-globe"></i>
+              </label>
+            </li>
+          {% endif %}
+          {% if 2 in allowed_visibilities %}
+            <li>
+              <label>
+                <input type="radio"
+                       name="visibility"
+                       value="2"
+                       {% if post.visibility == 2 %}checked{% endif %} />
+                <i class="fa-solid fa-lock"></i>
+              </label>
+            </li>
+          {% endif %}
+          {% if 3 in allowed_visibilities %}
+            <li>
+              <label>
+                <input type="radio"
+                       name="visibility"
+                       value="3"
+                       {% if post.visibility == 3 %}checked{% endif %} />
+                <i class="fa-solid fa-at"></i>
+              </label>
+            </li>
+          {% endif %}
+        </ul>
+      </details>
+      <button class="secondary">
+        <i class="fa-regular fa-paper-plane"></i>
+      </button>
+    </form>
+  {% endif %}
+</div>

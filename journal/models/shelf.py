@@ -337,8 +337,11 @@ class ShelfMemberManager(PolymorphicManager):
 class ShelfMember(ListMember):
     if TYPE_CHECKING:
         parent: models.ForeignKey["ShelfMember", "Shelf"]
+        owner_id: int
+        item_id: int
+        _tags: list[str]
 
-    parent = models.ForeignKey(
+    parent = models.ForeignKey(  # type: ignore
         "Shelf", related_name="members", on_delete=models.CASCADE
     )
 
@@ -532,7 +535,10 @@ class ShelfMember(ListMember):
 
     @property
     def tags(self):
-        return self.mark.tags
+        try:
+            return getattr(self, "_tags")
+        except AttributeError:
+            return self.mark.tags
 
     def ensure_log_entry(self):
         log, _ = ShelfLogEntry.objects.get_or_create(
@@ -722,7 +728,7 @@ class ShelfManager:
     def get_label(cls, shelf_type: ShelfType | str, item_category: ItemCategory) -> str:
         st = str(shelf_type)
         sts = [n[2] for n in _SHELF_LABELS if n[0] == item_category and n[1] == st]
-        return sts[0] if sts else st
+        return str(sts[0]) if sts else st
 
     @classmethod
     def get_action_label(
@@ -730,7 +736,7 @@ class ShelfManager:
     ) -> str:
         st = str(shelf_type)
         sts = [n[3] for n in _SHELF_LABELS if n[0] == item_category and n[1] == st]
-        return sts[0] if sts else st
+        return str(sts[0]) if sts else st
 
     @classmethod
     def get_status_label(
@@ -738,7 +744,7 @@ class ShelfManager:
     ) -> str:
         st = str(shelf_type)
         sts = [n[5] for n in _SHELF_LABELS if n[0] == item_category and n[1] == st]
-        return sts[0] if sts else st
+        return str(sts[0]) if sts else st
 
     @classmethod
     def get_action_template(
@@ -746,7 +752,7 @@ class ShelfManager:
     ) -> str:
         st = str(shelf_type)
         sts = [n[4] for n in _SHELF_LABELS if n[0] == item_category and n[1] == st]
-        return sts[0] if sts else st
+        return str(sts[0]) if sts else st
 
     @staticmethod
     def get_manager_for_user(owner: APIdentity):

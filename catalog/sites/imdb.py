@@ -118,14 +118,14 @@ class IMDB(AbstractSite):
     def get_episode_list(show_id, season_id):
         url = f"https://m.imdb.com/title/{show_id}/"
         h = BasicDownloader(url).download().html()
-        u: str = h.xpath('//a[@data-testid="hero-title-block__series-link"]/@href')  # type: ignore
+        u: str = h.xpath('//a[@data-testid="hero-title-block__series-link"]/@href')
         show_url = "".join(u).split("?")[0]
         if not show_url:
             show_url = f"/title/{show_id}/"
         url = f"https://m.imdb.com{show_url}episodes/?season={season_id}"
         h = BasicDownloader(url).download().html()
         episodes = []
-        for e in h.xpath("//article//a[contains(@class,'ipc-title-link-wrapper')]"):  # type: ignore
+        for e in h.xpath("//article//a[contains(@class,'ipc-title-link-wrapper')]"):
             title = e.xpath("div[contains(@class,'ipc-title__text')]/text()")[0].split(
                 "∙", 1
             )

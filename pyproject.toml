@@ -67,23 +67,12 @@ dev = [
     "django-stubs>=5.1.2",
     "djlint>=1.36.4",
     "lxml-stubs>=0.5.1",
-    "pyright>=1.1.400",
+    "ty>=0.0.1a1",
     "ruff>=0.9.1",
     "pytest-django>=4.11.1",
     "coverage>=7.6.10",
     "mkdocs-material>=9.5.42",
 ]
-
-[tool.pyright]
-exclude = [
-    "media",
-    ".venv",
-    ".git",
-    "playground",
-    "neodb-takahe",
-]
-reportIncompatibleVariableOverride = false
-reportUnnecessaryTypeIgnoreComment = true
 
 [tool.ty.src]
 exclude = ["neodb-takahe"]

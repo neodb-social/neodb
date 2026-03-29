@@ -153,6 +153,8 @@ class FediverseInstance(AbstractSite):
             raise ParseError(self, "preferred_model")
         for ext in data.get("external_resources", []):
             u = ext.get("url")
+            if not u or self.is_local_item_url(u):
+                continue
             site = SiteManager.get_site_by_url(u)
             if not site:
                 logger.error(f"FediverseInstance: {self.url} unsupported url {u}")

@@ -34,7 +34,6 @@ class NdjsonExporter(Task):
         "file": None,
         "total": 0,
     }
-    ref_items = []
 
     @property
     def filename(self) -> str:
@@ -57,6 +56,7 @@ class NdjsonExporter(Task):
         }
 
     def run(self):
+        self.ref_items = []
         user = self.user
         temp_dir = tempfile.mkdtemp()
         temp_folder_path = os.path.join(temp_dir, self.filename)
@@ -113,7 +113,7 @@ class NdjsonExporter(Task):
                     elif cls == Note and p.latest_post:
                         for a in p.latest_post.attachments.all():
                             dest = os.path.join(
-                                attachment_path, os.path.basename(a.file.name)
+                                attachment_path, os.path.basename(a.file.name or "")
                             )
                             try:
                                 shutil.copy2(a.file.path, dest)

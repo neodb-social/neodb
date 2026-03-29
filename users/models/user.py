@@ -266,7 +266,7 @@ class User(AbstractUser):
                 url = bluesky.avatar
             if url:
                 try:
-                    r = httpx.get(url)
+                    r = httpx.get(url, timeout=settings.DOWNLOADER_REQUEST_TIMEOUT)
                 except Exception as e:
                     logger.warning(
                         f"fetch icon failed: {identity} {url}",

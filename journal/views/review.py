@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -28,7 +29,7 @@ from ..models.renderers import (
 from .common import render_list
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "HEAD"])
 def review_retrieve(request, review_uuid):
     # piece = get_object_or_404(Review, uid=get_uuid_or_404(review_uuid))
     piece = Review.get_by_url(review_uuid)
@@ -36,6 +37,8 @@ def review_retrieve(request, review_uuid):
         raise Http404(_("Content not found"))
     if not piece.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
+    if request.method == "HEAD":
+        return HttpResponse()
     return render(request, "review.html", {"review": piece})
 
 
@@ -57,7 +60,7 @@ def review_translate(request, review_uuid: str):
     text = translate(text, request.user.language, lang)
     title = translate(review.title, request.user.language, lang)
     return HttpResponse(
-        f'<span hx-swap-oob="true" id="review_{review.uuid}_title">{title}</span><div>{text}</div>'
+        f'<span hx-swap-oob="true" id="review_{review.uuid}_title">{escape(title)}</span><div>{text}</div>'
     )
 
 
@@ -180,9 +183,7 @@ class ReviewFeed(Feed):
         return s
 
     def item_description(self, item: Review):
-        target_html = (
-            f'<p><a href="{item.item.absolute_url}">{item.item.title}</a></p>\n'
-        )
+        target_html = f'<p><a href="{escape(item.item.absolute_url)}">{escape(item.item.title)}</a></p>\n'
         html = render_md(item.body)
         return target_html + html
 

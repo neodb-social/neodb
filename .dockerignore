@@ -6,14 +6,18 @@
 **.gitignore
 **.gitmodules
 **.pre-commit-config.yaml
+**.pytest_cache
+**.ruff_cache
 **.venv
 **.vscode
 **__pycache__
 .data
+codecov.yml
 compose.override.yml
 compose.yml
 Dockerfile
 docs
+FEDERATION.md
 media
 mkdocs.yml
 neodb-takahe/docker
@@ -21,6 +25,7 @@ neodb-takahe/docs
 neodb-takahe/static-collected
 neodb-takahe/takahe/local_settings.py
 neodb-takahe/tests
+neodb.env.example
 static
 test_data
 tests

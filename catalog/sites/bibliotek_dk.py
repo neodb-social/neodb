@@ -159,11 +159,13 @@ class BibliotekDK_Edition(BibliotekDKSite):
             ),
             "cover_image_url": img_url,
             "cover_image_path": img_path,
-            "required_resources": {
-                "model": "Work",
-                "id_type": IdType.BibliotekDK_Work,
-                "id_value": workId,
-            },
+            "required_resources": [
+                {
+                    "model": "Work",
+                    "id_type": IdType.BibliotekDK_Work,
+                    "id_value": workId,
+                },
+            ],
         }
 
         return ResourceContent(

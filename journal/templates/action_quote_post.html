@@ -1,0 +1,11 @@
+{% load i18n %}
+<span {% if not request.user.is_authenticated %}hx-disable{% endif %}>
+  <a title="{% trans "quote" %}"
+     hx-get="{% url 'journal:post_quote' post.pk %}"
+     hx-swap="outerHTML"
+     hx-trigger="click once"
+     hx-target="#quote_{{ post.pk }}">
+    <i class="fa-solid fa-quote-left"></i>
+    {% if quotes_count %}<span class="metrics">{{ quotes_count }}</span>{% endif %}
+  </a>
+</span>

@@ -30,7 +30,7 @@
     <div class="cover">
       <a href="{{ item.url }}">
         <img src="{{ item.cover_image_url|default:default_cover_url|relative_uri }}"
-             alt="cover" />
+             alt="{% trans 'cover' %}" />
       </a>
     </div>
     <div>

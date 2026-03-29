@@ -1,4 +1,5 @@
 ![Tests](https://img.shields.io/github/actions/workflow/status/neodb-social/neodb/tests.yml?style=for-the-badge&color=56AA54&label=tests)
+[![codecov](https://img.shields.io/codecov/c/github/neodb-social/neodb?style=for-the-badge&color=56AA54&label=coverage)](https://codecov.io/gh/neodb-social/neodb)
 [![Translation](https://img.shields.io/weblate/progress/neodb?style=for-the-badge)](https://hosted.weblate.org/projects/neodb/neodb/)
 [![GitHub Release](https://img.shields.io/github/v/release/neodb-social/neodb?style=for-the-badge&color=3791E0&logoColor=fff)](https://github.com/neodb-social/neodb/releases)
 [![Docker Pulls](https://img.shields.io/docker/pulls/neodb/neodb?label=docker&color=3791E0&style=for-the-badge)](https://hub.docker.com/r/neodb/neodb)

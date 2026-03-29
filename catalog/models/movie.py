@@ -176,7 +176,7 @@ class Movie(Item):
         )
         dt = int_(self.year) * 10000
         d["date"] = [dt] if dt else []
-        d["genre"] = self.genre or []  # type:ignore
+        d["genre"] = self.genre or []
         return d
 
     def to_schema_org(self):

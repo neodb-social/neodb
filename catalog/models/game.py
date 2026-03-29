@@ -157,9 +157,9 @@ class Game(Item):
         d["date"] = (
             [int(self.release_date.strftime("%Y%m%d"))] if self.release_date else []
         )
-        d["genre"] = self.genre or []  # type:ignore
+        d["genre"] = self.genre or []
         d["format"] = [self.release_type] if self.release_type else []
-        d["format"] += list(self.platform or [])  # type:ignore
+        d["format"] += list(self.platform or [])
         return d
 
     def to_schema_org(self):

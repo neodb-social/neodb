@@ -51,8 +51,8 @@ class OAuthAccessTokenAuth(HttpBearer):
             logger.debug("API auth: user not found")
             return False
         request.user = user
-        request.identity_id = tk.identity_id  # type:ignore
-        request.application_id = tk.application_id  # type:ignore
+        request.identity_id = tk.identity_id
+        request.application_id = tk.application_id
         return True
 
 

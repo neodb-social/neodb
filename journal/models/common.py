@@ -20,7 +20,13 @@ from loguru import logger
 from polymorphic.models import PolymorphicModel
 from user_messages import api as messages
 
-from catalog.models import Item, ItemCategory, item_categories, item_content_types
+from catalog.models import (
+    AvailableItemCategory,
+    Item,
+    ItemCategory,
+    item_categories,
+    item_content_types,
+)
 from takahe.utils import Takahe
 from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User
@@ -112,8 +118,8 @@ def q_piece_in_home_feed_of_user(viewing_user: User):
     return Q(owner_id__in=viewer.following, visibility__lt=2) | Q(owner_id=viewer.pk)
 
 
-def q_item_in_category(item_category: ItemCategory):
-    classes = item_categories()[item_category]
+def q_item_in_category(item_category: ItemCategory | AvailableItemCategory):
+    classes = item_categories()[ItemCategory(item_category)]
     # q = Q(item__instance_of=classes[0])
     # for cls in classes[1:]:
     #     q = q | Q(instance_of=cls)
@@ -628,10 +634,14 @@ class PieceInteraction(models.Model):
 
 
 class Content(Piece):
+    if TYPE_CHECKING:
+        owner_id: int
+        item_id: int
+
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
         choices=VisibilityType.choices, default=0, null=False
-    )  # type:ignore
+    )
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(auto_now=True)
     metadata = models.JSONField(default=dict)

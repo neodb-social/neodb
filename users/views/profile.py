@@ -70,15 +70,15 @@ def account_profile(request):
 def account_relations(request, typ: str):
     match typ:
         case "follow":
-            ids = request.user.identity.following_identities.all
+            ids = request.user.identity.following_identities.all()
         case "follower":
-            ids = request.user.identity.follower_identities.all
+            ids = request.user.identity.follower_identities.all()
         case "follow_request":
-            ids = request.user.identity.requested_follower_identities.all
+            ids = request.user.identity.requested_follower_identities.all()
         case "mute":
-            ids = request.user.identity.muting_identities.all
+            ids = request.user.identity.muting_identities.all()
         case "block":
-            ids = request.user.identity.blocking_identities.all
+            ids = request.user.identity.blocking_identities.all()
         case _:
             ids = []
     return render(request, "users/relationship_list.html", {"id": typ, "list": ids})

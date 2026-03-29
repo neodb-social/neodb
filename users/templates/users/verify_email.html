@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load safe_redirect %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
@@ -20,7 +21,8 @@
           <p>
             {{ request.user.email }} {% trans "Verified successfully." %}
             <br>
-            <a href="{{ request.session.next_url | default:'/' }}" class="button">{% trans 'Continue' %}</a>
+            <a href="{{ request.session.next_url|safe_next_url:'/' }}"
+               class="button">{% trans 'Continue' %}</a>
           </p>
         {% else %}
           <p>

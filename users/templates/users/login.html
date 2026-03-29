@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load safe_redirect %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" class="login-page">
@@ -45,11 +46,12 @@
   <body>
     <article>
       <header>
-        <img src="{{ site_logo }}" class="logo" alt="logo">
+        <img src="{{ site_logo }}" class="logo" alt="{% trans 'logo' %}">
       </header>
       <div>
         {% if request.user.is_authenticated %}
-          <a href="{{ request.session.next_url | default:'/' }}" class="button">{% trans 'Continue' %}</a>
+          <a href="{{ request.session.next_url|safe_next_url:'/' }}"
+             class="button">{% trans 'Continue' %}</a>
         {% elif allow_any_site %}
           <div role="group">
             {% if enable_email %}

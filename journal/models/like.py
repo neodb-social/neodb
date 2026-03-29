@@ -11,7 +11,7 @@ class Like(Piece):  # TODO remove
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
         choices=VisibilityType.choices, default=0, null=False
-    )  # type:ignore
+    )
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(auto_now=True)
     target = models.ForeignKey(Piece, on_delete=models.CASCADE, related_name="likes")

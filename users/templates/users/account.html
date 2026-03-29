@@ -52,7 +52,7 @@
                            name="email"
                            _="on input remove [@disabled] from #save_email then remove [@aria-invalid] end"
                            {% if request.user.email_account %}value="{{ request.user.email_account.handle }}" aria-invalid="false"{% endif %}
-                           placeholder="email"
+                           placeholder="{% trans 'Email' %}"
                            autocomplete="email" />
                     <small>
                       {% if request.session.pending_email %}
@@ -101,7 +101,7 @@
                     <input type="input"
                            name="domain"
                            value=""
-                           placeholder="e.g. mastodon.online"
+                           placeholder="{% trans 'e.g. mastodon.online' %}"
                            _="on input remove [@disabled] from #bind end">
                   </label>
                   <input type="submit"

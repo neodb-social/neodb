@@ -10,6 +10,7 @@ from ninja.pagination import paginate
 from common.api import PageNumberPagination, RedirectedResult, Result, api
 from journal.models.mark import Mark
 from journal.models.rating import Rating
+from journal.models.tag import Tag
 
 from .common import SiteManager
 from .models import (
@@ -116,6 +117,7 @@ def search_item(
         exclude_categories=exclude_categories,
     )
     Rating.attach_to_items(items)
+    Tag.attach_to_items(items)
     if request.user.is_authenticated:
         Mark.attach_to_items(request.user.identity, items, request.user)
     return 200, {"data": items, "pages": num_pages, "count": count}
@@ -148,7 +150,7 @@ def fetch_item(request, url: str, response: HttpResponse):
         response["Location"] = item.api_url
         return 302, {"message": "Item fetched", "url": item.api_url}
     if get_fetch_lock(request.user, url):
-        enqueue_fetch(url, False)
+        enqueue_fetch(url, False, request.user)
     else:
         return 429, {"message": "Try again later"}
     return 202, {"message": "Fetch in progress"}

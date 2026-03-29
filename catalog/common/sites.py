@@ -18,9 +18,9 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from loguru import logger
-from validators import url as url_validate
 
 from common.models.misc import uniq
+from common.validators import is_valid_url
 
 from ..models import ExternalResource, IdType, Item, SiteName
 
@@ -241,6 +241,8 @@ class SiteManager:
 
     @staticmethod
     def get_redirected_url(url: str, allow_head: bool = True) -> str:
+        if not url.startswith(("http://", "https://")):
+            return url
         k = "_redir_" + md5(url.encode()).hexdigest()
         u = cache.get(k, default=None)
         if u == "":
@@ -289,13 +291,7 @@ class SiteManager:
     def get_site_by_url(
         url: str, detect_redirection: bool = True, detect_fallback: bool = True
     ) -> AbstractSite | None:
-        if not url or not url_validate(
-            url,
-            skip_ipv6_addr=True,
-            skip_ipv4_addr=True,
-            may_have_port=False,
-            strict_query=False,
-        ):
+        if not is_valid_url(url):
             return None
         u = SiteManager.get_redirected_url(url, allow_head=detect_redirection)
         cls = SiteManager.get_class_by_url(u)

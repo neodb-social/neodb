@@ -50,7 +50,11 @@ def _get_local_url_for_ap_post(uri):
 
 def search_by_ap_url(url, fetcher, max_retries=15) -> str | None:
     from catalog.sites.fedi import FediverseInstance
+    from common.validators import is_valid_url
     from takahe.models import InboxMessage
+
+    if not is_valid_url(url):
+        return
 
     headers = FediverseInstance.request_header
 

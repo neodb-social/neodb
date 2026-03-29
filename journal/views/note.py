@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from catalog.models import Item
 from common.forms import NeoModelForm
 from common.utils import AuthedHttpRequest, get_uuid_or_404
+from common.validators import get_safe_referer_url
 
 from ..models import Note
 from ..models.common import VisibilityType
@@ -97,9 +98,9 @@ def note_edit(request: AuthedHttpRequest, item_uuid: str, note_uuid: str = ""):
         if not note:
             raise Http404(_("Content not found"))
         note.delete()
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+        return HttpResponseRedirect(get_safe_referer_url(request, "/"))
     if not form.is_valid():
         raise BadRequest(_("Invalid form data"))
     form.instance.crosspost_when_save = form.cleaned_data["share_to_mastodon"]
     note = form.save()
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+    return HttpResponseRedirect(get_safe_referer_url(request, "/"))

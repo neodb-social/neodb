@@ -29,7 +29,7 @@ class APIAwareSessionMiddleware(SessionMiddleware):
 
     def process_request(self, request):
         if request.path.startswith("/api/"):
-            request.session = DummySession()  # type: ignore
+            request.session = DummySession()
             return
         super().process_request(request)
 

@@ -16,8 +16,10 @@ from common.utils import (
     get_uuid_or_404,
     target_identity_required,
 )
+from common.validators import get_safe_redirect_url
 
 from ..models import (
+    Mark,
     Piece,
     Rating,
     Review,
@@ -37,7 +39,7 @@ def render_relogin(request):
         request,
         "common/error.html",
         {
-            "url": reverse("mastodon:connect")
+            "url": reverse("mastodon:login")
             + "?domain="
             + request.user.mastodon.domain,
             "msg": _("Data saved but unable to crosspost to Fediverse instance."),
@@ -108,10 +110,17 @@ def render_list(
     if year:
         year = int(year)
         queryset = queryset.filter(created_time__year=year)
+    queryset = queryset.prefetch_related("item", "item__external_resources")
     paginator = CustomPaginator(queryset, request)
     page_number = int_(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
+    # Batch-fetch marks for all items on this page to avoid N+1 queries
+    items = [m.item for m in members]
+    if items:
+        marks = Mark.get_marks_by_items(target, items, request.user)
+        for m in members:
+            m.__dict__["mark"] = marks.get(m.item_id) or Mark(target, m.item)
     shelf_labels = (
         ShelfManager.get_labels_for_category(item_category) if item_category else []
     )
@@ -138,7 +147,7 @@ def render_list(
 @require_http_methods(["GET", "POST"])
 def piece_delete(request, piece_uuid):
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
-    return_url = request.GET.get("return_url", None) or "/"
+    return_url = get_safe_redirect_url(request.GET.get("return_url"), "/")
     if not piece.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":

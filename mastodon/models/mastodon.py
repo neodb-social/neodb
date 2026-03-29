@@ -1,6 +1,7 @@
 import functools
 import random
 import re
+import secrets
 import string
 import typing
 from enum import StrEnum
@@ -41,7 +42,7 @@ class TootVisibilityEnum(StrEnum):
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
 put = functools.partial(requests.put, timeout=settings.MASTODON_TIMEOUT)
 post = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
-delete = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
+delete = functools.partial(requests.delete, timeout=settings.MASTODON_TIMEOUT)
 _sites_cache_key = "login_sites"
 
 # See https://docs.joinmastodon.org/methods/accounts/
@@ -180,7 +181,7 @@ def post_toot2(
     base_url = "https://" + api_domain
     response = None
     url = base_url + API_PUBLISH_TOOT
-    payload = {
+    payload: dict[str, object] = {
         "status": content,
         "visibility": visibility,
     }
@@ -503,6 +504,8 @@ def get_or_create_fediverse_application(login_domain: str):
 def get_mastodon_login_url(app, login_domain, request):
     url = request.build_absolute_uri(reverse("mastodon:oauth"))
     scope = _get_scopes(app.server_version)
+    state = secrets.token_urlsafe(32)
+    request.session["oauth_state"] = state
     return (
         "https://"
         + login_domain
@@ -513,6 +516,8 @@ def get_mastodon_login_url(app, login_domain, request):
         + "&redirect_uri="
         + url
         + "&response_type=code"
+        + "&state="
+        + state
     )
 
 

@@ -124,7 +124,7 @@ class Album(Item):
         d["date"] = (
             [int(self.release_date.strftime("%Y%m%d"))] if self.release_date else []
         )
-        d["genre"] = self.genre or []  # type:ignore
+        d["genre"] = self.genre or []
         d["format"] = [self.album_type] if self.album_type else []
         d["format"] += [self.media] if self.media else []
         return d

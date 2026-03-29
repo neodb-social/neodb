@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from common.utils import AuthedHttpRequest
+from common.validators import get_safe_redirect_url, sanitize_next_url
 from mastodon.forms import EmailLoginForm
 from mastodon.models import (
     Email,
@@ -33,8 +34,9 @@ from ..models import User
 def login(request):
     selected_domain = request.GET.get("domain", default="")
     sites = Mastodon.get_sites()
-    if request.GET.get("next"):
-        request.session["next_url"] = request.GET.get("next")
+    next_url = sanitize_next_url(request.GET.get("next"))
+    if next_url:
+        request.session["next_url"] = next_url
     invite_status = -1 if settings.INVITE_ONLY else 0
     if settings.INVITE_ONLY and request.GET.get("invite"):
         if Takahe.verify_invite(request.GET.get("invite")):
@@ -168,7 +170,7 @@ def register(request: AuthedHttpRequest):
     if not settings.MASTODON_ALLOW_ANY_SITE:
         if verified_account and verified_account.platform == Platform.MASTODON:
             # directly create a new user
-            mastodon_account: MastodonAccount = verified_account  # type: ignore
+            mastodon_account: MastodonAccount = verified_account
             new_user = User.register(
                 account=mastodon_account,
                 username=mastodon_account.username,
@@ -232,7 +234,8 @@ def logout_takahe(response: HttpResponse):
 
 def auth_logout(request):
     auth.logout(request)
-    return logout_takahe(redirect(request.GET.get("next", "/")))
+    redirect_url = get_safe_redirect_url(request.GET.get("next"), "/")
+    return logout_takahe(redirect(redirect_url))
 
 
 def initiate_user_deletion(user):

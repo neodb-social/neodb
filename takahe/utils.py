@@ -439,6 +439,7 @@ class Takahe:
         post_time: datetime.datetime | None = None,
         edit_time: datetime.datetime | None = None,
         reply_to_pk: int | None = None,
+        quote_url: str | None = None,
         attachments: list | None = None,
         language: str = "",
         application_id: int | None = None,
@@ -482,6 +483,7 @@ class Takahe:
                 published=post_time,
                 edited=None,
                 reply_to=reply_to_post,
+                quote_url=quote_url,
                 attachments=attachments,
                 language=language,
                 application_id=application_id,
@@ -936,13 +938,14 @@ class Takahe:
         voted = post.interactions.filter(
             identity_id=identity_pk, type="vote", state__in=["new", "fanned_out"]
         ).values_list("value", flat=True)
+        end_time_str = post.type_data.get("end_time")
         try:
-            end_time = parse_datetime(post.type_data.get("end_time"))
+            end_time = parse_datetime(end_time_str) if end_time_str else None
         except ValueError:
             end_time = None
         info = post.type_data.copy()
         info["end_time"] = end_time
-        info["ended"] = timezone.now() > end_time if end_time else True
+        info["ended"] = timezone.now() > end_time if end_time else False
         info["voted"] = post.author_id == identity_pk or voted.exists()
         for v in info["options"]:
             v["chosen"] = v["name"] in voted
@@ -950,8 +953,9 @@ class Takahe:
 
     @staticmethod
     def vote_post(post, identity_pk, choices):
+        end_time_str = post.type_data.get("end_time")
         try:
-            end_time = parse_datetime(post.type_data.get("end_time"))
+            end_time = parse_datetime(end_time_str) if end_time_str else None
         except ValueError:
             end_time = None
         if end_time and timezone.now() > end_time:

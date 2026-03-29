@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 from django.utils.http import http_date
 
 from common.utils import user_identity_required
+from common.validators import get_safe_redirect_url
 
 from .utils import Takahe
 
@@ -38,7 +39,8 @@ def auth_login(request):
     # )
     # session_key = request.session.session_key
 
-    response = redirect(request.GET.get("next", "/"))
+    redirect_url = get_safe_redirect_url(request.GET.get("next"), "/")
+    response = redirect(redirect_url)
     if request.session.get_expire_at_browser_close():
         max_age = None
         expires = None

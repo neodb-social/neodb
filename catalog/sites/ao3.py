@@ -34,27 +34,20 @@ class ArchiveOfOurOwn(AbstractSite):
         summary = content.xpath(
             "string(//div[@class='summary module']//blockquote[@class='userstuff'])"
         )
-        language = [
-            s.strip()
-            for s in content.xpath("//dd[@class='language']/text()")  # type:ignore
-        ]
+        language = [s.strip() for s in content.xpath("//dd[@class='language']/text()")]
 
         published = content.xpath("string(//dd[@class='published']/text())")
         if published:
-            pub_date = published.split("-")  # type:ignore
+            pub_date = published.split("-")
             pub_year = int(pub_date[0])
             pub_month = int(pub_date[1])
         else:
             pub_year = None
             pub_month = None
         data = {
-            "localized_title": [{"lang": "en", "text": title.strip()}],  # type:ignore
+            "localized_title": [{"lang": "en", "text": title.strip()}],
             "localized_description": (
-                [
-                    {"lang": "en", "text": summary.strip()}  # type:ignore
-                ]
-                if summary
-                else []
+                [{"lang": "en", "text": summary.strip()}] if summary else []
             ),
             "author": authors,
             "language": language,

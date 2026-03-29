@@ -133,7 +133,7 @@ class JSONFieldMixin(object):
         self.json_field_name = kwargs.pop("json_field_name", "metadata")
         super(JSONFieldMixin, self).__init__(*args, **kwargs)
 
-    def contribute_to_class(self: "fields.Field", cls, name, private_only=False):  # type: ignore
+    def contribute_to_class(self: "fields.Field", cls, name, private_only=False):
         self.set_attributes_from_name(name)
         self.model = cls
         self.concrete = False
@@ -303,7 +303,7 @@ class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
     #     kwargs["help_text"] = _("comma separated list of values")
     #     super().__init__(*args, **kwargs)
 
-    def from_json(self: "fields.Field", value):  # type:ignore
+    def from_json(self: "fields.Field", value):
         if value:
             if isinstance(value, list):
                 return value

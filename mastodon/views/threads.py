@@ -41,6 +41,14 @@ def threads_oauth(request: HttpRequest):
             _("Authentication failed"),
             request.GET.get("error_description", ""),
         )
+    expected_state = request.session.pop("oauth_state", None)
+    actual_state = request.GET.get("state")
+    if not expected_state or expected_state != actual_state:
+        return render_error(
+            request,
+            _("Authentication failed"),
+            _("Invalid OAuth state. Please try again."),
+        )
     account = Threads.authenticate(request, code)
     if not account:
         return render_error(

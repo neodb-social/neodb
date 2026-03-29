@@ -232,7 +232,7 @@ class Edition(Item):
         titles = [t["text"] for t in self.localized_title if t["text"]]
         titles += [t["text"] for t in self.localized_subtitle if t["text"]]
         titles += [self.orig_title] if self.orig_title else []
-        titles += [t for t in self.other_title if t]  # type: ignore
+        titles += [t for t in self.other_title if t]
         return list(set(titles))
 
     def to_indexable_doc(self):
@@ -348,7 +348,7 @@ class Edition(Item):
                 if len(self.localized_title) == 0:
                     self.localized_title = [t]
                 elif t["text"] not in self.other_title:
-                    self.other_title += [t["text"]]  # type: ignore
+                    self.other_title += [t["text"]]
         return True
 
     @property
@@ -378,7 +378,7 @@ class Edition(Item):
         title = self.display_title
         return [
             t["text"] for t in self.localized_title if t["text"] != title
-        ] + self.other_title  # type: ignore
+        ] + self.other_title
 
     @property
     def title_deco(self):
@@ -410,7 +410,7 @@ class Edition(Item):
             data["datePublished"] = pub_date
 
         if self.language:
-            data["inLanguage"] = self.language[0]  # type: ignore
+            data["inLanguage"] = self.language[0]
 
         if self.pages:
             data["numberOfPages"] = int_(self.pages)

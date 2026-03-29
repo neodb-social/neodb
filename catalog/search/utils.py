@@ -51,6 +51,7 @@ def query_index(
     items = []
     urls = []
     search_items = r.items
+    prefetch_related_objects(search_items, "external_resources")
     editions = [item for item in search_items if isinstance(item, Edition)]
     if editions:
         prefetch_related_objects(editions, "works")
@@ -59,7 +60,7 @@ def query_index(
         key = getattr(i, "isbn", getattr(i, "imdb_code", getattr(i, "barcode", None)))
         my_key = {key: i} if key else {}
         if isinstance(i, Edition):
-            work = i.works.first()  # type: ignore
+            work = i.works.first()
             if work:
                 my_key[work.id] = i
         if my_key:

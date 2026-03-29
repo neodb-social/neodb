@@ -268,7 +268,7 @@ class Performance(Item):
         dt = self.opening_date or self.closing_date or ""
         dd = datetime_(dt)
         d["date"] = [int(dd.strftime("%Y%m%d"))] if dd else []
-        d["genre"] = self.genre or []  # type:ignore
+        d["genre"] = self.genre or []
         return d
 
     def to_schema_org(self):
@@ -282,7 +282,7 @@ class Performance(Item):
             data["genre"] = self.genre
 
         if self.language:
-            data["inLanguage"] = self.language[0]  # type:ignore
+            data["inLanguage"] = self.language[0]
 
         if self.playwright:
             data["author"] = [
@@ -500,7 +500,7 @@ class PerformanceProduction(Item):
             }
 
         if self.language:
-            data["inLanguage"] = self.language[0]  # type:ignore
+            data["inLanguage"] = self.language[0]
 
         if self.troupe and len(self.troupe) > 0:
             data["performer"] = {"@type": "TheaterGroup", "name": self.troupe[0]}

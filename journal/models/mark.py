@@ -185,7 +185,7 @@ class Mark:
             marks[g.item.pk].rating = g
         for r in Review.objects.filter(item__in=items).filter(q):
             marks[r.item.pk].review = r
-        for n in Review.objects.filter(item__in=items).filter(q):
+        for n in Note.objects.filter(item__in=items).filter(q):
             marks[n.item.pk].notes.append(n)
         for t in (
             TagMember.objects.filter(item__in=items)
@@ -318,11 +318,12 @@ class Mark:
             if metadata:
                 d["metadata"] = metadata
             d["created_time"] = created_time or timezone.now()
-            self.shelfmember, _ = ShelfMember.objects.update_or_create(
+            shelfmember, _ = ShelfMember.objects.update_or_create(
                 owner=self.owner, item=self.item, defaults=d
             )
-            log_entry = self.shelfmember.ensure_log_entry()
-            self.shelfmember.clear_post_ids()
+            self.shelfmember = shelfmember
+            log_entry = shelfmember.ensure_log_entry()
+            shelfmember.clear_post_ids()
 
         return shelfmember_changed, update_mode, log_entry
 

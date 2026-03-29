@@ -151,7 +151,7 @@ env = environ.FileAwareEnv(
 # ====== End of user configuration variables ======
 
 SECRET_KEY = env("NEODB_SECRET_KEY")
-DEBUG: bool = env("NEODB_DEBUG")  # type:ignore
+DEBUG: bool = env("NEODB_DEBUG")
 DATABASES = {
     "takahe": env.db_url("TAKAHE_DB_URL"),
     "default": env.db_url("NEODB_DB_URL"),
@@ -162,7 +162,7 @@ DATABASES["takahe"]["OPTIONS"] = {"client_encoding": "UTF8"}
 DATABASES["takahe"]["TEST"] = {"DEPENDENCIES": []}
 REDIS_URL = env("NEODB_REDIS_URL")
 CACHES = {"default": env.cache_url("NEODB_REDIS_URL")}
-_parsed_redis_url: parse.ParseResult = env.url("NEODB_REDIS_URL")  # type:ignore
+_parsed_redis_url: parse.ParseResult = env.url("NEODB_REDIS_URL")
 RQ_QUEUES = {
     q: {
         "HOST": _parsed_redis_url.hostname,
@@ -173,7 +173,7 @@ RQ_QUEUES = {
     for q in ["mastodon", "export", "import", "fetch", "crawl", "ap", "cron"]
 }
 
-_parsed_search_url: parse.ParseResult = env.url("NEODB_SEARCH_URL")  # type:ignore
+_parsed_search_url: parse.ParseResult = env.url("NEODB_SEARCH_URL")
 SEARCH_BACKEND = None
 TYPESENSE_CONNECTION = {}
 if _parsed_search_url.scheme == "typesense":
@@ -196,7 +196,7 @@ if _parsed_search_url.scheme == "typesense":
 #     MEILISEARCH_KEY =  _parsed_search_url.password
 
 DEFAULT_FROM_EMAIL = env("NEODB_EMAIL_FROM")
-_parsed_email_url: parse.ParseResult = env.url("NEODB_EMAIL_URL")  # type:ignore
+_parsed_email_url: parse.ParseResult = env.url("NEODB_EMAIL_URL")
 if _parsed_email_url.scheme == "anymail":
     # "anymail://<anymail_backend_name>?<anymail_args>"
     # see https://anymail.dev/
@@ -225,12 +225,12 @@ THREADS_APP_SECRET = env("THREADS_APP_SECRET")
 ENABLE_LOGIN_BLUESKY = env("NEODB_ENABLE_LOGIN_BLUESKY")
 ENABLE_LOGIN_THREADS = env("NEODB_ENABLE_LOGIN_THREADS")
 
-SITE_DOMAIN: str = env("NEODB_SITE_DOMAIN").lower()  # type:ignore
+SITE_DOMAIN: str = env("NEODB_SITE_DOMAIN").lower()
 SITE_INFO = {
     "neodb_version": NEODB_VERSION,
     "site_name": env("NEODB_SITE_NAME"),
     "site_domain": SITE_DOMAIN,
-    "site_url": env("NEODB_SITE_URL", default="https://" + SITE_DOMAIN),  # type:ignore
+    "site_url": env("NEODB_SITE_URL", default="https://" + SITE_DOMAIN),
     "site_logo": env("NEODB_SITE_LOGO"),
     "site_icon": env("NEODB_SITE_ICON"),
     "user_icon": env("NEODB_USER_ICON"),
@@ -238,7 +238,7 @@ SITE_INFO = {
     "site_intro": env("NEODB_SITE_INTRO"),
     "site_description": env("NEODB_SITE_DESCRIPTION"),
     "site_head": env("NEODB_SITE_HEAD"),
-    "site_links": [{"title": k, "url": v} for k, v in env("NEODB_SITE_LINKS").items()],  # type:ignore
+    "site_links": [{"title": k, "url": v} for k, v in env("NEODB_SITE_LINKS").items()],
     "cdn_url": "https://cdn.jsdelivr.net" if DEBUG else "/jsdelivr",
     # "cdn_url": "https://cdn.jsdelivr.net",
     # "cdn_url": "https://fastly.jsdelivr.net",
@@ -250,7 +250,7 @@ INVITE_ONLY = env("NEODB_INVITE_ONLY")
 
 # By default, NeoDB will relay with relay.neodb.net so that public user ratings/etc can be shared across instances
 # If you are running a development server, set this to True to disable this behavior
-DISABLE_DEFAULT_RELAY = env("NEODB_DISABLE_DEFAULT_RELAY", default=DEBUG)  # type:ignore
+DISABLE_DEFAULT_RELAY = env("NEODB_DISABLE_DEFAULT_RELAY", default=DEBUG)
 
 MIN_MARKS_FOR_DISCOVER = env("NEODB_MIN_MARKS_FOR_DISCOVER")
 
@@ -260,7 +260,7 @@ DISCOVER_SHOW_LOCAL_ONLY = env("NEODB_DISCOVER_SHOW_LOCAL_ONLY")
 DISCOVER_SHOW_POPULAR_POSTS = env("NEODB_DISCOVER_SHOW_POPULAR_POSTS")
 DISCOVER_SHOW_POPULAR_TAGS = env("NEODB_DISCOVER_SHOW_POPULAR_TAGS")
 
-MASTODON_ALLOWED_SITES: str = env("NEODB_LOGIN_MASTODON_WHITELIST")  # type:ignore
+MASTODON_ALLOWED_SITES: str = env("NEODB_LOGIN_MASTODON_WHITELIST")
 
 # Allow user to login via any Mastodon/Pleroma sites
 MASTODON_ALLOW_ANY_SITE = len(MASTODON_ALLOWED_SITES) == 0
@@ -268,7 +268,7 @@ MASTODON_ALLOW_ANY_SITE = len(MASTODON_ALLOWED_SITES) == 0
 ENABLE_LOCAL_ONLY = env("NEODB_ENABLE_LOCAL_ONLY")
 
 # Timeout of requests to Mastodon, in seconds
-MASTODON_TIMEOUT = env("NEODB_LOGIN_MASTODON_TIMEOUT", default=5)  # type: ignore
+MASTODON_TIMEOUT = env("NEODB_LOGIN_MASTODON_TIMEOUT", default=5)
 THREADS_TIMEOUT = 30  # Threads is really slow when publishing post
 TAKAHE_REMOTE_TIMEOUT = MASTODON_TIMEOUT
 
@@ -279,7 +279,7 @@ TAKAHE_USER_AGENT = NEODB_USER_AGENT
 # Alternatively, use "read write follow" to avoid re-authorize when migrating to a future version with more features
 MASTODON_CLIENT_SCOPE = env(
     "NEODB_MASTODON_CLIENT_SCOPE",
-    default="read:accounts read:follows read:search read:blocks read:mutes write:statuses write:media",  # type: ignore
+    default="read:accounts read:follows read:search read:blocks read:mutes write:statuses write:media",
 )
 
 # some Mastodon-compatible software like Pixelfed does not support granular scopes
@@ -300,24 +300,24 @@ DISCOGS_API_KEY = env("DISCOGS_API_KEY")
 IGDB_CLIENT_ID = env("IGDB_API_CLIENT_ID")
 IGDB_CLIENT_SECRET = env("IGDB_API_CLIENT_SECRET")
 DEEPL_API_KEY = env("DEEPL_API_KEY")
-LT_API_URL = env("LT_API_URL").rstrip("/")  # type:ignore
+LT_API_URL = env("LT_API_URL").rstrip("/")
 LT_API_KEY = env("LT_API_KEY")
 
 SITE_INFO["translate_enabled"] = bool(DEEPL_API_KEY) or bool(LT_API_URL)
 
 DOWNLOADER_PROXY_LIST = env("NEODB_DOWNLOADER_PROXY_LIST")
-DOWNLOADER_BACKUP_PROXY = env("NEODB_DOWNLOADER_BACKUP_PROXY", default="")  # type: ignore
-DOWNLOADER_PROVIDERS = env("NEODB_DOWNLOADER_PROVIDERS", default="")  # type: ignore
-DOWNLOADER_SCRAPFLY_KEY = env("NEODB_DOWNLOADER_SCRAPFLY_KEY", default="")  # type: ignore
-DOWNLOADER_DECODO_TOKEN = env("NEODB_DOWNLOADER_DECODO_TOKEN", default="")  # type: ignore
-DOWNLOADER_SCRAPERAPI_KEY = env("NEODB_DOWNLOADER_SCRAPERAPI_KEY", default="")  # type: ignore
-DOWNLOADER_SCRAPINGBEE_KEY = env("NEODB_DOWNLOADER_SCRAPINGBEE_KEY", default="")  # type: ignore
-DOWNLOADER_CUSTOMSCRAPER_URL = env("NEODB_DOWNLOADER_CUSTOMSCRAPER_URL", default="")  # type: ignore
+DOWNLOADER_BACKUP_PROXY = env("NEODB_DOWNLOADER_BACKUP_PROXY", default="")
+DOWNLOADER_PROVIDERS = env("NEODB_DOWNLOADER_PROVIDERS", default="")
+DOWNLOADER_SCRAPFLY_KEY = env("NEODB_DOWNLOADER_SCRAPFLY_KEY", default="")
+DOWNLOADER_DECODO_TOKEN = env("NEODB_DOWNLOADER_DECODO_TOKEN", default="")
+DOWNLOADER_SCRAPERAPI_KEY = env("NEODB_DOWNLOADER_SCRAPERAPI_KEY", default="")
+DOWNLOADER_SCRAPINGBEE_KEY = env("NEODB_DOWNLOADER_SCRAPINGBEE_KEY", default="")
+DOWNLOADER_CUSTOMSCRAPER_URL = env("NEODB_DOWNLOADER_CUSTOMSCRAPER_URL", default="")
 DOWNLOADER_REQUEST_TIMEOUT = env("NEODB_DOWNLOADER_REQUEST_TIMEOUT")
 DOWNLOADER_CACHE_TIMEOUT = env("NEODB_DOWNLOADER_CACHE_TIMEOUT")
 DOWNLOADER_RETRIES = env("NEODB_DOWNLOADER_RETRIES")
 
-DISABLE_CRON_JOBS: list[str] = env("NEODB_DISABLE_CRON_JOBS")  # type: ignore
+DISABLE_CRON_JOBS: list[str] = env("NEODB_DISABLE_CRON_JOBS")
 SEARCH_PEERS = env("NEODB_SEARCH_PEERS")
 SEARCH_SITES = env("NEODB_SEARCH_SITES")
 
@@ -375,7 +375,7 @@ INSTALLED_APPS += [
     "legacy.apps.LegacyConfig",
 ]
 
-for app in env("NEODB_EXTRA_APPS"):  # type:ignore
+for app in env("NEODB_EXTRA_APPS"):
     INSTALLED_APPS.append(app)
 
 MIDDLEWARE = [
@@ -426,7 +426,7 @@ AUTHENTICATION_BACKENDS = [
     "mastodon.auth.OAuth2Backend",
 ]
 
-LOG_LEVEL = env("NEODB_LOG_LEVEL", default="DEBUG" if DEBUG else "INFO")  # type:ignore
+LOG_LEVEL = env("NEODB_LOG_LEVEL", default="DEBUG" if DEBUG else "INFO")
 
 LOGGING = {
     "version": 1,
@@ -500,7 +500,7 @@ if TESTING:  # force en if testing
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 
-TIME_ZONE = env("NEODB_TIMEZONE", default="Asia/Shanghai")  # type: ignore
+TIME_ZONE = env("NEODB_TIMEZONE", default="Asia/Shanghai")
 
 USE_I18N = True
 
@@ -520,12 +520,12 @@ SECURE_HSTS_PRELOAD = SSL_ONLY
 SECURE_HSTS_INCLUDE_SUBDOMAINS = SSL_ONLY
 SECURE_HSTS_SECONDS = 2592000 if SSL_ONLY else 0
 
-ALTERNATIVE_DOMAINS = [d.lower() for d in env("NEODB_ALTERNATIVE_DOMAINS", default=[])]  # type: ignore
+ALTERNATIVE_DOMAINS = [d.lower() for d in env("NEODB_ALTERNATIVE_DOMAINS", default=[])]
 SITE_DOMAINS = [SITE_DOMAIN] + ALTERNATIVE_DOMAINS
 ALLOWED_HOSTS = SITE_DOMAINS + ["127.0.0.1"] if SSL_ONLY else ["*"]
 
 STATIC_URL = "/s/"
-STATIC_ROOT = env("NEODB_STATIC_ROOT", default=os.path.join(BASE_DIR, "static/"))  # type: ignore
+STATIC_ROOT = env("NEODB_STATIC_ROOT", default=os.path.join(BASE_DIR, "static/"))
 
 if DEBUG:
     # django-sass-processor will generate neodb.css on-the-fly when DEBUG
@@ -549,13 +549,13 @@ SILENCED_SYSTEM_CHECKS = [
 TAKAHE_SESSION_COOKIE_NAME = "sessionid"
 
 
-MEDIA_BACKEND: str = env("MEDIA_BACKEND", default="local://")  # type: ignore
+MEDIA_BACKEND: str = env("MEDIA_BACKEND", default="local://")
 
-MEDIA_ROOT: str = env("NEODB_MEDIA_ROOT", default=os.path.join(BASE_DIR, "media"))  # type: ignore
-MEDIA_URL: str = env("NEODB_MEDIA_URL", default="/m/")  # type: ignore
+MEDIA_ROOT: str = env("NEODB_MEDIA_ROOT", default=os.path.join(BASE_DIR, "media"))
+MEDIA_URL: str = env("NEODB_MEDIA_URL", default="/m/")
 
-TAKAHE_MEDIA_URL = env("TAKAHE_MEDIA_URL", default="/media/")  # type: ignore
-TAKAHE_MEDIA_ROOT = env("TAKAHE_MEDIA_ROOT", default="media")  # type: ignore
+TAKAHE_MEDIA_URL = env("TAKAHE_MEDIA_URL", default="/media/")
+TAKAHE_MEDIA_ROOT = env("TAKAHE_MEDIA_ROOT", default="media")
 
 STORAGES = {
     "staticfiles": {
@@ -566,7 +566,7 @@ STORAGES = {
 }
 
 if MEDIA_BACKEND and MEDIA_BACKEND.startswith("s3"):
-    _parsed_media_backend: parse.ParseResult = env.url("MEDIA_BACKEND")  # type:ignore
+    _parsed_media_backend: parse.ParseResult = env.url("MEDIA_BACKEND")
     AWS_STORAGE_BUCKET_NAME = (_parsed_media_backend.path or "").lstrip("/")
     AWS_QUERYSTRING_AUTH = False
     AWS_DEFAULT_ACL = "public-read"
@@ -651,9 +651,9 @@ RQ_SHOW_ADMIN_LINK = DEBUG
 
 SEARCH_INDEX_NEW_ONLY = False
 
-INDEX_ALIASES: dict = env("INDEX_ALIASES")  # type:ignore
+INDEX_ALIASES: dict = env("INDEX_ALIASES")
 
-DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="")  # type: ignore
+DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="")
 
 # MAINTENANCE_MODE = False
 # MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
@@ -688,9 +688,9 @@ DEACTIVATE_AFTER_UNREACHABLE_DAYS = 365
 
 DEFAULT_RELAY_SERVER = "https://relay.neodb.net/inbox"
 
-_SENTRY_DSN: str = env("NEODB_SENTRY_DSN")  # type:ignore
+_SENTRY_DSN: str = env("NEODB_SENTRY_DSN")
 if _SENTRY_DSN:
-    _SENTRY_SAMPLE_RATE: float = env("NEODB_SENTRY_SAMPLE_RATE")  # type:ignore
+    _SENTRY_SAMPLE_RATE: float = env("NEODB_SENTRY_SAMPLE_RATE")
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import ignore_logger

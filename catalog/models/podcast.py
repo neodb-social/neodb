@@ -124,8 +124,8 @@ class Podcast(Item):
 
     def to_indexable_doc(self):
         d = super().to_indexable_doc()
-        d["people"] = self.host or []  # type:ignore
-        d["genre"] = self.genre or []  # type:ignore
+        d["people"] = self.host or []
+        d["genre"] = self.genre or []
         return d
 
     def to_schema_org(self):
@@ -140,8 +140,7 @@ class Podcast(Item):
 
         if self.host:
             data["author"] = [
-                {"@type": "Person", "name": person}
-                for person in self.host  # type:ignore
+                {"@type": "Person", "name": person} for person in self.host
             ]
 
         if self.official_site:

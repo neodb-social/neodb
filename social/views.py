@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import Edition, Item, ItemCategory, PodcastEpisode
 from common.models.misc import int_
+from common.validators import get_safe_referer_url
 from journal.models import Piece, ShelfType
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.models import Post, PostInteraction, TimelineEvent
@@ -189,7 +190,7 @@ def dismiss_notification(request):
     Takahe.get_events(request.user.identity.pk, _all_notification_types).update(
         seen=True
     )
-    return redirect(request.META.get("HTTP_REFERER", reverse("social:notification")))
+    return redirect(get_safe_referer_url(request, reverse("social:notification")))
 
 
 class NotificationEvent:

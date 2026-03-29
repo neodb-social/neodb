@@ -22,7 +22,7 @@ class TestCollection:
         assert collection.catalog_item.title == "test"
         member1, _ = collection.append_item(self.book1)
         assert member1 is not None
-        member1.note = "my notes"  # type: ignore
+        member1.note = "my notes"
         member1.save()
         collection.append_item(self.book2, note="test")
         assert list(collection.ordered_items) == [self.book1, self.book2]
@@ -37,12 +37,12 @@ class TestCollection:
         assert member1 is not None
         if member1 is None:
             return
-        assert member1.note == "my notes"  # type: ignore
+        assert member1.note == "my notes"
         member2 = collection.get_member_for_item(self.book2)
         assert member2 is not None
         if member2 is None:
             return
-        assert member2.note == "test"  # type: ignore
+        assert member2.note == "test"
 
 
 @pytest.mark.django_db(databases="__all__")

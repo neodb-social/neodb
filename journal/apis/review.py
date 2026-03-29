@@ -48,7 +48,7 @@ def list_reviews(request, category: AvailableItemCategory | None = None):
     """
     queryset = Review.objects.filter(owner=request.user.identity)
     if category:
-        queryset = queryset.filter(q_item_in_category(category))  # type: ignore[arg-type]
+        queryset = queryset.filter(q_item_in_category(category))
     return queryset.prefetch_related("item")
 
 

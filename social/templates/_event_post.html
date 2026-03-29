@@ -1,4 +1,3 @@
-{% load bleach_tags %}
 {% load static %}
 {% load i18n %}
 {% load l10n %}
@@ -64,6 +63,9 @@
             {% include "action_reply_post.html" %}
             {% include "action_like_post.html" %}
             {% include "action_boost_post.html" %}
+            {% if show_all_actions %}
+              {% include "action_quote_post.html" %}
+            {% endif %}
             {% if translate_enabled and request.user.is_authenticated %}
               {% include "action_translate_post.html" %}
             {% endif %}
@@ -120,14 +122,25 @@
             <div id="content_{{ post.pk }}" class="content">
               {% if piece and piece.classname == 'note' %}
                 <blockquote style="margin:0; padding-top:0; padding-bottom:0">
-                  {{ post.safe_content_local|bleach:"a,p,span,br,div,img"|default:"" }}
+                  {{ post.safe_content_local|default:"" }}
                 </blockquote>
               {% else %}
-                {{ post.safe_content_local|bleach:"a,p,span,br,div,img"|default:"" }}
+                {{ post.safe_content_local|default:"" }}
               {% endif %}
             </div>
             {% if post.type == 'Question' %}
               {% include "post_question.html" %}
+            {% endif %}
+            {% if post.quoted_post_ or post.quote_url %}
+              <blockquote class="quote-post">
+                {% if post.quoted_post_ %}
+                  <a class="nickname"
+                     href="{% url 'journal:post_view' post.quoted_post_.author.handle post.quoted_post_.pk %}">{{ post.quoted_post_.author.name | default:post.quoted_post_.author.handle }}</a>:
+                  {{ post.quoted_post_.safe_content_local|default:"" }}
+                {% else %}
+                  <a href="{{ post.quote_url }}" target="_blank" rel="noopener">{{ post.quote_url }}</a>
+                {% endif %}
+              </blockquote>
             {% endif %}
           </div>
           <div class="embed-cover">
@@ -144,8 +157,18 @@
         </div>
       </div>
     </div>
+    <div id="quote_{{ post.pk }}"></div>
+    {% if show_all_actions %}
+      <div id="quotes_{{ post.pk }}"
+           hx-get="{% url 'journal:post_quotes' post.pk %}"
+           hx-swap="outerHTML"
+           hx-trigger="revealed"></div>
+    {% endif %}
     <div id="replies_{{ post.pk }}"
-         {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}" hx-swap="outerHTML" hx-trigger="revealed" {% endif %}>
-    </div>
+         {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}{% if show_all_actions %}?header=1{% endif %}
+         "
+         hx-swap="outerHTML"
+         hx-trigger="revealed"
+         {% endif %}></div>
   </section>
 {% endif %}

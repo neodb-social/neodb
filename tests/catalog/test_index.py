@@ -232,7 +232,7 @@ class TestCatalogSearch:
         self.book1.author = ["J.R.R. Tolkien"]
         self.book1.pub_year = 1954
         self.book1.pub_house = "Allen & Unwin"
-        self.book1.language = ["en"]  # type: ignore
+        self.book1.language = ["en"]
         self.book1.save()
 
         self.book2 = Edition.objects.create(title="The Hobbit")
@@ -241,7 +241,7 @@ class TestCatalogSearch:
         self.book2.author = ["J.R.R. Tolkien"]
         self.book2.pub_year = 1937
         self.book2.pub_house = "Allen & Unwin"
-        self.book2.language = ["en"]  # type: ignore
+        self.book2.language = ["en"]
         self.book2.save()
 
         self.book3 = Edition.objects.create(title="Dune")
@@ -250,7 +250,7 @@ class TestCatalogSearch:
         self.book3.author = ["Frank Herbert"]
         self.book3.pub_year = 1965
         self.book3.pub_house = "Chilton Books"
-        self.book3.language = ["en", "fr"]  # type: ignore
+        self.book3.language = ["en", "fr"]
         self.book3.save()
 
         # Create movie test data
@@ -260,7 +260,7 @@ class TestCatalogSearch:
         self.movie1.director = ["Francis Ford Coppola"]
         self.movie1.actor = ["Marlon Brando", "Al Pacino", "James Caan"]
         self.movie1.year = 1972
-        self.movie1.language = ["it"]  # type: ignore
+        self.movie1.language = ["it"]
         self.movie1.save()
 
         self.movie2 = Movie.objects.create(title="The Godfather: Part II")
@@ -269,7 +269,7 @@ class TestCatalogSearch:
         self.movie2.director = ["Francis Ford Coppola"]
         self.movie2.actor = ["Al Pacino", "Robert De Niro", "Robert Duvall"]
         self.movie2.year = 1974
-        self.movie2.language = ["it", "en"]  # type: ignore
+        self.movie2.language = ["it", "en"]
         self.movie2.save()
 
         self.movie3 = Movie.objects.create(title="Inception")
@@ -283,7 +283,7 @@ class TestCatalogSearch:
             "Ellen Page",
         ]
         self.movie3.year = 2010
-        self.movie3.language = ["en"]  # type: ignore
+        self.movie3.language = ["en"]
         self.movie3.save()
 
         # Index the items for searching

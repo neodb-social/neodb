@@ -21,7 +21,7 @@ jobs:
           enable-cache: true
       - name: Run pre-commit check
         run: |
-          SKIP=pyright uvx --with pre_commit pre-commit run -a --show-diff-on-failure
+          SKIP=ty uvx --with pre_commit pre-commit run -a --show-diff-on-failure
 
   doc:
     runs-on: ubuntu-latest
@@ -62,6 +62,6 @@ jobs:
       - name: Install Dependencies
         run: |
           uv sync
-      - name: Run pyright
+      - name: Run ty check
         run: |
-          uv run pyright
+          uv run ty check

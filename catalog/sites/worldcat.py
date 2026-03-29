@@ -41,7 +41,7 @@ class WorldCat(AbstractSite):
 
         # Parse JSON-LD data
         book_data = None
-        for script in json_ld_scripts:  # type:ignore
+        for script in json_ld_scripts:
             try:
                 data = json.loads(script)
                 # Look for Book type in JSON-LD
@@ -195,7 +195,7 @@ class WorldCat(AbstractSite):
         cover_image_url = None
         og_image = content.xpath('//meta[@property="og:image"]/@content')
         if og_image:
-            cover_image_url = og_image[0]  # type:ignore
+            cover_image_url = og_image[0]
 
         # Download cover image if available
         raw_img = None

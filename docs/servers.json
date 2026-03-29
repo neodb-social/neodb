@@ -25,7 +25,7 @@
     },
     {
       "name": "ReviewDB",
-      "host": "neodb.social",
+      "host": "reviewdb.app",
       "admin": [
         "@shlee@aus.social"
       ],

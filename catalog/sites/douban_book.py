@@ -89,7 +89,7 @@ class DoubanBook(AbstractSite):
         )
         pub_month = (
             None
-            if pub_month is not None and pub_month not in range(1, 12)
+            if pub_month is not None and pub_month not in range(1, 13)
             else pub_month
         )
 

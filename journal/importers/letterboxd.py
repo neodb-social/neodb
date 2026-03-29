@@ -57,7 +57,7 @@ class LetterboxdImporter(Task):
             if not scripts:
                 logger.error(f"Unknown TMDB for {url}")
                 return None
-            s: str = scripts[0]  # type:ignore
+            s: str = scripts[0]
             script_content = re.sub(r"/\*.*?\*/", "", s, flags=re.DOTALL).strip()
             schema_data = json.loads(script_content)
             if (
@@ -77,7 +77,7 @@ class LetterboxdImporter(Task):
         if not tu:
             logger.error(f"Unknown TMDB for {url}")
             return None
-        site = SiteManager.get_site_by_url(tu[0])  # type:ignore
+        site = SiteManager.get_site_by_url(tu[0])
         if not site:
             return None
         if site.ID_TYPE == IdType.TMDB_TV:
@@ -92,7 +92,7 @@ class LetterboxdImporter(Task):
             if not iu:
                 logger.warning(f"Fetching {url}: no IMDB, giving up")
                 return None
-            imdb_url = str(iu[0])  # type:ignore
+            imdb_url = str(iu[0])
             logger.warning(
                 f"Fetching {url}: TMDB {site.url} failed, try IMDB {imdb_url}"
             )
@@ -207,6 +207,14 @@ class LetterboxdImporter(Task):
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 logger.debug(f"Extracting {filename} to {tmpdirname}")
+                for member in zipref.namelist():
+                    member_path = os.path.realpath(os.path.join(tmpdirname, member))
+                    if not member_path.startswith(
+                        os.path.realpath(tmpdirname) + os.sep
+                    ) and member_path != os.path.realpath(tmpdirname):
+                        raise ValueError(
+                            f"Zip member {member} would extract outside target directory"
+                        )
                 zipref.extractall(tmpdirname)
                 if os.path.exists(tmpdirname + "/reviews.csv"):
                     with open(tmpdirname + "/reviews.csv") as f:

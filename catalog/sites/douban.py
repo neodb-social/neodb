@@ -49,11 +49,9 @@ class DoubanSearcher:
         url = f"https://search.douban.com/{c}/subject_search?search_text={q}&start={15 * (p - 1)}"
         content = DoubanDownloader(url).download().html()
         j = json.loads(
-            content.xpath("//script[text()[contains(.,'window.__DATA__')]]/text()")[  # type:ignore
-                0
-            ]
-            .split("window.__DATA__ = ")[1]  # type:ignore
-            .split("};")[0]  # type:ignore
+            content.xpath("//script[text()[contains(.,'window.__DATA__')]]/text()")[0]
+            .split("window.__DATA__ = ")[1]
+            .split("};")[0]
             + "}"
         )
         results = [
@@ -66,7 +64,6 @@ class DoubanSearcher:
                 item["abstract_2"],
                 item["cover_url"],
             )
-            for item in j["items"]
             for item in j["items"]
             if item.get("tpl_name") == "search_subject"
         ]

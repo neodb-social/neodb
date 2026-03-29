@@ -104,7 +104,7 @@ def update_tag(request, tag_uuid: str, t_in: TagInSchema):
         return 404, {"message": "Tag not found"}
     if tag.owner != request.user.identity:
         return 403, {"message": "Not owner"}
-    title = Tag.cleanup_title(tag.title)
+    title = Tag.cleanup_title(t_in.title)
     visibility = 2 if t_in.visibility else 0
     if title != tag.title:
         try:

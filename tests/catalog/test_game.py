@@ -181,7 +181,7 @@ class TestBoardGameGeek:
         assert len(site.resource.item.localized_title) == 16
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.platform == ["Boardgame"]
-        assert site.resource.item.genre[0] == "Economic"  # type: ignore
+        assert site.resource.item.genre[0] == "Economic"
         assert site.resource.item.designer == ["Jacob Fryxelius"]
 
 

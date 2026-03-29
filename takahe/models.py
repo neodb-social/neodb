@@ -1139,6 +1139,9 @@ class Post(models.Model):
     # (as otherwise we'd have to pull entire threads to use IDs)
     in_reply_to = models.CharField(max_length=500, blank=True, null=True, db_index=True)
 
+    # The Post this quotes, as an AP URI (FEP-044f)
+    quote_url = models.CharField(max_length=2048, blank=True, null=True, db_index=True)
+
     # The identities the post is directly to (who can see it if not public)
     to = models.ManyToManyField(
         "takahe.Identity",
@@ -1232,6 +1235,22 @@ class Post(models.Model):
     def in_reply_to_post_(self):
         return self.in_reply_to_post()
 
+    def quoted_post(self) -> Optional["Post"]:
+        """
+        Returns the actual Post object we're quoting, if we can find it
+        """
+        if self.quote_url is None:
+            return None
+        return (
+            Post.objects.filter(object_uri=self.quote_url)
+            .select_related("author")
+            .first()
+        )
+
+    @cached_property
+    def quoted_post_(self):
+        return self.quoted_post()
+
     def reply_prepend(self, exclude_handle: Identity | None = None) -> str:
         m = set([self.author] + list(self.mentions.all()))
         if exclude_handle:
@@ -1267,7 +1286,7 @@ class Post(models.Model):
 
         p = self.piece
         if p:
-            return p.item if hasattr(p, "item") else None  # type:ignore
+            return p.item if hasattr(p, "item") else None
         log = ShelfLogEntry.objects.filter(shelflogentrypost__post_id=self.pk).first()
         return log.item if log else None
 
@@ -1282,6 +1301,7 @@ class Post(models.Model):
         sensitive: bool = False,
         visibility: int = Visibilities.public,
         reply_to: Optional["Post"] = None,
+        quote_url: str | None = None,
         attachments: list | None = None,
         type_data: dict | None = None,
         published: datetime.datetime | None = None,
@@ -1318,6 +1338,7 @@ class Post(models.Model):
                 "visibility": visibility,
                 "hashtags": hashtags,
                 "in_reply_to": reply_to.object_uri if reply_to else None,
+                "quote_url": quote_url,
                 "language": language,
             }
             if application_id:
@@ -1750,7 +1771,7 @@ class PostAttachment(models.Model):
         if self.remote_url:
             return self.remote_url.rsplit("/", 1)[-1]
         if self.file:
-            return self.file.name.rsplit("/", 1)[-1]
+            return (self.file.name or "").rsplit("/", 1)[-1]
         return f"attachment ({self.mimetype})"
 
     def to_mastodon_json(self):
@@ -1911,7 +1932,7 @@ class Emoji(models.Model):
     def as_html(self):
         if self.is_usable:
             return mark_safe(
-                f'<img src="{self.full_url().relative}" class="emoji" alt="Emoji {self.shortcode}">'
+                f'<img src="{self.full_url().relative}" class="emoji" alt=":{self.shortcode}:" title=":{self.shortcode}:">'
             )
         return self.fullcode
 

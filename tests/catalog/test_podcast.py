@@ -68,7 +68,7 @@ class TestPodcastRSSFeed:
         assert item is not None
         assert isinstance(item, Podcast)
         assert item.cover is not None
-        assert item.cover.url is not None  # type: ignore
+        assert item.cover.url is not None
         assert item.recent_episodes is not None
         assert len(item.recent_episodes) > 0
         assert item.recent_episodes[0].title is not None

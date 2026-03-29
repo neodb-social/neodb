@@ -237,7 +237,7 @@ class NdjsonImporter(BaseImporter):
             if not item:
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
             rating_grade = int(float(content_data.get("value", 0)))
-            existing_rating = Comment.objects.filter(owner=owner, item=item).first()
+            existing_rating = Rating.objects.filter(owner=owner, item=item).first()
             if (
                 existing_rating
                 and existing_rating.created_time
@@ -452,6 +452,14 @@ class NdjsonImporter(BaseImporter):
 
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:
+                for member in zipref.namelist():
+                    member_path = os.path.realpath(os.path.join(tmpdirname, member))
+                    if not member_path.startswith(
+                        os.path.realpath(tmpdirname) + os.sep
+                    ) and member_path != os.path.realpath(tmpdirname):
+                        raise ValueError(
+                            f"Zip member {member} would extract outside target directory"
+                        )
                 zipref.extractall(tmpdirname)
 
                 # Process actor data first if available

@@ -19,6 +19,7 @@ from catalog.common.downloaders import (
 )
 from catalog.models import IdType, Podcast, PodcastEpisode, SiteName
 from common.models.lang import detect_language
+from common.validators import is_valid_url
 from journal.models.renderers import html_to_text
 
 _logger = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ class RSS(AbstractSite):
 
     @staticmethod
     def parse_feed_from_url(url):
-        if not url:
+        if not url or not is_valid_url(url):
             return None
         cache_key = f"rss:{url}"
         feed = cache.get(cache_key)
@@ -124,7 +125,7 @@ class RSS(AbstractSite):
                 guid=episode.get("guid"),
                 defaults={
                     "title": episode["title"],
-                    "brief": bleach.clean(episode.get("description"), strip=True),
+                    "brief": bleach.clean(episode.get("description") or "", strip=True),
                     "description_html": episode.get("description_html"),
                     "cover_url": episode.get("episode_art_url"),
                     "media_url": (
@@ -132,8 +133,10 @@ class RSS(AbstractSite):
                         if episode.get("enclosures")
                         else None
                     ),
-                    "pub_date": make_aware(
-                        datetime.fromtimestamp(episode.get("published"))
+                    "pub_date": (
+                        make_aware(datetime.fromtimestamp(episode["published"]))
+                        if episode.get("published") is not None
+                        else None
                     ),
                     "duration": episode.get("duration"),
                     "link": episode.get("link"),
