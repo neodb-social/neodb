@@ -19,6 +19,7 @@ from catalog.common.downloaders import (
 )
 from catalog.models import IdType, Podcast, PodcastEpisode, SiteName
 from common.models.lang import detect_language
+from common.validators import is_valid_url
 from journal.models.renderers import html_to_text
 
 _logger = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ class RSS(AbstractSite):
 
     @staticmethod
     def parse_feed_from_url(url):
-        if not url:
+        if not url or not is_valid_url(url):
             return None
         cache_key = f"rss:{url}"
         feed = cache.get(cache_key)
