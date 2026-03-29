@@ -244,7 +244,7 @@ class Collection(List):
             }
         }
 
-    def sync_to_timeline(self, update_mode: int = 0, application_id: int | None = None):
+    def sync_to_timeline(self, update_mode: int = 0):
         existing_post = self.latest_post
         owner: APIdentity = self.owner
         user = owner.user
@@ -273,7 +273,7 @@ class Collection(List):
             existing_post.pk if existing_post else None,
             self.created_time,
             language=owner.user.macrolanguage,
-            application_id=application_id,
+            application_id=self.application_id_when_save,
         )
         if post and post != existing_post:
             self.link_post_id(post.pk)

@@ -96,6 +96,7 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
         review.visibility,
         created_time=review.created_time,
         share_to_mastodon=review.post_to_fediverse,
+        application_id=getattr(request, "application_id", None),
     )
     return 200, {"message": "OK"}
 

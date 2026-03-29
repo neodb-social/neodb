@@ -1054,6 +1054,7 @@ class Post(models.Model):
 
     if TYPE_CHECKING:
         author_id: int
+        application_id: int | None
         interactions: "models.QuerySet[PostInteraction]"
         attachments: "models.QuerySet[PostAttachment]"
 
@@ -1595,6 +1596,9 @@ class Post(models.Model):
             "card": None,
             "text": self.safe_content_remote(),
             "edited_at": format_ld_date(self.edited) if self.edited else None,
+            "application": self.application.to_mastodon_status_json()
+            if self.application
+            else None,
         }
         if isinstance(self.type_data, dict) and "object" in self.type_data:
             value["ext_neodb"] = self.type_data["object"]
@@ -2521,6 +2525,12 @@ class Application(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def to_mastodon_status_json(self) -> dict[str, str | None]:
+        return {
+            "name": self.name,
+            "website": self.website,
+        }
 
 
 class Authorization(models.Model):

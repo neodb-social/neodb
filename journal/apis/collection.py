@@ -143,13 +143,15 @@ def create_collection(request, c_in: CollectionInSchema):
     `title`, `brief` (markdown formatted) and `visibility` are required;
     """
     q = (c_in.query or "").strip() or None
-    c = Collection.objects.create(
+    c = Collection(
         owner=request.user.identity,
         title=c_in.title,
         brief=c_in.brief,
         visibility=c_in.visibility,
         query=q,
     )
+    c.application_id_when_save = getattr(request, "application_id", None)
+    c.save()
     return c
 
 
@@ -175,6 +177,7 @@ def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
     c.brief = c_in.brief
     c.visibility = c_in.visibility
     c.query = q
+    c.application_id_when_save = getattr(request, "application_id", None)
     c.save()
     return c
 

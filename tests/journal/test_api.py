@@ -9,6 +9,7 @@ from django.utils import timezone
 from catalog.models import Edition, Game, Movie
 from journal.models import Collection, FeaturedCollection, Mark, Note, Review, Tag
 from journal.models.shelf import ShelfType
+from takahe.models import Post
 from takahe.utils import Takahe
 from users.models import User
 
@@ -720,6 +721,9 @@ def test_post_api_list_for_item():
         def prefetch_related(self, *args, **kwargs):
             return self
 
+        def select_related(self, *args, **kwargs):
+            return self
+
     class StubPost:
         def __init__(self, post_id):
             self.post_id = post_id
@@ -805,3 +809,134 @@ def test_post_api_list_for_item():
     payload = response.json()
     assert payload["count"] == 2
     assert payload["data"][0]["id"] == "1"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestApplicationOnPosts:
+    """Test that posts created via API have the application field set."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="apptest@example.com", username="apptestuser")
+        self.item = Edition.objects.create(title="App Test Book")
+        self.app = Takahe.get_or_create_app(
+            "Test App",
+            "https://testapp.example.org",
+            "https://testapp.example.org/callback",
+            owner_pk=self.user.identity.pk,
+        )
+        self.token = Takahe.refresh_token(self.app, self.user.identity.pk, self.user.pk)
+        self.client = Client()
+
+    def _get_post(self, piece) -> Post:
+        post_id = piece.latest_post_id
+        assert post_id is not None
+        post = Takahe.get_post(post_id)
+        assert post is not None
+        return post
+
+    def test_mark_stores_application(self):
+        response = self.client.post(
+            f"/api/me/shelf/item/{self.item.uuid}",
+            data=json.dumps({"shelf_type": "wishlist", "visibility": 0, "tags": []}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {self.token}",
+        )
+        assert response.status_code == 200
+
+        mark = Mark(self.user.identity, self.item)
+        post = self._get_post(mark.shelfmember)
+        assert post.application_id == self.app.pk
+
+        mastodon_json = post.to_mastodon_json()
+        assert mastodon_json["application"] == {
+            "name": "Test App",
+            "website": "https://testapp.example.org",
+        }
+
+    def test_review_stores_application(self):
+        response = self.client.post(
+            f"/api/me/review/item/{self.item.uuid}",
+            data=json.dumps(
+                {
+                    "title": "Review Title",
+                    "body": "Review Body",
+                    "visibility": 0,
+                    "post_to_fediverse": False,
+                }
+            ),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {self.token}",
+        )
+        assert response.status_code == 200
+
+        review = Review.objects.get(owner=self.user.identity, item=self.item)
+        post = self._get_post(review)
+        assert post.application_id == self.app.pk
+
+        mastodon_json = post.to_mastodon_json()
+        assert mastodon_json["application"] == {
+            "name": "Test App",
+            "website": "https://testapp.example.org",
+        }
+
+    def test_note_stores_application(self):
+        response = self.client.post(
+            f"/api/me/note/item/{self.item.uuid}/",
+            data=json.dumps(
+                {
+                    "title": "Note Title",
+                    "content": "Note Content",
+                    "sensitive": False,
+                    "visibility": 0,
+                    "post_to_fediverse": False,
+                }
+            ),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {self.token}",
+        )
+        assert response.status_code == 200
+
+        note = Note.objects.get(owner=self.user.identity, item=self.item)
+        post = self._get_post(note)
+        assert post.application_id == self.app.pk
+
+        mastodon_json = post.to_mastodon_json()
+        assert mastodon_json["application"] == {
+            "name": "Test App",
+            "website": "https://testapp.example.org",
+        }
+
+    def test_collection_stores_application(self):
+        response = self.client.post(
+            "/api/me/collection/",
+            data=json.dumps(
+                {"title": "App Collection", "brief": "desc", "visibility": 0}
+            ),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {self.token}",
+        )
+        assert response.status_code == 200
+        collection_uuid = response.json()["uuid"]
+
+        collection = Collection.get_by_url(collection_uuid)
+        post = self._get_post(collection)
+        assert post.application_id == self.app.pk
+
+        mastodon_json = post.to_mastodon_json()
+        assert mastodon_json["application"] == {
+            "name": "Test App",
+            "website": "https://testapp.example.org",
+        }
+
+    def test_post_without_application(self):
+        """Posts created outside API should have application=None."""
+        mark = Mark(self.user.identity, self.item)
+        mark.update(ShelfType.WISHLIST, visibility=0)
+
+        mark = Mark(self.user.identity, self.item)
+        post = self._get_post(mark.shelfmember)
+        assert post.application_id is None
+
+        mastodon_json = post.to_mastodon_json()
+        assert mastodon_json["application"] is None

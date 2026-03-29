@@ -73,6 +73,11 @@ class StatusTag(Schema):
     url: str
 
 
+class StatusApplication(Schema):
+    name: str | None = None
+    website: str | None = None
+
+
 class Post(Schema):
     id: str
     uri: str
@@ -103,6 +108,7 @@ class Post(Schema):
     muted: bool = False
     bookmarked: bool = False
     pinned: bool = False
+    application: StatusApplication | None = None
     ext_neodb: dict | None = None
 
 
@@ -143,7 +149,9 @@ def list_posts_for_item(
     result = {
         "data": [
             p.to_mastodon_json()
-            for p in r.posts.prefetch_related("attachments", "author")
+            for p in r.posts.prefetch_related("attachments", "author").select_related(
+                "application"
+            )
         ],
         "pages": r.pages,
         "count": r.total,

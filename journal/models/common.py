@@ -144,6 +144,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     post_when_save: bool = False
     crosspost_when_save: bool = False
     index_when_save: bool = False
+    application_id_when_save: int | None = None
 
     @property
     def classname(self) -> str:
@@ -544,7 +545,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def delete_from_timeline(self):
         Takahe.delete_posts(self.all_post_ids)
 
-    def sync_to_timeline(self, update_mode: int = 0, application_id: int | None = None):
+    def sync_to_timeline(self, update_mode: int = 0):
         """update_mode: 0 update if exists otherwise create; 1: delete if exists and create; 2: only create"""
         user = self.owner.user
         v = Takahe.visibility_n2t(self.visibility, user.preference.post_public_mode)
@@ -566,7 +567,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             "edit_time": self.edited_time,  # type:ignore subclass must have this
             "data": self.get_ap_data(),
             "language": user.macrolanguage,
-            "application_id": application_id,
+            "application_id": self.application_id_when_save,
         }
         params.update(self.to_post_params())
         post = Takahe.post(**params)  # ty: ignore[invalid-argument-type]

@@ -72,6 +72,7 @@ def add_note_for_item(request, item_uuid: str, n_in: NoteInSchema):
     note.progress_value = n_in.progress_value
     note.visibility = n_in.visibility
     note.crosspost_when_save = n_in.post_to_fediverse
+    note.application_id_when_save = getattr(request, "application_id", None)
     note.save()
     return note
 
@@ -95,6 +96,7 @@ def update_note(request, note_uuid: str, n_in: NoteInSchema):
     note.progress_value = n_in.progress_value
     note.visibility = n_in.visibility
     note.crosspost_when_save = n_in.post_to_fediverse
+    note.application_id_when_save = getattr(request, "application_id", None)
     note.save()
     return note
 

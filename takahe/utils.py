@@ -507,6 +507,7 @@ class Takahe:
             Post.objects.filter(pk__in=post_pks)
             .exclude(state__in=["deleted", "deleted_fanned_out"])
             .prefetch_related("author", "attachments")
+            .select_related("application")
         )
 
     @staticmethod
@@ -672,6 +673,7 @@ class Takahe:
             .select_related(
                 "author",
                 "author__domain",
+                "application",
             )
             .filter(in_reply_to__in=post_uris)
             .order_by("published")
@@ -803,6 +805,7 @@ class Takahe:
                 "subject_post",
                 "subject_post__author",
                 "subject_post__author__domain",
+                "subject_post__application",
                 "subject_identity",
                 "subject_identity__domain",
                 "subject_post_interaction",
@@ -834,7 +837,9 @@ class Takahe:
         )
         if local_only:
             qs = qs.filter(local=True)
-        return qs.prefetch_related("attachments", "author")
+        return qs.prefetch_related("attachments", "author").select_related(
+            "application"
+        )
 
     @staticmethod
     def get_recent_posts(author_pk: int, viewer_pk: int | None = None):
@@ -849,7 +854,9 @@ class Takahe:
             qs = qs.exclude(visibility=3)
         else:
             qs = qs.filter(visibility__in=[0, 1, 4])
-        return qs.prefetch_related("attachments", "author")
+        return qs.prefetch_related("attachments", "author").select_related(
+            "application"
+        )
 
     @staticmethod
     def pin_hashtag_for_user(identity_pk: int, hashtag: str):

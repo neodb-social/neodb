@@ -380,7 +380,8 @@ class Mark:
         # publish a new or updated ActivityPub post
         shelfmember = self.shelfmember
         assert shelfmember is not None
-        post = shelfmember.sync_to_timeline(update_mode, application_id=application_id)
+        shelfmember.application_id_when_save = application_id
+        post = shelfmember.sync_to_timeline(update_mode)
         if share_to_mastodon:
             shelfmember.sync_to_social_accounts(update_mode)
         shelfmember.update_index()

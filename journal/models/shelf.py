@@ -446,8 +446,8 @@ class ShelfMember(ListMember):
             data["object"]["relatedWith"].append(self.sibling_rating.ap_object)
         return data
 
-    def sync_to_timeline(self, update_mode: int = 0, application_id: int | None = None):
-        post = super().sync_to_timeline(update_mode, application_id)
+    def sync_to_timeline(self, update_mode: int = 0):
+        post = super().sync_to_timeline(update_mode)
         if post and self.sibling_comment:
             self.sibling_comment.link_post_id(post.id)
         return post

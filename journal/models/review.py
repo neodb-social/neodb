@@ -145,6 +145,7 @@ class Review(Content):
         visibility=0,
         created_time=None,
         share_to_mastodon: bool = False,
+        application_id: int | None = None,
     ):
         review = Review.objects.filter(owner=owner, item=item).first()
         if review is not None:
@@ -166,6 +167,7 @@ class Review(Content):
             for name, value in defaults.items():
                 setattr(review, name, value)
         review.crosspost_when_save = share_to_mastodon
+        review.application_id_when_save = application_id
         review.save()
         return review
 
