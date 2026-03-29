@@ -181,9 +181,7 @@ class ReviewFeed(Feed):
         return s
 
     def item_description(self, item: Review):
-        target_html = (
-            f'<p><a href="{item.item.absolute_url}">{item.item.title}</a></p>\n'
-        )
+        target_html = f'<p><a href="{escape(item.item.absolute_url)}">{escape(item.item.title)}</a></p>\n'
         html = render_md(item.body)
         return target_html + html
 
