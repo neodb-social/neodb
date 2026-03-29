@@ -44,7 +44,7 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get update \
  && busybox --install \
  && apt-get install -y --no-install-recommends postgresql-client redis-tools gettext \
  && rm -rf /var/lib/apt/lists/* \
- && useradd -U app && mkdir -p /www
+ && useradd -m -U app && mkdir -p /www
 # postgresql and redis cli are not required, but install for development convenience
 
 COPY --from=build /etc/neodb_version /etc/neodb_version
