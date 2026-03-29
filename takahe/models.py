@@ -1139,6 +1139,9 @@ class Post(models.Model):
     # (as otherwise we'd have to pull entire threads to use IDs)
     in_reply_to = models.CharField(max_length=500, blank=True, null=True, db_index=True)
 
+    # The Post this quotes, as an AP URI (FEP-044f)
+    quote_url = models.CharField(max_length=2048, blank=True, null=True, db_index=True)
+
     # The identities the post is directly to (who can see it if not public)
     to = models.ManyToManyField(
         "takahe.Identity",
@@ -1232,6 +1235,22 @@ class Post(models.Model):
     def in_reply_to_post_(self):
         return self.in_reply_to_post()
 
+    def quoted_post(self) -> Optional["Post"]:
+        """
+        Returns the actual Post object we're quoting, if we can find it
+        """
+        if self.quote_url is None:
+            return None
+        return (
+            Post.objects.filter(object_uri=self.quote_url)
+            .select_related("author")
+            .first()
+        )
+
+    @cached_property
+    def quoted_post_(self):
+        return self.quoted_post()
+
     def reply_prepend(self, exclude_handle: Identity | None = None) -> str:
         m = set([self.author] + list(self.mentions.all()))
         if exclude_handle:
@@ -1282,6 +1301,7 @@ class Post(models.Model):
         sensitive: bool = False,
         visibility: int = Visibilities.public,
         reply_to: Optional["Post"] = None,
+        quote_url: str | None = None,
         attachments: list | None = None,
         type_data: dict | None = None,
         published: datetime.datetime | None = None,
@@ -1318,6 +1338,7 @@ class Post(models.Model):
                 "visibility": visibility,
                 "hashtags": hashtags,
                 "in_reply_to": reply_to.object_uri if reply_to else None,
+                "quote_url": quote_url,
                 "language": language,
             }
             if application_id:

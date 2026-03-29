@@ -128,6 +128,17 @@
             {% if post.type == 'Question' %}
               {% include "post_question.html" %}
             {% endif %}
+            {% if post.quoted_post_ %}
+              <blockquote class="quote-post" style="border-left:3px solid #ccc; margin:0.5em 0; padding:0.25em 0.5em; font-size:0.9em;">
+                <a class="nickname"
+                   href="{% url 'journal:post_view' post.quoted_post_.author.handle post.quoted_post_.pk %}">{{ post.quoted_post_.author.name | default:post.quoted_post_.author.handle }}</a>:
+                {{ post.quoted_post_.safe_content_local|bleach:"a,p,span,br"|default:"" }}
+              </blockquote>
+            {% elif post.quote_url %}
+              <blockquote class="quote-post" style="border-left:3px solid #ccc; margin:0.5em 0; padding:0.25em 0.5em; font-size:0.9em;">
+                <a href="{{ post.quote_url }}" target="_blank" rel="noopener">{{ post.quote_url }}</a>
+              </blockquote>
+            {% endif %}
           </div>
           <div class="embed-cover">
             {% if piece and piece.classname == 'note' %}
