@@ -93,6 +93,7 @@ def nodeinfo2(request, version: str):
             "usage": usage,
             "metadata": {
                 "nodeName": settings.SITE_INFO["site_name"],
+                "features": ["quote_posting", "editing", "polls"],
                 "nodeRevision": settings.NEODB_VERSION,
                 "nodeEnvironment": "development" if settings.DEBUG else "production",
             },
