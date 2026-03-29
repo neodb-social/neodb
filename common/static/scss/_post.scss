@@ -90,8 +90,10 @@ section.activity.post>section.replies {
 }
 
 .quote-post {
-	border-left: 3px solid var(--pico-muted-border-color);
+	background: var(--pico-card-sectioning-background-color);
+	border: 1px solid var(--pico-card-border-color);
+	border-radius: var(--pico-border-radius);
 	margin: 0.5em 0;
-	padding: 0.25em 0.5em;
+	padding: 0.5em 0.75em;
 	font-size: 0.9em;
 }

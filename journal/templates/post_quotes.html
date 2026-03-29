@@ -1,0 +1,27 @@
+{% load i18n %}
+<section class="replies" id="quotes_{{ post.pk }}">
+  {% if quotes %}
+    <h6 style="color: var(--muted-color); margin-bottom: 0.5em">{% trans "Quotes" %}</h6>
+    {% for quote in quotes %}
+      <div class="post">
+        <span class="action">
+          {% include "action_post_timestamp.html" with post=quote %}
+          {% include "action_open_post.html" with post=quote %}
+        </span>
+        <span>
+          <a href="{{ quote.author.url }}"
+             class="nickname"
+             title="@{{ quote.author.handle }}">{{ quote.author.name|default:quote.author.username }}</a>
+        </span>
+        {% if quote.summary %}
+          <details>
+            <summary>{{ quote.summary }}</summary>
+            {{ quote.safe_content_local }}
+          </details>
+        {% else %}
+          {{ quote.safe_content_local }}
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% endif %}
+</section>

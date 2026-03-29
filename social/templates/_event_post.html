@@ -63,6 +63,9 @@
             {% include "action_reply_post.html" %}
             {% include "action_like_post.html" %}
             {% include "action_boost_post.html" %}
+            {% if show_all_actions %}
+              {% include "action_quote_post.html" %}
+            {% endif %}
             {% if translate_enabled and request.user.is_authenticated %}
               {% include "action_translate_post.html" %}
             {% endif %}
@@ -154,8 +157,18 @@
         </div>
       </div>
     </div>
+    <div id="quote_{{ post.pk }}"></div>
+    {% if show_all_actions %}
+      <div id="quotes_{{ post.pk }}"
+           hx-get="{% url 'journal:post_quotes' post.pk %}"
+           hx-swap="outerHTML"
+           hx-trigger="revealed"></div>
+    {% endif %}
     <div id="replies_{{ post.pk }}"
-         {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}" hx-swap="outerHTML" hx-trigger="revealed" {% endif %}>
-    </div>
+         {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}{% if show_all_actions %}?header=1{% endif %}
+         "
+         hx-swap="outerHTML"
+         hx-trigger="revealed"
+         {% endif %}></div>
   </section>
 {% endif %}

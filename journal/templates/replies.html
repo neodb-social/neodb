@@ -4,6 +4,9 @@
          hx-swap="outerHTML"
          id="replies_{{ post.pk }}">
   {% with parent_post=post %}
+    {% if replies and show_header %}
+      <h6 style="color: var(--muted-color); margin-bottom: 0.5em">{% trans "Replies" %}</h6>
+    {% endif %}
     {% for post in replies %}
       <div class="post">
         <span class="action">
@@ -58,7 +61,9 @@
         <div id="replies_{{ post.pk }}"></div>
       </div>
     {% empty %}
-      <div class="empty">{% trans 'no replies so far.' %}</div>
+      {% if not show_header %}
+        <div class="empty">{% trans 'no replies so far.' %}</div>
+      {% endif %}
     {% endfor %}
   {% endwith %}
   {% if post and request.user.is_authenticated %}

@@ -82,8 +82,29 @@ def post_replies(request: AuthedHttpRequest, post_id: int):
             "post": Takahe.get_post(post_id),
             "replies": replies,
             "reply_prepend": reply_prepend,
+            "show_header": request.GET.get("header") == "1",
         },
     )
+
+
+@require_http_methods(["GET"])
+def post_quotes(request: AuthedHttpRequest, post_id: int):
+    post: Post = get_object_or_404(Post, pk=post_id)
+    if post.state in ["deleted", "deleted_fanned_out"]:
+        raise Http404("Post not available")
+    viewer = request.user.identity if request.user.is_authenticated else None
+    owner = APIdentity.by_takahe_identity(post.author)
+    if not owner or _can_view_post(post, owner, viewer) < 0:
+        raise PermissionDenied(_("Insufficient permission"))
+    viewer_identity = viewer.takahe_identity if viewer else None
+    quotes = (
+        Post.objects.not_hidden()
+        .visible_to(viewer_identity, include_replies=True)
+        .filter(quote_url=post.object_uri)
+        .select_related("author")
+        .order_by("-published")[:20]
+    )
+    return render(request, "post_quotes.html", {"post": post, "quotes": quotes})
 
 
 @require_http_methods(["POST"])
@@ -120,6 +141,68 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
         "replies.html",
         {"post": post, "replies": replies, "reply_prepend": reply_prepend},
     )
+
+
+def _allowed_quote_visibilities(
+    quoted_visibility: int,
+) -> list[int]:
+    """
+    Return allowed visibilities for a post quoting a post with given visibility.
+    Visibility ordering: public(0) > unlisted(1) > local_only(4) > followers(2) > mentioned(3)
+    Exception: local_only can only be quoted as local_only or mentioned.
+    """
+    V = Takahe.Visibilities
+    if quoted_visibility == V.public:
+        return [V.public, V.unlisted, V.local_only, V.followers, V.mentioned]
+    elif quoted_visibility == V.unlisted:
+        return [V.unlisted, V.local_only, V.followers, V.mentioned]
+    elif quoted_visibility == V.local_only:
+        return [V.local_only, V.mentioned]
+    elif quoted_visibility == V.followers:
+        return [V.followers, V.mentioned]
+    else:  # mentioned
+        return [V.mentioned]
+
+
+@require_http_methods(["GET", "POST"])
+@login_required
+def post_quote(request: AuthedHttpRequest, post_id: int):
+    post = Takahe.get_post(post_id)
+    if not post:
+        raise BadRequest(_("Invalid parameter"))
+    viewer = request.user.identity
+    owner = APIdentity.by_takahe_identity(post.author)
+    if not owner or _can_view_post(post, owner, viewer) < 0:
+        raise PermissionDenied(_("Insufficient permission"))
+    allowed = _allowed_quote_visibilities(post.visibility)
+    public_mode = request.user.preference.post_public_mode
+    default_visibility = public_mode if public_mode in allowed else allowed[0]
+    if request.method == "GET":
+        return render(
+            request,
+            "quote_form.html",
+            {
+                "post": post,
+                "allowed_visibilities": allowed,
+                "default_visibility": default_visibility,
+            },
+        )
+    content = request.POST.get("content", "").strip()
+    try:
+        visibility = Takahe.Visibilities(int(request.POST.get("visibility", -1)))
+    except ValueError:
+        raise BadRequest(_("Invalid parameter"))
+    if not content:
+        raise BadRequest(_("Invalid parameter"))
+    if visibility not in allowed:
+        raise BadRequest(_("Visibility too high for quoting this post"))
+    Takahe.post(
+        request.user.identity.pk,
+        content,
+        visibility,
+        quote_url=post.object_uri,
+    )
+    return render(request, "quote_form.html", {"post": post, "submitted": True})
 
 
 @require_http_methods(["POST"])
@@ -295,7 +378,16 @@ def post_view(request, handle: str, post_pk: int):
         return HttpResponse()
     match _can_view_post(post, owner, viewer):
         case 1:
-            return render(request, "single_post.html", {"post": post, "owner": owner})
+            quotes_count = (
+                Post.objects.filter(quote_url=post.object_uri)
+                .exclude(state__in=["deleted", "deleted_fanned_out"])
+                .count()
+            )
+            return render(
+                request,
+                "single_post.html",
+                {"post": post, "owner": owner, "quotes_count": quotes_count},
+            )
         case 0:
             if post.local:
                 raise BadRequest("JSON not supported yet")
