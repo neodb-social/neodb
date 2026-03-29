@@ -270,7 +270,7 @@ def post_compose(request: AuthedHttpRequest):
     return HttpResponseRedirect(get_safe_referer_url(request, "/"))
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "HEAD"])
 def post_view(request, handle: str, post_pk: int):
     if request.headers.get("HTTP_ACCEPT", "").endswith("json"):
         raise BadRequest("JSON not supported yet")
@@ -291,6 +291,8 @@ def post_view(request, handle: str, post_pk: int):
         domain = h[1]
     if owner.username != username or owner.domain_name != domain:
         raise Http404("Post not available")
+    if request.method == "HEAD":
+        return HttpResponse()
     match _can_view_post(post, owner, viewer):
         case 1:
             return render(request, "single_post.html", {"post": post, "owner": owner})

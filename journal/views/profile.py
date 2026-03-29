@@ -180,10 +180,12 @@ def profile(request: AuthedHttpRequest, user_name):
     )
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "HEAD"])
 @login_required
 @target_identity_required
 def user_calendar_data(request, user_name):
+    if request.method == "HEAD":
+        return HttpResponse()
     target = request.target_identity
     max_visiblity = max_visiblity_to_user(request.user, target)
     calendar_data = target.shelf_manager.get_calendar_data(max_visiblity)
@@ -196,11 +198,13 @@ def user_calendar_data(request, user_name):
     )
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "HEAD"])
 def profile_collection_items(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         # raise PermissionDenied(_("Insufficient permission"))
+        return HttpResponse()
+    if request.method == "HEAD":
         return HttpResponse()
 
     items = []

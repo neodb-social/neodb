@@ -29,7 +29,7 @@ from ..models.renderers import (
 from .common import render_list
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "HEAD"])
 def review_retrieve(request, review_uuid):
     # piece = get_object_or_404(Review, uid=get_uuid_or_404(review_uuid))
     piece = Review.get_by_url(review_uuid)
@@ -37,6 +37,8 @@ def review_retrieve(request, review_uuid):
         raise Http404(_("Content not found"))
     if not piece.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
+    if request.method == "HEAD":
+        return HttpResponse()
     return render(request, "review.html", {"review": piece})
 
 
