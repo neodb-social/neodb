@@ -51,6 +51,7 @@ def query_index(
     items = []
     urls = []
     search_items = r.items
+    prefetch_related_objects(search_items, "external_resources")
     editions = [item for item in search_items if isinstance(item, Edition)]
     if editions:
         prefetch_related_objects(editions, "works")

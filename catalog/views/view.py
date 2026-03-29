@@ -192,23 +192,60 @@ def review_list(request, item_path, item_uuid):
     )
 
 
+def _prefetch_comments(comments_list: list["Comment"]):
+    """Batch-fetch marks and ratings for a list of comments to avoid N+1."""
+    if not comments_list:
+        return
+    from journal.models import Rating
+
+    # Batch-fetch ShelfMembers for all (owner, item) pairs
+    pairs = {(c.owner_id, c.item_id) for c in comments_list}
+    from django.db.models import Q
+
+    q = Q()
+    for owner_id, item_id in pairs:
+        q |= Q(owner_id=owner_id, item_id=item_id)
+    shelfmembers: dict[tuple[int, int], ShelfMember] = {}
+    for sm in ShelfMember.objects.filter(q):
+        shelfmembers[(sm.owner_id, sm.item_id)] = sm
+    # Batch-fetch Ratings
+    ratings: dict[tuple[int, int], int | None] = {}
+    for r in Rating.objects.filter(q):
+        ratings[(r.owner_id, r.item_id)] = r.grade
+    # Pre-set mark and rating_grade on each comment
+    for c in comments_list:
+        key = (c.owner_id, c.item_id)
+        m = Mark(c.owner, c.item)
+        m.comment = c
+        m.shelfmember = shelfmembers.get(key)
+        c.__dict__["mark"] = m
+        c.__dict__["rating_grade"] = ratings.get(key)
+
+
 def comments(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if item.class_name == "tvseason":
         ids = [item.pk]
     else:
         ids = item.child_item_ids + [item.pk] + item.sibling_item_ids
-    queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
+    queryset = (
+        Comment.objects.filter(item_id__in=ids)
+        .order_by("-created_time")
+        .select_related("owner")
+        .prefetch_related("item")
+    )
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
     before_time = request.GET.get("last")
     if before_time:
         queryset = queryset.filter(created_time__lte=before_time)
+    comments_list = list(queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1])
+    _prefetch_comments(comments_list)
     return render(
         request,
         "_item_comments.html",
         {
             "item": item,
-            "comments": queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1],
+            "comments": comments_list,
         },
     )
 

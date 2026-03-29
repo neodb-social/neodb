@@ -18,6 +18,7 @@ from common.utils import (
 )
 
 from ..models import (
+    Mark,
     Piece,
     Rating,
     Review,
@@ -108,10 +109,17 @@ def render_list(
     if year:
         year = int(year)
         queryset = queryset.filter(created_time__year=year)
+    queryset = queryset.prefetch_related("item", "item__external_resources")
     paginator = CustomPaginator(queryset, request)
     page_number = int_(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
+    # Batch-fetch marks for all items on this page to avoid N+1 queries
+    items = [m.item for m in members]
+    if items:
+        marks = Mark.get_marks_by_items(target, items, request.user)
+        for m in members:
+            m.__dict__["mark"] = marks.get(m.item_id) or Mark(target, m.item)
     shelf_labels = (
         ShelfManager.get_labels_for_category(item_category) if item_category else []
     )

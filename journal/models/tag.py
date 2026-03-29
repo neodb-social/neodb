@@ -207,3 +207,15 @@ class TagManager:
                 "parent__title", flat=True
             )
         )
+
+    def get_items_tags(self, item_ids: list[int]) -> dict[int, list[str]]:
+        """Batch-fetch user's tags for multiple items."""
+        tags_by_item: dict[int, list[str]] = {item_id: [] for item_id in item_ids}
+        rows = TagMember.objects.filter(
+            parent__owner=self.owner, item_id__in=item_ids
+        ).values_list("item_id", "parent__title")
+        for item_id, title in rows:
+            tags_by_item[item_id].append(title)
+        for item_id in tags_by_item:
+            tags_by_item[item_id] = sorted(tags_by_item[item_id])
+        return tags_by_item

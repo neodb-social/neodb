@@ -532,7 +532,10 @@ class ShelfMember(ListMember):
 
     @property
     def tags(self):
-        return self.mark.tags
+        try:
+            return getattr(self, "_tags")
+        except AttributeError:
+            return self.mark.tags
 
     def ensure_log_entry(self):
         log, _ = ShelfLogEntry.objects.get_or_create(
