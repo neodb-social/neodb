@@ -125,7 +125,7 @@ class RSS(AbstractSite):
                 guid=episode.get("guid"),
                 defaults={
                     "title": episode["title"],
-                    "brief": bleach.clean(episode.get("description"), strip=True),
+                    "brief": bleach.clean(episode.get("description") or "", strip=True),
                     "description_html": episode.get("description_html"),
                     "cover_url": episode.get("episode_art_url"),
                     "media_url": (
@@ -133,8 +133,10 @@ class RSS(AbstractSite):
                         if episode.get("enclosures")
                         else None
                     ),
-                    "pub_date": make_aware(
-                        datetime.fromtimestamp(episode.get("published"))
+                    "pub_date": (
+                        make_aware(datetime.fromtimestamp(episode["published"]))
+                        if episode.get("published") is not None
+                        else None
                     ),
                     "duration": episode.get("duration"),
                     "link": episode.get("link"),

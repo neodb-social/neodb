@@ -207,6 +207,14 @@ class LetterboxdImporter(Task):
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 logger.debug(f"Extracting {filename} to {tmpdirname}")
+                for member in zipref.namelist():
+                    member_path = os.path.realpath(os.path.join(tmpdirname, member))
+                    if not member_path.startswith(
+                        os.path.realpath(tmpdirname) + os.sep
+                    ) and member_path != os.path.realpath(tmpdirname):
+                        raise ValueError(
+                            f"Zip member {member} would extract outside target directory"
+                        )
                 zipref.extractall(tmpdirname)
                 if os.path.exists(tmpdirname + "/reviews.csv"):
                     with open(tmpdirname + "/reviews.csv") as f:

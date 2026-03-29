@@ -285,7 +285,7 @@ class BasicDownloader2(BasicDownloader):
             )
 
             return resp, response_type
-        except RequestException as e:
+        except (RequestException, httpx.HTTPError) as e:
             self.logs.append(
                 {"response_type": RESPONSE_NETWORK_ERROR, "url": url, "exception": e}
             )

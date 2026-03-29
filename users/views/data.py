@@ -43,17 +43,17 @@ def preferences(request):
         tidentity.indexable = bool(request.POST.get("anonymous_viewable"))
         tidentity.save(update_fields=["indexable"])
 
-        preference.default_visibility = int(request.POST.get("default_visibility"))
+        preference.default_visibility = int(request.POST.get("default_visibility", 0))
         preference.mastodon_default_repost = (
             int(request.POST.get("mastodon_default_repost", 0)) == 1
         )
         preference.mastodon_boost_enabled = (
             int(request.POST.get("mastodon_boost_enabled", 0)) == 1
         )
-        preference.classic_homepage = int(request.POST.get("classic_homepage"))
+        preference.classic_homepage = int(request.POST.get("classic_homepage", 0))
         preference.hidden_categories = request.POST.getlist("hidden_categories")
         preference.auto_bookmark_cats = request.POST.getlist("auto_bookmark_cats")
-        preference.post_public_mode = int(request.POST.get("post_public_mode"))
+        preference.post_public_mode = int(request.POST.get("post_public_mode", 0))
         preference.show_last_edit = bool(request.POST.get("show_last_edit"))
         preference.mastodon_repost_mode = int(
             request.POST.get("mastodon_repost_mode", 0)

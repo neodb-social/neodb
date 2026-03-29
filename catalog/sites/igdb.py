@@ -42,7 +42,10 @@ def _igdb_access_token():
 
 
 def search_igdb_by_3p_url(steam_url):
-    r = IGDB.api_query("websites", f'fields *, game.*; where url = "{steam_url}";')
+    r = IGDB.api_query(
+        "websites",
+        f'fields *, game.*; where url = "{steam_url.replace(chr(34), chr(92) + chr(34))}";',
+    )
     if not r:
         return None
     r = sorted(r, key=lambda w: w["game"]["id"])
@@ -87,7 +90,10 @@ class IGDB(AbstractSite):
 
     def scrape(self):
         fields = "*, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name"
-        r = self.api_query("games", f'fields {fields}; where url = "{self.url}";')
+        if not self.url:
+            raise ParseError(self, "no url")
+        escaped_url = self.url.replace('"', '\\"')
+        r = self.api_query("games", f'fields {fields}; where url = "{escaped_url}";')
         if not r:
             raise ParseError(self, "no data")
         r = r[0]
@@ -129,7 +135,7 @@ class IGDB(AbstractSite):
         if "genres" in r:
             genre = [g["name"] for g in r["genres"]]
         websites = self.api_query(
-            "websites", f'fields *; where game.url = "{self.url}";'
+            "websites", f'fields *; where game.url = "{escaped_url}";'
         )
         steam_url = None
         official_site = None

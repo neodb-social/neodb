@@ -224,6 +224,14 @@ class CsvImporter(BaseImporter):
 
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:
+                for member in zipref.namelist():
+                    member_path = os.path.realpath(os.path.join(tmpdirname, member))
+                    if not member_path.startswith(
+                        os.path.realpath(tmpdirname) + os.sep
+                    ) and member_path != os.path.realpath(tmpdirname):
+                        raise ValueError(
+                            f"Zip member {member} would extract outside target directory"
+                        )
                 zipref.extractall(tmpdirname)
 
                 # Count total rows in all CSV files first

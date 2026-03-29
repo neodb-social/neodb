@@ -123,7 +123,10 @@ def post_delete(request: AuthedHttpRequest, post_id: int):
 @login_required
 def post_reply(request: AuthedHttpRequest, post_id: int):
     content = request.POST.get("content", "").strip()
-    visibility = Takahe.Visibilities(int(request.POST.get("visibility", -1)))
+    try:
+        visibility = Takahe.Visibilities(int(request.POST.get("visibility", "")))
+    except (ValueError, KeyError):
+        raise BadRequest(_("Invalid parameter"))
     if not content:
         raise BadRequest(_("Invalid parameter"))
     post = Takahe.get_post(post_id)

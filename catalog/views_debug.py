@@ -23,9 +23,11 @@ from .common import (
 
 def _check_access(request):
     """Check if user has access to debug views."""
+    if not request.user.is_authenticated:
+        return False
     if settings.DEBUG:
         return True
-    return request.user.is_authenticated and request.user.is_superuser
+    return request.user.is_superuser
 
 
 def scraper_debug_page(request):

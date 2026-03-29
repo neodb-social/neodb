@@ -42,7 +42,7 @@ class TootVisibilityEnum(StrEnum):
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
 put = functools.partial(requests.put, timeout=settings.MASTODON_TIMEOUT)
 post = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
-delete = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
+delete = functools.partial(requests.delete, timeout=settings.MASTODON_TIMEOUT)
 _sites_cache_key = "login_sites"
 
 # See https://docs.joinmastodon.org/methods/accounts/

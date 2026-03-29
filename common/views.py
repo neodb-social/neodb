@@ -32,8 +32,14 @@ def manifest(request):
 
 
 def share(request):
+    from urllib.parse import quote
+
     q = request.GET.get("url") or request.GET.get("text") or request.GET.get("title")
-    return redirect(reverse("common:search") + "?q=" + q) if q else home(request)
+    return (
+        redirect(reverse("common:search") + "?q=" + quote(q, safe=""))
+        if q
+        else home(request)
+    )
 
 
 @login_required

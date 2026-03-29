@@ -65,7 +65,6 @@ class DoubanSearcher:
                 item["cover_url"],
             )
             for item in j["items"]
-            for item in j["items"]
             if item.get("tpl_name") == "search_subject"
         ]
         return results

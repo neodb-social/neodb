@@ -16,6 +16,7 @@ from common.utils import (
     get_uuid_or_404,
     target_identity_required,
 )
+from common.validators import get_safe_redirect_url
 
 from ..models import (
     Mark,
@@ -38,7 +39,7 @@ def render_relogin(request):
         request,
         "common/error.html",
         {
-            "url": reverse("mastodon:connect")
+            "url": reverse("mastodon:login")
             + "?domain="
             + request.user.mastodon.domain,
             "msg": _("Data saved but unable to crosspost to Fediverse instance."),
@@ -146,7 +147,7 @@ def render_list(
 @require_http_methods(["GET", "POST"])
 def piece_delete(request, piece_uuid):
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
-    return_url = request.GET.get("return_url", None) or "/"
+    return_url = get_safe_redirect_url(request.GET.get("return_url"), "/")
     if not piece.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":
