@@ -200,18 +200,18 @@ def _prefetch_comments(comments_list: list["Comment"]):
 
     # Batch-fetch ShelfMembers for all (owner, item) pairs
     pairs = {(c.owner_id, c.item_id) for c in comments_list}
-    from django.db.models import Q
-
-    q = Q()
-    for owner_id, item_id in pairs:
-        q |= Q(owner_id=owner_id, item_id=item_id)
     shelfmembers: dict[tuple[int, int], ShelfMember] = {}
-    for sm in ShelfMember.objects.filter(q):
-        shelfmembers[(sm.owner_id, sm.item_id)] = sm
-    # Batch-fetch Ratings
     ratings: dict[tuple[int, int], int | None] = {}
-    for r in Rating.objects.filter(q):
-        ratings[(r.owner_id, r.item_id)] = r.grade
+    if pairs:
+        from django.db.models import Q
+
+        q = Q()
+        for owner_id, item_id in pairs:
+            q |= Q(owner_id=owner_id, item_id=item_id)
+        for sm in ShelfMember.objects.filter(q):
+            shelfmembers[(sm.owner_id, sm.item_id)] = sm
+        for r in Rating.objects.filter(q):
+            ratings[(r.owner_id, r.item_id)] = r.grade
     # Pre-set mark and rating_grade on each comment
     for c in comments_list:
         key = (c.owner_id, c.item_id)

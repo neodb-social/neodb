@@ -150,6 +150,7 @@ def list_marks_on_user_shelf(
             type, ItemCategory(category) if category else None
         )
         .filter(qv)
+        .select_related("owner")
         .prefetch_related("item", "item__external_resources")
     )
     return queryset
@@ -170,9 +171,11 @@ def list_marks_on_shelf(
     Shelf's `type` should be one of `wishlist` / `progress` / `complete` / `dropped`;
     `category` is optional, marks for all categories will be returned if not specified.
     """
-    queryset = request.user.shelf_manager.get_latest_members(
-        type, category
-    ).prefetch_related("item", "item__external_resources")
+    queryset = (
+        request.user.shelf_manager.get_latest_members(type, category)
+        .select_related("owner")
+        .prefetch_related("item", "item__external_resources")
+    )
     return queryset
 
 
