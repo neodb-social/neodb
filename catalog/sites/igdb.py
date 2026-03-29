@@ -44,7 +44,7 @@ def _igdb_access_token():
 def search_igdb_by_3p_url(steam_url):
     r = IGDB.api_query(
         "websites",
-        f'fields *, game.*; where url = "{steam_url.replace(chr(34), chr(92) + chr(34))}";',
+        f'fields *, game.*; where url = "{steam_url.replace('"', '\\"')}";',
     )
     if not r:
         return None

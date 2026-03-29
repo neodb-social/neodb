@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 
 import pytest
 import requests
@@ -121,7 +121,7 @@ def test_catalog_fetch_endpoint_returns_accepted_when_queued(live_server):
         )
 
     assert response.status_code == 202
-    enqueue_fetch.assert_called_once_with("http://example.com/queued", False)
+    enqueue_fetch.assert_called_once_with("http://example.com/queued", False, ANY)
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
