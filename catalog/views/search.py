@@ -17,6 +17,7 @@ from common.utils import (
     get_page_size_from_request,
     user_identity_required,
 )
+from common.validators import is_safe_url
 from journal.models import Tag
 from journal.models.mark import Mark
 from journal.models.rating import Rating
@@ -141,7 +142,7 @@ def search(request):
         )
         if site:
             return fetch(request, keywords, site, False)
-        if request.GET.get("r"):
+        if request.GET.get("r") and is_safe_url(keywords):
             return redirect(keywords)
         return fetch(request, keywords, None, False)
 
