@@ -45,6 +45,9 @@ class TestLinkify:
         url = "https://example.com:8080/path"
         assert _link(url) in _linkify(f"at {url}")
 
+    def test_url_in_parentheses(self):
+        assert _linkify("(https://example.com)") == f"({_link('https://example.com')})"
+
     def test_empty_string(self):
         assert _linkify("") == ""
 

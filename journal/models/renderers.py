@@ -43,8 +43,7 @@ def render_md(s: str) -> str:
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
 
 _URL_REGEX = re.compile(
-    r"""(\(*  # Match any opening parentheses.
-    \b(?<![@.])(?:https?://(?:(?:\w+:)?\w+@)?)  # http://
+    r"""(\b(?<![@.])(?:https?://(?:(?:\w+:)?\w+@)?)  # http://
     (?:[\w-]+\.)+(?:[\w-]+)(?:\:[0-9]+)?(?!\.\w)\b   # xx.yy.tld(:##)?
     (?:[/?][^\s\{{\}}\|\\\^\[\]`<>"]*)?)
     # /path/zz (excluding "unsafe" chars from RFC 1738,
