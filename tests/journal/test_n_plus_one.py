@@ -7,7 +7,9 @@ from django.test.utils import CaptureQueriesContext
 
 from catalog.models import Edition, ExternalResource, IdType, Movie
 from journal.models import Mark, ShelfType, Tag
+from journal.models.common import prefetch_pieces_for_posts
 from journal.models.shelf import ShelfMember
+from takahe.utils import Takahe
 from users.models import User
 
 
@@ -349,3 +351,44 @@ class TestPrefetchShelfMembers:
         _prefetch_shelf_members(members)
         for m in members:
             assert hasattr(m.item, "rating_info")
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestPrefetchPiecesForPosts:
+    """Test batch prefetching of pieces and items for posts."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="prefetch@example.com", username="prefetchuser")
+        self.book = Edition.objects.create(title="Prefetch Book")
+        self.movie = Movie.objects.create(title="Prefetch Movie")
+        Mark(self.user.identity, self.book).update(
+            ShelfType.WISHLIST, "want to read", visibility=0
+        )
+        Mark(self.user.identity, self.movie).update(
+            ShelfType.COMPLETE, "great film", 8, visibility=0
+        )
+
+    def test_prefetch_sets_piece_and_item(self):
+        posts = list(Takahe.get_recent_posts(self.user.identity.pk)[:10])
+        assert len(posts) >= 2
+        prefetch_pieces_for_posts(posts)
+        for post in posts:
+            assert "piece" in post.__dict__
+            assert "item" in post.__dict__
+            assert post.piece is not None
+            assert post.item is not None
+
+    def test_prefetch_avoids_per_post_queries(self):
+        """After prefetch, accessing piece/item should not trigger new queries."""
+        posts = list(Takahe.get_recent_posts(self.user.identity.pk)[:10])
+        prefetch_pieces_for_posts(posts)
+        # All pieces and items are now cached in __dict__; no more DB hits
+        with CaptureQueriesContext(connection) as ctx:
+            for post in posts:
+                _ = post.piece
+                _ = post.item
+        assert len(ctx.captured_queries) == 0
+
+    def test_prefetch_empty_list(self):
+        prefetch_pieces_for_posts([])  # should not raise

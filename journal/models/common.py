@@ -610,7 +610,7 @@ class PiecePost(models.Model):
         ]
 
 
-def prefetch_pieces_for_posts(posts: list) -> None:
+def prefetch_pieces_for_posts(posts: list["Post"]) -> None:
     """Batch-prefetch piece and item for a list of Post objects to avoid N+1 queries."""
     from catalog.models import Item
     from journal.models import ShelfMember
@@ -618,28 +618,38 @@ def prefetch_pieces_for_posts(posts: list) -> None:
     if not posts:
         return
     post_ids = [p.pk for p in posts]
-    # Fetch PiecePost relations; PolymorphicModel resolves concrete types
-    relations = PiecePost.objects.filter(post_id__in=post_ids).select_related("piece")
-    # Group pieces by post_id
-    pieces_by_post: dict[int, list] = {}
-    for rel in relations:
-        pieces_by_post.setdefault(rel.post_id, []).append(rel.piece)
-    # Batch-fetch items for all pieces that have item_id
-    item_ids = set()
-    all_pieces = []
+    # Collect piece IDs grouped by post from the through table
+    piece_ids_by_post: dict[int, list[int]] = {}
+    all_piece_ids: set[int] = set()
+    for rel in PiecePost.objects.filter(post_id__in=post_ids).values(
+        "post_id", "piece_id"
+    ):
+        piece_ids_by_post.setdefault(rel["post_id"], []).append(rel["piece_id"])
+        all_piece_ids.add(rel["piece_id"])
+    # Fetch all pieces via polymorphic manager to get concrete types
+    pieces_by_id: dict[int, Piece] = {
+        p.pk: p for p in Piece.objects.filter(pk__in=all_piece_ids)
+    }
+    # Resolve piece per post (prefer ShelfMember when multiple)
+    all_pieces: list[Piece | None] = []
+    item_ids: set[int] = set()
     for post in posts:
-        pcs = pieces_by_post.get(post.pk, [])
+        pids = piece_ids_by_post.get(post.pk, [])
+        pcs = [pieces_by_id[pid] for pid in pids if pid in pieces_by_id]
         if len(pcs) == 1:
             piece = pcs[0]
         else:
             piece = next((p for p in pcs if p.__class__ == ShelfMember), None)
         post.__dict__["piece"] = piece
         all_pieces.append(piece)
-        if piece and hasattr(piece, "item_id") and piece.item_id:
-            item_ids.add(piece.item_id)
+        item_id = getattr(piece, "item_id", None) if piece else None
+        if item_id:
+            item_ids.add(item_id)
+    # Batch-fetch items
     items_by_id = {i.pk: i for i in Item.objects.filter(pk__in=item_ids)}
     for post, piece in zip(posts, all_pieces):
-        if piece and hasattr(piece, "item_id") and piece.item_id:
+        item_id = getattr(piece, "item_id", None) if piece else None
+        if item_id:
             item = items_by_id.get(piece.item_id)
             if item:
                 piece.item = item
