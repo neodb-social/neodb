@@ -80,7 +80,7 @@ def has_spoiler(s: str) -> bool:
     return ">!" in s
 
 
-def _spolier(s: str) -> str:
+def _spoiler(s: str) -> str:
     sl = s.split(">!", 1)
     if len(sl) == 1:
         return _linkify(s)
@@ -90,12 +90,12 @@ def _spolier(s: str) -> str:
         + '<span class="spoiler" _="on click toggle .revealed on me">'
         + _linkify(r[0])
         + "</span>"
-        + (_spolier(r[1]) if len(r) == 2 else "")
+        + (_spoiler(r[1]) if len(r) == 2 else "")
     )
 
 
 def render_text(s: str) -> str:
-    return _spolier(s).strip().replace("\n", "<br>")
+    return _spoiler(s).strip().replace("\n", "<br>")
 
 
 def render_title_as_hashtag(t: str) -> str:
