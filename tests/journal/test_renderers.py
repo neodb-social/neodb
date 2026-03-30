@@ -1,5 +1,3 @@
-import pytest
-
 from journal.models.renderers import _linkify, render_text
 
 
