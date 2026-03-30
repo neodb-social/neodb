@@ -1,4 +1,6 @@
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from catalog.common import *
 from catalog.models import *
@@ -157,6 +159,35 @@ class TestPodcastRSSFeed:
         assert item.recent_episodes[0].title is not None
         assert item.recent_episodes[0].link is not None
         assert item.recent_episodes[0].media_url is not None
+
+    @use_local_response
+    def test_scrape_idempotent_and_batch_optimized(self):
+        """Scraping same feed twice should skip existing episodes."""
+        t_url = "https://podcasts.files.bbci.co.uk/b006qykl.rss"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.ready
+        item = site.get_item()
+        assert item is not None
+        episode_count = PodcastEpisode.objects.filter(program=item).count()
+        assert episode_count > 0
+        # Scrape again - should skip existing episodes
+        with CaptureQueriesContext(connection) as ctx:
+            site.scrape_additional_data()
+        # Should NOT have per-episode SELECT queries for existing episodes
+        # The batch pre-fetch means we only need 1 SELECT for all existing guids
+        episode_select_queries = [
+            q
+            for q in ctx.captured_queries
+            if "catalog_podcastepisode" in q["sql"]
+            and "guid" in q["sql"]
+            and "program_id" in q["sql"]
+            and "IN" not in q["sql"].upper()
+        ]
+        assert len(episode_select_queries) == 0
+        # Episode count should be unchanged
+        assert PodcastEpisode.objects.filter(program=item).count() == episode_count
 
     # @use_local_response
     # def test_scrape_lizhi(self):

@@ -119,10 +119,23 @@ class RSS(AbstractSite):
         if not item:
             logger.warning(f"item for RSS {self.url} not found")
             return False
-        for episode in feed["episodes"]:
+        episodes = feed["episodes"]
+        if not episodes:
+            return True
+        # Batch-fetch existing episodes to avoid N+1 get_or_create queries
+        guids = [ep.get("guid") for ep in episodes if ep.get("guid")]
+        existing = set(
+            PodcastEpisode.objects.filter(program=item, guid__in=guids).values_list(
+                "guid", flat=True
+            )
+        )
+        for episode in episodes:
+            guid = episode.get("guid")
+            if guid in existing:
+                continue
             PodcastEpisode.objects.get_or_create(
                 program=item,
-                guid=episode.get("guid"),
+                guid=guid,
                 defaults={
                     "title": episode["title"],
                     "brief": bleach.clean(episode.get("description") or "", strip=True),

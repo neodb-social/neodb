@@ -6,7 +6,7 @@ from django.test import Client
 from django.test.utils import CaptureQueriesContext
 
 from catalog.models import Edition, ExternalResource, IdType, Movie
-from journal.models import Mark, ShelfType, Tag
+from journal.models import Collection, Mark, ShelfType, Tag
 from journal.models.common import prefetch_pieces_for_posts
 from journal.models.shelf import ShelfMember
 from takahe.utils import Takahe
@@ -392,3 +392,173 @@ class TestPrefetchPiecesForPosts:
 
     def test_prefetch_empty_list(self):
         prefetch_pieces_for_posts([])  # should not raise
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCommentLatestPostPrefetch:
+    """Test that comments prefetch avoids N+1 on latest_post and post.author."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.users = [
+            User.register(email=f"clp{i}@example.com", username=f"clpuser{i}")
+            for i in range(5)
+        ]
+        self.book = Edition.objects.create(title="Post Prefetch Book")
+        for i, user in enumerate(self.users):
+            Mark(user.identity, self.book).update(
+                ShelfType.COMPLETE, f"comment {i}", i + 5, [], 0
+            )
+
+    def test_comments_no_per_comment_identity_queries(self):
+        """Comments page should not query users_identity per comment."""
+        client = Client()
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(f"/book/{self.book.uuid}/comments")
+        assert response.status_code == 200
+        # Count individual identity lookups (N+1 pattern)
+        identity_queries = [
+            q
+            for q in ctx.captured_queries
+            if "users_identity" in q["sql"]
+            and 'WHERE "users_identity"."id"' in q["sql"]
+        ]
+        # With batch prefetch, should have 0 individual identity queries
+        # (authors are prefetched via Takahe.get_posts)
+        assert len(identity_queries) == 0
+
+    def test_comments_no_per_comment_post_queries(self):
+        """Comments page should not query posts individually per comment."""
+        client = Client()
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(f"/book/{self.book.uuid}/comments")
+        assert response.status_code == 200
+        # Count individual post lookups
+        post_queries = [
+            q
+            for q in ctx.captured_queries
+            if "activities_post" in q["sql"]
+            and 'WHERE "activities_post"."id"' in q["sql"]
+        ]
+        # With batch prefetch, should have 0 individual post queries
+        assert len(post_queries) == 0
+
+    def test_comments_no_per_comment_piecepost_queries(self):
+        """Comments page should batch PiecePost queries."""
+        client = Client()
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(f"/book/{self.book.uuid}/comments")
+        assert response.status_code == 200
+        piecepost_queries = [
+            q
+            for q in ctx.captured_queries
+            if "journal_piecepost" in q["sql"]
+            and "piece_id" in q["sql"]
+            and "IN" not in q["sql"].upper()
+        ]
+        # Should have 0 individual piecepost queries (all batched via IN)
+        assert len(piecepost_queries) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionEditItemsPrefetch:
+    """Test that collection edit_items view batch-fetches items."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="cedit@example.com", username="cedituser")
+        self.books = [
+            Edition.objects.create(title=f"Coll Edit Book {i}") for i in range(5)
+        ]
+        for book in self.books:
+            ExternalResource.objects.create(
+                item=book,
+                id_type=IdType.ISBN,
+                id_value=f"978111100000{book.pk}",
+                url=f"https://example.com/book/{book.pk}",
+            )
+        self.collection = Collection.objects.create(
+            title="Edit Test Collection",
+            owner=self.user.identity,
+        )
+        for book in self.books:
+            self.collection.append_item(book)
+
+    def test_edit_items_renders(self):
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        response = client.get(
+            f"/collection/{self.collection.uuid}/edit_items",
+        )
+        assert response.status_code == 200
+        for book in self.books:
+            assert book.display_title in response.content.decode()
+
+    def test_edit_items_no_per_item_queries(self):
+        """Edit items should batch-fetch items, not query per member."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/collection/{self.collection.uuid}/edit_items",
+            )
+        assert response.status_code == 200
+        # Should NOT have individual catalog_item lookups per member
+        individual_item_queries = [
+            q
+            for q in ctx.captured_queries
+            if "catalog_item" in q["sql"] and 'WHERE "catalog_item"."id" =' in q["sql"]
+        ]
+        assert len(individual_item_queries) == 0
+
+    def test_edit_items_no_per_item_external_resource_queries(self):
+        """External resources should be prefetched, not queried per item."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/collection/{self.collection.uuid}/edit_items",
+            )
+        assert response.status_code == 200
+        er_individual = [
+            q
+            for q in ctx.captured_queries
+            if "catalog_externalresource" in q["sql"]
+            and "IN" not in q["sql"].upper()
+            and "item_id" in q["sql"]
+        ]
+        assert len(er_individual) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestEditionParentItemTemplateShortCircuit:
+    """Test that the template condition avoids Edition.get_work() queries."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="tpl@example.com", username="tpluser")
+        self.books = [
+            Edition.objects.create(title=f"Template Book {i}") for i in range(3)
+        ]
+        self.collection = Collection.objects.create(
+            title="Template Test Collection",
+            owner=self.user.identity,
+        )
+        for book in self.books:
+            self.collection.append_item(book)
+
+    def test_collection_view_no_work_queries(self):
+        """Collection view should not query catalog_work for Edition items."""
+        client = Client()
+        response = client.get(f"/collection/{self.collection.uuid}")
+        assert response.status_code == 200
+        # Re-request with query capture
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(f"/collection/{self.collection.uuid}")
+        assert response.status_code == 200
+        work_queries = [
+            q
+            for q in ctx.captured_queries
+            if "catalog_work" in q["sql"] and "catalog_work_editions" in q["sql"]
+        ]
+        assert len(work_queries) == 0

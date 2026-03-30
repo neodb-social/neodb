@@ -193,10 +193,11 @@ def review_list(request, item_path, item_uuid):
 
 
 def _prefetch_comments(comments_list: list["Comment"]):
-    """Batch-fetch marks and ratings for a list of comments to avoid N+1."""
+    """Batch-fetch marks, ratings, and latest posts for a list of comments to avoid N+1."""
     if not comments_list:
         return
     from journal.models import Rating
+    from journal.models.common import PiecePost
 
     # Batch-fetch ShelfMembers for all (owner, item) pairs
     pairs = {(c.owner_id, c.item_id) for c in comments_list}
@@ -212,7 +213,24 @@ def _prefetch_comments(comments_list: list["Comment"]):
             shelfmembers[(sm.owner_id, sm.item_id)] = sm
         for r in Rating.objects.filter(q):
             ratings[(r.owner_id, r.item_id)] = r.grade
-    # Pre-set mark and rating_grade on each comment
+
+    # Batch-fetch latest post IDs for all comments
+    piece_ids = [c.pk for c in comments_list]
+    piece_to_post_ids: dict[int, list[int]] = {}
+    for piece_id, post_id in PiecePost.objects.filter(
+        piece_id__in=piece_ids
+    ).values_list("piece_id", "post_id"):
+        piece_to_post_ids.setdefault(piece_id, []).append(post_id)
+    piece_to_latest: dict[int, int] = {
+        pid: max(pids) for pid, pids in piece_to_post_ids.items()
+    }
+    # Batch-fetch Post objects with authors
+    all_post_ids = list(piece_to_latest.values())
+    posts_by_id = (
+        {p.pk: p for p in Takahe.get_posts(all_post_ids)} if all_post_ids else {}
+    )
+
+    # Pre-set mark, rating_grade, and latest_post on each comment
     for c in comments_list:
         key = (c.owner_id, c.item_id)
         m = Mark(c.owner, c.item)
@@ -220,6 +238,9 @@ def _prefetch_comments(comments_list: list["Comment"]):
         m.shelfmember = shelfmembers.get(key)
         c.__dict__["mark"] = m
         c.__dict__["rating_grade"] = ratings.get(key)
+        post_id = piece_to_latest.get(c.pk)
+        c.__dict__["latest_post_id"] = post_id
+        c.__dict__["latest_post"] = posts_by_id.get(post_id) if post_id else None
 
 
 def comments(request, item_path, item_uuid):

@@ -251,17 +251,28 @@ def collection_edit_items(request: AuthedHttpRequest, collection_uuid):
     if collection.is_dynamic:
         members = []
     else:
-        members = collection.ordered_members
+        members_qs = collection.ordered_members
         last_pos = int_(request.GET.get("last_pos"))
         if last_pos:
             last_member = int_(request.GET.get("last_member"))
-            members = members.filter(position__gte=last_pos).exclude(id=last_member)
+            members_qs = members_qs.filter(position__gte=last_pos).exclude(
+                id=last_member
+            )
+        members = list(members_qs[:20])
+        # Batch-fetch items with external_resources to avoid N+1
+        item_ids = [m.item_id for m in members]
+        items = list(
+            Item.objects.filter(pk__in=item_ids).prefetch_related("external_resources")
+        )
+        items_map = {i.pk: i for i in items}
+        for member in members:
+            member.item = items_map.get(member.item_id)
     return render(
         request,
         "collection_items.html",
         {
             "collection": collection,
-            "members": members[:20],
+            "members": members,
             "collection_edit": True,
         },
     )
