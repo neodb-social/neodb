@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 from functools import cached_property, reduce
 from typing import TYPE_CHECKING, Iterable
@@ -46,6 +47,7 @@ class CatalogQueryParser(QueryParser):
         "company",
         "year",
         "language",
+        "id",
     ]
     skip_backtick = ["date"]
     default_search_params = {
@@ -101,6 +103,11 @@ class CatalogQueryParser(QueryParser):
                 lambda a, b: a + b, [_cat_to_class(c) for c in exclude_categories], []
             )
             self.exclude("item_class", cs)
+
+        # parse id filter from query string (exact match on lookup_id)
+        v = self.parsed_fields.get("id", "").strip()
+        if v and re.fullmatch(r"[A-Za-z0-9]+", v):
+            self.filter("_", f"lookup_id:=`{v}`")
 
         # parse date filter from query string
         v = self.parsed_fields.get("year", "").split("..")

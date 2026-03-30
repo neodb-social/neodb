@@ -217,6 +217,27 @@ class TestCatalogQueryParser:
             ["steven spielberg", "george lucas"]
         )
 
+    def test_id_filtering(self):
+        """Test id filtering produces exact match filter on lookup_id"""
+        parser = CatalogQueryParser("id:9780618640157", 1, 20)
+
+        assert parser.q == ""
+        assert "lookup_id:=`9780618640157`" in parser.filter_by.get("_", [])
+
+    def test_id_filtering_imdb(self):
+        """Test id filtering with IMDB code"""
+        parser = CatalogQueryParser("id:tt0068646", 1, 20)
+
+        assert parser.q == ""
+        assert "lookup_id:=`tt0068646`" in parser.filter_by.get("_", [])
+
+    def test_id_filtering_with_keyword(self):
+        """Test id filtering combined with text query"""
+        parser = CatalogQueryParser("Tolkien id:9780618640157", 1, 20)
+
+        assert parser.q == "Tolkien"
+        assert "lookup_id:=`9780618640157`" in parser.filter_by.get("_", [])
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestCatalogSearch:
@@ -653,3 +674,26 @@ class TestCatalogSearch:
         assert category_facets["game"] == 0
         assert category_facets["podcast"] == 0
         assert category_facets["performance"] == 0
+
+    def test_search_by_isbn(self):
+        """Test searching by ISBN using id: filter returns exact match"""
+        parser = CatalogQueryParser("id:9780618640157", 1, 20)
+        results = CatalogIndex.instance().search(parser)
+        found_items = [item.pk for item in results.items]
+        assert len(found_items) == 1
+        assert self.book1.pk in found_items
+
+    def test_search_by_imdb(self):
+        """Test searching by IMDB code using id: filter returns exact match"""
+        parser = CatalogQueryParser("id:tt0068646", 1, 20)
+        results = CatalogIndex.instance().search(parser)
+        found_items = [item.pk for item in results.items]
+        assert len(found_items) == 1
+        assert self.movie1.pk in found_items
+
+    def test_search_by_id_no_match(self):
+        """Test searching by non-existent id returns no results"""
+        parser = CatalogQueryParser("id:0000000000000", 1, 20)
+        results = CatalogIndex.instance().search(parser)
+        found_items = [item.pk for item in results.items]
+        assert len(found_items) == 0

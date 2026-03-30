@@ -171,6 +171,8 @@ class Movie(Item):
 
     def to_indexable_doc(self):
         d = super().to_indexable_doc()
+        if self.imdb:
+            d["lookup_id"] = [str(self.imdb)]
         d["people"] = (
             (self.director or []) + (self.actor or []) + (self.playwright or [])
         )
