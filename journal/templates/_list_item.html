@@ -72,7 +72,11 @@
                 </span>
               {% endif %}
             {% endif %}
-            {{ collection_member.note|default:'&nbsp;'|linebreaksbr }}
+            {% if collection_member.note %}
+              {{ collection_member.note_html|safe }}
+            {% else %}
+              &nbsp;
+            {% endif %}
           </div>
         </section>
       {% endif %}

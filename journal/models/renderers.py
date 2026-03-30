@@ -42,6 +42,17 @@ def render_md(s: str) -> str:
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
 
+_URL_REGEX = re.compile(
+    r"""(\(*  # Match any opening parentheses.
+    \b(?<![@.])(?:https?://(?:(?:\w+:)?\w+@)?)  # http://
+    (?:[\w-]+\.)+(?:[\w-]+)(?:\:[0-9]+)?(?!\.\w)\b   # xx.yy.tld(:##)?
+    (?:[/?][^\s\{{\}}\|\\\^\[\]`<>"]*)?)
+    # /path/zz (excluding "unsafe" chars from RFC 1738,
+    # except for # and ~, which happen in practice)
+    """,
+    re.IGNORECASE | re.VERBOSE | re.UNICODE,
+)
+
 
 def html_to_text(h: str) -> str:
     return unescape(
@@ -51,6 +62,21 @@ def html_to_text(h: str) -> str:
     )
 
 
+def _linkify(s: str) -> str:
+    """Escape text and convert URLs to hyperlinks."""
+    bits = _URL_REGEX.split(s)
+    parts: list[str] = []
+    for i, bit in enumerate(bits):
+        if i % 2 == 1:
+            escaped = escape(bit)
+            parts.append(
+                f'<a href="{escaped}" rel="nofollow" target="_blank">{escaped}</a>'
+            )
+        else:
+            parts.append(escape(bit))
+    return "".join(parts)
+
+
 def has_spoiler(s: str) -> bool:
     return ">!" in s
 
@@ -58,12 +84,12 @@ def has_spoiler(s: str) -> bool:
 def _spolier(s: str) -> str:
     sl = s.split(">!", 1)
     if len(sl) == 1:
-        return escape(s)
+        return _linkify(s)
     r = sl[1].split("!<", 1)
     return (
-        escape(sl[0])
+        _linkify(sl[0])
         + '<span class="spoiler" _="on click toggle .revealed on me">'
-        + escape(r[0])
+        + _linkify(r[0])
         + "</span>"
         + (_spolier(r[1]) if len(r) == 2 else "")
     )

@@ -17,7 +17,7 @@ from users.models import APIdentity
 
 from .common import Piece
 from .itemlist import List, ListMember
-from .renderers import render_md
+from .renderers import render_md, render_text
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
 
@@ -28,6 +28,10 @@ class CollectionMember(ListMember):
     )
 
     note = jsondata.CharField(_("note"), null=True, blank=True)
+
+    @property
+    def note_html(self) -> str:
+        return render_text(self.note) if self.note else ""
 
     @property
     def ap_object(self):
