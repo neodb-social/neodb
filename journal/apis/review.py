@@ -6,7 +6,7 @@ from ninja import Field, Schema
 from ninja.pagination import paginate
 
 from catalog.models import AvailableItemCategory, Item, ItemSchema
-from common.api import PageNumberPagination, Result, api
+from common.api import OptionalOAuthAccessTokenAuth, PageNumberPagination, Result, api
 
 from ..models import (
     Review,
@@ -121,7 +121,7 @@ def delete_review(request, item_uuid: str):
     "/review/{review_uuid}",
     response={200: ReviewSchema, 401: Result, 403: Result, 404: Result},
     tags=["review"],
-    auth=None,
+    auth=OptionalOAuthAccessTokenAuth(),
 )
 def get_any_review(request, review_uuid: str):
     """

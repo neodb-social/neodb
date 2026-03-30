@@ -56,6 +56,16 @@ class OAuthAccessTokenAuth(HttpBearer):
         return True
 
 
+class OptionalOAuthAccessTokenAuth(OAuthAccessTokenAuth):
+    """Auth that processes Bearer token if present, but allows anonymous access."""
+
+    def __call__(self, request: HttpRequest) -> bool:
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header:
+            return True  # No token provided, allow anonymous access
+        return super().__call__(request) or False
+
+
 class EmptyResult(Schema):
     pass
 

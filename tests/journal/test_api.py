@@ -940,3 +940,245 @@ class TestApplicationOnPosts:
 
         mastodon_json = post.to_mastodon_json()
         assert mastodon_json["application"] is None
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_optional_auth_on_public_endpoints():
+    """Test that public-read endpoints accept optional Bearer tokens."""
+    with (
+        patch("catalog.models.item.Item.update_index"),
+        patch("journal.models.collection.Collection.sync_to_timeline"),
+        patch("journal.models.collection.Collection.update_index"),
+    ):
+        owner = User.register(email="optauth@example.com", username="optauthowner")
+        viewer = User.register(email="optviewer@example.com", username="optauthviewer")
+        item = Edition.objects.create(title="OptAuth Book")
+
+        public_collection = Collection.objects.create(
+            owner=owner.identity,
+            title="Public Collection",
+            brief="",
+            visibility=0,
+        )
+        follower_collection = Collection.objects.create(
+            owner=owner.identity,
+            title="Follower Collection",
+            brief="",
+            visibility=1,
+        )
+        public_collection.append_item(item, note="")
+        follower_collection.append_item(item, note="")
+
+    Review.update_item_review(
+        item, owner.identity, "Public Review", "body", visibility=0
+    )
+    review = Review.objects.get(owner=owner.identity, item=item)
+
+    viewer.identity.follow(owner.identity, True)
+    app = Takahe.get_or_create_app(
+        "OptAuth API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=viewer.identity.pk,
+    )
+    token = Takahe.refresh_token(app, viewer.identity.pk, viewer.pk)
+    anon = Client()
+    authed = Client()
+
+    # 1. Authenticated user sees public collection
+    response = authed.get(
+        f"/api/collection/{public_collection.uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+    assert response.json()["uuid"] == public_collection.uuid
+
+    # 2. Authenticated follower sees follower-only collection
+    response = authed.get(
+        f"/api/collection/{follower_collection.uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+    assert response.json()["uuid"] == follower_collection.uuid
+
+    # 3. Authenticated follower sees follower-only collection items
+    response = authed.get(
+        f"/api/collection/{follower_collection.uuid}/item/",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+
+    # 4. Anonymous user sees public collection
+    response = anon.get(f"/api/collection/{public_collection.uuid}")
+    assert response.status_code == 200
+
+    # 5. Anonymous user gets 403 for follower-only collection
+    response = anon.get(f"/api/collection/{follower_collection.uuid}")
+    assert response.status_code == 403
+
+    # 6. Authenticated user sees review via public endpoint
+    response = authed.get(
+        f"/api/review/{review.uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+
+    # 7. Anonymous user sees public review
+    response = anon.get(f"/api/review/{review.uuid}")
+    assert response.status_code == 200
+
+    # 8. Anonymous user can access /item/{uuid}/collection/ (public only)
+    response = anon.get(f"/api/item/{item.uuid}/collection/")
+    assert response.status_code == 200
+    payload = response.json()
+    uuids = {c["uuid"] for c in payload["data"]}
+    assert public_collection.uuid in uuids
+    assert follower_collection.uuid not in uuids
+
+    # 9. Authenticated follower sees more collections for item
+    response = authed.get(
+        f"/api/item/{item.uuid}/collection/",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    uuids = {c["uuid"] for c in payload["data"]}
+    assert public_collection.uuid in uuids
+    assert follower_collection.uuid in uuids
+
+    # 10. Invalid token returns 401 on optional-auth endpoints
+    response = anon.get(
+        f"/api/collection/{public_collection.uuid}",
+        HTTP_AUTHORIZATION="Bearer invalidtoken123",
+    )
+    assert response.status_code == 401
+
+    response = anon.get(
+        f"/api/review/{review.uuid}",
+        HTTP_AUTHORIZATION="Bearer invalidtoken123",
+    )
+    assert response.status_code == 401
+
+    response = anon.get(
+        f"/api/item/{item.uuid}/collection/",
+        HTTP_AUTHORIZATION="Bearer invalidtoken123",
+    )
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_posts_endpoint_optional_auth():
+    """Test that /item/{uuid}/posts/ works with and without auth."""
+    user = User.register(email="postopt@example.com", username="postoptuser")
+    item = Edition.objects.create(title="PostOpt Item")
+
+    app = Takahe.get_or_create_app(
+        "PostOpt API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+
+    class StubPosts(list):
+        def prefetch_related(self, *args, **kwargs):
+            return self
+
+        def select_related(self, *args, **kwargs):
+            return self
+
+    class StubPost:
+        def __init__(self, post_id):
+            self.post_id = post_id
+
+        def to_mastodon_json(self):
+            return {
+                "id": str(self.post_id),
+                "uri": f"https://example.org/posts/{self.post_id}",
+                "created_at": "2024-01-01T00:00:00Z",
+                "account": {
+                    "id": "1",
+                    "username": "user",
+                    "acct": "user",
+                    "url": "https://example.org/@user",
+                    "display_name": "User",
+                    "note": "",
+                    "avatar": "",
+                    "avatar_static": "",
+                    "header": "",
+                    "header_static": "",
+                    "locked": False,
+                    "fields": [],
+                    "emojis": [],
+                    "bot": False,
+                    "group": False,
+                    "discoverable": True,
+                    "indexable": True,
+                    "moved": None,
+                    "suspended": False,
+                    "limited": False,
+                    "created_at": "2024-01-01T00:00:00Z",
+                },
+                "content": "ok",
+                "visibility": "public",
+                "sensitive": False,
+                "spoiler_text": "",
+                "media_attachments": [],
+                "mentions": [],
+                "tags": [],
+                "emojis": [],
+                "reblogs_count": 0,
+                "favourites_count": 0,
+                "replies_count": 0,
+                "url": f"https://example.org/posts/{self.post_id}",
+                "in_reply_to_id": None,
+                "in_reply_to_account_id": None,
+                "language": None,
+                "text": None,
+                "edited_at": None,
+                "favourited": False,
+                "reblogged": False,
+                "muted": False,
+                "bookmarked": False,
+                "pinned": False,
+                "ext_neodb": None,
+            }
+
+    class StubResult:
+        def __init__(self, posts):
+            self.posts = posts
+            self.pages = 1
+            self.total = len(posts)
+
+    class StubIndex:
+        def __init__(self, result):
+            self._result = result
+
+        def search(self, query):
+            return self._result
+
+    stub_posts = StubPosts([StubPost(1)])
+    stub_result = StubResult(stub_posts)
+
+    with patch(
+        "journal.apis.post.JournalIndex.instance", return_value=StubIndex(stub_result)
+    ):
+        # Authenticated access works
+        response = Client().get(
+            f"/api/item/{item.uuid}/posts/",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert response.status_code == 200
+        assert response.json()["count"] == 1
+
+        # Anonymous access works
+        response = Client().get(f"/api/item/{item.uuid}/posts/")
+        assert response.status_code == 200
+        assert response.json()["count"] == 1
+
+        # Invalid token returns 401
+        response = Client().get(
+            f"/api/item/{item.uuid}/posts/",
+            HTTP_AUTHORIZATION="Bearer invalidtoken",
+        )
+        assert response.status_code == 401

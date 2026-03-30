@@ -163,7 +163,10 @@ class JournalQueryParser(QueryParser):
     def filter_by_owner(self, owner: APIdentity):
         self.filter("owner_id", owner.pk)
 
-    def filter_by_viewer(self, viewer: APIdentity):
+    def filter_by_viewer(self, viewer: APIdentity | None):
+        if not viewer:
+            self.filter("visibility", 0)
+            return
         filters = ["visibility:0", f"owner_id:{viewer.pk}"]
         following = viewer.following
         if following:

@@ -11,7 +11,13 @@ from ninja.decorators import decorate_view
 from ninja.pagination import paginate
 
 from catalog.models import Item, ItemSchema
-from common.api import PageNumberPagination, RedirectedResult, Result, api
+from common.api import (
+    OptionalOAuthAccessTokenAuth,
+    PageNumberPagination,
+    RedirectedResult,
+    Result,
+    api,
+)
 from journal.models.common import q_piece_visible_to_user
 
 from ..models import Collection, FeaturedCollection, ShelfMember, ShelfType
@@ -93,7 +99,7 @@ def get_user_collection(request, collection_uuid: str):
     "/collection/{collection_uuid}",
     response={200: CollectionSchema, 401: Result, 403: Result, 404: Result},
     tags=["collection"],
-    auth=None,
+    auth=OptionalOAuthAccessTokenAuth(),
 )
 def get_collection(request, collection_uuid: str):
     """
@@ -111,7 +117,7 @@ def get_collection(request, collection_uuid: str):
     "/collection/{collection_uuid}/item/",
     response={200: List[CollectionItemSchema], 401: Result, 403: Result, 404: Result},
     tags=["collection"],
-    auth=None,
+    auth=OptionalOAuthAccessTokenAuth(),
 )
 @paginate(PageNumberPagination)
 def collection_list_items(request, collection_uuid: str):
@@ -277,6 +283,7 @@ def collection_delete_item(request, collection_uuid: str, item_uuid: str):
     "/item/{item_uuid}/collection/",
     response={200: List[CollectionSchema], 401: Result, 404: Result},
     tags=["collection"],
+    auth=OptionalOAuthAccessTokenAuth(),
 )
 @paginate(PageNumberPagination)
 def list_item_collections(request, item_uuid: str):
