@@ -26,6 +26,7 @@ class DoubanGame(AbstractSite):
         return "https://www.douban.com/game/" + id_value + "/"
 
     def scrape(self):
+        assert self.url
         content = DoubanDownloader(self.url).download().html()
 
         elem = self.query_list(content, "//div[@id='content']/h1/text()")

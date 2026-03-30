@@ -30,6 +30,7 @@ class DoubanMusic(AbstractSite):
         return DoubanSearcher.search(ItemCategory.Music, "music", q, p)
 
     def scrape(self):
+        assert self.url
         content = DoubanDownloader(self.url).download().html()
 
         elem = self.query_list(content, "//h1/span/text()")

@@ -18,6 +18,7 @@ class BooksTW(AbstractSite):
         return "https://www.books.com.tw/products/" + id_value
 
     def scrape(self):
+        assert self.url
         content = BasicDownloader(self.url).download().html()
 
         isbn_elem = content.xpath(

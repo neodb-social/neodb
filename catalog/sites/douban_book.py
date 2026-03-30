@@ -28,6 +28,7 @@ class DoubanBook(AbstractSite):
         return DoubanSearcher.search(ItemCategory.Book, "book", q, p)
 
     def scrape(self):
+        assert self.url
         content = DoubanDownloader(self.url).download().html()
 
         isbn_elem = self.query_list(
@@ -269,6 +270,7 @@ class DoubanBook_Work(AbstractSite):
         return "https://book.douban.com/works/" + id_value + "/"
 
     def scrape(self):
+        assert self.url
         content = DoubanDownloader(self.url).download().html()
         title_elem = self.query_list(content, "//h1/text()")
         title = title_elem[0].split("全部版本(")[0].strip() if title_elem else None

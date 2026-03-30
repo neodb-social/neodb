@@ -30,6 +30,7 @@ class WorldCat(AbstractSite):
         return f"https://search.worldcat.org/title/{id_value}"
 
     def scrape(self):
+        assert self.url
         response = BasicDownloader(self.url).download()
         content = response.html()
 

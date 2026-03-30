@@ -10,6 +10,27 @@ from .tmdb import search_tmdb_by_imdb_id
 _logger = logging.getLogger(__name__)
 
 
+class IMDBDownloader(ScrapDownloader):
+    def __init__(
+        self,
+        url: str,
+        headers: dict | None = None,
+        timeout: float | None = None,
+    ):
+        super().__init__(url, headers, timeout, 'script[id="__NEXT_DATA__"]')
+
+    def validate_response(self, response) -> int:
+        if response is None:
+            return RESPONSE_NETWORK_ERROR
+        elif response.status_code == 200:
+            content = response.content.decode("utf-8")
+            if "__NEXT_DATA__" not in content:
+                return RESPONSE_NETWORK_ERROR
+            return RESPONSE_OK
+        else:
+            return RESPONSE_INVALID_CONTENT
+
+
 @SiteManager.register
 class IMDB(AbstractSite):
     """
@@ -71,7 +92,8 @@ class IMDB(AbstractSite):
         return pd
 
     def scrape_imdb(self):
-        h = BasicDownloader(self.url).download().html()
+        assert self.url
+        h = IMDBDownloader(self.url).download().html()
         src = self.query_str(h, '//script[@id="__NEXT_DATA__"]/text()')
         if not src:
             raise ParseError(self, "__NEXT_DATA__ element")
@@ -117,13 +139,13 @@ class IMDB(AbstractSite):
     @staticmethod
     def get_episode_list(show_id, season_id):
         url = f"https://m.imdb.com/title/{show_id}/"
-        h = BasicDownloader(url).download().html()
+        h = IMDBDownloader(url).download().html()
         u: str = h.xpath('//a[@data-testid="hero-title-block__series-link"]/@href')
         show_url = "".join(u).split("?")[0]
         if not show_url:
             show_url = f"/title/{show_id}/"
         url = f"https://m.imdb.com{show_url}episodes/?season={season_id}"
-        h = BasicDownloader(url).download().html()
+        h = IMDBDownloader(url).download().html()
         episodes = []
         for e in h.xpath("//article//a[contains(@class,'ipc-title-link-wrapper')]"):
             title = e.xpath("div[contains(@class,'ipc-title__text')]/text()")[0].split(

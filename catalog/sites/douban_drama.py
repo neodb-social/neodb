@@ -125,6 +125,7 @@ class DoubanDrama(AbstractSite):
         return "https://www.douban.com/location/drama/" + id_value + "/"
 
     def scrape(self):
+        assert self.url
         key = _cache_key(self.url)
         r = cache.get(key, None)
         if r is None:

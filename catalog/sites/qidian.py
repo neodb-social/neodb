@@ -18,6 +18,7 @@ class Qidian(AbstractSite):
         return f"https://book.qidian.com/info/{id_value}/"
 
     def scrape(self):
+        assert self.url
         content = ProxiedDownloader(self.url).download().html()
         title_elem = content.xpath('//*[@id="bookName"]/text()')
         title = (

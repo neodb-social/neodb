@@ -12,7 +12,7 @@ RE_WHITESPACES = re.compile(r"\s+")
 class DoubanDownloader(ScrapDownloader):
     def __init__(
         self,
-        url,
+        url: str,
         headers: dict | None = None,
         timeout: float | None = None,
     ):

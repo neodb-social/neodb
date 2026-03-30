@@ -34,6 +34,7 @@ class DoubanMovie(AbstractSite):
         return DoubanSearcher.search(ItemCategory.Movie, "movie", q, p)
 
     def scrape(self):
+        assert self.url
         content = DoubanDownloader(self.url).download().html()
         try:
             schema_data = "".join(

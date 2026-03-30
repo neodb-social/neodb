@@ -41,6 +41,7 @@ class Spotify(AbstractSite):
         return f"https://open.spotify.com/album/{id_value}"
 
     def scrape_web(self):
+        assert self.url
         content = BasicDownloader(self.url).download().html()
         txt: str = content.xpath("//script[@type='application/ld+json']/text()")[0]
         schema_data = json.loads(txt)

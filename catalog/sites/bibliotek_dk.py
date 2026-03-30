@@ -177,6 +177,7 @@ class BibliotekDK_Edition(BibliotekDKSite):
         )
 
     def scrape(self):
+        assert self.url
         h = BasicDownloader(self.url, {"User-Agent": "curl/8.7.1"}).download().html()
         src = self.query_str(h, '//script[@id="__NEXT_DATA__"]/text()')
         if not src:
@@ -248,6 +249,7 @@ class BibliotekDK_Work(BibliotekDKSite):
         )
 
     def scrape(self):
+        assert self.url
         h = BasicDownloader(self.url, {"User-Agent": "curl/8.7.1"}).download().html()
         src = self.query_str(h, '//script[@id="__NEXT_DATA__"]/text()')
         if not src:

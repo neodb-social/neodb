@@ -60,6 +60,7 @@ class Goodreads(AbstractSite):
         if response is not None:
             h = html.fromstring(response.text.strip())
         else:
+            assert self.url
             dl = GoodreadsDownloader(self.url)
             h = dl.download().html()
         # Next.JS version of GoodReads
@@ -232,6 +233,7 @@ class Goodreads_Work(AbstractSite):
         return "https://www.goodreads.com/work/editions/" + id_value
 
     def scrape(self, response=None):
+        assert self.url
         content = BasicDownloader(self.url).download().html()
         title = self.query_str(content, "//h1/a/text()")
         if not title:

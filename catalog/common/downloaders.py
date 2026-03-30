@@ -198,7 +198,9 @@ class BasicDownloader:
 
     timeout = settings.DOWNLOADER_REQUEST_TIMEOUT
 
-    def __init__(self, url, headers: dict | None = None, timeout: float | None = None):
+    def __init__(
+        self, url: str, headers: dict | None = None, timeout: float | None = None
+    ):
         self.url = url
         self.response_type = RESPONSE_OK
         self.logs = []
@@ -370,7 +372,7 @@ class CachedDownloader(BasicDownloader):
 
 
 class ImageDownloaderMixin:
-    def __init__(self, url, referer=None):
+    def __init__(self, url: str, referer=None):
         self.extention = None
         if referer is not None:
             self.headers["Referer"] = referer  # type: ignore
@@ -450,7 +452,7 @@ class ScrapDownloader(BasicDownloader):
 
     def __init__(
         self,
-        url,
+        url: str,
         headers: dict | None = None,
         timeout: float | None = None,
         wait_for_selector: str | None = None,
