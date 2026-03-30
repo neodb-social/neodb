@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-01 17:15-0500\n"
+"POT-Creation-Date: 2026-03-29 20:48-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -551,7 +551,7 @@ msgstr ""
 msgid "year of publication"
 msgstr ""
 
-#: catalog/models/game.py:109 catalog/models/podcast.py:162
+#: catalog/models/game.py:109 catalog/models/podcast.py:161
 msgid "date of publication"
 msgstr ""
 
@@ -952,7 +952,7 @@ msgstr ""
 #: catalog/views/edit.py:253 catalog/views/edit.py:299
 #: catalog/views/edit.py:314 catalog/views/edit.py:352
 #: catalog/views/edit.py:362 catalog/views/edit.py:388
-#: catalog/views/search.py:209
+#: catalog/views/search.py:210
 msgid "Editing this item is restricted."
 msgstr ""
 
@@ -1636,25 +1636,28 @@ msgstr ""
 #: catalog/views/edit.py:301 catalog/views/edit.py:390
 #: catalog/views/edit.py:422 journal/views/collection.py:95
 #: journal/views/collection.py:155 journal/views/collection.py:167
-#: journal/views/collection.py:184 journal/views/collection.py:248
-#: journal/views/collection.py:273 journal/views/collection.py:308
-#: journal/views/collection.py:320 journal/views/collection.py:345
-#: journal/views/collection.py:348 journal/views/collection.py:385
-#: journal/views/common.py:143 journal/views/mark.py:187
-#: journal/views/post.py:54 journal/views/post.py:75 journal/views/post.py:96
-#: journal/views/post.py:172 journal/views/post.py:187
-#: journal/views/post.py:321 journal/views/review.py:38
-#: journal/views/review.py:49 journal/views/review.py:74
+#: journal/views/collection.py:184 journal/views/collection.py:250
+#: journal/views/collection.py:275 journal/views/collection.py:310
+#: journal/views/collection.py:322 journal/views/collection.py:347
+#: journal/views/collection.py:350 journal/views/collection.py:387
+#: journal/views/common.py:152 journal/views/mark.py:187
+#: journal/views/post.py:54 journal/views/post.py:75 journal/views/post.py:98
+#: journal/views/post.py:117 journal/views/post.py:179
+#: journal/views/post.py:258 journal/views/post.py:273
+#: journal/views/post.py:418 journal/views/review.py:39
+#: journal/views/review.py:52 journal/views/review.py:77
 msgid "Insufficient permission"
 msgstr ""
 
 #: catalog/views/edit.py:218 catalog/views/edit.py:221
 #: journal/views/collection.py:57 journal/views/collection.py:82
-#: journal/views/collection.py:325 journal/views/collection.py:414
-#: journal/views/common.py:90 journal/views/mark.py:127
-#: journal/views/post.py:107 journal/views/post.py:131
-#: journal/views/post.py:144 journal/views/review.py:121
-#: journal/views/review.py:124 users/views/actions.py:170
+#: journal/views/collection.py:327 journal/views/collection.py:416
+#: journal/views/common.py:92 journal/views/mark.py:127
+#: journal/views/post.py:129 journal/views/post.py:131
+#: journal/views/post.py:175 journal/views/post.py:197
+#: journal/views/post.py:199 journal/views/post.py:217
+#: journal/views/post.py:230 journal/views/review.py:124
+#: journal/views/review.py:127 users/views/actions.py:170
 msgid "Invalid parameter"
 msgstr ""
 
@@ -1686,15 +1689,15 @@ msgstr ""
 msgid "Cannot link items other than editions"
 msgstr ""
 
-#: catalog/views/search.py:81
+#: catalog/views/search.py:82
 msgid "the internet"
 msgstr ""
 
-#: catalog/views/search.py:198
+#: catalog/views/search.py:199
 msgid "Invalid URL"
 msgstr ""
 
-#: catalog/views/search.py:201
+#: catalog/views/search.py:202
 msgid "Unsupported URL"
 msgstr ""
 
@@ -2772,7 +2775,7 @@ msgstr ""
 msgid "following you"
 msgstr ""
 
-#: common/templatetags/mastodon.py:52 social/templates/_event_post.html:93
+#: common/templatetags/mastodon.py:52 social/templates/_event_post.html:95
 msgid "you"
 msgstr ""
 
@@ -2794,8 +2797,8 @@ msgstr ""
 msgid "Access denied"
 msgstr ""
 
-#: common/utils.py:102 common/utils.py:104 journal/views/profile.py:310
-#: journal/views/review.py:164
+#: common/utils.py:102 common/utils.py:104 journal/views/profile.py:319
+#: journal/views/review.py:167
 msgid "Login required"
 msgstr ""
 
@@ -2870,7 +2873,7 @@ msgstr ""
 msgid "created collection"
 msgstr ""
 
-#: journal/models/common.py:38 journal/templates/action_open_post.html:15
+#: journal/models/common.py:44 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:63
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
@@ -2881,7 +2884,7 @@ msgstr ""
 msgid "Public"
 msgstr ""
 
-#: journal/models/common.py:39 journal/templates/action_open_post.html:9
+#: journal/models/common.py:45 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:70
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
@@ -2891,7 +2894,7 @@ msgstr ""
 msgid "Followers Only"
 msgstr ""
 
-#: journal/models/common.py:40 journal/templates/collection_share.html:57
+#: journal/models/common.py:46 journal/templates/collection_share.html:57
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:77
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
@@ -2901,19 +2904,19 @@ msgstr ""
 msgid "Mentioned Only"
 msgstr ""
 
-#: journal/models/common.py:452
+#: journal/models/common.py:459
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr ""
 
-#: journal/models/common.py:479
+#: journal/models/common.py:486
 msgid "A recent post was not posted to Threads."
 msgstr ""
 
-#: journal/models/common.py:513
+#: journal/models/common.py:520
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
 
-#: journal/models/common.py:520
+#: journal/models/common.py:527
 msgid "A recent post was not posted to Mastodon."
 msgstr ""
 
@@ -3398,7 +3401,7 @@ msgstr ""
 msgid "performances reviewed"
 msgstr ""
 
-#: journal/models/shelf.py:618
+#: journal/models/shelf.py:624
 msgid "removed mark"
 msgstr ""
 
@@ -3561,6 +3564,10 @@ msgstr ""
 
 #: journal/templates/action_post_timestamp.html:4
 msgid "view post"
+msgstr ""
+
+#: journal/templates/action_quote_post.html:3
+msgid "quote"
 msgstr ""
 
 #: journal/templates/action_reply_piece.html:3
@@ -3804,6 +3811,10 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
+#: journal/templates/post_quotes.html:4
+msgid "Quotes"
+msgstr ""
+
 #: journal/templates/profile.html:45
 msgid "calendar"
 msgstr ""
@@ -3814,19 +3825,31 @@ msgid "annual summary"
 msgstr ""
 
 #: journal/templates/profile.html:107 journal/views/collection.py:220
-#: journal/views/profile.py:253
+#: journal/views/profile.py:262
 msgid "collection"
 msgstr ""
 
-#: journal/templates/profile.html:124 journal/views/profile.py:294
+#: journal/templates/profile.html:124 journal/views/profile.py:303
 msgid "liked collection"
 msgstr ""
 
-#: journal/templates/replies.html:61
+#: journal/templates/quote_form.html:4
+msgid "Quoted."
+msgstr ""
+
+#: journal/templates/quote_form.html:11
+msgid "add a quote"
+msgstr ""
+
+#: journal/templates/replies.html:8
+msgid "Replies"
+msgstr ""
+
+#: journal/templates/replies.html:65
 msgid "no replies so far."
 msgstr ""
 
-#: journal/templates/replies.html:69
+#: journal/templates/replies.html:74
 msgid "add a reply"
 msgstr ""
 
@@ -3958,32 +3981,32 @@ msgstr ""
 msgid "shared {username}'s collection"
 msgstr ""
 
-#: journal/views/collection.py:275 journal/views/collection.py:310
-#: journal/views/collection.py:322 journal/views/collection.py:350
+#: journal/views/collection.py:277 journal/views/collection.py:312
+#: journal/views/collection.py:324 journal/views/collection.py:352
 msgid "Dynamic collection is not editable"
 msgstr ""
 
-#: journal/views/collection.py:287
+#: journal/views/collection.py:289
 msgid "The item is already in the collection."
 msgstr ""
 
-#: journal/views/collection.py:289
+#: journal/views/collection.py:291
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
 
-#: journal/views/collection.py:335
+#: journal/views/collection.py:337
 msgid "Saved."
 msgstr ""
 
-#: journal/views/common.py:43 journal/views/mark.py:98
+#: journal/views/common.py:45 journal/views/mark.py:98
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
 
-#: journal/views/common.py:45
+#: journal/views/common.py:47
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr ""
 
-#: journal/views/common.py:52
+#: journal/views/common.py:54
 msgid "List not found."
 msgstr ""
 
@@ -3996,7 +4019,7 @@ msgid "Invalid input"
 msgstr ""
 
 #: journal/views/mark.py:149 journal/views/mark.py:185 journal/views/note.py:99
-#: journal/views/review.py:36 journal/views/review.py:47
+#: journal/views/review.py:37 journal/views/review.py:50
 msgid "Content not found"
 msgstr ""
 
@@ -4020,41 +4043,45 @@ msgstr ""
 msgid "Invalid form data"
 msgstr ""
 
-#: journal/views/post.py:94
+#: journal/views/post.py:115
 msgid "Post not found"
 msgstr ""
 
-#: journal/views/post.py:234
+#: journal/views/post.py:201
+msgid "Visibility too high for quoting this post"
+msgstr ""
+
+#: journal/views/post.py:320
 msgid "Content cannot be empty."
 msgstr ""
 
-#: journal/views/post.py:313
+#: journal/views/post.py:410
 msgid "Invalid choices"
 msgstr ""
 
-#: journal/views/post.py:316
+#: journal/views/post.py:413
 msgid "Invalid post"
 msgstr ""
 
-#: journal/views/review.py:146
+#: journal/views/review.py:149
 msgid "User not local"
 msgstr ""
 
-#: journal/views/review.py:152 journal/views/review.py:166
+#: journal/views/review.py:155 journal/views/review.py:169
 #, python-brace-format
 msgid "Reviews by {0}"
 msgstr ""
 
-#: journal/views/review.py:154 journal/views/review.py:162
+#: journal/views/review.py:157 journal/views/review.py:165
 msgid "Link invalid"
 msgstr ""
 
-#: journal/views/review.py:175
+#: journal/views/review.py:178
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
 msgstr ""
 
-#: journal/views/review.py:179
+#: journal/views/review.py:182
 msgid "may contain spoiler or triggering content"
 msgstr ""
 
@@ -4141,55 +4168,56 @@ msgid ""
 "If you prefer to register a new account with this email, please use this verification code: {code}"
 msgstr ""
 
-#: mastodon/models/mastodon.py:520
+#: mastodon/models/mastodon.py:525
 msgid "site domain name"
 msgstr ""
 
-#: mastodon/models/mastodon.py:521
+#: mastodon/models/mastodon.py:526
 msgid "domain for api call"
 msgstr ""
 
-#: mastodon/models/mastodon.py:522
+#: mastodon/models/mastodon.py:527
 msgid "type and verion"
 msgstr ""
 
-#: mastodon/models/mastodon.py:523
+#: mastodon/models/mastodon.py:528
 msgid "in-site app id"
 msgstr ""
 
-#: mastodon/models/mastodon.py:524
+#: mastodon/models/mastodon.py:529
 msgid "client id"
 msgstr ""
 
-#: mastodon/models/mastodon.py:525
+#: mastodon/models/mastodon.py:530
 msgid "client secret"
 msgstr ""
 
-#: mastodon/models/mastodon.py:526
+#: mastodon/models/mastodon.py:531
 msgid "vapid key"
 msgstr ""
 
-#: mastodon/models/mastodon.py:528
+#: mastodon/models/mastodon.py:533
 msgid "0: unicode moon; 1: custom emoji"
 msgstr ""
 
-#: mastodon/models/mastodon.py:531
+#: mastodon/models/mastodon.py:536
 msgid "max toot len"
 msgstr ""
 
-#: mastodon/models/mastodon.py:643
+#: mastodon/models/mastodon.py:648
 msgid "Boost"
 msgstr ""
 
-#: mastodon/models/mastodon.py:644
+#: mastodon/models/mastodon.py:649
 msgid "New Post"
 msgstr ""
 
 #: mastodon/views/bluesky.py:19 mastodon/views/bluesky.py:25
 #: mastodon/views/common.py:30 mastodon/views/mastodon.py:37
-#: mastodon/views/mastodon.py:44 mastodon/views/mastodon.py:54
-#: mastodon/views/mastodon.py:61 mastodon/views/threads.py:41
-#: mastodon/views/threads.py:47 users/views/account.py:151
+#: mastodon/views/mastodon.py:45 mastodon/views/mastodon.py:52
+#: mastodon/views/mastodon.py:62 mastodon/views/mastodon.py:69
+#: mastodon/views/threads.py:41 mastodon/views/threads.py:49
+#: mastodon/views/threads.py:55 users/views/account.py:151
 msgid "Authentication failed"
 msgstr ""
 
@@ -4282,43 +4310,47 @@ msgstr ""
 msgid "Invalid response from Fediverse instance."
 msgstr ""
 
-#: mastodon/views/mastodon.py:45
+#: mastodon/views/mastodon.py:46 mastodon/views/threads.py:50
+msgid "Invalid OAuth state. Please try again."
+msgstr ""
+
+#: mastodon/views/mastodon.py:53
 msgid "Invalid cookie data."
 msgstr ""
 
-#: mastodon/views/mastodon.py:50
+#: mastodon/views/mastodon.py:58
 msgid "Invalid instance domain"
 msgstr ""
 
-#: mastodon/views/mastodon.py:55
+#: mastodon/views/mastodon.py:63
 msgid "Invalid token from Fediverse instance."
 msgstr ""
 
-#: mastodon/views/mastodon.py:62
+#: mastodon/views/mastodon.py:70
 msgid "Invalid account data from Fediverse instance."
 msgstr ""
 
-#: mastodon/views/threads.py:47
+#: mastodon/views/threads.py:55
 msgid "Invalid account data from Threads."
 msgstr ""
 
-#: social/templates/_event_post.html:21
+#: social/templates/_event_post.html:20
 msgid "boosted"
 msgstr ""
 
-#: social/templates/_event_post.html:40
+#: social/templates/_event_post.html:39
 msgid "play"
 msgstr ""
 
-#: social/templates/_event_post.html:51
+#: social/templates/_event_post.html:50
 msgid "mark"
 msgstr ""
 
-#: social/templates/_event_post.html:81
+#: social/templates/_event_post.html:83
 msgid "wrote a note"
 msgstr ""
 
-#: social/templates/_event_post.html:86
+#: social/templates/_event_post.html:88
 msgid "replying to"
 msgstr ""
 
@@ -5510,34 +5542,34 @@ msgstr ""
 msgid "Account mismatch."
 msgstr ""
 
-#: users/views/data.py:170 users/views/data.py:199
+#: users/views/data.py:171 users/views/data.py:200
 msgid "Export file not available."
 msgstr ""
 
-#: users/views/data.py:193
+#: users/views/data.py:194
 msgid "Generating exports."
 msgstr ""
 
-#: users/views/data.py:211
+#: users/views/data.py:212
 msgid "Export file expired. Please export again."
 msgstr ""
 
-#: users/views/data.py:226 users/views/data.py:246
+#: users/views/data.py:227 users/views/data.py:247
 msgid "Recent export still in progress."
 msgstr ""
 
-#: users/views/data.py:260
+#: users/views/data.py:261
 msgid "Sync in progress."
 msgstr ""
 
-#: users/views/data.py:274
+#: users/views/data.py:275
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:284
+#: users/views/data.py:285
 msgid "Invalid URL."
 msgstr ""
 
-#: users/views/data.py:299 users/views/data.py:324 users/views/data.py:348
+#: users/views/data.py:300 users/views/data.py:325 users/views/data.py:349
 msgid "Invalid file."
 msgstr ""

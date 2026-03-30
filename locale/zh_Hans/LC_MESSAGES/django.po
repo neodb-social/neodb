@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-01 17:15-0500\n"
+"POT-Creation-Date: 2026-03-29 20:48-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -550,7 +550,7 @@ msgstr "出版发行"
 msgid "year of publication"
 msgstr "发行年份"
 
-#: catalog/models/game.py:109 catalog/models/podcast.py:162
+#: catalog/models/game.py:109 catalog/models/podcast.py:161
 msgid "date of publication"
 msgstr "发行日期"
 
@@ -951,7 +951,7 @@ msgstr "编辑选项"
 #: catalog/views/edit.py:253 catalog/views/edit.py:299
 #: catalog/views/edit.py:314 catalog/views/edit.py:352
 #: catalog/views/edit.py:362 catalog/views/edit.py:388
-#: catalog/views/search.py:209
+#: catalog/views/search.py:210
 msgid "Editing this item is restricted."
 msgstr "这个条目仅管理员可编辑。"
 
@@ -1635,25 +1635,28 @@ msgstr "条目不可被删除。"
 #: catalog/views/edit.py:301 catalog/views/edit.py:390
 #: catalog/views/edit.py:422 journal/views/collection.py:95
 #: journal/views/collection.py:155 journal/views/collection.py:167
-#: journal/views/collection.py:184 journal/views/collection.py:248
-#: journal/views/collection.py:273 journal/views/collection.py:308
-#: journal/views/collection.py:320 journal/views/collection.py:345
-#: journal/views/collection.py:348 journal/views/collection.py:385
-#: journal/views/common.py:143 journal/views/mark.py:187
-#: journal/views/post.py:54 journal/views/post.py:75 journal/views/post.py:96
-#: journal/views/post.py:172 journal/views/post.py:187
-#: journal/views/post.py:321 journal/views/review.py:38
-#: journal/views/review.py:49 journal/views/review.py:74
+#: journal/views/collection.py:184 journal/views/collection.py:250
+#: journal/views/collection.py:275 journal/views/collection.py:310
+#: journal/views/collection.py:322 journal/views/collection.py:347
+#: journal/views/collection.py:350 journal/views/collection.py:387
+#: journal/views/common.py:152 journal/views/mark.py:187
+#: journal/views/post.py:54 journal/views/post.py:75 journal/views/post.py:98
+#: journal/views/post.py:117 journal/views/post.py:179
+#: journal/views/post.py:258 journal/views/post.py:273
+#: journal/views/post.py:418 journal/views/review.py:39
+#: journal/views/review.py:52 journal/views/review.py:77
 msgid "Insufficient permission"
 msgstr "权限不足"
 
 #: catalog/views/edit.py:218 catalog/views/edit.py:221
 #: journal/views/collection.py:57 journal/views/collection.py:82
-#: journal/views/collection.py:325 journal/views/collection.py:414
-#: journal/views/common.py:90 journal/views/mark.py:127
-#: journal/views/post.py:107 journal/views/post.py:131
-#: journal/views/post.py:144 journal/views/review.py:121
-#: journal/views/review.py:124 users/views/actions.py:170
+#: journal/views/collection.py:327 journal/views/collection.py:416
+#: journal/views/common.py:92 journal/views/mark.py:127
+#: journal/views/post.py:129 journal/views/post.py:131
+#: journal/views/post.py:175 journal/views/post.py:197
+#: journal/views/post.py:199 journal/views/post.py:217
+#: journal/views/post.py:230 journal/views/review.py:124
+#: journal/views/review.py:127 users/views/actions.py:170
 msgid "Invalid parameter"
 msgstr "无效参数"
 
@@ -1685,15 +1688,15 @@ msgstr "无法关联到一个已经被合并或删除的条目"
 msgid "Cannot link items other than editions"
 msgstr "无法关联到非图书类的条目"
 
-#: catalog/views/search.py:81
+#: catalog/views/search.py:82
 msgid "the internet"
 msgstr "互联网"
 
-#: catalog/views/search.py:198
+#: catalog/views/search.py:199
 msgid "Invalid URL"
 msgstr "无效网址"
 
-#: catalog/views/search.py:201
+#: catalog/views/search.py:202
 msgid "Unsupported URL"
 msgstr "尚未支持的网址"
 
@@ -2792,7 +2795,7 @@ msgstr "已关注"
 msgid "following you"
 msgstr "关注了你"
 
-#: common/templatetags/mastodon.py:52 social/templates/_event_post.html:93
+#: common/templatetags/mastodon.py:52 social/templates/_event_post.html:95
 msgid "you"
 msgstr "你"
 
@@ -2814,8 +2817,8 @@ msgstr "用户不存在了"
 msgid "Access denied"
 msgstr "访问被拒绝"
 
-#: common/utils.py:102 common/utils.py:104 journal/views/profile.py:310
-#: journal/views/review.py:164
+#: common/utils.py:102 common/utils.py:104 journal/views/profile.py:319
+#: journal/views/review.py:167
 msgid "Login required"
 msgstr "登录后访问"
 
@@ -2890,7 +2893,7 @@ msgstr "动态收藏单查询条件"
 msgid "created collection"
 msgstr "创建了收藏单"
 
-#: journal/models/common.py:38 journal/templates/action_open_post.html:15
+#: journal/models/common.py:44 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:63
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
@@ -2901,7 +2904,7 @@ msgstr "创建了收藏单"
 msgid "Public"
 msgstr "公开"
 
-#: journal/models/common.py:39 journal/templates/action_open_post.html:9
+#: journal/models/common.py:45 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:70
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
@@ -2911,7 +2914,7 @@ msgstr "公开"
 msgid "Followers Only"
 msgstr "仅关注者"
 
-#: journal/models/common.py:40 journal/templates/collection_share.html:57
+#: journal/models/common.py:46 journal/templates/collection_share.html:57
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:77
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
@@ -2921,19 +2924,19 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/common.py:452
+#: journal/models/common.py:459
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr "帖文未能发布到Bluesky，请重新使用ATProto验证登录。"
 
-#: journal/models/common.py:479
+#: journal/models/common.py:486
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能发布到Threads。"
 
-#: journal/models/common.py:513
+#: journal/models/common.py:520
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能发布到联邦实例，请重新验证登录。"
 
-#: journal/models/common.py:520
+#: journal/models/common.py:527
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能发布到联邦实例。"
 
@@ -3418,7 +3421,7 @@ msgstr "不看了"
 msgid "performances reviewed"
 msgstr "评论过的演出"
 
-#: journal/models/shelf.py:618
+#: journal/models/shelf.py:624
 msgid "removed mark"
 msgstr "移除标记"
 
@@ -3582,6 +3585,10 @@ msgstr "置顶"
 #: journal/templates/action_post_timestamp.html:4
 msgid "view post"
 msgstr "查看帖文"
+
+#: journal/templates/action_quote_post.html:3
+msgid "quote"
+msgstr ""
 
 #: journal/templates/action_reply_piece.html:3
 #: journal/templates/action_reply_post.html:3
@@ -3869,6 +3876,10 @@ msgstr "替代文本"
 msgid "Remove"
 msgstr "移除"
 
+#: journal/templates/post_quotes.html:4
+msgid "Quotes"
+msgstr "引用"
+
 #: journal/templates/profile.html:45
 msgid "calendar"
 msgstr "日历"
@@ -3879,19 +3890,31 @@ msgid "annual summary"
 msgstr "年度小结"
 
 #: journal/templates/profile.html:107 journal/views/collection.py:220
-#: journal/views/profile.py:253
+#: journal/views/profile.py:262
 msgid "collection"
 msgstr "收藏单"
 
-#: journal/templates/profile.html:124 journal/views/profile.py:294
+#: journal/templates/profile.html:124 journal/views/profile.py:303
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/replies.html:61
+#: journal/templates/quote_form.html:4
+msgid "Quoted."
+msgstr "已引用。"
+
+#: journal/templates/quote_form.html:11
+msgid "add a quote"
+msgstr "添加引用"
+
+#: journal/templates/replies.html:8
+msgid "Replies"
+msgstr "回应"
+
+#: journal/templates/replies.html:65
 msgid "no replies so far."
 msgstr "暂无回应。"
 
-#: journal/templates/replies.html:69
+#: journal/templates/replies.html:74
 msgid "add a reply"
 msgstr "添加回应"
 
@@ -4023,32 +4046,32 @@ msgstr "分享我的收藏单"
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
 
-#: journal/views/collection.py:275 journal/views/collection.py:310
-#: journal/views/collection.py:322 journal/views/collection.py:350
+#: journal/views/collection.py:277 journal/views/collection.py:312
+#: journal/views/collection.py:324 journal/views/collection.py:352
 msgid "Dynamic collection is not editable"
 msgstr "不能修改动态收藏单中的条目"
 
-#: journal/views/collection.py:287
+#: journal/views/collection.py:289
 msgid "The item is already in the collection."
 msgstr "条目已在收藏单中。"
 
-#: journal/views/collection.py:289
+#: journal/views/collection.py:291
 msgid "Unable to find the item, please use item url from this site."
 msgstr "找不到条目，请使用本站条目网址。"
 
-#: journal/views/collection.py:335
+#: journal/views/collection.py:337
 msgid "Saved."
 msgstr "已保存"
 
-#: journal/views/common.py:43 journal/views/mark.py:98
+#: journal/views/common.py:45 journal/views/mark.py:98
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "数据已保存但未能转发到联邦实例。"
 
-#: journal/views/common.py:45
+#: journal/views/common.py:47
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr "正在重定向到你的联邦实例以重新认证。"
 
-#: journal/views/common.py:52
+#: journal/views/common.py:54
 msgid "List not found."
 msgstr "列表未找到。"
 
@@ -4061,7 +4084,7 @@ msgid "Invalid input"
 msgstr "无效输入"
 
 #: journal/views/mark.py:149 journal/views/mark.py:185 journal/views/note.py:99
-#: journal/views/review.py:36 journal/views/review.py:47
+#: journal/views/review.py:37 journal/views/review.py:50
 msgid "Content not found"
 msgstr "内容未找到"
 
@@ -4085,41 +4108,45 @@ msgstr "进度类型（选填）"
 msgid "Invalid form data"
 msgstr "无效表单信息。"
 
-#: journal/views/post.py:94
+#: journal/views/post.py:115
 msgid "Post not found"
 msgstr "帖文未找到"
 
-#: journal/views/post.py:234
+#: journal/views/post.py:201
+msgid "Visibility too high for quoting this post"
+msgstr "引用这则帖文时使用的可见性无效"
+
+#: journal/views/post.py:320
 msgid "Content cannot be empty."
 msgstr "内容不可为空。"
 
-#: journal/views/post.py:313
+#: journal/views/post.py:410
 msgid "Invalid choices"
 msgstr "无效选择"
 
-#: journal/views/post.py:316
+#: journal/views/post.py:413
 msgid "Invalid post"
 msgstr "无效帖文"
 
-#: journal/views/review.py:146
+#: journal/views/review.py:149
 msgid "User not local"
 msgstr "用户不在本站"
 
-#: journal/views/review.py:152 journal/views/review.py:166
+#: journal/views/review.py:155 journal/views/review.py:169
 #, python-brace-format
 msgid "Reviews by {0}"
 msgstr "{0} 的评论"
 
-#: journal/views/review.py:154 journal/views/review.py:162
+#: journal/views/review.py:157 journal/views/review.py:165
 msgid "Link invalid"
 msgstr "链接无效"
 
-#: journal/views/review.py:175
+#: journal/views/review.py:178
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
 msgstr "{review_title} - 关于 {item_title} 的评论"
 
-#: journal/views/review.py:179
+#: journal/views/review.py:182
 msgid "may contain spoiler or triggering content"
 msgstr "可能包含剧透或敏感内容"
 
@@ -4223,55 +4250,56 @@ msgstr ""
 "\n"
 "如果你确认要使用电子邮件新注册账号，请输入如下验证码： {code}"
 
-#: mastodon/models/mastodon.py:520
+#: mastodon/models/mastodon.py:525
 msgid "site domain name"
 msgstr "站点域名"
 
-#: mastodon/models/mastodon.py:521
+#: mastodon/models/mastodon.py:526
 msgid "domain for api call"
 msgstr "站点API域名"
 
-#: mastodon/models/mastodon.py:522
+#: mastodon/models/mastodon.py:527
 msgid "type and verion"
 msgstr "站点类型和版本"
 
-#: mastodon/models/mastodon.py:523
+#: mastodon/models/mastodon.py:528
 msgid "in-site app id"
 msgstr "实例应用id"
 
-#: mastodon/models/mastodon.py:524
+#: mastodon/models/mastodon.py:529
 msgid "client id"
 msgstr "实例应用Client ID"
 
-#: mastodon/models/mastodon.py:525
+#: mastodon/models/mastodon.py:530
 msgid "client secret"
 msgstr "实例应用Client Secret"
 
-#: mastodon/models/mastodon.py:526
+#: mastodon/models/mastodon.py:531
 msgid "vapid key"
 msgstr "实例应用VAPID Key"
 
-#: mastodon/models/mastodon.py:528
+#: mastodon/models/mastodon.py:533
 msgid "0: unicode moon; 1: custom emoji"
 msgstr "0: 月亮表情; 1: 定制表情"
 
-#: mastodon/models/mastodon.py:531
+#: mastodon/models/mastodon.py:536
 msgid "max toot len"
 msgstr "帖文长度限制"
 
-#: mastodon/models/mastodon.py:643
+#: mastodon/models/mastodon.py:648
 msgid "Boost"
 msgstr "转播"
 
-#: mastodon/models/mastodon.py:644
+#: mastodon/models/mastodon.py:649
 msgid "New Post"
 msgstr "新帖文"
 
 #: mastodon/views/bluesky.py:19 mastodon/views/bluesky.py:25
 #: mastodon/views/common.py:30 mastodon/views/mastodon.py:37
-#: mastodon/views/mastodon.py:44 mastodon/views/mastodon.py:54
-#: mastodon/views/mastodon.py:61 mastodon/views/threads.py:41
-#: mastodon/views/threads.py:47 users/views/account.py:151
+#: mastodon/views/mastodon.py:45 mastodon/views/mastodon.py:52
+#: mastodon/views/mastodon.py:62 mastodon/views/mastodon.py:69
+#: mastodon/views/threads.py:41 mastodon/views/threads.py:49
+#: mastodon/views/threads.py:55 users/views/account.py:151
 msgid "Authentication failed"
 msgstr "认证失败"
 
@@ -4364,43 +4392,47 @@ msgstr "无法连接实例"
 msgid "Invalid response from Fediverse instance."
 msgstr "联邦实例返回信息无效"
 
-#: mastodon/views/mastodon.py:45
+#: mastodon/views/mastodon.py:46 mastodon/views/threads.py:50
+msgid "Invalid OAuth state. Please try again."
+msgstr "无效的OAuth认证状态，请重试"
+
+#: mastodon/views/mastodon.py:53
 msgid "Invalid cookie data."
 msgstr "无效cookie信息。"
 
-#: mastodon/views/mastodon.py:50
+#: mastodon/views/mastodon.py:58
 msgid "Invalid instance domain"
 msgstr "实例域名无效"
 
-#: mastodon/views/mastodon.py:55
+#: mastodon/views/mastodon.py:63
 msgid "Invalid token from Fediverse instance."
 msgstr "联邦实例返回了无效的认证令牌。"
 
-#: mastodon/views/mastodon.py:62
+#: mastodon/views/mastodon.py:70
 msgid "Invalid account data from Fediverse instance."
 msgstr "联邦实例返回了无效的账号数据。"
 
-#: mastodon/views/threads.py:47
+#: mastodon/views/threads.py:55
 msgid "Invalid account data from Threads."
 msgstr "Threads返回了无效的账号数据。"
 
-#: social/templates/_event_post.html:21
+#: social/templates/_event_post.html:20
 msgid "boosted"
 msgstr "转播了"
 
-#: social/templates/_event_post.html:40
+#: social/templates/_event_post.html:39
 msgid "play"
 msgstr "播放"
 
-#: social/templates/_event_post.html:51
+#: social/templates/_event_post.html:50
 msgid "mark"
 msgstr "标记"
 
-#: social/templates/_event_post.html:81
+#: social/templates/_event_post.html:83
 msgid "wrote a note"
 msgstr "写了笔记"
 
-#: social/templates/_event_post.html:86
+#: social/templates/_event_post.html:88
 msgid "replying to"
 msgstr "回应"
 
@@ -4925,15 +4957,15 @@ msgstr "已屏蔽的用户"
 #: users/templates/users/account.html:317
 #: users/templates/users/account.html:326
 msgid "Log out everywhere"
-msgstr ""
+msgstr "在所有设备上登出"
 
 #: users/templates/users/account.html:320
 msgid "This will log you out of all browsers and devices (including the current one), and revoke all API tokens. Continue?"
-msgstr ""
+msgstr "这将使你在所有浏览器和设备（包括当前设备）上登出，并撤销所有API令牌。继续吗？"
 
 #: users/templates/users/account.html:323
 msgid "If you notice any suspicious activity or have logged in on a shared computer, you can log out of all sessions and revoke all API tokens."
-msgstr ""
+msgstr "如果你留意到任何可疑活动，或者曾在公共电脑上登录过，可以选择在所有设备上登出并撤销所有API令牌。"
 
 #: users/templates/users/account.html:334
 msgid "Migrate Account"
@@ -5268,7 +5300,7 @@ msgstr "登录"
 
 #: users/templates/users/login.html:49
 msgid "logo"
-msgstr ""
+msgstr "图标"
 
 #: users/templates/users/login.html:54
 #: users/templates/users/verify_email.html:25
@@ -5472,7 +5504,7 @@ msgstr ""
 
 #: users/templates/users/profile_actions.html:65
 msgid "compose a message"
-msgstr ""
+msgstr "撰写消息"
 
 #: users/templates/users/profile_actions.html:79
 msgid "accept follow request"
@@ -5631,34 +5663,34 @@ msgstr "账户删除进行中。"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:170 users/views/data.py:199
+#: users/views/data.py:171 users/views/data.py:200
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:193
+#: users/views/data.py:194
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:211
+#: users/views/data.py:212
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:226 users/views/data.py:246
+#: users/views/data.py:227 users/views/data.py:247
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:260
+#: users/views/data.py:261
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:274
+#: users/views/data.py:275
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:284
+#: users/views/data.py:285
 msgid "Invalid URL."
 msgstr "无效网址。"
 
-#: users/views/data.py:299 users/views/data.py:324 users/views/data.py:348
+#: users/views/data.py:300 users/views/data.py:325 users/views/data.py:349
 msgid "Invalid file."
 msgstr "无效文件。"
