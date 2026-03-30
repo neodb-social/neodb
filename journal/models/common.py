@@ -610,6 +610,44 @@ class PiecePost(models.Model):
         ]
 
 
+def prefetch_pieces_for_posts(posts: list) -> None:
+    """Batch-prefetch piece and item for a list of Post objects to avoid N+1 queries."""
+    from catalog.models import Item
+    from journal.models import ShelfMember
+
+    if not posts:
+        return
+    post_ids = [p.pk for p in posts]
+    # Fetch PiecePost relations; PolymorphicModel resolves concrete types
+    relations = PiecePost.objects.filter(post_id__in=post_ids).select_related("piece")
+    # Group pieces by post_id
+    pieces_by_post: dict[int, list] = {}
+    for rel in relations:
+        pieces_by_post.setdefault(rel.post_id, []).append(rel.piece)
+    # Batch-fetch items for all pieces that have item_id
+    item_ids = set()
+    all_pieces = []
+    for post in posts:
+        pcs = pieces_by_post.get(post.pk, [])
+        if len(pcs) == 1:
+            piece = pcs[0]
+        else:
+            piece = next((p for p in pcs if p.__class__ == ShelfMember), None)
+        post.__dict__["piece"] = piece
+        all_pieces.append(piece)
+        if piece and hasattr(piece, "item_id") and piece.item_id:
+            item_ids.add(piece.item_id)
+    items_by_id = {i.pk: i for i in Item.objects.filter(pk__in=item_ids)}
+    for post, piece in zip(posts, all_pieces):
+        if piece and hasattr(piece, "item_id") and piece.item_id:
+            item = items_by_id.get(piece.item_id)
+            if item:
+                piece.item = item
+            post.__dict__["item"] = item
+        else:
+            post.__dict__["item"] = None
+
+
 class PieceInteraction(models.Model):
     target = models.ForeignKey(
         Piece, on_delete=models.CASCADE, related_name="interactions"

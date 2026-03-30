@@ -20,6 +20,7 @@ from users.models import APIdentity
 
 from ..forms import *
 from ..models import *
+from ..models.common import prefetch_pieces_for_posts
 from ..search import JournalIndex
 
 
@@ -33,7 +34,8 @@ def group(request: AuthedHttpRequest, user_name):
         return HttpResponse()
     viewer_pk = request.user.identity.pk if request.user.is_authenticated else None
     boosts = Takahe.get_events(target.pk, ["boost"], False)
-    recent_posts = Takahe.get_recent_posts(target.pk, viewer_pk)[:10]
+    recent_posts = list(Takahe.get_recent_posts(target.pk, viewer_pk)[:10])
+    prefetch_pieces_for_posts(recent_posts)
     return render(
         request,
         "group.html",
@@ -144,9 +146,12 @@ def profile(request: AuthedHttpRequest, user_name):
     top_tags = target.tag_manager.get_tags(public_only=not me, pinned_only=True)[:10]
     if not top_tags.exists():
         top_tags = target.tag_manager.get_tags(public_only=not me)[:10]
-    recent_posts = Takahe.get_recent_posts(
-        target.pk, None if anonymous else request.user.identity.pk
-    )[:10]
+    recent_posts = list(
+        Takahe.get_recent_posts(
+            target.pk, None if anonymous else request.user.identity.pk
+        )[:10]
+    )
+    prefetch_pieces_for_posts(recent_posts)
     default_layout.append({"id": "collection_created", "visibility": True})
     default_layout.append({"id": "collection_marked", "visibility": True})
     pinned_collections = (
