@@ -1749,6 +1749,18 @@ class PostAttachment(models.Model):
             "video/webm",
         ]
 
+    def is_audio(self):
+        return self.mimetype in [
+            "audio/aac",
+            "audio/flac",
+            "audio/mp4",
+            "audio/mpeg",
+            "audio/ogg",
+            "audio/opus",
+            "audio/wav",
+            "audio/webm",
+        ]
+
     def thumbnail_url(self) -> RelativeAbsoluteUrl:
         if self.thumbnail:
             return RelativeAbsoluteUrl(self.thumbnail.url)

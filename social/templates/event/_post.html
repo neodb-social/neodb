@@ -14,11 +14,25 @@
     {{ post.safe_content_local }}
   {% endif %}
   {% for attachment in post.attachments.all %}
-    <a href="{{ attachment.full_url.relative }}" class="download">
-      <div>
-        <i class="fa-solid fa-download"></i> {{ attachment.file_display_name }}
-      </div>
-    </a>
+    {% if attachment.is_video %}
+      <video src="{{ attachment.full_url.relative }}"
+             controls
+             preload="metadata"
+             style="max-width:100%">
+      </video>
+    {% elif attachment.is_audio %}
+      <audio src="{{ attachment.full_url.relative }}"
+             controls
+             preload="metadata"
+             style="max-width:100%">
+      </audio>
+    {% else %}
+      <a href="{{ attachment.full_url.relative }}" class="download">
+        <div>
+          <i class="fa-solid fa-download"></i> {{ attachment.file_display_name }}
+        </div>
+      </a>
+    {% endif %}
   {% endfor %}
   <div id="replies_{{ post.pk }}"></div>
 </div>

@@ -77,6 +77,16 @@ section.activity.post>section.replies {
 		max-height: 48vh;
 		max-width: 48%;
 	}
+
+	video.preview {
+		max-height: 48vh;
+		max-width: 100%;
+	}
+
+	audio {
+		width: 100%;
+		max-width: 400px;
+	}
 }
 
 .seen {

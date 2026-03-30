@@ -116,6 +116,15 @@
                   <a href="#" class="lightbox" id="img_{{ post.pk }}_{{ loop.index }}">
                     <span style="background-image: url('{{ attachment.full_url.relative }}')"></span>
                   </a>
+                {% elif attachment.is_video %}
+                  <video src="{{ attachment.full_url.relative }}"
+                         controls
+                         preload="metadata"
+                         class="preview">
+                  </video>
+                {% elif attachment.is_audio %}
+                  <audio src="{{ attachment.full_url.relative }}" controls preload="metadata">
+                  </audio>
                 {% endif %}
               {% endfor %}
             </div>
