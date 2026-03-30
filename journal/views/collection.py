@@ -429,12 +429,15 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
 
 @target_identity_required
 def user_collection_list(request: AuthedHttpRequest, user_name):
+    from journal.models.common import prefetch_latest_posts
+
     target = request.target_identity
-    collections = (
+    collections = list(
         Collection.objects.filter(owner=target)
         .filter(q_owned_piece_visible_to_user(request.user, target))
         .order_by("-edited_time")
     )
+    prefetch_latest_posts(collections)
     return render(
         request,
         "user_collection_list.html",
@@ -448,6 +451,8 @@ def user_collection_list(request: AuthedHttpRequest, user_name):
 
 @target_identity_required
 def user_liked_collection_list(request: AuthedHttpRequest, user_name):
+    from journal.models.common import prefetch_latest_posts
+
     target = request.target_identity
     collections = Collection.objects.filter(
         interactions__identity=target,
@@ -456,6 +461,8 @@ def user_liked_collection_list(request: AuthedHttpRequest, user_name):
     ).order_by("-edited_time")
     if target.user != request.user:
         collections = collections.filter(q_piece_visible_to_user(request.user))
+    collections = list(collections)
+    prefetch_latest_posts(collections)
     return render(
         request,
         "user_collection_list.html",

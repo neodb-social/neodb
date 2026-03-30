@@ -562,3 +562,157 @@ class TestEditionParentItemTemplateShortCircuit:
             if "catalog_work" in q["sql"] and "catalog_work_editions" in q["sql"]
         ]
         assert len(work_queries) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMarkLatestPostPrefetch:
+    """Test that Mark.get_marks_by_items prefetches latest_post for pieces."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.users = [
+            User.register(email=f"mlp{i}@example.com", username=f"mlpuser{i}")
+            for i in range(3)
+        ]
+        self.book = Edition.objects.create(title="Latest Post Book")
+        for i, user in enumerate(self.users):
+            Mark(user.identity, self.book).update(
+                ShelfType.COMPLETE, f"comment {i}", i + 5, [], 0
+            )
+
+    def test_marks_have_prefetched_latest_post(self):
+        """After get_marks_by_items, latest_post should be in __dict__ (prefetched)."""
+        marks = Mark.get_marks_by_items(
+            self.users[0].identity, [self.book], self.users[0]
+        )
+        m = marks[self.book.pk]
+        # shelfmember and comment should have latest_post pre-set in __dict__
+        if m.shelfmember:
+            assert "latest_post_id" in m.shelfmember.__dict__
+            assert "latest_post" in m.shelfmember.__dict__
+        if m.comment:
+            assert "latest_post_id" in m.comment.__dict__
+            assert "latest_post" in m.comment.__dict__
+
+    def test_no_per_piece_post_queries(self):
+        """After prefetch, accessing latest_post should not trigger queries."""
+        marks = Mark.get_marks_by_items(
+            self.users[0].identity, [self.book], self.users[0]
+        )
+        m = marks[self.book.pk]
+        with CaptureQueriesContext(connection) as ctx:
+            if m.shelfmember:
+                _ = m.shelfmember.latest_post
+            if m.comment:
+                _ = m.comment.latest_post
+            if m.review:
+                _ = m.review.latest_post
+        assert len(ctx.captured_queries) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestTagListLatestPostPrefetch:
+    """Test that tag/shelf list pages do not have N+1 on latest_post."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="tlp@example.com", username="tlpuser")
+        self.books = [Edition.objects.create(title=f"TLP Book {i}") for i in range(5)]
+        self.tag = Tag.objects.create(
+            owner=self.user.identity, title="tlp-tag", visibility=0
+        )
+        for book in self.books:
+            Mark(self.user.identity, book).update(
+                ShelfType.COMPLETE, f"comment for {book.title}", 7, ["tlp-tag"], 0
+            )
+            self.tag.append_item(book)
+
+    def test_tag_list_no_per_item_piecepost_queries(self):
+        """Tag list should batch PiecePost queries, not query per item."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/users/{self.user.username}/tags/tlp-tag/",
+            )
+        assert response.status_code == 200
+        # Individual PiecePost queries (not using IN) indicate N+1
+        piecepost_individual = [
+            q
+            for q in ctx.captured_queries
+            if "journal_piecepost" in q["sql"]
+            and "piece_id" in q["sql"]
+            and "IN" not in q["sql"].upper()
+        ]
+        assert len(piecepost_individual) == 0
+
+    def test_tag_list_no_per_item_post_queries(self):
+        """Tag list should not query activities_post individually per item."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/users/{self.user.username}/tags/tlp-tag/",
+            )
+        assert response.status_code == 200
+        post_individual = [
+            q
+            for q in ctx.captured_queries
+            if "activities_post" in q["sql"]
+            and 'WHERE "activities_post"."id"' in q["sql"]
+        ]
+        assert len(post_individual) == 0
+
+    def test_shelf_list_no_per_item_piecepost_queries(self):
+        """Shelf list should batch PiecePost queries."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/users/{self.user.username}/complete/book/",
+            )
+        assert response.status_code == 200
+        piecepost_individual = [
+            q
+            for q in ctx.captured_queries
+            if "journal_piecepost" in q["sql"]
+            and "piece_id" in q["sql"]
+            and "IN" not in q["sql"].upper()
+        ]
+        assert len(piecepost_individual) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionListLatestPostPrefetch:
+    """Test that collection list page prefetches latest_post."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="cllp@example.com", username="cllpuser")
+        self.collections = []
+        for i in range(3):
+            c = Collection.objects.create(
+                title=f"CL Collection {i}",
+                owner=self.user.identity,
+            )
+            book = Edition.objects.create(title=f"CL Book {i}")
+            c.append_item(book)
+            self.collections.append(c)
+
+    def test_collection_list_no_per_collection_piecepost_queries(self):
+        """Collection list should batch PiecePost queries."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/users/{self.user.username}/collections/",
+            )
+        assert response.status_code == 200
+        piecepost_individual = [
+            q
+            for q in ctx.captured_queries
+            if "journal_piecepost" in q["sql"]
+            and "piece_id" in q["sql"]
+            and "IN" not in q["sql"].upper()
+        ]
+        assert len(piecepost_individual) == 0

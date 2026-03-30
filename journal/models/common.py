@@ -1,6 +1,7 @@
 import re
 import uuid
 from abc import abstractmethod
+from collections.abc import Sequence
 from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Self
@@ -608,6 +609,34 @@ class PiecePost(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["piece", "post"], name="unique_piece_post"),
         ]
+
+
+def prefetch_latest_posts(pieces: Sequence["Piece"]) -> None:
+    """Batch-prefetch latest_post_id and latest_post for a list of Piece objects.
+
+    Avoids N+1 queries when templates access piece.latest_post, which would
+    otherwise trigger one PiecePost query and one Post query per piece.
+    """
+    if not pieces:
+        return
+    piece_ids = [p.pk for p in pieces]
+    # Batch-fetch latest post ID per piece (highest post_id = most recent)
+    piece_to_latest: dict[int, int] = dict(
+        PiecePost.objects.filter(piece_id__in=piece_ids)
+        .values("piece_id")
+        .annotate(latest_id=models.Max("post_id"))
+        .values_list("piece_id", "latest_id")
+    )
+    # Batch-fetch Post objects with authors
+    all_post_ids = list(piece_to_latest.values())
+    posts_by_id = (
+        {p.pk: p for p in Takahe.get_posts(all_post_ids)} if all_post_ids else {}
+    )
+    # Inject into pieces to prevent lazy loading
+    for piece in pieces:
+        post_id = piece_to_latest.get(piece.pk)
+        piece.__dict__["latest_post_id"] = post_id
+        piece.__dict__["latest_post"] = posts_by_id.get(post_id) if post_id else None
 
 
 def prefetch_pieces_for_posts(posts: list["Post"]) -> None:

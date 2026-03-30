@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Item
 from journal.models.common import (
+    prefetch_latest_posts,
     q_owned_parent_piece_visible_to_user,
     q_owned_piece_visible_to_user,
 )
@@ -193,6 +194,17 @@ class Mark:
             .annotate(title=F("parent__title"))
         ):
             marks[t.item.pk].tags.append(t.title)
+        # Batch-prefetch latest_post for all pieces to avoid N+1 queries
+        # when templates access mark.shelfmember.latest_post etc.
+        pieces_to_prefetch = []
+        for m in marks.values():
+            if m.shelfmember:
+                pieces_to_prefetch.append(m.shelfmember)
+            if m.comment:
+                pieces_to_prefetch.append(m.comment)
+            if m.review:
+                pieces_to_prefetch.append(m.review)
+        prefetch_latest_posts(pieces_to_prefetch)
         return marks
 
     @classmethod
