@@ -50,6 +50,8 @@ class ShelfPageNumberPagination(PageNumberPagination):
         **params: Any,
     ):
         val = super().paginate_queryset(queryset, pagination, request, **params)
+        if isinstance(val, tuple):
+            return val
         _prefetch_shelf_members(val["data"])
         return val
 
