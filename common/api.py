@@ -95,6 +95,8 @@ class PageNumberPagination(NinjaPageNumberPagination):
         request: HttpRequest,
         **params: Any,
     ):
+        if isinstance(queryset, tuple):
+            return queryset
         val = super().paginate_queryset(queryset, pagination, request, **params)
         return {
             "data": val["data"],
