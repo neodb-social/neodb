@@ -144,7 +144,7 @@ class TestMastodonAccount:
         # We verify the base class default, not the subclass override
         from mastodon.models.common import SocialAccount
 
-        base = SocialAccount.__new__(SocialAccount)
+        base = SocialAccount()
         assert base.check_alive() is False
 
     def test_sync_skips_when_recently_refreshed(self):
