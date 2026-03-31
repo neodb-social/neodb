@@ -1143,6 +1143,15 @@ class Post(models.Model):
     # The Post this quotes, as an AP URI (FEP-044f)
     quote_url = models.CharField(max_length=2048, blank=True, null=True, db_index=True)
 
+    # The conversation this post belongs to (only for direct messages)
+    conversation = models.ForeignKey(
+        "takahe.Conversation",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="posts",
+    )
+
     # The identities the post is directly to (who can see it if not public)
     to = models.ManyToManyField(
         "takahe.Identity",
@@ -1370,6 +1379,9 @@ class Post(models.Model):
                 if type_data:
                     post.type_data = type_data
                 post.save()
+                # Assign to conversation if this is a direct message
+                if visibility == cls.Visibilities.mentioned:
+                    Conversation.update_for_post(post)
             # Recalculate parent stats for replies
             if reply_to:
                 reply_to.calculate_stats()
@@ -2727,3 +2739,114 @@ class Report(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+
+class Conversation(models.Model):
+    """
+    A direct message conversation between a set of participants.
+    """
+
+    if TYPE_CHECKING:
+        last_post_id: int | None
+
+    id = models.BigIntegerField(primary_key=True, default=Snowflake.generate_post)
+
+    # SHA-256 hash of sorted participant Identity IDs for fast lookup
+    participant_hash = models.CharField(max_length=64, unique=True)
+
+    # The participants in this conversation
+    participants = models.ManyToManyField(
+        "takahe.Identity",
+        related_name="conversations",
+        blank=True,
+    )
+
+    # Denormalized: most recent direct post in the conversation
+    last_post = models.ForeignKey(
+        "takahe.Post",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "activities_conversation"
+
+    @staticmethod
+    def compute_participant_hash(identity_ids: set[int]) -> str:
+        import hashlib
+
+        sorted_ids = sorted(identity_ids)
+        raw = ",".join(str(i) for i in sorted_ids)
+        return hashlib.sha256(raw.encode()).hexdigest()
+
+    @classmethod
+    def get_or_create_for_participants(cls, identity_ids: set[int]) -> "Conversation":
+        h = cls.compute_participant_hash(identity_ids)
+        conversation, created = cls.objects.get_or_create(
+            participant_hash=h,
+        )
+        if created:
+            conversation.participants.set(Identity.objects.filter(pk__in=identity_ids))
+        return conversation
+
+    @classmethod
+    def update_for_post(cls, post: "Post") -> None:
+        if post.visibility != Post.Visibilities.mentioned:
+            return
+        participant_ids = set(post.mentions.values_list("pk", flat=True))
+        participant_ids.add(post.author_id)
+        if len(participant_ids) < 2:
+            return
+        conversation = cls.get_or_create_for_participants(participant_ids)
+        Post.objects.filter(pk=post.pk).update(conversation=conversation)
+        post.conversation = conversation
+        if conversation.last_post_id is None or post.pk > conversation.last_post_id:
+            conversation.last_post = post
+            conversation.save(update_fields=["last_post", "updated"])
+        for pid in participant_ids:
+            is_author = pid == post.author_id
+            membership, created = ConversationMembership.objects.get_or_create(
+                identity_id=pid,
+                conversation=conversation,
+                defaults={"unread": not is_author},
+            )
+            if created:
+                continue
+            updates = []
+            if not is_author and not membership.unread:
+                membership.unread = True
+                updates.append("unread")
+            if membership.dismissed:
+                membership.dismissed = False
+                updates.append("dismissed")
+            if updates:
+                membership.save(update_fields=updates + ["updated"])
+
+
+class ConversationMembership(models.Model):
+    """Per-identity state for a conversation."""
+
+    identity = models.ForeignKey(
+        "takahe.Identity",
+        on_delete=models.CASCADE,
+        related_name="conversation_memberships",
+    )
+    conversation = models.ForeignKey(
+        Conversation,
+        on_delete=models.CASCADE,
+        related_name="memberships",
+    )
+    unread = models.BooleanField(default=True)
+    dismissed = models.BooleanField(default=False)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "activities_conversationmembership"
+        unique_together = [("identity", "conversation")]
