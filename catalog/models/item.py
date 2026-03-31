@@ -847,8 +847,9 @@ class ExternalResource(models.Model):
                 if item:
                     return item
 
-        d = {f"other_lookup_ids__{self.id_type}": self.id_value}
-        res = resources.filter(**d).first()
+        res = resources.filter(
+            other_lookup_ids__contains={self.id_type: self.id_value}
+        ).first()
         if res:
             return res.item
 
@@ -867,8 +868,7 @@ class ExternalResource(models.Model):
             for t, v in self.other_lookup_ids.items():
                 if not v:
                     continue
-                d = {f"other_lookup_ids__{t}": v}
-                query |= Q(**d)
+                query |= Q(other_lookup_ids__contains={t: v})
             if query != Q():
                 res = resources.filter(query).first()
                 if res:
