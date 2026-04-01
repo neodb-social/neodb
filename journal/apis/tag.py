@@ -1,7 +1,9 @@
 from typing import List
 
 from django.core.cache import cache
+from django.http import Http404
 from ninja import Field, Schema
+from ninja.errors import HttpError
 from ninja.pagination import paginate
 
 from catalog.models import Item, ItemSchema
@@ -146,9 +148,9 @@ def tag_list_items(request, tag_uuid: str):
     """
     tag = Tag.get_by_url(tag_uuid)
     if not tag:
-        return 404, {"message": "Tag not found"}
+        raise Http404("Tag not found")
     if tag.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        raise HttpError(403, "Not owner")
     return tag.members.all()
 
 

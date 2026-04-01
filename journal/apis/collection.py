@@ -3,11 +3,12 @@ from typing import List
 
 from django.core.cache import cache
 from django.db.models import Count
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
 from ninja import Field, Schema
 from ninja.decorators import decorate_view
+from ninja.errors import HttpError
 from ninja.pagination import paginate
 
 from catalog.models import Item, ItemSchema
@@ -126,9 +127,9 @@ def collection_list_items(request, collection_uuid: str):
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        raise Http404("Collection not found")
     if not c.is_visible_to(request.user):
-        return 403, {"message": "Permission denied"}
+        raise HttpError(403, "Permission denied")
     if c.is_dynamic:
         items = c.query_result.items if c.query_result else []
         members = [{"item": i, "note": ""} for i in items]
@@ -218,9 +219,9 @@ def user_collection_list_items(request, collection_uuid: str):
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        raise Http404("Collection not found")
     if c.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        raise HttpError(403, "Not owner")
     if c.is_dynamic:
         items = c.query_result.items if c.query_result else []
         members = [{"item": i, "note": ""} for i in items]
@@ -292,7 +293,7 @@ def list_item_collections(request, item_uuid: str):
     """
     item = Item.get_by_url(item_uuid, resolve_merge=True)
     if not item or item.is_deleted:
-        return 404, {"message": "Item not found"}
+        raise Http404("Item not found")
     qv = q_piece_visible_to_user(request.user)
     return Collection.objects.filter(items=item).filter(qv).order_by("-created_time")
 
