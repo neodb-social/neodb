@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 
+from django.http import Http404
 from ninja import Field, Schema
 from ninja.pagination import paginate
 
@@ -45,7 +46,7 @@ def list_notes_for_item(request, item_uuid):
     """
     item = Item.get_by_url(item_uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        raise Http404("Item not found")
     queryset = Note.objects.filter(owner=request.user.identity, item=item)
     return queryset.prefetch_related("item")
 

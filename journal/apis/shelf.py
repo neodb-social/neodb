@@ -3,7 +3,7 @@ from typing import Any, List
 
 from django.core.cache import cache
 from django.db.models import QuerySet
-from django.http import HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.utils import timezone
 from ninja import Field, Schema
 from ninja.pagination import paginate
@@ -295,7 +295,7 @@ def get_mark_logs_by_item(request, item_uuid: str, response: HttpResponse):
     """
     item = Item.get_by_url(item_uuid)
     if not item or item.is_deleted:
-        return 404, {"message": "Item not found"}
+        raise Http404("Item not found")
     if item.merged_to_item:
         response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}/logs"
         return 302, {"message": "Item merged", "url": item.merged_to_item.api_url}
