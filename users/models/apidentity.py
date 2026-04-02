@@ -114,6 +114,14 @@ class APIdentity(models.Model):
         return self.takahe_identity.summary or ""
 
     @property
+    def safe_metadata(self):
+        return self.takahe_identity.safe_metadata
+
+    @property
+    def safe_summary(self):
+        return self.takahe_identity.safe_summary
+
+    @property
     def avatar(self):
         if self.local:
             return (

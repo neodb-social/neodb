@@ -69,8 +69,18 @@
               <span><a>{% trans "Bot" %}</a></span>
             </div>
           {% endif %}
+          {% if identity.safe_metadata %}
+            <dl>
+              {% for entry in identity.safe_metadata %}
+                <dt>{{ entry.name }}</dt>
+                <dd>
+                  {{ entry.value }}
+                </dd>
+              {% endfor %}
+            </dl>
+          {% endif %}
           <div>
-            {{ identity.summary|bleach:"a,p,span,br"|default:"" }}
+            {{ identity.safe_summary|safe }}
             <br>
           </div>
         </details>

@@ -127,6 +127,10 @@ details {
   color: var(--pico-muted-color);
 }
 
+span.invisible {
+  display: none;
+}
+
 .caveat {
   font-size: 80%;
   color: var(--pico-muted-color);

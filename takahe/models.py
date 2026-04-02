@@ -554,11 +554,9 @@ class Identity(models.Model):
 
     @property
     def handle(self):
-        if self.username is None:
-            return "(unknown user)"
-        if self.domain_id:
-            return f"{self.username}@{self.domain_id}"
-        return f"{self.username}@(unknown server)"
+        u = self.username or "-invalid-user-"
+        d = self.domain_id or self.actor_domain
+        return f"{u}@{d}"
 
     @property
     def uri_domain(self):
@@ -575,6 +573,23 @@ class Identity(models.Model):
             if self.local
             else f"/users/@{self.username}@{self.domain_id}/"
         )
+
+    @property
+    def safe_summary(self):
+        return ContentRenderer(local=True).render_identity_summary(self.summary, self)
+
+    @property
+    def safe_metadata(self):
+        if not self.metadata:
+            return []
+        renderer = ContentRenderer(local=True)
+        return [
+            {
+                "name": renderer.render_identity_data(data["name"], self, strip=True),
+                "value": renderer.render_identity_data(data["value"], self, strip=True),
+            }
+            for data in self.metadata
+        ]
 
     @property
     def user_pk(self):
