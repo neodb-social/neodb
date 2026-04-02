@@ -1,11 +1,13 @@
 * **Please check if the PR fulfills these requirements**
-- [ ] Changes were fully written by a human or have been fully reviewed (every single line) by a human
-- [ ] Tests for the changes have been added (for bug fixes / features)
-- [ ] Docs have been added / updated (for features)
-- [ ] Migration has been added, or considered but not needed.
+- [ ] You, as a human, have fully reviewed every single line of this PR
+- [ ] You, as a human, have fully tested this PR
 
-* **What kind of change does this PR introduce?** (Bug fix, feature, docs update, ...)
 
+* **What kind of change does this PR introduce?**
+- [ ] bug fix, including security or performance improvements
+- [ ] feature
+- [ ] docs
+- [ ] other
 
 
 * **What is the current behavior?** (Link to an open issue if applicable)

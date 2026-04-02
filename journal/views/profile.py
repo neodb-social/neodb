@@ -16,7 +16,6 @@ from common.utils import (
     profile_identity_required,
     target_identity_required,
 )
-from takahe.models import Post
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -77,23 +76,26 @@ def profile(request: AuthedHttpRequest, user_name):
             {"identity": target, "redir": target.url},
         )
 
-    # anonymous user should not see real content unless permitted by user
     anonymous = not request.user.is_authenticated
-    if anonymous and (not target.local or not target.anonymous_viewable):
-        return render(
-            request,
-            "users/home_anonymous.html",
-            {
-                "identity": target,
-                "redir": f"/account/login?next={quote_plus(target.url)}",
-            },
-        )
+    if anonymous:
+        # anonymous user should not see remote user's content
+        if not target.local:
+            return redirect(target.profile_uri)
+        # anonymous user should not see local user's content unless permitted
+        elif not target.anonymous_viewable:
+            return render(
+                request,
+                "users/home_anonymous.html",
+                {
+                    "identity": target,
+                    "redir": f"/account/login?next={quote_plus(target.url)}",
+                },
+            )
 
     feed_view = not target.local and target.domain_name not in Takahe.get_neodb_peers(
         active_only=False
     )
     if feed_view:
-        top_tags = target.tag_manager.get_tags(public_only=True)[:10]
         return render(
             request,
             "profile.html",
@@ -218,20 +220,10 @@ def profile_posts_data(request: AuthedHttpRequest, user_name):
     target = request.target_identity
     last_pk = int_(request.GET.get("last", 0))
     viewer_pk = request.user.identity.pk
-    qs = Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"]).filter(
-        author_id=target.pk
-    )
-    if Takahe.get_is_following(viewer_pk, target.pk):
-        qs = qs.exclude(visibility=3)
-    else:
-        qs = qs.filter(visibility__in=[0, 1, 4])
+    qs = Takahe.get_recent_posts(target.pk, viewer_pk, days=None)
     if last_pk:
         qs = qs.filter(pk__lt=last_pk)
-    posts = list(
-        qs.order_by("-pk")[:20]
-        .prefetch_related("attachments", "author")
-        .select_related("application")
-    )
+    posts = list(qs.order_by("-pk")[:20])
     prefetch_pieces_for_posts(posts)
     return render(
         request,
