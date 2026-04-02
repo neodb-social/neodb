@@ -41,6 +41,7 @@ from .profile import (
     profile_collection_items,
     profile_created_collections,
     profile_liked_collections,
+    profile_posts_data,
     profile_shelf_items,
     user_calendar_data,
 )
@@ -99,6 +100,7 @@ __all__ = [
     "profile_collection_items",
     "profile_created_collections",
     "profile_liked_collections",
+    "profile_posts_data",
     "profile_shelf_items",
     "user_calendar_data",
     "ReviewFeed",

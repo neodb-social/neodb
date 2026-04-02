@@ -9,12 +9,14 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
+from common.models.misc import int_
 from common.utils import (
     AuthedHttpRequest,
     get_uuid_or_404,
     profile_identity_required,
     target_identity_required,
 )
+from takahe.models import Post
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -84,6 +86,30 @@ def profile(request: AuthedHttpRequest, user_name):
             {
                 "identity": target,
                 "redir": f"/account/login?next={quote_plus(target.url)}",
+            },
+        )
+
+    feed_view = not target.local and target.domain_name not in Takahe.get_neodb_peers(
+        active_only=False
+    )
+    if feed_view:
+        top_tags = target.tag_manager.get_tags(public_only=True)[:10]
+        return render(
+            request,
+            "profile.html",
+            {
+                "user": target.user,
+                "identity": target,
+                "me": False,
+                "top_tags": None,
+                "recent_posts": None,
+                "feed_view": True,
+                "shelf_list": {},
+                "collections_count": 0,
+                "pinned_collections": [],
+                "liked_collections_count": 0,
+                "layout": [],
+                "year": None,
             },
         )
 
@@ -182,6 +208,35 @@ def profile(request: AuthedHttpRequest, user_name):
             "layout": layout,
             "year": year,
         },
+    )
+
+
+@require_http_methods(["GET"])
+@login_required
+@profile_identity_required
+def profile_posts_data(request: AuthedHttpRequest, user_name):
+    target = request.target_identity
+    last_pk = int_(request.GET.get("last", 0))
+    viewer_pk = request.user.identity.pk
+    qs = Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"]).filter(
+        author_id=target.pk
+    )
+    if Takahe.get_is_following(viewer_pk, target.pk):
+        qs = qs.exclude(visibility=3)
+    else:
+        qs = qs.filter(visibility__in=[0, 1, 4])
+    if last_pk:
+        qs = qs.filter(pk__lt=last_pk)
+    posts = list(
+        qs.order_by("-pk")[:20]
+        .prefetch_related("attachments", "author")
+        .select_related("application")
+    )
+    prefetch_pieces_for_posts(posts)
+    return render(
+        request,
+        "profile_posts.html",
+        {"posts": posts, "user_name": user_name},
     )
 
 

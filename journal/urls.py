@@ -188,6 +188,11 @@ urlpatterns = [
         user_calendar_data,
         name="user_calendar_data",
     ),
+    re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/profile/posts$",
+        profile_posts_data,
+        name="profile_posts_data",
+    ),
     path("users/<str:username>/feed/reviews/", ReviewFeed(), name="review_feed"),
     path("wrapped/", WrappedView.as_view(), name="wrapped_current_year"),
     path("wrapped/<int:year>/", WrappedView.as_view(), name="wrapped"),

@@ -29,63 +29,54 @@
     {% include "_header.html" %}
     <main>
       <div class="grid__main">
-        <div class="sortable"></div>
-        <div class="unsorted" style="display:none;">
-          {% if request.user.is_authenticated %}
-            <section class="entity-sort shelf" id="calendar_grid">
-              <span class="action">
-                <span>
-                  <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-                </span>
-                <span>
-                  <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-                </span>
-              </span>
-              <h5>
-                {% trans "calendar" %}
-                {% if year %}
-                  <small>
-                    <a href="{% url 'journal:wrapped' year %}">{{ year }} {% trans "annual summary" %}</a>
-                  </small>
-                {% endif %}
-              </h5>
-              <ul class="calendar_view cards">
-                <p style="text-align: center;">
-                  <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-                </p>
-              </ul>
-              <span class="calendar_data"
-                    hx-get="{% url 'journal:user_calendar_data' identity.handle %}"
-                    hx-trigger="intersect once queue:last"
-                    hx-swap="innerHTML"></span>
-            </section>
-          {% endif %}
-          {% for collection in pinned_collections %}
-            <section class="entity-sort shelf" id="collection_{{ collection.uuid }}">
-              <div hx-swap="outerHTML"
-                   hx-get="{% url 'journal:profile_collection_items' collection.uuid %}"
-                   hx-trigger="intersect once queue:last">
-                <h5>{{ collection.title }}</h5>
-                <ul class="cards">
-                  <li class="card">
-                    <a>
-                      <img src="{{ default_cover_url }}" alt="" loading="lazy">
-                      <div>
-                        <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-                      </div>
-                    </a>
-                  </li>
-                </ul>
+        {% if feed_view %}
+          <section>
+            <article>
+              <div hx-get="{% url 'journal:profile_posts_data' identity.handle %}"
+                   hx-trigger="intersect once delay:0.1s"
+                   hx-swap="outerHTML">
+                <i class="fa-solid fa-compact-disc fa-spin loading"></i>
               </div>
-            </section>
-          {% endfor %}
-          {% for category, category_shelves in shelf_list.items %}
-            {% for shelf_type, shelf in category_shelves.items %}
-              <section class="entity-sort shelf" id="{{ category }}_{{ shelf_type }}">
+            </article>
+          </section>
+        {% else %}
+          <div class="sortable"></div>
+          <div class="unsorted" style="display:none;">
+            {% if request.user.is_authenticated %}
+              <section class="entity-sort shelf" id="calendar_grid">
+                <span class="action">
+                  <span>
+                    <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+                  </span>
+                  <span>
+                    <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+                  </span>
+                </span>
+                <h5>
+                  {% trans "calendar" %}
+                  {% if year %}
+                    <small>
+                      <a href="{% url 'journal:wrapped' year %}">{{ year }} {% trans "annual summary" %}</a>
+                    </small>
+                  {% endif %}
+                </h5>
+                <ul class="calendar_view cards">
+                  <p style="text-align: center;">
+                    <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                  </p>
+                </ul>
+                <span class="calendar_data"
+                      hx-get="{% url 'journal:user_calendar_data' identity.handle %}"
+                      hx-trigger="intersect once queue:last"
+                      hx-swap="innerHTML"></span>
+              </section>
+            {% endif %}
+            {% for collection in pinned_collections %}
+              <section class="entity-sort shelf" id="collection_{{ collection.uuid }}">
                 <div hx-swap="outerHTML"
-                     hx-get="{% url 'journal:profile_shelf_items' identity.handle category shelf_type %}"
+                     hx-get="{% url 'journal:profile_collection_items' collection.uuid %}"
                      hx-trigger="intersect once queue:last">
-                  <h5>{{ shelf.title }}</h5>
+                  <h5>{{ collection.title }}</h5>
                   <ul class="cards">
                     <li class="card">
                       <a>
@@ -99,44 +90,64 @@
                 </div>
               </section>
             {% endfor %}
-          {% endfor %}
-          <section class="entity-sort shelf" id="collection_created">
-            <div hx-swap="outerHTML"
-                 hx-get="{% url 'journal:profile_created_collections' identity.handle %}"
-                 hx-trigger="intersect once queue:last">
-              <h5>{% trans 'collection' %}</h5>
-              <ul class="cards">
-                <li class="card">
-                  <a>
-                    <img src="{{ default_cover_url }}" alt="" loading="lazy">
-                    <div>
-                      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-                    </div>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </section>
-          <section class="entity-sort shelf" id="collection_marked">
-            <div hx-swap="outerHTML"
-                 hx-get="{% url 'journal:profile_liked_collections' identity.handle %}"
-                 hx-trigger="intersect once queue:last">
-              <h5>{% trans 'liked collection' %}</h5>
-              <ul class="cards">
-                <li class="card">
-                  <a>
-                    <img src="{{ default_cover_url }}" alt="" loading="lazy">
-                    <div>
-                      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-                    </div>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </section>
-        </div>
-        {{ layout|json_script:"layout-data" }}
-        <script>
+            {% for category, category_shelves in shelf_list.items %}
+              {% for shelf_type, shelf in category_shelves.items %}
+                <section class="entity-sort shelf" id="{{ category }}_{{ shelf_type }}">
+                  <div hx-swap="outerHTML"
+                       hx-get="{% url 'journal:profile_shelf_items' identity.handle category shelf_type %}"
+                       hx-trigger="intersect once queue:last">
+                    <h5>{{ shelf.title }}</h5>
+                    <ul class="cards">
+                      <li class="card">
+                        <a>
+                          <img src="{{ default_cover_url }}" alt="" loading="lazy">
+                          <div>
+                            <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                          </div>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </section>
+              {% endfor %}
+            {% endfor %}
+            <section class="entity-sort shelf" id="collection_created">
+              <div hx-swap="outerHTML"
+                   hx-get="{% url 'journal:profile_created_collections' identity.handle %}"
+                   hx-trigger="intersect once queue:last">
+                <h5>{% trans 'collection' %}</h5>
+                <ul class="cards">
+                  <li class="card">
+                    <a>
+                      <img src="{{ default_cover_url }}" alt="" loading="lazy">
+                      <div>
+                        <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                      </div>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </section>
+            <section class="entity-sort shelf" id="collection_marked">
+              <div hx-swap="outerHTML"
+                   hx-get="{% url 'journal:profile_liked_collections' identity.handle %}"
+                   hx-trigger="intersect once queue:last">
+                <h5>{% trans 'liked collection' %}</h5>
+                <ul class="cards">
+                  <li class="card">
+                    <a>
+                      <img src="{{ default_cover_url }}" alt="" loading="lazy">
+                      <div>
+                        <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                      </div>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </section>
+          </div>
+          {{ layout|json_script:"layout-data" }}
+          <script>
           const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
           initialLayoutData.forEach(elem => {
             $('#' + elem.id).data('visibility', elem.visibility);
@@ -148,43 +159,49 @@
           $('.unsorted .entity-sort').each((i, elem) => {
               $('.sortable').append(elem);
           });
-        </script>
-        {% if identity.user == request.user %}
-          <div class="entity-sort-control">
-            <div class="entity-sort-control__button" id="sortEditButton">
-              <span class="entity-sort-control__text" id="sortEditText">{% trans 'edit layout' %}</span>
-              <span class="entity-sort-control__text"
-                    id="sortSaveText"
-                    style="display: none">{% trans 'save' %}</span>
-              <span class="icon-edit" id="sortEditIcon">
-                <i class="fa-solid fa-pencil"></i>
-              </span>
-              <span class="icon-save" id="sortSaveIcon" style="display: none;">
-                <i class="fa-regular fa-floppy-disk"></i>
-              </span>
+          </script>
+          {% if identity.user == request.user %}
+            <div class="entity-sort-control">
+              <div class="entity-sort-control__button" id="sortEditButton">
+                <span class="entity-sort-control__text" id="sortEditText">{% trans 'edit layout' %}</span>
+                <span class="entity-sort-control__text"
+                      id="sortSaveText"
+                      style="display: none">{% trans 'save' %}</span>
+                <span class="icon-edit" id="sortEditIcon">
+                  <i class="fa-solid fa-pencil"></i>
+                </span>
+                <span class="icon-save" id="sortSaveIcon" style="display: none;">
+                  <i class="fa-regular fa-floppy-disk"></i>
+                </span>
+              </div>
+              <div class="entity-sort-control__button"
+                   id="sortExitButton"
+                   style="display: none">
+                <span class="entity-sort-control__text">{% trans 'cancel' %}</span>
+              </div>
             </div>
-            <div class="entity-sort-control__button"
-                 id="sortExitButton"
+            <div class="entity-sort-control__button entity-sort-control__button--float-right"
+                 id="toggleDisplayButtonTemplate"
                  style="display: none">
-              <span class="entity-sort-control__text">{% trans 'cancel' %}</span>
+              <span class="showText" style="display: none;">{% trans 'show' %}</span>
+              <span class="hideText" style="display: none;">{% trans 'hide' %}</span>
             </div>
-          </div>
-          <div class="entity-sort-control__button entity-sort-control__button--float-right"
-               id="toggleDisplayButtonTemplate"
-               style="display: none">
-            <span class="showText" style="display: none;">{% trans 'show' %}</span>
-            <span class="hideText" style="display: none;">{% trans 'hide' %}</span>
-          </div>
-          <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
-            {% csrf_token %}
-            <input type="hidden" name="name" value="profile">
-            <input type="hidden" name="layout">
-          </form>
-          <script src="{{ cdn_url }}/npm/html5sortable@0.13.3/dist/html5sortable.min.js"></script>
-          <script src="{% static 'js/sort_layout.js' %}"></script>
+            <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
+              {% csrf_token %}
+              <input type="hidden" name="name" value="profile">
+              <input type="hidden" name="layout">
+            </form>
+            <script src="{{ cdn_url }}/npm/html5sortable@0.13.3/dist/html5sortable.min.js"></script>
+            <script src="{% static 'js/sort_layout.js' %}"></script>
+          {% endif %}
         {% endif %}
+        {# end feed_view else #}
       </div>
-      {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
+      {% if feed_view %}
+        {% include "_sidebar.html" with show_profile=1 %}
+      {% else %}
+        {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
+      {% endif %}
     </main>
     {% include "_footer.html" %}
     {% if identity.local and identity.user.mastodon %}

@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load humanize %}
+{% load mastodon %}
+{% load thumb %}
+{% load user_actions %}
+{% load duration %}
+{% for post in posts %}
+  {% include "_event_post.html" %}
+  {% if forloop.last %}
+    <div class="htmx-indicator"
+         style="margin-left: 60px"
+         hx-get="{% url 'journal:profile_posts_data' user_name %}?last={{ post.pk }}"
+         hx-trigger="revealed"
+         hx-swap="outerHTML">
+      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+    </div>
+  {% endif %}
+{% empty %}
+  <div class="empty">
+    {% if request.GET.last %}
+      {% trans "nothing more." %}
+    {% else %}
+      {% trans "nothing so far." %}
+    {% endif %}
+  </div>
+{% endfor %}

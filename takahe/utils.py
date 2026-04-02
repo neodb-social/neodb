@@ -842,14 +842,18 @@ class Takahe:
         )
 
     @staticmethod
-    def get_recent_posts(author_pk: int, viewer_pk: int | None = None):
-        since = timezone.now() - timedelta(days=90)
-        qs = (
-            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
-            .filter(author_id=author_pk)
-            .filter(published__gte=since)
-            .order_by("-published")
+    def get_recent_posts(
+        author_pk: int,
+        viewer_pk: int | None = None,
+        days: int | None = 90,
+    ):
+        qs = Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"]).filter(
+            author_id=author_pk
         )
+        if days is not None:
+            since = timezone.now() - timedelta(days=days)
+            qs = qs.filter(published__gte=since)
+        qs = qs.order_by("-published")
         if viewer_pk and Takahe.get_is_following(viewer_pk, author_pk):
             qs = qs.exclude(visibility=3)
         else:
