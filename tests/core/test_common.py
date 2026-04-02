@@ -12,12 +12,23 @@ from common.models.lang import _build_language_aliases, normalize_languages
 @pytest.mark.django_db(databases="__all__")
 class TestCommon:
     def test_detect_lang(self):
-        lang = detect_language("The Witcher 3: Wild Hunt")
-        assert lang == "en"
-        lang = detect_language("巫师3：狂猎")
-        assert lang == "zh-cn"
-        lang = detect_language("巫师3：狂猎 The Witcher 3: Wild Hunt")
-        assert lang == "zh-cn"
+        assert detect_language("The Witcher 3: Wild Hunt") == "en"
+        assert detect_language("巫师3：狂猎") == "zh-cn"
+        assert detect_language("巫师3：狂猎 The Witcher 3: Wild Hunt") == "zh-cn"
+        # Japanese: kana present
+        assert detect_language("進撃の巨人") == "ja"
+        assert detect_language("鬼滅の刃") == "ja"
+        # Korean: hangul present
+        assert detect_language("오징어 게임") == "ko"
+        # Arabic script
+        assert detect_language("ألف ليلة وليلة") == "ar"
+        # Greek
+        assert detect_language("Οδύσσεια") == "el"
+        # Single ASCII word falls back to English
+        assert detect_language("Game") == "en"
+        # Empty / whitespace
+        assert detect_language("") == "x"
+        assert detect_language("   ") == "x"
 
     def test_lang_list(self):
         assert len(SITE_PREFERRED_LANGUAGES) >= 1
