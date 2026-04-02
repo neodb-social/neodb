@@ -1,5 +1,4 @@
-import pytest
-
+from catalog.models.book import Edition
 from catalog.models.common import IdType
 from catalog.models.utils import (
     binding_to_format,
@@ -15,7 +14,6 @@ from catalog.models.utils import (
 )
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestCheckDigit10:
     def test_known_digit(self):
         # ISBN-10: 0306406152 — first 9 digits give check digit 2
@@ -26,7 +24,6 @@ class TestCheckDigit10:
         assert check_digit_10("097522980") == "X"
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestCheckDigit13:
     def test_known_digit(self):
         # ISBN-13: 9780306406157 — first 12 digits give check digit 7
@@ -38,7 +35,6 @@ class TestCheckDigit13:
         assert check_digit_13("978000000020") == "0"
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestIsbn10To13:
     def test_valid_conversion(self):
         assert isbn_10_to_13("0306406152") == "9780306406157"
@@ -56,7 +52,6 @@ class TestIsbn10To13:
         assert isbn_10_to_13("") is None
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestIsbn13To10:
     def test_valid_conversion(self):
         assert isbn_13_to_10("9780306406157") == "0306406152"
@@ -75,7 +70,6 @@ class TestIsbn13To10:
         assert isbn_13_to_10("") is None
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestIsbnAsinFormats:
     def test_is_isbn_13_valid(self):
         assert is_isbn_13("9780306406157") is True
@@ -105,7 +99,6 @@ class TestIsbnAsinFormats:
         assert is_asin("B0001") is False
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestDetectIsbnAsin:
     def test_isbn_13(self):
         id_type, value = detect_isbn_asin("9780306406157")
@@ -145,7 +138,6 @@ class TestDetectIsbnAsin:
         assert value is None
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestUpcToGtin13:
     def test_12_digit_upc_padded(self):
         # 12-digit UPC-A gets padded to 13 digits
@@ -172,7 +164,6 @@ class TestUpcToGtin13:
         assert upc_to_gtin_13(" 0012345678901 ") == "0012345678901"
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestBindingToFormat:
     def test_none_returns_none(self):
         assert binding_to_format(None) is None
@@ -181,27 +172,24 @@ class TestBindingToFormat:
         assert binding_to_format("") is None
 
     def test_audiobook(self):
-        from catalog.models.book import Edition
-
         assert binding_to_format("Audiobook") == Edition.BookFormat.AUDIOBOOK
         assert binding_to_format("Audible Edition") == Edition.BookFormat.AUDIOBOOK
         assert binding_to_format("音频") == Edition.BookFormat.AUDIOBOOK
 
-    def test_web(self):
-        from catalog.models.book import Edition
+    def test_ebook(self):
+        assert binding_to_format("eBook") == Edition.BookFormat.EBOOK
+        assert binding_to_format("Kindle Edition") == Edition.BookFormat.EBOOK
+        assert binding_to_format("电子书") == Edition.BookFormat.EBOOK
 
+    def test_web(self):
         assert binding_to_format("Web") == Edition.BookFormat.WEB
         assert binding_to_format("网络版") == Edition.BookFormat.WEB
 
     def test_hardcover(self):
-        from catalog.models.book import Edition
-
         assert binding_to_format("Hardcover") == Edition.BookFormat.HARDCOVER
         assert binding_to_format("精装") == Edition.BookFormat.HARDCOVER
 
     def test_paperback(self):
-        from catalog.models.book import Edition
-
         assert binding_to_format("Paperback") == Edition.BookFormat.PAPERBACK
         assert binding_to_format("Softcover") == Edition.BookFormat.PAPERBACK
         assert binding_to_format("平装") == Edition.BookFormat.PAPERBACK

@@ -1,7 +1,6 @@
 import socket
 from unittest.mock import patch
 
-import pytest
 from django.http import HttpRequest
 
 from common.validators import (
@@ -13,7 +12,6 @@ from common.validators import (
 )
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestIsSafeUrl:
     def test_same_host_is_safe(self):
         assert is_safe_url("http://example.org/path") is True
@@ -40,7 +38,6 @@ class TestIsSafeUrl:
         )
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestGetSafeRedirectUrl:
     def test_safe_url_returned(self):
         assert get_safe_redirect_url("/dashboard") == "/dashboard"
@@ -58,7 +55,6 @@ class TestGetSafeRedirectUrl:
         assert get_safe_redirect_url("http://example.org/ok") == "http://example.org/ok"
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestSanitizeNextUrl:
     def test_safe_url_returned(self):
         assert sanitize_next_url("/next") == "/next"
@@ -70,7 +66,6 @@ class TestSanitizeNextUrl:
         assert sanitize_next_url(None) is None
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestGetSafeRefererUrl:
     def _request(self, referer=None):
         req = HttpRequest()
@@ -100,7 +95,6 @@ def _make_addr_info(ip: str):
     return [(socket.AF_INET, socket.SOCK_STREAM, 0, "", (ip, 0))]
 
 
-@pytest.mark.django_db(databases="__all__")
 class TestIsValidUrl:
     def test_valid_public_url(self):
         with patch("socket.getaddrinfo", return_value=_make_addr_info("93.184.216.34")):

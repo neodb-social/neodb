@@ -77,7 +77,7 @@ def binding_to_format(binding: str | None):
     if re.search(
         r"(pub|ebook|e-book|kindle|electronic|电子)", binding, flags=re.IGNORECASE
     ):
-        return Edition.BookFormat.HARDCOVER
+        return Edition.BookFormat.EBOOK
     if re.search(r"(web|网)", binding, flags=re.IGNORECASE):
         return Edition.BookFormat.WEB
     if re.search(r"(精|Hard)", binding, flags=re.IGNORECASE):
