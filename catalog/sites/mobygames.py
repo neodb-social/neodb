@@ -44,16 +44,20 @@ class MobyGames(AbstractSite):
             except (json.JSONDecodeError, ValueError):
                 pass
 
-        title = ld_json.get("name") or self.query_str(content, "//h1/text()").strip()
+        h1_list = self.query_list(content, "//h1/text()")
+        title = ld_json.get("name") or (h1_list[0].strip() if h1_list else "")
         if not title:
             raise ParseError(self, "title")
 
         # Build localized titles from alternate names in JSON-LD
+        # alternateName can be a single string or a list per Schema.org spec
         localized_title = [{"lang": detect_language(title), "text": title}]
-        for alt in ld_json.get("alternateName") or []:
-            lang = detect_language(alt)
+        alt_names = ld_json.get("alternateName") or []
+        if isinstance(alt_names, str):
+            alt_names = [alt_names]
+        for alt in alt_names:
             if not any(e["text"] == alt for e in localized_title):
-                localized_title.append({"lang": lang, "text": alt})
+                localized_title.append({"lang": detect_language(alt), "text": alt})
 
         # Description from the in-page description block (preferred) or meta tag
         desc_paras = self.query_list(content, '//div[@id="description-text"]//p')
@@ -78,9 +82,13 @@ class MobyGames(AbstractSite):
             for p in self.query_list(content, '//ul[@id="publisherLinks"]//a/text()')
             if p.strip()
         ]
-        # Fall back to JSON-LD publisher list
+        # Fall back to JSON-LD publisher list; publisher can be str, list of str,
+        # or list of Organization objects per Schema.org spec
         if not publisher and ld_json.get("publisher"):
-            publisher = ld_json["publisher"]
+            pub_data = ld_json["publisher"]
+            if not isinstance(pub_data, list):
+                pub_data = [pub_data]
+            publisher = [p["name"] if isinstance(p, dict) else p for p in pub_data]
 
         # Genre from link text inside the Genre dt/dd pair
         genre = [
@@ -92,8 +100,10 @@ class MobyGames(AbstractSite):
             if g.strip()
         ]
 
-        # Platforms from JSON-LD (most complete source)
+        # Platforms from JSON-LD (most complete source); can be a single string
         platform = ld_json.get("gamePlatform") or []
+        if isinstance(platform, str):
+            platform = [platform]
 
         # Release date from JSON-LD
         release_date = ld_json.get("datePublished") or None
@@ -105,8 +115,11 @@ class MobyGames(AbstractSite):
         )
         official_site = official_sites[0] if official_sites else None
 
-        # Cover image from og:image meta tag
-        cover_image_url = ld_json.get("image") or None
+        # Cover image: image can be a URL string or an ImageObject per Schema.org
+        img_data = ld_json.get("image")
+        cover_image_url = (
+            img_data.get("url") if isinstance(img_data, dict) else img_data
+        ) or None
         if not cover_image_url:
             og_image = self.query_list(content, '//meta[@property="og:image"]/@content')
             cover_image_url = og_image[0] if og_image else None
@@ -116,7 +129,9 @@ class MobyGames(AbstractSite):
                 "title": title,
                 "localized_title": localized_title,
                 "brief": brief,
-                "localized_description": [{"lang": "en", "text": brief}]
+                "localized_description": [
+                    {"lang": detect_language(brief), "text": brief}
+                ]
                 if brief
                 else [],
                 "developer": developer,
