@@ -5,7 +5,11 @@
 {% load user_actions %}
 {% load duration %}
 {% for post in posts %}
-  {% include "_event_post.html" %}
+  {% if identity.is_group and event.type == "boost" %}
+    {% include "_event_post.html" with post=event.subject_post piece=event.subject_post.piece item=event.subject_post.item event=None %}
+  {% else %}
+    {% include "_event_post.html" %}
+  {% endif %}
   {% if forloop.last %}
     <div class="htmx-indicator"
          style="margin-left: 60px"

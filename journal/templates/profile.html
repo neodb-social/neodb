@@ -30,6 +30,13 @@
     <main>
       <div class="grid__main">
         {% if feed_view %}
+          <h5>
+            {{ identity.display_name | identity.full_handle }}
+            {% if identity.is_group %}
+              <small>({% trans "Group" %})</small>
+            {% endif %}
+            }
+          </h5>
           <section>
             <article>
               <div hx-get="{% url 'journal:profile_posts_data' identity.handle %}"

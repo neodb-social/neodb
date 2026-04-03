@@ -36,7 +36,6 @@ from .post import (
     post_vote,
 )
 from .profile import (
-    group,
     profile,
     profile_collection_items,
     profile_created_collections,
@@ -96,7 +95,6 @@ __all__ = [
     "post_unlike",
     "post_compose",
     "post_vote",
-    "group",
     "profile",
     "profile_collection_items",
     "profile_created_collections",

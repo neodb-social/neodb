@@ -10,7 +10,7 @@
   <!-- no post data {{ event.pk }} -->
 {% else %}
   <section class="activity post">
-    {% if event.type == "boost" and not hide_event %}
+    {% if event and event.type == "boost" %}
       <div class="boosted">
         <i class="fa-solid fa-retweet"
            title="{{ event.published|naturaldelta }}"></i>
