@@ -64,7 +64,7 @@
     {% if not identity.locked or request.user.is_superuser or relationship.status %}
       <span>
         <a title="{% trans 'compose a message' %}"
-           {% if identity.is_group %} hx-get="{% url 'journal:post_compose' %}?reply_to={{ identity.full_handle }}&amp;visibility=0" {% else %} hx-get="{% url 'journal:post_compose' %}?reply_to={{ identity.full_handle }}&amp;visibility=2" {% endif %}
+           hx-get="{% url 'journal:post_compose' %}?reply_to={{ identity.full_handle }}&amp;visibility={% if identity.is_group %}0{% else %}2{% endif %}"
            hx-target="body"
            hx-swap="beforeend">
           <i class="fa-regular fa-paper-plane"></i>
