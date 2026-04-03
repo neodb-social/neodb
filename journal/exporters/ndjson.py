@@ -103,7 +103,6 @@ class NdjsonExporter(Task):
                         "visibility": p.visibility,
                         "metadata": p.metadata,
                     }
-                    f.write(json.dumps(o, default=str) + "\n")
                     if cls == Review:
                         re.sub(
                             r"(?<=!\[\]\()([^)]+)(?=\))",
@@ -111,26 +110,52 @@ class NdjsonExporter(Task):
                             p.body,  # type: ignore
                         )
                     elif cls == Note and p.latest_post:
+                        note_attachments = []
                         for a in p.latest_post.attachments.all():
-                            dest = os.path.join(
-                                attachment_path, os.path.basename(a.file.name or "")
-                            )
+                            filename = os.path.basename(a.file.name or "")
+                            if not filename:
+                                continue
+                            dest = os.path.join(attachment_path, filename)
                             try:
                                 shutil.copy2(a.file.path, dest)
+                                note_attachments.append(
+                                    {
+                                        "file": f"attachments/{filename}",
+                                        "mimetype": a.mimetype,
+                                    }
+                                )
                             except Exception as e:
                                 logger.error(
                                     f"error copying {a.file.path} to {dest}",
                                     extra={"exception": e},
                                 )
+                        if note_attachments:
+                            o["attachments"] = note_attachments
+                    f.write(json.dumps(o, default=str) + "\n")
 
             collections = Collection.objects.filter(owner=user.identity)
             for c in collections:
                 total += 1
+                cover_file = None
+                if c.cover and str(c.cover) != settings.DEFAULT_ITEM_COVER:
+                    cover_filename = os.path.basename(str(c.cover))
+                    cover_dest = os.path.join(attachment_path, cover_filename)
+                    try:
+                        shutil.copy2(c.cover.path, cover_dest)
+                        cover_file = f"attachments/{cover_filename}"
+                    except Exception as e:
+                        logger.error(
+                            f"error copying cover {c.cover.path} to {cover_dest}",
+                            extra={"exception": e},
+                        )
                 o = {
                     "type": "Collection",
                     "content": c.ap_object,
                     "visibility": c.visibility,
                     "metadata": c.metadata,
+                    "collaborative": c.collaborative,
+                    "query": c.query,
+                    "cover": cover_file,
                     "items": [
                         {"item": self.ref(m.item), "metadata": m.metadata}
                         for m in c.ordered_members
@@ -152,6 +177,7 @@ class NdjsonExporter(Task):
             tags = TagMember.objects.filter(owner=user.identity)
             for t in tags:
                 total += 1
+                self.ref(t.item)
                 o = {
                     "type": "TagMember",
                     "content": t.ap_object,

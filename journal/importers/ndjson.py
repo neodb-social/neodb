@@ -1,9 +1,13 @@
 import json
 import os
+import shutil
 import tempfile
+import uuid
 import zipfile
 from typing import Any, Callable, Dict
 
+from django.conf import settings
+from django.core.files import File
 from loguru import logger
 
 from journal.models import (
@@ -38,11 +42,14 @@ class NdjsonImporter(BaseImporter):
         try:
             owner = self.user.identity
             visibility = data.get("visibility", self.metadata.get("visibility", 0))
-            metadata = data.get("metadata", {})
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             name = content_data.get("name", "")
             content = content_data.get("content", "")
+            if Collection.objects.filter(
+                owner=owner, title=name, created_time=published_dt
+            ).exists():
+                return "skipped"
             collection = Collection.objects.create(
                 owner=owner,
                 title=name,
@@ -50,7 +57,17 @@ class NdjsonImporter(BaseImporter):
                 visibility=visibility,
                 metadata=data.get("metadata", {}),
                 created_time=published_dt,
+                collaborative=data.get("collaborative", 0),
+                query=data.get("query"),
             )
+            cover_rel = data.get("cover")
+            if cover_rel and hasattr(self, "temp_dir"):
+                cover_src = os.path.join(self.temp_dir, cover_rel)
+                if os.path.exists(cover_src):
+                    with open(cover_src, "rb") as f:
+                        collection.cover.save(
+                            os.path.basename(cover_src), File(f), save=True
+                        )
             item_data = data.get("items", [])
             for item_entry in item_data:
                 item_url = item_entry.get("item")
@@ -60,8 +77,7 @@ class NdjsonImporter(BaseImporter):
                 if not item:
                     logger.warning(f"Could not find item for collection: {item_url}")
                     continue
-                metadata = item_entry.get("metadata", {})
-                collection.append_item(item, metadata=metadata)
+                collection.append_item(item, metadata=item_entry.get("metadata", {}))
             return "imported"
         except Exception:
             logger.exception("Error importing collection")
@@ -169,13 +185,17 @@ class NdjsonImporter(BaseImporter):
             item = self.items.get(content_data.get("withRegardTo", ""))
             if not item:
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
+            if Note.objects.filter(
+                owner=owner, item=item, created_time=published_dt
+            ).exists():
+                return "skipped"
             title = content_data.get("title", "")
             content = content_data.get("content", "")
             sensitive = content_data.get("sensitive", False)
             progress = content_data.get("progress", {})
             progress_type = progress.get("type", "")
             progress_value = progress.get("value", "")
-            Note.objects.create(
+            note = Note.objects.create(
                 item=item,
                 owner=owner,
                 title=title,
@@ -187,6 +207,42 @@ class NdjsonImporter(BaseImporter):
                 visibility=visibility,
                 metadata=data.get("metadata", {}),
             )
+            attachments_data = data.get("attachments", [])
+            if attachments_data and hasattr(self, "temp_dir"):
+                note_attachments = []
+                for atta in attachments_data:
+                    file_rel = atta.get("file")
+                    mimetype = atta.get("mimetype", "")
+                    if not file_rel:
+                        continue
+                    src = os.path.join(self.temp_dir, file_rel)
+                    if not os.path.exists(src):
+                        continue
+                    ext = os.path.splitext(src)[1]
+                    dest_dir = os.path.join(
+                        settings.MEDIA_ROOT, "journal", "attachments"
+                    )
+                    os.makedirs(dest_dir, exist_ok=True)
+                    dest = os.path.join(dest_dir, f"{uuid.uuid4()}{ext}")
+                    shutil.copy2(src, dest)
+                    rel = os.path.relpath(dest, settings.MEDIA_ROOT)
+                    url = (
+                        settings.SITE_INFO["site_url"].rstrip("/")
+                        + settings.MEDIA_URL.rstrip("/")
+                        + "/"
+                        + rel
+                    )
+                    note_attachments.append(
+                        {
+                            "type": (mimetype or "unknown").split("/")[0],
+                            "mimetype": mimetype,
+                            "url": url,
+                            "preview_url": "",
+                        }
+                    )
+                if note_attachments:
+                    note.attachments = note_attachments
+                    note.save(update_fields=["attachments"])
             return "imported"
         except Exception:
             logger.exception("Error importing note")
@@ -265,7 +321,7 @@ class NdjsonImporter(BaseImporter):
             visibility = data.get("visibility", self.metadata.get("visibility", 0))
             pinned = data.get("pinned", self.metadata.get("pinned", False))
             tag_title = Tag.cleanup_title(data.get("name", ""))
-            _, created = Tag.objects.update_or_create(
+            Tag.objects.update_or_create(
                 owner=owner,
                 title=tag_title,
                 defaults={
@@ -273,7 +329,7 @@ class NdjsonImporter(BaseImporter):
                     "pinned": pinned,
                 },
             )
-            return "imported" if created else "skipped"
+            return "imported"
         except Exception:
             logger.exception("Error importing tag member")
             return "failed"
@@ -488,6 +544,7 @@ class NdjsonImporter(BaseImporter):
                 header = self.parse_header(journal_path)
                 self.metadata["journal_header"] = header
                 logger.debug(f"Importing journal.ndjson with {header}")
+                self.temp_dir = tmpdirname
                 self.process_journal(journal_path)
 
         self.message = f"{self.metadata['imported']} items imported, {self.metadata['skipped']} skipped, {self.metadata['failed']} failed."
