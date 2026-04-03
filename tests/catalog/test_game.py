@@ -186,6 +186,39 @@ class TestBoardGameGeek:
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestMobyGames:
+    def test_parse(self):
+        t_id_type = IdType.MobyGames
+        t_id_value = "51233"
+        t_url = "https://www.mobygames.com/game/51233/portal-2/"
+        t_url_canonical = "https://www.mobygames.com/game/51233/"
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
+        assert site is not None
+        assert site.validate_url(t_url)
+        assert site.validate_url(t_url_canonical)
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.url == t_url_canonical
+        assert site.id_value == t_id_value
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://www.mobygames.com/game/51233/portal-2/"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert not site.ready
+        site.get_resource_ready()
+        assert site.ready
+        assert site.resource is not None
+        assert site.resource.metadata["title"] == "Portal 2"
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Game)
+        assert site.resource.item.developer == ["Valve Corporation"]
+        assert "Action" in site.resource.item.genre
+        assert "Windows" in site.resource.item.platform
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestMultiGameSites:
     @use_local_response
     def test_games(self):

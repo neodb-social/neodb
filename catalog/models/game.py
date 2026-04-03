@@ -145,6 +145,7 @@ class Game(Item):
             IdType.IGDB,
             IdType.Steam,
             IdType.BGG,
+            IdType.MobyGames,
             IdType.DoubanGame,
             IdType.Bangumi,
         ]

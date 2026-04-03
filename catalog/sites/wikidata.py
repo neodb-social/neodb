@@ -170,6 +170,7 @@ class WikidataProperties:
     P4983 = "P4983"  # TMDb TV series ID
     P5732 = "P5732"  # Bangumi subject ID
     P5794 = "P5794"  # IGDB game ID
+    P11688 = "P11688"  # MobyGames game ID
     P5831 = "P5831"  # Spotify show ID
     P5842 = "P5842"  # Apple Podcasts podcast ID
     P6442 = "P6442"  # Douban book version/edition ID
@@ -189,6 +190,7 @@ class WikidataProperties:
         "P10319": IdType.DoubanBook_Work,  # Douban book works ID
         "P1733": IdType.Steam,
         "P5794": IdType.IGDB,
+        "P11688": IdType.MobyGames,
         "P2339": IdType.BGG,
         "P5732": IdType.Bangumi,
         "P212": IdType.ISBN,  # ISBN-13
