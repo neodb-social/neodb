@@ -16,6 +16,7 @@ the following sites are supported
 | Goodreads             | Book (Edition, Work)                                                                                                          | Yes, submit profile or shelf link                |
 | Google Books          | Book (Edition)                                                                                                                |                                                  |
 | IGDB                  | Game                                                                                                                          |                                                  |
+| MobyGames             | Game                                                                                                                          |                                                  |
 | IMDB                  | Movie<br>TV (Show, Episode)                                                                                                   |                                                  |
 | jjwxc 晋江文学城       | Book (Edition)                                                                                                                |                                                  |
 | Letterboxd            | not supported (link in archive is mapped to TMDB)                                                                             | Yes, upload exported archive                     |
