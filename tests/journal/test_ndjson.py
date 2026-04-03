@@ -488,3 +488,89 @@ class TestNdjsonExportImport:
         l1 = [(log.item, log.shelf_type, log.timestamp) for log in logs]
         l2 = [(log.item, log.shelf_type, log.timestamp) for log in logs2]
         assert l1 == l2
+
+    def test_ndjson_collection_extra_fields(self):
+        """collaborative and query fields round-trip through export/import."""
+        Collection.objects.create(
+            owner=self.user1.identity,
+            title="Collab Collection",
+            brief="shared",
+            visibility=0,
+            collaborative=1,
+            query="sci-fi",
+        )
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+
+        importer = NdjsonImporter.create(
+            user=self.user2, file=exporter.metadata["file"], visibility=0
+        )
+        importer.run()
+
+        imported = Collection.objects.filter(
+            owner=self.user2.identity, title="Collab Collection"
+        ).first()
+        assert imported is not None
+        assert imported.collaborative == 1
+        assert imported.query == "sci-fi"
+
+    def test_ndjson_reimport_dedup(self):
+        """Re-importing the same file does not create duplicate collections or notes."""
+        mark = Mark(self.user1.identity, self.book1)
+        mark.update(ShelfType.COMPLETE, created_time=self.dt)
+        Collection.objects.create(
+            owner=self.user1.identity,
+            title="Dedup Collection",
+            brief="test",
+            visibility=0,
+        )
+        Note.objects.create(
+            item=self.book1,
+            owner=self.user1.identity,
+            title="Dedup Note",
+            content="content",
+            visibility=0,
+            created_time=self.dt,
+        )
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        export_path = exporter.metadata["file"]
+
+        NdjsonImporter.create(user=self.user2, file=export_path, visibility=0).run()
+        NdjsonImporter.create(user=self.user2, file=export_path, visibility=0).run()
+
+        assert (
+            Collection.objects.filter(
+                owner=self.user2.identity, title="Dedup Collection"
+            ).count()
+            == 1
+        )
+        assert (
+            Note.objects.filter(
+                owner=self.user2.identity, item=self.book1, title="Dedup Note"
+            ).count()
+            == 1
+        )
+
+    def test_ndjson_tagmember_catalog(self):
+        """Items only referenced by tags (no shelf) appear in catalog.ndjson."""
+        # Tag book1 without shelving it — item must end up in catalog via TagMember ref
+        TagManager.tag_item_for_owner(self.user1.identity, self.book1, ["tag-only"])
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+
+        with zipfile.ZipFile(exporter.metadata["file"], "r") as zf:
+            catalog = zf.read("catalog.ndjson").decode()
+        assert self.book1.absolute_url in catalog
+
+        importer = NdjsonImporter.create(
+            user=self.user2, file=exporter.metadata["file"], visibility=0
+        )
+        importer.run()
+        assert importer.metadata["failed"] == 0
+        assert TagMember.objects.filter(
+            owner=self.user2.identity, parent__title="tag-only"
+        ).exists()
