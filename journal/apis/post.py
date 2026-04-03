@@ -189,8 +189,7 @@ def timeline_link(
     identified by `url`, which may be a NeoDB item URL or an external resource
     URL (e.g. a Douban or Goodreads page).
     """
-    if limit < 1 or limit > TIMELINE_LINK_MAX_LIMIT:
-        limit = TIMELINE_LINK_DEFAULT_LIMIT
+    limit = min(max(1, limit), TIMELINE_LINK_MAX_LIMIT)
     item = Item.get_by_remote_url(url)
     if not item:
         return []
@@ -201,7 +200,7 @@ def timeline_link(
     r = JournalIndex.instance().search(query)
     return [
         p.to_mastodon_json()
-        for p in r.posts.prefetch_related("attachments", "author").select_related(
-            "application"
-        )
+        for p in r.posts.prefetch_related(
+            "attachments", "author", "mentions", "emojis"
+        ).select_related("application")
     ]
