@@ -23,7 +23,7 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
 ## Features
 - manage a shared catalog of books/movies/tv shows/music album/games/podcasts/performances
   + search or create catalog items in each category
-  + one click create item with links to 3rd party sites:
+  + one click create item with links to [many 3rd party sites](docs/sites.md):
     * Goodreads
     * IMDB
     * The Movie Database
