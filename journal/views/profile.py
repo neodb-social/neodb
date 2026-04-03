@@ -149,11 +149,13 @@ def profile(request: AuthedHttpRequest, user_name):
     top_tags = target.tag_manager.get_tags(public_only=not me, pinned_only=True)[:10]
     if not top_tags.exists():
         top_tags = target.tag_manager.get_tags(public_only=not me)[:10]
-    recent_posts = list(
-        Takahe.get_recent_posts(
-            target.pk, None if anonymous else request.user.identity.pk
-        )[:10]
-    )
+    viewer_identity_pk = None if anonymous else request.user.identity.pk
+    if target.is_group:
+        recent_posts = list(
+            Takahe.get_boosted_posts(target.pk, viewer_identity_pk)[:10]
+        )
+    else:
+        recent_posts = list(Takahe.get_recent_posts(target.pk, viewer_identity_pk)[:10])
     prefetch_pieces_for_posts(recent_posts)
     default_layout.append({"id": "collection_created", "visibility": True})
     default_layout.append({"id": "collection_marked", "visibility": True})
@@ -195,15 +197,21 @@ def profile_posts_data(request: AuthedHttpRequest, user_name):
     target = request.target_identity
     last_pk = int_(request.GET.get("last", 0))
     viewer_pk = request.user.identity.pk
-    qs = Takahe.get_recent_posts(target.pk, viewer_pk, days=None)
-    if last_pk:
-        qs = qs.filter(pk__lt=last_pk)
-    posts = list(qs.order_by("-pk")[:20])
+    if target.is_group:
+        qs = Takahe.get_boosted_posts(target.pk, viewer_pk, days=None)
+        if last_pk:
+            qs = qs.filter(boost_pk__lt=last_pk)
+        posts = list(qs[:20])
+    else:
+        qs = Takahe.get_recent_posts(target.pk, viewer_pk, days=None)
+        if last_pk:
+            qs = qs.filter(pk__lt=last_pk)
+        posts = list(qs.order_by("-pk")[:20])
     prefetch_pieces_for_posts(posts)
     return render(
         request,
         "profile_posts.html",
-        {"posts": posts, "user_name": user_name},
+        {"posts": posts, "user_name": user_name, "is_group": target.is_group},
     )
 
 
