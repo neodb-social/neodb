@@ -6,6 +6,7 @@ import tempfile
 import uuid
 
 from django.conf import settings
+from django.core.files.storage import default_storage
 from django.utils import timezone
 from loguru import logger
 
@@ -75,16 +76,16 @@ class NdjsonExporter(Task):
                         return file
                 except Exception:
                     logger.debug(f"error downloading {url}")
-            elif url.startswith("/"):
-                p = os.path.abspath(
-                    os.path.join(settings.MEDIA_ROOT, url[len(settings.MEDIA_URL) :])
-                )
-                if p.startswith(settings.MEDIA_ROOT):
-                    try:
-                        shutil.copy2(p, attachment_path)
-                    except Exception:
-                        logger.error(f"error copying {p} to {attachment_path}")
-                return p
+            elif url.startswith(settings.MEDIA_URL):
+                rel_path = url[len(settings.MEDIA_URL) :]
+                try:
+                    dest = os.path.join(attachment_path, os.path.basename(rel_path))
+                    with default_storage.open(rel_path, "rb") as src:
+                        with open(dest, "wb") as dst:
+                            shutil.copyfileobj(src, dst)
+                except Exception:
+                    logger.error(f"error copying {url} to {attachment_path}")
+                return url
             return url
 
         filename = os.path.join(temp_folder_path, "journal.ndjson")
@@ -117,7 +118,9 @@ class NdjsonExporter(Task):
                                 continue
                             dest = os.path.join(attachment_path, filename)
                             try:
-                                shutil.copy2(a.file.path, dest)
+                                with a.file.open("rb") as src:
+                                    with open(dest, "wb") as dst:
+                                        shutil.copyfileobj(src, dst)
                                 note_attachments.append(
                                     {
                                         "file": f"attachments/{filename}",
@@ -126,7 +129,7 @@ class NdjsonExporter(Task):
                                 )
                             except Exception as e:
                                 logger.error(
-                                    f"error copying {a.file.path} to {dest}",
+                                    f"error copying attachment {filename} to {dest}",
                                     extra={"exception": e},
                                 )
                         if note_attachments:
@@ -141,11 +144,13 @@ class NdjsonExporter(Task):
                     cover_filename = os.path.basename(str(c.cover))
                     cover_dest = os.path.join(attachment_path, cover_filename)
                     try:
-                        shutil.copy2(c.cover.path, cover_dest)
+                        with c.cover.open("rb") as src:
+                            with open(cover_dest, "wb") as dst:
+                                shutil.copyfileobj(src, dst)
                         cover_file = f"attachments/{cover_filename}"
                     except Exception as e:
                         logger.error(
-                            f"error copying cover {c.cover.path} to {cover_dest}",
+                            f"error copying cover {cover_filename} to {cover_dest}",
                             extra={"exception": e},
                         )
                 o = {
@@ -216,12 +221,17 @@ class NdjsonExporter(Task):
                 total += 1
                 o = {"type": "post", "post": p.to_mastodon_json()}
                 for a in p.attachments.all():
-                    dest = os.path.join(attachment_path, os.path.basename(a.file.name))
+                    filename = os.path.basename(a.file.name or "")
+                    if not filename:
+                        continue
+                    dest = os.path.join(attachment_path, filename)
                     try:
-                        shutil.copy2(a.file.path, dest)
+                        with a.file.open("rb") as src:
+                            with open(dest, "wb") as dst:
+                                shutil.copyfileobj(src, dst)
                     except Exception as e:
                         logger.error(
-                            f"error copying {a.file.path} to {dest}",
+                            f"error copying attachment {filename} to {dest}",
                             extra={"exception": e},
                         )
                 f.write(json.dumps(o, default=str) + "\n")

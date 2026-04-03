@@ -1,6 +1,5 @@
 import json
 import os
-import shutil
 import tempfile
 import uuid
 import zipfile
@@ -8,6 +7,7 @@ from typing import Any, Callable, Dict
 
 from django.conf import settings
 from django.core.files import File
+from django.core.files.storage import default_storage
 from loguru import logger
 
 from journal.models import (
@@ -219,18 +219,14 @@ class NdjsonImporter(BaseImporter):
                     if not os.path.exists(src):
                         continue
                     ext = os.path.splitext(src)[1]
-                    dest_dir = os.path.join(
-                        settings.MEDIA_ROOT, "journal", "attachments"
-                    )
-                    os.makedirs(dest_dir, exist_ok=True)
-                    dest = os.path.join(dest_dir, f"{uuid.uuid4()}{ext}")
-                    shutil.copy2(src, dest)
-                    rel = os.path.relpath(dest, settings.MEDIA_ROOT)
+                    storage_name = f"journal/attachments/{uuid.uuid4()}{ext}"
+                    with open(src, "rb") as f:
+                        storage_name = default_storage.save(storage_name, File(f))
+                    storage_url = default_storage.url(storage_name)
                     url = (
-                        settings.SITE_INFO["site_url"].rstrip("/")
-                        + settings.MEDIA_URL.rstrip("/")
-                        + "/"
-                        + rel
+                        settings.SITE_INFO["site_url"].rstrip("/") + storage_url
+                        if storage_url.startswith("/")
+                        else storage_url
                     )
                     note_attachments.append(
                         {
