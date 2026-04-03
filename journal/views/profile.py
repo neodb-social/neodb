@@ -3,7 +3,7 @@ from urllib.parse import quote_plus
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
@@ -353,6 +353,53 @@ def profile_liked_collections(request: AuthedHttpRequest, user_name):
             "total": total,
         },
     )
+
+
+_FOLLOW_LIST_PAGE_SIZE = 60
+
+
+@require_http_methods(["GET", "HEAD"])
+@login_required
+@target_identity_required
+def user_follow_list(request: AuthedHttpRequest, user_name, list_type: str):
+    target = request.target_identity
+    viewer = request.identity
+    if target.user != request.user:
+        if not (viewer and viewer.is_following(target) and target.is_following(viewer)):
+            raise PermissionDenied(_("Access denied"))
+    if request.method == "HEAD":
+        return HttpResponse()
+    last_pk = int_(request.GET.get("last", 0))
+    match list_type:
+        case "following":
+            ids = Takahe.get_following_page(target.pk, last_pk, _FOLLOW_LIST_PAGE_SIZE)
+            identities = list(APIdentity.objects.filter(pk__in=ids).order_by("pk"))
+            title = _("Following")
+        case "followers":
+            ids = Takahe.get_follower_page(target.pk, last_pk, _FOLLOW_LIST_PAGE_SIZE)
+            identities = list(APIdentity.objects.filter(pk__in=ids).order_by("pk"))
+            title = _("Followers")
+        case "mutuals":
+            mutual_ids = set(target.following) & set(target.followers)
+            qs = APIdentity.objects.filter(pk__in=mutual_ids).order_by("pk")
+            if last_pk:
+                qs = qs.filter(pk__gt=last_pk)
+            identities = list(qs[:_FOLLOW_LIST_PAGE_SIZE])
+            title = _("Mutuals")
+        case _:
+            raise Http404()
+    context = {
+        "user": target.user,
+        "identity": target,
+        "identities": identities,
+        "list_type": list_type,
+        "title": title,
+        "user_name": user_name,
+        "next_cursor": identities[-1].pk if identities else None,
+    }
+    if request.headers.get("HX-Request"):
+        return render(request, "user_follow_list_items.html", context)
+    return render(request, "user_follow_list.html", context)
 
 
 @require_http_methods(["GET", "HEAD"])

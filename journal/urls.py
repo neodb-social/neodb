@@ -178,6 +178,11 @@ urlpatterns = [
         name="user_tag_list",
     ),
     re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/(?P<list_type>following|followers|mutuals)/$",
+        user_follow_list,
+        name="user_follow_list",
+    ),
+    re_path(
         r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/$", profile, name="user_profile"
     ),
     re_path(

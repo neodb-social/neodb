@@ -1,0 +1,59 @@
+{% load i18n %}
+{% load duration %}
+{% load mastodon %}
+{% load thumb %}
+{% for person in identities %}
+  <article style="padding:0.75rem; margin:0;">
+    <div style="display:grid;
+                grid-template-columns:auto 1fr;
+                gap:0.5rem;
+                align-items:center">
+      <div class="avatar">
+        <a href="{{ person.url }}">
+          <img src="{{ person.avatar|relative_uri }}" alt="">
+        </a>
+      </div>
+      <div style="min-width:0;">
+        <div class="nickname"
+             style="overflow:hidden;
+                    text-overflow:ellipsis;
+                    white-space:nowrap">
+          <a href="{{ person.url }}">{{ person.display_name }}</a>
+        </div>
+        <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          <small class="handler">@{{ person.handle }}</small>
+        </div>
+      </div>
+      {% if identity.safe_metadata %}
+        <dl>
+          {% for entry in identity.safe_metadata %}
+            <dt>{{ entry.name }}</dt>
+            <dd>
+              {{ entry.value }}
+            </dd>
+          {% endfor %}
+        </dl>
+      {% endif %}
+      <div>{{ identity.safe_summary|safe }}</div>
+    </div>
+    <span class="action" style="margin-top:0.25rem; display:block;">
+      {% include 'users/profile_actions.html' with identity=person %}
+    </span>
+  </article>
+{% endfor %}
+{% if next_cursor %}
+  <div style="grid-column:1/-1"
+       hx-get="{% url 'journal:user_follow_list' user_name list_type %}?last={{ next_cursor }}"
+       hx-trigger="revealed"
+       hx-swap="outerHTML">
+    <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+  </div>
+{% elif not identities %}
+  <p class="empty" style="grid-column:1/-1;">
+    {% if request.GET.last %}
+      {% trans "nothing more." %}
+    {% else %}
+      {% trans "nothing so far." %}
+    {% endif %}
+  </p>
+{% endif %}

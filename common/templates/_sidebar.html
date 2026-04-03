@@ -60,6 +60,19 @@
               {% include 'users/profile_actions.html' %}
             {% endif %}
           </span>
+          {% if identity.user == request.user %}
+            <div>
+              <small>
+                <a href="{% url 'journal:user_follow_list' identity.handle 'following' %}">
+                  {{ identity.following_count }} {% trans "following" %}
+                </a>
+                &nbsp;·&nbsp;
+                <a href="{% url 'journal:user_follow_list' identity.handle 'followers' %}">
+                  {{ identity.follower_count }} {% trans "followers" %}
+                </a>
+              </small>
+            </div>
+          {% endif %}
           {% if identity.is_group %}
             <div class="tag-list">
               <span><a>{% trans "Group" %}</a></span>

@@ -165,6 +165,14 @@ class APIdentity(models.Model):
         return Takahe.get_follower_ids(self.pk)
 
     @property
+    def following_count(self) -> int:
+        return Takahe.get_following_count(self.pk)
+
+    @property
+    def follower_count(self) -> int:
+        return Takahe.get_follower_count(self.pk)
+
+    @property
     def muting(self):
         return Takahe.get_muting_ids(self.pk)
 

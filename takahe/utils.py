@@ -237,6 +237,36 @@ class Takahe:
         return list(targets)
 
     @staticmethod
+    def get_following_count(identity_pk: int) -> int:
+        return Follow.objects.filter(source_id=identity_pk, state="accepted").count()
+
+    @staticmethod
+    def get_follower_count(identity_pk: int) -> int:
+        return Follow.objects.filter(target_id=identity_pk, state="accepted").count()
+
+    @staticmethod
+    def get_following_page(
+        identity_pk: int, last_pk: int = 0, limit: int = 60
+    ) -> list[int]:
+        qs = Follow.objects.filter(source_id=identity_pk, state="accepted")
+        if last_pk:
+            qs = qs.filter(target_id__gt=last_pk)
+        return list(
+            qs.order_by("target_id").values_list("target_id", flat=True)[:limit]
+        )
+
+    @staticmethod
+    def get_follower_page(
+        identity_pk: int, last_pk: int = 0, limit: int = 60
+    ) -> list[int]:
+        qs = Follow.objects.filter(target_id=identity_pk, state="accepted")
+        if last_pk:
+            qs = qs.filter(source_id__gt=last_pk)
+        return list(
+            qs.order_by("source_id").values_list("source_id", flat=True)[:limit]
+        )
+
+    @staticmethod
     def get_following_request_ids(identity_pk: int):
         targets = Follow.objects.filter(
             source_id=identity_pk, state__in=["unrequested", "pending_approval"]

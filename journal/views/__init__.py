@@ -44,6 +44,7 @@ from .profile import (
     profile_posts_data,
     profile_shelf_items,
     user_calendar_data,
+    user_follow_list,
 )
 from .review import (
     ReviewFeed,
@@ -103,6 +104,7 @@ __all__ = [
     "profile_posts_data",
     "profile_shelf_items",
     "user_calendar_data",
+    "user_follow_list",
     "ReviewFeed",
     "review_edit",
     "review_retrieve",
