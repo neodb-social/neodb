@@ -238,7 +238,11 @@ class NdjsonImporter(BaseImporter):
                     )
                 if note_attachments:
                     note.attachments = note_attachments
-                    note.save(update_fields=["attachments"])
+                    note.save(
+                        update_fields=["attachments"],
+                        post_when_save=False,
+                        index_when_save=False,
+                    )
             return "imported"
         except Exception:
             logger.exception("Error importing note")
