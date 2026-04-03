@@ -31,10 +31,7 @@
           <a href="{% url 'journal:user_follow_list' identity.handle 'mutuals' %}"
              {% if list_type == 'mutuals' %}aria-current="page"{% endif %}>{% trans "Mutuals" %}</a>
         </nav>
-        <div style="display:grid;
-                    grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
-                    gap:0.5rem;
-                    align-items:start">{% include "user_follow_list_items.html" %}</div>
+        <div style="column-width:240px; column-gap:0.5rem;">{% include "user_follow_list_items.html" %}</div>
       </div>
       {% include "_sidebar.html" with show_profile=1 %}
     </main>

@@ -3,11 +3,12 @@
 {% load mastodon %}
 {% load thumb %}
 {% for person in identities %}
-  <article style="padding:0.75rem; margin:0;">
+  <article style="padding:0.75rem; margin:0 0 0.5rem; break-inside:avoid;">
     <div style="display:grid;
                 grid-template-columns:auto 1fr;
                 gap:0.5rem;
-                align-items:center">
+                align-items:center;
+                width:100%">
       <div class="avatar">
         <a href="{{ person.url }}">
           <img src="{{ person.avatar|relative_uri }}"
@@ -26,31 +27,38 @@
         </div>
       </div>
       {% if person.safe_metadata %}
-        <dl>
+        <dl style="grid-column:1/-1;
+                   margin:0.25rem 0 0;
+                   display:flex;
+                   flex-wrap:wrap;
+                   gap:0.25rem 1rem">
           {% for entry in person.safe_metadata %}
-            <dt>{{ entry.name }}</dt>
-            <dd>
-              {{ entry.value }}
-            </dd>
+            <div style="display:flex; gap:0.25rem; align-items:baseline;">
+              <dt>
+                <small class="muted">{{ entry.name }}</small>
+              </dt>
+              <dd style="margin:0;">
+                <small>{{ entry.value }}</small>
+              </dd>
+            </div>
           {% endfor %}
         </dl>
       {% endif %}
-      <div>{{ person.safe_summary|safe }}</div>
+      {% if person.safe_summary %}
+        <div style="grid-column:1/-1; margin-top:0.25rem;">{{ person.safe_summary|safe }}</div>
+      {% endif %}
     </div>
-    <span class="action" style="margin-top:0.25rem; display:block;">
-      {% include 'users/profile_actions.html' with identity=person %}
-    </span>
   </article>
 {% endfor %}
 {% if next_cursor %}
-  <div style="grid-column:1/-1"
+  <div style="column-span:all"
        hx-get="{% url 'journal:user_follow_list' user_name list_type %}?last={{ next_cursor }}"
        hx-trigger="revealed"
        hx-swap="outerHTML">
     <i class="fa-solid fa-compact-disc fa-spin loading"></i>
   </div>
 {% elif not identities %}
-  <p class="empty" style="grid-column:1/-1;">
+  <p class="empty" style="column-span:all;">
     {% if request.GET.last %}
       {% trans "nothing more." %}
     {% else %}

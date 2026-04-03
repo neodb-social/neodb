@@ -355,7 +355,7 @@ def profile_liked_collections(request: AuthedHttpRequest, user_name):
     )
 
 
-_FOLLOW_LIST_PAGE_SIZE = 60
+_FOLLOW_LIST_PAGE_SIZE = 20
 
 
 @require_http_methods(["GET", "HEAD"])
