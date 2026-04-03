@@ -6,11 +6,15 @@ from catalog.models import Item
 from common.api import (
     INVALID_PAGE,
     NOT_FOUND,
+    OAuthAccessTokenAuth,
     OptionalOAuthAccessTokenAuth,
     Result,
     api,
 )
 from journal.search import JournalIndex, JournalQueryParser
+
+TIMELINE_LINK_MAX_LIMIT = 40
+TIMELINE_LINK_DEFAULT_LIMIT = 20
 
 
 class CustomEmoji(Schema):
@@ -165,3 +169,39 @@ def list_posts_for_item(
         "count": r.total,
     }
     return result
+
+
+@api.get(
+    "/v1/timelines/link",
+    response={200: list[Post]},
+    tags=["mastodon"],
+    auth=OAuthAccessTokenAuth(),
+)
+def timeline_link(
+    request,
+    url: str,
+    limit: int = TIMELINE_LINK_DEFAULT_LIMIT,
+) -> list[Post]:
+    """
+    Get statuses that contain a link to the given URL (Mastodon-compatible endpoint).
+
+    Returns posts visible to the requesting user that are about the catalog item
+    identified by `url`, which may be a NeoDB item URL or an external resource
+    URL (e.g. a Douban or Goodreads page).
+    """
+    if limit < 1 or limit > TIMELINE_LINK_MAX_LIMIT:
+        limit = TIMELINE_LINK_DEFAULT_LIMIT
+    item = Item.get_by_remote_url(url)
+    if not item:
+        return []
+    query = JournalQueryParser("", page_size=limit)
+    query.filter_by_viewer(request.user.identity)
+    query.filter("item_id", item.pk)
+    query.sort(["created:desc"])
+    r = JournalIndex.instance().search(query)
+    return [
+        p.to_mastodon_json()
+        for p in r.posts.prefetch_related("attachments", "author").select_related(
+            "application"
+        )
+    ]
